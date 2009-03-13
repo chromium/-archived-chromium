@@ -68,7 +68,8 @@ void URLRequestMockHTTPJob::GetResponseInfo(net::HttpResponseInfo* info) {
 }
 
 // Private const version.
-void URLRequestMockHTTPJob::GetResponseInfoConst(net::HttpResponseInfo* info) const {
+void URLRequestMockHTTPJob::GetResponseInfoConst(
+    net::HttpResponseInfo* info) const {
   std::wstring header_file = file_path_.ToWStringHack() + kMockHeaderFileSuffix;
   std::string raw_headers;
   if (!file_util::ReadFileToString(header_file, &raw_headers))

@@ -26,7 +26,7 @@ class MockFilterContext : public FilterContext {
   void SetRequestTime(const base::Time time) { request_time_ = time; }
   void SetCached(bool is_cached) { is_cached_content_ = is_cached; }
   void SetSdchResponse(bool is_sdch_response) {
-    is_sdch_response = is_sdch_response;
+    is_sdch_response_ = is_sdch_response;
   }
 
   virtual bool GetMimeType(std::string* mime_type) const {
@@ -52,8 +52,11 @@ class MockFilterContext : public FilterContext {
   // Was this data flagged as a response to a request with an SDCH dictionary?
   virtual bool IsSdchResponse() const { return is_sdch_response_; }
 
+  // How many bytes were fed to filter(s) so far?
+  virtual int64 GetByteReadCount() const { return 0; }
+
   // What is the desirable input buffer size for these filters?
-  virtual int GetInputStreambufferSize() const { return buffer_size_; }
+  virtual int GetInputStreamBufferSize() const { return buffer_size_; }
 
 
  private:

@@ -195,10 +195,11 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // FilterContext methods:
   // These methods are not applicable to all connections.
   virtual bool GetMimeType(std::string* mime_type) const { return false; }
+  virtual int64 GetByteReadCount() const;
   virtual bool GetURL(GURL* gurl) const;
   virtual base::Time GetRequestTime() const;
   virtual bool IsCachedContent() const;
-  virtual int GetInputStreambufferSize() const { return kFilterBufSize; }
+  virtual int GetInputStreamBufferSize() const { return kFilterBufSize; }
 
  protected:
   // Notifies the job that headers have been received.
@@ -314,6 +315,11 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
 
   // Expected content size
   int64 expected_content_size_;
+
+  // Total number of bytes read from network (or cache) and and typically handed
+  // to filter to process.  Used to histogram compression ratios, and error
+  // recovery scenarios in filters.
+  int64 filter_input_byte_count_;
 
   DISALLOW_COPY_AND_ASSIGN(URLRequestJob);
 };

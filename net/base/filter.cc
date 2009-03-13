@@ -38,8 +38,8 @@ const char kTextHtml[]             = "text/html";
 
 Filter* Filter::Factory(const std::vector<FilterType>& filter_types,
                         const FilterContext& filter_context) {
-  DCHECK(filter_context.GetInputStreambufferSize() > 0);
-  if (filter_types.empty() || filter_context.GetInputStreambufferSize() <= 0)
+  DCHECK(filter_context.GetInputStreamBufferSize() > 0);
+  if (filter_types.empty() || filter_context.GetInputStreamBufferSize() <= 0)
     return NULL;
 
 
@@ -50,24 +50,6 @@ Filter* Filter::Factory(const std::vector<FilterType>& filter_types,
     if (!filter_list)
       return NULL;
   }
-
-  // TODO(jar): These settings should go into the derived classes, on an as-needed basis.
-  std::string mime_type;
-  bool success = filter_context.GetMimeType(&mime_type);
-  DCHECK(success);
-  GURL gurl;
-  success = filter_context.GetURL(&gurl);
-  DCHECK(success);
-  base::Time request_time = filter_context.GetRequestTime();
-  bool is_cached_content = filter_context.IsCachedContent();
-
-  filter_list->SetMimeType(mime_type);
-  filter_list->SetURL(gurl);
-  // Approximate connect time with request_time. If it is not cached, then
-  // this is a good approximation for when the first bytes went on the
-  // wire.
-  filter_list->SetConnectTime(request_time, is_cached_content);
-
   return filter_list;
 }
 
@@ -95,9 +77,11 @@ Filter::FilterType Filter::ConvertEncodingToType(
 
 // static
 void Filter::FixupEncodingTypes(
-    bool is_sdch_response,
-    const std::string& mime_type,
+    const FilterContext& filter_context,
     std::vector<FilterType>* encoding_types) {
+  std::string mime_type;
+  bool success = filter_context.GetMimeType(&mime_type);
+  DCHECK(success);
 
   if ((1 == encoding_types->size()) &&
       (FILTER_TYPE_GZIP == encoding_types->front())) {
@@ -111,7 +95,7 @@ void Filter::FixupEncodingTypes(
       encoding_types->clear();
   }
 
-  if (!is_sdch_response) {
+  if (!filter_context.IsSdchResponse()) {
     if (1 < encoding_types->size()) {
       // Multiple filters were intended to only be used for SDCH (thus far!)
       SdchManager::SdchErrorRecovery(
@@ -249,10 +233,6 @@ Filter::Filter(const FilterContext& filter_context)
       stream_buffer_size_(0),
       next_stream_data_(NULL),
       stream_data_len_(0),
-      url_(),
-      connect_time_(),
-      was_cached_(false),
-      mime_type_(),
       next_filter_(NULL),
       last_status_(FILTER_NEED_MORE_DATA),
       filter_context_(filter_context) {
@@ -261,7 +241,7 @@ Filter::Filter(const FilterContext& filter_context)
 Filter::~Filter() {}
 
 bool Filter::InitBuffer() {
-  int buffer_size = filter_context_.GetInputStreambufferSize();
+  int buffer_size = filter_context_.GetInputStreamBufferSize();
   DCHECK(buffer_size > 0);
   if (buffer_size <= 0 || stream_buffer())
     return false;
@@ -364,23 +344,4 @@ bool Filter::FlushStreamBuffer(int stream_data_len) {
   next_stream_data_ = stream_buffer()->data();
   stream_data_len_ = stream_data_len;
   return true;
-}
-
-void Filter::SetURL(const GURL& url) {
-  url_ = url;
-  if (next_filter_.get())
-    next_filter_->SetURL(url);
-}
-
-void Filter::SetMimeType(const std::string& mime_type) {
-  mime_type_ = mime_type;
-  if (next_filter_.get())
-    next_filter_->SetMimeType(mime_type);
-}
-
-void Filter::SetConnectTime(const base::Time& time, bool was_cached) {
-  connect_time_ = time;
-  was_cached_ = was_cached;
-  if (next_filter_.get())
-    next_filter_->SetConnectTime(time, was_cached_);
 }

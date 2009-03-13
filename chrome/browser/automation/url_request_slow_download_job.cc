@@ -138,7 +138,8 @@ void URLRequestSlowDownloadJob::GetResponseInfo(net::HttpResponseInfo* info) {
 }
 
 // Private const version.
-void URLRequestSlowDownloadJob::GetResponseInfoConst(net::HttpResponseInfo* info) const {
+void URLRequestSlowDownloadJob::GetResponseInfoConst(
+    net::HttpResponseInfo* info) const {
   // Send back mock headers.
   std::string raw_headers;
   if (LowerCaseEqualsASCII(kFinishDownloadUrl,

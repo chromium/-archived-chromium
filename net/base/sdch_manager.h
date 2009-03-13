@@ -119,7 +119,7 @@ class SdchManager {
     META_REFRESH_UNSUPPORTED = 74,         // Unrecoverable error.
     CACHED_META_REFRESH_UNSUPPORTED = 75,  // As above, but pulled from cache.
     PASSING_THROUGH_NON_SDCH = 76,  // Non-html tagged as sdch but malformed.
-    INCOMPLETE_SDCH_CONTENT = 77,  // Last window was not completely decoded.
+    INCOMPLETE_SDCH_CONTENT = 77,   // Last window was not completely decoded.
 
 
     // Common decoded recovery methods.
@@ -130,9 +130,13 @@ class SdchManager {
     // (i.e., be able to be sure all dictionary advertisements are accounted
     // for).
 
-    UNFLUSHED_CONTENT = 90,  // Possible error in filter chaining.
+    UNFLUSHED_CONTENT = 90,   // Possible error in filter chaining.
     MISSING_TIME_STATS = 91,  // Should never happen.
-    CACHE_DECODED = 92,  // Hence there are no timing stats recorded.
+    CACHE_DECODED = 92,       // No timing stats recorded.
+    OVER_10_MINUTES = 93,     // No timing stats will be recorded.
+    UNINITIALIZED = 94,       // Filter never even got initialized.
+    PRIOR_TO_DICTIONARY = 95, // We hadn't even parsed a dictionary selector.
+    DECODE_ERROR = 96,        // Something went wrong during decode.
 
     MAX_PROBLEM_CODE  // Used to bound histogram.
   };

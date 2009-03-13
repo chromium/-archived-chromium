@@ -747,11 +747,14 @@ TEST_F(SdchFilterTest, DefaultGzipIfSdch) {
   // System should automatically add the missing (optional) gzip.
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_SDCH);
-  Filter::FixupEncodingTypes(true, "anything/mime", &filter_types);
 
-  // First try with a large buffer (larger than test input, or compressed data).
   const int kInputBufferSize(100);
   MockFilterContext filter_context(kInputBufferSize);
+  filter_context.SetMimeType("anything/mime");
+  filter_context.SetSdchResponse(true);
+  Filter::FixupEncodingTypes(filter_context, &filter_types);
+
+  // First try with a large buffer (larger than test input, or compressed data).
   filter_context.SetURL(url);
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
 

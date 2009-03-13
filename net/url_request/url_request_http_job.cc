@@ -204,10 +204,7 @@ bool URLRequestHttpJob::GetContentEncodings(
   }
 
   if (!encoding_types->empty()) {
-    std::string mime_type;
-    GetMimeType(&mime_type);
-    // TODO(jar): Need to change this call to use the FilterContext interfaces.
-    Filter::FixupEncodingTypes(IsSdchResponse(), mime_type, encoding_types);
+    Filter::FixupEncodingTypes(*this, encoding_types);
   }
   return !encoding_types->empty();
 }

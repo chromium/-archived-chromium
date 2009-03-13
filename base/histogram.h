@@ -59,6 +59,11 @@
     counter.Add(sample); \
   } while (0)
 
+#define HISTOGRAM_PERCENTAGE(name, under_one_hundred) do { \
+    static LinearHistogram counter((name), 1, 100, 101); \
+    counter.Add(under_one_hundred); \
+  } while (0)
+
 // For folks that need real specific times, use this, but you'll only get
 // samples that are in the range (overly large samples are discarded).
 #define HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) do { \
@@ -97,6 +102,8 @@
 #define DHISTOGRAM_COUNTS(name, sample) HISTOGRAM_COUNTS(name, sample)
 #define DASSET_HISTOGRAM_COUNTS(name, sample) ASSET_HISTOGRAM_COUNTS(name, \
                                                                      sample)
+#define DHISTOGRAM_PERCENTAGE(name, under_one_hundred) HISTOGRAM_PERCENTAGE(\
+    name, under_one_hundred)
 #define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
     HISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count)
 
@@ -105,6 +112,7 @@
 #define DHISTOGRAM_TIMES(name, sample) do {} while (0)
 #define DHISTOGRAM_COUNTS(name, sample) do {} while (0)
 #define DASSET_HISTOGRAM_COUNTS(name, sample) do {} while (0)
+#define DHISTOGRAM_PERCENTAGE(name, under_one_hundred) do {} while (0)
 #define DHISTOGRAM_CLIPPED_TIMES(name, sample, min, max, bucket_count) \
     do {} while (0)
 
@@ -173,6 +181,12 @@ static const int kRendererHistogramFlag = 1 << 4;
     static Histogram counter((name), 1, 1000, 50); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.Add(sample); \
+  } while (0)
+
+#define UMA_HISTOGRAM_PERCENTAGE(name, under_one_hundred) do { \
+    static LinearHistogram counter((name), 1, 100, 101); \
+    counter.SetFlags(kUmaTargetedHistogramFlag); \
+    counter.Add(under_one_hundred); \
   } while (0)
 
 //------------------------------------------------------------------------------

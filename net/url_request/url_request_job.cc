@@ -28,7 +28,8 @@ URLRequestJob::URLRequestJob(URLRequest* request)
       read_buffer_(NULL),
       read_buffer_len_(0),
       has_handled_response_(false),
-      expected_content_size_(-1) {
+      expected_content_size_(-1),
+      filter_input_byte_count_(0) {
   is_profiling_ = request->enable_profiling();
   if (is_profiling()) {
     metrics_.reset(new URLRequestJobMetrics());
@@ -84,6 +85,10 @@ void URLRequestJob::ContinueDespiteLastError() {
   // If this code was reached, we are trying to recover from an error that
   // we don't know how to recover from.
   NOTREACHED();
+}
+
+int64 URLRequestJob::GetByteReadCount() const {
+  return filter_input_byte_count_ ;
 }
 
 bool URLRequestJob::GetURL(GURL* gurl) const {
@@ -505,6 +510,7 @@ void URLRequestJob::RecordBytesRead(int bytes_read) {
     ++(metrics_->number_of_read_IO_);
     metrics_->total_bytes_read_ += bytes_read;
   }
+  filter_input_byte_count_ += bytes_read;
   g_url_request_job_tracker.OnBytesRead(this, bytes_read);
 }
 

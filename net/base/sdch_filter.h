@@ -84,9 +84,10 @@ class SdchFilter : public Filter {
   // attempted.
   bool dictionary_hash_is_plausible_;
 
-  // We hold an in-memory copy of the dictionary during the entire decoding.
-  // The char* data is embedded in a RefCounted dictionary_.
-  SdchManager::Dictionary* dictionary_;
+  // We hold an in-memory copy of the dictionary during the entire decoding, as
+  // it is used directly by the VC-DIFF decoding system.
+  // That char* data is part of the dictionary_ we hold a reference to.
+  scoped_refptr<SdchManager::Dictionary> dictionary_;
 
   // The decoder may demand a larger output buffer than the target of
   // ReadFilteredData so we buffer the excess output between calls.
@@ -108,6 +109,21 @@ class SdchFilter : public Filter {
   // we should gracefully perform pass through if the format is incorrect, or
   // an applicable dictionary can't be found.
   bool possible_pass_through_;
+
+  // The URL that is currently being filtered.
+  // This is used to restrict use of a dictionary to a specific URL or path.
+  GURL url_;
+
+  // To facilitate histogramming by individual filters, we store the connect
+  // time for the corresponding HTTP transaction, as well as whether this time
+  // was recalled from a cached entry.  The time is approximate, and may be
+  // bogus if the data was gotten from cache (i.e., it may be LOOOONG ago).
+  const base::Time connect_time_;
+  const bool was_cached_;
+
+  // To facilitate error recovery, allow filter to know if content is text/html
+  // by checking within this mime type (we may do a meta-refresh via html).
+  std::string mime_type_;
 
   DISALLOW_COPY_AND_ASSIGN(SdchFilter);
 };
