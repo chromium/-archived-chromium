@@ -89,8 +89,7 @@ gfx::NativeView WebContentsViewGtk::GetContentNativeView() const {
 }
 
 gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeView() const {
-  NOTIMPLEMENTED();
-  return NULL;
+  return GTK_WINDOW(gtk_widget_get_toplevel(vbox_));
 }
 
 void WebContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
