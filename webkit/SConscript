@@ -123,6 +123,7 @@ env.Prepend(
 
         '$WEBKIT_DIR/pending',
         '$WEBKIT_DIR_PORT_INC/bindings/v8',
+        '$WEBKIT_DIR_PORT_INC/bindings/v8/custom',
         '$WEBKIT_DIR_PORT_INC/platform',
         '$WEBKIT_DIR_PORT_INC/platform/$WEBKIT_PLATFORM_SUBDIR',
 

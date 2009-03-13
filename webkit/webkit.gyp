@@ -28,6 +28,7 @@
     'webcore_include_dirs': [
       'pending',
       '../third_party/WebKit/WebCore/bindings/v8',
+      '../third_party/WebKit/WebCore/bindings/v8/custom',
       '../third_party/WebKit/WebCore/css',
       '../third_party/WebKit/WebCore/dom',
       '../third_party/WebKit/WebCore/editing',
@@ -77,6 +78,8 @@
       }],
       ['OS=="mac"', {
         'non_feature_defines': [
+          # Ensure that only Leopard features are used when doing the Mac build.
+          'BUILDING_ON_LEOPARD',
           # Match Safari and Mozilla on Mac x86.
           'WEBCORE_NAVIGATOR_PLATFORM="MacIntel"',
         ],
@@ -959,10 +962,13 @@
         'port/bindings/v8/UndetectableHTMLCollection.idl',
 
         # V8 bindings not generated from .idl source.
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8AbstractEventListener.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8AbstractEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CSSStyleDeclarationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomBinding.h',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomEventListener.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomSQLStatementCallback.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomSQLStatementCallback.h',
@@ -990,6 +996,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLPlugInElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLSelectElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLSelectElementCustom.h',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8LazyEventListener.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8LazyEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8LocationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8MessageChannelConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodeMapCustom.cpp',
@@ -1000,6 +1008,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeFilterCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeIteratorCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NodeListCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8ObjectEventListener.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8ObjectEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8SQLResultSetRowListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8SQLTransactionCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8SVGElementInstanceCustom.cpp',
@@ -1008,6 +1018,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8StyleSheetListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8TreeWalkerCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8WebKitCSSMatrixConstructor.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8WorkerContextEventListener.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8WorkerContextEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XMLSerializerConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XPathEvaluatorConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8XSLTProcessorCustom.cpp',
@@ -1066,8 +1078,6 @@
         'port/bindings/v8/v8_collection.h',
         'port/bindings/v8/v8_custom.cpp',
         'port/bindings/v8/v8_custom.h',
-        'port/bindings/v8/v8_events.cpp',
-        'port/bindings/v8/v8_events.h',
         'port/bindings/v8/v8_helpers.cpp',
         'port/bindings/v8/v8_helpers.h',
         'port/bindings/v8/v8_index.cpp',

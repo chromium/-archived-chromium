@@ -31,7 +31,6 @@
 
 #include "v8_binding.h"
 #include "v8_custom.h"
-#include "v8_events.h"
 #include "v8_proxy.h"
 
 #include "CanvasPixelArray.h"

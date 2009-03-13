@@ -31,11 +31,11 @@
 
 #include "v8_binding.h"
 #include "v8_custom.h"
-#include "v8_events.h"
 #include "v8_proxy.h"
 
 #include "V8Document.h"
 #include "V8HTMLDocument.h"
+#include "V8ObjectEventListener.h"
 
 #include "ExceptionCode.h"
 #include "Frame.h"
@@ -111,7 +111,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnabort) {
   if (imp->onabort()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onabort());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -125,7 +125,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnabort) {
     if (imp->onabort()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onabort());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -152,7 +152,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnerror) {
   if (imp->onerror()) {
     RefPtr<V8ObjectEventListener> listener =
         static_cast<V8ObjectEventListener*>(imp->onerror());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -166,7 +166,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnerror) {
     if (imp->onerror()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onerror());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -193,7 +193,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnload) {
   if (imp->onload()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onload());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -207,7 +207,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnload)
   if (value->IsNull()) {
     if (imp->onload()) {
       V8ObjectEventListener* listener = static_cast<V8ObjectEventListener*>(imp->onload());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -234,7 +234,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnloadstart) {
   if (imp->onloadstart()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onloadstart());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -248,7 +248,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnloadstart) {
     if (imp->onloadstart()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onloadstart());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -275,7 +275,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnprogress) {
   if (imp->onprogress()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onprogress());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -289,7 +289,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnprogress) {
     if (imp->onprogress()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onprogress());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -316,7 +316,7 @@ ACCESSOR_GETTER(XMLHttpRequestOnreadystatechange) {
   if (imp->onreadystatechange()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onreadystatechange());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -331,7 +331,7 @@ ACCESSOR_SETTER(XMLHttpRequestOnreadystatechange)
     if (imp->onreadystatechange()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onreadystatechange());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -558,7 +558,7 @@ ACCESSOR_GETTER(XMLHttpRequestUploadOnabort) {
   if (imp->onabort()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onabort());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -572,7 +572,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnabort) {
     if (imp->onabort()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onabort());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -601,7 +601,7 @@ ACCESSOR_GETTER(XMLHttpRequestUploadOnerror) {
   if (imp->onerror()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onerror());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -615,7 +615,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnerror) {
     if (imp->onerror()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onerror());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -643,7 +643,7 @@ ACCESSOR_GETTER(XMLHttpRequestUploadOnload) {
   if (imp->onload()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onload());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -657,7 +657,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnload) {
     if (imp->onload()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onload());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -685,7 +685,7 @@ ACCESSOR_GETTER(XMLHttpRequestUploadOnloadstart) {
   if (imp->onloadstart()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onloadstart());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -699,7 +699,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnloadstart) {
     if (imp->onloadstart()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onloadstart());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 
@@ -727,7 +727,7 @@ ACCESSOR_GETTER(XMLHttpRequestUploadOnprogress) {
   if (imp->onprogress()) {
     V8ObjectEventListener* listener =
         static_cast<V8ObjectEventListener*>(imp->onprogress());
-    v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+    v8::Local<v8::Object> v8_listener = listener->getListenerObject();
     return v8_listener;
   }
   return v8::Undefined();
@@ -741,7 +741,7 @@ ACCESSOR_SETTER(XMLHttpRequestUploadOnprogress) {
     if (imp->onprogress()) {
       V8ObjectEventListener* listener =
           static_cast<V8ObjectEventListener*>(imp->onprogress());
-      v8::Local<v8::Object> v8_listener = listener->GetListenerObject();
+      v8::Local<v8::Object> v8_listener = listener->getListenerObject();
       RemoveHiddenXHRDependency(info.Holder(), v8_listener);
     }
 

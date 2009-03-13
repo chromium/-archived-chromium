@@ -38,12 +38,10 @@
 #include "v8_proxy.h"
 #include "dom_wrapper_map.h"
 #include "v8_index.h"
-#include "v8_events.h"
 #include "v8_binding.h"
 #include "v8_custom.h"
 #include "v8_collection.h"
 #include "v8_nodefilter.h"
-#include "V8DOMWindow.h"
 
 #include "ChromiumBridge.h"
 
@@ -138,15 +136,13 @@
 #include "TextMetrics.h"
 #include "TimeRanges.h"
 #include "TreeWalker.h"
-#include "XMLHttpRequest.h"
-#include "XMLHttpRequestUpload.h"
-#include "XMLHttpRequestException.h"
-#include "XMLSerializer.h"
-#include "XPathException.h"
-#include "XPathExpression.h"
-#include "XPathNSResolver.h"
-#include "XPathResult.h"
 #include "XSLTProcessor.h"
+#include "V8AbstractEventListener.h"
+#include "V8CustomEventListener.h"
+#include "V8DOMWindow.h"
+#include "V8HTMLElement.h"
+#include "V8LazyEventListener.h"
+#include "V8ObjectEventListener.h"
 #include "WebKitAnimationEvent.h"
 #include "WebKitCSSKeyframeRule.h"
 #include "WebKitCSSKeyframesRule.h"
@@ -155,10 +151,16 @@
 #include "WebKitPoint.h"
 #include "WebKitTransitionEvent.h"
 #include "WheelEvent.h"
+#include "XMLHttpRequest.h"
+#include "XMLHttpRequestException.h"
 #include "XMLHttpRequestProgressEvent.h"
+#include "XMLHttpRequestUpload.h"
+#include "XMLSerializer.h"
+#include "XPathException.h"
+#include "XPathExpression.h"
+#include "XPathNSResolver.h"
+#include "XPathResult.h"
 
-#include "V8DOMWindow.h"
-#include "V8HTMLElement.h"
 
 #include "ScriptController.h"
 
@@ -1181,7 +1183,7 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
   V8EventListenerList::iterator p = list.begin();
   while (p != list.end()) {
     V8EventListener* el = *p;
-    v8::Local<v8::Object> wrapper = el->GetListenerObject();
+    v8::Local<v8::Object> wrapper = el->getListenerObject();
     ASSERT(!wrapper.IsEmpty());
     // Since the listener is an object, it is safe to compare for
     // strict equality (in the JS sense) by doing a simple equality
@@ -3256,7 +3258,7 @@ v8::Handle<v8::Value> V8Proxy::EventListenerToV8Object(
   // TODO(fqian): can a user take a lazy event listener and set to other places?
   V8AbstractEventListener* v8listener =
       static_cast<V8AbstractEventListener*>(listener);
-  return v8listener->GetListenerObject();
+  return v8listener->getListenerObject();
 }
 
 

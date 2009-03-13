@@ -32,11 +32,11 @@
 
 #include "v8_binding.h"
 #include "v8_custom.h"
-#include "v8_events.h"
 #include "v8_proxy.h"
 
 #include "V8Document.h"
 #include "V8HTMLDocument.h"
+#include "V8ObjectEventListener.h"
 
 #include "ExceptionCode.h"
 #include "MessagePort.h"
@@ -88,7 +88,7 @@ ACCESSOR_GETTER(MessagePortOnmessage)
     if (messagePort->onmessage()) {
         V8ObjectEventListener* listener =
             static_cast<V8ObjectEventListener*>(messagePort->onmessage());
-        v8::Local<v8::Object> v8Listener = listener->GetListenerObject();
+        v8::Local<v8::Object> v8Listener = listener->getListenerObject();
         return v8Listener;
     }
     return v8::Undefined();
@@ -103,7 +103,7 @@ ACCESSOR_SETTER(MessagePortOnmessage)
         if (messagePort->onmessage()) {
             V8ObjectEventListener* listener =
                 static_cast<V8ObjectEventListener*>(messagePort->onmessage());
-            v8::Local<v8::Object> v8Listener = listener->GetListenerObject();
+            v8::Local<v8::Object> v8Listener = listener->getListenerObject();
             RemoveHiddenDependency(info.Holder(), v8Listener);
         }
 
@@ -132,7 +132,7 @@ ACCESSOR_GETTER(MessagePortOnclose)
     if (messagePort->onclose()) {
         V8ObjectEventListener* listener =
             static_cast<V8ObjectEventListener*>(messagePort->onclose());
-        v8::Local<v8::Object> v8Listener = listener->GetListenerObject();
+        v8::Local<v8::Object> v8Listener = listener->getListenerObject();
         return v8Listener;
     }
     return v8::Undefined();
@@ -147,7 +147,7 @@ ACCESSOR_SETTER(MessagePortOnclose)
         if (messagePort->onclose()) {
             V8ObjectEventListener* listener =
                 static_cast<V8ObjectEventListener*>(messagePort->onclose());
-            v8::Local<v8::Object> v8Listener = listener->GetListenerObject();
+            v8::Local<v8::Object> v8Listener = listener->getListenerObject();
             RemoveHiddenDependency(info.Holder(), v8Listener);
         }
 

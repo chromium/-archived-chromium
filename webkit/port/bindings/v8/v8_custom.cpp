@@ -27,7 +27,6 @@
 #include <wtf/ASCIICType.h>
 
 #include "v8_proxy.h"
-#include "v8_events.h"
 #include "v8_binding.h"
 #include "V8NPObject.h"
 #include "v8_custom.h"
@@ -35,6 +34,7 @@
 #include "V8Attr.h"
 #include "V8CanvasGradient.h"
 #include "V8CanvasPattern.h"
+#include "V8CustomEventListener.h"
 #include "V8Document.h"
 #include "V8DOMWindow.h"
 #include "V8HTMLCanvasElement.h"
