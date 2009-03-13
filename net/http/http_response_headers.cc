@@ -931,8 +931,10 @@ bool HttpResponseHeaders::IsKeepAlive() const {
   // meaningful when we don't know that this response was from a proxy, but
   // Mozilla also does this, so we'll do the same.
   std::string connection_val;
-  if (!EnumerateHeader(NULL, "connection", &connection_val))
-    EnumerateHeader(NULL, "proxy-connection", &connection_val);
+  // TODO(wtc): A temporary change to look for "proxy-connection" before
+  // "connection" for debugging http://crbug.com/8325.
+  if (!EnumerateHeader(NULL, "proxy-connection", &connection_val))
+    EnumerateHeader(NULL, "connection", &connection_val);
 
   bool keep_alive;
 
