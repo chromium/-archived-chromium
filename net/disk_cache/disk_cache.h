@@ -160,9 +160,8 @@ class Entry {
   // not base::kInvalidPlatformFileValue), there is no guarantee that the file
   // is truncated. Implementor can always return base::kInvalidPlatformFileValue
   // if external file is not available in that particular implementation.
-  // Caller should never close the file handle returned by this method, since
-  // the handle should be managed by the implementor of this class. Caller
-  // should never save the handle for future use.
+  // The caller should close the file handle returned by this method or there
+  // will be a leak.
   // With a stream prepared as an external file, the stream would always be
   // kept in an external file since creation, even if the stream has 0 bytes.
   // So we need to be cautious about using this option for preparing a stream or
@@ -171,10 +170,10 @@ class Entry {
   // directly *without* buffering.
   virtual base::PlatformFile UseExternalFile(int index) = 0;
 
-  // Returns a read file handle for the cache stream referenced by |index|.
-  // Caller should never close the handle returned by this method and should
-  // not save it for future use. The lifetime of the base::PlatformFile handle
-  // is managed by the implementor of this class.
+  // Returns an asynchronous read file handle for the cache stream referenced by
+  // |index|. Values other than base::kInvalidPlatformFileValue are successful
+  // and the file handle should be managed by the caller, i.e. caller should
+  // close the handle after use or there will be a leak.
   virtual base::PlatformFile GetPlatformFile(int index) = 0;
 
  protected:

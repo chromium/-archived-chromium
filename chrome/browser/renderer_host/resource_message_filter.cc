@@ -32,6 +32,7 @@
 #include "chrome/common/render_messages.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/mime_util.h"
+#include "net/base/load_flags.h"
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
@@ -114,11 +115,14 @@ ResourceMessageFilter::ResourceMessageFilter(
       ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
       render_handle_(NULL),
       request_context_(profile->GetRequestContext()),
+      media_request_context_(profile->GetRequestContextForMedia()),
       profile_(profile),
       render_widget_helper_(render_widget_helper),
       audio_renderer_host_(audio_renderer_host) {
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
+  DCHECK(media_request_context_.get());
+  DCHECK(media_request_context_->cookie_store());
   DCHECK(audio_renderer_host_.get());
 }
 
@@ -188,6 +192,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_CancelRequest, OnCancelRequest)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ClosePage_ACK, OnClosePageACK)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DataReceived_ACK, OnDataReceivedACK)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadProgress_ACK, OnDownloadProgressACK)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UploadProgress_ACK, OnUploadProgressACK)
 
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncLoad, OnSyncLoad)
@@ -333,6 +338,16 @@ void ResourceMessageFilter::OnRequestResource(
     const IPC::Message& message,
     int request_id,
     const ViewHostMsg_Resource_Request& request) {
+  URLRequestContext* request_context = request_context_;
+  // If the request has resource type of ResourceType::MEDIA and
+  // LOAD_ENABLE_DOWNLOAD_FILE is set as a load flag, we use a request context
+  // specific to media for handling it because these resources have specific
+  // needs for caching and data passing.
+  if (request.resource_type == ResourceType::MEDIA &&
+      (request.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
+    request_context = media_request_context_;
+  }
+
   resource_dispatcher_host_->BeginRequest(this,
                                           ChildProcessInfo::RENDER_PROCESS,
                                           render_handle_,
@@ -340,12 +355,17 @@ void ResourceMessageFilter::OnRequestResource(
                                           message.routing_id(),
                                           request_id,
                                           request,
-                                          request_context_,
+                                          request_context,
                                           NULL);
 }
 
 void ResourceMessageFilter::OnDataReceivedACK(int request_id) {
   resource_dispatcher_host_->OnDataReceivedACK(render_process_id_, request_id);
+}
+
+void ResourceMessageFilter::OnDownloadProgressACK(int request_id) {
+  resource_dispatcher_host_->OnDownloadProgressACK(render_process_id_,
+                                                   request_id);
 }
 
 void ResourceMessageFilter::OnUploadProgressACK(int request_id) {

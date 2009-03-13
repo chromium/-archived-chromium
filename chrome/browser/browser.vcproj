@@ -2022,6 +2022,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\media_resource_handler.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\media_resource_handler.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\render_process_host.cc"
 				>
 			</File>

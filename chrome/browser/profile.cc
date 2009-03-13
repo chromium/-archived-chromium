@@ -99,6 +99,7 @@ class OffTheRecordProfileImpl : public Profile,
  public:
   explicit OffTheRecordProfileImpl(Profile* real_profile)
       : profile_(real_profile),
+        media_request_context_(NULL),
         start_time_(Time::Now()) {
     request_context_ = ChromeURLRequestContext::CreateOffTheRecord(this);
     request_context_->AddRef();
@@ -352,6 +353,7 @@ ProfileImpl::ProfileImpl(const FilePath& path)
       personalization_(NULL),
 #endif
       request_context_(NULL),
+      media_request_context_(NULL),
       history_service_created_(false),
       created_web_data_service_(false),
       created_download_manager_(false),

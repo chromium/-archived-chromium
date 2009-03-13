@@ -379,11 +379,11 @@ base::PlatformFile EntryImpl::GetPlatformFile(int index) {
   if (!address.is_initialized() || !address.is_separate_file())
     return base::kInvalidPlatformFileValue;
 
-  File* cache_file = GetExternalFile(address, index);
-  if (!cache_file)
-    return base::kInvalidPlatformFileValue;
-
-  return cache_file->platform_file();
+  return base::CreatePlatformFile(backend_->GetFileName(address),
+                                  base::PLATFORM_FILE_OPEN |
+                                      base::PLATFORM_FILE_READ |
+                                      base::PLATFORM_FILE_ASYNC,
+                                  NULL);
 }
 
 uint32 EntryImpl::GetHash() {

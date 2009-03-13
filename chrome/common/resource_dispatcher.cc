@@ -275,6 +275,13 @@ bool ResourceDispatcher::OnMessageReceived(const IPC::Message& message) {
   return true;
 }
 
+void ResourceDispatcher::OnDownloadProgress(
+    int request_id, int64 position, int64 size) {
+  // TODO(hclam): delegate this message to
+  // ResourceLoaderBridge::Peer::OnDownloadProgress and send an ACK message
+  // back to ResourceDispatcherHost.
+}
+
 void ResourceDispatcher::OnUploadProgress(
     const IPC::Message& message, int request_id, int64 position, int64 size) {
   PendingRequestList::iterator it = pending_requests_.find(request_id);
@@ -453,6 +460,7 @@ void ResourceDispatcher::SetDefersLoading(int request_id, bool value) {
 void ResourceDispatcher::DispatchMessage(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(ResourceDispatcher, message)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_UploadProgress, OnUploadProgress)
+    IPC_MESSAGE_HANDLER(ViewMsg_Resource_DownloadProgress, OnDownloadProgress)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_ReceivedResponse, OnReceivedResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_ReceivedRedirect, OnReceivedRedirect)
     IPC_MESSAGE_HANDLER(ViewMsg_Resource_DataReceived, OnReceivedData)
@@ -502,6 +510,7 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
 
 bool ResourceDispatcher::IsResourceMessage(const IPC::Message& message) const {
   switch (message.type()) {
+    case ViewMsg_Resource_DownloadProgress::ID:
     case ViewMsg_Resource_UploadProgress::ID:
     case ViewMsg_Resource_ReceivedResponse::ID:
     case ViewMsg_Resource_ReceivedRedirect::ID:

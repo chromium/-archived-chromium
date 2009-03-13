@@ -7,6 +7,11 @@
 #include <algorithm>
 
 #include "base/compiler_specific.h"
+
+#if defined(OS_POSIX)
+#include <unistd.h>
+#endif
+
 #include "base/message_loop.h"
 #include "base/pickle.h"
 #include "base/ref_counted.h"
@@ -607,6 +612,15 @@ void HttpCache::Transaction::SetRequest(const HttpRequestInfo* request) {
   if (cache_->mode() == RECORD)
     effective_load_flags_ |= LOAD_BYPASS_CACHE;
 
+  // If HttpCache has type MEDIA make sure LOAD_ENABLE_DOWNLOAD_FILE is set,
+  // otherwise make sure LOAD_ENABLE_DOWNLOAD_FILE is not set when HttpCache
+  // has type other than MEDIA.
+  if (cache_->type() == HttpCache::MEDIA) {
+    DCHECK(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE);
+  } else {
+    DCHECK(!(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE));
+  }
+
   // Some headers imply load flags.  The order here is significant.
   //
   //   LOAD_DISABLE_CACHE   : no cache read or write
@@ -796,9 +810,10 @@ int HttpCache::Transaction::ReadResponseInfoFromEntry() {
 
   // If the cache object is used for media file, we want the file handle of
   // response data.
-  if (cache_->type() == HttpCache::MEDIA)
+  if (cache_->type() == HttpCache::MEDIA) {
     response_.response_data_file =
         entry_->disk_entry->GetPlatformFile(kResponseContentIndex);
+  }
 
   return OK;
 }
@@ -869,9 +884,10 @@ void HttpCache::Transaction::TruncateResponseData() {
   // if we get a valid response from server, i.e. 200. We don't want empty
   // cache files for redirection or external files for erroneous requests.
   response_.response_data_file = base::kInvalidPlatformFileValue;
-  if (cache_->type() == HttpCache::MEDIA)
+  if (cache_->type() == HttpCache::MEDIA) {
     response_.response_data_file =
         entry_->disk_entry->UseExternalFile(kResponseContentIndex);
+  }
 
   // Truncate the stream.
   WriteToEntry(kResponseContentIndex, 0, NULL, 0);

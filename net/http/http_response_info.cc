@@ -3,12 +3,12 @@
 // found in the LICENSE file.
 
 #include "net/http/http_response_info.h"
-
 #include "net/http/http_response_headers.h"
 
 namespace net {
 
-HttpResponseInfo::HttpResponseInfo() {
+HttpResponseInfo::HttpResponseInfo()
+    : response_data_file(base::kInvalidPlatformFileValue) {
 }
 
 HttpResponseInfo::~HttpResponseInfo() {

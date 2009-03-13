@@ -22,6 +22,7 @@
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
 #include "chrome/browser/renderer_host/download_resource_handler.h"
+#include "chrome/browser/renderer_host/media_resource_handler.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_request_details.h"
@@ -248,6 +249,17 @@ void ResourceDispatcherHost::BeginRequest(
                                        process_handle,
                                        request_data.url,
                                        this);
+    // If the resource type is ResourceType::MEDIA and LOAD_ENABLE_DOWNLOAD_FILE
+    // is enabled we insert a media resource handler.
+    if (request_data.resource_type == ResourceType::MEDIA &&
+        (request_data.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
+      handler = new MediaResourceHandler(handler,
+                                         receiver,
+                                         process_id,
+                                         route_id,
+                                         process_handle,
+                                         this);
+    }
   }
 
   if (HandleExternalProtocol(request_id, process_id, route_id,
@@ -511,6 +523,11 @@ void ResourceDispatcherHost::OnDataReceivedACK(int process_id,
     // Resume the request.
     PauseRequest(process_id, request_id, false);
   }
+}
+
+void ResourceDispatcherHost::OnDownloadProgressACK(int process_id,
+                                                   int request_id) {
+  // TODO(hclam): do something to help rate limiting the message.
 }
 
 void ResourceDispatcherHost::OnUploadProgressACK(int process_id,
@@ -810,6 +827,15 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
   response->response_head.filter_policy = info->filter_policy;
   response->response_head.content_length = request->GetExpectedContentSize();
   request->GetMimeType(&response->response_head.mime_type);
+
+  // Make sure we don't get a file handle if LOAD_ENABLE_FILE is not set.
+  DCHECK((request->load_flags() & net::LOAD_ENABLE_DOWNLOAD_FILE) ||
+         request->response_data_file() == base::kInvalidPlatformFileValue);
+#if defined(OS_POSIX)
+  response->response_head.response_data_file.fd = request->response_data_file();
+#elif defined(OS_WIN)
+  response->response_head.response_data_file = request->response_data_file();
+#endif
 
   if (request->ssl_info().cert) {
     int cert_id =

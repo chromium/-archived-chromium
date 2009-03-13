@@ -839,6 +839,8 @@
         'browser/renderer_host/download_resource_handler.h',
         'browser/renderer_host/download_throttling_resource_handler.cc',
         'browser/renderer_host/download_throttling_resource_handler.h',
+        'browser/renderer_host/media_resource_handler.cc',
+        'browser/renderer_host/media_resource_handler.h',
         'browser/renderer_host/render_process_host.cc',
         'browser/renderer_host/render_process_host.h',
         'browser/renderer_host/render_view_host.cc',

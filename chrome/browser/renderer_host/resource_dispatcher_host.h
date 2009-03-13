@@ -237,6 +237,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // messages sent.
   void OnDataReceivedACK(int process_id, int request_id);
 
+  // Called when the renderer process confirms the reception of a download
+  // progress message.
+  void OnDownloadProgressACK(int process_id, int request_id);
+
   // Resets the waiting_for_upload_progress_ack flag.
   void OnUploadProgressACK(int process_id, int request_id);
 

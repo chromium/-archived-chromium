@@ -101,6 +101,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnCancelRequest(int request_id);
   void OnClosePageACK(int new_render_process_host_id, int new_request_id);
   void OnDataReceivedACK(int request_id);
+  void OnDownloadProgressACK(int request_id);
   void OnUploadProgressACK(int request_id);
   void OnSyncLoad(int request_id,
                   const ViewHostMsg_Resource_Request& request,
@@ -250,6 +251,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // Contextual information to be used for requests created here.
   scoped_refptr<URLRequestContext> request_context_;
+
+  // A request context specific for media resources.
+  scoped_refptr<URLRequestContext> media_request_context_;
 
   // A pointer to the profile associated with this filter.
   //
