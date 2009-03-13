@@ -7,7 +7,6 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
-#include "testing/gtest/include/gtest/gtest_prod.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // WindowSizer

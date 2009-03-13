@@ -9,7 +9,6 @@
 
 #include "base/basictypes.h"
 #include "base/pickle.h"
-#include "testing/gtest/include/gtest/gtest_prod.h"
 
 #ifndef NDEBUG
 #define IPC_MESSAGE_LOG_ENABLED

@@ -25,7 +25,6 @@
 #include <time.h>
 
 #include "base/basictypes.h"
-#include "testing/gtest/include/gtest/gtest_prod.h"
 
 #if defined(OS_WIN)
 // For FILETIME in FromFileTime, until it moves to a new converter class.

@@ -19,6 +19,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/common/notification_observer.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class HistoryDatabase;
 class Profile;
