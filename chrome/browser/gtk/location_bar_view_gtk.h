@@ -33,9 +33,8 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
   void SetProfile(Profile* profile);
 
-  // Return the native vbox widget.  You must call Init() first, or the result
-  // will be NULL.  This is the widget that an embedder should host.
-  GtkWidget* widget() { return vbox_; }
+  // Returns the widget the caller should host.  You must call Init() first.
+  GtkWidget* widget() { return outer_bin_; }
 
   // Updates the location bar.  We also reset the bar's permanent text and
   // security style, and, if |tab_for_state_restoring| is non-NULL, also
@@ -64,7 +63,12 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual void SaveStateToContents(TabContents* contents);
 
  private:
-  GtkWidget* vbox_;
+  // The outermost widget we want to be hosted.
+  GtkWidget* outer_bin_;
+
+  // This is the widget you probably care about, our inner vbox (inside the
+  // the border) which holds the elements inside the location bar.
+  GtkWidget* inner_vbox_;
 
   scoped_ptr<AutocompleteEditViewGtk> location_entry_;
 

@@ -7,6 +7,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -18,9 +19,22 @@
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/window_open_disposition.h"
 
+namespace {
+
+// We are positioned with a little bit of extra space that we don't use now.
+const int kTopPadding = 1;
+const int kBottomPadding = 2;
+
+// TODO(deanm): Eventually this should be painted with the background png
+// image, but for now we get pretty close by just drawing a solid border.
+const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
+
+}  // namespace
+
 LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
                                        ToolbarModel* toolbar_model)
-    : vbox_(NULL),
+    : outer_bin_(NULL),
+      inner_vbox_(NULL),
       profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
@@ -29,9 +43,7 @@ LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
 }
 
 LocationBarViewGtk::~LocationBarViewGtk() {
-  // TODO(deanm): Should I destroy the widgets here, or leave it up to the
-  // embedder?  When the embedder destroys their widget, if we're a child, we
-  // will also get destroyed, so the ownership is kinda unclear.
+  gtk_widget_destroy(outer_bin_);
 }
 
 void LocationBarViewGtk::Init() {
@@ -41,17 +53,24 @@ void LocationBarViewGtk::Init() {
                                                     command_updater_));
   location_entry_->Init();
 
-  vbox_ = gtk_vbox_new(false, 0);
+  inner_vbox_ = gtk_vbox_new(false, 0);
 
-  // Get the location bar to fit nicely in the toolbar, kinda ugly.
-  static const int kTopPadding = 2;
-  static const int kBottomPadding = 3;
-  GtkWidget* alignment = gtk_alignment_new(0, 0, 1, 1);
-  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment),
+  // TODO(deanm): We use a bunch of widgets to get things to layout with a
+  // border, etc.  This should eventually be custom paint using the correct
+  // background image, etc.
+  gtk_box_pack_start(GTK_BOX(inner_vbox_), location_entry_->widget(),
+                     TRUE, TRUE, 0);
+
+  // Use an alignment to position our bordered location entry exactly.
+  outer_bin_ = gtk_alignment_new(0, 0, 1, 1);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(outer_bin_),
                             kTopPadding, kBottomPadding, 0, 0);
-  gtk_container_add(GTK_CONTAINER(alignment), location_entry_->widget());
+  gtk_container_add(
+      GTK_CONTAINER(outer_bin_),
+      gfx::CreateGtkBorderBin(inner_vbox_, &kBorderColor, 1, 1, 0, 0));
 
-  gtk_box_pack_start(GTK_BOX(vbox_), alignment, TRUE, TRUE, 0);
+  // Sink the ref so that we own the widget, and will destroy on destruction.
+  g_object_ref_sink(outer_bin_);
 }
 
 void LocationBarViewGtk::SetProfile(Profile* profile) {

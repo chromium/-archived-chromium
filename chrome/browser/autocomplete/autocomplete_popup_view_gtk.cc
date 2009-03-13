@@ -41,7 +41,6 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
   // Set up a 1 pixel border around the popup.
   gtk_container_set_border_width(GTK_CONTAINER(window_), 1);
   gtk_widget_modify_bg(window_, GTK_STATE_NORMAL, &kPopupBorderColor);
-  gtk_widget_modify_base(window_, GTK_STATE_NORMAL, &kPopupBorderColor);
 }
 
 AutocompletePopupViewGtk::~AutocompletePopupViewGtk() {
@@ -73,11 +72,14 @@ void AutocompletePopupViewGtk::UpdatePopupAppearance() {
   vbox_ = gtk_vbox_new(FALSE, 0);
 
   for (size_t i = 0; i < result.size(); ++i) {
-    std::string utf8;
-    utf8.append(WideToUTF8(result.match_at(i).contents));
-    utf8.append(" - ");
-    utf8.append(WideToUTF8(result.match_at(i).description));
-    GtkWidget* label = gtk_label_new(utf8.c_str());
+    GtkWidget* label = gtk_label_new(NULL);
+    char* markup = g_markup_printf_escaped(
+        "%s   <span weight=\"light\" size=\"small\">%s</span>",
+        WideToUTF8(result.match_at(i).contents).c_str(),
+        WideToUTF8(result.match_at(i).description).c_str());
+    gtk_label_set_markup(GTK_LABEL(label), markup);
+    g_free (markup);
+
     // We need to put the labels in an event box for background painting.
     GtkWidget* ebox = gtk_event_box_new();
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);

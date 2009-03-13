@@ -5,6 +5,7 @@
 #include "base/gfx/gtk_util.h"
 
 #include <gdk/gdk.h>
+#include <gtk/gtk.h>
 
 #include "base/gfx/rect.h"
 #include "skia/include/SkBitmap.h"
@@ -58,6 +59,20 @@ GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
   g_object_ref_sink(pixbuf);
   bitmap->unlockPixels();
   return pixbuf;
+}
+
+GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
+                              int top, int bottom, int left, int right) {
+  // Use a GtkEventBox to get the background painted.  However, we can't just
+  // use a container border, since it won't paint there.  Use an alignment
+  // inside to get the sizes exactly of how we want the border painted.
+  GtkWidget* ebox = gtk_event_box_new();
+  gtk_widget_modify_bg(ebox, GTK_STATE_NORMAL, color);
+  GtkWidget* alignment = gtk_alignment_new(0, 0, 1, 1);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), top, bottom, left, right);
+  gtk_container_add(GTK_CONTAINER(alignment), child);
+  gtk_container_add(GTK_CONTAINER(ebox), alignment);
+  return ebox;
 }
 
 }  // namespace gfx

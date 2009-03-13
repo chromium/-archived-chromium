@@ -7,8 +7,10 @@
 
 #include <vector>
 
+typedef struct _GdkColor GdkColor;
 typedef struct _GdkPixbuf GdkPixbuf;
 typedef struct _GdkRegion GdkRegion;
+typedef struct _GtkWidget GtkWidget;
 class SkBitmap;
 
 // Define a macro for creating GdkColors from RGB values.  This is a macro to
@@ -27,6 +29,11 @@ void SubtractRectanglesFromRegion(GdkRegion* region,
 // Convert and copy a SkBitmap to a GdkPixbuf.  NOTE: This is an expensive
 // operation, all of the pixels must be copied and their order swapped.
 GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap);
+
+// Create a GtkBin with |child| as its child widget.  This bin will paint a
+// border of color |color| with the sizes specified in pixels.
+GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
+                              int top, int bottom, int left, int right);
 
 }  // namespace gfx
 
