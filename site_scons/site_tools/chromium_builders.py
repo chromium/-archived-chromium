@@ -90,37 +90,63 @@ def compilable_files(env, sources):
 
 def ChromeProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  result = env.ComponentProgram(target, source, *args, **kw)
+  if env.get('_GYP'):
+    prog = env.Program(target, source, *args, **kw)
+    result = env.Install('$DESTINATION_ROOT', prog)
+  else:
+    result = env.ComponentProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
     env.Precious(result)
   return result
 
 def ChromeTestProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  result = env.ComponentTestProgram(target, source, *args, **kw)
+  if env.get('_GYP'):
+    prog = env.Program(target, source, *args, **kw)
+    result = env.Install('$DESTINATION_ROOT', prog)
+  else:
+    result = env.ComponentTestProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
     env.Precious(*result)
   return result
 
 def ChromeLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  return env.ComponentLibrary(target, source, *args, **kw)
+  if env.get('_GYP'):
+    lib = env.Library(target, source, *args, **kw)
+    result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
+  else:
+    result = env.ComponentLibrary(target, source, *args, **kw)
+  return result
 
 def ChromeStaticLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  kw['COMPONENT_STATIC'] = True
-  return env.ComponentLibrary(target, source, *args, **kw)
+  if env.get('_GYP'):
+    lib = env.StaticLibrary(target, source, *args, **kw)
+    result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
+  else:
+    kw['COMPONENT_STATIC'] = True
+    result = env.ComponentLibrary(target, source, *args, **kw)
+  return result
 
 def ChromeSharedLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  kw['COMPONENT_STATIC'] = False
-  result = [env.ComponentLibrary(target, source, *args, **kw)[0]]
+  if env.get('_GYP'):
+    lib = env.SharedLibrary(target, source, *args, **kw)
+    result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
+  else:
+    kw['COMPONENT_STATIC'] = False
+    result = [env.ComponentLibrary(target, source, *args, **kw)[0]]
   if env.get('INCREMENTAL'):
     env.Precious(result)
   return result
 
 def ChromeObject(env, *args, **kw):
-  return env.ComponentObject(*args, **kw)
+  if env.get('_GYP'):
+    result = env.Object(target, source, *args, **kw)
+  else:
+    result = env.ComponentObject(*args, **kw)
+  return result
 
 def ChromeMSVSFolder(env, *args, **kw):
   if not env.Bit('msvs'):

@@ -63,14 +63,20 @@ clvars.AddVariables(
 )
 
 
+if ARGUMENTS.get('_GYP'):
+  tool_list = ['chromium_builders']
+else:
+  tool_list = ['component_setup',
+               'chromium_builders',
+               'chromium_load_component',
+               'MSVSNew']
+
+
 root_env = Environment(
     # MSVSNew in the base environment?  Yes, the point is we can (and
     # want to) generate Visual Studio project and solution files from
     # any platform.
-    tools = ['component_setup',
-             'chromium_builders',
-             'chromium_load_component',
-             'MSVSNew'],
+    tools = tool_list,
     variables = clvars,
 
     # Requested list of system (shared) libraries, from the comma separated
@@ -190,6 +196,7 @@ components = []
 # The keyword arguments in the call below (base, breakpad, etc.) can be
 # specified in the LOAD= argument to cut down on the build.
 
+Default(None)  # Reset default target to empty.
 if root_env.get('_GYP'):
     webkit_sconscript = '$WEBKIT_DIR/tools/test_shell/test_shell_main${_GYP}.scons'
 else:
@@ -789,21 +796,20 @@ BuildComponents(environment_list)
 
 # -------------------------------------------------------------------------
 
-Default(None)  # Reset default target to empty.
+if not root_env.get('_GYP'):
+  modes = GetTargetModes().keys()
 
-modes = GetTargetModes().keys()
+  if set(modes) - set(['msvs', 'xcode']):
+    # There's at least one mode being built besides the platform-
+    # independent 'msvs' or 'xcode' modes.  Build the current
+    # build_component's Alias as default--that is, "base" when we're
+    # in the base/ subdirectory, "chrome" under chrome/, etc.
+    Import('build_component')
+    Default(Alias(build_component))  # Set default target based on where built.
 
-if set(modes) - set(['msvs', 'xcode']):
-  # There's at least one mode being built besides the platform-
-  # independent 'msvs' or 'xcode' modes.  Build the current
-  # build_component's Alias as default--that is, "base" when we're
-  # in the base/ subdirectory, "chrome" under chrome/, etc.
-  Import('build_component')
-  Default(Alias(build_component))  # Set default target based on where built.
-
-if 'msvs' in modes:
-  # We're in --mode=msvs, so add its Alias(es) to the default targets.
-  Default(Alias('msvs'))
+  if 'msvs' in modes:
+    # We're in --mode=msvs, so add its Alias(es) to the default targets.
+    Default(Alias('msvs'))
 
 # -------------------------------------------------------------------------
 
