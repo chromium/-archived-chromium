@@ -368,7 +368,7 @@ int ConstrainedWindowFrameView::NonClientHitTest(const gfx::Point& point) {
   if (!bounds().Contains(point))
     return HTNOWHERE;
 
-  int frame_component = container_->GetClientView()->NonClientHitTest(point);
+  int frame_component = container_->client_view()->NonClientHitTest(point);
   if (frame_component != HTNOWHERE)
     return frame_component;
 
@@ -378,7 +378,7 @@ int ConstrainedWindowFrameView::NonClientHitTest(const gfx::Point& point) {
 
   int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
       NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
-      container_->GetDelegate()->CanResize());
+      container_->window_delegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
@@ -653,8 +653,8 @@ void ConstrainedWindowImpl::DidBecomeSelected() {
 
 std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
   std::wstring display_title;
-  if (GetDelegate())
-    display_title = GetDelegate()->GetWindowTitle();
+  if (window_delegate())
+    display_title = window_delegate()->GetWindowTitle();
   else
     display_title = L"Untitled";
 
@@ -671,9 +671,9 @@ const gfx::Rect& ConstrainedWindowImpl::GetCurrentBounds() const {
 ConstrainedWindowImpl::ConstrainedWindowImpl(
     TabContents* owner,
     views::WindowDelegate* window_delegate)
-    : WindowWin(window_delegate),
+    : Window(window_delegate),
       owner_(owner) {
-  GetNonClientView()->SetFrameView(CreateFrameViewForWindow());
+  non_client_view_->SetFrameView(CreateFrameViewForWindow());
   Init();
 }
 
@@ -685,7 +685,7 @@ void ConstrainedWindowImpl::Init() {
 }
 
 void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
-  WindowWin::Init(owner_->GetNativeView(), initial_bounds);
+  Window::Init(owner_->GetNativeView(), initial_bounds);
   ActivateConstrainedWindow();
 }
 
@@ -719,7 +719,7 @@ void ConstrainedWindowImpl::OnDestroy() {
   }
 
   // Make sure we call super so that it can do its cleanup.
-  WindowWin::OnDestroy();
+  Window::OnDestroy();
 }
 
 void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
@@ -727,7 +727,7 @@ void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
   // list.
   owner_->WillClose(this);
 
-  WindowWin::OnFinalMessage(window);
+  WidgetWin::OnFinalMessage(window);
 }
 
 LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,

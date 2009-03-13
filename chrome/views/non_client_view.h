@@ -137,6 +137,11 @@ class NonClientView : public View {
   // Called by the containing Window when it is closed.
   void WindowClosing();
 
+  // Called by the window when it receives a theme changed notification. Changes
+  // the content of the NonClientView to match what is required for the current
+  // system theme.
+  void SystemThemeChanged();
+
   // Changes the frame from native to custom depending on the value of
   // |use_native_frame|.
   void SetUseNativeFrame(bool use_native_frame);

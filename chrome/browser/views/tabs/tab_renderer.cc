@@ -15,8 +15,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/non_client_view.h"
-#include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -501,7 +499,7 @@ void TabRenderer::OnMouseExited(const views::MouseEvent& e) {
 
 void TabRenderer::ThemeChanged() {
   if (GetWidget() && GetWidget()->AsWindow())
-    LoadTabImages(GetWidget()->AsWindow()->GetNonClientView()->UseNativeFrame());
+    LoadTabImages(GetWidget()->AsWindow()->UseNativeFrame());
   View::ThemeChanged();
 }
 
@@ -536,7 +534,7 @@ void TabRenderer::PaintTabBackground(ChromeCanvas* canvas) {
       animation = pulse_animation_.get();
     if (animation->GetCurrentValue() > 0) {
       PaintHoverTabBackground(canvas, animation->GetCurrentValue() *
-          (GetWidget()->AsWindow()->GetNonClientView()->UseNativeFrame() ?
+          (GetWidget()->AsWindow()->UseNativeFrame() ?
           kHoverOpacityVista : kHoverOpacity));
     } else {
       PaintInactiveTabBackground(canvas);

@@ -1203,7 +1203,7 @@ void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
   if (dialog_delegate &&
       (dialog_delegate->GetDialogButtons() & button) == button) {
     views::DialogClientView* client_view =
-        dialog_delegate->window()->GetClientView()->AsDialogClientView();
+        dialog_delegate->window()->client_view()->AsDialogClientView();
     if ((button & views::DialogDelegate::DIALOGBUTTON_OK) ==
         views::DialogDelegate::DIALOGBUTTON_OK) {
       client_view->AcceptWindow();

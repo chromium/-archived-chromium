@@ -4,7 +4,6 @@
 
 #include "chrome/views/dialog_delegate.h"
 
-#include "base/logging.h"
 #include "chrome/views/window.h"
 
 namespace views {
@@ -44,7 +43,7 @@ ClientView* DialogDelegate::CreateClientView(Window* window) {
 }
 
 DialogClientView* DialogDelegate::GetDialogClientView() const {
-  ClientView* client_view = window()->GetClientView();
+  ClientView* client_view = window()->client_view();
   DialogClientView* dialog_client_view = client_view->AsDialogClientView();
   DCHECK(dialog_client_view);
   return dialog_client_view;
