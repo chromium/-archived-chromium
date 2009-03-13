@@ -107,8 +107,14 @@ bool Delete(const FilePath& path, bool recursive) {
 }
 
 bool Move(const FilePath& from_path, const FilePath& to_path) {
-  return (rename(from_path.value().c_str(),
-                 to_path.value().c_str()) == 0);
+  if (rename(from_path.value().c_str(), to_path.value().c_str()) == 0)
+    return true;
+
+  if (!CopyDirectory(from_path, to_path, true))
+    return false;
+
+  Delete(from_path, true);
+  return true;
 }
 
 bool CopyDirectory(const FilePath& from_path,

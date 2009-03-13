@@ -89,17 +89,20 @@ void DownloadFile::Cancel() {
 
 // The UI has provided us with our finalized name.
 bool DownloadFile::Rename(const FilePath& new_path) {
-#if defined(OS_WIN)
   Close();
 
+#if defined(OS_WIN)
   // We cannot rename because rename will keep the same security descriptor
   // on the destination file. We want to recreate the security descriptor
   // with the security that makes sense in the new path.
-  if (!file_util::RenameFileAndResetSecurityDescriptor(full_path_, new_path)) {
+  if (!file_util::RenameFileAndResetSecurityDescriptor(full_path_, new_path))
     return false;
-  }
-
-  file_util::Delete(full_path_, false);
+#elif defined(OS_POSIX)
+  // TODO(estade): Move() falls back to copying and deleting when a simple
+  // rename fails. Copying sucks for large downloads. crbug.com/8737
+  if (!file_util::Move(full_path_, new_path))
+      return false;
+#endif
 
   full_path_ = new_path;
   path_renamed_ = true;
@@ -111,11 +114,6 @@ bool DownloadFile::Rename(const FilePath& new_path) {
   if (!Open("a+b"))
     return false;
   return true;
-#elif defined(OS_POSIX)
-  // TODO(port): Port this function to posix (we need file_util::Rename()).
-  NOTIMPLEMENTED();
-  return false;
-#endif
 }
 
 void DownloadFile::Close() {

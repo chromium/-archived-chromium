@@ -154,7 +154,9 @@ bool Delete(const FilePath& path, bool recursive);
 bool Delete(const std::wstring& path, bool recursive);
 
 // Moves the given path, whether it's a file or a directory.
-// Returns true if successful, false otherwise.
+// If a simple rename is not possible, such as in the case where the paths are
+// on different volumes, this will attempt to copy and delete. Returns
+// true for success.
 bool Move(const FilePath& from_path, const FilePath& to_path);
 // Deprecated temporary compatibility function.
 bool Move(const std::wstring& from_path, const std::wstring& to_path);
