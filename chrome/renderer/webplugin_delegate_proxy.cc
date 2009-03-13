@@ -497,9 +497,7 @@ bool WebPluginDelegateProxy::BackgroundChanged(
   // intersect their rects first.
   gfx::Rect bitmap_rect(static_cast<int>(-xf.eDx), static_cast<int>(-xf.eDy),
                         bitmap.bmWidth, bitmap.bmHeight);
-  gfx::Rect check_rect(rect);
-  check_rect.Intersect(bitmap_rect);
-
+  gfx::Rect check_rect = rect.Intersect(bitmap_rect);
   int row_byte_size = check_rect.width() * (bitmap.bmBitsPixel / 8);
   for (int y = check_rect.y(); y < check_rect.bottom(); y++) {
     char* hdc_row_start = static_cast<char*>(bitmap.bmBits) +
