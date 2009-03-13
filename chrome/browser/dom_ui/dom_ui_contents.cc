@@ -194,7 +194,7 @@ bool DOMUIContents::IsBookmarkBarAlwaysVisible() {
 void DOMUIContents::SetInitialFocus() {
   if (InitCurrentUI(false))
     current_ui_->SetInitialFocus();
-  else
+  else if (current_ui_)
     current_ui_->get_contents()->view()->SetInitialFocus();
 }
 
@@ -257,11 +257,11 @@ bool DOMUIContents::InitCurrentUI(bool reload) {
     if (current_ui_) {
       current_ui_->Init();
       current_url_ = url;
-      return true;
     }
-  } else if (current_ui_) {
+  } 
+  
+  if (current_ui_)
     return true;
-  }
 
   return false;
 }
