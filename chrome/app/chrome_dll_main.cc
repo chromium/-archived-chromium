@@ -259,6 +259,18 @@ int ChromeMain(int argc, const char** argv) {
     return 1;
 #endif
 
+  int browser_pid;
+  std::wstring process_type =
+    parsed_command_line.GetSwitchValue(switches::kProcessType);
+  if (process_type.empty()) {
+    browser_pid = base::GetCurrentProcId();
+  } else {
+    std::wstring channel_name =
+      parsed_command_line.GetSwitchValue(switches::kProcessChannelID);
+
+    browser_pid = StringToInt(WideToASCII(channel_name));
+    DCHECK(browser_pid != 0);
+  }
   SetupCRT(parsed_command_line);
 
   // Initialize the Chrome path provider.
@@ -271,9 +283,8 @@ int ChromeMain(int argc, const char** argv) {
   // of the process.  It is not cleaned up.
   // TODO(port): we probably need to shut this down correctly to avoid
   // leaking shared memory regions on posix platforms.
-  std::string statsfile = chrome::kStatsFilename;
-  std::string pid_string = StringPrintf("-%d", base::GetCurrentProcId());
-  statsfile += pid_string;
+  std::string statsfile =
+      StringPrintf("%s-%d", chrome::kStatsFilename, browser_pid);
   StatsTable *stats_table = new StatsTable(statsfile,
       chrome::kStatsMaxThreads, chrome::kStatsMaxCounters);
   StatsTable::set_current(stats_table);
@@ -287,9 +298,6 @@ int ChromeMain(int argc, const char** argv) {
   // Enable Message Loop related state asap.
   if (parsed_command_line.HasSwitch(switches::kMessageLoopHistogrammer))
     MessageLoop::EnableHistogrammer(true);
-
-  std::wstring process_type =
-    parsed_command_line.GetSwitchValue(switches::kProcessType);
 
   // Checks if the sandbox is enabled in this process and initializes it if this
   // is the case. The crash handler depends on this so it has to be done before
