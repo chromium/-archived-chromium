@@ -98,7 +98,8 @@ class ResourceDispatcher {
                         int request_id,
                         int64 position,
                         int64 size);
-  void OnDownloadProgress(int request_id, int64 position, int64 size);
+  void OnDownloadProgress(const IPC::Message& message,
+                          int request_id, int64 position, int64 size);
   void OnReceivedResponse(int request_id, const ResourceResponseHead&);
   void OnReceivedRedirect(int request_id, const GURL& new_url);
   void OnReceivedData(const IPC::Message& message,

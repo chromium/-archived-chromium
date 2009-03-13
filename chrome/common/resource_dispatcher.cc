@@ -276,10 +276,26 @@ bool ResourceDispatcher::OnMessageReceived(const IPC::Message& message) {
 }
 
 void ResourceDispatcher::OnDownloadProgress(
-    int request_id, int64 position, int64 size) {
-  // TODO(hclam): delegate this message to
-  // ResourceLoaderBridge::Peer::OnDownloadProgress and send an ACK message
-  // back to ResourceDispatcherHost.
+    const IPC::Message& message, int request_id, int64 position, int64 size) {
+  PendingRequestList::iterator it = pending_requests_.find(request_id);
+  if (it == pending_requests_.end()) {
+     DLOG(WARNING) << "Got download progress for a nonexistant or "
+         " finished requests";
+     return;
+  }
+
+  PendingRequestInfo& request_info = it->second;
+
+  RESOURCE_LOG("Dispatching download progress for " <<
+               request_info.peer->GetURLForDebugging());
+  request_info.peer->OnDownloadProgress(position, size);
+
+  // Send the ACK message back.
+  IPC::Message::Sender* sender = message_sender();
+  if (sender) {
+    sender->Send(
+        new ViewHostMsg_DownloadProgress_ACK(message.routing_id(), request_id));
+  }
 }
 
 void ResourceDispatcher::OnUploadProgress(
