@@ -53,6 +53,10 @@ bool PlatformCanvasLinux::initialize(int width, int height, bool is_opaque,
   return true;
 }
 
+cairo_surface_t* PlatformCanvasLinux::beginPlatformPaint() {
+  return getTopPlatformDevice().beginPlatformPaint();
+}
+
 PlatformDeviceLinux& PlatformCanvasLinux::getTopPlatformDevice() const {
   // All of our devices should be our special PlatformDevice.
   SkCanvas::LayerIter iter(const_cast<PlatformCanvasLinux*>(this), false);

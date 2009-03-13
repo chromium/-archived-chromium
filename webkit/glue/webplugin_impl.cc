@@ -718,15 +718,12 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
   gc->translate(static_cast<float>(origin.x()),
                 static_cast<float>(origin.y()));
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   // Note that |context| is only used when in windowless mode.
   gfx::NativeDrawingContext context =
       gc->platformContext()->canvas()->beginPlatformPaint();
-#elif defined (OS_MACOSX)
+#elif defined(OS_MACOSX)
   gfx::NativeDrawingContext context = gc->platformContext();
-#else
-  // TODO(port): the equivalent of the above.
-  void* context = NULL;  // Temporary, to reduce ifdefs.
 #endif
 
   WebCore::IntRect window_rect =
@@ -735,7 +732,7 @@ void WebPluginImpl::paint(WebCore::GraphicsContext* gc,
 
   delegate_->Paint(context, webkit_glue::FromIntRect(window_rect));
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   gc->platformContext()->canvas()->endPlatformPaint();
 #endif
   gc->restore();

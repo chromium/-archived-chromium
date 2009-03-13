@@ -777,14 +777,7 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
   case NPNVSupportsWindowless:
   {
     NPBool* supports_windowless = reinterpret_cast<NPBool*>(value);
-#if defined(OS_LINUX)
-    // TODO(deanm): Remove me once windowless plugins work on Linux.  Right now
-    // it's better to tell the plugin we don't support windowless, then have it
-    // try and fail.
-    *supports_windowless = FALSE;
-#else
     *supports_windowless = TRUE;
-#endif
     rv = NPERR_NO_ERROR;
     break;
   }

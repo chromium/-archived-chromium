@@ -49,6 +49,7 @@ class NSTextField;
 #elif defined(OS_LINUX)
 typedef struct _GtkWidget GtkWidget;
 typedef struct _GtkWindow GtkWindow;
+typedef struct _cairo_surface cairo_surface_t;
 #endif
 
 namespace gfx {
@@ -67,9 +68,7 @@ typedef CGContext* NativeDrawingContext;
 typedef GtkWidget* NativeView;
 typedef GtkWindow* NativeWindow;
 typedef GtkWidget* NativeEditView;
-typedef void *NativeDrawingContext; // TODO(port): update for Gtk
-#else  // null port.
-#error No known OS defined
+typedef cairo_surface_t* NativeDrawingContext;
 #endif
 
 // Note: for test_shell we're packing a pointer into the NativeViewId. So, if

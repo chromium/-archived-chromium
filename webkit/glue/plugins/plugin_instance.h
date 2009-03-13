@@ -99,6 +99,8 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   // Handles a windows native message which this PluginInstance should deal
   // with.  Returns true if the event is handled, false otherwise.
   bool HandleEvent(UINT message, WPARAM wParam, LPARAM lParam);
+#elif defined(OS_LINUX)
+  bool HandleEvent(union _XEvent* event);
 #endif
 
   // Creates a stream for sending an URL.  If notify_needed

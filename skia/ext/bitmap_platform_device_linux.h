@@ -85,6 +85,10 @@ class BitmapPlatformDeviceLinux : public PlatformDeviceLinux {
   // Bitmaps aren't vector graphics.
   virtual bool IsVectorial() { return false; }
 
+  // If someone wants to paint on a Cairo surface version of our
+  // buffer, then give them the surface we're already using.
+  virtual cairo_surface_t* beginPlatformPaint() { return surface(); }
+
   cairo_surface_t* surface() const;
 
  private:

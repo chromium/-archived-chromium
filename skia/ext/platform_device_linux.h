@@ -7,6 +7,8 @@
 
 #include "SkDevice.h"
 
+typedef struct _cairo_surface cairo_surface_t;
+
 namespace skia {
 
 // Blindly copying the mac hierarchy.
@@ -14,6 +16,8 @@ class PlatformDeviceLinux : public SkDevice {
  public:
   // Returns if the preferred rendering engine is vectorial or bitmap based.
   virtual bool IsVectorial() = 0;
+
+  virtual cairo_surface_t* beginPlatformPaint() = 0;
 
  protected:
   // Forwards |bitmap| to SkDevice's constructor.

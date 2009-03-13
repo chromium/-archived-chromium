@@ -64,6 +64,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       windowless_(false),
       plugin_(NULL),
       instance_(instance),
+      pixmap_(NULL),
       parent_(containing_view),
       quirks_(0)
  {
@@ -76,6 +77,17 @@ WebPluginDelegateImpl::~WebPluginDelegateImpl() {
 
   if (!windowless_)
     WindowedDestroyWindow();
+
+  if (window_.ws_info) {
+    // We only ever use ws_info as an NPSetWindowCallbackStruct.
+    delete static_cast<NPSetWindowCallbackStruct*>(window_.ws_info);
+  }
+
+  if (pixmap_) {
+    g_object_unref(gdk_drawable_get_colormap(pixmap_));
+    g_object_unref(pixmap_);
+    pixmap_ = NULL;
+  }
 }
 
 void WebPluginDelegateImpl::PluginDestroyed() {
@@ -108,8 +120,6 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
     // a valid window handle causes subtle bugs with plugins which retreive
     // the window handle and validate the same. The window handle can be
     // retreived via NPN_GetValue of NPNVnetscapeWindow.
-    NOTIMPLEMENTED() << "windowless not implemented";
-    return false;
     // instance_->set_window_handle(parent_);
     // CreateDummyWindowForActivation();
     // handle_event_pump_messages_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -159,14 +169,14 @@ void WebPluginDelegateImpl::UpdateGeometry(
   }
 }
 
-void WebPluginDelegateImpl::Paint(void* dc, const gfx::Rect& rect) {
+void WebPluginDelegateImpl::Paint(cairo_surface_t* context,
+                                  const gfx::Rect& rect) {
   if (windowless_) {
-    // TODO(port): windowless painting.
-    // WindowlessPaint(dc, rect);
+    WindowlessPaint(context, rect);
   }
 }
 
-void WebPluginDelegateImpl::Print(void* dc) {
+void WebPluginDelegateImpl::Print(cairo_surface_t* context) {
   NOTIMPLEMENTED();
 }
 
@@ -321,13 +331,15 @@ bool WebPluginDelegateImpl::WindowedCreatePlugin() {
   window_.window = GINT_TO_POINTER(
       gtk_socket_get_id(GTK_SOCKET(windowed_handle_)));
 
-  NPSetWindowCallbackStruct* extra = new NPSetWindowCallbackStruct;
+  if (!window_.ws_info)
+    window_.ws_info = new NPSetWindowCallbackStruct;
+  NPSetWindowCallbackStruct* extra =
+      static_cast<NPSetWindowCallbackStruct*>(window_.ws_info);
   extra->display = GDK_WINDOW_XDISPLAY(windowed_handle_->window);
   GdkVisual* visual = gdk_drawable_get_visual(windowed_handle_->window);
   extra->visual = GDK_VISUAL_XVISUAL(visual);
   extra->depth = visual->depth;
   extra->colormap = GDK_COLORMAP_XCOLORMAP(gdk_drawable_get_colormap(windowed_handle_->window));
-  window_.ws_info = extra;
 
   return true;
 }
@@ -411,7 +423,7 @@ void WebPluginDelegateImpl::WindowlessUpdateGeometry(
   // Only resend to the instance if the geometry has changed.
   if (window_rect == window_rect_ && clip_rect == clip_rect_)
     return;
-  /*
+
   // Set this flag before entering the instance in case of side-effects.
   windowless_needs_set_window_ = true;
 
@@ -423,40 +435,45 @@ void WebPluginDelegateImpl::WindowlessUpdateGeometry(
     window_rect_ = window_rect;
 
     WindowlessSetWindow(true);
-
-    WINDOWPOS win_pos = {0};
-    win_pos.x = window_rect_.x();
-    win_pos.y = window_rect_.y();
-    win_pos.cx = window_rect_.width();
-    win_pos.cy = window_rect_.height();
-
-    NPEvent pos_changed_event;
-    pos_changed_event.event = WM_WINDOWPOSCHANGED;
-    pos_changed_event.wParam = 0;
-    pos_changed_event.lParam = PtrToUlong(&win_pos);
-
-    instance()->NPP_HandleEvent(&pos_changed_event);
   }
-  */
 }
 
-#if 0
-void WebPluginDelegateImpl::WindowlessPaint(HDC hdc,
+void WebPluginDelegateImpl::EnsurePixmapAtLeastSize(int width, int height) {
+  if (pixmap_) {
+    gint cur_width, cur_height;
+    gdk_drawable_get_size(pixmap_, &cur_width, &cur_height);
+    if (cur_width >= width && cur_height >= height)
+      return;  // We are already the appropriate size.
+
+    // Otherwise, we need to recreate ourselves.
+    g_object_unref(gdk_drawable_get_colormap(pixmap_));
+    g_object_unref(pixmap_);
+    pixmap_ = NULL;
+  }
+
+  // |sys_visual| is owned by gdk; we shouldn't free it.
+  GdkVisual* sys_visual = gdk_visual_get_system();
+  pixmap_ = gdk_pixmap_new(NULL,  // use width/height/depth params
+                           width, height, sys_visual->depth);
+  GdkColormap* colormap = gdk_colormap_new(gdk_visual_get_system(),
+                                           FALSE);
+  gdk_drawable_set_colormap(GDK_DRAWABLE(pixmap_), colormap);
+}
+
+void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
                                             const gfx::Rect& damage_rect) {
-  DCHECK(hdc);
+  // Compare to:
+  // http://mxr.mozilla.org/firefox/source/layout/generic/nsObjectFrame.cpp:
+  // nsPluginInstanceOwner::Renderer::NativeDraw().
 
-  RECT damage_rect_win;
-  damage_rect_win.left   = damage_rect.x();  // + window_rect_.x();
-  damage_rect_win.top    = damage_rect.y();  // + window_rect_.y();
-  damage_rect_win.right  = damage_rect_win.left + damage_rect.width();
-  damage_rect_win.bottom = damage_rect_win.top + damage_rect.height();
+  DCHECK(context);
 
-  // We need to pass the HDC to the plugin via NPP_SetWindow in the
+  // We need to pass the DC to the plugin via NPP_SetWindow in the
   // first paint to ensure that it initiates rect invalidations.
-  if (window_.window == NULL)
+  // TODO(evanm): for now, it appears we always need to do this.
+  if (true)
     windowless_needs_set_window_ = true;
 
-  window_.window = hdc;
   // TODO(darin): we should avoid calling NPP_SetWindow here since it may
   // cause page layout to be invalidated.
 
@@ -465,16 +482,37 @@ void WebPluginDelegateImpl::WindowlessPaint(HDC hdc,
   if (windowless_needs_set_window_)
     WindowlessSetWindow(false);
 
-  NPEvent paint_event;
-  paint_event.event = WM_PAINT;
-  // NOTE: NPAPI is not 64bit safe.  It puts pointers into 32bit values.
-  paint_event.wParam = PtrToUlong(hdc);
-  paint_event.lParam = PtrToUlong(&damage_rect_win);
+  EnsurePixmapAtLeastSize(damage_rect.width(), damage_rect.height());
+
+  // Copy the current image into the pixmap, so the plugin can draw over
+  // this background.
+  cairo_t* cairo = gdk_cairo_create(pixmap_);
+  cairo_set_source_surface(cairo, context, 0, 0);
+  cairo_paint(cairo);
+  cairo_destroy(cairo);
+
+  // Construct the paint message, targeting the pixmap.
+  XGraphicsExposeEvent event = {0};
+  event.type = GraphicsExpose;
+  event.display = GDK_DISPLAY();
+  event.drawable = GDK_PIXMAP_XID(pixmap_);
+  event.x = damage_rect.x();
+  event.y = damage_rect.y();
+  event.width = damage_rect.width();
+  event.height = damage_rect.height();
+
+  // Tell the plugin to paint into the pixmap.
   static StatsRate plugin_paint("Plugin.Paint");
   StatsScope<StatsRate> scope(plugin_paint);
-  instance()->NPP_HandleEvent(&paint_event);
+  NPError err = instance()->NPP_HandleEvent(reinterpret_cast<XEvent*>(&event));
+  DCHECK_EQ(err, NPERR_NO_ERROR);
+
+  // Now copy the rendered image pixmap back into the drawing buffer.
+  cairo = cairo_create(context);
+  gdk_cairo_set_source_pixmap(cairo, pixmap_, 0, 0);
+  cairo_paint(cairo);
+  cairo_destroy(cairo);
 }
-#endif
 
 void WebPluginDelegateImpl::WindowlessSetWindow(bool force_set_window) {
   if (!instance())
@@ -484,6 +522,9 @@ void WebPluginDelegateImpl::WindowlessSetWindow(bool force_set_window) {
     return;
 
   DCHECK(instance()->windowless());
+  // Mozilla docs say that this window param is not used for windowless
+  // plugins; rather, the window is passed during the GraphicsExpose event.
+  DCHECK(window_.window == 0);
 
   window_.clipRect.top = clip_rect_.y();
   window_.clipRect.left = clip_rect_.x();
@@ -494,6 +535,20 @@ void WebPluginDelegateImpl::WindowlessSetWindow(bool force_set_window) {
   window_.x = window_rect_.x();
   window_.y = window_rect_.y();
   window_.type = NPWindowTypeDrawable;
+
+  if (!window_.ws_info)
+    window_.ws_info = new NPSetWindowCallbackStruct;
+  NPSetWindowCallbackStruct* extra =
+      static_cast<NPSetWindowCallbackStruct*>(window_.ws_info);
+  extra->display = GDK_DISPLAY();
+  GdkVisual* visual = gdk_visual_get_system();
+  extra->visual = GDK_VISUAL_XVISUAL(visual);
+  extra->depth = visual->depth;
+  GdkColormap* colormap = gdk_colormap_new(gdk_visual_get_system(), FALSE);
+  extra->colormap = GDK_COLORMAP_XCOLORMAP(colormap);
+
+  if (!force_set_window)
+    windowless_needs_set_window_ = false;
 
   NPError err = instance()->NPP_SetWindow(&window_);
   DCHECK(err == NPERR_NO_ERROR);

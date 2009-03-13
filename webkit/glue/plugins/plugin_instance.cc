@@ -4,6 +4,11 @@
 
 #include "config.h"
 
+#include "build/build_config.h"
+#if defined(OS_LINUX)
+#define MOZ_X11 1
+#endif
+
 #include "webkit/glue/plugins/plugin_instance.h"
 
 #include "base/file_util.h"
@@ -129,6 +134,12 @@ bool PluginInstance::HandleEvent(UINT message, WPARAM wParam, LPARAM lParam) {
   windowEvent.lParam = static_cast<uint32>(lParam);
   windowEvent.wParam = static_cast<uint32>(wParam);
   return NPP_HandleEvent(&windowEvent) != 0;
+}
+#elif defined(OS_LINUX)
+bool PluginInstance::HandleEvent(XEvent* event) {
+  if (!windowless_)
+    return false;
+  return NPP_HandleEvent(event);
 }
 #endif
 

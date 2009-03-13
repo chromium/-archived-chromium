@@ -32,6 +32,13 @@ class PlatformCanvasLinux : public SkCanvas {
   bool initialize(int width, int height, bool is_opaque);
   bool initialize(int width, int height, bool is_opaque, uint8_t* data);
 
+  // These calls should surround calls to platform-specific drawing routines.
+  // The cairo_surface_t* returned by beginPlatformPaint represents the
+  // memory that can be used to draw into.
+  // endPlatformPaint is a no-op; it is used for symmetry with Windows.
+  cairo_surface_t* beginPlatformPaint();
+  void endPlatformPaint() {}
+
   // Returns the platform device pointer of the topmost rect with a non-empty
   // clip. Both the windows and mac versions have an equivalent of this method;
   // a Linux version is added for compatibility.
