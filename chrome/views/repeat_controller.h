@@ -5,6 +5,7 @@
 #ifndef CHROME_VIEWS_REPEAT_CONTROLLER_H_
 #define CHROME_VIEWS_REPEAT_CONTROLLER_H_
 
+#include "base/scoped_ptr.h"
 #include "base/timer.h"
 
 namespace views {

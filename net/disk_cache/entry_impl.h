@@ -5,6 +5,7 @@
 #ifndef NET_DISK_CACHE_ENTRY_IMPL_H_
 #define NET_DISK_CACHE_ENTRY_IMPL_H_
 
+#include "base/scoped_ptr.h"
 #include "net/disk_cache/disk_cache.h"
 #include "net/disk_cache/storage_block.h"
 #include "net/disk_cache/storage_block-inl.h"

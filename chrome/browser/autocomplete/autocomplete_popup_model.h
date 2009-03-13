@@ -5,6 +5,7 @@
 #ifndef CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_MODEL_H_
 #define CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_MODEL_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/common/notification_registrar.h"
 

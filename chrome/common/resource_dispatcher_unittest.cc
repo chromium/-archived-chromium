@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "base/process.h"
+#include "base/scoped_ptr.h"
 #include "chrome/common/filter_policy.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_dispatcher.h"

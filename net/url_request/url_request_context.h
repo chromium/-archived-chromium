@@ -11,7 +11,6 @@
 #define NET_URL_REQUEST_URL_REQUEST_CONTEXT_H_
 
 #include "base/ref_counted.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "net/base/cookie_policy.h"
 #include "net/ftp/ftp_auth_cache.h"

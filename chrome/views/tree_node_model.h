@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "chrome/common/scoped_vector.h"
 #include "chrome/views/tree_model.h"
 

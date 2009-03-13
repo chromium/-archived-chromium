@@ -7,7 +7,6 @@
 
 #include <vector>
 
-#include "base/scoped_ptr.h"
 #include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/stl_util-inl.h"

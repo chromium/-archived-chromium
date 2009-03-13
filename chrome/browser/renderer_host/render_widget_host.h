@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/gfx/size.h"
+#include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/native_web_keyboard_event.h"

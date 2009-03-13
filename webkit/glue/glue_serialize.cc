@@ -17,7 +17,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/glue_serialize.h"
 
 #include "base/pickle.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"

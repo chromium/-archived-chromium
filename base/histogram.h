@@ -37,7 +37,6 @@
 
 #include "base/lock.h"
 #include "base/pickle.h"
-#include "base/scoped_ptr.h"
 #include "base/stats_counters.h"
 
 //------------------------------------------------------------------------------

@@ -9,7 +9,6 @@
 
 #include "libxml/xmlreader.h"
 #include "libxml/xmlwriter.h"
-#include "base/scoped_ptr.h"
 
 // Converts a libxml xmlChar* into a UTF-8 std::string.
 // NULL inputs produce an empty string.

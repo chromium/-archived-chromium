@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/common/page_transition_types.h"

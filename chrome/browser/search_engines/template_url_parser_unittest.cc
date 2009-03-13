@@ -5,7 +5,6 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/scoped_ptr.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_parser.h"
 #include "chrome/common/chrome_paths.h"

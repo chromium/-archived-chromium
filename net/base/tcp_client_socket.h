@@ -17,7 +17,6 @@ struct event;  // From libevent
 #include "base/message_loop.h"
 #endif
 
-#include "base/scoped_ptr.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket.h"
 #include "net/base/completion_callback.h"

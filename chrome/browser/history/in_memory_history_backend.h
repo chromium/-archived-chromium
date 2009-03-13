@@ -16,6 +16,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/common/notification_observer.h"
 

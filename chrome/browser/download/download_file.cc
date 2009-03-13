@@ -6,7 +6,6 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/task.h"
 #include "build/build_config.h"

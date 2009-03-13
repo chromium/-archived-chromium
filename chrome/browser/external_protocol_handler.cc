@@ -11,7 +11,6 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/registry.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser.h"

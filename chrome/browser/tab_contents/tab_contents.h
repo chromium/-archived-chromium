@@ -12,6 +12,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
+#include "base/scoped_ptr.h"
 #if defined(OS_WIN)
 // TODO(evanm): I mean really, c'mon, this can't have broken the build, right?
 #include "chrome/browser/autocomplete/autocomplete_edit.h"

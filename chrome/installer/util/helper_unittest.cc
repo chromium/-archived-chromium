@@ -11,7 +11,6 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/work_item.h"

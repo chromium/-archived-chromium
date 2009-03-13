@@ -21,7 +21,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webplugin_delegate.h"

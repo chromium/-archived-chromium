@@ -10,7 +10,6 @@
 #include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/ref_counted.h"
-#include "base/scoped_ptr.h"
 #include "chrome/common/chrome_plugin_api.h"
 
 class MessageLoop;

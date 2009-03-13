@@ -10,7 +10,6 @@
 #include <sstream>
 
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 
 //
 // Optional message capabilities

@@ -13,6 +13,7 @@
 
 #include "base/logging.h"
 #include "base/registry.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 

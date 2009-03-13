@@ -13,7 +13,6 @@
 #include <string>
 
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 
 using base::TimeDelta;

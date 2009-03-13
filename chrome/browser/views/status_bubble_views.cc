@@ -6,7 +6,6 @@
 
 #include <algorithm>
 
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/gfx/chrome_canvas.h"

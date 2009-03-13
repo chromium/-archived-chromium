@@ -30,7 +30,6 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/scoped_ptr.h"
 #include "base/string_escape.h"
 #include "base/string_piece.h"
 #include "base/string_tokenizer.h"

@@ -4,7 +4,6 @@
 
 #include "chrome/views/link.h"
 
-#include "base/scoped_ptr.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/event.h"
 

@@ -6,7 +6,6 @@
 
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"

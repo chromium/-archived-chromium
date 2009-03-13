@@ -11,7 +11,6 @@
 #include <atlmisc.h>
 #include <cmath>
 
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"

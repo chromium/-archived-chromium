@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "net/base/completion_callback.h"
 

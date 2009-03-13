@@ -19,6 +19,7 @@
 #include "base/logging.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
+#include "base/scoped_ptr.h"
 #include "base/sys_info.h"
 #include "base/time.h"
 

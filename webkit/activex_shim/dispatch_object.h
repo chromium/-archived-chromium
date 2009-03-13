@@ -9,7 +9,6 @@
 
 #include <list>
 
-#include "base/scoped_ptr.h"
 #include "webkit/glue/plugins/nphostapi.h"
 
 namespace activex_shim {

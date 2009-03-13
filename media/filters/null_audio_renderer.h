@@ -21,6 +21,7 @@
 
 #include "base/lock.h"
 #include "base/platform_thread.h"
+#include "base/scoped_ptr.h"
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"

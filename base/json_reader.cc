@@ -6,6 +6,7 @@
 
 #include "base/float_util.h"
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/values.h"
 

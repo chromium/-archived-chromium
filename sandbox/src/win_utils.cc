@@ -7,6 +7,7 @@
 #include <map>
 
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "sandbox/src/internal_types.h"
 #include "sandbox/src/nt_internals.h"
 

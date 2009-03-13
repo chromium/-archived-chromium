@@ -6,7 +6,6 @@
 
 #include "base/file_util.h"
 #include "base/message_loop.h"
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/net_util.h"

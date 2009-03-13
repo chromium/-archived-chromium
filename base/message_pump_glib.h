@@ -8,7 +8,6 @@
 #include <glib.h>
 
 #include "base/message_pump.h"
-#include "base/scoped_ptr.h"
 #include "base/time.h"
 
 namespace base {

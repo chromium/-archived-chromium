@@ -8,7 +8,6 @@
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
-#include "base/scoped_ptr.h"
 #include "webkit/tools/test_shell/webwidget_host.h"
 
 struct WebPreferences;

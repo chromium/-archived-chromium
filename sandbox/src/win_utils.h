@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <string>
 #include "base/basictypes.h"
-#include "base/scoped_ptr.h"
 
 namespace sandbox {
 

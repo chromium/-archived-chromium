@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include "base/gfx/size.h"
+#include "base/scoped_ptr.h"
 #include "base/scoped_cftyperef.h"
 #include "chrome/browser/cocoa/base_view.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"

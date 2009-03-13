@@ -14,6 +14,7 @@
 #include "base/message_pump.h"
 #include "base/observer_list.h"
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/timer.h"
 

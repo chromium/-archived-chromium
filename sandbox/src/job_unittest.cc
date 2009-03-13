@@ -4,7 +4,6 @@
 
 // This file contains unit tests for the job object.
 
-#include "base/scoped_ptr.h"
 #include "sandbox/src/job.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

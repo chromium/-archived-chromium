@@ -5,6 +5,7 @@
 #include "base/time_format.h"
 
 #include "base/logging.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "unicode/datefmt.h"
