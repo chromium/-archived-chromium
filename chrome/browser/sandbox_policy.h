@@ -9,7 +9,6 @@
 
 #include "base/file_path.h"
 #include "sandbox/src/sandbox.h"
-#include "webkit/activex_shim/activex_shared.h"
 
 // Adds the generic policy rules to a sandbox TargetPolicy.
 bool AddGenericPolicy(sandbox::TargetPolicy* policy);

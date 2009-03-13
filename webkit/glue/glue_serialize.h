@@ -10,12 +10,12 @@
 #ifndef WEBKIT_GLUE_GLUE_SERIALIZE_H__
 #define WEBKIT_GLUE_GLUE_SERIALIZE_H__
 
-#include "PassRefPtr.h"
-#include "RefPtr.h"
-
 namespace WebCore {
 class String;
 class HistoryItem;
+}
+namespace WTF {
+template<typename T> class PassRefPtr;
 }
 
 namespace webkit_glue {
@@ -23,13 +23,13 @@ namespace webkit_glue {
 // of 0, so the first RefPtr it is assigned to will take ownership.  The empty
 // string corresponds with a NULL HistoryItem.
 void HistoryItemToString(
-    PassRefPtr<WebCore::HistoryItem> item, std::string* serialized_item);
-PassRefPtr<WebCore::HistoryItem> HistoryItemFromString(
+    WTF::PassRefPtr<WebCore::HistoryItem> item, std::string* serialized_item);
+WTF::PassRefPtr<WebCore::HistoryItem> HistoryItemFromString(
     const std::string& serialized_item);
 
 // For testing purposes only.
 void HistoryItemToVersionedString(
-    PassRefPtr<WebCore::HistoryItem> item, int version,
+    WTF::PassRefPtr<WebCore::HistoryItem> item, int version,
     std::string* serialized_item);
 }
 

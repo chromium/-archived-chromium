@@ -10,7 +10,6 @@ include_rules = [
   "+sandbox/src",
   "+skia/include",
   "+skia/ext",
-  "+webkit/activex_shim",
   "+webkit/default_plugin",
   "+webkit/glue",  # Defines some types that are marshalled over IPC.
 
