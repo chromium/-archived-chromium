@@ -1219,6 +1219,9 @@ void RenderView::DidStopLoading(WebView* webview) {
   if (!favicon_url.is_empty())
     Send(new ViewHostMsg_UpdateFavIconURL(routing_id_, page_id_, favicon_url));
 
+  // Update the list of available feeds.
+  UpdateFeedList(webview->GetMainFrame()->GetFeedList());
+
   AddGURLSearchProvider(webview->GetMainFrame()->GetOSDDURL(),
                         true);  // autodetected
 
@@ -1694,6 +1697,13 @@ void RenderView::AddGURLSearchProvider(const GURL& osd_url, bool autodetected) {
   if (!osd_url.is_empty())
     Send(new ViewHostMsg_PageHasOSDD(routing_id_, page_id_, osd_url,
                                      autodetected));
+}
+
+void RenderView::UpdateFeedList(scoped_refptr<FeedList> feedlist) {
+  ViewHostMsg_UpdateFeedList_Params params;
+  params.page_id = page_id_;
+  params.feedlist = feedlist;
+  Send(new ViewHostMsg_UpdateFeedList(routing_id_, params));
 }
 
 bool RenderView::RunBeforeUnloadConfirm(WebFrame* webframe,

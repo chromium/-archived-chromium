@@ -517,6 +517,7 @@ class RenderViewHost : public RenderWidgetHost {
   void OnUpdateDragCursor(bool is_drop_target);
   void OnTakeFocus(bool reverse);
   void OnMsgPageHasOSDD(int32 page_id, const GURL& doc_url, bool autodetected);
+  void OnMsgUpdateFeedList(const ViewHostMsg_UpdateFeedList_Params& params);
   void OnMsgInspectElementReply(int num_resources);
   void DidPrintPage(const ViewHostMsg_DidPrintPage_Params& params);
   void OnDebugMessage(const std::string& message);

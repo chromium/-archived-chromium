@@ -165,6 +165,10 @@ void LocationBarViewGtk::FocusSearch() {
   location_entry_->SetFocus();
 }
 
+void LocationBarViewGtk::UpdateFeedIcon() {
+  NOTIMPLEMENTED();
+}
+
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
   NOTIMPLEMENTED();
 }

@@ -99,6 +99,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual GURL GetURL() const;
   virtual GURL GetFavIconURL() const;
   virtual GURL GetOSDDURL() const;
+  virtual scoped_refptr<class FeedList> GetFeedList() const;
   virtual WebDataSource* GetDataSource() const;
   virtual WebDataSource* GetProvisionalDataSource() const;
   virtual void StopLoading();
