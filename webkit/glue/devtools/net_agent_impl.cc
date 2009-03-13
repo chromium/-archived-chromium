@@ -4,8 +4,6 @@
 
 #include "config.h"
 
-#include "webkit/glue/devtools/net_agent_impl.h"
-
 #include "CachedCSSStyleSheet.h"
 #include "CachedResource.h"
 #include "CachedScript.h"
@@ -27,6 +25,7 @@
 #include "base/basictypes.h"
 #include "base/values.h"
 #include "googleurl/src/gurl.h"
+#include "webkit/glue/devtools/net_agent_impl.h"
 #include "webkit/glue/glue_util.h"
 
 using namespace WebCore;

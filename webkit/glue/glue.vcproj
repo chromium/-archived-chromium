@@ -181,6 +181,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webdevtoolsagent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsagent_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsclient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdevtoolsclient_delegate.h"
+				>
+			</File>
+			<File
 				RelativePath=".\weberror.h"
 				>
 			</File>
@@ -581,27 +597,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webdevtoolsagent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webdevtoolsagent_delegate.h"
-				>
-			</File>
-			<File
 				RelativePath=".\webdevtoolsagent_impl.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\webdevtoolsagent_impl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webdevtoolsclient.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webdevtoolsclient_delegate.h"
 				>
 			</File>
 			<File

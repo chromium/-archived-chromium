@@ -2,15 +2,16 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "webkit/glue/devtools/devtools_rpc.h"
-
-#include "PlatformString.h"
-
 // TODO(pfeldman): Remove these once JSON is available in
 // WebCore namespace.
+
+#include "PlatformString.h"
+#undef LOG
+
 #include "base/json_reader.h"
 #include "base/json_writer.h"
 #include "base/values.h"
+#include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/glue_util.h"
 
 DevToolsRpc::DevToolsRpc(Delegate* delegate) : delegate_(delegate) {

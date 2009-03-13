@@ -8,12 +8,9 @@
 #include <string>
 
 #include "base/string_util.h"
-#include "PlatformString.h"
-
+#include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/glue_util.h"
-
-using WebCore::String;
 
 // Universal mock delegate for DevToolsRpc. Typical usage of the mock is:
 // mock->Method1();  // Set expectation.
@@ -26,7 +23,11 @@ class DevToolsMockRpc : public DevToolsRpc::Delegate {
   ~DevToolsMockRpc() {}
 
   virtual void SendRpcMessage(const std::string& msg) {
-    log_ = StringPrintf("%s\n%s", log_.c_str(), msg.c_str());
+    if (!log_.length()) {
+      log_ = msg;
+    } else {
+      log_ = StringPrintf("%s\n%s", log_.c_str(), msg.c_str());
+    }
   }
 
   void Replay() {
@@ -35,13 +36,15 @@ class DevToolsMockRpc : public DevToolsRpc::Delegate {
   }
 
   void Verify() {
-    EXPECT_EQ(ref_log_, log_);
+    ASSERT_EQ(ref_log_, log_);
   }
 
   void Reset() {
     ref_log_ = "";
     log_ = "";
   }
+
+  const std::string &get_log() { return log_; }
 
  private:
   std::string log_;

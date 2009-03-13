@@ -7,7 +7,6 @@
 
 #include "config.h"
 
-#include "EventListener.h"
 #include <wtf/ListHashSet.h>
 #include <wtf/HashMap.h>
 #include <wtf/HashSet.h>

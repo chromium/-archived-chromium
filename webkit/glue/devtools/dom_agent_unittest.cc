@@ -4,12 +4,12 @@
 
 #include "config.h"
 
-#include <wtf/OwnPtr.h>
-
 #include "CString.h"
 #include "Document.h"
+#include "EventListener.h"
 #include "HTMLFrameOwnerElement.h"
 #include "PlatformString.h"
+#include <wtf/OwnPtr.h>
 #undef LOG
 
 #include "base/file_path.h"
@@ -19,7 +19,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/devtools/devtools_mock_rpc.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
-#include "webkit/glue/devtools/dom_agent.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/glue_util.h"

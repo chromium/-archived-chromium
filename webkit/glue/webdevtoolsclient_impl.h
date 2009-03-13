@@ -7,16 +7,17 @@
 
 #include <string>
 
-#include "CString.h"
-#include "PlatformString.h"
-#undef LOG
-
+#include "base/string_util.h"
 #include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/devtools/dom_agent.h"
 #include "webkit/glue/devtools/net_agent.h"
 #include "webkit/glue/devtools/tools_agent.h"
 #include "webkit/glue/webdevtoolsclient.h"
+
+namespace WebCore {
+class String;
+}
 
 class DomAgentStub;
 class NetAgentStub;
@@ -71,39 +72,39 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
 
  private:
   // MakeJsCall templates.
-  void MakeJsCall(const WebCore::String& func) {
-    EvaluateJs(WebCore::String::format("%s()", func.utf8().data()));
+  void MakeJsCall(const std::string& func) {
+    EvaluateJs(StringPrintf("%s()", func.c_str()));
   }
   template<class T1>
-  void MakeJsCall(const WebCore::String& func, T1 t1) {
-    EvaluateJs(WebCore::String::format("%s(%s)", func.utf8().data(),
-        ToJSON(t1).data()));
+  void MakeJsCall(const std::string& func, T1 t1) {
+    EvaluateJs(StringPrintf("%s(%s)", func.c_str(),
+        ToJSON(t1).c_str()));
   }
   template<class T1, class T2>
-  void MakeJsCall(const WebCore::String& func, T1 t1, T2 t2) {
-    EvaluateJs(WebCore::String::format("%s(%s, %s)", func.utf8().data(),
-        ToJSON(t1).data(), ToJSON(t2).data()));
+  void MakeJsCall(const std::string& func, T1 t1, T2 t2) {
+    EvaluateJs(StringPrintf("%s(%s, %s)", func.c_str(),
+        ToJSON(t1).c_str(), ToJSON(t2).c_str()));
   }
   template<class T1, class T2, class T3>
-  void MakeJsCall(const WebCore::String& func, T1 t1, T2 t2, T3 t3) {
-    EvaluateJs(WebCore::String::format("%s(%s, %s, %s)", func.utf8().data(),
-        ToJSON(t1).data(), ToJSON(t2).data(), ToJSON(t3).data()));
+  void MakeJsCall(const std::string& func, T1 t1, T2 t2, T3 t3) {
+    EvaluateJs(StringPrintf("%s(%s, %s, %s)", func.c_str(),
+        ToJSON(t1).c_str(), ToJSON(t2).c_str(), ToJSON(t3).c_str()));
   }
   template<class T1, class T2, class T3, class T4>
-  void MakeJsCall(const WebCore::String& func, T1 t1, T2 t2, T3 t3, T4 t4) {
-    EvaluateJs(WebCore::String::format("%s(%s, %s, %s, %s)", func.utf8().data(),
-        ToJSON(t1).data(), ToJSON(t2).data(), ToJSON(t3).data(),
-        ToJSON(t4).data()));
+  void MakeJsCall(const std::string& func, T1 t1, T2 t2, T3 t3, T4 t4) {
+    EvaluateJs(StringPrintf("%s(%s, %s, %s, %s)", func.c_str(),
+        ToJSON(t1).c_str(), ToJSON(t2).c_str(), ToJSON(t3).c_str(),
+        ToJSON(t4).c_str()));
   }
   template<class T1, class T2, class T3, class T4, class T5>
-  void MakeJsCall(const WebCore::String& func, T1 t1, T2 t2, T3 t3, T4 t4,
+  void MakeJsCall(const std::string& func, T1 t1, T2 t2, T3 t3, T4 t4,
       T5 t5) {
-    EvaluateJs(WebCore::String::format("%s(%s, %s, %s, %s, %s)",
-        func.utf8().data(), ToJSON(t1).data(), ToJSON(t2).data(),
-        ToJSON(t3).data(), ToJSON(t4).data(), ToJSON(t5).data()));
+    EvaluateJs(StringPrintf("%s(%s, %s, %s, %s, %s)",
+        func.c_str(), ToJSON(t1).c_str(), ToJSON(t2).c_str(),
+        ToJSON(t3).c_str(), ToJSON(t4).c_str(), ToJSON(t5).c_str()));
   }
 
-  void EvaluateJs(const WebCore::String& expr);
+  void EvaluateJs(const std::string& expr);
 
   void JsGetResourceSource(const CppArgumentList& args, CppVariant* result);
 
@@ -123,9 +124,9 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
 
  private:
   // Serializers
-  static WebCore::CString ToJSON(const WebCore::String& value);
-  static WebCore::CString ToJSON(int value);
-  static WebCore::CString ToJSON(const Value* value);
+  static std::string ToJSON(const WebCore::String& value);
+  static std::string ToJSON(int value);
+  static std::string ToJSON(const Value* value);
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;

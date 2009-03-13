@@ -229,7 +229,7 @@
         '../../glue/cpp_bound_class_unittest.cc',
         '../../glue/cpp_variant_unittest.cc',
         '../../glue/devtools/dom_agent_unittest.cc',
-        '../../glue/devtools/devtools_mock_rpc.h',
+        '../../glue/devtools/devtools_rpc_unittest.cc',
         '../../glue/dom_operations_unittest.cc',
         '../../glue/dom_serializer_unittest.cc',
         '../../glue/glue_serialize_unittest.cc',

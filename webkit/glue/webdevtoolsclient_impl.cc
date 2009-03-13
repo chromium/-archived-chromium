@@ -3,16 +3,15 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include "webkit/glue/webdevtoolsclient_impl.h"
 
 #include <string>
 
-#include "CString.h"
 #include "Document.h"
 #include "InspectorController.h"
 #include "Node.h"
 #include "Page.h"
 #include "PlatformString.h"
+#undef LOG
 
 #include "base/json_reader.h"
 #include "base/json_writer.h"
@@ -21,6 +20,7 @@
 
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdevtoolsclient_delegate.h"
+#include "webkit/glue/webdevtoolsclient_impl.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webview_impl.h"
 
@@ -184,9 +184,9 @@ void WebDevToolsClientImpl::JsHideDOMNodeHighlight(const CppArgumentList& args,
   result->SetNull();
 }
 
-void WebDevToolsClientImpl::EvaluateJs(const String& expr) {
+void WebDevToolsClientImpl::EvaluateJs(const std::string& expr) {
   web_view_impl_->GetMainFrame()->ExecuteJavaScript(
-      webkit_glue::StringToStdString(expr),
+      expr,
       GURL(), // script url
       1); // base line number
 }
@@ -206,20 +206,20 @@ void WebDevToolsClientImpl::SendRpcMessage(const std::string& raw_msg) {
 }
 
 // static
-CString WebDevToolsClientImpl::ToJSON(const String& value) {
+std::string WebDevToolsClientImpl::ToJSON(const String& value) {
   StringValue str(webkit_glue::StringToStdString(value));
   return ToJSON(&str);
 }
 
 // static
-CString WebDevToolsClientImpl::ToJSON(int value) {
+std::string WebDevToolsClientImpl::ToJSON(int value) {
   FundamentalValue fund(value);
   return ToJSON(&fund);
 }
 
 // static
-CString WebDevToolsClientImpl::ToJSON(const Value* value) {
+std::string WebDevToolsClientImpl::ToJSON(const Value* value) {
   std::string json;
   JSONWriter::Write(value, false, &json);
-  return webkit_glue::StdStringToString(json).utf8();
+  return json;
 }

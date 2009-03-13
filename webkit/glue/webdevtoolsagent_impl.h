@@ -17,6 +17,7 @@
 namespace WebCore {
 class Document;
 class Node;
+class String;
 }
 
 class DomAgentImpl;

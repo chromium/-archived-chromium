@@ -4,8 +4,6 @@
 
 #include "config.h"
 
-#include "webkit/glue/devtools/dom_agent_impl.h"
-
 #include "AtomicString.h"
 #include "Document.h"
 #include "Event.h"
@@ -16,12 +14,14 @@
 #include "markup.h"
 #include "MutationEvent.h"
 #include "Node.h"
+#include "PlatformString.h"
 #include "Text.h"
 #include <wtf/OwnPtr.h>
 #include <wtf/Vector.h>
 #undef LOG
 
 #include "base/values.h"
+#include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/glue_util.h"
 
 using namespace WebCore;

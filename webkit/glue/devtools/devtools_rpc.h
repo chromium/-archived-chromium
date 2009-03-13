@@ -54,11 +54,15 @@
 
 #include <string>
 
-#include "PlatformString.h"
 #include <wtf/OwnPtr.h>
 
 #include "base/basictypes.h"
+#include "base/logging.h"
 #include "base/values.h"
+
+namespace WebCore {
+class String;
+}
 
 using WebCore::String;
 
@@ -120,25 +124,26 @@ struct RpcTypeTrait<String> {
 
 #define TOOLS_RPC_STUB_METHOD0(Method) \
   virtual void Method() { \
-    InvokeAsync(METHOD_##Method); \
+  InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method); \
   }
 
 #define TOOLS_RPC_STUB_METHOD1(Method, T1) \
   virtual void Method(RpcTypeTrait<T1>::ApiType t1) { \
-    InvokeAsync(METHOD_##Method, &t1); \
+    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1); \
   }
 
 #define TOOLS_RPC_STUB_METHOD2(Method, T1, T2) \
   virtual void Method(RpcTypeTrait<T1>::ApiType t1, \
                       RpcTypeTrait<T2>::ApiType t2) { \
-    InvokeAsync(METHOD_##Method, &t1, &t2); \
+    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2); \
   }
 
 #define TOOLS_RPC_STUB_METHOD3(Method, T1, T2, T3) \
   virtual void Method(RpcTypeTrait<T1>::ApiType t1, \
                       RpcTypeTrait<T2>::ApiType t2, \
                       RpcTypeTrait<T3>::ApiType t3) { \
-    InvokeAsync(METHOD_##Method, &t1, &t2, &t3); \
+    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
+        &t3); \
   }
 
 ///////////////////////////////////////////////////////
@@ -153,17 +158,18 @@ case CLASS::METHOD_##Method: { \
 #define TOOLS_RPC_DISPATCH1(Method, T1) \
 case CLASS::METHOD_##Method: { \
   RpcTypeTrait<T1>::DispatchType t1; \
-  DevToolsRpc::GetListValue(*message.get(), 1, &t1); \
+  DevToolsRpc::GetListValue(*message.get(), 2, &t1); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1)); \
+  return true; \
 }
 
 #define TOOLS_RPC_DISPATCH2(Method, T1, T2) \
 case CLASS::METHOD_##Method: { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
-  DevToolsRpc::GetListValue(*message.get(), 1, &t1); \
-  DevToolsRpc::GetListValue(*message.get(), 2, &t2); \
+  DevToolsRpc::GetListValue(*message.get(), 2, &t1); \
+  DevToolsRpc::GetListValue(*message.get(), 3, &t2); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2) \
@@ -176,9 +182,9 @@ case CLASS::METHOD_##Method: { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
   RpcTypeTrait<T3>::DispatchType t3; \
-  DevToolsRpc::GetListValue(*message.get(), 1, &t1); \
-  DevToolsRpc::GetListValue(*message.get(), 2, &t2); \
-  DevToolsRpc::GetListValue(*message.get(), 3, &t3); \
+  DevToolsRpc::GetListValue(*message.get(), 2, &t1); \
+  DevToolsRpc::GetListValue(*message.get(), 3, &t2); \
+  DevToolsRpc::GetListValue(*message.get(), 4, &t3); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2), \
@@ -217,6 +223,7 @@ class Class##Stub : public Class, public DevToolsRpc { \
  public: \
   explicit Class##Stub(Delegate* delegate) : DevToolsRpc(delegate) {} \
   virtual ~Class##Stub() {} \
+  typedef Class CLASS; \
   STRUCT( \
     TOOLS_RPC_STUB_METHOD0, \
     TOOLS_RPC_STUB_METHOD1, \
@@ -233,8 +240,13 @@ class Class##Dispatch { \
   bool Dispatch(Class* delegate, const std::string& raw_msg) { \
     OwnPtr<ListValue> message( \
         static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg))); \
+    int class_id; \
+    message->GetInteger(0, &class_id); \
+    if (class_id != RpcTypeToNumber<Class>::number) { \
+      return false; \
+    } \
     int method; \
-    message->GetInteger(0, &method); \
+    message->GetInteger(1, &method); \
     typedef Class CLASS; \
     switch (method) { \
       STRUCT( \
@@ -248,6 +260,27 @@ class Class##Dispatch { \
  private: \
   DISALLOW_COPY_AND_ASSIGN(Class##Dispatch); \
 };
+
+///////////////////////////////////////////////////////
+// Following templates allow mapping types to numbers.
+
+template <typename T>
+class RpcTypeToNumberCounter {
+ public:
+  static int next_number_;
+};
+template <typename T>
+int RpcTypeToNumberCounter<T>::next_number_ = 0;
+
+template <typename T>
+class RpcTypeToNumber {
+ public:
+  static const int number;
+};
+
+template <typename T>
+const int RpcTypeToNumber<T>::number =
+    RpcTypeToNumberCounter<void>::next_number_++;
 
 ///////////////////////////////////////////////////////
 // RPC base class
@@ -265,29 +298,33 @@ class DevToolsRpc {
   explicit DevToolsRpc(Delegate* delegate);
   virtual ~DevToolsRpc();
 
-  void InvokeAsync(int method) {
+  void InvokeAsync(int class_id, int method) {
     ListValue message;
+    message.Append(CreateValue(&class_id));
     message.Append(CreateValue(&method));
     SendValueMessage(&message);
   }
   template<class T1>
-  void InvokeAsync(int method, T1 t1) {
+  void InvokeAsync(int class_id, int method, T1 t1) {
     ListValue message;
+    message.Append(CreateValue(&class_id));
     message.Append(CreateValue(&method));
     message.Append(CreateValue(t1));
     SendValueMessage(&message);
   }
   template<class T1, class T2>
-  void InvokeAsync(int method, T1 t1, T2 t2) {
+  void InvokeAsync(int class_id, int method, T1 t1, T2 t2) {
     ListValue message;
+    message.Append(CreateValue(&class_id));
     message.Append(CreateValue(&method));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     SendValueMessage(&message);
   }
   template<class T1, class T2, class T3>
-  void InvokeAsync(int method, T1 t1, T2 t2, T3 t3) {
+  void InvokeAsync(int class_id, int method, T1 t1, T2 t2, T3 t3) {
     ListValue message;
+    message.Append(CreateValue(&class_id));
     message.Append(CreateValue(&method));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));

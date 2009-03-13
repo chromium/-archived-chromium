@@ -3,11 +3,11 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include "webkit/glue/webdevtoolsagent_impl.h"
 
 #include <string>
 
 #include "Document.h"
+#include "EventListener.h"
 #include "InspectorController.h"
 #include "Node.h"
 #include "Page.h"
@@ -19,6 +19,7 @@
 #include "webkit/glue/devtools/net_agent_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webview_impl.h"
 
 using WebCore::Document;
