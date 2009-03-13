@@ -133,6 +133,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\frame\browser_root_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\frame\browser_root_view.h"
+				>
+			</File>
+			<File
 				RelativePath=".\frame\browser_view.cc"
 				>
 			</File>

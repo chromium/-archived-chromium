@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_FRAME_GLASS_BROWSER_FRAME_VIEW_H_
 
 #include "chrome/browser/views/frame/browser_frame.h"
-#include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
+#include "chrome/views/non_client_view.h"
 
 class BrowserView;
 class GlassBrowserWindowResources;

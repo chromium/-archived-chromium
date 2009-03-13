@@ -129,11 +129,6 @@ class BrowserView : public BrowserWindow,
   // handled.
   bool SystemCommandReceived(UINT notification_code, const gfx::Point& point);
 
-  // Adds view to the set of views that drops are allowed to occur on. You only
-  // need invoke this for views whose y-coordinate extends above the tab strip
-  // and you want to allow drops on.
-  void AddViewToDropList(views::View* view);
-
   // Shows the next app-modal dialog box, if there is one to be shown, or moves
   // an existing showing one to the front. Returns true if one was shown or
   // activated, false if none was shown.
@@ -270,14 +265,6 @@ class BrowserView : public BrowserWindow,
   virtual void ViewHierarchyChanged(bool is_add,
                                     views::View* parent,
                                     views::View* child);
-  // As long as ShouldForwardToTabStrip returns true, drag and drop methods
-  // are forwarded to the tab strip.
-  virtual bool CanDrop(const OSExchangeData& data);
-  virtual void OnDragEntered(const views::DropTargetEvent& event);
-  virtual int OnDragUpdated(const views::DropTargetEvent& event);
-  virtual void OnDragExited();
-  virtual int OnPerformDrop(const views::DropTargetEvent& event);
-
  private:
   // Information saved before going into fullscreen mode, used to restore the
   // window afterwards.
@@ -290,16 +277,6 @@ class BrowserView : public BrowserWindow,
 
   // Creates the system menu.
   void InitSystemMenu();
-
-  // Returns true if the event should be forwarded to the TabStrip. This
-  // returns true if y coordinate is less than the bottom of the tab strip, and
-  // is not over another child view.
-  virtual bool ShouldForwardToTabStrip(const views::DropTargetEvent& event);
-
-  // Creates and returns a new DropTargetEvent in the coordinates of the
-  // TabStrip.
-  views::DropTargetEvent* MapEventToTabStrip(
-      const views::DropTargetEvent& event);
 
   // Layout the TabStrip, returns the coordinate of the bottom of the TabStrip,
   // for laying out subsequent controls.
@@ -429,17 +406,6 @@ class BrowserView : public BrowserWindow,
 
   // The default favicon image.
   static SkBitmap default_favicon_;
-
-  // Initially set in CanDrop by invoking the same method on the TabStrip.
-  bool can_drop_;
-
-  // If true, drag and drop events are being forwarded to the tab strip.
-  // This is used to determine when to send OnDragExited and OnDragExited
-  // to the tab strip.
-  bool forwarding_to_tab_strip_;
-
-  // Set of additional views drops are allowed on. We do NOT own these.
-  std::set<views::View*> dropable_views_;
 
   // The OTR avatar image.
   static SkBitmap otr_avatar_;

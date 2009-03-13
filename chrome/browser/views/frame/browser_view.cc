@@ -210,14 +210,13 @@ BrowserView::BrowserView(Browser* browser)
       initialized_(false),
       fullscreen_(false),
       ignore_layout_(false),
-      can_drop_(false),
       hung_window_detector_(&hung_plugin_action_),
-      ticker_(0),
+      ticker_(0)
 #ifdef CHROME_PERSONALIZATION
-      personalization_enabled_(false),
-      personalization_(NULL),
+      , personalization_enabled_(false),
+      personalization_(NULL)
 #endif
-      forwarding_to_tab_strip_(false) {
+      {
   InitClass();
   browser_->tabstrip_model()->AddObserver(this);
 }
@@ -375,10 +374,6 @@ bool BrowserView::GetAccelerator(int cmd_id, views::Accelerator* accelerator) {
     }
   }
   return false;
-}
-
-void BrowserView::AddViewToDropList(views::View* view) {
-  dropable_views_.insert(view);
 }
 
 bool BrowserView::ActivateAppModalDialog() const {
@@ -1275,60 +1270,7 @@ void BrowserView::ViewHierarchyChanged(bool is_add,
     Init();
     initialized_ = true;
   }
-  if (!is_add)
-    dropable_views_.erase(child);
 }
-
-bool BrowserView::CanDrop(const OSExchangeData& data) {
-  can_drop_ = (tabstrip_->IsVisible() && !tabstrip_->IsAnimating() &&
-               data.HasURL());
-  return can_drop_;
-}
-
-void BrowserView::OnDragEntered(const views::DropTargetEvent& event) {
-  if (can_drop_ && ShouldForwardToTabStrip(event)) {
-    forwarding_to_tab_strip_ = true;
-    scoped_ptr<views::DropTargetEvent> mapped_event(
-        MapEventToTabStrip(event));
-    tabstrip_->OnDragEntered(*mapped_event.get());
-  }
-}
-
-int BrowserView::OnDragUpdated(const views::DropTargetEvent& event) {
-  if (can_drop_) {
-    if (ShouldForwardToTabStrip(event)) {
-      scoped_ptr<views::DropTargetEvent> mapped_event(
-          MapEventToTabStrip(event));
-      if (!forwarding_to_tab_strip_) {
-        tabstrip_->OnDragEntered(*mapped_event.get());
-        forwarding_to_tab_strip_ = true;
-      }
-      return tabstrip_->OnDragUpdated(*mapped_event.get());
-    } else if (forwarding_to_tab_strip_) {
-      forwarding_to_tab_strip_ = false;
-      tabstrip_->OnDragExited();
-    }
-  }
-  return DragDropTypes::DRAG_NONE;
-}
-
-void BrowserView::OnDragExited() {
-  if (forwarding_to_tab_strip_) {
-    forwarding_to_tab_strip_ = false;
-    tabstrip_->OnDragExited();
-  }
-}
-
-int BrowserView::OnPerformDrop(const views::DropTargetEvent& event) {
-  if (forwarding_to_tab_strip_) {
-    forwarding_to_tab_strip_ = false;
-    scoped_ptr<views::DropTargetEvent> mapped_event(
-          MapEventToTabStrip(event));
-    return tabstrip_->OnPerformDrop(*mapped_event.get());
-  }
-  return DragDropTypes::DRAG_NONE;
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, private:
@@ -1348,36 +1290,6 @@ void BrowserView::InitSystemMenu() {
   } else {
     BuildMenuForTabStriplessWindow(system_menu_.get(), insertion_index);
   }
-}
-
-bool BrowserView::ShouldForwardToTabStrip(
-    const views::DropTargetEvent& event) {
-  if (!tabstrip_->IsVisible())
-    return false;
-
-  const int tab_y = tabstrip_->y();
-  const int tab_height = tabstrip_->height();
-  if (event.y() >= tab_y + tab_height)
-    return false;
-
-  if (event.y() >= tab_y)
-    return true;
-
-  // Mouse isn't over the tab strip. Only forward if the mouse isn't over
-  // another view on the tab strip or is over a view we were told the user can
-  // drop on.
-  views::View* view_over_mouse = GetViewForPoint(event.location());
-  return (view_over_mouse == this || view_over_mouse == tabstrip_ ||
-          dropable_views_.find(view_over_mouse) != dropable_views_.end());
-}
-
-views::DropTargetEvent* BrowserView::MapEventToTabStrip(
-    const views::DropTargetEvent& event) {
-  gfx::Point tab_strip_loc(event.location());
-  ConvertPointToView(this, tabstrip_, &tab_strip_loc);
-  return new views::DropTargetEvent(event.GetData(), tab_strip_loc.x(),
-                                    tab_strip_loc.y(),
-                                    event.GetSourceOperations());
 }
 
 int BrowserView::LayoutTabStrip() {

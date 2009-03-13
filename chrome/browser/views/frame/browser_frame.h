@@ -51,6 +51,8 @@ class BrowserFrame : public views::Window {
   // Tells the frame to update the throbber.
   void UpdateThrobber(bool running);
 
+  BrowserView* browser_view() const { return browser_view_; }
+
  protected:
   // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);
@@ -72,6 +74,7 @@ class BrowserFrame : public views::Window {
   virtual bool IsAppWindow() const { return true; }
   virtual views::NonClientFrameView* CreateFrameViewForWindow();
   virtual void UpdateFrameAfterFrameChange();
+  virtual views::RootView* CreateRootView();
 
  private:
   // Updates the DWM with the frame bounds.

@@ -99,7 +99,7 @@ class NonClientFrameView : public View {
 //  +- views::Window ------------------------------------+
 //  | +- views::RootView ------------------------------+ |
 //  | | +- views::NonClientView ---------------------+ | |
-//  | | | +- views::NonClientFrameView subclass ---+ | | |
+//  | | | +- views::NonClientView subclass      ---+ | | |
 //  | | | |                                        | | | |
 //  | | | | << all painting and event receiving >> | | | |
 //  | | | | << of the non-client areas of a     >> | | | |

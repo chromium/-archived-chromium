@@ -8,6 +8,7 @@
 #include <shellapi.h>
 
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/views/frame/browser_root_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/frame/glass_browser_frame_view.h"
 #include "chrome/browser/views/frame/opaque_browser_frame_view.h"
@@ -200,6 +201,11 @@ views::NonClientFrameView* BrowserFrame::CreateFrameViewForWindow() {
 void BrowserFrame::UpdateFrameAfterFrameChange() {
   Window::UpdateFrameAfterFrameChange();
   UpdateDWMFrame();
+}
+
+
+views::RootView* BrowserFrame::CreateRootView() {
+  return new BrowserRootView(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
