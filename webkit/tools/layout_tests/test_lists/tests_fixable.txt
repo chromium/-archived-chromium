@@ -1817,3 +1817,6 @@ LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 //   http://code.google.com/p/v8/issues/detail?id=277
 LINUX MAC : LayoutTests/fast/js/large-expressions.html = FAIL
 WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
+
+// Started failing with r11635 (mbelshe)
+WIN : LayoutTests/fast/dom/undetectable-document-all.html = FAIL
