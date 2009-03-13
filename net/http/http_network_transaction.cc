@@ -1428,6 +1428,26 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
 
   if (!auth_handler_[target]) {
     if (establishing_tunnel_) {
+      // Log an error message to help debug http://crbug.com/8771.
+      std::string auth_target(target == HttpAuth::AUTH_PROXY ?
+                              "proxy" : "server");
+      LOG(ERROR) << "Can't perform auth to the " << auth_target << " "
+                 << AuthOrigin(target).spec()
+                 << " when establishing a tunnel";
+
+      std::string challenge;
+      void* iter = NULL;
+      while (response_.headers->EnumerateHeader(&iter, "Proxy-Authenticate",
+                                                &challenge)) {
+        LOG(ERROR) << "  Has header Proxy-Authenticate: " << challenge;
+      }
+
+      iter = NULL;
+      while (response_.headers->EnumerateHeader(&iter, "WWW-Authenticate",
+                                                &challenge)) {
+        LOG(ERROR) << "  Has header WWW-Authenticate: " << challenge;
+      }
+
       // We are establishing a tunnel, we can't show the error page because an
       // active network attacker could control its contents.  Instead, we just
       // fail to establish the tunnel.
