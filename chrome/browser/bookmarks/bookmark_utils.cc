@@ -318,7 +318,10 @@ void OpenAll(gfx::NativeWindow parent,
     if (!browser || !browser->GetSelectedTabContents()) {
       navigator = &navigator_impl;
     } else {
-      browser->window()->Activate();
+      if (initial_disposition != NEW_WINDOW &&
+          initial_disposition != OFF_THE_RECORD) {
+        browser->window()->Activate();
+      }
       navigator = browser->GetSelectedTabContents();
     }
   }
