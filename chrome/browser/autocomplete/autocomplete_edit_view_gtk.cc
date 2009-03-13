@@ -54,12 +54,31 @@ AutocompleteEditViewGtk::~AutocompleteEditViewGtk() {
       NotificationType::AUTOCOMPLETE_EDIT_DESTROYED,
       Source<AutocompleteEditViewGtk>(this),
       NotificationService::NoDetails());
+
+  // Explicitly teardown members which have a reference to us.  Just to be safe
+  // we want them to be destroyed before destroying any other internal state.
+  popup_view_.release();
+  model_.release();
+
+  // We own our widget and TextView related objects.
+  if (text_view_) {  // Init() has been called.
+    gtk_widget_destroy(text_view_);
+    g_object_unref(text_buffer_);
+    g_object_unref(tag_table_);
+    g_object_unref(insecure_scheme_tag_);
+    g_object_unref(secure_scheme_tag_);
+    g_object_unref(base_tag_);
+  }
 }
 
 void AutocompleteEditViewGtk::Init() {
+  // The GtkTagTable and GtkTextBuffer are not initially unowned, so we have
+  // our own reference when we create them, and we own them.  Adding them to
+  // the other objects adds a reference; it doesn't adopt them.
   tag_table_ = gtk_text_tag_table_new();
   text_buffer_ = gtk_text_buffer_new(tag_table_);
   text_view_ = gtk_text_view_new_with_buffer(text_buffer_);
+  g_object_ref_sink(text_view_);  // We want to own the widget.
 
   gtk_text_view_set_left_margin(GTK_TEXT_VIEW(text_view_), 4);
   gtk_text_view_set_right_margin(GTK_TEXT_VIEW(text_view_), 4);
