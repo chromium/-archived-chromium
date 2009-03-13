@@ -101,6 +101,8 @@ class BrowserWindowGtk : public BrowserWindow,
   static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
                                       BrowserWindowGtk* window);
 
+  static gboolean OnWindowDestroyed(GtkWidget* window,
+                                    BrowserWindowGtk* browser_win);
   gfx::Rect bounds_;
   GdkWindowState state_;
 
