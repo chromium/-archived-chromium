@@ -142,7 +142,9 @@ class OffTheRecordProfileImpl : public Profile,
   }
 
   virtual VisitedLinkMaster* GetVisitedLinkMaster() {
-    return profile_->GetVisitedLinkMaster();
+    // We don't provide access to the VisitedLinkMaster when we're OffTheRecord
+    // because we don't want to leak the sites that the user has visited before.
+    return NULL;
   }
 
   virtual ExtensionsService* GetExtensionsService() {

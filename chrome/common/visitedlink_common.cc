@@ -24,11 +24,8 @@ bool VisitedLinkCommon::IsVisited(const char* canonical_url,
                                   size_t url_len) const {
   if (url_len == 0)
     return false;
-  if (!hash_table_ || table_length_ == 0) {
-    // Init() will always create a table, this means somebody forgot
-    NOTREACHED();
+  if (!hash_table_ || table_length_ == 0)
     return false;
-  }
   return IsVisited(ComputeURLFingerprint(canonical_url, url_len));
 }
 
