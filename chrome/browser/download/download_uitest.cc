@@ -151,7 +151,7 @@ class DownloadTest : public UITest {
 
 // Download a file with non-viewable content, verify that the
 // download tab opened and the file exists.
-TEST_F(DownloadTest, DownloadMimeType) {
+TEST_F(DownloadTest, DISABLED_DownloadMimeType) {
   wstring file = L"download-test1.lib";
   wstring expected_title = L"100% - " + file;
 
@@ -201,7 +201,7 @@ TEST_F(DownloadTest, NoDownload) {
 // Download a 0-size file with a content-disposition header, verify that the
 // download tab opened and the file exists as the filename specified in the
 // header.  This also ensures we properly handle empty file downloads.
-TEST_F(DownloadTest, ContentDisposition) {
+TEST_F(DownloadTest, DISABLED_ContentDisposition) {
   wstring file = L"download-test3.gif";
   wstring download_file = L"download-test3-attachment.gif";
   wstring expected_title = L"100% - " + download_file;
