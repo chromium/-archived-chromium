@@ -1123,7 +1123,7 @@ MAC : LayoutTests/http/tests/navigation/timerredirect-basic.html = FAIL CRASH
 MAC : LayoutTests/http/tests/navigation/timerredirect-frames.html = FAIL TIMEOUT
 MAC : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = FAIL PASS
-MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
+MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL TIMEOUT
 MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
@@ -1265,6 +1265,7 @@ MAC : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
 MAC : LayoutTests/animations/animation-end-event-destroy-renderer.html = TIMEOUT PASS
 MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT FAIL
+MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = CRASH
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS TIMEOUT
 MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT
@@ -1285,7 +1286,7 @@ MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH PASS
 MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/gradient-with-clip.html = CRASH PASS
 MAC LINUX : LayoutTests/fast/css/acid2.html = CRASH PASS
-MAC RELEASE : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = TIMEOUT PASS
+MAC RELEASE : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL TIMEOUT PASS
 MAC DEBUG : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 // These next few passes like 1 in 20 times, but it could be from corruption
 // from previous tests that is causing the problems.
@@ -1744,11 +1745,14 @@ SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = F
 // a revert.
 WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
-// Added 3/11/09
+// These probably share a root cause for the crash.
+MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-to-javascript-url-in-foreign-domain-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = CRASH PASS
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
+
+// Added 3/11/09
 MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-sync.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = TIMEOUT PASS
@@ -1759,7 +1763,7 @@ MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-star.html
 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-denied-preflight-cache.html = TIMEOUT PASS
 MAC DEBUG : LayoutTests/http/tests/security/frameNavigation/xss-ALLOWED-parent-navigation-change.html = CRASH PASS
-MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/response-encoding.html = CRASH PASS
 LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 
 // Regressions from merge 41559:41588
@@ -1787,4 +1791,12 @@ MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
 
 // Added 3/12/09
 MAC DEBUG : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
+MAC DEBUG : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-set-opener.html = CRASH PASS
+MAC DEBUG : LayoutTests/fast/html/body-offset-properties.html = CRASH PASS
 MAC : LayoutTests/tables/mozilla/other/slashlogo.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/xml-encoding.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/navigation/reload-subframe-iframe.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url.html = TIMEOUT PASS
+WIN DEBUG : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL PASS
+WIN DEBUG : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
+LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
