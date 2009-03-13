@@ -1619,7 +1619,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     case V8ClassIndex::HTMLDOCUMENT: {
       desc->InstanceTemplate()->SetNamedPropertyHandler(
           USE_NAMED_PROPERTY_GETTER(HTMLDocument),
-          USE_NAMED_PROPERTY_SETTER(HTMLDocument),
+          0,
           0,
           USE_NAMED_PROPERTY_DELETER(HTMLDocument));
 
