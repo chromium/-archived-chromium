@@ -1785,6 +1785,12 @@ MAC : LayoutTests/fast/overflow/image-selection-highlight.html = FAIL
 // Started failing after merge 41559:41588
 MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 
+// Newly added tests with merge 41588:41613.
+// They pass on windows given a new baseline and likely only need to be given
+// platform specific baselines for Linux and Mac.
+LINUX : LayoutTests/fast/css/percent-top-value-with-relative-position.html = FAIL
+MAC LINUX : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
+
 // Looks like they started failing with r11542
 MAC : LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
 MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
