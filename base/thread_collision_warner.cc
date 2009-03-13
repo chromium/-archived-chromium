@@ -4,8 +4,8 @@
 
 #include "base/thread_collision_warner.h"
 
-#include "base/atomicops.h"
 #include "base/logging.h"
+#include "base/platform_thread.h"
 
 namespace base {
 

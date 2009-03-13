@@ -16,7 +16,6 @@
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
-#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
 #include "base/thread.h"

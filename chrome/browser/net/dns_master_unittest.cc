@@ -9,7 +9,6 @@
 #include <string>
 
 #include "base/message_loop.h"
-#include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
 #include "chrome/browser/net/dns_global.h"

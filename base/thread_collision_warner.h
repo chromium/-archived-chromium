@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "base/atomicops.h"
-#include "base/platform_thread.h"
 
 // A helper class alongside macros to be used to verify assumptions about thread
 // safety of a class.

@@ -29,7 +29,6 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
-#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "net/base/tcp_pinger.h"
 #include "net/base/host_resolver.h"
