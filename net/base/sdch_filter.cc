@@ -63,7 +63,9 @@ SdchFilter::~SdchFilter() {
     // Filter chaining error, or premature teardown.
     SdchManager::SdchErrorRecovery(SdchManager::UNFLUSHED_CONTENT);
     UMA_HISTOGRAM_COUNTS("Sdch.UnflushedBytesIn",
-           static_cast<int>(filter_context().GetByteReadCount()));
+         static_cast<int>(filter_context().GetByteReadCount()));
+    UMA_HISTOGRAM_COUNTS("Sdch.UnflushedBufferSize",
+                         dest_buffer_excess_.size());
     UMA_HISTOGRAM_COUNTS("Sdch.UnflushedVcdiffIn", source_bytes_);
     UMA_HISTOGRAM_COUNTS("Sdch.UnflushedVcdiffOut", output_bytes_);
   }
@@ -95,7 +97,7 @@ SdchFilter::~SdchFilter() {
 
   switch (decoding_status_) {
     case DECODING_IN_PROGRESS: {
-      UMA_HISTOGRAM_PERCENTAGE("Sdch.Network_Decode_Ratio",static_cast<int>(
+      UMA_HISTOGRAM_PERCENTAGE("Sdch.Network_Decode_Ratio", static_cast<int>(
           (filter_context().GetByteReadCount() * 100) / output_bytes_));
       UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_Latency_F", duration,
                                   base::TimeDelta::FromMilliseconds(20),
