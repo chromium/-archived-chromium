@@ -431,7 +431,7 @@ void BookmarkTableView::PaintAltText() {
   // Pad by 1 for halo.
   canvas.DrawStringWithHalo(alt_text_, font, SK_ColorDKGRAY, SK_ColorWHITE, 1,
                             1, bounds.width() - 2, bounds.height() - 2,
-                            ChromeCanvas::TEXT_ALIGN_LEFT);
+                            l10n_util::DefaultCanvasTextAlignment());
   canvas.getTopPlatformDevice().drawToHDC(dc, bounds.x(), bounds.y(), NULL);
   ReleaseDC(GetNativeControlHWND(), dc);
 }
