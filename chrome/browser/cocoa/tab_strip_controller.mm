@@ -187,7 +187,7 @@ class TabStripBridge : public TabStripModelObserver {
 
 // Positions the new tab button to the right of the last tab.
 - (void)positionNewTabButton {
-  const NSInteger kNewTabXOffset = 10;
+  const NSInteger kNewTabXOffset = -12;
   NSRect lastTab = [[[tabArray_ lastObject] view] frame];
   NSInteger maxRightEdge = NSMaxX(lastTab);
   NSRect newTabButtonFrame = [newTabButton_ frame];
