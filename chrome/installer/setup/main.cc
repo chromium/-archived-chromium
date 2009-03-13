@@ -546,7 +546,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // then the dialog is shown and regardless of the outcome setup exits here.
   if (parsed_command_line.HasSwitch(installer_util::switches::kShowEula)) {
     installer_util::InstallStatus eula = ShowEULADialog();
-    GoogleUpdateSettings::SetEULAConsent(installer_util::EULA_REJECTED != eula);
+    if (installer_util::EULA_REJECTED != eula)
+      GoogleUpdateSettings::SetEULAConsent(true);
     return eula;
   }
 

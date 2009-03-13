@@ -59,7 +59,7 @@ bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
 
 bool GoogleUpdateSettings::SetEULAConsent(bool consented) {
   std::wstring reg_path = GetClientStateKeyPath(true);
-  RegKey key(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_READ | KEY_WRITE);
+  RegKey key(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_READ | KEY_SET_VALUE);
   return key.WriteValue(google_update::kRegEULAAceptedField, consented? 1 : 0);
 }
 
