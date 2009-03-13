@@ -1632,14 +1632,26 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
                                       error_page_url));
 }
 
-void WebFrameImpl::ExecuteJavaScript(const std::string& js_code,
-                                     const GURL& script_url,
-                                     int start_line) {
-  WebCore::ScriptSourceCode source_code(
-      webkit_glue::StdStringToString(js_code),
-      webkit_glue::GURLToKURL(script_url),
-      start_line);
-  frame_->loader()->executeScript(source_code);
+void WebFrameImpl::ExecuteScript(const webkit_glue::WebScriptSource& source) {
+  frame_->loader()->executeScript(
+      WebCore::ScriptSourceCode(
+          webkit_glue::StdStringToString(source.source),
+          webkit_glue::GURLToKURL(source.url),
+          source.start_line));
+}
+
+void WebFrameImpl::ExecuteScriptInNewContext(
+    const webkit_glue::WebScriptSource* sources_in, int num_sources) {
+  Vector<WebCore::ScriptSourceCode> sources;
+
+  for (int i = 0; i < num_sources; ++i) {
+    sources.append(WebCore::ScriptSourceCode(
+        webkit_glue::StdStringToString(sources_in[i].source),
+        webkit_glue::GURLToKURL(sources_in[i].url),
+        sources_in[i].start_line));
+  }
+
+  frame_->script()->evaluateInNewContext(sources);
 }
 
 std::wstring WebFrameImpl::GetName() {

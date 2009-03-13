@@ -4381,6 +4381,7 @@
         'glue/webplugin_impl.cc',
         'glue/webplugin_impl.h',
         'glue/webpreferences.h',
+        'glue/webscriptsource.h',
         'glue/webresponse.h',
         'glue/webresponse_impl.h',
         'glue/webtextinput.h',

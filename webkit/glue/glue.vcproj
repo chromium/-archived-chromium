@@ -705,6 +705,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webscriptsource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webtextinput_impl.cc"
 				>
 			</File>

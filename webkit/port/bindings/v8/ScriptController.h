@@ -42,6 +42,7 @@
 #include "bindings/npruntime.h"
 
 #include <wtf/HashMap.h>
+#include <wtf/Vector.h>
 
 #include "v8.h"
 #include "v8_proxy.h"
@@ -150,6 +151,12 @@ public:
     // If succeeded, 'succ' is set to true and result is returned
     // as a string.
     ScriptValue evaluate(const ScriptSourceCode&);
+
+    // Executes JavaScript in a new context associated with the web frame. The
+    // script gets its own global scope and its own prototypes for intrinsic
+    // JavaScript objects (String, Array, and so-on). It shares the wrappers for
+    // all DOM nodes and DOM constructors.
+    void evaluateInNewContext(const Vector<ScriptSourceCode>& sources);
 
     // JSC has a WindowShell object, but for V8, the ScriptController
     // is the WindowShell.

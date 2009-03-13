@@ -207,6 +207,10 @@ bool ScriptController::processingUserGesture() const
     return false;
 }
 
+void ScriptController::evaluateInNewContext(
+    const Vector<ScriptSourceCode>& sources) {
+  m_proxy->evaluateInNewContext(sources);
+}
 
 // Evaluate a script file in the environment of this proxy.
 ScriptValue ScriptController::evaluate(const ScriptSourceCode& sourceCode)
@@ -217,14 +221,7 @@ ScriptValue ScriptController::evaluate(const ScriptSourceCode& sourceCode)
         return ScriptValue();
 
     v8::Context::Scope scope(context);
-
-    // HTMLTokenizer used to use base zero line numbers for scripts, now it
-    // uses base 1. This confuses v8, which uses line offsets from the
-    // first line.
-    v8::Local<v8::Value> obj = m_proxy->Evaluate(sourceCode.url(),
-                                                 sourceCode.startLine() - 1,
-                                                 sourceCode.source(),
-                                                 NULL);
+    v8::Local<v8::Value> obj = m_proxy->evaluate(sourceCode, NULL);
 
     if (obj.IsEmpty() || obj->IsUndefined())
         return ScriptValue();
@@ -289,7 +286,7 @@ void ScriptController::collectGarbage()
 
     v8::Context::Scope scope(context);
 
-    m_proxy->Evaluate("", 0, "if (window.gc) void(gc());", NULL);
+    m_proxy->evaluate(ScriptSourceCode("if (window.gc) void(gc());"), NULL);
 }
 
 NPRuntimeFunctions* ScriptController::functions()

@@ -42,6 +42,7 @@
 #include "v8_custom.h"
 #include "v8_collection.h"
 #include "v8_nodefilter.h"
+#include "V8DOMWindow.h"
 
 #include "ChromiumBridge.h"
 
@@ -1356,20 +1357,60 @@ bool V8Proxy::HandleOutOfMemory()
     return true;
 }
 
-v8::Local<v8::Value> V8Proxy::Evaluate(const String& fileName, int baseLine,
-                                       const String& str, Node* n)
+void V8Proxy::evaluateInNewContext(const Vector<ScriptSourceCode>& sources)
+{
+    InitContextIfNeeded();
+
+    v8::HandleScope handleScope;
+
+    // Set up the DOM window as the prototype of the new global object.
+    v8::Handle<v8::Context> windowContext = m_context;
+    v8::Handle<v8::Object> windowGlobal = windowContext->Global();
+    v8::Handle<v8::Value> windowWrapper =
+        V8Proxy::LookupDOMWrapper(V8ClassIndex::DOMWINDOW, windowGlobal);
+
+    ASSERT(V8Proxy::DOMWrapperToNative<DOMWindow>(windowWrapper) ==
+           m_frame->domWindow());
+
+    v8::Persistent<v8::Context> context =
+        createNewContext(v8::Handle<v8::Object>());
+    v8::Context::Scope context_scope(context);
+    v8::Handle<v8::Object> global = context->Global();
+
+    v8::Handle<v8::String> implicitProtoString = v8::String::New("__proto__");
+    global->Set(implicitProtoString, windowWrapper);
+
+    // Give the code running in the new context a way to get access to the
+    // original context.
+    global->Set(v8::String::New("contentWindow"), windowGlobal);
+
+    // Run code in the new context.
+    for (size_t i = 0; i < sources.size(); ++i)
+        evaluate(sources[i], 0);
+
+    // Using the default security token means that the canAccess is always
+    // called, which is slow.
+    // TODO(aa): Use tokens where possible. This will mean keeping track of all
+    // created contexts so that they can all be updated when the document domain
+    // changes.
+    context->UseDefaultSecurityToken();
+    context.Dispose();
+}
+
+v8::Local<v8::Value> V8Proxy::evaluate(const ScriptSourceCode& source, Node* n)
 {
     ASSERT(v8::Context::InContext());
 
     // Compile the script.
-    v8::Local<v8::String> code = v8ExternalString(str);
+    v8::Local<v8::String> code = v8ExternalString(source.source());
     ChromiumBridge::traceEventBegin("v8.compile", n, "");
-    v8::Handle<v8::Script> script = CompileScript(code, fileName, baseLine);
+
+    // NOTE: For compatibility with WebCore, ScriptSourceCode's line starts at
+    // 1, whereas v8 starts at 0.
+    v8::Handle<v8::Script> script = CompileScript(code, source.url(),
+                                                  source.startLine() - 1);
     ChromiumBridge::traceEventEnd("v8.compile", n, "");
 
-    // Set inlineCode to true for <a href="javascript:doSomething()">
-    // and false for <script>doSomething</script>. For some reason, fileName
-    // gives us this information.
     ChromiumBridge::traceEventBegin("v8.run", n, "");
     v8::Local<v8::Value> result;
     {
@@ -1378,7 +1419,11 @@ v8::Local<v8::Value> V8Proxy::Evaluate(const String& fileName, int baseLine,
       // evaluate from C++ when returning from here
       v8::TryCatch try_catch;
       try_catch.SetVerbose(true);
-      result = RunScript(script, fileName.isNull());
+
+      // Set inlineCode to true for <a href="javascript:doSomething()">
+      // and false for <script>doSomething</script>. We make a rough guess at
+      // this based on whether the script source has a URL.
+      result = RunScript(script, source.url().string().isNull());
     }
     ChromiumBridge::traceEventEnd("v8.run", n, "");
     return result;
@@ -2255,6 +2300,39 @@ bool V8Proxy::CheckNodeSecurity(Node* node)
     return CanAccessFrame(target, true);
 }
 
+v8::Persistent<v8::Context> V8Proxy::createNewContext(
+    v8::Handle<v8::Object> global)
+{
+    v8::Persistent<v8::Context> result;
+
+    // Create a new environment using an empty template for the shadow
+    // object.  Reuse the global object if one has been created earlier.
+    v8::Persistent<v8::ObjectTemplate> globalTemplate =
+        V8DOMWindow::GetShadowObjectTemplate();
+    if (globalTemplate.IsEmpty())
+        return result;
+
+    // Install a security handler with V8.
+    globalTemplate->SetAccessCheckCallbacks(
+        V8Custom::v8DOMWindowNamedSecurityCheck,
+        V8Custom::v8DOMWindowIndexedSecurityCheck,
+        v8::Integer::New(V8ClassIndex::DOMWINDOW));
+
+    // Dynamically tell v8 about our extensions now.
+    const char** extensionNames = new const char*[m_extensions.size()];
+    int index = 0;
+    V8ExtensionList::iterator it = m_extensions.begin();
+    while (it != m_extensions.end()) {
+        extensionNames[index++] = (*it)->name();
+        ++it;
+    }
+    v8::ExtensionConfiguration extensions(m_extensions.size(), extensionNames);
+    result = v8::Context::New(&extensions, globalTemplate, global);
+    delete [] extensionNames;
+    extensionNames = 0;
+
+    return result;
+}
 
 // Create a new environment and setup the global object.
 //
@@ -2316,32 +2394,7 @@ void V8Proxy::InitContextIfNeeded()
     v8_initialized = true;
   }
 
-  // Create a new environment using an empty template for the shadow
-  // object.  Reuse the global object if one has been created earlier.
-  v8::Persistent<v8::ObjectTemplate> global_template =
-    V8DOMWindow::GetShadowObjectTemplate();
-  if (global_template.IsEmpty())
-    return;
-
-  // Install a security handler with V8.
-  global_template->SetAccessCheckCallbacks(
-      V8Custom::v8DOMWindowNamedSecurityCheck,
-      V8Custom::v8DOMWindowIndexedSecurityCheck,
-      v8::Integer::New(V8ClassIndex::DOMWINDOW));
-
-  // Dynamically tell v8 about our extensions now.
-  const char** extension_names = new const char*[m_extensions.size()];
-  int index = 0;
-  V8ExtensionList::iterator it = m_extensions.begin();
-  while (it != m_extensions.end()) {
-    extension_names[index++] = (*it)->name();
-    ++it;
-  }
-  v8::ExtensionConfiguration extensions(m_extensions.size(), extension_names);
-  m_context = v8::Context::New(&extensions, global_template, m_global);
-  delete [] extension_names;
-  extension_names = 0;
-
+  m_context = createNewContext(m_global);
   if (m_context.IsEmpty())
     return;
 
@@ -3409,6 +3462,20 @@ v8::Handle<v8::Value> V8Proxy::WindowToV8Object(DOMWindow* window)
     if (!frame)
         return v8::Handle<v8::Object>();
 
+    // Special case: Because of evaluateInNewContext() one DOMWindow can have
+    // multipe contexts and multiple global objects associated with it. When
+    // code running in one of those contexts accesses the window object, we
+    // want to return the global object associated with that context, not
+    // necessarily the first global object associated with that DOMWindow.
+    v8::Handle<v8::Context> current_context = v8::Context::GetCurrent();
+    v8::Handle<v8::Object> current_global = current_context->Global();
+    v8::Handle<v8::Object> windowWrapper =
+        LookupDOMWrapper(V8ClassIndex::DOMWINDOW, current_global);
+    if (!windowWrapper.IsEmpty())
+        if (DOMWrapperToNative<DOMWindow>(windowWrapper) == window)
+            return current_global;
+
+    // Otherwise, return the global object associated with this frame.
     v8::Handle<v8::Context> context = GetContext(frame);
     if (context.IsEmpty())
         return v8::Handle<v8::Object>();

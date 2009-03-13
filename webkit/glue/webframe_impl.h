@@ -90,9 +90,9 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
                                           const GURL& error_page_url,
                                           bool replace,
                                           const GURL& fake_url);
-  virtual void ExecuteJavaScript(const std::string& js_code,
-                                 const GURL& script_url,
-                                 int start_line);
+  virtual void ExecuteScript(const webkit_glue::WebScriptSource& source);
+  virtual void ExecuteScriptInNewContext(
+      const webkit_glue::WebScriptSource* sources, int num_sources);
   virtual bool GetPreviousHistoryState(std::string* history_state) const;
   virtual bool GetCurrentHistoryState(std::string* history_state) const;
   virtual bool HasCurrentHistoryState() const;

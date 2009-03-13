@@ -272,7 +272,7 @@ bool NPN_EvaluateHelper(NPP npp, bool popupsAllowed, NPObject* npobj, NPString* 
 
     // Convert UTF-8 stream to WebCore::String.
     WebCore::String script = WebCore::String::fromUTF8(npscript->UTF8Characters, npscript->UTF8Length);
-    v8::Local<v8::Value> v8result = proxy->Evaluate(filename, 0, script, 0);
+    v8::Local<v8::Value> v8result = proxy->evaluate(WebCore::ScriptSourceCode(script, WebCore::KURL(filename)), 0);
 
     // If we had an error, return false.
     if (v8result.IsEmpty())

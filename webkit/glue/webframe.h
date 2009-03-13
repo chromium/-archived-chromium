@@ -6,13 +6,14 @@
 #define WEBKIT_GLUE_WEBFRAME_H_
 
 #include "base/scoped_ptr.h"
+#include "googleurl/src/gurl.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/feed.h"
 #include "webkit/glue/find_in_page_request.h"
+#include "webkit/glue/webscriptsource.h"
 
-class GURL;
 class PlatformContextSkia;
 class WebDataSource;
 class WebError;
@@ -88,13 +89,15 @@ class WebFrame {
                                           bool replace,
                                           const GURL& fake_url) = 0;
 
-  // Executes a string of JavaScript in the web frame. The script_url param is
-  // the URL where the script in question can be found, if any. The renderer may
-  // request this URL to show the developer the source of the error.  The
-  // start_line parameter is the base line number to use for error reporting.
-  virtual void ExecuteJavaScript(const std::string& js_code,
-                                 const GURL& script_url,
-                                 int start_line) = 0;
+  // Executes JavaScript in the web frame.
+  virtual void ExecuteScript(const webkit_glue::WebScriptSource& source) = 0;
+
+  // Executes JavaScript in a new context associated with the web frame. The
+  // script gets its own global scope and its own prototypes for intrinsic
+  // JavaScript objects (String, Array, and so-on). It shares the wrappers for
+  // all DOM nodes and DOM constructors.
+  virtual void ExecuteScriptInNewContext(
+      const webkit_glue::WebScriptSource* sources, int num_sources) = 0;
 
   // Returns a string representing the state of the previous page load for
   // later use when loading. The previous page is the page that was loaded

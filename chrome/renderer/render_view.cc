@@ -2478,9 +2478,8 @@ void RenderView::EvaluateScript(const std::wstring& frame_xpath,
   if (!web_frame)
     return;
 
-  web_frame->ExecuteJavaScript(WideToUTF8(script),
-                               GURL(), // script url
-                               1); // base line number
+  web_frame->ExecuteScript(
+      webkit_glue::WebScriptSource(WideToUTF8(script)));
 }
 
 void RenderView::OnScriptEvalRequest(const std::wstring& frame_xpath,

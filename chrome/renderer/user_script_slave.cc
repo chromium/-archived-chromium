@@ -12,6 +12,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webframe.h"
+#include "webkit/glue/webscriptsource.h"
 
 #include "grit/renderer_resources.h"
 
@@ -100,13 +101,13 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
        script != scripts_.end(); ++script) {
     if ((*script)->MatchesUrl(frame->GetURL()) &&
         (*script)->run_location() == location) {
-      std::string inject(kUserScriptHead);
-      inject.append(api_js_.as_string());
-      inject.append(script_contents_[*script].as_string());
-      inject.append(kUserScriptTail);
-      frame->ExecuteJavaScript(inject,
-                               GURL((*script)->url().spec()),
-                               -user_script_start_line_);
+      webkit_glue::WebScriptSource sources[] = {
+        webkit_glue::WebScriptSource(api_js_.as_string()),
+        webkit_glue::WebScriptSource(
+            script_contents_[*script].as_string(), (*script)->url())
+      };
+
+      frame->ExecuteScriptInNewContext(sources, arraysize(sources));
       ++num_matched;
     }
   }

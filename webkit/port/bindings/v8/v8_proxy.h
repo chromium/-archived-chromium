@@ -13,10 +13,12 @@
 #include "ChromiumBridge.h"
 #include "Node.h"
 #include "NodeFilter.h"
-#include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
 #include "PlatformString.h"  // for WebCore::String
-#include <wtf/PassRefPtr.h> // so generated bindings don't have to
+#include "ScriptSourceCode.h"  // for WebCore::ScriptSourceCode
+#include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
 #include <wtf/Assertions.h>
+#include <wtf/PassRefPtr.h> // so generated bindings don't have to
+#include <wtf/Vector.h>
 
 #include <iterator>
 #include <list>
@@ -230,11 +232,16 @@ class V8Proxy {
   void setEventHandlerLineno(int lineno) { m_handlerLineno = lineno; }
   void finishedWithEvent(Event* event) { }
 
+  // Evaluate JavaScript in a new context. The script gets its own global scope
+  // and its own prototypes for intrinsic JavaScript objects (String, Array,
+  // and so-on). It shares the wrappers for all DOM nodes and DOM constructors.
+  void evaluateInNewContext(const Vector<ScriptSourceCode>& sources);
+
   // Evaluate a script file in the current execution environment.
   // The caller must hold an execution context.
   // If cannot evalute the script, it returns an error.
-  v8::Local<v8::Value> Evaluate(const String& filename, int baseLine,
-                                const String& code, Node* node);
+  v8::Local<v8::Value> evaluate(const ScriptSourceCode& source,
+                                Node* node);
 
   // Run an already compiled script.
   v8::Local<v8::Value> RunScript(v8::Handle<v8::Script> script,
@@ -445,6 +452,7 @@ class V8Proxy {
   static void RegisterExtension(v8::Extension* extension);
 
  private:
+  v8::Persistent<v8::Context> createNewContext(v8::Handle<v8::Object> global);
   void InitContextIfNeeded();
   void DisconnectEventListeners();
   void SetSecurityToken();

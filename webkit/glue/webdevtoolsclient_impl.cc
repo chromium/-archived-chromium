@@ -185,10 +185,7 @@ void WebDevToolsClientImpl::JsHideDOMNodeHighlight(const CppArgumentList& args,
 }
 
 void WebDevToolsClientImpl::EvaluateJs(const std::string& expr) {
-  web_view_impl_->GetMainFrame()->ExecuteJavaScript(
-      expr,
-      GURL(), // script url
-      1); // base line number
+  web_view_impl_->GetMainFrame()->ExecuteScript(expr);
 }
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(
