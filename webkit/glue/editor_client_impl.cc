@@ -672,8 +672,7 @@ void EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
     if (element->hasLocalName(WebCore::HTMLNames::inputTag)) {
       WebCore::HTMLInputElement* input_element =
           static_cast<WebCore::HTMLInputElement*>(element);
-      if (input_element->value().isEmpty())
-        Autofill(input_element, true);
+      Autofill(input_element, true);
     }
   }
 }
