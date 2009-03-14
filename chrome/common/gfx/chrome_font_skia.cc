@@ -58,7 +58,6 @@ void ChromeFont::calculateMetrics() {
 void ChromeFont::CopyChromeFont(const ChromeFont& other) {
   typeface_helper_.reset(new SkAutoUnref(other.typeface_));
   typeface_ = other.typeface_;
-  typeface_->ref();
   font_name_ = other.font_name_;
   font_size_ = other.font_size_;
   style_ = other.style_;
