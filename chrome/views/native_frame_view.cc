@@ -4,14 +4,14 @@
 
 #include "chrome/views/native_frame_view.h"
 
-#include "chrome/views/window_win.h"
+#include "chrome/views/window.h"
 
 namespace views {
 
 ////////////////////////////////////////////////////////////////////////////////
 // NativeFrameView, public:
 
-NativeFrameView::NativeFrameView(WindowWin* frame)
+NativeFrameView::NativeFrameView(Window* frame)
     : NonClientFrameView(),
       frame_(frame) {
 }

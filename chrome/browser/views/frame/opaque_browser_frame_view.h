@@ -112,7 +112,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
 
   // Returns the set of resources to use to paint this view.
   views::WindowResources* resources() const {
-    return frame_->IsActive() || paint_as_active() ?
+    return frame_->is_active() || paint_as_active() ?
         current_active_resources_ : current_inactive_resources_;
   }
 

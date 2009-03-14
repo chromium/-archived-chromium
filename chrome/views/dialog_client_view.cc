@@ -56,7 +56,7 @@ class DialogButton : public NativeButton {
 
   // Overridden to forward to the delegate.
   virtual bool AcceleratorPressed(const Accelerator& accelerator) {
-    if (!owner_->GetDelegate()->AsDialogDelegate()->
+    if (!owner_->window_delegate()->AsDialogDelegate()->
         AreAcceleratorsEnabled(type_)) {
       return false;
     }
@@ -322,8 +322,8 @@ void DialogClientView::ButtonPressed(NativeButton* sender) {
 // DialogClientView, private:
 
 void DialogClientView::PaintSizeBox(ChromeCanvas* canvas) {
-  if (window()->GetDelegate()->CanResize() ||
-      window()->GetDelegate()->CanMaximize()) {
+  if (window()->window_delegate()->CanResize() ||
+      window()->window_delegate()->CanMaximize()) {
     HDC dc = canvas->beginPlatformPaint();
     SIZE gripper_size = { 0, 0 };
     gfx::NativeTheme::instance()->GetThemePartSize(
@@ -416,7 +416,7 @@ void DialogClientView::CreateExtraView() {
 }
 
 DialogDelegate* DialogClientView::GetDialogDelegate() const {
-  DialogDelegate* dd = window()->GetDelegate()->AsDialogDelegate();
+  DialogDelegate* dd = window()->window_delegate()->AsDialogDelegate();
   DCHECK(dd);
   return dd;
 }

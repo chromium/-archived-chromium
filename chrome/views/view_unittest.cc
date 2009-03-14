@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/message_loop.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"
@@ -12,7 +11,6 @@
 #include "chrome/views/event.h"
 #include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
-#include "chrome/views/widget_win.h"
 #include "chrome/views/window.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -625,7 +623,7 @@ TEST_F(ViewTest, DialogDefaultButtonTest) {
       views::Window::CreateChromeWindow(NULL, gfx::Rect(0, 0, 100, 100),
                                         dialog_view_);
   views::DialogClientView* client_view =
-      static_cast<views::DialogClientView*>(window->GetClientView());
+      static_cast<views::DialogClientView*>(window->client_view());
   views::NativeButton* ok_button = client_view->ok_button();
   views::NativeButton* cancel_button = client_view->cancel_button();
 

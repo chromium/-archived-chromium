@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H__
 #define CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H__
 
-#include "base/task.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/table_view.h"

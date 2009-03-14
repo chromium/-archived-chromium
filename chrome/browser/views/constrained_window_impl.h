@@ -8,7 +8,7 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
-#include "chrome/views/window_win.h"
+#include "chrome/views/window.h"
 
 class ConstrainedTabContentsWindowDelegate;
 class ConstrainedWindowAnimation;
@@ -25,7 +25,7 @@ class WindowDelegate;
 //  a child HWND with a custom window frame.
 //
 class ConstrainedWindowImpl : public ConstrainedWindow,
-                              public views::WindowWin {
+                              public views::Window {
  public:
   virtual ~ConstrainedWindowImpl();
 
@@ -34,6 +34,7 @@ class ConstrainedWindowImpl : public ConstrainedWindow,
 
   // Overridden from views::Window:
   virtual views::NonClientFrameView* CreateFrameViewForWindow();
+  virtual void UpdateWindowTitle();
 
   // Overridden from ConstrainedWindow:
   virtual void CloseConstrainedWindow();

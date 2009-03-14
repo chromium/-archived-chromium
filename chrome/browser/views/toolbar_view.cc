@@ -354,7 +354,7 @@ void BrowserToolbarView::Paint(ChromeCanvas* canvas) {
   // For glass, we need to draw a black line below the location bar to separate
   // it from the content area.  For non-glass, the NonClientView draws the
   // toolbar background below the location bar for us.
-  if (GetWidget()->AsWindow()->GetNonClientView()->UseNativeFrame())
+  if (GetWidget()->AsWindow()->UseNativeFrame())
     canvas->FillRectInt(SK_ColorBLACK, 0, height() - 1, width(), 1);
 }
 
@@ -498,8 +498,8 @@ gfx::Size BrowserToolbarView::GetPreferredSize() {
   }
 
   int vertical_spacing = PopupTopSpacing() +
-      (GetWidget()->AsWindow()->GetNonClientView()->UseNativeFrame() ?
-          kPopupBottomSpacingGlass : kPopupBottomSpacingNonGlass);
+      (GetWidget()->AsWindow()->UseNativeFrame() ? kPopupBottomSpacingGlass
+                                                 : kPopupBottomSpacingNonGlass);
   return gfx::Size(0, location_bar_->GetPreferredSize().height() +
       vertical_spacing);
 }
@@ -810,8 +810,8 @@ void BrowserToolbarView::ButtonPressed(views::BaseButton* sender) {
 
 // static
 int BrowserToolbarView::PopupTopSpacing() {
-  return GetWidget()->AsWindow()->GetNonClientView()->UseNativeFrame() ?
-      0 : kPopupTopSpacingNonGlass;
+  return GetWidget()->AsWindow()->UseNativeFrame() ? 0
+                                                   : kPopupTopSpacingNonGlass;
 }
 
 void BrowserToolbarView::Observe(NotificationType type,

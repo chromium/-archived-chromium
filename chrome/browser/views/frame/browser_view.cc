@@ -1088,7 +1088,7 @@ bool BrowserView::GetSavedWindowBounds(gfx::Rect* bounds) const {
     }
 
     gfx::Rect window_rect =
-        frame_->GetNonClientView()->GetWindowBoundsForClientBounds(*bounds);
+        frame_->GetWindowBoundsForClientBounds(*bounds);
     window_rect.set_origin(bounds->origin());
 
     // When we are given x/y coordinates of 0 on a created popup window,
