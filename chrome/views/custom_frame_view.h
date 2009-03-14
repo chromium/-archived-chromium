@@ -87,8 +87,8 @@ class CustomFrameView : public NonClientFrameView,
 
   // Returns the resource collection to be used when rendering the window.
   WindowResources* resources() const {
-    return frame_->is_active() || paint_as_active() ? active_resources_
-                                                    : inactive_resources_;
+    return frame_->IsActive() || paint_as_active() ? active_resources_
+                                                   : inactive_resources_;
   }
 
   // The bounds of the client view, in this view's coordinates.

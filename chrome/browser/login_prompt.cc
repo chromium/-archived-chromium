@@ -147,7 +147,8 @@ class LoginHandlerImpl : public LoginHandler,
           this, &LoginHandlerImpl::CancelAuthDeferred));
       SendNotifications();
     }
-
+  }
+  virtual void DeleteDelegate() {
     // Delete this object once all InvokeLaters have been called.
     request_loop_->ReleaseSoon(FROM_HERE, this);
   }

@@ -6,6 +6,7 @@
 
 #include "chrome/common/win_util.h"
 #include "chrome/views/root_view.h"
+#include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 
 namespace views {
@@ -51,33 +52,6 @@ bool NonClientView::CanClose() const {
 
 void NonClientView::WindowClosing() {
   client_view_->WindowClosing();
-}
-
-void NonClientView::SystemThemeChanged() {
-  // The window may try to paint in SetUseNativeFrame, and as a result it can
-  // get into a state where it is very unhappy with itself - rendering black
-  // behind the entire client area. This is because for some reason the
-  // SkPorterDuff::kClear_mode erase done in the RootView thinks the window is
-  // still opaque. So, to work around this we hide the window as soon as we can
-  // (now), saving off its placement so it can be properly restored once
-  // everything has settled down.
-  WINDOWPLACEMENT saved_window_placement;
-  saved_window_placement.length = sizeof(WINDOWPLACEMENT);
-  GetWindowPlacement(frame_->GetNativeView(), &saved_window_placement);
-  frame_->Hide();
-
-  // Important step: restore the window first, since our hiding hack doesn't
-  // work for maximized windows! We tell the frame not to allow itself to be
-  // made visible though, which removes the brief flicker.
-  frame_->set_force_hidden(true);
-  ShowWindow(frame_->GetNativeView(), SW_RESTORE);
-  frame_->set_force_hidden(false);
-  
-  SetUseNativeFrame(win_util::ShouldUseVistaFrame());
-
-  // Now that we've updated the frame, we'll want to restore our saved placement
-  // since the display should have settled down and we can be properly rendered.
-  SetWindowPlacement(frame_->GetNativeView(), &saved_window_placement);
 }
 
 void NonClientView::SetUseNativeFrame(bool use_native_frame) {
@@ -206,7 +180,7 @@ views::View* NonClientView::GetViewForPoint(const gfx::Point& point,
 bool NonClientFrameView::HitTest(const gfx::Point& l) const {
   // For the default case, we assume the non-client frame view never overlaps
   // the client view.
-  return !GetWidget()->AsWindow()->client_view()->bounds().Contains(l);
+  return !GetWidget()->AsWindow()->GetClientView()->bounds().Contains(l);
 }
 
 void NonClientFrameView::DidChangeBounds(const gfx::Rect& previous,

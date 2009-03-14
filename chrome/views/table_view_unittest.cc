@@ -4,9 +4,10 @@
 
 #include <vector>
 
+#include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/views/table_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window_win.h"
 #include "chrome/views/window_delegate.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -152,7 +153,7 @@ void TableViewTest::SetUp() {
 }
 
 void TableViewTest::TearDown() {
-  window_->CloseNow();
+  window_->Close();
   // Temporary workaround to avoid leak of RootView::pending_paint_task_.
   message_loop_.RunAllPending();
   OleUninitialize();

@@ -4,6 +4,8 @@
 
 #include "chrome/browser/views/input_window.h"
 
+#include "base/message_loop.h"
+#include "base/task.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/grid_layout.h"
@@ -165,6 +167,6 @@ views::Window* CreateInputWindow(HWND parent_hwnd,
   views::Window* window =
       views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(),
                                               new ContentView(delegate));
-  window->client_view()->AsDialogClientView()->UpdateDialogButtons();
+  window->GetClientView()->AsDialogClientView()->UpdateDialogButtons();
   return window;
 }

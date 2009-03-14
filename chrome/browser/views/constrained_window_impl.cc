@@ -368,7 +368,7 @@ int ConstrainedWindowFrameView::NonClientHitTest(const gfx::Point& point) {
   if (!bounds().Contains(point))
     return HTNOWHERE;
 
-  int frame_component = container_->client_view()->NonClientHitTest(point);
+  int frame_component = container_->GetClientView()->NonClientHitTest(point);
   if (frame_component != HTNOWHERE)
     return frame_component;
 
@@ -378,7 +378,7 @@ int ConstrainedWindowFrameView::NonClientHitTest(const gfx::Point& point) {
 
   int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
       NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
-      container_->window_delegate()->CanResize());
+      container_->GetDelegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
@@ -606,10 +606,6 @@ views::NonClientFrameView* ConstrainedWindowImpl::CreateFrameViewForWindow() {
   return new ConstrainedWindowFrameView(this);
 }
 
-void ConstrainedWindowImpl::UpdateWindowTitle() {
-  UpdateUI(TabContents::INVALIDATE_TITLE);
-}
-
 void ConstrainedWindowImpl::ActivateConstrainedWindow() {
   // Other pop-ups are simply moved to the front of the z-order.
   SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
@@ -653,8 +649,8 @@ void ConstrainedWindowImpl::DidBecomeSelected() {
 
 std::wstring ConstrainedWindowImpl::GetWindowTitle() const {
   std::wstring display_title;
-  if (window_delegate())
-    display_title = window_delegate()->GetWindowTitle();
+  if (GetDelegate())
+    display_title = GetDelegate()->GetWindowTitle();
   else
     display_title = L"Untitled";
 
@@ -671,9 +667,9 @@ const gfx::Rect& ConstrainedWindowImpl::GetCurrentBounds() const {
 ConstrainedWindowImpl::ConstrainedWindowImpl(
     TabContents* owner,
     views::WindowDelegate* window_delegate)
-    : Window(window_delegate),
+    : WindowWin(window_delegate),
       owner_(owner) {
-  non_client_view_->SetFrameView(CreateFrameViewForWindow());
+  GetNonClientView()->SetFrameView(CreateFrameViewForWindow());
   Init();
 }
 
@@ -685,7 +681,7 @@ void ConstrainedWindowImpl::Init() {
 }
 
 void ConstrainedWindowImpl::InitAsDialog(const gfx::Rect& initial_bounds) {
-  Window::Init(owner_->GetNativeView(), initial_bounds);
+  WindowWin::Init(owner_->GetNativeView(), initial_bounds);
   ActivateConstrainedWindow();
 }
 
@@ -719,7 +715,7 @@ void ConstrainedWindowImpl::OnDestroy() {
   }
 
   // Make sure we call super so that it can do its cleanup.
-  Window::OnDestroy();
+  WindowWin::OnDestroy();
 }
 
 void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
@@ -727,7 +723,7 @@ void ConstrainedWindowImpl::OnFinalMessage(HWND window) {
   // list.
   owner_->WillClose(this);
 
-  WidgetWin::OnFinalMessage(window);
+  WindowWin::OnFinalMessage(window);
 }
 
 LRESULT ConstrainedWindowImpl::OnMouseActivate(HWND window,

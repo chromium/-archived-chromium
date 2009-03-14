@@ -474,7 +474,7 @@ int OpaqueBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
   if (!bounds().Contains(point))
     return HTNOWHERE;
 
-  int frame_component = frame_->client_view()->NonClientHitTest(point);
+  int frame_component = frame_->GetClientView()->NonClientHitTest(point);
   if (frame_component != HTNOWHERE)
     return frame_component;
 
@@ -496,7 +496,7 @@ int OpaqueBrowserFrameView::NonClientHitTest(const gfx::Point& point) {
 
   int window_component = GetHTComponentForFrame(point, TopResizeHeight(),
       NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
-      frame_->window_delegate()->CanResize());
+      frame_->GetDelegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
@@ -621,13 +621,13 @@ void OpaqueBrowserFrameView::SetAccessibleName(const std::wstring& name) {
 
 void OpaqueBrowserFrameView::ButtonPressed(views::BaseButton* sender) {
   if (sender == minimize_button_)
-    frame_->ExecuteSystemMenuCommand(SC_MINIMIZE);
+    frame_->Minimize();
   else if (sender == maximize_button_)
-    frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
+    frame_->Maximize();
   else if (sender == restore_button_)
-    frame_->ExecuteSystemMenuCommand(SC_RESTORE);
+    frame_->Restore();
   else if (sender == close_button_)
-    frame_->ExecuteSystemMenuCommand(SC_CLOSE);
+    frame_->Close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -642,7 +642,7 @@ bool OpaqueBrowserFrameView::ShouldTabIconViewAnimate() const {
 }
 
 SkBitmap OpaqueBrowserFrameView::GetFavIconForTabIconView() {
-  return frame_->window_delegate()->GetWindowIcon();
+  return frame_->GetDelegate()->GetWindowIcon();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -663,7 +663,7 @@ int OpaqueBrowserFrameView::NonClientBorderThickness() const {
 }
 
 int OpaqueBrowserFrameView::NonClientTopBorderHeight() const {
-  if (frame_->window_delegate()->ShouldShowWindowTitle()) {
+  if (frame_->GetDelegate()->ShouldShowWindowTitle()) {
     int title_top_spacing, title_thickness;
     return TitleCoordinates(&title_top_spacing, &title_thickness);
   }
@@ -772,7 +772,7 @@ void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
         resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_CENTER);
     int edge_height = top_center->height() - kClientEdgeThickness;
     canvas->TileImageInt(*top_center, 0,
-        frame_->client_view()->y() - edge_height, width(), edge_height);
+        frame_->GetClientView()->y() - edge_height, width(), edge_height);
   }
 }
 
@@ -787,7 +787,7 @@ void OpaqueBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
 
 void OpaqueBrowserFrameView::PaintTitleBar(ChromeCanvas* canvas) {
   // The window icon is painted by the TabIconView.
-  views::WindowDelegate* d = frame_->window_delegate();
+  views::WindowDelegate* d = frame_->GetDelegate();
   if (d->ShouldShowWindowTitle()) {
     canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
         MirroredLeftPointForRect(title_bounds_), title_bounds_.y(),
@@ -807,7 +807,7 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
 
   gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
   gfx::Point toolbar_origin(toolbar_bounds.origin());
-  View::ConvertPointToView(frame_->client_view(), this, &toolbar_origin);
+  View::ConvertPointToView(frame_->GetClientView(), this, &toolbar_origin);
   toolbar_bounds.set_origin(toolbar_origin);
 
   SkBitmap* toolbar_left =
@@ -848,7 +848,7 @@ void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
 }
 
 void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
-  int client_area_top = frame_->client_view()->y();
+  int client_area_top = frame_->GetClientView()->y();
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
   if (browser_view_->IsToolbarVisible()) {
@@ -991,7 +991,7 @@ void OpaqueBrowserFrameView::LayoutTitleBar() {
   if (!frame_->IsMaximized())
     icon_y -= kIconRestoredAdjust;
 
-  views::WindowDelegate* d = frame_->window_delegate();
+  views::WindowDelegate* d = frame_->GetDelegate();
   if (!d->ShouldShowWindowIcon())
     icon_size = 0;
   if (window_icon_)

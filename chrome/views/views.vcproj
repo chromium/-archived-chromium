@@ -638,10 +638,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\window.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\window.h"
 			>
 		</File>
@@ -655,6 +651,14 @@
 		</File>
 		<File
 			RelativePath=".\window_resources.h"
+			>
+		</File>
+		<File
+			RelativePath=".\window_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\window_win.h"
 			>
 		</File>
 	</Files>
