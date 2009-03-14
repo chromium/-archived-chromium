@@ -260,7 +260,7 @@ CustomFrameView::CustomFrameView(Window* frame)
   minimize_button_->SetListener(this, -1);
   AddChildView(minimize_button_);
 
-  should_show_minmax_buttons_ = frame_->window_delegate()->CanMaximize();
+  should_show_minmax_buttons_ = frame_->GetDelegate()->CanMaximize();
 
   AddChildView(system_menu_button_);
 }
@@ -311,7 +311,7 @@ int CustomFrameView::NonClientHitTest(const gfx::Point& point) {
 
   int window_component = GetHTComponentForFrame(point, FrameBorderThickness(),
       NonClientBorderThickness(), kResizeAreaCornerSize, kResizeAreaCornerSize,
-      frame_->window_delegate()->CanResize());
+      frame_->GetDelegate()->CanResize());
   // Fall back to the caption if no other component matches.
   return (window_component == HTNOWHERE) ? HTCAPTION : window_component;
 }
@@ -370,10 +370,11 @@ void CustomFrameView::Layout() {
 }
 
 gfx::Size CustomFrameView::GetPreferredSize() {
-  gfx::Size pref = frame_->client_view()->GetPreferredSize();
+  gfx::Size pref = frame_->GetClientView()->GetPreferredSize();
   DCHECK(pref.width() > 0 && pref.height() > 0);
   gfx::Rect bounds(0, 0, pref.width(), pref.height());
-  return frame_->GetWindowBoundsForClientBounds(bounds).size();
+  return frame_->GetNonClientView()->GetWindowBoundsForClientBounds(
+      bounds).size();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -381,13 +382,13 @@ gfx::Size CustomFrameView::GetPreferredSize() {
 
 void CustomFrameView::ButtonPressed(BaseButton* sender) {
   if (sender == close_button_)
-    frame_->ExecuteSystemMenuCommand(SC_CLOSE);
+    frame_->Close();
   else if (sender == minimize_button_)
-    frame_->ExecuteSystemMenuCommand(SC_MINIMIZE);
+    frame_->Minimize();
   else if (sender == maximize_button_)
-    frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
+    frame_->Maximize();
   else if (sender == restore_button_)
-    frame_->ExecuteSystemMenuCommand(SC_RESTORE);
+    frame_->Restore();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -494,11 +495,11 @@ void CustomFrameView::PaintMaximizedFrameBorder(
   SkBitmap* titlebar_bottom = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
   int edge_height = titlebar_bottom->height() - kClientEdgeThickness;
   canvas->TileImageInt(*titlebar_bottom, 0,
-      frame_->client_view()->y() - edge_height, width(), edge_height);
+      frame_->GetClientView()->y() - edge_height, width(), edge_height);
 }
 
 void CustomFrameView::PaintTitleBar(ChromeCanvas* canvas) {
-  WindowDelegate* d = frame_->window_delegate();
+  WindowDelegate* d = frame_->GetDelegate();
 
   // It seems like in some conditions we can be asked to paint after the window
   // that contains us is WM_DESTROYed. At this point, our delegate is NULL. The
@@ -512,7 +513,7 @@ void CustomFrameView::PaintTitleBar(ChromeCanvas* canvas) {
 }
 
 void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
-  gfx::Rect client_area_bounds = frame_->client_view()->bounds();
+  gfx::Rect client_area_bounds = frame_->GetClientView()->bounds();
   int client_area_top = client_area_bounds.y();
 
   SkBitmap* top_left = resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
@@ -655,7 +656,7 @@ void CustomFrameView::LayoutTitleBar() {
   if (!frame_->IsMaximized())
     icon_y -= kIconRestoredAdjust;
 
-  views::WindowDelegate* d = frame_->window_delegate();
+  views::WindowDelegate* d = frame_->GetDelegate();
   if (!d->ShouldShowWindowIcon())
     icon_size = 0;
   system_menu_button_->SetBounds(icon_x, icon_y, icon_size, icon_size);

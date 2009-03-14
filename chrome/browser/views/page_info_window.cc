@@ -670,7 +670,7 @@ void PageInfoWindow::ShowCertDialog(int cert_id) {
   view_info.dwSize = sizeof(view_info);
   // We set our parent to the tab window. This makes the cert dialog created
   // in CryptUIDlgViewCertificate modal to the browser.
-  view_info.hwndParent = window()->owning_window();
+  view_info.hwndParent = window()->GetNativeWindow();
   view_info.dwFlags = CRYPTUI_DISABLE_EDITPROPERTIES |
                       CRYPTUI_DISABLE_ADDTOSTORE;
   view_info.pCertContext = cert->os_cert_handle();

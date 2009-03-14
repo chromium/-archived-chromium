@@ -22,7 +22,7 @@ int ClientView::NonClientHitTest(const gfx::Point& point) {
 }
 
 void ClientView::WindowClosing() {
-  window_->window_delegate()->WindowClosing();
+  window_->GetDelegate()->WindowClosing();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

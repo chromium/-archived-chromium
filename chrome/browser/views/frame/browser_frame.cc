@@ -24,11 +24,11 @@ static const int kClientEdgeThickness = 3;
 // BrowserFrame, public:
 
 BrowserFrame::BrowserFrame(BrowserView* browser_view)
-    : Window(browser_view),
+    : WindowWin(browser_view),
       browser_view_(browser_view),
       frame_initialized_(false) {
   browser_view_->set_frame(this);
-  non_client_view_->SetFrameView(CreateFrameViewForWindow());
+  GetNonClientView()->SetFrameView(CreateFrameViewForWindow());
   // Don't focus anything on creation, selecting a tab will set the focus.
   set_focus_on_creation(false);
 }
@@ -37,7 +37,7 @@ BrowserFrame::~BrowserFrame() {
 }
 
 void BrowserFrame::Init() {
-  Window::Init(NULL, gfx::Rect());
+  WindowWin::Init(NULL, gfx::Rect());
 }
 
 int BrowserFrame::GetMinimizeButtonOffset() const {
@@ -104,7 +104,7 @@ LRESULT BrowserFrame::OnNCActivate(BOOL active) {
 
   // Perform first time initialization of the DWM frame insets, only if we're
   // using the native frame.
-  if (non_client_view_->UseNativeFrame() && !frame_initialized_) {
+  if (GetNonClientView()->UseNativeFrame() && !frame_initialized_) {
     if (browser_view_->IsBrowserTypeNormal()) {
       ::SetWindowPos(GetNativeView(), NULL, 0, 0, 0, 0,
                      SWP_NOSIZE | SWP_NOMOVE | SWP_FRAMECHANGED);
@@ -113,15 +113,15 @@ LRESULT BrowserFrame::OnNCActivate(BOOL active) {
     frame_initialized_ = true;
   }
   browser_view_->ActivationChanged(!!active);
-  return Window::OnNCActivate(active);
+  return WindowWin::OnNCActivate(active);
 }
 
 LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
   // We don't adjust the client area unless we're a tabbed browser window and
   // are using the native frame.
-  if (!non_client_view_->UseNativeFrame() ||
+  if (!GetNonClientView()->UseNativeFrame() ||
       !browser_view_->IsBrowserTypeNormal()) {
-    return Window::OnNCCalcSize(mode, l_param);
+    return WindowWin::OnNCCalcSize(mode, l_param);
   }
 
   RECT* client_rect = mode ?
@@ -173,14 +173,14 @@ LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
 
 LRESULT BrowserFrame::OnNCHitTest(const CPoint& pt) {
   // Only do DWM hit-testing when we are using the native frame.
-  if (non_client_view_->UseNativeFrame()) {
+  if (GetNonClientView()->UseNativeFrame()) {
     LRESULT result;
     if (DwmDefWindowProc(GetNativeView(), WM_NCHITTEST, 0,
                          MAKELPARAM(pt.x, pt.y), &result)) {
       return result;
     }
   }
-  return Window::OnNCHitTest(pt);
+  return WindowWin::OnNCHitTest(pt);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ int BrowserFrame::GetShowState() const {
 }
 
 views::NonClientFrameView* BrowserFrame::CreateFrameViewForWindow() {
-  if (non_client_view_->UseNativeFrame())
+  if (GetNonClientView()->UseNativeFrame())
     browser_frame_view_ = new GlassBrowserFrameView(this, browser_view_);
   else
     browser_frame_view_ = new OpaqueBrowserFrameView(this, browser_view_);
@@ -199,7 +199,7 @@ views::NonClientFrameView* BrowserFrame::CreateFrameViewForWindow() {
 }
 
 void BrowserFrame::UpdateFrameAfterFrameChange() {
-  Window::UpdateFrameAfterFrameChange();
+  WindowWin::UpdateFrameAfterFrameChange();
   UpdateDWMFrame();
 }
 
@@ -213,7 +213,7 @@ views::RootView* BrowserFrame::CreateRootView() {
 
 void BrowserFrame::UpdateDWMFrame() {
   // Nothing to do yet.
-  if (!client_view() || !browser_view_->IsBrowserTypeNormal())
+  if (!GetClientView() || !browser_view_->IsBrowserTypeNormal())
     return;
 
   // In fullscreen mode, we don't extend glass into the client area at all,

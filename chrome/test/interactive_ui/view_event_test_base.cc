@@ -57,7 +57,7 @@ void ViewEventTestBase::SetUp() {
 
 void ViewEventTestBase::TearDown() {
   if (window_) {
-    DestroyWindow(window_->GetNativeView());
+    DestroyWindow(window_->GetNativeWindow());
     window_ = NULL;
   }
   OleUninitialize();
@@ -79,7 +79,7 @@ void ViewEventTestBase::StartMessageLoopAndRunTest() {
   window_->Show();
   // Make sure the window is the foreground window, otherwise none of the
   // mouse events are going to be targeted correctly.
-  SetForegroundWindow(window_->GetNativeView());
+  SetForegroundWindow(window_->GetNativeWindow());
 
   // Flush any pending events to make sure we start with a clean slate.
   MessageLoop::current()->RunAllPending();

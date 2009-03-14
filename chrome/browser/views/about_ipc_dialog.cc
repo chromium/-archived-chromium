@@ -26,6 +26,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/text_button.h"
+#include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"

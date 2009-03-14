@@ -30,6 +30,7 @@
 #include "chrome/views/label.h"
 #include "chrome/views/menu_button.h"
 #include "chrome/views/single_split_view.h"
+#include "chrome/views/widget.h"
 #include "chrome/views/window.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"

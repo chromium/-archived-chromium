@@ -150,7 +150,7 @@ void FirstRunView::Layout() {
 void FirstRunView::OpenCustomizeDialog() {
   // The customize dialog now owns the importer host object.
   views::Window::CreateChromeWindow(
-      window()->GetNativeView(),
+      window()->GetNativeWindow(),
       gfx::Rect(),
       new FirstRunCustomizeView(profile_,
                                 importer_host_,
@@ -182,7 +182,7 @@ bool FirstRunView::Accept() {
     SetDefaultBrowser();
   // Index 0 is the default browser.
   FirstRun::ImportSettings(profile_, 0, GetDefaultImportItems(),
-                           window()->GetNativeView());
+                           window()->GetNativeWindow());
   UserMetrics::RecordAction(L"FirstRunDef_Accept", profile_);
 
   return true;
