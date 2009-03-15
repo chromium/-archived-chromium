@@ -6,7 +6,17 @@
    fun:MOZ_Z_deflate
 }
 {
-   dlopen leak; not our problem.
+   dlopen invalid read; not our problem.
+   Memcheck:Value4
+   fun:*
+   fun:*
+   fun:*
+   fun:*
+   fun:dlopen@@GLIBC_2.1
+   fun:PR_LoadLibraryWithFlags
+}
+{
+   leak in dlopen or nss.  See http://sources.redhat.com/bugzilla/show_bug.cgi?id=2451
    Memcheck:Leak
    fun:malloc
    fun:_dl_map_object_from_fd
@@ -185,15 +195,15 @@
 {
    libc
    Memcheck:Cond
-   obj:/lib/ld-2.7.so
-   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
 }
 
 {
    libc
    Memcheck:Addr4
-   obj:/lib/ld-2.7.so
-   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.*.so
+   obj:/lib/ld-2.*.so
 }
 
 {
@@ -208,7 +218,7 @@
    SQLite ?
    Memcheck:Param
    write(buf)
-   obj:/lib32/libpthread-2.7.so
+   obj:/lib32/libpthread-2.*.so
    fun:unixWrite
    fun:sqlite3OsWrite
    fun:writeJournalHdr
