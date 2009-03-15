@@ -8,9 +8,9 @@ layer at (0,0) size 800x600
           text run at (0,0) width 51: "Test for "
         RenderInline {A} at (0,0) size 291x19 [color=#0000EE]
           RenderText {#text} at (51,0) size 291x19
-            text run at (51,0) width 291: "https://bugs.webkit.org/show_bug.cgi?id=23093"
-        RenderText {#text} at (342,0) size 306x19
-          text run at (342,0) width 306: ". The cancel button in a search field fails to redraw."
+            text run at (51,0) width 291: "https://bugs.webkit.org/show_bug.cgi?id=24508"
+        RenderText {#text} at (342,0) size 428x19
+          text run at (342,0) width 428: ". Search field does not redraw if value set, when it has placeholder text."
       RenderBlock (anonymous) at (0,36) size 784x22
         RenderTextControl {INPUT} at (0,0) size 155x22 [bgcolor=#FFFFFF] [border: (2px inset #000000)]
           RenderBlock {DIV} at (2,3) size 151x16
@@ -18,8 +18,7 @@ layer at (0,0) size 800x600
             RenderBlock {DIV} at (151,13) size 0x0
         RenderText {#text} at (0,0) size 0x0
         RenderText {#text} at (0,0) size 0x0
-        RenderText {#text} at (0,0) size 0x0
 layer at (10,47) size 151x16
   RenderBlock {DIV} at (0,0) size 151x16
-    RenderText {#text} at (1,0) size 58x16
-      text run at (1,0) width 58: "some text"
+    RenderText {#text} at (1,0) size 51x16
+      text run at (1,0) width 51: "New text"
