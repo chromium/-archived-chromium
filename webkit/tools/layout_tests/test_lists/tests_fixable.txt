@@ -256,6 +256,12 @@ DEFER : LayoutTests/fast/js/kde/function_arguments.html = FAIL
 // error in the header of the following test.
 DEFER SKIP : LayoutTests/fast/css/disabled-author-styles.html = FAIL
 
+// It looks like the upstream test is incorrectly using font-family: Times
+// instead of font-family: times new roman.  This broke when we recently moved
+// more of our font default settings to 'times new roman' from 'Times'.  This
+// should be fixed upstream.  https://bugs.webkit.org/show_bug.cgi?id=16348
+LINUX : LayoutTests/fast/css/font-face-default-font.html = FAIL
+
 // We don't support dynamic fonts on Linux.
 // Once we have the sandbox working, we should re-evaluate this.
 DEFER LINUX : LayoutTests/fast/css/font-face-remote.html = FAIL
@@ -1801,17 +1807,21 @@ WIN DEBUG : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL
 WIN DEBUG : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
-// Newly added test from 41613:41650
+// Newly added test from 41613:41660
 DEFER MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.html = FAIL
 
-// Newly added test from 41613:41650 -- relies on ScriptCallStack::state() -- dglazkov should fix.
+// Newly added test from 41613:41660 -- relies on ScriptCallStack::state() -- dglazkov should fix.
 DEFER MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
 
-// New failures from 41613:41650 -- They likely just need to be rebaselined
+// New failures from 41613:41660 -- They likely just need to be rebaselined
 // for Mac and Linux, since that is what was done for Windows.
 DEFER LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 DEFER MAC LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
 DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
+
+// New failures from 41613:41660 -- Linux should start using themeChromiumWin.css
+// instead of themeWin.css and then this test should pass.
+LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 
 // This hits a stack-overflow exception earlier in debug mode than in
 // release mode on Windows.
@@ -1825,4 +1835,3 @@ WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
 
 // Started failing with r11635 (mbelshe)
 WIN : LayoutTests/fast/dom/undetectable-document-all.html = FAIL
-
