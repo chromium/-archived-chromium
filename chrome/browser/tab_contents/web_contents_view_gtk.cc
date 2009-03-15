@@ -36,6 +36,13 @@ gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
   return TRUE;
 }
 
+// Whenever we lose focus, set the cursor back to that of our parent window,
+// which should be the default arrow.
+gboolean OnFocusOut(GtkWidget* widget, GdkEventFocus* event, void*) {
+  gdk_window_set_cursor(widget->window, NULL);
+  return FALSE;
+}
+
 // Callback used in WebContentsViewGtk::CreateViewForWidget().
 void RemoveWidget(GtkWidget* widget, void* container) {
   gtk_container_remove(GTK_CONTAINER(container), widget);
@@ -74,6 +81,8 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   gtk_widget_show(view->native_view());
   g_signal_connect(view->native_view(), "focus",
                    G_CALLBACK(OnFocus), web_contents_);
+  g_signal_connect(view->native_view(), "focus-out-event",
+                   G_CALLBACK(OnFocusOut), NULL);
   gtk_container_foreach(GTK_CONTAINER(vbox_), RemoveWidget, vbox_);
   gtk_box_pack_start(GTK_BOX(vbox_), view->native_view(), TRUE, TRUE, 0);
   return view;
