@@ -9,7 +9,7 @@ See http://dev.chromium.org/developers/how-tos/depottools/presubmit-scripts for
 details on the presubmit API built into gcl.
 """
 
-# Files with these extensions will be considered source files
+# Files with these extensions will be considered source files.
 SOURCE_FILE_EXTENSIONS = [
     '.c', '.cc', '.cpp', '.h', '.m', '.mm', '.py', '.mk', '.am', '.json',
 ]
