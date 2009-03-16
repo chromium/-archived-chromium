@@ -392,7 +392,7 @@ inline void VisitedLinkMaster::DebugValidate() {
     if (hash_table_[i])
       used_count++;
   }
-  DCHECK(used_count == used_items_);
+  DCHECK_EQ(used_count, used_items_);
 }
 #endif
 
