@@ -32,58 +32,54 @@
    obj:*
 }
 {
-   Leak inside GTK?
+   gtk developers don't like cleaning up one-time leaks, part 1.  See http://mail.gnome.org/archives/gtk-devel-list/2004-April/msg00230.html
    Memcheck:Leak
-   fun:calloc
-   fun:g_malloc0
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   fun:g_type_register_fundamental
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   fun:g_type_init_with_debug_flags
-   fun:g_type_init
-   fun:gdk_pre_parse_libgtk_only
-   obj:/usr/lib32/libgtk-x11-2.0.so.0.1200.9
-   fun:g_option_context_parse
-   fun:gtk_parse_args
+   fun:malloc
+   ...
+   fun:gtk_init_check
 }
 {
-   Leak inside GTK?
+   gtk developers don't like cleaning up one-time leaks, part 2
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:gtk_init_check
+}
+{
+   gtk developers don't like cleaning up one-time leaks, part 3
+   Memcheck:Leak
+   fun:calloc
+   ...
+   fun:gtk_init_check
+}
+{
+   gtk developers don't like cleaning up one-time leaks, part 4
    Memcheck:Leak
    fun:memalign
-   fun:posix_memalign
-   obj:/usr/lib32/libglib-2.0.so.0.1600.3
-   fun:g_slice_alloc
-   fun:g_slice_alloc0
-   fun:g_type_create_instance
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   fun:g_object_newv
-   fun:g_object_new_valist
-   fun:g_object_new
+   ...
    fun:gdk_display_open
-   fun:gdk_display_open_default_libgtk_only
 }
 {
    Fontconfig leak?
    Memcheck:Leak
    fun:malloc
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
    fun:XML_ParseBuffer
    fun:FcConfigParseAndLoad
    fun:FcConfigParseAndLoad
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
    fun:XML_ParseBuffer
    fun:FcConfigParseAndLoad
    fun:FcInitLoadConfig
@@ -95,20 +91,20 @@
    Memcheck:Leak
    fun:malloc
    fun:FcStrCopy
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
    fun:XML_ParseBuffer
    fun:FcConfigParseAndLoad
    fun:FcConfigParseAndLoad
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libfontconfig.so.1.3.0
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
-   obj:/usr/lib32/libexpat.so.1.5.2
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libfontconfig.so.1.3.0
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
+   obj:/usr/lib*/libexpat.so.1.5.2
    fun:XML_ParseBuffer
    fun:FcConfigParseAndLoad
    fun:FcInitLoadConfig
@@ -120,14 +116,14 @@
    Memcheck:Leak
    fun:calloc
    fun:PR_Calloc
-   obj:/usr/lib32/nss/libnssckbi.so
-   obj:/usr/lib32/nss/libnssckbi.so
-   obj:/usr/lib32/nss/libnssckbi.so
-   obj:/usr/lib32/nss/libnssckbi.so
-   obj:/usr/lib32/nss/libnssckbi.so
-   obj:/usr/lib32/nss/libnssckbi.so
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib*/nss/libnssckbi.so
+   obj:/usr/lib*/nss/libnssckbi.so
+   obj:/usr/lib*/nss/libnssckbi.so
+   obj:/usr/lib*/nss/libnssckbi.so
+   obj:/usr/lib*/nss/libnssckbi.so
+   obj:/usr/lib*/nss/libnssckbi.so
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
    fun:SECMOD_LoadModule
    fun:SECMOD_LoadUserModule
 }
@@ -137,11 +133,11 @@
    fun:malloc
    fun:PR_Malloc
    fun:PL_ArenaAllocate
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
    fun:SECMOD_LoadUserModule
 }
 {
@@ -149,30 +145,13 @@
    Memcheck:Leak
    fun:calloc
    fun:PR_Calloc
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
-   obj:/usr/lib32/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
+   obj:/usr/lib*/libnss3.so.1d
    fun:NSS_NoDB_Init
-}
-{
-   GTK leak?
-   Memcheck:Leak
-   fun:calloc
-   fun:g_malloc0
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   fun:g_type_register_fundamental
-   obj:/usr/lib32/libgobject-2.0.so.0.1600.3
-   fun:g_type_init_with_debug_flags
-   fun:g_type_init
-   fun:gdk_pre_parse_libgtk_only
-   obj:/usr/lib32/libgtk-x11-2.0.so.0.1200.9
-   fun:g_option_context_parse
-   fun:gtk_parse_args
-   fun:gtk_init_check
 }
 {
    (Probable memory leak in Skia)
@@ -218,7 +197,7 @@
    SQLite ?
    Memcheck:Param
    write(buf)
-   obj:/lib32/libpthread-2.*.so
+   obj:/lib*/libpthread-2.*.so
    fun:unixWrite
    fun:sqlite3OsWrite
    fun:writeJournalHdr
@@ -230,4 +209,12 @@
    fun:sqlite3VdbeMemShallowCopy
    fun:sqlite3VdbeExec
    fun:sqlite3Step
+}
+{
+   libevent does not provide a way to clean up unused oneshot timers at exit
+   Memcheck:Leak
+   fun:calloc
+   fun:event_base_once
+   fun:event_base_loopexit
+   fun:_ZN4base19MessagePumpLibevent3RunEPNS_11MessagePump8DelegateE
 }
