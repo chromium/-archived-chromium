@@ -306,6 +306,39 @@ DEFER WIN LINUX : LayoutTests/fast/inline/dirtyLinesForInline.html = PASS FAIL
 // SVG TESTS
 // -----------------------------------------------------------------
 
+// These are regressions from 1.0, but deemed DEFERable for 2.0.
+// http://crbug.com/8635:
+DEFER LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
+
+// http://crbug.com/5641
+DEFER LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
+
+// http://crbug.com/8763
+DEFER LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
+
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
+
+// Radial gradient on text not rendered.
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
+
+// Radial gradients with offset focal points are not implemented in Skia.
+// See comment in WebCore/platform/graphics/skia/GradientSkia.cpp
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
+
+// Merge 39744:39829 - regression
+DEFER : LayoutTests/svg/custom/path-bad-data.svg = FAIL
+
+// -----------------------------------------------------------------
+// End SVG Regressions
+// -----------------------------------------------------------------
+
 // Selection wrong.
 LINUX MAC : LayoutTests/editing/selection/5354455-1.html = FAIL
 
@@ -451,7 +484,6 @@ LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 // New tests. We should fix these, but they don't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/masking-mask-01-b.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
 // We don't seem to draw this as well as Mac.  The numbers have gaps at the
@@ -462,30 +494,21 @@ LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
-// Radial gradients with offset focal points are not implemented in Skia.
-// See comment in WebCore/platform/graphics/skia/GradientSkia.cpp
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
+
+// Upstreamed.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-02-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-symbol-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-use-01-t.svg = FAIL
 LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
-LINUX WIN : LayoutTests/svg/batik/paints/patternRegions.svg = FAIL CRASH
-LINUX WIN : LayoutTests/svg/batik/text/textEffect.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/text/textEffect3.svg = FAIL
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
-LINUX WIN : LayoutTests/svg/custom/pattern-y-offset.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 
-LINUX WIN : LayoutTests/svg/custom/use-on-g-containing-foreignObject-and-image.svg = FAIL
 
 // Crash in DEBUG only
 DEBUG LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
@@ -525,7 +548,6 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
 // Our gradients are wrong here.
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-08-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/struct-image-07-t.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 
 // New tests. We should fix these, but they don't need to block the current release
@@ -548,9 +570,6 @@ LINUX : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
 // Linux pixeltest failure: slightly different shade of composited
 // alpha in bottom group.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-opacity-01-b.svg = FAIL
-
-// The pattern we generate is wrong.
-LINUX WIN : LayoutTests/svg/custom/pattern-cycle-detection.svg = FAIL
 
 // Fixed upstream, see https://bugs.webkit.org/show_bug.cgi?id=21910.
 // However, we don't seem to draw the "eyeballs" at the correct location.
@@ -1409,9 +1428,6 @@ MAC : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
-// Merge 39744:39829 - regression
-LayoutTests/svg/custom/path-bad-data.svg = FAIL
-
 // Release failures are Merge 39829:39744 regressions
 // Linux pixeltest failure: Large areas of the page are missing
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
@@ -1445,9 +1461,6 @@ LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html 
 LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
 LINUX : LayoutTests/transitions/change-values-during-transition.html = PASS FAIL
-
-// Radial gradient on text not rendered.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
 
 // This never worked on Linux, but were in the past incorrectly rebaselined.
 // Text pattern fills/strokes not working.
