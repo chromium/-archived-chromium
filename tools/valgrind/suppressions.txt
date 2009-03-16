@@ -115,16 +115,7 @@
    SECMOD leak
    Memcheck:Leak
    fun:calloc
-   fun:PR_Calloc
-   obj:/usr/lib*/nss/libnssckbi.so
-   obj:/usr/lib*/nss/libnssckbi.so
-   obj:/usr/lib*/nss/libnssckbi.so
-   obj:/usr/lib*/nss/libnssckbi.so
-   obj:/usr/lib*/nss/libnssckbi.so
-   obj:/usr/lib*/nss/libnssckbi.so
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   fun:SECMOD_LoadModule
+   ...
    fun:SECMOD_LoadUserModule
 }
 {
@@ -218,3 +209,10 @@
    fun:event_base_loopexit
    fun:_ZN4base19MessagePumpLibevent3RunEPNS_11MessagePump8DelegateE
 }
+{
+   logging::InitLogging never frees filename. It would be hard to free properly.
+   Memcheck:Leak
+   ...
+   fun:_ZN7logging11InitLoggingEPKcNS_18LoggingDestinationENS_15LogLockingStateENS_20OldFileDeletionStateE
+}
+
