@@ -12,7 +12,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/background.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
@@ -71,7 +71,7 @@ class InfoBarBackground : public views::Background {
 
 InfoBar::InfoBar(InfoBarDelegate* delegate)
     : delegate_(delegate),
-      close_button_(new views::Button),
+      close_button_(new views::ImageButton(this)),
       delete_factory_(this) {
   // We delete ourselves when we're removed from the view hierarchy.
   SetParentOwned(false);
@@ -79,13 +79,12 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
   set_background(new InfoBarBackground);
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  close_button_->SetImage(views::Button::BS_NORMAL,
+  close_button_->SetImage(views::CustomButton::BS_NORMAL,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR));
-  close_button_->SetImage(views::Button::BS_HOT,
+  close_button_->SetImage(views::CustomButton::BS_HOT,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
-  close_button_->SetImage(views::Button::BS_PUSHED,
+  close_button_->SetImage(views::CustomButton::BS_PUSHED,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
-  close_button_->SetListener(this, 0);
   close_button_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   AddChildView(close_button_);
 
@@ -157,9 +156,9 @@ void InfoBar::RemoveInfoBar() const {
   container_->RemoveDelegate(delegate());
 }
 
-// InfoBar, views::BaseButton::ButtonListener implementation: ------------------
+// InfoBar, views::ButtonListener implementation: ------------------
 
-void InfoBar::ButtonPressed(views::BaseButton* sender) {
+void InfoBar::ButtonPressed(views::Button* sender) {
   if (sender == close_button_)
     RemoveInfoBar();
 }

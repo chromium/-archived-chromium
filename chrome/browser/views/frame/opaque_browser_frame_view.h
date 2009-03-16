@@ -15,11 +15,12 @@ class ChromeFont;
 class TabContents;
 class TabStrip;
 namespace views {
+class ImageButton;
 class WindowResources;
 }
 
 class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
-                               public views::BaseButton::ButtonListener,
+                               public views::ButtonListener,
                                public TabIconView::TabIconViewModel {
  public:
   // Constructs a non-client view for an BrowserFrame. |is_otr| specifies if the
@@ -54,8 +55,8 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   virtual bool GetAccessibleName(std::wstring* name);
   virtual void SetAccessibleName(const std::wstring& name);
 
-  // Overridden from views::BaseButton::ButtonListener:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from TabIconView::TabIconViewModel:
   virtual bool ShouldTabIconViewAnimate() const;
@@ -126,10 +127,10 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   gfx::Rect otr_avatar_bounds_;
 
   // Window controls.
-  views::Button* minimize_button_;
-  views::Button* maximize_button_;
-  views::Button* restore_button_;
-  views::Button* close_button_;
+  views::ImageButton* minimize_button_;
+  views::ImageButton* maximize_button_;
+  views::ImageButton* restore_button_;
+  views::ImageButton* close_button_;
 
   // The Window icon.
   TabIconView* window_icon_;

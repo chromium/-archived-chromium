@@ -151,12 +151,12 @@ BookmarkManagerView::BookmarkManagerView(Profile* profile)
   tree_view_->SetContextMenuController(this);
 
   views::MenuButton* organize_menu_button = new views::MenuButton(
-      l10n_util::GetString(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU),
+      NULL, l10n_util::GetString(IDS_BOOKMARK_MANAGER_ORGANIZE_MENU),
       this, true);
   organize_menu_button->SetID(kOrganizeMenuButtonID);
 
   views::MenuButton* tools_menu_button = new views::MenuButton(
-      l10n_util::GetString(IDS_BOOKMARK_MANAGER_TOOLS_MENU),
+      NULL, l10n_util::GetString(IDS_BOOKMARK_MANAGER_TOOLS_MENU),
       this, true);
   tools_menu_button->SetID(kToolsMenuButtonID);
 

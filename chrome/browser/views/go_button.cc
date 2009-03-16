@@ -10,14 +10,18 @@
 #include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 
+////////////////////////////////////////////////////////////////////////////////
+// GoButton, public:
+
 GoButton::GoButton(LocationBarView* location_bar,
-                   CommandUpdater* command_updater) : ToggleButton(),
-    location_bar_(location_bar),
-    command_updater_(command_updater),
-    intended_mode_(MODE_GO),
-    visible_mode_(MODE_GO),
-    button_delay_(NULL),
-    stop_timer_(this) {
+                   CommandUpdater* command_updater)
+    : ToggleImageButton(this),
+      location_bar_(location_bar),
+      command_updater_(command_updater),
+      intended_mode_(MODE_GO),
+      visible_mode_(MODE_GO),
+      button_delay_(NULL),
+      stop_timer_(this) {
   DCHECK(location_bar_);
 }
 
@@ -25,7 +29,40 @@ GoButton::~GoButton() {
   stop_timer_.RevokeAll();
 }
 
-void GoButton::NotifyClick(int mouse_event_flags) {
+void GoButton::ChangeMode(Mode mode) {
+  stop_timer_.RevokeAll();
+
+  SetToggled(mode == MODE_STOP);
+  intended_mode_ = mode;
+  visible_mode_ = mode;
+}
+
+void GoButton::ScheduleChangeMode(Mode mode) {
+  if (mode == MODE_STOP) {
+    // If we still have a timer running, we can't yet change to a stop sign,
+    // so we'll queue up the change for when the timer expires or for when
+    // the mouse exits the button.
+    if (!stop_timer_.empty() && state() == BS_HOT) {
+      intended_mode_ = MODE_STOP;
+    } else {
+      ChangeMode(MODE_STOP);
+    }
+  } else {
+    // If we want to change the button to a go button, but the user's mouse
+    // is hovering, don't change the mode just yet - this prevents the
+    // stop button changing to a go under the user's mouse cursor.
+    if (visible_mode_ == MODE_STOP && state() == BS_HOT) {
+      intended_mode_ = MODE_GO;
+    } else {
+      ChangeMode(MODE_GO);
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// GoButton, views::ButtonListener implementation:
+
+void GoButton::ButtonPressed(views::Button* button) {
   if (visible_mode_ == MODE_STOP) {
     command_updater_->ExecuteCommand(IDC_STOP);
 
@@ -33,7 +70,7 @@ void GoButton::NotifyClick(int mouse_event_flags) {
     // even if the mouse is still hovering.
     ChangeMode(MODE_GO);
   } else if (visible_mode_ == MODE_GO && stop_timer_.empty()) {
-    // If the go button is visible and not within the doubleclick timer, go.
+    // If the go button is visible and not within the double click timer, go.
     command_updater_->ExecuteCommand(IDC_GO);
 
     // Figure out the system double-click time.
@@ -54,51 +91,17 @@ void GoButton::NotifyClick(int mouse_event_flags) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// GoButton, View overrides:
+
 void GoButton::OnMouseExited(const views::MouseEvent& e) {
   using namespace views;
 
   if (visible_mode_ != intended_mode_)
     ChangeMode(intended_mode_);
 
-  if (GetState() != BS_DISABLED)
+  if (state() != BS_DISABLED)
     SetState(BS_NORMAL);
-}
-
-void GoButton::ChangeMode(Mode mode) {
-  stop_timer_.RevokeAll();
-
-  SetToggled(mode == MODE_STOP);
-  intended_mode_ = mode;
-  visible_mode_ = mode;
-}
-
-void GoButton::ScheduleChangeMode(Mode mode) {
-  if (mode == MODE_STOP) {
-    // If we still have a timer running, we can't yet change to a stop sign,
-    // so we'll queue up the change for when the timer expires or for when
-    // the mouse exits the button.
-    if (!stop_timer_.empty() && GetState() == BS_HOT) {
-      intended_mode_ = MODE_STOP;
-    } else {
-      ChangeMode(MODE_STOP);
-    }
-  } else {
-    // If we want to change the button to a go button, but the user's mouse
-    // is hovering, don't change the mode just yet - this prevents the
-    // stop button changing to a go under the user's mouse cursor.
-    if (visible_mode_ == MODE_STOP && GetState() == BS_HOT) {
-      intended_mode_ = MODE_GO;
-    } else {
-      ChangeMode(MODE_GO);
-    }
-  }
-}
-
-void GoButton::OnButtonTimer() {
-  if (intended_mode_ != visible_mode_)
-    ChangeMode(intended_mode_);
-
-  stop_timer_.RevokeAll();
 }
 
 bool GoButton::GetTooltipText(int x, int y, std::wstring* tooltip) {
@@ -130,4 +133,14 @@ bool GoButton::GetTooltipText(int x, int y, std::wstring* tooltip) {
       l10n_util::GetStringF(IDS_TOOLTIP_GO_SITE, current_text) :
       l10n_util::GetStringF(IDS_TOOLTIP_GO_SEARCH, L"Google", current_text));
   return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// GoButton, private:
+
+void GoButton::OnButtonTimer() {
+  if (intended_mode_ != visible_mode_)
+    ChangeMode(intended_mode_);
+
+  stop_timer_.RevokeAll();
 }

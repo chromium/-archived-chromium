@@ -190,7 +190,7 @@ class BookmarkBarViewTest1 : public BookmarkBarViewEventTestBase {
 
     // Button should be depressed.
     views::TextButton* button = bb_view_->GetBookmarkButton(0);
-    ASSERT_TRUE(button->GetState() == views::BaseButton::BS_PUSHED);
+    ASSERT_TRUE(button->state() == views::CustomButton::BS_PUSHED);
 
     // Click on the 2nd menu item (A URL).
     ASSERT_TRUE(menu->GetSubmenu());
@@ -210,7 +210,7 @@ class BookmarkBarViewTest1 : public BookmarkBarViewEventTestBase {
 
     // Make sure button is no longer pushed.
     views::TextButton* button = bb_view_->GetBookmarkButton(0);
-    ASSERT_TRUE(button->GetState() == views::BaseButton::BS_NORMAL);
+    ASSERT_TRUE(button->state() == views::CustomButton::BS_NORMAL);
 
     views::MenuItemView* menu = bb_view_->GetMenu();
     ASSERT_TRUE(menu == NULL || !menu->GetSubmenu()->IsShowing());
@@ -258,7 +258,7 @@ class BookmarkBarViewTest2 : public BookmarkBarViewEventTestBase {
 
     // Make sure button is no longer pushed.
     views::TextButton* button = bb_view_->GetBookmarkButton(0);
-    ASSERT_TRUE(button->GetState() == views::BaseButton::BS_NORMAL);
+    ASSERT_TRUE(button->state() == views::CustomButton::BS_NORMAL);
 
     window_->Activate();
 

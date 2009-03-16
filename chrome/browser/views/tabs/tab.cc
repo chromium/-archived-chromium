@@ -123,7 +123,6 @@ Tab::Tab(TabDelegate* delegate)
       delegate_(delegate),
       closing_(false),
       menu_controller_(NULL) {
-  close_button()->SetListener(this, 0);
   close_button()->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_CLOSE));
   close_button()->SetAnimationDuration(0);
   SetContextMenuController(this);
@@ -237,9 +236,9 @@ void Tab::ShowContextMenu(views::View* source, int x, int y,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// views::BaseButton::ButtonListener implementation:
+// views::ButtonListener implementation:
 
-void Tab::ButtonPressed(views::BaseButton* sender) {
+void Tab::ButtonPressed(views::Button* sender) {
   if (sender == close_button())
     delegate_->CloseTab(this);
 }

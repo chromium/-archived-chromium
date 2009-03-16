@@ -22,7 +22,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/menu_button.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -90,23 +90,22 @@ BlockedPopupContainerView::BlockedPopupContainerView(
 
   // Create a button with a multidigit number to reserve space.
   popup_count_label_ = new views::MenuButton(
+      this,
       l10n_util::GetStringF(IDS_POPUPS_BLOCKED_COUNT,
                             IntToWString(kWidestNumber)),
       NULL, true);
-  popup_count_label_->SetTextAlignment(views::TextButton::ALIGN_CENTER);
-  popup_count_label_->SetListener(this, 1);
+  popup_count_label_->set_alignment(views::TextButton::ALIGN_CENTER);
   AddChildView(popup_count_label_);
 
   // For now, we steal the Find close button, since it looks OK.
-  close_button_ = new views::Button();
+  close_button_ = new views::ImageButton(this);
   close_button_->SetFocusable(true);
-  close_button_->SetImage(views::Button::BS_NORMAL,
+  close_button_->SetImage(views::CustomButton::BS_NORMAL,
       resource_bundle.GetBitmapNamed(IDR_CLOSE_BAR));
-  close_button_->SetImage(views::Button::BS_HOT,
+  close_button_->SetImage(views::CustomButton::BS_HOT,
       resource_bundle.GetBitmapNamed(IDR_CLOSE_BAR_H));
-  close_button_->SetImage(views::Button::BS_PUSHED,
+  close_button_->SetImage(views::CustomButton::BS_PUSHED,
       resource_bundle.GetBitmapNamed(IDR_CLOSE_BAR_P));
-  close_button_->SetListener(this, 0);
   AddChildView(close_button_);
 
   set_background(views::Background::CreateStandardPanelBackground());
@@ -174,7 +173,7 @@ gfx::Size BlockedPopupContainerView::GetPreferredSize() {
   return preferred_size;
 }
 
-void BlockedPopupContainerView::ButtonPressed(views::BaseButton* sender) {
+void BlockedPopupContainerView::ButtonPressed(views::Button* sender) {
   if (sender == popup_count_label_) {
     launch_menu_.reset(new Menu(this, Menu::TOPLEFT,
                                 container_->GetNativeView()));

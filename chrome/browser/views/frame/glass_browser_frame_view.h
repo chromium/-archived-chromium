@@ -11,6 +11,7 @@
 
 class BrowserView;
 class GlassBrowserWindowResources;
+class SkBitmap;
 
 class GlassBrowserFrameView : public BrowserNonClientFrameView {
  public:

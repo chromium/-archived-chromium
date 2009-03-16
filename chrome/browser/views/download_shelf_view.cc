@@ -16,7 +16,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/image_view.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -93,14 +93,13 @@ void DownloadShelfView::Init() {
   show_all_view_->SetController(this);
   AddChildView(show_all_view_);
 
-  close_button_ = new views::Button();
-  close_button_->SetImage(views::Button::BS_NORMAL,
+  close_button_ = new views::ImageButton(this);
+  close_button_->SetImage(views::CustomButton::BS_NORMAL,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR));
-  close_button_->SetImage(views::Button::BS_HOT,
+  close_button_->SetImage(views::CustomButton::BS_HOT,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
-  close_button_->SetImage(views::Button::BS_PUSHED,
+  close_button_->SetImage(views::CustomButton::BS_PUSHED,
                           rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
-  close_button_->SetListener(this, 0);
   AddChildView(close_button_);
   set_background(views::Background::CreateSolidBackground(kBackgroundColor));
 
@@ -263,7 +262,7 @@ void DownloadShelfView::LinkActivated(views::Link* source, int event_flags) {
   ShowAllDownloads();
 }
 
-void DownloadShelfView::ButtonPressed(views::BaseButton* button) {
+void DownloadShelfView::ButtonPressed(views::Button* button) {
   shelf_animation_->Hide();
 }
 

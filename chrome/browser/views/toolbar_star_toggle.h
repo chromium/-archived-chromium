@@ -7,7 +7,7 @@
 
 #include "base/time.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 
 class BrowserToolbarView;
 class GURL;
@@ -16,10 +16,10 @@ class GURL;
 // user to star the current page. ToolbarStarToggle manages showing the
 // InfoBubble and rendering the appropriate state while the bubble is visible.
 
-class ToolbarStarToggle : public views::ToggleButton,
+class ToolbarStarToggle : public views::ToggleImageButton,
                           public InfoBubbleDelegate {
  public:
-  explicit ToolbarStarToggle(BrowserToolbarView* host);
+  ToolbarStarToggle(views::ButtonListener* listener, BrowserToolbarView* host);
 
   // If the bubble isn't showing, shows it.
   void ShowStarBubble(const GURL& url, bool newly_bookmarked);
@@ -32,10 +32,10 @@ class ToolbarStarToggle : public views::ToggleButton,
   virtual void OnMouseReleased(const views::MouseEvent& e, bool canceled);
   virtual void OnDragDone();
 
+ protected:
   // Only invokes super if ignore_click_ is true and the bubble isn't showing.
   virtual void NotifyClick(int mouse_event_flags);
 
- protected:
   // Overridden to so that we appear pressed while the bubble is showing.
   virtual SkBitmap GetImageToPaint();
 

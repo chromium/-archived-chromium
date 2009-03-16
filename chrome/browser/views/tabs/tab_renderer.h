@@ -9,7 +9,7 @@
 #include "chrome/common/animation.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/common/throb_animation.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
 
@@ -23,6 +23,7 @@ class TabContents;
 //
 ///////////////////////////////////////////////////////////////////////////////
 class TabRenderer : public views::View,
+                    public views::ButtonListener,
                     public AnimationDelegate {
  public:
   // Possible animation states.
@@ -68,11 +69,14 @@ class TabRenderer : public views::View,
   static void LoadTabImages(bool use_vista_images);
 
  protected:
-  views::Button* close_button() const { return close_button_; }
+  views::ImageButton* close_button() const { return close_button_; }
   const gfx::Rect& title_bounds() const { return title_bounds_; }
 
   // Returns the title of the Tab.
   std::wstring GetTitle() const;
+
+  // views::ButtonListener overrides:
+  virtual void ButtonPressed(views::Button* sender) {}
 
  private:
   // Overridden from views::View:
@@ -129,7 +133,7 @@ class TabRenderer : public views::View,
   int animation_frame_;
 
   // Close Button.
-  views::Button* close_button_;
+  views::ImageButton* close_button_;
 
   // Hover animation.
   scoped_ptr<SlideAnimation> hover_animation_;

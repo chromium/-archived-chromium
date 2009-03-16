@@ -27,8 +27,10 @@ using base::TimeTicks;
 // with the bubble because it has other native windows.
 static const int64 kDisallowClickMS = 40;
 
-ToolbarStarToggle::ToolbarStarToggle(BrowserToolbarView* host)
-    : host_(host),
+ToolbarStarToggle::ToolbarStarToggle(views::ButtonListener* listener,
+                                     BrowserToolbarView* host)
+    : ToggleImageButton(listener),
+      host_(host),
       ignore_click_(false) {
 }
 
@@ -49,23 +51,23 @@ void ToolbarStarToggle::ShowStarBubble(const GURL& url, bool newly_bookmarked) {
 bool ToolbarStarToggle::OnMousePressed(const views::MouseEvent& e) {
   ignore_click_ = ((TimeTicks::Now() - bubble_closed_time_).InMilliseconds() <
                    kDisallowClickMS);
-  return ToggleButton::OnMousePressed(e);
+  return ToggleImageButton::OnMousePressed(e);
 }
 
 void ToolbarStarToggle::OnMouseReleased(const views::MouseEvent& e,
                                         bool canceled) {
-  ToggleButton::OnMouseReleased(e, canceled);
+  ToggleImageButton::OnMouseReleased(e, canceled);
   ignore_click_ = false;
 }
 
 void ToolbarStarToggle::OnDragDone() {
-  ToggleButton::OnDragDone();
+  ToggleImageButton::OnDragDone();
   ignore_click_ = false;
 }
 
 void ToolbarStarToggle::NotifyClick(int mouse_event_flags) {
   if (!ignore_click_ && !BookmarkBubbleView::IsShowing())
-    ToggleButton::NotifyClick(mouse_event_flags);
+    ToggleImageButton::NotifyClick(mouse_event_flags);
 }
 
 SkBitmap ToolbarStarToggle::GetImageToPaint() {
@@ -73,7 +75,7 @@ SkBitmap ToolbarStarToggle::GetImageToPaint() {
     ResourceBundle &rb = ResourceBundle::GetSharedInstance();
     return *rb.GetBitmapNamed(IDR_STARRED_P);
   }
-  return Button::GetImageToPaint();
+  return ImageButton::GetImageToPaint();
 }
 
 void ToolbarStarToggle::InfoBubbleClosing(InfoBubble* info_bubble,

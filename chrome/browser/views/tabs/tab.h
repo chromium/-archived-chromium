@@ -7,7 +7,6 @@
 
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
-#include "chrome/views/base_button.h"
 
 namespace gfx {
 class Path;
@@ -24,8 +23,7 @@ class Profile;
 //
 ///////////////////////////////////////////////////////////////////////////////
 class Tab : public TabRenderer,
-            public views::ContextMenuController,
-            public views::BaseButton::ButtonListener {
+            public views::ContextMenuController {
  public:
   static const std::string kTabClassName;
 
@@ -114,8 +112,8 @@ class Tab : public TabRenderer,
                                int y,
                                bool is_mouse_gesture);
 
-  // views::BaseButton::ButtonListener overrides:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // views::ButtonListener overrides:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Creates a path that contains the clickable region of the tab's visual
   // representation. Used by GetViewForPoint for hit-testing.

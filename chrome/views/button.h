@@ -5,125 +5,68 @@
 #ifndef CHROME_VIEWS_BUTTON_H_
 #define CHROME_VIEWS_BUTTON_H_
 
-#include "chrome/views/base_button.h"
-#include "skia/include/SkBitmap.h"
+#include "chrome/views/view.h"
 
 namespace views {
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Button
-//
-// A simple button class
-//
-////////////////////////////////////////////////////////////////////////////////
-class Button : public BaseButton {
+class Button;
+
+// An interface implemented by an object to let it know that a button was
+// pressed.
+class ButtonListener {
  public:
-  //
-  // Create a Button
-  Button();
-  virtual ~Button();
-
-  //
-  // Set the image the button should use for the provided state.
-  virtual void SetImage(ButtonState aState, SkBitmap* anImage);
-
-  enum HorizontalAlignment { ALIGN_LEFT = 0,
-                             ALIGN_CENTER,
-                             ALIGN_RIGHT, };
-
-  enum VerticalAlignment {ALIGN_TOP = 0,
-                          ALIGN_MIDDLE,
-                          ALIGN_BOTTOM };
-
-  void SetImageAlignment(HorizontalAlignment h_align,
-                         VerticalAlignment v_align);
-
-  //
-  // Computes the minimum size given the current theme and graphics
-  gfx::Size GetPreferredSize();
-
-  // Returns the MSAA default action of the current view. The string returned
-  // describes the default action that will occur when executing
-  // IAccessible::DoDefaultAction.
-  bool GetAccessibleDefaultAction(std::wstring* action);
-
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control.
-  bool GetAccessibleRole(VARIANT* role);
-
-  // Set the tooltip text for this button.
-  void SetTooltipText(const std::wstring& text);
-
-  // Return the tooltip text currently used by this button.
-  std::wstring GetTooltipText() const;
-
-  // Overridden from View.
-  virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
- protected:
-
-  // Overridden to render the button.
-  virtual void Paint(ChromeCanvas* canvas);
-
-  // Returns the image to paint. This is invoked from paint and returns a value
-  // from images.
-  virtual SkBitmap GetImageToPaint();
-
-  // Images.
-  SkBitmap images_[kButtonStateCount];
-
-  // Alignment State.
-  HorizontalAlignment h_alignment_;
-  VerticalAlignment v_alignment_;
-
-  // The tooltip text or empty string for none.
-  std::wstring tooltip_text_;
-
-  DISALLOW_COPY_AND_ASSIGN(Button);
+  virtual void ButtonPressed(Button* sender) = 0;
 };
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ToggleButton
-//
-// A togglable button.  It swaps out its graphics when toggled.
-//
-////////////////////////////////////////////////////////////////////////////////
-class ToggleButton : public Button {
+// A View representing a button. Depending on the specific type, the button
+// could be implemented by a native control or custom rendered.
+class Button : public View {
  public:
-  ToggleButton();
-  virtual ~ToggleButton();
+  virtual ~Button();
 
-  // Overridden from Button.
-  virtual void SetImage(ButtonState aState, SkBitmap* anImage);
+  void SetTooltipText(const std::wstring& tooltip_text);
 
-  // Like Button::SetImage(), but to set the graphics used for the
-  // "has been toggled" state.  Must be called for each button state
-  // before the button is toggled.
-  void SetToggledImage(ButtonState state, SkBitmap* image);
+  int tag() const { return tag_; }
+  void set_tag(int tag) { tag_ = tag; }
 
+  int mouse_event_flags() const { return mouse_event_flags_; }
+
+  // Overridden from View:
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
+  virtual bool GetAccessibleKeyboardShortcut(std::wstring* shortcut);
+  virtual bool GetAccessibleName(std::wstring* name);
+  virtual void SetAccessibleKeyboardShortcut(const std::wstring& shortcut);
+  virtual void SetAccessibleName(const std::wstring& name);
 
-  // Set the tooltip text displayed when the button is toggled.
-  void SetToggledTooltipText(const std::wstring& tooltip);
+ protected:
+  // Construct the Button with a Listener. The listener can be NULL, as long as
+  // the specific button implementation makes sure to not call NotifyClick. This
+  // can be true of buttons that don't have a listener - e.g. menubuttons where
+  // there's no default action.
+  explicit Button(ButtonListener* listener);
 
-  // Change the toggled state.
-  void SetToggled(bool toggled);
+  // Cause the button to notify the listener that a click occurred.
+  virtual void NotifyClick(int mouse_event_flags);
 
  private:
-  // The parent class's images_ member is used for the current images,
-  // and this array is used to hold the alternative images.
-  // We swap between the two when toggling.
-  SkBitmap alternate_images_[kButtonStateCount];
+  // The text shown in a tooltip.
+  std::wstring tooltip_text_;
 
-  bool toggled_;
+  // Accessibility data.
+  std::wstring accessible_shortcut_;
+  std::wstring accessible_name_;
 
-  // The parent class's tooltip_text_ is displayed when not toggled, and
-  // this one is shown when toggled.
-  std::wstring toggled_tooltip_text_;
+  // The button's listener. Notified when clicked.
+  ButtonListener* listener_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ToggleButton);
+  // The id tag associated with this button. Used to disambiguate buttons in
+  // the ButtonListener implementation.
+  int tag_;
+
+  // Event flags present when the button was clicked.
+  int mouse_event_flags_;
+
+  DISALLOW_COPY_AND_ASSIGN(Button);
 };
 
 }  // namespace views

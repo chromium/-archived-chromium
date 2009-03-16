@@ -132,13 +132,15 @@ int GetContentHeight() {
 //
 //  This is a Button subclass that causes middle clicks to be forwarded to the
 //  parent View by explicitly not handling them in OnMousePressed.
-class TabCloseButton : public views::Button {
+class TabCloseButton : public views::ImageButton {
  public:
-  TabCloseButton() : Button() {}
+  explicit TabCloseButton(views::ButtonListener* listener)
+      : views::ImageButton(listener) {
+  }
   virtual ~TabCloseButton() {}
 
   virtual bool OnMousePressed(const views::MouseEvent& event) {
-    bool handled = BaseButton::OnMousePressed(event);
+    bool handled = ImageButton::OnMousePressed(event);
     // Explicitly mark midle-mouse clicks as non-handled to ensure the tab
     // sees them.
     return event.IsOnlyMiddleMouseButton() ? false : handled;
@@ -148,12 +150,12 @@ class TabCloseButton : public views::Button {
   // can highlight itself appropriately. Note that Exit events
   // fire before Enter events, so this works.
   virtual void OnMouseEntered(const views::MouseEvent& event) {
-    BaseButton::OnMouseEntered(event);
+    CustomButton::OnMouseEntered(event);
     GetParent()->OnMouseEntered(event);
   }
 
   virtual void OnMouseExited(const views::MouseEvent& event) {
-    BaseButton::OnMouseExited(event);
+    CustomButton::OnMouseExited(event);
     GetParent()->OnMouseExited(event);
   }
 
@@ -217,10 +219,10 @@ TabRenderer::TabRenderer()
   InitResources();
 
   // Add the Close Button.
-  close_button_ = new TabCloseButton;
-  close_button_->SetImage(views::Button::BS_NORMAL, close_button_n);
-  close_button_->SetImage(views::Button::BS_HOT, close_button_h);
-  close_button_->SetImage(views::Button::BS_PUSHED, close_button_p);
+  close_button_ = new TabCloseButton(this);
+  close_button_->SetImage(views::CustomButton::BS_NORMAL, close_button_n);
+  close_button_->SetImage(views::CustomButton::BS_HOT, close_button_h);
+  close_button_->SetImage(views::CustomButton::BS_PUSHED, close_button_p);
   AddChildView(close_button_);
 
   hover_animation_.reset(new SlideAnimation(this));

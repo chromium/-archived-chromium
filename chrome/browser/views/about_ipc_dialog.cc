@@ -298,12 +298,9 @@ void AboutIPCDialog::SetupControls() {
   views::GridLayout* layout = CreatePanelGridLayout(this);
   SetLayoutManager(layout);
 
-  track_toggle_ = new views::TextButton(kStartTrackingLabel);
-  track_toggle_->SetListener(this, 1);
-  clear_button_ = new views::TextButton(kClearLabel);
-  clear_button_->SetListener(this, 2);
-  filter_button_ = new views::TextButton(kFilterLabel);
-  filter_button_->SetListener(this, 3);
+  track_toggle_ = new views::TextButton(this, kStartTrackingLabel);
+  clear_button_ = new views::TextButton(this, kClearLabel);
+  filter_button_ = new views::TextButton(this, kFilterLabel);
 
   table_ = new views::HWNDView();
 
@@ -419,7 +416,7 @@ bool AboutIPCDialog::CanResize() const {
   return true;
 }
 
-void AboutIPCDialog::ButtonPressed(views::BaseButton* button) {
+void AboutIPCDialog::ButtonPressed(views::Button* button) {
   if (button == track_toggle_) {
     if (tracking_) {
       track_toggle_->SetText(kStartTrackingLabel);

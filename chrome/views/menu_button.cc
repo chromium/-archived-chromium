@@ -43,10 +43,11 @@ static const int kMenuMarkerPaddingRight = -1;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-MenuButton::MenuButton(const std::wstring& text,
+MenuButton::MenuButton(ButtonListener* listener,
+                       const std::wstring& text,
                        ViewMenuDelegate* menu_delegate,
                        bool show_menu_marker)
-    : TextButton(text),
+    : TextButton(listener, text),
       menu_visible_(false),
       menu_closed_time_(),
       menu_delegate_(menu_delegate),
@@ -55,7 +56,7 @@ MenuButton::MenuButton(const std::wstring& text,
     kMenuMarker = ResourceBundle::GetSharedInstance()
         .GetBitmapNamed(IDR_MENU_DROPARROW);
   }
-  SetTextAlignment(TextButton::ALIGN_LEFT);
+  set_alignment(TextButton::ALIGN_LEFT);
 }
 
 MenuButton::~MenuButton() {
@@ -180,7 +181,7 @@ bool MenuButton::Activate() {
 
 bool MenuButton::OnMousePressed(const MouseEvent& e) {
   RequestFocus();
-  if (GetState() != BS_DISABLED) {
+  if (state() != BS_DISABLED) {
     // If we're draggable (GetDragOperations returns a non-zero value), then
     // don't pop on press, instead wait for release.
     if (e.IsOnlyLeftMouseButton() && HitTest(e.location()) &&
@@ -198,7 +199,7 @@ bool MenuButton::OnMousePressed(const MouseEvent& e) {
 void MenuButton::OnMouseReleased(const MouseEvent& e,
                                  bool canceled) {
   if (GetDragOperations(e.x(), e.y()) != DragDropTypes::DRAG_NONE &&
-      GetState() != BS_DISABLED && !canceled && !InDrag() &&
+      state() != BS_DISABLED && !canceled && !InDrag() &&
       e.IsOnlyLeftMouseButton() && HitTest(e.location())) {
     Activate();
   } else {

@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_BITMAP_SCROLL_BAR_H__
 #define CHROME_VIEWS_BITMAP_SCROLL_BAR_H__
 
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/repeat_controller.h"
 #include "chrome/views/scroll_bar.h"
@@ -33,7 +33,7 @@ class BitmapScrollBarThumb;
 //
 ///////////////////////////////////////////////////////////////////////////////
 class BitmapScrollBar : public ScrollBar,
-                        public BaseButton::ButtonListener,
+                        public ButtonListener,
                         public ContextMenuController,
                         public Menu::Delegate {
  public:
@@ -66,7 +66,7 @@ class BitmapScrollBar : public ScrollBar,
 
   // Sets the bitmap to be rendered for the specified part and state.
   void SetImage(ScrollBarPart part,
-                BaseButton::ButtonState state,
+                CustomButton::ButtonState state,
                 SkBitmap* bitmap);
 
   // An enumeration of different amounts of incremental scroll, representing
@@ -103,7 +103,7 @@ class BitmapScrollBar : public ScrollBar,
   virtual bool OnKeyPressed(const KeyEvent& event);
 
   // BaseButton::ButtonListener overrides:
-  virtual void ButtonPressed(BaseButton* sender);
+  virtual void ButtonPressed(Button* sender);
 
   // ScrollBar overrides:
   virtual void Update(int viewport_size,
@@ -146,11 +146,11 @@ class BitmapScrollBar : public ScrollBar,
 
   // Called when the state of the thumb track changes (e.g. by the user
   // pressing the mouse button down in it).
-  void SetThumbTrackState(BaseButton::ButtonState state);
+  void SetThumbTrackState(CustomButton::ButtonState state);
 
   // The thumb needs to be able to access the part images.
   friend BitmapScrollBarThumb;
-  SkBitmap* images_[PART_COUNT][BaseButton::kButtonStateCount];
+  SkBitmap* images_[PART_COUNT][CustomButton::BS_COUNT];
 
   // The size of the scrolled contents, in pixels.
   int contents_size_;
@@ -159,13 +159,13 @@ class BitmapScrollBar : public ScrollBar,
   int contents_scroll_offset_;
 
   // Up/Down/Left/Right buttons and the Thumb.
-  Button* prev_button_;
-  Button* next_button_;
+  ImageButton* prev_button_;
+  ImageButton* next_button_;
   BitmapScrollBarThumb* thumb_;
 
   // The state of the scrollbar track. Typically, the track will highlight when
   // the user presses the mouse on them (during page scrolling).
-  BaseButton::ButtonState thumb_track_state_;
+  CustomButton::ButtonState thumb_track_state_;
 
   // The last amount of incremental scroll that this scrollbar performed. This
   // is accessed by the callbacks for the auto-repeat up/down buttons to know

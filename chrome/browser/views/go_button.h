@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 #define CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "base/task.h"
 
 class CommandUpdater;
@@ -19,11 +19,12 @@ class LocationBarView;
 // according to the content of the location bar and changes to a stop
 // button when a page load is in progress. Trickiness comes from the
 // desire to have the 'stop' button not change back to 'go' if the user's
-// mouse is hovering over it (to prevent misclicks).
+// mouse is hovering over it (to prevent mis-clicks).
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-class GoButton : public views::ToggleButton {
+class GoButton : public views::ToggleImageButton,
+                 public views::ButtonListener {
  public:
   // TODO(beng): get rid of the command updater param and instead have a
   //             delegate.
@@ -32,9 +33,6 @@ class GoButton : public views::ToggleButton {
 
   typedef enum Mode { MODE_GO = 0, MODE_STOP };
 
-  virtual void NotifyClick(int mouse_event_flags);
-  virtual void OnMouseExited(const views::MouseEvent& e);
-
   // Force the button state
   void ChangeMode(Mode mode);
 
@@ -42,6 +40,11 @@ class GoButton : public views::ToggleButton {
   // when page load state changes.
   void ScheduleChangeMode(Mode mode);
 
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* button);
+  
+  // Overridden from views::View:
+  virtual void OnMouseExited(const views::MouseEvent& e);
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
 
  private:
@@ -52,7 +55,6 @@ class GoButton : public views::ToggleButton {
 
   LocationBarView* location_bar_;
   CommandUpdater* command_updater_;
-  ButtonListener* listener_;
 
   // The mode we should be in
   Mode intended_mode_;

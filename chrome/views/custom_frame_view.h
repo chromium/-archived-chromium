@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
 #define CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
 
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/non_client_view.h"
 #include "chrome/views/window.h"
 #include "chrome/views/window_resources.h"
@@ -29,7 +29,7 @@ namespace views {
 //
 ////////////////////////////////////////////////////////////////////////////////
 class CustomFrameView : public NonClientFrameView,
-                        public BaseButton::ButtonListener {
+                        public ButtonListener {
  public:
   explicit CustomFrameView(Window* frame);
   virtual ~CustomFrameView();
@@ -49,8 +49,8 @@ class CustomFrameView : public NonClientFrameView,
   virtual void Layout();
   virtual gfx::Size GetPreferredSize();
 
-  // BaseButton::ButtonListener implementation:
-  virtual void ButtonPressed(BaseButton* sender);
+  // ButtonListener implementation:
+  virtual void ButtonPressed(Button* sender);
 
  private:
   // Returns the thickness of the border that makes up the window frame edges.
@@ -98,11 +98,11 @@ class CustomFrameView : public NonClientFrameView,
   gfx::Rect title_bounds_;
 
   // Window controls.
-  Button* close_button_;
-  Button* restore_button_;
-  Button* maximize_button_;
-  Button* minimize_button_;
-  Button* system_menu_button_;  // Uses the window icon if visible.
+  ImageButton* close_button_;
+  ImageButton* restore_button_;
+  ImageButton* maximize_button_;
+  ImageButton* minimize_button_;
+  ImageButton* system_menu_button_;  // Uses the window icon if visible.
   bool should_show_minmax_buttons_;
 
   // The window that owns this view.

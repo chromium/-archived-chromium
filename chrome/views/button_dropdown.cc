@@ -22,11 +22,12 @@ static const int kMenuTimerDelay = 500;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-ButtonDropDown::ButtonDropDown(Menu::Delegate* menu_delegate)
-  : Button(),
-    menu_delegate_(menu_delegate),
-    y_position_on_lbuttondown_(0),
-    show_menu_factory_(this) {
+ButtonDropDown::ButtonDropDown(ButtonListener* listener,
+                               Menu::Delegate* menu_delegate)
+    : ImageButton(listener),
+      menu_delegate_(menu_delegate),
+      y_position_on_lbuttondown_(0),
+      show_menu_factory_(this) {
 }
 
 ButtonDropDown::~ButtonDropDown() {
@@ -52,11 +53,11 @@ bool ButtonDropDown::OnMousePressed(const MouseEvent& e) {
         kMenuTimerDelay);
   }
 
-  return Button::OnMousePressed(e);
+  return ImageButton::OnMousePressed(e);
 }
 
 void ButtonDropDown::OnMouseReleased(const MouseEvent& e, bool canceled) {
-  Button::OnMouseReleased(e, canceled);
+  ImageButton::OnMouseReleased(e, canceled);
 
   if (canceled)
     return;
@@ -77,7 +78,7 @@ void ButtonDropDown::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 bool ButtonDropDown::OnMouseDragged(const MouseEvent& e) {
-  bool result = Button::OnMouseDragged(e);
+  bool result = ImageButton::OnMouseDragged(e);
 
   if (!show_menu_factory_.empty()) {
     // SM_CYDRAG is a pixel value for minimum dragging distance before operation

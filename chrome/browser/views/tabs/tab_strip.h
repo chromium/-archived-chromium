@@ -8,7 +8,7 @@
 #include "base/gfx/point.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget_win.h"
@@ -37,7 +37,7 @@ class ImageView;
 class TabStrip : public views::View,
                  public TabStripModelObserver,
                  public Tab::TabDelegate,
-                 public views::Button::ButtonListener,
+                 public views::ButtonListener,
                  public MessageLoopForUI::Observer {
  public:
   TabStrip(TabStripModel* model);
@@ -138,8 +138,8 @@ class TabStrip : public views::View,
   virtual bool EndDrag(bool canceled);
   virtual bool HasAvailableDragActions() const;
 
-  // views::Button::ButtonListener implementation:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // views::ButtonListener implementation:
+  virtual void ButtonPressed(views::Button* sender);
 
   // MessageLoop::Observer implementation:
   virtual void WillProcessMessage(const MSG& msg);
@@ -289,7 +289,7 @@ class TabStrip : public views::View,
   bool resize_layout_scheduled_;
 
   // The "New Tab" button.
-  views::Button* newtab_button_;
+  views::ImageButton* newtab_button_;
   gfx::Size newtab_button_size_;
   gfx::Size actual_newtab_button_size_;
 

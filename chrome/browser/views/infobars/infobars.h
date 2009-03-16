@@ -6,14 +6,15 @@
 #define CHROME_BROWSER_VIEWS_INFOBARS_INFOBARS_H_
 
 #include "chrome/browser/tab_contents/infobar_delegate.h"
-#include "chrome/views/base_button.h"
+#include "chrome/common/animation.h"
+#include "chrome/views/button.h"
 #include "chrome/views/link.h"
 #include "chrome/views/native_button.h"
 
 class InfoBarContainer;
 class SlideAnimation;
 namespace views {
-class Button;
+class ImageButton;
 class ExternalFocusTracker;
 class ImageView;
 class Label;
@@ -24,7 +25,7 @@ class Label;
 // that you must implement to use these.
 
 class InfoBar : public views::View,
-                public views::BaseButton::ButtonListener,
+                public views::ButtonListener,
                 public AnimationDelegate {
  public:
   explicit InfoBar(InfoBarDelegate* delegate);
@@ -70,8 +71,8 @@ class InfoBar : public views::View,
   void RemoveInfoBar() const;
 
  private:
-  // Overridden from views::Button::ButtonListener:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from AnimationDelegate:
   virtual void AnimationProgressed(const Animation* animation);
@@ -98,7 +99,7 @@ class InfoBar : public views::View,
   InfoBarDelegate* delegate_;
 
   // The Close Button at the right edge of the InfoBar.
-  views::Button* close_button_;
+  views::ImageButton* close_button_;
 
   // The animation that runs when the InfoBar is opened or closed.
   scoped_ptr<SlideAnimation> animation_;

@@ -29,7 +29,8 @@ class MenuButton : public TextButton {
  public:
   //
   // Create a Button
-  MenuButton(const std::wstring& text,
+  MenuButton(ButtonListener* listener,
+             const std::wstring& text,
              ViewMenuDelegate* menu_delegate,
              bool show_menu_marker);
   virtual ~MenuButton();

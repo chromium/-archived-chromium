@@ -6,7 +6,7 @@
 #define CHROME_VIEWS_BUTTON_DROPDOWN_H__
 
 #include "base/task.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/menu.h"
 
 namespace views {
@@ -19,9 +19,9 @@ namespace views {
 // display a menu
 //
 ////////////////////////////////////////////////////////////////////////////////
-class ButtonDropDown : public Button {
+class ButtonDropDown : public ImageButton {
  public:
-  explicit ButtonDropDown(Menu::Delegate* menu_delegate);
+  ButtonDropDown(ButtonListener* listener, Menu::Delegate* menu_delegate);
   virtual ~ButtonDropDown();
 
   // Returns the MSAA default action of the current view. The string returned

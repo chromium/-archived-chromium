@@ -13,7 +13,7 @@
 
 #include "base/singleton.h"
 #include "chrome/common/ipc_logging.h"
-#include "chrome/views/base_button.h"
+#include "chrome/views/button.h"
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/table_view.h"
 
@@ -26,7 +26,7 @@ class HWNDView;
 }  // namespace views
 
 class AboutIPCDialog : public views::DialogDelegate,
-                       public views::BaseButton::ButtonListener,
+                       public views::ButtonListener,
                        public IPC::Logging::Consumer,
                        public views::View {
  public:
@@ -57,8 +57,8 @@ class AboutIPCDialog : public views::DialogDelegate,
   // views::WindowDelegate (via view::DialogDelegate).
   virtual bool CanResize() const;
 
-  // views::BaseButton::ButtonListener.
-  virtual void ButtonPressed(views::BaseButton* button);
+  // views::ButtonListener.
+  virtual void ButtonPressed(views::Button* button);
 
   CListViewCtrl message_list_;
 

@@ -40,7 +40,7 @@ class MenuItemView;
 class BookmarkBarView : public views::View,
                         public BookmarkModelObserver,
                         public views::ViewMenuDelegate,
-                        public views::BaseButton::ButtonListener,
+                        public views::ButtonListener,
                         public Menu::Delegate,
                         public NotificationObserver,
                         public views::ContextMenuController,
@@ -307,7 +307,7 @@ class BookmarkBarView : public views::View,
 
   // Invoked when a star entry corresponding to a URL on the bookmark bar is
   // pressed. Forwards to the PageNavigator to open the URL.
-  virtual void ButtonPressed(views::BaseButton* sender);
+  virtual void ButtonPressed(views::Button* sender);
 
   // Invoked for this View, one of the buttons or the 'other' button. Shows the
   // appropriate context menu.
@@ -431,7 +431,7 @@ class BookmarkBarView : public views::View,
   // If the bookmark bubble is showing, this is the visible ancestor of the URL.
   // The visible ancestor is either the other_bookmarked_button_,
   // overflow_button_ or a button on the bar.
-  views::BaseButton* throbbing_view_;
+  views::CustomButton* throbbing_view_;
 
   // How many extension toolstrips we have showing in the toolbar.
   int num_extension_toolstrips_;

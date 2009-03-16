@@ -25,7 +25,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/button.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
@@ -188,7 +188,7 @@ SkBitmap* OTRWindowResources::bitmaps_[];
 
 class ConstrainedWindowFrameView
     : public views::NonClientFrameView,
-      public views::BaseButton::ButtonListener {
+      public views::ButtonListener {
  public:
   explicit ConstrainedWindowFrameView(ConstrainedWindowImpl* container);
   virtual ~ConstrainedWindowFrameView();
@@ -211,8 +211,8 @@ class ConstrainedWindowFrameView
   virtual void Layout();
   virtual void ThemeChanged();
 
-  // Overridden from views::BaseButton::ButtonListener:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
  private:
   // Returns the thickness of the border that makes up the window frame edges.
@@ -259,7 +259,7 @@ class ConstrainedWindowFrameView
 
   gfx::Rect title_bounds_;
 
-  views::Button* close_button_;
+  views::ImageButton* close_button_;
 
   // The bounds of the ClientView.
   gfx::Rect client_view_bounds_;
@@ -309,19 +309,18 @@ ConstrainedWindowFrameView::ConstrainedWindowFrameView(
     ConstrainedWindowImpl* container)
         : NonClientFrameView(),
           container_(container),
-          close_button_(new views::Button) {
+          close_button_(new views::ImageButton(this)) {
   InitClass();
   InitWindowResources();
 
-  close_button_->SetImage(views::Button::BS_NORMAL,
+  close_button_->SetImage(views::CustomButton::BS_NORMAL,
       resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON));
-  close_button_->SetImage(views::Button::BS_HOT,
+  close_button_->SetImage(views::CustomButton::BS_HOT,
       resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_H));
-  close_button_->SetImage(views::Button::BS_PUSHED,
+  close_button_->SetImage(views::CustomButton::BS_PUSHED,
       resources_->GetPartBitmap(FRAME_CLOSE_BUTTON_ICON_P));
-  close_button_->SetImageAlignment(views::Button::ALIGN_CENTER,
-                                   views::Button::ALIGN_MIDDLE);
-  close_button_->SetListener(this, 0);
+  close_button_->SetImageAlignment(views::ImageButton::ALIGN_CENTER,
+                                   views::ImageButton::ALIGN_MIDDLE);
   AddChildView(close_button_);
 }
 
@@ -430,10 +429,9 @@ void ConstrainedWindowFrameView::ThemeChanged() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// ConstrainedWindowFrameView, views::BaseButton::Button
-//     implementation:
+// ConstrainedWindowFrameView, views::ButtonListener implementation:
 
-void ConstrainedWindowFrameView::ButtonPressed(views::BaseButton* sender) {
+void ConstrainedWindowFrameView::ButtonPressed(views::Button* sender) {
   if (sender == close_button_)
     container_->ExecuteSystemMenuCommand(SC_CLOSE);
 }

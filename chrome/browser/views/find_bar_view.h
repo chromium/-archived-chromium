@@ -13,6 +13,7 @@
 class FindBarWin;
 
 namespace views {
+class ImageButton;
 class Label;
 class MouseEvent;
 class View;
@@ -26,7 +27,7 @@ class View;
 //
 ////////////////////////////////////////////////////////////////////////////////
 class FindBarView : public views::View,
-                    public views::BaseButton::ButtonListener,
+                    public views::ButtonListener,
                     public views::TextField::Controller {
  public:
   // A tag denoting which button the user pressed.
@@ -60,8 +61,8 @@ class FindBarView : public views::View,
   virtual gfx::Size GetPreferredSize();
   virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child);
 
-  // Overridden from views::ButtonListener::ButtonPressed:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from views::TextField::Controller:
   virtual void ContentsChanged(views::TextField* sender,
@@ -104,9 +105,9 @@ class FindBarView : public views::View,
   views::TextField* find_text_;
   views::Label* match_count_text_;
   FocusForwarderView* focus_forwarder_view_;
-  views::Button* find_previous_button_;
-  views::Button* find_next_button_;
-  views::Button* close_button_;
+  views::ImageButton* find_previous_button_;
+  views::ImageButton* find_next_button_;
+  views::ImageButton* close_button_;
 
   // The last matchcount number we reported to the user.
   int last_reported_matchcount_;

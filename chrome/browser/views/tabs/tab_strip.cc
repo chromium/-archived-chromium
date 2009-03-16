@@ -60,9 +60,11 @@ static inline int Round(double x) {
 //
 //  A subclass of button that hit-tests to the shape of the new tab button.
 
-class NewTabButton : public views::Button {
+class NewTabButton : public views::ImageButton {
  public:
-  NewTabButton() {}
+  explicit NewTabButton(views::ButtonListener* listener)
+      : views::ImageButton(listener) {
+  }
   virtual ~NewTabButton() {}
 
  protected:
@@ -1005,7 +1007,7 @@ bool TabStrip::HasAvailableDragActions() const {
 ///////////////////////////////////////////////////////////////////////////////
 // TabStrip, views::BaseButton::ButtonListener implementation:
 
-void TabStrip::ButtonPressed(views::BaseButton* sender) {
+void TabStrip::ButtonPressed(views::Button* sender) {
   if (sender == newtab_button_)
     model_->AddBlankTab(true);
 }
@@ -1069,16 +1071,15 @@ void TabStrip::DidProcessMessage(const MSG& msg) {
 
 void TabStrip::Init() {
   model_->AddObserver(this);
-  newtab_button_ = new NewTabButton;
-  newtab_button_->SetListener(this, TabStripModel::kNoTab);
+  newtab_button_ = new NewTabButton(this);
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   SkBitmap* bitmap;
 
   bitmap = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON);
-  newtab_button_->SetImage(views::Button::BS_NORMAL, bitmap);
-  newtab_button_->SetImage(views::Button::BS_PUSHED,
+  newtab_button_->SetImage(views::CustomButton::BS_NORMAL, bitmap);
+  newtab_button_->SetImage(views::CustomButton::BS_PUSHED,
                            rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_P));
-  newtab_button_->SetImage(views::Button::BS_HOT,
+  newtab_button_->SetImage(views::CustomButton::BS_HOT,
                            rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_H));
 
   newtab_button_size_.SetSize(bitmap->width(), bitmap->height());

@@ -72,7 +72,7 @@ TextButtonBorder::~TextButtonBorder() {
 
 void TextButtonBorder::Paint(const View& view, ChromeCanvas* canvas) const {
   const TextButton* mb = static_cast<const TextButton*>(&view);
-  int state = mb->GetState();
+  int state = mb->state();
 
   // TextButton takes care of deciding when to call Paint.
   const MBBImageSet* set = &hot_set_;
@@ -151,16 +151,13 @@ void TextButtonBorder::GetInsets(gfx::Insets* insets) const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-//
-// TextButton - Implementation
-//
-////////////////////////////////////////////////////////////////////////////////
+// TextButton, public:
 
-TextButton::TextButton(const std::wstring& text)
-    : font_(ResourceBundle::GetSharedInstance().GetFont(
+TextButton::TextButton(ButtonListener* listener, const std::wstring& text)
+    : CustomButton(listener),
+      font_(ResourceBundle::GetSharedInstance().GetFont(
           ResourceBundle::BaseFont)),
       color_(kEnabledColor),
-      BaseButton(),
       max_width_(0),
       alignment_(ALIGN_LEFT) {
   SetText(text);
@@ -169,31 +166,6 @@ TextButton::TextButton(const std::wstring& text)
 }
 
 TextButton::~TextButton() {
-}
-
-gfx::Size TextButton::GetPreferredSize() {
-  gfx::Insets insets = GetInsets();
-
-  // Use the max size to set the button boundaries.
-  gfx::Size prefsize(max_text_size_.width() + icon_.width() + insets.width(),
-                     std::max(max_text_size_.height(), icon_.height()) +
-                         insets.height());
-
-  if (icon_.width() > 0 && !text_.empty())
-    prefsize.Enlarge(kIconTextPadding, 0);
-
-  if (max_width_ > 0)
-    prefsize.set_width(std::min(max_width_, prefsize.width()));
-
-  return prefsize;
-}
-
-gfx::Size TextButton::GetMinimumSize() {
-  return max_text_size_;
-}
-
-bool TextButton::OnMousePressed(const MouseEvent& e) {
-  return true;
 }
 
 void TextButton::SetText(const std::wstring& text) {
@@ -211,10 +183,6 @@ void TextButton::SetIcon(const SkBitmap& icon) {
 
 void TextButton::ClearMaxTextSize() {
   max_text_size_ = text_size_;
-}
-
-void TextButton::Paint(ChromeCanvas* canvas) {
-  Paint(canvas, false);
 }
 
 void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
@@ -313,12 +281,44 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// TextButton, View overrides:
+
+gfx::Size TextButton::GetPreferredSize() {
+  gfx::Insets insets = GetInsets();
+
+  // Use the max size to set the button boundaries.
+  gfx::Size prefsize(max_text_size_.width() + icon_.width() + insets.width(),
+                     std::max(max_text_size_.height(), icon_.height()) +
+                         insets.height());
+
+  if (icon_.width() > 0 && !text_.empty())
+    prefsize.Enlarge(kIconTextPadding, 0);
+
+  if (max_width_ > 0)
+    prefsize.set_width(std::min(max_width_, prefsize.width()));
+
+  return prefsize;
+}
+
+gfx::Size TextButton::GetMinimumSize() {
+  return max_text_size_;
+}
+
 void TextButton::SetEnabled(bool enabled) {
   if (enabled == IsEnabled())
     return;
-  BaseButton::SetEnabled(enabled);
+  CustomButton::SetEnabled(enabled);
   color_ = enabled ? kEnabledColor : kDisabledColor;
   SchedulePaint();
+}
+
+bool TextButton::OnMousePressed(const MouseEvent& e) {
+  return true;
+}
+
+void TextButton::Paint(ChromeCanvas* canvas) {
+  Paint(canvas, false);
 }
 
 }  // namespace views

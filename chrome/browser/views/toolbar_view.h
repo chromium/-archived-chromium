@@ -42,7 +42,7 @@ class BrowserToolbarView : public views::View,
                            public NotificationObserver,
                            public GetProfilesHelper::Delegate,
                            public CommandUpdater::CommandObserver,
-                           public views::BaseButton::ButtonListener {
+                           public views::ButtonListener {
  public:
   explicit BrowserToolbarView(Browser* browser);
   virtual ~BrowserToolbarView();
@@ -121,7 +121,7 @@ class BrowserToolbarView : public views::View,
   virtual void EnabledStateChangedForCommand(int id, bool enabled);
 
   // Overridden from views::BaseButton::ButtonListener:
-  virtual void ButtonPressed(views::BaseButton* sender);
+  virtual void ButtonPressed(views::Button* sender);
 
  private:
   // Types of display mode this toolbar can have.
@@ -183,10 +183,10 @@ class BrowserToolbarView : public views::View,
   views::View* acc_focused_view_;
 
   // Controls
-  views::Button* back_;
-  views::Button* forward_;
-  views::Button* reload_;
-  views::Button* home_;
+  views::ImageButton* back_;
+  views::ImageButton* forward_;
+  views::ImageButton* reload_;
+  views::ImageButton* home_;
   ToolbarStarToggle* star_;
   LocationBarView* location_bar_;
   GoButton* go_;

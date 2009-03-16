@@ -15,6 +15,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
+#include "chrome/views/image_button.h"
 #include "chrome/views/label.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -109,39 +110,42 @@ FindBarView::FindBarView(FindBarWin* container)
   focus_forwarder_view_ = new FocusForwarderView(find_text_);
   AddChildView(focus_forwarder_view_);
 
-  find_previous_button_ = new views::Button();
+  find_previous_button_ = new views::ImageButton(this);
+  find_previous_button_->set_tag(FIND_PREVIOUS_TAG);
   find_previous_button_->SetEnabled(false);
   find_previous_button_->SetFocusable(true);
-  find_previous_button_->SetImage(views::Button::BS_NORMAL,
+  find_previous_button_->SetImage(views::CustomButton::BS_NORMAL,
       rb.GetBitmapNamed(IDR_FINDINPAGE_PREV));
-  find_previous_button_->SetImage(views::Button::BS_HOT,
+  find_previous_button_->SetImage(views::CustomButton::BS_HOT,
       rb.GetBitmapNamed(IDR_FINDINPAGE_PREV_H));
-  find_previous_button_->SetImage(views::Button::BS_DISABLED,
+  find_previous_button_->SetImage(views::CustomButton::BS_DISABLED,
       rb.GetBitmapNamed(IDR_FINDINPAGE_PREV_P));
   find_previous_button_->SetTooltipText(
       l10n_util::GetString(IDS_FIND_IN_PAGE_PREVIOUS_TOOLTIP));
   AddChildView(find_previous_button_);
 
-  find_next_button_ = new views::Button();
+  find_next_button_ = new views::ImageButton(this);
+  find_next_button_->set_tag(FIND_NEXT_TAG);
   find_next_button_->SetEnabled(false);
   find_next_button_->SetFocusable(true);
-  find_next_button_->SetImage(views::Button::BS_NORMAL,
+  find_next_button_->SetImage(views::CustomButton::BS_NORMAL,
       rb.GetBitmapNamed(IDR_FINDINPAGE_NEXT));
-  find_next_button_->SetImage(views::Button::BS_HOT,
+  find_next_button_->SetImage(views::CustomButton::BS_HOT,
       rb.GetBitmapNamed(IDR_FINDINPAGE_NEXT_H));
-  find_next_button_->SetImage(views::Button::BS_DISABLED,
+  find_next_button_->SetImage(views::CustomButton::BS_DISABLED,
       rb.GetBitmapNamed(IDR_FINDINPAGE_NEXT_P));
   find_next_button_->SetTooltipText(
       l10n_util::GetString(IDS_FIND_IN_PAGE_NEXT_TOOLTIP));
   AddChildView(find_next_button_);
 
-  close_button_ = new views::Button();
+  close_button_ = new views::ImageButton(this);
+  close_button_->set_tag(CLOSE_TAG);
   close_button_->SetFocusable(true);
-  close_button_->SetImage(views::Button::BS_NORMAL,
+  close_button_->SetImage(views::CustomButton::BS_NORMAL,
       rb.GetBitmapNamed(IDR_CLOSE_BAR));
-  close_button_->SetImage(views::Button::BS_HOT,
+  close_button_->SetImage(views::CustomButton::BS_HOT,
       rb.GetBitmapNamed(IDR_CLOSE_BAR_H));
-  close_button_->SetImage(views::Button::BS_PUSHED,
+  close_button_->SetImage(views::CustomButton::BS_PUSHED,
       rb.GetBitmapNamed(IDR_CLOSE_BAR_P));
   close_button_->SetTooltipText(
       l10n_util::GetString(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP));
@@ -345,7 +349,6 @@ void FindBarView::Layout() {
                            (height() - sz.height()) / 2,
                            sz.width(),
                            sz.height());
-  close_button_->SetListener(this, CLOSE_TAG);
 
   // Next, the FindNext button to the left the close button.
   sz = find_next_button_->GetPreferredSize();
@@ -355,7 +358,6 @@ void FindBarView::Layout() {
                                (height() - sz.height()) / 2,
                                 sz.width(),
                                 sz.height());
-  find_next_button_->SetListener(this, FIND_NEXT_TAG);
 
   // Then, the FindPrevious button to the left the FindNext button.
   sz = find_previous_button_->GetPreferredSize();
@@ -364,7 +366,6 @@ void FindBarView::Layout() {
                                    (height() - sz.height()) / 2,
                                    sz.width(),
                                    sz.height());
-  find_previous_button_->SetListener(this, FIND_PREVIOUS_TAG);
 
   // Then the label showing the match count number.
   sz = match_count_text_->GetPreferredSize();
@@ -421,16 +422,16 @@ gfx::Size FindBarView::GetPreferredSize() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// FindBarView, views::BaseButton::ButtonListener implementation:
+// FindBarView, views::ButtonListener implementation:
 
-void FindBarView::ButtonPressed(views::BaseButton* sender) {
-  switch (sender->GetTag()) {
+void FindBarView::ButtonPressed(views::Button* sender) {
+  switch (sender->tag()) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
       if (find_text_->GetText().length() > 0) {
         container_->find_bar_controller()->web_contents()->StartFinding(
             find_text_->GetText(),
-            sender->GetTag() == FIND_NEXT_TAG);
+            sender->tag() == FIND_NEXT_TAG);
       }
       break;
     case CLOSE_TAG:

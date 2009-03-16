@@ -219,45 +219,41 @@ const int kCaptionTopSpacing = 1;
 
 CustomFrameView::CustomFrameView(Window* frame)
     : NonClientFrameView(),
-      close_button_(new Button),
-      restore_button_(new Button),
-      maximize_button_(new Button),
-      minimize_button_(new Button),
-      system_menu_button_(new Button),
+      close_button_(new ImageButton(this)),
+      restore_button_(new ImageButton(this)),
+      maximize_button_(new ImageButton(this)),
+      minimize_button_(new ImageButton(this)),
+      system_menu_button_(new ImageButton(this)),
       should_show_minmax_buttons_(false),
       frame_(frame) {
   InitClass();
   WindowResources* resources = active_resources_;
 
   // Close button images will be set in LayoutWindowControls().
-  close_button_->SetListener(this, -1);
   AddChildView(close_button_);
 
-  restore_button_->SetImage(Button::BS_NORMAL,
+  restore_button_->SetImage(CustomButton::BS_NORMAL,
       resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON));
-  restore_button_->SetImage(Button::BS_HOT,
+  restore_button_->SetImage(CustomButton::BS_HOT,
       resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_H));
-  restore_button_->SetImage(Button::BS_PUSHED,
+  restore_button_->SetImage(CustomButton::BS_PUSHED,
       resources->GetPartBitmap(FRAME_RESTORE_BUTTON_ICON_P));
-  restore_button_->SetListener(this, -1);
   AddChildView(restore_button_);
 
-  maximize_button_->SetImage(Button::BS_NORMAL,
+  maximize_button_->SetImage(CustomButton::BS_NORMAL,
       resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON));
-  maximize_button_->SetImage(Button::BS_HOT,
+  maximize_button_->SetImage(CustomButton::BS_HOT,
       resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_H));
-  maximize_button_->SetImage(Button::BS_PUSHED,
+  maximize_button_->SetImage(CustomButton::BS_PUSHED,
       resources->GetPartBitmap(FRAME_MAXIMIZE_BUTTON_ICON_P));
-  maximize_button_->SetListener(this, -1);
   AddChildView(maximize_button_);
 
-  minimize_button_->SetImage(Button::BS_NORMAL,
+  minimize_button_->SetImage(CustomButton::BS_NORMAL,
       resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON));
-  minimize_button_->SetImage(Button::BS_HOT,
+  minimize_button_->SetImage(CustomButton::BS_HOT,
       resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_H));
-  minimize_button_->SetImage(Button::BS_PUSHED,
+  minimize_button_->SetImage(CustomButton::BS_PUSHED,
       resources->GetPartBitmap(FRAME_MINIMIZE_BUTTON_ICON_P));
-  minimize_button_->SetListener(this, -1);
   AddChildView(minimize_button_);
 
   should_show_minmax_buttons_ = frame_->GetDelegate()->CanMaximize();
@@ -344,9 +340,9 @@ void CustomFrameView::EnableClose(bool enable) {
 }
 
 void CustomFrameView::ResetWindowControls() {
-  restore_button_->SetState(Button::BS_NORMAL);
-  minimize_button_->SetState(Button::BS_NORMAL);
-  maximize_button_->SetState(Button::BS_NORMAL);
+  restore_button_->SetState(CustomButton::BS_NORMAL);
+  minimize_button_->SetState(CustomButton::BS_NORMAL);
+  maximize_button_->SetState(CustomButton::BS_NORMAL);
   // The close button isn't affected by this constraint.
 }
 
@@ -378,9 +374,9 @@ gfx::Size CustomFrameView::GetPreferredSize() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CustomFrameView, BaseButton::ButtonListener implementation:
+// CustomFrameView, ButtonListener implementation:
 
-void CustomFrameView::ButtonPressed(BaseButton* sender) {
+void CustomFrameView::ButtonPressed(Button* sender) {
   if (sender == close_button_)
     frame_->Close();
   else if (sender == minimize_button_)
@@ -560,7 +556,8 @@ void CustomFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
 }
 
 void CustomFrameView::LayoutWindowControls() {
-  close_button_->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
+  close_button_->SetImageAlignment(ImageButton::ALIGN_LEFT,
+                                   ImageButton::ALIGN_BOTTOM);
   // Maximized buttons start at window top so that even if their images aren't
   // drawn flush with the screen edge, they still obey Fitts' Law.
   bool is_maximized = frame_->IsMaximized();
@@ -583,24 +580,25 @@ void CustomFrameView::LayoutWindowControls() {
   // When the window is restored, we show a maximized button; otherwise, we show
   // a restore button.
   bool is_restored = !is_maximized && !frame_->IsMinimized();
-  views::Button* invisible_button = is_restored ?
+  views::ImageButton* invisible_button = is_restored ?
       restore_button_ : maximize_button_;
   invisible_button->SetVisible(false);
 
-  views::Button* visible_button = is_restored ?
+  views::ImageButton* visible_button = is_restored ?
       maximize_button_ : restore_button_;
   FramePartBitmap normal_part, hot_part, pushed_part;
   if (should_show_minmax_buttons_) {
     visible_button->SetVisible(true);
-    visible_button->SetImageAlignment(Button::ALIGN_LEFT, Button::ALIGN_BOTTOM);
+    visible_button->SetImageAlignment(ImageButton::ALIGN_LEFT,
+                                      ImageButton::ALIGN_BOTTOM);
     gfx::Size visible_button_size = visible_button->GetPreferredSize();
     visible_button->SetBounds(close_button_->x() - visible_button_size.width(),
                               caption_y, visible_button_size.width(),
                               visible_button_size.height() + top_extra_height);
 
     minimize_button_->SetVisible(true);
-    minimize_button_->SetImageAlignment(Button::ALIGN_LEFT,
-                                        Button::ALIGN_BOTTOM);
+    minimize_button_->SetImageAlignment(ImageButton::ALIGN_LEFT,
+                                        ImageButton::ALIGN_BOTTOM);
     gfx::Size minimize_button_size = minimize_button_->GetPreferredSize();
     minimize_button_->SetBounds(
         visible_button->x() - minimize_button_size.width(), caption_y,
@@ -619,11 +617,11 @@ void CustomFrameView::LayoutWindowControls() {
     pushed_part = FRAME_CLOSE_BUTTON_ICON_SA_P;
   }
 
-  close_button_->SetImage(Button::BS_NORMAL,
+  close_button_->SetImage(CustomButton::BS_NORMAL,
                           active_resources_->GetPartBitmap(normal_part));
-  close_button_->SetImage(Button::BS_HOT,
+  close_button_->SetImage(CustomButton::BS_HOT,
                           active_resources_->GetPartBitmap(hot_part));
-  close_button_->SetImage(Button::BS_PUSHED,
+  close_button_->SetImage(CustomButton::BS_PUSHED,
                           active_resources_->GetPartBitmap(pushed_part));
 }
 

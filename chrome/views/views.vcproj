@@ -178,14 +178,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\base_button.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\base_button.h"
-			>
-		</File>
-		<File
 			RelativePath=".\bitmap_scroll_bar.cc"
 			>
 		</File>
@@ -251,6 +243,14 @@
 		</File>
 		<File
 			RelativePath=".\controller.h"
+			>
+		</File>
+		<File
+			RelativePath=".\custom_button.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\custom_button.h"
 			>
 		</File>
 		<File
@@ -335,6 +335,14 @@
 		</File>
 		<File
 			RelativePath=".\hwnd_view.h"
+			>
+		</File>
+		<File
+			RelativePath=".\image_button.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\image_button.h"
 			>
 		</File>
 		<File

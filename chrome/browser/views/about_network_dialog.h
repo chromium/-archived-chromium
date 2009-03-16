@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_ABOUT_NETWORK_DIALOG_H_
 
 #include "base/singleton.h"
-#include "chrome/views/base_button.h"
+#include "chrome/views/button.h"
 #include "chrome/views/dialog_delegate.h"
 
 namespace views {
@@ -15,7 +15,7 @@ class TextField;
 }  // namespace views
 
 class AboutNetworkDialog : public views::DialogDelegate,
-                           public views::BaseButton::ButtonListener,
+                           public views::ButtonListener,
                            public views::View {
  public:
   // This dialog is a singleton. If the dialog is already opened, it won't do
@@ -47,8 +47,8 @@ class AboutNetworkDialog : public views::DialogDelegate,
   // views::WindowDelegate (via view::DialogDelegate).
   virtual bool CanResize() const;
 
-  // views::BaseButton::ButtonListener.
-  virtual void ButtonPressed(views::BaseButton* button);
+  // views::ButtonListener.
+  virtual void ButtonPressed(views::Button* button);
 
   views::TextButton* track_toggle_;
   views::TextButton* show_button_;

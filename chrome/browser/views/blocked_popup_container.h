@@ -18,7 +18,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/base_button.h"
+#include "chrome/views/button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget_win.h"
@@ -29,7 +29,7 @@ class TabContents;
 class TextButton;
 
 namespace views {
-class Button;
+class ImageButton;
 class Menu;
 class MenuButton;
 }
@@ -37,7 +37,7 @@ class MenuButton;
 // The view presented to the user notifying them of the number of popups
 // blocked. This view should only be used inside of BlockedPopupContainer.
 class BlockedPopupContainerView : public views::View,
-                                  public views::BaseButton::ButtonListener,
+                                  public views::ButtonListener,
                                   public Menu::Delegate {
  public:
   explicit BlockedPopupContainerView(BlockedPopupContainer* container);
@@ -55,10 +55,8 @@ class BlockedPopupContainerView : public views::View,
   // Gets the desired size of the popup notification.
   virtual gfx::Size GetPreferredSize();
 
-  // Overridden from views::ButtonListener::ButtonPressed:
-
-  // Called when either the menu button or close button is pressed.
-  virtual void ButtonPressed(views::BaseButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from Menu::Delegate:
 
@@ -75,7 +73,7 @@ class BlockedPopupContainerView : public views::View,
   views::MenuButton* popup_count_label_;
 
   // Our "X" button.
-  views::Button* close_button_;
+  views::ImageButton* close_button_;
 
   // Popup menu shown to user.
   scoped_ptr<Menu> launch_menu_;

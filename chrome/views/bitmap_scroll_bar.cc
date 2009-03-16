@@ -33,11 +33,12 @@ static const int kScrollThumbDragOutSnap = 100;
 //  down on the button.
 //
 ///////////////////////////////////////////////////////////////////////////////
-class AutorepeatButton : public Button {
+class AutorepeatButton : public ImageButton {
  public:
-  AutorepeatButton()
-      : repeater_(NewCallback<AutorepeatButton>(this,
-          &AutorepeatButton::NotifyClick)) {
+  AutorepeatButton(ButtonListener* listener)
+      : ImageButton(listener),
+        repeater_(NewCallback<AutorepeatButton>(this,
+            &AutorepeatButton::NotifyClick)) {
   }
   virtual ~AutorepeatButton() {}
 
@@ -55,7 +56,7 @@ class AutorepeatButton : public Button {
 
  private:
   void NotifyClick() {
-    BaseButton::NotifyClick(0);
+    Button::NotifyClick(0);
   }
 
   // The repeat controller that we use to repeatedly click the button when the
@@ -79,7 +80,7 @@ class BitmapScrollBarThumb : public View {
       : scroll_bar_(scroll_bar),
         drag_start_position_(-1),
         mouse_offset_(-1),
-        state_(BaseButton::BS_NORMAL) {
+        state_(CustomButton::BS_NORMAL) {
   }
   virtual ~BitmapScrollBarThumb() { }
 
@@ -154,17 +155,17 @@ class BitmapScrollBarThumb : public View {
   }
 
   virtual void OnMouseEntered(const MouseEvent& event) {
-    SetState(BaseButton::BS_HOT);
+    SetState(CustomButton::BS_HOT);
   }
 
   virtual void OnMouseExited(const MouseEvent& event) {
-    SetState(BaseButton::BS_NORMAL);
+    SetState(CustomButton::BS_NORMAL);
   }
 
   virtual bool OnMousePressed(const MouseEvent& event) {
     mouse_offset_ = scroll_bar_->IsHorizontal() ? event.x() : event.y();
     drag_start_position_ = GetPosition();
-    SetState(BaseButton::BS_PUSHED);
+    SetState(CustomButton::BS_PUSHED);
     return true;
   }
 
@@ -197,7 +198,7 @@ class BitmapScrollBarThumb : public View {
 
   virtual void OnMouseReleased(const MouseEvent& event,
                                bool canceled) {
-    SetState(BaseButton::BS_HOT);
+    SetState(CustomButton::BS_HOT);
     View::OnMouseReleased(event, canceled);
   }
 
@@ -222,11 +223,11 @@ class BitmapScrollBarThumb : public View {
   // transparently over the background bitmap.
   SkBitmap* grippy_bitmap() const {
     return scroll_bar_->images_[BitmapScrollBar::THUMB_GRIPPY]
-        [BaseButton::BS_NORMAL];
+        [CustomButton::BS_NORMAL];
   }
 
   // Update our state and schedule a repaint when the mouse moves over us.
-  void SetState(BaseButton::ButtonState state) {
+  void SetState(CustomButton::ButtonState state) {
     state_ = state;
     SchedulePaint();
   }
@@ -241,7 +242,7 @@ class BitmapScrollBarThumb : public View {
   int mouse_offset_;
 
   // The current state of the thumb button.
-  BaseButton::ButtonState state_;
+  CustomButton::ButtonState state_;
 
   DISALLOW_EVIL_CONSTRUCTORS(BitmapScrollBarThumb);
 };
@@ -254,10 +255,10 @@ class BitmapScrollBarThumb : public View {
 BitmapScrollBar::BitmapScrollBar(bool horizontal, bool show_scroll_buttons)
     : contents_size_(0),
       contents_scroll_offset_(0),
-      prev_button_(new AutorepeatButton),
-      next_button_(new AutorepeatButton),
+      prev_button_(new AutorepeatButton(this)),
+      next_button_(new AutorepeatButton(this)),
       thumb_(new BitmapScrollBarThumb(this)),
-      thumb_track_state_(BaseButton::BS_NORMAL),
+      thumb_track_state_(CustomButton::BS_NORMAL),
       last_scroll_amount_(SCROLL_NONE),
       repeater_(NewCallback<BitmapScrollBar>(this,
           &BitmapScrollBar::TrackClicked)),
@@ -268,8 +269,6 @@ BitmapScrollBar::BitmapScrollBar(bool horizontal, bool show_scroll_buttons)
     prev_button_->SetVisible(false);
     next_button_->SetVisible(false);
   }
-  prev_button_->SetListener(this, -1);
-  next_button_->SetListener(this, -1);
 
   AddChildView(prev_button_);
   AddChildView(next_button_);
@@ -299,10 +298,10 @@ gfx::Rect BitmapScrollBar::GetTrackBounds() const {
 }
 
 void BitmapScrollBar::SetImage(ScrollBarPart part,
-                               BaseButton::ButtonState state,
+                               CustomButton::ButtonState state,
                                SkBitmap* bitmap) {
   DCHECK(part < PART_COUNT);
-  DCHECK(state < BaseButton::kButtonStateCount);
+  DCHECK(state < CustomButton::BS_COUNT);
   switch (part) {
     case PREV_BUTTON:
       prev_button_->SetImage(state, bitmap);
@@ -443,7 +442,7 @@ void BitmapScrollBar::Layout() {
 
 bool BitmapScrollBar::OnMousePressed(const MouseEvent& event) {
   if (event.IsOnlyLeftMouseButton()) {
-    SetThumbTrackState(BaseButton::BS_PUSHED);
+    SetThumbTrackState(CustomButton::BS_PUSHED);
     gfx::Rect thumb_bounds = thumb_->bounds();
     if (IsHorizontal()) {
       if (event.x() < thumb_bounds.x()) {
@@ -465,7 +464,7 @@ bool BitmapScrollBar::OnMousePressed(const MouseEvent& event) {
 }
 
 void BitmapScrollBar::OnMouseReleased(const MouseEvent& event, bool canceled) {
-  SetThumbTrackState(BaseButton::BS_NORMAL);
+  SetThumbTrackState(CustomButton::BS_NORMAL);
   repeater_.Stop();
   View::OnMouseReleased(event, canceled);
 }
@@ -624,9 +623,9 @@ void BitmapScrollBar::ExecuteCommand(int id) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BitmapScrollBar, BaseButton::ButtonListener implementation:
+// BitmapScrollBar, ButtonListener implementation:
 
-void BitmapScrollBar::ButtonPressed(BaseButton* sender) {
+void BitmapScrollBar::ButtonPressed(Button* sender) {
   if (sender == prev_button_) {
     ScrollByAmount(SCROLL_PREV_LINE);
   } else if (sender == next_button_) {
@@ -696,7 +695,7 @@ int BitmapScrollBar::CalculateContentsOffset(int thumb_position,
   return (thumb_position * contents_size_) / GetTrackSize();
 }
 
-void BitmapScrollBar::SetThumbTrackState(BaseButton::ButtonState state) {
+void BitmapScrollBar::SetThumbTrackState(CustomButton::ButtonState state) {
   thumb_track_state_ = state;
   SchedulePaint();
 }
