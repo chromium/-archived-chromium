@@ -643,7 +643,7 @@ PageState.prototype.getHashData = function() {
   for (var i = 0; i < hashSplit.length; i++) {
     var pair = hashSplit[i].split("=");
     if (pair.length > 1) {
-      result[pair[0]] = unescape(pair[1]);
+      result[pair[0]] = decodeURIComponent(pair[1]);
     }
   }
 
@@ -676,7 +676,7 @@ PageState.prototype.setUIState = function(term, page) {
 PageState.getHashString = function(term, page) {
   var newHash = [];
   if (term) {
-    newHash.push("q=" + escape(term));
+    newHash.push("q=" + encodeURIComponent(term));
   }
   if (page) {
     newHash.push("p=" + page);
