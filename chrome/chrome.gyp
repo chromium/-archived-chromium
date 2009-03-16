@@ -2108,7 +2108,6 @@
             'browser/navigation_controller_unittest.cc',
             'browser/net/resolve_proxy_msg_helper_unittest.cc',
             'browser/net/url_fetcher_unittest.cc',
-            'browser/net/url_fixer_upper_unittest.cc',
             'browser/password_manager/encryptor_unittest.cc',
             'browser/password_manager/password_form_manager_unittest.cc',
             'browser/printing/page_number_unittest.cc',

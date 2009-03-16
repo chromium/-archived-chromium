@@ -10,6 +10,7 @@
 #import "chrome/browser/location_bar.h"
 #import "chrome/browser/tab_contents/tab_contents.h"
 #import "chrome/browser/toolbar_model.h"
+#import "chrome/browser/net/url_fixer_upper.h"
 
 // For now, tab_contents lives here. TODO(port):fix
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -267,7 +268,12 @@ LocationBarBridge::LocationBarBridge(TabContentsController* controller)
 }
 
 std::wstring LocationBarBridge::GetInputString() const {
-  return base::SysNSStringToWide([controller_ locationBarString]);
+  // TODO(shess): This code is temporary until the omnibox code takes
+  // over.
+  std::wstring url = base::SysNSStringToWide([controller_ locationBarString]);
+
+  // Try to flesh out the input to make a real URL.
+  return URLFixerUpper::FixupURL(url, std::wstring());
 }
 
 void LocationBarBridge::FocusLocation() {
