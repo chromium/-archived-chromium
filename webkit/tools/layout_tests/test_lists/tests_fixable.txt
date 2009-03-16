@@ -1740,7 +1740,7 @@ DEFER WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
 DEFER WIN : LayoutTests/transitions/transition-end-event-window.html = FAIL PASS
 DEFER WIN : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
 WIN : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
-MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT PASS
+MAC RELEASE : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT FAIL
@@ -2061,3 +2061,4 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_layers-show.h
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 MAC RELEASE : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT
+MAC DEBUG : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = FAIL
