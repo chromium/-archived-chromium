@@ -263,7 +263,8 @@ char* Pickle::BeginWrite(size_t length) {
   size_t offset = AlignInt(header_->payload_size, sizeof(uint32));
 
   size_t new_size = offset + length;
-  if (header_size_ + new_size > capacity_ && !Resize(header_size_ + new_size))
+  size_t needed_size = header_size_ + new_size;
+  if (needed_size > capacity_ && !Resize(std::max(capacity_ * 2, needed_size)))
     return NULL;
 
 #ifdef ARCH_CPU_64_BITS
