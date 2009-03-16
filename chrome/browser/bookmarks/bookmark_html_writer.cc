@@ -15,8 +15,6 @@
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history_types.h"
-#include "chrome/common/l10n_util.h"
-#include "grit/generated_resources.h"
 #include "net/base/escape.h"
 #include "net/base/file_stream.h"
 #include "net/base/net_errors.h"
@@ -259,7 +257,7 @@ class Writer : public Task {
       if (folder_type == history::StarredEntry::BOOKMARK_BAR) {
         if (!Write(kBookmarkBar))
           return false;
-        title = l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME);
+        title = L"Bookmark Bar";
       } else if (!Write(kFolderAttributeEnd)) {
         return false;
       }
