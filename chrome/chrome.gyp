@@ -227,6 +227,8 @@
         'common/notification_type.h',
         'common/os_exchange_data.cc',
         'common/os_exchange_data.h',
+        'common/owned_widget_gtk.cc',
+        'common/owned_widget_gtk.h',
         'common/page_transition_types.h',
         'common/page_zoom.h',
         'common/plugin_messages.h',

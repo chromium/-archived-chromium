@@ -174,6 +174,8 @@ input_files = ChromeFileList([
     'notification_types.h',
     'os_exchange_data.cc',
     'os_exchange_data.h',
+    'owned_widget_gtk.cc',
+    'owned_widget_gtk.h',
     'page_transition_types.h',
     'page_zoom.h',
     '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
@@ -265,11 +267,13 @@ if not env.Bit('linux'):
   # Linux specific files
   input_files.Remove(
       'chrome_paths_linux.cc',
-      'resource_bundle_linux.cc',
       'gfx/chrome_canvas_skia.cc',
       'gfx/chrome_font_gtk.cc',
       'gfx/chrome_font_skia.cc',
       'gfx/path_gtk.cc',
+      'owned_widget_gtk.cc',
+      'owned_widget_gtk.h',
+      'resource_bundle_linux.cc',
   )
 
 if not env.Bit('mac'):
