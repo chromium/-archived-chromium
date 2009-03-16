@@ -92,6 +92,13 @@ class AsyncWriter : public Task {
       return false;  // Don't write to an invalid part of the file.
 
     size_t num_written = fwrite(data, 1, data_len, file);
+
+    // The write may not make it to the kernel (stdlib may buffer the write)
+    // until the next fseek/fclose call.  If we crash, it's easy for our used
+    // item count to be out of sync with the number of hashes we write. 
+    // Protect against this by calling fflush.
+    int ret = fflush(file);
+    DCHECK_EQ(0, ret);
     return num_written == data_len;
   }
 
