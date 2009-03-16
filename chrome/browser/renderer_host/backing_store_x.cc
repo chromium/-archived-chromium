@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/backing_store.h"
 
+#include <stdlib.h>
 #include <utility>
 
 #include "base/compiler_specific.h"
