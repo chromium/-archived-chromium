@@ -682,7 +682,6 @@ if not env.Bit('windows'):
       'download/download_util.cc',
       'drag_utils.cc',
       'encoding_menu_controller_delegate.cc',
-      'external_protocol_handler.cc',
       'external_tab_container.cc',
       'first_run.cc',
       'hang_monitor/hung_plugin_action.cc',

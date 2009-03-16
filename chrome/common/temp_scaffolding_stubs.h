@@ -600,23 +600,6 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
                                 MessageLoop* ui_loop);
 
-class ExternalProtocolHandler {
- public:
-  enum BlockState {
-    DONT_BLOCK,
-    BLOCK,
-    UNKNOWN,
-  };
-  static BlockState GetBlockState(const std::wstring& scheme) {
-    NOTIMPLEMENTED();
-    return UNKNOWN;
-  }
-  static void LaunchUrl(const GURL& url, int render_process_host_id,
-                        int tab_contents_id) {
-    NOTIMPLEMENTED();
-  }
-};
-
 class RepostFormWarningDialog {
  public:
   static void RunRepostFormWarningDialog(NavigationController*) { }

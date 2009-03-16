@@ -1281,7 +1281,6 @@
             'browser/dom_ui/html_dialog_contents.cc',
             'browser/drag_utils.cc',
             'browser/encoding_menu_controller_delegate.cc',
-            'browser/external_protocol_handler.cc',
             'browser/external_tab_container.cc',
             'browser/first_run.cc',
             'browser/google_update.cc',
@@ -2088,10 +2087,6 @@
         }],
         ['OS!="win"', {
           'sources!': [
-            'browser/autocomplete/autocomplete_unittest.cc',
-            'browser/autocomplete/history_contents_provider_unittest.cc',
-            'browser/autocomplete/history_url_provider_unittest.cc',
-            'browser/autocomplete/keyword_provider_unittest.cc',
             'browser/back_forward_menu_model_unittest.cc',
             'browser/bookmarks/bookmark_drag_data_unittest.cc',
             'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',

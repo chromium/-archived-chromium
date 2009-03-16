@@ -94,8 +94,6 @@ class HistoryContentsProviderTest : public testing::Test,
   scoped_refptr<HistoryContentsProvider> provider_;
 };
 
-}  // namespace
-
 TEST_F(HistoryContentsProviderTest, Body) {
   AutocompleteInput input(L"FOO", std::wstring(), true, false, false);
   RunQuery(input, false);
@@ -182,3 +180,5 @@ TEST_F(HistoryContentsProviderTest, Bookmarks) {
     EXPECT_EQ("http://www.google.com/3", m3[0].destination_url.spec());
   }
 }
+
+}  // namespace

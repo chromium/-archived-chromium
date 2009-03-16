@@ -17,6 +17,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/download/save_file_manager.h"
+#include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
@@ -45,7 +46,6 @@
 #if defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #elif defined(OS_WIN)
-#include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/login_prompt.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"

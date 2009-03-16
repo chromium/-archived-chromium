@@ -14,6 +14,7 @@
 #include "chrome/browser/autocomplete/search_provider.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/dom_ui/history_ui.h"
+#include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gfx/text_elider.h"
@@ -28,13 +29,6 @@
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 #include "net/url_request/url_request.h"
-
-// TODO(port): Port this file.
-#if defined(OS_WIN)
-#include "chrome/browser/external_protocol_handler.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 using base::TimeDelta;
 

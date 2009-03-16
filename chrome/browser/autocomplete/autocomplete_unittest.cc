@@ -16,7 +16,7 @@
 
 namespace {
 
-const int num_results_per_provider = 3;
+const size_t num_results_per_provider = 3;
 
 // Autocomplete provider that provides known results. Note that this is
 // refcounted so that it can also be a task on the message loop.
@@ -74,9 +74,7 @@ void TestProvider::AddResults(int start_at, int num) {
     AutocompleteMatch match(this, relevance_ - i, false,
                             AutocompleteMatch::URL_WHAT_YOU_TYPED);
 
-    wchar_t str[16];
-    swprintf_s(str, L"%d", i);
-    match.fill_into_edit = prefix_ + str;
+    match.fill_into_edit = prefix_ + IntToWString(i);
     match.destination_url = GURL(WideToUTF8(match.fill_into_edit));
 
     match.contents = match.fill_into_edit;
@@ -170,8 +168,6 @@ void AutocompleteProviderTest::Observe(NotificationType type,
   }
 }
 
-}  // namespace
-
 std::ostream& operator<<(std::ostream& os,
                          const AutocompleteResult::const_iterator& iter) {
   return os << static_cast<const AutocompleteMatch*>(&(*iter));
@@ -232,14 +228,16 @@ TEST(AutocompleteTest, InputType) {
     // { L"mailto:abuse@foo.com", AutocompleteInput::URL },
     { L"view-source:http://www.foo.com/", AutocompleteInput::URL },
     { L"javascript:alert(\"Hey there!\");", AutocompleteInput::URL },
+#if defined(OS_WIN)
     { L"C:\\Program Files", AutocompleteInput::URL },
+#endif
     { L"\\\\Server\\Folder\\File", AutocompleteInput::URL },
     { L"http://foo.com/", AutocompleteInput::URL },
     { L"127.0.0.1", AutocompleteInput::URL },
     { L"browser.tabs.closeButtons", AutocompleteInput::UNKNOWN },
   };
 
-  for (int i = 0; i < arraysize(input_cases); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(input_cases); ++i) {
     AutocompleteInput input(input_cases[i].input, std::wstring(), true, false,
                             false);
     EXPECT_EQ(input_cases[i].type, input.type()) << "Input: " <<
@@ -266,10 +264,12 @@ TEST(AutocompleteMatch, MoreRelevant) {
   AutocompleteMatch m1(NULL, 0, false, AutocompleteMatch::URL_WHAT_YOU_TYPED);
   AutocompleteMatch m2(NULL, 0, false, AutocompleteMatch::URL_WHAT_YOU_TYPED);
 
-  for (int i = 0; i < arraysize(cases); ++i) {
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(cases); ++i) {
     m1.relevance = cases[i].r1;
     m2.relevance = cases[i].r2;
     EXPECT_EQ(cases[i].expected_result,
               AutocompleteMatch::MoreRelevant(m1, m2));
   }
 }
+
+}  // namespace

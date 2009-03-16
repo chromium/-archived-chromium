@@ -4,22 +4,28 @@
 
 #include "chrome/browser/external_protocol_handler.h"
 
+#if defined(OS_WIN)
 #include <windows.h>
 #include <shellapi.h>
+#endif
+
 #include <set>
 
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/registry.h"
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process_impl.h"
-#include "chrome/browser/views/external_protocol_dialog.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/pref_names.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
+
+#if defined(OS_WIN)
+#include "base/registry.h"
+#include "chrome/browser/views/external_protocol_dialog.h"
+#endif
 
 // static
 void ExternalProtocolHandler::PrepopulateDictionary(DictionaryValue* win_pref) {
@@ -58,13 +64,13 @@ void ExternalProtocolHandler::PrepopulateDictionary(DictionaryValue* win_pref) {
   };
 
   bool should_block;
-  for (int i = 0; i < arraysize(denied_schemes); ++i) {
+  for (size_t i = 0; i < arraysize(denied_schemes); ++i) {
     if (!win_pref->GetBoolean(denied_schemes[i], &should_block)) {
       win_pref->SetBoolean(denied_schemes[i], true);
     }
   }
 
-  for (int i = 0; i < arraysize(allowed_schemes); ++i) {
+  for (size_t i = 0; i < arraysize(allowed_schemes); ++i) {
     if (!win_pref->GetBoolean(allowed_schemes[i], &should_block)) {
       win_pref->SetBoolean(allowed_schemes[i], false);
     }
@@ -105,6 +111,7 @@ ExternalProtocolHandler::BlockState ExternalProtocolHandler::GetBlockState(
 void ExternalProtocolHandler::LaunchUrl(const GURL& url,
                                         int render_process_host_id,
                                         int tab_contents_id) {
+#if defined(OS_WIN)
   // Escape the input scheme to be sure that the command does not
   // have parameters unexpected by the external program.
   std::string escaped_url_string = EscapeExternalHandlerValue(url.spec());
@@ -142,10 +149,15 @@ void ExternalProtocolHandler::LaunchUrl(const GURL& url,
       NewRunnableFunction(
           &ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck,
           escaped_url));
+#elif defined(OS_POSIX)
+  // TODO(port): Implement launching external handler.
+  NOTIMPLEMENTED();
+#endif
 }
 
 // static
 void ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck(const GURL& url) {
+#if defined(OS_WIN)
   // Quote the input scheme to be sure that the command does not have
   // parameters unexpected by the external program. This url should already
   // have been escaped.
@@ -157,7 +169,7 @@ void ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck(const GURL& url) {
   // "Some versions of windows (Win2k before SP3, Win XP before SP1) crash in
   // ShellExecute on long URLs (bug 161357 on bugzilla.mozilla.org). IE 5 and 6
   // support URLS of 2083 chars in length, 2K is safe."
-  const int kMaxUrlLength = 2048;
+  const size_t kMaxUrlLength = 2048;
   if (escaped_url.length() > kMaxUrlLength) {
     NOTREACHED();
     return;
@@ -187,6 +199,10 @@ void ExternalProtocolHandler::LaunchUrlWithoutSecurityCheck(const GURL& url) {
     // bug 1136923.
     return;
   }
+#elif defined(OS_POSIX)
+  // TODO(port): Implement launching external handler.
+  NOTIMPLEMENTED();
+#endif
 }
 
 // static
