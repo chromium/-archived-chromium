@@ -130,6 +130,7 @@ env_dll.Append(
         'sdch',
         'sqlite',
         'v8_snapshot',
+        'views',
 
         'X11',
         'Xrender',
@@ -162,7 +163,6 @@ if env_dll.Bit('windows'):
       LIBS = [
           'activex_shim',
           'browser_views',
-          'views',
 
           #'comctl32.lib',
           #'dwmapi.lib',
