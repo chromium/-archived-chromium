@@ -1,7 +1,7 @@
 A link! 
 
-Writing just the anchor object - file:///C:/sometestfile.html
+Writing just the anchor object - file:///E:/sometestfile.html
 
-Writing the result of the String(anchor) - file:///C:/sometestfile.html
+Writing the result of the String(anchor) - file:///E:/sometestfile.html
 
-Writing the result of the anchor's toString() method - file:///C:/sometestfile.html
+Writing the result of the anchor's toString() method - file:///E:/sometestfile.html
