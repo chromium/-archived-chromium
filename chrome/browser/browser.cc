@@ -14,6 +14,7 @@
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
@@ -941,7 +942,7 @@ void Browser::OpenDebuggerWindow() {
     if (CommandLine::ForCurrentProcess()->HasSwitch(
             switches::kEnableOutOfProcessDevTools)) {
       WebContents* wc = current_tab->AsWebContents();
-      wc->view()->OpenDeveloperTools();
+      g_browser_process->devtools_manager()->ShowDevToolsForWebContents(wc);
     } else {
       // Only one debugger instance can exist at a time right now.
       // TODO(erikkay): need an alert, dialog, something

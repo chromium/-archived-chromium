@@ -108,13 +108,6 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // RenderWidgetHost is deleted. Removes |host| from internal maps.
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
-  // Opens developer tools window for the page.
-  virtual void OpenDeveloperTools() = 0;
-
-  // Forwards message to DevToolsClient in developer tools window open for this
-  // page.
-  virtual void ForwardMessageToDevToolsClient(const IPC::Message& message) = 0;
-
   // Sets focus to the appropriate element when the tab contents is shown the
   // first time.
   virtual void SetInitialFocus() = 0;

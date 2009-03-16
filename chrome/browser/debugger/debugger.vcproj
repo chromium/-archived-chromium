@@ -206,19 +206,31 @@
 			>
 		</File>
 		<File
-			RelativePath=".\dev_tools_view.cc"
+			RelativePath=".\devtools_manager.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\dev_tools_view.h"
+			RelativePath=".\devtools_manager.h"
 			>
 		</File>
 		<File
-			RelativePath=".\dev_tools_window.cc"
+			RelativePath=".\devtools_view.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\dev_tools_window.h"
+			RelativePath=".\devtools_view.h"
+			>
+		</File>
+		<File
+			RelativePath=".\devtools_window.h"
+			>
+		</File>
+		<File
+			RelativePath=".\devtools_window_win.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\devtools_window_win.h"
 			>
 		</File>
 	</Files>

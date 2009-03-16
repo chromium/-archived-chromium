@@ -11,6 +11,7 @@
 #include "chrome/browser/browser_trial.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_file.h"
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/google_url_tracker.h"
@@ -105,6 +106,7 @@ BrowserProcessImpl::BrowserProcessImpl(const CommandLine& command_line)
       broker_services_(NULL),
       created_icon_manager_(false),
       created_debugger_wrapper_(false),
+      created_devtools_manager_(false),
       module_ref_count_(0),
       memory_model_(MEDIUM_MEMORY_MODEL),
       checked_for_new_frames_(false),
@@ -356,6 +358,12 @@ void BrowserProcessImpl::CreateDebuggerWrapper(int port) {
   created_debugger_wrapper_ = true;
 
   debugger_wrapper_ = new DebuggerWrapper(port);
+}
+
+void BrowserProcessImpl::CreateDevToolsManager() {
+  DCHECK(!devtools_manager_.get());
+  created_devtools_manager_ = true;
+  devtools_manager_.reset(new DevToolsManager());
 }
 
 void BrowserProcessImpl::CreateAcceleratorHandler() {

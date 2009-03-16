@@ -13,6 +13,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cross_site_request_manager.h"
 #include "chrome/browser/debugger/debugger_wrapper.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
@@ -97,9 +98,7 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       run_modal_reply_msg_(NULL),
       has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
-      are_javascript_messages_suppressed_(false),
-      inspected_process_id_(-1),
-      inspected_view_id_(-1) {
+      are_javascript_messages_suppressed_(false) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -1188,26 +1187,12 @@ void RenderViewHost::DidDebugAttach() {
   }
 }
 
-void RenderViewHost::SetInspectedView(int inspected_process_id,
-                                      int inspected_view_id) {
-  inspected_process_id_ = inspected_process_id;
-  inspected_view_id_ = inspected_view_id;
-}
-
 void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
-  RenderViewHost* host = RenderViewHost::FromID(inspected_process_id_,
-                                                inspected_view_id_);
-  if (!host)
-    return;
-  IPC::Message* m = new IPC::Message(message);
-  m->set_routing_id(inspected_view_id_);
-  host->Send(m);
+  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(this, message);
 }
 
 void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
-  RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
-  if (view)
-    view->ForwardMessageToDevToolsClient(message);
+  g_browser_process->devtools_manager()->ForwardToDevToolsClient(this, message);
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {

@@ -115,11 +115,6 @@ class RenderViewHostDelegate {
     // specified events. This gives an opportunity to the browser to process the
     // event (used for keyboard shortcuts).
     virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event) = 0;
-
-    // Forwards message to DevToolsClient in developer tools window open for
-    // this page.
-    virtual void ForwardMessageToDevToolsClient(
-        const IPC::Message& message) = 0;
   };
 
   // Interface for saving web pages.

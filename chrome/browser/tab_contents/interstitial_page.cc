@@ -84,7 +84,6 @@ class InterstitialPage::InterstitialPageRVHViewDelegate
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
-  virtual void ForwardMessageToDevToolsClient(const IPC::Message& message);
   virtual void OnFindReply(int request_id,
                            int number_of_matches,
                            const gfx::Rect& selection_rect,
@@ -484,11 +483,6 @@ void InterstitialPage::InterstitialPageRVHViewDelegate::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   if (interstitial_page_->tab() && interstitial_page_->tab()->GetViewDelegate())
     interstitial_page_->tab()->GetViewDelegate()->HandleKeyboardEvent(event);
-}
-
-void InterstitialPage::InterstitialPageRVHViewDelegate::
-    ForwardMessageToDevToolsClient(const IPC::Message& message) {
-  NOTREACHED() << "InterstitialPage does not support developer tools content.";
 }
 
 void InterstitialPage::InterstitialPageRVHViewDelegate::OnFindReply(

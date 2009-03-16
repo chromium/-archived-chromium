@@ -17,6 +17,7 @@
 
 class AutomationProviderList;
 class ClipboardService;
+class DevToolsManager;
 class DownloadRequestManager;
 class GoogleURLTracker;
 class IconManager;
@@ -77,6 +78,7 @@ class BrowserProcess {
   virtual ProfileManager* profile_manager() = 0;
   virtual PrefService* local_state() = 0;
   virtual DebuggerWrapper* debugger_wrapper() = 0;
+  virtual DevToolsManager* devtools_manager() = 0;
   virtual ClipboardService* clipboard_service() = 0;
 
   // Returns the thread that we perform I/O coordination on (network requests,

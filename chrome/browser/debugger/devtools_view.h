@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DEBUGGER_DEV_TOOLS_VIEW_H_
-#define CHROME_BROWSER_DEBUGGER_DEV_TOOLS_VIEW_H_
+#ifndef CHROME_BROWSER_DEBUGGER_DEVTOOLS_VIEW_H_
+#define CHROME_BROWSER_DEBUGGER_DEVTOOLS_VIEW_H_
 
 #include <string>
 
@@ -12,19 +12,15 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/views/view.h"
 
-namespace IPC {
-class Message;
-}
+class DevToolsInstanceDescriptor;
 class TabContentsContainerView;
 class WebContents;
 
 class DevToolsView : public views::View,
                      public TabContentsDelegate {
  public:
-  explicit DevToolsView(int inspected_process_id, int inspected_view_id);
+  explicit DevToolsView(DevToolsInstanceDescriptor* descriptor);
   virtual ~DevToolsView();
-
-  void SendDevToolsClientMessage(const IPC::Message& message);
 
   // Destroy content views when the window is closing.
   void OnWindowClosing();
@@ -67,12 +63,11 @@ class DevToolsView : public views::View,
 
   void Init();
 
-  const int inspected_process_id_;
-  const int inspected_view_id_;
+  DevToolsInstanceDescriptor* descriptor_;
   WebContents* web_contents_;
   TabContentsContainerView* web_container_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsView);
 };
 
-#endif  // CHROME_BROWSER_DEBUGGER_DEV_TOOLS_VIEW_H_
+#endif  // CHROME_BROWSER_DEBUGGER_DEVTOOLS_VIEW_H_

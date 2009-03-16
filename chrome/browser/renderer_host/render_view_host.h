@@ -326,11 +326,6 @@ class RenderViewHost : public RenderWidgetHost {
   // Must be called before CreateRenderView().
   void AllowExtensionBindings();
 
-  // Tells the renderer which render view should be inspected by developer
-  // tools loaded in it. This method should be called before renderer is
-  // created.
-  void SetInspectedView(int inspected_process_id, int inspected_view_id);
-
   // Sets a property with the given name and value on the DOM UI binding object.
   // Must call AllowDOMUIBindings() on this renderer first.
   void SetDOMUIProperty(const std::string& name, const std::string& value);
@@ -627,12 +622,6 @@ class RenderViewHost : public RenderWidgetHost {
   bool is_waiting_for_unload_ack_;
 
   bool are_javascript_messages_suppressed_;
-
-  // When this renderer hosts developer tools this two fields contain rerndeder
-  // process id and render view id of the page being inspected. Both fieldes
-  // are -1 if the content of this renderer is not developer tools frontend.
-  int inspected_process_id_;
-  int inspected_view_id_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };

@@ -75,6 +75,10 @@ class TestingBrowserProcess : public BrowserProcess {
     return NULL;
   }
 
+  virtual DevToolsManager* devtools_manager() {
+    return NULL;
+  }
+
   virtual ClipboardService* clipboard_service() {
     return NULL;
   }

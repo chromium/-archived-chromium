@@ -50,8 +50,6 @@ class WebContentsViewMac : public WebContentsView,
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
-  virtual void OpenDeveloperTools();
-  virtual void ForwardMessageToDevToolsClient(const IPC::Message& message);
   virtual void FindInPage(const Browser& browser,
                           bool find_next, bool forward_direction);
   virtual void HideFindBar(bool end_session);

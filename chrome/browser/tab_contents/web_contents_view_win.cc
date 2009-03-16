@@ -9,7 +9,6 @@
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/debugger/dev_tools_window.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
@@ -222,26 +221,6 @@ void WebContentsViewWin::Invalidate() {
 void WebContentsViewWin::SizeContents(const gfx::Size& size) {
   // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
   WasSized(size);
-}
-
-void WebContentsViewWin::OpenDeveloperTools() {
-  if (!dev_tools_window_.get())
-    dev_tools_window_.reset(new DevToolsWindow);
-
-  RenderViewHost* host = web_contents_->render_view_host();
-  if (!host)
-    return;
-
-  dev_tools_window_->Show(host->process()->pid(), host->routing_id());
-}
-
-void WebContentsViewWin::ForwardMessageToDevToolsClient(
-    const IPC::Message& message) {
-  if (!dev_tools_window_.get()) {
-    NOTREACHED() << "Developer tools window is not open.";
-    return;
-  }
-  dev_tools_window_->SendDevToolsClientMessage(message);
 }
 
 void WebContentsViewWin::SetInitialFocus() {
