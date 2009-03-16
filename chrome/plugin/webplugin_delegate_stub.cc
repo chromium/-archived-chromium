@@ -5,7 +5,6 @@
 #include "chrome/plugin/webplugin_delegate_stub.h"
 
 #include "base/command_line.h"
-#include "base/time.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/common/plugin_messages.h"

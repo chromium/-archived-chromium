@@ -7,7 +7,6 @@
 #include <limits>
 
 #include "base/string_util.h"
-#include "base/time.h"
 #include "base/time_format.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/common/l10n_util.h"

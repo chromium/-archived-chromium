@@ -34,9 +34,9 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 
-#include "base/time.h"
-
 namespace base {
+
+class Time;
 
 class MessagePumpCFRunLoopBase : public MessagePump {
  public:

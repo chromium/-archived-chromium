@@ -10,7 +10,6 @@
 #include "base/event_recorder.h"
 #include "base/file_util.h"
 #include "base/logging.h"
-#include "base/time.h"
 
 // A note about time.
 // For perfect playback of events, you'd like a very accurate timer

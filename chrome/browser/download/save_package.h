@@ -15,7 +15,6 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/hash_tables.h"
 #include "base/ref_counted.h"
-#include "base/time.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/browser/download/save_item.h"
 #include "chrome/browser/download/save_types.h"

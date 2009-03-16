@@ -9,7 +9,6 @@
 #include <map>
 
 #include "base/basictypes.h"
-#include "base/time.h"
 #include "chrome/browser/history/history_types.h"
 
 namespace history {

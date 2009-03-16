@@ -8,7 +8,6 @@
 
 #include "base/logging.h"
 #include "base/task.h"
-#include "base/time.h"
 #include "base/thread.h"
 
 class WorkerThreadTicker::TimerTask : public Task {

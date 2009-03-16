@@ -5,7 +5,6 @@
 #ifndef CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
 #define CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
 
-#include "base/time.h"
 #include "chrome/browser/browsing_data_remover.h"
 #include "chrome/views/combo_box.h"
 #include "chrome/views/dialog_delegate.h"

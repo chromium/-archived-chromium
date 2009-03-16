@@ -7,7 +7,6 @@
 #include "base/gfx/png_encoder.h"
 #include "base/string_piece.h"
 #include "base/thread.h"
-#include "base/time.h"
 #include "base/time_format.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/fileicon_source.h"
@@ -22,8 +21,6 @@
 #include "chrome/common/time_format.h"
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
-
-using base::Time;
 
 // DownloadsUI is accessible from chrome-ui://downloads.
 static const char kDownloadsHost[] = "downloads";

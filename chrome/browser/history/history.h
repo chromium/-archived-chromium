@@ -15,7 +15,6 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "base/time.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history_notifications.h"
 #include "chrome/browser/history/history_types.h"
@@ -38,6 +37,10 @@ class PageUsageRequest;
 class Profile;
 class SkBitmap;
 struct ThumbnailScore;
+
+namespace base {
+  class Time;
+}
 
 namespace history {
 

@@ -9,7 +9,6 @@
 #include "base/gfx/png_decoder.h"
 #include "base/gfx/png_encoder.h"
 #include "base/simple_thread.h"
-#include "base/time.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/gfx/emf.h"
@@ -19,9 +18,6 @@
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/browser/printing/printing_test.h"
 #include "net/url_request/url_request_unittest.h"
-
-using base::Time;
-using base::TimeDelta;
 
 namespace {
 

@@ -10,12 +10,15 @@
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/thread.h"
-#include "base/time.h"
 #include "base/waitable_event.h"
 #include "net/base/address_list.h"
 #include "net/base/completion_callback.h"
 #include "net/base/net_errors.h"
 #include "net/base/tcp_client_socket.h"
+
+namespace base {
+  class TimeDelta;
+}
 
 namespace net {
 

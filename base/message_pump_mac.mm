@@ -9,6 +9,7 @@
 #include <float.h>
 
 #include "base/scoped_nsautorelease_pool.h"
+#include "base/time.h"
 
 namespace {
 

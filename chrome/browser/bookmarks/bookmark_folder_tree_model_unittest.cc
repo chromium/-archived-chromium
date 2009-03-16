@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/string_util.h"
-#include "base/time.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/test/testing_profile.h"
 #include "chrome/views/tree_view.h"

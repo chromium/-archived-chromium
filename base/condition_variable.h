@@ -66,7 +66,10 @@
 #define BASE_CONDITION_VARIABLE_H_
 
 #include "base/lock.h"
-#include "base/time.h"
+
+namespace base {
+  class TimeDelta;
+}
 
 class ConditionVariable {
  public:

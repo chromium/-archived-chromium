@@ -16,11 +16,14 @@
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
-#include "base/time.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
 #include "chrome/browser/safe_browsing/safe_browsing_util.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"
+
+namespace base {
+  class Time;
+}
 
 // The reference implementation database using SQLite.
 class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {

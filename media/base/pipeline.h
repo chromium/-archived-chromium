@@ -12,8 +12,11 @@
 #include <string>
 
 #include "base/task.h"
-#include "base/time.h"
 #include "media/base/factory.h"
+
+namespace base {
+  class TimeDelta;
+}
 
 namespace media {
 

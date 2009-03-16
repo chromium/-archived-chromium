@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/observer_list.h"
-#include "base/time.h"
 #include "chrome/browser/sessions/base_session_service.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/sessions/session_types.h"

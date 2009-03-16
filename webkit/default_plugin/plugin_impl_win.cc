@@ -9,7 +9,6 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
-#include "base/time.h"
 #include "googleurl/src/gurl.h"
 #include "grit/webkit_strings.h"
 #include "unicode/locid.h"
