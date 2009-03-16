@@ -21,7 +21,7 @@
  * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #import <Cocoa/Cocoa.h>
@@ -143,9 +143,13 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
   if ([event modifierFlags] & NSShiftKeyMask) {
     delta_x = delta_lines;
     delta_y = 0;
+    wheel_ticks_x = wheel_delta;
+    wheel_ticks_y = 0;
   } else {
     delta_x = 0;
     delta_y = delta_lines;
+    wheel_ticks_x = 0;
+    wheel_ticks_y = wheel_delta;
   }
   scroll_by_page = false;
 }
@@ -968,19 +972,19 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
   NSString* text_str = WebCore::textFromEvent(event);
   NSString* unmodified_str = WebCore::unmodifiedTextFromEvent(event);
   NSString* identifier_str = WebCore::keyIdentifierForKeyEvent(event);
-  
+
   // Begin Apple code, copied from KeyEventMac.mm
-  
-  // Always use 13 for Enter/Return -- we don't want to use AppKit's 
+
+  // Always use 13 for Enter/Return -- we don't want to use AppKit's
   // different character for Enter.
   if (windows_key_code == '\r') {
     text_str = @"\r";
     unmodified_str = @"\r";
   }
-  
-  // The adjustments below are only needed in backward compatibility mode, 
+
+  // The adjustments below are only needed in backward compatibility mode,
   // but we cannot tell what mode we are in from here.
-  
+
   // Turn 0x7F into 8, because backspace needs to always be 8.
   if ([text_str isEqualToString:@"\x7F"])
     text_str = @"\x8";
@@ -992,13 +996,13 @@ WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
     text_str = @"\x9";
     unmodified_str = @"\x9";
   }
-  
+
   // End Apple code.
-  
+
   memset(&text, 0, sizeof(text));
   memset(&unmodified_text, 0, sizeof(unmodified_text));
   memset(&key_identifier, 0, sizeof(key_identifier));
-  
+
   if ([text_str length] < kTextLengthCap &&
       [unmodified_str length] < kTextLengthCap) {
     [text_str getCharacters:&text[0]];

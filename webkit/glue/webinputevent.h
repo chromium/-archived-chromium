@@ -133,6 +133,8 @@ class WebMouseWheelEvent : public WebMouseEvent {
  public:
   float delta_x;
   float delta_y;
+  float wheel_ticks_x;
+  float wheel_ticks_y;
   bool scroll_by_page;
 
   WebMouseWheelEvent() {}

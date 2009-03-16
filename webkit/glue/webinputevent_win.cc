@@ -206,7 +206,8 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
   // without feeling jerky.  Here we use 100 px per three lines (the default
   // scroll amount is three lines per wheel tick).
   static const float kScrollbarPixelsPerLine = 100.0f / 3.0f;
-  float scroll_delta = wheel_delta / WHEEL_DELTA;
+  wheel_delta /= WHEEL_DELTA;
+  float scroll_delta = wheel_delta;
   if (horizontal_scroll) {
     unsigned long scroll_chars = kDefaultScrollCharsPerWheelDelta;
     SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scroll_chars, 0);
@@ -229,9 +230,13 @@ WebMouseWheelEvent::WebMouseWheelEvent(HWND hwnd,
   if (horizontal_scroll) {
     delta_x = scroll_delta;
     delta_y = 0;
+    wheel_ticks_x = wheel_delta;
+    wheel_ticks_y = 0;
   } else {
     delta_x = 0;
     delta_y = scroll_delta;
+    wheel_ticks_x = 0;
+    wheel_ticks_y = wheel_delta;
   }
 }
 

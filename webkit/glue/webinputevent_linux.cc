@@ -127,18 +127,24 @@ WebMouseWheelEvent::WebMouseWheelEvent(const GdkEventScroll* event) {
 
   delta_x = 0;
   delta_y = 0;
+  wheel_ticks_x = 0;
+  wheel_ticks_y = 0;
   switch (event->direction) {
     case GDK_SCROLL_UP:
       delta_y = kScrollbarPixelsPerTick;
+      wheel_ticks_y = 1;
       break;
     case GDK_SCROLL_DOWN:
       delta_y = -kScrollbarPixelsPerTick;
+      wheel_ticks_y = -1;
       break;
     case GDK_SCROLL_LEFT:
       delta_x = kScrollbarPixelsPerTick;
+      wheel_ticks_x = -1;  // Match Windows positive/negative orientation
       break;
     case GDK_SCROLL_RIGHT:
       delta_x = -kScrollbarPixelsPerTick;
+      wheel_ticks_x = 1;
       break;
     default:
       break;

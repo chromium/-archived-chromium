@@ -125,6 +125,8 @@ MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
   m_globalPosition = IntPoint(e.global_x, e.global_y);
   m_deltaX = e.delta_x;
   m_deltaY = e.delta_y;
+  m_wheelTicksX = e.wheel_ticks_x;
+  m_wheelTicksY = e.wheel_ticks_y;
   m_isAccepted = false;
   m_granularity = e.scroll_by_page ?
       ScrollByPageWheelEvent : ScrollByPixelWheelEvent;
