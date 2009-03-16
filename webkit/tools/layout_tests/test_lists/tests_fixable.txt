@@ -1849,6 +1849,8 @@ LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
 // Unknown what change caused these to fail.
 MAC LINUX WIN : LayoutTests/fast/block/float/intruding-painted-twice.html = FAIL
 MAC LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
+LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/reload-subframe-object.html = FAIL
 // Need to be rebaselined on Linux and Mac due to http://trac.webkit.org/changeset/41677
 MAC LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
 MAC LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote.html = FAIL
