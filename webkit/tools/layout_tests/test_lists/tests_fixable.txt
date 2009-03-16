@@ -2057,3 +2057,8 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug23847.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug32205-4.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_fixed-bg.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_layers-show.html = FAIL
+
+// Merge 41709:41733
+// Expectations changed upstream.
+pending/security/block-test.html = FAIL
+LayoutTests/editing/selection/5354455-2.html = FAIL
