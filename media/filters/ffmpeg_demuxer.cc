@@ -30,8 +30,8 @@ class AVPacketBuffer : public Buffer {
   }
 
   // Buffer implementation.
-  virtual const char* GetData() const {
-    return reinterpret_cast<const char*>(packet_->data);
+  virtual const uint8* GetData() const {
+    return reinterpret_cast<const uint8*>(packet_->data);
   }
 
   virtual size_t GetDataSize() const {

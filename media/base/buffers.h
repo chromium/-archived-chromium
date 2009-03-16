@@ -97,7 +97,7 @@ class StreamSample : public base::RefCountedThreadSafe<StreamSample> {
 class Buffer : public StreamSample {
  public:
   // Returns a read only pointer to the buffer data.
-  virtual const char* GetData() const = 0;
+  virtual const uint8* GetData() const = 0;
 
   // Returns the size of valid data in bytes.
   virtual size_t GetDataSize() const = 0;
@@ -106,15 +106,18 @@ class Buffer : public StreamSample {
 
 class WritableBuffer : public Buffer  {
  public:
-  // Returns a read-write pointer to the buffer data.
-  virtual char* GetWritableData() = 0;
+  // Returns a read-write pointer to the buffer data.  When this method is
+  // called, any pointers previously returned from this method are invalid, and
+  // any data previously written to the buffer is invalid.  The buffer size
+  // is guaranteed to be at least the size of |buffer_size|.  The size
+  // that the GetDataSize() method will return is set to |buffer_size|.
+  // If, after filling the buffer, the caller wants to set the size to a smaller
+  // value then they can call the SetDataSize() method.
+  virtual uint8* GetWritableData(size_t buffer_size) = 0;
 
   // Updates the size of valid data in bytes, which must be less than or equal
-  // to GetBufferSize.
+  // to the |buffer_size| passed to GetWritableData().
   virtual void SetDataSize(size_t data_size) = 0;
-
-  // Returns the maximum allocated size for this buffer.
-  virtual size_t GetBufferSize() const = 0;
 };
 
 

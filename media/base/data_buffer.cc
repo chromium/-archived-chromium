@@ -7,24 +7,17 @@
 
 namespace media {
 
-DataBuffer::DataBuffer(char* data, size_t buffer_size, size_t data_size,
-                       const base::TimeDelta& timestamp,
-                       const base::TimeDelta& duration)
-    : data_(data),
-      buffer_size_(buffer_size),
-      data_size_(data_size) {
-  DCHECK(data);
-  DCHECK(buffer_size >= 0);
-  DCHECK(data_size <= buffer_size);
-  SetTimestamp(timestamp);
-  SetDuration(duration);
+DataBuffer::DataBuffer()
+    : data_(NULL),
+      buffer_size_(0),
+      data_size_(0) {
 }
 
 DataBuffer::~DataBuffer() {
   delete [] data_;
 }
 
-const char* DataBuffer::GetData() const {
+const uint8* DataBuffer::GetData() const {
   return data_;
 }
 
@@ -32,15 +25,23 @@ size_t DataBuffer::GetDataSize() const {
   return data_size_;
 }
 
-char* DataBuffer::GetWritableData() {
+uint8* DataBuffer::GetWritableData(size_t buffer_size) {
+  if (buffer_size > buffer_size_) {
+    delete [] data_;
+    data_ = new uint8[buffer_size];
+    if (!data_) {
+      NOTREACHED();
+      buffer_size = 0;
+    }
+    buffer_size_ = buffer_size;
+  }
+  data_size_ = buffer_size;
   return data_;
 }
 
-size_t DataBuffer::GetBufferSize() const {
-  return buffer_size_;
-}
 
 void DataBuffer::SetDataSize(size_t data_size) {
+  DCHECK(data_size <= buffer_size_);
   data_size_ = data_size;
 }
 
