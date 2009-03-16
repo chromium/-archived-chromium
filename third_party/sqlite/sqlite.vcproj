@@ -445,7 +445,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath=".\src\shell_icu.c"
+			RelativePath=".\src\shell_icu_win.c"
 			>
 		</File>
 		<File

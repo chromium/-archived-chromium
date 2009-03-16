@@ -95,8 +95,8 @@ Changes from Chrome:
    figure out what really ought to happen here (perhaps this file is new and
    hasn't been tested to verify it works right).  Update: Seems this is an
    issue we get because we're using fts2 instead of fts3.
- - shell_icu.c is a Chrome-specific file used to load our ICU data.  shell.c
-   has been modifed to call into shell_icu.c.
+ - shell_icu_win.c and shell_icu_linux.c are Chrome-specific files used to load
+   our ICU data.  shell.c has been modifed to call into these files.
  - fts2_icu.c has a critical bug. U8_NEXT is used over a UTF-16 string. It's
    rep$ by U16_NEXT (jungshik)
  - Added a new function sqlite3Preload we use to prime the database cache. It

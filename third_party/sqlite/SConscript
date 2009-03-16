@@ -4,8 +4,7 @@
 
 Import('env')
 
-env = env.Clone(
-)
+env = env.Clone()
 
 env.Prepend(
     CPPPATH = [
@@ -29,19 +28,6 @@ env.Append(
         ['_HAS_EXCEPTIONS', '0'],
     ],
 )
-
-if env.Bit('windows'):
-  env.Append(
-      CCFLAGS = [
-          '/TC',
-
-          '/wd4800',
-          '/wd4244',
-          '/wd4018',
-          '/wd4146',
-          '/wd4996',
-      ],
-  )
 
 input_files = ChromeFileList([
     'src/alter.c',
@@ -89,14 +75,12 @@ input_files = ChromeFileList([
     'src/mutex.c',
     'src/mutex.h',
     'src/mutex_unix.c',
-    'src/mutex_w32.c',
     'preprocessed/opcodes.c',
     'preprocessed/opcodes.h',
     'src/os.c',
     'src/os.h',
     'src/os_common.h',
     'src/os_unix.c',
-    'src/os_win.c',
     'src/pager.c',
     'src/pager.h',
     'preprocessed/parse.c',
@@ -106,8 +90,6 @@ input_files = ChromeFileList([
     'src/printf.c',
     'src/random.c',
     'src/select.c',
-    'src/shell.c',
-    'src/shell_icu.c',
     'preprocessed/sqlite3.h',
     'src/sqlite3ext.h',
     'src/sqliteInt.h',
@@ -132,142 +114,22 @@ input_files = ChromeFileList([
     'src/where.c',
 ])
 
-if not env.Bit('windows'):
-  input_files.Remove(
-      'src/mutex_w32.c',
-      'src/os_win.c',
-      'src/shell.c',
-      'src/shell_icu.c',
-  )
+sqlite_lib = env.ChromeLibrary('sqlite', input_files)
 
-if not env.Bit('linux'):
-  input_files.Remove(
-      'src/mutex_unix.c',
-      'src/os_unix.c',
-  )
+# Build a stand alone sqlite shell so we can inspect the sqlite files.
+env_shell = env.Clone()
 
-env.ChromeLibrary('sqlite', input_files)
+shell_input_files = [
+    'src/shell.c',
+    'src/shell_icu_linux.c',
+]
 
-p = env.ChromeMSVSProject('sqlite.vcproj',
-                          dest=('$CHROME_SRC_DIR/third_party/' +
-                                    'sqlite/sqlite.vcproj'),
-                          dependencies = [
-                              '$ICU38_DIR/build/icu.vcproj',
-                          ],
-                          guid='{6EAD4A4B-2BBC-4974-8E45-BB5C16CC2AC9}',
-                          keyword='Win32Proj',
-                          # TODO(sgk):  when we can intuit the hierarchy
-                          # from the built targets.
-                          #buildtargets=TODO,
-                          files=input_files,
-                          relative_path_prefix='./')
+env_shell.Append(
+    LIBS = [
+        'icu',
+        'sqlite',
+        'stdc++',
+    ]
+)
 
-
-p.AddConfig('Debug|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/debug.vsprops',
-                './sqlite.vsprops',
-                '$(SolutionDir)../build/external_code.vsprops',
-                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
-            ],
-            ConfigurationType='4',
-            tools=[
-                'VCPreBuildEventTool',
-                'VCCustomBuildTool',
-                'VCXMLDataGeneratorTool',
-                'VCWebServiceProxyGeneratorTool',
-                'VCMIDLTool',
-                MSVSTool('VCCLCompilerTool',
-                         AdditionalIncludeDirectories='"$(SolutionDir)..\\third_party\\sqlite\\src";"$(SolutionDir)..\\third_party\\sqlite\\preprocessed"'),
-                'VCManagedResourceCompilerTool',
-                'VCResourceCompilerTool',
-                'VCPreLinkEventTool',
-                'VCLibrarianTool',
-                'VCALinkTool',
-                'VCXDCMakeTool',
-                'VCBscMakeTool',
-                'VCFxCopTool',
-                'VCPostBuildEventTool',
-            ])
-
-p.AddConfig('Release|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                '$(SolutionDir)../build/release.vsprops',
-                './sqlite.vsprops',
-                '$(SolutionDir)../build/external_code.vsprops',
-                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
-            ],
-            ConfigurationType='4',
-            tools=[
-                'VCPreBuildEventTool',
-                'VCCustomBuildTool',
-                'VCXMLDataGeneratorTool',
-                'VCWebServiceProxyGeneratorTool',
-                'VCMIDLTool',
-                MSVSTool('VCCLCompilerTool',
-                         AdditionalIncludeDirectories=[
-                           '"$(SolutionDir)../third_party/sqlite/src"',
-                           '"$(SolutionDir)../third_party/sqlite/preprocessed"',
-                        ]),
-                'VCManagedResourceCompilerTool',
-                'VCResourceCompilerTool',
-                'VCPreLinkEventTool',
-                'VCLibrarianTool',
-                'VCALinkTool',
-                'VCXDCMakeTool',
-                'VCBscMakeTool',
-                'VCFxCopTool',
-                'VCPostBuildEventTool',
-            ])
-
-p.AddConfig('Shell|Win32',
-            InheritedPropertySheets=[
-                '$(SolutionDir)../build/common.vsprops',
-                './sqlite.vsprops',
-                '$(SolutionDir)../build/release.vsprops',
-                '$(SolutionDir)../build/external_code.vsprops',
-                '$(SolutionDir)../third_party/icu38/build/using_icu.vsprops',
-            ],
-            ConfigurationType='1',
-            tools=[
-                'VCPreBuildEventTool',
-                'VCCustomBuildTool',
-                'VCXMLDataGeneratorTool',
-                'VCWebServiceProxyGeneratorTool',
-                'VCMIDLTool',
-                MSVSTool('VCCLCompilerTool',
-                         AdditionalIncludeDirectories=[
-                           '"$(SolutionDir)../third_party/sqlite/src"',
-                           '"$(SolutionDir)../third_party/sqlite/preprocessed"',
-                        ]),
-                'VCManagedResourceCompilerTool',
-                'VCResourceCompilerTool',
-                'VCPreLinkEventTool',
-                'VCLinkerTool',
-                'VCALinkTool',
-                'VCManifestTool',
-                'VCXDCMakeTool',
-                'VCBscMakeTool',
-                'VCFxCopTool',
-                'VCAppVerifierTool',
-                'VCWebDeploymentTool',
-                'VCPostBuildEventTool',
-            ])
-
-p.AddFileConfig('./src/shell.c',
-                'Debug|Win32',
-                ExcludedFromBuild='true',
-                tools=[
-                    'VCCLCompilerTool',
-                ])
-
-p.AddFileConfig('./src/shell.c',
-                'Release|Win32',
-                ExcludedFromBuild='true',
-                tools=[
-                    'VCCLCompilerTool',
-                ])
-
-# TODO(tc): There should be a target to build the stand alone sqlite shell.
+env_shell.ChromeProgram('sqlite_shell', shell_input_files)
