@@ -1858,7 +1858,6 @@ DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missi
 // Rebaselined in webkit in http://trac.webkit.org/changeset/41665
 MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
 // Unknown what change caused these to fail.
-WIN : LayoutTests/fast/block/float/intruding-painted-twice.html = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
 LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
