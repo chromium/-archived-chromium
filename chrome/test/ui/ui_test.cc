@@ -805,3 +805,12 @@ void UITest::PrintResultsImpl(const std::wstring& measurement,
           trace.c_str(), prefix.c_str(), values.c_str(), suffix.c_str(),
           units.c_str());
 }
+
+bool UITest::EvictFileFromSystemCacheWrapper(const FilePath& path) {
+  for (int i = 0; i < 10; i++) {
+    if (file_util::EvictFileFromSystemCache(path))
+      return true;
+    PlatformThread::Sleep(1000);
+  }
+  return false;
+}

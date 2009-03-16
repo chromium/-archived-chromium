@@ -19,19 +19,6 @@ using base::TimeTicks;
 
 namespace {
 
-// Wrapper around EvictFileFromSystemCache to retry 10 times in case of error.
-// Apparently needed for Windows buildbots (to workaround an error when
-// file is in use).
-// TODO(phajdan.jr): Move to test_file_util if we need it in more places.
-bool EvictFileFromSystemCacheWrapper(const FilePath& path) {
-  for (int i = 0; i < 10; i++) {
-    if (file_util::EvictFileFromSystemCache(path))
-      return true;
-    PlatformThread::Sleep(1000);
-  }
-  return false;
-}
-
 class StartupTest : public UITest {
  public:
   StartupTest() {

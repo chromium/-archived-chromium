@@ -345,6 +345,14 @@ class UITest : public testing::Test {
                      const std::string& test_complete_cookie,
                      const std::string& expected_cookie_value,
                      const int wait_time);
+
+  // Wrapper around EvictFileFromSystemCache to retry 10 times in case of
+  // error.
+  // Apparently needed for Windows buildbots (to workaround an error when
+  // file is in use).
+  // TODO(phajdan.jr): Move to test_file_util if we need it in more places.
+  bool EvictFileFromSystemCacheWrapper(const FilePath& path);
+
  private:
   // Check that no processes related to Chrome exist, displaying
   // the given message if any do.
