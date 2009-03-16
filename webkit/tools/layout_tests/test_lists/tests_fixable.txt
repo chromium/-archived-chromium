@@ -2057,13 +2057,3 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug23847.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/bugs/bug32205-4.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_fixed-bg.html = FAIL
 LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_layers-show.html = FAIL
-
-// This hits a stack-overflow exception earlier in debug mode than in
-// release mode on Windows.
-//
-// Hits the stack overflow earlier than before the new compiler in both
-// release and debug mode on Linux and Mac.
-//
-// http://code.google.com/p/v8/issues/detail?id=277
-LINUX MAC : LayoutTests/fast/js/large-expressions.html = FAIL
-WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL 
