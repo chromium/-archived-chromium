@@ -557,6 +557,23 @@
         }],
       ],
     },
+    {
+      'target_name': 'test_support_base',
+      'type': 'static_library',
+      'dependencies': [
+        'base',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'sources': [
+        'perftimer.cc',
+        'run_all_perftests.cc',
+      ],
+      'direct_dependent_settings': {
+        'defines': [
+          'PERF_TEST',
+        ],
+      },
+    },
   ],
   'conditions': [
     [ 'OS == "win"', {

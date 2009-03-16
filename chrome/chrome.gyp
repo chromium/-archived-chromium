@@ -1715,6 +1715,7 @@
         '..',
       ],
       'sources': [
+        'test/testing_browser_process.h',
         'test/ui/npapi_test_helper.cc',
         'test/ui/npapi_test_helper.h',
         'test/ui/run_all_unittests.cc',
@@ -2171,8 +2172,89 @@
             },
           ],  # 'actions'
         },
-      ]},  # 'targets'
-    ],  # OS=="mac"
+      ]
+    }, { # else: OS != "mac"
+      'targets': [
+        {
+          'target_name': 'page_cycler_tests',
+          'type': 'executable',
+          'dependencies': [
+            'resources',
+            'test_support_ui',
+            '../base/base.gyp:base',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'sources': [
+            'test/page_cycler/page_cycler_test.cc',
+            'tools/build/win/precompiled.cc',
+            'tools/build/win/precompiled.h',
+          ],
+          'conditions': [
+            ['OS!="win"', {
+              'sources!': [
+                'tools/build/win/precompiled.cc',
+                'tools/build/win/precompiled.h',
+              ],
+            }],
+          ],
+        },
+        {
+          'target_name': 'perf_tests',
+          'type': 'executable',
+          'dependencies': [
+            'browser',
+            'common',
+            'resources',
+            '../base/base.gyp:base',
+            '../base/base.gyp:test_support_base',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'sources': [
+            'browser/visitedlink_perftest.cc',
+            'test/perf/perftests.cc',
+            'test/perf/url_parse_perftest.cc',
+          ],
+          'conditions': [
+            ['OS=="linux"', {
+              'sources!': [
+                # TODO(port):
+                'browser/visitedlink_perftest.cc',
+              ],
+            }],
+          ],
+        },
+        {
+          'target_name': 'startup_tests',
+          'type': 'executable',
+          'dependencies': [
+            'browser',
+            'common',
+            'resources',
+            'test_support_ui',
+            '../base/base.gyp:base',
+            '../skia/skia.gyp:skia',
+            '../testing/gtest.gyp:gtest',
+          ],
+          'sources': [
+            'test/startup/feature_startup_test.cc',
+            'test/startup/startup_test.cc',
+            'tools/build/win/precompiled.cc',
+            'tools/build/win/precompiled.h',
+          ],
+          'conditions': [
+            ['OS!="win"', {
+              'sources!': [
+                'test/startup/feature_startup_test.cc',
+                'tools/build/win/precompiled.cc',
+                'tools/build/win/precompiled.h',
+              ],
+            }],
+          ],
+        },
+      ],
+    }],  # OS!="mac"
     ['OS=="win"',
       { 'targets': [
         {

@@ -462,12 +462,11 @@
         'net',
         'net_test_support',
         '../base/base.gyp:base',
+        '../base/base.gyp:test_support_base',
         '../testing/gtest.gyp:gtest',
       ],
       'msvs_guid': 'AAC78796-B9A2-4CD9-BF89-09B03E92BF73',
       'sources': [
-        '../base/perftimer.cc',
-        '../base/run_all_perftests.cc',
         'base/cookie_monster_perftest.cc',
         'disk_cache/disk_cache_perftest.cc',
         'proxy/proxy_resolver_perftest.cc',
