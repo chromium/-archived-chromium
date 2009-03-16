@@ -548,6 +548,7 @@
           ],
           'action':
             ['python', '<@(_inputs)', '-i', '<(RULE_INPUT_PATH)', 'build', '-o', '<(SHARED_INTERMEDIATE_DIR)/net'],
+          'message': 'Generating resources from <(RULE_INPUT_PATH)',
         },
       ],
       'sources': [

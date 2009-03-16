@@ -600,6 +600,7 @@
           },
           'action': ['python', 'build/rule_binding.py', '<(RULE_INPUT_PATH)', '<(INTERMEDIATE_DIR)/bindings', '<(SHARED_INTERMEDIATE_DIR)/webkit/bindings', '--', '<@(_inputs)', '--', '--defines', '<(feature_defines) LANGUAGE_JAVASCRIPT V8_BINDING', '--generator', 'V8', '<@(generator_include_dirs)'],
           'process_outputs_as_sources': 1,
+          'message': 'Generating binding from <(RULE_INPUT_PATH)',
         },
       ],
       'include_dirs': [
