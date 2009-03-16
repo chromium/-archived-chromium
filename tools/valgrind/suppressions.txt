@@ -16,132 +16,25 @@
    fun:PR_LoadLibraryWithFlags
 }
 {
-   leak in dlopen or nss.  See http://sources.redhat.com/bugzilla/show_bug.cgi?id=2451
+   gtk developers don't like cleaning up one-time leaks.  See http://mail.gnome.org/archives/gtk-devel-list/2004-April/msg00230.html
    Memcheck:Leak
-   fun:malloc
-   fun:_dl_map_object_from_fd
-   fun:_dl_map_object
-   fun:dl_open_worker
-   fun:_dl_catch_error
-   fun:_dl_open
-   fun:dlopen_doit
-   fun:_dl_catch_error
-   fun:_dlerror_run
-   fun:dlopen@@GLIBC_2.1
-   fun:PR_LoadLibraryWithFlags
-   obj:*
-}
-{
-   gtk developers don't like cleaning up one-time leaks, part 1.  See http://mail.gnome.org/archives/gtk-devel-list/2004-April/msg00230.html
-   Memcheck:Leak
-   fun:malloc
    ...
    fun:gtk_init_check
-}
-{
-   gtk developers don't like cleaning up one-time leaks, part 2
-   Memcheck:Leak
-   fun:realloc
-   ...
-   fun:gtk_init_check
-}
-{
-   gtk developers don't like cleaning up one-time leaks, part 3
-   Memcheck:Leak
-   fun:calloc
-   ...
-   fun:gtk_init_check
-}
-{
-   gtk developers don't like cleaning up one-time leaks, part 4
-   Memcheck:Leak
-   fun:memalign
-   ...
-   fun:gdk_display_open
 }
 {
    Fontconfig leak?
    Memcheck:Leak
-   fun:malloc
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   fun:XML_ParseBuffer
-   fun:FcConfigParseAndLoad
-   fun:FcConfigParseAndLoad
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   fun:XML_ParseBuffer
-   fun:FcConfigParseAndLoad
-   fun:FcInitLoadConfig
-   fun:FcInitLoadConfigAndFonts
-   fun:FcInit
-}
-{
-   Fontconfig Leak?
-   Memcheck:Leak
-   fun:malloc
-   fun:FcStrCopy
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   fun:XML_ParseBuffer
-   fun:FcConfigParseAndLoad
-   fun:FcConfigParseAndLoad
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libfontconfig.so.1.3.0
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   obj:/usr/lib*/libexpat.so.1.5.2
-   fun:XML_ParseBuffer
-   fun:FcConfigParseAndLoad
-   fun:FcInitLoadConfig
-   fun:FcInitLoadConfigAndFonts
-   fun:FcInit
-}
-{
-   SECMOD leak
-   Memcheck:Leak
-   fun:calloc
    ...
-   fun:SECMOD_LoadUserModule
+   fun:XML_ParseBuffer
+   fun:FcConfigParseAndLoad
+   fun:FcInitLoadConfig
+   fun:FcInitLoadConfigAndFonts
+   fun:FcInit
 }
 {
-   SECMOD leak?
+   NSS leak  See also http://sources.redhat.com/bugzilla/show_bug.cgi?id=2451
    Memcheck:Leak
-   fun:malloc
-   fun:PR_Malloc
-   fun:PL_ArenaAllocate
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   fun:SECMOD_LoadUserModule
-}
-{
-   NSS leak part 3.
-   Memcheck:Leak
-   fun:calloc
-   fun:PR_Calloc
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
-   obj:/usr/lib*/libnss3.so.1d
+   ...
    fun:NSS_NoDB_Init
 }
 {
