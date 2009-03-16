@@ -216,7 +216,7 @@ int HttpNetworkTransaction::Read(IOBuffer* buf, int buf_len,
     // We reach this case when the user cancels a 407 proxy auth prompt.
     // See http://crbug.com/8473
     DCHECK(response_.headers->response_code() == 407);
-    LogBlockedTunnelResponse(*response_.headers);
+    LogBlockedTunnelResponse(response_.headers->response_code());
     return ERR_TUNNEL_CONNECTION_FAILED;
   }
 
@@ -956,10 +956,9 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
 }
 
 void HttpNetworkTransaction::LogBlockedTunnelResponse(
-    const HttpResponseHeaders& headers) const {
-  LOG(WARNING) << "Blocked proxy response with status "
-               << headers.response_code() << " to CONNECT request for "
-               << request_->url.host() << ":"
+    int response_code) const {
+  LOG(WARNING) << "Blocked proxy response with status " << response_code
+               << " to CONNECT request for " << request_->url.host() << ":"
                << request_->url.EffectiveIntPort() << ".";
 }
 
@@ -1021,7 +1020,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
         // 501 response bodies that contain a useful error message.  For
         // example, Squid uses a 404 response to report the DNS error: "The
         // domain name does not exist."
-        LogBlockedTunnelResponse(*headers);
+        LogBlockedTunnelResponse(headers->response_code());
         return ERR_TUNNEL_CONNECTION_FAILED;
     }
   }

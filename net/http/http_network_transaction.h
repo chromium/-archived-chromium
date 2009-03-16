@@ -84,7 +84,7 @@ class HttpNetworkTransaction : public HttpTransaction {
 
   // Writes a log message to help debugging in the field when we block a proxy
   // response to a CONNECT request.
-  void LogBlockedTunnelResponse(const HttpResponseHeaders& headers) const;
+  void LogBlockedTunnelResponse(int response_code) const;
 
   // Called when header_buf_ contains the complete response headers.
   int DidReadResponseHeaders();
