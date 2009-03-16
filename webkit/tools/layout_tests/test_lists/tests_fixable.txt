@@ -2058,9 +2058,6 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_layers-show.h
 
 // Merge 41709:41733
 // Expectations changed upstream.
-WIN : pending/security/block-test.html = FAIL
-LINUX : LayoutTests/editing/selection/5354455-2.html = FAIL
-LINUX : LayoutTests/editing/selection/5109817.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 MAC RELEASE : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT
