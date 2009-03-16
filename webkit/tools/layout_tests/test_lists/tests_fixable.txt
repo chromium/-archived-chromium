@@ -1297,9 +1297,6 @@ MAC : LayoutTests/http/tests/security/aboutBlank/security-context-with-base-tag.
 MAC : LayoutTests/http/tests/security/host-compare-case-insensitive.html = CRASH FAIL PASS
 MAC : LayoutTests/fast/dom/Window/window-open-self-from-other-frame.html = CRASH FAIL PASS
 
-// seems to be timing out more then passing on the build bots
-MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = TIMEOUT PASS
-
 // -----------------------------------------------------------------
 // END MAC PORT TESTS
 // -----------------------------------------------------------------
@@ -1643,7 +1640,7 @@ DEFER LINUX WIN : LayoutTests/fast/gradients/background-clipped.html = FAIL
 // Regressions from merge 41217:41268
 // Other failures
 LINUX : LayoutTests/css1/text_properties/vertical_align.html = FAIL
-LINUX MAC : LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
+LINUX : LayoutTests/fast/repaint/transform-absolute-in-positioned-container.html = FAIL
 // SVG Mask-related tests. Most likely result of http://trac.webkit.org/changeset/41266.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
@@ -1845,15 +1842,15 @@ DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-paddin
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Rebaselined in webkit in http://trac.webkit.org/changeset/41665
-LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
+MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
 // Unknown what change caused these to fail.
 WIN : LayoutTests/fast/block/float/intruding-painted-twice.html = FAIL
-MAC WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
 LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 // Need to be rebaselined on Linux and Mac due to http://trac.webkit.org/changeset/41677
-MAC LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
-MAC LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote.html = FAIL
+LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-4.html = FAIL
+LINUX : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote.html = FAIL
 // Need to be rebaselined on Linux and Mac due to http://trac.webkit.org/changeset/41683
 LINUX : LayoutTests/css1/basic/class_as_selector.html = FAIL
 LINUX : LayoutTests/css1/basic/containment.html = FAIL
@@ -1939,7 +1936,6 @@ LINUX : LayoutTests/fast/block/float/017.html = FAIL
 LINUX : LayoutTests/fast/block/float/018.html = FAIL
 LINUX : LayoutTests/fast/block/float/019.html = FAIL
 LINUX : LayoutTests/fast/block/float/032.html = FAIL
-LINUX : LayoutTests/fast/block/float/035.html = FAIL
 LINUX : LayoutTests/fast/block/float/float-in-float-hit-testing.html = FAIL
 LINUX : LayoutTests/fast/block/float/float-in-float-painting.html = FAIL
 LINUX : LayoutTests/fast/block/float/tableshifting.html = FAIL
@@ -1966,7 +1962,6 @@ LINUX : LayoutTests/fast/doctypes/003.html = FAIL
 LINUX : LayoutTests/fast/doctypes/004.html = FAIL
 LINUX : LayoutTests/fast/dom/HTMLImageElement/image-alt-text.html = FAIL
 LINUX : LayoutTests/fast/dom/HTMLInputElement/input-image-alt-text.html = FAIL
-LINUX : LayoutTests/fast/dom/anchor-toString.html = FAIL
 LINUX : LayoutTests/fast/dom/inner-text.html = FAIL
 LINUX : LayoutTests/fast/encoding/utf-16-big-endian.html = FAIL
 LINUX : LayoutTests/fast/encoding/utf-16-little-endian.html = FAIL
