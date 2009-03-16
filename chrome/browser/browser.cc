@@ -904,10 +904,12 @@ void Browser::FocusToolbar() {
   UserMetrics::RecordAction(L"FocusToolbar", profile_);
   window_->FocusToolbar();
 }
+#endif
 
+#if defined(OS_WIN) || defined(OS_LINUX)
 void Browser::FocusLocationBar() {
   UserMetrics::RecordAction(L"FocusLocation", profile_);
-  window_->GetLocationBar()->FocusLocation();
+  window_->SetFocusToLocationBar();
 }
 
 void Browser::FocusSearch() {
@@ -915,20 +917,24 @@ void Browser::FocusSearch() {
   UserMetrics::RecordAction(L"FocusSearch", profile_);
   window_->GetLocationBar()->FocusSearch();
 }
+#endif
 
+#if defined(OS_WIN) || defined(OS_LINUX)
 void Browser::OpenFile() {
   UserMetrics::RecordAction(L"OpenFile", profile_);
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
 
   // TODO(beng): figure out how to juggle this.
-  HWND parent_hwnd = reinterpret_cast<HWND>(window_->GetNativeHandle());
+  gfx::NativeWindow parent_window = window_->GetNativeHandle();
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
                                   std::wstring(), std::wstring(),
                                   std::wstring(), std::wstring(),
-                                  parent_hwnd, NULL);
+                                  parent_window, NULL);
 }
+#endif
 
+#if defined(OS_WIN)
 void Browser::OpenCreateShortcutsDialog() {
   UserMetrics::RecordAction(L"CreateShortcut", profile_);
   GetSelectedTabContents()->AsWebContents()->CreateShortcut();
@@ -1215,14 +1221,20 @@ void Browser::ExecuteCommand(int id) {
     case IDC_ZOOM_NORMAL:           ZoomReset();                   break;
     case IDC_ZOOM_MINUS:            ZoomOut();                     break;
 
-#if defined(OS_WIN)
     // Focus various bits of UI
+#if defined(OS_WIN)
     case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
+#endif
+#if defined(OS_WIN) || defined(OS_LINUX)
     case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
     case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
+#endif
 
     // Show various bits of UI
+#if defined(OS_WIN)|| defined(OS_LINUX)
     case IDC_OPEN_FILE:             OpenFile();                    break;
+#endif
+#if defined(OS_WIN)
     case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
     case IDC_DEBUGGER:              OpenDebuggerWindow();          break;
     case IDC_JS_CONSOLE:            OpenJavaScriptConsole();       break;

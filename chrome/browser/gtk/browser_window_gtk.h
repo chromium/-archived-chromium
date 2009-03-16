@@ -37,7 +37,7 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual void Activate();
   virtual bool IsActive() const;
   virtual void FlashFrame();
-  virtual void* GetNativeHandle();
+  virtual gfx::NativeWindow GetNativeHandle();
   virtual BrowserWindowTesting* GetBrowserWindowTesting();
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);
@@ -90,6 +90,10 @@ class BrowserWindowGtk : public BrowserWindow,
   scoped_ptr<Browser> browser_;
 
  private:
+  // Connect accelerators that aren't connected to menu items (like ctrl-o,
+  // ctrl-l, etc.).
+  void ConnectAccelerators();
+
   // Change whether we're showing the custom blue frame.
   // Must be called once at startup.
   // Triggers relayout of the content.
@@ -103,6 +107,13 @@ class BrowserWindowGtk : public BrowserWindow,
 
   static gboolean OnWindowDestroyed(GtkWidget* window,
                                     BrowserWindowGtk* browser_win);
+
+  static gboolean OnAccelerator(GtkAccelGroup* accel_group,
+                                GObject* acceleratable,
+                                guint keyval,
+                                GdkModifierType modifier,
+                                BrowserWindowGtk* browser_window);
+
   gfx::Rect bounds_;
   GdkWindowState state_;
 

@@ -169,7 +169,7 @@ class BrowserView : public BrowserWindow,
   virtual void Activate();
   virtual bool IsActive() const;
   virtual void FlashFrame();
-  virtual void* GetNativeHandle();
+  virtual gfx::NativeWindow GetNativeHandle();
   virtual BrowserWindowTesting* GetBrowserWindowTesting();
   virtual StatusBubble* GetStatusBubble();
   virtual void SelectedTabToolbarSizeChanged(bool is_animating);

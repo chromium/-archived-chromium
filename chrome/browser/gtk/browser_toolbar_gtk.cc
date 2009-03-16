@@ -27,24 +27,6 @@ const int BrowserToolbarGtk::kToolbarHeight = 38;
 // when the user clicks and the popup menu appears.
 static const int kMenuTimerDelay = 500;
 
-gboolean OnAccelerator(GtkAccelGroup* accel_group,
-                       GObject* acceleratable,
-                       guint keyval,
-                       GdkModifierType modifier,
-                       gpointer userdata) {
-  BrowserToolbarGtk* self = reinterpret_cast<BrowserToolbarGtk*>(userdata);
-  switch (keyval) {
-    case GDK_l:
-      self->GetLocationBar()->FocusLocation();
-      return TRUE;
-    case GDK_k:
-      self->GetLocationBar()->FocusSearch();
-      return TRUE;
-    default:
-      return FALSE;
-  }
-}
-
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
     : toolbar_(NULL),
       location_bar_(new LocationBarViewGtk(browser->command_updater(),
@@ -68,11 +50,10 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
 BrowserToolbarGtk::~BrowserToolbarGtk() {
 }
 
-void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
+void BrowserToolbarGtk::Init(Profile* profile,
+                             GtkWindow* top_level_window) {
   // Make sure to tell the location bar the profile before calling its Init.
   SetProfile(profile);
-
-  accel_group_ = accel_group;
 
   show_home_button_.Init(prefs::kShowHomeButton, profile->GetPrefs(), this);
 
@@ -81,6 +62,12 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
   // Demand we're always at least kToolbarHeight tall.
   // -1 for width means "let GTK do its normal sizing".
   gtk_widget_set_size_request(toolbar_, -1, kToolbarHeight);
+
+  accel_group_ = gtk_accel_group_new();
+  gtk_window_add_accel_group(top_level_window, accel_group_);
+  // Drop the initial ref on |accel_group_| so that |top_level_window| will own
+  // it.
+  g_object_unref(accel_group_);
 
   toolbar_tooltips_ = gtk_tooltips_new();
 
@@ -93,6 +80,9 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
                  l10n_util::GetString(IDS_TOOLTIP_FORWARD)));
   AddAcceleratorToButton(forward_, GDK_Right, GDK_MOD1_MASK);
 
+  // TODO(estade): These blank labels are kind of ghetto. Padding should be
+  // handled differently (via spacing parameters or padding widgets that use
+  // gtk_widget_set_size_request).
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
@@ -111,15 +101,6 @@ void BrowserToolbarGtk::Init(Profile* profile, GtkAccelGroup* accel_group) {
 
   location_bar_->Init();
   gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
-
-  // Map ctrl-l for setting focus to the location entry.
-  gtk_accel_group_connect(
-      accel_group_, GDK_l, GDK_CONTROL_MASK, GtkAccelFlags(0),
-      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
-  // Map ctrl-k for setting focus to a search in the location entry.
-  gtk_accel_group_connect(
-      accel_group_, GDK_k, GDK_CONTROL_MASK, GtkAccelFlags(0),
-      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
 
   go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L""));
 

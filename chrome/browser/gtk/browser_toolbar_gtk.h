@@ -36,8 +36,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   explicit BrowserToolbarGtk(Browser* browser);
   virtual ~BrowserToolbarGtk();
 
-  // Create the contents of the toolbar
-  void Init(Profile* profile, GtkAccelGroup* accel_group);
+  // Create the contents of the toolbar. |top_level_window| is the GtkWindow
+  // to which we attach our accelerators.
+  void Init(Profile* profile, GtkWindow* top_level_window);
 
   // Adds this GTK toolbar into a sizing box.
   void AddToolbarToBox(GtkWidget* box);

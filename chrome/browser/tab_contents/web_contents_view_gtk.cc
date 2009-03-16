@@ -161,7 +161,6 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
   web_contents_->delegate()->SetFocusToLocationBar();
 }
 
-
 void WebContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   // The renderer returned a keyboard event it did not process. This may be a
@@ -179,8 +178,8 @@ void WebContentsViewGtk::HandleKeyboardEvent(
       break;
     default:
       // This may be an accelerator. Pass it on to GTK.
-      gtk_accel_groups_activate(G_OBJECT(vbox_.get()->window),
-                                event.os_event->keyval,
+      GtkWindow* window = GetTopLevelNativeView();
+      gtk_accel_groups_activate(G_OBJECT(window), event.os_event->keyval,
                                 GdkModifierType(event.os_event->state));
   }
 }

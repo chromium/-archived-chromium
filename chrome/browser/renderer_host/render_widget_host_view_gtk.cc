@@ -78,7 +78,10 @@ class RenderWidgetHostViewGtkWidget {
                                        RenderWidgetHostViewGtk* host_view) {
     NativeWebKeyboardEvent wke(event);
     host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
-    return FALSE;
+    // We return TRUE because we did handle the event. If it turns out webkit
+    // can't handle the event, we'll deal with in
+    // RenderView::UnhandledKeyboardEvent().
+    return TRUE;
   }
 
   static gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,

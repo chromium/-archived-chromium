@@ -4,10 +4,13 @@
 
 #include "chrome/browser/gtk/browser_window_gtk.h"
 
+#include <gdk/gdkkeysyms.h>
+
 #include "base/base_paths_linux.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
+#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
@@ -18,7 +21,6 @@
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-
 #include "chrome/common/resource_bundle.h"
 #include "grit/theme_resources.h"
 
@@ -73,6 +75,34 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
   gtk_window_get_position(window, &x, &y);
   gtk_window_get_size(window, &width, &height);
   return gfx::Rect(x, y, width, height);
+}
+
+const guint kFocusLocationKey = GDK_l;
+const guint kFocusSearchKey = GDK_k;
+const guint kOpenFileKey = GDK_o;
+
+static int GetCommandFromKeyval(guint accel_key) {
+  switch (accel_key) {
+    case kFocusLocationKey:
+      return IDC_FOCUS_LOCATION;
+    case kFocusSearchKey:
+      return IDC_FOCUS_SEARCH;
+    case kOpenFileKey:
+      return IDC_OPEN_FILE;
+    default:
+      NOTREACHED();
+      return 0;
+  }
+}
+
+// Usually accelerators are checked before propagating the key event, but in our
+// case we want to reverse the order of things to allow webkit to handle key
+// events like ctrl-l. If the window's children can handle the key event, this
+// will return TRUE and the signal won't be propagated further. If the window's
+// children cannot handle the key event then this will return FALSE and the
+// default GtkWindow key press handler will be invoked.
+gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, gpointer userdata) {
+  return gtk_window_propagate_key_event(window, event);
 }
 
 }  // namespace
@@ -130,16 +160,16 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
 void BrowserWindowGtk::Init() {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_default_size(window_, 640, 480);
-  g_signal_connect(G_OBJECT(window_), "destroy",
+  g_signal_connect(window_, "destroy",
                    G_CALLBACK(OnWindowDestroyed), this);
-  g_signal_connect(G_OBJECT(window_), "configure-event",
+  g_signal_connect(window_, "configure-event",
                    G_CALLBACK(MainWindowConfigured), this);
-  g_signal_connect(G_OBJECT(window_), "window-state-event",
+  g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(MainWindowStateChanged), this);
+  g_signal_connect(window_, "key-press-event",
+                   G_CALLBACK(OnKeyPress), NULL);
+  ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
-
-  GtkAccelGroup* accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(window_, accel_group);
 
   GdkPixbuf* images[9] = {
     LoadThemeImage(IDR_CONTENT_TOP_LEFT_CORNER),
@@ -163,7 +193,7 @@ void BrowserWindowGtk::Init() {
                    G_CALLBACK(&OnContentAreaExpose), this);
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
-  toolbar_->Init(browser_->profile(), accel_group);
+  toolbar_->Init(browser_->profile(), window_);
   toolbar_->AddToolbarToBox(vbox_);
 
   FindBarGtk* find_bar_gtk = new FindBarGtk();
@@ -230,7 +260,7 @@ void BrowserWindowGtk::FlashFrame() {
   gtk_window_set_urgency_hint(window_, TRUE);
 }
 
-void* BrowserWindowGtk::GetNativeHandle() {
+gfx::NativeWindow BrowserWindowGtk::GetNativeHandle() {
   return window_;
 }
 
@@ -424,6 +454,23 @@ void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
   state_ = state;
 }
 
+void BrowserWindowGtk::ConnectAccelerators() {
+  GtkAccelGroup* accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(window_, accel_group);
+  // Drop the initial ref on |accel_group| so |window_| will own it.
+  g_object_unref(accel_group);
+
+  gtk_accel_group_connect(
+      accel_group, kFocusLocationKey, GDK_CONTROL_MASK, GtkAccelFlags(0),
+      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
+  gtk_accel_group_connect(
+      accel_group, kFocusSearchKey, GDK_CONTROL_MASK, GtkAccelFlags(0),
+      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
+  gtk_accel_group_connect(
+      accel_group, kOpenFileKey, GDK_CONTROL_MASK, GtkAccelFlags(0),
+      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
+}
+
 void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
   custom_frame_ = custom_frame;
   if (custom_frame_) {
@@ -452,3 +499,12 @@ gboolean BrowserWindowGtk::OnWindowDestroyed(GtkWidget* window,
   return FALSE;  // Don't stop this message.
 }
 
+// static
+gboolean BrowserWindowGtk::OnAccelerator(GtkAccelGroup* accel_group,
+                                         GObject* acceleratable,
+                                         guint keyval,
+                                         GdkModifierType modifier,
+                                         BrowserWindowGtk* browser_window) {
+  browser_window->browser_->ExecuteCommand(GetCommandFromKeyval(keyval));
+  return TRUE;
+}

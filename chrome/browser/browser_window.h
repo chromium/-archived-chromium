@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_BROWSER_WINDOW_H_
 #define CHROME_BROWSER_BROWSER_WINDOW_H_
 
+#include "base/gfx/native_widget_types.h"
+
 class Browser;
 class BrowserList;
 class BrowserWindowTesting;
@@ -56,8 +58,8 @@ class BrowserWindow {
   virtual void FlashFrame() = 0;
 
   // Return a platform dependent identifier for this frame. On Windows, this
-  // returns an HWND. DO NOT USE IN CROSS PLATFORM CODE.
-  virtual void* GetNativeHandle() = 0;
+  // returns an HWND.
+  virtual gfx::NativeWindow GetNativeHandle() = 0;
 
   // Returns a pointer to the testing interface to the Browser window, or NULL
   // if there is none.

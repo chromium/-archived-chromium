@@ -532,7 +532,7 @@ void BrowserView::FlashFrame() {
   FlashWindowEx(&fwi);
 }
 
-void* BrowserView::GetNativeHandle() {
+gfx::NativeWindow BrowserView::GetNativeHandle() {
   return GetWidget()->GetNativeView();
 }
 

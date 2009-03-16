@@ -27,7 +27,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void Activate() {}
   virtual bool IsActive() const { return false; }
   virtual void FlashFrame() {}
-  virtual void* GetNativeHandle() { return NULL; }
+  virtual gfx::NativeWindow GetNativeHandle() { return NULL; }
   virtual BrowserWindowTesting* GetBrowserWindowTesting() { return NULL; }
   virtual StatusBubble* GetStatusBubble() { return NULL; }
   virtual void SelectedTabToolbarSizeChanged(bool is_animating) {}
