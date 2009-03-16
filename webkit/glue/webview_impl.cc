@@ -56,6 +56,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "Image.h"
 #include "InspectorController.h"
 #include "IntRect.h"
+#include "KeyboardCodes.h"
 #include "KeyboardEvent.h"
 #include "MIMETypeRegistry.h"
 #include "NodeRenderStyle.h"
@@ -683,26 +684,25 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
 
   switch (event.type) {
     case WebInputEvent::CHAR: {
-#if defined(OS_WIN)
-      // TODO(pinkerton): hook this up for non-win32
-      if (event.windows_key_code == VK_SPACE) {
+      if (event.windows_key_code == VKEY_SPACE) {
         int key_code = ((event.modifiers & WebInputEvent::SHIFT_KEY) ?
-                         VK_PRIOR : VK_NEXT);
+                         VKEY_PRIOR : VKEY_NEXT);
         return ScrollViewWithKeyboard(key_code);
       }
-#endif
       break;
     }
 
+#if defined(OS_WIN)
     case WebInputEvent::RAW_KEY_DOWN: {
+#else
+    case WebInputEvent::KEY_DOWN: {
+#endif
       if (event.modifiers == WebInputEvent::CTRL_KEY) {
         switch (event.windows_key_code) {
           case 'A':
             GetFocusedFrame()->SelectAll();
             return true;
-#if defined(OS_WIN)
-          case VK_INSERT:
-#endif
+          case VKEY_INSERT:
           case 'C':
             GetFocusedFrame()->Copy();
             return true;
@@ -710,20 +710,16 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
           // key combinations which affect scrolling. Safari is buggy in the
           // sense that it scrolls the page for all Ctrl+scrolling key
           // combinations. For e.g. Ctrl+pgup/pgdn/up/down, etc.
-#if defined(OS_WIN)
-          case VK_HOME:
-          case VK_END:
-#endif
+          case VKEY_HOME:
+          case VKEY_END:
             break;
           default:
             return false;
         }
       }
-#if defined(OS_WIN)
       if (!event.system_key) {
         return ScrollViewWithKeyboard(event.windows_key_code);
       }
-#endif
       break;
     }
 
@@ -741,47 +737,42 @@ bool WebViewImpl::ScrollViewWithKeyboard(int key_code) {
   ScrollDirection scroll_direction;
   ScrollGranularity scroll_granularity;
 
-#if defined(OS_WIN)
   switch (key_code) {
-    case VK_LEFT:
+    case VKEY_LEFT:
       scroll_direction = ScrollLeft;
       scroll_granularity = ScrollByLine;
       break;
-    case VK_RIGHT:
+    case VKEY_RIGHT:
       scroll_direction = ScrollRight;
       scroll_granularity = ScrollByLine;
       break;
-    case VK_UP:
+    case VKEY_UP:
       scroll_direction = ScrollUp;
       scroll_granularity = ScrollByLine;
       break;
-    case VK_DOWN:
+    case VKEY_DOWN:
       scroll_direction = ScrollDown;
       scroll_granularity = ScrollByLine;
       break;
-    case VK_HOME:
+    case VKEY_HOME:
       scroll_direction = ScrollUp;
       scroll_granularity = ScrollByDocument;
       break;
-    case VK_END:
+    case VKEY_END:
       scroll_direction = ScrollDown;
       scroll_granularity = ScrollByDocument;
       break;
-    case VK_PRIOR:  // page up
+    case VKEY_PRIOR:  // page up
       scroll_direction = ScrollUp;
       scroll_granularity = ScrollByPage;
       break;
-    case VK_NEXT:  // page down
+    case VKEY_NEXT:  // page down
       scroll_direction = ScrollDown;
       scroll_granularity = ScrollByPage;
       break;
     default:
       return false;
   }
-#elif defined(OS_MACOSX) || defined(OS_LINUX)
-  scroll_direction = ScrollDown;
-  scroll_granularity = ScrollByLine;
-#endif
 
   bool scroll_handled =
       frame->eventHandler()->scrollOverflow(scroll_direction,

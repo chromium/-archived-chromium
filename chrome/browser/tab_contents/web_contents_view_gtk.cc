@@ -163,25 +163,10 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
 
 void WebContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
-  // The renderer returned a keyboard event it did not process. This may be a
-  // keyboard shortcut that we have to process or a cursor key/page up/down
-  // etc.
-  switch (event.os_event->keyval) {
-    case GDK_Page_Up:
-    case GDK_Page_Down:
-    case GDK_Left:
-    case GDK_Right:
-    case GDK_Up:
-    case GDK_Down:
-      NOTIMPLEMENTED()
-          << "Need better navigation support in HandleKeyboardEvent";
-      break;
-    default:
-      // This may be an accelerator. Pass it on to GTK.
-      GtkWindow* window = GetTopLevelNativeView();
-      gtk_accel_groups_activate(G_OBJECT(window), event.os_event->keyval,
-                                GdkModifierType(event.os_event->state));
-  }
+  // This may be an accelerator. Pass it on to GTK.
+  GtkWindow* window = GetTopLevelNativeView();
+  gtk_accel_groups_activate(G_OBJECT(window), event.os_event->keyval,
+                            GdkModifierType(event.os_event->state));
 }
 
 void WebContentsViewGtk::OnFindReply(int request_id,
