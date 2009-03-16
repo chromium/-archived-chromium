@@ -12,6 +12,7 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/toolbar_model.h"
+#include "chrome/common/owned_widget_gtk.h"
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -34,7 +35,7 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   // Initialize, create the underlying widgets, etc.
   void Init();
 
-  GtkWidget* widget() { return text_view_; }
+  GtkWidget* widget() { return text_view_.get(); }
 
   // Grab keyboard input focus, putting focus on the location widget.
   void SetFocus();
@@ -182,7 +183,7 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   // Internally invoked whenever the text changes in some way.
   void TextChanged();
 
-  GtkWidget* text_view_;
+  OwnedWidgetGtk text_view_;
 
   GtkTextTagTable* tag_table_;
   GtkTextBuffer* text_buffer_;

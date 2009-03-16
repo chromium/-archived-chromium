@@ -170,8 +170,8 @@ void BrowserWindowGtk::Init() {
   find_bar_controller_.reset(new FindBarController(find_bar_gtk));
   find_bar_gtk->set_find_bar_controller(find_bar_controller_.get());
 
-  contents_container_.reset(new TabContentsContainerGtk(
-      find_bar_gtk->gtk_widget()));
+  contents_container_.reset(
+      new TabContentsContainerGtk(find_bar_gtk->widget()));
 
   contents_container_->AddContainerToBox(vbox_);
 
@@ -201,13 +201,13 @@ void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
 }
 
 void BrowserWindowGtk::Close() {
-  if (!window_)
-    return;
-
   // TODO(tc): Once the tab strip model is hooked up, this call can be removed.
   // It should get called by TabDetachedAt when the window is being closed, but
   // we don't have a TabStripModel yet.
   find_bar_controller_->ChangeWebContents(NULL);
+
+  if (!window_)
+    return;
 
   GtkWidget* window = GTK_WIDGET(window_);
   // To help catch bugs in any event handlers that might get fired during the
@@ -248,6 +248,9 @@ void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowGtk::UpdateTitleBar() {
+  if (!window_)
+    return;
+
   std::wstring title = browser_->GetCurrentPageTitle();
   gtk_window_set_title(window_, WideToUTF8(title).c_str());
   if (browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR)) {

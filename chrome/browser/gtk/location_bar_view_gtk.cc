@@ -33,8 +33,7 @@ const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
 LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
                                        ToolbarModel* toolbar_model)
-    : outer_bin_(NULL),
-      inner_vbox_(NULL),
+    : inner_vbox_(NULL),
       profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
@@ -43,7 +42,8 @@ LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
 }
 
 LocationBarViewGtk::~LocationBarViewGtk() {
-  gtk_widget_destroy(outer_bin_);
+  // All of our widgets should have be children of / owned by the outer bin.
+  outer_bin_.Destroy();
 }
 
 void LocationBarViewGtk::Init() {
@@ -62,15 +62,12 @@ void LocationBarViewGtk::Init() {
                      TRUE, TRUE, 0);
 
   // Use an alignment to position our bordered location entry exactly.
-  outer_bin_ = gtk_alignment_new(0, 0, 1, 1);
-  gtk_alignment_set_padding(GTK_ALIGNMENT(outer_bin_),
+  outer_bin_.Own(gtk_alignment_new(0, 0, 1, 1));
+  gtk_alignment_set_padding(GTK_ALIGNMENT(outer_bin_.get()),
                             kTopPadding, kBottomPadding, 0, 0);
   gtk_container_add(
-      GTK_CONTAINER(outer_bin_),
+      GTK_CONTAINER(outer_bin_.get()),
       gfx::CreateGtkBorderBin(inner_vbox_, &kBorderColor, 1, 1, 0, 0));
-
-  // Sink the ref so that we own the widget, and will destroy on destruction.
-  g_object_ref_sink(outer_bin_);
 }
 
 void LocationBarViewGtk::SetProfile(Profile* profile) {

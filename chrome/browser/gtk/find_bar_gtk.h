@@ -5,12 +5,13 @@
 #ifndef CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
 #define CHROME_BROWSER_GTK_FIND_BAR_GTK_H_
 
-#include "base/basictypes.h"
-#include "chrome/browser/find_bar.h"
-
 #include <gtk/gtk.h>
 
 #include <string>
+
+#include "base/basictypes.h"
+#include "chrome/browser/find_bar.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class FindBarController;
 class TabContentsContainerGtk;
@@ -21,7 +22,7 @@ class WebContents;
 class FindBarGtk : public FindBar {
  public:
   FindBarGtk();
-  virtual ~FindBarGtk() { }
+  virtual ~FindBarGtk();
 
   void set_find_bar_controller(FindBarController* find_bar_controller) {
     find_bar_controller_ = find_bar_controller;
@@ -33,7 +34,7 @@ class FindBarGtk : public FindBar {
   // Callback when Escape is pressed.
   void EscapePressed();
 
-  GtkWidget* gtk_widget() const { return container_; }
+  GtkWidget* widget() const { return container_.get(); }
 
   // Methods from FindBar.
   virtual void Show();
@@ -51,7 +52,7 @@ class FindBarGtk : public FindBar {
 
  private:
   // GtkHBox containing the find bar widgets.
-  GtkWidget* container_;
+  OwnedWidgetGtk container_;
 
   // The widget where text is entered.
   GtkWidget* find_text_;

@@ -33,8 +33,7 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
     ToolbarModel* toolbar_model,
     Profile* profile,
     CommandUpdater* command_updater)
-    : text_view_(NULL),
-      tag_table_(NULL),
+    : tag_table_(NULL),
       text_buffer_(NULL),
       base_tag_(NULL),
       secure_scheme_tag_(NULL),
@@ -61,8 +60,8 @@ AutocompleteEditViewGtk::~AutocompleteEditViewGtk() {
   model_.release();
 
   // We own our widget and TextView related objects.
-  if (text_view_) {  // Init() has been called.
-    gtk_widget_destroy(text_view_);
+  if (text_view_.get()) {  // Init() has been called.
+    text_view_.Destroy();
     g_object_unref(text_buffer_);
     g_object_unref(tag_table_);
     // The tags we created are owned by the tag_table, and should be destroyed
@@ -76,20 +75,19 @@ void AutocompleteEditViewGtk::Init() {
   // the other objects adds a reference; it doesn't adopt them.
   tag_table_ = gtk_text_tag_table_new();
   text_buffer_ = gtk_text_buffer_new(tag_table_);
-  text_view_ = gtk_text_view_new_with_buffer(text_buffer_);
-  g_object_ref_sink(text_view_);  // We want to own the widget.
+  text_view_.Own(gtk_text_view_new_with_buffer(text_buffer_));
 
-  gtk_text_view_set_left_margin(GTK_TEXT_VIEW(text_view_), 4);
-  gtk_text_view_set_right_margin(GTK_TEXT_VIEW(text_view_), 4);
+  gtk_text_view_set_left_margin(GTK_TEXT_VIEW(text_view_.get()), 4);
+  gtk_text_view_set_right_margin(GTK_TEXT_VIEW(text_view_.get()), 4);
 
   // TODO(deanm): This is a super lame attempt to vertically center our single
   // line of text in a multiline edit control.  Mannnn.
-  gtk_text_view_set_pixels_above_lines(GTK_TEXT_VIEW(text_view_), 4);
+  gtk_text_view_set_pixels_above_lines(GTK_TEXT_VIEW(text_view_.get()), 4);
 
   // TODO(deanm): This will probably have to be handled differently with the
   // tab to search business.  Maybe we should just eat the tab characters.
   // We want the tab key to move focus, not insert a tab.
-  gtk_text_view_set_accepts_tab(GTK_TEXT_VIEW(text_view_), false);
+  gtk_text_view_set_accepts_tab(GTK_TEXT_VIEW(text_view_.get()), false);
 
   base_tag_ = gtk_text_buffer_create_tag(text_buffer_,
       NULL, "foreground", kTextBaseColor, NULL);
@@ -107,26 +105,26 @@ void AutocompleteEditViewGtk::Init() {
   g_signal_connect(text_buffer_, "end-user-action",
                    G_CALLBACK(&HandleEndUserActionThunk), this);
   // We connect to key press and release for special handling of a few keys.
-  g_signal_connect(text_view_, "key-press-event",
+  g_signal_connect(text_view_.get(), "key-press-event",
                    G_CALLBACK(&HandleKeyPressThunk), this);
-  g_signal_connect(text_view_, "key-release-event",
+  g_signal_connect(text_view_.get(), "key-release-event",
                    G_CALLBACK(&HandleKeyReleaseThunk), this);
-  g_signal_connect(text_view_, "size-request",
+  g_signal_connect(text_view_.get(), "size-request",
                    G_CALLBACK(&HandleViewSizeRequest), this);
-  g_signal_connect(text_view_, "button-press-event",
+  g_signal_connect(text_view_.get(), "button-press-event",
                    G_CALLBACK(&HandleViewButtonPressThunk), this);
-  g_signal_connect(text_view_, "focus-in-event",
+  g_signal_connect(text_view_.get(), "focus-in-event",
                    G_CALLBACK(&HandleViewFocusInThunk), this);
-  g_signal_connect(text_view_, "focus-out-event",
+  g_signal_connect(text_view_.get(), "focus-out-event",
                    G_CALLBACK(&HandleViewFocusOutThunk), this);
   // NOTE: The GtkTextView documentation asks you not to connect to this
   // signal, but it is very convenient and clean for catching up/down.
-  g_signal_connect(text_view_, "move-cursor",
+  g_signal_connect(text_view_.get(), "move-cursor",
                    G_CALLBACK(&HandleViewMoveCursorThunk), this);
 }
 
 void AutocompleteEditViewGtk::SetFocus() {
-  gtk_widget_grab_focus(text_view_);
+  gtk_widget_grab_focus(text_view_.get());
 }
 
 void AutocompleteEditViewGtk::SaveStateToTab(TabContents* tab) {
@@ -308,9 +306,9 @@ bool AutocompleteEditViewGtk::OnAfterPossibleChange() {
 }
 
 void AutocompleteEditViewGtk::BottomLeftPosWidth(int* x, int* y, int* width) {
-  gdk_window_get_origin(text_view_->window, x, y);
-  *y += text_view_->allocation.height;
-  *width = text_view_->allocation.width;
+  gdk_window_get_origin(text_view_.get()->window, x, y);
+  *y += text_view_.get()->allocation.height;
+  *width = text_view_.get()->allocation.width;
 }
 
 void AutocompleteEditViewGtk::HandleBeginUserAction() {
@@ -353,7 +351,7 @@ gboolean AutocompleteEditViewGtk::HandleKeyPress(GtkWidget* widget,
      (event->keyval == GDK_Escape && event->state == 0)) {
     // Handle IME. This is basically taken from GtkTextView and reworked a bit.
     GtkTextIter iter;
-    GtkTextView* text_view = GTK_TEXT_VIEW(text_view_);
+    GtkTextView* text_view = GTK_TEXT_VIEW(text_view_.get());
     GtkTextMark* insert = gtk_text_buffer_get_insert(text_buffer_);
     gtk_text_buffer_get_iter_at_mark(text_buffer_, &iter, insert);
     gboolean can_insert = gtk_text_iter_can_insert(&iter, text_view->editable);
@@ -405,13 +403,13 @@ gboolean AutocompleteEditViewGtk::HandleViewButtonPress(GdkEventButton* event) {
   // will cause us to become focused.  We call GtkTextView's default handler
   // and then stop propagation.  This allows us to run our code after the
   // default handler, even if that handler stopped propagation.
-  if (GTK_WIDGET_HAS_FOCUS(text_view_))
+  if (GTK_WIDGET_HAS_FOCUS(text_view_.get()))
     return FALSE;  // Continue to propagate into the GtkTextView handler.
 
   // Call the GtkTextView default handler, ignoring the fact that it will
   // likely have told us to stop propagating.  We want to handle selection.
-  GtkWidgetClass* klass = GTK_WIDGET_GET_CLASS(text_view_);
-  klass->button_press_event(text_view_, event);
+  GtkWidgetClass* klass = GTK_WIDGET_GET_CLASS(text_view_.get());
+  klass->button_press_event(text_view_.get(), event);
 
   // Select the full input when we get focus.
   SelectAll(false);
@@ -421,7 +419,7 @@ gboolean AutocompleteEditViewGtk::HandleViewButtonPress(GdkEventButton* event) {
   // code it will skip an important loop.  Use -1 to achieve the same.
   GtkTextIter start, end;
   gtk_text_buffer_get_bounds(text_buffer_, &start, &end);
-  gtk_text_view_move_visually(GTK_TEXT_VIEW(text_view_), &start, -1);
+  gtk_text_view_move_visually(GTK_TEXT_VIEW(text_view_.get()), &start, -1);
 
   return TRUE;  // Don't continue, we called the default handler already.
 }
@@ -450,7 +448,7 @@ void AutocompleteEditViewGtk::HandleViewMoveCursor(
     model_->OnUpOrDownKeyPressed(count);
     // move-cursor doesn't use a signal accumulator on the return value (it
     // just ignores them), so we have to stop the propagation.
-    g_signal_stop_emission_by_name(text_view_, "move-cursor");
+    g_signal_stop_emission_by_name(text_view_.get(), "move-cursor");
     return;
   }
   // Propagate into GtkTextView.
@@ -530,7 +528,7 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
       gtk_text_buffer_apply_tag(text_buffer_, insecure_scheme_tag_,
                                 &start, &end);
     }
-    gtk_widget_modify_base(text_view_, GTK_STATE_NORMAL, background);
+    gtk_widget_modify_base(text_view_.get(), GTK_STATE_NORMAL, background);
   }
 }
 

@@ -9,6 +9,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/common/owned_widget_gtk.h"
 #include "webkit/glue/webcursor.h"
 
 class RenderWidgetHost;
@@ -50,7 +51,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   BackingStore* AllocBackingStore(const gfx::Size& size);
   // ---------------------------------------------------------------------------
 
-  gfx::NativeView native_view() const { return view_; }
+  gfx::NativeView native_view() const { return view_.get(); }
 
   void Paint(const gfx::Rect&);
 
@@ -58,7 +59,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // The model object.
   RenderWidgetHost *const host_;
   // The native UI widget.
-  gfx::NativeView view_;
+  OwnedWidgetGtk view_;
 
   // The cursor for the page. This is passed up from the renderer.
   WebCursor current_cursor_;

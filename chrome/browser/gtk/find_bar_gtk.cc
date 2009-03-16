@@ -28,11 +28,12 @@ gboolean KeyPressEvent(GtkWindow* window, GdkEventKey* event,
 }
 
 FindBarGtk::FindBarGtk() {
+  // TODO(tc): Pull out widget creation into an Init() method.
   find_text_ = gtk_entry_new();
   gtk_widget_show(find_text_);
 
-  container_ = gtk_hbox_new(false, 2);
-  gtk_box_pack_end(GTK_BOX(container_), find_text_, FALSE, FALSE, 0);
+  container_.Own(gtk_hbox_new(false, 2));
+  gtk_box_pack_end(GTK_BOX(container_.get()), find_text_, FALSE, FALSE, 0);
 
   g_signal_connect(G_OBJECT(find_text_), "changed", 
                    G_CALLBACK(EntryContentsChanged), this);
@@ -40,15 +41,19 @@ FindBarGtk::FindBarGtk() {
                    G_CALLBACK(KeyPressEvent), this);
 }
 
+FindBarGtk::~FindBarGtk() {
+  container_.Destroy();
+}
+
 void FindBarGtk::Show() {
   // TODO(tc): This should be an animated slide in.
-  gtk_widget_show(container_);
+  gtk_widget_show(container_.get());
   gtk_widget_grab_focus(find_text_);
 }
 
 void FindBarGtk::Hide(bool animate) {
   // TODO(tc): Animated slide away.
-  gtk_widget_hide(container_);
+  gtk_widget_hide(container_.get());
 }
 
 void FindBarGtk::SetFocusAndSelection() {
@@ -76,7 +81,7 @@ void FindBarGtk::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
 }
 
 bool FindBarGtk::IsFindBarVisible() {
-  return true;
+  return GTK_WIDGET_VISIBLE(container_.get());
 }
 
 void FindBarGtk::RestoreSavedFocus() {

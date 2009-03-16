@@ -44,7 +44,7 @@ gboolean OnFocusOut(GtkWidget* widget, GdkEventFocus* event, void*) {
 }
 
 // Callback used in WebContentsViewGtk::CreateViewForWidget().
-void RemoveWidget(GtkWidget* widget, void* container) {
+void RemoveWidget(GtkWidget* widget, gpointer container) {
   gtk_container_remove(GTK_CONTAINER(container), widget);
 }
 
@@ -58,11 +58,10 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 WebContentsViewGtk::WebContentsViewGtk(WebContents* web_contents)
     : web_contents_(web_contents),
       vbox_(gtk_vbox_new(FALSE, 0)) {
-  g_object_ref_sink(vbox_);
 }
 
 WebContentsViewGtk::~WebContentsViewGtk() {
-  gtk_widget_destroy(vbox_);
+  vbox_.Destroy();
 }
 
 WebContents* WebContentsViewGtk::GetWebContents() {
@@ -83,13 +82,13 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
                    G_CALLBACK(OnFocus), web_contents_);
   g_signal_connect(view->native_view(), "focus-out-event",
                    G_CALLBACK(OnFocusOut), NULL);
-  gtk_container_foreach(GTK_CONTAINER(vbox_), RemoveWidget, vbox_);
-  gtk_box_pack_start(GTK_BOX(vbox_), view->native_view(), TRUE, TRUE, 0);
+  gtk_container_foreach(GTK_CONTAINER(vbox_.get()), RemoveWidget, vbox_.get());
+  gtk_box_pack_start(GTK_BOX(vbox_.get()), view->native_view(), TRUE, TRUE, 0);
   return view;
 }
 
 gfx::NativeView WebContentsViewGtk::GetNativeView() const {
-  return vbox_;
+  return vbox_.get();
 }
 
 gfx::NativeView WebContentsViewGtk::GetContentNativeView() const {
@@ -98,7 +97,7 @@ gfx::NativeView WebContentsViewGtk::GetContentNativeView() const {
 }
 
 gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeView() const {
-  return GTK_WINDOW(gtk_widget_get_toplevel(vbox_));
+  return GTK_WINDOW(gtk_widget_get_toplevel(vbox_.get()));
 }
 
 void WebContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
@@ -180,7 +179,7 @@ void WebContentsViewGtk::HandleKeyboardEvent(
       break;
     default:
       // This may be an accelerator. Pass it on to GTK.
-      gtk_accel_groups_activate(G_OBJECT(vbox_->window),
+      gtk_accel_groups_activate(G_OBJECT(vbox_.get()->window),
                                 event.os_event->keyval,
                                 GdkModifierType(event.os_event->state));
   }

@@ -7,6 +7,7 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class RenderViewContextMenuGtk;
 
@@ -67,7 +68,7 @@ class WebContentsViewGtk : public WebContentsView {
  private:
   WebContents* web_contents_;
 
-  GtkWidget* vbox_;
+  OwnedWidgetGtk vbox_;
 
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.

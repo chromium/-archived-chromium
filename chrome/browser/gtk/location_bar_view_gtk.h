@@ -13,6 +13,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/location_bar.h"
+#include "chrome/common/owned_widget_gtk.h"
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -35,7 +36,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
   void SetProfile(Profile* profile);
 
   // Returns the widget the caller should host.  You must call Init() first.
-  GtkWidget* widget() { return outer_bin_; }
+  GtkWidget* widget() { return outer_bin_.get(); }
 
   // Updates the location bar.  We also reset the bar's permanent text and
   // security style, and, if |tab_for_state_restoring| is non-NULL, also
@@ -65,7 +66,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
 
  private:
   // The outermost widget we want to be hosted.
-  GtkWidget* outer_bin_;
+  OwnedWidgetGtk outer_bin_;
 
   // This is the widget you probably care about, our inner vbox (inside the
   // the border) which holds the elements inside the location bar.

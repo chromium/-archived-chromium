@@ -135,12 +135,11 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
     : host_(widget_host) {
   host_->set_view(this);
-  view_ = RenderWidgetHostViewGtkWidget::CreateNewWidget(this);
   // BUG 8707: We will live in some container (in this case in WebContents).
   // We want to destroy during Destroy(), independent of how we are managed in
   // any containers.  We need to sink the reference here to "own" the widget so
   // it can be added and removed from containers without being destroyed.
-  g_object_ref_sink(view_);
+  view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
 }
 
 RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
@@ -162,7 +161,7 @@ gfx::NativeView RenderWidgetHostViewGtk::GetPluginNativeView() {
   // TODO(port): We need to pass some widget pointer out here because the
   // renderer echos it back to us when it asks for GetScreenInfo. However, we
   // should probably be passing the top-level window or some such instead.
-  return view_;
+  return view_.get();
 }
 
 void RenderWidgetHostViewGtk::MovePluginWindows(
@@ -195,8 +194,8 @@ void RenderWidgetHostViewGtk::Hide() {
 }
 
 gfx::Rect RenderWidgetHostViewGtk::GetViewBounds() const {
-  return gfx::Rect(view_->allocation.x, view_->allocation.y,
-                   view_->allocation.width, view_->allocation.height);
+  GtkAllocation* alloc = &view_.get()->allocation;
+  return gfx::Rect(alloc->x, alloc->y, alloc->width, alloc->height);
 }
 
 void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {
@@ -219,7 +218,7 @@ void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {
       return;
     gdk_cursor = gdk_cursor_new(new_cursor_type);
   }
-  gdk_window_set_cursor(view_->window, gdk_cursor);
+  gdk_window_set_cursor(view_.get()->window, gdk_cursor);
   // The window now owns the cursor.
   gdk_cursor_unref(gdk_cursor);
 }
@@ -258,26 +257,25 @@ void RenderWidgetHostViewGtk::Destroy() {
   // We need to disconnect ourselves from our parent widget at this time; this
   // does the right thing, automatically removing ourselves from our parent
   // container.
-  gtk_widget_destroy(view_);
-  view_ = NULL;
+  view_.Destroy();
 }
 
 void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
   if (tooltip_text.empty()) {
-    gtk_widget_set_has_tooltip(view_, FALSE);
+    gtk_widget_set_has_tooltip(view_.get(), FALSE);
   } else {
-    gtk_widget_set_tooltip_text(view_, WideToUTF8(tooltip_text).c_str());
+    gtk_widget_set_tooltip_text(view_.get(), WideToUTF8(tooltip_text).c_str());
   }
 }
 
 BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
     const gfx::Size& size) {
   Display* display = x11_util::GetXDisplay();
-  void* visual = x11_util::GetVisualFromGtkWidget(view_);
+  void* visual = x11_util::GetVisualFromGtkWidget(view_.get());
   XID root_window = x11_util::GetX11RootWindow();
   bool use_render = x11_util::QueryRenderSupport(display);
   bool use_shared_memory = x11_util::QuerySharedMemorySupport(display);
-  int depth = gtk_widget_get_visual(view_)->depth;
+  int depth = gtk_widget_get_visual(view_.get())->depth;
 
   return new BackingStore(size, display, depth, visual, root_window,
                           use_render, use_shared_memory);
@@ -290,10 +288,10 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     // Only render the widget if it is attached to a window; there's a short
     // period where this object isn't attached to a window but hasn't been
     // Destroy()ed yet and it receives paint messages...
-    GdkWindow* window = view_->window;
+    GdkWindow* window = view_.get()->window;
     if (window) {
       backing_store->ShowRect(
-          damage_rect, x11_util::GetX11WindowFromGtkWidget(view_));
+          damage_rect, x11_util::GetX11WindowFromGtkWidget(view_.get()));
     }
   } else {
     NOTIMPLEMENTED();

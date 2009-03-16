@@ -9,6 +9,7 @@
 #include <string>
 
 #include "chrome/browser/gtk/standard_menus.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class SkBitmap;
 
@@ -93,12 +94,9 @@ class MenuGtk {
   // Accelerator group to add keyboard accelerators to.
   GtkAccelGroup* accel_group_;
 
-  // The window this menu is attached to.
-  GtkWindow* window_;
-
   // gtk_menu_popup() does not appear to take ownership of popup menus, so
   // MenuGtk explicitly manages the lifetime of the menu.
-  GtkWidget* menu_;
+  OwnedWidgetGtk menu_;
 };
 
 #endif  // CHROME_BROWSER_GTK_MENU_GTK_H_

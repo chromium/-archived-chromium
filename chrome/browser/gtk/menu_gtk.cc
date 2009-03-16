@@ -40,19 +40,17 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
     : delegate_(delegate),
       accel_group_(accel_group),
       menu_(gtk_menu_new()) {
-  g_object_ref_sink(menu_);
-  BuildMenuIn(menu_, menu_data);
+  BuildMenuIn(menu_.get(), menu_data);
 }
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate)
     : delegate_(delegate),
       menu_(gtk_menu_new()) {
-  g_object_ref_sink(menu_);
   BuildMenuFromDelegate();
 }
 
 MenuGtk::~MenuGtk() {
-  g_object_unref(menu_);
+  menu_.Destroy();
 }
 
 void MenuGtk::Popup(GtkWidget* widget, GdkEvent* event) {
@@ -64,20 +62,20 @@ void MenuGtk::Popup(GtkWidget* widget, GdkEvent* event) {
 }
 
 void MenuGtk::Popup(GtkWidget* widget, gint button_type, guint32 timestamp) {
-  gtk_container_foreach(GTK_CONTAINER(menu_), SetMenuItemInfo, this);
+  gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetMenuItemInfo, this);
 
-  gtk_menu_popup(GTK_MENU(menu_), NULL, NULL,
+  gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL,
                  MenuPositionFunc,
                  widget,
                  button_type, timestamp);
 }
 
 void MenuGtk::PopupAsContext() {
-  gtk_container_foreach(GTK_CONTAINER(menu_), SetMenuItemInfo, this);
+  gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetMenuItemInfo, this);
 
   // TODO(estade): |button| value of 0 (6th argument) is not strictly true,
   // but does it matter?
-  gtk_menu_popup(GTK_MENU(menu_), NULL, NULL, NULL, NULL, 0,
+  gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL, NULL, NULL, 0,
                  gtk_get_current_event_time());
 }
 
@@ -180,7 +178,8 @@ void MenuGtk::BuildMenuFromDelegate() {
                      G_CALLBACK(OnMenuItemActivatedById), this);
 
     gtk_widget_show(menu_item);
-    gtk_menu_append(menu_, menu_item);
+    // TODO(estade): gtk_menu_append is deprecated.
+    gtk_menu_append(menu_.get(), menu_item);
   }
 }
 
