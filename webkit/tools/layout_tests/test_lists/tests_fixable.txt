@@ -1832,16 +1832,6 @@ DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
 // instead of themeWin.css and then this test should pass.
 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 
-// This hits a stack-overflow exception earlier in debug mode than in
-// release mode on Windows.
-//
-// Hits the stack overflow earlier than before the new compiler in both
-// release and debug mode on Linux and Mac.
-//
-//   http://code.google.com/p/v8/issues/detail?id=277
-LINUX MAC : LayoutTests/fast/js/large-expressions.html = FAIL
-WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
-
 // Started failing with r11635 (mbelshe)
 WIN : LayoutTests/fast/dom/undetectable-document-all.html = FAIL
 
