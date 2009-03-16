@@ -50,22 +50,13 @@ MULTIPROCESS_TEST_MAIN(SlowChildProcess) {
   return 0;
 }
 
-#if defined(OS_WIN)
-#define EXE_SUFFIX L".exe"
-#else
-#define EXE_SUFFIX L""
-#endif
-
 TEST_F(ProcessUtilTest, KillSlowChild) {
   remove("SlowChildProcess.die");
-  int oldcount = GetProcessCount(L"base_unittests" EXE_SUFFIX, 0);
   ProcessHandle handle = this->SpawnChild(L"SlowChildProcess");
   ASSERT_NE(static_cast<ProcessHandle>(NULL), handle);
-  EXPECT_EQ(oldcount+1, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
   FILE *fp = fopen("SlowChildProcess.die", "w");
   fclose(fp);
   EXPECT_TRUE(base::WaitForSingleProcess(handle, 5000));
-  EXPECT_EQ(oldcount, GetProcessCount(L"base_unittests" EXE_SUFFIX, 0));
   base::CloseProcessHandle(handle);
 }
 
