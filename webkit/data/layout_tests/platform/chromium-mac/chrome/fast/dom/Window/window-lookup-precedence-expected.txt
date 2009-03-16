@@ -1,3 +1,4 @@
+
 window.Attr IS function Attr() { [native code] }
 window.CDATASection IS function CDATASection() { [native code] }
 window.CSSCharsetRule IS function CSSCharsetRule() { [native code] }
@@ -176,7 +177,7 @@ window.onfocus IS null
 window.onkeydown IS null
 window.onkeypress IS null
 window.onkeyup IS null
-window.onload IS function onload(evt) { with (this.ownerDocument ? this.ownerDocument : {}) { with (this.form ? this.form : {}) { with (this) { return (function(evt){runTest()}).call(this, evt); } } } }
+window.onload IS function onload(evt) { with (this.ownerDocument ? this.ownerDocument : {}) { with (this.form ? this.form : {}) { with (this) { return (function(evt){runTest() }).call(this, evt); } } } }
 window.onmousedown IS null
 window.onmousemove IS null
 window.onmouseout IS null
@@ -226,3 +227,4 @@ window.toString IS [object global]
 window.toolbar IS [object BarInfo]
 window.top IS [object global]
 window.window IS [object global]
+

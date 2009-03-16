@@ -129,6 +129,7 @@ TEST(TransparencyWin, NoLayer)
                     TransparencyWin::NoLayer,
                     TransparencyWin::ScaleTransform,
                     IntRect(2, 2, 6, 6));
+        helper.composite();
 
         // The coordinate system should be based in the upper left of our box.
         // It should be post-transformed.
@@ -150,6 +151,7 @@ TEST(TransparencyWin, WhiteLayer)
                     TransparencyWin::WhiteLayer,
                     TransparencyWin::KeepTransform,
                     IntRect(1, 1, 14, 12));
+        helper.composite();
 
         EXPECT_TRUE(src->context() != helper.context());
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
@@ -163,6 +165,7 @@ TEST(TransparencyWin, WhiteLayer)
                     TransparencyWin::WhiteLayer,
                     TransparencyWin::Untransform,
                     IntRect(1, 1, 14, 12));
+        helper.composite();
 
         EXPECT_TRUE(src->context() != helper.context());
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
@@ -178,6 +181,7 @@ TEST(TransparencyWin, WhiteLayer)
                     TransparencyWin::WhiteLayer,
                     TransparencyWin::ScaleTransform,
                     IntRect(2, 2, 6, 6));
+        helper.composite();
 
         // The coordinate system should be based in the upper left of our box.
         // It should be post-transformed.
@@ -199,6 +203,7 @@ TEST(TransparencyWin, TextComposite)
                     TransparencyWin::TextComposite,
                     TransparencyWin::KeepTransform,
                     IntRect(1, 1, 14, 12));
+        helper.composite();
 
         EXPECT_TRUE(src->context() != helper.context());
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
@@ -217,6 +222,7 @@ TEST(TransparencyWin, OpaqueCompositeLayer)
                     TransparencyWin::OpaqueCompositeLayer,
                     TransparencyWin::KeepTransform,
                     IntRect(1, 1, 14, 12));
+        helper.composite();
 
         EXPECT_TRUE(src->context() != helper.context());
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
@@ -232,6 +238,7 @@ TEST(TransparencyWin, OpaqueCompositeLayer)
                     TransparencyWin::OpaqueCompositeLayer,
                     TransparencyWin::KeepTransform,
                     IntRect(1, 1, 14, 14));
+        helper.composite();
 
         EXPECT_TRUE(src->context() != helper.context());
         EXPECT_TRUE(IntSize(14, 14) == helper.m_layerSize);
@@ -246,6 +253,7 @@ TEST(TransparencyWin, OpaqueCompositeLayer)
                     TransparencyWin::OpaqueCompositeLayer,
                     TransparencyWin::Untransform,
                     IntRect(1, 1, 14, 12));
+        helper.composite();
 
         EXPECT_TRUE(src->context() != helper.context());
         EXPECT_TRUE(IntSize(14, 12) == helper.m_layerSize);
@@ -261,6 +269,7 @@ TEST(TransparencyWin, OpaqueCompositeLayer)
                     TransparencyWin::OpaqueCompositeLayer,
                     TransparencyWin::ScaleTransform,
                     IntRect(2, 2, 6, 6));
+        helper.composite();
 
         // The coordinate system should be based in the upper left of our box.
         // It should be post-transformed.
@@ -286,6 +295,7 @@ TEST(TransparencyWin, WhiteLayerPixelTest)
         // Coordinates should be in the original space, not the layer.
         drawNativeRect(helper.context(), 3, 3, 1, 1);
         clearTopLayerAlphaChannel(helper.context());
+        helper.composite();
     }
 
     // The final image should be transparent around the edges for 1 px, white
@@ -327,6 +337,7 @@ TEST(TransparencyWin, OpaqueCompositeLayerPixel)
         // we check below).
         clearTopLayerAlphaPixel(helper.context(), 1, 1);
         clearTopLayerAlphaPixel(helper.context(), 12, 12);
+        helper.composite();
     }
 
     // Finish the compositing.
@@ -378,6 +389,7 @@ TEST(TransparencyWin, TranslateOpaqueCompositeLayer)
         // the transform.
         FloatRect bottomRight(15, 15, 1, 1);
         helper.context()->fillRect(bottomRight, green);
+        helper.composite();
     }
 
     src->context()->restore();
@@ -432,6 +444,7 @@ TEST(TransparencyWin, RotateOpaqueCompositeLayer)
         // Fill with red.
         helper.context()->fillRect(helper.drawRect(), Color(0x7f7f0000));
         clearTopLayerAlphaChannel(helper.context());
+        helper.composite();
     }
 
     // Finish the compositing.
@@ -511,6 +524,7 @@ TEST(TransparencyWin, TranslateScaleOpaqueCompositeLayer)
         // Fill with red.
         helper.context()->fillRect(helper.drawRect(), Color(0x7f7f0000));
         clearTopLayerAlphaChannel(helper.context());
+        helper.composite();
     }
 }
 
@@ -552,6 +566,7 @@ TEST(TransparencyWin, Scale)
             platformContext()->canvas()->getTopPlatformDevice().
             accessBitmap(false));
         *bitmap.getAddr32(2, 2) &= 0x00FFFFFF;
+        helper.composite();
     }
 
     src->context()->restore();
@@ -599,6 +614,7 @@ TEST(TransparencyWin, ScaleTransparency)
 
         helper.context()->fillRect(helper.drawRect(), Color(0x7f000000));
         clearTopLayerAlphaChannel(helper.context());
+        helper.composite();
     }
 
     // Finish the layer.
@@ -663,6 +679,7 @@ TEST(TransparencyWin, Text)
 
         // Now mess with the alpha channel.
         clearTopLayerAlphaChannel(helper.context());
+        helper.composite();
     }
 
     Color oneThirdResult(0x55005555);  // = fullResult * 2 / 3

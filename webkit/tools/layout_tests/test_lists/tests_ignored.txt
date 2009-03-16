@@ -120,7 +120,6 @@ LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 LayoutTests/platform/gtk = FAIL PASS
 LayoutTests/platform/mac = FAIL PASS TIMEOUT
 LayoutTests/platform/mac-leopard = FAIL PASS
-LayoutTests/platform/mac-snowleopard = FAIL PASS
 LayoutTests/platform/mac-tiger = FAIL PASS
 LayoutTests/platform/qt = FAIL PASS
 LINUX MAC : LayoutTests/platform/win = FAIL PASS

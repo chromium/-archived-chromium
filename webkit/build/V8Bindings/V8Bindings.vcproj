@@ -128,14 +128,6 @@
 			Name="custom"
 			>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8AbstractEventListener.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8AbstractEventListener.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CanvasRenderingContext2DCustom.cpp"
 				>
 			</File>
@@ -220,14 +212,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8LazyEventListener.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8LazyEventListener.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8LocationCustom.cpp"
 				>
 			</File>
@@ -268,14 +252,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8ObjectEventListener.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8ObjectEventListener.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8StyleSheetListCustom.cpp"
 				>
 			</File>
@@ -297,14 +273,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8WebKitCSSMatrixConstructor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8WorkerContextEventListener.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8WorkerContextEventListener.h"
 				>
 			</File>
 			<File
@@ -2901,6 +2869,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8AbstractEventListener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8AbstractEventListener.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8Binding.h"
 			>
 		</File>
@@ -2909,7 +2885,23 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8LazyEventListener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8LazyEventListener.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\V8MessagePortCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8ObjectEventListener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8ObjectEventListener.h"
 			>
 		</File>
 		<File
@@ -2918,6 +2910,14 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\V8WorkerContextCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8WorkerContextEventListener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8WorkerContextEventListener.h"
 			>
 		</File>
 		<File
