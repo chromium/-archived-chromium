@@ -298,9 +298,9 @@ HistoryModel.prototype.addResults = function(info, results) {
         lastURL = thisURL;
       }
     }
+    if (results.length)
+      this.changed = true;
   }
-  if (results.length)
-    this.changed = true;
 
   this.updateSearch_(info.finished);
 }
