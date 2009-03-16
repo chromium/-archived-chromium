@@ -36,7 +36,7 @@ void SynchronousBroadcastNewTableEvent(base::SharedMemory* table) {
   if (table) {
     for (std::vector<VisitedLinkSlave>::size_type i = 0;
          i < g_slaves.size(); i++) {
-      base::SharedMemoryHandle new_handle = NULL;
+      base::SharedMemoryHandle new_handle = base::SharedMemory::NULLHandle();
       table->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
       g_slaves[i]->Init(new_handle);
     }
@@ -103,7 +103,7 @@ class VisitedLinkTest : public testing::Test {
 
     // Create a slave database.
     VisitedLinkSlave slave;
-    base::SharedMemoryHandle new_handle = NULL;
+    base::SharedMemoryHandle new_handle = base::SharedMemory::NULLHandle();
     master_->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
     bool success = slave.Init(new_handle);
     ASSERT_TRUE(success);
@@ -239,7 +239,7 @@ TEST_F(VisitedLinkTest, DeleteAll) {
 
   {
     VisitedLinkSlave slave;
-    base::SharedMemoryHandle new_handle = NULL;
+    base::SharedMemoryHandle new_handle = base::SharedMemory::NULLHandle();
     master_->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
     ASSERT_TRUE(slave.Init(new_handle));
     g_slaves.push_back(&slave);
@@ -287,7 +287,7 @@ TEST_F(VisitedLinkTest, Resizing) {
 
   // ...and a slave
   VisitedLinkSlave slave;
-  base::SharedMemoryHandle new_handle = NULL;
+  base::SharedMemoryHandle new_handle = base::SharedMemory::NULLHandle();
   master_->ShareToProcess(base::GetCurrentProcessHandle(), &new_handle);
   bool success = slave.Init(new_handle);
   ASSERT_TRUE(success);

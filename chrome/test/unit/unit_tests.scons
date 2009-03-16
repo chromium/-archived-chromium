@@ -421,7 +421,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/tabs/tab_strip_model_unittest.cc',
       '$CHROME_DIR/browser/views/bookmark_editor_view_unittest.cc',
       '$CHROME_DIR/browser/views/keyword_editor_view_unittest.cc',
-      '$CHROME_DIR/browser/visitedlink_unittest.cc',
       '$CHROME_DIR/browser/webdata/web_database_unittest.cc',
       '$CHROME_DIR/browser/window_sizer_unittest.cc',
       '$CHROME_DIR/common/chrome_plugin_unittest.cc',

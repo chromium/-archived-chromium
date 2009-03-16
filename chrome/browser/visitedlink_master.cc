@@ -582,6 +582,10 @@ bool VisitedLinkMaster::InitFromFile() {
   }
   used_items_ = used_count;
 
+#ifndef NDEBUG
+  DebugValidate();
+#endif
+
   file_ = file_closer.release();
   return true;
 }
@@ -596,6 +600,10 @@ bool VisitedLinkMaster::InitFromScratch(bool suppress_rebuild) {
   GenerateSalt(salt_);
   if (!CreateURLTable(table_size, true))
     return false;
+
+#ifndef NDEBUG
+  DebugValidate();
+#endif
 
   if (suppress_rebuild) {
     // When we disallow rebuilds (normally just unit tests), just use the
@@ -713,10 +721,6 @@ bool VisitedLinkMaster::CreateURLTable(int32 num_entries, bool init_to_empty) {
   hash_table_ = reinterpret_cast<Fingerprint*>(
       static_cast<char*>(shared_memory_->memory()) + sizeof(SharedHeader));
 
-#ifndef NDEBUG
-  DebugValidate();
-#endif
-
   return true;
 }
 
@@ -731,6 +735,11 @@ bool VisitedLinkMaster::BeginReplaceURLTable(int32 num_entries) {
     table_length_ = old_table_length;
     return false;
   }
+
+#ifndef NDEBUG
+  DebugValidate();
+#endif
+
   return true;
 }
 

@@ -50,6 +50,11 @@ bool SharedMemory::IsHandleValid(const SharedMemoryHandle& handle) {
   return handle != NULL;
 }
 
+// static
+SharedMemoryHandle SharedMemory::NULLHandle() {
+  return NULL;
+}
+
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
                           bool open_existing, size_t size) {
   DCHECK(mapped_file_ == NULL);

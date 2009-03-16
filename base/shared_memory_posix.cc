@@ -65,6 +65,11 @@ bool SharedMemory::IsHandleValid(const SharedMemoryHandle& handle) {
   return handle.fd >= 0;
 }
 
+// static
+SharedMemoryHandle SharedMemory::NULLHandle() {
+  return SharedMemoryHandle();
+}
+
 bool SharedMemory::Create(const std::wstring &name, bool read_only,
                           bool open_existing, size_t size) {
   read_only_ = read_only;
