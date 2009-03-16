@@ -2059,5 +2059,5 @@ LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/backgr_layers-show.h
 
 // Merge 41709:41733
 // Expectations changed upstream.
-pending/security/block-test.html = FAIL
-LayoutTests/editing/selection/5354455-2.html = FAIL
+WIN : pending/security/block-test.html = FAIL
+WIN LINUX : LayoutTests/editing/selection/5354455-2.html = FAIL
