@@ -96,7 +96,7 @@ gfx::NativeView WebContentsViewGtk::GetContentNativeView() const {
   return NULL;
 }
 
-gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeView() const {
+gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeWindow() const {
   return GTK_WINDOW(gtk_widget_get_toplevel(vbox_.get()));
 }
 
@@ -164,7 +164,7 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
 void WebContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   // This may be an accelerator. Pass it on to GTK.
-  GtkWindow* window = GetTopLevelNativeView();
+  GtkWindow* window = GetTopLevelNativeWindow();
   gtk_accel_groups_activate(G_OBJECT(window), event.os_event->keyval,
                             GdkModifierType(event.os_event->state));
 }

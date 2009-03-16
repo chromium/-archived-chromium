@@ -1070,7 +1070,7 @@ void WebContents::RunFileChooser(bool multiple_files,
                      SelectFileDialog::SELECT_OPEN_FILE;
   select_file_dialog_->SelectFile(dialog_type, title, default_file, filter,
                                   std::wstring(),
-                                  view_->GetTopLevelNativeView(), NULL);
+                                  view_->GetTopLevelNativeWindow(), NULL);
 }
 
 void WebContents::RunJavaScriptMessage(

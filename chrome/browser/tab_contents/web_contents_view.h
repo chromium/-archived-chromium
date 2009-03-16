@@ -61,7 +61,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
 
   // Returns the outermost native view. This will be used as the parent for
   // dialog boxes.
-  virtual gfx::NativeWindow GetTopLevelNativeView() const = 0;
+  virtual gfx::NativeWindow GetTopLevelNativeWindow() const = 0;
 
   // Computes the rectangle for the native widget that contains the contents of
   // the tab relative to its parent.

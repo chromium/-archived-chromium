@@ -73,7 +73,7 @@ gfx::NativeView WebContentsViewMac::GetContentNativeView() const {
   return web_contents_->render_widget_host_view()->GetPluginNativeView();
 }
 
-gfx::NativeWindow WebContentsViewMac::GetTopLevelNativeView() const {
+gfx::NativeWindow WebContentsViewMac::GetTopLevelNativeWindow() const {
   return [cocoa_view_.get() window];
 }
 

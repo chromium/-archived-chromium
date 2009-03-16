@@ -103,7 +103,7 @@ gfx::NativeView WebContentsViewWin::GetContentNativeView() const {
   return web_contents_->render_widget_host_view()->GetPluginNativeView();
 }
 
-gfx::NativeWindow WebContentsViewWin::GetTopLevelNativeView() const {
+gfx::NativeWindow WebContentsViewWin::GetTopLevelNativeWindow() const {
   return ::GetAncestor(GetNativeView(), GA_ROOT);
 }
 
