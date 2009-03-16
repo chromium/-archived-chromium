@@ -392,6 +392,9 @@ const wchar_t kTestName[]                      = L"test-name";
 // command line. (Useful values might be "valgrind" or "gdb --args")
 const wchar_t kRendererCmdPrefix[]             = L"renderer-cmd-prefix";
 
+// Temparary option for new ftp implemetation.
+const wchar_t kNewFtp[]                        = L"new-ftp";
+
 // On POSIX only: use FIFO for IPC channels so that "unrelated" process
 // can connect to a channel, provided it knows its name. For debugging purposes.
 const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";

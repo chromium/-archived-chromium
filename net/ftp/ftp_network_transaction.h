@@ -22,7 +22,7 @@ class FtpNetworkTransaction : public FtpTransaction {
       FtpNetworkSession* session, ClientSocketFactory* socket_factory);
   ~FtpNetworkTransaction();
 
-  // FtpTransactionFactory methods:
+  // FtpTransaction methods:
   virtual void Destroy();
   virtual int Start(
       const FtpRequestInfo* request_info, CompletionCallback* callback);

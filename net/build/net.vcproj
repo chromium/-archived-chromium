@@ -662,6 +662,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\url_request\url_request_new_ftp_job.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\url_request\url_request_new_ftp_job.h"
+				>
+			</File>
+			<File
 				RelativePath="..\url_request\url_request_simple_job.cc"
 				>
 			</File>
@@ -1054,15 +1062,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\proxy\proxy_resolver_script.h"
+				>
+			</File>
+			<File
 				RelativePath="..\proxy\proxy_resolver_v8.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\proxy\proxy_resolver_v8.h"
-				>
-			</File>
-			<File
-				RelativePath="..\proxy\proxy_resolver_script.h"
 				>
 			</File>
 			<File

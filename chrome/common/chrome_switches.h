@@ -149,6 +149,8 @@ extern const wchar_t kTestName[];
 
 extern const wchar_t kRendererCmdPrefix[];
 
+extern const wchar_t kNewFtp[];
+
 extern const wchar_t kIPCUseFIFO[];
 
 extern const wchar_t kEnableOutOfProcessDevTools[];

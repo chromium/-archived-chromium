@@ -15,6 +15,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
+#include "net/ftp/ftp_network_layer.h"
 #include "net/http/http_cache.h"
 #include "net/http/http_network_layer.h"
 #include "net/http/http_util.h"
@@ -81,6 +82,15 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
         record_mode ? net::HttpCache::RECORD : net::HttpCache::PLAYBACK);
   }
   context->http_transaction_factory_ = cache;
+
+  // The kNewFtp switch is Windows specific only because we have multiple FTP
+  // implementations on Windows.
+#if defined(OS_WIN)
+  if (command_line.HasSwitch(switches::kNewFtp))
+    context->ftp_transaction_factory_ = new net::FtpNetworkLayer;
+#else
+  context->ftp_transaction_factory_ = new net::FtpNetworkLayer;
+#endif
 
   // setup cookie store
   if (!context->cookie_store_) {
@@ -288,6 +298,7 @@ ChromeURLRequestContext::~ChromeURLRequestContext() {
       NotificationService::NoDetails());
 
   delete cookie_store_;
+  delete ftp_transaction_factory_;
   delete http_transaction_factory_;
 
   // Do not delete the proxy service in the case of OTR, as it is owned by the

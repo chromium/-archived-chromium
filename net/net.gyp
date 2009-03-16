@@ -282,6 +282,8 @@
         'url_request/url_request_job_metrics.h',
         'url_request/url_request_job_tracker.cc',
         'url_request/url_request_job_tracker.h',
+        'url_request/url_request_new_ftp_job.cc',
+        'url_request/url_request_new_ftp_job.h',
         'url_request/url_request_simple_job.cc',
         'url_request/url_request_simple_job.h',
         'url_request/url_request_status.h',

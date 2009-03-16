@@ -16,8 +16,9 @@
 #include "net/ftp/ftp_auth_cache.h"
 
 namespace net {
-class HttpTransactionFactory;
 class CookieMonster;
+class FtpTransactionFactory;
+class HttpTransactionFactory;
 class ProxyService;
 }
 
@@ -28,6 +29,7 @@ class URLRequestContext :
   URLRequestContext()
       : proxy_service_(NULL),
         http_transaction_factory_(NULL),
+        ftp_transaction_factory_(NULL),
         cookie_store_(NULL) {
   }
 
@@ -39,6 +41,11 @@ class URLRequestContext :
   // Gets the http transaction factory for this context.
   net::HttpTransactionFactory* http_transaction_factory() {
     return http_transaction_factory_;
+  }
+
+  // Gets the ftp transaction factory for this context.
+  net::FtpTransactionFactory* ftp_transaction_factory() {
+    return ftp_transaction_factory_;
   }
 
   // Gets the cookie store for this context.
@@ -72,6 +79,7 @@ class URLRequestContext :
   // subclasses.
   net::ProxyService* proxy_service_;
   net::HttpTransactionFactory* http_transaction_factory_;
+  net::FtpTransactionFactory* ftp_transaction_factory_;
   net::CookieMonster* cookie_store_;
   net::CookiePolicy cookie_policy_;
   net::FtpAuthCache ftp_auth_cache_;

@@ -11,13 +11,14 @@
 #include "base/string_util.h"
 #include "base/time.h"
 #include "net/base/auth.h"
+#include "net/base/escape.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_util.h"
 #include "net/base/wininet_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_error_job.h"
-#include "net/base/escape.h"
+#include "net/url_request/url_request_new_ftp_job.h"
 
 using std::string;
 
@@ -53,6 +54,10 @@ static bool UnescapeAndValidatePath(const URLRequest* request,
 // static
 URLRequestJob* URLRequestFtpJob::Factory(URLRequest* request,
                                          const std::string &scheme) {
+  // Checking whether we are using new or old FTP implementation.
+  if (request->context() && request->context()->ftp_transaction_factory())
+    return URLRequestNewFtpJob::Factory(request, scheme);
+
   DCHECK(scheme == "ftp");
 
   if (request->url().has_port() &&
