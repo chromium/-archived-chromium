@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/task.h"
 
@@ -31,6 +32,22 @@ std::string GenerateKey(bool same_length);
 
 // Returns true if the cache is not corrupt.
 bool CheckCacheIntegrity(const std::wstring& path);
+
+// Helper class which ensures that the cache dir returned by GetCachePath exists
+// and is clear in ctor and that the directory gets deleted in dtor.
+class ScopedTestCache {
+ public:
+  ScopedTestCache();
+  ~ScopedTestCache();
+
+  FilePath path() const { return FilePath::FromWStringHack(path_); }
+  std::wstring path_wstring() const { return path_; }
+
+ private:
+  const std::wstring path_;  // Path to the cache test folder.
+
+  DISALLOW_COPY_AND_ASSIGN(ScopedTestCache);
+};
 
 // -----------------------------------------------------------------------
 

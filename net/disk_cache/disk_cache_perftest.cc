@@ -157,10 +157,9 @@ TEST_F(DiskCacheTest, Hash) {
 TEST_F(DiskCacheTest, CacheBackendPerformance) {
   MessageLoopForIO message_loop;
 
-  std::wstring path_wstring = GetCachePath();
-  ASSERT_TRUE(DeleteCache(path_wstring.c_str()));
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path_wstring,
-                                                              false, 0);
+  ScopedTestCache test_cache;
+  disk_cache::Backend* cache =
+      disk_cache::CreateCacheBackend(test_cache.path_wstring(), false, 0);
   ASSERT_TRUE(NULL != cache);
 
   int seed = static_cast<int>(Time::Now().ToInternalValue());
@@ -175,20 +174,18 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   MessageLoop::current()->RunAllPending();
   delete cache;
 
-  FilePath path = FilePath::FromWStringHack(path_wstring);
+  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
+              test_cache.path().AppendASCII("index")));
+  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
+              test_cache.path().AppendASCII("data_0")));
+  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
+              test_cache.path().AppendASCII("data_1")));
+  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
+              test_cache.path().AppendASCII("data_2")));
+  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
+              test_cache.path().AppendASCII("data_3")));
 
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.AppendASCII("index")));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.AppendASCII("data_0")));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.AppendASCII("data_1")));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.AppendASCII("data_2")));
-  ASSERT_TRUE(file_util::EvictFileFromSystemCache(
-              path.AppendASCII("data_3")));
-
-  cache = disk_cache::CreateCacheBackend(path_wstring, false, 0);
+  cache = disk_cache::CreateCacheBackend(test_cache.path_wstring(), false, 0);
   ASSERT_TRUE(NULL != cache);
 
   ret = TimeRead(num_entries, cache, entries, true);
@@ -208,10 +205,10 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
 // by using multiple, highly fragmented files.
 TEST_F(DiskCacheTest, BlockFilesPerformance) {
   MessageLoopForIO message_loop;
-  std::wstring path = GetCachePath();
-  ASSERT_TRUE(DeleteCache(path.c_str()));
 
-  disk_cache::BlockFiles files(path);
+  ScopedTestCache test_cache;
+
+  disk_cache::BlockFiles files(test_cache.path_wstring());
   ASSERT_TRUE(files.Init(true));
 
   int seed = static_cast<int>(Time::Now().ToInternalValue());
