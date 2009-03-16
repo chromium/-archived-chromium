@@ -1241,9 +1241,8 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
   ClientInfo info;
   info.id = resource_id;
   info.client = client;
-  info.request.setFrame(frame());
   info.request.setURL(kurl);
-  info.request.setOriginPid(delegate_->GetProcessId());
+  info.request.setRequestorProcessID(delegate_->GetProcessId());
   info.request.setTargetType(WebCore::ResourceRequest::TargetIsObject);
   info.request.setHTTPMethod(method);
 
@@ -1268,8 +1267,13 @@ bool WebPluginImpl::InitiateHTTPRequest(int resource_id,
     SetPostData(&info.request, buf, buf_len);
   }
 
-  info.handle = WebCore::ResourceHandle::create(info.request, this, frame(),
-                                                false, false);
+  // Sets the routing id to associate the ResourceRequest with the RenderView.
+  WebCore::ResourceResponse response;
+  frame()->loader()->client()->dispatchWillSendRequest(
+      NULL, 0, info.request, response);
+
+  info.handle = WebCore::ResourceHandle::create(
+      info.request, this, NULL, false, false);
   if (!info.handle) {
     return false;
   }

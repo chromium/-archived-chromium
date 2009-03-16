@@ -46,6 +46,7 @@ class WebRequestImpl : public WebRequest {
   virtual bool HasUploadData() const;
   virtual void GetUploadData(net::UploadData* data) const;
   virtual void SetUploadData(const net::UploadData& data);
+  virtual void SetRequestorID(int requestor_id);
 
   // WebRequestImpl
   const WebCore::FrameLoadRequest& frame_load_request() const {

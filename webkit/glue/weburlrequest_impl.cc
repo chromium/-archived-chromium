@@ -202,6 +202,10 @@ void WebRequestImpl::SetUploadData(const net::UploadData& data)
   request_.resourceRequest().setHTTPBody(formdata);
 }
 
+void WebRequestImpl::SetRequestorID(int requestor_id) {
+  request_.resourceRequest().setRequestorID(requestor_id);
+}
+
 // static
 WebRequest* WebRequest::Create(const GURL& url) {
   return new WebRequestImpl(url);

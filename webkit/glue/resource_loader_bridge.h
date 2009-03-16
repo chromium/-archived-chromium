@@ -144,9 +144,6 @@ class ResourceLoaderBridge {
   // the standard MIME header encoding rules.  The headers parameter can also
   // be null if no extra request headers need to be set.
   //
-  // The WebFrame passed to this function provides context about the origin
-  // of the resource request.
-  //
   // policy_url is the URL of the document in the top-level window, which may be
   // checked by the third-party cookie blocking policy.
   //
@@ -157,16 +154,19 @@ class ResourceLoaderBridge {
   //
   // request_type indicates if the current request is the main frame load, a
   // sub-frame load, or a sub objects load.
-  static ResourceLoaderBridge* Create(WebFrame* frame,
-                                      const std::string& method,
+  //
+  // routing_id passed to this function allows it to be associated with a
+  // frame's network context.
+  static ResourceLoaderBridge* Create(const std::string& method,
                                       const GURL& url,
                                       const GURL& policy_url,
                                       const GURL& referrer,
                                       const std::string& headers,
                                       int load_flags,
-                                      int origin_pid,
+                                      int requestor_pid,
                                       ResourceType::Type request_type,
-                                      bool mixed_content);
+                                      bool mixed_content,
+                                      int routing_id);
 
   // Call this method before calling Start() to append a chunk of binary data
   // to the request body.  May only be used with HTTP(S) POST requests.

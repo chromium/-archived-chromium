@@ -38,7 +38,7 @@ class UnittestTestServer : public HTTPTestServer {
   virtual bool MakeGETRequest(const std::string& page_name) {
     GURL url(TestServerPage(page_name));
     scoped_ptr<ResourceLoaderBridge> loader(
-      ResourceLoaderBridge::Create(NULL, "GET",
+      ResourceLoaderBridge::Create("GET",
                                    url,
                                    url,            // policy_url
                                    GURL(),         // no referrer
@@ -46,7 +46,8 @@ class UnittestTestServer : public HTTPTestServer {
                                    net::LOAD_NORMAL,
                                    0,
                                    ResourceType::SUB_RESOURCE,
-                                   false));
+                                   false,
+                                   0));
     EXPECT_TRUE(loader.get());
 
     ResourceLoaderBridge::SyncLoadResponse resp;

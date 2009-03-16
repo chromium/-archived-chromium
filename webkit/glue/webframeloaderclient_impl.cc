@@ -195,13 +195,21 @@ static ResourceRequest::TargetType DetermineTargetTypeFromLoader(
 void WebFrameLoaderClient::dispatchWillSendRequest(
     DocumentLoader* loader, unsigned long identifier, ResourceRequest& request,
     const ResourceResponse& redirectResponse) {
-  // We set the Frame on the ResourceRequest to provide load context to the
-  // ResourceHandle implementation.
-  request.setFrame(webframe_->frame());
 
-  // We want to distinguish between a request for a document to be loaded into
-  // the main frame, a sub-frame, or the sub-objects in that document.
-  request.setTargetType(DetermineTargetTypeFromLoader(loader));
+  if (loader) {
+    // We want to distinguish between a request for a document to be loaded into
+    // the main frame, a sub-frame, or the sub-objects in that document.
+    request.setTargetType(DetermineTargetTypeFromLoader(loader));
+  }
+
+  // Inherit the policy URL from the request's frame. However, if the request
+  // is for a main frame, the current document's policyBaseURL is the old
+  // document, so we leave policyURL empty to indicate that the request is a
+  // first-party request.
+  if (request.targetType() != ResourceRequest::TargetIsMainFrame &&
+      webframe_->frame()->document()) {
+    request.setPolicyURL(webframe_->frame()->document()->policyBaseURL());
+  }
 
   // FrameLoader::loadEmptyDocumentSynchronously() creates an empty document
   // with no URL.  We don't like that, so we'll rename it to about:blank.

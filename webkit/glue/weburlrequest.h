@@ -123,6 +123,9 @@ class WebRequest {
   // Set the request upload data.
   virtual void SetUploadData(const net::UploadData& data) = 0;
 
+  // Sets the requestor id.
+  virtual void SetRequestorID(int requestor_id) = 0;
+
   virtual ~WebRequest() { }
 };
 

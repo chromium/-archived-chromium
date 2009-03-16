@@ -9,6 +9,7 @@
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "FrameLoader.h"
+#include "FrameLoaderClient.h"
 #include "ResourceHandle.h"
 #include "ResourceRequest.h"
 MSVC_POP_WARNING();
@@ -56,7 +57,8 @@ void ResourceFetcher::Start(WebCore::Frame* frame) {
   }
 
   WebCore::ResourceRequest request(webkit_glue::GURLToKURL(url_));
-  request.setFrame(frame);
+  WebCore::ResourceResponse response;
+  frame_loader->client()->dispatchWillSendRequest(NULL, 0, request, response);
 
   loader_ = ResourceHandle::create(request, this, NULL, false, false);
 }

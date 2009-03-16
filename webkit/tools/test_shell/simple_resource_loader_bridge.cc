@@ -544,18 +544,18 @@ namespace webkit_glue {
 
 // factory function
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
-    WebFrame* webframe,
     const std::string& method,
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
     const std::string& headers,
     int load_flags,
-    int origin_pid,
+    int requestor_pid,
     ResourceType::Type request_type,
-    bool mixed_contents) {
-  return new ResourceLoaderBridgeImpl(method, url, policy_url, referrer,
-                                      headers, load_flags);
+    bool mixed_contents,
+    int routing_id) {
+  return new ResourceLoaderBridgeImpl(method, url, policy_url,
+                                      referrer, headers, load_flags);
 }
 
 // Issue the proxy resolve request on the io thread, and wait

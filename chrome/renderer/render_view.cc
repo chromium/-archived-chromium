@@ -1508,6 +1508,12 @@ void RenderView::DidCompleteClientRedirect(WebView* webview,
     completed_client_redirect_src_ = source;
 }
 
+void RenderView::WillSendRequest(WebView* webview,
+                                 uint32 identifier,
+                                 WebRequest* request) {
+  request->SetRequestorID(routing_id_);
+}
+
 void RenderView::BindDOMAutomationController(WebFrame* webframe) {
   dom_automation_controller_.set_message_sender(this);
   dom_automation_controller_.set_routing_id(routing_id_);

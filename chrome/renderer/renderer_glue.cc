@@ -21,7 +21,6 @@
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_thread.h"
-#include "chrome/renderer/render_view.h"
 #include "googleurl/src/url_util.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webframe.h"
@@ -230,7 +229,6 @@ webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
 
 // static factory function
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
-    WebFrame* webframe,
     const std::string& method,
     const GURL& url,
     const GURL& policy_url,
@@ -239,25 +237,12 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
-    bool mixed_content) {
-  // TODO(darin): we need to eliminate the webframe parameter because webkit
-  // does not always supply it (see ResourceHandle::loadResourceSynchronously).
-  // Instead we should add context to ResourceRequest, which will be easy to do
-  // once we merge to the latest WebKit (r23806 at least).
-  if (!webframe) {
-    NOTREACHED() << "no webframe";
-    return NULL;
-  }
-
-  if (!webframe->GetView()->GetDelegate())
-    return NULL;
-
-  RenderView* rv = static_cast<RenderView*>(webframe->GetView()->GetDelegate());
-  int route_id = rv->routing_id();
+    bool mixed_content,
+    int routing_id) {
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
   return dispatch->CreateBridge(method, url, policy_url, referrer, headers,
                                 load_flags, origin_pid, resource_type,
-                                mixed_content, 0, route_id);
+                                mixed_content, 0, routing_id);
 }
 
 void NotifyCacheStats() {

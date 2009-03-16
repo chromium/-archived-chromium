@@ -215,6 +215,9 @@ class RenderView : public RenderWidget,
   virtual void DidCompleteClientRedirect(WebView* webview,
                                          WebFrame* frame,
                                          const GURL& source);
+  virtual void WillSendRequest(WebView* webview,
+                               uint32 identifier,
+                               WebRequest* request);
 
   virtual void WindowObjectCleared(WebFrame* webframe);
   virtual void DocumentElementAvailable(WebFrame* webframe);
