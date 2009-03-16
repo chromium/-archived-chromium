@@ -53,6 +53,10 @@ IPC_BEGIN_MESSAGES(DevToolsClient)
   IPC_MESSAGE_CONTROL1(DevToolsClientMsg_DebuggerOutput,
                        std::wstring /* msg */)
 
+  // Sends glue-level Rpc message to the client.
+  IPC_MESSAGE_CONTROL1(DevToolsClientMsg_RpcMessage,
+                       std::string  /* raw_msg */)
+
 IPC_END_MESSAGES(DevToolsClient)
 
 
@@ -74,5 +78,9 @@ IPC_BEGIN_MESSAGES(DevToolsAgent)
   // Send a command to the V8 debugger.
   IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_DebugCommand,
                        std::wstring  /* cmd */)
+
+  // Sends glue-level Rpc message to the agent.
+  IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_RpcMessage,
+                       std::string  /* raw_msg */)
 
 IPC_END_MESSAGES(DevToolsAgent)

@@ -42,6 +42,8 @@ class WebHistoryItemImpl;
 class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
+class WebDevToolsAgent;
+class WebDevToolsAgentImpl;
 class WebViewDelegate;
 
 class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
@@ -106,6 +108,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
       const std::vector<std::wstring>& suggestions,
       int default_suggestion_index);
   virtual void HideAutofillPopup();
+
+  virtual WebDevToolsAgent* GetWebDevToolsAgent();
+  WebDevToolsAgentImpl* GetWebDevToolsAgentImpl();
 
   // WebViewImpl
 
@@ -310,6 +315,8 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
 
   // The autocomplete client.
   scoped_ptr<AutocompletePopupMenuClient> autocomplete_popup_client_;
+
+  scoped_ptr<WebDevToolsAgentImpl> devtools_agent_;
 
   // HACK: current_input_event is for ChromeClientImpl::show(), until we can fix
   // WebKit to pass enough information up into ChromeClient::show() so we can

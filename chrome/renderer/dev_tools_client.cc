@@ -8,9 +8,12 @@
 #include "chrome/renderer/dev_tools_messages.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
+#include "webkit/glue/webdevtoolsclient.h"
 
 DevToolsClient::DevToolsClient(RenderView* view)
     : render_view_(view) {
+  web_tools_client_.reset(
+      WebDevToolsClient::Create(view->webview(), this));
 }
 
 DevToolsClient::~DevToolsClient() {
@@ -28,6 +31,7 @@ bool DevToolsClient::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(DevToolsClient, message)
     IPC_MESSAGE_HANDLER(DevToolsClientMsg_DidDebugAttach, DidDebugAttach)
+    IPC_MESSAGE_HANDLER(DevToolsClientMsg_RpcMessage, OnRpcMessage)
     IPC_MESSAGE_UNHANDLED(handled = false);
   IPC_END_MESSAGE_MAP()
 
@@ -37,4 +41,12 @@ bool DevToolsClient::OnMessageReceived(const IPC::Message& message) {
 void DevToolsClient::DidDebugAttach() {
   DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
   // TODO(yurys): delegate to JS frontend.
+}
+
+void DevToolsClient::SendMessageToAgent(const std::string& raw_msg) {
+  Send(DevToolsAgentMsg_RpcMessage(raw_msg));
+}
+
+void DevToolsClient::OnRpcMessage(const std::string& raw_msg) {
+  web_tools_client_->DispatchMessageFromAgent(raw_msg);
 }

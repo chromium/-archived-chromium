@@ -2,6 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// DevToolsAgent belongs to the inspectable renderer and provides Glue's
+// agents with the communication capabilities. All messages from/to Glue's
+// agents infrastructure are flowing through this comminucation agent.
+//
+// DevToolsAgent is registered as an IPC filter in order to be able to
+// dispatch messages while on the IO thread. The reason for that is that while
+// debugging, Render thread is being held by the v8 and hence no messages
+// are being dispatched there. While holding the thread in a tight loop,
+// v8 provides thread-safe Api for controlling debugger. In our case v8's Api
+// is being used from this communication agent on the IO thread.
+
 #include "chrome/renderer/dev_tools_agent.h"
 
 #include "base/message_loop.h"
@@ -13,10 +24,13 @@
 #endif  // OS_WIN
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_view.h"
+#include "webkit/glue/webdevtoolsagent.h"
 
-DevToolsAgent::DevToolsAgent(RenderView* view, MessageLoop* view_loop)
+DevToolsAgent::DevToolsAgent(int routing_id,
+                             RenderView* view,
+                             MessageLoop* view_loop)
     : debugger_(NULL),
-      routing_id_(view->routing_id()),
+      routing_id_(routing_id),
       view_(view),
       view_loop_(view_loop),
       channel_(NULL),
@@ -72,6 +86,7 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugDetach, OnDebugDetach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugBreak, OnDebugBreak)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugCommand, OnDebugCommand)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_RpcMessage, OnRpcMessage)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -149,4 +164,18 @@ void DevToolsAgent::OnDebugCommand(const std::wstring& cmd) {
   } else {
     debugger_->Command(cmd);
   }
+}
+
+void DevToolsAgent::SendMessageToClient(const std::string& raw_msg) {
+  Send(DevToolsClientMsg_RpcMessage(raw_msg));
+}
+
+void DevToolsAgent::OnRpcMessage(const std::string& raw_msg) {
+  view_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &DevToolsAgent::DispatchRpcMessage, raw_msg));
+}
+
+void DevToolsAgent::DispatchRpcMessage(const std::string& raw_msg) {
+  WebDevToolsAgent* web_agent = view_->webview()->GetWebDevToolsAgent();
+  web_agent->DispatchMessageFromClient(raw_msg);
 }

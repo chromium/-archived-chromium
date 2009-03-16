@@ -14,6 +14,7 @@
 struct WebDropData;
 struct WebPreferences;
 class GURL;
+class WebDevToolsAgent;
 class WebFrame;
 class WebViewDelegate;
 
@@ -195,6 +196,9 @@ class WebView : public WebWidget {
 
   // Hides the autofill popup if any are showing.
   virtual void HideAutofillPopup() = 0;
+
+  // Returns development tools agent instance belonging to this view.
+  virtual WebDevToolsAgent* GetWebDevToolsAgent() = 0;
 
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebView);

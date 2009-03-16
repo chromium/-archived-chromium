@@ -25,6 +25,7 @@ class Widget;
 }
 
 class Alt404PageResourceFetcher;
+class NetAgentImpl;
 class WebFrameImpl;
 class WebPluginContainer;
 
@@ -215,6 +216,9 @@ class WebFrameLoaderClient : public WebCore::FrameLoaderClient {
   // Returns NavigationGestureAuto if the last load was not user initiated,
   // otherwise returns NavigationGestureUnknown.
   NavigationGesture NavigationGestureForLastLoad();
+
+  // Returns NetAgent instance if network tracking is enabled.
+  NetAgentImpl* GetNetAgentImpl();
 
   // The WebFrame that owns this object and manages its lifetime. Therefore,
   // the web frame object is guaranteed to exist.

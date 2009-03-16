@@ -44,11 +44,13 @@ MSVC_POP_WARNING();
 #endif
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/alt_404_page_resource_fetcher.h"
+#include "webkit/glue/devtools/net_agent_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource_impl.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframeloaderclient_impl.h"
 #include "webkit/glue/webhistoryitem_impl.h"
@@ -163,6 +165,10 @@ void WebFrameLoaderClient::assignIdentifierToInitialRequest(
     WebRequestImpl webreq(request);
     d->AssignIdentifierToRequest(webview, identifier, webreq);
   }
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->AssignIdentifierToRequest(loader, identifier, request);
+  }
 }
 
 // Determines whether the request being loaded by |loader| is a frame or a
@@ -211,6 +217,10 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
     WebRequestImpl webreq(request);
     d->WillSendRequest(webview, identifier, &webreq);
     request = webreq.frame_load_request().resourceRequest();
+  }
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->WillSendRequest(loader, identifier, request);
   }
 }
 
@@ -276,12 +286,21 @@ void WebFrameLoaderClient::dispatchDidReceiveResponse(DocumentLoader* loader,
 
   // Cancel any pending loads.
   alt_404_page_fetcher_.reset(NULL);
+
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->DidReceiveResponse(loader, identifier, response);
+  }
 }
 
-void WebFrameLoaderClient::dispatchDidReceiveContentLength(DocumentLoader* loader,
-                                                           unsigned long identifier,
-                                                           int lengthReceived) {
-  // FIXME
+void WebFrameLoaderClient::dispatchDidReceiveContentLength(
+    DocumentLoader* loader,
+    unsigned long identifier,
+    int length_received) {
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->DidReceiveContentLength(loader, identifier, length_received);
+  }
 }
 
 // Called when a particular resource load completes
@@ -301,6 +320,11 @@ void WebFrameLoaderClient::dispatchDidFinishLoading(DocumentLoader* loader,
   WebViewDelegate* d = webview->delegate();
   if (d)
     d->DidFinishLoading(webview, identifier);
+
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->DidFinishLoading(loader, identifier);
+  }
 }
 
 GURL WebFrameLoaderClient::GetAlt404PageUrl(DocumentLoader* loader) {
@@ -341,6 +365,10 @@ void WebFrameLoaderClient::dispatchDidFailLoading(DocumentLoader* loader,
   if (webview && webview->delegate()) {
     webview->delegate()->DidFailLoadingWithError(webview, identifier,
                                                  WebErrorImpl(error));
+  }
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->DidFailLoading(loader, identifier, error);
   }
 }
 
@@ -392,14 +420,23 @@ bool WebFrameLoaderClient::dispatchDidLoadResourceFromMemoryCache(
     int length) {
   WebViewImpl* webview = webframe_->webview_impl();
   WebViewDelegate* d = webview->delegate();
+
+  bool result = false;
   if (d) {
     WebRequestImpl webreq(request);
     WebResponseImpl webresp(response);
-    return d->DidLoadResourceFromMemoryCache(webview, webreq, webresp,
-                                             webframe_);
+    result = d->DidLoadResourceFromMemoryCache(webview, webreq, webresp,
+                                               webframe_);
   }
-
-  return false;
+  NetAgentImpl* net_agent = GetNetAgentImpl();
+  if (net_agent) {
+    net_agent->DidLoadResourceFromMemoryCache(
+        loader,
+        request,
+        response,
+        length);
+  }
+  return result;
 }
 
 void WebFrameLoaderClient::dispatchDidHandleOnloadEvents() {
@@ -1048,7 +1085,13 @@ void WebFrameLoaderClient::postProgressFinishedNotification() {
 }
 
 void WebFrameLoaderClient::setMainFrameDocumentReady(bool ready) {
-  // FIXME
+  if (hasWebView()) {
+    WebDevToolsAgentImpl* tools_agent =
+        webframe_->webview_impl()->GetWebDevToolsAgentImpl();
+    if (tools_agent) {
+      tools_agent->SetMainFrameDocumentReady(ready);
+    }
+  }
 }
 
 // Creates a new connection and begins downloading from that (contrast this
@@ -1519,4 +1562,17 @@ bool WebFrameLoaderClient::ActionSpecifiesDisposition(
   else
     *disposition = shift ? NEW_WINDOW : SAVE_TO_DISK;
   return true;
+}
+
+NetAgentImpl* WebFrameLoaderClient::GetNetAgentImpl() {
+  WebViewImpl* web_view = webframe_->webview_impl();
+  if (!web_view) {
+    return NULL;
+  }
+  WebDevToolsAgentImpl* tools_agent = web_view->GetWebDevToolsAgentImpl();
+  if (tools_agent) {
+    return tools_agent->net_agent_impl();
+  } else {
+    return NULL;
+  }
 }

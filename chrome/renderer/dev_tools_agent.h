@@ -11,7 +11,9 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_channel_proxy.h"
+#include "chrome/renderer/dev_tools_messages.h"
 #include "webkit/glue/debugger_bridge.h"
+#include "webkit/glue/webdevtoolsagent_delegate.h"
 
 class MessageLoop;
 class RenderView;
@@ -21,12 +23,16 @@ class RenderView;
 // go through browser process. On the renderer side of the tools UI there's
 // a corresponding ToolsClient object.
 class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
-                      public DebuggerBridge::Delegate {
+                      public DebuggerBridge::Delegate,
+                      public WebDevToolsAgentDelegate {
  public:
   // DevToolsAgent is a field of the RenderView. The view is supposed to remove
   // this agent from message filter list on IO thread before dying.
-  explicit DevToolsAgent(RenderView* view, MessageLoop* view_loop);
+  DevToolsAgent(int routing_id, RenderView* view, MessageLoop* view_loop);
   virtual ~DevToolsAgent();
+
+  // WebDevToolsAgentDelegate implementation
+  virtual void SendMessageToClient(const std::string& raw_msg);
 
   // DevToolsAgent is created by RenderView which is supposed to call this
   // method from its destructor.
@@ -48,6 +54,8 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   // Debugger::Delegate callback method to handle debugger output.
   void DebuggerOutput(const std::wstring& out);
 
+  void DispatchRpcMessage(const std::string& raw_msg);
+
   // Evaluate javascript URL in the renderer
   void EvaluateScript(const std::wstring& script);
 
@@ -57,6 +65,7 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   void OnDebugDetach();
   void OnDebugBreak(bool force);
   void OnDebugCommand(const std::wstring& cmd);
+  void OnRpcMessage(const std::string& raw_msg);
 
   scoped_refptr<DebuggerBridge> debugger_;
 

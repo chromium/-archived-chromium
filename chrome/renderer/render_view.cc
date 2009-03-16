@@ -51,6 +51,7 @@
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource.h"
+#include "webkit/glue/webdevtoolsagent_delegate.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
@@ -294,6 +295,8 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
     decrement_shared_popup_at_destruction_ = false;
   }
 
+  dev_tools_agent_ = new DevToolsAgent(routing_id, this,
+      MessageLoop::current());
   webwidget_ = WebView::Create(this, webkit_prefs);
 
   // Don't let WebCore keep a B/F list - we have our own.
@@ -326,7 +329,6 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
 
-  dev_tools_agent_ = new DevToolsAgent(this, MessageLoop::current());
   render_thread_->AddFilter(dev_tools_agent_);
 }
 
@@ -2459,6 +2461,10 @@ void RenderView::SetTooltipText(WebView* webview,
 
 void RenderView::DownloadUrl(const GURL& url, const GURL& referrer) {
   Send(new ViewHostMsg_DownloadUrl(routing_id_, url, referrer));
+}
+
+WebDevToolsAgentDelegate* RenderView::GetWebDevToolsAgentDelegate() {
+  return dev_tools_agent_;
 }
 
 WebFrame* RenderView::GetChildFrame(const std::wstring& frame_xpath) const {

@@ -45,6 +45,7 @@ struct WebDropData;
 struct WebPreferences;
 class AutofillForm;
 class SkBitmap;
+class WebDevToolsAgentDelegate;
 class WebError;
 class WebFrame;
 class WebHistoryItem;
@@ -740,6 +741,12 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // Downloading -------------------------------------------------------------
 
   virtual void DownloadUrl(const GURL& url, const GURL& referrer) { }
+
+  // DevTools ----------------------------------------------------------------
+
+  virtual WebDevToolsAgentDelegate* GetWebDevToolsAgentDelegate() {
+    return NULL;
+  }
 
   // Editor Client -----------------------------------------------------------
 

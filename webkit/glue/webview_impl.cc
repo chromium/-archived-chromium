@@ -86,6 +86,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/clipboard_conversion.h"
 #include "webkit/glue/context_menu_client_impl.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/dragclient_impl.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
@@ -99,6 +100,8 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
+#include "webkit/glue/webdevtoolsagent.h"
+#include "webkit/glue/webdevtoolsclient.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
@@ -315,6 +318,9 @@ WebView* WebView::Create(WebViewDelegate* delegate,
   // Set the delegate after initializing the main frame, to avoid trying to
   // respond to notifications before we're fully initialized.
   instance->delegate_ = delegate;
+  instance->devtools_agent_.reset(
+      new WebDevToolsAgentImpl(instance,
+          delegate->GetWebDevToolsAgentDelegate()));
   // Restrict the access to the local file system
   // (see WebView.mm WebView::_commonInitializationWithFrameName).
   FrameLoader::setLocalLoadPolicy(
@@ -815,6 +821,7 @@ void WebViewImpl::Close() {
   // Do this first to prevent reentrant notifications from being sent to the
   // initiator of the close.
   delegate_ = NULL;
+  devtools_agent_.reset(NULL);
 
   if (page_.get()) {
     // Initiate shutdown for the entire frameset.  This will cause a lot of
@@ -1603,6 +1610,14 @@ void WebViewImpl::AutofillSuggestionsForNode(
       autocomplete_popup_showing_ = true;
     }
   }
+}
+
+WebDevToolsAgent* WebViewImpl::GetWebDevToolsAgent() {
+  return GetWebDevToolsAgentImpl();
+}
+
+WebDevToolsAgentImpl* WebViewImpl::GetWebDevToolsAgentImpl() {
+  return devtools_agent_.get();
 }
 
 void WebViewImpl::DidCommitLoad(bool* is_new_navigation) {

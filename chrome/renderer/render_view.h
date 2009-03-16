@@ -57,6 +57,7 @@ class WebError;
 class WebFrame;
 class WebPluginDelegate;
 class WebPluginDelegateProxy;
+class WebDevToolsAgentDelegate;
 struct AccessibilityInParams;
 struct AccessibilityOutParams;
 struct FindInPageRequest;
@@ -273,6 +274,8 @@ class RenderView : public RenderWidget,
                               const std::wstring& tooltip_text);
 
   virtual void DownloadUrl(const GURL& url, const GURL& referrer);
+
+  virtual WebDevToolsAgentDelegate* GetWebDevToolsAgentDelegate();
 
   virtual void OnPasswordFormsSeen(WebView* webview,
                                    const std::vector<PasswordForm>& forms);

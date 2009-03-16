@@ -5,13 +5,18 @@
 #ifndef CHROME_RENDERER_DEV_TOOLS_CLIENT_H_
 #define CHROME_RENDERER_DEV_TOOLS_CLIENT_H_
 
-#include "base/basictypes.h"
+#include <string>
+
+#include "base/scoped_ptr.h"
+#include "chrome/renderer/dev_tools_messages.h"
+#include "webkit/glue/webdevtoolsclient_delegate.h"
 
 namespace IPC {
 class Message;
 }
 class MessageLoop;
 class RenderView;
+class WebDevToolsClient;
 
 // Developer tools UI end of communication channel between the render process of
 // the page being inspected and tools UI renderer process. All messages will
@@ -19,7 +24,7 @@ class RenderView;
 // corresponding DevToolsAgent object.
 // TODO(yurys): now the client is almost empty later it will delegate calls to
 // code in glue
-class DevToolsClient {
+class DevToolsClient : public WebDevToolsClientDelegate {
  public:
   explicit DevToolsClient(RenderView* view);
   virtual ~DevToolsClient();
@@ -28,13 +33,18 @@ class DevToolsClient {
   // handled. Called in render thread.
   bool OnMessageReceived(const IPC::Message& message);
 
+  // WebDevToolsClient::Delegate implementation
+  virtual void SendMessageToAgent(const std::string& raw_msg);
+
  private:
   void DidDebugAttach();
+  void OnRpcMessage(const std::string& raw_msg);
 
   // Sends message to DevToolsAgent.
   void Send(const IPC::Message& tools_agent_message);
 
   RenderView* render_view_;  // host render view
+  scoped_ptr<WebDevToolsClient> web_tools_client_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsClient);
 };
