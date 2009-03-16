@@ -1753,9 +1753,8 @@ WIN LINUX : LayoutTests/css2.1/t0905-c5526-flthw-00-c-g.html = FAIL
 // This one is lacking results:
 SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = FAIL
 
-// Started failing with r11409 (ericroman), which is weird because it was just
-// a revert.
-WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
+// http://code.google.com/p/chromium/issues/detail?id=8733
+DEFER WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
 // These probably share a root cause for the crash.
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-javascript-url.html = CRASH PASS
