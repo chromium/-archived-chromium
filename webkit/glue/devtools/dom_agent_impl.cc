@@ -83,7 +83,7 @@ void DomAgentImpl::StartListening(Document* doc) {
   doc->addEventListener(eventNames().DOMNodeRemovedEvent, event_listener_,
       false);
   doc->addEventListener(eventNames().DOMNodeRemovedFromDocumentEvent,
-      event_listener_, false);
+      event_listener_, true);
   doc->addEventListener(eventNames().DOMAttrModifiedEvent, event_listener_,
       false);
   documents_.add(doc);
@@ -97,7 +97,7 @@ void DomAgentImpl::StopListening(Document* doc) {
   doc->removeEventListener(eventNames().DOMNodeRemovedEvent,
       event_listener_.get(), false);
   doc->removeEventListener(eventNames().DOMNodeRemovedFromDocumentEvent,
-      event_listener_.get(), false);
+      event_listener_.get(), true);
   doc->removeEventListener(eventNames().DOMAttrModifiedEvent,
       event_listener_.get(), false);
   documents_.remove(doc);
