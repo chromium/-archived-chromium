@@ -143,7 +143,7 @@ TEST(TextEliderTest, TestFilenameEliding) {
 // so it's not worth using FilePath stuff at the moment.
 #if defined(OS_POSIX)
   const std::wstring kPathSeparator(L"/");
-#elif defined(OS_WINDOWS)
+#elif defined(OS_WIN)
   const std::wstring kPathSeparator(L"\\");
 #endif
 
