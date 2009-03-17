@@ -144,7 +144,7 @@ class ValgrindAnalyze:
         # Annoyingly, Valgrind's --xml=yes option seems to
         # force --leak-check=full --show-reachable=yes
         kind = getTextOf(raw_error, "kind")
-        if (kind != "Leak_PossiblyLost")
+        if (kind != "Leak_PossiblyLost"):
           self._errors.add(ValgrindError(source_dir, raw_error))
 
   def Report(self):
