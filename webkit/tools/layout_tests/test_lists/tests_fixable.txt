@@ -949,10 +949,6 @@ MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html 
 // Fails upstream, deferring for now.
 DEFER : LayoutTests/fast/dom/cssTarget-crash.html = TIMEOUT
 
-// Started failing with r5743 (darin)
-// http://crbug.com/4617
-LayoutTests/security/block-test.html = FAIL
-
 // MERGE 38500:39550: New tests
 // Missing expected results
 SKIP LINUX MAC : LayoutTests/animations/animation-drt-api.html = PASS
@@ -1713,6 +1709,7 @@ LINUX : LayoutTests/fast/canvas/set-colors.html = PASS CRASH
 
 // Needs an FTP implementation to work completely.
 LINUX MAC : pending/security/block-test.html = FAIL
+LINUX MAC : LayoutTests/security/block-test.html = FAIL
 
 // Flakey. Not clear when it started, but it was before 3/9/09.
 LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS
