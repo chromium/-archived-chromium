@@ -1606,22 +1606,22 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       desc->InstanceTemplate()->SetNamedPropertyHandler(
           USE_NAMED_PROPERTY_GETTER(CSSStyleDeclaration),
           USE_NAMED_PROPERTY_SETTER(CSSStyleDeclaration));
-      SetCollectionStringOrNullIndexedGetter<CSSStyleDeclaration>(desc);
+      setCollectionStringOrNullIndexedGetter<CSSStyleDeclaration>(desc);
       break;
     case V8ClassIndex::CSSRULELIST:
-      SetCollectionIndexedGetter<CSSRuleList, CSSRule>(desc,
+      setCollectionIndexedGetter<CSSRuleList, CSSRule>(desc,
                                                        V8ClassIndex::CSSRULE);
       break;
     case V8ClassIndex::CSSVALUELIST:
-      SetCollectionIndexedGetter<CSSValueList, CSSValue>(
+      setCollectionIndexedGetter<CSSValueList, CSSValue>(
           desc,
           V8ClassIndex::CSSVALUE);
       break;
     case V8ClassIndex::CSSVARIABLESDECLARATION:
-      SetCollectionStringOrNullIndexedGetter<CSSVariablesDeclaration>(desc);
+      setCollectionStringOrNullIndexedGetter<CSSVariablesDeclaration>(desc);
       break;
     case V8ClassIndex::WEBKITCSSTRANSFORMVALUE:
-      SetCollectionIndexedGetter<WebKitCSSTransformValue, CSSValue>(
+      setCollectionIndexedGetter<WebKitCSSTransformValue, CSSValue>(
           desc,
           V8ClassIndex::CSSVALUE);
       break;
@@ -1632,11 +1632,11 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           USE_NAMED_PROPERTY_GETTER(HTMLCollection));
       desc->InstanceTemplate()->SetCallAsFunctionHandler(
           USE_CALLBACK(HTMLCollectionCallAsFunction));
-      SetCollectionIndexedGetter<HTMLCollection, Node>(desc,
+      setCollectionIndexedGetter<HTMLCollection, Node>(desc,
                                                        V8ClassIndex::NODE);
       break;
     case V8ClassIndex::HTMLOPTIONSCOLLECTION:
-      SetCollectionNamedGetter<HTMLOptionsCollection, Node>(
+      setCollectionNamedGetter<HTMLOptionsCollection, Node>(
           desc,
           V8ClassIndex::NODE);
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
@@ -1647,18 +1647,18 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::HTMLSELECTELEMENT:
       desc->InstanceTemplate()->SetNamedPropertyHandler(
-          NodeCollectionNamedPropertyGetter<HTMLSelectElement>,
+          nodeCollectionNamedPropertyGetter<HTMLSelectElement>,
           0,
           0,
           0,
           0,
           v8::Integer::New(V8ClassIndex::NODE));
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
-          NodeCollectionIndexedPropertyGetter<HTMLSelectElement>,
+          nodeCollectionIndexedPropertyGetter<HTMLSelectElement>,
           USE_INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection),
           0,
           0,
-          NodeCollectionIndexedPropertyEnumerator<HTMLSelectElement>,
+          nodeCollectionIndexedPropertyEnumerator<HTMLSelectElement>,
           v8::Integer::New(V8ClassIndex::NODE));
       break;
     case V8ClassIndex::HTMLDOCUMENT: {
@@ -1726,7 +1726,7 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           0,
           0,
           0,
-          NodeCollectionIndexedPropertyEnumerator<HTMLFormElement>,
+          nodeCollectionIndexedPropertyEnumerator<HTMLFormElement>,
           v8::Integer::New(V8ClassIndex::NODE));
       break;
     case V8ClassIndex::CANVASPIXELARRAY:
@@ -1747,10 +1747,10 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     }
     case V8ClassIndex::MEDIALIST:
-      SetCollectionStringOrNullIndexedGetter<MediaList>(desc);
+      setCollectionStringOrNullIndexedGetter<MediaList>(desc);
       break;
     case V8ClassIndex::MIMETYPEARRAY:
-      SetCollectionIndexedAndNamedGetters<MimeTypeArray, MimeType>(
+      setCollectionIndexedAndNamedGetters<MimeTypeArray, MimeType>(
           desc,
           V8ClassIndex::MIMETYPE);
       break;
@@ -1762,28 +1762,28 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
           0,
           0,
           0,
-          CollectionIndexedPropertyEnumerator<NamedNodeMap>,
+          collectionIndexedPropertyEnumerator<NamedNodeMap>,
           v8::Integer::New(V8ClassIndex::NODE));
       break;
     case V8ClassIndex::NODELIST:
-      SetCollectionIndexedGetter<NodeList, Node>(desc, V8ClassIndex::NODE);
+      setCollectionIndexedGetter<NodeList, Node>(desc, V8ClassIndex::NODE);
       desc->InstanceTemplate()->SetNamedPropertyHandler(
           USE_NAMED_PROPERTY_GETTER(NodeList));
       break;
     case V8ClassIndex::PLUGIN:
-      SetCollectionIndexedAndNamedGetters<Plugin, MimeType>(
+      setCollectionIndexedAndNamedGetters<Plugin, MimeType>(
           desc,
           V8ClassIndex::MIMETYPE);
       break;
     case V8ClassIndex::PLUGINARRAY:
-      SetCollectionIndexedAndNamedGetters<PluginArray, Plugin>(
+      setCollectionIndexedAndNamedGetters<PluginArray, Plugin>(
           desc,
           V8ClassIndex::PLUGIN);
       break;
     case V8ClassIndex::STYLESHEETLIST:
       desc->InstanceTemplate()->SetNamedPropertyHandler(
           USE_NAMED_PROPERTY_GETTER(StyleSheetList));
-      SetCollectionIndexedGetter<StyleSheetList, StyleSheet>(
+      setCollectionIndexedGetter<StyleSheetList, StyleSheet>(
           desc,
           V8ClassIndex::STYLESHEET);
       break;
