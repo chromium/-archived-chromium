@@ -13,7 +13,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/focus_manager.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/theme_resources.h"
 
 namespace views {

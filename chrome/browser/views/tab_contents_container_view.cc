@@ -14,8 +14,8 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 
 using views::FocusTraversable;
 using views::FocusManager;

@@ -10,8 +10,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/chrome_menu.h"
-#include "chrome/views/tooltip_manager.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/tooltip_manager.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 
 const std::string Tab::kTabClassName = "browser/tabs/Tab";

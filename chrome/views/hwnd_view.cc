@@ -8,7 +8,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/scroll_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "base/logging.h"
 
 namespace views {

@@ -32,7 +32,7 @@
 #include "chrome/views/radio_button.h"
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

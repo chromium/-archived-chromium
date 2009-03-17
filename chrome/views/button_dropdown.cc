@@ -8,7 +8,7 @@
 #include "chrome/browser/back_forward_menu_model.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/view_menu_delegate.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 
 namespace views {

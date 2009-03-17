@@ -19,8 +19,8 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

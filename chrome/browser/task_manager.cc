@@ -23,7 +23,7 @@
 #include "chrome/views/link.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "chrome/views/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

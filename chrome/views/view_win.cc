@@ -12,8 +12,8 @@
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
 #include "chrome/views/border.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 
 namespace views {
 

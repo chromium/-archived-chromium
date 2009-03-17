@@ -46,7 +46,7 @@
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/label.h"
 #include "chrome/views/non_client_view.h"
-#include "chrome/views/tooltip_manager.h"
+#include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

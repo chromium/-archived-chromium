@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/root_view_drop_target.h"
+#include "chrome/views/widget/root_view_drop_target.h"
 
 #include "base/gfx/point.h"
 #include "chrome/common/drag_drop_types.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 
 namespace views {
 

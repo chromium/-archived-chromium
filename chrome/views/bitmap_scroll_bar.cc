@@ -9,7 +9,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/scroll_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "skia/include/SkBitmap.h"
 

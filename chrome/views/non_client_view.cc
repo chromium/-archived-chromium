@@ -5,8 +5,8 @@
 #include "chrome/views/non_client_view.h"
 
 #include "chrome/common/win_util.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 #include "chrome/views/window.h"
 
 namespace views {

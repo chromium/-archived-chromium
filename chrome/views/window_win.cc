@@ -21,7 +21,7 @@
 #include "chrome/views/custom_frame_view.h"
 #include "chrome/views/native_frame_view.h"
 #include "chrome/views/non_client_view.h"
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 #include "chrome/views/window_delegate.h"
 #include "grit/generated_resources.h"
 

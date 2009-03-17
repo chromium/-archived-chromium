@@ -8,7 +8,7 @@
 #include <commctrl.h>
 #include <shlobj.h>
 
-#include "chrome/views/aero_tooltip_manager.h"
+#include "chrome/views/widget/aero_tooltip_manager.h"
 
 #include "base/message_loop.h"
 #include "chrome/common/l10n_util_win.h"

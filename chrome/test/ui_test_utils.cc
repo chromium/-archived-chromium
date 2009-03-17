@@ -10,7 +10,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/accelerator_handler.h"
+#include "chrome/views/widget/accelerator_handler.h"
 #include "googleurl/src/gurl.h"
 
 namespace ui_test_utils {

@@ -19,10 +19,10 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/layout_manager.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 #if defined(OS_WIN)
-#include "chrome/views/tooltip_manager.h"
+#include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/accessibility/accessible_wrapper.h"
 #endif
 #include "SkShader.h"

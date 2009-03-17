@@ -21,7 +21,7 @@
 #include "chrome/views/button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 
 class BlockedPopupContainer;
 class Profile;

@@ -15,8 +15,8 @@
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/throb_animation.h"
 #include "chrome/views/background.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget_win.h"
 #include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkColor.h"
 

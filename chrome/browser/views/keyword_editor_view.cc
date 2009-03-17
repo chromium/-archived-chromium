@@ -25,7 +25,7 @@
 #include "chrome/views/dialog_delegate.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "chrome/views/window.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"

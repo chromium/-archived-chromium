@@ -8,8 +8,8 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/views/widget.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget.h"
+#include "chrome/views/widget/widget_win.h"
 
 HWNDHtmlView::~HWNDHtmlView() {
   if (render_view_host_) {

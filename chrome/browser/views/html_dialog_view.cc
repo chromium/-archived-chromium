@@ -5,7 +5,7 @@
 #include "chrome/browser/views/html_dialog_view.h"
 
 #include "chrome/browser/browser.h"
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 #include "chrome/views/window.h"
 
 ////////////////////////////////////////////////////////////////////////////////

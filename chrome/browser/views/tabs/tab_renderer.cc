@@ -16,7 +16,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/non_client_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "chrome/views/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

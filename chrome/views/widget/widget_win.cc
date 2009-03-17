@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 
 #include "base/gfx/native_theme.h"
 #include "base/string_util.h"
@@ -11,10 +11,10 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/aero_tooltip_manager.h"
 #include "chrome/views/accessibility/view_accessibility.h"
-#include "chrome/views/hwnd_notification_source.h"
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/aero_tooltip_manager.h"
+#include "chrome/views/widget/hwnd_notification_source.h"
+#include "chrome/views/widget/root_view.h"
 
 namespace views {
 

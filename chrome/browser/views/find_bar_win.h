@@ -9,7 +9,7 @@
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/common/animation.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 
 class BrowserView;
 class FindBarController;

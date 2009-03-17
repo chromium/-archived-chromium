@@ -11,10 +11,10 @@
 #include "chrome/common/l10n_util_win.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/root_view.h"
-#include "chrome/views/tooltip_manager.h"
 #include "chrome/views/view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/tooltip_manager.h"
+#include "chrome/views/widget/widget.h"
 
 namespace views {
 

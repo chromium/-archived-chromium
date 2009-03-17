@@ -24,7 +24,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/menu.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 

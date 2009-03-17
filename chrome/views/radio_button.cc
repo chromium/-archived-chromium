@@ -6,7 +6,7 @@
 
 #include "chrome/views/label.h"
 #include "chrome/views/hwnd_view.h"
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 
 namespace views {
 

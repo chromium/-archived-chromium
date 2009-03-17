@@ -21,7 +21,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/event.h"
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 

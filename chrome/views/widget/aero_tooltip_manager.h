@@ -7,7 +7,7 @@
 
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "chrome/views/tooltip_manager.h"
+#include "chrome/views/widget/tooltip_manager.h"
 
 namespace views {
 

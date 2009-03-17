@@ -12,7 +12,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/views/hwnd_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 
 namespace views {
 

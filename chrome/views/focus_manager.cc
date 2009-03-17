@@ -11,10 +11,10 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/focus_manager.h"
-#include "chrome/views/root_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/view_storage.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 
 // The following keys are used in SetProp/GetProp to associate additional
 // information needed for focus tracking with a window.

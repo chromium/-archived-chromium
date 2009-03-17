@@ -11,7 +11,7 @@
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 #include "chrome/views/window.h"
 #include "grit/theme_resources.h"
 

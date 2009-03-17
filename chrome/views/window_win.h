@@ -8,7 +8,7 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/views/client_view.h"
 #include "chrome/views/non_client_view.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 #include "chrome/views/window.h"
 
 namespace gfx {

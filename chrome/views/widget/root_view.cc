@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 
 #include <algorithm>
 
@@ -15,9 +15,9 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/notification_service.h"
 #if defined(OS_WIN)
-#include "chrome/views/root_view_drop_target.h"
+#include "chrome/views/widget/root_view_drop_target.h"
 #endif
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 
 namespace views {
 

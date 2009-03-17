@@ -6,7 +6,7 @@
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/message_box_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "chrome/views/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

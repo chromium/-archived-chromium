@@ -26,7 +26,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 #include "grit/webkit_resources.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"

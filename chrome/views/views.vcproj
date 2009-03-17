@@ -122,7 +122,7 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Accessibility"
+			Name="accessibility"
 			>
 			<File
 				RelativePath=".\accessibility\accessible_wrapper.cc"
@@ -141,28 +141,202 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="widget"
+			>
+			<File
+				RelativePath=".\widget\accelerator_handler.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\accelerator_handler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\aero_tooltip_manager.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\aero_tooltip_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\hwnd_notification_source.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\root_view.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\root_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\root_view_drop_target.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\root_view_drop_target.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\root_view_win.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\tooltip_manager.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\tooltip_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\widget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\widget\widget_win.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\widget\widget_win.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\accelerator.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\accelerator.h"
-			>
-		</File>
-		<File
-			RelativePath=".\accelerator_handler.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\accelerator_handler.h"
-			>
-		</File>
-		<File
-			RelativePath=".\aero_tooltip_manager.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\aero_tooltip_manager.h"
 			>
 		</File>
 		<File
@@ -482,26 +656,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\root_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\root_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\root_view_drop_target.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\root_view_drop_target.h"
-			>
-		</File>
-		<File
-			RelativePath=".\root_view_win.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\scroll_bar.cc"
 			>
 		</File>
@@ -574,14 +728,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\tooltip_manager.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\tooltip_manager.h"
-			>
-		</File>
-		<File
 			RelativePath=".\tree_model.h"
 			>
 		</File>
@@ -631,18 +777,6 @@
 		</File>
 		<File
 			RelativePath=".\view_win.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\widget.h"
-			>
-		</File>
-		<File
-			RelativePath=".\widget_win.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\widget_win.h"
 			>
 		</File>
 		<File

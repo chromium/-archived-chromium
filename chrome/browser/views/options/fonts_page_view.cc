@@ -29,7 +29,7 @@
 #include "chrome/views/native_button.h"
 #include "chrome/views/radio_button.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "grit/locale_settings.h"

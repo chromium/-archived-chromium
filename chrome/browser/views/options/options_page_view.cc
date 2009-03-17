@@ -8,7 +8,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // OptionsPageView

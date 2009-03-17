@@ -12,7 +12,7 @@
 #include "base/system_monitor.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/layout_manager.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 
 class ChromeCanvas;
 

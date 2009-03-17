@@ -5,7 +5,7 @@
 #include "chrome/views/accessibility/view_accessibility.h"
 
 #include "chrome/views/accessibility/accessible_wrapper.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 
 HRESULT ViewAccessibility::Initialize(views::View* view) {
   if (!view) {

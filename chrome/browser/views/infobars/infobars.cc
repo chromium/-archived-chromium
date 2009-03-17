@@ -16,7 +16,7 @@
 #include "chrome/views/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

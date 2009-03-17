@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_ROOT_VIEW_H
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_ROOT_VIEW_H
 
-#include "chrome/views/root_view.h"
+#include "chrome/views/widget/root_view.h"
 
 class OSExchangeData;
 class TabStrip;

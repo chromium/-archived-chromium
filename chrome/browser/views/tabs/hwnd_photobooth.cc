@@ -6,7 +6,7 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/tabs/hwnd_photobooth.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 #include "skia/include/SkBitmap.h"
 
 namespace {

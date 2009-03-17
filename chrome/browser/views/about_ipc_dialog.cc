@@ -25,14 +25,14 @@
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/views/grid_layout.h"
+#include "chrome/views/hwnd_view.h"
 #include "chrome/views/text_button.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget.h"
 #include "chrome/views/window.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"
-#include "chrome/views/hwnd_view.h"
-#include "chrome/views/root_view.h"
 
 namespace {
 

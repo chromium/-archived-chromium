@@ -38,7 +38,7 @@
 #include "chrome/views/combo_box.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/scroll_view.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"

@@ -11,7 +11,7 @@
 #include "chrome/views/image_button.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/view.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/widget_win.h"
 
 class DraggedTabController;
 class ScopedMouseCloseWidthCalculator;
@@ -331,6 +331,7 @@ class TabStrip : public views::View,
     bool point_down;
 
     // Renders the drop indicator.
+    // TODO(beng): should be views::Widget.
     views::WidgetWin* arrow_window;
     views::ImageView* arrow_view;
 

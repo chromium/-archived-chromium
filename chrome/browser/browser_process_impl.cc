@@ -34,7 +34,7 @@
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/browser/printing/print_job_manager.h"
-#include "chrome/views/accelerator_handler.h"
+#include "chrome/views/widget/accelerator_handler.h"
 #include "chrome/views/view_storage.h"
 #elif defined(OS_POSIX)
 // TODO(port): Remove the temporary scaffolding as we port the above headers.

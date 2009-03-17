@@ -21,7 +21,7 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/widget.h"
+#include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"

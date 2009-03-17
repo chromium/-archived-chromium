@@ -20,9 +20,9 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/border.h"
-#include "chrome/views/root_view.h"
 #include "chrome/views/view_constants.h"
-#include "chrome/views/widget_win.h"
+#include "chrome/views/widget/root_view.h"
+#include "chrome/views/widget/widget_win.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
 
