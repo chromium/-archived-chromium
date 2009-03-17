@@ -9,7 +9,7 @@
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_drop_info.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
-#include "chrome/views/tree_view.h"
+#include "chrome/views/controls/tree/tree_view.h"
 
 class BookmarkModel;
 class BookmarkNode;

@@ -26,7 +26,7 @@
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/views/event.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/view.h"
 
 namespace views {

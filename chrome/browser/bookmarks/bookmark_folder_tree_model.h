@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_FOLDER_TREE_MODEL_H_
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/views/tree_node_model.h"
+#include "chrome/views/controls/tree/tree_node_model.h"
 
 // The type of nodes created by BookmarkFolderTreeModel.
 typedef views::TreeNodeWithValue<BookmarkNode*> FolderNode;

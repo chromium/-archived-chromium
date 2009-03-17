@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #include "googleurl/src/gurl.h"

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/views/tabs/dragged_tab_controller.h"
+
 #include <math.h>
 #include <set>
-
-#include "chrome/browser/views/tabs/dragged_tab_controller.h"
 
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"

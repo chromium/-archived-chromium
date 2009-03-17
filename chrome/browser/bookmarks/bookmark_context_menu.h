@@ -13,7 +13,7 @@
 
 // TODO(port): Port this file.
 #if defined(OS_WIN)
-#include "chrome/views/chrome_menu.h"
+#include "chrome/views/controls/menu/chrome_menu.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif

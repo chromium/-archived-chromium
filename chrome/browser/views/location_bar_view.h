@@ -15,9 +15,9 @@
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/views/hwnd_view.h"
-#include "chrome/views/image_view.h"
-#include "chrome/views/label.h"
+#include "chrome/views/controls/hwnd_view.h"
+#include "chrome/views/controls/image_view.h"
+#include "chrome/views/controls/label.h"
 #include "chrome/views/painter.h"
 
 class CommandUpdater;

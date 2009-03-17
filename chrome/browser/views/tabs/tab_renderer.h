@@ -9,8 +9,8 @@
 #include "chrome/common/animation.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/common/throb_animation.h"
-#include "chrome/views/image_button.h"
-#include "chrome/views/menu.h"
+#include "chrome/views/controls/button/image_button.h"
+#include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/view.h"
 
 class TabContents;

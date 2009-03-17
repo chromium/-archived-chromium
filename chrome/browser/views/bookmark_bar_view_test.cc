@@ -13,8 +13,8 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/test/testing_profile.h"
 #include "chrome/test/interactive_ui/view_event_test_base.h"
-#include "chrome/views/chrome_menu.h"
-#include "chrome/views/text_button.h"
+#include "chrome/views/controls/button/text_button.h"
+#include "chrome/views/controls/menu/chrome_menu.h"
 #include "chrome/views/window/window.h"
 
 namespace {

@@ -74,7 +74,7 @@
 #include "base/gfx/native_theme.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/renderer/renderer_logging.h"
-#include "chrome/views/message_box_view.h"
+#include "chrome/views/controls/message_box_view.h"
 #include "skia/ext/vector_canvas.h"
 #endif
 

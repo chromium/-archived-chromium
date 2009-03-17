@@ -6,9 +6,9 @@
 #define CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H_
 
 #include "chrome/browser/net/url_fetcher.h"
-#include "chrome/views/combo_box.h"
-#include "chrome/views/native_button.h"
-#include "chrome/views/text_field.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/combo_box.h"
+#include "chrome/views/controls/text_field.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "googleurl/src/gurl.h"

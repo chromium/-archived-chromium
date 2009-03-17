@@ -23,7 +23,7 @@
 #include "chrome/common/slide_animation.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/image_view.h"
+#include "chrome/views/controls/image_view.h"
 #include "chrome/views/painter.h"
 #include "chrome/views/window/non_client_view.h"
 #include "chrome/views/window/window.h"

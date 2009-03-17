@@ -16,8 +16,8 @@
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/views/controls/tree/tree_node_iterator.h"
 #include "chrome/views/event.h"
-#include "chrome/views/tree_node_iterator.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 

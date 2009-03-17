@@ -7,7 +7,7 @@
 
 #include "chrome/browser/views/first_run_view_base.h"
 #include "chrome/browser/views/first_run_customize_view.h"
-#include "chrome/views/link.h"
+#include "chrome/views/controls/link.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 

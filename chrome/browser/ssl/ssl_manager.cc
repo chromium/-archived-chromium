@@ -35,8 +35,7 @@
 #include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/views/decision.h"
-#include "chrome/views/link.h"
+#include "chrome/views/controls/link.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif

@@ -7,7 +7,7 @@
 
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/window/client_view.h"
 
 namespace views {

@@ -13,7 +13,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/label.h"
+#include "chrome/views/controls/label.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
 #include "googleurl/src/gurl.h"

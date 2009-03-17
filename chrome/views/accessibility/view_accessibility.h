@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H__
-#define CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H__
+#ifndef CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H_
+#define CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H_
 
 #include <atlbase.h>
 #include <atlcom.h>
@@ -126,4 +126,5 @@ class ATL_NO_VTABLE ViewAccessibility
 
   DISALLOW_EVIL_CONSTRUCTORS(ViewAccessibility);
 };
-#endif  // CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H__
+
+#endif  // CHROME_VIEWS_ACCESSIBILITY_VIEW_ACCESSIBILITY_H_

@@ -7,9 +7,9 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/views/combo_box.h"
-#include "chrome/views/link.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/combo_box.h"
+#include "chrome/views/controls/link.h"
 #include "chrome/views/view.h"
 #include "googleurl/src/gurl.h"
 

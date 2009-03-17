@@ -7,8 +7,8 @@
 
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/common/slide_animation.h"
-#include "chrome/views/button.h"
-#include "chrome/views/link.h"
+#include "chrome/views/controls/button/button.h"
+#include "chrome/views/controls/link.h"
 
 namespace views {
 class ImageButton;

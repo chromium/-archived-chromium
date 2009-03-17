@@ -7,7 +7,7 @@
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/message_box_view.h"
+#include "chrome/views/controls/message_box_view.h"
 #include "grit/generated_resources.h"
 
 // static

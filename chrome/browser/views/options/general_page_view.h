@@ -8,8 +8,8 @@
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/views/shelf_item_dialog.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/combo_box.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/combo_box.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/view.h"
 
 namespace views {

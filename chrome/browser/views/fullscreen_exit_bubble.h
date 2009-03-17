@@ -8,7 +8,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/common/slide_animation.h"
-#include "chrome/views/link.h"
+#include "chrome/views/controls/link.h"
 #include "chrome/views/widget/widget_win.h"
 
 // FullscreenExitBubble is responsible for showing a bubble atop the screen in

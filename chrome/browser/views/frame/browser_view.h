@@ -9,11 +9,11 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
-#include "chrome/browser/tabs/tab_strip_model.h"
-#include "chrome/browser/views/frame/browser_frame.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
+#include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/window_delegate.h"
 

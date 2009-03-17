@@ -5,7 +5,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/bookmarks/bookmark_folder_tree_model.h"
 #include "chrome/test/testing_profile.h"
-#include "chrome/views/tree_view.h"
+#include "chrome/views/controls/tree/tree_view.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
 

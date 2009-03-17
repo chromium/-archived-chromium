@@ -8,7 +8,7 @@
 #ifndef CHROME_BROWSER_VIEWS_DOM_VIEW_H_
 #define CHROME_BROWSER_VIEWS_DOM_VIEW_H_
 
-#include "chrome/views/hwnd_view.h"
+#include "chrome/views/controls/hwnd_view.h"
 #include "googleurl/src/gurl.h"
 
 class DOMUIHost;

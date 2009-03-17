@@ -18,7 +18,7 @@
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/page_transition_types.h"
-#include "chrome/views/menu.h"
+#include "chrome/views/controls/menu/menu.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompletePopupModel;

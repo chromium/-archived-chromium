@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_FIRST_RUN_CUSTOMIZE_VIEW_H_
 
 #include "chrome/browser/views/first_run_view_base.h"
-#include "chrome/views/combo_box.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/combo_box.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 

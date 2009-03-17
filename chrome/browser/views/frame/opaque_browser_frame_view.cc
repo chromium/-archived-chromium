@@ -13,7 +13,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/image_button.h"
+#include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/window_resources.h"
 #include "grit/chromium_strings.h"

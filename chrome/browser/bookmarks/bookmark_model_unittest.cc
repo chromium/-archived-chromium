@@ -11,7 +11,7 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/test/testing_profile.h"
-#include "chrome/views/tree_node_model.h"
+#include "chrome/views/controls/tree/tree_node_model.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using base::Time;

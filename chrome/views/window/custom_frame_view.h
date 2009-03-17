@@ -5,7 +5,7 @@
 #ifndef CHROME_VIEWS_WINDOW_CUSTOM_FRAME_VIEW_H_
 #define CHROME_VIEWS_WINDOW_CUSTOM_FRAME_VIEW_H_
 
-#include "chrome/views/image_button.h"
+#include "chrome/views/controls/button/image_button.h"
 #include "chrome/views/window/non_client_view.h"
 #include "chrome/views/window/window.h"
 #include "chrome/views/window/window_resources.h"

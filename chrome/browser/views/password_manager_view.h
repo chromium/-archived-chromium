@@ -8,12 +8,13 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/views/label.h"
-#include "chrome/views/native_button.h"
-#include "chrome/views/table_view.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/label.h"
+#include "chrome/views/controls/table/table_view.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #include "webkit/glue/password_form.h"

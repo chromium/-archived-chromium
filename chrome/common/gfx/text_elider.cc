@@ -8,9 +8,6 @@
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#if defined(OS_WIN)
-#include "chrome/views/label.h"
-#endif  // defined(OS_WIN)
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 #include "net/base/net_util.h"

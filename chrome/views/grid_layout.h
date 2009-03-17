@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_GRID_LAYOUT_H__
-#define CHROME_VIEWS_GRID_LAYOUT_H__
+#ifndef CHROME_VIEWS_GRID_LAYOUT_H_
+#define CHROME_VIEWS_GRID_LAYOUT_H_
 
 #include <string>
 #include <vector>
@@ -351,4 +351,4 @@ class ColumnSet {
 
 }  // namespace views
 
-#endif // CHROME_VIEWS_GRID_LAYOUT_H__
+#endif // CHROME_VIEWS_GRID_LAYOUT_H_

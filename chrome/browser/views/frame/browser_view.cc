@@ -50,7 +50,7 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/native_scroll_bar.h"
+#include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"

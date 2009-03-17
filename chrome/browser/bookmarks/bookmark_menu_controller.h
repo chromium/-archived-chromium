@@ -10,7 +10,7 @@
 #include "chrome/browser/bookmarks/base_bookmark_model_observer.h"
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
-#include "chrome/views/chrome_menu.h"
+#include "chrome/views/controls/menu/chrome_menu.h"
 
 class BookmarkContextMenu;
 class BookmarkNode;

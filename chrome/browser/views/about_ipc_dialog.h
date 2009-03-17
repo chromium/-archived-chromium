@@ -5,17 +5,11 @@
 #ifndef CHROME_BROWSER_VIEWS_ABOUT_IPC_DIALOG_H_
 #define CHROME_BROWSER_VIEWS_ABOUT_IPC_DIALOG_H_
 
-#include <atlbase.h>
-#include <atlapp.h>
-#include <atlcrack.h>
-#include <atlctrls.h>
-#include <atlmisc.h>
-
 #include "base/singleton.h"
 #include "chrome/common/ipc_logging.h"
-#include "chrome/views/button.h"
+#include "chrome/views/controls/button/button.h"
+#include "chrome/views/controls/table/table_view.h"
 #include "chrome/views/window/dialog_delegate.h"
-#include "chrome/views/table_view.h"
 
 #if defined(OS_WIN) && defined(IPC_MESSAGE_LOG_ENABLED)
 

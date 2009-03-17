@@ -7,7 +7,7 @@
 
 #include "base/time.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/views/image_button.h"
+#include "chrome/views/controls/button/image_button.h"
 
 class BrowserToolbarView;
 class GURL;

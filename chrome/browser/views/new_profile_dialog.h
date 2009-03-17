@@ -11,7 +11,7 @@
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "chrome/views/text_field.h"
+#include "chrome/views/controls/text_field.h"
 #include "chrome/views/window/dialog_delegate.h"
 
 class MessageBoxView;

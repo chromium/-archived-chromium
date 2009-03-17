@@ -12,7 +12,7 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/message_box_view.h"
+#include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

@@ -15,7 +15,7 @@
 #include "chrome/views/background.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/grid_layout.h"
-#include "chrome/views/label.h"
+#include "chrome/views/controls/label.h"
 #include "chrome/views/widget/widget.h"
 #include "chrome/views/window/window.h"
 #include "googleurl/src/gurl.h"

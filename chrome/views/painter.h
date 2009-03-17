@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_PAINTER_H__
-#define CHROME_VIEWS_PAINTER_H__
+#ifndef CHROME_VIEWS_PAINTER_H_
+#define CHROME_VIEWS_PAINTER_H_
 
 #include <vector>
 
@@ -117,4 +117,4 @@ class HorizontalPainter : public Painter {
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_PAINTER_H__
+#endif  // CHROME_VIEWS_PAINTER_H_

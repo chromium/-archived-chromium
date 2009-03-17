@@ -10,7 +10,7 @@
 #include "build/build_config.h"
 
 #if defined(OS_WIN)
-#include "chrome/views/table_view.h"
+#include "chrome/views/controls/table/table_view.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif

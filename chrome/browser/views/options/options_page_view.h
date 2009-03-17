@@ -8,8 +8,8 @@
 #include "chrome/browser/options_window.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/notification_observer.h"
-#include "chrome/views/link.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/link.h"
+#include "chrome/views/controls/button/native_button.h"
 
 class PrefService;
 

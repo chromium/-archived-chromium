@@ -42,9 +42,9 @@
 #include "chrome/personalization/personalization.h"
 #endif
 #include "chrome/views/background.h"
-#include "chrome/views/button_dropdown.h"
-#include "chrome/views/hwnd_view.h"
-#include "chrome/views/label.h"
+#include "chrome/views/controls/button/button_dropdown.h"
+#include "chrome/views/controls/hwnd_view.h"
+#include "chrome/views/controls/label.h"
 #include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/window/non_client_view.h"
 #include "chrome/views/window/window.h"

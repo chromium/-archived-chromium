@@ -6,9 +6,9 @@
 #define CHROME_BROWSER_VIEWS_ABOUT_CHROME_VIEW_H_
 
 #include "chrome/browser/google_update.h"
-#include "chrome/views/image_view.h"
-#include "chrome/views/label.h"
-#include "chrome/views/link.h"
+#include "chrome/views/controls/image_view.h"
+#include "chrome/views/controls/label.h"
+#include "chrome/views/controls/link.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 

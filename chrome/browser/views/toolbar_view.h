@@ -17,10 +17,10 @@
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/menu.h"
-#include "chrome/views/menu_button.h"
+#include "chrome/views/controls/button/menu_button.h"
+#include "chrome/views/controls/menu/menu.h"
+#include "chrome/views/controls/menu/view_menu_delegate.h"
 #include "chrome/views/view.h"
-#include "chrome/views/view_menu_delegate.h"
 
 class Browser;
 class Profile;

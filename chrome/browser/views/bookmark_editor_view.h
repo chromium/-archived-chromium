@@ -8,12 +8,12 @@
 #include <set>
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/views/checkbox.h"
-#include "chrome/views/menu.h"
-#include "chrome/views/native_button.h"
-#include "chrome/views/text_field.h"
-#include "chrome/views/tree_node_model.h"
-#include "chrome/views/tree_view.h"
+#include "chrome/views/controls/button/checkbox.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/menu/menu.h"
+#include "chrome/views/controls/text_field.h"
+#include "chrome/views/controls/tree/tree_node_model.h"
+#include "chrome/views/controls/tree/tree_view.h"
 #include "chrome/views/window/dialog_delegate.h"
 
 namespace views {

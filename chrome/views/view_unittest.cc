@@ -7,7 +7,7 @@
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
-#include "chrome/views/checkbox.h"
+#include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/root_view.h"

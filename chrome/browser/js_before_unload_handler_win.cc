@@ -6,7 +6,7 @@
 
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/message_box_view.h"
+#include "chrome/views/controls/message_box_view.h"
 #include "grit/generated_resources.h"
 
 void RunBeforeUnloadDialog(WebContents* web_contents,

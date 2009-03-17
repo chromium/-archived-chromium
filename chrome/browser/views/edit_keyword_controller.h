@@ -12,7 +12,7 @@
 
 #include <Windows.h>
 
-#include "chrome/views/text_field.h"
+#include "chrome/views/controls/text_field.h"
 #include "chrome/views/window/dialog_delegate.h"
 
 namespace views {

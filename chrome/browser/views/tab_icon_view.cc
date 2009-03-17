@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/views/tab_icon_view.h"
+
 #include <windows.h>
 #include <shellapi.h>
-
-#include "chrome/browser/views/tab_icon_view.h"
 
 #include "base/file_util.h"
 #include "base/path_service.h"

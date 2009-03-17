@@ -15,7 +15,7 @@
 #include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/message_box_view.h"
+#include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 

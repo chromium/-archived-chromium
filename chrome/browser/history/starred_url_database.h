@@ -11,7 +11,7 @@
 #include "base/basictypes.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/url_database.h"
-#include "chrome/views/tree_node_model.h"
+#include "chrome/views/controls/tree/tree_node_model.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
 struct sqlite3;

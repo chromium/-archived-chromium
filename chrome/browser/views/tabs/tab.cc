@@ -9,7 +9,7 @@
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/chrome_menu.h"
+#include "chrome/views/controls/menu/chrome_menu.h"
 #include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"

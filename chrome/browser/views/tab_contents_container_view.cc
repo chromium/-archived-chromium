@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <algorithm>
-
 #include "chrome/browser/views/tab_contents_container_view.h"
+
+#include <algorithm>
 
 #include "base/logging.h"
 #include "chrome/browser/renderer_host/render_view_host.h"

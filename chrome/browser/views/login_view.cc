@@ -10,8 +10,8 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/grid_layout.h"
-#include "chrome/views/label.h"
-#include "chrome/views/text_field.h"
+#include "chrome/views/controls/label.h"
+#include "chrome/views/controls/text_field.h"
 #include "chrome/views/widget/root_view.h"
 #include "grit/generated_resources.h"
 

@@ -7,9 +7,9 @@
 
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/common/animation.h"
-#include "chrome/views/button.h"
-#include "chrome/views/link.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/button.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/link.h"
 
 class InfoBarContainer;
 class SlideAnimation;

@@ -22,8 +22,8 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
-#include "chrome/views/image_button.h"
-#include "chrome/views/menu_button.h"
+#include "chrome/views/controls/button/image_button.h"
+#include "chrome/views/controls/button/menu_button.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

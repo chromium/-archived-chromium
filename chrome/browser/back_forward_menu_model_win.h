@@ -8,7 +8,7 @@
 #include "base/basictypes.h"
 
 #include "chrome/browser/back_forward_menu_model.h"
-#include "chrome/views/menu.h"
+#include "chrome/views/controls/menu/menu.h"
 
 class SkBitmap;
 

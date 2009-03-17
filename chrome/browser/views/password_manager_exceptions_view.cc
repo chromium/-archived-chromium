@@ -2,16 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/views/password_manager_exceptions_view.h"
+
 #include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/views/password_manager_exceptions_view.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/background.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/grid_layout.h"
-#include "chrome/views/native_button.h"
 #include "grit/generated_resources.h"
 
 using views::ColumnSet;

@@ -9,8 +9,8 @@
 #include <map>
 
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/views/native_button.h"
-#include "chrome/views/table_view.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/table/table_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 

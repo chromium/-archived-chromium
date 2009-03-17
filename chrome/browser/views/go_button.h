@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 #define CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 
-#include "chrome/views/image_button.h"
+#include "chrome/views/controls/button/image_button.h"
 #include "base/task.h"
 
 class CommandUpdater;

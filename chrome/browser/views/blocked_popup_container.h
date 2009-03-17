@@ -18,8 +18,8 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/pref_member.h"
-#include "chrome/views/button.h"
-#include "chrome/views/menu.h"
+#include "chrome/views/controls/button/button.h"
+#include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/widget_win.h"
 

@@ -15,7 +15,7 @@
 #include "base/timer.h"
 #include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/views/group_table_view.h"
+#include "chrome/views/controls/table/group_table_view.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "net/url_request/url_request_job_tracker.h"
 

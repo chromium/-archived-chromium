@@ -14,8 +14,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/grid_layout.h"
-#include "chrome/views/label.h"
-#include "chrome/views/separator.h"
+#include "chrome/views/controls/label.h"
+#include "chrome/views/controls/separator.h"
 #include "grit/locale_settings.h"
 #include "grit/generated_resources.h"
 

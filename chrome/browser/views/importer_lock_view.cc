@@ -7,7 +7,7 @@
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/label.h"
+#include "chrome/views/controls/label.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"

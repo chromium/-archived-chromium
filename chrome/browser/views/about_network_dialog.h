@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_ABOUT_NETWORK_DIALOG_H_
 
 #include "base/singleton.h"
-#include "chrome/views/button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/window/dialog_delegate.h"
 
 namespace views {

@@ -960,7 +960,7 @@
 			Name="views"
 			>
 			<File
-				RelativePath="..\..\views\focus_manager_unittest.cc"
+				RelativePath="..\..\views\focus\focus_manager_unittest.cc"
 				>
 			</File>
 			<File
@@ -968,15 +968,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\label_unittest.cc"
+				RelativePath="..\..\views\controls\label_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\table_view_unittest.cc"
+				RelativePath="..\..\views\controls\table\table_view_unittest.cc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\views\tree_node_iterator_unittest.cc"
+				RelativePath="..\..\views\controls\tree\tree_node_iterator_unittest.cc"
 				>
 			</File>
 			<File

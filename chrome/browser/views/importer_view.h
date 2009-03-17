@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_VIEWS_IMPORTER_VIEW_H__
 
 #include "chrome/browser/importer/importer.h"
-#include "chrome/views/combo_box.h"
-#include "chrome/views/native_button.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/combo_box.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 

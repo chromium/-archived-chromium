@@ -10,11 +10,11 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/common/slide_animation.h"
-#include "chrome/views/label.h"
-#include "chrome/views/menu.h"
-#include "chrome/views/menu_button.h"
+#include "chrome/views/controls/button/menu_button.h"
+#include "chrome/views/controls/label.h"
+#include "chrome/views/controls/menu/menu.h"
+#include "chrome/views/controls/menu/view_menu_delegate.h"
 #include "chrome/views/view.h"
-#include "chrome/views/view_menu_delegate.h"
 
 class Browser;
 class PageNavigator;

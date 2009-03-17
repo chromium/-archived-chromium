@@ -21,7 +21,7 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/views/download_started_animation.h"
 #include "chrome/browser/views/blocked_popup_container.h"
-#include "chrome/views/native_scroll_bar.h"
+#include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #endif
 
 #if defined(OS_WIN)

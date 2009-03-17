@@ -8,8 +8,8 @@
 #include "base/gfx/point.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab.h"
-#include "chrome/views/image_button.h"
-#include "chrome/views/menu.h"
+#include "chrome/views/controls/button/image_button.h"
+#include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/widget_win.h"
 

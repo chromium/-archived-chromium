@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_EVENT_H__
-#define CHROME_VIEWS_EVENT_H__
+#ifndef CHROME_VIEWS_EVENT_H_
+#define CHROME_VIEWS_EVENT_H_
 
 #include "base/basictypes.h"
 #include "base/gfx/point.h"
@@ -306,4 +306,4 @@ class DropTargetEvent : public LocatedEvent {
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_EVENT_H__
+#endif  // CHROME_VIEWS_EVENT_H_

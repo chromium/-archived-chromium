@@ -18,7 +18,7 @@
 #include "chrome/personalization/personalization.h"
 #include "chrome/personalization/views/user_data_page_view.h"
 #endif
-#include "chrome/views/tabbed_pane.h"
+#include "chrome/views/controls/tabbed_pane.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"

@@ -16,8 +16,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/background.h"
-#include "chrome/views/image_button.h"
-#include "chrome/views/image_view.h"
+#include "chrome/views/controls/button/image_button.h"
+#include "chrome/views/controls/image_view.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
