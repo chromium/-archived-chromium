@@ -92,7 +92,8 @@ class Valgrind(object):
     filenames = glob.glob(self.TMP_DIR + "/valgrind.*")
     analyzer = valgrind_analyze.ValgrindAnalyze(self._source_dir, filenames)
     analyzer.Report()
-    return 1
+    # Return success... should we return failure if there are errors?
+    return 0
 
   def Cleanup(self):
     # Right now, we can cleanup by deleting our temporary directory. Other

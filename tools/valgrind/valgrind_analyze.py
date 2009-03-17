@@ -140,7 +140,12 @@ class ValgrindAnalyze:
     for file in files:
       raw_errors = parse(file).getElementsByTagName("error")
       for raw_error in raw_errors:
-        self._errors.add(ValgrindError(source_dir, raw_error))
+        # Ignore reachable aka "possible" leaks for now.
+        # Annoyingly, Valgrind's --xml=yes option seems to
+        # force --leak-check=full --show-reachable=yes
+        kind = getTextOf(raw_error, "kind")
+        if (kind != "Leak_PossiblyLost")
+          self._errors.add(ValgrindError(source_dir, raw_error))
 
   def Report(self):
     if self._errors:
