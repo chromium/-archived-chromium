@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "base/time.h"

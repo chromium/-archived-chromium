@@ -8,7 +8,6 @@
 #include <list>
 
 #include "base/basictypes.h"
-#include "base/hash_tables.h"
 #include "base/singleton.h"
 #include "googleurl/src/gurl.h"
 
