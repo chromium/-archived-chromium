@@ -336,6 +336,11 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 // Merge 39744:39829 - regression
 DEFER : LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
+// Upstream dumprendertree changes caused the expected to change.
+// Now our baseline is out of date, and we differ from Mac expected on the
+// caret position in the last line of the text output.
+DEFER WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
+
 // Merge 39744:39913? - regressions
 DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
 
@@ -1561,11 +1566,6 @@ LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
 DEFER : LayoutTests/fast/dom/getClientRects.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
-
-// Upstream dumprendertree changes caused the expected to change.
-// Now our baseline is out of date, and we differ from Mac expected on the
-// caret position in the last line of the text output.
-WIN LINUX : LayoutTests/svg/custom/foreignObject-crash-on-hover.xml = FAIL
 
 // Sharted showing up the mac build bots as timeout or pass on 02/16/09 in
 // debug, starting 03/10/09 it sometimes passes in release.
