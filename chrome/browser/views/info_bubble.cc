@@ -93,12 +93,10 @@ void InfoBubble::Init(HWND parent_hwnd,
                       const gfx::Rect& position_relative_to,
                       views::View* content) {
   HWND owning_frame_hwnd = GetAncestor(parent_hwnd, GA_ROOTOWNER);
-  // We should always have a frame, but there was a bug elsewhere that
-  // made it possible for the frame to be NULL, so we have the check. If
-  // you hit this, file a bug.
-  DCHECK(BrowserView::GetBrowserViewForHWND(owning_frame_hwnd));
-  parent_ = reinterpret_cast<views::Window*>(win_util::GetWindowUserData(
-      owning_frame_hwnd));
+  BrowserView* browser_view =
+      BrowserView::GetBrowserViewForHWND(owning_frame_hwnd);
+  DCHECK(browser_view);
+  parent_ = browser_view->frame();
   parent_->DisableInactiveRendering();
 
   if (kInfoBubbleCornerTopLeft == NULL) {
