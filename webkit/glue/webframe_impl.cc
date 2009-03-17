@@ -688,6 +688,13 @@ WebFrame* WebFrameImpl::GetParent() const {
   return NULL;
 }
 
+WebFrame* WebFrameImpl::GetTop() const {
+  if (frame_)
+    return FromFrame(frame_->tree()->top());
+
+  return NULL;
+}
+
 WebFrame* WebFrameImpl::GetChildFrame(const std::wstring& xpath) const {
   // xpath string can represent a frame deep down the tree (across multiple
   // frame DOMs).
@@ -752,6 +759,15 @@ bool WebFrameImpl::GetInViewSourceMode() const {
 
 WebView* WebFrameImpl::GetView() const {
   return webview_impl_;
+}
+
+std::string WebFrameImpl::GetSecurityOrigin() const {
+  if (frame_) {
+    if (frame_->document())
+      return webkit_glue::StringToStdString(
+          frame_->document()->securityOrigin()->toString());
+  }
+  return "null";
 }
 
 void WebFrameImpl::BindToWindowObject(const std::wstring& name,

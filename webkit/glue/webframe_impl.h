@@ -105,8 +105,10 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual void StopLoading();
   virtual WebFrame* GetOpener() const;
   virtual WebFrame* GetParent() const;
+  virtual WebFrame* GetTop() const;
   virtual WebFrame* GetChildFrame(const std::wstring& xpath) const;
   virtual WebView* GetView() const;
+  virtual std::string GetSecurityOrigin() const;
   virtual bool CaptureImage(scoped_ptr<skia::BitmapPlatformDevice>* image,
                             bool scroll_to_zero);
 

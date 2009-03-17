@@ -164,6 +164,9 @@ class WebFrame {
   // frame with no parent.
   virtual WebFrame* GetParent() const = 0;
 
+  // Returns the top-most frame in the frame hierarchy containing this frame.
+  virtual WebFrame* GetTop() const = 0;
+
   // Returns the child frame with the given xpath.
   // The document of this frame is used as the context node.
   // The xpath may need a recursive traversal if non-trivial
@@ -181,6 +184,9 @@ class WebFrame {
   // pointer is not AddRef'd and is only valid for the lifetime of the WebFrame
   // unless it is AddRef'd separately by the caller.
   virtual WebView* GetView() const = 0;
+
+  // Returns the serialization of the frame's security origin.
+  virtual std::string GetSecurityOrigin() const = 0;
 
   // Fills the contents of this frame into the given string. If the text is
   // longer than max_chars, it will be clipped to that length. Warning: this
