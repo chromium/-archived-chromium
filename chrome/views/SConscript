@@ -176,14 +176,14 @@ if not env.Bit('windows'):
 
 if env.Bit('windows'):
   input_files += [
-    "view_win.cc"
-    "widget/root_view_win.cc",
+    "view_win.cc",
+    "widget/root_view_win.cc"
   ]
 
 if env.Bit('linux'):
   input_files += [
-    "view_gtk.cc"
-    "widget/root_view_gtk.cc",
+    "view_gtk.cc",
+    "widget/root_view_gtk.cc"
   ]
   # TODO(port?): Incomplete and undecided Views stuff. These compile but aren't
   # currently needed, and they break the shared build due to missing symbols
