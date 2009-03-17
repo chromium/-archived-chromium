@@ -40,8 +40,6 @@ input_files = ChromeFileList([
     'base/pipeline_impl.h',
     'base/synchronizer.cc',
     'base/synchronizer.h',
-    'base/video_frame_impl.cc',
-    'base/video_frame_impl.h',
     'base/yuv_convert.cc',
     'base/yuv_convert.h',
   ]),

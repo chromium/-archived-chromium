@@ -61,3 +61,4 @@ TEST(YuvConvertTest, Basic) {
 
   EXPECT_EQ(rgb_diff, 0);
 }
+

@@ -23,3 +23,4 @@ void ConvertYV12ToRGB32(const uint8* yplane,
 #endif  // MEDIA_BASE_YUV_CONVERT_H_
 
 }  // namespace media
+

@@ -40,3 +40,4 @@ class AudioManagerWin : public AudioManager {
 };
 
 #endif  // MEDIA_AUDIO_AUDIO_MANAGER_WIN_H_
+

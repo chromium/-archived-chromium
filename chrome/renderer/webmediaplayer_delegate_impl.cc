@@ -14,23 +14,23 @@
 
 class NotifyWebMediaPlayerTask : public CancelableTask {
  public:
-  NotifyWebMediaPlayerTask(webkit_glue::WebMediaPlayer* web_media_player,
+  NotifyWebMediaPlayerTask(WebMediaPlayerDelegateImpl* delegate,
                            WebMediaPlayerMethod method)
-      : web_media_player_(web_media_player),
+      : delegate_(delegate_),
         method_(method) {}
 
   virtual void Run() {
-    if (web_media_player_) {
-      (web_media_player_->*(method_))();
+    if (delegate_) {
+      (delegate_->web_media_player()->*(method_))();
     }
   }
 
   virtual void Cancel() {
-    web_media_player_ = NULL;
+    delegate_ = NULL;
   }
 
  private:
-  webkit_glue::WebMediaPlayer* web_media_player_;
+  WebMediaPlayerDelegateImpl* delegate_;
   WebMediaPlayerMethod method_;
 
   DISALLOW_COPY_AND_ASSIGN(NotifyWebMediaPlayerTask);
@@ -356,8 +356,7 @@ void WebMediaPlayerDelegateImpl::PostTask(int index,
 
   AutoLock auto_lock(task_lock_);
   if(!tasks_[index]) {
-    CancelableTask* task = new NotifyWebMediaPlayerTask(web_media_player_,
-                                                        method);
+    CancelableTask* task = new NotifyWebMediaPlayerTask(this, method);
     tasks_[index] = task;
     main_loop_->PostTask(FROM_HERE, task);
   }

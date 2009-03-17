@@ -14,7 +14,6 @@
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
 #include "media/base/pipeline.h"
-#include "media/base/video_frame_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace media {
@@ -367,6 +366,75 @@ class MockAudioRenderer : public AudioRenderer {
 
 //------------------------------------------------------------------------------
 
+class MockVideoFrame : public VideoFrame {
+ public:
+  MockVideoFrame(size_t video_width,
+                 size_t video_height,
+                 VideoSurface::Format video_surface_format,
+                 base::TimeDelta timestamp,
+                 base::TimeDelta duration,
+                 double ratio_white_to_black) {
+    surface_locked_ = false;
+    SetTimestamp(timestamp);
+    SetDuration(duration);
+    size_t y_byte_count = video_width * video_height;
+    size_t uv_byte_count = y_byte_count / 4;
+    surface_.format = video_surface_format;
+    surface_.width = video_width;
+    surface_.height = video_height;
+    surface_.planes = 3;
+    surface_.data[0] = new uint8[y_byte_count];
+    surface_.data[1] = new uint8[uv_byte_count];
+    surface_.data[2] = new uint8[uv_byte_count];
+    surface_.strides[0] = video_width;
+    surface_.strides[1] = video_width / 2;
+    surface_.strides[2] = video_width / 2;
+    memset(surface_.data[0], 0, y_byte_count);
+    memset(surface_.data[1], 0x80, uv_byte_count);
+    memset(surface_.data[2], 0x80, uv_byte_count);
+    int64 num_white_pixels = static_cast<int64>(y_byte_count *
+                                                ratio_white_to_black);
+    if (num_white_pixels > y_byte_count) {
+      ADD_FAILURE();
+      num_white_pixels = y_byte_count;
+    }
+    if (num_white_pixels < 0) {
+      ADD_FAILURE();
+      num_white_pixels = 0;
+    }
+    memset(surface_.data[0], 0xFF, static_cast<size_t>(num_white_pixels));
+  }
+
+  virtual ~MockVideoFrame() {
+    delete[] surface_.data[0];
+    delete[] surface_.data[1];
+    delete[] surface_.data[2];
+  }
+
+  virtual bool Lock(VideoSurface* surface) {
+    EXPECT_FALSE(surface_locked_);
+    if (surface_locked_) {
+      memset(surface, 0, sizeof(*surface));
+      return false;
+    }
+    surface_locked_ = true;
+    COMPILE_ASSERT(sizeof(*surface) == sizeof(surface_), surface_size_mismatch);
+    memcpy(surface, &surface_, sizeof(*surface));
+    return true;
+  }
+
+  virtual void Unlock() {
+    EXPECT_TRUE(surface_locked_);
+    surface_locked_ = false;
+  }
+
+ private:
+  bool surface_locked_;
+  VideoSurface surface_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockVideoFrame);
+};
+
 class MockVideoDecoder : public VideoDecoder {
  public:
   static FilterFactory* CreateFactory(const MockFilterConfig* config) {
@@ -376,35 +444,6 @@ class MockVideoDecoder : public VideoDecoder {
 
   static bool IsMediaFormatSupported(const MediaFormat* media_format) {
     return true;  // TODO(ralphl): check for a supported format.
-  }
-
-  // Helper function that initializes a YV12 frame with white and black scan
-  // lines based on the |white_to_black| parameter.  If 0, then the entire
-  // frame will be black, if 1 then the entire frame will be white.
-  static void InitializeYV12Frame(VideoFrame* frame, double white_to_black) {
-    VideoSurface surface;
-    if (!frame->Lock(&surface)) {
-      ADD_FAILURE();
-    } else {
-      EXPECT_EQ(surface.format, VideoSurface::YV12);
-      size_t first_black_row = static_cast<size_t>(surface.height *
-                                                   white_to_black);
-      uint8* y_plane = surface.data[VideoSurface::kYPlane];
-      for (size_t row = 0; row < surface.height; ++row) {
-        int color = (row < first_black_row) ? 0xFF : 0x00;
-        memset(y_plane, color, surface.width);
-        y_plane += surface.strides[VideoSurface::kYPlane];
-      }
-      uint8* u_plane = surface.data[VideoSurface::kUPlane];
-      uint8* v_plane = surface.data[VideoSurface::kVPlane];
-      for (size_t row = 0; row < surface.height; row += 2) {
-        memset(u_plane, 0x80, surface.width / 2);
-        memset(v_plane, 0x80, surface.width / 2);
-        u_plane += surface.strides[VideoSurface::kUPlane];
-        v_plane += surface.strides[VideoSurface::kVPlane];
-      }
-      frame->Unlock();
-    }
   }
 
   explicit MockVideoDecoder(const MockFilterConfig* config)
@@ -438,29 +477,20 @@ class MockVideoDecoder : public VideoDecoder {
 
   void DoRead(Assignable<VideoFrame>* buffer) {
     if (mock_frame_time_ < config_->media_duration) {
-      // TODO(ralphl): Mock video decoder only works with YV12.  Implement other
-      // formats as needed.
-      EXPECT_EQ(config_->video_surface_format, VideoSurface::YV12);
-      scoped_refptr<VideoFrame> frame;
-      VideoFrameImpl::CreateFrame(config_->video_surface_format,
-                                  config_->video_width,
-                                  config_->video_height,
-                                  mock_frame_time_,
-                                  config_->frame_duration,
-                                  &frame);
-      if (!frame) {
-        host_->Error(PIPELINE_ERROR_OUT_OF_MEMORY);
-        ADD_FAILURE();
-      } else {
-        mock_frame_time_ += config_->frame_duration;
-        if (mock_frame_time_ >= config_->media_duration) {
-          frame->SetEndOfStream(true);
-        }
-        InitializeYV12Frame(frame, (mock_frame_time_.InSecondsF() /
-                                    config_->media_duration.InSecondsF()));
-        buffer->SetBuffer(frame);
-        buffer->OnAssignment();
+      VideoFrame* frame = new MockVideoFrame(
+          config_->video_width,
+          config_->video_height,
+          config_->video_surface_format,
+          mock_frame_time_,
+          config_->frame_duration,
+          (mock_frame_time_.InSecondsF() /
+              config_->media_duration.InSecondsF()));
+      mock_frame_time_ += config_->frame_duration;
+      if (mock_frame_time_ >= config_->media_duration) {
+        frame->SetEndOfStream(true);
       }
+      buffer->SetBuffer(frame);
+      buffer->OnAssignment();
     }
     buffer->Release();
   }

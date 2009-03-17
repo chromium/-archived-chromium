@@ -36,7 +36,7 @@ class AudioRendererBase : public AudioRenderer {
   virtual bool Initialize(AudioDecoder* decoder);
 
   // AssignableBuffer<AudioRendererBase, BufferInterface> implementation.
-  virtual void OnAssignment(Buffer* buffer_in);
+  void OnAssignment(Buffer* buffer_in);
 
  protected:
   // The default maximum size of the queue.

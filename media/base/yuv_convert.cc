@@ -186,3 +186,4 @@ void ConvertYV12ToRGB32(const uint8* yplane,
 }
 
 }  // namespace media
+

@@ -57,7 +57,6 @@ input_files = ChromeFileList([
     MSVSFilter('base', [
       'base/data_buffer_unittest.cc',
       'base/pipeline_impl_unittest.cc',
-      'base/video_frame_impl_unittest.cc',
       'base/yuv_convert_unittest.cc',
     ]),
     MSVSFilter('filters', [

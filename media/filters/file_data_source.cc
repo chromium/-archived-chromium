@@ -22,8 +22,14 @@ FileDataSource::~FileDataSource() {
 
 bool FileDataSource::Initialize(const std::string& url) {
   DCHECK(!file_);
+  std::string url_clean;
+  if (url.find("file:///") == 0) {
+    url_clean = url.substr(arraysize("file:///") - 1);
+  } else {
+    url_clean = url;
+  }
 #if defined(OS_WIN)
-  FilePath file_path(UTF8ToWide(url));
+  FilePath file_path(UTF8ToWide(url_clean));
 #else
   FilePath file_path(url);
 #endif
@@ -37,7 +43,7 @@ bool FileDataSource::Initialize(const std::string& url) {
   }
   media_format_.SetAsString(MediaFormat::kMimeType,
                             mime_type::kApplicationOctetStream);
-  media_format_.SetAsString(MediaFormat::kURL, url);
+  media_format_.SetAsString(MediaFormat::kURL, url_clean);
   host_->SetTotalBytes(file_size_);
   host_->SetBufferedBytes(file_size_);
   host_->InitializationComplete();

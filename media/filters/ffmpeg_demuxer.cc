@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "base/scoped_ptr.h"
 #include "media/base/filter_host.h"
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_demuxer.h"
@@ -30,8 +30,8 @@ class AVPacketBuffer : public Buffer {
   }
 
   // Buffer implementation.
-  virtual const uint8* GetData() const {
-    return reinterpret_cast<const uint8*>(packet_->data);
+  virtual const char* GetData() const {
+    return reinterpret_cast<const char*>(packet_->data);
   }
 
   virtual size_t GetDataSize() const {
@@ -48,6 +48,8 @@ class AVPacketBuffer : public Buffer {
 //
 // FFmpegDemuxerStream
 //
+AVCodecContext* g_audio_codec = NULL;
+AVCodecContext* g_video_codec = NULL;
 FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
                                          const AVStream& stream)
     : demuxer_(demuxer) {
@@ -62,6 +64,12 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
                                  stream.codec->channels);
       media_format_.SetAsInteger(MediaFormat::kSampleRate,
                                  stream.codec->sample_rate);
+      media_format_.SetAsInteger(MediaFormat::kBlockAlign,
+                                 stream.codec->block_align);
+      media_format_.SetAsInteger(MediaFormat::kFrameSize,
+                                 stream.codec->frame_size);
+      DCHECK(!g_audio_codec && stream.codec);
+      g_audio_codec = stream.codec;
       break;
     case CODEC_TYPE_VIDEO:
       media_format_.SetAsString(MediaFormat::kMimeType,
@@ -70,6 +78,8 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
                                  stream.codec->height);
       media_format_.SetAsInteger(MediaFormat::kWidth,
                                  stream.codec->width);
+      DCHECK(!g_video_codec && stream.codec);
+      g_video_codec = stream.codec;
       break;
     default:
       NOTREACHED();
@@ -77,6 +87,10 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
   }
   int codec_id = static_cast<int>(stream.codec->codec_id);
   media_format_.SetAsInteger(kFFmpegCodecID, codec_id);
+  media_format_.SetAsInteger(MediaFormat::kBitRate,
+                             stream.codec->bit_rate);
+  media_format_.SetAsInteger(MediaFormat::kBitsPerCodedSample,
+                             stream.codec->bits_per_coded_sample);
 
   // Calculate the time base and duration in microseconds.
   int64 time_base_us = static_cast<int64>(av_q2d(stream.time_base) *

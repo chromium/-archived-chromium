@@ -7,17 +7,30 @@
 
 namespace media {
 
-DataBuffer::DataBuffer()
-    : data_(NULL),
-      buffer_size_(0),
-      data_size_(0) {
+DataBuffer::DataBuffer(char* data, size_t buffer_size, size_t data_size,
+                       const base::TimeDelta& timestamp,
+                       const base::TimeDelta& duration,
+                       DeleteBuffer delete_buffer)
+    : data_(data),
+      buffer_size_(buffer_size),
+      data_size_(data_size),
+      delete_buffer_(delete_buffer) {
+  DCHECK(data);
+  DCHECK(buffer_size >= 0);
+  DCHECK(data_size <= buffer_size);
+  SetTimestamp(timestamp);
+  SetDuration(duration);
 }
 
 DataBuffer::~DataBuffer() {
-  delete [] data_;
+  if (delete_buffer_) {
+    delete_buffer_(data_);
+  } else {
+    delete [] data_;
+  }
 }
 
-const uint8* DataBuffer::GetData() const {
+const char* DataBuffer::GetData() const {
   return data_;
 }
 
@@ -25,23 +38,15 @@ size_t DataBuffer::GetDataSize() const {
   return data_size_;
 }
 
-uint8* DataBuffer::GetWritableData(size_t buffer_size) {
-  if (buffer_size > buffer_size_) {
-    delete [] data_;
-    data_ = new uint8[buffer_size];
-    if (!data_) {
-      NOTREACHED();
-      buffer_size = 0;
-    }
-    buffer_size_ = buffer_size;
-  }
-  data_size_ = buffer_size;
+char* DataBuffer::GetWritableData() {
   return data_;
 }
 
+size_t DataBuffer::GetBufferSize() const {
+  return buffer_size_;
+}
 
 void DataBuffer::SetDataSize(size_t data_size) {
-  DCHECK(data_size <= buffer_size_);
   data_size_ = data_size;
 }
 

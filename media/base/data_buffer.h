@@ -16,23 +16,29 @@ namespace media {
 
 class DataBuffer : public WritableBuffer {
  public:
-  DataBuffer();
+  typedef void (*DeleteBuffer)(void*);
+
+  DataBuffer(char* data, size_t buffer_size, size_t data_size,
+             const base::TimeDelta& timestamp, const base::TimeDelta& duration,
+             DeleteBuffer delete_buffer = NULL);
 
   // Buffer implementation.
-  virtual const uint8* GetData() const;
+  virtual const char* GetData() const;
   virtual size_t GetDataSize() const;
 
   // WritableBuffer implementation.
-  virtual uint8* GetWritableData(size_t buffer_size);
+  virtual char* GetWritableData();
+  virtual size_t GetBufferSize() const;
   virtual void SetDataSize(size_t data_size);
 
  protected:
   virtual ~DataBuffer();
 
  private:
-  uint8* data_;
+  char* data_;
   size_t buffer_size_;
   size_t data_size_;
+  DeleteBuffer delete_buffer_;
 };
 
 }  // namespace media
