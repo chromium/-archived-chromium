@@ -6,7 +6,7 @@
 
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 
 
 // static
