@@ -7,7 +7,7 @@
 #include "base/message_loop.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/views/view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 
 namespace {
 
