@@ -509,10 +509,21 @@ void BookmarkBarView::SetProfile(Profile* profile) {
   ns->AddObserver(this, NotificationType::EXTENSIONS_LOADED,
                   NotificationService::AllSources());
 
+  // Add any already-loaded extensions now, since we missed the notification for
+  // those.
+  if (profile_->GetExtensionsService()) {  // null in unit tests
+    if (AddExtensionToolstrips(
+          profile_->GetExtensionsService()->extensions())) {
+      Layout();
+      SchedulePaint();
+    }
+  }
+
   model_ = profile_->GetBookmarkModel();
   model_->AddObserver(this);
   if (model_->IsLoaded())
     Loaded(model_);
+
   // else case: we'll receive notification back from the BookmarkModel when done
   // loading, then we'll populate the bar.
 }
@@ -1009,9 +1020,6 @@ void BookmarkBarView::Loaded(BookmarkModel* model) {
   for (int i = 0; i < node->GetChildCount(); ++i)
     AddChildView(i, CreateBookmarkButton(node->GetChild(i)));
   other_bookmarked_button_->SetEnabled(true);
-
-  if (profile_->GetExtensionsService())  // null in unit tests
-    AddExtensionToolstrips(profile_->GetExtensionsService()->extensions());
 
   Layout();
   SchedulePaint();
