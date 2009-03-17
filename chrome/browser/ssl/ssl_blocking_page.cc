@@ -81,7 +81,7 @@ void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
   entry->ssl().set_cert_status(ssl_info.cert_status);
   entry->ssl().set_security_bits(ssl_info.security_bits);
   NotificationService::current()->Notify(
-      NotificationType::SSL_STATE_CHANGED,
+      NotificationType::SSL_VISIBLE_STATE_CHANGED,
       Source<NavigationController>(web->controller()),
       NotificationService::NoDetails());
 }
