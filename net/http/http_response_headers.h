@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_HTTP_RESPONSE_HEADERS_H_
-#define NET_HTTP_RESPONSE_HEADERS_H_
+#ifndef NET_HTTP_HTTP_RESPONSE_HEADERS_H_
+#define NET_HTTP_HTTP_RESPONSE_HEADERS_H_
 
 #include <string>
 #include <vector>
@@ -304,4 +304,4 @@ class HttpResponseHeaders :
 
 }  // namespace net
 
-#endif  // NET_HTTP_RESPONSE_HEADERS_H_
+#endif  // NET_HTTP_HTTP_RESPONSE_HEADERS_H_

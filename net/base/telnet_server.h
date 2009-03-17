@@ -58,4 +58,4 @@ private:
   DISALLOW_EVIL_CONSTRUCTORS(TelnetServer);
 };
 
-#endif // BASE_TELNET_SERVER_H_
+#endif // NET_BASE_TELNET_SERVER_H_

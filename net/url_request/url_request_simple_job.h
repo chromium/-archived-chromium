@@ -35,4 +35,4 @@ class URLRequestSimpleJob : public URLRequestJob {
   int data_offset_;
 };
 
-#endif  // NET_URL_REQUEST_URL_REQUEST_DATA_JOB_H_
+#endif  // NET_URL_REQUEST_URL_REQUEST_SIMPLE_JOB_H_

@@ -12,8 +12,8 @@
 // you've read from a file or socket.
 //
 
-#ifndef NET_BASE_GZIPHEADER_H__
-#define NET_BASE_GZIPHEADER_H__
+#ifndef NET_BASE_GZIP_HEADER_H_
+#define NET_BASE_GZIP_HEADER_H_
 
 #include "base/basictypes.h"
 
@@ -92,4 +92,4 @@ class GZipHeader {
   uint16 extra_length_;  // how much of the "extra field" we have yet to read
 };
 
-#endif  // NET_BASE_GZIPHEADER_H__
+#endif  // NET_BASE_GZIP_HEADER_H_

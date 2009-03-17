@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_HTTP_VERSION_H_
-#define NET_HTTP_VERSION_H_
+#ifndef NET_HTTP_HTTP_VERSION_H_
+#define NET_HTTP_HTTP_VERSION_H_
 
 #include "base/basictypes.h"
 
@@ -55,4 +55,4 @@ class HttpVersion {
 
 }  // namespace net
 
-#endif  // NET_HTTP_VERSION_H_
+#endif  // NET_HTTP_HTTP_VERSION_H_

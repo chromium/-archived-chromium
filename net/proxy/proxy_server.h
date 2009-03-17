@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef NET_PROXY_SERVER_H_
-#define NET_PROXY_SERVER_H_
+#ifndef NET_PROXY_PROXY_SERVER_H_
+#define NET_PROXY_PROXY_SERVER_H_
 
 #include <string>
 
@@ -118,4 +118,4 @@ class ProxyServer {
 
 }  // namespace net
 
-#endif  // NET_PROXY_SERVER_H_
+#endif  // NET_PROXY_PROXY_SERVER_H_
