@@ -633,7 +633,7 @@ void SSLManager::DidCommitProvisionalLoad(
   if (changed) {
     // Only send the notification when something actually changed.
     NotificationService::current()->Notify(
-        NotificationType::SSL_STATE_CHANGED,
+        NotificationType::SSL_VISIBLE_STATE_CHANGED,
         Source<NavigationController>(controller_),
         NotificationService::NoDetails());
   }

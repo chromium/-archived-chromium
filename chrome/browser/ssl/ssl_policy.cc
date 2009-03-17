@@ -267,7 +267,7 @@ class DefaultPolicy : public SSLPolicy {
         if (error->manager()->SetMaxSecurityStyle(
                 SECURITY_STYLE_AUTHENTICATION_BROKEN)) {
           NotificationService::current()->Notify(
-              NotificationType::SSL_STATE_CHANGED,
+              NotificationType::SSL_VISIBLE_STATE_CHANGED,
               Source<NavigationController>(error->manager()->controller()),
               Details<NavigationEntry>(
                   error->manager()->controller()->GetActiveEntry()));
@@ -322,7 +322,7 @@ class DefaultPolicy : public SSLPolicy {
         AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
 
     NotificationService::current()->Notify(
-        NotificationType::SSL_STATE_CHANGED,
+        NotificationType::SSL_VISIBLE_STATE_CHANGED,
         Source<NavigationController>(navigation_controller),
         Details<NavigationEntry>(entry));
   }
@@ -420,7 +420,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
   if (changed) {
     // Only send the notification when something actually changed.
     NotificationService::current()->Notify(
-        NotificationType::SSL_STATE_CHANGED,
+        NotificationType::SSL_VISIBLE_STATE_CHANGED,
         Source<NavigationController>(manager->controller()),
         NotificationService::NoDetails());
   }

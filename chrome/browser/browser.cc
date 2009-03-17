@@ -183,7 +183,7 @@ Browser::Browser(Type type, Profile* profile)
 
   NotificationService::current()->AddObserver(
       this,
-      NotificationType::SSL_STATE_CHANGED,
+      NotificationType::SSL_VISIBLE_STATE_CHANGED,
       NotificationService::AllSources());
 
   InitCommandState();
@@ -228,7 +228,7 @@ Browser::~Browser() {
 
   NotificationService::current()->RemoveObserver(
       this,
-      NotificationType::SSL_STATE_CHANGED,
+      NotificationType::SSL_VISIBLE_STATE_CHANGED,
       NotificationService::AllSources());
 
   if (profile_->IsOffTheRecord() &&
@@ -1932,7 +1932,7 @@ void Browser::Observe(NotificationType type,
       }
       break;
 
-    case NotificationType::SSL_STATE_CHANGED:
+    case NotificationType::SSL_VISIBLE_STATE_CHANGED:
       // When the current tab's SSL state changes, we need to update the URL
       // bar to reflect the new state. Note that it's possible for the selected
       // tab contents to be NULL. This is because we listen for all sources
