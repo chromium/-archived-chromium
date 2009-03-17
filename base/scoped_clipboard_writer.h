@@ -69,4 +69,4 @@ class ScopedClipboardWriter {
   DISALLOW_COPY_AND_ASSIGN(ScopedClipboardWriter);
 };
 
-#endif  // SCOPED_CLIPBOARD_WRITER_H_
+#endif  // BASE_SCOPED_CLIPBOARD_WRITER_H_

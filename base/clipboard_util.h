@@ -4,6 +4,9 @@
 //
 // Some helper functions for working with the clipboard and IDataObjects.
 
+#ifndef BASE_CLIPBOARD_UTIL_H_
+#define BASE_CLIPBOARD_UTIL_H_
+
 #include <shlobj.h>
 #include <string>
 #include <vector>
@@ -56,3 +59,5 @@ class ClipboardUtil {
   static void CFHtmlToHtml(const std::string& cf_html, std::string* html,
                            std::string* base_url);
 };
+
+#endif  // BASE_CLIPBOARD_UTIL_H_

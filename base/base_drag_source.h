@@ -43,4 +43,4 @@ class BaseDragSource : public IDropSource {
   DISALLOW_EVIL_CONSTRUCTORS(BaseDragSource);
 };
 
-#endif  // #ifndef BASE_DRAG_SOURCE_H_
+#endif  // BASE_BASE_DRAG_SOURCE_H_

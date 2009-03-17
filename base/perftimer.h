@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_PERFTTIMER_H_
-#define BASE_PERFTTIMER_H_
+#ifndef BASE_PERFTIMER_H_
+#define BASE_PERFTIMER_H_
 
 #include <string>
 #include "base/basictypes.h"
@@ -78,4 +78,4 @@ class PerfTimeLogger {
   PerfTimer timer_;
 };
 
-#endif  // BASE_PERFTTIMER_H_
+#endif  // BASE_PERFTIMER_H_

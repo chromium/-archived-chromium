@@ -4,8 +4,8 @@
 
 // Defines all the "base" command-line switches.
 
-#ifndef BASE_SWITCHES_H_
-#define BASE_SWITCHES_H_
+#ifndef BASE_BASE_SWITCHES_H_
+#define BASE_BASE_SWITCHES_H_
 
 namespace switches {
 
@@ -20,4 +20,4 @@ extern const wchar_t kForceHTTPS[];
 
 }  // namespace switches
 
-#endif  // BASE_SWITCHES_H_
+#endif  // BASE_BASE_SWITCHES_H_

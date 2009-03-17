@@ -8,8 +8,8 @@
 // Win32 Portable Executable File Format" by Matt Pietrek:
 // http://msdn.microsoft.com/msdnmag/issues/02/02/PE/default.aspx
 
-#ifndef BASE_SRC_PE_IMAGE_H__
-#define BASE_SRC_PE_IMAGE_H__
+#ifndef BASE_PE_IMAGE_H_
+#define BASE_PE_IMAGE_H_
 
 #include <windows.h>
 #include <DelayIMP.h>
@@ -254,4 +254,4 @@ inline PIMAGE_EXPORT_DIRECTORY PEImage::GetExportDirectory() const {
              GetImageDirectoryEntryAddr(IMAGE_DIRECTORY_ENTRY_EXPORT));
 }
 
-#endif  // BASE_SRC_PE_IMAGE_H__
+#endif  // BASE_PE_IMAGE_H_

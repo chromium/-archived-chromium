@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef BASE_NO_WINDOWS2000_UNITTEST_H__
-#define BASE_NO_WINDOWS2000_UNITTEST_H__
+#ifndef BASE_NO_WINDOWS2000_UNITTEST_H_
+#define BASE_NO_WINDOWS2000_UNITTEST_H_
 
 #include "testing/gtest/include/gtest/gtest.h"
 #include "base/win_util.h"
@@ -18,4 +18,4 @@ class NoWindows2000Test : public Parent {
   }
 };
 
-#endif  // BASE_NO_WINDOWS2000_UNITTEST_H__op
+#endif  // BASE_NO_WINDOWS2000_UNITTEST_H_
