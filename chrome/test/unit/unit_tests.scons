@@ -305,14 +305,6 @@ input_files = ChromeFileList([
     '$NET_DIR/url_request/url_request_test_job$OBJSUFFIX',
     '$NET_DIR/url_request/url_request_test_job.h',
   ]),
-  MSVSFilter('views', [
-    '$CHROME_DIR/views/focus/focus_manager_unittest.cc',
-    '$CHROME_DIR/views/grid_layout_unittest.cc',
-    '$CHROME_DIR/views/controls/label_unittest.cc',
-    '$CHROME_DIR/views/controls/table/table_view_unittest.cc',
-    '$CHROME_DIR/views/controls/tree/tree_node_iterator_unittest.cc',
-    '$CHROME_DIR/views/view_unittest.cc',
-  ]),
 ])
 
 if env.Bit('mac'):
@@ -430,11 +422,6 @@ if not env.Bit('windows'):
       '$CHROME_DIR/common/time_format_unittest.cc',
       '$CHROME_DIR/common/win_util_unittest.cc',
       '$CHROME_DIR/test/browser_with_test_window_test.cc',
-      '$CHROME_DIR/views/focus_manager_unittest.cc',
-      '$CHROME_DIR/views/grid_layout_unittest.cc',
-      '$CHROME_DIR/views/label_unittest.cc',
-      '$CHROME_DIR/views/table_view_unittest.cc',
-      '$CHROME_DIR/views/view_unittest.cc',
 
       # Commented out for now because googleurl_tests doesn't build with
       # gtest; see ../build/SConscript.googleurl.
