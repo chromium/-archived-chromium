@@ -17,8 +17,8 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/event.h"
+#include "chrome/views/window/dialog_delegate.h"
 #include "net/base/net_util.h"
 
 class AutomationProxyTest : public UITest {

@@ -23,7 +23,7 @@
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/input_window.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #endif
 
 namespace {

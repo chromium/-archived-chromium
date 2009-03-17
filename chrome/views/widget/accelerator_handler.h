@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_ACCELERATOR_HANDLER_H__
-#define CHROME_VIEWS_ACCELERATOR_HANDLER_H__
+#ifndef CHROME_VIEWS_WIDGET_ACCELERATOR_HANDLER_H_
+#define CHROME_VIEWS_WIDGET_ACCELERATOR_HANDLER_H_
 
 #include "base/message_loop.h"
 
@@ -27,4 +27,4 @@ class AcceleratorHandler : public MessageLoopForUI::Dispatcher {
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_ACCELERATOR_HANDLER_H__
+#endif  // CHROME_VIEWS_WIDGET_ACCELERATOR_HANDLER_H_

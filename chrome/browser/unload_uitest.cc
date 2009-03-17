@@ -8,7 +8,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/ui/ui_test.h"
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 #include "net/url_request/url_request_unittest.h"
 
 const std::string NOLISTENERS_HTML =

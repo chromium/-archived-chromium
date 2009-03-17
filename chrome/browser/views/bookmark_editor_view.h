@@ -9,12 +9,12 @@
 
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/views/checkbox.h"
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/menu.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/tree_node_model.h"
 #include "chrome/views/tree_view.h"
+#include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
 class Window;

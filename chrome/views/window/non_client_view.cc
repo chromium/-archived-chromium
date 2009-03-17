@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/non_client_view.h"
+#include "chrome/views/window/non_client_view.h"
 
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 
 namespace views {
 

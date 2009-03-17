@@ -8,12 +8,12 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/checkbox.h"
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/dialog_delegate.h"
+#include "chrome/views/window/window.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using namespace views;

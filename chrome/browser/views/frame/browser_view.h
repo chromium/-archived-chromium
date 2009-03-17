@@ -11,11 +11,11 @@
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/window_delegate.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/window_delegate.h"
 
 // NOTE: For more information about the objects and files in this directory,
 //       view: https://sites.google.com/a/google.com/the-chrome-project/developers/design-documents/browser-window

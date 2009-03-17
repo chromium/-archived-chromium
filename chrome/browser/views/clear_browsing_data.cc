@@ -13,7 +13,7 @@
 #include "chrome/views/label.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/throbber.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "grit/generated_resources.h"

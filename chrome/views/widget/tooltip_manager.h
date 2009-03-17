@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_TOOLTIP_MANAGER_H_
-#define CHROME_VIEWS_TOOLTIP_MANAGER_H_
+#ifndef CHROME_VIEWS_WIDGET_TOOLTIP_MANAGER_H_
+#define CHROME_VIEWS_WIDGET_TOOLTIP_MANAGER_H_
 
 #include <windows.h>
 #include <string>
@@ -153,7 +153,7 @@ class TooltipManager {
   // control window for tooltip displayed using keyboard.
   HWND keyboard_tooltip_hwnd_;
 
-  // Used to register DestroyTooltipWindow function with postdelayedtask
+  // Used to register DestroyTooltipWindow function with PostDelayedTask
   // function.
   ScopedRunnableMethodFactory<TooltipManager> keyboard_tooltip_factory_;
 
@@ -162,4 +162,4 @@ class TooltipManager {
 
 }  // namespace views
 
-#endif // CHROME_VIEWS_TOOLTIP_MANAGER_H_
+#endif // CHROME_VIEWS_WIDGET_TOOLTIP_MANAGER_H_

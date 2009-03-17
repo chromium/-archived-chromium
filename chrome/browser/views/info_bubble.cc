@@ -12,7 +12,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "grit/theme_resources.h"
 
 using views::View;

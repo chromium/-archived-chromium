@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_WINDOW_WIN_H__
-#define CHROME_VIEWS_WINDOW_WIN_H__
+#ifndef CHROME_VIEWS_WINDOW_WINDOW_WIN_H__
+#define CHROME_VIEWS_WINDOW_WINDOW_WIN_H__
 
 #include "chrome/common/notification_registrar.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/non_client_view.h"
 #include "chrome/views/widget/widget_win.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/non_client_view.h"
+#include "chrome/views/window/window.h"
 
 namespace gfx {
 class Point;
@@ -275,4 +275,4 @@ class WindowWin : public WidgetWin,
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_WINDOW_WIN_H__
+#endif  // CHROME_VIEWS_WINDOW_WINDOW_WIN_H__

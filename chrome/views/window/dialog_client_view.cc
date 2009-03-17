@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/views/window/dialog_client_view.h"
+
 #include <windows.h>
 #include <uxtheme.h>
 #include <vsstyle.h>
-
-#include "chrome/views/dialog_client_view.h"
 
 #include "base/gfx/native_theme.h"
 #include "chrome/browser/views/standard_layout.h"
@@ -15,8 +15,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/dialog_delegate.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/dialog_delegate.h"
+#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 
 namespace views {

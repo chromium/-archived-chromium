@@ -6,12 +6,12 @@
 #define CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H__
 
 #include "base/task.h"
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/table_view.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/dialog_delegate.h"
+#include "chrome/views/window/window.h"
 
 namespace views {
 class Label;

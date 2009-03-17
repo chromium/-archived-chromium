@@ -7,9 +7,9 @@
 
 #include "chrome/browser/views/first_run_view_base.h"
 #include "chrome/views/combo_box.h"
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/native_button.h"
 #include "chrome/views/view.h"
+#include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
 class Label;

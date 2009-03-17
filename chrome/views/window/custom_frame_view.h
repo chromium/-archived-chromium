@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
-#define CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
+#ifndef CHROME_VIEWS_WINDOW_CUSTOM_FRAME_VIEW_H_
+#define CHROME_VIEWS_WINDOW_CUSTOM_FRAME_VIEW_H_
 
 #include "chrome/views/image_button.h"
-#include "chrome/views/non_client_view.h"
-#include "chrome/views/window.h"
-#include "chrome/views/window_resources.h"
+#include "chrome/views/window/non_client_view.h"
+#include "chrome/views/window/window.h"
+#include "chrome/views/window/window_resources.h"
 
 namespace gfx{
 class Size;
@@ -119,4 +119,4 @@ class CustomFrameView : public NonClientFrameView,
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_CUSTOM_FRAME_VIEW_H_
+#endif  // #ifndef CHROME_VIEWS_WINDOW_CUSTOM_FRAME_VIEW_H_

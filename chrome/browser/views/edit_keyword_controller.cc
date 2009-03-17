@@ -18,7 +18,7 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/table_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "googleurl/src/gurl.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

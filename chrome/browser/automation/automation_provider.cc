@@ -42,8 +42,8 @@
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/views/app_modal_dialog_delegate.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/app_modal_dialog_delegate.h"
+#include "chrome/views/window/window.h"
 #endif  // defined(OS_WIN)
 
 using base::Time;

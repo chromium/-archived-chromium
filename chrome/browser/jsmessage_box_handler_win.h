@@ -9,7 +9,7 @@
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
-#include "chrome/views/app_modal_dialog_delegate.h"
+#include "chrome/views/window/app_modal_dialog_delegate.h"
 #include "googleurl/src/gurl.h"
 
 class MessageBoxView;

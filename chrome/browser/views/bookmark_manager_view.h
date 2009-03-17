@@ -15,7 +15,7 @@
 #include "chrome/views/tree_view.h"
 #include "chrome/views/view.h"
 #include "chrome/views/view_menu_delegate.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 #include "webkit/glue/window_open_disposition.h"
 
 class BookmarkFolderTreeModel;

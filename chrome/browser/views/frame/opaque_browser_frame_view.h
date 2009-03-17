@@ -7,8 +7,8 @@
 
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/browser/views/tab_icon_view.h"
-#include "chrome/views/non_client_view.h"
 #include "chrome/views/button.h"
+#include "chrome/views/window/non_client_view.h"
 
 class BrowserView;
 class ChromeFont;

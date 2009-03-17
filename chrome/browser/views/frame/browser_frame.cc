@@ -14,7 +14,7 @@
 #include "chrome/browser/views/frame/opaque_browser_frame_view.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 #include "grit/theme_resources.h"
 
 // static

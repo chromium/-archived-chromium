@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/window_win.h"
+#include "chrome/views/window/window_win.h"
 
 #include <shellapi.h>
 
@@ -17,12 +17,12 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/custom_frame_view.h"
-#include "chrome/views/native_frame_view.h"
-#include "chrome/views/non_client_view.h"
 #include "chrome/views/widget/root_view.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/custom_frame_view.h"
+#include "chrome/views/window/native_frame_view.h"
+#include "chrome/views/window/non_client_view.h"
+#include "chrome/views/window/window_delegate.h"
 #include "grit/generated_resources.h"
 
 namespace views {

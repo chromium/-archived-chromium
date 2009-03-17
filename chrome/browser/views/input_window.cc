@@ -11,7 +11,7 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 
 // Width to make the text field, in pixels.

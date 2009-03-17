@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 
 // TODO(beng): hrmp. Fix this in http://crbug.com/4406
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/pref_service.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/window.h"
 #include "skia/include/SkBitmap.h"
 
 namespace views {

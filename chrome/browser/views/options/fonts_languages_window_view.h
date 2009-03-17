@@ -5,10 +5,10 @@
 #ifndef CHROME_BROWSER_FONTS_LANGUAGE_WINDOW_H__
 #define CHROME_BROWSER_FONTS_LANGUAGE_WINDOW_H__
 
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/dialog_delegate.h"
+#include "chrome/views/window/window.h"
 
 class Profile;
 class FontsPageView;

@@ -12,8 +12,8 @@
 
 #include <Windows.h>
 
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/text_field.h"
+#include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
 class Label;

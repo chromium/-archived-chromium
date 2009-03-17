@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_ROOT_VIEW_DROP_TARGET_H__
-#define CHROME_VIEWS_ROOT_VIEW_DROP_TARGET_H__
+#ifndef CHROME_VIEWS_WIDGET_ROOT_VIEW_DROP_TARGET_H_
+#define CHROME_VIEWS_WIDGET_ROOT_VIEW_DROP_TARGET_H_
 
 #include <atlbase.h>
 #include <atlapp.h>
@@ -72,4 +72,4 @@ class RootViewDropTarget : public BaseDropTarget {
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_ROOT_VIEW_DROP_TARGET_H__
+#endif  // CHROME_VIEWS_WIDGET_ROOT_VIEW_DROP_TARGET_H_

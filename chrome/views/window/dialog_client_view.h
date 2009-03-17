@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_DIALOG_CLIENT_VIEW_H_
-#define CHROME_VIEWS_DIALOG_CLIENT_VIEW_H_
+#ifndef CHROME_VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_
+#define CHROME_VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_
 
 #include "chrome/common/gfx/chrome_font.h"
-#include "chrome/views/client_view.h"
 #include "chrome/views/focus_manager.h"
 #include "chrome/views/native_button.h"
+#include "chrome/views/window/client_view.h"
 
 namespace views {
 
@@ -119,4 +119,4 @@ class DialogClientView : public ClientView,
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_DIALOG_CLIENT_VIEW_H_
+#endif  // #ifndef CHROME_VIEWS_WINDOW_DIALOG_CLIENT_VIEW_H_

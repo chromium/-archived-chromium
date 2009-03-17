@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_NATIVE_FRAME_VIEW_H_
-#define CHROME_VIEWS_NATIVE_FRAME_VIEW_H_
+#ifndef CHROME_VIEWS_WINDOW_NATIVE_FRAME_VIEW_H_
+#define CHROME_VIEWS_WINDOW_NATIVE_FRAME_VIEW_H_
 
-#include "chrome/views/non_client_view.h"
+#include "chrome/views/window/non_client_view.h"
 
 namespace views {
 
@@ -36,4 +36,4 @@ class NativeFrameView : public NonClientFrameView {
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_NATIVE_FRAME_VIEW_H_
+#endif  // #ifndef CHROME_VIEWS_WINDOW_NATIVE_FRAME_VIEW_H_

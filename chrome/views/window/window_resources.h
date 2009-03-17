@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
-#define CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
+#ifndef CHROME_VIEWS_WINDOW_WINDOW_RESOURCES_H_
+#define CHROME_VIEWS_WINDOW_WINDOW_RESOURCES_H_
 
 class SkBitmap;
 
@@ -27,4 +27,4 @@ class WindowResources {
 
 }  // namespace views
 
-#endif  // CHROME_BROWSER_VIEWS_WINDOW_RESOURCES_H_
+#endif  // CHROME_VIEWS_WINDOW_WINDOW_RESOURCES_H_

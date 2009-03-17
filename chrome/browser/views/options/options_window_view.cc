@@ -18,10 +18,10 @@
 #include "chrome/personalization/personalization.h"
 #include "chrome/personalization/views/user_data_page_view.h"
 #endif
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/tabbed_pane.h"
 #include "chrome/views/widget/root_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/dialog_delegate.h"
+#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"

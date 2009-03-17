@@ -7,8 +7,8 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "chrome/views/table_view.h"
-#include "chrome/views/window_win.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
+#include "chrome/views/window/window_win.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using views::TableView;

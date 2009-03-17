@@ -25,8 +25,8 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/painter.h"
-#include "chrome/views/non_client_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/non_client_view.h"
+#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 

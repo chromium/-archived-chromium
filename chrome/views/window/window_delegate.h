@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_WINDOW_DELEGATE_H_
-#define CHROME_VIEWS_WINDOW_DELEGATE_H_
+#ifndef CHROME_VIEWS_WINDOW_WINDOW_DELEGATE_H_
+#define CHROME_VIEWS_WINDOW_WINDOW_DELEGATE_H_
 
 #include <string>
 
@@ -159,4 +159,4 @@ class WindowDelegate {
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_WINDOW_DELEGATE_H_
+#endif  // CHROME_VIEWS_WINDOW_WINDOW_DELEGATE_H_

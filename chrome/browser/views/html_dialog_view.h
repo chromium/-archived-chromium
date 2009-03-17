@@ -11,7 +11,7 @@
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/views/dom_view.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 
 class Browser;
 namespace views {

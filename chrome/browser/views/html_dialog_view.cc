@@ -6,7 +6,7 @@
 
 #include "chrome/browser/browser.h"
 #include "chrome/views/widget/root_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // HtmlDialogView, public:

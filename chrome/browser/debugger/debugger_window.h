@@ -6,8 +6,8 @@
 #define CHROME_BROWSER_DEBUGGER_DEBUGGER_WINDOW_H__
 
 #include "chrome/browser/debugger/debugger_io.h"
-#include "chrome/views/window.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window.h"
+#include "chrome/views/window/window_delegate.h"
 
 class DebuggerView;
 class ListValue;

@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_NON_CLIENT_VIEW_H_
-#define CHROME_VIEWS_NON_CLIENT_VIEW_H_
+#ifndef CHROME_VIEWS_WINDOW_NON_CLIENT_VIEW_H_
+#define CHROME_VIEWS_WINDOW_NON_CLIENT_VIEW_H_
 
 #include "base/task.h"
 #include "chrome/views/view.h"
-#include "chrome/views/client_view.h"
+#include "chrome/views/window/client_view.h"
 
 namespace gfx {
 class Path;
@@ -218,4 +218,4 @@ class NonClientView : public View {
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_NON_CLIENT_VIEW_H_
+#endif  // #ifndef CHROME_VIEWS_WINDOW_NON_CLIENT_VIEW_H_

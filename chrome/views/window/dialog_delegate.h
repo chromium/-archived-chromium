@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_DIALOG_DELEGATE_H_
-#define CHROME_VIEWS_DIALOG_DELEGATE_H_
+#ifndef CHROME_VIEWS_WINDOW_DIALOG_DELEGATE_H_
+#define CHROME_VIEWS_WINDOW_DIALOG_DELEGATE_H_
 
-#include "chrome/views/dialog_client_view.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/dialog_client_view.h"
+#include "chrome/views/window/window_delegate.h"
 
 namespace views {
 
@@ -108,4 +108,4 @@ class DialogDelegate : public WindowDelegate {
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_DIALOG_DELEGATE_H_
+#endif  // CHROME_VIEWS_WINDOW_DIALOG_DELEGATE_H_

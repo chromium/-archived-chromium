@@ -23,8 +23,8 @@
 #include "chrome/views/widget/accelerator_handler.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
-#include "chrome/views/window.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window.h"
+#include "chrome/views/window/window_delegate.h"
 #include "SkColor.h"
 
 

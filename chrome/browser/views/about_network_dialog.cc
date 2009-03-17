@@ -11,7 +11,7 @@
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/text_button.h"
 #include "chrome/views/text_field.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"

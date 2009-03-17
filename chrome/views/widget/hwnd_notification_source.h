@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_WIDGET_HWND_NOTIFICATION_SOURCE_H__
-#define CHROME_VIEWS_WIDGET_HWND_NOTIFICATION_SOURCE_H__
+#ifndef CHROME_VIEWS_WIDGET_HWND_NOTIFICATION_SOURCE_H_
+#define CHROME_VIEWS_WIDGET_HWND_NOTIFICATION_SOURCE_H_
 
 #include "chrome/common/notification_source.h"
 
@@ -21,4 +21,4 @@ class Source<HWND> : public NotificationSource {
   HWND ptr() const { return static_cast<HWND>(ptr_); }
 };
 
-#endif  // #define CHROME_VIEWS_WIDGET_HWND_NOTIFICATION_SOURCE_H__
+#endif  // #define CHROME_VIEWS_WIDGET_HWND_NOTIFICATION_SOURCE_H_

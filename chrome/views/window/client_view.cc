@@ -3,9 +3,9 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/window.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/window.h"
+#include "chrome/views/window/window_delegate.h"
 
 namespace views {
 

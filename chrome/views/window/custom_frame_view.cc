@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/custom_frame_view.h"
+#include "chrome/views/window/custom_frame_view.h"
 
 #include "base/win_util.h"
 #include "chrome/common/gfx/path.h"
@@ -10,8 +10,8 @@
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/window_delegate.h"
 #include "grit/theme_resources.h"
 
 namespace views {

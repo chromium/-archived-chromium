@@ -20,7 +20,7 @@
 
 #if defined(OS_WIN)
 // TODO(port): Enable when dialog_delegate is ported.
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 #endif
 
 using base::TimeDelta;

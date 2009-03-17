@@ -331,6 +331,86 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="window"
+			>
+			<File
+				RelativePath=".\window\app_modal_dialog_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\client_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\client_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\custom_frame_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\custom_frame_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\dialog_client_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\dialog_client_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\dialog_delegate.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\dialog_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\native_frame_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\native_frame_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\non_client_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\non_client_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\window.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\window_delegate.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\window_delegate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\window_resources.h"
+				>
+			</File>
+			<File
+				RelativePath=".\window\window_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\window\window_win.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\accelerator.cc"
 			>
@@ -400,14 +480,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\client_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\client_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\combo_box.cc"
 			>
 		</File>
@@ -428,35 +500,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\custom_frame_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\custom_frame_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\decision.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\decision.h"
-			>
-		</File>
-		<File
-			RelativePath=".\dialog_client_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\dialog_client_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\dialog_delegate.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\dialog_delegate.h"
 			>
 		</File>
 		<File
@@ -592,27 +640,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\native_frame_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\native_frame_view.h"
-			>
-		</File>
-		<File
 			RelativePath=".\native_scroll_bar.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\native_scroll_bar.h"
-			>
-		</File>
-		<File
-			RelativePath=".\non_client_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\non_client_view.h"
 			>
 		</File>
 		<File
@@ -777,30 +809,6 @@
 		</File>
 		<File
 			RelativePath=".\view_win.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\window.h"
-			>
-		</File>
-		<File
-			RelativePath=".\window_delegate.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\window_delegate.h"
-			>
-		</File>
-		<File
-			RelativePath=".\window_resources.h"
-			>
-		</File>
-		<File
-			RelativePath=".\window_win.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\window_win.h"
 			>
 		</File>
 	</Files>

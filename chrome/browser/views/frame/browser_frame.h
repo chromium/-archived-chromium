@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_
 #define CHROME_BROWSER_VIEWS_FRAME_BROWSER_FRAME_
 
-#include "chrome/views/window_win.h"
+#include "chrome/views/window/window_win.h"
 
 class AeroGlassNonClientView;
 class BrowserView;

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_CLIENT_VIEW_H_
-#define CHROME_VIEWS_CLIENT_VIEW_H_
+#ifndef CHROME_VIEWS_WINDOW_CLIENT_VIEW_H_
+#define CHROME_VIEWS_WINDOW_CLIENT_VIEW_H_
 
 #include "chrome/views/view.h"
 
@@ -81,4 +81,4 @@ class ClientView : public View {
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_CLIENT_VIEW_H_
+#endif  // #ifndef CHROME_VIEWS_WINDOW_CLIENT_VIEW_H_

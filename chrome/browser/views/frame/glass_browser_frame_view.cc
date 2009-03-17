@@ -8,8 +8,8 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/client_view.h"
-#include "chrome/views/window_resources.h"
+#include "chrome/views/window/client_view.h"
+#include "chrome/views/window/window_resources.h"
 #include "grit/theme_resources.h"
 
 // An enumeration of bitmap resources used by this window.

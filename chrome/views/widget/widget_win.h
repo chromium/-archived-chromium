@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_WIDGET_WIN_H_
-#define CHROME_VIEWS_WIDGET_WIN_H_
+#ifndef CHROME_VIEWS_WIDGET_WIDGET_WIN_H_
+#define CHROME_VIEWS_WIDGET_WIDGET_WIN_H_
 
 #include <atlbase.h>
 #include <atlcrack.h>
@@ -632,4 +632,4 @@ class WidgetWin : public Widget,
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_WIDGET_WIN_H_
+#endif  // #ifndef CHROME_VIEWS_WIDGET_WIDGET_WIN_H_

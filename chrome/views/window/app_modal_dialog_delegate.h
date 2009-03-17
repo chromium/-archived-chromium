@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_APP_MODAL_DIALOG_DELEGATE_H__
-#define CHROME_VIEWS_APP_MODAL_DIALOG_DELEGATE_H__
+#ifndef CHROME_VIEWS_WINDOW_APP_MODAL_DIALOG_DELEGATE_H_
+#define CHROME_VIEWS_WINDOW_APP_MODAL_DIALOG_DELEGATE_H_
 
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
 
@@ -21,4 +21,4 @@ class AppModalDialogDelegate : public DialogDelegate {
 
 } // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_APP_MODAL_DIALOG_DELEGATE_H__
+#endif  // #ifndef CHROME_VIEWS_WINDOW_APP_MODAL_DIALOG_DELEGATE_H_

@@ -29,7 +29,7 @@
 #include "chrome/views/text_button.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"

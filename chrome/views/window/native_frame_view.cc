@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/native_frame_view.h"
+#include "chrome/views/window/native_frame_view.h"
 
-#include "chrome/views/window_win.h"
+#include "chrome/views/window/window_win.h"
 
 namespace views {
 

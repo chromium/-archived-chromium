@@ -21,7 +21,7 @@
 
 #if defined(OS_WIN)
 // TODO(port): Enable this or equivalent.
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 #endif
 
 class AutomationRequest;

@@ -13,7 +13,7 @@
 #include "chrome/views/message_box_view.h"
 #include "chrome/views/text_field.h"
 #include "chrome/views/view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"

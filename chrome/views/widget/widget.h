@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_WIDGET_H_
-#define CHROME_VIEWS_WIDGET_H_
+#ifndef CHROME_VIEWS_WIDGET_WIDGET_H_
+#define CHROME_VIEWS_WIDGET_WIDGET_H_
 
 #include "base/gfx/native_widget_types.h"
 
@@ -82,4 +82,4 @@ class Widget {
 
 }  // namespace views
 
-#endif // CHROME_VIEWS_WIDGET_H_
+#endif // CHROME_VIEWS_WIDGET_WIDGET_H_

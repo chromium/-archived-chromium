@@ -2,8 +2,8 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#ifndef CHROME_VIEWS_WINDOW_H__
-#define CHROME_VIEWS_WINDOW_H__
+#ifndef CHROME_VIEWS_WINDOW_WINDOW_H_
+#define CHROME_VIEWS_WINDOW_WINDOW_H_
 
 #include "base/gfx/native_widget_types.h"
 
@@ -115,4 +115,4 @@ class Window {
 
 }  // namespace views
 
-#endif  // #ifndef CHROME_VIEWS_WINDOW_H__
+#endif  // #ifndef CHROME_VIEWS_WINDOW_WINDOW_H_

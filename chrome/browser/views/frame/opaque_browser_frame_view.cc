@@ -15,7 +15,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/image_button.h"
 #include "chrome/views/widget/root_view.h"
-#include "chrome/views/window_resources.h"
+#include "chrome/views/window/window_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"

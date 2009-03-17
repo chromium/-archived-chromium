@@ -41,7 +41,7 @@
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/views/widget/accelerator_handler.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 
 #include "google_update_idl.h"
 

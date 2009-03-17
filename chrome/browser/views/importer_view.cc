@@ -10,7 +10,7 @@
 #include "chrome/views/checkbox.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/label.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 
