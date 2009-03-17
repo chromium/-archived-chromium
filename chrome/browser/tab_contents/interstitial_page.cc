@@ -16,7 +16,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/notification_service.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 #include "grit/browser_resources.h"
 #include "net/base/escape.h"
 
