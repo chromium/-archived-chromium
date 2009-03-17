@@ -31,7 +31,7 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
 DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
-DEFER WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
+DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
 DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
