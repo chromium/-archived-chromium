@@ -15,7 +15,7 @@
 #include "chrome/test/interactive_ui/view_event_test_base.h"
 #include "chrome/views/chrome_menu.h"
 #include "chrome/views/text_button.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 
 namespace {
 
