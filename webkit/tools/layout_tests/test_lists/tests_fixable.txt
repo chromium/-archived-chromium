@@ -336,6 +336,13 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 // Merge 39744:39829 - regression
 DEFER : LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
+// Merge 39744:39913? - regressions
+DEFER : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
+
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL PASS
+
+DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
+
 // -----------------------------------------------------------------
 // End SVG Regressions
 // -----------------------------------------------------------------
@@ -428,7 +435,6 @@ DEFER : LayoutTests/svg/batik/text/textBiDi.svg = FAIL
 
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/textOnPath.svg = FAIL
-DEFER LINUX : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 // pixeltest failure: font baseline should be on the path, not the centerline
 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalTextOnPath.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/custom/path-textPath-simulation.svg = FAIL
@@ -491,10 +497,6 @@ LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 // We don't seem to draw this as well as Mac.  The numbers have gaps at the
 // corners.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
-// Fails in release and debug. Sometimes crashes in debug.
-// Linux pixeltest failure: background is all blue instead of white.
-WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH
-LINUX : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL CRASH PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 
 // Upstreamed.
@@ -516,7 +518,6 @@ DEFER LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 DEBUG LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
 
 // I find it hard to care too much about SVG failures.
-LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-06-t.svg = FAIL
@@ -1235,7 +1236,6 @@ MAC : LayoutTests/http/tests/xmlhttprequest/null-auth.php = TIMEOUT PASS
 // we're not seeing that sorta stability on mac.  So for now we tag them as
 // pass & fail, but we really need to fix these tests upstream to have
 // a consistent behavior (and probably update win/linux expected values).
-MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = FAIL PASS
 MAC LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-03-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL PASS
 MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL PASS
@@ -1442,7 +1442,6 @@ DEFER LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 DEFER : LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
-WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-02-t.svg = PASS FAIL
 LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
 LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html = PASS TIMEOUT
 LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
@@ -1495,7 +1494,6 @@ DEFER : LayoutTests/http/tests/misc/SVGFont-delayed-load.html = FAIL
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/uri/resolve-encoding-relative.html = FAIL
-WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 
 // Merge 40314:40364 -- new tests
 // See comment above LayoutTests/editing/spelling/inline_spelling_markers.html
