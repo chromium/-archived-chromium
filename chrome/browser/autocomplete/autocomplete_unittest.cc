@@ -230,8 +230,8 @@ TEST(AutocompleteTest, InputType) {
     { L"javascript:alert(\"Hey there!\");", AutocompleteInput::URL },
 #if defined(OS_WIN)
     { L"C:\\Program Files", AutocompleteInput::URL },
-#endif
     { L"\\\\Server\\Folder\\File", AutocompleteInput::URL },
+#endif  // defined(OS_WIN)
     { L"http://foo.com/", AutocompleteInput::URL },
     { L"127.0.0.1", AutocompleteInput::URL },
     { L"browser.tabs.closeButtons", AutocompleteInput::UNKNOWN },

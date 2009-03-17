@@ -306,11 +306,13 @@ bool SessionBackend::AppendCommandsToFile(net::FileStream* file,
       NOTREACHED() << "error writing";
       return false;
     }
-    wrote = file->Write(reinterpret_cast<char*>((*i)->contents()),
-                        content_size, NULL);
-    if (wrote != content_size) {
-      NOTREACHED() << "error writing";
-      return false;
+    if (content_size > 0) {
+      wrote = file->Write(reinterpret_cast<char*>((*i)->contents()),
+                          content_size, NULL);
+      if (wrote != content_size) {
+        NOTREACHED() << "error writing";
+        return false;
+      }
     }
   }
   return true;
