@@ -33,15 +33,27 @@ extern const char kAboutBlankURL[];
 extern const char kAboutCacheURL[];
 extern const char kAboutMemoryURL[];
 
-// chrome-ui: URLs (including schemes).
+// chrome-ui: URLs (including schemes). Should be kept in sync with the
+// components below.
+extern const char kChromeUIDevToolsURL[];
+extern const char kChromeUIDownloadsURL[];
+extern const char kChromeUIExtensionsURL[];
+extern const char kChromeUIHistoryURL[];
 extern const char kChromeUIIPCURL[];
+extern const char kChromeUIInspectorURL[];
 extern const char kChromeUINetworkURL[];
 extern const char kChromeUINewTabURL[];
 
-// chrome-ui components of URLs.
-extern const char kDevToolsHost[];
-extern const char kInspectorHost[];
-extern const char kNewTabHost[];
+// chrome-ui components of URLs. Should be kept in sync with the full URLs
+// above.
+extern const char kChromeUIDevToolsHost[];
+extern const char kChromeUIDownloadsHost[];
+extern const char kChromeUIExtensionsHost[];
+extern const char kChromeUIFavIconPath[];
+extern const char kChromeUIHistoryHost[];
+extern const char kChromeUIInspectorHost[];
+extern const char kChromeUINewTabHost[];
+extern const char kChromeUIThumbnailPath[];
 
 }  // namespace chrome
 

@@ -8,6 +8,7 @@
 #include "base/idle_timer.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_list.h"
@@ -15,9 +16,6 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/devtools_manager.h"
-#include "chrome/browser/dom_ui/downloads_ui.h"
-#include "chrome/browser/dom_ui/history_ui.h"
-#include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -40,6 +38,7 @@
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/url_constants.h"
 #ifdef CHROME_PERSONALIZATION
 #include "chrome/personalization/personalization.h"
 #endif
@@ -536,16 +535,16 @@ void Browser::ReplaceRestoredTab(
 }
 
 void Browser::ShowSingleDOMUITab(const GURL& url) {
-  int i, c;
-  TabContents* tc;
-  for (i = 0, c = tabstrip_model_.count(); i < c; ++i) {
-    tc = tabstrip_model_.GetTabContentsAt(i);
-    if (tc->type() == TAB_CONTENTS_DOM_UI &&
-        tc->GetURL() == url) {
+  // See if we already have a tab with the given URL and select it if so.
+  for (int i = 0; i < tabstrip_model_.count(); i++) {
+    TabContents* tc = tabstrip_model_.GetTabContentsAt(i);
+    if (tc->GetURL() == url) {
       tabstrip_model_.SelectTabContentsAt(i, false);
       return;
     }
   }
+
+  // Otherwise, just create a new tab.
   AddTabWithURL(url, GURL(), PageTransition::AUTO_BOOKMARK, true, NULL);
 }
 
@@ -1006,12 +1005,12 @@ void Browser::OpenBookmarkManager() {
 
 void Browser::ShowHistoryTab() {
   UserMetrics::RecordAction(L"ShowHistory", profile_);
-  ShowSingleDOMUITab(HistoryUI::GetBaseURL());
+  ShowSingleDOMUITab(GURL(chrome::kChromeUIHistoryURL));
 }
 
 void Browser::ShowDownloadsTab() {
   UserMetrics::RecordAction(L"ShowDownloads", profile_);
-  ShowSingleDOMUITab(DownloadsUI::GetBaseURL());
+  ShowSingleDOMUITab(GURL(chrome::kChromeUIDownloadsURL));
 }
 
 #if defined(OS_WIN)
@@ -1271,7 +1270,7 @@ void Browser::ExecuteCommand(int id) {
 // Browser, TabStripModelDelegate implementation:
 
 GURL Browser::GetBlankTabURL() const {
-  return NewTabUI::GetBaseURL();
+  return GURL(chrome::kChromeUINewTabURL);
 }
 
 void Browser::CreateNewStripWithContents(TabContents* detached_contents,
@@ -2446,12 +2445,12 @@ GURL Browser::GetHomePage() {
   return GURL("about:linux-splash");
 #endif
   if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
-    return NewTabUI::GetBaseURL();
+    return GURL(chrome::kChromeUINewTabURL);
   GURL home_page = GURL(URLFixerUpper::FixupURL(
       WideToUTF8(profile_->GetPrefs()->GetString(prefs::kHomePage)),
       std::string()));
   if (!home_page.is_valid())
-    return NewTabUI::GetBaseURL();
+    return GURL(chrome::kChromeUINewTabURL);
   return home_page;
 }
 

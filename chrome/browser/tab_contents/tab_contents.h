@@ -188,7 +188,7 @@ class TabContents : public PageNavigator,
   // pending may be provisional (e.g., the navigation could result in a
   // download, in which case the URL would revert to what it was previously).
   const GURL& GetURL() const;
-  virtual const string16& GetTitle() const;  // Overridden by DOMUIContents.
+  virtual const string16& GetTitle() const;
 
   // The max PageID of any page that this TabContents has loaded.  PageIDs
   // increase with each new page that is loaded by a tab.  If this is a

@@ -28,6 +28,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/label.h"
@@ -39,14 +40,15 @@
 #include "grit/theme_resources.h"
 #include "skia/include/SkBitmap.h"
 
+namespace {
+
 static const int kStartupRadioGroup = 1;
 static const int kHomePageRadioGroup = 2;
 static const SkColor kDefaultBrowserLabelColor = SkColorSetRGB(0, 135, 0);
 static const SkColor kNotDefaultBrowserLabelColor = SkColorSetRGB(135, 0, 0);
 
-namespace {
 std::wstring GetNewTabUIURLString() {
-  return UTF8ToWide(NewTabUI::GetBaseURL().spec());
+  return UTF8ToWide(chrome::kChromeUINewTabURL);
 }
 }
 

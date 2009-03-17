@@ -12,6 +12,7 @@
 #include "base/time_format.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/dom_ui/dom_ui_favicon_source.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/profile.h"
@@ -20,17 +21,12 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/time_format.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/escape.h"
 
 #include "grit/browser_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
-
-using base::Time;
-using base::TimeDelta;
-
-// HistoryUI is accessible from chrome-ui://history.
-static const char kHistoryHost[] = "history";
 
 // Maximum number of search results to return in a given search. We should
 // eventually remove this.
@@ -43,7 +39,7 @@ static const int kMaxSearchResults = 100;
 ////////////////////////////////////////////////////////////////////////////////
 
 HistoryUIHTMLSource::HistoryUIHTMLSource()
-    : DataSource(kHistoryHost, MessageLoop::current()) {
+    : DataSource(chrome::kChromeUIHistoryHost, MessageLoop::current()) {
 }
 
 void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
@@ -113,12 +109,12 @@ BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(&chrome_url_data_manager,
                         &ChromeURLDataManager::AddDataSource,
-                        new FavIconSource(dom_ui_->get_profile())));
+                        new DOMUIFavIconSource(dom_ui_->GetProfile())));
 
   // Get notifications when history is cleared.
   NotificationService* service = NotificationService::current();
   service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                       Source<Profile>(dom_ui_->get_profile()));
+                       Source<Profile>(dom_ui_->GetProfile()));
 }
 
 BrowsingHistoryHandler::~BrowsingHistoryHandler() {
@@ -126,7 +122,7 @@ BrowsingHistoryHandler::~BrowsingHistoryHandler() {
 
   NotificationService* service = NotificationService::current();
   service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                          Source<Profile>(dom_ui_->get_profile()));
+                          Source<Profile>(dom_ui_->GetProfile()));
 
   if (remover_.get())
     remover_->RemoveObserver(this);
@@ -142,10 +138,10 @@ void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
 
   // Set our query options.
   history::QueryOptions options;
-  options.begin_time = Time::Now().LocalMidnight();
-  options.begin_time -= TimeDelta::FromDays(day);
-  options.end_time = Time::Now().LocalMidnight();
-  options.end_time -= TimeDelta::FromDays(day - 1);
+  options.begin_time = base::Time::Now().LocalMidnight();
+  options.begin_time -= base::TimeDelta::FromDays(day);
+  options.end_time = base::Time::Now().LocalMidnight();
+  options.end_time -= base::TimeDelta::FromDays(day - 1);
 
   // As we're querying per-day, we can turn entry repeats off.
   options.most_recent_visit_only = true;
@@ -154,7 +150,7 @@ void BrowsingHistoryHandler::HandleGetHistory(const Value* value) {
   search_text_ = std::wstring();
 
   HistoryService* hs =
-      dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
+      dom_ui_->GetProfile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QueryHistory(search_text_,
       options,
       &cancelable_consumer_,
@@ -181,7 +177,7 @@ void BrowsingHistoryHandler::HandleSearchHistory(const Value* value) {
   // Need to remember the query string for our results.
   search_text_ = query;
   HistoryService* hs =
-      dom_ui_->get_profile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
+      dom_ui_->GetProfile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QueryHistory(search_text_,
       options,
       &cancelable_consumer_,
@@ -198,14 +194,15 @@ void BrowsingHistoryHandler::HandleDeleteDay(const Value* value) {
   cancelable_consumer_.CancelAllRequests();
 
   // Get time.
-  Time time;
-  bool success = Time::FromString(ExtractStringValue(value).c_str(), &time);
+  base::Time time;
+  bool success = base::Time::FromString(ExtractStringValue(value).c_str(),
+                                        &time);
   DCHECK(success);
 
-  Time begin_time = time.LocalMidnight();
-  Time end_time = begin_time + TimeDelta::FromDays(1);
+  base::Time begin_time = time.LocalMidnight();
+  base::Time end_time = begin_time + base::TimeDelta::FromDays(1);
 
-  remover_.reset(new BrowsingDataRemover(dom_ui_->get_profile(),
+  remover_.reset(new BrowsingDataRemover(dom_ui_->GetProfile(),
                                          begin_time,
                                          end_time));
   remover_->AddObserver(this);
@@ -225,7 +222,7 @@ void BrowsingHistoryHandler::QueryComplete(
     history::QueryResults* results) {
 
   ListValue results_value;
-  Time midnight_today = Time::Now().LocalMidnight();
+  base::Time midnight_today = base::Time::Now().LocalMidnight();
 
   for (size_t i = 0; i < results->size(); ++i) {
     history::URLResult const &page = (*results)[i];
@@ -262,7 +259,7 @@ void BrowsingHistoryHandler::QueryComplete(
       page_value->SetString(L"snippet", page.snippet().text());
     }
     page_value->SetBoolean(L"starred",
-        dom_ui_->get_profile()->GetBookmarkModel()->IsBookmarked(page.url()));
+        dom_ui_->GetProfile()->GetBookmarkModel()->IsBookmarked(page.url()));
     results_value.Append(page_value);
   }
 
@@ -307,17 +304,17 @@ history::QueryOptions BrowsingHistoryHandler::CreateMonthQueryOptions(
 
   // Configure the begin point of the search to the start of the
   // current month.
-  Time::Exploded exploded;
-  Time::Now().LocalMidnight().LocalExplode(&exploded);
+  base::Time::Exploded exploded;
+  base::Time::Now().LocalMidnight().LocalExplode(&exploded);
   exploded.day_of_month = 1;
 
   if (month == 0) {
-    options.begin_time = Time::FromLocalExploded(exploded);
+    options.begin_time = base::Time::FromLocalExploded(exploded);
 
     // Set the end time of this first search to null (which will
     // show results from the future, should the user's clock have
     // been set incorrectly).
-    options.end_time = Time();
+    options.end_time = base::Time();
   } else {
     // Set the end-time of this search to the end of the month that is
     // |depth| months before the search end point. The end time is not
@@ -328,7 +325,7 @@ history::QueryOptions BrowsingHistoryHandler::CreateMonthQueryOptions(
       exploded.month += 12;
       exploded.year--;
     }
-    options.end_time = Time::FromLocalExploded(exploded);
+    options.end_time = base::Time::FromLocalExploded(exploded);
 
     // Set the begin-time of the search to the start of the month
     // that is |depth| months prior to search_start_.
@@ -338,7 +335,7 @@ history::QueryOptions BrowsingHistoryHandler::CreateMonthQueryOptions(
       exploded.month = 12;
       exploded.year--;
     }
-    options.begin_time = Time::FromLocalExploded(exploded);
+    options.begin_time = base::Time::FromLocalExploded(exploded);
   }
 
   return options;
@@ -362,10 +359,7 @@ void BrowsingHistoryHandler::Observe(NotificationType type,
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-HistoryUI::HistoryUI(DOMUIContents* contents) : DOMUI(contents) {
-}
-
-void HistoryUI::Init() {
+HistoryUI::HistoryUI(WebContents* contents) : DOMUI(contents) {
   AddMessageHandler(new BrowsingHistoryHandler(this));
 
   HistoryUIHTMLSource* html_source = new HistoryUIHTMLSource();
@@ -378,16 +372,7 @@ void HistoryUI::Init() {
 }
 
 // static
-GURL HistoryUI::GetBaseURL() {
-  std::string url = DOMUIContents::GetScheme();
-  url += "://";
-  url += kHistoryHost;
-  return GURL(url);
-}
-
-// static
-const GURL HistoryUI::GetHistoryURLWithSearchText(
-    const std::wstring& text) {
-  return GURL(GetBaseURL().spec() + "#q=" +
-      EscapeQueryParamValue(WideToUTF8(text)));
+const GURL HistoryUI::GetHistoryURLWithSearchText(const std::wstring& text) {
+  return GURL(std::string(chrome::kChromeUIHistoryURL) + "#q=" +
+              EscapeQueryParamValue(WideToUTF8(text)));
 }

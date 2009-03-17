@@ -6,13 +6,9 @@
 
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/url_constants.h"
 
-// DevToolsUI is accessible from chrome-ui://devtools.
-static const char kDevToolsHost[] = "devtools";
-
-// static
-GURL DevToolsUI::GetBaseURL() {
-  return GURL(DOMUIContents::GetScheme() + "://" + kDevToolsHost);
+DevToolsUI::DevToolsUI(WebContents* contents) : DOMUI(contents) {
 }
 
 void DevToolsUI::RenderViewCreated(RenderViewHost* render_view_host) {

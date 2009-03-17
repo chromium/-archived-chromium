@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
-#define CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
+#ifndef CHROME_BROWSER_DOM_UI_HISTORY_UI_H_
+#define CHROME_BROWSER_DOM_UI_HISTORY_UI_H_
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/browsing_data_remover.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
-#include "chrome/browser/dom_ui/dom_ui_contents.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/history/history.h"
 
 class GURL;
 
@@ -81,20 +81,13 @@ class BrowsingHistoryHandler : public DOMMessageHandler,
 
 class HistoryUI : public DOMUI {
  public:
-  explicit HistoryUI(DOMUIContents* contents);
-
-  // Return the URL for the front page of this UI.
-  static GURL GetBaseURL();
+  explicit HistoryUI(WebContents* contents);
 
   // Return the URL for a given search term.
   static const GURL GetHistoryURLWithSearchText(const std::wstring& text);
 
-  // DOMUI Implementation
-  virtual void Init();
-
  private:
-
   DISALLOW_COPY_AND_ASSIGN(HistoryUI);
 };
 
-#endif  // CHROME_BROWSER_DOM_UI_HISTORY_UI_H__
+#endif  // CHROME_BROWSER_DOM_UI_HISTORY_UI_H_

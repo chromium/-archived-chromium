@@ -217,13 +217,18 @@ bool BrowserRenderProcessHost::Init() {
   // be doing.
   channel_->set_sync_messages_with_no_timeout_allowed(false);
 
-  // build command line for renderer, we have to quote the executable name to
-  // deal with spaces
+  // Build command line for renderer, we have to quote the executable name to
+  // deal with spaces.
   std::wstring renderer_path =
       browser_command_line.GetSwitchValue(switches::kRendererPath);
-  if (renderer_path.empty())
-    if (!GetRendererPath(&renderer_path))
+  if (renderer_path.empty()) {
+    if (!GetRendererPath(&renderer_path)) {
+      // Need to reset the channel we created above or others might think the
+      // connection is live.
+      channel_.reset();
       return false;
+    }
+  }
   CommandLine cmd_line(renderer_path);
   if (logging::DialogsAreSuppressed())
     cmd_line.AppendSwitch(switches::kNoErrorDialogs);
@@ -358,11 +363,13 @@ bool BrowserRenderProcessHost::Init() {
 
       if (!AddGenericPolicy(policy)) {
         NOTREACHED();
+        channel_.reset();
         return false;
       }
 
       if (!AddDllEvictionPolicy(policy)) {
         NOTREACHED();
+        channel_.reset();
         return false;
       }
 
@@ -375,8 +382,10 @@ bool BrowserRenderProcessHost::Init() {
       if (desktop)
         CloseDesktop(desktop);
 
-      if (sandbox::SBOX_ALL_OK != result)
+      if (sandbox::SBOX_ALL_OK != result) {
+        channel_.reset();
         return false;
+      }
 
       bool on_sandbox_desktop = (desktop != NULL);
       NotificationService::current()->Notify(

@@ -19,6 +19,7 @@
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/url_constants.h"
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -378,7 +379,7 @@ void SafeBrowsingBlockingPage::DontProceed() {
   // for the tab has by then already been destroyed.
   if (navigation_entry_index_to_remove_ != -1 && !tab()->is_being_destroyed()) {
     tab()->controller()->RemoveEntryAtIndex(navigation_entry_index_to_remove_,
-                                            NewTabUI::GetBaseURL());
+                                            GURL(chrome::kChromeUINewTabURL));
     navigation_entry_index_to_remove_ = -1;
   }
   InterstitialPage::DontProceed();

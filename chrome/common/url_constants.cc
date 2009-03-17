@@ -27,12 +27,22 @@ const char kAboutBlankURL[] = "about:blank";
 const char kAboutCacheURL[] = "about:cache";
 const char kAboutMemoryURL[] = "about:memory";
 
+const char kChromeUIDevToolsURL[] = "chrome-ui://devtools/";
+const char kChromeUIDownloadsURL[] = "chrome-ui://downloads/";
+const char kChromeUIExtensionsURL[] = "chrome-ui://extensions/";
+const char kChromeUIHistoryURL[] = "chrome-ui://history/";
+const char kChromeUIInspectorURL[] = "chrome-ui://inspector/";
 const char kChromeUIIPCURL[] = "chrome-ui://about/ipc";
 const char kChromeUINetworkURL[] = "chrome-ui://about/network";
 const char kChromeUINewTabURL[] = "chrome-ui://newtab";
 
-const char kDevToolsHost[] = "devtools";
-const char kInspectorHost[] = "inspector";
-const char kNewTabHost[] = "newtab";
+const char kChromeUIDevToolsHost[] = "devtools";
+const char kChromeUIDownloadsHost[] = "downloads";
+const char kChromeUIExtensionsHost[] = "extensions";
+const char kChromeUIFavIconPath[] = "favicon";
+const char kChromeUIHistoryHost[] = "history";
+const char kChromeUIInspectorHost[] = "inspector";
+const char kChromeUINewTabHost[] = "newtab";
+const char kChromeUIThumbnailPath[] = "thumb";
 
 }  // namespace chrome

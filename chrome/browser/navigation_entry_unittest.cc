@@ -15,7 +15,7 @@ class NavigationEntryTest : public testing::Test {
     entry1_.reset(new NavigationEntry(TAB_CONTENTS_WEB));
 
     instance_ = SiteInstance::CreateSiteInstance(NULL);
-    entry2_.reset(new NavigationEntry(TAB_CONTENTS_DOM_UI, instance_, 3,
+    entry2_.reset(new NavigationEntry(TAB_CONTENTS_WEB, instance_, 3,
                                       GURL("test:url"),
                                       GURL("from"),
                                       ASCIIToUTF16("title"),
@@ -125,7 +125,7 @@ TEST_F(NavigationEntryTest, NavigationEntrySSLStatus) {
 TEST_F(NavigationEntryTest, NavigationEntryAccessors) {
   // Type
   EXPECT_EQ(TAB_CONTENTS_WEB, entry1_.get()->tab_type());
-  EXPECT_EQ(TAB_CONTENTS_DOM_UI, entry2_.get()->tab_type());
+  EXPECT_EQ(TAB_CONTENTS_WEB, entry2_.get()->tab_type());
 
   // SiteInstance
   EXPECT_TRUE(entry1_.get()->site_instance() == NULL);

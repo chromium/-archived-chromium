@@ -14,6 +14,8 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/dom_operation_notification_details.h"
+#include "chrome/browser/dom_ui/dom_ui.h"
+#include "chrome/browser/dom_ui/dom_ui_factory.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/google_util.h"
@@ -344,8 +346,30 @@ void WebContents::Destroy() {
   TabContents::Destroy();
 }
 
+const string16& WebContents::GetTitle() const {
+  if (dom_ui_.get()) {
+    // Give the DOM UI the chance to override our title.
+    const string16& title = dom_ui_->overridden_title();
+    if (!title.empty())
+      return title;
+  }
+  return TabContents::GetTitle();
+}
+
 SiteInstance* WebContents::GetSiteInstance() const {
   return render_manager_.current_host()->site_instance();
+}
+
+bool WebContents::ShouldDisplayURL() {
+  if (dom_ui_.get())
+    return !dom_ui_->should_hide_url();
+  return true;
+}
+
+bool WebContents::ShouldDisplayFavIcon() {
+  if (dom_ui_.get())
+    return !dom_ui_->hide_favicon();
+  return true;
 }
 
 std::wstring WebContents::GetStatusText() const {
@@ -376,8 +400,13 @@ std::wstring WebContents::GetStatusText() const {
 }
 
 bool WebContents::NavigateToPendingEntry(bool reload) {
-  NavigationEntry* entry = controller()->GetPendingEntry();
-  RenderViewHost* dest_render_view_host = render_manager_.Navigate(*entry);
+  const NavigationEntry& entry = *controller()->GetPendingEntry();
+
+  // This will possibly create (or NULL out) a DOM UI object for the page. We'll
+  // use this later when the page starts doing stuff to allow it to do so.
+  dom_ui_.reset(DOMUIFactory::CreateDOMUIForURL(this, entry.url()));
+
+  RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
   if (!dest_render_view_host)
     return false;  // Unable to create the desired render view host.
 
@@ -385,15 +414,15 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
   current_load_start_ = TimeTicks::Now();
 
   // Navigate in the desired RenderViewHost.
-  dest_render_view_host->NavigateToEntry(*entry, reload);
+  dest_render_view_host->NavigateToEntry(entry, reload);
 
-  if (entry->page_id() == -1) {
+  if (entry.page_id() == -1) {
     // HACK!!  This code suppresses javascript: URLs from being added to
     // session history, which is what we want to do for javascript: URLs that
     // do not generate content.  What we really need is a message from the
     // renderer telling us that a new page was not created.  The same message
     // could be used for mailto: URLs and the like.
-    if (entry->url().SchemeIs(chrome::kJavaScriptScheme))
+    if (entry.url().SchemeIs(chrome::kJavaScriptScheme))
       return false;
   }
 
@@ -406,7 +435,7 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
     HistoryService* history =
         profile()->GetHistoryService(Profile::IMPLICIT_ACCESS);
     if (history)
-      history->SetFavIconOutOfDateForPage(entry->url());
+      history->SetFavIconOutOfDateForPage(entry.url());
   }
 
   return true;
@@ -488,6 +517,12 @@ void WebContents::HideContents() {
   WasHidden();
 }
 
+bool WebContents::IsBookmarkBarAlwaysVisible() {
+  if (dom_ui_.get())
+    return dom_ui_->force_bookmark_bar_visible();
+  return false;
+}
+
 void WebContents::SetDownloadShelfVisible(bool visible) {
   TabContents::SetDownloadShelfVisible(visible);
   if (visible) {
@@ -499,6 +534,13 @@ void WebContents::SetDownloadShelfVisible(bool visible) {
 
 void WebContents::PopupNotificationVisibilityChanged(bool visible) {
   render_view_host()->PopupNotificationVisibilityChanged(visible);
+}
+
+bool WebContents::FocusLocationBarByDefault() {
+  // Allow the DOM Ui to override the default.
+  if (dom_ui_.get())
+    return dom_ui_->focus_location_bar_by_default();
+  return false;
 }
 
 // Stupid view pass-throughs
@@ -684,7 +726,9 @@ void WebContents::RenderViewCreated(RenderViewHost* render_view_host) {
   if (!entry)
     return;
 
-  if (entry->IsViewSourceMode()) {
+  if (dom_ui_.get()) {
+    dom_ui_->RenderViewCreated(render_view_host);
+  } else if (entry->IsViewSourceMode()) {
     // Put the renderer in view source mode.
     render_view_host->Send(
         new ViewMsg_EnableViewSourceMode(render_view_host->routing_id()));
@@ -755,6 +799,11 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
   // for the appropriate notification (best) or you can add it to
   // DidNavigateMainFramePostCommit / DidNavigateAnyFramePostCommit (only if
   // necessary, please).
+
+  // When moving between DOM UI and non-DOM UI pages, we should always have
+  // gotten a NavigateToPendingEntry that should have set the dom_ui_ member
+  // correctly.
+  DCHECK(DOMUIFactory::UseDOMUIForURL(details.entry->url()) == !!dom_ui_.get());
 
   // Run post-commit tasks.
   if (details.is_main_frame)
@@ -1026,7 +1075,19 @@ void WebContents::DidDownloadImage(
 
 void WebContents::RequestOpenURL(const GURL& url, const GURL& referrer,
                                  WindowOpenDisposition disposition) {
-  OpenURL(url, referrer, disposition, PageTransition::LINK);
+  if (dom_ui_.get()) {
+    // When we're a DOM UI, it will provide a page transition type for us (this
+    // is so the new tab page can specify AUTO_BOOKMARK for automatically
+    // generated suggestions).
+    //
+    // Note also that we hide the referrer for DOM UI pages. We don't really
+    // want web sites to see a referrer of "chrome-ui://blah" (and some
+    // chrome-ui URLs might have search terms or other stuff we don't want to
+    // send to the site), so we send no referrer.
+    OpenURL(url, GURL(), disposition, dom_ui_->link_transition_type());
+  } else {
+    OpenURL(url, referrer, disposition, PageTransition::LINK);
+  }
 }
 
 void WebContents::DomOperationResponse(const std::string& json_string,
@@ -1035,6 +1096,18 @@ void WebContents::DomOperationResponse(const std::string& json_string,
   NotificationService::current()->Notify(
       NotificationType::DOM_OPERATION_RESPONSE, Source<WebContents>(this),
       Details<DomOperationNotificationDetails>(&details));
+}
+
+void WebContents::ProcessDOMUIMessage(const std::string& message,
+                                      const std::string& content) {
+  if (!dom_ui_.get()) {
+    // We shouldn't get a DOM UI message when we haven't enabled the DOM UI.
+    // Because the renderer might be owned and sending random messages, we need
+    // to ignore these inproper ones.
+    NOTREACHED();
+    return;
+  }
+  dom_ui_->ProcessDOMUIMessage(message, content);
 }
 
 void WebContents::ProcessExternalHostMessage(const std::string& message,
@@ -1329,8 +1402,14 @@ WebPreferences WebContents::GetWebkitPrefs() {
     web_prefs.default_encoding = prefs->GetString(
         prefs::kDefaultCharset);
   }
-
   DCHECK(!web_prefs.default_encoding.empty());
+
+  // Override some prefs when we're a DOM UI, or the pages won't work.
+  if (dom_ui_.get()) {
+    web_prefs.loads_images_automatically = true;
+    web_prefs.javascript_enabled = true;
+  }
+
   return web_prefs;
 }
 
@@ -1505,6 +1584,11 @@ WebContents::GetLastCommittedNavigationEntryForRenderManager() {
 
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
+  // When we're running a DOM UI, the RenderViewHost needs to be put in DOM UI
+  // mode before CreateRenderView is called.
+  if (dom_ui_.get())
+    render_view_host->AllowDOMUIBindings();
+
   RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);
   if (!render_view_host->CreateRenderView())
     return false;
@@ -1719,7 +1803,8 @@ void WebContents::UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,
   }
 }
 
-void WebContents::UpdateHistoryForNavigation(const GURL& display_url,
+void WebContents::UpdateHistoryForNavigation(
+    const GURL& display_url,
     const ViewHostMsg_FrameNavigate_Params& params) {
   if (profile()->IsOffTheRecord())
     return;

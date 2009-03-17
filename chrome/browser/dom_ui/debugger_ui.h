@@ -11,15 +11,7 @@
 
 class DebuggerUI : public DOMUI {
  public:
-  DebuggerUI(DOMUIContents* contents);
-
-  // DOMUI Implementation
-  virtual void Init();
-
-  // Return the URL for the front page of this UI.
-  static GURL GetBaseURL();
-
-  static bool IsDebuggerUrl(const GURL& url);
+  DebuggerUI(WebContents* contents);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DebuggerUI);

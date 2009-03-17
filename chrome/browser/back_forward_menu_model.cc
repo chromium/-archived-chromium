@@ -7,11 +7,11 @@
 #include "chrome/browser/back_forward_menu_model.h"
 
 #include "chrome/browser/browser.h"
-#include "chrome/browser/dom_ui/history_ui.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/registry_controlled_domain.h"
 
@@ -170,7 +170,7 @@ void BackForwardMenuModel::ExecuteCommandById(int menu_id) {
     UserMetrics::RecordComputedAction(BuildActionName(L"ShowFullHistory", -1),
                                       controller->profile());
 #if defined(OS_WIN)
-    browser_->ShowSingleDOMUITab(HistoryUI::GetBaseURL());
+    browser_->ShowSingleDOMUITab(GURL(chrome::kChromeUIHistoryURL));
 #else
     NOTIMPLEMENTED();
 #endif

@@ -104,7 +104,8 @@ void RegisterURLRequestChromeJob() {
     // time being we need to serve the same content from chrome-ui://inspector
     // for the Console Debugger and in-process Web Inspector.
     chrome_url_data_manager.AddFileSource("inspector", inspector_dir);
-    chrome_url_data_manager.AddFileSource(chrome::kDevToolsHost, inspector_dir);
+    chrome_url_data_manager.AddFileSource(chrome::kChromeUIDevToolsHost,
+                                          inspector_dir);
   }
 
   URLRequest::RegisterProtocolFactory(kChromeURLScheme,
@@ -120,7 +121,7 @@ void UnregisterURLRequestChromeJob() {
   std::wstring inspector_dir;
   if (PathService::Get(chrome::DIR_INSPECTOR, &inspector_dir)) {
     chrome_url_data_manager.RemoveFileSource("inspector");
-    chrome_url_data_manager.RemoveFileSource(chrome::kDevToolsHost);
+    chrome_url_data_manager.RemoveFileSource(chrome::kChromeUIDevToolsHost);
   }
 }
 

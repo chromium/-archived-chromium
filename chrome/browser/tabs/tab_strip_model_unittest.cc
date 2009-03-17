@@ -31,7 +31,9 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   virtual ~TabStripDummyDelegate() {}
 
   // Overridden from TabStripModelDelegate:
-  virtual GURL GetBlankTabURL() const { return NewTabUI::GetBaseURL(); }
+  virtual GURL GetBlankTabURL() const { 
+    return GURL(chrome::kChromeUINewTabURL);
+  }
   virtual void CreateNewStripWithContents(TabContents* contents,
                                           const gfx::Rect& window_bounds,
                                           const DockInfo& dock_info) {}
@@ -43,7 +45,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
       PageTransition::Type transition,
       bool defer_load,
       SiteInstance* instance) const {
-    if (url == NewTabUI::GetBaseURL())
+    if (url == GURL(chrome::kChromeUINewTabURL))
       return dummy_contents_;
     return NULL;
   }

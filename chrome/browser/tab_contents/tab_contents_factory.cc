@@ -6,12 +6,12 @@
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/dom_ui/debugger_ui.h"
-#include "chrome/browser/dom_ui/dom_ui_contents.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 
 #if defined(OS_WIN)
@@ -48,17 +48,12 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
                                  NULL);
       break;
-// TODO(port): remove this platform define, either by porting the tab contents
-// types or removing them completely.
 #if defined(OS_WIN)
+    // TODO(brettw) This extra tab contents type should be deleted.
     case TAB_CONTENTS_HTML_DIALOG:
       contents = new HtmlDialogContents(profile, instance, NULL);
       break;
 #endif  // defined(OS_WIN)
-    case TAB_CONTENTS_DEBUGGER:
-    case TAB_CONTENTS_DOM_UI:
-      contents = new DOMUIContents(profile, instance, NULL);
-      break;
     default:
       if (g_extra_types) {
         TabContentsFactoryMap::const_iterator it = g_extra_types->find(type);
@@ -101,18 +96,11 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
   if (HtmlDialogContents::IsHtmlDialogUrl(*url))
     return TAB_CONTENTS_HTML_DIALOG;
 
-  if (DebuggerUI::IsDebuggerUrl(*url))
-    return TAB_CONTENTS_DEBUGGER;
-
-  if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))
-    return TAB_CONTENTS_DOM_UI;
 #elif defined(OS_POSIX)
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
   if (BrowserURLHandler::HandleBrowserURL(url, &type)) {
     return type;
   }
-  if (url->SchemeIs(DOMUIContents::GetScheme().c_str()))
-    return TAB_CONTENTS_DOM_UI;
   NOTIMPLEMENTED();
 #endif
 

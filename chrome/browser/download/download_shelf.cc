@@ -11,6 +11,7 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 
 #if defined(OS_WIN)
@@ -25,9 +26,8 @@ void DownloadShelf::ShowAllDownloads() {
   Profile* profile = tab_contents_->profile();
   if (profile)
     UserMetrics::RecordAction(L"ShowDownloads", profile);
-  GURL url = DownloadsUI::GetBaseURL();
-  tab_contents_->OpenURL(url, GURL(), NEW_FOREGROUND_TAB,
-      PageTransition::AUTO_BOOKMARK);
+  tab_contents_->OpenURL(GURL(chrome::kChromeUIDownloadsURL), GURL(),
+                         NEW_FOREGROUND_TAB, PageTransition::AUTO_BOOKMARK);
 }
 
 void DownloadShelf::ChangeTabContents(TabContents* old_contents,

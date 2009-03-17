@@ -6,8 +6,9 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/browser_about_handler.h"
-#include "chrome/browser/dom_ui/dom_ui_contents.h"
+#include "chrome/browser/dom_ui/dom_ui_factory.h"
 #include "chrome/common/url_constants.h"
+#include "googleurl/src/gurl.h"
 
 // Handles rewriting view-source URLs for what we'll actually load.
 static bool HandleViewSource(GURL* url, TabContentsType* type) {
@@ -20,6 +21,15 @@ static bool HandleViewSource(GURL* url, TabContentsType* type) {
   return false;
 }
 
+// Handles URLs for DOM UI. These URLs need no rewriting.
+static bool HandleDOMUI(GURL* url, TabContentsType* type) {
+  if (!DOMUIFactory::UseDOMUIForURL(*url))
+    return false;
+
+  *type = TAB_CONTENTS_WEB;
+  return true;
+}
+
 std::vector<BrowserURLHandler::URLHandler> BrowserURLHandler::url_handlers_;
 
 // static
@@ -29,7 +39,7 @@ void BrowserURLHandler::InitURLHandlers() {
 
   // Add the default URL handlers.
   url_handlers_.push_back(&WillHandleBrowserAboutURL);  // about:
-  url_handlers_.push_back(&DOMUIContentsCanHandleURL);  // chrome-ui:
+  url_handlers_.push_back(&HandleDOMUI);                // chrome-ui: & friends.
   url_handlers_.push_back(&HandleViewSource);           // view-source:
 }
 

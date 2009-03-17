@@ -6,6 +6,7 @@
 
 #include "base/command_line.h"
 #include "base/logging.h"
+#include "chrome/browser/dom_ui/dom_ui_factory.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
@@ -278,6 +279,13 @@ bool RenderViewHostManager::ShouldSwapRenderViewsForNavigation(
   // it as a new navigation). So require a view switch.
   if (cur_entry->IsViewSourceMode() != new_entry->IsViewSourceMode())
     return true;
+
+  // For security, we should transition between processes when one is a DOM UI
+  // page and one isn't.
+  if (DOMUIFactory::HasDOMUIScheme(cur_entry->url()) !=
+      DOMUIFactory::HasDOMUIScheme(new_entry->url()))
+    return true;
+
   return false;
 }
 

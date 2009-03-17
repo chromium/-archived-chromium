@@ -7,6 +7,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_ui/dom_ui_host.h"
@@ -54,7 +55,6 @@ void NotifyPrunedEntries(NavigationController* nav_controller,
 void SetContentStateIfEmpty(NavigationEntry* entry) {
   if (entry->content_state().empty() &&
       (entry->tab_type() == TAB_CONTENTS_WEB ||
-       entry->tab_type() == TAB_CONTENTS_DOM_UI ||
        entry->tab_type() == TAB_CONTENTS_HTML_DIALOG ||
        entry->IsViewSourceMode())) {
     entry->set_content_state(

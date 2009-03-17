@@ -36,6 +36,7 @@
 
 class AutofillForm;
 class AutofillManager;
+class DOMUI;
 class InterstitialPageDelegate;
 class LoadNotificationDetails;
 class PasswordManager;
@@ -118,11 +119,21 @@ class WebContents : public TabContents,
     encoding_ = encoding;
   }
 
+  // Window stuff --------------------------------------------------------------
+
+  // Returns true if the location bar should be focused by default rather than
+  // the page contents. The view will call this function when the tab is
+  // to see what it should do.
+  bool FocusLocationBarByDefault();
+
   // TabContents (public overrides) --------------------------------------------
 
   virtual void Destroy();
   virtual WebContents* AsWebContents() { return this; }
+  const string16& GetTitle() const;
   virtual SiteInstance* GetSiteInstance() const;
+  virtual bool ShouldDisplayURL();
+  virtual bool ShouldDisplayFavIcon();
   virtual std::wstring GetStatusText() const;
   virtual bool NavigateToPendingEntry(bool reload);
   virtual void Stop();
@@ -134,6 +145,7 @@ class WebContents : public TabContents,
   virtual void WasHidden();
   virtual void ShowContents();
   virtual void HideContents();
+  virtual bool IsBookmarkBarAlwaysVisible();
   virtual void SetDownloadShelfVisible(bool visible);
   virtual void PopupNotificationVisibilityChanged(bool visible);
 
@@ -341,6 +353,8 @@ class WebContents : public TabContents,
                               WindowOpenDisposition disposition);
   virtual void DomOperationResponse(const std::string& json_string,
                                     int automation_id);
+  virtual void ProcessDOMUIMessage(const std::string& message,
+                                   const std::string& content);
   virtual void ProcessExternalHostMessage(const std::string& message,
                                           const std::string& origin,
                                           const std::string& target);
@@ -618,6 +632,11 @@ class WebContents : public TabContents,
 
   // PluginInstaller, lazily created.
   scoped_ptr<PluginInstaller> plugin_installer_;
+
+  // When the current page is a DOM UI page, this will point to the specific
+  // DOMUI object handling it. When we don't have a DOM UI page, this will be
+  // null.
+  scoped_ptr<DOMUI> dom_ui_;
 
   // Handles downloading favicons.
   FavIconHelper fav_icon_helper_;

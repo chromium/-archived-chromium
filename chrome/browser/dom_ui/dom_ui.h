@@ -2,25 +2,32 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_DOM_UI_H__
-#define CHROME_BROWSER_DOM_UI_H__
+#ifndef CHROME_BROWSER_DOM_UI_DOM_UI_H_
+#define CHROME_BROWSER_DOM_UI_DOM_UI_H_
 
+#include <map>
+#include <string>
+#include <vector>
+
+#include "base/string16.h"
 #include "base/task.h"
-#include "chrome/browser/dom_ui/dom_ui_contents.h"
+#include "chrome/common/page_transition_types.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class DictionaryValue;
 class DOMMessageHandler;
+class GURL;
+class Profile;
 class RenderViewHost;
 class Value;
+class WebContents;
 
 // A DOMUI sets up the datasources and message handlers for a given HTML-based
-// UI. It is contained by a DOMUIContents.
+// UI. It is contained by a DOMUIManager.
 class DOMUI {
  public:
-  DOMUI(DOMUIContents* contents);
-
+  explicit DOMUI(WebContents* contents);
   virtual ~DOMUI();
-  virtual void Init() = 0;
 
   virtual void RenderViewCreated(RenderViewHost* render_view_host) {}
 
@@ -30,8 +37,45 @@ class DOMUI {
 
   // Used by DOMMessageHandlers.
   typedef Callback1<const Value*>::Type MessageCallback;
-  void RegisterMessageCallback (const std::string& message,
-                                MessageCallback* callback);
+  void RegisterMessageCallback(const std::string& message,
+                               MessageCallback* callback);
+
+  // Returns true if the favicon should be hidden for the current tab.
+  bool hide_favicon() const {
+    return hide_favicon_;
+  }
+  
+  // Returns true if the bookmark bar should be forced to being visible,
+  // overriding the user's preference.
+  bool force_bookmark_bar_visible() const {
+    return force_bookmark_bar_visible_;
+  }
+
+  // Returns true if the location bar should be focused by default rather than
+  // the page contents. Some pages will want to use this to encourage the user
+  // to type in the URL bar.
+  bool focus_location_bar_by_default() const {
+    return focus_location_bar_by_default_;
+  }
+
+  // Returns true if the page's URL should be hidden. Some DOM UI pages
+  // like the new tab page will want to hide it.
+  bool should_hide_url() const {
+    return should_hide_url_;
+  }
+
+  // Gets a custom tab title provided by the DOM UI. If there is no title
+  // override, the string will be empty which should trigger the default title
+  // behavior for the tab.
+  const string16& overridden_title() const {
+    return overridden_title_;
+  }
+
+  // Returns the transition type that should be used for link clicks on this
+  // DOM UI. This will default to LINK but may be overridden.
+  const PageTransition::Type link_transition_type() const {
+    return link_transition_type_;
+  }
 
   // Call a Javascript function by sending its name and arguments down to
   // the renderer.  This is asynchronous; there's no way to get the result
@@ -45,30 +89,28 @@ class DOMUI {
                               const Value& arg1,
                               const Value& arg2);
 
-  // Overriddable control over the contents.
-  // Favicon should be displayed normally.
-  virtual bool ShouldDisplayFavIcon() { return true; }
-  // No special bookmark bar behavior
-  virtual bool IsBookmarkBarAlwaysVisible() { return false; }
-  // Defaults to focusing the page.
-  virtual void SetInitialFocus() { contents_->Focus(); }
-  // Whether we want to display the page's URL.
-  virtual bool ShouldDisplayURL() { return true; }
-  // Hide the referrer.
-  virtual void RequestOpenURL(const GURL& url, const GURL&,
-      WindowOpenDisposition disposition);
+  WebContents* web_contents() { return web_contents_; }
 
-  DOMUIContents* get_contents() { return contents_; }
-  Profile* get_profile() { return contents_->profile(); }
+  Profile* GetProfile();
 
  protected:
   void AddMessageHandler(DOMMessageHandler* handler);
 
-  DOMUIContents* contents_;
+  // Options that may be overridden by individual DOM UI implementations. The
+  // bool options default to false. See the public getters for more information.
+  bool hide_favicon_;
+  bool force_bookmark_bar_visible_;
+  bool focus_location_bar_by_default_;
+  bool should_hide_url_;
+  string16 overridden_title_;  // Defaults to empty string.
+  PageTransition::Type link_transition_type_;  // Defaults to LINK.
 
  private:
   // Execute a string of raw Javascript on the page.
   void ExecuteJavascript(const std::wstring& javascript);
+
+  // Non-owning pointer to the WebContents this DOMUI is associated with.
+  WebContents* web_contents_;
 
   // The DOMMessageHandlers we own.
   std::vector<DOMMessageHandler*> handlers_;
@@ -107,4 +149,4 @@ class DOMMessageHandler {
   DISALLOW_COPY_AND_ASSIGN(DOMMessageHandler);
 };
 
-#endif  // CHROME_BROWSER_DOM_UI_H__
+#endif  // CHROME_BROWSER_DOM_UI_DOM_UI_H_

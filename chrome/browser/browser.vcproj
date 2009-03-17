@@ -1514,11 +1514,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dom_ui\dom_ui_contents.cc"
+				RelativePath=".\dom_ui\dom_ui_factory.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dom_ui\dom_ui_contents.h"
+				RelativePath=".\dom_ui\dom_ui_factory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_favicon_source.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_favicon_source.h"
 				>
 			</File>
 			<File
@@ -1527,6 +1535,14 @@
 			</File>
 			<File
 				RelativePath=".\dom_ui\dom_ui_host.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_thumbnail_source.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dom_ui\dom_ui_thumbnail_source.h"
 				>
 			</File>
 			<File

@@ -51,7 +51,7 @@ void DevToolsView::Init() {
   // view hierarchy somewhere.
   Profile* profile = BrowserList::GetLastActive()->profile();
 
-  TabContents* tc = TabContents::CreateWithType(TAB_CONTENTS_DOM_UI, profile,
+  TabContents* tc = TabContents::CreateWithType(TAB_CONTENTS_WEB, profile,
                                                 NULL);
   web_contents_ = tc->AsWebContents();
   web_contents_->SetupController(profile);
@@ -61,8 +61,7 @@ void DevToolsView::Init() {
   descriptor_->SetDevToolsHost(web_contents_->render_view_host());
 
   // chrome-ui://devtools/tools.html
-  GURL contents(std::string(chrome::kChromeUIScheme) + "://" +
-                chrome::kDevToolsHost + "/tools.html");
+  GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "tools.html");
 
   // this will call CreateRenderView to create renderer process
   web_contents_->controller()->LoadURL(contents, GURL(),

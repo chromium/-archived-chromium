@@ -18,9 +18,6 @@
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
 
-// ExtensionsUI is accessible from chrome-ui://extensions.
-static const char kExtensionsHost[] = "extensions";
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // ExtensionsHTMLSource
@@ -28,7 +25,7 @@ static const char kExtensionsHost[] = "extensions";
 ////////////////////////////////////////////////////////////////////////////////
 
 ExtensionsUIHTMLSource::ExtensionsUIHTMLSource()
-    : DataSource(kExtensionsHost, MessageLoop::current()) {
+    : DataSource(chrome::kChromeUIExtensionsHost, MessageLoop::current()) {
 }
 
 void ExtensionsUIHTMLSource::StartDataRequest(const std::string& path,
@@ -150,11 +147,8 @@ ExtensionsDOMHandler::~ExtensionsDOMHandler() {
 void ExtensionsDOMHandler::Init() {
 }
 
-ExtensionsUI::ExtensionsUI(DOMUIContents* contents) : DOMUI(contents) {
-}
-
-void ExtensionsUI::Init() {
-  ExtensionsService *exstension_service = get_profile()->GetExtensionsService();
+ExtensionsUI::ExtensionsUI(WebContents* contents) : DOMUI(contents) {
+  ExtensionsService *exstension_service = GetProfile()->GetExtensionsService();
 
   ExtensionsDOMHandler* handler = new ExtensionsDOMHandler(this,
       exstension_service);
@@ -167,12 +161,4 @@ void ExtensionsUI::Init() {
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(&chrome_url_data_manager,
           &ChromeURLDataManager::AddDataSource, html_source));
-}
-
-// static
-GURL ExtensionsUI::GetBaseURL() {
-  std::string url = DOMUIContents::GetScheme();
-  url += chrome::kStandardSchemeSeparator;
-  url += kExtensionsHost;
-  return GURL(url);
 }

@@ -224,8 +224,8 @@ void WebContentsViewWin::SizeContents(const gfx::Size& size) {
 }
 
 void WebContentsViewWin::SetInitialFocus() {
-  if (web_contents_->AsDOMUIContents())
-    web_contents_->AsDOMUIContents()->SetInitialFocus();
+  if (web_contents_->FocusLocationBarByDefault())
+    web_contents_->delegate()->SetFocusToLocationBar();
   else
     ::SetFocus(GetNativeView());
 }

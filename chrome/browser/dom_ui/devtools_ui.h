@@ -9,13 +9,9 @@
 
 class DevToolsUI : public DOMUI {
  public:
-  explicit DevToolsUI(DOMUIContents* contents) : DOMUI(contents) {}
+  explicit DevToolsUI(WebContents* contents);
 
-  // Return the URL for the front page of this UI.
-  static GURL GetBaseURL();
-
-  // DOMUI Implementation
-  virtual void Init() {}
+  // DOMUI overrides.
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
 
  private:

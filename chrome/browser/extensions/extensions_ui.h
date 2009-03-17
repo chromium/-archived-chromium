@@ -7,8 +7,8 @@
 
 #include <string>
 
+#include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
-#include "chrome/browser/dom_ui/dom_ui_contents.h"
 #include "chrome/browser/extensions/extensions_service.h"
 
 class GURL;
@@ -58,17 +58,9 @@ class ExtensionsDOMHandler : public DOMMessageHandler {
 
 class ExtensionsUI : public DOMUI {
  public:
-  explicit ExtensionsUI(DOMUIContents* contents);
-
-  // Return the URL for the front page of this UI.
-  static GURL GetBaseURL();
-
-  // DOMUI Implementation
-  virtual void Init();
+  explicit ExtensionsUI(WebContents* contents);
 
  private:
-  DOMUIContents* contents_;
-
   DISALLOW_COPY_AND_ASSIGN(ExtensionsUI);
 };
 

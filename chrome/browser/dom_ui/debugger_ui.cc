@@ -19,6 +19,8 @@
 
 #include "grit/debugger_resources.h"
 
+namespace {
+
 class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
  public:
   // Creates our datasource and sets our user message to a specific message
@@ -80,7 +82,7 @@ class DebuggerHTMLSource : public ChromeURLDataManager::DataSource {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(DebuggerHTMLSource);
+  DISALLOW_COPY_AND_ASSIGN(DebuggerHTMLSource);
 };
 
 
@@ -117,12 +119,9 @@ class DebuggerHandler : public DOMMessageHandler {
   DISALLOW_COPY_AND_ASSIGN(DebuggerHandler);
 };
 
+}  // namespace
 
-DebuggerUI::DebuggerUI(DOMUIContents* contents)
-    : DOMUI(contents) {
-}
-
-void DebuggerUI::Init() {
+DebuggerUI::DebuggerUI(WebContents* contents) : DOMUI(contents) {
   AddMessageHandler(new DebuggerHandler(this));
 
   DebuggerHTMLSource* html_source = new DebuggerHTMLSource();
@@ -130,19 +129,4 @@ void DebuggerUI::Init() {
       NewRunnableMethod(&chrome_url_data_manager,
       &ChromeURLDataManager::AddDataSource,
       html_source));
-}
-
-// static
-bool DebuggerUI::IsDebuggerUrl(const GURL& url) {
-  return url.SchemeIs(chrome::kChromeUIScheme) &&
-         url.host() == chrome::kInspectorHost;
-}
-
-// static
-GURL DebuggerUI::GetBaseURL() {
-  // DebuggerUI is accessible from chrome-ui://inspector.
-  std::string url = chrome::kChromeUIScheme;
-  url += chrome::kStandardSchemeSeparator;
-  url += chrome::kInspectorHost;
-  return GURL(url);
 }
