@@ -6,10 +6,38 @@
 
 #include "base/logging.h"
 
+namespace {
+
+static const char kDot = '.';
+
+static bool IsIntranetHost(const std::string& host) {
+  const size_t dot = host.find(kDot);
+  return dot == std::string::npos || dot == host.length() - 1;
+}
+
+}  // namespace
+
 SSLHostState::SSLHostState() {
 }
 
 SSLHostState::~SSLHostState() {
+}
+
+void SSLHostState::MarkHostAsBroken(const std::string& host) {
+  DCHECK(CalledOnValidThread());
+
+  broken_hosts_.insert(host);
+}
+
+bool SSLHostState::DidMarkHostAsBroken(const std::string& host) {
+  DCHECK(CalledOnValidThread());
+
+  // CAs issue certificate for intranet hosts to everyone.  Therefore, we always
+  // treat intranet hosts as broken.
+  if (IsIntranetHost(host))
+    return true;
+
+  return (broken_hosts_.find(host) != broken_hosts_.end());
 }
 
 void SSLHostState::DenyCertForHost(net::X509Certificate* cert,
@@ -28,6 +56,18 @@ void SSLHostState::AllowCertForHost(net::X509Certificate* cert,
   cert_policy_for_host_[host].Allow(cert);
 }
 
+bool SSLHostState::DidAllowCertForHost(const std::string& host) {
+  DCHECK(CalledOnValidThread());
+
+  std::map<std::string, net::X509Certificate::Policy>::const_iterator iter =
+      cert_policy_for_host_.find(host);
+  
+  if (iter == cert_policy_for_host_.end())
+    return false;
+
+  return iter->second.HasAllowedCert();
+}
+
 net::X509Certificate::Policy::Judgment SSLHostState::QueryPolicy(
     net::X509Certificate* cert, const std::string& host) {
   DCHECK(CalledOnValidThread());
@@ -35,15 +75,15 @@ net::X509Certificate::Policy::Judgment SSLHostState::QueryPolicy(
   return cert_policy_for_host_[host].Check(cert);
 }
 
-bool SSLHostState::CanShowInsecureContent(const GURL& url) {
+void SSLHostState::AllowMixedContentForHost(const std::string& host) {
   DCHECK(CalledOnValidThread());
 
-  return (can_show_insecure_content_for_host_.find(url.host()) !=
-      can_show_insecure_content_for_host_.end());
+  allow_mixed_content_for_host_.insert(host);
 }
 
-void SSLHostState::AllowShowInsecureContentForURL(const GURL& url) {
+bool SSLHostState::DidAllowMixedContentForHost(const std::string& host) {
   DCHECK(CalledOnValidThread());
 
-  can_show_insecure_content_for_host_.insert(url.host());
+  return (allow_mixed_content_for_host_.find(host) !=
+      allow_mixed_content_for_host_.end());
 }

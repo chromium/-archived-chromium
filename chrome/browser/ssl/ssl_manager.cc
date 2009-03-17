@@ -208,11 +208,11 @@ net::X509Certificate::Policy::Judgment SSLManager::QueryPolicy(
 }
 
 bool SSLManager::CanShowInsecureContent(const GURL& url) {
-  return ssl_host_state_->CanShowInsecureContent(url);
+  return ssl_host_state_->DidAllowMixedContentForHost(url.host());
 }
 
 void SSLManager::AllowShowInsecureContentForURL(const GURL& url) {
-  ssl_host_state_->AllowShowInsecureContentForURL(url);
+  ssl_host_state_->AllowMixedContentForHost(url.host());
 }
 
 bool SSLManager::ProcessedSSLErrorFromRequest() const {
