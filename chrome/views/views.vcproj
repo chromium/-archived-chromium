@@ -125,19 +125,19 @@
 			Name="accessibility"
 			>
 			<File
-				RelativePath=".\accessibility\accessible_wrapper.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\accessibility\accessible_wrapper.h"
-				>
-			</File>
-			<File
 				RelativePath=".\accessibility\view_accessibility.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\accessibility\view_accessibility.h"
+				>
+			</File>
+			<File
+				RelativePath=".\accessibility\view_accessibility_wrapper.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\accessibility\view_accessibility_wrapper.h"
 				>
 			</File>
 		</Filter>

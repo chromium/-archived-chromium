@@ -10,7 +10,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/os_exchange_data.h"
-#include "chrome/views/accessibility/accessible_wrapper.h"
+#include "chrome/views/accessibility/view_accessibility_wrapper.h"
 #include "chrome/views/border.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
@@ -43,9 +43,9 @@ void View::DoDrag(const MouseEvent& e, int press_x, int press_y) {
   root_view->StartDragForViewFromMouseEvent(this, data, drag_operations);
 }
 
-AccessibleWrapper* View::GetAccessibleWrapper() {
+ViewAccessibilityWrapper* View::GetViewAccessibilityWrapper() {
   if (accessibility_.get() == NULL) {
-    accessibility_.reset(new AccessibleWrapper(this));
+    accessibility_.reset(new ViewAccessibilityWrapper(this));
   }
   return accessibility_.get();
 }

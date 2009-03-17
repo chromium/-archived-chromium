@@ -7,7 +7,7 @@
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/accessibility/accessible_wrapper.h"
+#include "chrome/views/accessibility/view_accessibility_wrapper.h"
 #include "chrome/views/view.h"
 #include "grit/generated_resources.h"
 
@@ -60,7 +60,7 @@ STDMETHODIMP AutocompleteAccessibility::get_accParent(IDispatch** disp_parent) {
 
   // Retrieve the IUnknown interface for the parent view, and assign the
   // IDispatch returned.
-  if (edit_box_->parent_view()->GetAccessibleWrapper()->GetInstance(
+  if (edit_box_->parent_view()->GetViewAccessibilityWrapper()->GetInstance(
       IID_IAccessible, reinterpret_cast<void**>(disp_parent)) == S_OK) {
     // Increment the reference count for the retrieved interface.
     (*disp_parent)->AddRef();

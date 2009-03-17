@@ -23,7 +23,7 @@
 #include "chrome/views/widget/widget.h"
 #if defined(OS_WIN)
 #include "chrome/views/widget/tooltip_manager.h"
-#include "chrome/views/accessibility/accessible_wrapper.h"
+#include "chrome/views/accessibility/view_accessibility_wrapper.h"
 #endif
 #include "SkShader.h"
 

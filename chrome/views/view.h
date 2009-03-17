@@ -29,9 +29,9 @@ class Insets;
 class Path;
 }
 
-class AccessibleWrapper;
 class ChromeCanvas;
 class OSExchangeData;
+class ViewAccessibilityWrapper;
 
 namespace views {
 
@@ -586,7 +586,7 @@ class View : public AcceleratorTarget {
   // Returns an instance of a wrapper class implementing the (platform-specific)
   // accessibility interface for a given View. If one exists, it will be
   // re-used, otherwise a new instance will be created.
-  AccessibleWrapper* GetAccessibleWrapper();
+  ViewAccessibilityWrapper* GetViewAccessibilityWrapper();
 
   // Accessor used to determine if a child view (leaf) has accessibility focus.
   // Returns NULL if there are no children, or if none of the children has
@@ -1323,7 +1323,7 @@ class View : public AcceleratorTarget {
 
 #if defined(OS_WIN)
   // The accessibility implementation for this View.
-  scoped_ptr<AccessibleWrapper> accessibility_;
+  scoped_ptr<ViewAccessibilityWrapper> accessibility_;
 #endif
 
   DragController* drag_controller_;
