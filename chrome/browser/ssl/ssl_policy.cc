@@ -38,8 +38,6 @@
 // Wrap all these helper classes in an anonymous namespace.
 namespace {
 
-static const char kDot = '.';
-
 class ShowUnsafeContentTask : public Task {
  public:
   ShowUnsafeContentTask(const GURL& main_frame_url,
@@ -116,261 +114,108 @@ static void ShowBlockingPage(SSLPolicy* policy, SSLManager::CertError* error) {
   blocking_page->Show();
 }
 
-#if 0
-// See TODO(jcampan) below.
-static bool IsIntranetHost(const std::string& host) {
-  const size_t dot = host.find(kDot);
-  return dot == std::string::npos || dot == host.length() - 1;
-}
-#endif
-
-class CommonNameInvalidPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<CommonNameInvalidPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    OnOverridableCertError(main_frame_url, error);
-  }
-};
-
-class DateInvalidPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<DateInvalidPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    OnOverridableCertError(main_frame_url, error);
-  }
-};
-
-class AuthorityInvalidPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<AuthorityInvalidPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    OnOverridableCertError(main_frame_url, error);
-  }
-};
-
-class ContainsErrorsPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<ContainsErrorsPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    OnFatalCertError(main_frame_url, error);
-  }
-};
-
-class NoRevocationMechanismPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<NoRevocationMechanismPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    // Silently ignore this error.
-    error->ContinueRequest();
-  }
-};
-
-class UnableToCheckRevocationPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<UnableToCheckRevocationPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    // We ignore this error and display an info-bar.
-    error->ContinueRequest();
-    error->manager()->ShowMessage(l10n_util::GetString(
-        IDS_CERT_ERROR_UNABLE_TO_CHECK_REVOCATION_INFO_BAR));
-  }
-};
-
-class RevokedPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<RevokedPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    OnFatalCertError(main_frame_url, error);
-  }
-};
-
-class InvalidPolicy : public SSLPolicy {
- public:
-  static SSLPolicy* GetInstance() {
-    return Singleton<InvalidPolicy>::get();
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    OnFatalCertError(main_frame_url, error);
-  }
-};
-
-class DefaultPolicy : public SSLPolicy {
- public:
-  DefaultPolicy() {
-    // Load our helper classes to handle various cert errors.
-    DCHECK(SubPolicyIndex(net::ERR_CERT_COMMON_NAME_INVALID) == 0);
-    sub_policies_[0] = CommonNameInvalidPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_DATE_INVALID) == 1);
-    sub_policies_[1] = DateInvalidPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_AUTHORITY_INVALID) == 2);
-    sub_policies_[2] = AuthorityInvalidPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_CONTAINS_ERRORS) == 3);
-    sub_policies_[3] = ContainsErrorsPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_NO_REVOCATION_MECHANISM) == 4);
-    sub_policies_[4] = NoRevocationMechanismPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_UNABLE_TO_CHECK_REVOCATION) == 5);
-    sub_policies_[5] = UnableToCheckRevocationPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_REVOKED) == 6);
-    sub_policies_[6] = RevokedPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_INVALID) == 7);
-    sub_policies_[7] = InvalidPolicy::GetInstance();
-    DCHECK(SubPolicyIndex(net::ERR_CERT_END) == 8);
-  }
-
-  void OnCertError(const GURL& main_frame_url,
-                   SSLManager::CertError* error) {
-    size_t index = SubPolicyIndex(error->cert_error());
-    if (index < 0 || index >= arraysize(sub_policies_)) {
-      NOTREACHED();
-      error->CancelRequest();
-      return;
-    }
-
-    // First we check if we know the policy for this error.
-    net::X509Certificate::Policy::Judgment judgment =
-        error->manager()->QueryPolicy(error->ssl_info().cert,
-                                      error->request_url().host());
-
-    switch (judgment) {
-      case net::X509Certificate::Policy::ALLOWED:
-        // We've been told to allow this certificate.
-        if (error->manager()->SetMaxSecurityStyle(
-                SECURITY_STYLE_AUTHENTICATION_BROKEN)) {
-          NotificationService::current()->Notify(
-              NotificationType::SSL_VISIBLE_STATE_CHANGED,
-              Source<NavigationController>(error->manager()->controller()),
-              Details<NavigationEntry>(
-                  error->manager()->controller()->GetActiveEntry()));
-        }
-        error->ContinueRequest();
-        break;
-      case net::X509Certificate::Policy::DENIED:
-        // For now we handle the DENIED as the UNKNOWN, which means a blocking
-        // page is shown to the user every time he comes back to the page.
-      case net::X509Certificate::Policy::UNKNOWN:
-        // We don't know how to handle this error.  Ask our sub-policies.
-        sub_policies_[index]->OnCertError(main_frame_url, error);
-        break;
-      default:
-        NOTREACHED();
-    }
-  }
-
-  void OnMixedContent(NavigationController* navigation_controller,
-                      const GURL& main_frame_url,
-                      SSLManager::MixedContentHandler* mixed_content_handler) {
-    PrefService* prefs = navigation_controller->profile()->GetPrefs();
-    FilterPolicy::Type filter_policy = FilterPolicy::DONT_FILTER;
-    if (!mixed_content_handler->manager()->
-        CanShowInsecureContent(main_frame_url)) {
-      filter_policy = FilterPolicy::FromInt(
-            prefs->GetInteger(prefs::kMixedContentFiltering));
-    }
-    if (filter_policy != FilterPolicy::DONT_FILTER) {
-      mixed_content_handler->manager()->ShowMessageWithLink(
-          l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
-          l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
-          new ShowUnsafeContentTask(main_frame_url, mixed_content_handler));
-    }
-    mixed_content_handler->StartRequest(filter_policy);
-
-    NavigationEntry* entry = navigation_controller->GetLastCommittedEntry();
-    DCHECK(entry);
-    // Even though we are loading the mixed-content resource, it will not be
-    // included in the page when we set the policy to FILTER_ALL or
-    // FILTER_ALL_EXCEPT_IMAGES (only images and they are stamped with warning
-    // icons), so we don't set the mixed-content mode in these cases.
-    if (filter_policy == FilterPolicy::DONT_FILTER)
-      entry->ssl().set_has_mixed_content();
-
-    // Print a message indicating the mixed-contents resource in the console.
-    const std::wstring& msg = l10n_util::GetStringF(
-        IDS_MIXED_CONTENT_LOG_MESSAGE,
-        UTF8ToWide(entry->url().spec()),
-        UTF8ToWide(mixed_content_handler->request_url().spec()));
-    mixed_content_handler->manager()->
-        AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
-
-    NotificationService::current()->Notify(
-        NotificationType::SSL_VISIBLE_STATE_CHANGED,
-        Source<NavigationController>(navigation_controller),
-        Details<NavigationEntry>(entry));
-  }
-
-  void OnDenyCertificate(SSLManager::CertError* error) {
-    size_t index = SubPolicyIndex(error->cert_error());
-    if (index < 0 || index >= arraysize(sub_policies_)) {
-      NOTREACHED();
-      return;
-    }
-    sub_policies_[index]->OnDenyCertificate(error);
-  }
-
-  void OnAllowCertificate(SSLManager::CertError* error) {
-    size_t index = SubPolicyIndex(error->cert_error());
-    if (index < 0 || index >= arraysize(sub_policies_)) {
-      NOTREACHED();
-      return;
-    }
-    sub_policies_[index]->OnAllowCertificate(error);
-  }
-
- private:
-  // Returns the index of the sub-policy for |cert_error| in the
-  // sub_policies_ array.
-  int SubPolicyIndex(int cert_error) {
-    // Certificate errors are negative integers from net::ERR_CERT_BEGIN
-    // (inclusive) to net::ERR_CERT_END (exclusive) in *decreasing* order.
-    return net::ERR_CERT_BEGIN - cert_error;
-  }
-  SSLPolicy* sub_policies_[net::ERR_CERT_BEGIN - net::ERR_CERT_END];
-};
-
 }  // namespace
-
-SSLPolicy* SSLPolicy::GetDefaultPolicy() {
-  // Lazily initialize our default policy instance.
-  static SSLPolicy* default_policy = new DefaultPolicy();
-  return default_policy;
-}
 
 SSLPolicy::SSLPolicy() {
 }
 
+SSLPolicy* SSLPolicy::GetDefaultPolicy() {
+  return Singleton<SSLPolicy>::get();
+}
+
 void SSLPolicy::OnCertError(const GURL& main_frame_url,
                             SSLManager::CertError* error) {
-  // Default to secure behavior.
-  error->CancelRequest();
+  // First we check if we know the policy for this error.
+  net::X509Certificate::Policy::Judgment judgment =
+      error->manager()->QueryPolicy(error->ssl_info().cert,
+                                    error->request_url().host());
+
+  if (judgment == net::X509Certificate::Policy::ALLOWED) {
+    // We've been told to allow this certificate.
+    if (error->manager()->SetMaxSecurityStyle(
+            SECURITY_STYLE_AUTHENTICATION_BROKEN)) {
+      NotificationService::current()->Notify(
+          NotificationType::SSL_VISIBLE_STATE_CHANGED,
+          Source<NavigationController>(error->manager()->controller()),
+          Details<NavigationEntry>(
+              error->manager()->controller()->GetActiveEntry()));
+    }
+    error->ContinueRequest();
+    return;
+  }
+
+  // The judgment is either DENIED or UNKNOWN.
+  // For now we handle the DENIED as the UNKNOWN, which means a blocking
+  // page is shown to the user every time he comes back to the page.
+
+  switch(error->cert_error()) {
+    case net::ERR_CERT_COMMON_NAME_INVALID:
+    case net::ERR_CERT_DATE_INVALID:
+    case net::ERR_CERT_AUTHORITY_INVALID:
+      OnOverridableCertError(main_frame_url, error);
+      break;
+    case net::ERR_CERT_NO_REVOCATION_MECHANISM:
+      // Ignore this error.
+      error->ContinueRequest();
+      break;
+    case net::ERR_CERT_UNABLE_TO_CHECK_REVOCATION:
+      // We ignore this error and display an infobar.
+      error->ContinueRequest();
+      error->manager()->ShowMessage(l10n_util::GetString(
+          IDS_CERT_ERROR_UNABLE_TO_CHECK_REVOCATION_INFO_BAR));
+      break;
+    case net::ERR_CERT_CONTAINS_ERRORS:
+    case net::ERR_CERT_REVOKED:
+    case net::ERR_CERT_INVALID:
+      OnFatalCertError(main_frame_url, error);
+      break;
+    default:
+      NOTREACHED();
+      error->CancelRequest();
+      break;
+  }
+}
+
+void SSLPolicy::OnMixedContent(
+    NavigationController* navigation_controller,
+    const GURL& main_frame_url,
+    SSLManager::MixedContentHandler* mixed_content_handler) {
+  PrefService* prefs = navigation_controller->profile()->GetPrefs();
+  FilterPolicy::Type filter_policy = FilterPolicy::DONT_FILTER;
+  if (!mixed_content_handler->manager()->
+      CanShowInsecureContent(main_frame_url)) {
+    filter_policy = FilterPolicy::FromInt(
+          prefs->GetInteger(prefs::kMixedContentFiltering));
+  }
+  if (filter_policy != FilterPolicy::DONT_FILTER) {
+    mixed_content_handler->manager()->ShowMessageWithLink(
+        l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
+        l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
+        new ShowUnsafeContentTask(main_frame_url, mixed_content_handler));
+  }
+  mixed_content_handler->StartRequest(filter_policy);
+
+  NavigationEntry* entry = navigation_controller->GetLastCommittedEntry();
+  DCHECK(entry);
+  // Even though we are loading the mixed-content resource, it will not be
+  // included in the page when we set the policy to FILTER_ALL or
+  // FILTER_ALL_EXCEPT_IMAGES (only images and they are stamped with warning
+  // icons), so we don't set the mixed-content mode in these cases.
+  if (filter_policy == FilterPolicy::DONT_FILTER)
+    entry->ssl().set_has_mixed_content();
+
+  // Print a message indicating the mixed-contents resource in the console.
+  const std::wstring& msg = l10n_util::GetStringF(
+      IDS_MIXED_CONTENT_LOG_MESSAGE,
+      UTF8ToWide(entry->url().spec()),
+      UTF8ToWide(mixed_content_handler->request_url().spec()));
+  mixed_content_handler->manager()->
+      AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
+
+  NotificationService::current()->Notify(
+      NotificationType::SSL_VISIBLE_STATE_CHANGED,
+      Source<NavigationController>(navigation_controller),
+      Details<NavigationEntry>(entry));
 }
 
 void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,

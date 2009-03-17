@@ -2,24 +2,23 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_SSL_POLICY_H__
-#define CHROME_BROWSER_SSL_POLICY_H__
+#ifndef CHROME_BROWSER_SSL_POLICY_H_
+#define CHROME_BROWSER_SSL_POLICY_H_
 
+#include "base/singleton.h"
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 #include "chrome/browser/ssl/ssl_manager.h"
 
-// The basic SSLPolicy.  This class contains default implementations of all
-// the SSLPolicy entry points.  It is expected that subclasses will override
-// most of these methods to implement policy specific to certain errors or
-// situations.
+// SSLPolicy
+//
+// This class is responsible for making the security decisions that concern the
+// SSL trust indicators.  It relies on the SSLManager to actually enact the
+// decisions it reaches.
+//
 class SSLPolicy : public SSLManager::Delegate,
                   public SSLBlockingPage::Delegate {
  public:
   // Factory method to get the default policy.
-  //
-  // SSLPolicy is not meant to be instantiated itself.  Only subclasses should
-  // be instantiated.  The default policy has more complex behavior than a
-  // direct instance of SSLPolicy.
   static SSLPolicy* GetDefaultPolicy();
 
   // SSLManager::Delegate methods.
@@ -28,12 +27,7 @@ class SSLPolicy : public SSLManager::Delegate,
   virtual void OnMixedContent(
       NavigationController* navigation_controller,
       const GURL& main_frame_url,
-      SSLManager::MixedContentHandler* mixed_content_handler) {
-    // So far only the default policy is expected to receive mixed-content
-    // calls.
-    NOTREACHED();
-  }
-
+      SSLManager::MixedContentHandler* mixed_content_handler);
   virtual void OnRequestStarted(SSLManager* manager,
                                 const GURL& url,
                                 ResourceType::Type resource_type,
@@ -53,8 +47,9 @@ class SSLPolicy : public SSLManager::Delegate,
   virtual void OnAllowCertificate(SSLManager::CertError* error);
 
  protected:
-  // Allow our subclasses to construct us.
+  // Construct via |GetDefaultPolicy|.
   SSLPolicy();
+  friend struct DefaultSingletonTraits<SSLPolicy>;
 
   // Helper method for derived classes handling certificate errors that can be
   // overridden by the user.
@@ -68,7 +63,7 @@ class SSLPolicy : public SSLManager::Delegate,
                         SSLManager::CertError* error);
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(SSLPolicy);
+  DISALLOW_COPY_AND_ASSIGN(SSLPolicy);
 };
 
-#endif  // CHROME_BROWSER_SSL_POLICY_H__
+#endif  // CHROME_BROWSER_SSL_POLICY_H_
