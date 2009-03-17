@@ -143,22 +143,27 @@ stage_install() {
 # https://bugs.launchpad.net/ubuntu/+source/ia32-libs/+bug/246911
 grab_lib32() {
   echo "Copying 32-bit libs..."
+  if [ "$(uname -m)" = "x86_64" ]; then
+    LIBDIR="/usr/lib32"
+  else
+    LIBDIR="/usr/lib"
+  fi
   local SYSLIBS="
-    /usr/lib32/libsqlite3.so.0
-    /usr/lib32/libsqlite3.so.0.8.6
-    /usr/lib32/libnspr4.so.0d
-    /usr/lib32/libplds4.so.0d
-    /usr/lib32/libplc4.so.0d
-    /usr/lib32/libssl3.so.1d
-    /usr/lib32/libnss3.so.1d
-    /usr/lib32/libsmime3.so.1d
-    /usr/lib32/libnssutil3.so.1d
-    /usr/lib32/nss/libfreebl3.so
-    /usr/lib32/nss/libsoftokn3.chk
-    /usr/lib32/nss/libsoftokn3.so
-    /usr/lib32/nss/libnssckbi.so
-    /usr/lib32/nss/libnssdbm3.so
-    /usr/lib32/nss/libfreebl3.chk
+    ${LIBDIR}/libsqlite3.so.0
+    ${LIBDIR}/libsqlite3.so.0.8.6
+    ${LIBDIR}/libnspr4.so.0d
+    ${LIBDIR}/libplds4.so.0d
+    ${LIBDIR}/libplc4.so.0d
+    ${LIBDIR}/libssl3.so.1d
+    ${LIBDIR}/libnss3.so.1d
+    ${LIBDIR}/libsmime3.so.1d
+    ${LIBDIR}/libnssutil3.so.1d
+    ${LIBDIR}/nss/libfreebl3.so
+    ${LIBDIR}/nss/libsoftokn3.chk
+    ${LIBDIR}/nss/libsoftokn3.so
+    ${LIBDIR}/nss/libnssckbi.so
+    ${LIBDIR}/nss/libnssdbm3.so
+    ${LIBDIR}/nss/libfreebl3.chk
     "
   for lib in $SYSLIBS; do
     if [ -h "$lib" ]; then
