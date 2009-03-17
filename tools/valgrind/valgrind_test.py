@@ -52,6 +52,8 @@ class Valgrind(object):
     self._parser.add_option("", "--suppressions", default=["."],
                             action="append",
                             help="path to a valgrind suppression file")
+    self._parser.add_option("", "--gtest_filter", default="",
+                            help="which test case to run")
     self._parser.add_option("", "--generate_suppressions", action="store_true",
                             default=False,
                             help="Skip analysis and generate suppressions")
@@ -64,6 +66,8 @@ class Valgrind(object):
     self._suppressions = self._options.suppressions
     self._generate_suppressions = self._options.generate_suppressions
     self._source_dir = self._options.source_dir
+    if self._options.gtest_filter != "":
+      self._args.append("--gtest_filter=%s" % self._options.gtest_filter)
     return True
 
   def Setup(self):
@@ -91,9 +95,7 @@ class Valgrind(object):
     # Glob all the files in the "valgrind.tmp" directory
     filenames = glob.glob(self.TMP_DIR + "/valgrind.*")
     analyzer = valgrind_analyze.ValgrindAnalyze(self._source_dir, filenames)
-    analyzer.Report()
-    # Return success... should we return failure if there are errors?
-    return 0
+    return analyzer.Report()
 
   def Cleanup(self):
     # Right now, we can cleanup by deleting our temporary directory. Other
