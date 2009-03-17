@@ -1622,7 +1622,6 @@ LINUX : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL PASS
 LINUX : LayoutTests/css2.1/t100801-c544-valgn-01-d-ag.html = FAIL
 
 // New failures from Merge 41078:41149
-LayoutTests/fast/loader/location-port.html = FAIL
 LINUX WIN : LayoutTests/fast/text/atsui-spacing-features.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
