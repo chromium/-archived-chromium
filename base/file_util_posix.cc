@@ -25,7 +25,11 @@
 
 namespace file_util {
 
+#if defined(GOOGLE_CHROME_BUILD)
 static const char* kTempFileName = "com.google.chrome.XXXXXX";
+#else
+static const char* kTempFileName = "org.chromium.XXXXXX";
+#endif
 
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   if (EndsWithSeparator(path)) {
