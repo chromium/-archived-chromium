@@ -6,7 +6,7 @@
 #define CHROME_VIEWS_WIDGET_ROOT_VIEW_H_
 
 #include "base/ref_counted.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/view.h"
 
 namespace views {

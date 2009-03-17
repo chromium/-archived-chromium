@@ -4,7 +4,7 @@
 
 #include "chrome/views/widget/accelerator_handler.h"
 
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 
 namespace views {
 

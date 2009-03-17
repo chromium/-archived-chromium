@@ -15,7 +15,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/widget/widget.h"
 #include "base/gfx/native_theme.h"

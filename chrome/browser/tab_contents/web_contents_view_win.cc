@@ -24,7 +24,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/views/view_storage.h"
+#include "chrome/views/focus/view_storage.h"
 #include "chrome/views/widget/root_view.h"
 #include "net/base/net_util.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"

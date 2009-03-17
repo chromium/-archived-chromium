@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/views/external_focus_tracker.h"
+#include "chrome/views/focus/external_focus_tracker.h"
 
 #include "chrome/views/view.h"
-#include "chrome/views/view_storage.h"
+#include "chrome/views/focus/view_storage.h"
 
 namespace views {
 

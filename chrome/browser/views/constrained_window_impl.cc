@@ -26,7 +26,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/image_button.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
 #include "chrome/views/window/client_view.h"
 #include "chrome/views/window/non_client_view.h"

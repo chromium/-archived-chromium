@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_EXTERNAL_FOCUS_TRACKER_H__
-#define CHROME_BROWSER_VIEWS_EXTERNAL_FOCUS_TRACKER_H__
+#ifndef CHROME_VIEWS_FOCUS_EXTERNAL_FOCUS_TRACKER_H_
+#define CHROME_VIEWS_FOCUS_EXTERNAL_FOCUS_TRACKER_H_
 
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 
 namespace views {
 
@@ -73,4 +73,4 @@ class ExternalFocusTracker : public FocusChangeListener {
 
 }  // namespace views
 
-#endif // CHROME_BROWSER_VIEWS_EXTERNAL_FOCUS_TRACKER_H__
+#endif  // CHROME_VIEWS_FOCUS_EXTERNAL_FOCUS_TRACKER_H_

@@ -10,9 +10,9 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/accelerator.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
+#include "chrome/views/focus/view_storage.h"
 #include "chrome/views/view.h"
-#include "chrome/views/view_storage.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget.h"
 

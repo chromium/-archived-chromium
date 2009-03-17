@@ -13,7 +13,7 @@
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/background.h"
 #include "chrome/views/image_button.h"
-#include "chrome/views/external_focus_tracker.h"
+#include "chrome/views/focus/external_focus_tracker.h"
 #include "chrome/views/image_view.h"
 #include "chrome/views/label.h"
 #include "chrome/views/widget/widget.h"

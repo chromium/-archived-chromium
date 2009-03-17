@@ -15,7 +15,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_source.h"
 #include "chrome/common/notification_type.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/window.h"
 #include "chrome/test/in_process_browser_test.h"

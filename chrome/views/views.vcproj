@@ -411,6 +411,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="focus"
+			>
+			<File
+				RelativePath=".\focus\external_focus_tracker.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\focus\external_focus_tracker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\focus\focus_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\focus\focus_manager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\focus\view_storage.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\focus\view_storage.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\accelerator.cc"
 			>
@@ -513,22 +541,6 @@
 		</File>
 		<File
 			RelativePath=".\event.h"
-			>
-		</File>
-		<File
-			RelativePath=".\external_focus_tracker.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\external_focus_tracker.h"
-			>
-		</File>
-		<File
-			RelativePath=".\focus_manager.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\focus_manager.h"
 			>
 		</File>
 		<File
@@ -797,14 +809,6 @@
 		</File>
 		<File
 			RelativePath=".\view_menu_delegate.h"
-			>
-		</File>
-		<File
-			RelativePath=".\view_storage.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\view_storage.h"
 			>
 		</File>
 		<File

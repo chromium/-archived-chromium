@@ -14,9 +14,9 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
-#include "chrome/views/external_focus_tracker.h"
+#include "chrome/views/focus/external_focus_tracker.h"
+#include "chrome/views/focus/view_storage.h"
 #include "chrome/views/native_scroll_bar.h"
-#include "chrome/views/view_storage.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/widget/widget_win.h"
 

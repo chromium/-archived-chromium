@@ -13,7 +13,7 @@ class RenderViewHost;
 class TabContents;
 
 #include "chrome/common/notification_observer.h"
-#include "chrome/views/focus_manager.h"
+#include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/hwnd_view.h"
 
 // This View contains the TabContents.

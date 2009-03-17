@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_VIEWS_VIEW_STORAGE_H_
-#define CHROME_VIEWS_VIEW_STORAGE_H_
+#ifndef CHROME_VIEWS_FOCUS_VIEW_STORAGE_H_
+#define CHROME_VIEWS_FOCUS_VIEW_STORAGE_H_
 
 #include "base/singleton.h"
 #include "chrome/common/notification_observer.h"
