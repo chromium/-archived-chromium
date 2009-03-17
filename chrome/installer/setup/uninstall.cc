@@ -17,10 +17,14 @@
 #include "chrome/installer/setup/setup_constants.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/helper.h"
+#include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/logging_installer.h"
 #include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/util_constants.h"
 #include "chrome/installer/util/version.h"
+
+// Build-time generated include file.
+#include "registered_dlls.h"
 
 namespace {
 
@@ -281,6 +285,17 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     file_util::AppendToPath(&reg_path, installer_util::kChromeExe);
     DeleteRegistryKey(hklm_key, reg_path);
     hklm_key.Close();
+
+    // Unregister any dll servers that we may have registered.
+    std::wstring dll_path(installer::GetChromeInstallPath(system_uninstall));
+    file_util::AppendToPath(&dll_path, installed_version.GetString());
+
+    scoped_ptr<WorkItemList> dll_list(WorkItem::CreateWorkItemList());
+    if (InstallUtil::BuildDLLRegistrationList(dll_path, kDllsToRegister,
+                                              kNumDllsToRegister, false,
+                                              dll_list.get())) {
+      dll_list->Do();
+    }
   }
 
   // Finally delete all the files from Chrome folder after moving setup.exe

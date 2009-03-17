@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="DLL Registration Rules"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Scan Server DLLs"
+			DisplayName="Scan Server DLLs"
+			CommandLine="$(SolutionDir)..\third_party\python_24\python.exe $(SolutionDir)tools\build\win\scan_server_dlls.py --output_dir=&quot;$(OutDir)&quot; --input_file=&quot;$(InputPath)&quot; --header_output_dir=&quot;$(IntDir)&quot; --distribution=$(CHROMIUM_BUILD)"
+			Outputs="$(OutDir)/registered_dlls.h;"
+			AdditionalDependencies="$(SolutionDir)\tools\build\win\scan_server_dlls.py;$(OutDir)\chrome.exe;$(OutDir)\crash_reporter.exe;$(OutDir)\chrome.dll;$(OutDir)\locales\en-US.dll;$(OutDir)\icudt38.dll"
+			FileExtensions="*.release"
+			ExecutionDescription="Scanning for COM Server DLLs..."
+			ShowOnlyRuleProperties="false"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

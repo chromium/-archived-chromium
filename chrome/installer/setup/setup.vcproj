@@ -16,6 +16,9 @@
 		<ToolFile
 			RelativePath="..\..\tools\build\win\version.rules"
 		/>
+		<ToolFile
+			RelativePath="..\..\tools\build\win\server.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -84,6 +87,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\mini_installer\chrome.release"
+			>
+		</File>
 		<File
 			RelativePath=".\install.cc"
 			>
