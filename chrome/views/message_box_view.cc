@@ -9,7 +9,7 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/checkbox.h"
-#include "chrome/views/client_view.h"
+#include "chrome/views/window/client_view.h"
 #include "grit/generated_resources.h"
 
 static const int kDefaultMessageWidth = 320;
