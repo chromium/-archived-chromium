@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/debugger/devtools_window.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 
 namespace views {
 class Window;
