@@ -5,14 +5,12 @@
 // See the corresponding header file for description of the functions in this
 // file.
 
-#include "chrome/installer/util/install_util.h"
+#include "install_util.h"
 
+#include <algorithm>
 #include <shellapi.h>
 #include <shlobj.h>
 
-#include <algorithm>
-
-#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/registry.h"
 #include "base/scoped_ptr.h"
@@ -117,6 +115,7 @@ void InstallUtil::WriteInstallerResult(bool system_install,
 }
 
 bool InstallUtil::IsPerUserInstall(const wchar_t* const exe_path) {
+
   wchar_t program_files_path[MAX_PATH] = {0};
   if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL,
                                 SHGFP_TYPE_CURRENT, program_files_path))) {
@@ -125,20 +124,4 @@ bool InstallUtil::IsPerUserInstall(const wchar_t* const exe_path) {
     NOTREACHED();
   }
   return true;
-}
-
-bool InstallUtil::BuildDLLRegistrationList(const std::wstring& install_path,
-                                           const wchar_t** const dll_names,
-                                           int dll_names_count,
-                                           bool do_register,
-                                           WorkItemList* registration_list) {
-  DCHECK(NULL != registration_list);
-  bool success = true;
-  for (int i = 0; i < dll_names_count; i++) {
-    std::wstring dll_file_path(install_path);
-    file_util::AppendToPath(&dll_file_path, dll_names[i]);
-    success = registration_list->AddSelfRegWorkItem(dll_file_path,
-        do_register) && success;
-  }
-  return (dll_names_count > 0) && success;
 }

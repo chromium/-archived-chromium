@@ -16,9 +16,6 @@
 		<ToolFile
 			RelativePath="..\..\tools\build\win\version.rules"
 		/>
-		<ToolFile
-			RelativePath="..\..\tools\build\win\server.rules"
-		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -28,10 +25,6 @@
 			>
 			<Tool
 				Name="Version"
-			/>
-			<Tool
-				Name="Scan Server DLLs"
-				CommandLine="$(SolutionDir)..\third_party\python_24\python.exe $(SolutionDir)tools\build\win\scan_server_dlls.py --output_dir=&quot;$(OutDir)&quot; --input_file=&quot;$(InputPath)&quot; --header_output_dir=&quot;$(IntDir)&quot; --distribution=$(CHROMIUM_BUILD)"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
@@ -91,10 +84,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\mini_installer\chrome.release"
-			>
-		</File>
 		<File
 			RelativePath=".\install.cc"
 			>

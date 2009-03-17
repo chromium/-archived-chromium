@@ -261,23 +261,15 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\common\pref_names.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\move_tree_work_item.cc"
 			>
 		</File>
 		<File
 			RelativePath=".\move_tree_work_item.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\common\pref_names.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\self_reg_work_item.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\self_reg_work_item.h"
 			>
 		</File>
 		<File

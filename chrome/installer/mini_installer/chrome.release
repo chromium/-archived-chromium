@@ -38,7 +38,6 @@ Themes\default.dll: %(VersionDir)s\Themes
 locales\*.dll: %(VersionDir)s\Locales
 Resources\Inspector\*.*: %(VersionDir)s\Resources\Inspector
 Resources\Inspector\Images\*.*: %(VersionDir)s\Resources\Inspector\Images
-servers\*.dll: %(VersionDir)s\
 
 [GOOGLE_CHROME]
 rlz.dll: %(VersionDir)s\

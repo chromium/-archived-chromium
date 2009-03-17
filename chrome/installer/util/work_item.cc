@@ -10,7 +10,6 @@
 #include "chrome/installer/util/delete_tree_work_item.h"
 #include "chrome/installer/util/delete_reg_value_work_item.h"
 #include "chrome/installer/util/move_tree_work_item.h"
-#include "chrome/installer/util/self_reg_work_item.h"
 #include "chrome/installer/util/set_reg_value_work_item.h"
 #include "chrome/installer/util/work_item_list.h"
 
@@ -66,11 +65,6 @@ SetRegValueWorkItem* WorkItem::CreateSetRegValueWorkItem(
     std::wstring value_name, DWORD value_data, bool overwrite) {
   return new SetRegValueWorkItem(predefined_root, key_path,
                                value_name, value_data, overwrite);
-}
-
-SelfRegWorkItem* WorkItem::CreateSelfRegWorkItem(const std::wstring& dll_path,
-                                                 bool do_register) {
-  return new SelfRegWorkItem(dll_path, do_register);
 }
 
 WorkItemList* WorkItem::CreateWorkItemList() {
