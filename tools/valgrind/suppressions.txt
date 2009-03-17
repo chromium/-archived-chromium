@@ -6,16 +6,6 @@
    fun:MOZ_Z_deflate
 }
 {
-   dlopen invalid read; not our problem.
-   Memcheck:Value4
-   fun:*
-   fun:*
-   fun:*
-   fun:*
-   fun:dlopen@@GLIBC_2.1
-   fun:PR_LoadLibraryWithFlags
-}
-{
    gtk developers don't like cleaning up one-time leaks.  See http://mail.gnome.org/archives/gtk-devel-list/2004-April/msg00230.html
    Memcheck:Leak
    ...
@@ -32,7 +22,21 @@
    fun:FcInit
 }
 {
-   NSS leak  See also http://sources.redhat.com/bugzilla/show_bug.cgi?id=2451
+   dlopen invalid read, probably a bug in glibc.  TODO(dkegel): file glibc bug
+   Memcheck:Value4
+   ...
+   fun:dlopen@@GLIBC_2.1
+   fun:PR_LoadLibraryWithFlags
+}
+{
+   NSS/glibc leak.  See also http://sources.redhat.com/bugzilla/show_bug.cgi?id=2451
+   Memcheck:Leak
+   ...
+   fun:dlopen@@GLIBC_2.1
+   fun:PR_LoadLibraryWithFlags
+}
+{
+   Pure NSS leak, does not involve glibc
    Memcheck:Leak
    ...
    fun:NSS_NoDB_Init
