@@ -10,11 +10,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#if defined(OS_LINUX)
-#include <linux/un.h>
-#elif defined(OS_MACOSX)
 #include <sys/un.h>
-#endif
 
 #include <string>
 #include <map>
@@ -120,22 +116,16 @@ int ChannelNameToClientFD(const std::string& channel_id) {
 }
 
 //------------------------------------------------------------------------------
-// The -1 is to take the NULL terminator into account.
-#if defined(OS_LINUX)
-const size_t kMaxPipeNameLength = UNIX_PATH_MAX - 1;
-#elif defined(OS_MACOSX)
-// OS X doesn't define UNIX_PATH_MAX
-// Per the size specified for the sun_path structure of sockaddr_un in sys/un.h.
-const size_t kMaxPipeNameLength = 104 - 1;
-#endif
+sockaddr_un sizecheck;
+const size_t kMaxPipeNameLength = sizeof(sizecheck.sun_path);
 
 // Creates a Fifo with the specified name ready to listen on.
 bool CreateServerFifo(const std::string &pipe_name, int* server_listen_fd) {
   DCHECK(server_listen_fd);
-  DCHECK(pipe_name.length() > 0);
-  DCHECK(pipe_name.length() < kMaxPipeNameLength);
+  DCHECK_GT(pipe_name.length(), 0u);
+  DCHECK_LT(pipe_name.length(), kMaxPipeNameLength);
 
-  if (pipe_name.length() == 0 || pipe_name.length() > kMaxPipeNameLength) {
+  if (pipe_name.length() == 0 || pipe_name.length() >= kMaxPipeNameLength) {
     return false;
   }
 
@@ -158,7 +148,7 @@ bool CreateServerFifo(const std::string &pipe_name, int* server_listen_fd) {
   struct sockaddr_un unix_addr;
   memset(&unix_addr, 0, sizeof(unix_addr));
   unix_addr.sun_family = AF_UNIX;
-  snprintf(unix_addr.sun_path, kMaxPipeNameLength + 1, "%s", pipe_name.c_str());
+  snprintf(unix_addr.sun_path, kMaxPipeNameLength, "%s", pipe_name.c_str());
   size_t unix_addr_len = offsetof(struct sockaddr_un, sun_path) +
       strlen(unix_addr.sun_path) + 1;
 
@@ -198,7 +188,7 @@ bool ServerAcceptFifoConnection(int server_listen_fd, int* server_socket) {
 
 bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
   DCHECK(client_socket);
-  DCHECK(pipe_name.length() < kMaxPipeNameLength);
+  DCHECK_LT(pipe_name.length(), kMaxPipeNameLength);
 
   // Create socket.
   int fd = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -209,7 +199,7 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
 
   // Make socket non-blocking
   if (fcntl(fd, F_SETFL, O_NONBLOCK) == -1) {
-    LOG(ERROR) << "fcnt failed";
+    LOG(ERROR) << "fcntl failed";
     close(fd);
     return false;
   }
@@ -218,7 +208,7 @@ bool ClientConnectToFifo(const std::string &pipe_name, int* client_socket) {
   struct sockaddr_un  server_unix_addr;
   memset(&server_unix_addr, 0, sizeof(server_unix_addr));
   server_unix_addr.sun_family = AF_UNIX;
-  snprintf(server_unix_addr.sun_path, kMaxPipeNameLength + 1, "%s",
+  snprintf(server_unix_addr.sun_path, kMaxPipeNameLength, "%s",
            pipe_name.c_str());
   size_t server_unix_addr_len = offsetof(struct sockaddr_un, sun_path) +
       strlen(server_unix_addr.sun_path) + 1;
