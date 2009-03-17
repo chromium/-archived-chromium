@@ -81,10 +81,6 @@ class VisitedLinkMaster : public VisitedLinkCommon {
   bool ShareToProcess(base::ProcessHandle process,
                       base::SharedMemoryHandle *new_handle);
 
-  // returns the name of the shared memory object that slaves can use to map
-  // the data
-  std::wstring GetSharedMemoryName() const;
-
   // Returns the handle to the shared memory
   base::SharedMemoryHandle GetSharedMemoryHandle();
 

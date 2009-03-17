@@ -258,20 +258,6 @@ void VisitedLinkMaster::InitMembers(base::Thread* file_thread,
 #endif
 }
 
-// The shared memory name should be unique on the system and also needs to
-// change when we create a new table. The scheme we use includes the process
-// ID, an increasing serial number, and the profile ID.
-std::wstring VisitedLinkMaster::GetSharedMemoryName() const {
-  // When unit testing, there's no profile, so use an empty ID string.
-  std::wstring profile_id;
-  if (profile_)
-    profile_id = profile_->GetID().c_str();
-
-  return StringPrintf(L"GVisitedLinks_%lu_%lu_%ls",
-                      base::GetCurrentProcId(), shared_memory_serial_,
-                      profile_id.c_str());
-}
-
 bool VisitedLinkMaster::Init() {
   if (!InitFromFile())
     return InitFromScratch(suppress_rebuild_);
@@ -702,9 +688,11 @@ bool VisitedLinkMaster::CreateURLTable(int32 num_entries, bool init_to_empty) {
   if (!shared_memory_)
     return false;
 
-  if (!shared_memory_->Create(GetSharedMemoryName().c_str(),
-      false, false, alloc_size))
+  if (!shared_memory_->Create(std::wstring() /* anonymous */,
+                              false /* read-write */, false /* create */,
+                              alloc_size)) {
     return false;
+  }
 
   // Map into our process.
   if (!shared_memory_->Map(alloc_size)) {
