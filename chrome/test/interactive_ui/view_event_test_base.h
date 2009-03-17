@@ -7,7 +7,7 @@
 
 #include "base/message_loop.h"
 #include "base/thread.h"
-#include "chrome/views/window_delegate.h"
+#include "chrome/views/window/window_delegate.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class Task;
