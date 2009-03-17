@@ -21,6 +21,12 @@ function createElementWithClassName(type, className) {
   return elm;
 }
 
+// Escapes a URI as appropriate for CSS.
+function encodeURIForCSS(uri) {
+  // CSS uris need to have '(' and ')' escaped.
+  return uri.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+}
+
 // TODO(glen): Get rid of these global references, replace with a controller
 //     or just make the classes own more of the page.
 var historyModel;
@@ -157,7 +163,8 @@ Page.prototype.getTitleDOM_ = function() {
   node.className = 'title';
   var link = document.createElement('a');
   link.href = this.url_;
-  link.style.backgroundImage = 'url(chrome-ui://favicon/' + this.url_ + ')';
+  link.style.backgroundImage =
+      'url(chrome-ui://favicon/' + encodeURIForCSS(this.url_) + ')';
   link.appendChild(document.createTextNode(this.title_));
   this.highlightNodeContent_(link);
 
