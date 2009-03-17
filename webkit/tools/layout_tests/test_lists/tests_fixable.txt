@@ -1561,7 +1561,8 @@ LINUX : LayoutTests/fast/clip/010.html = PASS CRASH
 LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
 
 // Regressions from WebKit merge to 40864
-WIN LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
+// Likely just needs a rebaseline.
+LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/fast/dom/getClientRects.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
