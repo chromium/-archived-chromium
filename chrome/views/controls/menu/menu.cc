@@ -8,6 +8,8 @@
 #include <atlapp.h>
 #include <atlwin.h>
 #include <atlcrack.h>
+#include <atlframe.h>
+#include <atlmisc.h>
 #include <string>
 
 #include "base/gfx/rect.h"
