@@ -743,11 +743,11 @@ class RenderView : public RenderWidget,
   scoped_refptr<DebugMessageHandler> debug_message_handler_;
 
   // Provides access to this renderer from the remote Inspector UI.
-  scoped_refptr<DevToolsAgent> dev_tools_agent_;
+  scoped_refptr<DevToolsAgent> devtools_agent_;
 
   // DevToolsClient for renderer hosting developer tools UI. It's NULL for other
   // render views.
-  scoped_ptr<DevToolsClient> dev_tools_client_;
+  scoped_ptr<DevToolsClient> devtools_client_;
 
   scoped_ptr<WebFileChooserCallback> file_chooser_;
 

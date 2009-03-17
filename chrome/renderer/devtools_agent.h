@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_DEV_TOOLS_AGENT_H_
-#define CHROME_RENDERER_DEV_TOOLS_AGENT_H_
+#ifndef CHROME_RENDERER_DEVTOOLS_AGENT_H_
+#define CHROME_RENDERER_DEVTOOLS_AGENT_H_
 
 #include <string>
 
@@ -11,7 +11,7 @@
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_channel_proxy.h"
-#include "chrome/renderer/dev_tools_messages.h"
+#include "chrome/renderer/devtools_messages.h"
 #include "webkit/glue/debugger_bridge.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 
@@ -79,4 +79,4 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   DISALLOW_COPY_AND_ASSIGN(DevToolsAgent);
 };
 
-#endif  // CHROME_RENDERER_DEV_TOOLS_AGENT_H_
+#endif  // CHROME_RENDERER_DEVTOOLS_AGENT_H_

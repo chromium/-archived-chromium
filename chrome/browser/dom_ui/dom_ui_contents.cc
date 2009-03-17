@@ -5,7 +5,7 @@
 #include "chrome/browser/dom_ui/dom_ui_contents.h"
 
 #include "chrome/browser/dom_ui/debugger_ui.h"
-#include "chrome/browser/dom_ui/dev_tools_ui.h"
+#include "chrome/browser/dom_ui/devtools_ui.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/downloads_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
@@ -258,8 +258,8 @@ bool DOMUIContents::InitCurrentUI(bool reload) {
       current_ui_->Init();
       current_url_ = url;
     }
-  } 
-  
+  }
+
   if (current_ui_)
     return true;
 

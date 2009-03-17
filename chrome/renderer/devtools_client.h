@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_DEV_TOOLS_CLIENT_H_
-#define CHROME_RENDERER_DEV_TOOLS_CLIENT_H_
+#ifndef CHROME_RENDERER_DEVTOOLS_CLIENT_H_
+#define CHROME_RENDERER_DEVTOOLS_CLIENT_H_
 
 #include <string>
 
 #include "base/scoped_ptr.h"
-#include "chrome/renderer/dev_tools_messages.h"
+#include "chrome/renderer/devtools_messages.h"
 #include "webkit/glue/webdevtoolsclient_delegate.h"
 
 namespace IPC {
@@ -49,4 +49,4 @@ class DevToolsClient : public WebDevToolsClientDelegate {
   DISALLOW_COPY_AND_ASSIGN(DevToolsClient);
 };
 
-#endif  // CHROME_RENDERER_DEV_TOOLS_CLIENT_H_
+#endif  // CHROME_RENDERER_DEVTOOLS_CLIENT_H_

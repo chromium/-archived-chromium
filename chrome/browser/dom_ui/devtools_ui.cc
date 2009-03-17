@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/dom_ui/dev_tools_ui.h"
+#include "chrome/browser/dom_ui/devtools_ui.h"
 
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/render_messages.h"

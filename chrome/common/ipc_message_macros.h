@@ -53,7 +53,7 @@
 #include "chrome/common/ipc_sync_message_unittest.h"
 #include "chrome/common/plugin_messages_internal.h"
 #include "chrome/common/render_messages_internal.h"
-#include "chrome/renderer/dev_tools_messages_internal.h"
+#include "chrome/renderer/devtools_messages_internal.h"
 #include "chrome/test/automation/automation_messages_internal.h"
 #include "chrome/common/worker_messages_internal.h"
 #endif

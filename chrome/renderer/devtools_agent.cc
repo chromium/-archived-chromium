@@ -13,11 +13,11 @@
 // v8 provides thread-safe Api for controlling debugger. In our case v8's Api
 // is being used from this communication agent on the IO thread.
 
-#include "chrome/renderer/dev_tools_agent.h"
+#include "chrome/renderer/devtools_agent.h"
 
 #include "base/message_loop.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/renderer/dev_tools_messages.h"
+#include "chrome/renderer/devtools_messages.h"
 // TODO(yurys): remove this macros once plugins available on other platforms
 #if defined(OS_WIN)
 #include "chrome/renderer/plugin_channel_host.h"
