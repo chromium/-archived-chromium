@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_SYNC_DISPATCHER_H__
-#define SANDBOX_SRC_SYNC_DISPATCHER_H__
+#ifndef SANDBOX_SRC_SYNC_DISPATCHER_H_
+#define SANDBOX_SRC_SYNC_DISPATCHER_H_
 
 #include "base/basictypes.h"
 #include "sandbox/src/crosscall_server.h"
@@ -35,4 +35,4 @@ private:
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_FILESYSTEM_DISPATCHER_H__
+#endif  // SANDBOX_SRC_SYNC_DISPATCHER_H_

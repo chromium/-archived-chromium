@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef SANDBOX_SRC_RESTRICTED_SECURITY_LEVEL_H__
-#define SANDBOX_SRC_RESTRICTED_SECURITY_LEVEL_H__
+#ifndef SANDBOX_SRC_SECURITY_LEVEL_H_
+#define SANDBOX_SRC_SECURITY_LEVEL_H_
 
 namespace sandbox {
 
@@ -123,4 +123,4 @@ enum JobLevel {
 
 }  // namespace sandbox
 
-#endif  // SANDBOX_SRC_RESTRICTED_SECURITY_LEVEL_H__
+#endif  // SANDBOX_SRC_SECURITY_LEVEL_H_
