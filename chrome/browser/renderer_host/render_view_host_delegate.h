@@ -219,7 +219,10 @@ class RenderViewHostDelegate {
   // The RenderView loaded a resource from an in-memory cache.
   // |security_info| contains the security info if this resource was originally
   // loaded over a secure connection.
-  virtual void DidLoadResourceFromMemoryCache(const GURL& url,
+  virtual void DidLoadResourceFromMemoryCache(
+      const GURL& url,
+      const std::string& frame_origin,
+      const std::string& main_frame_origin,
       const std::string& security_info) { }
 
   // The RenderView failed a provisional load with an error.

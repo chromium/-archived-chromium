@@ -458,6 +458,8 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgDidStartLoading(int32 page_id);
   void OnMsgDidStopLoading(int32 page_id);
   void OnMsgDidLoadResourceFromMemoryCache(const GURL& url,
+                                           const std::string& frame_origin,
+                                           const std::string& main_frame_origin,
                                            const std::string& security_info);
   void OnMsgDidStartProvisionalLoadForFrame(bool main_frame,
                                             const GURL& url);

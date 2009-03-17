@@ -319,8 +319,11 @@ class WebContents : public TabContents,
   virtual void DidRedirectProvisionalLoad(int32 page_id,
                                           const GURL& source_url,
                                           const GURL& target_url);
-  virtual void DidLoadResourceFromMemoryCache(const GURL& url,
-                                              const std::string& security_info);
+  virtual void DidLoadResourceFromMemoryCache(
+      const GURL& url,
+      const std::string& frame_origin,
+      const std::string& main_frame_origin,
+      const std::string& security_info);
   virtual void DidFailProvisionalLoadWithError(
       RenderViewHost* render_view_host,
       bool is_main_frame,

@@ -949,8 +949,11 @@ void RenderViewHost::OnMsgDidStopLoading(int32 page_id) {
 
 void RenderViewHost::OnMsgDidLoadResourceFromMemoryCache(
     const GURL& url,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& security_info) {
-  delegate_->DidLoadResourceFromMemoryCache(url, security_info);
+  delegate_->DidLoadResourceFromMemoryCache(
+      url, frame_origin, main_frame_origin, security_info);
 }
 
 void RenderViewHost::OnMsgDidStartProvisionalLoadForFrame(bool is_main_frame,

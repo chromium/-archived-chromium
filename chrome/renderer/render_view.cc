@@ -1265,7 +1265,9 @@ bool RenderView::DidLoadResourceFromMemoryCache(WebView* webview,
   // Let the browser know we loaded a resource from the memory cache.  This
   // message is needed to display the correct SSL indicators.
   Send(new ViewHostMsg_DidLoadResourceFromMemoryCache(routing_id_,
-      request.GetURL(), response.GetSecurityInfo()));
+      request.GetURL(), frame->GetSecurityOrigin(),
+      frame->GetTop()->GetSecurityOrigin(),
+      response.GetSecurityInfo()));
 
   return false;
 }

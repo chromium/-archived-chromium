@@ -926,6 +926,8 @@ void WebContents::DidRedirectProvisionalLoad(int32 page_id,
 
 void WebContents::DidLoadResourceFromMemoryCache(
     const GURL& url,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& security_info) {
   if (!controller())
     return;
@@ -935,7 +937,8 @@ void WebContents::DidLoadResourceFromMemoryCache(
   SSLManager::DeserializeSecurityInfo(security_info,
                                       &cert_id, &cert_status,
                                       &security_bits);
-  LoadFromMemoryCacheDetails details(url, cert_id, cert_status);
+  LoadFromMemoryCacheDetails details(url, frame_origin, main_frame_origin,
+                                     cert_id, cert_status);
 
   NotificationService::current()->Notify(
       NotificationType::LOAD_FROM_MEMORY_CACHE,
