@@ -4,20 +4,26 @@
 
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "chrome/renderer/media/data_source_impl.h"
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
+#include "chrome/renderer/render_thread.h"
 #include "media/base/filter_host.h"
 #include "media/base/pipeline.h"
+#include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 
 DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
     : delegate_(delegate),
+      render_loop_(RenderThread::current()->message_loop()),
       stopped_(false),
       download_event_(false, false),
       downloaded_bytes_(0),
       total_bytes_(0),
       total_bytes_known_(false),
+      resource_loader_bridge_(NULL),
+      resource_release_event_(true, false),
       read_event_(false, false),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           read_callback_(this, &DataSourceImpl::OnDidFileStreamRead)),
@@ -27,6 +33,8 @@ DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
       io_loop_(delegate->view()->GetMessageLoopForIO()),
       close_event_(false, false),
       seek_event_(false, false) {
+  // Register ourselves with WebMediaPlayerDelgateImpl.
+  delegate_->SetDataSource(this);
 }
 
 DataSourceImpl::~DataSourceImpl() {
@@ -37,13 +45,20 @@ void DataSourceImpl::Stop() {
     return;
   stopped_ = true;
 
-  // TODO(hclam): things to do here:
-  // 1. Call to RenderView to cancel the streaming resource request.
+  // 1. Cancel the resource request.
+  if (!resource_release_event_.IsSignaled()) {
+    render_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &DataSourceImpl::ReleaseRendererResources));
+    resource_release_event_.Wait();
+  }
+
   // 2. Signal download_event_.
   download_event_.Signal();
 
   // Post a close file stream task to IO message loop, it will signal the read
   // event.
+  // TODO(hclam): make sure it's safe to do this during destruction of
+  // RenderThread.
   io_loop_->PostTask(
       FROM_HERE, NewRunnableMethod(this, &DataSourceImpl::OnCloseFileStream));
 
@@ -55,13 +70,11 @@ void DataSourceImpl::Stop() {
 }
 
 bool DataSourceImpl::Initialize(const std::string& url) {
-  // TODO(hclam): call to RenderView by delegate_->view() to initiate a
-  // streaming session in the browser process. Call to RenderView by
-  // delegate_->view() to initiate a streaming session in the browser process.
-  // We should get a call back at OnReceivedResponse().
   media_format_.SetAsString(media::MediaFormat::kMimeType,
                             media::mime_type::kApplicationOctetStream);
   media_format_.SetAsString(media::MediaFormat::kURL, url);
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &DataSourceImpl::OnInitialize, url));
   return true;
 }
 
@@ -194,33 +207,104 @@ void DataSourceImpl::OnDidFileStreamRead(int size) {
   read_event_.Signal();
 }
 
-void DataSourceImpl::OnReceivedResponse(base::PlatformFile file,
-                                        int response_code,
-                                        int64 content_length) {
-  // TODO(hclam): come up with a valid set of response codes and react to the
-  // code properly and not just the file handle.
-  if (file != base::kInvalidPlatformFileValue) {
+void DataSourceImpl::OnInitialize(std::string uri) {
+  uri_ = uri;
+  // Create the resource loader bridge.
+  resource_loader_bridge_ =
+      RenderThread::current()->resource_dispatcher()->CreateBridge(
+      "GET",
+      GURL(uri),
+      GURL(uri),
+      GURL(),        // TODO(hclam): provide referer here.
+      std::string(), // Provide no header.
+      // Prefer to load from cache, also enable downloading the file, the
+      // resource will be saved to a single response data file if it's possible.
+      net::LOAD_PREFERRING_CACHE | net::LOAD_ENABLE_DOWNLOAD_FILE,
+      base::GetCurrentProcId(),
+      ResourceType::MEDIA,
+      false,
+      0,
+      delegate_->view()->routing_id());
+  // Start the resource loading.
+  resource_loader_bridge_->Start(this);
+}
+
+void DataSourceImpl::ReleaseRendererResources() {
+  DCHECK(MessageLoop::current() == render_loop_);
+  if (resource_loader_bridge_) {
+    resource_loader_bridge_->Cancel();
+    resource_loader_bridge_ = NULL;
+  }
+  resource_release_event_.Signal();
+}
+
+void DataSourceImpl::OnDownloadProgress(uint64 position, uint64 size) {
+  {
+    AutoLock auto_lock(lock_);
+    downloaded_bytes_ = position;
+    if (!total_bytes_known_) {
+      if (size == kuint64max)
+        total_bytes_ = position;
+      else {
+        total_bytes_ = size;
+        total_bytes_known_ = true;
+      }
+    }
+  }
+  download_event_.Signal();
+}
+
+void DataSourceImpl::OnUploadProgress(uint64 position, uint64 size) {
+  // We don't care about upload progress.
+}
+
+void DataSourceImpl::OnReceivedRedirect(const GURL& new_url) {
+  // TODO(hclam): what to do here? fire another resource request or show an
+  // error?
+}
+
+void DataSourceImpl::OnReceivedResponse(
+    const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+    bool content_filtered) {
+#if defined(OS_POSIX)
+  base::PlatformFile response_data_file = info.response_data_file.fd;
+#elif defined(OS_WIN)
+  base::PlatformFile response_data_file = info.response_data_file;
+#endif
+
+  if (response_data_file != base::kInvalidPlatformFileValue) {
     DCHECK(!position_ && !downloaded_bytes_);
-    total_bytes_ = content_length;
-    if (content_length != 0)
+    if (info.content_length != -1) {
       total_bytes_known_ = true;
+      total_bytes_ = info.content_length;
+    }
 
     // Post a task to the IO message loop to create the file stream.
-    delegate_->view()->GetMessageLoopForIO()->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &DataSourceImpl::OnCreateFileStream, file));
+    io_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &DataSourceImpl::OnCreateFileStream,
+                          response_data_file));
   } else {
+    // TODO(hclam): handle the fallback case of using memory buffer here.
     host_->Error(media::PIPELINE_ERROR_NETWORK);
   }
 }
 
-void DataSourceImpl::OnReceivedData(size_t bytes) {
-  {
-    AutoLock auto_lock(lock_);
-    downloaded_bytes_ += bytes;
-    if (!total_bytes_known_)
-      total_bytes_ += bytes;
+void DataSourceImpl::OnReceivedData(const char* data, int len) {
+  // TODO(hclam): we will get this method call when browser process fails
+  // to provide us with a file handle, come up with some fallback mechanism.
+}
+
+void DataSourceImpl::OnCompletedRequest(const URLRequestStatus& status,
+                                        const std::string& security_info) {
+  if (status.status() != URLRequestStatus::SUCCESS) {
+    host_->Error(media::PIPELINE_ERROR_NETWORK);
+  } else {
+    // TODO(hclam): notify end of stream to pipeline.
   }
-  download_event_.Signal();
+}
+
+std::string DataSourceImpl::GetURLForDebugging() {
+  return uri_;
 }
 
 const media::MediaFormat* DataSourceImpl::GetMediaFormat() {

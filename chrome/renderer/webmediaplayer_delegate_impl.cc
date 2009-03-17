@@ -46,6 +46,7 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       filter_factory_(new media::FilterFactoryCollection()),
       audio_renderer_(NULL),
       video_renderer_(NULL),
+      data_source_(NULL),
       web_media_player_(NULL),
       view_(view),
       tasks_(kLastTaskIndex) {
@@ -273,10 +274,21 @@ void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
 }
 
 void WebMediaPlayerDelegateImpl::WillDestroyCurrentMessageLoop() {
-  if (audio_renderer_)
+  // Instruct the renderers and data source to release all Renderer related
+  // resources during destruction of render thread, because they won't have any
+  // chance to release these resources on render thread by posting tasks on it.
+  if (audio_renderer_) {
     audio_renderer_->ReleaseRendererResources();
-  // Stop the pipeline when the main thread is being destroyed so we won't be
-  // posting any more messages onto it. And we just let this obejct and
+    audio_renderer_ = NULL;
+  }
+
+  if (data_source_) {
+    data_source_->ReleaseRendererResources();
+    data_source_ = NULL;
+  }
+
+  // Stop the pipeline when the render thread is being destroyed so we won't be
+  // posting any more messages onto it. And we just let this object and
   // associated WebMediaPlayer to leak.
   pipeline_.Stop();
 }
@@ -310,6 +322,11 @@ void WebMediaPlayerDelegateImpl::SetVideoRenderer(
     VideoRendererImpl* video_renderer) {
   DCHECK(!video_renderer_);
   video_renderer_ = video_renderer;
+}
+
+void WebMediaPlayerDelegateImpl::SetDataSource(
+    DataSourceImpl* data_source) {
+  data_source_ = data_source;
 }
 
 void WebMediaPlayerDelegateImpl::DidTask(CancelableTask* task) {

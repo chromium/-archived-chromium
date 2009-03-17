@@ -27,12 +27,21 @@
 // Render thread
 //   +-- DataSourceImpl()
 //   |     Perform construction of this class.
+//   |-- static CreateFactory()
+//   |     Called during construction of this class.
+//   |-- OnInitialize()
+//   |     Task posted by Initialize() to kick start resource loading.
+//   |-- OnCancel()
+//   |     Cancel the resource loading.
+//   |-- OnDownloadProgress()
+//   |     Receives download progress information for the response data file.
+//   |-- OnUploadProgress()
+//   |-- OnReceivedRedirect()
 //   |-- OnReceivedResponse()
-//   |     Notify the response information of a progressive resource load.
-//   |-- OnReceivedData();
-//   |     Notify the progress of a progress resource load.
-//   \-- static CreateFactory()
-//         Called during construction of this class.
+//   |-- OnReceivedData()
+//   |-- OnCompletedRequest()
+//   |-- GetURLForDebugging()
+//   \-- ReleaseRendererResources();
 //
 // Pipeline thread
 //   +-- Initialize()
@@ -77,10 +86,12 @@
 #include "media/base/media_format.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
+#include "webkit/glue/resource_loader_bridge.h"
 
 class WebMediaPlayerDelegateImpl;
 
-class DataSourceImpl : public media::DataSource {
+class DataSourceImpl : public media::DataSource,
+                       public webkit_glue::ResourceLoaderBridge::Peer {
  public:
   // Methods called from render thread ----------------------------------------
   // Static methods for creating this class.
@@ -90,10 +101,28 @@ class DataSourceImpl : public media::DataSource {
         WebMediaPlayerDelegateImpl*>(delegate);
   }
 
-  // Handlers for asynchronous streaming.
-  void OnReceivedResponse(base::PlatformFile file, int response_cide,
-                          int64 content_length);
-  void OnReceivedData(size_t size);
+  // webkit_glue::ResourceLoaderBridge::Peer implementations, receive events
+  // for resource loading.
+  virtual void OnDownloadProgress(uint64 position, uint64 size);
+  virtual void OnUploadProgress(uint64 position, uint64 size);
+  virtual void OnReceivedRedirect(const GURL& new_url);
+  virtual void OnReceivedResponse(
+      const webkit_glue::ResourceLoaderBridge::ResponseInfo& info,
+      bool content_filtered);
+  virtual void OnReceivedData(const char* data, int len);
+  virtual void OnCompletedRequest(const URLRequestStatus& status,
+                                  const std::string& security_info);
+  virtual std::string GetURLForDebugging();
+
+  // Release all resources associated with RenderView, particularly
+  // ResourceLoaderBridge created by ResourceDispatcher. This method should only
+  // be executed on render thread, we have this method standalone and public
+  // here because WebMediaPlayerDelegateImpl will be calling this method when
+  // render thread is being destroyed, and in that case we can't post tasks to
+  // render thread from pipeline thread anymore so we have to release resources
+  // manually from WebMediaPlayerDelegateImpl and we will not do the same thing
+  // in Stop().
+  void ReleaseRendererResources();
 
   // Methods called from pipeline thread --------------------------------------
   virtual bool Initialize(const std::string& url);
@@ -117,6 +146,10 @@ class DataSourceImpl : public media::DataSource {
   explicit DataSourceImpl(WebMediaPlayerDelegateImpl* delegate);
   virtual ~DataSourceImpl();
 
+  // Tasks to be posted on render thread.
+  void OnInitialize(std::string uri);
+  void OnCancel();
+
   // Methods called from IO thread --------------------------------------------
   // Handlers for file reading.
   void OnCreateFileStream(base::PlatformFile file);
@@ -131,17 +164,27 @@ class DataSourceImpl : public media::DataSource {
   // in construction and can be accessed in all threads safely.
   WebMediaPlayerDelegateImpl* delegate_;
 
+  // Message loop of render thread.	
+  MessageLoop* render_loop_;
+
   // A common lock for protecting members accessed by multiple threads.
   Lock lock_;
 
   // A flag that indicates whether this object has been called to stop.
   bool stopped_;
 
+  // URI to the resource being downloaded.	
+  std::string uri_;
+
   // Members for keeping track of downloading progress.
   base::WaitableEvent download_event_;
   int64 downloaded_bytes_;
   int64 total_bytes_;
   bool total_bytes_known_;
+
+  // Members related to resource loading with RenderView.
+  webkit_glue::ResourceLoaderBridge* resource_loader_bridge_;
+  base::WaitableEvent resource_release_event_;
 
   // Members used for reading.
   base::WaitableEvent read_event_;
