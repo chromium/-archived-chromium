@@ -31,6 +31,7 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/cache-override.html = FAIL
 // LightTPD doesn't accept unknown HTTP methods
 DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/methods-lower-case.html = TIMEOUT CRASH
 DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
+DEFER WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
 DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
@@ -705,8 +706,6 @@ LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
-LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
-LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = FAIL TIMEOUT PASS
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
@@ -1843,7 +1842,8 @@ DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-paddin
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Rebaselined in webkit in http://trac.webkit.org/changeset/41665
-MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
+LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
+MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL TIMEOUT
 // Unknown what change caused these to fail.
 WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
 LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
