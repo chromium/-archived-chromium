@@ -5,8 +5,8 @@
 #ifndef CHROME_BROWSER_VIEWS_IMPORTER_LOCK_VIEW_H__
 #define CHROME_BROWSER_VIEWS_IMPORTER_LOCK_VIEW_H__
 
-#include "chrome/views/dialog_delegate.h"
 #include "chrome/views/view.h"
+#include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
 class Label;

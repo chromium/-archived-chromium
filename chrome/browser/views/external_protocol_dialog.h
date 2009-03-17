@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_EXTERNAL_PROTOCOL_DIALOG_H__
 #define CHROME_BROWSER_EXTERNAL_PROTOCOL_DIALOG_H__
 
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 #include "googleurl/src/gurl.h"
 
 class MessageBoxView;
