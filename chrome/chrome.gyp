@@ -524,7 +524,6 @@
         'browser/debugger/debugger_shell.cc',
         'browser/debugger/debugger_shell.h',
         'browser/debugger/debugger_shell_stubs.cc',
-        'browser/debugger/debugger_shell_stubs.h',
         'browser/debugger/debugger_view.cc',
         'browser/debugger/debugger_view.h',
         'browser/debugger/debugger_window.cc',
