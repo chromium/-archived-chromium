@@ -7,6 +7,8 @@
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlwin.h>
+#include <atlcrack.h>
+#include <string>
 
 #include "base/message_loop.h"
 #include "chrome/views/controls/hwnd_view.h"

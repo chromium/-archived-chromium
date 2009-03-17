@@ -7,6 +7,8 @@
 #include <atlbase.h>
 #include <atlapp.h>
 #include <atlwin.h>
+#include <atlcrack.h>
+#include <string>
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
