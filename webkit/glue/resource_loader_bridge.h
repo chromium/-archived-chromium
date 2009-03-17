@@ -17,6 +17,11 @@
 #ifndef RESOURCE_LOADER_BRIDGE_H_
 #define RESOURCE_LOADER_BRIDGE_H_
 
+#include "build/build_config.h"
+#if defined(OS_POSIX)
+#include "base/file_descriptor_posix.h"
+#endif
+#include "base/platform_file.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
@@ -61,6 +66,20 @@ class ResourceLoaderBridge {
 
     // Content length if available. -1 if not available
     int64 content_length;
+
+    // A platform specific handle for a file that carries response data. This
+    // entry is used if the resource request is of type ResourceType::MEDIA and
+    // the underlying cache layer keeps the response data in a standalone file.
+#if defined(OS_POSIX)
+    // If the response data file is available, the file handle is stored in
+    // response_data_file.fd, its value is base::kInvalidPlatformFileValue
+    // otherwise.
+    base::FileDescriptor response_data_file;
+#elif defined(OS_WIN)
+    // An asynchronous file handle to the response data file, its value is
+    // base::kInvalidPlatformFileValue if the file is not available.
+    base::PlatformFile response_data_file;
+#endif
   };
 
   // See the SyncLoad method declared below.  (The name of this struct is not

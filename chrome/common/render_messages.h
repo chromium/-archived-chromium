@@ -1374,6 +1374,7 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
     WriteParam(m, p.charset);
     WriteParam(m, p.security_info);
     WriteParam(m, p.content_length);
+    WriteParam(m, p.response_data_file);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
@@ -1383,7 +1384,8 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
       ReadParam(m, iter, &r->mime_type) &&
       ReadParam(m, iter, &r->charset) &&
       ReadParam(m, iter, &r->security_info) &&
-      ReadParam(m, iter, &r->content_length);
+      ReadParam(m, iter, &r->content_length) &&
+      ReadParam(m, iter, &r->response_data_file);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -1409,7 +1411,6 @@ struct ParamTraits<ResourceResponseHead> {
     ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo>::Write(m, p);
     WriteParam(m, p.status);
     WriteParam(m, p.filter_policy);
-    WriteParam(m, p.response_data_file);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
@@ -1417,8 +1418,7 @@ struct ParamTraits<ResourceResponseHead> {
                                                                          iter,
                                                                          r) &&
       ReadParam(m, iter, &r->status) &&
-      ReadParam(m, iter, &r->filter_policy) &&
-      ReadParam(m, iter, &r->response_data_file);
+      ReadParam(m, iter, &r->filter_policy);
   }
   static void Log(const param_type& p, std::wstring* l) {
     // log more?
