@@ -1856,3 +1856,22 @@ DEBUG LINUX : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
 DEBUG LINUX : chrome/fast/dom/onload-fires-twice.html = FAIL
 DEBUG LINUX : LayoutTests/fast/canvas/canvas-pattern-transform.html = CRASH
 DEBUG LINUX : LayoutTests/svg/custom/mask-excessive-malloc.svg = CRASH
+
+// Need rebaseline
+LINUX : LayoutTests/fast/body-propagation/overflow/002-xhtml.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/002.html = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/003-declarative.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/003-xhtml.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/003.html = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/004-declarative.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/004.html = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/007-declarative.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/007-xhtml.xhtml = FAIL
+LINUX : LayoutTests/fast/body-propagation/overflow/007.html = FAIL
+LINUX : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
+LINUX : LayoutTests/fast/overflow/003.xml = FAIL
+LINUX : LayoutTests/fast/overflow/007.html = FAIL
+LINUX : LayoutTests/fast/repaint/selection-gap-overflow-scroll.html = FAIL
+LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+LINUX : chrome/fast/forms/basic-textareas.html = FAIL
