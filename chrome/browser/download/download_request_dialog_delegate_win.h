@@ -9,7 +9,7 @@
 
 #include "chrome/browser/download/download_request_dialog_delegate.h"
 #include "chrome/browser/download/download_request_manager.h"
-#include "chrome/views/dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 
 class ConstrainedWindow;
 class MessageBoxView;
