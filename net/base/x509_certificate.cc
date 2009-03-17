@@ -123,6 +123,14 @@ void X509Certificate::Policy::Deny(X509Certificate* cert) {
   denied_.insert(cert->fingerprint());
 }
 
+bool X509Certificate::Policy::HasAllowedCert() const {
+  return !allowed_.empty();
+}
+
+bool X509Certificate::Policy::HasDeniedCert() const {
+  return !denied_.empty();
+}
+
 // static
 X509Certificate* X509Certificate::CreateFromHandle(OSCertHandle cert_handle,
                                                    Source source) {

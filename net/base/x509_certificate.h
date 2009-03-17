@@ -110,6 +110,12 @@ class X509Certificate : public base::RefCountedThreadSafe<X509Certificate> {
     // Causes the policy to deny this certificate.
     void Deny(X509Certificate* cert);
 
+    // Returns true if this policy has allowed at least one certificate.
+    bool HasAllowedCert() const;
+
+    // Returns true if this policy has denied at least one certificate.
+    bool HasDeniedCert() const;
+
    private:
     // The set of fingerprints of allowed certificates.
     std::set<Fingerprint, FingerprintLessThan> allowed_;
