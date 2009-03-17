@@ -39,7 +39,7 @@
 #if defined(OS_WIN)
 #include "chrome/browser/views/importer_lock_view.h"
 #include "chrome/common/win_util.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #endif
 
 // ProfileWriter.
