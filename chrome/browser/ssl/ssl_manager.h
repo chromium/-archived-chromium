@@ -343,16 +343,17 @@ class SSLManager : public NotificationObserver {
                                     net::X509Certificate* cert,
                                     MessageLoop* ui_loop);
 
-  // Called when a mixed-content sub-resource request has been detected.  The
-  // request is not started yet.  The SSLManager will make a decision on whether
-  // to filter that request's content (with the filter_policy flag).
+  // Called before a URL request is about to be started.  Returns false if the
+  // resource request should be delayed while we figure out what to do.  We use
+  // this function as the entry point for our mixed content detection.
+  //
   // TODO(jcampan): Implement a way to just cancel the request.  This is not
   // straight-forward as canceling a request that has not been started will
   // not remove from the pending_requests_ of the ResourceDispatcherHost.
   // Called on the IO thread.
-  static void OnMixedContentRequest(ResourceDispatcherHost* resource_dispatcher,
-                                    URLRequest* request,
-                                    MessageLoop* ui_loop);
+  static bool ShouldStartRequest(ResourceDispatcherHost* resource_dispatcher,
+                                 URLRequest* request,
+                                 MessageLoop* ui_loop);
 
   // Called by CertError::Dispatch to kick off processing of the cert error by
   // the SSL manager.  The error originated from the ResourceDispatcherHost.

@@ -39,19 +39,19 @@ class ResourceDispatcher {
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& headers,
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
-    bool mixed_content,
     uint32 request_context /* used for plugin->browser requests */,
     int route_id);
 
   // Adds a request from the pending_requests_ list, returning the new
   // requests' ID
   int AddPendingRequest(webkit_glue::ResourceLoaderBridge::Peer* callback,
-                        ResourceType::Type resource_type,
-                        bool mixed_content);
+                        ResourceType::Type resource_type);
 
   // Removes a request from the pending_requests_ list, returning true if the
   // request was found and removed.
@@ -71,12 +71,10 @@ class ResourceDispatcher {
   struct PendingRequestInfo {
     PendingRequestInfo() { }
     PendingRequestInfo(webkit_glue::ResourceLoaderBridge::Peer* peer,
-                       ResourceType::Type resource_type,
-                       bool mixed_content)
+                       ResourceType::Type resource_type)
         : peer(peer),
           resource_type(resource_type),
           filter_policy(FilterPolicy::DONT_FILTER),
-          mixed_content(mixed_content),
           is_deferred(false) {
     }
     ~PendingRequestInfo() { }
@@ -84,7 +82,6 @@ class ResourceDispatcher {
     ResourceType::Type resource_type;
     FilterPolicy::Type filter_policy;
     MessageQueue deferred_message_queue;
-    bool mixed_content;
     bool is_deferred;
   };
   typedef base::hash_map<int, PendingRequestInfo> PendingRequestList;

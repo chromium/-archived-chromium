@@ -36,10 +36,11 @@ static ViewHostMsg_Resource_Request CreateResourceRequest(const char* method,
   request.url = url;
   request.policy_url = url;  // bypass third-party cookie blocking
   // init the rest to default values to prevent getting UMR.
+  request.frame_origin = "null";
+  request.main_frame_origin = "null";
   request.load_flags = 0;
   request.origin_pid = 0;
   request.resource_type = ResourceType::SUB_RESOURCE;
-  request.mixed_content = false;
   return request;
 }
 

@@ -216,13 +216,14 @@ void DataSourceImpl::OnInitialize(std::string uri) {
       GURL(uri),
       GURL(uri),
       GURL(),        // TODO(hclam): provide referer here.
+      "null",        // TODO(abarth): provide frame_origin
+      "null",        // TODO(abarth): provide main_frame_origin
       std::string(), // Provide no header.
       // Prefer to load from cache, also enable downloading the file, the
       // resource will be saved to a single response data file if it's possible.
       net::LOAD_PREFERRING_CACHE | net::LOAD_ENABLE_DOWNLOAD_FILE,
       base::GetCurrentProcId(),
       ResourceType::MEDIA,
-      false,
       0,
       delegate_->view()->routing_id());
   // Start the resource loading.

@@ -373,13 +373,14 @@ void ResourceDispatcherHost::BeginRequest(
                            process_id,
                            route_id,
                            request_id,
-                           request_data.mixed_content,
+                           request_data.frame_origin,
+                           request_data.main_frame_origin,
                            request_data.resource_type,
                            upload_size);
   extra_info->allow_download = ResourceType::IsFrame(request_data.resource_type);
   request->set_user_data(extra_info);  // takes pointer ownership
 
-  BeginRequestInternal(request, request_data.mixed_content);
+  BeginRequestInternal(request);
 }
 
 void ResourceDispatcherHost::OnDataReceivedACK(int request_id) {
@@ -507,14 +508,15 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
                            process_id,
                            route_id,
                            request_id_,
-                           false,  // Downloads are not considered mixed-content
+                           "null",  // frame_origin
+                           "null",  // main_frame_origin
                            ResourceType::SUB_RESOURCE,
                            0 /* upload_size */ );
   extra_info->allow_download = true;
   extra_info->is_download = true;
   request->set_user_data(extra_info);  // Takes pointer ownership.
 
-  BeginRequestInternal(request, false);
+  BeginRequestInternal(request);
 }
 
 // This function is only used for saving feature.
@@ -560,7 +562,8 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
                            process_id,
                            route_id,
                            request_id_,
-                           false,
+                           "null",  // frame_origin
+                           "null",  // main_frame_origin
                            ResourceType::SUB_RESOURCE,
                            0 /* upload_size */);
   // Just saving some resources we need, disallow downloading.
@@ -568,7 +571,7 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
   extra_info->is_download = false;
   request->set_user_data(extra_info);  // Takes pointer ownership.
 
-  BeginRequestInternal(request, false);
+  BeginRequestInternal(request);
 }
 
 void ResourceDispatcherHost::CancelRequest(int process_id,
@@ -980,8 +983,7 @@ int ResourceDispatcherHost::CalculateApproximateMemoryCost(
   return kAvgBytesPerOutstandingRequest + strings_cost + upload_cost;
 }
 
-void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
-                                                  bool mixed_content) {
+void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request) {
   DCHECK(!request->is_pending());
   ExtraRequestInfo* info = ExtraInfoForRequest(request);
 
@@ -1010,17 +1012,16 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request,
   BlockedRequestMap::const_iterator iter = blocked_requests_map_.find(pair_id);
   if (iter != blocked_requests_map_.end()) {
     // The request should be blocked.
-    iter->second->push_back(BlockedRequest(request, mixed_content));
+    iter->second->push_back(BlockedRequest(request));
     return;
   }
 
   GlobalRequestID global_id(info->process_id, info->request_id);
   pending_requests_[global_id] = request;
-  if (mixed_content) {
-    // We don't start the request in that case.  The SSLManager will potentially
-    // change the request (potentially to indicate its content should be
-    // filtered) and start it itself.
-    SSLManager::OnMixedContentRequest(this, request, ui_loop_);
+  if (!SSLManager::ShouldStartRequest(this, request, ui_loop_)) {
+    // The SSLManager has told us that we shouldn't start the request yet.  The
+    // SSLManager will potentially change the request (potentially to indicate
+    // its content should be filtered) and start it itself.
     return;
   }
   request->Start();
@@ -1508,7 +1509,7 @@ void ResourceDispatcherHost::ProcessBlockedRequestsForRoute(
     if (cancel_requests)
       delete req_iter->url_request;
     else
-      BeginRequestInternal(req_iter->url_request, req_iter->mixed_content);
+      BeginRequestInternal(req_iter->url_request);
   }
 
   delete requests;

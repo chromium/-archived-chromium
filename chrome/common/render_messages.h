@@ -242,6 +242,14 @@ struct ViewHostMsg_Resource_Request {
   // The referrer to use (may be empty).
   GURL referrer;
 
+  // The origin of the frame that is associated with this request.  This is used
+  // to update our mixed content state.
+  std::string frame_origin;
+
+  // The origin of the main frame (top-level frame) that is associated with this
+  // request.  This is used to update our mixed content state.
+  std::string main_frame_origin;
+
   // Additional HTTP request headers.
   std::string headers;
 
@@ -254,10 +262,6 @@ struct ViewHostMsg_Resource_Request {
   // What this resource load is for (main frame, sub-frame, sub-resource,
   // object).
   ResourceType::Type resource_type;
-
-  // True if this request is for a resource loaded over HTTP when the main page
-  // was loaded over HTTPS.
-  bool mixed_content;
 
   // Used by plugin->browser requests to get the correct URLRequestContext.
   uint32 request_context;
@@ -1244,11 +1248,12 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     WriteParam(m, p.url);
     WriteParam(m, p.policy_url);
     WriteParam(m, p.referrer);
+    WriteParam(m, p.frame_origin);
+    WriteParam(m, p.main_frame_origin);
     WriteParam(m, p.headers);
     WriteParam(m, p.load_flags);
     WriteParam(m, p.origin_pid);
     WriteParam(m, p.resource_type);
-    WriteParam(m, p.mixed_content);
     WriteParam(m, p.request_context);
     WriteParam(m, p.upload_content);
   }
@@ -1258,11 +1263,12 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
       ReadParam(m, iter, &r->url) &&
       ReadParam(m, iter, &r->policy_url) &&
       ReadParam(m, iter, &r->referrer) &&
+      ReadParam(m, iter, &r->frame_origin) &&
+      ReadParam(m, iter, &r->main_frame_origin) &&
       ReadParam(m, iter, &r->headers) &&
       ReadParam(m, iter, &r->load_flags) &&
       ReadParam(m, iter, &r->origin_pid) &&
       ReadParam(m, iter, &r->resource_type) &&
-      ReadParam(m, iter, &r->mixed_content) &&
       ReadParam(m, iter, &r->request_context) &&
       ReadParam(m, iter, &r->upload_content);
   }
@@ -1274,13 +1280,15 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     l->append(L", ");
     LogParam(p.referrer, l);
     l->append(L", ");
+    LogParam(p.frame_origin, l);
+    l->append(L", ");
+    LogParam(p.main_frame_origin, l);
+    l->append(L", ");
     LogParam(p.load_flags, l);
     l->append(L", ");
     LogParam(p.origin_pid, l);
     l->append(L", ");
     LogParam(p.resource_type, l);
-    l->append(L", ");
-    LogParam(p.mixed_content, l);
     l->append(L", ");
     LogParam(p.request_context, l);
     l->append(L")");

@@ -442,6 +442,24 @@ SecurityStyle SSLPolicy::GetDefaultStyle(const GURL& url) {
   return SECURITY_STYLE_UNAUTHENTICATED;
 }
 
+// static
+bool SSLPolicy::IsMixedContent(const GURL& url,
+                               ResourceType::Type resource_type,
+                               const std::string& main_frame_origin) {
+  ////////////////////////////////////////////////////////////////////////////
+  // WARNING: This function is called from both the IO and UI threads.  Do  //
+  //          not touch any non-thread-safe objects!  You have been warned. //
+  ////////////////////////////////////////////////////////////////////////////
+
+  // We can't possibly have mixed content when loading the main frame.
+  if (resource_type == ResourceType::MAIN_FRAME)
+    return false;
+
+  // TODO(abarth): This is wrong, but it matches our current behavior.
+  //               I'll fix this in a subsequent step.
+  return GURL(main_frame_origin).SchemeIsSecure() && !url.SchemeIsSecure();
+}
+
 SSLErrorInfo SSLPolicy::GetSSLErrorInfo(SSLManager::CertError* error) {
   return SSLErrorInfo::CreateError(
       SSLErrorInfo::NetErrorToErrorType(error->cert_error()),

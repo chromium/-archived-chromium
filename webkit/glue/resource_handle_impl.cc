@@ -387,10 +387,6 @@ bool ResourceHandleInternal::Start(
   if (requestor_pid == 0)
     requestor_pid = base::GetCurrentProcId();
 
-  bool mixed_content =
-      webkit_glue::KURLToGURL(request_.mainDocumentURL()).SchemeIsSecure() &&
-      !url.SchemeIsSecure();
-
   if (url.SchemeIs("data")) {
     if (sync_load_response) {
       // This is a sync load. Do the work now.
@@ -410,6 +406,13 @@ bool ResourceHandleInternal::Start(
     return true;
   }
 
+  // TODO(abarth): These are wrong!  I need to figure out how to get the right
+  //               strings here.  See: http://crbug.com/8706
+  std::string frame_origin =
+      webkit_glue::StringToStdString(request_.mainDocumentURL().string());
+  std::string main_frame_origin =
+      webkit_glue::StringToStdString(request_.mainDocumentURL().string());
+
   // TODO(darin): is latin1 really correct here?  It is if the strings are
   // already ASCII (i.e., if they are already escaped properly).
   // TODO(brettw) this should take parameter encoding into account when
@@ -419,11 +422,12 @@ bool ResourceHandleInternal::Start(
       url,
       webkit_glue::KURLToGURL(request_.policyURL()),
       referrer,
+      frame_origin,
+      main_frame_origin,
       webkit_glue::CStringToStdString(headerBuf.latin1()),
       load_flags_,
       requestor_pid,
       FromTargetType(request_.targetType()),
-      mixed_content,
       request_.requestorID()));
   if (!bridge_.get())
     return false;

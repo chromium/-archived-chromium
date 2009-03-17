@@ -47,11 +47,12 @@ class IPCResourceLoaderBridge : public ResourceLoaderBridge {
                           const GURL& url,
                           const GURL& policy_url,
                           const GURL& referrer,
+                          const std::string& frame_origin,
+                          const std::string& main_frame_origin,
                           const std::string& headers,
                           int load_flags,
                           int origin_pid,
                           ResourceType::Type resource_type,
-                          bool mixed_content,
                           uint32 request_context,
                           int route_id);
   virtual ~IPCResourceLoaderBridge();
@@ -98,11 +99,12 @@ IPCResourceLoaderBridge::IPCResourceLoaderBridge(
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& headers,
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
-    bool mixed_content,
     uint32 request_context,
     int route_id)
     : peer_(NULL),
@@ -114,11 +116,12 @@ IPCResourceLoaderBridge::IPCResourceLoaderBridge(
   request_.url = url;
   request_.policy_url = policy_url;
   request_.referrer = referrer;
+  request_.frame_origin = frame_origin;
+  request_.main_frame_origin = main_frame_origin;
   request_.headers = headers;
   request_.load_flags = load_flags;
   request_.origin_pid = origin_pid;
   request_.resource_type = resource_type;
-  request_.mixed_content = mixed_content;
   request_.request_context = request_context;
 
 #ifdef LOG_RESOURCE_REQUESTS
@@ -168,8 +171,7 @@ bool IPCResourceLoaderBridge::Start(Peer* peer) {
   peer_ = peer;
 
   // generate the request ID, and append it to the message
-  request_id_ = dispatcher_->AddPendingRequest(peer_, request_.resource_type,
-                                               request_.mixed_content);
+  request_id_ = dispatcher_->AddPendingRequest(peer_, request_.resource_type);
 
   return dispatcher_->message_sender()->Send(
       new ViewHostMsg_RequestResource(route_id_, request_id_, request_));
@@ -439,12 +441,10 @@ void ResourceDispatcher::OnRequestComplete(int request_id,
 
 int ResourceDispatcher::AddPendingRequest(
     webkit_glue::ResourceLoaderBridge::Peer* callback,
-    ResourceType::Type resource_type,
-    bool mixed_content) {
+    ResourceType::Type resource_type) {
   // Compute a unique request_id for this renderer process.
   int id = MakeRequestID();
-  pending_requests_[id] = PendingRequestInfo(callback, resource_type,
-                                             mixed_content);
+  pending_requests_[id] = PendingRequestInfo(callback, resource_type);
   return id;
 }
 
@@ -508,19 +508,20 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& headers,
     int flags,
     int origin_pid,
     ResourceType::Type resource_type,
-    bool mixed_content,
     uint32 request_context,
     int route_id) {
   return new webkit_glue::IPCResourceLoaderBridge(this, method, url, policy_url,
-                                                  referrer, headers, flags,
-                                                  origin_pid, resource_type,
-                                                  mixed_content,
-                                                  request_context,
-                                                  route_id);
+                                                  referrer, frame_origin,
+                                                  main_frame_origin, headers,
+                                                  flags, origin_pid,
+                                                  resource_type,
+                                                  request_context, route_id);
 }
 
 bool ResourceDispatcher::IsResourceDispatcherMessage(

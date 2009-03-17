@@ -43,10 +43,11 @@ class UnittestTestServer : public HTTPTestServer {
                                    url,            // policy_url
                                    GURL(),         // no referrer
                                    std::string(),  // no extra headers
+                                   "null",         // frame_origin
+                                   "null",         // main_frame_origin
                                    net::LOAD_NORMAL,
                                    0,
                                    ResourceType::SUB_RESOURCE,
-                                   false,
                                    0));
     EXPECT_TRUE(loader.get());
 

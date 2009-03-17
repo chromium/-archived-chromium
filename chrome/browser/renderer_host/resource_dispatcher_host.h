@@ -72,7 +72,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                      int process_id,
                      int route_id,
                      int request_id,
-                     bool mixed_content,
+                     std::string frame_origin,
+                     std::string main_frame_origin,
                      ResourceType::Type resource_type,
                      uint64 upload_size)
         : resource_handler(handler),
@@ -85,7 +86,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
           pending_data_count(0),
           is_download(false),
           pause_count(0),
-          mixed_content(mixed_content),
+          frame_origin(frame_origin),
+          main_frame_origin(main_frame_origin),
           resource_type(resource_type),
           filter_policy(FilterPolicy::DONT_FILTER),
           last_load_state(net::LOAD_STATE_IDLE),
@@ -127,9 +129,12 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     // The number of clients that have called pause on this request.
     int pause_count;
 
-    // Whether this request is served over HTTP and the main page was served
-    // over HTTPS.
-    bool mixed_content;
+    // The security origin of the frame making this request.
+    std::string frame_origin;
+
+    // The security origin of the main frame that contains the frame making
+    // this request.
+    std::string main_frame_origin;
 
     ResourceType::Type resource_type;
 
@@ -366,13 +371,12 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   friend class ShutdownTask;
 
+  // TODO(abarth): We don't need this struct any more.  Let's get rid of it.
   struct BlockedRequest {
-    BlockedRequest(URLRequest* url_request, bool mixed_content)
-        : url_request(url_request),
-          mixed_content(mixed_content) {
+    explicit BlockedRequest(URLRequest* url_request)
+        : url_request(url_request) {
     }
     URLRequest* url_request;
-    bool mixed_content;
   };
 
   // A shutdown helper that runs on the IO thread.
@@ -407,7 +411,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                      bool allow_delete);
 
   // Helper function for regular and download requests.
-  void BeginRequestInternal(URLRequest* request, bool mixed_content);
+  void BeginRequestInternal(URLRequest* request);
 
   // Updates the "cost" of outstanding requests for |process_id|.
   // The "cost" approximates how many bytes are consumed by all the in-memory

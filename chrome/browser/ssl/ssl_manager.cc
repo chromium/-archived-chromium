@@ -463,12 +463,25 @@ void SSLManager::OnSSLCertificateError(ResourceDispatcherHost* rdh,
 }
 
 // static
-void SSLManager::OnMixedContentRequest(ResourceDispatcherHost* rdh,
-                                       URLRequest* request,
-                                       MessageLoop* ui_loop) {
+bool SSLManager::ShouldStartRequest(ResourceDispatcherHost* rdh,
+                                    URLRequest* request,
+                                    MessageLoop* ui_loop) {
+  ResourceDispatcherHost::ExtraRequestInfo* info =
+      ResourceDispatcherHost::ExtraInfoForRequest(request);
+  DCHECK(info);
+
+  // We cheat here and talk to the SSLPolicy on the IO thread because we need
+  // to respond synchronously to avoid delaying all network requests...
+  if (!SSLPolicy::IsMixedContent(request->url(),
+                                 info->resource_type,
+                                 info->main_frame_origin))
+    return true;
+
+
   ui_loop->PostTask(FROM_HERE,
       NewRunnableMethod(new MixedContentHandler(rdh, request, ui_loop),
                         &MixedContentHandler::Dispatch));
+  return false;
 }
 
 void SSLManager::OnCertError(CertError* error) {

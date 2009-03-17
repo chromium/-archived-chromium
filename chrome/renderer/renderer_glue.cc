@@ -233,16 +233,18 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& headers,
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
-    bool mixed_content,
     int routing_id) {
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
-  return dispatch->CreateBridge(method, url, policy_url, referrer, headers,
+  return dispatch->CreateBridge(method, url, policy_url, referrer, 
+                                frame_origin, main_frame_origin, headers,
                                 load_flags, origin_pid, resource_type,
-                                mixed_content, 0, routing_id);
+                                0, routing_id);
 }
 
 void NotifyCacheStats() {

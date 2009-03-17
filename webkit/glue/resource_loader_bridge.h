@@ -168,9 +168,6 @@ class ResourceLoaderBridge {
   //
   // load_flags is composed of the values defined in url_request_load_flags.h
   //
-  // mixed_content when true indicates that the resource associated with this
-  // request is over HTTP when the main page was loaded over HTTPS.
-  //
   // request_type indicates if the current request is the main frame load, a
   // sub-frame load, or a sub objects load.
   //
@@ -180,11 +177,12 @@ class ResourceLoaderBridge {
                                       const GURL& url,
                                       const GURL& policy_url,
                                       const GURL& referrer,
+                                      const std::string& frame_origin,
+                                      const std::string& main_frame_origin,
                                       const std::string& headers,
                                       int load_flags,
                                       int requestor_pid,
                                       ResourceType::Type request_type,
-                                      bool mixed_content,
                                       int routing_id);
 
   // Call this method before calling Start() to append a chunk of binary data

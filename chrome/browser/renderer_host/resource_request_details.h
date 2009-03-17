@@ -42,6 +42,8 @@ class ResourceRequestDetails {
         ResourceDispatcherHost::ExtraInfoForRequest(request);
     DCHECK(info);
     resource_type_ = info->resource_type;
+    frame_origin_ = info->frame_origin;
+    main_frame_origin_ = info->main_frame_origin;
   }
 
   ~ResourceRequestDetails() { }
@@ -50,6 +52,8 @@ class ResourceRequestDetails {
   const GURL& original_url() const { return original_url_; }
   const std::string& method() const { return method_; }
   const std::string& referrer() const { return referrer_; }
+  const std::string& frame_origin() const { return frame_origin_; }
+  const std::string& main_frame_origin() const { return main_frame_origin_; }
   bool has_upload() const { return has_upload_; }
   int load_flags() const { return load_flags_; }
   int origin_pid() const { return origin_pid_; }
@@ -57,11 +61,14 @@ class ResourceRequestDetails {
   int ssl_cert_id() const { return ssl_cert_id_; }
   int ssl_cert_status() const { return ssl_cert_status_; }
   ResourceType::Type resource_type() const { return resource_type_; }
+
  private:
   GURL url_;
   GURL original_url_;
   std::string method_;
   std::string referrer_;
+  std::string frame_origin_;
+  std::string main_frame_origin_;
   bool has_upload_;
   int load_flags_;
   int origin_pid_;

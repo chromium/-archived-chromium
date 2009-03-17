@@ -548,11 +548,12 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const GURL& url,
     const GURL& policy_url,
     const GURL& referrer,
+    const std::string& frame_origin,
+    const std::string& main_frame_origin,
     const std::string& headers,
     int load_flags,
     int requestor_pid,
     ResourceType::Type request_type,
-    bool mixed_contents,
     int routing_id) {
   return new ResourceLoaderBridgeImpl(method, url, policy_url,
                                       referrer, headers, load_flags);

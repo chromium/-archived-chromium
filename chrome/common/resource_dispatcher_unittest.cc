@@ -155,8 +155,8 @@ TEST_F(ResourceDispatcherTest, RoundTrip) {
   TestRequestCallback callback;
   ResourceLoaderBridge* bridge =
     dispatcher_->CreateBridge("GET", GURL(test_page_url), GURL(test_page_url),
-                              GURL(), std::string(), 0, 0,
-                              ResourceType::SUB_RESOURCE, false, 0,
+                              GURL(), "null", "null", std::string(), 0, 0,
+                              ResourceType::SUB_RESOURCE, 0,
                               MSG_ROUTING_CONTROL);
 
   bridge->Start(&callback);
