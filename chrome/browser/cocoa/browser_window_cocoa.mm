@@ -6,16 +6,20 @@
 #include "base/logging.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
+#include "chrome/browser/cocoa/status_bubble_mac.h"
 
 BrowserWindowCocoa::BrowserWindowCocoa(BrowserWindowController* controller,
                                        NSWindow* window)
     : controller_(controller), window_(window) {
+  status_bubble_.reset(new StatusBubbleMac(window_));
 }
 
 BrowserWindowCocoa::~BrowserWindowCocoa() {
 }
 
 void BrowserWindowCocoa::Init() {
+  // Remember, no code here. This doesn't get called on the Mac. Put code into
+  // the constructor, above, instead.
 }
 
 void BrowserWindowCocoa::Show() {
@@ -61,7 +65,7 @@ BrowserWindowTesting* BrowserWindowCocoa::GetBrowserWindowTesting() {
 }
 
 StatusBubble* BrowserWindowCocoa::GetStatusBubble() {
-  return NULL;
+  return status_bubble_.get();
 }
 
 void BrowserWindowCocoa::SelectedTabToolbarSizeChanged(bool is_animating) {

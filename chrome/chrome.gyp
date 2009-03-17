@@ -493,6 +493,8 @@
         'browser/cocoa/sad_tab_view.h',
         'browser/cocoa/sad_tab_view.mm',
         'browser/cocoa/shell_dialogs_mac.mm',
+        'browser/cocoa/status_bubble_mac.h',
+        'browser/cocoa/status_bubble_mac.mm',
         'browser/cocoa/tab_cell.h',
         'browser/cocoa/tab_cell.mm',
         'browser/cocoa/tab_contents_controller.h',
@@ -1212,8 +1214,9 @@
           ],
           'sources': [
             # Build the necessary GTM sources
-            '../third_party/GTM/AppKit/GTMTheme.m',
+            '../third_party/GTM/AppKit/GTMNSBezierPath+RoundRect.m',
             '../third_party/GTM/AppKit/GTMNSColor+Luminance.m',
+            '../third_party/GTM/AppKit/GTMTheme.m',
           ],
           'include_dirs': [
             '../third_party/GTM',

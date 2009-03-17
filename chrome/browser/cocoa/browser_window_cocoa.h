@@ -5,10 +5,13 @@
 #ifndef CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_
 #define CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/browser/browser_window.h"
 
 @class BrowserWindowController;
 @class NSWindow;
+
+class StatusBubbleMac;
 
 // An implementation of BrowserWindow for Cocoa. Bridges between C++ and
 // the Cocoa NSWindow. Cross-platform code will interact with this object when
@@ -66,6 +69,9 @@ class BrowserWindowCocoa : public BrowserWindow {
  private:
   BrowserWindowController* controller_;  // weak, owns us
   NSWindow* window_;  // weak, owned by |controller_|
+
+  // The status bubble manager.  Always non-NULL.
+  scoped_ptr<StatusBubbleMac> status_bubble_;
 };
 
 #endif  // CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_
