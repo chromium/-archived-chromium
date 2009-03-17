@@ -29,8 +29,7 @@ bool AudioRendererImpl::IsMediaFormatSupported(
   int channels;
   int sample_rate;
   int sample_bits;
-  return AudioManager::GetAudioManager()->HasAudioDevices() &&
-      ParseMediaFormat(media_format, &channels, &sample_rate, &sample_bits);
+  return ParseMediaFormat(media_format, &channels, &sample_rate, &sample_bits);
 }
 
 void AudioRendererImpl::SetPlaybackRate(float playback_rate) {

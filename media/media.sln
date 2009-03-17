@@ -31,12 +31,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "debug_message", "..\base\bu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "..\testing\gtest.vcproj", "{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icu", "..\third_party\icu38\build\icu.vcproj", "{8C27D792-2648-4F5E-9ED0-374276327308}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icu", "..\third_party\icu38\icuuc.vcproj", "{8C27D792-2648-4F5E-9ED0-374276327308}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A0D94973-D355-47A5-A1E2-3456F321F010} = {A0D94973-D355-47A5-A1E2-3456F321F010}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icudt", "..\third_party\icu38\build\icudt.vcproj", "{A0D94973-D355-47A5-A1E2-3456F321F010}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icudt", "..\third_party\icu38\icudata.vcproj", "{A0D94973-D355-47A5-A1E2-3456F321F010}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ffmpeg", "..\third_party\ffmpeg\ffmpeg.vcproj", "{D7A94F58-576A-45D9-A45F-EB87C63ABBB0}"
 EndProject

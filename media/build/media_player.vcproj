@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\coreavc_demo_sdk_20090202\using_coreavc.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops;$(SolutionDir)..\third_party\SDL\using_sdl.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -78,7 +78,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\coreavc_demo_sdk_20090202\using_coreavc.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops;$(SolutionDir)..\third_party\SDL\using_sdl.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -144,14 +144,6 @@
 			>
 			<File
 				RelativePath="..\player\player.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\player\sdl_renderer.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\player\sdl_renderer.h"
 				>
 			</File>
 		</Filter>

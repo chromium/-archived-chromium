@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops;$(SolutionDir)..\third_party\coreavc_demo_sdk_20090202\using_coreavc.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops;$(SolutionDir)..\third_party\coreavc_demo_sdk_20090202\using_coreavc.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -185,6 +185,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\base\video_frame_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\base\video_frame_impl.h"
+				>
+			</File>
+			<File
 				RelativePath="..\base\yuv_convert.cc"
 				>
 			</File>
@@ -213,35 +221,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\filters\coreavc_decoder.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\coreavc_decoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\ffmpeg_audio.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\ffmpeg_audio.h"
-				>
-			</File>
-			<File
 				RelativePath="..\filters\ffmpeg_common.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\filters\ffmpeg_common.h"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\ffmpeg_decoder_base.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\ffmpeg_decoder_base.h"
 				>
 			</File>
 			<File
@@ -258,14 +242,6 @@
 			</File>
 			<File
 				RelativePath="..\filters\ffmpeg_glue.h"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\ffmpeg_video.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\filters\ffmpeg_video.h"
 				>
 			</File>
 			<File

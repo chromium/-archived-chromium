@@ -35,7 +35,7 @@ void AudioRendererBase::Stop() {
   OnStop();
 
   AutoLock auto_lock(lock_);
-  while (!queue_.empty()) {
+  while (queue_.empty()) {
     queue_.front()->Release();
     queue_.pop_front();
   }
@@ -94,7 +94,7 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t len) {
       Buffer* buffer = queue_.front();
 
       // Determine how much to copy.
-      const char* data = buffer->GetData() + data_offset_;
+      const uint8* data = buffer->GetData() + data_offset_;
       size_t data_len = buffer->GetDataSize() - data_offset_;
       data_len = std::min(len, data_len);
 

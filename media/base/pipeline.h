@@ -12,8 +12,11 @@
 #include <string>
 
 #include "base/task.h"
-#include "base/time.h"
 #include "media/base/factory.h"
+
+namespace base {
+  class TimeDelta;
+}
 
 namespace media {
 
@@ -32,7 +35,7 @@ enum PipelineError {
   PIPELINE_ERROR_OUT_OF_MEMORY,
   PIPELINE_ERROR_COULD_NOT_RENDER,
   PIPELINE_ERROR_READ,
-
+  PIPELINE_ERROR_AUDIO_HARDWARE,
   // Demuxer related errors.
   DEMUXER_ERROR_COULD_NOT_OPEN,
   DEMUXER_ERROR_COULD_NOT_PARSE,

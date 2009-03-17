@@ -176,6 +176,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\base\video_frame_impl_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\base\yuv_convert_unittest.cc"
 					>
 				</File>
@@ -201,6 +205,10 @@
 				</File>
 				<File
 					RelativePath="..\filters\file_data_source_unittest.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\filters\test_video_decoder.h"
 					>
 				</File>
 				<File

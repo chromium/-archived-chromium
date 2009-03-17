@@ -52,10 +52,6 @@ class MediaFormat {
   static const char kChannels[];
   static const char kWidth[];
   static const char kHeight[];
-  static const char kBitRate[];
-  static const char kBitsPerCodedSample[];
-  static const char kBlockAlign[];
-  static const char kFrameSize[];
 
   MediaFormat();
   ~MediaFormat();

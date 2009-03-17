@@ -251,4 +251,3 @@ void PCMWaveOutAudioOutputStream::WaveCallback(HWAVEOUT hwo, UINT msg,
       obj->callback_->OnClose(obj);
   }
 }
-

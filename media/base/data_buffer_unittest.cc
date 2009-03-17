@@ -9,7 +9,6 @@
 using media::DataBuffer;
 
 TEST(DataBufferTest, Basic) {
-  const size_t kBufferSize = 32;
   const char kData[] = "hello";
   const size_t kDataSize = arraysize(kData);
   const char kNewData[] = "chromium";
@@ -20,18 +19,13 @@ TEST(DataBufferTest, Basic) {
   const base::TimeDelta kDurationB = base::TimeDelta::FromMicroseconds(5678);
 
   // Create our buffer and copy some data into it.
-  char* data = new char[kBufferSize];
-  ASSERT_TRUE(data);
-  size_t copied = base::strlcpy(data, kData, kBufferSize);
-  EXPECT_EQ(kDataSize, copied + 1);
-
   // Create a DataBuffer.
-  scoped_refptr<DataBuffer> buffer;
-  buffer = new DataBuffer(data, kBufferSize, kDataSize,
-                          kTimestampA, kDurationA);
-  ASSERT_TRUE(buffer.get());
+  scoped_refptr<DataBuffer> buffer = new DataBuffer();
+  ASSERT_TRUE(buffer);
 
   // Test StreamSample implementation.
+  buffer->SetTimestamp(kTimestampA);
+  buffer->SetDuration(kDurationA);
   EXPECT_TRUE(kTimestampA == buffer->GetTimestamp());
   EXPECT_TRUE(kDurationA == buffer->GetDuration());
   EXPECT_FALSE(buffer->IsEndOfStream());
@@ -41,19 +35,6 @@ TEST(DataBufferTest, Basic) {
   EXPECT_TRUE(kTimestampB == buffer->GetTimestamp());
   EXPECT_TRUE(kDurationB == buffer->GetDuration());
 
-  // Test Buffer implementation.
-  ASSERT_EQ(data, buffer->GetData());
-  EXPECT_EQ(kDataSize, buffer->GetDataSize());
-  EXPECT_STREQ(kData, buffer->GetData());
-
-  // Test WritableBuffer implementation.
-  ASSERT_EQ(data, buffer->GetWritableData());
-  EXPECT_EQ(kBufferSize, buffer->GetBufferSize());
-  copied = base::strlcpy(data, kNewData, kBufferSize);
-  EXPECT_EQ(kNewDataSize, copied + 1);
-  buffer->SetDataSize(kNewDataSize);
-  EXPECT_EQ(kNewDataSize, buffer->GetDataSize());
-
   buffer->SetEndOfStream(true);
   EXPECT_TRUE(buffer->IsEndOfStream());
   buffer->SetEndOfStream(false);
@@ -62,4 +43,24 @@ TEST(DataBufferTest, Basic) {
   EXPECT_TRUE(buffer->IsDiscontinuous());
   buffer->SetDiscontinuous(false);
   EXPECT_FALSE(buffer->IsDiscontinuous());
+
+  // Test WritableBuffer implementation.
+  EXPECT_FALSE(buffer->GetData());
+  uint8* data = buffer->GetWritableData(kDataSize);
+  ASSERT_TRUE(data);
+  ASSERT_EQ(buffer->GetDataSize(), kDataSize);
+  memcpy(data, kData, kDataSize);
+  const uint8* read_only_data = buffer->GetData();
+  ASSERT_EQ(data, read_only_data);
+  ASSERT_EQ(0, memcmp(read_only_data, kData, kDataSize));
+
+  data = buffer->GetWritableData(kNewDataSize + 10);
+  ASSERT_TRUE(data);
+  ASSERT_EQ(buffer->GetDataSize(), kNewDataSize + 10);
+  memcpy(data, kNewData, kNewDataSize);
+  read_only_data = buffer->GetData();
+  buffer->SetDataSize(kNewDataSize);
+  EXPECT_EQ(buffer->GetDataSize(), kNewDataSize);
+  ASSERT_EQ(data, read_only_data);
+  EXPECT_EQ(0, memcmp(read_only_data, kNewData, kNewDataSize));
 }

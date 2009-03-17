@@ -26,6 +26,7 @@
       'include_dirs': [
         '..',
       ],
+      'msvs_guid': '6AE76406-B03B-11DD-94B1-80B556D89593',
       'sources': [
         'audio/linux/audio_manager_linux.cc',
         'audio/mac/audio_manager_mac.cc',
@@ -54,6 +55,10 @@
         'base/pipeline_impl.h',
         'base/synchronizer.cc',
         'base/synchronizer.h',
+        'base/video_frame_impl.cc',
+        'base/video_frame_impl.h',
+        'base/yuv_convert.cc',
+        'base/yuv_convert.h',
         'filters/audio_renderer_base.cc',
         'filters/audio_renderer_base.h',
         'filters/audio_renderer_impl.cc',
@@ -85,6 +90,8 @@
         'base/data_buffer_unittest.cc',
         'base/pipeline_impl_unittest.cc',
         'base/run_all_unittests.cc',
+        'base/video_frame_impl_unittest.cc',
+        'base/yuv_convert_unittest.cc',
         'filters/file_data_source_unittest.cc',
         'filters/video_renderer_unittest.cc',
       ],

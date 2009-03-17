@@ -51,18 +51,14 @@ const char kMajorTypeAudio[]                = "audio/";
 }  // namespace mime_type
 
 // Common keys.
-const char MediaFormat::kMimeType[]             = "MimeType";
-const char MediaFormat::kURL[]                  = "URL";
-const char MediaFormat::kSurfaceFormat[]        = "SurfaceFormat";
-const char MediaFormat::kSampleRate[]           = "SampleRate";
-const char MediaFormat::kSampleBits[]           = "SampleBits";
-const char MediaFormat::kChannels[]             = "Channels";
-const char MediaFormat::kWidth[]                = "Width";
-const char MediaFormat::kHeight[]               = "Height";
-const char MediaFormat::kBitRate[]              = "BitRate";
-const char MediaFormat::kBitsPerCodedSample[]   = "BitsPerCodedSample";
-const char MediaFormat::kBlockAlign[]           = "BlockAlign";
-const char MediaFormat::kFrameSize[]            = "FrameSize";
+const char MediaFormat::kMimeType[]         = "MimeType";
+const char MediaFormat::kURL[]              = "URL";
+const char MediaFormat::kSurfaceFormat[]    = "SurfaceFormat";
+const char MediaFormat::kSampleRate[]       = "SampleRate";
+const char MediaFormat::kSampleBits[]       = "SampleBits";
+const char MediaFormat::kChannels[]         = "Channels";
+const char MediaFormat::kWidth[]            = "Width";
+const char MediaFormat::kHeight[]           = "Height";
 
 MediaFormat::MediaFormat() {
 }

@@ -4,8 +4,6 @@
 
 #include <string>
 
-#include "base/platform_thread.h"
-#include "base/time.h"
 #include "base/waitable_event.h"
 #include "media/base/pipeline_impl.h"
 #include "media/base/media_format.h"

@@ -12,6 +12,7 @@
 
 #include <string>
 
+#include "base/scoped_ptr.h"
 #include "media/base/factory.h"
 #include "media/base/filter_host.h"
 #include "media/base/filters.h"
