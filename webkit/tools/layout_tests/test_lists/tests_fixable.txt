@@ -688,8 +688,7 @@ DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.html = FAIL
 // Accessibility is off in the browser, and accessibility is not a priority
 // for the current release.
 DEFER : LayoutTests/accessibility = FAIL
-// Linux pixeltest failure: Image scaling is terrible
-// New test. We should fix it, but it doesn't need to block the current release
+// brettw checked this result is correct, just needs rebaselining.
 DEFER LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 // Border radius not anti-aliased.
 // New test. We should fix it, but it doesn't need to block the current release
@@ -1441,11 +1440,6 @@ DEFER : LayoutTests/plugins/npruntime.html = FAIL TIMEOUT
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
-
-// Merge 39880:39894 - regressions
-// Note: this failed before the merge on Windows, just not crashed (brettw saw
-// this on his machine once so is marking it as so).
-WIN : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL CRASH
 
 // Bug 6735: Merge 39894:39913 - new test.
 // New test. We should fix it, but it doesn't need to block the current release
