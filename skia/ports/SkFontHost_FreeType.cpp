@@ -36,6 +36,15 @@
 #include FT_ADVANCES_H
 #endif
 
+#if 0
+// Also include the files by name for build tools which require this.
+#include <freetype/freetype.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftsizes.h>
+#include <freetype/tttables.h>
+#include <freetype/ftadvanc.h>
+#endif
+
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
 //#define DUMP_STRIKE_CREATION
 
