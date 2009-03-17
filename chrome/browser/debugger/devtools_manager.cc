@@ -4,10 +4,8 @@
 
 #include "chrome/browser/debugger/devtools_manager.h"
 
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_registrar.h"
@@ -17,8 +15,10 @@
 class DevToolsInstanceDescriptorImpl : public DevToolsInstanceDescriptor {
  public:
   explicit DevToolsInstanceDescriptorImpl(
+      DevToolsManager* manager,
       NavigationController* navigation_controller)
-      : navigation_controller_(navigation_controller),
+      : manager_(manager),
+        navigation_controller_(navigation_controller),
         devtools_host_(NULL),
         devtools_window_(NULL) {
   }
@@ -33,11 +33,7 @@ class DevToolsInstanceDescriptorImpl : public DevToolsInstanceDescriptor {
   }
 
   virtual void Destroy() {
-    DevToolsManager* manager = g_browser_process->devtools_manager();
-    DCHECK(manager);
-    if (manager) {
-      manager->RemoveDescriptor(this);
-    }
+    manager_->RemoveDescriptor(this);
     delete this;
   }
 
@@ -54,6 +50,7 @@ class DevToolsInstanceDescriptorImpl : public DevToolsInstanceDescriptor {
   }
 
  private:
+  DevToolsManager* manager_;
   NavigationController* navigation_controller_;
   RenderViewHost* devtools_host_;
   DevToolsWindow* devtools_window_;
@@ -61,12 +58,23 @@ class DevToolsInstanceDescriptorImpl : public DevToolsInstanceDescriptor {
   DISALLOW_COPY_AND_ASSIGN(DevToolsInstanceDescriptorImpl);
 };
 
-DevToolsManager::DevToolsManager() : web_contents_listeners_(NULL) {
+DevToolsManager::DevToolsManager(DevToolsWindowFactory* factory)
+    : web_contents_listeners_(NULL),
+      devtools_window_factory_(factory) {
 }
 
 DevToolsManager::~DevToolsManager() {
   DCHECK(!web_contents_listeners_.get()) <<
       "All devtools windows must alredy have been closed.";
+}
+
+DevToolsWindow* DevToolsManager::CreateDevToolsWindow(
+    DevToolsInstanceDescriptor* descriptor) {
+  if (devtools_window_factory_) {
+    return devtools_window_factory_->CreateDevToolsWindow(descriptor);
+  } else {
+    return DevToolsWindow::Create(descriptor);
+  }
 }
 
 void DevToolsManager::Observe(NotificationType type,
@@ -100,12 +108,12 @@ void DevToolsManager::ShowDevToolsForWebContents(WebContents* web_contents) {
     desc = it->second;
     window = desc->devtools_window();
   } else {
-    desc = new DevToolsInstanceDescriptorImpl(navigation_controller);
+    desc = new DevToolsInstanceDescriptorImpl(this, navigation_controller);
     navcontroller_to_descriptor_[navigation_controller] = desc;
 
     StartListening(navigation_controller);
 
-    window = DevToolsWindow::Create(desc);
+    window = CreateDevToolsWindow(desc);
   }
 
   window->Show();

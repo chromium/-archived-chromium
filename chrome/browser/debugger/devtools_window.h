@@ -25,4 +25,13 @@ class DevToolsWindow {
   DISALLOW_COPY_AND_ASSIGN(DevToolsWindow);
 };
 
+// Factory for creating DevToolsWindows.  Useful for unit tests.
+class DevToolsWindowFactory {
+ public:
+  virtual ~DevToolsWindowFactory() {}
+  virtual DevToolsWindow* CreateDevToolsWindow(
+      DevToolsInstanceDescriptor* descriptor) = 0;
+};
+
+
 #endif  // CHROME_BROWSER_DEBUGGER_DEV_TOOLS_WINDOW_H_

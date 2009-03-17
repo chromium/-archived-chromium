@@ -1946,6 +1946,7 @@
         'browser/bookmarks/bookmark_table_model_unittest.cc',
         'browser/bookmarks/bookmark_utils_unittest.cc',
         'browser/browser_commands_unittest.cc',
+        'browser/debugger/devtools_manager_unittest.cc',
         'browser/cache_manager_host_unittest.cc',
         'browser/chrome_thread_unittest.cc',
         'browser/command_updater_unittest.cc',

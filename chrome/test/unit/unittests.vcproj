@@ -444,6 +444,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\debugger\devtools_manager_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\net\dns_host_info_unittest.cc"
 				>
 			</File>

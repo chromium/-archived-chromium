@@ -15,8 +15,10 @@ namespace IPC {
 class Message;
 }
 
+class DevToolsInstanceDescriptor;
 class DevToolsInstanceDescriptorImpl;
 class DevToolsWindow;
+class DevToolsWindowFactory;
 class NavigationController;
 class NotificationRegistrar;
 class RenderViewHost;
@@ -26,7 +28,9 @@ class WebContents;
 // messages between developer tools clients and agents.
 class DevToolsManager : public NotificationObserver {
  public:
-  DevToolsManager();
+  // If the factory is NULL, this will create DevToolsWindow objects using
+  // DevToolsWindow::Create static method.
+  DevToolsManager(DevToolsWindowFactory* factory);
   virtual ~DevToolsManager();
 
   // Opend developer tools window for |web_contents|. If there is already
@@ -43,6 +47,11 @@ class DevToolsManager : public NotificationObserver {
                                const IPC::Message& message);
 
  private:
+  // Creates a DevToolsWindow using devtools_window_factory_ or by calling
+  // DevToolsWindow::Create, if the factory is NULL. All DevToolsWindows should
+  // be created by means of this method.
+  DevToolsWindow* CreateDevToolsWindow(DevToolsInstanceDescriptor* descriptor);
+
   // NotificationObserver override.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -72,6 +81,7 @@ class DevToolsManager : public NotificationObserver {
   typedef std::map<NavigationController*,
                    DevToolsInstanceDescriptorImpl*> DescriptorMap;
   DescriptorMap navcontroller_to_descriptor_;
+  DevToolsWindowFactory* devtools_window_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsManager);
 };
