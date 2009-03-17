@@ -18,7 +18,7 @@ class LoadFromMemoryCacheDetails {
        int cert_status)
        : url_(url),
          frame_origin_(frame_origin),
-         main_frame_origin_(main_frame_origin_),
+         main_frame_origin_(main_frame_origin),
          cert_id_(cert_id),
          cert_status_(cert_status)
   { }
