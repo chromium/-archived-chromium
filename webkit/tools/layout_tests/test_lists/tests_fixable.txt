@@ -1167,7 +1167,7 @@ LINUX MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS F
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
 MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
 MAC : LayoutTests/editing/selection/5109817.html = FAIL
-MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
+LINUX MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
 
 // incorrect layout
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
