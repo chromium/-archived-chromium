@@ -155,6 +155,20 @@ bool IncorrectChromeHtmlArguments(const std::wstring& command_line) {
 
 #endif  // OS_WIN
 
+#if defined(OS_LINUX)
+static void GtkFatalLogHandler(const gchar* log_domain,
+                               GLogLevelFlags log_level,
+                               const gchar* message,
+                               gpointer userdata) {
+  if (!log_domain)
+    log_domain = "<all>";
+  if (!message)
+    message = "<no message>";
+
+  NOTREACHED() << "GTK: (" << log_domain << "): " << message;
+}
+#endif
+
 // Register the invalid param handler and pure call handler to be able to
 // notify breakpad when it happens.
 void RegisterInvalidParamHandler() {
@@ -381,6 +395,15 @@ int ChromeMain(int argc, const char** argv) {
 #if defined(OS_LINUX)
     // gtk_init() can change |argc| and |argv|, but nobody else uses them.
     gtk_init(&argc, const_cast<char***>(&argv));
+    // Register GTK assertions to go through our logging system.
+    g_log_set_handler(NULL,  // All logging domains.
+                      static_cast<GLogLevelFlags>(G_LOG_FLAG_RECURSION |
+                                                  G_LOG_FLAG_FATAL |
+                                                  G_LOG_LEVEL_ERROR |
+                                                  G_LOG_LEVEL_CRITICAL |
+                                                  G_LOG_LEVEL_WARNING),
+                      GtkFatalLogHandler,
+                      NULL);
 #endif
 
     ScopedOleInitializer ole_initializer;
