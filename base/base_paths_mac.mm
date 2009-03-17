@@ -19,21 +19,10 @@ bool PathProviderMac(int key, FilePath* result) {
   switch (key) {
     case base::FILE_EXE:
     case base::FILE_MODULE: {
-      NSString* path = [[NSBundle mainBundle] executablePath];
-      cur = [path fileSystemRepresentation];
-      break;
-    }
-    case base::DIR_APP_DATA:
-    case base::DIR_LOCAL_APP_DATA: {
-      // TODO(erikkay): maybe we should remove one of these for mac?  The local
-      // vs. roaming distinction is fairly Windows-specific.
-      NSArray* dirs = NSSearchPathForDirectoriesInDomains(
-          NSApplicationSupportDirectory, NSUserDomainMask, YES);
-      if (!dirs || [dirs count] == 0)
-        return false;
-      DCHECK([dirs count] == 1);
-      NSString* tail = [[NSString alloc] initWithCString:"Google/Chrome"];
-      NSString* path = [[dirs lastObject] stringByAppendingPathComponent:tail];
+      // Executable path can have relative references ("..") depending on
+      // how the app was launched.
+      NSString* path =
+          [[[NSBundle mainBundle] executablePath] stringByStandardizingPath];
       cur = [path fileSystemRepresentation];
       break;
     }
