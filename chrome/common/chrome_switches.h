@@ -155,8 +155,6 @@ extern const wchar_t kIPCUseFIFO[];
 
 extern const wchar_t kEnableOutOfProcessDevTools[];
 
-extern const wchar_t kEnableWebWorkers[];
-
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__

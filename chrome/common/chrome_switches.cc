@@ -403,7 +403,4 @@ const wchar_t kIPCUseFIFO[]                    = L"ipc-use-fifo";
 // Console Debugger when user clicks "Debug JavaScript".
 const wchar_t kEnableOutOfProcessDevTools[]    = L"enable-oop-devtools";
 
-// Enable HTML5 Worker support
-const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
-
 }  // namespace switches

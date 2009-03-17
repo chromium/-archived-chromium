@@ -252,8 +252,4 @@ void RenderThread::EnsureWebKitInitialized() {
       command_line.HasSwitch(switches::kRecordMode)) {
     WebKit::registerExtension(extensions_v8::PlaybackExtension::Get());
   }
-
-  if (command_line.HasSwitch(switches::kEnableWebWorkers)) {
-    WebKit::enableWebWorkers(true);
-  }
 }
