@@ -4,6 +4,10 @@
 
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlwin.h>
+
 #include "base/message_loop.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "chrome/views/widget/widget.h"

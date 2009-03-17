@@ -4,6 +4,10 @@
 
 #include "chrome/views/controls/menu/menu.h"
 
+#include <atlbase.h>
+#include <atlapp.h>
+#include <atlwin.h>
+
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "chrome/views/accelerator.h"
