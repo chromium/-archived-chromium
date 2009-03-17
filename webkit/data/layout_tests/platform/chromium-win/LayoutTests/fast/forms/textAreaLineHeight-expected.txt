@@ -59,7 +59,7 @@ layer at (8,65) size 406x206 clip at (9,66) size 404x204
         text run at (0,18) width 385: "Demo text here that wraps a bit and should demonstrate"
         text run at (385,18) width 0: " "
         text run at (0,70) width 181: "the goodness of line-height"
-layer at (8,851) size 181x38 clip at (9,852) size 164x36 scrollHeight 82
+layer at (8,851) size 181x38 clip at (9,852) size 164x36 scrollHeight 84
   RenderTextControl {TEXTAREA} at (0,61) size 181x38 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (3,3) size 160x80
       RenderText {#text} at (0,0) size 160x80

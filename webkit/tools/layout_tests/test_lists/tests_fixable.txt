@@ -1338,7 +1338,7 @@ DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-load
 // Linux pixeltest failure: alpha=0.5 red (1,0,0) atop yellow (1,1,0) is
 // coming out with with a slightly-less-than-100% red channel. This test fails
 // because we enforce non-transparent color in Font::drawGlyphs. See <b/700464>.
-LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
+LINUX : LayoutTests/fast/css/hsla-color.html = FAIL
 
 // Linux pixeltest failure: flaky?  Appears without red locally.
 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
@@ -1825,9 +1825,6 @@ DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
 // New failures from 41613:41660 -- Linux should start using themeChromiumWin.css
 // instead of themeWin.css and then this test should pass.
 LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-
-// Started failing with r11635 (mbelshe)
-WIN : LayoutTests/fast/dom/undetectable-document-all.html = FAIL
 
 // New failures from 41660:41709
 // Newly added tests.

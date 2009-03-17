@@ -253,7 +253,7 @@ layer at (23,137) size 179x36 clip at (24,138) size 162x34 scrollHeight 82
         text run at (0,48) width 152: "abcdefghijklmnopqrs"
         text run at (0,64) width 24: "tuv"
         text run at (24,64) width 8: " "
-layer at (23,193) size 197x54 clip at (24,194) size 180x52 scrollHeight 90
+layer at (23,193) size 197x54 clip at (24,194) size 180x52 scrollHeight 100
   RenderTextControl {TEXTAREA} at (14,2) size 197x54 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (11,11) size 158x80
       RenderText {#text} at (0,0) size 152x80
@@ -440,7 +440,7 @@ layer at (375,25) size 60x36 clip at (376,26) size 43x34 scrollHeight 306
         text run at (0,272) width 32: "qrst"
         text run at (0,288) width 16: "uv"
         text run at (16,288) width 8: " "
-layer at (375,81) size 60x74 clip at (376,82) size 43x72 scrollHeight 1028
+layer at (375,81) size 60x74 clip at (376,82) size 43x72 scrollHeight 1048
   RenderTextControl {TEXTAREA} at (14,2) size 60x74 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
     RenderBlock {DIV} at (21,21) size 1x1008
       RenderText {#text} at (0,0) size 8x1008
