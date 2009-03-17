@@ -56,8 +56,8 @@ AutocompleteEditViewGtk::~AutocompleteEditViewGtk() {
 
   // Explicitly teardown members which have a reference to us.  Just to be safe
   // we want them to be destroyed before destroying any other internal state.
-  popup_view_.release();
-  model_.release();
+  popup_view_.reset();
+  model_.reset();
 
   // We own our widget and TextView related objects.
   if (text_view_.get()) {  // Init() has been called.
