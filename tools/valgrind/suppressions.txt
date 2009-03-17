@@ -36,10 +36,16 @@
    fun:PR_LoadLibraryWithFlags
 }
 {
-   Pure NSS leak, does not involve glibc
+   Pure NSS leak, does not involve glibc.  TODO(dkegel): track down and fix or file bug.
    Memcheck:Leak
    ...
    fun:NSS_NoDB_Init
+}
+{
+   Another pure NSS leak, does not involve glibc.  TODO(dkegel): track down and fix or file bug.  Shows up under --show-reachable=yes.
+   Memcheck:Leak
+   ...
+   fun:SECMOD_LoadUserModule
 }
 {
    (Probable memory leak in Skia)
