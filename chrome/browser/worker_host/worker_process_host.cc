@@ -18,8 +18,9 @@
 #include "chrome/common/worker_messages.h"
 
 
-WorkerProcessHost::WorkerProcessHost(MessageLoop* main_message_loop)
-    : ChildProcessHost(WORKER_PROCESS, main_message_loop) {
+WorkerProcessHost::WorkerProcessHost(
+    ResourceDispatcherHost* resource_dispatcher_host_)
+    : ChildProcessHost(WORKER_PROCESS, resource_dispatcher_host_) {
 }
 
 WorkerProcessHost::~WorkerProcessHost() {
@@ -74,6 +75,12 @@ bool WorkerProcessHost::FilterMessage(const IPC::Message& message) {
   }
 
   return false;
+}
+
+URLRequestContext* WorkerProcessHost::GetRequestContext(
+    uint32 request_id,
+    const ViewHostMsg_Resource_Request& request_data) {
+  return NULL;
 }
 
 void WorkerProcessHost::OnMessageReceived(const IPC::Message& message) {

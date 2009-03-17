@@ -34,10 +34,7 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
   }
 
   if (!worker) {
-    // TODO(jabdelmalek): there has to be a better way to get the main message
-    // loop than to go through PluginService.
-    worker = new WorkerProcessHost(
-        PluginService::GetInstance()->main_message_loop());
+    worker = new WorkerProcessHost(filter->resource_dispatcher_host());
     if (!worker->Init()) {
       delete worker;
       return false;

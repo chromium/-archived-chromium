@@ -85,13 +85,21 @@ void ResourceIPCAccumulator::GetClassifiedMessages(ClassifiedMessages* msgs) {
 class ResourceDispatcherHostTest : public testing::Test,
                                    public ResourceDispatcherHost::Receiver {
  public:
-  ResourceDispatcherHostTest() : host_(NULL) {
+  ResourceDispatcherHostTest()
+      : Receiver(ChildProcessInfo::RENDER_PROCESS), host_(NULL) {
+    set_handle(base::GetCurrentProcessHandle());
   }
-  // ResourceDispatcherHost::Delegate implementation
+  // ResourceDispatcherHost::Receiver implementation
   virtual bool Send(IPC::Message* msg) {
     accum_.AddMessage(*msg);
     delete msg;
     return true;
+  }
+
+  URLRequestContext* GetRequestContext(
+        uint32 request_id,
+        const ViewHostMsg_Resource_Request& request_data) {
+    return NULL;
   }
 
  protected:
@@ -114,6 +122,11 @@ class ResourceDispatcherHostTest : public testing::Test,
   }
 
   void MakeTestRequest(int render_process_id,
+                       int render_view_id,
+                       int request_id,
+                       const GURL& url);
+  void MakeTestRequest(ResourceDispatcherHost::Receiver* receiver,
+                       int render_process_id,
                        int render_view_id,
                        int request_id,
                        const GURL& url);
@@ -142,12 +155,23 @@ void ResourceDispatcherHostTest::MakeTestRequest(int render_process_id,
                                                  int render_view_id,
                                                  int request_id,
                                                  const GURL& url) {
-  ViewHostMsg_Resource_Request request = CreateResourceRequest("GET", url);
+  MakeTestRequest(this, render_process_id, render_view_id, request_id, url);
+}
 
-  host_.BeginRequest(this, ChildProcessInfo::RENDER_PROCESS,
-                     base::GetCurrentProcessHandle(), render_process_id,
-                     render_view_id, request_id, request, NULL, NULL);
+void ResourceDispatcherHostTest::MakeTestRequest(
+  ResourceDispatcherHost::Receiver* receiver,
+    int render_process_id,
+    int render_view_id,
+    int request_id,
+    const GURL& url) {
+  int old_pid = pid();
+  pid_ = render_process_id;
+  ViewHostMsg_Resource_Request request = CreateResourceRequest("GET", url);
+  ViewHostMsg_RequestResource msg(render_view_id, request_id, request);
+  bool msg_was_ok;
+  host_.OnMessageReceived(msg, receiver, &msg_was_ok);
   KickOffRequest();
+  pid_ = old_pid;
 }
 
 void ResourceDispatcherHostTest::MakeCancelRequest(int request_id) {
@@ -267,14 +291,22 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
   // pending and some canceled
   class TestReceiver : public ResourceDispatcherHost::Receiver {
    public:
-    TestReceiver() : has_canceled_(false), received_after_canceled_(0) {
-    }
+    TestReceiver()
+    : Receiver(ChildProcessInfo::RENDER_PROCESS),
+      has_canceled_(false),
+      received_after_canceled_(0) { }
+  // ResourceDispatcherHost::Receiver implementation
     virtual bool Send(IPC::Message* msg) {
       // no messages should be received when the process has been canceled
       if (has_canceled_)
         received_after_canceled_++;
       delete msg;
       return true;
+    }
+    URLRequestContext* GetRequestContext(
+        uint32 request_id,
+        const ViewHostMsg_Resource_Request& request_data) {
+      return NULL;
     }
     bool has_canceled_;
     int received_after_canceled_;
@@ -287,20 +319,13 @@ TEST_F(ResourceDispatcherHostTest, TestProcessCancel) {
 
   EXPECT_EQ(0, host_.GetOutstandingRequestsMemoryCost(0));
 
-  host_.BeginRequest(&test_receiver, ChildProcessInfo::RENDER_PROCESS,
-                     base::GetCurrentProcessHandle(), 0, MSG_ROUTING_NONE, 1,
-                     request, NULL, NULL);
-  KickOffRequest();
+  MakeTestRequest(&test_receiver, 0, 0, 1, URLRequestTestJob::test_url_1());
 
   // request 2 goes to us
   MakeTestRequest(0, 0, 2, URLRequestTestJob::test_url_2());
 
   // request 3 goes to the test delegate
-  request.url = URLRequestTestJob::test_url_3();
-  host_.BeginRequest(&test_receiver, ChildProcessInfo::RENDER_PROCESS,
-                     base::GetCurrentProcessHandle(), 0, MSG_ROUTING_NONE, 3,
-                     request, NULL, NULL);
-  KickOffRequest();
+  MakeTestRequest(&test_receiver, 0, 0, 3, URLRequestTestJob::test_url_3());
 
   // TODO(mbelshe):
   // Now that the async IO path is in place, the IO always completes on the

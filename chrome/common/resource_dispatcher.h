@@ -64,10 +64,6 @@ class ResourceDispatcher {
   // Toggles the is_deferred attribute for the specified request.
   void SetDefersLoading(int request_id, bool value);
 
-  // Returns true if the message passed in is a resource related
-  // message.
-  bool IsResourceMessage(const IPC::Message& message) const;
-
  private:
   friend class ResourceDispatcherTest;
 
@@ -116,6 +112,9 @@ class ResourceDispatcher {
   // Dispatch any deferred messages for the given request, provided it is not
   // again in the deferred state.
   void FlushDeferredMessages(int request_id);
+
+  // Returns true if the message passed in is a resource related message.
+  static bool IsResourceDispatcherMessage(const IPC::Message& message);
 
   IPC::Message::Sender* message_sender_;
 

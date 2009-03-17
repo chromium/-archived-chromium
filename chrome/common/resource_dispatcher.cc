@@ -242,7 +242,7 @@ ResourceDispatcher::~ResourceDispatcher() {
 // ResourceDispatcher implementation ------------------------------------------
 
 bool ResourceDispatcher::OnMessageReceived(const IPC::Message& message) {
-  if (!IsResourceMessage(message)) {
+  if (!IsResourceDispatcherMessage(message)) {
     return false;
   }
 
@@ -523,8 +523,8 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
                                                   route_id);
 }
 
-
-bool ResourceDispatcher::IsResourceMessage(const IPC::Message& message) const {
+bool ResourceDispatcher::IsResourceDispatcherMessage(
+    const IPC::Message& message) {
   switch (message.type()) {
     case ViewMsg_Resource_DownloadProgress::ID:
     case ViewMsg_Resource_UploadProgress::ID:

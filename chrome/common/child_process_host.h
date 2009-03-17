@@ -12,22 +12,21 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/waitable_event_watcher.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/ipc_channel.h"
 
-class MessageLoop;
 class NotificationType;
 
 // Plugins/workers and other child processes that live on the IO thread should
 // derive from this class.
-class ChildProcessHost : public ChildProcessInfo,
+class ChildProcessHost : public ResourceDispatcherHost::Receiver,
                          public base::WaitableEventWatcher::Delegate,
-                         public IPC::Channel::Listener,
-                         public IPC::Message::Sender {
+                         public IPC::Channel::Listener {
  public:
   virtual ~ChildProcessHost();
 
-  // IPC::Message::Sender implementation:
+  // ResourceDispatcherHost::Receiver implementation:
   virtual bool Send(IPC::Message* msg);
 
   // The Iterator class allows iteration through either all child processes, or
@@ -51,7 +50,8 @@ class ChildProcessHost : public ChildProcessInfo,
   };
 
  protected:
-  ChildProcessHost(ProcessType type, MessageLoop* main_message_loop);
+  ChildProcessHost(ProcessType type,
+                   ResourceDispatcherHost* resource_dispatcher_host);
 
   // Creates the IPC channel.  Returns true iff it succeeded.
   bool CreateChannel();
@@ -93,7 +93,7 @@ class ChildProcessHost : public ChildProcessInfo,
 
   ListenerHook listener_;
 
-  MessageLoop* main_message_loop_;
+  ResourceDispatcherHost* resource_dispatcher_host_;
 
   // True while we're waiting the channel to be opened.
   bool opening_channel_;

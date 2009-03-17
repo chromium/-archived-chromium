@@ -19,6 +19,7 @@
 #include "chrome/browser/download/save_file_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/plugin_service.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/async_resource_handler.h"
 #include "chrome/browser/renderer_host/buffered_resource_handler.h"
 #include "chrome/browser/renderer_host/cross_site_resource_handler.h"
@@ -145,7 +146,8 @@ ResourceDispatcherHost::ResourceDispatcherHost(MessageLoop* io_loop)
       ALLOW_THIS_IN_INITIALIZER_LIST(method_runner_(this)),
       is_shutdown_(false),
       max_outstanding_requests_cost_per_process_(
-          kMaxOutstandingRequestsCostPerProcess) {
+          kMaxOutstandingRequestsCostPerProcess),
+      receiver_(NULL) {
 }
 
 ResourceDispatcherHost::~ResourceDispatcherHost() {
@@ -210,20 +212,68 @@ bool ResourceDispatcherHost::HandleExternalProtocol(int request_id,
   return true;
 }
 
-void ResourceDispatcherHost::BeginRequest(
-    Receiver* receiver,
-    ChildProcessInfo::ProcessType process_type,
-    base::ProcessHandle process_handle,
-    int process_id,
-    int route_id,
+bool ResourceDispatcherHost::OnMessageReceived(const IPC::Message& message,
+                                               Receiver* receiver,
+                                               bool* message_was_ok) {
+  if (!IsResourceDispatcherHostMessage(message))
+    return false;
+
+  *message_was_ok = true;
+  receiver_ = receiver;
+
+  IPC_BEGIN_MESSAGE_MAP_EX(ResourceDispatcherHost, message, *message_was_ok)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_RequestResource, OnRequestResource)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncLoad, OnSyncLoad)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DataReceived_ACK, OnDataReceivedACK)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadProgress_ACK, OnDownloadProgressACK)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_UploadProgress_ACK, OnUploadProgressACK)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_CancelRequest, OnCancelRequest)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ClosePage_ACK, OnClosePageACK)
+  IPC_END_MESSAGE_MAP_EX()
+
+  receiver_ = NULL;
+
+  return true;
+}
+
+void ResourceDispatcherHost::OnRequestResource(
+    const IPC::Message& message,
+    int request_id,
+    const ViewHostMsg_Resource_Request& request_data) {
+  BeginRequest(request_id, request_data, NULL, message.routing_id());
+}
+
+// Begins a resource request with the given params on behalf of the specified
+// child process.  Responses will be dispatched through the given receiver. The
+// process ID is used to lookup TabContents from routing_id's in the case of a
+// request from a renderer.  request_context is the cookie/cache context to be
+// used for this request.
+//
+// If sync_result is non-null, then a SyncLoad reply will be generated, else
+// a normal asynchronous set of response messages will be generated.
+void ResourceDispatcherHost::OnSyncLoad(
     int request_id,
     const ViewHostMsg_Resource_Request& request_data,
-    URLRequestContext* request_context,
     IPC::Message* sync_result) {
+  BeginRequest(request_id, request_data, sync_result, 0);
+}
+
+void ResourceDispatcherHost::BeginRequest(
+    int request_id,
+    const ViewHostMsg_Resource_Request& request_data,
+    IPC::Message* sync_result,  // only valid for sync
+    int route_id) {
+  ChildProcessInfo::ProcessType process_type = receiver_->type();
+  int process_id = receiver_->pid();
+  URLRequestContext* context =
+      receiver_->GetRequestContext(request_id, request_data);
+  if (!context)
+    context = Profile::GetDefaultRequestContext();
+
   if (is_shutdown_ ||
       !ShouldServiceRequest(process_type, process_id, request_data)) {
     // Tell the renderer that this request was disallowed.
-    receiver->Send(new ViewMsg_Resource_RequestComplete(
+    receiver_->Send(new ViewMsg_Resource_RequestComplete(
         route_id,
         request_id,
         URLRequestStatus(URLRequestStatus::FAILED, net::ERR_ABORTED),
@@ -241,12 +291,12 @@ void ResourceDispatcherHost::BeginRequest(
   // Construct the event handler.
   scoped_refptr<ResourceHandler> handler;
   if (sync_result) {
-    handler = new SyncResourceHandler(receiver, request_data.url, sync_result);
+    handler = new SyncResourceHandler(receiver_, request_data.url, sync_result);
   } else {
-    handler = new AsyncResourceHandler(receiver,
+    handler = new AsyncResourceHandler(receiver_,
                                        process_id,
                                        route_id,
-                                       process_handle,
+                                       receiver_->handle(),
                                        request_data.url,
                                        this);
     // If the resource type is ResourceType::MEDIA and LOAD_ENABLE_DOWNLOAD_FILE
@@ -254,10 +304,10 @@ void ResourceDispatcherHost::BeginRequest(
     if (request_data.resource_type == ResourceType::MEDIA &&
         (request_data.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
       handler = new MediaResourceHandler(handler,
-                                         receiver,
+                                         receiver_,
                                          process_id,
                                          route_id,
-                                         process_handle,
+                                         receiver_->handle(),
                                          this);
     }
   }
@@ -275,7 +325,7 @@ void ResourceDispatcherHost::BeginRequest(
   request->set_referrer(request_data.referrer.spec());
   request->SetExtraRequestHeaders(request_data.headers);
   request->set_load_flags(request_data.load_flags);
-  request->set_context(request_context);
+  request->set_context(context);
   request->set_origin_pid(request_data.origin_pid);
 
   // Set upload data.
@@ -326,11 +376,75 @@ void ResourceDispatcherHost::BeginRequest(
                            request_data.mixed_content,
                            request_data.resource_type,
                            upload_size);
-  extra_info->allow_download =
-      ResourceType::IsFrame(request_data.resource_type);
+  extra_info->allow_download = ResourceType::IsFrame(request_data.resource_type);
   request->set_user_data(extra_info);  // takes pointer ownership
 
   BeginRequestInternal(request, request_data.mixed_content);
+}
+
+void ResourceDispatcherHost::OnDataReceivedACK(int request_id) {
+  DataReceivedACK(receiver_->pid(), request_id);
+}
+
+void ResourceDispatcherHost::DataReceivedACK(int process_id, int request_id) {
+  PendingRequestList::iterator i = pending_requests_.find(
+      GlobalRequestID(process_id, request_id));
+  if (i == pending_requests_.end())
+    return;
+
+  ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
+
+  // Decrement the number of pending data messages.
+  info->pending_data_count--;
+
+  // If the pending data count was higher than the max, resume the request.
+  if (info->pending_data_count == kMaxPendingDataMessages) {
+    // Decrement the pending data count one more time because we also
+    // incremented it before pausing the request.
+    info->pending_data_count--;
+
+    // Resume the request.
+    PauseRequest(process_id, request_id, false);
+  }
+}
+
+void ResourceDispatcherHost::OnDownloadProgressACK(int request_id) {
+  // TODO(hclam): do something to help rate limiting the message.
+}
+
+void ResourceDispatcherHost::OnUploadProgressACK(int request_id) {
+  int process_id = receiver_->pid();
+  PendingRequestList::iterator i = pending_requests_.find(
+      GlobalRequestID(process_id, request_id));
+  if (i == pending_requests_.end())
+    return;
+
+  ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
+  info->waiting_for_upload_progress_ack = false;
+}
+
+void ResourceDispatcherHost::OnCancelRequest(int request_id) {
+  CancelRequest(receiver_->pid(), request_id, true, true);
+}
+
+void ResourceDispatcherHost::OnClosePageACK(int new_render_process_host_id,
+                                           int new_request_id) {
+  GlobalRequestID global_id(new_render_process_host_id, new_request_id);
+  PendingRequestList::iterator i = pending_requests_.find(global_id);
+  if (i == pending_requests_.end()) {
+    // If there are no matching pending requests, then this is not a
+    // cross-site navigation and we are just closing the tab/browser.
+    ui_loop_->PostTask(FROM_HERE, NewRunnableFunction(
+        &RenderViewHost::ClosePageIgnoringUnloadEvents,
+        new_render_process_host_id,
+        new_request_id));
+    return;
+  }
+
+  ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
+  if (info->cross_site_handler) {
+    info->cross_site_handler->ResumeResponse();
+  }
 }
 
 // We are explicitly forcing the download of 'url'.
@@ -502,45 +616,6 @@ void ResourceDispatcherHost::CancelRequest(int process_id,
   // that.
 }
 
-void ResourceDispatcherHost::OnDataReceivedACK(int process_id,
-                                               int request_id) {
-  PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(process_id, request_id));
-  if (i == pending_requests_.end())
-    return;
-
-  ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
-
-  // Decrement the number of pending data messages.
-  info->pending_data_count--;
-
-  // If the pending data count was higher than the max, resume the request.
-  if (info->pending_data_count == kMaxPendingDataMessages) {
-    // Decrement the pending data count one more time because we also
-    // incremented it before pausing the request.
-    info->pending_data_count--;
-
-    // Resume the request.
-    PauseRequest(process_id, request_id, false);
-  }
-}
-
-void ResourceDispatcherHost::OnDownloadProgressACK(int process_id,
-                                                   int request_id) {
-  // TODO(hclam): do something to help rate limiting the message.
-}
-
-void ResourceDispatcherHost::OnUploadProgressACK(int process_id,
-                                                 int request_id) {
-  PendingRequestList::iterator i = pending_requests_.find(
-      GlobalRequestID(process_id, request_id));
-  if (i == pending_requests_.end())
-    return;
-
-  ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
-  info->waiting_for_upload_progress_ack = false;
-}
-
 bool ResourceDispatcherHost::WillSendData(int process_id,
                                           int request_id) {
   PendingRequestList::iterator i = pending_requests_.find(
@@ -600,26 +675,6 @@ int ResourceDispatcherHost::GetOutstandingRequestsMemoryCost(
       outstanding_requests_memory_cost_map_.find(process_id);
   return (entry == outstanding_requests_memory_cost_map_.end()) ?
       0 : entry->second;
-}
-
-void ResourceDispatcherHost::OnClosePageACK(int process_id,
-                                            int request_id) {
-  GlobalRequestID global_id(process_id, request_id);
-  PendingRequestList::iterator i = pending_requests_.find(global_id);
-  if (i == pending_requests_.end()) {
-    // If there are no matching pending requests, then this is not a
-    // cross-site navigation and we are just closing the tab/browser.
-    ui_loop_->PostTask(FROM_HERE, NewRunnableFunction(
-        &RenderViewHost::ClosePageIgnoringUnloadEvents,
-        process_id,
-        request_id));
-    return;
-  }
-
-  ExtraRequestInfo* info = ExtraInfoForRequest(i->second);
-  if (info->cross_site_handler) {
-    info->cross_site_handler->ResumeResponse();
-  }
 }
 
 // The object died, so cancel and detach all requests associated with it except
@@ -1457,4 +1512,22 @@ void ResourceDispatcherHost::ProcessBlockedRequestsForRoute(
   }
 
   delete requests;
+}
+
+bool ResourceDispatcherHost::IsResourceDispatcherHostMessage(
+    const IPC::Message& message) {
+  switch (message.type()) {
+    case ViewHostMsg_RequestResource::ID:
+    case ViewHostMsg_CancelRequest::ID:
+    case ViewHostMsg_ClosePage_ACK::ID:
+    case ViewHostMsg_DataReceived_ACK::ID:
+    case ViewHostMsg_UploadProgress_ACK::ID:
+    case ViewHostMsg_SyncLoad::ID:
+      return true;
+
+    default:
+      break;
+  }
+
+  return false;
 }

@@ -83,9 +83,14 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // ResourceDispatcherHost::Receiver methods:
   virtual bool Send(IPC::Message* message);
+  virtual URLRequestContext* GetRequestContext(
+      uint32 request_id,
+      const ViewHostMsg_Resource_Request& request_data);
 
-  // Access to the spell checker.
   SpellChecker* spellchecker() { return spellchecker_.get(); }
+  ResourceDispatcherHost* resource_dispatcher_host() {
+    return resource_dispatcher_host_;
+  }
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -96,16 +101,6 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnMsgCreateWindow(int opener_id, bool user_gesture, int* route_id,
                          ModalDialogEvent* modal_dialog_event);
   void OnMsgCreateWidget(int opener_id, bool activatable, int* route_id);
-  void OnRequestResource(const IPC::Message& msg, int request_id,
-                         const ViewHostMsg_Resource_Request& request);
-  void OnCancelRequest(int request_id);
-  void OnClosePageACK(int new_render_process_host_id, int new_request_id);
-  void OnDataReceivedACK(int request_id);
-  void OnDownloadProgressACK(int request_id);
-  void OnUploadProgressACK(int request_id);
-  void OnSyncLoad(int request_id,
-                  const ViewHostMsg_Resource_Request& request,
-                  IPC::Message* result_message);
   void OnSetCookie(const GURL& url, const GURL& policy_url,
                    const std::string& cookie);
   void OnGetCookies(const GURL& url, const GURL& policy_url,
@@ -245,9 +240,6 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   // Helper class for handling PluginProcessHost_ResolveProxy messages (manages
   // the requests to the proxy service).
   ResolveProxyMsgHelper resolve_proxy_msg_helper_;
-
-  // Process handle of the renderer process.
-  base::ProcessHandle render_handle_;
 
   // Contextual information to be used for requests created here.
   scoped_refptr<URLRequestContext> request_context_;

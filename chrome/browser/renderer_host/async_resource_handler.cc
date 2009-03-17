@@ -102,7 +102,7 @@ bool AsyncResourceHandler::OnReadCompleted(int request_id, int* bytes_read) {
     // to fix this. We can't move this call above the WillSendData because
     // it's killing our read_buffer_, and we don't want that when we pause
     // the request.
-    rdh_->OnDataReceivedACK(process_id_, request_id);
+    rdh_->DataReceivedACK(process_id_, request_id);
     // We just unmapped the memory.
     read_buffer_ = NULL;
     return false;

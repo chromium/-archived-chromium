@@ -49,7 +49,19 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // false), then the ResourceDispatcherHost assumes the receiver has failed,
   // and the given request will be dropped. (This happens, for example, when a
   // renderer crashes and the channel dies).
-  typedef IPC::Message::Sender Receiver;
+  class Receiver : public IPC::Message::Sender,
+                   public ChildProcessInfo {
+   public:
+    // Return the URLRequestContext for the given request.
+    // If NULL is returned, the default context for the profile is used.
+    virtual URLRequestContext* GetRequestContext(
+        uint32 request_id,
+        const ViewHostMsg_Resource_Request& request_data) = 0;
+
+   protected:
+    Receiver(ChildProcessInfo::ProcessType type) : ChildProcessInfo(type) { }
+    virtual ~Receiver() { }
+  };
 
   // Holds the data we would like to associate with each request
   class ExtraRequestInfo : public URLRequest::UserData {
@@ -192,23 +204,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // new requests).  Cancels all pending requests.
   void Shutdown();
 
-  // Begins a resource request with the given params on behalf of the specified
-  // child process.  Responses will be dispatched through the given receiver. The
-  // process ID is used to lookup TabContents from routing_id's in the case of a
-  // request from a renderer.  request_context is the cookie/cache context to be
-  // used for this request.
-  //
-  // If sync_result is non-null, then a SyncLoad reply will be generated, else
-  // a normal asynchronous set of response messages will be generated.
-  void BeginRequest(Receiver* receiver,
-                    ChildProcessInfo::ProcessType process_type,
-                    base::ProcessHandle process_handle,
-                    int process_id,
-                    int route_id,
-                    int request_id,
-                    const ViewHostMsg_Resource_Request& request,
-                    URLRequestContext* request_context,
-                    IPC::Message* sync_result);
+  // Returns true if the message was a resource message that was processed.
+  // If it was, message_was_ok will be false iff the message was corrupt.
+  bool OnMessageReceived(const IPC::Message& message,
+                         Receiver* receiver,
+                         bool* message_was_ok);
 
   // Initiates a download from the browser process (as opposed to a resource
   // request from the renderer or another child process).
@@ -231,18 +231,6 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   void CancelRequest(int process_id,
                      int request_id,
                      bool from_renderer);
-
-  // Decrements the pending_data_count for the request and resumes
-  // the request if it was paused due to too many pending data
-  // messages sent.
-  void OnDataReceivedACK(int process_id, int request_id);
-
-  // Called when the renderer process confirms the reception of a download
-  // progress message.
-  void OnDownloadProgressACK(int process_id, int request_id);
-
-  // Resets the waiting_for_upload_progress_ack flag.
-  void OnUploadProgressACK(int process_id, int request_id);
 
   // Returns true if it's ok to send the data. If there are already too many
   // data messages pending, it pauses the request and returns false. In this
@@ -359,6 +347,14 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // Cancels any blocked request for the specified route id.
   void CancelBlockedRequestsForRoute(int process_id, int route_id);
 
+  // Decrements the pending_data_count for the request and resumes
+  // the request if it was paused due to too many pending data
+  // messages sent.
+  void DataReceivedACK(int process_id, int request_id);
+
+  // Needed for the sync IPC message dispatcher macros.
+  bool Send(IPC::Message* message) { delete message; return false; }
+
  private:
   FRIEND_TEST(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies);
   FRIEND_TEST(ResourceDispatcherHostTest,
@@ -465,6 +461,24 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                                       int route_id,
                                       bool cancel_requests);
 
+  void OnRequestResource(const IPC::Message& msg,
+                         int request_id,
+                         const ViewHostMsg_Resource_Request& request_data);
+  void OnSyncLoad(int request_id,
+                  const ViewHostMsg_Resource_Request& request_data,
+                  IPC::Message* sync_result);
+  void BeginRequest(int request_id,
+                    const ViewHostMsg_Resource_Request& request_data,
+                    IPC::Message* sync_result,  // only valid for sync
+                    int route_id);  // only valid for async
+  void OnDataReceivedACK(int request_id);
+  void OnDownloadProgressACK(int request_id);
+  void OnUploadProgressACK(int request_id);
+  void OnCancelRequest(int request_id);
+
+  // Returns true if the message passed in is a resource related message.
+  static bool IsResourceDispatcherHostMessage(const IPC::Message&);
+
   PendingRequestList pending_requests_;
 
   // We cache the UI message loop so we can create new UI-related objects on it.
@@ -527,6 +541,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   //   (max_outstanding_requests_cost_per_process_ /
   //       kAvgBytesPerOutstandingRequest)
   int max_outstanding_requests_cost_per_process_;
+
+  // Used during IPC message dispatching so that the handlers can get a pointer
+  // to the source of the message.
+  Receiver* receiver_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceDispatcherHost);
 };

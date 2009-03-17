@@ -106,14 +106,14 @@ ResourceMessageFilter::ResourceMessageFilter(
     Profile* profile,
     RenderWidgetHelper* render_widget_helper,
     SpellChecker* spellchecker)
-    : channel_(NULL),
+    : Receiver(RENDER_PROCESS),
+      channel_(NULL),
       resource_dispatcher_host_(resource_dispatcher_host),
       plugin_service_(plugin_service),
       print_job_manager_(print_job_manager),
       render_process_id_(-1),
       spellchecker_(spellchecker),
       ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)),
-      render_handle_(NULL),
       request_context_(profile->GetRequestContext()),
       media_request_context_(profile->GetRequestContextForMedia()),
       profile_(profile),
@@ -129,8 +129,8 @@ ResourceMessageFilter::ResourceMessageFilter(
 ResourceMessageFilter::~ResourceMessageFilter() {
   WorkerService::GetInstance()->RendererShutdown(this);
 
-  if (render_handle_)
-    base::CloseProcessHandle(render_handle_);
+  if (handle())
+    base::CloseProcessHandle(handle());
 
   // This function should be called on the IO thread.
   DCHECK(MessageLoop::current() ==
@@ -159,9 +159,9 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
 
 // Called on the IPC thread:
 void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
-  DCHECK(!render_handle_);
-  render_handle_ = base::OpenProcessHandle(peer_pid);
-  DCHECK(render_handle_);
+  DCHECK(!handle());
+  set_handle(base::OpenProcessHandle(peer_pid));
+  DCHECK(handle());
   // Hook AudioRendererHost to this object after channel is connected so it can
   // this object for sending messages.
   audio_renderer_host_->IPCChannelConnected(this);
@@ -181,100 +181,93 @@ void ResourceMessageFilter::OnChannelClosing() {
 
 // Called on the IPC thread:
 bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
-  bool handled = true;
   bool msg_is_ok = true;
-  IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnMsgCreateWindow)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget)
-    // TODO(brettw): we should get the view ID for this so the resource
-    // dispatcher can prioritize things based on the visible view.
-    IPC_MESSAGE_HANDLER(ViewHostMsg_RequestResource, OnRequestResource)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CancelRequest, OnCancelRequest)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClosePage_ACK, OnClosePageACK)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DataReceived_ACK, OnDataReceivedACK)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadProgress_ACK, OnDownloadProgressACK)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_UploadProgress_ACK, OnUploadProgressACK)
-
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncLoad, OnSyncLoad)
-
-    IPC_MESSAGE_HANDLER(ViewHostMsg_SetCookie, OnSetCookie)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetCookies, OnGetCookies)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetDataDir, OnGetDataDir)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_PluginMessage, OnPluginMessage)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_PluginSyncMessage, OnPluginSyncMessage)
+  bool handled = resource_dispatcher_host_->OnMessageReceived(
+      message, this, &msg_is_ok);
+  if (!handled) {
+    handled = true;  
+    IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnMsgCreateWindow)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_SetCookie, OnSetCookie)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetCookies, OnGetCookies)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetDataDir, OnGetDataDir)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_PluginMessage, OnPluginMessage)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_PluginSyncMessage, OnPluginSyncMessage)
 #if defined(OS_WIN)  // This hack is Windows-specific.
-    IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
 #endif
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetScreenInfo, OnGetScreenInfo)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetPlugins, OnGetPlugins)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetPluginPath, OnGetPluginPath)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadUrl, OnDownloadUrl)
-    IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_ContextMenu,
-        OnReceiveContextMenuMsg(message))
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_OpenChannelToPlugin,
-                                    OnOpenChannelToPlugin)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateDedicatedWorker,
-                        OnCreateDedicatedWorker)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
-                        OnForwardToWorker)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SpellCheck, OnSpellCheck)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DnsPrefetch, OnDnsPrefetch)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_RendererHistograms,
-                        OnRendererHistograms)
-    IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_PaintRect,
-        render_widget_helper_->DidReceivePaintMsg(message))
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsAsync,
-                        OnClipboardWriteObjects)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsSync,
-                        OnClipboardWriteObjects)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardIsFormatAvailable,
-                        OnClipboardIsFormatAvailable)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadText, OnClipboardReadText)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadAsciiText,
-                        OnClipboardReadAsciiText)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
-                        OnClipboardReadHTML)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetScreenInfo, OnGetScreenInfo)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetPlugins, OnGetPlugins)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetPluginPath, OnGetPluginPath)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadUrl, OnDownloadUrl)
+      IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_ContextMenu,
+          OnReceiveContextMenuMsg(message))
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_OpenChannelToPlugin,
+                                      OnOpenChannelToPlugin)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CreateDedicatedWorker,
+                          OnCreateDedicatedWorker)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardToWorker,
+                          OnForwardToWorker)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SpellCheck, OnSpellCheck)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_DnsPrefetch, OnDnsPrefetch)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_RendererHistograms,
+                          OnRendererHistograms)
+      IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_PaintRect,
+          render_widget_helper_->DidReceivePaintMsg(message))
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsAsync,
+                          OnClipboardWriteObjects)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardWriteObjectsSync,
+                          OnClipboardWriteObjects)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardIsFormatAvailable,
+                          OnClipboardIsFormatAvailable)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadText, OnClipboardReadText)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadAsciiText,
+                          OnClipboardReadAsciiText)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
+                          OnClipboardReadHTML)
 #if defined(OS_WIN)|| defined(OS_LINUX)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
 #endif
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
-                        OnGetMimeTypeFromExtension)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
-                        OnGetMimeTypeFromFile)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetPreferredExtensionForMimeType,
-                        OnGetPreferredExtensionForMimeType)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetCPBrowsingContext,
-                        OnGetCPBrowsingContext)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DuplicateSection, OnDuplicateSection)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_ResourceTypeStats, OnResourceTypeStats)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ResolveProxy, OnResolveProxy)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetDefaultPrintSettings,
-                                    OnGetDefaultPrintSettings)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
+                          OnGetMimeTypeFromExtension)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
+                          OnGetMimeTypeFromFile)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetPreferredExtensionForMimeType,
+                          OnGetPreferredExtensionForMimeType)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetCPBrowsingContext,
+                          OnGetCPBrowsingContext)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_DuplicateSection, OnDuplicateSection)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ResourceTypeStats, OnResourceTypeStats)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ResolveProxy, OnResolveProxy)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetDefaultPrintSettings,
+                                      OnGetDefaultPrintSettings)
 #if defined(OS_WIN)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ScriptedPrint,
-                                    OnScriptedPrint)
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ScriptedPrint,
+                                      OnScriptedPrint)
 #endif
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateAudioStream, OnCreateAudioStream)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_StartAudioStream, OnStartAudioStream)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CloseAudioStream, OnCloseAudioStream)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_NotifyAudioPacketReady,
-                        OnNotifyAudioPacketReady)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_GetAudioVolume, OnGetAudioVolume)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_SetAudioVolume, OnSetAudioVolume)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CreateAudioStream, OnCreateAudioStream)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_StartAudioStream, OnStartAudioStream)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_CloseAudioStream, OnCloseAudioStream)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_NotifyAudioPacketReady,
+                          OnNotifyAudioPacketReady)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_GetAudioVolume, OnGetAudioVolume)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_SetAudioVolume, OnSetAudioVolume)
 #if defined(OS_MACOSX)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_AllocTransportDIB,
-                        OnAllocTransportDIB)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_FreeTransportDIB,
-                        OnFreeTransportDIB)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_AllocTransportDIB,
+                          OnAllocTransportDIB)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_FreeTransportDIB,
+                          OnFreeTransportDIB)
 #endif
-    IPC_MESSAGE_UNHANDLED(
-        handled = false)
-  IPC_END_MESSAGE_MAP_EX()
+      IPC_MESSAGE_UNHANDLED(
+          handled = false)
+    IPC_END_MESSAGE_MAP_EX()
+  }
 
   if (!msg_is_ok) {
     BrowserRenderProcessHost::BadMessageTerminateProcess(message.type(),
-                                                         render_handle_);
+                                                         handle());
   }
 
   return handled;
@@ -318,12 +311,27 @@ bool ResourceMessageFilter::Send(IPC::Message* message) {
   return channel_->Send(message);
 }
 
+URLRequestContext* ResourceMessageFilter::GetRequestContext(
+    uint32 request_id,
+    const ViewHostMsg_Resource_Request& request_data) {
+  URLRequestContext* request_context = request_context_;
+  // If the request has resource type of ResourceType::MEDIA and
+  // LOAD_ENABLE_DOWNLOAD_FILE is set as a load flag, we use a request context
+  // specific to media for handling it because these resources have specific
+  // needs for caching and data passing.
+  if (request_data.resource_type == ResourceType::MEDIA &&
+      (request_data.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
+    request_context = media_request_context_;
+  }
+  return request_context_;
+}
+
 void ResourceMessageFilter::OnMsgCreateWindow(
     int opener_id, bool user_gesture, int* route_id,
     ModalDialogEvent* modal_dialog_event) {
   render_widget_helper_->CreateNewWindow(opener_id,
                                          user_gesture,
-                                         render_handle_,
+                                         handle(),
                                          route_id,
                                          modal_dialog_event);
 }
@@ -332,71 +340,6 @@ void ResourceMessageFilter::OnMsgCreateWidget(int opener_id,
                                               bool activatable,
                                               int* route_id) {
   render_widget_helper_->CreateNewWidget(opener_id, activatable, route_id);
-}
-
-void ResourceMessageFilter::OnRequestResource(
-    const IPC::Message& message,
-    int request_id,
-    const ViewHostMsg_Resource_Request& request) {
-  URLRequestContext* request_context = request_context_;
-  // If the request has resource type of ResourceType::MEDIA and
-  // LOAD_ENABLE_DOWNLOAD_FILE is set as a load flag, we use a request context
-  // specific to media for handling it because these resources have specific
-  // needs for caching and data passing.
-  if (request.resource_type == ResourceType::MEDIA &&
-      (request.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
-    request_context = media_request_context_;
-  }
-
-  resource_dispatcher_host_->BeginRequest(this,
-                                          ChildProcessInfo::RENDER_PROCESS,
-                                          render_handle_,
-                                          render_process_id_,
-                                          message.routing_id(),
-                                          request_id,
-                                          request,
-                                          request_context,
-                                          NULL);
-}
-
-void ResourceMessageFilter::OnDataReceivedACK(int request_id) {
-  resource_dispatcher_host_->OnDataReceivedACK(render_process_id_, request_id);
-}
-
-void ResourceMessageFilter::OnDownloadProgressACK(int request_id) {
-  resource_dispatcher_host_->OnDownloadProgressACK(render_process_id_,
-                                                   request_id);
-}
-
-void ResourceMessageFilter::OnUploadProgressACK(int request_id) {
-  resource_dispatcher_host_->OnUploadProgressACK(render_process_id_,
-                                                 request_id);
-}
-
-void ResourceMessageFilter::OnCancelRequest(int request_id) {
-  resource_dispatcher_host_->CancelRequest(render_process_id_, request_id,
-                                           true);
-}
-
-void ResourceMessageFilter::OnClosePageACK(int new_render_process_host_id,
-                                           int new_request_id) {
-  resource_dispatcher_host_->OnClosePageACK(new_render_process_host_id,
-                                            new_request_id);
-}
-
-void ResourceMessageFilter::OnSyncLoad(
-    int request_id,
-    const ViewHostMsg_Resource_Request& request,
-    IPC::Message* sync_result) {
-  resource_dispatcher_host_->BeginRequest(this,
-                                          ChildProcessInfo::RENDER_PROCESS,
-                                          render_handle_,
-                                          render_process_id_,
-                                          sync_result->routing_id(),
-                                          request_id,
-                                          request,
-                                          request_context_,
-                                          sync_result);
 }
 
 void ResourceMessageFilter::OnSetCookie(const GURL& url,
@@ -552,11 +495,11 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
   // a task to perform the write on the UI thread.
   Clipboard::ObjectMap* long_living_objects = new Clipboard::ObjectMap(objects);
 
-  // We pass the render_handle_ to assist the clipboard with using shared
-  // memory objects. render_handle_ is a handle to the process that would
+  // We pass the renderer handle to assist the clipboard with using shared
+  // memory objects. renderer handle is a handle to the process that would
   // own any shared memory that might be in the object list.
 #if defined(OS_WIN)
-  Clipboard::DuplicateRemoteHandles(render_handle_, long_living_objects);
+  Clipboard::DuplicateRemoteHandles(handle(), long_living_objects);
 #else
   NOTIMPLEMENTED();  // TODO(port) implement this.
 #endif
@@ -665,7 +608,7 @@ void ResourceMessageFilter::OnDuplicateSection(
     base::SharedMemoryHandle* browser_handle) {
   // Duplicate the handle in this process right now so the memory is kept alive
   // (even if it is not mapped)
-  base::SharedMemory shared_buf(renderer_handle, true, render_handle_);
+  base::SharedMemory shared_buf(renderer_handle, true, handle());
   shared_buf.GiveToProcess(base::GetCurrentProcessHandle(), browser_handle);
 }
 
@@ -855,7 +798,7 @@ void ResourceMessageFilter::OnCreateAudioStream(
     const IPC::Message& msg, int stream_id,
     const ViewHostMsg_Audio_CreateStream& params) {
   audio_renderer_host_->CreateStream(
-      render_handle_, msg.routing_id(), stream_id, params.format,
+      handle(), msg.routing_id(), stream_id, params.format,
       params.channels, params.sample_rate, params.bits_per_sample,
       params.packet_size);
 }

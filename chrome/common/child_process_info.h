@@ -30,7 +30,13 @@ class ChildProcessInfo {
   // Getter to the process handle.
   base::ProcessHandle handle() const { return process_.handle(); }
 
-  int pid() const { return process_.pid(); }
+  int pid() const {
+    if (pid_ != -1)
+      return pid_;
+
+    pid_ = process_.pid();
+    return pid_;
+  }
   void SetProcessBackgrounded() const { process_.SetProcessBackgrounded(true); }
   void ReduceWorkingSet() const { process_.ReduceWorkingSet(); }
 
@@ -46,6 +52,7 @@ class ChildProcessInfo {
     type_ = original.type_;
     name_ = original.name_;
     process_ = original.process_;
+    pid_ = original.pid_;
   }
 
   ChildProcessInfo& operator=(const ChildProcessInfo& original) {
@@ -53,6 +60,7 @@ class ChildProcessInfo {
       type_ = original.type_;
       name_ = original.name_;
       process_ = original.process_;
+      pid_ = original.pid_;
     }
     return *this;
   }
@@ -78,20 +86,20 @@ class ChildProcessInfo {
  protected:
   void set_type(ProcessType type) { type_ = type; }
   void set_name(const std::wstring& name) { name_ = name; }
-  void set_handle(base::ProcessHandle handle) { process_.set_handle(handle); }
+  void set_handle(base::ProcessHandle handle) {
+    process_.set_handle(handle);
+    pid_ = -1;
+  }
 
   // Derived objects need to use this constructor so we know what type we are.
   ChildProcessInfo(ProcessType type);
 
  private:
-  // By making the constructor private, we can ensure that ChildProcessInfo
-  // objects can only be created by creating objects derived from them (i.e.
-  // PluginProcessHost) or by using the copy constructor or assignment operator
-  // to create an object from the former.
-  ChildProcessInfo() { }
+  friend class ResourceDispatcherHostTest;
 
   ProcessType type_;
   std::wstring name_;
+  mutable int pid_;  // Cache of the process id.
 
   // The handle to the process.
   mutable base::Process process_;

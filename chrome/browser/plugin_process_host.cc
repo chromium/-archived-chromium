@@ -364,8 +364,10 @@ void PluginProcessHost::AddWindow(HWND window) {
 
 #endif  // defined(OS_WIN)
 
-PluginProcessHost::PluginProcessHost(MessageLoop* main_message_loop)
-    : ChildProcessHost(PLUGIN_PROCESS, main_message_loop),
+PluginProcessHost::PluginProcessHost()
+    : ChildProcessHost(
+          PLUGIN_PROCESS,
+          PluginService::GetInstance()->resource_dispatcher_host()),
       ALLOW_THIS_IN_INITIALIZER_LIST(resolve_proxy_msg_helper_(this, NULL)) {
 }
 
@@ -551,11 +553,6 @@ void PluginProcessHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_ShutdownRequest,
                         OnPluginShutdownRequest)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_PluginMessage, OnPluginMessage)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_RequestResource, OnRequestResource)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CancelRequest, OnCancelRequest)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_DataReceived_ACK, OnDataReceivedACK)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_UploadProgress_ACK, OnUploadProgressACK)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_SyncLoad, OnSyncLoad)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginProcessHostMsg_ResolveProxy,
                                     OnResolveProxy)
@@ -606,53 +603,6 @@ void PluginProcessHost::OpenChannelToPlugin(
   RequestPluginChannel(renderer_message_filter, mime_type, reply_msg);
 }
 
-void PluginProcessHost::OnRequestResource(
-    const IPC::Message& message,
-    int request_id,
-    const ViewHostMsg_Resource_Request& request) {
-  URLRequestContext* context = CPBrowsingContextManager::Instance()->
-        ToURLRequestContext(request.request_context);
-  // TODO(mpcomplete): remove fallback case when Gears support is prevalent.
-  if (!context)
-    context = Profile::GetDefaultRequestContext();
-
-  PluginService::GetInstance()->resource_dispatcher_host()->
-      BeginRequest(this, ChildProcessInfo::PLUGIN_PROCESS, handle(),
-                   pid(), MSG_ROUTING_CONTROL, request_id,
-                   request, context, NULL);
-}
-
-void PluginProcessHost::OnCancelRequest(int request_id) {
-  PluginService::GetInstance()->resource_dispatcher_host()->
-      CancelRequest(pid(), request_id, true);
-}
-
-void PluginProcessHost::OnDataReceivedACK(int request_id) {
-  PluginService::GetInstance()->resource_dispatcher_host()->
-      OnDataReceivedACK(pid(), request_id);
-}
-
-void PluginProcessHost::OnUploadProgressACK(int request_id) {
-  PluginService::GetInstance()->resource_dispatcher_host()->
-      OnUploadProgressACK(pid(), request_id);
-}
-
-void PluginProcessHost::OnSyncLoad(
-    int request_id,
-    const ViewHostMsg_Resource_Request& request,
-    IPC::Message* sync_result) {
-  URLRequestContext* context = CPBrowsingContextManager::Instance()->
-        ToURLRequestContext(request.request_context);
-  // TODO(mpcomplete): remove fallback case when Gears support is prevalent.
-  if (!context)
-    context = Profile::GetDefaultRequestContext();
-
-  PluginService::GetInstance()->resource_dispatcher_host()->
-      BeginRequest(this, ChildProcessInfo::PLUGIN_PROCESS, handle(),
-                   pid(), MSG_ROUTING_CONTROL, request_id,
-                   request, context, sync_result);
-}
-
 void PluginProcessHost::OnGetCookies(uint32 request_context,
                                      const GURL& url,
                                      std::string* cookies) {
@@ -692,6 +642,12 @@ void PluginProcessHost::ReplyToRenderer(
   ViewHostMsg_OpenChannelToPlugin::WriteReplyParams(reply_msg, channel,
                                                     plugin_path);
   renderer_message_filter->Send(reply_msg);
+}
+
+URLRequestContext* PluginProcessHost::GetRequestContext(
+    uint32 request_id,
+    const ViewHostMsg_Resource_Request& request_data) {
+  return CPBrowsingContextManager::Instance()->ToURLRequestContext(request_id);
 }
 
 void PluginProcessHost::RequestPluginChannel(

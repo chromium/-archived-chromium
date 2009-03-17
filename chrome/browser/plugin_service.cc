@@ -110,7 +110,7 @@ PluginProcessHost* PluginService::FindOrStartPluginProcess(
   }
 
   // This plugin isn't loaded by any plugin process, so create a new process.
-  plugin_host = new PluginProcessHost(main_message_loop_);
+  plugin_host = new PluginProcessHost();
   if (!plugin_host->Init(info, clsid, ui_locale_)) {
     DCHECK(false);  // Init is not expected to fail
     delete plugin_host;

@@ -20,7 +20,6 @@
 #include "chrome/common/child_process_host.h"
 #include "webkit/glue/webplugin.h"
 
-class ResourceDispatcherHost;
 class URLRequestContext;
 struct ViewHostMsg_Resource_Request;
 class GURL;
@@ -36,7 +35,7 @@ class GURL;
 class PluginProcessHost : public ChildProcessHost,
                           public ResolveProxyMsgHelper::Delegate {
  public:
-  PluginProcessHost(MessageLoop* main_message_loop);
+  PluginProcessHost();
   ~PluginProcessHost();
 
   // Initialize the new plugin process, returning true on success. This must
@@ -89,6 +88,11 @@ class PluginProcessHost : public ChildProcessHost,
  private:
   friend class PluginResolveProxyHelper;
 
+  // ResourceDispatcherHost::Receiver implementation:
+  virtual URLRequestContext* GetRequestContext(
+      uint32 request_id,
+      const ViewHostMsg_Resource_Request& request_data);
+
   // Sends a message to the plugin process to request creation of a new channel
   // for the given mime type.
   void RequestPluginChannel(ResourceMessageFilter* renderer_message_filter,
@@ -99,15 +103,6 @@ class PluginProcessHost : public ChildProcessHost,
   void OnDownloadUrl(const std::string& url, int source_pid,
                      gfx::NativeWindow caller_window);
   void OnGetPluginFinderUrl(std::string* plugin_finder_url);
-  void OnRequestResource(const IPC::Message& message,
-                         int request_id,
-                         const ViewHostMsg_Resource_Request& request);
-  void OnCancelRequest(int request_id);
-  void OnDataReceivedACK(int request_id);
-  void OnUploadProgressACK(int request_id);
-  void OnSyncLoad(int request_id,
-                  const ViewHostMsg_Resource_Request& request,
-                  IPC::Message* sync_result);
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);
   void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);

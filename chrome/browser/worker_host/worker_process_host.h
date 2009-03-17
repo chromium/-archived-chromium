@@ -16,7 +16,7 @@ class ResourceMessageFilter;
 
 class WorkerProcessHost : public ChildProcessHost {
  public:
-  WorkerProcessHost(MessageLoop* main_message_loop);
+  WorkerProcessHost(ResourceDispatcherHost* resource_dispatcher_host_);
   ~WorkerProcessHost();
 
   // Starts the process.  Returns true iff it succeeded.
@@ -35,6 +35,11 @@ class WorkerProcessHost : public ChildProcessHost {
   void RendererShutdown(ResourceMessageFilter* filter);
 
  private:
+  // ResourceDispatcherHost::Receiver implementation:
+  virtual URLRequestContext* GetRequestContext(
+      uint32 request_id,
+      const ViewHostMsg_Resource_Request& request_data);
+
   // Called when a message arrives from the worker process.
   void OnMessageReceived(const IPC::Message& message);
 

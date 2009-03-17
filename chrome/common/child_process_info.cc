@@ -60,6 +60,7 @@ ChildProcessInfo::ChildProcessInfo(ProcessType type) {
   // just a simple object that contains information about it.  So add it to our
   // list of running processes.
   type_ = type;
+  pid_ = -1;
 }
 
 
