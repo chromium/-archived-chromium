@@ -55,6 +55,7 @@
 
 #include "event.h"
 #include "evrpc.h"
+#include "event-internal.h"
 #include "evrpc-internal.h"
 #include "evhttp.h"
 #include "evutil.h"

@@ -10,6 +10,8 @@ Changes from upstream:
 being installed (alternative is adding crazy -I arguments to the commandline)
 4) The directories WIN32-Code and WIN32-Prj are not included
 5) add mac/config.h from a run of configure on a Mac.
+6) sys-queue-macros.patch is applied to build on systems which are missing a
+complete sys/queue.h
 
 SConscript does not include a few files that don't build on Linux:
     devpoll.c, evport.c, kqueue.c
