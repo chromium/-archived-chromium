@@ -26,7 +26,7 @@ deps = {
 
   # TODO(mark): Remove once this has moved into depot_tools.
   "src/tools/gyp":
-    "http://gyp.googlecode.com/svn/trunk@371",
+    "http://gyp.googlecode.com/svn/trunk@372",
 
   "src/v8":
     "http://v8.googlecode.com/svn/trunk@1458",
