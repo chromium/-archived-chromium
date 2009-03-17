@@ -67,6 +67,8 @@
         'master_preferences.h',
         'move_tree_work_item.cc',
         'move_tree_work_item.h',
+        'self_reg_work_item.cc',
+        'self_reg_work_item.h',
         'set_reg_value_work_item.cc',
         'set_reg_value_work_item.h',
         'shell_util.cc',

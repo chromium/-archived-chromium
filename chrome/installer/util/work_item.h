@@ -9,8 +9,8 @@
 #ifndef CHROME_INSTALLER_UTIL_WORK_ITEM_H_
 #define CHROME_INSTALLER_UTIL_WORK_ITEM_H_
 
-#include <string>
 #include <windows.h>
+#include <string>
 
 class CopyTreeWorkItem;
 class CreateDirWorkItem;
@@ -18,6 +18,7 @@ class CreateRegKeyWorkItem;
 class DeleteTreeWorkItem;
 class DeleteRegValueWorkItem;
 class MoveTreeWorkItem;
+class SelfRegWorkItem;
 class SetRegValueWorkItem;
 class WorkItemList;
 
@@ -82,6 +83,11 @@ class WorkItem {
   static SetRegValueWorkItem* CreateSetRegValueWorkItem(
       HKEY predefined_root, std::wstring key_path,
       std::wstring value_name, DWORD value_data, bool overwrite);
+
+  // Add a SelfRegWorkItem that registers or unregisters a DLL at the
+  // specified path.
+  static SelfRegWorkItem* CreateSelfRegWorkItem(const std::wstring& dll_path,
+                                                bool do_register);
 
   // Create an empty WorkItemList. A WorkItemList can recursively contains
   // a list of WorkItems.
