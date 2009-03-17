@@ -1851,3 +1851,17 @@ WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 MAC RELEASE : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT FAIL
+
+// Tests that fail in debug mode on linux
+DEBUG LINUX : LayoutTests/fast/css/remove-shorthand.html = FAIL
+DEBUG LINUX : LayoutTests/fast/dom/HTMLInputElement/input-checked-reset.html = FAIL
+DEBUG LINUX : LayoutTests/fast/dom/clone-node-form-elements.html = FAIL
+DEBUG LINUX : LayoutTests/fast/dom/dir-no-body.html = FAIL
+DEBUG LINUX : LayoutTests/fast/dynamic/containing-block-change.html = FAIL
+DEBUG LINUX : LayoutTests/fast/parser/bad-xml-slash.html = FAIL
+DEBUG LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
+DEBUG LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+DEBUG LINUX : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
+DEBUG LINUX : chrome/fast/dom/onload-fires-twice.html = FAIL
+DEBUG LINUX : LayoutTests/fast/canvas/canvas-pattern-transform.html = CRASH
+DEBUG LINUX : LayoutTests/svg/custom/mask-excessive-malloc.svg = CRASH
