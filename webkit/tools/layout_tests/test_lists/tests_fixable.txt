@@ -1340,10 +1340,6 @@ DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-image-not-load
 // because we enforce non-transparent color in Font::drawGlyphs. See <b/700464>.
 LINUX WIN : LayoutTests/fast/css/hsla-color.html = FAIL
 
-// Windows pixeltest failure: upstream baseline has the background of the
-// "Cancel" button in a slightly darker gray than the surrounding dark gray.
-WIN : LayoutTests/fast/css/imageTileOpacity.html = FAIL
-
 // Linux pixeltest failure: flaky?  Appears without red locally.
 LINUX : LayoutTests/fast/layers/layer-visibility-sublayer.html = PASS FAIL
 
