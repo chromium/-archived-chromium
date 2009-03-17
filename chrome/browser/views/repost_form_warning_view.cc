@@ -9,7 +9,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/message_box_view.h"
-#include "chrome/views/window.h"
+#include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
 
 // Implementation of function declared in
