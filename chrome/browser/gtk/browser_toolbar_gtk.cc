@@ -77,8 +77,6 @@ void BrowserToolbarGtk::Init(Profile* profile,
   accel_group_ = gtk_accel_group_new();
   gtk_window_add_accel_group(top_level_window, accel_group_);
 
-  toolbar_tooltips_ = gtk_tooltips_new();
-
   back_.reset(BuildBackForwardButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H,
               IDR_BACK_D,
               l10n_util::GetString(IDS_TOOLTIP_BACK)));
@@ -209,10 +207,8 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
       highlight_id, depressed_id);
 
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
-                       GTK_WIDGET(button->widget()),
-                       WideToUTF8(localized_tooltip).c_str(),
-                       WideToUTF8(localized_tooltip).c_str());
+  gtk_widget_set_tooltip_text(button->widget(),
+                              WideToUTF8(localized_tooltip).c_str());
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
   GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
@@ -231,10 +227,8 @@ CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
   gtk_container_add(GTK_CONTAINER(button->widget()),
                     gtk_image_new_from_pixbuf(rb.LoadPixbuf(icon_id)));
 
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
-                       GTK_WIDGET(button->widget()),
-                       WideToUTF8(localized_tooltip).c_str(),
-                       WideToUTF8(localized_tooltip).c_str());
+  gtk_widget_set_tooltip_text(button->widget(),
+                              WideToUTF8(localized_tooltip).c_str());
   g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
                    G_CALLBACK(OnMenuButtonPressEvent), this);
   GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
@@ -302,10 +296,8 @@ CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
                                                   highlight_id, depressed_id);
 
-  // TODO(erg): Mismatch between wstring and string.
-  // gtk_tooltips_set_tip(GTK_TOOLTIPS(toolbar_tooltips_),
-  //                      GTK_WIDGET(back_),
-  //                      localized_tooltip, localized_tooltip);
+  gtk_widget_set_tooltip_text(button->widget(),
+                              WideToUTF8(localized_tooltip).c_str());
 
   g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
                    G_CALLBACK(OnBackForwardPressEvent), this);

@@ -103,9 +103,6 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // toolbar placed side by side.
   GtkWidget* toolbar_;
 
-  // Tooltip container for all GTK widgets in this class.
-  GtkTooltips* toolbar_tooltips_;
-
   // The location bar view.
   scoped_ptr<LocationBarViewGtk> location_bar_;
 
