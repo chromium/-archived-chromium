@@ -262,6 +262,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kDisablePopupBlocking,
     switches::kUseLowFragHeapCrt,
     switches::kEnableVideo,
+    switches::kEnableWebWorkers,
   };
 
   for (size_t i = 0; i < arraysize(switch_names); ++i) {

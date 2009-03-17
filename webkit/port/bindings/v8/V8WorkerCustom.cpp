@@ -34,6 +34,7 @@
 #include "v8_binding.h"
 #include "v8_custom.h"
 #include "v8_proxy.h"
+#include "WorkerContextExecutionProxy.h"
 
 #include "ExceptionCode.h"
 #include "Frame.h"
@@ -47,6 +48,11 @@ namespace WebCore {
 
 CALLBACK_FUNC_DECL(WorkerConstructor) {
   INC_STATS(L"DOM.Worker.Constructor");
+
+  if (!WorkerContextExecutionProxy::IsWebWorkersEnabled()) {
+    V8Proxy::ThrowError(V8Proxy::SYNTAX_ERROR, "Worker is not enabled.");
+    return v8::Undefined();
+  }
 
   if (!args.IsConstructCall()) {
     V8Proxy::ThrowError(V8Proxy::TYPE_ERROR,
