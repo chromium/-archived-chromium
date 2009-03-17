@@ -48,6 +48,12 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
 }
 
 BrowserToolbarGtk::~BrowserToolbarGtk() {
+  // When we created our MenuGtk objects, we pass them a pointer to our accel
+  // group.  Make sure to tear them down before |accel_group_|.
+  page_menu_.reset();
+  app_menu_.reset();
+  back_forward_menu_.reset();
+  g_object_unref(accel_group_);
 }
 
 void BrowserToolbarGtk::Init(Profile* profile,
@@ -63,11 +69,13 @@ void BrowserToolbarGtk::Init(Profile* profile,
   // -1 for width means "let GTK do its normal sizing".
   gtk_widget_set_size_request(toolbar_, -1, kToolbarHeight);
 
+  // A GtkAccelGroup is not InitiallyUnowned, meaning we get a real reference
+  // count starting at one.  We don't want the lifetime to be managed by the
+  // top level window, since the lifetime should be tied to the C++ object.
+  // When we add the accelerator group, the window will take a reference, but
+  // we still hold on to the original, and thus own a reference to the group.
   accel_group_ = gtk_accel_group_new();
   gtk_window_add_accel_group(top_level_window, accel_group_);
-  // Drop the initial ref on |accel_group_| so that |top_level_window| will own
-  // it.
-  g_object_unref(accel_group_);
 
   toolbar_tooltips_ = gtk_tooltips_new();
 

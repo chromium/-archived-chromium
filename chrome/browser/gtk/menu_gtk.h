@@ -60,7 +60,9 @@ class MenuGtk {
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set
   // of GtkMenuItems.
-  void BuildMenuIn(GtkWidget* menu, const MenuCreateMaterial* menu_data);
+  void BuildMenuIn(GtkWidget* menu,
+                   const MenuCreateMaterial* menu_data,
+                   GtkAccelGroup* accel_group);
 
   // A function that creates a GtkMenu from |delegate_|. This function is not
   // recursive and does not support sub-menus.
@@ -90,9 +92,6 @@ class MenuGtk {
 
   // Queries this object about the menu state.
   MenuGtk::Delegate* delegate_;
-
-  // Accelerator group to add keyboard accelerators to.
-  GtkAccelGroup* accel_group_;
 
   // gtk_menu_popup() does not appear to take ownership of popup menus, so
   // MenuGtk explicitly manages the lifetime of the menu.

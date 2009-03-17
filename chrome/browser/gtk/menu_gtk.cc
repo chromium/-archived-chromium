@@ -38,9 +38,8 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,
                  GtkAccelGroup* accel_group)
     : delegate_(delegate),
-      accel_group_(accel_group),
       menu_(gtk_menu_new()) {
-  BuildMenuIn(menu_.get(), menu_data);
+  BuildMenuIn(menu_.get(), menu_data, accel_group);
 }
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate)
@@ -80,7 +79,8 @@ void MenuGtk::PopupAsContext() {
 }
 
 void MenuGtk::BuildMenuIn(GtkWidget* menu,
-                          const MenuCreateMaterial* menu_data) {
+                          const MenuCreateMaterial* menu_data,
+                          GtkAccelGroup* accel_group) {
   // We keep track of the last menu item in order to group radio items.
   GtkWidget* last_menu_item = NULL;
   for (; menu_data->type != MENU_END; ++menu_data) {
@@ -124,17 +124,17 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
 
     if (menu_data->submenu) {
       GtkWidget* submenu = gtk_menu_new();
-      BuildMenuIn(submenu, menu_data->submenu);
+      BuildMenuIn(submenu, menu_data->submenu, accel_group);
       gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
     }
 
-    if (accel_group_ && menu_data->accel_key) {
+    if (accel_group && menu_data->accel_key) {
       // If we ever want to let the user do any key remaping, we'll need to
       // change the following so we make a gtk_accel_map which keeps the actual
       // keys.
       gtk_widget_add_accelerator(menu_item,
                                  "activate",
-                                 accel_group_,
+                                 accel_group,
                                  menu_data->accel_key,
                                  GdkModifierType(menu_data->accel_modifiers),
                                  GTK_ACCEL_VISIBLE);
@@ -178,8 +178,7 @@ void MenuGtk::BuildMenuFromDelegate() {
                      G_CALLBACK(OnMenuItemActivatedById), this);
 
     gtk_widget_show(menu_item);
-    // TODO(estade): gtk_menu_append is deprecated.
-    gtk_menu_append(menu_.get(), menu_item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
   }
 }
 
@@ -214,15 +213,8 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
                                void* void_widget) {
   GtkWidget* widget = GTK_WIDGET(void_widget);
   GtkRequisition menu_req;
-  GdkRectangle monitor;
 
   gtk_widget_size_request(GTK_WIDGET(menu), &menu_req);
-
-  GdkScreen* screen = gtk_widget_get_screen(GTK_WIDGET(menu));
-  gint monitor_num = gdk_screen_get_monitor_at_window(screen, widget->window);
-  if (monitor_num < 0)
-    monitor_num = 0;
-  gdk_screen_get_monitor_geometry(screen, monitor_num, &monitor);
 
   gdk_window_get_origin(widget->window, x, y);
   *x += widget->allocation.x;
@@ -231,10 +223,7 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
   // g_object_get_data() returns NULL if no such object is found. |left_align|
   // acts as a boolean, but we can't actually cast it to bool because gcc
   // complains about losing precision.
-  void* left_align =
-      g_object_get_data(G_OBJECT(widget), "left-align-popup");
-
-  if (!left_align)
+  if (!g_object_get_data(G_OBJECT(widget), "left-align-popup"))
     *x += widget->allocation.width - menu_req.width;
 
   // TODO(erg): Deal with this scrolling off the bottom of the screen.
@@ -246,8 +235,8 @@ void MenuGtk::MenuPositionFunc(GtkMenu* menu,
 }
 
 // static
-void MenuGtk::SetMenuItemInfo(GtkWidget* widget, void* raw_menu) {
-  MenuGtk* menu = static_cast<MenuGtk*>(raw_menu);
+void MenuGtk::SetMenuItemInfo(GtkWidget* widget, gpointer userdata) {
+  MenuGtk* menu = reinterpret_cast<MenuGtk*>(userdata);
   const MenuCreateMaterial* data =
       reinterpret_cast<const MenuCreateMaterial*>(
           g_object_get_data(G_OBJECT(widget), "menu-data"));
@@ -265,8 +254,8 @@ void MenuGtk::SetMenuItemInfo(GtkWidget* widget, void* raw_menu) {
 
       GtkWidget* submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget));
       if (submenu) {
-        gtk_container_foreach(GTK_CONTAINER(submenu), &MenuGtk::SetMenuItemInfo,
-                              raw_menu);
+        gtk_container_foreach(GTK_CONTAINER(submenu), &SetMenuItemInfo,
+                              userdata);
       }
     }
   }
