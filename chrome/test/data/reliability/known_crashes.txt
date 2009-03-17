@@ -35,6 +35,9 @@ PREFIX : chromeurldatamanager::dataavailable___runnablemethod<chromeurldatamanag
 # 8352
 SUBSTRING : webcore::cache::revalidationsucceeded___webcore::loader::host::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse___resourcedispatcher::onreceivedresponse
 
+# 5359. Random memory corruption?
+PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
+
 # End mysterious crash section.
 
 
@@ -83,6 +86,3 @@ PREFIX : webplugindelegateproxy::backgroundchanged___webplugindelegateproxy::pai
 
 # 8033
 PREFIX : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
-
-# 5359
-PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
