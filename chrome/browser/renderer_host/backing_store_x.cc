@@ -240,16 +240,28 @@ void BackingStore::ScrollRect(base::ProcessHandle process,
 
   if (dy) {
     // Positive values of |dy| scroll up
+    if (abs(dy) >= clip_rect.height())
+      return;
+
     XCopyArea(display_, pixmap_, pixmap_, static_cast<GC>(pixmap_gc_),
-              0, std::max(0, -dy) /* source x, y */,
-              size_.width(), size_.height() - abs(dy),
-              0, std::max(0, dy) /* dest x, y */);
+              clip_rect.x() /* source x */,
+              std::max(clip_rect.y(), clip_rect.y() - dy),
+              clip_rect.width(),
+              clip_rect.height() - abs(dy),
+              clip_rect.x() /* dest x */,
+              std::max(clip_rect.y(), clip_rect.y() + dy) /* dest y */);
   } else if (dx) {
     // Positive values of |dx| scroll right
+    if (abs(dx) >= clip_rect.width())
+      return;
+
     XCopyArea(display_, pixmap_, pixmap_, static_cast<GC>(pixmap_gc_),
-              std::max(0, -dx), 0 /* source x, y */,
-              size_.width() - abs(dx), size_.height(),
-              std::max(0, dx), 0 /* dest x, y */);
+              std::max(clip_rect.x(), clip_rect.x() - dx),
+              clip_rect.y() /* source y */,
+              clip_rect.width() - abs(dx),
+              clip_rect.height(),
+              std::max(clip_rect.x(), clip_rect.x() + dx) /* dest x */,
+              clip_rect.y() /* dest x */);
   }
 
   PaintRect(process, bitmap, bitmap_rect);
