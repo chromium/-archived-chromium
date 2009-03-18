@@ -111,6 +111,7 @@ bool RenderViewContextMenuWin::GetAcceleratorInfo(
 
     case IDS_CONTENT_CONTEXT_SELECTALL:
       *accel = views::Accelerator(L'A', false, true, false);
+      return true;
 
     default:
       return false;
