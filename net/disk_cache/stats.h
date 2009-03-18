@@ -60,6 +60,9 @@ class Stats {
 
   void GetItems(StatsItems* items);
 
+  // Saves the stats to disk.
+  void Store();
+
   // Support for StatsHistograms. Together, these methods allow StatsHistograms
   // to take a snapshot of the data_sizes_ as the histogram data.
   int GetBucketRange(size_t i) const;

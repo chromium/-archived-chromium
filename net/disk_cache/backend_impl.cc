@@ -729,6 +729,10 @@ void BackendImpl::OnStatsTimer() {
     UMA_HISTOGRAM_COUNTS(size.c_str(), data_->header.num_bytes / (1024 * 1024));
     UMA_HISTOGRAM_COUNTS(max_size.c_str(), max_size_ / (1024 * 1024));
   }
+
+  // Save stats to disk at 5 min intervals.
+  if (time % 10)
+    stats_.Store();
 }
 
 void BackendImpl::IncrementIoCount() {

@@ -135,17 +135,7 @@ bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
 }
 
 Stats::~Stats() {
-  if (!backend_)
-    return;
-
-  OnDiskStats stats;
-  stats.signature = kDiskSignature;
-  stats.size = sizeof(stats);
-  memcpy(stats.data_sizes, data_sizes_, sizeof(data_sizes_));
-  memcpy(stats.counters, counters_, sizeof(counters_));
-
-  Addr address(storage_addr_);
-  StoreStats(backend_, address, &stats);
+  Store();
 }
 
 // The array will be filled this way:
@@ -265,6 +255,20 @@ void Stats::GetItems(StatsItems* items) {
     item.second = StringPrintf("0x%I64x", counters_[i]);
     items->push_back(item);
   }
+}
+
+void Stats::Store() {
+  if (!backend_)
+    return;
+
+  OnDiskStats stats;
+  stats.signature = kDiskSignature;
+  stats.size = sizeof(stats);
+  memcpy(stats.data_sizes, data_sizes_, sizeof(data_sizes_));
+  memcpy(stats.counters, counters_, sizeof(counters_));
+
+  Addr address(storage_addr_);
+  StoreStats(backend_, address, &stats);
 }
 
 }  // namespace disk_cache
