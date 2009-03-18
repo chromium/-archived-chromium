@@ -1864,3 +1864,6 @@ LINUX : LayoutTests/fast/overflow/007.html = FAIL
 LINUX : LayoutTests/fast/repaint/selection-gap-overflow-scroll.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
+
+LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
+MAC : LayoutTests/fast/forms/select-max-length.html = TIMEOUT
