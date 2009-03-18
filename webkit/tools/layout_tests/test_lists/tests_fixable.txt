@@ -39,6 +39,8 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
 // in how lighttpd serves up the svn resource image (or the image
 // contained in the svg image).
 DEFER : LayoutTests/http/tests/security/canvas-remote-read-svg-image.html = FAIL
+// See http://code.google.com/p/chromium/issues/detail?id=8941
+DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
 
 // -----------------------------------------------------------------
 // TEXT
@@ -1793,9 +1795,6 @@ DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
 DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
-// Rebaselined in webkit in http://trac.webkit.org/changeset/41665
-LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL
-MAC : LayoutTests/http/tests/xmlhttprequest/web-apps/013.html = FAIL TIMEOUT
 // Unknown what change caused these to fail.
 WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
 LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
