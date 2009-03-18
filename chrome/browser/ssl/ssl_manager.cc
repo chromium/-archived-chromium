@@ -531,9 +531,6 @@ void SSLManager::OnMixedContent(MixedContentHandler* handler) {
 void SSLManager::Observe(NotificationType type,
                          const NotificationSource& source,
                          const NotificationDetails& details) {
-  // We should only be getting notifications from our controller.
-  DCHECK(source == Source<NavigationController>(controller_));
-
   // Dispatch by type.
   switch (type.value) {
     case NotificationType::NAV_ENTRY_COMMITTED:
