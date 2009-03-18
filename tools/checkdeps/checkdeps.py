@@ -330,8 +330,21 @@ def CheckFile(rules, file_name):
   ret_val = ""  # We'll collect the error messages in here
   try:
     cur_file = open(file_name, "r")
+    in_if0 = 0
     for cur_line in range(MAX_LINES):
-      cur_line = cur_file.readline(MAX_LINE_LENGTH)
+      cur_line = cur_file.readline(MAX_LINE_LENGTH).strip()
+
+      # Check to see if we're at / inside a #if 0 block
+      if cur_line == '#if 0':
+        in_if0 += 1
+        continue
+      if in_if0 > 0:
+        if cur_line.startswith('#if'):
+          in_if0 += 1
+        elif cur_line == '#endif':
+          in_if0 -= 1
+        continue
+
       line_status = CheckLine(rules, cur_line)
       if line_status is not None:
         if len(line_status) > 0:  # Add newline to separate messages.
