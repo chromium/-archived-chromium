@@ -12,6 +12,7 @@
 #include "Node.h"
 #include "Page.h"
 #include "PlatformString.h"
+#include <wtf/OwnPtr.h>
 #undef LOG
 
 #include "base/values.h"
@@ -100,13 +101,15 @@ void WebDevToolsAgentImpl::Inspect(Node* node) {
 
 void WebDevToolsAgentImpl::DispatchMessageFromClient(
     const std::string& raw_msg) {
+  OwnPtr<ListValue> message(
+      static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
   if (dom_agent_impl_.get() &&
-      dom_agent_dispatch_.Dispatch(dom_agent_impl_.get(), raw_msg))
+      DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get()))
     return;
   if (net_agent_impl_.get() &&
-      net_agent_dispatch_.Dispatch(net_agent_impl_.get(), raw_msg))
+      NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get()))
     return;
-  tools_agent_dispatch_.Dispatch(this, raw_msg);
+  ToolsAgentDispatch::Dispatch(this, *message.get());
 }
 
 void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {

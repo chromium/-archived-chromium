@@ -64,9 +64,6 @@ class WebDevToolsAgentImpl
   scoped_ptr<DomAgentDelegateStub> dom_agent_delegate_stub_;
   scoped_ptr<NetAgentDelegateStub> net_agent_delegate_stub_;
   scoped_ptr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
-  DomAgentDispatch dom_agent_dispatch_;
-  NetAgentDispatch net_agent_dispatch_;
-  ToolsAgentDispatch tools_agent_dispatch_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 

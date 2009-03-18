@@ -44,8 +44,7 @@
 // calls to the underlying MyApi methods:
 //
 // MyApi* real_object;
-// MyApiDispatch dispatch;
-// dispatch.Dispatch(real_object, raw_string_call_generated_by_stub);
+// MyApiDispatch::Dispatch(real_object, raw_string_call_generated_by_stub);
 //
 // will make corresponding calls to the real object.
 
@@ -158,7 +157,7 @@ case CLASS::METHOD_##Method: { \
 #define TOOLS_RPC_DISPATCH1(Method, T1) \
 case CLASS::METHOD_##Method: { \
   RpcTypeTrait<T1>::DispatchType t1; \
-  DevToolsRpc::GetListValue(*message.get(), 2, &t1); \
+  DevToolsRpc::GetListValue(message, 2, &t1); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1)); \
   return true; \
@@ -168,8 +167,8 @@ case CLASS::METHOD_##Method: { \
 case CLASS::METHOD_##Method: { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
-  DevToolsRpc::GetListValue(*message.get(), 2, &t1); \
-  DevToolsRpc::GetListValue(*message.get(), 3, &t2); \
+  DevToolsRpc::GetListValue(message, 2, &t1); \
+  DevToolsRpc::GetListValue(message, 3, &t2); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2) \
@@ -182,9 +181,9 @@ case CLASS::METHOD_##Method: { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
   RpcTypeTrait<T3>::DispatchType t3; \
-  DevToolsRpc::GetListValue(*message.get(), 2, &t1); \
-  DevToolsRpc::GetListValue(*message.get(), 3, &t2); \
-  DevToolsRpc::GetListValue(*message.get(), 4, &t3); \
+  DevToolsRpc::GetListValue(message, 2, &t1); \
+  DevToolsRpc::GetListValue(message, 3, &t2); \
+  DevToolsRpc::GetListValue(message, 4, &t3); \
   delegate->Method( \
       RpcTypeTrait<T1>::Pass(t1), \
       RpcTypeTrait<T2>::Pass(t2), \
@@ -237,16 +236,21 @@ class Class##Dispatch { \
  public: \
   Class##Dispatch() {} \
   virtual ~Class##Dispatch() {} \
-  bool Dispatch(Class* delegate, const std::string& raw_msg) { \
+  \
+  static bool Dispatch(Class* delegate, const std::string& raw_msg) { \
     OwnPtr<ListValue> message( \
         static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg))); \
+    return Dispatch(delegate, *message.get()); \
+  } \
+  \
+  static bool Dispatch(Class* delegate, const ListValue& message) { \
     int class_id; \
-    message->GetInteger(0, &class_id); \
+    message.GetInteger(0, &class_id); \
     if (class_id != RpcTypeToNumber<Class>::number) { \
       return false; \
     } \
     int method; \
-    message->GetInteger(1, &method); \
+    message.GetInteger(1, &method); \
     typedef Class CLASS; \
     switch (method) { \
       STRUCT( \

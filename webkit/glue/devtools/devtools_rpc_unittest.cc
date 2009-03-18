@@ -74,7 +74,6 @@ TEST_F(DevToolsRpcTests, TestSerialize) {
 TEST_F(DevToolsRpcTests, TestDispatch) {
   MockTestRpcClass local;
   MockTestRpcClass remote;
-  TestRpcClassDispatch dispatch;
 
   // Call 1.
   local.Reset();
@@ -83,7 +82,7 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Method0();
   remote.Replay();
 
-  dispatch.Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
   remote.Verify();
 
   // Call 2.
@@ -92,7 +91,7 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Reset();
   remote.Method1(10);
   remote.Replay();
-  dispatch.Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
   remote.Verify();
 
   // Call 3.
@@ -102,7 +101,7 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Method2(20, "foo");
 
   remote.Replay();
-  dispatch.Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
   remote.Verify();
 
   // Call 4.
@@ -113,7 +112,7 @@ TEST_F(DevToolsRpcTests, TestDispatch) {
   remote.Method3(30, "foo", value);
 
   remote.Replay();
-  dispatch.Dispatch(&remote, local.get_log());
+  TestRpcClassDispatch::Dispatch(&remote, local.get_log());
   remote.Verify();
 }
 

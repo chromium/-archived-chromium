@@ -133,9 +133,6 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   scoped_ptr<DomAgentStub> dom_agent_stub_;
   scoped_ptr<NetAgentStub> net_agent_stub_;
   scoped_ptr<ToolsAgentStub> tools_agent_stub_;
-  DomAgentDelegateDispatch dom_agent_delegate_dispatch_;
-  NetAgentDelegateDispatch net_agent_delegate_dispatch_;
-  ToolsAgentDelegateDispatch tools_agent_delegate_dispatch_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientImpl);
 };
 

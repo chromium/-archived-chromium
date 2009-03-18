@@ -11,6 +11,7 @@
 #include "Node.h"
 #include "Page.h"
 #include "PlatformString.h"
+#include <wtf/OwnPtr.h>
 #undef LOG
 
 #include "base/json_reader.h"
@@ -190,11 +191,13 @@ void WebDevToolsClientImpl::EvaluateJs(const std::string& expr) {
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(
     const std::string& raw_msg) {
-  if (dom_agent_delegate_dispatch_.Dispatch(this, raw_msg))
+  OwnPtr<ListValue> message(
+      static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
+  if (DomAgentDelegateDispatch::Dispatch(this, *message.get()))
     return;
-  if (net_agent_delegate_dispatch_.Dispatch(this, raw_msg))
+  if (NetAgentDelegateDispatch::Dispatch(this, *message.get()))
     return;
-  if (tools_agent_delegate_dispatch_.Dispatch(this, raw_msg))
+  if (ToolsAgentDelegateDispatch::Dispatch(this, *message.get()))
     return;
 }
 
