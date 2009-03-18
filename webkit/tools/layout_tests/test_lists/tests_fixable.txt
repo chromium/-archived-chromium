@@ -1751,7 +1751,6 @@ LINUX: LayoutTests/fast/compact/001.html = CRASH PASS
 // Regressions from merge 41559:41588
 // This one probably just needs a new baseline:
 LINUX : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
-WIN : chrome/fast/dom/java-applet-calls.html = FAIL
 LINUX : LayoutTests/editing/execCommand/selectAll.html = FAIL
 LINUX : LayoutTests/fast/text/trailing-white-space.html = FAIL
 LINUX : LayoutTests/fast/text/trailing-white-space-2.html = FAIL

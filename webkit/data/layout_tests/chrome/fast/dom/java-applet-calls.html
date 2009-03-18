@@ -5,13 +5,12 @@
 if (window.layoutTestController)
   layoutTestController.dumpAsText();
 function runTest() {
-try {
-  document.testapplet.setString("abcdefg");
-  if (document.testapplet.getString() == "abcdefg")
-    document.getElementById("result").innerHTML = "TEST PASSED!";
-} catch (e) {
-}
-
+  try {
+    document.testapplet.setString("abcdefg");
+    if (document.testapplet.getString() == "abcdefg")
+      document.getElementById("result").innerHTML = "TEST PASSED!";
+  } catch (e) {
+  }
 }
 </script>
 
@@ -20,7 +19,7 @@ try {
 Requires Java plugin been installed.<br>
 This tests that calling functions on Java Applet works.<br>
 <div id="result">FAIL</div>
-<APPLET CODE=TestApplet WIDTH=1 HEIGHT=1 NAME="testapplet">
+<APPLET CODEBASE="." CODE="TestApplet.class" WIDTH=1 HEIGHT=1 NAME="testapplet">
 </APPLET>
 </BODY>
 </HTML>
