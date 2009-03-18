@@ -159,6 +159,7 @@ void GetCertSubjectAltNamesOfType(X509Certificate::OSCertHandle cert_handle,
       break;
   }
   PORT_FreeArena(arena, PR_FALSE);
+  PORT_Free(alt_name.data);
 }
 
 } // namespace
