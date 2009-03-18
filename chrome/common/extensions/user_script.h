@@ -10,6 +10,7 @@
 
 #include "base/file_path.h"
 #include "base/pickle.h"
+#include "base/string_piece.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "googleurl/src/gurl.h"
 
@@ -27,17 +28,61 @@ class UserScript {
     RUN_LOCATION_LAST  // Leave this as the last item.
   };
 
+  // Holds actual script file info.
+  class File {
+   public:
+    File(const FilePath& path, const GURL& url):
+         path_(path),
+         url_(url) {
+    }
+    File() {}
+
+    const FilePath& path() const { return path_; }
+    void set_path(const FilePath& path) { path_ = path; }
+
+    const GURL& url() const { return url_; }
+    void set_url(const GURL& url) { url_ = url; }
+
+    // If external_content_ is set returns it as content otherwise it returns
+    // content_
+    const StringPiece GetContent() const {
+      if (external_content_.data())
+        return external_content_;
+      else
+        return content_;
+    }
+    void set_external_content(const StringPiece& content) {
+      external_content_ = content;
+    }
+    const void set_content(const StringPiece& content) {
+      content_.assign(content.begin(), content.end());
+    }
+
+    // Serialization support. The content and path_ member will not be
+    // serialized!
+    void Pickle(::Pickle* pickle) const;
+    void Unpickle(const ::Pickle& pickle, void** iter);
+
+   private:
+    // Where is the script file lives on the disk.
+    FilePath path_;
+
+    // The url to this scipt file.
+    GURL url_;
+
+    // The script content. It can be set to either loaded_content_ or
+    // externally allocated string.
+    StringPiece external_content_;
+
+    // Set when the content is loaded by LoadContent
+    std::string content_;
+  };
+
+  typedef std::vector<File> FileList;
+
   // Constructor. Default the run location to document end, which is like
   // Greasemonkey and probably more useful for typical scripts.
   UserScript() : run_location_(DOCUMENT_END) {}
-
-  // The URL to retrieve the content of this script at.
-  const GURL& url() const { return url_; }
-  void set_url(const GURL& url) { url_ = url; }
-
-  // The path to find the script at.
-  const FilePath& path() const { return path_; }
-  void set_path(const FilePath& path) { path_ = path; }
 
   // The place in the document to run the script.
   RunLocation run_location() const { return run_location_; }
@@ -57,12 +102,21 @@ class UserScript {
   }
   void clear_url_patterns() { url_patterns_.clear(); }
 
+  // List of js scripts for this user script
+  FileList& js_scripts() { return js_scripts_; }
+  const FileList& js_scripts() const { return js_scripts_; }
+
+  // List of css scripts for this user script
+  FileList& css_scripts() { return css_scripts_; }
+  const FileList& css_scripts() const { return css_scripts_; }
+
   // Returns true if the script should be applied to the specified URL, false
   // otherwise.
   bool MatchesUrl(const GURL& url);
 
-  // Serialize the script into a pickle.
-  void Pickle(::Pickle* pickle);
+  // Serialize the UserScript into a pickle. The content of the scripts and
+  // paths to UserScript::Files will not be serialized!
+  void Pickle(::Pickle* pickle) const;
 
   // Deserialize the script from a pickle. Note that this always succeeds
   // because presumably we were the one that pickled it, and we did it
@@ -70,12 +124,6 @@ class UserScript {
   void Unpickle(const ::Pickle& pickle, void** iter);
 
  private:
-  // The URL to the content of the script.
-  GURL url_;
-
-  // The path to the content of the script.
-  FilePath path_;
-
   // The location to run the script inside the document.
   RunLocation run_location_;
 
@@ -86,6 +134,12 @@ class UserScript {
   // URLPatterns that determine pages to inject the script into. These are
   // only used with scripts that are part of extensions.
   std::vector<URLPattern> url_patterns_;
+
+  // List of js scripts defined in content_scripts
+  FileList js_scripts_;
+
+  // List of css scripts defined in content_scripts
+  FileList css_scripts_;
 };
 
 typedef std::vector<UserScript> UserScriptList;

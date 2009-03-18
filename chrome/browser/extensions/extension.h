@@ -35,6 +35,7 @@ class Extension {
   static const wchar_t* kFormatVersionKey;
   static const wchar_t* kIdKey;
   static const wchar_t* kJsKey;
+  static const wchar_t* kCssKey;
   static const wchar_t* kMatchesKey;
   static const wchar_t* kNameKey;
   static const wchar_t* kRunAtKey;
@@ -51,6 +52,8 @@ class Extension {
   // Error messages returned from InitFromValue().
   static const char* kInvalidContentScriptError;
   static const char* kInvalidContentScriptsListError;
+  static const char* kInvalidCssError;
+  static const char* kInvalidCssListError;
   static const char* kInvalidDescriptionError;
   static const char* kInvalidFormatVersionError;
   static const char* kInvalidIdError;
@@ -62,11 +65,12 @@ class Extension {
   static const char* kInvalidMatchError;
   static const char* kInvalidMatchesError;
   static const char* kInvalidNameError;
+  static const char* kInvalidPluginsDirError;
   static const char* kInvalidRunAtError;
+  static const char* kInvalidToolstripError;
   static const char* kInvalidVersionError;
   static const char* kInvalidZipHashError;
-  static const char* kInvalidPluginsDirError;
-  static const char* kInvalidToolstripError;
+  static const char* kMissingFileError;
 
   // The number of bytes in a legal id.
   static const size_t kIdSize;
@@ -78,6 +82,9 @@ class Extension {
   // NOTE: Static so that it can be used from multiple threads.
   static GURL GetResourceURL(const GURL& extension_url,
                              const std::string& relative_path);
+  GURL GetResourceURL(const std::string& relative_path) {
+    return GetResourceURL(url(), relative_path);
+  }
 
   // Returns an absolute path to a resource inside of an extension. The
   // |extension_path| argument should be the path() from an Extension object.
@@ -86,6 +93,9 @@ class Extension {
   // NOTE: Static so that it can be used from multiple threads.
   static FilePath GetResourcePath(const FilePath& extension_path,
                                   const std::string& relative_path);
+  FilePath GetResourcePath(const std::string& relative_path) {
+    return GetResourcePath(path(), relative_path);
+  }
 
   // Initialize the extension from a parsed manifest.
   bool InitFromValue(const DictionaryValue& value, std::string* error);
@@ -110,6 +120,12 @@ class Extension {
   const GURL& toolstrip_url() const { return toolstrip_url_; }
 
  private:
+  // Helper method that loads a UserScript object from a
+  // dictionary in the content_script list of the manifest.
+  bool LoadUserScriptHelper(const DictionaryValue* content_script,
+                            int definition_index,
+                            std::string* error,
+                            UserScript* result);
   // The absolute path to the directory the extension is stored in.
   FilePath path_;
 

@@ -298,14 +298,27 @@ Extension* ExtensionsServiceBackend::LoadExtension(
   }
 
   // Validate that claimed resources actually exist.
-  for (UserScriptList::const_iterator iter =
-       extension->content_scripts().begin();
-       iter != extension->content_scripts().end(); ++iter) {
-    if (!file_util::PathExists(iter->path())) {
-      ReportExtensionLoadError(extension_path,
-          StringPrintf("Could not load content script '%s'.",
-                       WideToUTF8(iter->path().ToWStringHack()).c_str()));
-      return NULL;
+  for (size_t i = 0; i < extension->content_scripts().size(); ++i) {
+    const UserScript& script = extension->content_scripts()[i];
+
+    for (size_t j = 0; j < script.js_scripts().size(); j++) {
+      const FilePath& path = script.js_scripts()[j].path();
+      if (!file_util::PathExists(path)) {
+        ReportExtensionLoadError(extension_path,
+          StringPrintf("Could not load '%s' for content script.",
+          WideToUTF8(path.ToWStringHack()).c_str()));
+        return NULL;
+      }
+    }
+
+    for (size_t j = 0; j < script.css_scripts().size(); j++) {
+      const FilePath& path = script.css_scripts()[j].path();
+      if (!file_util::PathExists(path)) {
+        ReportExtensionLoadError(extension_path,
+          StringPrintf("Could not load '%s' for content script.",
+          WideToUTF8(path.ToWStringHack()).c_str()));
+        return NULL;
+      }
     }
   }
 

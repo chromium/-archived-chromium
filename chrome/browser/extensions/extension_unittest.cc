@@ -134,17 +134,24 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
   content_scripts->GetDictionary(0, &user_script);
   user_script->Remove(Extension::kJsKey, NULL);
+  user_script->Remove(Extension::kCssKey, NULL);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kMissingFileError));
 
   user_script->Set(Extension::kJsKey, Value::CreateIntegerValue(42));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
 
+  user_script->Set(Extension::kCssKey, new ListValue);
+  user_script->Set(Extension::kJsKey, new ListValue);
+  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_TRUE(MatchPattern(error, Extension::kMissingFileError));
+  user_script->Remove(Extension::kCssKey, NULL);
+
   ListValue* files = new ListValue;
   user_script->Set(Extension::kJsKey, files);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsCountError));
+  EXPECT_TRUE(MatchPattern(error, Extension::kMissingFileError));
 
   // Test invalid file element
   files->Set(0, Value::CreateIntegerValue(42));
@@ -156,6 +163,20 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   files->Set(1, Value::CreateStringValue("bar.js"));
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsCountError));
+
+  // Remove all script files
+  user_script->Remove(Extension::kJsKey, NULL);
+  // Test the css element
+  user_script->Set(Extension::kCssKey, Value::CreateIntegerValue(42));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidCssListError));
+
+  // Test invalid file element
+  ListValue* css_files = new ListValue;
+  user_script->Set(Extension::kCssKey, css_files);
+  css_files->Set(0, Value::CreateIntegerValue(42));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidCssError));
 }
 
 TEST(ExtensionTest, InitFromValueValid) {

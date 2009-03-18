@@ -76,8 +76,17 @@ TEST(UserScriptTest, Pickle) {
   ASSERT_TRUE(pattern2.Parse("http://bar/baz*"));
 
   UserScript script1;
-  script1.set_url(GURL("chrome-user-script:/foo.user.js"));
+  script1.js_scripts().push_back(UserScript::File(
+      FilePath(FILE_PATH_LITERAL("c:\\foo\\foo.user.js")),
+      GURL("chrome-user-script:/foo.user.js")));
+  script1.css_scripts().push_back(UserScript::File(
+      FilePath(FILE_PATH_LITERAL("c:\\foo\\foo.user.css")),
+      GURL("chrome-user-script:/foo.user.css")));
+  script1.css_scripts().push_back(UserScript::File(
+      FilePath(FILE_PATH_LITERAL("c:\\foo\\foo2.user.css")),
+      GURL("chrome-user-script:/foo2.user.css")));
   script1.set_run_location(UserScript::DOCUMENT_START);
+
   script1.add_url_pattern(pattern1);
   script1.add_url_pattern(pattern2);
 
@@ -88,7 +97,14 @@ TEST(UserScriptTest, Pickle) {
   UserScript script2;
   script2.Unpickle(pickle, &iter);
 
-  EXPECT_EQ(script1.url(), script2.url());
+  EXPECT_EQ(1U, script2.js_scripts().size());
+  EXPECT_EQ(script1.js_scripts()[0].url(), script2.js_scripts()[0].url());
+
+  EXPECT_EQ(2U, script2.css_scripts().size());
+  for (size_t i = 0; i < script2.js_scripts().size(); ++i) {
+    EXPECT_EQ(script1.css_scripts()[i].url(), script2.css_scripts()[i].url());
+  }
+
   ASSERT_EQ(script1.globs().size(), script2.globs().size());
   for (size_t i = 0; i < script1.globs().size(); ++i) {
     EXPECT_EQ(script1.globs()[i], script2.globs()[i]);

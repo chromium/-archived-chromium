@@ -85,23 +85,35 @@ void ExtensionsDOMHandler::HandleRequestExtensionsData(const Value* value) {
   dom_ui_->CallJavascriptFunction(L"returnExtensionsData", results);
 }
 
+static void CreateScriptFileDetailValue(
+    const FilePath& extension_path, const UserScript::FileList& scripts,
+    const wchar_t* key, DictionaryValue* script_data) {
+  if (scripts.empty())
+    return;
+
+  ListValue *list = new ListValue();
+  for (size_t i = 0; i < scripts.size(); ++i) {
+    const UserScript::File &file = scripts[i];
+    // We are passing through GURLs to canonicalize the output to a valid
+    // URL path fragment.
+    GURL script_url = net::FilePathToFileURL(file.path());
+    GURL extension_url = net::FilePathToFileURL(extension_path);
+    std::string relative_path =
+        script_url.spec().substr(extension_url.spec().length() + 1);
+
+    list->Append(new StringValue(relative_path));
+  }
+  script_data->Set(key, list);
+}
+
 // Static
 DictionaryValue* ExtensionsDOMHandler::CreateContentScriptDetailValue(
   const UserScript& script, const FilePath& extension_path) {
   DictionaryValue* script_data = new DictionaryValue();
-
-  // TODO(rafaelw): When UserScript supports multiple js, this will have to
-  // put them all in this list;
-  ListValue *js_list = new ListValue();
-  // We are passing through GURLs to canonicalize the output to a valid
-  // URL path fragment.
-  GURL script_url = net::FilePathToFileURL(script.path());
-  GURL extension_url = net::FilePathToFileURL(extension_path);
-  std::string relative_js_path =
-      script_url.spec().substr(extension_url.spec().length() + 1);
-
-  js_list->Append(new StringValue(relative_js_path));
-  script_data->Set(L"js", js_list);
+  CreateScriptFileDetailValue(extension_path, script.js_scripts(), L"js",
+    script_data);
+  CreateScriptFileDetailValue(extension_path, script.css_scripts(), L"css",
+    script_data);
 
   // Get list of glob "matches" strings
   ListValue *url_pattern_list = new ListValue();

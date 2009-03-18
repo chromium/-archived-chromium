@@ -93,6 +93,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "GraphicsContext.h"
 #include "HTMLHeadElement.h"
 #include "HTMLLinkElement.h"
+#include "HTMLNames.h"
 #include "HistoryItem.h"
 #include "InspectorController.h"
 #include "markup.h"
@@ -1654,6 +1655,25 @@ void WebFrameImpl::ExecuteScript(const webkit_glue::WebScriptSource& source) {
           webkit_glue::StdStringToString(source.source),
           webkit_glue::GURLToKURL(source.url),
           source.start_line));
+}
+
+bool WebFrameImpl::InsertCSSStyles(const std::string& css) {
+  Document* document = frame()->document();
+  if (!document)
+    return false;
+  WebCore::Element* document_element = document->documentElement();
+  if (!document_element)
+    return false;
+
+  RefPtr<WebCore::Element> stylesheet = document->createElement(
+      WebCore::HTMLNames::styleTag, false);
+  ExceptionCode err = 0;
+  stylesheet->setTextContent(webkit_glue::StdStringToString(css), err);
+  DCHECK(!err) << "Failed to set style element content";
+  WebCore::Node* first = document_element->firstChild();
+  bool success = document_element->insertBefore(stylesheet, first, err);
+  DCHECK(success) << "Failed to insert stylesheet";
+  return success;
 }
 
 void WebFrameImpl::ExecuteScriptInNewContext(

@@ -99,6 +99,9 @@ class WebFrame {
   virtual void ExecuteScriptInNewContext(
       const webkit_glue::WebScriptSource* sources, int num_sources) = 0;
 
+  // Inserts the given CSS styles at the beginning of the document.
+  virtual bool InsertCSSStyles(const std::string& css) = 0;
+
   // Returns a string representing the state of the previous page load for
   // later use when loading. The previous page is the page that was loaded
   // before DidCommitLoadForFrame was received.

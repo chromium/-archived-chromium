@@ -176,15 +176,15 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ("https://*.google.com/*",
             scripts[0].url_patterns()[1].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("script1.js").value(),
-            scripts[0].path().value());
+            scripts[0].js_scripts()[0].path().value());
   EXPECT_EQ(1u, scripts[1].url_patterns().size());
   EXPECT_EQ("http://*.yahoo.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
-            scripts[1].path().value());
+            scripts[1].js_scripts()[0].path().value());
   EXPECT_EQ(1u, scripts[2].url_patterns().size());
   EXPECT_EQ("http://*.news.com/*", scripts[2].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
-      .value(), scripts[2].path().value());
+      .value(), scripts[2].js_scripts()[0].path().value());
 
   EXPECT_EQ(std::string("10123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(1)->id());
@@ -231,7 +231,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectoryFail) {
 
   EXPECT_TRUE(MatchPattern(GetErrors()[1],
       std::string("Could not load extension from '*'. ") +
-      Extension::kInvalidJsListError)) << GetErrors()[1];
+      Extension::kMissingFileError)) << GetErrors()[1];
 
   EXPECT_TRUE(MatchPattern(GetErrors()[2],
       std::string("Could not load extension from '*'. ") +

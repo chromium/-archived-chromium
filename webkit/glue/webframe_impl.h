@@ -93,6 +93,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual void ExecuteScript(const webkit_glue::WebScriptSource& source);
   virtual void ExecuteScriptInNewContext(
       const webkit_glue::WebScriptSource* sources, int num_sources);
+  virtual bool InsertCSSStyles(const std::string& css);
   virtual bool GetPreviousHistoryState(std::string* history_state) const;
   virtual bool GetCurrentHistoryState(std::string* history_state) const;
   virtual bool HasCurrentHistoryState() const;

@@ -37,9 +37,6 @@ class UserScriptSlave {
   std::vector<UserScript*> scripts_;
   STLElementDeleter<std::vector<UserScript*> > script_deleter_;
 
-  // Script contents.
-  std::map<UserScript*, StringPiece> script_contents_;
-
   // Greasemonkey API source that is injected with the scripts.
   StringPiece api_js_;
 

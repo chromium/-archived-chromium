@@ -16,9 +16,11 @@
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 
-// static
-bool GetDeclarationValue(const StringPiece& line, const StringPiece& prefix,
-                         std::string* value) {
+
+// Helper function to parse greasesmonkey headers
+static bool GetDeclarationValue(const StringPiece& line,
+                                const StringPiece& prefix,
+                                std::string* value) {
   if (!line.starts_with(prefix))
     return false;
 
@@ -126,20 +128,17 @@ void UserScriptMaster::ScriptReloader::NotifyMaster(
   Release();
 }
 
-void UserScriptMaster::ScriptReloader::RunScan(
-    const FilePath script_dir, const UserScriptList lone_scripts) {
-  base::SharedMemory* shared_memory = GetNewScripts(script_dir, lone_scripts);
-
-  // Post the new scripts back to the master's message loop.
-  master_message_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this,
-                        &UserScriptMaster::ScriptReloader::NotifyMaster,
-                        shared_memory));
+static void LoadScriptContent(UserScript::File* script_file) {
+  std::string content;
+  CHECK(file_util::ReadFileToString(script_file->path(), &content)) <<
+    "Failed to read script content: " << script_file->path().value();
+  script_file->set_content(content);
 }
 
-base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
-    const FilePath& script_dir, const UserScriptList& lone_scripts) {
-  UserScriptList all_scripts;
+void UserScriptMaster::ScriptReloader::LoadScriptsFromDirectory(
+    const FilePath script_dir, UserScriptList* result) {
+  // Clear the list. We will populate it with the scrips found in script_dir.
+  result->clear();
 
   // Find all the scripts in |script_dir|.
   if (!script_dir.value().empty()) {
@@ -152,42 +151,55 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
                                          FILE_PATH_LITERAL("*.user.js"));
     for (FilePath file = enumerator.Next(); !file.value().empty();
          file = enumerator.Next()) {
-      all_scripts.push_back(UserScript());
-      UserScript& info = all_scripts.back();
-      info.set_url(GURL(std::string(chrome::kUserScriptScheme) + ":/" +
-          net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName()));
-      info.set_path(file);
+      result->push_back(UserScript());
+      UserScript& user_script = result->back();
+      // Push single js file in this UserScript.
+      GURL url(std::string(chrome::kUserScriptScheme) + ":/" +
+          net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName());
+      user_script.js_scripts().push_back(UserScript::File(file, url));
+      UserScript::File& script_file = user_script.js_scripts().back();
+      LoadScriptContent(&script_file);
+      ParseMetadataHeader(script_file.GetContent(), &user_script);
     }
   }
+}
 
-  if (all_scripts.empty() && lone_scripts.empty())
-    return NULL;
-
-  // Add all the lone scripts.
-  all_scripts.insert(all_scripts.end(), lone_scripts.begin(),
-                     lone_scripts.end());
-
-  // Load and pickle each script. Look for a metadata header if there are no
-  // url_patterns specified already.
-  Pickle pickle;
-  pickle.WriteSize(all_scripts.size());
-  for (UserScriptList::iterator iter = all_scripts.begin();
-       iter != all_scripts.end(); ++iter) {
-    // TODO(aa): Support unicode script files.
-    std::string contents;
-    file_util::ReadFileToString(iter->path().ToWStringHack(), &contents);
-
-    if (iter->url_patterns().empty()) {
-      // TODO(aa): Handle errors parsing header.
-      if (!ParseMetadataHeader(contents, &(*iter)))
-        return NULL;
+static void LoadLoneScripts(UserScriptList lone_script) {
+  for (size_t i = 0; i < lone_script.size(); ++i) {
+    for (size_t k = 0; k < lone_script[i].js_scripts().size(); ++k) {
+      UserScript::File& script_file = lone_script[i].js_scripts()[k];
+      if (script_file.GetContent().empty()) {
+        LoadScriptContent(&script_file);
+      }
     }
+    for (size_t k = 0; k < lone_script[i].css_scripts().size(); ++k) {
+      UserScript::File& script_file = lone_script[i].css_scripts()[k];
+      if (script_file.GetContent().empty()) {
+        LoadScriptContent(&script_file);
+      }
+    }
+  }
+}
 
-    iter->Pickle(&pickle);
-
+// Pickle user scripts and return pointer to the shared memory.
+static base::SharedMemory* Serialize(UserScriptList& scripts) {
+  if (scripts.empty())
+    return NULL;  // Nothing to serialize
+  Pickle pickle;
+  pickle.WriteSize(scripts.size());
+  for (size_t i = 0; i < scripts.size(); i++) {
+    UserScript& script = scripts[i];
+    script.Pickle(&pickle);
     // Write scripts as 'data' so that we can read it out in the slave without
     // allocating a new string.
-    pickle.WriteData(contents.c_str(), contents.length());
+    for (size_t j = 0; j < script.js_scripts().size(); j++) {
+      StringPiece contents = script.js_scripts()[j].GetContent();
+      pickle.WriteData(contents.data(), contents.length());
+    }
+    for (size_t j = 0; j < script.css_scripts().size(); j++) {
+      StringPiece contents = script.css_scripts()[j].GetContent();
+      pickle.WriteData(contents.data(), contents.length());
+    }
   }
 
   // Create the shared memory object.
@@ -209,6 +221,31 @@ base::SharedMemory* UserScriptMaster::ScriptReloader::GetNewScripts(
 
   return shared_memory.release();
 }
+
+// This method will be called from the file thread
+void UserScriptMaster::ScriptReloader::RunScan(
+    const FilePath script_dir, UserScriptList lone_script) {
+  UserScriptList scripts;
+  // Get list of user scripts.
+  if (!script_dir.empty())
+    LoadScriptsFromDirectory(script_dir, &scripts);
+
+  LoadLoneScripts(lone_script);
+
+  // Merge with the explicit scripts
+  scripts.reserve(scripts.size() + lone_script.size());
+  scripts.insert(scripts.end(),
+      lone_script.begin(), lone_script.end());
+
+  // Scripts now contains list of up-to-date scripts. Load the content in the
+  // shared memory and let the master know it's ready. We need to post the task
+  // back even if no scripts ware found to balance the AddRef/Release calls
+  master_message_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this,
+                        &ScriptReloader::NotifyMaster,
+                        Serialize(scripts)));
+}
+
 
 UserScriptMaster::UserScriptMaster(MessageLoop* worker_loop,
                                    const FilePath& script_dir)

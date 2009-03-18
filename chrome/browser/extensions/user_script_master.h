@@ -74,6 +74,9 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     static bool ParseMetadataHeader(const StringPiece& script_text,
                                     UserScript* script);
 
+    static void LoadScriptsFromDirectory(const FilePath script_dir,
+                                         UserScriptList* result);
+
     ScriptReloader(UserScriptMaster* master)
          : master_(master), master_message_loop_(MessageLoop::current()) {}
 
@@ -91,8 +94,8 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     // Where functions are run:
     //    master          file
     //   StartScan   ->  RunScan
-    //                     GetNewScripts()
-    //                     ParseMetadataHeader()
+    //                     LoadScriptsFromDirectory()
+    //                     LoadLoneScripts()
     // NotifyMaster  <-  RunScan
 
     // Runs on the master thread.
@@ -103,13 +106,7 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     // Scan the specified directory and lone scripts, calling NotifyMaster when
     // done. The parameters are intentionally passed by value so their lifetimes
     // aren't tied to the caller.
-    void RunScan(const FilePath script_dir, const UserScriptList lone_scripts);
-
-    // Runs on the File thread.
-    // Scan the script directory and lone scripts, returning either a new
-    // SharedMemory or NULL on error.
-    base::SharedMemory* GetNewScripts(const FilePath& script_dir,
-                                      const UserScriptList& lone_scripts);
+    void RunScan(const FilePath script_dir, UserScriptList lone_scripts);
 
     // A pointer back to our master.
     // May be NULL if DisownMaster() is called.
