@@ -50,6 +50,7 @@ input_files = ChromeFileList([
     'filters/audio_renderer_base.h',
     'filters/audio_renderer_impl.cc',
     'filters/audio_renderer_impl.h',
+    'filters/decoder_base.h',
     'filters/file_data_source.cc',
     'filters/file_data_source.h',
     'filters/null_audio_renderer.cc',

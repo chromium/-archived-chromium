@@ -216,6 +216,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\filters\video_decoder_unittest.cc"
+					>
+				</File>
+				<File
 					RelativePath="..\filters\video_renderer_unittest.cc"
 					>
 				</File>
