@@ -680,7 +680,7 @@ def main(options, args):
 
   try:
     test_shell_binary_path = path_utils.TestShellBinaryPath(options.target)
-  except:
+  except path_utils.PathNotFound:
     print "\nERROR: test_shell is not found. Be sure that you have built it"
     print "and that you are using the correct build. This script will run the"
     print "Release one by default. Use --debug to use the Debug build.\n"

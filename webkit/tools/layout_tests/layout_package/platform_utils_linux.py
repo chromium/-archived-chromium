@@ -182,7 +182,11 @@ class PlatformUtility(object):
     # TODO(mmoss) - hard-coded to "Hammer" for now until I look into the scons
     # output directory logic (and how/if it will change once Linux supports
     # multiple debug/release targets).
-    return PathFromBase('chrome', 'Hammer', self.TestShellBinary())
+    try:
+      path = PathFromBase('webkit', 'Hammer', self.TestShellBinary())
+    except google.path_utils.PathNotFound:
+      path = PathFromBase('chrome', 'Hammer', self.TestShellBinary())
+    return path
 
   def FuzzyMatchBinaryPath(self):
     """Return the path to the fuzzy matcher binary."""
