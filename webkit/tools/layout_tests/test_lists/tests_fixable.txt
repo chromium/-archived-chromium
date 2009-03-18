@@ -1806,13 +1806,8 @@ DEFER MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
 
 // New failures from 41613:41660 -- They likely just need to be rebaselined
 // for Mac and Linux, since that is what was done for Windows.
-DEFER LINUX : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
 DEFER LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
 DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
-
-// New failures from 41613:41660 -- Linux should start using themeChromiumWin.css
-// instead of themeWin.css and then this test should pass.
-LINUX : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 
 // New failures from 41660:41709
 // Newly added tests.
