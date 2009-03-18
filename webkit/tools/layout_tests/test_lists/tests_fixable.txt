@@ -1564,6 +1564,7 @@ LINUX : LayoutTests/fast/clip/012.html = PASS CRASH
 LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/fast/dom/getClientRects.html = FAIL
+WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
 
 // Sharted showing up the mac build bots as timeout or pass on 02/16/09 in
