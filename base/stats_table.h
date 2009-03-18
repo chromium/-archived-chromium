@@ -172,19 +172,19 @@ class StatsTable {
 
   typedef base::hash_map<std::string, int> CountersMap;
 
-  bool                opened_;
-  StatsTablePrivate*  impl_;
+  StatsTablePrivate* impl_;
   // The counters_lock_ protects the counters_ hash table.
-  Lock                counters_lock_;
+  Lock counters_lock_;
   // The counters_ hash map is an in-memory hash of the counters.
   // It is used for quick lookup of counters, but is cannot be used
   // as a substitute for what is in the shared memory.  Even though
   // we don't have a counter in our hash table, another process may
   // have created it.
-  CountersMap         counters_;
-  TLSSlot             tls_index_;
+  CountersMap counters_;
+  TLSSlot tls_index_;
 
-  static StatsTable*  global_table_;
+  static StatsTable* global_table_;
+
   DISALLOW_EVIL_CONSTRUCTORS(StatsTable);
 };
 
