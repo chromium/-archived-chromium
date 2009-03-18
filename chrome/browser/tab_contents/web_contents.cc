@@ -800,11 +800,6 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
   // DidNavigateMainFramePostCommit / DidNavigateAnyFramePostCommit (only if
   // necessary, please).
 
-  // When moving between DOM UI and non-DOM UI pages, we should always have
-  // gotten a NavigateToPendingEntry that should have set the dom_ui_ member
-  // correctly.
-  DCHECK(DOMUIFactory::UseDOMUIForURL(details.entry->url()) == !!dom_ui_.get());
-
   // Run post-commit tasks.
   if (details.is_main_frame)
     DidNavigateMainFramePostCommit(details, params);
