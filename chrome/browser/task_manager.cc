@@ -922,6 +922,8 @@ void TaskManagerContents::LinkActivated(views::Link* source,
   DCHECK(browser);
   browser->OpenURL(GURL("about:memory"), GURL(), NEW_FOREGROUND_TAB,
                    PageTransition::LINK);
+  // In case the browser window is minimzed, show it.
+  browser->window()->Show();
 }
 
 void TaskManagerContents::ShowContextMenu(views::View* source,
