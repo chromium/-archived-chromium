@@ -45,7 +45,7 @@ PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspa
 PREFIX : _87except____startoneargerrorhandling___sqrt___v8::internal::invoke
 
 # 8577
-PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque<gurl,std::allocator<gurl> >::back___ipc::syncchannel::onwaitableeventsignaled___base::waitableeventwatcher::onobjectsignaled
+PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque
 
 # 4731, 6956
 SUBSTRING : net::httpcache::removependingtransaction
