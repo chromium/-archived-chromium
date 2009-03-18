@@ -5,9 +5,12 @@
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/scoped_ptr.h"
 #include "base/string_util.h"
+#include "base/values.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/json_value_serializer.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "googleurl/src/gurl.h"
@@ -26,6 +29,8 @@ const wchar_t kRunDomCheckerTest[] = L"run-dom-checker-test";
 class DomCheckerTest : public UITest {
  public:
   DomCheckerTest() {
+    dom_automation_enabled_ = true;
+    enable_file_cookies_ = false;
     show_window_ = true;
     launch_arguments_.AppendSwitch(switches::kDisablePopupBlocking);
   }
@@ -33,18 +38,42 @@ class DomCheckerTest : public UITest {
   typedef std::list<std::string> ResultsList;
   typedef std::set<std::string> ResultsSet;
 
-  void ParseResults(const std::string& input, ResultsSet* output, char sep) {
-    if (input.empty())
-      return;
+  void RunTest(bool use_http, ResultsList* new_passes,
+               ResultsList* new_failures) {
+    int test_count = 0;
+    ResultsSet expected_failures, current_failures;
 
-    std::vector<std::string> tokens;
-    SplitString(input, sep, &tokens);
+    std::string failures_file = use_http ?
+      "expected_failures-http.txt" : "expected_failures-file.txt";
 
-    std::vector<std::string>::const_iterator it = tokens.begin();
-    for (; it != tokens.end(); ++it) {
-      // Allow comments (lines that start with #).
-      if (it->length() > 0 && it->at(0) != '#')
-        output->insert(*it);
+    GetExpectedFailures(failures_file, &expected_failures);
+
+    RunDomChecker(use_http, &test_count, &current_failures);
+    printf("\nTests run: %d\n", test_count);
+
+    // Compute the list of new passes and failures.
+    CompareSets(current_failures, expected_failures, new_passes);
+    CompareSets(expected_failures, current_failures, new_failures);
+  }
+
+  void PrintResults(const ResultsList& new_passes,
+                    const ResultsList& new_failures) {
+    PrintResults(new_failures, "new tests failing", true);
+    PrintResults(new_passes, "new tests passing", false);
+  }
+
+ private:
+  void PrintResults(const ResultsList& results, const char* message,
+                    bool add_failure) {
+    if (!results.empty()) {
+      if (add_failure)
+        ADD_FAILURE();
+
+      printf("%s:\n", message);
+      ResultsList::const_iterator it = results.begin();
+      for (; it != results.end(); ++it)
+        printf("  %s\n", it->c_str());
+      printf("\n");
     }
   }
 
@@ -65,92 +94,133 @@ class DomCheckerTest : public UITest {
     return test_dir.AppendASCII("dom_checker");
   }
 
-  FilePath GetExpectedFailuresPath() {
+  bool ReadExpectedResults(const std::string& failures_file,
+                           std::string* results) {
     FilePath results_path = GetDomCheckerDir();
-    return results_path.AppendASCII("expected_failures.txt");
-  }
-
-  bool ReadExpectedResults(std::string* results) {
-    FilePath results_path = GetExpectedFailuresPath();
+    results_path = results_path.AppendASCII(failures_file);
     return file_util::ReadFileToString(results_path, results);
   }
 
-  void RunDomChecker(std::wstring* total, std::wstring* failed) {
+  void ParseExpectedFailures(const std::string& input, ResultsSet* output) {
+    if (input.empty())
+      return;
+
+    std::vector<std::string> tokens;
+    SplitString(input, '\n', &tokens);
+
+    std::vector<std::string>::const_iterator it = tokens.begin();
+    for (; it != tokens.end(); ++it) {
+      // Allow comments (lines that start with #).
+      if (it->length() > 0 && it->at(0) != '#')
+        output->insert(*it);
+    }
+  }
+
+  void GetExpectedFailures(const std::string& failures_file,
+                           ResultsSet* expected_failures) {
+    std::string expected_failures_text;
+    bool have_expected_results = ReadExpectedResults(failures_file,
+                                                     &expected_failures_text);
+    ASSERT_TRUE(have_expected_results);
+    ParseExpectedFailures(expected_failures_text, expected_failures);
+  }
+
+  bool WaitUntilTestCompletes(TabProxy* tab) {
+    return WaitUntilJavaScriptCondition(tab, L"",
+        L"window.domAutomationController.send(automation.IsDone());",
+        1000, UITest::test_timeout_ms());
+  }
+
+  bool GetTestCount(TabProxy* tab, int* test_count) {
+    return tab->ExecuteAndExtractInt(L"",
+        L"window.domAutomationController.send(automation.GetTestCount());",
+        test_count);
+  }
+
+  bool GetTestsFailed(TabProxy* tab, ResultsSet* tests_failed) {
+    std::wstring json_wide;
+    bool succeeded = tab->ExecuteAndExtractString(L"",
+        L"window.domAutomationController.send("
+        L"    JSON.stringify(automation.GetFailures()));",
+        &json_wide);
+
+    EXPECT_TRUE(succeeded);
+    if (!succeeded)
+      return false;
+
+    std::string json = WideToUTF8(json_wide);
+    JSONStringValueSerializer deserializer(json);
+    scoped_ptr<Value> value(deserializer.Deserialize(NULL));
+
+    EXPECT_TRUE(value.get());
+    if (!value.get())
+      return false;
+
+    EXPECT_TRUE(value->IsType(Value::TYPE_LIST));
+    if (!value->IsType(Value::TYPE_LIST))
+      return false;
+
+    ListValue* list_value = static_cast<ListValue*>(value.get());
+
+    // The parsed JSON object will be an array of strings, each of which is a
+    // test failure. Add those strings to the results set.
+    ListValue::const_iterator it = list_value->begin();
+    for (; it != list_value->end(); ++it) {
+      EXPECT_TRUE((*it)->IsType(Value::TYPE_STRING));
+      if ((*it)->IsType(Value::TYPE_STRING)) {
+        std::string test_name;
+        succeeded = (*it)->GetAsString(&test_name);
+        EXPECT_TRUE(succeeded);
+        if (succeeded)
+          tests_failed->insert(test_name);
+      }
+    }
+
+    return true;
+  }
+
+  void RunDomChecker(bool use_http, int* test_count, ResultsSet* tests_failed) {
     GURL test_url;
     FilePath::StringType start_file(kStartFile);
-    FilePath::StringType url_string(kBaseUrl);
-    url_string.append(start_file);
-    test_url = GURL(url_string);
+    if (use_http) {
+      FilePath::StringType url_string(kBaseUrl);
+      url_string.append(start_file);
+      test_url = GURL(url_string);
+    } else {
+      FilePath test_path = GetDomCheckerDir();
+      test_path = test_path.Append(start_file);
+      test_url = net::FilePathToFileURL(test_path);
+    }
 
     scoped_ptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 
     // Wait for the test to finish.
-    ASSERT_TRUE(WaitUntilCookieValue(tab.get(), test_url, "__tests_finished",
-                                     3000, UITest::test_timeout_ms(), "1"));
+    ASSERT_TRUE(WaitUntilTestCompletes(tab.get()));
 
-    std::string cookie;
-    ASSERT_TRUE(tab->GetCookieByName(test_url, "__num_tests_total", &cookie));
-    total->swap(UTF8ToWide(cookie));
-    ASSERT_FALSE(total->empty());
-    ASSERT_TRUE(tab->GetCookieByName(test_url, "__tests_failed", &cookie));
-    failed->swap(UTF8ToWide(cookie));
-  }
-
-  void RunTest(ResultsList* new_passes_list, ResultsList* new_failures_list) {
-    std::string expected_failures;
-    bool have_expected_results = ReadExpectedResults(&expected_failures);
-    ASSERT_TRUE(have_expected_results);
-
-    std::wstring total, failed;
-    RunDomChecker(&total, &failed);
-
-    printf("\n");
-    wprintf(L"__num_tests_total = [%s]\n", total.c_str());
-    wprintf(L"__tests_failed = [%s]\n", failed.c_str());
-
-    std::string current_failures = WideToUTF8(failed);
-
-    ResultsSet expected_failures_set;
-    ParseResults(expected_failures, &expected_failures_set, '\n');
-
-    ResultsSet current_failures_set;
-    ParseResults(current_failures, &current_failures_set, ',');
-
-    // Compute the list of new passes and failures.
-    CompareSets(current_failures_set, expected_failures_set, new_passes_list);
-    CompareSets(expected_failures_set, current_failures_set,
-                new_failures_list);
-  }
-
-  void PrintResults(ResultsList* new_passes_list,
-                    ResultsList* new_failures_list) {
-    if (!new_failures_list->empty()) {
-      ADD_FAILURE();
-      printf("new tests failing:\n");
-      ResultsList::const_iterator it = new_failures_list->begin();
-      for (; it != new_failures_list->end(); ++it)
-        printf("  %s\n", it->c_str());
-      printf("\n");
-    }
-
-    if (!new_passes_list->empty()) {
-      printf("new tests passing:\n");
-      ResultsList::const_iterator it = new_passes_list->begin();
-      for (; it != new_passes_list->end(); ++it)
-        printf("  %s\n", it->c_str());
-      printf("\n");
-    }
+    // Get the test results.
+    ASSERT_TRUE(GetTestCount(tab.get(), test_count));
+    ASSERT_TRUE(GetTestsFailed(tab.get(), tests_failed));
+    ASSERT_GT(*test_count, 0);
   }
 };
 
 }  // namespace
 
+TEST_F(DomCheckerTest, File) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
+    return;
+
+  ResultsList new_passes, new_failures;
+  RunTest(false, &new_passes, &new_failures);
+  PrintResults(new_passes, new_failures);
+}
+
 TEST_F(DomCheckerTest, Http) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
     return;
 
-  ResultsList new_passes_list, new_failures_list;
-  RunTest(&new_passes_list, &new_failures_list);
-  PrintResults(&new_passes_list, &new_failures_list);
+  ResultsList new_passes, new_failures;
+  RunTest(true, &new_passes, &new_failures);
+  PrintResults(new_passes, new_failures);
 }

@@ -134,6 +134,20 @@ class UITest : public testing::Test {
                                       int interval_ms,
                                       int time_out_ms);
 
+  // Polls the tab for a JavaScript condition and returns once one of the
+  // following conditions hold true:
+  // - The JavaScript condition evaluates to true (return true).
+  // - The browser process died (return false).
+  // - The time_out value has been exceeded (return false).
+  //
+  // The JavaScript expression is executed in the context of the frame that
+  // matches the provided xpath.
+  bool WaitUntilJavaScriptCondition(TabProxy* tab,
+                                    const std::wstring& frame_xpath,
+                                    const std::wstring& jscript,
+                                    int interval_ms,
+                                    int time_out_ms);
+
   // Polls up to kWaitForActionMaxMsec ms to attain a specific tab count. Will
   // assert that the tab count is valid at the end of the wait.
   void WaitUntilTabCount(int tab_count);
@@ -415,6 +429,7 @@ class UITest : public testing::Test {
                                         // true.
   bool use_existing_browser_;           // Duplicate of the static version.
                                         // Default value comes from static.
+  bool enable_file_cookies_;            // Enable file cookies, default is true.
 
  private:
 #if defined(OS_WIN)

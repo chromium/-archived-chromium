@@ -27,7 +27,8 @@
 <title>DOM checker - browser domain context separation validator</title>
 
 <script src="dom_config.js"></script>
-<script src="extra_utils.js"></script>
+<script src="json2.js"></script>
+<script src="automation.js"></script>
 
 <script>
 
@@ -73,10 +74,6 @@ var ipc_state = 2;		// Current IPC state
 var fail_cycles = 0;		// IPC failure count
 
 var output;			// Output container.
-
-// Some added bookkeeping variables.
-var num_tests_total = 0;
-var tests_failed = [];
 
 /* Send a reset command to IPC peer. */
 function ipc_reset() {
@@ -414,11 +411,8 @@ function update_finalize() {
     document.getElementById('status').innerHTML =
       "<font color=green>All checks passed (whoa!)</font>";
 
-  // Write the results for the test automation.
-  writeCookie('__num_tests_total', num_tests_total);
-  // Conservatively limit cookie size to 2K.
-  writeCookie('__tests_failed', convertArrayToCookieValue(tests_failed, 2048));
-  writeCookie('__tests_finished', '1');
+  // Let the automation know the test is finished.
+  automation.SetDone();
 
 }
 
@@ -433,7 +427,7 @@ function log(message) {
 
 /* Log passed test event. */
 function GOOD(x) {
-  num_tests_total++;
+  automation.IncrementTestCount();
 
   if (option_badonly) return;
   x = x.replace('frames[0].frames[0]','(blank)').replace('frames[0]','(third-party)');
@@ -443,8 +437,8 @@ function GOOD(x) {
 
 /* Log test failure. */
 function BAD(x) {
-  num_tests_total++;
-  tests_failed.push(x);
+  automation.IncrementTestCount();
+  automation.AddFailure(x);
 
   bad++;
   x = x.replace('frames[0].frames[0]','(blank)').replace('frames[0]','(third-party)');

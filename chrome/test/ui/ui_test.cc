@@ -108,6 +108,7 @@ UITest::UITest()
       clear_profile_(true),
       include_testing_id_(true),
       use_existing_browser_(default_use_existing_browser_),
+      enable_file_cookies_(true),
       command_execution_timeout_ms_(kMaxTestExecutionTime),
       action_timeout_ms_(kWaitForActionMsec),
       action_max_timeout_ms_(kWaitForActionMaxMsec),
@@ -256,7 +257,8 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   }
 
   // We need cookies on file:// for things like the page cycler.
-  command_line.AppendSwitch(switches::kEnableFileCookies);
+  if (enable_file_cookies_)
+    command_line.AppendSwitch(switches::kEnableFileCookies);
 
   if (dom_automation_enabled_)
     command_line.AppendSwitch(switches::kDomAutomationController);
@@ -673,6 +675,36 @@ std::string UITest::WaitUntilCookieNonEmpty(TabProxy* tab,
   }
 
   return cookie_value;
+}
+
+bool UITest::WaitUntilJavaScriptCondition(TabProxy* tab,
+                                          const std::wstring& frame_xpath,
+                                          const std::wstring& jscript,
+                                          int interval_ms,
+                                          int time_out_ms) {
+  DCHECK_GE(time_out_ms, interval_ms);
+  DCHECK_GT(interval_ms, 0);
+  const int kMaxIntervals = time_out_ms / interval_ms;
+
+  // Wait until the test signals it has completed.
+  bool completed = false;
+  for (int i = 0; i < kMaxIntervals; ++i) {
+    bool browser_survived = CrashAwareSleep(interval_ms);
+
+    EXPECT_TRUE(browser_survived);
+    if (!browser_survived)
+      break;
+
+    bool done_value = false;
+    EXPECT_TRUE(tab->ExecuteAndExtractBool(frame_xpath, jscript, &done_value));
+
+    if (done_value) {
+      completed = true;
+      break;
+    }
+  }
+
+  return completed;
 }
 
 void UITest::WaitUntilTabCount(int tab_count) {
