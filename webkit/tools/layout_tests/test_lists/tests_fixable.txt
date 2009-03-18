@@ -1528,7 +1528,7 @@ LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = TIMEOUT PASS
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
-WIN MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
+MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
 MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT PASS
