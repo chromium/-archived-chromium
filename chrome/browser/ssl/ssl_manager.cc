@@ -762,10 +762,9 @@ bool SSLManager::DeserializeSecurityInfo(const std::string& state,
 
   Pickle pickle(state.data(), static_cast<int>(state.size()));
   void * iter = NULL;
-  pickle.ReadInt(&iter, cert_id);
-  pickle.ReadInt(&iter, cert_status);
-  pickle.ReadInt(&iter, security_bits);
-  return true;
+  return pickle.ReadInt(&iter, cert_id) &&
+         pickle.ReadInt(&iter, cert_status) &&
+         pickle.ReadInt(&iter, security_bits);
 }
 
 // static
