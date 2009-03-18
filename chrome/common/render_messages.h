@@ -38,6 +38,7 @@
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
+#include "webkit/glue/webtextdirection.h"
 #include "webkit/glue/webview_delegate.h"
 
 #if defined(OS_POSIX)
@@ -1833,6 +1834,39 @@ struct ParamTraits<AudioOutputStream::State> {
   }
 };
 
+template <>
+struct ParamTraits<WebTextDirection> {
+  typedef WebTextDirection param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteInt(p);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    int type;
+    if (!m->ReadInt(iter, &type))
+      return false;
+    *p = static_cast<WebTextDirection>(type);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring control;
+    switch (p) {
+     case WEB_TEXT_DIRECTION_DEFAULT:
+      control = L"WEB_TEXT_DIRECTION_DEFAULT";
+      break;
+     case WEB_TEXT_DIRECTION_RTL:
+      control = L"WEB_TEXT_DIRECTION_RTL";
+      break;
+     case WEB_TEXT_DIRECTION_LTR:
+      control = L"WEB_TEXT_DIRECTION_LTR";
+      break;
+     default:
+      control = L"UNKNOWN";
+      break;
+    }
+
+    LogParam(control, l);
+  }
+};
 
 }  // namespace IPC
 

@@ -53,7 +53,9 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
       mouse_move_pending_(false),
       needs_repainting_on_restore_(false),
       is_unresponsive_(false),
-      view_being_painted_(false) {
+      view_being_painted_(false),
+      text_direction_updated_(false),
+      text_direction_(WEB_TEXT_DIRECTION_LTR) {
   if (routing_id_ == MSG_ROUTING_NONE)
     routing_id_ = process_->GetNextRoutingID();
 
@@ -354,6 +356,19 @@ void RenderWidgetHost::RendererExited() {
 
 gfx::Rect RenderWidgetHost::GetRootWindowResizerRect() const {
   return gfx::Rect();
+}
+
+void RenderWidgetHost::UpdateTextDirection(WebTextDirection direction) {
+  text_direction_updated_ = true;
+  text_direction_ = direction;
+}
+
+void RenderWidgetHost::NotifyTextDirection() {
+  if (text_direction_updated_) {
+    text_direction_updated_ = false;
+    Send(new ViewMsg_SetTextDirection(routing_id(),
+                                      text_direction_));
+  }
 }
 
 void RenderWidgetHost::Destroy() {

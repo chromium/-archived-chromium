@@ -823,6 +823,26 @@ LRESULT RenderWidgetHostViewWin::OnKeyEvent(UINT message, WPARAM wparam,
     return ::SendMessage(parent_hwnd_, message, wparam, lparam);
   }
 
+  if (wparam == VK_SHIFT || wparam == VK_CONTROL) {
+    // Bug 1845: we need to update the text direction when a user releases
+    // either a right-shift key or a right-control key after pressing both of
+    // them. So, we just update the text direction while a user is pressing the
+    // keys, and we notify the text direction when a user releases either of
+    // them.
+    if (message == WM_KEYDOWN) {
+      const int kKeyDownMask = 0x8000;
+      if ((GetKeyState(VK_RSHIFT) & kKeyDownMask) &&
+          (GetKeyState(VK_RCONTROL) & kKeyDownMask)) {
+        render_widget_host_->UpdateTextDirection(WEB_TEXT_DIRECTION_RTL);
+      } else if ((GetKeyState(VK_LSHIFT) & kKeyDownMask) &&
+                 (GetKeyState(VK_LCONTROL) & kKeyDownMask)) {
+        render_widget_host_->UpdateTextDirection(WEB_TEXT_DIRECTION_LTR);
+      }
+    } else if (message == WM_KEYUP) {
+      render_widget_host_->NotifyTextDirection();
+    }
+  }
+
   render_widget_host_->ForwardKeyboardEvent(
       NativeWebKeyboardEvent(m_hWnd, message, wparam, lparam));
   return 0;
