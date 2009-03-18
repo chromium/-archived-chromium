@@ -79,6 +79,7 @@
         'debug_util_posix.cc',
         'debug_util_win.cc',
         'directory_watcher.h',
+        'directory_watcher_inotify.cc',
         'directory_watcher_win.cc',
         'event_recorder.cc',
         'event_recorder.h',
@@ -321,6 +322,7 @@
           {  # else: OS != "linux"
             'sources!': [
               'atomicops_internals_x86_gcc.cc',
+              'directory_watcher_inotify.cc',
               'hmac_nss.cc',
               'idle_timer_none.cc',
               'message_pump_glib.cc',

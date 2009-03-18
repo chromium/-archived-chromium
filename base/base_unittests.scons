@@ -155,7 +155,6 @@ if env.Bit('mac'):
 if not env.Bit('windows'):
   # Remove Windows-specific tests.
   input_files.Remove(
-      'directory_watcher_unittest.cc',
       'file_version_info_unittest.cc',
       'object_watcher_unittest.cc',
       'pe_image_unittest.cc',

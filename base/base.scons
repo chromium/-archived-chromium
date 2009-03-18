@@ -390,6 +390,7 @@ if env.Bit('linux'):
       'base_paths_linux.cc',
       'clipboard_linux.cc',
       'data_pack.cc',
+      'directory_watcher_inotify.cc',
       'event_recorder_stubs.cc',
       'file_util_linux.cc',
       'file_version_info_linux.cc',

@@ -5,6 +5,7 @@
 #include "base/directory_watcher.h"
 
 #include "base/file_path.h"
+#include "base/logging.h"
 #include "base/object_watcher.h"
 
 // Private implementation class implementing the behavior of DirectoryWatcher.
@@ -80,7 +81,12 @@ DirectoryWatcher::~DirectoryWatcher() {
 }
 
 bool DirectoryWatcher::Watch(const FilePath& path,
-                             Delegate* delegate) {
+                             Delegate* delegate, bool recursive) {
+  if (!recursive) {
+    // See http://crbug.com/5072.
+    NOTIMPLEMENTED();
+    return false;
+  }
   impl_ = new DirectoryWatcher::Impl(delegate);
   return impl_->Watch(path);
 }

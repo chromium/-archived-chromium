@@ -233,7 +233,7 @@ void UserScriptMaster::AddWatchedPath(const FilePath& path) {
 // TODO(aa): Enable this when DirectoryWatcher is implemented for linux and mac.
 #if defined(OS_WIN)
   DirectoryWatcher* watcher = new DirectoryWatcher();
-  watcher->Watch(path, this);
+  watcher->Watch(path, this, true);
   dir_watchers_.push_back(watcher);
 #endif
 }

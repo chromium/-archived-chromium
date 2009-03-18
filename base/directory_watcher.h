@@ -28,8 +28,9 @@ class DirectoryWatcher {
 
   // Register interest in any changes in the directory |path|.
   // OnDirectoryChanged will be called back for each change within the dir.
-  // Returns false on error.
-  bool Watch(const FilePath& path, Delegate* delegate);
+  // If |recursive| is true, the delegate will be notified for each change
+  // within the directory tree starting at |path|. Returns false on error.
+  bool Watch(const FilePath& path, Delegate* delegate, bool recursive);
 
  private:
   class Impl;
