@@ -22,17 +22,9 @@ class SSLPolicy : public SSLManager::Delegate,
   static SSLPolicy* GetDefaultPolicy();
 
   // SSLManager::Delegate methods.
-  virtual void OnCertError(const GURL& main_frame_url,
-                           SSLManager::CertError* error);
-  virtual void OnMixedContent(
-      NavigationController* navigation_controller,
-      const GURL& main_frame_url,
-      SSLManager::MixedContentHandler* mixed_content_handler);
-  virtual void OnRequestStarted(SSLManager* manager,
-                                const GURL& url,
-                                ResourceType::Type resource_type,
-                                int ssl_cert_id,
-                                int ssl_cert_status);
+  virtual void OnCertError(SSLManager::CertError* error);
+  virtual void OnMixedContent(SSLManager::MixedContentHandler* handler);
+  virtual void OnRequestStarted(SSLManager::RequestInfo* info);
   virtual SecurityStyle GetDefaultStyle(const GURL& url);
 
   // This method is static because it is called from both the UI and the IO
@@ -46,7 +38,7 @@ class SSLPolicy : public SSLManager::Delegate,
   virtual void OnDenyCertificate(SSLManager::CertError* error);
   virtual void OnAllowCertificate(SSLManager::CertError* error);
 
- protected:
+ private:
   // Construct via |GetDefaultPolicy|.
   SSLPolicy();
   friend struct DefaultSingletonTraits<SSLPolicy>;
@@ -54,15 +46,12 @@ class SSLPolicy : public SSLManager::Delegate,
   // Helper method for derived classes handling certificate errors that can be
   // overridden by the user.
   // Show a blocking page and let the user continue or cancel the request.
-  void OnOverridableCertError(const GURL& main_frame_url,
-                              SSLManager::CertError* error);
+  void OnOverridableCertError(SSLManager::CertError* error);
 
   // Helper method for derived classes handling fatal certificate errors.
   // Cancel the request and show an error page.
-  void OnFatalCertError(const GURL& main_frame_url,
-                        SSLManager::CertError* error);
+  void OnFatalCertError(SSLManager::CertError* error);
 
- private:
   DISALLOW_COPY_AND_ASSIGN(SSLPolicy);
 };
 

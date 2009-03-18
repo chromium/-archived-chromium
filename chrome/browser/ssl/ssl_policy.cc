@@ -38,35 +38,33 @@
 // Wrap all these helper classes in an anonymous namespace.
 namespace {
 
-class ShowUnsafeContentTask : public Task {
+class ShowMixedContentTask : public Task {
  public:
-  ShowUnsafeContentTask(const GURL& main_frame_url,
-                        SSLManager::ErrorHandler* error_handler);
-  virtual ~ShowUnsafeContentTask();
+  ShowMixedContentTask(SSLManager::MixedContentHandler* handler);
+  virtual ~ShowMixedContentTask();
 
   virtual void Run();
 
  private:
-  scoped_refptr<SSLManager::ErrorHandler> error_handler_;
-  GURL main_frame_url_;
+  scoped_refptr<SSLManager::MixedContentHandler> handler_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ShowUnsafeContentTask);
+  DISALLOW_COPY_AND_ASSIGN(ShowMixedContentTask);
 };
 
-ShowUnsafeContentTask::ShowUnsafeContentTask(
-    const GURL& main_frame_url,
-    SSLManager::ErrorHandler* error_handler)
-    : error_handler_(error_handler),
-      main_frame_url_(main_frame_url) {
+ShowMixedContentTask::ShowMixedContentTask(
+    SSLManager::MixedContentHandler* handler)
+    : handler_(handler) {
 }
 
-ShowUnsafeContentTask::~ShowUnsafeContentTask() {
+ShowMixedContentTask::~ShowMixedContentTask() {
 }
 
-void ShowUnsafeContentTask::Run() {
-  error_handler_->manager()->AllowShowInsecureContentForURL(main_frame_url_);
+void ShowMixedContentTask::Run() {
+  handler_->manager()->AllowMixedContentForHost(
+      GURL(handler_->main_frame_origin()).host());
+
   // Reload the page.
-  error_handler_->GetWebContents()->controller()->Reload(true);
+  handler_->manager()->controller()->Reload(true);
 }
 
 static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
@@ -123,8 +121,7 @@ SSLPolicy* SSLPolicy::GetDefaultPolicy() {
   return Singleton<SSLPolicy>::get();
 }
 
-void SSLPolicy::OnCertError(const GURL& main_frame_url,
-                            SSLManager::CertError* error) {
+void SSLPolicy::OnCertError(SSLManager::CertError* error) {
   // First we check if we know the policy for this error.
   net::X509Certificate::Policy::Judgment judgment =
       error->manager()->QueryPolicy(error->ssl_info().cert,
@@ -152,7 +149,7 @@ void SSLPolicy::OnCertError(const GURL& main_frame_url,
     case net::ERR_CERT_COMMON_NAME_INVALID:
     case net::ERR_CERT_DATE_INVALID:
     case net::ERR_CERT_AUTHORITY_INVALID:
-      OnOverridableCertError(main_frame_url, error);
+      OnOverridableCertError(error);
       break;
     case net::ERR_CERT_NO_REVOCATION_MECHANISM:
       // Ignore this error.
@@ -167,7 +164,7 @@ void SSLPolicy::OnCertError(const GURL& main_frame_url,
     case net::ERR_CERT_CONTAINS_ERRORS:
     case net::ERR_CERT_REVOKED:
     case net::ERR_CERT_INVALID:
-      OnFatalCertError(main_frame_url, error);
+      OnFatalCertError(error);
       break;
     default:
       NOTREACHED();
@@ -176,27 +173,33 @@ void SSLPolicy::OnCertError(const GURL& main_frame_url,
   }
 }
 
-void SSLPolicy::OnMixedContent(
-    NavigationController* navigation_controller,
-    const GURL& main_frame_url,
-    SSLManager::MixedContentHandler* mixed_content_handler) {
-  PrefService* prefs = navigation_controller->profile()->GetPrefs();
-  FilterPolicy::Type filter_policy = FilterPolicy::DONT_FILTER;
-  if (!mixed_content_handler->manager()->
-      CanShowInsecureContent(main_frame_url)) {
-    filter_policy = FilterPolicy::FromInt(
-          prefs->GetInteger(prefs::kMixedContentFiltering));
-  }
+void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
+  // Get the user's mixed content preference.
+  PrefService* prefs = handler->GetWebContents()->profile()->GetPrefs();
+  FilterPolicy::Type filter_policy =
+      FilterPolicy::FromInt(prefs->GetInteger(prefs::kMixedContentFiltering));
+
+  // If the user have added an exception, doctor the |filter_policy|.
+  if (handler->manager()->DidAllowMixedContentForHost(
+           GURL(handler->main_frame_origin()).host()))
+    filter_policy = FilterPolicy::DONT_FILTER;
+
   if (filter_policy != FilterPolicy::DONT_FILTER) {
-    mixed_content_handler->manager()->ShowMessageWithLink(
+    handler->manager()->ShowMessageWithLink(
         l10n_util::GetString(IDS_SSL_INFO_BAR_FILTERED_CONTENT),
         l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
-        new ShowUnsafeContentTask(main_frame_url, mixed_content_handler));
+        new ShowMixedContentTask(handler));
   }
-  mixed_content_handler->StartRequest(filter_policy);
+  handler->StartRequest(filter_policy);
 
-  NavigationEntry* entry = navigation_controller->GetLastCommittedEntry();
-  DCHECK(entry);
+  NavigationEntry* entry =
+      handler->manager()->controller()->GetLastCommittedEntry();
+  // We might not have a navigation entry in some cases (e.g. when a	
+  // HTTPS page opens a popup with no URL and then populate it with	
+  // document.write()). See bug http://crbug.com/3845.
+  if (!entry)
+    return;
+
   // Even though we are loading the mixed-content resource, it will not be
   // included in the page when we set the policy to FILTER_ALL or
   // FILTER_ALL_EXCEPT_IMAGES (only images and they are stamped with warning
@@ -208,26 +211,23 @@ void SSLPolicy::OnMixedContent(
   const std::wstring& msg = l10n_util::GetStringF(
       IDS_MIXED_CONTENT_LOG_MESSAGE,
       UTF8ToWide(entry->url().spec()),
-      UTF8ToWide(mixed_content_handler->request_url().spec()));
-  mixed_content_handler->manager()->
-      AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
+      UTF8ToWide(handler->request_url().spec()));
+  handler->manager()->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
 
   NotificationService::current()->Notify(
       NotificationType::SSL_VISIBLE_STATE_CHANGED,
-      Source<NavigationController>(navigation_controller),
+      Source<NavigationController>(handler->manager()->controller()),
       Details<NavigationEntry>(entry));
 }
 
-void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
-                                 ResourceType::Type resource_type,
-                                 int ssl_cert_id, int ssl_cert_status) {
+void SSLPolicy::OnRequestStarted(SSLManager::RequestInfo* info) {
   // These schemes never leave the browser and don't require a warning.
-  if (url.SchemeIs(chrome::kDataScheme) ||
-      url.SchemeIs(chrome::kJavaScriptScheme) ||
-      url.SchemeIs(chrome::kAboutScheme))
+  if (info->url().SchemeIs(chrome::kDataScheme) ||
+      info->url().SchemeIs(chrome::kJavaScriptScheme) ||
+      info->url().SchemeIs(chrome::kAboutScheme))
     return;
 
-  NavigationEntry* entry = manager->controller()->GetActiveEntry();
+  NavigationEntry* entry = info->manager()->controller()->GetActiveEntry();
   if (!entry) {
     // We may not have an entry for cases such as the inspector.
     return;
@@ -236,7 +236,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
   NavigationEntry::SSLStatus& ssl = entry->ssl();
   bool changed = false;
   if (!entry->url().SchemeIsSecure() ||  // Current page is not secure.
-      resource_type == ResourceType::MAIN_FRAME ||  // Main frame load.
+      info->resource_type() == ResourceType::MAIN_FRAME ||  // Main frame load.
       net::IsCertStatusError(ssl.cert_status())) {  // There is already
           // an error for the main page, don't report sub-resources as unsafe
           // content.
@@ -244,20 +244,21 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
     return;
   }
 
-  if (url.SchemeIsSecure()) {
+  if (info->url().SchemeIsSecure()) {
     // Check for insecure content (anything served over intranet is considered
     // insecure).
 
     // TODO(jcampan): bug #1178228 Disabling the broken style for intranet
     // hosts for beta as it is missing error strings (and cert status).
     // if (IsIntranetHost(url.host()) ||
-    //    net::IsCertStatusError(ssl_cert_status)) {
-    if (net::IsCertStatusError(ssl_cert_status)) {
+    //    net::IsCertStatusError(info->ssl_cert_status())) {
+    if (net::IsCertStatusError(info->ssl_cert_status())) {
       // The resource is unsafe.
       if (!ssl.has_unsafe_content()) {
         changed = true;
         ssl.set_has_unsafe_content();
-        manager->SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
+        info->manager()->SetMaxSecurityStyle(
+            SECURITY_STYLE_AUTHENTICATION_BROKEN);
       }
     }
   }
@@ -266,7 +267,7 @@ void SSLPolicy::OnRequestStarted(SSLManager* manager, const GURL& url,
     // Only send the notification when something actually changed.
     NotificationService::current()->Notify(
         NotificationType::SSL_VISIBLE_STATE_CHANGED,
-        Source<NavigationController>(manager->controller()),
+        Source<NavigationController>(info->manager()->controller()),
         NotificationService::NoDetails());
   }
 }
@@ -305,6 +306,9 @@ bool SSLPolicy::IsMixedContent(const GURL& url,
   return GURL(main_frame_origin).SchemeIsSecure() && !url.SchemeIsSecure();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// SSLBlockingPage::Delegate methods
+
 SSLErrorInfo SSLPolicy::GetSSLErrorInfo(SSLManager::CertError* error) {
   return SSLErrorInfo::CreateError(
       SSLErrorInfo::NetErrorToErrorType(error->cert_error()),
@@ -330,8 +334,10 @@ void SSLPolicy::OnAllowCertificate(SSLManager::CertError* error) {
                                      error->request_url().host());
 }
 
-void SSLPolicy::OnOverridableCertError(const GURL& main_frame_url,
-                                       SSLManager::CertError* error) {
+////////////////////////////////////////////////////////////////////////////////
+// Certificate Error Routines
+
+void SSLPolicy::OnOverridableCertError(SSLManager::CertError* error) {
   if (error->resource_type() != ResourceType::MAIN_FRAME) {
     // A sub-resource has a certificate error.  The user doesn't really
     // have a context for making the right decision, so block the
@@ -344,8 +350,7 @@ void SSLPolicy::OnOverridableCertError(const GURL& main_frame_url,
   ShowBlockingPage(this, error);
 }
 
-void SSLPolicy::OnFatalCertError(const GURL& main_frame_url,
-                                 SSLManager::CertError* error) {
+void SSLPolicy::OnFatalCertError(SSLManager::CertError* error) {
   if (error->resource_type() != ResourceType::MAIN_FRAME) {
     error->DenyRequest();
     return;
