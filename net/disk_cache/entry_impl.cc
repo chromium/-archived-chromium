@@ -382,7 +382,7 @@ base::PlatformFile EntryImpl::GetPlatformFile(int index) {
   return base::CreatePlatformFile(backend_->GetFileName(address),
                                   base::PLATFORM_FILE_OPEN |
                                       base::PLATFORM_FILE_READ |
-                                      base::PLATFORM_FILE_ASYNC,
+                                  base::PLATFORM_FILE_ASYNC,
                                   NULL);
 }
 
@@ -457,19 +457,25 @@ void EntryImpl::InternalDoom() {
 void EntryImpl::DeleteEntryData(bool everything) {
   DCHECK(doomed_ || !everything);
 
-  UMA_HISTOGRAM_COUNTS("DiskCache.DeleteHeader", GetDataSize(0));
-  UMA_HISTOGRAM_COUNTS("DiskCache.DeleteData", GetDataSize(1));
+  if (GetDataSize(0))
+    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteHeader", GetDataSize(0));
+  if (GetDataSize(1))
+    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteData", GetDataSize(1));
   for (int index = 0; index < NUM_STREAMS; index++) {
     Addr address(entry_.Data()->data_addr[index]);
     if (address.is_initialized()) {
       DeleteData(address, index);
       backend_->ModifyStorageSize(entry_.Data()->data_size[index] -
                                       unreported_size_[index], 0);
+      entry_.Data()->data_addr[index] = 0;
+      entry_.Data()->data_size[index] = 0;
     }
   }
 
-  if (!everything)
+  if (!everything) {
+    entry_.Store();
     return;
+  }
 
   // Remove all traces of this entry.
   backend_->RemoveEntry(this);

@@ -641,7 +641,7 @@ void BackendImpl::RemoveEntry(EntryImpl* entry) {
   if (!new_eviction_)
     return;
 
-  DCHECK(ENTRY_DOOMED == entry->entry()->Data()->state);
+  DCHECK(ENTRY_NORMAL != entry->entry()->Data()->state);
 
   Trace("Remove entry 0x%p", entry);
   eviction_.OnDestroyEntry(entry);

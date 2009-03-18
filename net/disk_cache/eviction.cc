@@ -209,8 +209,15 @@ void Eviction::TrimCacheV2(bool empty) {
   }
 
   // If we are not meeting the time targets lets move on to list length.
-  if (!empty && Rankings::LAST_ELEMENT == list)
+  if (!empty && Rankings::LAST_ELEMENT == list) {
     list = SelectListByLenght();
+    // Make sure that frequently used items are kept for a minimum time; we know
+    // that this entry is not older than its current target, but it must be at
+    // least older than the target for list 0 (kTargetTime).
+    if (Rankings::HIGH_USE == list &&
+        !NodeIsOldEnough(next[Rankings::HIGH_USE].get(), 0))
+      list = 0;
+  }
 
   if (empty)
     list = 0;
@@ -240,9 +247,12 @@ void Eviction::TrimCacheV2(bool empty) {
       list = kListsToSearch;
   }
 
-  if (empty || header_->lru.sizes[Rankings::DELETED] > header_->num_entries / 4)
+  if (empty) {
+    TrimDeleted(true);
+  } else if (header_->lru.sizes[Rankings::DELETED] > header_->num_entries / 4) {
     MessageLoop::current()->PostTask(FROM_HERE,
         factory_.NewRunnableMethod(&Eviction::TrimDeleted, empty));
+  }
 
   UMA_HISTOGRAM_TIMES("DiskCache.TotalTrimTime", Time::Now() - start);
   Trace("*** Trim Cache end ***");
@@ -332,7 +342,48 @@ Rankings::List Eviction::GetListForEntryV2(EntryImpl* entry) {
   return Rankings::HIGH_USE;
 }
 
+// This is a minimal implementation that just discards the oldest nodes.
+// TODO(rvargas): Do something better here.
 void Eviction::TrimDeleted(bool empty) {
+  Trace("*** Trim Deleted ***");
+  if (backend_->disabled_)
+    return;
+
+  Time start = Time::Now();
+  Rankings::ScopedRankingsBlock node(rankings_);
+  Rankings::ScopedRankingsBlock next(rankings_,
+    rankings_->GetPrev(node.get(), Rankings::DELETED));
+  DCHECK(next.get());
+  for (int i = 0; (i < 4 || empty) && next.get(); i++) {
+    node.reset(next.release());
+    next.reset(rankings_->GetPrev(node.get(), Rankings::DELETED));
+    RemoveDeletedNode(node.get());
+  }
+
+  if (header_->lru.sizes[Rankings::DELETED] > header_->num_entries / 4)
+    MessageLoop::current()->PostTask(FROM_HERE,
+        factory_.NewRunnableMethod(&Eviction::TrimDeleted, false));
+
+  UMA_HISTOGRAM_TIMES("DiskCache.TotalTrimDeletedTime", Time::Now() - start);
+  Trace("*** Trim Deleted end ***");
+  return;
+}
+
+bool Eviction::RemoveDeletedNode(CacheRankingsBlock* node) {
+  EntryImpl* entry;
+  bool dirty;
+  if (backend_->NewEntry(Addr(node->Data()->contents), &entry, &dirty)) {
+    Trace("NewEntry failed on Trim 0x%x", node->address().value());
+    return false;
+  }
+
+  if (node->Data()->pointer) {
+    entry = EntryImpl::Update(entry);
+  }
+  entry->entry()->Data()->state = ENTRY_DOOMED;
+  entry->Doom();
+  entry->Release();
+  return true;
 }
 
 bool Eviction::NodeIsOldEnough(CacheRankingsBlock* node, int list) {
@@ -348,10 +399,12 @@ bool Eviction::NodeIsOldEnough(CacheRankingsBlock* node, int list) {
 }
 
 int Eviction::SelectListByLenght() {
+  int data_entries = header_->num_entries -
+                     header_->lru.sizes[Rankings::DELETED];
   // Start by having each list to be roughly the same size.
-  if (header_->lru.sizes[0] > header_->num_entries / 4)
+  if (header_->lru.sizes[0] > data_entries / 3)
     return 0;
-  if (header_->lru.sizes[1] > header_->num_entries / 4)
+  if (header_->lru.sizes[1] > data_entries / 3)
     return 1;
   return 2;
 }

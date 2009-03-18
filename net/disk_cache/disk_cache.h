@@ -172,7 +172,7 @@ class Entry {
 
   // Returns an asynchronous read file handle for the cache stream referenced by
   // |index|. Values other than base::kInvalidPlatformFileValue are successful
-  // and the file handle should be managed by the caller, i.e. caller should
+  // and the file handle should be managed by the caller, i.e. the caller should
   // close the handle after use or there will be a leak.
   virtual base::PlatformFile GetPlatformFile(int index) = 0;
 

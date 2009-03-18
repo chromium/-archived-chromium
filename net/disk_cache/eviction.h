@@ -55,6 +55,7 @@ class Eviction {
   void OnDestroyEntryV2(EntryImpl* entry);
   Rankings::List GetListForEntryV2(EntryImpl* entry);
   void TrimDeleted(bool empty);
+  bool RemoveDeletedNode(CacheRankingsBlock* node);
   
   bool NodeIsOldEnough(CacheRankingsBlock* node, int list);
   int SelectListByLenght();
