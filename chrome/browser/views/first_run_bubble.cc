@@ -17,6 +17,7 @@
 #include "chrome/views/event.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"
+#include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
@@ -24,8 +25,8 @@
 
 namespace {
 
-// How much extra padding to put around our content over what
-// infobubble provides.
+// How much extra padding to put around our content over what the InfoBubble
+// provides.
 static const int kBubblePadding = 4;
 
 std::wstring GetDefaultSearchEngineName(Profile* profile) {
@@ -49,7 +50,8 @@ std::wstring GetDefaultSearchEngineName(Profile* profile) {
 // Implements the client view inside the first run bubble. It is kind of a
 // dialog-ish view, but is not a true dialog.
 class FirstRunBubbleView : public views::View,
-                           public views::NativeButton::Listener {
+                           public views::NativeButton::Listener,
+                           public views::FocusChangeListener {
  public:
   FirstRunBubbleView(FirstRunBubble* bubble_window, Profile* profile)
       : bubble_window_(bubble_window),
@@ -164,6 +166,21 @@ class FirstRunBubbleView : public views::View,
         IDS_FIRSTRUNBUBBLE_DIALOG_HEIGHT_LINES));
   }
 
+  virtual void FocusWillChange(View* focused_before, View* focused_now) {
+    if (focused_before && focused_before->GetClassName() ==
+                          views::NativeButton::kViewClassName) {
+      views::NativeButton* before =
+          static_cast<views::NativeButton*>(focused_before);
+      before->SetDefaultButton(false);
+    }
+    if (focused_now && focused_now->GetClassName() ==
+                       views::NativeButton::kViewClassName) {
+      views::NativeButton* after =
+          static_cast<views::NativeButton*>(focused_now);
+      after->SetDefaultButton(true);
+    }
+  }
+
  private:
   FirstRunBubble* bubble_window_;
   views::Label* label1_;
@@ -171,7 +188,8 @@ class FirstRunBubbleView : public views::View,
   views::Label* label3_;
   views::NativeButton* change_button_;
   views::NativeButton* keep_button_;
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRunBubbleView);
+
+  DISALLOW_COPY_AND_ASSIGN(FirstRunBubbleView);
 };
 
 // Keep the bubble around for kLingerTime milliseconds, to prevent accidental
@@ -203,15 +221,23 @@ void FirstRunBubble::InfoBubbleClosing(InfoBubble* info_bubble,
   if (!IsWindowEnabled(GetParent()))
     ::EnableWindow(GetParent(), true);
   enable_window_method_factory_.RevokeAll();
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(GetNativeView());
+  focus_manager->RemoveFocusChangeListener(view_);
 }
 
+// static
 FirstRunBubble* FirstRunBubble::Show(Profile* profile, HWND parent_hwnd,
                                      const gfx::Rect& position_relative_to) {
   FirstRunBubble* window = new FirstRunBubble();
-  views::View* view = new FirstRunBubbleView(window, profile);
+  FirstRunBubbleView* view = new FirstRunBubbleView(window, profile);
   window->SetDelegate(window);
+  window->set_view(view);
   window->Init(parent_hwnd, position_relative_to, view);
   window->ShowWindow(SW_SHOW);
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(window->GetNativeView());
+  focus_manager->AddFocusChangeListener(view);
   return window;
 }
 

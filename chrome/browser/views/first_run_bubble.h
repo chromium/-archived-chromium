@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H__
-#define CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H__
+#ifndef CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H_
+#define CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H_
 
 #include "base/task.h"
 #include "chrome/browser/views/info_bubble.h"
 
+class FirstRunBubbleView;
 class Profile;
 
 class FirstRunBubble : public InfoBubble,
@@ -18,7 +19,8 @@ class FirstRunBubble : public InfoBubble,
 
   FirstRunBubble()
       : enable_window_method_factory_(this),
-        has_been_activated_(false) {
+        has_been_activated_(false),
+        view_(NULL) {
   }
 
   virtual ~FirstRunBubble() {
@@ -26,6 +28,8 @@ class FirstRunBubble : public InfoBubble,
     DCHECK(enable_window_method_factory_.empty());
     enable_window_method_factory_.RevokeAll();
   }
+
+  void set_view(FirstRunBubbleView* view) { view_ = view; }
 
   // Overridden from InfoBubble:
   virtual void OnActivate(UINT action, BOOL minimized, HWND window);
@@ -44,7 +48,10 @@ class FirstRunBubble : public InfoBubble,
 
   ScopedRunnableMethodFactory<FirstRunBubble> enable_window_method_factory_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(FirstRunBubble);
+  // The view inside the FirstRunBubble.
+  FirstRunBubbleView* view_;
+
+  DISALLOW_COPY_AND_ASSIGN(FirstRunBubble);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H__
+#endif  // CHROME_BROWSER_VIEWS_FIRST_RUN_BUBBLE_H_
