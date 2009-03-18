@@ -11,11 +11,6 @@ class CommandLine;
 
 class DebugFlags {
  public:
-  enum ChildProcessType {
-    RENDERER,
-    PLUGIN,
-    UNKNOWN
-  };
 
   // Updates the command line arguments with debug-related flags. If
   // debug flags have been used with this process, they will be

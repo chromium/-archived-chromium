@@ -4,19 +4,30 @@
 
 #include "chrome/browser/sandbox_policy.h"
 
+#include "base/command_line.h"
+#include "base/debug_util.h"
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/process_util.h"
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
+#include "chrome/browser/browser_process.h"
+#include "chrome/common/child_process_info.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/chrome_switches.h"
+#include "chrome/common/debug_flags.h"
 #include "chrome/common/ipc_logging.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
+#include "sandbox/src/sandbox.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
 namespace {
+
+const wchar_t* const kDesktopName = L"ChromeRendererDesktop";
 
 // The DLLs listed here are known (or under strong suspicion) of causing crashes
 // when they are loaded in the renderer.
@@ -67,16 +78,18 @@ const wchar_t* const kTroublesomeDlls[] = {
   L"winstylerthemehelper.dll"     // Tuneup utilities 2006.
 };
 
-}  // namespace
+enum PluginPolicyCategory {
+  PLUGIN_GROUP_TRUSTED,
+  PLUGIN_GROUP_UNTRUSTED,
+};
 
+// Returns the policy category for the plugin dll.
 PluginPolicyCategory GetPolicyCategoryForPlugin(
-    const FilePath& dll,
-    const std::wstring& clsid,
+    const std::wstring& dll,
     const std::wstring& list) {
-  std::wstring filename = dll.BaseName().value();
+  std::wstring filename = FilePath(dll).BaseName().value();
   std::wstring plugin_dll = StringToLowerASCII(filename);
   std::wstring trusted_plugins = StringToLowerASCII(list);
-  std::wstring activex_clsid = StringToLowerASCII(clsid);
 
   size_t pos = 0;
   size_t end_item = 0;
@@ -86,10 +99,8 @@ PluginPolicyCategory GetPolicyCategoryForPlugin(
     size_t size_item = (end_item == std::wstring::npos) ? end_item :
                                                           end_item - pos;
     std::wstring item = list.substr(pos, size_item);
-    if (!item.empty()) {
-      if (item == activex_clsid || item == plugin_dll)
-        return PLUGIN_GROUP_TRUSTED;
-    }
+    if (!item.empty() && item == plugin_dll)
+      return PLUGIN_GROUP_TRUSTED;
 
     pos = end_item + 1;
   }
@@ -145,22 +156,21 @@ bool AddKeyAndSubkeys(std::wstring key,
   return true;
 }
 
+// Adds policy rules for unloaded the known dlls that cause chrome to crash.
 // Eviction of injected DLLs is done by the sandbox so that the injected module
 // does not get a chance to execute any code.
-bool AddDllEvictionPolicy(sandbox::TargetPolicy* policy) {
+void AddDllEvictionPolicy(sandbox::TargetPolicy* policy) {
   for (int ix = 0; ix != arraysize(kTroublesomeDlls); ++ix) {
     // To minimize the list we only add an unload policy if the dll is also
     // loaded in this process. All the injected dlls of interest do this.
     if (::GetModuleHandleW(kTroublesomeDlls[ix])) {
       LOG(WARNING) << "dll to unload found: " << kTroublesomeDlls[ix];
-      if (sandbox::SBOX_ALL_OK != policy->AddDllToUnload(kTroublesomeDlls[ix]))
-        return false;
+      policy->AddDllToUnload(kTroublesomeDlls[ix]);
     }
   }
-
-  return true;
 }
 
+// Adds the generic policy rules to a sandbox TargetPolicy.
 bool AddGenericPolicy(sandbox::TargetPolicy* policy) {
   sandbox::ResultCode result;
 
@@ -204,12 +214,16 @@ bool AddGenericPolicy(sandbox::TargetPolicy* policy) {
   return true;
 }
 
+// Creates a sandbox without any restriction.
 bool ApplyPolicyForTrustedPlugin(sandbox::TargetPolicy* policy) {
   policy->SetJobLevel(sandbox::JOB_UNPROTECTED, 0);
   policy->SetTokenLevel(sandbox::USER_UNPROTECTED, sandbox::USER_UNPROTECTED);
   return true;
 }
 
+// Creates a sandbox with the plugin running in a restricted environment.
+// Only the "Users" and "Everyone" groups are enabled in the token. The User SID
+// is disabled.
 bool ApplyPolicyForUntrustedPlugin(sandbox::TargetPolicy* policy) {
   policy->SetJobLevel(sandbox::JOB_UNPROTECTED, 0);
 
@@ -266,22 +280,28 @@ bool ApplyPolicyForUntrustedPlugin(sandbox::TargetPolicy* policy) {
   return true;
 }
 
-bool AddPolicyForPlugin(const FilePath &plugin_dll,
-                        const std::string &activex_clsid,
-                        const std::wstring &trusted_plugins,
+// Adds the custom policy rules for a given plugin. |trusted_plugins| contains
+// the comma separate list of plugins that should not be sandboxed. The plugin
+// in the list can be either the plugin dll name of the class id if it's an
+// ActiveX.
+bool AddPolicyForPlugin(const CommandLine* cmd_line,
                         sandbox::TargetPolicy* policy) {
+  std::wstring plugin_dll = cmd_line->
+      GetSwitchValue(switches::kPluginPath);
+  std::wstring trusted_plugins = CommandLine::ForCurrentProcess()->
+      GetSwitchValue(switches::kTrustedPlugins);
   // Add the policy for the pipes.
   sandbox::ResultCode result = sandbox::SBOX_ALL_OK;
   result = policy->AddRule(sandbox::TargetPolicy::SUBSYS_NAMED_PIPES,
                            sandbox::TargetPolicy::NAMEDPIPES_ALLOW_ANY,
                            L"\\\\.\\pipe\\chrome.*");
-  if (result != sandbox::SBOX_ALL_OK)
+  if (result != sandbox::SBOX_ALL_OK) {
+    NOTREACHED();
     return false;
-
-  std::wstring clsid = UTF8ToWide(activex_clsid);
+  }
 
   PluginPolicyCategory policy_category =
-      GetPolicyCategoryForPlugin(plugin_dll, clsid, trusted_plugins);
+      GetPolicyCategoryForPlugin(plugin_dll, trusted_plugins);
 
   switch (policy_category) {
     case PLUGIN_GROUP_TRUSTED:
@@ -295,3 +315,123 @@ bool AddPolicyForPlugin(const FilePath &plugin_dll,
 
   return false;
 }
+
+void AddPolicyForRenderer(HDESK desktop, sandbox::TargetPolicy* policy) {
+  policy->SetJobLevel(sandbox::JOB_LOCKDOWN, 0);
+
+  sandbox::TokenLevel initial_token = sandbox::USER_UNPROTECTED;
+  if (win_util::GetWinVersion() > win_util::WINVERSION_XP) {
+    // On 2003/Vista the initial token has to be restricted if the main
+    // token is restricted.
+    initial_token = sandbox::USER_RESTRICTED_SAME_ACCESS;
+  }
+
+  policy->SetTokenLevel(initial_token, sandbox::USER_LOCKDOWN);
+  policy->SetDelayedIntegrityLevel(sandbox::INTEGRITY_LEVEL_LOW);
+
+  if (desktop) {
+    policy->SetDesktop(kDesktopName);
+  } else {
+    DLOG(WARNING) << "Failed to apply desktop security to the renderer";
+  }
+
+  AddDllEvictionPolicy(policy);
+}
+
+}  // namespace
+
+namespace sandbox {
+
+base::ProcessHandle StartProcess(CommandLine* cmd_line) {
+  base::ProcessHandle process = 0;
+  const CommandLine& browser_command_line = *CommandLine::ForCurrentProcess();
+  ChildProcessInfo::ProcessType type;
+  std::wstring type_str = cmd_line->GetSwitchValue(switches::kProcessType);
+  if (type_str == switches::kRendererProcess) {
+    type = ChildProcessInfo::RENDER_PROCESS;
+  } else if (type_str == switches::kPluginProcess) {
+    type = ChildProcessInfo::PLUGIN_PROCESS;
+  } else if (type_str == switches::kWorkerProcess) {
+    type = ChildProcessInfo::WORKER_PROCESS;
+  } else {
+    NOTREACHED();
+    return 0;
+  }
+
+  bool in_sandbox =
+      !browser_command_line.HasSwitch(switches::kNoSandbox) &&
+      (type != ChildProcessInfo::PLUGIN_PROCESS ||
+       browser_command_line.HasSwitch(switches::kSafePlugins));
+#if !defined (GOOGLE_CHROME_BUILD)
+  if (browser_command_line.HasSwitch(switches::kInProcessPlugins)) {
+    // In process plugins won't work if the sandbox is enabled.
+    in_sandbox = false;
+  }
+#endif
+
+  bool child_needs_help =
+      DebugFlags::ProcessDebugFlags(cmd_line, type, in_sandbox);
+
+  if (!in_sandbox) {
+    base::LaunchApp(*cmd_line, false, false, &process);
+    return process;
+  }
+
+  // spawn the child process in the sandbox
+  sandbox::BrokerServices* broker_service =
+      g_browser_process->broker_services();
+
+  sandbox::ResultCode result;
+  PROCESS_INFORMATION target = {0};
+  sandbox::TargetPolicy* policy = broker_service->CreatePolicy();
+
+  HDESK desktop = NULL;
+  if (type == ChildProcessInfo::PLUGIN_PROCESS) {
+    if (!AddPolicyForPlugin(cmd_line, policy))
+      return 0;
+  } else {
+    desktop = CreateDesktop(
+      kDesktopName, NULL, NULL, 0, DESKTOP_CREATEWINDOW, NULL);
+    AddPolicyForRenderer(desktop, policy);
+  }
+
+  if (!AddGenericPolicy(policy)) {
+    NOTREACHED();
+    if (desktop)
+      CloseDesktop(desktop);
+    return 0;
+  }
+
+  result = broker_service->SpawnTarget(
+      cmd_line->program().c_str(),
+      cmd_line->command_line_string().c_str(),
+      policy, &target);
+  policy->Release();
+
+  if (desktop)
+    CloseDesktop(desktop);
+
+  if (sandbox::SBOX_ALL_OK != result)
+    return 0;
+
+  if (type == ChildProcessInfo::RENDER_PROCESS) {
+    bool on_sandbox_desktop = (desktop != NULL);
+    NotificationService::current()->Notify(
+        NotificationType::RENDERER_PROCESS_IN_SBOX,
+        NotificationService::AllSources(),
+        Details<bool>(&on_sandbox_desktop));
+  }
+
+  ResumeThread(target.hThread);
+  CloseHandle(target.hThread);
+  process = target.hProcess;
+
+  // Help the process a little. It can't start the debugger by itself if
+  // the process is in a sandbox.
+  if (child_needs_help)
+    DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
+
+  return process;
+}
+
+} // namespace sandbox

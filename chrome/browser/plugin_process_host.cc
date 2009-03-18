@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "base/command_line.h"
-#include "base/debug_util.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/file_version_info.h"
@@ -33,7 +32,6 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/debug_flags.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/cookie_monster.h"
@@ -374,7 +372,7 @@ PluginProcessHost::PluginProcessHost()
 PluginProcessHost::~PluginProcessHost() {
   // Cancel all requests for plugin process.
   PluginService::GetInstance()->resource_dispatcher_host()->
-      CancelRequestsForProcess(pid());
+      CancelRequestsForProcess(GetProcessId());
 
 #if defined(OS_WIN)
   // We erase HWNDs from the plugin_parent_windows_set_ when we receive a
@@ -472,61 +470,17 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
   cmd_line.AppendSwitchWithValue(switches::kPluginPath,
                                  info.path.ToWStringHack());
 
-  bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox) &&
-                    browser_command_line.HasSwitch(switches::kSafePlugins);
-
-  if (in_sandbox) {
+  base::ProcessHandle process = 0;
 #if defined(OS_WIN)
-    bool child_needs_help = DebugFlags::ProcessDebugFlags(&cmd_line, type(),
-                                                          in_sandbox);
-    // spawn the child process in the sandbox
-    sandbox::BrokerServices* broker_service =
-        g_browser_process->broker_services();
-
-    sandbox::ResultCode result;
-    PROCESS_INFORMATION target = {0};
-    sandbox::TargetPolicy* policy = broker_service->CreatePolicy();
-
-    std::wstring trusted_plugins =
-        browser_command_line.GetSwitchValue(switches::kTrustedPlugins);
-    if (!AddPolicyForPlugin(info.path, activex_clsid, trusted_plugins,
-                            policy)) {
-      NOTREACHED();
-      return false;
-    }
-
-    if (!AddGenericPolicy(policy)) {
-      NOTREACHED();
-      return false;
-    }
-
-    result =
-        broker_service->SpawnTarget(exe_path.c_str(),
-                                    cmd_line.command_line_string().c_str(),
-                                    policy, &target);
-    policy->Release();
-    if (sandbox::SBOX_ALL_OK != result)
-      return false;
-
-    ResumeThread(target.hThread);
-    CloseHandle(target.hThread);
-    SetHandle(target.hProcess);
-
-    // Help the process a little. It can't start the debugger by itself if
-    // the process is in a sandbox.
-    if (child_needs_help)
-      DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
+  process = sandbox::StartProcess(&cmd_line);
 #else
-    // TODO(port): Implement sandboxing.
-    NOTIMPLEMENTED() << "no support for sandboxing.";
+  // spawn child process
+  base::LaunchApp(cmd_line, false, false, &process);
 #endif
-  } else {
-    // spawn child process
-    base::ProcessHandle handle;
-    if (!base::LaunchApp(cmd_line, false, false, &handle))
-      return false;
-    SetHandle(handle);
-  }
+
+  if (!process)
+    return false;
+  SetHandle(process);
 
   FilePath gears_path;
   if (PathService::Get(chrome::FILE_GEARS_PLUGIN, &gears_path)) {

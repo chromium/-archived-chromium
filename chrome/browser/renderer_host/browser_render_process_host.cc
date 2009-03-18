@@ -12,7 +12,6 @@
 #include <algorithm>
 
 #include "base/command_line.h"
-#include "base/debug_util.h"
 #include "base/linked_ptr.h"
 #include "base/logging.h"
 #include "base/path_service.h"
@@ -35,7 +34,6 @@
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/child_process_info.h"
-#include "chrome/common/debug_flags.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -118,8 +116,6 @@ const int32 kInvalidViewID = -1;
 bool GetRendererPath(std::wstring* cmd_line) {
   return PathService::Get(base::FILE_EXE, cmd_line);
 }
-
-const wchar_t* const kDesktopName = L"ChromeRendererDesktop";
 
 BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
     : RenderProcessHost(profile),
@@ -281,21 +277,7 @@ bool BrowserRenderProcessHost::Init() {
   const std::wstring locale = g_browser_process->GetApplicationLocale();
   cmd_line.AppendSwitchWithValue(switches::kLang, locale);
 
-#if defined(OS_WIN)
-  bool in_sandbox = !browser_command_line.HasSwitch(switches::kNoSandbox);
-#if !defined (GOOGLE_CHROME_BUILD)
-  if (browser_command_line.HasSwitch(switches::kInProcessPlugins)) {
-    // In process plugins won't work if the sandbox is enabled.
-    in_sandbox = false;
-  }
-#endif
-
-  bool child_needs_help =
-      DebugFlags::ProcessDebugFlags(&cmd_line,
-                                    ChildProcessInfo::RENDER_PROCESS,
-                                    in_sandbox);
-// OS_WIN ends here
-#elif defined(OS_POSIX)
+#if defined(OS_POSIX)
   if (browser_command_line.HasSwitch(switches::kRendererCmdPrefix)) {
     // launch the renderer child with some prefix (usually "gdb --args")
     const std::wstring prefix =
@@ -333,85 +315,22 @@ bool BrowserRenderProcessHost::Init() {
     options.message_loop_type = MessageLoop::TYPE_IO;
     in_process_renderer_->StartWithOptions(options);
   } else {
+    base::ProcessHandle process = 0;
 #if defined(OS_WIN)
-    if (in_sandbox) {
-      // spawn the child process in the sandbox
-      sandbox::BrokerServices* broker_service =
-          g_browser_process->broker_services();
-
-      sandbox::ResultCode result;
-      PROCESS_INFORMATION target = {0};
-      sandbox::TargetPolicy* policy = broker_service->CreatePolicy();
-      policy->SetJobLevel(sandbox::JOB_LOCKDOWN, 0);
-
-      sandbox::TokenLevel initial_token = sandbox::USER_UNPROTECTED;
-      if (win_util::GetWinVersion() > win_util::WINVERSION_XP) {
-        // On 2003/Vista the initial token has to be restricted if the main
-        // token is restricted.
-        initial_token = sandbox::USER_RESTRICTED_SAME_ACCESS;
-      }
-
-      policy->SetTokenLevel(initial_token, sandbox::USER_LOCKDOWN);
-      policy->SetDelayedIntegrityLevel(sandbox::INTEGRITY_LEVEL_LOW);
-
-      HDESK desktop = CreateDesktop(kDesktopName, NULL, NULL, 0,
-                                    DESKTOP_CREATEWINDOW, NULL);
-      if (desktop) {
-        policy->SetDesktop(kDesktopName);
-      } else {
-        DLOG(WARNING) << "Failed to apply desktop security to the renderer";
-      }
-
-      if (!AddGenericPolicy(policy)) {
-        NOTREACHED();
-        channel_.reset();
-        return false;
-      }
-
-      if (!AddDllEvictionPolicy(policy)) {
-        NOTREACHED();
-        channel_.reset();
-        return false;
-      }
-
-      result =
-          broker_service->SpawnTarget(renderer_path.c_str(),
-                                      cmd_line.command_line_string().c_str(),
-                                      policy, &target);
-      policy->Release();
-
-      if (desktop)
-        CloseDesktop(desktop);
-
-      if (sandbox::SBOX_ALL_OK != result) {
-        channel_.reset();
-        return false;
-      }
-
-      bool on_sandbox_desktop = (desktop != NULL);
-      NotificationService::current()->Notify(
-          NotificationType::RENDERER_PROCESS_IN_SBOX,
-          Source<BrowserRenderProcessHost>(this),
-          Details<bool>(&on_sandbox_desktop));
-
-      ResumeThread(target.hThread);
-      CloseHandle(target.hThread);
-      process_.set_handle(target.hProcess);
-
-      // Help the process a little. It can't start the debugger by itself if
-      // the process is in a sandbox.
-      if (child_needs_help)
-        DebugUtil::SpawnDebuggerOnProcess(target.dwProcessId);
-    } else
-#endif  // OS_WIN and sandbox
-    {
-      // spawn child process
-      base::ProcessHandle process = 0;
-      if (!SpawnChild(cmd_line, channel_.get(), &process))
-        return false;
-      process_.set_handle(process);
+    process = sandbox::StartProcess(&cmd_line);
+#else
+    base::file_handle_mapping_vector fds_to_map;
+    int src_fd = -1, dest_fd = -1;
+    channel_->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+    if (src_fd > -1)
+      fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
+    base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
+#endif
+    if (!process) {
+      channel_.reset();
+      return false;
     }
-
+    process_.set_handle(process);
     SetProcessID(process_.pid());
   }
 
@@ -430,24 +349,6 @@ bool BrowserRenderProcessHost::Init() {
 
   return true;
 }
-
-#if defined(OS_WIN)
-bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line,
-    IPC::SyncChannel* channel, base::ProcessHandle* process_handle) {
-  return base::LaunchApp(command_line, false, false, process_handle);
-}
-#elif defined(OS_POSIX)
-bool BrowserRenderProcessHost::SpawnChild(const CommandLine& command_line,
-    IPC::SyncChannel* channel, base::ProcessHandle* process_handle) {
-  base::file_handle_mapping_vector fds_to_map;
-  int src_fd = -1, dest_fd = -1;
-  channel->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
-  if (src_fd > -1)
-    fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
-  return base::LaunchApp(command_line.argv(), fds_to_map, false,
-                         process_handle);
-}
-#endif
 
 int BrowserRenderProcessHost::GetNextRoutingID() {
   return widget_helper_->GetNextRoutingID();

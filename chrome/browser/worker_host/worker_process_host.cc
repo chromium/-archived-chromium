@@ -17,6 +17,10 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/worker_messages.h"
 
+#if defined(OS_WIN)
+#include "chrome/browser/sandbox_policy.h"
+#endif
+
 
 WorkerProcessHost::WorkerProcessHost(
     ResourceDispatcherHost* resource_dispatcher_host_)
@@ -38,16 +42,18 @@ bool WorkerProcessHost::Init() {
     return false;
 
   CommandLine cmd_line(exe_path);
-
-  // TODO(jabdelmalek): factor out common code from renderer/plugin that does
-  // sandboxing and command line copying and reuse here.
   cmd_line.AppendSwitchWithValue(switches::kProcessType,
                                  switches::kWorkerProcess);
   cmd_line.AppendSwitchWithValue(switches::kProcessChannelID, channel_id());
-  base::ProcessHandle handle;
-  if (!base::LaunchApp(cmd_line, false, false, &handle))
+  base::ProcessHandle process;
+#if defined(OS_WIN)
+  process = sandbox::StartProcess(&cmd_line);
+#else
+  base::LaunchApp(cmd_line, false, false, &process);
+#endif
+  if (!process)
     return false;
-  SetHandle(handle);
+  SetHandle(process);
 
   return true;
 }

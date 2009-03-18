@@ -12,7 +12,11 @@
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/win_util.h"
 #include "chrome/worker/worker_process.h"
+
+#if defined(OS_WIN)
+#include "chrome/common/sandbox_init_wrapper.h"
 #include "sandbox/src/sandbox.h"
+#endif
 
 // Mainline routine for running as the worker process.
 int WorkerMain(const MainFunctionParams& parameters) {
@@ -26,10 +30,15 @@ int WorkerMain(const MainFunctionParams& parameters) {
   // Initialize the SystemMonitor
   base::SystemMonitor::Start();
 
-  // TODO(jabdelmalek): refactor sandboxing code from renderer so that the
-  // workers are sandboxed.
-
   WorkerProcess worker_process;
+#if defined(OS_WIN)
+  sandbox::TargetServices* target_services =
+      parameters.sandbox_info_.TargetServices();
+  if (!target_services)
+    return false;
+
+  target_services->LowerToken();
+#endif
 
   // Load the accelerator table from the browser executable and tell the
   // message loop to use it when translating messages.

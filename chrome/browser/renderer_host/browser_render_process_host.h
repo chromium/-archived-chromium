@@ -109,11 +109,6 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // set of scripts and listen for updates to scripts.
   void InitUserScripts();
 
-  // Handles actually spawning the renderer process with the appropriate options
-  // for each platform.
-  bool SpawnChild(const CommandLine& command_line,
-      IPC::SyncChannel* channel, base::ProcessHandle* process_handle);
-
   // Sends the renderer process a new set of user scripts.
   void SendUserScriptsUpdate(base::SharedMemory* shared_memory);
 
