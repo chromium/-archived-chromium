@@ -7,18 +7,18 @@
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/object_watcher.h"
+#include "base/ref_counted.h"
 
-// Private implementation class implementing the behavior of DirectoryWatcher.
-class DirectoryWatcher::Impl : public base::RefCounted<DirectoryWatcher::Impl>,
-                               public base::ObjectWatcher::Delegate {
+namespace {
+
+class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate,
+                             public base::ObjectWatcher::Delegate {
  public:
-  Impl(DirectoryWatcher::Delegate* delegate)
-      : delegate_(delegate), handle_(INVALID_HANDLE_VALUE) {}
-  ~Impl();
+  DirectoryWatcherImpl() : handle_(INVALID_HANDLE_VALUE) {}
+  virtual ~DirectoryWatcherImpl();
 
-  // Register interest in any changes in |path|.
-  // Returns false on error.
-  bool Watch(const FilePath& path);
+  virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
+                     bool recursive);
 
   // Callback from MessageLoopForIO.
   virtual void OnObjectSignaled(HANDLE object);
@@ -32,20 +32,27 @@ class DirectoryWatcher::Impl : public base::RefCounted<DirectoryWatcher::Impl>,
   HANDLE handle_;
   // ObjectWatcher to watch handle_ for events.
   base::ObjectWatcher watcher_;
+
+  DISALLOW_COPY_AND_ASSIGN(DirectoryWatcherImpl);
 };
 
-DirectoryWatcher::Impl::~Impl() {
+DirectoryWatcherImpl::~DirectoryWatcherImpl() {
   if (handle_ != INVALID_HANDLE_VALUE) {
     watcher_.StopWatching();
     FindCloseChangeNotification(handle_);
   }
 }
 
-bool DirectoryWatcher::Impl::Watch(const FilePath& path) {
+bool DirectoryWatcherImpl::Watch(const FilePath& path,
+    DirectoryWatcher::Delegate* delegate, bool recursive) {
   DCHECK(path_.value().empty());  // Can only watch one path.
 
-  // NOTE: If you want to change this code to *not* watch subdirectories, have a
-  // look at http://code.google.com/p/chromium/issues/detail?id=5072 first.
+  if (!recursive) {
+    // See http://crbug.com/5072.
+    NOTIMPLEMENTED();
+    return false;
+  }
+
   handle_ = FindFirstChangeNotification(
       path.value().c_str(),
       TRUE,  // Watch subtree.
@@ -54,16 +61,17 @@ bool DirectoryWatcher::Impl::Watch(const FilePath& path) {
   if (handle_ == INVALID_HANDLE_VALUE)
     return false;
 
+  delegate_ = delegate;
   path_ = path;
   watcher_.StartWatching(handle_, this);
 
   return true;
 }
 
-void DirectoryWatcher::Impl::OnObjectSignaled(HANDLE object) {
+void DirectoryWatcherImpl::OnObjectSignaled(HANDLE object) {
   DCHECK(object == handle_);
   // Make sure we stay alive through the body of this function.
-  scoped_refptr<DirectoryWatcher::Impl> keep_alive(this);
+  scoped_refptr<DirectoryWatcherImpl> keep_alive(this);
 
   delegate_->OnDirectoryChanged(path_);
 
@@ -73,20 +81,8 @@ void DirectoryWatcher::Impl::OnObjectSignaled(HANDLE object) {
   watcher_.StartWatching(object, this);
 }
 
+}  // namespace
+
 DirectoryWatcher::DirectoryWatcher() {
-}
-
-DirectoryWatcher::~DirectoryWatcher() {
-  // Declared in .cc file for access to ~DirectoryWatcher::Impl.
-}
-
-bool DirectoryWatcher::Watch(const FilePath& path,
-                             Delegate* delegate, bool recursive) {
-  if (!recursive) {
-    // See http://crbug.com/5072.
-    NOTIMPLEMENTED();
-    return false;
-  }
-  impl_ = new DirectoryWatcher::Impl(delegate);
-  return impl_->Watch(path);
+  impl_ = new DirectoryWatcherImpl();
 }

@@ -7,7 +7,6 @@
 #ifndef BASE_DIRECTORY_WATCHER_H_
 #define BASE_DIRECTORY_WATCHER_H_
 
-#include <string>
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 
@@ -24,18 +23,26 @@ class DirectoryWatcher {
   };
 
   DirectoryWatcher();
-  ~DirectoryWatcher();
+  ~DirectoryWatcher() {}
 
   // Register interest in any changes in the directory |path|.
   // OnDirectoryChanged will be called back for each change within the dir.
   // If |recursive| is true, the delegate will be notified for each change
   // within the directory tree starting at |path|. Returns false on error.
-  bool Watch(const FilePath& path, Delegate* delegate, bool recursive);
+  bool Watch(const FilePath& path, Delegate* delegate, bool recursive) {
+    return impl_->Watch(path, delegate, recursive);
+  }
+
+  // Used internally to encapsulate different members on different platforms.
+  class PlatformDelegate : public base::RefCounted<PlatformDelegate> {
+   public:
+    virtual ~PlatformDelegate() {}
+    virtual bool Watch(const FilePath& path, Delegate* delegate,
+                       bool recursive) = 0;
+  };
 
  private:
-  class Impl;
-  friend class Impl;
-  scoped_refptr<Impl> impl_;
+  scoped_refptr<PlatformDelegate> impl_;
 
   DISALLOW_COPY_AND_ASSIGN(DirectoryWatcher);
 };

@@ -167,6 +167,8 @@ class InotifyReaderNotifyTask : public Task {
  private:
   DirectoryWatcher::Delegate* delegate_;
   FilePath path_;
+
+  DISALLOW_COPY_AND_ASSIGN(InotifyReaderNotifyTask);
 };
 
 InotifyReader::InotifyReader()
@@ -264,21 +266,13 @@ void InotifyReader::OnInotifyEvent(inotify_event* event) {
   }
 }
 
-}  // namespace
-
-// Private implementation class implementing the behavior of DirectoryWatcher.
-class DirectoryWatcher::Impl : public base::RefCounted<DirectoryWatcher::Impl> {
+class DirectoryWatcherImpl : public DirectoryWatcher::PlatformDelegate {
  public:
-  Impl(DirectoryWatcher::Delegate* delegate)
-      : delegate_(delegate),
-        watch_(InotifyReader::kInvalidWatch) {
-  }
+  DirectoryWatcherImpl() : watch_(InotifyReader::kInvalidWatch) {}
+  ~DirectoryWatcherImpl();
 
-  ~Impl();
-
-  // Register interest in any changes in |path|.
-  // Returns false on error.
-  bool Watch(const FilePath& path);
+  virtual bool Watch(const FilePath& path, DirectoryWatcher::Delegate* delegate,
+                     bool recursive);
 
  private:
   // Delegate to notify upon changes.
@@ -289,31 +283,19 @@ class DirectoryWatcher::Impl : public base::RefCounted<DirectoryWatcher::Impl> {
 
   // Watch returned by InotifyReader.
   InotifyReader::Watch watch_;
+
+  DISALLOW_COPY_AND_ASSIGN(DirectoryWatcherImpl);
 };
 
-DirectoryWatcher::Impl::~Impl() {
+DirectoryWatcherImpl::~DirectoryWatcherImpl() {
   if (watch_ != InotifyReader::kInvalidWatch)
     Singleton<InotifyReader>::get()->RemoveWatch(watch_, delegate_);
 }
 
-bool DirectoryWatcher::Impl::Watch(const FilePath& path) {
+bool DirectoryWatcherImpl::Watch(const FilePath& path,
+    DirectoryWatcher::Delegate* delegate, bool recursive) {
   DCHECK(watch_ == InotifyReader::kInvalidWatch);  // Can only watch one path.
 
-  path_ = path;
-  watch_ = Singleton<InotifyReader>::get()->AddWatch(path, delegate_);
-
-  return watch_ != InotifyReader::kInvalidWatch;
-}
-
-DirectoryWatcher::DirectoryWatcher() {
-}
-
-DirectoryWatcher::~DirectoryWatcher() {
-  // Declared in .cc file for access to ~DirectoryWatcher::Impl.
-}
-
-bool DirectoryWatcher::Watch(const FilePath& path,
-                             Delegate* delegate, bool recursive) {
   if (recursive) {
     // TODO(phajdan.jr): Support recursive watches.
     // Unfortunately inotify has no "native" support for them, but it can be
@@ -324,6 +306,16 @@ bool DirectoryWatcher::Watch(const FilePath& path,
     NOTIMPLEMENTED();
     return false;
   }
-  impl_ = new DirectoryWatcher::Impl(delegate);
-  return impl_->Watch(path);
+
+  delegate_ = delegate;
+  path_ = path;
+  watch_ = Singleton<InotifyReader>::get()->AddWatch(path, delegate_);
+
+  return watch_ != InotifyReader::kInvalidWatch;
+}
+
+}  // namespace
+
+DirectoryWatcher::DirectoryWatcher() {
+  impl_ = new DirectoryWatcherImpl();
 }
