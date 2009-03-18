@@ -12,6 +12,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/accessibility/view_accessibility.h"
+#include "chrome/views/controls/native_control_win.h"
 #include "chrome/views/widget/aero_tooltip_manager.h"
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
@@ -32,6 +33,11 @@ bool SetRootViewForHWND(HWND hwnd, RootView* root_view) {
 
 RootView* GetRootViewForHWND(HWND hwnd) {
   return reinterpret_cast<RootView*>(::GetProp(hwnd, kRootViewWindowProperty));
+}
+
+NativeControlWin* GetNativeControlWinForHWND(HWND hwnd) {
+  return reinterpret_cast<NativeControlWin*>(
+      ::GetProp(hwnd, NativeControlWin::kNativeControlWinKey));
 }
 
 // Used to locate the WidgetWin issuing the current Create. Only valid for the
@@ -928,6 +934,51 @@ std::wstring WidgetWin::GetWindowClassName() {
   return name;
 }
 
+// Get the source HWND of the specified message. Depending on the message, the
+// source HWND is encoded in either the WPARAM or the LPARAM value.
+HWND GetControlHWNDForMessage(UINT message, WPARAM w_param, LPARAM l_param) {
+  // Each of the following messages can be sent by a child HWND and must be
+  // forwarded to its associated NativeControlWin for handling.
+  switch (message) {
+    case WM_NOTIFY:
+      return reinterpret_cast<NMHDR*>(l_param)->hwndFrom;
+    case WM_COMMAND:
+      return reinterpret_cast<HWND>(l_param);
+    case WM_CONTEXTMENU:
+      return reinterpret_cast<HWND>(w_param);
+    case WM_CTLCOLORBTN:
+    case WM_CTLCOLORSTATIC:
+      return reinterpret_cast<HWND>(l_param);
+  }
+  return NULL;
+}
+
+// Some messages may be sent to us by a child HWND managed by
+// NativeControlWin. If this is the case, this function will forward those
+// messages on to the object associated with the source HWND and return true,
+// in which case the window procedure must not do any further processing of
+// the message. If there is no associated NativeControlWin, the return value
+// will be false and the WndProc can continue processing the message normally.
+// |l_result| contains the result of the message processing by the control and
+// must be returned by the WndProc if the return value is true.
+bool ProcessNativeControlMessage(UINT message,
+                                 WPARAM w_param,
+                                 LPARAM l_param,
+                                 LRESULT* l_result) {
+  *l_result = 0;
+
+  HWND control_hwnd = GetControlHWNDForMessage(message, w_param, l_param);
+  if (IsWindow(control_hwnd)) {
+    NativeControlWin* wrapper = GetNativeControlWinForHWND(control_hwnd);
+    if (wrapper) {
+      *l_result = wrapper->ProcessMessage(message, w_param, l_param);
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // static
 LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
                                     WPARAM w_param, LPARAM l_param) {
@@ -939,11 +990,21 @@ LRESULT CALLBACK WidgetWin::WndProc(HWND window, UINT message,
     widget->hwnd_ = window;
     return TRUE;
   }
+
   WidgetWin* widget = reinterpret_cast<WidgetWin*>(
       win_util::GetWindowUserData(window));
   if (!widget)
     return 0;
+
   LRESULT result = 0;
+
+  // First allow messages sent by child controls to be processed directly by
+  // their associated views. If such a view is present, it will handle the
+  // message *instead of* this WidgetWin.
+  if (ProcessNativeControlMessage(message, w_param, l_param, &result))
+    return result;
+
+  // Otherwise we handle everything else.
   if (!widget->ProcessWindowMessage(window, message, w_param, l_param, result))
     result = DefWindowProc(window, message, w_param, l_param);
   if (message == WM_NCDESTROY) {

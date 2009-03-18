@@ -499,6 +499,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\controls\native_control_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\controls\native_control_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\controls\scroll_view.cc"
 				>
 			</File>
@@ -603,6 +611,18 @@
 				</File>
 				<File
 					RelativePath=".\controls\button\native_button.h"
+					>
+				</File>
+				<File
+					RelativePath=".\controls\button\native_button_win.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\controls\button\native_button_win.h"
+					>
+				</File>
+				<File
+					RelativePath=".\controls\button\native_button_wrapper.h"
 					>
 				</File>
 				<File
