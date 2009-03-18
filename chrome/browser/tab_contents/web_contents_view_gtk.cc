@@ -36,13 +36,6 @@ gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
   return TRUE;
 }
 
-// Whenever we lose focus, set the cursor back to that of our parent window,
-// which should be the default arrow.
-gboolean OnFocusOut(GtkWidget* widget, GdkEventFocus* event, void*) {
-  gdk_window_set_cursor(widget->window, NULL);
-  return FALSE;
-}
-
 // Callback used in WebContentsViewGtk::CreateViewForWidget().
 void RemoveWidget(GtkWidget* widget, gpointer container) {
   gtk_container_remove(GTK_CONTAINER(container), widget);
@@ -77,11 +70,9 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   DCHECK(!render_widget_host->view());
   RenderWidgetHostViewGtk* view =
       new RenderWidgetHostViewGtk(render_widget_host);
-  gtk_widget_show(view->native_view());
+  view->InitAsChild();
   g_signal_connect(view->native_view(), "focus",
                    G_CALLBACK(OnFocus), web_contents_);
-  g_signal_connect(view->native_view(), "focus-out-event",
-                   G_CALLBACK(OnFocusOut), NULL);
   gtk_container_foreach(GTK_CONTAINER(vbox_.get()), RemoveWidget, vbox_.get());
   gtk_box_pack_start(GTK_BOX(vbox_.get()), view->native_view(), TRUE, TRUE, 0);
   return view;
@@ -193,11 +184,17 @@ WebContents* WebContentsViewGtk::CreateNewWindowInternal(
   return NULL;
 }
 
+// TODO(estade): unfork this from the version in web_contents_view_win.
 RenderWidgetHostView* WebContentsViewGtk::CreateNewWidgetInternal(
     int route_id,
     bool activatable) {
-  NOTIMPLEMENTED();
-  return NULL;
+  RenderWidgetHost* widget_host =
+      new RenderWidgetHost(web_contents_->process(), route_id);
+  RenderWidgetHostViewGtk* widget_view =
+      new RenderWidgetHostViewGtk(widget_host);
+  widget_view->set_activatable(activatable);
+
+  return widget_view;
 }
 
 void WebContentsViewGtk::ShowCreatedWindowInternal(
@@ -208,8 +205,19 @@ void WebContentsViewGtk::ShowCreatedWindowInternal(
   NOTIMPLEMENTED();
 }
 
+// TODO(estade): unfork this from the version in web_contents_view_win.
 void WebContentsViewGtk::ShowCreatedWidgetInternal(
     RenderWidgetHostView* widget_host_view,
     const gfx::Rect& initial_pos) {
-  NOTIMPLEMENTED();
+  RenderWidgetHostViewGtk* widget_host_view_gtk =
+      static_cast<RenderWidgetHostViewGtk*>(widget_host_view);
+
+  RenderWidgetHost* widget_host = widget_host_view->GetRenderWidgetHost();
+  if (!widget_host->process()->channel()) {
+    // The view has gone away or the renderer crashed. Nothing to do.
+    return;
+  }
+
+  widget_host_view_gtk->InitAsPopup(
+      web_contents_->render_widget_host_view(), initial_pos);
 }

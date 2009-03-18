@@ -402,7 +402,7 @@ RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
   RenderWidgetHostViewWin* widget_view =
       new RenderWidgetHostViewWin(widget_host);
 
-  // We set the parent HWDN explicitly as pop-up HWNDs are parented and owned by
+  // We set the parent HWND explicitly as pop-up HWNDs are parented and owned by
   // the first non-child HWND of the HWND that was specified to the CreateWindow
   // call.
   // TODO(brettw) this should not need to get the current RVHView from the

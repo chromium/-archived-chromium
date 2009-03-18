@@ -79,7 +79,7 @@ class RenderWidgetHostViewGtkWidget {
     NativeWebKeyboardEvent wke(event);
     host_view->GetRenderWidgetHost()->ForwardKeyboardEvent(wke);
     // We return TRUE because we did handle the event. If it turns out webkit
-    // can't handle the event, we'll deal with in
+    // can't handle the event, we'll deal with it in
     // RenderView::UnhandledKeyboardEvent().
     return TRUE;
   }
@@ -92,6 +92,9 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus,
                            RenderWidgetHostViewGtk* host_view) {
+    // Whenever we lose focus, set the cursor back to that of our parent window,
+    // which should be the default arrow.
+    gdk_window_set_cursor(widget->window, NULL);
     host_view->GetRenderWidgetHost()->Blur();
     return FALSE;
   }
@@ -127,6 +130,12 @@ class RenderWidgetHostViewGtkWidget {
   DISALLOW_IMPLICIT_CONSTRUCTORS(RenderWidgetHostViewGtkWidget);
 };
 
+gboolean OnPopupParentFocusOut(GtkWidget* parent, GdkEventFocus* focus,
+                               RenderWidgetHost* host) {
+  host->Shutdown();
+  return FALSE;
+}
+
 }  // namespace
 
 // static
@@ -136,16 +145,48 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 }
 
 RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
-    : host_(widget_host) {
+    : host_(widget_host),
+      parent_host_view_(NULL),
+      parent_(NULL),
+      popup_signal_id_(0),
+      activatable_(true) {
   host_->set_view(this);
-  // BUG 8707: We will live in some container (in this case in WebContents).
-  // We want to destroy during Destroy(), independent of how we are managed in
-  // any containers.  We need to sink the reference here to "own" the widget so
-  // it can be added and removed from containers without being destroyed.
-  view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
 }
 
 RenderWidgetHostViewGtk::~RenderWidgetHostViewGtk() {
+}
+
+void RenderWidgetHostViewGtk::InitAsChild() {
+  view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
+  gtk_widget_show(view_.get());
+}
+
+void RenderWidgetHostViewGtk::InitAsPopup(
+    RenderWidgetHostView* parent_host_view, const gfx::Rect& pos) {
+  parent_host_view_ = parent_host_view;
+  parent_ = parent_host_view->GetPluginNativeView();
+  GtkWidget* popup = gtk_window_new(GTK_WINDOW_POPUP);
+  view_.Own(RenderWidgetHostViewGtkWidget::CreateNewWidget(this));
+  gtk_container_add(GTK_CONTAINER(popup), view_.get());
+
+  // If we are not activatable, we don't want to grab keyboard input,
+  // and webkit will manage our destruction.
+  if (activatable_) {
+    // Grab all input for the app. If a click lands outside the bounds of the
+    // popup, WebKit will notice and destroy us.
+    gtk_grab_add(view_.get());
+    // We also destroy ourselves if our parent loses focus.
+    popup_signal_id_ = g_signal_connect(parent_, "focus-out-event",
+        G_CALLBACK(OnPopupParentFocusOut), host_);
+    // Our parent widget actually keeps GTK focus within its window, but we have
+    // to make the webkit selection box disappear to maintain appearances.
+    parent_host_view->Blur();
+  }
+
+  gtk_window_set_default_size(GTK_WINDOW(popup),
+                              pos.width(), pos.height());
+  gtk_widget_show_all(popup);
+  gtk_window_move(GTK_WINDOW(popup), pos.x(), pos.y());
 }
 
 void RenderWidgetHostViewGtk::DidBecomeSelected() {
@@ -176,11 +217,11 @@ void RenderWidgetHostViewGtk::MovePluginWindows(
 }
 
 void RenderWidgetHostViewGtk::Focus() {
-  NOTIMPLEMENTED();
+  host_->Focus();
 }
 
 void RenderWidgetHostViewGtk::Blur() {
-  NOTIMPLEMENTED();
+  host_->Blur();
 }
 
 bool RenderWidgetHostViewGtk::HasFocus() {
@@ -257,6 +298,16 @@ void RenderWidgetHostViewGtk::RenderViewGone() {
 }
 
 void RenderWidgetHostViewGtk::Destroy() {
+  // If |parent_| is non-null, we are a popup and we must disconnect from our
+  // parent and destroy the popup window.
+  if (parent_) {
+    if (activatable_) {
+      g_signal_handler_disconnect(parent_, popup_signal_id_);
+      parent_host_view_->Focus();
+    }
+    gtk_widget_destroy(gtk_widget_get_parent(view_.get()));
+  }
+
   // We need to disconnect ourselves from our parent widget at this time; this
   // does the right thing, automatically removing ourselves from our parent
   // container.

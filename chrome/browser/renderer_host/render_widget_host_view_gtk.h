@@ -22,6 +22,17 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   RenderWidgetHostViewGtk(RenderWidgetHost* widget);
   ~RenderWidgetHostViewGtk();
 
+  // Initialize this object for use as a drawing area.
+  void InitAsChild();
+
+  // Initialize this object for use as a popup (e.g. HTML dropdown menu).
+  void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                   const gfx::Rect& pos);
+
+  // TODO(estade): unfork this with RenderWidgetHostViewWin function of same
+  // name.
+  void set_activatable(bool activatable) { activatable_ = activatable; }
+
   // ---------------------------------------------------------------------------
   // Implementation of RenderWidgetHostView...
 
@@ -60,6 +71,21 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   RenderWidgetHost *const host_;
   // The native UI widget.
   OwnedWidgetGtk view_;
+  // Variables used only for popups --------------------------------------------
+  // Our parent widget.
+  RenderWidgetHostView* parent_host_view_;
+  // The native view of our parent, equivalent to
+  // parent_host_view_->GetPluginNativeView().
+  GtkWidget* parent_;
+  // We connect to the parent's focus out event. When we are destroyed, we need
+  // to remove this handler, so we must keep track of its id.
+  gulong popup_signal_id_;
+  // This variable determines our degree of control over user input. If we are
+  // activatable, we must grab and handle all user input. If we are not
+  // activatable, then our parent render view retains more control. Example of
+  // activatable popup: <select> dropdown. Example of non-activatable popup:
+  // form autocomplete.
+  bool activatable_;
 
   // The cursor for the page. This is passed up from the renderer.
   WebCursor current_cursor_;
