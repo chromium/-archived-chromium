@@ -40,7 +40,9 @@ class TestSuite {
     // Initialize().  See bug 6436.
   }
 
-  virtual ~TestSuite() {}
+  virtual ~TestSuite() {
+    CommandLine::Terminate();
+  }
 
   // Don't add additional code to this method.  Instead add it to
   // Initialize().  See bug 6436.
