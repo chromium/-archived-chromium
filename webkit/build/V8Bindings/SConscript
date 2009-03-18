@@ -372,7 +372,6 @@ inputs = [
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLOptionsCollectionCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLPlugInElementCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8HTMLSelectElementCustom.cpp',
-    '$WEBCORE_DIR/bindings/v8/custom/V8InspectorControllerCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8LocationCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8MessageChannelConstructor.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8NamedNodeMapCustom.cpp',

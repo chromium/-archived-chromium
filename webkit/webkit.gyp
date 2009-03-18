@@ -995,7 +995,6 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLPlugInElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLSelectElementCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLSelectElementCustom.h',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8InspectorControllerCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8LocationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8MessageChannelConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8NamedNodeMapCustom.cpp',
