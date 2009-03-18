@@ -1176,22 +1176,22 @@ void UpdateDatabase(const std::wstring& initial_db,
 
 namespace {
 
-const wchar_t* GetOldSafeBrowsingPath() {
+std::wstring GetOldSafeBrowsingPath() {
   std::wstring path = L"old";
   file_util::AppendToPath(&path, L"SafeBrowsing");
-  return path.c_str();
+  return path;
 }
 
-const wchar_t* GetOldResponsePath() {
+std::wstring GetOldResponsePath() {
   std::wstring path = L"old";
   file_util::AppendToPath(&path, L"response");
-  return path.c_str();
+  return path;
 }
 
-const wchar_t* GetOldUpdatesPath() {
+std::wstring GetOldUpdatesPath() {
   std::wstring path = L"old";
   file_util::AppendToPath(&path, L"updates");
-  return path.c_str();
+  return path;
 }
 
 }  // namespace
