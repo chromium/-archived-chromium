@@ -1425,12 +1425,6 @@ MAC : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
 
-// Release failures are Merge 39829:39744 regressions
-// Linux pixeltest failure: Large areas of the page are missing
-LINUX : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL
-WIN : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
-MAC : LayoutTests/tables/mozilla_expected_failures/marvin/table_overflow_dirty_reflow_tbody.html = FAIL PASS
-
 // Looks like this just needs a rebaseline.
 LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
