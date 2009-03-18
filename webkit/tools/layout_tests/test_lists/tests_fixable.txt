@@ -1107,8 +1107,6 @@ MAC : LayoutTests/fast/css/resize-corner-tracking.html = FAIL
 MAC : LayoutTests/fast/dom/HTMLTextAreaElement/reset-textarea.html = FAIL
 MAC : LayoutTests/fast/dynamic/008.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-align.html = FAIL
-MAC : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
-MAC : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-scroll-height.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
 MAC : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
@@ -1874,3 +1872,13 @@ MAC LINUX WIN : LayoutTests/editing/style/block-styles-007.html = FAIL
 // instead work upstream to improve tests so that they don't fail.
 DEFER : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
 DEFER : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
+// Linux-only failures
+LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
+LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
+LINUX : LayoutTests/fast/dom/java-applet-calls.html = FAIL
+LINUX : LayoutTests/fast/canvas/unclosed-canvas-3.html = CRASH
+LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
+// Just need rebaseline
+LINUX : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
+LINUX : LayoutTests/fast/forms/textarea-width.html = FAIL
+LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
