@@ -30,7 +30,7 @@ class ChildProcessInfo {
   // Getter to the process handle.
   base::ProcessHandle handle() const { return process_.handle(); }
 
-  int pid() const {
+  virtual int GetProcessId() const {
     if (pid_ != -1)
       return pid_;
 
@@ -95,8 +95,6 @@ class ChildProcessInfo {
   ChildProcessInfo(ProcessType type);
 
  private:
-  friend class ResourceDispatcherHostTest;
-
   ProcessType type_;
   std::wstring name_;
   mutable int pid_;  // Cache of the process id.

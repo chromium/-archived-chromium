@@ -264,7 +264,7 @@ void ResourceDispatcherHost::BeginRequest(
     IPC::Message* sync_result,  // only valid for sync
     int route_id) {
   ChildProcessInfo::ProcessType process_type = receiver_->type();
-  int process_id = receiver_->pid();
+  int process_id = receiver_->GetProcessId();
   URLRequestContext* context =
       receiver_->GetRequestContext(request_id, request_data);
   if (!context)
@@ -384,7 +384,7 @@ void ResourceDispatcherHost::BeginRequest(
 }
 
 void ResourceDispatcherHost::OnDataReceivedACK(int request_id) {
-  DataReceivedACK(receiver_->pid(), request_id);
+  DataReceivedACK(receiver_->GetProcessId(), request_id);
 }
 
 void ResourceDispatcherHost::DataReceivedACK(int process_id, int request_id) {
@@ -414,7 +414,7 @@ void ResourceDispatcherHost::OnDownloadProgressACK(int request_id) {
 }
 
 void ResourceDispatcherHost::OnUploadProgressACK(int request_id) {
-  int process_id = receiver_->pid();
+  int process_id = receiver_->GetProcessId();
   PendingRequestList::iterator i = pending_requests_.find(
       GlobalRequestID(process_id, request_id));
   if (i == pending_requests_.end())
@@ -425,7 +425,7 @@ void ResourceDispatcherHost::OnUploadProgressACK(int request_id) {
 }
 
 void ResourceDispatcherHost::OnCancelRequest(int request_id) {
-  CancelRequest(receiver_->pid(), request_id, true, true);
+  CancelRequest(receiver_->GetProcessId(), request_id, true, true);
 }
 
 void ResourceDispatcherHost::OnClosePageACK(int new_render_process_host_id,

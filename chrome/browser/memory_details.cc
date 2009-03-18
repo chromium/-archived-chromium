@@ -70,7 +70,7 @@ void MemoryDetails::CollectChildInfoOnIOThread() {
   // Collect the list of child processes.
   for (ChildProcessHost::Iterator iter; !iter.Done(); ++iter) {
     ProcessMemoryInformation info;
-    info.pid = iter->pid();
+    info.pid = iter->GetProcessId();
     if (!info.pid)
       continue;
 

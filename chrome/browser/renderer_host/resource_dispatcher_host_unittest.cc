@@ -88,7 +88,7 @@ class ResourceDispatcherHostTest : public testing::Test,
                                    public ResourceDispatcherHost::Receiver {
  public:
   ResourceDispatcherHostTest()
-      : Receiver(ChildProcessInfo::RENDER_PROCESS), host_(NULL) {
+      : Receiver(ChildProcessInfo::RENDER_PROCESS), host_(NULL), pid_(-1) {
     set_handle(base::GetCurrentProcessHandle());
   }
   // ResourceDispatcherHost::Receiver implementation
@@ -103,6 +103,8 @@ class ResourceDispatcherHostTest : public testing::Test,
         const ViewHostMsg_Resource_Request& request_data) {
     return NULL;
   }
+
+  virtual int GetProcessId() const { return pid_; }
 
  protected:
   // testing::Test
@@ -146,6 +148,7 @@ class ResourceDispatcherHostTest : public testing::Test,
   MessageLoopForIO message_loop_;
   ResourceDispatcherHost host_;
   ResourceIPCAccumulator accum_;
+  int pid_;
 };
 
 // Spin up the message loop to kick off the request.
@@ -166,14 +169,13 @@ void ResourceDispatcherHostTest::MakeTestRequest(
     int render_view_id,
     int request_id,
     const GURL& url) {
-  int old_pid = pid();
   pid_ = render_process_id;
   ViewHostMsg_Resource_Request request = CreateResourceRequest("GET", url);
   ViewHostMsg_RequestResource msg(render_view_id, request_id, request);
   bool msg_was_ok;
   host_.OnMessageReceived(msg, receiver, &msg_was_ok);
   KickOffRequest();
-  pid_ = old_pid;
+  pid_ = -1;
 }
 
 void ResourceDispatcherHostTest::MakeCancelRequest(int request_id) {

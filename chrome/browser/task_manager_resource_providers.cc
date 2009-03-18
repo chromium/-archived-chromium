@@ -264,7 +264,7 @@ TaskManagerChildProcessResource::TaskManagerChildProcessResource(
       network_usage_support_(false) {
   // We cache the process id because it's not cheap to calculate, and it won't
   // be available when we get the plugin disconnected notification.
-  pid_ = child_proc.pid();
+  pid_ = child_proc.GetProcessId();
   if (!default_icon_) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     default_icon_ = rb.GetBitmapNamed(IDR_PLUGIN);

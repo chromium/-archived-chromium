@@ -86,6 +86,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   virtual URLRequestContext* GetRequestContext(
       uint32 request_id,
       const ViewHostMsg_Resource_Request& request_data);
+  virtual int GetProcessId() const { return render_process_id_; }
 
   SpellChecker* spellchecker() { return spellchecker_.get(); }
   ResourceDispatcherHost* resource_dispatcher_host() {
