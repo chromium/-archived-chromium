@@ -21,6 +21,11 @@ void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
 
 void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
                                                 gfx::Rect* rect) {
+  if (!window_id) {
+    *rect = gfx::Rect();
+    return;
+  }
+
   // Windows uses GetAncestor(window, GA_ROOT) here which probably means
   // we want the top level window.
   GdkWindow* window =
