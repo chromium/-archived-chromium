@@ -31,6 +31,7 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "webkit/glue/autofill_form.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
@@ -688,7 +689,7 @@ void EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
     return;
   }
 
-  std::wstring name = webkit_glue::StringToStdWString(input_element->name());
+  std::wstring name = AutofillForm::GetNameForInputElement(input_element);
   if (name.empty())  // If the field has no name, then we won't have values.
     return;
 
@@ -736,8 +737,8 @@ void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
   }
 
   // Then trigger form autofill.
-  std::wstring name = webkit_glue::StringToStdWString(input_element->
-      name().string());
+  std::wstring name = AutofillForm::GetNameForInputElement(input_element);
+  DCHECK_GT(static_cast<int>(name.length()), 0);
   web_view_->delegate()->QueryFormFieldAutofill(name, value,
       reinterpret_cast<int64>(input_element));
 }

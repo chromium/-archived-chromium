@@ -64,15 +64,29 @@ AutofillForm* AutofillForm::CreateAutofillForm(
     if (value.length() == 0)
       continue;
 
-    std::wstring name = webkit_glue::StringToStdWString(input_element->name());
-    // Test that the name is not blank.
-    std::wstring trimmed_name;
-    TrimWhitespace(name, TRIM_LEADING, &trimmed_name);
-    if (trimmed_name.length() == 0)
-      continue;
+    std::wstring name = GetNameForInputElement(input_element);
+    if (name.length() == 0)
+      continue;  // If we have no name, there is nothing to store.
 
     result->elements.push_back(AutofillForm::Element(name, value));
   }
 
   return result;
+}
+
+// static
+std::wstring AutofillForm::GetNameForInputElement(WebCore::HTMLInputElement*
+    element) {
+  std::wstring name = webkit_glue::StringToStdWString(element->name());
+  std::wstring trimmed_name;
+  TrimWhitespace(name, TRIM_LEADING, &trimmed_name);
+  if (trimmed_name.length() > 0)
+    return trimmed_name;
+
+  name = webkit_glue::StringToStdWString(element->id());
+  TrimWhitespace(name, TRIM_LEADING, &trimmed_name);
+  if (trimmed_name.length() > 0)
+    return trimmed_name;
+
+  return std::wstring();
 }
