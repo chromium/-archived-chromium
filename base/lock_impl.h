@@ -14,6 +14,7 @@
 #endif
 
 #include "base/basictypes.h"
+#include "base/platform_thread.h"
 
 // This class implements the underlying platform-specific spin-lock mechanism
 // used for the Lock class.  Most users should not use LockImpl directly, but
@@ -40,10 +41,23 @@ class LockImpl {
   // a successful call to Try, or a call to Lock.
   void Unlock();
 
-  // Return the native underlying lock.
+  // Debug-only method that will DCHECK() if the lock is not acquired by the
+  // current thread.  In non-debug builds, no check is performed.
+  // Because linux and mac condition variables modify the underlyning lock
+  // through the os_lock() method, runtime assertions can not be done on those
+  // builds.
+#if defined(NDEBUG) || !defined(OS_WIN)
+  void AssertAcquired() {}
+#else
+  void AssertAcquired();
+#endif
+
+  // Return the native underlying lock.  Not supported for Windows builds.
   // TODO(awalker): refactor lock and condition variables so that this is
   // unnecessary.
+#if !defined(OS_WIN)
   OSLockType* os_lock() { return &os_lock_; }
+#endif
 
  private:
   OSLockType os_lock_;
@@ -51,6 +65,7 @@ class LockImpl {
 #if !defined(NDEBUG) && defined(OS_WIN)
   // All private data is implicitly protected by lock_.
   // Be VERY careful to only access members under that lock.
+  PlatformThreadId owning_thread_id_;
   int32 recursion_count_shadow_;
   bool recursion_used_;      // Allow debugging to continued after a DCHECK().
 #endif  // NDEBUG
@@ -58,21 +73,5 @@ class LockImpl {
   DISALLOW_COPY_AND_ASSIGN(LockImpl);
 };
 
-class AutoLockImpl {
- public:
-  AutoLockImpl(LockImpl* lock_impl)
-      : lock_impl_(lock_impl) {
-    lock_impl_->Lock();
-  }
-
-  ~AutoLockImpl() {
-    lock_impl_->Unlock();
-  }
-
- private:
-  DISALLOW_EVIL_CONSTRUCTORS(AutoLockImpl);
-
-  LockImpl* lock_impl_;
-};
 
 #endif  // BASE_LOCK_IMPL_H_

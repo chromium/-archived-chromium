@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,6 +19,12 @@ class Lock {
   // held by another thread, immediately return false.
   bool Try() { return lock_.Try(); }
 
+  // In debug builds this method checks that the lock has been acquired by the
+  // calling thread.  If the lock has not been acquired, then the method
+  // will DCHECK().  In non-debug builds, the LockImpl's implementation of
+  // AssertAcquired() is an empty inline method.
+  void AssertAcquired() { return lock_.AssertAcquired(); }
+
   // Return the underlying lock implementation.
   // TODO(awalker): refactor lock and condition variables so that this is
   // unnecessary.
@@ -38,6 +44,7 @@ class AutoLock {
   }
 
   ~AutoLock() {
+    lock_.AssertAcquired();
     lock_.Release();
   }
 
@@ -46,23 +53,23 @@ class AutoLock {
   DISALLOW_COPY_AND_ASSIGN(AutoLock);
 };
 
-// AutoUnlock is a helper class for ConditionVariable that will Release() the
-// lock argument in the constructor, and re-Acquire() it in the destructor.
-class ConditionVariable;
+// AutoUnlock is a helper that will Release() the |lock| argument in the
+// constructor, and re-Acquire() it in the destructor.
 class AutoUnlock {
- private:  // Everything is private, so only our friend can use us.
-  friend class ConditionVariable;  // The only user of this class.
-
-  explicit AutoUnlock(Lock& lock) : lock_(&lock) {
+ public:
+  explicit AutoUnlock(Lock& lock) : lock_(lock) {
     // We require our caller to have the lock.
-    lock_->Release();
+    lock_.AssertAcquired();
+    lock_.Release();
   }
 
   ~AutoUnlock() {
-    lock_->Acquire();
+    lock_.Acquire();
   }
 
-  Lock* lock_;
+ private:
+  Lock& lock_;
+  DISALLOW_COPY_AND_ASSIGN(AutoUnlock);
 };
 
 #endif  // BASE_LOCK_H_
