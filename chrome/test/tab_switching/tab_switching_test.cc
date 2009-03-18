@@ -100,9 +100,9 @@ class TabSwitchingUITest : public UITest {
     }
 
     // Print the average and standard deviation.
-    PrintResultMeanAndError(L"tab_switch", L"", L"t",
-        ASCIIToWide(average) + L", " + ASCIIToWide(std_dev), L"ms",
-        true /* important */);
+    PrintResultMeanAndError("tab_switch", "", "t",
+                            average + ", " + std_dev, "ms",
+                            true /* important */);
   }
 
  protected:

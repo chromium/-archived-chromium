@@ -80,7 +80,7 @@ class MemoryTest : public UITest {
   // new tab.
   // <PAUSE> is a special URL that informs the loop to pause before proceeding
   // to the next URL.
-  void RunTest(const wchar_t* test_name, int num_target_tabs) {
+  void RunTest(const char* test_name, int num_target_tabs) {
     std::string urls[] = {
       "http://www.yahoo.com/",
       "http://hotjobs.yahoo.com/career-articles-the_biggest_resume_mistake_you_can_make-436",
@@ -258,16 +258,16 @@ class MemoryTest : public UITest {
     PrintResults(test_name, stop_size - start_size);
   }
 
-  void PrintResults(const wchar_t* test_name, size_t commit_size) {
+  void PrintResults(const char* test_name, size_t commit_size) {
     PrintMemoryUsageInfo(test_name);
-    std::wstring trace_name(test_name);
-    trace_name.append(L"_cc");
+    std::string trace_name(test_name);
+    trace_name.append("_cc");
 
-    PrintResult(L"commit_charge", L"", trace_name,
-                commit_size / 1024, L"kb", true /* important */);
+    PrintResult("commit_charge", "", trace_name,
+                commit_size / 1024, "kb", true /* important */);
   }
 
-  void PrintIOPerfInfo(const wchar_t* test_name) {
+  void PrintIOPerfInfo(const char* test_name) {
     printf("\n");
     BrowserProcessFilter chrome_filter(user_data_dir_);
     base::NamedProcessIterator
@@ -292,34 +292,34 @@ class MemoryTest : public UITest {
       ZeroMemory(&io_counters, sizeof(io_counters));
 
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
-        std::wstring chrome_name =
-            (pid == chrome_filter.browser_process_id()) ? L"_b" : L"_r";
+        std::string chrome_name =
+            (pid == chrome_filter.browser_process_id()) ? "_b" : "_r";
 
         // Print out IO performance.  We assume that the values can be
         // converted to size_t (they're reported as ULONGLONG, 64-bit numbers).
-        PrintResult(L"read_op", chrome_name, test_name + chrome_name,
-                    static_cast<size_t>(io_counters.ReadOperationCount), L"",
+        PrintResult("read_op", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.ReadOperationCount), "",
                     false /* not important */);
-        PrintResult(L"write_op", chrome_name, test_name + chrome_name,
-                    static_cast<size_t>(io_counters.WriteOperationCount), L"",
+        PrintResult("write_op", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.WriteOperationCount), "",
                     false /* not important */);
-        PrintResult(L"other_op", chrome_name, test_name + chrome_name,
-                    static_cast<size_t>(io_counters.OtherOperationCount), L"",
+        PrintResult("other_op", chrome_name, test_name + chrome_name,
+                    static_cast<size_t>(io_counters.OtherOperationCount), "",
                     false /* not important */);
-        PrintResult(L"read_byte", chrome_name, test_name + chrome_name,
+        PrintResult("read_byte", chrome_name, test_name + chrome_name,
                     static_cast<size_t>(io_counters.ReadTransferCount / 1024),
-                    L"kb", false /* not important */);
-        PrintResult(L"write_byte", chrome_name, test_name + chrome_name,
+                    "kb", false /* not important */);
+        PrintResult("write_byte", chrome_name, test_name + chrome_name,
                     static_cast<size_t>(io_counters.WriteTransferCount / 1024),
-                    L"kb", false /* not important */);
-        PrintResult(L"other_byte", chrome_name, test_name + chrome_name,
+                    "kb", false /* not important */);
+        PrintResult("other_byte", chrome_name, test_name + chrome_name,
                     static_cast<size_t>(io_counters.OtherTransferCount / 1024),
-                    L"kb", false /* not important */);
+                    "kb", false /* not important */);
       }
     }
   }
 
-  void PrintMemoryUsageInfo(const wchar_t* test_name) {
+  void PrintMemoryUsageInfo(const char* test_name) {
     printf("\n");
     BrowserProcessFilter chrome_filter(user_data_dir_);
     base::NamedProcessIterator
@@ -350,21 +350,21 @@ class MemoryTest : public UITest {
       }
     }
 
-    std::wstring trace_name(test_name);
-    PrintResult(L"vm_final_browser", L"", trace_name + L"_vm_b",
-                browser_virtual_size / 1024, L"kb",
+    std::string trace_name(test_name);
+    PrintResult("vm_final_browser", "", trace_name + "_vm_b",
+                browser_virtual_size / 1024, "kb",
                 false /* not important */);
-    PrintResult(L"ws_final_browser", L"", trace_name + L"_ws_b",
-                browser_working_set_size / 1024, L"kb",
+    PrintResult("ws_final_browser", "", trace_name + "_ws_b",
+                browser_working_set_size / 1024, "kb",
                 false /* not important */);
-    PrintResult(L"vm_final_total", L"", trace_name + L"_vm",
-                virtual_size / 1024, L"kb",
+    PrintResult("vm_final_total", "", trace_name + "_vm",
+                virtual_size / 1024, "kb",
                 false /* not important */);
-    PrintResult(L"ws_final_total", L"", trace_name + L"_ws",
-                working_set_size / 1024, L"kb",
+    PrintResult("ws_final_total", "", trace_name + "_ws",
+                working_set_size / 1024, "kb",
                 true /* important */);
-    PrintResult(L"processes", L"", trace_name + L"_proc",
-                num_chrome_processes, L"",
+    PrintResult("processes", "", trace_name + "_proc",
+                num_chrome_processes, "",
                 false /* not important */);
   }
 
@@ -417,7 +417,7 @@ class MemoryReferenceTest : public MemoryTest {
     UITest::SetUp();
   }
 
-  void RunTest(const wchar_t* test_name, int num_target_tabs) {
+  void RunTest(const char* test_name, int num_target_tabs) {
     std::wstring pages, timings;
     MemoryTest::RunTest(test_name, num_target_tabs);
   }
@@ -426,13 +426,13 @@ class MemoryReferenceTest : public MemoryTest {
 }  // namespace
 
 TEST_F(MemoryTest, SingleTabTest) {
-  RunTest(L"1t", 1);
+  RunTest("1t", 1);
 }
 
 TEST_F(MemoryTest, FiveTabTest) {
-  RunTest(L"5t", 5);
+  RunTest("5t", 5);
 }
 
 TEST_F(MemoryTest, TwelveTabTest) {
-  RunTest(L"12t", 12);
+  RunTest("12t", 12);
 }

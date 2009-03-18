@@ -194,32 +194,32 @@ class UITest : public testing::Test {
   // produced for various builds, using the combined |measurement| + |modifier|
   // string to specify a particular graph and the |trace| to identify a trace
   // (i.e., data series) on that graph.
-  void PrintResult(const std::wstring& measurement,
-                   const std::wstring& modifier,
-                   const std::wstring& trace,
+  void PrintResult(const std::string& measurement,
+                   const std::string& modifier,
+                   const std::string& trace,
                    size_t value,
-                   const std::wstring& units,
+                   const std::string& units,
                    bool important);
 
   // Like PrintResult(), but prints a (mean, standard deviation) result pair.
   // The |<values>| should be two comma-seaprated numbers, the mean and
   // standard deviation (or other error metric) of the measurement.
-  void PrintResultMeanAndError(const std::wstring& measurement,
-                               const std::wstring& modifier,
-                               const std::wstring& trace,
-                               const std::wstring& mean_and_error,
-                               const std::wstring& units,
+  void PrintResultMeanAndError(const std::string& measurement,
+                               const std::string& modifier,
+                               const std::string& trace,
+                               const std::string& mean_and_error,
+                               const std::string& units,
                                bool important);
 
   // Like PrintResult(), but prints an entire list of results. The |values|
   // will generally be a list of comma-separated numbers. A typical
   // post-processing step might produce plots of their mean and standard
   // deviation.
-  void PrintResultList(const std::wstring& measurement,
-                       const std::wstring& modifier,
-                       const std::wstring& trace,
-                       const std::wstring& values,
-                       const std::wstring& units,
+  void PrintResultList(const std::string& measurement,
+                       const std::string& modifier,
+                       const std::string& trace,
+                       const std::string& values,
+                       const std::string& units,
                        bool important);
 
   // Gets the directory for the currently active profile in the browser.
@@ -373,13 +373,13 @@ class UITest : public testing::Test {
   void AssertAppNotRunning(const std::wstring& error_message);
 
   // Common functionality for the public PrintResults methods.
-  void PrintResultsImpl(const std::wstring& measurement,
-                        const std::wstring& modifier,
-                        const std::wstring& trace,
-                        const std::wstring& values,
-                        const std::wstring& prefix,
-                        const std::wstring& suffix,
-                        const std::wstring& units,
+  void PrintResultsImpl(const std::string& measurement,
+                        const std::string& modifier,
+                        const std::string& trace,
+                        const std::string& values,
+                        const std::string& prefix,
+                        const std::string& suffix,
+                        const std::string& units,
                         bool important);
 
  protected:

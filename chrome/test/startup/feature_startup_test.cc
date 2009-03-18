@@ -41,18 +41,18 @@ class NewTabUIStartupTest : public UITest {
 
   static const int kNumCycles = 5;
 
-  void PrintTimings(const wchar_t* label, TimeDelta timings[kNumCycles],
+  void PrintTimings(const char* label, TimeDelta timings[kNumCycles],
                     bool important) {
-    std::wstring times;
+    std::string times;
     for (int i = 0; i < kNumCycles; ++i)
-      StringAppendF(&times, L"%.2f,", timings[i].InMillisecondsF());
-    PrintResultList(L"new_tab", L"", label, times, L"ms", important);
+      StringAppendF(&times, "%.2f,", timings[i].InMillisecondsF());
+    PrintResultList("new_tab", "", label, times, "ms", important);
   }
 
   // Run the test, by bringing up a browser and timing the new tab startup.
   // |want_warm| is true if we should output warm-disk timings, false if
   // we should report cold timings.
-  void RunStartupTest(const wchar_t* label, bool want_warm, bool important) {
+  void RunStartupTest(const char* label, bool want_warm, bool important) {
     // Install the location of the test profile file.
     set_template_user_data(ComputeTypicalUserDataSource());
 
@@ -103,9 +103,9 @@ class NewTabUIStartupTest : public UITest {
 // TODO(pamg): run these tests with a reference build?
 
 TEST_F(NewTabUIStartupTest, PerfCold) {
-  RunStartupTest(L"tab_cold", false /* not cold */, true /* important */);
+  RunStartupTest("tab_cold", false /* not cold */, true /* important */);
 }
 
 TEST_F(NewTabUIStartupTest, DISABLED_PerfWarm) {
-  RunStartupTest(L"tab_warm", true /* cold */, false /* not important */);
+  RunStartupTest("tab_warm", true /* cold */, false /* not important */);
 }

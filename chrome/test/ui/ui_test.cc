@@ -790,52 +790,51 @@ void UITest::WaitForFinish(const std::string &name,
   EXPECT_EQ(true, test_result);
 }
 
-void UITest::PrintResult(const std::wstring& measurement,
-                         const std::wstring& modifier,
-                         const std::wstring& trace,
+void UITest::PrintResult(const std::string& measurement,
+                         const std::string& modifier,
+                         const std::string& trace,
                          size_t value,
-                         const std::wstring& units,
+                         const std::string& units,
                          bool important) {
-  std::wstring value_str = StringPrintf(L"%d", value);
-  PrintResultsImpl(measurement, modifier, trace, value_str,
-                   L"", L"", units, important);
+  PrintResultsImpl(measurement, modifier, trace, UintToString(value),
+                   "", "", units, important);
 }
 
-void UITest::PrintResultMeanAndError(const std::wstring& measurement,
-                                     const std::wstring& modifier,
-                                     const std::wstring& trace,
-                                     const std::wstring& mean_and_error,
-                                     const std::wstring& units,
+void UITest::PrintResultMeanAndError(const std::string& measurement,
+                                     const std::string& modifier,
+                                     const std::string& trace,
+                                     const std::string& mean_and_error,
+                                     const std::string& units,
                                      bool important) {
   PrintResultsImpl(measurement, modifier, trace, mean_and_error,
-                   L"{", L"}", units, important);
+                   "{", "}", units, important);
 }
 
-void UITest::PrintResultList(const std::wstring& measurement,
-                             const std::wstring& modifier,
-                             const std::wstring& trace,
-                             const std::wstring& values,
-                             const std::wstring& units,
+void UITest::PrintResultList(const std::string& measurement,
+                             const std::string& modifier,
+                             const std::string& trace,
+                             const std::string& values,
+                             const std::string& units,
                              bool important) {
   PrintResultsImpl(measurement, modifier, trace, values,
-                   L"[", L"]", units, important);
+                   "[", "]", units, important);
 }
 
-void UITest::PrintResultsImpl(const std::wstring& measurement,
-                              const std::wstring& modifier,
-                              const std::wstring& trace,
-                              const std::wstring& values,
-                              const std::wstring& prefix,
-                              const std::wstring& suffix,
-                              const std::wstring& units,
+void UITest::PrintResultsImpl(const std::string& measurement,
+                              const std::string& modifier,
+                              const std::string& trace,
+                              const std::string& values,
+                              const std::string& prefix,
+                              const std::string& suffix,
+                              const std::string& units,
                               bool important) {
   // <*>RESULT <graph_name>: <trace_name>= <value> <units>
   // <*>RESULT <graph_name>: <trace_name>= {<mean>, <std deviation>} <units>
   // <*>RESULT <graph_name>: <trace_name>= [<value>,value,value,...,] <units>
-  wprintf(L"%lsRESULT %ls%ls: %ls= %ls%ls%ls %ls\n",
-          important ? L"*" : L"", measurement.c_str(), modifier.c_str(),
-          trace.c_str(), prefix.c_str(), values.c_str(), suffix.c_str(),
-          units.c_str());
+  printf("%sRESULT %s%s: %s= %s%s%s %s\n",
+         important ? "*" : "", measurement.c_str(), modifier.c_str(),
+         trace.c_str(), prefix.c_str(), values.c_str(), suffix.c_str(),
+         units.c_str());
 }
 
 bool UITest::EvictFileFromSystemCacheWrapper(const FilePath& path) {
