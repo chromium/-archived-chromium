@@ -432,57 +432,6 @@ void BrowserView::RegisterBrowserViewPrefs(PrefService* prefs) {
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, BrowserWindow implementation:
 
-void BrowserView::Init() {
-  // Stow a pointer to this object onto the window handle so that we can get
-  // at it later when all we have is a HWND.
-  SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
-
-  // Start a hung plugin window detector for this browser object (as long as
-  // hang detection is not disabled).
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kDisableHangMonitor)) {
-    InitHangMonitor();
-  }
-
-  LoadAccelerators();
-  SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
-
-  tabstrip_ = new TabStrip(browser_->tabstrip_model());
-  tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
-  AddChildView(tabstrip_);
-
-  toolbar_ = new BrowserToolbarView(browser_.get());
-  AddChildView(toolbar_);
-  toolbar_->SetID(VIEW_ID_TOOLBAR);
-  toolbar_->Init(browser_->profile());
-  toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
-
-  infobar_container_ = new InfoBarContainer(this);
-  AddChildView(infobar_container_);
-
-  FindBarWin* find_bar_win = new FindBarWin(this);
-
-  find_bar_controller_.reset(new FindBarController(find_bar_win));
-  find_bar_win->set_find_bar_controller(find_bar_controller_.get());
-
-  contents_container_ = new TabContentsContainerView;
-  set_contents_view(contents_container_);
-  AddChildView(contents_container_);
-
-  status_bubble_.reset(new StatusBubbleViews(GetWidget()));
-
-#ifdef CHROME_PERSONALIZATION
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  EnablePersonalization(!command_line.HasSwitch(switches::kDisableP13n));
-  if (IsPersonalizationEnabled()) {
-    personalization_ = Personalization::CreateFramePersonalization(
-        browser_->profile(), this);
-  }
-#endif
-
-  InitSystemMenu();
-}
-
 void BrowserView::Show() {
   // If the window is already visible, just activate it.
   if (frame_->IsVisible()) {
@@ -1275,6 +1224,57 @@ void BrowserView::ViewHierarchyChanged(bool is_add,
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, private:
+
+void BrowserView::Init() {
+  // Stow a pointer to this object onto the window handle so that we can get
+  // at it later when all we have is a HWND.
+  SetProp(GetWidget()->GetNativeView(), kBrowserViewKey, this);
+
+  // Start a hung plugin window detector for this browser object (as long as
+  // hang detection is not disabled).
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisableHangMonitor)) {
+    InitHangMonitor();
+  }
+
+  LoadAccelerators();
+  SetAccessibleName(l10n_util::GetString(IDS_PRODUCT_NAME));
+
+  tabstrip_ = new TabStrip(browser_->tabstrip_model());
+  tabstrip_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TABSTRIP));
+  AddChildView(tabstrip_);
+
+  toolbar_ = new BrowserToolbarView(browser_.get());
+  AddChildView(toolbar_);
+  toolbar_->SetID(VIEW_ID_TOOLBAR);
+  toolbar_->Init(browser_->profile());
+  toolbar_->SetAccessibleName(l10n_util::GetString(IDS_ACCNAME_TOOLBAR));
+
+  infobar_container_ = new InfoBarContainer(this);
+  AddChildView(infobar_container_);
+
+  FindBarWin* find_bar_win = new FindBarWin(this);
+
+  find_bar_controller_.reset(new FindBarController(find_bar_win));
+  find_bar_win->set_find_bar_controller(find_bar_controller_.get());
+
+  contents_container_ = new TabContentsContainerView;
+  set_contents_view(contents_container_);
+  AddChildView(contents_container_);
+
+  status_bubble_.reset(new StatusBubbleViews(GetWidget()));
+
+#ifdef CHROME_PERSONALIZATION
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+  EnablePersonalization(!command_line.HasSwitch(switches::kDisableP13n));
+  if (IsPersonalizationEnabled()) {
+    personalization_ = Personalization::CreateFramePersonalization(
+        browser_->profile(), this);
+  }
+#endif
+
+  InitSystemMenu();
+}
 
 void BrowserView::InitSystemMenu() {
   HMENU system_menu = GetSystemMenu(frame_->GetNativeView(), FALSE);

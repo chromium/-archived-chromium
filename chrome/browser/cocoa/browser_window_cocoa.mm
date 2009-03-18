@@ -20,11 +20,6 @@ BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
 BrowserWindowCocoa::~BrowserWindowCocoa() {
 }
 
-void BrowserWindowCocoa::Init() {
-  // Remember, no code here. This doesn't get called on the Mac. Put code into
-  // the constructor, above, instead.
-}
-
 void BrowserWindowCocoa::Show() {
   [window_ makeKeyAndOrderFront:controller_];
 }

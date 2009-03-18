@@ -29,7 +29,6 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual ~BrowserWindowCocoa();
 
   // Overridden from BrowserWindow
-  virtual void Init();
   virtual void Show();
   virtual void SetBounds(const gfx::Rect& bounds);
   virtual void Close();

@@ -29,11 +29,6 @@ class Rect;
 // NOTE: All getters except GetTabStrip() may return NULL.
 class BrowserWindow {
  public:
-  // Initialize the frame. This is called on Windows via the views system. It
-  // doesn't get called on other platforms so don't do stuff here on other
-  // platforms.
-  virtual void Init() = 0;
-
   // Show the window, or activates it if it's already visible.
   virtual void Show() = 0;
 

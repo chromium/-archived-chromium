@@ -30,7 +30,6 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual ~BrowserWindowGtk();
 
   // Overridden from BrowserWindow
-  virtual void Init();
   virtual void Show();
   virtual void SetBounds(const gfx::Rect& bounds);
   virtual void Close();

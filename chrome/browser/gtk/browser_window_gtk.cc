@@ -107,57 +107,12 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, gpointer userdata) {
 
 }  // namespace
 
+// TODO(estade): Break up this constructor into helper functions to improve
+// readability.
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        // TODO(port): make this a pref.
        custom_frame_(false) {
-  Init();
-  browser_->tabstrip_model()->AddObserver(this);
-}
-
-BrowserWindowGtk::~BrowserWindowGtk() {
-  browser_->tabstrip_model()->RemoveObserver(this);
-
-  Close();
-}
-
-gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
-                                               GdkEventExpose* e,
-                                               BrowserWindowGtk* window) {
-  if (window->custom_frame_) {
-    NOTIMPLEMENTED() << " needs custom drawing for the custom frame.";
-    return FALSE;
-  }
-
-  // The theme graphics include the 2px frame, but we don't draw the frame
-  // in the non-custom-frame mode.  So we subtract it off.
-  const int kFramePixels = 2;
-
-  GdkPixbuf* pixbuf =
-      gdk_pixbuf_new(GDK_COLORSPACE_RGB, true,  // alpha
-                     8,  // bit depth
-                     widget->allocation.width,
-                     BrowserToolbarGtk::kToolbarHeight + kFramePixels);
-
-#ifndef NDEBUG
-  // Fill with a bright color so we can see any pixels we're missing.
-  gdk_pixbuf_fill(pixbuf, 0x00FFFFFF);
-#endif
-
-  window->content_area_ninebox_->RenderTopCenterStrip(pixbuf, 0,
-                                                      widget->allocation.width);
-  gdk_draw_pixbuf(widget->window, NULL, pixbuf,
-                  0, 0,
-                  widget->allocation.x,
-                  widget->allocation.y - kFramePixels,
-                  -1, -1,
-                  GDK_RGB_DITHER_NORMAL, 0, 0);
-  gdk_pixbuf_unref(pixbuf);
-
-  return FALSE;  // Allow subwidgets to paint.
-}
-
-void BrowserWindowGtk::Init() {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_default_size(window_, 640, 480);
   g_signal_connect(window_, "destroy",
@@ -214,6 +169,49 @@ void BrowserWindowGtk::Init() {
 
   gtk_container_add(GTK_CONTAINER(window_), vbox_);
   gtk_widget_show(vbox_);
+  browser_->tabstrip_model()->AddObserver(this);
+}
+
+BrowserWindowGtk::~BrowserWindowGtk() {
+  browser_->tabstrip_model()->RemoveObserver(this);
+
+  Close();
+}
+
+gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
+                                               GdkEventExpose* e,
+                                               BrowserWindowGtk* window) {
+  if (window->custom_frame_) {
+    NOTIMPLEMENTED() << " needs custom drawing for the custom frame.";
+    return FALSE;
+  }
+
+  // The theme graphics include the 2px frame, but we don't draw the frame
+  // in the non-custom-frame mode.  So we subtract it off.
+  const int kFramePixels = 2;
+
+  GdkPixbuf* pixbuf =
+      gdk_pixbuf_new(GDK_COLORSPACE_RGB, true,  // alpha
+                     8,  // bit depth
+                     widget->allocation.width,
+                     BrowserToolbarGtk::kToolbarHeight + kFramePixels);
+
+#ifndef NDEBUG
+  // Fill with a bright color so we can see any pixels we're missing.
+  gdk_pixbuf_fill(pixbuf, 0x00FFFFFF);
+#endif
+
+  window->content_area_ninebox_->RenderTopCenterStrip(pixbuf, 0,
+                                                      widget->allocation.width);
+  gdk_draw_pixbuf(widget->window, NULL, pixbuf,
+                  0, 0,
+                  widget->allocation.x,
+                  widget->allocation.y - kFramePixels,
+                  -1, -1,
+                  GDK_RGB_DITHER_NORMAL, 0, 0);
+  gdk_pixbuf_unref(pixbuf);
+
+  return FALSE;  // Allow subwidgets to paint.
 }
 
 void BrowserWindowGtk::Show() {

@@ -162,7 +162,6 @@ class BrowserView : public BrowserWindow,
   static void RegisterBrowserViewPrefs(PrefService* prefs);
 
   // Overridden from BrowserWindow:
-  virtual void Init();
   virtual void Show();
   virtual void SetBounds(const gfx::Rect& bounds);
   virtual void Close();
@@ -274,6 +273,9 @@ class BrowserView : public BrowserWindow,
     LONG ex_style;
     RECT window_rect;
   };
+
+  // Browser window related initializations.
+  void Init();
 
   // Creates the system menu.
   void InitSystemMenu();
