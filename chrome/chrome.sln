@@ -1363,7 +1363,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icui18n", "..\third_party\i
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net_test_support", "..\net\net_test_support.vcproj", "{ED19720A-8F14-D3FC-9C6D-EEB5AE4D5BD7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_support_base", "..\..\..\chrome2\src\base\test_support_base.vcproj", "{1846F110-8263-413F-9924-36F64DD8FE41}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_support_base", "..\base\test_support_base.vcproj", "{1846F110-8263-413F-9924-36F64DD8FE41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
