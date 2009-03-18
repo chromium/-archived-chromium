@@ -331,6 +331,17 @@
             ],
           }
         ],
+        [ 'GENERATOR == "quentin"', {
+            # Quentin builds don't have a recent enough glibc to include the
+            # inotify headers
+            'sources!': [
+              'directory_watcher_inotify.cc',
+            ],
+            'sources': [
+              'directory_watcher_stub.cc',
+            ],
+          },
+        ],
         [ 'OS == "mac"', {
             'sources/': [ ['exclude', '_(linux|win)\\.cc$'] ],
             'sources!': [
