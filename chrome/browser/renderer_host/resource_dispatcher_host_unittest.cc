@@ -41,6 +41,7 @@ static ViewHostMsg_Resource_Request CreateResourceRequest(const char* method,
   request.load_flags = 0;
   request.origin_pid = 0;
   request.resource_type = ResourceType::SUB_RESOURCE;
+  request.request_context = 0;
   return request;
 }
 
