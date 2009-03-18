@@ -25,6 +25,11 @@
         '../net/net.gyp:*',
       ],
       'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            '../sandbox/sandbox.gyp:*',
+          ],
+        }],
         ['all_gyps', {
           'dependencies': [
             '../chrome/chrome.gyp:*',
