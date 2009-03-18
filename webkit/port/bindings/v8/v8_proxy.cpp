@@ -2375,6 +2375,9 @@ void V8Proxy::InitContextIfNeeded()
   if (!m_context.IsEmpty())
       return;
 
+  // Create a handle scope for all local handles.
+  v8::HandleScope handle_scope;
+
   // Setup the security handlers and message listener.  This only has
   // to be done once.
   static bool v8_initialized = false;
@@ -2400,7 +2403,7 @@ void V8Proxy::InitContextIfNeeded()
 
   // Starting from now, use local context only.
   v8::Local<v8::Context> context = GetContext();
-  v8::Context::Scope scope(context);
+  v8::Context::Scope context_scope(context);
 
   // Store the first global object created so we can reuse it.
   if (m_global.IsEmpty()) {
