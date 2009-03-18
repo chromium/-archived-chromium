@@ -47,6 +47,18 @@
 
 namespace WebCore {
 
+static bool workerEnabled = false;
+
+bool WorkerContextExecutionProxy::isWebWorkersEnabled()
+{
+    return workerEnabled;
+}
+
+void WorkerContextExecutionProxy::enableWebWorkers(bool value)
+{
+    workerEnabled = true;
+}
+
 WorkerContextExecutionProxy::WorkerContextExecutionProxy(WorkerContext* workerContext)
     : m_workerContext(workerContext)
     , m_recursion(0)

@@ -83,6 +83,10 @@ namespace WebCore {
         static v8::Handle<v8::Value> EventTargetToV8Object(EventTarget* target);
         static v8::Handle<v8::Value> WorkerContextToV8Object(WorkerContext* wc);
 
+        // Enables HTML5 worker support.
+        static void enableWebWorkers(bool);
+        static bool isWebWorkersEnabled();
+
     private:
         void initContextIfNeeded();
         void dispose();
