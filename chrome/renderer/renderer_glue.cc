@@ -96,9 +96,9 @@ void ScopedClipboardWriterGlue::WriteBitmapFromPixels(const void* pixels,
 
   // Allocate a shared memory buffer to hold the bitmap bits
   shared_buf_ = new base::SharedMemory;
-  shared_buf_->Create(L"", false /* read write */, true /* open existing */,
-                      buf_size);
-  if (!shared_buf_ || !shared_buf_->Map(buf_size)) {
+  const bool created = shared_buf_ && shared_buf_->Create(
+      L"", false /* read write */, true /* open existing */, buf_size);
+  if (!shared_buf_ || !created || !shared_buf_->Map(buf_size)) {
     NOTREACHED();
     return;
   }
