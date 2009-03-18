@@ -1498,8 +1498,9 @@ bool MetricsService::ProbabilityTest(double probability,
   // string somehow to get a big integer idnumber (could be negative
   // from wraparound)
   int big = 1;
-  for (size_t j = n - 1; j >= 0; --j) {
-    idnumber += static_cast<int>(client_id_c_str[j]) * big;
+  int last_pos = n - 1;
+  for (size_t j = 0; j < n; ++j) {
+    idnumber += static_cast<int>(client_id_c_str[last_pos - j]) * big;
     big *= 10;
   }
 
