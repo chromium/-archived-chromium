@@ -142,8 +142,8 @@ void RenderDnsMaster::DnsPrefetchNames(size_t max_count) {
       DCHECK(1 <= max_count);
     }
   }
+  DCHECK_GE(new_name_count_, names.size());
   new_name_count_ -= names.size();
-  DCHECK(new_name_count_ >= 0);
 
   RenderThread::current()->Send(new ViewHostMsg_DnsPrefetch(names));
 }
