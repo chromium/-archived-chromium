@@ -615,7 +615,6 @@ MAC : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
-DEFER : LayoutTests/fast/dom/java-applet-calls.html = FAIL
 DEFER MAC LINUX : chrome/fast/dom/java-applet-calls.html = FAIL
 DEFER : LayoutTests/plugins/bindings-test.html = FAIL
 
