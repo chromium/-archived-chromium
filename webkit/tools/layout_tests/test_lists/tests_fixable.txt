@@ -1861,3 +1861,14 @@ LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 
 LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
 MAC : LayoutTests/fast/forms/select-max-length.html = TIMEOUT
+
+// This test hits a stack-overflow exception earlier in debug mode than in
+// release mode on Windows.
+//
+// Hits the stack overflow earlier than before the new compiler in both
+// release and debug mode on Linux and Mac.
+//
+//   http://code.google.com/p/v8/issues/detail?id=277
+LINUX MAC : LayoutTests/fast/js/large-expressions.html = FAIL
+WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
+
