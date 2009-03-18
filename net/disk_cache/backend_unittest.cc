@@ -356,6 +356,14 @@ TEST_F(DiskCacheBackendTest, ValidEntry) {
 // The same logic of the previous test (ValidEntry), but this time force the
 // entry to be invalid, simulating a crash in the middle.
 // We'll be leaking memory from this test.
+//
+// This and the other intentionally leaky tests below are excluded from
+// purify and valgrind runs by naming them in the files
+//   net/data/purify/net_unittests.exe.gtest.txt and
+//   net/data/valgrind/net_unittests.gtest.txt
+// The scripts tools/{purify,valgrind}/chrome_tests.sh
+// read those files and pass the appropriate --gtest_filter to net_unittests.
+//
 TEST_F(DiskCacheBackendTest, InvalidEntry) {
   // Use the implementation directly... we need to simulate a crash.
   SetDirectMode();
