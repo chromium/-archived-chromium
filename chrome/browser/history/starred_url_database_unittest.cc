@@ -77,8 +77,7 @@ class StarredURLDatabaseTest : public testing::Test,
         FILE_PATH_LITERAL("History_with_empty_starred"));
     file_util::CopyFile(old_history_path, db_file_);
 
-    EXPECT_EQ(SQLITE_OK,
-        sqlite3_open(WideToUTF8(db_file_.ToWStringHack()).c_str(), &db_));
+    EXPECT_EQ(SQLITE_OK, OpenSqliteDb(db_file_, &db_));
     statement_cache_ = new SqliteStatementCache(db_);
 
     // Initialize the tables for this test.

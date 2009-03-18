@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H__
-#define CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H__
+#ifndef CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H_
+#define CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H_
 
+#include "base/file_path.h"
 #include "chrome/browser/history/download_database.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/history/history_types.h"
@@ -62,8 +63,8 @@ class HistoryDatabase : public DownloadDatabase,
   // Must call this function to complete initialization. Will return true on
   // success. On false, no other function should be called. You may want to call
   // BeginExclusiveMode after this when you are ready.
-  InitStatus Init(const std::wstring& history_name,
-                  const std::wstring& tmp_bookmarks_path);
+  InitStatus Init(const FilePath& history_name,
+                  const FilePath& tmp_bookmarks_path);
 
   // Call to set the mode on the database to exclusive. The default locking mode
   // is "normal" but we want to run in exclusive mode for slightly better
@@ -143,7 +144,7 @@ class HistoryDatabase : public DownloadDatabase,
   //
   // This assumes it is called from the init function inside a transaction. It
   // may commit the transaction and start a new one if migration requires it.
-  InitStatus EnsureCurrentVersion(const std::wstring& tmp_bookmarks_path);
+  InitStatus EnsureCurrentVersion(const FilePath& tmp_bookmarks_path);
 
   // ---------------------------------------------------------------------------
 
@@ -162,9 +163,9 @@ class HistoryDatabase : public DownloadDatabase,
 
   MetaTableHelper meta_table_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HistoryDatabase);
+  DISALLOW_COPY_AND_ASSIGN(HistoryDatabase);
 };
 
 }  // history
 
-#endif  // CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H__
+#endif  // CHROME_BROWSER_HISTORY_HISTORY_DATABASE_H_

@@ -2,11 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H__
-#define CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H__
+#ifndef CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H_
+#define CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H_
 
 #include <vector>
 
+#include "base/file_path.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/url_database.h"  // For DBCloseScoper.
 #include "chrome/browser/meta_table_helper.h"
@@ -38,7 +39,7 @@ class ThumbnailDatabase {
 
   // Must be called after creation but before any other methods are called.
   // When not INIT_OK, no other functions should be called.
-  InitStatus Init(const std::wstring& db_name,
+  InitStatus Init(const FilePath& db_name,
                   const HistoryPublisher* history_publisher);
 
   // Transactions on the database.
@@ -174,4 +175,4 @@ class ThumbnailDatabase {
 
 }  // namespace history
 
-#endif  // CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H__
+#endif  // CHROME_BROWSER_HISTORY_THUMBNAIL_DATABASE_H_

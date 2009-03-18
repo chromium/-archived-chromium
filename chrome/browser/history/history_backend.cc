@@ -166,7 +166,7 @@ class HistoryBackend::URLQuerier {
 
 // HistoryBackend --------------------------------------------------------------
 
-HistoryBackend::HistoryBackend(const std::wstring& history_dir,
+HistoryBackend::HistoryBackend(const FilePath& history_dir,
                                Delegate* delegate,
                                BookmarkService* bookmark_service)
     : delegate_(delegate),
@@ -238,16 +238,12 @@ void HistoryBackend::NotifyRenderProcessHostDestruction(const void* host) {
   tracker_.NotifyRenderProcessHostDestruction(host);
 }
 
-std::wstring HistoryBackend::GetThumbnailFileName() const {
-  std::wstring thumbnail_name = history_dir_;
-  file_util::AppendToPath(&thumbnail_name, chrome::kThumbnailsFilename);
-  return thumbnail_name;
+FilePath HistoryBackend::GetThumbnailFileName() const {
+  return history_dir_.Append(chrome::kThumbnailsFilename);
 }
 
-std::wstring HistoryBackend::GetArchivedFileName() const {
-  std::wstring archived_name = history_dir_;
-  file_util::AppendToPath(&archived_name, chrome::kArchivedHistoryFilename);
-  return archived_name;
+FilePath HistoryBackend::GetArchivedFileName() const {
+  return history_dir_.Append(chrome::kArchivedHistoryFilename);
 }
 
 SegmentID HistoryBackend::GetLastSegmentID(VisitID from_visit) {
@@ -476,14 +472,11 @@ void HistoryBackend::InitImpl() {
 
   // Compute the file names. Note that the index file can be removed when the
   // text db manager is finished being hooked up.
-  std::wstring history_name = history_dir_;
-  file_util::AppendToPath(&history_name,
-                          FilePath(chrome::kHistoryFilename).ToWStringHack());
-  std::wstring thumbnail_name = GetThumbnailFileName();
-  std::wstring archived_name = GetArchivedFileName();
-  std::wstring tmp_bookmarks_file = history_dir_;
-  file_util::AppendToPath(&tmp_bookmarks_file,
-      FilePath(chrome::kHistoryBookmarksFileName).ToWStringHack());
+  FilePath history_name = history_dir_.Append(chrome::kHistoryFilename);
+  FilePath thumbnail_name = GetThumbnailFileName();
+  FilePath archived_name = GetArchivedFileName();
+  FilePath tmp_bookmarks_file = history_dir_.Append(
+      chrome::kHistoryBookmarksFileName);
 
   // History database.
   db_.reset(new HistoryDatabase());
@@ -507,7 +500,7 @@ void HistoryBackend::InitImpl() {
   // Fill the in-memory database and send it back to the history service on the
   // main thread.
   InMemoryHistoryBackend* mem_backend = new InMemoryHistoryBackend;
-  if (mem_backend->Init(history_name))
+  if (mem_backend->Init(history_name.ToWStringHack()))
     delegate_->SetInMemoryBackend(mem_backend);  // Takes ownership of pointer.
   else
     delete mem_backend;  // Error case, run without the in-memory DB.
@@ -1733,7 +1726,7 @@ void HistoryBackend::DeleteAllHistory() {
   if (archived_db_.get()) {
     // Close the database and delete the file.
     archived_db_.reset();
-    std::wstring archived_file_name = GetArchivedFileName();
+    FilePath archived_file_name = GetArchivedFileName();
     file_util::Delete(archived_file_name, false);
 
     // Now re-initialize the database (which may fail).

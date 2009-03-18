@@ -4,6 +4,7 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/history/archived_database.h"
+#include "chrome/common/sqlite_utils.h"
 
 namespace history {
 
@@ -22,12 +23,11 @@ ArchivedDatabase::ArchivedDatabase()
 ArchivedDatabase::~ArchivedDatabase() {
 }
 
-bool ArchivedDatabase::Init(const std::wstring& file_name) {
-  // Open the history database, using the narrow version of open indicates to
-  // sqlite that we want the database to be in UTF-8 if it doesn't already
-  // exist.
+bool ArchivedDatabase::Init(const FilePath& file_name) {
+  // OpenSqliteDb uses the narrow version of open, indicating to sqlite that we
+  // want the database to be in UTF-8 if it doesn't already exist.
   DCHECK(!db_) << "Already initialized!";
-  if (sqlite3_open(WideToUTF8(file_name).c_str(), &db_) != SQLITE_OK)
+  if (OpenSqliteDb(file_name, &db_) != SQLITE_OK)
     return false;
   statement_cache_ = new SqliteStatementCache(db_);
   DBCloseScoper scoper(&db_, &statement_cache_);

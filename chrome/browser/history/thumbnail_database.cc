@@ -33,13 +33,13 @@ ThumbnailDatabase::~ThumbnailDatabase() {
   // The DBCloseScoper will delete the DB and the cache.
 }
 
-InitStatus ThumbnailDatabase::Init(const std::wstring& db_name,
+InitStatus ThumbnailDatabase::Init(const FilePath& db_name,
                                    const HistoryPublisher* history_publisher) {
   history_publisher_ = history_publisher;
 
-  // Open the thumbnail database, using the narrow version of open so that
-  // the DB is in UTF-8.
-  if (sqlite3_open(WideToUTF8(db_name).c_str(), &db_) != SQLITE_OK)
+  // OpenSqliteDb uses the narrow version of open, so the resulting DB is in
+  // UTF-8.
+  if (OpenSqliteDb(db_name, &db_) != SQLITE_OK)
     return INIT_FAILURE;
 
   // Set the database page size to something  larger to give us

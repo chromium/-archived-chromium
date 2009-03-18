@@ -21,6 +21,7 @@
 #include <algorithm>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/jpeg_codec.h"
 #include "base/message_loop.h"
@@ -151,8 +152,9 @@ class HistoryTest : public testing::Test {
 
   // testing::Test
   virtual void SetUp() {
-    PathService::Get(base::DIR_TEMP, &history_dir_);
-    file_util::AppendToPath(&history_dir_, L"HistoryTest");
+    FilePath temp_dir;
+    PathService::Get(base::DIR_TEMP, &temp_dir);
+    history_dir_ = temp_dir.AppendASCII("HistoryTest");
     file_util::Delete(history_dir_, true);
     file_util::CreateDirectory(history_dir_);
   }
@@ -259,7 +261,7 @@ class HistoryTest : public testing::Test {
   scoped_refptr<HistoryService> history_service_;
 
   // names of the database files
-  std::wstring history_dir_;
+  FilePath history_dir_;
 
   // Set by the thumbnail callback when we get data, you should be sure to
   // clear this before issuing a thumbnail request.
@@ -376,7 +378,7 @@ TEST_F(HistoryTest, ClearBrowsingData_Downloads) {
 TEST_F(HistoryTest, AddPage) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   // Add the page once from a child frame.
   const GURL test_url("http://www.google.com/");
@@ -400,7 +402,7 @@ TEST_F(HistoryTest, AddPage) {
 TEST_F(HistoryTest, AddPageSameTimes) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   Time now = Time::Now();
   const GURL test_urls[] = {
@@ -440,7 +442,7 @@ TEST_F(HistoryTest, AddPageSameTimes) {
 TEST_F(HistoryTest, AddRedirect) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   const char* first_sequence[] = {
     "http://first.page/",
@@ -511,7 +513,7 @@ TEST_F(HistoryTest, AddRedirect) {
 TEST_F(HistoryTest, Typed) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   // Add the page once as typed.
   const GURL test_url("http://www.google.com/");
@@ -554,7 +556,7 @@ TEST_F(HistoryTest, Typed) {
 TEST_F(HistoryTest, SetTitle) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   // Add a URL.
   const GURL existing_url("http://www.google.com/");
@@ -585,7 +587,7 @@ TEST_F(HistoryTest, Segments) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
 
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   static const void* scope = static_cast<void*>(this);
 
@@ -651,7 +653,7 @@ TEST_F(HistoryTest, Segments) {
 TEST_F(HistoryTest, Thumbnails) {
   scoped_refptr<HistoryService> history(new HistoryService);
   history_service_ = history;
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
 
   scoped_ptr<SkBitmap> thumbnail(
       JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
@@ -716,17 +718,17 @@ TEST_F(HistoryTest, Thumbnails) {
 // See test/data/profiles/typical_history/README.txt for instructions on
 // how to up the version.
 TEST(HistoryProfileTest, TypicalProfileVersion) {
-  std::wstring file;
+  FilePath file;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &file));
-  file_util::AppendToPath(&file, L"profiles");
-  file_util::AppendToPath(&file, L"typical_history");
-  file_util::AppendToPath(&file, L"Default");
-  file_util::AppendToPath(&file, L"History");
+  file = file.AppendASCII("profiles");
+  file = file.AppendASCII("typical_history");
+  file = file.AppendASCII("Default");
+  file = file.AppendASCII("History");
 
   int cur_version = HistoryDatabase::GetCurrentVersion();
 
   sqlite3* db;
-  ASSERT_EQ(SQLITE_OK, sqlite3_open(WideToUTF8(file).c_str(), &db));
+  ASSERT_EQ(SQLITE_OK, OpenSqliteDb(file, &db));
 
   {
     SQLStatement s;
@@ -800,7 +802,7 @@ const int HistoryDBTaskImpl::kWantInvokeCount = 2;
 TEST_F(HistoryTest, HistoryDBTask) {
   CancelableRequestConsumerT<int, 0> request_consumer;
   HistoryService* history = new HistoryService();
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
   scoped_refptr<HistoryDBTaskImpl> task(new HistoryDBTaskImpl());
   history_service_ = history;
   history->ScheduleDBTask(task.get(), &request_consumer);
@@ -818,7 +820,7 @@ TEST_F(HistoryTest, HistoryDBTask) {
 TEST_F(HistoryTest, HistoryDBTaskCanceled) {
   CancelableRequestConsumerT<int, 0> request_consumer;
   HistoryService* history = new HistoryService();
-  ASSERT_TRUE(history->Init(FilePath::FromWStringHack(history_dir_), NULL));
+  ASSERT_TRUE(history->Init(history_dir_, NULL));
   scoped_refptr<HistoryDBTaskImpl> task(new HistoryDBTaskImpl());
   history_service_ = history;
   history->ScheduleDBTask(task.get(), &request_consumer);

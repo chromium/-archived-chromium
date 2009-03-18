@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "chrome/browser/history/text_database_manager.h"
@@ -34,27 +35,6 @@ const wchar_t* kBody4 = L"FOO lalala four.";
 const char* kURL5 = "http://www.google.com/uiop";
 const wchar_t* kTitle5 = L"Google cinq";
 const wchar_t* kBody5 = L"FOO page one.";
-
-class TextDatabaseManagerTest : public testing::Test {
- public:
-  // Called manually by the test so it can report failure to initialize.
-  bool Init() {
-    return file_util::CreateNewTempDirectory(L"TestSearchTest", &dir_);
-  }
-
- protected:
-  void SetUp() {
-  }
-
-  void TearDown() {
-    file_util::Delete(dir_, true);
-  }
-
-  MessageLoop message_loop_;
-
-  // Directory containing the databases.
-  std::wstring dir_;
-};
 
 // This provides a simple implementation of a URL+VisitDatabase using an
 // in-memory sqlite connection. The text database manager expects to be able to
@@ -163,6 +143,28 @@ bool ResultsHaveURL(const std::vector<TextDatabase::Match>& results,
 }
 
 }  // namespace
+
+class TextDatabaseManagerTest : public testing::Test {
+ public:
+  // Called manually by the test so it can report failure to initialize.
+  bool Init() {
+    return file_util::CreateNewTempDirectory(
+        FILE_PATH_LITERAL("TestSearchTest"), &dir_);
+  }
+
+ protected:
+  void SetUp() {
+  }
+
+  void TearDown() {
+    file_util::Delete(dir_, true);
+  }
+
+  MessageLoop message_loop_;
+
+  // Directory containing the databases.
+  FilePath dir_;
+};
 
 // Tests basic querying.
 TEST_F(TextDatabaseManagerTest, InsertQuery) {

@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H__
-#define CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H__
+#ifndef CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H_
+#define CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H_
 
 #include <utility>
 
 #include "base/gfx/rect.h"
+#include "base/file_path.h"
 #include "base/lock.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
@@ -95,7 +96,7 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // may be NULL.
   //
   // This constructor is fast and does no I/O, so can be called at any time.
-  HistoryBackend(const std::wstring& history_dir,
+  HistoryBackend(const FilePath& history_dir,
                  Delegate* delegate,
                  BookmarkService* bookmark_service);
 
@@ -263,8 +264,8 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   friend class ::TestingProfile;
 
   // Computes the name of the specified database on disk.
-  std::wstring GetThumbnailFileName() const;
-  std::wstring GetArchivedFileName() const;
+  FilePath GetThumbnailFileName() const;
+  FilePath GetArchivedFileName() const;
 
   class URLQuerier;
   friend class URLQuerier;
@@ -410,7 +411,7 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   scoped_ptr<Delegate> delegate_;
 
   // Directory where database files will be stored.
-  std::wstring history_dir_;
+  FilePath history_dir_;
 
   // The history/thumbnail databases. Either MAY BE NULL if the database could
   // not be opened, all users must first check for NULL and return immediately
@@ -489,9 +490,9 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // history data from us. Can be NULL if there are no listeners.
   scoped_ptr<HistoryPublisher> history_publisher_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(HistoryBackend);
+  DISALLOW_COPY_AND_ASSIGN(HistoryBackend);
 };
 
 }  // namespace history
 
-#endif  // CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H__
+#endif  // CHROME_BROWSER_HISTORY_HISTORY_BACKEND_H_

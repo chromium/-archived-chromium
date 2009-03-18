@@ -8,10 +8,7 @@
 #include <set>
 
 #include "base/string_util.h"
-
-// Only needed for migration.
-#include "base/file_util.h"
-#include "chrome/browser/history/text_database_manager.h"
+#include "chrome/common/sqlite_utils.h"
 
 namespace history {
 
@@ -31,13 +28,12 @@ HistoryDatabase::HistoryDatabase()
 HistoryDatabase::~HistoryDatabase() {
 }
 
-InitStatus HistoryDatabase::Init(const std::wstring& history_name,
-                                 const std::wstring& bookmarks_path) {
-  // Open the history database, using the narrow version of open indicates to
-  // sqlite that we want the database to be in UTF-8 if it doesn't already
-  // exist.
+InitStatus HistoryDatabase::Init(const FilePath& history_name,
+                                 const FilePath& bookmarks_path) {
+  // OpenSqliteDb uses the narrow version of open, indicating to sqlite that we
+  // want the database to be in UTF-8 if it doesn't already exist.
   DCHECK(!db_) << "Already initialized!";
-  if (sqlite3_open(WideToUTF8(history_name).c_str(), &db_) != SQLITE_OK)
+  if (OpenSqliteDb(history_name, &db_) != SQLITE_OK)
     return INIT_FAILURE;
   statement_cache_ = new SqliteStatementCache;
   DBCloseScoper scoper(&db_, &statement_cache_);
@@ -199,7 +195,7 @@ SqliteStatementCache& HistoryDatabase::GetStatementCache() {
 // Migration -------------------------------------------------------------------
 
 InitStatus HistoryDatabase::EnsureCurrentVersion(
-    const std::wstring& tmp_bookmarks_path) {
+    const FilePath& tmp_bookmarks_path) {
   // We can't read databases newer than we were designed for.
   if (meta_table_.GetCompatibleVersionNumber() > kCurrentVersionNumber) {
     LOG(WARNING) << "History database is too new.";

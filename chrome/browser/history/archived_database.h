@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H__
-#define CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H__
+#ifndef CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H_
+#define CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H_
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "chrome/browser/history/download_database.h"
 #include "chrome/browser/history/url_database.h"
 #include "chrome/browser/history/visit_database.h"
@@ -29,7 +30,7 @@ class ArchivedDatabase : public URLDatabase,
 
   // Initializes the database connection. This must return true before any other
   // functions on this class are called.
-  bool Init(const std::wstring& file_name);
+  bool Init(const FilePath& file_name);
 
   // Transactions on the database. We support nested transactions and only
   // commit when the outermost one is committed (sqlite doesn't support true
@@ -64,9 +65,9 @@ class ArchivedDatabase : public URLDatabase,
 
   MetaTableHelper meta_table_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ArchivedDatabase);
+  DISALLOW_COPY_AND_ASSIGN(ArchivedDatabase);
 };
 
 }  // namespace history
 
-#endif  // CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H__
+#endif  // CHROME_BROWSER_HISTORY_ARCHIVED_DATABASE_H_

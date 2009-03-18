@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -42,12 +43,12 @@ class VisitDatabaseTest : public PlatformTest,
   // Test setup.
   void SetUp() {
     PlatformTest::SetUp();
-    PathService::Get(base::DIR_TEMP, &db_file_);
-    db_file_.push_back(FilePath::kSeparators[0]);
-    db_file_.append(L"VisitTest.db");
+    FilePath temp_dir;
+    PathService::Get(base::DIR_TEMP, &temp_dir);
+    db_file_ = temp_dir.AppendASCII("VisitTest.db");
     file_util::Delete(db_file_, false);
 
-    EXPECT_EQ(SQLITE_OK, sqlite3_open(WideToUTF8(db_file_).c_str(), &db_));
+    EXPECT_EQ(SQLITE_OK, OpenSqliteDb(db_file_, &db_));
     statement_cache_ = new SqliteStatementCache(db_);
 
     // Initialize the tables for this test.
@@ -71,7 +72,7 @@ class VisitDatabaseTest : public PlatformTest,
     return *statement_cache_;
   }
 
-  std::wstring db_file_;
+  FilePath db_file_;
   sqlite3* db_;
   SqliteStatementCache* statement_cache_;
 };

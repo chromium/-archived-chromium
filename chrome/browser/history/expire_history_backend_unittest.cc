@@ -4,6 +4,7 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/jpeg_codec.h"
 #include "base/path_service.h"
@@ -111,21 +112,21 @@ class ExpireHistoryTest : public testing::Test,
 
     FilePath history_name = dir_.Append(kHistoryFile);
     main_db_.reset(new HistoryDatabase);
-    if (main_db_->Init(history_name.ToWStringHack(), std::wstring()) !=
+    if (main_db_->Init(history_name, FilePath()) !=
         INIT_OK)
       main_db_.reset();
 
     FilePath archived_name = dir_.Append(kArchivedHistoryFile);
     archived_db_.reset(new ArchivedDatabase);
-    if (!archived_db_->Init(archived_name.ToWStringHack()))
+    if (!archived_db_->Init(archived_name))
       archived_db_.reset();
 
     FilePath thumb_name = dir_.Append(kThumbnailFile);
     thumb_db_.reset(new ThumbnailDatabase);
-    if (thumb_db_->Init(thumb_name.ToWStringHack(), NULL) != INIT_OK)
+    if (thumb_db_->Init(thumb_name, NULL) != INIT_OK)
       thumb_db_.reset();
 
-    text_db_.reset(new TextDatabaseManager(dir_.ToWStringHack(),
+    text_db_.reset(new TextDatabaseManager(dir_,
                                            main_db_.get(), main_db_.get()));
     if (!text_db_->Init(NULL))
       text_db_.reset();
@@ -410,7 +411,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   // it just like the test set-up did.
   text_db_.reset();
   EXPECT_TRUE(IsStringInFile(fts_filename, "goats"));
-  text_db_.reset(new TextDatabaseManager(dir_.ToWStringHack(),
+  text_db_.reset(new TextDatabaseManager(dir_,
                                          main_db_.get(), main_db_.get()));
   ASSERT_TRUE(text_db_->Init(NULL));
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),
@@ -423,7 +424,7 @@ TEST_F(ExpireHistoryTest, DeleteURLAndFavicon) {
   // doesn't remove it from the file, we want to be sure we're doing the latter.
   text_db_.reset();
   EXPECT_FALSE(IsStringInFile(fts_filename, "goats"));
-  text_db_.reset(new TextDatabaseManager(dir_.ToWStringHack(),
+  text_db_.reset(new TextDatabaseManager(dir_,
                                          main_db_.get(), main_db_.get()));
   ASSERT_TRUE(text_db_->Init(NULL));
   expirer_.SetDatabases(main_db_.get(), archived_db_.get(), thumb_db_.get(),

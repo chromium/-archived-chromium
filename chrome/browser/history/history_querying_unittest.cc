@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/history/history.h"
@@ -83,13 +84,14 @@ class HistoryQueryTest : public testing::Test {
 
  private:
   virtual void SetUp() {
-    PathService::Get(base::DIR_TEMP, &history_dir_);
-    file_util::AppendToPath(&history_dir_, L"HistoryTest");
+    FilePath temp_dir;
+    PathService::Get(base::DIR_TEMP, &temp_dir);
+    history_dir_ = temp_dir.AppendASCII("HistoryTest");
     file_util::Delete(history_dir_, true);
     file_util::CreateDirectory(history_dir_);
 
     history_ = new HistoryService;
-    if (!history_->Init(FilePath::FromWStringHack(history_dir_), NULL)) {
+    if (!history_->Init(history_dir_, NULL)) {
       history_ = NULL;  // Tests should notice this NULL ptr & fail.
       return;
     }
@@ -129,7 +131,7 @@ class HistoryQueryTest : public testing::Test {
 
   MessageLoop message_loop_;
 
-  std::wstring history_dir_;
+  FilePath history_dir_;
 
   CancelableRequestConsumer consumer_;
 

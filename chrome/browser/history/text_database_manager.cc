@@ -67,10 +67,10 @@ bool TextDatabaseManager::PageInfo::Expired(TimeTicks now) const {
 
 // TextDatabaseManager ---------------------------------------------------------
 
-TextDatabaseManager::TextDatabaseManager(const std::wstring& dir,
+TextDatabaseManager::TextDatabaseManager(const FilePath& dir,
                                          URLDatabase* url_database,
                                          VisitDatabase* visit_database)
-    : dir_(FilePath::FromWStringHack(dir)),
+    : dir_(dir),
       db_(NULL),
       url_database_(url_database),
       visit_database_(visit_database),

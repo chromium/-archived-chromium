@@ -135,7 +135,7 @@ bool HistoryService::Init(const FilePath& history_dir,
 
   // Create the history backend.
   scoped_refptr<HistoryBackend> backend(
-      new HistoryBackend(history_dir.ToWStringHack(),
+      new HistoryBackend(history_dir,
                          new BackendDelegate(this),
                          bookmark_service));
   history_backend_.swap(backend);

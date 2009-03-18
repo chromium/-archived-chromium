@@ -91,7 +91,7 @@ StarredURLDatabase::StarredURLDatabase() {
 StarredURLDatabase::~StarredURLDatabase() {
 }
 
-bool StarredURLDatabase::MigrateBookmarksToFile(const std::wstring& path) {
+bool StarredURLDatabase::MigrateBookmarksToFile(const FilePath& path) {
   if (!DoesSqliteTableExist(GetDB(), "starred"))
     return true;
 
@@ -537,7 +537,7 @@ bool StarredURLDatabase::Move(StarredNode* source, StarredNode* new_parent) {
   return true;
 }
 
-bool StarredURLDatabase::MigrateBookmarksToFileImpl(const std::wstring& path) {
+bool StarredURLDatabase::MigrateBookmarksToFileImpl(const FilePath& path) {
   std::vector<history::StarredEntry> entries;
   if (!GetAllStarredEntries(&entries))
     return false;

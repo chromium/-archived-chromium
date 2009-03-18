@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H__
-#define CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H__
+#ifndef CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H_
+#define CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H_
 
 #include <set>
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/task.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/text_database.h"
@@ -72,7 +73,7 @@ class TextDatabaseManager {
   // The visit database is a pointer owned by the caller for the main database
   // (of recent visits). The visit database will be updated to refer to the
   // added text database entries.
-  explicit TextDatabaseManager(const std::wstring& dir,
+  explicit TextDatabaseManager(const FilePath& dir,
                                URLDatabase* url_database,
                                VisitDatabase* visit_database);
   ~TextDatabaseManager();
@@ -301,9 +302,9 @@ class TextDatabaseManager {
   // data from us.
   const HistoryPublisher* history_publisher_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TextDatabaseManager);
+  DISALLOW_COPY_AND_ASSIGN(TextDatabaseManager);
 };
 
 }  // namespace history
 
-#endif  // CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H__
+#endif  // CHROME_BROWSER_HISTORY_TEXT_DATABASE_MANAGER_H_

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/jpeg_codec.h"
 #include "base/path_service.h"
@@ -83,7 +84,8 @@ class HistoryBackendTest : public testing::Test {
 
   // testing::Test
   virtual void SetUp() {
-    if (!file_util::CreateNewTempDirectory(L"BackendTest", &test_dir_))
+    if (!file_util::CreateNewTempDirectory(FILE_PATH_LITERAL("BackendTest"),
+                                           &test_dir_))
       return;
     backend_ = new HistoryBackend(test_dir_,
                                   new HistoryBackendTestDelegate(this),
@@ -112,7 +114,7 @@ class HistoryBackendTest : public testing::Test {
   }
 
   MessageLoop message_loop_;
-  std::wstring test_dir_;
+  FilePath test_dir_;
 };
 
 void HistoryBackendTestDelegate::SetInMemoryBackend(

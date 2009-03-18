@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H__
-#define CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H__
+#ifndef CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H_
+#define CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H_
 
 #include <map>
 #include <set>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "chrome/browser/history/history_types.h"
 #include "chrome/browser/history/url_database.h"
 #include "chrome/views/controls/tree/tree_node_model.h"
@@ -36,7 +37,7 @@ class StarredURLDatabase : public URLDatabase {
   FRIEND_TEST(HistoryTest, CreateStarGroup);
 
   // Writes bookmarks to the specified file.
-  bool MigrateBookmarksToFile(const std::wstring& path);
+  bool MigrateBookmarksToFile(const FilePath& path);
 
   // Returns the database and statement cache for the functions in this
   // interface. The decendent of this class implements these functions to
@@ -175,11 +176,11 @@ class StarredURLDatabase : public URLDatabase {
 
   // Does the work of migrating bookmarks to a temporary file that
   // BookmarkStorage will read from.
-  bool MigrateBookmarksToFileImpl(const std::wstring& path);
+  bool MigrateBookmarksToFileImpl(const FilePath& path);
 
-  DISALLOW_EVIL_CONSTRUCTORS(StarredURLDatabase);
+  DISALLOW_COPY_AND_ASSIGN(StarredURLDatabase);
 };
 
 }  // namespace history
 
-#endif  // CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H__
+#endif  // CHROME_BROWSER_HISTORY_STARRED_URL_DATABASE_H_

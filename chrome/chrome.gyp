@@ -2104,8 +2104,6 @@
             'browser/download/download_manager_unittest.cc',
             'browser/download/download_request_manager_unittest.cc',
             'browser/extensions/user_script_master_unittest.cc',
-            'browser/history/text_database_manager_unittest.cc',
-            'browser/history/thumbnail_database_unittest.cc',
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',
             'browser/login_prompt_unittest.cc',

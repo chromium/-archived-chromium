@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/jpeg_codec.h"
 #include "base/path_service.h"
@@ -21,34 +22,6 @@ namespace history {
 
 namespace {
 
-class ThumbnailDatabaseTest : public testing::Test {
- public:
-  ThumbnailDatabaseTest() {
-  }
-  ~ThumbnailDatabaseTest() {
-  }
-
- protected:
-  // testing::Test
-  virtual void SetUp() {
-    // get an empty file for the test DB
-    PathService::Get(chrome::DIR_TEST_DATA, &file_name_);
-    file_util::AppendToPath(&file_name_, L"TestThumbnails.db");
-    file_util::Delete(file_name_, false);
-
-    google_bitmap_.reset(
-        JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
-  }
-
-  virtual void TearDown() {
-    file_util::Delete(file_name_, false);
-  }
-
-  scoped_ptr<SkBitmap> google_bitmap_;
-
-  std::wstring file_name_;
-};
-
 // data we'll put into the thumbnail database
 static const unsigned char blob1[] =
     "12346102356120394751634516591348710478123649165419234519234512349134";
@@ -65,6 +38,34 @@ const int64 kPage1 = 1234;
 
 }  // namespace
 
+class ThumbnailDatabaseTest : public testing::Test {
+ public:
+  ThumbnailDatabaseTest() {
+  }
+  ~ThumbnailDatabaseTest() {
+  }
+
+ protected:
+  // testing::Test
+  virtual void SetUp() {
+    // get an empty file for the test DB
+    FilePath test_data_dir;
+    PathService::Get(chrome::DIR_TEST_DATA, &test_data_dir);
+    file_name_ = test_data_dir.AppendASCII("TestThumbnails.db");
+    file_util::Delete(file_name_, false);
+
+    google_bitmap_.reset(
+        JPEGCodec::Decode(kGoogleThumbnail, sizeof(kGoogleThumbnail)));
+  }
+
+  virtual void TearDown() {
+    file_util::Delete(file_name_, false);
+  }
+
+  scoped_ptr<SkBitmap> google_bitmap_;
+
+  FilePath file_name_;
+};
 
 TEST_F(ThumbnailDatabaseTest, AddDelete) {
   ThumbnailDatabase db;
