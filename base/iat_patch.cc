@@ -169,7 +169,8 @@ DWORD ModifyCode(void* old_code, void* new_code, int length) {
 }
 
 IATPatchFunction::IATPatchFunction()
-    : original_function_(NULL),
+    : module_handle_(NULL),
+      original_function_(NULL),
       iat_thunk_(NULL),
       intercept_function_(NULL) {
 }
