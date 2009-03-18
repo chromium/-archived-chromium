@@ -921,7 +921,7 @@ WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
 LINUX MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
-LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
@@ -1295,7 +1295,6 @@ MAC : LayoutTests/http/tests/navigation/error404-subframeload.html = TIMEOUT PAS
 MAC : LayoutTests/fast/dom/Window/element-constructors-on-window.html = CRASH FAIL PASS
 MAC : LayoutTests/fast/loader/charset-parse.html = PASS CRASH FAIL
 MAC : LayoutTests/fast/borders/border-image-omit-right-slice.html = CRASH PASS
-MAC : LayoutTests/editing/execCommand/paste-2.html = FAIL PASS
 MAC : LayoutTests/fast/borders/border-image-01.html = CRASH PASS
 MAC : LayoutTests/fast/canvas/linearGradient-infinite-values.html = CRASH PASS
 MAC : LayoutTests/fast/css/acid2-pixel.html = CRASH PASS
@@ -1401,11 +1400,6 @@ MAC : LayoutTests/fast/reflections/reflection-overflow-hidden.html = PASS FAIL
 // Linux's rotated text output looks terrible.
 LINUX : LayoutTests/fast/transforms/transformed-document-element.html = FAIL
 
-// Passes locally when run individually, but fails on buildbot. Could be a
-// sideffect from previous test causing it to be flaky. Seems to have
-// started with r7379
-WIN DEBUG : LayoutTests/editing/execCommand/paste-2.html = PASS FAIL
-
 // Merge 39606:39660 - new tests
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER SKIP : LayoutTests/fast/events/pointer-events-2.html = FAIL
@@ -1434,7 +1428,7 @@ DEFER LINUX WIN : LayoutTests/fast/events/init-events.html = FAIL
 DEFER : LayoutTests/plugins/netscape-throw-exception.html = FAIL
 
 // Merge 39744:39913? - regressions
-LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
+MAC LINUX : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = PASS TIMEOUT
 LINUX : LayoutTests/http/tests/local/stylesheet-and-script-load-order-http.html = PASS TIMEOUT
 LINUX : LayoutTests/svg/custom/animate-path-morphing.svg = PASS FAIL
 LINUX : LayoutTests/svg/custom/circular-marker-reference-1.svg = PASS FAIL
@@ -1511,8 +1505,6 @@ SKIP : LayoutTests/fast/dynamic/insert-before-table-part-in-continuation.html = 
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 
-// Flakey tests added 2/4/09. Don't know when they became flakey.
-WIN : LayoutTests/fast/dom/Window/timeout-callback-scope.html = TIMEOUT PASS
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
 MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
@@ -1552,7 +1544,6 @@ LINUX : LayoutTests/fast/block/positioning/001.html = FAIL PASS
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER : LayoutTests/fast/dom/getClientRects.html = FAIL
 WIN : LayoutTests/fast/forms/searchfield-heights.html = FAIL
-WIN LINUX : LayoutTests/fast/text/line-breaks.html = FAIL PASS
 
 // Sharted showing up the mac build bots as timeout or pass on 02/16/09 in
 // debug, starting 03/10/09 it sometimes passes in release.
@@ -1782,7 +1773,6 @@ MAC : LayoutTests/http/tests/navigation/reload-subframe-iframe.html = TIMEOUT PA
 MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url.html = TIMEOUT PASS
 WIN DEBUG : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL PASS
 WIN DEBUG : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
-LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
 // Newly added test from 41613:41660
 DEFER MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.html = FAIL
