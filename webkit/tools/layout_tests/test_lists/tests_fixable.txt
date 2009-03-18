@@ -87,8 +87,6 @@ DEFER LINUX WIN : LayoutTests/fast/text/capitalize-boundaries.html = FAIL
 DEFER : LayoutTests/fast/forms/control-restrict-line-height.html = FAIL
 DEFER : LayoutTests/fast/replaced/table-percent-height.html = FAIL
 
-// Bug 992930: Unable to load file:/// URLs from data: URLs.
-DEFER RELEASE : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // -----------------------------------------------------------------
 // URL
@@ -1376,11 +1374,9 @@ DEFER : LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 // support. Enable once we turn on DOM_STORAGE.
 DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 
-// This is failing because of an additional console message.
-LINUX WIN DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
-
-// eventSender to fake a drag
-MAC DEBUG : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+// Bug 992930: In our port, we prevent the loading of file:/// URLs from
+// data: URLs.  We should try to fix the test to not use a data: URL.
+DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
