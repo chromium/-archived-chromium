@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8InspectorControllerCustom.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8LocationCustom.cpp"
 				>
 			</File>

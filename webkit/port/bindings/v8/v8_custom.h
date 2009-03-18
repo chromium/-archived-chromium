@@ -406,6 +406,15 @@ DECLARE_CALLBACK(TreeWalkerPreviousNode)
 DECLARE_CALLBACK(TreeWalkerNextSibling)
 DECLARE_CALLBACK(TreeWalkerPreviousSibling)
 
+// Custom implementation of InspectorController functions
+DECLARE_CALLBACK(InspectorControllerDebuggerEnabled)
+DECLARE_CALLBACK(InspectorControllerPauseOnExceptions)
+DECLARE_CALLBACK(InspectorControllerProfilerEnabled)
+#if ENABLE(DATABASE)
+DECLARE_CALLBACK(InspectorControllerDatabaseTableNames)
+#endif
+DECLARE_CALLBACK(InspectorControllerWrapCallback)
+
 // Custom implementation of NodeIterator functions
 DECLARE_CALLBACK(NodeIteratorNextNode)
 DECLARE_CALLBACK(NodeIteratorPreviousNode)
