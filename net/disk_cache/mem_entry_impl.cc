@@ -17,6 +17,8 @@ MemEntryImpl::MemEntryImpl(MemBackendImpl* backend) {
   doomed_ = false;
   backend_ = backend;
   ref_count_ = 0;
+  next_ = NULL;
+  prev_ = NULL;
   for (int i = 0; i < NUM_STREAMS; i++)
     data_size_[i] = 0;
 }

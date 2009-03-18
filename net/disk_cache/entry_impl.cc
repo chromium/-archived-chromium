@@ -579,9 +579,9 @@ void EntryImpl::SetTimes(base::Time last_used, base::Time last_modified) {
 }
 
 bool EntryImpl::CreateDataBlock(int index, int size) {
-  Addr address(entry_.Data()->data_addr[index]);
   DCHECK(index >= 0 && index < NUM_STREAMS);
 
+  Addr address(entry_.Data()->data_addr[index]);
   if (!CreateBlock(size, &address))
     return false;
 

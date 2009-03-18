@@ -507,10 +507,10 @@ void DiskCacheBackendTest::BackendEnumerations() {
     if (count < kNumEntries) {
       last_modified[count] = entry->GetLastModified();
       last_used[count] = entry->GetLastUsed();
+      EXPECT_TRUE(initial <= last_modified[count]);
+      EXPECT_TRUE(final >= last_modified[count]);
     }
 
-    EXPECT_TRUE(initial <= last_modified[count]);
-    EXPECT_TRUE(final >= last_modified[count]);
     entry->Close();
     count++;
   };

@@ -62,7 +62,9 @@ MyOverlapped::MyOverlapped(disk_cache::File* file, size_t offset,
 MyOverlapped::~MyOverlapped() {
   if (delete_buffer_) {
     DCHECK(!callback_);
-    delete buffer_;
+    // This whole thing could be updated to use IOBuffer, but PostWrite is not
+    // used at the moment. TODO(rvargas): remove or update this code.
+    delete[] reinterpret_cast<const char*>(buffer_);
   }
 }
 
