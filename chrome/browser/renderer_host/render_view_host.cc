@@ -786,15 +786,16 @@ void RenderViewHost::Shutdown() {
 void RenderViewHost::OnMsgCreateWindow(int route_id,
                                        ModalDialogEvent modal_dialog_event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
+  if (!view)
+    return;
+
   base::WaitableEvent* waitable_event = new base::WaitableEvent(
 #if defined(OS_WIN)
       modal_dialog_event.event);
 #else
       true, false);
 #endif
-
-  if (view)
-    view->CreateNewWindow(route_id, waitable_event);
+  view->CreateNewWindow(route_id, waitable_event);
 }
 
 void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {
