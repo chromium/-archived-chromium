@@ -28,6 +28,9 @@ const wchar_t kRunDomCheckerTest[] = L"run-dom-checker-test";
 
 class DomCheckerTest : public UITest {
  public:
+  typedef std::list<std::string> ResultsList;
+  typedef std::set<std::string> ResultsSet;
+
   DomCheckerTest() {
     dom_automation_enabled_ = true;
     enable_file_cookies_ = false;
@@ -35,16 +38,13 @@ class DomCheckerTest : public UITest {
     launch_arguments_.AppendSwitch(switches::kDisablePopupBlocking);
   }
 
-  typedef std::list<std::string> ResultsList;
-  typedef std::set<std::string> ResultsSet;
-
   void RunTest(bool use_http, ResultsList* new_passes,
                ResultsList* new_failures) {
     int test_count = 0;
     ResultsSet expected_failures, current_failures;
 
     std::string failures_file = use_http ?
-      "expected_failures-http.txt" : "expected_failures-file.txt";
+        "expected_failures-http.txt" : "expected_failures-file.txt";
 
     GetExpectedFailures(failures_file, &expected_failures);
 
@@ -203,6 +203,8 @@ class DomCheckerTest : public UITest {
     ASSERT_TRUE(GetTestsFailed(tab.get(), tests_failed));
     ASSERT_GT(*test_count, 0);
   }
+
+  DISALLOW_COPY_AND_ASSIGN(DomCheckerTest);
 };
 
 }  // namespace
