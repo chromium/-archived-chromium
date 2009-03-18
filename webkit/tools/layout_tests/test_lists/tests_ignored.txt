@@ -324,3 +324,6 @@ LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
 // testing them by default. The bug to re-enable is:
 // http://code.google.com/p/chromium/issues/detail?id=8455
 SKIP : LayoutTests/transforms/3d = FAIL
+
+// This uses a Mac-only font
+SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html
