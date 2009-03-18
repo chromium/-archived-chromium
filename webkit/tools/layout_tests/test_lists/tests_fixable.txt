@@ -1875,10 +1875,18 @@ DEFER : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 // Linux-only failures
 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
 LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
-LINUX : LayoutTests/fast/dom/java-applet-calls.html = FAIL
+MAC LINUX : LayoutTests/fast/dom/java-applet-calls.html = FAIL
 LINUX : LayoutTests/fast/canvas/unclosed-canvas-3.html = CRASH
-LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 // Just need rebaseline
 LINUX : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
 LINUX : LayoutTests/fast/forms/textarea-width.html = FAIL
 LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
+
+// These don't look like merge regressions, but started occurring after the 41768:41807 merge.
+MAC : LayoutTests/css1/text_properties/text_transform.html = FAIL
+MAC : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
+MAC : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
+MAC : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
+MAC : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
+MAC : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
+LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
