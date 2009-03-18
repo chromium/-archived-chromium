@@ -19,7 +19,6 @@
     browser_ = browser;
     DCHECK(browser_);
     windowShim_ = new BrowserWindowCocoa(browser, self, [self window]);
-    windowShim_->Init();
   }
   return self;
 }
