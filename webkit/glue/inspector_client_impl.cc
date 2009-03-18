@@ -166,8 +166,8 @@ String WebInspectorClient::localizedStringsURL() {
 }
 
 String WebInspectorClient::hiddenPanels() {
-  NOTIMPLEMENTED();
-  return String();
+  // Enumerate tabs that are currently disabled.
+  return "scripts,profiles,databases";
 }
 
 void WebInspectorClient::populateSetting(
