@@ -1192,37 +1192,6 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
   return true;
 }
 
-void WebViewImpl::SetTextDirection(WebTextDirection direction) {
-  // The Editor::setBaseWritingDirection() function checks if we can change
-  // the text direction of the selected node and updates its DOM "dir"
-  // attribute and its CSS "direction" property.
-  // So, we just call the function as Safari does.
-  const Frame* focused = GetFocusedWebCoreFrame();
-  if (!focused)
-    return;
-  Editor* editor = focused->editor();
-  if (!editor || !editor->canEdit())
-    return;
-
-  switch (direction) {
-    case WEB_TEXT_DIRECTION_DEFAULT:
-      editor->setBaseWritingDirection(WebCore::NaturalWritingDirection);
-      break;
-
-    case WEB_TEXT_DIRECTION_LTR:
-      editor->setBaseWritingDirection(WebCore::LeftToRightWritingDirection);
-      break;
-
-    case WEB_TEXT_DIRECTION_RTL:
-      editor->setBaseWritingDirection(WebCore::RightToLeftWritingDirection);
-      break;
-
-    default:
-      NOTIMPLEMENTED();
-      break;
-  }
-}
-
 void WebViewImpl::RestoreFocus() {
   if (last_focused_frame_.get()) {
     if (last_focused_frame_->page()) {

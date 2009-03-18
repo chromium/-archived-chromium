@@ -15,7 +15,6 @@
 #include "chrome/common/native_web_keyboard_event.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "webkit/glue/webinputevent.h"
-#include "webkit/glue/webtextdirection.h"
 
 namespace gfx {
 class Rect;
@@ -216,38 +215,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // And to also expose it to the RenderWidgetHostView.
   virtual gfx::Rect GetRootWindowResizerRect() const;
 
-  // Update the text direction of the focused input element and notify it to a
-  // renderer process.
-  // These functions have two usage scenarios: changing the text direction
-  // from a menu (as Safari does), and; changing the text direction when a user
-  // presses a set of keys (as IE and Firefox do).
-  // 1. Change the text direction from a menu.
-  // In this scenario, we receive a menu event only once and we should update
-  // the text direction immediately when a user chooses a menu item. So, we
-  // should call both functions at once as listed in the following snippet.
-  //   void RenderViewHost::SetTextDirection(WebTextDirection direction) {
-  //     UpdateTextDirectioN(direction);
-  //     NotifyTextDirection();
-  //   }
-  // 2. Change the text direction when pressing a set of keys.
-  // Becauses of auto-repeat, we may receive the same key-press event many
-  // times while we presses the keys and it is nonsense to send the same IPC
-  // messsage every time when we receive a key-press event.
-  // To suppress the number of IPC messages, we just update the text direction
-  // when receiving a key-press event and send an IPC message when we release
-  // the keys as listed in the following snippet.
-  //   if (key_event.type == WebKeyboardEvent::KEY_DOWN) {
-  //     if (key_event.windows_key_code == 'A' &&
-  //         key_event.modifiers == WebKeyboardEvent::CTRL_KEY) {
-  //       UpdateTextDirectioN(dir);
-  //     }
-  //   } else if (key_event.type == WebKeyboardEvent::KEY_UP) {
-  //     NotifyTextDirection();
-  //   }
-  // Note: we cannot undo this change because either Firefox or IE cannot.
-  void UpdateTextDirection(WebTextDirection direction);
-  void NotifyTextDirection();
-
  protected:
   // Internal implementation of the public Forward*Event() methods.
   void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
@@ -395,10 +362,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // stuff key events into a queue and pop them out on ACK, feeding our copy
   // back to whatever unhandled handler instead of the returned version.
   KeyQueue key_queue_;
-
-  // Set when we need to update the text direction.
-  bool text_direction_updated_;
-  WebTextDirection text_direction_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHost);
 };

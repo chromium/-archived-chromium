@@ -202,9 +202,6 @@ bool WebWidgetImpl::ImeUpdateStatus(bool* enable_ime,
   return false;
 }
 
-void WebWidgetImpl::SetTextDirection(WebTextDirection direction) {
-}
-
 //-----------------------------------------------------------------------------
 // WebCore::HostWindow
 

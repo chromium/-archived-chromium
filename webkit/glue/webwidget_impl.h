@@ -50,7 +50,6 @@ class WebWidgetImpl : public WebWidget,
                                  const std::wstring& ime_string);
   virtual bool ImeUpdateStatus(bool* enable_ime,
                                gfx::Rect* caret_rect);
-  virtual void SetTextDirection(WebTextDirection direction);
 
   // WebWidgetImpl
   void Init(WebCore::FramelessScrollView* widget, const gfx::Rect& bounds);

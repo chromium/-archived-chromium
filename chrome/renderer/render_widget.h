@@ -19,7 +19,6 @@
 
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
-#include "webkit/glue/webtextdirection.h"
 
 class RenderThreadBase;
 struct WebPluginGeometry;
@@ -129,7 +128,6 @@ class RenderWidget : public IPC::Channel::Listener,
                            int target_start, int target_end,
                            const std::wstring& ime_string);
   void OnMsgRepaint(const gfx::Size& size_to_paint);
-  void OnSetTextDirection(WebTextDirection direction);
 
   // True if a PaintRect_ACK message is pending.
   bool paint_reply_pending() const {

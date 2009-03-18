@@ -24,7 +24,6 @@
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
-#include "webkit/glue/webtextdirection.h"
 
 // TODO(mpcomplete): rename ViewMsg and ViewHostMsg to something that makes
 // more sense with our current design.
@@ -512,18 +511,6 @@ IPC_BEGIN_MESSAGES(View)
   // Notification that a move or resize renderer's containing window has
   // started.
   IPC_MESSAGE_ROUTED0(ViewMsg_MoveOrResizeStarted)
-
-  // Changes the text direction of a selected input field.
-  // * direction (WebTextDirection)
-  //   Represents the new text direction.
-  //   Its possible values are listed below:
-  //     Value                      New Text Direction
-  //     WEB_TEXT_DIRECTION_DEFAULT NaturalWritingDirection ("inherit")
-  //     WEB_TEXT_DIRECTION_LTR     LeftToRightWritingDirection ("rtl")
-  //     WEB_TEXT_DIRECTION_RTL     RightToLeftWritingDirection ("ltr")
-  IPC_MESSAGE_ROUTED1(ViewMsg_SetTextDirection,
-                      WebTextDirection /* direction */)
-
 IPC_END_MESSAGES(View)
 
 

@@ -119,7 +119,6 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidget)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetInputMode, OnImeSetInputMode)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetComposition, OnImeSetComposition)
   IPC_MESSAGE_HANDLER(ViewMsg_Repaint, OnMsgRepaint)
-  IPC_MESSAGE_HANDLER(ViewMsg_SetTextDirection, OnSetTextDirection)
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
 
@@ -634,13 +633,6 @@ void RenderWidget::OnMsgRepaint(const gfx::Size& size_to_paint) {
   set_next_paint_is_repaint_ack();
   gfx::Rect repaint_rect(size_to_paint.width(), size_to_paint.height());
   DidInvalidateRect(webwidget_, repaint_rect);
-}
-
-void RenderWidget::OnSetTextDirection(WebTextDirection direction) {
-  if (!webwidget_)
-    return;
-
-  webwidget_->SetTextDirection(direction);
 }
 
 bool RenderWidget::next_paint_is_resize_ack() const {
