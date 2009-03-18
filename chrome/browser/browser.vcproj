@@ -2122,6 +2122,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\resource_message_filter_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\resource_request_details.h"
 				>
 			</File>

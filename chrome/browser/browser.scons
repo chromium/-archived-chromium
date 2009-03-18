@@ -558,6 +558,7 @@ input_files = ChromeFileList([
     'renderer_host/resource_handler.h',
     'renderer_host/resource_message_filter.cc',
     'renderer_host/resource_message_filter.h',
+    'renderer_host/resource_message_filter_gtk.cc',
     'renderer_host/resource_request_details.h',
     'renderer_host/safe_browsing_resource_handler.cc',
     'renderer_host/safe_browsing_resource_handler.h',

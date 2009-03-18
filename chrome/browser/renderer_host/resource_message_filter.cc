@@ -4,10 +4,6 @@
 
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 
-#if defined(OS_LINUX)
-#include <gtk/gtk.h>
-#endif
-
 #include "base/clipboard.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/histogram.h"
@@ -185,7 +181,7 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool handled = resource_dispatcher_host_->OnMessageReceived(
       message, this, &msg_is_ok);
   if (!handled) {
-    handled = true;  
+    handled = true;
     IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnMsgCreateWindow)
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget)
@@ -226,10 +222,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                           OnClipboardReadAsciiText)
       IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
                           OnClipboardReadHTML)
-#if defined(OS_WIN)|| defined(OS_LINUX)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
-#endif
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
                           OnGetMimeTypeFromExtension)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
@@ -528,58 +522,6 @@ void ResourceMessageFilter::OnClipboardReadHTML(string16* markup,
   GetClipboardService()->ReadHTML(markup, &src_url_str);
   *src_url = GURL(src_url_str);
 }
-
-#if defined(OS_WIN)
-
-void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
-                                            gfx::Rect* rect) {
-  HWND window = gfx::NativeViewFromId(window_id);
-  RECT window_rect = {0};
-  GetWindowRect(window, &window_rect);
-  *rect = window_rect;
-}
-
-void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
-                                                gfx::Rect* rect) {
-  HWND window = gfx::NativeViewFromId(window_id);
-  RECT window_rect = {0};
-  HWND root_window = ::GetAncestor(window, GA_ROOT);
-  GetWindowRect(root_window, &window_rect);
-  *rect = window_rect;
-}
-
-#elif defined(OS_LINUX)
-
-// Returns the rectangle of the WebWidget in screen coordinates.
-void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
-                                            gfx::Rect* rect) {
-  // Ideally this would be gtk_widget_get_window but that's only
-  // from gtk 2.14 onwards. :(
-  GdkWindow* window = gfx::NativeViewFromId(window_id)->window;
-  DCHECK(window);
-  gint x, y, width, height;
-  // This is the "position of a window in root window coordinates".
-  gdk_window_get_origin(window, &x, &y);
-  gdk_window_get_size(window, &width, &height);
-  *rect = gfx::Rect(x, y, width, height);
-}
-
-// Returns the rectangle of the window in which this WebWidget is embedded.
-void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
-                                                gfx::Rect* rect) {
-  // Windows uses GetAncestor(window, GA_ROOT) here which probably means
-  // we want the top level window.
-  GdkWindow* window =
-      gdk_window_get_toplevel(gfx::NativeViewFromId(window_id)->window);
-  DCHECK(window);
-  gint x, y, width, height;
-  // This is the "position of a window in root window coordinates".
-  gdk_window_get_origin(window, &x, &y);
-  gdk_window_get_size(window, &width, &height);
-  *rect = gfx::Rect(x, y, width, height);
-}
-
-#endif  // OS_LINUX
 
 void ResourceMessageFilter::OnGetMimeTypeFromExtension(
     const FilePath::StringType& ext, std::string* mime_type) {
