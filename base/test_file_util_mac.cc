@@ -9,9 +9,10 @@
 namespace file_util {
 
 bool EvictFileFromSystemCache(const FilePath& file) {
-  // TODO(port): Implement.
-  NOTIMPLEMENTED();
-  return false;
+  // There is no way that we can think of to dump something from the UBC.  You
+  // can add something so when you open it, it doesn't go in, but that won't
+  // work here.
+  return true;
 }
 
 }  // namespace file_util
