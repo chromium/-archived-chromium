@@ -74,12 +74,6 @@ class BookmarkBarView : public views::View,
   explicit BookmarkBarView(Profile* profile, Browser* browser);
   virtual ~BookmarkBarView();
 
-  // Toggles whether the bookmark bar is shown only on the new tab page or on
-  // all tabs.
-  static void ToggleWhenVisible(Profile* profile);
-
-  static void RegisterUserPrefs(PrefService* prefs);
-
   // Resets the profile. This removes any buttons for the current profile and
   // recreates the models.
   void SetProfile(Profile* profile);

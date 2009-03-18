@@ -417,28 +417,6 @@ static const SkBitmap& GetGroupIcon() {
   return *kFolderIcon;
 }
 
-// static
-void BookmarkBarView::ToggleWhenVisible(Profile* profile) {
-  PrefService* prefs = profile->GetPrefs();
-  const bool always_show = !prefs->GetBoolean(prefs::kShowBookmarkBar);
-
-  // The user changed when the bookmark bar is shown, update the preferences.
-  prefs->SetBoolean(prefs::kShowBookmarkBar, always_show);
-  prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
-
-  // And notify the notification service.
-  Source<Profile> source(profile);
-  NotificationService::current()->Notify(
-      NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
-      source,
-      NotificationService::NoDetails());
-}
-
-// static
-void BookmarkBarView::RegisterUserPrefs(PrefService* prefs) {
-  prefs->RegisterBooleanPref(prefs::kShowBookmarkBar, false);
-}
-
 BookmarkBarView::BookmarkBarView(Profile* profile, Browser* browser)
     : profile_(NULL),
       browser_(browser),
@@ -1349,7 +1327,7 @@ bool BookmarkBarView::IsItemChecked(int id) const {
 }
 
 void BookmarkBarView::ExecuteCommand(int id) {
-  ToggleWhenVisible(profile_);
+  bookmark_utils::ToggleWhenVisible(profile_);
 }
 
 void BookmarkBarView::Observe(NotificationType type,

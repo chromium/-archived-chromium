@@ -7,8 +7,12 @@
 
 #include <Cocoa/Cocoa.h>
 
-class CommandUpdater;
+@class BookmarkView;
 @class GrowBoxView;
+@class ToolbarView;
+
+class BookmarkModel;
+class CommandUpdater;
 class LocationBar;
 class TabContents;
 class TabContentsCommandObserver;
@@ -25,6 +29,9 @@ class ToolbarModel;
 // As we hook things up, we'll see if this imposes other restrictions (such
 // as command-handling or dispatch) that will require us to change the view
 // layout.
+// TODO(jrg): Following on to pink's comments... each tab does in fact
+// have its own ToolbarView.  Similarly, each also has its own
+// BookmarkView.  That makes things marginally more expensive.
 
 @interface TabContentsController : NSViewController {
  @private
@@ -32,7 +39,15 @@ class ToolbarModel;
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
   LocationBar* locationBarBridge_;
   TabContents* contents_;  // weak
+
   ToolbarModel* toolbarModel_;  // weak, one per window
+  IBOutlet ToolbarView* toolbarView_;
+
+  BookmarkModel* bookmarkModel_;  // weak; one per window
+
+  // TODO(jrg): write a BookmarkView
+  IBOutlet ToolbarView* /* BookmarkView* */ bookmarkView_;
+
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;
   IBOutlet NSButton* reloadButton_;
@@ -41,6 +56,10 @@ class ToolbarModel;
   IBOutlet NSTextField* locationBar_;
   IBOutlet NSBox* contentsBox_;
   IBOutlet GrowBoxView* growBox_;
+
+  // The contents box will have an offset if shrunk to make room for
+  // the bookmark bar.
+  BOOL contentsBoxHasOffset_;
 }
 
 // Create the contents of a tab represented by |contents| and loaded from the
@@ -50,7 +69,8 @@ class ToolbarModel;
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
              commands:(CommandUpdater*)commands
-         toolbarModel:(ToolbarModel*)toolbarModel;
+         toolbarModel:(ToolbarModel*)toolbarModel
+        bookmarkModel:(BookmarkModel*)bookmarkModel;
 
 // Take this view (toolbar and web contents) full screen
 - (IBAction)fullScreen:(id)sender;
@@ -85,6 +105,9 @@ class ToolbarModel;
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar;
+
+// Change the visibility state of the bookmark bar.
+- (void)toggleBookmarkBar:(BOOL)enable;
 
 @end
 

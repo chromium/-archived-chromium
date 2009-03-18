@@ -6,6 +6,8 @@
 
 #import "base/sys_string_conversions.h"
 #import "chrome/app/chrome_dll_resource.h"
+#import "chrome/browser/browser.h"
+#import "chrome/browser/cocoa/bookmark_bar_state_controller.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
@@ -63,19 +65,19 @@ class TabStripBridge : public TabStripModelObserver {
 @implementation TabStripController
 
 - (id)initWithView:(TabStripView*)view
-          tabModel:(TabStripModel*)tabModel
-      toolbarModel:(ToolbarModel*)toolbarModel
-          commands:(CommandUpdater*)commands {
-  DCHECK(view && tabModel && toolbarModel);
+           browser:(Browser*)browser {
+  DCHECK(view && browser);
   if ((self = [super init])) {
     tabView_ = view;
-    tabModel_ = tabModel;
-    toolbarModel_ = toolbarModel;
-    commands_ = commands;
-    bridge_ = new TabStripBridge(tabModel, self);
+    tabModel_ = browser->tabstrip_model();
+    toolbarModel_ = browser->toolbar_model();
+    bookmarkModel_ = browser->profile()->GetBookmarkModel();
+    commands_ = browser->command_updater();
+    bridge_ = new TabStripBridge(tabModel_, self);
     tabContentsArray_ = [[NSMutableArray alloc] init];
     tabArray_ = [[NSMutableArray alloc] init];
-
+    bookmarkBarStateController_ = [[BookmarkBarStateController alloc]
+                                    initWithBrowser:browser];
     // Take the only child view present in the nib as the new tab button. For
     // some reason, if the view is present in the nib apriori, it draws
     // correctly. If we create it in code and add it to the tab view, it draws
@@ -93,6 +95,7 @@ class TabStripBridge : public TabStripModelObserver {
 
 - (void)dealloc {
   delete bridge_;
+  [bookmarkBarStateController_ release];
   [tabContentsArray_ release];
   [tabArray_ release];
   [super dealloc];
@@ -224,8 +227,11 @@ class TabStripBridge : public TabStripModelObserver {
                                                bundle:nil
                                              contents:contents
                                              commands:commands_
-                                         toolbarModel:toolbarModel_]
+                                         toolbarModel:toolbarModel_
+                                        bookmarkModel:bookmarkModel_]
           autorelease];
+  if ([self isBookmarkBarVisible])
+    [contentsController toggleBookmarkBar:YES];
   [tabContentsArray_ insertObject:contentsController atIndex:index];
 
   // Make a new tab and add it to the strip. Keep track of its controller.
@@ -386,6 +392,21 @@ class TabStripBridge : public TabStripModelObserver {
       [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
   [selectedController focusLocationBar];
 }
+
+- (BOOL)isBookmarkBarVisible {
+  return [bookmarkBarStateController_ visible];
+}
+
+// Called from BrowserWindowController
+- (void)toggleBookmarkBar {
+  [bookmarkBarStateController_ toggleBookmarkBar];
+  BOOL visible = [self isBookmarkBarVisible];
+  for (TabContentsController *controller in tabContentsArray_) {
+    [controller toggleBookmarkBar:visible];
+  }
+
+}
+
 
 @end
 

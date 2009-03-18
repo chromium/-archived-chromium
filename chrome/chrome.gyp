@@ -484,6 +484,11 @@
         'browser/chrome_thread.h',
         'browser/cocoa/base_view.h',
         'browser/cocoa/base_view.mm',
+	'browser/cocoa/bookmark_bar_state_controller.h',
+	'browser/cocoa/bookmark_bar_state_controller.mm',
+	'browser/cocoa/bookmark_menu_bridge.h',
+	'browser/cocoa/bookmark_menu_bridge.mm',
+        'browser/cocoa/browser_test_helper.h',
         'browser/cocoa/browser_window_cocoa.h',
         'browser/cocoa/browser_window_cocoa.mm',
         'browser/cocoa/browser_window_controller.h',
@@ -1956,6 +1961,11 @@
         'browser/debugger/devtools_manager_unittest.cc',
         'browser/cache_manager_host_unittest.cc',
         'browser/chrome_thread_unittest.cc',
+        # It is safe to list */cocoa/* files in the "common" file list
+        # without an explicit exclusion since gyp is smart enough to
+        # exclude them from non-Mac builds.
+        'browser/cocoa/bookmark_bar_state_controller_unittest.mm',
+        'browser/cocoa/bookmark_menu_bridge_unittest.mm',
         'browser/command_updater_unittest.cc',
         'browser/download/download_manager_unittest.cc',
         'browser/download/download_request_manager_unittest.cc',
@@ -2092,10 +2102,6 @@
             'views',
           ],
         },],
-        ['OS=="mac"', {
-          # mac tests load the resources from the built app beside the test
-          'dependencies': ['app'],
-        }],
         ['OS!="win"', {
           'sources!': [
             'browser/back_forward_menu_model_unittest.cc',

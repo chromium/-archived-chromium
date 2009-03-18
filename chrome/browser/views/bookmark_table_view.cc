@@ -50,15 +50,6 @@ BookmarkTableView::BookmarkTableView(Profile* profile,
   UpdateColumns();
 }
 
-// static
-void BookmarkTableView::RegisterUserPrefs(PrefService* prefs) {
-  prefs->RegisterIntegerPref(prefs::kBookmarkTableNameWidth1, -1);
-  prefs->RegisterIntegerPref(prefs::kBookmarkTableURLWidth1, -1);
-  prefs->RegisterIntegerPref(prefs::kBookmarkTableNameWidth2, -1);
-  prefs->RegisterIntegerPref(prefs::kBookmarkTableURLWidth2, -1);
-  prefs->RegisterIntegerPref(prefs::kBookmarkTablePathWidth, -1);
-}
-
 bool BookmarkTableView::CanDrop(const OSExchangeData& data) {
   if (!parent_node_ || !profile_->GetBookmarkModel()->IsLoaded())
     return false;

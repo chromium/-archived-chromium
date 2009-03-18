@@ -329,7 +329,13 @@ class Browser : public TabStripModelDelegate,
   void OpenSelectProfileDialog();
   void OpenNewProfileDialog();
   void OpenBugReportDialog();
+#endif  // defined(OS_WIN)
+
+#if defined(OS_WIN) || defined(OS_MACOSX)
   void ToggleBookmarkBar();
+#endif
+
+#if defined(OS_WIN)
   void OpenBookmarkManager();
 #endif
   void ShowHistoryTab();

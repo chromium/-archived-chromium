@@ -376,11 +376,6 @@ class BookmarkEditorView {
   }
 };
 
-class BookmarkBarView {
- public:
-  static void ToggleWhenVisible(Profile* profile) { NOTIMPLEMENTED(); }
-};
-
 //---------------------------------------------------------------------------
 // These stubs are for Browser
 

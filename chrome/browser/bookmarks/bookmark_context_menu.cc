@@ -19,7 +19,6 @@
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/browser/views/input_window.h"
@@ -428,7 +427,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
     }
 
     case IDS_BOOMARK_BAR_ALWAYS_SHOW:
-      BookmarkBarView::ToggleWhenVisible(profile_);
+      bookmark_utils::ToggleWhenVisible(profile_);
       break;
 
     case IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER:

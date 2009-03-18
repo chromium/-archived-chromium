@@ -15,6 +15,7 @@
 class BookmarkModel;
 class BookmarkNode;
 class PageNavigator;
+class PrefService;
 class Profile;
 
 namespace views {
@@ -140,6 +141,13 @@ void GetBookmarksContainingText(BookmarkModel* model,
 
 // Returns true if |node|'s url or title contains the string |text|.
 bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text);
+
+// Toggles whether the bookmark bar is shown only on the new tab page or on
+// all tabs.  This is a preference modifier, not a visual modifier.
+void ToggleWhenVisible(Profile* profile);
+
+// Register user prefs for BookmarkBar, BookmarkView, ...
+void RegisterUserPrefs(PrefService* prefs);
 
 // Number of bookmarks we'll open before prompting the user to see if they
 // really want to open all.

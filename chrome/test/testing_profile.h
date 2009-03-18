@@ -9,6 +9,7 @@
 #include "base/file_path.h"
 #include "base/path_service.h"
 #include "base/file_util.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_prefs.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -23,7 +24,6 @@
 
 // TODO(port): Get rid of this section and finish porting.
 #if defined(OS_WIN)
-#include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/history/history.h"
 #endif
 

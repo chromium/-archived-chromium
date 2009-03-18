@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#import "chrome/app/chrome_dll_resource.h"  // IDC_*
 #import "chrome/browser/browser.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
@@ -17,7 +18,8 @@
   if ((self = [super initWithWindowNibName:@"BrowserWindow"])) {
     browser_ = browser;
     DCHECK(browser_);
-    windowShim_ = new BrowserWindowCocoa(self, [self window]);
+    windowShim_ = new BrowserWindowCocoa(browser, self, [self window]);
+    windowShim_->Init();
   }
   return self;
 }
@@ -40,12 +42,8 @@
   // this window's Browser and the tab strip view. The controller will handle
   // registering for the appropriate tab notifications from the back-end and
   // managing the creation of new tabs.
-  tabStripController_ =
-      [[TabStripController alloc]
-          initWithView:tabStripView_
-              tabModel:browser_->tabstrip_model()
-          toolbarModel:browser_->toolbar_model()
-              commands:browser_->command_updater()];
+  tabStripController_ = [[TabStripController alloc]
+                          initWithView:tabStripView_ browser:browser_];
 
   // Place the tab bar above the content box and add it to the view hierarchy
   // as a sibling of the content view so it can overlap with the window frame.
@@ -102,6 +100,27 @@
   return YES;
 }
 
+// Update a toggle state for an NSMenuItem if modified.
+// Take care to insure |item| looks like a NSMenuItem.
+// Called by validateUserInterfaceItem:.
+- (void)updateToggleStateWithTag:(NSInteger)tag forItem:(id)item {
+  if (![item respondsToSelector:@selector(state)] ||
+      ![item respondsToSelector:@selector(setState:)])
+    return;
+
+  // On Windows this logic happens in bookmark_bar_view.cc.  On the
+  // Mac we're a lot more MVC happy so we've moved it into a
+  // controller.  To be clear, this simply updates the menu item; it
+  // does not display the bookmark bar itself.
+  if (tag == IDC_SHOW_BOOKMARK_BAR) {
+    bool toggled = windowShim_->IsBookmarkBarVisible();
+    NSInteger oldState = [item state];
+    NSInteger newState = toggled ? NSOnState : NSOffState;
+    if (oldState != newState)
+      [item setState:newState];
+  }
+}
+
 // Called to validate menu and toolbar items when this window is key. All the
 // items we care about have been set with the |commandDispatch:| action and
 // a target of FirstResponder in IB. If it's not one of those, let it
@@ -117,8 +136,15 @@
   BOOL enable = NO;
   if (action == @selector(commandDispatch:)) {
     NSInteger tag = [item tag];
-    if (browser_->command_updater()->SupportsCommand(tag))
+    if (browser_->command_updater()->SupportsCommand(tag)) {
+      // Generate return value (enabled state)
       enable = browser_->command_updater()->IsCommandEnabled(tag) ? YES : NO;
+
+      // If the item is toggleable, find it's toggle state and
+      // try to update it.  This is a little awkward, but the alternative is
+      // to check after a commandDispatch, which seems worse.
+      [self updateToggleStateWithTag:tag forItem:item];
+    }
   }
   return enable;
 }
@@ -174,5 +200,15 @@
 - (void)focusLocationBar {
   [tabStripController_ focusLocationBar];
 }
+
+- (BOOL)isBookmarkBarVisible {
+  return [tabStripController_ isBookmarkBarVisible];
+
+}
+
+- (void)toggleBookmarkBar {
+  [tabStripController_ toggleBookmarkBar];
+}
+
 
 @end

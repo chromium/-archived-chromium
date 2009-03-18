@@ -1,6 +1,9 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by chrome_dll.rc
+//
+// What began as a Microsoft Visual C++ generated include file is now
+// edited by hand.  Do not generate!!!
+//
+// Used by chrome_dll.rc, Mac nibs, ...
 //
 
 #define IDR_MAINFRAME                   101
@@ -194,3 +197,10 @@
 #define _APS_NEXT_SYMED_VALUE           1001
 #endif
 #endif
+
+// Identifiers for platform-specific items.
+// Placed in a common file to help insure they never collide.
+#define IDC_BOOKMARK_MENU               43000  // OSX only
+#define IDC_BOOKMARK_MENUITEM_BASE      43001  // OSX only
+// Numbers 43002-43998 reserved for menu items
+#define IDC_BOOKMARK_MENUITEM_MAX       43999  // OSX only

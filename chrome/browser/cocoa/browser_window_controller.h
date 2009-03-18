@@ -12,6 +12,7 @@
 
 class Browser;
 class BrowserWindow;
+class BrowserWindowCocoa;
 class LocationBar;
 class TabContents;
 @class TabStripView;
@@ -22,7 +23,7 @@ class TabContents;
     NSWindowController<NSUserInterfaceValidations> {
  @private
   Browser* browser_;
-  BrowserWindow* windowShim_;
+  BrowserWindowCocoa* windowShim_;
   TabStripController* tabStripController_;
 
   IBOutlet NSBox* contentBox_;
@@ -69,6 +70,10 @@ class TabContents;
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar;
+
+- (BOOL)isBookmarkBarVisible;
+
+- (void)toggleBookmarkBar;
 
 @end
 

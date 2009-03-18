@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="112"/>
+			<integer value="164"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -55,6 +55,13 @@
 					<int key="NSvFlags">274</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSCustomView" id="741487837">
+							<reference key="NSNextResponder" ref="675542922"/>
+							<int key="NSvFlags">266</int>
+							<string key="NSFrame">{{0, 284}, {480, 38}}</string>
+							<reference key="NSSuperview" ref="675542922"/>
+							<string key="NSClassName">ToolbarView</string>
+						</object>
 						<object class="NSBox" id="753762894">
 							<reference key="NSNextResponder" ref="675542922"/>
 							<int key="NSvFlags">18</int>
@@ -469,6 +476,14 @@
 					</object>
 					<int key="connectionID">178</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">bookmarkView_</string>
+						<reference key="source" ref="326691890"/>
+						<reference key="destination" ref="741487837"/>
+					</object>
+					<int key="connectionID">194</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -511,6 +526,7 @@
 							<reference ref="588745489"/>
 							<reference ref="753762894"/>
 							<reference ref="995989345"/>
+							<reference ref="741487837"/>
 						</object>
 						<reference key="parent" ref="886393115"/>
 					</object>
@@ -646,6 +662,14 @@
 						<reference key="object" ref="995989345"/>
 						<reference key="parent" ref="675542922"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">179</int>
+						<reference key="object" ref="741487837"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+						</object>
+						<reference key="parent" ref="675542922"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -677,6 +701,7 @@
 					<string>138.IBPluginDependency</string>
 					<string>164.IBPluginDependency</string>
 					<string>175.IBPluginDependency</string>
+					<string>179.IBPluginDependency</string>
 					<string>93.IBEditorWindowLastContentRect</string>
 					<string>93.IBViewEditorWindowController.showingLayoutRectangles</string>
 					<string>93.IBWindowTemplateEditedContentRect</string>
@@ -713,9 +738,10 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{273, 242}, {480, 360}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>{{273, 255}, {480, 360}}</string>
 					<boolean value="YES" id="5"/>
-					<string>{{273, 242}, {480, 360}}</string>
+					<string>{{273, 255}, {480, 360}}</string>
 					<reference ref="5"/>
 					<reference ref="5"/>
 					<string>{480, 360}</string>
@@ -743,7 +769,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">178</int>
+			<int key="maxID">194</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -819,6 +845,50 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">browser/cocoa/toolbar_view.h</string>
+					</object>
+				</object>
+			</object>
+			<object class="NSMutableArray" key="referencedPartialClassDescriptionsV3.1+">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">TabContentsController</string>
+					<string key="superclassName">NSViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">fullScreen:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSMutableArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>backButton_</string>
+							<string>bookmarkView_</string>
+							<string>contentsBox_</string>
+							<string>forwardButton_</string>
+							<string>goButton_</string>
+							<string>growBox_</string>
+							<string>locationBar_</string>
+							<string>reloadButton_</string>
+							<string>starButton_</string>
+							<string>toolbarView_</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSButton</string>
+							<string>ToolbarView</string>
+							<string>NSBox</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>GrowBoxView</string>
+							<string>NSTextField</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>ToolbarView</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBDocumentRelativeSource</string>
+						<string key="minorKey">../../../browser/cocoa/tab_contents_controller.h</string>
 					</object>
 				</object>
 			</object>

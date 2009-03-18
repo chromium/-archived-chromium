@@ -9,6 +9,7 @@
 #include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog_queue.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
@@ -781,7 +782,7 @@ void BrowserView::DisableInactiveFrame() {
 }
 
 void BrowserView::ToggleBookmarkBar() {
-  BookmarkBarView::ToggleWhenVisible(browser_->profile());
+  bookmark_utils::ToggleWhenVisible(browser_->profile());
 }
 
 void BrowserView::ShowFindBar() {

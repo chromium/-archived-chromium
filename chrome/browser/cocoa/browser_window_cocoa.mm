@@ -6,11 +6,14 @@
 #include "base/logging.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/cocoa/status_bubble_mac.h"
 
-BrowserWindowCocoa::BrowserWindowCocoa(BrowserWindowController* controller,
+BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
+                                       BrowserWindowController* controller,
                                        NSWindow* window)
-    : controller_(controller), window_(window) {
+  : browser_(browser), controller_(controller), window_(window),
+    bookmark_menu_bridge_(browser) {
   status_bubble_.reset(new StatusBubbleMac(window_));
 }
 
@@ -136,12 +139,18 @@ void BrowserWindowCocoa::FocusToolbar() {
 }
 
 bool BrowserWindowCocoa::IsBookmarkBarVisible() const {
-  NOTIMPLEMENTED();
-  return true;
+  // Conversion from ObjC BOOL to C++ bool.
+  return [controller_ isBookmarkBarVisible] ? true : false;
 }
 
+// This is a little awkward.  Internal to Chrome, V and C (in the MVC
+// sense) tend to smear together.  Thus, we have a call chain of
+// C(browser_window)-->
+// V(me;right here)-->
+// C(BrowserWindowController)-->
+// C(TabStripController) --> ...
 void BrowserWindowCocoa::ToggleBookmarkBar() {
-  NOTIMPLEMENTED();
+  [controller_ toggleBookmarkBar];
 }
 
 void BrowserWindowCocoa::ShowFindBar() {

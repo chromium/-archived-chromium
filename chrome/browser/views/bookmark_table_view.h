@@ -25,8 +25,6 @@ class BookmarkTableView : public views::TableView {
  public:
   BookmarkTableView(Profile* profile, BookmarkTableModel* model);
 
-  static void RegisterUserPrefs(PrefService* prefs);
-
   // Drag and drop methods.
   virtual bool CanDrop(const OSExchangeData& data);
   virtual void OnDragEntered(const views::DropTargetEvent& event);

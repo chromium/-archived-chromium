@@ -7,9 +7,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class TabStripView;
+@class BookmarkBarStateController;
+
+class BookmarkModel;
+class Browser;
 class CommandUpdater;
 class LocationBar;
-@class TabStripView;
 class TabStripBridge;
 class TabStripModel;
 class TabContents;
@@ -34,6 +38,7 @@ class ToolbarModel;
   TabStripBridge* bridge_;
   TabStripModel* tabModel_;  // weak
   ToolbarModel* toolbarModel_;  // weak, one per browser
+  BookmarkModel* bookmarkModel_;  // weak, one per profile (= one per Browser*)
   CommandUpdater* commands_;  // weak, may be nil
   // access to the TabContentsControllers (which own the parent view
   // for the toolbar and associated tab contents) given an index. This needs
@@ -43,15 +48,15 @@ class ToolbarModel;
   // an array of TabControllers which manage the actual tab views. As above,
   // this is kept in the same order as the tab strip model.
   NSMutableArray* tabArray_;
+
+  // Controller for bookmark bar state, shared among all TabContents.
+  BookmarkBarStateController* bookmarkBarStateController_;
 }
 
-// Initialize the controller with a view, model, and command updater for
-// tracking what's enabled and disabled. |commands| may be nil if no updating
-// is desired.
+// Initialize the controller with a view and browser that contains
+// everything else we'll need.
 - (id)initWithView:(TabStripView*)view
-          tabModel:(TabStripModel*)tabModel
-      toolbarModel:(ToolbarModel*)toolbarModel
-          commands:(CommandUpdater*)commands;
+           browser:(Browser*)browser;
 
 // Get the C++ bridge object representing the location bar for the current tab.
 - (LocationBar*)locationBar;
@@ -75,6 +80,13 @@ class ToolbarModel;
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar;
+
+// Return a boolean (ObjC BOOL, not C++ bool) to say if the bookmark
+// bar is visible.
+- (BOOL)isBookmarkBarVisible;
+
+// Turn on or off the bookmark bar for *ALL* tabs.
+- (void)toggleBookmarkBar;
 
 @end
 

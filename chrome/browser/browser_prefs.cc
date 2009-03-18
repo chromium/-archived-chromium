@@ -5,6 +5,7 @@
 #include "chrome/browser/browser_prefs.h"
 
 #include "chrome/browser/autofill_manager.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
 #include "chrome/browser/cache_manager_host.h"
@@ -23,9 +24,7 @@
 
 #if defined(OS_WIN)  // TODO(port): whittle this down as we port
 #include "chrome/browser/task_manager.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
-#include "chrome/browser/views/bookmark_table_view.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/page_info_window.h"
@@ -58,10 +57,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   chrome_browser_net::RegisterUserPrefs(user_prefs);
   DownloadManager::RegisterUserPrefs(user_prefs);
   SSLManager::RegisterUserPrefs(user_prefs);
-#if defined(OS_WIN)  // TODO(port): whittle this down as we port
-  BookmarkBarView::RegisterUserPrefs(user_prefs);
-  BookmarkTableView::RegisterUserPrefs(user_prefs);
-#endif
+  bookmark_utils::RegisterUserPrefs(user_prefs);
   AutofillManager::RegisterUserPrefs(user_prefs);
   TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);

@@ -16,6 +16,9 @@
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/views/controls/tree/tree_node_iterator.h"
 #include "chrome/views/event.h"
 #include "grit/chromium_strings.h"
@@ -527,6 +530,35 @@ bool DoesBookmarkContainText(BookmarkNode* node, const std::wstring& text) {
     return false;
 
   return (node->is_url() && DoesBookmarkContainWords(node, words));
+}
+
+// Formerly in BookmarkBarView
+void ToggleWhenVisible(Profile* profile) {
+  PrefService* prefs = profile->GetPrefs();
+  const bool always_show = !prefs->GetBoolean(prefs::kShowBookmarkBar);
+
+  // The user changed when the bookmark bar is shown, update the preferences.
+  prefs->SetBoolean(prefs::kShowBookmarkBar, always_show);
+  prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+
+  // And notify the notification service.
+  Source<Profile> source(profile);
+  NotificationService::current()->Notify(
+      NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+      source,
+      NotificationService::NoDetails());
+}
+
+void RegisterUserPrefs(PrefService* prefs) {
+  // Formerly in BookmarkBarView
+  prefs->RegisterBooleanPref(prefs::kShowBookmarkBar, false);
+
+  // Formerly in BookmarkTableView
+  prefs->RegisterIntegerPref(prefs::kBookmarkTableNameWidth1, -1);
+  prefs->RegisterIntegerPref(prefs::kBookmarkTableURLWidth1, -1);
+  prefs->RegisterIntegerPref(prefs::kBookmarkTableNameWidth2, -1);
+  prefs->RegisterIntegerPref(prefs::kBookmarkTableURLWidth2, -1);
+  prefs->RegisterIntegerPref(prefs::kBookmarkTablePathWidth, -1);
 }
 
 }  // namespace bookmark_utils
