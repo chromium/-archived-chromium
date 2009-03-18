@@ -423,7 +423,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ui_tests", "test\ui\ui_test
 		{FA537565-7B03-4FFC-AF15-F7A979B72E22} = {FA537565-7B03-4FFC-AF15-F7A979B72E22}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sandbox", "..\sandbox\sandbox.vcproj", "{881F6A97-D539-4C48-B401-DF04385B2343}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sandbox", "..\sandbox\src\sandbox.vcproj", "{881F6A97-D539-4C48-B401-DF04385B2343}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{846901FD-A619-4BD5-A303-38174730CDD6}"
 EndProject
