@@ -183,7 +183,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\net_resources.rc"
+				RelativePath="$(OutDir)\obj\global_intermediate\net\net_resources.rc"
 				>
 			</File>
 			<File

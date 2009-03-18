@@ -22,13 +22,13 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:*',
+        '../net/net.gyp:*',
       ],
       'conditions': [
         ['all_gyps', {
           'dependencies': [
             '../chrome/chrome.gyp:*',
             '../media/media.gyp:*',
-            '../net/net.gyp:*',
             '../printing/printing.gyp:*',
             '../sdch/sdch.gyp:*',
             '../skia/skia.gyp:*',

@@ -6,6 +6,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(OutDir)\grit_derived_sources&quot;;&quot;$(SolutionDir)\$(configurationName)\grit_derived_sources&quot;"
+                AdditionalIncludeDirectories="&quot;$(OutDir)\grit_derived_sources&quot;;&quot;$(SolutionDir)\$(configurationName)\grit_derived_sources&quot;;&quot;$(OutDir)\obj\global_intermediate\net&quot;"
 	/>
 </VisualStudioPropertySheet>

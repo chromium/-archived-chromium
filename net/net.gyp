@@ -501,7 +501,7 @@
         '../base/base.gyp:base',
         '../build/temp_gyp/googleurl.gyp:googleurl',
       ],
-      'msvs_guid': '{E13045CD-7E1F-4A41-9B18-8D288B2E7B41}',
+      'msvs_guid': 'E13045CD-7E1F-4A41-9B18-8D288B2E7B41',
       'sources': [
         'tools/tld_cleanup/tld_cleanup.cc',
       ],
