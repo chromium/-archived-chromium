@@ -326,4 +326,4 @@ LayoutTests/fast/js/reparsing-semicolon-insertion.html = FAIL
 SKIP : LayoutTests/transforms/3d = FAIL
 
 // This uses a Mac-only font
-SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html
+SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html = FAIL
