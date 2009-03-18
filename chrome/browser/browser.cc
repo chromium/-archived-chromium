@@ -1308,13 +1308,7 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
 }
 
 int Browser::GetDragActions() const {
-  int result = 0;
-  if (BrowserList::GetBrowserCountForType(profile_, TYPE_NORMAL) > 1 ||
-      tab_count() > 1)
-    result |= TAB_TEAROFF_ACTION;
-  if (tab_count() > 1)
-    result |= TAB_MOVE_ACTION;
-  return result;
+  return TAB_TEAROFF_ACTION | (tab_count() > 1 ? TAB_MOVE_ACTION : 0);
 }
 
 TabContents* Browser::CreateTabContentsForURL(
