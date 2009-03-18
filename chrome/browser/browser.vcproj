@@ -830,6 +830,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\automation\automation_provider_list_generic.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\automation\automation_provider_list.h"
 				>
 			</File>

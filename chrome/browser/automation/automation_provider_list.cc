@@ -37,6 +37,8 @@ bool AutomationProviderList::RemoveProvider(AutomationProvider* provider) {
     (*remove_provider)->Release();
     automation_providers_.erase(remove_provider);
     g_browser_process->ReleaseModule();
+    if (automation_providers_.empty())
+      OnLastProviderRemoved();
     return true;
   }
   return false;

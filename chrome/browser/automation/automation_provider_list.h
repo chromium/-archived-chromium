@@ -37,6 +37,7 @@ class AutomationProviderList {
 
 private:
   AutomationProviderList();
+  void OnLastProviderRemoved();
   list_type automation_providers_;
   static AutomationProviderList* instance_;
 

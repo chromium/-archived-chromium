@@ -107,8 +107,6 @@ class StartupFileTest : public StartupTest {
   }
 };
 
-}  // namespace
-
 TEST_F(StartupTest, Perf) {
   RunStartupTest("warm", "t", false /* not cold */, true /* important */);
 }
@@ -138,3 +136,5 @@ TEST_F(StartupFileTest, PerfColdGears) {
 }
 
 #endif  // defined(OS_WIN)
+
+}  // namespace

@@ -393,6 +393,8 @@
         'browser/automation/automation_provider.cc',
         'browser/automation/automation_provider.h',
         'browser/automation/automation_provider_list.cc',
+        'browser/automation/automation_provider_list_generic.cc',
+        'browser/automation/automation_provider_list_mac.mm',
         'browser/automation/automation_provider_list.h',
         'browser/automation/automation_resource_tracker.cc',
         'browser/automation/automation_resource_tracker.h',
@@ -1218,6 +1220,7 @@
           'sources!': [
             'browser/autocomplete/autocomplete_edit.cc',
             'browser/autocomplete/autocomplete_popup_model.cc',
+            'browser/automation/automation_provider_list_generic.cc',
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_shell_stubs.cc',
@@ -1259,13 +1262,6 @@
           ],
         }, {  # 'OS!="win"
           'sources/': [
-            # Exclude most of automation.
-            ['exclude', '^browser/automation/'],
-            ['include', '^browser/automation/automation_provider\\.cc$'],
-            ['include', '^browser/automation/automation_provider_list\\.cc$'],
-            ['include', '^browser/automation/automation_resource_tracker\\.cc$'],
-            ['include', '^browser/automation/url_request_[^/]*_job\\.cc$'],
-
             # Exclude all of hang_monitor.
             ['exclude', '^browser/hang_monitor/'],
 
@@ -1286,6 +1282,7 @@
           'sources!': [
             'browser/app_modal_dialog_queue.cc',
             'browser/autocomplete/autocomplete_accessibility.cc',
+            'browser/automation/ui_controls.cc',
             'browser/browser_accessibility.cc',
             'browser/browser_accessibility_manager.cc',
             'browser/debugger/debugger_view.cc',
@@ -1694,16 +1691,6 @@
         'test/testing_profile.h',
       ],
       'conditions': [
-        ['OS=="mac"', {
-          'sources!': [
-            'test/automation/automation_proxy.cc',
-            'test/automation/automation_proxy.h',
-            'test/automation/browser_proxy.cc',
-            'test/automation/browser_proxy.h',
-            'test/automation/tab_proxy.cc',
-            'test/automation/tab_proxy.h',
-          ],
-        }],
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
@@ -2164,6 +2151,35 @@
         }],
       ],
     },
+    {
+      'target_name': 'startup_tests',
+      'type': 'executable',
+      'dependencies': [
+        'app',
+        'browser',
+        'common',
+        'resources',
+        'test_support_ui',
+        '../base/base.gyp:base',
+        '../skia/skia.gyp:skia',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'sources': [
+        'test/startup/feature_startup_test.cc',
+        'test/startup/startup_test.cc',
+        'tools/build/win/precompiled.cc',
+        'tools/build/win/precompiled.h',
+      ],
+      'conditions': [
+        ['OS!="win"', {
+          'sources!': [
+            'test/startup/feature_startup_test.cc',
+            'tools/build/win/precompiled.cc',
+            'tools/build/win/precompiled.h',
+          ],
+        }],
+      ],
+    },
   ],
   'conditions': [
     ['OS=="mac"',
@@ -2237,34 +2253,6 @@
               'sources!': [
                 # TODO(port):
                 'browser/visitedlink_perftest.cc',
-              ],
-            }],
-          ],
-        },
-        {
-          'target_name': 'startup_tests',
-          'type': 'executable',
-          'dependencies': [
-            'browser',
-            'common',
-            'resources',
-            'test_support_ui',
-            '../base/base.gyp:base',
-            '../skia/skia.gyp:skia',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'sources': [
-            'test/startup/feature_startup_test.cc',
-            'test/startup/startup_test.cc',
-            'tools/build/win/precompiled.cc',
-            'tools/build/win/precompiled.h',
-          ],
-          'conditions': [
-            ['OS!="win"', {
-              'sources!': [
-                'test/startup/feature_startup_test.cc',
-                'tools/build/win/precompiled.cc',
-                'tools/build/win/precompiled.h',
               ],
             }],
           ],

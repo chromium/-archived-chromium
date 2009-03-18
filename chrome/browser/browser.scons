@@ -218,6 +218,8 @@ input_files = ChromeFileList([
     'automation/automation_provider.cc',
     'automation/automation_provider.h',
     'automation/automation_provider_list.cc',
+    'automation/automation_provider_list_generic.cc',
+    'automation/automation_provider_list_mac.mm',
     'automation/automation_provider_list.h',
     'automation/automation_resource_tracker.cc',
     'automation/automation_resource_tracker.h',
@@ -776,6 +778,12 @@ if env.Bit('mac'):
   input_files.Remove(
       'spellchecker.cc',
       'tab_contents/web_contents_view.cc',
+  )
+
+if not env.Bit('mac'):
+  # Mac-specific files
+  input_files.Remove(
+      'automation/automation_provider_list_mac.mm',
   )
 
 if env.Bit('windows'):
