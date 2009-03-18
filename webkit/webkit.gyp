@@ -18,7 +18,7 @@
       'ENABLE_SVG_USE=1',
       'ENABLE_SVG_FOREIGN_OBJECT=1',
       'ENABLE_SVG_FONTS=1',
-      'ENABLE_WORKERS=0',
+      'ENABLE_WORKERS=1',
     ],
     'non_feature_defines': [
       'BUILDING_CHROMIUM__=1',
