@@ -46,11 +46,11 @@ layer at (0,0) size 800x600
                     text run at (0,0) width 210: "OK: the height of the P is 80 pixels"
 layer at (11,100) size 622x71 clip at (12,101) size 620x69
   RenderTextControl {TEXTAREA} at (1,2) size 622x71 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 601x16
+    RenderBlock {DIV} at (3,3) size 618x16
       RenderText {#text} at (0,0) size 336x16
         text run at (0,0) width 336: "BUG: the height of the textarea is not 80%"
 layer at (11,214) size 622x80 clip at (12,215) size 620x78
   RenderTextControl {TEXTAREA} at (1,2) size 622x80 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 601x16
+    RenderBlock {DIV} at (3,3) size 618x16
       RenderText {#text} at (0,0) size 344x16
         text run at (0,0) width 344: "OK: the height of the textarea is 80 pixels"

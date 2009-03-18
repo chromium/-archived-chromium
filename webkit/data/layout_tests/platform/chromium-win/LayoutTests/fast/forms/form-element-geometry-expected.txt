@@ -250,7 +250,7 @@ layer at (15,255) size 91x16
       text run at (1,0) width 49: "text field"
 layer at (408,253) size 179x36 clip at (409,254) size 177x34
   RenderTextControl {TEXTAREA} at (2,3) size 179x36 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 158x16
+    RenderBlock {DIV} at (3,3) size 175x16
       RenderText {#text} at (0,0) size 64x16
         text run at (0,0) width 64: "textarea"
 layer at (36,488) size 91x16
@@ -259,6 +259,6 @@ layer at (36,488) size 91x16
       text run at (1,0) width 49: "text field"
 layer at (379,464) size 179x36 clip at (380,465) size 177x34
   RenderTextControl {TEXTAREA} at (371,1) size 179x36 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 158x16
+    RenderBlock {DIV} at (3,3) size 175x16
       RenderText {#text} at (0,0) size 64x16
         text run at (0,0) width 64: "textarea"

@@ -1,0 +1,79 @@
+           
+This test checks that textareas have the right metrics.
+
+On success, you will see a series of "PASS" messages, followed by "TEST COMPLETE".
+
+
+PASS document.getElementById('empty-textarea').clientWidth is 94
+PASS document.getElementById('empty-textarea').clientHeight is 94
+PASS document.getElementById('empty-textarea').offsetWidth is 96
+PASS document.getElementById('empty-textarea').offsetHeight is 96
+PASS document.getElementById('empty-textarea').scrollWidth is 94
+PASS document.getElementById('empty-textarea').scrollHeight is 20
+PASS document.getElementById('empty-textarea-disabled').clientWidth is 94
+PASS document.getElementById('empty-textarea-disabled').clientHeight is 94
+PASS document.getElementById('empty-textarea-disabled').offsetWidth is 96
+PASS document.getElementById('empty-textarea-disabled').offsetHeight is 96
+PASS document.getElementById('empty-textarea-disabled').scrollWidth is 94
+PASS document.getElementById('empty-textarea-disabled').scrollHeight is 20
+PASS document.getElementById('textarea-no-scroll').clientWidth is 94
+PASS document.getElementById('textarea-no-scroll').clientHeight is 94
+PASS document.getElementById('textarea-no-scroll').offsetWidth is 96
+PASS document.getElementById('textarea-no-scroll').offsetHeight is 96
+PASS document.getElementById('textarea-no-scroll').scrollWidth is 94
+PASS document.getElementById('textarea-no-scroll').scrollHeight is 20
+FAIL document.getElementById('textarea-with-scroll').clientWidth should be 77. Was 94.
+PASS document.getElementById('textarea-with-scroll').clientHeight is 94
+PASS document.getElementById('textarea-with-scroll').offsetWidth is 96
+PASS document.getElementById('textarea-with-scroll').offsetHeight is 96
+FAIL document.getElementById('textarea-with-scroll').scrollWidth should be 77. Was 94.
+FAIL document.getElementById('textarea-with-scroll').scrollHeight should be 132. Was 84.
+PASS document.getElementById('textarea-no-scroll-with-padding').clientWidth is 106
+PASS document.getElementById('textarea-no-scroll-with-padding').clientHeight is 106
+PASS document.getElementById('textarea-no-scroll-with-padding').offsetWidth is 108
+PASS document.getElementById('textarea-no-scroll-with-padding').offsetHeight is 108
+PASS document.getElementById('textarea-no-scroll-with-padding').scrollWidth is 106
+PASS document.getElementById('textarea-no-scroll-with-padding').scrollHeight is 32
+FAIL document.getElementById('textarea-with-scroll-with-padding').clientWidth should be 89. Was 106.
+PASS document.getElementById('textarea-with-scroll-with-padding').clientHeight is 106
+PASS document.getElementById('textarea-with-scroll-with-padding').offsetWidth is 108
+PASS document.getElementById('textarea-with-scroll-with-padding').offsetHeight is 108
+FAIL document.getElementById('textarea-with-scroll-with-padding').scrollWidth should be 89. Was 106.
+FAIL document.getElementById('textarea-with-scroll-with-padding').scrollHeight should be 144. Was 96.
+PASS document.getElementById('textarea-no-scroll-fixed-height').clientWidth is 94
+PASS document.getElementById('textarea-no-scroll-fixed-height').clientHeight is 54
+PASS document.getElementById('textarea-no-scroll-fixed-height').offsetWidth is 96
+PASS document.getElementById('textarea-no-scroll-fixed-height').offsetHeight is 56
+PASS document.getElementById('textarea-no-scroll-fixed-height').scrollWidth is 94
+PASS document.getElementById('textarea-no-scroll-fixed-height').scrollHeight is 20
+FAIL document.getElementById('textarea-with-scroll-fixed-height').clientWidth should be 77. Was 79.
+PASS document.getElementById('textarea-with-scroll-fixed-height').clientHeight is 54
+PASS document.getElementById('textarea-with-scroll-fixed-height').offsetWidth is 96
+PASS document.getElementById('textarea-with-scroll-fixed-height').offsetHeight is 56
+FAIL document.getElementById('textarea-with-scroll-fixed-height').scrollWidth should be 77. Was 79.
+PASS document.getElementById('textarea-with-scroll-fixed-height').scrollHeight is 132
+PASS document.getElementById('textarea-no-scroll-fixed-height-many-rows').clientWidth is 94
+PASS document.getElementById('textarea-no-scroll-fixed-height-many-rows').clientHeight is 54
+PASS document.getElementById('textarea-no-scroll-fixed-height-many-rows').offsetWidth is 96
+PASS document.getElementById('textarea-no-scroll-fixed-height-many-rows').offsetHeight is 56
+PASS document.getElementById('textarea-no-scroll-fixed-height-many-rows').scrollWidth is 94
+PASS document.getElementById('textarea-no-scroll-fixed-height-many-rows').scrollHeight is 20
+FAIL document.getElementById('textarea-with-scroll-fixed-height-many-rows').clientWidth should be 77. Was 79.
+PASS document.getElementById('textarea-with-scroll-fixed-height-many-rows').clientHeight is 54
+PASS document.getElementById('textarea-with-scroll-fixed-height-many-rows').offsetWidth is 96
+PASS document.getElementById('textarea-with-scroll-fixed-height-many-rows').offsetHeight is 56
+FAIL document.getElementById('textarea-with-scroll-fixed-height-many-rows').scrollWidth should be 77. Was 79.
+PASS document.getElementById('textarea-with-scroll-fixed-height-many-rows').scrollHeight is 132
+PASS document.getElementById('textarea-no-scroll-disabled').clientWidth is 94
+PASS document.getElementById('textarea-no-scroll-disabled').clientHeight is 94
+PASS document.getElementById('textarea-no-scroll-disabled').offsetWidth is 96
+PASS document.getElementById('textarea-no-scroll-disabled').offsetHeight is 96
+PASS document.getElementById('textarea-no-scroll-disabled').scrollWidth is 94
+PASS document.getElementById('textarea-no-scroll-disabled').scrollHeight is 20
+FAIL document.getElementById('textarea-with-scroll-disabled').clientWidth should be 77. Was 94.
+PASS document.getElementById('textarea-with-scroll-disabled').clientHeight is 94
+PASS document.getElementById('textarea-with-scroll-disabled').offsetWidth is 96
+PASS document.getElementById('textarea-with-scroll-disabled').offsetHeight is 96
+FAIL document.getElementById('textarea-with-scroll-disabled').scrollWidth should be 77. Was 94.
+FAIL document.getElementById('textarea-with-scroll-disabled').scrollHeight should be 132. Was 84.
+

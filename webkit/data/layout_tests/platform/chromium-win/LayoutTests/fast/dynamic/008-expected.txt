@@ -9,6 +9,6 @@ layer at (0,0) size 785x822
       RenderText {#text} at (0,0) size 0x0
 layer at (8,9) size 339x804 clip at (9,10) size 337x802
   RenderTextControl {TEXTAREA} at (0,1) size 339x804 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 318x16
+    RenderBlock {DIV} at (3,3) size 335x16
       RenderText {#text} at (0,0) size 88x16
         text run at (0,0) width 88: "Sample text"

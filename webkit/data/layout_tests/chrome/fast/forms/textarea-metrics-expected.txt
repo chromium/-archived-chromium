@@ -22,24 +22,24 @@ PASS document.getElementById('textarea-no-scroll').offsetWidth is 96
 PASS document.getElementById('textarea-no-scroll').offsetHeight is 96
 PASS document.getElementById('textarea-no-scroll').scrollWidth is 94
 PASS document.getElementById('textarea-no-scroll').scrollHeight is 20
-FAIL document.getElementById('textarea-with-scroll').clientWidth should be 77. Was 79.
+FAIL document.getElementById('textarea-with-scroll').clientWidth should be 77. Was 94.
 PASS document.getElementById('textarea-with-scroll').clientHeight is 94
 PASS document.getElementById('textarea-with-scroll').offsetWidth is 96
 PASS document.getElementById('textarea-with-scroll').offsetHeight is 96
-FAIL document.getElementById('textarea-with-scroll').scrollWidth should be 77. Was 79.
-PASS document.getElementById('textarea-with-scroll').scrollHeight is 132
+FAIL document.getElementById('textarea-with-scroll').scrollWidth should be 77. Was 94.
+FAIL document.getElementById('textarea-with-scroll').scrollHeight should be 132. Was 84.
 PASS document.getElementById('textarea-no-scroll-with-padding').clientWidth is 106
 PASS document.getElementById('textarea-no-scroll-with-padding').clientHeight is 106
 PASS document.getElementById('textarea-no-scroll-with-padding').offsetWidth is 108
 PASS document.getElementById('textarea-no-scroll-with-padding').offsetHeight is 108
 PASS document.getElementById('textarea-no-scroll-with-padding').scrollWidth is 106
 PASS document.getElementById('textarea-no-scroll-with-padding').scrollHeight is 32
-FAIL document.getElementById('textarea-with-scroll-with-padding').clientWidth should be 89. Was 91.
+FAIL document.getElementById('textarea-with-scroll-with-padding').clientWidth should be 89. Was 106.
 PASS document.getElementById('textarea-with-scroll-with-padding').clientHeight is 106
 PASS document.getElementById('textarea-with-scroll-with-padding').offsetWidth is 108
 PASS document.getElementById('textarea-with-scroll-with-padding').offsetHeight is 108
-FAIL document.getElementById('textarea-with-scroll-with-padding').scrollWidth should be 89. Was 91.
-PASS document.getElementById('textarea-with-scroll-with-padding').scrollHeight is 144
+FAIL document.getElementById('textarea-with-scroll-with-padding').scrollWidth should be 89. Was 106.
+FAIL document.getElementById('textarea-with-scroll-with-padding').scrollHeight should be 144. Was 96.
 PASS document.getElementById('textarea-no-scroll-fixed-height').clientWidth is 94
 PASS document.getElementById('textarea-no-scroll-fixed-height').clientHeight is 54
 PASS document.getElementById('textarea-no-scroll-fixed-height').offsetWidth is 96
@@ -70,10 +70,10 @@ PASS document.getElementById('textarea-no-scroll-disabled').offsetWidth is 96
 PASS document.getElementById('textarea-no-scroll-disabled').offsetHeight is 96
 PASS document.getElementById('textarea-no-scroll-disabled').scrollWidth is 94
 PASS document.getElementById('textarea-no-scroll-disabled').scrollHeight is 20
-FAIL document.getElementById('textarea-with-scroll-disabled').clientWidth should be 77. Was 79.
+FAIL document.getElementById('textarea-with-scroll-disabled').clientWidth should be 77. Was 94.
 PASS document.getElementById('textarea-with-scroll-disabled').clientHeight is 94
 PASS document.getElementById('textarea-with-scroll-disabled').offsetWidth is 96
 PASS document.getElementById('textarea-with-scroll-disabled').offsetHeight is 96
-FAIL document.getElementById('textarea-with-scroll-disabled').scrollWidth should be 77. Was 79.
-PASS document.getElementById('textarea-with-scroll-disabled').scrollHeight is 132
+FAIL document.getElementById('textarea-with-scroll-disabled').scrollWidth should be 77. Was 94.
+FAIL document.getElementById('textarea-with-scroll-disabled').scrollHeight should be 132. Was 84.
 

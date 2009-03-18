@@ -29,7 +29,7 @@ layer at (0,0) size 800x600
                 text run at (1,1) width 4: " "
 layer at (10,31) size 179x36 clip at (11,32) size 177x34
   RenderTextControl {TEXTAREA} at (1,2) size 179x36 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 158x16
+    RenderBlock {DIV} at (3,3) size 175x16
       RenderText {#text} at (0,0) size 24x16
         text run at (0,0) width 24: "one"
 layer at (192,31) size 4x36 clip at (0,0) size 0x0 scrollWidth 10 scrollHeight 50
@@ -50,7 +50,7 @@ layer at (199,31) size 4x36 clip at (0,0) size 0x0 scrollWidth 10 scrollHeight 8
         text run at (0,64) width 8: "e"
 layer at (10,113) size 259x36 clip at (11,114) size 257x34
   RenderTextControl {TEXTAREA} at (1,2) size 259x36 [bgcolor=#FFFFFF] [border: (1px solid #000000)]
-    RenderBlock {DIV} at (3,3) size 238x16
+    RenderBlock {DIV} at (3,3) size 255x16
       RenderText {#text} at (0,0) size 104x16
         text run at (0,0) width 104: "one two three"
 layer at (272,113) size 4x36 clip at (0,0) size 0x0 scrollWidth 10 scrollHeight 50
