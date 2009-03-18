@@ -11,7 +11,6 @@
 #include "base/compiler_specific.h"
 #include "base/histogram.h"
 #include "base/lock.h"
-#include "base/ref_counted.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/time.h"

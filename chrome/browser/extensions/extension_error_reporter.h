@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/message_loop.h"
-#include "base/ref_counted.h"
 
 // Exposes an easy way for the various components of the extension system to
 // report errors. This is a singleton that lives on the UI thread, with the

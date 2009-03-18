@@ -5,8 +5,9 @@
 #ifndef NET_HTTP_HTTP_AUTH_H_
 #define NET_HTTP_HTTP_AUTH_H_
 
-#include "base/ref_counted.h"
 #include "net/http/http_util.h"
+
+template <class T> class scoped_refptr;
 
 namespace net {
 

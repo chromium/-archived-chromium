@@ -7,7 +7,6 @@
 #include "base/gfx/png_encoder.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
-#include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/common/chrome_plugin_util.h"

@@ -9,7 +9,6 @@
 
 #include <string>
 
-#include "base/ref_counted.h"
 #include "net/disk_cache/disk_format.h"
 #include "net/disk_cache/file.h"
 #include "net/disk_cache/file_block.h"

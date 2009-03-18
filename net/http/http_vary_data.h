@@ -6,7 +6,6 @@
 #define NET_HTTP_HTTP_VARY_DATA_H__
 
 #include "base/md5.h"
-#include "base/ref_counted.h"
 
 class Pickle;
 

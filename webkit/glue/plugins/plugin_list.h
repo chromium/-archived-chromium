@@ -11,7 +11,6 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "base/ref_counted.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/plugins/nphostapi.h"
 

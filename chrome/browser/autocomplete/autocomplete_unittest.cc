@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/message_loop.h"
-#include "base/ref_counted.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/common/notification_registrar.h"

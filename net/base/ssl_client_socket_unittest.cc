@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/ref_counted.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket_factory.h"
 #include "net/base/host_resolver.h"

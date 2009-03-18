@@ -5,7 +5,6 @@
 #ifndef SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
 #define SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
 
-#include "base/ref_counted.h"
 #include "skia/ext/platform_device_mac.h"
 
 namespace skia {
@@ -92,4 +91,3 @@ class BitmapPlatformDeviceMac : public PlatformDeviceMac {
 }  // namespace skia
 
 #endif  // SKIA_EXT_BITMAP_PLATFORM_DEVICE_MAC_H_
-

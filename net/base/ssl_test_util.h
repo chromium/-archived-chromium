@@ -5,12 +5,12 @@
 #ifndef NET_BASE_SSL_TEST_UTIL_H_
 #define NET_BASE_SSL_TEST_UTIL_H_
 
+#include "build/build_config.h"
+
 #include <string>
 
 #include "base/file_path.h"
 #include "base/process_util.h"
-#include "base/ref_counted.h"
-#include "build/build_config.h"
 
 // TODO(dkegel): share this between net/base and
 // chrome/browser without putting it in net.lib

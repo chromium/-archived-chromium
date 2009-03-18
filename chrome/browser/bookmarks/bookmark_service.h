@@ -32,8 +32,6 @@
 
 #include <vector>
 
-#include "base/ref_counted.h"
-
 class GURL;
 
 // BookmarkService provides a thread safe view of bookmarks. It is used by

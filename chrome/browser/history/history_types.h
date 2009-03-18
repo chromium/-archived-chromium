@@ -12,7 +12,6 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
-#include "base/ref_counted.h"
 #include "base/stack_container.h"
 #include "base/time.h"
 #include "chrome/browser/history/snippet.h"

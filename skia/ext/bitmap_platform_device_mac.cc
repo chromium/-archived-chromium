@@ -11,6 +11,7 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 
+#include "base/ref_counted.h"
 #include "skia/ext/skia_utils_mac.h"
 
 namespace skia {
@@ -295,4 +296,3 @@ void BitmapPlatformDeviceMac::processPixels(int x, int y,
 }
 
 }  // namespace skia
-

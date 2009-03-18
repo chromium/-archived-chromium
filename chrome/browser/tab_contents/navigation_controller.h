@@ -10,7 +10,6 @@
 #include "build/build_config.h"
 
 #include "base/linked_ptr.h"
-#include "base/ref_counted.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "chrome/browser/sessions/session_id.h"

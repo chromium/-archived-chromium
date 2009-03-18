@@ -6,7 +6,6 @@
 
 #include "base/command_line.h"
 #include "base/path_service.h"
-#include "base/ref_counted.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_process.h"

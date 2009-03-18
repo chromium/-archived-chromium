@@ -9,7 +9,6 @@
 #include <vector>
 #include <deque>
 
-#include "base/ref_counted.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/profile.h"
