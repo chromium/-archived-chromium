@@ -127,7 +127,7 @@ void HWNDView::UpdateHWNDBounds() {
     // it.
     ::SetWindowPos(hwnd_, 0, 0, 0, 0, 0,
                    SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                   SWP_NOREDRAW | SWP_NOOWNERZORDER );
+                   SWP_NOREDRAW | SWP_NOOWNERZORDER);
   }
 }
 
@@ -150,9 +150,9 @@ void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
   if (hwnd_) {
     Widget* widget = GetWidget();
     if (is_add && widget) {
-      HWND parent = ::GetParent(hwnd_);
+      HWND parent_hwnd = ::GetParent(hwnd_);
       HWND widget_hwnd = widget->GetNativeView();
-      if (parent != widget_hwnd) {
+      if (parent_hwnd != widget_hwnd) {
         ::SetParent(hwnd_, widget_hwnd);
       }
       if (IsVisibleInRootView())

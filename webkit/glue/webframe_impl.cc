@@ -1110,7 +1110,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   RefPtr<Range> search_range(rangeOfContents(frame()->document()));
 
   ExceptionCode ec = 0, ec2 = 0;
-  if (!reset && resume_scoping_from_range_.get()) {
+  if (resume_scoping_from_range_.get()) {
     // This is a continuation of a scoping operation that timed out and didn't
     // complete last time around, so we should start from where we left off.
     search_range->setStart(resume_scoping_from_range_->startContainer(),

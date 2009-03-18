@@ -114,7 +114,6 @@ void FindBarController::Observe(NotificationType type,
     if (Source<TabContents>(source).ptr() == web_contents_) {
       find_bar_->UpdateUIForFindResult(web_contents_->find_result(),
                                        web_contents_->find_text());
-      FindNotificationDetails details = web_contents_->find_result();
     }
   } else if (type == NotificationType::NAV_ENTRY_COMMITTED) {
     NavigationController* source_controller =
