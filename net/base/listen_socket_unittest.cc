@@ -269,7 +269,15 @@ void ListenSocketTester::TestServerSend() {
   PlatformThread::Sleep(10);  // sleep for 10ms
   const int buf_len = 200;
   char buf[buf_len+1];
-  int recv_len = recv(test_socket_, buf, buf_len, 0);
+  int recv_len;
+  do {
+    recv_len = recv(test_socket_, buf, buf_len, 0);
+#if defined(OS_POSIX)
+  } while (recv_len == SOCKET_ERROR && errno == EINTR);
+#else
+  } while (false);
+#endif
+  ASSERT_NE(recv_len, SOCKET_ERROR);
   buf[recv_len] = 0;
   ASSERT_STREQ(buf, kHelloWorld);
 }
