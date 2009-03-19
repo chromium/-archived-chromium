@@ -1,4 +1,4 @@
-PLUGIN: NPP_Destroy
+CONSOLE MESSAGE: line 29: PLUGIN: NPP_Destroy
 This tests that objects from plugin objects are properly cleaned up.
 
 Example:
@@ -10,3 +10,8 @@ It is important that both Object1 and Object2 cleanup as a result of
 cleaning up the plugin.
 
 SUCCESS
+
+
+
+
+
