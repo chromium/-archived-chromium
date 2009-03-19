@@ -115,10 +115,17 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   // Look for exact match in the Spell Check language list.
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(g_supported_spellchecker_languages);
        ++i) {
+    // First look for exact match in the language region of the list.
     Language spellcheck_language(
         g_supported_spellchecker_languages[i].language);
     if (spellcheck_language == language)
       return language;
+
+    // Next, look for exact match in the language_region part of the list.
+    Language spellcheck_language_region(
+        g_supported_spellchecker_languages[i].language_region);
+    if (spellcheck_language_region == language)
+      return g_supported_spellchecker_languages[i].language;
   }
 
   // Look for a match by comparing only language parts. All the 'en-RR'
@@ -165,7 +172,7 @@ int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
   for (Languages::const_iterator i = accept_languages.begin();
        i != accept_languages.end(); ++i) {
     Language language(GetCorrespondingSpellCheckLanguage(*i));
-    if (!language.empty())
+    if (!language.empty() && language != WideToASCII(dictionary_language))
       unique_languages.insert(language);
   }
 
