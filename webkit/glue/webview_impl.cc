@@ -446,11 +446,7 @@ void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
   MakePlatformMouseEvent pme(main_frame()->frameview(), event);
 
   // Find the right target frame. See issue 1186900.
-  IntPoint doc_point(
-      page_->mainFrame()->view()->windowToContents(pme.pos()));
-  HitTestResult result =
-      page_->mainFrame()->eventHandler()->hitTestResultAtPoint(
-          doc_point, false);
+  HitTestResult result = HitTestResultForWindowPos(pme.pos());
   Frame* target_frame;
   if (result.innerNonSharedNode())
     target_frame = result.innerNonSharedNode()->document()->frame();
@@ -1385,12 +1381,7 @@ void WebViewImpl::CopyImageAt(int x, int y) {
   if (!page_.get())
     return;
 
-  IntPoint point = IntPoint(x, y);
-
-  Frame* frame = page_->mainFrame();
-
-  HitTestResult result =
-      frame->eventHandler()->hitTestResultAtPoint(point, false);
+  HitTestResult result = HitTestResultForWindowPos(IntPoint(x, y));
 
   if (result.absoluteImageURL().isEmpty()) {
     // There isn't actually an image at these coordinates.  Might be because
@@ -1403,7 +1394,7 @@ void WebViewImpl::CopyImageAt(int x, int y) {
     return;
   }
 
-  frame->editor()->copyImage(result);
+  page_->mainFrame()->editor()->copyImage(result);
 }
 
 void WebViewImpl::InspectElement(int x, int y) {
@@ -1413,10 +1404,7 @@ void WebViewImpl::InspectElement(int x, int y) {
   if (x == -1 || y == -1) {
     page_->inspectorController()->inspect(NULL);
   } else {
-    IntPoint point = IntPoint(x, y);
-    HitTestResult result(point);
-
-    result = page_->mainFrame()->eventHandler()->hitTestResultAtPoint(point, false);
+    HitTestResult result = HitTestResultForWindowPos(IntPoint(x, y));
 
     if (!result.innerNonSharedNode())
       return;
@@ -1712,4 +1700,11 @@ Node* WebViewImpl::GetFocusedNode() {
     return NULL;
 
   return document->focusedNode();
+}
+
+HitTestResult WebViewImpl::HitTestResultForWindowPos(const IntPoint& pos) {
+  IntPoint doc_point(
+      page_->mainFrame()->view()->windowToContents(pos));
+  return page_->mainFrame()->eventHandler()->
+      hitTestResultAtPoint(doc_point, false);
 }
