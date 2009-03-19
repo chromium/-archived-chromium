@@ -47,9 +47,9 @@ class LockImpl {
   // through the os_lock() method, runtime assertions can not be done on those
   // builds.
 #if defined(NDEBUG) || !defined(OS_WIN)
-  void AssertAcquired() {}
+  void AssertAcquired() const {}
 #else
-  void AssertAcquired();
+  void AssertAcquired() const;
 #endif
 
   // Return the native underlying lock.  Not supported for Windows builds.

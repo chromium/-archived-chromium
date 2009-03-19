@@ -77,12 +77,12 @@ class WorkQueue : public PlatformThread::Delegate {
   int task_count() const;
   bool allow_help_requests() const;  // Workers can signal more workers.
   bool shutdown() const;  // Check if shutdown has been requested.
-  int shutdown_task_count() const;
 
   void thread_shutting_down();
 
+
   //----------------------------------------------------------------------------
-  // Worker threads can call them but not needed to acquire a lock
+  // Worker threads can call them but not needed to acquire a lock.
   Lock* lock();
 
   ConditionVariable* work_is_available();
@@ -103,7 +103,13 @@ class WorkQueue : public PlatformThread::Delegate {
   void SetTaskCount(int count);
   void SetAllowHelp(bool allow);
 
+  // Caller must acquire lock before calling.
   void SetShutdown();
+
+  // Compares the |shutdown_task_count_| to the |thread_count| and returns true
+  // if they are equal.  This check will acquire the |lock_| so the caller
+  // should not hold the lock when calling this method.
+  bool ThreadSafeCheckShutdown(int thread_count);
 
  private:
   // Both worker threads and controller use the following to synchronize.
@@ -176,6 +182,12 @@ TEST_F(ConditionVariableTest, TimeoutTest) {
 
 // This test is flaky due to excessive timing sensitivity.
 // http://code.google.com/p/chromium/issues/detail?id=3599
+// TODO(jar): A recent change to the WorkQueue fixed flakyness for the test
+// LargeFastTaskTest.  Specifically, the test was accessing the member variable
+// WorkQueue::shutdown_task_count_ without a lock held.  The MultiThreadConsumer
+// test now ran successfully for 500 times on RalphL's machine.  RalphL did not
+// want to blindly re-enable this test if you know of other issues with it, but
+// it appears that the flakyness is gone, but I'll leave that to you to verify.
 TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   const int kThreadCount = 10;
   WorkQueue queue(kThreadCount);  // Start the threads.
@@ -336,7 +348,7 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   queue.work_is_available()->Broadcast();  // Force check for shutdown.
 
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(1),
-                                   queue.shutdown_task_count() == kThreadCount);
+                                   queue.ThreadSafeCheckShutdown(kThreadCount));
   PlatformThread::Sleep(10);  // Be sure they're all shutdown.
 }
 
@@ -436,7 +448,7 @@ TEST_F(ConditionVariableTest, LargeFastTaskTest) {
 
   // Wait for shutdowns to complete.
   SPIN_FOR_TIMEDELTA_OR_UNTIL_TRUE(TimeDelta::FromMinutes(1),
-                                   queue.shutdown_task_count() == kThreadCount);
+                                   queue.ThreadSafeCheckShutdown(kThreadCount));
   PlatformThread::Sleep(10);  // Be sure they're all shutdown.
 }
 
@@ -519,16 +531,27 @@ bool WorkQueue::allow_help_requests() const {
 }
 
 bool WorkQueue::shutdown() const {
+  lock_.AssertAcquired();
   DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   return shutdown_;
 }
 
-int WorkQueue::shutdown_task_count() const {
-  DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
-  return shutdown_task_count_;
+// Because this method is called from the test's main thread we need to actually
+// take the lock.  Threads will call the thread_shutting_down() method with the
+// lock already acquired.
+bool WorkQueue::ThreadSafeCheckShutdown(int thread_count) {
+  bool all_shutdown;
+  AutoLock auto_lock(lock_);
+  {
+    // Declare in scope so DFAKE is guranteed to be destroyed before AutoLock.
+    DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
+    all_shutdown = (shutdown_task_count_ == thread_count);
+  }
+  return all_shutdown;
 }
 
 void WorkQueue::thread_shutting_down() {
+  lock_.AssertAcquired();
   DFAKE_SCOPED_RECURSIVE_LOCK(locked_methods_);
   shutdown_task_count_++;
 }
@@ -606,6 +629,7 @@ void WorkQueue::SetAllowHelp(bool allow) {
 }
 
 void WorkQueue::SetShutdown() {
+  lock_.AssertAcquired();
   shutdown_ = true;
 }
 

@@ -23,7 +23,7 @@ class Lock {
   // calling thread.  If the lock has not been acquired, then the method
   // will DCHECK().  In non-debug builds, the LockImpl's implementation of
   // AssertAcquired() is an empty inline method.
-  void AssertAcquired() { return lock_.AssertAcquired(); }
+  void AssertAcquired() const { return lock_.AssertAcquired(); }
 
   // Return the underlying lock implementation.
   // TODO(awalker): refactor lock and condition variables so that this is

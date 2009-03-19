@@ -66,7 +66,7 @@ void LockImpl::Unlock() {
 
 // In non-debug builds, this method is declared as an empty inline method.
 #ifndef NDEBUG
-void LockImpl::AssertAcquired() {
+void LockImpl::AssertAcquired() const {
   DCHECK(recursion_count_shadow_ > 0);
   DCHECK_EQ(owning_thread_id_, PlatformThread::CurrentId());
 }
