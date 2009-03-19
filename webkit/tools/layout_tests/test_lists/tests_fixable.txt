@@ -348,6 +348,10 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/coords-units-01-b.svg = FAIL PASS
 
 DEFER LINUX WIN : LayoutTests/svg/batik/text/verticalText.svg = FAIL
 
+DEFER LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
+
+DEFER LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
+
 // -----------------------------------------------------------------
 // End SVG Regressions
 // -----------------------------------------------------------------
@@ -490,15 +494,13 @@ DEFER : LayoutTests/svg/batik/text/textStyles.svg = FAIL PASS
 // but even so it still doesn't look identical because there is still some
 // problem with the fill color for the text.
 DEFER LINUX WIN : LayoutTests/svg/text/text-deco-01-b.svg = FAIL
-LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
+LINUX MAC : LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 
 // http://crbug.com/3244 : SVG masks aren't quite working yet.
 // Might also be related to https://bugs.webkit.org/show_bug.cgi?id=21910
 // New tests. We should fix these, but they don't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
-LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
-
 // We don't seem to draw this as well as Mac.  The numbers have gaps at the
 // corners.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
@@ -511,7 +513,6 @@ LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
-LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
 // Expectations for this test changed upstream. We should fix this test, but
