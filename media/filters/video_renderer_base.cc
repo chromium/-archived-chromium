@@ -108,9 +108,9 @@ void VideoRendererBase::SubmitReads() {
   }
 }
 
-// Assumes |lock_| has been acquired!
 bool VideoRendererBase::UpdateQueue(base::TimeDelta time,
                                     VideoFrame* new_frame) {
+  lock_.AssertAcquired();
   bool updated_front = false;
 
   // If a new frame is passed in then put it at the back of the queue.  If the
@@ -143,8 +143,8 @@ bool VideoRendererBase::UpdateQueue(base::TimeDelta time,
   return updated_front;
 }
 
-// Assumes |lock_| has been acquired!
 void VideoRendererBase::DiscardAllFrames() {
+  lock_.AssertAcquired();
   while (!queue_.empty()) {
     queue_.front()->Release();
     queue_.pop_front();

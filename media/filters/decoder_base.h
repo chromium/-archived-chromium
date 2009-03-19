@@ -135,8 +135,6 @@ class DecoderBase : public Decoder {
  private:
   // The GCL compiler does not like .cc files that directly access members of
   // a base class.  This inline method helps.
-  // TODO(ralphl): Does it really help?  Remove this comment after try server
-  // reports success.
   FilterHost* host() const { return Decoder::host_; }
 
   // Schedules a task that will execute the ProcessTask method.
@@ -173,51 +171,49 @@ class DecoderBase : public Decoder {
   // if reads have happened, else false.  This method must be called with
   // |lock_| acquired.  If the method submits any reads, then it will Release()
   // the |lock_| when calling the demuxer and then re-Acquire() the |lock_|.
-  // TODO(ralphl): Update lock to have AssertAcquired and call it here
-  // TODO(ralphl): Fix AutoUnlock and use it here instead of Release/Acquire
   bool SubmitReads() {
+    lock_.AssertAcquired();
     bool did_read = false;
     if (IsRunning() &&
         pending_reads_ + input_queue_.size() < output_queue_.size()) {
       did_read = true;
       size_t read = output_queue_.size() - pending_reads_ - input_queue_.size();
       pending_reads_ += read;
-      // Release |lock_| before calling the demuxer.
-      lock_.Release();
-      while (read) {
-        demuxer_stream_->Read(new AssignableBuffer<DecoderBase, Buffer>(this));
-        --read;
+      {
+        AutoUnlock unlock(lock_);
+        while (read) {
+          demuxer_stream_->
+              Read(new AssignableBuffer<DecoderBase, Buffer>(this));
+          --read;
+        }
       }
-      lock_.Acquire();
     }
     return did_read;
   }
 
   // If the |input_queue_| has any buffers, this method will call the derived
   // class's OnDecode() method.
-  // TODO(ralphl): Update lock to have AssertAcquired and call it here
-  // TODO(ralphl): Fix AutoUnlock and use it here instead of Release/Acquire
   bool ProcessInput() {
+    lock_.AssertAcquired();
     bool did_decode = false;
     while (IsRunning() && !input_queue_.empty()) {
       did_decode = true;
       Buffer* input = input_queue_.front();
       input_queue_.pop_front();
       // Release |lock_| before calling the derived class to do the decode.
-      lock_.Release();
-      OnDecode(input);
-      input->Release();
-      lock_.Acquire();
+      {
+        AutoUnlock unlock(lock_);
+        OnDecode(input);
+        input->Release();
+      }
     }
     return did_decode;
   }
 
-
   // Removes any buffers from the |result_queue_| and assigns them to a pending
   // read Assignable buffer in the |output_queue_|.
-  // TODO(ralphl): Update lock to have AssertAcquired and call it here
-  // TODO(ralphl): Fix AutoUnlock and use it here instead of Release/Acquire
   bool ProcessOutput() {
+    lock_.AssertAcquired();
     bool called_renderer = false;
     while (IsRunning() && !output_queue_.empty() && !result_queue_.empty()) {
       called_renderer = true;
@@ -226,18 +222,20 @@ class DecoderBase : public Decoder {
       Assignable<Output>* assignable_output = output_queue_.front();
       output_queue_.pop_front();
       // Release |lock_| before calling the renderer.
-      lock_.Release();
-      assignable_output->SetBuffer(output);
-      output->Release();
-      assignable_output->OnAssignment();
-      assignable_output->Release();
-      lock_.Acquire();
+      {
+        AutoUnlock unlock(lock_);
+        assignable_output->SetBuffer(output);
+        output->Release();
+        assignable_output->OnAssignment();
+        assignable_output->Release();
+      }
     }
     return called_renderer;
   }
 
   // Throw away all buffers in all queues.
   void DiscardQueues() {
+    lock_.AssertAcquired();
     while (!input_queue_.empty()) {
       input_queue_.front()->Release();
       input_queue_.pop_front();
