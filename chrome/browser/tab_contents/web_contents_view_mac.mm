@@ -264,6 +264,17 @@ void WebContentsViewMac::Observe(NotificationType type,
     [super keyUp:event];
 }
 
+- (void)mouseEvent:(NSEvent *)theEvent {
+  if (webContentsView_->GetWebContents()->delegate()) {
+    if ([theEvent type] == NSMouseMoved)
+      webContentsView_->GetWebContents()->delegate()->
+          ContentsMouseEvent(webContentsView_->GetWebContents(), true);
+    if ([theEvent type] == NSMouseExited)
+      webContentsView_->GetWebContents()->delegate()->
+          ContentsMouseEvent(webContentsView_->GetWebContents(), false);
+  }
+}
+
 // In the Windows version, we always have cut/copy/paste enabled. This is sub-
 // optimal, but we do it too. TODO(avi): Plumb the "can*" methods up from
 // WebCore.

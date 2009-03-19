@@ -470,7 +470,7 @@ void WebContentsViewWin::OnMouseLeave() {
   // Let our delegate know that the mouse moved (useful for resetting status
   // bubble state).
   if (web_contents_->delegate())
-    web_contents_->delegate()->ContentsMouseEvent(web_contents_, WM_MOUSELEAVE);
+    web_contents_->delegate()->ContentsMouseEvent(web_contents_, false);
   SetMsgHandled(FALSE);
 }
 
@@ -493,8 +493,7 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
       // Let our delegate know that the mouse moved (useful for resetting status
       // bubble state).
       if (web_contents_->delegate()) {
-        web_contents_->delegate()->ContentsMouseEvent(web_contents_,
-                                                      WM_MOUSEMOVE);
+        web_contents_->delegate()->ContentsMouseEvent(web_contents_, true);
       }
       break;
     default:

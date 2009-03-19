@@ -1797,21 +1797,18 @@ void Browser::URLStarredChanged(TabContents* source, bool starred) {
     window_->SetStarredState(starred);
 }
 
-#if defined(OS_WIN)
-// TODO(port): Refactor this to win-specific delegate?
-void Browser::ContentsMouseEvent(TabContents* source, UINT message) {
+void Browser::ContentsMouseEvent(TabContents* source, bool motion) {
   if (!GetStatusBubble())
     return;
 
   if (source == GetSelectedTabContents()) {
-    if (message == WM_MOUSEMOVE) {
+    if (motion) {
       GetStatusBubble()->MouseMoved();
-    } else if (message == WM_MOUSELEAVE) {
+    } else {
       GetStatusBubble()->SetURL(GURL(), std::wstring());
     }
   }
 }
-#endif
 
 void Browser::UpdateTargetURL(TabContents* source, const GURL& url) {
   if (!GetStatusBubble())

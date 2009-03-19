@@ -36,6 +36,22 @@ gboolean OnFocus(GtkWidget* widget, GtkDirectionType focus,
   return TRUE;
 }
 
+// Called when the mouse leaves the widget. We notify our delegate.
+gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
+                       WebContents* web_contents) {
+  if (web_contents->delegate())
+    web_contents->delegate()->ContentsMouseEvent(web_contents, false);
+  return FALSE;
+}
+
+// Called when the mouse moves within the widget. We notify our delegate.
+gboolean OnMouseMove(GtkWidget* widget, GdkEventMotion* event,
+                     WebContents* web_contents) {
+  if (web_contents->delegate())
+    web_contents->delegate()->ContentsMouseEvent(web_contents, true);
+  return FALSE;
+}
+
 // Callback used in WebContentsViewGtk::CreateViewForWidget().
 void RemoveWidget(GtkWidget* widget, gpointer container) {
   gtk_container_remove(GTK_CONTAINER(container), widget);
@@ -73,6 +89,12 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   view->InitAsChild();
   g_signal_connect(view->native_view(), "focus",
                    G_CALLBACK(OnFocus), web_contents_);
+  g_signal_connect(view->native_view(), "leave-notify-event",
+                   G_CALLBACK(OnLeaveNotify), web_contents_);
+  g_signal_connect(view->native_view(), "motion-notify-event",
+                   G_CALLBACK(OnMouseMove), web_contents_);
+  gtk_widget_add_events(view->native_view(), GDK_LEAVE_NOTIFY_MASK |
+                        GDK_POINTER_MOTION_MASK);
   gtk_container_foreach(GTK_CONTAINER(vbox_.get()), RemoveWidget, vbox_.get());
   gtk_box_pack_start(GTK_BOX(vbox_.get()), view->native_view(), TRUE, TRUE, 0);
   return view;
