@@ -107,9 +107,7 @@ void InstallUtil::WriteInstallerResult(bool system_install,
     install_list->AddSetRegValueWorkItem(root, key, L"InstallerResultUIString",
                                          msg, true);
   }
-  // TODO(rahulk) verify that the absence of InstallerSuccessLaunchCmdLine
-  // for non-system installs does not break the gcapi.dll.
-  if ((launch_cmd != NULL) && system_install) {
+  if (launch_cmd != NULL) {
     install_list->AddSetRegValueWorkItem(root, key,
                                          L"InstallerSuccessLaunchCmdLine",
                                          *launch_cmd, true);
