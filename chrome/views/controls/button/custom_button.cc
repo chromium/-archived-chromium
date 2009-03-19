@@ -4,17 +4,12 @@
 
 #include "chrome/views/controls/button/custom_button.h"
 
-#include "base/keyboard_codes.h"
-#include "chrome/common/drag_drop_types.h"
-#include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/throb_animation.h"
-
-// TODO(erg): Write drag'n'drop for Linux.
-#if defined(OS_WIN)
 #include "base/base_drag_source.h"
 #include "chrome/browser/drag_utils.h"
+#include "chrome/common/drag_drop_types.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/os_exchange_data.h"
-#endif
+#include "chrome/common/throb_animation.h"
 
 namespace views {
 
@@ -171,10 +166,10 @@ bool CustomButton::OnKeyPressed(const KeyEvent& e) {
     // Space sets button state to pushed. Enter clicks the button. This matches
     // the Windows native behavior of buttons, where Space clicks the button
     // on KeyRelease and Enter clicks the button on KeyPressed.
-    if (e.GetCharacter() == base::VKEY_SPACE) {
+    if (e.GetCharacter() == VK_SPACE) {
       SetState(BS_PUSHED);
       return true;
-    } else if  (e.GetCharacter() == base::VKEY_RETURN) {
+    } else if  (e.GetCharacter() == VK_RETURN) {
       SetState(BS_NORMAL);
       NotifyClick(0);
       return true;
@@ -185,7 +180,7 @@ bool CustomButton::OnKeyPressed(const KeyEvent& e) {
 
 bool CustomButton::OnKeyReleased(const KeyEvent& e) {
   if (state_ != BS_DISABLED) {
-    if (e.GetCharacter() == base::VKEY_SPACE) {
+    if (e.GetCharacter() == VK_SPACE) {
       SetState(BS_NORMAL);
       NotifyClick(0);
       return true;

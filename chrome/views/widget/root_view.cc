@@ -150,9 +150,13 @@ void RootView::ProcessPaint(ChromeCanvas* canvas) {
   ScopedProcessingPaint processing_paint(&is_processing_paint_);
 #endif
 
+#if defined(OS_WIN)
   // Clip the invalid rect to our bounds. If a view is in a scrollview
   // it could be a lot larger
-  invalid_rect_ = GetScheduledPaintRectConstrainedToSize();
+  invalid_rect_ = gfx::Rect(GetScheduledPaintRectConstrainedToSize());
+#else
+  NOTIMPLEMENTED();
+#endif
 
   if (invalid_rect_.IsEmpty())
     return;
@@ -204,13 +208,6 @@ bool RootView::NeedsPainting(bool urgent) {
 
 const gfx::Rect& RootView::GetScheduledPaintRect() {
   return invalid_rect_;
-}
-
-gfx::Rect RootView::GetScheduledPaintRectConstrainedToSize() {
-  if (invalid_rect_.IsEmpty())
-    return invalid_rect_;
-
-  return invalid_rect_.Intersect(GetLocalBounds(true));
 }
 
 /////////////////////////////////////////////////////////////////////////////
