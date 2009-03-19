@@ -84,6 +84,9 @@ class Valgrind(object):
     logging.info("starting execution...")
 
     proc = self.ValgrindCommand()
+    os.putenv("G_SLICE", "always-malloc")
+    os.putenv("NSS_DISABLE_ARENA_FREE_LIST", "1")
+
     common.RunSubprocess(proc, self._timeout)
 
     # Always return true, even if running the subprocess failed. We depend on

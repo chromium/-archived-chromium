@@ -7,6 +7,10 @@
 # it the suppression file, and some helpful arguments (automatically attaching
 # the debugger on failures, etc).  Run it from your repo root, something like:
 #  $ sh ./tools/valgrind/valgrind.sh ./chrome/Hammer/chrome
+#
+# This is mostly intended for running the chrome browser interactively.
+# To run unit tests, you probably want to run chrome_tests.sh instead.
+# That's the script used by the valgrind buildbot.
 
 set -e
 
@@ -32,12 +36,14 @@ SUPPRESSIONS="$(cd `dirname "$0"` && pwd)/suppressions.txt"
 set -v
 
 # Pass GTK glib allocations through to system malloc so valgrind sees them.
+# Prevent NSS from recycling memory arenas so valgrind can track origins.
 # Ask GTK to abort on any critical or warning assertions.
 # Overwrite newly allocated or freed objects with 0x41 to catch inproper use.
 # smc-check=all is required for valgrind to see v8's dynamic code generation.
 # trace-children to follow into the renderer processes.
 # Prompt to attach gdb when there was an error detected.
 G_SLICE=always-malloc \
+NSS_DISABLE_ARENA_FREE_LIST=1 \
 G_DEBUG=fatal_warnings \
 "$VALGRIND" \
   --trace-children=yes \

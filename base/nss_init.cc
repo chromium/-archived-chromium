@@ -5,6 +5,8 @@
 #include "base/nss_init.h"
 
 #include <nss.h>
+#include <plarena.h>
+#include <prinit.h>
 
 // Work around https://bugzilla.mozilla.org/show_bug.cgi?id=455424
 // until NSS 3.12.2 comes out and we update to it.
@@ -76,7 +78,14 @@ class NSSInitSingleton {
     if (status != SECSuccess)
       LOG(ERROR) << "NSS_Shutdown failed, leak?  See "
                     "http://code.google.com/p/chromium/issues/detail?id=4609";
+
+    PL_ArenaFinish();
+
+    PRStatus prstatus = PR_Cleanup();
+    if (prstatus != PR_SUCCESS)
+      LOG(ERROR) << "PR_Cleanup failed?";
   }
+
  private:
   SECMODModule *root_;
 };
