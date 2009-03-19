@@ -83,7 +83,10 @@ class WebCacheManagerTest : public testing::Test {
     KEEP_LIVE = WebCacheManager::KEEP_LIVE,
   };
 
+  WebCacheManager* manager() { return &manager_; }
+
  private:
+  WebCacheManager manager_;
   MessageLoop message_loop_;
 };
 
@@ -117,85 +120,75 @@ static bool operator==(const WebCache::UsageStats& lhs,
 }
 
 TEST_F(WebCacheManagerTest, AddRemoveRendererTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
+  EXPECT_EQ(0U, active_renderers(manager()).size());
+  EXPECT_EQ(0U, inactive_renderers(manager()).size());
 
-  EXPECT_EQ(0U, active_renderers(h).size());
-  EXPECT_EQ(0U, inactive_renderers(h).size());
+  manager()->Add(kRendererID);
+  EXPECT_EQ(1U, active_renderers(manager()).count(kRendererID));
+  EXPECT_EQ(0U, inactive_renderers(manager()).count(kRendererID));
 
-  h->Add(kRendererID);
-  EXPECT_EQ(1U, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(0U, inactive_renderers(h).count(kRendererID));
-
-  h->Remove(kRendererID);
-  EXPECT_EQ(0U, active_renderers(h).size());
-  EXPECT_EQ(0U, inactive_renderers(h).size());
+  manager()->Remove(kRendererID);
+  EXPECT_EQ(0U, active_renderers(manager()).size());
+  EXPECT_EQ(0U, inactive_renderers(manager()).size());
 }
 
 TEST_F(WebCacheManagerTest, ActiveInactiveTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
+  manager()->Add(kRendererID);
 
-  h->Add(kRendererID);
+  manager()->ObserveActivity(kRendererID);
+  EXPECT_EQ(1U, active_renderers(manager()).count(kRendererID));
+  EXPECT_EQ(0U, inactive_renderers(manager()).count(kRendererID));
 
-  h->ObserveActivity(kRendererID);
-  EXPECT_EQ(1U, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(0U, inactive_renderers(h).count(kRendererID));
+  SimulateInactivity(manager(), kRendererID);
+  EXPECT_EQ(0U, active_renderers(manager()).count(kRendererID));
+  EXPECT_EQ(1U, inactive_renderers(manager()).count(kRendererID));
 
-  SimulateInactivity(h, kRendererID);
-  EXPECT_EQ(0U, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(1U, inactive_renderers(h).count(kRendererID));
+  manager()->ObserveActivity(kRendererID);
+  EXPECT_EQ(1U, active_renderers(manager()).count(kRendererID));
+  EXPECT_EQ(0U, inactive_renderers(manager()).count(kRendererID));
 
-  h->ObserveActivity(kRendererID);
-  EXPECT_EQ(1U, active_renderers(h).count(kRendererID));
-  EXPECT_EQ(0U, inactive_renderers(h).count(kRendererID));
-
-  h->Remove(kRendererID);
+  manager()->Remove(kRendererID);
 }
 
 TEST_F(WebCacheManagerTest, ObserveStatsTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
+  manager()->Add(kRendererID);
 
-  h->Add(kRendererID);
+  EXPECT_EQ(1U, stats(manager()).size());
 
-  EXPECT_EQ(1U, stats(h).size());
+  manager()->ObserveStats(kRendererID, kStats);
 
-  h->ObserveStats(kRendererID, kStats);
+  EXPECT_EQ(1U, stats(manager()).size());
+  EXPECT_TRUE(kStats == stats(manager())[kRendererID]);
 
-  EXPECT_EQ(1U, stats(h).size());
-  EXPECT_TRUE(kStats == stats(h)[kRendererID]);
-
-  h->Remove(kRendererID);
+  manager()->Remove(kRendererID);
 }
 
 TEST_F(WebCacheManagerTest, SetGlobalSizeLimitTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
+  size_t limit = manager()->GetDefaultGlobalSizeLimit();
+  manager()->SetGlobalSizeLimit(limit);
+  EXPECT_EQ(limit, manager()->global_size_limit());
 
-  size_t limit = h->GetDefaultGlobalSizeLimit();
-  h->SetGlobalSizeLimit(limit);
-  EXPECT_EQ(limit, h->global_size_limit());
-
-  h->SetGlobalSizeLimit(0);
-  EXPECT_EQ(0U, h->global_size_limit());
+  manager()->SetGlobalSizeLimit(0);
+  EXPECT_EQ(0U, manager()->global_size_limit());
 }
 
 TEST_F(WebCacheManagerTest, GatherStatsTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
+  manager()->Add(kRendererID);
+  manager()->Add(kRendererID2);
 
-  h->Add(kRendererID);
-  h->Add(kRendererID2);
-
-  h->ObserveStats(kRendererID, kStats);
-  h->ObserveStats(kRendererID2, kStats2);
+  manager()->ObserveStats(kRendererID, kStats);
+  manager()->ObserveStats(kRendererID2, kStats2);
 
   std::set<int> renderer_set;
   renderer_set.insert(kRendererID);
 
   WebCache::UsageStats stats;
-  GatherStats(h, renderer_set, &stats);
+  GatherStats(manager(), renderer_set, &stats);
 
   EXPECT_TRUE(kStats == stats);
 
   renderer_set.insert(kRendererID2);
-  GatherStats(h, renderer_set, &stats);
+  GatherStats(manager(), renderer_set, &stats);
 
   WebCache::UsageStats expected_stats = kStats;
   expected_stats.minDeadCapacity += kStats2.minDeadCapacity;
@@ -206,8 +199,8 @@ TEST_F(WebCacheManagerTest, GatherStatsTest) {
 
   EXPECT_TRUE(expected_stats == stats);
 
-  h->Remove(kRendererID);
-  h->Remove(kRendererID2);
+  manager()->Remove(kRendererID);
+  manager()->Remove(kRendererID2);
 }
 
 TEST_F(WebCacheManagerTest, GetSizeTest) {
@@ -219,23 +212,21 @@ TEST_F(WebCacheManagerTest, GetSizeTest) {
 }
 
 TEST_F(WebCacheManagerTest, AttemptTacticTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
+  manager()->Add(kRendererID);
+  manager()->Add(kRendererID2);
 
-  h->Add(kRendererID);
-  h->Add(kRendererID2);
+  manager()->ObserveActivity(kRendererID);
+  SimulateInactivity(manager(), kRendererID2);
 
-  h->ObserveActivity(kRendererID);
-  SimulateInactivity(h, kRendererID2);
+  manager()->ObserveStats(kRendererID, kStats);
+  manager()->ObserveStats(kRendererID2, kStats2);
 
-  h->ObserveStats(kRendererID, kStats);
-  h->ObserveStats(kRendererID2, kStats2);
-
-  h->SetGlobalSizeLimit(kStats.liveSize + kStats.deadSize +
+  manager()->SetGlobalSizeLimit(kStats.liveSize + kStats.deadSize +
                         kStats2.liveSize + kStats2.deadSize/2);
 
   AllocationStrategy strategy;
 
-  EXPECT_FALSE(AttemptTactic(h,
+  EXPECT_FALSE(AttemptTactic(manager(),
                              KEEP_CURRENT,
                              kStats,
                              KEEP_CURRENT,
@@ -243,7 +234,7 @@ TEST_F(WebCacheManagerTest, AttemptTacticTest) {
                              &strategy));
   EXPECT_TRUE(strategy.empty());
 
-  EXPECT_TRUE(AttemptTactic(h,
+  EXPECT_TRUE(AttemptTactic(manager(),
                             KEEP_CURRENT,
                             kStats,
                             KEEP_LIVE,
@@ -262,27 +253,25 @@ TEST_F(WebCacheManagerTest, AttemptTacticTest) {
     ++iter;
   }
 
-  h->Remove(kRendererID);
-  h->Remove(kRendererID2);
+  manager()->Remove(kRendererID);
+  manager()->Remove(kRendererID2);
 }
 
 TEST_F(WebCacheManagerTest, AddToStrategyTest) {
-  WebCacheManager* h = WebCacheManager::GetInstance();
-
-  h->Add(kRendererID);
-  h->Add(kRendererID2);
+  manager()->Add(kRendererID);
+  manager()->Add(kRendererID2);
 
   std::set<int> renderer_set;
   renderer_set.insert(kRendererID);
   renderer_set.insert(kRendererID2);
 
-  h->ObserveStats(kRendererID, kStats);
-  h->ObserveStats(kRendererID2, kStats2);
+  manager()->ObserveStats(kRendererID, kStats);
+  manager()->ObserveStats(kRendererID2, kStats2);
 
   const size_t kExtraBytesToAllocate = 10 * 1024;
 
   AllocationStrategy strategy;
-  AddToStrategy(h,
+  AddToStrategy(manager(),
                 renderer_set,
                 KEEP_CURRENT,
                 kExtraBytesToAllocate,
@@ -310,6 +299,6 @@ TEST_F(WebCacheManagerTest, AddToStrategyTest) {
 
   EXPECT_GE(expected_total_bytes, total_bytes);
 
-  h->Remove(kRendererID);
-  h->Remove(kRendererID2);
+  manager()->Remove(kRendererID);
+  manager()->Remove(kRendererID2);
 }
