@@ -35,8 +35,8 @@
 
 #include "WorkerContextExecutionProxy.h"
 
-#include "v8Binding.h"
-#include "v8Proxy.h"
+#include "V8Binding.h"
+#include "V8Proxy.h"
 #include "v8_index.h"
 #include "Event.h"
 #include "V8WorkerContextEventListener.h"
