@@ -905,7 +905,6 @@ void Browser::FocusToolbar() {
 }
 #endif
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 void Browser::FocusLocationBar() {
   UserMetrics::RecordAction(L"FocusLocation", profile_);
   window_->SetFocusToLocationBar();
@@ -916,7 +915,6 @@ void Browser::FocusSearch() {
   UserMetrics::RecordAction(L"FocusSearch", profile_);
   window_->GetLocationBar()->FocusSearch();
 }
-#endif
 
 #if defined(OS_WIN) || defined(OS_LINUX)
 void Browser::OpenFile() {
@@ -1229,10 +1227,8 @@ void Browser::ExecuteCommand(int id) {
 #if defined(OS_WIN)
     case IDC_FOCUS_TOOLBAR:         FocusToolbar();                break;
 #endif
-#if defined(OS_WIN) || defined(OS_LINUX)
     case IDC_FOCUS_LOCATION:        FocusLocationBar();            break;
     case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
-#endif
 
     // Show various bits of UI
 #if defined(OS_WIN)|| defined(OS_LINUX)

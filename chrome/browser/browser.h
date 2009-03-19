@@ -312,10 +312,8 @@ class Browser : public TabStripModelDelegate,
   // Focus various bits of UI
   void FocusToolbar();
 #endif
-#if defined(OS_WIN) || defined(OS_LINUX)
   void FocusLocationBar();
   void FocusSearch();
-#endif
 
   // Show various bits of UI
 #if defined(OS_WIN) || defined(OS_LINUX)
