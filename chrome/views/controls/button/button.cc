@@ -63,7 +63,10 @@ Button::Button(ButtonListener* listener)
 
 void Button::NotifyClick(int mouse_event_flags) {
   mouse_event_flags_ = mouse_event_flags;
-  listener_->ButtonPressed(this);
+  // We can be called when there is no listener, in cases like double clicks on
+  // menu buttons etc.
+  if (listener_)
+    listener_->ButtonPressed(this);
   // NOTE: don't attempt to reset mouse_event_flags_ as the listener may have
   // deleted us.
 }
