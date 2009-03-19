@@ -36,7 +36,8 @@ static void PrepareStringForFileOps(const FilePath& text,
 static bool ValidPathForFile(const FilePath::StringType& text,
                              FilePath* full_path) {
   FilePath file_path(text);
-  file_util::AbsolutePath(&file_path);
+  if (!file_util::AbsolutePath(&file_path))
+    return false;
 
   if (!file_util::PathExists(file_path))
     return false;
