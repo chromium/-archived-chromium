@@ -5,6 +5,7 @@
 #include "webkit/glue/webthemeengine_impl_win.h"
 
 #include "base/gfx/native_theme.h"
+#include "skia/ext/platform_canvas.h"
 #include "skia/ext/skia_utils_win.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 

@@ -7,12 +7,8 @@ Import('env')
 env = env.Clone()
 
 env.Append(
-    CPPDEFINES = [
-        'WEBKIT_USING_SKIA'
-    ],
     CPPPATH = [
         '$WEBKIT_DIR/build/WebCore',
-        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public',
     ],
     LIBS = [
         'port',

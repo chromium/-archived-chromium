@@ -29,7 +29,6 @@ env.SConscript([
     '$PRINTING_DIR/using_printing.scons',
     '$SDCH_DIR/using_sdch.scons',
     '$SKIA_DIR/using_skia.scons',
-    '$WEBKIT_DIR/build/WebKit/using_webkit.scons',
     '$ZLIB_DIR/using_zlib.scons',
 ], {'env':env})
 

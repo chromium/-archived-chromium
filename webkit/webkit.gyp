@@ -4113,25 +4113,11 @@
         '../third_party/WebKit/WebKit/chromium/src/WebString.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebURL.cpp',
       ],
-      'direct_dependent_settings': {
-        'include_dirs': [
-          '../third_party/WebKit/WebKit/chromium/public',
-        ],
-      },
       'conditions': [
         ['OS=="mac"', {
           'sources!': [
             '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
           ],
-        }, {  # else: OS!="mac"
-          'defines': [
-            'WEBKIT_USING_SKIA',
-          ],
-          'direct_dependent_settings': {
-            'defines': [
-              'WEBKIT_USING_SKIA',
-            ],
-          },
         }],
         ['OS=="win"', {
           'sources': [

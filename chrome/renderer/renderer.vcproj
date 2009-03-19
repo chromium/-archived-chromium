@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops;..\..\webkit\build\WebKit\using_WebKit.vsprops"
+			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\debug.vsprops;..\tools\build\win\precompiled_wtl.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -69,7 +69,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets=".\renderer.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\webkit\build\WebKit\using_WebKit.vsprops"
+			InheritedPropertySheets=".\renderer.vsprops;..\..\build\release.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -290,14 +290,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\renderer_logging.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\renderer_logging.h"
-			>
-		</File>
-		<File
 			RelativePath=".\render_process.cc"
 			>
 		</File>
@@ -339,6 +331,14 @@
 		</File>
 		<File
 			RelativePath=".\renderer_histogram_snapshots.h"
+			>
+		</File>
+		<File
+			RelativePath=".\renderer_logging.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\renderer_logging.h"
 			>
 		</File>
 		<File
