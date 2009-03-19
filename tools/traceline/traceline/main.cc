@@ -199,8 +199,14 @@ class Playground {
                  func_addr - 5, GetLastError());
     }
 
+    // TODO(deanm): It seems in more recent updates the compiler is generating
+    // complicated sequences for padding / alignment.  For example:
+    // 00000000  8DA42400000000    lea esp,[esp+0x0]
+    // 00000007  8D4900            lea ecx,[ecx+0x0]
+    // is used for a 16 byte alignment.  We need a better way of handling this.
     if (memcmp(buf, "\x90\x90\x90\x90\x90", 5) == 0 ||
-        memcmp(buf, "\x00\x8D\x64\x24\x00", 5) == 0) {
+        memcmp(buf, "\x00\x8D\x64\x24\x00", 5) == 0 ||
+        memcmp(buf, "\x00\x00\x8D\x49\x00", 5) == 0) {
       unsigned int instr_bytes = 0;
 
       // We might have a hotpatch no-op of mov edi, edi "\x8b\xff".  It is a
@@ -994,10 +1000,7 @@ class Playground {
 
     PatchThreadExit();
     PatchSetThreadName();
-#if 0
-    // FIXME
     PatchSyscall();
-#endif
 
     PatchApcDispatcher();
 

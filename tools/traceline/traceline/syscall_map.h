@@ -15,9 +15,13 @@
 
 #include <map>
 
+// TODO(deanm): Right now these tables are manually extracted and hardcoded
+// here.  It would be great (but possibly difficult) to do it on startup.  We
+// should at least checksum the DLLs to make sure they match.
+
 std::map<int, const char*> CreateSyscallMap() {
   std::map<int, const char*> table;
-if (0) {
+if (1) {  // XP table.
   table[0] = "ntdll.dll!NtAcceptConnectPort";
   table[1] = "ntdll.dll!NtAccessCheck";
   table[2] = "ntdll.dll!ZwAccessCheckAndAuditAlarm";
@@ -954,7 +958,7 @@ if (0) {
   table[4760] = "gdi32.dll!NtGdiBRUSHOBJ_DeleteRbrush";
   table[4761] = "gdi32.dll!NtGdiUMPDEngFreeUserMem";
   table[4762] = "gdi32.dll!NtGdiDrawStream";
-} else {
+} else {  // Vista table.
   table[4272] = "gdi32.dll!NtGdiGetDeviceCaps";
   table[4220] = "gdi32.dll!NtGdiDeleteObjectApp";
   table[4249] = "gdi32.dll!NtGdiFlush";
