@@ -112,169 +112,6 @@ HRESULT NativeTheme::PaintButton(HDC hdc,
   return S_OK;
 }
 
-HRESULT NativeTheme::PaintTextField(HDC hdc,
-                                    int part_id,
-                                    int state_id,
-                                    int classic_state,
-                                    RECT* rect,
-                                    COLORREF color,
-                                    bool fill_content_area,
-                                    bool draw_edges) const {
-  // TODO(ojan): http://b/1210017 Figure out how to give the ability to
-  // exclude individual edges from being drawn.
-
-  HANDLE handle = GetThemeHandle(TEXTFIELD);
-  // TODO(mpcomplete): can we detect if the color is specified by the user,
-  // and if not, just use the system color?
-  // CreateSolidBrush() accepts a RGB value but alpha must be 0.
-  HBRUSH bg_brush = CreateSolidBrush(color);
-  HRESULT hr;
-  // DrawThemeBackgroundEx was introduced in XP SP2, so that it's possible
-  // draw_theme_ex_ is NULL and draw_theme_ is non-null.
-  if (handle && (draw_theme_ex_ || (draw_theme_ && draw_edges))) {
-    if (draw_theme_ex_) {
-      static DTBGOPTS omit_border_options = {
-        sizeof(DTBGOPTS),
-        DTBG_OMITBORDER,
-        {0,0,0,0}
-      };
-      DTBGOPTS* draw_opts = draw_edges ? NULL : &omit_border_options;
-      hr = draw_theme_ex_(handle, hdc, part_id, state_id, rect, draw_opts);
-    } else {
-      hr = draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
-    }
-
-    // TODO(maruel): Need to be fixed if get_theme_content_rect_ is NULL.
-    if (fill_content_area && get_theme_content_rect_) {
-      RECT content_rect;
-      hr = get_theme_content_rect_(handle, hdc, part_id, state_id, rect,
-                                   &content_rect);
-      FillRect(hdc, &content_rect, bg_brush);
-    }
-  } else {
-    // Draw it manually.
-    if (draw_edges)
-      DrawEdge(hdc, rect, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
-
-    if (fill_content_area) {
-      FillRect(hdc, rect, (classic_state & DFCS_INACTIVE) ?
-                   reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1) : bg_brush);
-    }
-    hr = S_OK;
-  }
-  DeleteObject(bg_brush);
-  return hr;
-}
-
-HRESULT NativeTheme::PaintMenuList(HDC hdc,
-                                   int part_id,
-                                   int state_id,
-                                   int classic_state,
-                                   RECT* rect) const {
-  HANDLE handle = GetThemeHandle(MENULIST);
-  if (handle && draw_theme_)
-    return draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
-
-  // Draw it manually.
-  DrawFrameControl(hdc, rect, DFC_SCROLL, DFCS_SCROLLCOMBOBOX | classic_state);
-  return S_OK;
-}
-
-HRESULT NativeTheme::PaintScrollbarArrow(HDC hdc,
-                                         int state_id,
-                                         int classic_state,
-                                         RECT* rect) const {
-  HANDLE handle = GetThemeHandle(SCROLLBAR);
-  if (handle && draw_theme_)
-    return draw_theme_(handle, hdc, SBP_ARROWBTN, state_id, rect, NULL);
-
-  // Draw it manually.
-  DrawFrameControl(hdc, rect, DFC_SCROLL, classic_state);
-  return S_OK;
-}
-
-HRESULT NativeTheme::PaintScrollbarTrack(
-    HDC hdc,
-    int part_id,
-    int state_id,
-    int classic_state,
-    RECT* target_rect,
-    RECT* align_rect,
-    skia::PlatformCanvasWin* canvas) const {
-  HANDLE handle = GetThemeHandle(SCROLLBAR);
-  if (handle && draw_theme_)
-    return draw_theme_(handle, hdc, part_id, state_id, target_rect, NULL);
-
-  // Draw it manually.
-  const DWORD colorScrollbar = GetSysColor(COLOR_SCROLLBAR);
-  const DWORD color3DFace = GetSysColor(COLOR_3DFACE);
-  if ((colorScrollbar != color3DFace) &&
-      (colorScrollbar != GetSysColor(COLOR_WINDOW))) {
-    FillRect(hdc, target_rect, reinterpret_cast<HBRUSH>(COLOR_SCROLLBAR + 1));
-  } else {
-    // Create a 2x2 checkerboard pattern using the 3D face and highlight
-    // colors.
-    SkColor face = skia::COLORREFToSkColor(color3DFace);
-    SkColor highlight = skia::COLORREFToSkColor(GetSysColor(COLOR_3DHILIGHT));
-    SkColor buffer[] = { face, highlight, highlight, face };
-    SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    bitmap.setPixels(buffer);
-    SkShader* shader = SkShader::CreateBitmapShader(bitmap,
-                                                    SkShader::kRepeat_TileMode,
-                                                    SkShader::kRepeat_TileMode);
-
-    // Draw that pattern into the target rect, setting the origin to the top
-    // left corner of the scrollbar track (so the checked rect below the thumb
-    // aligns properly with the portion above the thumb).
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(align_rect->left),
-                        SkIntToScalar(align_rect->top));
-    shader->setLocalMatrix(matrix);
-    SkPaint paint;
-    paint.setShader(shader)->unref();
-    canvas->drawIRect(skia::RECTToSkIRect(*target_rect), paint);
-  }
-  if (classic_state & DFCS_PUSHED)
-    InvertRect(hdc, target_rect);
-  return S_OK;
-}
-
-HRESULT NativeTheme::PaintScrollbarThumb(HDC hdc,
-                                         int part_id,
-                                         int state_id,
-                                         int classic_state,
-                                         RECT* rect) const {
-  HANDLE handle = GetThemeHandle(SCROLLBAR);
-  if (handle && draw_theme_)
-    return draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
-
-  // Draw it manually.
-  if ((part_id == SBP_THUMBBTNHORZ) || (part_id == SBP_THUMBBTNVERT))
-    DrawEdge(hdc, rect, EDGE_RAISED, BF_RECT | BF_MIDDLE);
-  // Classic mode doesn't have a gripper.
-  return S_OK;
-}
-
-HRESULT NativeTheme::PaintStatusGripper(HDC hdc,
-                                        int part_id,
-                                        int state_id,
-                                        int classic_state,
-                                        RECT* rect) const {
-  HANDLE handle = GetThemeHandle(STATUS);
-  if (handle && draw_theme_) {
-    // Paint the status bar gripper.  There doesn't seem to be a
-    // standard gripper in Windows for the space between
-    // scrollbars.  This is pretty close, but it's supposed to be
-    // painted over a status bar.
-    return draw_theme_(handle, hdc, SP_GRIPPER, 0, rect, 0);
-  }
-
-  // Draw a windows classic scrollbar gripper.
-  DrawFrameControl(hdc, rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
-  return S_OK;
-}
-
 HRESULT NativeTheme::PaintDialogBackground(HDC hdc, bool active,
                                            RECT* rect) const {
   HANDLE handle = GetThemeHandle(WINDOW);
@@ -282,16 +119,6 @@ HRESULT NativeTheme::PaintDialogBackground(HDC hdc, bool active,
     return draw_theme_(handle, hdc, WP_DIALOG,
                        active ? FS_ACTIVE : FS_INACTIVE, rect, NULL);
   }
-
-  // Classic just renders a flat color background.
-  FillRect(hdc, rect, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1));
-  return S_OK;
-}
-
-HRESULT NativeTheme::PaintTabPanelBackground(HDC hdc, RECT* rect) const {
-  HANDLE handle = GetThemeHandle(TAB);
-  if (handle && draw_theme_)
-    return draw_theme_(handle, hdc, TABP_BODY, 0, rect, NULL);
 
   // Classic just renders a flat color background.
   FillRect(hdc, rect, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1));
@@ -310,12 +137,6 @@ HRESULT NativeTheme::PaintListBackground(HDC hdc,
   FillRect(hdc, rect, bg_brush);
   DrawEdge(hdc, rect, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
   return S_OK;
-}
-
-bool NativeTheme::IsThemingActive() const {
-  if (is_theme_active_)
-    return !!is_theme_active_();
-  return false;
 }
 
 HRESULT NativeTheme::PaintMenuArrow(ThemeName theme,
@@ -418,17 +239,6 @@ HRESULT NativeTheme::PaintMenuGutter(HDC hdc,
   return E_NOTIMPL;
 }
 
-HRESULT NativeTheme::PaintMenuSeparator(HDC hdc,
-                                        int part_id,
-                                        int state_id,
-                                        RECT* rect) const {
-  HANDLE handle = GetThemeHandle(MENU);
-  if (handle && draw_theme_)
-    return draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
-  DrawEdge(hdc, rect, EDGE_ETCHED, BF_TOP);
-  return S_OK;
-}
-
 HRESULT NativeTheme::PaintMenuItemBackground(ThemeName theme,
                                              HDC hdc,
                                              int part_id,
@@ -441,6 +251,196 @@ HRESULT NativeTheme::PaintMenuItemBackground(ThemeName theme,
   if (selected)
     FillRect(hdc, rect, GetSysColorBrush(COLOR_HIGHLIGHT));
   return S_OK;
+}
+
+HRESULT NativeTheme::PaintMenuList(HDC hdc,
+                                   int part_id,
+                                   int state_id,
+                                   int classic_state,
+                                   RECT* rect) const {
+  HANDLE handle = GetThemeHandle(MENULIST);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
+
+  // Draw it manually.
+  DrawFrameControl(hdc, rect, DFC_SCROLL, DFCS_SCROLLCOMBOBOX | classic_state);
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintMenuSeparator(HDC hdc,
+                                        int part_id,
+                                        int state_id,
+                                        RECT* rect) const {
+  HANDLE handle = GetThemeHandle(MENU);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
+  DrawEdge(hdc, rect, EDGE_ETCHED, BF_TOP);
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintScrollbarArrow(HDC hdc,
+                                         int state_id,
+                                         int classic_state,
+                                         RECT* rect) const {
+  HANDLE handle = GetThemeHandle(SCROLLBAR);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, SBP_ARROWBTN, state_id, rect, NULL);
+
+  // Draw it manually.
+  DrawFrameControl(hdc, rect, DFC_SCROLL, classic_state);
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintScrollbarTrack(
+    HDC hdc,
+    int part_id,
+    int state_id,
+    int classic_state,
+    RECT* target_rect,
+    RECT* align_rect,
+    skia::PlatformCanvasWin* canvas) const {
+  HANDLE handle = GetThemeHandle(SCROLLBAR);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, part_id, state_id, target_rect, NULL);
+
+  // Draw it manually.
+  const DWORD colorScrollbar = GetSysColor(COLOR_SCROLLBAR);
+  const DWORD color3DFace = GetSysColor(COLOR_3DFACE);
+  if ((colorScrollbar != color3DFace) &&
+      (colorScrollbar != GetSysColor(COLOR_WINDOW))) {
+    FillRect(hdc, target_rect, reinterpret_cast<HBRUSH>(COLOR_SCROLLBAR + 1));
+  } else {
+    // Create a 2x2 checkerboard pattern using the 3D face and highlight
+    // colors.
+    SkColor face = skia::COLORREFToSkColor(color3DFace);
+    SkColor highlight = skia::COLORREFToSkColor(GetSysColor(COLOR_3DHILIGHT));
+    SkColor buffer[] = { face, highlight, highlight, face };
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
+    bitmap.setPixels(buffer);
+    SkShader* shader = SkShader::CreateBitmapShader(bitmap,
+                                                    SkShader::kRepeat_TileMode,
+                                                    SkShader::kRepeat_TileMode);
+
+    // Draw that pattern into the target rect, setting the origin to the top
+    // left corner of the scrollbar track (so the checked rect below the thumb
+    // aligns properly with the portion above the thumb).
+    SkMatrix matrix;
+    matrix.setTranslate(SkIntToScalar(align_rect->left),
+                        SkIntToScalar(align_rect->top));
+    shader->setLocalMatrix(matrix);
+    SkPaint paint;
+    paint.setShader(shader)->unref();
+    canvas->drawIRect(skia::RECTToSkIRect(*target_rect), paint);
+  }
+  if (classic_state & DFCS_PUSHED)
+    InvertRect(hdc, target_rect);
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintScrollbarThumb(HDC hdc,
+                                         int part_id,
+                                         int state_id,
+                                         int classic_state,
+                                         RECT* rect) const {
+  HANDLE handle = GetThemeHandle(SCROLLBAR);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
+
+  // Draw it manually.
+  if ((part_id == SBP_THUMBBTNHORZ) || (part_id == SBP_THUMBBTNVERT))
+    DrawEdge(hdc, rect, EDGE_RAISED, BF_RECT | BF_MIDDLE);
+  // Classic mode doesn't have a gripper.
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintStatusGripper(HDC hdc,
+                                        int part_id,
+                                        int state_id,
+                                        int classic_state,
+                                        RECT* rect) const {
+  HANDLE handle = GetThemeHandle(STATUS);
+  if (handle && draw_theme_) {
+    // Paint the status bar gripper.  There doesn't seem to be a
+    // standard gripper in Windows for the space between
+    // scrollbars.  This is pretty close, but it's supposed to be
+    // painted over a status bar.
+    return draw_theme_(handle, hdc, SP_GRIPPER, 0, rect, NULL);
+  }
+
+  // Draw a windows classic scrollbar gripper.
+  DrawFrameControl(hdc, rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintTabPanelBackground(HDC hdc, RECT* rect) const {
+  HANDLE handle = GetThemeHandle(TAB);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, TABP_BODY, 0, rect, NULL);
+
+  // Classic just renders a flat color background.
+  FillRect(hdc, rect, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1));
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintTextField(HDC hdc,
+                                    int part_id,
+                                    int state_id,
+                                    int classic_state,
+                                    RECT* rect,
+                                    COLORREF color,
+                                    bool fill_content_area,
+                                    bool draw_edges) const {
+  // TODO(ojan): http://b/1210017 Figure out how to give the ability to
+  // exclude individual edges from being drawn.
+
+  HANDLE handle = GetThemeHandle(TEXTFIELD);
+  // TODO(mpcomplete): can we detect if the color is specified by the user,
+  // and if not, just use the system color?
+  // CreateSolidBrush() accepts a RGB value but alpha must be 0.
+  HBRUSH bg_brush = CreateSolidBrush(color);
+  HRESULT hr;
+  // DrawThemeBackgroundEx was introduced in XP SP2, so that it's possible
+  // draw_theme_ex_ is NULL and draw_theme_ is non-null.
+  if (handle && (draw_theme_ex_ || (draw_theme_ && draw_edges))) {
+    if (draw_theme_ex_) {
+      static DTBGOPTS omit_border_options = {
+        sizeof(DTBGOPTS),
+        DTBG_OMITBORDER,
+        {0,0,0,0}
+      };
+      DTBGOPTS* draw_opts = draw_edges ? NULL : &omit_border_options;
+      hr = draw_theme_ex_(handle, hdc, part_id, state_id, rect, draw_opts);
+    } else {
+      hr = draw_theme_(handle, hdc, part_id, state_id, rect, NULL);
+    }
+
+    // TODO(maruel): Need to be fixed if get_theme_content_rect_ is NULL.
+    if (fill_content_area && get_theme_content_rect_) {
+      RECT content_rect;
+      hr = get_theme_content_rect_(handle, hdc, part_id, state_id, rect,
+                                   &content_rect);
+      FillRect(hdc, &content_rect, bg_brush);
+    }
+  } else {
+    // Draw it manually.
+    if (draw_edges)
+      DrawEdge(hdc, rect, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
+
+    if (fill_content_area) {
+      FillRect(hdc, rect, (classic_state & DFCS_INACTIVE) ?
+                   reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1) : bg_brush);
+    }
+    hr = S_OK;
+  }
+  DeleteObject(bg_brush);
+  return hr;
+}
+
+bool NativeTheme::IsThemingActive() const {
+  if (is_theme_active_)
+    return !!is_theme_active_();
+  return false;
 }
 
 HRESULT NativeTheme::GetThemePartSize(ThemeName theme_name,
@@ -575,32 +575,32 @@ HANDLE NativeTheme::GetThemeHandle(ThemeName theme_name) const
   // Not found, try to load it.
   HANDLE handle = 0;
   switch (theme_name) {
-  case NativeTheme::BUTTON:
+  case BUTTON:
     handle = open_theme_(NULL, L"Button");
     break;
-  case NativeTheme::TEXTFIELD:
-    handle = open_theme_(NULL, L"Edit");
+  case LIST:
+    handle = open_theme_(NULL, L"Listview");
     break;
-  case NativeTheme::MENULIST:
-    handle = open_theme_(NULL, L"Combobox");
-    break;
-  case NativeTheme::SCROLLBAR:
-    handle = open_theme_(NULL, L"Scrollbar");
-    break;
-  case NativeTheme::STATUS:
-    handle = open_theme_(NULL, L"Status");
-    break;
-  case NativeTheme::MENU:
+  case MENU:
     handle = open_theme_(NULL, L"Menu");
     break;
-  case NativeTheme::WINDOW:
-    handle = open_theme_(NULL, L"Window");
+  case MENULIST:
+    handle = open_theme_(NULL, L"Combobox");
     break;
-  case NativeTheme::TAB:
+  case SCROLLBAR:
+    handle = open_theme_(NULL, L"Scrollbar");
+    break;
+  case STATUS:
+    handle = open_theme_(NULL, L"Status");
+    break;
+  case TAB:
     handle = open_theme_(NULL, L"Tab");
     break;
-  case NativeTheme::LIST:
-    handle = open_theme_(NULL, L"Listview");
+  case TEXTFIELD:
+    handle = open_theme_(NULL, L"Edit");
+    break;
+  case WINDOW:
+    handle = open_theme_(NULL, L"Window");
     break;
   default:
     NOTREACHED();

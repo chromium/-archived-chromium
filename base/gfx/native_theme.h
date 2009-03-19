@@ -34,14 +34,14 @@ class NativeTheme {
  public:
   enum ThemeName {
     BUTTON,
-    TEXTFIELD,
+    LIST,
+    MENU,
     MENULIST,
     SCROLLBAR,
     STATUS,
-    MENU,
-    WINDOW,
     TAB,
-    LIST,
+    TEXTFIELD,
+    WINDOW,
     LAST
   };
 
@@ -100,38 +100,9 @@ class NativeTheme {
                       int classic_state,
                       RECT* rect) const;
 
-  HRESULT PaintTextField(HDC hdc,
-                         int part_id,
-                         int state_id,
-                         int classic_state,
-                         RECT* rect,
-                         COLORREF color,
-                         bool fill_content_area,
-                         bool draw_edges) const;
+  HRESULT PaintDialogBackground(HDC dc, bool active, RECT* rect) const;
 
-  HRESULT PaintMenuList(HDC hdc,
-                        int part_id,
-                        int state_id,
-                        int classic_state,
-                        RECT* rect) const;
-
-  // Paints a scrollbar arrow.  |classic_state| should have the appropriate
-  // classic part number ORed in already.
-  HRESULT PaintScrollbarArrow(HDC hdc,
-                              int state_id,
-                              int classic_state,
-                              RECT* rect) const;
-
-  // Paints a scrollbar track section.  |align_rect| is only used in classic
-  // mode, and makes sure the checkerboard pattern in |target_rect| is aligned
-  // with one presumed to be in |align_rect|.
-  HRESULT PaintScrollbarTrack(HDC hdc,
-                              int part_id,
-                              int state_id,
-                              int classic_state,
-                              RECT* target_rect,
-                              RECT* align_rect,
-                              skia::PlatformCanvasWin* canvas) const;
+  HRESULT PaintListBackground(HDC dc, bool enabled, RECT* rect) const;
 
   // |arrow_direction| determines whether the arrow is pointing to the left or
   // to the right. In RTL locales, sub-menus open from right to left and
@@ -168,17 +139,41 @@ class NativeTheme {
                           int state_id,
                           RECT* rect) const;
 
-  HRESULT PaintMenuSeparator(HDC hdc,
-                             int part_id,
-                             int state_id,
-                             RECT* rect) const;
-
   HRESULT PaintMenuItemBackground(ThemeName theme,
                                   HDC hdc,
                                   int part_id,
                                   int state_id,
                                   bool selected,
                                   RECT* rect) const;
+
+  HRESULT PaintMenuList(HDC hdc,
+                        int part_id,
+                        int state_id,
+                        int classic_state,
+                        RECT* rect) const;
+
+  HRESULT PaintMenuSeparator(HDC hdc,
+                             int part_id,
+                             int state_id,
+                             RECT* rect) const;
+
+  // Paints a scrollbar arrow.  |classic_state| should have the appropriate
+  // classic part number ORed in already.
+  HRESULT PaintScrollbarArrow(HDC hdc,
+                              int state_id,
+                              int classic_state,
+                              RECT* rect) const;
+
+  // Paints a scrollbar track section.  |align_rect| is only used in classic
+  // mode, and makes sure the checkerboard pattern in |target_rect| is aligned
+  // with one presumed to be in |align_rect|.
+  HRESULT PaintScrollbarTrack(HDC hdc,
+                              int part_id,
+                              int state_id,
+                              int classic_state,
+                              RECT* target_rect,
+                              RECT* align_rect,
+                              skia::PlatformCanvasWin* canvas) const;
 
   // Paints a scrollbar thumb or gripper.
   HRESULT PaintScrollbarThumb(HDC hdc,
@@ -193,11 +188,16 @@ class NativeTheme {
                              int classic_state,
                              RECT* rect) const;
 
-  HRESULT PaintDialogBackground(HDC dc, bool active, RECT* rect) const;
-
   HRESULT PaintTabPanelBackground(HDC dc, RECT* rect) const;
 
-  HRESULT PaintListBackground(HDC dc, bool enabled, RECT* rect) const;
+  HRESULT PaintTextField(HDC hdc,
+                         int part_id,
+                         int state_id,
+                         int classic_state,
+                         RECT* rect,
+                         COLORREF color,
+                         bool fill_content_area,
+                         bool draw_edges) const;
 
   bool IsThemingActive() const;
 
