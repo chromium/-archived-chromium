@@ -742,14 +742,16 @@ void WindowWin::OnNCPaint(HRGN rgn) {
                    reinterpret_cast<LPARAM>(&clip_state));
 
   RootView* root_view = GetRootView();
-  CRect old_paint_region = root_view->GetScheduledPaintRectConstrainedToSize();
+  gfx::Rect old_paint_region =
+      root_view->GetScheduledPaintRectConstrainedToSize();
 
-  if (!old_paint_region.IsRectEmpty()) {
+  if (!old_paint_region.IsEmpty()) {
     // The root view has a region that needs to be painted. Include it in the
     // region we're going to paint.
 
+    CRect old_paint_region_crect = old_paint_region.ToRECT();
     CRect tmp = dirty_region;
-    UnionRect(&dirty_region, &tmp, &old_paint_region);
+    UnionRect(&dirty_region, &tmp, &old_paint_region_crect);
   }
 
   root_view->SchedulePaint(gfx::Rect(dirty_region), false);

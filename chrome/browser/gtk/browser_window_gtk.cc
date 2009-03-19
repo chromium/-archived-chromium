@@ -24,6 +24,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/views/controls/button/text_button.h"
 #include "grit/theme_resources.h"
 
 namespace {
@@ -155,6 +156,9 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   if (parsed_command_line.HasSwitch(switches::kViewsGtk)) {
     experimental_widget_.reset(new views::WidgetGtk());
     experimental_widget_->Init(gfx::Rect(), false);
+    experimental_widget_->SetContentsView(
+        new views::TextButton(NULL, L"Button"));
+
     gtk_box_pack_start(GTK_BOX(vbox_),
                        experimental_widget_->GetNativeView(),
                        false, false, 2);

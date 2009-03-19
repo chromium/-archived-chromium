@@ -87,7 +87,11 @@ void WidgetGtk::SetContentsView(View* view) {
     root_view_->RemoveAllChildViews(true);
   root_view_->AddChildView(view);
 
-  // TODO(erg): More windowy stuff here.
+  // TODO(erg): Terrible hack to work around lack of real sizing mechanics for
+  // now.
+  root_view_->SetBounds(0, 0, 100, 100);
+  root_view_->Layout();
+  root_view_->SchedulePaint();
   NOTIMPLEMENTED();
 }
 
@@ -143,9 +147,7 @@ bool WidgetGtk::GetAccelerator(int cmd_id, Accelerator* accelerator) {
   return false;
 }
 
-
 gboolean WidgetGtk::OnPaint(GtkWidget* widget, GdkEventExpose* event) {
-  // Do something here with a chrome canvas?
   root_view_->OnPaint(event);
   return true;
 }
