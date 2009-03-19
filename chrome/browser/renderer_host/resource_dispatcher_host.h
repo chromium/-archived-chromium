@@ -371,14 +371,6 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   friend class ShutdownTask;
 
-  // TODO(abarth): We don't need this struct any more.  Let's get rid of it.
-  struct BlockedRequest {
-    explicit BlockedRequest(URLRequest* url_request)
-        : url_request(url_request) {
-    }
-    URLRequest* url_request;
-  };
-
   // A shutdown helper that runs on the IO thread.
   void OnShutdown();
 
@@ -527,7 +519,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // True if the resource dispatcher host has been shut down.
   bool is_shutdown_;
 
-  typedef std::vector<BlockedRequest> BlockedRequestsList;
+  typedef std::vector<URLRequest*> BlockedRequestsList;
   typedef std::pair<int, int> ProcessRouteIDs;
   typedef std::map<ProcessRouteIDs, BlockedRequestsList*> BlockedRequestMap;
   BlockedRequestMap blocked_requests_map_;

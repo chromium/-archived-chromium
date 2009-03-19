@@ -1012,7 +1012,7 @@ void ResourceDispatcherHost::BeginRequestInternal(URLRequest* request) {
   BlockedRequestMap::const_iterator iter = blocked_requests_map_.find(pair_id);
   if (iter != blocked_requests_map_.end()) {
     // The request should be blocked.
-    iter->second->push_back(BlockedRequest(request));
+    iter->second->push_back(request);
     return;
   }
 
@@ -1503,13 +1503,14 @@ void ResourceDispatcherHost::ProcessBlockedRequestsForRoute(
        req_iter != requests->end(); ++req_iter) {
     // Remove the memory credit that we added when pushing the request onto
     // the blocked list.
-    ExtraRequestInfo* info = ExtraInfoForRequest(req_iter->url_request);
+    URLRequest* request = *req_iter;
+    ExtraRequestInfo* info = ExtraInfoForRequest(request);
     IncrementOutstandingRequestsMemoryCost(-1 * info->memory_cost,
                                            info->process_id);
     if (cancel_requests)
-      delete req_iter->url_request;
+      delete request;
     else
-      BeginRequestInternal(req_iter->url_request);
+      BeginRequestInternal(request);
   }
 
   delete requests;
