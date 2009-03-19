@@ -1202,6 +1202,28 @@ LRESULT AutocompleteEditViewWin::OnImeComposition(UINT message,
   return result;
 }
 
+LRESULT AutocompleteEditViewWin::OnImeNotify(UINT message,
+                                             WPARAM wparam,
+                                             LPARAM lparam) {
+  if (wparam == IMN_SETOPENSTATUS) {
+    // A user has activated (or deactivated) IMEs (but not started a
+    // composition).
+    // Some IMEs get confused when we accept keywords while they are composing
+    // text. To prevent this situation, we accept keywords when an IME is
+    // activated.
+    HIMC imm_context = ImmGetContext(m_hWnd);
+    if (imm_context) {
+      if (ImmGetOpenStatus(imm_context) &&
+          model_->is_keyword_hint() && !model_->keyword().empty()) {
+        ScopedFreeze freeze(this, GetTextObjectModel());
+        model_->AcceptKeyword();
+      }
+      ImmReleaseContext(m_hWnd, imm_context);
+    }
+  }
+  return DefWindowProc(message, wparam, lparam);
+}
+
 void AutocompleteEditViewWin::OnKeyDown(TCHAR key,
                                         UINT repeat_count,
                                         UINT flags) {

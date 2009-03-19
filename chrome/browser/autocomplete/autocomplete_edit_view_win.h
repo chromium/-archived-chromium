@@ -151,6 +151,7 @@ class AutocompleteEditViewWin
     MSG_WM_CUT(OnCut)
     MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
     MESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnImeComposition)
+    MESSAGE_HANDLER_EX(WM_IME_NOTIFY, OnImeNotify)
     MSG_WM_KEYDOWN(OnKeyDown)
     MSG_WM_KEYUP(OnKeyUp)
     MSG_WM_KILLFOCUS(OnKillFocus)
@@ -230,6 +231,7 @@ class AutocompleteEditViewWin
   void OnCut();
   LRESULT OnGetObject(UINT uMsg, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam);
+  LRESULT OnImeNotify(UINT message, WPARAM wparam, LPARAM lparam);
   void OnKeyDown(TCHAR key, UINT repeat_count, UINT flags);
   void OnKeyUp(TCHAR key, UINT repeat_count, UINT flags);
   void OnKillFocus(HWND focus_wnd);
