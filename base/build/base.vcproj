@@ -738,6 +738,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\scoped_variant_win.cc"
+			>
+		</File>
+		<File
+			RelativePath="..\scoped_variant_win.h"
+			>
+		</File>
+		<File
 			RelativePath="..\scoped_temp_dir.cc"
 			>
 		</File>
