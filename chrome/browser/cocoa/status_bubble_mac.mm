@@ -279,6 +279,12 @@ void StatusBubbleMac::FadeOut() {
       bl_radius = 0.0f;
       br_radius = 0.0f;
       break;
+    default:
+      NOTREACHED();
+      tl_radius = 0.0f;
+      tr_radius = 0.0f;
+      bl_radius = 0.0f;
+      br_radius = 0.0f;
   }
 
   // Background / Edge
