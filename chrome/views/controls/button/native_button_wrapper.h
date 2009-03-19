@@ -9,59 +9,39 @@ class ChromeFont;
 
 namespace views {
 
-// An interface implemented by the view that owns the NativeButtonWrapper that
-// allows it to be notified when the button is pressed.
-class NativeButtonWrapperListener {
- public:
-  virtual void ButtonPressed() = 0;
-};
+class Checkbox2;
+class NativeButton2;
+class RadioButton2;
 
 // A specialization of NativeControlWrapper that hosts a platform-native button.
 class NativeButtonWrapper {
  public:
-  // Sets/Gets the button's label.
-  virtual void SetLabel(const std::wstring& label) = 0;
-  virtual std::wstring GetLabel() const = 0;
+  // Updates the native button's label from the state stored in its associated
+  // NativeButton.
+  virtual void UpdateLabel() = 0;
 
-  // Sets the font used by this button.
-  virtual void SetFont(const ChromeFont& font) = 0;
+  // Updates the native button's label font from the state stored in its
+  // associated NativeButton.
+  virtual void UpdateFont() = 0;
 
-  // Sets whether or not the button should have the default appearance and
-  // action in its setting.
-  virtual void SetDefaultButton(bool is_default) = 0;
-  virtual bool IsDefaultButton() const = 0;
+  // Updates the native button's default state from the state stored in its
+  // associated NativeButton.
+  virtual void UpdateDefault() = 0;
 
-  // Sets the minimum size of the button from the specified size in native
-  // dialog units. The definition of this unit may vary from platform to
-  // platform. If the width/height is non-zero, the preferred size of the button
-  // will not be less than this value when the dialog units are converted to
-  // pixels.
-  virtual void SetMinimumSizeInPlatformUnits(const gfx::Size& minimum_size) = 0;
-
-  // Call to have the button ignore its minimum size. Use this if you want
-  // buttons narrower than the defined minimum size.
-  virtual void SetIgnoreMinimumSize(bool ignore_minimum_size) = 0;
-
-  // Sets/Gets the selected state of button. Valid only for checkboxes and radio
-  // buttons.
-  virtual void SetSelected(bool is_selected) {}
-  virtual bool IsSelected(bool is_selected) { return false; }
-
+  // Updates the native button's checked state from the state stored in its
+  // associated NativeCheckbox. Valid only for checkboxes and radio buttons.
+  virtual void UpdateChecked() {}
+  
   // Shows the hover state for the button if |highlight| is true.
   virtual void SetHighlight(bool highlight) {};
 
   // Retrieves the views::View that hosts the native control. 
   virtual View* GetView() = 0;
 
-  enum Type {
-    TYPE_BUTTON,
-    TYPE_CHECKBOX,
-    TYPE_RADIOBUTTON
-  };
-
   // Creates an appropriate NativeButtonWrapper for the platform.
-  static NativeButtonWrapper* CreateNativeButtonWrapper(
-      NativeButtonWrapperListener* listener, Type type);
+  static NativeButtonWrapper* CreateNativeButtonWrapper(NativeButton2* button);
+  static NativeButtonWrapper* CreateCheckboxWrapper(Checkbox2* checkbox);
+
 };
 
 }  // namespace views

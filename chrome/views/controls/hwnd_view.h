@@ -38,14 +38,11 @@ class HWNDView : public View {
   // Detach the attached window handle. It will no longer be updated
   void Detach();
 
-  virtual void DidChangeBounds(const gfx::Rect& previous,
-                               const gfx::Rect& current);
   virtual void VisibilityChanged(View* starting_from, bool is_visible);
 
   HWND GetHWND() const;
 
-  // Resize the hosted HWND to the bounds of this View.
-  void UpdateHWNDBounds();
+  virtual void Layout();
 
   virtual void Paint(ChromeCanvas* canvas);
 

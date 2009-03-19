@@ -86,6 +86,9 @@ class NativeControlWin : public HWNDView {
                                                WPARAM w_param,
                                                LPARAM l_param);
 
+  // The window procedure before we subclassed.
+  static WNDPROC original_wndproc_;
+
   DISALLOW_COPY_AND_ASSIGN(NativeControlWin);
 };
   

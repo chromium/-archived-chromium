@@ -501,7 +501,7 @@ void BrowserView::SelectedTabToolbarSizeChanged(bool is_animating) {
     contents_container_->set_fast_resize(false);
   } else {
     UpdateUIForContents(browser_->GetSelectedTabContents());
-    contents_container_->UpdateHWNDBounds();
+    contents_container_->Layout();
   }
 }
 

@@ -953,7 +953,7 @@ void TextField::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
 void TextField::Layout() {
   if (native_view_) {
     native_view_->SetBounds(GetLocalBounds(true));
-    native_view_->UpdateHWNDBounds();
+    native_view_->Layout();
   }
 }
 

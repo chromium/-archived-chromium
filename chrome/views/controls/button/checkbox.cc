@@ -66,7 +66,7 @@ void CheckBox::Layout() {
     int first_line_height = label_->GetFont().height();
     hwnd_view_->SetBounds(0, ((first_line_height - kCheckBoxHeight) / 2) + 1,
                           kCheckBoxWidth, kCheckBoxHeight);
-    hwnd_view_->UpdateHWNDBounds();
+    hwnd_view_->Layout();
   }
 }
 

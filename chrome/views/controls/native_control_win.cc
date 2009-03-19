@@ -10,12 +10,18 @@
 
 namespace views {
 
-////////////////////////////////////////////////////////////////////////////////
-// NativeControlWin, public:
-
 // static
 const wchar_t* NativeControlWin::kNativeControlWinKey =
     L"__NATIVE_CONTROL_WIN__";
+
+static const wchar_t* kNativeControlOriginalWndProcKey =
+    L"__NATIVE_CONTROL_ORIGINAL_WNDPROC__";
+
+// static
+WNDPROC NativeControlWin::original_wndproc_ = NULL;
+
+////////////////////////////////////////////////////////////////////////////////
+// NativeControlWin, public:
 
 NativeControlWin::NativeControlWin() : HWNDView() {
 }
@@ -93,15 +99,20 @@ void NativeControlWin::ShowContextMenu(const gfx::Point& location) {
 }
 
 void NativeControlWin::NativeControlCreated(HWND native_control) {
+  TRACK_HWND_CREATION(native_control);
+
   // Associate this object with the control's HWND so that WidgetWin can find
   // this object when it receives messages from it.
   SetProp(native_control, kNativeControlWinKey, this);
 
+  // Subclass the window so we can monitor for key presses.
+  original_wndproc_ =
+      win_util::SetWindowProc(native_control,
+                              &NativeControlWin::NativeControlWndProc);
+  SetProp(native_control, kNativeControlOriginalWndProcKey, original_wndproc_);
+
   Attach(native_control);
   // GetHWND() is now valid.
-
-  // Subclass the window so we can monitor for key presses.
-  win_util::Subclass(GetHWND(), &NativeControlWin::NativeControlWndProc);
 
   // Update the newly created HWND with any resident enabled state.
   EnableWindow(GetHWND(), IsEnabled());
@@ -165,11 +176,13 @@ LRESULT NativeControlWin::NativeControlWndProc(HWND window,
     if (native_control->OnKeyDown(static_cast<int>(w_param)))
       return 0;
   } else if (message == WM_DESTROY) {
-    win_util::Unsubclass(window, &NativeControlWin::NativeControlWndProc);
+    win_util::SetWindowProc(window, native_control->original_wndproc_);
+    RemoveProp(window, kNativeControlWinKey);
     TRACK_HWND_DESTRUCTION(window);
   }
 
-  return DefWindowProc(window, message, w_param, l_param);
+  return CallWindowProc(native_control->original_wndproc_, window, message,
+                        w_param, l_param);
 }
 
 }  // namespace views

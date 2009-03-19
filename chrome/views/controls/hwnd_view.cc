@@ -41,7 +41,7 @@ void HWNDView::Attach(HWND hwnd) {
 
   // Need to set the HWND's parent before changing its size to avoid flashing.
   ::SetParent(hwnd_, GetWidget()->GetNativeView());
-  UpdateHWNDBounds();
+  Layout();
 
   // Register with the focus manager so the associated view is focused when the
   // native control gets the focus.
@@ -64,7 +64,7 @@ HWND HWNDView::GetHWND() const {
   return hwnd_;
 }
 
-void HWNDView::UpdateHWNDBounds() {
+void HWNDView::Layout() {
   if (!hwnd_)
     return;
 
@@ -131,15 +131,8 @@ void HWNDView::UpdateHWNDBounds() {
   }
 }
 
-void HWNDView::DidChangeBounds(const gfx::Rect& previous,
-                               const gfx::Rect& current) {
-  // TODO(beng): (Cleanup) Could UpdateHWNDBounds be replaced by a Layout
-  //             method and this function gotten rid of?
-  UpdateHWNDBounds();
-}
-
 void HWNDView::VisibilityChanged(View* starting_from, bool is_visible) {
-  UpdateHWNDBounds();
+  Layout();
 }
 
 gfx::Size HWNDView::GetPreferredSize() {
@@ -159,7 +152,7 @@ void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
         ::ShowWindow(hwnd_, SW_SHOW);
       else
         ::ShowWindow(hwnd_, SW_HIDE);
-      UpdateHWNDBounds();
+      Layout();
     } else if (!is_add) {
       ::ShowWindow(hwnd_, SW_HIDE);
       ::SetParent(hwnd_, NULL);
@@ -168,7 +161,7 @@ void HWNDView::ViewHierarchyChanged(bool is_add, View *parent, View *child) {
 }
 
 void HWNDView::VisibleBoundsInRootChanged() {
-  UpdateHWNDBounds();
+  Layout();
 }
 
 void HWNDView::Focus() {
