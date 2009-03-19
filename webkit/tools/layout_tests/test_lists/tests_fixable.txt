@@ -1876,3 +1876,7 @@ MAC : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
 MAC : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
 MAC : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
+
+// Merge 41807:41827 New Tests
+LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT
+LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = CRASH

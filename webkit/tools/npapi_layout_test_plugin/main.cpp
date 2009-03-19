@@ -50,6 +50,46 @@
 #define NPAPI
 #endif
 
+static void log(NPP instance, const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    char message[2048] = "PLUGIN: ";
+    vsprintf(message + strlen(message), format, args);
+    va_end(args);
+
+    NPObject* windowObject = 0;
+    NPError error = browser->getvalue(instance, NPNVWindowNPObject, &windowObject);
+    if (error != NPERR_NO_ERROR) {
+        fprintf(stderr, "Failed to retrieve window object while logging: %s\n", message);
+        return;
+    }
+
+    NPVariant consoleVariant;
+    if (!browser->getproperty(instance, windowObject, browser->getstringidentifier("console"), &consoleVariant)) {
+        fprintf(stderr, "Failed to retrieve console object while logging: %s\n", message);
+        browser->releaseobject(windowObject);
+        return;
+    }
+
+    NPObject* consoleObject = NPVARIANT_TO_OBJECT(consoleVariant);
+
+    NPVariant messageVariant;
+    STRINGZ_TO_NPVARIANT(message, messageVariant);
+
+    NPVariant result;
+    if (!browser->invoke(instance, consoleObject, browser->getstringidentifier("log"), &messageVariant, 1, &result)) {
+        fprintf(stderr, "Failed to invoke console.log while logging: %s\n", message);
+        browser->releaseobject(consoleObject);
+        browser->releaseobject(windowObject);
+        return;
+    }
+
+    browser->releasevariantvalue(&result);
+    browser->releaseobject(consoleObject);
+    browser->releaseobject(windowObject);
+}
+
 // Mach-o entry points
 extern "C" {
     NPError NPAPI NP_Initialize(NPNetscapeFuncs *browserFuncs);
@@ -126,7 +166,7 @@ NPError NPP_Destroy(NPP instance, NPSavedData **save)
             free(obj->onStreamDestroy);
 
         if (obj->logDestroy)
-            printf("PLUGIN: NPP_Destroy\n");
+            log(instance, "NPP_Destroy");
 
         browser->releaseobject(&obj->header);
     }
@@ -142,7 +182,7 @@ NPError NPP_SetWindow(NPP instance, NPWindow *window)
 
     if (obj) {
         if (obj->logSetWindow) {
-            printf("PLUGIN: NPP_SetWindow: %d %d\n", (int)window->width, (int)window->height);
+            log(instance, "NPP_SetWindow: %d %d", (int)window->width, (int)window->height);
             fflush(stdout);
             obj->logSetWindow = false;
         }
@@ -227,45 +267,45 @@ int16 NPP_HandleEvent(NPP instance, void *event)
     short y = static_cast<short>(evt->lParam >> 16);
     switch (evt->event) {
         case WM_PAINT:
-            printf("PLUGIN: updateEvt\n");
+            log(instance, "updateEvt");
             break;
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
-            printf("PLUGIN: mouseDown at (%d, %d)\n", x, y);
+            log(instance, "mouseDown at (%d, %d)", x, y);
             break;
         case WM_LBUTTONUP:
         case WM_MBUTTONUP:
         case WM_RBUTTONUP:
-            printf("PLUGIN: mouseUp at (%d, %d)\n", x, y);
+            log(instance, "mouseUp at (%d, %d)", x, y);
             break;
         case WM_LBUTTONDBLCLK:
         case WM_MBUTTONDBLCLK:
         case WM_RBUTTONDBLCLK:
             break;
         case WM_MOUSEMOVE:
-            printf("PLUGIN: adjustCursorEvent\n");
+            log(instance, "adjustCursorEvent");
             break;
         case WM_KEYUP:
             // TODO(tc): We need to convert evt->wParam from virtual-key code
             // to key code.
-            printf("NOTIMPLEMENTED PLUGIN: keyUp '%c'\n", ' ');
+            log(instance, "NOTIMPLEMENTED: keyUp '%c'", ' ');
             break;
         case WM_KEYDOWN:
             // TODO(tc): We need to convert evt->wParam from virtual-key code
             // to key code.
-            printf("NOTIMPLEMENTED PLUGIN: keyDown '%c'\n", ' ');
+            log(instance, "NOTIMPLEMENTED: keyDown '%c'", ' ');
             break;
         case WM_SETCURSOR:
             break;
         case WM_SETFOCUS:
-            printf("PLUGIN: getFocusEvent\n");
+            log(instance, "getFocusEvent");
             break;
         case WM_KILLFOCUS:
-            printf("PLUGIN: loseFocusEvent\n");
+            log(instance, "loseFocusEvent");
             break;
         default:
-            printf("PLUGIN: event %d\n", evt->event);
+            log(instance, "event %d", evt->event);
     }
 
     fflush(stdout);
@@ -277,36 +317,36 @@ int16 NPP_HandleEvent(NPP instance, void *event)
     XButtonReleasedEvent* brelease_evt = reinterpret_cast<XButtonReleasedEvent*>(evt);
     switch (evt->type) {
         case ButtonPress:
-            printf("PLUGIN: mouseDown at (%d, %d)\n", bpress_evt->x, bpress_evt->y);
+            log(instance, "mouseDown at (%d, %d)", bpress_evt->x, bpress_evt->y);
             break;
         case ButtonRelease:
-            printf("PLUGIN: mouseUp at (%d, %d)\n", brelease_evt->x, brelease_evt->y);
+            log(instance, "mouseUp at (%d, %d)", brelease_evt->x, brelease_evt->y);
             break;
         case KeyPress:
             // TODO: extract key code
-            printf("NOTIMPLEMENTED PLUGIN: keyDown '%c'\n", ' ');
+            log(instance, "NOTIMPLEMENTED: keyDown '%c'", ' ');
             break;
         case KeyRelease:
             // TODO: extract key code
-            printf("NOTIMPLEMENTED PLUGIN: keyUp '%c'\n", ' ');
+            log(instance, "NOTIMPLEMENTED: keyUp '%c'", ' ');
             break;
         case GraphicsExpose:
-            printf("PLUGIN: updateEvt\n");
+            log(instance, "updateEvt");
             break;
         // NPAPI events
         case FocusIn:
-            printf("PLUGIN: getFocusEvent\n");
+            log(instance, "getFocusEvent");
             break;
         case FocusOut:
-            printf("PLUGIN: loseFocusEvent\n");
+            log(instance, "loseFocusEvent");
             break;
         case EnterNotify:
         case LeaveNotify:
         case MotionNotify:
-            printf("PLUGIN: adjustCursorEvent\n");
+            log(instance, "adjustCursorEvent");
             break;
         default:
-            printf("PLUGIN: event %d\n", evt->type);
+            log(instance, "event %d", evt->type);
     }
 
     fflush(stdout);
@@ -321,58 +361,57 @@ int16 NPP_HandleEvent(NPP instance, void *event)
             break;
         case mouseDown:
             GlobalToLocal(&pt);
-            printf("PLUGIN: mouseDown at (%d, %d)\n", pt.h, pt.v);
+            log(instance, "mouseDown at (%d, %d)", pt.h, pt.v);
             break;
         case mouseUp:
             GlobalToLocal(&pt);
-            printf("PLUGIN: mouseUp at (%d, %d)\n", pt.h, pt.v);
+            log(instance, "mouseUp at (%d, %d)", pt.h, pt.v);
             break;
         case keyDown:
-            printf("PLUGIN: keyDown '%c'\n", (char)(evt->message & 0xFF));
+            log(instance, "keyDown '%c'", (char)(evt->message & 0xFF));
             break;
         case keyUp:
-            printf("PLUGIN: keyUp '%c'\n", (char)(evt->message & 0xFF));
+            log(instance, "keyUp '%c'", (char)(evt->message & 0xFF));
             break;
         case autoKey:
-            printf("PLUGIN: autoKey '%c'\n", (char)(evt->message & 0xFF));
+            log(instance, "autoKey '%c'", (char)(evt->message & 0xFF));
             break;
         case updateEvt:
-            printf("PLUGIN: updateEvt\n");
+            log(instance, "updateEvt");
             break;
         case diskEvt:
-            printf("PLUGIN: diskEvt\n");
+            log(instance, "diskEvt");
             break;
         case activateEvt:
-            printf("PLUGIN: activateEvt\n");
+            log(instance, "activateEvt");
             break;
         case osEvt:
-            printf("PLUGIN: osEvt - ");
             switch ((evt->message & 0xFF000000) >> 24) {
                 case suspendResumeMessage:
-                    printf("%s\n", (evt->message & 0x1) ? "resume" : "suspend");
+                    log(instance, "osEvt - %s", (evt->message & 0x1) ? "resume" : "suspend");
                     break;
                 case mouseMovedMessage:
-                    printf("mouseMoved\n");
+                    log(instance, "osEvt - mouseMoved");
                     break;
                 default:
-                    printf("%08lX\n", evt->message);
+                    log(instance, "osEvt - %08lX", evt->message);
             }
             break;
         case kHighLevelEvent:
-            printf("PLUGIN: kHighLevelEvent\n");
+            log(instance, "kHighLevelEvent");
             break;
         // NPAPI events
         case getFocusEvent:
-            printf("PLUGIN: getFocusEvent\n");
+            log(instance, "getFocusEvent");
             break;
         case loseFocusEvent:
-            printf("PLUGIN: loseFocusEvent\n");
+            log(instance, "loseFocusEvent");
             break;
         case adjustCursorEvent:
-            printf("PLUGIN: adjustCursorEvent\n");
+            log(instance, "adjustCursorEvent");
             break;
         default:
-            printf("PLUGIN: event %d\n", evt->what);
+            log(instance, "event %d", evt->what);
     }
 #endif
 
