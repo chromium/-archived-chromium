@@ -78,6 +78,7 @@ class DnsHostInfo {
         queue_duration_(kNullDuration),
         benefits_remaining_(),
         sequence_number_(0),
+        motivation_(NO_PREFETCH_MOTIVATION),
         was_linked_(false) {
   }
 

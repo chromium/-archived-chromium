@@ -219,7 +219,7 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
           title = L"Untitled";
         process.titles.push_back(title);
 
-        // We need to check the pending entry as well as the pending entry to
+        // We need to check the pending entry as well as the display_url to
         // see if it's an about:memory URL (we don't want to count these in the
         // total memory usage of the browser).
         //
@@ -230,8 +230,8 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
         // entry.
         //
         // Either the pending or last committed entries can be NULL.
-        const NavigationEntry* pending_entry = NULL;
-            //contents->controller()->GetPendingEntry();
+        const NavigationEntry* pending_entry =
+            contents->controller()->GetPendingEntry();
         const NavigationEntry* last_committed_entry =
             contents->controller()->GetLastCommittedEntry();
         if ((last_committed_entry &&

@@ -475,10 +475,10 @@ class ThreadSafeHistogram : public Histogram {
   // Provide locked versions to get precise counts.
   virtual void Accumulate(Sample value, Count count, size_t index);
 
-  virtual void SnapshotSample(SampleSet* sample);
+  virtual void SnapshotSample(SampleSet* sample) const;
 
  private:
-  Lock lock_;
+  mutable Lock lock_;
 
   DISALLOW_COPY_AND_ASSIGN(ThreadSafeHistogram);
 };

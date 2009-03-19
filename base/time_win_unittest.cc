@@ -126,7 +126,7 @@ TEST(TimeTicks, SubMillisecondTimers) {
     last_time = now;
   }
   EXPECT_TRUE(saw_submillisecond_timer);
-  printf("Min timer is: %dus\n", min_timer);
+  printf("Min timer is: %ldus\n", static_cast<long>(min_timer));
 }
 
 TEST(TimeTicks, TimeGetTimeCaps) {

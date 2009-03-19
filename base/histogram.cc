@@ -640,7 +640,7 @@ void ThreadSafeHistogram::Accumulate(Sample value, Count count, size_t index) {
   Histogram::Accumulate(value, count, index);
 }
 
-void ThreadSafeHistogram::SnapshotSample(SampleSet* sample) {
+void ThreadSafeHistogram::SnapshotSample(SampleSet* sample) const {
   AutoLock lock(lock_);
   Histogram::SnapshotSample(sample);
 };
