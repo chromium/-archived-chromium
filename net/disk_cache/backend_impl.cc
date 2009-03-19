@@ -731,7 +731,7 @@ void BackendImpl::OnStatsTimer() {
   }
 
   // Save stats to disk at 5 min intervals.
-  if (time % 10)
+  if (time % 10 == 0)
     stats_.Store();
 }
 
