@@ -897,7 +897,7 @@ sub GenerateBatchedAttributeData
       $accessControl = "v8::ALL_CAN_WRITE";
     } elsif ($attrExt->{"DoNotCheckDomainSecurity"}) {
       $accessControl = "v8::ALL_CAN_READ";
-       if (!($attribute->type =~ /^readonly/)) {
+       if (!($attribute->type =~ /^readonly/) && !($attrExt->{"V8ReadOnly"})) {
          $accessControl .= "|v8::ALL_CAN_WRITE";
        }
     }
@@ -989,7 +989,7 @@ sub GenerateBatchedAttributeData
     }
 
     # Read only attributes
-    if ($attribute->type =~ /^readonly/) {
+    if ($attribute->type =~ /^readonly/ || $attrExt->{"V8ReadOnly"}) {
       $setter = "0";
     }
 
@@ -1105,7 +1105,8 @@ sub GenerateImplementation
       } elsif ($attribute->signature->extendedAttributes->{"Replaceable"}) {
         $dataNode->extendedAttributes->{"ExtendsDOMGlobalObject"} || die "Replaceable attribute can only be used in interface that defines ExtendsDOMGlobalObject attribute!";
 #        GenerateReplaceableAttrSetter($implClassName);
-      } elsif ($attribute->type !~ /^readonly/) {
+      } elsif ($attribute->type !~ /^readonly/ && 
+               !$attribute->signature->extendedAttributes->{"V8ReadOnly"}) {
         GenerateNormalAttrSetter($attribute, $dataNode, $classIndex, $implClassName);
       }
     }
