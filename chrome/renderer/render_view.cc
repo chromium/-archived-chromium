@@ -41,6 +41,7 @@
 #include "grit/renderer_resources.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
+#include "printing/units.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/image_operations.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
@@ -178,7 +179,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       opened_by_user_gesture_(true),
       method_factory_(this),
       first_default_plugin_(NULL),
-      printed_document_width_(0),
       devtools_agent_(NULL),
       devtools_client_(NULL),
       history_back_list_count_(0),
@@ -453,66 +453,10 @@ void RenderView::SendThumbnail() {
   Send(new ViewHostMsg_Thumbnail(routing_id_, url, score, thumbnail));
 }
 
-int RenderView::SwitchFrameToPrintMediaType(const ViewMsg_Print_Params& params,
-                                            WebFrame* frame) {
-  float ratio = static_cast<float>(params.desired_dpi / params.dpi);
-  float paper_width = params.printable_size.width() * ratio;
-  float paper_height = params.printable_size.height() * ratio;
-  float minLayoutWidth = static_cast<float>(paper_width * params.min_shrink);
-  float maxLayoutWidth = static_cast<float>(paper_width * params.max_shrink);
-
-  // Safari uses: 765 & 1224. Margins aren't exactly the same either.
-  // Scale = 2.222 for MDI printer.
-  int pages;
-  if (!frame->SetPrintingMode(true,
-                              minLayoutWidth,
-                              maxLayoutWidth,
-                              &printed_document_width_)) {
-    NOTREACHED();
-    pages = 0;
-  } else {
-    DCHECK_GT(printed_document_width_, 0);
-    // Force to recalculate the height, otherwise it reuse the current window
-    // height as the default.
-    float effective_shrink = printed_document_width_ / paper_width;
-    gfx::Size page_size(printed_document_width_,
-                        static_cast<int>(paper_height * effective_shrink) - 1);
-    WebView* view = frame->GetView();
-    if (view) {
-      // Hack around an issue where if the current view height is higher than
-      // the page height, empty pages will be printed even if the bottom of the
-      // web page is empty.
-      printing_view_size_ = view->GetSize();
-      view->Resize(page_size);
-      view->Layout();
-    }
-    pages = frame->ComputePageRects(params.printable_size);
-    DCHECK(pages);
-  }
-  return pages;
-}
-
-void RenderView::SwitchFrameToDisplayMediaType(WebFrame* frame) {
-  // Set the layout back to "normal" document; i.e. CSS media type = "screen".
-  frame->SetPrintingMode(false, 0, 0, NULL);
-  WebView* view = frame->GetView();
-  if (view) {
-    // Restore from the hack described at SwitchFrameToPrintMediaType().
-    view->Resize(printing_view_size_);
-    view->Layout();
-    printing_view_size_.SetSize(0, 0);
-  }
-  printed_document_width_ = 0;
-}
-
 void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
+                           const gfx::Size& canvas_size,
                            WebFrame* frame) {
 #if defined(OS_WIN)
-  if (printed_document_width_ <= 0) {
-    NOTREACHED();
-    return;
-  }
-
   // Generate a memory-based EMF file. The EMF will use the current screen's
   // DPI.
   gfx::Emf emf;
@@ -521,48 +465,38 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   HDC hdc = emf.hdc();
   DCHECK(hdc);
   skia::PlatformDeviceWin::InitializeDC(hdc);
-
-  gfx::Rect rect;
-  frame->GetPageRect(params.page_number, &rect);
-  DCHECK(rect.height());
-  DCHECK(rect.width());
-  double shrink = static_cast<double>(printed_document_width_) /
-                  params.params.printable_size.width();
-  // This check would fire each time the page would get truncated on the
-  // right. This is not worth a DCHECK() but should be looked into, for
-  // example, wouldn't be worth trying in landscape?
-  // DCHECK_LE(rect.width(), printed_document_width_);
-
-  // Buffer one page at a time.
-  int src_size_x = printed_document_width_;
-  int src_size_y =
-      static_cast<int>(ceil(params.params.printable_size.height() *
-                            shrink));
+  int size_x = canvas_size.width();
+  int size_y = canvas_size.height();
+  // Calculate the dpi adjustment.
+  float shrink = static_cast<float>(canvas_size.width()) /
+      params.params.printable_size.width();
 #if 0
   // TODO(maruel): This code is kept for testing until the 100% GDI drawing
   // code is stable. maruels use this code's output as a reference when the
   // GDI drawing code fails.
 
   // Mix of Skia and GDI based.
-  skia::PlatformCanvasWin canvas(src_size_x, src_size_y, true);
+  skia::PlatformCanvasWin canvas(size_x, size_y, true);
   canvas.drawARGB(255, 255, 255, 255, SkPorterDuff::kSrc_Mode);
-  PlatformContextSkia context(&canvas);
-  if (!frame->SpoolPage(params.page_number, &context)) {
+  float webkit_shrink = frame->PrintPage(params.page_number, &canvas);
+  if (shrink <= 0) {
     NOTREACHED() << "Printing page " << params.page_number << " failed.";
-    return;
+  } else {
+    // Update the dpi adjustment with the "page shrink" calculated in webkit.
+    shrink /= webkit_shrink;
   }
 
   // Create a BMP v4 header that we can serialize.
   BITMAPV4HEADER bitmap_header;
-  gfx::CreateBitmapV4Header(src_size_x, src_size_y, &bitmap_header);
+  gfx::CreateBitmapV4Header(size_x, size_y, &bitmap_header);
   const SkBitmap& src_bmp = canvas.getDevice()->accessBitmap(true);
   SkAutoLockPixels src_lock(src_bmp);
   int retval = StretchDIBits(hdc,
                              0,
                              0,
-                             src_size_x, src_size_y,
+                             size_x, size_y,
                              0, 0,
-                             src_size_x, src_size_y,
+                             size_x, size_y,
                              src_bmp.getPixels(),
                              reinterpret_cast<BITMAPINFO*>(&bitmap_header),
                              DIB_RGB_COLORS,
@@ -570,14 +504,13 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   DCHECK(retval != GDI_ERROR);
 #else
   // 100% GDI based.
-  skia::VectorCanvas canvas(hdc, src_size_x, src_size_y);
-  // Set the clipping region to be sure to not overflow.
-  SkRect clip_rect;
-  clip_rect.set(0, 0, SkIntToScalar(src_size_x), SkIntToScalar(src_size_y));
-  canvas.clipRect(clip_rect);
-  if (!frame->SpoolPage(params.page_number, &canvas)) {
+  skia::VectorCanvas canvas(hdc, size_x, size_y);
+  float webkit_shrink = frame->PrintPage(params.page_number, &canvas);
+  if (shrink <= 0) {
     NOTREACHED() << "Printing page " << params.page_number << " failed.";
-    return;
+  } else {
+    // Update the dpi adjustment with the "page shrink" calculated in webkit.
+    shrink /= webkit_shrink;
   }
 #endif
 
@@ -640,26 +573,36 @@ void RenderView::OnPrintPages() {
 
 void RenderView::PrintPages(const ViewMsg_PrintPages_Params& params,
                             WebFrame* frame) {
-  int pages = SwitchFrameToPrintMediaType(params.params, frame);
+  int page_count = 0;
+  gfx::Size canvas_size;
+  canvas_size.set_width(
+      printing::ConvertUnit(params.params.printable_size.width(),
+                            static_cast<int>(params.params.dpi),
+                            params.params.desired_dpi));
+  canvas_size.set_height(
+      printing::ConvertUnit(params.params.printable_size.height(),
+                            static_cast<int>(params.params.dpi),
+                            params.params.desired_dpi));
+  frame->BeginPrint(canvas_size, &page_count);
   Send(new ViewHostMsg_DidGetPrintedPagesCount(routing_id_,
                                                params.params.document_cookie,
-                                               pages));
-  if (pages) {
+                                               page_count));
+  if (page_count) {
     ViewMsg_PrintPage_Params page_params;
     page_params.params = params.params;
     if (params.pages.empty()) {
-      for (int i = 0; i < pages; ++i) {
+      for (int i = 0; i < page_count; ++i) {
         page_params.page_number = i;
-        PrintPage(page_params, frame);
+        PrintPage(page_params, canvas_size, frame);
       }
     } else {
       for (size_t i = 0; i < params.pages.size(); ++i) {
         page_params.page_number = params.pages[i];
-        PrintPage(page_params, frame);
+        PrintPage(page_params, canvas_size, frame);
       }
     }
   }
-  SwitchFrameToDisplayMediaType(frame);
+  frame->EndPrint();
 }
 
 void RenderView::CapturePageInfo(int load_id, bool preliminary_capture) {
@@ -2336,10 +2279,19 @@ void RenderView::ScriptedPrint(WebFrame* frame) {
     msg = NULL;
     // Continue only if the settings are valid.
     if (default_settings.dpi && default_settings.document_cookie) {
-      int expected_pages_count = SwitchFrameToPrintMediaType(default_settings,
-                                                             frame);
+      int expected_pages_count = 0;
+      gfx::Size canvas_size;
+      canvas_size.set_width(
+          printing::ConvertUnit(default_settings.printable_size.width(),
+                                static_cast<int>(default_settings.dpi),
+                                default_settings.desired_dpi));
+      canvas_size.set_height(
+          printing::ConvertUnit(default_settings.printable_size.height(),
+                                static_cast<int>(default_settings.dpi),
+                                default_settings.desired_dpi));
+      frame->BeginPrint(canvas_size, &expected_pages_count);
       DCHECK(expected_pages_count);
-      SwitchFrameToDisplayMediaType(frame);
+      frame->EndPrint();
 
       // Ask the browser to show UI to retrieve the final print settings.
       ViewMsg_PrintPages_Params print_settings;

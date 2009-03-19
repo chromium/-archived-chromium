@@ -14,7 +14,6 @@
 #include "webkit/glue/find_in_page_request.h"
 #include "webkit/glue/webscriptsource.h"
 
-class PlatformContextSkia;
 class WebDataSource;
 class WebError;
 class WebRequest;
@@ -355,29 +354,23 @@ class WebFrame {
   // The current scroll offset from the top of frame in pixels.
   virtual gfx::Size ScrollOffset() const = 0;
 
-  // Reformats the web page, i.e. the main frame and its subframes, for printing
-  // or for screen display, depending on |printing| argument. |page_width_min|
-  // and |page_width_max| are the minimum and maximum width, in pixels, that the
-  // layout can try to fit the whole content. |width| is the resulted choosen
-  // document width in pixel.
-  // Note: It fails if the main frame failed to load. It will succeed even if a
-  // child frame failed to load.
-  virtual bool SetPrintingMode(bool printing,
-                               float page_width_min,
-                               float page_width_max,
-                               int* width) = 0;
-
-  // Layouts the web page on paper. Calculates the rectangle of the web page
-  // each pages will "see". Then you can retrieve the exact view of a paper page
-  // with GetPageRect.
-  // Returns the number of printed pages computed.
-  virtual int ComputePageRects(const gfx::Size& page_size_px) = 0;
-
-  // Retrieves the paper page's view of the web page.
-  virtual void GetPageRect(int page, gfx::Rect* page_size) const = 0;
+  // Reformats the web frame for printing. |page_size_px| is the page size in
+  // pixels.
+  // |width| is the resulting document width in pixel.
+  // |page_count| is the number of printed pages.
+  // Returns false if it fails. It'll fail if the main frame failed to load but
+  // will succeed even if a child frame failed to load.
+  virtual bool BeginPrint(const gfx::Size& page_size_px,
+                          int* page_count) = 0;
 
   // Prints one page. |page| is 0-based.
-  virtual bool SpoolPage(int page, skia::PlatformCanvas* canvas) = 0;
+  // Returns the page shrinking factor calculated by webkit (usually between
+  // 1/1.25 and 1/2). Returns 0 if the page number is invalid or not in printing
+  // mode.
+  virtual float PrintPage(int page, skia::PlatformCanvas* canvas) = 0;
+
+  // Reformats the web frame for screen display.
+  virtual void EndPrint() = 0;
 
   // Only for test_shell
   virtual int PendingFrameUnloadEventCount() const = 0;

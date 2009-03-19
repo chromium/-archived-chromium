@@ -26,6 +26,7 @@ env.ApplySConscript([
     '$LIBXML_DIR/using_libxml.scons',
     '$LIBXSLT_DIR/using_libxslt.scons',
     '$MEDIA_DIR/using_media.scons',
+    '$PRINTING_DIR/using_printing.scons',
     '$SDCH_DIR/using_sdch.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',

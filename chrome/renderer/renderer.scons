@@ -12,6 +12,7 @@ env.SConscript([
     '$ICU38_DIR/using_icu38.scons',
     '$MEDIA_DIR/using_media.scons',
     '$NPAPI_DIR/using_npapi.scons',
+    '$PRINTING_DIR/using_printing.scons',
     '$SKIA_DIR/using_skia.scons',
     '$WEBKIT_DIR/build/WebKit/using_webkit.scons',
 ], {'env':env})

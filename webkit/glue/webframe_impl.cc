@@ -99,6 +99,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "markup.h"
 #include "Page.h"
 #include "PlatformContextSkia.h"
+#include "PrintContext.h"
 #include "RenderFrame.h"
 #if defined(OS_WIN)
 #include "RenderThemeChromiumWin.h"
@@ -280,6 +281,42 @@ static void FrameContentAsPlainText(int max_chars, Frame* frame,
   }
 }
 
+// Simple class to override some of PrintContext behavior.
+class ChromePrintContext : public WebCore::PrintContext {
+ public:
+  ChromePrintContext(Frame* frame)
+      : PrintContext(frame),
+        printed_page_width_(0) {
+  }
+  void begin(float width) {
+    DCHECK(!printed_page_width_);
+    printed_page_width_ = width;
+    WebCore::PrintContext::begin(printed_page_width_);
+  }
+  // Spools the printed page, a subrect of m_frame.
+  // Skip the scale step. NativeTheme doesn't play well with scaling. Scaling
+  // is done browser side instead.
+  // Returns the scale to be applied.
+  float spoolPage(GraphicsContext& ctx, int pageNumber) {
+    IntRect pageRect = m_pageRects[pageNumber];
+    float scale = printed_page_width_ / pageRect.width();
+
+    ctx.save();
+    ctx.translate(static_cast<float>(-pageRect.x()),
+                  static_cast<float>(-pageRect.y()));
+    ctx.clip(pageRect);
+    m_frame->view()->paintContents(&ctx, pageRect);
+    ctx.restore();
+    return scale;
+  }
+ protected:
+  // Set when printing.
+  float printed_page_width_;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ChromePrintContext);
+};
+
 // WebFrameImpl ----------------------------------------------------------------
 
 int WebFrameImpl::live_object_count_ = 0;
@@ -300,8 +337,7 @@ MSVC_POP_WARNING()
     total_matchcount_(-1),
     frames_scoping_count_(-1),
     scoping_complete_(false),
-    next_invalidate_after_(0),
-    printing_(false) {
+    next_invalidate_after_(0) {
   StatsCounter(kWebFrameActiveCount).Increment();
   live_object_count_++;
 }
@@ -362,8 +398,8 @@ void WebFrameImpl::InternalLoadRequest(const WebRequest* request,
 
     // TODO(darin): Is this the best API to use here?  It works and seems good,
     // but will it change out from under us?
-    String script =
-        decodeURLEscapeSequences(kurl.string().substring(sizeof("javascript:")-1));
+    String script = decodeURLEscapeSequences(
+        kurl.string().substring(sizeof("javascript:")-1));
     WebCore::ScriptValue result = frame_->loader()->executeScript(script, true);
     String scriptResult;
     if (result.getString(scriptResult) &&
@@ -789,8 +825,8 @@ void WebFrameImpl::BindToWindowObject(const std::wstring& name,
   JSC::ExecState* exec = window->globalExec();
   JSC::Bindings::RootObject* root = frame_->script()->bindingRootObject();
   ASSERT(exec);
-  JSC::RuntimeObjectImp* instance = JSC::Bindings::Instance::createRuntimeObject(
-      exec, JSC::Bindings::CInstance::create(object, root));
+  JSC::RuntimeObjectImp* instance(JSC::Bindings::Instance::createRuntimeObject(
+      exec, JSC::Bindings::CInstance::create(object, root)));
   JSC::Identifier id(exec, key.latin1().data());
   JSC::PutPropertySlot slot;
   window->put(exec, id, instance, slot);
@@ -1701,15 +1737,6 @@ WebTextInput* WebFrameImpl::GetTextInput() {
   return webtextinput_impl_.get();
 }
 
-void WebFrameImpl::SetPrinting(bool printing,
-                               float page_width_min,
-                               float page_width_max) {
-  frame_->setPrinting(printing,
-                      page_width_min,
-                      page_width_max,
-                      true);
-}
-
 bool WebFrameImpl::Visible() {
   return frame()->view()->visibleWidth() > 0 &&
          frame()->view()->visibleHeight() > 0;
@@ -1753,14 +1780,16 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   // this child frame.
   HistoryItem* parent_item = frame_->loader()->currentHistoryItem();
   FrameLoadType load_type = frame_->loader()->loadType();
-  FrameLoadType child_load_type = WebCore::FrameLoadTypeRedirectWithLockedBackForwardList;
+  FrameLoadType child_load_type =
+      WebCore::FrameLoadTypeRedirectWithLockedBackForwardList;
   KURL new_url = request.resourceRequest().url();
 
   // If we're moving in the backforward list, we might want to replace the
   // content of this child frame with whatever was there at that point.
   if (parent_item && parent_item->children().size() != 0 &&
       isBackForwardLoadType(load_type)) {
-    HistoryItem* child_item = parent_item->childItemWithName(request.frameName());
+    HistoryItem* child_item =
+        parent_item->childItemWithName(request.frameName());
     if (child_item) {
       // Use the original URL to ensure we get all the side-effects, such as
       // onLoad handlers, of any redirects that happened. An example of where
@@ -1847,78 +1876,29 @@ void WebFrameImpl::SetAllowsScrolling(bool flag) {
   frame_->view()->setCanHaveScrollbars(flag);
 }
 
-bool WebFrameImpl::SetPrintingMode(bool printing,
-                                  float page_width_min,
-                                  float page_width_max,
-                                  int* width) {
-  // Make sure main frame is loaded.
-  WebCore::FrameView* view = frameview();
-  if (!view) {
-    NOTREACHED();
-    return false;
-  }
-  printing_ = printing;
-  if (printing) {
-    view->setScrollbarModes(WebCore::ScrollbarAlwaysOff,
-                            WebCore::ScrollbarAlwaysOff);
-  } else {
-    view->setScrollbarModes(WebCore::ScrollbarAuto,
-                            WebCore::ScrollbarAuto);
-  }
+bool WebFrameImpl::BeginPrint(const gfx::Size& page_size_px,
+                              int* page_count) {
   DCHECK_EQ(frame()->document()->isFrameSet(), false);
 
-  SetPrinting(printing, page_width_min, page_width_max);
-  if (!printing)
-    pages_.clear();
-
-  // The document width is well hidden.
-  if (width) {
-    WebCore::RenderObject* obj = frame()->document()->renderer();
-    *width = WebCore::toRenderBox(obj)->width();
-  }
+  print_context_.reset(new ChromePrintContext(frame()));
+  WebCore::FloatRect rect(0, 0,
+                          static_cast<float>(page_size_px.width()),
+                          static_cast<float>(page_size_px.height()));
+  print_context_->begin(rect.width());
+  float page_height;
+  // We ignore the overlays calculation for now since they are generated in the
+  // browser. page_height is actually an output parameter.
+  print_context_->computePageRects(rect, 0, 0, 1.0, page_height);
+  if (page_count)
+    *page_count = print_context_->pageCount();
   return true;
 }
 
-int WebFrameImpl::ComputePageRects(const gfx::Size& page_size_px) {
-  if (!printing_ ||
-      !frame() ||
-      !frame()->document()) {
+float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
+  // Ensure correct state.
+  if (!print_context_.get() || page < 0 || !frame() || !frame()->document()) {
     NOTREACHED();
     return 0;
-  }
-  // In Safari, they are using:
-  // (0,0) + soft margins top/left
-  // (phys width, phys height) - hard margins -
-  //     soft margins top/left - soft margins right/bottom
-  // TODO(maruel): Weird. We don't do that.
-  // Everything is in pixels :(
-  // pages_ and page_height are actually output parameters.
-  int page_height;
-  WebCore::IntRect rect(0, 0, page_size_px.width(), page_size_px.height());
-  computePageRectsForFrame(frame(), rect, 0, 0, 1.0, pages_, page_height);
-  return pages_.size();
-}
-
-void WebFrameImpl::GetPageRect(int page, gfx::Rect* page_size) const {
-  if (page < 0 || page >= static_cast<int>(pages_.size())) {
-    NOTREACHED();
-    return;
-  }
-  *page_size = webkit_glue::FromIntRect(pages_[page]);
-}
-
-bool WebFrameImpl::SpoolPage(int page, skia::PlatformCanvas* canvas) {
-  // Ensure correct state.
-  if (!printing_ ||
-      page < 0 ||
-      page >= static_cast<int>(pages_.size())) {
-    NOTREACHED();
-    return false;
-  }
-
-  if (!frame() || !frame()->document()) {
-    NOTREACHED();
-    return false;
   }
 
 #if defined(OS_WIN) || defined(OS_LINUX)
@@ -1929,12 +1909,14 @@ bool WebFrameImpl::SpoolPage(int page, skia::PlatformCanvas* canvas) {
   GraphicsContext spool(context);
 #endif
 
-  DCHECK(pages_[page].x() == 0);
-  // Offset to get the right square.
-  spool.translate(0, -static_cast<float>(pages_[page].y()));
-  // Make sure we're not printing the ScrollView (with scrollbars!)
-  frame()->view()->paintContents(&spool, pages_[page]);
-  return true;
+  return print_context_->spoolPage(spool, page);
+}
+
+void WebFrameImpl::EndPrint() {
+  DCHECK(print_context_.get());
+  if (print_context_.get())
+    print_context_->end();
+  print_context_.reset(NULL);
 }
 
 int WebFrameImpl::PendingFrameUnloadEventCount() const {

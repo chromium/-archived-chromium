@@ -1433,6 +1433,7 @@
         'common',
         'browser',
         'renderer',
+        '../printing/printing.gyp:printing',
       ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
@@ -1923,6 +1924,7 @@
         'renderer',
         'resources',
         'test_support_unit',
+        '../printing/printing.gyp:printing',
         '../webkit/webkit.gyp:webkit',
         '../skia/skia.gyp:skia',
         '../testing/gtest.gyp:gtest',

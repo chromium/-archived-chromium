@@ -572,17 +572,10 @@ class RenderView : public RenderWidget,
   // Notification of volume property of an audio output stream.
   void OnAudioStreamVolume(int stream_id, double left, double right);
 
-  // Switches the frame's CSS media type to "print" and calculate the number of
-  // printed pages that are to be expected. |frame| will be used to calculate
-  // the number of expected pages for this frame only.
-  int SwitchFrameToPrintMediaType(const ViewMsg_Print_Params& params,
-                                  WebFrame* frame);
-
-  // Switches the frame's CSS media type to "display".
-  void SwitchFrameToDisplayMediaType(WebFrame* frame);
-
   // Prints the page listed in |params|.
-  void PrintPage(const ViewMsg_PrintPage_Params& params, WebFrame* frame);
+  void PrintPage(const ViewMsg_PrintPage_Params& params,
+                 const gfx::Size& canvas_size,
+                 WebFrame* frame);
 
   // Prints all the pages listed in |params|.
   void PrintPages(const ViewMsg_PrintPages_Params& params, WebFrame* frame);
@@ -732,13 +725,6 @@ class RenderView : public RenderWidget,
   // equivalent constrained window).  The renderer and any plugin processes
   // check this to know if they should pump messages/tasks then.
   scoped_ptr<base::WaitableEvent> modal_dialog_event_;
-
-  // Document width when in print CSS media type. 0 otherwise.
-  int printed_document_width_;
-
-  // Backup the view size before printing since it needs to be overriden. This
-  // value is set to restore the view size when printing is done.
-  gfx::Size printing_view_size_;
 
   scoped_refptr<DebugMessageHandler> debug_message_handler_;
 

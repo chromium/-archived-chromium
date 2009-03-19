@@ -40,6 +40,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 class AltErrorPageResourceFetcher;
+class ChromePrintContext;
 class WebDataSourceImpl;
 class WebErrorImpl;
 class WebHistoryItemImpl;
@@ -157,7 +158,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual WebTextInput* GetTextInput();
 
-  virtual bool ExecuteCoreCommandByName(const std::string& name, const std::string& value);
+  virtual bool ExecuteCoreCommandByName(const std::string& name,
+                                        const std::string& value);
   virtual bool IsCoreCommandEnabled(const std::string& name);
 
   virtual void AddMessageToConsole(const std::wstring& msg,
@@ -167,19 +169,10 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual gfx::Size ScrollOffset() const;
 
-  virtual bool SetPrintingMode(bool printing,
-                               float page_width_min,
-                               float page_width_max,
-                               int* width);
-  virtual int ComputePageRects(const gfx::Size& page_size_px);
-  virtual void GetPageRect(int page, gfx::Rect* page_size) const;
-  virtual bool SpoolPage(int page, skia::PlatformCanvas* canvas);
-
-  // Reformats this frame for printing or for screen display, depending on
-  // |printing| flag. Acts recursively on inner frames.
-  // Note: It fails if the main frame failed to load. It will succeed even if a
-  // child frame failed to load.
-  void SetPrinting(bool printing, float page_width_min, float page_width_max);
+  virtual bool BeginPrint(const gfx::Size& page_size_px,
+                          int* page_count);
+  virtual float PrintPage(int page, skia::PlatformCanvas* canvas);
+  virtual void EndPrint();
 
   PassRefPtr<WebCore::Frame> CreateChildFrame(
       const WebCore::FrameLoadRequest&,
@@ -245,11 +238,8 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   // Sets whether the WebFrameImpl allows its document to be scrolled.
   // If the parameter is true, allow the document to be scrolled.
-  // Otherwise, disallow scrolling
+  // Otherwise, disallow scrolling.
   void SetAllowsScrolling(bool flag);
-
-  // Returns true if the frame CSS is in "printing" mode.
-  bool printing() const { return printing_; }
 
   // Registers a listener for the specified user name input element.  The
   // listener will receive notifications for blur and when autocomplete should
@@ -411,11 +401,9 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // Clears the map of password listeners.
   void ClearPasswordListeners();
 
-  // In "printing" mode. Used as a state check.
-  bool printing_;
-
-  // For each printed page, the view of the document in pixels.
-  Vector<WebCore::IntRect> pages_;
+  // Valid between calls to BeginPrint() and EndPrint(). Containts the print
+  // information. Is used by PrintPage().
+  scoped_ptr<ChromePrintContext> print_context_;
 
   // The input fields that are interested in edit events and their associated
   // listeners.
