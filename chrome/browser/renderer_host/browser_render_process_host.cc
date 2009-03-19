@@ -23,7 +23,6 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/plugin_service.h"
@@ -31,6 +30,7 @@
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/visitedlink_master.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/child_process_info.h"
@@ -43,6 +43,8 @@
 #include "chrome/common/result_codes.h"
 #include "chrome/renderer/render_process.h"
 #include "grit/generated_resources.h"
+
+using WebKit::WebCache;
 
 #if defined(OS_WIN)
 
@@ -153,7 +155,7 @@ BrowserRenderProcessHost::BrowserRenderProcessHost(Profile* profile)
 
 BrowserRenderProcessHost::~BrowserRenderProcessHost() {
   if (pid() >= 0) {
-    CacheManagerHost::GetInstance()->Remove(pid());
+    WebCacheManager::GetInstance()->Remove(pid());
     RendererSecurityPolicy::GetInstance()->Remove(pid());
   }
 
@@ -335,7 +337,7 @@ bool BrowserRenderProcessHost::Init() {
   }
 
   resource_message_filter->Init(pid());
-  CacheManagerHost::GetInstance()->Add(pid());
+  WebCacheManager::GetInstance()->Add(pid());
   RendererSecurityPolicy::GetInstance()->Add(pid());
 
   // Now that the process is created, set it's backgrounding accordingly.
@@ -697,8 +699,8 @@ void BrowserRenderProcessHost::OnPageContents(const GURL& url,
 }
 
 void BrowserRenderProcessHost::OnUpdatedCacheStats(
-    const CacheManager::UsageStats& stats) {
-  CacheManagerHost::GetInstance()->ObserveStats(pid(), stats);
+    const WebCache::UsageStats& stats) {
+  WebCacheManager::GetInstance()->ObserveStats(pid(), stats);
 }
 
 void BrowserRenderProcessHost::SetBackgrounded(bool backgrounded) {

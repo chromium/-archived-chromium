@@ -428,10 +428,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\cache_manager_host_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\chrome_thread_unittest.cc"
 				>
 			</File>
@@ -737,6 +733,10 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\visitedlink_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\renderer_host\web_cache_manager_unittest.cc"
 				>
 			</File>
 			<File

@@ -29,22 +29,23 @@
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "chrome/renderer/user_script_slave.h"
 #include "chrome/renderer/visitedlink_slave.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "v8/include/v8.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/extensions/v8/playback_extension.h"
-#include "webkit/glue/cache_manager.h"
-
-#include "WebKit.h"
-#include "WebString.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
 #include <objbase.h>
 #endif
 
-static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
+using WebKit::WebCache;
+using WebKit::WebString;
 
+static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 
 //-----------------------------------------------------------------------------
 // Methods below are only called on the owner's thread:
@@ -196,13 +197,14 @@ void RenderThread::OnSetCacheCapacities(size_t min_dead_capacity,
                                         size_t max_dead_capacity,
                                         size_t capacity) {
   EnsureWebKitInitialized();
-  CacheManager::SetCapacities(min_dead_capacity, max_dead_capacity, capacity);
+  WebCache::setCapacities(
+      min_dead_capacity, max_dead_capacity, capacity);
 }
 
 void RenderThread::OnGetCacheResourceStats() {
   EnsureWebKitInitialized();
-  CacheManager::ResourceTypeStats stats;
-  CacheManager::GetResourceTypeStats(&stats);
+  WebCache::ResourceTypeStats stats;
+  WebCache::getResourceTypeStats(&stats);
   Send(new ViewHostMsg_ResourceTypeStats(stats));
 }
 
@@ -212,8 +214,8 @@ void RenderThread::OnGetRendererHistograms() {
 
 void RenderThread::InformHostOfCacheStats() {
   EnsureWebKitInitialized();
-  CacheManager::UsageStats stats;
-  CacheManager::GetUsageStats(&stats);
+  WebCache::UsageStats stats;
+  WebCache::getUsageStats(&stats);
   Send(new ViewHostMsg_UpdatedCacheStats(stats));
 }
 
@@ -240,7 +242,7 @@ void RenderThread::EnsureWebKitInitialized() {
   // chrome-ui pages should not be accessible by normal content, and should
   // also be unable to script anything but themselves (to help limit the damage
   // that a corrupt chrome-ui page could cause).
-  WebKit::WebString chrome_ui_scheme(ASCIIToUTF16(chrome::kChromeUIScheme));
+  WebString chrome_ui_scheme(ASCIIToUTF16(chrome::kChromeUIScheme));
   WebKit::registerURLSchemeAsLocal(chrome_ui_scheme);
   WebKit::registerURLSchemeAsNoAccess(chrome_ui_scheme);
 

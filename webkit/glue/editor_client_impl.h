@@ -5,16 +5,12 @@
 #ifndef WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__
 #define WEBKIT_GLUE_EDITOR_CLIENT_IMPL_H__
 
-#include "base/compiler_specific.h"
-#include "base/task.h"
-
-#include "build/build_config.h"
-
 #include <deque>
 
-MSVC_PUSH_WARNING_LEVEL(0);
+#include "DOMWindow.h"
 #include "EditorClient.h"
-MSVC_POP_WARNING();
+
+#include "base/task.h"
 
 namespace WebCore {
 class Frame;

@@ -3,11 +3,8 @@
 // found in the LICENSE file.
 
 #include "config.h"
+#include "webkit/glue/webplugin_impl.h"
 
-#include "base/compiler_specific.h"
-#include "build/build_config.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "Cursor.h"
 #include "Document.h"
 #include "DocumentLoader.h"
@@ -40,27 +37,23 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "ScriptValue.h"
 #include "ScrollView.h"
 #include "Widget.h"
-MSVC_POP_WARNING();
-
-#include "WebKit.h"
-#include "WebKitClient.h"
-#include "WebString.h"
-#include "WebURL.h"
 
 #undef LOG
-
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/escape.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/multipart_response_delegate.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webplugin_impl.h"
 #include "webkit/glue/plugins/plugin_host.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/stacking_order_iterator.h"

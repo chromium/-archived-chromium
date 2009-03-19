@@ -7,7 +7,6 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="$(SolutionDir)..\third_party\WebKit\WebKit\chromium\public;$(SolutionDir)..\third_party\WebKit\WebKit\chromium\public\win"
 		PreprocessorDefinitions="WEBKIT_USING_SKIA=1"
 		WarnAsError="true"
 	/>

@@ -23,7 +23,6 @@
 #include "base/gfx/rect.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/download/save_types.h"

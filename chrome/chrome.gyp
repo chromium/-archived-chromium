@@ -470,8 +470,6 @@
         'browser/browsing_data_remover.h',
         'browser/browsing_instance.cc',
         'browser/browsing_instance.h',
-        'browser/cache_manager_host.cc',
-        'browser/cache_manager_host.h',
         'browser/cancelable_request.cc',
         'browser/cancelable_request.h',
         'browser/cert_store.cc',
@@ -894,6 +892,8 @@
         'browser/renderer_host/save_file_resource_handler.h',
         'browser/renderer_host/sync_resource_handler.cc',
         'browser/renderer_host/sync_resource_handler.h',
+        'browser/renderer_host/web_cache_manager.cc',
+        'browser/renderer_host/web_cache_manager.h',
         'browser/rlz/rlz.cc',
         'browser/rlz/rlz.h',
         'browser/safe_browsing/bloom_filter.cc',
@@ -1949,7 +1949,6 @@
         'browser/bookmarks/bookmark_utils_unittest.cc',
         'browser/browser_commands_unittest.cc',
         'browser/debugger/devtools_manager_unittest.cc',
-        'browser/cache_manager_host_unittest.cc',
         'browser/chrome_thread_unittest.cc',
         # It is safe to list */cocoa/* files in the "common" file list
         # without an explicit exclusion since gyp is smart enough to
@@ -2005,6 +2004,7 @@
         'browser/renderer_host/render_widget_host_unittest.cc',
         'browser/renderer_host/renderer_security_policy_unittest.cc',
         'browser/renderer_host/resource_dispatcher_host_unittest.cc',
+        'browser/renderer_host/web_cache_manager_unittest.cc',
         'browser/rlz/rlz_unittest.cc',
         'browser/safe_browsing/bloom_filter_unittest.cc',
         'browser/safe_browsing/chunk_range_unittest.cc',

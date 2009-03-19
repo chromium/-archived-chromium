@@ -5,8 +5,8 @@
 // This is the browser side of the cache manager, it tracks the activity of the
 // render processes and allocates available memory cache resources.
 
-#ifndef CHROME_BROWSER_CACHE_MANAGER_HOST_H__
-#define CHROME_BROWSER_CACHE_MANAGER_HOST_H__
+#ifndef CHROME_BROWSER_WEB_CACHE_MANAGER_H_
+#define CHROME_BROWSER_WEB_CACHE_MANAGER_H_
 
 #include <map>
 #include <list>
@@ -17,21 +17,21 @@
 #include "base/singleton.h"
 #include "base/task.h"
 #include "base/time.h"
-#include "webkit/glue/cache_manager.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
 
 class PrefService;
 
-class CacheManagerHost {
+class WebCacheManager {
   // Unit tests are our friends.
-  friend class CacheManagerHostTest;
+  friend class WebCacheManagerTest;
 
  public:
   static void RegisterPrefs(PrefService* prefs);
 
-  // Gets the singleton CacheManagerHost object.  The first time this method
-  // is called, a CacheManagerHost object is constructed and returned.
+  // Gets the singleton WebCacheManager object.  The first time this method
+  // is called, a WebCacheManager object is constructed and returned.
   // Subsequent calls will return the same object.
-  static CacheManagerHost* GetInstance();
+  static WebCacheManager* GetInstance();
 
   // When a render process is created, it registers itself with the cache
   // manager host, causing the renderer to be allocated cache resources.
@@ -53,7 +53,8 @@ class CacheManagerHost {
   // Periodically, renderers should inform the cache manager of their current
   // statistics.  The more up-to-date the cache manager's statistics, the
   // better it can allocate cache resources.
-  void ObserveStats(int renderer_id, const CacheManager::UsageStats& stats);
+  void ObserveStats(
+      int renderer_id, const WebKit::WebCache::UsageStats& stats);
 
   // The global limit on the number of bytes in all the in-memory caches.
   size_t global_size_limit() const { return global_size_limit_; }
@@ -70,7 +71,7 @@ class CacheManagerHost {
   static const int kRendererInactiveThresholdMinutes = 5;
 
   // Keep track of some renderer information.
-  struct RendererInfo : CacheManager::UsageStats {
+  struct RendererInfo : WebKit::WebCache::UsageStats {
     // The access time for this renderer.
     base::Time access;
   };
@@ -86,10 +87,10 @@ class CacheManagerHost {
   typedef std::list<Allocation> AllocationStrategy;
 
   // This class is a singleton.  Do not instantiate directly.
-  CacheManagerHost();
-  friend struct DefaultSingletonTraits<CacheManagerHost>;
+  WebCacheManager();
+  friend struct DefaultSingletonTraits<WebCacheManager>;
 
-  ~CacheManagerHost();
+  ~WebCacheManager();
 
   // Recomputes the allocation of cache resources among the renderers.  Also
   // informs the renderers of their new allocation.
@@ -132,13 +133,13 @@ class CacheManagerHost {
   // Add up all the stats from the given set of renderers and place the result
   // in |stats|.
   void GatherStats(const std::set<int>& renderers,
-                   CacheManager::UsageStats* stats);
+                   WebKit::WebCache::UsageStats* stats);
 
   // Get the amount of memory that would be required to implement |tactic|
   // using the specified allocation tactic.  This function defines the
   // semantics for each of the tactics.
   static size_t GetSize(AllocationTactic tactic,
-                        const CacheManager::UsageStats& stats);
+                        const WebKit::WebCache::UsageStats& stats);
 
   // Attempt to use the specified tactics to compute an allocation strategy
   // and place the result in |strategy|.  |active_stats| and |inactive_stats|
@@ -148,9 +149,9 @@ class CacheManagerHost {
   // Returns |true| on success and |false| on failure.  Does not modify
   // |strategy| on failure.
   bool AttemptTactic(AllocationTactic active_tactic,
-                     const CacheManager::UsageStats& active_stats,
+                     const WebKit::WebCache::UsageStats& active_stats,
                      AllocationTactic inactive_tactic,
-                     const CacheManager::UsageStats& inactive_stats,
+                     const WebKit::WebCache::UsageStats& inactive_stats,
                      AllocationStrategy* strategy);
 
   // For each renderer in |renderers|, computes its allocation according to
@@ -183,9 +184,9 @@ class CacheManagerHost {
   // recently than they have been active.
   std::set<int> inactive_renderers_;
 
-  ScopedRunnableMethodFactory<CacheManagerHost> revise_allocation_factory_;
+  ScopedRunnableMethodFactory<WebCacheManager> revise_allocation_factory_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CacheManagerHost);
+  DISALLOW_COPY_AND_ASSIGN(WebCacheManager);
 };
 
-#endif  // CHROME_BROWSER_CACHE_MANAGER_HOST_H__
+#endif  // CHROME_BROWSER_WEB_CACHE_MANAGER_H_

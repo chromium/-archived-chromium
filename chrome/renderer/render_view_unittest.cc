@@ -9,12 +9,11 @@
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webscriptsource.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
-
-#include "WebKit.h"
 
 namespace {
 

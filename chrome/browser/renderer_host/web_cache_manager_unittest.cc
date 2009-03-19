@@ -5,82 +5,82 @@
 #include <string>
 
 #include "base/message_loop.h"
-#include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "webkit/glue/cache_manager.h"
 
 using base::Time;
 using base::TimeDelta;
+using WebKit::WebCache;
 
-class CacheManagerHostTest : public testing::Test {
+class WebCacheManagerTest : public testing::Test {
  protected:
-  typedef CacheManagerHost::StatsMap StatsMap;
-  typedef CacheManagerHost::Allocation Allocation;
-  typedef CacheManagerHost::AllocationStrategy AllocationStrategy;
+  typedef WebCacheManager::StatsMap StatsMap;
+  typedef WebCacheManager::Allocation Allocation;
+  typedef WebCacheManager::AllocationStrategy AllocationStrategy;
 
   static const int kRendererID;
   static const int kRendererID2;
-  static const CacheManager::UsageStats kStats;
-  static const CacheManager::UsageStats kStats2;
+  static const WebCache::UsageStats kStats;
+  static const WebCache::UsageStats kStats2;
 
-  // Thunks to access protected members of CacheManagerHost
-  static std::map<int, CacheManagerHost::RendererInfo>& stats(
-        CacheManagerHost* h) {
+  // Thunks to access protected members of WebCacheManager
+  static std::map<int, WebCacheManager::RendererInfo>& stats(
+        WebCacheManager* h) {
     return h->stats_;
   }
 
-  static void SimulateInactivity(CacheManagerHost* h, int renderer_id) {
+  static void SimulateInactivity(WebCacheManager* h, int renderer_id) {
     stats(h)[renderer_id].access = Time::Now() - TimeDelta::FromMinutes(
-        CacheManagerHost::kRendererInactiveThresholdMinutes);
+        WebCacheManager::kRendererInactiveThresholdMinutes);
     h->FindInactiveRenderers();
   }
 
-  static std::set<int>& active_renderers(CacheManagerHost* h) {
+  static std::set<int>& active_renderers(WebCacheManager* h) {
     return h->active_renderers_;
   }
-  static std::set<int>& inactive_renderers(CacheManagerHost* h) {
+  static std::set<int>& inactive_renderers(WebCacheManager* h) {
     return h->inactive_renderers_;
   }
-  static void GatherStats(CacheManagerHost* h,
+  static void GatherStats(WebCacheManager* h,
                           std::set<int> renderers,
-                          CacheManager::UsageStats* stats) {
+                          WebCache::UsageStats* stats) {
     h->GatherStats(renderers, stats);
   }
   static size_t GetSize(int tactic,
-                        const CacheManager::UsageStats& stats) {
-    return CacheManagerHost::GetSize(
-        static_cast<CacheManagerHost::AllocationTactic>(tactic), stats);
+                        const WebCache::UsageStats& stats) {
+    return WebCacheManager::GetSize(
+        static_cast<WebCacheManager::AllocationTactic>(tactic), stats);
   }
-  static bool AttemptTactic(CacheManagerHost* h,
+  static bool AttemptTactic(WebCacheManager* h,
                             int active_tactic,
-                            const CacheManager::UsageStats& active_stats,
+                            const WebCache::UsageStats& active_stats,
                             int inactive_tactic,
-                            const CacheManager::UsageStats& inactive_stats,
+                            const WebCache::UsageStats& inactive_stats,
                             std::list< std::pair<int,size_t> >* strategy) {
     return h->AttemptTactic(
-        static_cast<CacheManagerHost::AllocationTactic>(active_tactic),
+        static_cast<WebCacheManager::AllocationTactic>(active_tactic),
         active_stats,
-        static_cast<CacheManagerHost::AllocationTactic>(inactive_tactic),
+        static_cast<WebCacheManager::AllocationTactic>(inactive_tactic),
         inactive_stats,
         strategy);
   }
-  static void AddToStrategy(CacheManagerHost* h,
+  static void AddToStrategy(WebCacheManager* h,
                             std::set<int> renderers,
                             int tactic,
                             size_t extra_bytes_to_allocate,
                             std::list< std::pair<int,size_t> >* strategy) {
     h->AddToStrategy(renderers,
-                     static_cast<CacheManagerHost::AllocationTactic>(tactic),
+                     static_cast<WebCacheManager::AllocationTactic>(tactic),
                      extra_bytes_to_allocate,
                      strategy);
   }
 
   enum {
-    DIVIDE_EVENLY = CacheManagerHost::DIVIDE_EVENLY,
-    KEEP_CURRENT_WITH_HEADROOM = CacheManagerHost::KEEP_CURRENT_WITH_HEADROOM,
-    KEEP_CURRENT = CacheManagerHost::KEEP_CURRENT,
-    KEEP_LIVE_WITH_HEADROOM = CacheManagerHost::KEEP_LIVE_WITH_HEADROOM,
-    KEEP_LIVE = CacheManagerHost::KEEP_LIVE,
+    DIVIDE_EVENLY = WebCacheManager::DIVIDE_EVENLY,
+    KEEP_CURRENT_WITH_HEADROOM = WebCacheManager::KEEP_CURRENT_WITH_HEADROOM,
+    KEEP_CURRENT = WebCacheManager::KEEP_CURRENT,
+    KEEP_LIVE_WITH_HEADROOM = WebCacheManager::KEEP_LIVE_WITH_HEADROOM,
+    KEEP_LIVE = WebCacheManager::KEEP_LIVE,
   };
 
  private:
@@ -88,13 +88,13 @@ class CacheManagerHostTest : public testing::Test {
 };
 
 // static
-const int CacheManagerHostTest::kRendererID = 146;
+const int WebCacheManagerTest::kRendererID = 146;
 
 // static
-const int CacheManagerHostTest::kRendererID2 = 245;
+const int WebCacheManagerTest::kRendererID2 = 245;
 
 // static
-const CacheManager::UsageStats CacheManagerHostTest::kStats = {
+const WebCache::UsageStats WebCacheManagerTest::kStats = {
     0,
     1024 * 1024,
     1024 * 1024,
@@ -103,7 +103,7 @@ const CacheManager::UsageStats CacheManagerHostTest::kStats = {
   };
 
 // static
-const CacheManager::UsageStats CacheManagerHostTest::kStats2 = {
+const WebCache::UsageStats WebCacheManagerTest::kStats2 = {
     0,
     2 * 1024 * 1024,
     2 * 1024 * 1024,
@@ -111,13 +111,13 @@ const CacheManager::UsageStats CacheManagerHostTest::kStats2 = {
     2 * 512,
   };
 
-static bool operator==(const CacheManager::UsageStats& lhs,
-                       const CacheManager::UsageStats& rhs) {
-  return !::memcmp(&lhs, &rhs, sizeof(CacheManager::UsageStats));
+static bool operator==(const WebCache::UsageStats& lhs,
+                       const WebCache::UsageStats& rhs) {
+  return !::memcmp(&lhs, &rhs, sizeof(WebCache::UsageStats));
 }
 
-TEST_F(CacheManagerHostTest, AddRemoveRendererTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, AddRemoveRendererTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   EXPECT_EQ(0U, active_renderers(h).size());
   EXPECT_EQ(0U, inactive_renderers(h).size());
@@ -131,8 +131,8 @@ TEST_F(CacheManagerHostTest, AddRemoveRendererTest) {
   EXPECT_EQ(0U, inactive_renderers(h).size());
 }
 
-TEST_F(CacheManagerHostTest, ActiveInactiveTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, ActiveInactiveTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   h->Add(kRendererID);
 
@@ -151,8 +151,8 @@ TEST_F(CacheManagerHostTest, ActiveInactiveTest) {
   h->Remove(kRendererID);
 }
 
-TEST_F(CacheManagerHostTest, ObserveStatsTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, ObserveStatsTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   h->Add(kRendererID);
 
@@ -166,8 +166,8 @@ TEST_F(CacheManagerHostTest, ObserveStatsTest) {
   h->Remove(kRendererID);
 }
 
-TEST_F(CacheManagerHostTest, SetGlobalSizeLimitTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, SetGlobalSizeLimitTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   size_t limit = h->GetDefaultGlobalSizeLimit();
   h->SetGlobalSizeLimit(limit);
@@ -177,8 +177,8 @@ TEST_F(CacheManagerHostTest, SetGlobalSizeLimitTest) {
   EXPECT_EQ(0U, h->global_size_limit());
 }
 
-TEST_F(CacheManagerHostTest, GatherStatsTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, GatherStatsTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   h->Add(kRendererID);
   h->Add(kRendererID2);
@@ -189,7 +189,7 @@ TEST_F(CacheManagerHostTest, GatherStatsTest) {
   std::set<int> renderer_set;
   renderer_set.insert(kRendererID);
 
-  CacheManager::UsageStats stats;
+  WebCache::UsageStats stats;
   GatherStats(h, renderer_set, &stats);
 
   EXPECT_TRUE(kStats == stats);
@@ -197,12 +197,12 @@ TEST_F(CacheManagerHostTest, GatherStatsTest) {
   renderer_set.insert(kRendererID2);
   GatherStats(h, renderer_set, &stats);
 
-  CacheManager::UsageStats expected_stats = kStats;
-  expected_stats.min_dead_capacity += kStats2.min_dead_capacity;
-  expected_stats.max_dead_capacity += kStats2.max_dead_capacity;
+  WebCache::UsageStats expected_stats = kStats;
+  expected_stats.minDeadCapacity += kStats2.minDeadCapacity;
+  expected_stats.maxDeadCapacity += kStats2.maxDeadCapacity;
   expected_stats.capacity += kStats2.capacity;
-  expected_stats.live_size += kStats2.live_size;
-  expected_stats.dead_size += kStats2.dead_size;
+  expected_stats.liveSize += kStats2.liveSize;
+  expected_stats.deadSize += kStats2.deadSize;
 
   EXPECT_TRUE(expected_stats == stats);
 
@@ -210,7 +210,7 @@ TEST_F(CacheManagerHostTest, GatherStatsTest) {
   h->Remove(kRendererID2);
 }
 
-TEST_F(CacheManagerHostTest, GetSizeTest) {
+TEST_F(WebCacheManagerTest, GetSizeTest) {
   EXPECT_EQ(0U, GetSize(DIVIDE_EVENLY, kStats));
   EXPECT_LT(256 * 1024u + 512, GetSize(KEEP_CURRENT_WITH_HEADROOM, kStats));
   EXPECT_EQ(256 * 1024u + 512, GetSize(KEEP_CURRENT, kStats));
@@ -218,8 +218,8 @@ TEST_F(CacheManagerHostTest, GetSizeTest) {
   EXPECT_EQ(256 * 1024u, GetSize(KEEP_LIVE, kStats));
 }
 
-TEST_F(CacheManagerHostTest, AttemptTacticTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, AttemptTacticTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   h->Add(kRendererID);
   h->Add(kRendererID2);
@@ -230,8 +230,8 @@ TEST_F(CacheManagerHostTest, AttemptTacticTest) {
   h->ObserveStats(kRendererID, kStats);
   h->ObserveStats(kRendererID2, kStats2);
 
-  h->SetGlobalSizeLimit(kStats.live_size + kStats.dead_size +
-                        kStats2.live_size + kStats2.dead_size/2);
+  h->SetGlobalSizeLimit(kStats.liveSize + kStats.deadSize +
+                        kStats2.liveSize + kStats2.deadSize/2);
 
   AllocationStrategy strategy;
 
@@ -254,9 +254,9 @@ TEST_F(CacheManagerHostTest, AttemptTacticTest) {
   AllocationStrategy::iterator iter = strategy.begin();
   while (iter != strategy.end()) {
     if (iter->first == kRendererID)
-      EXPECT_LE(kStats.live_size + kStats.dead_size, iter->second);
+      EXPECT_LE(kStats.liveSize + kStats.deadSize, iter->second);
     else if (iter->first == kRendererID2)
-      EXPECT_LE(kStats2.live_size, iter->second);
+      EXPECT_LE(kStats2.liveSize, iter->second);
     else
       EXPECT_FALSE("Unexpected entry in strategy");
     ++iter;
@@ -266,8 +266,8 @@ TEST_F(CacheManagerHostTest, AttemptTacticTest) {
   h->Remove(kRendererID2);
 }
 
-TEST_F(CacheManagerHostTest, AddToStrategyTest) {
-  CacheManagerHost* h = CacheManagerHost::GetInstance();
+TEST_F(WebCacheManagerTest, AddToStrategyTest) {
+  WebCacheManager* h = WebCacheManager::GetInstance();
 
   h->Add(kRendererID);
   h->Add(kRendererID2);
@@ -296,17 +296,17 @@ TEST_F(CacheManagerHostTest, AddToStrategyTest) {
     total_bytes += iter->second;
 
     if (iter->first == kRendererID)
-      EXPECT_LE(kStats.live_size + kStats.dead_size, iter->second);
+      EXPECT_LE(kStats.liveSize + kStats.deadSize, iter->second);
     else if (iter->first == kRendererID2)
-      EXPECT_LE(kStats2.live_size + kStats2.dead_size, iter->second);
+      EXPECT_LE(kStats2.liveSize + kStats2.deadSize, iter->second);
     else
       EXPECT_FALSE("Unexpected entry in strategy");
     ++iter;
   }
 
   size_t expected_total_bytes = kExtraBytesToAllocate +
-                                kStats.live_size + kStats.dead_size +
-                                kStats2.live_size + kStats2.dead_size;
+                                kStats.liveSize + kStats.deadSize +
+                                kStats2.liveSize + kStats2.deadSize;
 
   EXPECT_GE(expected_total_bytes, total_bytes);
 

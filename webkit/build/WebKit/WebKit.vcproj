@@ -128,6 +128,10 @@
 				Name="public"
 				>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebCache.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebCanvas.h"
 					>
 				</File>
@@ -205,6 +209,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\ChromiumThreading.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebCache.cpp"
 					>
 				</File>
 				<File

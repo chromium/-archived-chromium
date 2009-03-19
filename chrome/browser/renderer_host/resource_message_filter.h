@@ -22,7 +22,7 @@
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/transport_dib.h"
-#include "webkit/glue/cache_manager.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -164,7 +164,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnGetCPBrowsingContext(uint32* context);
   void OnDuplicateSection(base::SharedMemoryHandle renderer_handle,
                           base::SharedMemoryHandle* browser_handle);
-  void OnResourceTypeStats(const CacheManager::ResourceTypeStats& stats);
+  void OnResourceTypeStats(const WebKit::WebCache::ResourceTypeStats& stats);
 
   void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
 

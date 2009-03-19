@@ -4,9 +4,6 @@
 
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 
-#include "WebString.h"
-#include "WebURL.h"
-
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
@@ -14,6 +11,8 @@
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/visitedlink_slave.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
 

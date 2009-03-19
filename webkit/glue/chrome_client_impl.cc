@@ -22,8 +22,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #endif
 MSVC_POP_WARNING();
 
-#include "WebKit.h"
-
 #undef LOG
 
 #include "webkit/glue/chrome_client_impl.h"
@@ -31,6 +29,7 @@ MSVC_POP_WARNING();
 #include "base/logging.h"
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webinputevent.h"
@@ -39,8 +38,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
-
-struct IWebURLResponse;
 
 // Callback class that's given to the WebViewDelegate during a file choose
 // operation.

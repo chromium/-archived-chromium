@@ -569,7 +569,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_SYNC_MESSAGE_ROUTED0_0(ViewHostMsg_RunModal)
 
   IPC_MESSAGE_CONTROL1(ViewHostMsg_UpdatedCacheStats,
-                       CacheManager::UsageStats /* stats */)
+                       WebKit::WebCache::UsageStats /* stats */)
 
   // Indicates the renderer is ready in response to a ViewMsg_New or
   // a ViewMsg_CreatingNew_ACK.
@@ -1132,7 +1132,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Provide the browser process with information about the WebCore resource
   // cache.
   IPC_MESSAGE_CONTROL1(ViewHostMsg_ResourceTypeStats,
-                       CacheManager::ResourceTypeStats)
+                       WebKit::WebCache::ResourceTypeStats)
 
   // Notify the browser that this render either has or doesn't have a
   // beforeunload or unload handler.

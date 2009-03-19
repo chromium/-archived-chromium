@@ -21,6 +21,7 @@ input_files = [
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/ChromiumBridge.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/ChromiumCurrentTime.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/ChromiumThreading.cpp',
+  '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebCache.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebCString.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebImageSkia.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebKit.cpp',

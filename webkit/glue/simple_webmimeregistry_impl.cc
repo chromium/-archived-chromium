@@ -4,11 +4,10 @@
 
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 
-#include "WebString.h"
-
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "net/base/mime_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/glue_util.h"
 
 using WebKit::WebString;

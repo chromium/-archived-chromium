@@ -39,7 +39,6 @@ input_files = [
   'alt_error_page_resource_fetcher.cc',
   'autofill_form.cc',
   'back_forward_list_client_impl.cc',
-  'cache_manager.cc',
   'chrome_client_impl.cc',
   'chromium_bridge_impl.cc',
   'clipboard_conversion.cc',

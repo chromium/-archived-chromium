@@ -6,6 +6,10 @@
 #define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_
 
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
@@ -13,11 +17,6 @@
 #include "webkit/extensions/v8/interval_extension.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "v8/include/v8.h"
-
-#include "WebCString.h"
-#include "WebKit.h"
-#include "WebString.h"
-#include "WebURL.h"
 
 class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
  public:

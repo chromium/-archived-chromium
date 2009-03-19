@@ -4,8 +4,8 @@
 
 #include "chrome/worker/worker_webkitclient_impl.h"
 
-#include "WebString.h"
-#include "WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 
 WebKit::WebMimeRegistry* WorkerWebKitClientImpl::mimeRegistry() {
   return NULL;

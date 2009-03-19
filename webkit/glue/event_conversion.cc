@@ -3,25 +3,19 @@
 // found in the LICENSE file.
 
 #include "config.h"
-
-#include "base/compiler_specific.h"
+#include "webkit/glue/event_conversion.h"
 
 #include "KeyboardCodes.h"
 #include "StringImpl.h"  // This is so that the KJS build works
-
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformKeyboardEvent.h"
 #include "PlatformMouseEvent.h"
 #include "PlatformWheelEvent.h"
 #include "Widget.h"
-MSVC_POP_WARNING();
-
-#include "WebKit.h"
 
 #undef LOG
 #include "base/gfx/point.h"
 #include "base/logging.h"
-#include "webkit/glue/event_conversion.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"

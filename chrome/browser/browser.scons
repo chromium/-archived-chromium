@@ -96,7 +96,6 @@ input_files = ChromeFileList([
     'browsing_data_remover.h',
     'browsing_instance.cc',
     'browsing_instance.h',
-    'cache_manager_host.cc',
     'cache_manager_host.h',
     'cancelable_request.cc',
     'cancelable_request.h',
@@ -568,6 +567,7 @@ input_files = ChromeFileList([
     'renderer_host/save_file_resource_handler.h',
     'renderer_host/sync_resource_handler.cc',
     'renderer_host/sync_resource_handler.h',
+    'renderer_host/web_cache_manager.cc',
   ]),
   MSVSFilter('Tab Contents', [
     'tab_contents/constrained_window.h',

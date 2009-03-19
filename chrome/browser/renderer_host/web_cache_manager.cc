@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/cache_manager_host.h"
+#include "chrome/browser/renderer_host/web_cache_manager.h"
 
 #include <algorithm>
 
@@ -19,6 +19,7 @@
 
 using base::Time;
 using base::TimeDelta;
+using WebKit::WebCache;
 
 static const unsigned int kReviseAllocationDelayMS = 200 /* milliseconds */;
 
@@ -44,24 +45,24 @@ int GetDefaultCacheSize() {
 }  // anonymous namespace
 
 // static
-void CacheManagerHost::RegisterPrefs(PrefService* prefs) {
+void WebCacheManager::RegisterPrefs(PrefService* prefs) {
   prefs->RegisterIntegerPref(prefs::kMemoryCacheSize, GetDefaultCacheSize());
 }
 
 // static
-CacheManagerHost* CacheManagerHost::GetInstance() {
-  return Singleton<CacheManagerHost>::get();
+WebCacheManager* WebCacheManager::GetInstance() {
+  return Singleton<WebCacheManager>::get();
 }
 
-CacheManagerHost::CacheManagerHost()
+WebCacheManager::WebCacheManager()
     : global_size_limit_(GetDefaultGlobalSizeLimit()),
       ALLOW_THIS_IN_INITIALIZER_LIST(revise_allocation_factory_(this)) {
 }
 
-CacheManagerHost::~CacheManagerHost() {
+WebCacheManager::~WebCacheManager() {
 }
 
-void CacheManagerHost::Add(int renderer_id) {
+void WebCacheManager::Add(int renderer_id) {
   DCHECK(inactive_renderers_.count(renderer_id) == 0);
 
   // It is tempting to make the following DCHECK here, but it fails when a new
@@ -83,7 +84,7 @@ void CacheManagerHost::Add(int renderer_id) {
   ReviseAllocationStrategyLater();
 }
 
-void CacheManagerHost::Remove(int renderer_id) {
+void WebCacheManager::Remove(int renderer_id) {
   DCHECK(active_renderers_.count(renderer_id) > 0 ||
          inactive_renderers_.count(renderer_id) > 0);
 
@@ -96,7 +97,7 @@ void CacheManagerHost::Remove(int renderer_id) {
   ReviseAllocationStrategyLater();
 }
 
-void CacheManagerHost::ObserveActivity(int renderer_id) {
+void WebCacheManager::ObserveActivity(int renderer_id) {
   // Record activity.
   active_renderers_.insert(renderer_id);
 
@@ -115,36 +116,36 @@ void CacheManagerHost::ObserveActivity(int renderer_id) {
   }
 }
 
-void CacheManagerHost::ObserveStats(int renderer_id,
-                                    const CacheManager::UsageStats& stats) {
+void WebCacheManager::ObserveStats(int renderer_id,
+                                   const WebCache::UsageStats& stats) {
   StatsMap::iterator entry = stats_.find(renderer_id);
   if (entry == stats_.end())
     return;  // We might see stats for a renderer that has been destroyed.
 
   // Record the updated stats.
   entry->second.capacity = stats.capacity;
-  entry->second.dead_size = stats.dead_size;
-  entry->second.live_size = stats.live_size;
-  entry->second.max_dead_capacity = stats.max_dead_capacity;
-  entry->second.min_dead_capacity = stats.min_dead_capacity;
+  entry->second.deadSize = stats.deadSize;
+  entry->second.liveSize = stats.liveSize;
+  entry->second.maxDeadCapacity = stats.maxDeadCapacity;
+  entry->second.minDeadCapacity = stats.minDeadCapacity;
 
   // trigger notification
-  CacheManager::UsageStats stats_details(stats);
+  WebCache::UsageStats stats_details(stats);
   // &stats_details is only valid during the notification.
   // See notification_types.h.
   NotificationService::current()->Notify(
       NotificationType::WEB_CACHE_STATS_OBSERVED,
       Source<RenderProcessHost>(RenderProcessHost::FromID(renderer_id)),
-      Details<CacheManager::UsageStats>(&stats_details));
+      Details<WebCache::UsageStats>(&stats_details));
 }
 
-void CacheManagerHost::SetGlobalSizeLimit(size_t bytes) {
+void WebCacheManager::SetGlobalSizeLimit(size_t bytes) {
   global_size_limit_ = bytes;
   ReviseAllocationStrategyLater();
 }
 
 // static
-size_t CacheManagerHost::GetDefaultGlobalSizeLimit() {
+size_t WebCacheManager::GetDefaultGlobalSizeLimit() {
   PrefService* perf_service = g_browser_process->local_state();
   if (perf_service)
     return perf_service->GetInteger(prefs::kMemoryCacheSize);
@@ -152,29 +153,29 @@ size_t CacheManagerHost::GetDefaultGlobalSizeLimit() {
   return GetDefaultCacheSize();
 }
 
-void CacheManagerHost::GatherStats(const std::set<int>& renderers,
-                                   CacheManager::UsageStats* stats) {
+void WebCacheManager::GatherStats(const std::set<int>& renderers,
+                                  WebCache::UsageStats* stats) {
   DCHECK(stats);
 
-  memset(stats, 0, sizeof(CacheManager::UsageStats));
+  memset(stats, 0, sizeof(WebCache::UsageStats));
 
   std::set<int>::const_iterator iter = renderers.begin();
   while (iter != renderers.end()) {
     StatsMap::iterator elmt = stats_.find(*iter);
     if (elmt != stats_.end()) {
-      stats->min_dead_capacity += elmt->second.min_dead_capacity;
-      stats->max_dead_capacity += elmt->second.max_dead_capacity;
+      stats->minDeadCapacity += elmt->second.minDeadCapacity;
+      stats->maxDeadCapacity += elmt->second.maxDeadCapacity;
       stats->capacity += elmt->second.capacity;
-      stats->live_size += elmt->second.live_size;
-      stats->dead_size += elmt->second.dead_size;
+      stats->liveSize += elmt->second.liveSize;
+      stats->deadSize += elmt->second.deadSize;
     }
     ++iter;
   }
 }
 
 // static
-size_t CacheManagerHost::GetSize(AllocationTactic tactic,
-                                 const CacheManager::UsageStats& stats) {
+size_t WebCacheManager::GetSize(AllocationTactic tactic,
+                                const WebCache::UsageStats& stats) {
   switch (tactic) {
   case DIVIDE_EVENLY:
     // We aren't going to reserve any space for existing objects.
@@ -184,24 +185,24 @@ size_t CacheManagerHost::GetSize(AllocationTactic tactic,
     return 3 * GetSize(KEEP_CURRENT, stats) / 2;
   case KEEP_CURRENT:
     // We need enough space to keep our current objects.
-    return stats.live_size + stats.dead_size;
+    return stats.liveSize + stats.deadSize;
   case KEEP_LIVE_WITH_HEADROOM:
     // We need enough space to keep out live resources, plus some headroom.
     return 3 * GetSize(KEEP_LIVE, stats) / 2;
   case KEEP_LIVE:
     // We need enough space to keep our live resources.
-    return stats.live_size;
+    return stats.liveSize;
   default:
     NOTREACHED() << "Unknown cache allocation tactic";
     return 0;
   }
 }
 
-bool CacheManagerHost::AttemptTactic(
+bool WebCacheManager::AttemptTactic(
     AllocationTactic active_tactic,
-    const CacheManager::UsageStats& active_stats,
+    const WebCache::UsageStats& active_stats,
     AllocationTactic inactive_tactic,
-    const CacheManager::UsageStats& inactive_stats,
+    const WebCache::UsageStats& inactive_stats,
     AllocationStrategy* strategy) {
   DCHECK(strategy);
 
@@ -238,10 +239,10 @@ bool CacheManagerHost::AttemptTactic(
   return true;
 }
 
-void CacheManagerHost::AddToStrategy(std::set<int> renderers,
-                                     AllocationTactic tactic,
-                                     size_t extra_bytes_to_allocate,
-                                     AllocationStrategy* strategy) {
+void WebCacheManager::AddToStrategy(std::set<int> renderers,
+                                    AllocationTactic tactic,
+                                    size_t extra_bytes_to_allocate,
+                                    AllocationStrategy* strategy) {
   DCHECK(strategy);
 
   // Nothing to do if there are no renderers.  It is common for there to be no
@@ -267,7 +268,7 @@ void CacheManagerHost::AddToStrategy(std::set<int> renderers,
   }
 }
 
-void CacheManagerHost::EnactStrategy(const AllocationStrategy& strategy) {
+void WebCacheManager::EnactStrategy(const AllocationStrategy& strategy) {
   // Inform each render process of its cache allocation.
   AllocationStrategy::const_iterator allocation = strategy.begin();
   while (allocation != strategy.end()) {
@@ -294,7 +295,7 @@ void CacheManagerHost::EnactStrategy(const AllocationStrategy& strategy) {
   }
 }
 
-void CacheManagerHost::ReviseAllocationStrategy() {
+void WebCacheManager::ReviseAllocationStrategy() {
   DCHECK(stats_.size() <=
       active_renderers_.size() + inactive_renderers_.size());
 
@@ -302,8 +303,8 @@ void CacheManagerHost::ReviseAllocationStrategy() {
   FindInactiveRenderers();
 
   // Gather statistics
-  CacheManager::UsageStats active;
-  CacheManager::UsageStats inactive;
+  WebCache::UsageStats active;
+  WebCache::UsageStats inactive;
   GatherStats(active_renderers_, &active);
   GatherStats(inactive_renderers_, &inactive);
 
@@ -349,16 +350,16 @@ void CacheManagerHost::ReviseAllocationStrategy() {
   }
 }
 
-void CacheManagerHost::ReviseAllocationStrategyLater() {
+void WebCacheManager::ReviseAllocationStrategyLater() {
   // Ask to be called back in a few milliseconds to actually recompute our
   // allocation.
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       revise_allocation_factory_.NewRunnableMethod(
-          &CacheManagerHost::ReviseAllocationStrategy),
+          &WebCacheManager::ReviseAllocationStrategy),
       kReviseAllocationDelayMS);
 }
 
-void CacheManagerHost::FindInactiveRenderers() {
+void WebCacheManager::FindInactiveRenderers() {
   std::set<int>::const_iterator iter = active_renderers_.begin();
   while (iter != active_renderers_.end()) {
     StatsMap::iterator elmt = stats_.find(*iter);

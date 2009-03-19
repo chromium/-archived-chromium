@@ -6,10 +6,8 @@
 // and I'm not really sure what to do about most of them.
 
 #include "config.h"
+#include "webkit/glue/editor_client_impl.h"
 
-#include "base/compiler_specific.h"
-
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "Document.h"
 #include "EditCommand.h"
 #include "Editor.h"
@@ -24,13 +22,11 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "PlatformKeyboardEvent.h"
 #include "PlatformString.h"
 #include "RenderObject.h"
-MSVC_POP_WARNING();
-
-#include "WebKit.h"
 
 #undef LOG
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/glue_util.h"

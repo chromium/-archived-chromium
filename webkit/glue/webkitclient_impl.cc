@@ -4,12 +4,11 @@
 
 #include "webkit/glue/webkitclient_impl.h"
 
-#include "WebCString.h"
-
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/trace_event.h"
 #include "grit/webkit_resources.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
 #include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebClipboard;

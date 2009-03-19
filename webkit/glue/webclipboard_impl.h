@@ -5,7 +5,7 @@
 #ifndef WEBCLIPBOARD_IMPL_H_
 #define WEBCLIPBOARD_IMPL_H_
 
-#include "WebClipboard.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebClipboard.h"
 
 namespace webkit_glue {
 

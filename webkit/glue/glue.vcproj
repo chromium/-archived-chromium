@@ -133,10 +133,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cache_manager.h"
-				>
-			</File>
-			<File
 				RelativePath=".\console_message_level.h"
 				>
 			</File>
@@ -318,10 +314,6 @@
 			</File>
 			<File
 				RelativePath=".\back_forward_list_client_impl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\cache_manager.cc"
 				>
 			</File>
 			<File

@@ -8,7 +8,6 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
-#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/google_url_tracker.h"
@@ -16,6 +15,7 @@
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/password_manager/password_manager.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
+#include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
 #include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/browser/session_startup_pref.h"
@@ -35,7 +35,7 @@ namespace browser {
 void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   // Prefs in Local State
   Browser::RegisterPrefs(local_state);
-  CacheManagerHost::RegisterPrefs(local_state);
+  WebCacheManager::RegisterPrefs(local_state);
   ExternalProtocolHandler::RegisterPrefs(local_state);
   GoogleURLTracker::RegisterPrefs(local_state);
   MetricsLog::RegisterPrefs(local_state);

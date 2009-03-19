@@ -19,7 +19,6 @@
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/transport_dib.h"
-#include "webkit/glue/cache_manager.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/find_in_page_request.h"
 #include "webkit/glue/webcursor.h"
@@ -805,59 +804,6 @@ struct ParamTraits<ConsoleMessageLevel> {
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(StringPrintf(L"%d", p));
-  }
-};
-
-template <>
-struct ParamTraits<CacheManager::ResourceTypeStat> {
-  typedef CacheManager::ResourceTypeStat param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.count);
-    WriteParam(m, p.size);
-    WriteParam(m, p.live_size);
-    WriteParam(m, p.decoded_size);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    bool result =
-        ReadParam(m, iter, &r->count) &&
-        ReadParam(m, iter, &r->size) &&
-        ReadParam(m, iter, &r->live_size) &&
-        ReadParam(m, iter, &r->decoded_size);
-    return result;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"%d %d %d %d", p.count, p.size, p.live_size,
-        p.decoded_size));
-  }
-};
-
-template <>
-struct ParamTraits<CacheManager::ResourceTypeStats> {
-  typedef CacheManager::ResourceTypeStats param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.images);
-    WriteParam(m, p.css_stylesheets);
-    WriteParam(m, p.scripts);
-    WriteParam(m, p.xsl_stylesheets);
-    WriteParam(m, p.fonts);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    bool result =
-      ReadParam(m, iter, &r->images) &&
-      ReadParam(m, iter, &r->css_stylesheets) &&
-      ReadParam(m, iter, &r->scripts) &&
-      ReadParam(m, iter, &r->xsl_stylesheets) &&
-      ReadParam(m, iter, &r->fonts);
-    return result;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<WebCoreStats>");
-    LogParam(p.images, l);
-    LogParam(p.css_stylesheets, l);
-    LogParam(p.scripts, l);
-    LogParam(p.xsl_stylesheets, l);
-    LogParam(p.fonts, l);
-    l->append(L"</WebCoreStats>");
   }
 };
 

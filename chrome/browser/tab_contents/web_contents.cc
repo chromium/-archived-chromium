@@ -29,6 +29,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
@@ -49,7 +50,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): fill these in as we flesh out the implementation of this class
-#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/modal_html_dialog_delegate.h"
 #include "chrome/browser/plugin_service.h"
@@ -471,7 +471,7 @@ void WebContents::DidBecomeSelected() {
   // If pid() is -1, that means the RenderProcessHost still hasn't been
   // initialized.  It'll register with CacheManagerHost when it is.
   if (process()->pid() != -1)
-    CacheManagerHost::GetInstance()->ObserveActivity(process()->pid());
+    WebCacheManager::GetInstance()->ObserveActivity(process()->pid());
 }
 
 void WebContents::WasHidden() {

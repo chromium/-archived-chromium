@@ -3,20 +3,14 @@
 // found in the LICENSE file.
 
 #include "config.h"
-#include "base/compiler_specific.h"
-
 #include "webkit/glue/glue_util.h"
 
 #include <string>
 
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "CString.h"
 #include "IntRect.h"
 #include "PlatformString.h"
 #include "KURL.h"
-MSVC_POP_WARNING();
-
-#include "WebString.h"
 
 #undef LOG
 #include "base/compiler_specific.h"
@@ -25,6 +19,7 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 
 
 // TODO(darin): This file will be deleted once we complete the move to

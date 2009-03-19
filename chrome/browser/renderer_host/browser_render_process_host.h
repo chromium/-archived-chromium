@@ -19,7 +19,7 @@
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/notification_observer.h"
-#include "webkit/glue/cache_manager.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
 
 class CommandLine;
 class GURL;
@@ -99,7 +99,7 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(string16* markup, GURL* src_url);
 
-  void OnUpdatedCacheStats(const CacheManager::UsageStats& stats);
+  void OnUpdatedCacheStats(const WebKit::WebCache::UsageStats& stats);
 
   // Initialize support for visited links. Send the renderer process its initial
   // set of visited links.

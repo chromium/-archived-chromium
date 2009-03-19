@@ -8,8 +8,6 @@
 
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
-#include "WebKit.h"
-
 #include "base/file_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/native_widget_types.h"
@@ -17,6 +15,7 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -163,7 +162,7 @@ std::string TestWebViewDelegate::GetResourceDescription(uint32 identifier) {
 void TestWebViewDelegate::WillSendRequest(WebView* webview,
                                           uint32 identifier,
                                           WebRequest* request) {
-  GURL url = request->GetURL();                                           
+  GURL url = request->GetURL();
   std::string request_url = url.possibly_invalid_spec();
   std::string host = request->GetURL().host();
 
@@ -180,7 +179,7 @@ void TestWebViewDelegate::WillSendRequest(WebView* webview,
                                      // back an error.
        host != "localhost") {
     printf("Blocked access to external URL %s\n", request_url.c_str());
-    
+
     // To block the request, we set its URL to an empty one.
     request->SetURL(GURL());
     return;

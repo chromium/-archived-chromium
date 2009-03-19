@@ -19,7 +19,6 @@
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
-#include "chrome/browser/cache_manager_host.h"
 #include "chrome/browser/debugger/debugger_shell.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/download/download_request_dialog_delegate.h"

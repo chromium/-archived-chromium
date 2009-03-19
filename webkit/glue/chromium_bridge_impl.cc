@@ -25,8 +25,6 @@
 #include "Widget.h"
 #include <wtf/CurrentTime.h>
 
-#include "WebKit.h"
-
 #undef LOG
 #include "base/file_util.h"
 #include "base/string_util.h"

@@ -2,8 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// Creates an instance of the test_shell.
-#include "build/build_config.h"
+#include <iostream>
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
@@ -25,6 +24,7 @@
 #include "net/http/http_cache.h"
 #include "net/base/ssl_test_util.h"
 #include "net/url_request/url_request_context.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/extensions/v8/gc_extension.h"
@@ -37,9 +37,6 @@
 #include "webkit/tools/test_shell/test_shell_switches.h"
 #include "webkit/tools/test_shell/test_shell_webkit_init.h"
 
-#include "WebKit.h"
-
-#include <iostream>
 using namespace std;
 
 static const size_t kPathBufSize = 2048;

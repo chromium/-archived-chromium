@@ -4,16 +4,15 @@
 
 #include "webkit/glue/webclipboard_impl.h"
 
-#include "WebImage.h"
-#include "WebString.h"
-#include "WebURL.h"
-
 #include "base/clipboard.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebImage.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webkit_glue.h"
 

@@ -6,6 +6,8 @@
 
 #include "build/build_config.h"
 
+#include <vector>
+
 #if defined(OS_WIN)
 #include <windows.h>
 #include <wininet.h>
@@ -22,15 +24,12 @@
 #include "chrome/renderer/render_process.h"
 #include "chrome/renderer/render_thread.h"
 #include "googleurl/src/url_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/scoped_clipboard_writer_glue.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
-
-#include "WebKit.h"
-#include "WebKitClient.h"
-#include "WebString.h"
-
-#include <vector>
 
 #include "SkBitmap.h"
 
@@ -241,7 +240,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     ResourceType::Type resource_type,
     int routing_id) {
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
-  return dispatch->CreateBridge(method, url, policy_url, referrer, 
+  return dispatch->CreateBridge(method, url, policy_url, referrer,
                                 frame_origin, main_frame_origin, headers,
                                 load_flags, origin_pid, resource_type,
                                 0, routing_id);

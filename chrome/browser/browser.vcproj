@@ -314,14 +314,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\cache_manager_host.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\cache_manager_host.h"
-				>
-			</File>
-			<File
 				RelativePath=".\cancelable_request.cc"
 				>
 			</File>
@@ -2155,6 +2147,14 @@
 			</File>
 			<File
 				RelativePath=".\renderer_host\sync_resource_handler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\web_cache_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\web_cache_manager.h"
 				>
 			</File>
 		</Filter>

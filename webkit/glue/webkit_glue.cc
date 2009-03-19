@@ -2,17 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/compiler_specific.h"
-#include "build/build_config.h"
+#include "config.h"
+#include "webkit/glue/webkit_glue.h"
 
 #if defined(OS_WIN)
 #include <objidl.h>
 #include <mlang.h>
 #endif
 
-#include "config.h"
-#include "webkit_version.h"
-MSVC_PUSH_WARNING_LEVEL(0);
 #include "BackForwardList.h"
 #include "Document.h"
 #include "FrameTree.h"
@@ -27,13 +24,8 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "RenderView.h"
 #include "ScriptController.h"
 #include "SharedBuffer.h"
-MSVC_POP_WARNING();
-
-#include "WebString.h"
 
 #undef LOG
-#include "webkit/glue/webkit_glue.h"
-
 #include "base/file_version_info.h"
 #include "base/singleton.h"
 #include "base/string_piece.h"
@@ -41,11 +33,14 @@ MSVC_POP_WARNING();
 #include "base/sys_info.h"
 #include "base/sys_string_conversions.h"
 #include "skia/include/SkBitmap.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_impl.h"
+
+#include "webkit_version.h"  // Generated
 
 //------------------------------------------------------------------------------
 // webkit_glue impl:

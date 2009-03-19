@@ -5,11 +5,9 @@
 #ifndef WEBKIT_CLIENT_IMPL_H_
 #define WEBKIT_CLIENT_IMPL_H_
 
-#include "WebKitClient.h"
-
 #include "base/timer.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
 #include "webkit/glue/webclipboard_impl.h"
-
 #if defined(OS_WIN)
 #include "webkit/glue/webthemeengine_impl_win.h"
 #endif
