@@ -335,7 +335,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // short-circuiting searches in the following scenarios: When a frame has
   // been searched and returned 0 results, we don't need to search that frame
   // again if the user is just adding to the search (making it more specific).
-  std::wstring last_search_string_;
+  string16 last_search_string_;
 
   // Keeps track of how many matches this frame has found so far, so that we
   // don't loose count between scoping efforts, and is also used (in conjunction

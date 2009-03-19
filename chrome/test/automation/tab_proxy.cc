@@ -52,7 +52,7 @@ int TabProxy::FindInPage(const std::wstring& search_string,
     return -1;
 
   FindInPageRequest request = {0};
-  request.search_string = search_string;
+  request.search_string = WideToUTF16(search_string);
   request.find_next = find_next;
   // The explicit comparison to TRUE avoids a warning (C4800).
   request.match_case = match_case == TRUE;

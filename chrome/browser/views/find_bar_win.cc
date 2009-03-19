@@ -207,7 +207,7 @@ void FindBarWin::StopAnimation() {
     animation_->End();
 }
 
-void FindBarWin::SetFindText(const std::wstring& find_text) {
+void FindBarWin::SetFindText(const string16& find_text) {
   view_->SetFindText(find_text);
 }
 
@@ -477,7 +477,7 @@ void FindBarWin::UnregisterEscAccelerator() {
 }
 
 void FindBarWin::UpdateUIForFindResult(const FindNotificationDetails& result,
-                                       const std::wstring& find_text) {
+                                       const string16& find_text) {
   view_->UpdateForResult(result, find_text);
 
   // We now need to check if the window is obscuring the search results.

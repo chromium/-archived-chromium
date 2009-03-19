@@ -7,8 +7,6 @@
 
 #include <gtk/gtk.h>
 
-#include <string>
-
 #include "base/basictypes.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/common/owned_widget_gtk.h"
@@ -42,9 +40,9 @@ class FindBarGtk : public FindBar {
   virtual void SetFocusAndSelection();
   virtual void ClearResults(const FindNotificationDetails& results);
   virtual void StopAnimation();
-  virtual void SetFindText(const std::wstring& find_text);
+  virtual void SetFindText(const string16& find_text);
   virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
-                                     const std::wstring& find_text);
+                                     const string16& find_text);
   virtual gfx::Rect GetDialogPosition(gfx::Rect avoid_overlapping_rect);
   virtual void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
   virtual bool IsFindBarVisible();

@@ -342,7 +342,7 @@ bool RenderViewHost::PrintPages() {
 }
 
 void RenderViewHost::StartFinding(int request_id,
-                                  const std::wstring& search_string,
+                                  const string16& search_string,
                                   bool forward,
                                   bool match_case,
                                   bool find_next) {

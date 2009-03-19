@@ -66,11 +66,11 @@ void FindBarGtk::StopAnimation() {
   // No animation yet, so do nothing.
 }
 
-void FindBarGtk::SetFindText(const std::wstring& find_text) {
+void FindBarGtk::SetFindText(const string16& find_text) {
 }
 
 void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
-                                       const std::wstring& find_text) {
+                                       const string16& find_text) {
 }
 
 gfx::Rect FindBarGtk::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
@@ -95,7 +95,7 @@ void FindBarGtk::ContentsChanged() {
   std::string new_contents(gtk_entry_get_text(GTK_ENTRY(find_text_)));
 
   if (new_contents.length() > 0) {
-    web_contents->StartFinding(UTF8ToWide(new_contents), true);
+    web_contents->StartFinding(UTF8ToUTF16(new_contents), true);
   } else {
     // The textbox is empty so we reset.
     web_contents->StopFinding(true);  // true = clear selection on page.

@@ -186,7 +186,7 @@ class RenderViewHost : public RenderWidgetHost {
   // Start looking for a string within the content of the page, with the
   // specified options.
   void StartFinding(int request_id,
-                    const std::wstring& search_string,
+                    const string16& search_string,
                     bool forward,
                     bool match_case,
                     bool find_next);

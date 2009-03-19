@@ -195,7 +195,7 @@ class WebContents : public TabContents,
   // function does not block while a search is in progress. The controller will
   // receive the results through the notification mechanism. See Observe(...)
   // for details.
-  void StartFinding(const std::wstring& find_text, bool forward_direction);
+  void StartFinding(const string16& find_text, bool forward_direction);
 
   // Stops the current Find operation. If |clear_selection| is true, it will
   // also clear the selection on the focused frame.
@@ -216,7 +216,7 @@ class WebContents : public TabContents,
 
   // Accessor for find_text_. Used to determine if this WebContents has any
   // active searches.
-  std::wstring find_text() const { return find_text_; }
+  string16 find_text() const { return find_text_; }
 
   // Accessor for find_result_.
   const FindNotificationDetails& find_result() const { return find_result_; }
@@ -685,7 +685,7 @@ class WebContents : public TabContents,
 
   // The last string we searched for. This is used to figure out if this is a
   // Find or a FindNext operation (FindNext should not increase the request id).
-  std::wstring find_text_;
+  string16 find_text_;
 
   // The last find result. This object contains details about the number of
   // matches, the find selection rectangle, etc. The UI can access this

@@ -926,7 +926,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
                         bool wrap_within_frame,
                         gfx::Rect* selection_rect) {
   WebCore::String webcore_string =
-      webkit_glue::StdWStringToString(request.search_string);
+      webkit_glue::String16ToString(request.search_string);
 
   WebFrameImpl* const main_frame_impl =
       static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
@@ -1045,9 +1045,9 @@ bool WebFrameImpl::ShouldScopeMatches(FindInPageRequest request) {
   // time it was searched, then we don't have to search it again if the user is
   // just adding to the search string or sending the same search string again.
   if (scoping_complete_ &&
-      last_search_string_ != std::wstring(L"") && last_match_count_ == 0) {
+      !last_search_string_.empty() && last_match_count_ == 0) {
     // Check to see if the search string prefixes match.
-    std::wstring previous_search_prefix =
+    string16 previous_search_prefix =
         request.search_string.substr(0, last_search_string_.length());
 
     if (previous_search_prefix == last_search_string_) {
@@ -1142,7 +1142,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   }
 
   WebCore::String webcore_string =
-      webkit_glue::StdWStringToString(request.search_string);
+      webkit_glue::String16ToString(request.search_string);
 
   RefPtr<Range> search_range(rangeOfContents(frame()->document()));
 

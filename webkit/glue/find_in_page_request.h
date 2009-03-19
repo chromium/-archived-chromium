@@ -5,7 +5,7 @@
 #ifndef WEBKIT_GLUE_FIND_IN_PAGE_REQUEST_H__
 #define WEBKIT_GLUE_FIND_IN_PAGE_REQUEST_H__
 
-#include <string>
+#include "base/string16.h"
 
 // Parameters for a find in page request.
 struct FindInPageRequest {
@@ -15,7 +15,7 @@ struct FindInPageRequest {
   int request_id;
 
   // The word(s) to find on the page.
-  std::wstring search_string;
+  string16 search_string;
 
   // Whether to search forward or backward within the page.
   bool forward;

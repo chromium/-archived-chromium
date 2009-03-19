@@ -584,7 +584,7 @@ void WebContents::CreateShortcut() {
   render_view_host()->GetApplicationInfo(pending_install_.page_id);
 }
 
-void WebContents::StartFinding(const std::wstring& find_text,
+void WebContents::StartFinding(const string16& find_text,
                                bool forward_direction) {
   // If find_text is empty, it means FindNext was pressed with a keyboard
   // shortcut so unless we have something to search for we return early.

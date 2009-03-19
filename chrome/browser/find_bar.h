@@ -10,6 +10,7 @@
 #define CHROME_BROWSER_FIND_BAR_H_
 
 #include "base/gfx/rect.h"
+#include "base/string16.h"
 
 class FindNotificationDetails;
 class WebContents;
@@ -35,12 +36,12 @@ class FindBar {
   virtual void StopAnimation() = 0;
 
   // Set the text in the find box.
-  virtual void SetFindText(const std::wstring& find_text) = 0;
+  virtual void SetFindText(const string16& find_text) = 0;
 
   // Updates the FindBar with the find result details contained within the
   // specified |result|.
   virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
-                                     const std::wstring& find_text) = 0;
+                                     const string16& find_text) = 0;
 
   // Returns the rectangle representing where to position the find bar. It uses
   // GetDialogBounds and positions itself within that, either to the left (if an

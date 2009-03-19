@@ -2456,7 +2456,7 @@ void Browser::FindInPage(bool find_next, bool forward_direction) {
   window_->ShowFindBar();
   if (find_next) {
     GetSelectedTabContents()->AsWebContents()->StartFinding(
-        std::wstring(),
+        string16(),
         forward_direction);
   }
 }
