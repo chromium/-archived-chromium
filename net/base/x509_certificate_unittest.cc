@@ -554,4 +554,40 @@ TEST(X509CertificateTest, Pickle) {
   EXPECT_EQ(cert1, cert2);
 }
 
+TEST(X509CertificateTest, Policy) {
+  scoped_refptr<X509Certificate> google_cert = X509Certificate::CreateFromBytes(
+      reinterpret_cast<const char*>(google_der), sizeof(google_der));
+
+  scoped_refptr<X509Certificate> webkit_cert = X509Certificate::CreateFromBytes(
+      reinterpret_cast<const char*>(webkit_der), sizeof(webkit_der));
+
+  X509Certificate::Policy policy;
+
+  EXPECT_EQ(policy.Check(google_cert.get()), X509Certificate::Policy::UNKNOWN);
+  EXPECT_EQ(policy.Check(webkit_cert.get()), X509Certificate::Policy::UNKNOWN);
+  EXPECT_FALSE(policy.HasAllowedCert());
+  EXPECT_FALSE(policy.HasDeniedCert());
+
+  policy.Allow(google_cert.get());
+
+  EXPECT_EQ(policy.Check(google_cert.get()), X509Certificate::Policy::ALLOWED);
+  EXPECT_EQ(policy.Check(webkit_cert.get()), X509Certificate::Policy::UNKNOWN);
+  EXPECT_TRUE(policy.HasAllowedCert());
+  EXPECT_FALSE(policy.HasDeniedCert());
+
+  policy.Deny(google_cert.get());
+
+  EXPECT_EQ(policy.Check(google_cert.get()), X509Certificate::Policy::DENIED);
+  EXPECT_EQ(policy.Check(webkit_cert.get()), X509Certificate::Policy::UNKNOWN);
+  EXPECT_FALSE(policy.HasAllowedCert());
+  EXPECT_TRUE(policy.HasDeniedCert());
+
+  policy.Allow(webkit_cert.get());
+
+  EXPECT_EQ(policy.Check(google_cert.get()), X509Certificate::Policy::DENIED);
+  EXPECT_EQ(policy.Check(webkit_cert.get()), X509Certificate::Policy::ALLOWED);
+  EXPECT_TRUE(policy.HasAllowedCert());
+  EXPECT_TRUE(policy.HasDeniedCert());
+}
+
 }  // namespace net
