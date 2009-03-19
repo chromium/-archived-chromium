@@ -157,6 +157,8 @@ extern const wchar_t kEnableOutOfProcessDevTools[];
 
 extern const wchar_t kEnableWebWorkers[];
 
+extern const wchar_t kViewsGtk[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__

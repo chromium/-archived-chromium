@@ -7,6 +7,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "base/base_paths_linux.h"
+#include "base/command_line.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -21,6 +22,7 @@
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/theme_resources.h"
 
@@ -146,6 +148,17 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   gtk_widget_set_double_buffered(vbox_, FALSE);
   g_signal_connect(G_OBJECT(vbox_), "expose-event",
                    G_CALLBACK(&OnContentAreaExpose), this);
+
+  // Temporary hack hidden behind a command line option to add one of the
+  // experimental ViewsGtk objects to the Gtk hierarchy.
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
+  if (parsed_command_line.HasSwitch(switches::kViewsGtk)) {
+    experimental_widget_.reset(new views::WidgetGtk());
+    experimental_widget_->Init(gfx::Rect(), false);
+    gtk_box_pack_start(GTK_BOX(vbox_),
+                       experimental_widget_->GetNativeView(),
+                       false, false, 2);
+  }
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile(), window_);

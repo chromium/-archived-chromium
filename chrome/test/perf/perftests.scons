@@ -40,6 +40,8 @@ env.Prepend(
         'PERF_TEST',
     ],
     LIBS = [
+        'views',
+
         'browser',
         'common',
         'sqlite',

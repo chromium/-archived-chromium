@@ -11,10 +11,15 @@ namespace views {
 
 Event::Event(EventType type, int flags)
     : type_(type),
+#if defined(OS_WIN)
       time_stamp_(GetTickCount()),
+#else
+      time_stamp_(0),
+#endif
       flags_(flags) {
 }
 
+#if defined(OS_WIN)
 int Event::GetWindowsFlags() const {
   // TODO: need support for x1/x2.
   int result = 0;
@@ -43,6 +48,7 @@ int Event::ConvertWindowsFlags(UINT win_flags) {
     r |= EF_RIGHT_BUTTON_DOWN;
   return r;
 }
+#endif
 
 // static
 int Event::ConvertWebInputEventFlags(int web_input_event_flags) {
@@ -77,7 +83,9 @@ MouseEvent::MouseEvent(const MouseEvent& model, View* from, View* to)
     : LocatedEvent(model, from, to) {
 }
 
+
 int KeyEvent::GetKeyStateFlags() const {
+#if defined(OS_WIN)
   // Windows Keyboard messages don't come with control key state as parameters
   // like mouse messages do, so we need to explicitly probe for these key
   // states.
@@ -89,10 +97,16 @@ int KeyEvent::GetKeyStateFlags() const {
   if (GetKeyState(VK_CONTROL) & 0x80)
     flags |= Event::EF_CONTROL_DOWN;
   return flags;
+#else
+  return 0;
+#endif
 }
 
+#if defined(OS_WIN)
 bool KeyEvent::IsExtendedKey() const {
   return (message_flags_ & KF_EXTENDED) == KF_EXTENDED;
 }
+#endif
 
 }  // namespace views
+ 

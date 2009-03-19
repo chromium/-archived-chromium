@@ -972,6 +972,8 @@ void View::RemoveAccelerator(const Accelerator& accelerator) {
     return;
   }
 
+  // TODO(port): Fix this once we have a FocusManger for Linux.
+#if defined(OS_WIN)
   FocusManager* focus_manager = GetFocusManager();
   if (focus_manager) {
     // We may not have a FocusManager if the window containing us is being
@@ -979,6 +981,7 @@ void View::RemoveAccelerator(const Accelerator& accelerator) {
     // nothing to unregister.
     focus_manager->UnregisterAccelerator(accelerator, this);
   }
+#endif
 }
 
 void View::ResetAccelerators() {
@@ -999,6 +1002,9 @@ void View::RegisterAccelerators() {
     // added to one.
     return;
   }
+
+  // TODO(port): Fix this once we have a FocusManger for Linux.
+#if defined(OS_WIN)
   FocusManager* focus_manager = GetFocusManager();
   if (!focus_manager) {
     // Some crash reports seem to show that we may get cases where we have no
@@ -1011,6 +1017,7 @@ void View::RegisterAccelerators() {
        iter != accelerators_->end(); ++iter) {
     focus_manager->RegisterAccelerator(*iter, this);
   }
+#endif
 }
 
 void View::UnregisterAccelerators() {
@@ -1019,6 +1026,8 @@ void View::UnregisterAccelerators() {
 
   RootView* root_view = GetRootView();
   if (root_view) {
+    // TODO(port): Fix this once we have a FocusManger for Linux.
+#if defined(OS_WIN)
     FocusManager* focus_manager = GetFocusManager();
     if (focus_manager) {
       // We may not have a FocusManager if the window containing us is being
@@ -1026,6 +1035,7 @@ void View::UnregisterAccelerators() {
       // nothing to unregister.
       focus_manager->UnregisterAccelerators(this);
     }
+#endif
   }
 }
 
@@ -1143,7 +1153,10 @@ void View::DetachAllFloatingViews() {
       if (EnumerateFloatingViews(CURRENT,
                                  floating_views_[c]->GetFloatingViewID(),
                                  &tmp_id)) {
+        // TODO(port): Fix this once we have a FocusManger for Linux.
+#if defined(OS_WIN)
         focus_manager->StoreFocusedView();
+#endif
         should_restore_focus_ = true;
       }
       focused_view = NULL;
@@ -1178,10 +1191,13 @@ void View::RestoreFloatingViewFocus() {
   restore_focus_view_task_ = NULL;
   should_restore_focus_ = false;
 
+  // TODO(port): Fix this once we have a FocusManger for Linux.
+#if defined(OS_WIN)
   FocusManager* focus_manager = GetFocusManager();
   DCHECK(focus_manager);
   if (focus_manager)
     focus_manager->RestoreFocusedView();
+#endif
 }
 
 // static

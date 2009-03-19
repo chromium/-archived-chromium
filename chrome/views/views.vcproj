@@ -776,6 +776,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\fill_layout.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\fill_layout.h"
+			>
+		</File>
+		<File
 			RelativePath=".\grid_layout.cc"
 			>
 		</File>

@@ -38,6 +38,8 @@ env.Prepend(
         '$CHROME_SRC_DIR',
     ],
     LIBS = [
+        'views',
+
         'browser',
         'common',
         'debugger',

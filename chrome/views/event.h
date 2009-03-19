@@ -80,11 +80,13 @@ class Event {
     return (flags_ & EF_ALT_DOWN) != 0;
   }
 
+#if defined(OS_WIN)
   // Returns the EventFlags in terms of windows flags.
   int GetWindowsFlags() const;
 
   // Convert windows flags to views::Event flags
   static int ConvertWindowsFlags(uint32 win_flags);
+#endif
 
   // Convert WebInputEvent::Modifiers flags to views::Event flags.
   // Note that this only deals with keyboard modifiers.
@@ -231,7 +233,9 @@ class KeyEvent : public Event {
     return character_;
   }
 
+#if defined(OS_WIN)
   bool IsExtendedKey() const;
+#endif
 
   int GetRepeatCount() const {
     return repeat_count_;

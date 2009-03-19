@@ -13,6 +13,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/accessibility/view_accessibility.h"
 #include "chrome/views/controls/native_control_win.h"
+#include "chrome/views/fill_layout.h"
 #include "chrome/views/widget/aero_tooltip_manager.h"
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
@@ -46,28 +47,6 @@ NativeControlWin* GetNativeControlWinForHWND(HWND hwnd) {
 // This obviously assumes we only create WidgetWins from the same thread,
 // which is currently the case.
 static WidgetWin* instance_issuing_create = NULL;
-
-///////////////////////////////////////////////////////////////////////////////
-// FillLayout
-
-FillLayout::FillLayout() {
-}
-
-FillLayout::~FillLayout() {
-}
-
-void FillLayout::Layout(View* host) {
-  if (host->GetChildViewCount() == 0)
-    return;
-
-  View* frame_view = host->GetChildViewAt(0);
-  frame_view->SetBounds(0, 0, host->width(), host->height());
-}
-
-gfx::Size FillLayout::GetPreferredSize(View* host) {
-  DCHECK(host->GetChildViewCount() == 1);
-  return host->GetChildViewAt(0)->GetPreferredSize();
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Window class tracking.

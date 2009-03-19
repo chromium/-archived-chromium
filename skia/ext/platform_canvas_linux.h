@@ -9,6 +9,9 @@
 
 #include "skia/ext/platform_device_linux.h"
 
+#include <cairo/cairo.h>
+#include <gdk/gdk.h>
+
 namespace skia {
 
 // This class is a specialization of the regular SkCanvas that is designed to
@@ -63,6 +66,72 @@ class PlatformCanvasLinux : public SkCanvas {
   // Disallow copy and assign.
   PlatformCanvasLinux(const PlatformCanvasLinux&);
   PlatformCanvasLinux& operator=(const PlatformCanvasLinux&);
+};
+
+// A class designed to translate skia painting into a region in a
+// GdkWindow. This class has been adapted from the class with the same name in
+// platform_canvas_win.h. On construction, it will set up a context for
+// painting into, and on destruction, it will commit it to the GdkWindow.
+template <class T>
+class CanvasPaintT : public T {
+ public:
+  explicit CanvasPaintT(GdkEventExpose* event)
+      : surface_(NULL),
+        window_(event->window),
+        rectangle_(event->area) {
+    init(true);
+  }
+
+  CanvasPaintT(GdkEventExpose* event, bool opaque)
+      : surface_(NULL),
+        window_(event->window),
+        rectangle_(event->area) {
+    init(opaque);
+  }
+
+  virtual ~CanvasPaintT() {
+    if (!isEmpty()) {
+      T::restoreToCount(1);
+
+      cairo_t* cairo_drawable = gdk_cairo_create(window_);
+      cairo_set_source_surface(cairo_drawable, surface_, 0, 0);
+      cairo_paint(cairo_drawable);
+      cairo_destroy(cairo_drawable);
+
+      gdk_window_end_paint(window_);
+    }
+  }
+
+  // Returns true if the invalid region is empty. The caller should call this
+  // function to determine if anything needs painting.
+  bool isEmpty() const {
+    return rectangle_.width == 0 || rectangle_.height == 0;
+  }
+
+ private:
+  void init(bool opaque) {
+    gdk_window_begin_paint_rect(window_, &rectangle_);
+
+    if (!T::initialize(rectangle_.width, rectangle_.height, opaque, NULL)) {
+      // Cause a deliberate crash;
+      *(char*) 0 = 0;
+    }
+
+    surface_ = T::getTopPlatformDevice().beginPlatformPaint();
+
+    // This will bring the canvas into the screen coordinate system for the
+    // dirty rect
+    T::translate(SkIntToScalar(-rectangle_.x),
+                 SkIntToScalar(-rectangle_.y));
+  }
+
+  cairo_surface_t* surface_;
+  GdkWindow* window_;
+  GdkRectangle rectangle_;
+
+  // Disallow copy and assign.
+  CanvasPaintT(const CanvasPaintT&);
+  CanvasPaintT& operator=(const CanvasPaintT&);
 };
 
 }  // namespace skia

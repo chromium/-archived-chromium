@@ -42,6 +42,7 @@ env.Prepend(
         'port',
         'sqlite',
         'WTF',
+        'views',
     ]
 )
 

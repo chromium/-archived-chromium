@@ -406,4 +406,7 @@ const wchar_t kEnableOutOfProcessDevTools[]    = L"enable-oop-devtools";
 // Enable HTML5 Worker support
 const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
 
+// Enables experimental views under gtk.
+const wchar_t kViewsGtk[] = L"views-gtk";
+
 }  // namespace switches

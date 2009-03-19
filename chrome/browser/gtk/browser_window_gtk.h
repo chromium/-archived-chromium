@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/views/widget/widget_gtk.h"
 
 class BrowserToolbarGtk;
 class FindBarController;
@@ -137,6 +138,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // non-NULL, it may or may not be visible.  It is possible for the Find Bar
   // to move among windows as tabs are dragged around.
   scoped_ptr<FindBarController> find_bar_controller_;
+
+  // Experiment with using views for gtk.
+  scoped_ptr<views::WidgetGtk> experimental_widget_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BROWSER_WINDOW_GTK_H_

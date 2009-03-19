@@ -14,8 +14,6 @@
 #include "chrome/common/x11_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "skia/ext/bitmap_platform_device_linux.h"
-#include "skia/ext/platform_device_linux.h"
 #include "webkit/glue/webinputevent.h"
 
 namespace {
