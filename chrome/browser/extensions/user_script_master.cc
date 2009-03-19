@@ -130,9 +130,9 @@ void UserScriptMaster::ScriptReloader::NotifyMaster(
 
 static void LoadScriptContent(UserScript::File* script_file) {
   std::string content;
-  CHECK(file_util::ReadFileToString(script_file->path(), &content)) <<
-    "Failed to read script content: " << script_file->path().value();
+  file_util::ReadFileToString(script_file->path(), &content);
   script_file->set_content(content);
+  LOG(INFO) << "Loaded user script file: " << script_file->path().value();
 }
 
 void UserScriptMaster::ScriptReloader::LoadScriptsFromDirectory(
@@ -164,16 +164,17 @@ void UserScriptMaster::ScriptReloader::LoadScriptsFromDirectory(
   }
 }
 
-static void LoadLoneScripts(UserScriptList lone_script) {
-  for (size_t i = 0; i < lone_script.size(); ++i) {
-    for (size_t k = 0; k < lone_script[i].js_scripts().size(); ++k) {
-      UserScript::File& script_file = lone_script[i].js_scripts()[k];
+static void LoadLoneScripts(UserScriptList* lone_scripts) {
+  for (size_t i = 0; i < lone_scripts->size(); ++i) {
+    UserScript& script = lone_scripts->at(i);
+    for (size_t k = 0; k < script.js_scripts().size(); ++k) {
+      UserScript::File& script_file = script.js_scripts()[k];
       if (script_file.GetContent().empty()) {
         LoadScriptContent(&script_file);
       }
     }
-    for (size_t k = 0; k < lone_script[i].css_scripts().size(); ++k) {
-      UserScript::File& script_file = lone_script[i].css_scripts()[k];
+    for (size_t k = 0; k < script.css_scripts().size(); ++k) {
+      UserScript::File& script_file = script.css_scripts()[k];
       if (script_file.GetContent().empty()) {
         LoadScriptContent(&script_file);
       }
@@ -230,7 +231,7 @@ void UserScriptMaster::ScriptReloader::RunScan(
   if (!script_dir.empty())
     LoadScriptsFromDirectory(script_dir, &scripts);
 
-  LoadLoneScripts(lone_script);
+  LoadLoneScripts(&lone_script);
 
   // Merge with the explicit scripts
   scripts.reserve(scripts.size() + lone_script.size());
