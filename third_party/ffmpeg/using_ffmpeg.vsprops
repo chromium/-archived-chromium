@@ -10,7 +10,7 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalDependencies="$(OutDir)\lib\avcodec-52.lib $(OutDir)\lib\avformat-52.lib $(OutDir)\lib\avutil-49.lib"
+		AdditionalDependencies="avcodec-52.lib avformat-52.lib avutil-49.lib"
 		DelayLoadDLLs="avcodec-52.dll;avformat-52.dll;avutil-49.dll"
 	/>
 </VisualStudioPropertySheet>

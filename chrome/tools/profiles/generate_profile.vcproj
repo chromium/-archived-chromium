@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;..\..\..\skia\using_skia.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\third_party\ffmpeg\using_ffmpeg.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;..\..\..\skia\using_skia.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -83,7 +83,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;..\..\..\skia\using_skia.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;..\..\..\third_party\ffmpeg\using_ffmpeg.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;..\..\..\skia\using_skia.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"

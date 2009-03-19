@@ -8,6 +8,10 @@
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "googleurl/src/gurl.h"
+#if defined(OS_WIN)
+// FFmpeg is not ready for Linux and Mac yet.
+#include "media/filters/ffmpeg_demuxer.h"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Task to be posted on main thread that fire WebMediaPlayer methods.
@@ -52,6 +56,10 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       view_(view),
       tasks_(kLastTaskIndex) {
   // TODO(hclam): Add filter factory for demuxer and decoders.
+#if defined(OS_WIN)
+  // FFmpeg is not ready for Linux and Mac yet.
+  filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
+#endif
   filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(this));
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
   filter_factory_->AddFactory(DataSourceImpl::CreateFactory(this));
