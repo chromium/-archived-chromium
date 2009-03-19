@@ -499,9 +499,11 @@ void View::ProcessMouseReleased(const MouseEvent& e, bool canceled) {
     // Assume that if there is a context menu controller we won't be deleted
     // from mouse released.
     gfx::Point location(e.location());
-    ConvertPointToScreen(this, &location);
     OnMouseReleased(e, canceled);
-    ShowContextMenu(location.x(), location.y(), true);
+    if (HitTest(location)) {
+      ConvertPointToScreen(this, &location);
+      ShowContextMenu(location.x(), location.y(), true);
+    }
   } else {
     OnMouseReleased(e, canceled);
   }
