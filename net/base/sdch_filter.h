@@ -55,6 +55,10 @@ class SdchFilter : public Filter {
     PASS_THROUGH,  // Non-sdch content being passed without alteration.
   };
 
+  // Update the read_times_ array with time estimates for the number of packets
+  // read so far.
+  void UpdateReadTimes();
+
   // Identify the suggested dictionary, and initialize underlying decompressor.
   Filter::FilterStatus InitializeDictionary();
 
@@ -101,8 +105,10 @@ class SdchFilter : public Filter {
   size_t source_bytes_;
   size_t output_bytes_;
 
-  // Record of chunk processing times for this filter.  Used only for stats
-  // generations in histograms.
+  // Record of packet processing times for this filter.  Used only for stats
+  // generations in histograms.  There is one time entry each time the byte
+  // count receieved exceeds the next multiple of 1430 bytes (a common
+  // per-TCP/IP-packet payload size).
   std::vector<base::Time> read_times_;
 
   // Error recovery in content type may add an sdch filter type, in which case
