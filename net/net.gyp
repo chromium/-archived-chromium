@@ -183,6 +183,8 @@
         'disk_cache/trace.h',
         'ftp/ftp_auth_cache.cc',
         'ftp/ftp_auth_cache.h',
+        'ftp/ftp_directory_parser.cc',
+        'ftp/ftp_directory_parser.h',
         'ftp/ftp_network_layer.cc',
         'ftp/ftp_network_layer.h',
         'ftp/ftp_network_session.h',
