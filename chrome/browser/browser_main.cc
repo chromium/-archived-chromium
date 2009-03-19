@@ -269,15 +269,6 @@ int BrowserMain(const MainFunctionParams& parameters) {
       local_state->SetString(prefs::kApplicationLocale, install_lang);
     if (GoogleUpdateSettings::GetCollectStatsConsent())
       local_state->SetBoolean(prefs::kMetricsReportingEnabled, true);
-    // On first run, we  need to process the master preferences before the
-    // browser's profile_manager object is created.
-    first_run_ui_bypass =
-        !FirstRun::ProcessMasterPreferences(user_data_dir, FilePath(), NULL);
-
-    // If we are running in App mode, we do not want to show the importer
-    // (first run) UI.
-    if (!first_run_ui_bypass && parsed_command_line.HasSwitch(switches::kApp))
-      first_run_ui_bypass = true;
   }
 
   // If the local state file for the current profile doesn't exist and the
@@ -308,6 +299,19 @@ int BrowserMain(const MainFunctionParams& parameters) {
         local_state->GetString(prefs::kApplicationLocale));
     // We only load the theme dll in the browser process.
     ResourceBundle::GetSharedInstance().LoadThemeResources();
+  }
+
+  if (is_first_run) {
+    // On first run, we  need to process the master preferences before the
+    // browser's profile_manager object is created, but after ResourceBundle
+    // is initialized.
+    first_run_ui_bypass =
+        !FirstRun::ProcessMasterPreferences(user_data_dir, FilePath(), NULL);
+
+    // If we are running in App mode, we do not want to show the importer
+    // (first run) UI.
+    if (!first_run_ui_bypass && parsed_command_line.HasSwitch(switches::kApp))
+      first_run_ui_bypass = true;
   }
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {

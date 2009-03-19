@@ -32,6 +32,7 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_update_constants.h"
@@ -44,6 +45,9 @@
 #include "chrome/views/window/window.h"
 
 #include "google_update_idl.h"
+
+#include "grit/locale_settings.h"
+
 
 namespace {
 
@@ -116,7 +120,8 @@ bool InvokeGoogleUpdateForRename() {
   return false;
 }
 
-bool LaunchSetupWithParam(const std::wstring& param, int* ret_code) {
+bool LaunchSetupWithParam(const std::wstring& param, const std::wstring& value,
+                          int* ret_code) {
   FilePath exe_path;
   if (!PathService::Get(base::DIR_MODULE, &exe_path))
     return false;
@@ -124,13 +129,25 @@ bool LaunchSetupWithParam(const std::wstring& param, int* ret_code) {
   exe_path = exe_path.Append(installer_util::kSetupExe);
   base::ProcessHandle ph;
   CommandLine cl(exe_path.ToWStringHack());
-  cl.AppendSwitch(param);
+  cl.AppendSwitchWithValue(param, value);
   if (!base::LaunchApp(cl, false, false, &ph))
     return false;
   DWORD wr = ::WaitForSingleObject(ph, INFINITE);
   if (wr != WAIT_OBJECT_0)
     return false;
   return (TRUE == ::GetExitCodeProcess(ph, reinterpret_cast<DWORD*>(ret_code)));
+}
+
+bool WriteEULAtoTempFile(FilePath* eula_path) {
+  std::string terms =
+      ResourceBundle::GetSharedInstance().GetDataResource(IDR_TERMS_HTML);
+  if (terms.empty())
+    return false;
+  FilePath temp_dir;
+  if (!file_util::GetTempDir(&temp_dir))
+    return false;
+  *eula_path = temp_dir.Append(L"chrome_eula_iframe.html");
+  return (file_util::WriteFile(*eula_path, terms.c_str(), terms.size()) > 0);
 }
 
 }  // namespace
@@ -217,18 +234,25 @@ bool FirstRun::ProcessMasterPreferences(
     // Show the post-installation EULA. This is done by setup.exe and the
     // result determines if we continue or not. We wait here until the user
     // dismisses the dialog.
-    int retcode = 0;
-    if (!LaunchSetupWithParam(installer_util::switches::kShowEula, &retcode) ||
-        (retcode == installer_util::EULA_REJECTED)) {
-      LOG(WARNING) << "EULA rejected. Fast exit.";
-      ::ExitProcess(1);
-    }
-    if (retcode == installer_util::EULA_ACCEPTED) {
-      LOG(INFO) << "EULA : no collection";
-      GoogleUpdateSettings::SetCollectStatsConsent(false);
-    } else if (retcode == installer_util::EULA_ACCEPTED_OPT_IN) {
-      LOG(INFO) << "EULA : collection consent";
-      GoogleUpdateSettings::SetCollectStatsConsent(true);
+
+    // The actual eula text is in a resource in chrome. We extract it to
+    // a text file so setup.exe can use it as an inner frame.
+    FilePath inner_html;
+    if (WriteEULAtoTempFile(&inner_html)) {
+      int retcode = 0;
+      const std::wstring& eula =  installer_util::switches::kShowEula;
+      if (!LaunchSetupWithParam(eula, inner_html.ToWStringHack(), &retcode) ||
+          (retcode == installer_util::EULA_REJECTED)) {
+        LOG(WARNING) << "EULA rejected. Fast exit.";
+        ::ExitProcess(1);
+      }
+      if (retcode == installer_util::EULA_ACCEPTED) {
+        LOG(INFO) << "EULA : no collection";
+        GoogleUpdateSettings::SetCollectStatsConsent(false);
+      } else if (retcode == installer_util::EULA_ACCEPTED_OPT_IN) {
+        LOG(INFO) << "EULA : collection consent";
+        GoogleUpdateSettings::SetCollectStatsConsent(true);
+      }
     }
   }
 
