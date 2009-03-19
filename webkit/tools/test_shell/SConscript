@@ -20,14 +20,10 @@ if env.Bit('windows'):
   )
 
 env.Append(
-    CPPDEFINES = [
-        'WEBKIT_USING_SKIA'
-    ],
     CPPPATH = [
         '$BREAKPAD_DIR/src',
         '$WEBKIT_DIR/glue',
         '$GTEST_DIR/include',
-        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public',
     ],
     LIBS = [
         'glue',
