@@ -4,10 +4,13 @@ This Folder contains the following:
 .aff files
 .bdic files
 .dic_delta files
+README_??_??.txt files
 
 The .bdic files are binary files, generated from the corresponding .dic and .aff files, using convert_dict (chrome\tools\convert_dict). These binary files are used by the spellchecker. The .dic_delta files are used to add words which are not there in the .dic files. Irrespective of the encoding of the corresponding .dic file, the .dic_delta files are encoded as UTF-8.
 
 The final binary file, .bdic, is generated with words from the .dic and additional words from the .dic_delta file. In order to get the current-most bdic file versions, it is a good idea to rebuild them using convert_dict from the .dic, .aff and .dic_delta files in this folder.
+
+The README_??_??.txt files contain information about the individual dictionaries, including copyright information.
 
 The following 19 dictionaries have been appended with additional words using the .dic_delta files (January 5th 2009), and are covered under the existing GPL/LGPL/MPL tri-license in ../COPYING:
 
