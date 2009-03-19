@@ -45,6 +45,9 @@ class StatusBubbleMac : public StatusBubble {
 
   // The url we want to display when there is no status text to display.
   NSString* url_text_;
+
+  // How vertically offset the bubble is from its root position.
+  int offset_;
 };
 
 #endif  // #ifndef CHROME_BROWSER_COCOA_STATUS_BUBBLE_MAC_H_

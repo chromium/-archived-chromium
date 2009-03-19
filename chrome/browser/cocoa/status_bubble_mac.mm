@@ -16,6 +16,10 @@ const int kWindowHeight = 18;
 // The width of the bubble in relation to the width of the parent window.
 const float kWindowWidthPercent = 1.0f/3.0f;
 
+// How close the mouse can get to the infobubble before it starts sliding
+// off-screen.
+const int kMousePadding = 20;
+
 const int kTextPadding = 3;
 const int kTextPositionX = 4;
 const int kTextPositionY = 2;
@@ -33,16 +37,23 @@ const int kHideFadeDuration = 0.200f;
 }
 
 // TODO(avi):
-// - move in response to overlapping mouse
 // - do display delay
 // - figure out why the show/fade durations aren't working
+
+enum BubbleStyle {
+  STYLE_BOTTOM,    // Hanging off the bottom of the parent window
+  STYLE_FLOATING,  // Between BOTTOM and STANDARD
+  STYLE_STANDARD   // Nestled in the corner of the parent window
+};
 
 @interface StatusBubbleViewCocoa : NSView {
  @private
   NSString* content_;
+  BubbleStyle style_;
 }
 
 - (void)setContent:(NSString*)content;
+- (void)setStyle:(BubbleStyle)style;
 - (NSFont*)font;
 @end
 
@@ -127,6 +138,55 @@ void StatusBubbleMac::Hide() {
 }
 
 void StatusBubbleMac::MouseMoved() {
+  if (!window_)
+    return;
+
+  NSPoint cursor_location = [NSEvent mouseLocation];
+  --cursor_location.y;  // docs say the y coord starts at 1 not 0; don't ask why
+
+  // Get the normal position of the frame.
+  NSRect window_frame = [window_ frame];
+  window_frame.origin = [parent_ frame].origin;
+
+  // Get the cursor position relative to the popup.
+  cursor_location.x -= NSMaxX(window_frame);
+  cursor_location.y -= NSMaxY(window_frame);
+
+  // If the mouse is in a position where we think it would move the
+  // status bubble, figure out where and how the bubble should be moved.
+  if (cursor_location.y < kMousePadding &&
+      cursor_location.x < kMousePadding) {
+    int offset = kMousePadding - cursor_location.y;
+
+    // Make the movement non-linear.
+    offset = offset * offset / kMousePadding;
+
+    // When the mouse is entering from the right, we want the offset to be
+    // scaled by how horizontally far away the cursor is from the bubble.
+    if (cursor_location.x > 0) {
+      offset = offset * ((kMousePadding - cursor_location.x) / kMousePadding);
+    }
+
+    // Cap the offset and change the visual presentation of the bubble
+    // depending on where it ends up (so that rounded corners square off
+    // and mate to the edges of the tab content).
+    if (offset >= NSHeight(window_frame)) {
+      offset = NSHeight(window_frame);
+      [[window_ contentView] setStyle:STYLE_BOTTOM];
+    } else if (offset > 0) {
+      [[window_ contentView] setStyle:STYLE_FLOATING];
+    } else {
+      [[window_ contentView] setStyle:STYLE_STANDARD];
+    }
+
+    offset_ = offset;
+    window_frame.origin.y -= offset;
+    [window_ setFrame:window_frame display:YES];
+  } else {
+    offset_ = 0;
+    [[window_ contentView] setStyle:STYLE_STANDARD];
+    [window_ setFrame:window_frame display:YES];
+  }
 }
 
 void StatusBubbleMac::Create() {
@@ -147,7 +207,7 @@ void StatusBubbleMac::Create() {
   [window_ setOpaque:NO];
   [window_ setHasShadow:NO];
 
-  NSView* view =
+  StatusBubbleViewCocoa* view =
       [[[StatusBubbleViewCocoa alloc] initWithFrame:NSZeroRect] autorelease];
   [window_ setContentView:view];
 
@@ -155,6 +215,10 @@ void StatusBubbleMac::Create() {
 
   [window_ setAlphaValue:0.0f];
   [window_ orderFront:nil];
+
+  offset_ = 0;
+  [view setStyle:STYLE_STANDARD];
+  MouseMoved();
 }
 
 void StatusBubbleMac::FadeIn() {
@@ -184,17 +248,38 @@ void StatusBubbleMac::FadeOut() {
   [self setNeedsDisplay:YES];
 }
 
+- (void)setStyle:(BubbleStyle)style {
+  style_ = style;
+  [self setNeedsDisplay:YES];
+}
+
 - (NSFont*)font {
   return [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
 }
 
 - (void)drawRect:(NSRect)rect {
-  // Decide on which corners to round
-  // TODO(avi): decide properly
-  float tl_radius = 0.0f;
-  float tr_radius = kBubbleCornerRadius;
-  float bl_radius = 0.0f;
-  float br_radius = 0.0f;
+  float tl_radius, tr_radius, bl_radius, br_radius;
+
+  switch (style_) {
+    case STYLE_BOTTOM:
+      tl_radius = 0.0f;
+      tr_radius = 0.0f;
+      bl_radius = kBubbleCornerRadius;
+      br_radius = kBubbleCornerRadius;
+      break;
+    case STYLE_FLOATING:
+      tl_radius = 0.0f;
+      tr_radius = kBubbleCornerRadius;
+      bl_radius = kBubbleCornerRadius;
+      br_radius = kBubbleCornerRadius;
+      break;
+    case STYLE_STANDARD:
+      tl_radius = 0.0f;
+      tr_radius = kBubbleCornerRadius;
+      bl_radius = 0.0f;
+      br_radius = 0.0f;
+      break;
+  }
 
   // Background / Edge
 
