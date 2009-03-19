@@ -186,8 +186,14 @@ InotifyReader::InotifyReader()
 
 InotifyReader::~InotifyReader() {
   if (valid_) {
-    // Write to the self-pipe so that the select call in InotifyReaderTask returns.
-    write(shutdown_pipe_[1], "", 1);
+    // Write to the self-pipe so that the select call in InotifyReaderTask
+    // returns.
+    ssize_t bytes_written;
+    do {
+      bytes_written = write(shutdown_pipe_[1], "", 1);
+      if (bytes_written == 0)
+        continue;
+    } while (bytes_written == -1 && errno == EINTR);
     thread_.Stop();
   }
   if (inotify_fd_ >= 0)
