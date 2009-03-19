@@ -512,6 +512,8 @@
         'browser/cocoa/tab_strip_view.mm',
         'browser/cocoa/tab_view.h',
         'browser/cocoa/tab_view.mm',
+        'browser/cocoa/tab_window_controller.h',
+        'browser/cocoa/tab_window_controller.mm',
         'browser/cocoa/toolbar_button_cell.h',
         'browser/cocoa/toolbar_button_cell.mm',
         'browser/cocoa/toolbar_view.h',

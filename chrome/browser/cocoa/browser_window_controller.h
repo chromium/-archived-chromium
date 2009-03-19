@@ -10,6 +10,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "chrome/browser/cocoa/tab_window_controller.h"
+
 class Browser;
 class BrowserWindow;
 class BrowserWindowCocoa;
@@ -20,18 +22,11 @@ class TabContents;
 @class TabStripController;
 
 @interface BrowserWindowController :
-    NSWindowController<NSUserInterfaceValidations> {
+    TabWindowController<NSUserInterfaceValidations> {
  @private
+  TabStripController* tabStripController_;
   Browser* browser_;
   BrowserWindowCocoa* windowShim_;
-  TabStripController* tabStripController_;
-
-  IBOutlet NSBox* contentBox_;
-  IBOutlet TabStripView* tabStripView_;
-
-  // Views for the toolbar
-  IBOutlet NSView* toolbarView_;
-  IBOutlet NSTextField* urlBarView_;
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.

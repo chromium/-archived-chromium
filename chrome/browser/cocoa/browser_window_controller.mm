@@ -37,20 +37,14 @@
 }
 
 - (void)windowDidLoad {
+  [super windowDidLoad];
+
   // Create a controller for the tab strip, giving it the model object for
   // this window's Browser and the tab strip view. The controller will handle
   // registering for the appropriate tab notifications from the back-end and
   // managing the creation of new tabs.
   tabStripController_ = [[TabStripController alloc]
-                          initWithView:tabStripView_ browser:browser_];
-
-  // Place the tab bar above the content box and add it to the view hierarchy
-  // as a sibling of the content view so it can overlap with the window frame.
-  NSRect tabFrame = [contentBox_ frame];
-  tabFrame.origin = NSMakePoint(0, NSMaxY(tabFrame));
-  tabFrame.size.height = NSHeight([tabStripView_ frame]);
-  [tabStripView_ setFrame:tabFrame];
-  [[[[self window] contentView] superview] addSubview:tabStripView_];
+                          initWithView:[self tabStripView] browser:browser_];
 }
 
 - (void)destroyBrowser {
@@ -198,6 +192,23 @@
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar {
   [tabStripController_ focusLocationBar];
+}
+
+- (void)arrangeTabs {
+  NOTIMPLEMENTED();
+}
+
+- (TabWindowController*)detachTabToNewWindow:(TabView*)tabView {
+  NOTIMPLEMENTED();
+  return NULL;
+}
+
+- (void)insertPlaceholderForTab:(TabView*)tab atLocation:(NSInteger)xLocation {
+  NOTIMPLEMENTED();
+}
+
+- (void)removePlaceholder {
+  NOTIMPLEMENTED();
 }
 
 - (BOOL)isBookmarkBarVisible {

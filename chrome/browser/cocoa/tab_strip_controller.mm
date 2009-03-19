@@ -196,7 +196,6 @@ class TabStripBridge : public TabStripModelObserver {
   NSRect newTabButtonFrame = [newTabButton_ frame];
   newTabButtonFrame.origin.x = maxRightEdge + kNewTabXOffset;
   [newTabButton_ setFrame:newTabButtonFrame];
-  [newTabButton_ setHidden:NO];
 }
 
 // Handles setting the title of the tab based on the given |contents|. Uses
