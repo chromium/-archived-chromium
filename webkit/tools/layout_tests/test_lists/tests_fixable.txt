@@ -1573,7 +1573,7 @@ LINUX : LayoutTests/fast/clip/014.html = PASS CRASH
 LINUX : LayoutTests/fast/compact/003.html = PASS CRASH
 
 // Flaky since the merge 41017:41057.
-LINUX : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL PASS
+WIN LINUX : LayoutTests/fast/canvas/fillrect_gradient.html = FAIL PASS
 
 // It's not clear that the test isn't wrong here. It believes that middle
 // aligning 15px Ahem should end up in a certain spot. But we have the
@@ -1650,7 +1650,7 @@ MAC RELEASE : LayoutTests/http/tests/misc/slow-preload-cancel.html = TIMEOUT CRA
 WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
-WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+LINUX WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // New test added in the 41286:41362 merge. Not clear whether we pass.
@@ -1882,3 +1882,4 @@ LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html =
 LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = CRASH
 // Regression
 LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL
+MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT
