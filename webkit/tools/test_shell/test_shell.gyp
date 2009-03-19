@@ -132,7 +132,8 @@
     },
     {
       'target_name': 'test_shell',
-      'type': 'application',
+      'type': 'executable',
+      'mac_bundle': 1,
       'dependencies': [
         'test_shell_common',
       ],

@@ -1430,7 +1430,8 @@
     },
     {
       'target_name': 'app',
-      'type': 'application',
+      'type': 'executable',
+      'mac_bundle': 1,
       'dependencies': [
         'common',
         'browser',

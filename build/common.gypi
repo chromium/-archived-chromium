@@ -89,6 +89,7 @@
   'conditions': [
     ['OS=="mac"', {
       'target_defaults': {
+        'mac_bundle': 0,
         'xcode_settings': {
           'ALWAYS_SEARCH_USER_PATHS': 'NO',
           'GCC_C_LANGUAGE_STANDARD': 'c99',
@@ -117,10 +118,10 @@
           ['_type!="static_library"', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-search_paths_first']},
           }],
-          ['_type=="application"', {
+          ['_type=="executable" and _mac_bundle', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
           }],
-          ['_type=="application" or _type=="executable"', {
+          ['_type=="executable"', {
             'postbuilds': [
               {
                 'variables': {
