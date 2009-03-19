@@ -8,11 +8,14 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/throb_animation.h"
-#include "chrome/common/win_util.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/event.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+
+#if defined(OS_WIN)
+#include "chrome/common/win_util.h"
+#endif
 
 namespace views {
 
@@ -154,11 +157,11 @@ void TextButtonBorder::GetInsets(gfx::Insets* insets) const {
 
 TextButton::TextButton(ButtonListener* listener, const std::wstring& text)
     : CustomButton(listener),
+      alignment_(ALIGN_LEFT),
       font_(ResourceBundle::GetSharedInstance().GetFont(
           ResourceBundle::BaseFont)),
       color_(kEnabledColor),
-      max_width_(0),
-      alignment_(ALIGN_LEFT) {
+      max_width_(0) {
   SetText(text);
   set_border(new TextButtonBorder);
   SetAnimationDuration(kHoverAnimationDurationMs);
@@ -244,12 +247,16 @@ void TextButton::Paint(ChromeCanvas* canvas, bool for_drag) {
     text_bounds.set_x(MirroredLeftPointForRect(text_bounds));
 
     if (for_drag) {
+#if defined(OS_WIN)
+      // TODO(erg): Either port DrawStringWithHalo to linux or find an
+      // alternative here.
       canvas->DrawStringWithHalo(text_, font_, color_, kHighlightColor,
                                  text_bounds.x(),
                                  text_bounds.y(),
                                  text_bounds.width(),
                                  text_bounds.height(),
                                  l10n_util::DefaultCanvasTextAlignment());
+#endif
     } else {
       // Draw bevel highlight
       canvas->DrawStringInt(text_,

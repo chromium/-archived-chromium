@@ -108,6 +108,10 @@ class CanvasPaintT : public T {
     return rectangle_.width == 0 || rectangle_.height == 0;
   }
 
+  const GdkRectangle& rectangle() const {
+    return rectangle_;
+  }
+
  private:
   void init(bool opaque) {
     gdk_window_begin_paint_rect(window_, &rectangle_);

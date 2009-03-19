@@ -82,10 +82,8 @@ class RootView : public View,
   // Invoked by the Widget to discover what rectangle should be painted.
   const gfx::Rect& GetScheduledPaintRect();
 
-#if defined(OS_WIN)
   // Returns the region scheduled to paint clipped to the RootViews bounds.
-  RECT GetScheduledPaintRectConstrainedToSize();
-#endif
+  gfx::Rect GetScheduledPaintRectConstrainedToSize();
 
   // Tree functions
 
