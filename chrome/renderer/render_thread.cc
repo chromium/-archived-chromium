@@ -254,6 +254,6 @@ void RenderThread::EnsureWebKitInitialized() {
   }
 
   if (command_line.HasSwitch(switches::kEnableWebWorkers)) {
-    WebKit::enableWebWorkers(true);
+    WebKit::enableWebWorkers();
   }
 }
