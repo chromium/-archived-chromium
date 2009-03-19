@@ -352,6 +352,11 @@ DEFER LINUX WIN : LayoutTests/svg/batik/masking/maskRegions.svg = FAIL
 
 DEFER LINUX WIN : LayoutTests/svg/custom/image-small-width-height.svg = FAIL
 
+// Bug in Skia, see https://bugs.webkit.org/show_bug.cgi?id=24534 .
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL
+DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
+
 // -----------------------------------------------------------------
 // End SVG Regressions
 // -----------------------------------------------------------------
@@ -505,10 +510,6 @@ DEFER LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
 // corners.
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
-
-// Upstreamed.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-pattern-01-b.svg = FAIL
-LINUX WIN : LayoutTests/svg/batik/paints/patternRegionA.svg = FAIL CRASH
 
 // 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
 LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
@@ -1492,10 +1493,6 @@ DEFER LINUX WIN : LayoutTests/editing/spelling/spelling-linebreak.html = FAIL
 // Merge 40364:40409 -- new test
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER LINUX WIN : LayoutTests/svg/custom/pattern-with-transformation.svg = FAIL
-
-// Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
-// Perhaps needs some change on Skia side.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-06-b.svg = FAIL
 
 // Merge 40364:40409 -- fails after http://trac.webkit.org/changeset/40379
 // ASSERTs in Debug after this change: http://trac.webkit.org/changeset/40372
