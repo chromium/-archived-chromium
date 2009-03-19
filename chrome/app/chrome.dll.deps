@@ -29,4 +29,7 @@ delay_loaded = [
   'dwmapi.dll',
   'COMDLG32.dll',
   'urlmon.dll',
+  'avutil-49.dll',
+  'avformat-52.dll',
+  'avcodec-52.dll',
 ]
