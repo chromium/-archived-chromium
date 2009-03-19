@@ -37,7 +37,8 @@ class ChromeTests:
                        "layout": self.TestLayout,
                        "dll": self.TestDll,
                        "layout_all": self.TestLayoutAll,
-                       "ui": self.TestUI}
+                       "ui": self.TestUI,
+                       "v8": self.TestV8}
 
     if test not in self._test_list:
       raise TestNotFound("Unknown test: %s" % test)
@@ -83,6 +84,38 @@ class ChromeTests:
                               "--source_dir=%s" % (self._source_dir),
                               "--save_cache"]
 
+  def ComputeBuildDir(self, module, exe=None):
+    ''' Computes the build dir for the given module / exe '''
+    if self._options.build_dir:
+      self._build_dir = self._options.build_dir
+      return self._build_dir
+    # Recompute _build_dir since the module and exe might have changed from
+    # a previous call (we might be running multiple tests).
+    module_dir = os.path.join(self._source_dir, module)
+    dir_chrome = os.path.join(self._source_dir, "chrome", "Release")
+    dir_module = os.path.join(module_dir, "Release")
+    if exe:
+      exe_chrome = os.path.join(dir_chrome, exe)
+      exe_module = os.path.join(dir_module, exe)
+      if os.path.isfile(exe_chrome) and not os.path.isfile(exe_module):
+        self._build_dir = dir_chrome
+      elif os.path.isfile(exe_module) and not os.path.isfile(exe_chrome):
+        self._build_dir = dir_module
+      elif os.stat(exe_module)[stat.ST_MTIME] > os.stat(exe_chrome)[stat.ST_MTIME]:
+        self._build_dir = dir_module
+      else:
+        self._build_dir = dir_chrome
+    else:
+      if os.path.isdir(dir_chrome) and not os.path.isdir(dir_module):
+        self._build_dir = dir_chrome
+      elif os.path.isdir(dir_module) and not os.path.isdir(dir_chrome):
+        self._build_dir = dir_module
+      elif os.stat(dir_module)[stat.ST_MTIME] > os.stat(dir_chrome)[stat.ST_MTIME]:
+        self._build_dir = dir_module
+      else:
+        self._build_dir = dir_chrome
+    return self._build_dir;
+
   def _DefaultCommand(self, module, exe=None):
     '''Generates the default command array that most tests will use.'''
     module_dir = os.path.join(self._source_dir, module)
@@ -91,31 +124,7 @@ class ChromeTests:
       self._data_dir = os.path.join(module_dir, "test", "data", "purify")
     else:
       self._data_dir = os.path.join(module_dir, "data", "purify")
-
-    if not self._options.build_dir:
-      dir_chrome = os.path.join(self._source_dir, "chrome", "Release")
-      dir_module = os.path.join(module_dir, "Release")
-      if exe:
-        exe_chrome = os.path.join(dir_chrome, exe)
-        exe_module = os.path.join(dir_module, exe)
-        if os.path.isfile(exe_chrome) and not os.path.isfile(exe_module):
-          self._options.build_dir = dir_chrome
-        elif os.path.isfile(exe_module) and not os.path.isfile(exe_chrome):
-          self._options.build_dir = dir_module
-        elif os.stat(exe_module)[stat.ST_MTIME] > os.stat(exe_chrome)[stat.ST_MTIME]:
-          self._options.build_dir = dir_module
-        else:
-          self._options.build_dir = dir_chrome
-      else:
-        if os.path.isdir(dir_chrome) and not os.path.isdir(dir_module):
-          self._options.build_dir = dir_chrome
-        elif os.path.isdir(dir_module) and not os.path.isdir(dir_chrome):
-          self._options.build_dir = dir_module
-        elif os.stat(dir_module)[stat.ST_MTIME] > os.stat(dir_chrome)[stat.ST_MTIME]:
-          self._options.build_dir = dir_module
-        else:
-          self._options.build_dir = dir_chrome
-
+      
     cmd = list(self._command_preamble)
     cmd.append("--data_dir=%s" % self._data_dir)
     cmd.append("--report_dir=%s" % self._report_dir)
@@ -123,8 +132,9 @@ class ChromeTests:
       cmd.append("--baseline")
     if self._options.verbose:
       cmd.append("--verbose")
+    self.ComputeBuildDir(module, exe);
     if exe:
-      cmd.append(os.path.join(self._options.build_dir, exe))
+      cmd.append(os.path.join(self._build_dir, exe))
     return cmd
 
   def Run(self):
@@ -331,8 +341,22 @@ class ChromeTests:
                               "--ui-test-action-timeout=80000",
                               "--ui-test-action-max-timeout=180000",
                               "--ui-test-sleep-timeout=40000"],
-                              multi=True)
+                             multi=True)
 
+  def TestV8(self):
+    shell = "v8_shell_sample.exe"
+    # We need to compute _build_dir early to in order to pass in the
+    # shell path as an argument to the test script.
+    self.ComputeBuildDir("chrome", shell)
+    script = os.path.join(self._source_dir, "v8", "tools", "test.py")
+    shell_path = os.path.join(self._options.build_dir, shell)
+    return self.ScriptedTest("chrome", shell, "v8",
+                             ["python.exe",
+                              script,
+                              "--no-build",
+                              "--progress=dots",
+                              "--shell=" + shell_path],
+                             multi = True)
 
 def _main(argv):
   parser = optparse.OptionParser("usage: %prog -b <dir> -t <test> "
