@@ -157,6 +157,7 @@ bool MimeUtil::GetMimeTypeFromFile(const FilePath& file_path,
 
 static const char* const supported_image_types[] = {
   "image/jpeg",
+  "image/pjpeg",
   "image/jpg",
   "image/png",
   "image/gif",
