@@ -216,17 +216,20 @@ SSLClientSocketWin::SSLClientSocketWin(ClientSocket* transport_socket,
       user_buf_len_(0),
       next_state_(STATE_NONE),
       creds_(NULL),
+      isc_status_(SEC_E_OK),
       payload_send_buffer_len_(0),
       bytes_sent_(0),
       decrypted_ptr_(NULL),
       bytes_decrypted_(0),
       received_ptr_(NULL),
       bytes_received_(0),
+      writing_first_token_(false),
       completed_handshake_(false),
-      complete_handshake_on_write_complete_(false),
       ignore_ok_result_(false),
-      no_client_cert_(false) {
+      no_client_cert_(false),
+      renegotiating_(false) {
   memset(&stream_sizes_, 0, sizeof(stream_sizes_));
+  memset(in_buffers_, 0, sizeof(in_buffers_));
   memset(&send_buffer_, 0, sizeof(send_buffer_));
   memset(&ctxt_, 0, sizeof(ctxt_));
 }
@@ -288,10 +291,8 @@ void SSLClientSocketWin::Disconnect() {
   completed_handshake_ = false;
   transport_->Disconnect();
 
-  if (send_buffer_.pvBuffer) {
-    FreeContextBuffer(send_buffer_.pvBuffer);
-    memset(&send_buffer_, 0, sizeof(send_buffer_));
-  }
+  if (send_buffer_.pvBuffer)
+    FreeSendBuffer();
   if (ctxt_.dwLower || ctxt_.dwUpper) {
     DeleteSecurityContext(&ctxt_);
     memset(&ctxt_, 0, sizeof(ctxt_));
@@ -302,6 +303,8 @@ void SSLClientSocketWin::Disconnect() {
   // TODO(wtc): reset more members?
   bytes_decrypted_ = 0;
   bytes_received_ = 0;
+  writing_first_token_ = false;
+  renegotiating_ = false;
 }
 
 bool SSLClientSocketWin::IsConnected() const {
@@ -351,12 +354,7 @@ int SSLClientSocketWin::Read(char* buf, int buf_len,
   user_buf_ = buf;
   user_buf_len_ = buf_len;
 
-  if (bytes_received_ == 0) {
-    next_state_ = STATE_PAYLOAD_READ;
-  } else {
-    next_state_ = STATE_PAYLOAD_READ_COMPLETE;
-    ignore_ok_result_ = true;  // OK doesn't mean EOF.
-  }
+  SetNextStateForRead();
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
@@ -499,6 +497,7 @@ int SSLClientSocketWin::DoConnectComplete(int result) {
     return MapSecurityError(status);
   }
 
+  writing_first_token_ = true;
   next_state_ = STATE_HANDSHAKE_WRITE;
   return OK;
 }
@@ -531,7 +530,6 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
   bytes_received_ += result;
 
   // Process the contents of recv_buffer_.
-  SECURITY_STATUS status;
   TimeStamp expiry;
   DWORD out_flags;
 
@@ -553,19 +551,18 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
     flags |= ISC_REQ_USE_SUPPLIED_CREDS;
 
   SecBufferDesc in_buffer_desc, out_buffer_desc;
-  SecBuffer in_buffers[2];
 
   in_buffer_desc.cBuffers = 2;
-  in_buffer_desc.pBuffers = in_buffers;
+  in_buffer_desc.pBuffers = in_buffers_;
   in_buffer_desc.ulVersion = SECBUFFER_VERSION;
 
-  in_buffers[0].pvBuffer = &recv_buffer_[0];
-  in_buffers[0].cbBuffer = bytes_received_;
-  in_buffers[0].BufferType = SECBUFFER_TOKEN;
+  in_buffers_[0].pvBuffer = recv_buffer_.get();
+  in_buffers_[0].cbBuffer = bytes_received_;
+  in_buffers_[0].BufferType = SECBUFFER_TOKEN;
 
-  in_buffers[1].pvBuffer = NULL;
-  in_buffers[1].cbBuffer = 0;
-  in_buffers[1].BufferType = SECBUFFER_EMPTY;
+  in_buffers_[1].pvBuffer = NULL;
+  in_buffers_[1].cbBuffer = 0;
+  in_buffers_[1].BufferType = SECBUFFER_EMPTY;
 
   out_buffer_desc.cBuffers = 1;
   out_buffer_desc.pBuffers = &send_buffer_;
@@ -575,7 +572,7 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
   send_buffer_.BufferType = SECBUFFER_TOKEN;
   send_buffer_.cbBuffer = 0;
 
-  status = InitializeSecurityContext(
+  isc_status_ = InitializeSecurityContext(
       creds_,
       &ctxt_,
       NULL,
@@ -589,43 +586,39 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
       &out_flags,
       &expiry);
 
-  if (status == SEC_E_INCOMPLETE_MESSAGE) {
-    DCHECK(FAILED(status));
-    DCHECK(send_buffer_.cbBuffer == 0 ||
-           !(out_flags & ISC_RET_EXTENDED_ERROR));
+  if (send_buffer_.cbBuffer != 0 &&
+      (isc_status_ == SEC_E_OK ||
+       isc_status_ == SEC_I_CONTINUE_NEEDED ||
+      (FAILED(isc_status_) && (out_flags & ISC_RET_EXTENDED_ERROR)))) {
+    next_state_ = STATE_HANDSHAKE_WRITE;
+    return OK;
+  }
+  return DidCallInitializeSecurityContext();
+}
+
+int SSLClientSocketWin::DidCallInitializeSecurityContext() {
+  if (isc_status_ == SEC_E_INCOMPLETE_MESSAGE) {
     next_state_ = STATE_HANDSHAKE_READ;
     return OK;
   }
 
-  if (send_buffer_.cbBuffer != 0 &&
-      (status == SEC_E_OK ||
-       status == SEC_I_CONTINUE_NEEDED ||
-       FAILED(status) && (out_flags & ISC_RET_EXTENDED_ERROR))) {
-    // If FAILED(status) is true, we should terminate the connection after
-    // sending send_buffer_.
-    if (status == SEC_E_OK)
-      complete_handshake_on_write_complete_ = true;
-    // We only handle these cases correctly.
-    DCHECK(status == SEC_E_OK || status == SEC_I_CONTINUE_NEEDED);
-    next_state_ = STATE_HANDSHAKE_WRITE;
-    bytes_received_ = 0;
-    return OK;
-  }
-
-  if (status == SEC_E_OK) {
-    if (in_buffers[1].BufferType == SECBUFFER_EXTRA) {
-      // TODO(darin) need to save this data for later.
-      NOTREACHED() << "should not occur for HTTPS traffic";
-      return ERR_FAILED;
+  if (isc_status_ == SEC_E_OK) {
+    if (in_buffers_[1].BufferType == SECBUFFER_EXTRA) {
+      // Save this data for later.
+      memmove(recv_buffer_.get(),
+              recv_buffer_.get() + (bytes_received_ - in_buffers_[1].cbBuffer),
+              in_buffers_[1].cbBuffer);
+      bytes_received_ = in_buffers_[1].cbBuffer;
+    } else {
+      bytes_received_ = 0;
     }
-    bytes_received_ = 0;
     return DidCompleteHandshake();
   }
 
-  if (FAILED(status))
-    return MapSecurityError(status);
+  if (FAILED(isc_status_))
+    return MapSecurityError(isc_status_);
 
-  if (status == SEC_I_INCOMPLETE_CREDENTIALS) {
+  if (isc_status_ == SEC_I_INCOMPLETE_CREDENTIALS) {
     // We don't support SSL client authentication yet.  For now we just set
     // no_client_cert_ to true and call InitializeSecurityContext again.
     no_client_cert_ = true;
@@ -634,12 +627,12 @@ int SSLClientSocketWin::DoHandshakeReadComplete(int result) {
     return OK;
   }
 
-  DCHECK(status == SEC_I_CONTINUE_NEEDED);
-  if (in_buffers[1].BufferType == SECBUFFER_EXTRA) {
-    memmove(&recv_buffer_[0],
-            &recv_buffer_[0] + (bytes_received_ - in_buffers[1].cbBuffer),
-            in_buffers[1].cbBuffer);
-    bytes_received_ = in_buffers[1].cbBuffer;
+  DCHECK(isc_status_ == SEC_I_CONTINUE_NEEDED);
+  if (in_buffers_[1].BufferType == SECBUFFER_EXTRA) {
+    memmove(recv_buffer_.get(),
+            recv_buffer_.get() + (bytes_received_ - in_buffers_[1].cbBuffer),
+            in_buffers_[1].cbBuffer);
+    bytes_received_ = in_buffers_[1].cbBuffer;
     next_state_ = STATE_HANDSHAKE_READ_COMPLETE;
     ignore_ok_result_ = true;  // OK doesn't mean EOF.
     return OK;
@@ -674,20 +667,21 @@ int SSLClientSocketWin::DoHandshakeWriteComplete(int result) {
 
   if (bytes_sent_ >= static_cast<int>(send_buffer_.cbBuffer)) {
     bool overflow = (bytes_sent_ > static_cast<int>(send_buffer_.cbBuffer));
-    SECURITY_STATUS status = FreeContextBuffer(send_buffer_.pvBuffer);
-    DCHECK(status == SEC_E_OK);
-    memset(&send_buffer_, 0, sizeof(send_buffer_));
+    FreeSendBuffer();
     bytes_sent_ = 0;
     if (overflow)  // Bug!
       return ERR_UNEXPECTED;
-    if (complete_handshake_on_write_complete_)
-      return DidCompleteHandshake();
-    next_state_ = STATE_HANDSHAKE_READ;
-  } else {
-    // Send the remaining bytes.
-    next_state_ = STATE_HANDSHAKE_WRITE;
+    if (writing_first_token_) {
+      writing_first_token_ = false;
+      DCHECK(bytes_received_ == 0);
+      next_state_ = STATE_HANDSHAKE_READ;
+      return OK;
+    }
+    return DidCallInitializeSecurityContext();
   }
 
+  // Send the remaining bytes.
+  next_state_ = STATE_HANDSHAKE_WRITE;
   return OK;
 }
 
@@ -703,6 +697,12 @@ int SSLClientSocketWin::DoVerifyCert() {
 
 int SSLClientSocketWin::DoVerifyCertComplete(int result) {
   LogConnectionTypeMetrics();
+  if (renegotiating_) {
+    renegotiating_ = false;
+    // Pick up where we left off.  Go back to reading data.
+    if (result == OK)
+      SetNextStateForRead();
+  }
   return result;
 }
 
@@ -806,21 +806,38 @@ int SSLClientSocketWin::DoPayloadReadComplete(int result) {
   }
 
   if (status == SEC_I_RENEGOTIATE) {
-    // TODO(wtc): support renegotiation.
-    // Should ideally send a no_renegotiation alert to the server.
-    return ERR_SSL_RENEGOTIATION_REQUESTED;
+    if (bytes_received_ != 0) {
+      // The server requested renegotiation, but there are some data yet to
+      // be decrypted.  The Platform SDK WebClient.c sample doesn't handle
+      // this, so we don't know how to handle this.  Assume this cannot
+      // happen.
+      LOG(ERROR) << "DecryptMessage returned SEC_I_RENEGOTIATE with a buffer "
+                 << "of type SECBUFFER_EXTRA.";
+      return ERR_SSL_RENEGOTIATION_REQUESTED;
+    }
+    if (len != 0) {
+      // The server requested renegotiation, but there are some decrypted
+      // data.  We can't start renegotiation until we have returned all
+      // decrypted data to the caller.
+      //
+      // This hasn't happened during testing.  Assume this cannot happen even
+      // though we know how to handle this.
+      LOG(ERROR) << "DecryptMessage returned SEC_I_RENEGOTIATE with a buffer "
+                 << "of type SECBUFFER_DATA.";
+      return ERR_SSL_RENEGOTIATION_REQUESTED;
+    }
+    // Jump to the handshake sequence.  Will come back when the rehandshake is
+    // done.
+    renegotiating_ = true;
+    next_state_ = STATE_HANDSHAKE_READ_COMPLETE;
+    ignore_ok_result_ = true;  // OK doesn't mean EOF.
+    return len;
   }
 
   // If we decrypted 0 bytes, don't report 0 bytes read, which would be
   // mistaken for EOF.  Continue decrypting or read more.
-  if (len == 0) {
-    if (bytes_received_ == 0) {
-      next_state_ = STATE_PAYLOAD_READ;
-    } else {
-      next_state_ = STATE_PAYLOAD_READ_COMPLETE;
-      ignore_ok_result_ = true;  // OK doesn't mean EOF.
-    }
-  }
+  if (len == 0)
+    SetNextStateForRead();
   return len;
 }
 
@@ -918,7 +935,7 @@ int SSLClientSocketWin::DidCompleteHandshake() {
     DLOG(ERROR) << "QueryContextAttributes failed: " << status;
     return MapSecurityError(status);
   }
-  DCHECK(!server_cert_);
+  DCHECK(!server_cert_ || renegotiating_);
   PCCERT_CONTEXT server_cert_handle = NULL;
   status = QueryContextAttributes(
       &ctxt_, SECPKG_ATTR_REMOTE_CERT_CONTEXT, &server_cert_handle);
@@ -946,6 +963,21 @@ void SSLClientSocketWin::LogConnectionTypeMetrics() const {
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD5_CA);
   if (server_cert_verify_result_.has_md2_ca)
     UpdateConnectionTypeHistograms(CONNECTION_SSL_MD2_CA);
+}
+
+void SSLClientSocketWin::SetNextStateForRead() {
+  if (bytes_received_ == 0) {
+    next_state_ = STATE_PAYLOAD_READ;
+  } else {
+    next_state_ = STATE_PAYLOAD_READ_COMPLETE;
+    ignore_ok_result_ = true;  // OK doesn't mean EOF.
+  }
+}
+
+void SSLClientSocketWin::FreeSendBuffer() {
+  SECURITY_STATUS status = FreeContextBuffer(send_buffer_.pvBuffer);
+  DCHECK(status == SEC_E_OK);
+  memset(&send_buffer_, 0, sizeof(send_buffer_));
 }
 
 }  // namespace net

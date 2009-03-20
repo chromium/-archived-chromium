@@ -67,8 +67,11 @@ class SSLClientSocketWin : public SSLClientSocket {
   int DoPayloadWrite();
   int DoPayloadWriteComplete(int result);
 
+  int DidCallInitializeSecurityContext();
   int DidCompleteHandshake();
   void LogConnectionTypeMetrics() const;
+  void SetNextStateForRead();
+  void FreeSendBuffer();
 
   CompletionCallbackImpl<SSLClientSocketWin> io_callback_;
   scoped_ptr<ClientSocket> transport_;
@@ -106,7 +109,9 @@ class SSLClientSocketWin : public SSLClientSocket {
 
   CredHandle* creds_;
   CtxtHandle ctxt_;
-  SecBuffer send_buffer_;
+  SecBuffer in_buffers_[2];  // Input buffers for InitializeSecurityContext.
+  SecBuffer send_buffer_;  // Output buffer for InitializeSecurityContext.
+  SECURITY_STATUS isc_status_;  // Return value of InitializeSecurityContext.
   scoped_array<char> payload_send_buffer_;
   int payload_send_buffer_len_;
   int bytes_sent_;
@@ -124,8 +129,13 @@ class SSLClientSocketWin : public SSLClientSocket {
   char* received_ptr_;  // Points to the received ciphertext in recv_buffer_
   int bytes_received_;  // The number of bytes of received ciphertext.
 
+  // True if we're writing the first token (handshake message) to the server,
+  // false if we're writing a subsequent token.  After we have written a token
+  // successfully, DoHandshakeWriteComplete checks this member to set the next
+  // state.
+  bool writing_first_token_;
+
   bool completed_handshake_;
-  bool complete_handshake_on_write_complete_;
 
   // Only used in the STATE_HANDSHAKE_READ_COMPLETE and
   // STATE_PAYLOAD_READ_COMPLETE states.  True if a 'result' argument of OK
@@ -140,6 +150,9 @@ class SSLClientSocketWin : public SSLClientSocket {
 
   // True if the user has no client certificate.
   bool no_client_cert_;
+
+  // Renegotiation is in progress.
+  bool renegotiating_;
 };
 
 }  // namespace net
