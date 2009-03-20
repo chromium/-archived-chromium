@@ -44,6 +44,7 @@ class ResourceRequestDetails {
     resource_type_ = info->resource_type;
     frame_origin_ = info->frame_origin;
     main_frame_origin_ = info->main_frame_origin;
+    filter_policy_ = info->filter_policy;
   }
 
   ~ResourceRequestDetails() { }
@@ -61,6 +62,7 @@ class ResourceRequestDetails {
   int ssl_cert_id() const { return ssl_cert_id_; }
   int ssl_cert_status() const { return ssl_cert_status_; }
   ResourceType::Type resource_type() const { return resource_type_; }
+  FilterPolicy::Type filter_policy() const { return filter_policy_; }
 
  private:
   GURL url_;
@@ -76,6 +78,7 @@ class ResourceRequestDetails {
   int ssl_cert_id_;
   int ssl_cert_status_;
   ResourceType::Type resource_type_;
+  FilterPolicy::Type filter_policy_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceRequestDetails);
 };

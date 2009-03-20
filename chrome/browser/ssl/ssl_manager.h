@@ -270,6 +270,7 @@ class SSLManager : public NotificationObserver {
                 ResourceType::Type resource_type,
                 const std::string& frame_origin,
                 const std::string& main_frame_origin,
+                FilterPolicy::Type filter_policy,
                 int ssl_cert_id,
                 int ssl_cert_status)
         : manager_(manager),
@@ -277,6 +278,7 @@ class SSLManager : public NotificationObserver {
           resource_type_(resource_type),
           frame_origin_(frame_origin),
           main_frame_origin_(main_frame_origin),
+          filter_policy_(filter_policy),
           ssl_cert_id_(ssl_cert_id),
           ssl_cert_status_(ssl_cert_status) {
     }
@@ -286,6 +288,7 @@ class SSLManager : public NotificationObserver {
     ResourceType::Type resource_type() const { return resource_type_; }
     const std::string& frame_origin() const { return frame_origin_; }
     const std::string& main_frame_origin() const { return main_frame_origin_; }
+    FilterPolicy::Type filter_policy() const { return filter_policy_; }
     int ssl_cert_id() const { return ssl_cert_id_; }
     int ssl_cert_status() const { return ssl_cert_status_; }
 
@@ -295,6 +298,7 @@ class SSLManager : public NotificationObserver {
     ResourceType::Type resource_type_;
     std::string frame_origin_;
     std::string main_frame_origin_;
+    FilterPolicy::Type filter_policy_;
     int ssl_cert_id_;
     int ssl_cert_status_;
 
@@ -323,8 +327,8 @@ class SSLManager : public NotificationObserver {
     // We have started a resource request with the given info.
     virtual void OnRequestStarted(RequestInfo* info) = 0;
 
-    // Returns the default security style for a given URL.
-    virtual SecurityStyle GetDefaultStyle(const GURL& url) = 0;
+    // Update the SSL information in |entry| to match the current state.
+    virtual void UpdateEntry(SSLManager* manager, NavigationEntry* entry) = 0;
   };
 
   static void RegisterUserPrefs(PrefService* prefs);
@@ -441,15 +445,11 @@ class SSLManager : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // Entry point for navigation.  This function begins the process of updating
-  // the security UI when the main frame navigates.
-  //
-  // Called on the UI thread.
-  void NavigationStateChanged();
-
   // Called to determine if there were any processed SSL errors from request.
   bool ProcessedSSLErrorFromRequest() const;
 
+  // The navigation controller associated with this SSLManager.  The
+  // NavigationController is guaranteed to outlive the SSLManager.
   NavigationController* controller() { return controller_; }
 
   // Convenience methods for serializing/deserializing the security info.
@@ -510,8 +510,8 @@ class SSLManager : public NotificationObserver {
   // Dispatch NotificationType::SSL_VISIBLE_STATE_CHANGED notification.
   void DispatchSSLVisibleStateChanged();
 
-  // Convenience method for initializing navigation entries.
-  void InitializeEntryIfNeeded(NavigationEntry* entry);
+  // Update the NavigationEntry with our current state.
+  void UpdateEntry(NavigationEntry* entry);
 
   // Shows the pending messages (in info-bars) if any.
   void ShowPendingMessages();

@@ -41,10 +41,6 @@ class SSLHostState : public NonThreadSafe {
   // Records that |cert| is not permitted to be used for |host| in the future.
   void AllowCertForHost(net::X509Certificate* cert, const std::string& host);
 
-  // Queries whether there is at least one certificate that has been manually
-  // allowed for this host.
-  bool DidAllowCertForHost(const std::string& host);
-
   // Queries whether |cert| is allowed or denied for |host|.
   net::X509Certificate::Policy::Judgment QueryPolicy(
       net::X509Certificate* cert, const std::string& host);

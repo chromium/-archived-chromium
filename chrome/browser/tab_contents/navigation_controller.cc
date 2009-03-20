@@ -1011,10 +1011,6 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
     pending_entry_ = entries_[pending_entry_index_].get();
   }
 
-  // Reset the security states as any SSL error may have been resolved since we
-  // last visited that page.
-  pending_entry_->ssl() = NavigationEntry::SSLStatus();
-
   if (from_contents && from_contents->type() != pending_entry_->tab_type())
     from_contents->set_is_active(false);
 
@@ -1036,7 +1032,6 @@ void NavigationController::NotifyNavigationEntryCommitted(
   // TODO(pkasting): http://b/1113079 Probably these explicit notification paths
   // should be removed, and interested parties should just listen for the
   // notification below instead.
-  ssl_manager_.NavigationStateChanged();
   active_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 

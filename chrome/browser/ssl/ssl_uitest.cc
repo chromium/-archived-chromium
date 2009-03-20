@@ -242,13 +242,29 @@ TEST_F(SSLUITest, TestMixedContents) {
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
   EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+}
+
+// Visits a page with mixed content.
+TEST_F(SSLUITest, TestMixedContentsFilterAll) {
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
 
   // Now select the block mixed-content pref and reload the page.
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   EXPECT_TRUE(browser_proxy.get());
   EXPECT_TRUE(browser_proxy->SetIntPreference(prefs::kMixedContentFiltering,
                                               FilterPolicy::FILTER_ALL));
-  EXPECT_TRUE(tab->Reload());
+
+  // Load a page with mixed-content, we've overridden our filtering policy so
+  // we won't load the mixed content by default.
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  NavigateTab(
+      tab.get(),
+      https_server->TestServerPageW(
+          L"files/ssl/page_with_mixed_contents.html"));
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
 
   // The image should be filtered.
   int img_width;
@@ -260,6 +276,9 @@ TEST_F(SSLUITest, TestMixedContents) {
   // image is less than 100.
   EXPECT_GT(100, img_width);
 
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
   // The state should be OK since we are not showing the resource.
   EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
                                     &mixed_content_state));
@@ -282,6 +301,32 @@ TEST_F(SSLUITest, TestMixedContents) {
   EXPECT_LT(100, img_width);
 
   // And our status should be mixed-content.
+  EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
+                                    &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+}
+
+// Visits a page with an http script that tries to suppress our mixed content
+// warnings by randomize location.hash.
+// Based on http://crbug.com/8706
+TEST_F(SSLUITest, TestMixedContentsRandomizeHash) {
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+
+  scoped_ptr<TabProxy> tab(GetActiveTabProxy());
+  NavigateTab(
+      tab.get(),
+      https_server->TestServerPageW(
+          L"files/ssl/page_with_http_script.html"));
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab->GetPageType(&page_type));
+  EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
+
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
   EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
                                     &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
@@ -375,6 +420,57 @@ TEST_F(SSLUITest, TestMixedContentsLoadedFromJS) {
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0,
             cert_status & net::CERT_STATUS_ALL_ERRORS);  // No errors expected.
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+}
+
+// Visits two pages from the same origin: one with mixed content and one
+// without.  The test checks that we propagate the mixed content state from one
+// to the other.
+TEST_F(SSLUITest, TestMixedContentsTwoTabs) {
+  scoped_refptr<HTTPSTestServer> https_server = GoodCertServer();
+  scoped_refptr<HTTPTestServer> http_server = PlainServer();
+
+  scoped_ptr<TabProxy> tab1(GetActiveTabProxy());
+  NavigateTab(
+      tab1.get(),
+      https_server->TestServerPageW(
+          L"files/ssl/blank_page.html"));
+  NavigationEntry::PageType page_type;
+  EXPECT_TRUE(tab1->GetPageType(&page_type));
+  EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
+
+  // This tab should be fine.
+  SecurityStyle security_style;
+  int cert_status;
+  int mixed_content_state;
+  EXPECT_TRUE(tab1->GetSecurityState(&security_style, &cert_status,
+                                     &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(browser_proxy.get());
+  EXPECT_TRUE(browser_proxy->AppendTab(
+      https_server->TestServerPageW(L"files/ssl/page_with_http_script.html")));
+
+  scoped_ptr<TabProxy> tab2(GetActiveTabProxy());
+  EXPECT_TRUE(tab2->GetPageType(&page_type));
+  EXPECT_EQ(NavigationEntry::NORMAL_PAGE, page_type);
+
+  // The new tab has mixed content.
+  EXPECT_TRUE(tab2->GetSecurityState(&security_style, &cert_status,
+                                     &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
+
+  // Which means the origin for the first tab has also been contaminated with
+  // mixed content.
+  EXPECT_TRUE(tab1->GetSecurityState(&security_style, &cert_status,
+                                     &mixed_content_state));
+  EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
+  EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
   EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 }
 
@@ -803,13 +899,13 @@ TEST_F(SSLUITest, TestGoodFrameNavigation) {
   EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
   EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 
-  // Go back, our state should be back to OK.
+  // Go back, our state should be unchanged.
   EXPECT_TRUE(tab->GoBack());
   EXPECT_TRUE(tab->GetSecurityState(&security_style, &cert_status,
                                     &mixed_content_state));
   EXPECT_EQ(SECURITY_STYLE_AUTHENTICATED, security_style);
   EXPECT_EQ(0, cert_status & net::CERT_STATUS_ALL_ERRORS);
-  EXPECT_EQ(NavigationEntry::SSLStatus::NORMAL_CONTENT, mixed_content_state);
+  EXPECT_EQ(NavigationEntry::SSLStatus::MIXED_CONTENT, mixed_content_state);
 }
 
 // From a bad HTTPS top frame:

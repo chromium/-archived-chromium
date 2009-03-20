@@ -25,13 +25,14 @@ class SSLPolicy : public SSLManager::Delegate,
   virtual void OnCertError(SSLManager::CertError* error);
   virtual void OnMixedContent(SSLManager::MixedContentHandler* handler);
   virtual void OnRequestStarted(SSLManager::RequestInfo* info);
-  virtual SecurityStyle GetDefaultStyle(const GURL& url);
+  virtual void UpdateEntry(SSLManager* manager, NavigationEntry* entry);
 
   // This method is static because it is called from both the UI and the IO
   // threads.
   static bool IsMixedContent(const GURL& url,
                              ResourceType::Type resource_type,
-                             const std::string& main_frame_origin);
+                             FilterPolicy::Type filter_policy,
+                             const std::string& frame_origin);
 
   // SSLBlockingPage::Delegate methods.
   virtual SSLErrorInfo GetSSLErrorInfo(SSLManager::CertError* error);

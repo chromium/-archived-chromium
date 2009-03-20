@@ -56,18 +56,6 @@ void SSLHostState::AllowCertForHost(net::X509Certificate* cert,
   cert_policy_for_host_[host].Allow(cert);
 }
 
-bool SSLHostState::DidAllowCertForHost(const std::string& host) {
-  DCHECK(CalledOnValidThread());
-
-  std::map<std::string, net::X509Certificate::Policy>::const_iterator iter =
-      cert_policy_for_host_.find(host);
-  
-  if (iter == cert_policy_for_host_.end())
-    return false;
-
-  return iter->second.HasAllowedCert();
-}
-
 net::X509Certificate::Policy::Judgment SSLHostState::QueryPolicy(
     net::X509Certificate* cert, const std::string& host) {
   DCHECK(CalledOnValidThread());

@@ -38,6 +38,44 @@
 // Wrap all these helper classes in an anonymous namespace.
 namespace {
 
+static void MarkOriginAsBroken(SSLManager* manager, const std::string& origin) {
+  GURL parsed_origin(origin);
+  if (!parsed_origin.SchemeIsSecure())
+    return;
+
+  manager->MarkHostAsBroken(parsed_origin.host());
+}
+
+static void AllowMixedContentForOrigin(SSLManager* manager,
+                                       const std::string& origin) {
+  GURL parsed_origin(origin);
+  if (!parsed_origin.SchemeIsSecure())
+    return;
+
+  manager->AllowMixedContentForHost(parsed_origin.host());
+}
+
+static void UpdateStateForMixedContent(SSLManager::RequestInfo* info) {
+  if (info->resource_type() != ResourceType::MAIN_FRAME ||
+      info->resource_type() != ResourceType::SUB_FRAME) {
+    // The frame's origin now contains mixed content and therefore is broken.
+    MarkOriginAsBroken(info->manager(), info->frame_origin());
+  }
+
+  if (info->resource_type() != ResourceType::MAIN_FRAME) {
+    // The main frame now contains a frame with mixed content.  Therefore, we
+    // mark the main frame's origin as broken too.
+    MarkOriginAsBroken(info->manager(), info->main_frame_origin());
+  }
+}
+
+static void UpdateStateForUnsafeContent(SSLManager::RequestInfo* info) {
+  // This request as a broken cert, which means its host is broken.
+  info->manager()->MarkHostAsBroken(info->url().host());
+
+  UpdateStateForMixedContent(info);
+}
+
 class ShowMixedContentTask : public Task {
  public:
   ShowMixedContentTask(SSLManager::MixedContentHandler* handler);
@@ -60,10 +98,9 @@ ShowMixedContentTask::~ShowMixedContentTask() {
 }
 
 void ShowMixedContentTask::Run() {
-  handler_->manager()->AllowMixedContentForHost(
-      GURL(handler_->main_frame_origin()).host());
-
-  // Reload the page.
+  AllowMixedContentForOrigin(handler_->manager(), handler_->frame_origin());
+  AllowMixedContentForOrigin(handler_->manager(),
+                             handler_->main_frame_origin());
   handler_->manager()->controller()->Reload(true);
 }
 
@@ -112,6 +149,23 @@ static void ShowBlockingPage(SSLPolicy* policy, SSLManager::CertError* error) {
   blocking_page->Show();
 }
 
+static void InitializeEntryIfNeeded(NavigationEntry* entry) {
+  if (entry->ssl().security_style() != SECURITY_STYLE_UNKNOWN)
+    return;
+
+  entry->ssl().set_security_style(entry->url().SchemeIsSecure() ?
+      SECURITY_STYLE_AUTHENTICATED : SECURITY_STYLE_UNAUTHENTICATED);
+}
+
+static void AddMixedContentWarningToConsole(
+    SSLManager::MixedContentHandler* handler) {
+  const std::wstring& msg = l10n_util::GetStringF(
+      IDS_MIXED_CONTENT_LOG_MESSAGE,
+      UTF8ToWide(handler->frame_origin()),
+      UTF8ToWide(handler->request_url().spec()));
+  handler->manager()->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
+}
+
 }  // namespace
 
 SSLPolicy::SSLPolicy() {
@@ -128,15 +182,6 @@ void SSLPolicy::OnCertError(SSLManager::CertError* error) {
                                     error->request_url().host());
 
   if (judgment == net::X509Certificate::Policy::ALLOWED) {
-    // We've been told to allow this certificate.
-    if (error->manager()->SetMaxSecurityStyle(
-            SECURITY_STYLE_AUTHENTICATION_BROKEN)) {
-      NotificationService::current()->Notify(
-          NotificationType::SSL_VISIBLE_STATE_CHANGED,
-          Source<NavigationController>(error->manager()->controller()),
-          Details<NavigationEntry>(
-              error->manager()->controller()->GetActiveEntry()));
-    }
     error->ContinueRequest();
     return;
   }
@@ -179,9 +224,10 @@ void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
   FilterPolicy::Type filter_policy =
       FilterPolicy::FromInt(prefs->GetInteger(prefs::kMixedContentFiltering));
 
-  // If the user have added an exception, doctor the |filter_policy|.
-  if (handler->manager()->DidAllowMixedContentForHost(
-           GURL(handler->main_frame_origin()).host()))
+  // If the user has added an exception, doctor the |filter_policy|.
+  std::string host = GURL(handler->main_frame_origin()).host();
+  if (handler->manager()->DidAllowMixedContentForHost(host) ||
+      handler->manager()->DidMarkHostAsBroken(host))
     filter_policy = FilterPolicy::DONT_FILTER;
 
   if (filter_policy != FilterPolicy::DONT_FILTER) {
@@ -190,108 +236,52 @@ void SSLPolicy::OnMixedContent(SSLManager::MixedContentHandler* handler) {
         l10n_util::GetString(IDS_SSL_INFO_BAR_SHOW_CONTENT),
         new ShowMixedContentTask(handler));
   }
+
   handler->StartRequest(filter_policy);
-
-  NavigationEntry* entry =
-      handler->manager()->controller()->GetLastCommittedEntry();
-  // We might not have a navigation entry in some cases (e.g. when a	
-  // HTTPS page opens a popup with no URL and then populate it with	
-  // document.write()). See bug http://crbug.com/3845.
-  if (!entry)
-    return;
-
-  // Even though we are loading the mixed-content resource, it will not be
-  // included in the page when we set the policy to FILTER_ALL or
-  // FILTER_ALL_EXCEPT_IMAGES (only images and they are stamped with warning
-  // icons), so we don't set the mixed-content mode in these cases.
-  if (filter_policy == FilterPolicy::DONT_FILTER)
-    entry->ssl().set_has_mixed_content();
-
-  // Print a message indicating the mixed-contents resource in the console.
-  const std::wstring& msg = l10n_util::GetStringF(
-      IDS_MIXED_CONTENT_LOG_MESSAGE,
-      UTF8ToWide(entry->url().spec()),
-      UTF8ToWide(handler->request_url().spec()));
-  handler->manager()->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
-
-  NotificationService::current()->Notify(
-      NotificationType::SSL_VISIBLE_STATE_CHANGED,
-      Source<NavigationController>(handler->manager()->controller()),
-      Details<NavigationEntry>(entry));
+  AddMixedContentWarningToConsole(handler);
 }
 
 void SSLPolicy::OnRequestStarted(SSLManager::RequestInfo* info) {
-  // These schemes never leave the browser and don't require a warning.
-  if (info->url().SchemeIs(chrome::kDataScheme) ||
-      info->url().SchemeIs(chrome::kJavaScriptScheme) ||
-      info->url().SchemeIs(chrome::kAboutScheme))
-    return;
+  if (net::IsCertStatusError(info->ssl_cert_status()))
+    UpdateStateForUnsafeContent(info);
 
-  NavigationEntry* entry = info->manager()->controller()->GetActiveEntry();
-  if (!entry) {
-    // We may not have an entry for cases such as the inspector.
-    return;
-  }
-
-  NavigationEntry::SSLStatus& ssl = entry->ssl();
-  bool changed = false;
-  if (!entry->url().SchemeIsSecure() ||  // Current page is not secure.
-      info->resource_type() == ResourceType::MAIN_FRAME ||  // Main frame load.
-      net::IsCertStatusError(ssl.cert_status())) {  // There is already
-          // an error for the main page, don't report sub-resources as unsafe
-          // content.
-    // No mixed/unsafe content check necessary.
-    return;
-  }
-
-  if (info->url().SchemeIsSecure()) {
-    // Check for insecure content (anything served over intranet is considered
-    // insecure).
-
-    // TODO(jcampan): bug #1178228 Disabling the broken style for intranet
-    // hosts for beta as it is missing error strings (and cert status).
-    // if (IsIntranetHost(url.host()) ||
-    //    net::IsCertStatusError(info->ssl_cert_status())) {
-    if (net::IsCertStatusError(info->ssl_cert_status())) {
-      // The resource is unsafe.
-      if (!ssl.has_unsafe_content()) {
-        changed = true;
-        ssl.set_has_unsafe_content();
-        info->manager()->SetMaxSecurityStyle(
-            SECURITY_STYLE_AUTHENTICATION_BROKEN);
-      }
-    }
-  }
-
-  if (changed) {
-    // Only send the notification when something actually changed.
-    NotificationService::current()->Notify(
-        NotificationType::SSL_VISIBLE_STATE_CHANGED,
-        Source<NavigationController>(info->manager()->controller()),
-        NotificationService::NoDetails());
-  }
+  if (IsMixedContent(info->url(),
+                     info->resource_type(),
+                     info->filter_policy(),
+                     info->frame_origin()))
+    UpdateStateForMixedContent(info);
 }
 
-SecurityStyle SSLPolicy::GetDefaultStyle(const GURL& url) {
-  // Show the secure style for HTTPS.
-  if (url.SchemeIsSecure()) {
-    // TODO(jcampan): bug #1178228 Disabling the broken style for intranet
-    // hosts for beta as it is missing error strings (and cert status).
-    // CAs issue certs for intranet hosts to anyone.
-    // if (IsIntranetHost(url.host()))
-    //   return SECURITY_STYLE_AUTHENTICATION_BROKEN;
+void SSLPolicy::UpdateEntry(SSLManager* manager, NavigationEntry* entry) {
+  DCHECK(entry);
 
-    return SECURITY_STYLE_AUTHENTICATED;
+  InitializeEntryIfNeeded(entry);
+
+  if (!entry->url().SchemeIsSecure())
+    return;
+
+  // An HTTPS response may not have a certificate for some reason.  When that
+  // happens, use the unauthenticated (HTTP) rather than the authentication
+  // broken security style so that we can detect this error condition.
+  if (!entry->ssl().cert_id()) {
+    entry->ssl().set_security_style(SECURITY_STYLE_UNAUTHENTICATED);
+    return;
   }
 
-  // Otherwise, show the unauthenticated style.
-  return SECURITY_STYLE_UNAUTHENTICATED;
+  if (net::IsCertStatusError(entry->ssl().cert_status())) {
+    entry->ssl().set_security_style(SECURITY_STYLE_AUTHENTICATION_BROKEN);
+    return;
+  }
+
+  if (manager->DidMarkHostAsBroken(entry->url().host()))
+    entry->ssl().set_has_mixed_content();
 }
 
 // static
 bool SSLPolicy::IsMixedContent(const GURL& url,
                                ResourceType::Type resource_type,
-                               const std::string& main_frame_origin) {
+                               FilterPolicy::Type filter_policy,
+                               const std::string& frame_origin) {
   ////////////////////////////////////////////////////////////////////////////
   // WARNING: This function is called from both the IO and UI threads.  Do  //
   //          not touch any non-thread-safe objects!  You have been warned. //
@@ -301,9 +291,20 @@ bool SSLPolicy::IsMixedContent(const GURL& url,
   if (resource_type == ResourceType::MAIN_FRAME)
     return false;
 
-  // TODO(abarth): This is wrong, but it matches our current behavior.
-  //               I'll fix this in a subsequent step.
-  return GURL(main_frame_origin).SchemeIsSecure() && !url.SchemeIsSecure();
+  // If we've filtered the resource, then it's no longer dangerous.
+  if (filter_policy != FilterPolicy::DONT_FILTER)
+    return false;
+
+  // If the frame doing the loading is already insecure, then we must have
+  // already dealt with whatever mixed content might be going on.
+  if (!GURL(frame_origin).SchemeIsSecure())
+    return false;
+
+  // We aren't worried about mixed content if we're loading an HTTPS URL.
+  if (url.SchemeIsSecure())
+    return false;
+
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

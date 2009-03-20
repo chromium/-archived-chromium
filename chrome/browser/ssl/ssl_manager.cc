@@ -206,14 +206,12 @@ void SSLManager::DenyCertForHost(net::X509Certificate* cert,
                                  const std::string& host) {
   // Remember that we don't like this cert for this host.
   ssl_host_state_->DenyCertForHost(cert, host);
-  DispatchSSLInternalStateChanged();
 }
 
 // Delegate API method.
 void SSLManager::AllowCertForHost(net::X509Certificate* cert,
                                   const std::string& host) {
   ssl_host_state_->AllowCertForHost(cert, host);
-  DispatchSSLInternalStateChanged();
 }
 
 // Delegate API method.
@@ -225,7 +223,6 @@ net::X509Certificate::Policy::Judgment SSLManager::QueryPolicy(
 // Delegate API method.
 void SSLManager::AllowMixedContentForHost(const std::string& host) {
   ssl_host_state_->AllowMixedContentForHost(host);
-  DispatchSSLInternalStateChanged();
 }
 
 // Delegate API method.
@@ -506,7 +503,8 @@ bool SSLManager::ShouldStartRequest(ResourceDispatcherHost* rdh,
   // to respond synchronously to avoid delaying all network requests...
   if (!SSLPolicy::IsMixedContent(request->url(),
                                  info->resource_type,
-                                 info->main_frame_origin))
+                                 info->filter_policy,
+                                 info->frame_origin))
     return true;
 
 
@@ -573,24 +571,18 @@ void SSLManager::DispatchSSLVisibleStateChanged() {
       NotificationService::NoDetails());
 }
 
-void SSLManager::InitializeEntryIfNeeded(NavigationEntry* entry) {
-  DCHECK(entry);
+void SSLManager::UpdateEntry(NavigationEntry* entry) {
+  // We don't always have a navigation entry to update, for example in the
+  // case of the Web Inspector.
+  if (!entry)
+    return;
 
-  // If the security style of the entry is SECURITY_STYLE_UNKNOWN, then it is a
-  // fresh entry and should get the default style.
-  if (entry->ssl().security_style() == SECURITY_STYLE_UNKNOWN) {
-    entry->ssl().set_security_style(
-        delegate()->GetDefaultStyle(entry->url()));
-  }
-}
+  NavigationEntry::SSLStatus original_ssl_status = entry->ssl();  // Copy!
 
-void SSLManager::NavigationStateChanged() {
-  NavigationEntry* active_entry = controller_->GetActiveEntry();
-  if (!active_entry)
-    return;  // Nothing showing yet.
+  delegate()->UpdateEntry(this, entry);
 
-  // This might be a new entry we've never seen before.
-  InitializeEntryIfNeeded(active_entry);
+  if (!entry->ssl().Equals(original_ssl_status))
+    DispatchSSLVisibleStateChanged();
 }
 
 void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
@@ -599,12 +591,15 @@ void SSLManager::DidLoadFromMemoryCache(LoadFromMemoryCacheDetails* details) {
   // Simulate loading this resource through the usual path.
   // Note that we specify SUB_RESOURCE as the resource type as WebCore only
   // caches sub-resources.
+  // This resource must have been loaded with FilterPolicy::DONT_FILTER because
+  // filtered resouces aren't cachable.
   scoped_refptr<RequestInfo> info = new RequestInfo(
       this,
       details->url(),
       ResourceType::SUB_RESOURCE,
       details->frame_origin(),
       details->main_frame_origin(),
+      FilterPolicy::DONT_FILTER,
       details->ssl_cert_id(),
       details->ssl_cert_status());
 
@@ -622,62 +617,28 @@ void SSLManager::DidCommitProvisionalLoad(
   if (details->is_in_page)
     return;
 
-  // Decode the security details.
-  int ssl_cert_id, ssl_cert_status, ssl_security_bits;
-  DeserializeSecurityInfo(details->serialized_security_info,
-                          &ssl_cert_id, &ssl_cert_status, &ssl_security_bits);
+  NavigationEntry* entry = controller_->GetActiveEntry();
 
-  bool changed = false;
   if (details->is_main_frame) {
-    // Update the SSL states of the pending entry.
-    NavigationEntry* entry = controller_->GetActiveEntry();
     if (entry) {
+      // Decode the security details.
+      int ssl_cert_id, ssl_cert_status, ssl_security_bits;
+      DeserializeSecurityInfo(details->serialized_security_info,
+                              &ssl_cert_id,
+                              &ssl_cert_status,
+                              &ssl_security_bits);
+
       // We may not have an entry if this is a navigation to an initial blank
       // page. Reset the SSL information and add the new data we have.
       entry->ssl() = NavigationEntry::SSLStatus();
-      InitializeEntryIfNeeded(entry);  // For security_style.
       entry->ssl().set_cert_id(ssl_cert_id);
       entry->ssl().set_cert_status(ssl_cert_status);
       entry->ssl().set_security_bits(ssl_security_bits);
-      changed = true;
     }
-
     ShowPendingMessages();
   }
 
-  // An HTTPS response may not have a certificate for some reason.  When that
-  // happens, use the unauthenticated (HTTP) rather than the authentication
-  // broken security style so that we can detect this error condition.
-  if (net::IsCertStatusError(ssl_cert_status) &&
-      !details->is_content_filtered) {
-    changed |= SetMaxSecurityStyle(SECURITY_STYLE_AUTHENTICATION_BROKEN);
-    if (!details->is_main_frame &&
-        !details->entry->ssl().has_unsafe_content()) {
-      details->entry->ssl().set_has_unsafe_content();
-      changed = true;
-    }
-  } else if (details->entry->url().SchemeIsSecure() && !ssl_cert_id) {
-    if (details->is_main_frame) {
-      changed |= SetMaxSecurityStyle(SECURITY_STYLE_UNAUTHENTICATED);
-    } else {
-      // If the frame has been blocked we keep our security style as
-      // authenticated in that case as nothing insecure is actually showing or
-      // loaded.
-      if (!details->is_content_filtered &&
-          !details->entry->ssl().has_mixed_content()) {
-        details->entry->ssl().set_has_mixed_content();
-        changed = true;
-      }
-    }
-  }
-
-  if (changed) {
-    // Only send the notification when something actually changed.
-    NotificationService::current()->Notify(
-        NotificationType::SSL_VISIBLE_STATE_CHANGED,
-        Source<NavigationController>(controller_),
-        NotificationService::NoDetails());
-  }
+  UpdateEntry(entry);
 }
 
 void SSLManager::DidFailProvisionalLoadWithError(
@@ -701,6 +662,7 @@ void SSLManager::DidStartResourceResponse(ResourceRequestDetails* details) {
       details->resource_type(),
       details->frame_origin(),
       details->main_frame_origin(),
+      details->filter_policy(),
       details->ssl_cert_id(),
       details->ssl_cert_status());
 
@@ -728,7 +690,7 @@ void SSLManager::ShowPendingMessages() {
 }
 
 void SSLManager::DidChangeSSLInternalState() {
-  // TODO(abarth): We'll need to do something here in the next step.
+  UpdateEntry(controller_->GetActiveEntry());
 }
 
 void SSLManager::ClearPendingMessages() {

@@ -45,6 +45,14 @@ class NavigationEntry {
 
     SSLStatus();
 
+    bool Equals(const SSLStatus& status) const {
+      return security_style_ == status.security_style_ &&
+             cert_id_ == status.cert_id_ &&
+             cert_status_ == status.cert_status_ &&
+             security_bits_ == status.security_bits_ &&
+             content_status_ == status.content_status_;
+    }
+
     void set_security_style(SecurityStyle security_style) {
       security_style_ = security_style;
     }
