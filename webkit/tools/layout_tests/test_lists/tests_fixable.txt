@@ -511,8 +511,7 @@ DEFER LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
 LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 
-// 2008/12/13 - This was FAIL but is now CRASH on WIN. See issue 6869.
-LINUX WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
+LINUX : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
 MAC : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 // The pattern we generate appears to be scaled incorrectly.
