@@ -38,9 +38,6 @@ class DownloadRequestDialogDelegateWin : public DownloadRequestDialogDelegate,
   }
   virtual void DeleteDelegate();
 
-  // The TabDownloadState we're displaying the dialog for. May be null.
-  DownloadRequestManager::TabDownloadState* host_;
-
   MessageBoxView* message_view_;
 
   ConstrainedWindow* window_;
