@@ -118,7 +118,7 @@
           ['_type!="static_library"', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-search_paths_first']},
           }],
-          ['_type=="executable" and _mac_bundle', {
+          ['_mac_bundle', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
           }],
           ['_type=="executable"', {
