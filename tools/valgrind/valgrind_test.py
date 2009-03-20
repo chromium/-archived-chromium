@@ -21,6 +21,8 @@ import common
 
 import valgrind_analyze
 
+import google.logging_utils
+
 rmtree = shutil.rmtree
 
 class Valgrind(object):
@@ -57,6 +59,8 @@ class Valgrind(object):
     self._parser.add_option("", "--generate_suppressions", action="store_true",
                             default=False,
                             help="Skip analysis and generate suppressions")
+    self._parser.add_option("-v", "--verbose", action="store_true", default=False,
+                    help="verbose output - enable debug log messages")
     self._parser.description = __doc__
 
   def ParseArgv(self):
@@ -68,6 +72,11 @@ class Valgrind(object):
     self._source_dir = self._options.source_dir
     if self._options.gtest_filter != "":
       self._args.append("--gtest_filter=%s" % self._options.gtest_filter)
+    if self._options.verbose:
+      google.logging_utils.config_root(logging.DEBUG)
+    else:
+      google.logging_utils.config_root()
+
     return True
 
   def Setup(self):
@@ -85,7 +94,9 @@ class Valgrind(object):
 
     proc = self.ValgrindCommand()
     os.putenv("G_SLICE", "always-malloc")
+    logging.info("export G_SLICE=always-malloc");
     os.putenv("NSS_DISABLE_ARENA_FREE_LIST", "1")
+    logging.info("export NSS_DISABLE_ARENA_FREE_LIST=1");
 
     common.RunSubprocess(proc, self._timeout)
 
