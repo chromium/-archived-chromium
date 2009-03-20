@@ -533,8 +533,8 @@ TEST_F(URLRequestTest, FileTest) {
 
     MessageLoop::current()->Run();
 
-    int64 file_size;
-    file_util::GetFileSize(app_path, &file_size);
+    int64 file_size = -1;
+    EXPECT_TRUE(file_util::GetFileSize(app_path, &file_size));
 
     EXPECT_TRUE(!r.is_pending());
     EXPECT_EQ(1, d.response_started_count());
