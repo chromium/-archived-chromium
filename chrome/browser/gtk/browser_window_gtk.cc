@@ -80,22 +80,22 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
   return gfx::Rect(x, y, width, height);
 }
 
-const guint kFocusLocationKey = GDK_l;
-const guint kFocusSearchKey = GDK_k;
-const guint kOpenFileKey = GDK_o;
+const struct AcceleratorMapping {
+  guint keyval;
+  int command_id;
+} kAcceleratorMap[] = {
+  { GDK_l, IDC_FOCUS_LOCATION },
+  { GDK_k, IDC_FOCUS_SEARCH },
+  { GDK_o, IDC_OPEN_FILE },
+};
 
 static int GetCommandFromKeyval(guint accel_key) {
-  switch (accel_key) {
-    case kFocusLocationKey:
-      return IDC_FOCUS_LOCATION;
-    case kFocusSearchKey:
-      return IDC_FOCUS_SEARCH;
-    case kOpenFileKey:
-      return IDC_OPEN_FILE;
-    default:
-      NOTREACHED();
-      return 0;
+  for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
+    if (kAcceleratorMap[i].keyval == accel_key)
+      return kAcceleratorMap[i].command_id;
   }
+  NOTREACHED();
+  return 0;
 }
 
 // Usually accelerators are checked before propagating the key event, but in our
@@ -475,15 +475,12 @@ void BrowserWindowGtk::ConnectAccelerators() {
   // Drop the initial ref on |accel_group| so |window_| will own it.
   g_object_unref(accel_group);
 
-  gtk_accel_group_connect(
-      accel_group, kFocusLocationKey, GDK_CONTROL_MASK, GtkAccelFlags(0),
-      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
-  gtk_accel_group_connect(
-      accel_group, kFocusSearchKey, GDK_CONTROL_MASK, GtkAccelFlags(0),
-      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
-  gtk_accel_group_connect(
-      accel_group, kOpenFileKey, GDK_CONTROL_MASK, GtkAccelFlags(0),
-      g_cclosure_new(G_CALLBACK(OnAccelerator), this, NULL));
+  for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
+    gtk_accel_group_connect(
+        accel_group, kAcceleratorMap[i].keyval, GDK_CONTROL_MASK,
+        GtkAccelFlags(0), g_cclosure_new(G_CALLBACK(OnAccelerator),
+        this, NULL));
+  }
 }
 
 void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
