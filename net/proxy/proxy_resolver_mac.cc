@@ -251,16 +251,20 @@ int ProxyResolverMac::GetProxyForURL(const GURL& query_url,
                                      ProxyInfo* results) {
   scoped_cftyperef<CFStringRef> query_ref(
       base::SysUTF8ToCFStringRef(query_url.spec()));
-  scoped_cftyperef<CFStringRef> pac_ref(
-      base::SysUTF8ToCFStringRef(pac_url.spec()));
   scoped_cftyperef<CFURLRef> query_url_ref(
       CFURLCreateWithString(kCFAllocatorDefault,
                             query_ref.get(),
                             NULL));
+  if (!query_url_ref.get())
+    return ERR_FAILED;
+  scoped_cftyperef<CFStringRef> pac_ref(
+      base::SysUTF8ToCFStringRef(pac_url.spec()));
   scoped_cftyperef<CFURLRef> pac_url_ref(
       CFURLCreateWithString(kCFAllocatorDefault,
                             pac_ref.get(),
                             NULL));
+  if (!pac_url_ref.get())
+    return ERR_FAILED;
 
   // Work around <rdar://problem/5530166>. This dummy call to
   // CFNetworkCopyProxiesForURL initializes some state within CFNetwork that is
