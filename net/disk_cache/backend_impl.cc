@@ -676,6 +676,50 @@ void BackendImpl::TooMuchStorageRequested(int32 size) {
   stats_.ModifyStorageStats(0, size);
 }
 
+// We want to remove biases from some histograms so we only send data once per
+// week.
+bool BackendImpl::ShouldReportAgain() {
+  static bool first_time = true;
+  static bool should_send = false;
+
+  if (!first_time)
+    return should_send;
+
+  first_time = false;
+  int64 last_report = stats_.GetCounter(Stats::LAST_REPORT);
+  Time last_time = Time::FromInternalValue(last_report);
+  if (!last_report || (Time::Now() - last_time).InDays() >= 7) {
+    stats_.SetCounter(Stats::LAST_REPORT, Time::Now().ToInternalValue());
+    should_send = true;
+    return true;
+  }
+  return false;
+}
+
+void BackendImpl::FirstEviction() {
+  DCHECK(data_->header.create_time);
+
+  Time create_time = Time::FromInternalValue(data_->header.create_time);
+  static Histogram counter("DiskCache.FillupAge", 1, 10000, 50);
+  counter.SetFlags(kUmaTargetedHistogramFlag);
+  counter.Add((Time::Now() - create_time).InHours());
+
+  int64 use_hours = stats_.GetCounter(Stats::TIMER) / 120;
+  static Histogram counter2("DiskCache.FillupTime", 1, 10000, 50);
+  counter2.SetFlags(kUmaTargetedHistogramFlag);
+  counter2.Add(static_cast<int>(use_hours));
+
+  UMA_HISTOGRAM_PERCENTAGE("DiskCache.FirstHitRatio", stats_.GetHitRatio());
+
+  int avg_size = data_->header.num_bytes / GetEntryCount();
+  UMA_HISTOGRAM_COUNTS("DiskCache.FirstEntrySize", avg_size);
+
+  int large_entries_bytes = stats_.GetLargeEntriesSize();
+  int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
+  UMA_HISTOGRAM_PERCENTAGE("DiskCache.FirstLargeEntriesRatio", large_ratio);
+  stats_.ResetRatios();
+}
+
 void BackendImpl::CriticalError(int error) {
   LOG(ERROR) << "Critical error found " << error;
   if (disabled_)
@@ -721,13 +765,8 @@ void BackendImpl::OnStatsTimer() {
     first_time = false;
   if (first_time) {
     first_time = false;
-    int experiment = data_->header.experiment;
-    std::string entries(StringPrintf("DiskCache.Entries_%d", experiment));
-    std::string size(StringPrintf("DiskCache.Size_%d", experiment));
-    std::string max_size(StringPrintf("DiskCache.MaxSize_%d", experiment));
-    UMA_HISTOGRAM_COUNTS(entries.c_str(), data_->header.num_entries);
-    UMA_HISTOGRAM_COUNTS(size.c_str(), data_->header.num_bytes / (1024 * 1024));
-    UMA_HISTOGRAM_COUNTS(max_size.c_str(), max_size_ / (1024 * 1024));
+    if (ShouldReportAgain())
+      ReportStats();
   }
 
   // Save stats to disk at 5 min intervals.
@@ -792,6 +831,8 @@ bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
   // We need file version 2.1 for the new eviction algorithm.
   if (new_eviction_)
     header.version = 0x20001;
+
+  header.create_time = Time::Now().ToInternalValue();
 
   if (!file->Write(&header, sizeof(header), 0))
     return false;
@@ -1224,6 +1265,76 @@ void BackendImpl::LogStats() {
   for (size_t index = 0; index < stats.size(); index++) {
     LOG(INFO) << stats[index].first << ": " << stats[index].second;
   }
+}
+
+void BackendImpl::ReportStats() {
+  int experiment = data_->header.experiment;
+  std::string entries(StringPrintf("DiskCache.Entries_%d", experiment));
+  std::string size(StringPrintf("DiskCache.Size_%d", experiment));
+  std::string max_size(StringPrintf("DiskCache.MaxSize_%d", experiment));
+  UMA_HISTOGRAM_COUNTS(entries.c_str(), data_->header.num_entries);
+  UMA_HISTOGRAM_COUNTS(size.c_str(), data_->header.num_bytes / (1024 * 1024));
+  UMA_HISTOGRAM_COUNTS(max_size.c_str(), max_size_ / (1024 * 1024));
+
+  UMA_HISTOGRAM_COUNTS("DiskCache.AverageOpenEntries",
+      static_cast<int>(stats_.GetCounter(Stats::OPEN_ENTRIES)));
+  UMA_HISTOGRAM_COUNTS("DiskCache.MaxOpenEntries",
+      static_cast<int>(stats_.GetCounter(Stats::MAX_ENTRIES)));
+  stats_.SetCounter(Stats::MAX_ENTRIES, 0);
+
+  if (!data_->header.create_time) {
+    // This is a client running the experiment on the dev channel.
+    std::string hit_ratio(StringPrintf("DiskCache.HitRatio_%d", experiment));
+    UMA_HISTOGRAM_PERCENTAGE(hit_ratio.c_str(), stats_.GetHitRatio());
+    stats_.ResetRatios();
+
+    if (!data_->header.num_bytes)
+      return;
+
+    int large_entries_bytes = stats_.GetLargeEntriesSize();
+    int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
+    std::string large_ratio_name(StringPrintf("DiskCache.LargeEntriesRatio_%d",
+                                              experiment));
+    UMA_HISTOGRAM_PERCENTAGE(large_ratio_name.c_str(), large_ratio);
+    return;
+  }
+
+  if (!data_->header.lru.filled)
+    return;
+
+  // This is an up to date client that will report FirstEviction() data. After
+  // that event, start reporting this:
+
+  int64 total_hours = stats_.GetCounter(Stats::TIMER) / 120;
+  static Histogram counter("DiskCache.TotalTime", 1, 10000, 50);
+  counter.SetFlags(kUmaTargetedHistogramFlag);
+  counter.Add(static_cast<int>(total_hours));
+
+  int64 use_hours = stats_.GetCounter(Stats::LAST_REPORT_TIMER) / 120;
+  if (!use_hours || !GetEntryCount() || !data_->header.num_bytes)
+    return;
+
+  static Histogram counter2("DiskCache.UseTime", 1, 10000, 50);
+  counter2.SetFlags(kUmaTargetedHistogramFlag);
+  counter2.Add(static_cast<int>(use_hours));
+
+  UMA_HISTOGRAM_PERCENTAGE("DiskCache.HitRatio", stats_.GetHitRatio());
+  UMA_HISTOGRAM_PERCENTAGE("DiskCache.ResurrectRatio",
+                           stats_.GetResurrectRatio());
+
+  int64 trim_rate = stats_.GetCounter(Stats::TRIM_ENTRY) / use_hours;
+  UMA_HISTOGRAM_COUNTS("DiskCache.TrimRate", static_cast<int>(trim_rate));
+
+  int avg_size = data_->header.num_bytes / GetEntryCount();
+  UMA_HISTOGRAM_COUNTS("DiskCache.EntrySize", avg_size);
+
+  int large_entries_bytes = stats_.GetLargeEntriesSize();
+  int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
+  UMA_HISTOGRAM_PERCENTAGE("DiskCache.LargeEntriesRatio", large_ratio);
+
+  stats_.ResetRatios();
+  stats_.SetCounter(Stats::TRIM_ENTRY, 0);
+  stats_.SetCounter(Stats::LAST_REPORT_TIMER, 0);
 }
 
 void BackendImpl::UpgradeTo2_1() {

@@ -66,7 +66,8 @@ const uint32 kIndexMagic = 0xC103CAC3;
 const uint32 kCurrentVersion = 0x20000;  // Version 2.0.
 
 struct LruData {
-  int32     pad1[3];
+  int32     pad1[2];
+  int32     filled;          // Flag to tell when we filled the cache.
   int32     sizes[5];
   CacheAddr heads[5];
   CacheAddr tails[5];
@@ -88,7 +89,8 @@ struct IndexHeader {
   int32       table_len;     // Actual size of the table (0 == kIndexTablesize).
   int32       crash;         // Signals a previous crash.
   int32       experiment;    // Id of an ongoing test.
-  int32       pad[54];
+  uint64      create_time;   // Creation time for this set of files.
+  int32       pad[52];
   LruData     lru;           // Eviction control data.
   IndexHeader() {
     memset(this, 0, sizeof(*this));

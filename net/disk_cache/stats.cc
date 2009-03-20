@@ -54,6 +54,8 @@ static const char* kCounterNames[] = {
   "Open rankings",
   "Get rankings",
   "Fatal error",
+  "Last report",
+  "Last report timer"
 };
 COMPILE_ASSERT(arraysize(kCounterNames) == disk_cache::Stats::MAX_COUNTER,
                update_the_names);
@@ -255,6 +257,40 @@ void Stats::GetItems(StatsItems* items) {
     item.second = StringPrintf("0x%I64x", counters_[i]);
     items->push_back(item);
   }
+}
+
+int Stats::GetHitRatio() const {
+  return GetRatio(OPEN_HIT, OPEN_MISS);
+}
+
+int Stats::GetResurrectRatio() const {
+  return GetRatio(RESURRECT_HIT, CREATE_HIT);
+}
+
+int Stats::GetRatio(Counters hit, Counters miss) const {
+  int64 ratio = GetCounter(hit) * 100;
+  if (!ratio)
+    return 0;
+
+  ratio /= (GetCounter(hit) + GetCounter(miss));
+  return static_cast<int>(ratio);
+}
+
+void Stats::ResetRatios() {
+  SetCounter(OPEN_HIT, 0);
+  SetCounter(OPEN_MISS, 0);
+  SetCounter(RESURRECT_HIT, 0);
+  SetCounter(CREATE_HIT, 0);
+}
+
+int Stats::GetLargeEntriesSize() {
+  int total = 0;
+  // data_sizes_[20] stores values between 512 KB and 1 MB (see comment before
+  // GetStatsBucket()).
+  for (int bucket = 20; bucket < kDataSizesLength; bucket++)
+    total += data_sizes_[bucket] * GetBucketRange(bucket);
+
+  return total;
 }
 
 void Stats::Store() {

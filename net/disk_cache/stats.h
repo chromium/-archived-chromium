@@ -42,6 +42,8 @@ class Stats {
     OPEN_RANKINGS,  // An entry has to be read just to modify rankings.
     GET_RANKINGS,  // We got the ranking info without reading the whole entry.
     FATAL_ERROR,
+    LAST_REPORT,  // Time of the last time we sent a report.
+    LAST_REPORT_TIMER,  // Timer count since last report.
     MAX_COUNTER
   };
 
@@ -59,6 +61,12 @@ class Stats {
   int64 GetCounter(Counters counter) const;
 
   void GetItems(StatsItems* items);
+  int GetHitRatio() const;
+  int GetResurrectRatio() const;
+  void ResetRatios();
+
+  // Returns the lower bound of the space used by entries bigger than 512 KB.
+  int GetLargeEntriesSize();
 
   // Saves the stats to disk.
   void Store();
@@ -70,6 +78,7 @@ class Stats {
 
  private:
   int GetStatsBucket(int32 size);
+  int GetRatio(Counters hit, Counters miss) const;
 
   BackendImpl* backend_;
   uint32 storage_addr_;

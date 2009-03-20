@@ -100,6 +100,14 @@ class BackendImpl : public Backend {
   // Logs requests that are denied due to being too big.
   void TooMuchStorageRequested(int32 size);
 
+  // Returns true if we should send histograms for this user again. The caller
+  // must call this function only once per run (because it returns always the
+  // same thing on a given run).
+  bool ShouldReportAgain();
+
+  // Reports some data when we filled up the cache.
+  void FirstEviction();
+
   // Reports a critical error (and disables the cache).
   void CriticalError(int error);
 
@@ -182,6 +190,9 @@ class BackendImpl : public Backend {
   // Dumps current cache statistics to the log.
   void LogStats();
 
+  // Send UMA stats.
+  void ReportStats();
+
   // Upgrades the index file to version 2.1.
   void UpgradeTo2_1();
 
@@ -204,7 +215,7 @@ class BackendImpl : public Backend {
   Eviction eviction_;  // Handler of the eviction algorithm.
   int num_refs_;  // Number of referenced cache entries.
   int max_refs_;  // Max number of referenced cache entries.
-  int num_pending_io_;  // Number of pending IO operations;
+  int num_pending_io_;  // Number of pending IO operations.
   bool init_;  // controls the initialization of the system.
   bool restarted_;
   bool unit_test_;

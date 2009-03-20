@@ -140,11 +140,19 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
   static bool first_time = true;
   if (first_time) {
     first_time = false;
-    std::string name(StringPrintf("DiskCache.TrimAge_%d",
-                                  header_->experiment));
-    static Histogram counter(name.c_str(), 1, 10000, 50);
-    counter.SetFlags(kUmaTargetedHistogramFlag);
-    counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
+    if (backend_->ShouldReportAgain()) {
+      std::string name(StringPrintf("DiskCache.TrimAge_%d",
+                                    header_->experiment));
+      static Histogram counter(name.c_str(), 1, 10000, 50);
+      counter.SetFlags(kUmaTargetedHistogramFlag);
+      counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
+    }
+
+    if (header_->create_time || !header_->lru.filled) {
+      // This is the first entry that we have to evict, generate some noise.
+      header_->lru.filled = 1;
+      backend_->FirstEviction();
+    }
   }
 }
 
