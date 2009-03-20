@@ -132,10 +132,15 @@ class ChromeTests:
       cmd.append("--baseline")
     if self._options.verbose:
       cmd.append("--verbose")
+    if self._options.show_all_leaks:
+      cmd.append("--show_all_leaks")
     if self._options.generate_suppressions:
       cmd.append("--generate_suppressions")
     if exe:
       cmd.append(os.path.join(self._options.build_dir, exe))
+    # Valgrind runs tests slowly, so slow tests hurt more; show elapased time
+    # so we can find the slowpokes.
+    cmd.append("--gtest_print_time");
     return cmd
 
   def Run(self):
@@ -343,6 +348,9 @@ def _main(_):
                     help="additional arguments to --gtest_filter")
   parser.add_option("-v", "--verbose", action="store_true", default=False,
                     help="verbose output - enable debug log messages")
+  parser.add_option("", "--show_all_leaks", action="store_true",
+                    default=False,
+                    help="also show even less blatant leaks")
   parser.add_option("", "--no-reinstrument", action="store_true", default=False,
                     help="Don't force a re-instrumentation for ui_tests")
   parser.add_option("", "--generate_suppressions", action="store_true",

@@ -128,23 +128,21 @@ class ValgrindAnalyze:
   ''' Given a set of Valgrind XML files, parse all the errors out of them,
   unique them and output the results.'''
 
-  def __init__(self, source_dir, files):
+  def __init__(self, source_dir, files, show_all_leaks=False):
     '''Reads in a set of files.
 
     Args:
       source_dir: Path to top of source tree for this build
       files: A list of filenames.
+      show_all_leaks: whether to show even less important leaks
     '''
 
     self._errors = set()
     for file in files:
       raw_errors = parse(file).getElementsByTagName("error")
       for raw_error in raw_errors:
-        # Ignore reachable aka "possible" leaks for now.
-        # Annoyingly, Valgrind's --xml=yes option seems to
-        # force --leak-check=full --show-reachable=yes
-        kind = getTextOf(raw_error, "kind")
-        if (kind != "Leak_PossiblyLost"):
+        # Ignore "possible" leaks for now by default.
+        if (show_all_leaks or getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
           self._errors.add(ValgrindError(source_dir, raw_error))
 
   def Report(self):
