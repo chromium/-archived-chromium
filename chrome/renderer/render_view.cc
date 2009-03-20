@@ -2614,6 +2614,11 @@ void RenderView::OnInstallMissingPlugin() {
 
 void RenderView::OnFileChooserResponse(
          const std::vector<std::wstring>& file_names) {
+  // This could happen if we navigated to a different page before the user
+  // closed the chooser.
+  if (!file_chooser_.get())
+    return;
+
   file_chooser_->OnFileChoose(file_names);
   file_chooser_.reset();
 }
