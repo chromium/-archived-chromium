@@ -84,12 +84,13 @@ const struct AcceleratorMapping {
   guint keyval;
   int command_id;
 } kAcceleratorMap[] = {
-  { GDK_l, IDC_FOCUS_LOCATION },
   { GDK_k, IDC_FOCUS_SEARCH },
+  { GDK_l, IDC_FOCUS_LOCATION },
   { GDK_o, IDC_OPEN_FILE },
+  { GDK_w, IDC_CLOSE_TAB },
 };
 
-static int GetCommandFromKeyval(guint accel_key) {
+int GetCommandFromKeyval(guint accel_key) {
   for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
     if (kAcceleratorMap[i].keyval == accel_key)
       return kAcceleratorMap[i].command_id;
@@ -115,7 +116,8 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, gpointer userdata) {
 BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        // TODO(port): make this a pref.
-       custom_frame_(false) {
+       custom_frame_(false),
+       method_factory_(this) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_default_size(window_, 640, 480);
   g_signal_connect(window_, "destroy",
@@ -517,6 +519,23 @@ gboolean BrowserWindowGtk::OnAccelerator(GtkAccelGroup* accel_group,
                                          guint keyval,
                                          GdkModifierType modifier,
                                          BrowserWindowGtk* browser_window) {
-  browser_window->browser_->ExecuteCommand(GetCommandFromKeyval(keyval));
+  int command_id = GetCommandFromKeyval(keyval);
+  // We have to delay certain commands that may try to destroy widgets to which
+  // GTK is currently holding a reference. (For now the only such command is
+  // tab closing.) GTK will hold a reference on the RWHV widget when the
+  // event came through on that widget but GTK focus was elsewhere.
+  if (IDC_CLOSE_TAB == command_id) {
+    MessageLoop::current()->PostTask(FROM_HERE,
+        browser_window->method_factory_.NewRunnableMethod(
+            &BrowserWindowGtk::ExecuteBrowserCommand,
+            command_id));
+  } else {
+    browser_window->ExecuteBrowserCommand(command_id);
+  }
+
   return TRUE;
+}
+
+void BrowserWindowGtk::ExecuteBrowserCommand(int id) {
+  browser_->ExecuteCommand(id);
 }
