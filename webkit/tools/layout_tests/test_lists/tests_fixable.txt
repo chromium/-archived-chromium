@@ -1885,3 +1885,17 @@ MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-po
 // Merge 41827:41860 Regressions
 // Upstream r41849 added a large regex to this test which times out in V8.
 LayoutTests/fast/js/regexp-overflow.html = TIMEOUT
+WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
+WIN : LayoutTests/fast/text/stroking-decorations.html = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
+WIN : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
+WIN : LayoutTests/svg/batik/text/textFeatures.svg = FAIL
+WIN : LayoutTests/svg/batik/text/textProperties.svg = FAIL
+WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
+WIN : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
+WIN : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
+WIN : LayoutTests/svg/custom/text-repaint-including-stroke.svg = FAIL
+WIN : LayoutTests/svg/custom/use-detach.svg = FAIL
+WIN : LayoutTests/svg/custom/use-on-text.svg = FAIL
+WIN : LayoutTests/svg/text/text-text-08-b.svg = FAIL
