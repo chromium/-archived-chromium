@@ -114,7 +114,6 @@ const struct AcceleratorMapping {
   { GDK_l, IDC_FOCUS_LOCATION },
   { GDK_o, IDC_OPEN_FILE },
   { GDK_w, IDC_CLOSE_TAB },
-  { GDK_Page_Down, IDC_FOCUS_SEARCH },
 };
 
 int GetCommandFromKeyval(guint accel_key) {
