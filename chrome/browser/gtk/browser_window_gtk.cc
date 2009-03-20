@@ -139,7 +139,8 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
     return FALSE;
 
   // If the content area is focused, let it handle the key event.
-  DCHECK(gtk_window_propagate_key_event(window, event));
+  gboolean result = gtk_window_propagate_key_event(window, event);
+  DCHECK(result);
   return TRUE;
 }
 
