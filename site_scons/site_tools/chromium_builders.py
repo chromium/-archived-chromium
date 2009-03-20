@@ -52,6 +52,38 @@ class ChromeFileList(MSVS.FileList):
       else:
         top[i] = new
 
+
+def FilterOut(self, **kw):
+  """Removes values from existing construction variables in an Environment.
+
+  The values to remove should be a list.  For example:
+
+  self.FilterOut(CPPDEFINES=['REMOVE_ME', 'ME_TOO'])
+
+  Args:
+    self: Environment to alter.
+    kw: (Any other named arguments are values to remove).
+  """
+
+  kw = SCons.Environment.copy_non_reserved_keywords(kw)
+  for key, val in kw.items():
+    envval = self.get(key, None)
+    if envval is None:
+      # No existing variable in the environment, so nothing to delete.
+      continue
+
+    for vremove in val:
+      # Use while not if, so we can handle duplicates.
+      while vremove in envval:
+        envval.remove(vremove)
+
+    self[key] = envval
+
+    # TODO(sgk): SCons.Environment.Append() has much more logic to deal
+    # with various types of values.  We should handle all those cases in here
+    # too.  (If variable is a dict, etc.)
+
+
 import __builtin__
 __builtin__.ChromeFileList = ChromeFileList
 
@@ -117,6 +149,15 @@ def ChromeLibrary(env, target, source, *args, **kw):
     result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
   else:
     result = env.ComponentLibrary(target, source, *args, **kw)
+  return result
+
+def ChromeLoadableModule(env, target, source, *args, **kw):
+  source = compilable_files(env, source)
+  if env.get('_GYP'):
+    result = env.LoadableModule(target, source, *args, **kw)
+  else:
+    kw['COMPONENT_STATIC'] = True
+    result = env.LoadableModule(target, source, *args, **kw)
   return result
 
 def ChromeStaticLibrary(env, target, source, *args, **kw):
@@ -189,12 +230,15 @@ def generate(env):
   env.AddMethod(ChromeProgram)
   env.AddMethod(ChromeTestProgram)
   env.AddMethod(ChromeLibrary)
+  env.AddMethod(ChromeLoadableModule)
   env.AddMethod(ChromeStaticLibrary)
   env.AddMethod(ChromeSharedLibrary)
   env.AddMethod(ChromeObject)
   env.AddMethod(ChromeMSVSFolder)
   env.AddMethod(ChromeMSVSProject)
   env.AddMethod(ChromeMSVSSolution)
+
+  env.AddMethod(FilterOut)
 
   # Add the grit tool to the base environment because we use this a lot.
   sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)

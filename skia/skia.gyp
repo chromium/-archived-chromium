@@ -687,6 +687,9 @@
           ],
         }],
         [ 'OS == "linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
           'cflags': [
             '-Wno-unused',
             '-Wno-unused-function',

@@ -98,6 +98,17 @@
         'filters/video_decoder_unittest.cc',
         'filters/video_renderer_unittest.cc',
       ],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            # Needed for the following #include chain:
+            #   base/run_all_unittests.cc
+            #   ../base/test_suite.h
+            #   gtk/gtk.h
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
     },
   ],
 }

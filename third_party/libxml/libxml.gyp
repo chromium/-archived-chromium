@@ -173,6 +173,15 @@
       'dependencies': [
         'libxml',
       ],
+      'conditions': [
+        ['OS=="linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lm',
+            ],
+          },
+        }],
+      ],
     },
     {
       'target_name': 'xmllint',
@@ -185,6 +194,15 @@
       ],
       'dependencies': [
         'libxml',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lm',
+            ],
+          },
+        }],
       ],
     },
   ],

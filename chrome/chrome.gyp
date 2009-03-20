@@ -304,7 +304,11 @@
         ],
       },
       'conditions': [
-        ['OS!="linux"', {
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }, { # else: 'OS!="linux"'
           'sources!': [
             'third_party/xdg_user_dirs/xdg_user_dir_lookup.cc',
           ],
@@ -1207,6 +1211,9 @@
       ],
       'conditions': [
         ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
           'sources!': [
             'browser/debugger/debugger_shell_stubs.cc',
             # Windows-specific files.
@@ -1414,6 +1421,11 @@
         ],
       },
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
@@ -1489,6 +1501,11 @@
       },
       'conditions': [
         ['OS=="linux"', {
+          'dependencies': [
+            'views',
+            # Needed for chrome_dll_main.cc #include of gtk/gtk.h
+            '../build/linux/system.gyp:gtk',
+          ],
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)',
@@ -1704,6 +1721,11 @@
         'test/testing_profile.h',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
@@ -1739,6 +1761,11 @@
         'test/ui/ui_test_suite.h',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
         ['OS!="win"', {
           'sources!': [
             'test/ui/npapi_test_helper.cc',
@@ -1761,6 +1788,17 @@
       'sources': [
         'test/unit/run_all_unittests.cc',
       ],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            # Needed for the following #include chain:
+            #   test/unit/run_all_unittests.cc
+            #   test/unit/chrome_test_suite.h
+            #   gtk/gtk.h
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
     },
     {
       'target_name': 'ipc_tests',
@@ -1780,6 +1818,13 @@
         'common/ipc_sync_message_unittest.h',
         'common/ipc_tests.cc',
         'common/ipc_tests.h',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
       ],
     },
     {
@@ -1857,6 +1902,10 @@
       ],
       'conditions': [
         ['OS=="linux"', {
+          'dependencies': [
+            'views',
+            '../build/linux/system.gyp:gtk',
+          ],
           'sources!': [
             # TODO(port)
             'app/chrome_main_uitest.cc',
@@ -1880,9 +1929,6 @@
             'test/ui/history_uitest.cc',
             'test/ui/layout_plugin_uitest.cpp',
             'test/ui/omnibox_uitest.cc',
-          ],
-          'dependencies': [
-            'views',
           ],
         }],
         ['OS=="mac"', {
@@ -2089,11 +2135,19 @@
         'test/test_tab_contents.h',
         'test/v8_unit_test.cc',
         'test/v8_unit_test.h',
+        'views/controls/label_unittest.cc',
+        'views/controls/table/table_view_unittest.cc',
+        'views/controls/tree/tree_node_iterator_unittest.cc',
+        'views/focus/focus_manager_unittest.cc',
+        'views/grid_layout_unittest.cc',
+        'views/view_unittest.cc',
       ],
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
             'views',
+            '../build/linux/system.gyp:gtk',
+            '../build/linux/system.gyp:nss',
           ],
         }],
         ['OS=="win"', {
@@ -2112,8 +2166,7 @@
           'dependencies': [
             'views',
           ],
-        },],
-        ['OS!="win"', {
+        }, { # else: OS != "win"
           'sources!': [
             'browser/back_forward_menu_model_unittest.cc',
             'browser/bookmarks/bookmark_drag_data_unittest.cc',
@@ -2166,6 +2219,11 @@
             'test/test_notification_tracker.h',
             'test/ui_test_utils.cc',
             'test/ui_test_utils.h',
+            'views/controls/label_unittest.cc',
+            'views/controls/table/table_view_unittest.cc',
+            'views/focus/focus_manager_unittest.cc',
+            'views/grid_layout_unittest.cc',
+            'views/view_unittest.cc',
           ],
         }],
       ],
@@ -2190,6 +2248,11 @@
         'tools/build/win/precompiled.h',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
         ['OS!="win"', {
           'sources!': [
             'test/startup/feature_startup_test.cc',
@@ -2243,6 +2306,11 @@
           ],
           'conditions': [
             ['OS!="win"', {
+              'dependencies': [
+                '../build/linux/system.gyp:gtk',
+              ],
+            }],
+            ['OS!="win"', {
               'sources!': [
                 'tools/build/win/precompiled.cc',
                 'tools/build/win/precompiled.h',
@@ -2269,6 +2337,9 @@
           ],
           'conditions': [
             ['OS=="linux"', {
+              'dependencies': [
+                '../build/linux/system.gyp:gtk',
+              ],
               'sources!': [
                 # TODO(port):
                 'browser/visitedlink_perftest.cc',
@@ -2439,9 +2510,52 @@
             'views/window/window_win.cc',
             'views/window/window_win.h',
           ],
-          # These are layered in conditionals in the event other platforms
-          # end up using this module as well.
           'conditions': [
+            ['OS=="linux"', {
+              'dependencies': [
+                '../build/linux/system.gyp:gtk',
+              ],
+              'sources!': [
+                'views/accelerator.cc',
+                'views/accessibility/accessible_wrapper.cc',
+                'views/accessibility/view_accessibility.cc',
+                'views/controls/scrollbar/bitmap_scroll_bar.cc',
+                'views/controls/button/image_button.cc',
+                'views/controls/button/button_dropdown.cc',
+                'views/controls/button/checkbox.cc',
+                'views/controls/menu/chrome_menu.cc',
+                'views/controls/combo_box.cc',
+                'views/focus/focus_manager.cc',
+                'views/controls/table/group_table_view.cc',
+                'views/controls/hwnd_view.cc',
+                'views/controls/link.cc',
+                'views/controls/menu/menu.cc',
+                'views/controls/button/menu_button.cc',
+                'views/controls/message_box_view.cc',
+                'views/controls/button/native_button.cc',
+                'views/controls/native_control.cc',
+                'views/controls/scrollbar/native_scroll_bar.cc',
+                'views/controls/button/radio_button.cc',
+                'views/resize_corner.cc',
+                'views/controls/separator.cc',
+                'views/controls/single_split_view.cc',
+                'views/controls/tabbed_pane.cc',
+                'views/controls/table/table_view.cc',
+                'views/controls/text_field.cc',
+                'views/controls/tree/tree_view.cc',
+                'views/widget/accelerator_handler.cc',
+                'views/widget/aero_tooltip_manager.cc',
+                'views/widget/root_view_drop_target.cc',
+                'views/widget/tooltip_manager.cc',
+                'views/window/client_view.cc',
+                'views/window/custom_frame_view.cc',
+                'views/window/dialog_delegate.cc',
+                'views/window/dialog_client_view.cc',
+                'views/window/native_frame_view.cc',
+                'views/window/non_client_view.cc',
+                'views/window/window_delegate.cc',
+              ],
+            }],
             ['OS=="win"', {
               'defines': [
                 '__STD_C',
@@ -2499,6 +2613,10 @@
             }],
           ],
         },
+      ],
+    }], # OS=="win" or OS=="linux"
+    ['OS=="win"',
+      { 'targets': [
         {
           'target_name': 'plugin',
           'type': 'static_library',

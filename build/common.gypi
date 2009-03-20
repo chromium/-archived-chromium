@@ -87,6 +87,76 @@
     },
   },
   'conditions': [
+    [ 'OS=="linux"', {
+      'target_defaults': {
+        'asflags': [
+          # Needed so that libs with .s files (e.g. libicudata.a)
+          # are compatible with the general 32-bit-ness.
+          '-32',
+        ],
+        # All floating-point computations on x87 happens in 80-bit
+        # precision.  Because the C and C++ language standards allow
+        # the compiler to keep the floating-point values in higher
+        # precision than what's specified in the source and doing so
+        # is more efficient than constantly rounding up to 64-bit or
+        # 32-bit precision as specified in the source, the compiler,
+        # especially in the optimized mode, tries very hard to keep
+        # values in x87 floating-point stack (in 80-bit precision)
+        # as long as possible. This has important side effects, that
+        # the real value used in computation may change depending on
+        # how the compiler did the optimization - that is, the value
+        # kept in 80-bit is different than the value rounded down to
+        # 64-bit or 32-bit. There are possible compiler options to make
+        # this behavior consistent (e.g. -ffloat-store would keep all
+        # floating-values in the memory, thus force them to be rounded
+        # to its original precision) but they have significant runtime
+        # performance penalty.
+        #
+        # -mfpmath=sse -msse2 makes the compiler use SSE instructions
+        # which keep floating-point values in SSE registers in its
+        # native precision (32-bit for single precision, and 64-bit for
+        # double precision values). This means the floating-point value
+        # used during computation does not change depending on how the
+        # compiler optimized the code, since the value is always kept
+        # in its specified precision.
+        'cflags': [
+          '-m32',
+          '-pthread',
+          '-march=pentium4',
+          '-fno-exceptions',
+          '-msse2',
+          '-mfpmath=sse',
+        ],
+        'linkflags': [
+          '-m32',
+          '-pthread',
+        ],
+        'scons_settings': {
+          'LIBPATH': ['$DESTINATION_ROOT/lib'],
+          # Linking of large files uses lots of RAM, so serialize links
+          # using the handy flock command from util-linux.
+          'FLOCK_LINK': ['flock', '$DESTINATION_ROOT/linker.lock', '$LINK'],
+
+          # We have several cases where archives depend on each other in
+          # a cyclic fashion.  Since the GNU linker does only a single
+          # pass over the archives we surround the libraries with
+          # --start-group and --end-group (aka -( and -) ). That causes
+          # ld to loop over the group until no more undefined symbols
+          # are found. In an ideal world we would only make groups from
+          # those libraries which we knew to be in cycles. However,
+          # that's tough with SCons, so we bodge it by making all the
+          # archives a group by redefining the linking command here.
+          #
+          # TODO:  investigate whether we still have cycles that
+          # require --{start,end}-group.  There has been a lot of
+          # refactoring since this was first coded, which might have
+          # eliminated the circular dependencies.
+          'LINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$LINKFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'SHLINKCOM': [['$FLOCK_LINK', '-o', '$TARGET $SHLIN', 'FLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'IMPLICIT_COMMAND_DEPENDENCIES': 0,
+        },
+      },
+    }],
     ['OS=="mac"', {
       'target_defaults': {
         'mac_bundle': 0,

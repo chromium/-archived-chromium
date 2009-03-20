@@ -302,6 +302,11 @@
         '../base/base.gyp:base',
       ],
       'conditions': [
+        [ 'OS == "linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:nss',
+          ],
+        }],
         [ 'OS == "win"', {
             'sources/': [ ['exclude', '_(mac|linux|posix)\\.cc$'] ],
             'sources!': [
@@ -435,6 +440,9 @@
           },
         ],
         [ 'OS == "linux"', {
+            'dependencies': [
+              '../build/linux/system.gyp:gtk',
+            ],
             'sources!': [
               'base/sdch_filter_unittest.cc',
               'base/ssl_config_service_unittest.cc',

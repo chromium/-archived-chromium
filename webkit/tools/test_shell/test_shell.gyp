@@ -86,6 +86,7 @@
             'test_shell_resources',
             'npapi_layout_test_plugin',
             'npapi_test_plugin',
+            '../../../build/linux/system.gyp:gtk',
           ],
           # for:  test_shell_gtk.cc
           'cflags': ['-Wno-multichar'],
@@ -160,6 +161,7 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            '../../../build/linux/system.gyp:gtk',
             '../../../net/net.gyp:net_resources',
             '../../webkit.gyp:glue', # for webkit_{resources,strings_en-US}.pak
             'test_shell_resources',
@@ -261,6 +263,9 @@
       ],
       'conditions': [
         ['OS=="linux"', {
+          'dependencies': [
+            '../../../build/linux/system.gyp:gtk',
+          ],
           'sources!': [
              # TODO(port)
             '../../../skia/ext/platform_canvas_unittest.cc',
@@ -348,6 +353,9 @@
             '../../glue/plugins/test/plugin_test.cc',
             '../../glue/plugins/test/plugin_window_size_test.cc',
           ],
+          'include_dirs': [
+            '../../..',
+          ],
           'conditions': [
             ['OS=="linux"', {
               'sources!': [
@@ -373,6 +381,9 @@
             '../npapi_layout_test_plugin/main.cpp',
             '../npapi_layout_test_plugin/PluginObject.cpp',
             '../npapi_layout_test_plugin/TestObject.cpp',
+          ],
+          'include_dirs': [
+            '../../..',
           ],
           'dependencies': [
             '../../../third_party/npapi/npapi.gyp:npapi',

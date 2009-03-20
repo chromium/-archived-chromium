@@ -319,7 +319,19 @@
               # so use idle_timer_none.cc instead.
               'idle_timer.cc',
             ],
-            'cflags': ['-Wno-write-strings'],
+            'dependencies': [
+              '../build/linux/system.gyp:gtk',
+              '../build/linux/system.gyp:nss',
+            ],
+            'cflags': [
+              '-Wno-write-strings',
+            ],
+            'link_settings': {
+              'libraries': [
+                # We need rt for clock_gettime().
+                '-lrt',
+              ],
+            },
           },
           {  # else: OS != "linux"
             'sources!': [
@@ -436,6 +448,11 @@
         'base',
       ],
       'conditions': [
+        ['OS == "linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
         [ 'OS != "win"', { 'sources!': [
             'gfx/gdi_util.cc',
             'gfx/native_theme.cc',
@@ -542,6 +559,9 @@
             # if we want it yet, so leave it 'unported' for now.
             'idletimer_unittest.cc',
           ],
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
         }],
         ['OS != "mac"', {
           'sources!': [
@@ -590,6 +610,17 @@
           'PERF_TEST',
         ],
       },
+      'conditions': [
+        ['OS == "linux"', {
+          'dependencies': [
+            # Needed to handle the #include chain:
+            #   base/perf_test_suite.h
+            #   base/test_suite.h
+            #   gtk/gtk.h
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+      ],
     },
   ],
   'conditions': [
