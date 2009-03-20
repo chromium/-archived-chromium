@@ -31,6 +31,9 @@ class WebThemeEngineImpl : public WebKit::WebThemeEngine {
       WebKit::WebCanvas*, int part, int state, int classic_state,
       const WebKit::WebRect&, WebKit::WebColor, bool fill_content_area,
       bool draw_edges);
+  virtual void paintTrackbar(
+      WebKit::WebCanvas*, int part, int state, int classic_state,
+      const WebKit::WebRect&);
 };
 
 }  // namespace webkit_glue

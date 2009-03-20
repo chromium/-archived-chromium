@@ -102,4 +102,16 @@ void WebThemeEngineImpl::paintTextField(
   canvas->endPlatformPaint();
 }
 
+void WebThemeEngineImpl::paintTrackbar(
+    WebCanvas* canvas, int part, int state, int classic_state,
+    const WebRect& rect) {
+  HDC hdc = canvas->beginPlatformPaint();
+
+  RECT native_rect = WebRectToRECT(rect);
+  gfx::NativeTheme::instance()->PaintTrackbar(
+      hdc, part, state, classic_state, &native_rect, canvas);
+
+  canvas->endPlatformPaint();
+}
+
 }  // namespace webkit_glue

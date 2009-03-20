@@ -17,6 +17,38 @@
 #include "skia/ext/skia_utils_win.h"
 #include "skia/include/SkShader.h"
 
+namespace {
+
+void SetCheckerboardShader(SkPaint* paint, const RECT& align_rect) {
+  // Create a 2x2 checkerboard pattern using the 3D face and highlight colors.
+  SkColor face = skia::COLORREFToSkColor(GetSysColor(COLOR_3DFACE));
+  SkColor highlight = skia::COLORREFToSkColor(GetSysColor(COLOR_3DHILIGHT));
+  SkColor buffer[] = { face, highlight, highlight, face };
+  // Confusing bit: we first create a temporary bitmap with our desired pattern,
+  // then copy it to another bitmap.  The temporary bitmap doesn't take
+  // ownership of the pixel data, and so will point to garbage when this
+  // function returns.  The copy will copy the pixel data into a place owned by
+  // the bitmap, which is in turn owned by the shader, etc., so it will live
+  // until we're done using it.
+  SkBitmap temp_bitmap;
+  temp_bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
+  temp_bitmap.setPixels(buffer);
+  SkBitmap bitmap;
+  temp_bitmap.copyTo(&bitmap, temp_bitmap.config());
+  SkShader* shader = SkShader::CreateBitmapShader(bitmap,
+                                                  SkShader::kRepeat_TileMode,
+                                                  SkShader::kRepeat_TileMode);
+
+  // Align the pattern with the upper corner of |align_rect|.
+  SkMatrix matrix;
+  matrix.setTranslate(SkIntToScalar(align_rect.left),
+                      SkIntToScalar(align_rect.top));
+  shader->setLocalMatrix(matrix);
+  paint->setShader(shader)->safeUnref();
+}
+
+}  // namespace
+
 namespace gfx {
 
 /* static */
@@ -310,27 +342,8 @@ HRESULT NativeTheme::PaintScrollbarTrack(
       (colorScrollbar != GetSysColor(COLOR_WINDOW))) {
     FillRect(hdc, target_rect, reinterpret_cast<HBRUSH>(COLOR_SCROLLBAR + 1));
   } else {
-    // Create a 2x2 checkerboard pattern using the 3D face and highlight
-    // colors.
-    SkColor face = skia::COLORREFToSkColor(color3DFace);
-    SkColor highlight = skia::COLORREFToSkColor(GetSysColor(COLOR_3DHILIGHT));
-    SkColor buffer[] = { face, highlight, highlight, face };
-    SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
-    bitmap.setPixels(buffer);
-    SkShader* shader = SkShader::CreateBitmapShader(bitmap,
-                                                    SkShader::kRepeat_TileMode,
-                                                    SkShader::kRepeat_TileMode);
-
-    // Draw that pattern into the target rect, setting the origin to the top
-    // left corner of the scrollbar track (so the checked rect below the thumb
-    // aligns properly with the portion above the thumb).
-    SkMatrix matrix;
-    matrix.setTranslate(SkIntToScalar(align_rect->left),
-                        SkIntToScalar(align_rect->top));
-    shader->setLocalMatrix(matrix);
     SkPaint paint;
-    paint.setShader(shader)->unref();
+    SetCheckerboardShader(&paint, *align_rect);
     canvas->drawIRect(skia::RECTToSkIRect(*target_rect), paint);
   }
   if (classic_state & DFCS_PUSHED)
@@ -380,6 +393,88 @@ HRESULT NativeTheme::PaintTabPanelBackground(HDC hdc, RECT* rect) const {
 
   // Classic just renders a flat color background.
   FillRect(hdc, rect, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1));
+  return S_OK;
+}
+
+HRESULT NativeTheme::PaintTrackbar(HDC hdc,
+                                   int part_id,
+                                   int state_id,
+                                   int classic_state,
+                                   RECT* rect,
+                                   skia::PlatformCanvasWin* canvas) const {
+  // Make the channel be 4 px thick in the center of the supplied rect.  (4 px
+  // matches what XP does in various menus; GetThemePartSize() doesn't seem to
+  // return good values here.)
+  RECT channel_rect = *rect;
+  const int channel_thickness = 4;
+  if (part_id == TKP_TRACK) {
+    channel_rect.top +=
+        ((channel_rect.bottom - channel_rect.top - channel_thickness) / 2);
+    channel_rect.bottom = channel_rect.top + channel_thickness;
+  } else if (part_id == TKP_TRACKVERT) {
+    channel_rect.left +=
+        ((channel_rect.right - channel_rect.left - channel_thickness) / 2);
+    channel_rect.right = channel_rect.left + channel_thickness;
+  }  // else this isn't actually a channel, so |channel_rect| == |rect|.
+
+  HANDLE handle = GetThemeHandle(TRACKBAR);
+  if (handle && draw_theme_)
+    return draw_theme_(handle, hdc, part_id, state_id, &channel_rect, NULL);
+
+  // Classic mode, draw it manually.
+  if ((part_id == TKP_TRACK) || (part_id == TKP_TRACKVERT)) {
+    DrawEdge(hdc, &channel_rect, EDGE_SUNKEN, BF_RECT);
+  } else if (part_id == TKP_THUMBVERT) {
+    DrawEdge(hdc, rect, EDGE_RAISED, BF_RECT | BF_SOFT | BF_MIDDLE);
+  } else {
+    // Split rect into top and bottom pieces.
+    RECT top_section = *rect;
+    RECT bottom_section = *rect;
+    top_section.bottom -= ((bottom_section.right - bottom_section.left) / 2);
+    bottom_section.top = top_section.bottom;
+    DrawEdge(hdc, &top_section, EDGE_RAISED,
+             BF_LEFT | BF_TOP | BF_RIGHT | BF_SOFT | BF_MIDDLE | BF_ADJUST);
+
+    // Split triangular piece into two diagonals.
+    RECT& left_half = bottom_section;
+    RECT right_half = bottom_section;
+    right_half.left += ((bottom_section.right - bottom_section.left) / 2);
+    left_half.right = right_half.left;
+    DrawEdge(hdc, &left_half, EDGE_RAISED,
+             BF_DIAGONAL_ENDTOPLEFT | BF_SOFT | BF_MIDDLE | BF_ADJUST);
+    DrawEdge(hdc, &right_half, EDGE_RAISED,
+             BF_DIAGONAL_ENDBOTTOMLEFT | BF_SOFT | BF_MIDDLE | BF_ADJUST);
+
+    // If the button is pressed, draw hatching.
+    if (classic_state & DFCS_PUSHED) {
+      SkPaint paint;
+      SetCheckerboardShader(&paint, *rect);
+
+      // Fill all three pieces with the pattern.
+      canvas->drawIRect(skia::RECTToSkIRect(top_section), paint);
+
+      SkScalar left_triangle_top = SkIntToScalar(left_half.top);
+      SkScalar left_triangle_right = SkIntToScalar(left_half.right);
+      SkPath left_triangle;
+      left_triangle.moveTo(SkIntToScalar(left_half.left), left_triangle_top);
+      left_triangle.lineTo(left_triangle_right, left_triangle_top);
+      left_triangle.lineTo(left_triangle_right,
+                           SkIntToScalar(left_half.bottom));
+      left_triangle.close();
+      canvas->drawPath(left_triangle, paint);
+
+      SkScalar right_triangle_left = SkIntToScalar(right_half.left);
+      SkScalar right_triangle_top = SkIntToScalar(right_half.top);
+      SkPath right_triangle;
+      right_triangle.moveTo(right_triangle_left, right_triangle_top);
+      right_triangle.lineTo(SkIntToScalar(right_half.right),
+                            right_triangle_top);
+      right_triangle.lineTo(right_triangle_left,
+                            SkIntToScalar(right_half.bottom));
+      right_triangle.close();
+      canvas->drawPath(right_triangle, paint);
+    }
+  }
   return S_OK;
 }
 
@@ -598,6 +693,9 @@ HANDLE NativeTheme::GetThemeHandle(ThemeName theme_name) const
     break;
   case TEXTFIELD:
     handle = open_theme_(NULL, L"Edit");
+    break;
+  case TRACKBAR:
+    handle = open_theme_(NULL, L"Trackbar");
     break;
   case WINDOW:
     handle = open_theme_(NULL, L"Window");

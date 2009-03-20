@@ -41,6 +41,7 @@ class NativeTheme {
     STATUS,
     TAB,
     TEXTFIELD,
+    TRACKBAR,
     WINDOW,
     LAST
   };
@@ -198,6 +199,13 @@ class NativeTheme {
                          COLORREF color,
                          bool fill_content_area,
                          bool draw_edges) const;
+
+  HRESULT PaintTrackbar(HDC hdc,
+                        int part_id,
+                        int state_id,
+                        int classic_state,
+                        RECT* rect,
+                        skia::PlatformCanvasWin* canvas) const;
 
   bool IsThemingActive() const;
 
