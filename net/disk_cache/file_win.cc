@@ -78,7 +78,7 @@ MessageLoopForIO::IOHandler* GetFileIOHandler() {
 }
 
 File::File(base::PlatformFile file)
-    : init_(true), platform_file_(INVALID_HANDLE_VALUE),
+    : init_(true), mixed_(true), platform_file_(INVALID_HANDLE_VALUE),
       sync_platform_file_(file) {
 }
 

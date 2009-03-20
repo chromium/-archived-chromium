@@ -12,7 +12,7 @@
 namespace disk_cache {
 
 File::File(base::PlatformFile file)
-    : init_(true), platform_file_(file) {
+    : init_(true), mixed_(true), platform_file_(file) {
 }
 
 bool File::Init(const std::wstring& name) {
