@@ -350,7 +350,10 @@ inputs = [
     '$PORT_DIR/bindings/v8/V8MessagePortCustom.cpp',
     '$PORT_DIR/bindings/v8/V8WorkerContextCustom.cpp',
     '$PORT_DIR/bindings/v8/V8WorkerCustom.cpp',
+    '$PORT_DIR/bindings/v8/V8XMLHttpRequestConstructor.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
+    '$PORT_DIR/bindings/v8/V8XMLHttpRequestUploadCustom.cpp',
+    '$PORT_DIR/bindings/v8/V8XMLHttpRequestUtilities.cpp',
     '$PORT_DIR/bindings/v8/WorkerContextExecutionProxy.cpp',
     '$PORT_DIR/bindings/v8/WorkerScriptController.cpp',
 

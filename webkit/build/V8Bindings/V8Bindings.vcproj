@@ -2929,7 +2929,23 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestConstructor.cpp"
+			>
+		</File>
+		<File
 			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestUploadCustom.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestUtilities.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestUtilities.h"
 			>
 		</File>
 		<File
