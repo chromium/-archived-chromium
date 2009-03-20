@@ -71,7 +71,7 @@ class TextButton : public CustomButton {
   virtual void SetText(const std::wstring& text);
   std::wstring text() const { return text_; }
 
-  typedef enum TextAlignment {
+  enum TextAlignment {
     ALIGN_LEFT,
     ALIGN_CENTER,
     ALIGN_RIGHT
