@@ -5,8 +5,8 @@
 #include "chrome/views/controls/button/native_button_win.h"
 
 #include "base/logging.h"
-#include "chrome/views/controls/button/native_button2.h"
 #include "chrome/views/controls/button/checkbox2.h"
+#include "chrome/views/controls/button/native_button2.h"
 #include "chrome/views/widget/widget.h"
 
 namespace views {
@@ -36,9 +36,11 @@ void NativeButtonWin::UpdateFont() {
 }
 
 void NativeButtonWin::UpdateDefault() {
-  SendMessage(GetHWND(), BM_SETSTYLE,
-              native_button_->is_default() ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON,
-              true);
+  if (!IsCheckbox()) {
+    SendMessage(GetHWND(), BM_SETSTYLE,
+                native_button_->is_default() ? BS_DEFPUSHBUTTON : BS_PUSHBUTTON,
+                true);
+  }
 }
 
 View* NativeButtonWin::GetView() {
@@ -98,6 +100,10 @@ void NativeButtonWin::NativeControlCreated(HWND control_hwnd) {
   UpdateDefault();
 }
 
+// We could obtain this from the theme, but that only works if themes are
+// active.
+static const int kCheckboxSize = 13; // pixels
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, public:
 
@@ -110,6 +116,13 @@ NativeCheckboxWin::~NativeCheckboxWin() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// NativeCheckboxWin, View overrides:
+
+gfx::Size NativeCheckboxWin::GetPreferredSize() {
+  return gfx::Size(kCheckboxSize, kCheckboxSize);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, NativeButtonWrapper implementation:
 
 void NativeCheckboxWin::UpdateChecked() {
@@ -117,8 +130,8 @@ void NativeCheckboxWin::UpdateChecked() {
               checkbox_->checked() ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 
-void NativeCheckboxWin::SetHighlight(bool highlight) {
-  SendMessage(GetHWND(), BM_SETSTATE, highlight, 0);
+void NativeCheckboxWin::SetPushed(bool pushed) {
+  SendMessage(GetHWND(), BM_SETSTATE, pushed, 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,6 +201,12 @@ NativeButtonWrapper* NativeButtonWrapper::CreateNativeButtonWrapper(
 NativeButtonWrapper* NativeButtonWrapper::CreateCheckboxWrapper(
     Checkbox2* checkbox) {
   return new NativeCheckboxWin(checkbox);
+}
+
+// static
+NativeButtonWrapper* NativeButtonWrapper::CreateRadioButtonWrapper(
+    RadioButton2* radio_button) {
+  return new NativeRadioButtonWin(radio_button);
 }
 
 }  // namespace views

@@ -26,15 +26,24 @@ class Checkbox2 : public NativeButton2 {
   // If true, long lines are wrapped, and this is reflected in the preferred
   // size returned by GetPreferredSize. If false, text that will not fit within
   // the available bounds for the label will be cropped.
-  void SetMultiline(bool multiline);
+  void SetMultiLine(bool multiline);
 
   // Sets/Gets whether or not the checkbox is checked.
-  void SetChecked(bool checked);
+  virtual void SetChecked(bool checked);
   bool checked() const { return checked_; }
 
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
+  virtual void Paint(ChromeCanvas* canvas);
+  virtual View* GetViewForPoint(const gfx::Point& point);
+  virtual View* GetViewForPoint(const gfx::Point& point,
+                                bool can_create_floating);
+  virtual void OnMouseEntered(const MouseEvent& e);
+  virtual void OnMouseMoved(const MouseEvent& e);
+  virtual void OnMouseExited(const MouseEvent& e);
+  virtual bool OnMousePressed(const MouseEvent& e);
+  virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
 
  protected:
   virtual std::string GetClassName() const;
@@ -45,7 +54,11 @@ class Checkbox2 : public NativeButton2 {
 
  private:
   // Called from the constructor to create and configure the checkbox label.
-  void CreateLabel(const std::wstring& label_text);
+  void Init(const std::wstring& label_text);
+
+  // Returns true if the event (in Checkbox coordinates) is within the bounds of
+  // the label.
+  bool HitTestLabel(const MouseEvent& e);
 
   // The checkbox's label. We don't use the OS version because of transparency
   // and sizing issues.

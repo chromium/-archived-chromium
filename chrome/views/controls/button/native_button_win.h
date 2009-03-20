@@ -37,6 +37,9 @@ class NativeButtonWin : public NativeControlWin,
   virtual void CreateNativeControl();
   virtual void NativeControlCreated(HWND control_hwnd);
 
+  // Returns true if this button is actually a checkbox or radio button.
+  virtual bool IsCheckbox() const { return false; }
+
  private:
   // The NativeButton we are bound to.
   NativeButton2* native_button_;
@@ -50,9 +53,12 @@ class NativeCheckboxWin : public NativeButtonWin {
   explicit NativeCheckboxWin(Checkbox2* native_button);
   virtual ~NativeCheckboxWin();
 
+  // Overridden from View:
+  virtual gfx::Size GetPreferredSize();
+
   // Overridden from NativeButtonWrapper:
   virtual void UpdateChecked();
-  virtual void SetHighlight(bool highlight);
+  virtual void SetPushed(bool pushed);
 
   // Overridden from NativeControlWin:
   virtual LRESULT ProcessMessage(UINT message,
@@ -62,6 +68,7 @@ class NativeCheckboxWin : public NativeButtonWin {
  protected:
   virtual void CreateNativeControl();
   virtual void NativeControlCreated(HWND control_hwnd);
+  virtual bool IsCheckbox() const { return true; }
 
  private:
   // The Checkbox we are bound to.
@@ -83,7 +90,7 @@ class NativeRadioButtonWin : public NativeCheckboxWin {
  private:
   DISALLOW_COPY_AND_ASSIGN(NativeRadioButtonWin);
 };
-  
+
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_CONTROLS_BUTTON_NATIVE_BUTTON_WIN_H_

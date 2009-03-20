@@ -32,8 +32,8 @@ class NativeButtonWrapper {
   // associated NativeCheckbox. Valid only for checkboxes and radio buttons.
   virtual void UpdateChecked() {}
   
-  // Shows the hover state for the button if |highlight| is true.
-  virtual void SetHighlight(bool highlight) {};
+  // Shows the pushed state for the button if |pushed| is true.
+  virtual void SetPushed(bool pushed) {};
 
   // Retrieves the views::View that hosts the native control. 
   virtual View* GetView() = 0;
@@ -41,6 +41,8 @@ class NativeButtonWrapper {
   // Creates an appropriate NativeButtonWrapper for the platform.
   static NativeButtonWrapper* CreateNativeButtonWrapper(NativeButton2* button);
   static NativeButtonWrapper* CreateCheckboxWrapper(Checkbox2* checkbox);
+  static NativeButtonWrapper* CreateRadioButtonWrapper(
+      RadioButton2* radio_button);
 
 };
 

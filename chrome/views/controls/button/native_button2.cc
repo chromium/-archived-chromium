@@ -74,6 +74,8 @@ void NativeButton2::SetIsDefault(bool is_default) {
 }
 
 void NativeButton2::ButtonPressed() {
+  RequestFocus();
+
   // TODO(beng): obtain mouse event flags for native buttons someday.
   NotifyClick(mouse_event_flags());
 }
