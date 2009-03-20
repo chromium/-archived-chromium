@@ -10,7 +10,6 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_process.h"
@@ -21,6 +20,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/user_data_manager.h"
+#include "chrome/browser/views/bookmark_menu_button.h"
 #include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
@@ -277,6 +277,13 @@ void BrowserToolbarView::CreateRightSideControls(Profile* profile) {
       l10n_util::GetString(IDS_PRODUCT_NAME)));
   app_menu_->SetID(VIEW_ID_APP_MENU);
   AddChildView(app_menu_);
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kBookmarkMenu)) {
+    bookmark_menu_ = new BookmarkMenuButton(browser_);
+    AddChildView(bookmark_menu_);
+  } else {
+    bookmark_menu_ = NULL;
+  }
 }
 
 void BrowserToolbarView::Layout() {
@@ -332,9 +339,12 @@ void BrowserToolbarView::Layout() {
   int go_button_width = go_->GetPreferredSize().width();
   int page_menu_width = page_menu_->GetPreferredSize().width();
   int app_menu_width = app_menu_->GetPreferredSize().width();
+  int bookmark_menu_width = bookmark_menu_ ?
+      bookmark_menu_->GetPreferredSize().width() : 0;
   int location_x = star_->x() + star_->width();
-  int available_width = width() - kPaddingRight - app_menu_width -
-      page_menu_width - kMenuButtonOffset - go_button_width - location_x;
+  int available_width = width() - kPaddingRight - bookmark_menu_width -
+      app_menu_width - page_menu_width - kMenuButtonOffset - go_button_width -
+      location_x;
   location_bar_->SetBounds(location_x, child_y, std::max(available_width, 0),
                            child_height);
 
@@ -346,6 +356,11 @@ void BrowserToolbarView::Layout() {
 
   app_menu_->SetBounds(page_menu_->x() + page_menu_->width(), child_y,
                        app_menu_width, child_height);
+
+  if (bookmark_menu_) {
+    bookmark_menu_->SetBounds(app_menu_->x() + app_menu_->width(), child_y,
+                              bookmark_menu_width, child_height);
+  }
 }
 
 void BrowserToolbarView::Paint(ChromeCanvas* canvas) {

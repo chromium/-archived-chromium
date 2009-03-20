@@ -39,7 +39,8 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
                          PageNavigator* page_navigator,
                          HWND hwnd,
                          BookmarkNode* node,
-                         int start_child_index);
+                         int start_child_index,
+                         bool show_other_folder);
 
   // Shows the menu.
   void RunMenuAt(const gfx::Rect& bounds,
@@ -90,6 +91,10 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
   // BookmarkMenuController deletes itself as necessary.
   ~BookmarkMenuController();
 
+  // Builds the menu for the other bookmarks folder. This is added as the last
+  // item to menu_.
+  void BuildOtherFolderMenu(int* next_menu_id);
+
   // Creates an entry in menu for each child node of |parent| starting at
   // |start_child_index|.
   void BuildMenu(BookmarkNode* parent,
@@ -130,6 +135,9 @@ class BookmarkMenuController : public BaseBookmarkModelObserver,
 
   // Is the menu being shown for a drop?
   bool for_drop_;
+
+  // Should the other folder be shown?
+  bool show_other_folder_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkMenuController);
 };

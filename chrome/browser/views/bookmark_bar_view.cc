@@ -1222,7 +1222,7 @@ void BookmarkBarView::RunMenu(views::View* view,
   View::ConvertPointToScreen(this, &screen_loc);
   bookmark_menu_ = new BookmarkMenuController(
       browser_, profile_, page_navigator_, GetWidget()->GetNativeView(),
-      node, start_index);
+      node, start_index, false);
   bookmark_menu_->set_observer(this);
   bookmark_menu_->RunMenuAt(gfx::Rect(screen_loc.x(), screen_loc.y(),
                             view->width(), bar_height),
@@ -1446,7 +1446,7 @@ void BookmarkBarView::ShowDropFolderForNode(BookmarkNode* node) {
   drop_info_->is_menu_showing = true;
   bookmark_drop_menu_ = new BookmarkMenuController(
       browser_, profile_, page_navigator_, GetWidget()->GetNativeView(),
-      node, start_index);
+      node, start_index, false);
   bookmark_drop_menu_->set_observer(this);
   gfx::Point screen_loc;
   View::ConvertPointToScreen(view_to_position_menu_from, &screen_loc);

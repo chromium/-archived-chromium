@@ -35,6 +35,10 @@ class MenuButton : public TextButton {
              bool show_menu_marker);
   virtual ~MenuButton();
 
+  void set_menu_delegate(ViewMenuDelegate* delegate) {
+    menu_delegate_ = delegate;
+  }
+
   // Activate the button (called when the button is pressed).
   virtual bool Activate();
 

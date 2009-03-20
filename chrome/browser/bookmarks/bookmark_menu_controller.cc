@@ -11,8 +11,10 @@
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/views/event_utils.h"
 #include "chrome/common/os_exchange_data.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/common/resource_bundle.h"
+#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
 BookmarkMenuController::BookmarkMenuController(Browser* browser,
@@ -20,19 +22,23 @@ BookmarkMenuController::BookmarkMenuController(Browser* browser,
                                                PageNavigator* navigator,
                                                HWND hwnd,
                                                BookmarkNode* node,
-                                               int start_child_index)
+                                               int start_child_index,
+                                               bool show_other_folder)
     : browser_(browser),
       profile_(profile),
       page_navigator_(navigator),
       hwnd_(hwnd),
       node_(node),
       observer_(NULL),
-      for_drop_(false) {
+      for_drop_(false),
+      show_other_folder_(show_other_folder) {
   menu_.reset(new views::MenuItemView(this));
   int next_menu_id = 1;
   menu_id_to_node_map_[menu_->GetCommand()] = node;
   menu_->set_has_icons(true);
   BuildMenu(node, start_child_index, menu_.get(), &next_menu_id);
+  if (show_other_folder)
+    BuildOtherFolderMenu(&next_menu_id);
 }
 
 void BookmarkMenuController::RunMenuAt(
@@ -104,6 +110,11 @@ int BookmarkMenuController::GetDropOperation(
   BookmarkNode* drop_parent = node->GetParent();
   int index_to_drop_at = drop_parent->IndexOfChild(node);
   if (*position == DROP_AFTER) {
+    if (node == profile_->GetBookmarkModel()->other_node()) {
+      // The other folder is shown after all bookmarks on the bookmark bar.
+      // Dropping after the other folder makes no sense.
+      *position = DROP_NONE;
+    }
     index_to_drop_at++;
   } else if (*position == DROP_ON) {
     drop_parent = node;
@@ -165,7 +176,9 @@ void BookmarkMenuController::DropMenuClosed(views::MenuItemView* menu) {
 }
 
 bool BookmarkMenuController::CanDrag(views::MenuItemView* menu) {
-  return true;
+  BookmarkNode* node = menu_id_to_node_map_[menu->GetCommand()];
+  // Don't let users drag the other folder.
+  return node->GetParent() != profile_->GetBookmarkModel()->root_node();
 }
 
 void BookmarkMenuController::WriteDragData(views::MenuItemView* sender,
@@ -191,6 +204,18 @@ void BookmarkMenuController::BookmarkNodeFavIconLoaded(BookmarkModel* model,
                                                        BookmarkNode* node) {
   if (node_to_menu_id_map_.find(node) != node_to_menu_id_map_.end())
     menu_->SetIcon(node->GetFavIcon(), node_to_menu_id_map_[node]);
+}
+
+void BookmarkMenuController::BuildOtherFolderMenu(int* next_menu_id) {
+  BookmarkNode* other_folder = profile_->GetBookmarkModel()->other_node();
+  int id = *next_menu_id;
+  (*next_menu_id)++;
+  SkBitmap* folder_icon = ResourceBundle::GetSharedInstance().
+        GetBitmapNamed(IDR_BOOKMARK_BAR_FOLDER);
+  views::MenuItemView* submenu = menu_->AppendSubMenuWithIcon(
+      id, l10n_util::GetString(IDS_BOOMARK_BAR_OTHER_BOOKMARKED), *folder_icon);
+  BuildMenu(other_folder, 0, submenu, next_menu_id);
+  menu_id_to_node_map_[id] = other_folder;
 }
 
 void BookmarkMenuController::BuildMenu(BookmarkNode* parent,

@@ -426,6 +426,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\bookmark_menu_button.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\bookmark_menu_button.h"
+			>
+		</File>
+		<File
 			RelativePath=".\bookmark_table_view.cc"
 			>
 		</File>

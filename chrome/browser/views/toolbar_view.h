@@ -192,6 +192,8 @@ class BrowserToolbarView : public views::View,
   GoButton* go_;
   views::MenuButton* page_menu_;
   views::MenuButton* app_menu_;
+  // The bookmark menu button. This may be null.
+  views::MenuButton* bookmark_menu_;
   Profile* profile_;
   Browser* browser_;
 

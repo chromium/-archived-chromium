@@ -159,6 +159,8 @@ extern const wchar_t kEnableWebWorkers[];
 
 extern const wchar_t kViewsGtk[];
 
+extern const wchar_t kBookmarkMenu[];
+
 }  // namespace switches
 
 #endif  // CHROME_COMMON_CHROME_SWITCHES_H__

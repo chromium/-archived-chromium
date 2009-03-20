@@ -409,4 +409,7 @@ const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
 // Enables experimental views under gtk.
 const wchar_t kViewsGtk[] = L"views-gtk";
 
+// Enables the bookmark menu.
+const wchar_t kBookmarkMenu[] = L"bookmark-menu";
+
 }  // namespace switches
