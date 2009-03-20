@@ -94,6 +94,9 @@ void BrowserToolbarGtk::Init(Profile* profile,
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
       l10n_util::GetString(IDS_TOOLTIP_RELOAD)));
   AddAcceleratorToButton(reload_, GDK_r, GDK_CONTROL_MASK);
+  // Any modifier except alt can be combined with f5 (this matches windows
+  // chromium).
+  AddAcceleratorToButton(reload_, GDK_F5, GDK_MODIFIER_MASK & ~GDK_MOD1_MASK);
 
   // TODO(port): we need to dynamically react to changes in show_home_button_
   // and hide/show home appropriately.  But we don't have a UI for it yet.

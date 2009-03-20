@@ -68,7 +68,11 @@ class WebContentsViewGtk : public WebContentsView {
  private:
   WebContents* web_contents_;
 
+  // The native widget for the tab.
   OwnedWidgetGtk vbox_;
+
+  // The native widget for the contents of the tab. We do not own this widget.
+  GtkWidget* content_view_;
 
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.

@@ -13,6 +13,7 @@
 #include "base/path_service.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
@@ -22,6 +23,7 @@
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/text_button.h"
@@ -433,6 +435,9 @@ void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
   }
 }
 
+// TODO(estade): this function should probably be unforked from the BrowserView
+// function of the same name by having a shared partial BrowserWindow
+// implementation.
 void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
                                      TabContents* new_contents,
                                      int index,
@@ -446,6 +451,12 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
   contents_container_->SetTabContents(new_contents);
 
   new_contents->DidBecomeSelected();
+  // TODO(estade): after we manage browser activation, add a check to make sure
+  // we are the active browser before calling RestoreFocus().
+  if (!browser_->tabstrip_model()->closing_all() &&
+      new_contents->AsWebContents()) {
+    new_contents->AsWebContents()->view()->RestoreFocus();
+  }
 
   // Update all the UI bits.
   UpdateTitleBar();
