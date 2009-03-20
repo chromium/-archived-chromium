@@ -932,10 +932,11 @@ LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-da
 LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
 LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
+// This test can end up taking longer than the amount of time we give
+// each test. DEFERd until we find a better way to deal with it.
+DEFER LINUX WIN : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
 // This is failing on the mac debug only, not sure why, but it's pretty repeatable on the bots, so we
 // go to the complexity to split out that one case to track any other changes for the other platforms.
-LINUX WIN : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
-MAC RELEASE : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
 MAC DEBUG : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT FAIL PASS
 
 // NEW FOR MERGE 37604:38097
@@ -1653,7 +1654,6 @@ WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16be.html = CRASH PASS TIMEOUT
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 LINUX WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
-WIN : LayoutTests/transitions/transition-end-event-container.html = FAIL PASS
 
 // New test added in the 41286:41362 merge. Not clear whether we pass.
 // http://crbug.com/8404
@@ -1768,7 +1768,6 @@ MAC : LayoutTests/tables/mozilla/other/slashlogo.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/xml-encoding.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/navigation/reload-subframe-iframe.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url.html = TIMEOUT PASS
-WIN DEBUG : LayoutTests/transitions/transition-end-event-multiple-03.html = FAIL PASS
 WIN DEBUG : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 
 // Newly added test from 41613:41660
