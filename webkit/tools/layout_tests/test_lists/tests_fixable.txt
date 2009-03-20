@@ -1622,7 +1622,7 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/masking-intro-01-f.svg = FAIL
 LINUX : LayoutTests/svg/custom/grayscale-gradient-mask.svg = FAIL
 
 // Regression from merge 41268:41286
-LINUX WIN : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
+LINUX : LayoutTests/fast/canvas/canvas-text-alignment.html = FAIL
 LINUX : LayoutTests/scrollbars/listbox-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/scrollbars/overflow-scrollbar-combinations.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug86708.html = FAIL
@@ -1790,7 +1790,6 @@ DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-paddin
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Unknown what change caused these to fail.
-WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
 LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 
@@ -1891,13 +1890,10 @@ WIN : LayoutTests/svg/W3C-SVG-1.1/metadata-example-01-b.svg = FAIL
 WIN : LayoutTests/svg/W3C-SVG-1.1/text-deco-01-b.svg = FAIL
 WIN : LayoutTests/svg/batik/text/textFeatures.svg = FAIL
 WIN : LayoutTests/svg/batik/text/textProperties.svg = FAIL
-WIN : LayoutTests/svg/custom/js-late-gradient-and-object-creation.svg = FAIL
-WIN : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
 WIN : LayoutTests/svg/custom/pointer-events-text.svg = FAIL
 WIN : LayoutTests/svg/custom/text-repaint-including-stroke.svg = FAIL
 WIN : LayoutTests/svg/custom/use-detach.svg = FAIL
 WIN : LayoutTests/svg/custom/use-on-text.svg = FAIL
-WIN : LayoutTests/svg/text/text-text-08-b.svg = FAIL
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-get-async.html = TIMEOUT
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
