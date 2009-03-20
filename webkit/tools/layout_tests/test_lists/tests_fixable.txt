@@ -1458,7 +1458,7 @@ LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 // Merge 40059:40086 -- regressions
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-DEFER :LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
+DEFER : LayoutTests/transitions/hang-with-bad-transition-list.html = PASS FAIL TIMEOUT
 
 // Popup-menu doesn't draw in layout tests
 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
