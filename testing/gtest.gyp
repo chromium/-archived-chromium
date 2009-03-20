@@ -34,6 +34,7 @@
         'gtest/include/gtest/gtest_pred_impl.h',
         'gtest/include/gtest/gtest_prod.h',
         'gtest/src/gtest-test-part.cc',
+        'gtest/src/gtest-typed-test.cc',
         'gtest/src/gtest-death-test.cc',
         'gtest/src/gtest-filepath.cc',
         'gtest/src/gtest-internal-inl.h',
