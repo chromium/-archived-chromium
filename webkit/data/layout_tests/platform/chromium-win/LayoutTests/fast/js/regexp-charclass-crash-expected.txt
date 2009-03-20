@@ -1,1 +1,0 @@
-Tests a crash in the regular expression engine. If this stops with a single "regular expression too large" exception, then the test succeeded.

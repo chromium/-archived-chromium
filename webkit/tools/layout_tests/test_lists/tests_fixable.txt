@@ -1881,3 +1881,7 @@ LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = CRASH
 // Regression
 LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT
+
+// Merge 41827:41860 Regressions
+// Upstream r41849 added a large regex to this test which times out in V8.
+LayoutTests/fast/js/regexp-overflow.html = TIMEOUT
