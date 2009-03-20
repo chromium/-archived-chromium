@@ -506,9 +506,10 @@ LINUX MAC : LayoutTests/svg/text/text-text-08-b.svg = FAIL PASS
 // New tests. We should fix these, but they don't need to block the current release
 DEFER LINUX WIN : LayoutTests/fast/backgrounds/svg-as-mask.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/backgrounds/animated-svg-as-mask.html = FAIL
-// We don't seem to draw this as well as Mac.  The numbers have gaps at the
-// corners.
-LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
+
+// Needs rebaseline.
+LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-34-t.svg = FAIL
+
 LINUX : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-10-b.svg = FAIL
 
 LINUX : LayoutTests/svg/carto.net/selectionlist.svg = FAIL CRASH
