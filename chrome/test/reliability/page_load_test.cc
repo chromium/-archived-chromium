@@ -40,6 +40,8 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "base/time.h"
+#include "base/time_format.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -101,6 +103,7 @@ uint32 timeout_ms = INFINITE;
 bool save_debug_log = false;
 std::wstring chrome_log_path;
 std::wstring v8_log_path;
+std::wstring test_log_path;
 bool stand_alone = false;
 
 class PageLoadTest : public UITest {
@@ -132,11 +135,22 @@ class PageLoadTest : public UITest {
   void NavigateToURLLogResult(const GURL& url, std::ofstream& log_file,
                               NavigationMetrics* metrics_output) {
     NavigationMetrics metrics = {NAVIGATION_ERROR};
+    std::ofstream test_log;
+
+    // Create a test log.
+    test_log_path = L"test_log.log";
+    test_log.open(test_log_path.c_str());
 
     if (!continuous_load && !browser_existing) {
       LaunchBrowserAndServer();
       browser_existing = true;
     }
+
+    // Log timestamp for test start.
+    base::Time time_now = base::Time::Now();
+    double time_start = time_now.ToDoubleT();
+    test_log << "Test Start: ";
+    test_log << base::TimeFormatFriendlyDateAndTime(time_now) << std::endl;
 
     bool is_timeout = false;
     int result = AUTOMATION_MSG_NAVIGATION_ERROR;
@@ -176,6 +190,13 @@ class PageLoadTest : public UITest {
       CloseBrowserAndServer();
       browser_existing = false;
     }
+
+    // Log timestamp for end of test.
+    time_now = base::Time::Now();
+    double time_stop = time_now.ToDoubleT();
+    test_log << "Test End: ";
+    test_log << base::TimeFormatFriendlyDateAndTime(time_now) << std::endl;
+    test_log << "duration_seconds=" << (time_stop - time_start) << std::endl;
 
     // Get navigation result and metrics, and optionally write to the log file
     // provided.  The log format is:
@@ -241,6 +262,9 @@ class PageLoadTest : public UITest {
                << " " << metrics.plugin_crash_count \
                << " " << metrics.crash_dump_count;
     }
+
+    // Close test log.
+    test_log.close();
 
     if (log_file.is_open() && save_debug_log && !continuous_load)
       SaveDebugLogs(log_file);
@@ -403,22 +427,24 @@ class PageLoadTest : public UITest {
     return saved_debug_log_path;
   }
 
+  void SaveDebugLog(const std::wstring& log_path, const std::wstring& log_id,
+                    std::ofstream& log_file, int index) {
+    if (!log_path.empty()) {
+      std::wstring saved_log_path =
+          ConstructSavedDebugLogPath(log_path, index);
+      if (file_util::Move(log_path, saved_log_path)) {
+        log_file << log_id << "=" << saved_log_path;
+      }
+    }
+  }
+
   // Rename the chrome and v8 debug log files if existing, and save the file
   // paths in the log_file provided.
   void SaveDebugLogs(std::ofstream& log_file) {
     static int url_count = 1;
-    std::wstring saved_chrome_log_path =
-        ConstructSavedDebugLogPath(chrome_log_path, url_count);
-    if (file_util::Move(chrome_log_path, saved_chrome_log_path)) {
-      log_file << " chrome_log=" << saved_chrome_log_path;
-    }
-    if (!v8_log_path.empty()) {
-      std::wstring saved_v8_log_path =
-        ConstructSavedDebugLogPath(v8_log_path, url_count);
-      if (file_util::Move(v8_log_path, saved_v8_log_path)) {
-        log_file << " v8_log=" << saved_v8_log_path;
-      }
-    }
+    SaveDebugLog(chrome_log_path, L"chrome_log", log_file, url_count);
+    SaveDebugLog(v8_log_path, L"v8_log", log_file, url_count);
+    SaveDebugLog(test_log_path, L"test_log", log_file, url_count);
     url_count++;
   }
 
