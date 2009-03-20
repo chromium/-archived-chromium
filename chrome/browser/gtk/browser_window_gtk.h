@@ -106,9 +106,6 @@ class BrowserWindowGtk : public BrowserWindow,
   static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
                                       BrowserWindowGtk* window);
 
-  static gboolean OnWindowDestroyed(GtkWidget* window,
-                                    BrowserWindowGtk* browser_win);
-
   static gboolean OnAccelerator(GtkAccelGroup* accel_group,
                                 GObject* acceleratable,
                                 guint keyval,

@@ -72,6 +72,30 @@ gboolean MainWindowStateChanged(GtkWindow* window, GdkEventWindowState* event,
   return FALSE;
 }
 
+// Callback for the delete event.  This event is fired when the user tries to
+// close the window (e.g., clicking on the X in the window manager title bar).
+gboolean MainWindowDeleteEvent(GtkWidget* widget, GdkEvent* event,
+                               BrowserWindowGtk* window) {
+  window->Close();
+
+  // Return true to prevent the gtk window from being destroyed.  Close will
+  // destroy it for us.
+  return TRUE;
+}
+
+void MainWindowDestroy(GtkWidget* widget, BrowserWindowGtk* window) {
+  // BUG 8712. When we gtk_widget_destroy() in Close(), this will emit the
+  // signal right away, and we will be here (while Close() is still in the
+  // call stack).  In order to not reenter Close(), and to also follow the
+  // expectations of BrowserList, we should run the BrowserWindowGtk destructor
+  // not now, but after the run loop goes back to process messages.  Otherwise
+  // we will remove ourself from BrowserList while it's being iterated.
+  // Additionally, now that we know the window is gone, we need to make sure to
+  // set window_ to NULL, otherwise we will try to close the window again when
+  // we call Close() in the destructor.
+  MessageLoop::current()->DeleteSoon(FROM_HERE, window);
+}
+
 // Using gtk_window_get_position/size creates a race condition, so only use
 // this to get the initial bounds.  After window creation, we pick up the
 // normal bounds by connecting to the configure-event signal.
@@ -131,8 +155,10 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
        method_factory_(this) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_default_size(window_, 640, 480);
+  g_signal_connect(window_, "delete-event",
+                   G_CALLBACK(MainWindowDeleteEvent), this);
   g_signal_connect(window_, "destroy",
-                   G_CALLBACK(OnWindowDestroyed), this);
+                   G_CALLBACK(MainWindowDestroy), this);
   g_signal_connect(window_, "configure-event",
                    G_CALLBACK(MainWindowConfigured), this);
   g_signal_connect(window_, "window-state-event",
@@ -204,8 +230,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
 BrowserWindowGtk::~BrowserWindowGtk() {
   browser_->tabstrip_model()->RemoveObserver(this);
-
-  Close();
 }
 
 gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
@@ -259,13 +283,15 @@ void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
 }
 
 void BrowserWindowGtk::Close() {
+  // TODO(tc): There's a lot missing here that's in the windows shutdown code
+  // path.  This method should try to close (see BrowserView::CanClose),
+  // although it may not succeed (e.g., if the page has an unload handler).
+  // Currently we just go ahead and close.
+
   // TODO(tc): Once the tab strip model is hooked up, this call can be removed.
   // It should get called by TabDetachedAt when the window is being closed, but
   // we don't have a TabStripModel yet.
   find_bar_controller_->ChangeWebContents(NULL);
-
-  if (!window_)
-    return;
 
   GtkWidget* window = GTK_WIDGET(window_);
   // To help catch bugs in any event handlers that might get fired during the
@@ -306,9 +332,6 @@ void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {
 }
 
 void BrowserWindowGtk::UpdateTitleBar() {
-  if (!window_)
-    return;
-
   std::wstring title = browser_->GetCurrentPageTitle();
   gtk_window_set_title(window_, WideToUTF8(title).c_str());
   if (browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR)) {
@@ -514,23 +537,6 @@ void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
   } else {
     gtk_container_set_border_width(GTK_CONTAINER(vbox_), 0);
   }
-}
-
-// static
-gboolean BrowserWindowGtk::OnWindowDestroyed(GtkWidget* window,
-                                             BrowserWindowGtk* browser_win) {
-  // BUG 8712. When we gtk_widget_destroy() in Close(), this will emit the
-  // signal right away, and we will be here (while Close() is still in the
-  // call stack).  In order to not reenter Close(), and to also follow the
-  // expectations of BrowserList, we should run the BrowserWindowGtk destructor
-  // not now, but after the run loop goes back to process messages.  Otherwise
-  // we will remove ourself from BrowserList while it's being iterated.
-  // Additionally, now that we know the window is gone, we need to make sure to
-  // set window_ to NULL, otherwise we will try to close the window again when
-  // we call Close() in the destructor.
-  browser_win->window_ = NULL;
-  MessageLoop::current()->DeleteSoon(FROM_HERE, browser_win);
-  return FALSE;  // Don't stop this message.
 }
 
 // static
