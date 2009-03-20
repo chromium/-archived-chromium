@@ -312,6 +312,10 @@ bool TestServerLauncher::LoadTestRootCert() {
     return true;
 
   // TODO(dkegel): figure out how to get this to only happen once?
+
+  // This currently leaks a little memory.
+  // TODO(dkegel): fix the leak and remove the entry in
+  // tools/valgrind/suppressions.txt
   cert_ = reinterpret_cast<PrivateCERTCertificate*>(
           LoadTemporaryCert(GetRootCertPath()));
   DCHECK(cert_);

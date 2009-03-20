@@ -118,4 +118,9 @@
    ...
    fun:_ZN7logging11InitLoggingEPKcNS_18LoggingDestinationENS_15LogLockingStateENS_20OldFileDeletionStateE
 }
-
+{
+   Linux tests don't bother to undo net::TestServerLauncher::LoadTestRootCert().
+   Memcheck:Leak
+   ...
+   fun:_ZN3net18TestServerLauncher16LoadTestRootCertEv
+}
