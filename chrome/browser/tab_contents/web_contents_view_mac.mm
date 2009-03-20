@@ -8,6 +8,7 @@
 #include "chrome/browser/cocoa/sad_tab_view.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_mac.h"
+#include "chrome/browser/tab_contents/render_view_context_menu_mac.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -180,7 +181,9 @@ void WebContentsViewMac::OnFindReply(int request_id,
 }
 
 void WebContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
-  NOTIMPLEMENTED();
+  RenderViewContextMenuMac menu(web_contents_,
+                                params,
+                                GetNativeView());
 }
 
 WebContents* WebContentsViewMac::CreateNewWindowInternal(
