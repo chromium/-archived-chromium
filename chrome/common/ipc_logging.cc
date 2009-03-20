@@ -22,7 +22,11 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/ipc_message_utils.h"
+
+// This include list should contain all _messages.h header files so that they
+// can get *MsgLog function etc. This makes ipc logs much more informative.
 #include "chrome/common/render_messages.h"
+#include "chrome/test/automation/automation_messages.h"
 #if defined(OS_WIN)
 // TODO(port): These messages will need to be ported at some point
 #include "chrome/common/plugin_messages.h"

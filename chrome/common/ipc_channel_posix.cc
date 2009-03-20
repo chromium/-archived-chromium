@@ -25,6 +25,7 @@
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/file_descriptor_set_posix.h"
+#include "chrome/common/ipc_logging.h"
 #include "chrome/common/ipc_message_utils.h"
 
 namespace IPC {
@@ -640,10 +641,9 @@ bool Channel::ChannelImpl::Send(Message* message) {
              << " (" << output_queue_.size() << " in queue)";
 #endif
 
-// TODO(playmobil): implement
-//  #ifdef IPC_MESSAGE_LOG_ENABLED
-//    Logging::current()->OnSendMessage(message, L"");
-//  #endif
+#ifdef IPC_MESSAGE_LOG_ENABLED
+  Logging::current()->OnSendMessage(message, L"");
+#endif
 
   output_queue_.push(message);
   if (!waiting_connect_) {
