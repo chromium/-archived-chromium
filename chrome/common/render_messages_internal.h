@@ -384,9 +384,9 @@ IPC_BEGIN_MESSAGES(View)
 
   // Retreive information from the MSAA DOM subtree, for accessibility purposes.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewMsg_GetAccessibilityInfo,
-                             AccessibilityInParams
+                             webkit_glue::WebAccessibility::InParams
                              /* input parameters */,
-                             AccessibilityOutParams
+                             webkit_glue::WebAccessibility::OutParams
                              /* output parameters */)
 
   // Requests the renderer to clear cashed accessibility information. Takes an

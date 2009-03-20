@@ -32,6 +32,7 @@
 #include "webkit/glue/feed.h"
 #include "webkit/glue/form_data.h"
 #include "webkit/glue/password_form_dom_manager.h"
+#include "webkit/glue/webaccessibilitymanager.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview.h"
 
@@ -48,18 +49,16 @@ class DebugMessageHandler;
 class DevToolsAgent;
 class DevToolsClient;
 class FilePath;
-class GlueAccessibility;
 class GURL;
 class RenderThread;
 class ResourceDispatcher;
 class SkBitmap;
+class WebAccessibilityManager;
 class WebError;
 class WebFrame;
 class WebPluginDelegate;
 class WebPluginDelegateProxy;
 class WebDevToolsAgentDelegate;
-struct AccessibilityInParams;
-struct AccessibilityOutParams;
 struct FindInPageRequest;
 struct ThumbnailScore;
 struct ViewMsg_Navigate_Params;
@@ -74,6 +73,9 @@ class WaitableEvent;
 
 namespace webkit_glue {
 struct FileUploadData;
+//class WebAccessibility;
+//struct InParams;
+//struct OutParams;
 }
 
 // We need to prevent a page from trying to create infinite popups. It is not
@@ -517,9 +519,10 @@ class RenderView : public RenderWidget,
   void OnEnableViewSourceMode();
   void OnUpdateBackForwardListCount(int back_list_count,
                                     int forward_list_count);
-  void OnGetAccessibilityInfo(const AccessibilityInParams& in_params,
-                              AccessibilityOutParams* out_params);
-  void OnClearAccessibilityInfo(int iaccessible_id, bool clear_all);
+  void OnGetAccessibilityInfo(
+      const webkit_glue::WebAccessibility::InParams& in_params,
+      webkit_glue::WebAccessibility::OutParams* out_params);
+  void OnClearAccessibilityInfo(int acc_obj_id, bool clear_all);
 
   void OnMoveOrResizeStarted();
 
@@ -756,11 +759,11 @@ class RenderView : public RenderWidget,
   // shouldn't count against their own |shared_popup_counter_|.
   bool decrement_shared_popup_at_destruction_;
 
-  // TODO(port): revisit once qwe have accessibility
+  // TODO(port): revisit once we have accessibility
 #if defined(OS_WIN)
   // Handles accessibility requests into the renderer side, as well as
   // maintains the cache and other features of the accessibility tree.
-  scoped_ptr<GlueAccessibility> glue_accessibility_;
+  scoped_ptr<webkit_glue::WebAccessibilityManager> web_accessibility_manager_;
 #endif
 
   // Resource message queue. Used to queue up resource IPCs if we need

@@ -10,9 +10,11 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 
+using webkit_glue::WebAccessibility;
+
 // The time in ms after which we give up and return an error when processing an
 // accessibility message and no response has been received from the renderer.
-static const int kAccessibilityMessageTimeOut = 500;
+static const int kAccessibilityMessageTimeOut = 10000;
 
 // static
 BrowserAccessibilityManager* BrowserAccessibilityManager::GetInstance() {
@@ -36,7 +38,7 @@ BrowserAccessibilityManager::~BrowserAccessibilityManager() {
 }
 
 STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
-    REFIID iid, int iaccessible_id, int instance_id, void** interface_ptr) {
+    REFIID iid, int acc_obj_id, int instance_id, void** interface_ptr) {
   if (IID_IUnknown == iid || IID_IDispatch == iid || IID_IAccessible == iid) {
     CComObject<BrowserAccessibility>* instance = NULL;
 
@@ -49,7 +51,7 @@ STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
     CComPtr<IAccessible> accessibility_instance(instance);
 
     // Set unique ids.
-    instance->set_iaccessible_id(iaccessible_id);
+    instance->set_iaccessible_id(acc_obj_id);
     instance->set_instance_id(instance_id);
 
     // Retrieve the RenderWidgetHost connected to this request.
@@ -78,14 +80,14 @@ STDMETHODIMP BrowserAccessibilityManager::CreateAccessibilityInstance(
 }
 
 bool BrowserAccessibilityManager::RequestAccessibilityInfo(
-    int iaccessible_id, int instance_id, int iaccessible_func_id,
-    VARIANT var_id, LONG input1, LONG input2) {
-  // Create and populate input message structure.
-  AccessibilityInParams in_params;
-
-  in_params.iaccessible_id = iaccessible_id;
-  in_params.iaccessible_function_id = iaccessible_func_id;
-  in_params.input_variant_lval = var_id.lVal;
+    int acc_obj_id, int instance_id, int acc_func_id, int child_id, long input1,
+    long input2) {
+  // Create and populate IPC message structure, for retrieval of accessibility
+  // information from the renderer.
+  WebAccessibility::InParams in_params;
+  in_params.object_id = acc_obj_id;
+  in_params.function_id = acc_func_id;
+  in_params.child_id = child_id;
   in_params.input_long1 = input1;
   in_params.input_long2 = input2;
 
@@ -113,11 +115,10 @@ bool BrowserAccessibilityManager::RequestAccessibilityInfo(
     success = members->render_widget_host_->process()->channel()->
         SendWithTimeout(msg, kAccessibilityMessageTimeOut);
   }
-
   return success;
 }
 
-const AccessibilityOutParams& BrowserAccessibilityManager::response() {
+const WebAccessibility::OutParams& BrowserAccessibilityManager::response() {
   return out_params_;
 }
 

@@ -9,8 +9,8 @@
 #include <hash_map>
 
 #include "base/singleton.h"
-#include "chrome/common/accessibility.h"
 #include "chrome/common/notification_observer.h"
+#include "webkit/glue/webaccessibility.h"
 
 class BrowserAccessibility;
 class RenderProcessHost;
@@ -35,24 +35,26 @@ class BrowserAccessibilityManager : public NotificationObserver {
   static BrowserAccessibilityManager* GetInstance();
 
   // Creates an instance of BrowserAccessibility, initializes it and sets the
-  // iaccessible_id and parent_id.
+  // [acc_obj_id], which is used for IPC communication, and [instance_id],
+  // which is used to identify the mapping between accessibility instance and
+  // RenderProcess.
   STDMETHODIMP CreateAccessibilityInstance(REFIID iid,
-                                           int iaccessible_id,
+                                           int acc_obj_id,
                                            int instance_id,
                                            void** interface_ptr);
 
   // Composes and sends a message for requesting needed accessibility
   // information. Unused LONG input parameters should be NULL, and the VARIANT
-  // an empty, valid instance.
-  bool RequestAccessibilityInfo(int iaccessible_id,
+  // [var_id] an empty, valid instance.
+  bool RequestAccessibilityInfo(int acc_obj_id,
                                 int instance_id,
-                                int iaccessible_func_id,
-                                VARIANT var_id,
-                                LONG input1,
-                                LONG input2);
+                                int acc_func_id,
+                                int child_id,
+                                long input1,
+                                long input2);
 
   // Wrapper function, for cleaner code.
-  const AccessibilityOutParams& response();
+  const webkit_glue::WebAccessibility::OutParams& response();
 
   // Retrieves the parent HWND connected to the provided id.
   HWND parent_hwnd(int id);
@@ -60,8 +62,8 @@ class BrowserAccessibilityManager : public NotificationObserver {
   // Mutator, needed since constructor does not take any arguments, and to keep
   // instance accessor clean.
   int SetMembers(BrowserAccessibility* browser_acc,
-                  HWND parent_hwnd,
-                  RenderWidgetHost* render_widget_host);
+                 HWND parent_hwnd,
+                 RenderWidgetHost* render_widget_host);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -101,7 +103,7 @@ class BrowserAccessibilityManager : public NotificationObserver {
   // mapping, and the connected BrowserAccessibility ids/instances invalidated.
   RenderProcessHostMap render_process_host_map_;
 
-  AccessibilityOutParams out_params_;
+  webkit_glue::WebAccessibility::OutParams out_params_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserAccessibilityManager);
 };

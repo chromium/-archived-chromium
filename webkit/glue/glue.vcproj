@@ -173,6 +173,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webaccessibility.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webaccessibilitymanager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webdatasource.h"
 				>
 			</File>
@@ -425,11 +433,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\glue_accessibility.cc"
+				RelativePath=".\glue_accessibility_object.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\glue_accessibility.h"
+				RelativePath=".\glue_accessibility_object.h"
 				>
 			</File>
 			<File
@@ -558,6 +566,14 @@
 			</File>
 			<File
 				RelativePath=".\stacking_order_iterator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webaccessibilitymanager_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webaccessibilitymanager_impl.h"
 				>
 			</File>
 			<File

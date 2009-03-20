@@ -47,10 +47,10 @@
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
-#include "webkit/glue/glue_accessibility.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
+#include "webkit/glue/webaccessibilitymanager_impl.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 #include "webkit/glue/webdropdata.h"
@@ -88,6 +88,7 @@
 #endif
 
 using base::TimeDelta;
+using webkit_glue::WebAccessibility;
 
 //-----------------------------------------------------------------------------
 
@@ -1086,9 +1087,9 @@ void RenderView::UpdateURL(WebFrame* frame) {
     extra_data->transition_type = PageTransition::LINK;  // Just clear it.
 
 #if defined(OS_WIN)
-  if (glue_accessibility_.get()) {
+  if (web_accessibility_manager_.get()) {
     // Clear accessibility info cache.
-    glue_accessibility_->ClearIAccessibleMap(-1, true);
+    web_accessibility_manager_->ClearAccObjMap(-1, true);
   }
 #else
   // TODO(port): accessibility not yet implemented. See http://crbug.com/8288.
@@ -2629,14 +2630,16 @@ void RenderView::OnUpdateBackForwardListCount(int back_list_count,
 }
 
 void RenderView::OnGetAccessibilityInfo(
-    const AccessibilityInParams& in_params,
-    AccessibilityOutParams* out_params) {
+    const webkit_glue::WebAccessibility::InParams& in_params,
+    webkit_glue::WebAccessibility::OutParams* out_params) {
 #if defined(OS_WIN)
-  if (!glue_accessibility_.get())
-    glue_accessibility_.reset(new GlueAccessibility());
+  if (!web_accessibility_manager_.get()) {
+    web_accessibility_manager_.reset(
+        webkit_glue::WebAccessibilityManager::Create());
+  }
 
-  if (!glue_accessibility_->
-       GetAccessibilityInfo(webview(), in_params, out_params)) {
+  if (!web_accessibility_manager_->GetAccObjInfo(webview(), in_params,
+                                                 out_params)) {
     return;
   }
 #else  // defined(OS_WIN)
@@ -2645,14 +2648,13 @@ void RenderView::OnGetAccessibilityInfo(
 #endif
 }
 
-void RenderView::OnClearAccessibilityInfo(int iaccessible_id, bool clear_all) {
+void RenderView::OnClearAccessibilityInfo(int acc_obj_id, bool clear_all) {
 #if defined(OS_WIN)
-  if (!glue_accessibility_.get()) {
+  if (!web_accessibility_manager_.get()) {
     // If accessibility is not activated, ignore clearing message.
     return;
   }
-
-  if (!glue_accessibility_->ClearIAccessibleMap(iaccessible_id, clear_all))
+  if (!web_accessibility_manager_->ClearAccObjMap(acc_obj_id, clear_all))
     return;
 #else  // defined(OS_WIN)
   // TODO(port): accessibility not yet implemented

@@ -11,8 +11,9 @@
 #include <oleacc.h>
 
 #include "base/basictypes.h"
+#include "webkit/glue/webaccessibility.h"
 
-struct AccessibilityOutParams;
+using webkit_glue::WebAccessibility;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -133,7 +134,7 @@ class ATL_NO_VTABLE BrowserAccessibility
   // BrowserAccessibilityManager.
 
   // Creates an instance of BrowserAccessibility, initializes it and sets the
-  // |iaccessible_id| and |parent_id|.
+  // [iaccessible_id] and [parent_id].
   STDMETHODIMP CreateInstance(REFIID iid,
                               int iaccessible_id,
                               void** interface_ptr);
@@ -146,8 +147,16 @@ class ATL_NO_VTABLE BrowserAccessibility
                                 LONG input1, LONG input2);
 
   // Accessors.
-  const AccessibilityOutParams& response();
+  const WebAccessibility::OutParams& response();
   HWND parent_hwnd();
+
+  // Returns a conversion from the BrowserAccessibilityRole (as defined in
+  // webkit/glue/webaccessibility.h) to an MSAA role.
+  long MSAARole(long browser_accessibility_role);
+
+  // Returns a conversion from the BrowserAccessibilityState (as defined in
+  // webkit/glue/webaccessibility.h) to MSAA states set.
+  long MSAAState(long browser_accessibility_state);
 
   // Id to uniquely distinguish this instance in the render-side caching,
   // mapping it to the correct IAccessible on that side. Initialized to -1.

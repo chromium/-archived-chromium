@@ -116,7 +116,8 @@ if env.Bit('windows'):
   input_files.extend([
     '$PENDING_DIR/AccessibleBase.cpp',
     '$PENDING_DIR/AccessibleDocument.cpp',
-    'glue_accessibility.cc',
+    'webaccessibilitymanager_impl.cc',
+    'glue_accessibility_object.cc'
     'plugins/mozilla_extensions.cc',
     'plugins/webplugin_delegate_impl.cc',
     'webdropdata.cc',
