@@ -131,13 +131,12 @@ bool WebPluginContainer::isPluginView() const {
 
 
 void WebPluginContainer::setFrameRect(const WebCore::IntRect& rect) {
-  // WebKit calls move every time it paints (see RenderWidget::paint).  No need
-  // to do expensive operations if we didn't actually move.
-  if (rect == frameRect())
-    return;
+  bool widget_dimensions_changed = (rect != frameRect());
 
-  WebCore::Widget::setFrameRect(rect);
-  impl_->setFrameRect(rect);
+  if (widget_dimensions_changed)
+    WebCore::Widget::setFrameRect(rect);
+
+  impl_->setFrameRect(rect, widget_dimensions_changed);
 }
 
 void WebPluginContainer::paint(WebCore::GraphicsContext* gc,
@@ -197,7 +196,7 @@ void WebPluginContainer::frameRectsChanged() {
   WebCore::Widget::frameRectsChanged();
   // This is a hack to tickle re-positioning of the plugin in the case where
   // our parent view was scrolled.
-  impl_->setFrameRect(frameRect());
+  impl_->setFrameRect(frameRect(), true);
 }
 
 // We override this function, to make sure that geometry updates are sent
@@ -220,7 +219,7 @@ void WebPluginContainer::setParentVisible(bool visible) {
 void WebPluginContainer::setParent(WebCore::ScrollView* view) {
   WebCore::Widget::setParent(view);
   if (view) {
-    impl_->setFrameRect(frameRect());
+    impl_->setFrameRect(frameRect(), true);
     impl_->delegate_->FlushGeometryUpdates();
   }
 }
@@ -638,7 +637,8 @@ void WebPluginImpl::windowCutoutRects(
   }
 }
 
-void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
+void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect,
+                                 bool widget_dimensions_changed) {
   if (!parent())
     return;
 
@@ -658,9 +658,11 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
   std::vector<gfx::Rect> cutout_rects;
   CalculateBounds(rect, &window_rect, &clip_rect, &cutout_rects);
 
-  delegate_->UpdateGeometry(
-      webkit_glue::FromIntRect(window_rect),
-      webkit_glue::FromIntRect(clip_rect));
+  if (widget_dimensions_changed) {
+    delegate_->UpdateGeometry(
+        webkit_glue::FromIntRect(window_rect),
+        webkit_glue::FromIntRect(clip_rect));
+  }
 
   if (window_) {
     // Let the WebViewDelegate know that the plugin window needs to be moved,
