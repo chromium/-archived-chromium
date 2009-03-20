@@ -155,6 +155,8 @@ class RenderView : public RenderWidget,
   virtual void QueryFormFieldAutofill(const std::wstring& field_name,
                                       const std::wstring& text,
                                       int64 node_id);
+  virtual void RemoveStoredAutofillEntry(const std::wstring& field_name,
+                                         const std::wstring& text);
   virtual void UpdateTargetURL(WebView* webview,
                                const GURL& url);
   virtual void RunFileChooser(bool multi_select,

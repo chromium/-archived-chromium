@@ -139,6 +139,20 @@ WebDataService::Handle WebDataService::GetFormValuesForElementName(
   return request->GetHandle();
 }
 
+void WebDataService::RemoveFormValueForElementName(
+    const std::wstring& name, const std::wstring& value) {
+  GenericRequest2<std::wstring, std::wstring>* request =
+      new GenericRequest2<std::wstring, std::wstring>(this,
+                                                      GetNextRequestHandle(),
+                                                      NULL,
+                                                      name, value);
+  RegisterRequest(request);
+  ScheduleTask(
+      NewRunnableMethod(this,
+                        &WebDataService::RemoveFormValueForElementNameImpl,
+                        request));
+}
+
 void WebDataService::RequestCompleted(Handle h) {
   pending_lock_.Acquire();
   RequestMap::iterator i = pending_requests_.find(h);
@@ -572,6 +586,16 @@ void WebDataService::RemoveFormElementsAddedBetweenImpl(
   if (db_ && !request->IsCancelled()) {
     if (db_->RemoveFormElementsAddedBetween(request->GetArgument1(),
                                             request->GetArgument2()))
+      ScheduleCommit();
+  }
+  request->RequestComplete();
+}
+
+void WebDataService::RemoveFormValueForElementNameImpl(
+    GenericRequest2<std::wstring, std::wstring>* request) {
+  if (db_ && !request->IsCancelled()) {
+    if (db_->RemoveFormElement(request->GetArgument1(),
+                               request->GetArgument2()))
       ScheduleCommit();
   }
   request->RequestComplete();

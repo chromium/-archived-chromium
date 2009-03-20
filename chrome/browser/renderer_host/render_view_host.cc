@@ -760,6 +760,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnUnloadListenerChanged);
     IPC_MESSAGE_HANDLER(ViewHostMsg_QueryFormFieldAutofill,
                         OnQueryFormFieldAutofill)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_RemoveAutofillEntry,
+                        OnRemoveAutofillEntry)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateFeedList, OnMsgUpdateFeedList)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
@@ -1288,6 +1290,11 @@ void RenderViewHost::OnQueryFormFieldAutofill(const std::wstring& field_name,
                                               int64 node_id,
                                               int request_id) {
   delegate_->GetAutofillSuggestions(field_name, user_text, node_id, request_id);
+}
+
+void RenderViewHost::OnRemoveAutofillEntry(const std::wstring& field_name,
+                                           const std::wstring& value) {
+  delegate_->RemoveAutofillEntry(field_name, value);
 }
 
 void RenderViewHost::AutofillSuggestionsReturned(

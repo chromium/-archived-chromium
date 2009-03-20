@@ -74,6 +74,18 @@ void AutofillManager::FetchValuesForName(const std::wstring& name,
       GetFormValuesForElementName(name, prefix, limit, this);
 }
 
+void AutofillManager::RemoveValueForName(const std::wstring& name,
+                                         const std::wstring& value) {
+  WebDataService* web_data_service =
+      profile()->GetWebDataService(Profile::EXPLICIT_ACCESS);
+  if (!web_data_service) {
+    NOTREACHED();
+    return;
+  }
+
+  web_data_service->RemoveFormValueForElementName(name, value);
+}
+
 void AutofillManager::OnWebDataServiceRequestDone(WebDataService::Handle h,
     const WDTypedResult* result) {
   DCHECK(pending_query_handle_);

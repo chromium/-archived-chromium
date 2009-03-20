@@ -868,7 +868,7 @@ bool WebDatabase::ClearAutofillEmptyValueElements() {
   bool success = true;
   for (std::set<int64>::const_iterator iter = ids.begin(); iter != ids.end();
        ++iter) {
-    if (!RemoveFormElement(*iter))
+    if (!RemoveFormElementForID(*iter))
       success = false;
   }
 
@@ -1117,6 +1117,26 @@ bool WebDatabase::RemoveFormElementForTimeRange(int64 pair_id,
   return result;
 }
 
+bool WebDatabase::RemoveFormElement(const std::wstring& name,
+                                    const std::wstring& value) {
+  // Find the id for that pair.
+  SQLStatement s;
+  if (s.prepare(db_,
+                "SELECT pair_id FROM autofill WHERE  name = ? AND value= ?") !=
+                SQLITE_OK) {
+    NOTREACHED() << "Statement 1 prepare failed";
+    return false;
+  }
+  s.bind_wstring(0, name);
+  s.bind_wstring(1, value);
+
+  int result = s.step();
+  if (result != SQLITE_ROW)
+    return false;
+
+  return RemoveFormElementForID(s.column_int64(0));
+}
+
 bool WebDatabase::AddToCountOfFormElement(int64 pair_id, int delta) {
   int count = 0;
 
@@ -1124,7 +1144,7 @@ bool WebDatabase::AddToCountOfFormElement(int64 pair_id, int delta) {
     return false;
 
   if (count + delta == 0) {
-    if (!RemoveFormElement(pair_id))
+    if (!RemoveFormElementForID(pair_id))
       return false;
   } else {
     if (!SetCountOfFormElement(pair_id, count + delta))
@@ -1133,7 +1153,7 @@ bool WebDatabase::AddToCountOfFormElement(int64 pair_id, int delta) {
   return true;
 }
 
-bool WebDatabase::RemoveFormElement(int64 pair_id) {
+bool WebDatabase::RemoveFormElementForID(int64 pair_id) {
   SQLStatement s;
   if (s.prepare(db_,
                 "DELETE FROM autofill WHERE pair_id = ?") != SQLITE_OK) {

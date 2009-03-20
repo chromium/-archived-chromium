@@ -1213,6 +1213,11 @@ void WebContents::GetAutofillSuggestions(const std::wstring& field_name,
       kMaxAutofillMenuItems, node_id, request_id);
 }
 
+void WebContents::RemoveAutofillEntry(const std::wstring& field_name,
+                                      const std::wstring& value) {
+  GetAutofillManager()->RemoveValueForName(field_name, value);
+}
+
 // Checks to see if we should generate a keyword based on the OSDD, and if
 // necessary uses TemplateURLFetcher to download the OSDD and create a keyword.
 void WebContents::PageHasOSDD(RenderViewHost* render_view_host,

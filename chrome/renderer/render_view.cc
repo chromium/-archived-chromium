@@ -1694,6 +1694,11 @@ void RenderView::QueryFormFieldAutofill(const std::wstring& field_name,
                                               form_field_autofill_request_id_));
 }
 
+void RenderView::RemoveStoredAutofillEntry(const std::wstring& name,
+                                           const std::wstring& value) {
+  Send(new ViewHostMsg_RemoveAutofillEntry(routing_id_, name, value));
+}
+
 void RenderView::OnReceivedAutofillSuggestions(
     int64 node_id,
     int request_id,

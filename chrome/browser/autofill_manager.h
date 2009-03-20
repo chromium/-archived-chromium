@@ -38,6 +38,9 @@ class AutofillManager : public WebDataServiceConsumer {
                           int64 node_id,
                           int request_id);
 
+  // Removes the specified name/value pair from the database.
+  void RemoveValueForName(const std::wstring& name, const std::wstring& value);
+
   // WebDataServiceConsumer implementation.
   virtual void OnWebDataServiceRequestDone(WebDataService::Handle h,
                                            const WDTypedResult* result);

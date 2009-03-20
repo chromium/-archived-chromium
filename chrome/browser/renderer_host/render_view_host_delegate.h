@@ -320,6 +320,11 @@ class RenderViewHostDelegate {
                                       int64 node_id,
                                       int request_id) { }
 
+  // Called when the user has indicated that she wants to remove the specified
+  // autofill suggestion from the database.
+  virtual void RemoveAutofillEntry(const std::wstring& field_name,
+                                   const std::wstring& value) { }
+
   // Notification that the page has an OpenSearch description document.
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& doc_url,

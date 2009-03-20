@@ -257,6 +257,11 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // Returns true if the autocomple has consumed the event.
   bool AutocompleteHandleKeyEvent(const WebKeyboardEvent& event);
 
+  // Repaints the autofill popup.  Should be called when the suggestions have
+  // changed.  Note that this should only be called when the autofill popup is
+  // showing.
+  void RefreshAutofillPopup();
+
   // Returns true if the view was scrolled.
   bool ScrollViewWithKeyboard(int key_code);
 

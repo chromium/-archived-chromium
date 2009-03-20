@@ -1157,6 +1157,12 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       int64 /* id of the text input field */,
                       int /* id of this message */)
 
+  // Instructs the browser to remove the specified autofill-entry from the
+  // database.
+  IPC_MESSAGE_ROUTED2(ViewHostMsg_RemoveAutofillEntry,
+                      std::wstring /* field name */,
+                      std::wstring /* value */)
+
   // Get the list of proxies to use for |url|, as a semicolon delimited list
   // of "<TYPE> <HOST>:<PORT>" | "DIRECT". See also
   // PluginProcessHostMsg_ResolveProxy which does the same thing.

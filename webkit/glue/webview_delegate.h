@@ -488,6 +488,11 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                       int64 node_id) {
   }
 
+  // Instructs the browser to remove the autofill entry specified from it DB.
+  virtual void RemoveStoredAutofillEntry(const std::wstring& name,
+                                         const std::wstring& value) {
+  }
+
   // UIDelegate --------------------------------------------------------------
 
   // Asks the browser to show a modal HTML dialog.  The dialog is passed the

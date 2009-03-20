@@ -546,6 +546,8 @@ class RenderViewHost : public RenderWidgetHost {
                                 const std::wstring& user_text,
                                 int64 node_id,
                                 int request_id);
+  void OnRemoveAutofillEntry(const std::wstring& field_name,
+                             const std::wstring& value);
 
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload

@@ -178,7 +178,10 @@ class WebDatabase {
   bool InsertPairIDAndDate(int64 pair_id, const base::Time date_created);
 
   // Removes row from the autofill tables given |pair_id|.
-  bool RemoveFormElement(int64 pair_id);
+  bool RemoveFormElementForID(int64 pair_id);
+
+  // Removes row from the autofill tables for the given |name| |value| pair.
+  bool RemoveFormElement(const std::wstring& name, const std::wstring& value);
 
   //////////////////////////////////////////////////////////////////////////////
   //

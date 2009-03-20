@@ -268,6 +268,11 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
       selected_index_ = -1;
   }
 
+  void RemoveItemAtIndex(int index) {
+    DCHECK(index >= 0 && index < static_cast<int>(suggestions_.size()));
+    suggestions_.erase(suggestions_.begin() + index);
+  }
+
   WebCore::HTMLInputElement* text_field() const {
     return text_field_.get();
   }
@@ -538,6 +543,35 @@ bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
       // Home and End should be left to the text field to process.
       event.windows_key_code == base::VKEY_HOME ||
       event.windows_key_code == base::VKEY_END) {
+    return false;
+  }
+
+  // Pressing delete triggers the removal of the selected suggestion from the
+  // DB.
+  if (event.windows_key_code == base::VKEY_DELETE &&
+      autocomplete_popup_->selectedIndex() != -1) {
+    Node* node = GetFocusedNode();
+    if (!node || (node->nodeType() != WebCore::Node::ELEMENT_NODE)) {
+      NOTREACHED();
+      return false;
+    }
+    WebCore::Element* element = static_cast<WebCore::Element*>(node);
+    if (!element->hasLocalName(WebCore::HTMLNames::inputTag)) {
+      NOTREACHED();
+      return false;
+    }
+
+    int selected_index = autocomplete_popup_->selectedIndex();
+    WebCore::HTMLInputElement* input_element =
+        static_cast<WebCore::HTMLInputElement*>(element);
+    std::wstring name = webkit_glue::StringToStdWString(input_element->name());
+    std::wstring value = webkit_glue::StringToStdWString(
+        autocomplete_popup_client_->itemText(selected_index ));
+    delegate()->RemoveStoredAutofillEntry(name, value);
+    // Update the entries in the currently showing popup to reflect the
+    // deletion.
+    autocomplete_popup_client_->RemoveItemAtIndex(selected_index);
+    RefreshAutofillPopup();
     return false;
   }
 
@@ -1573,16 +1607,7 @@ void WebViewImpl::AutofillSuggestionsForNode(
 
     if (autocomplete_popup_showing_) {
       autocomplete_popup_client_->SetSuggestions(suggestions);
-      IntRect old_bounds = autocomplete_popup_->boundsRect();
-      autocomplete_popup_->refresh();
-      IntRect new_bounds = autocomplete_popup_->boundsRect();
-      // Let's resize the backing window if necessary.
-      if (old_bounds != new_bounds) {
-        WebWidgetImpl* web_widget =
-            static_cast<WebWidgetImpl*>(autocomplete_popup_->client());
-        web_widget->delegate()->SetWindowRect(
-            web_widget, webkit_glue::FromIntRect(new_bounds));
-      }
+      RefreshAutofillPopup();
     } else {
       autocomplete_popup_->show(focused_node->getRect(),
                                 focused_node->ownerDocument()->view(), 0);
@@ -1688,6 +1713,20 @@ void WebViewImpl::HideAutoCompletePopup() {
 
 void WebViewImpl::HideAutofillPopup() {
   HideAutoCompletePopup();
+}
+
+void WebViewImpl::RefreshAutofillPopup() {
+  DCHECK(autocomplete_popup_showing_);
+  IntRect old_bounds = autocomplete_popup_->boundsRect();
+  autocomplete_popup_->refresh();
+  IntRect new_bounds = autocomplete_popup_->boundsRect();
+  // Let's resize the backing window if necessary.
+  if (old_bounds != new_bounds) {
+    WebWidgetImpl* web_widget =
+        static_cast<WebWidgetImpl*>(autocomplete_popup_->client());
+    web_widget->delegate()->SetWindowRect(
+        web_widget, webkit_glue::FromIntRect(new_bounds));
+  }
 }
 
 Node* WebViewImpl::GetFocusedNode() {

@@ -380,6 +380,8 @@ class WebContents : public TabContents,
   virtual void AutofillFormSubmitted(const AutofillForm& form);
   virtual void GetAutofillSuggestions(const std::wstring& field_name,
       const std::wstring& user_text, int64 node_id, int request_id);
+  virtual void RemoveAutofillEntry(const std::wstring& field_name,
+                                   const std::wstring& value);
   virtual void PageHasOSDD(RenderViewHost* render_view_host,
                            int32 page_id, const GURL& url, bool autodetected);
   virtual void InspectElementReply(int num_resources);
