@@ -50,9 +50,6 @@ const char* Extension::kInvalidFormatVersionError =
     "Required value 'format_version' is missing or invalid.";
 const char* Extension::kInvalidIdError =
     "Required value 'id' is missing or invalid.";
-const char* Extension::kInvalidJsCountError =
-    "Invalid value for 'content_scripts[*].js. Only one js file is currently "
-    "supported per-content script.";
 const char* Extension::kInvalidJsError =
     "Invalid value for 'content_scripts[*].js[*]'.";
 const char* Extension::kInvalidJsListError =
@@ -270,14 +267,6 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
   // The manifest needs to have at least one js or css user script definition.
   if (((js ? js->GetSize() : 0) + (css ? css->GetSize() : 0)) == 0) {
     *error = FormatErrorMessage(kMissingFileError,
-                                IntToString(definition_index));
-    return false;
-  }
-
-  // NOTE: Only one js file is supported for now.
-  // TODO(aa): Add support for multiple js files.
-  if (js && js->GetSize() != 1) {
-    *error = FormatErrorMessage(kInvalidJsCountError,
                                 IntToString(definition_index));
     return false;
   }

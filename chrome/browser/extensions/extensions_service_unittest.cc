@@ -169,22 +169,21 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
 
   Extension* extension = frontend->extensions()->at(0);
   const UserScriptList& scripts = extension->content_scripts();
-  ASSERT_EQ(3u, scripts.size());
+  ASSERT_EQ(2u, scripts.size());
   EXPECT_EQ(2u, scripts[0].url_patterns().size());
   EXPECT_EQ("http://*.google.com/*",
             scripts[0].url_patterns()[0].GetAsString());
   EXPECT_EQ("https://*.google.com/*",
             scripts[0].url_patterns()[1].GetAsString());
+  EXPECT_EQ(2u, scripts[0].js_scripts().size());
   EXPECT_EQ(extension->path().AppendASCII("script1.js").value(),
             scripts[0].js_scripts()[0].path().value());
-  EXPECT_EQ(1u, scripts[1].url_patterns().size());
-  EXPECT_EQ("http://*.yahoo.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
-            scripts[1].js_scripts()[0].path().value());
-  EXPECT_EQ(1u, scripts[2].url_patterns().size());
-  EXPECT_EQ("http://*.news.com/*", scripts[2].url_patterns()[0].GetAsString());
+            scripts[0].js_scripts()[1].path().value());
+  EXPECT_EQ(1u, scripts[1].url_patterns().size());
+  EXPECT_EQ("http://*.news.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
-      .value(), scripts[2].js_scripts()[0].path().value());
+      .value(), scripts[1].js_scripts()[0].path().value());
 
   EXPECT_EQ(std::string("10123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(1)->id());

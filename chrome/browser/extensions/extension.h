@@ -57,7 +57,6 @@ class Extension {
   static const char* kInvalidDescriptionError;
   static const char* kInvalidFormatVersionError;
   static const char* kInvalidIdError;
-  static const char* kInvalidJsCountError;
   static const char* kInvalidJsError;
   static const char* kInvalidJsListError;
   static const char* kInvalidManifestError;

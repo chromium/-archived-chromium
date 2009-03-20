@@ -8,12 +8,8 @@
   "content_scripts": [
     {
       "matches": ["http://*.google.com/*", "https://*.google.com/*"],
-      "js": ["script1.js"],
+      "js": ["script1.js", "script2.js"],
       "css": ["style1.css", "style2.css", "style2.css"]
-    },
-    {
-      "matches": ["http://*.yahoo.com/*"],
-      "js": ["script2.js"]
     },
     {
       "matches": ["http://*.news.com/*"],

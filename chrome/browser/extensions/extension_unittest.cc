@@ -158,13 +158,6 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsError));
 
-  // Test too many file elements (more than one not yet supported)
-  files->Set(0, Value::CreateStringValue("foo.js"));
-  files->Set(1, Value::CreateStringValue("bar.js"));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsCountError));
-
-  // Remove all script files
   user_script->Remove(Extension::kJsKey, NULL);
   // Test the css element
   user_script->Set(Extension::kCssKey, Value::CreateIntegerValue(42));
