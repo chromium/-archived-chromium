@@ -131,6 +131,7 @@ void NetAgentImpl::DidLoadResourceFromMemoryCache(
 }
 
 void NetAgentImpl::GetResourceContent(
+    int call_id,
     int identifier,
     const String& url) {
   if (!document_) {
@@ -189,7 +190,8 @@ void NetAgentImpl::GetResourceContent(
         break;
     }
   }
-  delegate_->SetResourceContent(identifier, source);
+  delegate_->GetResourceContentResult(call_id,
+      webkit_glue::StringToStdString(source));
 }
 
 Value* NetAgentImpl::BuildValueForHeaders(const HTTPHeaderMap& headers) {

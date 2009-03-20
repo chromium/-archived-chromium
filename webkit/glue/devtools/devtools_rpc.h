@@ -95,6 +95,15 @@ struct RpcTypeTrait<String> {
   }
 };
 
+template<>
+struct RpcTypeTrait<std::string> {
+  typedef const std::string& ApiType;
+  typedef std::string DispatchType;
+  static const DispatchType& Pass(const DispatchType& t) {
+    return t;
+  }
+};
+
 ///////////////////////////////////////////////////////
 // RPC Api method declarations
 
@@ -343,6 +352,10 @@ class DevToolsRpc {
       const ListValue& message,
       int index,
       String* value);
+  static void GetListValue(
+      const ListValue& message,
+      int index,
+      std::string* value);
   static void GetListValue(const ListValue& message, int index, Value** value);
 
  protected:
@@ -352,6 +365,7 @@ class DevToolsRpc {
  private:
   // Value adapters for supported Rpc types.
   static Value* CreateValue(const String* value);
+  static Value* CreateValue(const std::string* value);
   static Value* CreateValue(int* value);
   static Value* CreateValue(bool* value);
   static Value* CreateValue(const Value* value);

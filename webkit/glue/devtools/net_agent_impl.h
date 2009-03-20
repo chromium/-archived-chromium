@@ -36,7 +36,8 @@ class NetAgentImpl : public NetAgent {
   void SetDocument(WebCore::Document* document);
 
   // NetAgent implementation.
-  void GetResourceContent(int identifier, const WebCore::String& request_url);
+  void GetResourceContent(int call_id, int identifier,
+      const WebCore::String& request_url);
   void AssignIdentifierToRequest(
       WebCore::DocumentLoader* loader,
       int identifier,

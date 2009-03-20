@@ -14,7 +14,8 @@
 #define NET_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
   /* Requests that the agent sends content of the resource with given id to the
      delegate. */ \
-  METHOD2(GetResourceContent, int /* identifier */, String /* url */)
+  METHOD3(GetResourceContent, int /* call_id */, int /* identifier */, \
+      String /* url */)
 
 DEFINE_RPC_CLASS(NetAgent, NET_AGENT_STRUCT)
 
@@ -32,8 +33,8 @@ DEFINE_RPC_CLASS(NetAgent, NET_AGENT_STRUCT)
   /* Notifies the delegate that resource loading has failed. */ \
   METHOD2(DidFailLoading, int /* identifier */, Value /* response */) \
   \
-  /* Calls delegate back with requested resource content. */ \
-  METHOD2(SetResourceContent, int /* identifier */, String /* content */)
+  /* Response to the async call. */ \
+  METHOD2(GetResourceContentResult, int /* call_id */, std::string /* content */)
 
 DEFINE_RPC_CLASS(NetAgentDelegate, NET_AGENT_DELEGATE_STRUCT)
 

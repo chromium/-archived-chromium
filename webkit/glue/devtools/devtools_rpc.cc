@@ -61,6 +61,14 @@ void DevToolsRpc::GetListValue(
 void DevToolsRpc::GetListValue(
     const ListValue& message,
     int index,
+    std::string* value) {
+  message.GetString(index, value);
+}
+
+// static
+void DevToolsRpc::GetListValue(
+    const ListValue& message,
+    int index,
     Value** value) {
   message.Get(index, value);
 }
@@ -69,6 +77,11 @@ void DevToolsRpc::GetListValue(
 Value* DevToolsRpc::CreateValue(const String* value) {
   return Value::CreateStringValue(
       webkit_glue::StringToStdString(*value));
+}
+
+// static
+Value* DevToolsRpc::CreateValue(const std::string* value) {
+  return Value::CreateStringValue(*value);
 }
 
 // static

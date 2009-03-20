@@ -7,6 +7,9 @@
 
 #include <string>
 
+#include <wtf/HashMap.h>
+#include <wtf/OwnPtr.h>
+
 #include "base/string_util.h"
 #include "webkit/glue/cpp_bound_class.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
@@ -38,7 +41,8 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   virtual ~WebDevToolsClientImpl();
 
   // DomAgentDelegate implementation.
-  virtual void DocumentElementUpdated(const Value& value);
+  virtual void GetDocumentElementResult(int call_id, const std::string& value);
+  virtual void GetChildNodesResult(int call_id, const std::string& value);
   virtual void AttributesUpdated(int id, const Value& attributes);
   virtual void ChildNodesUpdated(int id, const Value& value);
   virtual void ChildNodeInserted(
@@ -57,9 +61,9 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
       const Value& response);
   virtual void DidFinishLoading(int identifier, const Value& response);
   virtual void DidFailLoading(int identifier, const Value& response);
-  virtual void SetResourceContent(
-      int identifier,
-      const WebCore::String& content);
+  virtual void GetResourceContentResult(
+      int call_id,
+      const std::string& content);
 
   // ToolsAgentDelegate implementation.
   virtual void UpdateFocusedNode(int node_id);
@@ -71,6 +75,7 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
   virtual void DispatchMessageFromAgent(const std::string& raw_msg);
 
  private:
+  void ProcessCallback(int call_id, const std::string& data);
   // MakeJsCall templates.
   void MakeJsCall(const std::string& func) {
     EvaluateJs(StringPrintf("%s()", func.c_str()));
@@ -130,9 +135,11 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;
-  scoped_ptr<DomAgentStub> dom_agent_stub_;
-  scoped_ptr<NetAgentStub> net_agent_stub_;
-  scoped_ptr<ToolsAgentStub> tools_agent_stub_;
+  OwnPtr<DomAgentStub> dom_agent_stub_;
+  OwnPtr<NetAgentStub> net_agent_stub_;
+  OwnPtr<ToolsAgentStub> tools_agent_stub_;
+  int last_call_id_;
+  HashMap<int, CppVariant> callbacks_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientImpl);
 };
 

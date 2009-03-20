@@ -43,10 +43,11 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
     WebViewImpl* web_view_impl,
     WebDevToolsClientDelegate* delegate)
     : web_view_impl_(web_view_impl),
-      delegate_(delegate) {
-  dom_agent_stub_.reset(new DomAgentStub(this));
-  net_agent_stub_.reset(new NetAgentStub(this));
-  tools_agent_stub_.reset(new ToolsAgentStub(this));
+      delegate_(delegate),
+      last_call_id_(1) {
+  dom_agent_stub_.set(new DomAgentStub(this));
+  net_agent_stub_.set(new NetAgentStub(this));
+  tools_agent_stub_.set(new ToolsAgentStub(this));
 
   BindToJavascript(web_view_impl_->GetMainFrame(), L"DevToolsHost");
   BindMethod("getDocumentElement",
@@ -64,8 +65,16 @@ WebDevToolsClientImpl::~WebDevToolsClientImpl() {
 }
 
 // DomAgent::DomAgentDelegate implementation.
-void WebDevToolsClientImpl::DocumentElementUpdated(const Value& value) {
-  MakeJsCall("dom.setDocumentElement", &value);
+void WebDevToolsClientImpl::GetDocumentElementResult(
+    int call_id,
+    const std::string& root) {
+  ProcessCallback(call_id, root);
+}
+
+void WebDevToolsClientImpl::GetChildNodesResult(
+    int call_id,
+    const std::string& list) {
+  ProcessCallback(call_id, list);
 }
 
 void WebDevToolsClientImpl::AttributesUpdated(int id, const Value& attributes) {
@@ -114,21 +123,37 @@ void WebDevToolsClientImpl::DidFailLoading(int identifier,
   MakeJsCall("net.didFailLoading", identifier, &response);
 }
 
-void WebDevToolsClientImpl::SetResourceContent(
-    int identifier,
-    const String& content) {
-  MakeJsCall("net.setResourceContent", identifier, content);
+void WebDevToolsClientImpl::GetResourceContentResult(
+    int call_id,
+    const std::string& content) {
+  ProcessCallback(call_id, content);
 }
 
 void WebDevToolsClientImpl::UpdateFocusedNode(int node_id) {
   MakeJsCall("tools.updateFocusedNode", node_id);
 }
 
+void WebDevToolsClientImpl::ProcessCallback(
+    int call_id,
+    const std::string& data) {
+  HashMap<int, CppVariant>::iterator it = callbacks_.find(call_id);
+  if (it != callbacks_.end()) {
+    CppVariant result;
+    CppVariant args[2];
+    args[0].Set(*GetAsCppVariant());
+    args[1].Set(data);
+    it->second.Invoke("call", args, 2, result);
+    callbacks_.remove(call_id);
+  }
+}
+
 void WebDevToolsClientImpl::JsGetResourceSource(
     const CppArgumentList& args,
     CppVariant* result) {
-  net_agent_stub_->GetResourceContent(args[0].ToInt32(),
+  int call_id = last_call_id_++;
+  net_agent_stub_->GetResourceContent(call_id, args[0].ToInt32(),
       webkit_glue::StdStringToString(args[1].ToString()));
+  callbacks_.set(call_id, args[1]);
 }
 
 void WebDevToolsClientImpl::JsGetDocumentElement(
@@ -136,14 +161,18 @@ void WebDevToolsClientImpl::JsGetDocumentElement(
     CppVariant* result) {
   tools_agent_stub_->SetDomAgentEnabled(true);
   tools_agent_stub_->SetNetAgentEnabled(true);
-  dom_agent_stub_->GetDocumentElement();
+  int call_id = last_call_id_++;
+  dom_agent_stub_->GetDocumentElement(call_id);
+  callbacks_.set(call_id, args[0]);
   result->SetNull();
 }
 
 void WebDevToolsClientImpl::JsGetChildNodes(
     const CppArgumentList& args,
     CppVariant* result) {
-  dom_agent_stub_->GetChildNodes(args[0].ToInt32());
+  int call_id = last_call_id_++;
+  dom_agent_stub_->GetChildNodes(call_id, args[0].ToInt32());
+  callbacks_.set(call_id, args[1]);
   result->SetNull();
 }
 

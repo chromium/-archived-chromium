@@ -20,6 +20,7 @@
 #include <wtf/Vector.h>
 #undef LOG
 
+#include "base/json_writer.h"
 #include "base/values.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/glue_util.h"
@@ -46,7 +47,7 @@ void DomAgentImpl::EventListenerWrapper::handleEvent(
 DomAgentImpl::DomAgentImpl(DomAgentDelegate* delegate)
     : delegate_(delegate),
       last_node_id_(1),
-      document_element_requested_(false) {
+      document_element_call_id_(0) {
   event_listener_ = EventListenerWrapper::Create(this);
 }
 
@@ -66,15 +67,15 @@ void DomAgentImpl::SetDocument(Document* doc) {
 
   if (doc) {
     StartListening(doc);
-    if (document_element_requested_) {
-      GetDocumentElement();
-      document_element_requested_ = false;
+    if (document_element_call_id_) {
+      GetDocumentElement(document_element_call_id_);
+      document_element_call_id_ = 0;
     }
   }
 }
 
 void DomAgentImpl::StartListening(Document* doc) {
-  if (documents_.find(doc) != documents_.end())
+  if (documents_.contains(doc))
     return;
   doc->addEventListener(eventNames().DOMContentLoadedEvent, event_listener_,
       false);
@@ -179,8 +180,7 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
       // Parent is not mapped yet -> ignore the event.
       return;
     }
-    HashSet<int>::iterator cit = children_requested_.find(parent_id);
-    if (cit == children_requested_.end()) {
+    if (!children_requested_.contains(parent_id)) {
       // No children are mapped yet -> only notify on changes of hasChildren.
       delegate_->HasChildrenUpdated(parent_id, true);
     } else {
@@ -196,8 +196,7 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
       // Parent is not mapped yet -> ignore the event.
       return;
     }
-    HashSet<int>::iterator cit = children_requested_.find(parent_id);
-    if (cit == children_requested_.end()) {
+    if (!children_requested_.contains(parent_id)) {
       // No children are mapped yet -> only notify on changes of hasChildren.
       if (parent->childNodeCount() == 1)
         delegate_->HasChildrenUpdated(parent_id, false);
@@ -210,17 +209,19 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
   }
 }
 
-void DomAgentImpl::GetDocumentElement() {
+void DomAgentImpl::GetDocumentElement(int call_id) {
   if (documents_.size() > 0) {
     OwnPtr<Value> value(
         BuildValueForNode((*documents_.begin())->documentElement(), 0));
-    delegate_->DocumentElementUpdated(*value.get());
+    std::string json;
+    ToJson(value.get(), &json);
+    delegate_->GetDocumentElementResult(call_id, json);
   } else {
-    document_element_requested_ = true;
+    document_element_call_id_ = call_id;
   }
 }
 
-void DomAgentImpl::GetChildNodes(int element_id) {
+void DomAgentImpl::GetChildNodes(int call_id, int element_id) {
   Node* node = GetNodeForId(element_id);
   if (!node || (node->nodeType() != Node::ELEMENT_NODE))
     return;
@@ -228,7 +229,9 @@ void DomAgentImpl::GetChildNodes(int element_id) {
   Element* element = static_cast<Element*>(node);
   OwnPtr<Value> children(BuildValueForElementChildren(element, 1));
   children_requested_.add(element_id);
-  delegate_->ChildNodesUpdated(element_id, *children.get());
+  std::string json;
+  ToJson(children.get(), &json);
+  delegate_->GetChildNodesResult(call_id, json);
 }
 
 int DomAgentImpl::GetPathToNode(Node* node_to_select) {
@@ -403,4 +406,8 @@ Element* DomAgentImpl::InnerParentElement(Node* node) {
     return node->ownerDocument()->ownerElement();
   }
   return element;
+}
+
+void DomAgentImpl::ToJson(const Value* value, std::string* json) {
+  JSONWriter::Write(value, false, json);
 }
