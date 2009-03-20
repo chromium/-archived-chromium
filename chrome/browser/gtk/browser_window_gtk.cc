@@ -90,6 +90,7 @@ const struct AcceleratorMapping {
   { GDK_l, IDC_FOCUS_LOCATION },
   { GDK_o, IDC_OPEN_FILE },
   { GDK_w, IDC_CLOSE_TAB },
+  { GDK_Page_Down, IDC_FOCUS_SEARCH },
 };
 
 int GetCommandFromKeyval(guint accel_key) {
@@ -101,14 +102,22 @@ int GetCommandFromKeyval(guint accel_key) {
   return 0;
 }
 
-// Usually accelerators are checked before propagating the key event, but in our
-// case we want to reverse the order of things to allow webkit to handle key
-// events like ctrl-l. If the window's children can handle the key event, this
-// will return TRUE and the signal won't be propagated further. If the window's
-// children cannot handle the key event then this will return FALSE and the
-// default GtkWindow key press handler will be invoked.
-gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, gpointer userdata) {
-  return gtk_window_propagate_key_event(window, event);
+// Usually accelerators are checked before propagating the key event, but if the
+// focus is on the render area we want to reverse the order of things to allow
+// webkit to handle key events like ctrl-l.
+gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
+  TabContents* current_tab_contents =
+      browser->tabstrip_model()->GetSelectedTabContents();
+  // If there is no current tab contents or it is not focused then let the
+  // default GtkWindow key handler run.
+  if (!current_tab_contents)
+    return FALSE;
+  if (!gtk_widget_is_focus(current_tab_contents->GetContentNativeView()))
+    return FALSE;
+
+  // If the content area is focused, let it handle the key event.
+  DCHECK(gtk_window_propagate_key_event(window, event));
+  return TRUE;
 }
 
 }  // namespace
@@ -129,7 +138,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   g_signal_connect(window_, "window-state-event",
                    G_CALLBACK(MainWindowStateChanged), this);
   g_signal_connect(window_, "key-press-event",
-                   G_CALLBACK(OnKeyPress), NULL);
+                   G_CALLBACK(OnKeyPress), browser_.get());
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
