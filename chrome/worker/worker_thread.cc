@@ -42,5 +42,6 @@ void WorkerThread::OnControlMessageReceived(const IPC::Message& msg) {
 }
 
 void WorkerThread::OnCreateWorker(const GURL& url, int route_id) {
+  // WebWorkerClientProxy owns itself.
   WebWorkerClientProxy* worker = new WebWorkerClientProxy(url, route_id);
 }
