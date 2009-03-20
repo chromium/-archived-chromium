@@ -1899,3 +1899,6 @@ WIN : LayoutTests/svg/custom/text-repaint-including-stroke.svg = FAIL
 WIN : LayoutTests/svg/custom/use-detach.svg = FAIL
 WIN : LayoutTests/svg/custom/use-on-text.svg = FAIL
 WIN : LayoutTests/svg/text/text-text-08-b.svg = FAIL
+MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
+MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-get-async.html = TIMEOUT
+LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
