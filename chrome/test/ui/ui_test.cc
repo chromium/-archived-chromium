@@ -544,6 +544,7 @@ bool UITest::WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
   }
   return false;
 }
+#endif  // defined(OS_WIN)
 
 GURL UITest::GetActiveTabURL() {
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
@@ -565,7 +566,6 @@ std::wstring UITest::GetActiveTabTitle() {
   EXPECT_TRUE(tab_proxy->GetTabTitle(&title));
   return title;
 }
-#endif  // defined(OS_WIN)
 
 bool UITest::IsBrowserRunning() {
   return CrashAwareSleep(0);

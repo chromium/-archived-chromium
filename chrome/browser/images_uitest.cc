@@ -4,6 +4,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
+#include "base/platform_thread.h"
 #include "chrome/test/ui/ui_test.h"
 
 class ImagesTest : public UITest {
@@ -21,7 +22,7 @@ TEST_F(ImagesTest, AnimatedGIFs) {
 
   // Let the GIFs fully animate.
   for (int i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     if (page_title == GetActiveTabTitle())
       break;
   }

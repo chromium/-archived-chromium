@@ -813,8 +813,10 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         WindowSimulateKeyPress)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowDrag,
                                     WindowSimulateDrag)
+#endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabCount, GetTabCount)
     IPC_MESSAGE_HANDLER(AutomationMsg_Tab, GetTab)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabHWND, GetTabHWND)
 #endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabProcessID, GetTabProcessID)

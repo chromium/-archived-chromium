@@ -1866,7 +1866,6 @@
             'browser/download/save_page_uitest.cc',
             'browser/errorpage_uitest.cc',
             'browser/iframe_uitest.cc',
-            'browser/images_uitest.cc',
             'browser/interstitial_page_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
