@@ -38,7 +38,6 @@ const int kHideFadeDuration = 0.200f;
 
 // TODO(avi):
 // - do display delay
-// - figure out why the show/fade durations aren't working
 
 enum BubbleStyle {
   STYLE_BOTTOM,    // Hanging off the bottom of the parent window
