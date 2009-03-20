@@ -16,9 +16,6 @@
 #import "chrome/browser/tab_contents/tab_contents.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
 
-// The amount of overlap tabs have in their button frames.
-const short kTabOverlap = 16;
-
 // The private methods the brige object needs from the controller.
 @interface TabStripController(BridgeMethods)
 - (void)insertTabWithContents:(TabContents*)contents
@@ -126,14 +123,15 @@ class TabStripBridge : public TabStripModelObserver {
   }
 }
 
-// Create a new tab view and set its cell correctly so it draws the way we
-// want it to.
-- (TabController*)newTabWithFrame:(NSRect)frame {
+// Create a new tab view and set its cell correctly so it draws the way we want
+// it to. It will be sized and positioned by |-layoutTabs| so there's no need to
+// set the frame here. This also creates the view as hidden, it will be
+// shown during layout.
+- (TabController*)newTab {
   TabController* controller = [[[TabController alloc] init] autorelease];
   [controller setTarget:self];
   [controller setAction:@selector(selectTab:)];
-  TabView* view = [controller tabView];
-  [view setFrame:frame];
+  [[controller view] setHidden:YES];
 
   return controller;
 }
@@ -172,30 +170,66 @@ class TabStripBridge : public TabStripModelObserver {
     tabModel_->SelectTabContentsAt(index, true);
 }
 
-// Return the frame for a new tab that will go to the immediate right of the
-// tab at |index|. If |index| is 0, this will be the first tab, indented so
-// as to not cover the window controls.
-- (NSRect)frameForNewTabAtIndex:(NSInteger)index {
-  const short kIndentLeavingSpaceForControls = 66;
-  const short kNewTabWidth = [TabController maxTabWidth];
+// Lay out all tabs in the order of their TabContentsControllers, which matches
+// the ordering in the TabStripModel. This call isn't that expensive, though
+// it is O(n) in the number of tabs. Tabs will animate to their new position
+// if the window is visible.
+// TODO(pinkerton): Handle drag placeholders via proxy objects, perhaps a
+// subclass of TabContentsController with everything stubbed out or by
+// abstracting a base class interface.
+// TODO(pinkerton): Note this doesn't do too well when the number of min-sized
+// tabs would cause an overflow.
+- (void)layoutTabs {
+  const float kIndentLeavingSpaceForControls = 64.0;
+  const float kTabOverlap = 20.0;
+  const float kNewTabButtonOffset = 8.0;
+  const float kMaxTabWidth = [TabController maxTabWidth];
+  const float kMinTabWidth = [TabController minTabWidth];
 
-  short xOffset = kIndentLeavingSpaceForControls;
-  if (index > 0) {
-    NSRect previousTab = [[self viewAtIndex:index - 1] frame];
-    xOffset = NSMaxX(previousTab) - kTabOverlap;
+  [NSAnimationContext beginGrouping];
+  [[NSAnimationContext currentContext] setDuration:0.2];
+
+  BOOL visible = [[tabView_ window] isVisible];
+  float availableWidth =
+      NSWidth([tabView_ frame]) - NSWidth([newTabButton_ frame]);
+  float offset = kIndentLeavingSpaceForControls;
+  const float baseTabWidth =
+      MAX(MIN((availableWidth - offset) / [tabContentsArray_ count],
+              kMaxTabWidth),
+          kMinTabWidth);
+
+  for (TabController* tab in tabArray_) {
+    // BOOL isPlaceholder = ![[[tab view] superview] isEqual:tabView_];
+    BOOL isPlaceholder = NO;
+    NSRect tabFrame = [[tab view] frame];
+    // If the tab is all the way on the left, we consider it a new tab. We
+    // need to show it, but not animate the movement. We do however want to
+    // animate the display.
+    BOOL newTab = NSMinX(tabFrame) == 0;
+    if (newTab) {
+      id visibilityTarget = visible ? [[tab view] animator] : [tab view];
+      [visibilityTarget setHidden:NO];
+    }
+    tabFrame.origin = NSMakePoint(offset, 0);
+    if (!isPlaceholder) {
+      // Set the tab's new frame and animate the tab to its new location. Don't
+      // animate if the window isn't visible or if the tab is new.
+      BOOL animate = visible && !newTab;
+      id frameTarget = animate ? [[tab view] animator] : [tab view];
+      tabFrame.size.width = [tab selected] ? kMaxTabWidth : baseTabWidth;
+      [frameTarget setFrame:tabFrame];
+    }
+
+    if (offset < availableWidth) {
+      offset += NSWidth(tabFrame);
+      offset -= kTabOverlap;
+    }
   }
 
-  return NSMakeRect(xOffset, 0, kNewTabWidth, [tabView_ frame].size.height);
-}
-
-// Positions the new tab button to the right of the last tab.
-- (void)positionNewTabButton {
-  const NSInteger kNewTabXOffset = -12;
-  NSRect lastTab = [[[tabArray_ lastObject] view] frame];
-  NSInteger maxRightEdge = NSMaxX(lastTab);
-  NSRect newTabButtonFrame = [newTabButton_ frame];
-  newTabButtonFrame.origin.x = maxRightEdge + kNewTabXOffset;
-  [newTabButton_ setFrame:newTabButtonFrame];
+  // Move the new tab button into place
+  [[newTabButton_ animator] setFrameOrigin:
+      NSMakePoint(MIN(availableWidth, offset + kNewTabButtonOffset), 0)];
+  [NSAnimationContext endGrouping];
 }
 
 // Handles setting the title of the tab based on the given |contents|. Uses
@@ -233,16 +267,13 @@ class TabStripBridge : public TabStripModelObserver {
     [contentsController toggleBookmarkBar:YES];
   [tabContentsArray_ insertObject:contentsController atIndex:index];
 
-  // Make a new tab and add it to the strip. Keep track of its controller.
-  // TODO(pinkerton): move everyone else over and animate. Also will need to
-  // move the "add tab" button over.
-  NSRect newTabFrame = [self frameForNewTabAtIndex:index];
-  TabController* newController = [self newTabWithFrame:newTabFrame];
+  // Make a new tab and add it to the strip. Keep track of its controller. We
+  // don't call |-layoutTabs| here because it will get called when the new
+  // tab is selected by the tab model.
+  TabController* newController = [self newTab];
   [tabArray_ insertObject:newController atIndex:index];
   NSView* newView = [newController view];
   [tabView_ addSubview:newView];
-
-  [self positionNewTabButton];
 
   [self setTabTitle:newController withContents:contents];
 
@@ -274,6 +305,10 @@ class TabStripBridge : public TabStripModelObserver {
       [tabContentsArray_ objectAtIndex:index];
   [newController willBecomeSelectedTab];
 
+  // Relayout for new tabs and to let the selected tab grow to be larger in
+  // size than surrounding tabs if the user has many.
+  [self layoutTabs];
+
   // Swap in the contents for the new tab
   [self swapInTabAtIndex:index];
 }
@@ -291,34 +326,12 @@ class TabStripBridge : public TabStripModelObserver {
 
   // Remove the |index|th view from the tab strip
   NSView* tab = [self viewAtIndex:index];
-  NSInteger tabWidth = [tab frame].size.width;
   [tab removeFromSuperview];
-
-  // Move all the views that are to the right of the tab being removed over
-  // the width of the tab that was closed. Don't bother animating if there is
-  // only 1 tab as everything is going away.
-  if ([self numberOfTabViews] > 1) {
-    int currIndex = 0;
-    for (TabController* curr in tabArray_) {
-      if (currIndex > index) {
-        NSView* shiftingView = [curr view];
-        NSRect newFrame = [shiftingView frame];
-        newFrame.origin.x -= tabWidth - kTabOverlap;
-        [[shiftingView animator] setFrame:newFrame];
-      }
-      ++currIndex;
-    }
-
-    // Move the new tab button. Note we can't just use the position of the
-    // last tab because it will still be at the old location due to the delay
-    // due to animation.
-    NSRect newTabFrame = [newTabButton_ frame];
-    newTabFrame.origin.x -= tabWidth - kTabOverlap;
-    [[newTabButton_ animator] setFrame:newTabFrame];
-  }
 
   // Once we're totally done with the tab, delete its controller
   [tabArray_ removeObjectAtIndex:index];
+
+  [self layoutTabs];
 }
 
 // Called when a notification is received from the model that the given tab
