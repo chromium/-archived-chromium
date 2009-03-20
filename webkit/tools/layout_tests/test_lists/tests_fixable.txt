@@ -62,7 +62,7 @@ DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 // Bug: 628529: complex text effects
 // This is a real bug, but not one we're fixing for Beta.
 DEFER LINUX : LayoutTests/fast/text/stroking-decorations.html = FAIL
-DEFER LINUX : LayoutTests/fast/text/stroking.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/text/stroking.html = FAIL
 
 // Bug: 1124522
 // Incrorect results, in incorrect international font metrics.
