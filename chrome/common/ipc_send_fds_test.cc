@@ -11,6 +11,7 @@ extern "C" {
 #include <sandbox.h>
 }
 #endif
+#include <fcntl.h>
 #include <sys/stat.h>
 
 #include "base/message_loop.h"

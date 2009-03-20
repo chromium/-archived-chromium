@@ -4,6 +4,8 @@
 
 #include "net/base/listen_socket_unittest.h"
 
+#include <fcntl.h>
+
 #include "net/base/net_util.h"
 #include "testing/platform_test.h"
 
