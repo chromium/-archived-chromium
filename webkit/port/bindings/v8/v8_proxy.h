@@ -256,6 +256,11 @@ class V8Proxy {
   // Returns the dom constructor function for the given node type.
   v8::Local<v8::Function> GetConstructor(V8ClassIndex::V8WrapperType type);
 
+  // To create JS Wrapper objects, we create a cache of a 'boiler plate'
+  // object, and then simply Clone that object each time we need a new one.
+  // This is faster than going through the full object creation process.
+  v8::Local<v8::Object> CreateWrapperFromCache(V8ClassIndex::V8WrapperType type);
+
   // Returns the window object of the currently executing context.
   static DOMWindow* retrieveWindow();
   // Returns the window object associated with a context.
@@ -537,20 +542,11 @@ class V8Proxy {
   Frame* m_frame;
 
   v8::Persistent<v8::Context> m_context;
-  // DOM constructors are cached per context. A DOM constructor is a function
-  // instance created from a DOM constructor template. There is one instance
-  // per context. A DOM constructor is different from a normal function in
-  // two ways: 1) it cannot be called as constructor (aka, used to create
-  // a DOM object); 2) its __proto__ points to Object.prototype rather than
-  // Function.prototype. The reason for 2) is that, in Safari, a DOM constructor
-  // is a normal JS object, but not a function. Hotmail relies on the fact
-  // that, in Safari, HTMLElement.__proto__ == Object.prototype.
-  //
-  // m_object_prototype is a cache of the original Object.prototype.
-  //
-  // Both handles must be disposed when the context is disposed. Otherwise,
-  // it can keep all objects alive.
-  v8::Persistent<v8::Array> m_dom_constructor_cache;
+  // For each possible type of wrapper, we keep a boilerplate object.
+  // The boilerplate is used to create additional wrappers of the same type.
+  // We keep a single persistent handle to an array of the activated
+  // boilerplates.
+  v8::Persistent<v8::Array> m_wrapper_boilerplates;
   v8::Persistent<v8::Value> m_object_prototype;
 
   v8::Persistent<v8::Object> m_global;
