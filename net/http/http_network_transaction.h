@@ -17,6 +17,7 @@
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/proxy/proxy_service.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 namespace net {
 
@@ -45,6 +46,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   virtual uint64 GetUploadProgress() const;
 
  private:
+  FRIEND_TEST(HttpNetworkTransactionTest, ResetStateForRestart);
+
   void BuildRequestHeaders();
   void BuildTunnelRequest();
   void DoCallback(int result);

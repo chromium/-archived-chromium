@@ -651,7 +651,6 @@ int HttpNetworkTransaction::DoWriteHeaders() {
   // out the first bytes of the request headers.
   if (request_headers_bytes_sent_ == 0) {
     response_.request_time = Time::Now();
-    response_.was_cached = false;
   }
 
   const char* buf = request_headers_.data() + request_headers_bytes_sent_;
@@ -1178,9 +1177,8 @@ void HttpNetworkTransaction::ResetStateForRestart() {
   request_headers_.clear();
   request_headers_bytes_sent_ = 0;
   chunked_decoder_.reset();
-  // Reset the scoped_refptr
-  response_.headers = NULL;
-  response_.auth_challenge = NULL;
+  // Reset all the members of response_.
+  response_ = HttpResponseInfo();
 }
 
 bool HttpNetworkTransaction::ShouldResendRequest() {

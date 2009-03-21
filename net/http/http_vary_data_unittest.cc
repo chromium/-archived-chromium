@@ -29,7 +29,7 @@ struct TestTransaction {
 
 }  // namespace
 
-TEST(HttpVaryDataTest, IsValid) {
+TEST(HttpVaryDataTest, IsInvalid) {
   // All of these responses should result in an invalid vary data object.
   const char* kTestResponses[] = {
     "HTTP/1.1 200 OK\n\n",
@@ -43,9 +43,26 @@ TEST(HttpVaryDataTest, IsValid) {
     t.Init("", kTestResponses[i]);
 
     net::HttpVaryData v;
+    EXPECT_FALSE(v.is_valid());
     EXPECT_FALSE(v.Init(t.request, *t.response));
     EXPECT_FALSE(v.is_valid());
   }
+}
+
+TEST(HttpVaryDataTest, MultipleInit) {
+  net::HttpVaryData v;
+
+  // Init to something valid.
+  TestTransaction t1;
+  t1.Init("Foo: 1\nbar: 23", "HTTP/1.1 200 OK\nVary: foo, bar\n\n");
+  EXPECT_TRUE(v.Init(t1.request, *t1.response));
+  EXPECT_TRUE(v.is_valid());
+
+  // Now overwrite by initializing to something invalid.
+  TestTransaction t2;
+  t2.Init("Foo: 1\nbar: 23", "HTTP/1.1 200 OK\nVary: *\n\n");
+  EXPECT_FALSE(v.Init(t2.request, *t2.response));
+  EXPECT_FALSE(v.is_valid());
 }
 
 TEST(HttpVaryDataTest, DoesVary) {

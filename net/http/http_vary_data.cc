@@ -15,7 +15,6 @@
 namespace net {
 
 HttpVaryData::HttpVaryData() : is_valid_(false) {
-  memset(&request_digest_, 0, sizeof(request_digest_));
 }
 
 bool HttpVaryData::Init(const HttpRequestInfo& request_info,
@@ -23,6 +22,7 @@ bool HttpVaryData::Init(const HttpRequestInfo& request_info,
   MD5Context ctx;
   MD5Init(&ctx);
 
+  is_valid_ = false;
   bool processed_header = false;
 
   // Feed the MD5 context in the order of the Vary header enumeration.  If the
@@ -64,6 +64,7 @@ bool HttpVaryData::Init(const HttpRequestInfo& request_info,
 }
 
 bool HttpVaryData::InitFromPickle(const Pickle& pickle, void** iter) {
+  is_valid_ = false;
   const char* data;
   if (pickle.ReadBytes(iter, &data, sizeof(request_digest_))) {
     memcpy(&request_digest_, data, sizeof(request_digest_));
@@ -73,6 +74,7 @@ bool HttpVaryData::InitFromPickle(const Pickle& pickle, void** iter) {
 }
 
 void HttpVaryData::Persist(Pickle* pickle) const {
+  DCHECK(is_valid());
   pickle->WriteBytes(&request_digest_, sizeof(request_digest_));
 }
 

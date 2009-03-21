@@ -19,8 +19,9 @@ class HttpResponseInfo {
  public:
   HttpResponseInfo();
   ~HttpResponseInfo();
+  // Default copy-constructor and assignment operator are OK!
 
-  // The following is only defined if the request_time memmber is set.
+  // The following is only defined if the request_time member is set.
   // If this response was resurrected from cache, then this bool is set, and
   // request_time may corresponds to a time "far" in the past.  Note that
   // stale content (perhaps un-cacheable) may be fetched from cache subject to
