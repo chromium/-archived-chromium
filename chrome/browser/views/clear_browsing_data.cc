@@ -240,6 +240,8 @@ std::wstring ClearBrowsingDataView::GetDialogButtonLabel(
     DialogButton button) const {
   if (button == DIALOGBUTTON_OK) {
     return l10n_util::GetString(IDS_CLEAR_BROWSING_DATA_COMMIT);
+  } else if (button == DIALOGBUTTON_CANCEL) {
+    return l10n_util::GetString(IDS_CLOSE);
   } else {
     return std::wstring();
   }
