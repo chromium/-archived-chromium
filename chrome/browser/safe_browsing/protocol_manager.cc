@@ -355,9 +355,8 @@ bool SafeBrowsingProtocolManager::HandleServiceResponse(const GURL& url,
       break;
     }
     case CHUNK_REQUEST: {
-      if (sb_service_->new_safe_browsing())
-        UMA_HISTOGRAM_TIMES("SB2.ChunkRequest",
-                            base::Time::Now() - chunk_request_start_);
+      UMA_HISTOGRAM_TIMES("SB2.ChunkRequest",
+                          base::Time::Now() - chunk_request_start_);
 
       const ChunkUrl chunk_url = chunk_request_urls_.front();
       bool re_key = false;
@@ -567,11 +566,7 @@ void SafeBrowsingProtocolManager::OnChunkInserted() {
   chunk_pending_to_write_ = false;
 
   if (chunk_request_urls_.empty()) {
-    // Don't pollute old implementation histograms with new implemetation data.
-    if (sb_service_->new_safe_browsing())
-      UMA_HISTOGRAM_LONG_TIMES("SB2.Update", Time::Now() - last_update_);
-    else
-      UMA_HISTOGRAM_LONG_TIMES("SB.Update", Time::Now() - last_update_);
+    UMA_HISTOGRAM_LONG_TIMES("SB2.Update", Time::Now() - last_update_);
     UpdateFinished(true);
   } else {
     IssueChunkRequest();

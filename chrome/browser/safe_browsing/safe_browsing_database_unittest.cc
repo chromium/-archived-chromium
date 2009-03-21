@@ -4,7 +4,6 @@
 //
 // Unit tests for the SafeBrowsing storage system.
 
-#include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
@@ -16,7 +15,6 @@
 #include "base/time.h"
 #include "chrome/browser/safe_browsing/protocol_parser.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
-#include "chrome/common/chrome_switches.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
@@ -911,14 +909,7 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   prefixes.clear();
   full_hashes.clear();
 
-  // Test receiving a full add chunk. The old implementation doesn't support
-  // this test, so we bail here.
-  if (CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kUseOldSafeBrowsing)) {
-    TearDownTestDatabase(database);
-    return;
-  }
-
+  // Test receiving a full add chunk.
   host.host = Sha256Prefix("www.fullevil.com/");
   host.entry = SBEntry::Create(SBEntry::ADD_FULL_HASH, 2);
   host.entry->set_chunk_id(20);

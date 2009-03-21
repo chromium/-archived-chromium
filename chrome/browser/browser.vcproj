@@ -1738,14 +1738,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\safe_browsing\safe_browsing_database_impl.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\safe_browsing\safe_browsing_database_impl.h"
-				>
-			</File>
-			<File
 				RelativePath=".\safe_browsing\safe_browsing_service.cc"
 				>
 			</File>

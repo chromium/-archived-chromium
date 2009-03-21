@@ -461,8 +461,6 @@ input_files = ChromeFileList([
     'safe_browsing/safe_browsing_database.h',
     'safe_browsing/safe_browsing_database_bloom.cc',
     'safe_browsing/safe_browsing_database_bloom.h',
-    'safe_browsing/safe_browsing_database_impl.cc',
-    'safe_browsing/safe_browsing_database_impl.h',
     'safe_browsing/safe_browsing_service.cc',
     'safe_browsing/safe_browsing_service.h',
     'safe_browsing/safe_browsing_util.cc',

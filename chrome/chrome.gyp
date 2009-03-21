@@ -916,8 +916,6 @@
         'browser/safe_browsing/safe_browsing_database.h',
         'browser/safe_browsing/safe_browsing_database_bloom.cc',
         'browser/safe_browsing/safe_browsing_database_bloom.h',
-        'browser/safe_browsing/safe_browsing_database_impl.cc',
-        'browser/safe_browsing/safe_browsing_database_impl.h',
         'browser/safe_browsing/safe_browsing_service.cc',
         'browser/safe_browsing/safe_browsing_service.h',
         'browser/safe_browsing/safe_browsing_util.cc',

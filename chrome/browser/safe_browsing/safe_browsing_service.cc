@@ -22,7 +22,6 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
@@ -39,8 +38,6 @@ SafeBrowsingService::SafeBrowsingService()
       resetting_(false),
       database_loaded_(false),
       update_in_progress_(false) {
-  new_safe_browsing_ = !CommandLine::ForCurrentProcess()->HasSwitch(
-      switches::kUseOldSafeBrowsing);
   base::SystemMonitor* monitor = base::SystemMonitor::Get();
   DCHECK(monitor);
   if (monitor)
@@ -180,35 +177,6 @@ bool SafeBrowsingService::CheckUrl(const GURL& url, Client* client) {
   if (!enabled_ || !database_)
     return true;
 
-  if (new_safe_browsing_)
-    return CheckUrlNew(url, client);
-
-  if (!resetting_) {
-    Time start_time = Time::Now();
-    bool need_check = database_->NeedToCheckUrl(url);
-    UMA_HISTOGRAM_TIMES("SB.BloomFilter", Time::Now() - start_time);
-    if (!need_check)
-      return true;  // The url is definitely safe.
-  }
-
-  // The url may or may not be safe, need to go to the database to be sure.
-  SafeBrowsingCheck* check = new SafeBrowsingCheck();
-  check->url = url;
-  check->client = client;
-  check->result = URL_SAFE;
-  check->need_get_hash = false;
-  check->start = Time::Now();
-  checks_.insert(check);
-
-  // Old school SafeBrowsing does an asynchronous database check.
-  db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &SafeBrowsingService::CheckDatabase,
-      check, protocol_manager_->last_update()));
-
-  return false;
-}
-
-bool SafeBrowsingService::CheckUrlNew(const GURL& url, Client* client) {
   if (resetting_ || !database_loaded_) {
     QueuedCheck check;
     check.client = client;
@@ -278,6 +246,7 @@ void SafeBrowsingService::DisplayBlockingPage(const GURL& url,
   resource.client = client;
   resource.render_process_host_id = render_process_host_id;
   resource.render_view_id = render_view_id;
+
   // The blocking page must be created from the UI thread.
   ui_loop->PostTask(FROM_HERE, NewRunnableMethod(this,
       &SafeBrowsingService::DoDisplayBlockingPage,
@@ -465,22 +434,14 @@ void SafeBrowsingService::HandleGetHashResults(
 
   DCHECK(enabled_);
 
-  if (new_safe_browsing_)
-    UMA_HISTOGRAM_LONG_TIMES("SB2.Network", Time::Now() - check->start);
-  else
-    UMA_HISTOGRAM_LONG_TIMES("SB.Network", Time::Now() - check->start);
+  UMA_HISTOGRAM_LONG_TIMES("SB2.Network", Time::Now() - check->start);
 
   std::vector<SBPrefix> prefixes = check->prefix_hits;
   OnHandleGetHashResults(check, full_hashes);  // 'check' is deleted here.
 
-  if (can_cache) {
-    if (!new_safe_browsing_) {
-      db_thread_->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
-          this, &SafeBrowsingService::CacheHashResults, prefixes, full_hashes));
-    } else if (database_) {
-      // Cache the GetHash results in memory:
-      database_->CacheHashResults(prefixes, full_hashes);
-    }
+  if (can_cache && database_) {
+    // Cache the GetHash results in memory:
+    database_->CacheHashResults(prefixes, full_hashes);
   }
 }
 
@@ -712,10 +673,7 @@ SafeBrowsingService::UrlCheckResult SafeBrowsingService::GetResultFromListname(
 }
 
 void SafeBrowsingService::LogPauseDelay(TimeDelta time) {
-  if (new_safe_browsing_)
-    UMA_HISTOGRAM_LONG_TIMES("SB2.Delay", time);
-  else
-    UMA_HISTOGRAM_LONG_TIMES("SB.Delay", time);
+  UMA_HISTOGRAM_LONG_TIMES("SB2.Delay", time);
 }
 
 void SafeBrowsingService::CacheHashResults(
@@ -764,9 +722,7 @@ void SafeBrowsingService::ReportMalware(const GURL& malware_url,
                                         const GURL& referrer_url) {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  // We need to access the database cache on the io_loop_ which is only allowed
-  // in the new SafeBrowsing database system.
-  if (!new_safe_browsing_ || !enabled_ || !database_)
+  if (!enabled_ || !database_)
     return;
 
   // Check if 'page_url' is already blacklisted (exists in our cache). Only

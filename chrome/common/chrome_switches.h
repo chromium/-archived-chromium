@@ -139,7 +139,6 @@ extern const wchar_t kLoadPlugin[];
 extern const wchar_t kUserScriptsDir[];
 
 extern const wchar_t kIncognito[];
-extern const wchar_t kUseOldSafeBrowsing[];
 
 extern const wchar_t kEnableRendererAccessibility[];
 

@@ -18,7 +18,6 @@
 #include "base/string_util.h"
 #include "base/test_file_util.h"
 #include "chrome/browser/safe_browsing/safe_browsing_database.h"
-#include "chrome/browser/safe_browsing/safe_browsing_database_impl.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/sqlite_compiled_statement.h"
 #include "chrome/common/sqlite_utils.h"

@@ -374,10 +374,6 @@ const wchar_t kUserScriptsDir[]                = L"user-scripts-dir";
 // Causes the browser to launch directly in incognito mode.
 const wchar_t kIncognito[]                     = L"incognito";
 
-// Turn on the old implementation of SafeBrowsing which may have performance
-// problems on some computers during updates.
-const wchar_t kUseOldSafeBrowsing[]            = L"old-safe-browsing";
-
 // Turns on the accessibility in the renderer.  Off by default until
 // http://b/issue?id=1432077 is fixed.
 const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";

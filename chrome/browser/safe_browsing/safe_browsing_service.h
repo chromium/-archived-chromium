@@ -100,9 +100,6 @@ class SafeBrowsingService
   // and "client" is called asynchronously with the result when it is ready.
   bool CheckUrl(const GURL& url, Client* client);
 
-  // For the new SafeBrowsingDatabase, which runs the check synchronously.
-  bool CheckUrlNew(const GURL& url, Client* client);
-
   // Cancels a pending check if the result is no longer needed.
   void CancelCheck(Client* client);
 
@@ -177,8 +174,6 @@ class SafeBrowsingService
   void OnPowerStateChange(base::SystemMonitor*) {};
   void OnSuspend(base::SystemMonitor*);
   void OnResume(base::SystemMonitor*);
-
-  bool new_safe_browsing() const { return new_safe_browsing_; }
 
   // Report any pages that contain malware sub-resources to the SafeBrowsing
   // service.
@@ -293,9 +288,6 @@ class SafeBrowsingService
 
   // Indicates if we are in the process of resetting the database.
   bool resetting_;
-
-  // Indicates if we are using the new bloom filter based database.
-  bool new_safe_browsing_;
 
   // Indicates if the database has finished initialization.
   bool database_loaded_;
