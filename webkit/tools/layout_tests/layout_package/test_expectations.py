@@ -13,137 +13,103 @@ import path_utils
 import compare_failures
 
 
-# Test expectation constants.
-PASS    = 0
-FAIL    = 1
-TIMEOUT = 2
-CRASH   = 3
-
+# Test expectation and modifier constants.
+(PASS, FAIL, TIMEOUT, CRASH, SKIP, WONTFIX, DEFER, NONE) = range(8)
 
 class TestExpectations:
-  FIXABLE = "tests_fixable.txt"
-  IGNORED = "tests_ignored.txt"
+  TEST_LIST = "tests_fixable.txt"
 
   def __init__(self, tests, directory, platform, is_debug_mode):
     """Reads the test expectations files from the given directory."""
-    self._tests = tests
-    self._directory = directory
-    self._platform = platform
-    self._is_debug_mode = is_debug_mode
-    self._ReadFiles()
-    self._ValidateLists()
+    path = os.path.join(directory, self.TEST_LIST)
+    self._expected_failures = TestExpectationsFile(path, tests, platform,
+        is_debug_mode)
+
+  # TODO(ojan): Allow for removing skipped tests when getting the list of tests
+  # to run, but not when getting metrics.
+  # TODO(ojan): Replace the Get* calls here with the more sane API exposed
+  # by TestExpectationsFile below. Maybe merge the two classes entirely?
 
   def GetFixable(self):
-    return (self._fixable.GetTests() -
-            self._fixable.GetNonSkippedDeferred() -
-            self._fixable.GetSkippedDeferred())
-
-  def GetFixableSkipped(self):
-    return self._fixable.GetSkipped()
-
-  def GetFixableSkippedDeferred(self):
-    return self._fixable.GetSkippedDeferred()
+    return self._expected_failures.GetTestSet(NONE)
 
   def GetFixableFailures(self):
-    return (self._fixable.GetTestsExpectedTo(FAIL) -
-            self._fixable.GetTestsExpectedTo(TIMEOUT) -
-            self._fixable.GetTestsExpectedTo(CRASH) -
-            self._fixable.GetNonSkippedDeferred())
+    # Avoid including TIMEOUT CRASH FAIL tests in the fail numbers since
+    # crashes and timeouts are higher priority.
+    return (self._expected_failures.GetTestSet(NONE, FAIL) -
+            self._expected_failures.GetTestSet(NONE, TIMEOUT) -
+            self._expected_failures.GetTestSet(NONE, CRASH))
 
   def GetFixableTimeouts(self):
-    return (self._fixable.GetTestsExpectedTo(TIMEOUT) -
-            self._fixable.GetTestsExpectedTo(CRASH) -
-            self._fixable.GetNonSkippedDeferred())
+    # Avoid including TIMEOUT CRASH tests in the timeout numbers since crashes
+    # are higher priority.
+    return (self._expected_failures.GetTestSet(NONE, TIMEOUT) -
+            self._expected_failures.GetTestSet(NONE, CRASH))
 
   def GetFixableCrashes(self):
-    return self._fixable.GetTestsExpectedTo(CRASH)
+    return self._expected_failures.GetTestSet(NONE, CRASH)
 
-  def GetFixableDeferred(self):
-    return self._fixable.GetNonSkippedDeferred()
+  def GetSkipped(self):
+    # TODO(ojan): It's confusing that this includes deferred tests.
+    return (self._expected_failures.GetTestSet(SKIP) -
+            self._expected_failures.GetTestSet(WONTFIX))
 
-  def GetFixableDeferredFailures(self):
-    return (self._fixable.GetNonSkippedDeferred() &
-            self._fixable.GetTestsExpectedTo(FAIL))
+  def GetDeferred(self):
+    return self._expected_failures.GetTestSet(DEFER, include_skips=False)
 
-  def GetFixableDeferredTimeouts(self):
-    return (self._fixable.GetNonSkippedDeferred() &
-            self._fixable.GetTestsExpectedTo(TIMEOUT))
+  def GetDeferredSkipped(self):
+    return (self._expected_failures.GetTestSet(SKIP) &
+            self._expected_failures.GetTestSet(DEFER))
 
-  def GetIgnored(self):
-    return self._ignored.GetTests()
+  def GetDeferredFailures(self):
+    return self._expected_failures.GetTestSet(DEFER, FAIL,
+        include_skips=False)
 
-  def GetIgnoredSkipped(self):
-    return self._ignored.GetSkipped()
+  def GetDeferredTimeouts(self):
+    return self._expected_failures.GetTestSet(DEFER, TIMEOUT,
+        include_skips=False)
 
-  def GetIgnoredFailures(self):
-    return (self._ignored.GetTestsExpectedTo(FAIL) -
-            self._ignored.GetTestsExpectedTo(TIMEOUT))
+  def GetWontFix(self):
+    return self._expected_failures.GetTestSet(WONTFIX, include_skips=False)
 
-  def GetIgnoredTimeouts(self):
-    return self._ignored.GetTestsExpectedTo(TIMEOUT)
+  def GetWontFixSkipped(self):
+    return (self._expected_failures.GetTestSet(WONTFIX) &
+            self._expected_failures.GetTestSet(SKIP))
+
+  def GetWontFixFailures(self):
+    # Avoid including TIMEOUT CRASH FAIL tests in the fail numbers since
+    # crashes and timeouts are higher priority.
+    return (self._expected_failures.GetTestSet(WONTFIX, FAIL,
+                include_skips=False) -
+            self._expected_failures.GetTestSet(WONTFIX, TIMEOUT,
+                include_skips=False) -
+            self._expected_failures.GetTestSet(WONTFIX, CRASH,
+                include_skips=False))
+
+  def GetWontFixTimeouts(self):
+    # Avoid including TIMEOUT CRASH tests in the timeout numbers since crashes
+    # are higher priority.
+    return (self._expected_failures.GetTestSet(WONTFIX, TIMEOUT,
+                include_skips=False) -
+            self._expected_failures.GetTestSet(WONTFIX, CRASH,
+                include_skips=False))
 
   def GetExpectations(self, test):
-    if self._fixable.Contains(test): return self._fixable.GetExpectations(test)
-    if self._ignored.Contains(test): return self._ignored.GetExpectations(test)
+    if self._expected_failures.Contains(test):
+      return self._expected_failures.GetExpectations(test)
+
     # If the test file is not listed in any of the expectations lists
     # we expect it to pass (and nothing else).
     return set([PASS])
 
   def IsDeferred(self, test):
-    return (test in self._fixable.GetSkippedDeferred() or
-            test in self._fixable.GetNonSkippedDeferred())
+    return self._expected_failures.HasModifier(test, DEFER)
 
   def IsFixable(self, test):
-    return (self._fixable.Contains(test) and
-            test not in self._fixable.GetNonSkippedDeferred())
+    return self._expected_failures.HasModifier(test, NONE)
 
   def IsIgnored(self, test):
-    return (self._ignored.Contains(test) and
-            test not in self._fixable.GetNonSkippedDeferred())
-
-  def _ReadFiles(self):
-    self._fixable = self._GetExpectationsFile(self.FIXABLE)
-    self._ignored = self._GetExpectationsFile(self.IGNORED)
-    skipped = self.GetFixableSkipped() | self.GetIgnoredSkipped()
-    self._fixable.PruneSkipped(skipped)
-    self._ignored.PruneSkipped(skipped)
-
-  def _GetExpectationsFile(self, filename):
-    """Read the expectation files for the given filename and return a single
-    expectations file with the merged results.
-    """
-
-    path = os.path.join(self._directory, filename)
-    return TestExpectationsFile(path, self._tests, self._platform,
-        self._is_debug_mode)
-
-  def _ValidateLists(self):
-    # Make sure there's no overlap between the tests in the two files.
-    if self._tests:
-      relativizeFilenames = True
-      overlap = self._fixable.GetTests() & self._ignored.GetTests()
-    else:
-      relativizeFilenames = False
-      # If self._tests is None, then we have no way of expanding test paths
-      # So they remain shortened (e.g. LayoutTests/mac doesn't get expanded to
-      # include LayoutTests/mac/foo.html). So find duplicate prefixes
-      # instead of exact matches.
-      overlap = [];
-      for fixableTest in self._fixable.GetTests():
-        for ignoredTest in self._ignored.GetTests():
-          # Add both tests so they both get printed
-          if (fixableTest.startswith(ignoredTest) or 
-              ignoredTest.startswith(fixableTest)):
-            overlap.append(fixableTest)
-            overlap.append(ignoredTest)
-
-    message = "Files contained in both " + self.FIXABLE + " and " + self.IGNORED
-    compare_failures.PrintFilesFromSet(overlap, message, sys.stdout,
-        opt_relativizeFilenames=relativizeFilenames)
-    assert(len(overlap) == 0)
-    # Make sure there are no ignored tests expected to crash.
-    assert(len(self._ignored.GetTestsExpectedTo(CRASH)) == 0)
-
+    return self._expected_failures.HasModifier(test, WONTFIX)
 
 def StripComments(line):
   """Strips comments from a line and return None if the line is empty
@@ -178,6 +144,7 @@ class TestExpectationsFile:
     DEFER LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 
   SKIP: Doesn't run the test.
+  WONTFIX: For tests that we never intend to pass on a given platform.
   DEFER: Test does not count in our statistics for the current release.
   DEBUG: Expectations apply only to the debug build.
   RELEASE: Expectations apply only to release build.
@@ -193,6 +160,11 @@ class TestExpectationsFile:
                    'crash': CRASH }
 
   PLATFORMS = [ 'mac', 'linux', 'win' ]
+  
+  MODIFIERS = { 'skip': SKIP,
+                'wontfix': WONTFIX,
+                'defer': DEFER,
+                'none': NONE }
 
   def __init__(self, path, full_test_list, platform, is_debug_mode):
     """
@@ -205,46 +177,45 @@ class TestExpectationsFile:
     """
 
     self._full_test_list = full_test_list
-    self._skipped = set()
-    self._skipped_deferred = set()
-    self._non_skipped_deferred = set()
-    self._expectations = {}
-    self._test_list_paths = {}
-    self._tests = {}
     self._errors = []
     self._platform = platform
     self._is_debug_mode = is_debug_mode
-    for expectation in self.EXPECTATIONS.itervalues():
-      self._tests[expectation] = set()
+    
+    # Maps a test to its list of expectations.
+    self._test_to_expectations = {}
+
+    # Maps a test to the base path that it was listed with in the test list.
+    self._test_list_paths = {}
+
+    # Maps a modifier to a set of tests.
+    self._modifier_to_tests = dict.fromkeys(self.MODIFIERS.itervalues(), set())
+
+    # Maps an expectation to a set of tests.
+    self._expectation_to_tests = dict.fromkeys(self.EXPECTATIONS.itervalues(),
+        set())
+
     self._Read(path)
 
-  def GetSkipped(self):
-    return self._skipped
+  def GetTestSet(self, modifier, expectation=None, include_skips=True):
+    if expectation is None:
+      tests = self._modifier_to_tests[modifier]
+    else:
+      tests = (self._expectation_to_tests[expectation] &
+          self._modifier_to_tests[modifier])
+    
+    if not include_skips:
+      tests = tests - self.GetTestSet(SKIP, expectation)
+    
+    return tests
 
-  def GetNonSkippedDeferred(self):
-    return self._non_skipped_deferred
-
-  def GetSkippedDeferred(self):
-    return self._skipped_deferred
+  def HasModifier(self, test, modifier):
+    return test in self._modifier_to_tests[modifier]
 
   def GetExpectations(self, test):
-    return self._expectations[test]
-
-  def GetTests(self):
-    return set(self._expectations.keys())
-
-  def GetTestsExpectedTo(self, expectation):
-    return self._tests[expectation]
+    return self._test_to_expectations[test]
 
   def Contains(self, test):
-    return test in self._expectations
-
-  def PruneSkipped(self, skipped):
-    for test in skipped:
-      if not test in self._expectations: continue
-      for expectation in self._expectations[test]:
-        self._tests[expectation].remove(test)
-      del self._expectations[test]
+    return test in self._test_to_expectations
 
   def _HasCurrentPlatform(self, options):
     """ Returns true if the current platform is in the options list or if no
@@ -273,23 +244,30 @@ class TestExpectationsFile:
       line = StripComments(line)
       if not line: continue
 
+      modifiers = set()
       if line.find(':') is -1:
         test_and_expectations = line
-        is_skipped = False
-        is_deferred = False
       else:
         parts = line.split(':')
         test_and_expectations = parts[1]
         options = self._GetOptionsList(parts[0])
-        is_skipped = 'skip' in options
-        is_deferred = 'defer' in options
+
+        if not self._HasCurrentPlatform(options):
+          continue
+
         if 'release' in options or 'debug' in options:
           if self._is_debug_mode and 'debug' not in options:
             continue
           if not self._is_debug_mode and 'release' not in options:
             continue
-        if not self._HasCurrentPlatform(options):
-          continue
+
+        if 'wontfix' in options and 'defer' in options:
+          self._AddError(lineno, 'Test cannot be both DEFER and WONTFIX.',
+              test_and_expectations)
+
+        for option in options:
+          if option in self.MODIFIERS:
+            modifiers.add(option)
 
       tests_and_expecation_parts = test_and_expectations.split('=')
       if (len(tests_and_expecation_parts) is not 2):
@@ -318,11 +296,7 @@ class TestExpectationsFile:
       else:
         tests = self._ExpandTests(test_list_path)
 
-      if is_skipped:
-        self._AddSkippedTests(tests, is_deferred)
-      else:
-        self._AddTests(tests, expectations, test_list_path, lineno,
-            is_deferred)
+      self._AddTests(tests, expectations, test_list_path, lineno, modifiers)
 
     if len(self._errors) is not 0:
       print "\nFAILURES FOR PLATFORM: %s, IS_DEBUG_MODE: %s" \
@@ -330,6 +304,8 @@ class TestExpectationsFile:
       raise SyntaxError('\n'.join(map(str, self._errors)))
 
   def _GetOptionsList(self, listString):
+    # TODO(ojan): Add a check that all the options are either in self.MODIFIERS
+    # or self.PLATFORMS or starts with BUGxxxxx
     return [part.strip().lower() for part in listString.strip().split(' ')]
 
   def _ParseExpectations(self, string):
@@ -355,42 +331,56 @@ class TestExpectationsFile:
     for test in self._full_test_list:
       if test.startswith(path): result.append(test)
     return result
-
-  def _AddTests(self, tests, expectations, test_list_path, lineno,
-      is_deferred):
+    
+  def _AddTests(self, tests, expectations, test_list_path, lineno, modifiers):
     for test in tests:
-      if test in self._test_list_paths:
-        prev_base_path = self._test_list_paths[test]
-        if (prev_base_path == os.path.normpath(test_list_path)):
-          self._AddError(lineno, 'Duplicate expecations.', test)
-          continue
-        if prev_base_path.startswith(test_list_path):
-          # already seen a more precise path
-          continue
+      if self._AlreadySeenTest(test, test_list_path, lineno):
+        continue
 
-      # Remove prexisiting expectations for this test.
-      if test in self._test_list_paths:
-        for expectation in self.EXPECTATIONS.itervalues():
-          if test in self._tests[expectation]:
-            self._tests[expectation].remove(test)
+      self._ClearExpectationsForTest(test, test_list_path)
+      self._test_to_expectations[test] = expectations
 
-      # Now add the new expectations.
-      self._expectations[test] = expectations
-      self._test_list_paths[test] = os.path.normpath(test_list_path)
+      if len(modifiers) is 0:
+        self._AddTest(test, NONE, expectations)
+      else:
+        for modifier in modifiers:
+          self._AddTest(test, self.MODIFIERS[modifier], expectations)
 
-      if is_deferred:
-        self._non_skipped_deferred.add(test)
+  def _AddTest(self, test, modifier, expectations):
+    self._modifier_to_tests[modifier].add(test)
+    for expectation in expectations:
+      self._expectation_to_tests[expectation].add(test)
 
-      for expectation in expectations:
-        if expectation == CRASH and is_deferred:
-          self._AddError(lineno, 'Crashes cannot be deferred.', test)
-        self._tests[expectation].add(test)
+  def _ClearExpectationsForTest(self, test, test_list_path):
+    """Remove prexisiting expectations for this test.
+    This happens if we are seeing a more precise path
+    than a previous listing.
+    """
+    if test in self._test_list_paths:
+      self._test_to_expectations.pop(test, '')
+      for expectation in self.EXPECTATIONS.itervalues():
+        if test in self._expectation_to_tests[expectation]:
+          self._expectation_to_tests[expectation].remove(test)
+      for modifier in self.MODIFIERS.itervalues():
+        if test in self._modifier_to_tests[modifier]:
+          self._modifier_to_tests[modifier].remove(test)
 
-  def _AddSkippedTests(self, tests, is_deferred):
-    for test in tests:
-      if is_deferred:
-        self._skipped_deferred.add(test)
-      self._skipped.add(test)
+    self._test_list_paths[test] = os.path.normpath(test_list_path)
+
+  def _AlreadySeenTest(self, test, test_list_path, lineno):
+    """Returns true if we've already seen a more precise path for this test
+    than the test_list_path.
+    """
+    if not test in self._test_list_paths:
+      return False
+
+    prev_base_path = self._test_list_paths[test]
+    if (prev_base_path == os.path.normpath(test_list_path)):
+      self._AddError(lineno, 'Duplicate expectations.', test)
+      return True
+
+    # Check if we've already seen a more precise path.
+    return prev_base_path.startswith(test_list_path)
 
   def _AddError(self, lineno, msg, path):
     self._errors.append('\nLine:%s %s\n%s' % (lineno, msg, path))

@@ -185,8 +185,8 @@ class TestRunner:
 
     # Remove skipped - both fixable and ignored - files from the
     # top-level list of files to test.
-    skipped = (self._expectations.GetFixableSkipped() |
-               self._expectations.GetIgnoredSkipped())
+    skipped = (self._expectations.GetSkipped() |
+               self._expectations.GetWontFixSkipped())
 
     self._test_files -= skipped
 
@@ -237,22 +237,21 @@ class TestRunner:
     else:
       logging.info('Run: %d tests' % len(self._test_files))
 
-    logging.info('Deferred: %d tests' %
-                 len(self._expectations.GetFixableDeferred()))
+    logging.info('Deferred: %d tests' % len(self._expectations.GetDeferred()))
     logging.info('Expected passes: %d tests' %
                  len(self._test_files -
                      self._expectations.GetFixable() -
-                     self._expectations.GetIgnored()))
+                     self._expectations.GetWontFix()))
     logging.info(('Expected failures: %d fixable, %d ignored '
                   'and %d deferred tests') %
                  (len(self._expectations.GetFixableFailures()),
-                  len(self._expectations.GetIgnoredFailures()),
-                  len(self._expectations.GetFixableDeferredFailures())))
+                  len(self._expectations.GetWontFixFailures()),
+                  len(self._expectations.GetDeferredFailures())))
     logging.info(('Expected timeouts: %d fixable, %d ignored '
                   'and %d deferred tests') %
                  (len(self._expectations.GetFixableTimeouts()),
-                  len(self._expectations.GetIgnoredTimeouts()),
-                  len(self._expectations.GetFixableDeferredTimeouts())))
+                  len(self._expectations.GetWontFixTimeouts()),
+                  len(self._expectations.GetDeferredTimeouts())))
     logging.info('Expected crashes: %d fixable tests' %
                  len(self._expectations.GetFixableCrashes()))
 
@@ -461,8 +460,8 @@ class TestRunner:
 
     # Print breakdown of tests we need to fix and want to pass.
     # Include skipped fixable tests in the statistics.
-    skipped = (self._expectations.GetFixableSkipped() -
-        self._expectations.GetFixableSkippedDeferred())
+    skipped = (self._expectations.GetSkipped() -
+        self._expectations.GetDeferredSkipped())
 
     self._PrintResultSummary("=> Tests to be fixed for the current release",
                              self._expectations.GetFixable(),
@@ -473,22 +472,22 @@ class TestRunner:
 
     self._PrintResultSummary("=> Tests we want to pass for the current release",
                              (self._test_files -
-                              self._expectations.GetIgnored() -
-                              self._expectations.GetFixableDeferred()),
+                              self._expectations.GetWontFix() -
+                              self._expectations.GetDeferred()),
                              non_ignored_failures,
                              non_ignored_counts,
                              skipped,
                              output)
 
     self._PrintResultSummary("=> Tests to be fixed for a future release",
-                             self._expectations.GetFixableDeferred(),
+                             self._expectations.GetDeferred(),
                              deferred_failures,
                              deferred_counts,
-                             self._expectations.GetFixableSkippedDeferred(),
+                             self._expectations.GetDeferredSkipped(),
                              output)
 
     # Print breakdown of all tests including all skipped tests.
-    skipped |= self._expectations.GetIgnoredSkipped()
+    skipped |= self._expectations.GetWontFixSkipped()
     self._PrintResultSummary("=> All tests",
                              self._test_files,
                              test_failures,
