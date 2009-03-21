@@ -9,12 +9,12 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python ../build/linux/pkg_config_wrapper.py --cflags gtk+-2.0)',
+          '<!@(python pkg_config_wrapper.py --cflags gtk+-2.0)',
         ],
       },
       'link_settings': {
         'libraries': [
-          '<!@(python ../build/linux/pkg_config_wrapper.py --libs gtk+-2.0)',
+          '<!@(python pkg_config_wrapper.py --libs gtk+-2.0)',
         ],
       },
     },
@@ -23,12 +23,12 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python ../build/linux/pkg_config_wrapper.py --cflags nss)',
+          '<!@(python pkg_config_wrapper.py --cflags nss)',
         ],
       },
       'link_settings': {
         'libraries': [
-          '<!@(python ../build/linux/pkg_config_wrapper.py --libs nss)',
+          '<!@(python pkg_config_wrapper.py --libs nss)',
         ],
       },
     },
@@ -37,12 +37,12 @@
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python ../build/linux/pkg_config_wrapper.py --cflags pangoft2)',
+          '<!@(python pkg_config_wrapper.py --cflags pangoft2)',
         ],
       },
       'link_settings': {
         'libraries': [
-          '<!@(python ../build/linux/pkg_config_wrapper.py --libs pangoft2)',
+          '<!@(python pkg_config_wrapper.py --libs pangoft2)',
         ],
       },
     },
