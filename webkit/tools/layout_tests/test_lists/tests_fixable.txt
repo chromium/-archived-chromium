@@ -137,7 +137,7 @@ WONTFIX : LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL PASS
 WONTFIX SKIP : LayoutTests/http/tests/webarchive = FAIL PASS
 
 // Bug 932737
-WONTFIX : LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
+WONTFIX LINUX MAC : LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
 
 // Run the Mac-specific platform tests, but only to check for crashes.
 WONTFIX : LayoutTests/platform/gtk = FAIL PASS
@@ -2240,3 +2240,33 @@ WIN : LayoutTests/svg/custom/use-on-text.svg = FAIL
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-get-async.html = TIMEOUT
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
+
+// Started failing with r12215 (senorblanco)
+WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
+
+// Started failing with a change to run_webkit_tests.sh.
+// What's weird is it actually started failing on the bot
+// where before it was passing. It's not that our accounting changed.
+// Maybe tests are running in a different order which triggers
+// different memory leak bugs.
+WIN DEBUG : chrome/fast/dom/java-applet-calls.html = FAIL
+WIN DEBUG : LayoutTests/fast/dom/length-attribute-mapping.html = CRASH
+WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRASH
+WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
+WIN LINUX : chrome/fast/dom/Window/window-lookup-precedence.html = FAIL PASS
+WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
+WIN : LayoutTests/webarchive/loading/cache-expired-subresource.html = CRASH PASS
+WIN : LayoutTests/webarchive/loading/test-loading-archive.html = CRASH TIMEOUT PASS
+LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
+LINUX : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL PASS
+MAC : LayoutTests/fast/css/rgb-float.html = FAIL PASS
+MAC : LayoutTests/fast/forms/003.html = FAIL PASS
+MAC : LayoutTests/fast/forms/menulist-no-renderer-onmousedown.html = FAIL PASS
+MAC : LayoutTests/fast/overflow/infiniteRecursion.html = FAIL PASS
+MAC : LayoutTests/fast/events/selectstart-during-autoscroll.html = TIMEOUT PASS
+MAC : LayoutTests/fast/images/animated-svg-as-image.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/abort-crash.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url-2.html = TIMEOUT PASS
+// Missing expected results
+SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html = PASS
