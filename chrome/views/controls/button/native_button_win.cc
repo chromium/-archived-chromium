@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "chrome/views/controls/button/checkbox2.h"
 #include "chrome/views/controls/button/native_button2.h"
+#include "chrome/views/controls/button/radio_button2.h"
 #include "chrome/views/widget/widget.h"
 
 namespace views {

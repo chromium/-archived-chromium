@@ -70,11 +70,6 @@ class Checkbox2 : public NativeButton2 {
   DISALLOW_COPY_AND_ASSIGN(Checkbox2);
 };
 
-// TODO(beng): move to own file and un-stub:
-class RadioButton2 : public Checkbox2 {
-
-};
-
 }  // namespace views
 
 #endif  // #ifndef CHROME_VIEWS_CONTROLS_BUTTON_CHECKBOX2_H_
