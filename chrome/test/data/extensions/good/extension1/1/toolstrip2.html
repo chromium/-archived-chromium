@@ -1,0 +1,21 @@
+<style>
+body {
+  overflow: hidden;
+  margin: 0 0 0 0;
+}
+
+/* TODO: put the background style into body when
+   https://bugs.webkit.org/show_bug.cgi?id=18445 is fixed. */
+.content {
+  background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
+  padding: 1;
+}
+</style>
+<body>
+<div class="content">
+<script>
+  alert(window.extension.getTestString());
+</script>
+<button onclick="alert('clicked')">HTML button</button>
+</div>
+</body>

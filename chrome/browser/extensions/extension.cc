@@ -27,7 +27,7 @@ const wchar_t* Extension::kVersionKey = L"version";
 const wchar_t* Extension::kZipHashKey = L"zip_hash";
 const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
 const wchar_t* Extension::kThemeKey = L"theme";
-const wchar_t* Extension::kToolstripKey = L"toolstrip";
+const wchar_t* Extension::kToolstripsKey = L"toolstrips";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -70,7 +70,9 @@ const char* Extension::kInvalidPluginsDirError =
 const char* Extension::kInvalidRunAtError =
     "Invalid value for 'content_scripts[*].run_at'.";
 const char* Extension::kInvalidToolstripError =
-    "Invalid value for 'toolstrip'.";
+    "Invalid value for 'toolstrips[*]'";
+const char* Extension::kInvalidToolstripsError =
+    "Invalid value for 'toolstrips'.";
 const char* Extension::kInvalidVersionError =
     "Required value 'version' is missing or invalid.";
 const char* Extension::kInvalidZipHashError =
@@ -388,14 +390,22 @@ bool Extension::InitFromValue(const DictionaryValue& source,
     plugins_dir_ = path_.AppendASCII(plugins_dir);
   }
 
-  // Initialize toolstrip (optional).
-  if (source.HasKey(kToolstripKey)) {
-    std::string toolstrip_path;
-    if (!source.GetString(kToolstripKey, &toolstrip_path)) {
-      *error = kInvalidToolstripError;
+  // Initialize toolstrips (optional).
+  if (source.HasKey(kToolstripsKey)) {
+    ListValue* list_value;
+    if (!source.GetList(kToolstripsKey, &list_value)) {
+      *error = kInvalidToolstripsError;
       return false;
     }
-    toolstrip_url_ = GetResourceURL(extension_url_, toolstrip_path);
+
+    for (size_t i = 0; i < list_value->GetSize(); ++i) {
+      std::string toolstrip;
+      if (!list_value->GetString(i, &toolstrip)) {
+        *error = FormatErrorMessage(kInvalidToolstripError, IntToString(i));
+        return false;
+      }
+      toolstrips_.push_back(toolstrip);
+    }
   }
 
   if (source.HasKey(kThemeKey)) {

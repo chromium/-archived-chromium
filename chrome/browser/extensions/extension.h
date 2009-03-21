@@ -43,7 +43,7 @@ class Extension {
   static const wchar_t* kZipHashKey;
   static const wchar_t* kPluginsDirKey;
   static const wchar_t* kThemeKey;
-  static const wchar_t* kToolstripKey;
+  static const wchar_t* kToolstripsKey;
 
   // Some values expected in manifests.
   static const char* kRunAtDocumentStartValue;
@@ -67,6 +67,7 @@ class Extension {
   static const char* kInvalidPluginsDirError;
   static const char* kInvalidRunAtError;
   static const char* kInvalidToolstripError;
+  static const char* kInvalidToolstripsError;
   static const char* kInvalidVersionError;
   static const char* kInvalidZipHashError;
   static const char* kMissingFileError;
@@ -116,7 +117,7 @@ class Extension {
   const std::string& description() const { return description_; }
   const UserScriptList& content_scripts() const { return content_scripts_; }
   const FilePath& plugins_dir() const { return plugins_dir_; }
-  const GURL& toolstrip_url() const { return toolstrip_url_; }
+  const std::vector<std::string>& toolstrips() const { return toolstrips_; }
 
  private:
   // Helper method that loads a UserScript object from a
@@ -155,8 +156,8 @@ class Extension {
   // contains.
   FilePath plugins_dir_;
 
-  // Optional URL of an HTML file to be displayed in the toolbar.
-  GURL toolstrip_url_;
+  // Paths to HTML files to be displayed in the toolbar.
+  std::vector<std::string> toolstrips_;
 
   // A SHA1 hash of the contents of the zip file.  Note that this key is only
   // present in the manifest that's prepended to the zip.  The inner manifest

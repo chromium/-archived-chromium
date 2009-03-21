@@ -133,7 +133,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
   // Now wait for it to load, and grab a pointer to it.
   Extension* extension = observer.WaitForExtension();
   ASSERT_TRUE(extension);
-  GURL url = Extension::GetResourceURL(extension->url(), "toolstrip.html");
+  GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
 
   // Start the extension process and wait for it to show a javascript alert.
   MockExtensionView view(url, profile);

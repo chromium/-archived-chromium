@@ -169,6 +169,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
 
   Extension* extension = frontend->extensions()->at(0);
   const UserScriptList& scripts = extension->content_scripts();
+  const std::vector<std::string>& toolstrips = extension->toolstrips();
   ASSERT_EQ(2u, scripts.size());
   EXPECT_EQ(2u, scripts[0].url_patterns().size());
   EXPECT_EQ("http://*.google.com/*",
@@ -184,6 +185,9 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ("http://*.news.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
       .value(), scripts[1].js_scripts()[0].path().value());
+  ASSERT_EQ(2u, toolstrips.size());
+  EXPECT_EQ("toolstrip1.html", toolstrips[0]);
+  EXPECT_EQ("toolstrip2.html", toolstrips[1]);
 
   EXPECT_EQ(std::string("10123456789abcdef0123456789abcdef0123456"),
             frontend->extensions()->at(1)->id());
