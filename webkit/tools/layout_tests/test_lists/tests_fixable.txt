@@ -2247,8 +2247,7 @@ WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
 // Started failing with a change to run_webkit_tests.sh.
 // What's weird is it actually started failing on the bot
 // where before it was passing. It's not that our accounting changed.
-// Maybe tests are running in a different order which triggers
-// different memory leak bugs.
+// http://crbug.com/9096
 WIN DEBUG : chrome/fast/dom/java-applet-calls.html = FAIL
 WIN DEBUG : LayoutTests/fast/dom/length-attribute-mapping.html = CRASH
 WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRASH
