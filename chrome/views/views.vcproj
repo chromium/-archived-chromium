@@ -650,6 +650,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\controls\button\radio_button2.cc"
+					>
+				</File>
+				<File
+					RelativePath=".\controls\button\radio_button2.h"
+					>
+				</File>
+				<File
 					RelativePath=".\controls\button\text_button.cc"
 					>
 				</File>
