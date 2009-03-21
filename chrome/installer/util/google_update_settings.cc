@@ -52,9 +52,15 @@ bool GoogleUpdateSettings::GetCollectStatsConsent() {
 }
 
 bool GoogleUpdateSettings::SetCollectStatsConsent(bool consented) {
-  std::wstring reg_path = GetClientStateKeyPath(false);
-  RegKey key(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
-  return key.WriteValue(google_update::kRegUsageStatsField, consented? 1 : 0);
+  DWORD value = consented? 1 : 0;
+  // Writing to HKLM is only a best effort deal.
+  std::wstring reg_path = GetClientStateKeyPath(true);
+  RegKey key_hklm(HKEY_LOCAL_MACHINE, reg_path.c_str(), KEY_READ | KEY_WRITE);
+  key_hklm.WriteValue(google_update::kRegUsageStatsField, value);
+  // Writing to HKCU is used both by chrome and by the crash reporter.
+  reg_path = GetClientStateKeyPath(false);
+  RegKey key_hkcu(HKEY_CURRENT_USER, reg_path.c_str(), KEY_READ | KEY_WRITE);
+  return key_hkcu.WriteValue(google_update::kRegUsageStatsField, value);
 }
 
 bool GoogleUpdateSettings::SetEULAConsent(bool consented) {
