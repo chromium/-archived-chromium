@@ -1,0 +1,13 @@
+{
+  "format_version": 1,
+  "id": "00123456789ABCDEF0123456789ABCDEF0123456",
+  "version": "1.0.0.0",
+  "name": "User script inject",
+  "description": "User script inejct",
+  "content_scripts": [
+    {
+      "matches": ["file://*/user_script_inject_page.html"],
+      "js": ["script.js"]
+    }
+  ]
+}
