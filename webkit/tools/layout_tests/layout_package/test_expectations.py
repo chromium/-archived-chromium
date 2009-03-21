@@ -188,11 +188,14 @@ class TestExpectationsFile:
     self._test_list_paths = {}
 
     # Maps a modifier to a set of tests.
-    self._modifier_to_tests = dict.fromkeys(self.MODIFIERS.itervalues(), set())
+    self._modifier_to_tests = {}
+    for modifier in self.MODIFIERS.itervalues():
+      self._modifier_to_tests[modifier] = set()
 
     # Maps an expectation to a set of tests.
-    self._expectation_to_tests = dict.fromkeys(self.EXPECTATIONS.itervalues(),
-        set())
+    self._expectation_to_tests = {}
+    for expectation in self.EXPECTATIONS.itervalues():
+      self._expectation_to_tests[expectation] = set()
 
     self._Read(path)
 
@@ -305,7 +308,7 @@ class TestExpectationsFile:
 
   def _GetOptionsList(self, listString):
     # TODO(ojan): Add a check that all the options are either in self.MODIFIERS
-    # or self.PLATFORMS or starts with BUGxxxxx
+    # or self.PLATFORMS or starts with BUGxxxx
     return [part.strip().lower() for part in listString.strip().split(' ')]
 
   def _ParseExpectations(self, string):
