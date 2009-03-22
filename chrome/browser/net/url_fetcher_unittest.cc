@@ -333,8 +333,6 @@ void URLFetcherCancelTest::TestContextReleased() {
   io_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask());
 }
 
-}  // namespace.
-
 TEST_F(URLFetcherTest, SameThreadsTest) {
   // Create the fetcher on the main thread.  Since IO will happen on the main
   // thread, this will test URLFetcher's ability to do everything on one
@@ -462,3 +460,5 @@ TEST_F(URLFetcherCancelTest, ReleasesContext) {
 
   MessageLoop::current()->Run();
 }
+
+}  // namespace.

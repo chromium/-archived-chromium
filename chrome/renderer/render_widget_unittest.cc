@@ -41,8 +41,6 @@ class RenderWidgetTest : public testing::Test {
   scoped_ptr<MockProcess> mock_process_;
 };
 
-}  // namespace
-
 TEST_F(RenderWidgetTest, CreateAndCloseWidget) {
   // After the RenderWidget it must have sent a message to the render thread
   // that sets the opener id.
@@ -57,3 +55,5 @@ TEST_F(RenderWidgetTest, CreateAndCloseWidget) {
   msg_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask());
   msg_loop_.Run();
 }
+
+}  // namespace
