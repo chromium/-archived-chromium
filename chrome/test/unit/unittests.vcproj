@@ -476,10 +476,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\extensions\extension_user_script_inject_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\extensions\extension_view_unittest.cc"
 				>
 			</File>
@@ -693,14 +689,6 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\search_engines\template_url_unittest.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\extensions\test_extension_loader.cc"
-				>
-			</File>
-			<File
-				RelativePath="..\..\browser\extensions\test_extension_loader.h"
 				>
 			</File>
 			<File
