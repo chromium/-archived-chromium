@@ -13,6 +13,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<ToolFile
+			RelativePath=".\devtools\devtools_copy.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -22,6 +25,9 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="devtools file copy"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -912,6 +918,46 @@
 				RelativePath=".\devtools\tools_agent.h"
 				>
 			</File>
+			<Filter
+				Name="js"
+				>
+				<File
+					RelativePath=".\devtools\js\base.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\devtools.html"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\devtools.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\devtools_host_stub.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\dom.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\inspector_controller.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\inspector_controller_impl.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\json.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\net.js"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
