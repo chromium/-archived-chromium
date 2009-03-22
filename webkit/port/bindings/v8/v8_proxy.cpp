@@ -70,6 +70,7 @@
 #include "CSSStyleSheet.h"
 #include "CSSVariablesDeclaration.h"
 #include "CSSVariablesRule.h"
+#include "Database.h"
 #include "DocumentType.h"
 #include "DocumentFragment.h"
 #include "DOMCoreException.h"
@@ -129,6 +130,9 @@
 #include "ScriptExecutionContext.h"
 #include "SecurityOrigin.h"
 #include "Settings.h"
+#include "SQLTransaction.h"
+#include "SQLResultSet.h"
+#include "SQLResultSetRowList.h"
 #include "StyleSheet.h"
 #include "StyleSheetList.h"
 #include "SVGColor.h"
@@ -1553,7 +1557,7 @@ v8::Local<v8::Function> V8Proxy::GetConstructor(V8ClassIndex::V8WrapperType t){
 
 v8::Local<v8::Object> V8Proxy::CreateWrapperFromCache(V8ClassIndex::V8WrapperType type) {
   int class_index = V8ClassIndex::ToInt(type);
-  v8::Local<v8::Value> cached_object = 
+  v8::Local<v8::Value> cached_object =
       m_wrapper_boilerplates->Get(v8::Integer::New(class_index));
   if (cached_object->IsObject()) {
     v8::Local<v8::Object> object = v8::Local<v8::Object>::Cast(cached_object);

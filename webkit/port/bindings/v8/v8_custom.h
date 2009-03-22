@@ -466,6 +466,12 @@ DECLARE_CALLBACK(MessagePortStartConversation)
 DECLARE_CALLBACK(MessagePortAddEventListener)
 DECLARE_CALLBACK(MessagePortRemoveEventListener)
 
+// Database
+DECLARE_CALLBACK(DatabaseChangeVersion)
+DECLARE_CALLBACK(DatabaseTransaction)
+DECLARE_CALLBACK(SQLTransactionExecuteSql)
+DECLARE_CALLBACK(SQLResultSetRowListItem)
+
 // SVG custom properties and callbacks
 #if ENABLE(SVG)
 DECLARE_PROPERTY_ACCESSOR_GETTER(SVGLengthValue)

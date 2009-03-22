@@ -321,6 +321,12 @@ idl_files = [
     'plugins/PluginArray.idl',
     'plugins/Plugin.idl',
 
+    'storage/Database.idl',
+    'storage/SQLError.idl',
+    'storage/SQLResultSet.idl',
+    'storage/SQLResultSetRowList.idl',
+    'storage/SQLTransaction.idl',
+
     'svg/ElementTimeControl.idl',
     'svg/SVGAElement.idl',
     'svg/SVGAltGlyphElement.idl',

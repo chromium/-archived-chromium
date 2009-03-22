@@ -152,6 +152,50 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLStatementCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLStatementCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLStatementErrorCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLStatementErrorCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLTransactionCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLTransactionCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLTransactionErrorCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomSQLTransactionErrorCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomVoidCallback.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8CustomVoidCallback.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8DatabaseCustom.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8DocumentCustom.cpp"
 				>
 			</File>
@@ -253,6 +297,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8NodeListCustom.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8SQLResultSetRowListCustom.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8SQLTransactionCustom.cpp"
 				>
 			</File>
 			<File
@@ -573,6 +625,14 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8CSSVariablesRule.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8Database.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8Database.h"
 				>
 			</File>
 			<File
@@ -1445,6 +1505,38 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8Rect.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLError.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLError.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLResultSet.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLResultSet.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLResultSetRowList.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLResultSetRowList.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLTransaction.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8SQLTransaction.h"
 				>
 			</File>
 			<File

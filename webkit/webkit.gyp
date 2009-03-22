@@ -979,10 +979,10 @@
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomSQLTransactionErrorCallback.h',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomVoidCallback.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomVoidCallback.h',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8DatabaseCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMParserConstructor.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMStringListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DOMWindowCustom.cpp',
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8DatabaseCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8DocumentCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8EventCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8HTMLCollectionCustom.cpp',
@@ -3758,13 +3758,10 @@
       'sources/': [
 
         # Don't build bindings for storage/database.
-        ['exclude', '/third_party/WebKit/WebCore/storage/[^/]*\\.idl$'],
+        ['exclude', '/third_party/WebKit/WebCore/storage/Storage[^/]*\\.idl$'],
 
         # SVG_FILTERS only.
         ['exclude', '/third_party/WebKit/WebCore/svg/SVG(FE|Filter)[^/]*\\.idl$'],
-
-        # Don't build custom bindings for storage.
-        ['exclude', '/third_party/WebKit/WebCore/bindings/v8/custom/V8((Custom)?SQL|Database)[^/]*\\.cpp$'],
 
         # Fortunately, many things can be excluded by using broad patterns.
 
@@ -3832,9 +3829,6 @@
         # TODO(mark): I don't know why these are excluded, either.
         # Someone (me?) should figure it out and add appropriate comments.
         '../third_party/WebKit/WebCore/css/CSSUnknownRule.idl',
-
-        # Don't build custom bindings for VoidCallback.
-        '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomVoidCallback.cpp',
 
         # A few things can't be excluded by patterns.  List them individually.
 

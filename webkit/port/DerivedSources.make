@@ -751,6 +751,10 @@ all : \
     V8Range.h \
     V8RangeException.h \
     V8Rect.h \
+    V8SQLError.h \
+    V8SQLResultSet.h \
+    V8SQLResultSetRowList.h \
+    V8SQLTransaction.h \
     V8SVGAElement.h \
     V8SVGAltGlyphElement.h \
     V8SVGAngle.h \

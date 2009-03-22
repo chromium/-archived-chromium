@@ -338,10 +338,17 @@ typedef v8::Persistent<v8::FunctionTemplate> (*FunctionTemplateFactory)();
   VIDEO_NONNODE_TYPES(V)                                                \
   WORKER_NONNODE_WRAPPER_TYPES(V)
 
+#define DOM_OBJECT_DATABASE_TYPES(V)                                    \
+  V(DATABASE, Database)                                                 \
+  V(SQLERROR, SQLError)                                                 \
+  V(SQLRESULTSET, SQLResultSet)                                         \
+  V(SQLRESULTSETROWLIST, SQLResultSetRowList)                           \
+  V(SQLTRANSACTION, SQLTransaction)
+
 #define DOM_OBJECT_TYPES(V)                                             \
   DOM_OBJECT_TYPES_1(V)                                                 \
-  DOM_OBJECT_TYPES_2(V)
-
+  DOM_OBJECT_TYPES_2(V)                                                 \
+  DOM_OBJECT_DATABASE_TYPES(V)
 
 #if ENABLE(SVG)
 // SVG_OBJECT_TYPES are svg non-node, non-pod types.
