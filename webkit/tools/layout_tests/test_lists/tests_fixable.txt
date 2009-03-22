@@ -2269,3 +2269,6 @@ MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events.ht
 MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url-2.html = TIMEOUT PASS
 // Missing expected results
 SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html = PASS
+
+// Started failing when test_fixable got merged with test_ignored.
+LINUX DEBUG : chrome/fast/dom/htmliframeelement-document.html = FAIL
