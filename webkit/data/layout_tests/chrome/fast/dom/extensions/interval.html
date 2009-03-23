@@ -36,15 +36,17 @@ function test() {
 
   // Verify that starting the timer works.
   interval.start();
-  pause(500);
+  pause(50);
   ms = interval.microseconds();
-  check("start", ms >= 500000, "[ms: " + ms + "]");
+  // Due to clock skew and granularity, we see sporadic failures if we check for
+  // ms >= 50000, so add a bit of buffer.
+  check("start", ms >= 49000, "[ms: " + ms + "]");
 
   // Verify that restarting the interval should reset the beginning time
   interval.start();
   pause(1);
   ms = interval.microseconds();
-  check("restart", ms > 0 && ms < 500000, "[ms: " + ms + "]");
+  check("restart", ms > 0 && ms < 50000, "[ms: " + ms + "]");
 
   // Verify that calling stop() before start() has no effect.
   var interval = new chromium.Interval();
@@ -57,14 +59,14 @@ function test() {
   pause(50);
   interval.stop();
   ms = interval.microseconds();
-  check("stop", ms > 0 && ms < 1000000, "[ms: " + ms + "]");
+  check("stop", ms > 0 && ms < 100000, "[ms: " + ms + "]");
 
   // Verify that the timer is really stopped.
   var ms2 = interval.microseconds();
   check("stopped", ms == ms2, "[ms: " + ms + "]" + "[ms2: " + ms2 + "]");
 
   // Verify that re-stopping the timer works.
-  pause(500);
+  pause(50);
   interval.stop();
   ms2 = interval.microseconds();
   check("re-stopped", ms2 > ms, "[ms: " + ms + "]" + "[ms2: " + ms2 + "]");
