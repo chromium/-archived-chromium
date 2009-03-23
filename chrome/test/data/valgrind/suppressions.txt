@@ -1,0 +1,12 @@
+# Chromium leaks tasks at shutdown, see
+# http://crbug.com/6532
+# http://codereview.chromium.org/20067
+# http://codereview.chromium.org/42083
+# In Purify, they don't even try to free them anymore.
+# For now, in Valgrind, we'll add suppressions to ignore these leaks.
+{
+   bug_6532
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_Z17NewRunnableMethodIN3IPC12ChannelProxy7ContextEMS2_FvvEEP14CancelableTaskPT_T0_
+}
