@@ -4,6 +4,8 @@
 
 #include "chrome/views/event.h"
 
+#include <windows.h>
+
 namespace views {
 
 int Event::GetWindowsFlags() const {
