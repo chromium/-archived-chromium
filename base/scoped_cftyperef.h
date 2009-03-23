@@ -15,7 +15,9 @@
 //
 // When scoped_cftyperef<> takes ownership of an object (in the constructor or
 // in reset()), it takes over the caller's existing ownership claim.  The 
-// caller must own the object.  scoped_cftyperef<> does not call CFRetain().
+// caller must own the object it gives to scoped_cftyperef<>, and relinquishes
+// an ownership claim to that object.  scoped_cftyperef<> does not call
+// CFRetain().
 template<typename CFT>
 class scoped_cftyperef {
  public:
@@ -31,11 +33,9 @@ class scoped_cftyperef {
   }
 
   void reset(CFT object = NULL) {
-    if (object_ != object) {
-      if (object_)
-        CFRelease(object_);
-      object_ = object;
-    }
+    if (object_)
+      CFRelease(object_);
+    object_ = object;
   }
 
   bool operator==(CFT that) const {

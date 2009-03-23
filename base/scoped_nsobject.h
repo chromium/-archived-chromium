@@ -15,7 +15,9 @@
 //
 // When scoped_nsobject<> takes ownership of an object (in the constructor or
 // in reset()), it takes over the caller's existing ownership claim.  The
-// caller must own the object.  scoped_nsobject<> does not call -retain.
+// caller must own the object it gives to scoped_nsobject<>, and relinquishes
+// an ownership claim to that object.  scoped_nsobject<> does not call
+// -retain.
 template<typename NST>
 class scoped_nsobject {
  public:
@@ -30,10 +32,8 @@ class scoped_nsobject {
   }
 
   void reset(NST* object = nil) {
-    if (object_ != object) {
-      [object_ release];
-      object_ = object;
-    }
+    [object_ release];
+    object_ = object;
   }
 
   bool operator==(NST* that) const {
