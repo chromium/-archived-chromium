@@ -9,6 +9,7 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -147,6 +148,16 @@ DictionaryValue* ExtensionsDOMHandler::CreateExtensionDetailValue(
           extension->path()));
   }
   extension_data->Set(L"content_scripts", content_script_list);
+
+  // Add permissions
+  ListValue *permission_list = new ListValue;
+  std::vector<URLPattern> permissions = extension->permissions();
+  for (std::vector<URLPattern>::iterator permission = permissions.begin();
+       permission != permissions.end(); ++permission) {
+    permission_list->Append(Value::CreateStringValue(
+        permission->GetAsString()));
+  }
+  extension_data->Set(L"permissions", permission_list);
 
   return extension_data;
 }

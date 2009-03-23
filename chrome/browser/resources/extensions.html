@@ -14,6 +14,7 @@ var extensionDataFormat = {
       "name": "Extension Name",
       "description": "Extension long format description",
       "version": "1.0.231",
+      "permissions": ["http://*/*", "http://other.com/*"],
       "content_scripts": [
         {
           "js": ["script1_file1.js", "script1_file2.js"],
@@ -185,14 +186,29 @@ th.enabled {
         <div jsdisplay="extensions.length > 0">
           <div class="extension" jsselect="extensions">
             <div class="extension-name" jscontent="name">
-                sExtension Name</div>
+                Extension Name
+            </div>
             <dl>
               <dd>
                 <span jscontent="description">Extension Description</span>
               </dd>
               <dd>Version: <span jscontent="version">x.x.x.x</span></dd>
             </dl>
-            
+            <table>
+              <thead>
+                <tr><th colspan="2">Configuration</th></tr>
+              </thead>
+              <tbody>
+                <tr> 
+                  <td>Permissions</td>
+                  <td>
+                    <span jsselect="permissions" 
+                        jscontent="(($index > 0) ? ', ' : '') + $this">
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
             <table jsselect="content_scripts">
               <thead>
                 <tr><th colspan="2">Content Script</th></tr>

@@ -2,5 +2,6 @@
   "version": "1.0",
   "name": "My extension 3",
   "description": "",
+  "permissions": [],
   "content_scripts": []
 }

@@ -14,6 +14,7 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/json_value_serializer.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -185,6 +186,10 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
   EXPECT_EQ("http://*.news.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
       .value(), scripts[1].js_scripts()[0].path().value());
+  const std::vector<URLPattern> permissions = extension->permissions();
+  ASSERT_EQ(2u, permissions.size());
+  EXPECT_EQ("http://*.google.com/*", permissions[0].GetAsString());
+  EXPECT_EQ("https://*.google.com/*", permissions[1].GetAsString());
   ASSERT_EQ(2u, toolstrips.size());
   EXPECT_EQ("toolstrip1.html", toolstrips[0]);
   EXPECT_EQ("toolstrip2.html", toolstrips[1]);

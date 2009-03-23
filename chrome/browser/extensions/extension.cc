@@ -8,6 +8,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "net/base/net_util.h"
+#include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/common/extensions/user_script.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
@@ -15,19 +16,20 @@
 const char Extension::kManifestFilename[] = "manifest.json";
 
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
+const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kDescriptionKey = L"description";
 const wchar_t* Extension::kFormatVersionKey = L"format_version";
 const wchar_t* Extension::kIdKey = L"id";
 const wchar_t* Extension::kJsKey = L"js";
-const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
-const wchar_t* Extension::kRunAtKey = L"run_at";
-const wchar_t* Extension::kVersionKey = L"version";
-const wchar_t* Extension::kZipHashKey = L"zip_hash";
+const wchar_t* Extension::kPermissionsKey = L"permissions";
 const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
+const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kThemeKey = L"theme";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
+const wchar_t* Extension::kVersionKey = L"version";
+const wchar_t* Extension::kZipHashKey = L"zip_hash";
 
 const char* Extension::kRunAtDocumentStartValue = "document_start";
 const char* Extension::kRunAtDocumentEndValue = "document_end";
@@ -65,6 +67,15 @@ const char* Extension::kInvalidMatchesError =
     "Required value 'content_scripts[*].matches' is missing or invalid.";
 const char* Extension::kInvalidNameError =
     "Required value 'name' is missing or invalid.";
+const char* Extension::kInvalidPermissionsError =
+    "Required value 'permissions' is missing or invalid.";
+const char* Extension::kInvalidPermissionCountWarning =
+    "Warning, 'permissions' key found, but array is empty.";
+const char* Extension::kInvalidPermissionError =
+    "Invalid value for 'permissions[*]'.";
+const char* Extension::kInvalidPermissionSchemeError =
+    "Invalid scheme for 'permissions[*]'. Only 'http' and 'https' are "
+    "allowed.";
 const char* Extension::kInvalidPluginsDirError =
     "Invalid value for 'plugins_dir'.";
 const char* Extension::kInvalidRunAtError =
@@ -444,6 +455,46 @@ bool Extension::InitFromValue(const DictionaryValue& source,
       if (!LoadUserScriptHelper(content_script, i, error, &script))
         return false;  // Failed to parse script context definition
       content_scripts_.push_back(script);
+    }
+  }
+
+  // Initialize the permissions (optional).
+  if (source.HasKey(kPermissionsKey)) {
+    ListValue* hosts = NULL;
+    if (!source.GetList(kPermissionsKey, &hosts)) {
+      *error = FormatErrorMessage(kInvalidPermissionsError, "");
+      return false;
+    }
+
+    if (hosts->GetSize() == 0) {
+      ExtensionErrorReporter::GetInstance()->ReportError(
+          kInvalidPermissionCountWarning, false);
+    }
+
+    for (size_t i = 0; i < hosts->GetSize(); ++i) {
+      std::string host_str;
+      if (!hosts->GetString(i, &host_str)) {
+        *error = FormatErrorMessage(kInvalidPermissionError,
+                                    IntToString(i));
+        return false;
+      }
+
+      URLPattern pattern;
+      if (!pattern.Parse(host_str)) {
+        *error = FormatErrorMessage(kInvalidPermissionError,
+                                    IntToString(i));
+        return false;
+      }
+
+      // Only accept http/https persmissions at the moment.
+      if ((pattern.scheme() != chrome::kHttpScheme) &&
+          (pattern.scheme() != chrome::kHttpsScheme)) {
+        *error = FormatErrorMessage(kInvalidPermissionSchemeError,
+                                    IntToString(i));
+        return false;
+      }
+
+      permissions_.push_back(pattern);
     }
   }
 

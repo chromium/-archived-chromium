@@ -8,6 +8,7 @@
     "toolstrip1.html",
     "toolstrip2.html"
   ],
+  "permissions": ["http://*.google.com/*", "https://*.google.com/*"],
   "content_scripts": [
     {
       "matches": ["http://*.google.com/*", "https://*.google.com/*"],
