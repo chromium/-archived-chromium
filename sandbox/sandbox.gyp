@@ -142,6 +142,15 @@
           'include_dirs': [
             '..',
           ],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': [
+                'wow_helper/wow_helper.exe',
+                'wow_helper/wow_helper.pdb',
+              ],
+            },
+          ],
           'configurations': {
             'Debug': {
               'msvs_precompiled_header': 'src/stdafx.h',
