@@ -214,6 +214,15 @@ class OffTheRecordProfileImpl : public Profile,
   virtual URLRequestContext* GetRequestContextForMedia() {
     if (!media_request_context_) {
       FilePath cache_path = GetPath();
+
+      // Override the cache location if specified by the user.
+      const std::wstring user_cache_dir(
+          CommandLine::ForCurrentProcess()->GetSwitchValue(
+              switches::kDiskCacheDir));
+      if (!user_cache_dir.empty()) {
+        cache_path = FilePath::FromWStringHack(user_cache_dir);
+      }
+
       cache_path.Append(chrome::kOffTheRecordMediaCacheDirname);
       media_request_context_ =
           ChromeURLRequestContext::CreateOffTheRecordForMedia(
@@ -617,6 +626,15 @@ URLRequestContext* ProfileImpl::GetRequestContext() {
 URLRequestContext* ProfileImpl::GetRequestContextForMedia() {
   if (!media_request_context_) {
     FilePath cache_path = GetPath();
+
+    // Override the cache location if specified by the user.
+    const std::wstring user_cache_dir(
+        CommandLine::ForCurrentProcess()->GetSwitchValue(
+            switches::kDiskCacheDir));
+    if (!user_cache_dir.empty()) {
+      cache_path = FilePath::FromWStringHack(user_cache_dir);
+    }
+
     cache_path.Append(chrome::kMediaCacheDirname);
     media_request_context_ = ChromeURLRequestContext::CreateOriginalForMedia(
         this, cache_path);
