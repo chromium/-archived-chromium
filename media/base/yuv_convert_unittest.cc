@@ -7,9 +7,15 @@
 #include "media/base/yuv_convert.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+// Reference images were created with the following steps
+// ffmpeg -vframes 25 -i bali.mov -vcodec rawvideo -pix_fmt yuv420p -an
+//   bali.1280_720.yuv
+// yuvhalf -skip 24 bali.1280_720.yuv bali.640_360.yuv
+// yuvtool bali.640_360.yuv bali.640_360.rgb
+
 // Size of raw image.
-static const int kWidth = 1280;
-static const int kHeight = 720;
+static const int kWidth = 640;
+static const int kHeight = 360;
 static const int kBpp = 4;
 
 TEST(YuvConvertTest, Basic) {
@@ -19,7 +25,7 @@ TEST(YuvConvertTest, Basic) {
   yuv_url = yuv_url.Append(FILE_PATH_LITERAL("media"))
                    .Append(FILE_PATH_LITERAL("test"))
                    .Append(FILE_PATH_LITERAL("data"))
-                   .Append(FILE_PATH_LITERAL("yuv_file"));
+                   .Append(FILE_PATH_LITERAL("bali.640_360.yuv"));
   const size_t size_of_yuv = kWidth * kHeight * 12 / 8;
   uint8* yuv_bytes = new uint8[size_of_yuv];
   EXPECT_EQ(static_cast<int>(size_of_yuv),
@@ -28,15 +34,13 @@ TEST(YuvConvertTest, Basic) {
                                 static_cast<int>(size_of_yuv)));
 
   // Read RGB reference data from file.
-  // To keep the file smaller, only the first quarter of the file
-  // is checked into SVN.
   FilePath rgb_url;
   EXPECT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &rgb_url));
   rgb_url = rgb_url.Append(FILE_PATH_LITERAL("media"))
                    .Append(FILE_PATH_LITERAL("test"))
                    .Append(FILE_PATH_LITERAL("data"))
-                   .Append(FILE_PATH_LITERAL("rgb_file"));
-  const size_t size_of_rgb = kWidth * kHeight * kBpp / 4;
+                   .Append(FILE_PATH_LITERAL("bali.640_360.rgb"));
+  const size_t size_of_rgb = kWidth * kHeight * kBpp;
   uint8* rgb_bytes = new uint8[size_of_rgb];
   EXPECT_EQ(static_cast<int>(size_of_rgb),
             file_util::ReadFile(rgb_url,
