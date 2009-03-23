@@ -2240,9 +2240,6 @@ MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-get-async.html = TIMEOUT
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
 
-// Started failing with r12215 (senorblanco)
-WIN : LayoutTests/svg/W3C-SVG-1.1/text-text-08-b.svg = FAIL
-
 // Started failing with a change to run_webkit_tests.sh.
 // What's weird is it actually started failing on the bot
 // where before it was passing. It's not that our accounting changed.
