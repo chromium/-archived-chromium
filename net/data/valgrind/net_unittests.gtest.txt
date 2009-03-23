@@ -7,3 +7,6 @@ DiskCacheBackendTest.InvalidEntryRead
 DiskCacheBackendTest.InvalidEntryWithLoad
 DiskCacheBackendTest.TrimInvalidEntry
 DiskCacheBackendTest.InvalidEntryEnumeration
+
+# Takes three minutes under valgrind.  Skip to keep valgrind bot < 10 minutes
+NetUtilTest.IDNToUnicode
