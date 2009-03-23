@@ -45,6 +45,7 @@ PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspa
 PREFIX : _87except____startoneargerrorhandling___sqrt___v8::internal::invoke
 
 # 8577
+PREFIX : `anonymous namespace'::invalidparameter____invalid_parameter_noinfo___std::deque
 PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque
 
 # 4731, 6956
