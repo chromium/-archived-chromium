@@ -19,12 +19,13 @@ gfx::Rect NSRectToRect(const NSRect rect, NSScreen* screen) {
 
 }
 
+// We get null window_ids passed into the two functions below; please see
+// http://crbug.com/9060 for more details.
+
 void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
                                             gfx::Rect* rect) {
   NSView* view = gfx::NativeViewFromId(window_id);
-  DCHECK(view);
-
-  if (!view) {  // paranoia
+  if (!view) {
     *rect = gfx::Rect();
     return;
   }
@@ -38,9 +39,7 @@ void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
 void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
                                                 gfx::Rect* rect) {
   NSView* view = gfx::NativeViewFromId(window_id);
-  DCHECK(view);
-
-  if (!view) {  // paranoia
+  if (!view) {
     *rect = gfx::Rect();
     return;
   }

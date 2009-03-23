@@ -6,8 +6,16 @@
 
 #include <gtk/gtk.h>
 
+// We get null window_ids passed into the two functions below; please see
+// http://crbug.com/9060 for more details.
+
 void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
                                             gfx::Rect* rect) {
+  if (!window_id) {
+    *rect = gfx::Rect();
+    return;
+  }
+
   // Ideally this would be gtk_widget_get_window but that's only
   // from gtk 2.14 onwards. :(
   GdkWindow* window = gfx::NativeViewFromId(window_id)->window;

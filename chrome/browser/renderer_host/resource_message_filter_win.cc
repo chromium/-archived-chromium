@@ -4,6 +4,9 @@
 
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 
+// We get null window_ids passed into the two functions below; please see
+// http://crbug.com/9060 for more details.
+
 void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
                                             gfx::Rect* rect) {
   HWND window = gfx::NativeViewFromId(window_id);
