@@ -6,10 +6,11 @@
 #define BASE_SCOPED_NSOBJECT_H_
 
 #import <Foundation/Foundation.h>
+#include "base/basictypes.h"
 
 // scoped_nsobject<> is patterned after scoped_ptr<>, but maintains ownership
 // of an NSObject subclass object.  Style deviations here are solely for
-// compatibility scoped_ptr<>'s interface, with which everyone is already
+// compatibility with scoped_ptr<>'s interface, with which everyone is already
 // familiar.
 //
 // When scoped_nsobject<> takes ownership of an object (in the constructor or
