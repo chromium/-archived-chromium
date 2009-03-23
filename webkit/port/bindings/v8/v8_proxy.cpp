@@ -40,8 +40,8 @@
 #include "v8_index.h"
 #include "v8_binding.h"
 #include "v8_custom.h"
-#include "v8_collection.h"
 #include "v8_nodefilter.h"
+#include "V8Collection.h"
 #include "V8DOMWindow.h"
 
 #include "ChromiumBridge.h"
