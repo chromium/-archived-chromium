@@ -344,6 +344,7 @@ inputs = [
     '$WEBCORE_DIR/bindings/v8/V8LazyEventListener.cpp',
     '$WEBCORE_DIR/bindings/v8/V8ObjectEventListener.cpp',
     '$WEBCORE_DIR/bindings/v8/V8WorkerContextEventListener.cpp',
+    '$PORT_DIR/bindings/v8/v8_binding.cpp',
     '$PORT_DIR/bindings/v8/v8_custom.cpp',
     '$PORT_DIR/bindings/v8/v8_helpers.cpp',
     '$PORT_DIR/bindings/v8/v8_index.cpp',
