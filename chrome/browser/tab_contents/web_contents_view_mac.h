@@ -9,7 +9,7 @@
 
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
-#include "base/scoped_cftyperef.h"
+#include "base/scoped_nsobject.h"
 #include "chrome/browser/cocoa/base_view.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/notification_registrar.h"
@@ -93,7 +93,7 @@ class WebContentsViewMac : public WebContentsView,
   WebContents* web_contents_;
 
   // The Cocoa NSView that lives in the view hierarchy.
-  scoped_cftyperef<WebContentsViewCocoa*> cocoa_view_;
+  scoped_nsobject<WebContentsViewCocoa> cocoa_view_;
 
   // For find in page. This may be NULL if there is no find bar, and if it is
   // non-NULL, it may or may not be visible.
@@ -104,7 +104,7 @@ class WebContentsViewMac : public WebContentsView,
 
   // Used to render the sad tab. This will be non-NULL only when the sad tab is
   // visible.
-  scoped_cftyperef<SadTabView*> sad_tab_;
+  scoped_nsobject<SadTabView> sad_tab_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewMac);
 };

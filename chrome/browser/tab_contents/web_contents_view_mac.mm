@@ -41,10 +41,6 @@ WebContents* WebContentsViewMac::GetWebContents() {
 void WebContentsViewMac::CreateView() {
   WebContentsViewCocoa* view =
       [[WebContentsViewCocoa alloc] initWithWebContentsViewMac:this];
-  // Under GC, ObjC and CF retains/releases are no longer equivalent. So we
-  // change our ObjC retain to a CF retain so we can use a scoped_cftyperef.
-  CFRetain(view);
-  [view release];
   cocoa_view_.reset(view);
 }
 
@@ -255,8 +251,6 @@ void WebContentsViewMac::Observe(NotificationType type,
     }
     case NotificationType::WEB_CONTENTS_DISCONNECTED: {
       SadTabView* view = [[SadTabView alloc] initWithFrame:NSZeroRect];
-      CFRetain(view);
-      [view release];
       sad_tab_.reset(view);
 
       // Set as the dominant child.
