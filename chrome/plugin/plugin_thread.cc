@@ -69,7 +69,6 @@ void PluginThread::Init() {
 }
 
 void PluginThread::CleanUp() {
-  ChildThread::CleanUp();
   if (preloaded_plugin_module_) {
     FreeLibrary(preloaded_plugin_module_);
     preloaded_plugin_module_ = NULL;
@@ -82,6 +81,11 @@ void PluginThread::CleanUp() {
 
   if (webkit_glue::ShouldForcefullyTerminatePluginProcess())
     TerminateProcess(GetCurrentProcess(), 0);
+
+  // Call this last because it deletes the ResourceDispatcher, which is used
+  // in some of the above cleanup.
+  // See http://code.google.com/p/chromium/issues/detail?id=8980
+  ChildThread::CleanUp();
 }
 
 void PluginThread::OnCreateChannel() {
