@@ -766,6 +766,7 @@ if env.Bit('linux'):
       'gtk/standard_menus.cc',
       'gtk/status_bubble_gtk.cc',
       'gtk/tab_contents_container_gtk.cc',
+      'gtk/tab_strip_gtk.cc',
       'process_singleton_linux.cc',
       'renderer_host/render_widget_host_view_gtk.cc',
       'tab_contents/web_contents_view_gtk.cc',

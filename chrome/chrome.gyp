@@ -672,6 +672,8 @@
         'browser/gtk/status_bubble_gtk.h',
         'browser/gtk/tab_contents_container_gtk.cc',
         'browser/gtk/tab_contents_container_gtk.h',
+        'browser/gtk/tab_strip_gtk.cc',
+        'browser/gtk/tab_strip_gtk.h',
         'browser/hang_monitor/hung_plugin_action.cc',
         'browser/hang_monitor/hung_plugin_action.h',
         'browser/hang_monitor/hung_window_detector.cc',

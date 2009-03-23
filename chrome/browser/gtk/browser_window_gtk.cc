@@ -20,6 +20,7 @@
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
+#include "chrome/browser/gtk/tab_strip_gtk.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -120,6 +121,8 @@ const struct AcceleratorMapping {
   { GDK_k, IDC_FOCUS_SEARCH },
   { GDK_l, IDC_FOCUS_LOCATION },
   { GDK_o, IDC_OPEN_FILE },
+  { GDK_Page_Down, IDC_SELECT_NEXT_TAB },
+  { GDK_Page_Up, IDC_SELECT_PREVIOUS_TAB },
   { GDK_w, IDC_CLOSE_TAB },
 };
 
@@ -188,12 +191,19 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   };
   content_area_ninebox_.reset(new NineBox(images));
 
-  // This vbox is intended to surround the "content": toolbar+page.
-  // When we add the tab strip, it should go in a vbox surrounding this one.
-  vbox_ = gtk_vbox_new(FALSE, 0);
-  gtk_widget_set_app_paintable(vbox_, TRUE);
-  gtk_widget_set_double_buffered(vbox_, FALSE);
-  g_signal_connect(G_OBJECT(vbox_), "expose-event",
+  // This vbox encompasses all of the widgets within the browser, including
+  // the tabstrip and the content vbox.
+  window_vbox_ = gtk_vbox_new(FALSE, 0);
+
+  tabstrip_.reset(new TabStripGtk(browser_->tabstrip_model()));
+  tabstrip_->Init();
+  tabstrip_->AddTabStripToBox(window_vbox_);
+
+  // This vbox surrounds the "content": toolbar+page.
+  content_vbox_ = gtk_vbox_new(FALSE, 0);
+  gtk_widget_set_app_paintable(content_vbox_, TRUE);
+  gtk_widget_set_double_buffered(content_vbox_, FALSE);
+  g_signal_connect(G_OBJECT(content_vbox_), "expose-event",
                    G_CALLBACK(&OnContentAreaExpose), this);
 
   // Temporary hack hidden behind a command line option to add one of the
@@ -205,14 +215,14 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     experimental_widget_->SetContentsView(
         new views::TextButton(new DummyButtonListener, L"Button"));
 
-    gtk_box_pack_start(GTK_BOX(vbox_),
+    gtk_box_pack_start(GTK_BOX(content_vbox_),
                        experimental_widget_->GetNativeView(),
                        false, false, 2);
   }
 
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile(), window_);
-  toolbar_->AddToolbarToBox(vbox_);
+  toolbar_->AddToolbarToBox(content_vbox_);
 
   FindBarGtk* find_bar_gtk = new FindBarGtk();
   find_bar_controller_.reset(new FindBarController(find_bar_gtk));
@@ -221,7 +231,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   contents_container_.reset(
       new TabContentsContainerGtk(find_bar_gtk->widget()));
 
-  contents_container_->AddContainerToBox(vbox_);
+  contents_container_->AddContainerToBox(content_vbox_);
 
   // Note that calling this the first time is necessary to get the
   // proper control layout.
@@ -230,8 +240,10 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   status_bubble_.reset(new StatusBubbleGtk(window_));
 
-  gtk_container_add(GTK_CONTAINER(window_), vbox_);
-  gtk_widget_show(vbox_);
+  gtk_container_add(GTK_CONTAINER(window_vbox_), content_vbox_);
+  gtk_container_add(GTK_CONTAINER(window_), window_vbox_);
+  gtk_widget_show(content_vbox_);
+  gtk_widget_show(window_vbox_);
   browser_->tabstrip_model()->AddObserver(this);
 }
 
@@ -538,11 +550,11 @@ void BrowserWindowGtk::ConnectAccelerators() {
 void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
   custom_frame_ = custom_frame;
   if (custom_frame_) {
-    gtk_container_set_border_width(GTK_CONTAINER(vbox_), 2);
+    gtk_container_set_border_width(GTK_CONTAINER(window_vbox_), 2);
     // TODO(port): all the crazy blue title bar, etc.
     NOTIMPLEMENTED();
   } else {
-    gtk_container_set_border_width(GTK_CONTAINER(vbox_), 0);
+    gtk_container_set_border_width(GTK_CONTAINER(window_vbox_), 0);
   }
 }
 

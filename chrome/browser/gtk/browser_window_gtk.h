@@ -20,6 +20,7 @@ class LocationBar;
 class NineBox;
 class StatusBubbleGtk;
 class TabContentsContainerGtk;
+class TabStripGtk;
 
 // An implementation of BrowserWindow for GTK.
 // Cross-platform code will interact with this object when
@@ -86,7 +87,8 @@ class BrowserWindowGtk : public BrowserWindow,
  protected:
   virtual void DestroyBrowser();
   GtkWindow* window_;
-  GtkWidget* vbox_;
+  GtkWidget* window_vbox_;
+  GtkWidget* content_vbox_;
 
   scoped_ptr<Browser> browser_;
 
@@ -139,6 +141,9 @@ class BrowserWindowGtk : public BrowserWindow,
   // non-NULL, it may or may not be visible.  It is possible for the Find Bar
   // to move among windows as tabs are dragged around.
   scoped_ptr<FindBarController> find_bar_controller_;
+
+  // The tab strip.  Always non-NULL.
+  scoped_ptr<TabStripGtk> tabstrip_;
 
   // When it goes out of scope during our destruction, |method_factory_| will
   // cancel its pending tasks (which depend on us still existing).
