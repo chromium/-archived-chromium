@@ -302,7 +302,7 @@ void FillLargeHeadersString(std::string* str, int size) {
 
 // Alternative functions that eliminate randomness and dependency on the local
 // host name so that the generated NTLM messages are reproducible.
-void MyGenerateRandom1(uint8* output, size_t n) {
+void MockGenerateRandom1(uint8* output, size_t n) {
   static const uint8 bytes[] = {
     0x55, 0x29, 0x66, 0x26, 0x6b, 0x9c, 0x73, 0x54
   };
@@ -313,7 +313,7 @@ void MyGenerateRandom1(uint8* output, size_t n) {
   }
 }
 
-void MyGenerateRandom2(uint8* output, size_t n) {
+void MockGenerateRandom2(uint8* output, size_t n) {
   static const uint8 bytes[] = {
     0x96, 0x79, 0x85, 0xe7, 0x49, 0x93, 0x70, 0xa1,
     0x4e, 0xe7, 0x87, 0x45, 0x31, 0x5b, 0xd3, 0x1f
@@ -325,13 +325,8 @@ void MyGenerateRandom2(uint8* output, size_t n) {
   }
 }
 
-void MyGetHostName(char* name, size_t namelen) {
-  static const char hostname[] = "WTC-WIN7";
-  if (namelen >= arraysize(hostname)) {
-    memcpy(name, hostname, arraysize(hostname));
-  } else {
-    name[0] = '\0';
-  }
+std::string MockGetHostName() {
+  return "WTC-WIN7";
 }
 
 //-----------------------------------------------------------------------------
@@ -1580,8 +1575,8 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
 
 // Enter the correct password and authenticate successfully.
 TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
-  net::HttpAuthHandlerNTLM::SetGenerateRandomProc(MyGenerateRandom1);
-  net::HttpAuthHandlerNTLM::SetHostNameProc(MyGetHostName);
+  net::HttpAuthHandlerNTLM::ScopedProcSetter proc_setter(MockGenerateRandom1,
+                                                         MockGetHostName);
 
   scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
@@ -1702,8 +1697,8 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
 
 // Enter a wrong password, and then the correct one.
 TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
-  net::HttpAuthHandlerNTLM::SetGenerateRandomProc(MyGenerateRandom2);
-  net::HttpAuthHandlerNTLM::SetHostNameProc(MyGetHostName);
+  net::HttpAuthHandlerNTLM::ScopedProcSetter proc_setter(MockGenerateRandom2,
+                                                         MockGetHostName);
 
   scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
   scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
