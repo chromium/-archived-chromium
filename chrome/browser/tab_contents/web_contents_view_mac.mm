@@ -189,10 +189,23 @@ void WebContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
 WebContents* WebContentsViewMac::CreateNewWindowInternal(
     int route_id,
     base::WaitableEvent* modal_dialog_event) {
-  // I don't understand what role this plays in the grand scheme of things. I'm
-  // not going to fake it.
-  NOTIMPLEMENTED();
-  return NULL;
+  // Create the new web contents. This will automatically create the new
+  // WebContentsView. In the future, we may want to create the view separately.
+  WebContents* new_contents =
+      new WebContents(web_contents_->profile(),
+                      web_contents_->GetSiteInstance(),
+                      web_contents_->render_view_factory_,
+                      route_id,
+                      modal_dialog_event);
+  new_contents->SetupController(web_contents_->profile());
+  WebContentsView* new_view = new_contents->view();
+
+  new_view->CreateView();
+
+  // TODO(brettw) it seems bogus that we have to call this function on the
+  // newly created object and give it one of its own member variables.
+  new_view->CreateViewForWidget(new_contents->render_view_host());
+  return new_contents;
 }
 
 RenderWidgetHostView* WebContentsViewMac::CreateNewWidgetInternal(
@@ -209,9 +222,16 @@ void WebContentsViewMac::ShowCreatedWindowInternal(
     WindowOpenDisposition disposition,
     const gfx::Rect& initial_pos,
     bool user_gesture) {
-  // I don't understand what role this plays in the grand scheme of things. I'm
-  // not going to fake it.
-  NOTIMPLEMENTED();
+  if (!new_web_contents->render_widget_host_view() ||
+      !new_web_contents->process()->channel()) {
+    // The view has gone away or the renderer crashed. Nothing to do.
+    return;
+  }
+
+  // TODO(brettw) this seems bogus to reach into here and initialize the host.
+  new_web_contents->render_view_host()->Init();
+  web_contents_->AddNewContents(new_web_contents, disposition, initial_pos,
+                                user_gesture);
 }
 
 void WebContentsViewMac::ShowCreatedWidgetInternal(

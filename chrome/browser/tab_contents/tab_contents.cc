@@ -283,6 +283,7 @@ ConstrainedWindow* TabContents::CreateConstrainedDialog(
   child_windows_.push_back(window);
   return window;
 }
+#endif
 
 void TabContents::AddNewContents(TabContents* new_contents,
                                  WindowOpenDisposition disposition,
@@ -291,6 +292,7 @@ void TabContents::AddNewContents(TabContents* new_contents,
   if (!delegate_)
     return;
 
+#if defined(OS_WIN)
   if ((disposition == NEW_POPUP) && !user_gesture) {
     // Unrequested popups from normal pages are constrained.
     TabContents* popup_owner = this;
@@ -306,8 +308,14 @@ void TabContents::AddNewContents(TabContents* new_contents,
 
     PopupNotificationVisibilityChanged(ShowingBlockedPopupNotification());
   }
+#else
+  // TODO(port): implement the popup blocker stuff
+  delegate_->AddNewContents(this, new_contents, disposition, initial_pos,
+                            user_gesture);
+#endif
 }
 
+#if defined(OS_WIN)
 void TabContents::AddConstrainedPopup(TabContents* new_contents,
                                       const gfx::Rect& initial_pos) {
   if (!blocked_popups_) {
