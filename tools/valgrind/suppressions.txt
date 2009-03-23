@@ -88,10 +88,12 @@
 }
 
 {
-   SQLite ?
+   # There is a fix in mainline, http://www.sqlite.org/cvstrac/chngview?cn=5968
+   # See also http://article.gmane.org/gmane.comp.db.sqlite.general/43177
+   SQLite write
    Memcheck:Param
    write(buf)
-   obj:/lib*/libpthread-2.*.so
+   ...
    fun:unixWrite
    fun:sqlite3OsWrite
    fun:writeJournalHdr
