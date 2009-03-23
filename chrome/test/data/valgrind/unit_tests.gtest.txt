@@ -3,4 +3,5 @@ IPCSyncChannelTest.ChattyServer
 
 # http://code.google.com/p/chromium/issues/detail?id=9170
 RenderViewTest.OnImeStateChanged
+RenderViewTest.OnNavStateChanged
 RenderViewTest.ImeComposition
