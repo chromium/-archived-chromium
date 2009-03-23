@@ -47,7 +47,7 @@
 // happened (randomly) to be assigned to:
 
 // HISTOGRAM_COUNTS(FieldTrial::MakeName("Memory.RendererTotal",
-//                                       "MemoryExperiment"), count);
+//                                       "MemoryExperiment").data(), count);
 
 // The above code will create 3 distinct histograms, with each run of the
 // application being assigned to of of teh three groups, and for each group, the
@@ -65,6 +65,7 @@
 #include <map>
 #include <string>
 
+#include "base/lock.h"
 #include "base/non_thread_safe.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
@@ -140,7 +141,7 @@ class FieldTrial : public base::RefCounted<FieldTrial> {
 // Class with a list of all active field trials.  A trial is active if it has
 // been registered, which includes evaluating its state based on its probaility.
 // Only one instance of this class exists.
-class FieldTrialList : NonThreadSafe {
+class FieldTrialList {
  public:
   // This singleton holds the global list of registered FieldTrials.
   FieldTrialList();
@@ -172,11 +173,17 @@ class FieldTrialList : NonThreadSafe {
   }
 
  private:
+  // Helper function should be called only while holding lock_.
+  FieldTrial* PreLockedFind(const std::string& name);
+
   typedef std::map<std::string, FieldTrial*> RegistrationList;
 
   static FieldTrialList* global_;  // The singleton of this class.
 
   base::Time application_start_time_;
+
+  // Lock for access to registered_.
+  Lock lock_;
   RegistrationList registered_;
 
   DISALLOW_COPY_AND_ASSIGN(FieldTrialList);

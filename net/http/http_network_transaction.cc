@@ -6,6 +6,7 @@
 
 #include "base/scoped_ptr.h"
 #include "base/compiler_specific.h"
+#include "base/field_trial.h"
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "build/build_config.h"
@@ -947,7 +948,13 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
   base::TimeDelta duration = base::Time::Now() - response_.request_time;
   if (60 < duration.InMinutes())
     return;
-  UMA_HISTOGRAM_LONG_TIMES("Net.Transaction_Latency", duration);
+
+  UMA_HISTOGRAM_LONG_TIMES(FieldTrial::MakeName("Net.Transaction_Latency",
+      "DnsImpact").data(), duration);
+  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+      "Net.Transaction_Latency_Under_10", "DnsImpact").data(), duration,
+      base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+      100);
   if (!duration.InMilliseconds())
     return;
   UMA_HISTOGRAM_COUNTS("Net.Transaction_Bandwidth",

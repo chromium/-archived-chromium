@@ -63,6 +63,7 @@ FieldTrialList::FieldTrialList()
 }
 
 FieldTrialList::~FieldTrialList() {
+  AutoLock auto_lock(lock_);
   while (!registered_.empty()) {
     RegistrationList::iterator it = registered_.begin();
     it->second->Release();
@@ -74,8 +75,8 @@ FieldTrialList::~FieldTrialList() {
 
 // static
 void FieldTrialList::Register(FieldTrial* trial) {
-  DCHECK(global_->CalledOnValidThread());
-  DCHECK(!Find(trial->name()));
+  AutoLock auto_lock(global_->lock_);
+  DCHECK(!global_->PreLockedFind(trial->name()));
   trial->AddRef();
   global_->registered_[trial->name()] = trial;
 }
@@ -96,11 +97,17 @@ std::string FieldTrialList::FindFullName(const std::string& name) {
   return "";
 }
 
-  // static
+// static
 FieldTrial* FieldTrialList::Find(const std::string& name) {
-  DCHECK(global_->CalledOnValidThread());
-  RegistrationList::iterator it = global_->registered_.find(name);
-  if (global_->registered_.end() == it)
+  if (!global_)
+    return NULL;
+  AutoLock auto_lock(global_->lock_);
+  return global_->PreLockedFind(name);
+}
+
+FieldTrial* FieldTrialList::PreLockedFind(const std::string& name) {
+  RegistrationList::iterator it = registered_.find(name);
+  if (registered_.end() == it)
     return NULL;
   return it->second;
 }

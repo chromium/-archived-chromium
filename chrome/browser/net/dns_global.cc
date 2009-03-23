@@ -81,11 +81,9 @@ void DnsPrefetchList(const NameList& hostnames) {
 static void DnsPrefetchMotivatedList(
     const NameList& hostnames,
     DnsHostInfo::ResolutionMotivation motivation) {
-  if (!dns_prefetch_enabled)
+  if (!dns_prefetch_enabled || NULL == dns_master)
     return;
-  DCHECK(NULL != dns_master);
-  if (NULL != dns_master)
-    dns_master->ResolveList(hostnames, motivation);
+  dns_master->ResolveList(hostnames, motivation);
 }
 
 // This API is used by the autocomplete popup box (where URLs are typed).
