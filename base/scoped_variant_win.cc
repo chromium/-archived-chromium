@@ -187,7 +187,6 @@ void ScopedVariant::Set(SAFEARRAY* array) {
   }
 }
 
-#ifndef OFFICIAL_BUILD
 bool ScopedVariant::IsLeakableVarType(VARTYPE vt) {
   bool leakable = false;
   switch (vt & VT_TYPEMASK) {
@@ -227,4 +226,3 @@ bool ScopedVariant::IsLeakableVarType(VARTYPE vt) {
 
   return leakable;
 }
-#endif

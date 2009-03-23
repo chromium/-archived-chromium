@@ -118,9 +118,8 @@ class ScopedVariant {
     return var_;
   }
 
-#ifndef OFFICIAL_BUILD
+  // Used as a debug check to see if we're leaking anything.
   static bool IsLeakableVarType(VARTYPE vt);
-#endif
 
  protected:
   VARIANT var_;
