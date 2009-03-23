@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_util.h"
+#include "base/platform_thread.h"
 
 class GoogleTest : public UITest {
  protected:

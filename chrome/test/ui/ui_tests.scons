@@ -234,8 +234,6 @@ input_files = ChromeFileList([
 if not env.Bit('windows'):
   # TODO(port): mark which of these work and which don't.
   input_files.Remove(
-      'history_uitest.cc',
-      'inspector_controller_uitest.cc',
       'layout_plugin_uitest.cpp',
       'npapi_test_helper.cc',
       'npapi_uitest.cpp',
@@ -250,15 +248,12 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/download/download_uitest.cc',
       '$CHROME_DIR/browser/download/save_page_uitest.cc',
       '$CHROME_DIR/browser/errorpage_uitest.cc',
-      '$CHROME_DIR/browser/history/redirect_uitest.cc',
       '$CHROME_DIR/browser/iframe_uitest.cc',
       '$CHROME_DIR/browser/interstitial_page_uitest.cc',
-      '$CHROME_DIR/browser/locale_tests_uitest.cc',
       '$CHROME_DIR/browser/login_prompt_uitest.cc',
       '$CHROME_DIR/browser/metrics/metrics_service_uitest.cc',
       '$CHROME_DIR/browser/printing/printing_layout_uitest.cc',
       '$CHROME_DIR/browser/renderer_host/resource_dispatcher_host_uitest.cc',
-      '$CHROME_DIR/browser/sanity_uitest.cc',
       '$CHROME_DIR/browser/session_history_uitest.cc',
       '$CHROME_DIR/browser/sessions/session_restore_uitest.cc',
       '$CHROME_DIR/browser/ssl/ssl_uitest.cc',

@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
-#include "base/win_util.h"
+#include "base/platform_thread.h"
+#include "base/string_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
@@ -22,8 +23,7 @@ class SessionHistoryTest : public UITest {
  protected:
   SessionHistoryTest() : UITest() {
     FilePath path = FilePath::FromWStringHack(test_data_directory_);
-    path = path.AppendASCII("session_history")
-               .Append(FilePath::StringType(&FilePath::kSeparators[0], 1));
+    path = path.AppendASCII("session_history");
 
     url_prefix_ = UTF8ToWide(net::FilePathToFileURL(path).spec());
   }
@@ -41,16 +41,15 @@ class SessionHistoryTest : public UITest {
   }
 
   // Simulate clicking a link.  Only works on the frames.html testserver page.
-  void ClickLink(std::wstring node_id) {
-    GURL url(L"javascript:clickLink('" + node_id + L"')");
+  void ClickLink(std::string node_id) {
+    GURL url("javascript:clickLink('" + node_id + "')");
     ASSERT_TRUE(tab_->NavigateToURL(url));
   }
 
   // Simulate filling in form data.  Only works on the frames.html page with
   // subframe = form.html, and on form.html itself.
-  void FillForm(std::wstring node_id, std::wstring value) {
-    GURL url(L"javascript:fillForm('" + node_id +
-        L"', '" + value + L"')");
+  void FillForm(std::string node_id, std::string value) {
+    GURL url("javascript:fillForm('" + node_id + "', '" + value + "')");
     // This will return immediately, but since the JS executes synchronously
     // on the renderer, it will complete before the next navigate message is
     // processed.
@@ -59,8 +58,8 @@ class SessionHistoryTest : public UITest {
 
   // Simulate submitting a form.  Only works on the frames.html page with
   // subframe = form.html, and on form.html itself.
-  void SubmitForm(std::wstring node_id) {
-    GURL url(L"javascript:submitForm('" + node_id + L"')");
+  void SubmitForm(std::string node_id) {
+    GURL url("javascript:submitForm('" + node_id + "')");
     ASSERT_TRUE(tab_->NavigateToURL(url));
   }
 
@@ -81,12 +80,12 @@ class SessionHistoryTest : public UITest {
     // Error pages load separately, but the UI automation system does not wait
     // for error pages to load before returning after a navigation request.
     // So, we need to sleep a little.
-    DWORD kWaitForErrorPageMsec = 200;
+    const int kWaitForErrorPageMsec = 200;
 
     for (int i = 0; i < 10; ++i) {
       if (value.compare(GetTabTitle()) == 0)
         return value;
-      Sleep(kWaitForErrorPageMsec);
+      PlatformThread::Sleep(kWaitForErrorPageMsec);
     }
     return GetTabTitle();
   }
@@ -167,17 +166,12 @@ TEST_F(SessionHistoryTest, BasicBackForward) {
 
 // Test that back/forward works when navigating in subframes.
 TEST_F(SessionHistoryTest, FrameBackForward) {
-  // Bug: http://b/1175763, skip this test on Windows 2000 until
-  //      flakiness is investigated and fixed.
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_2000)
-    return;
-
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
   // about:blank should be loaded first.
-  GURL home(homepage_);
+  GURL home(WideToUTF8(homepage_));
   ASSERT_FALSE(tab_->GoBack());
   EXPECT_EQ(L"", GetTabTitle());
   EXPECT_EQ(home, GetTabURL());
@@ -187,11 +181,11 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
   EXPECT_EQ(L"bot1", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  ClickLink(L"abot2");
+  ClickLink("abot2");
   EXPECT_EQ(L"bot2", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  ClickLink(L"abot3");
+  ClickLink("abot3");
   EXPECT_EQ(L"bot3", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
@@ -217,7 +211,7 @@ TEST_F(SessionHistoryTest, FrameBackForward) {
   EXPECT_EQ(L"bot2", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  ClickLink(L"abot1");
+  ClickLink("abot1");
   EXPECT_EQ(L"bot1", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
@@ -250,11 +244,11 @@ TEST_F(SessionHistoryTest, FrameFormBackForward) {
   ASSERT_TRUE(tab_->NavigateToURL(frames));
   EXPECT_EQ(L"bot1", GetTabTitle());
 
-  ClickLink(L"aform");
+  ClickLink("aform");
   EXPECT_EQ(L"form", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  SubmitForm(L"isubmit");
+  SubmitForm("isubmit");
   EXPECT_EQ(L"text=&select=a", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
@@ -264,7 +258,7 @@ TEST_F(SessionHistoryTest, FrameFormBackForward) {
 
   // history is [blank, bot1, *form, post]
 
-  ClickLink(L"abot2");
+  ClickLink("abot2");
   EXPECT_EQ(L"bot2", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
@@ -274,32 +268,31 @@ TEST_F(SessionHistoryTest, FrameFormBackForward) {
   EXPECT_EQ(L"form", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  SubmitForm(L"isubmit");
+  SubmitForm("isubmit");
   EXPECT_EQ(L"text=&select=a", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
   // history is [blank, bot1, form, *post]
 
-// TODO(mpcomplete): reenable this when WebKit bug 10199 is fixed:
-// "returning to a POST result within a frame does a GET instead of a POST"
-#if 0
-  ClickLink(L"abot2");
-  EXPECT_EQ(L"bot2", GetTabTitle());
-  EXPECT_EQ(frames, GetTabURL());
+  if (false) {
+    // TODO(mpcomplete): reenable this when WebKit bug 10199 is fixed:
+    // "returning to a POST result within a frame does a GET instead of a POST"
+    ClickLink("abot2");
+    EXPECT_EQ(L"bot2", GetTabTitle());
+    EXPECT_EQ(frames, GetTabURL());
 
-  ASSERT_TRUE(tab_->GoBack());
-  EXPECT_EQ(L"text=&select=a", GetTabTitle());
-  EXPECT_EQ(frames, GetTabURL());
-#endif
+    ASSERT_TRUE(tab_->GoBack());
+    EXPECT_EQ(L"text=&select=a", GetTabTitle());
+    EXPECT_EQ(frames, GetTabURL());
+  }
 }
 
 // TODO(mpcomplete): enable this when Bug 734372 is fixed:
 // "Doing a session history navigation does not restore newly-created subframe
 // document state"
-#if 0
 // Test that back/forward preserves POST data and document state when navigating
 // across frames (ie, from frame -> nonframe).
-TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
+TEST_F(SessionHistoryTest, DISABLED_CrossFrameFormBackForward) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
@@ -312,11 +305,11 @@ TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
   ASSERT_TRUE(tab_->NavigateToURL(frames));
   EXPECT_EQ(L"bot1", GetTabTitle());
 
-  ClickLink(L"aform");
+  ClickLink("aform");
   EXPECT_EQ(L"form", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  SubmitForm(L"isubmit");
+  SubmitForm("isubmit");
   EXPECT_EQ(L"text=&select=a", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
@@ -338,11 +331,10 @@ TEST_F(SessionHistoryTest, CrossFrameFormBackForward) {
   EXPECT_EQ(L"form", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 
-  SubmitForm(L"isubmit");
+  SubmitForm("isubmit");
   EXPECT_EQ(L"text=&select=a", GetTabTitle());
   EXPECT_EQ(frames, GetTabURL());
 }
-#endif
 
 // Test that back/forward entries are created for reference fragment
 // navigations. Bug 730379.
@@ -499,8 +491,7 @@ TEST_F(SessionHistoryTest, JavascriptHistory) {
 
 // This test is flaky and has been disabled. It looks like the server does not
 // start fast enough, and the navigation fails (with 404). See bug 8444.
-#if 0
-TEST_F(SessionHistoryTest, LocationReplace) {
+TEST_F(SessionHistoryTest, DISABLED_LocationReplace) {
   // Test that using location.replace doesn't leave the title of the old page
   // visible.
   scoped_refptr<HTTPTestServer> server =
@@ -511,4 +502,3 @@ TEST_F(SessionHistoryTest, LocationReplace) {
       "files/session_history/replace.html?no-title.html")));
   EXPECT_EQ(L"", GetTabTitle());
 }
-#endif

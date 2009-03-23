@@ -7,10 +7,10 @@
 // here might indicate that WebKit changed the calls our glue layer gets in
 // the case of redirects. It may also mean problems with the history system.
 
+#include "base/file_util.h"
+#include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
-// TODO(creis): Remove win_util when finished debugging ClientServerServer.
-#include "base/win_util.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
@@ -46,7 +46,7 @@ TEST_F(RedirectTest, Server) {
   std::vector<GURL> redirects;
   ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
 
-  ASSERT_EQ(1, redirects.size());
+  ASSERT_EQ(1U, redirects.size());
   EXPECT_EQ(final_url.spec(), redirects[0].spec());
 }
 
@@ -63,7 +63,7 @@ TEST_F(RedirectTest, Client) {
   // We need the sleep for the client redirects, because it appears as two
   // page visits in the browser.
   NavigateToURL(first_url);
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
 
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
@@ -71,7 +71,7 @@ TEST_F(RedirectTest, Client) {
   std::vector<GURL> redirects;
   ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
 
-  ASSERT_EQ(1, redirects.size());
+  ASSERT_EQ(1U, redirects.size());
   EXPECT_EQ(final_url.spec(), redirects[0].spec());
 }
 
@@ -92,7 +92,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
   // loads the html file on disk, rather than just getting a response from
   // the TestServer.
   for (int i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
@@ -100,7 +100,7 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
       break;
   }
 
-  EXPECT_EQ(1, redirects.size());
+  EXPECT_EQ(1U, redirects.size());
   EXPECT_EQ(final_url.spec(), redirects[0].spec());
 }
 
@@ -109,10 +109,11 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
 TEST_F(RedirectTest, ClientCancelled) {
   std::wstring first_path = test_data_directory_;
   file_util::AppendToPath(&first_path, L"cancelled_redirect_test.html");
+  ASSERT_TRUE(file_util::AbsolutePath(&first_path));
   GURL first_url = net::FilePathToFileURL(first_path);
 
   NavigateToURL(first_url);
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
 
   scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
   ASSERT_TRUE(tab_proxy.get());
@@ -123,7 +124,7 @@ TEST_F(RedirectTest, ClientCancelled) {
   // There should be no redirects from first_url, because the anchor location
   // change that occurs should not be flagged as a redirect and the meta-refresh
   // won't have fired yet.
-  ASSERT_EQ(0, redirects.size());
+  ASSERT_EQ(0U, redirects.size());
   GURL current_url;
   ASSERT_TRUE(tab_proxy->GetCurrentURL(&current_url));
 
@@ -133,6 +134,7 @@ TEST_F(RedirectTest, ClientCancelled) {
   std::string final_ref = "myanchor";
   std::wstring current_path;
   ASSERT_TRUE(net::FileURLToFilePath(current_url, &current_path));
+  ASSERT_TRUE(file_util::AbsolutePath(&current_path));
   // Path should remain unchanged.
   EXPECT_EQ(StringToLowerASCII(first_path), StringToLowerASCII(current_path));
   EXPECT_EQ(final_ref, current_url.ref());
@@ -160,7 +162,7 @@ TEST_F(RedirectTest, DISABLED_ClientServerServer) {
   NavigateToURL(first_url);
 
   for (int i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
@@ -168,7 +170,7 @@ TEST_F(RedirectTest, DISABLED_ClientServerServer) {
       break;
   }
 
-  ASSERT_EQ(3, redirects.size());
+  ASSERT_EQ(3U, redirects.size());
   EXPECT_EQ(second_url.spec(), redirects[0].spec());
   EXPECT_EQ(next_to_last.spec(), redirects[1].spec());
   EXPECT_EQ(final_url.spec(), redirects[2].spec());
@@ -231,7 +233,7 @@ TEST_F(RedirectTest, ClientFragments) {
 
   NavigateToURL(first_url);
   for (int i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetRedirectsFrom(first_url, &redirects));
@@ -239,7 +241,7 @@ TEST_F(RedirectTest, ClientFragments) {
       break;
   }
 
-  EXPECT_EQ(1, redirects.size());
+  EXPECT_EQ(1U, redirects.size());
   EXPECT_EQ(first_url.spec() + "#myanchor", redirects[0].spec());
 }
 
@@ -279,7 +281,7 @@ TEST_F(RedirectTest,
   std::wstring final_url_title = L"Title Of Awesomeness";
   // Wait till the final page has been loaded.
   for (int i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
     ASSERT_TRUE(tab_proxy.get());
     ASSERT_TRUE(tab_proxy->GetTabTitle(&tab_title));
