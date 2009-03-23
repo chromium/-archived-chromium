@@ -66,7 +66,7 @@ namespace WebCore {
         // Track the event so that we can detach it from the JS wrapper when a worker
         // terminates. This is needed because we need to be able to dispose these
         // events and releases references to their event targets: WorkerContext.
-        void TrackEvent(Event*);
+        void trackEvent(Event*);
 
         // Evaluate a script file in the current execution environment.
         v8::Local<v8::Value> evaluate(const String& str, const String& fileName, int baseLine);

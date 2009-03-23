@@ -49,7 +49,6 @@ class WebWorkerImpl: public WebCore::WorkerObjectProxy,
   // WebWorker implementation.
   void StartWorkerContext(const GURL& script_url,
                           const string16& user_agent,
-                          const string16& encoding,
                           const string16& source_code);
   void TerminateWorkerContext();
   void PostMessageToWorkerContext(const string16& message);

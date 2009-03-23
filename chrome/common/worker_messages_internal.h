@@ -29,10 +29,9 @@ IPC_END_MESSAGES(WorkerProcess)
 // Worker messages
 // These are messages sent from the renderer process to the worker process.
 IPC_BEGIN_MESSAGES(Worker)
-  IPC_MESSAGE_ROUTED4(WorkerMsg_StartWorkerContext,
+  IPC_MESSAGE_ROUTED3(WorkerMsg_StartWorkerContext,
                       GURL /* url */,
                       string16  /* user_agent */,
-                      string16  /* encoding */,
                       string16  /* source_code */)
 
   IPC_MESSAGE_ROUTED0(WorkerMsg_TerminateWorkerContext)

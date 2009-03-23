@@ -34,7 +34,6 @@ class WebWorkerProxy : public WebWorker,
   // converted by glue code).
   virtual void StartWorkerContext(const GURL& script_url,
                                   const string16& user_agent,
-                                  const string16& encoding,
                                   const string16& source_code);
   virtual void TerminateWorkerContext();
   virtual void PostMessageToWorkerContext(const string16& message);

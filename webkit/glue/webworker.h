@@ -22,7 +22,6 @@ class WebWorker {
 
   virtual void StartWorkerContext(const GURL& script_url,
                                   const string16& user_agent,
-                                  const string16& encoding,
                                   const string16& source_code) = 0;
   virtual void TerminateWorkerContext() = 0;
   virtual void PostMessageToWorkerContext(const string16& message) = 0;

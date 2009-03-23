@@ -351,7 +351,7 @@ void WorkerContextExecutionProxy::RemoveEventListener(V8EventListener* listener)
     }
 }
 
-void WorkerContextExecutionProxy::TrackEvent(Event* event)
+void WorkerContextExecutionProxy::trackEvent(Event* event)
 {
     m_events.add(event);
 }
