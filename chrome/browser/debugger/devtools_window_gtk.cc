@@ -7,7 +7,7 @@
 #include "base/logging.h"
 
 // static
-DevToolsWindow* DevToolsWindow::Create(DevToolsInstanceDescriptor* descriptor) {
+DevToolsWindow* DevToolsWindow::Create() {
   NOTIMPLEMENTED();
   return NULL;
 }

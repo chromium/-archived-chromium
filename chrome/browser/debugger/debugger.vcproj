@@ -206,6 +206,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\devtools_client_host.h"
+			>
+		</File>
+		<File
 			RelativePath=".\devtools_manager.cc"
 			>
 		</File>

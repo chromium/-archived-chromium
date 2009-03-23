@@ -6,20 +6,21 @@
 
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_view.h"
+#include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/views/window/window.h"
 
 
 // static
-DevToolsWindow* DevToolsWindow::Create(DevToolsInstanceDescriptor* descriptor) {
-  DevToolsView* view = new DevToolsView(descriptor);
+DevToolsWindow* DevToolsWindow::Create() {
+  DevToolsView* view = new DevToolsView();
   DevToolsWindowWin* window = new DevToolsWindowWin(view);
-  descriptor->SetDevToolsWindow(window);
   views::Window::CreateChromeWindow(NULL, gfx::Rect(), window);
   return window;
 }
 
 DevToolsWindowWin::DevToolsWindowWin(DevToolsView* view)
-    : tools_view_(view) {
+    : DevToolsWindow(),
+      tools_view_(view) {
 }
 
 DevToolsWindowWin::~DevToolsWindowWin() {
@@ -34,11 +35,24 @@ void DevToolsWindowWin::Show() {
   }
 }
 
-void DevToolsWindowWin::Close() {
+bool DevToolsWindowWin::HasRenderViewHost(const RenderViewHost& rvh) const {
+  if (tools_view_) {
+    return tools_view_->HasRenderViewHost(rvh);
+  }
+  return false;
+}
+
+void DevToolsWindowWin::InspectedTabClosing() {
   if (window()) {
     window()->Close();
   } else {
     NOTREACHED();
+  }
+}
+
+void DevToolsWindowWin::SendMessageToClient(const IPC::Message& message) {
+  if (tools_view_) {
+    tools_view_->SendMessageToClient(message);
   }
 }
 
@@ -48,6 +62,8 @@ std::wstring DevToolsWindowWin::GetWindowTitle() const {
 
 void DevToolsWindowWin::WindowClosing() {
   if (tools_view_) {
+    NotifyCloseListener();
+
     ReleaseWindow();
     tools_view_->OnWindowClosing();
     tools_view_ = NULL;

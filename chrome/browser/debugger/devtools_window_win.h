@@ -12,7 +12,6 @@
 namespace views {
 class Window;
 }
-class DevToolsInstanceDescriptor;
 class DevToolsView;
 class TabContents;
 
@@ -21,13 +20,16 @@ class DevToolsWindowWin : public DevToolsWindow,
  public:
   virtual ~DevToolsWindowWin();
 
-  // Show developer tools window.
+  // DevToolsWindow implementation.
   virtual void Show();
-  virtual void Close();
+  virtual bool HasRenderViewHost(const RenderViewHost& rvh) const;
+
+  virtual void InspectedTabClosing();
+  virtual void SendMessageToClient(const IPC::Message& message);
 
  private:
   friend class DevToolsWindow;
-  explicit DevToolsWindowWin(DevToolsView* view);
+  DevToolsWindowWin(DevToolsView* view);
 
   // views::WindowDelegate methods:
   virtual std::wstring GetWindowTitle() const;

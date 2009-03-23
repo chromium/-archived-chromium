@@ -7,7 +7,7 @@
 #include <string>
 
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/debugger/devtools_manager.h"
+#include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
@@ -15,9 +15,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/url_constants.h"
 
-DevToolsView::DevToolsView(DevToolsInstanceDescriptor* descriptor)
-    : descriptor_(descriptor),
-      web_contents_(NULL) {
+DevToolsView::DevToolsView() : web_contents_(NULL) {
   web_container_ = new TabContentsContainerView();
   AddChildView(web_container_);
 }
@@ -58,7 +56,6 @@ void DevToolsView::Init() {
   web_contents_->set_delegate(this);
   web_container_->SetTabContents(web_contents_);
   web_contents_->render_view_host()->AllowDOMUIBindings();
-  descriptor_->SetDevToolsHost(web_contents_->render_view_host());
 
   // chrome-ui://devtools/devtools.html
   GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "devtools.html");
@@ -69,13 +66,31 @@ void DevToolsView::Init() {
 }
 
 void DevToolsView::OnWindowClosing() {
-  DCHECK(descriptor_) << "OnWindowClosing is called twice";
-  if (descriptor_) {
-    descriptor_->Destroy();
-    descriptor_ = NULL;
+  DCHECK(web_contents_) << "OnWindowClosing is called twice";
+  if (web_contents_) {
+    // Detach last (and only) tab.
+    web_container_->SetTabContents(NULL);
+
+    // Destroy the tab and navigation controller.
+    web_contents_->CloseContents();
+    web_contents_ = NULL;
   }
-  web_container_->SetTabContents(NULL);  // detach last (and only) tab
-  web_contents_->CloseContents();  // destroy the tab and navigation controller
+}
+
+void DevToolsView::SendMessageToClient(const IPC::Message& message) {
+  if (web_contents_) {
+    RenderViewHost* target_host = web_contents_->render_view_host();
+    IPC::Message* m =  new IPC::Message(message);
+    m->set_routing_id(target_host->routing_id());
+    target_host->Send(m);
+  }
+}
+
+bool DevToolsView::HasRenderViewHost(const RenderViewHost& rvh) const {
+  if (web_contents_) {
+    return (&rvh == web_contents_->render_view_host());
+  }
+  return false;
 }
 
 void DevToolsView::OpenURLFromTab(TabContents* source,

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
@@ -11,68 +12,46 @@
 
 namespace {
 
-class TestDevToolsWindow : public DevToolsWindow {
+class TestDevToolsClientHost : public DevToolsClientHost {
  public:
-  TestDevToolsWindow(DevToolsInstanceDescriptor* descriptor)
-      : descriptor_(descriptor),
-        shown_(false),
+  TestDevToolsClientHost()
+      : last_sent_message(NULL),
         closed_(false) {
-    descriptor->SetDevToolsWindow(this);
   }
 
-  virtual ~TestDevToolsWindow() {
-    EXPECT_EQ(shown_, closed_);
-  }
-
-  virtual void Show() {
-    open_counter++;
-    shown_ = true;
+  virtual ~TestDevToolsClientHost() {
+    EXPECT_TRUE(closed_);
   }
 
   virtual void Close() {
-    EXPECT_TRUE(shown_);
+    EXPECT_FALSE(closed_);
     close_counter++;
-    descriptor_->Destroy();
+    NotifyCloseListener();
     closed_ = true;
+  }
+  virtual void InspectedTabClosing() {
+    Close();
+  }
+
+  virtual void SendMessageToClient(const IPC::Message& message) {
+    last_sent_message = &message;
   }
 
   static void ResetCounters() {
-    open_counter = 0;
     close_counter = 0;
   }
 
-  static int open_counter;
   static int close_counter;
 
+  const IPC::Message* last_sent_message;
+
  private:
-  DevToolsInstanceDescriptor* descriptor_;
-  bool shown_;
   bool closed_;
 
-  DISALLOW_COPY_AND_ASSIGN(TestDevToolsWindow);
+  DISALLOW_COPY_AND_ASSIGN(TestDevToolsClientHost);
 };
 
-int TestDevToolsWindow::open_counter = 0;
-int TestDevToolsWindow::close_counter = 0;
-
-
-class TestDevToolsWindowFactory : public DevToolsWindowFactory {
- public:
-  TestDevToolsWindowFactory() : DevToolsWindowFactory(),
-                                last_created_window(NULL) {}
-  virtual ~TestDevToolsWindowFactory() {}
-
-  virtual DevToolsWindow* CreateDevToolsWindow(
-      DevToolsInstanceDescriptor* descriptor) {
-    last_created_window = new TestDevToolsWindow(descriptor);
-    return last_created_window;
-  }
-
-  DevToolsWindow* last_created_window;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(TestDevToolsWindowFactory);
-};
+int TestDevToolsClientHost::close_counter = 0;
 
 }  // namespace
 
@@ -84,27 +63,45 @@ class DevToolsManagerTest : public RenderViewHostTestHarness {
  protected:
   virtual void SetUp() {
     RenderViewHostTestHarness::SetUp();
-    TestDevToolsWindow::ResetCounters();
+    TestDevToolsClientHost::ResetCounters();
   }
 };
 
-TEST_F(DevToolsManagerTest, OpenAndManuallyCloseDevToolsWindow) {
-  TestDevToolsWindowFactory window_factory;
-  DevToolsManager manager(&window_factory);
+TEST_F(DevToolsManagerTest, OpenAndManuallyCloseDevToolsClientHost) {
+  DevToolsManager manager;
 
-  manager.ShowDevToolsForWebContents(contents());
-  EXPECT_EQ(TestDevToolsWindow::open_counter, 1);
-  EXPECT_EQ(TestDevToolsWindow::close_counter, 0);
+  DevToolsClientHost* host = manager.GetDevToolsClientHostFor(*contents());
+  EXPECT_TRUE(NULL == host);
 
-  DevToolsWindow* window = window_factory.last_created_window;
-  // Test that same devtools window is used.
-  manager.ShowDevToolsForWebContents(contents());
-  // Check that no new windows were created.
-  EXPECT_TRUE(window == window_factory.last_created_window);
-  EXPECT_EQ(TestDevToolsWindow::open_counter, 2);
-  EXPECT_EQ(TestDevToolsWindow::close_counter, 0);
+  TestDevToolsClientHost client_host;
+  manager.RegisterDevToolsClientHostFor(*contents(), &client_host);
+  // Test that just registered devtools host is returned.
+  host = manager.GetDevToolsClientHostFor(*contents());
+  EXPECT_TRUE(&client_host == host);
+  EXPECT_EQ(0, TestDevToolsClientHost::close_counter);
 
-  window->Close();
-  EXPECT_EQ(TestDevToolsWindow::open_counter, 2);
-  EXPECT_EQ(TestDevToolsWindow::close_counter, 1);
+  // Test that the same devtools host is returned.
+  host = manager.GetDevToolsClientHostFor(*contents());
+  EXPECT_TRUE(&client_host == host);
+  EXPECT_EQ(0, TestDevToolsClientHost::close_counter);
+
+  client_host.Close();
+  EXPECT_EQ(1, TestDevToolsClientHost::close_counter);
+  host = manager.GetDevToolsClientHostFor(*contents());
+  EXPECT_TRUE(NULL == host);
+}
+
+TEST_F(DevToolsManagerTest, ForwardMessageToClient) {
+  DevToolsManager manager;
+
+  TestDevToolsClientHost client_host;
+  manager.RegisterDevToolsClientHostFor(*contents(), &client_host);
+  EXPECT_EQ(0, TestDevToolsClientHost::close_counter);
+
+  IPC::Message m;
+  manager.ForwardToDevToolsClient(*contents()->render_view_host(), m);
+  EXPECT_TRUE(&m == client_host.last_sent_message);
+
+  client_host.Close();
+  EXPECT_EQ(1, TestDevToolsClientHost::close_counter);
 }

@@ -6,32 +6,29 @@
 #define CHROME_BROWSER_DEBUGGER_DEV_TOOLS_WINDOW_H_
 
 #include "base/basictypes.h"
+#include "chrome/browser/debugger/devtools_client_host.h"
 
-class DevToolsInstanceDescriptor;
+class RenderViewHost;
 
-class DevToolsWindow {
+class DevToolsWindow : public DevToolsClientHost {
  public:
-  static DevToolsWindow* Create(DevToolsInstanceDescriptor* descriptor);
+  // Factory method for creating platform specific devtools windows.
+  static DevToolsWindow* Create();
+
   virtual ~DevToolsWindow() {}
 
-  // Show developer tools window.
+  // Show this window.
   virtual void Show() = 0;
-  virtual void Close() = 0;
+  virtual bool HasRenderViewHost(const RenderViewHost& rvh) const = 0;
+
+  // DevToolsClientHost override.
+  virtual DevToolsWindow* AsDevToolsWindow() { return this; }
 
  protected:
-  DevToolsWindow() {}
+  DevToolsWindow() : DevToolsClientHost() {}
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DevToolsWindow);
 };
-
-// Factory for creating DevToolsWindows.  Useful for unit tests.
-class DevToolsWindowFactory {
- public:
-  virtual ~DevToolsWindowFactory() {}
-  virtual DevToolsWindow* CreateDevToolsWindow(
-      DevToolsInstanceDescriptor* descriptor) = 0;
-};
-
 
 #endif  // CHROME_BROWSER_DEBUGGER_DEV_TOOLS_WINDOW_H_

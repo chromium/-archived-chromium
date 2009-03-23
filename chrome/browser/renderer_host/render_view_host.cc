@@ -1194,11 +1194,12 @@ void RenderViewHost::DidDebugAttach() {
 }
 
 void RenderViewHost::OnForwardToDevToolsAgent(const IPC::Message& message) {
-  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(this, message);
+  g_browser_process->devtools_manager()->ForwardToDevToolsAgent(*this, message);
 }
 
 void RenderViewHost::OnForwardToDevToolsClient(const IPC::Message& message) {
-  g_browser_process->devtools_manager()->ForwardToDevToolsClient(this, message);
+  g_browser_process->devtools_manager()->ForwardToDevToolsClient(*this,
+                                                                 message);
 }
 
 void RenderViewHost::OnUserMetricsRecordAction(const std::wstring& action) {

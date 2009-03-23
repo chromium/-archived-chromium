@@ -543,6 +543,7 @@
         'browser/debugger/debugger_window.h',
         'browser/debugger/debugger_wrapper.cc',
         'browser/debugger/debugger_wrapper.h',
+        'browser/debugger/devtools_client_host.h',
         'browser/debugger/devtools_manager.h',
         'browser/debugger/devtools_manager.cc',
         'browser/debugger/devtools_window.h',

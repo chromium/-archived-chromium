@@ -53,6 +53,7 @@ input_files = ChromeFileList([
     'debugger_window.h',
     'debugger_wrapper.cc',
     'debugger_wrapper.h',
+    'devtools_client_host.h',
     'devtools_manager.h',
     'devtools_manager.cc',
     'devtools_view.cc',

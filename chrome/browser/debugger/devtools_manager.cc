@@ -5,132 +5,89 @@
 #include "chrome/browser/debugger/devtools_manager.h"
 
 #include "chrome/browser/debugger/devtools_window.h"
+#include "chrome/browser/debugger/devtools_client_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_type.h"
 
-
-class DevToolsInstanceDescriptorImpl : public DevToolsInstanceDescriptor {
- public:
-  explicit DevToolsInstanceDescriptorImpl(
-      DevToolsManager* manager,
-      NavigationController* navigation_controller)
-      : manager_(manager),
-        navigation_controller_(navigation_controller),
-        devtools_host_(NULL),
-        devtools_window_(NULL) {
-  }
-  virtual ~DevToolsInstanceDescriptorImpl() {}
-
-  virtual void SetDevToolsHost(RenderViewHost* render_view_host) {
-    devtools_host_ = render_view_host;
-  }
-
-  virtual void SetDevToolsWindow(DevToolsWindow* window) {
-    devtools_window_ = window;
-  }
-
-  virtual void Destroy() {
-    manager_->RemoveDescriptor(this);
-    delete this;
-  }
-
-  RenderViewHost* devtools_host() const {
-    return devtools_host_;
-  }
-
-  DevToolsWindow* devtools_window() const {
-    return devtools_window_;
-  }
-
-  NavigationController* navigation_controller() const {
-    return navigation_controller_;
-  }
-
- private:
-  DevToolsManager* manager_;
-  NavigationController* navigation_controller_;
-  RenderViewHost* devtools_host_;
-  DevToolsWindow* devtools_window_;
-
-  DISALLOW_COPY_AND_ASSIGN(DevToolsInstanceDescriptorImpl);
-};
-
-DevToolsManager::DevToolsManager(DevToolsWindowFactory* factory)
-    : web_contents_listeners_(NULL),
-      devtools_window_factory_(factory) {
+DevToolsManager::DevToolsManager() : web_contents_listeners_(NULL) {
 }
 
 DevToolsManager::~DevToolsManager() {
   DCHECK(!web_contents_listeners_.get()) <<
-      "All devtools windows must alredy have been closed.";
-}
-
-DevToolsWindow* DevToolsManager::CreateDevToolsWindow(
-    DevToolsInstanceDescriptor* descriptor) {
-  if (devtools_window_factory_) {
-    return devtools_window_factory_->CreateDevToolsWindow(descriptor);
-  } else {
-    return DevToolsWindow::Create(descriptor);
-  }
+      "All devtools client hosts must alredy have been destroyed.";
+  DCHECK(navcontroller_to_client_host_.empty());
+  DCHECK(client_host_to_navcontroller_.empty());
 }
 
 void DevToolsManager::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
   DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
+
   Source<WebContents> src(source);
+  DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
+  if (!client_host) {
+    return;
+  }
+
   NavigationController* controller = src->controller();
-  DescriptorMap::const_iterator it =
-      navcontroller_to_descriptor_.find(controller);
-  if (it == navcontroller_to_descriptor_.end()) {
-    return;
-  }
   bool active = (controller->active_contents() == src.ptr());
-  if (!active) {
-    return;
+  if (active) {
+    // Active tab contents disconnecting from its renderer means that the tab
+    // is closing.
+    client_host->InspectedTabClosing();
   }
-  // Active tab contents disconnecting from its renderer means that the tab
-  // is closing so we are closing devtools as well.
-  it->second->devtools_window()->Close();
 }
 
-void DevToolsManager::ShowDevToolsForWebContents(WebContents* web_contents) {
-  NavigationController* navigation_controller = web_contents->controller();
-
-  DevToolsWindow* window(NULL);
-  DevToolsInstanceDescriptorImpl* desc(NULL);
-  DescriptorMap::const_iterator it =
-      navcontroller_to_descriptor_.find(navigation_controller);
-  if (it != navcontroller_to_descriptor_.end()) {
-    desc = it->second;
-    window = desc->devtools_window();
-  } else {
-    desc = new DevToolsInstanceDescriptorImpl(this, navigation_controller);
-    navcontroller_to_descriptor_[navigation_controller] = desc;
-
-    StartListening(navigation_controller);
-
-    window = CreateDevToolsWindow(desc);
+DevToolsClientHost* DevToolsManager::GetDevToolsClientHostFor(
+    const WebContents& web_contents) {
+  NavigationController* navigation_controller = web_contents.controller();
+  ClientHostMap::const_iterator it =
+      navcontroller_to_client_host_.find(navigation_controller);
+  if (it != navcontroller_to_client_host_.end()) {
+    return it->second;
   }
-
-  window->Show();
+  return NULL;
 }
 
-void DevToolsManager::ForwardToDevToolsAgent(RenderViewHost* from,
-                                             const IPC::Message& message) {
-  NavigationController* nav_controller(NULL);
-  for (DescriptorMap::const_iterator it = navcontroller_to_descriptor_.begin();
-       it != navcontroller_to_descriptor_.end();
+void DevToolsManager::RegisterDevToolsClientHostFor(
+    const WebContents& web_contents,
+    DevToolsClientHost* client_host) {
+  DCHECK(!GetDevToolsClientHostFor(web_contents));
+
+  NavigationController* navigation_controller = web_contents.controller();
+  navcontroller_to_client_host_[navigation_controller] = client_host;
+  client_host_to_navcontroller_[client_host] = navigation_controller;
+  client_host->set_close_listener(this);
+
+  StartListening(navigation_controller);
+}
+
+void DevToolsManager::ForwardToDevToolsAgent(
+    const RenderViewHost& client_rvh,
+    const IPC::Message& message) {
+    for (ClientHostMap::const_iterator it =
+             navcontroller_to_client_host_.begin();
+       it != navcontroller_to_client_host_.end();
        ++it) {
-    if (it->second->devtools_host() == from) {
-      nav_controller = it->second->navigation_controller();
-      break;
+    DevToolsWindow* win = it->second->AsDevToolsWindow();
+    if (!win) {
+      continue;
+    }
+    if (win->HasRenderViewHost(client_rvh)) {
+      ForwardToDevToolsAgent(*win, message);
+      return;
     }
   }
+}
 
+void DevToolsManager::ForwardToDevToolsAgent(const DevToolsClientHost& from,
+                                             const IPC::Message& message) {
+  NavigationController* nav_controller =
+      GetDevToolsAgentNavigationController(from);
   if (!nav_controller) {
     NOTREACHED();
     return;
@@ -155,39 +112,43 @@ void DevToolsManager::ForwardToDevToolsAgent(RenderViewHost* from,
   target_host->Send(m);
 }
 
-void DevToolsManager::ForwardToDevToolsClient(RenderViewHost* from,
+void DevToolsManager::ForwardToDevToolsClient(const RenderViewHost& from,
                                               const IPC::Message& message) {
-  WebContents* wc = from->delegate()->GetAsWebContents();
+  WebContents* wc = from.delegate()->GetAsWebContents();
   if (!wc) {
     NOTREACHED();
     return;
   }
-
-  NavigationController* navigation_controller = wc->controller();
-
-  DescriptorMap::const_iterator it =
-      navcontroller_to_descriptor_.find(navigation_controller);
-  if (it == navcontroller_to_descriptor_.end()) {
+  DevToolsClientHost* target_host = GetDevToolsClientHostFor(*wc);
+  if (!target_host) {
     NOTREACHED();
     return;
   }
-
-  RenderViewHost* target_host = it->second->devtools_host();
-  IPC::Message* m =  new IPC::Message(message);
-  m->set_routing_id(target_host->routing_id());
-  target_host->Send(m);
+  target_host->SendMessageToClient(message);
 }
 
-void DevToolsManager::RemoveDescriptor(
-    DevToolsInstanceDescriptorImpl* descriptor) {
-  NavigationController* navigation_controller =
-      descriptor->navigation_controller();
+void DevToolsManager::ClientHostClosing(DevToolsClientHost* host) {
+  NavigationController* controller = GetDevToolsAgentNavigationController(
+      *host);
+  DCHECK(controller);
+
   // This should be done before StopListening as the latter checks number of
   // alive devtools instances.
-  navcontroller_to_descriptor_.erase(navigation_controller);
-  StopListening(navigation_controller);
+  navcontroller_to_client_host_.erase(controller);
+  client_host_to_navcontroller_.erase(host);
+
+  StopListening(controller);
 }
 
+NavigationController* DevToolsManager::GetDevToolsAgentNavigationController(
+    const DevToolsClientHost& client_host) {
+  NavControllerMap::const_iterator it =
+      client_host_to_navcontroller_.find(&client_host);
+  if (it != client_host_to_navcontroller_.end()) {
+    return it->second;
+  }
+  return NULL;
+}
 
 void DevToolsManager::StartListening(
     NavigationController* navigation_controller) {
@@ -204,7 +165,8 @@ void DevToolsManager::StartListening(
 void DevToolsManager::StopListening(
     NavigationController* navigation_controller) {
   DCHECK(web_contents_listeners_.get());
-  if (navcontroller_to_descriptor_.empty()) {
+  if (navcontroller_to_client_host_.empty()) {
+    DCHECK(client_host_to_navcontroller_.empty());
     web_contents_listeners_.reset();
   }
 }

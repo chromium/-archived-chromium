@@ -16,6 +16,3 @@ IPCSyncChannelTest.ChattyServer
 
 # issue 8362
 ExtensionViewTest.Index
-
-# issue 9150
-DevToolsManagerTest.*

@@ -12,18 +12,24 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/views/view.h"
 
-class DevToolsInstanceDescriptor;
+namespace IPC {
+class Message;
+}
+
+class RenderViewHost;
 class TabContentsContainerView;
 class WebContents;
 
 class DevToolsView : public views::View,
                      public TabContentsDelegate {
  public:
-  explicit DevToolsView(DevToolsInstanceDescriptor* descriptor);
+  explicit DevToolsView();
   virtual ~DevToolsView();
 
   // Destroy content views when the window is closing.
   void OnWindowClosing();
+  void SendMessageToClient(const IPC::Message& message);
+  bool HasRenderViewHost(const RenderViewHost& rvh) const;
 
  private:
   // Overridden from TabContentsDelegate:
@@ -63,7 +69,6 @@ class DevToolsView : public views::View,
 
   void Init();
 
-  DevToolsInstanceDescriptor* descriptor_;
   WebContents* web_contents_;
   TabContentsContainerView* web_container_;
 
