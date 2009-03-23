@@ -801,5 +801,6 @@ void ResourceMessageFilter::OnOpenChannelToExtension(
 
 void ResourceMessageFilter::OnExtensionPostMessage(
     int channel_id, const std::string& message) {
-  ExtensionMessageService::GetInstance()->PostMessage(channel_id, message);
+  ExtensionMessageService::GetInstance()->PostMessageToExtension(
+      channel_id, message);
 }

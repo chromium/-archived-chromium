@@ -38,7 +38,7 @@ class ExtensionMessageService {
                              ResourceMessageFilter* renderer_port);
 
   // Sends a message to the extension via the given channel.
-  void PostMessage(int channel_id, const std::string& message);
+  void PostMessageToExtension(int channel_id, const std::string& message);
 
   // Called to let us know that a renderer is going away.
   void RendererShutdown(ResourceMessageFilter* renderer_port);

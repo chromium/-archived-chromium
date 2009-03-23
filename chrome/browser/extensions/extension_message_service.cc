@@ -103,7 +103,7 @@ int ExtensionMessageService::OpenChannelToExtension(
   return channel_id;
 }
 
-void ExtensionMessageService::PostMessage(
+void ExtensionMessageService::PostMessageToExtension(
     int channel_id, const std::string& message) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
