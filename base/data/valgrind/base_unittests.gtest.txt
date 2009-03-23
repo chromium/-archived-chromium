@@ -1,0 +1,2 @@
+# This test currently times out in valgrind, see http://crbug.com/9194
+WatchdogTest.AlarmTest
