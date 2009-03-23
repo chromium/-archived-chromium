@@ -65,11 +65,16 @@ String v8StringToWebCoreString(v8::Handle<v8::String> v8_str) {
     result = String::adopt(buf);
   }
 
-  WebCoreStringResource* resource = new WebCoreStringResource(result);
-  if (!v8_str->MakeExternal(resource)) {
-    // In case of a failure delete the external resource as it was not used.
-    delete resource;
-  }
+//
+//  TODO(mbelshe): Disable string morphing because it causes mystery
+//     perf regressions on intl1 and intl2 page cyclers.  It works fine
+//     on machines other than the buildbots.
+//
+//  WebCoreStringResource* resource = new WebCoreStringResource(result);
+//  if (!v8_str->MakeExternal(resource)) {
+//    // In case of a failure delete the external resource as it was not used.
+//    delete resource;
+//  }
   return result;
 }
 
