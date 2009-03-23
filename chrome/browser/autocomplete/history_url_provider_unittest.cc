@@ -325,7 +325,6 @@ TEST_F(HistoryURLProviderTest, Fixup) {
   const std::string crash_1[] = {"http://%20/"};
   RunTest(L"%20", std::wstring(), false, crash_1, arraysize(crash_1));
 
-#if defined(OS_WIN)
   // Fixing up "file:" should result in an inline autocomplete offset of just
   // after "file:", not just after "file://".
   const std::wstring input_1(L"file:");
@@ -348,9 +347,4 @@ TEST_F(HistoryURLProviderTest, Fixup) {
   // rather than "0.0.0.56.com".
   std::string fixup_3[] = {"http://www.56.com/"};
   RunTest(L"56", L"com", true, fixup_3, arraysize(fixup_3));
-#elif defined(OS_POSIX)
-  // TODO(port): Fix this up once the dependencies have their UI bits
-  // extracted away.
-  NOTIMPLEMENTED();
-#endif
 }

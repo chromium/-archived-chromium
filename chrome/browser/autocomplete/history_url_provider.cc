@@ -805,14 +805,9 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
       CalculateRelevance(params->input.type(), match_type, match_number),
       !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
   match.destination_url = info.url();
-#if !defined(OS_MACOSX)
   match.fill_into_edit = gfx::GetCleanStringFromUrl(info.url(),
       match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages,
       NULL, NULL);
-#else
-  // TODO(port): GetCleanStringFromUrl() not implemented on mac.
-  NOTIMPLEMENTED();
-#endif
   if (!params->input.prevent_inline_autocomplete()) {
     match.inline_autocomplete_offset =
         history_match.input_location + params->input.text().length();
