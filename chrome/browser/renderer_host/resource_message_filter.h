@@ -209,6 +209,10 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                            TransportDIB::Handle* result);
   void OnFreeTransportDIB(TransportDIB::Id dib_id);
 
+  void OnOpenChannelToExtension(const std::string& extension_id,
+                                int* channel_id);
+  void OnExtensionPostMessage(int channel_id, const std::string& message);
+
   // We have our own clipboard service because we want to access the clipboard
   // on the IO thread instead of forwarding (possibly synchronous) messages to
   // the UI thread.

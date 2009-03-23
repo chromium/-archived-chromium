@@ -510,6 +510,8 @@ input_files = ChromeFileList([
     'extensions/extension_view.h',
     'extensions/extension_error_reporter.cc',
     'extensions/extension_error_reporter.h',
+    'extensions/extension_message_service.cc',
+    'extensions/extension_message_service.h',
     'extensions/extension_protocols.h',
     'extensions/extensions_service.cc',
     'extensions/extensions_service.h',

@@ -22,7 +22,6 @@
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/external_host_bindings.h"
-#include "chrome/renderer/extensions/extension_bindings.h"
 #include "chrome/renderer/external_js_object.h"
 #include "chrome/renderer/render_widget.h"
 #include "media/audio/audio_output.h"
@@ -577,6 +576,8 @@ class RenderView : public RenderWidget,
   // Notification of volume property of an audio output stream.
   void OnAudioStreamVolume(int stream_id, double left, double right);
 
+  void OnHandleExtensionMessage(const std::string& message, int channel_id);
+
   // Prints the page listed in |params|.
   void PrintPage(const ViewMsg_PrintPage_Params& params,
                  const gfx::Size& canvas_size,
@@ -640,9 +641,6 @@ class RenderView : public RenderWidget,
 
   // External host exposed through automation controller.
   ExternalHostBindings external_host_bindings_;
-
-  // Extension bindings exposed for script running in the extension process.
-  ExtensionBindings extension_bindings_;
 
   // The last gotten main frame's encoding.
   std::wstring last_encoding_name_;

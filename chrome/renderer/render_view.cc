@@ -29,6 +29,7 @@
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
+#include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/render_process.h"
@@ -425,6 +426,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
                         OnAudioStreamStateChanged)
     IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamVolume, OnAudioStreamVolume)
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
+    IPC_MESSAGE_HANDLER(ViewMsg_HandleExtensionMessage,
+                        OnHandleExtensionMessage)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -1481,11 +1484,6 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
     external_host_bindings_.set_message_sender(this);
     external_host_bindings_.set_routing_id(routing_id_);
     external_host_bindings_.BindToJavascript(webframe, L"externalHost");
-  }
-  if (BindingsPolicy::is_extension_enabled(enabled_bindings_)) {
-    extension_bindings_.set_message_sender(this);
-    extension_bindings_.set_routing_id(routing_id_);
-    extension_bindings_.BindToJavascript(webframe, L"extension");
   }
 
 #ifdef CHROME_PERSONALIZATION
@@ -2938,4 +2936,11 @@ void RenderView::OnResize(const gfx::Size& new_size,
   if (webview())
     webview()->HideAutofillPopup();
   RenderWidget::OnResize(new_size, resizer_rect);
+}
+
+void RenderView::OnHandleExtensionMessage(const std::string& message,
+                                          int channel_id) {
+  if (webview() && webview()->GetMainFrame())
+    extensions_v8::RendererExtensionBindings::HandleExtensionMessage(
+        webview()->GetMainFrame(), message, channel_id);
 }

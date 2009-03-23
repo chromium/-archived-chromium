@@ -11,6 +11,7 @@
 #include "base/thread.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
@@ -126,6 +127,7 @@ ResourceMessageFilter::ResourceMessageFilter(
 
 ResourceMessageFilter::~ResourceMessageFilter() {
   WorkerService::GetInstance()->RendererShutdown(this);
+  ExtensionMessageService::GetInstance()->RendererShutdown(this);
 
   if (handle())
     base::CloseProcessHandle(handle());
@@ -256,6 +258,10 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
       IPC_MESSAGE_HANDLER(ViewHostMsg_FreeTransportDIB,
                           OnFreeTransportDIB)
 #endif
+      IPC_MESSAGE_HANDLER(ViewHostMsg_OpenChannelToExtension,
+                          OnOpenChannelToExtension)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionPostMessage,
+                          OnExtensionPostMessage)
       IPC_MESSAGE_UNHANDLED(
           handled = false)
     IPC_END_MESSAGE_MAP_EX()
@@ -786,3 +792,14 @@ void ResourceMessageFilter::OnFreeTransportDIB(
   render_widget_helper_->FreeTransportDIB(dib_id);
 }
 #endif
+
+void ResourceMessageFilter::OnOpenChannelToExtension(
+    const std::string& extension_id, int* channel_id) {
+  *channel_id = ExtensionMessageService::GetInstance()->
+      OpenChannelToExtension(extension_id, this);
+}
+
+void ResourceMessageFilter::OnExtensionPostMessage(
+    int channel_id, const std::string& message) {
+  ExtensionMessageService::GetInstance()->PostMessage(channel_id, message);
+}

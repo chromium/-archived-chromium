@@ -14,7 +14,10 @@ body {
 <body>
 <div class="content">
 <script>
-  alert(window.extension.getTestString());
+  alert('Sir, I exist');
+  chromium.Extension.onMessage = function(msg) {
+    alert('Incoming: ' + msg);
+  }
 </script>
 <button onclick="alert('clicked')">HTML button</button>
 </div>

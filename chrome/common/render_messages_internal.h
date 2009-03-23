@@ -511,6 +511,12 @@ IPC_BEGIN_MESSAGES(View)
   // Notification that a move or resize renderer's containing window has
   // started.
   IPC_MESSAGE_ROUTED0(ViewMsg_MoveOrResizeStarted)
+
+  // Send a message to an extension process.  channel_id is a handle that can
+  // be used for sending a response.
+  IPC_MESSAGE_ROUTED2(ViewMsg_HandleExtensionMessage,
+                      std::string /* message */,
+                      int /* channel_id */)
 IPC_END_MESSAGES(View)
 
 
@@ -1231,4 +1237,17 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // Notification when new feeds have been discovered on the page.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UpdateFeedList,
                       ViewHostMsg_UpdateFeedList_Params)
+
+  // Get a handle to a currently-running extension process for the extension
+  // with the given ID.  If no such extension is found, -1 is returned.  The
+  // handle can be used for sending messages to the extension.
+  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_OpenChannelToExtension,
+                              std::string /* extension_id */,
+                              int /* channel_id */)
+
+  // Send a message to an extension process.  The handle is the value returned
+  // by ViewHostMsg_OpenChannelToExtension.
+  IPC_MESSAGE_CONTROL2(ViewHostMsg_ExtensionPostMessage,
+                       int /* channel_id */,
+                       std::string /* message */)
 IPC_END_MESSAGES(ViewHost)

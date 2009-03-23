@@ -1914,6 +1914,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_message_service.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_message_service.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_protocols.cc"
 				>
 			</File>

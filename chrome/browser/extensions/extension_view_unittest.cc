@@ -30,8 +30,8 @@ const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
 // up a javascript alert.
 class MockExtensionView : public ExtensionView {
  public:
-  MockExtensionView(const GURL& url, Profile* profile)
-      : ExtensionView(url, profile), got_message_(false) {
+  MockExtensionView(Extension* extension, const GURL& url, Profile* profile)
+      : ExtensionView(extension, url, profile), got_message_(false) {
     InitHidden();
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         new MessageLoop::QuitTask, kAlertTimeoutMs);
@@ -136,6 +136,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
   GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
 
   // Start the extension process and wait for it to show a javascript alert.
-  MockExtensionView view(url, profile);
+  MockExtensionView view(extension, url, profile);
   EXPECT_TRUE(view.got_message());
 }

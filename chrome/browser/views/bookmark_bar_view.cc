@@ -299,8 +299,8 @@ class ExtensionToolstrip : public views::View {
  public:
   static const int kPadding = 2;
 
-  ExtensionToolstrip(const GURL& url, Profile* profile)
-      : view_(new ExtensionView(url, profile)) {
+  ExtensionToolstrip(Extension* extension, const GURL& url, Profile* profile)
+      : view_(new ExtensionView(extension, url, profile)) {
     AddChildView(view_);
     set_border(views::Border::CreateEmptyBorder(
         kPadding, kPadding, kPadding, kPadding));
@@ -1372,8 +1372,9 @@ bool BookmarkBarView::AddExtensionToolstrips(const ExtensionList* extensions) {
     for (std::vector<std::string>::const_iterator toolstrip =
          (*extension)->toolstrips().begin();
          toolstrip != (*extension)->toolstrips().end(); ++toolstrip) {
-      ExtensionToolstrip* view = 
-          new ExtensionToolstrip((*extension)->GetResourceURL(*toolstrip),
+      ExtensionToolstrip* view =
+          new ExtensionToolstrip(*extension,
+                                 (*extension)->GetResourceURL(*toolstrip),
                                  profile_);
       int index = GetBookmarkButtonCount() + num_extension_toolstrips_;
       AddChildView(index, view);

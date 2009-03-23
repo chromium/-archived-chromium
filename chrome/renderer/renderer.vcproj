@@ -185,11 +185,11 @@
 			Name="extensions"
 			>
 			<File
-				RelativePath=".\extensions\extension_bindings.cc"
+				RelativePath=".\extensions\renderer_extension_bindings.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\extensions\extension_bindings.h"
+				RelativePath=".\extensions\renderer_extension_bindings.h"
 				>
 			</File>
 		</Filter>
