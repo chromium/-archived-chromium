@@ -85,6 +85,9 @@ void NativeButton::ButtonPressed() {
 // NativeButton, View overrides:
 
 gfx::Size NativeButton::GetPreferredSize() {
+  if (!native_wrapper_)
+    return gfx::Size();
+
   gfx::Size sz = native_wrapper_->GetView()->GetPreferredSize();
 
   // Add in the border size. (Do this before clamping the minimum size in case
