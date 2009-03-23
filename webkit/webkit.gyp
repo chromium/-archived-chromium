@@ -1082,6 +1082,7 @@
         'port/bindings/v8/npruntime_internal.h',
         'port/bindings/v8/npruntime_priv.h',
         'port/bindings/v8/v8_binding.h',
+        'port/bindings/v8/v8_binding.cpp',
         'port/bindings/v8/v8_custom.cpp',
         'port/bindings/v8/v8_custom.h',
         'port/bindings/v8/v8_helpers.cpp',
