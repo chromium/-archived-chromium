@@ -55,12 +55,6 @@ void ProcessSingleton::Create() {
   // http://code.google.com/p/chromium/issues/detail?id=8073
 }
 
-void ProcessSingleton::HuntForZombieChromeProcesses() {
-  // On Windows, this examines all the chrome.exe processes to see if one
-  // is hung.  TODO(port): should we do anything here?
-  // http://code.google.com/p/chromium/issues/detail?id=8073
-}
-
 void ProcessSingleton::SetupSocket(int* sock, struct sockaddr_un* addr) {
   *sock = socket(PF_UNIX, SOCK_STREAM, 0);
   if (*sock < 0)

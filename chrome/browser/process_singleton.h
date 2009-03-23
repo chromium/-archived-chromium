@@ -52,9 +52,6 @@ class ProcessSingleton {
     locked_ = false;
   }
 
-  // Looks for zombie renderer and plugin processes that could have survived.
-  void HuntForZombieChromeProcesses();
-
  private:
   bool locked_;
 
