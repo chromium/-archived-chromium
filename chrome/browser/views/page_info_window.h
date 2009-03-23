@@ -6,7 +6,7 @@
 #define CHROME_BROWSER_VIEWS_PAGE_INFO_WINDOW_H__
 
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #include "googleurl/src/gurl.h"
@@ -25,7 +25,7 @@ class Profile;
 class X509Certificate;
 
 class PageInfoWindow : public views::DialogDelegate,
-                       public views::NativeButton::Listener {
+                       public views::ButtonListener {
  public:
   enum TabID {
     GENERAL = 0,
@@ -62,8 +62,8 @@ class PageInfoWindow : public views::DialogDelegate,
   // views::Window overridden method.
   void Show();
 
-  // views::NativeButton::Listener method.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // views::ButtonListener method.
+  virtual void ButtonPressed(views::Button* sender);
 
   // views::DialogDelegate methods:
   virtual int GetDialogButtons() const;

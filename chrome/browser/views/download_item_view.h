@@ -21,22 +21,24 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/slide_animation.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/icon_manager.h"
 #include "chrome/views/event.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/view.h"
 
 namespace views {
 class Label;
+class NativeButton;
 }
 class BaseDownloadItemModel;
 class DownloadShelfView;
 class SkBitmap;
 
-class DownloadItemView : public views::NativeButton::Listener,
+class DownloadItemView : public views::ButtonListener,
                          public views::View,
                          public DownloadItem::Observer,
                          public AnimationDelegate {
@@ -59,8 +61,8 @@ class DownloadItemView : public views::NativeButton::Listener,
   virtual void OnMouseReleased(const views::MouseEvent& event, bool canceled);
   virtual bool OnMouseDragged(const views::MouseEvent& event);
 
-  // NativeButton::Listener implementation.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // ButtonListener implementation.
+  virtual void ButtonPressed(views::Button* sender);
 
   // AnimationDelegate implementation.
   virtual void AnimationProgressed(const Animation* animation);

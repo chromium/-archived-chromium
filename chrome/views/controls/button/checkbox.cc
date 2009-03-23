@@ -1,181 +1,164 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved. Use of this
+// source code is governed by a BSD-style license that can be found in the
+// LICENSE file.
 
 #include "chrome/views/controls/button/checkbox.h"
 
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/hwnd_view.h"
 #include "chrome/views/controls/label.h"
-
-// FIXME(ACW) there got be a better way to find out the check box sizes
-static int kCheckBoxWidth = 13;
-static int kCheckBoxHeight = 13;
-static int kCheckBoxToLabel = 4;
 
 namespace views {
 
-// Horizontal focus padding.
-const int CheckBox::kFocusPaddingHorizontal = 2;
-const int CheckBox::kFocusPaddingVertical = 1;
+// static
+const char Checkbox::kViewClassName[] = "chrome/views/Checkbox";
 
-const char CheckBox::kViewClassName[] = "chrome/views/CheckBox";
+static const int kCheckboxLabelSpacing = 4;
+static const int kLabelFocusPaddingHorizontal = 2;
+static const int kLabelFocusPaddingVertical = 1;
 
-CheckBox::CheckBox(const std::wstring& label)
-    : NativeButton(label),
-      is_selected_(false) {
-  // Note: we paint the label as a floating view
-  SetMinSizeFromDLUs(gfx::Size(0, 0));
-  label_ = new Label(label);
-  label_->SetHorizontalAlignment(Label::ALIGN_LEFT);
+////////////////////////////////////////////////////////////////////////////////
+// Checkbox, public:
+
+Checkbox::Checkbox() : NativeButton(NULL), checked_(false) {
+  Init(std::wstring());
 }
 
-CheckBox::~CheckBox() {
-  delete label_;
+Checkbox::Checkbox(const std::wstring& label)
+    : NativeButton(NULL, label),
+      checked_(false) {
+  Init(label);
 }
 
-void CheckBox::SetMultiLine(bool multi_line) {
-  label_->SetMultiLine(multi_line);
+Checkbox::~Checkbox() {
+}
+
+void Checkbox::SetMultiLine(bool multiline) {
+  label_->SetMultiLine(multiline);
+}
+
+void Checkbox::SetChecked(bool checked) {
+  if (checked_ == checked)
+    return;
+  checked_ = checked;
+  native_wrapper_->UpdateChecked();
 }
 
 // static
-int CheckBox::GetTextIndent() {
-  return kCheckBoxWidth + kCheckBoxToLabel + kFocusPaddingHorizontal;
+int Checkbox::GetTextIndent() {
+  return NativeButtonWrapper::GetFixedWidth() + kCheckboxLabelSpacing;
 }
 
-void CheckBox::SetIsSelected(bool f) {
-  if (f != is_selected_) {
-    is_selected_ = f;
-    UpdateNativeButton();
-  }
-}
+////////////////////////////////////////////////////////////////////////////////
+// Checkbox, View overrides:
 
-bool CheckBox::IsSelected() const {
-  return is_selected_;
-}
-
-std::string CheckBox::GetClassName() const {
-  return kViewClassName;
-}
-
-void CheckBox::Layout() {
-  int label_x = GetTextIndent();
-  label_->SetBounds(label_x, 0, std::max(0, width() - label_x), height());
-  if (hwnd_view_) {
-    int first_line_height = label_->GetFont().height();
-    hwnd_view_->SetBounds(0, ((first_line_height - kCheckBoxHeight) / 2) + 1,
-                          kCheckBoxWidth, kCheckBoxHeight);
-    hwnd_view_->Layout();
-  }
-}
-
-void CheckBox::ComputeTextRect(gfx::Rect* out) {
-  gfx::Size s = label_->GetPreferredSize();
-  out->set_x(GetTextIndent());
-  out->set_y(kFocusPaddingVertical);
-  int new_width = std::min(width() - (kCheckBoxWidth + kCheckBoxToLabel),
-                           s.width());
-  out->set_width(std::max(0, new_width));
-  out->set_height(s.height());
-}
-
-void CheckBox::Paint(ChromeCanvas* canvas) {
-  gfx::Rect r;
-  ComputeTextRect(&r);
-  // Paint the focus border if any.
-  if (HasFocus()) {
-    // Mirror left point for rectangle to draw focus for RTL text.
-    canvas->DrawFocusRect(MirroredLeftPointForRect(r) - kFocusPaddingHorizontal,
-                          r.y() - kFocusPaddingVertical,
-                          r.width() + kFocusPaddingHorizontal * 2,
-                          r.height() + kFocusPaddingVertical * 2);
-  }
-  PaintFloatingView(canvas, label_, r.x(), r.y(), r.width(), r.height());
-}
-
-void CheckBox::SetEnabled(bool enabled) {
-  if (enabled_ == enabled)
-    return;
-  NativeButton::SetEnabled(enabled);
-  label_->SetEnabled(enabled);
-}
-
-HWND CheckBox::CreateNativeControl(HWND parent_container) {
-  HWND r = ::CreateWindowEx(WS_EX_TRANSPARENT | GetAdditionalExStyle(),
-                            L"BUTTON",
-                            L"",
-                            WS_CHILD | BS_CHECKBOX | WS_VISIBLE,
-                            0, 0, width(), height(),
-                            parent_container, NULL, NULL, NULL);
-  ConfigureNativeButton(r);
-  return r;
-}
-
-void CheckBox::ConfigureNativeButton(HWND hwnd) {
-  ::SendMessage(hwnd,
-                static_cast<UINT>(BM_SETCHECK),
-                static_cast<WPARAM>(is_selected_ ? BST_CHECKED : BST_UNCHECKED),
-                0);
-  label_->SetText(GetLabel());
-}
-
-gfx::Size CheckBox::GetPreferredSize() {
-  gfx::Size prefsize = label_->GetPreferredSize();
-  prefsize.set_height(std::max(prefsize.height() + kFocusPaddingVertical * 2,
-                               kCheckBoxHeight));
-  prefsize.Enlarge(GetTextIndent() * 2, 0);
+gfx::Size Checkbox::GetPreferredSize() {
+  gfx::Size prefsize = native_wrapper_->GetView()->GetPreferredSize();
+  prefsize.set_width(
+      prefsize.width() + kCheckboxLabelSpacing +
+          kLabelFocusPaddingHorizontal * 2);
+  gfx::Size label_prefsize = label_->GetPreferredSize();
+  prefsize.set_width(prefsize.width() + label_prefsize.width());
+  prefsize.set_height(
+      std::max(prefsize.height(),
+               label_prefsize.height() + kLabelFocusPaddingVertical * 2));
   return prefsize;
 }
 
-LRESULT CheckBox::OnCommand(UINT code, int id, HWND source) {
-  if (code == BN_CLICKED)
-    SetIsSelected(!is_selected_);
+void Checkbox::Layout() {
+  if (!native_wrapper_)
+    return;
 
-  return NativeButton::OnCommand(code, id, source);
+  gfx::Size checkmark_prefsize = native_wrapper_->GetView()->GetPreferredSize();
+  int label_x = checkmark_prefsize.width() + kCheckboxLabelSpacing +
+      kLabelFocusPaddingHorizontal;
+  label_->SetBounds(
+      label_x, 0, std::max(0, width() - label_x - kLabelFocusPaddingHorizontal),
+      height());
+  int first_line_height = label_->GetFont().height();
+  native_wrapper_->GetView()->SetBounds(
+      0, ((first_line_height - checkmark_prefsize.height()) / 2),
+      checkmark_prefsize.width(), checkmark_prefsize.height());
+  native_wrapper_->GetView()->Layout();
 }
 
-void CheckBox::HighlightButton(bool f) {
-  ::SendMessage(GetNativeControlHWND(),
-                static_cast<UINT>(BM_SETSTATE),
-                static_cast<WPARAM>(f),
-                0);
+void Checkbox::Paint(ChromeCanvas* canvas) {
+  // Paint the focus border manually since we don't want to send actual focus
+  // in to the inner view.
+  if (HasFocus()) {
+    gfx::Rect label_bounds = label_->bounds();
+    canvas->DrawFocusRect(
+        MirroredLeftPointForRect(label_bounds) - kLabelFocusPaddingHorizontal,
+        0,
+        label_bounds.width() + kLabelFocusPaddingHorizontal * 2,
+        label_bounds.height() - kLabelFocusPaddingVertical * 2);
+  }
 }
 
-bool CheckBox::LabelHitTest(const MouseEvent& event) {
-  CPoint p(event.x(), event.y());
-  gfx::Rect r;
-  ComputeTextRect(&r);
-  return r.Contains(event.x(), event.y());
+View* Checkbox::GetViewForPoint(const gfx::Point& point) {
+  return GetViewForPoint(point, false);
 }
 
-void CheckBox::OnMouseEntered(const MouseEvent& event) {
-  HighlightButton(LabelHitTest(event));
+View* Checkbox::GetViewForPoint(const gfx::Point& point,
+                                bool can_create_floating) {
+  return GetLocalBounds(true).Contains(point) ? this : NULL;
 }
 
-void CheckBox::OnMouseMoved(const MouseEvent& event) {
-  HighlightButton(LabelHitTest(event));
+void Checkbox::OnMouseEntered(const MouseEvent& e) {
+  native_wrapper_->SetPushed(HitTestLabel(e));
 }
 
-void CheckBox::OnMouseExited(const MouseEvent& event) {
-  HighlightButton(false);
+void Checkbox::OnMouseMoved(const MouseEvent& e) {
+  native_wrapper_->SetPushed(HitTestLabel(e));
 }
 
-bool CheckBox::OnMousePressed(const MouseEvent& event) {
-  HighlightButton(LabelHitTest(event));
+void Checkbox::OnMouseExited(const MouseEvent& e) {
+  native_wrapper_->SetPushed(false);
+}
+
+bool Checkbox::OnMousePressed(const MouseEvent& e) {
+  native_wrapper_->SetPushed(HitTestLabel(e));
   return true;
 }
 
-bool CheckBox::OnMouseDragged(const MouseEvent& event) {
-  HighlightButton(LabelHitTest(event));
-  return true;
+void Checkbox::OnMouseReleased(const MouseEvent& e, bool canceled) {
+  native_wrapper_->SetPushed(false);
+  if (!canceled & HitTestLabel(e)) {
+    SetChecked(!checked());
+    ButtonPressed();
+  }
 }
 
-void CheckBox::OnMouseReleased(const MouseEvent& event,
-                               bool canceled) {
-  HighlightButton(false);
-  if (!canceled && LabelHitTest(event))
-    OnCommand(BN_CLICKED, 0, GetNativeControlHWND());
+std::string Checkbox::GetClassName() const {
+  return kViewClassName;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Checkbox, NativeButton overrides:
+
+void Checkbox::CreateWrapper() {
+  native_wrapper_ = NativeButtonWrapper::CreateCheckboxWrapper(this);
+  native_wrapper_->UpdateLabel();
+  native_wrapper_->UpdateChecked();
+}
+
+void Checkbox::InitBorder() {
+  // No border, so we do nothing.
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Checkbox, private:
+
+void Checkbox::Init(const std::wstring& label_text) {
+  set_minimum_size(gfx::Size(0, 0));
+  label_ = new Label(label_text);
+  label_->SetHorizontalAlignment(Label::ALIGN_LEFT);
+  AddChildView(label_);
+}
+
+bool Checkbox::HitTestLabel(const MouseEvent& e) {
+  gfx::Point tmp(e.location());
+  ConvertPointToView(this, label_, &tmp);
+  return label_->HitTest(tmp);
 }
 
 }  // namespace views

@@ -23,8 +23,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/grid_layout.h"
@@ -207,9 +205,9 @@ void ContentPageView::FileSelected(const std::wstring& path, void* params) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ContentPageView, views::NativeButton::Listener implementation:
+// ContentPageView, views::ButtonListener implementation:
 
-void ContentPageView::ButtonPressed(views::NativeButton* sender) {
+void ContentPageView::ButtonPressed(views::Button* sender) {
   if (sender == download_browse_button_) {
     const std::wstring dialog_title =
        l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_TITLE);
@@ -221,7 +219,7 @@ void ContentPageView::ButtonPressed(views::NativeButton* sender) {
                                     GetRootWindow(),
                                     NULL);
   } else if (sender == download_ask_for_save_location_checkbox_) {
-    bool enabled = download_ask_for_save_location_checkbox_->IsSelected();
+    bool enabled = download_ask_for_save_location_checkbox_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_AskForSaveLocation_Enable",
                               profile()->GetPrefs());
@@ -232,7 +230,7 @@ void ContentPageView::ButtonPressed(views::NativeButton* sender) {
     ask_for_save_location_.SetValue(enabled);
   } else if (sender == passwords_asktosave_radio_ ||
              sender == passwords_neversave_radio_) {
-    bool enabled = passwords_asktosave_radio_->IsSelected();
+    bool enabled = passwords_asktosave_radio_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_PasswordManager_Enable",
                               profile()->GetPrefs());
@@ -248,7 +246,7 @@ void ContentPageView::ButtonPressed(views::NativeButton* sender) {
     UserMetricsRecordAction(L"Options_ShowPasswordManager", NULL);
     PasswordManagerView::Show(profile());
   } else if (sender == form_autofill_checkbox_) {
-    bool enabled = form_autofill_checkbox_->IsSelected();
+    bool enabled = form_autofill_checkbox_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_FormAutofill_Enable",
                               profile()->GetPrefs());
@@ -319,18 +317,18 @@ void ContentPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     UpdateDownloadDirectoryDisplay();
 
   if (!pref_name || *pref_name == prefs::kPromptForDownload) {
-    download_ask_for_save_location_checkbox_->SetIsSelected(
+    download_ask_for_save_location_checkbox_->SetChecked(
         ask_for_save_location_.GetValue());
   }
   if (!pref_name || *pref_name == prefs::kPasswordManagerEnabled) {
     if (ask_to_save_passwords_.GetValue()) {
-      passwords_asktosave_radio_->SetIsSelected(true);
+      passwords_asktosave_radio_->SetChecked(true);
     } else {
-      passwords_neversave_radio_->SetIsSelected(true);
+      passwords_neversave_radio_->SetChecked(true);
     }
   }
   if (!pref_name || *pref_name == prefs::kFormAutofillEnabled) {
-    form_autofill_checkbox_->SetIsSelected(form_autofill_.GetValue());
+    form_autofill_checkbox_->SetChecked(form_autofill_.GetValue());
   }
 }
 
@@ -358,12 +356,11 @@ void ContentPageView::Layout() {
 void ContentPageView::InitDownloadLocation() {
   download_default_download_location_display_ = new FileDisplayArea;
   download_browse_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_BUTTON));
-  download_browse_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_BUTTON));
 
-  download_ask_for_save_location_checkbox_ = new views::CheckBox(
+  download_ask_for_save_location_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_ASKFORSAVELOCATION));
-  download_ask_for_save_location_checkbox_->SetListener(this);
+  download_ask_for_save_location_checkbox_->set_listener(this);
   download_ask_for_save_location_checkbox_->SetMultiLine(true);
 
   using views::GridLayout;
@@ -407,19 +404,17 @@ void ContentPageView::InitPasswordSavingGroup() {
   passwords_asktosave_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_PASSWORDS_ASKTOSAVE),
       kPasswordSavingRadioGroup);
-  passwords_asktosave_radio_->SetListener(this);
+  passwords_asktosave_radio_->set_listener(this);
   passwords_asktosave_radio_->SetMultiLine(true);
   passwords_neversave_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_PASSWORDS_NEVERSAVE),
       kPasswordSavingRadioGroup);
-  passwords_neversave_radio_->SetListener(this);
+  passwords_neversave_radio_->set_listener(this);
   passwords_neversave_radio_->SetMultiLine(true);
   passwords_show_passwords_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS));
-  passwords_show_passwords_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS));
   passwords_exceptions_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_PASSWORDS_EXCEPTIONS));
-  passwords_exceptions_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_PASSWORDS_EXCEPTIONS));
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -457,9 +452,9 @@ void ContentPageView::InitPasswordSavingGroup() {
 }
 
 void ContentPageView::InitFormAutofillGroup() {
-  form_autofill_checkbox_ = new views::CheckBox(
+  form_autofill_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_AUTOFILL_SAVEFORMS));
-  form_autofill_checkbox_->SetListener(this);
+  form_autofill_checkbox_->set_listener(this);
   form_autofill_checkbox_->SetMultiLine(true);
 
   using views::GridLayout;
@@ -488,8 +483,8 @@ void ContentPageView::InitFontsLangGroup() {
   fonts_and_languages_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   fonts_and_languages_label_->SetMultiLine(true);
   change_content_fonts_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(IDS_OPTIONS_FONTSETTINGS_CONFIGUREFONTS_BUTTON));
-  change_content_fonts_button_->SetListener(this);
 
   using views::GridLayout;
   using views::ColumnSet;

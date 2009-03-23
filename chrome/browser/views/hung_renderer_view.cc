@@ -113,7 +113,7 @@ void HungPagesTableModel::GetGroupRangeForItem(int item,
 
 class HungRendererWarningView : public views::View,
                                 public views::DialogDelegate,
-                                public views::NativeButton::Listener {
+                                public views::ButtonListener {
  public:
   HungRendererWarningView();
   ~HungRendererWarningView();
@@ -131,8 +131,8 @@ class HungRendererWarningView : public views::View,
   virtual bool Accept(bool window_closing);
   virtual views::View* GetContentsView();
 
-  // views::NativeButton::Listener overrides:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // views::ButtonListener overrides:
+  virtual void ButtonPressed(views::Button* sender);
 
  protected:
   // views::View overrides:
@@ -303,9 +303,9 @@ views::View* HungRendererWarningView::GetContentsView() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HungRendererWarningView, views::NativeButton::Listener implementation:
+// HungRendererWarningView, views::ButtonListener implementation:
 
-void HungRendererWarningView::ButtonPressed(views::NativeButton* sender) {
+void HungRendererWarningView::ButtonPressed(views::Button* sender) {
   if (sender == kill_button_) {
     // Kill the process.
     HANDLE process = contents_->process()->process().handle();
@@ -375,8 +375,7 @@ void HungRendererWarningView::Init() {
 
 void HungRendererWarningView::CreateKillButtonView() {
   kill_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_END));
-  kill_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_END));
 
   kill_button_container_ = new ButtonContainer;
 

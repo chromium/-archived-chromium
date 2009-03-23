@@ -85,7 +85,7 @@ void FirstRunViewBase::SetupControls() {
   AddChildView(separator_1_);
 
   // The "make us default browser" check box.
-  default_browser_ = new views::CheckBox(
+  default_browser_ = new views::Checkbox(
       l10n_util::GetString(IDS_FR_CUSTOMIZE_DEFAULT_BROWSER));
   default_browser_->SetMultiLine(true);
   AddChildView(default_browser_);

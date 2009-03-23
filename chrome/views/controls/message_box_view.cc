@@ -24,7 +24,7 @@ MessageBoxView::MessageBoxView(int dialog_flags,
     : message_label_(new views::Label(message)),
       prompt_field_(NULL),
       icon_(NULL),
-      check_box_(NULL),
+      checkbox_(NULL),
       message_width_(message_width),
       focus_grabber_factory_(this) {
   Init(dialog_flags, default_prompt);
@@ -36,7 +36,7 @@ MessageBoxView::MessageBoxView(int dialog_flags,
     : message_label_(new views::Label(message)),
       prompt_field_(NULL),
       icon_(NULL),
-      check_box_(NULL),
+      checkbox_(NULL),
       message_width_(kDefaultMessageWidth),
       focus_grabber_factory_(this) {
   Init(dialog_flags, default_prompt);
@@ -49,9 +49,7 @@ std::wstring MessageBoxView::GetInputText() {
 }
 
 bool MessageBoxView::IsCheckBoxSelected() {
-  if (check_box_ == NULL)
-    return false;
-  return check_box_->IsSelected();
+  return checkbox_ ? checkbox_->checked() : false;
 }
 
 void MessageBoxView::SetIcon(const SkBitmap& icon) {
@@ -63,17 +61,17 @@ void MessageBoxView::SetIcon(const SkBitmap& icon) {
 }
 
 void MessageBoxView::SetCheckBoxLabel(const std::wstring& label) {
-  if (!check_box_)
-    check_box_ = new views::CheckBox(label);
+  if (!checkbox_)
+    checkbox_ = new views::Checkbox(label);
   else
-    check_box_->SetLabel(label);
+    checkbox_->SetLabel(label);
   ResetLayoutManager();
 }
 
 void MessageBoxView::SetCheckBoxSelected(bool selected) {
-  if (!check_box_)
+  if (!checkbox_)
     return;
-  check_box_->SetIsSelected(selected);
+  checkbox_->SetChecked(selected);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,7 +158,7 @@ void MessageBoxView::ResetLayoutManager() {
 
   // Column set for checkbox, if one has been set.
   const int checkbox_column_view_set_id = 2;
-  if (check_box_) {
+  if (checkbox_) {
     column_set = layout->AddColumnSet(checkbox_column_view_set_id);
     if (icon_) {
       column_set->AddPaddingColumn(0,
@@ -182,10 +180,10 @@ void MessageBoxView::ResetLayoutManager() {
     layout->AddView(prompt_field_);
   }
 
-  if (check_box_) {
+  if (checkbox_) {
     layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);
     layout->StartRow(0, checkbox_column_view_set_id);
-    layout->AddView(check_box_);
+    layout->AddView(checkbox_);
   }
 
   layout->AddPaddingRow(0, kRelatedControlVerticalSpacing);

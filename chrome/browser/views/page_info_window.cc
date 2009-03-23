@@ -516,8 +516,7 @@ void PageInfoWindow::Init(Profile* profile,
   cert_id_ = ssl.cert_id();
 
   cert_info_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_PAGEINFO_CERT_INFO_BUTTON));
-  cert_info_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_PAGEINFO_CERT_INFO_BUTTON));
 
   contents_ = new PageInfoContentView();
   DWORD sys_color = ::GetSysColor(COLOR_3DFACE);
@@ -613,7 +612,7 @@ views::View* PageInfoWindow::GetContentsView() {
   return contents_;
 }
 
-void PageInfoWindow::ButtonPressed(views::NativeButton* sender) {
+void PageInfoWindow::ButtonPressed(views::Button* sender) {
   if (sender == cert_info_button_) {
     DCHECK(cert_id_ != 0);
     ShowCertDialog(cert_id_);

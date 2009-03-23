@@ -7,12 +7,13 @@
 
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/focus/focus_manager.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/window/client_view.h"
 
 namespace views {
 
 class DialogDelegate;
+class NativeButton;
 class Window;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +26,7 @@ class Window;
 //  buttons.
 //
 class DialogClientView : public ClientView,
-                         public NativeButton::Listener,
+                         public ButtonListener,
                          public FocusChangeListener {
  public:
   DialogClientView(Window* window, View* contents_view);
@@ -67,8 +68,8 @@ class DialogClientView : public ClientView,
   virtual gfx::Size GetPreferredSize();
   virtual bool AcceleratorPressed(const Accelerator& accelerator);
 
-  // NativeButton::Listener implementation:
-  virtual void ButtonPressed(NativeButton* sender);
+  // ButtonListener implementation:
+  virtual void ButtonPressed(Button* sender);
 
  private:
   // Paint the size box in the bottom right corner of the window if it is
@@ -114,7 +115,7 @@ class DialogClientView : public ClientView,
   static void InitClass();
   static ChromeFont dialog_button_font_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(DialogClientView);
+  DISALLOW_COPY_AND_ASSIGN(DialogClientView);
 };
 
 }  // namespace views

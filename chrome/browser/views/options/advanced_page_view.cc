@@ -152,9 +152,9 @@ void AdvancedPageView::ResetToDefaults() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// AdvancedPageView, views::NativeButton::Listener implementation:
+// AdvancedPageView, views::ButtonListener implementation:
 
-void AdvancedPageView::ButtonPressed(views::NativeButton* sender) {
+void AdvancedPageView::ButtonPressed(views::Button* sender) {
   if (sender == reset_to_default_button_) {
     UserMetricsRecordAction(L"Options_ResetToDefaults", NULL);
     ResetDefaultsConfirmBox::ShowConfirmBox(GetRootWindow(), this);
@@ -166,8 +166,7 @@ void AdvancedPageView::ButtonPressed(views::NativeButton* sender) {
 
 void AdvancedPageView::InitControlLayout() {
   reset_to_default_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_RESET));
-  reset_to_default_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_RESET));
   advanced_scroll_view_ = new AdvancedScrollViewContainer(profile());
 
   using views::GridLayout;

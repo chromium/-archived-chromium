@@ -13,6 +13,7 @@
 #include "chrome/common/slide_animation.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/image_button.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/image_view.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/focus/external_focus_tracker.h"
@@ -372,11 +373,9 @@ ConfirmInfoBar::ConfirmInfoBar(ConfirmInfoBarDelegate* delegate)
       initialized_(false),
       AlertInfoBar(delegate) {
   ok_button_ = new views::NativeButton(
-      delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_OK));
-  ok_button_->SetListener(this);
+      this, delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_OK));
   cancel_button_ = new views::NativeButton(
-      delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_CANCEL));
-  cancel_button_->SetListener(this);
+      this, delegate->GetButtonLabel(ConfirmInfoBarDelegate::BUTTON_CANCEL));
 }
 
 ConfirmInfoBar::~ConfirmInfoBar() {
@@ -422,9 +421,10 @@ void ConfirmInfoBar::ViewHierarchyChanged(bool is_add,
   }
 }
 
-// ConfirmInfoBar, views::NativeButton::Listener implementation: ---------------
+// ConfirmInfoBar, views::ButtonListener implementation: ---------------
 
-void ConfirmInfoBar::ButtonPressed(views::NativeButton* sender) {
+void ConfirmInfoBar::ButtonPressed(views::Button* sender) {
+  InfoBar::ButtonPressed(sender);
   if (sender == ok_button_) {
     if (GetDelegate()->Accept())
       RemoveInfoBar();

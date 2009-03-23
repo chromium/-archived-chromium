@@ -15,6 +15,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #include "grit/generated_resources.h"
@@ -47,11 +48,15 @@ void FillViewWithSysColor(ChromeCanvas* canvas, View* view, COLORREF color) {
 
 class DialogButton : public NativeButton {
  public:
-  DialogButton(Window* owner,
+  DialogButton(ButtonListener* listener,
+               Window* owner,
                DialogDelegate::DialogButton type,
                const std::wstring& title,
                bool is_default)
-      : NativeButton(title, is_default), owner_(owner), type_(type) {
+      : NativeButton(listener, title),
+        owner_(owner),
+        type_(type) {
+    SetIsDefault(is_default);
   }
 
   // Overridden to forward to the delegate.
@@ -108,9 +113,9 @@ void DialogClientView::ShowDialogButtons() {
       label = l10n_util::GetString(IDS_OK);
     bool is_default_button =
         (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_OK) != 0;
-    ok_button_ = new DialogButton(window(), DialogDelegate::DIALOGBUTTON_OK,
-                                  label, is_default_button);
-    ok_button_->SetListener(this);
+    ok_button_ = new DialogButton(this, window(),
+                                  DialogDelegate::DIALOGBUTTON_OK, label,
+                                  is_default_button);
     ok_button_->SetGroup(kButtonGroup);
     if (is_default_button)
       default_button_ = ok_button_;
@@ -131,10 +136,9 @@ void DialogClientView::ShowDialogButtons() {
     bool is_default_button =
         (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_CANCEL)
         != 0;
-    cancel_button_ = new DialogButton(window(),
+    cancel_button_ = new DialogButton(this, window(),
                                       DialogDelegate::DIALOGBUTTON_CANCEL,
                                       label, is_default_button);
-    cancel_button_->SetListener(this);
     cancel_button_->SetGroup(kButtonGroup);
     cancel_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
     if (is_default_button)
@@ -150,13 +154,13 @@ void DialogClientView::ShowDialogButtons() {
 
 void DialogClientView::SetDefaultButton(NativeButton* new_default_button) {
   if (default_button_ && default_button_ != new_default_button) {
-    default_button_->SetDefaultButton(false);
+    default_button_->SetIsDefault(false);
     default_button_ = NULL;
   }
 
   if (new_default_button) {
     default_button_ = new_default_button;
-    default_button_->SetDefaultButton(true);
+    default_button_->SetIsDefault(true);
   }
 }
 
@@ -306,9 +310,9 @@ bool DialogClientView::AcceleratorPressed(const Accelerator& accelerator) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DialogClientView, NativeButton::Listener implementation:
+// DialogClientView, ButtonListener implementation:
 
-void DialogClientView::ButtonPressed(NativeButton* sender) {
+void DialogClientView::ButtonPressed(Button* sender) {
   if (sender == ok_button_) {
     AcceptWindow();
   } else if (sender == cancel_button_) {

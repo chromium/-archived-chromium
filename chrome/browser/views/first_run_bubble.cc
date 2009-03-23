@@ -50,7 +50,7 @@ std::wstring GetDefaultSearchEngineName(Profile* profile) {
 // Implements the client view inside the first run bubble. It is kind of a
 // dialog-ish view, but is not a true dialog.
 class FirstRunBubbleView : public views::View,
-                           public views::NativeButton::Listener,
+                           public views::ButtonListener,
                            public views::FocusChangeListener {
  public:
   FirstRunBubbleView(FirstRunBubble* bubble_window, Profile* profile)
@@ -90,18 +90,17 @@ class FirstRunBubbleView : public views::View,
     std::wstring keep_str =
         l10n_util::GetStringF(IDS_FR_BUBBLE_OK,
                               GetDefaultSearchEngineName(profile));
-    keep_button_ = new views::NativeButton(keep_str, true);
-    keep_button_->SetListener(this);
+    keep_button_ = new views::NativeButton(this, keep_str);
+    keep_button_->SetIsDefault(true);
     AddChildView(keep_button_);
 
     std::wstring change_str = l10n_util::GetString(IDS_FR_BUBBLE_CHANGE);
-    change_button_ = new views::NativeButton(change_str);
-    change_button_->SetListener(this);
+    change_button_ = new views::NativeButton(this, change_str);
     AddChildView(change_button_);
   }
 
-  // Overridden from NativeButton::Listener.
-  virtual void ButtonPressed(views::NativeButton* sender) {
+  // Overridden from ButtonListener.
+  virtual void ButtonPressed(views::Button* sender) {
     bubble_window_->Close();
     if (change_button_ == sender) {
       Browser* browser = BrowserList::GetLastActive();
@@ -171,13 +170,13 @@ class FirstRunBubbleView : public views::View,
                           views::NativeButton::kViewClassName) {
       views::NativeButton* before =
           static_cast<views::NativeButton*>(focused_before);
-      before->SetDefaultButton(false);
+      before->SetIsDefault(false);
     }
     if (focused_now && focused_now->GetClassName() ==
                        views::NativeButton::kViewClassName) {
       views::NativeButton* after =
           static_cast<views::NativeButton*>(focused_now);
-      after->SetDefaultButton(true);
+      after->SetIsDefault(true);
     }
   }
 

@@ -11,7 +11,6 @@
 #include "chrome/browser/webdata/web_data_service.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/table/table_view.h"
 #include "chrome/views/window/dialog_delegate.h"
@@ -37,7 +36,7 @@ class PasswordManagerExceptionsTableModel : public PasswordManagerTableModel {
 class PasswordManagerExceptionsView : public views::View,
                                       public views::DialogDelegate,
                                       public views::TableViewObserver,
-                                      public views::NativeButton::Listener,
+                                      public views::ButtonListener,
                                       public PasswordManagerTableModelObserver {
  public:
   explicit PasswordManagerExceptionsView(Profile* profile);
@@ -55,8 +54,8 @@ class PasswordManagerExceptionsView : public views::View,
   // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
 
-  // NativeButton::Listener implementation.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // ButtonListener implementation.
+  virtual void ButtonPressed(views::Button* sender);
 
   // views::DialogDelegate methods:
   virtual int GetDialogButtons() const;

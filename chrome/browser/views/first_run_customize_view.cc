@@ -41,22 +41,22 @@ FirstRunCustomizeView::FirstRunCustomizeView(Profile* profile,
   // the customize view, so that the user selection isn't lost when you uncheck
   // and then open the Customize dialog. Therefore, we propagate the selection
   // status of the default browser here.
-  default_browser_->SetIsSelected(default_browser_checked);
+  default_browser_->SetChecked(default_browser_checked);
 }
 
 FirstRunCustomizeView::~FirstRunCustomizeView() {
 }
 
-views::CheckBox* FirstRunCustomizeView::MakeCheckBox(int label_id) {
-  views::CheckBox* cbox = new views::CheckBox(l10n_util::GetString(label_id));
-  cbox->SetListener(this);
+views::Checkbox* FirstRunCustomizeView::MakeCheckBox(int label_id) {
+  views::Checkbox* cbox = new views::Checkbox(l10n_util::GetString(label_id));
+  cbox->set_listener(this);
   AddChildView(cbox);
   return cbox;
 }
 
 void FirstRunCustomizeView::SetupControls() {
   using views::Label;
-  using views::CheckBox;
+  using views::Checkbox;
 
   main_label_ = new Label(l10n_util::GetString(IDS_FR_CUSTOMIZE_DLG_TEXT));
   main_label_->SetMultiLine(true);
@@ -75,10 +75,10 @@ void FirstRunCustomizeView::SetupControls() {
 
   // The two check boxes for the different shortcut creation.
   desktop_shortcut_cbox_ = MakeCheckBox(IDS_FR_CUSTOM_SHORTCUT_DESKTOP);
-  desktop_shortcut_cbox_->SetIsSelected(true);
+  desktop_shortcut_cbox_->SetChecked(true);
 
   quick_shortcut_cbox_ = MakeCheckBox(IDS_FR_CUSTOM_SHORTCUT_QUICKL);
-  quick_shortcut_cbox_->SetIsSelected(true);
+  quick_shortcut_cbox_->SetChecked(true);
 }
 
 gfx::Size FirstRunCustomizeView::GetPreferredSize() {
@@ -110,7 +110,7 @@ void FirstRunCustomizeView::Layout() {
   import_cbox_->SetBounds(kPanelHorizMargin, next_v_space,
                                pref_size.width(), pref_size.height());
 
-  import_cbox_->SetIsSelected(true);
+  import_cbox_->SetChecked(true);
 
   int x_offset = import_cbox_->x() +
                  import_cbox_->width();
@@ -153,10 +153,10 @@ void FirstRunCustomizeView::Layout() {
   AdjustDialogWidth(quick_shortcut_cbox_);
 }
 
-void FirstRunCustomizeView::ButtonPressed(views::NativeButton* sender) {
+void FirstRunCustomizeView::ButtonPressed(views::Button* sender) {
   if (import_cbox_ == sender) {
     // Disable the import combobox if the user unchecks the checkbox.
-    import_from_combo_->SetEnabled(import_cbox_->IsSelected());
+    import_from_combo_->SetEnabled(import_cbox_->checked());
   }
 }
 
@@ -187,15 +187,15 @@ bool FirstRunCustomizeView::Accept() {
   desktop_shortcut_cbox_->SetEnabled(false);
   quick_shortcut_cbox_->SetEnabled(false);
 
-  if (desktop_shortcut_cbox_->IsSelected()) {
+  if (desktop_shortcut_cbox_->checked()) {
     UserMetrics::RecordAction(L"FirstRunCustom_Do_DesktopShortcut", profile_);
     CreateDesktopShortcut();
   }
-  if (quick_shortcut_cbox_->IsSelected()) {
+  if (quick_shortcut_cbox_->checked()) {
     UserMetrics::RecordAction(L"FirstRunCustom_Do_QuickLShortcut", profile_);
     CreateQuickLaunchShortcut();
   }
-  if (!import_cbox_->IsSelected()) {
+  if (!import_cbox_->checked()) {
     UserMetrics::RecordAction(L"FirstRunCustom_No_Import", profile_);
   } else {
     int browser_selected = import_from_combo_->GetSelectedItem();
@@ -203,7 +203,7 @@ bool FirstRunCustomizeView::Accept() {
                              GetDefaultImportItems(),
                              window()->GetNativeWindow());
   }
-  if (default_browser_->IsSelected())
+  if (default_browser_->checked())
     SetDefaultBrowser();
 
   if (customize_observer_)

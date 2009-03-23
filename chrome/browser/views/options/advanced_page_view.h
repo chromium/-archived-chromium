@@ -6,17 +6,20 @@
 #define CHROME_BROWSER_VIEWS_OPTIONS_ADVANCED_PAGE_VIEW_H_
 
 #include "chrome/browser/views/options/options_page_view.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 
 class AdvancedOptionsListModel;
 class AdvancedScrollViewContainer;
 class PrefService;
+namespace views {
+class NativeButton;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // AdvancedPageView
 
 class AdvancedPageView : public OptionsPageView,
-                         public views::NativeButton::Listener {
+                         public views::ButtonListener {
  public:
   explicit AdvancedPageView(Profile* profile);
   virtual ~AdvancedPageView();
@@ -24,8 +27,8 @@ class AdvancedPageView : public OptionsPageView,
   // Resets all prefs to their default values.
   void ResetToDefaults();
 
-  // views::NativeButton::Listener implementation:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // views::ButtonListener implementation:
+  virtual void ButtonPressed(views::Button* sender);
 
  protected:
   // OptionsPageView implementation:

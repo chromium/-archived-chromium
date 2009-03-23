@@ -8,16 +8,16 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/common/animation.h"
 #include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/link.h"
 
 class InfoBarContainer;
 class SlideAnimation;
 namespace views {
-class ImageButton;
 class ExternalFocusTracker;
+class ImageButton;
 class ImageView;
 class Label;
+class NativeButton;
 }
 
 // This file contains implementations for some general purpose InfoBars. See
@@ -70,10 +70,10 @@ class InfoBar : public views::View,
   // (Will lead to this InfoBar being closed).
   void RemoveInfoBar() const;
 
- private:
   // Overridden from views::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
 
+ private:
   // Overridden from AnimationDelegate:
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);
@@ -158,8 +158,7 @@ class LinkInfoBar : public InfoBar,
   DISALLOW_COPY_AND_ASSIGN(LinkInfoBar);
 };
 
-class ConfirmInfoBar : public AlertInfoBar,
-                       public views::NativeButton::Listener {
+class ConfirmInfoBar : public AlertInfoBar {
  public:
   explicit ConfirmInfoBar(ConfirmInfoBarDelegate* delegate);
   virtual ~ConfirmInfoBar();
@@ -173,8 +172,8 @@ class ConfirmInfoBar : public AlertInfoBar,
                                     views::View* parent,
                                     views::View* child);
 
-  // Overridden from views::NativeButton::Listener:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from InfoBar:
   virtual int GetAvailableWidth() const;

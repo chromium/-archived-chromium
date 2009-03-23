@@ -12,7 +12,7 @@
 #include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
-class CheckBox;
+class Checkbox;
 class Label;
 class Window;
 }
@@ -61,7 +61,7 @@ class ImporterView : public views::View,
   void SetupControl();
 
   // Creates and initializes a new check-box.
-  views::CheckBox* InitCheckbox(const std::wstring& text, bool checked);
+  views::Checkbox* InitCheckbox(const std::wstring& text, bool checked);
 
   // Create a bitmap from the checkboxes of the view.
   uint16 GetCheckedItems();
@@ -75,10 +75,10 @@ class ImporterView : public views::View,
   views::Label* import_from_label_;
   views::ComboBox* profile_combobox_;
   views::Label* import_items_label_;
-  views::CheckBox* history_checkbox_;
-  views::CheckBox* favorites_checkbox_;
-  views::CheckBox* passwords_checkbox_;
-  views::CheckBox* search_engines_checkbox_;
+  views::Checkbox* history_checkbox_;
+  views::Checkbox* favorites_checkbox_;
+  views::Checkbox* passwords_checkbox_;
+  views::Checkbox* search_engines_checkbox_;
 
   scoped_refptr<ImporterHost> importer_host_;
 

@@ -60,6 +60,9 @@ void NativeControlWin::ViewHierarchyChanged(bool is_add, View* parent,
   // parent HWND to function properly.
   if (is_add && GetWidget() && !GetHWND())
     CreateNativeControl();
+
+  // Call the base class to hide the view if we're being removed.
+  HWNDView::ViewHierarchyChanged(is_add, parent, child);
 }
 
 void NativeControlWin::VisibilityChanged(View* starting_from, bool is_visible) {

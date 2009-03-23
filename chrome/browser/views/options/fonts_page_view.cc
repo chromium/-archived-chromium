@@ -24,9 +24,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/button/native_button.h"
-#include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/widget/widget.h"
@@ -244,7 +242,7 @@ FontsPageView::FontsPageView(Profile* profile)
 FontsPageView::~FontsPageView() {
 }
 
-void FontsPageView::ButtonPressed(views::NativeButton* sender) {
+void FontsPageView::ButtonPressed(views::Button* sender) {
   HWND owning_hwnd = GetAncestor(GetWidget()->GetNativeView(), GA_ROOT);
   std::wstring font_name;
   int font_size = 0;
@@ -375,9 +373,9 @@ void FontsPageView::InitFontLayout() {
   // Fixed width.
   fixed_width_font_display_view_ = new FontDisplayView;
   fixed_width_font_change_page_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_BUTTON_LABEL));
-  fixed_width_font_change_page_button_->SetListener(this);
 
   fixed_width_font_label_ = new views::Label(
       l10n_util::GetString(
@@ -388,9 +386,9 @@ void FontsPageView::InitFontLayout() {
   // Serif font.
   serif_font_display_view_ = new FontDisplayView;
   serif_font_change_page_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_BUTTON_LABEL));
-  serif_font_change_page_button_->SetListener(this);
 
   serif_font_label_ = new views::Label(
       l10n_util::GetString(
@@ -401,10 +399,10 @@ void FontsPageView::InitFontLayout() {
   // Sans Serif font.
   sans_serif_font_display_view_ = new FontDisplayView;
   sans_serif_font_change_page_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_BUTTON_LABEL));
-  sans_serif_font_change_page_button_->SetListener(this);
-
+  
   sans_serif_font_label_ = new views::Label(
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_SANS_SERIF_LABEL));

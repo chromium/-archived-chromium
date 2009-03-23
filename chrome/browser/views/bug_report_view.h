@@ -6,7 +6,6 @@
 #define CHROME_BROWSER_VIEWS_BUGREPORT_VIEW_H_
 
 #include "chrome/browser/net/url_fetcher.h"
-#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/view.h"
@@ -14,7 +13,7 @@
 #include "googleurl/src/gurl.h"
 
 namespace views {
-class CheckBox;
+class Checkbox;
 class Label;
 class Throbber;
 class Window;
@@ -99,8 +98,8 @@ class BugReportView : public views::View,
   views::TextField* page_url_text_;
   views::Label* description_label_;
   views::TextField* description_text_;
-  views::CheckBox* include_page_source_checkbox_;
-  views::CheckBox* include_page_image_checkbox_;
+  views::Checkbox* include_page_source_checkbox_;
+  views::Checkbox* include_page_image_checkbox_;
 
   scoped_ptr<BugReportComboBoxModel> bug_type_model_;
 

@@ -118,7 +118,9 @@ class PasswordManagerTableModel : public views::TableModel,
 // preferred size is the size of the widest string.
 class MultiLabelButtons : public views::NativeButton {
  public:
-  MultiLabelButtons(const std::wstring& label, const std::wstring& alt_label);
+  MultiLabelButtons(views::ButtonListener* listener,
+                    const std::wstring& label,
+                    const std::wstring& alt_label);
 
   virtual gfx::Size GetPreferredSize();
 
@@ -133,7 +135,7 @@ class MultiLabelButtons : public views::NativeButton {
 class PasswordManagerView : public views::View,
                             public views::DialogDelegate,
                             public views::TableViewObserver,
-                            public views::NativeButton::Listener,
+                            public views::ButtonListener,
                             public PasswordManagerTableModelObserver {
  public:
   explicit PasswordManagerView(Profile* profile);
@@ -150,8 +152,8 @@ class PasswordManagerView : public views::View,
   // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
 
-  // NativeButton::Listener implementation.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // ButtonListener implementation.
+  virtual void ButtonPressed(views::Button* sender);
 
   // views::DialogDelegate methods:
   virtual int GetDialogButtons() const;

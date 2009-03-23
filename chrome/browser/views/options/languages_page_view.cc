@@ -25,8 +25,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/tabbed_pane.h"
@@ -495,7 +493,7 @@ LanguagesPageView::~LanguagesPageView() {
     language_order_table_->SetModel(NULL);
 }
 
-void LanguagesPageView::ButtonPressed(views::NativeButton* sender) {
+void LanguagesPageView::ButtonPressed(views::Button* sender) {
   if (sender == move_up_button_) {
     OnMoveUpLanguage();
     language_table_edited_ = true;
@@ -512,7 +510,7 @@ void LanguagesPageView::ButtonPressed(views::NativeButton* sender) {
         new AddLanguageWindowView(this, profile()))->Show();
     language_table_edited_ = true;
   } else if (sender == enable_spellchecking_checkbox_) {
-    if (enable_spellchecking_checkbox_->IsSelected())
+    if (enable_spellchecking_checkbox_->checked())
       enable_spellcheck_.SetValue(true);
     else
       enable_spellcheck_.SetValue(false);
@@ -527,21 +525,17 @@ void LanguagesPageView::OnAddLanguage(const std::wstring& new_language) {
 
 void LanguagesPageView::InitControlLayout() {
   // Define the buttons.
-  add_button_ = new views::NativeButton(l10n_util::GetString(
+  add_button_ = new views::NativeButton(this, l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_ADD_BUTTON_LABEL));
-  add_button_->SetListener(this);
-  remove_button_ = new views::NativeButton(l10n_util::GetString(
+  remove_button_ = new views::NativeButton(this, l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_REMOVE_BUTTON_LABEL));
   remove_button_->SetEnabled(false);
-  remove_button_->SetListener(this);
-  move_up_button_ = new views::NativeButton(l10n_util::GetString(
+  move_up_button_ = new views::NativeButton(this, l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_MOVEUP_BUTTON_LABEL));
   move_up_button_->SetEnabled(false);
-  move_up_button_->SetListener(this);
-  move_down_button_ = new views::NativeButton(l10n_util::GetString(
+  move_down_button_ = new views::NativeButton(this, l10n_util::GetString(
       IDS_FONT_LANGUAGE_SETTING_LANGUAGES_SELECTOR_MOVEDOWN_BUTTON_LABEL));
   move_down_button_->SetEnabled(false);
-  move_down_button_->SetListener(this);
 
   languages_contents_ = new views::View;
   using views::GridLayout;
@@ -630,9 +624,9 @@ void LanguagesPageView::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_CHROME_DICTIONARY_LANGUAGE));
   dictionary_language_label_->SetHorizontalAlignment(
       views::Label::ALIGN_LEFT);
-  enable_spellchecking_checkbox_ = new views::CheckBox(
+  enable_spellchecking_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_ENABLE_SPELLCHECK));
-  enable_spellchecking_checkbox_->SetListener(this);
+  enable_spellchecking_checkbox_->set_listener(this);
   enable_spellchecking_checkbox_->SetMultiLine(true);
 
   // Determine Locale Codes.
@@ -731,7 +725,7 @@ void LanguagesPageView::NotifyPrefChanged(const std::wstring* pref_name) {
     spellcheck_language_index_selected_ = -1;
   }
   if (!pref_name || *pref_name == prefs::kEnableSpellCheck) {
-    enable_spellchecking_checkbox_->SetIsSelected(
+    enable_spellchecking_checkbox_->SetChecked(
         enable_spellcheck_.GetValue());
   }
 }

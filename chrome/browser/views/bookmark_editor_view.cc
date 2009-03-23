@@ -15,6 +15,7 @@
 #include "chrome/views/background.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/grid_layout.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/widget/widget.h"
 #include "chrome/views/window/window.h"
@@ -24,6 +25,7 @@
 #include "grit/locale_settings.h"
 
 using base::Time;
+using views::Button;
 using views::ColumnSet;
 using views::GridLayout;
 using views::Label;
@@ -168,7 +170,7 @@ void BookmarkEditorView::ContentsChanged(TextField* sender,
   UserInputChanged();
 }
 
-void BookmarkEditorView::ButtonPressed(NativeButton* sender) {
+void BookmarkEditorView::ButtonPressed(Button* sender) {
   DCHECK(sender);
   switch (sender->GetID()) {
     case kNewGroupButtonID:
@@ -248,13 +250,12 @@ void BookmarkEditorView::Init() {
   if (show_tree_) {
     tree_view_ = new views::TreeView();
     new_group_button_.reset(new views::NativeButton(
-        l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_BUTTON)));
+        this, l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_BUTTON)));
     new_group_button_->SetParentOwned(false);
     tree_view_->SetContextMenuController(this);
 
     tree_view_->SetRootShown(false);
     new_group_button_->SetEnabled(false);
-    new_group_button_->SetListener(this);
     new_group_button_->SetID(kNewGroupButtonID);
   }
 

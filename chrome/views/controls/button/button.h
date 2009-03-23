@@ -39,14 +39,16 @@ class Button : public View {
   virtual void SetAccessibleName(const std::wstring& name);
 
  protected:
-  // Construct the Button with a Listener. The listener can be NULL, as long as
-  // the specific button implementation makes sure to not call NotifyClick. This
-  // can be true of buttons that don't have a listener - e.g. menubuttons where
-  // there's no default action.
+  // Construct the Button with a Listener. The listener can be NULL. This can be
+  // true of buttons that don't have a listener - e.g. menubuttons where there's
+  // no default action and checkboxes.
   explicit Button(ButtonListener* listener);
 
   // Cause the button to notify the listener that a click occurred.
   virtual void NotifyClick(int mouse_event_flags);
+
+  // The button's listener. Notified when clicked.
+  ButtonListener* listener_;
 
  private:
   // The text shown in a tooltip.
@@ -55,9 +57,6 @@ class Button : public View {
   // Accessibility data.
   std::wstring accessible_shortcut_;
   std::wstring accessible_name_;
-
-  // The button's listener. Notified when clicked.
-  ButtonListener* listener_;
 
   // The id tag associated with this button. Used to disambiguate buttons in
   // the ButtonListener implementation.

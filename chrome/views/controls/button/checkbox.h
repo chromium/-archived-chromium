@@ -1,85 +1,81 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved. Use of this
+// source code is governed by a BSD-style license that can be found in the
+// LICENSE file.
 
 #ifndef CHROME_VIEWS_CONTROLS_BUTTON_CHECKBOX_H_
 #define CHROME_VIEWS_CONTROLS_BUTTON_CHECKBOX_H_
 
-#include "base/gfx/rect.h"
 #include "chrome/views/controls/button/native_button.h"
 
 namespace views {
 
 class Label;
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// CheckBox implements a check box button. It uses the standard windows control
-// for the check item but not for the label. We have to do this because windows
-// always wants to draw a background under the label. I tried to intercept
-// WM_CTLCOLORSTATIC and return a NULL_BRUSH and setting the BkMode to
-// transparent as well as other things. The background was always drawn as solid
-// black.
-//
-// The label is implemented with a views::Label
-//
-////////////////////////////////////////////////////////////////////////////////
-class CheckBox : public NativeButton {
+// A NativeButton subclass representing a checkbox.
+class Checkbox : public NativeButton {
  public:
+  // The button's class name.
   static const char kViewClassName[];
-  static const int kFocusPaddingHorizontal;
-  static const int kFocusPaddingVertical;
 
-  explicit CheckBox(const std::wstring& label);
-  virtual ~CheckBox();
+  Checkbox();
+  Checkbox(const std::wstring& label);
+  virtual ~Checkbox();
 
-  // Allows the label to wrap across multiple lines if |multi_line| is true.
-  // If false, the text is cropped.
-  void SetMultiLine(bool multi_line);
+  // Sets a listener for this checkbox. Checkboxes aren't required to have them
+  // since their state can be read independently of them being toggled.
+  void set_listener(ButtonListener* listener) { listener_ = listener; }
 
-  // Returns the x position of the text. This can also be used to indent
-  // subsequent dependent controls.
+  // Sets whether or not the checkbox label should wrap multiple lines of text.
+  // If true, long lines are wrapped, and this is reflected in the preferred
+  // size returned by GetPreferredSize. If false, text that will not fit within
+  // the available bounds for the label will be cropped.
+  void SetMultiLine(bool multiline);
+
+  // Sets/Gets whether or not the checkbox is checked.
+  virtual void SetChecked(bool checked);
+  bool checked() const { return checked_; }
+
+  // Returns the indentation of the text from the left edge of the view.
   static int GetTextIndent();
 
-  virtual void SetIsSelected(bool f);
-  bool IsSelected() const;
-
-  virtual std::string GetClassName() const;
-
+  // Overridden from View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-
-  virtual bool OnMousePressed(const MouseEvent& event);
-  virtual bool OnMouseDragged(const MouseEvent& event);
-  virtual void OnMouseReleased(const MouseEvent& event, bool canceled);
-  virtual void OnMouseEntered(const MouseEvent& event);
-  virtual void OnMouseMoved(const MouseEvent& event);
-  virtual void OnMouseExited(const MouseEvent& event);
-
   virtual void Paint(ChromeCanvas* canvas);
-
-  // Overriden to forward to the label too.
-  virtual void SetEnabled(bool enabled);
+  virtual View* GetViewForPoint(const gfx::Point& point);
+  virtual View* GetViewForPoint(const gfx::Point& point,
+                                bool can_create_floating);
+  virtual void OnMouseEntered(const MouseEvent& e);
+  virtual void OnMouseMoved(const MouseEvent& e);
+  virtual void OnMouseExited(const MouseEvent& e);
+  virtual bool OnMousePressed(const MouseEvent& e);
+  virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
 
  protected:
+  virtual std::string GetClassName() const;
 
-  virtual HWND CreateNativeControl(HWND parent_container);
-  virtual void ConfigureNativeButton(HWND hwnd);
-  virtual LRESULT OnCommand(UINT code, int id, HWND source);
+  // Overridden from NativeButton2:
+  virtual void CreateWrapper();
+  virtual void InitBorder();
 
-  Label* label_;
  private:
+  // Called from the constructor to create and configure the checkbox label.
+  void Init(const std::wstring& label_text);
 
-  void HighlightButton(bool f);
-  bool LabelHitTest(const MouseEvent& event);
-  void ComputeTextRect(gfx::Rect* out);
+  // Returns true if the event (in Checkbox coordinates) is within the bounds of
+  // the label.
+  bool HitTestLabel(const MouseEvent& e);
 
-  bool is_selected_;
+  // The checkbox's label. We don't use the OS version because of transparency
+  // and sizing issues.
+  Label* label_;
 
+  // True if the checkbox is checked. 
+  bool checked_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CheckBox);
+  DISALLOW_COPY_AND_ASSIGN(Checkbox);
 };
 
 }  // namespace views
 
-#endif  // CHROME_VIEWS_CONTROLS_BUTTON_CHECKBOX_H_
+#endif  // #ifndef CHROME_VIEWS_CONTROLS_BUTTON_CHECKBOX_H_

@@ -9,13 +9,14 @@
 #include "chrome/browser/views/shelf_item_dialog.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/views/controls/combo_box.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/view.h"
 
 namespace views {
-class CheckBox;
+class Checkbox;
 class GroupboxView;
 class Label;
+class NativeButton;
 class RadioButton;
 class TableModel;
 class TableView;
@@ -30,7 +31,7 @@ class SearchEngineListModel;
 
 class GeneralPageView : public OptionsPageView,
                         public views::ComboBox::Listener,
-                        public views::NativeButton::Listener,
+                        public views::ButtonListener,
                         public views::TextField::Controller,
                         public ShelfItemDialogDelegate,
                         public views::TableViewObserver {
@@ -39,8 +40,8 @@ class GeneralPageView : public OptionsPageView,
   virtual ~GeneralPageView();
 
  protected:
-  // views::NativeButton::Listener implementation:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // views::ButtonListener implementation:
+  virtual void ButtonPressed(views::Button* sender);
 
   // views::ComboBox::Listener implementation:
   virtual void ItemChanged(views::ComboBox* combo_box,
@@ -133,7 +134,7 @@ class GeneralPageView : public OptionsPageView,
   views::RadioButton* homepage_use_newtab_radio_;
   views::RadioButton* homepage_use_url_radio_;
   views::TextField* homepage_use_url_textfield_;
-  views::CheckBox* homepage_show_home_button_checkbox_;
+  views::Checkbox* homepage_show_home_button_checkbox_;
   BooleanPrefMember new_tab_page_is_home_page_;
   StringPrefMember homepage_;
   BooleanPrefMember show_home_button_;

@@ -5,6 +5,7 @@
 #include "chrome/views/window/dialog_delegate.h"
 
 #include "base/logging.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/window/window.h"
 
 namespace views {

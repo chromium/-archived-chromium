@@ -6,17 +6,18 @@
 #define CHROME_BROWSER_VIEWS_FIRST_RUN_CUSTOMIZE_VIEW_H_
 
 #include "chrome/browser/views/first_run_view_base.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
-class Label;
-class Window;
-class ImageView;
-class Separator;
+class Checkbox;
 class ComboBox;
+class ImageView;
+class Label;
+class Separator;
+class Window;
 }
 
 class Profile;
@@ -24,7 +25,7 @@ class Profile;
 // FirstRunCustomizeView implements the dialog that allows the user to do
 // some simple customizations during the first run.
 class FirstRunCustomizeView : public FirstRunViewBase,
-                              public views::NativeButton::Listener,
+                              public views::ButtonListener,
                               public views::ComboBox::Model {
  public:
   class CustomizeViewObserver {
@@ -49,8 +50,8 @@ class FirstRunCustomizeView : public FirstRunViewBase,
   virtual bool Accept();
   virtual bool Cancel();
 
-  // Overridden form views::NativeButton::Listener.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden form views::ButtonListener.
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden form views::ComboBox::Model.
   virtual int GetItemCount(views::ComboBox* source);
@@ -68,14 +69,14 @@ class FirstRunCustomizeView : public FirstRunViewBase,
   // Initializes the controls on the dialog.
   void SetupControls();
 
-  views::CheckBox* MakeCheckBox(int resource_id);
+  views::Checkbox* MakeCheckBox(int resource_id);
 
   views::Label* main_label_;
-  views::CheckBox* import_cbox_;
+  views::Checkbox* import_cbox_;
   views::ComboBox* import_from_combo_;
   views::Label* shortcuts_label_;
-  views::CheckBox* desktop_shortcut_cbox_;
-  views::CheckBox* quick_shortcut_cbox_;
+  views::Checkbox* desktop_shortcut_cbox_;
+  views::Checkbox* quick_shortcut_cbox_;
 
   CustomizeViewObserver* customize_observer_;
 

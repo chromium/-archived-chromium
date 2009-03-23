@@ -55,7 +55,7 @@ void FirstRunView::SetupControls() {
   using views::Label;
   using views::Link;
 
-  default_browser_->SetIsSelected(true);
+  default_browser_->SetChecked(true);
 
   welcome_label_ = new Label(l10n_util::GetString(IDS_FIRSTRUN_DLG_TEXT));
   welcome_label_->SetMultiLine(true);
@@ -155,7 +155,7 @@ void FirstRunView::OpenCustomizeDialog() {
       new FirstRunCustomizeView(profile_,
                                 importer_host_,
                                 this,
-                                default_browser_->IsSelected()))->Show();
+                                default_browser_->checked()))->Show();
 }
 
 void FirstRunView::LinkActivated(views::Link* source, int event_flags) {
@@ -178,7 +178,7 @@ bool FirstRunView::Accept() {
   customize_link_->SetEnabled(false);
   CreateDesktopShortcut();
   CreateQuickLaunchShortcut();
-  if (default_browser_->IsSelected())
+  if (default_browser_->checked())
     SetDefaultBrowser();
   // Index 0 is the default browser.
   FirstRun::ImportSettings(profile_, 0, GetDefaultImportItems(),

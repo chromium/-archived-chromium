@@ -242,8 +242,8 @@ void TestViewWindow::Init() {
   WidgetWin::Init(NULL, bounds, true);
   SetContentsView(contents_);
 
-  views::CheckBox* cb =
-      new views::CheckBox(L"This is a checkbox");
+  views::Checkbox* cb =
+      new views::Checkbox(L"This is a checkbox");
   contents_->AddChildView(cb);
   // In this fast paced world, who really has time for non hard-coded layout?
   cb->SetBounds(10, 10, 200, 20);
@@ -317,14 +317,13 @@ void TestViewWindow::Init() {
 
   y += label_height + gap_between_labels;
 
-  views::NativeButton* button =
-      new views::NativeButton(L"Click me");
+  views::NativeButton* button = new views::NativeButton(NULL, L"Click me");
   button->SetBounds(label_x, y + 10, 50, 20);
   button->SetID(kFruitButtonID);
   left_container->AddChildView(button);
   y += 40;
 
-  cb =  new views::CheckBox(L"This is another check box");
+  cb =  new views::Checkbox(L"This is another check box");
   cb->SetBounds(label_x + label_width + 5, y, 100, 20);
   cb->SetID(kFruitCheckBoxID);
   left_container->AddChildView(cb);
@@ -409,18 +408,18 @@ void TestViewWindow::Init() {
 
   y = 250;
   int width = 50;
-  button = new views::NativeButton(L"OK");
+  button = new views::NativeButton(NULL, L"OK");
   button->SetID(kOKButtonID);
 
   contents_->AddChildView(button);
   button->SetBounds(150, y, width, 20);
 
-  button = new views::NativeButton(L"Cancel");
+  button = new views::NativeButton(NULL, L"Cancel");
   button->SetID(kCancelButtonID);
   contents_->AddChildView(button);
   button->SetBounds(250, y, width, 20);
 
-  button = new views::NativeButton(L"Help");
+  button = new views::NativeButton(NULL, L"Help");
   button->SetID(kHelpButtonID);
   contents_->AddChildView(button);
   button->SetBounds(350, y, width, 20);
@@ -431,17 +430,17 @@ void TestViewWindow::Init() {
   views::View* contents = new views::View();
   contents->set_background(
       views::Background::CreateSolidBackground(SK_ColorWHITE));
-  cb = new views::CheckBox(L"Bold");
+  cb = new views::Checkbox(L"Bold");
   contents->AddChildView(cb);
   cb->SetBounds(10, 10, 50, 20);
   cb->SetID(kBoldCheckBoxID);
 
-  cb = new views::CheckBox(L"Italic");
+  cb = new views::Checkbox(L"Italic");
   contents->AddChildView(cb);
   cb->SetBounds(70, 10, 50, 20);
   cb->SetID(kItalicCheckBoxID);
 
-  cb = new views::CheckBox(L"Underlined");
+  cb = new views::Checkbox(L"Underlined");
   contents->AddChildView(cb);
   cb->SetBounds(130, 10, 70, 20);
   cb->SetID(kUnderlinedCheckBoxID);
@@ -462,7 +461,7 @@ void TestViewWindow::Init() {
   text_field->SetBounds(10, 10, 100, 20);
   text_field->SetID(kSearchTextFieldID);
 
-  button = new views::NativeButton(L"Search");
+  button = new views::NativeButton(NULL, L"Search");
   contents->AddChildView(button);
   button->SetBounds(115, 10, 50, 20);
   button->SetID(kSearchButtonID);
@@ -486,11 +485,11 @@ void TestViewWindow::Init() {
   contents->set_background(
       views::Background::CreateSolidBackground(SK_ColorBLUE));
   contents->SetID(kThumbnailContainerID);
-  button = new views::NativeButton(L"Star");
+  button = new views::NativeButton(NULL, L"Star");
   contents->AddChildView(button);
   button->SetBounds(5, 5, 50, 20);
   button->SetID(kThumbnailStarID);
-  button = new views::NativeButton(L"SuperStar");
+  button = new views::NativeButton(NULL, L"SuperStar");
   contents->AddChildView(button);
   button->SetBounds(60, 5, 100, 20);
   button->SetID(kThumbnailSuperStarID);

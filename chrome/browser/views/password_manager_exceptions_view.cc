@@ -99,9 +99,9 @@ void PasswordManagerExceptionsView::Show(Profile* profile) {
 }
 
 PasswordManagerExceptionsView::PasswordManagerExceptionsView(Profile* profile)
-    : remove_button_(l10n_util::GetString(
+    : remove_button_(this, l10n_util::GetString(
           IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_REMOVE_BUTTON)),
-      remove_all_button_(l10n_util::GetString(
+      remove_all_button_(this, l10n_util::GetString(
           IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_REMOVE_ALL_BUTTON)),
       table_model_(profile) {
   Init();
@@ -132,11 +132,9 @@ void PasswordManagerExceptionsView::SetupButtons() {
   // Tell View not to delete class stack allocated views.
 
   remove_button_.SetParentOwned(false);
-  remove_button_.SetListener(this);
   remove_button_.SetEnabled(false);
 
   remove_all_button_.SetParentOwned(false);
-  remove_all_button_.SetListener(this);
 }
 
 void PasswordManagerExceptionsView::Init() {
@@ -212,7 +210,7 @@ std::wstring PasswordManagerExceptionsView::GetWindowTitle() const {
   return l10n_util::GetString(IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_TITLE);
 }
 
-void PasswordManagerExceptionsView::ButtonPressed(views::NativeButton* sender) {
+void PasswordManagerExceptionsView::ButtonPressed(views::Button* sender) {
   DCHECK(window());
   // Close will result in our destruction.
   if (sender == &remove_all_button_) {

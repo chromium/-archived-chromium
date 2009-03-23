@@ -18,6 +18,7 @@
 #include "chrome/views/border.h"
 #include "chrome/views/grid_layout.h"
 #include "chrome/views/controls/label.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/controls/table/table_view.h"
 #include "grit/generated_resources.h"
@@ -571,9 +572,9 @@ void CookiesView::UpdateSearchResults() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CookiesView, views::NativeButton::listener implementation:
+// CookiesView, views::Buttonlistener implementation:
 
-void CookiesView::ButtonPressed(views::NativeButton* sender) {
+void CookiesView::ButtonPressed(views::Button* sender) {
   if (sender == remove_button_) {
     cookies_table_->RemoveSelectedCookies();
   } else if (sender == remove_all_button_) {
@@ -704,8 +705,7 @@ void CookiesView::Init() {
   search_field_ = new views::TextField;
   search_field_->SetController(this);
   clear_search_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_COOKIES_CLEAR_SEARCH_LABEL));
-  clear_search_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_COOKIES_CLEAR_SEARCH_LABEL));
   description_label_ = new views::Label(
       l10n_util::GetString(IDS_COOKIES_INFO_LABEL));
   description_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
@@ -728,11 +728,9 @@ void CookiesView::Init() {
                                        true));
   cookies_table_->SetSortDescriptors(sort);
   remove_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_COOKIES_REMOVE_LABEL));
-  remove_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_COOKIES_REMOVE_LABEL));
   remove_all_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_COOKIES_REMOVE_ALL_LABEL));
-  remove_all_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_COOKIES_REMOVE_ALL_LABEL));
 
   using views::GridLayout;
   using views::ColumnSet;

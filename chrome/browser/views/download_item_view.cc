@@ -252,13 +252,11 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
 
     warning_icon_ = rb.GetBitmapNamed(IDR_WARNING);
     save_button_ = new views::NativeButton(
-        l10n_util::GetString(IDS_SAVE_DOWNLOAD));
-    save_button_->set_enforce_dlu_min_size(false);
-    save_button_->SetListener(this);
+        this, l10n_util::GetString(IDS_SAVE_DOWNLOAD));
+    save_button_->set_ignore_minimum_size(true);
     discard_button_ = new views::NativeButton(
-        l10n_util::GetString(IDS_DISCARD_DOWNLOAD));
-    discard_button_->SetListener(this);
-    discard_button_->set_enforce_dlu_min_size(false);
+        this, l10n_util::GetString(IDS_DISCARD_DOWNLOAD));
+    discard_button_->set_ignore_minimum_size(true);
     AddChildView(save_button_);
     AddChildView(discard_button_);
     std::wstring file_name = download->original_name().ToWStringHack();
@@ -387,7 +385,7 @@ void DownloadItemView::Layout() {
   }
 }
 
-void DownloadItemView::ButtonPressed(views::NativeButton* sender) {
+void DownloadItemView::ButtonPressed(views::Button* sender) {
   if (sender == discard_button_) {
     if (download_->state() == DownloadItem::IN_PROGRESS)
       download_->Cancel(true);

@@ -29,7 +29,6 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/table/table_view.h"
@@ -536,9 +535,9 @@ GeneralPageView::~GeneralPageView() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GeneralPageView, views::NativeButton::Listener implementation:
+// GeneralPageView, views::ButtonListener implementation:
 
-void GeneralPageView::ButtonPressed(views::NativeButton* sender) {
+void GeneralPageView::ButtonPressed(views::Button* sender) {
   if (sender == startup_homepage_radio_ ||
       sender == startup_last_session_radio_ ||
       sender == startup_custom_radio_) {
@@ -570,7 +569,7 @@ void GeneralPageView::ButtonPressed(views::NativeButton* sender) {
     SetHomepage(homepage_use_url_textfield_->GetText());
     EnableHomepageURLField(true);
   } else if (sender == homepage_show_home_button_checkbox_) {
-    bool show_button = homepage_show_home_button_checkbox_->IsSelected();
+    bool show_button = homepage_show_home_button_checkbox_->checked();
     if (show_button) {
       UserMetricsRecordAction(L"Options_Homepage_ShowHomeButton",
                               profile()->GetPrefs());
@@ -673,17 +672,17 @@ void GeneralPageView::NotifyPrefChanged(const std::wstring* pref_name) {
         SessionStartupPref::GetStartupPref(prefs);
     switch (startup_pref.type) {
     case SessionStartupPref::DEFAULT:
-      startup_homepage_radio_->SetIsSelected(true);
+      startup_homepage_radio_->SetChecked(true);
       EnableCustomHomepagesControls(false);
       break;
 
     case SessionStartupPref::LAST:
-      startup_last_session_radio_->SetIsSelected(true);
+      startup_last_session_radio_->SetChecked(true);
       EnableCustomHomepagesControls(false);
       break;
 
     case SessionStartupPref::URLS:
-      startup_custom_radio_->SetIsSelected(true);
+      startup_custom_radio_->SetChecked(true);
       EnableCustomHomepagesControls(true);
       break;
     }
@@ -704,10 +703,10 @@ void GeneralPageView::NotifyPrefChanged(const std::wstring* pref_name) {
 
   if (!pref_name || *pref_name == prefs::kHomePageIsNewTabPage) {
     if (new_tab_page_is_home_page_.GetValue()) {
-      homepage_use_newtab_radio_->SetIsSelected(true);
+      homepage_use_newtab_radio_->SetChecked(true);
       EnableHomepageURLField(false);
     } else {
-      homepage_use_url_radio_->SetIsSelected(true);
+      homepage_use_url_radio_->SetChecked(true);
       EnableHomepageURLField(true);
     }
   }
@@ -719,7 +718,7 @@ void GeneralPageView::NotifyPrefChanged(const std::wstring* pref_name) {
   }
 
   if (!pref_name || *pref_name == prefs::kShowHomeButton) {
-    homepage_show_home_button_checkbox_->SetIsSelected(
+    homepage_show_home_button_checkbox_->SetChecked(
         show_home_button_.GetValue());
   }
 }
@@ -772,26 +771,23 @@ void GeneralPageView::InitStartupGroup() {
   startup_homepage_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_SHOW_DEFAULT_AND_NEWTAB),
       kStartupRadioGroup);
-  startup_homepage_radio_->SetListener(this);
+  startup_homepage_radio_->set_listener(this);
   startup_last_session_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_SHOW_LAST_SESSION),
       kStartupRadioGroup);
-  startup_last_session_radio_->SetListener(this);
+  startup_last_session_radio_->set_listener(this);
   startup_last_session_radio_->SetMultiLine(true);
   startup_custom_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_STARTUP_SHOW_PAGES),
       kStartupRadioGroup);
-  startup_custom_radio_->SetListener(this);
+  startup_custom_radio_->set_listener(this);
   startup_add_custom_page_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_STARTUP_ADD_BUTTON));
-  startup_add_custom_page_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_STARTUP_ADD_BUTTON));
   startup_remove_custom_page_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_STARTUP_REMOVE_BUTTON));
+      this, l10n_util::GetString(IDS_OPTIONS_STARTUP_REMOVE_BUTTON));
   startup_remove_custom_page_button_->SetEnabled(false);
-  startup_remove_custom_page_button_->SetListener(this);
   startup_use_current_page_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_STARTUP_USE_CURRENT));
-  startup_use_current_page_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_STARTUP_USE_CURRENT));
 
   startup_custom_pages_table_model_.reset(
       new CustomHomePagesTableModel(profile()));
@@ -866,17 +862,17 @@ void GeneralPageView::InitHomepageGroup() {
   homepage_use_newtab_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_USE_NEWTAB),
       kHomePageRadioGroup);
-  homepage_use_newtab_radio_->SetListener(this);
+  homepage_use_newtab_radio_->set_listener(this);
   homepage_use_newtab_radio_->SetMultiLine(true);
   homepage_use_url_radio_ = new views::RadioButton(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_USE_URL),
       kHomePageRadioGroup);
-  homepage_use_url_radio_->SetListener(this);
+  homepage_use_url_radio_->set_listener(this);
   homepage_use_url_textfield_ = new views::TextField;
   homepage_use_url_textfield_->SetController(this);
-  homepage_show_home_button_checkbox_ = new views::CheckBox(
+  homepage_show_home_button_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_HOMEPAGE_SHOW_BUTTON));
-  homepage_show_home_button_checkbox_->SetListener(this);
+  homepage_show_home_button_checkbox_->set_listener(this);
   homepage_show_home_button_checkbox_->SetMultiLine(true);
 
   using views::GridLayout;
@@ -923,8 +919,8 @@ void GeneralPageView::InitDefaultSearchGroup() {
   default_search_engine_combobox_->SetListener(this);
 
   default_search_manage_engines_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(IDS_OPTIONS_DEFAULTSEARCH_MANAGE_ENGINES_LINK));
-  default_search_manage_engines_button_->SetListener(this);
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -956,9 +952,9 @@ void GeneralPageView::InitDefaultBrowserGroup() {
   default_browser_status_label_->SetHorizontalAlignment(
       views::Label::ALIGN_LEFT);
   default_browser_use_as_default_button_ = new views::NativeButton(
+      this,
       l10n_util::GetStringF(IDS_OPTIONS_DEFAULTBROWSER_USEASDEFAULT,
                             l10n_util::GetString(IDS_PRODUCT_NAME)));
-  default_browser_use_as_default_button_->SetListener(this);
 
   using views::GridLayout;
   using views::ColumnSet;
@@ -988,9 +984,9 @@ void GeneralPageView::InitDefaultBrowserGroup() {
 void GeneralPageView::SaveStartupPref() {
   SessionStartupPref pref;
 
-  if (startup_last_session_radio_->IsSelected()) {
+  if (startup_last_session_radio_->checked()) {
     pref.type = SessionStartupPref::LAST;
-  } else if (startup_custom_radio_->IsSelected()) {
+  } else if (startup_custom_radio_->checked()) {
     pref.type = SessionStartupPref::URLS;
   }
 

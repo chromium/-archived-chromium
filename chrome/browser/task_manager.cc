@@ -674,7 +674,7 @@ bool TaskManagerTableModel::GetProcessMetricsForRows(
 ////////////////////////////////////////////////////////////////////////////////
 
 class TaskManagerContents : public views::View,
-                            public views::NativeButton::Listener,
+                            public views::ButtonListener,
                             public views::TableViewObserver,
                             public views::LinkController,
                             public views::ContextMenuController,
@@ -692,8 +692,8 @@ class TaskManagerContents : public views::View,
   void GetSelection(std::vector<int>* selection);
   void GetFocused(std::vector<int>* focused);
 
-  // NativeButton::Listener implementation.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // ButtonListener implementation.
+  virtual void ButtonPressed(views::Button* sender);
 
   // views::TableViewObserver implementation.
   virtual void OnSelectionChanged();
@@ -778,8 +778,7 @@ void TaskManagerContents::Init(TaskManagerTableModel* table_model) {
   tab_table_->SetObserver(this);
   SetContextMenuController(this);
   kill_button_.reset(new views::NativeButton(
-      l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
-  kill_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
   about_memory_link_.reset(new views::Link(
       l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
   about_memory_link_->SetController(this);
@@ -893,9 +892,9 @@ void TaskManagerContents::GetFocused(std::vector<int>* focused) {
   }
 }
 
-// NativeButton::Listener implementation.
-void TaskManagerContents::ButtonPressed(views::NativeButton* sender) {
-  if (sender == kill_button_)
+// ButtonListener implementation.
+void TaskManagerContents::ButtonPressed(views::Button* sender) {
+  if (sender == kill_button_.get())
     task_manager_->KillSelectedProcesses();
 }
 

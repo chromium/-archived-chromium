@@ -9,9 +9,9 @@ class ChromeFont;
 
 namespace views {
 
-class Checkbox2;
-class NativeButton2;
-class RadioButton2;
+class Checkbox;
+class NativeButton;
+class RadioButton;
 
 // A specialization of NativeControlWrapper that hosts a platform-native button.
 class NativeButtonWrapper {
@@ -38,11 +38,15 @@ class NativeButtonWrapper {
   // Retrieves the views::View that hosts the native control. 
   virtual View* GetView() = 0;
 
+  // Return the width of the button. Used for fixed size buttons (checkboxes and
+  // radio buttons) only.
+  static int GetFixedWidth();
+
   // Creates an appropriate NativeButtonWrapper for the platform.
-  static NativeButtonWrapper* CreateNativeButtonWrapper(NativeButton2* button);
-  static NativeButtonWrapper* CreateCheckboxWrapper(Checkbox2* checkbox);
+  static NativeButtonWrapper* CreateNativeButtonWrapper(NativeButton* button);
+  static NativeButtonWrapper* CreateCheckboxWrapper(Checkbox* checkbox);
   static NativeButtonWrapper* CreateRadioButtonWrapper(
-      RadioButton2* radio_button);
+      RadioButton* radio_button);
 
 };
 

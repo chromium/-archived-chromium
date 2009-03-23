@@ -10,7 +10,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/checkbox.h"
-#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/throbber.h"
 #include "chrome/views/window/window.h"
@@ -252,12 +251,12 @@ bool ClearBrowsingDataView::IsDialogButtonEnabled(DialogButton button) const {
     return false;
 
   if (button == DIALOGBUTTON_OK) {
-    return del_history_checkbox_->IsSelected() ||
-           del_downloads_checkbox_->IsSelected() ||
-           del_cache_checkbox_->IsSelected() ||
-           del_cookies_checkbox_->IsSelected() ||
-           del_passwords_checkbox_->IsSelected() ||
-           del_form_data_checkbox_->IsSelected();
+    return del_history_checkbox_->checked() ||
+           del_downloads_checkbox_->checked() ||
+           del_cache_checkbox_->checked() ||
+           del_cookies_checkbox_->checked() ||
+           del_passwords_checkbox_->checked() ||
+           del_form_data_checkbox_->checked();
   }
 
   return true;
@@ -333,25 +332,25 @@ void ClearBrowsingDataView::ItemChanged(views::ComboBox* sender,
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, views::ButtonListener implementation:
 
-void ClearBrowsingDataView::ButtonPressed(views::NativeButton* sender) {
+void ClearBrowsingDataView::ButtonPressed(views::Button* sender) {
   if (sender == del_history_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeleteBrowsingHistory,
-        del_history_checkbox_->IsSelected() ? true : false);
+        del_history_checkbox_->checked() ? true : false);
   else if (sender == del_downloads_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeleteDownloadHistory,
-        del_downloads_checkbox_->IsSelected() ? true : false);
+        del_downloads_checkbox_->checked() ? true : false);
   else if (sender == del_cache_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeleteCache,
-        del_cache_checkbox_->IsSelected() ? true : false);
+        del_cache_checkbox_->checked() ? true : false);
   else if (sender == del_cookies_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeleteCookies,
-        del_cookies_checkbox_->IsSelected() ? true : false);
+        del_cookies_checkbox_->checked() ? true : false);
   else if (sender == del_passwords_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeletePasswords,
-        del_passwords_checkbox_->IsSelected() ? true : false);
+        del_passwords_checkbox_->checked() ? true : false);
   else if (sender == del_form_data_checkbox_)
     profile_->GetPrefs()->SetBoolean(prefs::kDeleteFormData,
-        del_form_data_checkbox_->IsSelected() ? true : false);
+        del_form_data_checkbox_->checked() ? true : false);
 
   // When no checkbox is checked we should not have the action button enabled.
   // This forces the button to evaluate what state they should be in.
@@ -361,11 +360,11 @@ void ClearBrowsingDataView::ButtonPressed(views::NativeButton* sender) {
 ////////////////////////////////////////////////////////////////////////////////
 // ClearBrowsingDataView, private:
 
-views::CheckBox* ClearBrowsingDataView::AddCheckbox(const std::wstring& text,
+views::Checkbox* ClearBrowsingDataView::AddCheckbox(const std::wstring& text,
                                                     bool checked) {
-  views::CheckBox* checkbox = new views::CheckBox(text);
-  checkbox->SetIsSelected(checked);
-  checkbox->SetListener(this);
+  views::Checkbox* checkbox = new views::Checkbox(text);
+  checkbox->SetChecked(checked);
+  checkbox->set_listener(this);
   AddChildView(checkbox);
   return checkbox;
 }
@@ -394,8 +393,8 @@ void ClearBrowsingDataView::UpdateControlEnabledState() {
 
 // Convenience method that returns true if the supplied checkbox is selected
 // and enabled.
-static bool IsCheckBoxEnabledAndSelected(views::CheckBox* cb) {
-  return (cb->IsEnabled() && cb->IsSelected());
+static bool IsCheckBoxEnabledAndSelected(views::Checkbox* cb) {
+  return (cb->IsEnabled() && cb->checked());
 }
 
 void ClearBrowsingDataView::OnDelete() {

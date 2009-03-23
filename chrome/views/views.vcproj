@@ -582,14 +582,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\controls\button\checkbox2.cc"
-					>
-				</File>
-				<File
-					RelativePath=".\controls\button\checkbox2.h"
-					>
-				</File>
-				<File
 					RelativePath=".\controls\button\custom_button.cc"
 					>
 				</File>
@@ -622,14 +614,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\controls\button\native_button2.cc"
-					>
-				</File>
-				<File
-					RelativePath=".\controls\button\native_button2.h"
-					>
-				</File>
-				<File
 					RelativePath=".\controls\button\native_button_win.cc"
 					>
 				</File>
@@ -647,14 +631,6 @@
 				</File>
 				<File
 					RelativePath=".\controls\button\radio_button.h"
-					>
-				</File>
-				<File
-					RelativePath=".\controls\button\radio_button2.cc"
-					>
-				</File>
-				<File
-					RelativePath=".\controls\button\radio_button2.h"
 					>
 				</File>
 				<File

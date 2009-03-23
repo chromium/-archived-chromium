@@ -7,7 +7,7 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/browser/views/info_bubble.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/link.h"
 #include "chrome/views/view.h"
@@ -19,7 +19,7 @@ class BookmarkModel;
 class BookmarkNode;
 
 namespace views {
-class CheckBox;
+class NativeButton;
 class TextField;
 }
 
@@ -29,7 +29,7 @@ class TextField;
 // instead use the static Show method.
 class BookmarkBubbleView : public views::View,
                            public views::LinkController,
-                           public views::NativeButton::Listener,
+                           public views::ButtonListener,
                            public views::ComboBox::Listener,
                            public InfoBubbleDelegate {
  public:
@@ -102,7 +102,7 @@ class BookmarkBubbleView : public views::View,
   virtual void LinkActivated(views::Link* source, int event_flags);
 
   // ButtonListener method, closes the bubble or opens the edit dialog.
-  virtual void ButtonPressed(views::NativeButton* sender);
+  virtual void ButtonPressed(views::Button* sender);
 
   // ComboBox::Listener method. Changes the parent of the bookmark.
   virtual void ItemChanged(views::ComboBox* combo_box,

@@ -8,13 +8,14 @@
 #include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/views/controls/combo_box.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/table/table_view.h"
 #include "chrome/views/view.h"
 
 namespace views {
-class CheckBox;
+class Checkbox;
 class Label;
+class NativeButton;
 class TableModel;
 class TableView;
 }
@@ -27,15 +28,15 @@ class AddLanguageView;
 // LanguagesPageView
 
 class LanguagesPageView : public OptionsPageView,
-                          public views::NativeButton::Listener,
+                          public views::ButtonListener,
                           public views::TableViewObserver,
                           public views::ComboBox::Listener {
  public:
   explicit LanguagesPageView(Profile* profile);
   virtual ~LanguagesPageView();
 
-  // views::NativeButton::Listener implementation:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // views::ButtonListener implementation:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Save Changes made to relevant pref members associated with this tab.
   // This is public since it is called by FontsLanguageWindowView in its
@@ -77,7 +78,7 @@ class LanguagesPageView : public OptionsPageView,
   views::Label* ui_language_label_;
   views::ComboBox* change_ui_language_combobox_;
   views::ComboBox* change_dictionary_language_combobox_;
-  views::CheckBox* enable_spellchecking_checkbox_;
+  views::Checkbox* enable_spellchecking_checkbox_;
   views::Label* dictionary_language_label_;
 
   scoped_ptr<LanguageOrderTableModel> language_order_table_model_;

@@ -98,7 +98,7 @@ class AdvancedSection : public OptionsPageView {
   // Convenience helpers for adding controls to specific layouts in an
   // aesthetically pleasing way.
   void AddWrappingCheckboxRow(views::GridLayout* layout,
-                             views::CheckBox* checkbox,
+                             views::Checkbox* checkbox,
                              int id,
                              bool related_follows);
   void AddWrappingLabelRow(views::GridLayout* layout,
@@ -172,7 +172,7 @@ void AdvancedSection::AddWrappingColumnSet(views::GridLayout* layout, int id) {
 void AdvancedSection::AddDependentTwoColumnSet(views::GridLayout* layout,
                                                int id) {
   ColumnSet* column_set = layout->AddColumnSet(id);
-  column_set->AddPaddingColumn(0, views::CheckBox::GetTextIndent());
+  column_set->AddPaddingColumn(0, views::Checkbox::GetTextIndent());
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
@@ -192,13 +192,13 @@ void AdvancedSection::AddTwoColumnSet(views::GridLayout* layout, int id) {
 
 void AdvancedSection::AddIndentedColumnSet(views::GridLayout* layout, int id) {
   ColumnSet* column_set = layout->AddColumnSet(id);
-  column_set->AddPaddingColumn(0, views::CheckBox::GetTextIndent());
+  column_set->AddPaddingColumn(0, views::Checkbox::GetTextIndent());
   column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 1,
                         GridLayout::USE_PREF, 0, 0);
 }
 
 void AdvancedSection::AddWrappingCheckboxRow(views::GridLayout* layout,
-                                             views::CheckBox* checkbox,
+                                             views::Checkbox* checkbox,
                                              int id,
                                              bool related_follows) {
   checkbox->SetMultiLine(true);
@@ -319,15 +319,15 @@ class CookieBehaviorComboModel : public views::ComboBox::Model {
 };
 
 class PrivacySection : public AdvancedSection,
-                       public views::NativeButton::Listener,
+                       public views::ButtonListener,
                        public views::ComboBox::Listener,
                        public views::LinkController {
  public:
   explicit PrivacySection(Profile* profile);
   virtual ~PrivacySection() {}
 
-  // Overridden from views::NativeButton::Listener:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from views::ComboBox::Listener:
   virtual void ItemChanged(views::ComboBox* sender,
@@ -348,11 +348,11 @@ class PrivacySection : public AdvancedSection,
  private:
   // Controls for this section:
   views::Label* section_description_label_;
-  views::CheckBox* enable_link_doctor_checkbox_;
-  views::CheckBox* enable_suggest_checkbox_;
-  views::CheckBox* enable_dns_prefetching_checkbox_;
-  views::CheckBox* enable_safe_browsing_checkbox_;
-  views::CheckBox* reporting_enabled_checkbox_;
+  views::Checkbox* enable_link_doctor_checkbox_;
+  views::Checkbox* enable_suggest_checkbox_;
+  views::Checkbox* enable_dns_prefetching_checkbox_;
+  views::Checkbox* enable_safe_browsing_checkbox_;
+  views::Checkbox* reporting_enabled_checkbox_;
   views::Link* learn_more_link_;
   views::Label* cookie_behavior_label_;
   views::ComboBox* cookie_behavior_combobox_;
@@ -389,23 +389,23 @@ PrivacySection::PrivacySection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_PRIVACY)) {
 }
 
-void PrivacySection::ButtonPressed(views::NativeButton* sender) {
+void PrivacySection::ButtonPressed(views::Button* sender) {
   if (sender == enable_link_doctor_checkbox_) {
-    bool enabled = enable_link_doctor_checkbox_->IsSelected();
+    bool enabled = enable_link_doctor_checkbox_->checked();
     UserMetricsRecordAction(enabled ?
                                 L"Options_LinkDoctorCheckbox_Enable" :
                                 L"Options_LinkDoctorCheckbox_Disable",
                             profile()->GetPrefs());
     alternate_error_pages_.SetValue(enabled);
   } else if (sender == enable_suggest_checkbox_) {
-    bool enabled = enable_suggest_checkbox_->IsSelected();
+    bool enabled = enable_suggest_checkbox_->checked();
     UserMetricsRecordAction(enabled ?
                                 L"Options_UseSuggestCheckbox_Enable" :
                                 L"Options_UseSuggestCheckbox_Disable",
                             profile()->GetPrefs());
     use_suggest_.SetValue(enabled);
   } else if (sender == enable_dns_prefetching_checkbox_) {
-    bool enabled = enable_dns_prefetching_checkbox_->IsSelected();
+    bool enabled = enable_dns_prefetching_checkbox_->checked();
     UserMetricsRecordAction(enabled ?
                                 L"Options_DnsPrefetchCheckbox_Enable" :
                                 L"Options_DnsPrefetchCheckbox_Disable",
@@ -413,7 +413,7 @@ void PrivacySection::ButtonPressed(views::NativeButton* sender) {
     dns_prefetch_enabled_.SetValue(enabled);
     chrome_browser_net::EnableDnsPrefetch(enabled);
   } else if (sender == enable_safe_browsing_checkbox_) {
-    bool enabled = enable_safe_browsing_checkbox_->IsSelected();
+    bool enabled = enable_safe_browsing_checkbox_->checked();
     UserMetricsRecordAction(enabled ?
                                 L"Options_SafeBrowsingCheckbox_Enable" :
                                 L"Options_SafeBrowsingCheckbox_Disable",
@@ -424,13 +424,13 @@ void PrivacySection::ButtonPressed(views::NativeButton* sender) {
     MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
         safe_browsing_service, &SafeBrowsingService::OnEnable, enabled));
   } else if (sender == reporting_enabled_checkbox_) {
-    bool enabled = reporting_enabled_checkbox_->IsSelected();
+    bool enabled = reporting_enabled_checkbox_->checked();
     UserMetricsRecordAction(enabled ?
                                 L"Options_MetricsReportingCheckbox_Enable" :
                                 L"Options_MetricsReportingCheckbox_Disable",
                             profile()->GetPrefs());
     ResolveMetricsReportingEnabled();
-    if (enabled == reporting_enabled_checkbox_->IsSelected())
+    if (enabled == reporting_enabled_checkbox_->checked())
       RestartMessageBox::ShowMessageBox(GetRootWindow());
     enable_metrics_recording_.SetValue(enabled);
   } else if (sender == show_cookies_button_) {
@@ -485,22 +485,22 @@ void PrivacySection::InitControlLayout() {
 
   section_description_label_ = new views::Label(
     l10n_util::GetString(IDS_OPTIONS_DISABLE_SERVICES));
-  enable_link_doctor_checkbox_ = new views::CheckBox(
+  enable_link_doctor_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_LINKDOCTOR_PREF));
-  enable_link_doctor_checkbox_->SetListener(this);
-  enable_suggest_checkbox_ = new views::CheckBox(
+  enable_link_doctor_checkbox_->set_listener(this);
+  enable_suggest_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_SUGGEST_PREF));
-  enable_suggest_checkbox_->SetListener(this);
-  enable_dns_prefetching_checkbox_ = new views::CheckBox(
+  enable_suggest_checkbox_->set_listener(this);
+  enable_dns_prefetching_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_NETWORK_DNS_PREFETCH_ENABLED_DESCRIPTION));
-  enable_dns_prefetching_checkbox_->SetListener(this);
-  enable_safe_browsing_checkbox_ = new views::CheckBox(
+  enable_dns_prefetching_checkbox_->set_listener(this);
+  enable_safe_browsing_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_SAFEBROWSING_ENABLEPROTECTION));
-  enable_safe_browsing_checkbox_->SetListener(this);
-  reporting_enabled_checkbox_ = new views::CheckBox(
+  enable_safe_browsing_checkbox_->set_listener(this);
+  reporting_enabled_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_ENABLE_LOGGING));
   reporting_enabled_checkbox_->SetMultiLine(true);
-  reporting_enabled_checkbox_->SetListener(this);
+  reporting_enabled_checkbox_->set_listener(this);
   learn_more_link_ = new views::Link(l10n_util::GetString(IDS_LEARN_MORE));
   learn_more_link_->SetController(this);
   cookie_behavior_label_ = new views::Label(
@@ -510,8 +510,7 @@ void PrivacySection::InitControlLayout() {
       allow_cookies_model_.get());
   cookie_behavior_combobox_->SetListener(this);
   show_cookies_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_COOKIES_SHOWCOOKIES));
-  show_cookies_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_COOKIES_SHOWCOOKIES));
 
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
@@ -571,21 +570,21 @@ void PrivacySection::InitControlLayout() {
 
 void PrivacySection::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name || *pref_name == prefs::kAlternateErrorPagesEnabled) {
-    enable_link_doctor_checkbox_->SetIsSelected(
+    enable_link_doctor_checkbox_->SetChecked(
         alternate_error_pages_.GetValue());
   }
   if (!pref_name || *pref_name == prefs::kSearchSuggestEnabled) {
-    enable_suggest_checkbox_->SetIsSelected(use_suggest_.GetValue());
+    enable_suggest_checkbox_->SetChecked(use_suggest_.GetValue());
   }
   if (!pref_name || *pref_name == prefs::kDnsPrefetchingEnabled) {
     bool enabled = dns_prefetch_enabled_.GetValue();
-    enable_dns_prefetching_checkbox_->SetIsSelected(enabled);
+    enable_dns_prefetching_checkbox_->SetChecked(enabled);
     chrome_browser_net::EnableDnsPrefetch(enabled);
   }
   if (!pref_name || *pref_name == prefs::kSafeBrowsingEnabled)
-    enable_safe_browsing_checkbox_->SetIsSelected(safe_browsing_.GetValue());
+    enable_safe_browsing_checkbox_->SetChecked(safe_browsing_.GetValue());
   if (!pref_name || *pref_name == prefs::kMetricsReportingEnabled) {
-    reporting_enabled_checkbox_->SetIsSelected(
+    reporting_enabled_checkbox_->SetChecked(
         enable_metrics_recording_.GetValue());
     ResolveMetricsReportingEnabled();
   }
@@ -597,7 +596,7 @@ void PrivacySection::NotifyPrefChanged(const std::wstring* pref_name) {
 }
 
 void PrivacySection::ResolveMetricsReportingEnabled() {
-  bool enabled = reporting_enabled_checkbox_->IsSelected();
+  bool enabled = reporting_enabled_checkbox_->checked();
 
   GoogleUpdateSettings::SetCollectStatsConsent(enabled);
   bool update_pref = GoogleUpdateSettings::GetCollectStatsConsent();
@@ -622,20 +621,20 @@ void PrivacySection::ResolveMetricsReportingEnabled() {
       metrics->Stop();
   }
 
-  reporting_enabled_checkbox_->SetIsSelected(enabled);
+  reporting_enabled_checkbox_->SetChecked(enabled);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // WebContentSection
 
 class WebContentSection : public AdvancedSection,
-                          public views::NativeButton::Listener {
+                          public views::ButtonListener {
  public:
   explicit WebContentSection(Profile* profile);
   virtual ~WebContentSection() {}
 
-  // Overridden from views::NativeButton::Listener:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
  protected:
   // OptionsPageView overrides:
@@ -644,7 +643,7 @@ class WebContentSection : public AdvancedSection,
 
  private:
   // Controls for this section:
-  views::CheckBox* popup_blocked_notification_checkbox_;
+  views::Checkbox* popup_blocked_notification_checkbox_;
   views::Label* gears_label_;
   views::NativeButton* gears_settings_button_;
 
@@ -661,10 +660,10 @@ WebContentSection::WebContentSection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_CONTENT)) {
 }
 
-void WebContentSection::ButtonPressed(views::NativeButton* sender) {
+void WebContentSection::ButtonPressed(views::Button* sender) {
   if (sender == popup_blocked_notification_checkbox_) {
     bool notification_disabled =
-        popup_blocked_notification_checkbox_->IsSelected();
+        popup_blocked_notification_checkbox_->checked();
     if (notification_disabled) {
       UserMetricsRecordAction(L"Options_BlockAllPopups_Disable",
                               profile()->GetPrefs());
@@ -682,9 +681,9 @@ void WebContentSection::ButtonPressed(views::NativeButton* sender) {
 void WebContentSection::InitControlLayout() {
   AdvancedSection::InitControlLayout();
 
-  popup_blocked_notification_checkbox_ = new views::CheckBox(
+  popup_blocked_notification_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_SHOWPOPUPBLOCKEDNOTIFICATION));
-  popup_blocked_notification_checkbox_->SetListener(this);
+  popup_blocked_notification_checkbox_->set_listener(this);
 
   if (l10n_util::GetTextDirection() == l10n_util::LEFT_TO_RIGHT) {
     gears_label_ = new views::Label(
@@ -699,8 +698,8 @@ void WebContentSection::InitControlLayout() {
     gears_label_ = new views::Label(gearssetting_group_name);
   }
   gears_settings_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(IDS_OPTIONS_GEARSSETTINGS_CONFIGUREGEARS_BUTTON));
-  gears_settings_button_->SetListener(this);
 
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
@@ -722,7 +721,7 @@ void WebContentSection::InitControlLayout() {
 
 void WebContentSection::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name || *pref_name == prefs::kBlockPopups) {
-    popup_blocked_notification_checkbox_->SetIsSelected(
+    popup_blocked_notification_checkbox_->SetChecked(
         !disable_popup_blocked_notification_pref_.GetValue());
   }
 }
@@ -769,14 +768,14 @@ class MixedContentComboModel : public views::ComboBox::Model {
 };
 
 class SecuritySection : public AdvancedSection,
-                        public views::NativeButton::Listener,
+                        public views::ButtonListener,
                         public views::ComboBox::Listener {
  public:
   explicit SecuritySection(Profile* profile);
   virtual ~SecuritySection() {}
 
-  // Overridden from views::NativeButton::Listener:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
   // Overridden from views::ComboBox::Listener:
   virtual void ItemChanged(views::ComboBox* sender,
@@ -793,8 +792,8 @@ class SecuritySection : public AdvancedSection,
   views::Label* reset_file_handlers_label_;
   views::NativeButton* reset_file_handlers_button_;
   views::Label* ssl_info_label_;
-  views::CheckBox* enable_ssl2_checkbox_;
-  views::CheckBox* check_for_cert_revocation_checkbox_;
+  views::Checkbox* enable_ssl2_checkbox_;
+  views::Checkbox* check_for_cert_revocation_checkbox_;
   views::Label* mixed_content_info_label_;
   views::ComboBox* mixed_content_combobox_;
   views::Label* manage_certificates_label_;
@@ -823,13 +822,13 @@ SecuritySection::SecuritySection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_SECURITY)) {
 }
 
-void SecuritySection::ButtonPressed(views::NativeButton* sender) {
+void SecuritySection::ButtonPressed(views::Button* sender) {
   if (sender == reset_file_handlers_button_) {
     profile()->GetDownloadManager()->ResetAutoOpenFiles();
     UserMetricsRecordAction(L"Options_ResetAutoOpenFiles",
                             profile()->GetPrefs());
   } else if (sender == enable_ssl2_checkbox_) {
-    bool enabled = enable_ssl2_checkbox_->IsSelected();
+    bool enabled = enable_ssl2_checkbox_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_SSL2_Enable", NULL);
     } else {
@@ -837,7 +836,7 @@ void SecuritySection::ButtonPressed(views::NativeButton* sender) {
     }
     net::SSLConfigService::SetSSL2Enabled(enabled);
   } else if (sender == check_for_cert_revocation_checkbox_) {
-    bool enabled = check_for_cert_revocation_checkbox_->IsSelected();
+    bool enabled = check_for_cert_revocation_checkbox_->checked();
     if (enabled) {
       UserMetricsRecordAction(L"Options_CheckCertRevocation_Enable", NULL);
     } else {
@@ -878,16 +877,15 @@ void SecuritySection::InitControlLayout() {
   reset_file_handlers_label_ = new views::Label(
     l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_INFO));
   reset_file_handlers_button_ = new views::NativeButton(
-    l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_RESETTODEFAULT));
-  reset_file_handlers_button_->SetListener(this);
+    this, l10n_util::GetString(IDS_OPTIONS_AUTOOPENFILETYPES_RESETTODEFAULT));
   ssl_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_SSL_GROUP_DESCRIPTION));
-  enable_ssl2_checkbox_ = new views::CheckBox(
+  enable_ssl2_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_SSL_USESSL2));
-  enable_ssl2_checkbox_->SetListener(this);
-  check_for_cert_revocation_checkbox_ = new views::CheckBox(
+  enable_ssl2_checkbox_->set_listener(this);
+  check_for_cert_revocation_checkbox_ = new views::Checkbox(
       l10n_util::GetString(IDS_OPTIONS_SSL_CHECKREVOCATION));
-  check_for_cert_revocation_checkbox_->SetListener(this);
+  check_for_cert_revocation_checkbox_->set_listener(this);
   mixed_content_info_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_MIXED_CONTENT_LABEL));
   mixed_content_model_.reset(new MixedContentComboModel);
@@ -897,8 +895,7 @@ void SecuritySection::InitControlLayout() {
   manage_certificates_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_LABEL));
   manage_certificates_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_MANAGE_BUTTON));
-  manage_certificates_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_CERTIFICATES_MANAGE_BUTTON));
 
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);
@@ -962,8 +959,8 @@ void SecuritySection::NotifyPrefChanged(const std::wstring* pref_name) {
   if (!pref_name) {
     net::SSLConfig config;
     if (net::SSLConfigService::GetSSLConfigNow(&config)) {
-      enable_ssl2_checkbox_->SetIsSelected(config.ssl2_enabled);
-      check_for_cert_revocation_checkbox_->SetIsSelected(
+      enable_ssl2_checkbox_->SetChecked(config.ssl2_enabled);
+      check_for_cert_revocation_checkbox_->SetChecked(
           config.rev_checking_enabled);
     } else {
       enable_ssl2_checkbox_->SetEnabled(false);
@@ -1014,13 +1011,13 @@ class OpenConnectionDialogTask : public Task {
 }  // namespace
 
 class NetworkSection : public AdvancedSection,
-                       public views::NativeButton::Listener {
+                       public views::ButtonListener {
  public:
   explicit NetworkSection(Profile* profile);
   virtual ~NetworkSection() {}
 
-  // Overridden from views::NativeButton::Listener:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
  protected:
   // OptionsPageView overrides:
@@ -1042,7 +1039,7 @@ NetworkSection::NetworkSection(Profile* profile)
           l10n_util::GetString(IDS_OPTIONS_ADVANCED_SECTION_TITLE_NETWORK)) {
 }
 
-void NetworkSection::ButtonPressed(views::NativeButton* sender) {
+void NetworkSection::ButtonPressed(views::Button* sender) {
   if (sender == change_proxies_button_) {
     UserMetricsRecordAction(L"Options_ChangeProxies", NULL);
     base::Thread* thread = g_browser_process->file_thread();
@@ -1057,8 +1054,7 @@ void NetworkSection::InitControlLayout() {
   change_proxies_label_ = new views::Label(
       l10n_util::GetString(IDS_OPTIONS_PROXIES_LABEL));
   change_proxies_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_OPTIONS_PROXIES_CONFIGURE_BUTTON));
-  change_proxies_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_OPTIONS_PROXIES_CONFIGURE_BUTTON));
 
   GridLayout* layout = new GridLayout(contents_);
   contents_->SetLayoutManager(layout);

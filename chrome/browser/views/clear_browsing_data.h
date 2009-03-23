@@ -6,14 +6,14 @@
 #define CHROME_BROWSER_VIEWS_CLEAR_BROWSING_DATA_H__
 
 #include "chrome/browser/browsing_data_remover.h"
-#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/combo_box.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/dialog_delegate.h"
 
 namespace views {
-class CheckBox;
+class Checkbox;
 class Label;
 class Throbber;
 class Window;
@@ -32,7 +32,7 @@ class MessageLoop;
 class ClearBrowsingDataView : public views::View,
                               public views::DialogDelegate,
                               public views::ComboBox::Model,
-                              public views::NativeButton::Listener,
+                              public views::ButtonListener,
                               public views::ComboBox::Listener,
                               public BrowsingDataRemover::Observer {
  public:
@@ -65,8 +65,8 @@ class ClearBrowsingDataView : public views::View,
   virtual int GetItemCount(views::ComboBox* source);
   virtual std::wstring GetItemAt(views::ComboBox* source, int index);
 
-  // Overridden from views::NativeButton::Listener:
-  virtual void ButtonPressed(views::NativeButton* sender);
+  // Overridden from views::ButtonListener:
+  virtual void ButtonPressed(views::Button* sender);
 
    // Overridden from views::ComboBox::Listener:
   virtual void ItemChanged(views::ComboBox* sender, int prev_index,
@@ -74,7 +74,7 @@ class ClearBrowsingDataView : public views::View,
 
  private:
   // Adds a new check-box as a child to the view.
-  views::CheckBox* AddCheckbox(const std::wstring& text, bool checked);
+  views::Checkbox* AddCheckbox(const std::wstring& text, bool checked);
 
   // Sets the controls on the UI to be enabled/disabled depending on whether we
   // have a delete operation in progress or not.
@@ -92,12 +92,12 @@ class ClearBrowsingDataView : public views::View,
   views::Label status_label_;
   // Other UI elements.
   views::Label* delete_all_label_;
-  views::CheckBox* del_history_checkbox_;
-  views::CheckBox* del_downloads_checkbox_;
-  views::CheckBox* del_cache_checkbox_;
-  views::CheckBox* del_cookies_checkbox_;
-  views::CheckBox* del_passwords_checkbox_;
-  views::CheckBox* del_form_data_checkbox_;
+  views::Checkbox* del_history_checkbox_;
+  views::Checkbox* del_downloads_checkbox_;
+  views::Checkbox* del_cache_checkbox_;
+  views::Checkbox* del_cookies_checkbox_;
+  views::Checkbox* del_passwords_checkbox_;
+  views::Checkbox* del_form_data_checkbox_;
   views::Label* time_period_label_;
   views::ComboBox* time_period_combobox_;
 

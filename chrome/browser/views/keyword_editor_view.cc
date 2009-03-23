@@ -21,8 +21,8 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/background.h"
-#include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/grid_layout.h"
+#include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/widget/widget.h"
 #include "chrome/views/window/dialog_delegate.h"
@@ -483,24 +483,21 @@ void KeywordEditorView::Init() {
   table_view_->SetObserver(this);
 
   add_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_NEW_BUTTON));
+      this, l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_NEW_BUTTON));
   add_button_->SetEnabled(url_model_->loaded());
-  add_button_->SetListener(this);
-
+  
   edit_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_EDIT_BUTTON));
+      this, l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_EDIT_BUTTON));
   edit_button_->SetEnabled(false);
-  edit_button_->SetListener(this);
-
+  
   remove_button_ = new views::NativeButton(
-      l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_REMOVE_BUTTON));
+      this, l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_REMOVE_BUTTON));
   remove_button_->SetEnabled(false);
-  remove_button_->SetListener(this);
-
+  
   make_default_button_ = new views::NativeButton(
+      this,
       l10n_util::GetString(IDS_SEARCH_ENGINES_EDITOR_MAKE_DEFAULT_BUTTON));
   make_default_button_->SetEnabled(false);
-  make_default_button_->SetListener(this);
 
   InitLayoutManager();
 }
@@ -564,7 +561,7 @@ void KeywordEditorView::OnDoubleClick() {
     ButtonPressed(edit_button_);
 }
 
-void KeywordEditorView::ButtonPressed(views::NativeButton* sender) {
+void KeywordEditorView::ButtonPressed(views::Button* sender) {
   if (sender == add_button_) {
     EditKeywordController* controller = 
         new EditKeywordController(GetWidget()->GetNativeView(), NULL, this,

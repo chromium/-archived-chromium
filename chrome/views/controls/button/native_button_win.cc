@@ -5,9 +5,9 @@
 #include "chrome/views/controls/button/native_button_win.h"
 
 #include "base/logging.h"
-#include "chrome/views/controls/button/checkbox2.h"
-#include "chrome/views/controls/button/native_button2.h"
-#include "chrome/views/controls/button/radio_button2.h"
+#include "chrome/views/controls/button/checkbox.h"
+#include "chrome/views/controls/button/native_button.h"
+#include "chrome/views/controls/button/radio_button.h"
 #include "chrome/views/widget/widget.h"
 
 namespace views {
@@ -15,7 +15,7 @@ namespace views {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeButtonWin, public:
 
-NativeButtonWin::NativeButtonWin(NativeButton2* native_button)
+NativeButtonWin::NativeButtonWin(NativeButton* native_button)
     : NativeControlWin(),
       native_button_(native_button) {
 }
@@ -108,7 +108,7 @@ static const int kCheckboxSize = 13; // pixels
 ////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, public:
 
-NativeCheckboxWin::NativeCheckboxWin(Checkbox2* checkbox)
+NativeCheckboxWin::NativeCheckboxWin(Checkbox* checkbox)
     : NativeButtonWin(checkbox),
       checkbox_(checkbox) {
 }
@@ -170,7 +170,7 @@ void NativeCheckboxWin::NativeControlCreated(HWND control_hwnd) {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeRadioButtonWin, public:
 
-NativeRadioButtonWin::NativeRadioButtonWin(RadioButton2* radio_button)
+NativeRadioButtonWin::NativeRadioButtonWin(RadioButton* radio_button)
     : NativeCheckboxWin(radio_button) {
 }
 
@@ -193,20 +193,25 @@ void NativeRadioButtonWin::CreateNativeControl() {
 // NativeButtonWrapper, public:
 
 // static
+int NativeButtonWrapper::GetFixedWidth() {
+  return kCheckboxSize;
+}
+
+// static
 NativeButtonWrapper* NativeButtonWrapper::CreateNativeButtonWrapper(
-    NativeButton2* native_button) {
+    NativeButton* native_button) {
   return new NativeButtonWin(native_button);
 }
 
 // static
 NativeButtonWrapper* NativeButtonWrapper::CreateCheckboxWrapper(
-    Checkbox2* checkbox) {
+    Checkbox* checkbox) {
   return new NativeCheckboxWin(checkbox);
 }
 
 // static
 NativeButtonWrapper* NativeButtonWrapper::CreateRadioButtonWrapper(
-    RadioButton2* radio_button) {
+    RadioButton* radio_button) {
   return new NativeRadioButtonWin(radio_button);
 }
 

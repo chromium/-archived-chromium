@@ -8,11 +8,14 @@
 #include <string>
 
 #include "base/task.h"
-#include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/image_view.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/view.h"
+
+namespace views {
+class Checkbox;
+}
 
 // This class displays the contents of a message box. It is intended for use
 // within a constrained window, and has options for a message, prompt, OK
@@ -106,7 +109,7 @@ class MessageBoxView : public views::View {
   views::ImageView* icon_;
 
   // Checkbox for the message box.
-  views::CheckBox* check_box_;
+  views::Checkbox* checkbox_;
 
   // Maximum width of the message label.
   int message_width_;

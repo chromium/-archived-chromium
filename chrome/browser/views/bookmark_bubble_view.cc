@@ -16,8 +16,6 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/views/controls/button/button.h"
-#include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/text_field.h"
 #include "grit/generated_resources.h"
@@ -207,11 +205,10 @@ void BookmarkBubbleView::Init() {
   remove_link_->SetController(this);
 
   edit_button_ = new NativeButton(
-      l10n_util::GetString(IDS_BOOMARK_BUBBLE_OPTIONS));
-  edit_button_->SetListener(this);
+      this, l10n_util::GetString(IDS_BOOMARK_BUBBLE_OPTIONS));
 
-  close_button_ = new NativeButton(l10n_util::GetString(IDS_CLOSE), true);
-  close_button_->SetListener(this);
+  close_button_ = new NativeButton(this, l10n_util::GetString(IDS_CLOSE));
+  close_button_->SetIsDefault(true);
 
   parent_combobox_ = new ComboBox(&parent_model_);
   parent_combobox_->SetSelectedItem(parent_model_.node_parent_index());
@@ -291,7 +288,7 @@ std::wstring BookmarkBubbleView::GetTitle() {
   return std::wstring();
 }
 
-void BookmarkBubbleView::ButtonPressed(views::NativeButton* sender) {
+void BookmarkBubbleView::ButtonPressed(views::Button* sender) {
   if (sender == edit_button_) {
     UserMetrics::RecordAction(L"BookmarkBubble_Edit", profile_);
     ShowEditor();

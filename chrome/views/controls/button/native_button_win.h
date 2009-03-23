@@ -14,7 +14,7 @@ namespace views {
 class NativeButtonWin : public NativeControlWin,
                         public NativeButtonWrapper {
  public:
-  explicit NativeButtonWin(NativeButton2* native_button);
+  explicit NativeButtonWin(NativeButton* native_button);
   virtual ~NativeButtonWin();
 
   // Overridden from NativeButtonWrapper:
@@ -42,7 +42,7 @@ class NativeButtonWin : public NativeControlWin,
 
  private:
   // The NativeButton we are bound to.
-  NativeButton2* native_button_;
+  NativeButton* native_button_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeButtonWin);
 };
@@ -50,7 +50,7 @@ class NativeButtonWin : public NativeControlWin,
 // A View that hosts a native Windows checkbox.
 class NativeCheckboxWin : public NativeButtonWin {
  public:
-  explicit NativeCheckboxWin(Checkbox2* native_button);
+  explicit NativeCheckboxWin(Checkbox* native_button);
   virtual ~NativeCheckboxWin();
 
   // Overridden from View:
@@ -72,7 +72,7 @@ class NativeCheckboxWin : public NativeButtonWin {
 
  private:
   // The Checkbox we are bound to.
-  Checkbox2* checkbox_;
+  Checkbox* checkbox_;
 
   DISALLOW_COPY_AND_ASSIGN(NativeCheckboxWin);
 };
@@ -80,7 +80,7 @@ class NativeCheckboxWin : public NativeButtonWin {
 // A View that hosts a native Windows radio button.
 class NativeRadioButtonWin : public NativeCheckboxWin {
  public:
-  explicit NativeRadioButtonWin(RadioButton2* radio_button);
+  explicit NativeRadioButtonWin(RadioButton* radio_button);
   virtual ~NativeRadioButtonWin();
 
  protected:

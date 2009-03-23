@@ -186,23 +186,23 @@ void ImporterView::ImportComplete() {
   window()->Close();
 }
 
-views::CheckBox* ImporterView::InitCheckbox(const std::wstring& text,
+views::Checkbox* ImporterView::InitCheckbox(const std::wstring& text,
                                             bool checked) {
-  views::CheckBox* checkbox = new views::CheckBox(text);
-  checkbox->SetIsSelected(checked);
+  views::Checkbox* checkbox = new views::Checkbox(text);
+  checkbox->SetChecked(checked);
   return checkbox;
 }
 
 uint16 ImporterView::GetCheckedItems() {
   uint16 items = NONE;
-  if (history_checkbox_->IsEnabled() && history_checkbox_->IsSelected())
+  if (history_checkbox_->IsEnabled() && history_checkbox_->checked())
     items |= HISTORY;
-  if (favorites_checkbox_->IsEnabled() && favorites_checkbox_->IsSelected())
+  if (favorites_checkbox_->IsEnabled() && favorites_checkbox_->checked())
     items |= FAVORITES;
-  if (passwords_checkbox_->IsEnabled() && passwords_checkbox_->IsSelected())
+  if (passwords_checkbox_->IsEnabled() && passwords_checkbox_->checked())
     items |= PASSWORDS;
   if (search_engines_checkbox_->IsEnabled() &&
-      search_engines_checkbox_->IsSelected())
+      search_engines_checkbox_->checked())
     items |= SEARCH_ENGINES;
   return items;
 }
@@ -212,58 +212,38 @@ void ImporterView::SetCheckedItemsState(uint16 items) {
     history_checkbox_->SetEnabled(true);
   } else {
     history_checkbox_->SetEnabled(false);
-    history_checkbox_->SetIsSelected(false);
+    history_checkbox_->SetChecked(false);
   }
   if (items & FAVORITES) {
     favorites_checkbox_->SetEnabled(true);
   } else {
     favorites_checkbox_->SetEnabled(false);
-    favorites_checkbox_->SetIsSelected(false);
+    favorites_checkbox_->SetChecked(false);
   }
   if (items & PASSWORDS) {
     passwords_checkbox_->SetEnabled(true);
   } else {
     passwords_checkbox_->SetEnabled(false);
-    passwords_checkbox_->SetIsSelected(false);
+    passwords_checkbox_->SetChecked(false);
   }
   if (items & SEARCH_ENGINES) {
     search_engines_checkbox_->SetEnabled(true);
   } else {
     search_engines_checkbox_->SetEnabled(false);
-    search_engines_checkbox_->SetIsSelected(false);
+    search_engines_checkbox_->SetChecked(false);
   }
 }
 
 void ImporterView::SetCheckedItems(uint16 items) {
-  if (history_checkbox_->IsEnabled()) {
-    if (items & HISTORY) {
-      history_checkbox_->SetIsSelected(true);
-    } else {
-      history_checkbox_->SetIsSelected(false);
-    }
-  }
+  if (history_checkbox_->IsEnabled())
+    history_checkbox_->SetChecked(!!(items & HISTORY));
 
-  if (favorites_checkbox_->IsEnabled()) {
-    if (items & FAVORITES) {
-      favorites_checkbox_->SetIsSelected(true);
-    } else {
-      favorites_checkbox_->SetIsSelected(false);
-    }
-  }
+  if (favorites_checkbox_->IsEnabled())
+    favorites_checkbox_->SetChecked(!!(items & FAVORITES));
 
-  if (passwords_checkbox_->IsEnabled()) {
-    if (items & PASSWORDS) {
-      passwords_checkbox_->SetIsSelected(true);
-    } else {
-      passwords_checkbox_->SetIsSelected(false);
-    }
-  }
+  if (passwords_checkbox_->IsEnabled())
+    passwords_checkbox_->SetChecked(!!(items & PASSWORDS));
 
-  if (search_engines_checkbox_->IsEnabled()) {
-    if (items & SEARCH_ENGINES) {
-      search_engines_checkbox_->SetIsSelected(true);
-    } else {
-      search_engines_checkbox_->SetIsSelected(false);
-    }
-  }
+  if (search_engines_checkbox_->IsEnabled())
+    search_engines_checkbox_->SetChecked(!!(items & SEARCH_ENGINES));
 }
