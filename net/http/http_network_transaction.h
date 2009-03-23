@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/ref_counted.h"
+#include "base/time.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
 #include "net/base/host_resolver.h"
@@ -280,6 +281,9 @@ class HttpNetworkTransaction : public HttpTransaction {
   // User buffer and length passed to the Read method.
   scoped_refptr<IOBuffer> read_buf_;
   int read_buf_len_;
+
+  // The time the Start method was called.
+  base::Time start_time_;
 
   enum State {
     STATE_RESOLVE_PROXY,

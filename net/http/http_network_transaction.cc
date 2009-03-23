@@ -68,6 +68,7 @@ int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
   UpdateConnectionTypeHistograms(CONNECTION_ANY);
 
   request_ = request_info;
+  start_time_ = base::Time::Now();
 
   next_state_ = STATE_RESOLVE_PROXY;
   int rv = DoLoop(OK);
@@ -949,12 +950,18 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
   if (60 < duration.InMinutes())
     return;
 
+  base::TimeDelta total_duration = base::Time::Now() - start_time_;
+
   UMA_HISTOGRAM_LONG_TIMES(FieldTrial::MakeName("Net.Transaction_Latency",
       "DnsImpact").data(), duration);
   UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
       "Net.Transaction_Latency_Under_10", "DnsImpact").data(), duration,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
+  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+      "Net.Transaction_Latency_Total_Under_10", "DnsImpact").data(),
+      total_duration, base::TimeDelta::FromMilliseconds(1),
+      base::TimeDelta::FromMinutes(10), 100);
   if (!duration.InMilliseconds())
     return;
   UMA_HISTOGRAM_COUNTS("Net.Transaction_Bandwidth",
