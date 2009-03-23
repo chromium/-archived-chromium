@@ -2043,7 +2043,7 @@ DEFER WIN : LayoutTests/transitions/transition-end-event-multiple-01.html = FAIL
 DEFER WIN : LayoutTests/transitions/transition-end-event-create.html = FAIL PASS
 DEFER WIN : LayoutTests/transitions/transition-end-event-window.html = FAIL PASS
 DEFER WIN : LayoutTests/transitions/transition-end-event-attributes.html = FAIL PASS
-WIN : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
+BUG9071 WIN LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT FAIL
@@ -2114,27 +2114,26 @@ MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url.html = TIMEOUT PA
 WIN DEBUG : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 
 // Newly added test from 41613:41660
-DEFER MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.html = FAIL
+BUG9155 DEFER MAC LINUX WIN : LayoutTests/fast/canvas/canvas-gradient-addStop-error.html = FAIL
 
 // Newly added test from 41613:41660 -- relies on ScriptCallStack::state() -- dglazkov should fix.
-DEFER MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
+BUG9156 DEFER MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html = FAIL
 
 // New failures from 41613:41660 -- They likely just need to be rebaselined
 // for Mac and Linux, since that is what was done for Windows.
-DEFER LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
-DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
+BUG9157 DEFER LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
+BUG9158 DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
 
 // New failures from 41660:41709
 // Newly added tests.
-DEFER LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
-DEFER MAC LINUX WIN : LayoutTests/fast/dom/Window/window-lookup-precedence.html = FAIL
-DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
-DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
-DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
-DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
+BUG9159 DEFER LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
+BUG9160 DEFER MAC LINUX WIN : LayoutTests/fast/dom/Window/window-lookup-precedence.html = FAIL
+BUG9161 DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
+BUG9162 DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
+BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
+BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Unknown what change caused these to fail.
-LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL
-MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
+BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 
 // Merge 41709:41733
 // Expectations changed upstream.
