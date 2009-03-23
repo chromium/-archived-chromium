@@ -3,36 +3,35 @@
 // found in the LICENSE file.
 
 /**
- * @fileoverview DevToolsHost Stub emulates backend functionality and allows
+ * @fileoverview These stubs emulate backend functionality and allows
  * DevTools frontend to function as a standalone web app.
  */
-goog.provide('devtools.DevToolsHostStub');
 
 /**
  * @constructor
  */
-devtools.DevToolsHostStub = function() {
+RemoteDomAgentStub = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.getDocumentElement = function(callback) {
+RemoteDomAgentStub.prototype.GetDocumentElement = function(callId) {
   setTimeout(function() {
-    callback(goog.json.serialize([
+    RemoteDomAgent.GetDocumentElementResult(callId, [
       1,       // id
       1,       // type = Node.ELEMENT_NODE,
       "HTML",  // nodeName
       "",      // nodeValue 
       ["foo","bar"],  // attributes
       2,       // childNodeCount
-    ]))
+    ]);
   }, 0);
 };
 
 
-devtools.DevToolsHostStub.prototype.getChildNodes = function(id, callback) {
+RemoteDomAgentStub.prototype.GetChildNodes = function(callId, id) {
   if (id == 1) {
     setTimeout(function() {
-      callback(goog.json.serialize(
+      RemoteDomAgent.GetChildNodesResult(callId, 
         [
           [
            2,       // id
@@ -48,11 +47,11 @@ devtools.DevToolsHostStub.prototype.getChildNodes = function(id, callback) {
            "", // nodeName
            "Text", // nodeValue 
           ]
-        ]));
+        ]);
       }, 0);
   } else if (id == 2) {
     setTimeout(function() {
-      callback(goog.json.serialize(
+      RemoteDomAgent.GetChildNodesResult(callId, 
         [
           [
           4,       // id
@@ -62,43 +61,64 @@ devtools.DevToolsHostStub.prototype.getChildNodes = function(id, callback) {
           ["foo","bar"],  // attributes
           0,       // childNodeCount
         ]
-      ]));
+      ]);
     }, 0);
   }
 };
 
 
-devtools.DevToolsHostStub.prototype.attach = function() {
+RemoteDomAgentStub.prototype.SetAttribute = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.evaluate = function(str) {
+RemoteDomAgentStub.prototype.RemoveAttribute = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.setAttribute = function() {
+RemoteDomAgentStub.prototype.SetTextNodeValue = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.removeAttribute = function() {
+/**
+ * @constructor
+ */
+RemoteToolsAgentStub = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.setTextNodeValue = function() {
+RemoteToolsAgentStub.prototype.HideDOMNodeHighlight = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.hideDOMNodeHighlight = function() {
+RemoteToolsAgentStub.prototype.HighlightDOMNode = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.highlighDOMNode = function() {
+RemoteToolsAgentStub.prototype.SetDomAgentEnabled = function() {
 };
 
 
-devtools.DevToolsHostStub.prototype.debuggerSendMessage = function() {
+RemoteToolsAgentStub.prototype.SetNetAgentEnabled = function() {
 };
+
+
+/**
+ * @constructor
+ */
+RemoteNetAgentStub = function() {
+};
+
+
+/**
+ * @constructor
+ */
+DevToolsHostStub = function() {
+};
+
 
 if (!window['DevToolsHost']) {
-  window['DevToolsHost'] = new devtools.DevToolsHostStub();
+  window['RemoteDomAgent'] = new RemoteDomAgentStub();
+  window['RemoteNetAgent'] = new RemoteNetAgentStub();
+  window['RemoteToolsAgent'] = new RemoteToolsAgentStub();
+  window['DevToolsHost'] = new DevToolsHostStub();
 }

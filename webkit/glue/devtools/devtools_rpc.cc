@@ -20,15 +20,20 @@ DevToolsRpc::DevToolsRpc(Delegate* delegate) : delegate_(delegate) {
 DevToolsRpc::~DevToolsRpc() {
 }
 
-void DevToolsRpc::SendValueMessage(const Value* value) {
-  std::string json;
-  JSONWriter::Write(value, false, &json);
-  delegate_->SendRpcMessage(json);
+void DevToolsRpc::SendValueMessage(const Value& value) {
+  delegate_->SendRpcMessage(Serialize(value));
 }
 
 // static
 Value* DevToolsRpc::ParseMessage(const std::string& raw_msg) {
   return JSONReader::Read(raw_msg, false);
+}
+
+// static
+std::string DevToolsRpc::Serialize(const Value& value) {
+  std::string json;
+  JSONWriter::Write(&value, false, &json);
+  return json;
 }
 
 // static

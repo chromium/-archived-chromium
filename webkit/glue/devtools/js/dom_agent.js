@@ -6,8 +6,11 @@
  * @fileoverview Dom and DomNode are used to represent remote DOM in the
  * web inspector.
  */
+goog.provide('devtools.DomAgent');
 goog.provide('devtools.DomDocument');
 goog.provide('devtools.DomNode');
+
+goog.require('devtools.Callback');
 
 
 /**
@@ -182,7 +185,6 @@ devtools.DomDocument = function() {
       [],  // attributes
       0,   // childNodeCount
     ]);
-  this.id_to_dom_node_ = { 0 : this };
   this.listeners_ = {};
   this.defaultView = {
     getComputedStyle : function() {},
@@ -246,73 +248,140 @@ devtools.DomDocument.prototype.fireDomEvent_ = function(name, event) {
 
 
 /**
- * Sets root document element.
- * @param {Array.<Object>} payload Document element data.
+ * Creates DomAgent Js representation.
+ * @constructor
  */
-devtools.DomDocument.prototype.setDocumentElement = function(payload) {
-  this.setChildren(0, [payload]);
-  this.documentElement = this.firstChild;
-  this.fireDomEvent_("DOMContentLoaded");
+devtools.DomAgent = function() {
+  this.document = new devtools.DomDocument();
+  this.idToDomNode_ = { 0 : this.document };
+  RemoteDomAgent.GetDocumentElementResult =
+      devtools.Callback.processCallback;
+  RemoteDomAgent.GetChildNodesResult =
+      devtools.Callback.processCallback;
+  RemoteDomAgent.AttributesUpdated =
+      goog.bind(this.attributesUpdated, this);
+  RemoteDomAgent.ChildNodesUpdated =
+      goog.bind(this.childNodesUpdated, this);
+  RemoteDomAgent.HasChildrenUpdated =
+      goog.bind(this.hasChildrenUpdated, this);
+  RemoteDomAgent.ChildNodeInserted =
+      goog.bind(this.childNodeInserted, this);
+  RemoteDomAgent.ChildNodeRemoved =
+      goog.bind(this.childNodeRemoved, this);
 };
 
 
 /**
- * Sets element's children.
- * @param {string} id Parent id.
- * @param {Array.<Object>} payloads Array with elements' data.
+ * Requests that the document element is sent from the agent.
+ * @param {function(Array.<devtools.DomNode>):undefined} opt_callback Callback 
+ *     with the result.
  */
-devtools.DomDocument.prototype.setChildren = function(id, payloads) {
-  var parent = this.id_to_dom_node_[id];
+devtools.DomAgent.prototype.getDocumentElementAsync = function(opt_callback) {
+  if (this.document.documentElement) {
+    if (opt_callback) {
+      opt_callback(this.document.documentElement);
+    }
+    return;
+  }
+  var self = this;
+  var mycallback = function(payload) {
+    self.childNodesUpdated(0, [payload]);
+    self.document.documentElement = self.document.firstChild;
+    self.document.documentElement.ownerDocument = self.document;
+    self.document.fireDomEvent_("DOMContentLoaded");
+    if (opt_callback) {
+      opt_callback(self.document.documentElement);
+    }
+  };
+  var callId = devtools.Callback.wrap(mycallback);
+  RemoteDomAgent.GetDocumentElement(callId);
+};
+
+
+/**
+ * Asynchronously fetches children from the element with given id.
+ * @param {number} parentId Element to get children for.
+ * @param {function(devtools.DomNode):undefined} opt_callback Callback with
+ *     the result.
+ */
+devtools.DomAgent.prototype.getChildNodesAsync = function(parentId,
+    opt_callback) {
+  var children = this.idToDomNode_[parentId].children;
+  if (children && opt_callback) {
+    opt_callback(children);
+    return;
+  }
+  var self = this;
+  var mycallback = function(data) {
+    self.childNodesUpdated(parentId, data);
+    if (opt_callback) {
+      opt_callback(self.idToDomNode_[parentId].children);
+    }
+  };
+  var callId = devtools.Callback.wrap(mycallback);
+  RemoteDomAgent.GetChildNodes(callId, parentId);
+};
+
+
+/**
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.DomAgent.prototype.attributesUpdated = function(nodeId, attrsArray) {
+  var node = this.idToDomNode_[nodeId];
+  node.setAttributesPayload_(attrsArray);
+};
+
+
+/**
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.DomAgent.prototype.childNodesUpdated = function(parentId, payloads) {
+  var parent = this.idToDomNode_[parentId];
   parent.setChildrenPayload_(payloads);
   var children = parent.children;
   for (var i = 0; i < children.length; ++i) {
-    this.id_to_dom_node_[children[i].id] = children[i];
+    this.idToDomNode_[children[i].id] = children[i];
   }
 };
 
 
 /**
- * Inserts node into the given parent after the given anchor.
- * @param {string} parentId Parent id.
- * @param {string} prevId Node to insert given node after.
- * @param {Array.<Object>} payload Node data.
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
  */
-devtools.DomDocument.prototype.nodeInserted = function(
-    parentId, prevId, payload) {
-  var parent = this.id_to_dom_node_[parentId];
-  var prev = this.id_to_dom_node_[prevId];
-  var node = parent.insertChild_(prev, payload);
-  this.id_to_dom_node_[node.id] = node;
-  var event = { target : node, relatedNode : parent };
-  this.fireDomEvent_("DOMNodeInserted", event);
+devtools.DomAgent.prototype.hasChildrenUpdated = function(nodeId, newValue) {
 };
 
 
 /**
- * Removes node from the given parent.
- * @param {string} parentId Parent id.
- * @param {string} nodeId Id of the node to remove.
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
  */
-devtools.DomDocument.prototype.nodeRemoved = function(
+devtools.DomAgent.prototype.childNodeInserted = function(
+    parentId, prevId, payload) {
+  var parent = this.idToDomNode_[parentId];
+  var prev = this.idToDomNode_[prevId];
+  var node = parent.insertChild_(prev, payload);
+  this.idToDomNode_[node.id] = node;
+  var event = { target : node, relatedNode : parent };
+  this.document.fireDomEvent_("DOMNodeInserted", event);
+};
+
+
+/**
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.DomAgent.prototype.childNodeRemoved = function(
     parentId, nodeId) {
-  var parent = this.id_to_dom_node_[parentId];
-  var node = this.id_to_dom_node_[nodeId];
+  var parent = this.idToDomNode_[parentId];
+  var node = this.idToDomNode_[nodeId];
   parent.removeChild_(node);
   var event = { target : node, relatedNode : parent };
-  this.fireDomEvent_("DOMNodeRemoved", event);
-  delete this.id_to_dom_node_[nodeId];
-};
-
-
-/**
- * Sets attributes to an element with given id.
- * @param {string} nodeId Id of the element to set attributes for.
- * @param {Array.<Object>} attrsArray Flat attributes data.
- */
-devtools.DomDocument.prototype.setAttributes = function(
-    nodeId, attrsArray) {
-  var node = this.id_to_dom_node_[nodeId];
-  node.setAttributesPayload_(attrsArray);
+  this.document.fireDomEvent_("DOMNodeRemoved", event);
+  delete this.idToDomNode_[nodeId];
 };
 
 

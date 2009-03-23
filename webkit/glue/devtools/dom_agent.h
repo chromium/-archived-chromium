@@ -36,10 +36,10 @@ DEFINE_RPC_CLASS(DomAgent, DOM_AGENT_STRUCT)
 
 #define DOM_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
   /* Response to GetDocumentElement. */ \
-  METHOD2(GetDocumentElementResult, int /* call_id */, std::string /* json */) \
+  METHOD2(GetDocumentElementResult, int /* call_id */, Value /* node */) \
   \
   /* Response to GetChildNodes. */ \
-  METHOD2(GetChildNodesResult, int /* call_id */, std::string /* json */) \
+  METHOD2(GetChildNodesResult, int /* call_id */, Value /* nodes */) \
   \
   /* Notifies the delegate that element's attributes are updated. */ \
   METHOD2(AttributesUpdated, int /* id */, Value /* attributes */) \

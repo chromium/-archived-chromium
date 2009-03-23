@@ -20,7 +20,6 @@
 #include <wtf/Vector.h>
 #undef LOG
 
-#include "base/json_writer.h"
 #include "base/values.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/glue_util.h"
@@ -213,9 +212,7 @@ void DomAgentImpl::GetDocumentElement(int call_id) {
   if (documents_.size() > 0) {
     OwnPtr<Value> value(
         BuildValueForNode((*documents_.begin())->documentElement(), 0));
-    std::string json;
-    ToJson(value.get(), &json);
-    delegate_->GetDocumentElementResult(call_id, json);
+    delegate_->GetDocumentElementResult(call_id, *value.get());
   } else {
     document_element_call_id_ = call_id;
   }
@@ -229,9 +226,7 @@ void DomAgentImpl::GetChildNodes(int call_id, int element_id) {
   Element* element = static_cast<Element*>(node);
   OwnPtr<Value> children(BuildValueForElementChildren(element, 1));
   children_requested_.add(element_id);
-  std::string json;
-  ToJson(children.get(), &json);
-  delegate_->GetChildNodesResult(call_id, json);
+  delegate_->GetChildNodesResult(call_id, *children.get());
 }
 
 int DomAgentImpl::GetPathToNode(Node* node_to_select) {
@@ -406,8 +401,4 @@ Element* DomAgentImpl::InnerParentElement(Node* node) {
     return node->ownerDocument()->ownerElement();
   }
   return element;
-}
-
-void DomAgentImpl::ToJson(const Value* value, std::string* json) {
-  JSONWriter::Write(value, false, json);
 }

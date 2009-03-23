@@ -45,6 +45,7 @@ input_files = [
   'debugger_bridge.cc',
   'devtools/devtools_rpc.cc',
   'devtools/devtools_rpc.h',
+  'devtools/devtools_rpc_js.h',
   'devtools/dom_agent.h',
   'devtools/dom_agent_impl.cc',
   'devtools/dom_agent_impl.h',

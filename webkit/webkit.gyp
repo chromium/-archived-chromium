@@ -4202,6 +4202,7 @@
         # names.
         'glue/devtools/devtools_rpc.cc',
         'glue/devtools/devtools_rpc.h',
+        'glue/devtools/devtools_rpc_js.h',
         'glue/devtools/dom_agent.h',
         'glue/devtools/dom_agent_impl.cc',
         'glue/devtools/dom_agent_impl.h',

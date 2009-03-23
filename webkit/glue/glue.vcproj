@@ -891,6 +891,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\devtools\devtools_rpc_js.h"
+				>
+			</File>
+			<File
 				RelativePath=".\devtools\dom_agent.h"
 				>
 			</File>
@@ -938,7 +942,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\devtools\js\dom.js"
+					RelativePath=".\devtools\js\dom_agent.js"
 					>
 				</File>
 				<File
@@ -954,7 +958,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\devtools\js\net.js"
+					RelativePath=".\devtools\js\net_agent.js"
 					>
 				</File>
 			</Filter>

@@ -9,47 +9,59 @@
  */
 goog.provide('devtools.Tools');
 
-goog.require('devtools.Dom');
-goog.require('devtools.Net');
+goog.require('devtools.DomAgent');
+goog.require('devtools.NetAgent');
 
-devtools.Tools = function() {
+devtools.ToolsAgent = function() {
+  
 };
 
 
 // ToolsAgent implementation.
-devtools.Tools.prototype.updateFocusedNode = function(node_id) {
+devtools.ToolsAgent.prototype.updateFocusedNode = function(node_id) {
   var node = dom.getNodeForId(node_id);
   WebInspector.updateFocusedNode(node);
 };
 
+
+devtools.ToolsAgent.prototype.setDomAgentEnabled = function(enabled) {
+  RemoteToolsAgent.SetDomAgentEnabled(enabled);
+};
+
+
+devtools.ToolsAgent.prototype.setNetAgentEnabled = function(enabled) {
+  RemoteToolsAgent.SetNetAgentEnabled(enabled);
+};
+
+
 // Frontend global objects.
-var dom = new devtools.DomDocument();
-var net = new devtools.Net();
-var tools = new devtools.Tools();
+var domAgent;
+var netAgent;
+var toolsAgent;
+
 var context = {};  // Used by WebCore's inspector routines.
 
 // Overrides for existing WebInspector methods.
 // TODO(pfeldman): Patch WebCore and upstream changes.
-
 var oldLoaded = WebInspector.loaded;
 WebInspector.loaded = function() {
+  domAgent = new devtools.DomAgent();
+  netAgent = new devtools.NetAgent();
+  toolsAgent = new devtools.ToolsAgent();
+
   oldLoaded.call(this);
   Preferences.ignoreWhitespace = false;
-  DevToolsHost.getDocumentElement(function(root) {
-    dom.setDocumentElement(eval(root));
-  });
+  toolsAgent.setDomAgentEnabled(true);
+  toolsAgent.setNetAgentEnabled(true);
+  domAgent.getDocumentElementAsync();
 };
 
 
-WebInspector.ElementsTreeElement.prototype.onpopulate = function() {
-  if (this.children.length || this.whitespaceIgnored !== 
-      Preferences.ignoreWhitespace)
-    return;
-  this.whitespaceIgnored = Preferences.ignoreWhitespace;
-  var self = this;
-  var id = this.representedObject.id;
-  DevToolsHost.getChildNodes(id, function(children) {
-    dom.setChildren(id, eval(children));
-    self.updateChildren();
-  });
+var webkitUpdateChildren =
+    WebInspector.ElementsTreeElement.prototype.updateChildren;
+
+WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
+  domAgent.getChildNodesAsync(
+      this.representedObject.id,
+      goog.bind(webkitUpdateChildren, this));
 };

@@ -7,15 +7,62 @@
  * HTTP requests and responses.
  * web inspector.
  */
-goog.provide('devtools.Net');
+goog.provide('devtools.NetAgent');
 
-devtools.Net = function() {
+devtools.NetAgent = function() {
   this.resources_ = {};
   this.id_for_url_ = {};
+
+  RemoteNetAgent.GetResourceContentResult =
+      devtools.Callback.processCallback;
+  RemoteNetAgent.WillSendRequest =
+      goog.bind(this.willSendRequest, this);
+  RemoteNetAgent.DidReceiveResponse =
+      goog.bind(this.didReceiveResponse, this);
+  RemoteNetAgent.DidFinishLoading =
+      goog.bind(this.didFinishLoading, this);
+  RemoteNetAgent.DidFailLoading =
+      goog.bind(this.didFailLoading, this);
 };
 
 
-devtools.Net.prototype.willSendRequest = function(identifier, request) {
+/**
+ * Returns resource object for given identifier.
+ * @param {number} identifier Identifier to get resource for.
+ * @return {WebInspector.Resouce} Resulting resource.
+ */
+devtools.NetAgent.prototype.getResource = function(identifier) {
+  return this.resources_[identifier];
+};
+
+
+/**
+ * Asynchronously queries for the resource content.
+ * @param {number} identifier Resource identifier.
+ * @param {function(string):undefined} opt_callback Callback to call when 
+ *     result is available.
+ */
+devtools.NetAgent.prototype.getResourceContentAsync = function(identifier, 
+    opt_callback) {
+  var resource = this.resources_[identifier];
+  if (!resource) {
+    return;
+  }
+  var mycallback = function(content) {
+    if (opt_callback) {
+      opt_callback(content);
+    }
+  };
+  RemoteNetAgent.GetResourceContent(
+      devtools.Callback.wrap(mycallback), identifier, resource.url);
+};
+
+
+/**
+ * @see NetAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.NetAgent.prototype.willSendRequest = function(identifier, request) {
   var mainResource = false;
   var cached = false;
   var resource = new WebInspector.Resource(request.requestHeaders, 
@@ -28,7 +75,11 @@ devtools.Net.prototype.willSendRequest = function(identifier, request) {
 };
 
 
-devtools.Net.prototype.didReceiveResponse = function(identifier, response) {
+/**
+ * @see NetAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.NetAgent.prototype.didReceiveResponse = function(identifier, response) {
   var resource = this.resources_[identifier];
   if (!resource) {
     return;
@@ -52,7 +103,11 @@ devtools.Net.prototype.didReceiveResponse = function(identifier, response) {
 };
 
 
-devtools.Net.prototype.didFinishLoading = function(identifier, value) {
+/**
+ * @see NetAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.NetAgent.prototype.didFinishLoading = function(identifier, value) {
   var resource = this.resources_[identifier];
   if (!resource) {
     return;
@@ -63,7 +118,11 @@ devtools.Net.prototype.didFinishLoading = function(identifier, value) {
 };
 
 
-devtools.Net.prototype.didFailLoading = function(identifier, value) {
+/**
+ * @see NetAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.NetAgent.prototype.didFailLoading = function(identifier, value) {
   var resource = this.resources_[identifier];
   if (!resource) {
     return;
@@ -71,9 +130,4 @@ devtools.Net.prototype.didFailLoading = function(identifier, value) {
   resource.endTime = value.endTime;
   resource.finished = false;
   resource.failed = true;
-};
-
-
-devtools.Net.prototype.setResourceContent = function(identifier,
-    content) {
 };

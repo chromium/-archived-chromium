@@ -96,7 +96,8 @@ class DomAgentTests : public TestShellTest {
 // Requests document node and tests that the callback with the serialized
 // version is called.
 TEST_F(DomAgentTests, GetDocumentElement) {
-  mock_delegate_->GetDocumentElementResult(kCallId1, "[1,1,\"HTML\",\"\",[],1]");
+  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[1,1,\"HTML\",\"\",[],1]"));
+  mock_delegate_->GetDocumentElementResult(kCallId1, *v.get());
   mock_delegate_->Replay();
 
   dom_agent_->GetDocumentElement(kCallId1);
@@ -109,7 +110,8 @@ TEST_F(DomAgentTests, GetChildNodes) {
   dom_agent_->GetDocumentElement(kCallId1);
   mock_delegate_->Reset();
 
-  mock_delegate_->GetChildNodesResult(kCallId2, "[[2,1,\"BODY\",\"\",[],0]]");
+  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[[2,1,\"BODY\",\"\",[],0]]"));
+  mock_delegate_->GetChildNodesResult(kCallId2, *v.get());
   mock_delegate_->Replay();
 
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
@@ -359,7 +361,8 @@ TEST_F(DomAgentTests, GetChildNodesOfFrameOwner) {
   mock_delegate_->Reset();
 
   // Expecting HTML child with single (body) child.
-  mock_delegate_->GetChildNodesResult(kCallId4, "[[4,1,\"HTML\",\"\",[],1]]");
+  OwnPtr<Value> v(DevToolsRpc::ParseMessage("[[4,1,\"HTML\",\"\",[],1]]"));
+  mock_delegate_->GetChildNodesResult(kCallId4, *v.get());
   mock_delegate_->Replay();
 
   dom_agent_->GetChildNodes(kCallId4, 3);

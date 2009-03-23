@@ -103,8 +103,6 @@ class DomAgentImpl : public DomAgent {
   int InnerChildNodeCount(WebCore::Node* node);
   WebCore::Element* InnerParentElement(WebCore::Node* node);
 
-  void ToJson(const Value* value, std::string* json);
-
   DomAgentDelegate* delegate_;
   HashMap<WebCore::Node*, int> node_to_id_;
   HashMap<int, WebCore::Node*> id_to_node_;

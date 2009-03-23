@@ -15,7 +15,7 @@ devtools.InspectorControllerImpl = function() {
 
   this.window_ = {
       get document() {
-        return dom;
+        return domAgent.document;
       },
       get Node() {
         return devtools.DomNode;
@@ -53,8 +53,22 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
 /**
  * {@inheritDoc}.
  */
+devtools.InspectorController.prototype.addResourceSourceToFrame =
+    function(identifier, element) {
+  var self = this;
+  netAgent.getResourceContentAsync(identifier, function(source) {
+    var resource = netAgent.getResource(identifier);
+    self.addSourceToFrame(resource.mimeType, source, element);
+  });
+  return false;
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
 devtools.InspectorControllerImpl.prototype.hideDOMNodeHighlight = function() {
-  DevToolsHost.hideDOMNodeHighlight();
+  RemoteToolsAgent.HideDOMNodeHighlight();
 };
 
 
@@ -63,7 +77,7 @@ devtools.InspectorControllerImpl.prototype.hideDOMNodeHighlight = function() {
  */
 devtools.InspectorControllerImpl.prototype.highlightDOMNode =
     function(hoveredNode) {
-  DevToolsHost.highlightDOMNode(hoveredNode.id);
+  RemoteToolsAgent.HighlightDOMNode(hoveredNode.id);
 };
 
 
