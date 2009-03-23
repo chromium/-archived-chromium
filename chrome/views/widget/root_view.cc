@@ -403,7 +403,7 @@ void RootView::OnMouseReleased(const MouseEvent& e, bool canceled) {
 }
 
 void RootView::OnMouseMoved(const MouseEvent& e) {
-  View *v = GetViewForPoint(e.location());
+  View* v = GetViewForPoint(e.location());
   // Find the first enabled view.
   while (v && !v->IsEnabled())
     v = v->GetParent();

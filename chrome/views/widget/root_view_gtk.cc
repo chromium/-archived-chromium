@@ -21,10 +21,6 @@ void RootView::OnPaint(GdkEventExpose* event) {
     SchedulePaint(gfx::Rect(canvas.rectangle()), false);
     if (NeedsPainting(false)) {
       ProcessPaint(&canvas);
-
-      canvas.FillRectInt(SK_ColorRED, 5, 5, 10, 10);
-      canvas.FillRectInt(SK_ColorGREEN, 25, 5, 10, 10);
-      canvas.FillRectInt(SK_ColorBLUE, 45, 5, 10, 10);
     }
   }
 }

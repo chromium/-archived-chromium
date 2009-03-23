@@ -10,7 +10,9 @@
 namespace views {
 
 WidgetGtk::WidgetGtk()
-    : widget_(NULL) {
+    : widget_(NULL),
+      is_mouse_down_(false),
+      last_mouse_event_was_move_(false) {
 }
 
 WidgetGtk::~WidgetGtk() {
@@ -29,6 +31,17 @@ void WidgetGtk::Init(const gfx::Rect& bounds,
   widget_ = gtk_drawing_area_new();
   gtk_drawing_area_size(GTK_DRAWING_AREA(widget_), 100, 100);
   gtk_widget_show(widget_);
+
+  // Make sure we receive our motion events.
+  gtk_widget_set_events(widget_,
+                        gtk_widget_get_events(widget_) |
+                        GDK_ENTER_NOTIFY_MASK |
+                        GDK_LEAVE_NOTIFY_MASK |
+                        GDK_BUTTON_PRESS_MASK |
+                        GDK_BUTTON_RELEASE_MASK |
+                        GDK_POINTER_MOTION_MASK |
+                        GDK_KEY_PRESS_MASK |
+                        GDK_KEY_RELEASE_MASK);
 
   root_view_->OnWidgetCreated();
 
@@ -111,6 +124,7 @@ void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
 
 void WidgetGtk::MoveToFront(bool should_activate) {
   // TODO(erg): I'm not sure about how to do z-ordering on GTK widgets...
+  NOTIMPLEMENTED();
 }
 
 gfx::NativeView WidgetGtk::GetNativeView() const {
@@ -118,7 +132,9 @@ gfx::NativeView WidgetGtk::GetNativeView() const {
 }
 
 void WidgetGtk::PaintNow(const gfx::Rect& update_rect) {
-
+  // TODO(erg): This is woefully incomplete and is a straw man implementation.
+  gtk_widget_queue_draw_area(widget_, update_rect.x(), update_rect.y(),
+                             update_rect.width(), update_rect.height());
 }
 
 RootView* WidgetGtk::GetRootView() {
@@ -144,7 +160,35 @@ TooltipManager* WidgetGtk::GetTooltipManager() {
 }
 
 bool WidgetGtk::GetAccelerator(int cmd_id, Accelerator* accelerator) {
+  NOTIMPLEMENTED();
   return false;
+}
+
+gboolean WidgetGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
+  gfx::Point screen_loc(event->x_root, event->y_root);
+  if (last_mouse_event_was_move_ && last_mouse_move_x_ == screen_loc.x() &&
+      last_mouse_move_y_ == screen_loc.y()) {
+    // Don't generate a mouse event for the same location as the last.
+    return false;
+  }
+  last_mouse_move_x_ = screen_loc.x();
+  last_mouse_move_y_ = screen_loc.y();
+  last_mouse_event_was_move_ = true;
+  MouseEvent mouse_move(Event::ET_MOUSE_MOVED,
+                        event->x,
+                        event->y,
+                        Event::GetFlagsFromGdkState(event->state));
+  root_view_->OnMouseMoved(mouse_move);
+  return true;
+}
+
+gboolean WidgetGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event) {
+  return ProcessMousePressed(event);
+}
+
+gboolean WidgetGtk::OnButtonRelease(GtkWidget* widget, GdkEventButton* event) {
+  ProcessMouseReleased(event);
+  return true;
 }
 
 gboolean WidgetGtk::OnPaint(GtkWidget* widget, GdkEventExpose* event) {
@@ -152,8 +196,68 @@ gboolean WidgetGtk::OnPaint(GtkWidget* widget, GdkEventExpose* event) {
   return true;
 }
 
+gboolean WidgetGtk::OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event) {
+  // TODO(port): We may not actually need this message; it looks like
+  // OnNotificationNotify() takes care of this case...
+  return false;
+}
+
+gboolean WidgetGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event) {
+  last_mouse_event_was_move_ = false;
+  root_view_->ProcessOnMouseExited();
+  return true;
+}
+
+gboolean WidgetGtk::OnKeyPress(GtkWidget* widget, GdkEventKey* event) {
+  KeyEvent key_event(event);
+  return root_view_->ProcessKeyEvent(key_event);
+}
+
+gboolean WidgetGtk::OnKeyRelease(GtkWidget* widget, GdkEventKey* event) {
+  KeyEvent key_event(event);
+  return root_view_->ProcessKeyEvent(key_event);
+}
+
 RootView* WidgetGtk::CreateRootView() {
   return new RootView(this);
+}
+
+bool WidgetGtk::ProcessMousePressed(GdkEventButton* event) {
+  last_mouse_event_was_move_ = false;
+  MouseEvent mouse_pressed(Event::ET_MOUSE_PRESSED,
+                           event->x, event->y,
+//                         (dbl_click ? MouseEvent::EF_IS_DOUBLE_CLICK : 0) |
+                           Event::GetFlagsFromGdkState(event->state));
+  if (root_view_->OnMousePressed(mouse_pressed)) {
+    is_mouse_down_ = true;
+    // TODO(port): Enable this once I figure out what capture is.
+    // if (!has_capture_) {
+    //   SetCapture();
+    //   has_capture_ = true;
+    //   current_action_ = FA_FORWARDING;
+    // }
+    return true;
+  }
+
+  return false;
+}
+
+void WidgetGtk::ProcessMouseReleased(GdkEventButton* event) {
+  last_mouse_event_was_move_ = false;
+  MouseEvent mouse_up(Event::ET_MOUSE_RELEASED,
+                      event->x, event->y,
+                      Event::GetFlagsFromGdkState(event->state));
+  // Release the capture first, that way we don't get confused if
+  // OnMouseReleased blocks.
+  //
+  // TODO(port): Enable this once I figure out what capture is.
+  // if (has_capture_ && ReleaseCaptureOnMouseReleased()) {
+  //   has_capture_ = false;
+  //   current_action_ = FA_NONE;
+  //   ReleaseCapture();
+  // }
+  is_mouse_down_ = false;
+  root_view_->OnMouseReleased(mouse_up, false);
 }
 
 // static

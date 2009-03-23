@@ -49,33 +49,19 @@ class WidgetGtk : public Widget {
  protected:
   virtual void OnSizeAllocate(GtkWidget* widget, GtkAllocation* allocation) {}
   virtual gboolean OnPaint(GtkWidget* widget, GdkEventExpose* event);
-  virtual gboolean OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event) {
-    return false;
-  }
-  virtual gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event) {
-    return false;
-  }
-  virtual gboolean OnMotionNotify(GtkWidget* widget, GdkEventMotion* event) {
-    return false;
-  }
-  virtual gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event) {
-    return false;
-  }
-  virtual gboolean OnButtonRelease(GtkWidget* widget, GdkEventButton* event) {
-    return false;
-  }
+  virtual gboolean OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event);
+  virtual gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event);
+  virtual gboolean OnMotionNotify(GtkWidget* widget, GdkEventMotion* event);
+  virtual gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event);
+  virtual gboolean OnButtonRelease(GtkWidget* widget, GdkEventButton* event);
   virtual gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* event) {
     return false;
   }
   virtual gboolean OnFocusOut(GtkWidget* widget, GdkEventFocus* event) {
     return false;
   }
-  virtual gboolean OnKeyPress(GtkWidget* widget, GdkEventKey* event) {
-    return false;
-  }
-  virtual gboolean OnKeyRelease(GtkWidget* widget, GdkEventKey* event) {
-    return false;
-  }
+  virtual gboolean OnKeyPress(GtkWidget* widget, GdkEventKey* event);
+  virtual gboolean OnKeyRelease(GtkWidget* widget, GdkEventKey* event);
   virtual gboolean OnScroll(GtkWidget* widget, GdkEventScroll* event) {
     return false;
   }
@@ -86,6 +72,10 @@ class WidgetGtk : public Widget {
 
  private:
   virtual RootView* CreateRootView();
+
+  // Process a mouse click
+  bool ProcessMousePressed(GdkEventButton* event);
+  void ProcessMouseReleased(GdkEventButton* event);
 
   // Sets and retrieves the WidgetGtk in the userdata section of the widget.
   static WidgetGtk* GetViewForNative(GtkWidget* widget);
@@ -115,6 +105,20 @@ class WidgetGtk : public Widget {
 
   // The root of the View hierarchy attached to this window.
   scoped_ptr<RootView> root_view_;
+
+  // If true, the mouse is currently down.
+  bool is_mouse_down_;
+
+  // The following are used to detect duplicate mouse move events and not
+  // deliver them. Displaying a window may result in the system generating
+  // duplicate move events even though the mouse hasn't moved.
+
+  // If true, the last event was a mouse move event.
+  bool last_mouse_event_was_move_;
+
+  // Coordinates of the last mouse move event, in screen coordinates.
+  int last_mouse_move_x_;
+  int last_mouse_move_y_;
 };
 
 }  // namespace views

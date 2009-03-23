@@ -800,6 +800,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\event_win.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\fill_layout.cc"
 			>
 		</File>

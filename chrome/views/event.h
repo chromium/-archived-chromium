@@ -6,6 +6,11 @@
 #define CHROME_VIEWS_EVENT_H_
 
 #include "base/basictypes.h"
+
+#if defined(OS_LINUX)
+#include <gdk/gdk.h>
+#endif
+
 #include "base/gfx/point.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -86,6 +91,9 @@ class Event {
 
   // Convert windows flags to views::Event flags
   static int ConvertWindowsFlags(uint32 win_flags);
+#elif defined(OS_LINUX)
+  // Convert the state member on a GdkEvent to views::Event flags
+  static int GetFlagsFromGdkState(int state);
 #endif
 
   // Convert WebInputEvent::Modifiers flags to views::Event flags.
@@ -221,13 +229,12 @@ class MouseEvent : public LocatedEvent {
 ////////////////////////////////////////////////////////////////////////////////
 class KeyEvent : public Event {
  public:
+#if defined(OS_WIN)
   // Create a new key event
-  KeyEvent(EventType type, int ch, int repeat_count, int message_flags)
-      : Event(type, GetKeyStateFlags()),
-        character_(ch),
-        repeat_count_(repeat_count),
-        message_flags_(message_flags) {
-  }
+  KeyEvent(EventType type, int ch, int repeat_count, int message_flags);
+#elif defined(OS_LINUX)
+  KeyEvent(GdkEventKey* event);
+#endif
 
   int GetCharacter() const {
     return character_;
@@ -242,7 +249,9 @@ class KeyEvent : public Event {
   }
 
  private:
+#if defined(OS_WIN)
   int GetKeyStateFlags() const;
+#endif
 
   int character_;
   int repeat_count_;

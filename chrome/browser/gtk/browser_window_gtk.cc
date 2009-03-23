@@ -31,6 +31,13 @@
 
 namespace {
 
+class DummyButtonListener : public views::ButtonListener {
+ public:
+  virtual void ButtonPressed(views::Button* sender) {
+    DLOG(ERROR) << "Button Pressed!";
+  }
+};
+
 static GdkPixbuf* LoadThemeImage(int resource_id) {
   // TODO(mmoss) refactor -- stolen from custom_button.cc
   if (0 == resource_id)
@@ -196,7 +203,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     experimental_widget_.reset(new views::WidgetGtk());
     experimental_widget_->Init(gfx::Rect(), false);
     experimental_widget_->SetContentsView(
-        new views::TextButton(NULL, L"Button"));
+        new views::TextButton(new DummyButtonListener, L"Button"));
 
     gtk_box_pack_start(GTK_BOX(vbox_),
                        experimental_widget_->GetNativeView(),
