@@ -104,6 +104,13 @@ bool DownloadThrottlingResourceHandler::OnResponseCompleted(
   if (download_handler_.get())
     return download_handler_->OnResponseCompleted(request_id, status,
                                                   security_info);
+
+  // For a download, if ResourceDispatcher::Read() fails,
+  // ResourceDispatcher::OnresponseStarted() will call
+  // OnResponseCompleted(), and we will end up here with an error
+  // status.
+  if (!status.is_success())
+    return false;
   NOTREACHED();
   return true;
 }
