@@ -18,10 +18,12 @@ var extensionDataFormat = {
       "content_scripts": [
         {
           "js": ["script1_file1.js", "script1_file2.js"],
+          "css": ["script1_file1.css", "script1_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         },
         {
           "js": ["script2_file1.js", "script2_file2.js"],
+          "css": ["script2_file1.css", "script2_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         }
       ]
@@ -33,10 +35,12 @@ var extensionDataFormat = {
       "content_scripts": [
         {
           "js": ["script1_file1.js", "script1_file2.js"],
+          "css": ["script1_file1.css", "script1_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         },
         {
           "js": ["script2_file1.js", "script2_file2.js"],
+          "css": ["script2_file1.css", "script2_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         }
       ]
@@ -215,17 +219,25 @@ th.enabled {
               </thead>
               <tbody>
                 <tr> 
-                  <td>JavaScript Files</td>
+                  <td>URL Match Patterns</td>
                   <td>
-                    <span jsselect="js" 
+                    <span jsselect="matches" 
                         jscontent="(($index > 0) ? ', ' : '') + $this">
                     </span>
                   </td>
                 </tr>
-                <tr> 
-                  <td>URL Match Patterns</td>
+                <tr>
+                  <td>CSS Files</td>
                   <td>
-                    <span jsselect="matches" 
+                    <span jsselect="css" 
+                        jscontent="(($index > 0) ? ', ' : '') + $this">
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>JavaScript Files</td>
+                  <td>
+                    <span jsselect="js" 
                         jscontent="(($index > 0) ? ', ' : '') + $this">
                     </span>
                   </td>
