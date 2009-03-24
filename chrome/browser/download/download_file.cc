@@ -16,6 +16,7 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/io_buffer.h"
@@ -517,17 +518,12 @@ void DownloadFileManager::OnDownloadUrl(const GURL& url,
 
 // Actions from the UI thread and run on the download thread
 
-// Open a download, or show it in a Windows Explorer window. We run on this
+// Open a download, or show it in a file explorer window. We run on this
 // thread to avoid blocking the UI with (potentially) slow Shell operations.
 // TODO(paulg): File 'stat' operations.
 void DownloadFileManager::OnShowDownloadInShell(const FilePath& full_path) {
-#if defined(OS_WIN)
   DCHECK(MessageLoop::current() == file_loop_);
-  win_util::ShowItemInFolder(full_path.value());
-#else
-  // TODO(port) implement me.
-  NOTREACHED();
-#endif
+  platform_util::ShowItemInFolder(full_path);
 }
 
 // Launches the selected download using ShellExecute 'open' verb. If there is

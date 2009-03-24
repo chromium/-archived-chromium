@@ -17,15 +17,12 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/stl_util-inl.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 #include "net/base/io_buffer.h"
 #include "net/url_request/url_request_context.h"
-
-#if defined(OS_WIN)
-#include "chrome/common/win_util.h"
-#endif
 
 #if defined(OS_WIN)
 // TODO(port): port these headers to posix.
@@ -521,12 +518,7 @@ void SaveFileManager::OnDeleteDirectoryOrFile(const FilePath& full_path,
 // We run on this thread to avoid blocking the UI with slow Shell operations.
 void SaveFileManager::OnShowSavedFileInShell(const FilePath full_path) {
   DCHECK(MessageLoop::current() == GetSaveLoop());
-  // TODO(port): make an equivalent call on mac/linux.
-#if defined(OS_WIN)
-  win_util::ShowItemInFolder(full_path.value());
-#elif defined(OS_POSIX)
-  NOTIMPLEMENTED();
-#endif
+  platform_util::ShowItemInFolder(full_path);
 }
 
 void SaveFileManager::RenameAllFiles(

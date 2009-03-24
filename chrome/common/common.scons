@@ -178,6 +178,10 @@ input_files = ChromeFileList([
     'owned_widget_gtk.h',
     'page_transition_types.h',
     'page_zoom.h',
+    'platform_util.h',
+    'platform_util_linux.cc',
+    'platform_util_mac.mm',
+    'platform_util_win.cc',
     '$CHROME_DIR/tools/build/win/precompiled$OBJSUFFIX',
     '$CHROME_DIR/tools/build/win/precompiled.h',
     'pref_member.cc',
@@ -257,6 +261,7 @@ if not env.Bit('windows'):
       'gfx/chrome_font_win.cc',
       'gfx/path_win.cc',
       'ipc_channel_win.cc',
+      'platform_util_win.cc',
       'resource_bundle_win.cc',
       'win_safe_util.cc',
       'win_util.cc',
@@ -273,6 +278,7 @@ if not env.Bit('linux'):
       'gfx/path_gtk.cc',
       'owned_widget_gtk.cc',
       'owned_widget_gtk.h',
+      'platform_util_linux.cc',
       'resource_bundle_linux.cc',
   )
 
@@ -280,6 +286,7 @@ if not env.Bit('mac'):
   # Mac specific files
   input_files.Remove(
       'chrome_paths_mac.cc',
+      'platform_util_mac.mm',
   )
 
 if not env.Bit('posix'):

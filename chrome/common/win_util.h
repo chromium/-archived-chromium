@@ -115,9 +115,6 @@ bool IsDrag(const POINT& origin, const POINT& current);
 // Returns true if we are on Windows Vista and composition is enabled
 bool ShouldUseVistaFrame();
 
-// Open a Windows explorer window with the specified file highlighted.
-void ShowItemInFolder(const std::wstring& full_path);
-
 // Open or run a file via the Windows shell. In the event that there is no
 // default application registered for the file specified by 'full_path',
 // ask the user, via the Windows "Open With" dialog, for an application to use

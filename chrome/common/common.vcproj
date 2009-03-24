@@ -614,6 +614,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\platform_util.h"
+			>
+		</File>
+		<File
+			RelativePath=".\platform_util_win.cc"
+			>
+		</File>
+		<File
 			RelativePath="..\tools\build\win\precompiled.cc"
 			>
 			<FileConfiguration
