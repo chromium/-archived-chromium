@@ -129,7 +129,6 @@
         'common/net/dns.h',
         'common/net/url_request_intercept_job.cc',
         'common/net/url_request_intercept_job.h',
-        'common/accessibility.h',
         'common/animation.cc',
         'common/animation.h',
         'common/bindings_policy.h',

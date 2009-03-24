@@ -4287,7 +4287,6 @@
         'glue/find_in_page_request.h',
         'glue/form_data.h',
         'glue/glue_accessibility.cc',
-        'glue/glue_accessibility.h',
         'glue/glue_serialize.cc',
         'glue/glue_serialize.h',
         'glue/glue_util.cc',
