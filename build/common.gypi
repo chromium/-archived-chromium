@@ -152,7 +152,7 @@
           # refactoring since this was first coded, which might have
           # eliminated the circular dependencies.
           'LINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$LINKFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'SHLINKCOM': [['$FLOCK_LINK', '-o', '$TARGET $SHLIN', 'FLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'SHLINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$SHLINFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
           'IMPLICIT_COMMAND_DEPENDENCIES': 0,
         },
       },
