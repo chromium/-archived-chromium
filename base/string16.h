@@ -122,6 +122,47 @@ struct string16_char_traits {
 
 }  // namespace base
 
+// The string class will be explicitly instantiated only once, in string16.cc.
+//
+// std::basic_string<> in GNU libstdc++ contains a static data member,
+// _S_empty_rep_storage, to represent empty strings.  When an operation such
+// as assignment or destruction is performed on a string, causing its existing
+// data member to be invalidated, it must not be freed if this static data
+// member is being used.  Otherwise, it counts as an attempt to free static
+// (and not allocated) data, which is a memory error.
+//
+// Generally, due to C++ template magic, _S_empty_rep_storage will be marked
+// as a coalesced symbol, meaning that the linker will combine multiple
+// instances into a single one when generating output.
+//
+// If a string class is used by multiple shared libraries, a problem occurs.
+// Each library will get its own copy of _S_empty_rep_storage.  When strings
+// are passed across a library boundary for alteration or destruction, memory
+// errors will result.  GNU libstdc++ contains a configuration option,
+// --enable-fully-dynamic-string (_GLIBCXX_FULLY_DYNAMIC_STRING), which
+// disables the static data member optimization, but it's a good optimization
+// and non-STL code is generally at the mercy of the system's STL
+// configuration.  Fully-dynamic strings are not the default for GNU libstdc++
+// libstdc++ itself or for the libstdc++ installations on the systems we care
+// about, such as Mac OS X and relevant flavors of Linux.
+//
+// See also http://gcc.gnu.org/bugzilla/show_bug.cgi?id=24196 .
+//
+// To avoid problems, string classes need to be explicitly instantiated only
+// once, in exactly one library.  All other string users see it via an "extern"
+// declaration.  This is precisely how GNU libstdc++ handles
+// std::basic_string<char> (string) and std::basic_string<wchar_t> (wstring).
+//
+// This also works around a Mac OS X linker bug in ld64-85.2.1 (Xcode 3.1.2),
+// in which the linker does not fully coalesce symbols when dead code
+// stripping is enabled.  This bug causes the memory errors described above
+// to occur even when a std::basic_string<> does not cross shared library
+// boundaries, such as in statically-linked executables.
+//
+// TODO(mark): File this bug with Apple and update this note with a bug number.
+
+extern template class std::basic_string<char16, base::string16_char_traits>;
+
 typedef std::basic_string<char16, base::string16_char_traits> string16;
 
 extern std::ostream& operator<<(std::ostream& out, const string16& str);

@@ -67,6 +67,8 @@ char16* c16memset(char16* s, char16 c, size_t n) {
 
 }  // namespace base
 
+template class std::basic_string<char16, base::string16_char_traits>;
+
 std::ostream& operator<<(std::ostream& out, const string16& str) {
   return out << UTF16ToUTF8(str);
 }
