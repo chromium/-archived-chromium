@@ -14,16 +14,13 @@ var extensionDataFormat = {
       "name": "Extension Name",
       "description": "Extension long format description",
       "version": "1.0.231",
-      "permissions": ["http://*/*", "http://other.com/*"],
       "content_scripts": [
         {
           "js": ["script1_file1.js", "script1_file2.js"],
-          "css": ["script1_file1.css", "script1_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         },
         {
           "js": ["script2_file1.js", "script2_file2.js"],
-          "css": ["script2_file1.css", "script2_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         }
       ]
@@ -35,12 +32,10 @@ var extensionDataFormat = {
       "content_scripts": [
         {
           "js": ["script1_file1.js", "script1_file2.js"],
-          "css": ["script1_file1.css", "script1_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         },
         {
           "js": ["script2_file1.js", "script2_file2.js"],
-          "css": ["script2_file1.css", "script2_file2.css"],
           "matches": ["http://*/*", "http://other.com/*"]
         }
       ]
@@ -190,54 +185,31 @@ th.enabled {
         <div jsdisplay="extensions.length > 0">
           <div class="extension" jsselect="extensions">
             <div class="extension-name" jscontent="name">
-                Extension Name
-            </div>
+                sExtension Name</div>
             <dl>
               <dd>
                 <span jscontent="description">Extension Description</span>
               </dd>
               <dd>Version: <span jscontent="version">x.x.x.x</span></dd>
             </dl>
-            <table>
-              <thead>
-                <tr><th colspan="2">Configuration</th></tr>
-              </thead>
-              <tbody>
-                <tr> 
-                  <td>Permissions</td>
-                  <td>
-                    <span jsselect="permissions" 
-                        jscontent="(($index > 0) ? ', ' : '') + $this">
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            
             <table jsselect="content_scripts">
               <thead>
                 <tr><th colspan="2">Content Script</th></tr>
               </thead>
               <tbody>
                 <tr> 
-                  <td>URL Match Patterns</td>
-                  <td>
-                    <span jsselect="matches" 
-                        jscontent="(($index > 0) ? ', ' : '') + $this">
-                    </span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>CSS Files</td>
-                  <td>
-                    <span jsselect="css" 
-                        jscontent="(($index > 0) ? ', ' : '') + $this">
-                    </span>
-                  </td>
-                </tr>
-                <tr>
                   <td>JavaScript Files</td>
                   <td>
                     <span jsselect="js" 
+                        jscontent="(($index > 0) ? ', ' : '') + $this">
+                    </span>
+                  </td>
+                </tr>
+                <tr> 
+                  <td>URL Match Patterns</td>
+                  <td>
+                    <span jsselect="matches" 
                         jscontent="(($index > 0) ? ', ' : '') + $this">
                     </span>
                   </td>

@@ -338,6 +338,10 @@ class RenderView : public RenderWidget,
   void EvaluateScript(const std::wstring& frame_xpath,
                       const std::wstring& jscript);
 
+  // Inserts a string of CSS in a particular frame.
+  void InsertCSS(const std::wstring& frame_xpath,
+                 const std::string& css);
+
   // Called when the Javascript debugger is no longer attached.
   // This is called from within the renderer, not via an IPC message.
   void OnDebugDetach();
@@ -510,6 +514,8 @@ class RenderView : public RenderWidget,
 
   void OnScriptEvalRequest(const std::wstring& frame_xpath,
                            const std::wstring& jscript);
+  void OnCSSInsertRequest(const std::wstring& frame_xpath,
+                          const std::string& css);
   void OnAddMessageToConsole(const std::wstring& frame_xpath,
                              const std::wstring& msg,
                              ConsoleMessageLevel level);

@@ -41,6 +41,8 @@ class ExtensionView : public HWNDHtmlView,
       const int flags,
       IPC::Message* reply_msg,
       bool* did_suppress_message);
+  virtual void DidStartLoading(RenderViewHost* render_view_host,
+                               int32 page_id);
 
   Extension* extension() { return extension_; }
  private:

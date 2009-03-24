@@ -221,6 +221,13 @@ IPC_BEGIN_MESSAGES(View)
                       std::wstring,  /* frame_xpath */
                       std::wstring  /* jscript_url */)
 
+  // Request for the renderer to evaluate an xpath to a frame and insert css
+  // into that frame's document. See ViewMsg_ScriptEvalRequest for details on
+  // allowed xpath expressions.
+  IPC_MESSAGE_ROUTED2(ViewMsg_CSSInsertRequest,
+                      std::wstring,  /* frame_xpath */
+                      std::string  /* css string */)
+
   // Log a message to the console of the target frame
   IPC_MESSAGE_ROUTED3(ViewMsg_AddMessageToConsole,
                       std::wstring, /* frame_xpath */

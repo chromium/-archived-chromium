@@ -370,6 +370,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_SetupDevToolsClient, OnSetupDevToolsClient)
     IPC_MESSAGE_HANDLER(ViewMsg_DownloadImage, OnDownloadImage)
     IPC_MESSAGE_HANDLER(ViewMsg_ScriptEvalRequest, OnScriptEvalRequest)
+    IPC_MESSAGE_HANDLER(ViewMsg_CSSInsertRequest, OnCSSInsertRequest)
     IPC_MESSAGE_HANDLER(ViewMsg_AddMessageToConsole, OnAddMessageToConsole)
     IPC_MESSAGE_HANDLER(ViewMsg_DebugAttach, OnDebugAttach)
     IPC_MESSAGE_HANDLER(ViewMsg_DebugDetach, OnDebugDetach)
@@ -2472,9 +2473,23 @@ void RenderView::EvaluateScript(const std::wstring& frame_xpath,
       webkit_glue::WebScriptSource(WideToUTF8(script)));
 }
 
+void RenderView::InsertCSS(const std::wstring& frame_xpath,
+                           const std::string& css) {
+  WebFrame* web_frame = GetChildFrame(frame_xpath);
+  if (!web_frame)
+    return;
+
+  web_frame->InsertCSSStyles(css);
+}
+
 void RenderView::OnScriptEvalRequest(const std::wstring& frame_xpath,
                                      const std::wstring& jscript) {
   EvaluateScript(frame_xpath, jscript);
+}
+
+void RenderView::OnCSSInsertRequest(const std::wstring& frame_xpath,
+                                    const std::string& css) {
+  InsertCSS(frame_xpath, css);
 }
 
 void RenderView::OnAddMessageToConsole(const std::wstring& frame_xpath,

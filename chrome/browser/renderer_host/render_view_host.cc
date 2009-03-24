@@ -425,6 +425,11 @@ void RenderViewHost::ExecuteJavascriptInWebFrame(
   Send(new ViewMsg_ScriptEvalRequest(routing_id(), frame_xpath, jscript));
 }
 
+void RenderViewHost::InsertCSSInWebFrame(
+    const std::wstring& frame_xpath, const std::string& css) {
+  Send(new ViewMsg_CSSInsertRequest(routing_id(), frame_xpath, css));
+}
+
 void RenderViewHost::AddMessageToConsole(
     const std::wstring& frame_xpath, const std::wstring& msg,
     ConsoleMessageLevel level) {

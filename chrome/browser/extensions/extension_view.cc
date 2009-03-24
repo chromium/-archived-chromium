@@ -7,6 +7,10 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/common/resource_bundle.h"
+
+#include "grit/browser_resources.h"
+#include "grit/generated_resources.h"
 
 ExtensionView::ExtensionView(
     Extension* extension, const GURL& url, Profile* profile) :
@@ -39,4 +43,12 @@ void ExtensionView::RunJavaScriptMessage(
   // indefinitely).
   *did_suppress_message = true;
   render_view_host()->JavaScriptMessageBoxClosed(reply_msg, true, L"");
+}
+
+void ExtensionView::DidStartLoading(RenderViewHost* render_view_host,
+                                    int32 page_id) {
+  static const StringPiece toolstrip_css(
+      ResourceBundle::GetSharedInstance().GetRawDataResource(
+          IDR_EXTENSIONS_TOOLSTRIP_CSS));
+  render_view_host->InsertCSSInWebFrame(L"", toolstrip_css.as_string());
 }

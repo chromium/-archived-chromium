@@ -230,6 +230,10 @@ class RenderViewHost : public RenderWidgetHost {
   void ExecuteJavascriptInWebFrame(const std::wstring& frame_xpath,
                                    const std::wstring& jscript);
 
+  // Insert some css into a frame in the page.
+  void InsertCSSInWebFrame(const std::wstring& frame_xpath,
+                           const std::string& css);
+
   // Logs a message to the console of a frame in the page.
   void AddMessageToConsole(const std::wstring& frame_xpath,
                            const std::wstring& msg,

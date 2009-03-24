@@ -37,7 +37,7 @@ void ExtensionsUIHTMLSource::StartDataRequest(const std::string& path,
 
   static const StringPiece extensions_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
-          IDR_EXTENSIONS_HTML));
+          IDR_EXTENSIONS_UI_HTML));
   const std::string full_html = jstemplate_builder::GetTemplateHtml(
       extensions_html, &localized_strings, "root");
 
