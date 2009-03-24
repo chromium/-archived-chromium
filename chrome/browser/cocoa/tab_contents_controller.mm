@@ -65,6 +65,8 @@ class LocationBarBridge : public LocationBar {
   virtual PageTransition::Type GetPageTransition() const
       { NOTIMPLEMENTED(); return 0; }
   virtual void AcceptInput() { NOTIMPLEMENTED(); }
+  virtual void AcceptInputWithDisposition(WindowOpenDisposition disposition)
+      { NOTIMPLEMENTED(); }
   virtual void FocusLocation();
   virtual void FocusSearch() { NOTIMPLEMENTED(); }
   virtual void UpdateFeedIcon() { /* http://crbug.com/8832 */ }

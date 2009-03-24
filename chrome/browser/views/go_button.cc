@@ -5,7 +5,8 @@
 #include "chrome/browser/views/go_button.h"
 
 #include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/command_updater.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
@@ -13,16 +14,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 // GoButton, public:
 
-GoButton::GoButton(LocationBarView* location_bar,
-                   CommandUpdater* command_updater)
+GoButton::GoButton(LocationBarView* location_bar, Browser* browser)
     : ToggleImageButton(this),
       location_bar_(location_bar),
-      command_updater_(command_updater),
+      browser_(browser),
       intended_mode_(MODE_GO),
       visible_mode_(MODE_GO),
       button_delay_(NULL),
       stop_timer_(this) {
   DCHECK(location_bar_);
+  set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
+                           views::Event::EF_MIDDLE_BUTTON_DOWN);
 }
 
 GoButton::~GoButton() {
@@ -64,14 +66,14 @@ void GoButton::ScheduleChangeMode(Mode mode) {
 
 void GoButton::ButtonPressed(views::Button* button) {
   if (visible_mode_ == MODE_STOP) {
-    command_updater_->ExecuteCommand(IDC_STOP);
+    browser_->Stop();
 
     // The user has clicked, so we can feel free to update the button,
     // even if the mouse is still hovering.
     ChangeMode(MODE_GO);
   } else if (visible_mode_ == MODE_GO && stop_timer_.empty()) {
     // If the go button is visible and not within the double click timer, go.
-    command_updater_->ExecuteCommand(IDC_GO);
+    browser_->Go(event_utils::DispositionFromEventFlags(mouse_event_flags()));
 
     // Figure out the system double-click time.
     if (button_delay_ == NULL)

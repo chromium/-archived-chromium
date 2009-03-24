@@ -34,6 +34,7 @@ class TestLocationBar : public LocationBar {
   }
   virtual PageTransition::Type GetPageTransition() const { return transition_; }
   virtual void AcceptInput() {}
+  virtual void AcceptInputWithDisposition(WindowOpenDisposition) {};
   virtual void FocusLocation() {}
   virtual void FocusSearch() {}
   virtual void UpdateFeedIcon() {}

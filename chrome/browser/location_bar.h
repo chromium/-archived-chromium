@@ -37,6 +37,9 @@ class LocationBar {
   // Accepts the current string of text entered in the location bar.
   virtual void AcceptInput() = 0;
 
+  // Accept the current input, overriding the disposition.
+  virtual void AcceptInputWithDisposition(WindowOpenDisposition) = 0;
+
   // Focuses and selects the contents of the location bar.
   virtual void FocusLocation() = 0;
 
