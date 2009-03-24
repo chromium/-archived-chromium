@@ -43,14 +43,6 @@ class CustomButton : public Button,
   virtual bool IsEnabled() const;
   virtual bool IsFocusable() const;
 
-  void set_triggerable_event_flags(int triggerable_event_flags) {
-    triggerable_event_flags_ = triggerable_event_flags;
-  }
-
-  int triggerable_event_flags() const {
-    return triggerable_event_flags_;
-  }
-
  protected:
   // Construct the Button with a Listener. See comment for Button's ctor.
   explicit CustomButton(ButtonListener* listener);
@@ -93,9 +85,6 @@ class CustomButton : public Button,
   // Should we animate when the state changes? Defaults to true, but false while
   // throbbing.
   bool animate_on_state_change_;
-
-  // Mouse event flags which can trigger button actions.
-  int triggerable_event_flags_;
 
   DISALLOW_COPY_AND_ASSIGN(CustomButton);
 };

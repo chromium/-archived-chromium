@@ -551,7 +551,7 @@ void Browser::ShowSingleDOMUITab(const GURL& url) {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Assorted browser commands:
 
-void Browser::GoBack(WindowOpenDisposition disposition) {
+void Browser::GoBack() {
   UserMetrics::RecordAction(L"Back", profile_);
 
   // If we are showing an interstitial, just hide it.
@@ -565,37 +565,14 @@ void Browser::GoBack(WindowOpenDisposition disposition) {
     web_contents->interstitial_page()->DontProceed();
     return;
   }
-
-  if (current_tab->controller()->CanGoBack()) {
-    NavigationController* controller = 0;
-    if (disposition == NEW_FOREGROUND_TAB || disposition == NEW_BACKGROUND_TAB){
-      controller = GetSelectedTabContents()->controller()->Clone();
-      tabstrip_model_.AddTabContents(
-          controller->active_contents(), -1,
-          PageTransition::LINK, disposition == NEW_FOREGROUND_TAB);
-    } else {
-      // Default disposition is CURRENT_TAB.
-      controller = current_tab->controller();
-    }
-    controller->GoBack();
-  }
+  if (current_tab->controller()->CanGoBack())
+    current_tab->controller()->GoBack();
 }
 
-void Browser::GoForward(WindowOpenDisposition disp) {
+void Browser::GoForward() {
   UserMetrics::RecordAction(L"Forward", profile_);
-  if (GetSelectedTabContents()->controller()->CanGoForward()) {
-    NavigationController* controller = 0;
-    if (disp == NEW_FOREGROUND_TAB || disp == NEW_BACKGROUND_TAB) {
-      controller = GetSelectedTabContents()->controller()->Clone();
-      tabstrip_model_.AddTabContents(
-          controller->active_contents(), -1,
-          PageTransition::LINK, disp == NEW_FOREGROUND_TAB);
-    } else {
-      // Default disposition is CURRENT_TAB.
-      controller = GetSelectedTabContents()->controller();
-    }
-    controller->GoForward();
-  }
+  if (GetSelectedTabContents()->controller()->CanGoForward())
+    GetSelectedTabContents()->controller()->GoForward();
 }
 
 void Browser::Reload() {
@@ -620,9 +597,11 @@ void Browser::Reload() {
   }
 }
 
-void Browser::Home(WindowOpenDisposition disposition) {
+void Browser::Home() {
   UserMetrics::RecordAction(L"Home", profile_);
-  OpenURL(GetHomePage(), GURL(), disposition, PageTransition::AUTO_BOOKMARK);
+  GURL homepage_url = GetHomePage();
+  GetSelectedTabContents()->controller()->LoadURL(
+      homepage_url, GURL(), PageTransition::AUTO_BOOKMARK);
 }
 
 void Browser::OpenCurrentURL() {
@@ -633,9 +612,9 @@ void Browser::OpenCurrentURL() {
                location_bar->GetPageTransition());
 }
 
-void Browser::Go(WindowOpenDisposition disposition) {
+void Browser::Go() {
   UserMetrics::RecordAction(L"Go", profile_);
-  window_->GetLocationBar()->AcceptInputWithDisposition(disposition);
+  window_->GetLocationBar()->AcceptInput();
 }
 
 void Browser::Stop() {
@@ -1116,8 +1095,10 @@ Browser* Browser::GetBrowserForController(
   return NULL;
 }
 
-void Browser::ExecuteCommandWithDisposition(
-  int id, WindowOpenDisposition disposition) {
+///////////////////////////////////////////////////////////////////////////////
+// Browser, CommandUpdater::CommandUpdaterDelegate implementation:
+
+void Browser::ExecuteCommand(int id) {
   // No commands are enabled if there is not yet any selected tab.
   // TODO(pkasting): It seems like we should not need this, because either
   // most/all commands should not have been enabled yet anyway or the ones that
@@ -1134,12 +1115,12 @@ void Browser::ExecuteCommandWithDisposition(
   // declaration order in browser.h!
   switch (id) {
     // Navigation commands
-    case IDC_BACK:                  GoBack(disposition);           break;
-    case IDC_FORWARD:               GoForward(disposition);        break;
+    case IDC_BACK:                  GoBack();                      break;
+    case IDC_FORWARD:               GoForward();                   break;
     case IDC_RELOAD:                Reload();                      break;
-    case IDC_HOME:                  Home(disposition);             break;
+    case IDC_HOME:                  Home();                        break;
     case IDC_OPEN_CURRENT_URL:      OpenCurrentURL();              break;
-    case IDC_GO:                    Go(disposition);               break;
+    case IDC_GO:                    Go();                          break;
     case IDC_STOP:                  Stop();                        break;
 
      // Window management commands
@@ -1291,13 +1272,6 @@ void Browser::ExecuteCommandWithDisposition(
       LOG(WARNING) << "Received Unimplemented Command: " << id;
       break;
   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Browser, CommandUpdater::CommandUpdaterDelegate implementation:
-
-void Browser::ExecuteCommand(int id) {
-  ExecuteCommandWithDisposition(id, CURRENT_TAB);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

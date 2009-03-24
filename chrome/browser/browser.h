@@ -249,12 +249,12 @@ class Browser : public TabStripModelDelegate,
   // how they appear in the GUI/menus (left to right, top to bottom, etc.).
 
   // Navigation commands
-  void GoBack(WindowOpenDisposition disposition);
-  void GoForward(WindowOpenDisposition disposition);
+  void GoBack();
+  void GoForward();
   void Reload();
-  void Home(WindowOpenDisposition disposition);
+  void Home();
   void OpenCurrentURL();
-  void Go(WindowOpenDisposition disposition);
+  void Go();
   void Stop();
   // Window management commands
   void NewWindow();
@@ -360,9 +360,6 @@ class Browser : public TabStripModelDelegate,
   // This call is O(N) in the number of tabs.
   static Browser* GetBrowserForController(
       const NavigationController* controller, int* index);
-
-  // Calls ExecuteCommandWithDisposition with the given disposition.
-  void ExecuteCommandWithDisposition(int id, WindowOpenDisposition);
 
   // Interface implementations ////////////////////////////////////////////////
 

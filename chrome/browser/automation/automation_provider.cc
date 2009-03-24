@@ -1029,7 +1029,7 @@ void AutomationProvider::GoBack(int handle, IPC::Message* reply_message) {
           tab, reply_message, AUTOMATION_MSG_NAVIGATION_SUCCESS,
           AUTOMATION_MSG_NAVIGATION_AUTH_NEEDED,
           AUTOMATION_MSG_NAVIGATION_ERROR);
-      browser->GoBack(CURRENT_TAB);
+      browser->GoBack();
       return;
     }
   }
@@ -1048,7 +1048,7 @@ void AutomationProvider::GoForward(int handle, IPC::Message* reply_message) {
           tab, reply_message, AUTOMATION_MSG_NAVIGATION_SUCCESS,
           AUTOMATION_MSG_NAVIGATION_AUTH_NEEDED,
           AUTOMATION_MSG_NAVIGATION_ERROR);
-      browser->GoForward(CURRENT_TAB);
+      browser->GoForward();
       return;
     }
   }

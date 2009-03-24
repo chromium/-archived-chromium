@@ -22,7 +22,6 @@
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/browser/views/bookmark_menu_button.h"
 #include "chrome/browser/views/dom_view.h"
-#include "chrome/browser/views/event_utils.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/browser/views/theme_helpers.h"
@@ -134,8 +133,6 @@ void BrowserToolbarView::CreateLeftSideControls() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   back_ = new views::ButtonDropDown(this, back_menu_model_.get());
-  back_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                  views::Event::EF_MIDDLE_BUTTON_DOWN);
   back_->set_tag(IDC_BACK);
   back_->SetImageAlignment(views::ImageButton::ALIGN_RIGHT,
                            views::ImageButton::ALIGN_TOP);
@@ -151,8 +148,6 @@ void BrowserToolbarView::CreateLeftSideControls() {
   AddChildView(back_);
 
   forward_ = new views::ButtonDropDown(this, forward_menu_model_.get());
-  forward_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                     views::Event::EF_MIDDLE_BUTTON_DOWN);
   forward_->set_tag(IDC_FORWARD);
   forward_->SetImage(views::CustomButton::BS_NORMAL,
                      rb.GetBitmapNamed(IDR_FORWARD));
@@ -181,8 +176,6 @@ void BrowserToolbarView::CreateLeftSideControls() {
   AddChildView(reload_);
 
   home_ = new views::ImageButton(this);
-  home_->set_triggerable_event_flags(views::Event::EF_LEFT_BUTTON_DOWN |
-                                  views::Event::EF_MIDDLE_BUTTON_DOWN);
   home_->set_tag(IDC_HOME);
   home_->SetImage(views::CustomButton::BS_NORMAL, rb.GetBitmapNamed(IDR_HOME));
   home_->SetImage(views::CustomButton::BS_HOT, rb.GetBitmapNamed(IDR_HOME_H));
@@ -225,7 +218,7 @@ void BrowserToolbarView::CreateCenterStack(Profile *profile) {
   location_bar_->Init();
 
   // The Go button.
-  go_ = new GoButton(location_bar_, browser_);
+  go_ = new GoButton(location_bar_, browser_->command_updater());
   go_->SetImage(views::CustomButton::BS_NORMAL, rb.GetBitmapNamed(IDR_GO));
   go_->SetImage(views::CustomButton::BS_HOT, rb.GetBitmapNamed(IDR_GO_H));
   go_->SetImage(views::CustomButton::BS_PUSHED, rb.GetBitmapNamed(IDR_GO_P));
@@ -839,9 +832,7 @@ void BrowserToolbarView::EnabledStateChangedForCommand(int id, bool enabled) {
 }
 
 void BrowserToolbarView::ButtonPressed(views::Button* sender) {
-  browser_->ExecuteCommandWithDisposition(
-      sender->tag(),
-      event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
+  browser_->ExecuteCommand(sender->tag());
 }
 
 // static
