@@ -452,7 +452,13 @@
         }],
       ],
     },
+  ],
 
+  # TODO(sgk):  temporarily disable the arm targets on Linux while
+  # we work out how to refactor the generator and/or add configuration
+  # settings to the .gyp file to handle building both variants in
+  # the same output directory.
+  'conditions': [ ['OS!="linux"', { 'targets': [
     # ARM targets, to test ARM code generation.  These use an ARM simulator
     # (src/simulator-arm.cc).  The ARM targets are not snapshot-enabled.
     {
@@ -548,5 +554,6 @@
         }],
       ],
     },
+  ]}], # OS != "linux" (temporary, TODO(sgk))
   ],
 }
