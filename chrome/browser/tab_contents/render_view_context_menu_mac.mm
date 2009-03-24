@@ -70,9 +70,10 @@ NSString* RenderViewContextMenuMac::PrepareLabelForDisplay(
   // Strip out any "&"'s that are windows accelerators and we don't use.
   NSMutableString* title =
     [NSMutableString stringWithString:base::SysWideToNSString(label)];
+  DCHECK(title);
   NSRange range = NSMakeRange(0, [title length]);
   [title replaceOccurrencesOfString:@"&" withString:@"" options:0 range:range];
-  return title;
+  return title ? title : @"";
 }
 
 void RenderViewContextMenuMac::AppendMenuItem(int command_id) {
@@ -124,7 +125,7 @@ void RenderViewContextMenuMac::StartSubMenu(int command_id,
   NSMenuItem* submenu_item =
       [[[NSMenuItem alloc] initWithTitle:PrepareLabelForDisplay(label)
                                   action:nil
-                           keyEquivalent:nil] autorelease];
+                           keyEquivalent:@""] autorelease];
   insert_menu_ = [[[NSMenu alloc] init] autorelease];
   [submenu_item setSubmenu:insert_menu_];
   [menu_ addItem:submenu_item];
