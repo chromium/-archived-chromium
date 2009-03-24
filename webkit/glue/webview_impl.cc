@@ -87,7 +87,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/clipboard_conversion.h"
 #include "webkit/glue/context_menu_client_impl.h"
-#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/dragclient_impl.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
@@ -96,6 +95,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/image_resource_fetcher.h"
 #include "webkit/glue/inspector_client_impl.h"
 #include "webkit/glue/searchable_form_data.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webhistoryitem_impl.h"
 #include "webkit/glue/webinputevent.h"
@@ -1709,6 +1709,11 @@ void WebViewImpl::HideAutoCompletePopup() {
     autocomplete_popup_->hidePopup();
     autocomplete_popup_showing_ = false;
   }
+}
+
+WebCore::Node* WebViewImpl::GetNodeForWindowPos(int x, int y) {
+  HitTestResult result = HitTestResultForWindowPos(IntPoint(x, y));
+  return result.innerNonSharedNode();
 }
 
 void WebViewImpl::HideAutofillPopup() {

@@ -32,7 +32,7 @@ class DomAgentImpl : public DomAgent {
   virtual ~DomAgentImpl();
 
   // DomAgent implementation.
-  void GetDocumentElement(int call_id);
+  void GetDocumentElement();
   void GetChildNodes(int call_id, int element_id);
   void SetAttribute(
       int element_id,
@@ -52,8 +52,8 @@ class DomAgentImpl : public DomAgent {
   int GetIdForNode(WebCore::Node* node);
 
   // Sends path to a given node to the client. Returns node's id according to
-  // the resulting binding.
-  int GetPathToNode(WebCore::Node* node);
+  // the resulting binding. Only sends nodes that are missing on the client.
+  int PushNodePathToClient(WebCore::Node* node);
 
  private:
   // Convenience EventListner wrapper for cleaner Ref management.
@@ -82,6 +82,12 @@ class DomAgentImpl : public DomAgent {
 
   // Releases Node to int binding.
   void Unbind(WebCore::Node* node);
+
+  // Pushes document element to the client.
+  void PushDocumentElementToClient();
+
+  // Pushes child nodes to the client.
+  void PushChildNodesToClient(int element_id);
 
   // Serializes given node into the list value.
   ListValue* BuildValueForNode(
@@ -112,7 +118,7 @@ class DomAgentImpl : public DomAgent {
   RefPtr<WebCore::EventListener> event_listener_;
   // Captures pending document element request's call id.
   // Defaults to 0 meaning no pending request.
-  int document_element_call_id_;
+  bool document_element_requested_;
 
   DISALLOW_COPY_AND_ASSIGN(DomAgentImpl);
 };

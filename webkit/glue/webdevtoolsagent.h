@@ -16,6 +16,8 @@ class WebDevToolsAgent {
   virtual ~WebDevToolsAgent() {}
 
   virtual void DispatchMessageFromClient(const std::string& raw_msg) = 0;
+
+  virtual void InspectElement(int x, int y) = 0;
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgent);
 };

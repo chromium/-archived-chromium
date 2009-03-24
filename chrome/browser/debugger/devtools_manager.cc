@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_type.h"
+#include "chrome/renderer/devtools_messages.h"
 
 DevToolsManager::DevToolsManager() : web_contents_listeners_(NULL) {
 }
@@ -125,6 +126,28 @@ void DevToolsManager::ForwardToDevToolsClient(const RenderViewHost& from,
     return;
   }
   target_host->SendMessageToClient(message);
+}
+
+void DevToolsManager::OpenDevToolsWindow(WebContents* wc) {
+  DevToolsClientHost* host = GetDevToolsClientHostFor(*wc);
+  if (!host) {
+    host = DevToolsWindow::Create();
+    RegisterDevToolsClientHostFor(*wc, host);
+  }
+  DevToolsWindow* window = host->AsDevToolsWindow();
+  if (window)
+    window->Show();
+}
+
+void DevToolsManager::InspectElement(WebContents* wc, int x, int y) {
+  OpenDevToolsWindow(wc);
+  RenderViewHost* target_host = wc->render_view_host();
+  if (!target_host) {
+    return;
+  }
+  IPC::Message* m = new DevToolsAgentMsg_InspectElement(x, y);
+  m->set_routing_id(target_host->routing_id());
+  target_host->Send(m);
 }
 
 void DevToolsManager::ClientHostClosing(DevToolsClientHost* host) {

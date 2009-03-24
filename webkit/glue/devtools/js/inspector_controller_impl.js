@@ -89,4 +89,11 @@ devtools.InspectorControllerImpl.prototype.inspectedWindow = function() {
 };
 
 
+/**
+ * {@inheritDoc}.
+ */
+devtools.InspectorController.prototype.loaded = function() {
+  DevToolsHost.loaded();
+};
+
 var InspectorController = new devtools.InspectorControllerImpl();

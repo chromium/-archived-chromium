@@ -66,6 +66,7 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   void OnDebugBreak(bool force);
   void OnDebugCommand(const std::wstring& cmd);
   void OnRpcMessage(const std::string& raw_msg);
+  void OnInspectElement(int x, int y);
 
   scoped_refptr<DebuggerBridge> debugger_;
 

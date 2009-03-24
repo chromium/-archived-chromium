@@ -46,7 +46,7 @@ void DomAgentImpl::EventListenerWrapper::handleEvent(
 DomAgentImpl::DomAgentImpl(DomAgentDelegate* delegate)
     : delegate_(delegate),
       last_node_id_(1),
-      document_element_call_id_(0) {
+      document_element_requested_(false) {
   event_listener_ = EventListenerWrapper::Create(this);
 }
 
@@ -66,9 +66,9 @@ void DomAgentImpl::SetDocument(Document* doc) {
 
   if (doc) {
     StartListening(doc);
-    if (document_element_call_id_) {
-      GetDocumentElement(document_element_call_id_);
-      document_element_call_id_ = 0;
+    if (document_element_requested_) {
+      GetDocumentElement();
+      document_element_requested_ = false;
     }
   }
 }
@@ -126,6 +126,27 @@ void DomAgentImpl::Unbind(Node* node) {
     children_requested_.remove(children_requested_.find(it->second));
     node_to_id_.remove(it);
   }
+}
+
+void DomAgentImpl::PushDocumentElementToClient() {
+  Element* doc_elem = (*documents_.begin())->documentElement();
+  if (!node_to_id_.contains(doc_elem)) {
+    OwnPtr<Value> value(BuildValueForNode(doc_elem, 0));
+    delegate_->SetDocumentElement(*value.get());
+  }
+}
+
+void DomAgentImpl::PushChildNodesToClient(int element_id) {
+  Node* node = GetNodeForId(element_id);
+  if (!node || (node->nodeType() != Node::ELEMENT_NODE))
+    return;
+  if (children_requested_.contains(element_id))
+    return;
+
+  Element* element = static_cast<Element*>(node);
+  OwnPtr<Value> children(BuildValueForElementChildren(element, 1));
+  children_requested_.add(element_id);
+  delegate_->SetChildNodes(element_id, *children.get());
 }
 
 void DomAgentImpl::DiscardBindings() {
@@ -208,28 +229,20 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
   }
 }
 
-void DomAgentImpl::GetDocumentElement(int call_id) {
+void DomAgentImpl::GetDocumentElement() {
   if (documents_.size() > 0) {
-    OwnPtr<Value> value(
-        BuildValueForNode((*documents_.begin())->documentElement(), 0));
-    delegate_->GetDocumentElementResult(call_id, *value.get());
+    PushDocumentElementToClient();
   } else {
-    document_element_call_id_ = call_id;
+    document_element_requested_ = true;
   }
 }
 
 void DomAgentImpl::GetChildNodes(int call_id, int element_id) {
-  Node* node = GetNodeForId(element_id);
-  if (!node || (node->nodeType() != Node::ELEMENT_NODE))
-    return;
-
-  Element* element = static_cast<Element*>(node);
-  OwnPtr<Value> children(BuildValueForElementChildren(element, 1));
-  children_requested_.add(element_id);
-  delegate_->GetChildNodesResult(call_id, *children.get());
+  PushChildNodesToClient(element_id);
+  delegate_->DidGetChildNodes(call_id);
 }
 
-int DomAgentImpl::GetPathToNode(Node* node_to_select) {
+int DomAgentImpl::PushNodePathToClient(Node* node_to_select) {
   ASSERT(node_to_select);  // Invalid input
 
   // Return id in case the node is known.
@@ -239,6 +252,10 @@ int DomAgentImpl::GetPathToNode(Node* node_to_select) {
 
   Element* element = InnerParentElement(node_to_select);
   ASSERT(element);  // Node is detached or is a document itself
+
+  // If we are sending information to the client that is currently being
+  // created. Send root node first.
+  PushDocumentElementToClient();
 
   Vector<Element*> path;
   while (element && !GetIdForNode(element)) {
@@ -252,7 +269,7 @@ int DomAgentImpl::GetPathToNode(Node* node_to_select) {
   for (int i = path.size() - 1; i >= 0; --i) {
     element = path.at(i);
     OwnPtr<Value> children(BuildValueForElementChildren(element, 1));
-    delegate_->ChildNodesUpdated(GetIdForNode(element), *children.get());
+    delegate_->SetChildNodes(GetIdForNode(element), *children.get());
   }
   return GetIdForNode(node_to_select);
 }

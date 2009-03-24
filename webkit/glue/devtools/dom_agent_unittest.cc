@@ -97,21 +97,22 @@ class DomAgentTests : public TestShellTest {
 // version is called.
 TEST_F(DomAgentTests, GetDocumentElement) {
   OwnPtr<Value> v(DevToolsRpc::ParseMessage("[1,1,\"HTML\",\"\",[],1]"));
-  mock_delegate_->GetDocumentElementResult(kCallId1, *v.get());
+  mock_delegate_->SetDocumentElement(*v.get());
   mock_delegate_->Replay();
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   mock_delegate_->Verify();
 }
 
 // Requests element's children and tests that the callback with the serialized
 // version is called.
 TEST_F(DomAgentTests, GetChildNodes) {
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   mock_delegate_->Reset();
 
   OwnPtr<Value> v(DevToolsRpc::ParseMessage("[[2,1,\"BODY\",\"\",[],0]]"));
-  mock_delegate_->GetChildNodesResult(kCallId2, *v.get());
+  mock_delegate_->SetChildNodes(kHtmlElemId, *v.get());
+  mock_delegate_->DidGetChildNodes(kCallId2);
   mock_delegate_->Replay();
 
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
@@ -120,7 +121,7 @@ TEST_F(DomAgentTests, GetChildNodes) {
 
 // Tests that "child node inserted" event is being fired.
 TEST_F(DomAgentTests, ChildNodeInsertedUnknownParent) {
-  dom_agent_->GetDocumentElement(1);
+  dom_agent_->GetDocumentElement();
   mock_delegate_->Reset();
 
   // There should be no events fired until parent node is known to client.
@@ -132,7 +133,7 @@ TEST_F(DomAgentTests, ChildNodeInsertedUnknownParent) {
 
 // Tests that "child node inserted" event is being fired.
 TEST_F(DomAgentTests, ChildNodeInsertedKnownParent) {
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   mock_delegate_->Reset();
 
@@ -148,7 +149,7 @@ TEST_F(DomAgentTests, ChildNodeInsertedKnownParent) {
 
 // Tests that "child node inserted" event is being fired.
 TEST_F(DomAgentTests, ChildNodeInsertedKnownChildren) {
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
@@ -170,7 +171,7 @@ TEST_F(DomAgentTests, ChildNodePrepend) {
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
@@ -192,7 +193,7 @@ TEST_F(DomAgentTests, ChildNodeAppend) {
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
@@ -216,7 +217,7 @@ TEST_F(DomAgentTests, ChildNodeInsert) {
   RefPtr<Element> div2 = document_->createElement("DIV", ec_);
   body_->appendChild(div2, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
@@ -238,7 +239,7 @@ TEST_F(DomAgentTests, ChildNodeRemovedUnknownParent) {
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   mock_delegate_->Reset();
 
   // There should be no events fired until parent node is known to client.
@@ -252,7 +253,7 @@ TEST_F(DomAgentTests, ChildNodeRemovedKnownParent) {
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   mock_delegate_->Reset();
 
@@ -270,7 +271,7 @@ TEST_F(DomAgentTests, ChildNodeRemovedKnownChildren) {
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
@@ -284,12 +285,12 @@ TEST_F(DomAgentTests, ChildNodeRemovedKnownChildren) {
   mock_delegate_->Verify();
 }
 
-// Tests that "GetPathToNode" sends all missing events in path.
-TEST_F(DomAgentTests, GetPathToKnownNode) {
+// Tests that "PushNodePathToClient" sends all missing events in path.
+TEST_F(DomAgentTests, PushPathToKnownNode) {
   RefPtr<Element> div1 = document_->createElement("DIV", ec_);
   body_->appendChild(div1, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
@@ -297,31 +298,31 @@ TEST_F(DomAgentTests, GetPathToKnownNode) {
   // We expect no messages - node is already known.
   mock_delegate_->Replay();
 
-  int id = dom_agent_->GetPathToNode(div1.get());
+  int id = dom_agent_->PushNodePathToClient(div1.get());
   mock_delegate_->Verify();
   EXPECT_EQ(3, id);
 }
 
-// Tests that "GetPathToNode" sends all missing events in path.
-TEST_F(DomAgentTests, GetPathToKnownParent) {
+// Tests that "PushNodePathToClient" sends all missing events in path.
+TEST_F(DomAgentTests, PushPathToKnownParent) {
   RefPtr<Element> div1 = document_->createElement("DIV", ec_);
   body_->appendChild(div1, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   mock_delegate_->Reset();
 
   OwnPtr<Value> v1(DevToolsRpc::ParseMessage("[[3,1,\"DIV\",\"\",[],0]]"));
-  mock_delegate_->ChildNodesUpdated(kBodyElemId, *v1.get());
+  mock_delegate_->SetChildNodes(kBodyElemId, *v1.get());
   mock_delegate_->Replay();
 
-  int id = dom_agent_->GetPathToNode(div1.get());
+  int id = dom_agent_->PushNodePathToClient(div1.get());
   mock_delegate_->Verify();
   EXPECT_EQ(3, id);
 }
 
-// Tests that "GetPathToNode" sends all missing events in path.
-TEST_F(DomAgentTests, GetPathToUnknownNode) {
+// Tests that "PushNodePathToClient" sends all missing events in path.
+TEST_F(DomAgentTests, PushPathToUnknownNode) {
   RefPtr<Element> div1 = document_->createElement("DIV", ec_);
   RefPtr<Element> div2 = document_->createElement("DIV", ec_);
   RefPtr<Element> div3 = document_->createElement("DIV", ec_);
@@ -331,7 +332,7 @@ TEST_F(DomAgentTests, GetPathToUnknownNode) {
   div2->appendChild(div3, ec_);
   div3->appendChild(div4, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   mock_delegate_->Reset();
 
@@ -339,13 +340,13 @@ TEST_F(DomAgentTests, GetPathToUnknownNode) {
   OwnPtr<Value> v2(DevToolsRpc::ParseMessage("[[4,1,\"DIV\",\"\",[],1]]"));
   OwnPtr<Value> v3(DevToolsRpc::ParseMessage("[[5,1,\"DIV\",\"\",[],1]]"));
   OwnPtr<Value> v4(DevToolsRpc::ParseMessage("[[6,1,\"DIV\",\"\",[],0]]"));
-  mock_delegate_->ChildNodesUpdated(kBodyElemId, *v1.get());
-  mock_delegate_->ChildNodesUpdated(3, *v2.get());
-  mock_delegate_->ChildNodesUpdated(4, *v3.get());
-  mock_delegate_->ChildNodesUpdated(5, *v4.get());
+  mock_delegate_->SetChildNodes(kBodyElemId, *v1.get());
+  mock_delegate_->SetChildNodes(3, *v2.get());
+  mock_delegate_->SetChildNodes(4, *v3.get());
+  mock_delegate_->SetChildNodes(5, *v4.get());
   mock_delegate_->Replay();
 
-  int id = dom_agent_->GetPathToNode(div4.get());
+  int id = dom_agent_->PushNodePathToClient(div4.get());
   mock_delegate_->Verify();
   EXPECT_EQ(6, id);
 }
@@ -355,22 +356,23 @@ TEST_F(DomAgentTests, GetChildNodesOfFrameOwner) {
   RefPtr<Element> iframe = document_->createElement("IFRAME", ec_);
   body_->appendChild(iframe, ec_);
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallId3, kBodyElemId);
   mock_delegate_->Reset();
 
   // Expecting HTML child with single (body) child.
   OwnPtr<Value> v(DevToolsRpc::ParseMessage("[[4,1,\"HTML\",\"\",[],1]]"));
-  mock_delegate_->GetChildNodesResult(kCallId4, *v.get());
+  mock_delegate_->SetChildNodes(3, *v.get());
+  mock_delegate_->DidGetChildNodes(kCallId4);
   mock_delegate_->Replay();
 
   dom_agent_->GetChildNodes(kCallId4, 3);
   mock_delegate_->Verify();
 }
 
-// Tests that "GetPathToNode" crosses frame owner boundaries.
-TEST_F(DomAgentTests, GetPathToNodeOverFrameOwner) {
+// Tests that "PushNodePathToClient" crosses frame owner boundaries.
+TEST_F(DomAgentTests, SendPathToNodeOverFrameOwner) {
   RefPtr<Element> iframe = document_->createElement("IFRAME", ec_);
   body_->appendChild(iframe, ec_);
   HTMLFrameOwnerElement* frame_owner =
@@ -378,19 +380,19 @@ TEST_F(DomAgentTests, GetPathToNodeOverFrameOwner) {
   Node* inner_body = frame_owner->contentDocument()->firstChild()->
       firstChild();
 
-  dom_agent_->GetDocumentElement(kCallId1);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallId2, kHtmlElemId);
   mock_delegate_->Reset();
 
   OwnPtr<Value> v1(DevToolsRpc::ParseMessage("[[3,1,\"IFRAME\",\"\",[],1]]"));
   OwnPtr<Value> v2(DevToolsRpc::ParseMessage("[[4,1,\"HTML\",\"\",[],1]]"));
   OwnPtr<Value> v3(DevToolsRpc::ParseMessage("[[5,1,\"BODY\",\"\",[],0]]"));
-  mock_delegate_->ChildNodesUpdated(2, *v1.get());
-  mock_delegate_->ChildNodesUpdated(3, *v2.get());
-  mock_delegate_->ChildNodesUpdated(4, *v3.get());
+  mock_delegate_->SetChildNodes(2, *v1.get());
+  mock_delegate_->SetChildNodes(3, *v2.get());
+  mock_delegate_->SetChildNodes(4, *v3.get());
   mock_delegate_->Replay();
 
-  dom_agent_->GetPathToNode(inner_body);
+  dom_agent_->PushNodePathToClient(inner_body);
   mock_delegate_->Verify();
 }
 
@@ -403,7 +405,7 @@ TEST_F(DomAgentTests, ChildNodeInsertUnderFrameOwner) {
   Node* inner_body = frame_owner->contentDocument()->firstChild()->
       firstChild();
 
-  dom_agent_->GetDocumentElement(kCallIdAny);
+  dom_agent_->GetDocumentElement();
   dom_agent_->GetChildNodes(kCallIdAny, kHtmlElemId);
   dom_agent_->GetChildNodes(kCallIdAny, kBodyElemId);
   dom_agent_->GetChildNodes(kCallIdAny, 3);  // IFrame children

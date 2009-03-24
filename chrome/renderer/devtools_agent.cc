@@ -87,6 +87,7 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugBreak, OnDebugBreak)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugCommand, OnDebugCommand)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_RpcMessage, OnRpcMessage)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_InspectElement, OnInspectElement)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
@@ -173,6 +174,11 @@ void DevToolsAgent::SendMessageToClient(const std::string& raw_msg) {
 void DevToolsAgent::OnRpcMessage(const std::string& raw_msg) {
   view_loop_->PostTask(FROM_HERE, NewRunnableMethod(
       this, &DevToolsAgent::DispatchRpcMessage, raw_msg));
+}
+
+void DevToolsAgent::OnInspectElement(int x, int y) {
+  WebDevToolsAgent* web_agent = view_->webview()->GetWebDevToolsAgent();
+  web_agent->InspectElement(x, y);
 }
 
 void DevToolsAgent::DispatchRpcMessage(const std::string& raw_msg) {

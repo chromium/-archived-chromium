@@ -40,12 +40,15 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
 
  private:
   void JsAddSourceToFrame(const CppArgumentList& args, CppVariant* result);
+  void JsLoaded(const CppArgumentList& args, CppVariant* result);
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;
   OwnPtr<JsDomAgentBoundObj> dom_agent_obj_;
   OwnPtr<JsNetAgentBoundObj> net_agent_obj_;
   OwnPtr<JsToolsAgentBoundObj> tools_agent_obj_;
+  bool loaded_;
+  Vector<std::string> pending_incoming_messages_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientImpl);
 };
 

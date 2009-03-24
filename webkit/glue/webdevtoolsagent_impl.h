@@ -43,13 +43,13 @@ class WebDevToolsAgentImpl
 
   // WebDevToolsAgent implementation.
   virtual void DispatchMessageFromClient(const std::string& raw_msg);
+  virtual void InspectElement(int x, int y);
 
   // DevToolsRpc::Delegate implementation.
   void SendRpcMessage(const std::string& raw_msg);
 
   // Methods called by the glue.
   void SetMainFrameDocumentReady(bool ready);
-  void Inspect(WebCore::Node* node);
 
   DomAgentImpl* dom_agent_impl() { return dom_agent_impl_.get(); }
   NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }

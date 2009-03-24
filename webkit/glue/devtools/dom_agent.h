@@ -13,7 +13,7 @@
 // DomAgent's environment is represented with the DomAgentDelegate interface.
 #define DOM_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
   /* Requests that the document root element is sent to the delegate. */ \
-  METHOD1(GetDocumentElement, int /* call_id */) \
+  METHOD0(GetDocumentElement) \
   \
   /* Requests that the element's children are sent to the client. */ \
   METHOD2(GetChildNodes, int /* call_id */, int /* id */) \
@@ -35,17 +35,17 @@
 DEFINE_RPC_CLASS(DomAgent, DOM_AGENT_STRUCT)
 
 #define DOM_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
-  /* Response to GetDocumentElement. */ \
-  METHOD2(GetDocumentElementResult, int /* call_id */, Value /* node */) \
-  \
   /* Response to GetChildNodes. */ \
-  METHOD2(GetChildNodesResult, int /* call_id */, Value /* nodes */) \
+  METHOD1(DidGetChildNodes, int /* call_id */) \
   \
   /* Notifies the delegate that element's attributes are updated. */ \
   METHOD2(AttributesUpdated, int /* id */, Value /* attributes */) \
   \
+  /* Sends document element to the delegate. */ \
+  METHOD1(SetDocumentElement, Value /* root */) \
+  \
   /* Notifies the delegate that element's child nodes have been updated. */ \
-  METHOD2(ChildNodesUpdated, int /* parent_id */, Value /* nodes */) \
+  METHOD2(SetChildNodes, int /* parent_id */, Value /* nodes */) \
   \
   /* Notifies the delegate that element's 'has children' state has been
      updated */ \

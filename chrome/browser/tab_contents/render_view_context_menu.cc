@@ -9,6 +9,7 @@
 #include "base/scoped_clipboard_writer.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url_model.h"
@@ -621,7 +622,13 @@ void RenderViewContextMenu::CopyImageAt(int x, int y) {
 }
 
 void RenderViewContextMenu::Inspect(int x, int y) {
-  source_web_contents_->render_view_host()->InspectElementAt(x, y);
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+      switches::kEnableOutOfProcessDevTools)) {
+    g_browser_process->devtools_manager()->InspectElement(
+        source_web_contents_, x, y);
+  } else {
+    source_web_contents_->render_view_host()->InspectElementAt(x, y);
+  }
 }
 
 void RenderViewContextMenu::WriteTextToClipboard(

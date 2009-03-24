@@ -91,14 +91,6 @@ void WebDevToolsAgentImpl::HideDOMNodeHighlight() {
   page->inspectorController()->hideHighlight();
 }
 
-void WebDevToolsAgentImpl::Inspect(Node* node) {
-  if (!dom_agent_impl_.get())
-    return;
-
-  int node_id = dom_agent_impl_->GetPathToNode(node);
-  tools_agent_delegate_stub_->UpdateFocusedNode(node_id);
-}
-
 void WebDevToolsAgentImpl::DispatchMessageFromClient(
     const std::string& raw_msg) {
   OwnPtr<ListValue> message(
@@ -110,6 +102,16 @@ void WebDevToolsAgentImpl::DispatchMessageFromClient(
       NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get()))
     return;
   ToolsAgentDispatch::Dispatch(this, *message.get());
+}
+
+void WebDevToolsAgentImpl::InspectElement(int x, int y) {
+  Node* node = web_view_impl_->GetNodeForWindowPos(x, y);
+  if (!node)
+    return;
+
+  SetDomAgentEnabled(true);
+  int node_id = dom_agent_impl_->PushNodePathToClient(node);
+  tools_agent_delegate_stub_->UpdateFocusedNode(node_id);
 }
 
 void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {

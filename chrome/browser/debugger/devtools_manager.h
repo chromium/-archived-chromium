@@ -46,6 +46,13 @@ class DevToolsManager : public NotificationObserver,
   void ForwardToDevToolsClient(const RenderViewHost& from,
                                const IPC::Message& message);
 
+  void OpenDevToolsWindow(WebContents* wc);
+
+  // Starts element inspection in the devtools client.
+  // Creates one by means of OpenDevToolsWindow if no client
+  // exists.
+  void InspectElement(WebContents* web_contents, int x, int y);
+
  private:
   // NotificationObserver override.
   virtual void Observe(NotificationType type,

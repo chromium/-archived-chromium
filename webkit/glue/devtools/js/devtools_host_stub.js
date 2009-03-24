@@ -14,56 +14,65 @@ RemoteDomAgentStub = function() {
 };
 
 
+RemoteDomAgentStub.sendDocumentElement_ = function() {
+  RemoteDomAgent.SetDocumentElement([
+    1,       // id
+    1,       // type = Node.ELEMENT_NODE,
+    "HTML",  // nodeName
+    "",      // nodeValue 
+    ["foo","bar"],  // attributes
+    2,       // childNodeCount
+  ]);
+};
+
+
+RemoteDomAgentStub.sendChildNodes_ = function(id) {
+  if (id == 1) {
+    RemoteDomAgent.SetChildNodes(id,
+      [
+        [
+         2,       // id
+         1,       // type = Node.ELEMENT_NODE,
+         "DIV",   // nodeName
+         "",      // nodeValue 
+         ["foo","bar"],  // attributes
+         1,       // childNodeCount
+        ],
+        [
+         3,  // id
+         3,  // type = Node.TEXT_NODE,
+         "", // nodeName
+         "Text", // nodeValue 
+        ]
+      ]);
+  } else if (id == 2) {
+    RemoteDomAgent.SetChildNodes(id, 
+      [
+        [
+        4,       // id
+        1,       // type = Node.ELEMENT_NODE,
+        "span",   // nodeName
+        "",      // nodeValue 
+        ["foo","bar"],  // attributes
+        0,       // childNodeCount
+      ]
+    ]);
+  }
+};
+
+
 RemoteDomAgentStub.prototype.GetDocumentElement = function(callId) {
   setTimeout(function() {
-    RemoteDomAgent.GetDocumentElementResult(callId, [
-      1,       // id
-      1,       // type = Node.ELEMENT_NODE,
-      "HTML",  // nodeName
-      "",      // nodeValue 
-      ["foo","bar"],  // attributes
-      2,       // childNodeCount
-    ]);
+    RemoteDomAgentStub.sendDocumentElement_();
   }, 0);
 };
 
 
 RemoteDomAgentStub.prototype.GetChildNodes = function(callId, id) {
-  if (id == 1) {
-    setTimeout(function() {
-      RemoteDomAgent.GetChildNodesResult(callId, 
-        [
-          [
-           2,       // id
-           1,       // type = Node.ELEMENT_NODE,
-           "DIV",   // nodeName
-           "",      // nodeValue 
-           ["foo","bar"],  // attributes
-           1,       // childNodeCount
-          ],
-          [
-           3,  // id
-           3,  // type = Node.TEXT_NODE,
-           "", // nodeName
-           "Text", // nodeValue 
-          ]
-        ]);
-      }, 0);
-  } else if (id == 2) {
-    setTimeout(function() {
-      RemoteDomAgent.GetChildNodesResult(callId, 
-        [
-          [
-          4,       // id
-          1,       // type = Node.ELEMENT_NODE,
-          "span",   // nodeName
-          "",      // nodeValue 
-          ["foo","bar"],  // attributes
-          0,       // childNodeCount
-        ]
-      ]);
-    }, 0);
-  }
+  setTimeout(function() {
+    RemoteDomAgentStub.sendChildNodes_(id);
+    RemoteDomAgent.DidGetChildNodes(callId);
+  }, 0);
 };
 
 
@@ -113,6 +122,14 @@ RemoteNetAgentStub = function() {
  * @constructor
  */
 DevToolsHostStub = function() {
+};
+
+
+DevToolsHostStub.prototype.loaded = function() {
+  RemoteDomAgentStub.sendDocumentElement_();
+  RemoteDomAgentStub.sendChildNodes_(1);
+  RemoteDomAgentStub.sendChildNodes_(2);
+  toolsAgent.updateFocusedNode(4);
 };
 
 

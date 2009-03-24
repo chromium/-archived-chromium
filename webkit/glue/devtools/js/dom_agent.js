@@ -254,14 +254,14 @@ devtools.DomDocument.prototype.fireDomEvent_ = function(name, event) {
 devtools.DomAgent = function() {
   this.document = new devtools.DomDocument();
   this.idToDomNode_ = { 0 : this.document };
-  RemoteDomAgent.GetDocumentElementResult =
-      devtools.Callback.processCallback;
-  RemoteDomAgent.GetChildNodesResult =
+  RemoteDomAgent.DidGetChildNodes =
       devtools.Callback.processCallback;
   RemoteDomAgent.AttributesUpdated =
       goog.bind(this.attributesUpdated, this);
-  RemoteDomAgent.ChildNodesUpdated =
-      goog.bind(this.childNodesUpdated, this);
+  RemoteDomAgent.SetDocumentElement =
+      goog.bind(this.setDocumentElement, this);
+  RemoteDomAgent.SetChildNodes =
+      goog.bind(this.setChildNodes, this);
   RemoteDomAgent.HasChildrenUpdated =
       goog.bind(this.hasChildrenUpdated, this);
   RemoteDomAgent.ChildNodeInserted =
@@ -273,28 +273,12 @@ devtools.DomAgent = function() {
 
 /**
  * Requests that the document element is sent from the agent.
- * @param {function(Array.<devtools.DomNode>):undefined} opt_callback Callback 
- *     with the result.
  */
-devtools.DomAgent.prototype.getDocumentElementAsync = function(opt_callback) {
+devtools.DomAgent.prototype.getDocumentElementAsync = function() {
   if (this.document.documentElement) {
-    if (opt_callback) {
-      opt_callback(this.document.documentElement);
-    }
     return;
   }
-  var self = this;
-  var mycallback = function(payload) {
-    self.childNodesUpdated(0, [payload]);
-    self.document.documentElement = self.document.firstChild;
-    self.document.documentElement.ownerDocument = self.document;
-    self.document.fireDomEvent_("DOMContentLoaded");
-    if (opt_callback) {
-      opt_callback(self.document.documentElement);
-    }
-  };
-  var callId = devtools.Callback.wrap(mycallback);
-  RemoteDomAgent.GetDocumentElement(callId);
+  RemoteDomAgent.GetDocumentElement();
 };
 
 
@@ -312,8 +296,7 @@ devtools.DomAgent.prototype.getChildNodesAsync = function(parentId,
     return;
   }
   var self = this;
-  var mycallback = function(data) {
-    self.childNodesUpdated(parentId, data);
+  var mycallback = function() {
     if (opt_callback) {
       opt_callback(self.idToDomNode_[parentId].children);
     }
@@ -334,11 +317,39 @@ devtools.DomAgent.prototype.attributesUpdated = function(nodeId, attrsArray) {
 
 
 /**
+ * Returns node for id.
+ * @param {number} nodeId Id to get node for.
+ * @return {devtools.DomNode} Node with given id.
+ */
+devtools.DomAgent.prototype.getNodeForId = function(nodeId) {
+  return this.idToDomNode_[nodeId];
+};
+
+
+/**
  * @see DomAgentDelegate.
  * {@inheritDoc}.
  */
-devtools.DomAgent.prototype.childNodesUpdated = function(parentId, payloads) {
+devtools.DomAgent.prototype.setDocumentElement = function(payload) {
+  if (this.document.documentElement) {
+    return;
+  }
+  this.setChildNodes(0, [payload]);
+  this.document.documentElement = this.document.firstChild;
+  this.document.documentElement.ownerDocument = this.document;
+  this.document.fireDomEvent_("DOMContentLoaded");
+};
+
+
+/**
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.DomAgent.prototype.setChildNodes = function(parentId, payloads) {
   var parent = this.idToDomNode_[parentId];
+  if (parent.children) {
+    return;
+  }
   parent.setChildrenPayload_(payloads);
   var children = parent.children;
   for (var i = 0; i < children.length; ++i) {

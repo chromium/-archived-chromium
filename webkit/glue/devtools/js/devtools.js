@@ -13,13 +13,14 @@ goog.require('devtools.DomAgent');
 goog.require('devtools.NetAgent');
 
 devtools.ToolsAgent = function() {
-  
+  RemoteToolsAgent.UpdateFocusedNode =
+      goog.bind(this.updateFocusedNode, this);
 };
 
 
 // ToolsAgent implementation.
 devtools.ToolsAgent.prototype.updateFocusedNode = function(node_id) {
-  var node = dom.getNodeForId(node_id);
+  var node = domAgent.getNodeForId(node_id);
   WebInspector.updateFocusedNode(node);
 };
 
@@ -49,10 +50,10 @@ WebInspector.loaded = function() {
   netAgent = new devtools.NetAgent();
   toolsAgent = new devtools.ToolsAgent();
 
-  oldLoaded.call(this);
   Preferences.ignoreWhitespace = false;
   toolsAgent.setDomAgentEnabled(true);
   toolsAgent.setNetAgentEnabled(true);
+  oldLoaded.call(this);
   domAgent.getDocumentElementAsync();
 };
 
@@ -61,7 +62,8 @@ var webkitUpdateChildren =
     WebInspector.ElementsTreeElement.prototype.updateChildren;
 
 WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
-  domAgent.getChildNodesAsync(
-      this.representedObject.id,
-      goog.bind(webkitUpdateChildren, this));
+  var self = this;
+  domAgent.getChildNodesAsync(this.representedObject.id, function() {
+      webkitUpdateChildren.call(self);
+  });
 };

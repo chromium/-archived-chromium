@@ -12,6 +12,7 @@
 #include "Page.h"
 #include "PlatformString.h"
 #include <wtf/OwnPtr.h>
+#include <wtf/Vector.h>
 #undef LOG
 
 #include "base/json_reader.h"
@@ -54,7 +55,8 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
     WebViewImpl* web_view_impl,
     WebDevToolsClientDelegate* delegate)
     : web_view_impl_(web_view_impl),
-      delegate_(delegate) {
+      delegate_(delegate),
+      loaded_(false) {
   WebFrame* frame = web_view_impl_->GetMainFrame();
   dom_agent_obj_.set(new JsDomAgentBoundObj(this, frame, L"RemoteDomAgent"));
   net_agent_obj_.set(new JsNetAgentBoundObj(this, frame, L"RemoteNetAgent"));
@@ -62,6 +64,7 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
 
   BindToJavascript(frame, L"DevToolsHost");
   BindMethod("addSourceToFrame", &WebDevToolsClientImpl::JsAddSourceToFrame);
+  BindMethod("loaded", &WebDevToolsClientImpl::JsLoaded);
 }
 
 WebDevToolsClientImpl::~WebDevToolsClientImpl() {
@@ -69,6 +72,10 @@ WebDevToolsClientImpl::~WebDevToolsClientImpl() {
 
 void WebDevToolsClientImpl::DispatchMessageFromAgent(
     const std::string& raw_msg) {
+  if (!loaded_) {
+    pending_incoming_messages_.append(raw_msg);
+    return;
+  }
   OwnPtr<ListValue> message(
       static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
 
@@ -104,5 +111,17 @@ void WebDevToolsClientImpl::JsAddSourceToFrame(
       webkit_glue::StdStringToString(mime_type),
       webkit_glue::StdStringToString(source),
       node);
+  result->SetNull();
+}
+
+void WebDevToolsClientImpl::JsLoaded(
+    const CppArgumentList& args,
+    CppVariant* result) {
+  loaded_ = true;
+  for (Vector<std::string>::iterator it = pending_incoming_messages_.begin();
+       it != pending_incoming_messages_.end(); ++it) {
+    DispatchMessageFromAgent(*it);
+  }
+  pending_incoming_messages_.clear();
   result->SetNull();
 }

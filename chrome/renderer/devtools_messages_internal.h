@@ -83,4 +83,9 @@ IPC_BEGIN_MESSAGES(DevToolsAgent)
   IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_RpcMessage,
                        std::string  /* raw_msg */)
 
+  // Inspect element with the given coordinates.
+  IPC_MESSAGE_CONTROL2(DevToolsAgentMsg_InspectElement,
+                       int /* x */,
+                       int /* y */)
+
 IPC_END_MESSAGES(DevToolsAgent)

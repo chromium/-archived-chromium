@@ -16,7 +16,6 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/devtools_manager.h"
-#include "chrome/browser/debugger/devtools_window.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -947,14 +946,7 @@ void Browser::OpenDebuggerWindow() {
     if (CommandLine::ForCurrentProcess()->HasSwitch(
             switches::kEnableOutOfProcessDevTools)) {
       DevToolsManager* manager = g_browser_process->devtools_manager();
-      DevToolsClientHost* host = manager->GetDevToolsClientHostFor(*wc);
-      if (!host) {
-        host = DevToolsWindow::Create();
-        manager->RegisterDevToolsClientHostFor(*wc, host);
-      }
-      DevToolsWindow* window = host->AsDevToolsWindow();
-      if (window)
-        window->Show();
+      manager->OpenDevToolsWindow(wc);
     } else {
       // Only one debugger instance can exist at a time right now.
       // TODO(erikkay): need an alert, dialog, something

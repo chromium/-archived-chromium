@@ -197,6 +197,10 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // Hides the autocomplete popup if it is showing.
   void HideAutoCompletePopup();
 
+  // Converts |x|, |y| from window coordinates to contents coordinates and gets
+  // the underlying Node for them.
+  WebCore::Node* GetNodeForWindowPos(int x, int y);
+
  protected:
   friend class WebView;  // So WebView::Create can call our constructor
   friend class base::RefCounted<WebViewImpl>;
