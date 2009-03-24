@@ -44,10 +44,6 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // ASCII string representing a language and/or region, e.g. "en-US".
   typedef std::string Language;
   typedef std::vector<Language> Languages;
-  // Languages that are suitable for display to the user.
-  // TODO(port): this should be string16, but we need to port
-  // l10n_util::SortStrings to string16 first.
-  typedef std::vector<std::wstring> DisplayLanguages;
 
   // Creates the spellchecker by reading dictionaries from the given directory,
   // and defaulting to the given language. Both strings must be provided.
@@ -92,9 +88,9 @@ class SpellChecker : public base::RefCountedThreadSafe<SpellChecker> {
   // returns the index of the current spell check language in the vector.
   // TODO(port): this should take a vector of string16, but the implementation
   // has some dependencies in l10n util that need porting first.
-  static int GetSpellCheckLanguagesToDisplayInContextMenu(
+  static int GetSpellCheckLanguages(
       Profile* profile,
-      DisplayLanguages* display_languages);
+      Languages* languages);
 
   // This function returns the corresponding language-region code for the
   // spell check language. For example, for hi, it returns hi-IN.

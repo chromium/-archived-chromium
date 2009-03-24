@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <set>
-
 #include "chrome/browser/spellchecker.h"
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
@@ -149,43 +147,37 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
   return Language();
 }
 
-int SpellChecker::GetSpellCheckLanguagesToDisplayInContextMenu(
+int SpellChecker::GetSpellCheckLanguages(
     Profile* profile,
-    DisplayLanguages* display_languages) {
+    Languages* languages) {
   StringPrefMember accept_languages_pref;
   StringPrefMember dictionary_language_pref;
   accept_languages_pref.Init(prefs::kAcceptLanguages, profile->GetPrefs(),
                              NULL);
   dictionary_language_pref.Init(prefs::kSpellCheckDictionary,
                                 profile->GetPrefs(), NULL);
-  std::wstring dictionary_language = dictionary_language_pref.GetValue();
+  std::string dictionary_language =
+      WideToASCII(dictionary_language_pref.GetValue());
 
   // The current dictionary language should be there.
-  display_languages->push_back(dictionary_language);
+  languages->push_back(dictionary_language);
 
   // Now scan through the list of accept languages, and find possible mappings
   // from this list to the existing list of spell check languages.
   Languages accept_languages;
-  std::set<Language> unique_languages;
   SplitString(WideToASCII(accept_languages_pref.GetValue()), ',',
               &accept_languages);
   for (Languages::const_iterator i = accept_languages.begin();
        i != accept_languages.end(); ++i) {
-    Language language(GetCorrespondingSpellCheckLanguage(*i));
-    if (!language.empty() && language != WideToASCII(dictionary_language))
-      unique_languages.insert(language);
+    std::string language = GetCorrespondingSpellCheckLanguage(*i);
+    if (!language.empty() &&
+        std::find(languages->begin(), languages->end(), language) ==
+        languages->end())
+      languages->push_back(language);
   }
 
-  for (std::set<Language>::const_iterator i = unique_languages.begin();
-       i != unique_languages.end(); ++i)
-    display_languages->push_back(ASCIIToWide(*i));
-
-  // Sort using locale specific sorter.
-  l10n_util::SortStrings(g_browser_process->GetApplicationLocale(),
-                         display_languages);
-
-  for (size_t i = 0; i < display_languages->size(); ++i) {
-    if ((*display_languages)[i] == dictionary_language)
+  for (size_t i = 0; i < languages->size(); ++i) {
+    if ((*languages)[i] == dictionary_language)
       return i;
   }
   return -1;

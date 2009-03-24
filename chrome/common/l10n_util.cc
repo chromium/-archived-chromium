@@ -261,10 +261,9 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale) {
 #endif
 }
 
-std::wstring GetLocalName(const std::wstring& locale_code_wstr,
+std::wstring GetLocalName(const std::string& locale_code_str,
                           const std::wstring& app_locale_wstr,
                           bool is_for_ui) {
-  std::string locale_code_str = WideToASCII(locale_code_wstr);
   const std::string app_locale = WideToASCII(app_locale_wstr);
   const char* locale_code = locale_code_str.c_str();
   UErrorCode error = U_ZERO_ERROR;
@@ -654,8 +653,8 @@ void SortStrings(const std::wstring& locale,
   SortVectorWithStringKey(locale, strings, false);
 }
 
-const std::vector<std::wstring>& GetAvailableLocales() {
-  static std::vector<std::wstring> locales;
+const std::vector<std::string>& GetAvailableLocales() {
+  static std::vector<std::string> locales;
   if (locales.empty()) {
     int num_locales = uloc_countAvailable();
     for (int i = 0; i < num_locales; ++i) {
@@ -673,11 +672,11 @@ const std::vector<std::wstring>& GetAvailableLocales() {
       } else if (LowerCaseEqualsASCII(locale_name, "zh-hant")) {
         locale_name = "zh-TW";
       }
-      locales.push_back(ASCIIToWide(locale_name));
+      locales.push_back(locale_name);
     }
 
     // Manually add 'es-419' to the list. See the comment in IsDuplicateName().
-    locales.push_back(L"es-419");
+    locales.push_back("es-419");
   }
   return locales;
 }

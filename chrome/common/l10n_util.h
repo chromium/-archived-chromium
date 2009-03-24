@@ -55,7 +55,7 @@ std::wstring GetApplicationLocale(const std::wstring& pref_locale);
 //    GetApplicationLocale();
 // If |is_for_ui| is true, U+200F is appended so that it can be
 // rendered properly in a RTL Chrome.
-std::wstring GetLocalName(const std::wstring& locale_code_wstr,
+std::wstring GetLocalName(const std::string& locale_code_str,
                           const std::wstring& app_locale_wstr,
                           bool is_for_ui);
 
@@ -318,7 +318,7 @@ void SortStrings(const std::wstring& locale,
 
 // Returns a vector of available locale codes. E.g., a vector containing
 // en-US, es, fr, fi, pt-PT, pt-BR, etc.
-const std::vector<std::wstring>& GetAvailableLocales();
+const std::vector<std::string>& GetAvailableLocales();
 
 // A simple wrapper class for the bidirectional iterator of ICU.
 // This class uses the bidirectional iterator of ICU to split a line of

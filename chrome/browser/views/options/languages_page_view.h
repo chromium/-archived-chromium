@@ -46,7 +46,7 @@ class LanguagesPageView : public OptionsPageView,
   // This is public because when user clicks OK in AddLanguageView dialog,
   // this is called back in the LanguagePageView delegate in order to add
   // this language to the table model in this tab.
-  void OnAddLanguage(const std::wstring& new_language);
+  void OnAddLanguage(const std::string& new_language);
 
  protected:
   // OptionsPageView implementation:
@@ -101,7 +101,7 @@ class LanguagesPageView : public OptionsPageView,
   // This is assigned the new index of spellcheck language if the language
   // is changed. Otherwise, it remains -1, and pref members are not updated.
   int spellcheck_language_index_selected_;
-  std::wstring spellcheck_language_added_;
+  std::string spellcheck_language_added_;
 
   bool language_table_edited_;
   bool language_warning_shown_;
