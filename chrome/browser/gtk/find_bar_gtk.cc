@@ -6,12 +6,21 @@
 
 #include <gdk/gdkkeysyms.h>
 
+#include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/find_bar_controller.h"
+#include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 
 namespace {
+
+const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
+
+// Padding around the container.
+const int kBarPadding = 4;
 
 gboolean EntryContentsChanged(GtkWindow* window, FindBarGtk* find_bar) {
   find_bar->ContentsChanged();
@@ -28,26 +37,76 @@ gboolean KeyPressEvent(GtkWindow* window, GdkEventKey* event,
 }
 
 FindBarGtk::FindBarGtk() {
-  // TODO(tc): Pull out widget creation into an Init() method.
-  find_text_ = gtk_entry_new();
-  gtk_widget_show(find_text_);
-
-  container_.Own(gtk_hbox_new(false, 2));
-  gtk_box_pack_end(GTK_BOX(container_.get()), find_text_, FALSE, FALSE, 0);
-
-  g_signal_connect(G_OBJECT(find_text_), "changed", 
-                   G_CALLBACK(EntryContentsChanged), this);
-  g_signal_connect(G_OBJECT(find_text_), "key-press-event", 
-                   G_CALLBACK(KeyPressEvent), this);
+  InitWidgets();
 }
 
 FindBarGtk::~FindBarGtk() {
   container_.Destroy();
 }
 
+void FindBarGtk::InitWidgets() {
+  // The find bar is basically an hbox with a gtkentry (text box) followed by 3
+  // buttons (previous result, next result, close).  We wrap the hbox in a gtk
+  // alignment and a gtk event box to get the padding and light blue
+  // background.
+  GtkWidget* hbox = gtk_hbox_new(false, 0);
+  container_.Own(gfx::CreateGtkBorderBin(hbox, &kBackgroundColor, kBarPadding,
+      kBarPadding, kBarPadding, kBarPadding));
+
+  close_button_.reset(new CustomDrawButton(IDR_CLOSE_BAR, IDR_CLOSE_BAR_P,
+                                           IDR_CLOSE_BAR_H, 0));
+  g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
+                   G_CALLBACK(OnButtonPressed), this);
+  gtk_widget_set_tooltip_text(close_button_->widget(),
+      WideToUTF8(l10n_util::GetString(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP))
+          .c_str());
+  // Wrap the close X in a vbox to vertically align it.
+  GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(centering_vbox),
+                     close_button_->widget(), TRUE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
+
+  find_next_button_.reset(new CustomDrawButton(IDR_FINDINPAGE_NEXT,
+      IDR_FINDINPAGE_NEXT_H, IDR_FINDINPAGE_NEXT_H, IDR_FINDINPAGE_NEXT_P));
+  g_signal_connect(G_OBJECT(find_next_button_->widget()), "clicked",
+                   G_CALLBACK(OnButtonPressed), this);
+  gtk_widget_set_tooltip_text(find_next_button_->widget(),
+      WideToUTF8(l10n_util::GetString(IDS_FIND_IN_PAGE_NEXT_TOOLTIP))
+          .c_str());
+  gtk_box_pack_end(GTK_BOX(hbox), find_next_button_->widget(),
+                   FALSE, FALSE, 0);
+
+  find_previous_button_.reset(new CustomDrawButton(IDR_FINDINPAGE_PREV,
+      IDR_FINDINPAGE_PREV_H, IDR_FINDINPAGE_PREV_H, IDR_FINDINPAGE_PREV_P));
+  g_signal_connect(G_OBJECT(find_previous_button_->widget()), "clicked",
+                   G_CALLBACK(OnButtonPressed), this);
+  gtk_widget_set_tooltip_text(find_previous_button_->widget(),
+      WideToUTF8(l10n_util::GetString(IDS_FIND_IN_PAGE_PREVIOUS_TOOLTIP))
+          .c_str());
+  gtk_box_pack_end(GTK_BOX(hbox), find_previous_button_->widget(),
+                   FALSE, FALSE, 0);
+
+  find_text_ = gtk_entry_new();
+  // Force the text widget height so it lines up with the buttons regardless of
+  // font size.
+  gtk_widget_set_size_request(find_text_, -1, 20);
+  gtk_entry_set_has_frame(GTK_ENTRY(find_text_), FALSE);
+  // TODO(tc): We need a border around the find box.  This should probably be
+  // drawn by the background.  I tried drawing one using
+  // gfx::CreateGtkBorderBin, but I couldn't get it to draw a 1px border on
+  // top and bottom.
+  gtk_box_pack_end(GTK_BOX(hbox), find_text_, FALSE, FALSE, 0);
+
+
+  g_signal_connect(G_OBJECT(find_text_), "changed",
+                   G_CALLBACK(EntryContentsChanged), this);
+  g_signal_connect(G_OBJECT(find_text_), "key-press-event",
+                   G_CALLBACK(KeyPressEvent), this);
+}
+
 void FindBarGtk::Show() {
   // TODO(tc): This should be an animated slide in.
-  gtk_widget_show(container_.get());
+  gtk_widget_show_all(container_.get());
   gtk_widget_grab_focus(find_text_);
 }
 
@@ -57,6 +116,9 @@ void FindBarGtk::Hide(bool animate) {
 }
 
 void FindBarGtk::SetFocusAndSelection() {
+  gtk_widget_grab_focus(find_text_);
+  // Select all the text.
+  gtk_entry_select_region(GTK_ENTRY(find_text_), 0, -1);
 }
 
 void FindBarGtk::ClearResults(const FindNotificationDetails& results) {
@@ -67,6 +129,8 @@ void FindBarGtk::StopAnimation() {
 }
 
 void FindBarGtk::SetFindText(const string16& find_text) {
+  std::string find_text_utf8 = UTF16ToUTF8(find_text);
+  gtk_entry_set_text(GTK_ENTRY(find_text_), find_text_utf8.c_str());
 }
 
 void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
@@ -104,4 +168,20 @@ void FindBarGtk::ContentsChanged() {
 
 void FindBarGtk::EscapePressed() {
   find_bar_controller_->EndFindSession();
+}
+
+// static
+void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
+  if (button == find_bar->close_button_->widget()) {
+    find_bar->find_bar_controller_->EndFindSession();
+  } else if (button == find_bar->find_previous_button_->widget() ||
+      button == find_bar->find_next_button_->widget()) {
+    std::string find_text_utf8(
+        gtk_entry_get_text(GTK_ENTRY(find_bar->find_text_)));
+    find_bar->find_bar_controller_->web_contents()->StartFinding(
+        UTF8ToUTF16(find_text_utf8),
+        button == find_bar->find_next_button_->widget());
+  } else {
+    NOTREACHED();
+  }
 }

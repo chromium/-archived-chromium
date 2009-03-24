@@ -8,9 +8,11 @@
 #include <gtk/gtk.h>
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/common/owned_widget_gtk.h"
 
+class CustomDrawButton;
 class FindBarController;
 class TabContentsContainerGtk;
 class WebContents;
@@ -49,11 +51,23 @@ class FindBarGtk : public FindBar {
   virtual void RestoreSavedFocus();
 
  private:
+  void InitWidgets();
+
+  // Callback for previous, next, and close button.
+  static void OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar);
+
   // GtkHBox containing the find bar widgets.
   OwnedWidgetGtk container_;
 
   // The widget where text is entered.
   GtkWidget* find_text_;
+
+  // The next and previous match buttons.
+  scoped_ptr<CustomDrawButton> find_previous_button_;
+  scoped_ptr<CustomDrawButton> find_next_button_;
+
+  // The X to close the find bar.
+  scoped_ptr<CustomDrawButton> close_button_;
 
   // Pointer back to the owning controller.
   FindBarController* find_bar_controller_;
