@@ -243,6 +243,8 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetString(IDS_NEW_TAB_BOOKMARKS));
   localized_strings.SetString(L"showhistory",
       l10n_util::GetString(IDS_NEW_TAB_HISTORY_SHOW));
+  localized_strings.SetString(L"showhistoryurl",
+      chrome::kChromeUIHistoryURL);
   localized_strings.SetString(L"searchhistory",
       l10n_util::GetString(IDS_NEW_TAB_HISTORY_SEARCH));
   localized_strings.SetString(L"recentlyclosed",
@@ -907,9 +909,6 @@ class HistoryHandler : public DOMMessageHandler {
  public:
   explicit HistoryHandler(DOMUI* dom_ui);
 
-  // Callback which navigates to the history page.
-  void HandleShowHistoryPage(const Value*);
-
   // Callback which navigates to the history page and performs a search.
   void HandleSearchHistoryPage(const Value* content);
 
@@ -922,20 +921,8 @@ class HistoryHandler : public DOMMessageHandler {
 HistoryHandler::HistoryHandler(DOMUI* dom_ui)
     : DOMMessageHandler(dom_ui),
       dom_ui_(dom_ui) {
-  dom_ui->RegisterMessageCallback("showHistoryPage",
-      NewCallback(this, &HistoryHandler::HandleShowHistoryPage));
   dom_ui->RegisterMessageCallback("searchHistoryPage",
       NewCallback(this, &HistoryHandler::HandleSearchHistoryPage));
-}
-
-void HistoryHandler::HandleShowHistoryPage(const Value*) {
-  NavigationController* controller = dom_ui_->web_contents()->controller();
-  if (controller) {
-    UserMetrics::RecordAction(L"NTP_ShowHistory", dom_ui_->GetProfile());
-    controller->LoadURL(GURL(chrome::kChromeUINewTabURL), GURL(),
-                        PageTransition::LINK);
-    // We are deleted by LoadURL, so do not call anything else.
-  }
 }
 
 void HistoryHandler::HandleSearchHistoryPage(const Value* content) {

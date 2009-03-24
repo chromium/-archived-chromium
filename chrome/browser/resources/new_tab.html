@@ -46,7 +46,7 @@ var localStrings;
  */
 function LocalStrings(node) {
   this.strings_ = {};
-  
+
   var children = node.childNodes;
   for (var i = 0, child; child = children[i]; i++) {
     var id = child.id;
@@ -66,7 +66,7 @@ LocalStrings.prototype.getString = function(s) {
 }
 
 /**
- * Returns a formatted localized string (where all %s contents are replaced 
+ * Returns a formatted localized string (where all %s contents are replaced
  * by the second argument).
  * @param {string} s The id of the string we want
  * @param {string} d The string to include in the formatted string
@@ -133,7 +133,7 @@ function resizeP13N(new_height) {
      childf.style.display = "none";
      return;
    }
-   childf.height = new_height; 
+   childf.height = new_height;
    childf.style.display = "block";
 }
 
@@ -446,8 +446,8 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
       </table>
     </div>
     <a href="#"
-       class="manage"
-       onclick="chrome.send('showHistoryPage'); return false">
+       jsvalues="href:showhistoryurl"
+       class="manage">
        <span jscontent="showhistory"></span> &raquo;</a>
   </div>
   </td>
@@ -512,7 +512,7 @@ function DOM(elem, attrs) {
  *     applied to the function.
  *
  * @return {!Function} A partially-applied form of the function bind() was
- *     invoked as a method of. 
+ *     invoked as a method of.
  */
 function bind(fn, selfObj, var_args) {
   var boundArgs = Array.prototype.slice.call(arguments, 2);
@@ -528,14 +528,14 @@ function bind(fn, selfObj, var_args) {
 function makeMostVisitedDOM(page, number) {
   /* The HTML we want looks like this:
     <a class="most-visited-item" href="URL" title="gmail.com">
-      <div class="thumbnail-title" 
+      <div class="thumbnail-title"
            style="background-image:url(faviconurl);direction:ltr">gmail.com</div>
       <img class="thumbnail" style="background-image:url(thumbnailurl);" />
     </a>
   */
   var root;
   if (page.url) {
-    root = DOM('a', {href:page.url, 
+    root = DOM('a', {href:page.url,
                      title:page.title});
     root.addEventListener("mousedown", function(event) {
         chrome.send("metrics", ["NTP_MostVisited" + number])
@@ -688,8 +688,8 @@ function renderRecentlyBookmarked(entries) {
   if (entries.length > 0) {
     section.style.display = 'block';
     for (var i = 0, entry = entries[0]; entry = entries[i]; ++i) {
-      var link = DOM('a', {href: entry.url, 
-                           className:'recent-bookmark', 
+      var link = DOM('a', {href: entry.url,
+                           className:'recent-bookmark',
                            title:entry.title});
       link.addEventListener("mousedown", function(event) {
           chrome.send("metrics", ["NTP_Bookmark" + i])
@@ -726,7 +726,7 @@ function renderRecentlyClosedTabs(entries) {
 
     for (var i = 0; entry = entries[i]; ++i) {
       var link;
-      
+
       if (entry.type == "tab") {
         // Closed tab.
         link = createRecentBookmark('a', entry);
@@ -740,8 +740,8 @@ function renderRecentlyClosedTabs(entries) {
         for (var windowIndex = 0; windowIndex < entry.tabs.length; windowIndex++) {
           var tab = entry.tabs[windowIndex];
           var tabImg = DOM('img', {
-              src:'url("chrome-ui://favicon/' + tab.url + '")', 
-              width:16, 
+              src:'url("chrome-ui://favicon/' + tab.url + '")',
+              width:16,
               height:16});
           tabImg.onmousedown = function() { return false; }
           linkSpan.appendChild(tabImg);
@@ -756,7 +756,7 @@ function renderRecentlyClosedTabs(entries) {
         link.appendChild(linkSpan);
         linkSpanContainer.appendChild(link);
         container.appendChild(linkSpanContainer);
-        
+
         // The card takes care of appending itself to the DOM, so no need to
         // keep a reference to it.
         new RecentlyClosedHoverCard(linkSpanContainer, entry);
@@ -871,7 +871,7 @@ RecentlyClosedHoverCard.prototype.setShowTimeout_ = function() {
   }
 
   RecentlyClosedHoverCard.clearOpenTimeout_();
-  RecentlyClosedHoverCard.openTimeout_ = 
+  RecentlyClosedHoverCard.openTimeout_ =
       setTimeout(bind(this.show_, this), 200);
 };
 
@@ -880,7 +880,7 @@ RecentlyClosedHoverCard.prototype.setShowTimeout_ = function() {
  */
 RecentlyClosedHoverCard.prototype.setHideTimeout_ = function() {
   RecentlyClosedHoverCard.clearOpenTimeout_();
-  RecentlyClosedHoverCard.closeTimeout_ = 
+  RecentlyClosedHoverCard.closeTimeout_ =
       setTimeout(bind(this.hide_, this), 200);
 };
 
