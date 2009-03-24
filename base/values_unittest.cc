@@ -94,48 +94,43 @@ TEST(ValuesTest, List) {
 TEST(ValuesTest, BinaryValue) {
   char* buffer = NULL;
   // Passing a null buffer pointer doesn't yield a BinaryValue
-  BinaryValue* binary = BinaryValue::Create(buffer, 0);
-  ASSERT_FALSE(binary);
+  scoped_ptr<BinaryValue> binary(BinaryValue::Create(buffer, 0));
+  ASSERT_FALSE(binary.get());
 
   // If you want to represent an empty binary value, use a zero-length buffer.
   buffer = new char[1];
   ASSERT_TRUE(buffer);
-  binary = BinaryValue::Create(buffer, 0);
-  ASSERT_TRUE(binary);
+  binary.reset(BinaryValue::Create(buffer, 0));
+  ASSERT_TRUE(binary.get());
   ASSERT_TRUE(binary->GetBuffer());
   ASSERT_EQ(buffer, binary->GetBuffer());
   ASSERT_EQ(0U, binary->GetSize());
-  delete binary;
-  binary = NULL;
 
   // Test the common case of a non-empty buffer
   buffer = new char[15];
-  binary = BinaryValue::Create(buffer, 15);
-  ASSERT_TRUE(binary);
+  binary.reset(BinaryValue::Create(buffer, 15));
+  ASSERT_TRUE(binary.get());
   ASSERT_TRUE(binary->GetBuffer());
   ASSERT_EQ(buffer, binary->GetBuffer());
   ASSERT_EQ(15U, binary->GetSize());
-  delete binary;
-  binary = NULL;
 
   char stack_buffer[42];
   memset(stack_buffer, '!', 42);
-  binary = BinaryValue::CreateWithCopiedBuffer(stack_buffer, 42);
-  ASSERT_TRUE(binary);
+  binary.reset(BinaryValue::CreateWithCopiedBuffer(stack_buffer, 42));
+  ASSERT_TRUE(binary.get());
   ASSERT_TRUE(binary->GetBuffer());
   ASSERT_NE(stack_buffer, binary->GetBuffer());
   ASSERT_EQ(42U, binary->GetSize());
   ASSERT_EQ(0, memcmp(stack_buffer, binary->GetBuffer(), binary->GetSize()));
-  delete binary;
 }
 
 TEST(ValuesTest, StringValue) {
   // Test overloaded CreateStringValue.
-  Value* narrow_value = Value::CreateStringValue("narrow");
-  ASSERT_TRUE(narrow_value);
+  scoped_ptr<Value> narrow_value(Value::CreateStringValue("narrow"));
+  ASSERT_TRUE(narrow_value.get());
   ASSERT_TRUE(narrow_value->IsType(Value::TYPE_STRING));
-  Value* wide_value = Value::CreateStringValue(L"wide");
-  ASSERT_TRUE(wide_value);
+  scoped_ptr<Value> wide_value(Value::CreateStringValue(L"wide"));
+  ASSERT_TRUE(wide_value.get());
   ASSERT_TRUE(wide_value->IsType(Value::TYPE_STRING));
 
   // Test overloaded GetString.
@@ -149,8 +144,6 @@ TEST(ValuesTest, StringValue) {
   ASSERT_TRUE(wide_value->GetAsString(&wide));
   ASSERT_EQ(std::string("wide"), narrow);
   ASSERT_EQ(std::wstring(L"wide"), wide);
-  delete narrow_value;
-  delete wide_value;
 }
 
 // This is a Value object that allows us to tell if it's been
