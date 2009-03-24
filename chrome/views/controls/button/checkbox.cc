@@ -40,7 +40,8 @@ void Checkbox::SetChecked(bool checked) {
   if (checked_ == checked)
     return;
   checked_ = checked;
-  native_wrapper_->UpdateChecked();
+  if (native_wrapper_)
+    native_wrapper_->UpdateChecked();
 }
 
 // static
