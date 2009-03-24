@@ -544,10 +544,6 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
       TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring());
 
   if (url.is_valid()) {
-    // Load the URL.
-    dom_ui_->web_contents()->OpenURL(url, GURL(), CURRENT_TAB,
-                                     PageTransition::LINK);
-
     // Record the user action
     std::vector<const TemplateURL*> urls =
         template_url_model_->GetTemplateURLs();
@@ -572,6 +568,12 @@ void TemplateURLHandler::HandleDoSearch(const Value* content) {
 
       item_number++;
     }
+
+    // Load the URL.
+    dom_ui_->web_contents()->OpenURL(url, GURL(), CURRENT_TAB,
+                                     PageTransition::LINK);
+    // We've been deleted.
+    return;
   }
 }
 
