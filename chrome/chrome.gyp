@@ -2305,8 +2305,6 @@
               'dependencies': [
                 '../build/linux/system.gyp:gtk',
               ],
-            }],
-            ['OS!="win"', {
               'sources!': [
                 'tools/build/win/precompiled.cc',
                 'tools/build/win/precompiled.h',
