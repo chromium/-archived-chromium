@@ -320,6 +320,14 @@ class RequestProxy : public URLRequest::Delegate,
 
   // Called on the IO thread.
   void MaybeUpdateUploadProgress() {
+    // If a redirect is received upload is cancelled in URLRequest, we should
+    // try to stop the |upload_progress_timer_| timer and return.
+    if (!request_->has_upload()) {
+      if (upload_progress_timer_.IsRunning())
+        upload_progress_timer_.Stop();
+      return;
+    }
+
     uint64 size = request_->get_upload()->GetContentLength();
     uint64 position = request_->GetUploadProgress();
     if (position == last_upload_position_)
