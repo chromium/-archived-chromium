@@ -325,7 +325,7 @@ URLRequestContext* ResourceMessageFilter::GetRequestContext(
       (request_data.load_flags & net::LOAD_ENABLE_DOWNLOAD_FILE)) {
     request_context = media_request_context_;
   }
-  return request_context_;
+  return request_context;
 }
 
 void ResourceMessageFilter::OnMsgCreateWindow(
