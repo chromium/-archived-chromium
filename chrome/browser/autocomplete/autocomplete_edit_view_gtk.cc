@@ -22,9 +22,13 @@ namespace {
 
 const char kTextBaseColor[] = "#808080";
 const char kSecureSchemeColor[] = "#009614";
-const char kInsecureSchemeColor[] = "#009614";
-const GdkColor kSecureBackgroundColor = GDK_COLOR_RGB(0xff, 0xf5, 0xc3);
-const GdkColor kInsecureBackgroundColor = GDK_COLOR_RGB(0xff, 0xff, 0xff);
+const char kInsecureSchemeColor[] = "#c80000";
+
+const GdkColor kBackgroundColorByLevel[] = {
+  GDK_COLOR_RGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel NORMAL: White.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
+};
 
 }  // namespace
 
@@ -141,6 +145,14 @@ void AutocompleteEditViewGtk::Update(const TabContents* contents) {
   bool changed_security_level = (security_level != scheme_security_level_);
   scheme_security_level_ = security_level;
 
+  // TODO(deanm): This doesn't exactly match Windows.  There there is a member
+  // background_color_.  I think we can get away with just the level though.
+  if (changed_security_level) {
+    gtk_widget_modify_base(text_view_.get(),
+                           GTK_STATE_NORMAL,
+                           &kBackgroundColorByLevel[security_level]);
+  }
+
   if (contents) {
     RevertAll();
     // TODO(deanm): Tab switching.  The Windows code puts some state in a
@@ -148,7 +160,7 @@ void AutocompleteEditViewGtk::Update(const TabContents* contents) {
   } else if (visibly_changed_permanent_text) {
     RevertAll();
     // TODO(deanm): There should be code to restore select all here.
-  } else if(changed_security_level) {
+  } else if (changed_security_level) {
     EmphasizeURLComponents();
   }
 }
@@ -518,17 +530,13 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
                                            parts.scheme.begin);
     gtk_text_buffer_get_iter_at_line_index(text_buffer_, &end, 0,
                                            parts.scheme.end());
-    const GdkColor* background;
     if (scheme_security_level_ == ToolbarModel::SECURE) {
-      background = &kSecureBackgroundColor;
       gtk_text_buffer_apply_tag(text_buffer_, secure_scheme_tag_,
                                 &start, &end);
     } else {
-      background = &kInsecureBackgroundColor;
       gtk_text_buffer_apply_tag(text_buffer_, insecure_scheme_tag_,
                                 &start, &end);
     }
-    gtk_widget_modify_base(text_view_.get(), GTK_STATE_NORMAL, background);
   }
 }
 
