@@ -47,15 +47,9 @@ bool DirectoryWatcherImpl::Watch(const FilePath& path,
     DirectoryWatcher::Delegate* delegate, bool recursive) {
   DCHECK(path_.value().empty());  // Can only watch one path.
 
-  if (!recursive) {
-    // See http://crbug.com/5072.
-    NOTIMPLEMENTED();
-    return false;
-  }
-
   handle_ = FindFirstChangeNotification(
       path.value().c_str(),
-      TRUE,  // Watch subtree.
+      recursive,
       FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_SIZE |
       FILE_NOTIFY_CHANGE_LAST_WRITE);
   if (handle_ == INVALID_HANDLE_VALUE)

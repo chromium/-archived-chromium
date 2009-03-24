@@ -4,36 +4,21 @@
 
 #include "base/directory_watcher.h"
 
-#include <fstream>
+#include <limits>
 
-#include "build/build_config.h"
-
+#include "base/basictypes.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/string_util.h"
-#if defined(OS_WIN)
-#include "base/win_util.h"
-#endif
 #include "testing/gtest/include/gtest/gtest.h"
-
-// TODO(phajdan.jr): Clean up ifdefs in this file when Linux/Windows differences
-// get sorted out.
 
 namespace {
 
 // For tests where we wait a bit to verify nothing happened
 const int kWaitForEventTime = 500;
-
-// Unfortunately Windows supports only recursive watches and Linux
-// only non-recursive ones.
-#if defined(OS_WIN)
-const bool kDefaultRecursiveValue = true;
-#elif defined(OS_LINUX)
-const bool kDefaultRecursiveValue = false;
-#endif
 
 }  // namespace
 
@@ -126,7 +111,7 @@ class DirectoryWatcherTest : public testing::Test,
 // Basic test: add a file and verify we notice it.
 TEST_F(DirectoryWatcherTest, NewFile) {
   DirectoryWatcher watcher;
-  ASSERT_TRUE(watcher.Watch(test_dir_, this, kDefaultRecursiveValue));
+  ASSERT_TRUE(watcher.Watch(test_dir_, this, false));
 
   SetExpectedNumberOfModifications(2);
   WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
@@ -136,7 +121,7 @@ TEST_F(DirectoryWatcherTest, NewFile) {
 // Verify that modifying a file is caught.
 TEST_F(DirectoryWatcherTest, ModifiedFile) {
   DirectoryWatcher watcher;
-  ASSERT_TRUE(watcher.Watch(test_dir_, this, kDefaultRecursiveValue));
+  ASSERT_TRUE(watcher.Watch(test_dir_, this, false));
 
   // Write a file to the test dir.
   SetExpectedNumberOfModifications(2);
@@ -155,7 +140,7 @@ TEST_F(DirectoryWatcherTest, ModifiedFile) {
 TEST_F(DirectoryWatcherTest, Unregister) {
   {
     DirectoryWatcher watcher;
-    ASSERT_TRUE(watcher.Watch(test_dir_, this, kDefaultRecursiveValue));
+    ASSERT_TRUE(watcher.Watch(test_dir_, this, false));
 
     // And then let it fall out of scope, clearing its watch.
   }
@@ -166,40 +151,43 @@ TEST_F(DirectoryWatcherTest, Unregister) {
   VerifyExpectedNumberOfModifications();
 }
 
-TEST_F(DirectoryWatcherTest, SubDir) {
+TEST_F(DirectoryWatcherTest, SubDirRecursive) {
   FilePath subdir(FILE_PATH_LITERAL("SubDir"));
   ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
 
-#if defined(OS_WIN)
+#if !defined(OS_WIN)
   // TODO(port): Recursive watches are not implemented on Linux.
+  return;
+#endif  // !defined(OS_WIN)
 
   // Verify that modifications to a subdirectory are noticed by recursive watch.
-  {
-    DirectoryWatcher watcher;
-    ASSERT_TRUE(watcher.Watch(test_dir_, this, true));
-    // Write a file to the subdir.
-    SetExpectedNumberOfModifications(2);
-    FilePath test_path = subdir.AppendASCII("test_file");
-    WriteTestDirFile(test_path.value(), "some content");
-    VerifyExpectedNumberOfModifications();
-  }
-#endif  // defined(OS_WIN)
+  DirectoryWatcher watcher;
+  ASSERT_TRUE(watcher.Watch(test_dir_, this, true));
+  // Write a file to the subdir.
+  SetExpectedNumberOfModifications(2);
+  FilePath test_path = subdir.AppendASCII("test_file");
+  WriteTestDirFile(test_path.value(), "some content");
+  VerifyExpectedNumberOfModifications();
+}
 
-#if !defined(OS_WIN)
-  // TODO: Enable when the root cause of http://crbug.com/5072 is fixed.
+TEST_F(DirectoryWatcherTest, SubDirNonRecursive) {
+  FilePath subdir(FILE_PATH_LITERAL("SubDir"));
+  ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
+
+  // Create a test file before the test. On Windows we get a notification
+  // when creating a file in a subdir even with a non-recursive watch.
+  FilePath test_path = subdir.AppendASCII("test_file");
+  WriteTestDirFile(test_path.value(), "some content");
 
   // Verify that modifications to a subdirectory are not noticed
   // by a not-recursive watch.
-  {
-    DirectoryWatcher watcher;
-    ASSERT_TRUE(watcher.Watch(test_dir_, this, false));
-    // Write a file to the subdir.
-    SetExpectedNumberOfModifications(0);
-    FilePath test_path = subdir.AppendASCII("test_file");
-    WriteTestDirFile(test_path.value(), "some content");
-    VerifyExpectedNumberOfModifications();
-  }
-#endif  // !defined(OS_WIN)
+  DirectoryWatcher watcher;
+  ASSERT_TRUE(watcher.Watch(test_dir_, this, false));
+
+  // Modify the test file. There should be no notifications.
+  SetExpectedNumberOfModifications(0);
+  WriteTestDirFile(test_path.value(), "some other content");
+  VerifyExpectedNumberOfModifications();
 }
 
 namespace {
@@ -226,7 +214,7 @@ class Deleter : public DirectoryWatcher::Delegate {
 TEST_F(DirectoryWatcherTest, DeleteDuringNotify) {
   DirectoryWatcher* watcher = new DirectoryWatcher;
   Deleter deleter(watcher, &loop_);  // Takes ownership of watcher.
-  ASSERT_TRUE(watcher->Watch(test_dir_, &deleter, kDefaultRecursiveValue));
+  ASSERT_TRUE(watcher->Watch(test_dir_, &deleter, false));
 
   WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
   loop_.Run();
@@ -238,8 +226,8 @@ TEST_F(DirectoryWatcherTest, DeleteDuringNotify) {
 
 TEST_F(DirectoryWatcherTest, MultipleWatchersSingleFile) {
   DirectoryWatcher watcher1, watcher2;
-  ASSERT_TRUE(watcher1.Watch(test_dir_, this, kDefaultRecursiveValue));
-  ASSERT_TRUE(watcher2.Watch(test_dir_, this, kDefaultRecursiveValue));
+  ASSERT_TRUE(watcher1.Watch(test_dir_, this, false));
+  ASSERT_TRUE(watcher2.Watch(test_dir_, this, false));
 
   SetExpectedNumberOfModifications(4);  // Each watcher should fire twice.
   WriteTestDirFile(FILE_PATH_LITERAL("test_file"), "some content");
@@ -254,8 +242,7 @@ TEST_F(DirectoryWatcherTest, MultipleWatchersDifferentFiles) {
     subdirs[i] = FilePath(FILE_PATH_LITERAL("Dir")).AppendASCII(IntToString(i));
     ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdirs[i])));
 
-    ASSERT_TRUE(watchers[i].Watch(test_dir_.Append(subdirs[i]), this,
-                                  kDefaultRecursiveValue));
+    ASSERT_TRUE(watchers[i].Watch(test_dir_.Append(subdirs[i]), this, false));
   }
   for (int i = 0; i < kNumberOfWatchers; i++) {
     // Verify that we only get modifications from one watcher (each watcher has
@@ -279,5 +266,5 @@ TEST_F(DirectoryWatcherTest, MultipleWatchersDifferentFiles) {
 TEST_F(DirectoryWatcherTest, NonExistentDirectory) {
   DirectoryWatcher watcher;
   ASSERT_FALSE(watcher.Watch(test_dir_.AppendASCII("does-not-exist"), this,
-                             kDefaultRecursiveValue));
+                             false));
 }
