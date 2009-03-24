@@ -138,7 +138,7 @@ enum EntryState {
   ENTRY_DOOMED      // The entry was doomed.
 };
 
-#pragma pack(push, old, 4)
+#pragma pack(push, 4)
 // Rankings information for a given entry.
 struct RankingsNode {
   uint64      last_used;        // LRU info.
@@ -149,7 +149,7 @@ struct RankingsNode {
   int32       dirty;            // The entry is being modifyied.
   void*       pointer;          // Pointer to the in-memory entry.
 };
-#pragma pack(pop, old)
+#pragma pack(pop)
 
 COMPILE_ASSERT(sizeof(RankingsNode) == 36, bad_RankingsNode);
 
