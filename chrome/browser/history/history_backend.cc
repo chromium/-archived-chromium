@@ -633,6 +633,9 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
   VisitRow visit_info(url_id, time, referring_visit, transition, 0);
   VisitID visit_id = db_->AddVisit(&visit_info);
 
+  if (visit_info.visit_time < first_recorded_time_)
+    first_recorded_time_ = visit_info.visit_time;
+
   // Broadcast a notification of the visit.
   if (visit_id) {
     URLVisitedDetails* details = new URLVisitedDetails;
@@ -710,6 +713,9 @@ void HistoryBackend::AddPagesWithDetails(const std::vector<URLRow>& urls) {
       NOTREACHED() << "Adding visit failed.";
       return;
     }
+
+    if (visit_info.visit_time < first_recorded_time_)
+      first_recorded_time_ = visit_info.visit_time;
   }
 
   // Broadcast a notification for typed URLs that have been modified. This
