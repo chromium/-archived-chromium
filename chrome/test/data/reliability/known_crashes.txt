@@ -67,12 +67,6 @@ PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager
 # 7694
 PREFIX : webcore::containernode::willremove
 
-# 4801
-PREFIX : webcore::document::body___webcore::docloader::checkforpendingpreloads___webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading
-PREFIX : webcore::docloader::setloadinprogress___webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading___webcore::resourcehandleinternal::oncompletedrequest
-PREFIX : webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading___webcore::resourcehandleinternal::oncompletedrequest
-PREFIX : webcore::loader::host::servependingrequests___webcore::loader::host::servependingrequests___webcore::loader::host::didfinishloading___webcore::subresourceloader::didfinishloading___webcore::resourceloader::didfinishloading___webcore::resourcehandleinternal::oncompletedrequest___resourcedispatcher::onrequestcomplete
-
 # 7570
 PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
 
