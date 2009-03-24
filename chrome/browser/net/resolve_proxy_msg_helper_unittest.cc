@@ -134,7 +134,7 @@ class AsyncRequestRunner : public ResolveProxyMsgHelper::Delegate {
 // io thread.
 class RunnerBridge {
  public:
-  RunnerBridge() : io_thread_("io_thread"), done_(true, false) {
+  RunnerBridge() : io_thread_("io_thread"), done_(false, false) {
     // Start an io thread where we will run the async requests.
     base::Thread::Options options;
     options.message_loop_type = MessageLoop::TYPE_IO;

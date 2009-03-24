@@ -98,13 +98,13 @@ TEST_F(TabRestoreServiceTest, Basic) {
   service_->CreateHistoricalTab(controller_);
 
   // Make sure an entry was created.
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // Make sure the entry matches.
   TabRestoreService::Entry* entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(3, tab->navigations.size());
+  ASSERT_EQ(3U, tab->navigations.size());
   EXPECT_TRUE(url1_ == tab->navigations[0].url());
   EXPECT_TRUE(url2_ == tab->navigations[1].url());
   EXPECT_TRUE(url3_ == tab->navigations[2].url());
@@ -116,13 +116,13 @@ TEST_F(TabRestoreServiceTest, Basic) {
   service_->CreateHistoricalTab(controller_);
 
   // There should be two entries now.
-  ASSERT_EQ(2, service_->entries().size());
+  ASSERT_EQ(2U, service_->entries().size());
 
   // Make sure the entry matches
   entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(3, tab->navigations.size());
+  ASSERT_EQ(3U, tab->navigations.size());
   EXPECT_TRUE(url1_ == tab->navigations[0].url());
   EXPECT_TRUE(url2_ == tab->navigations[1].url());
   EXPECT_TRUE(url3_ == tab->navigations[2].url());
@@ -147,13 +147,13 @@ TEST_F(TabRestoreServiceTest, Restore) {
   RecreateService();
 
   // One entry should be created.
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // And verify the entry.
   TabRestoreService::Entry* entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(3, tab->navigations.size());
+  ASSERT_EQ(3U, tab->navigations.size());
   EXPECT_TRUE(url1_ == tab->navigations[0].url());
   EXPECT_TRUE(url2_ == tab->navigations[1].url());
   EXPECT_TRUE(url3_ == tab->navigations[2].url());
@@ -166,7 +166,7 @@ TEST_F(TabRestoreServiceTest, DontLoadRestoredTab) {
 
   // Have the service record the tab.
   service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // Restore the tab.
   service_->RestoreEntryById(NULL, service_->entries().front()->id, true);
@@ -176,7 +176,7 @@ TEST_F(TabRestoreServiceTest, DontLoadRestoredTab) {
   RecreateService();
 
   // There should be no entries.
-  ASSERT_EQ(0, service_->entries().size());
+  ASSERT_EQ(0U, service_->entries().size());
 }
 
 // Make sure we don't persist entries to disk that have post data.
@@ -186,20 +186,20 @@ TEST_F(TabRestoreServiceTest, DontPersistPostData1) {
 
   // Have the service record the tab.
   service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // Recreate the service and have it load the tabs.
   RecreateService();
 
   // One entry should be created.
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // And verify the entry, the last navigation (url3_) should not have
   // been written to disk as it contained post data.
   TabRestoreService::Entry* entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(2, tab->navigations.size());
+  ASSERT_EQ(2U, tab->navigations.size());
   EXPECT_TRUE(url1_ == tab->navigations[0].url());
   EXPECT_TRUE(url2_ == tab->navigations[1].url());
   EXPECT_EQ(1, tab->current_navigation_index);
@@ -216,20 +216,20 @@ TEST_F(TabRestoreServiceTest, DontPersistPostData2) {
 
   // Have the service record the tab.
   service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // Recreate the service and have it load the tabs.
   RecreateService();
 
   // One entry should be created.
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // And verify the entry, the last navigation (url3_) should not have
   // been written to disk as it contained post data.
   TabRestoreService::Entry* entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(1, tab->navigations.size());
+  ASSERT_EQ(1U, tab->navigations.size());
   EXPECT_TRUE(url3_ == tab->navigations[0].url());
   EXPECT_EQ(0, tab->current_navigation_index);
 }
@@ -245,7 +245,7 @@ TEST_F(TabRestoreServiceTest, DontPersistPostData3) {
 
   // Have the service record the tab.
   service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // Recreate the service and have it load the tabs.
   RecreateService();
@@ -262,7 +262,7 @@ TEST_F(TabRestoreServiceTest, DontLoadTwice) {
 
   // Have the service record the tab.
   service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 
   // Recreate the service and have it load the tabs.
   RecreateService();
@@ -270,7 +270,7 @@ TEST_F(TabRestoreServiceTest, DontLoadTwice) {
   service_->LoadTabsFromLastSession();
 
   // There should only be one entry.
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
 }
 
 // Makes sure we load the previous session as necessary.
@@ -282,14 +282,14 @@ TEST_F(TabRestoreServiceTest, LoadPreviousSession) {
   service_->LoadTabsFromLastSession();
 
   // Make sure we get back one entry with one tab whose url is url1.
-  ASSERT_EQ(1, service_->entries().size());
+  ASSERT_EQ(1U, service_->entries().size());
   TabRestoreService::Entry* entry2 = service_->entries().front();
   ASSERT_EQ(TabRestoreService::WINDOW, entry2->type);
   TabRestoreService::Window* window =
       static_cast<TabRestoreService::Window*>(entry2);
-  ASSERT_EQ(1, window->tabs.size());
+  ASSERT_EQ(1U, window->tabs.size());
   EXPECT_EQ(0, window->selected_tab_index);
-  ASSERT_EQ(1, window->tabs[0].navigations.size());
+  ASSERT_EQ(1U, window->tabs[0].navigations.size());
   EXPECT_EQ(0, window->tabs[0].current_navigation_index);
   EXPECT_TRUE(url1_ == window->tabs[0].navigations[0].url());
 }
@@ -305,7 +305,7 @@ TEST_F(TabRestoreServiceTest, DontLoadAfterRestore) {
   service_->LoadTabsFromLastSession();
 
   // Because we restored a session TabRestoreService shouldn't load the tabs.
-  ASSERT_EQ(0, service_->entries().size());
+  ASSERT_EQ(0U, service_->entries().size());
 }
 
 // Makes sure we don't attempt to load previous sessions after a clean exit.
@@ -318,7 +318,7 @@ TEST_F(TabRestoreServiceTest, DontLoadAfterCleanExit) {
 
   service_->LoadTabsFromLastSession();
 
-  ASSERT_EQ(0, service_->entries().size());
+  ASSERT_EQ(0U, service_->entries().size());
 }
 
 TEST_F(TabRestoreServiceTest, LoadPreviousSessionAndTabs) {
@@ -334,15 +334,15 @@ TEST_F(TabRestoreServiceTest, LoadPreviousSessionAndTabs) {
 
   // We should get back two entries, one from the previous session and one from
   // the tab restore service. The previous session entry should be first.
-  ASSERT_EQ(2, service_->entries().size());
+  ASSERT_EQ(2U, service_->entries().size());
   // The first entry should come from the session service.
   TabRestoreService::Entry* entry = service_->entries().front();
   ASSERT_EQ(TabRestoreService::WINDOW, entry->type);
   TabRestoreService::Window* window =
       static_cast<TabRestoreService::Window*>(entry);
-  ASSERT_EQ(1, window->tabs.size());
+  ASSERT_EQ(1U, window->tabs.size());
   EXPECT_EQ(0, window->selected_tab_index);
-  ASSERT_EQ(1, window->tabs[0].navigations.size());
+  ASSERT_EQ(1U, window->tabs[0].navigations.size());
   EXPECT_EQ(0, window->tabs[0].current_navigation_index);
   EXPECT_TRUE(url1_ == window->tabs[0].navigations[0].url());
 
@@ -350,7 +350,7 @@ TEST_F(TabRestoreServiceTest, LoadPreviousSessionAndTabs) {
   entry = *(++service_->entries().begin());
   ASSERT_EQ(TabRestoreService::TAB, entry->type);
   TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(3, tab->navigations.size());
+  ASSERT_EQ(3U, tab->navigations.size());
   EXPECT_EQ(2, tab->current_navigation_index);
   EXPECT_TRUE(url1_ == tab->navigations[0].url());
   EXPECT_TRUE(url2_ == tab->navigations[1].url());
@@ -382,9 +382,9 @@ TEST_F(TabRestoreServiceTest, ManyWindowsInSessionService) {
   ASSERT_EQ(TabRestoreService::WINDOW, entry->type);
   TabRestoreService::Window* window =
       static_cast<TabRestoreService::Window*>(entry);
-  ASSERT_EQ(1, window->tabs.size());
+  ASSERT_EQ(1U, window->tabs.size());
   EXPECT_EQ(0, window->selected_tab_index);
-  ASSERT_EQ(1, window->tabs[0].navigations.size());
+  ASSERT_EQ(1U, window->tabs[0].navigations.size());
   EXPECT_EQ(0, window->tabs[0].current_navigation_index);
   EXPECT_TRUE(url1_ == window->tabs[0].navigations[0].url());
 }
