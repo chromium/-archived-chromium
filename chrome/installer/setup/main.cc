@@ -486,12 +486,18 @@ installer_util::InstallStatus UninstallChrome(const CommandLine& cmd_line,
                                           *version, remove_all, force);
 }
 
-installer_util::InstallStatus ShowEULADialog() {
+installer_util::InstallStatus ShowEULADialog(const std::wstring& inner_frame) {
   LOG(INFO) << "About to show EULA";
   std::wstring eula_path = installer_util::GetLocalizedEulaResource();
   if (eula_path.empty()) {
     LOG(ERROR) << "No EULA path available";
     return installer_util::EULA_REJECTED;
+  }
+  // Newer versions of the caller pass an inner frame parameter that must
+  // be given to the html page being launched.
+  if (!inner_frame.empty()) {
+    eula_path += L"?innerframe=";
+    eula_path += inner_frame;
   }
   installer::EulaHTMLDialog dlg(eula_path);
   installer::EulaHTMLDialog::Outcome outcome = dlg.ShowModal();
@@ -545,7 +551,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   // Check if we need to show the EULA. If it is passed as a command line
   // then the dialog is shown and regardless of the outcome setup exits here.
   if (parsed_command_line.HasSwitch(installer_util::switches::kShowEula)) {
-    installer_util::InstallStatus eula = ShowEULADialog();
+    std::wstring inner_frame = 
+        parsed_command_line.GetSwitchValue(installer_util::switches::kShowEula);
+    installer_util::InstallStatus eula = ShowEULADialog(inner_frame);
     if (installer_util::EULA_REJECTED != eula)
       GoogleUpdateSettings::SetEULAConsent(true);
     return eula;
