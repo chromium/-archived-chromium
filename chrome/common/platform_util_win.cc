@@ -5,6 +5,7 @@
 #include "chrome/common/platform_util.h"
 
 #include <atlbase.h>
+#include <shellapi.h>
 
 #include "base/file_path.h"
 #include "base/file_util.h"
