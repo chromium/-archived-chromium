@@ -3049,19 +3049,19 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\WorkerContextExecutionProxy.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\WorkerContextExecutionProxy.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\WorkerContextExecutionProxy.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\WorkerContextExecutionProxy.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\WorkerScriptController.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\WorkerScriptController.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\WorkerScriptController.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\WorkerScriptController.h"
 			>
 		</File>
 	</Files>

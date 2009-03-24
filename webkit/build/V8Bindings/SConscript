@@ -360,8 +360,8 @@ inputs = [
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestCustom.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestUploadCustom.cpp',
     '$PORT_DIR/bindings/v8/V8XMLHttpRequestUtilities.cpp',
-    '$PORT_DIR/bindings/v8/WorkerContextExecutionProxy.cpp',
-    '$PORT_DIR/bindings/v8/WorkerScriptController.cpp',
+    '$WEBCORE_DIR/bindings/v8/WorkerContextExecutionProxy.cpp',
+    '$WEBCORE_DIR/bindings/v8/WorkerScriptController.cpp',
 
     '$WEBCORE_DIR/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
     '$WEBCORE_DIR/bindings/v8/custom/V8ClipboardCustom.cpp',
