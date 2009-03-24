@@ -62,6 +62,20 @@ void WebWidgetImpl::Init(WebCore::FramelessScrollView* widget,
   }
 }
 
+void WebWidgetImpl::InitWithItems(WebCore::FramelessScrollView* widget,
+                                  const gfx::Rect& bounds,
+                                  int item_height,
+                                  int selected_index,
+                                  const std::vector<MenuItem>& items) {
+  widget_ = widget;
+  widget_->setClient(this);
+
+  if (delegate_) {
+    delegate_->SetWindowRect(this, bounds);
+    delegate_->ShowWithItems(this, bounds, item_height, selected_index, items);
+  }
+}
+
 void WebWidgetImpl::MouseMove(const WebMouseEvent& event) {
   // don't send mouse move messages if the mouse hasn't moved.
   if (event.x != last_mouse_position_.x() ||

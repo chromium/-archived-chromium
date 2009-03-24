@@ -214,6 +214,11 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const gfx::Rect& clip_rect);
   virtual void Show(WebWidget* webview, WindowOpenDisposition disposition);
+  virtual void ShowWithItems(WebWidget* webwidget,
+                             const gfx::Rect& bounds,
+                             int item_height,
+                             int selected_index,
+                             const std::vector<MenuItem>& items);
   virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);

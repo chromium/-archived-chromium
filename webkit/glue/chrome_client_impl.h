@@ -15,6 +15,7 @@ class WebCursor;
 class WebViewImpl;
 
 namespace WebCore {
+struct PopupListData;
 class SecurityOrigin;
 struct WindowFeatures;
 }
@@ -118,6 +119,12 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   virtual void popupOpened(WebCore::FramelessScrollView* popup_view,
                            const WebCore::IntRect& bounds,
                            bool activatable);
+  void popupOpenedWithItems(WebCore::FramelessScrollView* popupView,
+                            const WebCore::IntRect& bounds,
+                            bool activatable,
+                            int item_height,
+                            int selected_index,
+                            const WTF::Vector<WebCore::PopupListData*>& items);
 
   void SetCursor(const WebCursor& cursor);
   void SetCursorForPlugin(const WebCursor& cursor);

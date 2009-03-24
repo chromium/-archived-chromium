@@ -80,6 +80,11 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget) {}
   virtual bool IsHidden() { return is_hidden_; }
+  virtual void ShowWithItems(WebWidget* webwidget,
+                             const gfx::Rect& bounds,
+                             int item_height,
+                             int selected_index,
+                             const std::vector<MenuItem>& items);
 
   // Close the underlying WebWidget.
   void Close();

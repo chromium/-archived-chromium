@@ -25,6 +25,7 @@ namespace WebCore {
   class Widget;
 }
 
+struct MenuItem;
 class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
@@ -53,6 +54,11 @@ class WebWidgetImpl : public WebWidget,
 
   // WebWidgetImpl
   void Init(WebCore::FramelessScrollView* widget, const gfx::Rect& bounds);
+  void InitWithItems(WebCore::FramelessScrollView* widget,
+                     const gfx::Rect& bounds,
+                     int item_height,
+                     int selected_index,
+                     const std::vector<MenuItem>& items);
 
   const gfx::Size& size() const { return size_; }
 
@@ -110,7 +116,7 @@ class WebWidgetImpl : public WebWidget,
   WebCore::FramelessScrollView* widget_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WebWidgetImpl);
+  DISALLOW_COPY_AND_ASSIGN(WebWidgetImpl);
 };
 
 #endif  // WEBKIT_GLUE_WEBWIDGET_IMPL_H__

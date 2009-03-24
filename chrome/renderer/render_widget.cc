@@ -555,6 +555,15 @@ void RenderWidget::Show(WebWidget* webwidget,
   }
 }
 
+void RenderWidget::ShowWithItems(WebWidget* webwidget,
+                                 const gfx::Rect& bounds,
+                                 int item_height,
+                                 int selected_index,
+                                 const std::vector<MenuItem>& items) {
+  // TODO(paulg): Implement this for Mac HTML select menus in Chromium, bug
+  // number: http://crbug.com/8389
+}
+
 void RenderWidget::Focus(WebWidget* webwidget) {
   // Prevent the widget from stealing the focus if it does not have focus
   // already.  We do this by explicitely setting the focus to false again.

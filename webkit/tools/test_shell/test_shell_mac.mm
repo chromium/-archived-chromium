@@ -460,8 +460,7 @@ void TestShell::DestroyWindow(gfx::NativeWindow windowHandle) {
 
 WebWidget* TestShell::CreatePopupWidget(WebView* webview) {
   DCHECK(!m_popupHost);
-  m_popupHost = WebWidgetHost::Create(NULL, delegate_.get());
-  // ShowWindow(popupWnd(), SW_SHOW);
+  m_popupHost = WebWidgetHost::Create(webViewWnd(), delegate_.get());
 
   return m_popupHost->webwidget();
 }
