@@ -17,7 +17,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)common\common.vsprops;$(SolutionDir)installer\util\using_util.vsprops;$(SolutionDir)..\third_party\lzma_sdk\using_lzma_sdk.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops;$(SolutionDir)..\chrome\common\common.vsprops;$(SolutionDir)..\chrome\installer\util\using_util.vsprops;$(SolutionDir)..\third_party\lzma_sdk\using_lzma_sdk.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -68,7 +68,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)common\common.vsprops;$(SolutionDir)installer\util\using_util.vsprops;$(SolutionDir)..\third_party\lzma_sdk\using_lzma_sdk.vsprops"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops;$(SolutionDir)..\chrome\common\common.vsprops;$(SolutionDir)..\chrome\installer\util\using_util.vsprops;$(SolutionDir)..\third_party\lzma_sdk\using_lzma_sdk.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
