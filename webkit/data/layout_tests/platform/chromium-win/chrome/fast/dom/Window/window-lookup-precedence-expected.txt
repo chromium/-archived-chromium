@@ -177,7 +177,7 @@ window.onfocus IS null
 window.onkeydown IS null
 window.onkeypress IS null
 window.onkeyup IS null
-window.onload IS function onload(evt) { with (this.ownerDocument ? this.ownerDocument : {}) { with (this.form ? this.form : {}) { with (this) { return (function(evt){runTest() }).call(this, evt); } } } }
+window.onload IS function onload(evt) { with (this.ownerDocument ? this.ownerDocument : {}) { with (this.form ? this.form : {}) { with (this) { return (function(evt){ runTest() }).call(this, evt); } } } }
 window.onmousedown IS null
 window.onmousemove IS null
 window.onmouseout IS null

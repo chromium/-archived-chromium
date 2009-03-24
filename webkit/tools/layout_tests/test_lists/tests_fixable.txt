@@ -2237,7 +2237,6 @@ WIN DEBUG : chrome/fast/dom/java-applet-calls.html = FAIL
 WIN DEBUG : LayoutTests/fast/dom/length-attribute-mapping.html = CRASH
 WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRASH
 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
-WIN LINUX : chrome/fast/dom/Window/window-lookup-precedence.html = FAIL PASS
 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
 WIN : LayoutTests/webarchive/loading/cache-expired-subresource.html = CRASH PASS
 WIN : LayoutTests/webarchive/loading/test-loading-archive.html = CRASH TIMEOUT PASS
@@ -2260,7 +2259,6 @@ LINUX DEBUG : chrome/fast/dom/htmliframeelement-document.html = FAIL
 
 // Merge 41860:41906 Regressions
 WIN LINUX MAC : LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
-MAC : chrome/fast/dom/Window/window-lookup-precedence.html = FAIL
 
 // Merge 41860:41906 New tests
 DEFER WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
