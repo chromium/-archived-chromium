@@ -320,6 +320,36 @@
       ],
       'conditions': [
         [ 'OS == "linux"', {
+            'actions': [
+              {
+                'action_name': 'linux_version',
+                'variables': {
+                  'template_input_path': 'file_version_info_linux.h.version'
+                },
+                'inputs': [
+                  '<(template_input_path)',
+                  '../chrome/VERSION',
+                  '../chrome/tools/build/linux/version.sh',
+                ],
+                'conditions': [
+                  [ 'branding == "Chrome"', {
+                    'inputs': ['../chrome/app/theme/google_chrome/BRANDING']
+                    }, { # else branding!="Chrome"
+                    'inputs': ['../chrome/app/theme/chromium/BRANDING']
+                  }],
+                ],
+                'outputs': [
+                  '<(INTERMEDIATE_DIR)/base/file_version_info_linux.h',
+                ],
+                'action': [
+                  '../chrome/tools/build/linux/version.sh',
+                  '<(template_input_path)', '<@(_outputs)', '../chrome'
+                ],
+              },
+            ],
+            'include_dirs': [
+              '<(INTERMEDIATE_DIR)',
+            ],
             'sources/': [ ['exclude', '_(mac|win)\\.cc$'],
                           ['exclude', '\\.mm?$' ] ],
             'sources!': [
