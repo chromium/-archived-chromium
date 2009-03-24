@@ -23,6 +23,10 @@
 using base::Time;
 using base::TimeDelta;
 
+// HISTOGRAM_HOURS will collect time related data with a granularity of hours
+// and normal values of a few months.
+#define UMA_HISTOGRAM_HOURS UMA_HISTOGRAM_COUNTS_10000
+
 namespace {
 
 const wchar_t* kIndexName = L"index";
@@ -700,15 +704,11 @@ void BackendImpl::FirstEviction() {
   DCHECK(data_->header.create_time);
 
   Time create_time = Time::FromInternalValue(data_->header.create_time);
-  static Histogram counter("DiskCache.FillupAge", 1, 10000, 50);
-  counter.SetFlags(kUmaTargetedHistogramFlag);
-  counter.Add((Time::Now() - create_time).InHours());
-
+  UMA_HISTOGRAM_HOURS("DiskCache.FillupAge",
+                      (Time::Now() - create_time).InHours());
+  
   int64 use_hours = stats_.GetCounter(Stats::TIMER) / 120;
-  static Histogram counter2("DiskCache.FillupTime", 1, 10000, 50);
-  counter2.SetFlags(kUmaTargetedHistogramFlag);
-  counter2.Add(static_cast<int>(use_hours));
-
+  UMA_HISTOGRAM_HOURS("DiskCache.FillupTime", static_cast<int>(use_hours));
   UMA_HISTOGRAM_PERCENTAGE("DiskCache.FirstHitRatio", stats_.GetHitRatio());
 
   int avg_size = data_->header.num_bytes / GetEntryCount();
@@ -1306,18 +1306,13 @@ void BackendImpl::ReportStats() {
   // that event, start reporting this:
 
   int64 total_hours = stats_.GetCounter(Stats::TIMER) / 120;
-  static Histogram counter("DiskCache.TotalTime", 1, 10000, 50);
-  counter.SetFlags(kUmaTargetedHistogramFlag);
-  counter.Add(static_cast<int>(total_hours));
-
+  UMA_HISTOGRAM_HOURS("DiskCache.TotalTime", static_cast<int>(total_hours));
+  
   int64 use_hours = stats_.GetCounter(Stats::LAST_REPORT_TIMER) / 120;
   if (!use_hours || !GetEntryCount() || !data_->header.num_bytes)
     return;
 
-  static Histogram counter2("DiskCache.UseTime", 1, 10000, 50);
-  counter2.SetFlags(kUmaTargetedHistogramFlag);
-  counter2.Add(static_cast<int>(use_hours));
-
+  UMA_HISTOGRAM_HOURS("DiskCache.UseTime", static_cast<int>(use_hours)); 
   UMA_HISTOGRAM_PERCENTAGE("DiskCache.HitRatio", stats_.GetHitRatio());
   UMA_HISTOGRAM_PERCENTAGE("DiskCache.ResurrectRatio",
                            stats_.GetResurrectRatio());

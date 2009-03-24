@@ -41,7 +41,7 @@
 
 //------------------------------------------------------------------------------
 // Provide easy general purpose histogram in a macro, just like stats counters.
-// The first two macros use 50 buckets.
+// The first four macros use 50 buckets.
 
 #define HISTOGRAM_TIMES(name, sample) do { \
     static Histogram counter((name), base::TimeDelta::FromMilliseconds(1), \
@@ -56,6 +56,11 @@
 
 #define HISTOGRAM_COUNTS_100(name, sample) do { \
     static Histogram counter((name), 1, 100, 50); \
+    counter.Add(sample); \
+  } while (0)
+
+#define HISTOGRAM_COUNTS_10000(name, sample) do { \
+    static Histogram counter((name), 1, 10000, 50); \
     counter.Add(sample); \
   } while (0)
 
@@ -167,6 +172,12 @@ static const int kRendererHistogramFlag = 1 << 4;
 
 #define UMA_HISTOGRAM_COUNTS_100(name, sample) do { \
     static Histogram counter((name), 1, 100, 50); \
+    counter.SetFlags(kUmaTargetedHistogramFlag); \
+    counter.Add(sample); \
+  } while (0)
+
+#define UMA_HISTOGRAM_COUNTS_10000(name, sample) do { \
+    static Histogram counter((name), 1, 10000, 50); \
     counter.SetFlags(kUmaTargetedHistogramFlag); \
     counter.Add(sample); \
   } while (0)

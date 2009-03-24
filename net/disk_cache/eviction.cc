@@ -38,6 +38,10 @@
 
 using base::Time;
 
+// HISTOGRAM_HOURS will collect time related data with a granularity of hours
+// and normal values of a few months.
+#define UMA_HISTOGRAM_HOURS UMA_HISTOGRAM_COUNTS_10000
+
 namespace {
 
 const int kCleanUpMargin = 1024 * 1024;
@@ -143,9 +147,8 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
     if (backend_->ShouldReportAgain()) {
       std::string name(StringPrintf("DiskCache.TrimAge_%d",
                                     header_->experiment));
-      static Histogram counter(name.c_str(), 1, 10000, 50);
-      counter.SetFlags(kUmaTargetedHistogramFlag);
-      counter.Add((Time::Now() - entry->GetLastUsed()).InHours());
+      UMA_HISTOGRAM_HOURS(name.c_str(),
+                          (Time::Now() - entry->GetLastUsed()).InHours());
     }
 
     if (header_->create_time || !header_->lru.filled) {
