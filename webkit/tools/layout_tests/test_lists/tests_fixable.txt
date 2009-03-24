@@ -2259,7 +2259,8 @@ SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metri
 LINUX DEBUG : chrome/fast/dom/htmliframeelement-document.html = FAIL
 
 // Merge 41860:41906 Regressions
-WIN LINUX : LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
+WIN LINUX MAC : LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
+MAC : chrome/fast/dom/Window/window-lookup-precedence.html = FAIL
 
 // Merge 41860:41906 New tests
 DEFER WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
