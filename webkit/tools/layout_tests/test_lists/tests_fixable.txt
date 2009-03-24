@@ -1947,9 +1947,6 @@ DEFER LINUX WIN : LayoutTests/fast/overflow/004.html = FAIL
 LINUX : LayoutTests/fast/overflow/hidden-scrollbar-resize.html = FAIL
 LINUX : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 
-// mbelshe to fix.  Temporarily disable while tree red.
-WIN LINUX : chrome/fast/dom/extensions/interval.html = FAIL PASS
-
 // Regressions from merge 41217:41268
 // New tests
 DEFER : LayoutTests/fast/dom/Window/customized-property-survives-gc.html = FAIL
