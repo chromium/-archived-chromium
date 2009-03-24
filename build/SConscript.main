@@ -482,7 +482,7 @@ if not root_env.get('_GYP'):
   )
 linux_env.Append(
     ASFLAGS = ['-32'],
-    CCFLAGS = ['-m32', '-pthread', '-march=pentium4', '-fno-exceptions',
+    CCFLAGS = ['-m32', '-pthread', '-march=pentium3', '-fno-exceptions',
     # All floating-point computations on x87 happens in 80-bit precision.
     # Because the C and C++ language standards allow the compiler to keep the
     # floating-point values in higher precision than what's specified in the
@@ -504,7 +504,7 @@ linux_env.Append(
     # the floating-point value used during computation does not change
     # depending on how the compiler optimized the code, since the value is
     # always kept in its specified precision.
-               '-msse2', '-mfpmath=sse'],
+               '-msse', '-mfpmath=sse'],
     # GCC will generate ident directives with the GCC version. Accumulate
     # these all up and you end up with ~80K repeated in a .comment section.
     CCFLAGS_OPTIMIZED = ['-fno-ident'],
