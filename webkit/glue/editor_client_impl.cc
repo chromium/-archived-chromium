@@ -28,6 +28,7 @@
 #include "base/string_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/autofill_form.h"
+#include "webkit/glue/dom_operations.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
@@ -664,14 +665,10 @@ void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
 }
 
 void EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
-  if (node->nodeType() == WebCore::Node::ELEMENT_NODE) {
-    WebCore::Element* element = static_cast<WebCore::Element*>(node);
-    if (element->hasLocalName(WebCore::HTMLNames::inputTag)) {
-      WebCore::HTMLInputElement* input_element =
-          static_cast<WebCore::HTMLInputElement*>(element);
-      Autofill(input_element, true);
-    }
-  }
+  WebCore::HTMLInputElement* input_element =
+      webkit_glue::NodeToHTMLInputElement(node);
+  if (input_element)
+    Autofill(input_element, true);
 }
 
 void EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,

@@ -87,6 +87,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/clipboard_conversion.h"
 #include "webkit/glue/context_menu_client_impl.h"
+#include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dragclient_impl.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
@@ -424,21 +425,34 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
     return;
 
   last_mouse_down_point_ = gfx::Point(event.x, event.y);
-  // We need to remember who has focus, as if the user left-clicks an already
-  // focused text-field, we may want to show the auto-fill popup.
-  RefPtr<Node> focused_node;
-  if (event.button == WebMouseEvent::BUTTON_LEFT)
-    focused_node = GetFocusedNode();
+
+  // If a text field that has focus is clicked again, we should display the
+  // autocomplete popup.
+  RefPtr<Node> clicked_node;
+  if (event.button == WebMouseEvent::BUTTON_LEFT) {
+    RefPtr<Node> focused_node = GetFocusedNode();
+    if (focused_node.get() &&
+        webkit_glue::NodeToHTMLInputElement(focused_node.get())) {
+      IntPoint point(event.x, event.y);
+      HitTestResult result(point);
+      result = page_->mainFrame()->eventHandler()->hitTestResultAtPoint(point,
+                                                                        false);
+      if (result.innerNonSharedNode() == focused_node) {
+        // Already focused text field was clicked, let's remember this.  If
+        // focus has not changed after the mouse event is processed, we'll
+        // trigger the autocomplete.
+        clicked_node = focused_node;
+      }
+    }
+  }
 
   main_frame()->frame()->eventHandler()->handleMousePressEvent(
       MakePlatformMouseEvent(main_frame()->frameview(), event));
 
-  if (focused_node.get() && focused_node == GetFocusedNode()) {
-    // Already focused node was clicked, ShowAutofillForNode will determine
-    // whether to show the autofill (typically, if the node is a text-field and
-    // is empty).
+  if (clicked_node.get() && clicked_node == GetFocusedNode()) {
+    // Focus has not changed, show the autocomplete popup.
     static_cast<EditorClientImpl*>(page_->editorClient())->
-        ShowAutofillForNode(focused_node.get());
+          ShowAutofillForNode(clicked_node.get());
   }
 }
 

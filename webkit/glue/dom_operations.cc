@@ -312,14 +312,6 @@ static bool FillFormImpl(FormElements* fe, const FormData& data, bool submit) {
   return false;
 }
 
-// Helper function to cast a Node as an HTMLInputElement.
-static WebCore::HTMLInputElement* GetNodeAsInputElement(WebCore::Node* node) {
-  DCHECK(node->nodeType() == WebCore::Node::ELEMENT_NODE);
-  DCHECK(static_cast<WebCore::Element*>(node)->hasTagName(
-      WebCore::HTMLNames::inputTag));
-  return static_cast<WebCore::HTMLInputElement*>(node);
-}
-
 // Helper to search the given form element for the specified input elements
 // in |data|, and add results to |result|.
 static bool FindFormInputElements(WebCore::HTMLFormElement* fe,
@@ -346,7 +338,8 @@ static bool FindFormInputElements(WebCore::HTMLFormElement* fe,
     // matching elements it can get at them through the FormElement*.
     // Note: This assignment adds a reference to the InputElement.
     result->input_elements[data.elements[j]] =
-        GetNodeAsInputElement(temp_elements[0].get());
+        NodeToHTMLInputElement(temp_elements[0].get());
+    DCHECK(result->input_elements[data.elements[j]].get());
   }
   return true;
 }
@@ -872,6 +865,19 @@ int NumberOfActiveAnimations(WebView* view) {
     return -1;
 
   return controller->numberOfActiveAnimations();
+}
+
+WebCore::HTMLInputElement* ElementToHTMLInputElement(
+    WebCore::Element* element) {
+  if (!element->hasLocalName(WebCore::HTMLNames::inputTag))
+    return NULL;
+  return static_cast<WebCore::HTMLInputElement*>(element);
+}
+
+WebCore::HTMLInputElement* NodeToHTMLInputElement(WebCore::Node* node) {
+  if (node->nodeType() != WebCore::Node::ELEMENT_NODE)
+    return NULL;
+  return ElementToHTMLInputElement(static_cast<WebCore::Element*>(node));
 }
 
 } // webkit_glue
