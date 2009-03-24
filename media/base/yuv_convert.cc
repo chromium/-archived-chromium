@@ -330,40 +330,32 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
                            size_t width) {
   __asm {
     pushad
-
     mov       edx, [esp + 32 + 4]   // Y
     mov       edi, [esp + 32 + 8]   // U
     mov       esi, [esp + 32 + 12]  // V
     mov       ebp, [esp + 32 + 16]  // rgb
     mov       ecx, [esp + 32 + 20]  // width
     shr       ecx, 1
-    xor       eax, eax
-    xor       ebx, ebx
 
  wloop :
-    mov       al, [edi]
-    mov       bl, [esi]
+    movzx     eax, byte ptr [edi]
+    add       edi, 1
+    movzx     ebx, byte ptr [esi]
+    add       esi, 1
     movq      mm0, [coefficients_RGB_U + 8 * eax]
+    movzx     eax, byte ptr [edx]
     paddsw    mm0, [coefficients_RGB_V + 8 * ebx]
-
-    mov       al, [edx]
-    mov       bl, [edx + 1]
+    movzx     ebx, byte ptr [edx + 1]
     movq      mm1, [coefficients_RGB_Y + 8 * eax]
+    add       edx, 2
     movq      mm2, [coefficients_RGB_Y + 8 * ebx]
-
     paddsw    mm1, mm0
     paddsw    mm2, mm0
     psraw     mm1, 6
     psraw     mm2, 6
     packuswb  mm1, mm2
-
     movntq    [ebp], mm1  // NOLINT
-
     add       ebp, 8
-    add       edx, 2
-    add       edi, 1
-    add       esi, 1
-
     sub       ecx, 1
     jnz       wloop
 
@@ -390,16 +382,17 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   "mov    0x30(%esp),%ebp\n"
   "mov    0x34(%esp),%ecx\n"
   "shr    %ecx\n"
-  "xor    %eax,%eax\n"
-  "xor    %ebx,%ebx\n"
 "1:\n"
-  "mov    (%edi),%al\n"
-  "mov    (%esi),%bl\n"
+  "movzx  byte ptr (%edi),%eax\n"
+  "add    $0x1,%edi\n"
+  "movzx  byte ptr (%esi),%ebx\n"
+  "add    $0x1,%esi\n"
   "movq   coefficients_RGB_U(,%eax,8),%mm0\n"
+  "movzx  byte ptr (%edx),%eax\n"
   "paddsw coefficients_RGB_V(,%ebx,8),%mm0\n"
-  "mov    (%edx),%al\n"
-  "mov    0x1(%edx),%bl\n"
+  "movzx  byte ptr 0x1(%edx),%ebx\n"
   "movq   coefficients_RGB_Y(,%eax,8),%mm1\n"
+  "add    $0x2,%edx\n"
   "movq   coefficients_RGB_Y(,%ebx,8),%mm2\n"
   "paddsw %mm0,%mm1\n"
   "paddsw %mm0,%mm2\n"
@@ -408,16 +401,10 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   "packuswb %mm2,%mm1\n"
   "movntq %mm1,0x0(%ebp)\n"
   "add    $0x8,%ebp\n"
-  "add    $0x2,%edx\n"
-  "add    $0x1,%edi\n"
-  "add    $0x1,%esi\n"
   "sub    $0x1,%ecx\n"
   "jne    1b\n"
   "popa\n"
   "ret\n"
-  "nop\n"  // pad function to 0x70 bytes
-  "nop\n"
-  "nop\n"
 );
 
 #else
@@ -441,13 +428,16 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   "xor    %eax,%eax\n"
   "xor    %ebx,%ebx\n"
 "1:\n"
-  "mov    (%edi),%al\n"
-  "mov    (%esi),%bl\n"
+  "movzx  byte ptr (%edi),%eax\n"
+  "add    $0x1,%edi\n"
+  "movzx  byte ptr (%esi),%ebx\n"
+  "add    $0x1,%esi\n"
   "movq   _coefficients_RGB_U(,%eax,8),%mm0\n"
+  "movzx  byte ptr (%edx),%eax\n"
   "paddsw _coefficients_RGB_V(,%ebx,8),%mm0\n"
-  "mov    (%edx),%al\n"
-  "mov    0x1(%edx),%bl\n"
+  "movzx  byte ptr 0x1(%edx),%ebx\n"
   "movq   _coefficients_RGB_Y(,%eax,8),%mm1\n"
+  "add    $0x2,%edx\n"
   "movq   _coefficients_RGB_Y(,%ebx,8),%mm2\n"
   "paddsw %mm0,%mm1\n"
   "paddsw %mm0,%mm2\n"
@@ -456,16 +446,10 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   "packuswb %mm2,%mm1\n"
   "movntq %mm1,0x0(%ebp)\n"
   "add    $0x8,%ebp\n"
-  "add    $0x2,%edx\n"
-  "add    $0x1,%edi\n"
-  "add    $0x1,%esi\n"
   "sub    $0x1,%ecx\n"
   "jne    1b\n"
   "popa\n"
   "ret\n"
-  "nop\n"  // pad function to 0x70 bytes
-  "nop\n"
-  "nop\n"
 );
 
 #endif  // MSC_VER
