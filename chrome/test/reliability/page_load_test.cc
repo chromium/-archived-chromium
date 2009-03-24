@@ -6,8 +6,8 @@
 // test is intended to run within QEMU environment.
 //
 // Usage 1: reliability_test
-// Upon invocation, it visits a hard coded list of URLs. This is mainly used
-// by buildbot, to verify reliability_test itself runs ok.
+// Upon invocation, it visits a hard coded list of sample URLs. This is mainly
+// used by buildbot, to verify reliability_test itself runs ok.
 //
 // Usage 2: reliability_test --site=url --startpage=start --endpage=end [...]
 // Upon invocation, it visits a list of URLs constructed as
@@ -31,12 +31,13 @@
 // --timeout=millisecond: time out as specified in millisecond during each
 //                        page load.
 // --nopagedown: won't simulate page down key presses after page load.
-// --savedebuglog: save Chrome and v8 debug log for each page loaded.
+// --savedebuglog: save Chrome, V8, and test debug log for each page loaded.
 
 #include <fstream>
 #include <iostream>
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -78,9 +79,9 @@ const wchar_t kNoPageDownSwitch[] = L"nopagedown";
 const wchar_t kSaveDebugLogSwitch[] = L"savedebuglog";
 
 std::wstring server_url = L"http://urllist.com";
-const wchar_t test_url_1[] = L"http://www.google.com";
-const wchar_t test_url_2[] = L"about:crash";
-const wchar_t test_url_3[] = L"http://www.youtube.com";
+const wchar_t test_page_1[] = L"page1.html";
+const wchar_t test_page_2[] = L"page2.html";
+const wchar_t crash_url[] = L"about:crash";
 
 // These are copied from v8 definitions as we cannot include them.
 const wchar_t kV8LogFileSwitch[] = L"logfile";
@@ -299,9 +300,23 @@ class PageLoadTest : public UITest {
       // For usage 1
       NavigationMetrics metrics;
       if (timeout_ms == INFINITE)
-        timeout_ms = 30000;
+        timeout_ms = 2000;
 
-      NavigateToURLLogResult(GURL(test_url_1), log_file, &metrics);
+      // Though it would be nice to test the page down code path in usage 1,
+      // enabling page down adds several seconds to the test and does not seem
+      // worth the tradeoff. It is also potentially disruptive when running the
+      // test in the background as it will send the event to the window that
+      // has focus.
+      page_down = false;
+
+      FilePath sample_data_dir = GetSampleDataDir();
+      FilePath test_page_1 = sample_data_dir.AppendASCII("page1.html");
+      FilePath test_page_2 = sample_data_dir.AppendASCII("page2.html");
+
+      GURL test_url_1 = net::FilePathToFileURL(test_page_1);
+      GURL test_url_2 = net::FilePathToFileURL(test_page_2);
+
+      NavigateToURLLogResult(test_url_1, log_file, &metrics);
       // Verify everything is fine
       EXPECT_EQ(NAVIGATION_SUCCESS, metrics.result);
       EXPECT_EQ(0, metrics.crash_dump_count);
@@ -314,10 +329,7 @@ class PageLoadTest : public UITest {
       EXPECT_EQ(0, metrics.plugin_crash_count);
 
       // Go to "about:crash"
-      uint32 crash_timeout_ms = timeout_ms / 2;
-      std::swap(timeout_ms, crash_timeout_ms);
-      NavigateToURLLogResult(GURL(test_url_2), log_file, &metrics);
-      std::swap(timeout_ms, crash_timeout_ms);
+      NavigateToURLLogResult(GURL(crash_url), log_file, &metrics);
       // Page load crashed and test automation timed out.
       EXPECT_EQ(NAVIGATION_TIME_OUT, metrics.result);
       // Found a crash dump
@@ -332,10 +344,7 @@ class PageLoadTest : public UITest {
       EXPECT_EQ(1, metrics.renderer_crash_count);
       EXPECT_EQ(0, metrics.plugin_crash_count);
 
-      uint32 youtube_timeout_ms = timeout_ms * 2;
-      std::swap(timeout_ms, youtube_timeout_ms);
-      NavigateToURLLogResult(GURL(test_url_3), log_file, &metrics);
-      std::swap(timeout_ms, youtube_timeout_ms);
+      NavigateToURLLogResult(test_url_2, log_file, &metrics);
       // The data on previous crash should be cleared and we should get
       // metrics for a successful page load.
       EXPECT_EQ(NAVIGATION_SUCCESS, metrics.result);
@@ -539,6 +548,14 @@ class PageLoadTest : public UITest {
 
     if (!metrics->browser_clean_exit)
       metrics->browser_crash_count++;
+  }
+
+  FilePath GetSampleDataDir() {
+    FilePath test_dir;
+    PathService::Get(chrome::DIR_TEST_DATA, &test_dir);
+    test_dir = test_dir.AppendASCII("reliability");
+    test_dir = test_dir.AppendASCII("sample_pages");
+    return test_dir;
   }
 
   // The pathname of Chrome's crash dumps directory.
