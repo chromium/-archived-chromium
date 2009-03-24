@@ -178,6 +178,9 @@ class DownloadsDOMHandler : public DOMMessageHandler,
   // Return the download that is referred to in a given value.
   DownloadItem* GetDownloadByValue(const Value* value);
 
+  // Get the localized status text for an in-progress download.
+  std::wstring GetProgressStatusText(DownloadItem* download);
+
   // Current search text.
   std::wstring search_text_;
 
@@ -389,8 +392,10 @@ DictionaryValue* DownloadsDOMHandler::CreateDownloadItemValue(
     } else {
       file_value->SetString(L"state", L"IN_PROGRESS");
     }
-    file_value->SetInteger(L"speed",
-        static_cast<int>(download->CurrentSpeed()));
+
+    file_value->SetString(L"progress_status_text",
+       GetProgressStatusText(download));
+
     file_value->SetInteger(L"percent",
         static_cast<int>(download->PercentComplete()));
     file_value->SetInteger(L"received",
@@ -437,6 +442,46 @@ DownloadItem* DownloadsDOMHandler::GetDownloadByValue(const Value* value) {
     return GetDownloadById(id);
   }
   return NULL;
+}
+
+std::wstring DownloadsDOMHandler::GetProgressStatusText(
+    DownloadItem* download) {
+  int64 total = download->total_bytes();
+  int64 size = download->received_bytes();
+  DataUnits amount_units = GetByteDisplayUnits(size);
+  std::wstring received_size = FormatBytes(size, amount_units, true);
+  std::wstring amount = received_size;
+
+  // Adjust both strings for the locale direction since we don't yet know which
+  // string we'll end up using for constructing the final progress string.
+  std::wstring amount_localized;
+  if (l10n_util::AdjustStringForLocaleDirection(amount, &amount_localized)) {
+    amount.assign(amount_localized);
+    received_size.assign(amount_localized);
+  }
+
+  amount_units = GetByteDisplayUnits(total);
+  std::wstring total_text = FormatBytes(total, amount_units, true);
+  std::wstring total_text_localized;
+  if (l10n_util::AdjustStringForLocaleDirection(total_text,
+                                                &total_text_localized))
+    total_text.assign(total_text_localized);
+
+  amount = l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_SIZE,
+                                 received_size,
+                                 total_text);
+
+  amount_units = GetByteDisplayUnits(download->CurrentSpeed());
+  std::wstring speed_text = FormatSpeed(download->CurrentSpeed(),
+                                        amount_units, true);
+  std::wstring speed_text_localized;
+  if (l10n_util::AdjustStringForLocaleDirection(speed_text,
+                                                &speed_text_localized))
+    speed_text.assign(speed_text_localized);
+
+  return l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_SPEED,
+                               speed_text,
+                               amount);
 }
 
 }  // namespace

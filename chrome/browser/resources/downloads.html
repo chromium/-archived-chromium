@@ -43,21 +43,50 @@ html[dir='rtl'] .form {
 }
 .download {
   position:relative;
-  padding-left:45px;
+  padding-left:56px;
   margin-bottom:16px;
+}
+html[dir='rtl'] .download {
+  padding-left:0px;
+  padding-right:56px;
 }
 .download .icon {
   position:absolute;
-  top:2px;
-  left:2px;
+  top:7px;
+  left:9px;
   width:32px;
   height:32px;
+}
+html[dir='rtl'] .icon {
+  left:auto;
+  right:9px;
+}
+.progress {
+  position:absolute;
+  top:2px;
+  left:0px;
+  width:48px;
+  height:48px;
+}
+html[dir='rtl'] .progress {
+  left:auto;
+  right:0px;
+}
+.progress.background {
+  background:url('../../app/theme/download_progress_background32.png');
+}
+.progress.foreground {
+  background:url('../../app/theme/download_progress_foreground32.png');
 }
 .name {
   display:none;
   padding-right:16px;
   max-width:450px;
   text-overflow:ellipsis;
+}
+html[dir='rtl'] .name {
+  padding-right:0px;
+  padding-left:16px;
 }
 .download .status {
   display:inline;
@@ -288,6 +317,23 @@ function Download(download) {
   this.safe_.ondragstart = bind(this.drag_, this);
   this.node.appendChild(this.safe_);
 
+  if (download.state != Download.States.COMPLETE) {
+    this.nodeProgressBackground_ =
+        createElementWithClassName('div', 'progress background');
+    this.safe_.appendChild(this.nodeProgressBackground_);
+
+    this.canvasProgress_ =
+        document.getCSSCanvasContext('2d', 'canvas_' + download.id,
+            Download.Progress.width,
+            Download.Progress.height);
+
+    this.nodeProgressForeground_ =
+        createElementWithClassName('div', 'progress foreground');
+    this.nodeProgressForeground_.style.webkitMask =
+        '-webkit-canvas(canvas_'+download.id+')';
+    this.safe_.appendChild(this.nodeProgressForeground_);
+  }
+
   this.nodeImg_ = createElementWithClassName('img', 'icon');
   this.safe_.appendChild(this.nodeImg_);
 
@@ -363,6 +409,19 @@ Download.States = {
 }
 
 /**
+ * Constants for the progress meter.
+ */
+Download.Progress = {
+  width : 48,
+  height : 48,
+  radius : 24,
+  centerX : 24,
+  centerY : 24,
+  base : -0.5 * Math.PI,
+  dir : false,
+}
+
+/**
  * Updates the download to reflect new data.
  * @param {Object} download A backend download object (see downloads_ui.cc)
  */
@@ -372,8 +431,10 @@ Download.prototype.update = function(download) {
   this.fileName_ = download.file_name;
   this.url_ = download.url;
   this.state_ = download.state;
-  this.percent_ = download.percent;
-  this.speed_ = download.speed;
+
+  // See DownloadItem::PercentComplete
+  this.percent_ = Math.max(download.percent, 0);
+  this.progressStatusText_ = download.progress_status_text;
   this.received_ = download.received;
 
   if (this.state_ == Download.States.DANGEROUS) {
@@ -394,10 +455,41 @@ Download.prototype.update = function(download) {
     showInline(this.nodeFileLink_, this.state_ == Download.States.COMPLETE);
     showInline(this.nodeFileName_, this.state_ != Download.States.COMPLETE);
 
+    if (this.state_ == Download.States.IN_PROGRESS) {
+      this.nodeProgressForeground_.style.display = 'block';
+      this.nodeProgressBackground_.style.display = 'block';
+
+      // Draw a pie-slice for the progress.
+      this.canvasProgress_.clearRect(0, 0,
+                                     Download.Progress.width,
+                                     Download.Progress.height);
+      this.canvasProgress_.beginPath();
+      this.canvasProgress_.moveTo(Download.Progress.centerX,
+                                  Download.Progress.centerY);
+
+      this.canvasProgress_.arc(Download.Progress.centerX,
+                               Download.Progress.centerY,
+                               Download.Progress.radius,
+                               Download.Progress.base,
+                               Download.Progress.base + Math.PI * 0.02 *
+                               Number(this.percent_) *
+                               (Download.Progress.dir ? -1 : 1),
+                               Download.Progress.dir);
+
+      this.canvasProgress_.lineTo(Download.Progress.centerX,
+                                  Download.Progress.centerY);
+      this.canvasProgress_.fill();
+      this.canvasProgress_.closePath();
+    } else if (this.nodeProgressBackground_) {
+      this.nodeProgressForeground_.style.display = 'none';
+      this.nodeProgressBackground_.style.display = 'none';
+    }
+
     showInline(this.controlShow_, this.state_ == Download.States.COMPLETE);
     showInline(this.controlPause_, this.state_ == Download.States.IN_PROGRESS);
     showInline(this.controlResume_, this.state_ == Download.States.PAUSED);
-    showInline(this.controlCancel_, this.state_ == Download.States.IN_PROGRESS);
+    showInline(this.controlCancel_, this.state_ == Download.States.IN_PROGRESS ||
+                                    this.state_ == Download.States.PAUSED);
 
     this.nodeURL_.innerHTML = this.url_;
     this.nodeStatus_.innerHTML = this.getStatusText_();
@@ -428,8 +520,7 @@ Download.prototype.clear = function() {
 Download.prototype.getStatusText_ = function() {
   switch (this.state_) {
     case Download.States.IN_PROGRESS:
-      // TODO(glen): Make pretty, localize, etc.
-      return this.percent_ + '% at ' + this.speed_;
+      return this.progressStatusText_;
     case Download.States.CANCELLED:
       return localStrings.getString('status_cancelled');
     case Download.States.PAUSED:
@@ -506,6 +597,8 @@ var downloads, localStrings, resultsTimeout;
 
 function load() {
   localStrings = new LocalStrings($('l10n'));
+  Download.Progress.dir =
+      !!(document.getElementsByTagName('html')[0].dir == 'rtl');
   downloads = new Downloads();
   $('term').focus();
   setSearch("");
@@ -526,6 +619,8 @@ function setSearch(searchText) {
 function downloadsList(results) {
   if (resultsTimeout)
     clearTimeout(resultsTimeout);
+  window.console.log('results');
+  downloads.clear();
   downloadUpdated(results);
 }
 
@@ -533,12 +628,19 @@ function downloadsList(results) {
  * When a download is updated (progress, state change), this is called.
  */
 function downloadUpdated(results) {
+  // Sometimes this can get called too early.
+  if (!downloads)
+    return;
+
   if (results.length) {
     downloads.updated(results[0]);
-    if (results.length > 1)
+
+    if (results.length > 1) {
+      clearTimeout(resultsTimeout);
       resultsTimeout = setTimeout(downloadUpdated, 5, results.slice(1));
-    else
+    } else {
       downloads.updateSummary();
+    }
   }
 }
 </script>
