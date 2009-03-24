@@ -142,16 +142,21 @@ class PageLoadTest : public UITest {
     test_log_path = L"test_log.log";
     test_log.open(test_log_path.c_str());
 
-    if (!continuous_load && !browser_existing) {
-      LaunchBrowserAndServer();
-      browser_existing = true;
-    }
-
     // Log timestamp for test start.
     base::Time time_now = base::Time::Now();
     double time_start = time_now.ToDoubleT();
     test_log << "Test Start: ";
     test_log << base::TimeFormatFriendlyDateAndTime(time_now) << std::endl;
+
+    if (!continuous_load && !browser_existing) {
+      LaunchBrowserAndServer();
+      browser_existing = true;
+    }
+
+    // Log Browser Launched time.
+    time_now = base::Time::Now();
+    test_log << "browser_launched_seconds=";
+    test_log << (time_now.ToDoubleT() - time_start) << std::endl;
 
     bool is_timeout = false;
     int result = AUTOMATION_MSG_NAVIGATION_ERROR;
@@ -187,17 +192,20 @@ class PageLoadTest : public UITest {
       }
     }
 
+    // Log navigate complete time.
+    time_now = base::Time::Now();
+    test_log << "navigate_complete_seconds=";
+    test_log << (time_now.ToDoubleT() - time_start) << std::endl;
+
     if (!continuous_load) {
       CloseBrowserAndServer();
       browser_existing = false;
     }
 
-    // Log timestamp for end of test.
+    // Log end of test time.
     time_now = base::Time::Now();
-    double time_stop = time_now.ToDoubleT();
-    test_log << "Test End: ";
-    test_log << base::TimeFormatFriendlyDateAndTime(time_now) << std::endl;
-    test_log << "duration_seconds=" << (time_stop - time_start) << std::endl;
+    test_log << "total_duration_seconds=";
+    test_log << (time_now.ToDoubleT() - time_start) << std::endl;
 
     // Get navigation result and metrics, and optionally write to the log file
     // provided.  The log format is:
