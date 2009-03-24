@@ -825,6 +825,13 @@ body {
   margin-top:22px;
   margin-left:12px;
 }
+html[dir='rtl'] .logo {
+  float:right;
+}
+html[dir='rtl'] .form {
+  float:right;
+  margin-right:12px;
+}
 #results-summary {
   margin-top:12px;
   border-top:1px solid #9cc2ef;
@@ -844,6 +851,9 @@ body {
 .delete-day {
   width:200px;
   float:right;
+}
+html[dir='rtl'] .delete-day {
+  float:left;
 }
 .gap {
   margin-left:18px;
@@ -865,6 +875,9 @@ table.results {
   min-width:56px;
   margin-right:5px;
   padding-top:1px;
+}
+html[dir='rtl'] .time {
+  float:right;
 }
 .entry .title {
   max-width:600px;
