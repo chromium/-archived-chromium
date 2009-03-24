@@ -938,6 +938,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\devtools\js\devtools_callback.js"
+					>
+				</File>
+				<File
 					RelativePath=".\devtools\js\devtools_host_stub.js"
 					>
 				</File>
