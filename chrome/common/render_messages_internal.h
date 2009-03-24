@@ -512,8 +512,13 @@ IPC_BEGIN_MESSAGES(View)
   // started.
   IPC_MESSAGE_ROUTED0(ViewMsg_MoveOrResizeStarted)
 
-  // Send a message to an extension process.  channel_id is a handle that can
-  // be used for sending a response.
+  // The browser sends this message when an extension API has a response.
+  IPC_MESSAGE_ROUTED2(ViewMsg_ExtensionResponse,
+                      int /* callback id */,
+                      std::string /* response */)
+
+  // Relay a message sent from a renderer to an extension process.  channel_id
+  // is a handle that can be used for sending a response.
   IPC_MESSAGE_ROUTED2(ViewMsg_HandleExtensionMessage,
                       std::string /* message */,
                       int /* channel_id */)
@@ -1196,6 +1201,13 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       int /* stream_id */,
                       double /* left_channel */,
                       double /* right_channel */)
+
+  // A renderer sends this message when an extension process starts an API
+  // request. If callback id is -1, no response will be sent.
+  IPC_MESSAGE_ROUTED3(ViewHostMsg_ExtensionRequest,
+                      std::string /* name */,
+                      std::string /* argument */,
+                      int /* callback id */)
 
 #if defined(OS_MACOSX)
   // On OSX, we cannot allocated shared memory from within the sandbox, so

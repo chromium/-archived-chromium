@@ -98,7 +98,8 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       run_modal_reply_msg_(NULL),
       has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
-      are_javascript_messages_suppressed_(false) {
+      are_javascript_messages_suppressed_(false),
+      ALLOW_THIS_IN_INITIALIZER_LIST(extension_api_handler_(this)) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -761,6 +762,7 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_RemoveAutofillEntry,
                         OnRemoveAutofillEntry)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateFeedList, OnMsgUpdateFeedList)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionRequest, OnExtensionRequest)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
   IPC_END_MESSAGE_MAP_EX()
@@ -1343,4 +1345,17 @@ void RenderViewHost::ForwardMessageFromExternalHost(const std::string& message,
                                                     const std::string& target) {
   Send(new ViewMsg_HandleMessageFromExternalHost(routing_id(), message, origin,
                                                  target));
+}
+
+void RenderViewHost::OnExtensionRequest(const std::string& name,
+                                        const std::string& args,
+                                        int callback_id) {
+  // TODO(aa): Here is where we can check that this renderer was supposed to be
+  // able to call extension APIs.
+  extension_api_handler_.HandleRequest(name, args, callback_id);
+}
+
+void RenderViewHost::SendExtensionResponse(int callback_id,
+                                           const std::string& response) {
+  Send(new ViewMsg_ExtensionResponse(routing_id(), callback_id, response));
 }

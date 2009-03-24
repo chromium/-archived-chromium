@@ -29,6 +29,7 @@
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_client.h"
+#include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/localized_error.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
@@ -428,6 +429,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_HANDLER(ViewMsg_HandleExtensionMessage,
                         OnHandleExtensionMessage)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -1448,6 +1450,25 @@ void RenderView::WillPerformClientRedirect(WebView* webview,
 
 void RenderView::DidCancelClientRedirect(WebView* webview,
                                          WebFrame* frame) {
+}
+
+void RenderView::WillCloseFrame(WebView* view, WebFrame* frame) {
+  // Remove all the pending extension callbacks for this frame.
+  if (pending_extension_callbacks_.IsEmpty())
+    return;
+
+  std::vector<int> orphaned_callbacks;
+  for (IDMap<WebFrame>::const_iterator iter =
+       pending_extension_callbacks_.begin();
+       iter != pending_extension_callbacks_.end(); ++iter) {
+    if (iter->second == frame)
+      orphaned_callbacks.push_back(iter->first);
+  }
+
+  for (std::vector<int>::const_iterator iter = orphaned_callbacks.begin();
+       iter != orphaned_callbacks.end(); ++iter) {
+    pending_extension_callbacks_.Remove(*iter);
+  }
 }
 
 void RenderView::DidCompleteClientRedirect(WebView* webview,
@@ -2943,4 +2964,29 @@ void RenderView::OnHandleExtensionMessage(const std::string& message,
   if (webview() && webview()->GetMainFrame())
     extensions_v8::RendererExtensionBindings::HandleExtensionMessage(
         webview()->GetMainFrame(), message, channel_id);
+}
+
+void RenderView::SendExtensionRequest(const std::string& name,
+                                      const std::string& args,
+                                      int callback_id,
+                                      WebFrame* callback_frame) {
+  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
+
+  if (callback_id != -1) {
+    DCHECK(callback_frame) << "Callback specified without frame";
+    pending_extension_callbacks_.AddWithID(callback_frame, callback_id);
+  }
+
+  Send(new ViewHostMsg_ExtensionRequest(routing_id_, name, args, callback_id));
+}
+
+void RenderView::OnExtensionResponse(int callback_id,
+                                     const std::string& response) {
+  WebFrame* web_frame = pending_extension_callbacks_.Lookup(callback_id);
+  if (!web_frame)
+    return;  // The frame went away.
+
+  extensions_v8::ExtensionProcessBindings::ExecuteCallbackInFrame(
+      web_frame, callback_id, response);
+  pending_extension_callbacks_.Remove(callback_id);
 }

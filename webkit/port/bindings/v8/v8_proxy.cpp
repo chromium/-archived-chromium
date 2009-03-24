@@ -2346,12 +2346,15 @@ v8::Persistent<v8::Context> V8Proxy::createNewContext(
     // Dynamically tell v8 about our extensions now.
     const char** extensionNames = new const char*[m_extensions.size()];
     int index = 0;
-    V8ExtensionList::iterator it = m_extensions.begin();
-    while (it != m_extensions.end()) {
-        extensionNames[index++] = (*it)->name();
-        ++it;
+    for (V8ExtensionList::iterator it = m_extensions.begin();
+         it != m_extensions.end(); ++it) {
+        if (it->scheme.length() > 0 &&
+            it->scheme != m_frame->document()->url().protocol())
+            continue;
+
+        extensionNames[index++] = it->extension->name();
     }
-    v8::ExtensionConfiguration extensions(m_extensions.size(), extensionNames);
+    v8::ExtensionConfiguration extensions(index, extensionNames);
     result = v8::Context::New(&extensions, globalTemplate, global);
     delete [] extensionNames;
     extensionNames = 0;
@@ -3604,9 +3607,11 @@ String V8Proxy::GetSourceName() {
     return ToWebCoreString(v8::Debug::Call(frame_source_name));
 }
 
-void V8Proxy::RegisterExtension(v8::Extension* extension) {
+void V8Proxy::RegisterExtension(v8::Extension* extension,
+                                const String& schemeRestriction) {
     v8::RegisterExtension(extension);
-    m_extensions.push_back(extension);
+    V8ExtensionInfo info = {schemeRestriction, extension};
+    m_extensions.push_back(info);
 }
 
 }  // namespace WebCore

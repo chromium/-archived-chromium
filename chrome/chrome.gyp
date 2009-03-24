@@ -612,6 +612,8 @@
         'browser/encoding_menu_controller_delegate.h',
         'browser/extensions/extension.cc',
         'browser/extensions/extension.h',
+        'browser/extensions/extension_api_handler.cc',
+        'browser/extensions/extension_api_handler.h',
         'browser/extensions/extension_error_reporter.cc',
         'browser/extensions/extension_error_reporter.h',
         'browser/extensions/extension_message_service.cc',
@@ -1357,6 +1359,8 @@
         # All .cc, .h, and .mm files under renderer except tests and mocks.
         'renderer/automation/dom_automation_controller.cc',
         'renderer/automation/dom_automation_controller.h',
+        'renderer/extensions/extension_process_bindings.cc',
+        'renderer/extensions/extension_process_bindings.h',
         'renderer/extensions/renderer_extension_bindings.cc',
         'renderer/extensions/renderer_extension_bindings.h',
         'renderer/media/audio_renderer_impl.cc',

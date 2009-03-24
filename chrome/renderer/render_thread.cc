@@ -23,6 +23,7 @@
 #include "chrome/plugin/plugin_channel_base.h"
 #include "webkit/glue/weburlrequest.h"
 #endif
+#include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"
@@ -249,6 +250,9 @@ void RenderThread::EnsureWebKitInitialized() {
   WebKit::registerExtension(extensions_v8::GearsExtension::Get());
   WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
   WebKit::registerExtension(extensions_v8::RendererExtensionBindings::Get());
+
+  WebKit::registerExtension(extensions_v8::ExtensionProcessBindings::Get(),
+      WebKit::WebString::fromUTF8(chrome::kExtensionScheme));
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kPlaybackMode) ||

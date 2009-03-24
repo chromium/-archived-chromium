@@ -32,6 +32,8 @@ class WebFrame {
  public:
   WebFrame() {}
 
+  static WebFrame* RetrieveActiveFrame();
+
   // Binds a C++ class to a JavaScript property of the window object.  This
   // should generally be used via CppBoundClass::BindToJavascript() instead of
   // calling it directly.

@@ -192,6 +192,14 @@
 				RelativePath=".\extensions\renderer_extension_bindings.h"
 				>
 			</File>
+			<File
+				RelativePath=".\extensions\extension_process_bindings.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_process_bindings.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\about_handler.cc"

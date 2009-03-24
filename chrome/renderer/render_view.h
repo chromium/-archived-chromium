@@ -218,6 +218,7 @@ class RenderView : public RenderWidget,
   virtual void DidCompleteClientRedirect(WebView* webview,
                                          WebFrame* frame,
                                          const GURL& source);
+  virtual void WillCloseFrame(WebView* webview, WebFrame* frame);
   virtual void WillSendRequest(WebView* webview,
                                uint32 identifier,
                                WebRequest* request);
@@ -366,6 +367,10 @@ class RenderView : public RenderWidget,
   void NotifyAudioPacketReady(int stream_id, size_t size);
   void GetAudioVolume(int stream_id);
   void SetAudioVolume(int stream_id, double left, double right);
+
+  void SendExtensionRequest(const std::string& name, const std::string& args,
+                            int callback_id, WebFrame* web_frame);
+  void OnExtensionResponse(int callback_id, const std::string& response);
 
  protected:
   // RenderWidget override.
@@ -796,6 +801,9 @@ class RenderView : public RenderWidget,
 
   // A set of audio renderers registered to use IPC for audio output.
   IDMap<AudioRendererImpl> audio_renderers_;
+
+  // Maps pending callback IDs to their frames.
+  IDMap<WebFrame> pending_extension_callbacks_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };

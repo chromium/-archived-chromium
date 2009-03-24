@@ -321,6 +321,15 @@ class ChromePrintContext : public WebCore::PrintContext {
 
 int WebFrameImpl::live_object_count_ = 0;
 
+// static
+WebFrame* WebFrame::RetrieveActiveFrame() {
+  WebCore::Frame* frame = WebCore::ScriptController::retrieveActiveFrame();
+  if (frame)
+    return WebFrameImpl::FromFrame(frame);
+  else
+    return NULL;
+}
+
 WebFrameImpl::WebFrameImpl()
 // Don't complain about using "this" in initializer list.
 MSVC_PUSH_DISABLE_WARNING(4355)

@@ -74,7 +74,6 @@ class SVGElementInstance;
 class V8EventListener;
 class V8ObjectEventListener;
 typedef std::list<V8EventListener*>  V8EventListenerList;
-typedef std::list<v8::Extension*> V8ExtensionList;
 
 // TODO(fqian): use standard logging facilities in WebCore.
 void log_info(Frame* frame, const String& msg, const String& url);
@@ -132,7 +131,7 @@ void BatchConfigureAttributes(v8::Handle<v8::ObjectTemplate> inst,
                               const BatchedAttribute* attrs,
                               size_t num_attrs);
 
-// BhatchedConstant translates into calls to Set() for setting up an object's
+// BatchedConstant translates into calls to Set() for setting up an object's
 // constants.  It sets the constant on both the FunctionTemplate |desc| and the
 // ObjectTemplate |proto|.  PropertyAttributes is always ReadOnly.
 struct BatchedConstant {
@@ -148,6 +147,15 @@ void BatchConfigureConstants(v8::Handle<v8::FunctionTemplate> desc,
 DOMWrapperMap<void>& GetDOMObjectMap();
 
 const int kMaxRecursionDepth = 20;
+
+// Information about an extension that is registered for use with V8. If scheme
+// is non-empty, it contains the URL scheme the extension should be used with.
+// Otherwise, the extension is used with all schemes.
+struct V8ExtensionInfo {
+  String scheme;
+  v8::Extension* extension;
+};
+typedef std::list<V8ExtensionInfo> V8ExtensionList;
 
 class V8Proxy {
  public:
@@ -452,9 +460,12 @@ class V8Proxy {
     return v8::Local<v8::Context>::New(m_context);
   }
 
-  // Register extensions before initializing the context.  Once the context
-  // is initialized, extensions cannot be registered.
-  static void RegisterExtension(v8::Extension* extension);
+  // Registers an extension to be available on webpages with a particular scheme
+  // If the scheme argument is empty, the extension is available on all pages.
+  // Will only affect v8 contexts initialized after this call. Takes ownership
+  // of the v8::Extension object passed.
+  static void RegisterExtension(v8::Extension* extension,
+                                const String& schemeRestriction);
 
  private:
   v8::Persistent<v8::Context> createNewContext(v8::Handle<v8::Object> global);

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
+#include "chrome/browser/extensions/extension_api_handler.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/modal_dialog_event.h"
@@ -429,6 +430,8 @@ class RenderViewHost : public RenderWidgetHost {
   // Creates a new RenderWidget with the given route id.
   void CreateNewWidget(int route_id, bool activatable);
 
+  void SendExtensionResponse(int callback_id, const std::string& response);
+
  protected:
   // RenderWidgetHost protected overrides.
   virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event);
@@ -553,6 +556,9 @@ class RenderViewHost : public RenderWidgetHost {
   void OnRemoveAutofillEntry(const std::wstring& field_name,
                              const std::wstring& value);
 
+  void OnExtensionRequest(const std::string& name, const std::string& args,
+                          int callback_id);
+
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload
   // handler, so this function might buffer the message rather than sending it.
@@ -630,6 +636,10 @@ class RenderViewHost : public RenderWidgetHost {
   bool is_waiting_for_unload_ack_;
 
   bool are_javascript_messages_suppressed_;
+
+  // Handler for extension API requests.
+  // Handles processing IPC messages related to the extension system.
+  ExtensionAPIHandler extension_api_handler_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };
