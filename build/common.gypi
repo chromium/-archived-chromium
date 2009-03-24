@@ -182,7 +182,7 @@
           ],
         },
         'target_conditions': [
-          ['_type=="shared_library"', {
+          ['_type=="shared_library" or _type=="loadable_module"', {
             'xcode_settings': {'GCC_DYNAMIC_NO_PIC': 'NO'},
           }],
           ['_type!="static_library"', {
