@@ -13,6 +13,9 @@
 #include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/string_util.h"
+#if defined(OS_WIN)
+#include "base/win_util.h"
+#endif  // defined(OS_WIN)
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -171,6 +174,13 @@ TEST_F(DirectoryWatcherTest, SubDirRecursive) {
 }
 
 TEST_F(DirectoryWatcherTest, SubDirNonRecursive) {
+#if defined(OS_WIN)
+  // Disable this test for earlier version of Windows. It turned out to be
+  // very difficult to create a reliable test for them.
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA)
+    return;
+#endif  // defined(OS_WIN)
+
   FilePath subdir(FILE_PATH_LITERAL("SubDir"));
   ASSERT_TRUE(file_util::CreateDirectory(test_dir_.Append(subdir)));
 

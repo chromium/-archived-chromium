@@ -30,9 +30,10 @@ class DirectoryWatcher {
   // If |recursive| is true, the delegate will be notified for each change
   // within the directory tree starting at |path|. Returns false on error.
   //
-  // Note: on Windows the non-recursive watch will also send a notification
-  // when you create a file in a subdirectory (but won't send notifications
-  // for further modifications).
+  // Note: on Windows you may got more notifications for non-recursive watch
+  // than you expect, especially on versions earlier than Vista. The behavior
+  // is consistent on any particular version of Windows, but not across
+  // different versions.
   bool Watch(const FilePath& path, Delegate* delegate, bool recursive) {
     return impl_->Watch(path, delegate, recursive);
   }
