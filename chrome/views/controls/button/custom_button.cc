@@ -82,13 +82,14 @@ bool CustomButton::IsFocusable() const {
 CustomButton::CustomButton(ButtonListener* listener)
     : Button(listener),
       state_(BS_NORMAL),
-      animate_on_state_change_(true) {
+      animate_on_state_change_(true),
+      triggerable_event_flags_(MouseEvent::EF_LEFT_BUTTON_DOWN) {
   hover_animation_.reset(new ThrobAnimation(this));
   hover_animation_->SetSlideDuration(kHoverFadeDurationMs);
 }
 
 bool CustomButton::IsTriggerableEvent(const MouseEvent& e) {
-  return e.IsLeftMouseButton();
+  return (triggerable_event_flags_ & e.GetFlags()) != 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
