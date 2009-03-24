@@ -35,6 +35,14 @@ if [ "$CHROME_BUILD_TYPE" = "_official" ]; then
   OFFICIAL_BUILD="true"
 fi
 
+# Write to a temp file and only overwrite the target if it changes, to avoid
+# unnecessary compiles due to timestamp changes.
+TMPFILE=$(mktemp -q -t chromiumver-XXXX)
+if [ $? -ne 0 ]; then
+  # Oops, just use the target file and suffer possibly unnecessary compile.
+  TMPFILE="$OUTFILE"
+fi
+
 # TODO(mmoss) Make sure no sed special chars in substitutions.
 sed -e "s/@MAJOR@/$MAJOR/" \
     -e "s/@MINOR@/$MINOR/" \
@@ -47,4 +55,11 @@ sed -e "s/@MAJOR@/$MAJOR/" \
     -e "s/@PRODUCT_EXE@/$PRODUCT_EXE/" \
     -e "s/@COPYRIGHT@/$COPYRIGHT/" \
     -e "s/@OFFICIAL_BUILD@/$OFFICIAL_BUILD/" \
-    -e "s/@LASTCHANGE@/$LASTCHANGE/" "$TMPL" > "$OUTFILE"
+    -e "s/@LASTCHANGE@/$LASTCHANGE/" "$TMPL" > "$TMPFILE"
+
+diff -q "$TMPFILE" "$OUTFILE" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  mv -f "$TMPFILE" "$OUTFILE"
+else
+  rm "$TMPFILE"
+fi

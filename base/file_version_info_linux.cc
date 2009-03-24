@@ -3,13 +3,12 @@
 // found in the LICENSE file.
 
 #include "base/file_version_info.h"
+#include "base/file_version_info_linux.h"
 
 #include <string>
 
-// TODO(port): This whole file is stubbed. We can't return NULL
-// because that is used as a catastrophic error code where the file
-// doesn't exist or can't be opened.
-//
+// TODO(mmoss) This only provides version info for the current binary, but it's
+// also called for arbitrary files (e.g. plugins).
 // See http://code.google.com/p/chromium/issues/detail?id=8132 for a discussion
 // on what we should do with this module.
 
@@ -23,65 +22,65 @@ FileVersionInfo* FileVersionInfo::CreateFileVersionInfoForCurrentModule() {
 }
 
 std::wstring FileVersionInfo::company_name() {
-  return L"";
+  return COMPANY_NAME;
 }
 
 std::wstring FileVersionInfo::company_short_name() {
-  return L"";
+  return COMPANY_SHORT_NAME;
 }
 
 std::wstring FileVersionInfo::product_name() {
-  return L"";
+  return PRODUCT_NAME;
 }
 
 std::wstring FileVersionInfo::product_short_name() {
-  return L"";
+  return PRODUCT_SHORT_NAME;
 }
 
 std::wstring FileVersionInfo::internal_name() {
-  return L"";
+  return INTERNAL_NAME;
 }
 
 std::wstring FileVersionInfo::product_version() {
-  return L"0.1.2.3.4.5.6-lie";
+  return PRODUCT_VERSION;
 }
 
 std::wstring FileVersionInfo::private_build() {
-  return L"";
+  return PRIVATE_BUILD;
 }
 
 std::wstring FileVersionInfo::special_build() {
-  return L"";
+  return SPECIAL_BUILD;
 }
 
 std::wstring FileVersionInfo::comments() {
-  return L"";
+  return COMMENTS;
 }
 
 std::wstring FileVersionInfo::original_filename() {
-  return L"";
+  return ORIGINAL_FILENAME;
 }
 
 std::wstring FileVersionInfo::file_description() {
-  return L"";
+  return FILE_DESCRIPTION;
 }
 
 std::wstring FileVersionInfo::file_version() {
-  return L"0.1.2.3.4.5.6-lie";
+  return FILE_VERSION;
 }
 
 std::wstring FileVersionInfo::legal_copyright() {
-  return L"";
+  return LEGAL_COPYRIGHT;
 }
 
 std::wstring FileVersionInfo::legal_trademarks() {
-  return L"";
+  return LEGAL_TRADEMARKS;
 }
 
 std::wstring FileVersionInfo::last_change() {
-  return L"Last Thursday";
+  return LAST_CHANGE;
 }
 
 bool FileVersionInfo::is_official_build() {
-  return false;
+  return OFFICIAL_BUILD;
 }

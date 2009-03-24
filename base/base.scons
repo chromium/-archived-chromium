@@ -404,6 +404,17 @@ if env.Bit('linux'):
       'worker_pool_linux.cc',
   ])
 
+  linux_version = env.Command('$BASE_DIR/file_version_info_linux.h',
+                              'file_version_info_linux.h.version',
+                              ('../chrome/tools/build/linux/version.sh'
+                               ' ${SOURCE}'
+                               ' ${TARGET}'
+                               ' ../chrome'))
+  env.AlwaysBuild(linux_version)
+  # Always generate version information, e.g. to capture revision changes, which
+  # aren't captured by file dependencies.
+  env.Append(CPPPATH = ['$OBJ_ROOT'])
+
 env.ChromeLibrary('base', input_files)
 
 p = env.ChromeMSVSProject('build/base.vcproj',

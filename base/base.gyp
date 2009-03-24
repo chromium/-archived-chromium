@@ -324,7 +324,9 @@
               {
                 'action_name': 'linux_version',
                 'variables': {
-                  'template_input_path': 'file_version_info_linux.h.version'
+                  'template_input_path': 'file_version_info_linux.h.version',
+                  'template_output_path':
+                  '<(INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 },
                 'inputs': [
                   '<(template_input_path)',
@@ -339,11 +341,15 @@
                   }],
                 ],
                 'outputs': [
-                  '<(INTERMEDIATE_DIR)/base/file_version_info_linux.h',
+                  # Use a non-existant output so this action always runs and
+                  # generates version information, e.g. to capture revision
+                  # changes, which aren't captured by file dependencies.
+                  '<(INTERMEDIATE_DIR)/base/file_version_info_linux.bogus',
                 ],
                 'action': [
                   '../chrome/tools/build/linux/version.sh',
-                  '<(template_input_path)', '<@(_outputs)', '../chrome'
+                  '<(template_input_path)', '<(template_output_path)',
+                  '../chrome'
                 ],
               },
             ],
