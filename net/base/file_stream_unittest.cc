@@ -11,8 +11,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
-static const char kTestData[] = "0123456789";
-static const int kTestDataSize = arraysize(kTestData) - 1;
+namespace {
+
+const char kTestData[] = "0123456789";
+const int kTestDataSize = arraysize(kTestData) - 1;
 
 class FileStreamTest : public PlatformTest {
  public:
@@ -93,7 +95,7 @@ TEST_F(FileStreamTest, UseClosedStream) {
 
   // Try reading...
   char buf[10];
-  int rv = stream.Read(buf, sizeof(buf), NULL);
+  int rv = stream.Read(buf, arraysize(buf), NULL);
   EXPECT_EQ(net::ERR_UNEXPECTED, rv);
 }
 
@@ -111,12 +113,12 @@ TEST_F(FileStreamTest, BasicRead) {
   int64 total_bytes_avail = stream.Available();
   EXPECT_EQ(file_size, total_bytes_avail);
 
-  int64 total_bytes_read = 0;
+  int total_bytes_read = 0;
 
   std::string data_read;
   for (;;) {
     char buf[4];
-    rv = stream.Read(buf, sizeof(buf), NULL);
+    rv = stream.Read(buf, arraysize(buf), NULL);
     EXPECT_LE(0, rv);
     if (rv <= 0)
       break;
@@ -124,7 +126,7 @@ TEST_F(FileStreamTest, BasicRead) {
     data_read.append(buf, rv);
   }
   EXPECT_EQ(file_size, total_bytes_read);
-  EXPECT_TRUE(data_read == kTestData);
+  EXPECT_EQ(kTestData, data_read);
 }
 
 TEST_F(FileStreamTest, AsyncRead) {
@@ -144,12 +146,12 @@ TEST_F(FileStreamTest, AsyncRead) {
 
   TestCompletionCallback callback;
 
-  int64 total_bytes_read = 0;
+  int total_bytes_read = 0;
 
   std::string data_read;
   for (;;) {
     char buf[4];
-    rv = stream.Read(buf, sizeof(buf), &callback);
+    rv = stream.Read(buf, arraysize(buf), &callback);
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
     EXPECT_LE(0, rv);
@@ -159,7 +161,33 @@ TEST_F(FileStreamTest, AsyncRead) {
     data_read.append(buf, rv);
   }
   EXPECT_EQ(file_size, total_bytes_read);
-  EXPECT_TRUE(data_read == kTestData);
+  EXPECT_EQ(kTestData, data_read);
+}
+
+TEST_F(FileStreamTest, AsyncRead_EarlyClose) {
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_ASYNC;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 total_bytes_avail = stream.Available();
+  EXPECT_EQ(file_size, total_bytes_avail);
+
+  TestCompletionCallback callback;
+
+  char buf[4];
+  rv = stream.Read(buf, arraysize(buf), &callback);
+  stream.Close();
+  if (rv == net::ERR_IO_PENDING)
+    rv = callback.WaitForResult();
+  ASSERT_LE(0, rv);
+  EXPECT_EQ(std::string(kTestData, rv), std::string(buf, rv));
 }
 
 TEST_F(FileStreamTest, BasicRead_FromOffset) {
@@ -185,7 +213,7 @@ TEST_F(FileStreamTest, BasicRead_FromOffset) {
   std::string data_read;
   for (;;) {
     char buf[4];
-    rv = stream.Read(buf, sizeof(buf), NULL);
+    rv = stream.Read(buf, arraysize(buf), NULL);
     EXPECT_LE(0, rv);
     if (rv <= 0)
       break;
@@ -194,6 +222,7 @@ TEST_F(FileStreamTest, BasicRead_FromOffset) {
   }
   EXPECT_EQ(file_size - kOffset, total_bytes_read);
   EXPECT_TRUE(data_read == kTestData + kOffset);
+  EXPECT_EQ(kTestData + kOffset, data_read);
 }
 
 TEST_F(FileStreamTest, AsyncRead_FromOffset) {
@@ -217,12 +246,12 @@ TEST_F(FileStreamTest, AsyncRead_FromOffset) {
 
   TestCompletionCallback callback;
 
-  int64 total_bytes_read = 0;
+  int total_bytes_read = 0;
 
   std::string data_read;
   for (;;) {
     char buf[4];
-    rv = stream.Read(buf, sizeof(buf), &callback);
+    rv = stream.Read(buf, arraysize(buf), &callback);
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
     EXPECT_LE(0, rv);
@@ -232,7 +261,7 @@ TEST_F(FileStreamTest, AsyncRead_FromOffset) {
     data_read.append(buf, rv);
   }
   EXPECT_EQ(file_size - kOffset, total_bytes_read);
-  EXPECT_TRUE(data_read == kTestData + kOffset);
+  EXPECT_EQ(kTestData + kOffset, data_read);
 }
 
 TEST_F(FileStreamTest, SeekAround) {
@@ -293,10 +322,12 @@ TEST_F(FileStreamTest, AsyncWrite) {
   EXPECT_EQ(0, file_size);
 
   TestCompletionCallback callback;
-  int64 total_bytes_written = 0;
+  int total_bytes_written = 0;
 
   while (total_bytes_written != kTestDataSize) {
-    rv = stream.Write(kTestData, kTestDataSize, &callback);
+    rv = stream.Write(kTestData + total_bytes_written,
+                      kTestDataSize - total_bytes_written,
+                      &callback);
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
     EXPECT_LT(0, rv);
@@ -307,6 +338,34 @@ TEST_F(FileStreamTest, AsyncWrite) {
   ok = file_util::GetFileSize(temp_file_path(), &file_size);
   EXPECT_TRUE(ok);
   EXPECT_EQ(file_size, total_bytes_written);
+}
+
+TEST_F(FileStreamTest, AsyncWrite_EarlyClose) {
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_CREATE_ALWAYS |
+              base::PLATFORM_FILE_WRITE |
+              base::PLATFORM_FILE_ASYNC;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(0, file_size);
+
+  TestCompletionCallback callback;
+  int total_bytes_written = 0;
+
+  rv = stream.Write(kTestData + total_bytes_written,
+                    kTestDataSize - total_bytes_written,
+                    &callback);
+  stream.Close();
+  if (rv == net::ERR_IO_PENDING)
+    rv = callback.WaitForResult();
+  ASSERT_LT(0, rv);
+  ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(file_size, rv);
 }
 
 TEST_F(FileStreamTest, BasicWrite_FromOffset) {
@@ -351,10 +410,12 @@ TEST_F(FileStreamTest, AsyncWrite_FromOffset) {
   EXPECT_EQ(kTestDataSize, new_offset);
 
   TestCompletionCallback callback;
-  int64 total_bytes_written = 0;
+  int total_bytes_written = 0;
 
   while (total_bytes_written != kTestDataSize) {
-    rv = stream.Write(kTestData, kTestDataSize, &callback);
+    rv = stream.Write(kTestData + total_bytes_written,
+                      kTestDataSize - total_bytes_written,
+                      &callback);
     if (rv == net::ERR_IO_PENDING)
       rv = callback.WaitForResult();
     EXPECT_LT(0, rv);
@@ -382,12 +443,12 @@ TEST_F(FileStreamTest, BasicReadWrite) {
   int64 total_bytes_avail = stream.Available();
   EXPECT_EQ(file_size, total_bytes_avail);
 
-  int64 total_bytes_read = 0;
+  int total_bytes_read = 0;
 
   std::string data_read;
   for (;;) {
     char buf[4];
-    rv = stream.Read(buf, sizeof(buf), NULL);
+    rv = stream.Read(buf, arraysize(buf), NULL);
     EXPECT_LE(0, rv);
     if (rv <= 0)
       break;
@@ -400,6 +461,394 @@ TEST_F(FileStreamTest, BasicReadWrite) {
   rv = stream.Write(kTestData, kTestDataSize, NULL);
   EXPECT_EQ(kTestDataSize, rv);
   stream.Close();
+
+  ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(kTestDataSize * 2, file_size);
+}
+
+TEST_F(FileStreamTest, BasicWriteRead) {
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 total_bytes_avail = stream.Available();
+  EXPECT_EQ(file_size, total_bytes_avail);
+
+  int64 offset = stream.Seek(net::FROM_END, 0);
+  EXPECT_EQ(offset, file_size);
+
+  rv = stream.Write(kTestData, kTestDataSize, NULL);
+  EXPECT_EQ(kTestDataSize, rv);
+
+  offset = stream.Seek(net::FROM_BEGIN, 0);
+  EXPECT_EQ(0, offset);
+
+  int64 total_bytes_read = 0;
+
+  std::string data_read;
+  for (;;) {
+    char buf[4];
+    rv = stream.Read(buf, arraysize(buf), NULL);
+    EXPECT_LE(0, rv);
+    if (rv <= 0)
+      break;
+    total_bytes_read += rv;
+    data_read.append(buf, rv);
+  }
+  stream.Close();
+
+  ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(kTestDataSize * 2, file_size);
+  EXPECT_EQ(kTestDataSize * 2, total_bytes_read);
+
+  const std::string kExpectedFileData =
+      std::string(kTestData) + std::string(kTestData);
+  EXPECT_EQ(kExpectedFileData, data_read);
+}
+
+TEST_F(FileStreamTest, BasicAsyncReadWrite) {
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE |
+              base::PLATFORM_FILE_ASYNC;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 total_bytes_avail = stream.Available();
+  EXPECT_EQ(file_size, total_bytes_avail);
+
+  TestCompletionCallback callback;
+  int64 total_bytes_read = 0;
+
+  std::string data_read;
+  for (;;) {
+    char buf[4];
+    rv = stream.Read(buf, arraysize(buf), &callback);
+    if (rv == net::ERR_IO_PENDING)
+      rv = callback.WaitForResult();
+    EXPECT_LE(0, rv);
+    if (rv <= 0)
+      break;
+    total_bytes_read += rv;
+    data_read.append(buf, rv);
+  }
+  EXPECT_EQ(file_size, total_bytes_read);
+  EXPECT_TRUE(data_read == kTestData);
+
+  int total_bytes_written = 0;
+
+  while (total_bytes_written != kTestDataSize) {
+    rv = stream.Write(kTestData + total_bytes_written,
+                      kTestDataSize - total_bytes_written,
+                      &callback);
+    if (rv == net::ERR_IO_PENDING)
+      rv = callback.WaitForResult();
+    EXPECT_LT(0, rv);
+    if (rv <= 0)
+      break;
+    total_bytes_written += rv;
+  }
+
+  stream.Close();
+
+  ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(kTestDataSize * 2, file_size);
+}
+
+TEST_F(FileStreamTest, BasicAsyncWriteRead) {
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE |
+              base::PLATFORM_FILE_ASYNC;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 total_bytes_avail = stream.Available();
+  EXPECT_EQ(file_size, total_bytes_avail);
+
+  int64 offset = stream.Seek(net::FROM_END, 0);
+  EXPECT_EQ(offset, file_size);
+
+  TestCompletionCallback callback;
+  int total_bytes_written = 0;
+
+  while (total_bytes_written != kTestDataSize) {
+    rv = stream.Write(kTestData + total_bytes_written,
+                      kTestDataSize - total_bytes_written,
+                      &callback);
+    if (rv == net::ERR_IO_PENDING)
+      rv = callback.WaitForResult();
+    EXPECT_LT(0, rv);
+    if (rv <= 0)
+      break;
+    total_bytes_written += rv;
+  }
+
+  EXPECT_EQ(kTestDataSize, total_bytes_written);
+
+  offset = stream.Seek(net::FROM_BEGIN, 0);
+  EXPECT_EQ(0, offset);
+
+  int total_bytes_read = 0;
+
+  std::string data_read;
+  for (;;) {
+    char buf[4];
+    rv = stream.Read(buf, arraysize(buf), &callback);
+    if (rv == net::ERR_IO_PENDING)
+      rv = callback.WaitForResult();
+    EXPECT_LE(0, rv);
+    if (rv <= 0)
+      break;
+    total_bytes_read += rv;
+    data_read.append(buf, rv);
+  }
+  stream.Close();
+
+  ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(kTestDataSize * 2, file_size);
+
+  EXPECT_EQ(kTestDataSize * 2, total_bytes_read);
+  const std::string kExpectedFileData =
+      std::string(kTestData) + std::string(kTestData);
+  EXPECT_EQ(kExpectedFileData, data_read);
+}
+
+class TestWriteReadCompletionCallback : public Callback1<int>::Type {
+ public:
+  explicit TestWriteReadCompletionCallback(
+      net::FileStream* stream,
+      int* total_bytes_written,
+      int* total_bytes_read,
+      std::string* data_read)
+      : result_(0),
+        have_result_(false),
+        waiting_for_result_(false),
+        stream_(stream),
+        total_bytes_written_(total_bytes_written),
+        total_bytes_read_(total_bytes_read),
+        data_read_(data_read) {}
+
+  int WaitForResult() {
+    DCHECK(!waiting_for_result_);
+    while (!have_result_) {
+      waiting_for_result_ = true;
+      MessageLoop::current()->Run();
+      waiting_for_result_ = false;
+    }
+    have_result_ = false;  // auto-reset for next callback
+    return result_;
+  }
+
+ private:
+  virtual void RunWithParams(const Tuple1<int>& params) {
+    DCHECK_LT(0, params.a);
+    *total_bytes_written_ += params.a;
+
+    int rv;
+
+    if (*total_bytes_written_ != kTestDataSize) {
+      // Recurse to finish writing all data.
+      int total_bytes_written = 0, total_bytes_read = 0;
+      std::string data_read;
+      TestWriteReadCompletionCallback callback(
+          stream_, &total_bytes_written, &total_bytes_read, &data_read);
+      rv = stream_->Write(kTestData + *total_bytes_written_,
+                          kTestDataSize - *total_bytes_written_,
+                          &callback);
+      DCHECK_EQ(net::ERR_IO_PENDING, rv);
+      rv = callback.WaitForResult();
+      *total_bytes_written_ += total_bytes_written;
+      *total_bytes_read_ += total_bytes_read;
+      *data_read_ += data_read;
+    } else {  // We're done writing all data.  Start reading the data.
+      stream_->Seek(net::FROM_BEGIN, 0);
+
+      TestCompletionCallback callback;
+      for (;;) {
+        char buf[4];
+        rv = stream_->Read(buf, arraysize(buf), &callback);
+        if (rv == net::ERR_IO_PENDING) {
+          bool old_state = MessageLoop::current()->NestableTasksAllowed();
+          MessageLoop::current()->SetNestableTasksAllowed(true);
+          rv = callback.WaitForResult();
+          MessageLoop::current()->SetNestableTasksAllowed(old_state);
+        }
+        EXPECT_LE(0, rv);
+        if (rv <= 0)
+          break;
+        *total_bytes_read_ += rv;
+        data_read_->append(buf, rv);
+      }
+    }
+
+    result_ = *total_bytes_written_;
+    have_result_ = true;
+    if (waiting_for_result_)
+      MessageLoop::current()->Quit();
+  }
+
+  int result_;
+  bool have_result_;
+  bool waiting_for_result_;
+  net::FileStream* stream_;
+  int* total_bytes_written_;
+  int* total_bytes_read_;
+  std::string* data_read_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestWriteReadCompletionCallback);
+};
+
+TEST_F(FileStreamTest, AsyncWriteRead) {
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE |
+              base::PLATFORM_FILE_ASYNC;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 total_bytes_avail = stream.Available();
+  EXPECT_EQ(file_size, total_bytes_avail);
+
+  int64 offset = stream.Seek(net::FROM_END, 0);
+  EXPECT_EQ(offset, file_size);
+
+  int total_bytes_written = 0;
+  int total_bytes_read = 0;
+  std::string data_read;
+  TestWriteReadCompletionCallback callback(&stream, &total_bytes_written,
+                                           &total_bytes_read, &data_read);
+
+  rv = stream.Write(kTestData + total_bytes_written,
+                    kTestDataSize - static_cast<int>(total_bytes_written),
+                    &callback);
+  if (rv == net::ERR_IO_PENDING)
+    rv = callback.WaitForResult();
+  EXPECT_LT(0, rv);
+  EXPECT_EQ(kTestDataSize, total_bytes_written);
+
+  stream.Close();
+
+  ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+  EXPECT_EQ(kTestDataSize * 2, file_size);
+
+  EXPECT_EQ(kTestDataSize * 2, total_bytes_read);
+  const std::string kExpectedFileData =
+      std::string(kTestData) + std::string(kTestData);
+  EXPECT_EQ(kExpectedFileData, data_read);
+}
+
+class TestWriteCloseCompletionCallback : public Callback1<int>::Type {
+ public:
+  explicit TestWriteCloseCompletionCallback(net::FileStream* stream,
+                                            int* total_bytes_written)
+      : result_(0),
+        have_result_(false),
+        waiting_for_result_(false),
+        stream_(stream),
+        total_bytes_written_(total_bytes_written) {}
+
+  int WaitForResult() {
+    DCHECK(!waiting_for_result_);
+    while (!have_result_) {
+      waiting_for_result_ = true;
+      MessageLoop::current()->Run();
+      waiting_for_result_ = false;
+    }
+    have_result_ = false;  // auto-reset for next callback
+    return result_;
+  }
+
+ private:
+  virtual void RunWithParams(const Tuple1<int>& params) {
+    DCHECK_LT(0, params.a);
+    *total_bytes_written_ += params.a;
+
+    int rv;
+
+    if (*total_bytes_written_ != kTestDataSize) {
+      // Recurse to finish writing all data.
+      int total_bytes_written = 0;
+      TestWriteCloseCompletionCallback callback(stream_, &total_bytes_written);
+      rv = stream_->Write(kTestData + *total_bytes_written_,
+                          kTestDataSize - *total_bytes_written_,
+                          &callback);
+      DCHECK_EQ(net::ERR_IO_PENDING, rv);
+      rv = callback.WaitForResult();
+      *total_bytes_written_ += total_bytes_written;
+    } else {  // We're done writing all data.  Close the file.
+      stream_->Close();
+    }
+
+    result_ = *total_bytes_written_;
+    have_result_ = true;
+    if (waiting_for_result_)
+      MessageLoop::current()->Quit();
+  }
+
+  int result_;
+  bool have_result_;
+  bool waiting_for_result_;
+  net::FileStream* stream_;
+  int* total_bytes_written_;
+
+  DISALLOW_COPY_AND_ASSIGN(TestWriteCloseCompletionCallback);
+};
+
+TEST_F(FileStreamTest, AsyncWriteClose) {
+  int64 file_size;
+  bool ok = file_util::GetFileSize(temp_file_path(), &file_size);
+  EXPECT_TRUE(ok);
+
+  net::FileStream stream;
+  int flags = base::PLATFORM_FILE_OPEN |
+              base::PLATFORM_FILE_READ |
+              base::PLATFORM_FILE_WRITE |
+              base::PLATFORM_FILE_ASYNC;
+  int rv = stream.Open(temp_file_path(), flags);
+  EXPECT_EQ(net::OK, rv);
+
+  int64 total_bytes_avail = stream.Available();
+  EXPECT_EQ(file_size, total_bytes_avail);
+
+  int64 offset = stream.Seek(net::FROM_END, 0);
+  EXPECT_EQ(offset, file_size);
+
+  int total_bytes_written = 0;
+  TestWriteCloseCompletionCallback callback(&stream, &total_bytes_written);
+
+  rv = stream.Write(kTestData, kTestDataSize, &callback);
+  if (rv == net::ERR_IO_PENDING)
+    total_bytes_written = callback.WaitForResult();
+  EXPECT_LT(0, total_bytes_written);
+  EXPECT_EQ(kTestDataSize, total_bytes_written);
 
   ok = file_util::GetFileSize(temp_file_path(), &file_size);
   EXPECT_TRUE(ok);
@@ -430,7 +879,7 @@ TEST_F(FileStreamTest, Truncate) {
   std::string read_contents;
   file_util::ReadFileToString(temp_file_path(), &read_contents);
 
-  ASSERT_TRUE(read_contents == "01230123");
+  EXPECT_EQ("01230123", read_contents);
 }
 
-// TODO(erikkay): more READ_WRITE tests?
+}  // namespace
