@@ -408,8 +408,7 @@ if env.Bit('linux'):
                               'file_version_info_linux.h.version',
                               ('../chrome/tools/build/linux/version.sh'
                                ' ${SOURCE}'
-                               ' ${TARGET}'
-                               ' ../chrome'))
+                               ' ${TARGET}'))
   env.AlwaysBuild(linux_version)
   # Always generate version information, e.g. to capture revision changes, which
   # aren't captured by file dependencies.

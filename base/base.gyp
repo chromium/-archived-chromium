@@ -326,7 +326,7 @@
                 'variables': {
                   'template_input_path': 'file_version_info_linux.h.version',
                   'template_output_path':
-                  '<(INTERMEDIATE_DIR)/base/file_version_info_linux.h',
+                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.h',
                 },
                 'inputs': [
                   '<(template_input_path)',
@@ -344,17 +344,16 @@
                   # Use a non-existant output so this action always runs and
                   # generates version information, e.g. to capture revision
                   # changes, which aren't captured by file dependencies.
-                  '<(INTERMEDIATE_DIR)/base/file_version_info_linux.bogus',
+                  '<(SHARED_INTERMEDIATE_DIR)/base/file_version_info_linux.bogus',
                 ],
                 'action': [
                   '../chrome/tools/build/linux/version.sh',
                   '<(template_input_path)', '<(template_output_path)',
-                  '../chrome'
                 ],
               },
             ],
             'include_dirs': [
-              '<(INTERMEDIATE_DIR)',
+              '<(SHARED_INTERMEDIATE_DIR)',
             ],
             'sources/': [ ['exclude', '_(mac|win)\\.cc$'],
                           ['exclude', '\\.mm?$' ] ],

@@ -9,7 +9,7 @@
 
 TMPL="$1"
 OUTFILE="$2"
-CHROMEDIR="$3"
+CHROMEDIR=$(readlink -f $(dirname "$0")/../../../)
 
 # Load version digits as environment variables.
 source "$CHROMEDIR/VERSION"
