@@ -139,8 +139,7 @@ namespace {
 class RenderViewExtraRequestData : public WebRequest::ExtraData {
  public:
   RenderViewExtraRequestData(int32 pending_page_id,
-                             PageTransition::Type transition,
-                             const GURL& url)
+                             PageTransition::Type transition)
       : transition_type(transition),
         request_committed(false),
         pending_page_id_(pending_page_id) {
@@ -802,7 +801,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   scoped_ptr<WebRequest> request(WebRequest::Create(params.url));
   request->SetCachePolicy(cache_policy);
   request->SetExtraData(new RenderViewExtraRequestData(
-      params.page_id, params.transition, params.url));
+      params.page_id, params.transition));
 
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
