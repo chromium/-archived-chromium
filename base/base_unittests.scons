@@ -119,6 +119,7 @@ input_files = ChromeFileList([
     'win_util_unittest.cc',
     'wmi_util_unittest.cc',
     'word_iterator_unittest.cc',
+    'worker_pool_unittest.cc'
   ]),
 
   MSVSFilter('gfx_tests', [
@@ -141,6 +142,7 @@ if env.Bit('posix'):
 if env.Bit('linux'):
   input_files.Append(
       'data_pack_unittest.cc',
+      'worker_pool_linux_unittest.cc'
   )
 
 if env.Bit('mac'):

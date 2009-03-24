@@ -303,6 +303,7 @@
         'word_iterator.h',
         'worker_pool.h',
         'worker_pool_linux.cc',
+        'worker_pool_linux.h',
         'worker_pool_mac.mm',
         'worker_pool_win.cc',
       ],
@@ -602,6 +603,7 @@
             # Linux has an implementation of idle_timer, but it's unclear
             # if we want it yet, so leave it 'unported' for now.
             'idletimer_unittest.cc',
+	    'worker_pool_linux_unittest.cc',
           ],
           'dependencies': [
             '../build/linux/system.gyp:gtk',

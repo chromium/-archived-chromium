@@ -402,6 +402,7 @@ if env.Bit('linux'):
       'sys_string_conversions_linux.cc',
       'test_file_util_linux.cc',
       'worker_pool_linux.cc',
+      'worker_pool_linux.h',
   ])
 
   linux_version = env.Command('$BASE_DIR/file_version_info_linux.h',
