@@ -490,19 +490,11 @@ void StringAppendV(std::wstring* dst, const wchar_t* format, va_list ap);
 // the string's buffer with nulls.  I call it to change the length of the
 // string (needed because writing directly to the buffer doesn't do this).
 // Perhaps there's a constant-time way to change the string's length.
-template <class char_type>
-inline char_type* WriteInto(
-    std::basic_string<char_type, std::char_traits<char_type>,
-                      std::allocator<char_type> >* str,
-    size_t length_including_null) {
-  str->reserve(length_including_null);
-  str->resize(length_including_null - 1);
-  return &((*str)[0]);
-}
-
-inline char16* WriteInto(string16* str, size_t length_including_null) {
-  str->reserve(length_including_null);
-  str->resize(length_including_null - 1);
+template <class string_type>
+inline typename string_type::value_type* WriteInto(string_type* str,
+                                                   size_t length_with_null) {
+  str->reserve(length_with_null);
+  str->resize(length_with_null - 1);
   return &((*str)[0]);
 }
 
