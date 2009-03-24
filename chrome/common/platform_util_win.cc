@@ -5,7 +5,11 @@
 #include "chrome/common/platform_util.h"
 
 #include <atlbase.h>
+#include <atlapp.h>
+#include <commdlg.h>
+#include <dwmapi.h>
 #include <shellapi.h>
+#include <shlobj.h>
 
 #include "base/file_path.h"
 #include "base/file_util.h"
