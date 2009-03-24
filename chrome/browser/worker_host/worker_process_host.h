@@ -24,6 +24,7 @@ class WorkerProcessHost : public ChildProcessHost {
 
   // Creates a worker object in the process.
   void CreateWorker(const GURL& url,
+                    int render_view_route_id,
                     int worker_route_id,
                     int renderer_route_id,
                     ResourceMessageFilter* filter);
@@ -43,9 +44,14 @@ class WorkerProcessHost : public ChildProcessHost {
   // Called when a message arrives from the worker process.
   void OnMessageReceived(const IPC::Message& message);
 
+  // Updates the title shown in the task manager.
+  void UpdateTitle();
+
   // Contains information about each worker instance, needed to forward messages
   // between the renderer and worker processes.
   struct WorkerInstance {
+    GURL url;
+    int render_view_route_id;
     int worker_route_id;
     int renderer_route_id;
     ResourceMessageFilter* filter;

@@ -3142,6 +3142,9 @@ each locale. -->
       <message name="IDS_PLUGIN_CRASHED_PROMPT" desc="Info Bar message to notify about a crashed plugin">
         The following plug-in has crashed : <ph name="PLUGIN_NAME">$1<ex>Shockwave</ex></ph>
       </message>
+      <message name="IDS_WEBWORKER_CRASHED_PROMPT" desc="Info Bar message to notify about a crashed WebWorker">
+        A part of this page (HTML WebWorker) has crashed, so it might not function correctly.
+      </message>
 
       <message name="IDS_JS_OUT_OF_MEMORY_PROMPT" desc="Info Bar message to notify JS out of memory">
         Script on the page used too much memory. Reload to enable scripts again.

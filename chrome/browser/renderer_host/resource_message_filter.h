@@ -17,6 +17,7 @@
 #include "base/string16.h"
 #include "build/build_config.h"
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
+#include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/modal_dialog_event.h"
@@ -92,6 +93,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   ResourceDispatcherHost* resource_dispatcher_host() {
     return resource_dispatcher_host_;
   }
+  MessageLoop* ui_loop() { return render_widget_helper_->ui_loop(); }
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -137,7 +139,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
                              const std::string& clsid,
                              const std::wstring& locale,
                              IPC::Message* reply_msg);
-  void OnCreateDedicatedWorker(const GURL& url, int* route_id);
+  void OnCreateDedicatedWorker(const GURL& url,
+                               int render_view_route_id,
+                               int* route_id);
   void OnForwardToWorker(const IPC::Message& msg);
   void OnDownloadUrl(const IPC::Message& message,
                      const GURL& url,

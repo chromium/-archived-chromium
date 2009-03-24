@@ -26,7 +26,7 @@ class Message;
 class WebWorkerProxy : public WebWorker,
                        public IPC::Channel::Listener {
  public:
-  WebWorkerProxy(WebWorkerClient* client);
+  WebWorkerProxy(WebWorkerClient* client, int render_view_route_id);
   virtual ~WebWorkerProxy();
 
   // WebWorker implementation.
@@ -45,7 +45,11 @@ class WebWorkerProxy : public WebWorker,
  private:
   bool Send(IPC::Message* message);
 
+  // The routing id used to reach WebWorkerClientProxy in the worker process.
   int route_id_;
+
+  // The routing id for the RenderView that created this worker.
+  int render_view_route_id_;
 
   // Used to communicate to the WebCore::Worker object in response to IPC
   // messages.

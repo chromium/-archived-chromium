@@ -543,16 +543,6 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               bool /* focus on show */,
                               int /* route_id */)
 
-  // These two messages are sent as a result of the above two, in the browser
-  // process, from RenderWidgetHelper to RenderViewHost.
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWindowWithRoute,
-                      int /* route_id */,
-                      ModalDialogEvent /* modal_dialog_event */)
-
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_CreateWidgetWithRoute,
-                      int /* route_id */,
-                      bool /* activatable */)
-
   // These two messages are sent to the parent RenderViewHost to display the
   // page/widget that was created by CreateView/CreateWidget.  routing_id
   // refers to the id that was returned from the Create message above.
@@ -1225,8 +1215,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // A renderer sends this to the browser process when it wants to create a
   // worker.  The browser will create the worker process if necessary, and
   // will return the route id on success.  On error returns MSG_ROUTING_NONE.
-  IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_CreateDedicatedWorker,
+  IPC_SYNC_MESSAGE_CONTROL2_1(ViewHostMsg_CreateDedicatedWorker,
                               GURL /* url */,
+                              int /* render_view_route_id */,
                               int /* route_id */)
 
   // Wraps an IPC message that's destined to the worker on the renderer->browser

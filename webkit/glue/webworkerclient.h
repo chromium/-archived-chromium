@@ -13,6 +13,7 @@ class WebWorkerClient {
  public:
   virtual ~WebWorkerClient() { }
 
+  // These functions are called on the worker thread.
   virtual void PostMessageToWorkerObject(const string16& message) = 0;
   virtual void PostExceptionToWorkerObject(
       const string16& error_message,

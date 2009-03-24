@@ -1439,6 +1439,12 @@ void WebContents::OnCrashedPlugin(const FilePath& plugin_path) {
 #endif
 }
 
+void WebContents::OnCrashedWorker() {
+  AddInfoBar(new SimpleAlertInfoBarDelegate(
+      this, l10n_util::GetString(IDS_WEBWORKER_CRASHED_PROMPT),
+      NULL));
+}
+
 void WebContents::OnJSOutOfMemory() {
   AddInfoBar(new SimpleAlertInfoBarDelegate(
       this, l10n_util::GetString(IDS_JS_OUT_OF_MEMORY_PROMPT), NULL));

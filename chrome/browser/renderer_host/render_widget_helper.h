@@ -155,13 +155,15 @@ class RenderWidgetHelper :
   void OnDispatchPaintMsg(PaintMsgProxy* proxy);
 
   // Called on the UI thread to finish creating a window.
-  void OnCreateWindowOnUI(const IPC::Message& message, int route_id);
+  void OnCreateWindowOnUI(int opener_id,
+                          int route_id,
+                          ModalDialogEvent modal_dialog_event);
 
   // Called on the IO thread after a window was created on the UI thread.
   void OnCreateWindowOnIO(int route_id);
 
   // Called on the UI thread to finish creating a widget.
-  void OnCreateWidgetOnUI(const IPC::Message& message);
+  void OnCreateWidgetOnUI(int opener_id, int route_id, bool activatable);
 
   // Called on the IO thread to cancel resource requests for the render widget.
   void OnCancelResourceRequests(int render_widget_id);

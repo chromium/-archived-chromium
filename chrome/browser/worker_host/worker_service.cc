@@ -23,6 +23,7 @@ WorkerService::~WorkerService() {
 }
 
 bool WorkerService::CreateDedicatedWorker(const GURL &url,
+                                          int render_view_route_id,
                                           ResourceMessageFilter* filter,
                                           int renderer_route_id) {
   WorkerProcessHost* worker = NULL;
@@ -45,7 +46,8 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
   // unique among all worker processes.  That way when the worker process sends
   // a wrapped IPC message through us, we know which WorkerProcessHost to give
   // it to.
-  worker->CreateWorker(url, ++next_worker_route_id_, renderer_route_id, filter);
+  worker->CreateWorker(url, render_view_route_id, ++next_worker_route_id_,
+                       renderer_route_id, filter);
 
   return true;
 }

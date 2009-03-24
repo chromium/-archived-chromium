@@ -423,6 +423,12 @@ class RenderViewHost : public RenderWidgetHost {
   virtual bool CanBlur() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
 
+  // Creates a new RenderView with the given route id.
+  void CreateNewWindow(int route_id, ModalDialogEvent modal_dialog_event);
+
+  // Creates a new RenderWidget with the given route id.
+  void CreateNewWidget(int route_id, bool activatable);
+
  protected:
   // RenderWidgetHost protected overrides.
   virtual void UnhandledKeyboardEvent(const NativeWebKeyboardEvent& event);
@@ -431,8 +437,6 @@ class RenderViewHost : public RenderWidgetHost {
   virtual void NotifyRendererResponsive();
 
   // IPC message handlers.
-  void OnMsgCreateWindow(int route_id, ModalDialogEvent modal_dialog_event);
-  void OnMsgCreateWidget(int route_id, bool activatable);
   void OnMsgShowView(int route_id,
                      WindowOpenDisposition disposition,
                      const gfx::Rect& initial_pos,

@@ -672,8 +672,6 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
 
   bool msg_is_ok = true;
   IPC_BEGIN_MESSAGE_MAP_EX(RenderViewHost, msg, msg_is_ok)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindowWithRoute, OnMsgCreateWindow)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidgetWithRoute, OnMsgCreateWidget)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShowView, OnMsgShowView)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShowWidget, OnMsgShowWidget)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_RunModal, OnMsgRunModal)
@@ -785,8 +783,8 @@ void RenderViewHost::Shutdown() {
   RenderWidgetHost::Shutdown();
 }
 
-void RenderViewHost::OnMsgCreateWindow(int route_id,
-                                       ModalDialogEvent modal_dialog_event) {
+void RenderViewHost::CreateNewWindow(int route_id,
+                                     ModalDialogEvent modal_dialog_event) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (!view)
     return;
@@ -800,7 +798,7 @@ void RenderViewHost::OnMsgCreateWindow(int route_id,
   view->CreateNewWindow(route_id, waitable_event);
 }
 
-void RenderViewHost::OnMsgCreateWidget(int route_id, bool activatable) {
+void RenderViewHost::CreateNewWidget(int route_id, bool activatable) {
   RenderViewHostDelegate::View* view = delegate_->GetViewDelegate();
   if (view)
     view->CreateNewWidget(route_id, activatable);

@@ -72,11 +72,11 @@ class ChildProcessInfo {
   bool operator <(const ChildProcessInfo& rhs) const {
     if (process_.handle() != rhs.process_.handle())
       return process_ .handle() < rhs.process_.handle();
-    return name_ < rhs.name_;
+    return false;
   }
 
   bool operator ==(const ChildProcessInfo& rhs) const {
-    return (process_.handle() == rhs.process_.handle()) && (name_ == rhs.name_);
+    return process_.handle() == rhs.process_.handle();
   }
 
   // Generates a unique channel name for a child renderer/plugin process.

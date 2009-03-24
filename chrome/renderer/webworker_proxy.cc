@@ -9,8 +9,12 @@
 #include "chrome/renderer/render_thread.h"
 #include "webkit/glue/webworkerclient.h"
 
-WebWorkerProxy::WebWorkerProxy(WebWorkerClient* client)
-    : route_id_(MSG_ROUTING_NONE), client_(client) {
+WebWorkerProxy::WebWorkerProxy(
+    WebWorkerClient* client,
+    int render_view_route_id)
+    : route_id_(MSG_ROUTING_NONE),
+      render_view_route_id_(render_view_route_id),
+      client_(client) {
 }
 
 WebWorkerProxy::~WebWorkerProxy() {
@@ -21,7 +25,8 @@ void WebWorkerProxy::StartWorkerContext(
     const string16& user_agent,
     const string16& source_code) {
   RenderThread::current()->Send(
-      new ViewHostMsg_CreateDedicatedWorker(script_url, &route_id_));
+      new ViewHostMsg_CreateDedicatedWorker(
+          script_url, render_view_route_id_, &route_id_));
   if (route_id_ == MSG_ROUTING_NONE)
     return;
 

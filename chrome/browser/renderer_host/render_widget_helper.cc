@@ -7,6 +7,7 @@
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/render_messages.h"
 
@@ -236,19 +237,16 @@ void RenderWidgetHelper::CreateNewWindow(int opener_id,
   resource_dispatcher_host_->BlockRequestsForRoute(
       render_process_id_, *route_id);
 
-  // The easiest way to reach RenderViewHost is just to send a routed message.
-  ViewHostMsg_CreateWindowWithRoute msg(opener_id, *route_id,
-                                        modal_dialog_event_internal);
-
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &RenderWidgetHelper::OnCreateWindowOnUI, msg, *route_id));
+      this, &RenderWidgetHelper::OnCreateWindowOnUI, opener_id, *route_id,
+      modal_dialog_event_internal));
 }
 
 void RenderWidgetHelper::OnCreateWindowOnUI(
-    const IPC::Message& message, int route_id) {
-  RenderProcessHost* host = RenderProcessHost::FromID(render_process_id_);
+    int opener_id, int route_id, ModalDialogEvent modal_dialog_event) {
+  RenderViewHost* host = RenderViewHost::FromID(render_process_id_, opener_id);
   if (host)
-    host->OnMessageReceived(message);
+    host->CreateNewWindow(route_id, modal_dialog_event);
 
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
       NewRunnableMethod(this, &RenderWidgetHelper::OnCreateWindowOnIO, route_id));
@@ -263,16 +261,16 @@ void RenderWidgetHelper::CreateNewWidget(int opener_id,
                                          bool activatable,
                                          int* route_id) {
   *route_id = GetNextRoutingID();
-  ViewHostMsg_CreateWidgetWithRoute msg(opener_id, *route_id, activatable);
   ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &RenderWidgetHelper::OnCreateWidgetOnUI, msg));
+      this, &RenderWidgetHelper::OnCreateWidgetOnUI, opener_id, *route_id,
+      activatable));
 }
 
 void RenderWidgetHelper::OnCreateWidgetOnUI(
-    const IPC::Message& message) {
-  RenderProcessHost* host = RenderProcessHost::FromID(render_process_id_);
+    int opener_id, int route_id, bool activatable) {
+  RenderViewHost* host = RenderViewHost::FromID(render_process_id_, opener_id);
   if (host)
-    host->OnMessageReceived(message);
+    host->CreateNewWidget(route_id, activatable);
 }
 
 #if defined(OS_MACOSX)

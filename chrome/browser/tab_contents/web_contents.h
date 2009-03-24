@@ -391,6 +391,7 @@ class WebContents : public TabContents,
   virtual WebPreferences GetWebkitPrefs();
   virtual void OnMissingPluginStatus(int status);
   virtual void OnCrashedPlugin(const FilePath& plugin_path);
+  virtual void OnCrashedWorker();
   virtual void OnJSOutOfMemory();
   virtual void ShouldClosePage(bool proceed) {
     render_manager_.ShouldClosePage(proceed);

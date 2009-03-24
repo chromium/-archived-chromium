@@ -470,9 +470,11 @@ void ResourceMessageFilter::OnOpenChannelToPlugin(const GURL& url,
 }
 
 void ResourceMessageFilter::OnCreateDedicatedWorker(const GURL& url,
+                                                    int render_view_route_id,
                                                     int* route_id) {
   *route_id = render_widget_helper_->GetNextRoutingID();
-  WorkerService::GetInstance()->CreateDedicatedWorker(url, this, *route_id);
+  WorkerService::GetInstance()->CreateDedicatedWorker(
+      url, render_view_route_id, this, *route_id);
 }
 
 void ResourceMessageFilter::OnForwardToWorker(const IPC::Message& message) {
