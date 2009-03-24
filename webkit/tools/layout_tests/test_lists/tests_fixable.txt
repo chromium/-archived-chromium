@@ -2084,6 +2084,9 @@ LINUX : LayoutTests/editing/selection/select-all-002.html = FAIL
 MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 MAC : chrome/fast/forms/basic-textareas.html = FAIL
 
+// Needs rebaseline.
+MAC LINUX : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
+
 // Started failing 3/12/09. Unclear which CL caused it though.
 MAC : LayoutTests/fast/overflow/image-selection-highlight.html = FAIL
 
