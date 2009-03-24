@@ -2225,7 +2225,6 @@ MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-po
 // Merge 41827:41860 Regressions
 // Upstream r41849 added a large regex to this test which times out in V8.
 LayoutTests/fast/js/regexp-overflow.html = TIMEOUT
-WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-get-async.html = TIMEOUT
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
@@ -2258,3 +2257,10 @@ SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metri
 
 // Started failing when test_fixable got merged with test_ignored.
 LINUX DEBUG : chrome/fast/dom/htmliframeelement-document.html = FAIL
+
+// Merge 41860:41906 Regressions
+WIN : LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
+
+// Merge 41860:41906 New tests
+DEFER WIN : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
+DEFER WIN : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
