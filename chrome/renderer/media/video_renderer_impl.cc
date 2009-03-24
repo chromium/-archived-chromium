@@ -8,6 +8,9 @@
 VideoRendererImpl::VideoRendererImpl(WebMediaPlayerDelegateImpl* delegate)
     : delegate_(delegate),
       last_converted_frame_(NULL) {
+  // TODO(hclam): decide whether to do the following line in this thread or
+  // in the render thread.
+  delegate_->SetVideoRenderer(this);
 }
 
 bool VideoRendererImpl::OnInitialize(size_t width, size_t height) {
