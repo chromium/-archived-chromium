@@ -251,20 +251,6 @@ bool AutomationProxy::GetBrowserWindowCount(int* num_windows) {
   return succeeded;
 }
 
-bool AutomationProxy::WaitForWindowCountToChange(int count, int* new_count,
-                                                 int wait_timeout) {
-  const TimeTicks start = TimeTicks::Now();
-  const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
-  while (TimeTicks::Now() - start < timeout) {
-    bool succeeded = GetBrowserWindowCount(new_count);
-    if (!succeeded) return false;
-    if (count != *new_count) return true;
-    PlatformThread::Sleep(automation::kSleepTime);
-  }
-  // Window count never changed.
-  return false;
-}
-
 bool AutomationProxy::WaitForWindowCountToBecome(int count,
                                                  int wait_timeout) {
   const TimeTicks start = TimeTicks::Now();

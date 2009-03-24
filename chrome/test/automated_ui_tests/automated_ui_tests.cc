@@ -465,11 +465,9 @@ bool AutomatedUITest::CloseActiveTab() {
       return false;
     }
   } else if (tab_count == 1 && browser_windows_count > 1) {
-    int new_window_count;
     return_value = browser->RunCommand(IDC_CLOSE_TAB);
     // Wait for the window to close before we continue.
-    if (!automation()->WaitForWindowCountToChange(browser_windows_count,
-                                                  &new_window_count,
+    if (!automation()->WaitForWindowCountToBecome(browser_windows_count - 1,
                                                   action_max_timeout_ms())) {
       AddWarningAttribute("window_count_failed_to_change");
       return false;

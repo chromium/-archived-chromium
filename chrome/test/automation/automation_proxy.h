@@ -89,16 +89,6 @@ class AutomationProxy : public IPC::Channel::Listener,
   // true on success. False likely indicates an IPC error.
   bool GetBrowserWindowCount(int* num_windows);
 
-  // Block the thread until the window count changes.
-  // First parameter is the original window count.
-  // The second parameter is updated with the number of window tabs.
-  // The third parameter specifies the timeout length for the wait loop.
-  // Returns false if the window count does not change before time out.
-  // TODO(evanm): this function has a confusing name and semantics; it should
-  // be deprecated for WaitForWindowCountToBecome.
-  bool WaitForWindowCountToChange(int count, int* new_counter,
-                                  int wait_timeout);
-
   // Block the thread until the window count becomes the provided value.
   // Returns true on success.
   bool WaitForWindowCountToBecome(int target_count, int wait_timeout);

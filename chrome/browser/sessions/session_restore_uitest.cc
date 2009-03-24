@@ -50,11 +50,8 @@ class SessionRestoreUITest : public UITest {
     ASSERT_TRUE(browser_proxy.get());
     ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_CLOSE_WINDOW));
     browser_proxy.reset();
-    int window_count;
-    ASSERT_TRUE(automation()->WaitForWindowCountToChange(initial_count,
-                                                         &window_count,
+    ASSERT_TRUE(automation()->WaitForWindowCountToBecome(initial_count - 1,
                                                          action_timeout_ms()));
-    ASSERT_EQ(initial_count - 1, window_count);
   }
 
   void AssertOneWindowWithOneTab() {
@@ -273,10 +270,7 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
 
   // Create an off the record window and wait for it to appear.
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_INCOGNITO_WINDOW));
-  int window_count;
-  ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       action_timeout_ms()) &&
-              window_count == 2);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
 
   // Close the first window.
   CloseWindow(0, 2);
@@ -291,9 +285,7 @@ TEST_F(SessionRestoreUITest, DISABLED_DontRestoreWhileIncognito) {
   LaunchBrowser(launch_arguments_, false);
 
   // A new window should appear;
-  ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       action_timeout_ms()) &&
-              window_count == 2);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
 
   // And it shouldn't have url1 in it.
   browser_proxy.reset(automation()->GetBrowserWindow(1));
@@ -320,10 +312,7 @@ TEST_F(SessionRestoreUITest, DISABLED_TwoWindowsCloseOneRestoreOnlyOne) {
 
   // Open a second window.
   ASSERT_TRUE(automation()->OpenNewBrowserWindow(SW_SHOWNORMAL));
-  int window_count;
-  ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       action_timeout_ms()) &&
-              window_count == 2);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
 
   // Close it.
   CloseWindow(1, 2);
@@ -353,10 +342,7 @@ TEST_F(SessionRestoreUITest,
   app_launch_arguments.AppendSwitchWithValue(switches::kApp,
                                              UTF8ToWide(url2.spec()));
   LaunchBrowser(app_launch_arguments, false);
-  int window_count;
-  ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       action_timeout_ms()));
-  ASSERT_EQ(2, window_count);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
 
   // Close the first window.
   CloseWindow(0, 2);
@@ -365,9 +351,7 @@ TEST_F(SessionRestoreUITest,
   CommandLine restore_launch_arguments = launch_arguments_;
   restore_launch_arguments.AppendSwitch(switches::kRestoreLastSession);
   LaunchBrowser(restore_launch_arguments, false);
-  ASSERT_TRUE(automation()->WaitForWindowCountToChange(1, &window_count,
-                                                       action_timeout_ms()));
-  ASSERT_EQ(2, window_count);
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
   GURL url;
   AssertWindowHasOneTab(1, &url);
   ASSERT_EQ(url1, url);
