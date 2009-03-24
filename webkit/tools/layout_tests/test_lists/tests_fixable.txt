@@ -2126,7 +2126,6 @@ BUG9158 DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FA
 BUG9159 DEFER LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
 BUG9160 DEFER MAC LINUX WIN : LayoutTests/fast/dom/Window/window-lookup-precedence.html = FAIL
 BUG9161 DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
-BUG9162 DEFER MAC LINUX WIN : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
 BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Unknown what change caused these to fail.
