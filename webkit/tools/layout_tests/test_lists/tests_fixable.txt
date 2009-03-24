@@ -1720,9 +1720,9 @@ DEFER : LayoutTests/http/tests/security/feed-urls-from-remote.html = PASS FAIL
 // support. Enable once we turn on DOM_STORAGE.
 DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = TIMEOUT
 
-// Bug 992930: In our port, we prevent the loading of file:/// URLs from
-// data: URLs.  We should try to fix the test to not use a data: URL.
-DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+// Probably just needs to be rebaselined.  We generate the png before the
+// image in the iframe loads so its dimensions are 0x0.
+DEFER LINUX MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
@@ -2255,9 +2255,6 @@ SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metri
 
 // Started failing when test_fixable got merged with test_ignored.
 LINUX DEBUG : chrome/fast/dom/htmliframeelement-document.html = FAIL
-
-// Merge 41860:41906 Regressions
-WIN LINUX MAC : LayoutTests/fast/js/invalid-syntax-for-function.html = FAIL
 
 // Merge 41860:41906 New tests
 DEFER WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
