@@ -33,7 +33,23 @@ class MockDiskEntry : public disk_cache::Entry,
 
   MockDiskEntry(const std::string& key)
       : key_(key), doomed_(false), platform_file_(global_platform_file_) {
-    const MockTransaction* t = FindMockTransaction(GURL(key));
+    //
+    // 'key' is prefixed with an identifier if it corresponds to a cached POST.
+    // Skip past that to locate the actual URL.
+    //
+    // TODO(darin): It breaks the abstraction a bit that we assume 'key' is an
+    // URL corresponding to a registered MockTransaction.  It would be good to
+    // have another way to access the test_mode.
+    //
+    GURL url;
+    if (isdigit(key[0])) {
+      size_t slash = key.find('/');
+      DCHECK(slash != std::string::npos);
+      url = GURL(key.substr(slash + 1));
+    } else {
+      url = GURL(key);
+    }
+    const MockTransaction* t = FindMockTransaction(url);
     DCHECK(t);
     test_mode_ = t->test_mode;
   }
@@ -274,9 +290,9 @@ void ReadAndVerifyTransaction(net::HttpTransaction* trans,
   EXPECT_EQ(0, memcmp(trans_info.data, content.data(), content.size()));
 }
 
-void RunTransactionTest(net::HttpCache* cache,
-                        const MockTransaction& trans_info) {
-  MockHttpRequest request(trans_info);
+void RunTransactionTestWithRequest(net::HttpCache* cache,
+                                   const MockTransaction& trans_info,
+                                   const MockHttpRequest& request) {
   TestCompletionCallback callback;
 
   // write to the cache
@@ -293,6 +309,12 @@ void RunTransactionTest(net::HttpCache* cache,
   ASSERT_TRUE(response);
 
   ReadAndVerifyTransaction(trans.get(), trans_info);
+}
+
+void RunTransactionTest(net::HttpCache* cache,
+                        const MockTransaction& trans_info) {
+  return RunTransactionTestWithRequest(
+      cache, trans_info, MockHttpRequest(trans_info));
 }
 
 // This class provides a handler for kFastNoStoreGET_Transaction so that the
@@ -897,9 +919,8 @@ TEST(HttpCache, ETagGET_ConditionalRequest_304_NoStore) {
 TEST(HttpCache, SimplePOST_SkipsCache) {
   MockHttpCache cache;
 
-  // Test that we skip the cache for POST requests.  Eventually, we will want
-  // to cache these, but we'll still have cases where skipping the cache makes
-  // sense, so we want to make sure that it works properly.
+  // Test that we skip the cache for POST requests that do not have an upload
+  // identifier.
 
   RunTransactionTest(cache.http_cache(), kSimplePOST_Transaction);
 
@@ -935,6 +956,36 @@ TEST(HttpCache, SimplePOST_LoadOnlyFromCache_Miss) {
   EXPECT_EQ(0, cache.network_layer()->transaction_count());
   EXPECT_EQ(0, cache.disk_cache()->open_count());
   EXPECT_EQ(0, cache.disk_cache()->create_count());
+}
+
+TEST(HttpCache, SimplePOST_LoadOnlyFromCache_Hit) {
+  MockHttpCache cache;
+
+  // Test that we hit the cache for POST requests.
+
+  MockTransaction transaction(kSimplePOST_Transaction);
+
+  const int64 kUploadId = 1;  // Just a dummy value.
+
+  MockHttpRequest request(transaction);
+  request.upload_data = new net::UploadData();
+  request.upload_data->set_identifier(kUploadId);
+  request.upload_data->AppendBytes("hello", 5);
+
+  // Populate the cache.
+  RunTransactionTestWithRequest(cache.http_cache(), transaction, request);
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(0, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
+
+  // Load from cache.
+  request.load_flags |= net::LOAD_ONLY_FROM_CACHE;
+  RunTransactionTestWithRequest(cache.http_cache(), transaction, request);
+
+  EXPECT_EQ(1, cache.network_layer()->transaction_count());
+  EXPECT_EQ(1, cache.disk_cache()->open_count());
+  EXPECT_EQ(1, cache.disk_cache()->create_count());
 }
 
 TEST(HttpCache, RangeGET_SkipsCache) {

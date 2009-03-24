@@ -106,9 +106,6 @@ class HttpCache : public HttpTransactionFactory {
                                 const HttpResponseInfo* response_info,
                                 bool skip_transient_headers);
 
-  // Generate a key that can be used inside the cache.
-  std::string GenerateCacheKey(const HttpRequestInfo* request);
-
   // Get/Set the cache's mode.
   void set_mode(Mode value) { mode_ = value; }
   Mode mode() { return mode_; }
@@ -143,6 +140,7 @@ class HttpCache : public HttpTransactionFactory {
 
   // Methods ------------------------------------------------------------------
 
+  std::string GenerateCacheKey(const HttpRequestInfo*);
   void DoomEntry(const std::string& key);
   void FinalizeDoomedEntry(ActiveEntry* entry);
   ActiveEntry* FindActiveEntry(const std::string& key);

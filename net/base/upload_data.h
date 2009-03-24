@@ -14,7 +14,7 @@ namespace net {
 
 class UploadData : public base::RefCounted<UploadData> {
  public:
-  UploadData() {}
+  UploadData() : identifier_(0) {}
 
   enum Type {
     TYPE_BYTES,
@@ -91,8 +91,19 @@ class UploadData : public base::RefCounted<UploadData> {
     elements_ = elements;
   }
 
+  void swap_elements(std::vector<Element>* elements) {
+    elements_.swap(*elements);
+  }
+
+  // Identifies a particular upload instance, which is used by the cache to
+  // formulate a cache key.  This value should be unique across browser
+  // sessions.  A value of 0 is used to indicate an unspecified identifier.
+  void set_identifier(int64 id) { identifier_ = id; }
+  int64 identifier() const { return identifier_; }
+
  private:
-   std::vector<Element> elements_;
+  std::vector<Element> elements_;
+  int64 identifier_;
 };
 
 }  // namespace net

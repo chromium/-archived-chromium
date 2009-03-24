@@ -13,6 +13,9 @@ namespace net {
 
 class HttpRequestInfo {
  public:
+  HttpRequestInfo() : load_flags(0) {
+  }
+
   // The requested URL.
   GURL url;
 

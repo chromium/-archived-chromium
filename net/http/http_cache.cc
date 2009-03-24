@@ -118,38 +118,6 @@ static bool HeaderMatches(const HttpUtil::HeadersIterator& h,
 
 //-----------------------------------------------------------------------------
 
-std::string HttpCache::GenerateCacheKey(const HttpRequestInfo* request) {
-  std::string url = request->url.spec();
-  if (request->url.has_ref())
-    url.erase(url.find_last_of('#'));
-
-  if (mode_ == NORMAL) {
-    return url;
-  }
-
-  // In playback and record mode, we cache everything.
-
-  // Lazily initialize.
-  if (playback_cache_map_ == NULL)
-    playback_cache_map_.reset(new PlaybackCacheMap());
-
-  // Each time we request an item from the cache, we tag it with a
-  // generation number.  During playback, multiple fetches for the same
-  // item will use the same generation number and pull the proper
-  // instance of an URL from the cache.
-  int generation = 0;
-  DCHECK(playback_cache_map_ != NULL);
-  if (playback_cache_map_->find(url) != playback_cache_map_->end())
-    generation = (*playback_cache_map_)[url];
-  (*playback_cache_map_)[url] = generation + 1;
-
-  // The key into the cache is GENERATION # + METHOD + URL.
-  std::string result = IntToString(generation);
-  result.append(request->method);
-  result.append(url);
-  return result;
-}
-
 //-----------------------------------------------------------------------------
 
 HttpCache::ActiveEntry::ActiveEntry(disk_cache::Entry* e)
@@ -667,11 +635,15 @@ bool HttpCache::Transaction::ShouldPassThrough() {
   if (effective_load_flags_ & LOAD_DISABLE_CACHE)
     return true;
 
-  // TODO(darin): add support for caching HEAD and POST responses
-  if (request_->method != "GET")
-    return true;
+  if (request_->method == "GET")
+    return false;
 
-  return false;
+  if (request_->method == "POST" &&
+      request_->upload_data && request_->upload_data->identifier())
+    return false;
+
+  // TODO(darin): add support for caching HEAD responses
+  return true;
 }
 
 int HttpCache::Transaction::BeginCacheRead() {
@@ -1205,6 +1177,43 @@ bool HttpCache::WriteResponseInfo(disk_cache::Entry* disk_entry,
 
   return disk_entry->WriteData(kResponseInfoIndex, 0, data, len, NULL,
                                true) == len;
+}
+
+// Generate a key that can be used inside the cache.
+std::string HttpCache::GenerateCacheKey(const HttpRequestInfo* request) {
+  std::string url = request->url.spec();
+  if (request->url.has_ref())
+    url.erase(url.find_last_of('#'));
+
+  if (mode_ == NORMAL) {
+    // No valid URL can begin with numerals, so we should not have to worry
+    // about collisions with normal URLs.
+    if (request->upload_data && request->upload_data->identifier())
+      url.insert(0, StringPrintf("%lld/", request->upload_data->identifier()));
+    return url;
+  }
+
+  // In playback and record mode, we cache everything.
+
+  // Lazily initialize.
+  if (playback_cache_map_ == NULL)
+    playback_cache_map_.reset(new PlaybackCacheMap());
+
+  // Each time we request an item from the cache, we tag it with a
+  // generation number.  During playback, multiple fetches for the same
+  // item will use the same generation number and pull the proper
+  // instance of an URL from the cache.
+  int generation = 0;
+  DCHECK(playback_cache_map_ != NULL);
+  if (playback_cache_map_->find(url) != playback_cache_map_->end())
+    generation = (*playback_cache_map_)[url];
+  (*playback_cache_map_)[url] = generation + 1;
+
+  // The key into the cache is GENERATION # + METHOD + URL.
+  std::string result = IntToString(generation);
+  result.append(request->method);
+  result.append(url);
+  return result;
 }
 
 void HttpCache::DoomEntry(const std::string& key) {
