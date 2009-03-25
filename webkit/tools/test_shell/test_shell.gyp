@@ -26,8 +26,6 @@
       'sources': [
         'mac/DumpRenderTreePasteboard.h',
         'mac/DumpRenderTreePasteboard.m',
-        'mac/KeystoneGlue.h',
-        'mac/KeystoneGlue.m',
         'mac/test_shell_webview.h',
         'mac/test_shell_webview.mm',
         'mac/test_webview_delegate.mm',
