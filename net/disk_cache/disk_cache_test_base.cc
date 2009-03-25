@@ -57,7 +57,8 @@ void DiskCacheTestWithCache::InitDiskCache() {
     ASSERT_TRUE(DeleteCache(path.c_str()));
 
   if (!implementation_) {
-    cache_ = disk_cache::CreateCacheBackend(path, force_creation_, size_);
+    cache_ = disk_cache::CreateCacheBackend(path, force_creation_, size_,
+                                            net::DISK_CACHE);
     return;
   }
 

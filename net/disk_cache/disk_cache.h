@@ -14,6 +14,7 @@
 #include "base/basictypes.h"
 #include "base/platform_file.h"
 #include "base/time.h"
+#include "net/base/cache_type.h"
 #include "net/base/completion_callback.h"
 
 namespace net {
@@ -35,7 +36,7 @@ class Backend;
 // based on the available disk space. The returned pointer can be NULL if a
 // fatal error is found.
 Backend* CreateCacheBackend(const std::wstring& path, bool force,
-                            int max_bytes);
+                            int max_bytes, net::CacheType type);
 
 // Returns an instance of a Backend implemented only in memory. The returned
 // object should be deleted when not needed anymore. max_bytes is the maximum

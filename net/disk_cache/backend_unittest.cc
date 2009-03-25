@@ -43,7 +43,8 @@ int TestTransaction(const std::wstring& name, int num_entries, bool load) {
   scoped_ptr<disk_cache::Backend> cache;
 
   if (!load) {
-    cache.reset(disk_cache::CreateCacheBackend(path, false, 0));
+    cache.reset(disk_cache::CreateCacheBackend(path, false, 0,
+                                               net::DISK_CACHE));
   } else {
     disk_cache::BackendImpl* cache2 = new disk_cache::BackendImpl(path, 0xf);
     if (!cache2 || !cache2->SetMaxSize(0x100000) || !cache2->Init())
@@ -787,7 +788,7 @@ TEST_F(DiskCacheTest, Backend_DeleteOld) {
   ASSERT_TRUE(CopyTestCache(L"wrong_version"));
   std::wstring path = GetCachePath();
   scoped_ptr<disk_cache::Backend> cache;
-  cache.reset(disk_cache::CreateCacheBackend(path, true, 0));
+  cache.reset(disk_cache::CreateCacheBackend(path, true, 0, net::DISK_CACHE));
 
   MessageLoopHelper helper;
 
@@ -803,7 +804,8 @@ TEST_F(DiskCacheTest, Backend_DeleteOld) {
 TEST_F(DiskCacheTest, Backend_InvalidEntry) {
   ASSERT_TRUE(CopyTestCache(L"bad_entry"));
   std::wstring path = GetCachePath();
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
+  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0,
+                                                              net::DISK_CACHE);
   ASSERT_TRUE(NULL != cache);
 
   disk_cache::Entry *entry1, *entry2;
@@ -819,7 +821,8 @@ TEST_F(DiskCacheTest, Backend_InvalidEntry) {
 TEST_F(DiskCacheTest, Backend_InvalidRankings) {
   ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
   std::wstring path = GetCachePath();
-  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0);
+  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0,
+                                                              net::DISK_CACHE);
   ASSERT_TRUE(NULL != cache);
 
   disk_cache::Entry *entry1, *entry2;

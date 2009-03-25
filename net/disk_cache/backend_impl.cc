@@ -159,9 +159,10 @@ namespace disk_cache {
 // a sharing violation), and in that case a cache for this profile (on the
 // desired path) cannot be created.
 Backend* CreateCacheBackend(const std::wstring& full_path, bool force,
-                            int max_bytes) {
+                            int max_bytes, net::CacheType type) {
   BackendImpl* cache = new BackendImpl(full_path);
   cache->SetMaxSize(max_bytes);
+  cache->SetType(type);
   if (cache->Init())
     return cache;
 
@@ -176,6 +177,7 @@ Backend* CreateCacheBackend(const std::wstring& full_path, bool force,
   // is not there anymore... let's create a new set of files.
   cache = new BackendImpl(full_path);
   cache->SetMaxSize(max_bytes);
+  cache->SetType(type);
   if (cache->Init())
     return cache;
 
@@ -204,6 +206,7 @@ bool BackendImpl::Init() {
   num_refs_ = num_pending_io_ = max_refs_ = 0;
 
   if (!restarted_) {
+    trace_object_ = TraceObject::GetTraceObject();
     // Create a recurrent timer of 30 secs.
     int timer_delay = unit_test_ ? 1000 : 30000;
     timer_.Start(TimeDelta::FromMilliseconds(timer_delay), this,
@@ -528,6 +531,11 @@ bool BackendImpl::SetMaxSize(int max_bytes) {
   return true;
 }
 
+void BackendImpl::SetType(net::CacheType type) {
+  DCHECK(type != net::MEMORY_CACHE);
+  cache_type_ = type;
+}
+
 std::wstring BackendImpl::GetFileName(Addr address) const {
   if (!address.is_separate_file() || !address.is_initialized()) {
     NOTREACHED();
@@ -683,18 +691,15 @@ void BackendImpl::TooMuchStorageRequested(int32 size) {
 // We want to remove biases from some histograms so we only send data once per
 // week.
 bool BackendImpl::ShouldReportAgain() {
-  static bool first_time = true;
-  static bool should_send = false;
+  if (uma_report_)
+    return uma_report_ == 2;
 
-  if (!first_time)
-    return should_send;
-
-  first_time = false;
+  uma_report_++;
   int64 last_report = stats_.GetCounter(Stats::LAST_REPORT);
   Time last_time = Time::FromInternalValue(last_report);
   if (!last_report || (Time::Now() - last_time).InDays() >= 7) {
     stats_.SetCounter(Stats::LAST_REPORT, Time::Now().ToInternalValue());
-    should_send = true;
+    uma_report_++;
     return true;
   }
   return false;
@@ -706,7 +711,7 @@ void BackendImpl::FirstEviction() {
   Time create_time = Time::FromInternalValue(data_->header.create_time);
   UMA_HISTOGRAM_HOURS("DiskCache.FillupAge",
                       (Time::Now() - create_time).InHours());
-  
+
   int64 use_hours = stats_.GetCounter(Stats::TIMER) / 120;
   UMA_HISTOGRAM_HOURS("DiskCache.FillupTime", static_cast<int>(use_hours));
   UMA_HISTOGRAM_PERCENTAGE("DiskCache.FirstHitRatio", stats_.GetHitRatio());
@@ -760,11 +765,10 @@ void BackendImpl::OnStatsTimer() {
   stats_.SetCounter(Stats::OPEN_ENTRIES, current);
   stats_.SetCounter(Stats::MAX_ENTRIES, max_refs_);
 
-  static bool first_time = true;
   if (!data_)
-    first_time = false;
-  if (first_time) {
-    first_time = false;
+    first_timer_ = false;
+  if (first_timer_) {
+    first_timer_ = false;
     if (ShouldReportAgain())
       ReportStats();
   }
@@ -1307,12 +1311,12 @@ void BackendImpl::ReportStats() {
 
   int64 total_hours = stats_.GetCounter(Stats::TIMER) / 120;
   UMA_HISTOGRAM_HOURS("DiskCache.TotalTime", static_cast<int>(total_hours));
-  
+
   int64 use_hours = stats_.GetCounter(Stats::LAST_REPORT_TIMER) / 120;
   if (!use_hours || !GetEntryCount() || !data_->header.num_bytes)
     return;
 
-  UMA_HISTOGRAM_HOURS("DiskCache.UseTime", static_cast<int>(use_hours)); 
+  UMA_HISTOGRAM_HOURS("DiskCache.UseTime", static_cast<int>(use_hours));
   UMA_HISTOGRAM_PERCENTAGE("DiskCache.HitRatio", stats_.GetHitRatio());
   UMA_HISTOGRAM_PERCENTAGE("DiskCache.ResurrectRatio",
                            stats_.GetResurrectRatio());

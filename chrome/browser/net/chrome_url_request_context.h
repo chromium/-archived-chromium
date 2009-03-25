@@ -65,7 +65,7 @@ class ChromeURLRequestContext : public URLRequestContext,
   // context. This helper method is called from CreateOriginalForMedia and
   // CreateOffTheRecordForMedia.
   static ChromeURLRequestContext* CreateRequestContextForMedia(Profile* profile,
-      const FilePath& disk_cache_path);
+      const FilePath& disk_cache_path, bool off_the_record);
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,

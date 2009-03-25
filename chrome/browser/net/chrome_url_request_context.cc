@@ -108,7 +108,7 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
 ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginalForMedia(
     Profile* profile, const FilePath& disk_cache_path) {
   DCHECK(!profile->IsOffTheRecord());
-  return CreateRequestContextForMedia(profile, disk_cache_path);
+  return CreateRequestContextForMedia(profile, disk_cache_path, false);
 }
 
 // static
@@ -137,12 +137,12 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecordForMedia(
   // for media files in OTR mode, we create a request context just like the
   // original one.
   DCHECK(profile->IsOffTheRecord());
-  return CreateRequestContextForMedia(profile, disk_cache_path);
+  return CreateRequestContextForMedia(profile, disk_cache_path, true);
 }
 
 // static
 ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
-    Profile* profile, const FilePath& disk_cache_path) {
+    Profile* profile, const FilePath& disk_cache_path, bool off_the_record) {
   URLRequestContext* original_context =
       profile->GetOriginalProfile()->GetRequestContext();
   ChromeURLRequestContext* context = new ChromeURLRequestContext(profile);
@@ -172,8 +172,13 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
     cache = new net::HttpCache(original_context->proxy_service(),
                                disk_cache_path.ToWStringHack(), kint32max);
   }
+
   // Set the cache type to media.
-  cache->set_type(net::HttpCache::MEDIA);
+  if (off_the_record) {
+    cache->set_type(net::TEMP_MEDIA_CACHE);
+  } else {
+    cache->set_type(net::MEDIA_CACHE);
+  }
 
   context->http_transaction_factory_ = cache;
   return context;

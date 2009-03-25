@@ -159,7 +159,8 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
 
   ScopedTestCache test_cache;
   disk_cache::Backend* cache =
-      disk_cache::CreateCacheBackend(test_cache.path_wstring(), false, 0);
+      disk_cache::CreateCacheBackend(test_cache.path_wstring(), false, 0,
+                                     net::DISK_CACHE);
   ASSERT_TRUE(NULL != cache);
 
   int seed = static_cast<int>(Time::Now().ToInternalValue());
@@ -185,7 +186,8 @@ TEST_F(DiskCacheTest, CacheBackendPerformance) {
   ASSERT_TRUE(file_util::EvictFileFromSystemCache(
               test_cache.path().AppendASCII("data_3")));
 
-  cache = disk_cache::CreateCacheBackend(test_cache.path_wstring(), false, 0);
+  cache = disk_cache::CreateCacheBackend(test_cache.path_wstring(), false, 0,
+                                         net::DISK_CACHE);
   ASSERT_TRUE(NULL != cache);
 
   ret = TimeRead(num_entries, cache, entries, true);

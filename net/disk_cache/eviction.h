@@ -56,7 +56,7 @@ class Eviction {
   Rankings::List GetListForEntryV2(EntryImpl* entry);
   void TrimDeleted(bool empty);
   bool RemoveDeletedNode(CacheRankingsBlock* node);
-  
+
   bool NodeIsOldEnough(CacheRankingsBlock* node, int list);
   int SelectListByLenght();
 
@@ -65,6 +65,7 @@ class Eviction {
   IndexHeader* header_;
   int max_size_;
   bool new_eviction_;
+  bool first_trim_;
   ScopedRunnableMethodFactory<Eviction> factory_;
 
   DISALLOW_COPY_AND_ASSIGN(Eviction);

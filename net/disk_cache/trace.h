@@ -13,24 +13,29 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/ref_counted.h"
 
 namespace disk_cache {
 
 // Create and destroy the tracing buffer.
-bool InitTrace(void);
+void InitTrace(void);
 void DestroyTrace(void);
 
-// Simple class to handle the trace buffer lifetime.
-class TraceObject {
+// Simple class to handle the trace buffer lifetime. Any object interested in
+// tracing should keep a reference to the object returned by GetTraceObject().
+class TraceObject : public base::RefCounted<TraceObject> {
+  friend class base::RefCounted<TraceObject>;
  public:
+  static TraceObject* GetTraceObject();
+
+ private:
   TraceObject() {
     InitTrace();
   }
+
   ~TraceObject() {
     DestroyTrace();
   }
-
- private:
   DISALLOW_EVIL_CONSTRUCTORS(TraceObject);
 };
 

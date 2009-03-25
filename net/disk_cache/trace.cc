@@ -42,24 +42,37 @@ void DebugOutput(const char* msg) {
 
 namespace disk_cache {
 
+// s_trace_buffer and s_trace_object are not singletons because I want the
+// buffer to be destroyed and re-created when the last user goes away, and it
+// must be straightforward to access the buffer from the debugger.
+static TraceObject* s_trace_object = NULL;
+
+// Static.
+TraceObject* TraceObject::GetTraceObject() {
+  if (s_trace_object)
+    return s_trace_object;
+
+  s_trace_object = new TraceObject();
+  return s_trace_object;
+}
+
 #if ENABLE_TRACING
 
 static TraceBuffer* s_trace_buffer = NULL;
 
-bool InitTrace(void) {
-  DCHECK(!s_trace_buffer);
+void InitTrace(void) {
   if (s_trace_buffer)
-    return false;
+    return;
 
   s_trace_buffer = new TraceBuffer;
   memset(s_trace_buffer, 0, sizeof(*s_trace_buffer));
-  return true;
 }
 
 void DestroyTrace(void) {
   DCHECK(s_trace_buffer);
   delete s_trace_buffer;
   s_trace_buffer = NULL;
+  s_trace_object = NULL;
 }
 
 void Trace(const char* format, ...) {
@@ -118,11 +131,12 @@ void DumpTrace(int num_traces) {
 
 #else  // ENABLE_TRACING
 
-bool InitTrace(void) {
-  return true;
+void InitTrace(void) {
+  return;
 }
 
 void DestroyTrace(void) {
+  s_trace_object = NULL;
 }
 
 void Trace(const char* format, ...) {

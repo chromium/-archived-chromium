@@ -34,6 +34,7 @@
         'base/base64.h',
         'base/bzip2_filter.cc',
         'base/bzip2_filter.h',
+        'base/cache_type.h',
         'base/cert_status_flags.cc',
         'base/cert_status_flags.h',
         'base/cert_verifier.cc',

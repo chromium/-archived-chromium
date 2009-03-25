@@ -21,6 +21,7 @@
 #include "base/hash_tables.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "net/base/cache_type.h"
 #include "net/http/http_transaction_factory.h"
 
 namespace disk_cache {
@@ -48,17 +49,6 @@ class HttpCache : public HttpTransactionFactory {
     // Playback mode replays from a cache without considering any
     // standard invalidations.
     PLAYBACK
-  };
-
-  // The type of an HttpCache object, essentially describe what an HttpCache
-  // object is for.
-  enum Type {
-    // An HttpCache object for common objects, e.g. html pages, images, fonts,
-    // css files, js files and other common web resources.
-    COMMON = 0,
-    // A cache system for media file, e.g. video and audio files. These files
-    // are huge and has special requirement for access.
-    MEDIA
   };
 
   // Initialize the cache from the directory where its data is stored. The
@@ -110,8 +100,8 @@ class HttpCache : public HttpTransactionFactory {
   void set_mode(Mode value) { mode_ = value; }
   Mode mode() { return mode_; }
 
-  void set_type(Type type) { type_ = type; }
-  Type type() { return type_; }
+  void set_type(CacheType type) { type_ = type; }
+  CacheType type() { return type_; }
 
  private:
 
@@ -169,7 +159,7 @@ class HttpCache : public HttpTransactionFactory {
   std::wstring disk_cache_dir_;
 
   Mode mode_;
-  Type type_;
+  CacheType type_;
 
   scoped_ptr<HttpTransactionFactory> network_layer_;
   scoped_ptr<disk_cache::Backend> disk_cache_;

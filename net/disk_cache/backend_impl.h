@@ -23,14 +23,16 @@ class BackendImpl : public Backend {
   friend class Eviction;
  public:
   explicit BackendImpl(const std::wstring& path)
-      : path_(path), block_files_(path), mask_(0), max_size_(0), init_(false),
+      : path_(path), block_files_(path), mask_(0), max_size_(0),
+        cache_type_(net::DISK_CACHE), uma_report_(0), init_(false),
         restarted_(false), unit_test_(false), read_only_(false),
-        new_eviction_(false) {}
+        new_eviction_(false), first_timer_(true) {}
   // mask can be used to limit the usable size of the hash table, for testing.
   BackendImpl(const std::wstring& path, uint32 mask)
       : path_(path), block_files_(path), mask_(mask), max_size_(0),
-        init_(false), restarted_(false), unit_test_(false), read_only_(false),
-        new_eviction_(false) {}
+        cache_type_(net::DISK_CACHE), uma_report_(0), init_(false),
+        restarted_(false), unit_test_(false), read_only_(false),
+        new_eviction_(false), first_timer_(true) {}
   ~BackendImpl();
 
   // Performs general initialization for this current instance of the cache.
@@ -51,6 +53,9 @@ class BackendImpl : public Backend {
 
   // Sets the maximum size for the total amount of data stored by this instance.
   bool SetMaxSize(int max_bytes);
+
+  // Sets the cache type for this backend.
+  void SetType(net::CacheType type);
 
   // Returns the full name for an external storage file.
   std::wstring GetFileName(Addr address) const;
@@ -216,16 +221,19 @@ class BackendImpl : public Backend {
   int num_refs_;  // Number of referenced cache entries.
   int max_refs_;  // Max number of referenced cache entries.
   int num_pending_io_;  // Number of pending IO operations.
+  net::CacheType cache_type_;
+  int uma_report_;  // Controls transmision of UMA data.
   bool init_;  // controls the initialization of the system.
   bool restarted_;
   bool unit_test_;
   bool read_only_;  // Prevents updates of the rankings data (used by tools).
   bool disabled_;
   bool new_eviction_;  // What eviction algorithm should be used.
+  bool first_timer_;  // True if the timer has not been called.
 
   Stats stats_;  // Usage statistcs.
   base::RepeatingTimer<BackendImpl> timer_;  // Usage timer.
-  TraceObject trace_object_;  // Inits and destroys internal tracing.
+  scoped_refptr<TraceObject> trace_object_;  // Inits internal tracing.
 
   DISALLOW_EVIL_CONSTRUCTORS(BackendImpl);
 };

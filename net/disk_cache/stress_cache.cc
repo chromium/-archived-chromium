@@ -77,7 +77,8 @@ void StressTheCache(int iteration) {
   std::wstring path = GetCachePath();
   path.append(L"_stress");
   disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false,
-                                                              cache_size);
+                                                              cache_size,
+                                                              net::DISK_CACHE);
   if (NULL == cache) {
     printf("Unable to initialize cache.\n");
     return;

@@ -1263,9 +1263,9 @@ TEST(HttpCache, OutlivedTransactions) {
 // when an entry is loaded from a HttpCache with MEDIA type. Also confirm we
 // will receive a file handle in ResponseInfo from a media cache.
 TEST(HttpCache, SimpleGET_MediaCache) {
-  // Initialize the HttpCache with MEDIA type.
+  // Initialize the HttpCache with MEDIA_CACHE type.
   MockHttpCache cache;
-  cache.http_cache()->set_type(net::HttpCache::MEDIA);
+  cache.http_cache()->set_type(net::MEDIA_CACHE);
 
   // Define some fake file handles for testing.
   base::PlatformFile kFakePlatformFile1, kFakePlatformFile2;

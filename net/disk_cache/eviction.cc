@@ -67,6 +67,7 @@ void Eviction::Init(BackendImpl* backend) {
   header_ = &backend_->data_->header;
   max_size_ = LowWaterAdjust(backend_->max_size_);
   new_eviction_ = backend->new_eviction_;
+  first_trim_ = true;
 }
 
 void Eviction::TrimCache(bool empty) {
@@ -141,9 +142,8 @@ void Eviction::OnDestroyEntry(EntryImpl* entry) {
 }
 
 void Eviction::ReportTrimTimes(EntryImpl* entry) {
-  static bool first_time = true;
-  if (first_time) {
-    first_time = false;
+  if (first_trim_) {
+    first_trim_ = false;
     if (backend_->ShouldReportAgain()) {
       std::string name(StringPrintf("DiskCache.TrimAge_%d",
                                     header_->experiment));

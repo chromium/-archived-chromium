@@ -583,7 +583,7 @@ void HttpCache::Transaction::SetRequest(const HttpRequestInfo* request) {
   // If HttpCache has type MEDIA make sure LOAD_ENABLE_DOWNLOAD_FILE is set,
   // otherwise make sure LOAD_ENABLE_DOWNLOAD_FILE is not set when HttpCache
   // has type other than MEDIA.
-  if (cache_->type() == HttpCache::MEDIA) {
+  if (cache_->type() == MEDIA_CACHE) {
     DCHECK(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE);
   } else {
     DCHECK(!(effective_load_flags_ & LOAD_ENABLE_DOWNLOAD_FILE));
@@ -782,7 +782,7 @@ int HttpCache::Transaction::ReadResponseInfoFromEntry() {
 
   // If the cache object is used for media file, we want the file handle of
   // response data.
-  if (cache_->type() == HttpCache::MEDIA) {
+  if (cache_->type() == MEDIA_CACHE) {
     response_.response_data_file =
         entry_->disk_entry->GetPlatformFile(kResponseContentIndex);
   }
@@ -856,7 +856,7 @@ void HttpCache::Transaction::TruncateResponseData() {
   // if we get a valid response from server, i.e. 200. We don't want empty
   // cache files for redirection or external files for erroneous requests.
   response_.response_data_file = base::kInvalidPlatformFileValue;
-  if (cache_->type() == HttpCache::MEDIA) {
+  if (cache_->type() == MEDIA_CACHE) {
     response_.response_data_file =
         entry_->disk_entry->UseExternalFile(kResponseContentIndex);
   }
@@ -977,7 +977,7 @@ HttpCache::HttpCache(ProxyService* proxy_service,
                      int cache_size)
     : disk_cache_dir_(cache_dir),
       mode_(NORMAL),
-      type_(COMMON),
+      type_(DISK_CACHE),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
@@ -989,7 +989,7 @@ HttpCache::HttpCache(HttpNetworkSession* session,
                      int cache_size)
     : disk_cache_dir_(cache_dir),
       mode_(NORMAL),
-      type_(COMMON),
+      type_(DISK_CACHE),
       network_layer_(HttpNetworkLayer::CreateFactory(session)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(false),
@@ -998,7 +998,7 @@ HttpCache::HttpCache(HttpNetworkSession* session,
 
 HttpCache::HttpCache(ProxyService* proxy_service, int cache_size)
     : mode_(NORMAL),
-      type_(COMMON),
+      type_(MEMORY_CACHE),
       network_layer_(HttpNetworkLayer::CreateFactory(proxy_service)),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
       in_memory_cache_(true),
@@ -1008,7 +1008,7 @@ HttpCache::HttpCache(ProxyService* proxy_service, int cache_size)
 HttpCache::HttpCache(HttpTransactionFactory* network_layer,
                      disk_cache::Backend* disk_cache)
     : mode_(NORMAL),
-      type_(COMMON),
+      type_(DISK_CACHE),
       network_layer_(network_layer),
       disk_cache_(disk_cache),
       ALLOW_THIS_IN_INITIALIZER_LIST(task_factory_(this)),
@@ -1046,7 +1046,7 @@ HttpTransaction* HttpCache::CreateTransaction() {
       disk_cache_.reset(disk_cache::CreateInMemoryCacheBackend(cache_size_));
     } else if (!disk_cache_dir_.empty()) {
       disk_cache_.reset(disk_cache::CreateCacheBackend(disk_cache_dir_, true,
-                                                       cache_size_));
+                                                       cache_size_, type_));
       disk_cache_dir_.clear();  // Reclaim memory.
     }
   }
