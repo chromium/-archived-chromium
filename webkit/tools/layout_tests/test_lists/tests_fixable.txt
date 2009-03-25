@@ -2069,7 +2069,6 @@ MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreig
 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-javascript-url-window-open.html = CRASH PASS
 
 // Added 3/11/09
-MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-sync.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-post-async.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
@@ -2307,3 +2306,13 @@ DEFER WIN : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 DEFER WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+DEFER MAC : LayoutTests/editing/selection/4776665.html = FAIL
+DEFER MAC : LayoutTests/fast/clip/016.html = FAIL
+DEFER MAC : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
+DEFER MAC : LayoutTests/fast/forms/search-zoomed.html = FAIL
+DEFER MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
+DEFER MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
+DEFER MAC : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
+DEFER MAC : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
+DEFER MAC : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
+
