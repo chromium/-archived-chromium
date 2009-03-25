@@ -153,7 +153,7 @@ class WebDataService : public base::RefCountedThreadSafe<WebDataService> {
   void Shutdown();
 
   // Returns false if Shutdown() has been called.
-  bool IsRunning();
+  bool IsRunning() const;
 
   //////////////////////////////////////////////////////////////////////////////
   //

@@ -388,7 +388,7 @@ ProcessMetrics* ProcessMetrics::CreateProcessMetrics(ProcessHandle process) {
 
 ProcessMetrics::~ProcessMetrics() { }
 
-size_t ProcessMetrics::GetPagefileUsage() {
+size_t ProcessMetrics::GetPagefileUsage() const {
   PROCESS_MEMORY_COUNTERS pmc;
   if (GetProcessMemoryInfo(process_, &pmc, sizeof(pmc))) {
     return pmc.PagefileUsage;
@@ -397,7 +397,7 @@ size_t ProcessMetrics::GetPagefileUsage() {
 }
 
 // Returns the peak space allocated for the pagefile, in bytes.
-size_t ProcessMetrics::GetPeakPagefileUsage() {
+size_t ProcessMetrics::GetPeakPagefileUsage() const {
   PROCESS_MEMORY_COUNTERS pmc;
   if (GetProcessMemoryInfo(process_, &pmc, sizeof(pmc))) {
     return pmc.PeakPagefileUsage;
@@ -406,7 +406,7 @@ size_t ProcessMetrics::GetPeakPagefileUsage() {
 }
 
 // Returns the current working set size, in bytes.
-size_t ProcessMetrics::GetWorkingSetSize() {
+size_t ProcessMetrics::GetWorkingSetSize() const {
   PROCESS_MEMORY_COUNTERS pmc;
   if (GetProcessMemoryInfo(process_, &pmc, sizeof(pmc))) {
     return pmc.WorkingSetSize;
@@ -414,7 +414,7 @@ size_t ProcessMetrics::GetWorkingSetSize() {
   return 0;
 }
 
-size_t ProcessMetrics::GetPrivateBytes() {
+size_t ProcessMetrics::GetPrivateBytes() const {
   // PROCESS_MEMORY_COUNTERS_EX is not supported until XP SP2.
   // GetProcessMemoryInfo() will simply fail on prior OS. So the requested
   // information is simply not available. Hence, we will return 0 on unsupported
@@ -428,7 +428,7 @@ size_t ProcessMetrics::GetPrivateBytes() {
   return 0;
 }
 
-void ProcessMetrics::GetCommittedKBytes(CommittedKBytes* usage) {
+void ProcessMetrics::GetCommittedKBytes(CommittedKBytes* usage) const {
   MEMORY_BASIC_INFORMATION mbi = {0};
   size_t committed_private = 0;
   size_t committed_mapped = 0;
@@ -455,7 +455,7 @@ void ProcessMetrics::GetCommittedKBytes(CommittedKBytes* usage) {
   usage->priv = committed_private / 1024;
 }
 
-bool ProcessMetrics::GetWorkingSetKBytes(WorkingSetKBytes* ws_usage) {
+bool ProcessMetrics::GetWorkingSetKBytes(WorkingSetKBytes* ws_usage) const {
   size_t ws_private = 0;
   size_t ws_shareable = 0;
   size_t ws_shared = 0;
@@ -574,11 +574,11 @@ int ProcessMetrics::GetCPUUsage() {
   return cpu;
 }
 
-bool ProcessMetrics::GetIOCounters(IO_COUNTERS* io_counters) {
+bool ProcessMetrics::GetIOCounters(IO_COUNTERS* io_counters) const {
   return GetProcessIoCounters(process_, io_counters) != FALSE;
 }
 
-bool ProcessMetrics::CalculateFreeMemory(FreeMBytes* free) {
+bool ProcessMetrics::CalculateFreeMemory(FreeMBytes* free) const {
   const SIZE_T kTopAdress = 0x7F000000;
   const SIZE_T kMegabyte = 1024 * 1024;
   SIZE_T accumulated = 0;

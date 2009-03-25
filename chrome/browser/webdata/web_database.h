@@ -59,7 +59,7 @@ class WebDatabase {
   // Loads the keywords into the specified vector. It's up to the caller to
   // delete the returned objects.
   // Returns true on success.
-  bool GetKeywords(std::vector<TemplateURL*>* urls);
+  bool GetKeywords(std::vector<TemplateURL*>* urls) const;
 
   // Updates the database values for the specified url.
   // Returns true on success.
@@ -108,14 +108,15 @@ class WebDatabase {
   // Loads a list of matching password forms into the specified vector |forms|.
   // The list will contain all possibly relevant entries to the observed |form|,
   // including blacklisted matches.
-  bool GetLogins(const PasswordForm& form, std::vector<PasswordForm*>* forms);
+  bool GetLogins(const PasswordForm& form,
+                 std::vector<PasswordForm*>* forms) const;
 
   // Loads the complete list of password forms into the specified vector |forms|
   // if include_blacklisted is true, otherwise only loads those which are
   // actually autofillable; i.e haven't been blacklisted by the user selecting
   // the 'Never for this site' button.
   bool GetAllLogins(std::vector<PasswordForm*>* forms,
-                    bool include_blacklisted);
+                    bool include_blacklisted) const;
 
   //////////////////////////////////////////////////////////////////////////////
   //
@@ -137,7 +138,7 @@ class WebDatabase {
   bool GetFormValuesForElementName(const std::wstring& name,
                                    const std::wstring& prefix,
                                    std::vector<std::wstring>* values,
-                                   int limit);
+                                   int limit) const;
 
   // Removes rows from autofill_dates if they were created on or after
   // |delete_begin| and strictly before |delete_end|.  Decrements the count of
@@ -161,11 +162,11 @@ class WebDatabase {
   // |element|.  Sets *count to 0 if there is no such row in the table.
   bool GetIDAndCountOfFormElement(const AutofillForm::Element& element,
                                   int64* pair_id,
-                                  int* count);
+                                  int* count) const;
 
   // Gets the count only given the pair_id.
   bool GetCountOfFormElement(int64 pair_id,
-                             int* count);
+                             int* count) const;
 
   // Updates the count entry in the row corresponding to |pair_id| to |count|.
   bool SetCountOfFormElement(int64 pair_id, int count);
@@ -190,10 +191,10 @@ class WebDatabase {
   //////////////////////////////////////////////////////////////////////////////
 
   bool SetWebAppImage(const GURL& url, const SkBitmap& image);
-  bool GetWebAppImages(const GURL& url, std::vector<SkBitmap>* images);
+  bool GetWebAppImages(const GURL& url, std::vector<SkBitmap>* images) const;
 
   bool SetWebAppHasAllImages(const GURL& url, bool has_all_images);
-  bool GetWebAppHasAllImages(const GURL& url);
+  bool GetWebAppHasAllImages(const GURL& url) const;
 
   bool RemoveWebApp(const GURL& url);
 

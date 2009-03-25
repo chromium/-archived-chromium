@@ -238,7 +238,7 @@ class TaskManagerTableModel : public views::GroupTableModel,
 
   // Returns the network usage (in bytes per seconds) for the specified
   // resource. That's the value retrieved at the last timer's tick.
-  int64 GetNetworkUsageForResource(TaskManager::Resource* resource);
+  int64 GetNetworkUsageForResource(TaskManager::Resource* resource) const;
 
   // Called on the UI thread when some bytes are read.
   void BytesRead(BytesReadParam param);
@@ -246,27 +246,27 @@ class TaskManagerTableModel : public views::GroupTableModel,
   // Returns the network usage (in byte per second) that should be displayed for
   // the passed |resource|.  -1 means the information is not available for that
   // resource.
-  int64 GetNetworkUsage(TaskManager::Resource* resource);
+  int64 GetNetworkUsage(TaskManager::Resource* resource) const;
 
   // Returns the CPU usage (in %) that should be displayed for the passed
   // |resource|.
-  int GetCPUUsage(TaskManager::Resource* resource);
+  int GetCPUUsage(TaskManager::Resource* resource) const;
 
   // Retrieves the private memory (in KB) that should be displayed from the
   // passed |process_metrics|.
-  size_t GetPrivateMemory(base::ProcessMetrics* process_metrics);
+  size_t GetPrivateMemory(const base::ProcessMetrics* process_metrics) const;
 
   // Returns the shared memory (in KB) that should be displayed from the passed
   // |process_metrics|.
-  size_t GetSharedMemory(base::ProcessMetrics* process_metrics);
+  size_t GetSharedMemory(const base::ProcessMetrics* process_metrics) const;
 
   // Returns the pysical memory (in KB) that should be displayed from the passed
   // |process_metrics|.
-  size_t GetPhysicalMemory(base::ProcessMetrics* process_metrics);
+  size_t GetPhysicalMemory(const base::ProcessMetrics* process_metrics) const;
 
   // Returns the stat value at the column |col_id| that should be displayed from
   // the passed |process_metrics|.
-  int GetStatsValue(TaskManager::Resource* resource, int col_id);
+  int GetStatsValue(const TaskManager::Resource* resource, int col_id) const;
 
   // Retrieves the ProcessMetrics for the resources at the specified rows.
   // Returns true if there was a ProcessMetrics available for both rows.

@@ -202,7 +202,7 @@ bool NamedProcessIterator::IncludeEntry() {
 
 // To have /proc/self/io file you must enable CONFIG_TASK_IO_ACCOUNTING
 // in your kernel configuration.
-bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
+bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {
   std::string proc_io_contents;
   if (!file_util::ReadFileToString(L"/proc/self/io", &proc_io_contents))
     return false;

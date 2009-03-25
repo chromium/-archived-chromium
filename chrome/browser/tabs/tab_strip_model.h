@@ -303,14 +303,14 @@ class TabStripModel : public NotificationObserver {
   // If |use_group| is true, the group property of the tab is used instead of
   // the opener to find the next tab. Under some circumstances the group
   // relationship may exist but the opener may not.
-  int GetIndexOfNextTabContentsOpenedBy(NavigationController* opener,
+  int GetIndexOfNextTabContentsOpenedBy(const NavigationController* opener,
                                         int start_index,
-                                        bool use_group);
+                                        bool use_group) const;
 
   // Returns the index of the last TabContents in the model opened by the
   // specified opener, starting at |start_index|.
-  int GetIndexOfLastTabContentsOpenedBy(NavigationController* opener,
-                                        int start_index);
+  int GetIndexOfLastTabContentsOpenedBy(const NavigationController* opener,
+                                        int start_index) const;
 
   // Called by the Browser when a navigation is about to occur in the specified
   // TabContents. Depending on the tab, and the transition type of the
@@ -384,7 +384,7 @@ class TabStripModel : public NotificationObserver {
 
   // Returns true if the specified command is enabled.
   bool IsContextMenuCommandEnabled(int context_index,
-                                   ContextMenuCommand command_id);
+                                   ContextMenuCommand command_id) const;
 
   // Performs the action associated with the specified command for the given
   // TabStripModel index |context_index|.
@@ -445,8 +445,8 @@ class TabStripModel : public NotificationObserver {
   // that matches the specified one. If |use_group| is true, then this will
   // fall back to check the group relationship as well.
   struct TabContentsData;
-  static bool OpenerMatches(TabContentsData* data,
-                            NavigationController* opener,
+  static bool OpenerMatches(const TabContentsData* data,
+                            const NavigationController* opener,
                             bool use_group);
 
   // Our delegate.

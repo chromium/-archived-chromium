@@ -497,9 +497,6 @@ class Browser : public TabStripModelDelegate,
   //             the LocationBarView's edit.
   friend class AutomationProvider;
 
-  // Getters for the location bar and go button.
-  GoButton* GetGoButton();
-
   // Returns the StatusBubble from the current toolbar. It is possible for
   // this to return NULL if called before the toolbar has initialized.
   // TODO(beng): remove this.
@@ -526,7 +523,7 @@ class Browser : public TabStripModelDelegate,
   void ProcessPendingTabs();
 
   // Whether we've completed firing all the tabs' beforeunload/unload events.
-  bool HasCompletedUnloadProcessing();
+  bool HasCompletedUnloadProcessing() const;
 
   // Clears all the state associated with processing tabs' beforeunload/unload
   // events since the user cancelled closing the window.
@@ -558,7 +555,7 @@ class Browser : public TabStripModelDelegate,
 
   // Returns what the user's home page is, or the new tab page if the home page
   // has not been set.
-  GURL GetHomePage();
+  GURL GetHomePage() const;
 
   // Shows the Find Bar, optionally selecting the next entry that matches the
   // existing search string for that Tab. |forward_direction| controls the

@@ -165,35 +165,36 @@ std::wstring TaskManagerTableModel::GetText(int row, int col_id) {
   }
 }
 
-int64 TaskManagerTableModel::GetNetworkUsage(TaskManager::Resource* resource) {
+int64 TaskManagerTableModel::GetNetworkUsage(TaskManager::Resource* resource)
+    const {
   int64 net_usage = GetNetworkUsageForResource(resource);
   if (net_usage == 0 && !resource->SupportNetworkUsage())
     return -1;
   return net_usage;
 }
 
-int TaskManagerTableModel::GetCPUUsage(TaskManager::Resource* resource) {
+int TaskManagerTableModel::GetCPUUsage(TaskManager::Resource* resource) const {
   CPUUsageMap::const_iterator iter =
       cpu_usage_map_.find(resource->GetProcess());
-   if (iter == cpu_usage_map_.end())
-     return 0;
-   return iter->second;
+  if (iter == cpu_usage_map_.end())
+    return 0;
+  return iter->second;
 }
 
 size_t TaskManagerTableModel::GetPrivateMemory(
-    base::ProcessMetrics* process_metrics) {
+    const base::ProcessMetrics* process_metrics) const {
   return process_metrics->GetPrivateBytes() / 1024;
 }
 
 size_t TaskManagerTableModel::GetSharedMemory(
-    base::ProcessMetrics* process_metrics) {
+    const base::ProcessMetrics* process_metrics) const {
   base::WorkingSetKBytes ws_usage;
   process_metrics->GetWorkingSetKBytes(&ws_usage);
   return ws_usage.shared;
 }
 
 size_t TaskManagerTableModel::GetPhysicalMemory(
-    base::ProcessMetrics* process_metrics) {
+    const base::ProcessMetrics* process_metrics) const {
   // Memory = working_set.private + working_set.shareable.
   // We exclude the shared memory.
   size_t total_kbytes = process_metrics->GetWorkingSetSize() / 1024;
@@ -203,8 +204,8 @@ size_t TaskManagerTableModel::GetPhysicalMemory(
   return total_kbytes;
 }
 
-int TaskManagerTableModel::GetStatsValue(TaskManager::Resource* resource,
-                                         int col_id) {
+int TaskManagerTableModel::GetStatsValue(const TaskManager::Resource* resource,
+                                         int col_id) const {
   StatsTable* table = StatsTable::current();
   if (table != NULL) {
     const char* counter = table->GetRowName(col_id);
@@ -558,8 +559,8 @@ int TaskManagerTableModel::CompareValues(int row1, int row2, int column_id) {
 }
 
 int64 TaskManagerTableModel::GetNetworkUsageForResource(
-    TaskManager::Resource* resource) {
-  ResourceValueMap::iterator iter =
+    TaskManager::Resource* resource) const {
+  ResourceValueMap::const_iterator iter =
       displayed_network_usage_map_.find(resource);
   if (iter == displayed_network_usage_map_.end())
     return 0;

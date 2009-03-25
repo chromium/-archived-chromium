@@ -290,27 +290,27 @@ class ProcessMetrics {
 
   // Returns the current space allocated for the pagefile, in bytes (these pages
   // may or may not be in memory).
-  size_t GetPagefileUsage();
+  size_t GetPagefileUsage() const;
   // Returns the peak space allocated for the pagefile, in bytes.
-  size_t GetPeakPagefileUsage();
+  size_t GetPeakPagefileUsage() const;
   // Returns the current working set size, in bytes.
-  size_t GetWorkingSetSize();
+  size_t GetWorkingSetSize() const;
   // Returns private usage, in bytes. Private bytes is the amount
   // of memory currently allocated to a process that cannot be shared.
   // Note: returns 0 on unsupported OSes: prior to XP SP2.
-  size_t GetPrivateBytes();
+  size_t GetPrivateBytes() const;
   // Fills a CommittedKBytes with both resident and paged
   // memory usage as per definition of CommittedBytes.
-  void GetCommittedKBytes(CommittedKBytes* usage);
+  void GetCommittedKBytes(CommittedKBytes* usage) const;
   // Fills a WorkingSetKBytes containing resident private and shared memory
   // usage in bytes, as per definition of WorkingSetBytes.
-  bool GetWorkingSetKBytes(WorkingSetKBytes* ws_usage);
+  bool GetWorkingSetKBytes(WorkingSetKBytes* ws_usage) const;
 
   // Computes the current process available memory for allocation.
   // It does a linear scan of the address space querying each memory region
   // for its free (unallocated) status. It is useful for estimating the memory
   // load and fragmentation.
-  bool CalculateFreeMemory(FreeMBytes* free);
+  bool CalculateFreeMemory(FreeMBytes* free) const;
 
   // Returns the CPU usage in percent since the last time this method was
   // called. The first time this method is called it returns 0 and will return
@@ -325,7 +325,7 @@ class ProcessMetrics {
   // If IO information is retrieved successfully, the function returns true
   // and fills in the IO_COUNTERS passed in. The function returns false
   // otherwise.
-  bool GetIOCounters(IoCounters* io_counters);
+  bool GetIOCounters(IoCounters* io_counters) const;
 
  private:
   explicit ProcessMetrics(ProcessHandle process);

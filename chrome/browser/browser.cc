@@ -2400,7 +2400,7 @@ void Browser::ProcessPendingTabs() {
   }
 }
 
-bool Browser::HasCompletedUnloadProcessing() {
+bool Browser::HasCompletedUnloadProcessing() const {
   return is_attempting_to_close_browser_ &&
       tabs_needing_before_unload_fired_.empty() &&
       tabs_needing_unload_fired_.empty();
@@ -2465,7 +2465,7 @@ void Browser::BuildPopupWindow(TabContents* source,
                           gfx::Rect(), true);
 }
 
-GURL Browser::GetHomePage() {
+GURL Browser::GetHomePage() const {
   if (profile_->GetPrefs()->GetBoolean(prefs::kHomePageIsNewTabPage))
     return GURL(chrome::kChromeUINewTabURL);
   GURL home_page = GURL(URLFixerUpper::FixupURL(

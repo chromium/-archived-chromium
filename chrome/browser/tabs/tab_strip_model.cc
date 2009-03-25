@@ -246,7 +246,7 @@ NavigationController* TabStripModel::GetOpenerOfTabContentsAt(int index) {
 }
 
 int TabStripModel::GetIndexOfNextTabContentsOpenedBy(
-    NavigationController* opener, int start_index, bool use_group) {
+    const NavigationController* opener, int start_index, bool use_group) const {
   DCHECK(opener);
   DCHECK(ContainsIndex(start_index));
 
@@ -272,7 +272,7 @@ int TabStripModel::GetIndexOfNextTabContentsOpenedBy(
 }
 
 int TabStripModel::GetIndexOfLastTabContentsOpenedBy(
-    NavigationController* opener, int start_index) {
+    const NavigationController* opener, int start_index) const {
   DCHECK(opener);
   DCHECK(ContainsIndex(start_index));
 
@@ -418,7 +418,7 @@ void TabStripModel::TearOffTabContents(TabContents* detached_contents,
 
 // Context menu functions.
 bool TabStripModel::IsContextMenuCommandEnabled(
-    int context_index, ContextMenuCommand command_id) {
+    int context_index, ContextMenuCommand command_id) const {
   DCHECK(command_id > CommandFirst && command_id < CommandLast);
   switch (command_id) {
     case CommandNewTab:
@@ -588,8 +588,8 @@ void TabStripModel::SetOpenerForContents(TabContents* contents,
 }
 
 // static
-bool TabStripModel::OpenerMatches(TabContentsData* data,
-                                  NavigationController* opener,
+bool TabStripModel::OpenerMatches(const TabContentsData* data,
+                                  const NavigationController* opener,
                                   bool use_group) {
   return data->opener == opener || (use_group && data->group == opener);
 }

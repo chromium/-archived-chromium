@@ -224,7 +224,7 @@ bool WebDatabase::SetWebAppImage(const GURL& url,
 }
 
 bool WebDatabase::GetWebAppImages(const GURL& url,
-                                  std::vector<SkBitmap>* images) {
+                                  std::vector<SkBitmap>* images) const {
   SQLStatement s;
   if (s.prepare(db_, "SELECT image FROM web_app_icons WHERE url=?") !=
       SQLITE_OK) {
@@ -259,7 +259,7 @@ bool WebDatabase::SetWebAppHasAllImages(const GURL& url,
   return (s.step() == SQLITE_DONE);
 }
 
-bool WebDatabase::GetWebAppHasAllImages(const GURL& url) {
+bool WebDatabase::GetWebAppHasAllImages(const GURL& url) const {
   SQLStatement s;
   if (s.prepare(db_, "SELECT has_all_images FROM web_apps "
                      "WHERE url=?") != SQLITE_OK) {
@@ -524,7 +524,7 @@ bool WebDatabase::RemoveKeyword(TemplateURL::IDType id) {
   return s.step() == SQLITE_DONE;
 }
 
-bool WebDatabase::GetKeywords(std::vector<TemplateURL*>* urls) {
+bool WebDatabase::GetKeywords(std::vector<TemplateURL*>* urls) const {
   SQLStatement s;
   if (s.prepare(db_,
                 "SELECT id, short_name, keyword, favicon_url, url, "
@@ -784,7 +784,7 @@ static void InitPasswordFormFromStatement(PasswordForm* form,
 }
 
 bool WebDatabase::GetLogins(const PasswordForm& form,
-                            std::vector<PasswordForm*>* forms) {
+                            std::vector<PasswordForm*>* forms) const {
   DCHECK(forms);
   SQLStatement s;
   if (s.prepare(db_,
@@ -812,7 +812,7 @@ bool WebDatabase::GetLogins(const PasswordForm& form,
 }
 
 bool WebDatabase::GetAllLogins(std::vector<PasswordForm*>* forms,
-                               bool include_blacklisted) {
+                               bool include_blacklisted) const {
   DCHECK(forms);
   SQLStatement s;
   std::string stmt = "SELECT origin_url, action_url, "
@@ -876,7 +876,7 @@ bool WebDatabase::ClearAutofillEmptyValueElements() {
 }
 
 bool WebDatabase::GetIDAndCountOfFormElement(
-    const AutofillForm::Element& element, int64* pair_id, int* count) {
+    const AutofillForm::Element& element, int64* pair_id, int* count) const {
   SQLStatement s;
 
   if (s.prepare(db_, "SELECT pair_id, count FROM autofill "
@@ -900,7 +900,7 @@ bool WebDatabase::GetIDAndCountOfFormElement(
   return true;
 }
 
-bool WebDatabase::GetCountOfFormElement(int64 pair_id, int* count) {
+bool WebDatabase::GetCountOfFormElement(int64 pair_id, int* count) const {
   SQLStatement s;
 
   if (s.prepare(db_, "SELECT count FROM autofill "
@@ -1010,7 +1010,7 @@ bool WebDatabase::AddAutofillFormElement(const AutofillForm::Element& element) {
 bool WebDatabase::GetFormValuesForElementName(const std::wstring& name,
     const std::wstring& prefix,
     std::vector<std::wstring>* values,
-    int limit) {
+    int limit) const {
   DCHECK(values);
   SQLStatement s;
 

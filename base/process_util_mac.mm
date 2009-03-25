@@ -226,7 +226,7 @@ bool NamedProcessIterator::IncludeEntry() {
   return filter_->Includes(entry_.pid, entry_.ppid);
 }
 
-bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) {
+bool ProcessMetrics::GetIOCounters(IoCounters* io_counters) const {
   // TODO(pinkerton): can we implement this? On linux it relies on /proc.
   NOTIMPLEMENTED();
   return false;

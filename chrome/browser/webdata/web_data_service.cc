@@ -79,7 +79,7 @@ void WebDataService::Shutdown() {
   }
 }
 
-bool WebDataService::IsRunning() {
+bool WebDataService::IsRunning() const {
   return thread_ != NULL;
 }
 
