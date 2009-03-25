@@ -313,6 +313,22 @@ const struct {
    "image/jpeg",
    L"download.jpg"},
 
+  // For bug 5772
+  {"",
+   "http://www.example.com/foo.tar.gz",
+   "application/x-tar",
+   L"foo.tar.gz"},
+
+  {"",
+   "http://www.example.com/bar.tar",
+   "application/x-tar",
+   L"bar.tar"},
+
+  {"",
+   "http://www.example.com/bar.bogus",
+   "application/x-tar",
+   L"bar.bogus.tar"},
+
   // TODO(darin): Add some raw 8-bit Content-Disposition tests.
 };
 
