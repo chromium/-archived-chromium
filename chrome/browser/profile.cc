@@ -223,7 +223,7 @@ class OffTheRecordProfileImpl : public Profile,
         cache_path = FilePath::FromWStringHack(user_cache_dir);
       }
 
-      cache_path.Append(chrome::kOffTheRecordMediaCacheDirname);
+      cache_path = cache_path.Append(chrome::kOffTheRecordMediaCacheDirname);
       media_request_context_ =
           ChromeURLRequestContext::CreateOffTheRecordForMedia(
               this, cache_path);
@@ -635,7 +635,7 @@ URLRequestContext* ProfileImpl::GetRequestContextForMedia() {
       cache_path = FilePath::FromWStringHack(user_cache_dir);
     }
 
-    cache_path.Append(chrome::kMediaCacheDirname);
+    cache_path = cache_path.Append(chrome::kMediaCacheDirname);
     media_request_context_ = ChromeURLRequestContext::CreateOriginalForMedia(
         this, cache_path);
     media_request_context_->AddRef();
