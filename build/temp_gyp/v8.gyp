@@ -64,6 +64,7 @@
       '../../v8/src/cpu.h',
       '../../v8/src/dateparser.cc',
       '../../v8/src/dateparser.h',
+      '../../v8/src/dateparser-inl.h',
       '../../v8/src/debug-arm.cc',
       '../../v8/src/debug-ia32.cc',
       '../../v8/src/debug.cc',
@@ -163,6 +164,7 @@
       '../../v8/src/regexp-stack.cc',
       '../../v8/src/regexp-stack.h',
       '../../v8/src/register-allocator.h',
+      '../../v8/src/register-allocator-inl.h',
       '../../v8/src/register-allocator.cc',
       '../../v8/src/register-allocator-arm.cc',
       '../../v8/src/register-allocator-ia32.cc',
@@ -333,8 +335,8 @@
         ['exclude', 'src/platform-.*\\.cc$' ],
       ],
       'conditions': [
-        ['OS=="linux"', {'sources/': [['include', 'src/platform-linux\\.cc$']]}],
-        ['OS=="mac"', {'sources/': [['include', 'src/platform-macos\\.cc$']]}],
+        ['OS=="linux"', {'sources/': [['include', 'src/platform-linux\\.cc$', 'src/platform-posix\\.cc$']]}],
+        ['OS=="mac"', {'sources/': [['include', 'src/platform-macos\\.cc$', 'src/platform-posix\\.cc$']]}],
         ['OS=="win"', {
           'sources/': [['include', 'src/platform-win32\\.cc$']],
           # 4355, 4800 came from common.vsprops
