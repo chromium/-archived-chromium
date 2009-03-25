@@ -335,8 +335,22 @@
         ['exclude', 'src/platform-.*\\.cc$' ],
       ],
       'conditions': [
-        ['OS=="linux"', {'sources/': [['include', 'src/platform-linux\\.cc$'], ['include', 'src/platform-posix\\.cc$']]}],
-        ['OS=="mac"', {'sources/': [['include', 'src/platform-macos\\.cc$'], ['include', 'src/platform-posix\\.cc$']]}],
+        ['OS=="linux"', 
+          {
+            'sources/': [
+              ['include', 'src/platform-linux\\.cc$'],
+              ['include', 'src/platform-posix\\.cc$']
+            ]
+          }
+        ],
+        ['OS=="mac"', 
+          {
+            'sources/': [
+              ['include', 'src/platform-macos\\.cc$'],
+              ['include', 'src/platform-posix\\.cc$']
+            ]
+          }
+        ],
         ['OS=="win"', {
           'sources/': [['include', 'src/platform-win32\\.cc$']],
           # 4355, 4800 came from common.vsprops
@@ -494,8 +508,22 @@
         ],
       },
       'conditions': [
-        ['OS=="linux"', {'sources/': [['include', 'src/platform-linux\\.cc$']]}],
-        ['OS=="mac"', {'sources/': [['include', 'src/platform-macos\\.cc$']]}],
+        ['OS=="linux"',
+          {
+            'sources/': [
+              ['include', 'src/platform-linux\\.cc$'],
+              ['include', 'src/platform-posix\\.cc$']
+            ]
+          }
+        ],
+        ['OS=="mac"',
+          {
+            'sources/': [
+              ['include', 'src/platform-macos\\.cc$'],
+              ['include', 'src/platform-posix\\.cc$']
+            ]
+          }
+        ],
         ['OS=="win"', {
           'sources/': [['include', 'src/platform-win32\\.cc$']],
           # 4355, 4800 came from common.vsprops
