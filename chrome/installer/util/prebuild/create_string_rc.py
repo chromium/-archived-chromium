@@ -51,6 +51,8 @@ kStringIds = [
   'IDS_INSTALL_INSUFFICIENT_RIGHTS',
   'IDS_UNINSTALL_FAILED',
   'IDS_INSTALL_DIR_IN_USE',
+  'IDS_OEM_MAIN_SHORTCUT_NAME',
+  'IDS_SHORTCUT_TOOLTIP',
 ]
 
 # The ID of the first resource string.
