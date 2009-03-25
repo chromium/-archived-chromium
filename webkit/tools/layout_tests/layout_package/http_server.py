@@ -115,6 +115,11 @@ class Lighttpd:
     f.write(('server.errorlog = "%s"\n'
              'accesslog.filename = "%s"\n\n') % (error_log, access_log))
 
+    # Setup upload folders. Upload folder is to hold temporary upload files
+    # and also POST data. This is used to support XHR layout tests that does
+    # POST.
+    f.write(('server.upload-dirs = ( "%s" )\n\n') % (self._output_dir))
+
     # dump out of virtual host config at the bottom.
     if self._port and self._root:
       mappings = [{'port': self._port, 'docroot': self._root}]
