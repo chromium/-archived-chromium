@@ -883,10 +883,10 @@ TEST(NetUtilTest, DISABLED_NetAddressToString_IPv6) {
   }
 }
 
-TEST(NetUtilTest, GetMyHostName) {
-  // We can't check the result of GetMyHostName() directly, since the result
+TEST(NetUtilTest, GetHostName) {
+  // We can't check the result of GetHostName() directly, since the result
   // will differ across machines. Our goal here is to simply exercise the
   // code path, and check that things "look about right".
-  std::string my_hostname = net::GetMyHostName();
-  EXPECT_FALSE(my_hostname.empty());
+  std::string hostname = net::GetHostName();
+  EXPECT_FALSE(hostname.empty());
 }

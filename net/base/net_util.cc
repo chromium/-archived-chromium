@@ -1024,13 +1024,12 @@ std::string NetAddressToString(const struct addrinfo* net_address) {
   return std::string(buffer);
 }
 
-std::string GetMyHostName() {
+std::string GetHostName() {
 #if defined(OS_WIN)
   EnsureWinsockInit();
 #endif
 
-  // Maximum size of 256 is somewhat arbitrary. Mozilla uses a size of 100
-  // so this should cover the majority of cases.
+  // Host names are limited to 255 bytes.
   char buffer[256];
   int result = gethostname(buffer, sizeof(buffer));
   if (result != 0) {

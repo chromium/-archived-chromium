@@ -61,7 +61,7 @@ class DefaultJSBindings : public ProxyResolverV8::JSBindings {
   // Handler for "myIpAddress()". Returns empty string on failure.
   virtual std::string MyIpAddress() {
     // DnsResolve("") returns "", so no need to check for failure.
-    return DnsResolve(GetMyHostName());
+    return DnsResolve(GetHostName());
   }
 
   // Handler for "dnsResolve(host)". Returns empty string on failure.

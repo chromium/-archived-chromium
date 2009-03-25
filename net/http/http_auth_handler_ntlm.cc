@@ -632,7 +632,7 @@ HttpAuthHandlerNTLM::generate_random_proc_ = GenerateRandom;
 
 // static
 HttpAuthHandlerNTLM::HostNameProc
-HttpAuthHandlerNTLM::get_host_name_proc_ = GetMyHostName;
+HttpAuthHandlerNTLM::get_host_name_proc_ = GetHostName;
 
 HttpAuthHandlerNTLM::HttpAuthHandlerNTLM() {
 }
