@@ -22,6 +22,7 @@ class NativeButtonWin : public NativeControlWin,
   virtual void UpdateFont();
   virtual void UpdateDefault();
   virtual View* GetView();
+  virtual void SetFocus();
 
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
@@ -61,6 +62,7 @@ class NativeCheckboxWin : public NativeButtonWin {
   virtual void SetPushed(bool pushed);
 
   // Overridden from NativeControlWin:
+  virtual void SetFocus();
   virtual LRESULT ProcessMessage(UINT message,
                                  WPARAM w_param,
                                  LPARAM l_param);

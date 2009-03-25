@@ -31,12 +31,15 @@ class NativeButtonWrapper {
   // Updates the native button's checked state from the state stored in its
   // associated NativeCheckbox. Valid only for checkboxes and radio buttons.
   virtual void UpdateChecked() {}
-  
+
   // Shows the pushed state for the button if |pushed| is true.
   virtual void SetPushed(bool pushed) {};
 
-  // Retrieves the views::View that hosts the native control. 
+  // Retrieves the views::View that hosts the native control.
   virtual View* GetView() = 0;
+
+  // Sets the focus to the button.
+  virtual void SetFocus() = 0;
 
   // Return the width of the button. Used for fixed size buttons (checkboxes and
   // radio buttons) only.

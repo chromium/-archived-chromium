@@ -138,6 +138,13 @@ bool NativeButton::AcceleratorPressed(const Accelerator& accelerator) {
   return false;
 }
 
+void NativeButton::Focus() {
+  Button::Focus();
+  // Forward the focus to the wrapper.
+  if (native_wrapper_)
+    native_wrapper_->SetFocus();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeButton, protected:
 

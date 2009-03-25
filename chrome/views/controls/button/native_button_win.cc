@@ -18,6 +18,10 @@ namespace views {
 NativeButtonWin::NativeButtonWin(NativeButton* native_button)
     : NativeControlWin(),
       native_button_(native_button) {
+  // Associates the actual HWND with the native_button so the native_button is
+  // the one considered as having the focus (not the wrapper) when the HWND is
+  // focused directly (with a click for example).
+  SetAssociatedFocusView(native_button);
 }
 
 NativeButtonWin::~NativeButtonWin() {
@@ -46,6 +50,11 @@ void NativeButtonWin::UpdateDefault() {
 
 View* NativeButtonWin::GetView() {
   return this;
+}
+
+void NativeButtonWin::SetFocus() {
+  // Focus the associated HWND.
+  Focus();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,6 +144,11 @@ void NativeCheckboxWin::SetPushed(bool pushed) {
   SendMessage(GetHWND(), BM_SETSTATE, pushed, 0);
 }
 
+void NativeCheckboxWin::SetFocus() {
+  // The focus should stay on the views::Checkbox (more precisely, on the
+  // label, which is a view).
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, NativeButtonWin overrides:
 
@@ -216,4 +230,3 @@ NativeButtonWrapper* NativeButtonWrapper::CreateRadioButtonWrapper(
 }
 
 }  // namespace views
-
