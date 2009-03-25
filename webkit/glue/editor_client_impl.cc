@@ -634,7 +634,13 @@ void EditorClientImpl::handleKeyboardEvent(WebCore::KeyboardEvent* evt) {
   if (evt->keyCode() == WebCore::VKEY_DOWN ||
       evt->keyCode() == WebCore::VKEY_UP) {
     DCHECK(evt->target()->toNode());
-    ShowAutofillForNode(evt->target()->toNode());
+    if (ShowAutofillForNode(evt->target()->toNode())) {
+      // We will show an autofill popup.  Let's return so we don't handle the
+      // event.  The handling could change the caret position, preventing the
+      // popup from showing (since the actual showing is delayed, see
+      // DoAutofill).
+      return;
+    }
   }
 
   if (handleEditingKeyboardEvent(evt))
@@ -664,14 +670,15 @@ void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
   Autofill(static_cast<WebCore::HTMLInputElement*>(element), false);
 }
 
-void EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
+bool EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
   WebCore::HTMLInputElement* input_element =
       webkit_glue::NodeToHTMLInputElement(node);
   if (input_element)
-    Autofill(input_element, true);
+    return Autofill(input_element, true);
+  return false;
 }
 
-void EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
+bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
                                 bool autofill_on_empty_value) {
   // Cancel any pending DoAutofill calls.
   autofill_factory_.RevokeAll();
@@ -679,16 +686,16 @@ void EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
   // Let's try to trigger autofill for that field, if applicable.
   if (!input_element->isEnabled() || !input_element->isTextField() ||
       input_element->isPasswordField() || !input_element->autoComplete()) {
-    return;
+    return false;
   }
 
   std::wstring name = AutofillForm::GetNameForInputElement(input_element);
   if (name.empty())  // If the field has no name, then we won't have values.
-    return;
+    return false;
 
   // Don't attempt to autofill with values that are too large.
   if (input_element->value().length() > kMaximumTextSizeForAutofill)
-    return;
+    return false;
 
   // We post a task for doing the autofill as the caret position is not set
   // properly at this point ( http://bugs.webkit.org/show_bug.cgi?id=16976)
@@ -700,6 +707,7 @@ void EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
                                           input_element,
                                           autofill_on_empty_value,
                                           backspace_pressed_));
+  return true;
 }
 
 void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,

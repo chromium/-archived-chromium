@@ -1719,7 +1719,7 @@ void WebViewImpl::DeleteImageResourceFetcher(ImageResourceFetcher* fetcher) {
 }
 
 void WebViewImpl::HideAutoCompletePopup() {
-  if (autocomplete_popup_) {
+  if (autocomplete_popup_showing_) {
     autocomplete_popup_->hidePopup();
     autocomplete_popup_showing_ = false;
   }

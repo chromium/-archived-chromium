@@ -118,7 +118,9 @@ class EditorClientImpl : public WebCore::EditorClient {
   // Shows the autofill popup for |node| if it is an HTMLInputElement and it is
   // empty.  This is called when you press the up or down arrow in a text field
   // or when clicking an already focused text-field.
-  virtual void ShowAutofillForNode(WebCore::Node* node);
+  // Returns true if the autofill popup has been scheduled to be shown, false
+  // otherwise.
+  virtual bool ShowAutofillForNode(WebCore::Node* node);
 
  private:
   void ModifySelection(WebCore::Frame* frame,
@@ -127,7 +129,9 @@ class EditorClientImpl : public WebCore::EditorClient {
   // Popups an autofill menu for |input_element| is applicable.
   // |autofill_on_empty_value| indicates whether the autofill should be shown
   // when the text-field is empty.
-  void Autofill(WebCore::HTMLInputElement* input_element,
+  // Returns true if the autofill popup has been scheduled to be shown, false
+  // otherwise.
+  bool Autofill(WebCore::HTMLInputElement* input_element,
                 bool autofill_on_empty_value);
 
   // This method is invoked later by Autofill() as when Autofill() is invoked
