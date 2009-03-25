@@ -164,14 +164,17 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
   // is specified we want to create them, otherwise we update them only if
   // they exist.
   bool create = (options & installer_util::CREATE_ALL_SHORTCUTS) != 0;
+  // In some cases the main desktop shortcut has an alternate name.
+  bool alt_shortcut = (options & installer_util::ALT_DESKTOP_SHORTCUT) != 0;
+
   if (system_install) {
     ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
-        product_desc, ShellUtil::SYSTEM_LEVEL, create);
+        product_desc, ShellUtil::SYSTEM_LEVEL, alt_shortcut, create);
     ret = ret && ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
         ShellUtil::CURRENT_USER | ShellUtil::SYSTEM_LEVEL, create);
   } else {
     ret = ret && ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
-        product_desc, ShellUtil::CURRENT_USER, create);
+        product_desc, ShellUtil::CURRENT_USER, alt_shortcut, create);
     ret = ret && ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
         ShellUtil::CURRENT_USER, create);
   }

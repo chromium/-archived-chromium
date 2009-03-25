@@ -254,6 +254,10 @@ int GetInstallOptions(const CommandLine& cmd_line) {
       cmd_line.HasSwitch(installer_util::switches::kVerboseLogging))
     options |= installer_util::VERBOSE_LOGGING;
 
+  if (preferences & installer_util::MASTER_PROFILE_ALT_SHORTCUT_TXT ||
+      cmd_line.HasSwitch(installer_util::switches::kAltDesktopShortcut))
+    options |= installer_util::ALT_DESKTOP_SHORTCUT;
+
   return options;
 }
 

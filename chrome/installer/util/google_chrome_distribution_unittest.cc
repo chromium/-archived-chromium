@@ -14,6 +14,7 @@
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/google_chrome_distribution.h"
 #include "chrome/installer/util/master_preferences.h"
+#include "chrome/installer/util/shell_util.h"
 #include "chrome/installer/util/work_item_list.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -275,5 +276,15 @@ TEST(BrowserDistribution, StringsTest) {
   ASSERT_TRUE(dist != NULL);
   std::wstring name = dist->GetApplicationName();
   std::wstring desc = dist->GetAppDescription();
+  std::wstring alt_name = dist->GetAlternateApplicationName();
   // TODO(cpu) finish the test when the translated strings arrive.
 }
+
+TEST(BrowserDistribution, AlternateAndNormalShortcutName) {
+  std::wstring normal_name;
+  std::wstring alternate_name;
+  EXPECT_TRUE(ShellUtil::GetChromeShortcutName(&normal_name, false));
+  EXPECT_TRUE(ShellUtil::GetChromeShortcutName(&alternate_name, true));
+  EXPECT_NE(normal_name, alternate_name);
+}
+

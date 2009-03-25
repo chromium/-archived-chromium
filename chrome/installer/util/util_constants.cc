@@ -69,6 +69,9 @@ const wchar_t kVerboseLogging[] = L"verbose-logging";
 // Show the embedded EULA dialog.
 const wchar_t kShowEula[] = L"show-eula";
 
+// Use the alternate desktop shortcut name
+const wchar_t kAltDesktopShortcut[] = L"alt-desktop-shortcut";
+
 }  // namespace switches
 
 const wchar_t kInstallBinaryDir[] = L"Application";

@@ -40,7 +40,7 @@ enum InstallStatus {
   INSTALL_DIR_IN_USE     // Installation directory is in use by another process
 };
 
-// These are distibution related install options specified through command
+// These are distribution related install options specified through command
 // line switches (see below) or master preference file (see
 // chrome/installer/util/master_preference.h). The options can be combined,
 // so they are bit flags.
@@ -60,7 +60,9 @@ enum InstallOption {
   // Run installer in verbose mode.
   VERBOSE_LOGGING         = 0x1 << 6,
   // Show the EULA dialog.
-  SHOW_EULA_DIALOG        = 0x1 << 7
+  SHOW_EULA_DIALOG        = 0x1 << 7,
+  // Use alternate dekstop shortcut text.
+  ALT_DESKTOP_SHORTCUT    = 0x1 << 8
 };
 
 namespace switches {
@@ -81,6 +83,7 @@ extern const wchar_t kSystemLevel[];
 extern const wchar_t kUninstall[];
 extern const wchar_t kVerboseLogging[];
 extern const wchar_t kShowEula[];
+extern const wchar_t kAltDesktopShortcut[];
 }  // namespace switches
 
 extern const wchar_t kInstallBinaryDir[];

@@ -30,6 +30,10 @@ std::wstring BrowserDistribution::GetApplicationName() {
   return L"Chromium";
 }
 
+std::wstring BrowserDistribution::GetAlternateApplicationName() {
+  return L"The Internet";
+}
+
 std::wstring BrowserDistribution::GetInstallSubDir() {
   return L"Chromium";
 }

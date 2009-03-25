@@ -445,9 +445,10 @@ std::wstring ShellUtil::GetChromeInstallExtensionCmd(
   return L"\"" + chrome_exe + L"\" --install-extension=\"%1\"";
 }
 
-bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut) {
+bool ShellUtil::GetChromeShortcutName(std::wstring* shortcut, bool alternate) {
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-  shortcut->assign(dist->GetApplicationName());
+  shortcut->assign(alternate ? dist->GetAlternateApplicationName() :
+                               dist->GetApplicationName());
   shortcut->append(L".lnk");
   return true;
 }
@@ -494,10 +495,10 @@ bool ShellUtil::GetQuickLaunchPath(bool system_level, std::wstring* path) {
 
 bool ShellUtil::CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
                                             const std::wstring& description,
-                                            int shell_change,
+                                            int shell_change, bool alternate,
                                             bool create_new) {
   std::wstring shortcut_name;
-  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name, alternate))
     return false;
 
   bool ret = true;
@@ -530,7 +531,7 @@ bool ShellUtil::CreateChromeQuickLaunchShortcut(const std::wstring& chrome_exe,
                                                 int shell_change,
                                                 bool create_new) {
   std::wstring shortcut_name;
-  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name, false))
     return false;
 
   bool ret = true;
@@ -604,9 +605,9 @@ bool ShellUtil::MakeChromeDefault(int shell_change,
   return ret;
 }
 
-bool ShellUtil::RemoveChromeDesktopShortcut(int shell_change) {
+bool ShellUtil::RemoveChromeDesktopShortcut(int shell_change, bool alternate) {
   std::wstring shortcut_name;
-  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name, alternate))
     return false;
 
   bool ret = true;
@@ -634,7 +635,7 @@ bool ShellUtil::RemoveChromeDesktopShortcut(int shell_change) {
 
 bool ShellUtil::RemoveChromeQuickLaunchShortcut(int shell_change) {
   std::wstring shortcut_name;
-  if (!ShellUtil::GetChromeShortcutName(&shortcut_name))
+  if (!ShellUtil::GetChromeShortcutName(&shortcut_name, false))
     return false;
 
   bool ret = true;

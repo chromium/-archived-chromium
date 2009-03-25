@@ -63,8 +63,9 @@ int DoUninstallTasks(bool chrome_still_running) {
   ResultCodes::ExitCode ret = ResultCodes::NORMAL_EXIT;
   if (!FirstRun::RemoveSentinel())
     ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  // We only want to modify user level shortcuts so pass false for system_level.
-  if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER))
+  // We want to remove user level shortcuts and we only care about the ones
+  // created by us and not by the installer so |alternate| is false.
+  if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER, false))
     ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
   if (!ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER))
     ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;

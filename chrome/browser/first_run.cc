@@ -170,7 +170,7 @@ bool FirstRun::CreateChromeDesktopShortcut() {
     return false;
   return ShellUtil::CreateChromeDesktopShortcut(chrome_exe,
     dist->GetAppDescription(), ShellUtil::CURRENT_USER,
-    true); // create if doesnt exist
+    false, true); // create if doesn't exist.
 }
 
 bool FirstRun::CreateChromeQuickLaunchShortcut() {
@@ -178,8 +178,8 @@ bool FirstRun::CreateChromeQuickLaunchShortcut() {
   if (!PathService::Get(base::FILE_EXE, &chrome_exe))
     return false;
   return ShellUtil::CreateChromeQuickLaunchShortcut(chrome_exe,
-    ShellUtil::CURRENT_USER, // create only for current user
-    true); // create if doesnt exist
+    ShellUtil::CURRENT_USER, // create only for current user.
+    true); // create if doesn't exist.
 }
 
 bool FirstRun::RemoveSentinel() {

@@ -22,6 +22,8 @@ class GoogleChromeDistribution : public BrowserDistribution {
 
   virtual std::wstring GetApplicationName();
 
+  virtual std::wstring GetAlternateApplicationName();
+
   virtual std::wstring GetInstallSubDir();
 
   // This method generates the new value for Google Update "ap" key for Chrome

@@ -60,17 +60,25 @@ void CloseAllChromeProcesses() {
 // This method deletes Chrome shortcut folder from Windows Start menu. It
 // checks system_uninstall to see if the shortcut is in all users start menu
 // or current user start menu.
+// We try to remove the standard desktop shortcut but if that fails we try
+// to remove the alternate desktop shortcut. Only one of them should be
+// present in a given install but at this point we don't know which one.
 void DeleteChromeShortcut(bool system_uninstall) {
   std::wstring shortcut_path;
   if (system_uninstall) {
     PathService::Get(base::DIR_COMMON_START_MENU, &shortcut_path);
-    ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER |
-                                           ShellUtil::SYSTEM_LEVEL);
+    if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER |
+                                                ShellUtil::SYSTEM_LEVEL, false))
+      ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER |
+                                             ShellUtil::SYSTEM_LEVEL, true);
+
     ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER |
                                                ShellUtil::SYSTEM_LEVEL);
   } else {
     PathService::Get(base::DIR_START_MENU, &shortcut_path);
-    ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER);
+    if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER, false))
+      ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER, true);
+
     ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER);
   }
   if (shortcut_path.empty()) {

@@ -164,6 +164,11 @@ std::wstring GoogleChromeDistribution::GetApplicationName() {
   return product_name;
 }
 
+std::wstring GoogleChromeDistribution::GetAlternateApplicationName() {
+  // TODO(cpu): return the right localized strings when it arrives. 
+  return L"";
+}
+
 std::wstring GoogleChromeDistribution::GetInstallSubDir() {
   return L"Google\\Chrome";
 }

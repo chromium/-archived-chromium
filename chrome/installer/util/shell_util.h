@@ -109,11 +109,12 @@ class ShellUtil {
   // Desktop folder of current user's profile.
   // If shell_change is SYSTEM_LEVEL, the shortcut is created in the
   // Desktop folder of "All Users" profile.
+  // If alternate is true, an alternate text for the shortcut is used.
   // create_new: If false, will only update the shortcut. If true, the function
   //             will create a new shortcut if it doesn't exist already.
   static bool CreateChromeDesktopShortcut(const std::wstring& chrome_exe,
                                           const std::wstring& description,
-                                          int shell_change,
+                                          int shell_change, bool alternate,
                                           bool create_new);
 
   // Create Chrome shortcut on Quick Launch Bar.
@@ -145,8 +146,10 @@ class ShellUtil {
   static std::wstring GetChromeInstallExtensionCmd(
       const std::wstring& chrome_exe);
 
-  // Returns the localized name of Chrome shortcut.
-  static bool GetChromeShortcutName(std::wstring* shortcut);
+  // Returns the localized name of Chrome shortcut. If |alternate| is true
+  // it returns a second localized text that is better suited for certain
+  // scenarios.
+  static bool GetChromeShortcutName(std::wstring* shortcut, bool alternate);
 
   // Gets the desktop path for the current user or all users (if system_level
   // is true) and returns it in 'path' argument. Return true if successful,
@@ -177,7 +180,9 @@ class ShellUtil {
   // Desktop folder of current user's profile.
   // If shell_change is SYSTEM_LEVEL, the shortcut is removed from the
   // Desktop folder of "All Users" profile.
-  static bool RemoveChromeDesktopShortcut(int shell_change);
+  // If alternate is true, the shortcut with the alternate name is removed. See
+  // CreateChromeDesktopShortcut() for more information.
+  static bool RemoveChromeDesktopShortcut(int shell_change, bool alternate);
 
   // Remove Chrome shortcut from Quick Launch Bar.
   // If shell_change is CURRENT_USER, the shortcut is removed from
