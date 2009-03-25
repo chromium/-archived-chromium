@@ -34,6 +34,7 @@ IDR_MAINFRAME ACCELERATORS
 BEGIN
     VK_LEFT,        IDC_BACK,                   VIRTKEY, ALT
     VK_BACK,        IDC_BACK,                   VIRTKEY
+    VK_DELETE,      IDC_CLEAR_BROWSING_DATA,    VIRTKEY, CONTROL, SHIFT
     VK_F4,          IDC_CLOSE_TAB,              VIRTKEY, CONTROL
     "W",            IDC_CLOSE_TAB,              VIRTKEY, CONTROL
     "W",            IDC_CLOSE_POPUPS,           VIRTKEY, SHIFT, ALT
