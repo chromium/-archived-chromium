@@ -7,7 +7,7 @@
  * Version 1.0
  */
 
-#ifdef PURIFY
+#if defined(PURIFY) || defined(QUANTIFY)
 
 #if defined(c_plusplus) || defined(__cplusplus)
 extern "C" {
@@ -142,4 +142,4 @@ int __cdecl CoverageSaveData(void)			;
 }
 #endif
 
-#endif // PURIFY
+#endif // defined(PURIFY) || defined(QUANTIFY)

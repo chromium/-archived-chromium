@@ -16,7 +16,14 @@
  *        to prevent optimizing the functions away when compiler option
  *        /Gy is set. This is needed so that NOTE2 works properly.
  */
-#ifdef PURIFY
+
+// Chromium note: We used to only compile this code if PURIFY was defined,
+// because we did special builds with all optimizations turned off for Purify.
+// However, for profiling with Quantify, we want most/all optimizations turned
+// on so that we measure something closer to real execution.
+
+#ifdef _WINDOWS // we only use Purify/Quantify on Windows
+
 #pragma once
  extern int errno;
 typedef int ptrdiff_t;
@@ -142,4 +149,4 @@ __declspec(dllexport) int __cdecl QuantifyAddAnnotation(char *str) { if(!++avoid
 __declspec(dllexport) int __cdecl QuantifySaveData(void) { if(!++avoidGy_49); return 0; }
 __declspec(dllexport) int __cdecl QuantifySetThreadName(const char *szName) { if(!++avoidGy_50) ; szName; return 0; }
 
-#endif // PURIFY
+#endif // _WINDOWS

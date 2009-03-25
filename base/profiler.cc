@@ -5,35 +5,38 @@
 #include "base/profiler.h"
 #include "base/string_util.h"
 
-#ifdef PURIFY
+// When actually using quantify, uncomment the following line.
+//#define QUANTIFY
+
+#ifdef QUANTIFY
 // this #define is used to prevent people from directly using pure.h
 // instead of profiler.h
 #define PURIFY_PRIVATE_INCLUDE
 #include "base/third_party/purify/pure.h"
-#endif
+#endif // QUANTIFY
 
 namespace base {
 
 void Profiler::StartRecording() {
-#ifdef PURIFY
+#ifdef QUANTIFY
   QuantifyStartRecordingData();
 #endif
 }
 
 void Profiler::StopRecording() {
-#ifdef PURIFY
+#ifdef QUANTIFY
   QuantifyStopRecordingData();
 #endif
 }
 
 void Profiler::ClearData() {
-#ifdef PURIFY
+#ifdef QUANTIFY
   QuantifyClearData();
 #endif
 }
 
 void Profiler::SetThreadName(const char *name) {
-#ifdef PURIFY
+#ifdef QUANTIFY
   // make a copy since the Quantify function takes a char*, not const char*
   char buffer[512];
   base::snprintf(buffer, sizeof(buffer)-1, "%s", name);
