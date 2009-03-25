@@ -156,8 +156,8 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
     font_description.setComputedSize(12.0);
     Font font(font_description, 0, 0);
     font.update(text_field->document()->styleSelector()->fontSelector());
-    style_.reset(new PopupMenuStyle(Color::black, Color::white, font, true));
-
+    style_.reset(new PopupMenuStyle(Color::black, Color::white, font, true,
+        Length(WebCore::Fixed), LTR));
   }
 
   virtual ~AutocompletePopupMenuClient() {
