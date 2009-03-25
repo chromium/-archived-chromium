@@ -17,18 +17,16 @@
 
 namespace {
 
-// Grabbed from chrome/common/string_util.h
-template <class char_type>
-inline char_type* WriteInto(
-    std::basic_string<char_type, std::char_traits<char_type>,
-                      std::allocator<char_type> >* str,
-    size_t length_including_null) {
-  str->reserve(length_including_null);
-  str->resize(length_including_null - 1);
+// Grabbed from base/string_util.h
+template <class string_type>
+inline typename string_type::value_type* WriteInto(string_type* str,
+                                                   size_t length_with_null) {
+  str->reserve(length_with_null);
+  str->resize(length_with_null - 1);
   return &((*str)[0]);
 }
 
-// Grabbed from chrome/common/string_util.cc
+// Grabbed from base/string_util.cc
 std::string WideToMultiByte(const std::wstring& wide, UINT code_page) {
   if (wide.length() == 0)
     return std::string();
@@ -47,7 +45,7 @@ std::string WideToMultiByte(const std::wstring& wide, UINT code_page) {
   return mb;
 }
 
-// Grabbed from chrome/common/string_util.cc
+// Grabbed from base/string_util.cc
 std::string WideToUTF8(const std::wstring& wide) {
   return WideToMultiByte(wide, CP_UTF8);
 }

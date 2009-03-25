@@ -35,13 +35,11 @@ void InitObjectAttribs(const std::wstring& name, ULONG attributes, HANDLE root,
 
 // The next 2 functions are copied from base\string_util.h and have been
 // slighty modified because we don't want to depend on ICU.
-template <class char_type>
-inline char_type* WriteInto(
-    std::basic_string<char_type, std::char_traits<char_type>,
-                      std::allocator<char_type> >* str,
-    size_t length_including_null) {
-  str->reserve(length_including_null);
-  str->resize(length_including_null - 1);
+template <class string_type>
+inline typename string_type::value_type* WriteInto(string_type* str,
+                                                   size_t length_with_null) {
+  str->reserve(length_with_null);
+  str->resize(length_with_null - 1);
   return &((*str)[0]);
 }
 
