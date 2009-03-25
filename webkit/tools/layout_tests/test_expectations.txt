@@ -2049,7 +2049,8 @@ LINUX MAC : pending/security/block-test.html = FAIL
 LINUX MAC : LayoutTests/security/block-test.html = FAIL
 
 // Flakey. Not clear when it started, but it was before 3/9/09.
-LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS
+// This test also started failing with the merge of March 25th 2009
+LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS FAIL
 DEFER WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
 
 // Timing out starting 03/10/09
@@ -2281,7 +2282,7 @@ DEFER WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.htm
 // New failures from merge
 DEFER WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/clip/016.html = FAIL
-DEFER WIN LINUX : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
+DEFER WIN : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
 DEFER WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
 DEFER WIN : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
