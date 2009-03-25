@@ -151,7 +151,7 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
                           (Time::Now() - entry->GetLastUsed()).InHours());
     }
 
-    if (header_->create_time || !header_->lru.filled) {
+    if (header_->create_time && !header_->lru.filled) {
       // This is the first entry that we have to evict, generate some noise.
       header_->lru.filled = 1;
       backend_->FirstEviction();
