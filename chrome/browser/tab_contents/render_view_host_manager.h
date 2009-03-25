@@ -6,10 +6,12 @@
 #define CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_HOST_MANAGER_H_
 
 #include "base/basictypes.h"
+#include "base/scoped_ptr.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_observer.h"
 
+class DOMUI;
 class InterstitialPage;
 class NavigationController;
 class NavigationEntry;
@@ -47,6 +49,11 @@ class RenderViewHostManager : public NotificationObserver {
     virtual void UpdateRenderViewSizeForRenderManager() = 0;
     virtual void NotifySwappedFromRenderManager() = 0;
     virtual NavigationController* GetControllerForRenderManager() = 0;
+
+    // Creates a DOMUI object for the given URL if one applies. Ownership of the
+    // returned pointer will be passed to the caller. If no DOMUI applies,
+    // returns NULL.
+    virtual DOMUI* CreateDOMUIForRenderManager(const GURL& url) = 0;
 
     // Returns the navigation entry of the current navigation, or NULL if there
     // is none.
@@ -93,6 +100,17 @@ class RenderViewHostManager : public NotificationObserver {
       return NULL;
     return render_view_host_->view();
   }
+
+  // Returns the pending render view host, or NULL if there is no pending one.
+  RenderViewHost* pending_render_view_host() const {
+    return pending_render_view_host_;
+  }
+
+  // Returns the current committed DOM UI or NULL if none applies.
+  DOMUI* dom_ui() const { return dom_ui_.get(); }
+
+  // Returns the DOM UI for the pending navigation, or NULL of none applies.
+  DOMUI* pending_dom_ui() const { return pending_dom_ui_.get(); }
 
   // Called when we want to instruct the renderer to navigate to the given
   // navigation entry. It may create a new RenderViewHost or re-use an existing
@@ -195,19 +213,15 @@ class RenderViewHostManager : public NotificationObserver {
                                        int routing_id,
                                        base::WaitableEvent* modal_dialog_event);
 
-  // Replaces the currently shown render_view_host_ with the RenderViewHost in
-  // the field pointed to by |new_render_view_host|, and then NULLs the field.
-  // Callers should only pass pointers to the pending_render_view_host_,
-  // interstitial_render_view_host_, or original_render_view_host_ fields of
-  // this object.  If |destroy_after|, this method will call
-  // ScheduleDeferredDestroy on the previous render_view_host_.
-  void SwapToRenderView(RenderViewHost** new_render_view_host,
-                        bool destroy_after);
+  // Sets the pending RenderViewHost/DOMUI to be the active one. Note that this
+  // doesn't require the pending render_view_host_ pointer to be non-NULL, since
+  // there could be DOM UI switching as well. Call this for every commit.
+  void CommitPending();
 
   // Helper method to terminate the pending RenderViewHost.
-  void CancelPendingRenderView();
+  void CancelPending();
 
-  RenderViewHost* UpdateRendererStateNavigate(const NavigationEntry& entry);
+  RenderViewHost* UpdateRendererStateForNavigate(const NavigationEntry& entry);
 
   // Our delegate, not owned by us. Guaranteed non-NULL.
   Delegate* delegate_;
@@ -224,13 +238,23 @@ class RenderViewHostManager : public NotificationObserver {
   // the RenderViewHosts that we create.
   RenderViewHostDelegate* render_view_delegate_;
 
-  // Our RenderView host. This object is responsible for all communication with
+  // Our RenderView host and its associated DOM UI (if any, will be NULL for
+  // non-DOM-UI pages). This object is responsible for all communication with
   // a child RenderView instance.
   RenderViewHost* render_view_host_;
+  scoped_ptr<DOMUI> dom_ui_;
 
-  // A RenderViewHost used to load a cross-site page.  This remains hidden
-  // while a cross-site request is pending until it calls DidNavigate.
+  // A RenderViewHost used to load a cross-site page. This remains hidden
+  // while a cross-site request is pending until it calls DidNavigate. It may
+  // have an associated DOM UI, in which case the DOM UI pointer will be non-
+  // NULL.
+  //
+  // The pending_dom_ui may be non-NULL even when the pending_render_view_host_
+  // is. This will happen when we're transitioning between two DOM UI pages:
+  // the RVH won't be swapped, so the pending pointer will be unused, but there
+  // will be a pending DOM UI associated with the navigation.
   RenderViewHost* pending_render_view_host_;
+  scoped_ptr<DOMUI> pending_dom_ui_;
 
   // The intersitial page currently shown if any, not own by this class
   // (the InterstitialPage is self-owned, it deletes itself when hidden).

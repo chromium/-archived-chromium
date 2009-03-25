@@ -347,9 +347,11 @@ void WebContents::Destroy() {
 }
 
 const string16& WebContents::GetTitle() const {
-  if (dom_ui_.get()) {
+  DOMUI* our_dom_ui = render_manager_.pending_dom_ui() ?
+      render_manager_.pending_dom_ui() : render_manager_.dom_ui();
+  if (our_dom_ui) {
     // Give the DOM UI the chance to override our title.
-    const string16& title = dom_ui_->overridden_title();
+    const string16& title = our_dom_ui->overridden_title();
     if (!title.empty())
       return title;
   }
@@ -361,14 +363,30 @@ SiteInstance* WebContents::GetSiteInstance() const {
 }
 
 bool WebContents::ShouldDisplayURL() {
-  if (dom_ui_.get())
-    return !dom_ui_->should_hide_url();
+  if (controller()->GetPendingEntry()) {
+    // When there is a pending entry, that should determine whether the URL is
+    // displayed (including getting the default behavior if the DOMUI doesn't
+    // specify).
+    if (render_manager_.pending_dom_ui())
+      return !render_manager_.pending_dom_ui()->should_hide_url();
+    return true;
+  }
+
+  if (render_manager_.dom_ui())
+    return !render_manager_.dom_ui()->should_hide_url();
   return true;
 }
 
 bool WebContents::ShouldDisplayFavIcon() {
-  if (dom_ui_.get())
-    return !dom_ui_->hide_favicon();
+  if (controller()->GetPendingEntry()) {
+    // See ShouldDisplayURL.
+    if (render_manager_.pending_dom_ui())
+      return !render_manager_.pending_dom_ui()->hide_favicon();
+    return true;
+  }
+  
+  if (render_manager_.dom_ui())
+    return !render_manager_.dom_ui()->hide_favicon();
   return true;
 }
 
@@ -401,10 +419,6 @@ std::wstring WebContents::GetStatusText() const {
 
 bool WebContents::NavigateToPendingEntry(bool reload) {
   const NavigationEntry& entry = *controller()->GetPendingEntry();
-
-  // This will possibly create (or NULL out) a DOM UI object for the page. We'll
-  // use this later when the page starts doing stuff to allow it to do so.
-  dom_ui_.reset(DOMUIFactory::CreateDOMUIForURL(this, entry.url()));
 
   RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
   if (!dest_render_view_host)
@@ -518,8 +532,20 @@ void WebContents::HideContents() {
 }
 
 bool WebContents::IsBookmarkBarAlwaysVisible() {
-  if (dom_ui_.get())
-    return dom_ui_->force_bookmark_bar_visible();
+  // We want the bookmarks bar to go with the committed entry. This way, when
+  // you're on the new tab page and navigate, the bookmarks bar doesn't
+  // disappear until the next load commits (the same time the page changes).
+  if (!controller()->GetLastCommittedEntry()) {
+    // However, when there is no committed entry (the first load of the tab),
+    // then we fall back on the pending entry. This means that the bookmarks bar
+    // will be visible before the new tab page load commits.
+    if (render_manager_.pending_dom_ui())
+      return render_manager_.pending_dom_ui()->force_bookmark_bar_visible();
+    return false;
+  }
+
+  if (render_manager_.dom_ui())
+    return render_manager_.dom_ui()->force_bookmark_bar_visible();
   return false;
 }
 
@@ -537,9 +563,12 @@ void WebContents::PopupNotificationVisibilityChanged(bool visible) {
 }
 
 bool WebContents::FocusLocationBarByDefault() {
-  // Allow the DOM Ui to override the default.
-  if (dom_ui_.get())
-    return dom_ui_->focus_location_bar_by_default();
+  // Allow the DOM UI to override the default. We use the pending DOM UI since
+  // that's what the user "just did" so should control what happens after they
+  // did it. Using the committed one would mean when they navigate from a DOMUI
+  // to a regular page, the location bar would be focused.
+  if (render_manager_.pending_dom_ui())
+    return render_manager_.pending_dom_ui()->focus_location_bar_by_default();
   return false;
 }
 
@@ -726,8 +755,10 @@ void WebContents::RenderViewCreated(RenderViewHost* render_view_host) {
   if (!entry)
     return;
 
-  if (dom_ui_.get()) {
-    dom_ui_->RenderViewCreated(render_view_host);
+  // When we're creating views, we're still doing initial setup, so we always
+  // use the pending DOM UI rather than any possibly existing committed one.
+  if (render_manager_.pending_dom_ui()) {
+    render_manager_.pending_dom_ui()->RenderViewCreated(render_view_host);
   } else if (entry->IsViewSourceMode()) {
     // Put the renderer in view source mode.
     render_view_host->Send(
@@ -1070,7 +1101,7 @@ void WebContents::DidDownloadImage(
 
 void WebContents::RequestOpenURL(const GURL& url, const GURL& referrer,
                                  WindowOpenDisposition disposition) {
-  if (dom_ui_.get()) {
+  if (render_manager_.dom_ui()) {
     // When we're a DOM UI, it will provide a page transition type for us (this
     // is so the new tab page can specify AUTO_BOOKMARK for automatically
     // generated suggestions).
@@ -1079,7 +1110,8 @@ void WebContents::RequestOpenURL(const GURL& url, const GURL& referrer,
     // want web sites to see a referrer of "chrome-ui://blah" (and some
     // chrome-ui URLs might have search terms or other stuff we don't want to
     // send to the site), so we send no referrer.
-    OpenURL(url, GURL(), disposition, dom_ui_->link_transition_type());
+    OpenURL(url, GURL(), disposition,
+            render_manager_.dom_ui()->link_transition_type());
   } else {
     OpenURL(url, referrer, disposition, PageTransition::LINK);
   }
@@ -1095,14 +1127,14 @@ void WebContents::DomOperationResponse(const std::string& json_string,
 
 void WebContents::ProcessDOMUIMessage(const std::string& message,
                                       const std::string& content) {
-  if (!dom_ui_.get()) {
+  if (!render_manager_.dom_ui()) {
     // We shouldn't get a DOM UI message when we haven't enabled the DOM UI.
     // Because the renderer might be owned and sending random messages, we need
     // to ignore these inproper ones.
     NOTREACHED();
     return;
   }
-  dom_ui_->ProcessDOMUIMessage(message, content);
+  render_manager_.dom_ui()->ProcessDOMUIMessage(message, content);
 }
 
 void WebContents::ProcessExternalHostMessage(const std::string& message,
@@ -1404,8 +1436,9 @@ WebPreferences WebContents::GetWebkitPrefs() {
   }
   DCHECK(!web_prefs.default_encoding.empty());
 
-  // Override some prefs when we're a DOM UI, or the pages won't work.
-  if (dom_ui_.get()) {
+  // Override some prefs when we're a DOM UI, or the pages won't work. This is
+  // called during setup, so we will always use the pending one.
+  if (render_manager_.pending_dom_ui()) {
     web_prefs.loads_images_automatically = true;
     web_prefs.javascript_enabled = true;
   }
@@ -1581,6 +1614,10 @@ void WebContents::UpdateRenderViewSizeForRenderManager() {
   view_->SizeContents(view_->GetContainerSize());
 }
 
+DOMUI* WebContents::CreateDOMUIForRenderManager(const GURL& url) {
+  return DOMUIFactory::CreateDOMUIForURL(this, url);
+}
+
 NavigationEntry*
 WebContents::GetLastCommittedNavigationEntryForRenderManager() {
   if (!controller())
@@ -1591,8 +1628,10 @@ WebContents::GetLastCommittedNavigationEntryForRenderManager() {
 bool WebContents::CreateRenderViewForRenderManager(
     RenderViewHost* render_view_host) {
   // When we're running a DOM UI, the RenderViewHost needs to be put in DOM UI
-  // mode before CreateRenderView is called.
-  if (dom_ui_.get())
+  // mode before CreateRenderView is called. When we're asked to create a
+  // RenderView, that means it's for the pending entry, so we have to use the
+  // pending DOM UI.
+  if (render_manager_.pending_dom_ui())
     render_view_host->AllowDOMUIBindings();
 
   RenderWidgetHostView* rwh_view = view_->CreateViewForWidget(render_view_host);

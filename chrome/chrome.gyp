@@ -2026,6 +2026,7 @@
         'browser/cocoa/bookmark_bar_state_controller_unittest.mm',
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',
         'browser/command_updater_unittest.cc',
+        'browser/dom_ui/dom_ui_unittest.cc',
         'browser/download/download_manager_unittest.cc',
         'browser/download/download_request_manager_unittest.cc',
         'browser/download/save_package_unittest.cc',
