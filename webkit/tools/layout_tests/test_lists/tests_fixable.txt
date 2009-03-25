@@ -1621,6 +1621,13 @@ MAC : LayoutTests/transitions/shorthand-border-transitions.html = FAIL PASS
 MAC : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 MAC : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
 
+// Most of the http tests seem to be flaky on the mac.
+// Don't mark these as FAIL since we want to know if tests start failing.
+// TODO(ojan): Remove all the mac http tests that are now redundant with the
+// following two lines.
+MAC : LayoutTests/http = PASS CRASH TIMEOUT
+MAC : chrome/http = PASS CRASH TIMEOUT
+
 // The following are flaky in that some times the timeout or crash, but we think
 // it is because of bugs in other parts of the code and not specific to what
 // these tests are doing.  The are being noted here so we can get the buildbots
