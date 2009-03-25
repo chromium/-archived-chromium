@@ -58,33 +58,6 @@ class MockProxyResolver : public net::ProxyResolver {
   bool fail_get_proxy_for_url;
 };
 
-class SyncProxyService {
- public:
-  SyncProxyService(net::ProxyConfigService* config_service,
-                   net::ProxyResolver* resolver)
-      : io_thread_("IO_Thread"),
-        service_(config_service, resolver) {
-    base::Thread::Options options;
-    options.message_loop_type = MessageLoop::TYPE_IO;
-    io_thread_.StartWithOptions(options);
-    sync_proxy_service_ = new net::SyncProxyServiceHelper(
-        io_thread_.message_loop(), &service_);
-  }
-
-  int ResolveProxy(const GURL& url, net::ProxyInfo* proxy_info) {
-    return sync_proxy_service_->ResolveProxy(url, proxy_info);
-  }
-
-  int ReconsiderProxyAfterError(const GURL& url, net::ProxyInfo* proxy_info) {
-    return sync_proxy_service_->ReconsiderProxyAfterError(url, proxy_info);
-  }
-
- private:
-  base::Thread io_thread_;
-  net::ProxyService service_;
-  scoped_refptr<net::SyncProxyServiceHelper> sync_proxy_service_;
-};
-
 // ResultFuture is a handle to get at the result from
 // ProxyService::ResolveProxyForURL() that ran on another thread.
 class ResultFuture : public base::RefCountedThreadSafe<ResultFuture> {
@@ -143,18 +116,32 @@ class ResultFuture : public base::RefCountedThreadSafe<ResultFuture> {
  private:
   friend class ProxyServiceWithFutures;
 
-  // Start the request. Return once ProxyService::GetProxyForURL() returns.
+  typedef int (net::ProxyService::*RequestMethod)(const GURL&, net::ProxyInfo*,
+      net::CompletionCallback*, net::ProxyService::PacRequest**);
+
   void StartResolve(const GURL& url) {
+    StartRequest(url, &net::ProxyService::ResolveProxy);
+  }
+
+  // |proxy_info| is the *previous* result (that we are reconsidering).
+  void StartReconsider(const GURL& url, const net::ProxyInfo& proxy_info) {
+    proxy_info_ = proxy_info;
+    StartRequest(url, &net::ProxyService::ReconsiderProxyAfterError);
+  }
+
+  // Start the request. Return once ProxyService::GetProxyForURL() or
+  // ProxyService::ReconsiderProxyAfterError() returns.
+  void StartRequest(const GURL& url, RequestMethod method) {
     DCHECK(MessageLoop::current() != io_message_loop_);
     io_message_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &ResultFuture::DoStartResolve, url));
+        this, &ResultFuture::DoStartRequest, url, method));
     started_.Wait();
   }
 
   // Called on |io_message_loop_|.
-  void DoStartResolve(const GURL& url) {
+  void DoStartRequest(const GURL& url, RequestMethod method) {
     DCHECK(MessageLoop::current() == io_message_loop_);
-    int rv = service_->ResolveProxy(url, &proxy_info_, &callback_, &request_);
+    int rv = (service_->*method)(url, &proxy_info_, &callback_, &request_);
     if (rv != net::ERR_IO_PENDING) {
       // Completed synchronously.
       OnCompletion(rv);
@@ -206,27 +193,107 @@ class ProxyServiceWithFutures {
   ProxyServiceWithFutures(net::ProxyConfigService* config_service,
                           net::ProxyResolver* resolver)
       : io_thread_("IO_Thread"),
-        service_(config_service, resolver) {
+        io_thread_state_(new IOThreadState) {
     base::Thread::Options options;
     options.message_loop_type = MessageLoop::TYPE_IO;
     io_thread_.StartWithOptions(options);
+
+    // Initialize state that lives on |io_thread_|.
+    io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        io_thread_state_.get(), &IOThreadState::DoInit,
+        config_service, resolver));
+    io_thread_state_->event.Wait();
+  }
+
+  ~ProxyServiceWithFutures() {
+    // Destroy state that lives on |io_thread_|.
+    io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        io_thread_state_.get(), &IOThreadState::DoDestroy));
+    io_thread_state_->event.Wait();
   }
 
   // Start the request on |io_thread_|, and return a handle that can be
   // used to access the results. The caller is responsible for freeing
   // the ResultFuture.
   void ResolveProxy(scoped_refptr<ResultFuture>* result, const GURL& url) {
-    (*result) = new ResultFuture(io_thread_.message_loop(), &service_);
+    *result = new ResultFuture(io_thread_.message_loop(),
+                               io_thread_state_->service);
     (*result)->StartResolve(url);
   }
 
+  // Same as above, but for "ReconsiderProxyAfterError()".
+  void ReconsiderProxyAfterError(scoped_refptr<ResultFuture>* result,
+                                 const GURL& url,
+                                 const net::ProxyInfo& proxy_info) {
+    *result = new ResultFuture(io_thread_.message_loop(),
+                               io_thread_state_->service);
+    (*result)->StartReconsider(url, proxy_info);
+  }
+
   void SetProxyScriptFetcher(net::ProxyScriptFetcher* proxy_script_fetcher) {
-    service_.SetProxyScriptFetcher(proxy_script_fetcher);
+    io_thread_.message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+        io_thread_state_.get(), &IOThreadState::DoSetProxyScriptFetcher,
+        proxy_script_fetcher));
+    io_thread_state_->event.Wait();
   }
 
  private:
+  // Class that encapsulates the state living on IO thread. It needs to be
+  // ref-counted for posting tasks.
+  class IOThreadState : public base::RefCountedThreadSafe<IOThreadState> {
+   public:
+    IOThreadState() : event(false, false), service(NULL) {}
+
+    void DoInit(net::ProxyConfigService* config_service,
+                net::ProxyResolver* resolver) {
+      service = new net::ProxyService(config_service, resolver);
+      event.Signal();
+    }
+
+    void DoDestroy() {
+      delete service;
+      service = NULL;
+      event.Signal();
+    }
+
+    void DoSetProxyScriptFetcher(
+        net::ProxyScriptFetcher* proxy_script_fetcher) {
+      service->SetProxyScriptFetcher(proxy_script_fetcher);
+      event.Signal();
+    }
+
+    base::WaitableEvent event;
+    net::ProxyService* service;
+  };
+
   base::Thread io_thread_;
-  net::ProxyService service_;
+  scoped_refptr<IOThreadState> io_thread_state_;  // Lives on |io_thread_|.
+};
+
+// Wrapper around ProxyServiceWithFutures to do one request at a time.
+class SyncProxyService {
+ public:
+  SyncProxyService(net::ProxyConfigService* config_service,
+                   net::ProxyResolver* resolver)
+      : service_(config_service, resolver) {
+  }
+
+  int ResolveProxy(const GURL& url, net::ProxyInfo* proxy_info) {
+    scoped_refptr<ResultFuture> result;
+    service_.ResolveProxy(&result, url);
+    *proxy_info = result->GetProxyInfo();
+    return result->GetResultCode();
+  }
+
+  int ReconsiderProxyAfterError(const GURL& url, net::ProxyInfo* proxy_info) {
+    scoped_refptr<ResultFuture> result;
+    service_.ReconsiderProxyAfterError(&result, url, *proxy_info);
+    *proxy_info = result->GetProxyInfo();
+    return result->GetResultCode();
+  }
+
+ private:
+  ProxyServiceWithFutures service_;
 };
 
 // A ProxyResolver which can be set to block upon reaching GetProxyForURL.
