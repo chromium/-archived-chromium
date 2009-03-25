@@ -91,5 +91,7 @@ int main(int argc, char* argv[]) {
   TestShell::ShutdownTestShell();
   TestShell::CleanupLogging();
 
+  CommandLine::Terminate();
+
   return result;
 }
