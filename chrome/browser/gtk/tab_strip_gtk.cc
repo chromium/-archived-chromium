@@ -50,7 +50,7 @@ static GdkFont* load_default_font() {
       font_name);
 
   GdkFont* font = gdk_font_from_description(font_description);
-  free(font_name);
+  g_free(font_name);
   return font;
 }
 
