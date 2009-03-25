@@ -30,6 +30,12 @@ int main(int argc, char* argv[]) {
     }
 
     printf(" / length: %d / bits %d]: ", data->length, data->format);
+
+    if (strstr(gdk_atom_name(targets[i]), "image")) {
+      printf("(image omitted)\n\n");
+      continue;
+    }
+
     for (int j = 0; j < data->length; j++) {
       // Output data one byte at a time. Currently wide strings look
       // pretty weird.

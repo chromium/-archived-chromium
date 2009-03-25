@@ -38,7 +38,7 @@ void Clipboard::DispatchObject(ObjectType type, const ObjectMapParams& params) {
       WriteWebSmartPaste();
       break;
 
-#if defined(OS_WIN) || defined(OS_LINUX)  // This is just a stub on Linux
+#if defined(OS_WIN) || defined(OS_LINUX)
     case CBF_BITMAP:
       WriteBitmap(&(params[0].front()), &(params[1].front()));
       break;

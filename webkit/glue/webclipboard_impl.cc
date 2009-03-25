@@ -119,7 +119,7 @@ void WebClipboardImpl::writeImage(
     const WebImage& image, const WebURL& url, const WebString& title) {
   ScopedClipboardWriterGlue scw(ClipboardGetClipboard());
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   if (!image.isNull())
     scw.WriteBitmapFromPixels(image.pixels(), image.size());
 #endif

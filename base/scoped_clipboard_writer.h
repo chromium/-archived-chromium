@@ -51,13 +51,9 @@ class ScopedClipboardWriter {
   // Used by WebKit to determine whether WebKit wrote the clipboard last
   void WriteWebSmartPaste();
 
-#if defined(OS_WIN)
   // Adds a bitmap to the clipboard
-  // This is the slowest way to copy a bitmap to the clipboard as we must first
-  // memcpy the pixels into GDI and the blit the bitmap to the clipboard.
   // Pixel format is assumed to be 32-bit BI_RGB.
   void WriteBitmapFromPixels(const void* pixels, const gfx::Size& size);
-#endif  // defined(OS_WIN)
 
  protected:
   // We accumulate the data passed to the various targets in the |objects_|

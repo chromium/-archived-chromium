@@ -120,7 +120,6 @@ void ScopedClipboardWriter::WriteWebSmartPaste() {
   objects_[Clipboard::CBF_WEBKIT] = Clipboard::ObjectMapParams();
 }
 
-#if defined(OS_WIN)
 void ScopedClipboardWriter::WriteBitmapFromPixels(const void* pixels,
                                                   const gfx::Size& size) {
   Clipboard::ObjectMapParam pixels_parameter, size_parameter;
@@ -139,4 +138,3 @@ void ScopedClipboardWriter::WriteBitmapFromPixels(const void* pixels,
   parameters.push_back(size_parameter);
   objects_[Clipboard::CBF_BITMAP] = parameters;
 }
-#endif  // defined(OS_WIN)

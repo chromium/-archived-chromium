@@ -499,13 +499,13 @@ void ResourceMessageFilter::OnClipboardWriteObjects(
   // a task to perform the write on the UI thread.
   Clipboard::ObjectMap* long_living_objects = new Clipboard::ObjectMap(objects);
 
-  // We pass the renderer handle to assist the clipboard with using shared
-  // memory objects. renderer handle is a handle to the process that would
-  // own any shared memory that might be in the object list.
 #if defined(OS_WIN)
+  // We pass the renderer handle to assist the clipboard with using shared
+  // memory objects. handle() is a handle to the process that would
+  // own any shared memory that might be in the object list. We only do this
+  // on Windows and it only applies to bitmaps. (On Linux, bitmaps
+  // are copied pixel by pixel rather than using shared memory.)
   Clipboard::DuplicateRemoteHandles(handle(), long_living_objects);
-#else
-  NOTIMPLEMENTED();  // TODO(port) implement this.
 #endif
 
   render_widget_helper_->ui_loop()->PostTask(FROM_HERE,

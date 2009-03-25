@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 #include "base/clipboard.h"
-#include "base/string_util.h"
 
 #include <gtk/gtk.h>
 #include <map>
@@ -11,11 +10,15 @@
 #include <string>
 #include <utility>
 
+#include "base/gfx/png_encoder.h"
+#include "base/string_util.h"
+
 namespace {
 
-static const char* kMimeHtml = "text/html";
-static const char* kMimeText = "text/plain";
-static const char* kMimeWebkitSmartPaste = "chrome-internal/webkit-paste";
+const char* kMimePng = "image/png";
+const char* kMimeHtml = "text/html";
+const char* kMimeText = "text/plain";
+const char* kMimeWebkitSmartPaste = "chromium-internal/webkit-paste";
 
 std::string GdkAtomToString(const GdkAtom& atom) {
   gchar* name = gdk_atom_name(atom);
@@ -158,8 +161,24 @@ void Clipboard::WriteWebSmartPaste() {
   InsertMapping(kMimeWebkitSmartPaste, NULL, 0);
 }
 
+// We have to convert the image to a PNG because gtk_clipboard_request_image()
+// only works with PNGs. Warning: this is an internal implementation detail of
+// gtk_clipboard_request_image() and might change in the future.
 void Clipboard::WriteBitmap(const char* pixel_data, const char* size_data) {
-  NOTIMPLEMENTED();
+  const gfx::Size* size = reinterpret_cast<const gfx::Size*>(size_data);
+
+  std::vector<unsigned char> png_data;
+  if (!PNGEncoder::Encode(
+      reinterpret_cast<const unsigned char*>(pixel_data),
+      PNGEncoder::FORMAT_BGRA, size->width(), size->height(),
+      size->width() * 4, false, &png_data)) {
+    DLOG(ERROR) << "Failed to encode bitmap for clipboard.";
+    return;
+  }
+  char* data = new char[png_data.size()];
+  memcpy(data, png_data.data(), png_data.size());
+
+  InsertMapping(kMimePng, data, png_data.size());
 }
 
 void Clipboard::WriteBookmark(const char* title_data, size_t title_len,
