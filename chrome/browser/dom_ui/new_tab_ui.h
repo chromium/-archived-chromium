@@ -14,6 +14,7 @@ class Profile;
 class NewTabUI : public DOMUI {
  public:
   explicit NewTabUI(WebContents* manager);
+  ~NewTabUI();
 
  private:
   // The message id that should be displayed in this NewTabUIContents

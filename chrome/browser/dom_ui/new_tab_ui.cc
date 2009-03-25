@@ -382,16 +382,19 @@ MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
   dom_ui_->RegisterMessageCallback("getMostVisited",
       NewCallback(this, &MostVisitedHandler::HandleGetMostVisited));
 
-  // Set up our sources for thumbnail and favicon data.
-  // Ownership is passed to the ChromeURLDataManager.
-  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(&chrome_url_data_manager,
-                        &ChromeURLDataManager::AddDataSource,
-                        new DOMUIThumbnailSource(dom_ui->GetProfile())));
-  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(&chrome_url_data_manager,
-                        &ChromeURLDataManager::AddDataSource,
-                        new DOMUIFavIconSource(dom_ui->GetProfile())));
+  // Set up our sources for thumbnail and favicon data. Since we may be in
+  // testing mode with no I/O thread, only add our handler when an I/O thread
+  // exists. Ownership is passed to the ChromeURLDataManager.
+  if (g_browser_process->io_thread()) {
+    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(&chrome_url_data_manager,
+                          &ChromeURLDataManager::AddDataSource,
+                          new DOMUIThumbnailSource(dom_ui->GetProfile())));
+    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(&chrome_url_data_manager,
+                          &ChromeURLDataManager::AddDataSource,
+                          new DOMUIFavIconSource(dom_ui->GetProfile())));
+  }
 
   // Get notifications when history is cleared.
   NotificationService* service = NotificationService::current();
@@ -1052,9 +1055,16 @@ NewTabUI::NewTabUI(WebContents* contents)
 
     NewTabHTMLSource* html_source = new NewTabHTMLSource();
 
-    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
-        NewRunnableMethod(&chrome_url_data_manager,
-            &ChromeURLDataManager::AddDataSource,
-            html_source));
+    // In testing mode there may not be an I/O thread.
+    if (g_browser_process->io_thread()) {
+      g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+          NewRunnableMethod(&chrome_url_data_manager,
+              &ChromeURLDataManager::AddDataSource,
+              html_source));
+    }
   }
 }
+
+NewTabUI::~NewTabUI() {
+}
+
