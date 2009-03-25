@@ -30,6 +30,8 @@
       'sources': [
         'audio/linux/audio_manager_linux.cc',
         'audio/mac/audio_manager_mac.cc',
+	'audio/mac/audio_output_mac.h',
+	'audio/mac/audio_output_mac.cc',
         'audio/win/audio_manager_win.h',
         'audio/win/audio_output_win.cc',
         'audio/win/simple_sources_win.cc',
@@ -78,6 +80,16 @@
           '..',
         ],
       },
+      'conditions': [
+        ['OS =="mac"', {
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AudioToolbox.framework',
+              '$(SDKROOT)/System/Library/Frameworks/CoreAudio.framework',
+            ],
+          },
+        }],
+      ],
     },
     {
       'target_name': 'media_unittests',
@@ -89,6 +101,7 @@
       ],
       'sources': [
         'audio/win/audio_output_win_unittest.cc',
+        'audio/mac/audio_output_mac_unittest.cc',
         'base/data_buffer_unittest.cc',
         'base/pipeline_impl_unittest.cc',
         'base/run_all_unittests.cc',
