@@ -24,6 +24,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <ApplicationServices/ApplicationServices.h>
 #import <Cocoa/Cocoa.h>
 
 #include "config.h"
@@ -37,7 +38,7 @@
 
 // WebMouseEvent --------------------------------------------------------------
 
-WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
+WebMouseEvent::WebMouseEvent(NSEvent* event, NSView* view) {
   switch ([event type]) {
     case NSMouseExited:
       type = MOUSE_LEAVE;
@@ -113,7 +114,7 @@ WebMouseEvent::WebMouseEvent(NSEvent *event, NSView* view) {
 
 // WebMouseWheelEvent ---------------------------------------------------------
 
-WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
+WebMouseWheelEvent::WebMouseWheelEvent(NSEvent* event, NSView* view) {
   type = MOUSE_WHEEL;
   button = BUTTON_NONE;
 
@@ -134,16 +135,132 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
   x = location.x;
   y = [view frame].size.height - location.y;  // flip y
 
-  // Convert wheel delta amount to a number of pixels to scroll.
-  // Cocoa sets deltaX instead of deltaY if shift is pressed when scrolling
-  // with a scroll wheel, no need to do that ourselves.
-  static const float kScrollbarPixelsPerTick = 40.0f;
+  // Of Mice and Men
+  // ---------------
+  //
+  // There are three types of scroll data available on a scroll wheel CGEvent.
+  // Apple's documentation ([1]) is rather vague in their differences, and not
+  // terribly helpful in deciding which to use. This is what's really going on.
+  //
+  // First, these events behave very differently depending on whether a standard
+  // wheel mouse is used (one that scrolls in discrete units) or a
+  // trackpad/Mighty Mouse is used (which both provide continuous scrolling).
+  // You must check to see which was used for the event by testing the
+  // kCGScrollWheelEventIsContinuous field.
+  //
+  // Second, these events refer to "axes". Axis 1 is the y-axis, and axis 2 is
+  // the x-axis.
+  //
+  // Third, there is a concept of mouse acceleration. Scrolling the same amount
+  // of physical distance will give you different results logically depending on
+  // whether you scrolled a little at a time or in one continuous motion. Some
+  // fields account for this while others do not.
+  //
+  // Fourth, for trackpads there is a concept of chunkiness. When scrolling
+  // continuously, events can be delivered in chunks. That is to say, lots of
+  // scroll events with delta 0 will be delivered, and every so often an event
+  // with a non-zero delta will be delivered, containing the accumulated deltas
+  // from all the intermediate moves. [2]
+  //
+  // For notchy wheel mice (kCGScrollWheelEventIsContinuous == 0)
+  // ------------------------------------------------------------
+  //
+  // kCGScrollWheelEventDeltaAxis*
+  //   This is the rawest of raw events. For each mouse notch you get a value of
+  //   +1/-1. This does not take acceleration into account and thus is less
+  //   useful for building UIs.
+  //
+  // kCGScrollWheelEventPointDeltaAxis*
+  //   This is smarter. In general, for each mouse notch you get a value of
+  //   +1/-1, but this _does_ take acceleration into account, so you will get
+  //   larger values on longer scrolls. This field would be ideal for building
+  //   UIs except for one nasty bug: when the shift key is pressed, this set of
+  //   fields fails to move the value into the axis2 field (the other two types
+  //   of data do). This wouldn't be so bad except for the fact that while the
+  //   number of axes is used in the creation of a CGScrollWheelEvent, there is
+  //   no way to get that information out of the event once created.
+  //
+  // kCGScrollWheelEventFixedPtDeltaAxis*
+  //   This is a fixed value, and for each mouse notch you get a value of
+  //   +0.1/-0.1 (but, like above, scaled appropriately for acceleration). This
+  //   value takes acceleration into account, and in fact is identical to the
+  //   results you get from -[NSEvent delta*]. (That is, if you linked on Tiger
+  //   or greater; see [2] for details.)
+  //
+  // A note about continuous devices
+  // -------------------------------
+  //
+  // There are two devices that provide continuous scrolling events (trackpads
+  // and Mighty Mouses) and they behave rather differently. The Mighty Mouse
+  // behaves a lot like a regular mouse. There is no chunking, and the
+  // FixedPtDelta values are the PointDelta values multiplied by 0.1. With the
+  // trackpad, though, there is chunking. While the FixedPtDelta values are
+  // reasonable (they occur about every fifth event but have values five times
+  // larger than usual) the Delta values are unreasonable. They don't appear to
+  // accumulate properly.
+  //
+  // For continuous devices (kCGScrollWheelEventIsContinuous != 0)
+  // -------------------------------------------------------------
+  //
+  // kCGScrollWheelEventDeltaAxis*
+  //   This provides values with no acceleration. With a trackpad, these values
+  //   are chunked but each non-zero value does not appear to be cumulative.
+  //   This seems to be a bug.
+  //
+  // kCGScrollWheelEventPointDeltaAxis*
+  //   This provides values with acceleration. With a trackpad, these values are
+  //   not chunked and are highly accurate.
+  //
+  // kCGScrollWheelEventFixedPtDeltaAxis*
+  //   This provides values with acceleration. With a trackpad, these values are
+  //   chunked but unlike Delta events are properly cumulative.
+  //
+  // Summary
+  // -------
+  //
+  // In general the best approach to take is: determine if the event is
+  // continuous. If it is not, then use the FixedPtDelta events (or just stick
+  // with Cocoa events). They provide both acceleration and proper horizontal
+  // scrolling. If the event is continuous, then doing pixel scrolling with the
+  // PointDelta is the way to go. In general, avoid the Delta events. They're
+  // the oldest (dating back to 10.4, before CGEvents were public) but they lack
+  // acceleration and precision, making them useful only in specific edge cases.
+  //
+  // References
+  // ----------
+  //
+  // [1] <http://developer.apple.com/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html>
+  // [2] <http://developer.apple.com/releasenotes/Cocoa/AppKitOlderNotes.html>
+  //     Scroll to the section headed "NSScrollWheel events".
+  //
+  // P.S. The "smooth scrolling" option in the system preferences is utterly
+  // unrelated to any of this.
 
-  wheel_ticks_x = [event deltaX];
-  delta_x = wheel_ticks_x * kScrollbarPixelsPerTick;
+  CGEventRef cg_event = [event CGEvent];
+  DCHECK(cg_event);
 
-  wheel_ticks_y = [event deltaY];
-  delta_y = wheel_ticks_y * kScrollbarPixelsPerTick;
+  // Wheel ticks are supposed to be raw, unaccelerated values, one per physical
+  // mouse wheel notch. The delta event is perfect for this (being a good
+  // "specific edge case" as mentioned above). For trackpads, unfortunately, we
+  // don't have anything better.
+
+  wheel_ticks_y = CGEventGetIntegerValueField(cg_event,
+                                              kCGScrollWheelEventDeltaAxis1);
+  wheel_ticks_x = CGEventGetIntegerValueField(cg_event,
+                                              kCGScrollWheelEventDeltaAxis2);
+
+  if (CGEventGetIntegerValueField(cg_event, kCGScrollWheelEventIsContinuous)) {
+    delta_y = CGEventGetIntegerValueField(cg_event,
+                                          kCGScrollWheelEventPointDeltaAxis1);
+    delta_x = CGEventGetIntegerValueField(cg_event,
+                                          kCGScrollWheelEventPointDeltaAxis2);
+  } else {
+    // Convert wheel delta amount to a number of pixels to scroll.
+    static const double kScrollbarPixelsPerCocoaTick = 40.0;
+
+    delta_x = [event deltaX] * kScrollbarPixelsPerCocoaTick;
+    delta_y = [event deltaY] * kScrollbarPixelsPerCocoaTick;
+  }
 
   scroll_by_page = false;
 }
@@ -163,7 +280,7 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
 
 namespace WebCore {
 
-static inline bool isKeyUpEvent(NSEvent *event)
+static inline bool isKeyUpEvent(NSEvent* event)
 {
     if ([event type] != NSFlagsChanged)
         return [event type] == NSKeyUp;
@@ -643,7 +760,7 @@ static NSString* keyIdentifierForKeyEvent(NSEvent* event)
                 return @"";
         }
 
-    NSString *s = [event charactersIgnoringModifiers];
+    NSString* s = [event charactersIgnoringModifiers];
     if ([s length] != 1) {
         return @"Unidentified";
     }
@@ -941,7 +1058,7 @@ static NSString* keyIdentifierForKeyEvent(NSEvent* event)
 // End Apple code.
 // ---------------------------------------------------------------------
 
-WebKeyboardEvent::WebKeyboardEvent(NSEvent *event) {
+WebKeyboardEvent::WebKeyboardEvent(NSEvent* event) {
   system_key = false;
   type = WebCore::isKeyUpEvent(event) ? KEY_UP : KEY_DOWN;
 
