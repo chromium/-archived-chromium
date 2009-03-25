@@ -197,8 +197,10 @@ Filter::FilterStatus GZipFilter::DoInflate(char* dest_buffer, int* dest_len) {
   if (!dest_buffer || !dest_len || *dest_len <= 0)  // output
     return Filter::FILTER_ERROR;
 
-  if (!next_stream_data_ || stream_data_len_ <= 0)  // input
-    return Filter::FILTER_ERROR;
+  if (!next_stream_data_ || stream_data_len_ <= 0) {  // input
+    *dest_len = 0;
+    return Filter::FILTER_NEED_MORE_DATA;
+  }
 
   // Fill in zlib control block
   zlib_stream_.get()->next_in = bit_cast<Bytef*>(next_stream_data_);

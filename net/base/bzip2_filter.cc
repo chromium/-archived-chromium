@@ -56,8 +56,10 @@ Filter::FilterStatus BZip2Filter::ReadFilteredData(char* dest_buffer,
     return status;
 
   // Make sure we have valid input data
-  if (!next_stream_data_ || stream_data_len_ <= 0)
-    return status;
+  if (!next_stream_data_ || stream_data_len_ <= 0) {
+    *dest_len = 0;
+    return Filter::FILTER_NEED_MORE_DATA;
+  }
 
   // Fill in bzip2 control block
   int ret, output_len = *dest_len;
