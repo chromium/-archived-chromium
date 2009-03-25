@@ -28,6 +28,21 @@ ScopedVariant::ScopedVariant(int value, VARTYPE vt) {
   var_.lVal = value;
 }
 
+ScopedVariant::ScopedVariant(IDispatch* dispatch) {
+  var_.vt = VT_EMPTY;
+  Set(dispatch);
+}
+
+ScopedVariant::ScopedVariant(IUnknown* unknown) {
+  var_.vt = VT_EMPTY;
+  Set(unknown);
+}
+
+ScopedVariant::ScopedVariant(const VARIANT& var) {
+  var_.vt = VT_EMPTY;
+  Set(var);
+}
+
 void ScopedVariant::Reset(const VARIANT& var) {
   if (&var != &var_) {
     ::VariantClear(&var_);
@@ -185,6 +200,22 @@ void ScopedVariant::Set(SAFEARRAY* array) {
     DCHECK(array == NULL) << "Unable to determine safearray vartype";
     var_.vt = VT_EMPTY;
   }
+}
+
+void ScopedVariant::Set(const VARIANT& var) {
+  DCHECK(!IsLeakableVarType(var_.vt)) << "leaking variant: " << var_.vt;
+  if (FAILED(::VariantCopy(&var_, &var))) {
+    DLOG(ERROR) << "VariantCopy failed";
+    var_.vt = VT_EMPTY;
+  }
+}
+
+ScopedVariant& ScopedVariant::operator=(const VARIANT& var) {
+  if (&var != &var_) {
+    VariantClear(&var_);
+    Set(var);
+  }
+  return *this;
 }
 
 bool ScopedVariant::IsLeakableVarType(VARTYPE vt) {

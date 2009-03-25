@@ -198,6 +198,48 @@ TEST(ScopedVariantTest, ScopedVariant) {
   var.Reset();
   EXPECT_EQ(0, faker.ref_count());
 
+  {
+    ScopedVariant disp_var(&faker);
+    EXPECT_EQ(VT_DISPATCH, disp_var.type());
+    EXPECT_EQ(&faker, V_DISPATCH(&disp_var));
+    EXPECT_EQ(1, faker.ref_count());
+  }
+  EXPECT_EQ(0, faker.ref_count());
+
+  {
+    ScopedVariant ref1(&faker);
+    EXPECT_EQ(1, faker.ref_count());
+    ScopedVariant ref2(static_cast<const VARIANT&>(ref1));
+    EXPECT_EQ(2, faker.ref_count());
+    ScopedVariant ref3;
+    ref3 = static_cast<const VARIANT&>(ref2);
+    EXPECT_EQ(3, faker.ref_count());
+  }
+  EXPECT_EQ(0, faker.ref_count());
+
+  {
+    ScopedVariant unk_var(static_cast<IUnknown*>(&faker));
+    EXPECT_EQ(VT_UNKNOWN, unk_var.type());
+    EXPECT_EQ(&faker, V_UNKNOWN(&unk_var));
+    EXPECT_EQ(1, faker.ref_count());
+  }
+  EXPECT_EQ(0, faker.ref_count());
+
+  VARIANT raw;
+  raw.vt = VT_UNKNOWN;
+  raw.punkVal = &faker;
+  EXPECT_EQ(0, faker.ref_count());
+  var.Set(raw);
+  EXPECT_EQ(1, faker.ref_count());
+  var.Reset();
+  EXPECT_EQ(0, faker.ref_count());
+
+  {
+    ScopedVariant number(123);
+    EXPECT_EQ(VT_I4, number.type());
+    EXPECT_EQ(123, V_I4(&number));
+  }
+
   // SAFEARRAY tests
   var.Set(static_cast<SAFEARRAY*>(NULL));
   EXPECT_EQ(VT_EMPTY, var.type());

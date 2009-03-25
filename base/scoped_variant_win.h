@@ -40,6 +40,15 @@ class ScopedVariant {
   // VARIANT.lVal (32 bit sized field).
   explicit ScopedVariant(int value, VARTYPE vt = VT_I4);
 
+  // VT_DISPATCH
+  explicit ScopedVariant(IDispatch* dispatch);
+
+  // VT_UNKNOWN
+  explicit ScopedVariant(IUnknown* unknown);
+
+  // Copies the variant.
+  explicit ScopedVariant(const VARIANT& var);
+
   ~ScopedVariant();
 
   inline VARTYPE type() const {
@@ -83,6 +92,11 @@ class ScopedVariant {
   void Set(double r64);
   void Set(bool b);
 
+  // Creates a copy of |var| and assigns as this instance's value.
+  // Note that this is different from the Reset() method that's used to
+  // free the current value and assume ownership.
+  void Set(const VARIANT& var);
+
   // COM object setters
   void Set(IDispatch* disp);
   void Set(IUnknown* unk);
@@ -101,6 +115,10 @@ class ScopedVariant {
   const VARIANT* operator&() const {
     return &var_;
   }
+
+  // Like other scoped classes (e.g scoped_refptr, ScopedComPtr, ScopedBstr)
+  // we support the assignment operator for the type we wrap.
+  ScopedVariant& operator=(const VARIANT& var);
 
   // A hack to pass a pointer to the variant where the accepting
   // function treats the variant as an input-only, read-only value
