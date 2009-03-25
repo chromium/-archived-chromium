@@ -318,24 +318,23 @@ void DisplayDebugMessage(const std::string& str) {
     backslash[1] = 0;
   wcscat_s(prog_name, MAX_PATH, L"debug_message.exe");
 
-  // Stupid CreateProcess requires a non-const command line and may modify it.
-  // We also want to use the wide string.
-  std::wstring cmdline_string = base::SysUTF8ToWide(str);
-  wchar_t* cmdline = const_cast<wchar_t*>(cmdline_string.c_str());
+  std::wstring cmdline = base::SysUTF8ToWide(str);
+  if (cmdline.empty())
+    return;
 
   STARTUPINFO startup_info;
   memset(&startup_info, 0, sizeof(startup_info));
   startup_info.cb = sizeof(startup_info);
 
   PROCESS_INFORMATION process_info;
-  if (CreateProcessW(prog_name, cmdline, NULL, NULL, false, 0, NULL,
+  if (CreateProcessW(prog_name, &cmdline[0], NULL, NULL, false, 0, NULL,
                      NULL, &startup_info, &process_info)) {
     WaitForSingleObject(process_info.hProcess, INFINITE);
     CloseHandle(process_info.hThread);
     CloseHandle(process_info.hProcess);
   } else {
     // debug process broken, let's just do a message box
-    MessageBoxW(NULL, cmdline, L"Fatal error",
+    MessageBoxW(NULL, &cmdline[0], L"Fatal error",
                 MB_OK | MB_ICONHAND | MB_TOPMOST);
   }
 #else
