@@ -426,6 +426,9 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
                          tabstrip->tabstrip_.get()->allocation.width,
                          tabstrip->tabstrip_.get()->allocation.height);
 
+  if (model->count() == 0)
+    return TRUE;
+
   for (int i = 0; i < model->count(); i++) {
     if (i != selected) {
       tabstrip->PaintTab(i, false);
