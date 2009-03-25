@@ -129,7 +129,7 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
     }
 
     if (accel_group && menu_data->accel_key) {
-      // If we ever want to let the user do any key remaping, we'll need to
+      // If we ever want to let the user do any key re-mapping, we'll need to
       // change the following so we make a gtk_accel_map which keeps the actual
       // keys.
       gtk_widget_add_accelerator(menu_item,
@@ -150,6 +150,7 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
     gtk_menu_append(menu, menu_item);
     last_menu_item = menu_item;
   }
+  gtk_widget_modify_bg(menu, GTK_STATE_NORMAL, &gfx::kGdkWhite);
 }
 
 void MenuGtk::BuildMenuFromDelegate() {
@@ -180,6 +181,7 @@ void MenuGtk::BuildMenuFromDelegate() {
     gtk_widget_show(menu_item);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
   }
+  gtk_widget_modify_bg(menu_.get(), GTK_STATE_NORMAL, &gfx::kGdkWhite);
 }
 
 // static

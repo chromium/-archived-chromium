@@ -22,9 +22,12 @@ namespace gfx {
 
 class Rect;
 
+extern const GdkColor kGdkWhite;
+extern const GdkColor kGdkBlack;
+
 // Modify the given region by subtracting the given rectangles.
 void SubtractRectanglesFromRegion(GdkRegion* region,
-                                  const std::vector<gfx::Rect>& cutouts);
+                                  const std::vector<Rect>& cutouts);
 
 // Convert and copy a SkBitmap to a GdkPixbuf.  NOTE: This is an expensive
 // operation, all of the pixels must be copied and their order swapped.

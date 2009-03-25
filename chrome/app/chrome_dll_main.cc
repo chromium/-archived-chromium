@@ -393,6 +393,10 @@ int ChromeMain(int argc, const char** argv) {
 #endif
   } else if (process_type.empty()) {
 #if defined(OS_LINUX)
+    // Disable user theming.
+    gchar* default_gtkrc_files[] = { NULL };
+    gtk_rc_set_default_files(default_gtkrc_files);
+
     // gtk_init() can change |argc| and |argv|, but nobody else uses them.
     gtk_init(&argc, const_cast<char***>(&argv));
     // Register GTK assertions to go through our logging system.
@@ -404,6 +408,12 @@ int ChromeMain(int argc, const char** argv) {
                                                   G_LOG_LEVEL_WARNING),
                       GtkFatalLogHandler,
                       NULL);
+
+    // This theme is chosen rather abritrarily. We set many colors ourselves,
+    // so we need to set a light theme or some of the colors will clash.
+    g_object_set(gtk_settings_get_default(),
+                 "gtk-theme-name", "Mist",
+                 NULL);
 #endif
 
     ScopedOleInitializer ole_initializer;
