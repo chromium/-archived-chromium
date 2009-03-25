@@ -48,6 +48,7 @@ class NativeButton : public Button {
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
+  virtual void SetEnabled(bool flag);
   virtual void Focus();
 
  protected:

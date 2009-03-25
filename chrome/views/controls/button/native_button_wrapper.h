@@ -24,6 +24,10 @@ class NativeButtonWrapper {
   // associated NativeButton.
   virtual void UpdateFont() = 0;
 
+  // Updates the native button's enabled state from the state stored in its
+  // associated NativeButton.
+  virtual void UpdateEnabled() = 0;
+
   // Updates the native button's default state from the state stored in its
   // associated NativeButton.
   virtual void UpdateDefault() = 0;

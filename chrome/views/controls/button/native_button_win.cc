@@ -40,6 +40,10 @@ void NativeButtonWin::UpdateFont() {
               FALSE);
 }
 
+void NativeButtonWin::UpdateEnabled() {
+  SetEnabled(native_button_->IsEnabled());
+}
+
 void NativeButtonWin::UpdateDefault() {
   if (!IsCheckbox()) {
     SendMessage(GetHWND(), BM_SETSTYLE,

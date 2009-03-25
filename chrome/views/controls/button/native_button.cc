@@ -118,6 +118,12 @@ void NativeButton::Layout() {
   }
 }
 
+void NativeButton::SetEnabled(bool flag) {
+  Button::SetEnabled(flag);
+  if (native_wrapper_)
+    native_wrapper_->UpdateEnabled();
+}
+
 void NativeButton::ViewHierarchyChanged(bool is_add, View* parent,
                                          View* child) {
   if (is_add && !native_wrapper_ && GetWidget()) {
@@ -151,6 +157,7 @@ void NativeButton::Focus() {
 void NativeButton::CreateWrapper() {
   native_wrapper_ = NativeButtonWrapper::CreateNativeButtonWrapper(this);
   native_wrapper_->UpdateLabel();
+  native_wrapper_->UpdateEnabled();
 }
 
 void NativeButton::InitBorder() {

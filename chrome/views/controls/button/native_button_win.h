@@ -20,6 +20,7 @@ class NativeButtonWin : public NativeControlWin,
   // Overridden from NativeButtonWrapper:
   virtual void UpdateLabel();
   virtual void UpdateFont();
+  virtual void UpdateEnabled();
   virtual void UpdateDefault();
   virtual View* GetView();
   virtual void SetFocus();
