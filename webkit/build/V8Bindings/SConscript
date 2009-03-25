@@ -353,6 +353,7 @@ inputs = [
     '$PORT_DIR/bindings/v8/V8NPObject.cpp',
     '$PORT_DIR/bindings/v8/v8_proxy.cpp',
     '$PORT_DIR/bindings/v8/V8CanvasPixelArrayCustom.cpp',
+    '$PORT_DIR/bindings/v8/V8DOMMap.cpp',
     '$PORT_DIR/bindings/v8/V8MessagePortCustom.cpp',
     '$PORT_DIR/bindings/v8/V8WorkerContextCustom.cpp',
     '$PORT_DIR/bindings/v8/V8WorkerCustom.cpp',
