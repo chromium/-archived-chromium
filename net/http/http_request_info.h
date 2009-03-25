@@ -5,7 +5,6 @@
 #ifndef NET_HTTP_HTTP_REQUEST_INFO_H__
 #define NET_HTTP_HTTP_REQUEST_INFO_H__
 
-#include <string>
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/upload_data.h"
@@ -38,9 +37,6 @@ class HttpRequestInfo {
 
   // Any load flags (see load_flags.h).
   int load_flags;
-
-  // The priority level for this request.
-  int priority;
 };
 
 }  // namespace net

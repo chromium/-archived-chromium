@@ -377,7 +377,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
     next_state_ = STATE_NONE;
     switch (state) {
       case STATE_RESOLVE_PROXY:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.resolve_proxy", request_, request_->url.spec());
         rv = DoResolveProxy();
         break;
@@ -386,7 +386,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.resolve_proxy", request_, request_->url.spec());
         break;
       case STATE_INIT_CONNECTION:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.init_conn", request_, request_->url.spec());
         rv = DoInitConnection();
         break;
@@ -395,7 +395,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.init_conn", request_, request_->url.spec());
         break;
       case STATE_RESOLVE_HOST:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.resolve_host", request_, request_->url.spec());
         rv = DoResolveHost();
         break;
@@ -404,7 +404,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.resolve_host", request_, request_->url.spec());
         break;
       case STATE_CONNECT:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.connect", request_, request_->url.spec());
         rv = DoConnect();
         break;
@@ -413,7 +413,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.connect", request_, request_->url.spec());
         break;
       case STATE_SSL_CONNECT_OVER_TUNNEL:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.ssl_tunnel", request_, request_->url.spec());
         rv = DoSSLConnectOverTunnel();
         break;
@@ -422,7 +422,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.ssl_tunnel", request_, request_->url.spec());
         break;
       case STATE_WRITE_HEADERS:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.write_headers", request_, request_->url.spec());
         rv = DoWriteHeaders();
         break;
@@ -431,7 +431,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.write_headers", request_, request_->url.spec());
         break;
       case STATE_WRITE_BODY:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.write_body", request_, request_->url.spec());
         rv = DoWriteBody();
         break;
@@ -440,7 +440,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.write_body", request_, request_->url.spec());
         break;
       case STATE_READ_HEADERS:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.read_headers", request_, request_->url.spec());
         rv = DoReadHeaders();
         break;
@@ -449,7 +449,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.read_headers", request_, request_->url.spec());
         break;
       case STATE_READ_BODY:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.read_body", request_, request_->url.spec());
         rv = DoReadBody();
         break;
@@ -458,7 +458,7 @@ int HttpNetworkTransaction::DoLoop(int result) {
         TRACE_EVENT_END("http.read_body", request_, request_->url.spec());
         break;
       case STATE_DRAIN_BODY_FOR_AUTH_RESTART:
-        DCHECK_EQ(OK, rv);
+        DCHECK(rv == OK);
         TRACE_EVENT_BEGIN("http.drain_body_for_auth_restart",
                           request_, request_->url.spec());
         rv = DoDrainBodyForAuthRestart();
@@ -527,7 +527,7 @@ int HttpNetworkTransaction::DoInitConnection() {
     connection_group.append(request_->url.GetOrigin().spec());
 
   DCHECK(!connection_group.empty());
-  return connection_.Init(connection_group, request_->priority, &io_callback_);
+  return connection_.Init(connection_group, &io_callback_);
 }
 
 int HttpNetworkTransaction::DoInitConnectionComplete(int result) {

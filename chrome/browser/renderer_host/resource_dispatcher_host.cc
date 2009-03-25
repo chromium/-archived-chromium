@@ -53,7 +53,7 @@
 #endif
 
 // Uncomment to enable logging of request traffic.
-// #define LOG_RESOURCE_DISPATCHER_REQUESTS
+//#define LOG_RESOURCE_DISPATCHER_REQUESTS
 
 #ifdef LOG_RESOURCE_DISPATCHER_REQUESTS
 # define RESOURCE_LOG(stuff) LOG(INFO) << stuff
@@ -328,18 +328,6 @@ void ResourceDispatcherHost::BeginRequest(
   request->set_context(context);
   request->set_origin_pid(request_data.origin_pid);
 
-  // If the request is for the top level page or a frame/iframe, then we should
-  // prioritize it higher than other resource types.  Currently, we just use
-  // priorities 1 and 0.
-  // TODO(willchan): Revisit the actual priorities when looking at considering
-  // boosting priorities for requests for the foreground tab.
-  if (request_data.resource_type == ResourceType::MAIN_FRAME ||
-      request_data.resource_type == ResourceType::SUB_FRAME) {
-    request->set_priority(1);
-  } else {
-    request->set_priority(0);
-  }
-
   // Set upload data.
   uint64 upload_size = 0;
   if (!request_data.upload_content.empty()) {
@@ -389,8 +377,7 @@ void ResourceDispatcherHost::BeginRequest(
                            request_data.main_frame_origin,
                            request_data.resource_type,
                            upload_size);
-  extra_info->allow_download =
-      ResourceType::IsFrame(request_data.resource_type);
+  extra_info->allow_download = ResourceType::IsFrame(request_data.resource_type);
   request->set_user_data(extra_info);  // takes pointer ownership
 
   BeginRequestInternal(request);
@@ -524,7 +511,7 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
                            "null",  // frame_origin
                            "null",  // main_frame_origin
                            ResourceType::SUB_RESOURCE,
-                           0 /* upload_size */);
+                           0 /* upload_size */ );
   extra_info->allow_download = true;
   extra_info->is_download = true;
   request->set_user_data(extra_info);  // Takes pointer ownership.

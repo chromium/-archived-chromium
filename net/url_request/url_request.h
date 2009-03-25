@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_states.h"
@@ -16,14 +15,16 @@
 #include "net/url_request/url_request_status.h"
 
 namespace base {
-class Time;
-}  // namespace base
+  class Time;
+}
 
 namespace net {
+
 class IOBuffer;
 class UploadData;
 class X509Certificate;
-}  // namespace net
+
+}
 
 class URLRequestContext;
 class URLRequestJob;
@@ -430,20 +431,12 @@ class URLRequest {
   // Returns the expected content size if available
   int64 GetExpectedContentSize() const;
 
-  // Returns the priority level for this request.  A larger value indicates
-  // higher priority.  Negative values are not used.
-  int priority() const { return priority_; }
-  void set_priority(int priority) {
-    DCHECK_GE(priority, 0);
-    priority_ = priority;
-  }
-
  protected:
   // Allow the URLRequestJob class to control the is_pending() flag.
   void set_is_pending(bool value) { is_pending_ = value; }
 
   // Allow the URLRequestJob class to set our status too
-  void set_status(const URLRequestStatus& value) { status_ = value; }
+  void set_status(const URLRequestStatus &value) { status_ = value; }
 
   // Allow the URLRequestJob to redirect this request.  Returns net::OK if
   // successful, otherwise an error code is returned.
@@ -511,10 +504,6 @@ class URLRequest {
   // Cached value for use after we've orphaned the job handling the
   // first transaction in a request involving redirects.
   uint64 final_upload_progress_;
-
-  // The priority level for this request.  Objects like ClientSocketPool use
-  // this to determine which URLRequest to allocate sockets to first.
-  int priority_;
 
   DISALLOW_COPY_AND_ASSIGN(URLRequest);
 };

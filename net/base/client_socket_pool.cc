@@ -41,21 +41,7 @@ ClientSocketPool::~ClientSocketPool() {
   DCHECK(group_map_.empty());
 }
 
-// InsertRequestIntoQueue inserts the request into the queue based on
-// priority.  Highest priorities are closest to the front.  Older requests are
-// prioritized over requests of equal priority.
-//
-// static
-void ClientSocketPool::InsertRequestIntoQueue(const Request& r,
-                                              RequestQueue* pending_requests) {
-  RequestQueue::iterator it = pending_requests->begin();
-  while (it != pending_requests->end() && r.priority <= it->priority)
-    ++it;
-  pending_requests->insert(it, r);
-}
-
 int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
-                                    int priority,
                                     CompletionCallback* callback) {
   Group& group = group_map_[handle->group_name_];
 
@@ -65,8 +51,7 @@ int ClientSocketPool::RequestSocket(ClientSocketHandle* handle,
     r.handle = handle;
     DCHECK(callback);
     r.callback = callback;
-    r.priority = priority;
-    InsertRequestIntoQueue(r, &group.pending_requests);
+    group.pending_requests.push_back(r);
     return ERR_IO_PENDING;
   }
 
@@ -198,7 +183,7 @@ void ClientSocketPool::DoReleaseSocket(const std::string& group_name,
   if (!group.pending_requests.empty()) {
     Request r = group.pending_requests.front();
     group.pending_requests.pop_front();
-    int rv = RequestSocket(r.handle, r.priority, NULL);
+    int rv = RequestSocket(r.handle, NULL);
     DCHECK(rv == OK);
     r.callback->Run(rv);
     return;

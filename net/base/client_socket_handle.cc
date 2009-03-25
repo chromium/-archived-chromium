@@ -18,11 +18,10 @@ ClientSocketHandle::~ClientSocketHandle() {
 }
 
 int ClientSocketHandle::Init(const std::string& group_name,
-                             int priority,
                              CompletionCallback* callback) {
   Reset();
   group_name_ = group_name;
-  return pool_->RequestSocket(this, priority, callback);
+  return pool_->RequestSocket(this, callback);
 }
 
 void ClientSocketHandle::Reset() {

@@ -35,8 +35,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   // handle will be initialized without a socket such that the consumer needs
   // to supply a socket, or 3) the handle will be added to a wait list until a
   // socket is available to reuse or the opportunity to create a new socket
-  // arises.  The completion callback is notified in the 3rd case.  |priority|
-  // will determine the placement into the wait list.
+  // arises.  The completion callback is notified in the 3rd case.
   //
   // If this function returns OK, then |handle| is initialized upon return.
   // The |handle|'s is_initialized method will return true in this case.  If a
@@ -48,9 +47,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
   // If ERR_IO_PENDING is returned, then the completion callback will be called
   // when |handle| has been initialized.
   //
-  int RequestSocket(ClientSocketHandle* handle,
-                    int priority,
-                    CompletionCallback* callback);
+  int RequestSocket(ClientSocketHandle* handle, CompletionCallback* callback);
 
   // Called to cancel a RequestSocket call that returned ERR_IO_PENDING.  The
   // same handle parameter must be passed to this method as was passed to the
@@ -78,46 +75,7 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
 
   typedef scoped_ptr<ClientSocket> ClientSocketPtr;
 
-  // A Request is allocated per call to RequestSocket that results in
-  // ERR_IO_PENDING.
-  struct Request {
-    ClientSocketHandle* handle;
-    CompletionCallback* callback;
-    int priority;
-  };
-
-  // Entry for a persistent socket which became idle at time |start_time|.
-  struct IdleSocket {
-    ClientSocketPtr* ptr;
-    base::TimeTicks start_time;
-
-    // An idle socket should be removed if it can't be reused, or has been idle
-    // for too long. |now| is the current time value (TimeTicks::Now()).
-    //
-    // An idle socket can't be reused if it is disconnected or has received
-    // data unexpectedly (hence no longer idle).  The unread data would be
-    // mistaken for the beginning of the next response if we were to reuse the
-    // socket for a new request.
-    bool ShouldCleanup(base::TimeTicks now) const;
-  };
-
-  typedef std::deque<Request> RequestQueue;
-
-  // A Group is allocated per group_name when there are idle sockets or pending
-  // requests.  Otherwise, the Group object is removed from the map.
-  struct Group {
-    Group() : active_socket_count(0) {}
-    std::deque<IdleSocket> idle_sockets;
-    RequestQueue pending_requests;
-    int active_socket_count;
-  };
-
-  typedef std::map<std::string, Group> GroupMap;
-
   ~ClientSocketPool();
-
-  static void InsertRequestIntoQueue(const Request& r,
-                                     RequestQueue* pending_requests);
 
   // Closes all idle sockets if |force| is true.  Else, only closes idle
   // sockets that timed out or can't be reused.
@@ -136,6 +94,38 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
     CleanupIdleSockets(false);
   }
 
+  // A Request is allocated per call to RequestSocket that results in
+  // ERR_IO_PENDING.
+  struct Request {
+    ClientSocketHandle* handle;
+    CompletionCallback* callback;
+  };
+
+  // Entry for a persistent socket which became idle at time |start_time|.
+  struct IdleSocket {
+    ClientSocketPtr* ptr;
+    base::TimeTicks start_time;
+
+    // An idle socket should be removed if it can't be reused, or has been idle
+    // for too long. |now| is the current time value (TimeTicks::Now()).
+    //
+    // An idle socket can't be reused if it is disconnected or has received
+    // data unexpectedly (hence no longer idle).  The unread data would be
+    // mistaken for the beginning of the next response if we were to reuse the
+    // socket for a new request.
+    bool ShouldCleanup(base::TimeTicks now) const;
+  };
+
+  // A Group is allocated per group_name when there are idle sockets or pending
+  // requests.  Otherwise, the Group object is removed from the map.
+  struct Group {
+    Group() : active_socket_count(0) {}
+    std::deque<IdleSocket> idle_sockets;
+    std::deque<Request> pending_requests;
+    int active_socket_count;
+  };
+
+  typedef std::map<std::string, Group> GroupMap;
   GroupMap group_map_;
 
   // Timer used to periodically prune idle sockets that timed out or can't be
