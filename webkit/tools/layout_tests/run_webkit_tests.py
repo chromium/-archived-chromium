@@ -205,31 +205,61 @@ class TestRunner:
     else:
       self._test_files_list.sort(self.TestFilesSort)
 
-    # If the user specifies they just want to run a subset chunk of the tests,
+    # If the user specifies they just want to run a subset of the tests,
     # just grab a subset of the non-skipped tests.
-    if self._options.run_chunk:
+    if self._options.run_chunk or self._options.run_part:
+      chunk_value = self._options.run_chunk or self._options.run_part
       test_files = self._test_files_list
       try:
-        (chunk_num, chunk_len) = self._options.run_chunk.split(":")
+        (chunk_num, chunk_len) = chunk_value.split(":")
         chunk_num = int(chunk_num)
         assert(chunk_num >= 0)
-        chunk_len = int(chunk_len)
-        assert(chunk_len > 0)
+        test_size = int(chunk_len)
+        assert(test_size > 0)
       except:
-        logging.critical("invalid chunk '%s'" % self._options.run_chunk)
+        logging.critical("invalid chunk '%s'" % chunk_value)
         sys.exit(1)
+
+      # Get the number of tests
       num_tests = len(test_files)
-      slice_start = (chunk_num * chunk_len) % num_tests
-      slice_end = min(num_tests + 1, slice_start + chunk_len)
+
+      # Get the start offset of the slice.
+      if self._options.run_chunk:
+        chunk_len = test_size
+        # In this case chunk_num can be really large. We need to make the
+        # slave fit in the current number of tests.
+        slice_start = (chunk_num * chunk_len) % num_tests
+      else:
+        # Validate the data.
+        assert(test_size <= num_tests)
+        assert(chunk_num <= test_size)
+
+        # To count the chunk_len, and make sure we don't skip some tests, we
+        # round to the next value that fits exacly all the parts.
+        rounded_tests = num_tests
+        if rounded_tests % test_size != 0:
+          rounded_tests = num_tests + test_size - (num_tests % test_size)
+
+        chunk_len = rounded_tests / test_size
+        slice_start = chunk_len * (chunk_num - 1)
+        # It does not mind if we go over test_size.
+
+      # Get the end offset of the slice.
+      slice_end = min(num_tests, slice_start + chunk_len)
+
       files = test_files[slice_start:slice_end]
       logging.info('Run: %d tests (chunk slice [%d:%d] of %d)' % (
-          chunk_len, slice_start, slice_end, num_tests))
-      if slice_end - slice_start < chunk_len:
+          (slice_end - slice_start), slice_start, slice_end, num_tests))
+
+      # If we reached the end and we don't have enough tests, we run some
+      # from the beginning.
+      if self._options.run_chunk and (slice_end - slice_start < chunk_len):
         extra = 1 + chunk_len - (slice_end - slice_start)
         logging.info('   last chunk is partial, appending [0:%d]' % extra)
         files.extend(test_files[0:extra])
       self._test_files_list = files
       self._test_files = set(files)
+
       # update expectations so that the stats are calculated correctly
       self._expectations = self._ParseExpectations(
           platform_utils.GetTestListPlatformName().lower(),
@@ -802,6 +832,10 @@ if '__main__' == __name__:
   option_parser.add_option("", "--run-chunk",
                            default=None,
                            help=("Run a specified chunk (n:l), the nth of len l"
+                                 ", of the layout tests"))
+  option_parser.add_option("", "--run-part",
+                           default=None,
+                           help=("Run a specified part (n:l), the nth of lth"
                                  ", of the layout tests"))
   option_parser.add_option("", "--batch-size",
                            default=None,
