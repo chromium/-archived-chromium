@@ -335,8 +335,14 @@
         ['exclude', 'src/platform-.*\\.cc$' ],
       ],
       'conditions': [
-        ['OS=="linux"', 
+        ['OS=="linux"',
           {
+            'link_settings': {
+              'libraries': [
+                # Needed for clock_gettime() used by src/platform-linux.cc.
+                '-lrt',
+              ],
+            },
             'sources/': [
               ['include', 'src/platform-linux\\.cc$'],
               ['include', 'src/platform-posix\\.cc$']
@@ -378,6 +384,9 @@
       'sources': [
         '<(SHARED_INTERMEDIATE_DIR)/v8/libraries.cc',
         '../../v8/src/snapshot-empty.cc',
+      ],
+      'export_dependent_settings': [
+        'v8_base',
       ],
     },
     {
@@ -424,6 +433,9 @@
           '../../v8/include',
         ],
       },
+      'export_dependent_settings': [
+        'v8_base',
+      ],
     },
     {
       'target_name': 'v8_shell',
