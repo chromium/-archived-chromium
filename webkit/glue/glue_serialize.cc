@@ -45,8 +45,9 @@ struct SerializeObject {
 //    data, but not vice versa.
 // 3: Version 2 was broken, it stored number of UChars, not number of bytes.
 //    This version checks and reads v1 and v2 correctly.
+// 4: Adds support for storing FormData::identifier().
 // Should be const, but unit tests may modify it.
-int kVersion = 3;
+int kVersion = 4;
 
 // A bunch of convenience functions to read/write to SerializeObjects.
 // The serializers assume the input data is in the correct format and so does
@@ -76,8 +77,18 @@ inline void WriteInteger(int data, SerializeObject* obj) {
 }
 
 inline int ReadInteger(const SerializeObject* obj) {
-  int tmp;
+  int tmp = 0;
   obj->pickle.ReadInt(&obj->iter, &tmp);
+  return tmp;
+}
+
+inline void WriteInteger64(int64 data, SerializeObject* obj) {
+  obj->pickle.WriteInt64(data);
+}
+
+inline int64 ReadInteger64(const SerializeObject* obj) {
+  int64 tmp = 0;
+  obj->pickle.ReadInt64(&obj->iter, &tmp);
   return tmp;
 }
 
@@ -124,8 +135,8 @@ inline void WriteString(const String& data, SerializeObject* obj) {
                                data.length() * sizeof(UChar));
       }
       break;
-    case 3:
-      // Version 3 writes <length in bytes><string data>.
+    default:
+      // Version 3+ writes <length in bytes><string data>.
       // It uses -1 in the length field to mean String().
       if (data.isNull()) {
         obj->pickle.WriteInt(-1);
@@ -134,9 +145,6 @@ inline void WriteString(const String& data, SerializeObject* obj) {
         obj->pickle.WriteBytes(data.characters(),
                                data.length() * sizeof(UChar));
       }
-      break;
-    default:
-      NOTREACHED();
       break;
   }
 }
@@ -199,6 +207,7 @@ static void WriteFormData(const FormData* form_data, SerializeObject* obj) {
       WriteString(e.m_filename, obj);
     }
   }
+  WriteInteger64(form_data->identifier(), obj);
 }
 
 static PassRefPtr<FormData> ReadFormData(const SerializeObject* obj) {
@@ -219,6 +228,8 @@ static PassRefPtr<FormData> ReadFormData(const SerializeObject* obj) {
       form_data->appendFile(ReadString(obj));
     }
   }
+  if (obj->version >= 4)
+    form_data->setIdentifier(ReadInteger64(obj));
 
   return form_data.release();
 }
@@ -264,7 +275,7 @@ static PassRefPtr<HistoryItem> ReadHistoryItem(const SerializeObject* obj) {
   // See note in WriteHistoryItem. on this.
   obj->version = ReadInteger(obj);
 
-  if (obj->version > kVersion)
+  if (obj->version > kVersion || obj->version < 1)
     return NULL;
 
   RefPtr<HistoryItem> item = HistoryItem::create();

@@ -200,6 +200,11 @@ class ResourceLoaderBridge {
   virtual void AppendFileRangeToUpload(const std::wstring& file_path,
                                        uint64 offset, uint64 length) = 0;
 
+  // Call this method before calling Start() to assign an upload identifier to
+  // this request.  This is used to enable caching of POST responses.  A value
+  // of 0 implies the unspecified identifier.
+  virtual void SetUploadIdentifier(int64 identifier) = 0;
+
   // Call this method to initiate the request.  If this method succeeds, then
   // the peer's methods will be called asynchronously to report various events.
   virtual bool Start(Peer* peer) = 0;

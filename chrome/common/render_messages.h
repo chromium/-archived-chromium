@@ -266,8 +266,8 @@ struct ViewHostMsg_Resource_Request {
   // Used by plugin->browser requests to get the correct URLRequestContext.
   uint32 request_context;
 
-  // Optional upload data (may be empty).
-  std::vector<net::UploadData::Element> upload_content;
+  // Optional upload data (may be null).
+  scoped_refptr<net::UploadData> upload_data;
 };
 
 // Parameters for a render request.
@@ -1161,6 +1161,39 @@ struct ParamTraits<net::UploadData::Element> {
   }
 };
 
+// Traits for net::UploadData.
+template <>
+struct ParamTraits<scoped_refptr<net::UploadData> > {
+  typedef scoped_refptr<net::UploadData> param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.get() != NULL);
+    if (p) {
+      WriteParam(m, p->elements());
+      WriteParam(m, p->identifier());
+    }
+  }
+  static bool Read(const Message* m, void** iter, param_type* r) {
+    bool has_object;
+    if (!ReadParam(m, iter, &has_object))
+      return false;
+    if (!has_object)
+      return true;
+    std::vector<net::UploadData::Element> elements;
+    if (!ReadParam(m, iter, &elements))
+      return false;
+    int identifier;
+    if (!ReadParam(m, iter, &identifier))
+      return false;
+    *r = new net::UploadData;
+    (*r)->swap_elements(&elements);
+    (*r)->set_identifier(identifier);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<net::UploadData>");
+  }
+};
+
 // Traits for WebKit::WebCache::UsageStats
 template <>
 struct ParamTraits<WebKit::WebCache::UsageStats> {
@@ -1304,7 +1337,7 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     WriteParam(m, p.origin_pid);
     WriteParam(m, p.resource_type);
     WriteParam(m, p.request_context);
-    WriteParam(m, p.upload_content);
+    WriteParam(m, p.upload_data);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
     return
@@ -1319,7 +1352,7 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
       ReadParam(m, iter, &r->origin_pid) &&
       ReadParam(m, iter, &r->resource_type) &&
       ReadParam(m, iter, &r->request_context) &&
-      ReadParam(m, iter, &r->upload_content);
+      ReadParam(m, iter, &r->upload_data);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");

@@ -451,6 +451,7 @@ bool ResourceHandleInternal::Start(
             webkit_glue::StringToStdWString(e.m_filename));
       }
     }
+    bridge_->SetUploadIdentifier(request_.httpBody()->identifier());
   }
 
   if (sync_load_response) {

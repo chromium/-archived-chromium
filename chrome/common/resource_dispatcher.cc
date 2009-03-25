@@ -61,6 +61,7 @@ class IPCResourceLoaderBridge : public ResourceLoaderBridge {
   virtual void AppendDataToUpload(const char* data, int data_len);
   virtual void AppendFileRangeToUpload(const std::wstring& path,
                                        uint64 offset, uint64 length);
+  virtual void SetUploadIdentifier(int64 identifier);
   virtual bool Start(Peer* peer);
   virtual void Cancel();
   virtual void SetDefersLoading(bool value);
@@ -147,16 +148,26 @@ void IPCResourceLoaderBridge::AppendDataToUpload(const char* data,
   if (data_len == 0)
     return;
 
-  request_.upload_content.push_back(net::UploadData::Element());
-  request_.upload_content.back().SetToBytes(data, data_len);
+  if (!request_.upload_data)
+    request_.upload_data = new net::UploadData();
+  request_.upload_data->AppendBytes(data, data_len);
 }
 
 void IPCResourceLoaderBridge::AppendFileRangeToUpload(
     const std::wstring& path, uint64 offset, uint64 length) {
   DCHECK(request_id_ == -1) << "request already started";
 
-  request_.upload_content.push_back(net::UploadData::Element());
-  request_.upload_content.back().SetToFilePathRange(path, offset, length);
+  if (!request_.upload_data)
+    request_.upload_data = new net::UploadData();
+  request_.upload_data->AppendFileRange(path, offset, length);
+}
+
+void IPCResourceLoaderBridge::SetUploadIdentifier(int64 identifier) {
+  DCHECK(request_id_ == -1) << "request already started";
+
+  if (!request_.upload_data)
+    request_.upload_data = new net::UploadData();
+  request_.upload_data->set_identifier(identifier);
 }
 
 // Writes a footer on the message and sends it

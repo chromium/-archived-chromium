@@ -177,6 +177,8 @@ void WebRequestImpl::GetUploadData(net::UploadData* data) const {
       NOTREACHED();
     }
   }
+
+  data->set_identifier(formdata->identifier());
 }
 
 void WebRequestImpl::SetUploadData(const net::UploadData& data)
@@ -198,6 +200,8 @@ void WebRequestImpl::SetUploadData(const net::UploadData& data)
       NOTREACHED();
     }
   }
+
+  formdata->setIdentifier(data.identifier());
 
   request_.resourceRequest().setHTTPBody(formdata);
 }

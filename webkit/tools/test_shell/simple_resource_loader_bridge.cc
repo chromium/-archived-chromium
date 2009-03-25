@@ -464,6 +464,13 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->upload->AppendFileRange(file_path, offset, length);
   }
 
+  virtual void SetUploadIdentifier(int64 identifier) {
+    DCHECK(params_.get());
+    if (!params_->upload)
+      params_->upload = new net::UploadData();
+    params_->upload->set_identifier(identifier);
+  }
+
   virtual bool Start(Peer* peer) {
     DCHECK(!proxy_);
 

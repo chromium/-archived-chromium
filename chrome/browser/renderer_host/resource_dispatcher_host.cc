@@ -116,14 +116,16 @@ bool ShouldServiceRequest(ChildProcessInfo::ProcessType process_type,
   }
 
   // Check if the renderer is permitted to upload the requested files.
-  const std::vector<net::UploadData::Element>& uploads =
-      request_data.upload_content;
-  std::vector<net::UploadData::Element>::const_iterator iter;
-  for (iter = uploads.begin(); iter != uploads.end(); ++iter) {
-    if (iter->type() == net::UploadData::TYPE_FILE &&
-        !policy->CanUploadFile(process_id, iter->file_path())) {
-      NOTREACHED() << "Denied unauthorized upload of " << iter->file_path();
-      return false;
+  if (request_data.upload_data) {
+    const std::vector<net::UploadData::Element>& uploads =
+        request_data.upload_data->elements();
+    std::vector<net::UploadData::Element>::const_iterator iter;
+    for (iter = uploads.begin(); iter != uploads.end(); ++iter) {
+      if (iter->type() == net::UploadData::TYPE_FILE &&
+          !policy->CanUploadFile(process_id, iter->file_path())) {
+        NOTREACHED() << "Denied unauthorized upload of " << iter->file_path();
+        return false;
+      }
     }
   }
 
@@ -330,11 +332,9 @@ void ResourceDispatcherHost::BeginRequest(
 
   // Set upload data.
   uint64 upload_size = 0;
-  if (!request_data.upload_content.empty()) {
-    scoped_refptr<net::UploadData> upload = new net::UploadData();
-    upload->set_elements(request_data.upload_content);  // Deep copy.
-    request->set_upload(upload);
-    upload_size = upload->GetContentLength();
+  if (request_data.upload_data) {
+    request->set_upload(request_data.upload_data);
+    upload_size = request_data.upload_data->GetContentLength();
   }
 
   // Install a CrossSiteResourceHandler if this request is coming from a
