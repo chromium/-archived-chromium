@@ -111,6 +111,7 @@ void URLRequestHttpJob::Start() {
   request_info_.referrer = referrer;
   request_info_.method = request_->method();
   request_info_.load_flags = request_->load_flags();
+  request_info_.priority = request_->priority();
 
   if (request_->context()) {
     request_info_.user_agent =

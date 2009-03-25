@@ -13,7 +13,11 @@
 #define CHROME_BROWSER_RENDERER_HOST_RESOURCE_DISPATCHER_HOST_H_
 
 #include <map>
+#include <string>
+#include <vector>
 
+#include "base/basictypes.h"
+#include "base/logging.h"
 #include "base/observer_list.h"
 #include "base/process.h"
 #include "base/timer.h"
@@ -59,13 +63,14 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
         const ViewHostMsg_Resource_Request& request_data) = 0;
 
    protected:
-    Receiver(ChildProcessInfo::ProcessType type) : ChildProcessInfo(type) { }
+    explicit Receiver(ChildProcessInfo::ProcessType type)
+        : ChildProcessInfo(type) { }
     virtual ~Receiver() { }
   };
 
   // Holds the data we would like to associate with each request
   class ExtraRequestInfo : public URLRequest::UserData {
-   friend class ResourceDispatcherHost;
+    friend class ResourceDispatcherHost;
    public:
     ExtraRequestInfo(ResourceHandler* handler,
                      ChildProcessInfo::ProcessType process_type,
@@ -173,6 +178,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
 
   class Observer {
    public:
+    virtual ~Observer() { }
     virtual void OnRequestStarted(ResourceDispatcherHost* resource_dispatcher,
                                   URLRequest* request) = 0;
     virtual void OnResponseCompleted(
@@ -358,7 +364,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   void DataReceivedACK(int process_id, int request_id);
 
   // Needed for the sync IPC message dispatcher macros.
-  bool Send(IPC::Message* message) { delete message; return false; }
+  bool Send(IPC::Message* message) {
+    delete message;
+    return false;
+  }
 
  private:
   FRIEND_TEST(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies);
@@ -424,7 +433,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // It may be enhanced in the future to provide some kind of prioritization
   // mechanism. We should also consider a hashtable or binary tree if it turns
   // out we have a lot of things here.
-  typedef std::map<GlobalRequestID,URLRequest*> PendingRequestList;
+  typedef std::map<GlobalRequestID, URLRequest*> PendingRequestList;
 
   // Deletes the pending request identified by the iterator passed in.
   // This function will invalidate the iterator passed in. Callers should
