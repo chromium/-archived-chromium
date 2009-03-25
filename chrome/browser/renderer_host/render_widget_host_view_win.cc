@@ -25,6 +25,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/focus/focus_util_win.h"
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
 #include "chrome/views/widget/widget_win.h"
 #include "grit/webkit_resources.h"
@@ -467,6 +468,9 @@ LRESULT RenderWidgetHostViewWin::OnCreate(CREATESTRUCT* create_struct) {
   // of a browser process.
   OnInputLangChange(0, 0);
   TRACK_HWND_CREATION(m_hWnd);
+  // Marks that window as supporting mouse-wheel messages rerouting so it is
+  // scrolled when under the mouse pointer even if inactive.
+  views::SetWindowSupportsRerouteMouseWheel(m_hWnd);
   return 0;
 }
 
@@ -867,6 +871,14 @@ LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
         GetCurrentThreadId(),
         DismissOwnedPopups,
         reinterpret_cast<LPARAM>(toplevel_hwnd));
+  }
+
+  // Forward the mouse-wheel message to the window under the mouse if it belongs
+  // to us.
+  if (message == WM_MOUSEWHEEL &&
+      views::RerouteMouseWheel(m_hWnd, wparam, lparam)) {
+    handled = TRUE;
+    return 0;
   }
 
   // This is a bit of a hack, but will work for now since we don't want to
