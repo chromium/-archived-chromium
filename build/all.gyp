@@ -25,6 +25,11 @@
         '../net/net.gyp:*',
       ],
       'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../tools/gtk_clipboard_dump/gtk_clipboard_dump.gyp:*',
+          ],
+        }],
         ['OS=="win"', {
           'dependencies': [
             '../sandbox/sandbox.gyp:*',
