@@ -1823,7 +1823,7 @@ WIN MAC : LayoutTests/fast/encoding/char-decoding.html = FAIL
 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 
 // intermittent failures on the buildbot
-MAC LINUX : LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
+LayoutTests/svg/custom/gradient-stop-style-change.svg = FAIL PASS
 
 // The 7th column should not be top aligned.
 // New test. We should fix it, but it doesn't need to block the current release
@@ -2225,7 +2225,7 @@ LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 
 // Merge 41807:41827 New Tests
 LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT
-LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = CRASH
+LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = CRASH FAIL
 // Regression
 LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT
