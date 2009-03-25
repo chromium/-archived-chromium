@@ -225,7 +225,7 @@
           },
         },
         {
-          'target_name': 'sbox_unit_tests',
+          'target_name': 'sbox_unittests',
           'type': 'executable',
           'dependencies': [
             'sandbox',
