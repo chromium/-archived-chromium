@@ -229,6 +229,9 @@ input_files = ChromeFileList([
   MSVSFilter('TestDOMChecker', [
     'dom_checker_uitest.cc',
   ]),
+  MSVSFilter('TestSunSpider', [
+    'sunspider_uitest.cc',
+  ]),
 ])
 
 if not env.Bit('windows'):
@@ -239,6 +242,7 @@ if not env.Bit('windows'):
       'npapi_uitest.cpp',
       'omnibox_uitest.cc',
       'dom_checker_uitest.cc',
+      'sunspider_uitest.cc',
 
       'sandbox_uitests.cc',
 
