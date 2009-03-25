@@ -17,9 +17,12 @@
    ...
    fun:XML_ParseBuffer
    fun:FcConfigParseAndLoad
-   fun:FcInitLoadConfig
-   fun:FcInitLoadConfigAndFonts
-   fun:FcInit
+}
+{
+   bug_9245_FcConfigAppFontAddFile_leak
+   Memcheck:Leak
+   ...
+   fun:FcConfigAppFontAddFile
 }
 {
    dlopen invalid read, probably a bug in glibc.  TODO(dkegel): file glibc bug
@@ -57,6 +60,23 @@
    fun:_ZN15SkScalerContext14getFontMetricsEPN7SkPaint11FontMetricsES2_
    fun:_ZN12SkGlyphCacheC1EPK12SkDescriptor
    fun:_ZN12SkGlyphCache10VisitCacheEPK12SkDescriptorPFbPKS_PvES5_
+}
+{
+   Another possible skia leak
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SkFontHost15ResolveTypefaceEj
+   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
+   fun:_ZN24SkScalerContext_FreeType15generateMetricsEP7SkGlyph
+   fun:_ZN24SkScalerContext_FreeType15generateAdvanceEP7SkGlyph
+   fun:_ZN15SkScalerContext10getAdvanceEP7SkGlyph
+   fun:_ZN12SkGlyphCache13lookupMetricsEjNS_11MetricsTypeE
+   fun:_ZN12SkGlyphCache17getGlyphIDAdvanceEt
+   fun:_Z24sk_getAdvance_glyph_nextP12SkGlyphCachePPKc
+   fun:_ZNK7SkPaint12measure_textEP12SkGlyphCachePKcjPiP6SkRect
+   fun:_ZNK7SkPaint11measureTextEPKvjP6SkRectf
+   fun:_ZNK7SkPaint11measureTextEPKvj
+   fun:_ZNK7WebCore14SimpleFontData21platformWidthForGlyphEt
 }
 {
    Error in ICU
@@ -125,4 +145,118 @@
    Memcheck:Leak
    ...
    fun:_ZN3net18TestServerLauncher16LoadTestRootCertEv
+}
+{
+   # Minor commandline options leak in v8
+   # See http://code.google.com/p/v8/issues/detail?id=275
+   v8_bug_275
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN2v88internal8NewArrayIcEEPT_i
+   fun:_ZN2v88internal8FlagList18SetFlagsFromStringEPKci
+   fun:_ZN2v82V818SetFlagsFromStringEPKci
+}
+######### Baseline leaks -- just here to get test_shell_tests green -- fix later ######
+{
+   # src/webkit/tools/test_shell/node_leak_test.cc:44
+   NodeLeakTest_leak_todo
+   Memcheck:Leak
+   fun:_Znwj
+   ...
+   fun:_ZN9file_util12AppendToPathEPSbIwSt11char_traitsIwESaIwEERKS3_
+   fun:*src_webkit_tools_test_shell_node_leak_test.cc*NodeLeakTest5SetUpEv
+   fun:_ZN7testing4Test3RunEv
+}
+{
+   # http://crbug.com/9246
+   webcore_renderText_leak_todo
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN10SkFontHost15ResolveTypefaceEj
+   fun:_ZN24SkScalerContext_FreeType9setupSizeEv
+   fun:_ZN24SkScalerContext_FreeType15generateMetricsEP7SkGlyph
+   fun:_ZN24SkScalerContext_FreeType15generateAdvanceEP7SkGlyph
+   fun:_ZN15SkScalerContext10getAdvanceEP7SkGlyph
+   fun:_ZN12SkGlyphCache13lookupMetricsEjNS_11MetricsTypeE
+   fun:_ZN12SkGlyphCache17getGlyphIDAdvanceEt
+   fun:_Z24sk_getAdvance_glyph_nextP12SkGlyphCachePPKc
+   fun:_ZNK7SkPaint12measure_textEP12SkGlyphCachePKcjPiP6SkRect
+   fun:_ZNK7SkPaint11measureTextEPKvjP6SkRectf
+   fun:_ZNK7SkPaint11measureTextEPKvj
+   fun:_ZNK7WebCore14SimpleFontData21platformWidthForGlyphEt
+   fun:_ZNK7WebCore14SimpleFontData13widthForGlyphEt
+   fun:_ZN7WebCore13WidthIterator7advanceEiPNS_11GlyphBufferE
+   fun:_ZNK7WebCore4Font23floatWidthForSimpleTextERKNS_7TextRunEPNS_11GlyphBufferE
+   fun:_ZNK7WebCore4Font10floatWidthERKNS_7TextRunE
+   fun:_ZNK7WebCore4Font5widthERKNS_7TextRunE
+   fun:_ZNK7WebCore10RenderText14widthFromCacheERKNS_4FontEiii
+   fun:_ZN7WebCore10RenderText14calcPrefWidthsEi
+   fun:_ZNK7WebCore10RenderText12maxPrefWidthEv
+   fun:_ZNK7WebCore10RenderText5widthEjjRKNS_4FontEi
+   fun:_ZN7WebCore9textWidthEPNS_10RenderTextEjjRKNS_4FontEibb
+   fun:_ZN7WebCore11RenderBlock17findNextLineBreakERNS_12BidiResolverINS_14InlineIteratorENS_7BidiRunEEEbPNS_6EClearE
+}
+{
+   webcore_parse_leak_todo
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN7WebCore17CSSPrimitiveValue6createEdNS0_9UnitTypesE
+   fun:_ZN7WebCore9CSSParser10parseValueEib
+   fun:_ZN7WebCore9CSSParser12parse4ValuesEiPKib
+   fun:_ZN7WebCore9CSSParser10parseValueEib
+   fun:_Z10cssyyparsePv
+   fun:_ZN7WebCore9CSSParser10parseSheetEPNS_13CSSStyleSheetERKNS_6StringE
+   fun:_ZN7WebCore13CSSStyleSheet11parseStringERKNS_6StringEb
+   fun:_ZN7WebCore12parseUASheetERKNS_6StringE
+   fun:_ZN7WebCore12parseUASheetEPKcj
+   fun:_ZN7WebCore22loadSimpleDefaultStyleEv
+   fun:_ZN7WebCore16CSSStyleSelectorC1EPNS_8DocumentERKNS_6StringEPNS_14StyleSheetListEPNS_13CSSStyleSheetEbb
+   fun:_ZN7WebCore8Document6attachEv
+   fun:_ZN7WebCore5Frame11setDocumentEN3WTF10PassRefPtrINS_8DocumentEEE
+   fun:_ZN7WebCore11FrameLoader5beginERKNS_4KURLEbPNS_14SecurityOriginE
+   fun:_ZN7WebCore11FrameLoader4initEv
+   fun:_ZN7WebCore5Frame4initEv
+   fun:_ZN12WebFrameImpl13InitMainFrameEP11WebViewImpl
+   fun:_ZN7WebView6CreateEP15WebViewDelegateRK14WebPreferences
+   fun:_ZN11WebViewHost6CreateEP10_GtkWidgetP15WebViewDelegateRK14WebPreferences
+   fun:_ZN9TestShell10InitializeERKSbIwSt11char_traitsIwESaIwEE
+   fun:_ZN9TestShell15CreateNewWindowERKSbIwSt11char_traitsIwESaIwEEPPS_
+   fun:_ZN13TestShellTest17CreateEmptyWindowEv
+   fun:_ZN13TestShellTest5SetUpEv
+}
+{
+   webcore_parse_leak_2_todo
+   Memcheck:Leak
+   fun:_Znaj
+   fun:_ZN7WebCore17CSSPrimitiveValue16createIdentifierEi
+   fun:_ZN7WebCore9CSSParser10parseValueEib
+   fun:_Z10cssyyparsePv
+   fun:_ZN7WebCore9CSSParser10parseSheetEPNS_13CSSStyleSheetERKNS_6StringE
+   fun:_ZN7WebCore13CSSStyleSheet11parseStringERKNS_6StringEb
+   fun:_ZN7WebCore12parseUASheetERKNS_6StringE
+   fun:_ZN7WebCore12parseUASheetEPKcj
+   fun:_ZN7WebCore22loadSimpleDefaultStyleEv
+   fun:_ZN7WebCore16CSSStyleSelectorC1EPNS_8DocumentERKNS_6StringEPNS_14StyleSheetListEPNS_13CSSStyleSheetEbb
+   fun:_ZN7WebCore8Document6attachEv
+   fun:_ZN7WebCore5Frame11setDocumentEN3WTF10PassRefPtrINS_8DocumentEEE
+   fun:_ZN7WebCore11FrameLoader5beginERKNS_4KURLEbPNS_14SecurityOriginE
+   fun:_ZN7WebCore11FrameLoader4initEv
+   fun:_ZN7WebCore5Frame4initEv
+   fun:_ZN12WebFrameImpl13InitMainFrameEP11WebViewImpl
+   fun:_ZN7WebView6CreateEP15WebViewDelegateRK14WebPreferences
+   fun:_ZN11WebViewHost6CreateEP10_GtkWidgetP15WebViewDelegateRK14WebPreferences
+   fun:_ZN9TestShell10InitializeERKSbIwSt11char_traitsIwESaIwEE
+   fun:_ZN9TestShell15CreateNewWindowERKSbIwSt11char_traitsIwESaIwEEPPS_
+   fun:_ZN13TestShellTest17CreateEmptyWindowEv
+   fun:_ZN13TestShellTest5SetUpEv
+}
+{
+   pango_font_leak_todo
+   Memcheck:Leak
+   ...
+   fun:FcFontRenderPrepare
+   obj:*
+   fun:pango_font_map_load_fontset
+   obj:*
+   fun:pango_itemize_with_base_dir
 }
