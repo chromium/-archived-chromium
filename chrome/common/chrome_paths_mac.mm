@@ -21,7 +21,7 @@ bool GetDefaultUserDataDirectory(FilePath* result) {
   if ([dirs count] && result) {
     NSString* base = [dirs objectAtIndex:0];
 #if defined(GOOGLE_CHROME_BUILD)
-    base = [base stringByAppendingPathComponent@"Google"];
+    base = [base stringByAppendingPathComponent:@"Google"];
     NSString* tail = @"Chrome";
 #else
     NSString* tail = @"Chromium";
