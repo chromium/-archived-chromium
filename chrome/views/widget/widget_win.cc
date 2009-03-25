@@ -14,7 +14,6 @@
 #include "chrome/views/accessibility/view_accessibility.h"
 #include "chrome/views/controls/native_control_win.h"
 #include "chrome/views/fill_layout.h"
-#include "chrome/views/focus/focus_util_win.h"
 #include "chrome/views/widget/aero_tooltip_manager.h"
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
@@ -149,7 +148,6 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
                          bounds.height(), parent, NULL, NULL, this);
   DCHECK(hwnd_);
   TRACK_HWND_CREATION(hwnd_);
-  SetWindowSupportsRerouteMouseWheel(hwnd_);
 
   // The window procedure should have set the data for us.
   DCHECK(win_util::GetWindowUserData(hwnd_) == this);
@@ -559,19 +557,12 @@ LRESULT WidgetWin::OnMouseLeave(UINT message, WPARAM w_param, LPARAM l_param) {
   return 0;
 }
 
-LRESULT WidgetWin::OnMouseWheel(UINT message, WPARAM w_param, LPARAM l_param) {
-  // Reroute the mouse-wheel to the window under the mouse pointer if
-  // applicable.
-  if (message == WM_MOUSEWHEEL &&
-      views::RerouteMouseWheel(hwnd_, w_param, l_param)) {
-    return 0;
-  }
-
-  int flags = GET_KEYSTATE_WPARAM(w_param);
-  short distance = GET_WHEEL_DELTA_WPARAM(w_param);
-  int x = GET_X_LPARAM(l_param);
-  int y = GET_Y_LPARAM(l_param);
-  MouseWheelEvent e(distance, x, y, Event::ConvertWindowsFlags(flags));
+LRESULT WidgetWin::OnMouseWheel(UINT flags, short distance,
+                                const CPoint& point) {
+  MouseWheelEvent e(distance,
+                    point.x,
+                    point.y,
+                    Event::ConvertWindowsFlags(flags));
   return root_view_->ProcessMouseWheelEvent(e) ? 0 : 1;
 }
 

@@ -43,6 +43,109 @@ static const wchar_t* const kFocusSubclassInstalled =
 
 namespace views {
 
+static bool IsCompatibleWithMouseWheelRedirection(HWND window) {
+  std::wstring class_name = win_util::GetClassName(window);
+  // Mousewheel redirection to comboboxes is a surprising and
+  // undesireable user behavior.
+  return !(class_name == L"ComboBox" ||
+           class_name == L"ComboBoxEx32");
+}
+
+static bool CanRedirectMouseWheelFrom(HWND window) {
+  std::wstring class_name = win_util::GetClassName(window);
+
+  // Older Thinkpad mouse wheel drivers create a window under mouse wheel
+  // pointer. Detect if we are dealing with this window. In this case we
+  // don't need to do anything as the Thinkpad mouse driver will send
+  // mouse wheel messages to the right window.
+  if ((class_name == L"Syn Visual Class") ||
+     (class_name == L"SynTrackCursorWindowClass"))
+    return false;
+
+  return true;
+}
+
+bool IsPluginWindow(HWND window) {
+  HWND current_window = window;
+  while (GetWindowLong(current_window, GWL_STYLE) & WS_CHILD) {
+    current_window = GetParent(current_window);
+    if (!IsWindow(current_window))
+      break;
+
+    std::wstring class_name = win_util::GetClassName(current_window);
+    if (class_name == kRenderWidgetHostHWNDClass)
+      return true;
+  }
+
+  return false;
+}
+
+// Forwards mouse wheel messages to the window under it.
+// Windows sends mouse wheel messages to the currently active window.
+// This causes a window to scroll even if it is not currently under the
+// mouse wheel. The following code gives mouse wheel messages to the
+// window under the mouse wheel in order to scroll that window. This
+// is arguably a better user experience.  The returns value says whether
+// the mouse wheel message was successfully redirected.
+static bool RerouteMouseWheel(HWND window, WPARAM wParam, LPARAM lParam) {
+  // Since this is called from a subclass for every window, we can get
+  // here recursively. This will happen if, for example, a control
+  // reflects wheel scroll messages to its parent. Bail out if we got
+  // here recursively.
+  static bool recursion_break = false;
+  if (recursion_break)
+    return false;
+  // Check if this window's class has a bad interaction with rerouting.
+  if (!IsCompatibleWithMouseWheelRedirection(window))
+    return false;
+
+  DWORD current_process = GetCurrentProcessId();
+  POINT wheel_location = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+  HWND window_under_wheel = WindowFromPoint(wheel_location);
+
+  if (!CanRedirectMouseWheelFrom(window_under_wheel))
+    return false;
+
+  // Find the lowest Chrome window in the hierarchy that can be the
+  // target of mouse wheel redirection.
+  while (window != window_under_wheel) {
+    // If window_under_wheel is not a valid Chrome window, then return
+    // true to suppress further processing of the message.
+    if (!::IsWindow(window_under_wheel))
+      return true;
+    DWORD wheel_window_process = 0;
+    GetWindowThreadProcessId(window_under_wheel, &wheel_window_process);
+    if (current_process != wheel_window_process) {
+      if (IsChild(window, window_under_wheel)) {
+        // If this message is reflected from a child window in a different
+        // process (happens with out of process windowed plugins) then
+        // we don't want to reroute the wheel message.
+        return false;
+      } else {
+        // The wheel is scrolling over an unrelated window. If that window
+        // is a plugin window in a different chrome then we can send it a
+        // WM_MOUSEWHEEL. Otherwise, we cannot send random WM_MOUSEWHEEL
+        // messages to arbitrary windows. So just drop the message.
+        if (!IsPluginWindow(window_under_wheel))
+          return true;
+      }
+    }
+
+    // window_under_wheel is a Chrome window.  If allowed, redirect.
+    if (IsCompatibleWithMouseWheelRedirection(window_under_wheel)) {
+      recursion_break = true;
+      SendMessage(window_under_wheel, WM_MOUSEWHEEL, wParam, lParam);
+      recursion_break = false;
+      return true;
+    }
+    // If redirection is disallowed, try the parent.
+    window_under_wheel = GetAncestor(window_under_wheel, GA_PARENT);
+  }
+  // If we traversed back to the starting point, we should process
+  // this message normally; return false.
+  return false;
+}
+
 // Callback installed via InstallFocusSubclass.
 static LRESULT CALLBACK FocusWindowCallback(HWND window, UINT message,
                                             WPARAM wParam, LPARAM lParam) {
@@ -84,6 +187,10 @@ static LRESULT CALLBACK FocusWindowCallback(HWND window, UINT message,
           return 0;
         return result;
       }
+      case WM_MOUSEWHEEL:
+        if (RerouteMouseWheel(window, wParam, lParam))
+          return 0;
+        break;
       case WM_IME_CHAR:
         // Issue 7707: A rich-edit control may crash when it receives a
         // WM_IME_CHAR message while it is processing a WM_IME_COMPOSITION

@@ -162,7 +162,6 @@ class WidgetWin : public Widget,
     MESSAGE_HANDLER_EX(WM_GETOBJECT, OnGetObject)
     MESSAGE_HANDLER_EX(WM_NCMOUSELEAVE, OnNCMouseLeave)
     MESSAGE_HANDLER_EX(WM_MOUSELEAVE, OnMouseLeave)
-    MESSAGE_HANDLER_EX(WM_MOUSEWHEEL, OnMouseWheel)
 
     // This list is in _ALPHABETICAL_ order! OR I WILL HURT YOU.
     MSG_WM_ACTIVATE(OnActivate)
@@ -193,6 +192,7 @@ class WidgetWin : public Widget,
     MSG_WM_MBUTTONDBLCLK(OnMButtonDblClk)
     MSG_WM_MOUSEACTIVATE(OnMouseActivate)
     MSG_WM_MOUSEMOVE(OnMouseMove)
+    MSG_WM_MOUSEWHEEL(OnMouseWheel)
     MSG_WM_MOVE(OnMove)
     MSG_WM_MOVING(OnMoving)
     MSG_WM_NCACTIVATE(OnNCActivate)
@@ -384,9 +384,9 @@ class WidgetWin : public Widget,
   virtual LRESULT OnMouseActivate(HWND window, UINT hittest_code, UINT message);
   virtual void OnMouseMove(UINT flags, const CPoint& point);
   virtual LRESULT OnMouseLeave(UINT message, WPARAM w_param, LPARAM l_param);
-  virtual LRESULT OnMouseWheel(UINT message, WPARAM w_param, LPARAM l_param);
   virtual void OnMove(const CPoint& point) { SetMsgHandled(FALSE); }
   virtual void OnMoving(UINT param, const LPRECT new_bounds) { }
+  virtual LRESULT OnMouseWheel(UINT flags, short distance, const CPoint& point);
   virtual LRESULT OnMouseRange(UINT msg, WPARAM w_param, LPARAM l_param);
   virtual LRESULT OnNCActivate(BOOL active) { SetMsgHandled(FALSE); return 0; }
   virtual LRESULT OnNCCalcSize(BOOL w_param, LPARAM l_param) {
