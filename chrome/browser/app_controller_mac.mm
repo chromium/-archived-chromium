@@ -9,6 +9,7 @@
 #import "chrome/browser/browser.h"
 #import "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
+#import "chrome/browser/cocoa/bookmark_menu_bridge.h"
 #import "chrome/browser/command_updater.h"
 #import "chrome/browser/profile_manager.h"
 #import "chrome/common/temp_scaffolding_stubs.h"
@@ -22,6 +23,7 @@
 - (void)awakeFromNib {
   // Set up the command updater for when there are no windows open
   [self initMenuState];
+  bookmarkMenuBridge_ = new BookmarkMenuBridge();
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)notify {
@@ -33,6 +35,7 @@
 }
 
 - (void)dealloc {
+  delete bookmarkMenuBridge_;
   delete menuState_;
   [super dealloc];
 }
@@ -87,8 +90,7 @@
 // command is supported and doesn't check, otherwise it would have been disabled
 // in the UI in validateUserInterfaceItem:.
 - (void)commandDispatch:(id)sender {
-  // How to get the profile created on line 314 of browser_main? Ugh. TODO:FIXME
-  Profile* default_profile = *g_browser_process->profile_manager()->begin();
+  Profile* default_profile = [self defaultProfile];
 
   NSInteger tag = [sender tag];
   switch (tag) {
@@ -107,5 +109,17 @@
   menuState_->UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
   // TODO(pinkerton): ...more to come...
 }
+
+- (Profile*)defaultProfile {
+  // Only expected to return NULL in a unit test (if g_browser_process
+  // is a TestingBrowserProcess).
+  // TODO(jrg): DCHECK() to confirm that.
+  // TODO(jrg): Find a better way to get the "default" profile.
+  if (g_browser_process->profile_manager())
+    return *g_browser_process->profile_manager()->begin();
+  return NULL;
+
+}
+
 
 @end

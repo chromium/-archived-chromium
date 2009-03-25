@@ -180,6 +180,9 @@ BrowserList::list_type BrowserList::last_active_browsers_;
 void BrowserList::SetLastActive(Browser* browser) {
   RemoveBrowserFrom(browser, &last_active_browsers_);
   last_active_browsers_.push_back(browser);
+
+  for (int i = 0; i < static_cast<int>(observers_.size()); i++)
+    observers_[i]->OnBrowserSetLastActive(browser);
 }
 
 // static

@@ -12,8 +12,7 @@
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
                                        NSWindow* window)
-  : browser_(browser), controller_(controller), window_(window),
-    bookmark_menu_bridge_(browser) {
+  : browser_(browser), controller_(controller), window_(window) {
   status_bubble_.reset(new StatusBubbleMac(window_));
 }
 
@@ -204,3 +203,4 @@ void BrowserWindowCocoa::DestroyBrowser() {
   // at this point the controller is dead (autoreleased), so
   // make sure we don't try to reference it any more.
 }
+

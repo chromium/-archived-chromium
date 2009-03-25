@@ -6,29 +6,46 @@
 #import <AppKit/AppKit.h>
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"  // IDC_BOOKMARK_MENU
+#import "chrome/browser/app_controller_mac.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
+#import "chrome/browser/cocoa/bookmark_menu_cocoa_controller.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/profile_manager.h"
 
-
-BookmarkMenuBridge::BookmarkMenuBridge(Browser* browser) : browser_(browser) {
-  browser_->profile()->GetBookmarkModel()->AddObserver(this);
+BookmarkMenuBridge::BookmarkMenuBridge()
+    : controller_([[BookmarkMenuCocoaController alloc] initWithBridge:this]) {
+  BrowserList::AddObserver(this);
 }
 
 BookmarkMenuBridge::~BookmarkMenuBridge() {
-  browser_->profile()->GetBookmarkModel()->RemoveObserver(this);
+  GetBookmarkModel()->RemoveObserver(this);
+  [controller_ release];
+}
+
+NSMenu* BookmarkMenuBridge::BookmarkMenu() {
+  NSMenu* bookmark_menu = [[[NSApp mainMenu] itemWithTag:IDC_BOOKMARK_MENU]
+                            submenu];
+  return bookmark_menu;
 }
 
 void BookmarkMenuBridge::Loaded(BookmarkModel* model) {
-  NSMenu *bookmark_menu = [[[NSApp mainMenu] itemWithTag:IDC_BOOKMARK_MENU]
-                            submenu];
+  NSMenu* bookmark_menu = BookmarkMenu();
   if (bookmark_menu == nil)
     return;
 
-  this->ClearBookmarkMenu(bookmark_menu);
+  ClearBookmarkMenu(bookmark_menu);
 
-  // TODO(jrg): limit the number of bookmarks in the menubar to max_nodes
-  // int max_nodes = IDC_BOOKMARK_MENUITEM_MAX - IDC_BOOKMARK_MENUITEM_BASE;
-  this->AddNodeToMenu(model->GetBookmarkBarNode(), bookmark_menu);
+  // TODO(jrg): limit the number of bookmarks in the menubar?
+  AddNodeToMenu(model->GetBookmarkBarNode(), bookmark_menu);
+}
+
+void BookmarkMenuBridge::BookmarkModelBeingDeleted(BookmarkModel* model) {
+  NSMenu* bookmark_menu = BookmarkMenu();
+  if (bookmark_menu == nil)
+    return;
+
+  ClearBookmarkMenu(bookmark_menu);
 }
 
 void BookmarkMenuBridge::BookmarkNodeMoved(BookmarkModel* model,
@@ -37,22 +54,20 @@ void BookmarkMenuBridge::BookmarkNodeMoved(BookmarkModel* model,
                                            BookmarkNode* new_parent,
                                            int new_index) {
   // TODO(jrg): this is brute force; perhaps we should be nicer.
-  this->Loaded(model);
+  Loaded(model);
 }
 
 void BookmarkMenuBridge::BookmarkNodeAdded(BookmarkModel* model,
                                            BookmarkNode* parent,
                                            int index) {
-
   // TODO(jrg): this is brute force; perhaps we should be nicer.
-  this->Loaded(model);
+  Loaded(model);
 }
 
 void BookmarkMenuBridge::BookmarkNodeChanged(BookmarkModel* model,
                                              BookmarkNode* node) {
-
   // TODO(jrg): this is brute force; perhaps we should be nicer.
-  this->Loaded(model);
+  Loaded(model);
 }
 
 void BookmarkMenuBridge::BookmarkNodeFavIconLoaded(BookmarkModel* model,
@@ -65,7 +80,42 @@ void BookmarkMenuBridge::BookmarkNodeFavIconLoaded(BookmarkModel* model,
 void BookmarkMenuBridge::BookmarkNodeChildrenReordered(BookmarkModel* model,
                                                        BookmarkNode* node) {
   // TODO(jrg): this is brute force; perhaps we should be nicer.
-  this->Loaded(model);
+  Loaded(model);
+}
+
+void BookmarkMenuBridge::OnBrowserAdded(const Browser* browser) {
+  // Intentionally empty -- we don't care, but pure virtual so we must
+  // implement.
+}
+
+void BookmarkMenuBridge::OnBrowserRemoving(const Browser* browser) {
+  // Intentionally empty -- we don't care, but pure virtual so we must
+  // implement.
+}
+
+// The current browser has changed; update the bookmark menus.  For
+// our use, we only care about the first one to know when a profile is
+// complete.
+void BookmarkMenuBridge::OnBrowserSetLastActive(const Browser* browser) {
+  BrowserList::RemoveObserver(this);
+  BookmarkModel* model = GetBookmarkModel();
+  model->AddObserver(this);
+  if (model->IsLoaded())
+    Loaded(model);
+}
+
+BookmarkModel* BookmarkMenuBridge::GetBookmarkModel() {
+  // In incognito mode we use the main profile's bookmarks.
+  // Thus, we don't return browser_->profile()->GetBookmarkModel().
+  Profile* profile = GetDefaultProfile();
+  // In unit tests, there is no default profile.
+  // TODO(jrg): refactor so we don't "allow" NULLs in non-test environments.
+  return profile ? profile->GetBookmarkModel() : NULL;
+}
+
+Profile* BookmarkMenuBridge::GetDefaultProfile() {
+  // The delegate of the main application is an AppController
+  return [[NSApp delegate] defaultProfile];
 }
 
 void BookmarkMenuBridge::ClearBookmarkMenu(NSMenu* menu) {
@@ -75,21 +125,21 @@ void BookmarkMenuBridge::ClearBookmarkMenu(NSMenu* menu) {
   // and separator)
   NSArray* items = [menu itemArray];
   for (NSMenuItem* item in items) {
-    NSInteger tag = [item tag];
-    if ((tag >= IDC_BOOKMARK_MENUITEM_BASE) &&
-        (tag < IDC_BOOKMARK_MENUITEM_MAX)) {
+    // Convention: items in the bookmark list which are bookmarks have
+    // an action of openBookmarkMenuItem:.  Also, assume all items
+    // with submenus are submenus of bookmarks.
+    if (([item action] == @selector(openBookmarkMenuItem:)) ||
+        ([item hasSubmenu])) {
+      // This will eventually [obj release] all its kids, if it has
+      // any.
       [menu removeItem:item];
-    } else if ([item hasSubmenu]) {
-      [menu removeItem:item];  // Will eventually [obj release] all its kids
     } else {
       // Not a bookmark or item with submenu, so leave it alone.
     }
   }
 }
 
-// TODO(jrg): add actions for these menu items
-void BookmarkMenuBridge::AddNodeToMenu(BookmarkNode* node,
-                                       NSMenu* menu) {
+void BookmarkMenuBridge::AddNodeToMenu(BookmarkNode* node, NSMenu* menu) {
   for (int i = 0; i < node->GetChildCount(); i++) {
     BookmarkNode* child = node->GetChild(i);
     // TODO(jrg): Should we limit the title length?
@@ -99,12 +149,14 @@ void BookmarkMenuBridge::AddNodeToMenu(BookmarkNode* node,
     NSMenuItem* item = [[[NSMenuItem alloc] initWithTitle:title
                                                    action:nil
                                             keyEquivalent:@""] autorelease];
-    [item setTag:IDC_BOOKMARK_MENUITEM_BASE];
+    [item setTarget:controller_];
+    [item setAction:@selector(openBookmarkMenuItem:)];
+    [item setTag:child->id()];
     [menu addItem:item];
     if (child->is_folder()) {
       NSMenu* submenu = [[[NSMenu alloc] initWithTitle:title] autorelease];
       [menu setSubmenu:submenu forItem:item];
-      this->AddNodeToMenu(child, submenu);  // recursive call
+      AddNodeToMenu(child, submenu);  // recursive call
     }
   }
 }

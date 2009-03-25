@@ -17,9 +17,9 @@ class BrowserWindow;
 class BrowserWindowCocoa;
 class LocationBar;
 class TabContents;
-@class TabStripView;
 @class TabContentsController;
 @class TabStripController;
+@class TabStripView;
 
 @interface BrowserWindowController :
     TabWindowController<NSUserInterfaceValidations> {

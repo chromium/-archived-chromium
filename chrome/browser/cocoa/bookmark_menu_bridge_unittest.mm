@@ -26,10 +26,11 @@ class BookmarkMenuBridgeTest : public testing::Test {
     bridge->AddNodeToMenu(root, menu);
   }
 
-  NSMenuItem* AddItemToMenu(NSMenu *menu, NSString *title, NSInteger tag) {
+  NSMenuItem* AddItemToMenu(NSMenu *menu, NSString *title, SEL selector) {
     NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:title action:NULL
                                             keyEquivalent:@""] autorelease];
-    [item setTag:tag];
+    if (selector)
+      [item setAction:selector];
     [menu addItem:item];
     return item;
   }
@@ -40,35 +41,34 @@ class BookmarkMenuBridgeTest : public testing::Test {
 
 // Test that ClearBookmarkMenu() removes all bookmark menus.
 TEST_F(BookmarkMenuBridgeTest, TestClearBookmarkMenu) {
-  Browser* browser = browser_test_helper_.GetBrowser();
-  BookmarkMenuBridge* bridge = new BookmarkMenuBridge(browser);
+  BookmarkMenuBridge* bridge = new BookmarkMenuBridge();
   EXPECT_TRUE(bridge);
 
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@"foo"] autorelease];
 
-  AddItemToMenu(menu, @"hi mom", IDC_BOOKMARK_MENUITEM_BASE);
-  AddItemToMenu(menu, @"not", 0);
-  NSMenuItem* item = AddItemToMenu(menu, @"hi mom", 0);
+  AddItemToMenu(menu, @"hi mom", nil);
+  AddItemToMenu(menu, @"not", @selector(openBookmarkMenuItem:));
+  NSMenuItem* item = AddItemToMenu(menu, @"hi mom", nil);
   [item setSubmenu:[[[NSMenu alloc] initWithTitle:@"bar"] autorelease]];
-  AddItemToMenu(menu, @"not", 0);
+  AddItemToMenu(menu, @"not", @selector(openBookmarkMenuItem:));
+  AddItemToMenu(menu, @"zippy", @selector(length));
 
   ClearBookmarkMenu(bridge, menu);
 
-  // Make sure all IDC_BOOKMARK items are removed, and all items with
+  // Make sure all bookmark items are removed, and all items with
   // submenus removed.
   EXPECT_EQ(2, [menu numberOfItems]);
   for (NSMenuItem *item in [menu itemArray]) {
-    EXPECT_TRUE([[item title] isEqual:@"not"]);
+    EXPECT_FALSE([[item title] isEqual:@"not"]);
   }
 }
 
 // Test that AddNodeToMenu() properly adds bookmark nodes as menus,
 // including the recursive case.
 TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
-  Browser* browser = browser_test_helper_.GetBrowser();
   Profile* profile = browser_test_helper_.GetProfile();
 
-  BookmarkMenuBridge *bridge = new BookmarkMenuBridge(browser);
+  BookmarkMenuBridge *bridge = new BookmarkMenuBridge();
   EXPECT_TRUE(bridge);
 
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@"foo"] autorelease];
@@ -92,9 +92,7 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
   EXPECT_EQ(3, [menu numberOfItems]);
   for (int x=0; x < 3; x++) {
     NSMenuItem* item = [menu itemAtIndex:x];
-    NSInteger tag = [item tag];
-    EXPECT_TRUE((tag >= IDC_BOOKMARK_MENUITEM_BASE) &&
-                (tag < IDC_BOOKMARK_MENUITEM_MAX));
+    EXPECT_EQ(@selector(openBookmarkMenuItem:), [item action]);
   }
   EXPECT_EQ(NO, [[menu itemAtIndex:0] hasSubmenu]);
   EXPECT_EQ(NO, [[menu itemAtIndex:2] hasSubmenu]);

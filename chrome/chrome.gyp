@@ -495,6 +495,8 @@
         'browser/cocoa/bookmark_bar_state_controller.mm',
         'browser/cocoa/bookmark_menu_bridge.h',
         'browser/cocoa/bookmark_menu_bridge.mm',
+	'browser/cocoa/bookmark_menu_cocoa_controller.h',
+	'browser/cocoa/bookmark_menu_cocoa_controller.mm',
         'browser/cocoa/browser_test_helper.h',
         'browser/cocoa/browser_window_cocoa.h',
         'browser/cocoa/browser_window_cocoa.mm',
@@ -2025,6 +2027,7 @@
         # exclude them from non-Mac builds.
         'browser/cocoa/bookmark_bar_state_controller_unittest.mm',
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',
+        'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',
         'browser/command_updater_unittest.cc',
         'browser/download/download_manager_unittest.cc',
         'browser/download/download_request_manager_unittest.cc',

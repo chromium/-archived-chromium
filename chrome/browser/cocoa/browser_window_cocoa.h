@@ -8,7 +8,6 @@
 #include "base/scoped_ptr.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/browser/cocoa/bookmark_menu_bridge.h"
 
 class Browser;
 @class BrowserWindowController;
@@ -78,7 +77,6 @@ class BrowserWindowCocoa : public BrowserWindow {
   NSWindow* window_;  // weak, owned by |controller_|
   // The status bubble manager.  Always non-NULL.
   scoped_ptr<StatusBubbleMac> status_bubble_;
-  BookmarkMenuBridge bookmark_menu_bridge_;
 };
 
 #endif  // CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_

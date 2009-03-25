@@ -7,7 +7,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+class BookmarkMenuBridge;
 class CommandUpdater;
+class Profile;
 
 // The application controller object, created by loading the MainMenu nib.
 // This handles things like responding to menus when there are no windows
@@ -15,9 +17,15 @@ class CommandUpdater;
 @interface AppController : NSObject<NSUserInterfaceValidations> {
  @public
   CommandUpdater* menuState_;  // strong ref
+ @private
+  // Management of the bookmark menu which spans across all windows
+  // (and Browser*s).  This is dynamically allocated to keep objc
+  // happy.
+  BookmarkMenuBridge* bookmarkMenuBridge_;
 }
 
 - (IBAction)quit:(id)sender;
+- (Profile*)defaultProfile;
 
 @end
 

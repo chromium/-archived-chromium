@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 #import "chrome/app/chrome_dll_resource.h"  // IDC_*
-#import "chrome/browser/browser.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/browser_list.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
@@ -91,6 +92,11 @@
 
   // the tab strip is empty, it's ok to close the window
   return YES;
+}
+
+// Called right after our window became the main window.
+- (void)windowDidBecomeMain:(NSNotification *)notification {
+  BrowserList::SetLastActive(browser_);
 }
 
 // Update a toggle state for an NSMenuItem if modified.

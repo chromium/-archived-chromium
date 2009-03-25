@@ -27,6 +27,9 @@ class BrowserList {
 
     // Called immediately before a browser is removed from the list
     virtual void OnBrowserRemoving(const Browser* browser) = 0;
+
+    // Called immediately after a browser is set active (SetLastActive)
+    virtual void OnBrowserSetLastActive(const Browser* browser) { };
   };
 
   // Adds and removes browsers from the global list. The browser object should
