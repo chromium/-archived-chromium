@@ -358,16 +358,18 @@ void BrowserToolbarView::Layout() {
   go_->SetBounds(location_bar_->x() + location_bar_->width(), child_y,
                  go_button_width, child_height);
 
-  page_menu_->SetBounds(go_->x() + go_->width() + kMenuButtonOffset, child_y,
-                        page_menu_width, child_height);
-
-  app_menu_->SetBounds(page_menu_->x() + page_menu_->width(), child_y,
-                       app_menu_width, child_height);
+  int next_menu_x = go_->x() + go_->width() + kMenuButtonOffset;
 
   if (bookmark_menu_) {
-    bookmark_menu_->SetBounds(app_menu_->x() + app_menu_->width(), child_y,
-                              bookmark_menu_width, child_height);
+    bookmark_menu_->SetBounds(next_menu_x, child_y, bookmark_menu_width,
+                              child_height);
+    next_menu_x += bookmark_menu_width;
   }
+
+  page_menu_->SetBounds(next_menu_x, child_y, page_menu_width, child_height);
+  next_menu_x += page_menu_width;
+
+  app_menu_->SetBounds(next_menu_x, child_y, app_menu_width, child_height);
 }
 
 void BrowserToolbarView::Paint(ChromeCanvas* canvas) {
