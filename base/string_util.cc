@@ -917,16 +917,14 @@ inline int vsnprintfT(wchar_t* buffer,
 
 // Templatized backend for StringPrintF/StringAppendF. This does not finalize
 // the va_list, the caller is expected to do that.
-template <class char_type>
-static void StringAppendVT(
-    std::basic_string<char_type, std::char_traits<char_type> >* dst,
-    const char_type* format,
-    va_list ap) {
-
+template <class StringType>
+static void StringAppendVT(StringType* dst,
+                           const typename StringType::value_type* format,
+                           va_list ap) {
   // First try with a small fixed size buffer.
   // This buffer size should be kept in sync with StringUtilTest.GrowBoundary
   // and StringUtilTest.StringPrintfBounds.
-  char_type stack_buf[1024];
+  typename StringType::value_type stack_buf[1024];
 
   va_list backup_ap;
   base::va_copy(backup_ap, ap);
@@ -973,7 +971,7 @@ static void StringAppendVT(
       return;
     }
 
-    std::vector<char_type> mem_buf(mem_length);
+    std::vector<typename StringType::value_type> mem_buf(mem_length);
 
     // Restore the va_list before we use it again.
     base::va_copy(backup_ap, ap);
@@ -1100,13 +1098,11 @@ std::wstring DoubleToWString(double value) {
 }
 
 void StringAppendV(std::string* dst, const char* format, va_list ap) {
-  StringAppendVT<char>(dst, format, ap);
+  StringAppendVT(dst, format, ap);
 }
 
-void StringAppendV(std::wstring* dst,
-                   const wchar_t* format,
-                   va_list ap) {
-  StringAppendVT<wchar_t>(dst, format, ap);
+void StringAppendV(std::wstring* dst, const wchar_t* format, va_list ap) {
+  StringAppendVT(dst, format, ap);
 }
 
 std::string StringPrintf(const char* format, ...) {
