@@ -135,22 +135,16 @@ WebMouseWheelEvent::WebMouseWheelEvent(NSEvent *event, NSView* view) {
   y = [view frame].size.height - location.y;  // flip y
 
   // Convert wheel delta amount to a number of pixels to scroll.
+  // Cocoa sets deltaX instead of deltaY if shift is pressed when scrolling
+  // with a scroll wheel, no need to do that ourselves.
   static const float kScrollbarPixelsPerTick = 40.0f;
-  float wheel_delta = [event deltaY];
-  const float delta_lines = wheel_delta * kScrollbarPixelsPerTick;
 
-  // Set scroll amount based on above calculations.
-  if ([event modifierFlags] & NSShiftKeyMask) {
-    delta_x = delta_lines;
-    delta_y = 0;
-    wheel_ticks_x = wheel_delta;
-    wheel_ticks_y = 0;
-  } else {
-    delta_x = 0;
-    delta_y = delta_lines;
-    wheel_ticks_x = 0;
-    wheel_ticks_y = wheel_delta;
-  }
+  wheel_ticks_x = [event deltaX];
+  delta_x = wheel_ticks_x * kScrollbarPixelsPerTick;
+
+  wheel_ticks_y = [event deltaY];
+  delta_y = wheel_ticks_y * kScrollbarPixelsPerTick;
+
   scroll_by_page = false;
 }
 
