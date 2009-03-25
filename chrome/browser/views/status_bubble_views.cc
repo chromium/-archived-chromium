@@ -27,8 +27,9 @@
 // The color of the background bubble.
 static const SkColor kBubbleColor = SkColorSetRGB(222, 234, 248);
 
-// The alpha and color of the bubble's shadow.
-static const SkColor kShadowColor = SkColorSetARGB(30, 0, 0, 0);
+// The alpha and color of the bubble's shadow. This is a composite of the above
+// background color with 30% gray.
+static const SkColor kShadowColor = SkColorSetRGB(196, 206, 212);
 
 // How wide the bubble's shadow is.
 static const int kShadowSize = 1;
