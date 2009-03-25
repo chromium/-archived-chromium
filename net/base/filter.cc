@@ -4,6 +4,7 @@
 
 #include "net/base/filter.h"
 
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "net/base/gzip_filter.h"
 #include "net/base/bzip2_filter.h"
@@ -93,6 +94,21 @@ void Filter::FixupEncodingTypes(
       // .gz files.  We match Firefox's nsHttpChannel::ProcessNormal and ignore
       // the Content-Encoding here.
       encoding_types->clear();
+
+    GURL url;
+    success = filter_context.GetURL(&url);
+    DCHECK(success);
+    FilePath filename = FilePath().AppendASCII(url.ExtractFileName());
+    FilePath::StringType extension = filename.Extension();
+
+    // Firefox does not apply the filter to the following extensions.
+    // See Firefox's nsHttpChannel::nsContentEncodings::GetNext() and
+    // nonDecodableExtensions in nsExternalHelperAppService.cpp
+    if (0 == extension.compare(FILE_PATH_LITERAL(".gz")) ||
+        0 == extension.compare(FILE_PATH_LITERAL(".tgz")) ||
+        0 == extension.compare(FILE_PATH_LITERAL(".svgz"))) {
+      encoding_types->clear();
+    }
   }
 
   if (!filter_context.IsSdchResponse()) {
