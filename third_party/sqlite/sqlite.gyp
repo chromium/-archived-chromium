@@ -6,6 +6,16 @@
   'includes': [
     '../../build/common.gypi',
   ],
+  'target_defaults': {
+    'defines': [
+      'SQLITE_ENABLE_FTS2',
+      'SQLITE_ENABLE_BROKEN_FTS2',
+      'SQLITE_ENABLE_ICU',
+      'SQLITE_SECURE_DELETE',
+      'THREADSAFE',
+      '_HAS_EXCEPTIONS=0',
+    ],
+  },
   'targets': [
     {
       'target_name': 'sqlite',
@@ -142,14 +152,6 @@
         'src/md5.c',
         'src/tclsqlite.c',
       ],
-      'defines': [
-        'SQLITE_ENABLE_FTS2',
-        'SQLITE_ENABLE_BROKEN_FTS2',
-        'SQLITE_ENABLE_ICU',
-        'SQLITE_SECURE_DELETE',
-        'THREADSAFE',
-        '_HAS_EXCEPTIONS=0',
-      ],
       'include_dirs': [
         'preprocessed',
         'src',
@@ -171,5 +173,29 @@
         }],
       ],
     },
+  ],
+  'conditions': [
+    ['OS=="linux"', {
+      'targets': [
+        {
+          'target_name': 'sqlite_shell',
+          'type': 'executable',
+          'dependencies': [
+            '../icu38/icu38.gyp:icuuc',
+            'sqlite',
+          ],
+          'sources': [
+            'src/shell.c',
+            'src/shell_icu_linux.c',
+          ],
+          'link_settings': {
+            'link_languages': ['c++'],
+            'libraries': [
+              '-ldl',
+            ],
+          },
+        },
+      ],
+    },]
   ],
 }
