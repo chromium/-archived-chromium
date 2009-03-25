@@ -155,13 +155,12 @@ bool WaitableEventWatcher::StartWatching
 
   cancel_flag_ = new Flag;
   callback_task_ = new AsyncCallbackTask(cancel_flag_, delegate, event);
-  WaitableEvent::WaitableEventKernel* kernel = event->kernel_.get();
 
-  AutoLock locked(kernel->lock_);
+  AutoLock locked(event->lock_);
 
-  if (kernel->signaled_) {
-    if (!kernel->manual_reset_)
-      kernel->signaled_ = false;
+  if (event->signaled_) {
+    if (!event->manual_reset_)
+      event->signaled_ = false;
 
     // No hairpinning - we can't call the delegate directly here. We have to
     // enqueue a task on the MessageLoop as normal.
@@ -173,7 +172,6 @@ bool WaitableEventWatcher::StartWatching
   current_ml->AddDestructionObserver(this);
 
   event_ = event;
-  kernel_ = kernel;
   waiter_ = new AsyncWaiter(current_ml, callback_task_, cancel_flag_);
   event->Enqueue(waiter_);
 
@@ -196,9 +194,9 @@ void WaitableEventWatcher::StopWatching() {
     return;
   }
 
-  if (!kernel_.get()) {
-    // We have no kernel. This means that we never enqueued a Waiter on an
-    // event because the event was already signaled when StartWatching was
+  if (!event_) {
+    // We have no WaitableEvent. This means that we never enqueued a Waiter on
+    // an event because the event was already signaled when StartWatching was
     // called.
     //
     // In this case, a task was enqueued on the MessageLoop and will run.
@@ -210,9 +208,9 @@ void WaitableEventWatcher::StopWatching() {
     return;
   }
 
-  AutoLock locked(kernel_->lock_);
-  // We have a lock on the kernel. No one else can signal the event while we
-  // have it.
+  AutoLock locked(event_->lock_);
+  // We have a lock on the WaitableEvent. No one else can signal the event while
+  // we have it.
 
   // We have a possible ABA issue here. If Dequeue was to compare only the
   // pointer values then it's possible that the AsyncWaiter could have been
@@ -226,7 +224,7 @@ void WaitableEventWatcher::StopWatching() {
   // have a reference to the Flag, its memory cannot be reused while this object
   // still exists. So if we find a waiter with the correct pointer value, and
   // which shares a Flag pointer, we have a real match.
-  if (kernel_->Dequeue(waiter_, cancel_flag_.get())) {
+  if (event_->Dequeue(waiter_, cancel_flag_.get())) {
     // Case 2: the waiter hasn't been signaled yet; it was still on the wait
     // list. We've removed it, thus we can delete it and the task (which cannot
     // have been enqueued with the MessageLoop because the waiter was never

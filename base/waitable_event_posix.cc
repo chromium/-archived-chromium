@@ -35,40 +35,46 @@ namespace base {
 // This is just an abstract base class for waking the two types of waiters
 // -----------------------------------------------------------------------------
 WaitableEvent::WaitableEvent(bool manual_reset, bool initially_signaled)
-    : kernel_(new WaitableEventKernel(manual_reset, initially_signaled)) {
+    : signaled_(initially_signaled),
+      manual_reset_(manual_reset) {
 }
 
 WaitableEvent::~WaitableEvent() {
+  if (!waiters_.empty()) {
+    LOG(ERROR) << "Destroying a WaitableEvent (" << this << ") with "
+               << waiters_.size() << " waiters";
+    NOTREACHED() << "Aborting.";
+  }
 }
 
 void WaitableEvent::Reset() {
-  AutoLock locked(kernel_->lock_);
-  kernel_->signaled_ = false;
+  AutoLock locked(lock_);
+  signaled_ = false;
 }
 
 void WaitableEvent::Signal() {
-  AutoLock locked(kernel_->lock_);
+  AutoLock locked(lock_);
 
-  if (kernel_->signaled_)
+  if (signaled_)
     return;
 
-  if (kernel_->manual_reset_) {
+  if (manual_reset_) {
     SignalAll();
-    kernel_->signaled_ = true;
+    signaled_ = true;
   } else {
     // In the case of auto reset, if no waiters were woken, we remain
     // signaled.
     if (!SignalOne())
-      kernel_->signaled_ = true;
+      signaled_ = true;
   }
 }
 
 bool WaitableEvent::IsSignaled() {
-  AutoLock locked(kernel_->lock_);
+  AutoLock locked(lock_);
 
-  const bool result = kernel_->signaled_;
-  if (result && !kernel_->manual_reset_)
-    kernel_->signaled_ = false;
+  const bool result = signaled_;
+  if (result && !manual_reset_)
+    signaled_ = false;
   return result;
 }
 
@@ -144,15 +150,15 @@ bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
   const Time end_time(Time::Now() + max_time);
   const bool finite_time = max_time.ToInternalValue() >= 0;
 
-  kernel_->lock_.Acquire();
-    if (kernel_->signaled_) {
-      if (!kernel_->manual_reset_) {
+  lock_.Acquire();
+    if (signaled_) {
+      if (!manual_reset_) {
         // In this case we were signaled when we had no waiters. Now that
         // someone has waited upon us, we can automatically reset.
-        kernel_->signaled_ = false;
+        signaled_ = false;
       }
 
-      kernel_->lock_.Release();
+      lock_.Release();
       return true;
     }
 
@@ -162,7 +168,7 @@ bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
     SyncWaiter sw(&cv, &lock);
 
     Enqueue(&sw);
-  kernel_->lock_.Release();
+  lock_.Release();
   // We are violating locking order here by holding the SyncWaiter lock but not
   // the WaitableEvent lock. However, this is safe because we don't lock @lock_
   // again before unlocking it.
@@ -181,9 +187,9 @@ bool WaitableEvent::TimedWait(const TimeDelta& max_time) {
       sw.Disable();
       lock.Release();
 
-      kernel_->lock_.Acquire();
-        kernel_->Dequeue(&sw, &sw);
-      kernel_->lock_.Release();
+      lock_.Acquire();
+        Dequeue(&sw, &sw);
+      lock_.Release();
 
       return return_value;
     }
@@ -255,7 +261,7 @@ size_t WaitableEvent::WaitMany(WaitableEvent** raw_waitables,
   lock.Acquire();
     // Release the WaitableEvent locks in the reverse order
     for (size_t i = 0; i < count; ++i) {
-      waitables[count - (1 + i)].first->kernel_->lock_.Release();
+      waitables[count - (1 + i)].first->lock_.Release();
     }
 
     for (;;) {
@@ -275,12 +281,12 @@ size_t WaitableEvent::WaitMany(WaitableEvent** raw_waitables,
   // remove our SyncWaiter from the wait-list
   for (size_t i = 0; i < count; ++i) {
     if (raw_waitables[i] != signaled_event) {
-      raw_waitables[i]->kernel_->lock_.Acquire();
+      raw_waitables[i]->lock_.Acquire();
         // There's no possible ABA issue with the address of the SyncWaiter here
         // because it lives on the stack. Thus the tag value is just the pointer
         // value again.
-        raw_waitables[i]->kernel_->Dequeue(&sw, &sw);
-      raw_waitables[i]->kernel_->lock_.Release();
+        raw_waitables[i]->Dequeue(&sw, &sw);
+      raw_waitables[i]->lock_.Release();
     } else {
       signaled_index = i;
     }
@@ -306,17 +312,17 @@ size_t WaitableEvent::EnqueueMany
   if (!count)
     return 0;
 
-  waitables[0].first->kernel_->lock_.Acquire();
-    if (waitables[0].first->kernel_->signaled_) {
-      if (!waitables[0].first->kernel_->manual_reset_)
-        waitables[0].first->kernel_->signaled_ = false;
-      waitables[0].first->kernel_->lock_.Release();
+  waitables[0].first->lock_.Acquire();
+    if (waitables[0].first->signaled_) {
+      if (!waitables[0].first->manual_reset_)
+        waitables[0].first->signaled_ = false;
+      waitables[0].first->lock_.Release();
       return count;
     }
 
     const size_t r = EnqueueMany(waitables + 1, count - 1, waiter);
     if (r) {
-      waitables[0].first->kernel_->lock_.Release();
+      waitables[0].first->lock_.Release();
     } else {
       waitables[0].first->Enqueue(waiter);
     }
@@ -337,12 +343,12 @@ bool WaitableEvent::SignalAll() {
   bool signaled_at_least_one = false;
 
   for (std::list<Waiter*>::iterator
-       i = kernel_->waiters_.begin(); i != kernel_->waiters_.end(); ++i) {
+       i = waiters_.begin(); i != waiters_.end(); ++i) {
     if ((*i)->Fire(this))
       signaled_at_least_one = true;
   }
 
-  kernel_->waiters_.clear();
+  waiters_.clear();
   return signaled_at_least_one;
 }
 
@@ -352,11 +358,11 @@ bool WaitableEvent::SignalAll() {
 // ---------------------------------------------------------------------------
 bool WaitableEvent::SignalOne() {
   for (;;) {
-    if (kernel_->waiters_.empty())
+    if (waiters_.empty())
       return false;
 
-    const bool r = (*kernel_->waiters_.begin())->Fire(this);
-    kernel_->waiters_.pop_front();
+    const bool r = (*waiters_.begin())->Fire(this);
+    waiters_.pop_front();
     if (r)
       return true;
   }
@@ -366,14 +372,14 @@ bool WaitableEvent::SignalOne() {
 // Add a waiter to the list of those waiting. Called with lock held.
 // -----------------------------------------------------------------------------
 void WaitableEvent::Enqueue(Waiter* waiter) {
-  kernel_->waiters_.push_back(waiter);
+  waiters_.push_back(waiter);
 }
 
 // -----------------------------------------------------------------------------
 // Remove a waiter from the list of those waiting. Return true if the waiter was
 // actually removed. Called with lock held.
 // -----------------------------------------------------------------------------
-bool WaitableEvent::WaitableEventKernel::Dequeue(Waiter* waiter, void* tag) {
+bool WaitableEvent::Dequeue(Waiter* waiter, void* tag) {
   for (std::list<Waiter*>::iterator
        i = waiters_.begin(); i != waiters_.end(); ++i) {
     if (*i == waiter && (*i)->Compare(tag)) {
