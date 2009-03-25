@@ -2279,22 +2279,22 @@ DEFER WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in
 DEFER WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
 
 // New failures from merge
-DEFER WIN : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
-DEFER WIN : LayoutTests/fast/clip/016.html = FAIL
-DEFER WIN : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
-DEFER WIN : LayoutTests/fast/css/clip-zooming.html = FAIL
+DEFER WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/clip/016.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
 DEFER WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
 DEFER WIN : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/input-appearance-height.html = FAIL
-DEFER WIN : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
-DEFER WIN : LayoutTests/fast/forms/search-zoomed.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-padding.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
-DEFER WIN : LayoutTests/fast/forms/slider-zoomed.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 DEFER WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
 DEFER WIN : LayoutTests/fast/text/international/001.html = FAIL
@@ -2305,15 +2305,15 @@ DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit
 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 DEFER WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
 DEFER WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL
-DEFER WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
-DEFER WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
-DEFER WIN : LayoutTests/svg/custom/js-update-image.svg = FAIL
-DEFER WIN : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
+DEFER WIN LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
+DEFER WIN LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+DEFER WIN LINUX : LayoutTests/svg/custom/js-update-image.svg = FAIL
+DEFER WIN LINUX: LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 DEFER WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
@@ -2326,4 +2326,3 @@ DEFER MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-post.
 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
 DEFER MAC : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
-
