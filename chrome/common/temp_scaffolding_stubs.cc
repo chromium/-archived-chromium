@@ -211,19 +211,19 @@ int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
 
 // static
 bool Upgrade::IsBrowserAlreadyRunning() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=9295
   return false;
 }
 
 // static
 bool Upgrade::RelaunchChromeBrowser(const CommandLine& command_line) {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=9295
   return true;
 }
 
 // static
 bool Upgrade::SwapNewChromeExeIfPresent() {
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=9295
   return true;
 }
 
