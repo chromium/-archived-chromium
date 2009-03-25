@@ -2192,10 +2192,13 @@ void V8Proxy::SetSecurityToken() {
     if (!origin->domainWasSetInDOM())
         token = document->securityOrigin()->toString();
 
-    // An empty token means we always have to call canAccess.  In this case, we
-    // use the global object as the security token to avoid calling canAccess
-    // when a script accesses its own objects.
-    if (token.isEmpty()) {
+    // An empty or "null" token means we always have to call
+    // canAccess.  The toString method on securityOrigins returns the
+    // string "null" for empty security origins and for security
+    // origins that should only allow access to themselves.  In this
+    // case, we use the global object as the security token to avoid
+    // calling canAccess when a script accesses its own objects.
+    if (token.isEmpty() || token == "null") {
         m_context->UseDefaultSecurityToken();
         return;
     }

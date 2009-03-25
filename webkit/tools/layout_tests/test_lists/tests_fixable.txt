@@ -1270,10 +1270,7 @@ WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
 LINUX MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
-LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-to-data-url-sub-frame.html = FAIL
-LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-to-data-url.html = FAIL
-LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-from-data-url.html = FAIL
+LINUX MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 // This test can end up taking longer than the amount of time we give
 // each test. DEFERd until we find a better way to deal with it.
@@ -2247,7 +2244,6 @@ WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection
 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
 WIN : LayoutTests/webarchive/loading/cache-expired-subresource.html = CRASH PASS
 WIN : LayoutTests/webarchive/loading/test-loading-archive.html = CRASH TIMEOUT PASS
-LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 LINUX : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL PASS
 MAC : LayoutTests/fast/css/rgb-float.html = FAIL PASS
 MAC : LayoutTests/fast/forms/003.html = FAIL PASS
