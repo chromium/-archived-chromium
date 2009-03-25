@@ -27,6 +27,14 @@ NativeControlWin::NativeControlWin() : HWNDView() {
 }
 
 NativeControlWin::~NativeControlWin() {
+  HWND hwnd = GetHWND();
+  if (hwnd) {
+    // Destroy the hwnd if it still exists. Otherwise we won't have shut things
+    // down correctly, leading to leaking and crashing if another message
+    // comes in for the hwnd.
+    Detach();
+    DestroyWindow(hwnd);
+  }
 }
 
 LRESULT NativeControlWin::ProcessMessage(UINT message, WPARAM w_param,
