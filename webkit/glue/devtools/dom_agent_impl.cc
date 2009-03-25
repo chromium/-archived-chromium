@@ -14,17 +14,31 @@
 #include "markup.h"
 #include "MutationEvent.h"
 #include "Node.h"
+#include "NodeList.h"
 #include "PlatformString.h"
 #include "Text.h"
+#include "XPathResult.h"
+#include <wtf/HashSet.h>
 #include <wtf/OwnPtr.h>
+#include <wtf/RefPtr.h>
 #include <wtf/Vector.h>
 #undef LOG
 
+#include "base/string_util.h"
 #include "base/values.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/glue_util.h"
 
 using namespace WebCore;
+
+const char DomAgentImpl::kExactTagNames[] = "//*[name() == '%s')]";
+const char DomAgentImpl::kPartialTagNames[] = "//*[contains(name(), '%s')]";
+const char DomAgentImpl::kStartOfTagNames[] = "//*[starts-with(name(), '%s')]";
+const char DomAgentImpl::kPartialTagNamesAndAttributeValues[] =
+    "//*[contains(name(), '%s') or contains(@*, '%s')]";
+const char DomAgentImpl::kPartialAttributeValues[] = "//*[contains(@*, '%s')]";
+const char DomAgentImpl::kPlainText[] =
+    "//text()[contains(., '%s')] | //comment()[contains(., '%s')]";
 
 // static
 PassRefPtr<DomAgentImpl::EventListenerWrapper>
@@ -303,6 +317,102 @@ void DomAgentImpl::SetTextNodeValue(int element_id, const String& value) {
     // TODO(pfeldman): Add error handling
     text_node->replaceWholeText(value, ec);
   }
+}
+
+void DomAgentImpl::PerformSearch(int call_id, const String& query) {
+  String tag_name_query = query;
+  String attribute_name_query = query;
+
+  bool start_tag_found = tag_name_query.startsWith("<", true);
+  bool end_tag_found = tag_name_query.endsWith(">", true);
+
+  if (start_tag_found || end_tag_found) {
+    int tag_name_query_length = tag_name_query.length();
+    int start = start_tag_found ? 1 : 0;
+    int end = end_tag_found ? tag_name_query_length - 1 : tag_name_query_length;
+    tag_name_query = tag_name_query.substring(start, end - start);
+  }
+
+  Vector<String> xpath_queries;
+  xpath_queries.append(String::format(kPlainText, query.utf8().data(),
+      query.utf8().data()));
+  if (tag_name_query.length() && start_tag_found && end_tag_found) {
+    xpath_queries.append(String::format(kExactTagNames,
+                             tag_name_query.utf8().data()));
+  } else if (tag_name_query.length() && start_tag_found) {
+    xpath_queries.append(String::format(kStartOfTagNames,
+                             tag_name_query.utf8().data()));
+  } else if (tag_name_query.length() && end_tag_found) {
+    // FIXME(pfeldman): we should have a matchEndOfTagNames search function if
+    // endTagFound is true but not startTagFound.
+    // This requires ends-with() support in XPath, WebKit only supports
+    // starts-with() and contains().
+    xpath_queries.append(String::format(kPartialTagNames,
+                             tag_name_query.utf8().data()));
+  } else if (query == "//*" || query == "*") {
+    // These queries will match every node. Matching everything isn't useful
+    // and can be slow for large pages, so limit the search functions list to
+    // plain text and attribute matching.
+    xpath_queries.append(String::format(kPartialAttributeValues,
+                             query.utf8().data()));
+  } else {
+    // TODO(pfeldman): Add more patterns.
+    xpath_queries.append(String::format(kPartialTagNamesAndAttributeValues,
+                             tag_name_query.utf8().data(),
+                             query.utf8().data()));
+  }
+
+  ExceptionCode ec = 0;
+  Vector<Document*> search_documents;
+  Document* main_document = (*documents_.begin()).get();
+  search_documents.append(main_document);
+
+  // Find all frames, iframes and object elements to search their documents.
+  RefPtr<NodeList> node_list = main_document->querySelectorAll(
+      "iframe, frame, object", ec);
+  if (ec) {
+    ListValue list;
+    delegate_->DidPerformSearch(call_id, list);
+    return;
+  }
+  for (unsigned int i = 0; i < node_list->length(); ++i) {
+    Node* node = node_list->item(i);
+    if (node->isFrameOwnerElement()) {
+      const HTMLFrameOwnerElement* frame_owner =
+          static_cast<const HTMLFrameOwnerElement*>(node);
+      if (frame_owner->contentDocument()) {
+        search_documents.append(search_documents);
+      }
+    }
+  }
+
+  HashSet<int> node_ids;
+  for (Vector<Document*>::iterator it = search_documents.begin();
+       it != search_documents.end(); ++it) {
+    for (Vector<String>::iterator qit = xpath_queries.begin();
+         qit != xpath_queries.end(); ++qit) {
+      String query = *qit;
+      RefPtr<XPathResult> result = (*it)->evaluate(query, *it, NULL,
+          XPathResult::UNORDERED_NODE_ITERATOR_TYPE, 0, ec);
+      if (ec) {
+        ListValue list;
+        delegate_->DidPerformSearch(call_id, list);
+        return;
+      }
+      Node* node = result->iterateNext(ec);
+      while (node && !ec) {
+        node_ids.add(PushNodePathToClient(node));
+        node = result->iterateNext(ec);
+      }
+    }
+  }
+
+  ListValue list;
+  for (HashSet<int>::iterator it = node_ids.begin();
+       it != node_ids.end(); ++it) {
+    list.Append(Value::CreateIntegerValue(*it));
+  }
+  delegate_->DidPerformSearch(call_id, list);
 }
 
 ListValue* DomAgentImpl::BuildValueForNode(Node* node, int depth) {

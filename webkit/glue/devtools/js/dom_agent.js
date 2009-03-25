@@ -256,6 +256,8 @@ devtools.DomAgent = function() {
   this.idToDomNode_ = { 0 : this.document };
   RemoteDomAgent.DidGetChildNodes =
       devtools.Callback.processCallback;
+  RemoteDomAgent.DidPerformSearch =
+      devtools.Callback.processCallback;
   RemoteDomAgent.AttributesUpdated =
       goog.bind(this.attributesUpdated, this);
   RemoteDomAgent.SetDocumentElement =
@@ -268,6 +270,10 @@ devtools.DomAgent = function() {
       goog.bind(this.childNodeInserted, this);
   RemoteDomAgent.ChildNodeRemoved =
       goog.bind(this.childNodeRemoved, this);
+  /**
+   * @type {Array.<number>} Node ids for search results.
+   */
+  this.searchResults_ = [];
 };
 
 
@@ -351,9 +357,21 @@ devtools.DomAgent.prototype.setChildNodes = function(parentId, payloads) {
     return;
   }
   parent.setChildrenPayload_(payloads);
-  var children = parent.children;
+  this.bindNodes_(parent.children);
+};
+
+
+/**
+ * Binds nodes to ids recursively.
+ * @param {Array.<devtools.DomNode>} children Nodes to bind.
+ */
+devtools.DomAgent.prototype.bindNodes_ = function(children) {
   for (var i = 0; i < children.length; ++i) {
-    this.idToDomNode_[children[i].id] = children[i];
+    var child = children[i];
+    this.idToDomNode_[child.id] = child;
+    if (child.children) {
+      this.bindNodes_(child.children);
+    }
   }
 };
 
@@ -393,6 +411,47 @@ devtools.DomAgent.prototype.childNodeRemoved = function(
   var event = { target : node, relatedNode : parent };
   this.document.fireDomEvent_("DOMNodeRemoved", event);
   delete this.idToDomNode_[nodeId];
+};
+
+
+/**
+ * @see DomAgentDelegate.
+ * {@inheritDoc}.
+ */
+devtools.DomAgent.prototype.performSearch = function(query, forEach) {
+  RemoteDomAgent.PerformSearch(
+      devtools.Callback.wrap(
+          goog.bind(this.performSearchCallback_, this, forEach)),
+      query);
+};
+
+
+/**
+ * Invokes callback for each node that needs to clear highlighting.
+ * @param {function(devtools.DomNode):undefined} forEach callback to call.
+ */
+devtools.DomAgent.prototype.searchCanceled = function(forEach) {
+  for (var i = 0; i < this.searchResults_.length; ++i) {
+    var nodeId = this.searchResults_[i];
+    var node = this.idToDomNode_[nodeId];
+    forEach(node);
+  }
+};
+
+
+/**
+ * Invokes callback for each node that needs to gain highlighting.
+ * @param {function(devtools.DomNode):undefined} forEach callback to call.
+ * @param {Array.<number>} nodeIds Ids to highlight.
+ */
+devtools.DomAgent.prototype.performSearchCallback_ = function(forEach,
+    nodeIds) {
+  this.searchResults_ = [];
+  for (var i = 0; i < nodeIds.length; ++i) {
+    var node = this.idToDomNode_[nodeIds[i]];
+    this.searchResults_.push(nodeIds[i]);
+    forEach(node);
+  }
 };
 
 

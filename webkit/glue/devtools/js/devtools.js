@@ -67,3 +67,31 @@ WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
       webkitUpdateChildren.call(self);
   });
 };
+
+WebInspector.ElementsPanel.prototype.performSearch = function(query) {
+  this.searchCanceled();
+  var self = this;
+  domAgent.performSearch(query, function(node) {
+    var treeElement = self.treeOutline.findTreeElement(node);
+    if (treeElement)
+      treeElement.highlighted = true;
+  });
+};
+
+
+WebInspector.ElementsPanel.prototype.searchCanceled = function() {
+  var self = this;
+  domAgent.searchCanceled(function(node) {
+    var treeElement = self.treeOutline.findTreeElement(node);
+    if (treeElement)
+      treeElement.highlighted = false;
+  });
+};
+
+
+WebInspector.ElementsPanel.prototype.jumpToNextSearchResult = function() {
+};
+
+
+WebInspector.ElementsPanel.prototype.jumpToPreviousSearchResult = function() {
+};

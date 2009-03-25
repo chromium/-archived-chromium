@@ -27,6 +27,9 @@
   /* Sets text node value in the node with given id. */ \
   METHOD2(SetTextNodeValue, int /* id */, String /* text */) \
   \
+  /* Perform search. */ \
+  METHOD2(PerformSearch, int /* call_id */, String /* query */) \
+  \
   /* Tells dom agent that the client has lost all of the dom-related
    information and is no longer interested in the notifications related to the
    nodes issued earlier. */ \
@@ -37,6 +40,9 @@ DEFINE_RPC_CLASS(DomAgent, DOM_AGENT_STRUCT)
 #define DOM_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
   /* Response to GetChildNodes. */ \
   METHOD1(DidGetChildNodes, int /* call_id */) \
+  \
+  /* Perform search. */ \
+  METHOD2(DidPerformSearch, int /* call_id */, Value /* results */) \
   \
   /* Notifies the delegate that element's attributes are updated. */ \
   METHOD2(AttributesUpdated, int /* id */, Value /* attributes */) \
@@ -56,7 +62,7 @@ DEFINE_RPC_CLASS(DomAgent, DOM_AGENT_STRUCT)
       Value /* node */) \
   \
   /* Notifies the delegate that child node has been deleted. */ \
-  METHOD2(ChildNodeRemoved, int /* parent_id */, int /* id */) \
+  METHOD2(ChildNodeRemoved, int /* parent_id */, int /* id */)
 
 DEFINE_RPC_CLASS(DomAgentDelegate, DOM_AGENT_DELEGATE_STRUCT)
 

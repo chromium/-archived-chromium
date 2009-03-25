@@ -88,6 +88,13 @@ RemoteDomAgentStub.prototype.SetTextNodeValue = function() {
 };
 
 
+RemoteDomAgentStub.prototype.PerformSearch = function(callId, query) {
+  setTimeout(function() {
+    RemoteDomAgent.DidPerformSearch(callId, [1]);
+  }, 0);
+};
+
+
 /**
  * @constructor
  */

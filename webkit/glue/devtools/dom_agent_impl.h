@@ -40,6 +40,7 @@ class DomAgentImpl : public DomAgent {
       const WebCore::String& value);
   void RemoveAttribute(int element_id, const WebCore::String& name);
   void SetTextNodeValue(int element_id, const WebCore::String& value);
+  void PerformSearch(int call_id, const String& query);
   void DiscardBindings();
 
   // Initializes dom agent with the given document.
@@ -56,7 +57,14 @@ class DomAgentImpl : public DomAgent {
   int PushNodePathToClient(WebCore::Node* node);
 
  private:
-  // Convenience EventListner wrapper for cleaner Ref management.
+  static const char kExactTagNames[];
+  static const char kPartialTagNames[];
+  static const char kStartOfTagNames[];
+  static const char kPartialTagNamesAndAttributeValues[];
+  static const char kPartialAttributeValues[];
+  static const char kPlainText[];
+
+// Convenience EventListner wrapper for cleaner Ref management.
   class EventListenerWrapper : public WebCore::EventListener {
    public:
     static PassRefPtr<EventListenerWrapper> Create(
