@@ -19,6 +19,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/resource_bundle.h"
+#include "unicode/uscript.h"
 
 // TODO(playmobil): remove this undef once SkPostConfig.h is fixed.
 // skia/include/corecg/SkPostConfig.h #defines strcasecmp() so we can't use
@@ -437,31 +438,33 @@ std::wstring ToLower(const std::wstring& string) {
 }
 #endif  // defined(WCHAR_T_IS_UTF32)
 
-// Returns the text direction.
-// This function retrieves the language corresponding to the default ICU locale
-// (assuming that SetICUDefaultLocale is called) and determines the text
-// direction by comparing it with "ar" or "he".
-// Note that script is better than language here to get a wider coverage.
-// Unfortunately, getScript in ICU returns an empty string unless
-// the locale is created with an explicit script specified. For now,
-// it does not matter much because we only support Hebrew and Arabic.
-// (c.f. other languages written in RTL : Farsi, Urdu, Syriac, Azerbaijani
-//  in Arabic, etc)
-// TODO(hbono): Need to find better identification methods than checking
-// if the language ID is Arabic or Hebrew. (http://b/issue?id=1054119)
-// Use an ICU API when added (see http://bugs.icu-project.org/trac/ticket/6228).
+// Returns the text direction for the default ICU locale. It is assumed
+// that SetICUDefaultLocale has been called to set the default locale to
+// the UI locale of Chrome.
 TextDirection GetTextDirection() {
   if (g_text_direction == UNKNOWN_DIRECTION) {
     const Locale& locale = Locale::getDefault();
-    const char* lang = locale.getLanguage();
-    // Check only for Arabic and Hebrew languages now.
-    if (strcmp(lang, "ar") == 0 || strcmp(lang, "he") == 0) {
-      g_text_direction = RIGHT_TO_LEFT;
-    } else {
-      g_text_direction = LEFT_TO_RIGHT;
-    }
+    g_text_direction = GetTextDirectionForLocale(locale.getName());
   }
   return g_text_direction;
+}
+
+TextDirection GetTextDirectionForLocale(const char* locale_name) {
+  UScriptCode scripts[10]; // 10 scripts should be enough for any locale.
+  UErrorCode error = U_ZERO_ERROR;
+  int n = uscript_getCode(locale_name, scripts, 10, &error);
+  DCHECK(U_SUCCESS(error) && n > 0);
+
+  // Checking Arabic and Hebrew scripts cover Arabic, Hebrew, Farsi,
+  // Urdu and Azerbaijani written in Arabic. Syriac script
+  // (another RTL) is not a living script and we didn't yet localize
+  // to locales using other living RTL scripts such as Thaana and N'ko.
+  // TODO(jungshik): Use a new ICU API, uloc_getCharacterOrientation to avoid
+  // 'hardcoded-comparision' with Arabic and Hebrew scripts once we
+  // upgrade ICU to 4.0 or later or port it to our copy of ICU.
+  if (scripts[0] == USCRIPT_ARABIC || scripts[0] == USCRIPT_HEBREW)
+    return RIGHT_TO_LEFT;
+  return LEFT_TO_RIGHT;
 }
 
 TextDirection GetFirstStrongCharacterDirection(const std::wstring& text) {

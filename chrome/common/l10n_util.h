@@ -107,13 +107,16 @@ enum TextDirection {
   LEFT_TO_RIGHT,
 };
 
-// Returns the locale-specific text direction.
-// This function retrieves the application locale and determines the text
-// direction. Its possible results are listed below:
+// Returns the text direction for the default ICU locale. It is assumed
+// that SetICUDefaultLocale has been called to set the default locale to
+// the UI locale of Chrome. Its return is one of the following three:
 //  * LEFT_TO_RIGHT: Left-To-Right (e.g. English, Chinese, etc.);
 //  * RIGHT_TO_LEFT: Right-To-Left (e.g. Arabic, Hebrew, etc.), and;
 //  * UNKNOWN_DIRECTION: unknown (or error).
 TextDirection GetTextDirection();
+
+// Returns the text direction for |locale_name|.
+TextDirection GetTextDirectionForLocale(const char* locale_name);
 
 // Given the string in |text|, returns the directionality of the first
 // character with strong directionality in the string. If no character in the

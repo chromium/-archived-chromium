@@ -31,6 +31,10 @@ class StringWrapper {
   DISALLOW_COPY_AND_ASSIGN(StringWrapper);
 };
 
+l10n_util::TextDirection GetTextDirection(const char* locale_name) {
+  return l10n_util::GetTextDirectionForLocale(locale_name);
+}
+
 }  // namespace
 
 class L10nUtilTest : public PlatformTest {
@@ -375,4 +379,32 @@ TEST_F(L10nUtilTest, WrapPathWithLTRFormatting) {
     std::wstring wrapped_path = UTF16ToWide(localized_file_path_string);
     EXPECT_EQ(wrapped_path, test_data[i].wrapped_path);
   }
+}
+
+TEST_F(L10nUtilTest, GetTextDirection) {
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("ar"));
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("ar_EG"));
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("he"));
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("he_IL"));
+  // iw is an obsolete code for Hebrew.
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("iw"));
+#if 0
+  // Enable these when we localize to Farsi, Urdu, Azerbaijani
+  // written in Arabic and Dhivehi. At the moment, our copy of
+  // ICU data does not have entry for them.
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("fa"));
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("ur"));
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("az_Arab"));
+  // Dhivehi that uses Thaana script.
+  EXPECT_EQ(l10n_util::RIGHT_TO_LEFT, GetTextDirection("dv"));
+#endif
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT, GetTextDirection("en"));
+  // Chinese in China with '-'.
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT, GetTextDirection("zh-CN"));
+  // Filipino : 3-letter code
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT, GetTextDirection("fil"));
+  // Russian
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT, GetTextDirection("ru"));
+  // Japanese that uses multiple scripts
+  EXPECT_EQ(l10n_util::LEFT_TO_RIGHT, GetTextDirection("ja"));
 }
