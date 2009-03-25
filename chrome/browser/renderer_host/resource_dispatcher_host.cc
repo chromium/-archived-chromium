@@ -1523,6 +1523,7 @@ bool ResourceDispatcherHost::IsResourceDispatcherHostMessage(
     case ViewHostMsg_CancelRequest::ID:
     case ViewHostMsg_ClosePage_ACK::ID:
     case ViewHostMsg_DataReceived_ACK::ID:
+    case ViewHostMsg_DownloadProgress_ACK::ID:
     case ViewHostMsg_UploadProgress_ACK::ID:
     case ViewHostMsg_SyncLoad::ID:
       return true;
