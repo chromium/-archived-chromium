@@ -1815,6 +1815,10 @@ MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
 MAC : LayoutTests/fast/forms/002.html = FAIL
 LINUX MAC : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 
+// Pass locally on some developers' machines but fails on bot.
+// See http://crbug.com/9275
+WIN MAC : LayoutTests/fast/encoding/char-decoding.html = FAIL
+
 // Flakey tests
 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
 
