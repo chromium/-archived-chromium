@@ -73,7 +73,8 @@ class WebCursor {
 
 #elif defined(OS_LINUX)
   // Return the stock GdkCursorType for this cursor, or GDK_CURSOR_IS_PIXMAP
-  // if it's a custom cursor.
+  // if it's a custom cursor. Return GDK_LAST_CURSOR to indicate that the cursor
+  // should be set to the system default.
   GdkCursorType GetCursorType() const;
 
   // Return a new GdkCursor* for this cursor.  Only valid if GetCursorType

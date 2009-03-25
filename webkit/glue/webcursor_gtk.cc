@@ -49,7 +49,7 @@ GdkCursorType WebCursor::GetCursorType() const {
   // change everything.
   switch (type_) {
     case PlatformCursor::TypePointer:
-      return GDK_ARROW;
+      return GDK_LAST_CURSOR;
     case PlatformCursor::TypeCross:
       return GDK_CROSS;
     case PlatformCursor::TypeHand:
@@ -77,62 +77,62 @@ GdkCursorType WebCursor::GetCursorType() const {
     case PlatformCursor::TypeWestResize:
       return GDK_LEFT_SIDE;
     case PlatformCursor::TypeNorthSouthResize:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeEastWestResize:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNorthEastSouthWestResize:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNorthWestSouthEastResize:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeColumnResize:
       return GDK_SB_H_DOUBLE_ARROW;  // TODO(evanm): is this correct?
     case PlatformCursor::TypeRowResize:
       return GDK_SB_V_DOUBLE_ARROW;  // TODO(evanm): is this correct?
     case PlatformCursor::TypeMiddlePanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeEastPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNorthPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNorthEastPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNorthWestPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeSouthPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeSouthEastPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeSouthWestPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeWestPanning:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeMove:
       return GDK_FLEUR;
     case PlatformCursor::TypeVerticalText:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeCell:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeContextMenu:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeAlias:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeProgress:
       return GDK_WATCH;
     case PlatformCursor::TypeNoDrop:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeCopy:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNone:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeNotAllowed:
-      NOTIMPLEMENTED(); return GDK_ARROW;
+      NOTIMPLEMENTED(); return GDK_LAST_CURSOR;
     case PlatformCursor::TypeZoomIn:
     case PlatformCursor::TypeZoomOut:
     case PlatformCursor::TypeCustom:
       return GDK_CURSOR_IS_PIXMAP;
   }
   NOTREACHED();
-  return GDK_ARROW;
+  return GDK_LAST_CURSOR;
 }
 
 GdkCursor* WebCursor::GetCustomCursor() const {

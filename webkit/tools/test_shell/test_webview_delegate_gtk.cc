@@ -146,12 +146,16 @@ void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
     // non-pixmap branch.
     if (cursor_type_ == cursor_type)
       return;
-    gdk_cursor = gdk_cursor_new(cursor_type);
+    if (cursor_type_ == GDK_LAST_CURSOR)
+      gdk_cursor = NULL;
+    else
+      gdk_cursor = gdk_cursor_new(cursor_type);
   }
   cursor_type_ = cursor_type;
   gdk_window_set_cursor(shell_->webViewWnd()->window, gdk_cursor);
   // The window now owns the cursor.
-  gdk_cursor_unref(gdk_cursor);
+  if (gdk_cursor)
+    gdk_cursor_unref(gdk_cursor);
 }
 
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,

@@ -258,11 +258,15 @@ void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {
     // non-pixmap branch.
     if (new_cursor_type == current_cursor_type)
       return;
-    gdk_cursor = gdk_cursor_new(new_cursor_type);
+    if (new_cursor_type == GDK_LAST_CURSOR)
+      gdk_cursor = NULL;
+    else
+      gdk_cursor = gdk_cursor_new(new_cursor_type);
   }
   gdk_window_set_cursor(view_.get()->window, gdk_cursor);
   // The window now owns the cursor.
-  gdk_cursor_unref(gdk_cursor);
+  if (gdk_cursor)
+    gdk_cursor_unref(gdk_cursor);
 }
 
 void RenderWidgetHostViewGtk::UpdateCursorIfOverSelf() {
