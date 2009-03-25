@@ -107,6 +107,22 @@ void RunTest_OutlivesMessageLoop(MessageLoop::Type message_loop_type) {
   }
 }
 
+void RunTest_DeleteUnder(MessageLoop::Type message_loop_type) {
+  // Delete the WaitableEvent out from under the Watcher. This is explictly
+  // allowed by the interface.
+
+  MessageLoop message_loop(message_loop_type);
+
+  {
+    WaitableEventWatcher watcher;
+
+    WaitableEvent* event = new WaitableEvent(false, false);
+    QuitDelegate delegate;
+    watcher.StartWatching(event, &delegate);
+    delete event;
+  }
+}
+
 }  // namespace
 
 //-----------------------------------------------------------------------------
@@ -133,4 +149,10 @@ TEST(WaitableEventWatcherTest, OutlivesMessageLoop) {
   RunTest_OutlivesMessageLoop(MessageLoop::TYPE_DEFAULT);
   RunTest_OutlivesMessageLoop(MessageLoop::TYPE_IO);
   RunTest_OutlivesMessageLoop(MessageLoop::TYPE_UI);
+}
+
+TEST(WaitableEventWatcherTest, DeleteUnder) {
+  RunTest_DeleteUnder(MessageLoop::TYPE_DEFAULT);
+  RunTest_DeleteUnder(MessageLoop::TYPE_IO);
+  RunTest_DeleteUnder(MessageLoop::TYPE_UI);
 }
