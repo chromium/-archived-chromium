@@ -24,7 +24,7 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 }
 
 WebContentsViewMac::WebContentsViewMac(WebContents* web_contents)
-    : web_contents_(web_contents) {
+    : WebContentsView(web_contents_) {
   registrar_.Add(this, NotificationType::WEB_CONTENTS_CONNECTED,
                  Source<WebContents>(web_contents));
   registrar_.Add(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
@@ -204,15 +204,6 @@ WebContents* WebContentsViewMac::CreateNewWindowInternal(
   return new_contents;
 }
 
-RenderWidgetHostView* WebContentsViewMac::CreateNewWidgetInternal(
-    int route_id,
-    bool activatable) {
-  // I don't understand what role this plays in the grand scheme of things. I'm
-  // not going to fake it.
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 void WebContentsViewMac::ShowCreatedWindowInternal(
     WebContents* new_web_contents,
     WindowOpenDisposition disposition,
@@ -228,14 +219,6 @@ void WebContentsViewMac::ShowCreatedWindowInternal(
   new_web_contents->render_view_host()->Init();
   web_contents_->AddNewContents(new_web_contents, disposition, initial_pos,
                                 user_gesture);
-}
-
-void WebContentsViewMac::ShowCreatedWidgetInternal(
-    RenderWidgetHostView* widget_host_view,
-    const gfx::Rect& initial_pos) {
-  // I don't understand what role this plays in the grand scheme of things. I'm
-  // not going to fake it.
-  NOTIMPLEMENTED();
 }
 
 void WebContentsViewMac::Observe(NotificationType type,

@@ -51,6 +51,12 @@ RenderWidgetHostViewMac::~RenderWidgetHostViewMac() {
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewMac, RenderWidgetHostView implementation:
 
+void RenderWidgetHostViewMac::InitAsPopup(
+    RenderWidgetHostView* parent_host_view,
+    const gfx::Rect& pos) {
+  NOTIMPLEMENTED();
+}
+
 RenderWidgetHost* RenderWidgetHostViewMac::GetRenderWidgetHost() const {
   return render_widget_host_;
 }

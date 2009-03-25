@@ -4,7 +4,15 @@
 
 #include "chrome/browser/tab_contents/web_contents_view.h"
 
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
+#include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/web_contents.h"
+
+WebContentsView::WebContentsView(WebContents* web_contents)
+    : web_contents_(web_contents) {
+}
 
 void WebContentsView::RenderWidgetHostDestroyed(RenderWidgetHost* host) {
   for (PendingWidgetViews::iterator i = pending_widget_views_.begin();
@@ -58,4 +66,31 @@ void WebContentsView::ShowCreatedWidget(int route_id,
   pending_widget_views_.erase(route_id);
 
   ShowCreatedWidgetInternal(widget_host_view, initial_pos);
+}
+
+RenderWidgetHostView* WebContentsView::CreateNewWidgetInternal(
+    int route_id,
+    bool activatable) {
+  RenderWidgetHost* widget_host =
+      new RenderWidgetHost(web_contents_->process(), route_id);
+  RenderWidgetHostView* widget_view =
+      RenderWidgetHostView::CreateViewForWidget(widget_host);
+  widget_view->set_activatable(activatable);
+
+  return widget_view;
+}
+
+void WebContentsView::ShowCreatedWidgetInternal(
+    RenderWidgetHostView* widget_host_view,
+    const gfx::Rect& initial_pos) {
+  RenderWidgetHost* widget_host = widget_host_view->GetRenderWidgetHost();
+  if (!widget_host->process()->channel()) {
+    // The view has gone away or the renderer crashed. Nothing to do.
+    return;
+  }
+
+  widget_host_view->InitAsPopup(
+      web_contents_->render_widget_host_view(), initial_pos);
+  web_contents_->delegate()->RenderWidgetShowing();
+  widget_host->Init();
 }

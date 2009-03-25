@@ -471,6 +471,7 @@ class WebContents : public TabContents,
   friend class TestWebContents;
 
   // Temporary until the view/contents separation is complete.
+  friend class WebContentsView;
 #if defined(OS_WIN)
   friend class WebContentsViewWin;
 #elif defined(OS_MACOSX)

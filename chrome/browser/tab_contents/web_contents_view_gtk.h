@@ -47,14 +47,10 @@ class WebContentsViewGtk : public WebContentsView {
   // Backend implementation of RenderViewHostDelegate::View.
   virtual WebContents* CreateNewWindowInternal(
       int route_id, base::WaitableEvent* modal_dialog_event);
-  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
-                                                        bool activatable);
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
                                          WindowOpenDisposition disposition,
                                          const gfx::Rect& initial_pos,
                                          bool user_gesture);
-  virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
-                                         const gfx::Rect& initial_pos);
   virtual void ShowContextMenu(const ContextMenuParams& params);
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
@@ -66,8 +62,6 @@ class WebContentsViewGtk : public WebContentsView {
                            int active_match_ordinal,
                            bool final_update);
  private:
-  WebContents* web_contents_;
-
   // The native widget for the tab.
   OwnedWidgetGtk vbox_;
 

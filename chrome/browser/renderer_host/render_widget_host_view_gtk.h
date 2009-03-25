@@ -25,10 +25,6 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // Initialize this object for use as a drawing area.
   void InitAsChild();
 
-  // Initialize this object for use as a popup (e.g. HTML dropdown menu).
-  void InitAsPopup(RenderWidgetHostView* parent_host_view,
-                   const gfx::Rect& pos);
-
   // TODO(estade): unfork this with RenderWidgetHostViewWin function of same
   // name.
   void set_activatable(bool activatable) { activatable_ = activatable; }
@@ -36,6 +32,8 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // ---------------------------------------------------------------------------
   // Implementation of RenderWidgetHostView...
 
+  void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                   const gfx::Rect& pos);
   RenderWidgetHost* GetRenderWidgetHost() const { return host_; }
   void DidBecomeSelected();
   void WasHidden();

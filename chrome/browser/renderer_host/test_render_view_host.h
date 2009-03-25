@@ -39,6 +39,8 @@ class TestRenderWidgetHostView : public RenderWidgetHostView {
  public:
   TestRenderWidgetHostView() : is_showing_(false) {}
 
+  virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                           const gfx::Rect& pos) {}
   virtual RenderWidgetHost* GetRenderWidgetHost() const { return NULL; }
   virtual void DidBecomeSelected() {}
   virtual void WasHidden() {}

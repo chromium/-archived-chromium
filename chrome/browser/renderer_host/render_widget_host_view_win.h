@@ -58,17 +58,6 @@ class RenderWidgetHostViewWin :
   explicit RenderWidgetHostViewWin(RenderWidgetHost* widget);
   virtual ~RenderWidgetHostViewWin();
 
-  void set_close_on_deactivate(bool close_on_deactivate) {
-    close_on_deactivate_ = close_on_deactivate;
-  }
-
-  void set_activatable(bool activatable) {
-    activatable_ = activatable;
-  }
-  bool activatable() const { return activatable_; }
-
-  void set_parent_hwnd(HWND parent) { parent_hwnd_ = parent; }
-
   DECLARE_WND_CLASS_EX(kRenderWidgetHostHWNDClass, CS_DBLCLKS, 0);
 
   BEGIN_MSG_MAP(RenderWidgetHostHWND)
@@ -117,6 +106,8 @@ class RenderWidgetHostViewWin :
   END_MSG_MAP()
 
   // Implementation of RenderWidgetHostView:
+  virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                           const gfx::Rect& pos);
   virtual RenderWidgetHost* GetRenderWidgetHost() const;
   virtual void DidBecomeSelected();
   virtual void WasHidden();
@@ -269,10 +260,6 @@ class RenderWidgetHostViewWin :
   // not having anything to paint (empty backing store from renderer). This
   // value returns true for is_null() if we are not recording whiteout times.
   base::TimeTicks whiteout_start_time_;
-
-  // Whether the window can be activated. Autocomplete popup windows for example
-  // cannot be activated.  Default is true.
-  bool activatable_;
 
   // Whether the renderer is made accessible.
   // TODO(jcampan): http://b/issue?id=1432077 This is a temporary work-around

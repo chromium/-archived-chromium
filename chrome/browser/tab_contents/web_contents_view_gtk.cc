@@ -65,7 +65,7 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 }
 
 WebContentsViewGtk::WebContentsViewGtk(WebContents* web_contents)
-    : web_contents_(web_contents),
+    : WebContentsView(web_contents),
       vbox_(gtk_vbox_new(FALSE, 0)) {
 }
 
@@ -213,40 +213,10 @@ WebContents* WebContentsViewGtk::CreateNewWindowInternal(
   return NULL;
 }
 
-// TODO(estade): unfork this from the version in web_contents_view_win.
-RenderWidgetHostView* WebContentsViewGtk::CreateNewWidgetInternal(
-    int route_id,
-    bool activatable) {
-  RenderWidgetHost* widget_host =
-      new RenderWidgetHost(web_contents_->process(), route_id);
-  RenderWidgetHostViewGtk* widget_view =
-      new RenderWidgetHostViewGtk(widget_host);
-  widget_view->set_activatable(activatable);
-
-  return widget_view;
-}
-
 void WebContentsViewGtk::ShowCreatedWindowInternal(
     WebContents* new_web_contents,
     WindowOpenDisposition disposition,
     const gfx::Rect& initial_pos,
     bool user_gesture) {
   NOTIMPLEMENTED();
-}
-
-// TODO(estade): unfork this from the version in web_contents_view_win.
-void WebContentsViewGtk::ShowCreatedWidgetInternal(
-    RenderWidgetHostView* widget_host_view,
-    const gfx::Rect& initial_pos) {
-  RenderWidgetHostViewGtk* widget_host_view_gtk =
-      static_cast<RenderWidgetHostViewGtk*>(widget_host_view);
-
-  RenderWidgetHost* widget_host = widget_host_view->GetRenderWidgetHost();
-  if (!widget_host->process()->channel()) {
-    // The view has gone away or the renderer crashed. Nothing to do.
-    return;
-  }
-
-  widget_host_view_gtk->InitAsPopup(
-      web_contents_->render_widget_host_view(), initial_pos);
 }

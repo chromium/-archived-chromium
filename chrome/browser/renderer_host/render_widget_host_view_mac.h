@@ -56,6 +56,8 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   gfx::NativeView native_view() const { return cocoa_view_; }
 
   // Implementation of RenderWidgetHostView:
+  virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                           const gfx::Rect& pos);
   virtual RenderWidgetHost* GetRenderWidgetHost() const;
   virtual void DidBecomeSelected();
   virtual void WasHidden();

@@ -82,8 +82,7 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
       tooltip_showing_(false),
       shutdown_factory_(this),
       parent_hwnd_(NULL),
-      is_loading_(false),
-      activatable_(true) {
+      is_loading_(false) {
   render_widget_host_->set_view(this);
   renderer_accessible_ =
       CommandLine::ForCurrentProcess()->HasSwitch(
@@ -96,6 +95,15 @@ RenderWidgetHostViewWin::~RenderWidgetHostViewWin() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewWin, RenderWidgetHostView implementation:
+
+void RenderWidgetHostViewWin::InitAsPopup(
+    RenderWidgetHostView* parent_host_view, const gfx::Rect& pos) {
+  parent_hwnd_ = parent_host_view->GetPluginNativeView();
+  close_on_deactivate_ = true;
+  Create(parent_hwnd_, NULL, NULL, WS_POPUP, WS_EX_TOOLWINDOW);
+  MoveWindow(pos.x(), pos.y(), pos.width(), pos.height(), TRUE);
+  ShowWindow(activatable_ ? SW_SHOW : SW_SHOWNA);
+}
 
 RenderWidgetHost* RenderWidgetHostViewWin::GetRenderWidgetHost() const {
   return render_widget_host_;

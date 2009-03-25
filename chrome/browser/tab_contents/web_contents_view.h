@@ -34,6 +34,7 @@ class WaitableEvent;
 // that should be the same for all platforms.
 class WebContentsView : public RenderViewHostDelegate::View {
  public:
+  WebContentsView(WebContents* web_contents);
   virtual ~WebContentsView() {}
 
   // Creates the appropriate type of WebContentsView for the current system.
@@ -134,14 +135,18 @@ class WebContentsView : public RenderViewHostDelegate::View {
   virtual WebContents* CreateNewWindowInternal(
       int route_id,
       base::WaitableEvent* modal_dialog_event) = 0;
-  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
-                                                        bool activatable) = 0;
   virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
                                          WindowOpenDisposition disposition,
                                          const gfx::Rect& initial_pos,
                                          bool user_gesture) = 0;
+
+  virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
+                                                        bool activatable);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
-                                         const gfx::Rect& initial_pos) = 0;
+                                         const gfx::Rect& initial_pos);
+
+ protected:
+  WebContents* web_contents_;
 
  private:
   // We implement these functions on RenderViewHostDelegate::View directly and

@@ -43,6 +43,11 @@ class RenderWidgetHostView {
   // going to be a regular RenderWidgetHost or a RenderViewHost (a subclass).
   static RenderWidgetHostView* CreateViewForWidget(RenderWidgetHost* widget);
 
+  // Perform all the initialization steps necessary for this object to represent
+  // a popup (such as a <select> dropdown), then shows the popup at |pos|.
+  virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
+                           const gfx::Rect& pos) = 0;
+
   // Returns the associated RenderWidgetHost.
   virtual RenderWidgetHost* GetRenderWidgetHost() const = 0;
 
@@ -113,9 +118,18 @@ class RenderWidgetHostView {
   // Allocate a backing store for this view
   virtual BackingStore* AllocBackingStore(const gfx::Size& size) = 0;
 
+  void set_activatable(bool activatable) {
+    activatable_ = activatable;
+  }
+  bool activatable() const { return activatable_; }
+
  protected:
   // Interface class only, do not construct.
-  RenderWidgetHostView() {}
+   RenderWidgetHostView() : activatable_(true) {}
+
+  // Whether the window can be activated. Autocomplete popup windows for example
+  // cannot be activated.  Default is true.
+  bool activatable_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostView);

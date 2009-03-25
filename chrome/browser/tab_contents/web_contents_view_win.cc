@@ -51,7 +51,7 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 }
 
 WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
-    : web_contents_(web_contents),
+    : WebContentsView(web_contents),
       ignore_next_char_event_(false) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
@@ -392,29 +392,6 @@ WebContents* WebContentsViewWin::CreateNewWindowInternal(
   return new_contents;
 }
 
-RenderWidgetHostView* WebContentsViewWin::CreateNewWidgetInternal(
-    int route_id,
-    bool activatable) {
-  // Create the widget and its associated view.
-  // TODO(brettw) can widget creation be cross-platform?
-  RenderWidgetHost* widget_host =
-      new RenderWidgetHost(web_contents_->process(), route_id);
-  RenderWidgetHostViewWin* widget_view =
-      new RenderWidgetHostViewWin(widget_host);
-
-  // We set the parent HWND explicitly as pop-up HWNDs are parented and owned by
-  // the first non-child HWND of the HWND that was specified to the CreateWindow
-  // call.
-  // TODO(brettw) this should not need to get the current RVHView from the
-  // WebContents. We should have it somewhere ourselves.
-  widget_view->set_parent_hwnd(
-      web_contents_->render_widget_host_view()->GetPluginNativeView());
-  widget_view->set_close_on_deactivate(true);
-  widget_view->set_activatable(activatable);
-
-  return widget_view;
-}
-
 void WebContentsViewWin::ShowCreatedWindowInternal(
     WebContents* new_web_contents,
     WindowOpenDisposition disposition,
@@ -430,35 +407,6 @@ void WebContentsViewWin::ShowCreatedWindowInternal(
   new_web_contents->render_view_host()->Init();
   web_contents_->AddNewContents(new_web_contents, disposition, initial_pos,
                                 user_gesture);
-}
-
-void WebContentsViewWin::ShowCreatedWidgetInternal(
-    RenderWidgetHostView* widget_host_view,
-    const gfx::Rect& initial_pos) {
-  // TODO(beng): (Cleanup) move all this windows-specific creation and showing
-  //             code into RenderWidgetHostView behind some API that a
-  //             ChromeView can also reasonably implement.
-  RenderWidgetHostViewWin* widget_host_view_win =
-      static_cast<RenderWidgetHostViewWin*>(widget_host_view);
-
-  RenderWidgetHost* widget_host = widget_host_view->GetRenderWidgetHost();
-  if (!widget_host->process()->channel()) {
-    // The view has gone away or the renderer crashed. Nothing to do.
-    return;
-  }
-
-  // This logic should be implemented by RenderWidgetHostHWND (as mentioned
-  // above) in the ::Init function, which should take a parent and some initial
-  // bounds.
-  widget_host_view_win->Create(GetNativeView(), NULL, NULL,
-                               WS_POPUP, WS_EX_TOOLWINDOW);
-  widget_host_view_win->MoveWindow(initial_pos.x(), initial_pos.y(),
-                                   initial_pos.width(), initial_pos.height(),
-                                   TRUE);
-  web_contents_->delegate()->RenderWidgetShowing();
-  widget_host_view_win->ShowWindow(widget_host_view_win->activatable() ?
-                                   SW_SHOW : SW_SHOWNA);
-  widget_host->Init();
 }
 
 void WebContentsViewWin::OnHScroll(int scroll_type, short position,
