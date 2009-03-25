@@ -431,8 +431,6 @@ void ConfirmInfoBar::ButtonPressed(views::Button* sender) {
   } else if (sender == cancel_button_) {
     if (GetDelegate()->Cancel())
       RemoveInfoBar();
-  } else {
-    NOTREACHED();
   }
 }
 
