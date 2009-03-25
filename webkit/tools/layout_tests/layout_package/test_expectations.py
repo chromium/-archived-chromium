@@ -17,7 +17,7 @@ import compare_failures
 (PASS, FAIL, TIMEOUT, CRASH, SKIP, WONTFIX, DEFER, NONE) = range(8)
 
 class TestExpectations:
-  TEST_LIST = "tests_fixable.txt"
+  TEST_LIST = "test_expectations.txt"
 
   def __init__(self, tests, directory, platform, is_debug_mode):
     """Reads the test expectations files from the given directory."""

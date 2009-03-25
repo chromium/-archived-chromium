@@ -48,11 +48,6 @@ from test_types import text_diff
 from test_types import simplified_text_diff
 
 
-# The test list files are found in this subdirectory, which must be a sibling
-# to this script itself.
-TEST_FILE_DIR = 'test_lists'
-
-
 class TestRunner:
   """A class for managing running a series of tests on a series of test
   files."""
@@ -81,8 +76,7 @@ class TestRunner:
     # a set of test files, and the same tests as a list
     self._test_files = set()
     self._test_files_list = None
-    self._file_dir = os.path.join(os.path.dirname(sys.argv[0]), TEST_FILE_DIR)
-    self._file_dir = path_utils.GetAbsolutePath(self._file_dir)
+    self._file_dir = path_utils.GetAbsolutePath(os.path.dirname(sys.argv[0]))
 
     if options.lint_test_files:
       # Creating the expecations for each platform/target pair does all the
@@ -740,11 +734,6 @@ def main(options, args):
   if os.path.exists(cachedir):
     shutil.rmtree(cachedir)
 
-  # This was an experimental feature where we would run more than one
-  # test_shell in parallel.  For some reason, this would result in different
-  # layout test results, so just use 1 test_shell for now.
-  options.num_test_shells = 1
-
   test_runner.AddTestType(text_diff.TestTextDiff)
   test_runner.AddTestType(simplified_text_diff.SimplifiedTextDiff)
   if not options.no_pixel_tests:
@@ -788,6 +777,10 @@ if '__main__' == __name__:
                            help="Disable comparison to the last test run. "
                                 "When enabled, show stats on how many tests "
                                 "newly pass or fail.")
+  option_parser.add_option("", "--num-test-shells",
+                           default=1,
+                           help="Experimental. Number of testshells to run in "
+                                "parallel.")
   option_parser.add_option("", "--time-out-ms",
                            default=None,
                            help="Set the timeout for each test")

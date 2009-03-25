@@ -22,8 +22,19 @@
 // RELEASE: Expectations apply only to release build.
 // LINUX/WIN/MAC: Expectations apply only to these platforms.
 //
-// A test can be included twice, but not via the same path. If a test is
-// included twice, then the more precise path wins.
+// The format of a test line is as follows:
+// METADATA : relative/path/to/test.html = EXPECTATIONS
+//
+// For example,
+// LINUX : LayoutTests/media = PASS FAIL
+//
+// The above means that all the media tests are flaky, but only on Linux.
+//
+// Notes:
+// -A test cannot be both DEFER and WONTFIX
+// -A test can be included twice, but not via the same path.
+// -If a test is included twice, then the more precise path wins.
+// -CRASH tests cannot be DEFER or WONTFIX
 
 // -----------------------------------------------------------------
 // SKIPPED TESTS
