@@ -60,7 +60,7 @@ class BookmarkHTMLWriterTest : public testing::Test {
 // way of bookmark_html_writer, then using the importer to read it back in.
 TEST_F(BookmarkHTMLWriterTest, Test) {
   // Populate the BookmarkModel. This creates the following bookmark structure:
-  // Bookmark Bar
+  // Bookmarks bar
   //   F1
   //     url1
   //     F2
@@ -110,12 +110,16 @@ TEST_F(BookmarkHTMLWriterTest, Test) {
 
   // Verify we got back what we wrote.
   ASSERT_EQ(6U, parsed_bookmarks.size());
+  // Hardcode the value of IDS_BOOKMARK_BAR_FOLDER_NAME in en-US locale
+  // because all the unit tests are run in en-US locale. 
+  const wchar_t* kBookmarkBarFolderName = L"Bookmarks bar"; 
   AssertBookmarkEntryEquals(parsed_bookmarks[0], false, url1, url1_title, t1,
-                            L"Bookmark Bar", f1_title, std::wstring());
+                            kBookmarkBarFolderName, f1_title, std::wstring());
   AssertBookmarkEntryEquals(parsed_bookmarks[1], false, url2, url2_title, t2,
-                            L"Bookmark Bar", f1_title, f2_title);
+                            kBookmarkBarFolderName, f1_title, f2_title);
   AssertBookmarkEntryEquals(parsed_bookmarks[2], false, url3, url3_title, t3,
-                            L"Bookmark Bar", std::wstring(), std::wstring());
+                            kBookmarkBarFolderName, std::wstring(),
+                            std::wstring());
   AssertBookmarkEntryEquals(parsed_bookmarks[3], false, url1, url1_title, t1,
                             std::wstring(), std::wstring(), std::wstring());
   AssertBookmarkEntryEquals(parsed_bookmarks[4], false, url2, url2_title, t2,
