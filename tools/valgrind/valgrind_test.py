@@ -36,7 +36,6 @@ class Valgrind(object):
   TMP_DIR = "valgrind.tmp"
 
   def __init__(self):
-    self._suppressions_files = []
     # If we have a valgrind.tmp directory, we failed to cleanup last time.
     if os.path.exists(self.TMP_DIR):
       shutil.rmtree(self.TMP_DIR)
@@ -209,15 +208,37 @@ class ValgrindMac(Valgrind):
 
   def ValgrindCommand(self):
     """Get the valgrind command to run."""
-    proc = ["valgrind", "--leak-check=full"]
+    proc = ["valgrind", "--smc-check=all", "--leak-check=full",
+            "--num-callers=30"]
+
+    if self._options.show_all_leaks:
+      proc += ["--show-reachable=yes"];
+
+    # Either generate suppressions or load them.
+    # TODO(nirnimesh): Enable when Analyze() is implemented
+    #if self._generate_suppressions:
+    #  proc += ["--gen-suppressions=all"]
+    #else:
+    #  proc += ["--xml=yes"]
+
+    suppression_count = 0
+    for suppression_file in self._suppressions:
+      if os.path.exists(suppression_file):
+        suppression_count += 1
+        proc += ["--suppressions=%s" % suppression_file]
+
+    if not suppression_count:
+      logging.warning("WARNING: NOT USING SUPPRESSIONS!")
+
     # TODO(nirnimesh): Enable --log-file when Analyze() is implemented
-    #proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+    # proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+
     proc += self._args
     return proc
 
   def Analyze(self):
     # TODO(nirnimesh): Implement analysis later. Valgrind on Mac is new so
-    # analysis might not be useful until we have stable output from valgring
+    # analysis might not be useful until we have stable output from valgrind
     return 0
 
 
