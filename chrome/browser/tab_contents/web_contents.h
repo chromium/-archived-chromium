@@ -109,11 +109,6 @@ class WebContents : public TabContents,
     return view_.get();
   }
 
-#ifdef UNIT_TEST
-  // Expose the render manager for testing.
-  RenderViewHostManager* render_manager() { return &render_manager_; }
-#endif
-
   // Page state getters & setters ----------------------------------------------
 
   bool is_starred() const { return is_starred_; }
@@ -454,7 +449,6 @@ class WebContents : public TabContents,
   virtual NavigationController* GetControllerForRenderManager() {
     return controller();
   }
-  virtual DOMUI* CreateDOMUIForRenderManager(const GURL& url);
   virtual NavigationEntry* GetLastCommittedNavigationEntryForRenderManager();
 
   // Initializes the given renderer if necessary and creates the view ID
@@ -640,6 +634,11 @@ class WebContents : public TabContents,
 
   // PluginInstaller, lazily created.
   scoped_ptr<PluginInstaller> plugin_installer_;
+
+  // When the current page is a DOM UI page, this will point to the specific
+  // DOMUI object handling it. When we don't have a DOM UI page, this will be
+  // null.
+  scoped_ptr<DOMUI> dom_ui_;
 
   // Handles downloading favicons.
   FavIconHelper fav_icon_helper_;

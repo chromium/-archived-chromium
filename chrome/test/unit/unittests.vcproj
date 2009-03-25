@@ -452,10 +452,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\dom_ui\dom_ui_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\download\download_manager_unittest.cc"
 				>
 			</File>
