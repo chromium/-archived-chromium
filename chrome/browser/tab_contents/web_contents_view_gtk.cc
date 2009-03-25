@@ -114,12 +114,7 @@ gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeWindow() const {
 }
 
 void WebContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
-  // This is used for positioning the download shelf arrow animation,
-  // as well as sizing some other widgets in Windows.  In GTK the size is
-  // managed for us, so it appears to be only used for the download shelf
-  // animation.
-  out->SetRect(vbox_.get()->allocation.x, vbox_.get()->allocation.y,
-               vbox_.get()->allocation.width, vbox_.get()->allocation.height);
+  NOTIMPLEMENTED();
 }
 
 void WebContentsViewGtk::OnContentsDestroy() {
@@ -128,10 +123,7 @@ void WebContentsViewGtk::OnContentsDestroy() {
 }
 
 void WebContentsViewGtk::SetPageTitle(const std::wstring& title) {
-  // Set the window name to include the page title so it's easier to spot
-  // when debugging (e.g. via xwininfo -tree).
-  if (content_view_)
-    gdk_window_set_title(content_view_->window, WideToASCII(title).c_str());
+  NOTIMPLEMENTED();
 }
 
 void WebContentsViewGtk::Invalidate() {
@@ -176,7 +168,7 @@ void WebContentsViewGtk::RestoreFocus() {
   // TODO(estade): implement this function.
   // For now just assume we are viewing the tab for the first time.
   SetInitialFocus();
-  NOTIMPLEMENTED() << " --  need to restore the focus position on this page.";
+  NOTIMPLEMENTED();
 }
 
 void WebContentsViewGtk::UpdateDragCursor(bool is_drop_target) {

@@ -122,7 +122,7 @@ void ChromePluginLib::RegisterPluginsWithNPAPI() {
     return;
   // Note: we can only access the NPAPI list because the PluginService has done
   // the locking for us.  We should not touch it anywhere else.
-#if defined(OS_WIN) || defined(OS_LINUX)
+#if defined(OS_WIN)
   NPAPI::PluginList::AddExtraPluginPath(path);
 #else
   // TODO(port): plugins not yet implemented
@@ -255,7 +255,7 @@ int ChromePluginLib::CP_Test(void* param) {
 bool ChromePluginLib::Load() {
 #if !defined(OS_WIN)
   // TODO(port): plugins not yet implemented
-  NOTIMPLEMENTED() << " -- gears loading code.";
+  NOTIMPLEMENTED();
   return false;
 #else
   DCHECK(module_ == 0);

@@ -364,9 +364,7 @@ void BrowserWindowGtk::UpdateLoadingAnimations(bool should_animate) {
 }
 
 void BrowserWindowGtk::SetStarredState(bool is_starred) {
-  // Hide our current lack of starring support from NOTIMPLEMENTED spew.
-  if (is_starred)
-    NOTIMPLEMENTED();
+  NOTIMPLEMENTED();
 }
 
 gfx::Rect BrowserWindowGtk::GetNormalBounds() const {

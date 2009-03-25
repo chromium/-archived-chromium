@@ -196,7 +196,7 @@ void RenderWidgetHostViewGtk::WasHidden() {
 }
 
 void RenderWidgetHostViewGtk::SetSize(const gfx::Size& size) {
-  // We rely on our parent GTK container to size us.
+  NOTIMPLEMENTED();
 }
 
 gfx::NativeView RenderWidgetHostViewGtk::GetPluginNativeView() {
