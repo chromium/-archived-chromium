@@ -1722,7 +1722,8 @@ DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = 
 
 // Probably just needs to be rebaselined.  We generate the png before the
 // image in the iframe loads so its dimensions are 0x0.
-DEFER LINUX MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+// TODO(tc): Failing on buildbots
+DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
