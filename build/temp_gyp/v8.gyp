@@ -142,6 +142,7 @@
       '../../v8/src/platform-linux.cc',
       '../../v8/src/platform-macos.cc',
       '../../v8/src/platform-nullos.cc',
+      '../../v8/src/platform-posix.cc',
       '../../v8/src/platform-win32.cc',
       '../../v8/src/platform.h',
       '../../v8/src/prettyprinter.cc',
