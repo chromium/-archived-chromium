@@ -460,6 +460,7 @@ linux_env.FilterOut(CPPDEFINES = ['OS_LINUX=OS_LINUX'])
 for envvar in ('CC', 'CXX', 'LINK'):
   if envvar in os.environ:
     linux_env[envvar] = os.environ[envvar]
+    linux_env['ENV'][envvar] = os.environ[envvar]
 # Copy these environment variables from the outer environment to the
 # environment that the build commands run in.
 # $HOME is needed by distcc so it can find its lock file.
