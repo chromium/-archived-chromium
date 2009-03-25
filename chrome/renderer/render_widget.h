@@ -133,6 +133,7 @@ class RenderWidget : public IPC::Channel::Listener,
                            int target_start, int target_end,
                            const std::wstring& ime_string);
   void OnMsgRepaint(const gfx::Size& size_to_paint);
+  void OnSetTextDirection(int direction);
 
   // True if a PaintRect_ACK message is pending.
   bool paint_reply_pending() const {

@@ -76,6 +76,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
                                  const std::wstring& ime_string);
   virtual bool ImeUpdateStatus(bool* enable_ime,
                                gfx::Rect* caret_rect);
+  virtual void SetTextDirection(WebTextDirection direction);
   virtual void StopLoading();
   virtual void SetBackForwardListSize(int size);
   virtual void RestoreFocus();

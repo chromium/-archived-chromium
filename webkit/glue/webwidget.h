@@ -6,6 +6,7 @@
 #define WEBKIT_GLUE_WEBWIDGET_H__
 
 #include "skia/ext/platform_canvas.h"
+#include "webkit/glue/webtextdirection.h"
 
 namespace gfx {
 class Rect;
@@ -63,6 +64,9 @@ class WebWidget {
 
   // Retrieve the status of this widget required by IME APIs.
   virtual bool ImeUpdateStatus(bool* enable_ime, gfx::Rect* caret_rect) = 0;
+
+  // Changes the text direction of the selected input node.
+  virtual void SetTextDirection(WebTextDirection direction) = 0;
 
  protected:
   virtual ~WebWidget() {}

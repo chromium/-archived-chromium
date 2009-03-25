@@ -529,6 +529,17 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_ROUTED2(ViewMsg_HandleExtensionMessage,
                       std::string /* message */,
                       int /* channel_id */)
+
+  // Changes the text direction of a selected input field.
+  // * direction (int)
+  //   Represents the new text direction.
+  //   Its possible values are listed below:
+  //     Value                      New Text Direction
+  //     WEB_TEXT_DIRECTION_DEFAULT NaturalWritingDirection ("inherit")
+  //     WEB_TEXT_DIRECTION_LTR     LeftToRightWritingDirection ("rtl")
+  //     WEB_TEXT_DIRECTION_RTL     RightToLeftWritingDirection ("ltr")
+  IPC_MESSAGE_ROUTED1(ViewMsg_SetTextDirection,
+                      int /* direction */)
 IPC_END_MESSAGES(View)
 
 

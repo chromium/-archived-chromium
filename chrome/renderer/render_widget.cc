@@ -21,6 +21,7 @@
 #endif  // defined(OS_POSIX)
 
 #include "webkit/glue/webinputevent.h"
+#include "webkit/glue/webtextdirection.h"
 #include "webkit/glue/webwidget.h"
 
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
@@ -119,6 +120,7 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidget)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetInputMode, OnImeSetInputMode)
   IPC_MESSAGE_HANDLER(ViewMsg_ImeSetComposition, OnImeSetComposition)
   IPC_MESSAGE_HANDLER(ViewMsg_Repaint, OnMsgRepaint)
+  IPC_MESSAGE_HANDLER(ViewMsg_SetTextDirection, OnSetTextDirection)
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
 
@@ -642,6 +644,20 @@ void RenderWidget::OnMsgRepaint(const gfx::Size& size_to_paint) {
   set_next_paint_is_repaint_ack();
   gfx::Rect repaint_rect(size_to_paint.width(), size_to_paint.height());
   DidInvalidateRect(webwidget_, repaint_rect);
+}
+
+void RenderWidget::OnSetTextDirection(int direction) {
+  if (!webwidget_)
+    return;
+
+  WebTextDirection new_direction = static_cast<WebTextDirection>(direction);
+  if (new_direction == WEB_TEXT_DIRECTION_DEFAULT ||
+      new_direction == WEB_TEXT_DIRECTION_LTR ||
+      new_direction == WEB_TEXT_DIRECTION_RTL) {
+    webwidget_->SetTextDirection(new_direction);
+  } else {
+    NOTREACHED();
+  }
 }
 
 bool RenderWidget::next_paint_is_resize_ack() const {
