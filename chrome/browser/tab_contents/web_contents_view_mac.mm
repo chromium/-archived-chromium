@@ -24,7 +24,7 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 }
 
 WebContentsViewMac::WebContentsViewMac(WebContents* web_contents)
-    : WebContentsView(web_contents_) {
+    : WebContentsView(web_contents) {
   registrar_.Add(this, NotificationType::WEB_CONTENTS_CONNECTED,
                  Source<WebContents>(web_contents));
   registrar_.Add(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
