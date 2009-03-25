@@ -11,9 +11,15 @@
 
 namespace {
 
-typedef testing::Test ClientSocketPoolTest;
-
 const int kMaxSocketsPerGroup = 6;
+
+// Note that the first and the last are the same, the first should be handled
+// before the last, since it was inserted first.
+const int kPriorities[10] = { 1, 7, 9, 5, 6, 2, 8, 3, 4, 1 };
+
+// This is the number of extra requests beyond the first few that use up all
+// available sockets in the socket group.
+const int kNumPendingRequests = arraysize(kPriorities);
 
 class MockClientSocket : public net::ClientSocket {
  public:
@@ -59,12 +65,16 @@ int MockClientSocket::allocation_count = 0;
 
 class TestSocketRequest : public CallbackRunner< Tuple1<int> > {
  public:
-  explicit TestSocketRequest(net::ClientSocketPool* pool) : handle(pool) {}
+  TestSocketRequest(
+      net::ClientSocketPool* pool,
+      std::vector<TestSocketRequest*>* request_order)
+      : handle(pool), request_order_(request_order) {}
 
   net::ClientSocketHandle handle;
 
   void EnsureSocket() {
     DCHECK(handle.is_initialized());
+    request_order_->push_back(this);
     if (!handle.socket()) {
       handle.set_socket(new MockClientSocket());
       handle.socket()->Connect(NULL);
@@ -78,20 +88,32 @@ class TestSocketRequest : public CallbackRunner< Tuple1<int> > {
   }
 
   static int completion_count;
+
+ private:
+  std::vector<TestSocketRequest*>* request_order_;
 };
 
 int TestSocketRequest::completion_count = 0;
 
-}  // namespace
+class ClientSocketPoolTest : public testing::Test {
+ protected:
+  ClientSocketPoolTest()
+      : pool_(new net::ClientSocketPool(kMaxSocketsPerGroup)) {}
 
-TEST(ClientSocketPoolTest, Basic) {
-  scoped_refptr<net::ClientSocketPool> pool =
-      new net::ClientSocketPool(kMaxSocketsPerGroup);
+  virtual void SetUp() {
+    MockClientSocket::allocation_count = 0;
+    TestSocketRequest::completion_count = 0;
+  }
 
-  TestSocketRequest r(pool);
+  scoped_refptr<net::ClientSocketPool> pool_;
+  std::vector<TestSocketRequest*> request_order_;
+};
+
+TEST_F(ClientSocketPoolTest, Basic) {
+  TestSocketRequest r(pool_.get(), &request_order_);
   int rv;
 
-  rv = r.handle.Init("a", &r);
+  rv = r.handle.Init("a", 0, &r);
   EXPECT_EQ(net::OK, rv);
   EXPECT_TRUE(r.handle.is_initialized());
 
@@ -101,14 +123,11 @@ TEST(ClientSocketPoolTest, Basic) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST(ClientSocketPoolTest, WithIdleConnection) {
-  scoped_refptr<net::ClientSocketPool> pool =
-      new net::ClientSocketPool(kMaxSocketsPerGroup);
-
-  TestSocketRequest r(pool);
+TEST_F(ClientSocketPoolTest, WithIdleConnection) {
+  TestSocketRequest r(pool_.get(), &request_order_);
   int rv;
 
-  rv = r.handle.Init("a", &r);
+  rv = r.handle.Init("a", 0, &r);
   EXPECT_EQ(net::OK, rv);
   EXPECT_TRUE(r.handle.is_initialized());
 
@@ -123,27 +142,24 @@ TEST(ClientSocketPoolTest, WithIdleConnection) {
   MessageLoop::current()->RunAllPending();
 }
 
-TEST(ClientSocketPoolTest, PendingRequests) {
-  scoped_refptr<net::ClientSocketPool> pool =
-      new net::ClientSocketPool(kMaxSocketsPerGroup);
-
+TEST_F(ClientSocketPoolTest, PendingRequests) {
   int rv;
 
-  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup + 10];
-  for (size_t i = 0; i < arraysize(reqs); ++i)
-    reqs[i].reset(new TestSocketRequest(pool));
+  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup + kNumPendingRequests];
 
-  // Reset
-  MockClientSocket::allocation_count = 0;
-  TestSocketRequest::completion_count = 0;
+  for (size_t i = 0; i < arraysize(reqs); ++i)
+    reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
 
   // Create connections or queue up requests.
-  for (size_t i = 0; i < arraysize(reqs); ++i) {
-    rv = reqs[i]->handle.Init("a", reqs[i].get());
-    if (rv != net::ERR_IO_PENDING) {
-      EXPECT_EQ(net::OK, rv);
-      reqs[i]->EnsureSocket();
-    }
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    rv = reqs[i]->handle.Init("a", 5, reqs[i].get());
+    EXPECT_EQ(net::OK, rv);
+    reqs[i]->EnsureSocket();
+  }
+  for (int i = 0; i < kNumPendingRequests; ++i) {
+    rv = reqs[kMaxSocketsPerGroup + i]->handle.Init(
+        "a", kPriorities[i], reqs[kMaxSocketsPerGroup + i].get());
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
   }
 
   // Release any connections until we have no connections.
@@ -160,26 +176,36 @@ TEST(ClientSocketPoolTest, PendingRequests) {
   } while (released_one);
 
   EXPECT_EQ(kMaxSocketsPerGroup, MockClientSocket::allocation_count);
-  EXPECT_EQ(10, TestSocketRequest::completion_count);
+  EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
+
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    EXPECT_EQ(request_order_[i], reqs[i].get()) <<
+        "Request " << i << " was not in order.";
+  }
+
+  for (int i = 0; i < kNumPendingRequests - 1; ++i) {
+    int index_in_queue = (kNumPendingRequests - 1) - kPriorities[i];
+    EXPECT_EQ(request_order_[kMaxSocketsPerGroup + index_in_queue],
+              reqs[kMaxSocketsPerGroup + i].get()) <<
+        "Request " << kMaxSocketsPerGroup + i << " was not in order.";
+  }
+
+  EXPECT_EQ(request_order_[arraysize(reqs) - 1],
+            reqs[arraysize(reqs) - 1].get()) <<
+      "The last request with priority 1 should not have been inserted "
+      "earlier into the queue.";
 }
 
-TEST(ClientSocketPoolTest, PendingRequests_NoKeepAlive) {
-  scoped_refptr<net::ClientSocketPool> pool =
-      new net::ClientSocketPool(kMaxSocketsPerGroup);
-
+TEST_F(ClientSocketPoolTest, PendingRequests_NoKeepAlive) {
   int rv;
 
-  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup + 10];
+  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup + kNumPendingRequests];
   for (size_t i = 0; i < arraysize(reqs); ++i)
-    reqs[i].reset(new TestSocketRequest(pool));
-
-  // Reset
-  MockClientSocket::allocation_count = 0;
-  TestSocketRequest::completion_count = 0;
+    reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
 
   // Create connections or queue up requests.
   for (size_t i = 0; i < arraysize(reqs); ++i) {
-    rv = reqs[i]->handle.Init("a", reqs[i].get());
+    rv = reqs[i]->handle.Init("a", 0, reqs[i].get());
     if (rv != net::ERR_IO_PENDING) {
       EXPECT_EQ(net::OK, rv);
       reqs[i]->EnsureSocket();
@@ -200,31 +226,29 @@ TEST(ClientSocketPoolTest, PendingRequests_NoKeepAlive) {
     }
   } while (released_one);
 
-  EXPECT_EQ(kMaxSocketsPerGroup + 10, MockClientSocket::allocation_count);
-  EXPECT_EQ(10, TestSocketRequest::completion_count);
+  EXPECT_EQ(kMaxSocketsPerGroup + kNumPendingRequests,
+            MockClientSocket::allocation_count);
+  EXPECT_EQ(kNumPendingRequests, TestSocketRequest::completion_count);
 }
 
-TEST(ClientSocketPoolTest, CancelRequest) {
-  scoped_refptr<net::ClientSocketPool> pool =
-      new net::ClientSocketPool(kMaxSocketsPerGroup);
-
+TEST_F(ClientSocketPoolTest, CancelRequest) {
   int rv;
 
-  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup + 10];
-  for (size_t i = 0; i < arraysize(reqs); ++i)
-    reqs[i].reset(new TestSocketRequest(pool));
+  scoped_ptr<TestSocketRequest> reqs[kMaxSocketsPerGroup + kNumPendingRequests];
 
-  // Reset
-  MockClientSocket::allocation_count = 0;
-  TestSocketRequest::completion_count = 0;
+  for (size_t i = 0; i < arraysize(reqs); ++i)
+    reqs[i].reset(new TestSocketRequest(pool_.get(), &request_order_));
 
   // Create connections or queue up requests.
-  for (size_t i = 0; i < arraysize(reqs); ++i) {
-    rv = reqs[i]->handle.Init("a", reqs[i].get());
-    if (rv != net::ERR_IO_PENDING) {
-      EXPECT_EQ(net::OK, rv);
-      reqs[i]->EnsureSocket();
-    }
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    rv = reqs[i]->handle.Init("a", 5, reqs[i].get());
+    EXPECT_EQ(net::OK, rv);
+    reqs[i]->EnsureSocket();
+  }
+  for (int i = 0; i < kNumPendingRequests; ++i) {
+    rv = reqs[kMaxSocketsPerGroup + i]->handle.Init(
+        "a", kPriorities[i], reqs[kMaxSocketsPerGroup + i].get());
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
   }
 
   // Cancel a request.
@@ -246,5 +270,26 @@ TEST(ClientSocketPoolTest, CancelRequest) {
   } while (released_one);
 
   EXPECT_EQ(kMaxSocketsPerGroup, MockClientSocket::allocation_count);
-  EXPECT_EQ(9, TestSocketRequest::completion_count);
+  EXPECT_EQ(kNumPendingRequests - 1, TestSocketRequest::completion_count);
+  for (int i = 0; i < kMaxSocketsPerGroup; ++i) {
+    EXPECT_EQ(request_order_[i], reqs[i].get()) <<
+        "Request " << i << " was not in order.";
+  }
+
+  for (int i = 0; i < kNumPendingRequests - 1; ++i) {
+    if (i == 2) continue;
+    int index_in_queue = (kNumPendingRequests - 1) - kPriorities[i];
+    if (kPriorities[i] < kPriorities[index_to_cancel - kMaxSocketsPerGroup])
+      index_in_queue--;
+    EXPECT_EQ(request_order_[kMaxSocketsPerGroup + index_in_queue],
+              reqs[kMaxSocketsPerGroup + i].get()) <<
+        "Request " << kMaxSocketsPerGroup + i << " was not in order.";
+  }
+
+  EXPECT_EQ(request_order_[arraysize(reqs) - 2],
+            reqs[arraysize(reqs) - 1].get()) <<
+      "The last request with priority 1 should not have been inserted "
+      "earlier into the queue.";
 }
+
+}  // namespace

@@ -32,7 +32,8 @@ class ClientSocketHandle {
 
   // Initializes a ClientSocketHandle object, which involves talking to the
   // ClientSocketPool to locate a socket to possibly reuse.  This method
-  // returns either OK or ERR_IO_PENDING.
+  // returns either OK or ERR_IO_PENDING.  On ERR_IO_PENDING, |priority| is
+  // used to determine the placement in ClientSocketPool's wait list.
   //
   // If this method succeeds, then the socket member will be set to an existing
   // socket if an existing socket was available to reuse.  Otherwise, the
@@ -43,7 +44,9 @@ class ClientSocketHandle {
   //
   // Init may be called multiple times.
   //
-  int Init(const std::string& group_name, CompletionCallback* callback);
+  int Init(const std::string& group_name,
+           int priority,
+           CompletionCallback* callback);
 
   // An initialized handle can be reset, which causes it to return to the
   // un-initialized state.  This releases the underlying socket, which in the
