@@ -16,6 +16,7 @@
 #include <utility>
 #include "base/condition_variable.h"
 #include "base/lock.h"
+#include "base/ref_counted.h"
 #endif
 
 #include "base/message_loop.h"
@@ -60,8 +61,6 @@ class WaitableEvent {
   HANDLE Release();
 #endif
 
-  // WARNING: Destroying a WaitableEvent while threads are waiting on it is not
-  // supported.  Doing so will cause crashes or other instability.
   ~WaitableEvent();
 
   // Put the event in the un-signaled state.
@@ -93,6 +92,9 @@ class WaitableEvent {
   //   count: the number of elements in @waitables
   //
   // returns: the index of a WaitableEvent which has been signaled.
+  //
+  // You MUST NOT delete any of the WaitableEvent objects while this wait is
+  // happening.
   static size_t WaitMany(WaitableEvent** waitables, size_t count);
 
   // For asynchronous waiting, see WaitableEventWatcher
@@ -130,10 +132,35 @@ class WaitableEvent {
 #if defined(OS_WIN)
   HANDLE handle_;
 #else
+  // On Windows, one can close a HANDLE which is currently being waited on. The
+  // MSDN documentation says that the resulting behaviour is 'undefined', but
+  // it doesn't crash. However, if we were to include the following members
+  // directly then, on POSIX, one couldn't use WaitableEventWatcher to watch an
+  // event which gets deleted. This mismatch has bitten us several times now,
+  // so we have a kernel of the WaitableEvent, which is reference counted.
+  // WaitableEventWatchers may then take a reference and thus match the Windows
+  // behaviour.
+  struct WaitableEventKernel :
+      public RefCountedThreadSafe<WaitableEventKernel> {
+   public:
+    WaitableEventKernel(bool manual_reset, bool initially_signaled)
+        : manual_reset_(manual_reset),
+          signaled_(initially_signaled) {
+    }
+
+    bool Dequeue(Waiter* waiter, void* tag);
+
+    Lock lock_;
+    const bool manual_reset_;
+    bool signaled_;
+    std::list<Waiter*> waiters_;
+  };
+
+  scoped_refptr<WaitableEventKernel> kernel_;
+
   bool SignalAll();
   bool SignalOne();
   void Enqueue(Waiter* waiter);
-  bool Dequeue(Waiter* waiter, void* tag);
 
   // When dealing with arrays of WaitableEvent*, we want to sort by the address
   // of the WaitableEvent in order to have a globally consistent locking order.
@@ -143,11 +170,6 @@ class WaitableEvent {
   typedef std::pair<WaitableEvent*, size_t> WaiterAndIndex;
   static size_t EnqueueMany(WaiterAndIndex* waitables,
                             size_t count, Waiter* waiter);
-
-  Lock lock_;
-  bool signaled_;
-  const bool manual_reset_;
-  std::list<Waiter*> waiters_;
 #endif
 
   DISALLOW_COPY_AND_ASSIGN(WaitableEvent);

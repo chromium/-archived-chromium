@@ -11,14 +11,15 @@
 #include "base/object_watcher.h"
 #else
 #include "base/message_loop.h"
+#include "base/waitable_event.h"
 #endif
 
 namespace base {
 
-class WaitableEvent;
 class Flag;
 class AsyncWaiter;
 class AsyncCallbackTask;
+class WaitableEvent;
 
 // -----------------------------------------------------------------------------
 // This class provides a way to wait on a WaitableEvent asynchronously.
@@ -51,6 +52,9 @@ class AsyncCallbackTask;
 // occurs just before a WaitableEventWatcher is deleted. There is currently no
 // safe way to stop watching an automatic reset WaitableEvent without possibly
 // missing a signal.
+//
+// NOTE: you /are/ allowed to delete the WaitableEvent while still waiting on
+// it with a Watcher. It will act as if the event was never signaled.
 // -----------------------------------------------------------------------------
 
 class WaitableEventWatcher
@@ -140,6 +144,7 @@ class WaitableEventWatcher
   scoped_refptr<Flag> cancel_flag_;
   AsyncWaiter* waiter_;
   AsyncCallbackTask* callback_task_;
+  scoped_refptr<WaitableEvent::WaitableEventKernel> kernel_;
 #endif
 };
 
