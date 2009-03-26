@@ -2066,10 +2066,6 @@ MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIME
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = CRASH PASS
 MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT FAIL
 
-// Failures from WebKit merge 41530:41559
-// This one (from hclam in https://bugs.webkit.org/show_bug.cgi?id=23024) is lacking pixel results:
-SKIP DEFER : LayoutTests/fast/block/float/crash-on-absolute-positioning.html = FAIL
-
 // http://code.google.com/p/chromium/issues/detail?id=8733
 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
 
@@ -2235,8 +2231,9 @@ MAC : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 
 // Merge 41807:41827 New Tests
-LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT
-LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = CRASH FAIL
+// This test is time consuming in nature, it barely finishes in 10s in release build, it is
+// likely to timeout in debug build.
+DEBUG : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT PASS
 // Regression
 LayoutTests/http/tests/security/cross-frame-access-history-put.html = FAIL
 MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT
