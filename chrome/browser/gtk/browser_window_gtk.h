@@ -32,6 +32,9 @@ class BrowserWindowGtk : public BrowserWindow,
   explicit BrowserWindowGtk(Browser* browser);
   virtual ~BrowserWindowGtk();
 
+  // Process a keyboard input and try to find an accelerator for it.
+  void HandleAccelerator(guint keyval, GdkModifierType modifier);
+
   // Overridden from BrowserWindow
   virtual void Show();
   virtual void SetBounds(const gfx::Rect& bounds);
@@ -108,11 +111,11 @@ class BrowserWindowGtk : public BrowserWindow,
   static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
                                       BrowserWindowGtk* window);
 
-  static gboolean OnAccelerator(GtkAccelGroup* accel_group,
-                                GObject* acceleratable,
-                                guint keyval,
-                                GdkModifierType modifier,
-                                BrowserWindowGtk* browser_window);
+  static gboolean OnGtkAccelerator(GtkAccelGroup* accel_group,
+                                   GObject* acceleratable,
+                                   guint keyval,
+                                   GdkModifierType modifier,
+                                   BrowserWindowGtk* browser_window);
 
   // A small shim for browser_->ExecuteCommand.
   void ExecuteBrowserCommand(int id);

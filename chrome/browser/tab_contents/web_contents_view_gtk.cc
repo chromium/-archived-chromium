@@ -5,11 +5,11 @@
 #include "chrome/browser/tab_contents/web_contents_view_gtk.h"
 
 #include <gdk/gdk.h>
-#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_gtk.h"
@@ -179,10 +179,12 @@ void WebContentsViewGtk::TakeFocus(bool reverse) {
 
 void WebContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
-  // This may be an accelerator. Pass it on to GTK.
+  // This may be an accelerator. Pass it on to our browser window to handle.
   GtkWindow* window = GetTopLevelNativeWindow();
-  gtk_accel_groups_activate(G_OBJECT(window), event.os_event->keyval,
-                            GdkModifierType(event.os_event->state));
+  BrowserWindowGtk* browser_window = static_cast<BrowserWindowGtk*>(
+            g_object_get_data(G_OBJECT(window), "browser_window_gtk"));
+  browser_window->HandleAccelerator(event.os_event->keyval,
+      static_cast<GdkModifierType>(event.os_event->state));
 }
 
 void WebContentsViewGtk::OnFindReply(int request_id,

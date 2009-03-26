@@ -165,6 +165,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
        method_factory_(this) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_default_size(window_, 640, 480);
+  g_object_set_data(G_OBJECT(window_), "browser_window_gtk", this);
   g_signal_connect(window_, "delete-event",
                    G_CALLBACK(MainWindowDeleteEvent), this);
   g_signal_connect(window_, "destroy",
@@ -249,6 +250,31 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
 BrowserWindowGtk::~BrowserWindowGtk() {
   browser_->tabstrip_model()->RemoveObserver(this);
+}
+
+void BrowserWindowGtk::HandleAccelerator(guint keyval,
+                                         GdkModifierType modifier) {
+  // Filter modifier to only include accelerator modifiers.
+  modifier = static_cast<GdkModifierType>(
+      modifier & gtk_accelerator_get_default_mod_mask());
+  switch (keyval) {
+    // Gtk doesn't allow GDK_Tab or GDK_ISO_Left_Tab to be an accelerator (see
+    // gtk_accelerator_valid), so we need to handle these accelerators
+    // manually.
+    case GDK_Tab:
+      if (GDK_CONTROL_MASK == modifier)
+        ExecuteBrowserCommand(IDC_SELECT_NEXT_TAB);
+      break;
+
+    case GDK_ISO_Left_Tab:
+      if ((GDK_CONTROL_MASK | GDK_SHIFT_MASK) == modifier)
+        ExecuteBrowserCommand(IDC_SELECT_PREVIOUS_TAB);
+      break;
+
+    default:
+      // Pass the accelerator on to GTK.
+      gtk_accel_groups_activate(G_OBJECT(window_), keyval, modifier); 
+  }
 }
 
 gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
@@ -542,7 +568,7 @@ void BrowserWindowGtk::ConnectAccelerators() {
   for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
     gtk_accel_group_connect(
         accel_group, kAcceleratorMap[i].keyval, GDK_CONTROL_MASK,
-        GtkAccelFlags(0), g_cclosure_new(G_CALLBACK(OnAccelerator),
+        GtkAccelFlags(0), g_cclosure_new(G_CALLBACK(OnGtkAccelerator),
         this, NULL));
   }
 }
@@ -559,11 +585,11 @@ void BrowserWindowGtk::SetCustomFrame(bool custom_frame) {
 }
 
 // static
-gboolean BrowserWindowGtk::OnAccelerator(GtkAccelGroup* accel_group,
-                                         GObject* acceleratable,
-                                         guint keyval,
-                                         GdkModifierType modifier,
-                                         BrowserWindowGtk* browser_window) {
+gboolean BrowserWindowGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
+                                            GObject* acceleratable,
+                                            guint keyval,
+                                            GdkModifierType modifier,
+                                            BrowserWindowGtk* browser_window) {
   int command_id = GetCommandFromKeyval(keyval);
   // We have to delay certain commands that may try to destroy widgets to which
   // GTK is currently holding a reference. (For now the only such command is
