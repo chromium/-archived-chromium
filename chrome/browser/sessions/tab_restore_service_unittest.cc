@@ -179,65 +179,8 @@ TEST_F(TabRestoreServiceTest, DontLoadRestoredTab) {
   ASSERT_EQ(0U, service_->entries().size());
 }
 
-// Make sure we don't persist entries to disk that have post data.
-TEST_F(TabRestoreServiceTest, DontPersistPostData1) {
-  AddThreeNavigations();
-  controller_->GetEntryAtIndex(2)->set_has_post_data(true);
-
-  // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1U, service_->entries().size());
-
-  // Recreate the service and have it load the tabs.
-  RecreateService();
-
-  // One entry should be created.
-  ASSERT_EQ(1U, service_->entries().size());
-
-  // And verify the entry, the last navigation (url3_) should not have
-  // been written to disk as it contained post data.
-  TabRestoreService::Entry* entry = service_->entries().front();
-  ASSERT_EQ(TabRestoreService::TAB, entry->type);
-  TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(2U, tab->navigations.size());
-  EXPECT_TRUE(url1_ == tab->navigations[0].url());
-  EXPECT_TRUE(url2_ == tab->navigations[1].url());
-  EXPECT_EQ(1, tab->current_navigation_index);
-}
-
-// Make sure we don't persist entries to disk that have post data. This
-// differs from DontPersistPostData1 in that all navigations before the
-// current index have post data.
-TEST_F(TabRestoreServiceTest, DontPersistPostData2) {
-  AddThreeNavigations();
-  NavigateToIndex(1);
-  controller_->GetEntryAtIndex(0)->set_has_post_data(true);
-  controller_->GetEntryAtIndex(1)->set_has_post_data(true);
-
-  // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
-  ASSERT_EQ(1U, service_->entries().size());
-
-  // Recreate the service and have it load the tabs.
-  RecreateService();
-
-  // One entry should be created.
-  ASSERT_EQ(1U, service_->entries().size());
-
-  // And verify the entry, the last navigation (url3_) should not have
-  // been written to disk as it contained post data.
-  TabRestoreService::Entry* entry = service_->entries().front();
-  ASSERT_EQ(TabRestoreService::TAB, entry->type);
-  TabRestoreService::Tab* tab = static_cast<TabRestoreService::Tab*>(entry);
-  ASSERT_EQ(1U, tab->navigations.size());
-  EXPECT_TRUE(url3_ == tab->navigations[0].url());
-  EXPECT_EQ(0, tab->current_navigation_index);
-}
-
-// Make sure we don't persist entries to disk that have post data. This
-// differs from DontPersistPostData1 in that all the navigations have post
-// data, so that nothing should be persisted.
-TEST_F(TabRestoreServiceTest, DontPersistPostData3) {
+// Make sure we persist entries to disk that have post data.
+TEST_F(TabRestoreServiceTest, DontPersistPostData) {
   AddThreeNavigations();
   controller_->GetEntryAtIndex(0)->set_has_post_data(true);
   controller_->GetEntryAtIndex(1)->set_has_post_data(true);
@@ -251,7 +194,15 @@ TEST_F(TabRestoreServiceTest, DontPersistPostData3) {
   RecreateService();
 
   // One entry should be created.
-  ASSERT_TRUE(service_->entries().empty());
+  ASSERT_EQ(1U, service_->entries().size());
+
+  const TabRestoreService::Entry* restored_entry = service_->entries().front();
+  ASSERT_EQ(TabRestoreService::TAB, restored_entry->type);
+
+  const TabRestoreService::Tab* restored_tab =
+      static_cast<const TabRestoreService::Tab*>(restored_entry);
+  // There should be 3 navs.
+  ASSERT_EQ(3U, restored_tab->navigations.size());
 }
 
 // Make sure we don't persist entries to disk that have post data. This

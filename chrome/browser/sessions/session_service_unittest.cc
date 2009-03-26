@@ -110,14 +110,13 @@ TEST_F(SessionServiceTest, Basic) {
   helper_.AssertNavigationEquals(nav1, tab->navigations[0]);
 }
 
-// Creates a navigation entry with post data, saves it, and makes sure it does
-// not get restored.
-TEST_F(SessionServiceTest, PrunePostData1) {
+// Make sure we persist post entries.
+TEST_F(SessionServiceTest, PersistPostData) {
   SessionID tab_id;
   ASSERT_NE(window_id.id(), tab_id.id());
 
   TabNavigation nav1(0, GURL("http://google.com"), GURL(),
-                     ASCIIToUTF16("abc"), "def",
+                     ASCIIToUTF16("abc"), std::string(),
                      PageTransition::QUALIFIER_MASK);
   nav1.set_type_mask(TabNavigation::HAS_POST_DATA);
 
@@ -127,38 +126,7 @@ TEST_F(SessionServiceTest, PrunePostData1) {
   ScopedVector<SessionWindow> windows;
   ReadWindows(&(windows.get()));
 
-  ASSERT_EQ(0U, windows->size());
-}
-
-// Creates two navigation entries, one with post data one without. Restores
-// and verifies we get back only the entry with no post data.
-TEST_F(SessionServiceTest, PrunePostData2) {
-  SessionID tab_id;
-  ASSERT_NE(window_id.id(), tab_id.id());
-
-  TabNavigation nav1(0, GURL("http://google.com"),
-                     GURL("http://www.referrer.com"),
-                     ASCIIToUTF16("abc"), "def",
-                     PageTransition::QUALIFIER_MASK);
-  nav1.set_type_mask(TabNavigation::HAS_POST_DATA);
-  TabNavigation nav2(0, GURL("http://google2.com"), GURL(),
-                     ASCIIToUTF16("abc"), "def",
-                     PageTransition::QUALIFIER_MASK);
-
-  helper_.PrepareTabInWindow(window_id, tab_id, 0, true);
-  UpdateNavigation(window_id, tab_id, nav1, 0, true);
-  UpdateNavigation(window_id, tab_id, nav2, 1, false);
-
-  ScopedVector<SessionWindow> windows;
-  ReadWindows(&(windows.get()));
-
-  ASSERT_EQ(1U, windows->size());
-  ASSERT_EQ(0, windows[0]->selected_tab_index);
-
-  SessionTab* tab = windows[0]->tabs[0];
-  helper_.AssertTabEquals(window_id, tab_id, 0, 0, 1, *tab);
-
-  helper_.AssertNavigationEquals(nav2, tab->navigations[0]);
+  helper_.AssertSingleWindowWithSingleTab(windows.get(), 1);
 }
 
 TEST_F(SessionServiceTest, ClosingTabStaysClosed) {

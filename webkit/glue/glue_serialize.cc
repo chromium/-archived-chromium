@@ -271,7 +271,8 @@ static void WriteHistoryItem(const HistoryItem* item, SerializeObject* obj) {
 
 // Creates a new HistoryItem tree based on the serialized string.
 // Assumes the data is in the format returned by WriteHistoryItem.
-static PassRefPtr<HistoryItem> ReadHistoryItem(const SerializeObject* obj) {
+static PassRefPtr<HistoryItem> ReadHistoryItem(const SerializeObject* obj,
+                                               bool include_form_data) {
   // See note in WriteHistoryItem. on this.
   obj->version = ReadInteger(obj);
 
@@ -299,20 +300,20 @@ static PassRefPtr<HistoryItem> ReadHistoryItem(const SerializeObject* obj) {
   item->setDocumentState(document_state);
 
   // Form data.  If there is any form data, we assume POST, otherwise GET.
-  // ResourceRequest takes ownership of the new FormData, then gives it to
-  // HistoryItem.
+  // FormData is ref counted.
   ResourceRequest dummy_request;  // only way to initialize HistoryItem
   dummy_request.setHTTPBody(ReadFormData(obj));
   dummy_request.setHTTPContentType(ReadString(obj));
   dummy_request.setHTTPReferrer(ReadString(obj));
   if (dummy_request.httpBody())
     dummy_request.setHTTPMethod("POST");
-  item->setFormInfoFromRequest(dummy_request);
+  if (include_form_data)
+    item->setFormInfoFromRequest(dummy_request);
 
   // Subitems
   int num_children = ReadInteger(obj);
   for (int i = 0; i < num_children; ++i)
-    item->addChildItem(ReadHistoryItem(obj));
+    item->addChildItem(ReadHistoryItem(obj, include_form_data));
 
   return item.release();
 }
@@ -332,15 +333,22 @@ void HistoryItemToString(PassRefPtr<HistoryItem> item,
 
 // Reconstruct a HistoryItem from a string, using our JSON Value deserializer.
 // This assumes that the given serialized string has all the required key,value
-// pairs, and does minimal error checking.
-PassRefPtr<HistoryItem> HistoryItemFromString(
-    const std::string& serialized_item) {
+// pairs, and does minimal error checking. If |include_form_data| is true,
+// the form data from a post is restored, otherwise the form data is empty.
+static PassRefPtr<HistoryItem> HistoryItemFromString(
+    const std::string& serialized_item,
+    bool include_form_data) {
   if (serialized_item.empty())
     return NULL;
 
   SerializeObject obj(serialized_item.data(),
                       static_cast<int>(serialized_item.length()));
-  return ReadHistoryItem(&obj);
+  return ReadHistoryItem(&obj, include_form_data);
+}
+
+PassRefPtr<HistoryItem> HistoryItemFromString(
+    const std::string& serialized_item) {
+  return HistoryItemFromString(serialized_item, true);
 }
 
 // For testing purposes only.
@@ -368,6 +376,17 @@ std::string CreateHistoryStateForURL(const GURL& url) {
   std::string data;
   HistoryItemToString(item, &data);
   return data;
+}
+
+std::string RemoveFormDataFromHistoryState(const std::string& content_state) {
+  RefPtr<HistoryItem> history_item(HistoryItemFromString(content_state, false));
+  if (!history_item.get()) {
+    // Couldn't parse the string, return an empty string.
+    return std::string();
+  }
+  std::string new_state;
+  HistoryItemToString(history_item, &new_state);
+  return new_state;
 }
 
 }  // namespace webkit_glue

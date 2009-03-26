@@ -84,6 +84,9 @@ const std::string& GetUserAgent(const GURL& url);
 // if the saved state is empty.
 std::string CreateHistoryStateForURL(const GURL& url);
 
+// Removes any form data state from the history state string |content_state|.
+std::string RemoveFormDataFromHistoryState(const std::string& content_state);
+
 #ifndef NDEBUG
 // Checks various important objects to see if there are any in memory, and
 // calls AppendToLog with any leaked objects. Designed to be called on shutdown
