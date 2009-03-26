@@ -8,12 +8,13 @@
 #include <gtk/gtk.h>
 
 #include "base/scoped_ptr.h"
+#include "chrome/browser/download/download_manager.h"
 
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;
 class NineBox;
 
-class DownloadItemGtk {
+class DownloadItemGtk : DownloadItem::Observer {
  public:
   // DownloadItemGtk takes ownership of |download_item_model|.
   DownloadItemGtk(BaseDownloadItemModel* download_item_model,
@@ -22,6 +23,9 @@ class DownloadItemGtk {
   // We put |hbox_| in |parent_shelf| and rely on |parent_shelf| recursively
   // destroying its children. Hence we do nothing in the destructor.
   ~DownloadItemGtk();
+
+  // DownloadItem::Observer implementation
+  virtual void OnDownloadUpdated(DownloadItem* download);
 
  private:
   static void InitNineBoxes();
@@ -49,6 +53,9 @@ class DownloadItemGtk {
   // The widget that contains the name of the download and the progress
   // animation.
   GtkWidget* body_;
+
+  // The GtkLabel that holds the status text.
+  GtkWidget* status_label_;
 
   // The widget that creates a dropdown menu when pressed.
   GtkWidget* menu_button_;

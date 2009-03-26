@@ -16,9 +16,9 @@
 
 namespace {
 
-// The height of the download items. Should be 28, as that is the height of
-// their bitmaps.
-const int kDownloadItemHeight = 28;
+// The height of the download items. Should be at least 28, as that is the
+// minimum height of their nineboxes.
+const int kDownloadItemHeight = 38;
 
 // Padding between the download widgets.
 const int kDownloadItemPadding = 10;

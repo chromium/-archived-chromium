@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/download_item_gtk.h"
 
 #include "base/basictypes.h"
+#include "base/string_util.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/download/download_shelf.h"
@@ -129,9 +130,18 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
   // TODO(estade): gtk_label_new() expects UTF8, but FilePath may have a
   // different encoding on linux.
-  GtkWidget* label = gtk_label_new(
+  GtkWidget* name_label = gtk_label_new(
       download_model->download()->GetFileName().value().c_str());
-  gtk_container_add(GTK_CONTAINER(body_), label);
+  gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0);
+  status_label_ =
+      gtk_label_new(WideToUTF8(download_model->GetStatusText()).c_str());
+  gtk_misc_set_alignment(GTK_MISC(status_label_), 0, 0);
+
+  // Stack the labels on top of one another.
+  GtkWidget* text_stack = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(text_stack), name_label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(text_stack), status_label_, FALSE, FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(body_), text_stack);
 
   menu_button_ = gtk_button_new();
   gtk_widget_set_app_paintable(menu_button_, TRUE);
@@ -148,10 +158,21 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   gtk_box_pack_start(GTK_BOX(hbox_), body_, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(hbox_), menu_button_, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(parent_shelf), hbox_, FALSE, FALSE, 0);
+  // Insert as the leftmost item.
+  gtk_box_reorder_child(GTK_BOX(parent_shelf), hbox_, 1);
   gtk_widget_show_all(hbox_);
+
+  download_model_->download()->AddObserver(this);
 }
 
 DownloadItemGtk::~DownloadItemGtk() {
+}
+
+void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
+  DCHECK_EQ(download, download_model_->download());
+
+  gtk_label_set_text(GTK_LABEL(status_label_),
+                     WideToUTF8(download_model_->GetStatusText()).c_str());
 }
 
 // static

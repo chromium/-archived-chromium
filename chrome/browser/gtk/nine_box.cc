@@ -108,7 +108,7 @@ void NineBox::TileImage(GdkPixbuf* src, GdkPixbuf* dst,
   const int src_width = gdk_pixbuf_get_width(src);
   const int src_height = gdk_pixbuf_get_height(src);
   const int dst_width = gdk_pixbuf_get_width(dst);
-  const int dst_height = gdk_pixbuf_get_width(dst);
+  const int dst_height = gdk_pixbuf_get_height(dst);
 
   // We only tile along one axis (see above TODO about nuking all this code),
   // dx or dy will be nonzero along that axis.
