@@ -387,7 +387,7 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FAIL TIMEOUT
 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
-DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL
+DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL CRASH
 // This passes when run in Chrome. It appears to be because of a difference
 // in how lighttpd serves up the svn resource image (or the image
 // contained in the svg image).
@@ -2154,7 +2154,7 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 // Expectations changed upstream.
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 MAC RELEASE : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
-WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT
+WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
 MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT FAIL
 
 // Tests that fail in debug mode on linux
@@ -2328,8 +2328,6 @@ DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html =
 # Adding more failures after the last merge:
 WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
-WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
-WIN : LayoutTests/http/tests/xmlhttprequest/methods.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
 WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
