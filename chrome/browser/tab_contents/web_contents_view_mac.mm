@@ -217,6 +217,33 @@ void WebContentsViewMac::ShowCreatedWindowInternal(
                                  user_gesture);
 }
 
+RenderWidgetHostView* WebContentsViewMac::CreateNewWidgetInternal(
+    int route_id,
+    bool activatable) {
+  // A RenderWidgetHostViewMac has lifetime scoped to the view. We'll retain it
+  // to allow it to survive the trip without being hosted.
+  RenderWidgetHostView* widget_view =
+      WebContentsView::CreateNewWidgetInternal(route_id, activatable);
+  RenderWidgetHostViewMac* widget_view_mac =
+      static_cast<RenderWidgetHostViewMac*>(widget_view);
+  [widget_view_mac->native_view() retain];
+
+  return widget_view;
+}
+
+void WebContentsViewMac::ShowCreatedWidgetInternal(
+    RenderWidgetHostView* widget_host_view,
+    const gfx::Rect& initial_pos) {
+  WebContentsView::ShowCreatedWidgetInternal(widget_host_view, initial_pos);
+
+  // A RenderWidgetHostViewMac has lifetime scoped to the view. Now that it's
+  // properly embedded (or purposefully ignored) we can release the retain we
+  // took in CreateNewWidgetInternal().
+  RenderWidgetHostViewMac* widget_view_mac =
+      static_cast<RenderWidgetHostViewMac*>(widget_host_view);
+  [widget_view_mac->native_view() release];
+}
+
 void WebContentsViewMac::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {

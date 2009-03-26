@@ -39,7 +39,8 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
     : render_widget_host_(widget),
       is_loading_(false),
-      is_hidden_(false) {
+      is_hidden_(false),
+      shutdown_factory_(this) {
   cocoa_view_ = [[[RenderWidgetHostViewCocoa alloc]
                   initWithRenderWidgetHostViewMac:this] autorelease];
   render_widget_host_->set_view(this);
@@ -54,7 +55,26 @@ RenderWidgetHostViewMac::~RenderWidgetHostViewMac() {
 void RenderWidgetHostViewMac::InitAsPopup(
     RenderWidgetHostView* parent_host_view,
     const gfx::Rect& pos) {
-  NOTIMPLEMENTED();
+  [parent_host_view->GetPluginNativeView() addSubview:cocoa_view_];
+  [cocoa_view_ setCloseOnDeactivate:YES];
+  [cocoa_view_ setCanBeKeyView:activatable_ ? YES : NO];
+
+  // TODO(avi):Why the hell are these screen coordinates? The Windows code calls
+  // ::MoveWindow() which indicates they should be local, but when running it I
+  // get global ones instead!
+
+  NSPoint global_origin = NSPointFromCGPoint(pos.origin().ToCGPoint());
+  global_origin.y = [[[cocoa_view_ window] screen] frame].size.height -
+      pos.height() - global_origin.y;
+  NSPoint window_origin =
+      [[cocoa_view_ window] convertScreenToBase:global_origin];
+  NSPoint view_origin =
+      [cocoa_view_ convertPoint:window_origin fromView:nil];
+  NSRect initial_frame = NSMakeRect(view_origin.x,
+                                    view_origin.y,
+                                    pos.width(),
+                                    pos.height());
+  [cocoa_view_ setFrame:initial_frame];
 }
 
 RenderWidgetHost* RenderWidgetHostViewMac::GetRenderWidgetHost() const {
@@ -97,9 +117,7 @@ void RenderWidgetHostViewMac::SetSize(const gfx::Size& size) {
 }
 
 gfx::NativeView RenderWidgetHostViewMac::GetPluginNativeView() {
-  // All plugin stuff is TBD. TODO(avi,awalker): fill in
-  // http://crbug.com/8192
-  return nil;
+  return native_view();
 }
 
 void RenderWidgetHostViewMac::MovePluginWindows(
@@ -227,7 +245,17 @@ BackingStore* RenderWidgetHostViewMac::AllocBackingStore(
   return new BackingStore(size);
 }
 
+void RenderWidgetHostViewMac::KillSelf() {
+  if (shutdown_factory_.empty()) {
+    [cocoa_view_ setHidden:YES];
+    MessageLoop::current()->PostTask(FROM_HERE,
+        shutdown_factory_.NewRunnableMethod(
+            &RenderWidgetHostViewMac::ShutdownHost));
+  }
+}
+
 void RenderWidgetHostViewMac::ShutdownHost() {
+  shutdown_factory_.RevokeAll();
   render_widget_host_->Shutdown();
   // Do not touch any members at this point, |this| has been deleted.
 }
@@ -241,6 +269,8 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   self = [super initWithFrame:NSZeroRect];
   if (self != nil) {
     renderWidgetHostView_ = r;
+    canBeKeyView_ = YES;
+    closeOnDeactivate_ = NO;
   }
   return self;
 }
@@ -251,12 +281,23 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   [super dealloc];
 }
 
+- (void)setCanBeKeyView:(BOOL)can {
+  canBeKeyView_ = can;
+}
+
+- (void)setCloseOnDeactivate:(BOOL)b {
+  closeOnDeactivate_ = b;
+}
+
 - (void)mouseEvent:(NSEvent *)theEvent {
   WebMouseEvent event(theEvent, self);
   renderWidgetHostView_->render_widget_host()->ForwardMouseEvent(event);
 }
 
 - (void)keyEvent:(NSEvent *)theEvent {
+  // TODO(avi): Possibly kill self? See RenderWidgetHostViewWin::OnKeyEvent and
+  // http://b/issue?id=1192881 .
+
   NativeWebKeyboardEvent event(theEvent);
   renderWidgetHostView_->render_widget_host()->ForwardKeyboardEvent(event);
 }
@@ -339,11 +380,11 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (BOOL)canBecomeKeyView {
-  return YES;  // TODO(avi): be smarter
+  return canBeKeyView_;
 }
 
 - (BOOL)acceptsFirstResponder {
-  return YES;  // TODO(avi): be smarter
+  return canBeKeyView_;
 }
 
 - (BOOL)becomeFirstResponder {
@@ -353,6 +394,9 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (BOOL)resignFirstResponder {
+  if (closeOnDeactivate_)
+    renderWidgetHostView_->KillSelf();
+
   renderWidgetHostView_->render_widget_host()->Blur();
 
   return YES;

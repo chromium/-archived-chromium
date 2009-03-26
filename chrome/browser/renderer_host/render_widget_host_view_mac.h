@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/task.h"
 #include "base/time.h"
 #include "chrome/browser/cocoa/base_view.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
@@ -22,7 +23,12 @@ class RenderWidgetHostViewMac;
 @interface RenderWidgetHostViewCocoa : BaseView {
  @private
   RenderWidgetHostViewMac* renderWidgetHostView_;
+  BOOL canBeKeyView_;
+  BOOL closeOnDeactivate_;
 }
+
+- (void)setCanBeKeyView:(BOOL)can;
+- (void)setCloseOnDeactivate:(BOOL)b;
 
 @end
 
@@ -53,7 +59,7 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
 
   base::TimeTicks& whiteout_start_time() { return whiteout_start_time_; }
 
-  gfx::NativeView native_view() const { return cocoa_view_; }
+  RenderWidgetHostViewCocoa* native_view() const { return cocoa_view_; }
 
   // Implementation of RenderWidgetHostView:
   virtual void InitAsPopup(RenderWidgetHostView* parent_host_view,
@@ -82,6 +88,8 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   virtual void SetTooltipText(const std::wstring& tooltip_text);
   virtual BackingStore* AllocBackingStore(const gfx::Size& size);
 
+  void KillSelf();
+
  private:
   // Shuts down the render_widget_host_.  This is a separate function so we can
   // invoke it from the message loop.
@@ -108,6 +116,9 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   // Tooltips
   // The text to be shown in the tooltip, supplied by the renderer.
   std::wstring tooltip_text_;
+
+  // Factory used to safely scope delayed calls to ShutdownHost().
+  ScopedRunnableMethodFactory<RenderWidgetHostViewMac> shutdown_factory_;
 
   // The time at which this view started displaying white pixels as a result of
   // not having anything to paint (empty backing store from renderer). This
