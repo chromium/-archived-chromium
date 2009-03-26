@@ -494,7 +494,6 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   // Otherwise, we're allowed to just terminate the process. Using exit code 0
   // means that UMA won't treat this as a renderer crash.
   process_.Terminate(ResultCodes::NORMAL_EXIT);
-  process_.Close();
   return true;
 }
 

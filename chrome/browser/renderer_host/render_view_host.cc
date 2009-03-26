@@ -659,7 +659,7 @@ bool RenderViewHost::CanTerminate() const {
   if (!delegate_->CanTerminate())
     return false;
 
-  return has_unload_listener_;
+  return !has_unload_listener_;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
