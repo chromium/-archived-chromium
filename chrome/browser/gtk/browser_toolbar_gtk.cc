@@ -14,6 +14,7 @@
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
+#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/l10n_util.h"
@@ -45,6 +46,8 @@ BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
       browser, BackForwardMenuModel::BACKWARD_MENU_DELEGATE));
   forward_menu_model_.reset(new BackForwardMenuModelGtk(
       browser, BackForwardMenuModel::FORWARD_MENU_DELEGATE));
+
+  InitNineBox();
 }
 
 BrowserToolbarGtk::~BrowserToolbarGtk() {
@@ -68,6 +71,8 @@ void BrowserToolbarGtk::Init(Profile* profile,
   // Demand we're always at least kToolbarHeight tall.
   // -1 for width means "let GTK do its normal sizing".
   gtk_widget_set_size_request(toolbar_, -1, kToolbarHeight);
+  g_signal_connect(G_OBJECT(toolbar_), "expose-event",
+                   G_CALLBACK(&OnContentAreaExpose), this);
 
   // A GtkAccelGroup is not InitiallyUnowned, meaning we get a real reference
   // count starting at one.  We don't want the lifetime to be managed by the
@@ -242,6 +247,15 @@ CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
 }
 
 // static
+gboolean BrowserToolbarGtk::OnContentAreaExpose(GtkWidget* widget,
+                                                GdkEventExpose* e,
+                                                BrowserToolbarGtk* toolbar) {
+  toolbar->background_ninebox_.get()->RenderTopCenterStrip(widget,
+      0, widget->allocation.width);
+  return FALSE;  // Allow subwidgets to paint.
+}
+
+// static
 void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
                                       BrowserToolbarGtk* toolbar) {
   int tag = -1;
@@ -360,4 +374,21 @@ void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
 CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
   return BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
                             l10n_util::GetString(IDS_TOOLTIP_HOME));
+}
+
+void BrowserToolbarGtk::InitNineBox() {
+  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+
+  GdkPixbuf* images[9] = {
+    rb.LoadPixbuf(IDR_CONTENT_TOP_LEFT_CORNER),
+    rb.LoadPixbuf(IDR_CONTENT_TOP_CENTER),
+    rb.LoadPixbuf(IDR_CONTENT_TOP_RIGHT_CORNER),
+    rb.LoadPixbuf(IDR_CONTENT_LEFT_SIDE),
+    NULL,
+    rb.LoadPixbuf(IDR_CONTENT_RIGHT_SIDE),
+    rb.LoadPixbuf(IDR_CONTENT_BOTTOM_LEFT_CORNER),
+    rb.LoadPixbuf(IDR_CONTENT_BOTTOM_CENTER),
+    rb.LoadPixbuf(IDR_CONTENT_BOTTOM_RIGHT_CORNER)
+  };
+  background_ninebox_.reset(new NineBox(images));
 }

@@ -4,17 +4,29 @@
 
 #include "chrome/browser/gtk/nine_box.h"
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 
 namespace {
 
 // Draw pixbuf |src| into |dst| at position (x, y).
-// Shorthand for gdk_pixbuf_copy_area.
-void DrawPixbuf(GdkPixbuf* src, GdkPixbuf* dst, int x, int y) {
-  gdk_pixbuf_copy_area(src, 0, 0,
-                       gdk_pixbuf_get_width(src),
-                       gdk_pixbuf_get_height(src),
-                       dst, x, y);
+void DrawPixbuf(GtkWidget* dst, GdkPixbuf* src, int x, int y) {
+  GdkGC* gc = dst->style->fg_gc[GTK_WIDGET_STATE(dst)];
+  gdk_draw_pixbuf(dst->window,  // The destination drawable.
+                  gc,  // Graphics context.
+                  src, 0, 0,  // Source image and x,y offset.
+                  x, y, -1, -1,  // x, y, width, height.
+                  GDK_RGB_DITHER_NONE, 0, 0);  // Dithering mode, x,y offsets.
+}
+
+// Fills the widget with |color|.
+void FillWidget(GtkWidget* dst, const GdkColor& color) {
+  GdkGC* copy = gdk_gc_new(dst->window);
+  gdk_gc_set_foreground(copy, &color);
+  gdk_draw_rectangle(dst->window, copy, TRUE, 0, 0,
+                     dst->allocation.width,
+                     dst->allocation.height);
+  g_object_unref(copy);
 }
 
 }  // anonymous namespace
@@ -30,14 +42,18 @@ NineBox::~NineBox() {
   }
 }
 
-void NineBox::RenderToPixbuf(GdkPixbuf* dst) {
+void NineBox::RenderToWidget(GtkWidget* dst) {
   // TODO(evanm): this is stupid; it should just be implemented with SkBitmaps
   // and convert to a GdkPixbuf at the last second.
+
+  int dst_width = dst->allocation.width;
+  int dst_height = dst->allocation.height;
 
 #ifndef NDEBUG
   // Start by filling with a bright color so we can see any pixels
   // we're missing.
-  gdk_pixbuf_fill(dst, 0x00FFFFFF);
+  GdkColor bright = GDK_COLOR_RGB(0x00, 0xFF, 0xFF);
+  FillWidget(dst, bright);
 #endif
 
   // This function paints one row at a time.
@@ -49,37 +65,35 @@ void NineBox::RenderToPixbuf(GdkPixbuf* dst) {
   // rendering of the ninebox.
   const int x1 = gdk_pixbuf_get_width(images[0]);
   const int y1 = gdk_pixbuf_get_height(images[0]);
-  const int x2 = images[2] ?
-      gdk_pixbuf_get_width(dst) - gdk_pixbuf_get_width(images[2]) : x1;
-  const int y2 = images[6] ?
-      gdk_pixbuf_get_height(dst) - gdk_pixbuf_get_height(images[6]) : y1;
+  const int x2 = images[2] ? dst_width - gdk_pixbuf_get_width(images[2]) : x1;
+  const int y2 = images[6] ? dst_height - gdk_pixbuf_get_height(images[6]) : y1;
   DCHECK(x2 >= x1);
   DCHECK(y2 >= y1);
 
   if (images[0])
-    DrawPixbuf(images[0], dst, 0, 0);
+    DrawPixbuf(dst, images[0], 0, 0);
   if (images[1])
     RenderTopCenterStrip(dst, x1, x2);
   if (images[2])
-    DrawPixbuf(images[2], dst, x2, 0);
+    DrawPixbuf(dst, images[2], x2, 0);
 
   // Center row.  Needs vertical tiling.
   images = &images_[1 * 3];
   if (images[0]) {
-    TileImage(images[0], dst,
+    TileImage(dst, images[0],
               0, y1,
               0, y2);
   }
   if (images[1]) {
     const int delta_y = gdk_pixbuf_get_height(images[1]);
     for (int y = y1; y < y2; y += delta_y) {
-      TileImage(images[1], dst,
+      TileImage(dst, images[1],
                 x1, y,
                 x2, y);
     }
   }
   if (images[2]) {
-    TileImage(images[2], dst,
+    TileImage(dst, images[2],
               x2, y1,
               x2, y2);
   }
@@ -87,28 +101,34 @@ void NineBox::RenderToPixbuf(GdkPixbuf* dst) {
   // Bottom row.
   images = &images_[2 * 3];
   if (images[0])
-    DrawPixbuf(images[0], dst, 0, y2);
+    DrawPixbuf(dst, images[0], 0, y2);
   if (images[1]) {
-    TileImage(images[1], dst,
+    TileImage(dst, images[1],
               x1, y2,
               x2, y2);
   }
   if (images[2])
-    DrawPixbuf(images[2], dst, x2, y2);
+    DrawPixbuf(dst, images[2], x2, y2);
 }
 
-void NineBox::RenderTopCenterStrip(GdkPixbuf* dst, int x1, int x2) {
-  TileImage(images_[1], dst,
+void NineBox::RenderTopCenterStrip(GtkWidget* dst, int x1, int x2) {
+  TileImage(dst, images_[1],
             x1, 0,
             x2, 0);
 }
 
-void NineBox::TileImage(GdkPixbuf* src, GdkPixbuf* dst,
+void NineBox::TileImage(GtkWidget* dst, GdkPixbuf* src,
                         int x1, int y1, int x2, int y2) {
+  GdkGC* gc = dst->style->fg_gc[GTK_WIDGET_STATE(dst)];
   const int src_width = gdk_pixbuf_get_width(src);
   const int src_height = gdk_pixbuf_get_height(src);
-  const int dst_width = gdk_pixbuf_get_width(dst);
-  const int dst_height = gdk_pixbuf_get_height(dst);
+  const int dst_width = dst->allocation.width;
+  const int dst_height = dst->allocation.height;
+
+  x1 += dst->allocation.x;
+  y1 += dst->allocation.y;
+  x2 += dst->allocation.x;
+  y2 += dst->allocation.y;
 
   // We only tile along one axis (see above TODO about nuking all this code),
   // dx or dy will be nonzero along that axis.
@@ -120,9 +140,10 @@ void NineBox::TileImage(GdkPixbuf* src, GdkPixbuf* dst,
   DCHECK(dx == 0 || dy == 0);
 
   for (int x = x1, y = y1; x < x2 || y < y2; x += dx, y += dy) {
-    gdk_pixbuf_copy_area(src, 0, 0,
-                         dx ? std::min(src_width,  dst_width - x) : src_width,
-                         dy ? std::min(src_height, dst_height - y) : src_height,
-                         dst, x, y);
+    gdk_draw_pixbuf(dst->window, gc, src, 0, 0,
+                    x, y,
+                    dx ? std::min(src_width,  dst_width - x) : src_width,
+                    dy ? std::min(src_height, dst_height - y) : src_height,
+                    GDK_RGB_DITHER_NONE, 0, 0);
   }
 }

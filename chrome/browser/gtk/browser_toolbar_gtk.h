@@ -20,6 +20,7 @@ class CustomContainerButton;
 class CustomDrawButton;
 class LocationBar;
 class LocationBarViewGtk;
+class NineBox;
 class Profile;
 class TabContents;
 class ToolbarModel;
@@ -82,6 +83,10 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
       unsigned int accelerator,
       unsigned int accelerator_mod);
 
+  // Gtk callback for the "expose-event" signal.
+  static gboolean OnContentAreaExpose(GtkWidget* widget, GdkEventExpose* e,
+                                      BrowserToolbarGtk* toolbar);
+
   // Gtk callback for the "clicked" signal.
   static void OnButtonClick(GtkWidget* button, BrowserToolbarGtk* toolbar);
 
@@ -98,6 +103,12 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   // Construct the Home button.
   CustomDrawButton* MakeHomeButton();
+
+  // Initialize the background NineBox.
+  void InitNineBox();
+
+  // Ninebox for the toolbar background
+  scoped_ptr<NineBox> background_ninebox_;
 
   // Gtk widgets. The toolbar is an hbox with each of the other pieces of the
   // toolbar placed side by side.

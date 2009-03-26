@@ -127,9 +127,6 @@ class BrowserWindowGtk : public BrowserWindow,
   gfx::Rect bounds_;
   GdkWindowState state_;
 
-  // Theme graphics for the content area.
-  scoped_ptr<NineBox> content_area_ninebox_;
-
   // Whether we're drawing the custom Chrome frame (including title bar).
   bool custom_frame_;
 

@@ -111,24 +111,8 @@ gboolean CustomContainerButton::OnExpose(GtkWidget* widget, GdkEventExpose* e,
     nine_box = button->nine_box_active_.get();
 
   // Only draw theme graphics if we have some.
-  if (nine_box) {
-    GdkPixbuf* pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,
-                                       true,  // alpha
-                                       8,  // bits per channel
-                                       widget->allocation.width,
-                                       widget->allocation.height);
-
-    nine_box->RenderToPixbuf(pixbuf);
-
-    gdk_draw_pixbuf(widget->window,
-                    widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-                    pixbuf,
-                    0, 0,
-                    widget->allocation.x, widget->allocation.y, -1, -1,
-                    GDK_RGB_DITHER_NONE, 0, 0);
-
-    gdk_pixbuf_unref(pixbuf);
-  }
+  if (nine_box)
+    nine_box->RenderToWidget(widget);
 
   // If we return FALSE from the function, the button paints itself.
   // If we return TRUE, no children are painted.

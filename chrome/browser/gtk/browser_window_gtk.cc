@@ -17,7 +17,6 @@
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
-#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/gtk/tab_strip_gtk.h"
@@ -38,34 +37,6 @@ class DummyButtonListener : public views::ButtonListener {
     DLOG(ERROR) << "Button Pressed!";
   }
 };
-
-static GdkPixbuf* LoadThemeImage(int resource_id) {
-  // TODO(mmoss) refactor -- stolen from custom_button.cc
-  if (0 == resource_id)
-    return NULL;
-
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  std::vector<unsigned char> data;
-  rb.LoadImageResourceBytes(resource_id, &data);
-
-  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
-  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
-      data.size(), NULL);
-  DCHECK(ok) << "failed to write " << resource_id;
-  // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
-  // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
-  ok = gdk_pixbuf_loader_close(loader, NULL);
-  DCHECK(ok) << "close failed " << resource_id;
-  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-  DCHECK(pixbuf) << "failed to load " << resource_id << " " << data.size();
-
-  // The pixbuf is owned by the loader, so add a ref so when we delete the
-  // loader, the pixbuf still exists.
-  g_object_ref(pixbuf);
-  g_object_unref(loader);
-
-  return pixbuf;
-}
 
 gboolean MainWindowConfigured(GtkWindow* window, GdkEventConfigure* event,
                               BrowserWindowGtk* browser_win) {
@@ -179,19 +150,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   ConnectAccelerators();
   bounds_ = GetInitialWindowBounds(window_);
 
-  GdkPixbuf* images[9] = {
-    LoadThemeImage(IDR_CONTENT_TOP_LEFT_CORNER),
-    LoadThemeImage(IDR_CONTENT_TOP_CENTER),
-    LoadThemeImage(IDR_CONTENT_TOP_RIGHT_CORNER),
-    LoadThemeImage(IDR_CONTENT_LEFT_SIDE),
-    NULL,
-    LoadThemeImage(IDR_CONTENT_RIGHT_SIDE),
-    LoadThemeImage(IDR_CONTENT_BOTTOM_LEFT_CORNER),
-    LoadThemeImage(IDR_CONTENT_BOTTOM_CENTER),
-    LoadThemeImage(IDR_CONTENT_BOTTOM_RIGHT_CORNER)
-  };
-  content_area_ninebox_.reset(new NineBox(images));
-
   // This vbox encompasses all of the widgets within the browser, including
   // the tabstrip and the content vbox.
   window_vbox_ = gtk_vbox_new(FALSE, 0);
@@ -273,7 +231,7 @@ void BrowserWindowGtk::HandleAccelerator(guint keyval,
 
     default:
       // Pass the accelerator on to GTK.
-      gtk_accel_groups_activate(G_OBJECT(window_), keyval, modifier); 
+      gtk_accel_groups_activate(G_OBJECT(window_), keyval, modifier);
   }
 }
 
@@ -284,31 +242,6 @@ gboolean BrowserWindowGtk::OnContentAreaExpose(GtkWidget* widget,
     NOTIMPLEMENTED() << " needs custom drawing for the custom frame.";
     return FALSE;
   }
-
-  // The theme graphics include the 2px frame, but we don't draw the frame
-  // in the non-custom-frame mode.  So we subtract it off.
-  const int kFramePixels = 2;
-
-  GdkPixbuf* pixbuf =
-      gdk_pixbuf_new(GDK_COLORSPACE_RGB, true,  // alpha
-                     8,  // bit depth
-                     widget->allocation.width,
-                     BrowserToolbarGtk::kToolbarHeight + kFramePixels);
-
-#ifndef NDEBUG
-  // Fill with a bright color so we can see any pixels we're missing.
-  gdk_pixbuf_fill(pixbuf, 0x00FFFFFF);
-#endif
-
-  window->content_area_ninebox_->RenderTopCenterStrip(pixbuf, 0,
-                                                      widget->allocation.width);
-  gdk_draw_pixbuf(widget->window, NULL, pixbuf,
-                  0, 0,
-                  widget->allocation.x,
-                  widget->allocation.y - kFramePixels,
-                  -1, -1,
-                  GDK_RGB_DITHER_NORMAL, 0, 0);
-  gdk_pixbuf_unref(pixbuf);
 
   return FALSE;  // Allow subwidgets to paint.
 }

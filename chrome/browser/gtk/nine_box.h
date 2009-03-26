@@ -5,7 +5,7 @@
 #ifndef CHROME_BROWSER_GTK_NINE_BOX_H_
 #define CHROME_BROWSER_GTK_NINE_BOX_H_
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <gtk/gtk.h>
 
 // A NineBox manages a set of source images representing a 3x3 grid, where
 // non-corner images can be tiled to make a larger image.  It's used to
@@ -25,17 +25,17 @@ class NineBox {
   NineBox(GdkPixbuf* images[9]);
   ~NineBox();
 
-  // Render the NineBox to dst.
-  // Expects dst to already be the proper size.
-  void RenderToPixbuf(GdkPixbuf* dst);
+  // Render the NineBox to |dst|.
+  // The images will be tiled to fit into the widget.
+  void RenderToWidget(GtkWidget* dst);
 
-  // Render the top row of images to dst between x1 and x2.
-  // This is split from RenderToPixbuf so the toolbar can use it.
-  void RenderTopCenterStrip(GdkPixbuf* dst, int x1, int x2);
+  // Render the top row of images to |dst| between |x1| and |x2|.
+  // This is split from RenderToWidget so the toolbar can use it.
+  void RenderTopCenterStrip(GtkWidget* dst, int x1, int x2);
 
  private:
   // Repeatedly stamp src across dst.
-  void TileImage(GdkPixbuf* src, GdkPixbuf* dst,
+  void TileImage(GtkWidget* dst, GdkPixbuf* src,
                  int x1, int y1, int x2, int y2);
 
   GdkPixbuf* images_[9];

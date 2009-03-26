@@ -269,22 +269,7 @@ gboolean DownloadItemGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
   else
     nine_box = is_body ? body_nine_box_normal_ : menu_nine_box_normal_;
 
-  GdkPixbuf* pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,
-                                     true,  // alpha
-                                     8,  // bits per channel
-                                     widget->allocation.width,
-                                     widget->allocation.height);
-
-  nine_box->RenderToPixbuf(pixbuf);
-
-  gdk_draw_pixbuf(widget->window,
-                  widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-                  pixbuf,
-                  0, 0,
-                  widget->allocation.x, widget->allocation.y, -1, -1,
-                  GDK_RGB_DITHER_NONE, 0, 0);
-
-  gdk_pixbuf_unref(pixbuf);
+  nine_box->RenderToWidget(widget);
 
   GtkWidget* child = gtk_bin_get_child(GTK_BIN(widget));
   if (child)
