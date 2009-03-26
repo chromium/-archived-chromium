@@ -12,6 +12,9 @@
 #include "google_update_idl.h"
 
 class MessageLoop;
+namespace views {
+class Window;
+}
 
 // The status of the upgrade. UPGRADE_STARTED and UPGRADE_CHECK_STARTED are
 // internal states and will not be reported as results to the listener.
@@ -84,7 +87,10 @@ class GoogleUpdate : public base::RefCountedThreadSafe<GoogleUpdate> {
   // Ask Google Update to see if a new version is available. If the parameter
   // |install_if_newer| is true then Google Update will also install that new
   // version.
-  void CheckForUpdate(bool install_if_newer);
+  // |window| should point to a foreground window. This is needed to ensure
+  // that Vista/Windows 7 UAC prompts show up in the foreground. It may also
+  // be null.
+  void CheckForUpdate(bool install_if_newer, views::Window* window);
 
   // Adds/removes a listener to report status back to. Only one listener is
   // maintained at the moment.
@@ -95,7 +101,10 @@ class GoogleUpdate : public base::RefCountedThreadSafe<GoogleUpdate> {
   // We need to run the update check on another thread than the main thread, and
   // therefore CheckForUpdate will delegate to this function. |main_loop| points
   // to the message loop that we want the response to come from.
-  bool InitiateGoogleUpdateCheck(bool install_if_newer, MessageLoop* main_loop);
+  // |window| should point to a foreground window. This is needed to ensure that
+  // Vista/Windows 7 UAC prompts show up in the foreground. It may also be null.
+  bool InitiateGoogleUpdateCheck(bool install_if_newer, views::Window* window,
+                                 MessageLoop* main_loop);
 
   // This function reports the results of the GoogleUpdate operation to the
   // listener. If results indicates an error, the error_code will indicate which

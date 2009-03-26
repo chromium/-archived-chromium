@@ -587,7 +587,8 @@ void AboutChromeView::ViewHierarchyChanged(bool is_add,
            service_pack_major >= 1) ||
           win_util::GetWinVersion() > win_util::WINVERSION_VISTA) {
         UpdateStatus(UPGRADE_CHECK_STARTED, GOOGLE_UPDATE_NO_ERROR);
-        google_updater_->CheckForUpdate(false);  // false=don't upgrade yet.
+        // CheckForUpdate(false, ...) means don't upgrade yet.
+        google_updater_->CheckForUpdate(false, window());
       }
     } else {
       parent->RemoveChildView(&update_label_);
@@ -668,7 +669,8 @@ bool AboutChromeView::Accept() {
   DCHECK(!google_updater_);
   google_updater_ = new GoogleUpdate();
   google_updater_->AddStatusChangeListener(this);
-  google_updater_->CheckForUpdate(true);  // true=upgrade if new version found.
+  // CheckForUpdate(true,...) means perform the upgrade if new version found.
+  google_updater_->CheckForUpdate(true, window());
 
   return false;  // We never allow this button to close the window.
 }

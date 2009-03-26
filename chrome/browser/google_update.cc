@@ -18,7 +18,10 @@
 #include "chrome/installer/util/google_update_constants.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
+#include "chrome/views/window/window.h"
 #include "google_update_idl_i.c"
+
+using views::Window;
 
 namespace {
 // Check if the currently running instance can be updated by Google Update.
@@ -49,8 +52,11 @@ bool CanUpdateCurrentChrome(const std::wstring& chrome_exe_path) {
 
 // Creates an instance of a COM Local Server class using either plain vanilla
 // CoCreateInstance, or using the Elevation moniker if running on Vista.
+// hwnd must refer to a foregound window in order to get the UAC prompt
+// showing up in the foreground if running on Vista. It can also be NULL if
+// background UAC prompts are desired.
 HRESULT CoCreateInstanceAsAdmin(REFCLSID class_id, REFIID interface_id,
-                                void** interface_ptr) {
+                                HWND hwnd, void** interface_ptr) {
   if (!interface_ptr)
     return E_POINTER;
 
@@ -62,13 +68,14 @@ HRESULT CoCreateInstanceAsAdmin(REFCLSID class_id, REFIID interface_id,
                     arraysize(class_id_as_string));
 
     std::wstring elevation_moniker_name =
-        StringPrintf(L"Elevation:Administrator!new:%s", class_id_as_string);
+        StringPrintf(L"Elevation:Administrator!new:%ls", class_id_as_string);
 
     BIND_OPTS3 bind_opts;
     memset(&bind_opts, 0, sizeof(bind_opts));
-
     bind_opts.cbStruct = sizeof(bind_opts);
     bind_opts.dwClassContext = CLSCTX_LOCAL_SERVER;
+    bind_opts.hwnd = hwnd;
+
     return CoGetObject(elevation_moniker_name.c_str(), &bind_opts,
                        interface_id, reinterpret_cast<void**>(interface_ptr));
   }
@@ -201,13 +208,13 @@ GoogleUpdate::~GoogleUpdate() {
 ////////////////////////////////////////////////////////////////////////////////
 // GoogleUpdate, views::DialogDelegate implementation:
 
-void GoogleUpdate::CheckForUpdate(bool install_if_newer) {
+void GoogleUpdate::CheckForUpdate(bool install_if_newer, Window* window) {
   // We need to shunt this request over to InitiateGoogleUpdateCheck and have
   // it run in the file thread.
   MessageLoop* file_loop = g_browser_process->file_thread()->message_loop();
   file_loop->PostTask(FROM_HERE, NewRunnableMethod(this,
       &GoogleUpdate::InitiateGoogleUpdateCheck,
-      install_if_newer, MessageLoop::current()));
+      install_if_newer, window, MessageLoop::current()));
 }
 
 // Adds/removes a listener. Only one listener is maintained at the moment.
@@ -225,6 +232,7 @@ void GoogleUpdate::RemoveStatusChangeListener() {
 // GoogleUpdate, private:
 
 bool GoogleUpdate::InitiateGoogleUpdateCheck(bool install_if_newer,
+                                             Window* window,
                                              MessageLoop* main_loop) {
 
   std::wstring chrome_exe_path;
@@ -264,8 +272,13 @@ bool GoogleUpdate::InitiateGoogleUpdateCheck(bool install_if_newer,
     if (!install_if_newer) {
       hr = on_demand.CoCreateInstance(CLSID_OnDemandMachineAppsClass);
     } else {
+      HWND foreground_hwnd = NULL;
+      if (window != NULL) {
+        foreground_hwnd = window->GetNativeWindow();
+      }
+
       hr = CoCreateInstanceAsAdmin(CLSID_OnDemandMachineAppsClass,
-                                   IID_IGoogleUpdate,
+                                   IID_IGoogleUpdate, foreground_hwnd,
                                    reinterpret_cast<void**>(&on_demand));
     }
   }
