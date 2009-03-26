@@ -376,10 +376,16 @@ bool SaveFileAsWithFilter(HWND owner,
   save_as.lpstrInitialDir = directory.c_str();
   save_as.lpstrTitle = NULL;
   save_as.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER | OFN_ENABLESIZING |
-                  OFN_ENABLEHOOK | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
+                  OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
   save_as.lpstrDefExt = &def_ext[0];
   save_as.lCustData = NULL;
-  save_as.lpfnHook = &SaveAsDialogHook;
+
+  if (win_util::GetWinVersion() <= win_util::WINVERSION_VISTA) {
+    // The save as on Windows XP and Windows Vista remembers its last position,
+    // and if the screen resolution changed, it will be off screen.
+    save_as.Flags |= OFN_ENABLEHOOK;
+    save_as.lpfnHook = &SaveAsDialogHook;
+  }
 
   // Must be NULL or 0.
   save_as.pvReserved = NULL;
