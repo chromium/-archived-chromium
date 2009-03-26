@@ -301,7 +301,8 @@ bool QueryParser::DoesQueryMatch(const std::wstring& text,
     return false;
 
   std::vector<QueryWord> query_words;
-  ExtractQueryWords(l10n_util::ToLower(text), &query_words);
+  std::wstring lower_text = l10n_util::ToLower(text);
+  ExtractQueryWords(lower_text, &query_words);
 
   if (query_words.empty())
     return false;
@@ -311,8 +312,16 @@ bool QueryParser::DoesQueryMatch(const std::wstring& text,
     if (!query_nodes[i]->HasMatchIn(query_words, &matches))
       return false;
   }
-  CoalseAndSortMatchPositions(&matches);
-  match_positions->swap(matches);
+  if (lower_text.length() != text.length()) {
+    // The lower case string differs from the original string. The matches are
+    // meaningless.
+    // TODO(sky): we need a better way to align the positions so that we don't
+    // completely punt here.
+    match_positions->clear();
+  } else {
+    CoalseAndSortMatchPositions(&matches);
+    match_positions->swap(matches);
+  }
   return true;
 }
 
