@@ -2332,3 +2332,4 @@ WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
 WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
+WIN LINUX : LayoutTests/editing/selection/4776665.html = FAIL
