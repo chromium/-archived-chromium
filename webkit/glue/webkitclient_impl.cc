@@ -61,6 +61,10 @@ WebCString WebKitClientImpl::loadResource(const char* name) {
     { "missingImage", IDR_BROKENIMAGE },
     { "tickmarkDash", IDR_TICKMARK_DASH },
     { "panIcon", IDR_PAN_SCROLL_ICON },
+    { "searchCancel", IDR_SEARCH_CANCEL },
+    { "searchCancelPressed", IDR_SEARCH_CANCEL_PRESSED },
+    { "searchMagnifier", IDR_SEARCH_MAGNIFIER },
+    { "searchMagnifierResults", IDR_SEARCH_MAGNIFIER_RESULTS },
 #if defined(OS_LINUX)
     { "linuxCheckboxOff", IDR_LINUX_CHECKBOX_OFF },
     { "linuxCheckboxOn", IDR_LINUX_CHECKBOX_ON },
