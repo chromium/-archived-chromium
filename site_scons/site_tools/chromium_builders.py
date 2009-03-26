@@ -29,7 +29,74 @@ class Null(object):
   def __delattr__(self, name): return self
   def __getitem__(self, name): return self
 
-class ChromeFileList(MSVS.FileList):
+class FileList(object):
+  def __init__(self, entries=None):
+    if isinstance(entries, FileList):
+      entries = entries.entries
+    self.entries = entries or []
+  def __getitem__(self, i):
+    return self.entries[i]
+  def __setitem__(self, i, item):
+    self.entries[i] = item
+  def __delitem__(self, i):
+    del self.entries[i]
+  def __add__(self, other):
+    if isinstance(other, FileList):
+      return self.__class__(self.entries + other.entries)
+    elif isinstance(other, type(self.entries)):
+      return self.__class__(self.entries + other)
+    else:
+      return self.__class__(self.entries + list(other))
+  def __radd__(self, other):
+    if isinstance(other, FileList):
+      return self.__class__(other.entries + self.entries)
+    elif isinstance(other, type(self.entries)):
+      return self.__class__(other + self.entries)
+    else:
+      return self.__class__(list(other) + self.entries)
+  def __iadd__(self, other):
+    if isinstance(other, FileList):
+      self.entries += other.entries
+    elif isinstance(other, type(self.entries)):
+      self.entries += other
+    else:
+      self.entries += list(other)
+    return self
+  def append(self, item):
+    return self.entries.append(item)
+  def extend(self, item):
+    return self.entries.extend(item)
+  def index(self, item, *args):
+    return self.entries.index(item, *args)
+  def remove(self, item):
+    return self.entries.remove(item)
+
+def FileListWalk(top, topdown=True, onerror=None):
+  """
+  """
+  try:
+    entries = top.entries
+  except AttributeError, err:
+    if onerror is not None:
+      onerror(err)
+    return
+
+  dirs, nondirs = [], []
+  for entry in entries:
+    if hasattr(entry, 'entries'):
+      dirs.append(entry)
+    else:
+      nondirs.append(entry)
+
+  if topdown:
+    yield top, dirs, nondirs
+  for entry in dirs:
+    for x in FileListWalk(entry, topdown, onerror):
+      yield x
+  if not topdown:
+    yield top, dirs, nondirs
+
+class ChromeFileList(FileList):
   def Append(self, *args):
     for element in args:
       self.append(element)
@@ -37,14 +104,14 @@ class ChromeFileList(MSVS.FileList):
     for element in args:
       self.extend(element)
   def Remove(self, *args):
-    for top, lists, nonlists in MSVS.FileListWalk(self, topdown=False):
+    for top, lists, nonlists in FileListWalk(self, topdown=False):
       for element in args:
         try:
           top.remove(element)
         except ValueError:
           pass
   def Replace(self, old, new):
-    for top, lists, nonlists in MSVS.FileListWalk(self, topdown=False):
+    for top, lists, nonlists in FileListWalk(self, topdown=False):
       try:
         i = top.index(old)
       except ValueError:
@@ -116,7 +183,7 @@ def compilable_files(env, sources):
   if not hasattr(sources, 'entries'):
     return [x for x in sources if compilable(env, x)]
   result = []
-  for top, folders, nonfolders in MSVS.FileListWalk(sources):
+  for top, folders, nonfolders in FileListWalk(sources):
     result.extend([x for x in nonfolders if compilable(env, x)])
   return result
 
