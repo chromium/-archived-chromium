@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/app/breakpad.h"
+#include "chrome/app/breakpad_win.h"
 
 #include <windows.h>
 #include <tchar.h>
@@ -299,7 +299,7 @@ void InitDefaultCrashCallback() {
   previous_filter = SetUnhandledExceptionFilter(ChromeExceptionFilter);
 }
 
-void InitCrashReporter(const std::wstring& dll_path) {
+void InitCrashReporterWithDllPath(const std::wstring& dll_path) {
   const CommandLine& command = *CommandLine::ForCurrentProcess();
   if (!command.HasSwitch(switches::kDisableBreakpad)) {
     // Disable the message box for assertions.

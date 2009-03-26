@@ -11,7 +11,7 @@
 #include "base/debug_on_start.h"
 #include "base/process_util.h"
 #include "base/win_util.h"
-#include "chrome/app/breakpad.h"
+#include "chrome/app/breakpad_win.h"
 #include "chrome/app/client_util.h"
 #include "chrome/app/google_update_client.h"
 #include "chrome/common/chrome_switches.h"
@@ -52,7 +52,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
   client.Init(L"{8A69D345-D564-463c-AFF1-A69D9E530F96}", dll_name);
 
   // Initialize the crash reporter.
-  InitCrashReporter(client.GetDLLPath());
+  InitCrashReporterWithDllPath(client.GetDLLPath());
 
   bool exit_now = true;
   if (ShowRestartDialogIfCrashed(&exit_now)) {
@@ -85,7 +85,7 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
                                          LOAD_WITH_ALTERED_SEARCH_PATH);
 
   // Initialize the crash reporter.
-  InitCrashReporter(client_util::GetDLLPath(dll_name, dll_path));
+  InitCrashReporterWithDllPath(client_util::GetDLLPath(dll_name, dll_path));
 
   bool exit_now = true;
   if (ShowRestartDialogIfCrashed(&exit_now)) {

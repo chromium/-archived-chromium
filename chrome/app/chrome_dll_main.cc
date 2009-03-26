@@ -34,6 +34,9 @@
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #endif
+#if defined(OS_MACOSX)
+#include "chrome/app/breakpad_mac.h"
+#endif
 #include "chrome/app/scoped_ole_initializer.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/chrome_constants.h"
@@ -246,7 +249,11 @@ int ChromeMain(int argc, const char** argv) {
 #endif
 
 #if defined(OS_MACOSX)
-  DebugUtil::DisableOSCrashDumps();
+  // If Breakpad is not present then turn off os crash dumps so we don't have
+  // to wait eons for Apple's Crash Reporter to generate a dump.
+  if (!IsCrashReporterEnabled()) {
+    DebugUtil::DisableOSCrashDumps();
+  }
 #endif
   RegisterInvalidParamHandler();
 

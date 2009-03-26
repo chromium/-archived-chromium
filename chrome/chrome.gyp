@@ -1468,8 +1468,10 @@
       ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
-        'app/breakpad.cc',
-        'app/breakpad.h',
+        'app/breakpad_win.cc',
+        'app/breakpad_win.h',
+        'app/breakpad_mac.mm',
+        'app/breakpad_mac.h',
         'app/chrome_dll_main.cc',
         'app/chrome_dll_resource.h',
         'app/chrome_exe_main.cc',
@@ -1666,7 +1668,6 @@
             },
           ],
           'sources!': [
-            'app/breakpad.cc',
             'app/chrome_exe_main.cc',
             'app/client_util.cc',
             'app/google_update_client.cc',

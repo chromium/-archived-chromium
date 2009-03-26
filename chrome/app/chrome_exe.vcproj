@@ -183,11 +183,11 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\breakpad.cc"
+			RelativePath=".\breakpad_win.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\breakpad.h"
+			RelativePath=".\breakpad_win.h"
 			>
 		</File>
 		<File

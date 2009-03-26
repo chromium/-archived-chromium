@@ -6,6 +6,7 @@
 
 #include "base/at_exit.h"
 #include "base/process_util.h"
+#import "chrome/app/breakpad_mac.h"
 
 // The entry point for all invocations of Chromium, browser and renderer. On
 // windows, this does nothing but load chrome.dll and invoke its entry point
@@ -27,8 +28,14 @@ int main(int argc, const char** argv) {
   // base::AtExitManager exit_manager;
 
 #if defined(GOOGLE_CHROME_BUILD)
-  // TODO(pinkerton): init crash reporter
+  InitCrashReporter();
 #endif
 
-  return ChromeMain(argc, argv);
+  int ret = ChromeMain(argc, argv);
+
+#if defined(GOOGLE_CHROME_BUILD)
+  DestructCrashReporter();
+#endif
+
+  return ret;
 }

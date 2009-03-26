@@ -525,8 +525,6 @@ LogMessage::~LogMessage() {
 #endif
         // Crash the process to generate a dump.
         DebugUtil::BreakDebugger();
-        // TODO(mmentovai): when we have breakpad support, generate a breakpad
-        // dump, but until then, do not invoke the Apple crash reporter.
       }
     }
   } else if (severity_ == LOG_ERROR_REPORT) {
