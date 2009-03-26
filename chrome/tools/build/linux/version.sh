@@ -37,7 +37,7 @@ fi
 
 # Write to a temp file and only overwrite the target if it changes, to avoid
 # unnecessary compiles due to timestamp changes.
-TMPFILE=$(mktemp -q -t chromiumver-XXXX)
+TMPFILE=$(mktemp -q -t chromiumver-XXXXXX)
 if [ $? -ne 0 ]; then
   # Oops, just use the target file and suffer possibly unnecessary compile.
   TMPFILE="$OUTFILE"
