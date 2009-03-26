@@ -386,7 +386,8 @@ void BrowserWindowGtk::UpdateTitleBar() {
 }
 
 void BrowserWindowGtk::UpdateLoadingAnimations(bool should_animate) {
-  NOTIMPLEMENTED();
+  // Need to implement loading animations.
+  // http://code.google.com/p/chromium/issues/detail?id=9380
 }
 
 void BrowserWindowGtk::SetStarredState(bool is_starred) {
@@ -423,7 +424,8 @@ void BrowserWindowGtk::SetFocusToLocationBar() {
 }
 
 void BrowserWindowGtk::UpdateStopGoState(bool is_loading) {
-  NOTIMPLEMENTED();
+  // Need to implement stop/go button.
+  // http://code.google.com/p/chromium/issues/detail?id=9381
 }
 
 void BrowserWindowGtk::UpdateToolbar(TabContents* contents,

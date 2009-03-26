@@ -168,7 +168,11 @@ void LocationBarViewGtk::FocusSearch() {
 }
 
 void LocationBarViewGtk::UpdateFeedIcon() {
-  NOTIMPLEMENTED();
+  // Hide our lack of a feed icon for now, since it's not fully implemented
+  // even on Windows yet.
+  FeedList* feeds = toolbar_model_->GetFeedList().get();
+  if (feeds && feeds->list().size() > 0)
+    NOTIMPLEMENTED();
 }
 
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {

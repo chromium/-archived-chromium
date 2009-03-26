@@ -271,14 +271,16 @@ void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {
 
 void RenderWidgetHostViewGtk::UpdateCursorIfOverSelf() {
   // Windows uses this to show the resizer arrow if the mouse is over the
-  // bottom-right corner.
-  NOTIMPLEMENTED();
+  // bottom-right corner, which doesn't make sense for us.
+  // It also uses it to show the "loading" cursor, which we ought to do.
+  // That is bug 9385:
+  // http://code.google.com/p/chromium/issues/detail?id=9385
 }
 
 void RenderWidgetHostViewGtk::SetIsLoading(bool is_loading) {
   // Windows tracks loading whether it's loading to switch the cursor
-  // out for the arrow+hourglass one.  We don't have such a cursor, so we just
-  // ignore this.
+  // out for the arrow+hourglass one.
+  // http://code.google.com/p/chromium/issues/detail?id=9385
 }
 
 void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
