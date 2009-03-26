@@ -12,7 +12,7 @@
 @synthesize action = action_;
 
 + (float)minTabWidth { return 64.0; }
-+ (float)maxTabWidth { return 160.0; }
++ (float)maxTabWidth { return 220.0; }
 
 - (TabView*)tabView {
   return static_cast<TabView*>([self view]);
