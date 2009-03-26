@@ -194,7 +194,7 @@
     },
   ],
   'conditions': [
-    ['OS=="linux"', {
+    ['OS=="linux" and not use_system_sqlite', {
       'targets': [
         {
           'target_name': 'sqlite_shell',
