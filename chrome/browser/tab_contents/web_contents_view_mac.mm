@@ -76,6 +76,13 @@ void WebContentsViewMac::GetContainerBounds(gfx::Rect* out) const {
 
 void WebContentsViewMac::StartDragging(const WebDropData& drop_data) {
   NOTIMPLEMENTED();
+
+  // Until we have d'n'd implemented, just immediately pretend we're
+  // already done with the drag and drop so we don't get stuck
+  // thinking we're in mid-drag.
+  // TODO(port): remove me when the above NOTIMPLEMENTED is fixed.
+  if (web_contents()->render_view_host())
+    web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
 void WebContentsViewMac::OnContentsDestroy() {

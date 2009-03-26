@@ -202,6 +202,13 @@ void WebContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
 
 void WebContentsViewGtk::StartDragging(const WebDropData& drop_data) {
   NOTIMPLEMENTED();
+
+  // Until we have d'n'd implemented, just immediately pretend we're
+  // already done with the drag and drop so we don't get stuck
+  // thinking we're in mid-drag.
+  // TODO(port): remove me when the above NOTIMPLEMENTED is fixed.
+  if (web_contents()->render_view_host())
+    web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
 WebContents* WebContentsViewGtk::CreateNewWindowInternal(
