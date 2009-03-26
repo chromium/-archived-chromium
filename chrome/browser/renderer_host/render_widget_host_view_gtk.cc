@@ -340,16 +340,18 @@ BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
   BackingStore* backing_store = host_->GetBackingStore();
 
+  GdkWindow* window = view_.get()->window;
   if (backing_store) {
     // Only render the widget if it is attached to a window; there's a short
     // period where this object isn't attached to a window but hasn't been
     // Destroy()ed yet and it receives paint messages...
-    GdkWindow* window = view_.get()->window;
     if (window) {
       backing_store->ShowRect(
           damage_rect, x11_util::GetX11WindowFromGtkWidget(view_.get()));
     }
   } else {
+    if (window)
+      gdk_window_clear(window);
     NOTIMPLEMENTED();
   }
 }
