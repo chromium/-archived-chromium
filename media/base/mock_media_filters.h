@@ -195,6 +195,39 @@ class MockDataSource : public DataSource {
 
 //------------------------------------------------------------------------------
 
+class MockDemuxerStream : public DemuxerStream {
+ public:
+  MockDemuxerStream(const MockFilterConfig* config, bool is_audio) {
+    if (is_audio) {
+      media_format_.SetAsString(MediaFormat::kMimeType,
+                                config->compressed_audio_mime_type);
+    } else {
+      media_format_.SetAsString(MediaFormat::kMimeType,
+                                config->compressed_video_mime_type);
+      media_format_.SetAsInteger(MediaFormat::kWidth, config->video_width);
+      media_format_.SetAsInteger(MediaFormat::kHeight, config->video_height);
+    }
+  }
+
+  // Implementation of DemuxerStream.
+  virtual const MediaFormat* GetMediaFormat() {
+    return &media_format_;
+  }
+
+  virtual void Read(Assignable<Buffer>* buffer) {
+    NOTREACHED();  // TODO(ralphl): fix me!!
+  }
+
+ private:
+  virtual ~MockDemuxerStream() {}
+
+  MediaFormat media_format_;
+
+  DISALLOW_COPY_AND_ASSIGN(MockDemuxerStream);
+};
+
+//------------------------------------------------------------------------------
+
 class MockDemuxer : public Demuxer {
  public:
   static FilterFactory* CreateFactory(const MockFilterConfig* config) {
@@ -204,8 +237,8 @@ class MockDemuxer : public Demuxer {
 
   explicit MockDemuxer(const MockFilterConfig* config)
       : config_(config),
-        mock_audio_stream_(config, true),
-        mock_video_stream_(config, false) {
+        mock_audio_stream_(new MockDemuxerStream(config, true)),
+        mock_video_stream_(new MockDemuxerStream(config, false)) {
   }
 
   // Implementation of MediaFilter.
@@ -228,18 +261,18 @@ class MockDemuxer : public Demuxer {
     return num_streams;
   }
 
-  virtual DemuxerStream* GetStream(int stream_id) {
+  virtual scoped_refptr<DemuxerStream> GetStream(int stream_id) {
     switch (stream_id) {
       case 0:
         if (config_->has_audio) {
-          return &mock_audio_stream_;
+          return mock_audio_stream_;
         } else if (config_->has_video) {
-          return &mock_video_stream_;
+          return mock_video_stream_;
         }
         break;
       case 1:
         if (config_->has_audio && config_->has_video) {
-          return &mock_video_stream_;
+          return mock_video_stream_;
         }
         break;
     }
@@ -250,41 +283,9 @@ class MockDemuxer : public Demuxer {
  private:
   virtual ~MockDemuxer() {}
 
-  // Internal class implements DemuxerStream interface.
-  class MockDemuxerStream : public DemuxerStream {
-   public:
-    MockDemuxerStream(const MockFilterConfig* config, bool is_audio) {
-      if (is_audio) {
-        media_format_.SetAsString(MediaFormat::kMimeType,
-                                  config->compressed_audio_mime_type);
-      } else {
-        media_format_.SetAsString(MediaFormat::kMimeType,
-                                  config->compressed_video_mime_type);
-        media_format_.SetAsInteger(MediaFormat::kWidth, config->video_width);
-        media_format_.SetAsInteger(MediaFormat::kHeight, config->video_height);
-      }
-    }
-
-    virtual ~MockDemuxerStream() {}
-
-    // Implementation of DemuxerStream.
-    virtual const MediaFormat* GetMediaFormat() {
-      return &media_format_;
-    }
-
-    virtual void Read(Assignable<Buffer>* buffer) {
-      NOTREACHED();  // TODO(ralphl): fix me!!
-    }
-
-   private:
-    MediaFormat media_format_;
-
-    DISALLOW_COPY_AND_ASSIGN(MockDemuxerStream);
-  };
-
   const MockFilterConfig* config_;
-  MockDemuxerStream mock_audio_stream_;
-  MockDemuxerStream mock_video_stream_;
+  scoped_refptr<DemuxerStream> mock_audio_stream_;
+  scoped_refptr<DemuxerStream> mock_video_stream_;
 
   DISALLOW_COPY_AND_ASSIGN(MockDemuxer);
 };

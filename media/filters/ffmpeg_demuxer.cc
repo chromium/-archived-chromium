@@ -49,39 +49,40 @@ class AVPacketBuffer : public Buffer {
 // FFmpegDemuxerStream
 //
 FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
-                                         const AVStream& stream)
-    : demuxer_(demuxer) {
+                                         AVStream* stream)
+    : demuxer_(demuxer),
+      av_stream_(stream) {
   DCHECK(demuxer_);
 
   // Determine our media format.
-  switch (stream.codec->codec_type) {
+  switch (stream->codec->codec_type) {
     case CODEC_TYPE_AUDIO:
       media_format_.SetAsString(MediaFormat::kMimeType,
                                 mime_type::kFFmpegAudio);
       media_format_.SetAsInteger(MediaFormat::kChannels,
-                                 stream.codec->channels);
+                                 stream->codec->channels);
       media_format_.SetAsInteger(MediaFormat::kSampleRate,
-                                 stream.codec->sample_rate);
+                                 stream->codec->sample_rate);
       break;
     case CODEC_TYPE_VIDEO:
       media_format_.SetAsString(MediaFormat::kMimeType,
                                 mime_type::kFFmpegVideo);
       media_format_.SetAsInteger(MediaFormat::kHeight,
-                                 stream.codec->height);
+                                 stream->codec->height);
       media_format_.SetAsInteger(MediaFormat::kWidth,
-                                 stream.codec->width);
+                                 stream->codec->width);
       break;
     default:
       NOTREACHED();
       break;
   }
-  int codec_id = static_cast<int>(stream.codec->codec_id);
+  int codec_id = static_cast<int>(stream->codec->codec_id);
   media_format_.SetAsInteger(kFFmpegCodecID, codec_id);
 
   // Calculate the time base and duration in microseconds.
-  int64 time_base_us = static_cast<int64>(av_q2d(stream.time_base) *
+  int64 time_base_us = static_cast<int64>(av_q2d(stream->time_base) *
       base::Time::kMicrosecondsPerSecond);
-  int64 duration_us = static_cast<int64>(time_base_us * stream.duration);
+  int64 duration_us = static_cast<int64>(time_base_us * stream->duration);
   time_base_ = base::TimeDelta::FromMicroseconds(time_base_us);
   duration_ = base::TimeDelta::FromMicroseconds(duration_us);
 }
@@ -89,6 +90,20 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
 FFmpegDemuxerStream::~FFmpegDemuxerStream() {
   // Since |input_queue_| and |output_queue_| use scoped_refptr everything
   // should get released.
+}
+
+// static
+const char* FFmpegDemuxerStream::interface_id() {
+  return interface_id::kFFmpegDemuxerStream;
+}
+
+void* FFmpegDemuxerStream::QueryInterface(const char* id) {
+  DCHECK(id);
+  FFmpegDemuxerStream* interface_ptr = NULL;
+  if (0 == strcmp(id, interface_id())) {
+    interface_ptr = this;
+  }
+  return interface_ptr;
 }
 
 bool FFmpegDemuxerStream::HasPendingReads() {
@@ -158,10 +173,6 @@ FFmpegDemuxer::~FFmpegDemuxer() {
   if (format_context_) {
     av_free(format_context_);
   }
-  while (!streams_.empty()) {
-    delete streams_.back();
-    streams_.pop_back();
-  }
 }
 
 void FFmpegDemuxer::ScheduleDemux() {
@@ -215,7 +226,7 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
     if (codec_type == CODEC_TYPE_AUDIO || codec_type == CODEC_TYPE_VIDEO) {
       AVStream* stream = format_context_->streams[i];
       FFmpegDemuxerStream* demuxer_stream
-          = new FFmpegDemuxerStream(this, *stream);
+          = new FFmpegDemuxerStream(this, stream);
       DCHECK(demuxer_stream);
       streams_.push_back(demuxer_stream);
       max_duration = std::max(max_duration, demuxer_stream->duration());
@@ -237,10 +248,10 @@ size_t FFmpegDemuxer::GetNumberOfStreams() {
   return streams_.size();
 }
 
-DemuxerStream* FFmpegDemuxer::GetStream(int stream) {
+scoped_refptr<DemuxerStream> FFmpegDemuxer::GetStream(int stream) {
   DCHECK(stream >= 0);
   DCHECK(stream < static_cast<int>(streams_.size()));
-  return streams_[stream];
+  return streams_[stream].get();
 }
 
 void FFmpegDemuxer::Demux() {

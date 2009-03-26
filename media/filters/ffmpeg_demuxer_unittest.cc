@@ -241,7 +241,7 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   EXPECT_EQ(2, demuxer->GetNumberOfStreams());
 
   // First stream should be video.
-  DemuxerStream* stream = demuxer->GetStream(0);
+  scoped_refptr<DemuxerStream> stream = demuxer->GetStream(0);
   ASSERT_TRUE(stream);
   const MediaFormat* stream_format = stream->GetMediaFormat();
   std::string mime_type;
@@ -311,10 +311,18 @@ TEST(FFmpegDemuxerTest, Read) {
   EXPECT_EQ(2, demuxer->GetNumberOfStreams());
 
   // Get our streams.
-  DemuxerStream* audio_stream = demuxer->GetStream(kAudio);
-  DemuxerStream* video_stream = demuxer->GetStream(kVideo);
+  scoped_refptr<DemuxerStream> audio_stream = demuxer->GetStream(kAudio);
+  scoped_refptr<DemuxerStream> video_stream = demuxer->GetStream(kVideo);
   ASSERT_TRUE(audio_stream);
   ASSERT_TRUE(video_stream);
+
+  // Both streams should support FFmpegDemuxerStream interface.
+  scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
+  EXPECT_TRUE(audio_stream->QueryInterface(&ffmpeg_demuxer_stream));
+  EXPECT_TRUE(ffmpeg_demuxer_stream);
+  ffmpeg_demuxer_stream = NULL;
+  EXPECT_TRUE(video_stream->QueryInterface(&ffmpeg_demuxer_stream));
+  EXPECT_TRUE(ffmpeg_demuxer_stream);
 
   // Prepare our test audio packet.
   g_packet.stream_index = kAudio;

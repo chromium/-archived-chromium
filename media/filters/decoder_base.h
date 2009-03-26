@@ -258,7 +258,7 @@ class DecoderBase : public Decoder {
   bool running_;
 
   // Pointer to the demuxer stream that will feed us compressed buffers.
-  DemuxerStream* demuxer_stream_;
+  scoped_refptr<DemuxerStream> demuxer_stream_;
 
   // If this pointer is NULL then there is no thread dedicated to this decoder
   // and decodes will happen on the pipeline thread.

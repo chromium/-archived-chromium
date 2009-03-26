@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#ifndef MEDIA_FILTERS_FFMPEG_COMMON_H_
+#define MEDIA_FILTERS_FFMPEG_COMMON_H_
+
 // Used for FFmpeg error codes.
 #include <cerrno>
 
@@ -30,4 +33,13 @@ extern const char kFFmpegVideo[];
 
 }  // namespace mime_type
 
+namespace interface_id {
+
+extern const char kFFmpegDemuxerStream[];
+
+}  // namespace interface_id
+
+
 }  // namespace media
+
+#endif  // MEDIA_FILTERS_FFMPEG_COMMON_H_

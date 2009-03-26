@@ -147,11 +147,11 @@ class Demuxer : public MediaFilter {
   virtual size_t GetNumberOfStreams() = 0;
 
   // Returns the stream for the given index, NULL otherwise
-  virtual DemuxerStream* GetStream(int stream_id) = 0;
+  virtual scoped_refptr<DemuxerStream> GetStream(int stream_id) = 0;
 };
 
 
-class DemuxerStream {
+class DemuxerStream : public base::RefCountedThreadSafe<DemuxerStream> {
  public:
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat* GetMediaFormat() = 0;
@@ -159,7 +159,27 @@ class DemuxerStream {
   // Schedules a read and takes ownership of the given buffer.
   virtual void Read(Assignable<Buffer>* buffer) = 0;
 
+  // Given a class that supports the |Interface| and a related static method
+  // interface_id(), which returns a const char*, this method returns true if
+  // the class returns an interface pointer and assigns the pointer to
+  // |interface_out|.  Otherwise this method returns false.
+  template <class Interface>
+  bool QueryInterface(scoped_refptr<Interface>* interface_out) {
+    void* i = QueryInterface(Interface::interface_id());
+    *interface_out = reinterpret_cast<Interface*>(i);
+    return (NULL != i);
+  };
+
  protected:
+  // Optional method that is implemented by filters that support extended
+  // interfaces.  The filter should return a pointer to the interface
+  // associated with the |interface_id| string if they support it, otherwise
+  // return NULL to indicate the interface is unknown.  The derived filter
+  // should NOT AddRef() the interface.  The DemuxerStream::QueryInterface()
+  // public template function will assign the interface to a scoped_refptr<>.
+  virtual void* QueryInterface(const char* interface_id) { return NULL; }
+
+  friend class base::RefCountedThreadSafe<DemuxerStream>;
   virtual ~DemuxerStream() {}
 };
 

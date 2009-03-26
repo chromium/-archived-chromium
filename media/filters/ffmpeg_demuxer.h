@@ -43,7 +43,7 @@ class FFmpegDemuxerStream : public DemuxerStream {
  public:
   // Maintains a reference to |demuxer| and initializes itself using information
   // inside |stream|.
-  FFmpegDemuxerStream(FFmpegDemuxer* demuxer, const AVStream& stream);
+  FFmpegDemuxerStream(FFmpegDemuxer* demuxer, AVStream* stream);
 
   virtual ~FFmpegDemuxerStream();
 
@@ -60,11 +60,21 @@ class FFmpegDemuxerStream : public DemuxerStream {
   virtual const MediaFormat* GetMediaFormat();
   virtual void Read(Assignable<Buffer>* buffer);
 
+  AVStream* av_stream() {
+    return av_stream_;
+  }
+
+  static const char* interface_id();
+
+ protected:
+  virtual void* QueryInterface(const char* interface_id);
+
  private:
   // Returns true if there are still pending reads.
   bool FulfillPendingReads();
 
   FFmpegDemuxer* demuxer_;
+  AVStream* av_stream_;
   MediaFormat media_format_;
   base::TimeDelta time_base_;
   base::TimeDelta duration_;
@@ -95,7 +105,7 @@ class FFmpegDemuxer : public Demuxer {
   // Demuxer implementation.
   virtual bool Initialize(DataSource* data_source);
   virtual size_t GetNumberOfStreams();
-  virtual DemuxerStream* GetStream(int stream_id);
+  virtual scoped_refptr<DemuxerStream> GetStream(int stream_id);
 
  private:
   // Only allow a factory to create this class.
@@ -116,7 +126,7 @@ class FFmpegDemuxer : public Demuxer {
   AVFormatContext* format_context_;
 
   // Vector of streams.
-  typedef std::vector<FFmpegDemuxerStream*> StreamVector;
+  typedef std::vector< scoped_refptr<FFmpegDemuxerStream> > StreamVector;
   StreamVector streams_;
 
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxer);

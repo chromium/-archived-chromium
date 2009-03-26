@@ -418,7 +418,7 @@ void PipelineThread::Render(FilterFactory* filter_factory, Demuxer* demuxer) {
   const std::string major_mime_type = Decoder::major_mime_type();
   const int num_outputs = demuxer->GetNumberOfStreams();
   for (int i = 0; i < num_outputs; ++i) {
-    DemuxerStream* demuxer_stream = demuxer->GetStream(i);
+    scoped_refptr<DemuxerStream> demuxer_stream = demuxer->GetStream(i);
     const MediaFormat* stream_format = demuxer_stream->GetMediaFormat();
     std::string value;
     if (stream_format->GetAsString(MediaFormat::kMimeType, &value) &&

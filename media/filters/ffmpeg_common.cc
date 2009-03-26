@@ -15,4 +15,11 @@ const char kFFmpegVideo[] = "video/x-ffmpeg";
 
 }  // namespace mime_type
 
+
+namespace interface_id {
+
+const char kFFmpegDemuxerStream[] = "FFmpegDemuxerStream";
+
+}  // namespace interface_id
+
 }  // namespace media
