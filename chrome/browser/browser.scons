@@ -685,7 +685,6 @@ if not env.Bit('windows'):
       'browser_accessibility.cc',
       'browser_accessibility_manager.cc',
       'dock_info.cc',
-      'dom_ui/debugger_ui.cc',
       'dom_ui/html_dialog_contents.cc',
       'download/download_exe.cc',
       'download/download_util.cc',
