@@ -95,6 +95,10 @@ RemoteDomAgentStub.prototype.PerformSearch = function(callId, query) {
 };
 
 
+RemoteDomAgentStub.prototype.DiscardBindings = function() {
+};
+
+
 /**
  * @constructor
  */
@@ -110,11 +114,12 @@ RemoteToolsAgentStub.prototype.HighlightDOMNode = function() {
 };
 
 
-RemoteToolsAgentStub.prototype.SetDomAgentEnabled = function() {
+RemoteToolsAgentStub.prototype.SetEnabled = function() {
 };
 
 
-RemoteToolsAgentStub.prototype.SetNetAgentEnabled = function() {
+RemoteToolsAgentStub.prototype.evaluate = function(expr) {
+  window.eval(expr);
 };
 
 
@@ -136,7 +141,7 @@ DevToolsHostStub.prototype.loaded = function() {
   RemoteDomAgentStub.sendDocumentElement_();
   RemoteDomAgentStub.sendChildNodes_(1);
   RemoteDomAgentStub.sendChildNodes_(2);
-  toolsAgent.updateFocusedNode(4);
+  devtools.tools.updateFocusedNode(4);
 };
 
 

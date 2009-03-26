@@ -15,7 +15,7 @@ devtools.InspectorControllerImpl = function() {
 
   this.window_ = {
       get document() {
-        return domAgent.document;
+        return devtools.tools.getDomAgent().getDocument();
       },
       get Node() {
         return devtools.DomNode;
@@ -56,7 +56,7 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
 devtools.InspectorController.prototype.addResourceSourceToFrame =
     function(identifier, element) {
   var self = this;
-  netAgent.getResourceContentAsync(identifier, function(source) {
+  tools.getNetAgent().getResourceContentAsync(identifier, function(source) {
     var resource = netAgent.getResource(identifier);
     self.addSourceToFrame(resource.mimeType, source, element);
   });
@@ -88,12 +88,5 @@ devtools.InspectorControllerImpl.prototype.inspectedWindow = function() {
   return this.window_;
 };
 
-
-/**
- * {@inheritDoc}.
- */
-devtools.InspectorController.prototype.loaded = function() {
-  DevToolsHost.loaded();
-};
 
 var InspectorController = new devtools.InspectorControllerImpl();

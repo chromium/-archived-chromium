@@ -24,6 +24,8 @@ class DomAgentImpl;
 class NetAgentImpl;
 class Value;
 class WebDevToolsAgentDelegate;
+class WebFrame;
+class WebFrame;
 class WebViewImpl;
 
 class WebDevToolsAgentImpl
@@ -36,8 +38,7 @@ class WebDevToolsAgentImpl
   virtual ~WebDevToolsAgentImpl();
 
   // ToolsAgent implementation.
-  virtual void SetDomAgentEnabled(bool enabled);
-  virtual void SetNetAgentEnabled(bool enabled);
+  virtual void SetEnabled(bool enabled);
   virtual void HighlightDOMNode(int node_id);
   virtual void HideDOMNodeHighlight();
 
@@ -50,6 +51,9 @@ class WebDevToolsAgentImpl
 
   // Methods called by the glue.
   void SetMainFrameDocumentReady(bool ready);
+  void DidCommitLoadForFrame(WebViewImpl* webview,
+                             WebFrame* frame,
+                             bool is_new_navigation);
 
   DomAgentImpl* dom_agent_impl() { return dom_agent_impl_.get(); }
   NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }
@@ -64,6 +68,7 @@ class WebDevToolsAgentImpl
   scoped_ptr<DomAgentDelegateStub> dom_agent_delegate_stub_;
   scoped_ptr<NetAgentDelegateStub> net_agent_delegate_stub_;
   scoped_ptr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
+  bool enabled_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 

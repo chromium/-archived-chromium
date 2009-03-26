@@ -56,6 +56,8 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
 
   void DispatchRpcMessage(const std::string& raw_msg);
 
+  void InspectElement(int x, int y);
+
   // Evaluate javascript URL in the renderer
   void EvaluateScript(const std::wstring& script);
 

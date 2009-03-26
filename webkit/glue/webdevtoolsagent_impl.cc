@@ -19,8 +19,10 @@
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/devtools/net_agent_impl.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
+#include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview_impl.h"
 
 using WebCore::Document;
@@ -34,7 +36,8 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
     WebDevToolsAgentDelegate* delegate)
     : delegate_(delegate),
       web_view_impl_(web_view_impl),
-      document_(NULL) {
+      document_(NULL),
+      enabled_(false) {
   dom_agent_delegate_stub_.reset(new DomAgentDelegateStub(this));
   net_agent_delegate_stub_.reset(new NetAgentDelegateStub(this));
   tools_agent_delegate_stub_.reset(new ToolsAgentDelegateStub(this));
@@ -43,23 +46,19 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
 }
 
-void WebDevToolsAgentImpl::SetDomAgentEnabled(bool enabled) {
-  if (enabled && !dom_agent_impl_.get()) {
+void WebDevToolsAgentImpl::SetEnabled(bool enabled) {
+  if (enabled && !enabled_) {
     dom_agent_impl_.reset(new DomAgentImpl(dom_agent_delegate_stub_.get()));
-    if (document_)
-      dom_agent_impl_->SetDocument(document_);
-  } else if (!enabled && dom_agent_impl_.get()) {
-    dom_agent_impl_.reset(NULL);
-  }
-}
-
-void WebDevToolsAgentImpl::SetNetAgentEnabled(bool enabled) {
-  if (enabled && !net_agent_impl_.get()) {
     net_agent_impl_.reset(new NetAgentImpl(net_agent_delegate_stub_.get()));
-    if (document_)
+    if (document_) {
+      dom_agent_impl_->SetDocument(document_);
       net_agent_impl_->SetDocument(document_);
-  } else if (!enabled && net_agent_impl_.get()) {
+    }
+    enabled_ = true;
+  } else if (!enabled) {
+    dom_agent_impl_.reset(NULL);
     net_agent_impl_.reset(NULL);
+    enabled_ = false;
   }
 }
 
@@ -70,14 +69,32 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
   } else {
     document_ = NULL;
   }
-  if (dom_agent_impl_.get())
+  if (enabled_) {
     dom_agent_impl_->SetDocument(document_);
-  if (net_agent_impl_.get())
     net_agent_impl_->SetDocument(document_);
+  }
+}
+
+void WebDevToolsAgentImpl::DidCommitLoadForFrame(
+    WebViewImpl* webview,
+    WebFrame* frame,
+    bool is_new_navigation) {
+  if (!enabled_) {
+    return;
+  }
+  dom_agent_impl_->DiscardBindings();
+  WebDataSource* ds = frame->GetDataSource();
+  const WebRequest& request = ds->GetRequest();
+  GURL url = ds->HasUnreachableURL() ?
+      ds->GetUnreachableURL() :
+      request.GetURL();
+  tools_agent_delegate_stub_->FrameNavigate(
+      url.possibly_invalid_spec(),
+      webview->GetMainFrame() == frame);
 }
 
 void WebDevToolsAgentImpl::HighlightDOMNode(int node_id) {
-  if (!dom_agent_impl_.get())
+  if (!enabled_)
     return;
   Node* node = dom_agent_impl_->GetNodeForId(node_id);
   if (!node)
@@ -95,13 +112,15 @@ void WebDevToolsAgentImpl::DispatchMessageFromClient(
     const std::string& raw_msg) {
   OwnPtr<ListValue> message(
       static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
-  if (dom_agent_impl_.get() &&
-      DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get()))
+  if (ToolsAgentDispatch::Dispatch(this, *message.get()))
     return;
-  if (net_agent_impl_.get() &&
-      NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get()))
+
+  if (!enabled_)
     return;
-  ToolsAgentDispatch::Dispatch(this, *message.get());
+  if (DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get()))
+    return;
+  if (NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get()))
+    return;
 }
 
 void WebDevToolsAgentImpl::InspectElement(int x, int y) {
@@ -109,7 +128,7 @@ void WebDevToolsAgentImpl::InspectElement(int x, int y) {
   if (!node)
     return;
 
-  SetDomAgentEnabled(true);
+  SetEnabled(true);
   int node_id = dom_agent_impl_->PushNodePathToClient(node);
   tools_agent_delegate_stub_->UpdateFocusedNode(node_id);
 }

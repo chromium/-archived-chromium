@@ -252,8 +252,6 @@ devtools.DomDocument.prototype.fireDomEvent_ = function(name, event) {
  * @constructor
  */
 devtools.DomAgent = function() {
-  this.document = new devtools.DomDocument();
-  this.idToDomNode_ = { 0 : this.document };
   RemoteDomAgent.DidGetChildNodes =
       devtools.Callback.processCallback;
   RemoteDomAgent.DidPerformSearch =
@@ -270,10 +268,47 @@ devtools.DomAgent = function() {
       goog.bind(this.childNodeInserted, this);
   RemoteDomAgent.ChildNodeRemoved =
       goog.bind(this.childNodeRemoved, this);
+
+  /**
+   * Top-level (and the only) document.
+   * @type {devtools.DomDocument}
+   * @private
+   */
+  this.document_ = null;
+
+  /**
+   * Id to node mapping.
+   * @type {Object}
+   * @private
+   */
+  this.idToDomNode_ = null;
+
   /**
    * @type {Array.<number>} Node ids for search results.
+   * @private
    */
+  this.searchResults_ = null;
+
+  this.reset();
+};
+
+
+/**
+ * Rests dom agent to its initial state.
+ */
+devtools.DomAgent.prototype.reset = function() {
+  RemoteDomAgent.DiscardBindings();
+  this.document_ = new devtools.DomDocument();
+  this.idToDomNode_ = { 0 : this.document_ };
   this.searchResults_ = [];
+};
+
+
+/**
+ * @return {devtools.DomDocument} Top level (and the only) document.
+ */
+devtools.DomAgent.prototype.getDocument = function() {
+  return this.document_;
 };
 
 
@@ -281,7 +316,7 @@ devtools.DomAgent = function() {
  * Requests that the document element is sent from the agent.
  */
 devtools.DomAgent.prototype.getDocumentElementAsync = function() {
-  if (this.document.documentElement) {
+  if (this.document_.documentElement) {
     return;
   }
   RemoteDomAgent.GetDocumentElement();
@@ -337,13 +372,13 @@ devtools.DomAgent.prototype.getNodeForId = function(nodeId) {
  * {@inheritDoc}.
  */
 devtools.DomAgent.prototype.setDocumentElement = function(payload) {
-  if (this.document.documentElement) {
+  if (this.document_.documentElement) {
     return;
   }
   this.setChildNodes(0, [payload]);
-  this.document.documentElement = this.document.firstChild;
-  this.document.documentElement.ownerDocument = this.document;
-  this.document.fireDomEvent_("DOMContentLoaded");
+  this.document_.documentElement = this.document_.firstChild;
+  this.document_.documentElement.ownerDocument = this.document_;
+  this.document_.fireDomEvent_("DOMContentLoaded");
 };
 
 
@@ -395,7 +430,7 @@ devtools.DomAgent.prototype.childNodeInserted = function(
   var node = parent.insertChild_(prev, payload);
   this.idToDomNode_[node.id] = node;
   var event = { target : node, relatedNode : parent };
-  this.document.fireDomEvent_("DOMNodeInserted", event);
+  this.document_.fireDomEvent_("DOMNodeInserted", event);
 };
 
 
@@ -409,7 +444,7 @@ devtools.DomAgent.prototype.childNodeRemoved = function(
   var node = this.idToDomNode_[nodeId];
   parent.removeChild_(node);
   var event = { target : node, relatedNode : parent };
-  this.document.fireDomEvent_("DOMNodeRemoved", event);
+  this.document_.fireDomEvent_("DOMNodeRemoved", event);
   delete this.idToDomNode_[nodeId];
 };
 

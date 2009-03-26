@@ -177,11 +177,26 @@ void DevToolsAgent::OnRpcMessage(const std::string& raw_msg) {
 }
 
 void DevToolsAgent::OnInspectElement(int x, int y) {
-  WebDevToolsAgent* web_agent = view_->webview()->GetWebDevToolsAgent();
-  web_agent->InspectElement(x, y);
+  view_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &DevToolsAgent::InspectElement, x, y));
 }
 
 void DevToolsAgent::DispatchRpcMessage(const std::string& raw_msg) {
-  WebDevToolsAgent* web_agent = view_->webview()->GetWebDevToolsAgent();
+  if (!view_)
+    return;
+  WebView* web_view = view_->webview();
+  if (!web_view)
+    return;
+  WebDevToolsAgent* web_agent = web_view->GetWebDevToolsAgent();
   web_agent->DispatchMessageFromClient(raw_msg);
+}
+
+void DevToolsAgent::InspectElement(int x, int y) {
+  if (!view_)
+    return;
+  WebView* web_view = view_->webview();
+  if (!web_view)
+    return;
+  WebDevToolsAgent* web_agent = web_view->GetWebDevToolsAgent();
+  web_agent->InspectElement(x, y);
 }

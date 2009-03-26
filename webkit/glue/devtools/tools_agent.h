@@ -10,11 +10,8 @@
 // Tools agent provides API for enabling / disabling other agents as well as
 // API for auxiliary UI functions such as dom elements highlighting.
 #define TOOLS_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
-  /* Enables / disables Dom agent. */ \
-  METHOD1(SetDomAgentEnabled, bool /* enabled */) \
-  \
-  /* Enables / disables Net agent */ \
-  METHOD1(SetNetAgentEnabled, bool /* enabled */) \
+  /* Enables / disables the agent */ \
+  METHOD1(SetEnabled, bool /* enabled */) \
   \
   /* Highlights Dom node with given ID */ \
   METHOD1(HighlightDOMNode, int /* node_id */) \
@@ -25,7 +22,11 @@
 DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
 
 #define TOOLS_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+  /* Updates focused node on the client. */ \
   METHOD1(UpdateFocusedNode, int /* node_id */) \
+  \
+  /* Updates focused node on the client. */ \
+  METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 

@@ -768,6 +768,11 @@ void WebFrameLoaderClient::dispatchDidCommitLoad() {
   WebViewDelegate* d = webview->delegate();
   if (d)
     d->DidCommitLoadForFrame(webview, webframe_, is_new_navigation);
+
+  WebDevToolsAgentImpl* tools_agent = webview->GetWebDevToolsAgentImpl();
+  if (tools_agent) {
+    tools_agent->DidCommitLoadForFrame(webview, webframe_, is_new_navigation);
+  }
 }
 
 void WebFrameLoaderClient::dispatchDidFailProvisionalLoad(
