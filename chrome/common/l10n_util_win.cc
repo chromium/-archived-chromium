@@ -5,6 +5,8 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
 
+#include "base/win_util.h"
+
 namespace l10n_util {
 
 int GetExtendedStyles() {
@@ -29,6 +31,12 @@ void HWNDSetRTLLayout(HWND hwnd) {
     // the entire window rect.
     ::InvalidateRect(hwnd, NULL, true);
   }
+}
+
+bool IsLocaleSupportedByOS(const std::wstring& locale) {
+  // Block Oriya on Windows XP.
+  return !(LowerCaseEqualsASCII(locale, "or") &&
+      win_util::GetWinVersion() < win_util::WINVERSION_VISTA);
 }
 
 }  // namespace l10n_util

@@ -197,6 +197,7 @@
         'common/jstemplate_builder.h',
         'common/l10n_util.cc',
         'common/l10n_util.h',
+        'common/l10n_util_posix.cc',
         'common/l10n_util_win.cc',
         'common/l10n_util_win.h',
         'common/libxml_utils.cc',

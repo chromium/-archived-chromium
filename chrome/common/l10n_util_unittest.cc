@@ -8,6 +8,9 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#if defined(OS_WIN)
+#include "base/win_util.h"
+#endif
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/stl_util-inl.h"
@@ -114,6 +117,7 @@ TEST_F(L10nUtilTest, GetAppLocale) {
     L"he",
     L"fil",
     L"nb",
+    L"or",
   };
 
 #if defined(OS_WIN)
@@ -183,6 +187,21 @@ TEST_F(L10nUtilTest, GetAppLocale) {
 
   SetICUDefaultLocale(L"he");
   EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L"en"));
+
+#if defined(OS_WIN)
+  // Oriya should be blocked unless OS is Vista or newer.
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+    SetICUDefaultLocale(L"or");
+    EXPECT_EQ(L"en-US", l10n_util::GetApplicationLocale(L""));
+    SetICUDefaultLocale(L"en-GB");
+    EXPECT_EQ(L"en-GB", l10n_util::GetApplicationLocale(L"or"));
+  } else {
+    SetICUDefaultLocale(L"or");
+    EXPECT_EQ(L"or", l10n_util::GetApplicationLocale(L""));
+    SetICUDefaultLocale(L"en-GB");
+    EXPECT_EQ(L"or", l10n_util::GetApplicationLocale(L"or"));
+  }
+#endif
 
   // Clean up.
   PathService::Override(chrome::DIR_LOCALES, orig_locale_dir);

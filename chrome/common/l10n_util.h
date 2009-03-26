@@ -48,6 +48,11 @@ const char16 kPopDirectionalFormatting = 0x202C;
 // we fall back to en-us.
 std::wstring GetApplicationLocale(const std::wstring& pref_locale);
 
+// Given a locale code, return true if the OS is capable of supporting it.
+// For instance, Oriya is not well supported on Windows XP and we return
+// false for "or".
+bool IsLocaleSupportedByOS(const std::wstring& locale);
+
 // This method returns the Local Name of the Locale Code. For example, for
 // |local_code_wstr| = "en-US", it returns "English (United States)".
 // |app_locale_wstr| can be obtained in the UI thread - for example:

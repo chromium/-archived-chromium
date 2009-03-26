@@ -128,6 +128,9 @@ bool IsLocaleAvailable(const std::wstring& locale,
   if (test_locale != locale)
     return false;
 
+  if (!l10n_util::IsLocaleSupportedByOS(locale))
+    return false;
+
   FilePath test_path = FilePath::FromWStringHack(locale_path)
       .Append(FilePath::FromWStringHack(locale))
       .ReplaceExtension(kLocaleFileExtension);
@@ -640,6 +643,8 @@ const std::vector<std::string>& GetAvailableLocales() {
       std::string locale_name = uloc_getAvailable(i);
       // Filter out the names that have aliases.
       if (IsDuplicateName(locale_name))
+        continue;
+      if (!IsLocaleSupportedByOS(ASCIIToWide(locale_name)))
         continue;
       // Normalize underscores to hyphens because that's what our locale files
       // use.
