@@ -165,8 +165,9 @@ std::wstring GoogleChromeDistribution::GetApplicationName() {
 }
 
 std::wstring GoogleChromeDistribution::GetAlternateApplicationName() {
-  // TODO(cpu): return the right localized strings when it arrives. 
-  return L"";
+  const std::wstring& alt_product_name =
+      installer_util::GetLocalizedString(IDS_OEM_MAIN_SHORTCUT_NAME_BASE); 
+  return alt_product_name;
 }
 
 std::wstring GoogleChromeDistribution::GetInstallSubDir() {
@@ -206,8 +207,9 @@ std::wstring GoogleChromeDistribution::GetPublisherName() {
 }
 
 std::wstring GoogleChromeDistribution::GetAppDescription() {
-  // TODO(cpu): Wire the actual localized strings when they arrive.
-  return L"";
+  const std::wstring& app_description =
+      installer_util::GetLocalizedString(IDS_SHORTCUT_TOOLTIP_BASE);
+  return app_description;
 }
 
 int GoogleChromeDistribution::GetInstallReturnCode(
