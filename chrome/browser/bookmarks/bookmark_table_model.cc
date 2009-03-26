@@ -316,10 +316,25 @@ std::wstring BookmarkTableModel::GetText(int row, int column_id) {
     case IDS_BOOKMARK_TABLE_PATH: {
       std::wstring path;
       BuildPath(node->GetParent(), &path);
-      // Force path to have LTR directionality. The whole path needs to be
-      // marked with LRE-PDF, so that the path containing both LTR and RTL
-      // subfolder names (such as "CBA/FED/(xji)/.x.j.", in which, "CBA" and
-      // "FED" are subfolder names in Hebrew) can be displayed as LTR.
+      // Force path to have LTR directionality. The whole path (but not every
+      // single path component) is marked with LRE-PDF. For example,
+      // ALEPH/BET/GIMEL (using uppercase English for Hebrew) is supposed to
+      // appear (visually) as LEMIG/TEB/HPELA; foo/C/B/A.doc refers to file
+      // C.doc in directory B in directory A in directory foo, not to file
+      // A.doc in directory B in directory C in directory foo. The reason to
+      // mark the whole path, but not every single path component, as LTR is
+      // because paths need to get written in text documents, and that is how
+      // they will appear there. Being a saint and doing the tedious formatting
+      // to every single path component to get it to come out in the logical
+      // order will accomplish nothing but confuse people, since they will now
+      // see both formats being used, and will never know what anything means.
+      // Furthermore, doing the "logical" formatting with characters like LRM,
+      // LRE, and PDF to every single path component means that when someone
+      // copy/pastes your path, it will still contain those characters, and
+      // trying to access the file will fail because of them. Windows Explorer,
+      // Firefox, IE, Nautilus, gedit choose to format only the whole path as
+      // LTR too. The point here is to display the path the same way as it's
+      // displayed by other software.
       if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
         l10n_util::WrapStringWithLTRFormatting(&path);
       return path;
@@ -373,11 +388,5 @@ void BookmarkTableModel::BuildPath(BookmarkNode* node, std::wstring* path) {
   }
   BuildPath(node->GetParent(), path);
   path->append(l10n_util::GetString(IDS_BOOKMARK_TABLE_PATH_SEPARATOR));
-  // Force path to have LTR directionality. Otherwise, folder path "CBA/FED"
-  // (in which, "CBA" and "FED" stand for folder names in Hebrew, and "FED" is
-  // a subfolder of "CBA") will be displayed as "FED/CBA".
-  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
-    path->push_back(static_cast<wchar_t>(l10n_util::kLeftToRightMark));
-  }
   path->append(node->GetTitle());
 }

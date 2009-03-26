@@ -562,42 +562,18 @@ void WrapStringWithRTLFormatting(std::wstring* text) {
 
 void WrapPathWithLTRFormatting(const FilePath& path,
                                string16* rtl_safe_path) {
-  // Split the path.
-  std::vector<FilePath::StringType> path_components;
-  file_util::PathComponents(path, &path_components);
-  // Compose the whole path from components with the following 2 additions:
-  // 1. Wrap the overall path with LRE-PDF pair which essentialy marks the
-  // string as a Left-To-Right string. Otherwise, the punctuation (if there is
-  // any) at the end of the path will not be displayed at the correct position.
+  // Wrap the overall path with LRE-PDF pair which essentialy marks the
+  // string as a Left-To-Right string.
   // Inserting an LRE (Left-To-Right Embedding) mark as the first character.
   rtl_safe_path->push_back(kLeftToRightEmbeddingMark);
-  char16 path_separator = static_cast<char16>(FilePath::kSeparators[0]);
-  for (size_t index = 0; index < path_components.size(); ++index) {
 #if defined(OS_MACOSX)
-    rtl_safe_path->append(UTF8ToUTF16(path_components[index]));
+    rtl_safe_path->append(UTF8ToUTF16(path.value()));
 #elif defined(OS_WIN)
-    rtl_safe_path->append(path_components[index]);
+    rtl_safe_path->append(path.value());
 #else  // defined(OS_LINUX)
-    std::wstring one_component =
-        base::SysNativeMBToWide(path_components[index]);
-    rtl_safe_path->append(WideToUTF16(one_component));
+    std::wstring wide_path = base::SysNativeMBToWide(path.value());
+    rtl_safe_path->append(WideToUTF16(wide_path));
 #endif
-    bool first_component_is_separator =
-        ((index == 0) &&
-         (path_components[0].length() == 1) &&
-         (FilePath::IsSeparator(path_components[0][0])));
-    bool last_component = (index == path_components.size() - 1);
-    // Add separator for components except for the first component if itself is
-    // a separator, and except for the last component.
-    if (!last_component && !first_component_is_separator) {
-      rtl_safe_path->push_back(path_separator);
-      // 2. Add left-to-right mark after path separator to force each subfolder
-      // in the path to have LTR directionality. Otherwise, folder path
-      // "CBA/FED" (in which, "CBA" and "FED" stand for folder names in Hebrew,
-      // and "FED" is a subfolder of "CBA") will be displayed as "FED/CBA".
-      rtl_safe_path->push_back(kLeftToRightMark);
-    }
-  }
   // Inserting a PDF (Pop Directional Formatting) mark as the last character.
   rtl_safe_path->push_back(kPopDirectionalFormatting);
 }
