@@ -21,9 +21,11 @@
 
 #include "base/compiler_specific.h"
 #include "base/message_loop.h"
+#include "base/platform_file.h"
 #include "base/string_util.h"
 #include "base/worker_pool.h"
 #include "googleurl/src/gurl.h"
+#include "net/base/load_flags.h"
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
@@ -153,6 +155,24 @@ bool URLRequestFileJob::ReadRawData(net::IOBuffer* dest, int dest_size,
 bool URLRequestFileJob::GetMimeType(std::string* mime_type) const {
   DCHECK(request_);
   return net::GetMimeTypeFromFile(file_path_, mime_type);
+}
+
+void URLRequestFileJob::GetResponseInfo(net::HttpResponseInfo* info) {
+  DCHECK(request_);
+
+  // If we have enabled downloading the file, the requester expects to receive
+  // a file handle to the file. Since we are serving file:/// url requests we
+  // can provide such a handle if the file exists.
+  bool created;
+  if ((request_->load_flags() & net::LOAD_ENABLE_DOWNLOAD_FILE) &&
+      stream_.IsOpen()) {
+        info->response_data_file =
+            base::CreatePlatformFile(file_path_.ToWStringHack(),
+                                     base::PLATFORM_FILE_OPEN |
+                                     base::PLATFORM_FILE_READ |
+                                     base::PLATFORM_FILE_ASYNC,
+                                     &created);
+  }
 }
 
 void URLRequestFileJob::DidResolve(
