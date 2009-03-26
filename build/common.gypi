@@ -131,8 +131,8 @@
           '-m32',
           '-pthread',
         ],
-        'scons_settings': {
-          'LIBPATH': ['$DESTINATION_ROOT/lib'],
+        'scons_variable_settings': {
+          'LIBPATH': ['$LIB_DIR'],
           # Linking of large files uses lots of RAM, so serialize links
           # using the handy flock command from util-linux.
           'FLOCK_LINK': ['flock', '$DESTINATION_ROOT/linker.lock', '$LINK'],
@@ -155,6 +155,20 @@
           'SHLINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$SHLINFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
           'IMPLICIT_COMMAND_DEPENDENCIES': 0,
         },
+        'scons_import_variables': [
+          'CC',
+          'CXX',
+          'LINK',
+        ],
+        'scons_propagate_variables': [
+          'CC',
+          'CCACHE_DIR',
+          'CXX',
+          'DISTCC_DIR',
+          'DISTCC_HOSTS',
+          'HOME',
+          'LINK',
+        ],
       },
     }],
     ['OS=="mac"', {

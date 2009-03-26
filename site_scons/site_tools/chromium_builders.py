@@ -146,7 +146,7 @@ def ChromeLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     lib = env.Library(target, source, *args, **kw)
-    result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
+    result = env.Install('$LIB_DIR', lib)
   else:
     result = env.ComponentLibrary(target, source, *args, **kw)
   return result
@@ -164,7 +164,7 @@ def ChromeStaticLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     lib = env.StaticLibrary(target, source, *args, **kw)
-    result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
+    result = env.Install('$LIB_DIR', lib)
   else:
     kw['COMPONENT_STATIC'] = True
     result = env.ComponentLibrary(target, source, *args, **kw)
@@ -174,7 +174,7 @@ def ChromeSharedLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     lib = env.SharedLibrary(target, source, *args, **kw)
-    result = env.Install('$DESTINATION_ROOT/$BUILD_TYPE/lib', lib)
+    result = env.Install('$LIB_DIR', lib)
   else:
     kw['COMPONENT_STATIC'] = False
     result = [env.ComponentLibrary(target, source, *args, **kw)[0]]
@@ -241,12 +241,12 @@ def generate(env):
   env.AddMethod(FilterOut)
 
   # Add the grit tool to the base environment because we use this a lot.
-  sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/grit').abspath)
-  env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/grit/grit')])
+  sys.path.append(env.Dir('$SRC_DIR/tools/grit').abspath)
+  env.Tool('scons', toolpath=[env.Dir('$SRC_DIR/tools/grit/grit')])
 
   # Add the repack python script tool that we use in multiple places.
-  sys.path.append(env.Dir('$CHROME_SRC_DIR/tools/data_pack').abspath)
-  env.Tool('scons', toolpath=[env.Dir('$CHROME_SRC_DIR/tools/data_pack/')])
+  sys.path.append(env.Dir('$SRC_DIR/tools/data_pack').abspath)
+  env.Tool('scons', toolpath=[env.Dir('$SRC_DIR/tools/data_pack/')])
 
 def exists(env):
   return True
