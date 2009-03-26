@@ -781,6 +781,14 @@ NPError NPN_GetValue(NPP id, NPNVariable variable, void *value) {
     rv = NPERR_NO_ERROR;
     break;
   }
+  case NPNVprivateModeBool:
+  {
+    NPBool* private_mode = reinterpret_cast<NPBool*>(value);
+    scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
+    *private_mode = plugin->webplugin()->IsOffTheRecord();
+    rv = NPERR_NO_ERROR;
+    break;
+  }
   case default_plugin::kMissingPluginStatusStart +
        default_plugin::MISSING_PLUGIN_AVAILABLE:
   // fall through

@@ -239,6 +239,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\plugin_private_test.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_private_test.h"
+			>
+		</File>
+		<File
 			RelativePath=".\plugin_test.cc"
 			>
 		</File>

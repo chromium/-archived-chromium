@@ -76,7 +76,6 @@ TEST_F(NPAPITester, Arguments) {
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
 
-
 // Test invoking many plugins within a single page.
 TEST_F(NPAPITester, ManyPlugins) {
   std::wstring test_case = L"many_plugins.html";
@@ -133,7 +132,6 @@ TEST_F(NPAPITester, GetJavaScriptURL) {
   WaitForFinish("getjavascripturl", "1", url, kTestCompleteCookie,
                 kTestCompleteSuccess, kShortWaitTimeout);
 }
-
 
 // Tests that if an NPObject is proxies back to its original process, the
 // original pointer is returned and not a proxy.  If this fails the plugin
@@ -260,4 +258,26 @@ TEST_F(NPAPIVisiblePluginTester, OpenPopupWindowWithPlugin) {
   WaitForFinish("plugin_popup_with_plugin_target", "1", url,
                 kTestCompleteCookie, kTestCompleteSuccess,
                 action_timeout_ms());
+}
+
+// Test checking the privacy mode is off.
+TEST_F(NPAPITester, PrivateDisabled) {
+  if (UITest::in_process_renderer())
+    return;
+
+  GURL url = GetTestUrl(L"npapi", L"private.html");
+  NavigateToURL(url);
+  WaitForFinish("private", "1", url, kTestCompleteCookie,
+                kTestCompleteSuccess, kShortWaitTimeout);
+}
+
+// Test checking the privacy mode is on.
+TEST_F(NPAPIIncognitoTester, PrivateEnabled) {
+  if (UITest::in_process_renderer())
+    return;
+
+  GURL url = GetTestUrl(L"npapi", L"private.html?secure");
+  NavigateToURL(url);
+  WaitForFinish("private", "1", url, kTestCompleteCookie,
+                kTestCompleteSuccess, kShortWaitTimeout);
 }

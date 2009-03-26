@@ -144,6 +144,9 @@ class WebPlugin {
                                         bool notify_needed,
                                         HANDLE notify_data) = 0;
 
+  // Returns true iff in off the record (Incognito) mode.
+  virtual bool IsOffTheRecord() = 0;
+
  private:
   DISALLOW_EVIL_CONSTRUCTORS(WebPlugin);
 };

@@ -26,6 +26,9 @@ class PluginChannel : public PluginChannelBase {
 
   bool in_send() { return in_send_ != 0; }
 
+  bool off_the_record() { return off_the_record_; }
+  void set_off_the_record(bool value) { off_the_record_ = value; }
+
  protected:
   // IPC::Channel::Listener implementation:
   virtual void OnChannelConnected(int32 peer_pid);
@@ -52,6 +55,7 @@ class PluginChannel : public PluginChannelBase {
 
   int in_send_;  // Tracks if we're in a Send call.
   bool log_messages_;  // True if we should log sent and received messages.
+  bool off_the_record_; // True if the renderer is in off the record mode.
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginChannel);
 };

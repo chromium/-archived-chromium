@@ -94,6 +94,8 @@ class WebPluginProxy : public WebPlugin {
                                 bool notify_needed,
                                 HANDLE notify_data);
 
+  bool IsOffTheRecord();
+
   base::WaitableEvent* modal_dialog_event() {
     return modal_dialog_event_.get();
   }

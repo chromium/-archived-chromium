@@ -117,7 +117,8 @@ ResourceMessageFilter::ResourceMessageFilter(
       media_request_context_(profile->GetRequestContextForMedia()),
       profile_(profile),
       render_widget_helper_(render_widget_helper),
-      audio_renderer_host_(audio_renderer_host) {
+      audio_renderer_host_(audio_renderer_host),
+      off_the_record_(profile->IsOffTheRecord()) {
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
   DCHECK(media_request_context_.get());

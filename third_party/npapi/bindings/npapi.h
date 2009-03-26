@@ -466,7 +466,9 @@ typedef enum {
   /* Get the NPObject wrapper for the plugins DOM element. */
   NPNVPluginElementNPObject = 16,
 
-  NPNVSupportsWindowless = 17
+  NPNVSupportsWindowless = 17,
+
+  NPNVprivateModeBool = 18
 
 #ifdef XP_MACOSX
   /* Used for negotiating drawing models */

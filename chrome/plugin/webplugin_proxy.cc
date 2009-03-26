@@ -439,3 +439,7 @@ void WebPluginProxy::OnPaint(const gfx::Rect& damaged_rect) {
   Paint(damaged_rect);
   Send(new PluginHostMsg_InvalidateRect(route_id_, damaged_rect));
 }
+
+bool WebPluginProxy::IsOffTheRecord() {
+  return channel_->off_the_record();
+}

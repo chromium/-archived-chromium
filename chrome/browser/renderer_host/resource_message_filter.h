@@ -94,6 +94,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
     return resource_dispatcher_host_;
   }
   MessageLoop* ui_loop() { return render_widget_helper_->ui_loop(); }
+  bool off_the_record() { return off_the_record_; }
 
   // NotificationObserver implementation.
   virtual void Observe(NotificationType type,
@@ -268,6 +269,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // Object that should take care of audio related resource requests.
   scoped_refptr<AudioRendererHost> audio_renderer_host_;
+
+  // Whether this process is used for off the record tabs.
+  bool off_the_record_;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceMessageFilter);
 };

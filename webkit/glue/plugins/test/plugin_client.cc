@@ -9,11 +9,12 @@
 #include "webkit/glue/plugins/test/plugin_execute_script_delete_test.h"
 #include "webkit/glue/plugins/test/plugin_get_javascript_url_test.h"
 #include "webkit/glue/plugins/test/plugin_geturl_test.h"
+#include "webkit/glue/plugins/test/plugin_javascript_open_popup.h"
 #include "webkit/glue/plugins/test/plugin_new_fails_test.h"
+#include "webkit/glue/plugins/test/plugin_private_test.h"
 #include "webkit/glue/plugins/test/plugin_npobject_lifetime_test.h"
 #include "webkit/glue/plugins/test/plugin_npobject_proxy_test.h"
 #include "webkit/glue/plugins/test/plugin_window_size_test.h"
-#include "webkit/glue/plugins/test/plugin_javascript_open_popup.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
@@ -142,6 +143,9 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
     new_test = new NPAPIClient::ExecuteScriptDeleteTest(instance,
       NPAPIClient::PluginClient::HostFunctions(), argv[name_index]);
     windowless_plugin = true;
+  } else if (base::strcasecmp(argv[name_index], "private") == 0) {
+    new_test = new NPAPIClient::PrivateTest(instance,
+      NPAPIClient::PluginClient::HostFunctions());
   } else {
     // If we don't have a test case for this, create a
     // generic one which basically never fails.

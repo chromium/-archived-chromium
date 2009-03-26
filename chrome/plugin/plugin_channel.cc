@@ -27,7 +27,7 @@ PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
       false));
 }
 
-PluginChannel::PluginChannel() : in_send_(0) {
+PluginChannel::PluginChannel() : in_send_(0), off_the_record_(false) {
   SendUnblockingOnlyDuringDispatch();
   PluginProcess::current()->AddRefProcess();
   const CommandLine* command_line = CommandLine::ForCurrentProcess();

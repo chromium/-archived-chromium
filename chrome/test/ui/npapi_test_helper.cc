@@ -31,6 +31,8 @@
 
 #include "chrome/test/ui/npapi_test_helper.h"
 
+#include "chrome/common/chrome_switches.h"
+
 NPAPITester::NPAPITester()
     : UITest() {
 }
@@ -57,5 +59,11 @@ void NPAPITester::TearDown() {
 // NPAPIVisiblePluginTester members.
 void NPAPIVisiblePluginTester::SetUp() {
   show_window_ = true;
+  NPAPITester::SetUp();
+}
+
+// NPAPIIncognitoTester members.
+void NPAPIIncognitoTester::SetUp() {
+  launch_arguments_.AppendSwitch(switches::kIncognito);
   NPAPITester::SetUp();
 }

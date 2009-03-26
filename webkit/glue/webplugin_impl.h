@@ -297,6 +297,9 @@ class WebPluginImpl : public WebPlugin,
                                 HANDLE existing_stream, bool notify_needed,
                                 HANDLE notify_data);
 
+  // Ignore in-process plugins mode for this flag.
+  bool IsOffTheRecord() { return false; }
+
   // Handles HTTP multipart responses, i.e. responses received with a HTTP
   // status code of 206.
   void HandleHttpMultipartResponse(const WebCore::ResourceResponse& response,

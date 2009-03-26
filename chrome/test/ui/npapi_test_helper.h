@@ -46,3 +46,9 @@ class NPAPIVisiblePluginTester : public NPAPITester {
   protected:
    virtual void SetUp();
 };
+
+// Helper class for NPAPI plugin UI tests which use incognito mode.
+class NPAPIIncognitoTester : public NPAPITester {
+  protected:
+   virtual void SetUp();
+};

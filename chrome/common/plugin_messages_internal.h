@@ -13,7 +13,8 @@ IPC_BEGIN_MESSAGES(PluginProcess)
   // Tells the plugin process to create a new channel for communication with a
   // renderer.  The channel name is returned in a
   // PluginProcessHostMsg_ChannelCreated message.
-  IPC_MESSAGE_CONTROL0(PluginProcessMsg_CreateChannel)
+  IPC_MESSAGE_CONTROL1(PluginProcessMsg_CreateChannel,
+                       bool /* off_the_record */)
 
   IPC_MESSAGE_CONTROL1(PluginProcessMsg_ShutdownResponse,
                        bool /* ok to shutdown */)
