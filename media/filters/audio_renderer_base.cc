@@ -35,7 +35,7 @@ void AudioRendererBase::Stop() {
   OnStop();
 
   AutoLock auto_lock(lock_);
-  while (queue_.empty()) {
+  while (!queue_.empty()) {
     queue_.front()->Release();
     queue_.pop_front();
   }
