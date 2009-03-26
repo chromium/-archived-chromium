@@ -354,6 +354,18 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
                                  !show_window_,
                                  &process_);
 #elif defined(OS_POSIX)
+  // Sometimes one needs to run the browser under a special environment
+  // (e.g. valgrind) without also running the test harness (e.g. python)
+  // under the special environment.  Provide a way to wrap the browser
+  // commandline with a special prefix to invoke the special environment.
+  const char* browser_wrapper = getenv("BROWSER_WRAPPER");
+  if (browser_wrapper) {
+    CommandLine wrapped_command(ASCIIToWide(browser_wrapper));
+    wrapped_command.AppendArguments(command_line, true);
+    command_line = wrapped_command;
+    LOG(INFO) << "BROWSER_WRAPPER was set, prefixing command_line with " << browser_wrapper;
+  }
+
   bool started = base::LaunchApp(command_line.argv(),
                                  server_->fds_to_map(),
                                  false,  // Don't wait.

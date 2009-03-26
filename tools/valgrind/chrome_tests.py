@@ -136,6 +136,9 @@ class ChromeTests:
       cmd.append("--show_all_leaks")
     if self._options.generate_suppressions:
       cmd.append("--generate_suppressions")
+    if exe == "ui_tests":
+      cmd.append("--trace_children")
+      cmd.append("--indirect")
     if exe:
       cmd.append(os.path.join(self._options.build_dir, exe))
     # Valgrind runs tests slowly, so slow tests hurt more; show elapased time
@@ -174,9 +177,11 @@ class ChromeTests:
     if gtest_filter:
       cmd.append("--gtest_filter=%s" % gtest_filter)
 
-  def SimpleTest(self, module, name):
+  def SimpleTest(self, module, name, cmd_args=None):
     cmd = self._DefaultCommand(module, name)
     self._ReadGtestFilterFile(name, cmd)
+    if cmd_args:
+      cmd.extend(cmd_args)
     return common.RunSubprocess(cmd, 0)
 
   def ScriptedTest(self, module, exe, name, script, multi=False, cmd_args=None,
@@ -245,7 +250,11 @@ class ChromeTests:
     return self.SimpleTest("chrome", "unit_tests")
 
   def TestUI(self):
-    return self.SimpleTest("chrome", "ui_tests")
+    return self.SimpleTest("chrome", "ui_tests",
+                           cmd_args=["--",
+                            "--ui-test-timeout=120000",
+                            "--ui-test-action-timeout=80000",
+                            "--ui-test-action-max-timeout=180000"])
 
 #   def TestLayoutAll(self):
 #     return self.TestLayout(run_all=True)

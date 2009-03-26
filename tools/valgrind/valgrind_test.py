@@ -15,7 +15,9 @@ import logging
 import optparse
 import os
 import shutil
+import stat
 import sys
+import tempfile
 
 import common
 
@@ -58,6 +60,12 @@ class Valgrind(object):
     self._parser.add_option("", "--gtest_print_time", action="store_true",
                             default=False,
                             help="show how long each test takes")
+    self._parser.add_option("", "--trace_children", action="store_true",
+                            default=False,
+                            help="also trace child processes")
+    self._parser.add_option("", "--indirect", action="store_true",
+                            default=False,
+                            help="set BROWSER_WRAPPER rather than running valgrind directly")
     self._parser.add_option("", "--show_all_leaks", action="store_true",
                             default=False,
                             help="also show less blatant leaks")
@@ -177,6 +185,9 @@ class ValgrindLinux(Valgrind):
     if self._options.show_all_leaks:
       proc += ["--show-reachable=yes"];
 
+    if self._options.trace_children:
+      proc += ["--trace-children=yes"];
+
     # Either generate suppressions or load them.
     if self._generate_suppressions:
       proc += ["--gen-suppressions=all"]
@@ -192,7 +203,26 @@ class ValgrindLinux(Valgrind):
     if not suppression_count:
       logging.warning("WARNING: NOT USING SUPPRESSIONS!")
 
-    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"] + self._args
+    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+
+    if self._options.indirect:
+      # The program being run invokes Python or something else
+      # that can't stand to be valgrinded, and also invokes
+      # the Chrome browser.  Set an environment variable to
+      # tell the program to prefix the Chrome commandline
+      # with a magic wrapper.  Build the magic wrapper here.
+      (fd, indirect_fname) = tempfile.mkstemp(dir=self.TMP_DIR, prefix="browser_wrapper.", text=True)
+      f = os.fdopen(fd, "w");
+      f.write("#!/bin/sh\n")
+      f.write(" ".join(proc))
+      f.write(' "$@"\n')
+      f.close()
+      os.chmod(indirect_fname, stat.S_IRUSR|stat.S_IXUSR)
+      os.putenv("BROWSER_WRAPPER", indirect_fname)
+      logging.info('export BROWSER_WRAPPER=' + indirect_fname);
+      proc = []
+
+    proc += self._args
     return proc
 
 
