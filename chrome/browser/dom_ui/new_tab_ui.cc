@@ -1053,10 +1053,9 @@ NewTabUI::NewTabUI(WebContents* contents)
     }
 #endif
 
-    NewTabHTMLSource* html_source = new NewTabHTMLSource();
-
     // In testing mode there may not be an I/O thread.
     if (g_browser_process->io_thread()) {
+      NewTabHTMLSource* html_source = new NewTabHTMLSource();
       g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
           NewRunnableMethod(&chrome_url_data_manager,
               &ChromeURLDataManager::AddDataSource,
