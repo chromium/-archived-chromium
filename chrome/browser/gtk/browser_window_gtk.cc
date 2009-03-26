@@ -328,15 +328,12 @@ void BrowserWindowGtk::SetBounds(const gfx::Rect& bounds) {
 }
 
 void BrowserWindowGtk::Close() {
-  // TODO(tc): There's a lot missing here that's in the windows shutdown code
-  // path.  This method should try to close (see BrowserView::CanClose),
-  // although it may not succeed (e.g., if the page has an unload handler).
-  // Currently we just go ahead and close.
+  if (!CanClose())
+    return;
 
-  // TODO(tc): Once the tab strip model is hooked up, this call can be removed.
-  // It should get called by TabDetachedAt when the window is being closed, but
-  // we don't have a TabStripModel yet.
-  find_bar_controller_->ChangeWebContents(NULL);
+  // TODO(tc): We should store the window position, perhaps using
+  // gtk_window_set_role.
+  //SaveWindowPosition();
 
   GtkWidget* window = GTK_WIDGET(window_);
   // To help catch bugs in any event handlers that might get fired during the
@@ -561,6 +558,35 @@ void BrowserWindowGtk::OnBoundsChanged(const gfx::Rect& bounds) {
 
 void BrowserWindowGtk::OnStateChanged(GdkWindowState state) {
   state_ = state;
+}
+
+bool BrowserWindowGtk::CanClose() const {
+  // TODO(tc): We don't have tab dragging yet.
+  // You cannot close a frame for which there is an active originating drag
+  // session.
+  //if (tabstrip_->IsDragSessionActive())
+  //  return false;
+
+  // Give beforeunload handlers the chance to cancel the close before we hide
+  // the window below.
+  if (!browser_->ShouldCloseWindow())
+    return false;
+
+  if (!browser_->tabstrip_model()->empty()) {
+    // Tab strip isn't empty.  Hide the window (so it appears to have closed
+    // immediately) and close all the tabs, allowing the renderers to shut
+    // down. When the tab strip is empty we'll be called back again.
+    gtk_widget_hide(GTK_WIDGET(window_));
+    browser_->OnWindowClosing();
+    return false;
+  }
+
+  // Empty TabStripModel, it's now safe to allow the Window to be closed.
+  NotificationService::current()->Notify(
+      NotificationType::WINDOW_CLOSED,
+      Source<GtkWindow>(window_),
+      NotificationService::NoDetails());
+  return true;
 }
 
 void BrowserWindowGtk::ConnectAccelerators() {

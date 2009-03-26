@@ -87,6 +87,10 @@ class BrowserWindowGtk : public BrowserWindow,
   void OnBoundsChanged(const gfx::Rect& bounds);
   void OnStateChanged(GdkWindowState state);
 
+  // Returns false if we're not ready to close yet.  E.g., a tab may have an
+  // onbeforeunload handler that prevents us from closing.
+  bool CanClose() const;
+
  protected:
   virtual void DestroyBrowser();
   GtkWindow* window_;
