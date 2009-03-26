@@ -1823,7 +1823,8 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
 
       desc->SetHiddenPrototype(true);
 
-      // Reserve spaces for references to location and navigator objects.
+      // Reserve spaces for references to location, history and
+      // navigator objects.
       v8::Local<v8::ObjectTemplate> instance_template =
           desc->InstanceTemplate();
       instance_template->SetInternalFieldCount(
@@ -2653,17 +2654,27 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type, void
       else
         SetJSWrapperForDOMObject(imp, result);
 
-      // Special case for Location and Navigator. Both Safari and FF let
-      // Location and Navigator JS wrappers survive GC. To mimic their
-      // behaviors, V8 creates hidden references from the DOMWindow to
-      // location and navigator objects. These references get cleared
-      // when the DOMWindow is reused by a new page.
-      if (type == V8ClassIndex::LOCATION) {
-        SetHiddenWindowReference(static_cast<Location*>(imp)->frame(),
-          V8Custom::kDOMWindowLocationIndex, result);
-      } else if (type == V8ClassIndex::NAVIGATOR) {
-        SetHiddenWindowReference(static_cast<Navigator*>(imp)->frame(),
-          V8Custom::kDOMWindowNavigatorIndex, result);
+      // Special case for non-node objects History, Location and
+      // Navigator. Both Safari and FF let Location and Navigator JS
+      // wrappers survive GC. To mimic their behaviors, V8 creates
+      // hidden references from the DOMWindow to these wrapper
+      // objects. These references get cleared when the DOMWindow is
+      // reused by a new page.
+      switch (type) {
+        case V8ClassIndex::HISTORY:
+          SetHiddenWindowReference(static_cast<History*>(imp)->frame(),
+                                   V8Custom::kDOMWindowHistoryIndex, result);
+          break;
+        case V8ClassIndex::NAVIGATOR:
+          SetHiddenWindowReference(static_cast<Navigator*>(imp)->frame(),
+                                   V8Custom::kDOMWindowNavigatorIndex, result);
+          break;
+        case V8ClassIndex::LOCATION:
+          SetHiddenWindowReference(static_cast<Location*>(imp)->frame(),
+                                   V8Custom::kDOMWindowLocationIndex, result);
+          break;
+        default:
+          break;
       }
     }
   }

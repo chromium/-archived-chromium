@@ -121,12 +121,14 @@ class V8Custom {
                       kDefaultWrapperInternalFieldCount + 1;
 #endif
 
-  static const int kDOMWindowLocationIndex =
+  static const int kDOMWindowHistoryIndex =
                       kDefaultWrapperInternalFieldCount + 0;
   static const int kDOMWindowNavigatorIndex =
                       kDefaultWrapperInternalFieldCount + 1;
-  static const int kDOMWindowInternalFieldCount =
+  static const int kDOMWindowLocationIndex =
                       kDefaultWrapperInternalFieldCount + 2;
+  static const int kDOMWindowInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 3;
 
   static const int kStyleSheetOwnerNodeIndex =
                       kDefaultWrapperInternalFieldCount + 0;
