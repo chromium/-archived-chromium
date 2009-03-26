@@ -18,7 +18,7 @@ class DownloadItemGtk : DownloadItem::Observer {
  public:
   // DownloadItemGtk takes ownership of |download_item_model|.
   DownloadItemGtk(BaseDownloadItemModel* download_item_model,
-                  GtkWidget* parent_shelf);
+                  GtkWidget* parent_shelf, GtkWidget* bounding_widget);
 
   // We put |hbox_| in |parent_shelf| and rely on |parent_shelf| recursively
   // destroying its children. Hence we do nothing in the destructor.
@@ -36,6 +36,10 @@ class DownloadItemGtk : DownloadItem::Observer {
   static gboolean OnMenuButtonPressEvent(GtkWidget* button,
                                          GdkEvent* event,
                                          DownloadItemGtk* item);
+
+  static void OnShelfResized(GtkWidget *widget,
+                             GtkAllocation *allocation,
+                             DownloadItemGtk* item);
 
   // Nineboxes for the body area.
   static NineBox* body_nine_box_normal_;
@@ -69,6 +73,10 @@ class DownloadItemGtk : DownloadItem::Observer {
 
   // The shelf we show ourselves on. We do not own this widget.
   GtkWidget* parent_shelf_;
+
+  // This is the leftmost widget on |parent_shelf_| that is not a download item.
+  // We do not want to overlap it.
+  GtkWidget* bounding_widget_;
 };
 
 #endif  // CHROME_BROWSER_GTK_DOWNLOAD_ITEM_GTK_H_

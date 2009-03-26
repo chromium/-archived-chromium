@@ -11,6 +11,8 @@
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
+#include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -20,6 +22,14 @@ namespace {
 // The width of the |menu_button_| widget. It has to be at least as wide as the
 // bitmap that we use to draw it, i.e. 16, but can be more.
 const int kMenuButtonWidth = 16;
+
+// Amount of space we allot to showing the filename. If the filename is too wide
+// it will be elided.
+const int kTextWidth = 140;
+
+const char* kLabelColorMarkup = "<span color='#%s'>%s</span>";
+const char* kFilenameColor = "576C95";  // 87, 108, 149
+const char* kStatusColor = "7B8DAE";  // 123, 141, 174
 
 }  // namespace
 
@@ -118,28 +128,42 @@ NineBox* DownloadItemGtk::menu_nine_box_prelight_ = NULL;
 NineBox* DownloadItemGtk::menu_nine_box_active_ = NULL;
 
 DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
-                                 GtkWidget* parent_shelf)
+                                 GtkWidget* parent_shelf,
+                                 GtkWidget* bounding_widget)
     : download_model_(download_model),
-      parent_shelf_(parent_shelf) {
+      parent_shelf_(parent_shelf),
+      bounding_widget_(bounding_widget) {
   InitNineBoxes();
 
   body_ = gtk_button_new();
+  // Eventually we will show an icon and graphical download progress, but for
+  // now the only contents of body_ is text, so to make its size request the
+  // same as the width of the text (plus a little padding: see below).
+  gtk_widget_set_size_request(body_, kTextWidth + 50, -1);
   gtk_widget_set_app_paintable(body_, TRUE);
   g_signal_connect(G_OBJECT(body_), "expose-event",
                    G_CALLBACK(OnExpose), this);
   GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
-  // TODO(estade): gtk_label_new() expects UTF8, but FilePath may have a
-  // different encoding on linux.
-  GtkWidget* name_label = gtk_label_new(
-      download_model->download()->GetFileName().value().c_str());
-  gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0);
-  status_label_ =
-      gtk_label_new(WideToUTF8(download_model->GetStatusText()).c_str());
-  gtk_misc_set_alignment(GTK_MISC(status_label_), 0, 0);
+  GtkWidget* name_label = gtk_label_new(NULL);
+  // TODO(estade): This is at best an educated guess, since we don't actually
+  // use ChromeFont() to draw the text. This is why we need to add so
+  // much padding when we set the size request. We need to either use ChromeFont
+  // or somehow extend TextElider.
+  std::wstring elided_filename = gfx::ElideFilename(
+      download_model->download()->GetFileName().ToWStringHack(),
+      ChromeFont(), kTextWidth);
+  std::string label_markup =
+      StringPrintf(kLabelColorMarkup, kFilenameColor,
+                   WideToUTF8(elided_filename).c_str());
+  gtk_label_set_markup(GTK_LABEL(name_label), label_markup.c_str());
+  status_label_ = gtk_label_new(NULL);
+  // Left align and vertically center the labels.
+  gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(status_label_), 0, 0.5);
 
   // Stack the labels on top of one another.
   GtkWidget* text_stack = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(text_stack), name_label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(text_stack), name_label, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(text_stack), status_label_, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(body_), text_stack);
 
@@ -162,17 +186,35 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   gtk_box_reorder_child(GTK_BOX(parent_shelf), hbox_, 1);
   gtk_widget_show_all(hbox_);
 
+  g_signal_connect(G_OBJECT(parent_shelf_), "size-allocate",
+                   G_CALLBACK(OnShelfResized), this);
+
   download_model_->download()->AddObserver(this);
 }
 
 DownloadItemGtk::~DownloadItemGtk() {
+  download_model_->download()->RemoveObserver(this);
 }
 
 void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
   DCHECK_EQ(download, download_model_->download());
+  if (!status_label_) {
+    return;
+  }
 
-  gtk_label_set_text(GTK_LABEL(status_label_),
-                     WideToUTF8(download_model_->GetStatusText()).c_str());
+  std::wstring status_text = download_model_->GetStatusText();
+  // Remove the status text label.
+  if (status_text.empty()) {
+    gtk_widget_destroy(status_label_);
+    status_label_ = NULL;
+    return;
+  }
+
+  std::string label_markup =
+      StringPrintf(kLabelColorMarkup, kStatusColor,
+                   WideToUTF8(status_text).c_str());
+
+  gtk_label_set_markup(GTK_LABEL(status_label_), label_markup.c_str());
 }
 
 // static
@@ -295,4 +337,14 @@ gboolean DownloadItemGtk::OnMenuButtonPressEvent(GtkWidget* button,
   }
 
   return FALSE;
+}
+
+void DownloadItemGtk::OnShelfResized(GtkWidget *widget,
+                                     GtkAllocation *allocation,
+                                     DownloadItemGtk* item) {
+  if (item->hbox_->allocation.x + item->hbox_->allocation.width >
+      item->bounding_widget_->allocation.x)
+    gtk_widget_hide(item->hbox_);
+  else
+    gtk_widget_show(item->hbox_);
 }

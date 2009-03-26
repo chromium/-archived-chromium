@@ -159,10 +159,10 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gdk_pixbuf_unref(download_pixbuf);
 
   // Pack the link and the icon in an hbox.
-  GtkWidget* link_hbox = gtk_hbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(link_hbox), download_image, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(link_hbox), link_box, FALSE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(hbox_), link_hbox, FALSE, FALSE, 0);
+  link_hbox_ = gtk_hbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(link_hbox_), download_image, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(link_hbox_), link_box, FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox_), link_hbox_, FALSE, FALSE, 0);
 
   // Stick ourselves at the bottom of the parent tab contents.
   GtkWidget* parent_contents = tab_contents->GetNativeView();
@@ -178,7 +178,8 @@ DownloadShelfGtk::~DownloadShelfGtk() {
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
   // TODO(estade): we need to delete these at some point. There's no explicit
   // mass delete on windows, figure out where they do it.
-  download_items_.push_back(new DownloadItemGtk(download_model_, hbox_));
+  download_items_.push_back(new DownloadItemGtk(download_model_, hbox_,
+                                                link_hbox_));
   Show();
 }
 

@@ -42,6 +42,10 @@ class DownloadShelfGtk : public DownloadShelf {
   // for an explanation of the widget layout.
   GtkWidget* shelf_;
 
+  // This hbox holds the link text and download icon. It also holds the
+  // distinction of being the leftmost non-download item widget on the shelf.
+  GtkWidget* link_hbox_;
+
   // The 'x' that the user can press to hide the download shelf.
   scoped_ptr<CustomDrawButton> close_button_;
 
