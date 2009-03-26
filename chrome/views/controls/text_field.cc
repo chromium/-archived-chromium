@@ -73,6 +73,7 @@ class TextField::Edit
     MSG_WM_CREATE(OnCreate)
     MSG_WM_CUT(OnCut)
     MSG_WM_DESTROY(OnDestroy)
+    MESSAGE_HANDLER_EX(WM_IME_CHAR, OnImeChar)
     MESSAGE_HANDLER_EX(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
     MESSAGE_HANDLER_EX(WM_IME_COMPOSITION, OnImeComposition)
     MSG_WM_KEYDOWN(OnKeyDown)
@@ -121,6 +122,7 @@ class TextField::Edit
   LRESULT OnCreate(CREATESTRUCT* create_struct);
   void OnCut();
   void OnDestroy();
+  LRESULT OnImeChar(UINT message, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeStartComposition(UINT message, WPARAM wparam, LPARAM lparam);
   LRESULT OnImeComposition(UINT message, WPARAM wparam, LPARAM lparam);
   void OnKeyDown(TCHAR key, UINT repeat_count, UINT flags);
@@ -437,6 +439,15 @@ void TextField::Edit::OnCut() {
 
 void TextField::Edit::OnDestroy() {
   TRACK_HWND_DESTRUCTION(m_hWnd);
+}
+
+LRESULT TextField::Edit::OnImeChar(UINT message, WPARAM wparam, LPARAM lparam) {
+  // http://crbug.com/7707: a rich-edit control may crash when it receives a
+  // WM_IME_CHAR message while it is processing a WM_IME_COMPOSITION message.
+  // Since view controls don't need WM_IME_CHAR messages, we prevent WM_IME_CHAR
+  // messages from being dispatched to view controls via the CallWindowProc()
+  // call.
+  return 0;
 }
 
 LRESULT TextField::Edit::OnImeStartComposition(UINT message,
