@@ -73,7 +73,36 @@ class SVGElementInstance;
 
 class V8EventListener;
 class V8ObjectEventListener;
-typedef std::list<V8EventListener*>  V8EventListenerList;
+
+// This is a container for V8EventListener objects that also does some
+// caching to speed up finding entries by v8::Object.
+class V8EventListenerList {
+ public:
+  static const size_t kMaxKeyNameLength = 254;
+  // The name should be distinct from any other V8EventListenerList
+  // within the same process, and <= kMaxKeyNameLength characters.
+  explicit V8EventListenerList(const char* name);
+  ~V8EventListenerList();
+
+  typedef Vector<V8EventListener*>::iterator iterator;
+  V8EventListenerList::iterator begin();
+  iterator end();
+
+  // In addition to adding the listener to this list, this also caches the
+  // V8EventListener as a hidden property on its wrapped v8 listener object,
+  // so we can quickly look it up later.
+  void add(V8EventListener*);
+  void remove(V8EventListener*);
+  V8EventListener* find(v8::Local<v8::Object>, bool isInline);
+  void clear();
+
+ private:
+   v8::Handle<v8::String> getKey(bool isInline);
+   v8::Persistent<v8::String> m_inlineKey;
+   v8::Persistent<v8::String> m_nonInlineKey;
+   Vector<V8EventListener*> m_list;
+};
+
 
 // TODO(fqian): use standard logging facilities in WebCore.
 void log_info(Frame* frame, const String& msg, const String& url);
@@ -169,7 +198,8 @@ class V8Proxy {
   };
 
   explicit V8Proxy(Frame* frame)
-      : m_frame(frame), m_inlineCode(false),
+      : m_frame(frame), m_event_listeners("m_event_listeners"),
+        m_xhr_listeners("m_xhr_listeners"), m_inlineCode(false),
         m_timerCallback(false), m_recursion(0) { }
 
   ~V8Proxy();

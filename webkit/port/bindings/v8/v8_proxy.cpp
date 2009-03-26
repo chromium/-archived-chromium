@@ -217,6 +217,90 @@
 
 namespace WebCore {
 
+V8EventListenerList::V8EventListenerList(const char* name)
+{
+  ASSERT(strlen(name) <= kMaxKeyNameLength);
+  v8::HandleScope handleScope;
+
+  // Write the name into a temporary buffer, leaving 1 space at the beginning
+  // for a prefix we'll vary between the inline and non-inline keys.
+  char keyBuffer[kMaxKeyNameLength + 2] = { 0 };
+  strncpy(keyBuffer + 1, name, kMaxKeyNameLength);
+  keyBuffer[0] = '1';
+  m_inlineKey = v8::Persistent<v8::String>::New(v8::String::New(keyBuffer));
+  keyBuffer[0] = '2';
+  m_nonInlineKey = v8::Persistent<v8::String>::New(v8::String::New(keyBuffer));
+}
+
+V8EventListenerList::~V8EventListenerList()
+{
+  m_inlineKey.Dispose();
+  m_nonInlineKey.Dispose();
+}
+
+V8EventListenerList::iterator V8EventListenerList::begin()
+{
+  return m_list.begin();
+}
+
+V8EventListenerList::iterator V8EventListenerList::end()
+{
+  return m_list.end();
+}
+
+v8::Handle<v8::String> V8EventListenerList::getKey(bool isInline)
+{
+  if (isInline)
+    return m_inlineKey;
+  else
+    return m_nonInlineKey;
+}
+
+// See comment in .h file for this function, and update accordingly if
+// implementation details change here.
+void V8EventListenerList::add(V8EventListener* listener)
+{
+  m_list.append(listener);
+
+  v8::HandleScope handleScope;
+  v8::Local<v8::Object> object = listener->getListenerObject();
+  v8::Local<v8::Value> value = v8::External::Wrap(listener);
+  object->SetHiddenValue(getKey(listener->isInline()), value);
+}
+
+void V8EventListenerList::remove(V8EventListener* listener)
+{
+  v8::HandleScope handleScope;
+  for (size_t i = 0; i < m_list.size(); i++) {
+    V8EventListener* element = m_list.at(i);
+    if (element->isInline() == listener->isInline() && element == listener) {
+      v8::Local<v8::Object> object = listener->getListenerObject();
+      object->DeleteHiddenValue(getKey(listener->isInline()));
+      m_list.remove(i);
+      break;
+    }
+  }
+}
+
+void V8EventListenerList::clear()
+{
+  v8::HandleScope handleScope;
+  for (size_t i = 0; i < m_list.size(); i++) {
+    V8EventListener* element = m_list.at(i);
+    v8::Local<v8::Object> object = element->getListenerObject();
+    object->DeleteHiddenValue(getKey(element->isInline()));
+  }
+  m_list.clear();
+}
+
+V8EventListener* V8EventListenerList::find(v8::Local<v8::Object> object, bool isInline)
+{
+  v8::Local<v8::Value> value = object->GetHiddenValue(getKey(isInline));
+  if (value.IsEmpty())
+    return 0;
+  return reinterpret_cast<V8EventListener*>(v8::External::Unwrap(value));
+}
+
 
 // DOM binding algorithm:
 //
@@ -1185,21 +1269,7 @@ static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
   if (!listener->IsObject())
       return 0;
 
-  V8EventListenerList::iterator p = list.begin();
-  while (p != list.end()) {
-    V8EventListener* el = *p;
-    v8::Local<v8::Object> wrapper = el->getListenerObject();
-    ASSERT(!wrapper.IsEmpty());
-    // Since the listener is an object, it is safe to compare for
-    // strict equality (in the JS sense) by doing a simple equality
-    // check using the == operator on the handles. This is much,
-    // much faster than calling StrictEquals through the API in
-    // the negative case.
-    if (el->isInline() == isInline && listener == wrapper)
-        return el;
-    ++p;
-  }
-  return 0;
+  return list.find(listener->ToObject(), isInline);
 }
 
 // Find an existing wrapper for a JS event listener in the map.
@@ -1224,7 +1294,7 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateV8EventListener(v8::Local<v8::V
   // Create a new one, and add to cache.
   RefPtr<V8EventListener> new_listener =
     V8EventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), isInline);
-  m_event_listeners.push_back(new_listener.get());
+  m_event_listeners.add(new_listener.get());
 
   return new_listener;
 }
@@ -1272,7 +1342,7 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateObjectEventListener(
   // Create a new one, and add to cache.
   RefPtr<V8EventListener> new_listener =
     V8ObjectEventListener::create(m_frame, v8::Local<v8::Object>::Cast(obj), isInline);
-  m_xhr_listeners.push_back(new_listener.get());
+  m_xhr_listeners.add(new_listener.get());
 
   return new_listener.release();
 }
@@ -1281,14 +1351,7 @@ PassRefPtr<V8EventListener> V8Proxy::FindOrCreateObjectEventListener(
 static void RemoveEventListenerFromList(V8EventListenerList& list,
                                         V8EventListener* listener)
 {
-  V8EventListenerList::iterator p = list.begin();
-  while (p != list.end()) {
-    if (*p == listener) {
-      list.erase(p);
-      return;
-    }
-    ++p;
-  }
+  list.remove(listener);
 }
 
 
