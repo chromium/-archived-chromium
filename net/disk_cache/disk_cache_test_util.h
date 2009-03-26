@@ -38,6 +38,7 @@ bool CheckCacheIntegrity(const std::wstring& path);
 class ScopedTestCache {
  public:
   ScopedTestCache();
+  ScopedTestCache(const std::wstring& name);  // Use a specific folder name.
   ~ScopedTestCache();
 
   FilePath path() const { return FilePath::FromWStringHack(path_); }

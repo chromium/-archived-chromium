@@ -995,3 +995,31 @@ TEST_F(DiskCacheBackendTest, MemoryOnlyDoomAll) {
   InitCache();
   BackendDoomAll();
 }
+
+// We should be able to create the same entry on multiple simultaneous instances
+// of the cache.
+TEST_F(DiskCacheTest, MultipleInstances) {
+  ScopedTestCache store1;
+  ScopedTestCache store2(L"cache_test2");
+  ScopedTestCache store3(L"cache_test3");
+
+  const int kNumberOfCaches = 3;
+  scoped_ptr<disk_cache::Backend> cache[kNumberOfCaches];
+
+  cache[0].reset(disk_cache::CreateCacheBackend(store1.path_wstring(), false, 0,
+                                                net::DISK_CACHE));
+  cache[1].reset(disk_cache::CreateCacheBackend(store2.path_wstring(), false, 0,
+                                                net::MEDIA_CACHE));
+  cache[2].reset(disk_cache::CreateCacheBackend(store3.path_wstring(), false, 0,
+                                                net::TEMP_MEDIA_CACHE));
+
+  ASSERT_TRUE(cache[0].get() != NULL && cache[1].get() != NULL &&
+              cache[2].get() != NULL);
+
+  std::string key("the first key");
+  disk_cache::Entry* entry;
+  for (int i = 0; i < kNumberOfCaches; i++) {
+    ASSERT_TRUE(cache[i]->CreateEntry(key, &entry));
+    entry->Close();
+  }
+}

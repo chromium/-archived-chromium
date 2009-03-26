@@ -14,6 +14,20 @@
 using base::Time;
 using base::TimeDelta;
 
+namespace {
+
+std::wstring BuildCachePath(const std::wstring& name) {
+  std::wstring path;
+  PathService::Get(base::DIR_TEMP, &path);
+  file_util::AppendToPath(&path, name);
+  if (!file_util::PathExists(path))
+    file_util::CreateDirectory(path);
+
+  return path;
+}
+
+}  // namespace.
+
 std::string GenerateKey(bool same_length) {
   char key[200];
   CacheTestFillBuffer(key, sizeof(key), same_length);
@@ -40,13 +54,7 @@ void CacheTestFillBuffer(char* buffer, size_t len, bool no_nulls) {
 }
 
 std::wstring GetCachePath() {
-  std::wstring path;
-  PathService::Get(base::DIR_TEMP, &path);
-  file_util::AppendToPath(&path, L"cache_test");
-  if (!file_util::PathExists(path))
-    file_util::CreateDirectory(path);
-
-  return path;
+  return BuildCachePath(L"cache_test");
 }
 
 bool CreateCacheTestFile(const wchar_t* name) {
@@ -79,6 +87,12 @@ bool CheckCacheIntegrity(const std::wstring& path) {
 }
 
 ScopedTestCache::ScopedTestCache() : path_(GetCachePath()) {
+  bool result = DeleteCache(path_.c_str());
+  DCHECK(result);
+}
+
+ScopedTestCache::ScopedTestCache(const std::wstring& name)
+    : path_(BuildCachePath(name)) {
   bool result = DeleteCache(path_.c_str());
   DCHECK(result);
 }
