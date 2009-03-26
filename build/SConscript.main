@@ -466,6 +466,7 @@ for envvar in ('CC', 'CXX', 'LINK'):
 # $HOME is needed by distcc so it can find its lock file.
 for envvar in ('HOME', 'DISTCC_DIR', 'DISTCC_HOSTS', 'CCACHE_DIR',
                'INTERCEPTOR_SOCKET', 'ENFORGE_DIGEST_CACHE',
+               'CHROME_BUILD_TYPE', 'CHROMIUM_BUILD',
                'ENFORGE_CACHE_HOST', 'ENFORGE_CACHE_PORT'):
   if envvar in os.environ:
     linux_env['ENV'][envvar] = os.environ[envvar]
