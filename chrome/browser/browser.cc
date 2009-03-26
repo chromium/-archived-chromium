@@ -1307,9 +1307,9 @@ GURL Browser::GetBlankTabURL() const {
   return GURL(chrome::kChromeUINewTabURL);
 }
 
-void Browser::CreateNewStripWithContents(TabContents* detached_contents,
-                                         const gfx::Rect& window_bounds,
-                                         const DockInfo& dock_info) {
+Browser* Browser::CreateNewStripWithContents(TabContents* detached_contents,
+                                             const gfx::Rect& window_bounds,
+                                             const DockInfo& dock_info) {
   DCHECK(type_ == TYPE_NORMAL);
 
   gfx::Rect new_window_bounds = window_bounds;
@@ -1327,7 +1327,7 @@ void Browser::CreateNewStripWithContents(TabContents* detached_contents,
   // Make sure the loading state is updated correctly, otherwise the throbber
   // won't start if the page is loading.
   browser->LoadingStateChanged(detached_contents);
-  browser->window()->Show();
+  return browser;
 }
 
 int Browser::GetDragActions() const {

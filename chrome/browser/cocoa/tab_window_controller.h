@@ -19,9 +19,14 @@
 
 @interface TabWindowController : NSWindowController {
  @private
-  IBOutlet NSBox* contentBox_;
+  IBOutlet NSBox* contentBox_;  // Only valid at window creation time, used
+                                // to position the tab strip. nil afterwards.
+                                // TODO(pinkerton): get rid of this.
   IBOutlet TabStripView* tabStripView_;
-  NSWindow* overlayWindow_;  // used during dragging
+  NSWindow* overlayWindow_;  // Used during dragging for window opacity tricks
+  NSView* cachedContentView_;  // Used during dragging for identifying which
+                               // view is the proper content area in the overlay
+                               // (weak)
 }
 @property(readonly, nonatomic) TabStripView* tabStripView;
 
@@ -30,6 +35,7 @@
 - (void)showOverlay;
 - (void)removeOverlay;
 - (void)removeOverlayAfterDelay:(NSTimeInterval)delay;
+- (NSWindow*)overlayWindow;
 
 // A collection of methods, stubbed out in this base class, that provide
 // the implementation of tab dragging based on whatever model is most
@@ -49,6 +55,10 @@
 
 // Removes the placeholder installed by |-insertPlaceholderForTab:atLocation:|.
 - (void)removePlaceholder;
+
+// Number of tabs in the tab strip. Useful, for example, to know if we're
+// dragging the only tab in the window.
+- (NSInteger)numberOfTabs;
 
 @end
 

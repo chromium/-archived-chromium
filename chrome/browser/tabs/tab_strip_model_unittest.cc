@@ -31,12 +31,14 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   virtual ~TabStripDummyDelegate() {}
 
   // Overridden from TabStripModelDelegate:
-  virtual GURL GetBlankTabURL() const { 
+  virtual GURL GetBlankTabURL() const {
     return GURL(chrome::kChromeUINewTabURL);
   }
-  virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Rect& window_bounds,
-                                          const DockInfo& dock_info) {}
+  virtual Browser* CreateNewStripWithContents(TabContents* contents,
+                                              const gfx::Rect& window_bounds,
+                                              const DockInfo& dock_info) {
+    return NULL;
+  }
   virtual int GetDragActions() const { return 0; }
   virtual TabContents* CreateTabContentsForURL(
       const GURL& url,

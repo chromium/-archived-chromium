@@ -1041,8 +1041,10 @@ bool DraggedTabController::CompleteDrag() {
     gfx::Rect window_bounds(
         GetWindowCreatePoint(),
         gfx::Size(browser_rect.Width(), browser_rect.Height()));
-    source_tabstrip_->model()->delegate()->CreateNewStripWithContents(
-        dragged_contents_, window_bounds, dock_info_);
+    Browser* new_browser =
+        source_tabstrip_->model()->delegate()->CreateNewStripWithContents(
+            dragged_contents_, window_bounds, dock_info_);
+    new_browser->window()->Show();
     CleanUpHiddenFrame();
   }
 

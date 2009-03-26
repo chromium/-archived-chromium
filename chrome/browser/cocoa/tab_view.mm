@@ -64,7 +64,9 @@
   TabWindowController* draggedController = nil;
   TabWindowController* targetController = nil;
 
-  BOOL isLastTab = NO;  // TODO(alcor)
+  // We don't want to "tear off" a tab if there's only one in the window. Treat
+  // it like we're dragging around a tab we've already detached.
+  BOOL isLastRemainingTab = [sourceController numberOfTabs] == 1;
 
   NSWindow* dragWindow = nil;
   NSWindow* dragOverlay = nil;
@@ -88,7 +90,7 @@
     // appropriate class, and visible (obviously).
     if (![targets count]) {
       for (NSWindow* window in [NSApp windows]) {
-        if (window == sourceWindow && isLastTab) continue;
+        if (window == sourceWindow && isLastRemainingTab) continue;
         if (window == dragWindow) continue;
         if (![window isVisible]) continue;
         NSWindowController *controller = [window windowController];
@@ -121,11 +123,9 @@
 
     NSEventType type = [theEvent type];
     if (type == NSLeftMouseDragged) {
-#if 0
-      // TODO(alcor): get this working...
       moved = YES;
       if (!draggedController) {
-        if (isLastTab) {
+        if (isLastRemainingTab) {
           draggedController = sourceController;
           dragWindow = [draggedController window];
         } else {
@@ -144,7 +144,7 @@
         }
 
         // Bring the target window to the front and make sure it has a border.
-        [[draggedController window] setLevel:NSFloatingWindowLevel];
+        [dragWindow setLevel:NSFloatingWindowLevel];
         [dragWindow orderFront:nil];
         [dragWindow makeMainWindow];
         [draggedController showOverlay];
@@ -162,7 +162,7 @@
       // If we're not hovering over any window, make the window is fully
       // opaque. Otherwise, find where the tab might be dropped and insert
       // a placeholder so it appears like it's part of that window.
-      if (!targetContoller) {
+      if (!targetController) {
         [[dragWindow animator] setAlphaValue:1.0];
       } else {
         if (![[targetController window] isKeyWindow]) {
@@ -179,7 +179,7 @@
             [sourceWindow convertBaseToScreen:
                 [self convertPointToBase:NSZeroPoint]];
         int x = NSWidth([self bounds]) / 2 + point.x - dropTabFrame.origin.x;
-        [targetController insertPlaceholderForTab:tab_ atLocation:x];
+        [targetController insertPlaceholderForTab:self atLocation:x];
         [targetController arrangeTabs];
 
         if (!targetController)
@@ -190,7 +190,6 @@
             setAlphaValue:targetController ? 0.85 : 1.0];
         // [setAlphaValue:targetController ? 0.0 : 0.6];
       }
-#endif
     } else if (type == NSLeftMouseUp) {
       // Mouse up, break out of the drag event tracking loop
       dragging = NO;
@@ -203,6 +202,8 @@
   if (moved) {
     TabWindowController *dropController = targetController;
     if (dropController) {
+#if 0
+// TODO(alcor/pinkerton): hookup drops on existing windows
       NSRect adjustedFrame = [self bounds];
       NSRect dropTabFrame =  [[dropController tabStripView] frame];
       adjustedFrame.origin = [self convertPointToBase:NSZeroPoint];
@@ -220,11 +221,12 @@
       [dropController arrangeTabs];
       [draggedController close];
       [dropController showWindow:nil];
+#endif
     } else {
       [[dragWindow animator] setAlphaValue:1.0];
       [dragOverlay setHasShadow:NO];
       [draggedController removeOverlayAfterDelay:
-      [[NSAnimationContext currentContext] duration]];
+          [[NSAnimationContext currentContext] duration]];
       [dragWindow makeKeyAndOrderFront:nil];
 
       [[draggedController window] setLevel:NSNormalWindowLevel];

@@ -5,10 +5,12 @@
 #import "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
+#import "chrome/browser/cocoa/tab_view.h"
 
 @implementation BrowserWindowController
 
@@ -205,8 +207,34 @@
 }
 
 - (TabWindowController*)detachTabToNewWindow:(TabView*)tabView {
-  NOTIMPLEMENTED();
-  return NULL;
+  // Fetch the tab contents for the tab being dragged
+  int index = [tabStripController_ indexForTabView:tabView];
+  TabContents* contents = browser_->tabstrip_model()->GetTabContentsAt(index);
+
+  // Set the window size. Need to do this before we detach the tab so it's
+  // still in the window.
+  NSRect windowRect = [[tabView window] frame];
+  gfx::Rect browserRect(windowRect.origin.x, windowRect.origin.y,
+                        windowRect.size.width, windowRect.size.height);
+
+  // Create the new window with a single tab in its model, the one being
+  // dragged.
+  DockInfo dockInfo;
+  Browser* newBrowser =
+      browser_->tabstrip_model()->TearOffTabContents(contents,
+                                                     browserRect,
+                                                     dockInfo);
+
+  // Get the new controller by asking the new window for its delegate.
+  TabWindowController* controller =
+      [newBrowser->window()->GetNativeHandle() delegate];
+  DCHECK(controller && [controller isKindOfClass:[TabWindowController class]]);
+
+  // Detach it from the source window, which just updates the model without
+  // deleting the tab contents.
+  browser_->tabstrip_model()->DetachTabContentsAt(index);
+
+  return controller;
 }
 
 - (void)insertPlaceholderForTab:(TabView*)tab atLocation:(NSInteger)xLocation {
@@ -226,5 +254,8 @@
   [tabStripController_ toggleBookmarkBar];
 }
 
+- (NSInteger)numberOfTabs {
+  return browser_->tabstrip_model()->count();
+}
 
 @end

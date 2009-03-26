@@ -15,6 +15,7 @@ namespace gfx {
 class Point;
 class Rect;
 }
+class Browser;
 class DockInfo;
 class GURL;
 class NavigationController;
@@ -96,10 +97,16 @@ class TabStripModelDelegate {
   // Ask for a new TabStripModel to be created and the given tab contents to
   // be added to it. Its size and position are reflected in |window_bounds|.
   // If |dock_info|'s type is other than NONE, the newly created window should
-  // be docked as identified by |dock_info|.
-  virtual void CreateNewStripWithContents(TabContents* contents,
-                                          const gfx::Rect& window_bounds,
-                                          const DockInfo& dock_info) = 0;
+  // be docked as identified by |dock_info|. Returns the Browser object
+  // representing the newly created window and tab strip. This does not
+  // show the window, it's up to the caller to do so.
+  // TODO(pinkerton): I really don't like the fact that this is returning a
+  // Browser object, there may be some better abstraction we can achieve that
+  // the Browser implements, but for now, we'll experiment with returning
+  // that type.
+  virtual Browser* CreateNewStripWithContents(TabContents* contents,
+                                              const gfx::Rect& window_bounds,
+                                              const DockInfo& dock_info) = 0;
 
   enum {
     TAB_MOVE_ACTION = 1,
@@ -364,10 +371,15 @@ class TabStripModel : public NotificationObserver {
 
   // View API //////////////////////////////////////////////////////////////////
 
-  // The specified contents should be opened in a new tabstrip.
-  void TearOffTabContents(TabContents* detached_contents,
-                          const gfx::Rect& window_bounds,
-                          const DockInfo& dock_info);
+  // The specified contents should be opened in a new tabstrip. Returns the
+  // Browser that holds it.
+  // TODO(pinkerton): I really don't like the fact that this is returning a
+  // Browser object, there may be some better abstraction we can achieve that
+  // the Browser implements, but for now, we'll experiment with returning
+  // that type.
+  Browser* TearOffTabContents(TabContents* detached_contents,
+                              const gfx::Rect& window_bounds,
+                              const DockInfo& dock_info);
 
   // Context menu functions.
   enum ContextMenuCommand {

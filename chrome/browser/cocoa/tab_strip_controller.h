@@ -88,6 +88,9 @@ class ToolbarModel;
 // Turn on or off the bookmark bar for *ALL* tabs.
 - (void)toggleBookmarkBar;
 
+// Given a tab view in the strip, return its index. Returns -1 if not present.
+- (NSInteger)indexForTabView:(NSView*)view;
+
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_STRIP_CONTROLLER_H_

@@ -408,12 +408,12 @@ void TabStripModel::SelectLastTab() {
   SelectTabContentsAt(count() - 1, true);
 }
 
-void TabStripModel::TearOffTabContents(TabContents* detached_contents,
-                                       const gfx::Rect& window_bounds,
-                                       const DockInfo& dock_info) {
+Browser* TabStripModel::TearOffTabContents(TabContents* detached_contents,
+                                           const gfx::Rect& window_bounds,
+                                           const DockInfo& dock_info) {
   DCHECK(detached_contents);
-  delegate_->CreateNewStripWithContents(detached_contents, window_bounds,
-                                        dock_info);
+  return delegate_->CreateNewStripWithContents(detached_contents, window_bounds,
+                                               dock_info);
 }
 
 // Context menu functions.
