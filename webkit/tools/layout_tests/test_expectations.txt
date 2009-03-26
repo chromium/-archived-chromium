@@ -2319,8 +2319,18 @@ DEFER MAC : LayoutTests/editing/selection/4776665.html = FAIL
 DEFER MAC : LayoutTests/fast/clip/016.html = FAIL
 DEFER MAC : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
 DEFER MAC : LayoutTests/fast/forms/search-zoomed.html = FAIL
-DEFER MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
-DEFER MAC : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
-DEFER MAC : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
-DEFER MAC : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
-DEFER MAC : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
+DEFER MAC LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
+DEFER MAC LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
+DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
+DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
+DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
+
+# Adding more failures after the last merge:
+WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
+WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
+WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/methods.html = CRASH PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
+WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
+LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
