@@ -147,7 +147,7 @@ class WebPluginImpl : public WebPlugin,
                 int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
-  void SetWindow(gfx::NativeView window, HANDLE pump_messages_event);
+  bool SetWindow(gfx::NativeView window, HANDLE pump_messages_event);
 
   // Given a (maybe partial) url, completes using the base url.
   bool CompleteURL(const std::string& url_in, std::string* url_out);

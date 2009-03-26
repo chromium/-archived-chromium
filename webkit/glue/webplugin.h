@@ -89,7 +89,10 @@ class WebPlugin {
   // The pump_messages_event is a event handle which is valid only for
   // windowless plugins and is used in NPP_HandleEvent calls to pump messages
   // if the plugin enters a modal loop.
-  virtual void SetWindow(gfx::NativeView window,
+  // The return value is only valid for windowed plugins.  If true, it means
+  // that the the HWND position should be managed by the delegate.  If false,
+  // the plugin should be kept at the origin and it'll get moved elsewhere.
+  virtual bool SetWindow(gfx::NativeView window,
                          HANDLE pump_messages_event) = 0;
   // Cancels a pending request.
   virtual void CancelResource(int id) = 0;

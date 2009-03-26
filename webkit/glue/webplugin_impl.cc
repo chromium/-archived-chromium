@@ -336,7 +336,7 @@ WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
 WebPluginImpl::~WebPluginImpl() {
 }
 
-void WebPluginImpl::SetWindow(gfx::NativeView window,
+bool WebPluginImpl::SetWindow(gfx::NativeView window,
                               HANDLE pump_messages_event) {
   if (window) {
     DCHECK(!windowless_);  // Make sure not called twice.
@@ -345,6 +345,8 @@ void WebPluginImpl::SetWindow(gfx::NativeView window,
     DCHECK(!window_);  // Make sure not called twice.
     windowless_ = true;
   }
+
+  return true;
 }
 
 bool WebPluginImpl::CompleteURL(const std::string& url_in,

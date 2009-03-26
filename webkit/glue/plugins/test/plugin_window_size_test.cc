@@ -13,8 +13,8 @@ PluginWindowSizeTest::PluginWindowSizeTest(NPP id,
 }
 
 NPError PluginWindowSizeTest::SetWindow(NPWindow* pNPWindow) {
-  if (!pNPWindow ||
-      !::IsWindow(reinterpret_cast<HWND>(pNPWindow->window))) {
+  HWND window = reinterpret_cast<HWND>(pNPWindow->window);
+  if (!pNPWindow || !::IsWindow(window)) {
     SetError("Invalid arguments passed in");
     return NPERR_INVALID_PARAM;
   }
@@ -27,11 +27,21 @@ NPError PluginWindowSizeTest::SetWindow(NPWindow* pNPWindow) {
 
   if (!::IsRectEmpty(&window_rect)) {
     RECT client_rect = {0};
-    ::GetClientRect(reinterpret_cast<HWND>(pNPWindow->window),
-                    &client_rect);
+    ::GetClientRect(window, &client_rect);
     if (::IsRectEmpty(&client_rect)) {
       SetError("The client rect of the plugin window is empty. Test failed");
     }
+
+    // Bug 6742: ensure that the coordinates passed in are relative to the
+    // parent HWND.
+    POINT origin_from_os;
+    RECT window_rect_from_os;
+    ::GetWindowRect(window, &window_rect_from_os);
+    origin_from_os.x = window_rect_from_os.left;
+    origin_from_os.y = window_rect_from_os.top;
+    ::ScreenToClient(GetParent(window), &origin_from_os);
+    if (origin_from_os.x != pNPWindow->x || origin_from_os.y != pNPWindow->y)
+      SetError("Wrong position passed in to SetWindow!  Test failed");
 
     SignalTestCompleted();
   }

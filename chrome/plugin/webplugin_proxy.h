@@ -35,7 +35,7 @@ class WebPluginProxy : public WebPlugin {
   ~WebPluginProxy();
 
   // WebPlugin overrides
-  void SetWindow(HWND window, HANDLE pump_messages_event);
+  bool SetWindow(HWND window, HANDLE pump_messages_event);
   void CancelResource(int id);
   void Invalidate();
   void InvalidateRect(const gfx::Rect& rect);

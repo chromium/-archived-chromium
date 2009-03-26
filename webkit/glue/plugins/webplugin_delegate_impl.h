@@ -158,6 +158,9 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   bool windowed_did_set_window_;
 #if defined(OS_WIN)
   gfx::Rect windowed_last_pos_;
+  // True if we should manage the position of the HWND.  If false, it's managed
+  // elsewhere and we should keep it at the origin.
+  bool windowed_manage_position_;
 #endif
 
   // this is an optimization to avoid calling SetWindow to the plugin

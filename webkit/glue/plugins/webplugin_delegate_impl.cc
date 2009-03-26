@@ -145,6 +145,7 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       windowless_(false),
       windowed_handle_(NULL),
       windowed_did_set_window_(false),
+      windowed_manage_position_(false),
       windowless_needs_set_window_(true),
       plugin_wnd_proc_(NULL),
       last_message_(0),
@@ -266,7 +267,8 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
       return false;
   }
 
-  plugin->SetWindow(windowed_handle_, handle_event_pump_messages_event_);
+  windowed_manage_position_ =
+      plugin->SetWindow(windowed_handle_, handle_event_pump_messages_event_);
   plugin_url_ = url.spec();
 
   // The windowless version of the Silverlight plugin calls the
@@ -550,10 +552,10 @@ void WebPluginDelegateImpl::OnThrottleMessage() {
     const MSG& msg = *it;
     if (processed.find(msg.hwnd) == processed.end()) {
       WNDPROC proc = reinterpret_cast<WNDPROC>(msg.time);
-	  // It is possible that the window was closed after we queued
-	  // this message.  This is a rare event; just verify the window
-	  // is alive.  (see also bug 1259488)
-	  if (IsWindow(msg.hwnd))
+      // It is possible that the window was closed after we queued
+      // this message.  This is a rare event; just verify the window
+      // is alive.  (see also bug 1259488)
+      if (IsWindow(msg.hwnd))
           CallWindowProc(proc, msg.hwnd, msg.message, msg.wParam, msg.lParam);
       processed[msg.hwnd] = 1;
       it = throttle_queue->erase(it);
@@ -695,20 +697,14 @@ bool WebPluginDelegateImpl::WindowedReposition(
   if (window_rect_ == window_rect && clip_rect_ == clip_rect)
     return false;
 
-  // There are a few parts to managing the plugin windows:
-  //   - Initial geometry, show / resize / position the window.
-  //   - Geometry updates, resize the window.
-  //   - Geometry updates, move the window or update the clipping region.
-  // This code should handle the first two, positioning and sizing the window
-  // initially, and resizing it when the size changes.  Clipping and moving are
-  // handled separately by WebPlugin, after it has called this code.  This
-  // allows window moves, like scrolling, to be synchronized with painting.
-  // See WebPluginImpl::setFrameRect().
+  // If windowed_manage_position_ is false, then the plugin will be moved
+  // elsewhere.  This allows the window moves/scrolling/clipping to be
+  // synchronized with the page and other windows.
   if (window_rect.size() != window_rect_.size()) {
     ::SetWindowPos(windowed_handle_,
                    NULL,
-                   0,
-                   0,
+                   windowed_manage_position_ ? window_rect.x() : 0,
+                   windowed_manage_position_ ? window_rect.y() : 0,
                    window_rect.width(),
                    window_rect.height(),
                    SWP_SHOWWINDOW);
@@ -742,8 +738,8 @@ void WebPluginDelegateImpl::WindowedSetWindow() {
   window_.clipRect.right = clip_rect_.x() + clip_rect_.width();
   window_.height = window_rect_.height();
   window_.width = window_rect_.width();
-  window_.x = window_rect_.x();
-  window_.y = window_rect_.y();
+  window_.x = windowed_manage_position_ ? window_rect_.x() : 0;
+  window_.y = windowed_manage_position_ ? window_rect_.y() : 0;
 
   window_.window = windowed_handle_;
   window_.type = NPWindowTypeWindow;

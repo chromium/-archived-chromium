@@ -70,7 +70,7 @@ bool WebPluginProxy::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-void WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
+bool WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
   HANDLE pump_messages_event_for_renderer = NULL;
 
   if (pump_messages_event) {
@@ -104,6 +104,8 @@ void WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
 
   Send(new PluginHostMsg_SetWindow(route_id_, window,
                                    pump_messages_event_for_renderer));
+
+  return false;
 }
 
 void WebPluginProxy::CancelResource(int id) {
