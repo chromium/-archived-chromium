@@ -389,8 +389,12 @@ bool CookieMonster::SetCookie(const GURL& url,
 bool CookieMonster::SetCookieWithOptions(const GURL& url,
                                          const std::string& cookie_line,
                                          const CookieOptions& options) {
-  Time creation_date = CurrentTime();
-  last_time_seen_ = creation_date;
+  Time creation_date;
+  {
+    AutoLock autolock(lock_);
+    creation_date = CurrentTime();
+    last_time_seen_ = creation_date;
+  }
   return SetCookieWithCreationTimeWithOptions(url,
                                               cookie_line,
                                               creation_date,
