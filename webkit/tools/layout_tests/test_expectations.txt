@@ -2380,3 +2380,11 @@ DEFER WIN MAC LINUX : LayoutTests/fonts/serif.html = FAIL
 DEFER WIN MAC LINUX : chrome/fonts/default.html = FAIL
 
 
+// Merge WebKit: 41944:41999, linux failures.
+DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
+DEFER LINUX : LayoutTests/fast/forms/focus2.html = FAIL
+DEFER LINUX : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
+DEFER LINUX : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
+DEFER LINUX : LayoutTests/fast/forms/slider-padding.html = FAIL
+DEFER LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
+DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
