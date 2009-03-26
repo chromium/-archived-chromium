@@ -561,6 +561,13 @@ function makeMostVisitedDOM(page, number) {
      for more information.
   */
   div_title.style.direction = page.direction;
+  /* The following if statement is a temporary workaround for
+     http://crbug.com/7252 and http://crbug.com/7697. It should be removed
+     before closing these bugs.
+  */       
+  if (page.direction == 'rtl') {
+    div_title.style.textOverflow = 'clip';
+  } 
   if (page.title) {
     div_title.appendChild(document.createTextNode(page.title));
   } else {
@@ -700,6 +707,13 @@ function renderRecentlyBookmarked(entries) {
          comment about setting div_title.style.direction above for details.
       */
       link.style.direction = entry.direction;
+      /* The following if statement is a temporary workaround for
+         http://crbug.com/7252 and http://crbug.com/7697. It should be removed
+         before closing these bugs.
+      */     
+      if (entry.direction == 'rtl') {
+        link.style.textOverflow = 'clip';
+      }   
       link.appendChild(document.createTextNode(entry.title));
       container.appendChild(link);
     }
@@ -794,6 +808,14 @@ function createRecentBookmark(tagName, data) {
      about setting div_title.style.direction above for details.
   */
   link.style.direction = data.direction;
+  /* The following if statement is a temporary workaround for
+     http://crbug.com/7252 and http://crbug.com/7697. It should be removed
+     before closing these bugs.
+  */     
+  if (data.direction == 'rtl') {
+    link.style.textOverflow = 'clip';
+  }  
+
   link.appendChild(document.createTextNode(data.title));
   return link;
 }
