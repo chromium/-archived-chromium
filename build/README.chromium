@@ -13,3 +13,4 @@ List of property sheets to be included by projects:
 
   release.vsprops
     Enables release settings. Must be included directly in Release configuration. Includes internal\essential.vsprops. Also includes "internal\release_impl$(CHROME_BUILD_TYPE).vsprops". So the behavior is dependant on the CHROME_BUILD_TYPE environment variable.
+
