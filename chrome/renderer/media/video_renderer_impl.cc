@@ -42,9 +42,10 @@ void VideoRendererImpl::Paint(skia::PlatformCanvas* canvas,
                       static_cast<SkScalar>(dest_rect.y()));
   if (dest_rect.width()  != video_size_.width() ||
       dest_rect.height() != video_size_.height()) {
-    matrix.preScale(
-        static_cast<SkScalar>(dest_rect.width()  / video_size_.width()),
-        static_cast<SkScalar>(dest_rect.height() / video_size_.height()));
+    matrix.preScale(SkIntToScalar(dest_rect.width()) /
+                    SkIntToScalar(video_size_.width()),
+                    SkIntToScalar(dest_rect.height()) /
+                    SkIntToScalar(video_size_.height()));
   }
   canvas->drawBitmapMatrix(bitmap_, matrix, NULL);
 }
