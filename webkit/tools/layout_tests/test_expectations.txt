@@ -2325,7 +2325,7 @@ DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
 DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
 DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
-# Adding more failures after the last merge:
+// Adding more failures after the last merge:
 WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
