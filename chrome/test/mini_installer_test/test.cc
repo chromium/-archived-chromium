@@ -33,9 +33,12 @@ class MiniInstallTest : public testing::Test {
 };
 
 TEST_F(MiniInstallTest, StandaloneInstallerTest) {
-  ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
-  installer.InstallStandaloneIntaller();
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+    ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
+    installer.InstallStandaloneIntaller();
+  }
 }
+
 TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.OverInstall();

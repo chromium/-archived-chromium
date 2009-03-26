@@ -30,6 +30,10 @@ const wchar_t kSystemInstall[] = L"system";
 const wchar_t kUserInstall[] = L"user";
 const wchar_t kStandaloneInstaller[] = L"ChromeSetupTest.exe";
 const wchar_t kGoogleUpdateExecutable[] = L"GoogleUpdate.exe";
+const wchar_t kUntaggedInstallerPattern[] = L"ChromeStandaloneSetup_";
+const wchar_t kDiffInstallerPattern[] = L"_from_";
+const wchar_t kFullInstallerPattern[] = L"_chrome_installer";
+const wchar_t kDevChannelBuildPattern[] = L"2.0.";
 
 // Google Chrome meta installer location.
 const wchar_t kChromeMetaInstallerExe[] =
@@ -40,4 +44,6 @@ const wchar_t kChromeApplyTagExe[] =
     L"\\\\172.23.44.61\\shared\\chrome_autotest\\ApplyTag.exe";
 const wchar_t kChromeApplyTagParameters[] =
     L"\"appguid={8A69D345-D564-463C-AFF1-A69D9E530F96}&appname=Chrome&needsadmin=false\"";
+const wchar_t kChromeDiffInstallerLocation[] =
+    L"\\\\172.24.6.7\\shares\\googleclient\\save\\builds\\chrome\\";
 }

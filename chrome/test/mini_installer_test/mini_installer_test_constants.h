@@ -32,12 +32,17 @@ extern const wchar_t kChromeUninstallShortcut[];
 extern const wchar_t kSystemInstall[];
 extern const wchar_t kStandaloneInstaller[];
 extern const wchar_t kUserInstall[];
+extern const wchar_t kUntaggedInstallerPattern[];
+extern const wchar_t kDiffInstallerPattern[];
+extern const wchar_t kFullInstallerPattern[];
+extern const wchar_t kDevChannelBuildPattern[];
 
 // Google Chrome meta installer location.
 extern const wchar_t kChromeApplyTagExe[];
 extern const wchar_t kChromeMetaInstallerExe[];
 extern const wchar_t kChromeStandAloneInstallerLocation[];
 extern const wchar_t kChromeApplyTagParameters[];
+extern const wchar_t kChromeDiffInstallerLocation[];
 }
 
 #endif  // CHROME_TEST_MINI_INSTALLER_TEST_MINI_INSTALLER_TEST_CONSTANTS_H__
