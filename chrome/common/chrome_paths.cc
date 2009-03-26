@@ -140,6 +140,7 @@ bool PathProvider(int key, FilePath* result) {
       break;
     case chrome::FILE_GEARS_PLUGIN:
       if (!GetGearsPluginPathFromCommandLine(&cur)) {
+#if defined(OS_WIN)
         // Search for gears.dll alongside chrome.dll first.  This new model
         // allows us to package gears.dll with the Chrome installer and update
         // it while Chrome is running.
@@ -154,6 +155,10 @@ bool PathProvider(int key, FilePath* result) {
           cur = cur.Append(FILE_PATH_LITERAL("gears"));
           cur = cur.Append(FILE_PATH_LITERAL("gears.dll"));
         }
+#else
+        // No gears.dll on non-Windows systems.
+        return false;
+#endif
       }
       break;
     case chrome::FILE_LIBAVCODEC:
