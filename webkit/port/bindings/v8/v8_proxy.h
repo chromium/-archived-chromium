@@ -6,6 +6,7 @@
 #define V8_PROXY_H__
 
 #include <v8.h>
+#include "dom_wrapper_map.h"
 #include "v8_index.h"
 #include "v8_custom.h"
 #include "v8_utility.h"
@@ -15,7 +16,6 @@
 #include "PlatformString.h"  // for WebCore::String
 #include "ScriptSourceCode.h"  // for WebCore::ScriptSourceCode
 #include "SecurityOrigin.h"  // for WebCore::SecurityOrigin
-#include "V8DOMMap.h"
 #include <wtf/Assertions.h>
 #include <wtf/PassRefPtr.h> // so generated bindings don't have to
 #include <wtf/Vector.h>
@@ -28,9 +28,6 @@
 #else
 #define INC_STATS(name)
 #endif
-
-// FIXME: Remove the following hack when we replace all references to GetDOMObjectMap.
-#define GetDOMObjectMap getDOMObjectMap
 
 namespace WebCore {
 
@@ -146,6 +143,8 @@ void BatchConfigureConstants(v8::Handle<v8::FunctionTemplate> desc,
                              v8::Handle<v8::ObjectTemplate> proto,
                              const BatchedConstant* consts,
                              size_t num_consts);
+
+DOMWrapperMap<void>& GetDOMObjectMap();
 
 const int kMaxRecursionDepth = 20;
 

@@ -2813,10 +2813,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\DOMObjectsInclude.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bindings\v8\JSDOMBinding.cpp"
 			>
 		</File>
@@ -2986,14 +2982,6 @@
 		</File>
 		<File
 			RelativePath="..\..\port\bindings\v8\V8CanvasPixelArrayCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8DOMMap.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8DOMMap.h"
 			>
 		</File>
 		<File
