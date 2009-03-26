@@ -59,6 +59,7 @@ const char RootView::kViewClassName[] = "chrome/views/RootView";
 RootView::RootView(Widget* widget)
   : mouse_pressed_handler_(NULL),
     mouse_move_handler_(NULL),
+    last_click_handler_(NULL),
     widget_(widget),
     invalid_rect_urgent_(false),
     pending_paint_task_(NULL),
@@ -272,8 +273,18 @@ void RootView::SetFocusOnMousePressed(bool f) {
 }
 
 bool RootView::OnMousePressed(const MouseEvent& e) {
-  UpdateCursor(e);
+  // This function does not normally handle non-client messages except for
+  // non-client double-clicks. Actually, all double-clicks are special as the
+  // are formed from a single-click followed by a double-click event. When the
+  // double-click event lands on a different view than its single-click part,
+  // we transform it into a single-click which prevents odd things.
+  if ((e.GetFlags() & MouseEvent::EF_IS_NON_CLIENT) &&
+      !(e.GetFlags() & MouseEvent::EF_IS_DOUBLE_CLICK)) {
+    last_click_handler_ = NULL;
+    return false;
+  }
 
+  UpdateCursor(e);
   SetMouseLocationAndFlags(e);
 
   // If mouse_pressed_handler_ is non null, we are currently processing
@@ -300,11 +311,17 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
     }
 
     // See if this view wants to handle the mouse press.
-    const MouseEvent mouse_pressed_event(e, this, mouse_pressed_handler_);
+    MouseEvent mouse_pressed_event(e, this, mouse_pressed_handler_);
+
+    // Remove the double-click flag if the handler is different than the
+    // one which got the first click part of the double-click.
+    if (mouse_pressed_handler_ != last_click_handler_)
+      mouse_pressed_event.set_flags(e.GetFlags() &
+                                    ~MouseEvent::EF_IS_DOUBLE_CLICK);
+
     drag_info.Reset();
-    const bool handled =
-        mouse_pressed_handler_->ProcessMousePressed(mouse_pressed_event,
-                                                    &drag_info);
+    bool handled = mouse_pressed_handler_->ProcessMousePressed(
+        mouse_pressed_event, &drag_info);
 
     // The view could have removed itself from the tree when handling
     // OnMousePressed().  In this case, the removal notification will have
@@ -319,8 +336,10 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
     // If the view handled the event, leave mouse_pressed_handler_ set and
     // return true, which will cause subsequent drag/release events to get
     // forwarded to that view.
-    if (handled)
+    if (handled) {
+      last_click_handler_ = mouse_pressed_handler_;
       return true;
+    }
   }
 
   // Reset mouse_pressed_handler_ to indicate that no processing is occurring.
@@ -336,6 +355,15 @@ bool RootView::OnMousePressed(const MouseEvent& e) {
     NOTIMPLEMENTED();
 #endif
   }
+
+  // In the event that a double-click is not handled after traversing the
+  // entire hierarchy (even as a single-click when sent to a different view),
+  // it must be marked as handled to avoid anything happening from default
+  // processing if it the first click-part was handled by us.
+  if (last_click_handler_ && e.GetFlags() & MouseEvent::EF_IS_DOUBLE_CLICK)
+    hit_disabled_view = true;
+
+  last_click_handler_ = NULL;
   return hit_disabled_view;
 }
 

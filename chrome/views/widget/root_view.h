@@ -286,6 +286,10 @@ class RootView : public View,
   // The view currently handling enter / exit
   View* mouse_move_handler_;
 
+  // The last view to handle a mouse click, so that we can determine if
+  // a double-click lands on the same view as its single-click part.
+  View* last_click_handler_;
+
   // The host Widget
   Widget* widget_;
 

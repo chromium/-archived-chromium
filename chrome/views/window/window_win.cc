@@ -493,7 +493,7 @@ LRESULT WindowWin::OnDwmCompositionChanged(UINT msg, WPARAM w_param,
   force_hidden_ = true;
   ::ShowWindow(GetNativeView(), SW_RESTORE);
   force_hidden_ = false;
-  
+
   // We respond to this in response to WM_DWMCOMPOSITIONCHANGED since that is
   // the only thing we care about - we don't actually respond to WM_THEMECHANGED
   // messages.
@@ -1210,7 +1210,7 @@ void WindowWin::ProcessNCMousePress(const CPoint& point, int flags) {
   if ((GetKeyState(VK_SHIFT) & 0x80) == 0x80)
     message_flags |= MK_SHIFT;
   message_flags |= flags;
-  ProcessMousePressed(temp, message_flags, false);
+  ProcessMousePressed(temp, message_flags, false, false);
 }
 
 LRESULT WindowWin::CallDefaultNCActivateHandler(BOOL active) {
