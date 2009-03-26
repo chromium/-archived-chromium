@@ -7,6 +7,7 @@
 
 import os
 import re
+import signal
 import subprocess
 import sys
 
@@ -146,17 +147,11 @@ class PlatformUtility(object):
     """
     # server_process is not set when "http_server.py stop" is run manually.
     if server_process is None:
-      # Try to determine the HTTP server process.
       # TODO(mmoss) This isn't ideal, since it could conflict with lighttpd
       # processes not started by http_server.py, but good enough for now.
-      proc = subprocess.Popen(('ps', '--no-headers', '-o', 'pid',
-                               '-C', 'lighttpd'),
-                              stdout=subprocess.PIPE)
-      pid = proc.stdout.readline().strip()
+      subprocess.call(['killall', '-u', os.getenv('USER'), '-TERM', 'lighttpd'])
     else:
-      pid = server_process.pid
-    subprocess.Popen(('kill', '-TERM', '%s' % pid), stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE).wait()
+      os.kill(server_process.pid, signal.SIGTERM)
 
   def WDiffExecutablePath(self):
     """Path to the WDiff executable, which we assume is already installed and
