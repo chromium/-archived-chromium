@@ -73,10 +73,6 @@ WebContentsViewGtk::~WebContentsViewGtk() {
   vbox_.Destroy();
 }
 
-WebContents* WebContentsViewGtk::GetWebContents() {
-  return web_contents_;
-}
-
 void WebContentsViewGtk::CreateView() {
   NOTIMPLEMENTED();
 }
@@ -89,11 +85,11 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   view->InitAsChild();
   content_view_ = view->native_view();
   g_signal_connect(content_view_, "focus",
-                   G_CALLBACK(OnFocus), web_contents_);
+                   G_CALLBACK(OnFocus), web_contents());
   g_signal_connect(view->native_view(), "leave-notify-event",
-                   G_CALLBACK(OnLeaveNotify), web_contents_);
+                   G_CALLBACK(OnLeaveNotify), web_contents());
   g_signal_connect(view->native_view(), "motion-notify-event",
-                   G_CALLBACK(OnMouseMove), web_contents_);
+                   G_CALLBACK(OnMouseMove), web_contents());
   gtk_widget_add_events(view->native_view(), GDK_LEAVE_NOTIFY_MASK |
                         GDK_POINTER_MOTION_MASK);
   gtk_container_foreach(GTK_CONTAINER(vbox_.get()), RemoveWidget, vbox_.get());
@@ -154,8 +150,8 @@ bool WebContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
 }
 
 void WebContentsViewGtk::SetInitialFocus() {
-  if (web_contents_->FocusLocationBarByDefault())
-    web_contents_->delegate()->SetFocusToLocationBar();
+  if (web_contents()->FocusLocationBarByDefault())
+    web_contents()->delegate()->SetFocusToLocationBar();
   else
     gtk_widget_grab_focus(content_view_);
 }
@@ -178,7 +174,7 @@ void WebContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
 // This is called when we the renderer asks us to take focus back (i.e., it has
 // iterated past the last focusable element on the page).
 void WebContentsViewGtk::TakeFocus(bool reverse) {
-  web_contents_->delegate()->SetFocusToLocationBar();
+  web_contents()->delegate()->SetFocusToLocationBar();
 }
 
 void WebContentsViewGtk::HandleKeyboardEvent(
@@ -198,7 +194,7 @@ void WebContentsViewGtk::OnFindReply(int request_id,
 }
 
 void WebContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
-  context_menu_.reset(new RenderViewContextMenuGtk(web_contents_, params));
+  context_menu_.reset(new RenderViewContextMenuGtk(web_contents(), params));
   context_menu_->Popup();
 }
 

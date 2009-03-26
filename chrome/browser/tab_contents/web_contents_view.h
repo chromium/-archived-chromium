@@ -42,7 +42,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // the caller.
   static WebContentsView* Create(WebContents* web_contents);
 
-  virtual WebContents* GetWebContents() = 0;
+  WebContents* web_contents() const { return web_contents_; }
 
   virtual void CreateView() = 0;
 
@@ -145,9 +145,6 @@ class WebContentsView : public RenderViewHostDelegate::View {
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
                                          const gfx::Rect& initial_pos);
 
- protected:
-  WebContents* web_contents_;
-
  private:
   // We implement these functions on RenderViewHostDelegate::View directly and
   // do some book-keeping associated with the request. The request is then
@@ -160,6 +157,9 @@ class WebContentsView : public RenderViewHostDelegate::View {
                                  const gfx::Rect& initial_pos,
                                  bool user_gesture);
   virtual void ShowCreatedWidget(int route_id, const gfx::Rect& initial_pos);
+
+  // The WebContents whose contents we display.
+  WebContents* web_contents_;
 
   // Tracks created WebContents objects that have not been shown yet. They are
   // identified by the route ID passed to CreateNewWindow.

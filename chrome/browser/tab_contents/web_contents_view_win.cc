@@ -67,10 +67,6 @@ WebContentsViewWin::~WebContentsViewWin() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 }
 
-WebContents* WebContentsViewWin::GetWebContents() {
-  return web_contents_;
-}
-
 void WebContentsViewWin::CreateView() {
   set_delete_on_destroy(false);
   // Since we create these windows parented to the desktop window initially, we
@@ -80,7 +76,7 @@ void WebContentsViewWin::CreateView() {
 
   // Remove the root view drop target so we can register our own.
   RevokeDragDrop(GetNativeView());
-  drop_target_ = new WebDropTarget(GetNativeView(), web_contents_);
+  drop_target_ = new WebDropTarget(GetNativeView(), web_contents());
 }
 
 RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
@@ -98,9 +94,9 @@ gfx::NativeView WebContentsViewWin::GetNativeView() const {
 }
 
 gfx::NativeView WebContentsViewWin::GetContentNativeView() const {
-  if (!web_contents_->render_widget_host_view())
+  if (!web_contents()->render_widget_host_view())
     return NULL;
-  return web_contents_->render_widget_host_view()->GetPluginNativeView();
+  return web_contents()->render_widget_host_view()->GetPluginNativeView();
 }
 
 gfx::NativeWindow WebContentsViewWin::GetTopLevelNativeWindow() const {
@@ -147,7 +143,7 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
       BookmarkDragData bm_drag_data;
       bm_drag_data.elements.push_back(bm_elt);
 
-      bm_drag_data.Write(web_contents_->profile(), data);
+      bm_drag_data.Write(web_contents()->profile(), data);
     } else {
       data->SetURL(drop_data.url, drop_data.url_title);
     }
@@ -156,7 +152,7 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
     data->SetString(drop_data.plain_text);
 
   scoped_refptr<WebDragSource> drag_source(
-      new WebDragSource(GetNativeView(), web_contents_->render_view_host()));
+      new WebDragSource(GetNativeView(), web_contents()->render_view_host()));
 
   DWORD effects;
 
@@ -167,8 +163,8 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
   DoDragDrop(data, drag_source, DROPEFFECT_COPY | DROPEFFECT_LINK, &effects);
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 
-  if (web_contents_->render_view_host())
-    web_contents_->render_view_host()->DragSourceSystemDragEnded();
+  if (web_contents()->render_view_host())
+    web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
 void WebContentsViewWin::OnContentsDestroy() {
@@ -207,7 +203,7 @@ void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
     // TODO(brettw) this call seems messy the way it reaches into the widget
     // view, and I'm not sure it's necessary. Maybe we should just remove it.
     ::SetWindowText(
-        web_contents_->render_widget_host_view()->GetPluginNativeView(),
+        web_contents()->render_widget_host_view()->GetPluginNativeView(),
         title.c_str());
   }
 }
@@ -224,8 +220,8 @@ void WebContentsViewWin::SizeContents(const gfx::Size& size) {
 }
 
 void WebContentsViewWin::SetInitialFocus() {
-  if (web_contents_->FocusLocationBarByDefault())
-    web_contents_->delegate()->SetFocusToLocationBar();
+  if (web_contents()->FocusLocationBarByDefault())
+    web_contents()->delegate()->SetFocusToLocationBar();
   else
     ::SetFocus(GetNativeView());
 }
@@ -355,7 +351,7 @@ void WebContentsViewWin::HandleKeyboardEvent(
 }
 
 void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
-  RenderViewContextMenuWin menu(web_contents_,
+  RenderViewContextMenuWin menu(web_contents(),
                                 params,
                                 GetNativeView());
 
@@ -376,12 +372,12 @@ WebContents* WebContentsViewWin::CreateNewWindowInternal(
   // Create the new web contents. This will automatically create the new
   // WebContentsView. In the future, we may want to create the view separately.
   WebContents* new_contents =
-      new WebContents(web_contents_->profile(),
-                      web_contents_->GetSiteInstance(),
-                      web_contents_->render_view_factory_,
+      new WebContents(web_contents()->profile(),
+                      web_contents()->GetSiteInstance(),
+                      web_contents()->render_view_factory_,
                       route_id,
                       modal_dialog_event);
-  new_contents->SetupController(web_contents_->profile());
+  new_contents->SetupController(web_contents()->profile());
   WebContentsView* new_view = new_contents->view();
 
   new_view->CreateView();
@@ -405,8 +401,8 @@ void WebContentsViewWin::ShowCreatedWindowInternal(
 
   // TODO(brettw) this seems bogus to reach into here and initialize the host.
   new_web_contents->render_view_host()->Init();
-  web_contents_->AddNewContents(new_web_contents, disposition, initial_pos,
-                                user_gesture);
+  web_contents()->AddNewContents(new_web_contents, disposition, initial_pos,
+                                 user_gesture);
 }
 
 void WebContentsViewWin::OnHScroll(int scroll_type, short position,
@@ -417,8 +413,8 @@ void WebContentsViewWin::OnHScroll(int scroll_type, short position,
 void WebContentsViewWin::OnMouseLeave() {
   // Let our delegate know that the mouse moved (useful for resetting status
   // bubble state).
-  if (web_contents_->delegate())
-    web_contents_->delegate()->ContentsMouseEvent(web_contents_, false);
+  if (web_contents()->delegate())
+    web_contents()->delegate()->ContentsMouseEvent(web_contents(), false);
   SetMsgHandled(FALSE);
 }
 
@@ -429,19 +425,19 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN: {
       // Make sure this TabContents is activated when it is clicked on.
-      if (web_contents_->delegate())
-        web_contents_->delegate()->ActivateContents(web_contents_);
+      if (web_contents()->delegate())
+        web_contents()->delegate()->ActivateContents(web_contents());
       DownloadRequestManager* drm =
           g_browser_process->download_request_manager();
       if (drm)
-        drm->OnUserGesture(web_contents_);
+        drm->OnUserGesture(web_contents());
       break;
     }
     case WM_MOUSEMOVE:
       // Let our delegate know that the mouse moved (useful for resetting status
       // bubble state).
-      if (web_contents_->delegate()) {
-        web_contents_->delegate()->ContentsMouseEvent(web_contents_, true);
+      if (web_contents()->delegate()) {
+        web_contents()->delegate()->ContentsMouseEvent(web_contents(), true);
       }
       break;
     default:
@@ -452,8 +448,8 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
 }
 
 void WebContentsViewWin::OnPaint(HDC junk_dc) {
-  if (web_contents_->render_view_host() &&
-      !web_contents_->render_view_host()->IsRenderViewLive()) {
+  if (web_contents()->render_view_host() &&
+      !web_contents()->render_view_host()->IsRenderViewLive()) {
     if (!sad_tab_.get())
       sad_tab_.reset(new SadTabView);
     CRect cr;
@@ -501,9 +497,9 @@ void WebContentsViewWin::OnSetFocus(HWND window) {
   //                background from properly taking focus.
   // We NULL-check the render_view_host_ here because Windows can send us
   // messages during the destruction process after it has been destroyed.
-  if (web_contents_->render_widget_host_view()) {
+  if (web_contents()->render_widget_host_view()) {
     HWND inner_hwnd =
-        web_contents_->render_widget_host_view()->GetPluginNativeView();
+        web_contents()->render_widget_host_view()->GetPluginNativeView();
     if (::IsWindow(inner_hwnd))
       ::SetFocus(inner_hwnd);
   }
@@ -576,21 +572,21 @@ void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type,
 }
 
 void WebContentsViewWin::WasHidden() {
-  web_contents_->HideContents();
+  web_contents()->HideContents();
 }
 
 void WebContentsViewWin::WasShown() {
-  web_contents_->ShowContents();
+  web_contents()->ShowContents();
 }
 
 void WebContentsViewWin::WasSized(const gfx::Size& size) {
-  if (web_contents_->interstitial_page())
-    web_contents_->interstitial_page()->SetSize(size);
-  if (web_contents_->render_widget_host_view())
-    web_contents_->render_widget_host_view()->SetSize(size);
+  if (web_contents()->interstitial_page())
+    web_contents()->interstitial_page()->SetSize(size);
+  if (web_contents()->render_widget_host_view())
+    web_contents()->render_widget_host_view()->SetSize(size);
 
   // TODO(brettw) this function can probably be moved to this class.
-  web_contents_->RepositionSupressedPopupsToFit(size);
+  web_contents()->RepositionSupressedPopupsToFit(size);
 }
 
 bool WebContentsViewWin::ScrollZoom(int scroll_type) {
@@ -625,8 +621,8 @@ bool WebContentsViewWin::ScrollZoom(int scroll_type) {
 }
 
 void WebContentsViewWin::WheelZoom(int distance) {
-  if (web_contents_->delegate()) {
+  if (web_contents()->delegate()) {
     bool zoom_in = distance > 0;
-    web_contents_->delegate()->ContentsZoomChange(zoom_in);
+    web_contents()->delegate()->ContentsZoomChange(zoom_in);
   }
 }

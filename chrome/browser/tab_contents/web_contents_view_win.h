@@ -28,7 +28,6 @@ class WebContentsViewWin : public WebContentsView,
 
   // WebContentsView implementation --------------------------------------------
 
-  virtual WebContents* GetWebContents();
   virtual void CreateView();
   virtual RenderWidgetHostView* CreateViewForWidget(
       RenderWidgetHost* render_widget_host);

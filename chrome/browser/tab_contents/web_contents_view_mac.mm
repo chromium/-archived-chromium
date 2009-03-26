@@ -34,10 +34,6 @@ WebContentsViewMac::WebContentsViewMac(WebContents* web_contents)
 WebContentsViewMac::~WebContentsViewMac() {
 }
 
-WebContents* WebContentsViewMac::GetWebContents() {
-  return web_contents_;
-}
-
 void WebContentsViewMac::CreateView() {
   WebContentsViewCocoa* view =
       [[WebContentsViewCocoa alloc] initWithWebContentsViewMac:this];
@@ -65,9 +61,9 @@ gfx::NativeView WebContentsViewMac::GetNativeView() const {
 }
 
 gfx::NativeView WebContentsViewMac::GetContentNativeView() const {
-  if (!web_contents_->render_widget_host_view())
+  if (!web_contents()->render_widget_host_view())
     return NULL;
-  return web_contents_->render_widget_host_view()->GetPluginNativeView();
+  return web_contents()->render_widget_host_view()->GetPluginNativeView();
 }
 
 gfx::NativeWindow WebContentsViewMac::GetTopLevelNativeWindow() const {
@@ -177,7 +173,7 @@ void WebContentsViewMac::OnFindReply(int request_id,
 }
 
 void WebContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
-  RenderViewContextMenuMac menu(web_contents_,
+  RenderViewContextMenuMac menu(web_contents(),
                                 params,
                                 GetNativeView());
 }
@@ -188,12 +184,12 @@ WebContents* WebContentsViewMac::CreateNewWindowInternal(
   // Create the new web contents. This will automatically create the new
   // WebContentsView. In the future, we may want to create the view separately.
   WebContents* new_contents =
-      new WebContents(web_contents_->profile(),
-                      web_contents_->GetSiteInstance(),
-                      web_contents_->render_view_factory_,
+      new WebContents(web_contents()->profile(),
+                      web_contents()->GetSiteInstance(),
+                      web_contents()->render_view_factory_,
                       route_id,
                       modal_dialog_event);
-  new_contents->SetupController(web_contents_->profile());
+  new_contents->SetupController(web_contents()->profile());
   WebContentsView* new_view = new_contents->view();
 
   new_view->CreateView();
@@ -217,8 +213,8 @@ void WebContentsViewMac::ShowCreatedWindowInternal(
 
   // TODO(brettw) this seems bogus to reach into here and initialize the host.
   new_web_contents->render_view_host()->Init();
-  web_contents_->AddNewContents(new_web_contents, disposition, initial_pos,
-                                user_gesture);
+  web_contents()->AddNewContents(new_web_contents, disposition, initial_pos,
+                                 user_gesture);
 }
 
 void WebContentsViewMac::Observe(NotificationType type,
@@ -265,13 +261,13 @@ void WebContentsViewMac::Observe(NotificationType type,
 }
 
 - (void)mouseEvent:(NSEvent *)theEvent {
-  if (webContentsView_->GetWebContents()->delegate()) {
+  if (webContentsView_->web_contents()->delegate()) {
     if ([theEvent type] == NSMouseMoved)
-      webContentsView_->GetWebContents()->delegate()->
-          ContentsMouseEvent(webContentsView_->GetWebContents(), true);
+      webContentsView_->web_contents()->delegate()->
+          ContentsMouseEvent(webContentsView_->web_contents(), true);
     if ([theEvent type] == NSMouseExited)
-      webContentsView_->GetWebContents()->delegate()->
-          ContentsMouseEvent(webContentsView_->GetWebContents(), false);
+      webContentsView_->web_contents()->delegate()->
+          ContentsMouseEvent(webContentsView_->web_contents(), false);
   }
 }
 
@@ -280,15 +276,15 @@ void WebContentsViewMac::Observe(NotificationType type,
 // WebCore.
 
 - (void)cut:(id)sender {
-  webContentsView_->GetWebContents()->Cut();
+  webContentsView_->web_contents()->Cut();
 }
 
 - (void)copy:(id)sender {
-  webContentsView_->GetWebContents()->Copy();
+  webContentsView_->web_contents()->Copy();
 }
 
 - (void)paste:(id)sender {
-  webContentsView_->GetWebContents()->Paste();
+  webContentsView_->web_contents()->Paste();
 }
 
 // Tons of stuff goes here, where we grab events going on in Cocoaland and send
