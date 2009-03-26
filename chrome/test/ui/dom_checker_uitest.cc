@@ -216,7 +216,7 @@ class DomCheckerTest : public UITest {
 
 }  // namespace
 
-TEST_F(DomCheckerTest, File) {
+TEST_F(DomCheckerTest, DISABLED_File) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
     return;
 
@@ -225,7 +225,7 @@ TEST_F(DomCheckerTest, File) {
   PrintResults(new_passes, new_failures);
 }
 
-TEST_F(DomCheckerTest, Http) {
+TEST_F(DomCheckerTest, DISABLED_Http) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
     return;
 
