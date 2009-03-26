@@ -66,7 +66,8 @@ WebContentsView* WebContentsView::Create(WebContents* web_contents) {
 
 WebContentsViewGtk::WebContentsViewGtk(WebContents* web_contents)
     : WebContentsView(web_contents),
-      vbox_(gtk_vbox_new(FALSE, 0)) {
+      vbox_(gtk_vbox_new(FALSE, 0)),
+      content_view_(NULL) {
 }
 
 WebContentsViewGtk::~WebContentsViewGtk() {
