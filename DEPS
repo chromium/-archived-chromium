@@ -34,9 +34,6 @@ deps = {
   "src/webkit/data/layout_tests/LayoutTests":
     Var("webkit_trunk") + "/LayoutTests@" + Var("webkit_revision"),
 
-  "src/third_party/WebKit/WebKit/mac":
-    Var("webkit_trunk") + "/WebKit/mac@" + Var("webkit_revision"),
-
   "src/third_party/WebKit/WebKitLibraries":
     Var("webkit_trunk") + "/WebKitLibraries@" + Var("webkit_revision"),
 }
@@ -58,6 +55,8 @@ deps_os = {
       "http://google-toolbox-for-mac.googlecode.com/svn/trunk/@104",
     "src/third_party/pdfsqueeze":
       "http://pdfsqueeze.googlecode.com/svn/trunk/@2",
+    "src/third_party/WebKit/WebKit/mac":
+      Var("webkit_trunk") + "/WebKit/mac@" + Var("webkit_revision"),
   },
 }
 
