@@ -1248,8 +1248,6 @@
             'browser/bookmarks/bookmark_context_menu.cc',
             'browser/bookmarks/bookmark_drop_info.cc',
             'browser/debugger/debugger_shell_stubs.cc',
-            'browser/dom_ui/devtools_ui.cc',
-            'browser/dom_ui/devtools_ui.h',
           ],
           'sources': [
             # Build the necessary GTM sources

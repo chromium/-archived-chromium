@@ -55,9 +55,6 @@ static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
     return true;
   }
 
-#if defined(OS_WIN)
-
-  // TODO(port): it should be possible to include these now.
   if (url.host() == chrome::kChromeUIExtensionsHost) {
     if (new_ui)
       *new_ui = new ExtensionsUI(web_contents);
@@ -75,8 +72,6 @@ static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
       *new_ui = new DevToolsUI(web_contents);
     return true;
   }
-
-#endif
 
   return false;
 }

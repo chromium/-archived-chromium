@@ -184,8 +184,15 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
   frontend_ = frontend;
   alert_on_error_ = false;
 
+#if defined(OS_WIN)
+  // On POSIX, AbsolutePath() calls realpath() which returns NULL if
+  // it does not exist.  Instead we absolute-ify after creation in
+  // case that is needed.
+  // TODO(port): does this really need to happen before
+  // CreateDirectory() on Windows?
   if (!file_util::AbsolutePath(&install_directory_))
     NOTREACHED();
+#endif
 
   scoped_ptr<ExtensionList> extensions(new ExtensionList);
 
@@ -196,6 +203,11 @@ void ExtensionsServiceBackend::LoadExtensionsFromInstallDirectory(
     ReportExtensionsLoaded(extensions.release());
     return;
   }
+
+#if !defined(OS_WIN)
+  if (!file_util::AbsolutePath(&install_directory_))
+    NOTREACHED();
+#endif
 
   LOG(INFO) << "Loading installed extensions...";
 
