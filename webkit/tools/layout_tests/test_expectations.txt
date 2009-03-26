@@ -2333,3 +2333,50 @@ WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CR
 WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
 WIN LINUX : LayoutTests/editing/selection/4776665.html = FAIL
+
+// Merge WebKit: 41944:41999
+// All these seem to be the same issue. None of them is crashing when run separately.
+// But if a previous test time-outs, the following 1-2 tests crash the test_shell.
+// Filed a bug 9371.
+BUG 9371 DEFER WIN : LayoutTests/http/tests/misc/cached-scripts.html = CRASH
+BUG 9371 DEFER WIN : LayoutTests/http/tests/misc/canvas-pattern-from-incremental-image.html = CRASH
+//BUG 9371 DEFER WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH
+BUG 9371 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = CRASH
+BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/security/postMessage/data-url-sends-null-origin.html = CRASH
+
+// Attention: this test, when it does not crash anymore, should be un-commented above in this file as 'failing'
+//BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/methods.html = CRASH
+BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/status-after-abort.html = CRASH
+
+ // New tests, need Chromium baseline.
+DEFER WIN MAC LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
+  
+  // Need rebaseline, see  WebKit 41993.
+DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
+DEFER WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
+  
+  // Needs rebaseline. See WebKit 41972.
+DEFER WIN MAC LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
+
+  // Needs rebaseline. See WebKit 91948
+DEFER WIN MAC LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL
+  
+  // New test, needs baseline. See WebKit 41978 (brettw)
+DEFER WIN MAC LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
+  
+  // Needs rebaseline. See WebKit 41980
+DEFER WIN MAC LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
+  
+  // Need baseline, new tests. See WebKit 41955
+DEFER WIN MAC LINUX : LayoutTests/fonts/cursive.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fonts/default.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fonts/fantasy.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fonts/monospace.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fonts/sans-serif.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/fonts/serif.html = FAIL
+DEFER WIN MAC LINUX : chrome/fonts/default.html = FAIL
+
+
