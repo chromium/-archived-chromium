@@ -19,7 +19,7 @@ class FFmpegVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
     return new FilterFactoryImpl0<FFmpegVideoDecoder>();
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format);
+  static bool IsMediaFormatSupported(const MediaFormat& media_format);
 
   virtual bool OnInitialize(DemuxerStream* demuxer_stream);
 

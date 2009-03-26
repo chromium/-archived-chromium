@@ -266,7 +266,7 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
   template <class Filter, class Source>
   scoped_refptr<Filter> CreateFilter(FilterFactory* filter_factory,
                                      Source source,
-                                     const MediaFormat* source_media_format);
+                                     const MediaFormat& source_media_format);
 
   // Creates a Filter and initilizes it with the given |source|.  If a Filter
   // could not be created or an error occurred, this metod returns NULL and the
@@ -278,7 +278,7 @@ class PipelineThread : public base::RefCountedThreadSafe<PipelineThread>,
                                      Source* source) {
     return CreateFilter<Filter, Source*>(filter_factory,
                                          source,
-                                         source->GetMediaFormat());
+                                         source->media_format());
   }
 
   // Creates a DataSource (the first filter in a pipeline), and initializes it

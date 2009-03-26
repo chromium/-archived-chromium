@@ -148,12 +148,12 @@ TEST(FFmpegDemuxerTest, InitializeFailure) {
   // Should only accept application/octet-stream type.
   MediaFormat media_format;
   media_format.SetAsString(MediaFormat::kMimeType, "foo/x-bar");
-  scoped_refptr<Demuxer> demuxer(factory->Create<Demuxer>(&media_format));
+  scoped_refptr<Demuxer> demuxer(factory->Create<Demuxer>(media_format));
   ASSERT_FALSE(demuxer);
   media_format.Clear();
   media_format.SetAsString(MediaFormat::kMimeType,
                            mime_type::kApplicationOctetStream);
-  demuxer = factory->Create<Demuxer>(&media_format);
+  demuxer = factory->Create<Demuxer>(media_format);
   ASSERT_TRUE(demuxer);
 
   // Prepare a filter host and data source for the demuxer.
@@ -173,7 +173,7 @@ TEST(FFmpegDemuxerTest, InitializeFailure) {
   // Simulate av_find_stream_info failing.
   g_av_open_input_file = 0;
   g_av_find_stream_info = AVERROR_IO;
-  demuxer = factory->Create<Demuxer>(&media_format);
+  demuxer = factory->Create<Demuxer>(media_format);
   filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
   EXPECT_FALSE(demuxer->Initialize(data_source));
   EXPECT_FALSE(filter_host->IsInitialized());
@@ -181,7 +181,7 @@ TEST(FFmpegDemuxerTest, InitializeFailure) {
 
   // Simulate media with no parseable streams.
   InitializeFFmpegMocks();
-  demuxer = factory->Create<Demuxer>(&media_format);
+  demuxer = factory->Create<Demuxer>(media_format);
   filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
   EXPECT_FALSE(demuxer->Initialize(data_source));
   EXPECT_FALSE(filter_host->IsInitialized());
@@ -192,7 +192,7 @@ TEST(FFmpegDemuxerTest, InitializeFailure) {
   g_format.streams[0] = &g_streams[0];
   g_streams[0].codec = &g_data_codec;
   g_streams[0].duration = 10;
-  demuxer = factory->Create<Demuxer>(&media_format);
+  demuxer = factory->Create<Demuxer>(media_format);
   filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
   EXPECT_FALSE(demuxer->Initialize(data_source));
   EXPECT_FALSE(filter_host->IsInitialized());
@@ -226,7 +226,7 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   // Create our demuxer.
   scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
   scoped_refptr<Demuxer> demuxer
-      = factory->Create<Demuxer>(data_source->GetMediaFormat());
+      = factory->Create<Demuxer>(data_source->media_format());
   EXPECT_TRUE(demuxer);
   MockFilterHost<Demuxer> filter_host_b(&pipeline, demuxer);
   EXPECT_TRUE(demuxer->Initialize(data_source));
@@ -243,29 +243,35 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   // First stream should be video.
   scoped_refptr<DemuxerStream> stream = demuxer->GetStream(0);
   ASSERT_TRUE(stream);
-  const MediaFormat* stream_format = stream->GetMediaFormat();
   std::string mime_type;
   int result;
-  EXPECT_TRUE(stream_format->GetAsString(MediaFormat::kMimeType, &mime_type));
+  EXPECT_TRUE(
+      stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegVideo, mime_type.c_str());
-  EXPECT_TRUE(stream_format->GetAsInteger(kFFmpegCodecID, &result));
+  EXPECT_TRUE(
+      stream->media_format().GetAsInteger(kFFmpegCodecID, &result));
   EXPECT_EQ(CODEC_ID_THEORA, static_cast<CodecID>(result));
-  EXPECT_TRUE(stream_format->GetAsInteger(MediaFormat::kHeight, &result));
+  EXPECT_TRUE(
+      stream->media_format().GetAsInteger(MediaFormat::kHeight, &result));
   EXPECT_EQ(g_video_codec.height, result);
-  EXPECT_TRUE(stream_format->GetAsInteger(MediaFormat::kWidth, &result));
+  EXPECT_TRUE(
+      stream->media_format().GetAsInteger(MediaFormat::kWidth, &result));
   EXPECT_EQ(g_video_codec.width, result);
 
   // Second stream should be audio.
   stream = demuxer->GetStream(1);
   ASSERT_TRUE(stream);
-  stream_format = stream->GetMediaFormat();
-  EXPECT_TRUE(stream_format->GetAsString(MediaFormat::kMimeType, &mime_type));
+  EXPECT_TRUE(
+      stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegAudio, mime_type.c_str());
-  EXPECT_TRUE(stream_format->GetAsInteger(kFFmpegCodecID, &result));
+  EXPECT_TRUE(
+      stream->media_format().GetAsInteger(kFFmpegCodecID, &result));
   EXPECT_EQ(CODEC_ID_VORBIS, static_cast<CodecID>(result));
-  EXPECT_TRUE(stream_format->GetAsInteger(MediaFormat::kChannels, &result));
+  EXPECT_TRUE(
+      stream->media_format().GetAsInteger(MediaFormat::kChannels, &result));
   EXPECT_EQ(g_audio_codec.channels, result);
-  EXPECT_TRUE(stream_format->GetAsInteger(MediaFormat::kSampleRate, &result));
+  EXPECT_TRUE(
+      stream->media_format().GetAsInteger(MediaFormat::kSampleRate, &result));
   EXPECT_EQ(g_audio_codec.sample_rate, result);
 }
 
@@ -300,7 +306,7 @@ TEST(FFmpegDemuxerTest, Read) {
   // Create our demuxer.
   scoped_refptr<FilterFactory> factory = FFmpegDemuxer::CreateFilterFactory();
   scoped_refptr<Demuxer> demuxer
-      = factory->Create<Demuxer>(data_source->GetMediaFormat());
+      = factory->Create<Demuxer>(data_source->media_format());
   EXPECT_TRUE(demuxer);
   MockFilterHost<Demuxer> filter_host_b(&pipeline, demuxer);
   EXPECT_TRUE(demuxer->Initialize(data_source));
@@ -335,7 +341,7 @@ TEST(FFmpegDemuxerTest, Read) {
   pipeline.RunAllTasks();
   EXPECT_TRUE(buffer->assigned());
   EXPECT_TRUE(buffer->buffer());
-  EXPECT_EQ(audio_data, (uint8*)buffer->buffer()->GetData());
+  EXPECT_EQ(audio_data, buffer->buffer()->GetData());
   EXPECT_EQ(kDataSize, buffer->buffer()->GetDataSize());
 
   // Prepare our test video packet.
@@ -349,7 +355,7 @@ TEST(FFmpegDemuxerTest, Read) {
   pipeline.RunAllTasks();
   EXPECT_TRUE(buffer->assigned());
   EXPECT_TRUE(buffer->buffer());
-  EXPECT_EQ(video_data, (uint8*)buffer->buffer()->GetData());
+  EXPECT_EQ(video_data, buffer->buffer()->GetData());
   EXPECT_EQ(kDataSize, buffer->buffer()->GetDataSize());
 
   // Simulate end of stream.

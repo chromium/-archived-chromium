@@ -108,7 +108,7 @@ class AudioRendererImpl : public media::AudioRendererBase {
     return new media::FilterFactoryImpl1<AudioRendererImpl,
                                          WebMediaPlayerDelegateImpl*>(delegate);
   }
-  static bool IsMediaFormatSupported(const media::MediaFormat* format);
+  static bool IsMediaFormatSupported(const media::MediaFormat& format);
 
   // Methods call from RenderView when audio related IPC messages are received
   // from browser process.
@@ -123,7 +123,6 @@ class AudioRendererImpl : public media::AudioRendererBase {
   // Methods called on pipeline thread ----------------------------------------
   // media::MediaFilter implementation.
   virtual void SetPlaybackRate(float rate);
-  const media::MediaFormat* GetMediaFormat();
 
   // media::AudioRenderer implementation.
   virtual void SetVolume(float volume);
@@ -134,7 +133,7 @@ class AudioRendererImpl : public media::AudioRendererBase {
  protected:
   // Methods called on audio renderer thread ----------------------------------
   // These methods are called from AudioRendererBase.
-  virtual bool OnInitialize(const media::MediaFormat* media_format);
+  virtual bool OnInitialize(const media::MediaFormat& media_format);
   virtual void OnStop();
 
  private:
@@ -158,9 +157,6 @@ class AudioRendererImpl : public media::AudioRendererBase {
   void OnNotifyAudioPacketReady();
 
   WebMediaPlayerDelegateImpl* delegate_;
-
-  // A map of media format information.
-  media::MediaFormat media_format_;
 
   // ID of the stream created in the browser process.
   int32 stream_id_;

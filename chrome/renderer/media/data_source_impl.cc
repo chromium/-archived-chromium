@@ -215,10 +215,10 @@ void DataSourceImpl::OnInitialize(std::string uri) {
       "GET",
       GURL(uri),
       GURL(uri),
-      GURL(),        // TODO(hclam): provide referer here.
-      "null",        // TODO(abarth): provide frame_origin
-      "null",        // TODO(abarth): provide main_frame_origin
-      std::string(), // Provide no header.
+      GURL(),         // TODO(hclam): provide referer here.
+      "null",         // TODO(abarth): provide frame_origin
+      "null",         // TODO(abarth): provide main_frame_origin
+      std::string(),  // Provide no header.
       // Prefer to load from cache, also enable downloading the file, the
       // resource will be saved to a single response data file if it's possible.
       net::LOAD_PREFERRING_CACHE | net::LOAD_ENABLE_DOWNLOAD_FILE,
@@ -244,9 +244,9 @@ void DataSourceImpl::OnDownloadProgress(uint64 position, uint64 size) {
     AutoLock auto_lock(lock_);
     downloaded_bytes_ = position;
     if (!total_bytes_known_) {
-      if (size == kuint64max)
+      if (size == kuint64max) {
         total_bytes_ = position;
-      else {
+      } else {
         total_bytes_ = size;
         total_bytes_known_ = true;
       }
@@ -308,6 +308,6 @@ std::string DataSourceImpl::GetURLForDebugging() {
   return uri_;
 }
 
-const media::MediaFormat* DataSourceImpl::GetMediaFormat() {
-  return &media_format_;
+const media::MediaFormat& DataSourceImpl::media_format() {
+  return media_format_;
 }

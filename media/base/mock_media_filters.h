@@ -124,8 +124,8 @@ class MockDataSource : public DataSource {
     }
   }
 
-  virtual const MediaFormat* GetMediaFormat() {
-    return &media_format_;
+  virtual const MediaFormat& media_format() {
+    return media_format_;
   }
 
   virtual size_t Read(uint8* data, size_t size) {
@@ -210,8 +210,8 @@ class MockDemuxerStream : public DemuxerStream {
   }
 
   // Implementation of DemuxerStream.
-  virtual const MediaFormat* GetMediaFormat() {
-    return &media_format_;
+  virtual const MediaFormat& media_format() {
+    return media_format_;
   }
 
   virtual void Read(Assignable<Buffer>* buffer) {
@@ -299,7 +299,7 @@ class MockAudioDecoder : public AudioDecoder {
                                   const MockFilterConfig*>(config);
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     return true;  // TODO(ralphl): check for a supported format.
   }
 
@@ -317,8 +317,8 @@ class MockAudioDecoder : public AudioDecoder {
     return true;
   }
 
-  virtual const MediaFormat* GetMediaFormat() {
-    return &media_format_;
+  virtual const MediaFormat& media_format() {
+    return media_format_;
   }
 
   virtual void Read(Assignable<Buffer>* buffer) {
@@ -343,7 +343,7 @@ class MockAudioRenderer : public AudioRenderer {
                                   const MockFilterConfig*>(config);
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     return true;  // TODO(ralphl): check for a supported format
   }
 
@@ -375,7 +375,7 @@ class MockVideoDecoder : public VideoDecoder {
                                   const MockFilterConfig*>(config);
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     return true;  // TODO(ralphl): check for a supported format.
   }
 
@@ -425,8 +425,8 @@ class MockVideoDecoder : public VideoDecoder {
     return true;
   }
 
-  virtual const MediaFormat* GetMediaFormat() {
-    return &media_format_;
+  virtual const MediaFormat& media_format() {
+    return media_format_;
   }
 
   virtual void Read(Assignable<VideoFrame>* buffer) {
@@ -482,7 +482,7 @@ class MockVideoRenderer : public VideoRenderer {
                                   const MockFilterConfig*>(config);
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     return true;  // TODO(ralphl): check for a supported format
   }
 

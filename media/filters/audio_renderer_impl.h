@@ -29,7 +29,7 @@ class AudioRendererImpl : public AudioRendererBase,
     return new FilterFactoryImpl0<AudioRendererImpl>();
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format);
+  static bool IsMediaFormatSupported(const MediaFormat& media_format);
 
   // MediaFilter implementation.
   virtual void SetPlaybackRate(float playback_rate);
@@ -49,7 +49,7 @@ class AudioRendererImpl : public AudioRendererBase,
   virtual ~AudioRendererImpl();
 
   // AudioRendererBase implementation.
-  virtual bool OnInitialize(const MediaFormat* media_format);
+  virtual bool OnInitialize(const MediaFormat& media_format);
   virtual void OnStop();
 
  private:

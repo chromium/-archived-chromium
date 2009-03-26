@@ -418,13 +418,12 @@ void PipelineThread::Render(FilterFactory* filter_factory, Demuxer* demuxer) {
   const std::string major_mime_type = Decoder::major_mime_type();
   const int num_outputs = demuxer->GetNumberOfStreams();
   for (int i = 0; i < num_outputs; ++i) {
-    scoped_refptr<DemuxerStream> demuxer_stream = demuxer->GetStream(i);
-    const MediaFormat* stream_format = demuxer_stream->GetMediaFormat();
+    scoped_refptr<DemuxerStream> stream = demuxer->GetStream(i);
     std::string value;
-    if (stream_format->GetAsString(MediaFormat::kMimeType, &value) &&
+    if (stream->media_format().GetAsString(MediaFormat::kMimeType, &value) &&
         0 == value.compare(0, major_mime_type.length(), major_mime_type)) {
       scoped_refptr<Decoder> decoder =
-          CreateFilter<Decoder, DemuxerStream>(filter_factory, demuxer_stream);
+          CreateFilter<Decoder, DemuxerStream>(filter_factory, stream);
       if (PipelineOk()) {
         DCHECK(decoder);
         CreateFilter<Renderer, Decoder>(filter_factory, decoder);
@@ -500,7 +499,7 @@ template <class Filter, class Source>
 scoped_refptr<Filter> PipelineThread::CreateFilter(
     FilterFactory* filter_factory,
     Source source,
-    const MediaFormat* media_format) {
+    const MediaFormat& media_format) {
   DCHECK(PipelineOk());
   scoped_refptr<Filter> filter = filter_factory->Create<Filter>(media_format);
   if (!filter) {
@@ -549,7 +548,7 @@ scoped_refptr<DataSource> PipelineThread::CreateDataSource(
   MediaFormat url_format;
   url_format.SetAsString(MediaFormat::kMimeType, mime_type::kURL);
   url_format.SetAsString(MediaFormat::kURL, url);
-  return CreateFilter<DataSource>(filter_factory, url, &url_format);
+  return CreateFilter<DataSource>(filter_factory, url, url_format);
 }
 
 // Called as a result of destruction of the thread.

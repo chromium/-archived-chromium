@@ -88,7 +88,7 @@ TEST(FileDataSourceTest, ReadData) {
 
   // Create our data source.
   scoped_refptr<FilterFactory> factory = FileDataSource::CreateFactory();
-  FileDataSource* filter = factory->Create<FileDataSource>(&url_format);
+  FileDataSource* filter = factory->Create<FileDataSource>(url_format);
   EXPECT_TRUE(filter);
 
   // Create our mock pipeline and filter host and initialize the data source.

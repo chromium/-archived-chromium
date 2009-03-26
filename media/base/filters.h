@@ -97,9 +97,9 @@ class DataSource : public MediaFilter {
     return FILTER_DATA_SOURCE;
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     std::string mime_type;
-    return (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+    return (media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
             mime_type == mime_type::kURL);
   }
 
@@ -109,7 +109,7 @@ class DataSource : public MediaFilter {
   virtual bool Initialize(const std::string& url) = 0;
 
   // Returns the MediaFormat for this filter.
-  virtual const MediaFormat* GetMediaFormat() = 0;
+  virtual const MediaFormat& media_format() = 0;
 
   // Read the given amount of bytes into data, returns the number of bytes read
   // if successful, kReadError otherwise.
@@ -134,9 +134,9 @@ class Demuxer : public MediaFilter {
     return FILTER_DEMUXER;
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     std::string mime_type;
-    return (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+    return (media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
             mime_type == mime_type::kApplicationOctetStream);
   }
 
@@ -154,7 +154,7 @@ class Demuxer : public MediaFilter {
 class DemuxerStream : public base::RefCountedThreadSafe<DemuxerStream> {
  public:
   // Returns the MediaFormat for this filter.
-  virtual const MediaFormat* GetMediaFormat() = 0;
+  virtual const MediaFormat& media_format() = 0;
 
   // Schedules a read and takes ownership of the given buffer.
   virtual void Read(Assignable<Buffer>* buffer) = 0;
@@ -198,7 +198,7 @@ class VideoDecoder : public MediaFilter {
   virtual bool Initialize(DemuxerStream* demuxer_stream) = 0;
 
   // Returns the MediaFormat for this filter.
-  virtual const MediaFormat* GetMediaFormat() = 0;
+  virtual const MediaFormat& media_format() = 0;
 
   // Schedules a read and takes ownership of the given buffer.
   virtual void Read(Assignable<VideoFrame>* video_frame) = 0;
@@ -219,7 +219,7 @@ class AudioDecoder : public MediaFilter {
   virtual bool Initialize(DemuxerStream* demuxer_stream) = 0;
 
   // Returns the MediaFormat for this filter.
-  virtual const MediaFormat* GetMediaFormat() = 0;
+  virtual const MediaFormat& media_format() = 0;
 
   // Schedules a read and takes ownership of the given buffer.
   virtual void Read(Assignable<Buffer>* buffer) = 0;

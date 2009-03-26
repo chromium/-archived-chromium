@@ -58,7 +58,7 @@ class DecoderBase : public Decoder {
     }
   }
 
-  virtual const MediaFormat* GetMediaFormat() { return &media_format_; }
+  virtual const MediaFormat& media_format() { return media_format_; }
 
   // Audio or Video decoder.
   virtual void Read(Assignable<Output>* output) {

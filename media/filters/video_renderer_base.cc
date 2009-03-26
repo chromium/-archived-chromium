@@ -45,22 +45,22 @@ VideoRendererBase::~VideoRendererBase() {
 
 // static
 bool VideoRendererBase::IsMediaFormatSupported(
-    const MediaFormat* media_format) {
+    const MediaFormat& media_format) {
   int width;
   int height;
   return ParseMediaFormat(media_format, &width, &height);
 }
 
 // static
-bool VideoRendererBase::ParseMediaFormat(const MediaFormat* media_format,
+bool VideoRendererBase::ParseMediaFormat(const MediaFormat& media_format,
                                          int* width_out,
                                          int* height_out) {
-  DCHECK(media_format && width_out && height_out);
+  DCHECK(width_out && height_out);
   std::string mime_type;
-  return (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+  return (media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
           mime_type.compare(mime_type::kUncompressedVideo) == 0 &&
-          media_format->GetAsInteger(MediaFormat::kWidth, width_out) &&
-          media_format->GetAsInteger(MediaFormat::kHeight, height_out));
+          media_format.GetAsInteger(MediaFormat::kWidth, width_out) &&
+          media_format.GetAsInteger(MediaFormat::kHeight, height_out));
 }
 
 void VideoRendererBase::Stop() {
@@ -82,7 +82,7 @@ void VideoRendererBase::Stop() {
 bool VideoRendererBase::Initialize(VideoDecoder* decoder) {
   int width, height;
   decoder_ = decoder;
-  if (ParseMediaFormat(decoder_->GetMediaFormat(), &width, &height) &&
+  if (ParseMediaFormat(decoder_->media_format(), &width, &height) &&
       OnInitialize(width, height)) {
     host_->SetVideoSize(width, height);
     host_->SetTimeUpdateCallback(

@@ -85,12 +85,12 @@ class VideoRendererBase : public VideoRenderer {
   void GetCurrentFrame(scoped_refptr<VideoFrame>* frame_out);
 
   // Answers question from the factory to see if we accept |format|.
-  static bool IsMediaFormatSupported(const MediaFormat* format);
+  static bool IsMediaFormatSupported(const MediaFormat& format);
 
   // Used by the IsMediaFormatSupported and Initialize methods.  Examines the
   // |media_format| and returns true if the format is supported.  Both output
   // parameters, |width_out| and |height_out| are required and must not be NULL.
-  static bool ParseMediaFormat(const MediaFormat* media_format,
+  static bool ParseMediaFormat(const MediaFormat& media_format,
                                int* width_out,
                                int* height_out);
 

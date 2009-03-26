@@ -16,7 +16,7 @@ FFmpegAudioDecoder::~FFmpegAudioDecoder() {
 }
 
 // static
-bool FFmpegAudioDecoder::IsMediaFormatSupported(const MediaFormat* format) {
+bool FFmpegAudioDecoder::IsMediaFormatSupported(const MediaFormat& format) {
   NOTIMPLEMENTED();
   return false;
 }

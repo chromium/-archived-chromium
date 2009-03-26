@@ -29,14 +29,14 @@ AudioRendererImpl::~AudioRendererImpl() {
 }
 
 bool AudioRendererImpl::IsMediaFormatSupported(
-    const media::MediaFormat* media_format) {
+    const media::MediaFormat& media_format) {
   int channels;
   int sample_rate;
   int sample_bits;
   return ParseMediaFormat(media_format, &channels, &sample_rate, &sample_bits);
 }
 
-bool AudioRendererImpl::OnInitialize(const media::MediaFormat* media_format) {
+bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
   // Parse integer values in MediaFormat.
   int channels;
   int sample_rate;
@@ -155,8 +155,4 @@ void AudioRendererImpl::OnNotifyAudioPacketReady() {
     // Then tell browser process we are done filling into the buffer.
     delegate_->view()->NotifyAudioPacketReady(stream_id_, filled);
   }
-}
-
-const media::MediaFormat* AudioRendererImpl::GetMediaFormat() {
-  return &media_format_;
 }

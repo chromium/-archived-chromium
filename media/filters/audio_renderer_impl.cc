@@ -25,7 +25,7 @@ AudioRendererImpl::~AudioRendererImpl() {
 }
 
 bool AudioRendererImpl::IsMediaFormatSupported(
-    const MediaFormat* media_format) {
+    const MediaFormat& media_format) {
   int channels;
   int sample_rate;
   int sample_bits;
@@ -66,7 +66,7 @@ void AudioRendererImpl::OnError(AudioOutputStream* stream, int code) {
   NOTIMPLEMENTED();
 }
 
-bool AudioRendererImpl::OnInitialize(const MediaFormat* media_format) {
+bool AudioRendererImpl::OnInitialize(const MediaFormat& media_format) {
   // Parse out audio parameters.
   int channels;
   int sample_rate;

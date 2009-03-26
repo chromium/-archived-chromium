@@ -123,8 +123,8 @@ void FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
   FulfillPendingReads();
 }
 
-const MediaFormat* FFmpegDemuxerStream::GetMediaFormat() {
-  return &media_format_;
+const MediaFormat& FFmpegDemuxerStream::media_format() {
+  return media_format_;
 }
 
 void FFmpegDemuxerStream::Read(Assignable<Buffer>* buffer) {

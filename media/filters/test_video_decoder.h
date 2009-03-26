@@ -25,13 +25,13 @@ class TestVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
   }
 
   bool OnInitialize(DemuxerStream* demuxer_stream) {
-    const MediaFormat* media_format = demuxer_stream->GetMediaFormat();
+    const MediaFormat& media_format = demuxer_stream->media_format();
     std::string mime_type;
     int width, height;
-    if (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+    if (media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
         mime_type.compare(mime_type::kH264AnnexB) == 0 &&
-        media_format->GetAsInteger(MediaFormat::kWidth, &width) &&
-        media_format->GetAsInteger(MediaFormat::kHeight, &height)) {
+        media_format.GetAsInteger(MediaFormat::kWidth, &width) &&
+        media_format.GetAsInteger(MediaFormat::kHeight, &height)) {
       video_width_ = width;
       video_height_ = height;
       media_format_.SetAsString(MediaFormat::kMimeType,
@@ -59,9 +59,9 @@ class TestVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
     }
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format) {
+  static bool IsMediaFormatSupported(const MediaFormat& media_format) {
     std::string mime_type;
-    return (media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
+    return (media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
             mime_type == mime_type::kH264AnnexB);
   }
 

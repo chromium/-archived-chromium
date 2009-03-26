@@ -46,7 +46,7 @@ class TestVideoRenderer : public VideoRendererBase {
   size_t paint_called() { return paint_called_; }
   base::TimeDelta last_timestamp() { return last_timestamp_; }
 
-  static bool IsMediaFormatSupported(const MediaFormat* format) {
+  static bool IsMediaFormatSupported(const MediaFormat& format) {
     return VideoRendererBase::IsMediaFormatSupported(format);
   }
 

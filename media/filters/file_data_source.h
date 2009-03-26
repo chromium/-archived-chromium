@@ -29,7 +29,7 @@ class FileDataSource : public DataSource {
 
   // Implementation of DataSource.
   virtual bool Initialize(const std::string& url);
-  virtual const MediaFormat* GetMediaFormat();
+  virtual const MediaFormat& media_format();
   virtual size_t Read(uint8* data, size_t size);
   virtual bool GetPosition(int64* position_out);
   virtual bool SetPosition(int64 position);

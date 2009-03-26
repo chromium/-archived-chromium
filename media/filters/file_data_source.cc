@@ -53,8 +53,8 @@ void FileDataSource::Stop() {
   }
 }
 
-const MediaFormat* FileDataSource::GetMediaFormat() {
-  return &media_format_;
+const MediaFormat& FileDataSource::media_format() {
+  return media_format_;
 }
 
 size_t FileDataSource::Read(uint8* data, size_t size) {

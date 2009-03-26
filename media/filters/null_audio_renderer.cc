@@ -29,7 +29,7 @@ NullAudioRenderer::~NullAudioRenderer() {
 
 // static
 bool NullAudioRenderer::IsMediaFormatSupported(
-    const MediaFormat* media_format) {
+    const MediaFormat& media_format) {
   int channels;
   int sample_rate;
   int sample_bits;
@@ -63,7 +63,7 @@ void NullAudioRenderer::ThreadMain() {
   }
 }
 
-bool NullAudioRenderer::OnInitialize(const MediaFormat* media_format) {
+bool NullAudioRenderer::OnInitialize(const MediaFormat& media_format) {
   // Parse out audio parameters.
   int channels;
   int sample_rate;

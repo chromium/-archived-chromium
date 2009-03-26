@@ -43,13 +43,13 @@ class AudioRendererBase : public AudioRenderer {
   static const size_t kDefaultMaxQueueSize;
 
   // Only allow a factory to create this class.
-  AudioRendererBase(size_t max_queue_size);
+  explicit AudioRendererBase(size_t max_queue_size);
   virtual ~AudioRendererBase();
 
   // Called by Initialize().  |media_format| is the format of the AudioDecoder.
   // Subclasses should return true if they were able to initialize, false
   // otherwise.
-  virtual bool OnInitialize(const MediaFormat* media_format) = 0;
+  virtual bool OnInitialize(const MediaFormat& media_format) = 0;
 
   // Called by Stop().  Subclasses should perform any necessary cleanup during
   // this time, such as stopping any running threads.
@@ -70,7 +70,7 @@ class AudioRendererBase : public AudioRenderer {
 
   // Helper to parse a media format and return whether we were successful
   // retrieving all the information we care about.
-  static bool ParseMediaFormat(const MediaFormat* media_format,
+  static bool ParseMediaFormat(const MediaFormat& media_format,
                                int* channels_out, int* sample_rate_out,
                                int* sample_bits_out);
 

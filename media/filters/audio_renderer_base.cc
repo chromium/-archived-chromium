@@ -52,7 +52,7 @@ bool AudioRendererBase::Initialize(AudioDecoder* decoder) {
   }
 
   // Defer initialization until all scheduled reads have completed.
-  return OnInitialize(decoder_->GetMediaFormat());
+  return OnInitialize(decoder_->media_format());
 }
 
 void AudioRendererBase::OnAssignment(Buffer* buffer_in) {
@@ -138,16 +138,16 @@ void AudioRendererBase::ScheduleRead() {
 }
 
 // static
-bool AudioRendererBase::ParseMediaFormat(const MediaFormat* media_format,
+bool AudioRendererBase::ParseMediaFormat(const MediaFormat& media_format,
                                          int* channels_out,
                                          int* sample_rate_out,
                                          int* sample_bits_out) {
   // TODO(scherkus): might be handy to support NULL parameters.
   std::string mime_type;
-  return media_format->GetAsString(MediaFormat::kMimeType, &mime_type) &&
-      media_format->GetAsInteger(MediaFormat::kChannels, channels_out) &&
-      media_format->GetAsInteger(MediaFormat::kSampleRate, sample_rate_out) &&
-      media_format->GetAsInteger(MediaFormat::kSampleBits, sample_bits_out) &&
+  return media_format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
+      media_format.GetAsInteger(MediaFormat::kChannels, channels_out) &&
+      media_format.GetAsInteger(MediaFormat::kSampleRate, sample_rate_out) &&
+      media_format.GetAsInteger(MediaFormat::kSampleBits, sample_bits_out) &&
       mime_type.compare(mime_type::kUncompressedAudio) == 0;
 }
 

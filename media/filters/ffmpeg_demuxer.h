@@ -57,7 +57,7 @@ class FFmpegDemuxerStream : public DemuxerStream {
   base::TimeDelta duration() { return duration_; }
 
   // DemuxerStream implementation.
-  virtual const MediaFormat* GetMediaFormat();
+  virtual const MediaFormat& media_format();
   virtual void Read(Assignable<Buffer>* buffer);
 
   AVStream* av_stream() {

@@ -16,7 +16,7 @@ FFmpegVideoDecoder::~FFmpegVideoDecoder() {
 }
 
 // static
-bool FFmpegVideoDecoder::IsMediaFormatSupported(const MediaFormat* format) {
+bool FFmpegVideoDecoder::IsMediaFormatSupported(const MediaFormat& format) {
   NOTIMPLEMENTED();
   return false;
 }

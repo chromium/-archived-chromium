@@ -136,7 +136,7 @@ class DataSourceImpl : public media::DataSource,
   virtual bool SetPosition(int64 position);
   virtual bool GetSize(int64* size_out);
 
-  const media::MediaFormat* GetMediaFormat();
+  const media::MediaFormat& media_format();
 
  private:
   friend class media::FilterFactoryImpl1<DataSourceImpl,
@@ -164,7 +164,7 @@ class DataSourceImpl : public media::DataSource,
   // in construction and can be accessed in all threads safely.
   WebMediaPlayerDelegateImpl* delegate_;
 
-  // Message loop of render thread.	
+  // Message loop of render thread.
   MessageLoop* render_loop_;
 
   // A common lock for protecting members accessed by multiple threads.
@@ -173,7 +173,7 @@ class DataSourceImpl : public media::DataSource,
   // A flag that indicates whether this object has been called to stop.
   bool stopped_;
 
-  // URI to the resource being downloaded.	
+  // URI to the resource being downloaded.
   std::string uri_;
 
   // Members for keeping track of downloading progress.

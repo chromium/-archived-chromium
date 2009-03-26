@@ -19,7 +19,7 @@ class FFmpegAudioDecoder : public DecoderBase<AudioDecoder, Buffer> {
     return new FilterFactoryImpl0<FFmpegAudioDecoder>();
   }
 
-  static bool IsMediaFormatSupported(const MediaFormat* media_format);
+  static bool IsMediaFormatSupported(const MediaFormat& media_format);
 
   virtual bool OnInitialize(DemuxerStream* demuxer_stream);
 

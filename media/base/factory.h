@@ -24,7 +24,7 @@
 //
 //   Returns true and assigns |filter_out| if the filter was created, false
 //   and assigns NULL otherwise.
-//   static bool Create(MediaFormat* media_format, YourFilterType** filter_out);
+//   static bool Create(MediaFormat& media_format, YourFilterType** filter_out);
 //
 
 #ifndef MEDIA_BASE_FACTORY_H_
@@ -47,7 +47,7 @@ class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
   // If the factory does not support the specific filter type or does not
   // support the |media_format| then NULL is returned.
   template <class Filter>
-  Filter* Create(const MediaFormat* media_format) {
+  Filter* Create(const MediaFormat& media_format) {
     return reinterpret_cast<Filter*>(Create(Filter::filter_type(),
                                             media_format));
   }
@@ -63,7 +63,7 @@ class FilterFactory : public base::RefCountedThreadSafe<FilterFactory> {
   // It is assumed that the MediaFilter interface can be safely cast to the
   // corresponding interface type (i.e., FILTER_AUDIO_DECODER -> AudioDecoder).
   virtual MediaFilter* Create(FilterType filter_type,
-                              const MediaFormat* media_format) = 0;
+                              const MediaFormat& media_format) = 0;
 
   friend class base::RefCountedThreadSafe<FilterFactory>;
   virtual ~FilterFactory() {}
@@ -82,7 +82,7 @@ class FilterFactoryCollection : public FilterFactory {
 
  protected:
   // Attempts to create a filter by walking down the list of filter factories.
-  MediaFilter* Create(FilterType filter_type, const MediaFormat* media_format) {
+  MediaFilter* Create(FilterType filter_type, const MediaFormat& media_format) {
     MediaFilter* filter = NULL;
     for (FactoryVector::iterator factory = factories_.begin();
          !filter && factory != factories_.end();
@@ -113,7 +113,7 @@ class FilterFactoryImpl0 : public FilterFactory {
 
  protected:
   virtual MediaFilter* Create(FilterType filter_type,
-                              const MediaFormat* media_format) {
+                              const MediaFormat& media_format) {
     Filter* filter = NULL;
     if (Filter::filter_type() == filter_type &&
         Filter::IsMediaFormatSupported(media_format)) {
@@ -142,7 +142,7 @@ class FilterFactoryImpl1 : public FilterFactory {
 
  protected:
   virtual MediaFilter* Create(FilterType filter_type,
-                              const MediaFormat* media_format) {
+                              const MediaFormat& media_format) {
     Filter* filter = NULL;
     if (Filter::filter_type() == filter_type &&
         Filter::IsMediaFormatSupported(media_format)) {
@@ -178,7 +178,7 @@ class InstanceFilterFactory : public FilterFactory {
 
  protected:
   virtual MediaFilter* Create(FilterType filter_type,
-                              const MediaFormat* media_format) {
+                              const MediaFormat& media_format) {
     if (Filter::filter_type() == filter_type &&
         Filter::IsMediaFormatSupported(media_format)) {
       if (!create_called_) {
