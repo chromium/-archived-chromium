@@ -129,17 +129,9 @@
           draggedController = sourceController;
           dragWindow = [draggedController window];
         } else {
-          // Detach from the current window.
-          // TODO(pinkerton): Create a new window, probably with
-          // Browser::CreateNewStripWithContents(), but that requires that
-          // we make some changes to return the new Browser object.
+          // Detach from the current window and put it in a new window.
           draggedController = [sourceController detachTabToNewWindow:self];
           dragWindow = [draggedController window];
-
-          // TODO(pinkerton): reconcile how the view moves from one window
-          // to the other with the TabStrip model wanting to create the tabs.
-          // [[sourceController tabController] removeTab:tab_];
-          // [[sourceController tabController] addTab:tab_];
           [dragWindow setAlphaValue:0.0];
         }
 
