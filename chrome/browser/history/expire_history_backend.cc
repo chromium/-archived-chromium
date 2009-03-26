@@ -367,6 +367,9 @@ void ExpireHistoryBackend::ExpireURLsForVisits(
 void ExpireHistoryBackend::ArchiveURLsAndVisits(
     const VisitVector& visits,
     DeleteDependencies* dependencies) {
+  if (!archived_db_)
+    return;
+
   // Make sure all unique URL rows are added to the dependency list and the
   // archived database. We will also keep the mapping between the main DB URLID
   // and the archived one.
