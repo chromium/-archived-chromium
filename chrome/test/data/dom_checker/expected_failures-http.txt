@@ -1,5 +1,16 @@
 # Expected failures when running over HTTP.
-frames[0].history.forward(0) call
-frames[0].length read [value: 0]
-frames[0].postMessage read [value: function () { [native code] }]
+(blank).document.location write (readback)
+(blank).history.forward(0) call
+(blank).length read [value: 0]
+(blank).location write (readback)
+(blank).location.assign('about:blank') call
+(blank).location.replace('about:blank') call
+(blank).postMessage read [value: function () { [native code] }]
+(third-party).frames.length read [value: 2]
+(third-party).frames[0] probe [value: [object global]]
+(third-party).history.forward(0) call
+(third-party).length read [value: 2]
+(third-party).postMessage read [value: function () { [native code] }]
+(third-party).window.length read [value: 2]
+(third-party).window[0] probe [value: [object global]]
 open() frame name lookup

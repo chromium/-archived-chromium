@@ -21,6 +21,9 @@ Automation.prototype.GetTestCount = function() {
 }
 
 Automation.prototype.AddFailure = function(test) {
+  // Remove any '<!-- NOP -->' that was inserted by DOM checker.
+  test = test.replace(/<!-- NOP -->/, '');
+
   this.failures.push(test);
 }
 

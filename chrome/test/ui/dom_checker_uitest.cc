@@ -21,6 +21,9 @@ namespace {
 static const FilePath::CharType kBaseUrl[] =
     FILE_PATH_LITERAL("http://localhost:8000/");
 
+static const FilePath::CharType kTestDirectory[] =
+    FILE_PATH_LITERAL("dom_checker/");
+
 static const FilePath::CharType kStartFile[] =
     FILE_PATH_LITERAL("dom_checker.html");
 
@@ -144,6 +147,8 @@ class DomCheckerTest : public UITest {
         L"    JSON.stringify(automation.GetFailures()));",
         &json_wide);
 
+    // Note that we don't use ASSERT_TRUE here (and in some other places) as it
+    // doesn't work inside a function with a return type other than void.
     EXPECT_TRUE(succeeded);
     if (!succeeded)
       return false;
@@ -183,7 +188,9 @@ class DomCheckerTest : public UITest {
     GURL test_url;
     FilePath::StringType start_file(kStartFile);
     if (use_http) {
+      FilePath::StringType test_directory(kTestDirectory);
       FilePath::StringType url_string(kBaseUrl);
+      url_string.append(test_directory);
       url_string.append(start_file);
       test_url = GURL(url_string);
     } else {
@@ -209,7 +216,7 @@ class DomCheckerTest : public UITest {
 
 }  // namespace
 
-TEST_F(DomCheckerTest, File) {
+TEST_F(DomCheckerTest, DISABLED_File) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
     return;
 
@@ -218,7 +225,7 @@ TEST_F(DomCheckerTest, File) {
   PrintResults(new_passes, new_failures);
 }
 
-TEST_F(DomCheckerTest, Http) {
+TEST_F(DomCheckerTest, DISABLED_Http) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
     return;
 

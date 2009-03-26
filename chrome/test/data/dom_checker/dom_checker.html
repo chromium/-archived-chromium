@@ -438,11 +438,12 @@ function GOOD(x) {
 /* Log test failure. */
 function BAD(x) {
   automation.IncrementTestCount();
-  automation.AddFailure(x);
 
   bad++;
   x = x.replace('frames[0].frames[0]','(blank)').replace('frames[0]','(third-party)');
   log('<font color=red>CHECK FAILED : ' + x + ' is possible!</font>');
+
+  automation.AddFailure(x);
 }
 
 
