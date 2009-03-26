@@ -2348,29 +2348,29 @@ BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/security/postMessage/data-
 //BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/methods.html = CRASH
 BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/status-after-abort.html = CRASH
 
- // New tests, need Chromium baseline.
+// New tests, need Chromium baseline.
 DEFER WIN MAC LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
 DEFER WIN MAC LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
 DEFER WIN MAC LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
-  // Need rebaseline, see  WebKit 41993.
+// Need rebaseline, see  WebKit 41993.
 DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FAIL
 DEFER WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
   
-  // Needs rebaseline. See WebKit 41972.
+// Needs rebaseline. See WebKit 41972.
 DEFER WIN MAC LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
 
-  // Needs rebaseline. See WebKit 91948
+// Needs rebaseline. See WebKit 91948
 DEFER WIN MAC LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL
   
-  // New test, needs baseline. See WebKit 41978 (brettw)
+// New test, needs baseline. See WebKit 41978 (brettw)
 DEFER WIN MAC LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
-  // Needs rebaseline. See WebKit 41980
+// Needs rebaseline. See WebKit 41980
 DEFER WIN MAC LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
   
-  // Need baseline, new tests. See WebKit 41955
+// Need baseline, new tests. See WebKit 41955
 DEFER WIN MAC LINUX : LayoutTests/fonts/cursive.html = FAIL
 DEFER WIN MAC LINUX : LayoutTests/fonts/default.html = FAIL
 DEFER WIN MAC LINUX : LayoutTests/fonts/fantasy.html = FAIL
@@ -2380,7 +2380,7 @@ DEFER WIN MAC LINUX : LayoutTests/fonts/serif.html = FAIL
 DEFER WIN MAC LINUX : chrome/fonts/default.html = FAIL
 
 
-// Merge WebKit: 41944:41999, linux failures.
+// Merge WebKit: 41944:41999, Linux failures.
 DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/focus2.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
@@ -2388,3 +2388,6 @@ DEFER LINUX : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-padding.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
+
+// Merge WebKit: 41944:41999, Mac failures.
+DEFER MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL
