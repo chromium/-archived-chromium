@@ -25,9 +25,9 @@ const char kSecureSchemeColor[] = "#009614";
 const char kInsecureSchemeColor[] = "#c80000";
 
 const GdkColor kBackgroundColorByLevel[] = {
-  GDK_COLOR_RGB(255, 245, 195),  // SecurityLevel SECURE. (yellow)
-  gfx::kGdkWhite,  // SecurityLevel NORMAL.
-  gfx::kGdkWhite,  // SecurityLevel INSECURE.
+  GDK_COLOR_RGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel NORMAL: White.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
 };
 
 }  // namespace
