@@ -21,7 +21,7 @@ namespace {
 static const FilePath::CharType kStartFile[] =
     FILE_PATH_LITERAL("sunspider-driver.html");
 
-const wchar_t kRunSunSpiderTest[] = L"run-sunspider-test";
+const wchar_t kRunSunSpider[] = L"run-sunspider";
 
 class SunSpiderTest : public UITest {
  public:
@@ -140,7 +140,7 @@ class SunSpiderTest : public UITest {
 
     PrintResultMeanAndError("total", "", trace_name, total, "ms", true);
 
-    ResultsMap::iterator it = results.begin();
+    ResultsMap::const_iterator it = results.begin();
     for (; it != results.end(); ++it)
       PrintResultList(it->first, "", trace_name, it->second, "ms", false);
   }
@@ -169,14 +169,14 @@ class SunSpiderReferenceTest : public SunSpiderTest {
 }  // namespace
 
 TEST_F(SunSpiderTest, Perf) {
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunSunSpiderTest))
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunSunSpider))
     return;
 
   RunTest();
 }
 
 TEST_F(SunSpiderReferenceTest, Perf) {
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunSunSpiderTest))
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunSunSpider))
     return;
 
   RunTest();
