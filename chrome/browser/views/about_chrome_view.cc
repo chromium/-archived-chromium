@@ -761,10 +761,14 @@ void AboutChromeView::UpdateStatus(GoogleUpdateUpgradeResult result,
           !installed_version->IsHigherThan(running_version.get())) {
         UserMetrics::RecordAction(L"UpgradeCheck_AlreadyUpToDate", profile_);
         check_button_status_ = CHECKBUTTON_HIDDEN;
-        update_label_.SetText(
+        std::wstring update_label_text =
             l10n_util::GetStringF(IDS_UPGRADE_ALREADY_UP_TO_DATE,
                                   l10n_util::GetString(IDS_PRODUCT_NAME),
-                                  current_version_));
+                                  current_version_);
+        if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+          update_label_text.push_back(static_cast<wchar_t>(l10n_util::kLeftToRightMark));
+        }
+        update_label_.SetText(update_label_text);
         show_success_indicator = true;
         break;
       }
