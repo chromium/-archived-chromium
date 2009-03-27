@@ -1,3 +1,0 @@
-Purpose: To test if the add() method adds an option to a dropdown list. Bug# 806258. 
-
-TEST PASSED

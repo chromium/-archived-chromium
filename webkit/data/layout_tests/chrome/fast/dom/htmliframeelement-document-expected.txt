@@ -1,6 +1,0 @@
-This tests that an old Safari extension, HTMLIFrameElement.document. If HTMLIFrameElement.document exists, it should be an alias of HTMLIFrameElement.contentDocument.
-
-If the test pass, it should display PASSED after the the iframe box
-
-
-This test: PASSED

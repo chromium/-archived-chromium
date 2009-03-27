@@ -1,1 +1,0 @@
-PASS: Items can be retrieved by name on node lists.

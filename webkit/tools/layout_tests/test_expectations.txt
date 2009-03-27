@@ -308,11 +308,6 @@ WONTFIX SKIP : LayoutTests/platform/mac/fast/css/dashboard-region-parser.html = 
 // Not a test?
 WONTFIX SKIP : LayoutTests/http/tests/incremental/pause-in-script-element.pl = FAIL
 
-// This fails because it requests bold+italic Impact faces, which don't exist.
-// Our simulation of them differs in metrics from Windows's simulation and
-// this is probably not worth the effort to fix.
-WONTFIX LINUX : chrome/fonts/impact.html = FAIL
-
 // This test times out.  It is testing arbitrary limits on the sizes
 // of regular expressions.  We handle larger regular expressions than
 // JSCRE, but it takes a long time to run this test because it
@@ -972,7 +967,6 @@ MAC : LayoutTests/http/tests/navigation/redirect302-basic.html = FAIL
 
 // The test may require a proper version of Java 6 RC 10 plugin
 // installed to run.
-DEFER MAC LINUX : chrome/fast/dom/java-applet-calls.html = FAIL
 DEFER : LayoutTests/plugins/bindings-test.html = FAIL
 
 // These tests don't work on the open source buildbot because no font covers
@@ -2149,7 +2143,6 @@ DEBUG LINUX : LayoutTests/fast/parser/bad-xml-slash.html = FAIL
 DEBUG LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
 DEBUG LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 DEBUG LINUX : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
-DEBUG LINUX : chrome/fast/dom/onload-fires-twice.html = FAIL
 DEBUG LINUX : LayoutTests/fast/canvas/canvas-pattern-transform.html = CRASH
 DEBUG LINUX : LayoutTests/svg/custom/mask-excessive-malloc.svg = CRASH
 
@@ -2243,9 +2236,6 @@ MAC : LayoutTests/http/tests/xmlhttprequest/encode-request-url-2.html = TIMEOUT 
 // Missing expected results
 SKIP : LayoutTests/platform/mac/fast/text/international/Geeza-Pro-vertical-metrics-adjustment.html = PASS
 
-// Started failing when test_fixable got merged with test_ignored.
-LINUX DEBUG : chrome/fast/dom/htmliframeelement-document.html = FAIL
-
 // Merge 41860:41906 New tests
 DEFER WIN LINUX : LayoutTests/fast/replaced/percent-height-in-anonymous-block-in-table.html = FAIL
 DEFER WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.html = FAIL
@@ -2319,7 +2309,7 @@ DEFER WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
 // Needs rebaseline. See WebKit 41972.
 DEFER WIN LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
 
-// Needs rebaseline. See WebKit 91948
+// Needs rebaseline. See WebKit 41948
 DEFER WIN MAC LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL
   
 // New test, needs baseline. See WebKit 41978 (brettw)
@@ -2335,7 +2325,6 @@ DEFER WIN LINUX : LayoutTests/fonts/fantasy.html = FAIL
 DEFER WIN LINUX : LayoutTests/fonts/monospace.html = FAIL
 DEFER WIN LINUX : LayoutTests/fonts/sans-serif.html = FAIL
 DEFER WIN LINUX : LayoutTests/fonts/serif.html = FAIL
-DEFER WIN LINUX : chrome/fonts/default.html = FAIL
 
 // Merge WebKit: 41944:41999, Linux failures.
 DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL

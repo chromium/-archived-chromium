@@ -1,5 +1,0 @@
-Makes sure an inline "load" event does not fire twice. This may occur if
-an inline event listener is not removed prior to being re-added in the case of
-multiple body nodes in the document.
-
-This test has succeeded.

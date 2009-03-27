@@ -1,4 +1,0 @@
-Test purpose: This tests if Chrome can display multiple parameters given in document.write. See bug#885464 
-Expected output: AB
-
-AB

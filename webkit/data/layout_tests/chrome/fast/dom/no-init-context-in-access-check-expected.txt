@@ -1,1 +1,0 @@
-The test passes if Chrome does not crash. See issue 1117082. 

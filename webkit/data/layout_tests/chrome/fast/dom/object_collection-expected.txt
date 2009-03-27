@@ -1,7 +1,0 @@
-Test purpose: Multiple radio buttons/checkboxes with the same name should map to 'object:collection' when accessed thru document.form.name. Bug#805063
-
-Radio button:  Male  Female
-Checkbox:  1
-Checkbox:  1  2
-Result:
-Test Passed

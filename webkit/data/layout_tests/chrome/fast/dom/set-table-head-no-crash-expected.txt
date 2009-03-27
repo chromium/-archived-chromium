@@ -1,3 +1,0 @@
-CONSOLE MESSAGE: line 15: Uncaught Error: NOT_FOUND_ERR: DOM Exception 8
-Test that setting invalid values to dom properties does not crash the browser. 
-go!

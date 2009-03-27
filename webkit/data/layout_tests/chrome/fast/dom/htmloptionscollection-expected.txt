@@ -1,3 +1,0 @@
-Purpose: To add few select options dynamically and pass the test if the length is correct. Bug#803364.
-
-TEST PASSED

@@ -1,3 +1,0 @@
-CONSOLE MESSAGE: line 13: Uncaught Error: HIERARCHY_REQUEST_ERR: DOM Exception 3
-Test that setting invalid values to dom properties does not crash the browser. 
-go!

@@ -1,3 +1,0 @@
-Test purpose: This tests if [Function.]arguments works in Chrome. See bug# 805211 for more details.
-
-RESULT: Test PASSED

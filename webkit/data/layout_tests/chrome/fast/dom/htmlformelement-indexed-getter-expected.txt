@@ -1,4 +1,0 @@
-This test verifies that elements can be fetched by index from HTMLFormElements.
-
-HTMLInputElement
-Passed.

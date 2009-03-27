@@ -1,3 +1,0 @@
-Requires Java plugin been installed.
-This tests that calling functions on Java Applet works.
-TEST PASSED!

@@ -1,7 +1,0 @@
-[Click target]
-Right click in the red box: the event sequence should match (mousedown, mouseup, contextmenu)
-
-Dispatched event mousedown (button=2)
-Dispatched event mouseup (button=2)
-Dispatched event contextmenu (button=2)
-
