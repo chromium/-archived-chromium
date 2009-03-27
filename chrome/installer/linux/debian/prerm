@@ -16,3 +16,10 @@ fi
 if [ -x "$UPDATE_MENUS" ]; then
   update-menus
 fi
+
+# Remove any Google repository added by the package.
+@@include@@../common/apt.include
+
+if [ -x "$APT_GET" ]; then
+  clean_sources_lists
+fi

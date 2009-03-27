@@ -54,16 +54,21 @@ KEYDATA
   fi
 }
 
+# Set variables for the locations of the apt sources lists.
+find_apt_sources() {
+  APTDIR=$(apt_config_val Dir)
+  APTETC=$(apt_config_val 'Dir::Etc')
+  APT_SOURCES="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourcelist')"
+  APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
+}
+
 # Add the Google repository to the apt sources.
 # Returns:
 # 0 - no update necessary
 # 1 - sources were updated
 # 2 - error
 update_sources_lists() {
-  APTDIR=$(apt_config_val Dir)
-  APTETC=$(apt_config_val 'Dir::Etc')
-  APT_SOURCES="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourcelist')"
-  APT_SOURCESDIR="$APTDIR$APTETC$(apt_config_val 'Dir::Etc::sourceparts')"
+  find_apt_sources
 
   if [ -d "$APT_SOURCESDIR" ]; then
     # Nothing to do if it's already there.
@@ -91,9 +96,47 @@ update_sources_lists() {
   fi
 
   if [ -w "$APT_SOURCES" ]; then
-    printf "$REPOCONFIG\n" >> "$APT_SOURCES"
+    printf "$REPOCONFIG #@@PACKAGE@@\n" >> "$APT_SOURCES"
     return 1
   fi
 
   return 2
+}
+
+# Remove a repository from the apt sources.
+# Returns:
+# 0 - successfully removed, or not configured
+# 1 - failed to remove
+clean_sources_lists() {
+  find_apt_sources
+
+  if [ -d "$APT_SOURCESDIR" ]; then
+    # Check if our package.list has this repo configured.
+    SOURCELIST=$(grep -H "$REPOCONFIG" "$APT_SOURCESDIR/@@PACKAGE@@.list" \
+      2>/dev/null | cut -d ':' -f 1)
+    if [ -n "$SOURCELIST" ]; then
+      sed -i -e "\,$REPOCONFIG,d" "$SOURCELIST"
+      if [ $? -ne 0 ]; then
+        return 1
+      fi
+      # Delete file if empty (all comments or whitespace)
+      LINECOUNT=$(sed -e '/^[[:space:]]*\(#.*\|$\)/d' "$SOURCELIST" | wc -l)
+      if [ "$LINECOUNT" = "0" ]; then
+        rm -f "$SOURCELIST"
+      fi
+    fi
+  fi
+
+  # Also check if it was added to the global sources.list
+  SOURCELIST=$(grep -H "$REPOCONFIG" "$APT_SOURCES" 2>/dev/null \
+    | cut -d ':' -f 1)
+  if [ -n "$SOURCELIST" ]; then
+    # Remove repo line(s) marked with our package comment
+    sed -i -e "\,$REPOCONFIG #@@PACKAGE@@,d" "$SOURCELIST"
+    if [ $? -ne 0 ]; then
+      return 1
+    fi
+  fi
+
+  return 0
 }
