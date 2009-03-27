@@ -7,10 +7,12 @@
 SCons build system.
 '''
 
-import os
+import filecmp
 import getopt
-import types
+import os
+import shutil
 import sys
+import types
 
 from grit import grd_reader
 from grit import util
@@ -169,7 +171,9 @@ are exported to translation interchange files (e.g. XMB files), etc.
       outdir = os.path.split(output.GetOutputFilename())[0]
       if not os.path.exists(outdir):
         os.makedirs(outdir)
-      outfile = self.fo_create(output.GetOutputFilename(), 'wb')
+      # Write the results to a temporary file and only overwrite the original
+      # if the file changed.  This avoids unnecessary rebuilds.
+      outfile = self.fo_create(output.GetOutputFilename() + '.tmp', 'wb')
 
       if output.GetType() != 'data_package':
         outfile = util.WrapOutputStream(outfile, encoding)
@@ -185,6 +189,21 @@ are exported to translation interchange files (e.g. XMB files), etc.
       # the entry into a node and on exit out of it.
       self.ProcessNode(self.res, output, outfile)
       outfile.close()
+
+      # Now copy from the temp file back to the real output, but only if the
+      # real output doesn't exist or the contents of the file changed.  This
+      # prevents identical headers from being written and .cc files from
+      # recompiling.
+      if not os.path.exists(output.GetOutputFilename()):
+        os.rename(output.GetOutputFilename() + '.tmp',
+                  output.GetOutputFilename())
+      else:
+        files_match = filecmp.cmp(output.GetOutputFilename(),
+            output.GetOutputFilename() + '.tmp')
+        if output.GetType() != 'rc_header' or not files_match:
+          shutil.copy2(output.GetOutputFilename() + '.tmp',
+                       output.GetOutputFilename())
+        os.remove(output.GetOutputFilename() + '.tmp')
 
       self.VerboseOut(' done.\n')
 

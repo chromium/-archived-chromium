@@ -70,23 +70,23 @@
 			Name="Generated Files"
 			>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\browser_resources.h"
+				RelativePath="$(OutDir)\grit_derived_sources\grit\browser_resources.h"
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\common_resources.h"
+				RelativePath="$(OutDir)\grit_derived_sources\grit\common_resources.h"
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\debugger_resources.h"
+				RelativePath="$(OutDir)\grit_derived_sources\grit\debugger_resources.h"
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\renderer_resources.h"
+				RelativePath="$(OutDir)\grit_derived_sources\grit\renderer_resources.h"
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\grit_derived_sources\theme_resources.h"
+				RelativePath="$(OutDir)\grit_derived_sources\grit\theme_resources.h"
 				>
 			</File>
 		</Filter>

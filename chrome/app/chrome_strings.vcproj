@@ -45,7 +45,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\chromium_strings.h"
+			RelativePath="$(OutDir)\grit_derived_sources\grit\chromium_strings.h"
 			>
 		</File>
 		<File
@@ -53,7 +53,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\generated_resources.h"
+			RelativePath="$(OutDir)\grit_derived_sources\grit\generated_resources.h"
 			>
 		</File>
 		<File
@@ -61,7 +61,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\google_chrome_strings.h"
+			RelativePath="$(OutDir)\grit_derived_sources\grit\google_chrome_strings.h"
 			>
 		</File>
 		<File
@@ -69,7 +69,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(IntDir)\locale_settings.h"
+			RelativePath="$(OutDir)\grit_derived_sources\grit\locale_settings.h"
 			>
 		</File>
 	</Files>
