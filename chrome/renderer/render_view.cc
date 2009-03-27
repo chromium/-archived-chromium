@@ -20,6 +20,7 @@
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/jstemplate_builder.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/common/page_zoom.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
@@ -77,7 +78,6 @@
 #include "base/gfx/native_theme.h"
 #include "chrome/common/gfx/emf.h"
 #include "chrome/renderer/renderer_logging.h"
-#include "chrome/views/controls/message_box_view.h"
 #include "skia/ext/vector_canvas.h"
 #endif
 
@@ -1595,33 +1595,9 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
   return disposition;
 }
 
-#if defined(OS_POSIX)
-// TODO(port): remove this massive hack
-// WARNING: massive hack. We can't include message_box_view.h because that
-// tries to pull in the rest of views. So we just define a fake MessageBoxView
-// here with the constants that we require.
-
-class MessageBoxView {
- public:
-  static const int kFlagHasOKButton = 0x1;
-  static const int kFlagHasCancelButton = 0x2;
-  static const int kFlagHasPromptField = 0x4;
-  static const int kFlagHasMessage = 0x8;
-
-  static const int kIsConfirmMessageBox = kFlagHasMessage |
-                                          kFlagHasOKButton |
-                                          kFlagHasCancelButton;
-  static const int kIsJavascriptAlert = kFlagHasOKButton | kFlagHasMessage;
-  static const int kIsJavascriptConfirm = kIsJavascriptAlert |
-                                          kFlagHasCancelButton;
-  static const int kIsJavascriptPrompt = kIsJavascriptConfirm |
-                                         kFlagHasPromptField;
-};
-#endif
-
 void RenderView::RunJavaScriptAlert(WebFrame* webframe,
                                     const std::wstring& message) {
-  RunJavaScriptMessage(MessageBoxView::kIsJavascriptAlert,
+  RunJavaScriptMessage(MessageBox::kIsJavascriptAlert,
                        message,
                        std::wstring(),
                        webframe->GetURL(),
@@ -1630,7 +1606,7 @@ void RenderView::RunJavaScriptAlert(WebFrame* webframe,
 
 bool RenderView::RunJavaScriptConfirm(WebFrame* webframe,
                                       const std::wstring& message) {
-  return RunJavaScriptMessage(MessageBoxView::kIsJavascriptConfirm,
+  return RunJavaScriptMessage(MessageBox::kIsJavascriptConfirm,
                               message,
                               std::wstring(),
                               webframe->GetURL(),
@@ -1641,7 +1617,7 @@ bool RenderView::RunJavaScriptPrompt(WebFrame* webframe,
                                      const std::wstring& message,
                                      const std::wstring& default_value,
                                      std::wstring* result) {
-  return RunJavaScriptMessage(MessageBoxView::kIsJavascriptPrompt,
+  return RunJavaScriptMessage(MessageBox::kIsJavascriptPrompt,
                               message,
                               default_value,
                               webframe->GetURL(),

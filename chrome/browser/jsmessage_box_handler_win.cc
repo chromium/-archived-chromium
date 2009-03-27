@@ -11,6 +11,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/pref_names.h"
@@ -47,7 +48,7 @@ JavascriptMessageBoxHandler::JavascriptMessageBoxHandler(
       dialog_flags_(dialog_flags),
       dialog_(NULL),
       message_box_view_(new MessageBoxView(
-          dialog_flags | MessageBoxView::kAutoDetectAlignment,
+          dialog_flags | MessageBox::kAutoDetectAlignment,
           message_text, default_prompt_text)) {
   DCHECK(message_box_view_);
   DCHECK(reply_msg_);
@@ -73,10 +74,10 @@ JavascriptMessageBoxHandler::~JavascriptMessageBoxHandler() {
 
 int JavascriptMessageBoxHandler::GetDialogButtons() const {
   int dialog_buttons = 0;
-  if (dialog_flags_ & MessageBoxView::kFlagHasOKButton)
+  if (dialog_flags_ & MessageBox::kFlagHasOKButton)
     dialog_buttons = DIALOGBUTTON_OK;
 
-  if (dialog_flags_ & MessageBoxView::kFlagHasCancelButton)
+  if (dialog_flags_ & MessageBox::kFlagHasCancelButton)
     dialog_buttons |= DIALOGBUTTON_CANCEL;
 
   return dialog_buttons;

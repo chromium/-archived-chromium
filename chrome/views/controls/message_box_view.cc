@@ -8,6 +8,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/button/checkbox.h"
 #include "chrome/views/window/client_view.h"
 #include "grit/generated_resources.h"
@@ -92,7 +93,7 @@ void MessageBoxView::ViewHierarchyChanged(bool is_add,
 void MessageBoxView::Init(int dialog_flags,
                           const std::wstring& default_prompt) {
   message_label_->SetMultiLine(true);
-  if (dialog_flags & kAutoDetectAlignment) {
+  if (dialog_flags & MessageBox::kAutoDetectAlignment) {
     // Determine the alignment and directionality based on the first character
     // with strong directionality.
     l10n_util::TextDirection direction =
@@ -111,7 +112,7 @@ void MessageBoxView::Init(int dialog_flags,
     message_label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
   }
 
-  if (dialog_flags & kFlagHasPromptField) {
+  if (dialog_flags & MessageBox::kFlagHasPromptField) {
     prompt_field_ = new views::TextField;
     prompt_field_->SetText(default_prompt);
   }

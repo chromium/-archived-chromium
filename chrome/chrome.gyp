@@ -209,6 +209,7 @@
         'common/mach_message_source_mac.cc',
         'common/mach_message_source_mac.h',
         'common/main_function_params.h',
+        'common/message_box_flags.h',
         'common/message_router.cc',
         'common/message_router.h',
         'common/modal_dialog_event.h',

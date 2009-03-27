@@ -5,6 +5,7 @@
 #include "chrome/browser/views/restart_message_box.h"
 
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
@@ -52,7 +53,7 @@ RestartMessageBox::RestartMessageBox(HWND parent_hwnd) {
   const int kDialogWidth = 400;
   // Also deleted when the window closes.
   message_box_view_ = new MessageBoxView(
-      MessageBoxView::kFlagHasMessage | MessageBoxView::kFlagHasOKButton,
+      MessageBox::kFlagHasMessage | MessageBox::kFlagHasOKButton,
       l10n_util::GetString(IDS_OPTIONS_RESTART_REQUIRED).c_str(),
       std::wstring(),
       kDialogWidth);

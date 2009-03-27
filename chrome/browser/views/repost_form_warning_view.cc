@@ -7,6 +7,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"
@@ -24,7 +25,7 @@ RepostFormWarningView::RepostFormWarningView(
       : navigation_controller_(navigation_controller),
         message_box_view_(NULL) {
   message_box_view_ = new MessageBoxView(
-      MessageBoxView::kIsConfirmMessageBox,
+      MessageBox::kIsConfirmMessageBox,
       l10n_util::GetString(IDS_HTTP_POST_WARNING),
       L"");
   // TODO(beng): fix this - this dialog box should be shown by a method on the

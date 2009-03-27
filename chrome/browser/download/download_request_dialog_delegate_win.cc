@@ -7,6 +7,7 @@
 #include "chrome/browser/tab_contents/constrained_window.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "grit/generated_resources.h"
 
@@ -22,7 +23,7 @@ DownloadRequestDialogDelegateWin::DownloadRequestDialogDelegateWin(
     DownloadRequestManager::TabDownloadState* host)
     : DownloadRequestDialogDelegate(host) {
   message_view_ = new MessageBoxView(
-      MessageBoxView::kIsConfirmMessageBox,
+      MessageBox::kIsConfirmMessageBox,
       l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING),
       std::wstring());
   window_ = tab->CreateConstrainedDialog(this, message_view_);

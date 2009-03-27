@@ -10,6 +10,7 @@
 #include "base/file_util.h"
 #include "chrome/browser/user_data_manager.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/view.h"
@@ -29,9 +30,9 @@ NewProfileDialog::NewProfileDialog() {
       IDS_NEW_PROFILE_DIALOG_LABEL_TEXT);
   const int kDialogWidth = views::Window::GetLocalizedContentsWidth(
       IDS_NEW_PROFILE_DIALOG_WIDTH_CHARS);
-  const int kMessageBoxFlags = MessageBoxView::kFlagHasOKButton |
-                               MessageBoxView::kFlagHasCancelButton |
-                               MessageBoxView::kFlagHasPromptField;
+  const int kMessageBoxFlags = MessageBox::kFlagHasOKButton |
+                               MessageBox::kFlagHasCancelButton |
+                               MessageBox::kFlagHasPromptField;
   message_box_view_ = new MessageBoxView(kMessageBoxFlags,
                                          message_text.c_str(),
                                          std::wstring(),

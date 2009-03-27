@@ -12,6 +12,7 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
@@ -103,7 +104,7 @@ ExternalProtocolDialog::ExternalProtocolDialog(TabContents* tab_contents,
 
   message_text += l10n_util::GetString(IDS_EXTERNAL_PROTOCOL_WARNING);
 
-  message_box_view_ = new MessageBoxView(MessageBoxView::kIsConfirmMessageBox,
+  message_box_view_ = new MessageBoxView(MessageBox::kIsConfirmMessageBox,
                                          message_text,
                                          L"",
                                          kMessageWidth);

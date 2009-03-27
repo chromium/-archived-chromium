@@ -5,6 +5,7 @@
 #include "base/logging.h"
 #include "chrome/browser/views/user_data_dir_dialog.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/views/controls/message_box_view.h"
 #include "chrome/views/widget/widget.h"
 #include "chrome/views/window/window.h"
@@ -26,7 +27,7 @@ UserDataDirDialog::UserDataDirDialog(const std::wstring& user_data_dir)
   std::wstring message_text = l10n_util::GetStringF(
       IDS_CANT_WRITE_USER_DIRECTORY_SUMMARY, user_data_dir);
   const int kDialogWidth = 400;
-  message_box_view_ = new MessageBoxView(MessageBoxView::kIsConfirmMessageBox,
+  message_box_view_ = new MessageBoxView(MessageBox::kIsConfirmMessageBox,
       message_text.c_str(), std::wstring(), kDialogWidth);
 
   views::Window::CreateChromeWindow(NULL, gfx::Rect(), this)->Show();

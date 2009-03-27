@@ -6,7 +6,7 @@
 
 #include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/views/controls/message_box_view.h"
+#include "chrome/common/message_box_flags.h"
 #include "grit/generated_resources.h"
 
 void RunBeforeUnloadDialog(WebContents* web_contents,
@@ -31,7 +31,7 @@ JavascriptBeforeUnloadHandler::JavascriptBeforeUnloadHandler(
     IPC::Message* reply_msg)
     : JavascriptMessageBoxHandler(web_contents,
                                   frame_url,
-                                  MessageBoxView::kIsJavascriptConfirm,
+                                  MessageBox::kIsJavascriptConfirm,
                                   message_text,
                                   std::wstring(),
                                   false,

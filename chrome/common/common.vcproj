@@ -542,6 +542,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\message_box_flags.h"
+			>
+		</File>
+		<File
 			RelativePath=".\message_router.cc"
 			>
 		</File>

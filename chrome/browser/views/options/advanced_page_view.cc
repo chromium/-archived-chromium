@@ -11,6 +11,7 @@
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/views/controls/message_box_view.h"
@@ -68,7 +69,7 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
     const int kDialogWidth = 400;
     // Also deleted when the window closes.
     message_box_view_ = new MessageBoxView(
-        MessageBoxView::kFlagHasMessage | MessageBoxView::kFlagHasOKButton,
+        MessageBox::kFlagHasMessage | MessageBox::kFlagHasOKButton,
         l10n_util::GetString(IDS_OPTIONS_RESET_MESSAGE).c_str(),
         std::wstring(),
         kDialogWidth);
