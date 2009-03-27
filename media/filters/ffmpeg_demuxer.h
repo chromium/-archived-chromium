@@ -58,7 +58,7 @@ class FFmpegDemuxerStream : public DemuxerStream {
 
   // DemuxerStream implementation.
   virtual const MediaFormat& media_format();
-  virtual void Read(Assignable<Buffer>* buffer);
+  virtual void Read(Callback1<Buffer*>::Type* read_callback);
 
   AVStream* av_stream() {
     return av_stream_;
@@ -80,11 +80,11 @@ class FFmpegDemuxerStream : public DemuxerStream {
   base::TimeDelta duration_;
   Lock lock_;
 
-  typedef std::deque< scoped_refptr<Buffer> > InputQueue;
-  InputQueue input_queue_;
+  typedef std::deque< scoped_refptr<Buffer> > BufferQueue;
+  BufferQueue buffer_queue_;
 
-  typedef std::deque< scoped_refptr< Assignable<Buffer> > > OutputQueue;
-  OutputQueue output_queue_;
+  typedef std::deque<Callback1<Buffer*>::Type*> ReadQueue;
+  ReadQueue read_queue_;
 
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxerStream);
 };

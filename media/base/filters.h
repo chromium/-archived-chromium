@@ -29,6 +29,7 @@
 
 #include "base/logging.h"
 #include "base/ref_counted.h"
+#include "base/task.h"
 #include "base/time.h"
 #include "media/base/media_format.h"
 
@@ -156,8 +157,9 @@ class DemuxerStream : public base::RefCountedThreadSafe<DemuxerStream> {
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat& media_format() = 0;
 
-  // Schedules a read and takes ownership of the given buffer.
-  virtual void Read(Assignable<Buffer>* buffer) = 0;
+  // Schedules a read.  When the |read_callback| is called, the downstream
+  // filter takes ownership of the buffer by AddRef()'ing the buffer.
+  virtual void Read(Callback1<Buffer*>::Type* read_callback) = 0;
 
   // Given a class that supports the |Interface| and a related static method
   // interface_id(), which returns a const char*, this method returns true if

@@ -214,7 +214,7 @@ class MockDemuxerStream : public DemuxerStream {
     return media_format_;
   }
 
-  virtual void Read(Assignable<Buffer>* buffer) {
+  virtual void Read(Callback1<Buffer*>::Type* read_callback) {
     NOTREACHED();  // TODO(ralphl): fix me!!
   }
 

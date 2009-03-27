@@ -112,29 +112,43 @@ void InitializeFFmpegMocks() {
   memset(&g_packet, 0, sizeof(g_packet));
 }
 
-// Simple implementation of Assignable<Buffer> that lets us poke at values.
-class TestBuffer : public Assignable<Buffer> {
+// Ref counted object so we can create callbacks to call DemuxerStream::Read().
+class TestReader : public base::RefCountedThreadSafe<TestReader> {
  public:
-  TestBuffer() : assigned_(false) {}
-  virtual ~TestBuffer() {}
+  TestReader() : called_(false), expecting_call_(false) {}
+  virtual ~TestReader() {}
 
-  // Assignable<Buffer> implementation.
-  virtual void SetBuffer(Buffer* buffer) {
-    buffer_ = buffer;
+  void Reset() {
+    EXPECT_FALSE(expecting_call_);
+    expecting_call_ = false;
+    called_ = false;
+    buffer_ = NULL;
   }
 
-  void OnAssignment() {
-    EXPECT_FALSE(assigned_);
-    assigned_ = true;
+  void Read(DemuxerStream* stream) {
+    EXPECT_FALSE(expecting_call_);
+    called_ = false;
+    expecting_call_ = true;
+    stream->Read(NewCallback(this, &TestReader::ReadComplete));
+  }
+
+  void ReadComplete(Buffer* buffer) {
+    EXPECT_FALSE(called_);
+    EXPECT_TRUE(expecting_call_);
+    expecting_call_ = false;
+    called_ = true;
+    buffer_ = buffer;
   }
 
   // Mock getters/setters.
   Buffer* buffer() { return buffer_; }
-  bool assigned() { return assigned_; }
+  bool called() { return called_; }
+  bool expecting_call() { return expecting_call_; }
 
  private:
   scoped_refptr<Buffer> buffer_;
-  bool assigned_;
+  bool called_;
+  bool expecting_call_;
 };
 
 }  // namespace
@@ -336,13 +350,13 @@ TEST(FFmpegDemuxerTest, Read) {
   g_packet.size = kDataSize;
 
   // Attempt a read from the audio stream and run the message loop until done.
-  scoped_refptr<TestBuffer> buffer(new TestBuffer());
-  audio_stream->Read(buffer);
+  scoped_refptr<TestReader> reader(new TestReader());
+  reader->Read(audio_stream);
   pipeline.RunAllTasks();
-  EXPECT_TRUE(buffer->assigned());
-  EXPECT_TRUE(buffer->buffer());
-  EXPECT_EQ(audio_data, buffer->buffer()->GetData());
-  EXPECT_EQ(kDataSize, buffer->buffer()->GetDataSize());
+  EXPECT_TRUE(reader->called());
+  EXPECT_TRUE(reader->buffer());
+  EXPECT_EQ(audio_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
   // Prepare our test video packet.
   g_packet.stream_index = kVideo;
@@ -350,25 +364,25 @@ TEST(FFmpegDemuxerTest, Read) {
   g_packet.size = kDataSize;
 
   // Attempt a read from the video stream and run the message loop until done.
-  buffer = new TestBuffer();
-  video_stream->Read(buffer);
+  reader->Reset();
+  reader->Read(video_stream);
   pipeline.RunAllTasks();
-  EXPECT_TRUE(buffer->assigned());
-  EXPECT_TRUE(buffer->buffer());
-  EXPECT_EQ(video_data, buffer->buffer()->GetData());
-  EXPECT_EQ(kDataSize, buffer->buffer()->GetDataSize());
+  EXPECT_TRUE(reader->called());
+  EXPECT_TRUE(reader->buffer());
+  EXPECT_EQ(video_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
   // Simulate end of stream.
   g_av_read_frame = AVERROR_IO;
 
   // Attempt a read from the audio stream and run the message loop until done.
-  buffer = new TestBuffer();
-  audio_stream->Read(buffer);
+  reader->Reset();
+  reader->Read(audio_stream);
   pipeline.RunAllTasks();
-  EXPECT_FALSE(buffer->assigned());
-  EXPECT_FALSE(buffer->buffer());
+  EXPECT_FALSE(reader->called());
+  EXPECT_FALSE(reader->buffer());
 
   // Manually release buffer, which should release any remaining AVPackets.
-  buffer = NULL;
+  reader = NULL;
   EXPECT_EQ(0, g_oustanding_packets);
 }

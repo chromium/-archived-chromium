@@ -70,8 +70,7 @@ class DecoderBase : public Decoder {
     }
   }
 
-  // AssignableBuffer callback.
-  virtual void OnAssignment(Buffer* buffer) {
+  void OnReadComplete(Buffer* buffer) {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
       buffer->AddRef();
@@ -183,7 +182,7 @@ class DecoderBase : public Decoder {
         AutoUnlock unlock(lock_);
         while (read) {
           demuxer_stream_->
-              Read(new AssignableBuffer<DecoderBase, Buffer>(this));
+              Read(NewCallback(this, &DecoderBase::OnReadComplete));
           --read;
         }
       }

@@ -88,8 +88,11 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
 }
 
 FFmpegDemuxerStream::~FFmpegDemuxerStream() {
-  // Since |input_queue_| and |output_queue_| use scoped_refptr everything
-  // should get released.
+  // Since |buffer_queue_| uses scoped_refptr everything will get released.
+  while (!read_queue_.empty()) {
+    delete read_queue_.front();
+    read_queue_.pop_front();
+  }
 }
 
 // static
@@ -108,7 +111,7 @@ void* FFmpegDemuxerStream::QueryInterface(const char* id) {
 
 bool FFmpegDemuxerStream::HasPendingReads() {
   AutoLock auto_lock(lock_);
-  return !output_queue_.empty();
+  return !read_queue_.empty();
 }
 
 void FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
@@ -118,7 +121,7 @@ void FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
   DCHECK(buffer);
   {
     AutoLock auto_lock(lock_);
-    input_queue_.push_back(buffer);
+    buffer_queue_.push_back(buffer);
   }
   FulfillPendingReads();
 }
@@ -127,11 +130,11 @@ const MediaFormat& FFmpegDemuxerStream::media_format() {
   return media_format_;
 }
 
-void FFmpegDemuxerStream::Read(Assignable<Buffer>* buffer) {
-  DCHECK(buffer);
+void FFmpegDemuxerStream::Read(Callback1<Buffer*>::Type* read_callback) {
+  DCHECK(read_callback);
   {
     AutoLock auto_lock(lock_);
-    output_queue_.push_back(scoped_refptr< Assignable<Buffer> >(buffer));
+    read_queue_.push_back(read_callback);
   }
   if (FulfillPendingReads()) {
     demuxer_->ScheduleDemux();
@@ -141,21 +144,20 @@ void FFmpegDemuxerStream::Read(Assignable<Buffer>* buffer) {
 bool FFmpegDemuxerStream::FulfillPendingReads() {
   bool pending_reads = false;
   while (true) {
-    scoped_refptr<Buffer> buffer_in;
-    scoped_refptr< Assignable<Buffer> > buffer_out;
+    scoped_refptr<Buffer> buffer;
+    scoped_ptr<Callback1<Buffer*>::Type> read_callback;
     {
       AutoLock auto_lock(lock_);
-      pending_reads = !output_queue_.empty();
-      if (input_queue_.empty() || output_queue_.empty()) {
+      pending_reads = !read_queue_.empty();
+      if (buffer_queue_.empty() || read_queue_.empty()) {
         break;
       }
-      buffer_in = input_queue_.front();
-      buffer_out = output_queue_.front();
-      input_queue_.pop_front();
-      output_queue_.pop_front();
+      buffer = buffer_queue_.front();
+      read_callback.reset(read_queue_.front());
+      buffer_queue_.pop_front();
+      read_queue_.pop_front();
     }
-    buffer_out->SetBuffer(buffer_in);
-    buffer_out->OnAssignment();
+    read_callback->Run(buffer);
   }
   return pending_reads;
 }
