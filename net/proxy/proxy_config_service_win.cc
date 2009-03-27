@@ -17,13 +17,13 @@
 
 namespace net {
 
-static void FreeConfig(WINHTTP_CURRENT_USER_IE_PROXY_CONFIG* config) {
-  if (config->lpszAutoConfigUrl)
-    GlobalFree(config->lpszAutoConfigUrl);
-  if (config->lpszProxy)
-    GlobalFree(config->lpszProxy);
-  if (config->lpszProxyBypass)
-    GlobalFree(config->lpszProxyBypass);
+static void FreeIEConfig(WINHTTP_CURRENT_USER_IE_PROXY_CONFIG* ie_config) {
+  if (ie_config->lpszAutoConfigUrl)
+    GlobalFree(ie_config->lpszAutoConfigUrl);
+  if (ie_config->lpszProxy)
+    GlobalFree(ie_config->lpszProxy);
+  if (ie_config->lpszProxyBypass)
+    GlobalFree(ie_config->lpszProxyBypass);
 }
 
 int ProxyConfigServiceWin::GetProxyConfig(ProxyConfig* config) {
@@ -33,7 +33,15 @@ int ProxyConfigServiceWin::GetProxyConfig(ProxyConfig* config) {
         GetLastError();
     return ERR_FAILED;  // TODO(darin): Bug 1189288: translate error code.
   }
+  SetFromIEConfig(config, ie_config);
+  FreeIEConfig(&ie_config);
+  return OK;
+}
 
+// static
+void ProxyConfigServiceWin::SetFromIEConfig(
+    ProxyConfig* config,
+    const WINHTTP_CURRENT_USER_IE_PROXY_CONFIG& ie_config) {
   if (ie_config.fAutoDetect)
     config->auto_detect = true;
   if (ie_config.lpszProxy)
@@ -52,9 +60,6 @@ int ProxyConfigServiceWin::GetProxyConfig(ProxyConfig* config) {
   }
   if (ie_config.lpszAutoConfigUrl)
     config->pac_url = GURL(ie_config.lpszAutoConfigUrl);
-
-  FreeConfig(&ie_config);
-  return OK;
 }
 
 }  // namespace net

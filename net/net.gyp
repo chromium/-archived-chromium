@@ -426,6 +426,7 @@
         'http/http_transaction_unittest.h',
         'http/http_util_unittest.cc',
         'http/http_vary_data_unittest.cc',
+        'proxy/proxy_config_service_win_unittest.cc',
         'proxy/proxy_list_unittest.cc',
         'proxy/proxy_resolver_v8_unittest.cc',
         'proxy/proxy_script_fetcher_unittest.cc',
@@ -438,6 +439,7 @@
         [ 'OS != "win"', {
             'sources!': [
               'base/wininet_util_unittest.cc',
+              'proxy/proxy_config_service_win_unittest.cc',
             ],
           },
         ],
