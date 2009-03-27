@@ -2347,3 +2347,7 @@ LINUX MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
 LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 LINUX MAC : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
 LINUX MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
+
+// r12699 changed how mouse input is handled; seems likely candidate.
+// http://code.google.com/p/chromium/issues/detail?id=9454
+MAC : LayoutTests/fast/events/mouseup-from-button2.html = FAIL
