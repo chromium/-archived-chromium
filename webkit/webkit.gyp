@@ -491,7 +491,7 @@
             '../third_party/WebKit/WebCore/css/html4.css',
             '../third_party/WebKit/WebCore/css/quirks.css',
             '../third_party/WebKit/WebCore/css/view-source.css',
-            '../third_party/WebKit/WebCore/css/themeChromiumWin.css',
+            '../third_party/WebKit/WebCore/css/themeWin.css',
             '../third_party/WebKit/WebCore/css/themeWinQuirks.css',
             '../third_party/WebKit/WebCore/css/svg.css',
             '../third_party/WebKit/WebCore/css/mediaControls.css',

@@ -571,7 +571,7 @@ env.Command(['$DERIVED_DIR/UserAgentStyleSheets.h',
              '$PORT_DIR/css/svg.css',
              '$PORT_DIR/css/html4.css',
              '$PORT_DIR/css/quirks.css',
-             '$PORT_DIR/css/themeChromiumWin.css',
+             '$PORT_DIR/css/themeWin.css',
              '$PORT_DIR/css/themeWinQuirks.css'],
             '$PERL ${SOURCES[0].posix} ${TARGETS.posix} ${SOURCES[1:].posix}')
 
