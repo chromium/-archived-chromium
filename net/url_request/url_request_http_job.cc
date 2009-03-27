@@ -21,6 +21,7 @@
 #include "net/http/http_response_info.h"
 #include "net/http/http_transaction.h"
 #include "net/http/http_transaction_factory.h"
+#include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
 #include "net/url_request/url_request_error_job.h"
@@ -299,9 +300,26 @@ void URLRequestHttpJob::SetAuth(const std::wstring& username,
     server_auth_state_ = net::AUTH_STATE_HAVE_AUTH;
   }
 
+  RestartTransactionWithAuth(username, password);
+}
+
+void URLRequestHttpJob::RestartTransactionWithAuth(
+    const std::wstring& username,
+    const std::wstring& password) {
+
   // These will be reset in OnStartCompleted.
   response_info_ = NULL;
   response_cookies_.clear();
+
+  // Update the cookies, since the cookie store may have been updated from the
+  // headers in the 401/407. Since cookies were already appended to
+  // extra_headers by AddExtraHeaders(), we need to strip them out.
+  static const char* const cookie_name[] = { "cookie" };
+  request_info_.extra_headers = net::HttpUtil::StripHeaders(
+      request_info_.extra_headers, cookie_name, arraysize(cookie_name));
+  // TODO(eroman): this ordering is inconsistent with non-restarted request,
+  // where cookies header appears second from the bottom.
+  request_info_.extra_headers += AssembleRequestCookies();
 
   // No matter what, we want to report our status as IO pending since we will
   // be notifying our consumer asynchronously via OnStartCompleted.
@@ -474,6 +492,15 @@ void URLRequestHttpJob::NotifyHeadersComplete() {
     }
   }
 
+  // The HTTP transaction may be restarted several times for the purposes
+  // of sending authorization information. Each time it restarts, we get
+  // notified of the headers completion so that we can update the cookie store.
+  if (transaction_->IsReadyToRestartForAuth()) {
+    DCHECK(!response_info_->auth_challenge.get());
+    RestartTransactionWithAuth(std::wstring(), std::wstring());
+    return;
+  }
+
   URLRequestJob::NotifyHeadersComplete();
 }
 
@@ -544,17 +571,7 @@ void URLRequestHttpJob::AddExtraHeaders() {
 
   URLRequestContext* context = request_->context();
   if (context) {
-    // Add in the cookie header.  TODO might we need more than one header?
-    if (context->cookie_store() &&
-        context->cookie_policy()->CanGetCookies(request_->url(),
-                                               request_->policy_url())) {
-      net::CookieMonster::CookieOptions options;
-      options.set_include_httponly();
-      std::string cookies = request_->context()->cookie_store()->
-          GetCookiesWithOptions(request_->url(), options);
-      if (!cookies.empty())
-        request_info_.extra_headers += "Cookie: " + cookies + "\r\n";
-    }
+    request_info_.extra_headers += AssembleRequestCookies();
     if (!context->accept_language().empty())
       request_info_.extra_headers += "Accept-Language: " +
           context->accept_language() + "\r\n";
@@ -562,6 +579,24 @@ void URLRequestHttpJob::AddExtraHeaders() {
       request_info_.extra_headers += "Accept-Charset: " +
           context->accept_charset() + "\r\n";
   }
+}
+
+std::string URLRequestHttpJob::AssembleRequestCookies() {
+  URLRequestContext* context = request_->context();
+  if (context) {
+    // Add in the cookie header.  TODO might we need more than one header?
+    if (context->cookie_store() &&
+        context->cookie_policy()->CanGetCookies(request_->url(),
+                                                request_->policy_url())) {
+      net::CookieMonster::CookieOptions options;
+      options.set_include_httponly();
+      std::string cookies = request_->context()->cookie_store()->
+          GetCookiesWithOptions(request_->url(), options);
+      if (!cookies.empty())
+        return "Cookie: " + cookies + "\r\n";
+    }
+  }
+  return std::string();
 }
 
 void URLRequestHttpJob::FetchResponseCookies() {

@@ -21,6 +21,7 @@
 #include "base/process_util.h"
 #include "base/string_piece.h"
 #include "base/string_util.h"
+#include "net/base/cookie_monster.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_module.h"
@@ -46,9 +47,12 @@ class URLRequestHttpCacheContext : public URLRequestContext {
     http_transaction_factory_ =
         new net::HttpCache(net::HttpNetworkLayer::CreateFactory(proxy_service_),
                            disk_cache::CreateInMemoryCacheBackend(0));
+    // In-memory cookie store.
+    cookie_store_ = new net::CookieMonster();
   }
 
   virtual ~URLRequestHttpCacheContext() {
+    delete cookie_store_;
     delete http_transaction_factory_;
     delete proxy_service_;
   }
@@ -928,6 +932,64 @@ TEST_F(URLRequestTest, BasicAuth) {
     // Should be the same cached document, which means that the response time
     // should not have changed.
     EXPECT_TRUE(response_time == r.response_time());
+  }
+}
+
+// Check that Set-Cookie headers in 401 responses are respected.
+// http://crbug.com/6450
+TEST_F(URLRequestTest, BasicAuthWithCookies) {
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(L"", NULL);
+  ASSERT_TRUE(NULL != server.get());
+
+  GURL url_requiring_auth =
+      server->TestServerPage("auth-basic?set-cookie-if-challenged");
+
+  // Request a page that will give a 401 containing a Set-Cookie header.
+  // Verify that when the transaction is restarted, it includes the new cookie.
+  {
+    scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
+    TestDelegate d;
+    d.set_username(L"user");
+    d.set_password(L"secret");
+
+    URLRequest r(url_requiring_auth, &d);
+    r.set_context(context);
+    r.Start();
+
+    MessageLoop::current()->Run();
+
+    EXPECT_TRUE(d.data_received().find("user/secret") != std::string::npos);
+
+    // Make sure we sent the cookie in the restarted transaction.
+    EXPECT_TRUE(d.data_received().find("Cookie: got_challenged=true")
+        != std::string::npos);
+  }
+
+  // Same test as above, except this time the restart is initiated earlier
+  // (without user intervention since identity is embedded in the URL).
+  {
+    scoped_refptr<URLRequestContext> context = new URLRequestHttpCacheContext();
+    TestDelegate d;
+
+    GURL::Replacements replacements;
+    std::string username("user2");
+    std::string password("secret");
+    replacements.SetUsernameStr(username);
+    replacements.SetPasswordStr(password);
+    GURL url_with_identity = url_requiring_auth.ReplaceComponents(replacements);
+
+    URLRequest r(url_with_identity, &d);
+    r.set_context(context);
+    r.Start();
+
+    MessageLoop::current()->Run();
+
+    EXPECT_TRUE(d.data_received().find("user2/secret") != std::string::npos);
+
+    // Make sure we sent the cookie in the restarted transaction.
+    EXPECT_TRUE(d.data_received().find("Cookie: got_challenged=true")
+        != std::string::npos);
   }
 }
 

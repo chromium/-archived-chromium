@@ -35,7 +35,8 @@ namespace net {
 
 HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
                                                ClientSocketFactory* csf)
-    : ALLOW_THIS_IN_INITIALIZER_LIST(
+    : pending_auth_target_(HttpAuth::AUTH_NONE),
+      ALLOW_THIS_IN_INITIALIZER_LIST(
           io_callback_(this, &HttpNetworkTransaction::OnIOComplete)),
       user_callback_(NULL),
       session_(session),
@@ -92,20 +93,24 @@ int HttpNetworkTransaction::RestartWithAuth(
     const std::wstring& username,
     const std::wstring& password,
     CompletionCallback* callback) {
+  HttpAuth::Target target = pending_auth_target_;
+  if (target == HttpAuth::AUTH_NONE) {
+    NOTREACHED();
+    return ERR_UNEXPECTED;
+  }
 
-  DCHECK(NeedAuth(HttpAuth::AUTH_PROXY) ||
-         NeedAuth(HttpAuth::AUTH_SERVER));
+  pending_auth_target_ = HttpAuth::AUTH_NONE;
 
-  // Figure out whether this username password is for proxy or server.
-  // Proxy gets set first, then server.
-  HttpAuth::Target target = NeedAuth(HttpAuth::AUTH_PROXY) ?
-      HttpAuth::AUTH_PROXY : HttpAuth::AUTH_SERVER;
+  DCHECK(auth_identity_[target].invalid ||
+         (username.empty() && password.empty()));
 
-  // Update the username/password.
-  auth_identity_[target].source = HttpAuth::IDENT_SRC_EXTERNAL;
-  auth_identity_[target].invalid = false;
-  auth_identity_[target].username = username;
-  auth_identity_[target].password = password;
+  if (auth_identity_[target].invalid) {
+    // Update the username/password.
+    auth_identity_[target].source = HttpAuth::IDENT_SRC_EXTERNAL;
+    auth_identity_[target].invalid = false;
+    auth_identity_[target].username = username;
+    auth_identity_[target].password = password;
+  }
 
   PrepareForAuthRestart(target);
 
@@ -1097,8 +1102,6 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   }
 
   int rv = HandleAuthChallenge();
-  if (rv == WILL_RESTART_TRANSACTION)
-    return OK;
   if (rv != OK)
     return rv;
 
@@ -1182,6 +1185,7 @@ int HttpNetworkTransaction::HandleIOError(int error) {
 }
 
 void HttpNetworkTransaction::ResetStateForRestart() {
+  pending_auth_target_ = HttpAuth::AUTH_NONE;
   header_buf_.reset();
   header_buf_capacity_ = 0;
   header_buf_len_ = 0;
@@ -1473,11 +1477,10 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
     return OK;
   }
 
-  bool has_identity_to_try;
   if (auth_handler_[target]->NeedsIdentity()) {
     // Pick a new auth identity to try, by looking to the URL and auth cache.
     // If an identity to try is found, it is saved to auth_identity_[target].
-    has_identity_to_try = SelectNextAuthIdentityToTry(target);
+    SelectNextAuthIdentityToTry(target);
   } else {
     // Proceed with a null identity.
     //
@@ -1487,19 +1490,17 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
     auth_identity_[target].invalid = false;
     auth_identity_[target].username.clear();
     auth_identity_[target].password.clear();
-    has_identity_to_try = true;
-  }
-  DCHECK(has_identity_to_try == !auth_identity_[target].invalid);
-
-  if (has_identity_to_try) {
-    DCHECK(user_callback_);
-    PrepareForAuthRestart(target);
-    return WILL_RESTART_TRANSACTION;
   }
 
-  // We have exhausted all identity possibilities, all we can do now is
-  // pass the challenge information back to the client.
-  PopulateAuthChallenge(target);
+  // Make a note that we are waiting for auth. This variable is inspected
+  // when the client calls RestartWithAuth() to pick up where we left off.
+  pending_auth_target_ = target;
+
+  if (auth_identity_[target].invalid) {
+    // We have exhausted all identity possibilities, all we can do now is
+    // pass the challenge information back to the client.
+    PopulateAuthChallenge(target);
+  }
   return OK;
 }
 

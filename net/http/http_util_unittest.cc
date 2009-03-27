@@ -34,6 +34,29 @@ TEST(HttpUtilTest, HasHeader) {
   }
 }
 
+TEST(HttpUtilTest, StripHeaders) {
+  static const char* headers =
+    "Origin: origin\r\n"
+    "Content-Type: text/plain\r\n"
+    "Cookies: foo1\r\n"
+    "Custom: baz\r\n"
+    "COOKIES: foo2\r\n"
+    "Server: Apache\r\n"
+    "OrIGin: origin2\r\n";
+
+  static const char* header_names[] = {
+    "origin", "content-type", "cookies"
+  };
+
+  static const char* expected_stripped_headers =
+    "Custom: baz\r\n"
+    "Server: Apache\r\n";
+
+  EXPECT_EQ(expected_stripped_headers,
+            HttpUtil::StripHeaders(headers, header_names,
+                                   arraysize(header_names)));
+}
+
 TEST(HttpUtilTest, HeadersIterator) {
   std::string headers = "foo: 1\t\r\nbar: hello world\r\nbaz: 3 \r\n";
 

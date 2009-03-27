@@ -47,6 +47,14 @@ class HttpUtil {
   // TODO(darin): kill this
   static bool HasHeader(const std::string& headers, const char* name);
 
+  // Strips all header lines from |headers| whose name matches
+  // |headers_to_remove|. |headers_to_remove| is a list of null-terminated
+  // lower-case header names, with array length |headers_to_remove_len|.
+  // Returns the stripped header lines list, separated by "\r\n".
+  static std::string StripHeaders(const std::string& headers,
+                                  const char* const headers_to_remove[],
+                                  size_t headers_to_remove_len);
+
   // Multiple occurances of some headers cannot be coalesced into a comma-
   // separated list since their values are (or contain) unquoted HTTP-date
   // values, which may contain a comma (see RFC 2616 section 3.3.1).

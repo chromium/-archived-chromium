@@ -240,6 +240,10 @@ class MockNetworkTransaction : public net::HttpTransaction {
     return net::ERR_FAILED;
   }
 
+  virtual bool IsReadyToRestartForAuth() {
+    return false;
+  }
+
   virtual int Read(net::IOBuffer* buf, int buf_len,
                    net::CompletionCallback* callback) {
     int data_len = static_cast<int>(data_.size());

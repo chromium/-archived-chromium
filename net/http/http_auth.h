@@ -21,6 +21,9 @@ class HttpAuth {
    // Http authentication can be done the the proxy server, origin server,
    // or both. This enum tracks who the target is.
    enum Target {
+     AUTH_NONE = -1,
+     // We depend on the valid targets (!= AUTH_NONE) being usable as indexes
+     // in an array, so start from 0.
      AUTH_PROXY = 0,
      AUTH_SERVER = 1,
    };

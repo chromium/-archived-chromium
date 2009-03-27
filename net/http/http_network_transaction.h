@@ -41,6 +41,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   virtual int RestartWithAuth(const std::wstring& username,
                               const std::wstring& password,
                               CompletionCallback* callback);
+  virtual bool IsReadyToRestartForAuth() {
+    return pending_auth_target_ != HttpAuth::AUTH_NONE &&
+        HaveAuth(pending_auth_target_);
+  }
+
   virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback* callback);
   virtual const HttpResponseInfo* GetResponseInfo() const;
   virtual LoadState GetLoadState() const;
@@ -152,10 +157,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   void AddAuthorizationHeader(HttpAuth::Target target);
 
   // Handles HTTP status code 401 or 407.
-  // HandleAuthChallenge() returns a network error code, or OK, or
-  // WILL_RESTART_TRANSACTION. The latter indicates that the state machine has
-  // been updated to restart the transaction with a new auth attempt.
-  enum { WILL_RESTART_TRANSACTION = 1 };
+  // HandleAuthChallenge() returns a network error code, or OK on success.
+  // May update |pending_auth_target_| or |response_.auth_challenge|.
   int HandleAuthChallenge();
 
   // Populates response_.auth_challenge with the challenge information, so that
@@ -176,10 +179,6 @@ class HttpNetworkTransaction : public HttpTransaction {
   // If such an entry is found, updates auth_identity_[target] and
   // auth_handler_[target] with the cache entry's data and returns true.
   bool SelectPreemptiveAuth(HttpAuth::Target target);
-
-  bool NeedAuth(HttpAuth::Target target) const {
-    return auth_handler_[target].get() && auth_identity_[target].invalid;
-  }
 
   bool HaveAuth(HttpAuth::Target target) const {
     return auth_handler_[target].get() && !auth_identity_[target].invalid;
@@ -205,6 +204,11 @@ class HttpNetworkTransaction : public HttpTransaction {
   // the auth_handler_ to generate credentials. This identity can come from
   // a number of places (url, cache, prompt).
   HttpAuth::Identity auth_identity_[2];
+
+  // Whether this transaction is waiting for proxy auth, server auth, or is
+  // not waiting for any auth at all. |pending_auth_target_| is read and
+  // cleared by RestartWithAuth().
+  HttpAuth::Target pending_auth_target_;
 
   CompletionCallbackImpl<HttpNetworkTransaction> io_callback_;
   CompletionCallback* user_callback_;

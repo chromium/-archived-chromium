@@ -352,26 +352,8 @@ std::string URLRequest::StripPostSpecificHeaders(const std::string& headers) {
       "content-length",
       "origin"
   };
-
-  std::string stripped_headers;
-  net::HttpUtil::HeadersIterator it(headers.begin(), headers.end(), "\r\n");
-
-  while (it.GetNext()) {
-    bool is_post_specific = false;
-    for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kPostHeaders); ++i) {
-      if (LowerCaseEqualsASCII(it.name_begin(), it.name_end(),
-                               kPostHeaders[i])) {
-        is_post_specific = true;
-        break;
-      }
-    }
-    if (!is_post_specific) {
-      // Assume that name and values are on the same line.
-      stripped_headers.append(it.name_begin(), it.values_end());
-      stripped_headers.append("\r\n");
-    }
-  }
-  return stripped_headers;
+  return net::HttpUtil::StripHeaders(
+      headers, kPostHeaders, arraysize(kPostHeaders));
 }
 
 int URLRequest::Redirect(const GURL& location, int http_status_code) {

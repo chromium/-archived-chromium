@@ -63,10 +63,14 @@ class URLRequestHttpJob : public URLRequestJob {
   void DestroyTransaction();
   void StartTransaction();
   void AddExtraHeaders();
+  std::string AssembleRequestCookies();
   void FetchResponseCookies();
 
   void OnStartCompleted(int result);
   void OnReadCompleted(int result);
+
+  void RestartTransactionWithAuth(const std::wstring& username,
+                                  const std::wstring& password);
 
   net::HttpRequestInfo request_info_;
   scoped_ptr<net::HttpTransaction> transaction_;

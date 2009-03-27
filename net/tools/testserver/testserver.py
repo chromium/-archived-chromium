@@ -691,6 +691,8 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     username = userpass = password = b64str = ""
 
+    set_cookie_if_challenged = self.path.find('?set-cookie-if-challenged') > 0
+
     auth = self.headers.getheader('authorization')
     try:
       if not auth:
@@ -705,6 +707,8 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.send_response(401)
       self.send_header('WWW-Authenticate', 'Basic realm="testrealm"')
       self.send_header('Content-type', 'text/html')
+      if set_cookie_if_challenged:
+        self.send_header('Set-Cookie', 'got_challenged=true')
       self.end_headers()
       self.wfile.write('<html><head>')
       self.wfile.write('<title>Denied: %s</title>' % e)
@@ -734,6 +738,7 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
       self.wfile.write('<title>%s/%s</title>' % (username, password))
       self.wfile.write('</head><body>')
       self.wfile.write('auth=%s<p>' % auth)
+      self.wfile.write('You sent:<br>%s<p>' % self.headers)
       self.wfile.write('</body></html>')
 
     return True

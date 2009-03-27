@@ -166,6 +166,7 @@ class HttpCache::Transaction
   virtual int RestartWithAuth(const std::wstring& username,
                               const std::wstring& password,
                               CompletionCallback* callback);
+  virtual bool IsReadyToRestartForAuth();
   virtual int Read(IOBuffer* buf, int buf_len, CompletionCallback*);
   virtual const HttpResponseInfo* GetResponseInfo() const;
   virtual LoadState GetLoadState() const;
@@ -400,6 +401,12 @@ int HttpCache::Transaction::RestartWithAuth(
     callback_ = callback;
 
   return rv;
+}
+
+bool HttpCache::Transaction::IsReadyToRestartForAuth() {
+  if (!network_trans_.get())
+    return false;
+  return network_trans_->IsReadyToRestartForAuth();
 }
 
 int HttpCache::Transaction::Read(IOBuffer* buf, int buf_len,

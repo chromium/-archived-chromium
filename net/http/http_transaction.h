@@ -55,6 +55,14 @@ class HttpTransaction {
                               const std::wstring& password,
                               CompletionCallback* callback) = 0;
 
+  // Returns true if auth is ready to be continued. Callers should check
+  // this value anytime Start() completes: if it is true, the transaction
+  // can be resumed with RestartWithAuth(L"", L"", callback) to resume
+  // the automatic auth exchange. This notification gives the caller a
+  // chance to process the response headers from all of the intermediate
+  // restarts needed for authentication.
+  virtual bool IsReadyToRestartForAuth() = 0;
+
   // Once response info is available for the transaction, response data may be
   // read by calling this method.
   //

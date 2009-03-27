@@ -1651,7 +1651,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   };
 
   MockWrite data_writes2[] = {
-    // After automatically restarting with a null identity, this is the
+    // After restarting with a null identity, this is the
     // request we should be issuing -- the final header line contains a Type
     // 1 message.
     MockWrite("GET /kids/login.aspx HTTP/1.1\r\n"
@@ -1715,6 +1715,14 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   rv = callback1.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
+  EXPECT_TRUE(trans->IsReadyToRestartForAuth());
+  TestCompletionCallback callback2;
+  rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  rv = callback2.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_FALSE(trans->IsReadyToRestartForAuth());
+
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
@@ -1726,12 +1734,12 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   EXPECT_EQ(L"", response->auth_challenge->realm);
   EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
 
-  TestCompletionCallback callback2;
+  TestCompletionCallback callback3;
 
-  rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback2);
+  rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback3);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
-  rv = callback2.WaitForResult();
+  rv = callback3.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
   response = trans->GetResponseInfo();
@@ -1773,7 +1781,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   };
 
   MockWrite data_writes2[] = {
-    // After automatically restarting with a null identity, this is the
+    // After restarting with a null identity, this is the
     // request we should be issuing -- the final header line contains a Type
     // 1 message.
     MockWrite("GET /kids/login.aspx HTTP/1.1\r\n"
@@ -1824,7 +1832,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   };
 
   MockWrite data_writes3[] = {
-    // After automatically restarting with a null identity, this is the
+    // After restarting with a null identity, this is the
     // request we should be issuing -- the final header line contains a Type
     // 1 message.
     MockWrite("GET /kids/login.aspx HTTP/1.1\r\n"
@@ -1892,27 +1900,15 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   rv = callback1.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
-  EXPECT_FALSE(response == NULL);
-
-  // The password prompt info should have been set in response->auth_challenge.
-  EXPECT_FALSE(response->auth_challenge.get() == NULL);
-
-  // TODO(eroman): this should really include the effective port (80)
-  EXPECT_EQ(L"172.22.68.17", response->auth_challenge->host);
-  EXPECT_EQ(L"", response->auth_challenge->realm);
-  EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
-
+  EXPECT_TRUE(trans->IsReadyToRestartForAuth());
   TestCompletionCallback callback2;
-
-  // Enter the wrong password.
-  rv = trans->RestartWithAuth(L"testing-ntlm", L"wrongpassword", &callback2);
+  rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
-
   rv = callback2.WaitForResult();
   EXPECT_EQ(net::OK, rv);
+  EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
-  response = trans->GetResponseInfo();
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -1925,11 +1921,39 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 
   TestCompletionCallback callback3;
 
-  // Now enter the right password.
-  rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback3);
+  // Enter the wrong password.
+  rv = trans->RestartWithAuth(L"testing-ntlm", L"wrongpassword", &callback3);
   EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
   rv = callback3.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  EXPECT_TRUE(trans->IsReadyToRestartForAuth());
+  TestCompletionCallback callback4;
+  rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback4);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  rv = callback4.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_FALSE(trans->IsReadyToRestartForAuth());
+
+  response = trans->GetResponseInfo();
+  EXPECT_FALSE(response == NULL);
+
+  // The password prompt info should have been set in response->auth_challenge.
+  EXPECT_FALSE(response->auth_challenge.get() == NULL);
+
+  // TODO(eroman): this should really include the effective port (80)
+  EXPECT_EQ(L"172.22.68.17", response->auth_challenge->host);
+  EXPECT_EQ(L"", response->auth_challenge->realm);
+  EXPECT_EQ(L"ntlm", response->auth_challenge->scheme);
+
+  TestCompletionCallback callback5;
+
+  // Now enter the right password.
+  rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback5);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback5.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
   response = trans->GetResponseInfo();
@@ -2186,6 +2210,14 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
 
   rv = callback1.WaitForResult();
   EXPECT_EQ(net::OK, rv);
+
+  EXPECT_TRUE(trans->IsReadyToRestartForAuth());
+  TestCompletionCallback callback2;
+  rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  rv = callback2.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -2490,6 +2522,14 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     rv = callback1.WaitForResult();
     EXPECT_EQ(net::OK, rv);
 
+    EXPECT_TRUE(trans->IsReadyToRestartForAuth());
+    TestCompletionCallback callback2;
+    rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    rv = callback2.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+    EXPECT_FALSE(trans->IsReadyToRestartForAuth());
+
     const net::HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
     EXPECT_TRUE(response->auth_challenge.get() == NULL);
@@ -2577,6 +2617,14 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     rv = callback1.WaitForResult();
     EXPECT_EQ(net::OK, rv);
 
+    EXPECT_TRUE(trans->IsReadyToRestartForAuth());
+    TestCompletionCallback callback2;
+    rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
+    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    rv = callback2.WaitForResult();
+    EXPECT_EQ(net::OK, rv);
+    EXPECT_FALSE(trans->IsReadyToRestartForAuth());
+
     const net::HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
 
@@ -2589,12 +2637,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     EXPECT_EQ(L"MyRealm1", response->auth_challenge->realm);
     EXPECT_EQ(L"basic", response->auth_challenge->scheme);
 
-    TestCompletionCallback callback2;
+    TestCompletionCallback callback3;
 
-    rv = trans->RestartWithAuth(L"foo3", L"bar3", &callback2);
+    rv = trans->RestartWithAuth(L"foo3", L"bar3", &callback3);
     EXPECT_EQ(net::ERR_IO_PENDING, rv);
 
-    rv = callback2.WaitForResult();
+    rv = callback3.WaitForResult();
     EXPECT_EQ(net::OK, rv);
 
     response = trans->GetResponseInfo();
