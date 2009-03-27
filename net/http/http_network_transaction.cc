@@ -675,7 +675,8 @@ int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
   request_headers_bytes_sent_ += result;
   if (request_headers_bytes_sent_ < request_headers_.size()) {
     next_state_ = STATE_WRITE_HEADERS;
-  } else if (!establishing_tunnel_ && request_->upload_data) {
+  } else if (!establishing_tunnel_ && request_body_stream_.get() &&
+             request_body_stream_->size()) {
     next_state_ = STATE_WRITE_BODY;
   } else {
     next_state_ = STATE_READ_HEADERS;
@@ -686,8 +687,8 @@ int HttpNetworkTransaction::DoWriteHeadersComplete(int result) {
 int HttpNetworkTransaction::DoWriteBody() {
   next_state_ = STATE_WRITE_BODY_COMPLETE;
 
-  DCHECK(request_->upload_data);
   DCHECK(request_body_stream_.get());
+  DCHECK(request_body_stream_->size());
 
   const char* buf = request_body_stream_->buf();
   int buf_len = static_cast<int>(request_body_stream_->buf_len());
