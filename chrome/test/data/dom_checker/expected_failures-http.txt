@@ -14,3 +14,9 @@
 (third-party).window.length read [value: 2]
 (third-party).window[0] probe [value: [object global]]
 open() frame name lookup
+
+# Issue 9394
+(blank).document.open() call
+
+# Issue 9395
+(blank).document.write('hi mom') call
