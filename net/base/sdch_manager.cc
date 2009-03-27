@@ -17,7 +17,7 @@ using base::TimeDelta;
 
 //------------------------------------------------------------------------------
 // static
-const size_t SdchManager::kMaxDictionarySize = 100000;
+const size_t SdchManager::kMaxDictionarySize = 1000000;
 
 // static
 const size_t SdchManager::kMaxDictionaryCount = 20;
