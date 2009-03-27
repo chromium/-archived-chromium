@@ -1798,10 +1798,6 @@ LINUX : LayoutTests/svg/custom/js-late-pattern-and-object-creation.svg = FAIL
 // might need to be rebaselined in win, 'DRAFT' rendering incorrect before
 WIN : LayoutTests/svg/custom/struct-use-09-b.svg = FAIL
 
-// Merge 39913:39933 - regressions
-// Needs rebaseline (which was done for windows).
-LINUX : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
-
 // Passes locally but Text diff fails on the buildbots
 LINUX : LayoutTests/svg/custom/path-getTotalLength.svg = FAIL PASS
 
