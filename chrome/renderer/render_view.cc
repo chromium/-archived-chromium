@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/command_line.h"
+#include "base/compiler_specific.h"
 #include "base/gfx/png_encoder.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string_piece.h"
@@ -179,7 +180,7 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       last_page_id_sent_to_browser_(-1),
       last_indexed_page_id_(-1),
       opened_by_user_gesture_(true),
-      method_factory_(this),
+      ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
       first_default_plugin_(NULL),
       devtools_agent_(NULL),
       devtools_client_(NULL),
