@@ -239,7 +239,7 @@ void TabStripGtk::TileImageInt(GdkPixbuf* pixbuf,
 }
 
 void TabStripGtk::PaintTab(int index, bool selected) {
-  GdkGC* gc = tabstrip_.get()->style->fg_gc[GTK_WIDGET_STATE(tabstrip_.get())];
+  GdkGC* gc = gdk_gc_new(tabstrip_.get()->window);
   TabImage& image = (selected) ? tab_active_ : tab_inactive_;
   TabData& data = tab_data_.at(index);
   gfx::Rect bounds = data.bounds;
@@ -282,6 +282,8 @@ void TabStripGtk::PaintTab(int index, bool selected) {
 
   DrawImageInt(close_button_.normal,
                data.close_button_bounds.x(), data.close_button_bounds.y());
+
+  g_object_unref(gc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
