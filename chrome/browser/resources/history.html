@@ -845,15 +845,12 @@ html[dir='rtl'] .form {
 }
 .day {
   margin-top:18px;
-  margin-left:3px;
-  width:750px;
+  padding:0px 3px;
+  display:inline-block;
 }
 .delete-day {
-  width:200px;
-  float:right;
-}
-html[dir='rtl'] .delete-day {
-  float:left;
+  padding:0px 9px;
+  display:inline-block;
 }
 .gap {
   margin-left:18px;
@@ -875,8 +872,11 @@ table.results {
   min-width:56px;
   margin-right:5px;
   padding-top:1px;
+  white-space:nowrap;
 }
 html[dir='rtl'] .time {
+  margin-right:0px;
+  margin-left:5px;
   float:right;
 }
 .entry .title {
