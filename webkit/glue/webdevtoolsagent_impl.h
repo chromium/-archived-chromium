@@ -40,12 +40,13 @@ class WebDevToolsAgentImpl
   virtual ~WebDevToolsAgentImpl();
 
   // ToolsAgent implementation.
-  virtual void SetEnabled(bool enabled);
   virtual void HighlightDOMNode(int node_id);
   virtual void HideDOMNodeHighlight();
   virtual void EvaluateJavaSctipt(int call_id, const String& js);
 
   // WebDevToolsAgent implementation.
+  virtual void Attach();
+  virtual void Detach();
   virtual void DispatchMessageFromClient(const std::string& raw_msg);
   virtual void InspectElement(int x, int y);
 
@@ -71,7 +72,7 @@ class WebDevToolsAgentImpl
   scoped_ptr<DebuggerAgentImpl> debugger_agent_impl_;
   scoped_ptr<DomAgentImpl> dom_agent_impl_;
   scoped_ptr<NetAgentImpl> net_agent_impl_;
-  bool enabled_;
+  bool attached_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 

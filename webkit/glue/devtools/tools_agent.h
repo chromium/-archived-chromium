@@ -10,9 +10,6 @@
 // Tools agent provides API for enabling / disabling other agents as well as
 // API for auxiliary UI functions such as dom elements highlighting.
 #define TOOLS_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
-  /* Enables / disables the agent */ \
-  METHOD1(SetEnabled, bool /* enabled */) \
-  \
   /* Highlights Dom node with given ID */ \
   METHOD1(HighlightDOMNode, int /* node_id */) \
   \

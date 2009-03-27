@@ -82,6 +82,8 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
 
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(DevToolsAgent, message)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnAttach)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Detach, OnDetach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugAttach, OnDebugAttach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugDetach, OnDebugDetach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugBreak, OnDebugBreak)
@@ -110,6 +112,16 @@ void DevToolsAgent::EvaluateScript(const std::wstring& script) {
   // view_ may have been cleared after this method execution was scheduled.
   if (view_)
     view_->EvaluateScript(L"", script);
+}
+
+void DevToolsAgent::OnAttach() {
+  view_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &DevToolsAgent::Attach));
+}
+
+void DevToolsAgent::OnDetach() {
+  view_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+      this, &DevToolsAgent::Detach));
 }
 
 void DevToolsAgent::OnDebugAttach() {
@@ -183,14 +195,25 @@ void DevToolsAgent::OnInspectElement(int x, int y) {
       this, &DevToolsAgent::InspectElement, x, y));
 }
 
+void DevToolsAgent::Attach() {
+  WebDevToolsAgent* web_agent = GetWebAgent();
+  if (web_agent) {
+    web_agent->Attach();
+  }
+}
+
+void DevToolsAgent::Detach() {
+  WebDevToolsAgent* web_agent = GetWebAgent();
+  if (web_agent) {
+    web_agent->Detach();
+  }
+}
+
 void DevToolsAgent::DispatchRpcMessage(const std::string& raw_msg) {
-  if (!view_)
-    return;
-  WebView* web_view = view_->webview();
-  if (!web_view)
-    return;
-  WebDevToolsAgent* web_agent = web_view->GetWebDevToolsAgent();
-  web_agent->DispatchMessageFromClient(raw_msg);
+  WebDevToolsAgent* web_agent = GetWebAgent();
+  if (web_agent) {
+    web_agent->DispatchMessageFromClient(raw_msg);
+  }
 }
 
 void DevToolsAgent::OnDebuggerCommand(const std::string& command) {
@@ -199,11 +222,17 @@ void DevToolsAgent::OnDebuggerCommand(const std::string& command) {
 }
 
 void DevToolsAgent::InspectElement(int x, int y) {
+  WebDevToolsAgent* web_agent = GetWebAgent();
+  if (web_agent) {
+    web_agent->InspectElement(x, y);
+  }
+}
+
+WebDevToolsAgent* DevToolsAgent::GetWebAgent() {
   if (!view_)
-    return;
+    return NULL;
   WebView* web_view = view_->webview();
   if (!web_view)
-    return;
-  WebDevToolsAgent* web_agent = web_view->GetWebDevToolsAgent();
-  web_agent->InspectElement(x, y);
+    return NULL;
+  return web_view->GetWebDevToolsAgent();
 }

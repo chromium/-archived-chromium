@@ -30,7 +30,6 @@ devtools.ToolsAgent = function() {
  * Rests tools agent to its initial state.
  */
 devtools.ToolsAgent.prototype.reset = function() {
-  this.setEnabled(true);
   this.domAgent_.reset();
   this.domAgent_.getDocumentElementAsync();
 };
@@ -91,14 +90,6 @@ devtools.ToolsAgent.prototype.frameNavigate = function(url, topLevel) {
 
 
 /**
- * @see tools_agent.h
- */
-devtools.ToolsAgent.prototype.setEnabled = function(enabled) {
-  RemoteToolsAgent.SetEnabled(enabled);
-};
-
-
-/**
  * Evaluates js expression.
  * @param {string} expr
  */
@@ -121,9 +112,6 @@ function debugPrint(text) {
     alert(text);
   }
 }
-
-
-// Frontend global objects.
 
 
 /**
@@ -157,7 +145,7 @@ var webkitUpdateChildren =
 
 WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
   var self = this;
-  devtools.tools.getDomAgent().getChildNodesAsync(this.representedObject.id, 
+  devtools.tools.getDomAgent().getChildNodesAsync(this.representedObject.id,
       function() {
         webkitUpdateChildren.call(self);
       });

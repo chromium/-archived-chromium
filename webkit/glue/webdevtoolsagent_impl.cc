@@ -41,7 +41,7 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
     : delegate_(delegate),
       web_view_impl_(web_view_impl),
       document_(NULL),
-      enabled_(false) {
+      attached_(false) {
   debugger_agent_delegate_stub_.reset(new DebuggerAgentDelegateStub(this));
   dom_agent_delegate_stub_.reset(new DomAgentDelegateStub(this));
   net_agent_delegate_stub_.reset(new NetAgentDelegateStub(this));
@@ -51,23 +51,26 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
 }
 
-void WebDevToolsAgentImpl::SetEnabled(bool enabled) {
-  if (enabled && !enabled_) {
-    debugger_agent_impl_.reset(new DebuggerAgentImpl(
-        debugger_agent_delegate_stub_.get()));
-    dom_agent_impl_.reset(new DomAgentImpl(dom_agent_delegate_stub_.get()));
-    net_agent_impl_.reset(new NetAgentImpl(net_agent_delegate_stub_.get()));
-    if (document_) {
-      dom_agent_impl_->SetDocument(document_);
-      net_agent_impl_->SetDocument(document_);
-    }
-    enabled_ = true;
-  } else if (!enabled) {
-    debugger_agent_impl_.reset(NULL);
-    dom_agent_impl_.reset(NULL);
-    net_agent_impl_.reset(NULL);
-    enabled_ = false;
+void WebDevToolsAgentImpl::Attach() {
+  if (attached_) {
+    return;
   }
+  debugger_agent_impl_.reset(
+      new DebuggerAgentImpl(debugger_agent_delegate_stub_.get()));
+  dom_agent_impl_.reset(new DomAgentImpl(dom_agent_delegate_stub_.get()));
+  net_agent_impl_.reset(new NetAgentImpl(net_agent_delegate_stub_.get()));
+  if (document_) {
+    dom_agent_impl_->SetDocument(document_);
+    net_agent_impl_->SetDocument(document_);
+  }
+  attached_ = true;
+}
+
+void WebDevToolsAgentImpl::Detach() {
+  dom_agent_impl_.reset(NULL);
+  net_agent_impl_.reset(NULL);
+  debugger_agent_impl_.reset(NULL);
+  attached_ = false;
 }
 
 void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
@@ -77,7 +80,7 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
   } else {
     document_ = NULL;
   }
-  if (enabled_) {
+  if (attached_) {
     dom_agent_impl_->SetDocument(document_);
     net_agent_impl_->SetDocument(document_);
   }
@@ -87,7 +90,7 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
     WebViewImpl* webview,
     WebFrame* frame,
     bool is_new_navigation) {
-  if (!enabled_) {
+  if (!attached_) {
     return;
   }
   dom_agent_impl_->DiscardBindings();
@@ -102,7 +105,7 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
 }
 
 void WebDevToolsAgentImpl::HighlightDOMNode(int node_id) {
-  if (!enabled_)
+  if (!attached_)
     return;
   Node* node = dom_agent_impl_->GetNodeForId(node_id);
   if (!node)
@@ -136,7 +139,7 @@ void WebDevToolsAgentImpl::DispatchMessageFromClient(
   if (ToolsAgentDispatch::Dispatch(this, *message.get()))
     return;
 
-  if (!enabled_)
+  if (!attached_)
     return;
 
   if (debugger_agent_impl_.get() &&
@@ -156,7 +159,6 @@ void WebDevToolsAgentImpl::InspectElement(int x, int y) {
   if (!node)
     return;
 
-  SetEnabled(true);
   int node_id = dom_agent_impl_->PushNodePathToClient(node);
   tools_agent_delegate_stub_->UpdateFocusedNode(node_id);
 }

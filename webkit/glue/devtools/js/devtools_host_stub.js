@@ -133,10 +133,6 @@ RemoteToolsAgentStub.prototype.HighlightDOMNode = function() {
 };
 
 
-RemoteToolsAgentStub.prototype.SetEnabled = function() {
-};
-
-
 RemoteToolsAgentStub.prototype.evaluate = function(expr) {
   window.eval(expr);
 };

@@ -11,11 +11,14 @@
 // DevToolsAgent lives in the renderer of an inspected page and provides access
 // to the pages resources, DOM, v8 etc. by means of IPC messages.
 //
-// DevToolsClient is a thin delegate that lives in the tools front-end renderer
-// and converts IPC messages to frontend method calls and allows the frontend
-// to send messages to the DevToolsAgent.
+// DevToolsClient is a thin delegate that lives in the tools front-end
+// renderer and converts IPC messages to frontend method calls and allows the
+// frontend to send messages to the DevToolsAgent.
 //
-// All the messages are routed through browser process.
+// All the messages are routed through browser process. There is a
+// DevToolsManager living in the browser process that is responsible for
+// routing logistics. It is also capable of sending direct messages to the
+// agent rather than forwarding messages between agents and clients only.
 //
 // Chain of communication between the components may be described by the
 // following diagram:
@@ -64,6 +67,12 @@ IPC_END_MESSAGES(DevToolsClient)
 // These are messages sent from DevToolsClient to DevToolsAgent through the
 // browser.
 IPC_BEGIN_MESSAGES(DevToolsAgent)
+
+  // Tells agent that there is a client host connected to it.
+  IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_Attach)
+
+  // Tells agent that there is no longer a client host connected to it.
+  IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_Detach)
 
   // Initialize the V8 debugger in the renderer.
   IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_DebugAttach)

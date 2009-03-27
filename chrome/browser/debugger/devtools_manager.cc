@@ -26,20 +26,30 @@ DevToolsManager::~DevToolsManager() {
 void DevToolsManager::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
-  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
+  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED ||
+      type == NotificationType::WEB_CONTENTS_SWAPPED);
 
-  Source<WebContents> src(source);
-  DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
-  if (!client_host) {
-    return;
-  }
+  if (type == NotificationType::WEB_CONTENTS_DISCONNECTED) {
+    Source<WebContents> src(source);
+    DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
+    if (!client_host) {
+      return;
+    }
 
-  NavigationController* controller = src->controller();
-  bool active = (controller->active_contents() == src.ptr());
-  if (active) {
-    // Active tab contents disconnecting from its renderer means that the tab
-    // is closing.
-    client_host->InspectedTabClosing();
+    NavigationController* controller = src->controller();
+    bool active = (controller->active_contents() == src.ptr());
+    if (active) {
+      // Active tab contents disconnecting from its renderer means that the tab
+      // is closing.
+      client_host->InspectedTabClosing();
+      UnregisterDevToolsClientHost(client_host, controller);
+    }
+  } else if (type == NotificationType::WEB_CONTENTS_SWAPPED) {
+    Source<WebContents> src(source);
+    DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
+    if (client_host) {
+      SendAttachToAgent(*src.ptr());
+    }
   }
 }
 
@@ -65,6 +75,7 @@ void DevToolsManager::RegisterDevToolsClientHostFor(
   client_host->set_close_listener(this);
 
   StartListening(navigation_controller);
+  SendAttachToAgent(web_contents);
 }
 
 void DevToolsManager::ForwardToDevToolsAgent(
@@ -153,14 +164,20 @@ void DevToolsManager::InspectElement(WebContents* wc, int x, int y) {
 void DevToolsManager::ClientHostClosing(DevToolsClientHost* host) {
   NavigationController* controller = GetDevToolsAgentNavigationController(
       *host);
-  DCHECK(controller);
+  if (!controller) {
+    return;
+  }
 
-  // This should be done before StopListening as the latter checks number of
-  // alive devtools instances.
-  navcontroller_to_client_host_.erase(controller);
-  client_host_to_navcontroller_.erase(host);
-
-  StopListening(controller);
+  TabContents* tab_contents = controller->active_contents();
+  if (!tab_contents) {
+    return;
+  }
+  WebContents* web_contents = tab_contents->AsWebContents();
+  if (!web_contents) {
+    return;
+  }
+  SendDetachToAgent(*web_contents);
+  UnregisterDevToolsClientHost(host, controller);
 }
 
 NavigationController* DevToolsManager::GetDevToolsAgentNavigationController(
@@ -173,6 +190,14 @@ NavigationController* DevToolsManager::GetDevToolsAgentNavigationController(
   return NULL;
 }
 
+void DevToolsManager::UnregisterDevToolsClientHost(
+      DevToolsClientHost* client_host,
+      NavigationController* controller) {
+  navcontroller_to_client_host_.erase(controller);
+  client_host_to_navcontroller_.erase(client_host);
+  StopListening(controller);
+}
+
 void DevToolsManager::StartListening(
     NavigationController* navigation_controller) {
   // TODO(yurys): add render host change listener
@@ -181,6 +206,10 @@ void DevToolsManager::StartListening(
     web_contents_listeners_->Add(
         this,
         NotificationType::WEB_CONTENTS_DISCONNECTED,
+        NotificationService::AllSources());
+    web_contents_listeners_->Add(
+        this,
+        NotificationType::WEB_CONTENTS_SWAPPED,
         NotificationService::AllSources());
   }
 }
@@ -191,5 +220,23 @@ void DevToolsManager::StopListening(
   if (navcontroller_to_client_host_.empty()) {
     DCHECK(client_host_to_navcontroller_.empty());
     web_contents_listeners_.reset();
+  }
+}
+
+void DevToolsManager::SendAttachToAgent(const WebContents& wc) {
+  RenderViewHost* target_host = wc.render_view_host();
+  if (target_host) {
+    IPC::Message* m = new DevToolsAgentMsg_Attach();
+    m->set_routing_id(target_host->routing_id());
+    target_host->Send(m);
+  }
+}
+
+void DevToolsManager::SendDetachToAgent(const WebContents& wc) {
+  RenderViewHost* target_host = wc.render_view_host();
+  if (target_host) {
+    IPC::Message* m = new DevToolsAgentMsg_Detach();
+    m->set_routing_id(target_host->routing_id());
+    target_host->Send(m);
   }
 }

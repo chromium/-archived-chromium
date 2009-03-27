@@ -70,8 +70,13 @@ class DevToolsManager : public NotificationObserver,
   NavigationController* GetDevToolsAgentNavigationController(
       const DevToolsClientHost& client_host);
 
+  void UnregisterDevToolsClientHost(
+      DevToolsClientHost* client_host,
+      NavigationController* navigation_controller);
   void StartListening(NavigationController* navigation_controller);
   void StopListening(NavigationController* navigation_controller);
+  void SendAttachToAgent(const WebContents& web_contents);
+  void SendDetachToAgent(const WebContents& web_contents);
 
   // This object is not NULL iff there is at least one registered
   // DevToolsClientHost.

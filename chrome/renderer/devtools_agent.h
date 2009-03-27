@@ -17,6 +17,7 @@
 
 class MessageLoop;
 class RenderView;
+class WebDevToolsAgent;
 
 // Inspected page end of communication channel between the render process of
 // the page being inspected and tools UI renderer process. All messages will
@@ -54,15 +55,19 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   // Debugger::Delegate callback method to handle debugger output.
   void DebuggerOutput(const std::wstring& out);
 
+  void Attach();
+  void Detach();
   void DispatchRpcMessage(const std::string& raw_msg);
-
   void InspectElement(int x, int y);
+  WebDevToolsAgent* GetWebAgent();
 
   // Evaluate javascript URL in the renderer
   void EvaluateScript(const std::wstring& script);
 
   // All these OnXXX methods will be executed in IO thread so that we can
   // handle debug messages even when v8 is stopped.
+  void OnAttach();
+  void OnDetach();
   void OnDebugAttach();
   void OnDebugDetach();
   void OnDebugBreak(bool force);
