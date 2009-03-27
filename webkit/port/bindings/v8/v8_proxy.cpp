@@ -40,7 +40,6 @@
 #include "v8_index.h"
 #include "v8_binding.h"
 #include "v8_custom.h"
-#include "v8_nodefilter.h"
 #include "V8Collection.h"
 #include "V8DOMWindow.h"
 
@@ -147,6 +146,7 @@
 #include "V8DOMWindow.h"
 #include "V8HTMLElement.h"
 #include "V8LazyEventListener.h"
+#include "V8NodeFilterCondition.h"
 #include "V8ObjectEventListener.h"
 #include "WebKitAnimationEvent.h"
 #include "WebKitCSSKeyframeRule.h"

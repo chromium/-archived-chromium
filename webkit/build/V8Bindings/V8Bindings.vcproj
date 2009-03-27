@@ -332,6 +332,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8XMLHttpRequestConstructor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8XMLHttpRequestCustom.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8XMLHttpRequestUploadCustom.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8XMLSerializerConstructor.cpp"
 				>
 			</File>
@@ -2949,14 +2961,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\v8_nodefilter.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\v8_nodefilter.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\port\bindings\v8\v8_proxy.cpp"
 			>
 		</File>
@@ -3001,6 +3005,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8NodeFilterCondition.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8NodeFilterCondition.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8ObjectEventListener.cpp"
 			>
 		</File>
@@ -3029,23 +3041,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestConstructor.cpp"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8XMLHttpRequestUtilities.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestUploadCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestUtilities.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8XMLHttpRequestUtilities.h"
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8XMLHttpRequestUtilities.h"
 			>
 		</File>
 		<File
