@@ -450,7 +450,7 @@ class WindowSizer {
   static void GetBrowserWindowBounds(const std::wstring& app_name,
                                      const gfx::Rect& specified_bounds,
                                      gfx::Rect* window_bounds,
-                                     bool* maximized) { NOTIMPLEMENTED(); }
+                                     bool* maximized);
 };
 
 //---------------------------------------------------------------------------

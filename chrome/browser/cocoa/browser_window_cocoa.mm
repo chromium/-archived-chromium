@@ -30,6 +30,8 @@ void BrowserWindowCocoa::SetBounds(const gfx::Rect& bounds) {
   NSScreen* screen = [window_ screen];
   cocoa_bounds.origin.y =
       [screen frame].size.height - bounds.height() - bounds.y();
+
+  [window_ setFrame:cocoa_bounds display:YES];
 }
 
 // Callers assume that this doesn't immediately delete the Browser object.
@@ -203,4 +205,3 @@ void BrowserWindowCocoa::DestroyBrowser() {
   // at this point the controller is dead (autoreleased), so
   // make sure we don't try to reference it any more.
 }
-

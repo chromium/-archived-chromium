@@ -22,6 +22,22 @@
     browser_ = browser;
     DCHECK(browser_);
     windowShim_ = new BrowserWindowCocoa(browser, self, [self window]);
+
+    // The window is now fully realized and |-windowDidLoad:| has been
+    // called. We shouldn't do much in wDL because |windowShim_| won't yet
+    // be initialized (as it's called in response to |[self window]| above).
+
+    // Get the most appropriate size for the window. The window shim will handle
+    // flipping the coordinates for us so we can use it to save some code.
+    gfx::Rect windowRect = browser_->GetSavedWindowBounds();
+    windowShim_->SetBounds(windowRect);
+
+    // Create a controller for the tab strip, giving it the model object for
+    // this window's Browser and the tab strip view. The controller will handle
+    // registering for the appropriate tab notifications from the back-end and
+    // managing the creation of new tabs.
+    tabStripController_ = [[TabStripController alloc]
+                            initWithView:[self tabStripView] browser:browser_];
   }
   return self;
 }
@@ -37,17 +53,6 @@
 // Access the C++ bridge between the NSWindow and the rest of Chromium
 - (BrowserWindow*)browserWindow {
   return windowShim_;
-}
-
-- (void)windowDidLoad {
-  [super windowDidLoad];
-
-  // Create a controller for the tab strip, giving it the model object for
-  // this window's Browser and the tab strip view. The controller will handle
-  // registering for the appropriate tab notifications from the back-end and
-  // managing the creation of new tabs.
-  tabStripController_ = [[TabStripController alloc]
-                          initWithView:[self tabStripView] browser:browser_];
 }
 
 - (void)destroyBrowser {
@@ -212,8 +217,14 @@
   TabContents* contents = browser_->tabstrip_model()->GetTabContentsAt(index);
 
   // Set the window size. Need to do this before we detach the tab so it's
-  // still in the window.
-  NSRect windowRect = [[tabView window] frame];
+  // still in the window. We have to flip the coordinates as that's what
+  // is expected by the Browser code.
+  NSWindow* sourceWindow = [tabView window];
+  NSRect windowRect = [sourceWindow frame];
+  NSScreen* screen = [sourceWindow screen];
+  windowRect.origin.y =
+      [screen frame].size.height - windowRect.size.height -
+          windowRect.origin.y;
   gfx::Rect browserRect(windowRect.origin.x, windowRect.origin.y,
                         windowRect.size.width, windowRect.size.height);
 
