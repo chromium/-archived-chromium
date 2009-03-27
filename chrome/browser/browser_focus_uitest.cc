@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/message_loop.h"
+#include "base/ref_counted.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
@@ -20,7 +21,7 @@
 #include "chrome/views/window/window.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
-
+#include "net/base/host_resolver_unittest.h"
 
 namespace {
 
@@ -35,9 +36,19 @@ const wchar_t kTypicalPage[] = L"files/focus/typical_page.html";
 class BrowserFocusTest : public InProcessBrowserTest {
  public:
   BrowserFocusTest() {
+    host_mapper_ = new net::RuleBasedHostMapper();
+    // TODO(phajdan.jr): Don't make a real dns lookup here.
+    // page_with_focus.html has a reference to google.com.
+    host_mapper_->AllowDirectLookup("*.google.com");
+    scoped_host_mapper_.Init(host_mapper_.get());
+
     set_show_window(true);
     EnableDOMAutomation();
   }
+
+private:
+  scoped_refptr<net::RuleBasedHostMapper> host_mapper_;
+  net::ScopedHostMapper scoped_host_mapper_;
 };
 
 class JavaScriptRunner : public NotificationObserver {
