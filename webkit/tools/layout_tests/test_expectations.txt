@@ -2295,6 +2295,7 @@ DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAI
 DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
 // Adding more failures after the last merge:
+WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
