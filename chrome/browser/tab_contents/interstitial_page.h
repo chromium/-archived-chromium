@@ -74,6 +74,8 @@ class InterstitialPage : public NotificationObserver,
   // Sizes the RenderViewHost showing the actual interstitial page contents.
   void SetSize(const gfx::Size& size);
 
+  bool action_taken() const { return action_taken_; }
+
  protected:
   // NotificationObserver method:
   virtual void Observe(NotificationType type,

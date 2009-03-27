@@ -133,8 +133,13 @@ InterstitialPage::~InterstitialPage() {
 
 void InterstitialPage::Show() {
   // If an interstitial is already showing, close it before showing the new one.
-  if (tab_->interstitial_page())
-    tab_->interstitial_page()->DontProceed();
+  // Be careful not to take an action on the old interstitial more than once.
+  if (tab_->interstitial_page()) {
+    if (tab_->interstitial_page()->action_taken())
+      tab_->interstitial_page()->Hide();
+    else
+      tab_->interstitial_page()->DontProceed();
+  }
 
   // Block the resource requests for the render view host while it is hidden.
   TakeActionOnResourceDispatcher(BLOCK);

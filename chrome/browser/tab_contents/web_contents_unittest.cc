@@ -991,6 +991,61 @@ TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   EXPECT_EQ(2, controller()->GetEntryCount());
 }
 
+// Test showing an interstitial, proceeding and then navigating to another
+// interstitial.
+TEST_F(WebContentsTest, ShowInterstitialProceedShowInterstitial) {
+  // Navigate to a page so we have a navigation entry in the controller.
+  GURL start_url("http://www.google.com");
+  rvh()->SendNavigate(1, start_url);
+  EXPECT_EQ(1, controller()->GetEntryCount());
+
+  // Show an interstitial.
+  TestInterstitialPage::InterstitialState state1 =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted1 = false;
+  GURL url1("http://interstitial1");
+  TestInterstitialPage* interstitial1 =
+      new TestInterstitialPage(contents(), true, url1, &state1, &deleted1);
+  TestInterstitialPageStateGuard state_guard1(interstitial1);
+  interstitial1->Show();
+  interstitial1->TestDidNavigate(1, url1);
+
+  // Take action.  The interstitial won't be hidden until the navigation is
+  // committed.
+  interstitial1->Proceed();
+  EXPECT_EQ(TestInterstitialPage::OKED, state1);
+
+  // Now show another interstitial (simulating the navigation causing another
+  // interstitial).
+  TestInterstitialPage::InterstitialState state2 =
+      TestInterstitialPage::UNDECIDED;
+  bool deleted2 = false;
+  GURL url2("http://interstitial2");
+  TestInterstitialPage* interstitial2 =
+      new TestInterstitialPage(contents(), true, url2, &state2, &deleted2);
+  TestInterstitialPageStateGuard state_guard2(interstitial2);
+  interstitial2->Show();
+  interstitial2->TestDidNavigate(1, url2);
+
+  // Showing interstitial2 should have caused interstitial1 to go away.
+  EXPECT_TRUE(deleted1);
+
+  // Let's make sure interstitial2 is working as intended.
+  ASSERT_FALSE(deleted2);
+  EXPECT_EQ(TestInterstitialPage::UNDECIDED, state2);
+  interstitial2->Proceed();
+  GURL landing_url("http://www.thepage.com");
+  rvh()->SendNavigate(2, landing_url);
+
+  EXPECT_TRUE(deleted2);
+  EXPECT_FALSE(contents()->showing_interstitial_page());
+  EXPECT_TRUE(contents()->interstitial_page() == NULL);
+  NavigationEntry* entry = controller()->GetActiveEntry();
+  ASSERT_TRUE(entry != NULL);
+  EXPECT_TRUE(entry->url() == landing_url);
+  EXPECT_EQ(2, controller()->GetEntryCount());
+}
+
 // Test that navigating away from an interstitial while it's loading cause it
 // not to show.
 TEST_F(WebContentsTest, NavigateBeforeInterstitialShows) {
