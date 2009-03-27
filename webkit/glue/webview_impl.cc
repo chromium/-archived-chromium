@@ -1371,7 +1371,7 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   settings->setDeveloperExtrasEnabled(preferences.developer_extras_enabled);
   settings->setShrinksStandaloneImagesToFit(
     preferences.shrinks_standalone_images_to_fit);
-  settings->setUsesUniversalDetector(preferences.uses_universal_detector);
+  settings->setUsesEncodingDetector(preferences.uses_universal_detector);
   settings->setTextAreasAreResizable(preferences.text_areas_are_resizable);
   settings->setAllowScriptsToCloseWindows(
     preferences.allow_scripts_to_close_windows);

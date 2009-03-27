@@ -2767,6 +2767,8 @@
         '../third_party/WebKit/WebCore/platform/text/TextDirection.h',
         '../third_party/WebKit/WebCore/platform/text/TextEncoding.cpp',
         '../third_party/WebKit/WebCore/platform/text/TextEncoding.h',
+        '../third_party/WebKit/WebCore/platform/text/TextEncodingDetector.h',
+        '../third_party/WebKit/WebCore/platform/text/TextEncodingDetectorICU.cpp',
         '../third_party/WebKit/WebCore/platform/text/TextEncodingRegistry.cpp',
         '../third_party/WebKit/WebCore/platform/text/TextEncodingRegistry.h',
         '../third_party/WebKit/WebCore/platform/text/TextStream.cpp',

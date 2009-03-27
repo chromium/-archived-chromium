@@ -590,6 +590,7 @@ input_files = [
     '$WEBCORE_DIR/platform/text/TextCodecUserDefined.cpp',
     '$WEBCORE_DIR/platform/text/TextCodecUTF16.cpp',
     '$WEBCORE_DIR/platform/text/TextEncoding.cpp',
+    '$WEBCORE_DIR/platform/text/TextEncodingDetectorICU.cpp',
     '$WEBCORE_DIR/platform/text/TextEncodingRegistry.cpp',
     '$WEBCORE_DIR/platform/text/TextStream.cpp',
     '$WEBCORE_DIR/platform/text/UnicodeRange.cpp',
