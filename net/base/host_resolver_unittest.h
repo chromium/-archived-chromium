@@ -51,8 +51,18 @@ class RuleBasedHostMapper : public HostMapper {
     rules_.push_back(Rule(host_pattern, replacement, latency));
   }
 
- private:
-  std::string Map(const std::string& host) {
+  // Make sure that |host| will not be re-mapped or even processed by underlying
+  // host mappers. It can also be a pattern.
+  void AllowDirectLookup(const char* host) {
+    rules_.push_back(Rule(host, "", true));
+  }
+
+  // Simulate a lookup failure for |host| (it also can be a pattern).
+  void AddSimulatedFailure(const char* host) {
+    AddRule(host, "");
+  }
+
+  virtual std::string Map(const std::string& host) {
     RuleList::iterator r;
     for (r = rules_.begin(); r != rules_.end(); ++r) {
       if (MatchPattern(host, r->host_pattern)) {
@@ -60,27 +70,36 @@ class RuleBasedHostMapper : public HostMapper {
           PlatformThread::Sleep(r->latency);
           r->latency = 1;  // Simulate cache warmup.
         }
-        return r->replacement;
+        return r->direct ? host : r->replacement;
       }
     }
+
     return MapUsingPrevious(host);
   }
 
+ private:
   struct Rule {
     std::string host_pattern;
     std::string replacement;
     int latency;  // in milliseconds
+    bool direct;  // if true, don't mangle hostname and ignore replacement
     Rule(const char* h, const char* r)
         : host_pattern(h),
           replacement(r),
-          latency(0) {}
+          latency(0),
+          direct(false) {}
     Rule(const char* h, const char* r, const int l)
         : host_pattern(h),
           replacement(r),
-          latency(l) {}
+          latency(l),
+          direct(false) {}
+    Rule(const char* h, const char* r, const bool d)
+        : host_pattern(h),
+          replacement(r),
+          latency(0),
+          direct(d) {}
   };
   typedef std::list<Rule> RuleList;
-
   RuleList rules_;
 };
 
@@ -104,7 +123,7 @@ class WaitingHostMapper : public HostMapper {
   }
 
  private:
-  std::string Map(const std::string& host) {
+  virtual std::string Map(const std::string& host) {
     event_.Wait();
     return MapUsingPrevious(host);
   }

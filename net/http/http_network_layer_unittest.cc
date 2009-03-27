@@ -17,7 +17,7 @@ class HttpNetworkLayerTest : public PlatformTest {
         scoped_host_mapper_(host_mapper_.get()) {
     // TODO(darin): kill this exception once we have a way to test out the
     // HttpNetworkLayer class using loopback connections.
-    host_mapper_->AddRule("www.google.com", "www.google.com");
+    host_mapper_->AllowDirectLookup("www.google.com");
   }
 
  private:

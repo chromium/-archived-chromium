@@ -59,6 +59,9 @@ class HostResolver {
 class HostMapper : public base::RefCountedThreadSafe<HostMapper> {
  public:
   virtual ~HostMapper() {}
+
+  // Returns possibly altered hostname, or empty string to simulate
+  // a failed lookup.
   virtual std::string Map(const std::string& host) = 0;
 
  protected:

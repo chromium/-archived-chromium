@@ -13,6 +13,7 @@
 #include "base/mac_util.h"
 #endif
 #include "base/path_service.h"
+#include "base/ref_counted.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/test_suite.h"
 #include "chrome/app/scoped_ole_initializer.h"
@@ -21,6 +22,30 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/test/testing_browser_process.h"
+#include "net/base/host_resolver_unittest.h"
+
+// In many cases it may be not obvious that a test makes a real DNS lookup.
+// We generally don't want to rely on external DNS servers for our tests,
+// so this mapper catches external queries.
+class WarningHostMapper : public net::HostMapper {
+ public:
+  virtual std::string Map(const std::string& host) {
+    const char* kLocalHostNames[] = {"localhost", "127.0.0.1"};
+    bool local = false;
+    for (size_t i = 0; i < arraysize(kLocalHostNames); i++)
+      if (host == kLocalHostNames[i]) {
+        local = true;
+        break;
+      }
+
+    // Make the test fail so it's harder to ignore.
+    // If you really need to make real DNS query, use net::RuleBasedHostMapper
+    // and its AllowDirectLookup method.
+    EXPECT_TRUE(local) << "Making external DNS lookup of " << host;
+
+    return MapUsingPrevious(host);
+  }
+};
 
 class ChromeTestSuite : public TestSuite {
 public:
@@ -33,6 +58,9 @@ protected:
     base::ScopedNSAutoreleasePool autorelease_pool;
 
     TestSuite::Initialize();
+
+    host_mapper_ = new WarningHostMapper();
+    scoped_host_mapper_.Init(host_mapper_.get());
 
     chrome::RegisterPathProvider();
     g_browser_process = new TestingBrowserProcess;
@@ -90,6 +118,8 @@ protected:
 
   StatsTable* stats_table_;
   ScopedOleInitializer ole_initializer_;
+  scoped_refptr<WarningHostMapper> host_mapper_;
+  net::ScopedHostMapper scoped_host_mapper_;
 };
 
 #endif // CHROME_TEST_UNIT_CHROME_TEST_SUITE_H_

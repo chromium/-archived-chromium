@@ -52,13 +52,16 @@ static int HostResolverProc(
 
 static int ResolveAddrInfo(HostMapper* mapper, const std::string& host,
                            const std::string& port, struct addrinfo** out) {
-  int rv;
   if (mapper) {
-    rv = HostResolverProc(mapper->Map(host), port, out);
+    std::string mapped_host = mapper->Map(host);
+
+    if (mapped_host.empty())
+      return ERR_NAME_NOT_RESOLVED;
+
+    return HostResolverProc(mapped_host, port, out);
   } else {
-    rv = HostResolverProc(host, port, out);
+    return HostResolverProc(host, port, out);
   }
-  return rv;
 }
 
 //-----------------------------------------------------------------------------

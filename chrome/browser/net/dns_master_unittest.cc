@@ -82,9 +82,10 @@ class DnsMasterTest : public testing::Test {
     MessageLoop::current()->Run();
   }
 
+  scoped_refptr<net::RuleBasedHostMapper> mapper_;
+
  private:
   MessageLoop loop;
-  scoped_refptr<net::RuleBasedHostMapper> mapper_;
   net::ScopedHostMapper scoped_mapper_;
 };
 
@@ -121,6 +122,8 @@ TimeDelta BlockingDnsLookup(const std::string& hostname) {
 // First test to be sure the OS is caching lookups, which is the whole premise
 // of DNS prefetching.
 TEST_F(DnsMasterTest, OsCachesLookupsTest) {
+  mapper_->AllowDirectLookup("*.google.com");
+
   const Time start = Time::Now();
   int all_lookups = 0;
   int lookups_with_improvement = 0;
@@ -273,14 +276,16 @@ TEST_F(DnsMasterTest, SingleLookupTest) {
 }
 
 TEST_F(DnsMasterTest, ConcurrentLookupTest) {
+  mapper_->AddSimulatedFailure("*.notfound");
+
   DnsMaster testing_master;
 
   std::string goog("www.google.com"),
     goog2("gmail.google.com.com"),
     goog3("mail.google.com"),
     goog4("gmail.com");
-  std::string bad1(GetNonexistantDomain()),
-    bad2(GetNonexistantDomain());
+  std::string bad1("bad1.notfound"),
+    bad2("bad2.notfound");
 
   NameList names;
   names.insert(names.end(), goog);
@@ -324,11 +329,13 @@ TEST_F(DnsMasterTest, ConcurrentLookupTest) {
 }
 
 TEST_F(DnsMasterTest, MassiveConcurrentLookupTest) {
+  mapper_->AddSimulatedFailure("*.notfound");
+
   DnsMaster testing_master;
 
   NameList names;
   for (int i = 0; i < 100; i++)
-    names.push_back(GetNonexistantDomain());
+    names.push_back("host" + IntToString(i) + ".notfound");
 
   // Try to flood the master with many concurrent requests.
   for (int i = 0; i < 10; i++)
