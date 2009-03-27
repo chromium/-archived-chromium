@@ -8,6 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class TabView;
+@protocol TabControllerTarget;
 
 // A class that manages a single tab in the tab strip. Set its target/action
 // to be sent a message when the tab is selected by the user clicking. Setting
@@ -17,12 +18,11 @@
 @interface TabController : NSViewController {
  @private
   IBOutlet NSButton *backgroundButton_;
-  IBOutlet NSButton *closeButton_;
   IBOutlet NSProgressIndicator *progressIndicator_;
   BOOL selected_;
   BOOL loading_;
   NSImage *image_;
-  id target_;  // weak, where actions are sent, eg selectTab:
+  id<TabControllerTarget> target_;  // weak, where actions are sent
   SEL action_;  // selector sent when tab is seleted by clicking
 }
 
@@ -38,6 +38,10 @@
 
 // The view associated with this controller, pre-casted as a TabView
 - (TabView *)tabView;
+
+// Closes the associated TabView by relaying the message to |target_| to
+// perform the close.
+- (IBAction)closeTab:(id)sender;
 
 @end
 

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #import "chrome/browser/cocoa/tab_controller.h"
+#import "chrome/browser/cocoa/tab_controller_target.h"
 
 @implementation TabController
 
@@ -36,11 +37,14 @@
   [[self view] addSubview:backgroundButton_
                positioned:NSWindowBelow
                relativeTo:nil];
-  // TODO(alcor): figure out what to do with the close button v. cell. Note
-  // there is no close button in the nib at the moment.
-  [closeButton_ setWantsLayer:YES];
-  [closeButton_ setAlphaValue:0.2];
   [self setSelected:NO];
+}
+
+- (IBAction)closeTab:(id)sender {
+  if ([[self target] respondsToSelector:@selector(closeTab:)]) {
+    [[self target] performSelector:@selector(closeTab:)
+                        withObject:[self view]];
+  }
 }
 
 - (void)setSelected:(BOOL)selected {

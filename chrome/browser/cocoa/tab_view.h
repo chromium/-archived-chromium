@@ -16,8 +16,10 @@
 @interface TabView : NSView {
  @private
   IBOutlet TabController* controller_;
+  // TODO(rohitrao): Add this button to a CoreAnimation layer so we can fade it
+  // in and out on mouseovers.
+  IBOutlet NSButton* closeButton_;
 }
-
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_VIEW_H_

@@ -165,9 +165,16 @@ class TabStripBridge : public TabStripModelObserver {
 // Called when the user clicks a tab. Tell the model the selection has changed,
 // which feeds back into us via a notification.
 - (void)selectTab:(id)sender {
-  int index = [self indexForTabView:sender];  // for testing...
+  int index = [self indexForTabView:sender];
   if (index >= 0 && tabModel_->ContainsIndex(index))
     tabModel_->SelectTabContentsAt(index, true);
+}
+
+// Called when the user closes a tab.  Asks the model to close the tab.
+- (void)closeTab:(id)sender {
+  int index = [self indexForTabView:sender];
+  if (index >= 0 && tabModel_->ContainsIndex(index))
+    tabModel_->CloseTabContentsAt(index);
 }
 
 // Lay out all tabs in the order of their TabContentsControllers, which matches

@@ -29,11 +29,11 @@
   return YES;
 }
 
-// Determines which view a click in our frame actually hit. It's always this
-// view, never a child.
-// TODO(alcor): Figure out what to do with the close button. Are we using a
-// NSButton for it, or drawing it ourselves with a cell?
+// Determines which view a click in our frame actually hit. It's either this
+// view or our child close button.
 - (NSView *)hitTest:(NSPoint)aPoint {
+  NSPoint viewPoint = [self convertPoint:aPoint fromView:[self superview]];
+  if (NSPointInRect(viewPoint, [closeButton_ frame])) return closeButton_;
   if (NSPointInRect(aPoint, [self frame])) return self;
   return nil;
 }

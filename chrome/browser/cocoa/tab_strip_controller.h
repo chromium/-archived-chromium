@@ -7,6 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "chrome/browser/cocoa/tab_controller_target.h"
+
 @class TabStripView;
 @class BookmarkBarStateController;
 
@@ -30,7 +32,7 @@ class ToolbarModel;
 // the single child of the contentView is swapped around to hold the contents
 // (toolbar and all) representing that tab.
 
-@interface TabStripController : NSObject {
+@interface TabStripController : NSObject <TabControllerTarget> {
  @private
   TabContents* currentTab_;   // weak, tab for which we're showing state
   TabStripView* tabView_;  // weak

@@ -119,38 +119,6 @@
                        inView:controlView];
 }
 
-- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
-  [super drawInteriorWithFrame:cellFrame inView:controlView];
-
-  void* voidContext = [[NSGraphicsContext currentContext] graphicsPort];
-  CGContextRef c = static_cast<CGContextRef>(voidContext);
-
-  // Build the rect for where we draw the close (x).
-  // TODO(alcor): This should be retrieved from a method that can also be called
-  // for hit-testing. Right now it also will overlap content if the page title
-  // is wide enough.
-  const int kCloseRectSize = 8;
-  NSRect closeRect, restRect;
-  NSDivideRect(cellFrame, &closeRect, &restRect, NSHeight(cellFrame),
-               NSMaxXEdge);
-  closeRect = NSInsetRect(closeRect, kCloseRectSize, kCloseRectSize);
-
-  NSGradient *gradient =
-      [[GTMTheme defaultTheme] gradientForStyle:GTMThemeStyleTabBarSelected
-                                         active:YES];
-  NSColor *color = [gradient interpolatedColorAtLocation:0.5];
-  CGFloat luminance = [color gtm_luminance];
-
-  // Draw the (x). Fade the images as they move toward the contrasty ends of
-  // the spectrum
-  CGContextSetAlpha(c, 1.0 - fabsf(0.5 - luminance));
-  CGContextBeginTransparencyLayer(c, NULL);
-  [self drawImage:[NSImage imageNamed:@"NSStopProgressTemplate"]
-        withFrame:closeRect
-           inView:controlView];
-  CGContextEndTransparencyLayer(c);
-}
-
 - (void)highlight:(BOOL)flag
         withFrame:(NSRect)cellFrame
            inView:(NSView *)controlView {
