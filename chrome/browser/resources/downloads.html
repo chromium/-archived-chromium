@@ -43,16 +43,28 @@ html[dir='rtl'] .form {
 }
 .download {
   position:relative;
+  margin-top:5px;
+  margin-left:96px;
   padding-left:56px;
   margin-bottom:16px;
 }
 html[dir='rtl'] .download {
   padding-left:0px;
-  padding-right:56px;
+}
+.date-container {
+  position:absolute;
+  left:-92px;
+  width:92px;
+}
+.date-container .since {
+  color:black;
+}
+.date-container .date {
+  color:#666;
 }
 .download .icon {
   position:absolute;
-  top:7px;
+  top:0px;
   left:9px;
   width:32px;
   height:32px;
@@ -63,7 +75,7 @@ html[dir='rtl'] .icon {
 }
 .progress {
   position:absolute;
-  top:2px;
+  top:-5px;
   left:0px;
   width:48px;
   height:48px;
@@ -250,6 +262,7 @@ Downloads.prototype.updated = function(download) {
     } else {
       this.node_.appendChild(this.downloads_[id].node);
     }
+    this.updateDateDisplay_();
   }
 }
 
@@ -284,12 +297,31 @@ Downloads.prototype.updateSummary = function() {
 }
 
 /**
+ * Update the date visibility in our nodes so that no date is
+ * repeated.
+ */
+Downloads.prototype.updateDateDisplay_ = function() {
+  var dateContainers = document.getElementsByClassName('date-container');
+  var displayed = {};
+  for (var i = 0, container; container = dateContainers[i]; i++) {
+    var dateString = container.getElementsByClassName('date')[0].innerHTML;
+    if (!!displayed[dateString]) {
+      container.style.display = 'none';
+    } else {
+      displayed[dateString] = true;
+      container.style.display = 'block';
+    }
+  }
+}
+
+/**
  * Remove a download.
  * @param {Number} id The id of the download to remove.
  */
 Downloads.prototype.remove = function(id) {
   this.node_.removeChild(this.downloads_[id].node);
   delete this.downloads_[id];
+  this.updateDateDisplay_();
 }
 
 /**
@@ -311,9 +343,18 @@ Downloads.prototype.clear = function() {
 function Download(download) {
   // Create DOM
   this.node = createElementWithClassName('div', 'download');
+  
+  // Dates
+  this.dateContainer_ = createElementWithClassName('div', 'date-container');
+  this.node.appendChild(this.dateContainer_);
+  
+  this.nodeSince_ = createElementWithClassName('div', 'since');
+  this.nodeDate_ = createElementWithClassName('div', 'date');
+  this.dateContainer_.appendChild(this.nodeSince_);
+  this.dateContainer_.appendChild(this.nodeDate_);
 
   // Container for all 'safe download' UI.
-  this.safe_ = document.createElement("div");
+  this.safe_ = createElementWithClassName('div', 'safe');
   this.safe_.ondragstart = bind(this.drag_, this);
   this.node.appendChild(this.safe_);
 
@@ -431,6 +472,9 @@ Download.prototype.update = function(download) {
   this.fileName_ = download.file_name;
   this.url_ = download.url;
   this.state_ = download.state;
+  
+  this.since_ = download.since_string;
+  this.date_ = download.date_string;
 
   // See DownloadItem::PercentComplete
   this.percent_ = Math.max(download.percent, 0);
@@ -491,6 +535,8 @@ Download.prototype.update = function(download) {
     showInline(this.controlCancel_, this.state_ == Download.States.IN_PROGRESS ||
                                     this.state_ == Download.States.PAUSED);
 
+    this.nodeSince_.innerHTML = this.since_;
+    this.nodeDate_.innerHTML = this.date_;
     this.nodeURL_.innerHTML = this.url_;
     this.nodeStatus_.innerHTML = this.getStatusText_();
 

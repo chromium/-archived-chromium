@@ -379,6 +379,10 @@ DictionaryValue* DownloadsDOMHandler::CreateDownloadItemValue(
 
   file_value->SetInteger(L"started",
     static_cast<int>(download->start_time().ToTimeT()));
+  file_value->SetString(L"since_string",
+    TimeFormat::RelativeDate(download->start_time(), NULL));
+  file_value->SetString(L"date_string",
+    base::TimeFormatShortDate(download->start_time()));
   file_value->SetInteger(L"id", id);
   file_value->SetString(L"file_path", download->full_path().ToWStringHack());
   file_value->SetString(L"file_name", download->GetFileName().ToWStringHack());
