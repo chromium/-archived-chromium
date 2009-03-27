@@ -462,9 +462,9 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
 
 #if defined(OS_MACOSX)
   // Dispatch the contextmenu event regardless of if the click was swallowed.
-  if (event.button == WebMouseEvent::BUTTON_RIGHT ||
-      (event.button == WebMouseEvent::BUTTON_LEFT &&
-       event.modifiers & WebMouseEvent::CTRL_KEY))
+  if (event.button == WebMouseEvent::ButtonRight ||
+      (event.button == WebMouseEvent::ButtonLeft &&
+       event.modifiers & WebMouseEvent::ControlKey))
     MouseContextMenu(event);
 #endif
 }
