@@ -135,7 +135,7 @@
           'LIBPATH': ['$LIB_DIR'],
           # Linking of large files uses lots of RAM, so serialize links
           # using the handy flock command from util-linux.
-          'FLOCK_LINK': ['flock', '$DESTINATION_ROOT/linker.lock', '$LINK'],
+          'FLOCK_LINK': ['flock', '$TOP_BUILDDIR/linker.lock', '$LINK'],
 
           # We have several cases where archives depend on each other in
           # a cyclic fashion.  Since the GNU linker does only a single
@@ -304,6 +304,9 @@
       ],
     }],
   ],
+  'scons_settings': {
+    'sconsbuild_dir': '<(DEPTH)/sconsbuild',
+  },
   'xcode_settings': {
     # The Xcode generator will look for an xcode_settings section at the root
     # of each dict and use it to apply settings on a file-wide basis.  Most

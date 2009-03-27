@@ -191,7 +191,7 @@ def ChromeProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     prog = env.Program(target, source, *args, **kw)
-    result = env.Install('$DESTINATION_ROOT', prog)
+    result = env.Install('$TOP_BUILDDIR', prog)
   else:
     result = env.ComponentProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
@@ -202,7 +202,7 @@ def ChromeTestProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     prog = env.Program(target, source, *args, **kw)
-    result = env.Install('$DESTINATION_ROOT', prog)
+    result = env.Install('$TOP_BUILDDIR', prog)
   else:
     result = env.ComponentTestProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
