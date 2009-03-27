@@ -55,6 +55,7 @@ SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name);
 static SkMutex global_fc_map_lock;
 static std::map<std::string, unsigned> global_fc_map;
 static std::map<unsigned, std::string> global_fc_map_inverted;
+static std::map<uint32_t, SkTypeface *> global_fc_typefaces;
 static unsigned global_fc_map_next_id = 0;
 
 // This is the maximum size of the font cache.
@@ -282,21 +283,24 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
     const unsigned id = FileIdAndStyleToUniqueId(fileid, style);
     SkTypeface* typeface = SkNEW_ARGS(FontConfigTypeface, (style, id));
     FcPatternDestroy(match);
+
+    {
+        SkAutoMutexAcquire ac(global_fc_map_lock);
+        global_fc_typefaces[id] = typeface;
+    }
+
     return typeface;
 }
 
 SkTypeface* SkFontHost::ResolveTypeface(uint32_t id)
 {
     SkAutoMutexAcquire ac(global_fc_map_lock);
-    const SkTypeface::Style style = UniqueIdToStyle(id);
-    const unsigned fileid = UniqueIdToFileId(id);
+    const std::map<uint32_t, SkTypeface *>::iterator
+      i = global_fc_typefaces.find(id);
 
-    std::map<unsigned, std::string>::const_iterator i =
-        global_fc_map_inverted.find(fileid);
-    if (i == global_fc_map_inverted.end())
+    if (i == global_fc_typefaces.end())
         return NULL;
-
-    return SkNEW_ARGS(FontConfigTypeface, (style, id));
+    return i->second;
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t id)
