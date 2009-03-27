@@ -1140,7 +1140,6 @@ LINUX : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 
 // Off-by-one in form controls -- font metrics?
 MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
-LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
 
 // Hebrew font metrics.
@@ -1184,9 +1183,6 @@ LINUX MAC : LayoutTests/fast/xsl/transform-xhr-doc.xhtml = FAIL
 
 MAC : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 MAC : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
-MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
-MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
-MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
 // Linux pixeltest failure: Failing to apply style
 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
@@ -1401,7 +1397,6 @@ MAC : LayoutTests/fast/forms/input-text-word-wrap.html = FAIL
 MAC : LayoutTests/fast/forms/input-type-change2.html = FAIL
 MAC : LayoutTests/fast/forms/input-value.html = FAIL
 MAC : LayoutTests/fast/forms/input-width.html = FAIL
-MAC : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
 MAC : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-drag-into-disabled.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-overflow.html = FAIL
@@ -2108,7 +2103,6 @@ MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PA
 // They pass on windows given a new baseline and likely only need to be given
 // platform specific baselines for Linux and Mac.
 LINUX : LayoutTests/fast/css/percent-top-value-with-relative-position.html = FAIL
-MAC LINUX : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
 
 // Looks like they started failing with r11542
 MAC : LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
@@ -2133,7 +2127,6 @@ BUG9156 DEFER MAC LINUX WIN : LayoutTests/fast/js/console-non-string-values.html
 // New failures from 41613:41660 -- They likely just need to be rebaselined
 // for Mac and Linux, since that is what was done for Windows.
 BUG9157 DEFER LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
-BUG9158 DEFER MAC LINUX : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
 
 // New failures from 41660:41709
 // Newly added tests.
@@ -2358,3 +2351,13 @@ DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
 
 // Merge WebKit: 41944:41999, Mac flaky failures.
 DEFER MAC RELEASE : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
+
+// <input type="search">; various failures, some tests may simply need new
+// baselines, others have more problems.
+LINUX MAC : LayoutTests/fast/forms/placeholder-pseudo-style.html = FAIL
+BUG9158 DEFER LINUX MAC : LayoutTests/fast/forms/placeholder-set-value.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/search-display-none-cancel-button.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/search-placeholder-value-changed.html = FAIL
+LINUX MAC : LayoutTests/fast/forms/searchfield-heights.html = FAIL
+LINUX MAC : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
+LINUX MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
