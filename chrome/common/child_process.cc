@@ -36,18 +36,21 @@ ChildProcess::~ChildProcess() {
 }
 
 void ChildProcess::AddRefProcess() {
-  DCHECK(MessageLoop::current() == child_thread_->message_loop());
+  DCHECK(!child_thread_.get() ||  // null in unittests.
+         MessageLoop::current() == child_thread_->message_loop());
   ref_count_++;
 }
 
 void ChildProcess::ReleaseProcess() {
-  DCHECK(MessageLoop::current() == child_thread_->message_loop());
+  DCHECK(!child_thread_.get() ||  // null in unittests.
+         MessageLoop::current() == child_thread_->message_loop());
   DCHECK(ref_count_);
   DCHECK(child_process_);
   if (--ref_count_)
     return;
 
-  child_thread_->OnProcessFinalRelease();
+  if (child_thread_.get())  // null in unittests.
+    child_thread_->OnProcessFinalRelease();
 }
 
 base::WaitableEvent* ChildProcess::GetShutDownEvent() {
