@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 // Defines InterceptionAgent, the class in charge of setting up interceptions
-// from the inside of the sandboxed process. For more datails see
-// http://wiki/Main/ChromeSandboxInterceptionDesign
+// from the inside of the sandboxed process. For more details see
+// http://dev.chromium.org/developers/design-documents/sandbox .
 
 #ifndef SANDBOX_SRC_INTERCEPTION_AGENT_H__
 #define SANDBOX_SRC_INTERCEPTION_AGENT_H__

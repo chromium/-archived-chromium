@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 // For information about interceptions as a whole see
-// http://wiki/Main/ChromeSandboxInterceptionDesign
+// http://dev.chromium.org/developers/design-documents/sandbox .
 
 #include <set>
 

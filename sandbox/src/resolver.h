@@ -3,7 +3,8 @@
 // found in the LICENSE file.
 
 // Defines ResolverThunk, the interface for classes that perform interceptions.
-// For more datails see http://wiki/Main/ChromeSandboxInterceptionDesign
+// For more details see
+// http://dev.chromium.org/developers/design-documents/sandbox .
 
 #include "base/basictypes.h"
 #include "sandbox/src/nt_internals.h"

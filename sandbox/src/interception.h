@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 // Defines InterceptionManager, the class in charge of setting up interceptions
-// for the sandboxed process. For more datails see
-// http://wiki/Main/ChromeSandboxInterceptionDesign
+// for the sandboxed process. For more details see
+// http://dev.chromium.org/developers/design-documents/sandbox .
 
 #ifndef SANDBOX_SRC_INTERCEPTION_H_
 #define SANDBOX_SRC_INTERCEPTION_H_
