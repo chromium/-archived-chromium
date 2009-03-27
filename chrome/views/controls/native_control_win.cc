@@ -37,18 +37,20 @@ NativeControlWin::~NativeControlWin() {
   }
 }
 
-LRESULT NativeControlWin::ProcessMessage(UINT message, WPARAM w_param,
-                                         LPARAM l_param) {
+bool NativeControlWin::ProcessMessage(UINT message, WPARAM w_param,
+                                      LPARAM l_param, LRESULT* result) {
   switch (message) {
     case WM_CONTEXTMENU:
       ShowContextMenu(gfx::Point(LOWORD(l_param), HIWORD(l_param)));
-      break;
+      *result = 0;
+      return true;
     case WM_CTLCOLORBTN:
     case WM_CTLCOLORSTATIC:
-      return GetControlColor(message, reinterpret_cast<HDC>(w_param),
-                             GetHWND());
+      *result = GetControlColor(message, reinterpret_cast<HDC>(w_param),
+                                GetHWND());
+      return true;
   }
-  return 0;
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

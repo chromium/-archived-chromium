@@ -963,10 +963,8 @@ bool ProcessNativeControlMessage(UINT message,
   HWND control_hwnd = GetControlHWNDForMessage(message, w_param, l_param);
   if (IsWindow(control_hwnd)) {
     NativeControlWin* wrapper = GetNativeControlWinForHWND(control_hwnd);
-    if (wrapper) {
-      *l_result = wrapper->ProcessMessage(message, w_param, l_param);
-      return true;
-    }
+    if (wrapper)
+      return wrapper->ProcessMessage(message, w_param, l_param, l_result);
   }
 
   return false;

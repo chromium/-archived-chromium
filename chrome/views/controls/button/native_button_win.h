@@ -29,9 +29,10 @@ class NativeButtonWin : public NativeControlWin,
   virtual gfx::Size GetPreferredSize();
 
   // Overridden from NativeControlWin:
-  virtual LRESULT ProcessMessage(UINT message,
-                                 WPARAM w_param,
-                                 LPARAM l_param);
+  virtual bool ProcessMessage(UINT message,
+                              WPARAM w_param,
+                              LPARAM l_param,
+                              LRESULT* result);
   virtual bool OnKeyDown(int vkey);
 
  protected:
@@ -65,9 +66,10 @@ class NativeCheckboxWin : public NativeButtonWin {
 
   // Overridden from NativeControlWin:
   virtual void SetFocus();
-  virtual LRESULT ProcessMessage(UINT message,
-                                 WPARAM w_param,
-                                 LPARAM l_param);
+  virtual bool ProcessMessage(UINT message,
+                              WPARAM w_param,
+                              LPARAM l_param,
+                              LRESULT* result);
 
  protected:
   virtual void CreateNativeControl();

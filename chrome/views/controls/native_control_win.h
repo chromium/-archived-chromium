@@ -21,9 +21,12 @@ class NativeControlWin : public HWNDView {
   // created by an object derived from NativeControlWin. Derived classes MUST
   // call _this_ version of the function if they override it and do not handle
   // all of the messages listed in widget_win.cc ProcessNativeControlWinMessage.
-  virtual LRESULT ProcessMessage(UINT message,
+  // Returns true if the message was handled, with a valid result in |result|.
+  // Returns false if the message was not handled.
+  virtual bool ProcessMessage(UINT message,
                                  WPARAM w_param,
-                                 LPARAM l_param);
+                                 LPARAM l_param,
+                                 LRESULT* result);
 
   // Called by our subclassed window procedure when a WM_KEYDOWN message is
   // received by the HWND created by an object derived from NativeControlWin.

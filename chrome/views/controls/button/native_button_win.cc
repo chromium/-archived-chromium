@@ -74,14 +74,14 @@ gfx::Size NativeButtonWin::GetPreferredSize() {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeButtonWin, NativeControlWin overrides:
 
-LRESULT NativeButtonWin::ProcessMessage(UINT message,
-                                        WPARAM w_param,
-                                        LPARAM l_param) {
+bool NativeButtonWin::ProcessMessage(UINT message, WPARAM w_param,
+                                     LPARAM l_param, LRESULT* result) {
   if (message == WM_COMMAND && HIWORD(w_param) == BN_CLICKED) {
     native_button_->ButtonPressed();
-    return 0;
+    *result = 0;
+    return true;
   }
-  return NativeControlWin::ProcessMessage(message, w_param, l_param);
+  return NativeControlWin::ProcessMessage(message, w_param, l_param, result);
 }
 
 bool NativeButtonWin::OnKeyDown(int vkey) {
@@ -96,7 +96,7 @@ bool NativeButtonWin::NotifyOnKeyDown() const {
 }
 
 void NativeButtonWin::CreateNativeControl() {
-  DWORD flags = WS_CHILD | BS_PUSHBUTTON;
+  DWORD flags = WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | BS_PUSHBUTTON;
   if (native_button_->is_default())
     flags |= BS_DEFPUSHBUTTON;
   HWND control_hwnd = CreateWindowEx(GetAdditionalExStyle(), L"BUTTON", L"",
@@ -162,27 +162,24 @@ bool NativeCheckboxWin::OnKeyDown(int vkey) {
 ////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, NativeButtonWin overrides:
 
-LRESULT NativeCheckboxWin::ProcessMessage(UINT message,
-                                          WPARAM w_param,
-                                          LPARAM l_param) {
+bool NativeCheckboxWin::ProcessMessage(UINT message, WPARAM w_param,
+                                       LPARAM l_param, LRESULT* result) {
   if (message == WM_COMMAND && HIWORD(w_param) == BN_CLICKED) {
     checkbox_->SetChecked(!checkbox_->checked());
     // Fall through to the NativeButtonWin's handler, which will send the
     // clicked notification to the listener...
   }
-  return NativeButtonWin::ProcessMessage(message, w_param, l_param);
+  return NativeButtonWin::ProcessMessage(message, w_param, l_param, result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, protected:
 
 void NativeCheckboxWin::CreateNativeControl() {
-  HWND control_hwnd = CreateWindowEx(WS_EX_TRANSPARENT | GetAdditionalExStyle(),
-                                     L"BUTTON", L"",
-                                     WS_CHILD | BS_CHECKBOX | WS_VISIBLE,
-                                     0, 0, width(), height(),
-                                     GetWidget()->GetNativeView(), NULL, NULL,
-                                     NULL);
+  HWND control_hwnd = CreateWindowEx(
+      WS_EX_TRANSPARENT | GetAdditionalExStyle(), L"BUTTON", L"",
+      WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | BS_CHECKBOX,
+      0, 0, width(), height(), GetWidget()->GetNativeView(), NULL, NULL, NULL);
   NativeControlCreated(control_hwnd);
 }
 
@@ -205,11 +202,10 @@ NativeRadioButtonWin::~NativeRadioButtonWin() {
 // NativeRadioButtonWin, NativeCheckboxWin overrides:
 
 void NativeRadioButtonWin::CreateNativeControl() {
-  HWND control_hwnd = CreateWindowEx(GetAdditionalExStyle(), L"BUTTON",
-                                     L"", WS_CHILD | BS_RADIOBUTTON,
-                                     0, 0, width(), height(),
-                                     GetWidget()->GetNativeView(), NULL, NULL,
-                                     NULL);
+  HWND control_hwnd = CreateWindowEx(
+      GetAdditionalExStyle(), L"BUTTON",
+      L"", WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | BS_RADIOBUTTON,
+      0, 0, width(), height(), GetWidget()->GetNativeView(), NULL, NULL, NULL);
   NativeControlCreated(control_hwnd);
 }
 
