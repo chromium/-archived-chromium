@@ -8,6 +8,7 @@
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/entry_impl.h"
 #include "net/disk_cache/errors.h"
+#include "net/disk_cache/histogram_macros.h"
 
 using base::Time;
 
@@ -234,7 +235,7 @@ bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
   EntryImpl* cache_entry =
       reinterpret_cast<EntryImpl*>(rankings->Data()->pointer);
   rankings->SetData(cache_entry->rankings()->Data());
-  UMA_HISTOGRAM_TIMES("DiskCache.GetRankings", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "GetRankings", 0, start);
   return true;
 }
 
@@ -391,7 +392,7 @@ void Rankings::UpdateRank(CacheRankingsBlock* node, bool modified, List list) {
   Time start = Time::Now();
   Remove(node, list);
   Insert(node, modified, list);
-  UMA_HISTOGRAM_TIMES("DiskCache.UpdateRank", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "UpdateRank", 0, start);
 }
 
 void Rankings::CompleteTransaction() {

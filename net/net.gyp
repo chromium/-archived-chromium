@@ -163,6 +163,7 @@
         'disk_cache/file_win.cc',
         'disk_cache/hash.cc',
         'disk_cache/hash.h',
+        'disk_cache/histogram_macros.h',
         'disk_cache/mapped_file.h',
         'disk_cache/mapped_file_posix.cc',
         'disk_cache/mapped_file_win.cc',

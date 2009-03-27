@@ -105,6 +105,15 @@ class BackendImpl : public Backend {
   // Logs requests that are denied due to being too big.
   void TooMuchStorageRequested(int32 size);
 
+  // Returns the full histogram name, for the given base |name| and experiment,
+  // and the current cache type. The name will be "DiskCache.t.name_e" where n
+  // is th ecache type and e the provided |experiment|.
+  std::string HistogramName(const char* name, int experiment);
+
+  net::CacheType cache_type() {
+    return cache_type_;
+  }
+
   // Returns true if we should send histograms for this user again. The caller
   // must call this function only once per run (because it returns always the
   // same thing on a given run).

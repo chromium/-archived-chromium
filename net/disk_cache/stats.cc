@@ -123,15 +123,24 @@ bool Stats::Init(BackendImpl* backend, uint32* storage_addr) {
 
   storage_addr_ = address.value();
   backend_ = backend;
-  if (!size_histogram_.get()) {
-    // Stats may be reused when the cache is re-created, but we want only one
-    // histogram at any given time.
-    size_histogram_.reset(new StatsHistogram("DiskCache.SizeStats"));
-    size_histogram_->Init(this);
-  }
 
   memcpy(data_sizes_, stats.data_sizes, sizeof(data_sizes_));
   memcpy(counters_, stats.counters, sizeof(counters_));
+
+  // It seems impossible to support this histogram for more than one
+  // simultaneous objects with the current infrastructure.
+  static bool first_time = true;
+  if (first_time) {
+    first_time = false;
+    // ShouldReportAgain() will re-enter this object.
+    if (!size_histogram_.get() && backend->cache_type() == net::DISK_CACHE &&
+        backend->ShouldReportAgain()) {
+      // Stats may be reused when the cache is re-created, but we want only one
+      // histogram at any given time.
+      size_histogram_.reset(new StatsHistogram("DiskCache.SizeStats"));
+      size_histogram_->Init(this);
+    }
+  }
 
   return true;
 }

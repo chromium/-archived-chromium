@@ -11,6 +11,7 @@
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/cache_util.h"
+#include "net/disk_cache/histogram_macros.h"
 
 using base::Time;
 using base::TimeDelta;
@@ -208,7 +209,8 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
     // Complete the operation locally.
     DCHECK(kMaxBlockSize >= offset + buf_len);
     memcpy(buf->data() , user_buffers_[index].get() + offset, buf_len);
-    stats.AddTime(Time::Now() - start);
+    if (backend_->cache_type() == net::DISK_CACHE)
+      stats.AddTime(Time::Now() - start);
     return buf_len;
   }
 
@@ -240,7 +242,8 @@ int EntryImpl::ReadData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (io_callback && completed)
     io_callback->Discard();
 
-  stats.AddTime(Time::Now() - start);
+  if (backend_->cache_type() == net::DISK_CACHE)
+    stats.AddTime(Time::Now() - start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
@@ -309,7 +312,8 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
 
     DCHECK(kMaxBlockSize >= offset + buf_len);
     memcpy(user_buffers_[index].get() + offset, buf->data(), buf_len);
-    stats.AddTime(Time::Now() - start);
+    if (backend_->cache_type() == net::DISK_CACHE)
+      stats.AddTime(Time::Now() - start);
     return buf_len;
   }
 
@@ -345,7 +349,8 @@ int EntryImpl::WriteData(int index, int offset, net::IOBuffer* buf, int buf_len,
   if (io_callback && completed)
     io_callback->Discard();
 
-  stats.AddTime(Time::Now() - start);
+  if (backend_->cache_type() == net::DISK_CACHE)
+    stats.AddTime(Time::Now() - start);
   return (completed || !completion_callback) ? buf_len : net::ERR_IO_PENDING;
 }
 
@@ -458,9 +463,9 @@ void EntryImpl::DeleteEntryData(bool everything) {
   DCHECK(doomed_ || !everything);
 
   if (GetDataSize(0))
-    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteHeader", GetDataSize(0));
+    CACHE_UMA(COUNTS, "DeleteHeader", 0, GetDataSize(0));
   if (GetDataSize(1))
-    UMA_HISTOGRAM_COUNTS("DiskCache.DeleteData", GetDataSize(1));
+    CACHE_UMA(COUNTS, "DeleteData", 0, GetDataSize(1));
   for (int index = 0; index < NUM_STREAMS; index++) {
     Addr address(entry_.Data()->data_addr[index]);
     if (address.is_initialized()) {
@@ -617,7 +622,7 @@ void EntryImpl::DeleteData(Addr address, int index) {
       files_[index] = NULL;  // Releases the object.
 
     if (!DeleteCacheFile(backend_->GetFileName(address))) {
-      UMA_HISTOGRAM_COUNTS("DiskCache.DeleteFailed", 1);
+      CACHE_UMA(COUNTS, "DeleteFailed", 0, 1);
       LOG(ERROR) << "Failed to delete " << backend_->GetFileName(address) <<
                     " from the cache.";
     }

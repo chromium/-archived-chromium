@@ -20,12 +20,12 @@
 // Uncomment this to use the new eviction algorithm.
 // #define USE_NEW_EVICTION
 
+// This has to be defined before including histogram_macros.h from this file.
+#define NET_DISK_CACHE_BACKEND_IMPL_CC_
+#include "net/disk_cache/histogram_macros.h"
+
 using base::Time;
 using base::TimeDelta;
-
-// HISTOGRAM_HOURS will collect time related data with a granularity of hours
-// and normal values of a few months.
-#define UMA_HISTOGRAM_HOURS UMA_HISTOGRAM_COUNTS_10000
 
 namespace {
 
@@ -306,7 +306,7 @@ bool BackendImpl::OpenEntry(const std::string& key, Entry** entry) {
   DCHECK(entry);
   *entry = cache_entry;
 
-  UMA_HISTOGRAM_TIMES("DiskCache.OpenTime", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "OpenTime", 0, start);
   stats_.OnEvent(Stats::OPEN_HIT);
   return true;
 }
@@ -384,7 +384,7 @@ bool BackendImpl::CreateEntry(const std::string& key, Entry** entry) {
 
   cache_entry.swap(reinterpret_cast<EntryImpl**>(entry));
 
-  UMA_HISTOGRAM_TIMES("DiskCache.CreateTime", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "CreateTime", 0, start);
   stats_.OnEvent(Stats::CREATE_HIT);
   Trace("create entry hit ");
   return true;
@@ -688,6 +688,12 @@ void BackendImpl::TooMuchStorageRequested(int32 size) {
   stats_.ModifyStorageStats(0, size);
 }
 
+std::string BackendImpl::HistogramName(const char* name, int experiment) {
+  if (!experiment)
+    return StringPrintf("DiskCache.%d.%s", cache_type_, name);
+  return StringPrintf("DiskCache.%d.%s_%d", cache_type_, name, experiment);
+}
+
 // We want to remove biases from some histograms so we only send data once per
 // week.
 bool BackendImpl::ShouldReportAgain() {
@@ -709,19 +715,18 @@ void BackendImpl::FirstEviction() {
   DCHECK(data_->header.create_time);
 
   Time create_time = Time::FromInternalValue(data_->header.create_time);
-  UMA_HISTOGRAM_HOURS("DiskCache.FillupAge",
-                      (Time::Now() - create_time).InHours());
+  CACHE_UMA(AGE, "FillupAge", 0, create_time);
 
   int64 use_hours = stats_.GetCounter(Stats::TIMER) / 120;
-  UMA_HISTOGRAM_HOURS("DiskCache.FillupTime", static_cast<int>(use_hours));
-  UMA_HISTOGRAM_PERCENTAGE("DiskCache.FirstHitRatio", stats_.GetHitRatio());
+  CACHE_UMA(HOURS, "FillupTime", 0, static_cast<int>(use_hours));
+  CACHE_UMA(PERCENTAGE, "FirstHitRatio", 0, stats_.GetHitRatio());
 
   int avg_size = data_->header.num_bytes / GetEntryCount();
-  UMA_HISTOGRAM_COUNTS("DiskCache.FirstEntrySize", avg_size);
+  CACHE_UMA(COUNTS, "FirstEntrySize", 0, avg_size);
 
   int large_entries_bytes = stats_.GetLargeEntriesSize();
   int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
-  UMA_HISTOGRAM_PERCENTAGE("DiskCache.FirstLargeEntriesRatio", large_ratio);
+  CACHE_UMA(PERCENTAGE, "FirstLargeEntriesRatio", 0, large_ratio);
   stats_.ResetRatios();
 }
 
@@ -743,12 +748,9 @@ void BackendImpl::CriticalError(int error) {
 }
 
 void BackendImpl::ReportError(int error) {
-  static LinearHistogram counter("DiskCache.Error", 0, 49, 50);
-  counter.SetFlags(kUmaTargetedHistogramFlag);
-
   // We transmit positive numbers, instead of direct error codes.
   DCHECK(error <= 0);
-  counter.Add(error * -1);
+  CACHE_UMA(CACHE_ERROR, "Error", 0, error * -1);
 }
 
 void BackendImpl::OnEvent(Stats::Counters an_event) {
@@ -1273,23 +1275,20 @@ void BackendImpl::LogStats() {
 
 void BackendImpl::ReportStats() {
   int experiment = data_->header.experiment;
-  std::string entries(StringPrintf("DiskCache.Entries_%d", experiment));
-  std::string size(StringPrintf("DiskCache.Size_%d", experiment));
-  std::string max_size(StringPrintf("DiskCache.MaxSize_%d", experiment));
-  UMA_HISTOGRAM_COUNTS(entries.c_str(), data_->header.num_entries);
-  UMA_HISTOGRAM_COUNTS(size.c_str(), data_->header.num_bytes / (1024 * 1024));
-  UMA_HISTOGRAM_COUNTS(max_size.c_str(), max_size_ / (1024 * 1024));
+  CACHE_UMA(COUNTS, "Entries", experiment, data_->header.num_entries);
+  CACHE_UMA(COUNTS, "Size", experiment,
+             data_->header.num_bytes / (1024 * 1024));
+  CACHE_UMA(COUNTS, "MaxSize", experiment, max_size_ / (1024 * 1024));
 
-  UMA_HISTOGRAM_COUNTS("DiskCache.AverageOpenEntries",
-      static_cast<int>(stats_.GetCounter(Stats::OPEN_ENTRIES)));
-  UMA_HISTOGRAM_COUNTS("DiskCache.MaxOpenEntries",
-      static_cast<int>(stats_.GetCounter(Stats::MAX_ENTRIES)));
+  CACHE_UMA(COUNTS, "AverageOpenEntries", 0,
+             static_cast<int>(stats_.GetCounter(Stats::OPEN_ENTRIES)));
+  CACHE_UMA(COUNTS, "MaxOpenEntries", 0,
+             static_cast<int>(stats_.GetCounter(Stats::MAX_ENTRIES)));
   stats_.SetCounter(Stats::MAX_ENTRIES, 0);
 
   if (!data_->header.create_time) {
     // This is a client running the experiment on the dev channel.
-    std::string hit_ratio(StringPrintf("DiskCache.HitRatio_%d", experiment));
-    UMA_HISTOGRAM_PERCENTAGE(hit_ratio.c_str(), stats_.GetHitRatio());
+    CACHE_UMA(PERCENTAGE, "HitRatio", experiment, stats_.GetHitRatio());
     stats_.ResetRatios();
 
     if (!data_->header.num_bytes)
@@ -1297,9 +1296,7 @@ void BackendImpl::ReportStats() {
 
     int large_entries_bytes = stats_.GetLargeEntriesSize();
     int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
-    std::string large_ratio_name(StringPrintf("DiskCache.LargeEntriesRatio_%d",
-                                              experiment));
-    UMA_HISTOGRAM_PERCENTAGE(large_ratio_name.c_str(), large_ratio);
+    CACHE_UMA(PERCENTAGE, "LargeEntriesRatio", experiment, large_ratio);
     return;
   }
 
@@ -1310,26 +1307,25 @@ void BackendImpl::ReportStats() {
   // that event, start reporting this:
 
   int64 total_hours = stats_.GetCounter(Stats::TIMER) / 120;
-  UMA_HISTOGRAM_HOURS("DiskCache.TotalTime", static_cast<int>(total_hours));
+  CACHE_UMA(HOURS, "TotalTime", 0, static_cast<int>(total_hours));
 
   int64 use_hours = stats_.GetCounter(Stats::LAST_REPORT_TIMER) / 120;
   if (!use_hours || !GetEntryCount() || !data_->header.num_bytes)
     return;
 
-  UMA_HISTOGRAM_HOURS("DiskCache.UseTime", static_cast<int>(use_hours));
-  UMA_HISTOGRAM_PERCENTAGE("DiskCache.HitRatio", stats_.GetHitRatio());
-  UMA_HISTOGRAM_PERCENTAGE("DiskCache.ResurrectRatio",
-                           stats_.GetResurrectRatio());
+  CACHE_UMA(HOURS, "UseTime", 0, static_cast<int>(use_hours));
+  CACHE_UMA(PERCENTAGE, "HitRatio", 0, stats_.GetHitRatio());
+  CACHE_UMA(PERCENTAGE, "ResurrectRatio", 0, stats_.GetResurrectRatio());
 
   int64 trim_rate = stats_.GetCounter(Stats::TRIM_ENTRY) / use_hours;
-  UMA_HISTOGRAM_COUNTS("DiskCache.TrimRate", static_cast<int>(trim_rate));
+  CACHE_UMA(COUNTS, "TrimRate", 0, static_cast<int>(trim_rate));
 
   int avg_size = data_->header.num_bytes / GetEntryCount();
-  UMA_HISTOGRAM_COUNTS("DiskCache.EntrySize", avg_size);
+  CACHE_UMA(COUNTS, "EntrySize", 0, avg_size);
 
   int large_entries_bytes = stats_.GetLargeEntriesSize();
   int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
-  UMA_HISTOGRAM_PERCENTAGE("DiskCache.LargeEntriesRatio", large_ratio);
+  CACHE_UMA(PERCENTAGE, "LargeEntriesRatio", 0, large_ratio);
 
   stats_.ResetRatios();
   stats_.SetCounter(Stats::TRIM_ENTRY, 0);

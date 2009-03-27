@@ -34,13 +34,10 @@
 #include "base/time.h"
 #include "net/disk_cache/backend_impl.h"
 #include "net/disk_cache/entry_impl.h"
+#include "net/disk_cache/histogram_macros.h"
 #include "net/disk_cache/trace.h"
 
 using base::Time;
-
-// HISTOGRAM_HOURS will collect time related data with a granularity of hours
-// and normal values of a few months.
-#define UMA_HISTOGRAM_HOURS UMA_HISTOGRAM_COUNTS_10000
 
 namespace {
 
@@ -105,7 +102,7 @@ void Eviction::TrimCache(bool empty) {
     }
   }
 
-  UMA_HISTOGRAM_TIMES("DiskCache.TotalTrimTime", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "TotalTrimTime", 0, start);
   Trace("*** Trim Cache end ***");
   return;
 }
@@ -145,10 +142,7 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
   if (first_trim_) {
     first_trim_ = false;
     if (backend_->ShouldReportAgain()) {
-      std::string name(StringPrintf("DiskCache.TrimAge_%d",
-                                    header_->experiment));
-      UMA_HISTOGRAM_HOURS(name.c_str(),
-                          (Time::Now() - entry->GetLastUsed()).InHours());
+      CACHE_UMA(AGE, "TrimAge", header_->experiment, entry->GetLastUsed());
     }
 
     if (header_->create_time && !header_->lru.filled) {
@@ -265,7 +259,7 @@ void Eviction::TrimCacheV2(bool empty) {
         factory_.NewRunnableMethod(&Eviction::TrimDeleted, empty));
   }
 
-  UMA_HISTOGRAM_TIMES("DiskCache.TotalTrimTime", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "TotalTrimTime", 0, start);
   Trace("*** Trim Cache end ***");
   return;
 }
@@ -375,7 +369,7 @@ void Eviction::TrimDeleted(bool empty) {
     MessageLoop::current()->PostTask(FROM_HERE,
         factory_.NewRunnableMethod(&Eviction::TrimDeleted, false));
 
-  UMA_HISTOGRAM_TIMES("DiskCache.TotalTrimDeletedTime", Time::Now() - start);
+  CACHE_UMA(AGE_MS, "TotalTrimDeletedTime", 0, start);
   Trace("*** Trim Deleted end ***");
   return;
 }
