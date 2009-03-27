@@ -180,7 +180,9 @@ void ChildProcessHost::ListenerHook::OnMessageReceived(
 void ChildProcessHost::ListenerHook::OnChannelConnected(int32 peer_pid) {
   host_->opening_channel_ = false;
   host_->OnChannelConnected(peer_pid);
+#if defined(OS_WIN)
   host_->Send(new PluginProcessMsg_AskBeforeShutdown());
+#endif
 
   // Notify in the main loop of the connection.
   host_->Notify(NotificationType::CHILD_PROCESS_HOST_CONNECTED);
