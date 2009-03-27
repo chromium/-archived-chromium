@@ -204,9 +204,10 @@ void DialogClientView::AcceptWindow() {
     NOTREACHED();
     return;
   }
-  accepted_ = true;
-  if (GetDialogDelegate()->Accept(false))
+  if (GetDialogDelegate()->Accept(false)) {
+    accepted_ = true;
     window()->Close();
+  }
 }
 
 void DialogClientView::CancelWindow() {

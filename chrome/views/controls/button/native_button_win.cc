@@ -153,6 +153,12 @@ void NativeCheckboxWin::SetFocus() {
   // label, which is a view).
 }
 
+bool NativeCheckboxWin::OnKeyDown(int vkey) {
+  // Override the NativeButtonWin behavior which triggers the button on enter
+  // key presses when focused.
+  return false;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // NativeCheckboxWin, NativeButtonWin overrides:
 

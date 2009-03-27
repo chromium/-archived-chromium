@@ -61,6 +61,7 @@ class NativeCheckboxWin : public NativeButtonWin {
   // Overridden from NativeButtonWrapper:
   virtual void UpdateChecked();
   virtual void SetPushed(bool pushed);
+  virtual bool OnKeyDown(int vkey);
 
   // Overridden from NativeControlWin:
   virtual void SetFocus();

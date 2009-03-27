@@ -70,6 +70,12 @@ void NativeButton::SetIsDefault(bool is_default) {
   if (is_default == is_default_)
     return;
   is_default_ = is_default;
+
+  if (is_default_)
+    AddAccelerator(Accelerator(VK_RETURN, false, false, false));
+  else
+    RemoveAccelerator(Accelerator(VK_RETURN, false, false, false));
+
   if (native_wrapper_)
     native_wrapper_->UpdateDefault();
 }
