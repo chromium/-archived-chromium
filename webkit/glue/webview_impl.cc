@@ -454,6 +454,14 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
     static_cast<EditorClientImpl*>(page_->editorClient())->
           ShowAutofillForNode(clicked_node.get());
   }
+
+#if defined(OS_MACOSX)
+  // Dispatch the contextmenu event regardless of if the click was swallowed.
+  if (event.button == WebMouseEvent::BUTTON_RIGHT ||
+      (event.button == WebMouseEvent::BUTTON_LEFT &&
+       event.modifiers & WebMouseEvent::CTRL_KEY))
+    MouseContextMenu(event);
+#endif
 }
 
 void WebViewImpl::MouseContextMenu(const WebMouseEvent& event) {
@@ -491,9 +499,11 @@ void WebViewImpl::MouseUp(const WebMouseEvent& event) {
   main_frame()->frame()->eventHandler()->handleMouseReleaseEvent(
       MakePlatformMouseEvent(main_frame()->frameview(), event));
 
+#if defined(OS_WIN) || defined(OS_LINUX)
   // Dispatch the contextmenu event regardless of if the click was swallowed.
   if (event.button == WebMouseEvent::BUTTON_RIGHT)
     MouseContextMenu(event);
+#endif
 }
 
 void WebViewImpl::MouseWheel(const WebMouseWheelEvent& event) {
