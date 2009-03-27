@@ -2148,7 +2148,7 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 
 // Merge 41709:41733
 // Expectations changed upstream.
-WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
+LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
 
 // Tests that fail in debug mode on linux
@@ -2238,13 +2238,6 @@ LayoutTests/fast/js/regexp-overflow.html = TIMEOUT
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
 
-// Started failing with a change to run_webkit_tests.sh.
-// What's weird is it actually started failing on the bot
-// where before it was passing. It's not that our accounting changed.
-// http://crbug.com/9096
-WIN DEBUG : chrome/fast/dom/java-applet-calls.html = FAIL
-WIN DEBUG : LayoutTests/fast/dom/length-attribute-mapping.html = CRASH
-WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRASH
 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
 WIN : LayoutTests/webarchive/loading/cache-expired-subresource.html = CRASH PASS TIMEOUT
@@ -2271,43 +2264,26 @@ DEFER WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.htm
 
 // New failures from merge
 DEFER WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
-DEFER WIN LINUX : LayoutTests/fast/clip/016.html = FAIL
-DEFER WIN : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
+DEFER LINUX : LayoutTests/fast/clip/016.html = FAIL
+DEFER : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
-DEFER WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
-DEFER WIN : LayoutTests/fast/encoding/denormalised-voiced-japanese-chars.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/forms/search-zoomed.html = FAIL
-DEFER WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-mouse-events.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-onchange-event.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-padding.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
-DEFER WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
-DEFER WIN : LayoutTests/fast/lists/w3-list-styles.html = FAIL
-DEFER WIN : LayoutTests/fast/text/international/001.html = FAIL
-DEFER WIN : LayoutTests/fast/text/international/002.html = FAIL
-DEFER WIN : LayoutTests/fast/text/international/003.html = FAIL
-DEFER WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
-DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-DEFER WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
-DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/text-fonts-01-t.svg = FAIL
-DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
 DEFER WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL
 DEFER WIN LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
 DEFER WIN LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 DEFER WIN LINUX : LayoutTests/svg/custom/js-update-image.svg = FAIL
 DEFER WIN LINUX: LayoutTests/svg/custom/text-image-opacity.svg = FAIL
-DEFER WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
-DEFER WIN : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 DEFER MAC : LayoutTests/fast/forms/search-zoomed.html = FAIL
 DEFER LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
 DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
@@ -2321,13 +2297,12 @@ DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAI
 DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
 // Adding more failures after the last merge:
-WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
 WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
-WIN LINUX : LayoutTests/editing/selection/4776665.html = FAIL
+LINUX : LayoutTests/editing/selection/4776665.html = FAIL
 
 // Merge WebKit: 41944:41999
 // All these seem to be the same issue. None of them is crashing when run separately.
