@@ -82,41 +82,51 @@ void ParsePrincipal(const CSSM_X509_NAME* name,
   }
 }
 
-OSStatus GetCertFieldsForOID(X509Certificate::OSCertHandle cert_handle,
-                             CSSM_OID oid, uint32* num_of_fields,
-                             CSSM_FIELD_PTR* fields) {
-  *num_of_fields = 0;
-  *fields = NULL;
+struct CSSMFields {
+  CSSMFields() : cl_handle(NULL), num_of_fields(0), fields(NULL) {}
+  ~CSSMFields() {
+    if (cl_handle)
+      CSSM_CL_FreeFields(cl_handle, num_of_fields, &fields);
+  }
+
+  CSSM_CL_HANDLE cl_handle;
+  uint32 num_of_fields;
+  CSSM_FIELD_PTR fields;
+};
+
+OSStatus GetCertFields(X509Certificate::OSCertHandle cert_handle,
+                       CSSMFields* fields) {
+  DCHECK(cert_handle);
+  DCHECK(fields);
 
   CSSM_DATA cert_data;
   OSStatus status = SecCertificateGetData(cert_handle, &cert_data);
   if (status)
     return status;
 
-  CSSM_CL_HANDLE cl_handle;
-  status = SecCertificateGetCLHandle(cert_handle, &cl_handle);
-  if (status)
+  status = SecCertificateGetCLHandle(cert_handle, &fields->cl_handle);
+  if (status) {
+    DCHECK(!fields->cl_handle);
     return status;
+  }
 
-  status = CSSM_CL_CertGetAllFields(cl_handle, &cert_data, num_of_fields,
-                                    fields);
+  status = CSSM_CL_CertGetAllFields(fields->cl_handle, &cert_data,
+                                    &fields->num_of_fields, &fields->fields);
   return status;
 }
 
 void GetCertGeneralNamesForOID(X509Certificate::OSCertHandle cert_handle,
                                CSSM_OID oid, CE_GeneralNameType name_type,
                                std::vector<std::string>* result) {
-  uint32 num_of_fields;
-  CSSM_FIELD_PTR fields;
-  OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
-                                        &fields);
+  CSSMFields fields;
+  OSStatus status = GetCertFields(cert_handle, &fields);
   if (status)
     return;
 
-  for (size_t field = 0; field < num_of_fields; ++field) {
-    if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
+  for (size_t field = 0; field < fields.num_of_fields; ++field) {
+    if (CSSMOIDEqual(&fields.fields[field].FieldOid, &oid)) {
       CSSM_X509_EXTENSION_PTR cssm_ext =
-          (CSSM_X509_EXTENSION_PTR)fields[field].FieldValue.Data;
+          (CSSM_X509_EXTENSION_PTR)fields.fields[field].FieldValue.Data;
       CE_GeneralNames* alt_name =
           (CE_GeneralNames*) cssm_ext->value.parsedValue;
 
@@ -148,17 +158,16 @@ void GetCertDateForOID(X509Certificate::OSCertHandle cert_handle,
                        CSSM_OID oid, Time* result) {
   *result = Time::Time();
 
-  uint32 num_of_fields;
-  CSSM_FIELD_PTR fields;
-  OSStatus status = GetCertFieldsForOID(cert_handle, oid, &num_of_fields,
-                                        &fields);
+  CSSMFields fields;
+  OSStatus status = GetCertFields(cert_handle, &fields);
   if (status)
     return;
 
-  for (size_t field = 0; field < num_of_fields; ++field) {
-    if (CSSMOIDEqual(&fields[field].FieldOid, &oid)) {
+  for (size_t field = 0; field < fields.num_of_fields; ++field) {
+    if (CSSMOIDEqual(&fields.fields[field].FieldOid, &oid)) {
       CSSM_X509_TIME* x509_time =
-          reinterpret_cast<CSSM_X509_TIME *>(fields[field].FieldValue.Data);
+          reinterpret_cast<CSSM_X509_TIME *>
+            (fields.fields[field].FieldValue.Data);
       std::string time_string =
           std::string(reinterpret_cast<std::string::value_type*>
                       (x509_time->time.Data),
