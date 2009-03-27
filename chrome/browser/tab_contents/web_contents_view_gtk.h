@@ -44,12 +44,6 @@ class WebContentsViewGtk : public WebContentsView {
   virtual void RestoreFocus();
 
   // Backend implementation of RenderViewHostDelegate::View.
-  virtual WebContents* CreateNewWindowInternal(
-      int route_id, base::WaitableEvent* modal_dialog_event);
-  virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
-                                         WindowOpenDisposition disposition,
-                                         const gfx::Rect& initial_pos,
-                                         bool user_gesture);
   virtual void ShowContextMenu(const ContextMenuParams& params);
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);

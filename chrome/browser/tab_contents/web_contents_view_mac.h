@@ -59,12 +59,6 @@ class WebContentsViewMac : public WebContentsView,
   virtual void RestoreFocus();
 
   // Backend implementation of RenderViewHostDelegate::View.
-  virtual WebContents* CreateNewWindowInternal(
-      int route_id, base::WaitableEvent* modal_dialog_event);
-  virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
-                                         WindowOpenDisposition disposition,
-                                         const gfx::Rect& initial_pos,
-                                         bool user_gesture);
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
                                                         bool activatable);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,

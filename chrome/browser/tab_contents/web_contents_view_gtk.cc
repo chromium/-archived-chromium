@@ -231,18 +231,3 @@ void WebContentsViewGtk::StartDragging(const WebDropData& drop_data) {
   if (web_contents()->render_view_host())
     web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
-
-WebContents* WebContentsViewGtk::CreateNewWindowInternal(
-    int route_id,
-    base::WaitableEvent* modal_dialog_event) {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
-void WebContentsViewGtk::ShowCreatedWindowInternal(
-    WebContents* new_web_contents,
-    WindowOpenDisposition disposition,
-    const gfx::Rect& initial_pos,
-    bool user_gesture) {
-  NOTIMPLEMENTED();
-}

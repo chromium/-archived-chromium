@@ -123,23 +123,15 @@ class WebContentsView : public RenderViewHostDelegate::View {
  protected:
   WebContentsView() {}  // Abstract interface.
 
-  // Internal interface for some functions in the RenderViewHostDelegate::View
-  // interface. Subclasses should implement this rather than the corresponding
-  // ...::View functions directly, since the routing stuff will already be
-  // computed. They should implement the rest of the functions as normal.
+  // Internal functions used to support the CreateNewWidget() method. If a
+  // platform requires plugging into widget creation at a lower level then a
+  // subclass might want to override these functions, but otherwise they should
+  // be fine just implementing RenderWidgetHostView::InitAsPopup().
   //
-  // The only difference is that the Create functions return the newly
-  // created objects so that they can be associated with the given routes. When
-  // they are shown later, we'll look them up again and pass the objects to
-  // the Show functions rather than the route ID.
-  virtual WebContents* CreateNewWindowInternal(
-      int route_id,
-      base::WaitableEvent* modal_dialog_event) = 0;
-  virtual void ShowCreatedWindowInternal(WebContents* new_web_contents,
-                                         WindowOpenDisposition disposition,
-                                         const gfx::Rect& initial_pos,
-                                         bool user_gesture) = 0;
-
+  // The Create function returns the newly created widget so it can be
+  // associated with the given route. When the widget needs to be shown later,
+  // we'll look it up again and pass the object to the Show functions rather
+  // than the route ID.
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
                                                         bool activatable);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
