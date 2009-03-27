@@ -684,6 +684,14 @@ void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,
     return;
   }
 
+  // Called before DownloadFinished in order to avoid a race condition where we
+  // attempt to open a completed download before it has been renamed.
+  file_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(file_manager_,
+                        &DownloadFileManager::OnFinalDownloadName,
+                        download->id(),
+                        target_path));
+
   // If the download already completed by the time we reached this point, then
   // notify observers that it did.
   PendingFinishedMap::iterator pending_it =
@@ -692,12 +700,6 @@ void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,
     DownloadFinished(pending_it->first, pending_it->second);
 
   download->Rename(target_path);
-
-  file_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(file_manager_,
-                        &DownloadFileManager::OnFinalDownloadName,
-                        download->id(),
-                        target_path));
 
   if (profile_->IsOffTheRecord()) {
     // Fake a db handle for incognito mode, since nothing is actually stored in
