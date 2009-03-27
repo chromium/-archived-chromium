@@ -213,7 +213,6 @@ void StatusBubbleMac::Create() {
   [parent_ addChildWindow:window_ ordered:NSWindowAbove];
 
   [window_ setAlphaValue:0.0f];
-  [window_ orderFront:nil];
 
   offset_ = 0;
   [view setStyle:STYLE_STANDARD];
