@@ -53,6 +53,23 @@ SRC_FILE_DIR = "dir"
 SRC_FILE_NAME = "file"
 SRC_LINE = "line"
 
+def gatherFrames(node, source_dir):
+  frames = []
+  for frame in node.getElementsByTagName("frame"):
+    frame_dict = {
+      INSTRUCTION_POINTER : getTextOf(frame, INSTRUCTION_POINTER),
+      OBJECT_FILE         : getTextOf(frame, OBJECT_FILE),
+      FUNCTION_NAME       : getTextOf(frame, FUNCTION_NAME),
+      SRC_FILE_DIR        : removeCommonRoot(
+          source_dir, getTextOf(frame, SRC_FILE_DIR)),
+      SRC_FILE_NAME       : getTextOf(frame, SRC_FILE_NAME),
+      SRC_LINE            : getTextOf(frame, SRC_LINE)
+    }
+    frames += [frame_dict]
+    if frame_dict[FUNCTION_NAME] in _TOP_OF_STACK_POINTS:
+      break
+  return frames
+
 class ValgrindError:
   ''' Takes a <DOM Element: error> node and reads all the data from it. A
   ValgrindError is immutable and is hashed on its pretty printed output.
@@ -67,41 +84,73 @@ class ValgrindError:
       source_dir: Prefix that should be stripped from the <dir> node.
     '''
 
+    # Valgrind errors contain one <what><stack> pair, plus an optional
+    # <auxwhat><stack> pair, plus an optional <origin><what><stack></origin>.
+    # (Origin is nicely enclosed; too bad the other two aren't.)
+    # The most common way to see all three in one report is
+    # a syscall with a parameter that points to uninitialized memory, e.g.
+    # Format:
+    # <error>
+    #   <unique>0x6d</unique>
+    #   <tid>1</tid>
+    #   <kind>SyscallParam</kind>
+    #   <what>Syscall param write(buf) points to uninitialised byte(s)</what>
+    #   <stack>
+    #     <frame>
+    #     ...
+    #     </frame>
+    #   </stack>
+    #   <auxwhat>Address 0x5c9af4f is 7 bytes inside a block of ...</auxwhat>
+    #   <stack>
+    #     <frame>
+    #     ...
+    #     </frame>
+    #   </stack>
+    #   <origin>
+    #   <what>Uninitialised value was created by a heap allocation</what>
+    #   <stack>
+    #     <frame>
+    #     ...
+    #     </frame>
+    #   </stack>
+    #   </origin>
+
     self._kind = getTextOf(error_node, "kind")
-    self._what = getTextOf(error_node, "what")
+    self._backtraces = []
 
-    self._frames = []
-    stack_node = error_node.getElementsByTagName("stack")[0]
-
-    for frame in stack_node.getElementsByTagName("frame"):
-      frame_dict = {
-        INSTRUCTION_POINTER : getTextOf(frame, INSTRUCTION_POINTER),
-        OBJECT_FILE         : getTextOf(frame, OBJECT_FILE),
-        FUNCTION_NAME       : getTextOf(frame, FUNCTION_NAME),
-        SRC_FILE_DIR        : removeCommonRoot(
-            source_dir, getTextOf(frame, SRC_FILE_DIR)),
-        SRC_FILE_NAME       : getTextOf(frame, SRC_FILE_NAME),
-        SRC_LINE            : getTextOf(frame, SRC_LINE)
-      }
-
-      self._frames += [frame_dict]
-
-      if frame_dict[FUNCTION_NAME] in _TOP_OF_STACK_POINTS:
-        break
+    # Iterate through the nodes, parsing <what|auxwhat><stack> pairs.
+    description = None
+    for node in error_node.childNodes:
+      if node.localName == "what" or node.localName == "auxwhat":
+        description = "".join([n.data for n in node.childNodes
+                              if n.nodeType == n.TEXT_NODE])
+      elif node.localName == "stack":
+        self._backtraces.append([description, gatherFrames(node, source_dir)])
+        description = None
+      elif node.localName == "origin":
+        description = getTextOf(node, "what")
+        stack = node.getElementsByTagName("stack")[0]
+        frames = gatherFrames(stack, source_dir)
+        self._backtraces.append([description, frames])
+        description = None
+        stack = None
+        frames = None
 
   def __str__(self):
-    ''' Pretty print the type and stack frame of this specific error.'''
+    ''' Pretty print the type and backtrace(s) of this specific error.'''
     output = self._kind + "\n"
-    for frame in self._frames:
-      output += ("  " + (frame[FUNCTION_NAME] or frame[INSTRUCTION_POINTER]) +
-                 " (")
+    for backtrace in self._backtraces:
+      output += backtrace[0] + "\n"
+      for frame in backtrace[1]:
+        output += ("  " + (frame[FUNCTION_NAME] or frame[INSTRUCTION_POINTER]) +
+                   " (")
 
-      if frame[SRC_FILE_DIR] != "":
-        output += (frame[SRC_FILE_DIR] + "/" + frame[SRC_FILE_NAME] + ":" +
-                   frame[SRC_LINE])
-      else:
-        output += frame[OBJECT_FILE]
-      output += ")\n"
+        if frame[SRC_FILE_DIR] != "":
+          output += (frame[SRC_FILE_DIR] + "/" + frame[SRC_FILE_NAME] + ":" +
+                     frame[SRC_LINE])
+        else:
+          output += frame[OBJECT_FILE]
+        output += ")\n"
 
     return output
 
@@ -109,13 +158,14 @@ class ValgrindError:
     ''' String to use for object identity. Don't print this, use str(obj)
     instead.'''
     rep = self._kind + " "
-    for frame in self._frames:
-      rep += frame[FUNCTION_NAME]
+    for backtrace in self._backtraces:
+      for frame in backtrace[1]:
+        rep += frame[FUNCTION_NAME]
 
-      if frame[SRC_FILE_DIR] != "":
-        rep += frame[SRC_FILE_DIR] + "/" + frame[SRC_FILE_NAME]
-      else:
-        rep += frame[OBJECT_FILE]
+        if frame[SRC_FILE_DIR] != "":
+          rep += frame[SRC_FILE_DIR] + "/" + frame[SRC_FILE_NAME]
+        else:
+          rep += frame[OBJECT_FILE]
 
     return rep
 

@@ -134,6 +134,8 @@ class ChromeTests:
       cmd.append("--verbose")
     if self._options.show_all_leaks:
       cmd.append("--show_all_leaks")
+    if self._options.track_origins:
+      cmd.append("--track_origins")
     if self._options.generate_suppressions:
       cmd.append("--generate_suppressions")
     if exe == "ui_tests":
@@ -360,6 +362,9 @@ def _main(_):
   parser.add_option("", "--show_all_leaks", action="store_true",
                     default=False,
                     help="also show even less blatant leaks")
+  parser.add_option("", "--track_origins", action="store_true",
+                    default=False,
+                    help="Show whence uninit bytes came.  30% slower.")
   parser.add_option("", "--no-reinstrument", action="store_true", default=False,
                     help="Don't force a re-instrumentation for ui_tests")
   parser.add_option("", "--generate_suppressions", action="store_true",

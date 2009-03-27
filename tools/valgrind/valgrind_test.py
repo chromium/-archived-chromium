@@ -69,6 +69,9 @@ class Valgrind(object):
     self._parser.add_option("", "--show_all_leaks", action="store_true",
                             default=False,
                             help="also show less blatant leaks")
+    self._parser.add_option("", "--track_origins", action="store_true",
+                            default=False,
+                            help="Show whence uninit bytes came.  30% slower.")
     self._parser.add_option("", "--generate_suppressions", action="store_true",
                             default=False,
                             help="Skip analysis and generate suppressions")
@@ -177,13 +180,14 @@ class ValgrindLinux(Valgrind):
   def ValgrindCommand(self):
     """Get the valgrind command to run."""
     # note that self._args begins with the exe to be run
-    # TODO(erg): We probably want to get a version of valgrind that supports
-    # the "--track-origins" option...
     proc = ["valgrind", "--smc-check=all", "--leak-check=full",
             "--num-callers=30"]
 
     if self._options.show_all_leaks:
       proc += ["--show-reachable=yes"];
+
+    if self._options.track_origins:
+      proc += ["--track-origins=yes"];
 
     if self._options.trace_children:
       proc += ["--trace-children=yes"];
