@@ -160,8 +160,10 @@ void ChildProcessHost::ListenerHook::OnMessageReceived(
       Singleton<ChildProcessList>::get()->remove(host_);
       if (host_->CanShutdown())
         host_->Send(new PluginProcessMsg_Shutdown());
-#endif
     } else {
+#else
+    {
+#endif
       host_->OnMessageReceived(msg);
     }
   }

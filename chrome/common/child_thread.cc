@@ -121,9 +121,11 @@ void ChildThread::OnProcessFinalRelease() {
     return;
   }
 
+#if defined(OS_WIN)
   // The child process shutdown sequence is a request response based mechanism,
   // where we send out an initial feeler request to the child process host
   // instance in the browser to verify if it's ok to shutdown the child process.
   // The browser then sends back a response if it's ok to shutdown.
   Send(new PluginProcessHostMsg_ShutdownRequest);
+#endif
 }
