@@ -631,7 +631,9 @@ bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type) {
 // This function gets called with the fixed-up chrome-ui URLs, so we have to
 // compare against those instead of "about:blah".
 bool HandleNonNavigationAboutURL(const GURL& url) {
-#if defined(OS_WIN)
+  // About:network and IPC and currently buggy, so we disable it for official
+  // builds.
+#if defined(OS_WIN) && !defined(OFFICIAL_BUILD)
   if (LowerCaseEqualsASCII(url.spec(), chrome::kChromeUINetworkURL)) {
     // Run the dialog. This will re-use the existing one if it's already up.
     AboutNetworkDialog::RunDialog();
