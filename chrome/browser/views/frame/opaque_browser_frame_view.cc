@@ -460,7 +460,8 @@ gfx::Rect OpaqueBrowserFrameView::GetWindowBoundsForClientBounds(
 }
 
 gfx::Point OpaqueBrowserFrameView::GetSystemMenuPoint() const {
-  gfx::Point system_menu_point(FrameBorderThickness(),
+  gfx::Point system_menu_point(
+      MirroredXCoordinateInsideView(FrameBorderThickness()),
       NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
       (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
   ConvertPointToScreen(this, &system_menu_point);

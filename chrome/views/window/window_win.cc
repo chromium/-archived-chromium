@@ -415,9 +415,11 @@ void WindowWin::RunSystemMenu(const gfx::Point& point) {
   // to get a system menu. We also can't take the return value of this
   // function. We need to call it *again* to get a valid HMENU.
   //::GetSystemMenu(GetNativeView(), TRUE);
+  UINT flags = TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD;
+  if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
+    flags |= TPM_RIGHTALIGN;
   HMENU system_menu = ::GetSystemMenu(GetNativeView(), FALSE);
-  int id = ::TrackPopupMenu(system_menu,
-                            TPM_LEFTBUTTON | TPM_RIGHTBUTTON | TPM_RETURNCMD,
+  int id = ::TrackPopupMenu(system_menu, flags,
                             point.x(), point.y(), 0, GetNativeView(), NULL);
   ExecuteSystemMenuCommand(id);
 }

@@ -282,7 +282,8 @@ gfx::Rect CustomFrameView::GetWindowBoundsForClientBounds(
 }
 
 gfx::Point CustomFrameView::GetSystemMenuPoint() const {
-  gfx::Point system_menu_point(FrameBorderThickness(),
+  gfx::Point system_menu_point(
+      MirroredXCoordinateInsideView(FrameBorderThickness()),
       NonClientTopBorderHeight() - BottomEdgeThicknessWithinNonClientHeight());
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
