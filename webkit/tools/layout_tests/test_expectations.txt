@@ -1734,8 +1734,7 @@ DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = 
 // Probably just needs to be rebaselined.  We generate the png before the
 // image in the iframe loads so its dimensions are 0x0.
 // TODO(tc): Failing on buildbots
-// (mac seems to be passing this as of 03/27/09)
-DEFER LINUX WIN : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
@@ -2265,7 +2264,6 @@ DEFER WIN LINUX : LayoutTests/http/tests/misc/generated-content-inside-table.htm
 // New failures from merge
 DEFER WIN LINUX : LayoutTests/editing/selection/hit-test-anonymous.html = FAIL
 DEFER LINUX : LayoutTests/fast/clip/016.html = FAIL
-DEFER : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/css/clip-zooming.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/input-appearance-height.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/forms/listbox-hit-test-zoomed.html = FAIL
