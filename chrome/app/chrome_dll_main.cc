@@ -304,11 +304,13 @@ int ChromeMain(int argc, const char** argv) {
   // of the process.  It is not cleaned up.
   // TODO(port): we probably need to shut this down correctly to avoid
   // leaking shared memory regions on posix platforms.
-  std::string statsfile =
-      StringPrintf("%s-%d", chrome::kStatsFilename, browser_pid);
-  StatsTable *stats_table = new StatsTable(statsfile,
-      chrome::kStatsMaxThreads, chrome::kStatsMaxCounters);
-  StatsTable::set_current(stats_table);
+  if (parsed_command_line.HasSwitch(switches::kEnableStatsTable)) {
+    std::string statsfile =
+        StringPrintf("%s-%d", chrome::kStatsFilename, browser_pid);
+    StatsTable *stats_table = new StatsTable(statsfile,
+        chrome::kStatsMaxThreads, chrome::kStatsMaxCounters);
+    StatsTable::set_current(stats_table);
+  }
 
   StatsScope<StatsCounterTimer>
       startup_timer(chrome::Counters::chrome_main());

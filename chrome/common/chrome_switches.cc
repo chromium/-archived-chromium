@@ -408,4 +408,7 @@ const wchar_t kViewsGtk[] = L"views-gtk";
 // Enables the bookmark menu.
 const wchar_t kBookmarkMenu[] = L"bookmark-menu";
 
+// Enables StatsTable, logging statistics to a global named shared memory table.
+const wchar_t kEnableStatsTable[] = L"enable-stats-table";
+
 }  // namespace switches

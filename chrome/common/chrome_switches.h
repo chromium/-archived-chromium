@@ -159,6 +159,7 @@ extern const wchar_t kEnableWebWorkers[];
 extern const wchar_t kViewsGtk[];
 
 extern const wchar_t kBookmarkMenu[];
+extern const wchar_t kEnableStatsTable[];
 
 }  // namespace switches
 

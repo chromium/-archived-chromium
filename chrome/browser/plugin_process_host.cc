@@ -431,6 +431,7 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
     switches::kSilentDumpOnDCHECK,
     switches::kMemoryProfiling,
     switches::kUseLowFragHeapCrt,
+    switches::kEnableStatsTable,
   };
 
   for (size_t i = 0; i < arraysize(switch_names); ++i) {
