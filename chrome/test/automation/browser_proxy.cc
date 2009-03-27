@@ -312,6 +312,19 @@ bool BrowserProxy::RunCommand(int browser_command) const {
   return result;
 }
 
+bool BrowserProxy::RunCommandSync(int browser_command) const {
+  if (!is_valid())
+    return false;
+
+  bool result = false;
+
+  sender_->Send(new AutomationMsg_WindowExecuteCommandSync(0, handle_,
+                                                           browser_command,
+                                                           &result));
+
+  return result;
+}
+
 bool BrowserProxy::GetBookmarkBarVisibility(bool* is_visible,
                                             bool* is_animating) {
   if (!is_valid())

@@ -143,6 +143,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetWindowHWND(int handle, HWND* win32_handle);
 #endif  // defined(OS_WIN)
   void ExecuteBrowserCommand(int handle, int command, bool* success);
+  void ExecuteBrowserCommandWithNotification(int handle, int command,
+                                             IPC::Message* reply_message);
   void WindowGetViewBounds(int handle, int view_id, bool screen_coordinates,
                            bool* success, gfx::Rect* bounds);
 #if defined(OS_WIN)

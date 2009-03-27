@@ -547,22 +547,9 @@ bool AutomatedUITest::NewTab() {
     AddErrorAttribute("browser_window_not_found");
     return false;
   }
-  int old_tab_count;
-  int new_tab_count;
-  bool is_timeout;
-  browser->GetTabCountWithTimeout(&old_tab_count,
-                                  action_max_timeout_ms(),
-                                  &is_timeout);
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.
-  bool return_value = RunCommand(IDC_NEW_TAB);
-  if (!browser->WaitForTabCountToChange(old_tab_count,
-                                        &new_tab_count,
-                                        action_max_timeout_ms())) {
-    AddWarningAttribute("tab_count_failed_to_change");
-    return false;
-  }
-  return return_value;
+  return RunCommandSync(IDC_NEW_TAB);
 }
 
 bool AutomatedUITest::OpenAboutDialog() {
@@ -856,6 +843,20 @@ bool AutomatedUITest::RunCommand(int browser_command) {
   }
   return true;
 }
+
+bool AutomatedUITest::RunCommandSync(int browser_command) {
+  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  if (browser.get() == NULL) {
+    AddErrorAttribute("browser_window_not_found");
+    return false;
+  }
+  if (!browser->RunCommandSync(browser_command)) {
+    AddWarningAttribute("failure_running_browser_command");
+    return false;
+  }
+  return true;
+}
+
 
 bool AutomatedUITest::SimulateKeyPressInActiveWindow(wchar_t key, int flags) {
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());

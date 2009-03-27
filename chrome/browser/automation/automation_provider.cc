@@ -451,6 +451,42 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
   IPC::Message* reply_message_;
 };
 
+class ExecuteBrowserCommandObserver : public NotificationObserver {
+ public:
+  ExecuteBrowserCommandObserver(
+      AutomationProvider* automation,
+      NotificationType::Type notification_type,
+      IPC::Message* reply_message)
+      : automation_(automation),
+        notification_type_(notification_type),
+        reply_message_(reply_message) {
+    registrar_.Add(this, notification_type,
+                    NotificationService::AllSources());
+  }
+
+  ~ExecuteBrowserCommandObserver() {
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type == notification_type_) {
+      AutomationMsg_WindowExecuteCommandSync::WriteReplyParams(reply_message_,
+                                                               true);
+      automation_->Send(reply_message_);
+      delete this;
+    } else {
+      NOTREACHED();
+    }
+  }
+
+ private:
+  AutomationProvider* automation_;
+  NotificationType::Type notification_type_;
+  IPC::Message* reply_message_;
+  NotificationRegistrar registrar_;
+};
+
 class FindInPageNotificationObserver : public NotificationObserver {
  public:
   FindInPageNotificationObserver(AutomationProvider* automation,
@@ -803,6 +839,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
 #endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowExecuteCommand,
                         ExecuteBrowserCommand)
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowExecuteCommandSync,
+                        ExecuteBrowserCommandWithNotification)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds,
                         WindowGetViewBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisible,
@@ -1281,6 +1319,25 @@ void AutomationProvider::ExecuteBrowserCommand(int handle, int command,
       *success = true;
     }
   }
+}
+
+void AutomationProvider::ExecuteBrowserCommandWithNotification(
+    int handle, int command, IPC::Message* reply_message) {
+  if (browser_tracker_->ContainsHandle(handle)) {
+    Browser* browser = browser_tracker_->GetResource(handle);
+    if (browser->command_updater()->SupportsCommand(command) &&
+        browser->command_updater()->IsCommandEnabled(command)) {
+      // TODO(huanr): mapping command to notification type.
+      // For now only IDC_NEW_TAB uses this code path.
+      NotificationType::Type type = NotificationType::TAB_PARENTED;
+      new ExecuteBrowserCommandObserver(this, type, reply_message);
+      browser->ExecuteCommand(command);
+      return;
+    }
+  }
+  AutomationMsg_WindowExecuteCommandSync::WriteReplyParams(reply_message,
+                                                           false);
+  Send(reply_message);
 }
 
 void AutomationProvider::WindowGetViewBounds(int handle, int view_id,

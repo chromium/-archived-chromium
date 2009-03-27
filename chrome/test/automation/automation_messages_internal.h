@@ -710,12 +710,21 @@ IPC_BEGIN_MESSAGES(Automation)
 
   // This message requests the execution of a browser command in the browser
   // for which the handle is specified.
-  // The return value contains a boolean, whether the command execution was
-  // successful.
+  // The return value contains a boolean, whether the command was dispatched.
   IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_WindowExecuteCommand,
                              int /* automation handle */,
                              int /* browser command */,
                              bool /* success flag */)
+
+  // This message requests the execution of a browser command in the browser
+  // for which the handle is specified.
+  // The return value contains a boolean, whether the command was dispatched
+  // and successful executed.
+  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_WindowExecuteCommandSync,
+                             int /* automation handle */,
+                             int /* browser command */,
+                             bool /* success flag */)
+
 
   // This message opens the Find window within a tab corresponding to the
   // supplied tab handle.

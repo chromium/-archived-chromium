@@ -179,8 +179,13 @@ class BrowserProxy : public AutomationResourceProxy {
 
   // Run the specified command in the browser (see browser_commands.cc for the
   // list of supported commands).  Returns true if the command was successfully
-  // executed, false otherwise.
+  // dispatched, false otherwise.
   bool RunCommand(int browser_command) const;
+
+  // Run the specified command in the browser (see browser_commands.cc for the
+  // list of supported commands).  Returns true if the command was successfully
+  // dispatched and executed, false otherwise.
+  bool RunCommandSync(int browser_command) const;
 
   // Returns whether the Bookmark bar is visible and whether we are animating
   // it into position. Returns false on failure.

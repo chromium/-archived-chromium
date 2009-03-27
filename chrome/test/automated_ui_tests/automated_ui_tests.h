@@ -390,10 +390,19 @@ class AutomatedUITest : public UITest {
 
   // Runs the specified browser command in the current active browser.
   // See browser_commands.cc for the list of commands.
-  // Returns true if the call is successful.
-  // Returns false if the active window is not a browser window or if the
-  // message to apply the accelerator fails.
+  // Returns true if the call is successfully dispatched.
+  // Possible failures include the active window is not a browser window or
+  // the message to apply the accelerator fails.
   bool RunCommand(int browser_command);
+
+  // Runs the specified browser command in the current active browser, wait
+  // and return until the command has finished executing.
+  // See browser_commands.cc for the list of commands.
+  // Returns true if the call is successfully dispatched and executed.
+  // Possible failures include the active window is not a browser window, or
+  // the message to apply the accelerator fails, or the command execution
+  // fails.
+  bool RunCommandSync(int browser_command);
 
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which
