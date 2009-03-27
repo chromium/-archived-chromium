@@ -17,6 +17,7 @@ namespace WebCore {
 class String;
 }
 
+class JsDebuggerAgentBoundObj;
 class JsDomAgentBoundObj;
 class JsNetAgentBoundObj;
 class JsToolsAgentBoundObj;
@@ -44,6 +45,8 @@ class WebDevToolsClientImpl : public WebDevToolsClient,
 
   WebViewImpl* web_view_impl_;
   WebDevToolsClientDelegate* delegate_;
+  OwnPtr<CppBoundClass> debugger_command_executor_obj_;
+  OwnPtr<JsDebuggerAgentBoundObj> debugger_agent_obj_;
   OwnPtr<JsDomAgentBoundObj> dom_agent_obj_;
   OwnPtr<JsNetAgentBoundObj> net_agent_obj_;
   OwnPtr<JsToolsAgentBoundObj> tools_agent_obj_;

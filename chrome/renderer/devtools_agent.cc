@@ -67,13 +67,13 @@ void DevToolsAgent::SendFromIOThread(IPC::Message* message) {
   }
 }
 
-// Called on IO thread.
+// Called on the IO thread.
 void DevToolsAgent::OnFilterAdded(IPC::Channel* channel) {
   io_loop_ = MessageLoop::current();
   channel_ = channel;
 }
 
-// Called on IO thread.
+// Called on the IO thread.
 bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   DCHECK(MessageLoop::current() == io_loop_);
 
@@ -87,13 +87,15 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugBreak, OnDebugBreak)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebugCommand, OnDebugCommand)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_RpcMessage, OnRpcMessage)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_DebuggerCommand,
+                        OnDebuggerCommand)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_InspectElement, OnInspectElement)
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP()
   return handled;
 }
 
-// Called on IO thread.
+// Called on the IO thread.
 void DevToolsAgent::OnFilterRemoved() {
   io_loop_ = NULL;
   channel_ = NULL;
@@ -189,6 +191,11 @@ void DevToolsAgent::DispatchRpcMessage(const std::string& raw_msg) {
     return;
   WebDevToolsAgent* web_agent = web_view->GetWebDevToolsAgent();
   web_agent->DispatchMessageFromClient(raw_msg);
+}
+
+void DevToolsAgent::OnDebuggerCommand(const std::string& command) {
+  // Debugger commands are handled on the IO thread.
+  WebDevToolsAgent::ExecuteDebuggerCommand(command);
 }
 
 void DevToolsAgent::InspectElement(int x, int y) {

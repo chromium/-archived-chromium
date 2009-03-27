@@ -83,6 +83,13 @@ IPC_BEGIN_MESSAGES(DevToolsAgent)
   IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_RpcMessage,
                        std::string  /* raw_msg */)
 
+  // Send debugger command to the debugger agent. Debugger commands should
+  // be handled on IO thread(while all other devtools messages are handled in
+  // the render thread) to allow executing the commands when v8 is on a
+  // breakpoint.
+  IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_DebuggerCommand,
+                       std::string  /* command */)
+
   // Inspect element with the given coordinates.
   IPC_MESSAGE_CONTROL2(DevToolsAgentMsg_InspectElement,
                        int /* x */,

@@ -16,8 +16,11 @@ class WebDevToolsAgent {
   virtual ~WebDevToolsAgent() {}
 
   virtual void DispatchMessageFromClient(const std::string& raw_msg) = 0;
-
   virtual void InspectElement(int x, int y) = 0;
+
+  // Asynchronously executes debugger command in the render thread.
+  static void ExecuteDebuggerCommand(const std::string& command);
+
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgent);
 };

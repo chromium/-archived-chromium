@@ -33,7 +33,7 @@ goog.inherits(devtools.InspectorControllerImpl,
  * {@inheritDoc}.
  */
 devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
-  return "scripts,profiles,databases";
+  return "profiles,databases";
 };
 
 
@@ -53,7 +53,7 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
 /**
  * {@inheritDoc}.
  */
-devtools.InspectorController.prototype.addResourceSourceToFrame =
+devtools.InspectorControllerImpl.prototype.addResourceSourceToFrame =
     function(identifier, element) {
   var self = this;
   tools.getNetAgent().getResourceContentAsync(identifier, function(source) {
@@ -86,6 +86,44 @@ devtools.InspectorControllerImpl.prototype.highlightDOMNode =
  */
 devtools.InspectorControllerImpl.prototype.inspectedWindow = function() {
   return this.window_;
+};
+
+
+/**
+ * @override
+ */
+devtools.InspectorControllerImpl.prototype.debuggerEnabled = function() {
+  return true;
+};
+
+
+devtools.InspectorControllerImpl.prototype.currentCallFrame = function() {
+  // TODO(yurys);
+  return null;
+};
+
+
+devtools.InspectorControllerImpl.prototype.removeBreakpoint = function(
+    sourceID, line) {
+};
+
+
+devtools.InspectorControllerImpl.prototype.resumeDebugger = function() {
+};
+
+
+devtools.InspectorControllerImpl.prototype.stepIntoStatementInDebugger =
+    function() {
+};
+
+
+devtools.InspectorControllerImpl.prototype.stepOutOfFunctionInDebugger =
+    function() {
+};
+
+
+devtools.InspectorControllerImpl.prototype.stepOverStatementInDebugger =
+    function() {
 };
 
 

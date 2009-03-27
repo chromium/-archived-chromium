@@ -35,6 +35,7 @@ class DevToolsClient : public WebDevToolsClientDelegate {
 
   // WebDevToolsClient::Delegate implementation
   virtual void SendMessageToAgent(const std::string& raw_msg);
+  virtual void SendDebuggerCommandToAgent(const std::string& command);
 
  private:
   void DidDebugAttach();

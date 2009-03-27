@@ -20,6 +20,8 @@ class Node;
 class String;
 }
 
+class DebuggerAgentDelegateStub;
+class DebuggerAgentImpl;
 class DomAgentImpl;
 class NetAgentImpl;
 class Value;
@@ -41,6 +43,7 @@ class WebDevToolsAgentImpl
   virtual void SetEnabled(bool enabled);
   virtual void HighlightDOMNode(int node_id);
   virtual void HideDOMNodeHighlight();
+  virtual void EvaluateJavaSctipt(int call_id, const String& js);
 
   // WebDevToolsAgent implementation.
   virtual void DispatchMessageFromClient(const std::string& raw_msg);
@@ -55,19 +58,19 @@ class WebDevToolsAgentImpl
                              WebFrame* frame,
                              bool is_new_navigation);
 
-  DomAgentImpl* dom_agent_impl() { return dom_agent_impl_.get(); }
   NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }
-  WebViewImpl* web_view_impl() { return web_view_impl_; }
 
  private:
   WebDevToolsAgentDelegate* delegate_;
   WebViewImpl* web_view_impl_;
   WebCore::Document* document_;
-  scoped_ptr<DomAgentImpl> dom_agent_impl_;
-  scoped_ptr<NetAgentImpl> net_agent_impl_;
+  scoped_ptr<DebuggerAgentDelegateStub> debugger_agent_delegate_stub_;
   scoped_ptr<DomAgentDelegateStub> dom_agent_delegate_stub_;
   scoped_ptr<NetAgentDelegateStub> net_agent_delegate_stub_;
   scoped_ptr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
+  scoped_ptr<DebuggerAgentImpl> debugger_agent_impl_;
+  scoped_ptr<DomAgentImpl> dom_agent_impl_;
+  scoped_ptr<NetAgentImpl> net_agent_impl_;
   bool enabled_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };

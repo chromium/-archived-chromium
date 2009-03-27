@@ -9,14 +9,17 @@
  */
 goog.provide('devtools.Tools');
 
+goog.require('devtools.DebuggerAgent');
 goog.require('devtools.DomAgent');
 goog.require('devtools.NetAgent');
 
 devtools.ToolsAgent = function() {
+  RemoteToolsAgent.DidEvaluateJavaSctipt = devtools.Callback.processCallback;
   RemoteToolsAgent.UpdateFocusedNode =
       goog.bind(this.updateFocusedNode, this);
   RemoteToolsAgent.FrameNavigate =
       goog.bind(this.frameNavigate, this);
+  this.debuggerAgent_ = new devtools.DebuggerAgent();
   this.domAgent_ = new devtools.DomAgent();
   this.netAgent_ = new devtools.NetAgent();
   this.reset();
@@ -32,6 +35,24 @@ devtools.ToolsAgent.prototype.reset = function() {
   this.domAgent_.getDocumentElementAsync();
 };
 
+
+/**
+ * @param {string} script Sctipt exression to be evaluated in the context of the
+ *     inspected page.
+ * @param {Function} callback
+ */
+devtools.ToolsAgent.prototype.evaluateJavaSctipt = function(script, callback) {
+  var callbackId = devtools.Callback.wrap(callback);
+  RemoteToolsAgent.EvaluateJavaSctipt(callbackId, script);
+};
+
+
+/**
+ * @return {devtools.DebuggerAgent} Debugger agent instance.
+ */
+devtools.ToolsAgent.prototype.getDebuggerAgent = function() {
+  return this.debuggerAgent_;
+};
 
 /**
  * DomAgent accessor.
@@ -77,7 +98,6 @@ devtools.ToolsAgent.prototype.setEnabled = function(enabled) {
 };
 
 
-
 /**
  * Evaluates js expression.
  * @param {string} expr
@@ -87,10 +107,34 @@ devtools.ToolsAgent.prototype.evaluate = function(expr) {
 };
 
 
+/**
+ * Prints string  to the inspector console or shows alert if the console doesn't
+ * exist.
+ * @param {string} text
+ */
+function debugPrint(text) {
+  var console = WebInspector.console;
+  if (console) {
+    console.addMessage(new WebInspector.ConsoleMessage(
+        "", undefined, 1, "", undefined, 1, text));
+  } else {
+    alert(text);
+  }
+}
+
+
 // Frontend global objects.
-var devtools.tools;
+
+
+/**
+ * Global instance of the tools agent.
+ * @type {devtools.ToolsAgent}
+ */
+devtools.tools = null;
+
 
 var context = {};  // Used by WebCore's inspector routines.
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Here and below are overrides to existing WebInspector methods only.
@@ -103,6 +147,7 @@ WebInspector.loaded = function() {
   oldLoaded.call(this);
 
   DevToolsHost.loaded();
+  devtools.tools.getDebuggerAgent().requestScripts();
 };
 
 

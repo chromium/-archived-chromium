@@ -17,13 +17,19 @@
   METHOD1(HighlightDOMNode, int /* node_id */) \
   \
   /* Clears Dom Node highlight. */ \
-  METHOD0(HideDOMNodeHighlight)
+  METHOD0(HideDOMNodeHighlight) \
+  \
+  /* Executes JavaScript in the context of the inspected window. */ \
+  METHOD2(EvaluateJavaSctipt, int /* call_id */, String /* JS expression */)
 
 DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
 
 #define TOOLS_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
   /* Updates focused node on the client. */ \
   METHOD1(UpdateFocusedNode, int /* node_id */) \
+  \
+  /* Response message to EvaluateJavaSctipt. */ \
+  METHOD2(DidEvaluateJavaSctipt, int /* call_id */, String /* result */) \
   \
   /* Updates focused node on the client. */ \
   METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */)

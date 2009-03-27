@@ -883,6 +883,26 @@
 			Name="DevTools"
 			>
 			<File
+				RelativePath=".\devtools\debugger_agent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\debugger_agent_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\debugger_agent_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\debugger_agent_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\devtools\debugger_agent_manager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\devtools\devtools_rpc.cc"
 				>
 			</File>
@@ -927,6 +947,10 @@
 				>
 				<File
 					RelativePath=".\devtools\js\base.js"
+					>
+				</File>
+				<File
+					RelativePath=".\devtools\js\debugger_agent.js"
 					>
 				</File>
 				<File

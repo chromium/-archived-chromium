@@ -20,6 +20,7 @@
 #include "base/string_util.h"
 #include "base/values.h"
 
+#include "webkit/glue/devtools/debugger_agent.h"
 #include "webkit/glue/devtools/devtools_rpc_js.h"
 #include "webkit/glue/devtools/dom_agent.h"
 #include "webkit/glue/devtools/net_agent.h"
@@ -37,12 +38,43 @@ using WebCore::Node;
 using WebCore::Page;
 using WebCore::String;
 
+DEFINE_RPC_JS_BOUND_OBJ(DebuggerAgent, DEBUGGER_AGENT_STRUCT,
+    DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)
 DEFINE_RPC_JS_BOUND_OBJ(DomAgent, DOM_AGENT_STRUCT,
     DomAgentDelegate, DOM_AGENT_DELEGATE_STRUCT)
 DEFINE_RPC_JS_BOUND_OBJ(NetAgent, NET_AGENT_STRUCT,
     NetAgentDelegate, NET_AGENT_DELEGATE_STRUCT)
 DEFINE_RPC_JS_BOUND_OBJ(ToolsAgent, TOOLS_AGENT_STRUCT,
     ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
+
+namespace {
+
+class RemoteDebuggerCommandExecutor : public CppBoundClass {
+ public:
+  RemoteDebuggerCommandExecutor(
+      WebDevToolsClientDelegate* delegate,
+      WebFrame* frame,
+      const std::wstring& classname)
+      : delegate_(delegate) {
+    BindToJavascript(frame, classname);
+    BindMethod("DebuggerCommand",
+                &RemoteDebuggerCommandExecutor::DebuggerCommand);
+  }
+  virtual ~RemoteDebuggerCommandExecutor() {}
+
+  // The DebuggerCommand() function provided to Javascript.
+  void DebuggerCommand(const CppArgumentList& args, CppVariant* result) {
+    std::string command = args[0].ToString();
+    result->SetNull();
+    delegate_->SendDebuggerCommandToAgent(command);
+  }
+
+ private:
+  WebDevToolsClientDelegate* delegate_;
+  DISALLOW_COPY_AND_ASSIGN(RemoteDebuggerCommandExecutor);
+};
+
+} //  namespace
 
 /*static*/
 WebDevToolsClient* WebDevToolsClient::Create(
@@ -58,9 +90,16 @@ WebDevToolsClientImpl::WebDevToolsClientImpl(
       delegate_(delegate),
       loaded_(false) {
   WebFrame* frame = web_view_impl_->GetMainFrame();
+
+  // Debugger commands should be sent using special method.
+  debugger_command_executor_obj_.set(new RemoteDebuggerCommandExecutor(
+      delegate, frame, L"RemoteDebuggerCommandExecutor"));
+  debugger_agent_obj_.set(new JsDebuggerAgentBoundObj(
+      this, frame, L"RemoteDebuggerAgent"));
   dom_agent_obj_.set(new JsDomAgentBoundObj(this, frame, L"RemoteDomAgent"));
   net_agent_obj_.set(new JsNetAgentBoundObj(this, frame, L"RemoteNetAgent"));
-  tools_agent_obj_.set(new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
+  tools_agent_obj_.set(
+      new JsToolsAgentBoundObj(this, frame, L"RemoteToolsAgent"));
 
   BindToJavascript(frame, L"DevToolsHost");
   BindMethod("addSourceToFrame", &WebDevToolsClientImpl::JsAddSourceToFrame);
@@ -82,7 +121,8 @@ void WebDevToolsClientImpl::DispatchMessageFromAgent(
   std::string expr;
   if (dom_agent_obj_->Dispatch(*message.get(), &expr)
           || net_agent_obj_->Dispatch(*message.get(), &expr)
-          || tools_agent_obj_->Dispatch(*message.get(), &expr)) {
+          || tools_agent_obj_->Dispatch(*message.get(), &expr)
+          || debugger_agent_obj_->Dispatch(*message.get(), &expr)) {
     web_view_impl_->GetMainFrame()->ExecuteScript(expr);
   }
 }

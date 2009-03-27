@@ -12,10 +12,13 @@
 #include "Node.h"
 #include "Page.h"
 #include "PlatformString.h"
+#include "ScriptValue.h"
 #include <wtf/OwnPtr.h>
 #undef LOG
 
 #include "base/values.h"
+#include "webkit/glue/devtools/debugger_agent_impl.h"
+#include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/devtools/dom_agent_impl.h"
 #include "webkit/glue/devtools/net_agent_impl.h"
 #include "webkit/glue/glue_util.h"
@@ -29,6 +32,7 @@ using WebCore::Document;
 using WebCore::InspectorController;
 using WebCore::Node;
 using WebCore::Page;
+using WebCore::ScriptValue;
 using WebCore::String;
 
 WebDevToolsAgentImpl::WebDevToolsAgentImpl(
@@ -38,6 +42,7 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
       web_view_impl_(web_view_impl),
       document_(NULL),
       enabled_(false) {
+  debugger_agent_delegate_stub_.reset(new DebuggerAgentDelegateStub(this));
   dom_agent_delegate_stub_.reset(new DomAgentDelegateStub(this));
   net_agent_delegate_stub_.reset(new NetAgentDelegateStub(this));
   tools_agent_delegate_stub_.reset(new ToolsAgentDelegateStub(this));
@@ -48,6 +53,8 @@ WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
 
 void WebDevToolsAgentImpl::SetEnabled(bool enabled) {
   if (enabled && !enabled_) {
+    debugger_agent_impl_.reset(new DebuggerAgentImpl(
+        debugger_agent_delegate_stub_.get()));
     dom_agent_impl_.reset(new DomAgentImpl(dom_agent_delegate_stub_.get()));
     net_agent_impl_.reset(new NetAgentImpl(net_agent_delegate_stub_.get()));
     if (document_) {
@@ -56,6 +63,7 @@ void WebDevToolsAgentImpl::SetEnabled(bool enabled) {
     }
     enabled_ = true;
   } else if (!enabled) {
+    debugger_agent_impl_.reset(NULL);
     dom_agent_impl_.reset(NULL);
     net_agent_impl_.reset(NULL);
     enabled_ = false;
@@ -108,6 +116,19 @@ void WebDevToolsAgentImpl::HideDOMNodeHighlight() {
   page->inspectorController()->hideHighlight();
 }
 
+void WebDevToolsAgentImpl::EvaluateJavaSctipt(int call_id, const String& js) {
+  Page* page = web_view_impl_->page();
+  if (!page->mainFrame()) {
+    return;
+  }
+  ScriptValue result = page->mainFrame()->loader()->executeScript(js);
+  String result_string;
+  if (!result.hasNoValue()) {
+    result_string = result.toString(NULL);
+  }
+  tools_agent_delegate_stub_->DidEvaluateJavaSctipt(call_id, result_string);
+}
+
 void WebDevToolsAgentImpl::DispatchMessageFromClient(
     const std::string& raw_msg) {
   OwnPtr<ListValue> message(
@@ -117,6 +138,13 @@ void WebDevToolsAgentImpl::DispatchMessageFromClient(
 
   if (!enabled_)
     return;
+
+  if (debugger_agent_impl_.get() &&
+      DebuggerAgentDispatch::Dispatch(
+          debugger_agent_impl_.get(),
+          *message.get()))
+    return;
+
   if (DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get()))
     return;
   if (NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get()))
@@ -135,4 +163,9 @@ void WebDevToolsAgentImpl::InspectElement(int x, int y) {
 
 void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {
   delegate_->SendMessageToClient(raw_msg);
+}
+
+// static
+void WebDevToolsAgent::ExecuteDebuggerCommand(const std::string& command) {
+  DebuggerAgentManager::ExecuteDebuggerCommand(command);
 }

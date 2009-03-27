@@ -14,6 +14,7 @@ class WebDevToolsClientDelegate {
   virtual ~WebDevToolsClientDelegate() {}
 
   virtual void SendMessageToAgent(const std::string& raw_msg) = 0;
+  virtual void SendDebuggerCommandToAgent(const std::string& command) = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsClientDelegate);

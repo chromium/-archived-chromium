@@ -10,6 +10,25 @@
 /**
  * @constructor
  */
+RemoteDebuggerAgentStub = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.DebugAttach = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.DebugDetach = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.DebugCommand = function() {
+};
+
+RemoteDebuggerAgentStub.prototype.DebugBreak = function() {
+};
+
+
+/**
+ * @constructor
+ */
 RemoteDomAgentStub = function() {
 };
 
@@ -122,6 +141,12 @@ RemoteToolsAgentStub.prototype.evaluate = function(expr) {
   window.eval(expr);
 };
 
+RemoteToolsAgentStub.prototype.EvaluateJavaSctipt = function(callId, script) {
+  setTimeout(function() {
+    var result = eval(script);
+    RemoteToolsAgent.DidEvaluateJavaSctipt(callId, result);
+  }, 0);
+};
 
 /**
  * @constructor
@@ -146,6 +171,7 @@ DevToolsHostStub.prototype.loaded = function() {
 
 
 if (!window['DevToolsHost']) {
+  window['RemoteDebuggerAgent'] = new RemoteDebuggerAgentStub();
   window['RemoteDomAgent'] = new RemoteDomAgentStub();
   window['RemoteNetAgent'] = new RemoteNetAgentStub();
   window['RemoteToolsAgent'] = new RemoteToolsAgentStub();
