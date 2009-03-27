@@ -666,12 +666,15 @@ std::string GetDataResource(int resource_id) {
     case IDR_TEXTAREA_RESIZER:
       resource_id = IDR_TEXTAREA_RESIZER_TESTSHELL;
       break;
+    case IDR_SEARCH_CANCEL:
+    case IDR_SEARCH_CANCEL_PRESSED:
+    case IDR_SEARCH_MAGNIFIER:
+    case IDR_SEARCH_MAGNIFIER_RESULTS:
+      break;
     default:
       NOTREACHED();
   }
-  StringPiece res;
-  g_resource_data_pack->Get(resource_id, &res);
-  return res.as_string();
+  return TestShell::NetResourceProvider(resource_id).as_string();
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {

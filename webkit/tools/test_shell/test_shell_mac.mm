@@ -689,6 +689,12 @@ std::string GetDataResource(int resource_id) {
     return resize_corner_data;
   }
 
+  case IDR_SEARCH_CANCEL:
+  case IDR_SEARCH_CANCEL_PRESSED:
+  case IDR_SEARCH_MAGNIFIER:
+  case IDR_SEARCH_MAGNIFIER_RESULTS:
+    return TestShell::NetResourceProvider(resource_id).as_string();
+
   default:
     break;
   }
