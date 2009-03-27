@@ -216,7 +216,7 @@ def make_fake_dsym(macho, dsym):
     "uuid_dict": uuid_dict,
   }
   info_contents = info_template % info_dict
-  info_file = os.path.join(dsym, "Info.plist")
+  info_file = os.path.join(dsym, "Contents", "Info.plist")
   info_fd = open(info_file, "w")
   info_fd.write(info_contents)
   info_fd.close()
