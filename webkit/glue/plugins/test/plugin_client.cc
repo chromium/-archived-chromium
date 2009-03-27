@@ -6,7 +6,6 @@
 #include "webkit/glue/plugins/test/plugin_client.h"
 #include "webkit/glue/plugins/test/plugin_arguments_test.h"
 #include "webkit/glue/plugins/test/plugin_delete_plugin_in_stream_test.h"
-#include "webkit/glue/plugins/test/plugin_execute_script_delete_test.h"
 #include "webkit/glue/plugins/test/plugin_get_javascript_url_test.h"
 #include "webkit/glue/plugins/test/plugin_geturl_test.h"
 #include "webkit/glue/plugins/test/plugin_javascript_open_popup.h"
@@ -15,6 +14,7 @@
 #include "webkit/glue/plugins/test/plugin_npobject_lifetime_test.h"
 #include "webkit/glue/plugins/test/plugin_npobject_proxy_test.h"
 #include "webkit/glue/plugins/test/plugin_window_size_test.h"
+#include "webkit/glue/plugins/test/plugin_windowless_test.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
@@ -100,9 +100,11 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else if (base::strcasecmp(argv[name_index], "npobject_proxy") == 0) {
     new_test = new NPAPIClient::NPObjectProxyTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (base::strcasecmp(argv[name_index],
-             "execute_script_delete_in_paint") == 0) {
-    new_test = new NPAPIClient::ExecuteScriptDeleteTest(instance,
+  } else if ((base::strcasecmp(argv[name_index],
+             "execute_script_delete_in_paint") == 0) ||
+             (base::strcasecmp(argv[name_index],
+             "execute_script_delete_in_mouse_move") == 0)) {
+    new_test = new NPAPIClient::WindowlessPluginTest(instance,
       NPAPIClient::PluginClient::HostFunctions(), argv[name_index]);
     windowless_plugin = true;
   } else if (base::strcasecmp(argv[name_index], "getjavascripturl") == 0) {
@@ -138,11 +140,6 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
              "plugin_popup_with_plugin_target") == 0) {
     new_test = new NPAPIClient::ExecuteJavascriptPopupWindowTargetPluginTest(
         instance, NPAPIClient::PluginClient::HostFunctions());
-  } else if (base::strcasecmp(argv[name_index],
-                              "execute_script_delete_in_mouse_move") == 0) {
-    new_test = new NPAPIClient::ExecuteScriptDeleteTest(instance,
-      NPAPIClient::PluginClient::HostFunctions(), argv[name_index]);
-    windowless_plugin = true;
   } else if (base::strcasecmp(argv[name_index], "private") == 0) {
     new_test = new NPAPIClient::PrivateTest(instance,
       NPAPIClient::PluginClient::HostFunctions());

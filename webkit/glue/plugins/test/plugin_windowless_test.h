@@ -9,13 +9,13 @@
 
 namespace NPAPIClient {
 
-// This class tests the case where a plugin instance is deleted by invoking
-// a javascript function in the context of a paint event.
-class ExecuteScriptDeleteTest : public PluginTest {
+// This class contains a list of windowless plugin tests. Please add additional
+// tests to this class.
+class WindowlessPluginTest : public PluginTest {
  public:
   // Constructor.
-  ExecuteScriptDeleteTest(NPP id, NPNetscapeFuncs *host_functions,
-                          const std::string& test_name);
+  WindowlessPluginTest(NPP id, NPNetscapeFuncs *host_functions,
+                       const std::string& test_name);
   // NPAPI HandleEvent handler
   virtual int16 HandleEvent(void* event);
 

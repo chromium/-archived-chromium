@@ -183,14 +183,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\plugin_execute_script_delete_test.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\plugin_execute_script_delete_test.h"
-			>
-		</File>
-		<File
 			RelativePath=".\plugin_get_javascript_url_test.cc"
 			>
 		</File>
@@ -260,6 +252,14 @@
 		</File>
 		<File
 			RelativePath=".\plugin_window_size_test.h"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_windowless_test.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_windowless_test.h"
 			>
 		</File>
 		<File

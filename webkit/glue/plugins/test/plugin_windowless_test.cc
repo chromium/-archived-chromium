@@ -3,18 +3,18 @@
 // found in the LICENSE file.
 
 #define STRSAFE_NO_DEPRECATE
-#include "webkit/glue/plugins/test/plugin_execute_script_delete_test.h"
+#include "webkit/glue/plugins/test/plugin_windowless_test.h"
 #include "webkit/glue/plugins/test/plugin_client.h"
 
 namespace NPAPIClient {
 
-ExecuteScriptDeleteTest::ExecuteScriptDeleteTest(
+WindowlessPluginTest::WindowlessPluginTest(
     NPP id, NPNetscapeFuncs *host_functions, const std::string& test_name)
   : PluginTest(id, host_functions),
     test_name_(test_name) {
 }
 
-int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
+int16 WindowlessPluginTest::HandleEvent(void* event) {
 
   NPNetscapeFuncs* browser = NPAPIClient::PluginClient::HostFunctions();
 
@@ -31,6 +31,23 @@ int16 ExecuteScriptDeleteTest::HandleEvent(void* event) {
   if (WM_PAINT == np_event->event &&
       base::strcasecmp(test_name_.c_str(),
                        "execute_script_delete_in_paint") == 0) {
+    HDC paint_dc = reinterpret_cast<HDC>(np_event->wParam);
+    if (paint_dc == NULL) {
+      SetError("Invalid Window DC passed to HandleEvent for WM_PAINT");
+      SignalTestCompleted();
+      return NPERR_GENERIC_ERROR;
+    }
+
+    HRGN clipping_region = CreateRectRgn(0, 0, 0, 0);
+    if (!GetClipRgn(paint_dc, clipping_region)) {
+      SetError("No clipping region set in window DC");
+      DeleteObject(clipping_region);
+      SignalTestCompleted();
+      return NPERR_GENERIC_ERROR;
+    }
+
+    DeleteObject(clipping_region);
+
     NPUTF8* urlString = "javascript:DeletePluginWithinScript()";
     NPUTF8* targetString = NULL;
     browser->geturl(id(), urlString, targetString);

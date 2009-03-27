@@ -322,9 +322,16 @@ void WebPluginProxy::Paint(const gfx::Rect& rect) {
       rect.x(), rect.y(), SRCCOPY);
   }
 
+  RECT clip_rect = rect.ToRECT();
+  HRGN clip_region = CreateRectRgnIndirect(&clip_rect);
+  SelectClipRgn(windowless_hdc_, clip_region);
+
   // Before we send the invalidate, paint so that renderer uses the updated
   // bitmap.
   delegate_->Paint(windowless_hdc_, offset_rect);
+
+  SelectClipRgn(windowless_hdc_, NULL);
+  DeleteObject(clip_region);
 }
 
 void WebPluginProxy::UpdateGeometry(
