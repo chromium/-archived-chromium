@@ -82,7 +82,7 @@ void Filter::FixupEncodingTypes(
     std::vector<FilterType>* encoding_types) {
   std::string mime_type;
   bool success = filter_context.GetMimeType(&mime_type);
-  DCHECK(success);
+  DCHECK(success || mime_type.empty());
 
   if ((1 == encoding_types->size()) &&
       (FILTER_TYPE_GZIP == encoding_types->front())) {
