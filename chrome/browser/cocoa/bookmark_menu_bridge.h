@@ -76,6 +76,7 @@ class BookmarkMenuBridge : public BookmarkModelObserver,
   friend class BookmarkMenuBridgeTest;
 
   BookmarkMenuCocoaController* controller_;  // strong
+  bool observing_;  // are we observing the browser list?
 };
 
 #endif  // CHROME_BROWSER_COCOA_BOOKMARK_MENU_BRIDGE_H_

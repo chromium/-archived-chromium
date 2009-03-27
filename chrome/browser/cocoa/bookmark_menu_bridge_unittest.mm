@@ -41,8 +41,8 @@ class BookmarkMenuBridgeTest : public testing::Test {
 
 // Test that ClearBookmarkMenu() removes all bookmark menus.
 TEST_F(BookmarkMenuBridgeTest, TestClearBookmarkMenu) {
-  BookmarkMenuBridge* bridge = new BookmarkMenuBridge();
-  EXPECT_TRUE(bridge);
+  scoped_ptr<BookmarkMenuBridge> bridge(new BookmarkMenuBridge());
+  EXPECT_TRUE(bridge.get());
 
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@"foo"] autorelease];
 
@@ -53,7 +53,7 @@ TEST_F(BookmarkMenuBridgeTest, TestClearBookmarkMenu) {
   AddItemToMenu(menu, @"not", @selector(openBookmarkMenuItem:));
   AddItemToMenu(menu, @"zippy", @selector(length));
 
-  ClearBookmarkMenu(bridge, menu);
+  ClearBookmarkMenu(bridge.get(), menu);
 
   // Make sure all bookmark items are removed, and all items with
   // submenus removed.
@@ -68,8 +68,8 @@ TEST_F(BookmarkMenuBridgeTest, TestClearBookmarkMenu) {
 TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
   Profile* profile = browser_test_helper_.GetProfile();
 
-  BookmarkMenuBridge *bridge = new BookmarkMenuBridge();
-  EXPECT_TRUE(bridge);
+  scoped_ptr<BookmarkMenuBridge> bridge(new BookmarkMenuBridge());
+  EXPECT_TRUE(bridge.get());
 
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@"foo"] autorelease];
 
@@ -87,7 +87,7 @@ TEST_F(BookmarkMenuBridgeTest, TestAddNodeToMenu) {
   root->GetChild(1)->Add(0, node);
 
   // Add to the NSMenu, then confirm it looks good
-  AddNodeToMenu(bridge, root, menu);
+  AddNodeToMenu(bridge.get(), root, menu);
 
   EXPECT_EQ(3, [menu numberOfItems]);
   for (int x=0; x < 3; x++) {

@@ -14,12 +14,17 @@
 #include "chrome/browser/profile_manager.h"
 
 BookmarkMenuBridge::BookmarkMenuBridge()
-    : controller_([[BookmarkMenuCocoaController alloc] initWithBridge:this]) {
+    : controller_([[BookmarkMenuCocoaController alloc] initWithBridge:this]),
+      observing_(true) {
   BrowserList::AddObserver(this);
 }
 
 BookmarkMenuBridge::~BookmarkMenuBridge() {
-  GetBookmarkModel()->RemoveObserver(this);
+  if (observing_)
+    BrowserList::RemoveObserver(this);
+  BookmarkModel *model = GetBookmarkModel();
+  if (model)
+    model->RemoveObserver(this);
   [controller_ release];
 }
 
@@ -98,6 +103,7 @@ void BookmarkMenuBridge::OnBrowserRemoving(const Browser* browser) {
 // complete.
 void BookmarkMenuBridge::OnBrowserSetLastActive(const Browser* browser) {
   BrowserList::RemoveObserver(this);
+  observing_ = false;
   BookmarkModel* model = GetBookmarkModel();
   model->AddObserver(this);
   if (model->IsLoaded())
