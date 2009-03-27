@@ -1777,6 +1777,13 @@ void WebViewImpl::HideAutofillPopup() {
 
 void WebViewImpl::RefreshAutofillPopup() {
   DCHECK(autocomplete_popup_showing_);
+
+  // Hide the popup if it has become empty.
+  if (autocomplete_popup_client_->listSize() == 0) {
+    HideAutoCompletePopup();
+    return;
+  }
+
   IntRect old_bounds = autocomplete_popup_->boundsRect();
   autocomplete_popup_->refresh();
   IntRect new_bounds = autocomplete_popup_->boundsRect();
