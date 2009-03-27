@@ -7,8 +7,8 @@
 #include "chrome/plugin/plugin_channel_base.h"
 
 #include "base/hash_tables.h"
+#include "chrome/common/child_process.h"
 #include "chrome/common/ipc_sync_message.h"
-#include "chrome/plugin/plugin_process.h"
 
 typedef base::hash_map<std::wstring, scoped_refptr<PluginChannelBase> >
     PluginChannelMap;
@@ -78,7 +78,7 @@ bool PluginChannelBase::Init(MessageLoop* ipc_message_loop,
                              bool create_pipe_now) {
   channel_.reset(new IPC::SyncChannel(
       channel_name_, mode_, this, NULL, ipc_message_loop, create_pipe_now,
-      PluginProcess::current()->GetShutDownEvent()));
+      ChildProcess::current()->GetShutDownEvent()));
   channel_valid_ = true;
   return true;
 }

@@ -101,10 +101,6 @@ class PluginService {
     return resource_dispatcher_host_;
   }
 
-  // Initiates shutdown on all running PluginProcessHost instances.
-  // Can be invoked on the main thread.
-  void Shutdown();
-
  private:
   friend struct DefaultSingletonTraits<PluginService>;
 
@@ -112,9 +108,6 @@ class PluginService {
   // list yet.  It's generated lazily.
   PluginService();
   ~PluginService();
-
-  // Shutdown handler which executes in the context of the IO thread.
-  void OnShutdown();
 
   // mapping between plugin path and PluginProcessHost
   typedef base::hash_map<FilePath, PluginProcessHost*> PluginMap;
@@ -135,26 +128,6 @@ class PluginService {
   // Need synchronization whenever we access the plugin_list singelton through
   // webkit_glue since this class is called on the main and IO thread.
   Lock lock_;
-
-  // Handles plugin process shutdown.
-  class ShutdownHandler : public base::RefCountedThreadSafe<ShutdownHandler> {
-   public:
-     ShutdownHandler() {}
-     ~ShutdownHandler() {}
-
-     // Initiates plugin process shutdown. Ensures that the actual shutdown
-     // happens on the io thread.
-     void InitiateShutdown();
-
-   private:
-    // Shutdown handler which runs on the io thread.
-    void OnShutdown();
-
-    DISALLOW_COPY_AND_ASSIGN(ShutdownHandler);
-  };
-
-  friend class ShutdownHandler;
-  scoped_refptr<ShutdownHandler> plugin_shutdown_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginService);
 };

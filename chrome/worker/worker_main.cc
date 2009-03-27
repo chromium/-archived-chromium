@@ -6,12 +6,13 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
+#include "chrome/common/child_process.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/win_util.h"
-#include "chrome/worker/worker_process.h"
+#include "chrome/worker/worker_thread.h"
 
 #if defined(OS_WIN)
 #include "chrome/common/sandbox_init_wrapper.h"
@@ -30,7 +31,7 @@ int WorkerMain(const MainFunctionParams& parameters) {
   // Initialize the SystemMonitor
   base::SystemMonitor::Start();
 
-  WorkerProcess worker_process;
+  ChildProcess worker_process(new WorkerThread());
 #if defined(OS_WIN)
   sandbox::TargetServices* target_services =
       parameters.sandbox_info_.TargetServices();

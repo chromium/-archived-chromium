@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include "base/atomic_ref_count.h"
 #include "base/basictypes.h"
 #include "base/message_loop.h"
 #include "base/scoped_ptr.h"
@@ -40,34 +39,21 @@ class ChildProcess {
   base::WaitableEvent* GetShutDownEvent();
 
   // These are used for ref-counting the child process.  The process shuts
-  // itself down when the ref count reaches 0.  These functions may be called
-  // on any thread.
+  // itself down when the ref count reaches 0.
   // For example, in the renderer process, generally each tab managed by this
   // process will hold a reference to the process, and release when closed.
   void AddRefProcess();
   void ReleaseProcess();
 
- protected:
-  friend class ChildThread;
-
   // Getter for the one ChildProcess object for this process.
   static ChildProcess* current() { return child_process_; }
-
- protected:
-  bool ProcessRefCountIsZero();
-
-  // Derived classes can override this to alter the behavior when the ref count
-  // reaches 0. The default implementation calls Quit on the main message loop
-  // which causes the process to shutdown. Note, this can be called on any
-  // thread. (See ReleaseProcess)
-  virtual void OnFinalRelease();
 
  private:
   // NOTE: make sure that child_thread_ is listed before shutdown_event_, since
   // it depends on it (indirectly through IPC::SyncChannel).
   scoped_ptr<ChildThread> child_thread_;
 
-  base::AtomicRefCount ref_count_;
+  int ref_count_;
 
   // An event that will be signalled when we shutdown.
   base::WaitableEvent shutdown_event_;

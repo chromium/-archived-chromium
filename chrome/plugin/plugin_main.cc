@@ -6,12 +6,13 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
+#include "chrome/common/child_process.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
 #include "chrome/common/win_util.h"
-#include "chrome/plugin/plugin_process.h"
+#include "chrome/plugin/plugin_thread.h"
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
 
@@ -54,7 +55,7 @@ int PluginMain(const MainFunctionParams& parameters) {
   }
 
   {
-    PluginProcess plugin_process;
+    ChildProcess plugin_process(new PluginThread());
     if (!no_sandbox && target_services) {
       target_services->LowerToken();
     }

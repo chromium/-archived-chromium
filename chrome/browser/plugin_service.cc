@@ -27,8 +27,7 @@ PluginService* PluginService::GetInstance() {
 PluginService::PluginService()
     : main_message_loop_(MessageLoop::current()),
       resource_dispatcher_host_(NULL),
-      ui_locale_(g_browser_process->GetApplicationLocale()),
-      plugin_shutdown_handler_(new ShutdownHandler) {
+      ui_locale_(g_browser_process->GetApplicationLocale()) {
   // Have the NPAPI plugin list search for Chrome plugins as well.
   ChromePluginLib::RegisterPluginsWithNPAPI();
   // Load the one specified on the command line as well.
@@ -171,28 +170,4 @@ bool PluginService::HavePluginFor(const std::string& mime_type,
   return NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, "",
                                                        allow_wildcard, &info,
                                                        NULL);
-}
-
-void PluginService::Shutdown() {
-  plugin_shutdown_handler_->InitiateShutdown();
-}
-
-void PluginService::OnShutdown() {
-  for (ChildProcessHost::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
-       !iter.Done(); ++iter) {
-    static_cast<PluginProcessHost*>(*iter)->Shutdown();
-  }
-}
-
-void PluginService::ShutdownHandler::InitiateShutdown() {
-  g_browser_process->io_thread()->message_loop()->PostTask(
-      FROM_HERE,
-      NewRunnableMethod(this, &ShutdownHandler::OnShutdown));
-}
-
-void PluginService::ShutdownHandler::OnShutdown() {
-  PluginService* plugin_service = PluginService::GetInstance();
-  if (plugin_service) {
-    plugin_service->OnShutdown();
-  }
 }

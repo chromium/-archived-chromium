@@ -75,9 +75,6 @@ class PluginProcessHost : public ChildProcessHost,
   void OnModalDialogResponse(const std::string& json_retval,
                              IPC::Message* sync_result);
 
-  // Shuts down the current plugin process instance.
-  void Shutdown();
-
   const WebPluginInfo& info() const { return info_; }
 
 #if defined(OS_WIN)
@@ -106,13 +103,14 @@ class PluginProcessHost : public ChildProcessHost,
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);
   void OnResolveProxy(const GURL& url, IPC::Message* reply_msg);
-  void OnPluginShutdownRequest();
   void OnPluginMessage(const std::vector<uint8>& data);
 
 #if defined(OS_WIN)
   void OnCreateWindow(HWND parent, IPC::Message* reply_msg);
   void OnDestroyWindow(HWND window);
 #endif
+
+  virtual bool CanShutdown() { return sent_requests_.empty(); }
 
   struct ChannelRequest {
     ChannelRequest(ResourceMessageFilter* renderer_message_filter,

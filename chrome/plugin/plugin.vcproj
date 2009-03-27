@@ -178,14 +178,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\plugin_process.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\plugin_process.h"
-			>
-		</File>
-		<File
 			RelativePath=".\plugin_thread.cc"
 			>
 		</File>

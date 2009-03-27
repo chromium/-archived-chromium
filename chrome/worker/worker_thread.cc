@@ -6,7 +6,6 @@
 
 #include "chrome/common/worker_messages.h"
 #include "chrome/worker/webworkerclient_proxy.h"
-#include "chrome/worker/worker_process.h"
 #include "chrome/worker/worker_webkitclient_impl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 

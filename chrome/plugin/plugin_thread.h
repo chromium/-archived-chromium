@@ -30,9 +30,7 @@ class PluginThread : public ChildThread {
   virtual void CleanUp();
 
   void OnCreateChannel(bool off_the_record);
-  void OnShutdownResponse(bool ok_to_shutdown);
   void OnPluginMessage(const std::vector<uint8> &data);
-  void OnBrowserShutdown();
 
   scoped_ptr<NotificationService> notification_service_;
 

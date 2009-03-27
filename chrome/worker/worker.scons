@@ -28,8 +28,6 @@ input_files = ChromeFileList([
     'webworkerclient_proxy.cc',
     'webworkerclient_proxy.h',
     'worker_main.cc',
-    'worker_process.cc',
-    'worker_process.h',
     'worker_thread.cc',
     'worker_thread.h',
     'worker_webkitclient_impl.cc',
@@ -48,7 +46,6 @@ if env.Bit('posix'):
   input_files.Remove(
       'webworker.cc',
       'worker_main.cc',
-      'worker_process.cc',
       'worker_thread.cc',
       'worker_webkitclient_impl.cc',
   )

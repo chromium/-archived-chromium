@@ -150,14 +150,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\worker_process.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\worker_process.h"
-			>
-		</File>
-		<File
 			RelativePath=".\worker_thread.cc"
 			>
 		</File>

@@ -41,6 +41,9 @@ class ChildThread : public IPC::Channel::Listener,
   // Overrides the channel name.  Used for --single-process mode.
   void SetChannelName(const std::wstring& name) { channel_name_ = name; }
 
+  // Called when the process refcount is 0.
+  void OnProcessFinalRelease();
+
  protected:
   // The required stack size if V8 runs on a thread.
   static const size_t kV8StackSize;
@@ -76,6 +79,11 @@ class ChildThread : public IPC::Channel::Listener,
   // Handles resource loads for this process.
   // NOTE: this object lives on the owner thread.
   scoped_ptr<ResourceDispatcher> resource_dispatcher_;
+
+  // If true, checks with the browser process before shutdown.  This avoids race
+  // conditions if the process refcount is 0 but there's an IPC message inflight
+  // that would addref it.
+  bool check_with_browser_before_shutdown_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ChildThread);
 };

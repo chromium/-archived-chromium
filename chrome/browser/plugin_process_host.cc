@@ -505,8 +505,6 @@ void PluginProcessHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_DownloadUrl, OnDownloadUrl)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetPluginFinderUrl,
                         OnGetPluginFinderUrl)
-    IPC_MESSAGE_HANDLER(PluginProcessHostMsg_ShutdownRequest,
-                        OnPluginShutdownRequest)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_PluginMessage, OnPluginMessage)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginProcessHostMsg_ResolveProxy,
@@ -657,21 +655,6 @@ void PluginProcessHost::OnGetPluginFinderUrl(std::string* plugin_finder_url) {
   *plugin_finder_url = kDefaultPluginFinderURL;
 }
 
-void PluginProcessHost::OnPluginShutdownRequest() {
-#if defined(OS_WIN)
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
-
-  // If we have pending channel open requests from the renderers, then
-  // refuse the shutdown request from the plugin process.
-  bool ok_to_shutdown = sent_requests_.empty();
-  Send(new PluginProcessMsg_ShutdownResponse(ok_to_shutdown));
-#else
-  // TODO(port): Port plugin_messages_internal.h.
-  NOTIMPLEMENTED();
-#endif
-}
-
 void PluginProcessHost::OnPluginMessage(
     const std::vector<uint8>& data) {
   DCHECK(MessageLoop::current() ==
@@ -683,13 +666,4 @@ void PluginProcessHost::OnPluginMessage(
     uint32 data_len = static_cast<uint32>(data.size());
     chrome_plugin->functions().on_message(data_ptr, data_len);
   }
-}
-
-void PluginProcessHost::Shutdown() {
-#if defined(OS_WIN)
-  Send(new PluginProcessMsg_BrowserShutdown);
-#else
-  // TODO(port): Port plugin_messages_internal.h.
-  NOTIMPLEMENTED();
-#endif
 }

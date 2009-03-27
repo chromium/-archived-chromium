@@ -8,6 +8,7 @@
 #include "chrome/plugin/plugin_thread.h"
 
 #include "base/command_line.h"
+#include "chrome/common/child_process.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
@@ -15,7 +16,6 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/plugin/chrome_plugin_host.h"
 #include "chrome/plugin/npobject_util.h"
-#include "chrome/plugin/plugin_process.h"
 #include "chrome/renderer/render_thread.h"
 #include "net/base/net_errors.h"
 #include "webkit/glue/plugins/plugin_lib.h"
@@ -40,9 +40,7 @@ PluginThread* PluginThread::current() {
 void PluginThread::OnControlMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(PluginThread, msg)
     IPC_MESSAGE_HANDLER(PluginProcessMsg_CreateChannel, OnCreateChannel)
-    IPC_MESSAGE_HANDLER(PluginProcessMsg_ShutdownResponse, OnShutdownResponse)
     IPC_MESSAGE_HANDLER(PluginProcessMsg_PluginMessage, OnPluginMessage)
-    IPC_MESSAGE_HANDLER(PluginProcessMsg_BrowserShutdown, OnBrowserShutdown)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -100,27 +98,18 @@ void PluginThread::OnCreateChannel(bool off_the_record) {
   Send(new PluginProcessHostMsg_ChannelCreated(channel_name));
 }
 
-void PluginThread::OnShutdownResponse(bool ok_to_shutdown) {
-  if (ok_to_shutdown)
-    PluginProcess::current()->Shutdown();
-}
-
-void PluginThread::OnBrowserShutdown() {
-  PluginProcess::current()->Shutdown();
-}
-
 void PluginThread::OnPluginMessage(const std::vector<unsigned char> &data) {
   // We Add/Release ref here to ensure that something will trigger the
   // shutdown mechanism for processes started in the absence of renderer's
   // opening a plugin channel.
-  PluginProcess::current()->AddRefProcess();
+  ChildProcess::current()->AddRefProcess();
   ChromePluginLib *chrome_plugin = ChromePluginLib::Find(plugin_path_);
   if (chrome_plugin) {
     void *data_ptr = const_cast<void*>(reinterpret_cast<const void*>(&data[0]));
     uint32 data_len = static_cast<uint32>(data.size());
     chrome_plugin->functions().on_message(data_ptr, data_len);
   }
-  PluginProcess::current()->ReleaseProcess();
+  ChildProcess::current()->ReleaseProcess();
 }
 
 namespace webkit_glue {

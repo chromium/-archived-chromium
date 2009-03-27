@@ -38,20 +38,23 @@ class ChildProcessHost : public ResourceDispatcherHost::Receiver,
    public:
     Iterator();
     Iterator(ProcessType type);
-    ChildProcessInfo* operator->() { return *iterator_; }
-    ChildProcessInfo* operator*() { return *iterator_; }
-    ChildProcessInfo* operator++();
+    ChildProcessHost* operator->() { return *iterator_; }
+    ChildProcessHost* operator*() { return *iterator_; }
+    ChildProcessHost* operator++();
     bool Done();
 
    private:
     bool all_;
     ProcessType type_;
-    std::list<ChildProcessInfo*>::iterator iterator_;
+    std::list<ChildProcessHost*>::iterator iterator_;
   };
 
  protected:
   ChildProcessHost(ProcessType type,
                    ResourceDispatcherHost* resource_dispatcher_host);
+
+  // Derived classes return true if it's ok to shut down the child process.
+  virtual bool CanShutdown() = 0;
 
   // Creates the IPC channel.  Returns true iff it succeeded.
   bool CreateChannel();

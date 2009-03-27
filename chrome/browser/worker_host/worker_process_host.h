@@ -44,6 +44,8 @@ class WorkerProcessHost : public ChildProcessHost {
   // Called when a message arrives from the worker process.
   void OnMessageReceived(const IPC::Message& message);
 
+  virtual bool CanShutdown() { return instances_.empty(); }
+
   // Updates the title shown in the task manager.
   void UpdateTitle();
 

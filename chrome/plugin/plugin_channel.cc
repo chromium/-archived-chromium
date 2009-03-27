@@ -6,12 +6,12 @@
 
 #include "chrome/plugin/plugin_channel.h"
 
-#include "chrome/common/plugin_messages.h"
 #include "base/command_line.h"
 #include "base/process_util.h"
 #include "base/string_util.h"
+#include "chrome/common/child_process.h"
+#include "chrome/common/plugin_messages.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/plugin/plugin_process.h"
 #include "chrome/plugin/plugin_thread.h"
 
 PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
@@ -29,13 +29,13 @@ PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
 
 PluginChannel::PluginChannel() : in_send_(0), off_the_record_(false) {
   SendUnblockingOnlyDuringDispatch();
-  PluginProcess::current()->AddRefProcess();
+  ChildProcess::current()->AddRefProcess();
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
   log_messages_ = command_line->HasSwitch(switches::kLogPluginMessages);
 }
 
 PluginChannel::~PluginChannel() {
-  PluginProcess::current()->ReleaseProcess();
+  ChildProcess::current()->ReleaseProcess();
 }
 
 bool PluginChannel::Send(IPC::Message* msg) {

@@ -16,7 +16,6 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/metrics_service.h"
-#include "chrome/browser/plugin_service.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -105,11 +104,6 @@ void Shutdown() {
 
   // Notifies we are going away.
   g_browser_process->shutdown_event()->Signal();
-
-  PluginService* plugin_service = PluginService::GetInstance();
-  if (plugin_service) {
-    plugin_service->Shutdown();
-  }
 
   PrefService* prefs = g_browser_process->local_state();
 

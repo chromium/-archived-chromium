@@ -4,9 +4,9 @@
 
 #include "chrome/worker/webworkerclient_proxy.h"
 
+#include "chrome/common/child_process.h"
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/worker_messages.h"
-#include "chrome/worker/worker_process.h"
 #include "chrome/worker/worker_thread.h"
 #include "webkit/glue/webworker.h"
 
@@ -17,12 +17,12 @@ WebWorkerClientProxy::WebWorkerClientProxy(const GURL& url, int route_id)
       ALLOW_THIS_IN_INITIALIZER_LIST(impl_(WebWorker::Create(this))) {
   AddRef();
   WorkerThread::current()->AddRoute(route_id_, this);
-  WorkerProcess::current()->AddRefProcess();
+  ChildProcess::current()->AddRefProcess();
 }
 
 WebWorkerClientProxy::~WebWorkerClientProxy() {
   WorkerThread::current()->RemoveRoute(route_id_);
-  WorkerProcess::current()->ReleaseProcess();
+  ChildProcess::current()->ReleaseProcess();
 }
 
 void WebWorkerClientProxy::PostMessageToWorkerObject(const string16& message) {

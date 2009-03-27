@@ -7,12 +7,12 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
+#include "chrome/common/child_process.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/plugin_messages.h"
-#include "chrome/plugin/plugin_process.h"
 #include "chrome/plugin/plugin_thread.h"
 #include "chrome/plugin/webplugin_proxy.h"
 #include "net/base/data_url.h"
@@ -255,9 +255,9 @@ void STDCALL CPB_SetKeepProcessAlive(CPID id, CPBool keep_alive) {
   if (desired_value != g_keep_process_alive) {
     g_keep_process_alive = desired_value;
     if (g_keep_process_alive)
-      PluginProcess::current()->AddRefProcess();
+      ChildProcess::current()->AddRefProcess();
     else
-      PluginProcess::current()->ReleaseProcess();
+      ChildProcess::current()->ReleaseProcess();
   }
 }
 
