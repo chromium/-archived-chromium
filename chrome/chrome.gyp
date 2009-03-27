@@ -1843,6 +1843,7 @@
       'target_name': 'ui_tests',
       'type': 'executable',
       'dependencies': [
+        'app',
         'browser',
         'common',
         'resources',
@@ -1942,13 +1943,27 @@
           ],
         }],
         ['OS=="mac"', {
-          # mac tests load the resources from the built app beside the test
-          'dependencies': ['app'],
-          # Mac doesn't have real ui_tests yet, just a dummy stub that
-          # looks like a test.  Since it's not a real ui_test, exclude
-          # the sources and just re-use test/unit/run_all_unittests.cc.
-          'sources=': [
-            'test/unit/run_all_unittests.cc',
+          'sources!': [
+            # TODO(port)
+            'app/chrome_main_uitest.cc',
+            'browser/browser_uitest.cc',
+            'browser/crash_recovery_uitest.cc',
+            'browser/download/download_uitest.cc',
+            'browser/download/save_page_uitest.cc',
+            'browser/errorpage_uitest.cc',
+            'browser/iframe_uitest.cc',
+            'browser/interstitial_page_uitest.cc',
+            'browser/login_prompt_uitest.cc',
+            'browser/metrics/metrics_service_uitest.cc',
+            'browser/renderer_host/resource_dispatcher_host_uitest.cc',
+            'browser/sessions/session_restore_uitest.cc',
+            'browser/tab_contents/view_source_uitest.cc',
+            'common/net/cache_uitest.cc',
+            'common/pref_service_uitest.cc',
+            'test/reliability/page_load_test.cc',
+            'test/ui/dom_checker_uitest.cc',
+            'test/ui/layout_plugin_uitest.cpp',
+            'test/ui/omnibox_uitest.cc',
           ],
         }],
         ['OS=="win"', {
