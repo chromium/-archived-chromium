@@ -945,14 +945,10 @@ void RenderViewHost::OnMsgDidRedirectProvisionalLoad(int32 page_id,
 
 void RenderViewHost::OnMsgDidStartLoading(int32 page_id) {
   delegate_->DidStartLoading(this, page_id);
-  if (view())
-    view()->UpdateCursorIfOverSelf();
 }
 
 void RenderViewHost::OnMsgDidStopLoading(int32 page_id) {
   delegate_->DidStopLoading(this, page_id);
-  if (view())
-    view()->UpdateCursorIfOverSelf();
 }
 
 void RenderViewHost::OnMsgDidLoadResourceFromMemoryCache(

@@ -122,7 +122,6 @@ class RenderWidgetHostViewWin :
   virtual void Hide();
   virtual gfx::Rect GetViewBounds() const;
   virtual void UpdateCursor(const WebCursor& cursor);
-  virtual void UpdateCursorIfOverSelf();
   virtual void SetIsLoading(bool is_loading);
   virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect);
   virtual void DidPaintRect(const gfx::Rect& rect);
@@ -174,6 +173,10 @@ class RenderWidgetHostViewWin :
   void OnFinalMessage(HWND window);
 
  private:
+  // Updates the display cursor to the current cursor if the cursor is over this
+  // render view.
+  void UpdateCursorIfOverSelf();
+
   // Tells Windows that we want to hear about mouse exit messages.
   void TrackMouseLeave(bool start_tracking);
 

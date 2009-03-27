@@ -78,7 +78,6 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   virtual void Hide();
   virtual gfx::Rect GetViewBounds() const;
   virtual void UpdateCursor(const WebCursor& cursor);
-  virtual void UpdateCursorIfOverSelf();
   virtual void SetIsLoading(bool is_loading);
   virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect);
   virtual void DidPaintRect(const gfx::Rect& rect);
@@ -91,6 +90,10 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   void KillSelf();
 
  private:
+  // Updates the display cursor to the current cursor if the cursor is over this
+  // render view.
+  void UpdateCursorIfOverSelf();
+
   // Shuts down the render_widget_host_.  This is a separate function so we can
   // invoke it from the message loop.
   void ShutdownHost();

@@ -18,6 +18,8 @@
 
 namespace {
 
+#include "webkit/glue/webcursor_gtk_data.h"
+
 // This class is a simple convenience wrapper for Gtk functions. It has only
 // static methods.
 class RenderWidgetHostViewGtkWidget {
@@ -147,7 +149,8 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       parent_host_view_(NULL),
       parent_(NULL),
       popup_signal_id_(0),
-      activatable_(true) {
+      activatable_(true),
+      is_loading_(false) {
   host_->set_view(this);
 }
 
@@ -241,46 +244,22 @@ gfx::Rect RenderWidgetHostViewGtk::GetViewBounds() const {
 }
 
 void RenderWidgetHostViewGtk::UpdateCursor(const WebCursor& cursor) {
-  // TODO(port): some of this logic may need moving to UpdateCursorIfOverSelf at
-  // some point.
-  GdkCursorType current_cursor_type = current_cursor_.GetCursorType();
-  GdkCursorType new_cursor_type = cursor.GetCursorType();
-  current_cursor_ = cursor;
-  GdkCursor* gdk_cursor;
-  if (new_cursor_type == GDK_CURSOR_IS_PIXMAP) {
-    // TODO(port): WebKit bug https://bugs.webkit.org/show_bug.cgi?id=16388 is
-    // that calling gdk_window_set_cursor repeatedly is expensive.  We should
-    // avoid it here where possible.
-    gdk_cursor = current_cursor_.GetCustomCursor();
-  } else {
-    // Optimize the common case, where the cursor hasn't changed.
-    // However, we can switch between different pixmaps, so only on the
-    // non-pixmap branch.
-    if (new_cursor_type == current_cursor_type)
-      return;
-    if (new_cursor_type == GDK_LAST_CURSOR)
-      gdk_cursor = NULL;
-    else
-      gdk_cursor = gdk_cursor_new(new_cursor_type);
-  }
-  gdk_window_set_cursor(view_.get()->window, gdk_cursor);
-  // The window now owns the cursor.
-  if (gdk_cursor)
-    gdk_cursor_unref(gdk_cursor);
-}
+  // Optimize the common case, where the cursor hasn't changed.
+  // However, we can switch between different pixmaps, so only on the
+  // non-pixmap branch.
+  if (current_cursor_.GetCursorType() != GDK_CURSOR_IS_PIXMAP &&
+      current_cursor_.GetCursorType() == cursor.GetCursorType())
+    return;
 
-void RenderWidgetHostViewGtk::UpdateCursorIfOverSelf() {
-  // Windows uses this to show the resizer arrow if the mouse is over the
-  // bottom-right corner, which doesn't make sense for us.
-  // It also uses it to show the "loading" cursor, which we ought to do.
-  // That is bug 9385:
-  // http://code.google.com/p/chromium/issues/detail?id=9385
+  current_cursor_ = cursor;
+  ShowCurrentCursor();
 }
 
 void RenderWidgetHostViewGtk::SetIsLoading(bool is_loading) {
-  // Windows tracks loading whether it's loading to switch the cursor
-  // out for the arrow+hourglass one.
-  // http://code.google.com/p/chromium/issues/detail?id=9385
+  is_loading_ = is_loading;
+  // Only call ShowCurrentCursor() when it will actually change the cursor.
+  if (current_cursor_.GetCursorType() == GDK_LAST_CURSOR)
+    ShowCurrentCursor();
 }
 
 void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
@@ -356,4 +335,41 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
       gdk_window_clear(window);
     NOTIMPLEMENTED();
   }
+}
+
+void RenderWidgetHostViewGtk::ShowCurrentCursor() {
+  GdkCursor* gdk_cursor;
+  switch(current_cursor_.GetCursorType()) {
+    case GDK_CURSOR_IS_PIXMAP:
+      // TODO(port): WebKit bug https://bugs.webkit.org/show_bug.cgi?id=16388 is
+      // that calling gdk_window_set_cursor repeatedly is expensive.  We should
+      // avoid it here where possible.
+      gdk_cursor = current_cursor_.GetCustomCursor();
+      break;
+
+    case GDK_LAST_CURSOR:
+      if (is_loading_) {
+        // Use MOZ_CURSOR_SPINNING if we are showing the default cursor and
+        // the page is loading.
+        static const GdkColor fg = { 0, 0, 0, 0 };
+        static const GdkColor bg = { 65535, 65535, 65535, 65535 };
+        GdkPixmap* source =
+            gdk_bitmap_create_from_data(NULL, moz_spinning_bits, 32, 32);
+        GdkPixmap* mask =
+            gdk_bitmap_create_from_data(NULL, moz_spinning_mask_bits, 32, 32);
+        gdk_cursor = gdk_cursor_new_from_pixmap(source, mask, &fg, &bg, 2, 2);
+        g_object_unref(source);
+        g_object_unref(mask);
+      } else {
+        gdk_cursor = NULL;
+      }
+      break;
+
+    default:
+      gdk_cursor = gdk_cursor_new(current_cursor_.GetCursorType());
+  }
+  gdk_window_set_cursor(view_.get()->window, gdk_cursor);
+  // The window now owns the cursor.
+  if (gdk_cursor)
+    gdk_cursor_unref(gdk_cursor);
 }

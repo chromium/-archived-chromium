@@ -48,7 +48,6 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void Hide();
   gfx::Rect GetViewBounds() const;
   void UpdateCursor(const WebCursor& cursor);
-  void UpdateCursorIfOverSelf();
   void SetIsLoading(bool is_loading);
   void IMEUpdateStatus(int control, const gfx::Rect& caret_rect);
   void DidPaintRect(const gfx::Rect& rect);
@@ -65,6 +64,9 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void Paint(const gfx::Rect&);
 
  private:
+  // Update the display cursor for the render view.
+  void ShowCurrentCursor();
+
   // The model object.
   RenderWidgetHost *const host_;
   // The native UI widget.
@@ -84,6 +86,9 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // activatable popup: <select> dropdown. Example of non-activatable popup:
   // form autocomplete.
   bool activatable_;
+
+  // Whether we are currently loading.
+  bool is_loading_;
 
   // The cursor for the page. This is passed up from the renderer.
   WebCursor current_cursor_;

@@ -84,9 +84,6 @@ class RenderWidgetHostView {
   // Sets the cursor to the one associated with the specified cursor_type
   virtual void UpdateCursor(const WebCursor& cursor) = 0;
 
-  // Updates the displayed cursor to the current one.
-  virtual void UpdateCursorIfOverSelf() = 0;
-
   // Indicates whether the page has finished loading.
   virtual void SetIsLoading(bool is_loading) = 0;
 
