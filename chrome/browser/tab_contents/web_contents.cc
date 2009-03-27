@@ -363,16 +363,30 @@ SiteInstance* WebContents::GetSiteInstance() const {
 }
 
 bool WebContents::ShouldDisplayURL() {
-  DOMUI* dom_ui = GetDOMUIForCurrentState();
-  if (dom_ui)
-    return !dom_ui->should_hide_url();
+  if (controller()->GetPendingEntry()) {
+    // When there is a pending entry, that should determine whether the URL is
+    // displayed (including getting the default behavior if the DOMUI doesn't
+    // specify).
+    if (render_manager_.pending_dom_ui())
+      return !render_manager_.pending_dom_ui()->should_hide_url();
+    return true;
+  }
+
+  if (render_manager_.dom_ui())
+    return !render_manager_.dom_ui()->should_hide_url();
   return true;
 }
 
 bool WebContents::ShouldDisplayFavIcon() {
-  DOMUI* dom_ui = GetDOMUIForCurrentState();
-  if (dom_ui)
-    return !dom_ui->hide_favicon();
+  if (controller()->GetPendingEntry()) {
+    // See ShouldDisplayURL.
+    if (render_manager_.pending_dom_ui())
+      return !render_manager_.pending_dom_ui()->hide_favicon();
+    return true;
+  }
+  
+  if (render_manager_.dom_ui())
+    return !render_manager_.dom_ui()->hide_favicon();
   return true;
 }
 
@@ -518,24 +532,21 @@ void WebContents::HideContents() {
 }
 
 bool WebContents::IsBookmarkBarAlwaysVisible() {
-  // See GetDOMUIForCurrentState() comment for more info. This case is very
-  // similar, but for non-first loads, we want to use the committed entry. This
-  // is so the bookmarks bar disappears at the same time the page does.
-  if (controller()->GetLastCommittedEntry()) {
-    // Not the first load, always use the committed DOM UI.
-    if (render_manager_.dom_ui())
-      return render_manager_.dom_ui()->force_bookmark_bar_visible();
-    return false;  // Default.
+  // We want the bookmarks bar to go with the committed entry. This way, when
+  // you're on the new tab page and navigate, the bookmarks bar doesn't
+  // disappear until the next load commits (the same time the page changes).
+  if (!controller()->GetLastCommittedEntry()) {
+    // However, when there is no committed entry (the first load of the tab),
+    // then we fall back on the pending entry. This means that the bookmarks bar
+    // will be visible before the new tab page load commits.
+    if (render_manager_.pending_dom_ui())
+      return render_manager_.pending_dom_ui()->force_bookmark_bar_visible();
+    return false;
   }
 
-  // When it's the first load, we know either the pending one or the committed
-  // one will have the DOM UI in it (see GetDOMUIForCurrentState), and only one
-  // of them will be valid, so we can just check both.
-  if (render_manager_.pending_dom_ui())
-    return render_manager_.pending_dom_ui()->force_bookmark_bar_visible();
   if (render_manager_.dom_ui())
     return render_manager_.dom_ui()->force_bookmark_bar_visible();
-  return false;  // Default.
+  return false;
 }
 
 void WebContents::SetDownloadShelfVisible(bool visible) {
@@ -552,9 +563,12 @@ void WebContents::PopupNotificationVisibilityChanged(bool visible) {
 }
 
 bool WebContents::FocusLocationBarByDefault() {
-  DOMUI* dom_ui = GetDOMUIForCurrentState();
-  if (dom_ui)
-    return dom_ui->focus_location_bar_by_default();
+  // Allow the DOM UI to override the default. We use the pending DOM UI since
+  // that's what the user "just did" so should control what happens after they
+  // did it. Using the committed one would mean when they navigate from a DOMUI
+  // to a regular page, the location bar would be focused.
+  if (render_manager_.pending_dom_ui())
+    return render_manager_.pending_dom_ui()->focus_location_bar_by_default();
   return false;
 }
 
@@ -2003,44 +2017,4 @@ void WebContents::GenerateKeywordIfNecessary(
   }
   new_url->set_safe_for_autoreplace(true);
   url_model->Add(new_url);
-}
-
-DOMUI* WebContents::GetDOMUIForCurrentState() {
-  // When there is a pending navigation entry, we want to use the pending DOMUI
-  // that goes along with it to control the basic flags. For example, we want to
-  // show the pending URL in the URL bar, so we want the display_url flag to
-  // be from the pending entry.
-  //
-  // The confusion comes because there are multiple possibilities for the
-  // initial load in a tab as a side effect of the way the RenderViewHostManager
-  // works.
-  //
-  //  - For the very first tab the load looks "normal". The new tab DOM UI is
-  //    the pending one, and we want it to apply here.
-  //
-  //  - For subsequent new tabs, they'll get a new SiteInstance which will then
-  //    get switched to the one previously associated with the new tab pages.
-  //    This switching will cause the manager to commit the RVH/DOMUI. So we'll
-  //    have a committed DOM UI in this case.
-  //
-  // This condition handles all of these cases:
-  //
-  //  - First load in first tab: no committed nav entry + pending nav entry +
-  //    pending dom ui:
-  //    -> Use pending DOM UI if any.
-  // 
-  //  - First load in second tab: no committed nav entry + pending nav entry +
-  //    no pending DOM UI:
-  //    -> Use the committed DOM UI if any.
-  //
-  //  - Second navigation in any tab: committed nav entry + pending nav entry:
-  //    -> Use pending DOM UI if any.
-  //
-  //  - Normal state with no load: committed nav entry + no pending nav entry:
-  //    -> Use committed DOM UI.
-  if (controller()->GetPendingEntry() &&
-      (controller()->GetLastCommittedEntry() ||
-       render_manager_.pending_dom_ui()))
-    return render_manager_.pending_dom_ui();
-  return render_manager_.dom_ui();
 }
