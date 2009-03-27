@@ -634,13 +634,7 @@ void EditorClientImpl::handleKeyboardEvent(WebCore::KeyboardEvent* evt) {
   if (evt->keyCode() == WebCore::VKEY_DOWN ||
       evt->keyCode() == WebCore::VKEY_UP) {
     DCHECK(evt->target()->toNode());
-    if (ShowAutofillForNode(evt->target()->toNode())) {
-      // We will show an autofill popup.  Let's return so we don't handle the
-      // event.  The handling could change the caret position, preventing the
-      // popup from showing (since the actual showing is delayed, see
-      // DoAutofill).
-      return;
-    }
+    ShowAutofillForNode(evt->target()->toNode());
   }
 
   if (handleEditingKeyboardEvent(evt))
@@ -667,19 +661,22 @@ void EditorClientImpl::textFieldDidEndEditing(WebCore::Element*) {
 
 void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
   DCHECK(element->hasLocalName(WebCore::HTMLNames::inputTag));
-  Autofill(static_cast<WebCore::HTMLInputElement*>(element), false);
+  // Note that we only show the autofill popup in this case if the caret is at
+  // the end.  This matches FireFox and Safari but not IE.
+  Autofill(static_cast<WebCore::HTMLInputElement*>(element), false, true);
 }
 
 bool EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
   WebCore::HTMLInputElement* input_element =
       webkit_glue::NodeToHTMLInputElement(node);
   if (input_element)
-    return Autofill(input_element, true);
+    return Autofill(input_element, true, false);
   return false;
 }
 
 bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
-                                bool autofill_on_empty_value) {
+                                bool autofill_on_empty_value,
+                                bool requires_caret_at_end) {
   // Cancel any pending DoAutofill calls.
   autofill_factory_.RevokeAll();
 
@@ -697,29 +694,39 @@ bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
   if (input_element->value().length() > kMaximumTextSizeForAutofill)
     return false;
 
-  // We post a task for doing the autofill as the caret position is not set
-  // properly at this point ( http://bugs.webkit.org/show_bug.cgi?id=16976)
-  // and we need it to determine whether or not to trigger autofill.
-  std::wstring value = webkit_glue::StringToStdWString(input_element->value());
-  MessageLoop::current()->PostTask(
-      FROM_HERE,
-      autofill_factory_.NewRunnableMethod(&EditorClientImpl::DoAutofill,
-                                          input_element,
-                                          autofill_on_empty_value,
-                                          backspace_pressed_));
+  if (!requires_caret_at_end) {
+    DoAutofill(input_element, autofill_on_empty_value,
+               false, backspace_pressed_);
+  } else {
+    // We post a task for doing the autofill as the caret position is not set
+    // properly at this point (http://bugs.webkit.org/show_bug.cgi?id=16976) and
+    // we need it to determine whether or not to trigger autofill.
+    std::wstring value =
+        webkit_glue::StringToStdWString(input_element->value());
+    MessageLoop::current()->PostTask(
+        FROM_HERE,
+        autofill_factory_.NewRunnableMethod(&EditorClientImpl::DoAutofill,
+                                            input_element,
+                                            autofill_on_empty_value,
+                                            true,
+                                            backspace_pressed_));
+  }
   return true;
 }
 
 void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
                                   bool autofill_on_empty_value,
+                                  bool requires_caret_at_end,
                                   bool backspace) {
   std::wstring value = webkit_glue::StringToStdWString(input_element->value());
 
-  // Only autofill when there is some text and the caret is at the end.
-  bool caret_at_end =
-      input_element->selectionStart() == input_element->selectionEnd() &&
-      input_element->selectionEnd() == static_cast<int>(value.length());
-  if ((!autofill_on_empty_value && value.empty()) || !caret_at_end) {
+  // Enforce autofill_on_empty_value and caret_at_end.
+  bool is_caret_at_end = requires_caret_at_end ?
+        input_element->selectionStart() == input_element->selectionEnd() &&
+        input_element->selectionEnd() == static_cast<int>(value.length()) :
+        true;  // When |requires_caret_at_end| is false, just pretend we are at
+               // the end.
+  if ((!autofill_on_empty_value && value.empty()) || !is_caret_at_end) {
     web_view_->HideAutoCompletePopup();
     return;
   }

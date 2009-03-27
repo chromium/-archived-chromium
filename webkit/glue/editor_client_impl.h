@@ -129,10 +129,13 @@ class EditorClientImpl : public WebCore::EditorClient {
   // Popups an autofill menu for |input_element| is applicable.
   // |autofill_on_empty_value| indicates whether the autofill should be shown
   // when the text-field is empty.
+  // If |requires_caret_at_end| is true, the autofill popup is only shown if the
+  // caret is located at the end of the entered text in |input_element|.
   // Returns true if the autofill popup has been scheduled to be shown, false
   // otherwise.
   bool Autofill(WebCore::HTMLInputElement* input_element,
-                bool autofill_on_empty_value);
+                bool autofill_on_empty_value,
+                bool requires_caret_at_end);
 
   // This method is invoked later by Autofill() as when Autofill() is invoked
   // (from one of the EditorClient callback) the carret position is not
@@ -140,6 +143,7 @@ class EditorClientImpl : public WebCore::EditorClient {
   // to show the autofill popup.
   void DoAutofill(WebCore::HTMLInputElement* input_element,
                   bool autofill_on_empty_value,
+                  bool requires_caret_at_end,
                   bool backspace);
 
  protected:
