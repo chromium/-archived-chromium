@@ -57,7 +57,8 @@ bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
 void AudioRendererImpl::OnStop() {
   if (!resource_release_event_.IsSignaled()) {
     render_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &AudioRendererImpl::ReleaseRendererResources));
+      NewRunnableMethod(this,
+                        &AudioRendererImpl::ReleaseResources, false));
     resource_release_event_.Wait();
   }
 }
@@ -90,6 +91,7 @@ void AudioRendererImpl::SetVolume(float volume) {
 void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
                                   size_t length) {
   shared_memory_.reset(new base::SharedMemory(handle, false));
+  shared_memory_->Map(length);
   shared_memory_size_ = length;
   // TODO(hclam): is there any better place to do this?
   OnStartAudioStream();
@@ -97,6 +99,9 @@ void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
 
 void AudioRendererImpl::OnRequestPacket() {
   packet_requested_ = true;
+  // Post a task to render thread and try to grab a packet for sending back.
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &AudioRendererImpl::OnNotifyAudioPacketReady));
 }
 
 void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
@@ -120,8 +125,9 @@ void AudioRendererImpl::OnVolume(double left, double right) {
   // pipeline.
 }
 
-void AudioRendererImpl::ReleaseRendererResources() {
-  OnCloseAudioStream();
+void AudioRendererImpl::ReleaseResources(bool is_render_thread_dying) {
+  if (!is_render_thread_dying)
+    OnCloseAudioStream();
   resource_release_event_.Signal();
 }
 
@@ -151,8 +157,10 @@ void AudioRendererImpl::OnNotifyAudioPacketReady() {
     // Fill into the shared memory.
     size_t filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
                                shared_memory_size_);
-    packet_requested_ = false;
-    // Then tell browser process we are done filling into the buffer.
-    delegate_->view()->NotifyAudioPacketReady(stream_id_, filled);
+    if (filled > 0) {
+      packet_requested_ = false;
+      // Then tell browser process we are done filling into the buffer.
+      delegate_->view()->NotifyAudioPacketReady(stream_id_, filled);
+    }
   }
 }

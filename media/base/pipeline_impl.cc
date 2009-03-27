@@ -401,10 +401,10 @@ void PipelineThread::StopTask() {
   if (PipelineOk()) {
     pipeline_->error_ = PIPELINE_STOPPING;
   }
-  FilterHostVector::reverse_iterator riter = filter_hosts_.rbegin();
-  while (riter != filter_hosts_.rend()) {
-    (*riter)->Stop();
-    ++riter;
+  FilterHostVector::iterator iter = filter_hosts_.begin();
+  while (iter != filter_hosts_.end()) {
+    (*iter)->Stop();
+    ++iter;
   }
   if (host_initializing_) {
     host_initializing_ = NULL;

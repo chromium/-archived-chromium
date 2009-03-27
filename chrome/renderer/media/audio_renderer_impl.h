@@ -63,7 +63,7 @@
 // |     in the browser process, called along with a SharedMemoryHandle.
 // |-- OnVolume()
 // |     Called from RenderView about the volume of the audio output stream.
-// \-- ReleaseRendererResource()
+// \-- ReleaseResource()
 //       Release resources that live inside render thread.
 //
 // Pipeline thread
@@ -84,7 +84,7 @@
 //
 // Audio decoder thread (If there's one.)
 // \-- OnAssignment()
-//       A raw PCM audio packet buffer is recevied here, this method is called
+//       A raw PCM audio packet buffer is received here, this method is called
 //       from pipeline thread if audio decoder thread does not exist.
 
 #ifndef CHROME_RENDERER_MEDIA_AUDIO_RENDERER_IMPL_H_
@@ -118,7 +118,9 @@ class AudioRendererImpl : public media::AudioRendererBase {
   void OnVolume(double left, double right);
 
   // Release resources that lives in renderer thread, i.e. audio output streams.
-  void ReleaseRendererResources();
+  // |render_thread_is_dying| tells us if render thread is being destroyed,
+  // if true it's not safe to access any object that lives inside render thread.
+  void ReleaseResources(bool render_thread_is_dying);
 
   // Methods called on pipeline thread ----------------------------------------
   // media::MediaFilter implementation.

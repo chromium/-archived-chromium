@@ -41,7 +41,7 @@
 //   |-- OnReceivedData()
 //   |-- OnCompletedRequest()
 //   |-- GetURLForDebugging()
-//   \-- ReleaseRendererResources();
+//   \-- ReleaseResources()
 //
 // Pipeline thread
 //   +-- Initialize()
@@ -64,8 +64,6 @@
 //   |     Callback for construction of net::FileStream in an IO message loop.
 //   |-- OnReadFileStream()
 //   |     Actual read operation on FileStream performs here.
-//   |-- OnCloseFileStream()
-//   |     Closing of FileSteram happens in this method.
 //   |-- OnSeekFileStream()
 //   |     Actual seek operation happens here.
 //   \-- OnDidFileStreamRead()
@@ -116,13 +114,18 @@ class DataSourceImpl : public media::DataSource,
 
   // Release all resources associated with RenderView, particularly
   // ResourceLoaderBridge created by ResourceDispatcher. This method should only
-  // be executed on render thread, we have this method standalone and public
-  // here because WebMediaPlayerDelegateImpl will be calling this method when
-  // render thread is being destroyed, and in that case we can't post tasks to
-  // render thread from pipeline thread anymore so we have to release resources
-  // manually from WebMediaPlayerDelegateImpl and we will not do the same thing
-  // in Stop().
-  void ReleaseRendererResources();
+  // be executed on render thread.
+  // There are three cases for this method to be called:
+  // 1. Posted as a task from DataSourceImpl::Stop() caused by an error in the
+  //    pipeline.
+  // 2. WebMediaPlayerDelegateImpl is being destroyed and all resources
+  //    associated with the pipeline should go away. In this case we can call
+  //    to objects that live inside render thread to cleanup,
+  //    e.g. ResourceDispatcher.
+  // 3. RenderThread is being destroyed, in this case we can't access any
+  //    object that lives inside render thread and should let the resources
+  //    leak.
+  void ReleaseResources(bool is_render_thread_dying);
 
   // Methods called from pipeline thread --------------------------------------
   virtual bool Initialize(const std::string& url);
@@ -154,7 +157,6 @@ class DataSourceImpl : public media::DataSource,
   // Handlers for file reading.
   void OnCreateFileStream(base::PlatformFile file);
   void OnReadFileStream(uint8* data, size_t size);
-  void OnCloseFileStream();
   void OnSeekFileStream(net::Whence whence, int64 position);
   void OnDidFileStreamRead(int size);
 
@@ -181,6 +183,7 @@ class DataSourceImpl : public media::DataSource,
   int64 downloaded_bytes_;
   int64 total_bytes_;
   bool total_bytes_known_;
+  bool download_completed_;
 
   // Members related to resource loading with RenderView.
   webkit_glue::ResourceLoaderBridge* resource_loader_bridge_;
@@ -195,7 +198,6 @@ class DataSourceImpl : public media::DataSource,
   MessageLoop* io_loop_;
 
   // Events for other operations on stream_.
-  base::WaitableEvent close_event_;
   base::WaitableEvent seek_event_;
 
   DISALLOW_COPY_AND_ASSIGN(DataSourceImpl);

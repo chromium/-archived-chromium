@@ -68,7 +68,7 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
 WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {
   // Stop the pipeline in the first place so we won't receive any more method
   // calls from it.
-  pipeline_.Stop();
+  StopPipeline(false);
 
   // Cancel all tasks posted on the main_loop_.
   CancelAllTasks();
@@ -131,7 +131,7 @@ void WebMediaPlayerDelegateImpl::Stop() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // We can fire Stop() multiple times.
-  pipeline_.Stop();
+  StopPipeline(false);
 }
 
 void WebMediaPlayerDelegateImpl::Seek(float time) {
@@ -283,31 +283,15 @@ void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
 }
 
 void WebMediaPlayerDelegateImpl::WillDestroyCurrentMessageLoop() {
-  // Instruct the renderers and data source to release all Renderer related
-  // resources during destruction of render thread, because they won't have any
-  // chance to release these resources on render thread by posting tasks on it.
-  if (audio_renderer_) {
-    audio_renderer_->ReleaseRendererResources();
-    audio_renderer_ = NULL;
-  }
-
-  if (data_source_) {
-    data_source_->ReleaseRendererResources();
-    data_source_ = NULL;
-  }
-
-  // Stop the pipeline when the render thread is being destroyed so we won't be
-  // posting any more messages onto it. And we just let this object and
-  // associated WebMediaPlayer to leak.
-  pipeline_.Stop();
+  StopPipeline(true);
 }
 
 void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
   if (successful) {
     // Since we have initialized the pipeline, we should be able to play it.
     // And we skip LOADED_METADATA state and starting with LOADED_FIRST_FRAME.
-    ready_state_ = webkit_glue::WebMediaPlayer::CAN_PLAY;
-    network_state_ = webkit_glue::WebMediaPlayer::LOADED_FIRST_FRAME;
+    ready_state_ = webkit_glue::WebMediaPlayer::CAN_PLAY_THROUGH;
+    network_state_ = webkit_glue::WebMediaPlayer::LOADED;
   } else {
     // TODO(hclam): should use pipeline_.GetError() to determine the state
     // properly and reports error using MediaError.
@@ -373,4 +357,24 @@ void WebMediaPlayerDelegateImpl::PostTask(int index,
 
 void WebMediaPlayerDelegateImpl::PostRepaintTask() {
   PostTask(kRepaintTaskIndex, &webkit_glue::WebMediaPlayer::Repaint);
+}
+
+void WebMediaPlayerDelegateImpl::StopPipeline(bool render_thread_is_dying) {
+  // Instruct the renderers and data source to release all Renderer related
+  // resources during destruction of render thread, because they won't have any
+  // chance to release these resources on render thread by posting tasks on it.
+  if (audio_renderer_) {
+    audio_renderer_->ReleaseResources(render_thread_is_dying);
+    audio_renderer_ = NULL;
+  }
+
+  if (data_source_) {
+    data_source_->ReleaseResources(render_thread_is_dying);
+    data_source_ = NULL;
+  }
+
+  // Stop the pipeline when the render thread is being destroyed so we won't be
+  // posting any more messages onto it. And we just let this object and
+  // associated WebMediaPlayer to leak.
+  pipeline_.Stop();
 }

@@ -22,6 +22,7 @@ DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
       downloaded_bytes_(0),
       total_bytes_(0),
       total_bytes_known_(false),
+      download_completed_(false),
       resource_loader_bridge_(NULL),
       resource_release_event_(true, false),
       read_event_(false, false),
@@ -31,7 +32,6 @@ DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
       last_read_size_(0),
       position_(0),
       io_loop_(delegate->view()->GetMessageLoopForIO()),
-      close_event_(false, false),
       seek_event_(false, false) {
   // Register ourselves with WebMediaPlayerDelgateImpl.
   delegate_->SetDataSource(this);
@@ -45,28 +45,20 @@ void DataSourceImpl::Stop() {
     return;
   stopped_ = true;
 
-  // 1. Cancel the resource request.
-  if (!resource_release_event_.IsSignaled()) {
-    render_loop_->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &DataSourceImpl::ReleaseRendererResources));
-    resource_release_event_.Wait();
-  }
-
-  // 2. Signal download_event_.
+  // Wakes up demuxer waiting on |read_event_| in Read().
+  read_event_.Signal();
+  // Wakes up demuxer waiting on |seek_event_| in SetPosition().
+  seek_event_.Signal();
+  // Wakes up demuxer waiting on |download_event_| in Read() or SetPosition().
   download_event_.Signal();
 
-  // Post a close file stream task to IO message loop, it will signal the read
-  // event.
-  // TODO(hclam): make sure it's safe to do this during destruction of
-  // RenderThread.
-  io_loop_->PostTask(
-      FROM_HERE, NewRunnableMethod(this, &DataSourceImpl::OnCloseFileStream));
-
-  // Wait for close to finish for FileStream.
-  close_event_.Wait();
-
-  // Make sure that when we wake up the stream is closed and destroyed.
-  DCHECK(stream_.get() == NULL);
+  if (!resource_release_event_.IsSignaled()) {
+    render_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(this, &DataSourceImpl::ReleaseResources, false));
+    // We wait until the resource is released to make sure we won't receive
+    // any call from render thread when we wake up.
+    resource_release_event_.Wait();
+  }
 }
 
 bool DataSourceImpl::Initialize(const std::string& url) {
@@ -84,7 +76,7 @@ size_t DataSourceImpl::Read(uint8* data, size_t size) {
   while (!stopped_) {
     {
       AutoLock auto_lock(lock_);
-      if (position_ + size <= downloaded_bytes_)
+      if (download_completed_ || position_ + size <= downloaded_bytes_)
         break;
     }
     download_event_.Wait();
@@ -94,7 +86,7 @@ size_t DataSourceImpl::Read(uint8* data, size_t size) {
   if (!stopped_) {
     if (logging::DEBUG_MODE) {
       AutoLock auto_lock(lock_);
-      DCHECK(position_ + size <= downloaded_bytes_);
+      DCHECK(download_completed_ || position_ + size <= downloaded_bytes_);
     }
     // Post a task to IO message loop to perform the actual reading.
     io_loop_->PostTask(FROM_HERE,
@@ -115,7 +107,7 @@ bool DataSourceImpl::SetPosition(int64 position) {
   while (!stopped_) {
     {
       AutoLock auto_lock(lock_);
-      if (position < downloaded_bytes_)
+      if (download_completed_ || position < downloaded_bytes_)
         break;
     }
     download_event_.Wait();
@@ -123,7 +115,7 @@ bool DataSourceImpl::SetPosition(int64 position) {
   if (!stopped_) {
     if (logging::DEBUG_MODE) {
       AutoLock auto_lock_(lock_);
-      DCHECK(position < downloaded_bytes_);
+      DCHECK(download_completed_ || position < downloaded_bytes_);
     }
     // Perform the seek operation on IO message loop.
     io_loop_->PostTask(FROM_HERE,
@@ -171,19 +163,6 @@ void DataSourceImpl::OnReadFileStream(uint8* data, size_t size) {
   }
 }
 
-void DataSourceImpl::OnCloseFileStream() {
-  if (stream_.get()) {
-    stream_->Close();
-    stream_.reset();
-  }
-  // Wakes up demuxer waiting on read_event_ in Read().
-  read_event_.Signal();
-  // Wakes up demuxer waiting on seek_event_ in SetPosition().
-  seek_event_.Signal();
-  // Wakes up pipeline thread blocked in Stop() by close_event_.
-  close_event_.Signal();
-}
-
 void DataSourceImpl::OnSeekFileStream(net::Whence whence, int64 position) {
   if (!stopped_ && stream_.get()) {
     int64 new_position = stream_->Seek(whence, position);
@@ -198,12 +177,14 @@ void DataSourceImpl::OnSeekFileStream(net::Whence whence, int64 position) {
 }
 
 void DataSourceImpl::OnDidFileStreamRead(int size) {
-  {
+  if (size < 0) {
+    host_->Error(media::PIPELINE_ERROR_READ);
+  } else {
     AutoLock auto_lock(lock_);
-    last_read_size_ = size;
     // TODO(hclam): size may be an error code, handle that.
     position_ += size;
   }
+  last_read_size_ = size;
   read_event_.Signal();
 }
 
@@ -230,9 +211,13 @@ void DataSourceImpl::OnInitialize(std::string uri) {
   resource_loader_bridge_->Start(this);
 }
 
-void DataSourceImpl::ReleaseRendererResources() {
+void DataSourceImpl::ReleaseResources(bool render_thread_is_dying) {
   DCHECK(MessageLoop::current() == render_loop_);
-  if (resource_loader_bridge_) {
+  if (render_thread_is_dying) {
+    // If render thread is dying we can't call cancel on this pointer, we will
+    // just let this object leak.
+    resource_loader_bridge_ = NULL;
+  } else if (resource_loader_bridge_) {
     resource_loader_bridge_->Cancel();
     resource_loader_bridge_ = NULL;
   }
@@ -245,6 +230,8 @@ void DataSourceImpl::OnDownloadProgress(uint64 position, uint64 size) {
     downloaded_bytes_ = position;
     if (!total_bytes_known_) {
       if (size == kuint64max) {
+        // If we receive an invalid value for size, we keep on updating the
+        // total number of bytes.
         total_bytes_ = position;
       } else {
         total_bytes_ = size;
@@ -297,10 +284,13 @@ void DataSourceImpl::OnReceivedData(const char* data, int len) {
 
 void DataSourceImpl::OnCompletedRequest(const URLRequestStatus& status,
                                         const std::string& security_info) {
+  {
+    AutoLock auto_lock(lock_);
+    total_bytes_known_ = true;
+    download_completed_ = true;
+  }
   if (status.status() != URLRequestStatus::SUCCESS) {
     host_->Error(media::PIPELINE_ERROR_NETWORK);
-  } else {
-    // TODO(hclam): notify end of stream to pipeline.
   }
 }
 

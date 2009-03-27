@@ -160,6 +160,10 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // Cancel all tasks currently lives in |main_loop_|.
   void CancelAllTasks();
 
+  // Calls to renderers and data source to release all resources that live in
+  // render thread and stop the pipeline.
+  void StopPipeline(bool render_thread_is_dying);
+
   // Indexes for tasks.
   enum {
     kRepaintTaskIndex = 0,

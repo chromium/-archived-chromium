@@ -61,7 +61,6 @@ void FilterHostImpl::InitializationComplete() {
 }
 
 void FilterHostImpl::PostTask(Task* task) {
-  DCHECK(!stopped_);
   if (stopped_) {
     delete task;
   } else {
