@@ -2127,6 +2127,7 @@ BUG9157 DEFER LINUX : LayoutTests/fast/layers/normal-flow-hit-test.html = FAIL
 // New failures from 41660:41709
 // Newly added tests.
 BUG9159 DEFER LINUX WIN : LayoutTests/editing/pasteboard/5089327.html = FAIL
+BUG9160 DEFER MAC : LayoutTests/fast/dom/Window/window-lookup-precedence.html = FAIL
 BUG9161 DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
 BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
