@@ -274,13 +274,21 @@ void ResourceDispatcherHost::BeginRequest(
 
   if (is_shutdown_ ||
       !ShouldServiceRequest(process_type, process_id, request_data)) {
-    // Tell the renderer that this request was disallowed.
-    receiver_->Send(new ViewMsg_Resource_RequestComplete(
-        route_id,
-        request_id,
-        URLRequestStatus(URLRequestStatus::FAILED, net::ERR_ABORTED),
-        std::string()));  // No security info needed, connection was not
-                          // established.
+    URLRequestStatus status(URLRequestStatus::FAILED, net::ERR_ABORTED);
+    if (sync_result) {
+      SyncLoadResult result;
+      result.status = status;
+      ViewHostMsg_SyncLoad::WriteReplyParams(sync_result, result);
+      receiver_->Send(sync_result);
+    } else {
+      // Tell the renderer that this request was disallowed.
+      receiver_->Send(new ViewMsg_Resource_RequestComplete(
+          route_id,
+          request_id,
+          status,
+          std::string()));  // No security info needed, connection was not
+                            // established.
+    }
     return;
   }
 

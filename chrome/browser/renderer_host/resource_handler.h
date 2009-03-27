@@ -25,6 +25,8 @@ class IOBuffer;
 // Parameters for a resource response header.
 struct ResourceResponseHead
     : webkit_glue::ResourceLoaderBridge::ResponseInfo {
+  ResourceResponseHead() : filter_policy(FilterPolicy::DONT_FILTER) {}
+
   // The response status.
   URLRequestStatus status;
 

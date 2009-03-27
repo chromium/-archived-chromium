@@ -12,6 +12,7 @@
 namespace webkit_glue {
 
 ResourceLoaderBridge::ResponseInfo::ResponseInfo() {
+  content_length = -1;
 #if defined(OS_WIN)
   response_data_file = base::kInvalidPlatformFileValue;
 #elif defined(OS_POSIX)

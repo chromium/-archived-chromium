@@ -107,10 +107,30 @@ TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest) {
   EXPECT_TRUE(success);
 }
 
+TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_Disallowed) {
+  const wchar_t kDocRoot[] = L"chrome/test/data";
+  scoped_refptr<HTTPTestServer> server =
+      HTTPTestServer::CreateServer(kDocRoot, NULL);
+  ASSERT_TRUE(NULL != server.get());
+
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(browser_proxy.get());
+  scoped_ptr<TabProxy> tab(browser_proxy->GetActiveTab());
+  tab->NavigateToURL(server->TestServerPageW(
+      L"files/sync_xmlhttprequest_disallowed.html"));
+
+  // Let's check the XMLHttpRequest ran successfully.
+  bool success = false;
+  EXPECT_TRUE(tab->ExecuteAndExtractBool(L"",
+      L"window.domAutomationController.send(DidSucceed());",
+      &success));
+  EXPECT_TRUE(success);
+}
+
 // Test for bug #1159553 -- A synchronous xhr (whose content-type is
 // downloadable) would trigger download and hang the renderer process,
 // if executed while navigating to a new page.
-TEST_F(ResourceDispatcherTest, SyncXMLHttpRequestDuringUnload) {
+TEST_F(ResourceDispatcherTest, SyncXMLHttpRequest_DuringUnload) {
   const wchar_t kDocRoot[] = L"chrome/test/data";
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
