@@ -93,6 +93,9 @@ class Profile {
   // record, the same profile is returned.
   virtual Profile* GetOffTheRecordProfile() = 0;
 
+  // Destroys the off the record profile.
+  virtual void DestroyOffTheRecordProfile() = 0;
+
   // Return the original "recording" profile. This method returns this if the
   // profile is not off the record.
   virtual Profile* GetOriginalProfile() = 0;
@@ -268,6 +271,7 @@ class ProfileImpl : public Profile,
   virtual FilePath GetPath();
   virtual bool IsOffTheRecord();
   virtual Profile* GetOffTheRecordProfile();
+  virtual void DestroyOffTheRecordProfile();
   virtual Profile* GetOriginalProfile();
   virtual VisitedLinkMaster* GetVisitedLinkMaster();
   virtual UserScriptMaster* GetUserScriptMaster();

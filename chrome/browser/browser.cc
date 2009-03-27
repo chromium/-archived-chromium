@@ -232,13 +232,9 @@ Browser::~Browser() {
 
   if (profile_->IsOffTheRecord() &&
       !BrowserList::IsOffTheRecordSessionActive()) {
-    // We reuse the OTR cookie store across OTR windows.  If the last OTR
-    // window is closed, then we want to wipe the cookie store clean, so when
-    // an OTR window is open again, it starts with an empty cookie store.  This
-    // also frees up the memory that the OTR cookies were using.  OTR never
-    // loads or writes persistent cookies (there is no backing store), so we
-    // can just delete all of the cookies in the store.
-    profile_->GetRequestContext()->cookie_store()->DeleteAll(false);
+    // An off-the-record profile is no longer needed, this indirectly
+    // frees its cache and cookies.
+    profile_->GetOriginalProfile()->DestroyOffTheRecordProfile();
   }
 
   // There may be pending file dialogs, we need to tell them that we've gone

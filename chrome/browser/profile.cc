@@ -138,6 +138,11 @@ class OffTheRecordProfileImpl : public Profile,
     return this;
   }
 
+  virtual void DestroyOffTheRecordProfile() {
+    // Suicide is bad!
+    NOTREACHED();
+  }
+
   virtual Profile* GetOriginalProfile() {
     return profile_;
   }
@@ -502,6 +507,10 @@ Profile* ProfileImpl::GetOffTheRecordProfile() {
     off_the_record_profile_.swap(p);
   }
   return off_the_record_profile_.get();
+}
+
+void ProfileImpl::DestroyOffTheRecordProfile() {
+  off_the_record_profile_.reset();
 }
 
 Profile* ProfileImpl::GetOriginalProfile() {

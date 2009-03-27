@@ -72,6 +72,9 @@ class TestingProfile : public Profile {
   virtual Profile* GetOffTheRecordProfile() {
     return NULL;
   }
+
+  virtual void DestroyOffTheRecordProfile() {}
+
   virtual Profile* GetOriginalProfile() {
     return this;
   }
