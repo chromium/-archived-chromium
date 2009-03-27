@@ -1740,7 +1740,6 @@ LINUX : LayoutTests/fast/forms/input-first-letter.html = FAIL
 
 // These test the behavior of the (x) in type=search inputs.  We haven't
 // implemented this yet (should we on win/linux?). http://crbug.com/5701
-DEFER LINUX WIN : LayoutTests/fast/forms/search-cancel-button-mouseup.html = FAIL
 DEFER : LayoutTests/fast/forms/search-cancel-button-style-sharing.html = FAIL
 DEFER : LayoutTests/fast/forms/search-rtl.html = FAIL
 DEFER : LayoutTests/fast/forms/search-transformed.html = FAIL
