@@ -1125,8 +1125,6 @@ LINUX : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 
 MAC : LayoutTests/editing/selection/select-from-textfield-outwards.html = FAIL
 
-MAC : LayoutTests/fast/block/margin-collapse/103.html = FAIL
-
 // Asks for "system" fonts, which we don't support at all.
 LINUX : LayoutTests/fast/css/css2-system-fonts.html = FAIL
 
@@ -1520,7 +1518,7 @@ LINUX MAC : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = PASS F
 MAC : LayoutTests/fast/forms/listbox-onchange.html = FAIL
 MAC : LayoutTests/fast/forms/listbox-selection.html = FAIL
 MAC : LayoutTests/editing/selection/5109817.html = FAIL
-LINUX MAC : LayoutTests/editing/selection/5354455-2.html = FAIL
+LINUX : LayoutTests/editing/selection/5354455-2.html = FAIL
 
 // incorrect layout
 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
@@ -1551,7 +1549,6 @@ MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = FAIL TIMEOUT 
 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = PASS TIMEOUT CRASH
 MAC : LayoutTests/fast/history/history_reload.html = PASS TIMEOUT CRASH
-MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-to-data-url-in-foreign-domain-window-open.html = TIMEOUT FAIL CRASH
 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
 // This some times failed w/ a timeout on the build bot (w/o a clear cause),
@@ -1645,7 +1642,6 @@ MAC : chrome/http = PASS CRASH TIMEOUT
 MAC : LayoutTests/animations/animation-end-event-destroy-renderer.html = TIMEOUT PASS
 MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT FAIL
-MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-to-javascript-url-window-open.html = CRASH
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS TIMEOUT
 MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT
@@ -1738,7 +1734,8 @@ DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy.html = 
 // Probably just needs to be rebaselined.  We generate the png before the
 // image in the iframe loads so its dimensions are 0x0.
 // TODO(tc): Failing on buildbots
-DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+// (mac seems to be passing this as of 03/27/09)
+DEFER LINUX WIN : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
@@ -2064,7 +2061,6 @@ DEFER WIN : LayoutTests/transitions/transition-end-event-attributes.html = FAIL 
 BUG9071 WIN LINUX : LayoutTests/editing/selection/drag-to-contenteditable-iframe.html = FAIL PASS
 MAC : LayoutTests/http/tests/xmlhttprequest/upload-onloadstart-event.html = TIMEOUT PASS
 MAC : LayoutTests/http/tests/security/aboutBlank/xss-DENIED-navigate-opener-document-write.html = CRASH PASS
-MAC DEBUG : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT FAIL
 
 // http://code.google.com/p/chromium/issues/detail?id=8733
 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.html = FAIL
@@ -2153,9 +2149,7 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 // Merge 41709:41733
 // Expectations changed upstream.
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
-MAC RELEASE : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
-MAC : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT FAIL
 
 // Tests that fail in debug mode on linux
 DEBUG LINUX : LayoutTests/fast/css/remove-shorthand.html = FAIL
@@ -2191,7 +2185,7 @@ LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 
 LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
-MAC : LayoutTests/fast/forms/select-max-length.html = TIMEOUT
+MAC DEBUG : LayoutTests/fast/forms/select-max-length.html = TIMEOUT
 
 // This test hits a stack-overflow exception earlier in debug mode than in
 // release mode on Windows.
@@ -2206,11 +2200,11 @@ WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
 
 // Merge 41768:41807
 // Perhaps just needs new baseline?
-MAC LINUX : LayoutTests/editing/style/block-styles-007.html = FAIL
+LINUX : LayoutTests/editing/style/block-styles-007.html = FAIL
 // These tests were rebaselined with failure long ago. We shouldn't do this, and
 // instead work upstream to improve tests so that they don't fail.
-DEFER : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
-DEFER : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
+DEFER LINUX WIN : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 // Linux-only failures
 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
 LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
@@ -2235,14 +2229,13 @@ LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 // defer it until we have implemented per test timeout for out test tool.
 // Refer to this bug: http://code.google.com/p/chromium/issues/detail?id=9324
 DEFER : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT PASS
-// Regression
-MAC : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT
+// Regression - Flaky
+MAC RELEASE : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT PASS
 
 // Merge 41827:41860 Regressions
 // Upstream r41849 added a large regex to this test which times out in V8.
 LayoutTests/fast/js/regexp-overflow.html = TIMEOUT
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
-MAC : LayoutTests/http/tests/xmlhttprequest/origin-header-same-origin-get-async.html = TIMEOUT
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
 
 // Started failing with a change to run_webkit_tests.sh.
@@ -2315,15 +2308,17 @@ DEFER WIN LINUX: LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 DEFER WIN : LayoutTests/svg/text/text-fonts-01-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
-DEFER MAC : LayoutTests/editing/selection/4776665.html = FAIL
-DEFER MAC : LayoutTests/fast/clip/016.html = FAIL
-DEFER MAC : LayoutTests/fast/clip/outline-overflowClip.html = FAIL
 DEFER MAC : LayoutTests/fast/forms/search-zoomed.html = FAIL
-DEFER MAC LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
-DEFER MAC LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
-DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
-DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
-DEFER MAC LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
+DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
+DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
+DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
+DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
+DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
+DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
 // Adding more failures after the last merge:
 WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
@@ -2349,9 +2344,9 @@ BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/security/postMessage/data-
 BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/status-after-abort.html = CRASH
 
 // New tests, need Chromium baseline.
-DEFER WIN MAC LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
+DEFER WIN LINUX : LayoutTests/compositing/direct-image-compositing.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/borders/border-image-border-radius.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/clip/overflow-border-radius-clip.html = FAIL
   
 // Need rebaseline, see  WebKit 41993.
 DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style-without-renderer.html = FAIL
@@ -2359,26 +2354,25 @@ DEFER WIN LINUX : LayoutTests/fast/css/getComputedStyle/computed-style.html = FA
 DEFER WIN LINUX : LayoutTests/svg/css/getComputedStyle-basic.xhtml = FAIL
   
 // Needs rebaseline. See WebKit 41972.
-DEFER WIN MAC LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/forms/slider-thumb-stylability.html = FAIL
 
 // Needs rebaseline. See WebKit 91948
 DEFER WIN MAC LINUX : LayoutTests/fast/replaced/border-radius-clip.html = FAIL
   
 // New test, needs baseline. See WebKit 41978 (brettw)
-DEFER WIN MAC LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
 // Needs rebaseline. See WebKit 41980
-DEFER WIN MAC LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
   
 // Need baseline, new tests. See WebKit 41955
-DEFER WIN MAC LINUX : LayoutTests/fonts/cursive.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fonts/default.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fonts/fantasy.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fonts/monospace.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fonts/sans-serif.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/fonts/serif.html = FAIL
-DEFER WIN MAC LINUX : chrome/fonts/default.html = FAIL
-
+DEFER WIN LINUX : LayoutTests/fonts/cursive.html = FAIL
+DEFER WIN LINUX : LayoutTests/fonts/default.html = FAIL
+DEFER WIN LINUX : LayoutTests/fonts/fantasy.html = FAIL
+DEFER WIN LINUX : LayoutTests/fonts/monospace.html = FAIL
+DEFER WIN LINUX : LayoutTests/fonts/sans-serif.html = FAIL
+DEFER WIN LINUX : LayoutTests/fonts/serif.html = FAIL
+DEFER WIN LINUX : chrome/fonts/default.html = FAIL
 
 // Merge WebKit: 41944:41999, Linux failures.
 DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
@@ -2389,5 +2383,5 @@ DEFER LINUX : LayoutTests/fast/forms/slider-padding.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
 
-// Merge WebKit: 41944:41999, Mac failures.
-DEFER MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL
+// Merge WebKit: 41944:41999, Mac flaky failures.
+DEFER MAC RELEASE : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
