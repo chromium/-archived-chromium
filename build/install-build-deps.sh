@@ -43,7 +43,8 @@ dbg_list="libatk1.0-dbg libc6-dbg libcairo2-dbg libfontconfig1-dbg
           libxrender1-dbg zlib1g-dbg"
 
 # Standard 32bit compatibility libraries
-cmp_list="ia32-libs lib32stdc++6 lib32z1 lib32z1-dev libc6-dev-i386 libc6-i386"
+cmp_list="ia32-libs lib32readline-dev lib32stdc++6 lib32z1 lib32z1-dev
+          libc6-dev-i386 libc6-i386"
 
 # Waits for the user to press 'Y' or 'N'. Either uppercase of lowercase is
 # accepted. Returns 0 for 'Y' and 1 for 'N'. If an optional parameter has
