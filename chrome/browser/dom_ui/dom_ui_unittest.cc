@@ -11,6 +11,62 @@ class DOMUITest : public RenderViewHostTestHarness {
  public:
   DOMUITest() {}
 
+  // Tests navigating with a DOM UI from a fresh (nothing pending or committed)
+  // state, through pending, committed, then another navigation. The first page
+  // ID that we should use is passed as a parameter. We'll use the next two
+  // values. This must be increasing for the life of the tests.
+  static void DoNavigationTest(WebContents* contents, int page_id) {
+    NavigationController* controller = contents->controller();
+
+    // Start a pending load.
+    GURL new_tab_url(chrome::kChromeUINewTabURL);
+    controller->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
+
+    // The navigation entry should be pending with no committed entry.
+    ASSERT_TRUE(controller->GetPendingEntry());
+    ASSERT_FALSE(controller->GetLastCommittedEntry());
+
+    // Check the things the pending DOM UI should have set.
+    EXPECT_FALSE(contents->ShouldDisplayURL());
+    EXPECT_FALSE(contents->ShouldDisplayFavIcon());
+    EXPECT_TRUE(contents->IsBookmarkBarAlwaysVisible());
+    EXPECT_TRUE(contents->FocusLocationBarByDefault());
+
+    // Now commit the load.
+    static_cast<TestRenderViewHost*>(
+        contents->render_view_host())->SendNavigate(page_id, new_tab_url);
+
+    // The same flags should be set as before now that the load has committed.
+    EXPECT_FALSE(contents->ShouldDisplayURL());
+    EXPECT_FALSE(contents->ShouldDisplayFavIcon());
+    EXPECT_TRUE(contents->IsBookmarkBarAlwaysVisible());
+    EXPECT_TRUE(contents->FocusLocationBarByDefault());
+
+    // Start a pending navigation to a regular page.
+    GURL next_url("http://google.com/");
+    controller->LoadURL(next_url, GURL(), PageTransition::LINK);
+
+    // Check the flags. Some should reflect the new page (URL, title), some
+    // should reflect the old one (bookmark bar) until it has committed.
+    EXPECT_TRUE(contents->ShouldDisplayURL());
+    EXPECT_TRUE(contents->ShouldDisplayFavIcon());
+    EXPECT_TRUE(contents->IsBookmarkBarAlwaysVisible());
+    EXPECT_FALSE(contents->FocusLocationBarByDefault());
+
+    // Commit the regular page load. Note that we must send it to the "pending"
+    // RenderViewHost, since this transition will also cause a process
+    // transition, and our RVH pointer will be the "committed" one.
+    static_cast<TestRenderViewHost*>(
+        contents->render_manager()->pending_render_view_host())->SendNavigate(
+            page_id + 1, next_url);
+
+    // The state should now reflect a regular page.
+    EXPECT_TRUE(contents->ShouldDisplayURL());
+    EXPECT_TRUE(contents->ShouldDisplayFavIcon());
+    EXPECT_FALSE(contents->IsBookmarkBarAlwaysVisible());
+    EXPECT_FALSE(contents->FocusLocationBarByDefault());
+  }
+
  private:
   DISALLOW_COPY_AND_ASSIGN(DOMUITest);
 };
@@ -19,54 +75,13 @@ class DOMUITest : public RenderViewHostTestHarness {
 // WebContents when we first navigate to a DOM UI page, then to a standard
 // non-DOM-UI page.
 TEST_F(DOMUITest, DOMUIToStandard) {
-  // Start a pending load.
-  GURL new_tab_url(chrome::kChromeUINewTabURL);
-  controller()->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
+  DoNavigationTest(contents(), 1);
 
-  // The navigation entry should be pending with no committed entry.
-  ASSERT_TRUE(controller()->GetPendingEntry());
-  ASSERT_FALSE(controller()->GetLastCommittedEntry());
-
-  // Check the things the pending DOM UI should have set.
-  EXPECT_FALSE(contents()->ShouldDisplayURL());
-  EXPECT_FALSE(contents()->ShouldDisplayFavIcon());
-  EXPECT_TRUE(contents()->IsBookmarkBarAlwaysVisible());
-  EXPECT_TRUE(contents()->FocusLocationBarByDefault());
-
-  // Now commit the load.
-  rvh()->SendNavigate(1, new_tab_url);
-
-  // The same flags should be set as before now that the load has committed.
-  // Note that the location bar isn't focused now. Once the load commits, we
-  // don't care about this flag, so this value is OK.
-  EXPECT_FALSE(contents()->ShouldDisplayURL());
-  EXPECT_FALSE(contents()->ShouldDisplayFavIcon());
-  EXPECT_TRUE(contents()->IsBookmarkBarAlwaysVisible());
-  EXPECT_FALSE(contents()->FocusLocationBarByDefault());
-
-  // Start a pending navigation to a regular page.
-  GURL next_url("http://google.com/");
-  controller()->LoadURL(next_url, GURL(), PageTransition::LINK);
-
-  // Check the flags. Some should reflect the new page (URL, title), some should
-  // reflect the old one (bookmark bar) until it has committed.
-  EXPECT_TRUE(contents()->ShouldDisplayURL());
-  EXPECT_TRUE(contents()->ShouldDisplayFavIcon());
-  EXPECT_TRUE(contents()->IsBookmarkBarAlwaysVisible());
-  EXPECT_FALSE(contents()->FocusLocationBarByDefault());
-
-  // Commit the regular page load. Note that we must send it to the "pending"
-  // RenderViewHost, since this transition will also cause a process transition,
-  // and our RVH pointer will be the "committed" one.
-  static_cast<TestRenderViewHost*>(
-      contents()->render_manager()->pending_render_view_host())->SendNavigate(
-          2, next_url);
-
-  // The state should now reflect a regular page.
-  EXPECT_TRUE(contents()->ShouldDisplayURL());
-  EXPECT_TRUE(contents()->ShouldDisplayFavIcon());
-  EXPECT_FALSE(contents()->IsBookmarkBarAlwaysVisible());
-  EXPECT_FALSE(contents()->FocusLocationBarByDefault());
+  // Check for a non-first 
+  WebContents* contents2 = new TestWebContents(profile_.get(), NULL,
+      &rvh_factory_);
+  DoNavigationTest(contents2, 101);
+  contents2->CloseContents();
 }
 
 TEST_F(DOMUITest, DOMUIToDOMUI) {
@@ -83,7 +98,7 @@ TEST_F(DOMUITest, DOMUIToDOMUI) {
   EXPECT_FALSE(contents()->ShouldDisplayURL());
   EXPECT_FALSE(contents()->ShouldDisplayFavIcon());
   EXPECT_TRUE(contents()->IsBookmarkBarAlwaysVisible());
-  EXPECT_FALSE(contents()->FocusLocationBarByDefault());
+  EXPECT_TRUE(contents()->FocusLocationBarByDefault());
 }
 
 TEST_F(DOMUITest, StandardToDOMUI) {

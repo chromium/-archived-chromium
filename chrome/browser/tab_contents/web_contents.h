@@ -582,6 +582,10 @@ class WebContents : public TabContents,
   void GenerateKeywordIfNecessary(
       const ViewHostMsg_FrameNavigate_Params& params);
 
+  // Returns the DOMUI for the current state of the tab. This will either be
+  // the pending DOMUI, the committed DOMUI, or NULL.
+  DOMUI* GetDOMUIForCurrentState();
+
   // Data ----------------------------------------------------------------------
 
   // The corresponding view.
