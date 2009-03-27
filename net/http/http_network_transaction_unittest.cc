@@ -598,6 +598,50 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   EXPECT_EQ("hello world", response_data);
 }
 
+// This test is almost the same as Ignores100 above, but the response contains
+// a 102 instead of a 100. Also, instead of HTTP/1.0 the response is
+// HTTP/1.1.
+TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
+  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.foo.com/");
+  request.load_flags = 0;
+
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.1 102 Unspecified status code\r\n\r\n"),
+    MockRead("HTTP/1.1 200 OK\r\n\r\n"),
+    MockRead("hello world"),
+    MockRead(false, net::OK),
+  };
+  MockSocket data;
+  data.reads = data_reads;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_TRUE(response != NULL);
+
+  EXPECT_TRUE(response->headers != NULL);
+  EXPECT_EQ("HTTP/1.1 200 OK", response->headers->GetStatusLine());
+
+  std::string response_data;
+  rv = ReadTransaction(trans.get(), &response_data);
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ("hello world", response_data);
+}
+
 // read_failure specifies a read failure that should cause the network
 // transaction to resend the request.
 void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(

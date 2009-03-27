@@ -1041,9 +1041,11 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   // Check for an intermediate 100 Continue response.  An origin server is
   // allowed to send this response even if we didn't ask for it, so we just
   // need to skip over it.
-  if (headers->response_code() == 100) {
+  // We treat any other 1xx in this same way (although in practice getting
+  // a 1xx that isn't a 100 is rare).
+  if (headers->response_code() / 100 == 1) {
     header_buf_len_ -= header_buf_body_offset_;
-    // If we've already received some bytes after the 100 Continue response,
+    // If we've already received some bytes after the 1xx response,
     // move them to the beginning of header_buf_.
     if (header_buf_len_) {
       memmove(header_buf_.get(), header_buf_.get() + header_buf_body_offset_,
@@ -1071,6 +1073,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
   // MUST NOT include a message-body. All other responses do include a
   // message-body, although it MAY be of zero length.
   switch (response_.headers->response_code()) {
+    // Note that 1xx was already handled earlier.
     case 204:  // No Content
     case 205:  // Reset Content
     case 304:  // Not Modified
