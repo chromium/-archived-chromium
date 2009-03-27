@@ -46,8 +46,9 @@ struct SerializeObject {
 // 3: Version 2 was broken, it stored number of UChars, not number of bytes.
 //    This version checks and reads v1 and v2 correctly.
 // 4: Adds support for storing FormData::identifier().
+// 5: Adds support for empty FormData
 // Should be const, but unit tests may modify it.
-int kVersion = 4;
+int kVersion = 5;
 
 // A bunch of convenience functions to read/write to SerializeObjects.
 // The serializers assume the input data is in the correct format and so does
@@ -191,10 +192,10 @@ static void ReadStringVector(const SerializeObject* obj, Vector<String>* data) {
 
 // Writes a FormData object into a SerializeObject for serialization.
 static void WriteFormData(const FormData* form_data, SerializeObject* obj) {
-  if (form_data == NULL) {
-    WriteInteger(0, obj);
+  WriteBoolean(form_data != NULL, obj);
+
+  if (!form_data)
     return;
-  }
 
   WriteInteger(static_cast<int>(form_data->elements().size()), obj);
   for (size_t i = 0, c = form_data->elements().size(); i < c; ++i) {
@@ -211,8 +212,13 @@ static void WriteFormData(const FormData* form_data, SerializeObject* obj) {
 }
 
 static PassRefPtr<FormData> ReadFormData(const SerializeObject* obj) {
+  // In newer versions, an initial boolean indicates if we have form data.
+  if (obj->version >= 5 && !ReadBoolean(obj))
+    return NULL;
+
+  // In older versions, 0 elements implied no form data.
   int num_elements = ReadInteger(obj);
-  if (num_elements == 0)
+  if (num_elements == 0 && obj->version < 5)
     return NULL;
 
   RefPtr<FormData> form_data = FormData::create();
