@@ -20,3 +20,4 @@ CODING STYLE
 
   The contents of glue/ should stick to Google coding conventions since they
   are designed for use by Chrome and possibly other Google apps.
+
