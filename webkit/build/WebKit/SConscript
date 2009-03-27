@@ -9,11 +9,12 @@ env = env.Clone()
 env.Append(
     CPPDEFINES = [
         'WEBKIT_IMPLEMENTATION',
-        'WEBKIT_USING_SKIA'
     ],
     CPPPATH = [
         '$WEBKIT_DIR/build/WebCore',
         '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public',
+        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/public/gtk',
+        '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src',
     ]
 )
 
@@ -21,12 +22,14 @@ input_files = [
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/ChromiumBridge.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/ChromiumCurrentTime.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/ChromiumThreading.cpp',
+  '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/KeyIdentifier.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebCache.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebCString.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebImageSkia.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebKit.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebString.cpp',
   '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/WebURL.cpp',
+  '$THIRD_PARTY_WEBKIT_DIR/WebKit/chromium/src/gtk/WebInputEventFactory.cpp',
 ]
 
 env.ChromeLibrary('WebKit', input_files)

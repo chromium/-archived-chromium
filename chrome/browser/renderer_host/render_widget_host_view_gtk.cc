@@ -14,7 +14,9 @@
 #include "chrome/common/x11_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
+
+using WebKit::WebInputEventFactory;
 
 namespace {
 
@@ -102,8 +104,8 @@ class RenderWidgetHostViewGtkWidget {
   static gboolean ButtonPressReleaseEvent(
       GtkWidget* widget, GdkEventButton* event,
       RenderWidgetHostViewGtk* host_view) {
-    WebMouseEvent wme(event);
-    host_view->GetRenderWidgetHost()->ForwardMouseEvent(wme);
+    host_view->GetRenderWidgetHost()->ForwardMouseEvent(
+        WebInputEventFactory::mouseEvent(event));
 
     // TODO(evanm): why is this necessary here but not in test shell?
     // This logic is the same as GtkButton.
@@ -115,15 +117,15 @@ class RenderWidgetHostViewGtkWidget {
 
   static gboolean MouseMoveEvent(GtkWidget* widget, GdkEventMotion* event,
                                  RenderWidgetHostViewGtk* host_view) {
-    WebMouseEvent wme(event);
-    host_view->GetRenderWidgetHost()->ForwardMouseEvent(wme);
+    host_view->GetRenderWidgetHost()->ForwardMouseEvent(
+        WebInputEventFactory::mouseEvent(event));
     return FALSE;
   }
 
   static gboolean MouseScrollEvent(GtkWidget* widget, GdkEventScroll* event,
                                    RenderWidgetHostViewGtk* host_view) {
-    WebMouseWheelEvent wmwe(event);
-    host_view->GetRenderWidgetHost()->ForwardWheelEvent(wmwe);
+    host_view->GetRenderWidgetHost()->ForwardWheelEvent(
+        WebInputEventFactory::mouseWheelEvent(event));
     return FALSE;
   }
 

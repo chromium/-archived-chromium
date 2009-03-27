@@ -19,12 +19,16 @@
 #include "build/build_config.h"
 #include "base/gfx/point.h"
 #include "base/task.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/cpp_bound_class.h"
-#include "webkit/glue/webdropdata.h"
-#include "webkit/glue/webinputevent.h"
 
 class TestShell;
 class WebView;
+struct WebDropData;
+
+namespace WebKit {
+class WebMouseEvent;
+}
 
 class EventSendingController : public CppBoundClass {
  public:
@@ -78,12 +82,13 @@ class EventSendingController : public CppBoundClass {
 
   // Sometimes we queue up mouse move and mouse up events for drag drop
   // handling purposes.  These methods dispatch the event.
-  static void DoMouseMove(const WebMouseEvent& e);
-  static void DoMouseUp(const WebMouseEvent& e);
+  static void DoMouseMove(const WebKit::WebMouseEvent& e);
+  static void DoMouseUp(const WebKit::WebMouseEvent& e);
   static void ReplaySavedEvents();
 
   // Helper to return the button type given a button code
-  static WebMouseEvent::Button GetButtonTypeFromButtonNumber(int button_code);
+  static WebKit::WebMouseEvent::Button GetButtonTypeFromButtonNumber(
+      int button_code);
 
   // Helper to extract the button number from the optional argument in
   // mouseDown and mouseUp
@@ -102,7 +107,7 @@ class EventSendingController : public CppBoundClass {
   static gfx::Point last_mouse_pos_;
 
   // Currently pressed mouse button (Left/Right/Middle or None)
-  static WebMouseEvent::Button pressed_button_;
+  static WebKit::WebMouseEvent::Button pressed_button_;
 
   // The last button number passed to mouseDown and mouseUp.
   // Used to determine whether the click count continues to

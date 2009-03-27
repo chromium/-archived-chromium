@@ -37,6 +37,7 @@
 #include "webkit/glue/autofill_form.h"
 
 using base::TimeDelta;
+using WebKit::WebInputEvent;
 
 namespace {
 
@@ -1214,9 +1215,9 @@ void RenderViewHost::UnhandledKeyboardEvent(
     // TODO(brettw) why do we have to filter these types of events here. Can't
     // the renderer just send us the ones we care abount, or maybe the view
     // should be able to decide which ones it wants or not?
-    if ((event.type == WebInputEvent::RAW_KEY_DOWN) ||
-        (event.type == WebInputEvent::KEY_DOWN) ||
-        (event.type == WebInputEvent::CHAR)) {
+    if ((event.type == WebInputEvent::RawKeyDown) ||
+        (event.type == WebInputEvent::KeyDown) ||
+        (event.type == WebInputEvent::Char)) {
       view->HandleKeyboardEvent(event);
     }
   }

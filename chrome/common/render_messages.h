@@ -25,6 +25,7 @@
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request_status.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/feed.h"
@@ -35,7 +36,6 @@
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webaccessibility.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview_delegate.h"
@@ -481,8 +481,8 @@ struct ParamTraits<ContextNode> {
 };
 
 template <>
-struct ParamTraits<WebInputEvent::Type> {
-  typedef WebInputEvent::Type param_type;
+struct ParamTraits<WebKit::WebInputEvent::Type> {
+  typedef WebKit::WebInputEvent::Type param_type;
   static void Write(Message* m, const param_type& p) {
     m->WriteInt(p);
   }
@@ -490,41 +490,41 @@ struct ParamTraits<WebInputEvent::Type> {
     int type;
     if (!m->ReadInt(iter, &type))
       return false;
-    *p = static_cast<WebInputEvent::Type>(type);
+    *p = static_cast<WebKit::WebInputEvent::Type>(type);
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring type;
     switch (p) {
-     case WebInputEvent::MOUSE_DOWN:
-      type = L"MOUSE_DOWN";
+     case WebKit::WebInputEvent::MouseDown:
+      type = L"MouseDown";
       break;
-     case WebInputEvent::MOUSE_UP:
-      type = L"MOUSE_UP";
+     case WebKit::WebInputEvent::MouseUp:
+      type = L"MouseUp";
       break;
-     case WebInputEvent::MOUSE_MOVE:
-      type = L"MOUSE_MOVE";
+     case WebKit::WebInputEvent::MouseMove:
+      type = L"MouseMove";
       break;
-     case WebInputEvent::MOUSE_LEAVE:
-      type = L"MOUSE_LEAVE";
+     case WebKit::WebInputEvent::MouseLeave:
+      type = L"MouseLeave";
       break;
-     case WebInputEvent::MOUSE_DOUBLE_CLICK:
-      type = L"MOUSE_DOUBLE_CLICK";
+     case WebKit::WebInputEvent::MouseDoubleClick:
+      type = L"MouseDoubleClick";
       break;
-     case WebInputEvent::MOUSE_WHEEL:
-      type = L"MOUSE_WHEEL";
+     case WebKit::WebInputEvent::MouseWheel:
+      type = L"MouseWheel";
       break;
-     case WebInputEvent::RAW_KEY_DOWN:
-      type = L"RAW_KEY_DOWN";
+     case WebKit::WebInputEvent::RawKeyDown:
+      type = L"RawKeyDown";
       break;
-     case WebInputEvent::KEY_DOWN:
-      type = L"KEY_DOWN";
+     case WebKit::WebInputEvent::KeyDown:
+      type = L"KeyDown";
       break;
-     case WebInputEvent::KEY_UP:
-      type = L"KEY_UP";
+     case WebKit::WebInputEvent::KeyUp:
+      type = L"KeyUp";
       break;
      default:
-      type = L"UNKNOWN";
+      type = L"None";
       break;
     }
 

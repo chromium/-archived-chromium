@@ -10,8 +10,15 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "base/logging.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/webwidget.h"
+
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
@@ -213,12 +220,13 @@ void WebWidgetHost::Resize(const gfx::Rect& rect) {
 }
 
 void WebWidgetHost::MouseEvent(NSEvent *event) {
-  WebMouseEvent web_event(event, view_);
+  const WebMouseEvent& web_event = WebInputEventFactory::mouseEvent(
+      event, view_);
   switch (web_event.type) {
-    case WebInputEvent::MOUSE_MOVE:
+    case WebInputEvent::MouseMove:
       TrackMouseLeave(true);
       break;
-    case WebInputEvent::MOUSE_LEAVE:
+    case WebInputEvent::MouseLeave:
       TrackMouseLeave(false);
       break;
     default:
@@ -228,12 +236,14 @@ void WebWidgetHost::MouseEvent(NSEvent *event) {
 }
 
 void WebWidgetHost::WheelEvent(NSEvent *event) {
-  WebMouseWheelEvent web_event(event, view_);
+  const WebMouseWheelEvent& web_event = WebInputEventFactory::mouseWheelEvent(
+      event, view_);
   webwidget_->HandleInputEvent(&web_event);
 }
 
 void WebWidgetHost::KeyEvent(NSEvent *event) {
-  WebKeyboardEvent web_event(event);
+  const WebKeyboardEvent& web_event = WebInputEventFactory::keyboardEvent(
+      event);
   webwidget_->HandleInputEvent(&web_event);
 }
 

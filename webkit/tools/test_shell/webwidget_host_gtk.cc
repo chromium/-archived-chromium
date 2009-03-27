@@ -12,8 +12,14 @@
 #include "skia/ext/bitmap_platform_device_linux.h"
 #include "skia/ext/platform_canvas_linux.h"
 #include "skia/ext/platform_device_linux.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/webwidget.h"
+
+using WebKit::WebInputEventFactory;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 namespace {
 
@@ -145,7 +151,7 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleKeyPress(GtkWidget* widget,
                                  GdkEventKey* event,
                                  WebWidgetHost* host) {
-    WebKeyboardEvent wke(event);
+    const WebKeyboardEvent& wke = WebInputEventFactory::keyboardEvent(event);
     host->webwidget()->HandleInputEvent(&wke);
 
     return FALSE;
@@ -188,7 +194,7 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleButtonPress(GtkWidget* widget,
                                     GdkEventButton* event,
                                     WebWidgetHost* host) {
-    WebMouseEvent wme(event);
+    const WebMouseEvent& wme = WebInputEventFactory::mouseEvent(event);
     host->webwidget()->HandleInputEvent(&wme);
     return FALSE;
   }
@@ -204,7 +210,7 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleMotionNotify(GtkWidget* widget,
                                      GdkEventMotion* event,
                                      WebWidgetHost* host) {
-    WebMouseEvent wme(event);
+    const WebMouseEvent& wme = WebInputEventFactory::mouseEvent(event);
     host->webwidget()->HandleInputEvent(&wme);
     return FALSE;
   }
@@ -213,7 +219,8 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleScroll(GtkWidget* widget,
                                GdkEventScroll* event,
                                WebWidgetHost* host) {
-    WebMouseWheelEvent wmwe(event);
+    const WebMouseWheelEvent& wmwe =
+        WebInputEventFactory::mouseWheelEvent(event);
     host->webwidget()->HandleInputEvent(&wmwe);
     return FALSE;
   }

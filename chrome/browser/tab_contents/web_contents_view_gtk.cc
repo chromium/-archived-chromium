@@ -16,8 +16,6 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 
-#include "webkit/glue/webinputevent.h"
-
 namespace {
 
 // Called when the content view gtk widget is tabbed to. We always return true

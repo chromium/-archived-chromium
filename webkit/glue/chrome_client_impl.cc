@@ -30,15 +30,18 @@ MSVC_POP_WARNING();
 #include "base/logging.h"
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe_impl.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest_impl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
 #include "webkit/glue/webwidget_impl.h"
+
+using WebKit::WebInputEvent;
+using WebKit::WebMouseEvent;
 
 // Callback class that's given to the WebViewDelegate during a file choose
 // operation.
@@ -191,11 +194,11 @@ static inline bool CurrentEventShouldCauseBackgroundTab(
   if (!input_event)
     return false;
 
-  if (input_event->type != WebInputEvent::MOUSE_UP)
+  if (input_event->type != WebInputEvent::MouseUp)
     return false;
 
   const WebMouseEvent* mouse_event = static_cast<const WebMouseEvent*>(input_event);
-  return (mouse_event->button == WebMouseEvent::BUTTON_MIDDLE);
+  return (mouse_event->button == WebMouseEvent::ButtonMiddle);
 }
 
 void ChromeClientImpl::show() {

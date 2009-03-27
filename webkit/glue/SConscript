@@ -135,7 +135,6 @@ if env.Bit('windows'):
     'plugins/plugin_list_win.cc',
     'plugins/plugin_stream_win.cc',
     'webcursor_win.cc',
-    'webinputevent_win.cc',
     'webkit_glue_win.cc',
   ])
 elif env.Bit('linux'):
@@ -144,8 +143,6 @@ elif env.Bit('linux'):
       'plugins/plugin_list_linux.cc',
       'plugins/webplugin_delegate_impl_gtk.cc',
       'webcursor_gtk.cc',
-      'webinputevent_linux.cc',
-      'webinputevent_util.cc',
       'webkit_glue_gtk.cc',
   ])
 elif env.Bit('mac'):

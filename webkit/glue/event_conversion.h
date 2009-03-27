@@ -18,16 +18,19 @@ namespace WebCore {
   class Widget;
 }
 
+namespace WebKit {
 class WebMouseEvent;
 class WebMouseWheelEvent;
 class WebKeyboardEvent;
+}
 
 // These classes are used to convert from WebInputEvent subclasses to
 // corresponding WebCore events.
 
 class MakePlatformMouseEvent : public WebCore::PlatformMouseEvent {
  public:
-  MakePlatformMouseEvent(WebCore::Widget* widget, const WebMouseEvent& e);
+  MakePlatformMouseEvent(
+      WebCore::Widget* widget, const WebKit::WebMouseEvent& e);
 
   static void ResetLastClick() {
     last_click_time_ = last_click_count_ = 0;
@@ -40,12 +43,13 @@ class MakePlatformMouseEvent : public WebCore::PlatformMouseEvent {
 
 class MakePlatformWheelEvent : public WebCore::PlatformWheelEvent {
  public:
-  MakePlatformWheelEvent(WebCore::Widget* widget, const WebMouseWheelEvent& e);
+  MakePlatformWheelEvent(
+      WebCore::Widget* widget, const WebKit::WebMouseWheelEvent& e);
 };
 
 class MakePlatformKeyboardEvent : public WebCore::PlatformKeyboardEvent {
  public:
-  MakePlatformKeyboardEvent(const WebKeyboardEvent& e);
+  MakePlatformKeyboardEvent(const WebKit::WebKeyboardEvent& e);
   void SetKeyType(Type type);
   bool IsCharacterKey() const;
 };

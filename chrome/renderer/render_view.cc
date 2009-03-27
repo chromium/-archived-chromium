@@ -61,7 +61,6 @@
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webhistoryitem.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin_delegate.h"

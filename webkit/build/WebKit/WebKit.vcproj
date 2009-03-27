@@ -156,6 +156,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebInputEvent.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebKit.h"
 					>
 				</File>
@@ -187,6 +191,10 @@
 					Name="win"
 					>
 					<File
+						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebInputEventFactory.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebSandboxSupport.h"
 						>
 					</File>
@@ -209,6 +217,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\ChromiumThreading.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\KeyIdentifier.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\KeyIdentifier.h"
 					>
 				</File>
 				<File
@@ -239,6 +255,14 @@
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebURL.cpp"
 					>
 				</File>
+				<Filter
+					Name="win"
+					>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\win\WebInputEventFactory.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 	</Files>

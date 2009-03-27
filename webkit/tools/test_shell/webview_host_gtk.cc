@@ -9,7 +9,6 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "skia/ext/platform_canvas.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webview.h"
 
 // static

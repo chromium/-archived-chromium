@@ -18,6 +18,14 @@ namespace gfx {
 class Size;
 }
 
+#if defined(OS_MACOSX)
+#ifdef __OBJC__
+@class NSEvent;
+#else
+class NSEvent;
+#endif
+#endif
+
 // This class is a simple NativeView-based host for a WebWidget
 class WebWidgetHost {
  public:

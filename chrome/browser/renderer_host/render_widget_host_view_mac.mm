@@ -12,7 +12,12 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "skia/ext/platform_canvas.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+
+using WebKit::WebInputEventFactory;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 @interface RenderWidgetHostViewCocoa (Private)
 - (id)initWithRenderWidgetHostViewMac:(RenderWidgetHostViewMac*)r;
@@ -290,7 +295,8 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (void)mouseEvent:(NSEvent *)theEvent {
-  WebMouseEvent event(theEvent, self);
+  const WebMouseEvent& event =
+      WebInputEventFactory::mouseEvent(theEvent, self);
   renderWidgetHostView_->render_widget_host()->ForwardMouseEvent(event);
 }
 
@@ -303,7 +309,8 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
-  WebMouseWheelEvent event(theEvent, self);
+  const WebMouseWheelEvent& event =
+      WebInputEventFactory::mouseWheelEvent(theEvent, self);
   renderWidgetHostView_->render_widget_host()->ForwardWheelEvent(event);
 }
 

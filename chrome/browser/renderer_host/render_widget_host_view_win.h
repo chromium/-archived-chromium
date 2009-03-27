@@ -19,13 +19,13 @@ namespace gfx {
 class Size;
 class Rect;
 }
+
 namespace IPC {
 class Message;
 }
 
 class BackingStore;
 class RenderWidgetHost;
-class WebMouseEvent;
 
 typedef CWinTraits<WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, 0>
     RenderWidgetHostHWNDTraits;

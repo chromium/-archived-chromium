@@ -35,14 +35,17 @@ class Range;
 class Widget;
 }
 
+namespace WebKit {
+class WebKeyboardEvent;
+class WebMouseEvent;
+class WebMouseWheelEvent;
+}
+
 class AutocompletePopupMenuClient;
 class ImageResourceFetcher;
 class SearchableFormData;
 struct WebDropData;
 class WebHistoryItemImpl;
-class WebKeyboardEvent;
-class WebMouseEvent;
-class WebMouseWheelEvent;
 class WebDevToolsAgent;
 class WebDevToolsAgentImpl;
 class WebViewDelegate;
@@ -65,7 +68,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual gfx::Size GetSize() { return size(); }
   virtual void Layout();
   virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
-  virtual bool HandleInputEvent(const WebInputEvent* input_event);
+  virtual bool HandleInputEvent(const WebKit::WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
   virtual void StoreFocusForFrame(WebFrame* frame);
@@ -148,15 +151,15 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   void ObserveNewNavigation();
 
   // Event related methods:
-  void MouseMove(const WebMouseEvent& mouse_event);
-  void MouseLeave(const WebMouseEvent& mouse_event);
-  void MouseDown(const WebMouseEvent& mouse_event);
-  void MouseUp(const WebMouseEvent& mouse_event);
-  void MouseContextMenu(const WebMouseEvent& mouse_event);
-  void MouseDoubleClick(const WebMouseEvent& mouse_event);
-  void MouseWheel(const WebMouseWheelEvent& wheel_event);
-  bool KeyEvent(const WebKeyboardEvent& key_event);
-  bool CharEvent(const WebKeyboardEvent& key_event);
+  void MouseMove(const WebKit::WebMouseEvent& mouse_event);
+  void MouseLeave(const WebKit::WebMouseEvent& mouse_event);
+  void MouseDown(const WebKit::WebMouseEvent& mouse_event);
+  void MouseUp(const WebKit::WebMouseEvent& mouse_event);
+  void MouseContextMenu(const WebKit::WebMouseEvent& mouse_event);
+  void MouseDoubleClick(const WebKit::WebMouseEvent& mouse_event);
+  void MouseWheel(const WebKit::WebMouseWheelEvent& wheel_event);
+  bool KeyEvent(const WebKit::WebKeyboardEvent& key_event);
+  bool CharEvent(const WebKit::WebKeyboardEvent& key_event);
 
   // Handles context menu events orignated via the the keyboard. These
   // include the VK_APPS virtual key and the Shift+F10 combine.
@@ -165,7 +168,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // webkit\webkit\win\WebView.cpp. The only significant change in this
   // function is the code to convert from a Keyboard event to the Right
   // Mouse button down event.
-  bool SendContextMenuEvent(const WebKeyboardEvent& event);
+  bool SendContextMenuEvent(const WebKit::WebKeyboardEvent& event);
 
   // Releases references used to restore focus.
   void ReleaseFocusReferences();
@@ -257,10 +260,10 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
 
  private:
   // Returns true if the event was actually processed.
-  bool KeyEventDefault(const WebKeyboardEvent& event);
+  bool KeyEventDefault(const WebKit::WebKeyboardEvent& event);
 
   // Returns true if the autocomple has consumed the event.
-  bool AutocompleteHandleKeyEvent(const WebKeyboardEvent& event);
+  bool AutocompleteHandleKeyEvent(const WebKit::WebKeyboardEvent& event);
 
   // Repaints the autofill popup.  Should be called when the suggestions have
   // changed.  Note that this should only be called when the autofill popup is
@@ -338,11 +341,11 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // WebKit to pass enough information up into ChromeClient::show() so we can
   // decide if the window.open event was caused by a middle-mouse click
 public:
-  static const WebInputEvent* current_input_event() {
+  static const WebKit::WebInputEvent* current_input_event() {
     return g_current_input_event;
   }
 private:
-  static const WebInputEvent* g_current_input_event;
+  static const WebKit::WebInputEvent* g_current_input_event;
 
   DISALLOW_COPY_AND_ASSIGN(WebViewImpl);
 };

@@ -14,11 +14,16 @@
 #include "chrome/common/ipc_channel.h"
 #include "chrome/common/native_web_keyboard_event.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webtextdirection.h"
 
 namespace gfx {
 class Rect;
+}
+
+namespace WebKit {
+class WebInputEvent;
+class WebMouseEvent;
+class WebMouseWheelEvent;
 }
 
 class BackingStore;
@@ -26,9 +31,6 @@ class PaintObserver;
 class RenderProcessHost;
 class RenderWidgetHostView;
 class TransportDIB;
-class WebInputEvent;
-class WebMouseEvent;
-class WebMouseWheelEvent;
 class WebCursor;
 struct ViewHostMsg_PaintRect_Params;
 struct ViewHostMsg_ScrollRect_Params;
@@ -208,8 +210,8 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // Forwards the given message to the renderer. These are called by the view
   // when it has received a message.
-  void ForwardMouseEvent(const WebMouseEvent& mouse_event);
-  void ForwardWheelEvent(const WebMouseWheelEvent& wheel_event);
+  void ForwardMouseEvent(const WebKit::WebMouseEvent& mouse_event);
+  void ForwardWheelEvent(const WebKit::WebMouseWheelEvent& wheel_event);
   void ForwardKeyboardEvent(const NativeWebKeyboardEvent& key_event);
 
   // Update the text direction of the focused input element and notify it to a
@@ -250,7 +252,8 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
  protected:
   // Internal implementation of the public Forward*Event() methods.
-  void ForwardInputEvent(const WebInputEvent& input_event, int event_size);
+  void ForwardInputEvent(
+      const WebKit::WebInputEvent& input_event, int event_size);
 
   // Called when we receive a notification indicating that the renderer
   // process has gone. This will reset our state so that our state will be
@@ -357,7 +360,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // The next mouse move event to send (only non-null while mouse_move_pending_
   // is true).
-  scoped_ptr<WebMouseEvent> next_mouse_move_;
+  scoped_ptr<WebKit::WebMouseEvent> next_mouse_move_;
 
   // The time when an input event was sent to the RenderWidget.
   base::TimeTicks input_event_start_time_;

@@ -22,7 +22,6 @@
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webplugin.h"
 
 // TODO(mpcomplete): rename ViewMsg and ViewHostMsg to something that makes

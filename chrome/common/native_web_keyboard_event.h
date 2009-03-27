@@ -6,7 +6,7 @@
 #define CHROME_COMMON_NATIVE_WEB_KEYBOARD_EVENT_H_
 
 #include "base/basictypes.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -22,7 +22,7 @@ class NSEvent;
 
 // Owns a platform specific event; used to pass own and pass event through
 // platform independent code.
-struct NativeWebKeyboardEvent : public WebKeyboardEvent {
+struct NativeWebKeyboardEvent : public WebKit::WebKeyboardEvent {
   NativeWebKeyboardEvent();
 
 #if defined(OS_WIN)

@@ -5,7 +5,9 @@
 #include "chrome/views/event.h"
 
 #include "chrome/views/view.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+
+using WebKit::WebInputEvent;
 
 namespace views {
 
@@ -22,11 +24,11 @@ Event::Event(EventType type, int flags)
 // static
 int Event::ConvertWebInputEventFlags(int web_input_event_flags) {
   int r = 0;
-  if (web_input_event_flags & WebInputEvent::SHIFT_KEY)
+  if (web_input_event_flags & WebInputEvent::ShiftKey)
     r |= EF_SHIFT_DOWN;
-  if (web_input_event_flags & WebInputEvent::CTRL_KEY)
+  if (web_input_event_flags & WebInputEvent::ControlKey)
     r |= EF_CONTROL_DOWN;
-  if (web_input_event_flags & WebInputEvent::ALT_KEY)
+  if (web_input_event_flags & WebInputEvent::AltKey)
     r |= EF_ALT_DOWN;
   return r;
 }
@@ -53,4 +55,3 @@ MouseEvent::MouseEvent(const MouseEvent& model, View* from, View* to)
 }
 
 }  // namespace views
- 

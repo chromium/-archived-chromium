@@ -12,6 +12,8 @@
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+using WebKit::WebInputEvent;
+
 // RenderWidgetHostProcess -----------------------------------------------------
 
 class RenderWidgetHostProcess : public MockRenderProcessHost {
@@ -328,9 +330,9 @@ TEST_F(RenderWidgetHostTest, HiddenPaint) {
 
 TEST_F(RenderWidgetHostTest, HandleKeyEventsWeSent) {
   NativeWebKeyboardEvent key_event;
-  key_event.type = WebInputEvent::KEY_DOWN;
-  key_event.modifiers = WebInputEvent::CTRL_KEY;
-  key_event.windows_key_code = base::VKEY_L;  // non-null made up value.
+  key_event.type = WebInputEvent::KeyDown;
+  key_event.modifiers = WebInputEvent::ControlKey;
+  key_event.windowsKeyCode = base::VKEY_L;  // non-null made up value.
 
   host_->ForwardKeyboardEvent(key_event);
 
@@ -353,7 +355,7 @@ TEST_F(RenderWidgetHostTest, IgnoreKeyEventsWeDidntSend) {
   // Send a simulated, unrequested key response. We should ignore this.
   scoped_ptr<IPC::Message> response(
       new ViewHostMsg_HandleInputEvent_ACK(0));
-  response->WriteInt(WebInputEvent::KEY_DOWN);
+  response->WriteInt(WebInputEvent::KeyDown);
   response->WriteBool(false);
   host_->OnMessageReceived(*response);
 

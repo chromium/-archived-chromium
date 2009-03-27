@@ -17,12 +17,15 @@ MSVC_POP_WARNING();
 #include "base/string_util.h"
 #include "webkit/glue/editor_client_impl.h"
 #include "webkit/glue/event_conversion.h"
-#include "webkit/glue/webinputevent.h"
-#include "webkit/glue/webinputevent_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/src/KeyIdentifier.h"  // TODO(darin): TEMPORARY HACK
 
 using WebCore::PlatformKeyboardEvent;
 using WebCore::KeyboardEvent;
+
+using WebKit::WebInputEvent;
+using WebKit::WebKeyboardEvent;
 
 class KeyboardTest : public testing::Test {
  public:
@@ -48,14 +51,16 @@ class KeyboardTest : public testing::Test {
   void SetupKeyDownEvent(WebKeyboardEvent* keyboard_event,
                          char key_code,
                          int modifiers) {
-    keyboard_event->windows_key_code = key_code;
+    keyboard_event->windowsKeyCode = key_code;
     keyboard_event->modifiers = modifiers;
-    keyboard_event->type = WebInputEvent::KEY_DOWN;
+    keyboard_event->type = WebInputEvent::KeyDown;
     keyboard_event->text[0] = key_code;
-    std::string key_identifier_str =
-        webkit_glue::GetKeyIdentifierForWindowsKeyCode(key_code);
-    base::strlcpy(keyboard_event->key_identifier, key_identifier_str.c_str(),
-                  kIdentifierLengthCap);
+
+    // TODO(darin): remove this temporary hack.
+    WebKit::keyIdentifierForWindowsKeyCode(
+        key_code,
+        keyboard_event->keyIdentifier,
+        sizeof(keyboard_event->keyIdentifier));
   }
 
   // Like InterpretKeyEvent, but with pressing down OSModifier+|key_code|.
@@ -64,9 +69,9 @@ class KeyboardTest : public testing::Test {
   const char* InterpretOSModifierKeyPress(char key_code) {
     WebKeyboardEvent keyboard_event;
 #if defined(OS_WIN) || defined(OS_LINUX)
-    WebInputEvent::Modifiers os_modifier = WebInputEvent::CTRL_KEY;
+    WebInputEvent::Modifiers os_modifier = WebInputEvent::ControlKey;
 #elif defined(OS_MACOSX)
-    WebInputEvent::Modifiers os_modifier = WebInputEvent::META_KEY;
+    WebInputEvent::Modifiers os_modifier = WebInputEvent::MetaKey;
 #endif
     SetupKeyDownEvent(&keyboard_event, key_code, os_modifier);
     return InterpretKeyEvent(keyboard_event, PlatformKeyboardEvent::RawKeyDown);
@@ -75,7 +80,7 @@ class KeyboardTest : public testing::Test {
   // Like InterpretKeyEvent, but with pressing down ctrl+|key_code|.
   const char* InterpretCtrlKeyPress(char key_code) {
     WebKeyboardEvent keyboard_event;
-    SetupKeyDownEvent(&keyboard_event, key_code, WebInputEvent::CTRL_KEY);
+    SetupKeyDownEvent(&keyboard_event, key_code, WebInputEvent::ControlKey);
     return InterpretKeyEvent(keyboard_event, PlatformKeyboardEvent::RawKeyDown);
   }
 
@@ -139,7 +144,7 @@ TEST_F(KeyboardTest, TestInsertTab) {
 }
 
 TEST_F(KeyboardTest, TestInsertBackTab) {
-  EXPECT_STREQ("InsertBacktab", InterpretTab(WebInputEvent::SHIFT_KEY));
+  EXPECT_STREQ("InsertBacktab", InterpretTab(WebInputEvent::ShiftKey));
 }
 
 TEST_F(KeyboardTest, TestInsertNewline) {
@@ -147,19 +152,19 @@ TEST_F(KeyboardTest, TestInsertNewline) {
 }
 
 TEST_F(KeyboardTest, TestInsertNewline2) {
-  EXPECT_STREQ("InsertNewline", InterpretNewLine(WebInputEvent::CTRL_KEY));
+  EXPECT_STREQ("InsertNewline", InterpretNewLine(WebInputEvent::ControlKey));
 }
 
 TEST_F(KeyboardTest, TestInsertLineBreak) {
-  EXPECT_STREQ("InsertLineBreak", InterpretNewLine(WebInputEvent::SHIFT_KEY));
+  EXPECT_STREQ("InsertLineBreak", InterpretNewLine(WebInputEvent::ShiftKey));
 }
 
 TEST_F(KeyboardTest, TestInsertNewline3) {
-  EXPECT_STREQ("InsertNewline", InterpretNewLine(WebInputEvent::ALT_KEY));
+  EXPECT_STREQ("InsertNewline", InterpretNewLine(WebInputEvent::AltKey));
 }
 
 TEST_F(KeyboardTest, TestInsertNewline4) {
-  int modifiers = WebInputEvent::ALT_KEY | WebInputEvent::SHIFT_KEY;
+  int modifiers = WebInputEvent::AltKey | WebInputEvent::ShiftKey;
   const char* result = InterpretNewLine(modifiers);
   EXPECT_STREQ("InsertNewline", result);
 }

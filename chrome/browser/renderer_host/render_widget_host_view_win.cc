@@ -29,13 +29,18 @@
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
 #include "chrome/views/widget/widget_win.h"
 #include "grit/webkit_resources.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webcursor.h"
 
-
 using base::TimeDelta;
 using base::TimeTicks;
+
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
+using WebKit::WebMouseEvent;
 
 namespace {
 
@@ -901,7 +906,8 @@ LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
 
   if (!handled_by_webcontents) {
     render_widget_host_->ForwardWheelEvent(
-        WebMouseWheelEvent(m_hWnd, message, wparam, lparam));
+        WebInputEventFactory::mouseWheelEvent(m_hWnd, message, wparam,
+                                              lparam));
   }
   handled = TRUE;
   return 0;
@@ -1049,18 +1055,19 @@ void RenderWidgetHostViewWin::ResetTooltip() {
 void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
                                                           WPARAM wparam,
                                                           LPARAM lparam) {
-  WebMouseEvent event(m_hWnd, message, wparam, lparam);
+  WebMouseEvent event(
+      WebInputEventFactory::mouseEvent(m_hWnd, message, wparam, lparam));
   switch (event.type) {
-    case WebInputEvent::MOUSE_MOVE:
+    case WebInputEvent::MouseMove:
       TrackMouseLeave(true);
       break;
-    case WebInputEvent::MOUSE_LEAVE:
+    case WebInputEvent::MouseLeave:
       TrackMouseLeave(false);
       break;
-    case WebInputEvent::MOUSE_DOWN:
+    case WebInputEvent::MouseDown:
       SetCapture();
       break;
-    case WebInputEvent::MOUSE_UP:
+    case WebInputEvent::MouseUp:
       if (GetCapture() == m_hWnd)
         ReleaseCapture();
       break;
@@ -1068,7 +1075,7 @@ void RenderWidgetHostViewWin::ForwardMouseEventToRenderer(UINT message,
 
   render_widget_host_->ForwardMouseEvent(event);
 
-  if (activatable_ && event.type == WebInputEvent::MOUSE_DOWN) {
+  if (activatable_ && event.type == WebInputEvent::MouseDown) {
     // This is a temporary workaround for bug 765011 to get focus when the
     // mouse is clicked. This happens after the mouse down event is sent to
     // the renderer because normally Windows does a WM_SETFOCUS after

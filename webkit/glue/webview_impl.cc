@@ -84,6 +84,7 @@ MSVC_POP_WARNING();
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/clipboard_conversion.h"
 #include "webkit/glue/context_menu_client_impl.h"
@@ -99,7 +100,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webhistoryitem_impl.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webdevtoolsagent.h"
@@ -113,6 +113,11 @@ MSVC_POP_WARNING();
 #include <cmath> // for std::pow
 
 using namespace WebCore;
+
+using WebKit::WebInputEvent;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 // Change the text zoom level by kTextSizeMultiplierRatio each time the user
 // zooms text in or out (ie., change by 20%).  The min and max values limit
@@ -429,7 +434,7 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
   // If a text field that has focus is clicked again, we should display the
   // autocomplete popup.
   RefPtr<Node> clicked_node;
-  if (event.button == WebMouseEvent::BUTTON_LEFT) {
+  if (event.button == WebMouseEvent::ButtonLeft) {
     RefPtr<Node> focused_node = GetFocusedNode();
     if (focused_node.get() &&
         webkit_glue::NodeToHTMLInputElement(focused_node.get())) {
@@ -501,7 +506,7 @@ void WebViewImpl::MouseUp(const WebMouseEvent& event) {
 
 #if defined(OS_WIN) || defined(OS_LINUX)
   // Dispatch the contextmenu event regardless of if the click was swallowed.
-  if (event.button == WebMouseEvent::BUTTON_RIGHT)
+  if (event.button == WebMouseEvent::ButtonRight)
     MouseContextMenu(event);
 #endif
 }
@@ -512,9 +517,9 @@ void WebViewImpl::MouseWheel(const WebMouseWheelEvent& event) {
 }
 
 bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
-  DCHECK((event.type == WebInputEvent::RAW_KEY_DOWN) ||
-         (event.type == WebInputEvent::KEY_DOWN) ||
-         (event.type == WebInputEvent::KEY_UP));
+  DCHECK((event.type == WebInputEvent::RawKeyDown) ||
+         (event.type == WebInputEvent::KeyDown) ||
+         (event.type == WebInputEvent::KeyUp));
 
   // Please refer to the comments explaining the suppress_next_keypress_event_
   // member.
@@ -538,9 +543,9 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 
 #if defined(OS_WIN)
   // TODO(pinkerton): figure out these keycodes on non-windows
-  if (((event.modifiers == 0) && (event.windows_key_code == VK_APPS)) ||
-      ((event.modifiers == WebInputEvent::SHIFT_KEY) &&
-       (event.windows_key_code == VK_F10))) {
+  if (((event.modifiers == 0) && (event.windowsKeyCode == VK_APPS)) ||
+      ((event.modifiers == WebInputEvent::ShiftKey) &&
+       (event.windowsKeyCode == VK_F10))) {
     SendContextMenuEvent(event);
     return true;
   }
@@ -548,7 +553,7 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 
   MakePlatformKeyboardEvent evt(event);
 
-  if (WebInputEvent::RAW_KEY_DOWN == event.type) {
+  if (WebInputEvent::RawKeyDown == event.type) {
     if (handler->keyEvent(evt) && !evt.isSystemKey()) {
       suppress_next_keypress_event_ = true;
       return true;
@@ -565,14 +570,14 @@ bool WebViewImpl::KeyEvent(const WebKeyboardEvent& event) {
 bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
   if (!autocomplete_popup_showing_ ||
       // Home and End should be left to the text field to process.
-      event.windows_key_code == base::VKEY_HOME ||
-      event.windows_key_code == base::VKEY_END) {
+      event.windowsKeyCode == base::VKEY_HOME ||
+      event.windowsKeyCode == base::VKEY_END) {
     return false;
   }
 
   // Pressing delete triggers the removal of the selected suggestion from the
   // DB.
-  if (event.windows_key_code == base::VKEY_DELETE &&
+  if (event.windowsKeyCode == base::VKEY_DELETE &&
       autocomplete_popup_->selectedIndex() != -1) {
     Node* node = GetFocusedNode();
     if (!node || (node->nodeType() != WebCore::Node::ELEMENT_NODE)) {
@@ -599,14 +604,14 @@ bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
     return false;
   }
 
-  if (!autocomplete_popup_->isInterestedInEventForKey(event.windows_key_code))
+  if (!autocomplete_popup_->isInterestedInEventForKey(event.windowsKeyCode))
     return false;
 
   if (autocomplete_popup_->handleKeyEvent(MakePlatformKeyboardEvent(event))) {
 #if defined(OS_WIN)
-      // We need to ignore the next CHAR event after this otherwise pressing
+      // We need to ignore the next Char event after this otherwise pressing
       // enter when selecting an item in the menu will go to the page.
-      if (WebInputEvent::RAW_KEY_DOWN == event.type)
+      if (WebInputEvent::RawKeyDown == event.type)
         suppress_next_keypress_event_ = true;
 #endif
       return true;
@@ -616,7 +621,7 @@ bool WebViewImpl::AutocompleteHandleKeyEvent(const WebKeyboardEvent& event) {
 }
 
 bool WebViewImpl::CharEvent(const WebKeyboardEvent& event) {
-  DCHECK(event.type == WebInputEvent::CHAR);
+  DCHECK(event.type == WebInputEvent::Char);
 
   // Please refer to the comments explaining the suppress_next_keypress_event_
   // member.
@@ -716,10 +721,10 @@ bool WebViewImpl::SendContextMenuEvent(const WebKeyboardEvent& event) {
   Frame* focused_frame = page()->focusController()->focusedOrMainFrame();
   focused_frame->view()->setCursor(pointerCursor());
   WebMouseEvent mouse_event;
-  mouse_event.button = WebMouseEvent::BUTTON_RIGHT;
+  mouse_event.button = WebMouseEvent::ButtonRight;
   mouse_event.x = coords.x();
   mouse_event.y = coords.y();
-  mouse_event.type = WebInputEvent::MOUSE_UP;
+  mouse_event.type = WebInputEvent::MouseUp;
 
   MakePlatformMouseEvent platform_event(view, mouse_event);
 
@@ -737,9 +742,9 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
     return false;
 
   switch (event.type) {
-    case WebInputEvent::CHAR: {
-      if (event.windows_key_code == VKEY_SPACE) {
-        int key_code = ((event.modifiers & WebInputEvent::SHIFT_KEY) ?
+    case WebInputEvent::Char: {
+      if (event.windowsKeyCode == VKEY_SPACE) {
+        int key_code = ((event.modifiers & WebInputEvent::ShiftKey) ?
                          VKEY_PRIOR : VKEY_NEXT);
         return ScrollViewWithKeyboard(key_code);
       }
@@ -747,12 +752,12 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
     }
 
 #if defined(OS_WIN)
-    case WebInputEvent::RAW_KEY_DOWN: {
+    case WebInputEvent::RawKeyDown: {
 #else
-    case WebInputEvent::KEY_DOWN: {
+    case WebInputEvent::KeyDown: {
 #endif
-      if (event.modifiers == WebInputEvent::CTRL_KEY) {
-        switch (event.windows_key_code) {
+      if (event.modifiers == WebInputEvent::ControlKey) {
+        switch (event.windowsKeyCode) {
           case 'A':
             GetFocusedFrame()->SelectAll();
             return true;
@@ -771,8 +776,8 @@ bool WebViewImpl::KeyEventDefault(const WebKeyboardEvent& event) {
             return false;
         }
       }
-      if (!event.system_key) {
-        return ScrollViewWithKeyboard(event.windows_key_code);
+      if (!event.isSystemKey) {
+        return ScrollViewWithKeyboard(event.windowsKeyCode);
       }
       break;
     }
@@ -991,34 +996,34 @@ bool WebViewImpl::HandleInputEvent(const WebInputEvent* input_event) {
   // processing methods. For now we'll assume it has processed them (as we are
   // only interested in whether keyboard events are processed).
   switch (input_event->type) {
-    case WebInputEvent::MOUSE_MOVE:
+    case WebInputEvent::MouseMove:
       MouseMove(*static_cast<const WebMouseEvent*>(input_event));
       break;
 
-    case WebInputEvent::MOUSE_LEAVE:
+    case WebInputEvent::MouseLeave:
       MouseLeave(*static_cast<const WebMouseEvent*>(input_event));
       break;
 
-    case WebInputEvent::MOUSE_WHEEL:
+    case WebInputEvent::MouseWheel:
       MouseWheel(*static_cast<const WebMouseWheelEvent*>(input_event));
       break;
 
-    case WebInputEvent::MOUSE_DOWN:
-    case WebInputEvent::MOUSE_DOUBLE_CLICK:
+    case WebInputEvent::MouseDown:
+    case WebInputEvent::MouseDoubleClick:
       MouseDown(*static_cast<const WebMouseEvent*>(input_event));
       break;
 
-    case WebInputEvent::MOUSE_UP:
+    case WebInputEvent::MouseUp:
       MouseUp(*static_cast<const WebMouseEvent*>(input_event));
       break;
 
-    case WebInputEvent::RAW_KEY_DOWN:
-    case WebInputEvent::KEY_DOWN:
-    case WebInputEvent::KEY_UP:
+    case WebInputEvent::RawKeyDown:
+    case WebInputEvent::KeyDown:
+    case WebInputEvent::KeyUp:
       handled = KeyEvent(*static_cast<const WebKeyboardEvent*>(input_event));
       break;
 
-    case WebInputEvent::CHAR:
+    case WebInputEvent::Char:
       handled = CharEvent(*static_cast<const WebKeyboardEvent*>(input_event));
       break;
     default:
@@ -1302,14 +1307,14 @@ void WebViewImpl::SetInitialFocus(bool reverse) {
 
     // Since we don't have a keyboard event, we'll create one.
     WebKeyboardEvent keyboard_event;
-    keyboard_event.type = WebInputEvent::RAW_KEY_DOWN;
+    keyboard_event.type = WebInputEvent::RawKeyDown;
     if (reverse)
-      keyboard_event.modifiers = WebInputEvent::SHIFT_KEY;
+      keyboard_event.modifiers = WebInputEvent::ShiftKey;
     // VK_TAB which is only defined on Windows.
-    keyboard_event.windows_key_code = 0x09;
+    keyboard_event.windowsKeyCode = 0x09;
     MakePlatformKeyboardEvent platform_event(keyboard_event);
-    RefPtr<KeyboardEvent> webkit_event = KeyboardEvent::create(platform_event,
-                                                               NULL);
+    RefPtr<KeyboardEvent> webkit_event =
+        KeyboardEvent::create(platform_event, NULL);
     page()->focusController()->setInitialFocus(
         reverse ? WebCore::FocusDirectionBackward :
                   WebCore::FocusDirectionForward,

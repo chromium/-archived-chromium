@@ -16,7 +16,6 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/views/view.h"
 #include "webkit/glue/webcursor.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webtextdirection.h"
 
 #if defined(OS_WIN)
@@ -28,6 +27,11 @@
 using base::Time;
 using base::TimeDelta;
 using base::TimeTicks;
+
+using WebKit::WebInputEvent;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 // How long to (synchronously) wait for the renderer to respond with a
 // PaintRect message, when our backing-store is invalid, before giving up and
@@ -278,7 +282,7 @@ void RenderWidgetHost::ForwardMouseEvent(const WebMouseEvent& mouse_event) {
   // to note that WM_MOUSEMOVE events are anyways synthetic, but since our
   // thread is able to rapidly consume WM_MOUSEMOVE events, we may get way
   // more WM_MOUSEMOVE events than we wish to send to the renderer.
-  if (mouse_event.type == WebInputEvent::MOUSE_MOVE) {
+  if (mouse_event.type == WebInputEvent::MouseMove) {
     if (mouse_move_pending_) {
       next_mouse_move_.reset(new WebMouseEvent(mouse_event));
       return;
@@ -296,15 +300,15 @@ void RenderWidgetHost::ForwardWheelEvent(
 
 void RenderWidgetHost::ForwardKeyboardEvent(
     const NativeWebKeyboardEvent& key_event) {
-  if (key_event.type == WebKeyboardEvent::CHAR &&
-      (key_event.windows_key_code == base::VKEY_RETURN ||
-       key_event.windows_key_code == base::VKEY_SPACE)) {
+  if (key_event.type == WebKeyboardEvent::Char &&
+      (key_event.windowsKeyCode == base::VKEY_RETURN ||
+       key_event.windowsKeyCode == base::VKEY_SPACE)) {
     OnEnterOrSpace();
   }
 
   // Double check the type to make sure caller hasn't sent us nonsense that
   // will mess up our key queue.
-  if (WebInputEvent::IsKeyboardEventType(key_event.type)) {
+  if (WebInputEvent::isKeyboardEventType(key_event.type)) {
     // Don't add this key to the queue if we have no way to send the message...
     if (!process_->channel())
       return;
@@ -577,17 +581,17 @@ void RenderWidgetHost::OnMsgInputEventAck(const IPC::Message& message) {
   bool r = message.ReadInt(&iter, &type);
   DCHECK(r);
 
-  if (type == WebInputEvent::MOUSE_MOVE) {
+  if (type == WebInputEvent::MouseMove) {
     mouse_move_pending_ = false;
 
     // now, we can send the next mouse move event
     if (next_mouse_move_.get()) {
-      DCHECK(next_mouse_move_->type == WebInputEvent::MOUSE_MOVE);
+      DCHECK(next_mouse_move_->type == WebInputEvent::MouseMove);
       ForwardMouseEvent(*next_mouse_move_);
     }
   }
 
-  if (WebInputEvent::IsKeyboardEventType(type)) {
+  if (WebInputEvent::isKeyboardEventType(type)) {
     if (key_queue_.size() == 0) {
       LOG(ERROR) << "Got a KeyEvent back from the renderer but we "
                  << "don't seem to have sent it to the renderer!";

@@ -20,9 +20,10 @@
 #include "skia/include/SkMallocPixelRef.h"
 #endif  // defined(OS_POSIX)
 
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webtextdirection.h"
 #include "webkit/glue/webwidget.h"
+
+using WebKit::WebInputEvent;
 
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
     : routing_id_(MSG_ROUTING_NONE),

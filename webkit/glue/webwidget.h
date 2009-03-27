@@ -13,7 +13,10 @@ class Rect;
 class Size;
 }
 
+namespace WebKit {
 class WebInputEvent;
+}
+
 class WebWidgetDelegate;
 
 class WebWidget {
@@ -48,7 +51,7 @@ class WebWidget {
 
   // Called to inform the WebWidget of an input event.
   // Returns true if the event has been processed, false otherwise.
-  virtual bool HandleInputEvent(const WebInputEvent* input_event) = 0;
+  virtual bool HandleInputEvent(const WebKit::WebInputEvent* input_event) = 0;
 
   // Called to inform the WebWidget that mouse capture was lost.
   virtual void MouseCaptureLost() = 0;

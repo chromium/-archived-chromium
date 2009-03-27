@@ -4091,6 +4091,7 @@
       ],
       'include_dirs': [
         '../third_party/WebKit/WebKit/chromium/public',
+        '../third_party/WebKit/WebKit/chromium/src',
       ],
       'defines': [
         'WEBKIT_IMPLEMENTATION',
@@ -4113,6 +4114,8 @@
         '../third_party/WebKit/WebKit/chromium/src/ChromiumBridge.cpp',
         '../third_party/WebKit/WebKit/chromium/src/ChromiumCurrentTime.cpp',
         '../third_party/WebKit/WebKit/chromium/src/ChromiumThreading.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/KeyIdentifier.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/KeyIdentifier.h',
         '../third_party/WebKit/WebKit/chromium/src/WebCache.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebCString.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
@@ -4125,16 +4128,32 @@
           'dependencies': [
             '../build/linux/system.gyp:gtk',
           ],
+          'include_dirs': [
+            '../third_party/WebKit/WebKit/chromium/public/gdk',
+          ],
+          'sources': [
+            '../third_party/WebKit/WebKit/chromium/src/gdk/WebInputEventFactory.cpp',
+          ],
         }],
         ['OS=="mac"', {
+          'include_dirs': [
+            '../third_party/WebKit/WebKit/chromium/public/mac',
+          ],
+          'sources': [
+            '../third_party/WebKit/WebKit/chromium/src/mac/WebInputEventFactory.mm',
+          ],
           'sources!': [
             '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
           ],
         }],
         ['OS=="win"', {
+          'include_dirs': [
+            '../third_party/WebKit/WebKit/chromium/public/win',
+          ],
           'sources': [
             '../third_party/WebKit/WebKit/chromium/public/win/WebSandboxSupport.h',
             '../third_party/WebKit/WebKit/chromium/public/win/WebThemeEngine.h',
+            '../third_party/WebKit/WebKit/chromium/src/win/WebInputEventFactory.cpp',
           ],
         }],
       ],
@@ -4362,12 +4381,6 @@
         'glue/webhistoryitem.h',
         'glue/webhistoryitem_impl.cc',
         'glue/webhistoryitem_impl.h',
-        'glue/webinputevent.h',
-        'glue/webinputevent_linux.cc',
-        'glue/webinputevent_mac.mm',
-        'glue/webinputevent_util.cc',
-        'glue/webinputevent_util.h',
-        'glue/webinputevent_win.cc',
         'glue/webkit_glue.cc',
         'glue/webkit_glue.h',
         'glue/webkit_glue_gtk.cc',

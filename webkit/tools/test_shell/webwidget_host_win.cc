@@ -9,8 +9,15 @@
 #include "base/win_util.h"
 #include "skia/ext/platform_canvas.h"
 #include "skia/ext/platform_canvas_win.h"
-#include "webkit/glue/webinputevent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "webkit/glue/webwidget.h"
+
+using WebKit::WebInputEvent;
+using WebKit::WebInputEventFactory;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
@@ -273,23 +280,24 @@ void WebWidgetHost::Resize(LPARAM lparam) {
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
-  WebMouseEvent event(view_, message, wparam, lparam);
+  const WebMouseEvent& event = WebInputEventFactory::mouseEvent(
+      view_, message, wparam, lparam);
   switch (event.type) {
-    case WebInputEvent::MOUSE_MOVE:
+    case WebInputEvent::MouseMove:
       TrackMouseLeave(true);
       break;
-    case WebInputEvent::MOUSE_LEAVE:
+    case WebInputEvent::MouseLeave:
       TrackMouseLeave(false);
       break;
-    case WebInputEvent::MOUSE_DOWN:
+    case WebInputEvent::MouseDown:
       SetCapture(view_);
-      // This mimics a temporary workaround in RenderWidgetHostViewWin 
-      // for bug 765011 to get focus when the mouse is clicked. This 
-      // happens after the mouse down event is sent to the renderer 
-      // because normally Windows does a WM_SETFOCUS after WM_LBUTTONDOWN.
+      // This mimics a temporary workaround in RenderWidgetHostViewWin for bug
+      // 765011 to get focus when the mouse is clicked. This happens after the
+      // mouse down event is sent to the renderer because normally Windows does
+      // a WM_SETFOCUS after WM_LBUTTONDOWN.
       ::SetFocus(view_);
       break;
-    case WebInputEvent::MOUSE_UP:
+    case WebInputEvent::MouseUp:
       if (GetCapture() == view_)
         ReleaseCapture();
       break;
@@ -298,12 +306,14 @@ void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {
 }
 
 void WebWidgetHost::WheelEvent(WPARAM wparam, LPARAM lparam) {
-  WebMouseWheelEvent event(view_, WM_MOUSEWHEEL, wparam, lparam);
+  const WebMouseWheelEvent& event = WebInputEventFactory::mouseWheelEvent(
+      view_, WM_MOUSEWHEEL, wparam, lparam);
   webwidget_->HandleInputEvent(&event);
 }
 
 void WebWidgetHost::KeyEvent(UINT message, WPARAM wparam, LPARAM lparam) {
-  WebKeyboardEvent event(view_, message, wparam, lparam);
+  const WebKeyboardEvent& event = WebInputEventFactory::keyboardEvent(
+      view_, message, wparam, lparam);
   webwidget_->HandleInputEvent(&event);
 }
 

@@ -93,15 +93,7 @@
             ['exclude', '_gtk\\.cc$']
           ],
         }],
-        ['OS=="mac"', {
-          'sources': [
-            # Windows/Linux use this code normally when constructing events, so
-            # in test_shell they get it from glue. The Mac has its own code for
-            # accomplishing it, so in test_shell, where events are constructed
-            # from scratch, we need to pull this in.
-            '../../glue/webinputevent_util.cc',
-          ]
-        }, {  # else: OS!=mac
+        ['OS!="mac"', {
           'sources/': [
             ['exclude', 'mac/[^/]*\\.(cc|mm?)$'],
             ['exclude', '_mac\\.(cc|mm?)$'],

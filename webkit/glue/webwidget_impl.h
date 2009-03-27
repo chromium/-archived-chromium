@@ -16,19 +16,22 @@
 #include "FramelessScrollViewClient.h"
 
 namespace WebCore {
-  class Frame;
-  class FramelessScrollView;
-  class KeyboardEvent;
-  class Page;
-  class PlatformKeyboardEvent;
-  class Range;
-  class Widget;
+class Frame;
+class FramelessScrollView;
+class KeyboardEvent;
+class Page;
+class PlatformKeyboardEvent;
+class Range;
+class Widget;
 }
 
-struct MenuItem;
+namespace WebKit {
 class WebKeyboardEvent;
 class WebMouseEvent;
 class WebMouseWheelEvent;
+}
+
+struct MenuItem;
 class WebWidgetDelegate;
 
 class WebWidgetImpl : public WebWidget,
@@ -41,7 +44,7 @@ class WebWidgetImpl : public WebWidget,
   virtual gfx::Size GetSize() { return size(); }
   virtual void Layout();
   virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
-  virtual bool HandleInputEvent(const WebInputEvent* input_event);
+  virtual bool HandleInputEvent(const WebKit::WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
   virtual bool ImeSetComposition(int string_type,
@@ -67,13 +70,13 @@ class WebWidgetImpl : public WebWidget,
     return delegate_;
   }
 
-  void MouseMove(const WebMouseEvent& mouse_event);
-  void MouseLeave(const WebMouseEvent& mouse_event);
-  void MouseDown(const WebMouseEvent& mouse_event);
-  void MouseUp(const WebMouseEvent& mouse_event);
-  void MouseDoubleClick(const WebMouseEvent& mouse_event);
-  void MouseWheel(const WebMouseWheelEvent& wheel_event);
-  bool KeyEvent(const WebKeyboardEvent& key_event);
+  void MouseMove(const WebKit::WebMouseEvent& mouse_event);
+  void MouseLeave(const WebKit::WebMouseEvent& mouse_event);
+  void MouseDown(const WebKit::WebMouseEvent& mouse_event);
+  void MouseUp(const WebKit::WebMouseEvent& mouse_event);
+  void MouseDoubleClick(const WebKit::WebMouseEvent& mouse_event);
+  void MouseWheel(const WebKit::WebMouseWheelEvent& wheel_event);
+  bool KeyEvent(const WebKit::WebKeyboardEvent& key_event);
 
  protected:
   friend class WebWidget;  // So WebWidget::Create can call our constructor

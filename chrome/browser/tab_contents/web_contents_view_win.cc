@@ -29,7 +29,8 @@
 #include "net/base/net_util.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/glue/webdropdata.h"
-#include "webkit/glue/webinputevent.h"
+
+using WebKit::WebInputEvent;
 
 namespace {
 
@@ -304,7 +305,7 @@ void WebContentsViewWin::HandleKeyboardEvent(
   // Previous calls to TranslateMessage can generate CHAR events as well as
   // RAW_KEY_DOWN events, even if the latter triggered an accelerator.  In these
   // cases, we discard the CHAR events.
-  if (event.type == WebInputEvent::CHAR && ignore_next_char_event_) {
+  if (event.type == WebInputEvent::Char && ignore_next_char_event_) {
     ignore_next_char_event_ = false;
     return;
   }
@@ -312,19 +313,19 @@ void WebContentsViewWin::HandleKeyboardEvent(
 
   // The renderer returned a keyboard event it did not process. This may be
   // a keyboard shortcut that we have to process.
-  if (event.type == WebInputEvent::RAW_KEY_DOWN) {
+  if (event.type == WebInputEvent::RawKeyDown) {
     views::FocusManager* focus_manager =
         views::FocusManager::GetFocusManager(GetNativeView());
     // We may not have a focus_manager at this point (if the tab has been
     // switched by the time this message returned).
     if (focus_manager) {
-      views::Accelerator accelerator(event.windows_key_code,
-          (event.modifiers & WebInputEvent::SHIFT_KEY) ==
-              WebInputEvent::SHIFT_KEY,
-          (event.modifiers & WebInputEvent::CTRL_KEY) ==
-              WebInputEvent::CTRL_KEY,
-          (event.modifiers & WebInputEvent::ALT_KEY) ==
-              WebInputEvent::ALT_KEY);
+      views::Accelerator accelerator(event.windowsKeyCode,
+          (event.modifiers & WebInputEvent::ShiftKey) ==
+              WebInputEvent::ShiftKey,
+          (event.modifiers & WebInputEvent::ControlKey) ==
+              WebInputEvent::ControlKey,
+          (event.modifiers & WebInputEvent::AltKey) ==
+              WebInputEvent::AltKey);
 
       // This is tricky: we want to set ignore_next_char_event_ if
       // ProcessAccelerator returns true. But ProcessAccelerator might delete

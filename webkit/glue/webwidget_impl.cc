@@ -22,13 +22,18 @@ MSVC_POP_WARNING();
 #include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/event_conversion.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webwidget_impl.h"
 
 using namespace WebCore;
+
+using WebKit::WebInputEvent;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 // WebWidget ----------------------------------------------------------------
 
@@ -165,30 +170,30 @@ bool WebWidgetImpl::HandleInputEvent(const WebInputEvent* input_event) {
   // methods. For now we'll assume it has processed them (as we are only
   // interested in whether keyboard events are processed).
   switch (input_event->type) {
-    case WebInputEvent::MOUSE_MOVE:
+    case WebInputEvent::MouseMove:
       MouseMove(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
-    case WebInputEvent::MOUSE_LEAVE:
+    case WebInputEvent::MouseLeave:
       MouseLeave(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
-    case WebInputEvent::MOUSE_WHEEL:
+    case WebInputEvent::MouseWheel:
       MouseWheel(*static_cast<const WebMouseWheelEvent*>(input_event));
       return true;
 
-    case WebInputEvent::MOUSE_DOWN:
-    case WebInputEvent::MOUSE_DOUBLE_CLICK:
+    case WebInputEvent::MouseDown:
+    case WebInputEvent::MouseDoubleClick:
       MouseDown(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
-    case WebInputEvent::MOUSE_UP:
+    case WebInputEvent::MouseUp:
       MouseUp(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
-    case WebInputEvent::RAW_KEY_DOWN:
-    case WebInputEvent::KEY_DOWN:
-    case WebInputEvent::KEY_UP:
+    case WebInputEvent::RawKeyDown:
+    case WebInputEvent::KeyDown:
+    case WebInputEvent::KeyUp:
       return KeyEvent(*static_cast<const WebKeyboardEvent*>(input_event));
 
     default:

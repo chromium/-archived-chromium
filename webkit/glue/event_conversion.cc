@@ -15,12 +15,17 @@
 #undef LOG
 #include "base/gfx/point.h"
 #include "base/logging.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webinputevent.h"
 #include "webkit/glue/webkit_glue.h"
 
 using namespace WebCore;
+
+using WebKit::WebInputEvent;
+using WebKit::WebKeyboardEvent;
+using WebKit::WebMouseEvent;
+using WebKit::WebMouseWheelEvent;
 
 // MakePlatformMouseEvent -----------------------------------------------------
 
@@ -32,14 +37,14 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
   // TODO(mpcomplete): widget is always toplevel, unless it's a popup.  We
   // may be able to get rid of this once we abstract popups into a WebKit API.
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
-  m_globalPosition = IntPoint(e.global_x, e.global_y);
+  m_globalPosition = IntPoint(e.globalX, e.globalY);
   m_button = static_cast<MouseButton>(e.button);
-  m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
-  m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
-  m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
-  m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
+  m_shiftKey = (e.modifiers & WebInputEvent::ShiftKey) != 0;
+  m_ctrlKey = (e.modifiers & WebInputEvent::ControlKey) != 0;
+  m_altKey = (e.modifiers & WebInputEvent::AltKey) != 0;
+  m_metaKey = (e.modifiers & WebInputEvent::MetaKey) != 0;
   m_modifierFlags = e.modifiers;
-  m_timestamp = e.timestamp_sec;
+  m_timestamp = e.timeStampSeconds;
 
   // This differs slightly from the WebKit code in WebKit/win/WebView.cpp where
   // their original code looks buggy.
@@ -59,8 +64,8 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 #endif
 
   switch (e.type) {
-    case WebInputEvent::MOUSE_MOVE:
-    case WebInputEvent::MOUSE_LEAVE:  // synthesize a move event
+    case WebInputEvent::MouseMove:
+    case WebInputEvent::MouseLeave:  // synthesize a move event
       if (cancel_previous_click) {
         last_click_count_ = 0;
         last_click_position = IntPoint();
@@ -72,18 +77,18 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 
   // TODO(port): make these platform agnostic when we restructure this code.
 #if defined(OS_LINUX) || defined(OS_MACOSX)
-    case WebInputEvent::MOUSE_DOUBLE_CLICK:
+    case WebInputEvent::MouseDoubleClick:
       ++m_clickCount;
       // fall through
-    case WebInputEvent::MOUSE_DOWN:
+    case WebInputEvent::MouseDown:
       ++m_clickCount;
       last_click_time_ = current_time;
       last_click_button = m_button;
       m_eventType = MouseEventPressed;
       break;
 #else
-    case WebInputEvent::MOUSE_DOWN:
-    case WebInputEvent::MOUSE_DOUBLE_CLICK:
+    case WebInputEvent::MouseDown:
+    case WebInputEvent::MouseDoubleClick:
       if (!cancel_previous_click && (m_button == last_click_button)) {
         ++last_click_count_;
       } else {
@@ -97,7 +102,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
       break;
 #endif
 
-    case WebInputEvent::MOUSE_UP:
+    case WebInputEvent::MouseUp:
       m_clickCount = last_click_count_;
       m_eventType = MouseEventReleased;
       break;
@@ -107,7 +112,7 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
   }
 
   if (WebKit::layoutTestMode()) {
-    m_clickCount = e.layout_test_click_count;
+    m_clickCount = e.layoutTestClickCount;
   }
 }
 
@@ -116,18 +121,18 @@ MakePlatformMouseEvent::MakePlatformMouseEvent(Widget* widget,
 MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
                                                const WebMouseWheelEvent& e) {
   m_position = widget->convertFromContainingWindow(IntPoint(e.x, e.y));
-  m_globalPosition = IntPoint(e.global_x, e.global_y);
-  m_deltaX = e.delta_x;
-  m_deltaY = e.delta_y;
-  m_wheelTicksX = e.wheel_ticks_x;
-  m_wheelTicksY = e.wheel_ticks_y;
+  m_globalPosition = IntPoint(e.globalX, e.globalY);
+  m_deltaX = e.deltaX;
+  m_deltaY = e.deltaY;
+  m_wheelTicksX = e.wheelTicksX;
+  m_wheelTicksY = e.wheelTicksY;
   m_isAccepted = false;
-  m_granularity = e.scroll_by_page ?
+  m_granularity = e.scrollByPage ?
       ScrollByPageWheelEvent : ScrollByPixelWheelEvent;
-  m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
-  m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
-  m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
-  m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
+  m_shiftKey = (e.modifiers & WebInputEvent::ShiftKey) != 0;
+  m_ctrlKey = (e.modifiers & WebInputEvent::ControlKey) != 0;
+  m_altKey = (e.modifiers & WebInputEvent::AltKey) != 0;
+  m_metaKey = (e.modifiers & WebInputEvent::MetaKey) != 0;
 }
 
 // MakePlatformKeyboardEvent --------------------------------------------------
@@ -135,13 +140,13 @@ MakePlatformWheelEvent::MakePlatformWheelEvent(Widget* widget,
 static inline const PlatformKeyboardEvent::Type ToPlatformKeyboardEventType(
     WebInputEvent::Type type) {
   switch (type) {
-    case WebInputEvent::KEY_UP:
+    case WebInputEvent::KeyUp:
       return PlatformKeyboardEvent::KeyUp;
-    case WebInputEvent::KEY_DOWN:
+    case WebInputEvent::KeyDown:
       return PlatformKeyboardEvent::KeyDown;
-    case WebInputEvent::RAW_KEY_DOWN:
+    case WebInputEvent::RawKeyDown:
       return PlatformKeyboardEvent::RawKeyDown;
-    case WebInputEvent::CHAR:
+    case WebInputEvent::Char:
       return PlatformKeyboardEvent::Char;
     default:
       ASSERT_NOT_REACHED();
@@ -153,17 +158,17 @@ MakePlatformKeyboardEvent::MakePlatformKeyboardEvent(
     const WebKeyboardEvent& e) {
   m_type = ToPlatformKeyboardEventType(e.type);
   m_text = WebCore::String(e.text);
-  m_unmodifiedText = WebCore::String(e.unmodified_text);
-  m_keyIdentifier = WebCore::String(e.key_identifier);
-  m_autoRepeat = (e.modifiers & WebInputEvent::IS_AUTO_REPEAT) != 0;
-  m_windowsVirtualKeyCode = e.windows_key_code;
-  m_nativeVirtualKeyCode = e.native_key_code;
-  m_isKeypad = (e.modifiers & WebInputEvent::IS_KEYPAD) != 0;
-  m_shiftKey = (e.modifiers & WebInputEvent::SHIFT_KEY) != 0;
-  m_ctrlKey = (e.modifiers & WebInputEvent::CTRL_KEY) != 0;
-  m_altKey = (e.modifiers & WebInputEvent::ALT_KEY) != 0;
-  m_metaKey = (e.modifiers & WebInputEvent::META_KEY) != 0;
-  m_isSystemKey = e.system_key;
+  m_unmodifiedText = WebCore::String(e.unmodifiedText);
+  m_keyIdentifier = WebCore::String(e.keyIdentifier);
+  m_autoRepeat = (e.modifiers & WebInputEvent::IsAutoRepeat) != 0;
+  m_windowsVirtualKeyCode = e.windowsKeyCode;
+  m_nativeVirtualKeyCode = e.nativeKeyCode;
+  m_isKeypad = (e.modifiers & WebInputEvent::IsKeyPad) != 0;
+  m_shiftKey = (e.modifiers & WebInputEvent::ShiftKey) != 0;
+  m_ctrlKey = (e.modifiers & WebInputEvent::ControlKey) != 0;
+  m_altKey = (e.modifiers & WebInputEvent::AltKey) != 0;
+  m_metaKey = (e.modifiers & WebInputEvent::MetaKey) != 0;
+  m_isSystemKey = e.isSystemKey;
 }
 
 void MakePlatformKeyboardEvent::SetKeyType(Type type) {

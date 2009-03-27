@@ -219,14 +219,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webinputevent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webinputevent_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\webmediaplayer.h"
 				>
 			</File>
@@ -664,14 +656,6 @@
 			</File>
 			<File
 				RelativePath=".\webhistoryitem_impl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\webinputevent_util.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\webinputevent_util.h"
 				>
 			</File>
 			<File

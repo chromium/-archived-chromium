@@ -14,6 +14,8 @@
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
 
+using WebKit::WebInputEvent;
+using WebKit::WebMouseEvent;
 
 // Right clicking inside on an iframe should produce a context menu
 class ContextMenuCapturing : public TestShellTest {
@@ -45,21 +47,18 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
   // Create a right click in the center of the iframe. (I'm hoping this will
   // make this a bit more robust in case of some other formatting or other bug.)
   WebMouseEvent mouse_event;
-  mouse_event.type = WebInputEvent::MOUSE_DOWN;
-  mouse_event.modifiers = 0;
-  mouse_event.button = WebMouseEvent::BUTTON_RIGHT;
+  mouse_event.type = WebInputEvent::MouseDown;
+  mouse_event.button = WebMouseEvent::ButtonRight;
   mouse_event.x = 250;
   mouse_event.y = 250;
-  mouse_event.global_x = 250;
-  mouse_event.global_y = 250;
-  mouse_event.timestamp_sec = 0;
-  mouse_event.layout_test_click_count = 0;
+  mouse_event.globalX = 250;
+  mouse_event.globalY = 250;
 
   WebView* webview = test_shell_->webView();
   webview->HandleInputEvent(&mouse_event);
 
   // Now simulate the corresponding up event which should display the menu
-  mouse_event.type = WebInputEvent::MOUSE_UP;
+  mouse_event.type = WebInputEvent::MouseUp;
   webview->HandleInputEvent(&mouse_event);
 
   EXPECT_EQ(1U, test_delegate->captured_context_menu_events().size());
