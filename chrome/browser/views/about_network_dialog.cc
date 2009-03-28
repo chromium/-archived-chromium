@@ -273,6 +273,7 @@ AboutNetworkDialog::AboutNetworkDialog() : tracking_(false) {
 
 AboutNetworkDialog::~AboutNetworkDialog() {
   active_dialog = NULL;
+  tracker->StopTracking();
   tracker->Release();
   tracker = NULL;
 }
