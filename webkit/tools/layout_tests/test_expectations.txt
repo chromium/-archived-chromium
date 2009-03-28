@@ -2287,12 +2287,8 @@ LINUX : LayoutTests/editing/selection/4776665.html = FAIL
 // Filed a bug 9371.
 BUG 9371 DEFER WIN : LayoutTests/http/tests/misc/cached-scripts.html = CRASH
 BUG 9371 DEFER WIN : LayoutTests/http/tests/misc/canvas-pattern-from-incremental-image.html = CRASH
-//BUG 9371 DEFER WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH
 BUG 9371 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = CRASH
 BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/security/postMessage/data-url-sends-null-origin.html = CRASH
-
-// Attention: this test, when it does not crash anymore, should be un-commented above in this file as 'failing'
-//BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/methods.html = CRASH
 BUG 9371 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/status-after-abort.html = CRASH
 
 // New tests, need Chromium baseline.
@@ -2334,7 +2330,7 @@ DEFER LINUX : LayoutTests/fast/forms/slider-padding.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
 
-// Merge WebKit: 41944:41999, Mac flaky failures.
+// Mac flaky failures.
 DEFER MAC RELEASE : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
 
 // <input type="search">; various failures, some tests may simply need new
@@ -2350,3 +2346,16 @@ LINUX MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 // r12699 changed how mouse input is handled; seems likely candidate.
 // http://code.google.com/p/chromium/issues/detail?id=9454
 MAC : LayoutTests/fast/events/mouseup-from-button2.html = FAIL
+
+// Merge WebKit: 41999:42026, new tests.
+DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
+DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
+
+// Merge WebKit: 41999:42026, needs a rebaseline.
+DEFER WIN MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+
+// Merge WebKit: 41999:42026.
+BUG 9465 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+BUG 9465 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+BUG 9465 DEFER WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
+BUG 9465 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
