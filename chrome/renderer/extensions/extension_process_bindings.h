@@ -8,6 +8,7 @@
 #define CHROME_RENDERER_EXTENSIONS_EXTENSION_PROCESS_BINDINGS_H_
 
 #include <string>
+#include <vector>
 
 #include "v8/include/v8.h"
 
@@ -17,6 +18,7 @@ namespace extensions_v8 {
 
 class ExtensionProcessBindings {
  public:
+  static void SetFunctionNames(const std::vector<std::string>& names);
   static v8::Extension* Get();
   static void ExecuteCallbackInFrame(WebFrame* frame, int callback_id,
                                      const std::string& response);

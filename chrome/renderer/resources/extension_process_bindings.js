@@ -64,6 +64,11 @@ var chromium;
 
   // Tabs
   chromium.tabs = {};
+  // TODO(aa): This should eventually take an optional windowId param.
+  chromium.tabs.getTabsForWindow = function(callback) {
+    native function GetTabsForWindow();
+    sendRequest(GetTabsForWindow, null, callback);
+  };
   chromium.tabs.createTab = function(tab, callback) {
     native function CreateTab();
     sendRequest(CreateTab, tab, callback);

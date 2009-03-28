@@ -147,6 +147,11 @@ void RenderThread::OnUpdateUserScripts(
   user_script_slave_->UpdateScripts(scripts);
 }
 
+void RenderThread::OnSetExtensionFunctionNames(
+    const std::vector<std::string>& names) {
+  extensions_v8::ExtensionProcessBindings::SetFunctionNames(names);
+}
+
 void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(RenderThread, msg)
     IPC_MESSAGE_HANDLER(ViewMsg_VisitedLink_NewTable, OnUpdateVisitedLinks)
@@ -161,6 +166,8 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                         OnGetCacheResourceStats)
     IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_NewScripts,
                         OnUpdateUserScripts)
+    IPC_MESSAGE_HANDLER(ViewMsg_Extension_SetFunctionNames,
+                        OnSetExtensionFunctionNames)
   IPC_END_MESSAGE_MAP()
 }
 

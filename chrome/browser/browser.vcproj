@@ -822,11 +822,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\automation\automation_provider_list_generic.cc"
+				RelativePath=".\automation\automation_provider_list.h"
 				>
 			</File>
 			<File
-				RelativePath=".\automation\automation_provider_list.h"
+				RelativePath=".\automation\automation_provider_list_generic.cc"
 				>
 			</File>
 			<File
@@ -1906,19 +1906,27 @@
 				>
 			</File>
 			<File
-				RelativePath=".\extensions\extension_api_handler.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\extension_api_handler.h"
-				>
-			</File>
-			<File
 				RelativePath=".\extensions\extension_error_reporter.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\extensions\extension_error_reporter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_function.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_function.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_function_dispatcher.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_function_dispatcher.h"
 				>
 			</File>
 			<File
@@ -1935,6 +1943,14 @@
 			</File>
 			<File
 				RelativePath=".\extensions\extension_protocols.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_tabs_module.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_tabs_module.h"
 				>
 			</File>
 			<File

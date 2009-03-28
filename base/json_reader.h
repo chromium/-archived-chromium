@@ -85,6 +85,8 @@ class JSONReader {
   static const char* kUnsupportedEncoding;
   static const char* kUnquotedDictionaryKey;
 
+  JSONReader();
+
   // Reads and parses |json|, returning a Value. The caller owns the returned
   // instance. If |json| is not a properly formed JSON string, returns NULL.
   // If |allow_trailing_comma| is true, we will ignore trailing commas in
@@ -99,24 +101,28 @@ class JSONReader {
                                    bool allow_trailing_comma,
                                    std::string* error_message_out);
 
- private:
-  static std::string FormatErrorMessage(int line, int column,
-                                        const char* description);
-
-  JSONReader();
-  DISALLOW_EVIL_CONSTRUCTORS(JSONReader);
-
-  FRIEND_TEST(JSONReaderTest, Reading);
-  FRIEND_TEST(JSONReaderTest, ErrorMessages);
-
   // Returns the error message if the last call to JsonToValue() failed. If the
   // last call did not fail, returns a valid empty string.
   std::string error_message() { return error_message_; }
 
-  // Pass through method from JSONReader::Read.  We have this so unittests can
-  // disable the root check.
+  // Reads and parses |json|, returning a Value. The caller owns the returned
+  // instance. If |json| is not a properly formed JSON string, returns NULL and
+  // a detailed error can be retrieved from |error_message()|.
+  // If |check_root| is true, we require that the root object be an object or
+  // array. Otherwise, it can be any valid JSON type.
+  // If |allow_trailing_comma| is true, we will ignore trailing commas in
+  // objects and arrays even though this goes against the RFC.
   Value* JsonToValue(const std::string& json, bool check_root,
                      bool allow_trailing_comma);
+
+ private:
+  static std::string FormatErrorMessage(int line, int column,
+                                        const char* description);
+
+  DISALLOW_EVIL_CONSTRUCTORS(JSONReader);
+
+  FRIEND_TEST(JSONReaderTest, Reading);
+  FRIEND_TEST(JSONReaderTest, ErrorMessages);
 
   // Recursively build Value.  Returns NULL if we don't have a valid JSON
   // string.  If |is_root| is true, we verify that the root element is either

@@ -529,6 +529,10 @@ IPC_BEGIN_MESSAGES(View)
                       std::string /* message */,
                       int /* channel_id */)
 
+  // Tell the renderer process all known extension function names.
+  IPC_MESSAGE_CONTROL1(ViewMsg_Extension_SetFunctionNames,
+                       std::vector<std::string>)
+
   // Changes the text direction of a selected input field.
   // * direction (int)
   //   Represents the new text direction.

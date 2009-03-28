@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/extensions/extension_api_handler.h"
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/modal_dialog_event.h"
@@ -641,9 +641,8 @@ class RenderViewHost : public RenderWidgetHost {
 
   bool are_javascript_messages_suppressed_;
 
-  // Handler for extension API requests.
-  // Handles processing IPC messages related to the extension system.
-  ExtensionAPIHandler extension_api_handler_;
+  // Handles processing IPC messages request extension functions be executed.
+  ExtensionFunctionDispatcher extension_function_dispatcher_;
 
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };

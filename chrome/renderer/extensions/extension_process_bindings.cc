@@ -19,11 +19,19 @@ class ExtensionProcessBindingsWrapper : public v8::Extension {
   ExtensionProcessBindingsWrapper()
       : v8::Extension(kExtensionProcessExtensionName, GetSource()) {}
 
+  static void SetFunctionNames(const std::vector<std::string>& names) {
+    function_names_ = new std::set<std::string>();
+    for (size_t i = 0; i < names.size(); ++i) {
+      function_names_->insert(names[i]);
+    }
+  }
+
   virtual v8::Handle<v8::FunctionTemplate> GetNativeFunction(
       v8::Handle<v8::String> name) {
     if (name->Equals(v8::String::New("GetNextCallbackId")))
       return v8::FunctionTemplate::New(GetNextCallbackId);
-    else if (name->Equals(v8::String::New("CreateTab")))
+    else if (function_names_->find(*v8::String::AsciiValue(name)) !=
+             function_names_->end())
       return v8::FunctionTemplate::New(StartRequest, name);
 
     return v8::Handle<v8::FunctionTemplate>();
@@ -53,7 +61,7 @@ class ExtensionProcessBindingsWrapper : public v8::Extension {
   static v8::Handle<v8::Value> StartRequest(const v8::Arguments& args) {
     WebFrame* webframe = WebFrame::RetrieveActiveFrame();
     DCHECK(webframe) << "There should be an active frame since we just got "
-                        "an API called.";
+                        "a native function called.";
     if (!webframe) return v8::Undefined();
 
     WebView* webview = webframe->GetView();
@@ -76,14 +84,22 @@ class ExtensionProcessBindingsWrapper : public v8::Extension {
   }
 
   static std::string* source_;
+  static std::set<std::string>* function_names_;
 };
 
 std::string* ExtensionProcessBindingsWrapper::source_;
+std::set<std::string>* ExtensionProcessBindingsWrapper::function_names_;
 
 
 // static
 v8::Extension* ExtensionProcessBindings::Get() {
   return new ExtensionProcessBindingsWrapper();
+}
+
+// static
+void ExtensionProcessBindings::SetFunctionNames(
+    const std::vector<std::string>& names) {
+  ExtensionProcessBindingsWrapper::SetFunctionNames(names);
 }
 
 // static

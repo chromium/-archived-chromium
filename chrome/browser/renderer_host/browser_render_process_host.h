@@ -109,6 +109,10 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // set of scripts and listen for updates to scripts.
   void InitUserScripts();
 
+  // Initialize support for extension APIs. Send the list of registered API
+  // functions to thre renderer process.
+  void InitExtensions();
+
   // Sends the renderer process a new set of user scripts.
   void SendUserScriptsUpdate(base::SharedMemory* shared_memory);
 

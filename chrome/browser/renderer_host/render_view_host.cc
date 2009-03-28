@@ -100,7 +100,7 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
       are_javascript_messages_suppressed_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(extension_api_handler_(this)) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(extension_function_dispatcher_(this)) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -1354,7 +1354,7 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
                                         int callback_id) {
   // TODO(aa): Here is where we can check that this renderer was supposed to be
   // able to call extension APIs.
-  extension_api_handler_.HandleRequest(name, args, callback_id);
+  extension_function_dispatcher_.HandleRequest(name, args, callback_id);
 }
 
 void RenderViewHost::SendExtensionResponse(int callback_id,

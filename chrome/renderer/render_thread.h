@@ -107,6 +107,7 @@ class RenderThread : public RenderThreadBase,
 
   void OnUpdateVisitedLinks(base::SharedMemoryHandle table);
   void OnUpdateUserScripts(base::SharedMemoryHandle table);
+  void OnSetExtensionFunctionNames(const std::vector<std::string>& names);
   void OnSetNextPageID(int32 next_page_id);
   void OnCreateNewView(gfx::NativeViewId parent_hwnd,
                        ModalDialogEvent modal_dialog_event,

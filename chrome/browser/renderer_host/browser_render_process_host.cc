@@ -346,6 +346,7 @@ bool BrowserRenderProcessHost::Init() {
 
   InitVisitedLinks();
   InitUserScripts();
+  InitExtensions();
 
   if (max_page_id_ != -1)
     channel_->Send(new ViewMsg_SetNextPageID(max_page_id_ + 1));
@@ -446,6 +447,14 @@ void BrowserRenderProcessHost::InitUserScripts() {
 
   // Update the renderer process with the current scripts.
   SendUserScriptsUpdate(user_script_master->GetSharedMemory());
+}
+
+void BrowserRenderProcessHost::InitExtensions() {
+  // TODO(aa): Should only bother sending these function names if this is an
+  // extension process.
+  std::vector<std::string> function_names;
+  ExtensionFunctionDispatcher::GetAllFunctionNames(&function_names);
+  Send(new ViewMsg_Extension_SetFunctionNames(function_names));
 }
 
 void BrowserRenderProcessHost::SendUserScriptsUpdate(
