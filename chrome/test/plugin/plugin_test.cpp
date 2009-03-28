@@ -1,4 +1,4 @@
-// Copyright 2008, Google Inc.
+// Copyright 2008-2009, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,8 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
+#include "third_party/npapi/bindings/npapi.h"
+#include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
@@ -222,3 +224,84 @@ TEST_F(ActiveXTest, CustomScripting) {
   TestActiveX(L"activex_custom_scripting.html", kShortWaitTimeout, true);
 }
 
+// The default plugin tests defined below rely on the following webkit
+// functions and the IsPluginProcess function which is defined in the global
+// namespace. Stubbed these out for now.
+namespace webkit_glue {
+
+bool DownloadUrl(const std::string& url, HWND caller_window) {
+  return false;
+}
+
+bool GetPluginFinderURL(std::string* plugin_finder_url) {
+  return true;
+}
+
+} // namespace webkit_glue
+
+bool IsPluginProcess() {
+  return false;
+}
+
+TEST_F(PluginTest, DefaultPluginParsingTest) {
+  PluginInstallerImpl plugin_installer(NP_EMBED);
+  NPP_t plugin_instance = {0};
+
+  char *arg_names[] = {
+    "classid",
+    "codebase"
+  };
+
+  char *arg_values[] = {
+    "clsid:D27CDB6E-AE6D-11cf-96B8-444553540000",
+    "http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab",
+  };
+
+  bool is_activex = false;
+  std::string raw_activex_clsid;
+  std::string activex_clsid;
+  std::string activex_codebase;
+  std::string plugin_download_url;
+  std::string plugin_finder_url;
+
+  ASSERT_TRUE(PluginInstallerImpl::ParseInstantiationArguments(
+      "application/x-shockwave-flash",
+      &plugin_instance,
+      arraysize(arg_names),
+      arg_names,
+      arg_values,
+      &raw_activex_clsid,
+      &is_activex,
+      &activex_clsid,
+      &activex_codebase,
+      &plugin_download_url,
+      &plugin_finder_url));
+
+  EXPECT_EQ(is_activex, false);
+
+
+  ASSERT_TRUE(PluginInstallerImpl::ParseInstantiationArguments(
+      "",
+      &plugin_instance,
+      arraysize(arg_names),
+      arg_names,
+      arg_values,
+      &raw_activex_clsid,
+      &is_activex,
+      &activex_clsid,
+      &activex_codebase,
+      &plugin_download_url,
+      &plugin_finder_url));
+
+  EXPECT_EQ(is_activex, true);
+  EXPECT_EQ(
+      activex_codebase,
+      "http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab");
+
+  EXPECT_EQ(activex_clsid, "{D27CDB6E-AE6D-11cf-96B8-444553540000}");
+  EXPECT_EQ(raw_activex_clsid, "D27CDB6E-AE6D-11cf-96B8-444553540000");
+
+  EXPECT_EQ(
+      activex_codebase,
+      "http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab");
+}
