@@ -42,9 +42,10 @@ class UnittestTestServer : public HTTPTestServer {
                                    url,
                                    url,            // policy_url
                                    GURL(),         // no referrer
-                                   std::string(),  // no extra headers
                                    "null",         // frame_origin
                                    "null",         // main_frame_origin
+                                   std::string(),  // no extra headers
+                                   "",             // default_mime_type
                                    net::LOAD_NORMAL,
                                    0,
                                    ResourceType::SUB_RESOURCE,
