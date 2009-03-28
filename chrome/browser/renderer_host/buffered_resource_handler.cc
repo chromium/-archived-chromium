@@ -180,6 +180,11 @@ bool BufferedResourceHandler::ShouldBuffer(const GURL& url,
 
 bool BufferedResourceHandler::KeepBuffering(int bytes_read) {
   DCHECK(read_buffer_);
+
+  ResourceDispatcherHost::ExtraRequestInfo* info =
+      ResourceDispatcherHost::ExtraInfoForRequest(request_);
+  DCHECK(info);
+
   if (my_buffer_) {
     // We are using our own buffer to read, update the main buffer.
     CHECK(bytes_read + bytes_read_ < read_buffer_size_);
@@ -192,6 +197,9 @@ bool BufferedResourceHandler::KeepBuffering(int bytes_read) {
   if (sniff_content_) {
     std::string type_hint, new_type;
     request_->GetMimeType(&type_hint);
+
+    if (type_hint.empty())
+      type_hint = info->default_mime_type;
 
     if (!net::SniffMimeType(read_buffer_->data(), bytes_read_,
                             request_->url(), type_hint, &new_type)) {

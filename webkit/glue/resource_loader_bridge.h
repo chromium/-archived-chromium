@@ -180,6 +180,7 @@ class ResourceLoaderBridge {
                                       const std::string& frame_origin,
                                       const std::string& main_frame_origin,
                                       const std::string& headers,
+                                      const std::string& default_mime_type,
                                       int load_flags,
                                       int requestor_pid,
                                       ResourceType::Type request_type,

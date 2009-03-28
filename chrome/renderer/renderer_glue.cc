@@ -235,6 +235,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& frame_origin,
     const std::string& main_frame_origin,
     const std::string& headers,
+    const std::string& default_mime_type,
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
@@ -242,8 +243,8 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
   return dispatch->CreateBridge(method, url, policy_url, referrer,
                                 frame_origin, main_frame_origin, headers,
-                                load_flags, origin_pid, resource_type,
-                                0, routing_id);
+                                default_mime_type, load_flags, origin_pid,
+                                resource_type, 0, routing_id);
 }
 
 void NotifyCacheStats() {

@@ -425,6 +425,9 @@ bool ResourceHandleInternal::Start(
       frame_origin,
       main_frame_origin,
       webkit_glue::CStringToStdString(headerBuf.latin1()),
+      // TODO(abarth): webkit_glue::StringToStdString(
+      //                   request_.defaultMimeType());
+      "",
       load_flags_,
       requestor_pid,
       FromTargetType(request_.targetType()),

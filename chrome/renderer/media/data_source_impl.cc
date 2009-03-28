@@ -200,6 +200,7 @@ void DataSourceImpl::OnInitialize(std::string uri) {
       "null",         // TODO(abarth): provide frame_origin
       "null",         // TODO(abarth): provide main_frame_origin
       std::string(),  // Provide no header.
+      "",             // default_mime_type
       // Prefer to load from cache, also enable downloading the file, the
       // resource will be saved to a single response data file if it's possible.
       net::LOAD_PREFERRING_CACHE | net::LOAD_ENABLE_DOWNLOAD_FILE,

@@ -79,6 +79,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
                      int request_id,
                      std::string frame_origin,
                      std::string main_frame_origin,
+                     std::string default_mime_type,
                      ResourceType::Type resource_type,
                      uint64 upload_size)
         : resource_handler(handler),
@@ -93,6 +94,7 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
           pause_count(0),
           frame_origin(frame_origin),
           main_frame_origin(main_frame_origin),
+          default_mime_type(default_mime_type),
           resource_type(resource_type),
           filter_policy(FilterPolicy::DONT_FILTER),
           last_load_state(net::LOAD_STATE_IDLE),
@@ -140,6 +142,11 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     // The security origin of the main frame that contains the frame making
     // this request.
     std::string main_frame_origin;
+
+    // The MIME type to use if this request lacks a Content-Type response
+    // header.  If |default_mime_type| is "", then use the default sniffing
+    // algorithm.
+    std::string default_mime_type;
 
     ResourceType::Type resource_type;
 

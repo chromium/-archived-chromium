@@ -50,6 +50,7 @@ class IPCResourceLoaderBridge : public ResourceLoaderBridge {
                           const std::string& frame_origin,
                           const std::string& main_frame_origin,
                           const std::string& headers,
+                          const std::string& default_mime_type,
                           int load_flags,
                           int origin_pid,
                           ResourceType::Type resource_type,
@@ -103,6 +104,7 @@ IPCResourceLoaderBridge::IPCResourceLoaderBridge(
     const std::string& frame_origin,
     const std::string& main_frame_origin,
     const std::string& headers,
+    const std::string& default_mime_type,
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
@@ -120,6 +122,7 @@ IPCResourceLoaderBridge::IPCResourceLoaderBridge(
   request_.frame_origin = frame_origin;
   request_.main_frame_origin = main_frame_origin;
   request_.headers = headers;
+  request_.default_mime_type = default_mime_type;
   request_.load_flags = load_flags;
   request_.origin_pid = origin_pid;
   request_.resource_type = resource_type;
@@ -522,6 +525,7 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
     const std::string& frame_origin,
     const std::string& main_frame_origin,
     const std::string& headers,
+    const std::string& default_mime_type,
     int flags,
     int origin_pid,
     ResourceType::Type resource_type,
@@ -530,6 +534,7 @@ webkit_glue::ResourceLoaderBridge* ResourceDispatcher::CreateBridge(
   return new webkit_glue::IPCResourceLoaderBridge(this, method, url, policy_url,
                                                   referrer, frame_origin,
                                                   main_frame_origin, headers,
+                                                  default_mime_type,
                                                   flags, origin_pid,
                                                   resource_type,
                                                   request_context, route_id);

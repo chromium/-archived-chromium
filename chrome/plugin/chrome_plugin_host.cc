@@ -147,6 +147,7 @@ class PluginRequestHandlerProxy
             "null",  // frame_origin
             "null",  // main_frame_origin
             extra_headers_,
+            "", // default_mime_type
             load_flags_,
             GetCurrentProcessId(),
             ResourceType::OBJECT,
