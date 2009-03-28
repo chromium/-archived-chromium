@@ -2355,7 +2355,7 @@ DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FA
 DEFER WIN MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 41999:42026.
-BUG 9465 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-BUG 9465 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-BUG 9465 DEFER WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
-BUG 9465 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+//BUG 9465 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+//BUG 9465 DEFER WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+//BUG 9465 DEFER WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
+//BUG 9465 DEFER WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
