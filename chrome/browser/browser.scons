@@ -534,7 +534,6 @@ input_files = ChromeFileList([
     'renderer_host/backing_store.h',
     'renderer_host/backing_store.cc',
     'renderer_host/backing_store_win.cc',
-    'renderer_host/backing_store_win.cc',
     'renderer_host/browser_render_process_host.cc',
     'renderer_host/browser_render_process_host.h',
     'renderer_host/buffered_resource_handler.cc',
