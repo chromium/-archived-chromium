@@ -5,6 +5,7 @@
 #ifndef BINDINGS_V8_DOM_WRAPPER_MAP
 #define BINDINGS_V8_DOM_WRAPPER_MAP
 
+#include <v8.h>
 #include <wtf/HashMap.h>
 
 // A table of wrappers with weak pointers.

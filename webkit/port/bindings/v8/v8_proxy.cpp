@@ -36,7 +36,6 @@
 #include <v8-debug.h>
 
 #include "v8_proxy.h"
-#include "dom_wrapper_map.h"
 #include "v8_index.h"
 #include "v8_binding.h"
 #include "v8_custom.h"
@@ -44,176 +43,10 @@
 #include "V8DOMWindow.h"
 
 #include "ChromiumBridge.h"
-
-#include "BarInfo.h"
-#include "CanvasGradient.h"
-#include "CanvasPattern.h"
-#include "CanvasPixelArray.h"
-#include "CanvasRenderingContext2D.h"
-#include "CanvasStyle.h"
-#include "CharacterData.h"
-#include "ClientRect.h"
-#include "ClientRectList.h"
-#include "Clipboard.h"
-#include "Console.h"
-#include "Counter.h"
-#include "CSSCharsetRule.h"
-#include "CSSFontFaceRule.h"
-#include "CSSImportRule.h"
-#include "CSSMediaRule.h"
-#include "CSSPageRule.h"
-#include "CSSRule.h"
-#include "CSSRuleList.h"
-#include "CSSValueList.h"
-#include "CSSStyleRule.h"
-#include "CSSStyleSheet.h"
-#include "CSSVariablesDeclaration.h"
-#include "CSSVariablesRule.h"
-#include "Database.h"
-#include "DocumentType.h"
-#include "DocumentFragment.h"
-#include "DOMCoreException.h"
-#include "DOMImplementation.h"
-#include "DOMParser.h"
-#include "DOMSelection.h"
-#include "DOMStringList.h"
-#include "DOMWindow.h"
-#include "Entity.h"
-#include "EventListener.h"
-#include "EventTarget.h"
-#include "Event.h"
-#include "EventException.h"
-#include "ExceptionCode.h"
-#include "File.h"
-#include "FileList.h"
-#include "Frame.h"
-#include "FrameLoader.h"
-#include "FrameTree.h"
-#include "History.h"
-#include "HTMLNames.h"
-#include "HTMLDocument.h"
-#include "HTMLElement.h"
-#include "HTMLImageElement.h"
-#include "HTMLInputElement.h"
-#include "HTMLSelectElement.h"
-#include "HTMLOptionsCollection.h"
-#include "ImageData.h"
-#include "InspectorController.h"
-#include "KeyboardEvent.h"
-#include "Location.h"
-#include "MediaError.h"
-#include "MediaList.h"
-#include "MediaPlayer.h"
-#include "MessageChannel.h"
-#include "MessageEvent.h"
-#include "MessagePort.h"
-#include "MimeTypeArray.h"
-#include "MouseEvent.h"
-#include "MutationEvent.h"
-#include "Navigator.h"  // for MimeTypeArray
-#include "NodeFilter.h"
-#include "Notation.h"
-#include "NodeList.h"
-#include "NodeIterator.h"
-#include "OverflowEvent.h"
-#include "Page.h"
-#include "Plugin.h"
-#include "PluginArray.h"
-#include "ProcessingInstruction.h"
-#include "ProgressEvent.h"
-#include "Range.h"
-#include "RangeException.h"
-#include "Rect.h"
-#include "RGBColor.h"
-#include "Screen.h"
-#include "ScriptExecutionContext.h"
-#include "SecurityOrigin.h"
-#include "Settings.h"
-#include "SQLTransaction.h"
-#include "SQLResultSet.h"
-#include "SQLResultSetRowList.h"
-#include "StyleSheet.h"
-#include "StyleSheetList.h"
-#include "SVGColor.h"
-#include "SVGPaint.h"
-#include "TextEvent.h"
-#include "TextMetrics.h"
-#include "TimeRanges.h"
-#include "TreeWalker.h"
-#include "XSLTProcessor.h"
-#include "V8AbstractEventListener.h"
-#include "V8CustomEventListener.h"
-#include "V8DOMWindow.h"
-#include "V8HTMLElement.h"
-#include "V8LazyEventListener.h"
-#include "V8NodeFilterCondition.h"
-#include "V8ObjectEventListener.h"
-#include "WebKitAnimationEvent.h"
-#include "WebKitCSSKeyframeRule.h"
-#include "WebKitCSSKeyframesRule.h"
-#include "WebKitCSSMatrix.h"
-#include "WebKitCSSTransformValue.h"
-#include "WebKitPoint.h"
-#include "WebKitTransitionEvent.h"
-#include "WheelEvent.h"
-#include "XMLHttpRequest.h"
-#include "XMLHttpRequestException.h"
-#include "XMLHttpRequestProgressEvent.h"
-#include "XMLHttpRequestUpload.h"
-#include "XMLSerializer.h"
-#include "XPathException.h"
-#include "XPathExpression.h"
-#include "XPathNSResolver.h"
-#include "XPathResult.h"
-
+#include "DOMObjectsInclude.h"
 
 #include "ScriptController.h"
-
-#if ENABLE(SVG)
-#include "SVGAngle.h"
-#include "SVGAnimatedPoints.h"
-#include "SVGElement.h"
-#include "SVGElementInstance.h"
-#include "SVGElementInstanceList.h"
-#include "SVGException.h"
-#include "SVGLength.h"
-#include "SVGLengthList.h"
-#include "SVGNumberList.h"
-#include "SVGPathSeg.h"
-#include "SVGPathSegArc.h"
-#include "SVGPathSegClosePath.h"
-#include "SVGPathSegCurvetoCubic.h"
-#include "SVGPathSegCurvetoCubicSmooth.h"
-#include "SVGPathSegCurvetoQuadratic.h"
-#include "SVGPathSegCurvetoQuadraticSmooth.h"
-#include "SVGPathSegLineto.h"
-#include "SVGPathSegLinetoHorizontal.h"
-#include "SVGPathSegLinetoVertical.h"
-#include "SVGPathSegList.h"
-#include "SVGPathSegMoveto.h"
-#include "SVGPointList.h"
-#include "SVGPreserveAspectRatio.h"
-#include "SVGRenderingIntent.h"
-#include "SVGStringList.h"
-#include "SVGTransform.h"
-#include "SVGTransformList.h"
-#include "SVGUnitTypes.h"
-#include "SVGURIReference.h"
-#include "SVGZoomEvent.h"
-#include "V8SVGPODTypeWrapper.h"
-#endif  // SVG
-
-#if ENABLE(WORKERS)
-#include "Worker.h"
-#include "WorkerContext.h"
-#include "WorkerLocation.h"
-#include "WorkerNavigator.h"
-#endif  // WORKERS
-
-#if ENABLE(XPATH)
-#include "XPathEvaluator.h"
-#endif
-
+#include "V8DOMMap.h"
 
 namespace WebCore {
 
@@ -302,43 +135,12 @@ V8EventListener* V8EventListenerList::find(v8::Local<v8::Object> object, bool is
 }
 
 
-// DOM binding algorithm:
-//
-// There are two kinds of DOM objects:
-// 1. DOM tree nodes, such as Document, HTMLElement, ...
-//    there classes implements TreeShared<T> interface;
-// 2. Non-node DOM objects, such as CSSRule, Location, etc.
-//    these classes implement a ref-counted scheme.
-//
-// A DOM object may have a JS wrapper object. If a tree node
-// is alive, its JS wrapper must be kept alive even it is not
-// reachable from JS roots.
-// However, JS wrappers of non-node objects can go away if
-// not reachable from other JS objects. It works like a cache.
-//
-// DOM objects are ref-counted, and JS objects are traced from
-// a set of root objects. They can create a cycle. To break
-// cycles, we do following:
-//   Handles from DOM objects to JS wrappers are always weak,
-// so JS wrappers of non-node object cannot create a cycle.
-//   Before starting a global GC, we create a virtual connection
-// between nodes in the same tree in the JS heap. If the wrapper
-// of one node in a tree is alive, wrappers of all nodes in
-// the same tree are considered alive. This is done by creating
-// object groups in GC prologue callbacks. The mark-compact
-// collector will remove these groups after each GC.
-
-
 // Static utility context.
 v8::Persistent<v8::Context> V8Proxy::m_utilityContext;
 
 // Static list of registered extensions
 V8ExtensionList V8Proxy::m_extensions;
 
-
-// A helper class for undetectable document.all
-class UndetectableHTMLCollection : public HTMLCollection {
-};
 
 #ifndef NDEBUG
 // Keeps track of global handles created (not JS wrappers
@@ -469,66 +271,14 @@ static void EnumerateDOMNodeMap(DOMNodeMap& node_map)
 }
 #endif  // NDEBUG
 
-static void WeakDOMObjectCallback(v8::Persistent<v8::Value> obj, void* para);
-static void WeakActiveDOMObjectCallback(v8::Persistent<v8::Value> obj,
-                                        void* para);
-static void WeakNodeCallback(v8::Persistent<v8::Value> obj, void* para);
-// A map from DOM node to its JS wrapper.
-static DOMWrapperMap<Node>& GetDOMNodeMap()
-{
-  static DOMWrapperMap<Node> static_dom_node_map(&WeakNodeCallback);
-  return static_dom_node_map;
-}
-
-
-// A map from a DOM object (non-node) to its JS wrapper. This map does not
-// contain the DOM objects which can have pending activity (active dom objects).
-DOMWrapperMap<void>& GetDOMObjectMap()
-{
-  static DOMWrapperMap<void>
-    static_dom_object_map(&WeakDOMObjectCallback);
-  return static_dom_object_map;
-}
-
-
-// A map from a DOM object to its JS wrapper for DOM objects which
-// can have pending activity.
-static DOMWrapperMap<void>& GetActiveDOMObjectMap()
-{
-  static DOMWrapperMap<void>
-    static_active_dom_object_map(&WeakActiveDOMObjectCallback);
-  return static_active_dom_object_map;
-}
-
 #if ENABLE(SVG)
-static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Value> obj,
-                                           void* param);
-
-// A map for SVGElementInstances.
-static DOMWrapperMap<SVGElementInstance>& dom_svg_element_instance_map()
-{
-  static DOMWrapperMap<SVGElementInstance>
-      static_dom_svg_element_instance_map(&WeakSVGElementInstanceCallback);
-  return static_dom_svg_element_instance_map;
-}
-
-static void WeakSVGElementInstanceCallback(v8::Persistent<v8::Value> obj,
-                                           void* param)
-{
-  SVGElementInstance* instance = static_cast<SVGElementInstance*>(param);
-  ASSERT(dom_svg_element_instance_map().contains(instance));
-
-  instance->deref();
-  dom_svg_element_instance_map().forget(instance);
-}
-
 v8::Handle<v8::Value> V8Proxy::SVGElementInstanceToV8Object(
     SVGElementInstance* instance)
 {
   if (!instance)
     return v8::Null();
 
-  v8::Handle<v8::Object> existing_instance = dom_svg_element_instance_map().get(instance);
+  v8::Handle<v8::Object> existing_instance = getDOMSVGElementInstanceMap().get(instance);
   if (!existing_instance.IsEmpty())
     return existing_instance;
 
@@ -541,23 +291,10 @@ v8::Handle<v8::Value> V8Proxy::SVGElementInstanceToV8Object(
                           instance);
   if (!result.IsEmpty()) {
     // Only update the DOM SVG element map if the result is non-empty.
-    dom_svg_element_instance_map().set(instance,
+    getDOMSVGElementInstanceMap().set(instance,
       v8::Persistent<v8::Object>::New(result));
   }
   return result;
-}
-
-
-// SVG non-node elements may have a reference to a context node which
-// should be notified when the element is change
-static void WeakSVGObjectWithContext(v8::Persistent<v8::Value> obj,
-                                     void* dom_obj);
-
-// Map of SVG objects with contexts to V8 objects
-static DOMWrapperMap<void>& dom_svg_object_with_context_map() {
-    static DOMWrapperMap<void>
-        static_dom_svg_object_with_context_map(&WeakSVGObjectWithContext);
-    return static_dom_svg_object_with_context_map;
 }
 
 // Map of SVG objects with contexts to their contexts
@@ -574,7 +311,7 @@ v8::Handle<v8::Value> V8Proxy::SVGObjectWithContextToV8Object(
     return v8::Null();
 
   v8::Persistent<v8::Object> result =
-    dom_svg_object_with_context_map().get(object);
+    getDOMSVGObjectWithContextMap().get(object);
   if (!result.IsEmpty()) return result;
 
   // Special case: SVGPathSegs need to be downcast to their real type
@@ -597,38 +334,10 @@ SVG_POD_NATIVE_TYPES(MAKE_CASE)
       default:
         ASSERT(false);
     }
-    dom_svg_object_with_context_map().set(object, result);
+    getDOMSVGObjectWithContextMap().set(object, result);
   }
 
   return result;
-}
-
-static void WeakSVGObjectWithContext(v8::Persistent<v8::Value> obj,
-                                     void* dom_obj)
-{
-  v8::HandleScope handle_scope;
-  ASSERT(dom_svg_object_with_context_map().contains(dom_obj));
-  ASSERT(obj->IsObject());
-
-  // Forget function removes object from the map and dispose the wrapper.
-  dom_svg_object_with_context_map().forget(dom_obj);
-
-  V8ClassIndex::V8WrapperType type =
-    V8Proxy::GetDOMWrapperType(v8::Handle<v8::Object>::Cast(obj));
-
-  switch (type) {
-#define MAKE_CASE(TYPE, NAME)     \
-    case V8ClassIndex::TYPE: static_cast<NAME*>(dom_obj)->deref(); break;
-SVG_OBJECT_TYPES(MAKE_CASE)
-#undef MAKE_CASE
-#define MAKE_CASE(TYPE, NAME)     \
-    case V8ClassIndex::TYPE:      \
-      static_cast<V8SVGPODTypeWrapper<NAME>*>(dom_obj)->deref(); break;
-SVG_POD_NATIVE_TYPES(MAKE_CASE)
-#undef MAKE_CASE
-    default:
-      ASSERT(false);
-  }
 }
 
 void V8Proxy::SetSVGContext(void* obj, SVGElement* context)
@@ -654,63 +363,6 @@ SVGElement* V8Proxy::GetSVGContext(void* obj)
 
 #endif
 
-// Called when obj is near death (not reachable from JS roots)
-// It is time to remove the entry from the table and dispose
-// the handle.
-static void WeakDOMObjectCallback(v8::Persistent<v8::Value> obj,
-                                  void* dom_obj) {
-  v8::HandleScope scope;
-  ASSERT(GetDOMObjectMap().contains(dom_obj));
-  ASSERT(obj->IsObject());
-
-  // Forget function removes object from the map and dispose the wrapper.
-  GetDOMObjectMap().forget(dom_obj);
-
-  V8ClassIndex::V8WrapperType type =
-    V8Proxy::GetDOMWrapperType(v8::Handle<v8::Object>::Cast(obj));
-  switch (type) {
-#define MAKE_CASE(TYPE, NAME)   \
-    case V8ClassIndex::TYPE: static_cast<NAME*>(dom_obj)->deref(); break;
-    DOM_OBJECT_TYPES(MAKE_CASE)
-#undef MAKE_CASE
-    default:
-      ASSERT(false);
-  }
-}
-
-
-static void WeakActiveDOMObjectCallback(v8::Persistent<v8::Value> obj,
-                                        void* dom_obj)
-{
-  v8::HandleScope scope;
-  ASSERT(GetActiveDOMObjectMap().contains(dom_obj));
-  ASSERT(obj->IsObject());
-
-  // Forget function removes object from the map and dispose the wrapper.
-  GetActiveDOMObjectMap().forget(dom_obj);
-
-  V8ClassIndex::V8WrapperType type =
-    V8Proxy::GetDOMWrapperType(v8::Handle<v8::Object>::Cast(obj));
-  switch (type) {
-#define MAKE_CASE(TYPE, NAME)   \
-    case V8ClassIndex::TYPE: static_cast<NAME*>(dom_obj)->deref(); break;
-    ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
-#undef MAKE_CASE
-    default:
-      ASSERT(false);
-  }
-}
-
-static void WeakNodeCallback(v8::Persistent<v8::Value> obj, void* param)
-{
-  Node* node = static_cast<Node*>(param);
-  ASSERT(GetDOMNodeMap().contains(node));
-
-  GetDOMNodeMap().forget(node);
-  node->deref();
-}
-
-
 // A map from a DOM node to its JS wrapper, the wrapper
 // is kept as a strong reference to survive GCs.
 static DOMObjectMap& gc_protected_map() {
@@ -725,11 +377,11 @@ void V8Proxy::GCProtect(void* dom_object)
       return;
   if (gc_protected_map().contains(dom_object))
       return;
-  if (!GetDOMObjectMap().contains(dom_object))
+  if (!getDOMObjectMap().contains(dom_object))
       return;
 
   // Create a new (strong) persistent handle for the object.
-  v8::Persistent<v8::Object> wrapper = GetDOMObjectMap().get(dom_object);
+  v8::Persistent<v8::Object> wrapper = getDOMObjectMap().get(dom_object);
   if (wrapper.IsEmpty()) return;
 
   gc_protected_map().set(dom_object, *v8::Persistent<v8::Object>::New(wrapper));
@@ -756,12 +408,12 @@ static void GCPrologue()
   v8::HandleScope scope;
 
 #ifndef NDEBUG
-  EnumerateDOMObjectMap(GetDOMObjectMap().impl());
+  EnumerateDOMObjectMap(getDOMObjectMap().impl());
 #endif
 
   // Run through all objects with possible pending activity making their
   // wrappers non weak if there is pending activity.
-  DOMObjectMap active_map = GetActiveDOMObjectMap().impl();
+  DOMObjectMap active_map = getActiveDOMObjectMap().impl();
   for (DOMObjectMap::iterator it = active_map.begin(), end = active_map.end();
     it != end; ++it) {
     void* obj = it->first;
@@ -824,7 +476,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
   typedef std::pair<uintptr_t, Node*> GrouperPair;
   typedef Vector<GrouperPair> GrouperList;
 
-  DOMNodeMap node_map = GetDOMNodeMap().impl();
+  DOMNodeMap node_map = getDOMNodeMap().impl();
   GrouperList grouper;
   grouper.reserveCapacity(node_map.size());
 
@@ -890,7 +542,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     group.reserveCapacity(next_key_index - i);
     for (; i < next_key_index; ++i) {
       v8::Persistent<v8::Value> wrapper =
-          GetDOMNodeMap().get(grouper[i].second);
+          getDOMNodeMap().get(grouper[i].second);
       if (!wrapper.IsEmpty())
         group.append(wrapper);
     }
@@ -909,7 +561,7 @@ static void GCEpilogue()
 
   // Run through all objects with pending activity making their wrappers weak
   // again.
-  DOMObjectMap active_map = GetActiveDOMObjectMap().impl();
+  DOMObjectMap active_map = getActiveDOMObjectMap().impl();
   for (DOMObjectMap::iterator it = active_map.begin(), end = active_map.end();
     it != end; ++it) {
     void* obj = it->first;
@@ -921,7 +573,7 @@ static void GCEpilogue()
         NAME* impl = static_cast<NAME*>(obj);                     \
         if (impl->hasPendingActivity()) {                         \
           ASSERT(!wrapper.IsWeak());                              \
-          wrapper.MakeWeak(impl, &WeakActiveDOMObjectCallback);   \
+          wrapper.MakeWeak(impl, &weakActiveDOMObjectCallback);   \
         }                                                         \
         break;                                                    \
       }
@@ -934,8 +586,8 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
 
 #ifndef NDEBUG
   // Check all survivals are weak.
-  EnumerateDOMObjectMap(GetDOMObjectMap().impl());
-  EnumerateDOMNodeMap(GetDOMNodeMap().impl());
+  EnumerateDOMObjectMap(getDOMObjectMap().impl());
+  EnumerateDOMNodeMap(getDOMNodeMap().impl());
   EnumerateDOMObjectMap(gc_protected_map());
   EnumerateGlobalHandles();
 #undef USE_VAR
@@ -1197,8 +849,8 @@ void V8Proxy::DestroyGlobal()
 
 
 bool V8Proxy::DOMObjectHasJSWrapper(void* obj) {
-  return GetDOMObjectMap().contains(obj) ||
-      GetActiveDOMObjectMap().contains(obj);
+  return getDOMObjectMap().contains(obj) ||
+      getActiveDOMObjectMap().contains(obj);
 }
 
 
@@ -1216,7 +868,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
       default: break;
     }
 #endif
-    GetDOMObjectMap().set(obj, wrapper);
+    getDOMObjectMap().set(obj, wrapper);
 }
 
 // The caller must have increased obj's ref count.
@@ -1232,14 +884,14 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
 #undef MAKE_CASE
     }
 #endif
-    GetActiveDOMObjectMap().set(obj, wrapper);
+    getActiveDOMObjectMap().set(obj, wrapper);
 }
 
 // The caller must have increased node's ref count.
 void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrapper)
 {
     ASSERT(MaybeDOMWrapper(wrapper));
-    GetDOMNodeMap().set(node, wrapper);
+    getDOMNodeMap().set(node, wrapper);
 }
 
 PassRefPtr<EventListener> V8Proxy::createInlineEventListener(
@@ -2696,8 +2348,8 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type, void
 
   // Non DOM node
   v8::Persistent<v8::Object> result = is_active_dom_object ?
-                                      GetActiveDOMObjectMap().get(imp) :
-                                      GetDOMObjectMap().get(imp);
+                                      getActiveDOMObjectMap().get(imp) :
+                                      getDOMObjectMap().get(imp);
   if (result.IsEmpty()) {
     v8::Local<v8::Object> v8obj = InstantiateV8Object(type, type, imp);
     if (!v8obj.IsEmpty()) {
@@ -3177,7 +2829,7 @@ v8::Handle<v8::Value> V8Proxy::EventToV8Object(Event* event)
   if (!event)
       return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(event);
+  v8::Handle<v8::Object> wrapper = getDOMObjectMap().get(event);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3236,7 +2888,7 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
 {
   if (!node) return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = GetDOMNodeMap().get(node);
+  v8::Handle<v8::Object> wrapper = getDOMNodeMap().get(node);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3382,7 +3034,7 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
   // XMLHttpRequest is created within its JS counterpart.
   XMLHttpRequest* xhr = target->toXMLHttpRequest();
   if (xhr) {
-    v8::Handle<v8::Object> wrapper = GetActiveDOMObjectMap().get(xhr);
+    v8::Handle<v8::Object> wrapper = getActiveDOMObjectMap().get(xhr);
     ASSERT(!wrapper.IsEmpty());
     return wrapper;
   }
@@ -3390,14 +3042,14 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
   // MessagePort is created within its JS counterpart
   MessagePort* port = target->toMessagePort();
   if (port) {
-    v8::Handle<v8::Object> wrapper = GetActiveDOMObjectMap().get(port);
+    v8::Handle<v8::Object> wrapper = getActiveDOMObjectMap().get(port);
     ASSERT(!wrapper.IsEmpty());
     return wrapper;
   }
 
   XMLHttpRequestUpload* upload = target->toXMLHttpRequestUpload();
   if (upload) {
-    v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(upload);
+    v8::Handle<v8::Object> wrapper = getDOMObjectMap().get(upload);
     ASSERT(!wrapper.IsEmpty());
     return wrapper;
   }
@@ -3439,7 +3091,7 @@ v8::Handle<v8::Value> V8Proxy::StyleSheetToV8Object(StyleSheet* sheet)
 {
   if (!sheet) return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(sheet);
+  v8::Handle<v8::Object> wrapper = getDOMObjectMap().get(sheet);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3471,7 +3123,7 @@ v8::Handle<v8::Value> V8Proxy::CSSValueToV8Object(CSSValue* value)
 {
   if (!value) return v8::Null();
 
-  v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(value);
+  v8::Handle<v8::Object> wrapper = getDOMObjectMap().get(value);
   if (!wrapper.IsEmpty())
     return wrapper;
 
@@ -3508,7 +3160,7 @@ v8::Handle<v8::Value> V8Proxy::CSSRuleToV8Object(CSSRule* rule)
 {
     if (!rule) return v8::Null();
 
-    v8::Handle<v8::Object> wrapper = GetDOMObjectMap().get(rule);
+    v8::Handle<v8::Object> wrapper = getDOMObjectMap().get(rule);
     if (!wrapper.IsEmpty())
         return wrapper;
 
