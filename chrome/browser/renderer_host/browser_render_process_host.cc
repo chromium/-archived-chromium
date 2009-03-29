@@ -474,7 +474,6 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   if (BrowserRenderProcessHost::run_renderer_in_process())
     return false;  // Since process mode can't do fast shutdown.
 
-#if defined(OS_WIN)
   // Test if there's an unload listener
   BrowserRenderProcessHost::listeners_iterator iter;
   // NOTE: This is a bit dangerous.  We know that for now, listeners are
@@ -493,13 +492,6 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
       return false;
     }
   }
-#else
-  // TODO(port): the above is the only reason this file pulls in
-  // RenderWidgetHost and RenderViewHost.
-  // Perhaps IPC::Channel::Listener needs another method like CanTerminate()?
-  // No matter what, some abstractions are getting broken here...
-  NOTIMPLEMENTED();
-#endif
 
   // Otherwise, we're allowed to just terminate the process. Using exit code 0
   // means that UMA won't treat this as a renderer crash.
