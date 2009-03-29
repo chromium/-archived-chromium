@@ -43,7 +43,7 @@ class PluginTest : public TestShellTest {
 };
 
 // Tests navigator.plugins.refresh() works.
-TEST_F(PluginTest, Refresh) {
+TEST_F(PluginTest, DISABLED_Refresh) {
   std::string html = "\
       <div id='result'>Test running....</div>\
       <script>\
