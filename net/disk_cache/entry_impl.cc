@@ -539,6 +539,9 @@ EntryImpl* EntryImpl::Update(EntryImpl* entry) {
 
 bool EntryImpl::IsDirty(int32 current_id) {
   DCHECK(node_.HasData());
+  if (node_.Data()->pointer && !node_.Data()->dirty)
+    return true;
+
   return node_.Data()->dirty && current_id != node_.Data()->dirty;
 }
 

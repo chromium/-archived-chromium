@@ -817,6 +817,23 @@ TEST_F(DiskCacheTest, Backend_InvalidEntry) {
   delete cache;
 }
 
+// We want to be able to deal with abnormal dirty entries.
+TEST_F(DiskCacheTest, Backend_NotMarkedButDirty) {
+  ASSERT_TRUE(CopyTestCache(L"dirty_entry"));
+  std::wstring path = GetCachePath();
+  disk_cache::Backend* cache = disk_cache::CreateCacheBackend(path, false, 0,
+                                                              net::DISK_CACHE);
+  ASSERT_TRUE(NULL != cache);
+
+  disk_cache::Entry *entry1, *entry2;
+  ASSERT_TRUE(cache->OpenEntry("the first key", &entry1));
+  EXPECT_FALSE(cache->OpenEntry("some other key", &entry2));
+  entry1->Close();
+
+  delete cache;
+  EXPECT_TRUE(CheckCacheIntegrity(path));
+}
+
 // We want to be able to deal with messed up entries on disk.
 TEST_F(DiskCacheTest, Backend_InvalidRankings) {
   ASSERT_TRUE(CopyTestCache(L"bad_rankings"));
