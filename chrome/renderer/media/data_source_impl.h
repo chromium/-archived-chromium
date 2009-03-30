@@ -56,8 +56,10 @@
 //   |     Called to obtain current position in the file.
 //   |-- SetPosition()
 //   |     Performs a seek operation.
-//   \-- GetSize()
-//         Retrieve the size of the resource.
+//   |-- GetSize()
+//   |     Retrieve the size of the resource.
+//   \-- IsSeekable()
+//         Returns true if URL is file:/// or else false.
 //
 // IO thread
 //   +-- OnCreateFileStream()
@@ -138,6 +140,7 @@ class DataSourceImpl : public media::DataSource,
   virtual bool GetPosition(int64* position_out);
   virtual bool SetPosition(int64 position);
   virtual bool GetSize(int64* size_out);
+  virtual bool IsSeekable();
 
   const media::MediaFormat& media_format();
 

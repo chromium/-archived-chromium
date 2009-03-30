@@ -158,6 +158,10 @@ class MockDataSource : public DataSource {
     return false;
   }
 
+  virtual bool IsSeekable() {
+    return true;
+  }
+
   // Simple position getter for unit testing.
   int64 position() const { return position_; }
 

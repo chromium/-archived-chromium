@@ -19,8 +19,7 @@ int OpenContext(URLContext* h, const char* filename, int flags) {
   data_source->AddRef();
   h->priv_data = data_source;
   h->flags = URL_RDONLY;
-  // TODO(scherkus): data source should be able to tell us if we're streaming.
-  h->is_streamed = false;
+  h->is_streamed = !data_source->IsSeekable();
   return 0;
 }
 
@@ -113,6 +112,11 @@ FFmpegGlue::FFmpegGlue() {
 }
 
 FFmpegGlue::~FFmpegGlue() {
+  DataSourceMap::iterator iter = data_sources_.begin();
+  while (iter != data_sources_.end()) {
+    DataSource* data_source = iter->second;
+    iter = data_sources_.erase(iter);
+  }
 }
 
 std::string FFmpegGlue::AddDataSource(DataSource* data_source) {
@@ -126,13 +130,13 @@ std::string FFmpegGlue::AddDataSource(DataSource* data_source) {
 
 void FFmpegGlue::RemoveDataSource(DataSource* data_source) {
   AutoLock auto_lock(lock_);
-  for (DataSourceMap::iterator cur, iter = data_sources_.begin();
-       iter != data_sources_.end();) {
-    cur = iter;
-    iter++;
-
-    if (cur->second == data_source)
-      data_sources_.erase(cur);
+  DataSourceMap::iterator iter = data_sources_.begin();
+  while (iter != data_sources_.end()) {
+    if (iter->second == data_source) {
+      iter = data_sources_.erase(iter);
+    } else {
+      ++iter;
+    }
   }
 }
 

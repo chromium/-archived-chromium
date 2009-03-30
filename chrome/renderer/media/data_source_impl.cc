@@ -139,6 +139,12 @@ bool DataSourceImpl::GetSize(int64* size_out) {
   return false;
 }
 
+bool DataSourceImpl::IsSeekable() {
+  // If URI is file then it is seekable.
+  // TODO(hclam): make other protocols seekable.
+  return uri_.find("file:///") == 0;
+}
+
 void DataSourceImpl::OnCreateFileStream(base::PlatformFile file) {
   stream_.reset(
       new net::FileStream(

@@ -34,6 +34,7 @@ class FileDataSource : public DataSource {
   virtual bool GetPosition(int64* position_out);
   virtual bool SetPosition(int64 position);
   virtual bool GetSize(int64* size_out);
+  virtual bool IsSeekable();
 
  private:
   friend class FilterFactoryImpl0<FileDataSource>;

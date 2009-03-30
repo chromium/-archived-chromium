@@ -124,6 +124,9 @@ class DataSource : public MediaFilter {
   // Returns true and the file size, false if the file size could not be
   // retrieved.
   virtual bool GetSize(int64* size_out) = 0;
+
+  // Returns true if this data source supports random seeking.
+  virtual bool IsSeekable() = 0;
 };
 
 
