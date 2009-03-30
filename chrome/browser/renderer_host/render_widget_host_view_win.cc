@@ -815,6 +815,12 @@ LRESULT RenderWidgetHostViewWin::OnMouseEvent(UINT message, WPARAM wparam,
           return 1;
       }
     }
+
+    // WebKit does not update its IME status when a user clicks a mouse button
+    // to change the input focus onto a popup menu. As a workaround, we finish
+    // an ongoing composition every time when we click a left button.
+    if (message == WM_LBUTTONDOWN)
+      ime_input_.CleanupComposition(m_hWnd);
   }
 
   ForwardMouseEventToRenderer(message, wparam, lparam);
