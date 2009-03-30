@@ -28,17 +28,17 @@
       ],
       'msvs_guid': '6AE76406-B03B-11DD-94B1-80B556D89593',
       'sources': [
+        'audio/audio_output.h',
         'audio/linux/audio_manager_linux.cc',
         'audio/mac/audio_manager_mac.cc',
-	'audio/mac/audio_output_mac.h',
-	'audio/mac/audio_output_mac.cc',
+        'audio/mac/audio_output_mac.cc',
+        'audio/mac/audio_output_mac.h',
+        'audio/simple_sources.h',
         'audio/win/audio_manager_win.h',
         'audio/win/audio_output_win.cc',
         'audio/win/simple_sources_win.cc',
         'audio/win/waveout_output_win.cc',
         'audio/win/waveout_output_win.h',
-        'audio/audio_output.h',
-        'audio/simple_sources.h',
         'base/buffers.h',
         'base/data_buffer.cc',
         'base/data_buffer.h',
@@ -66,18 +66,35 @@
         'filters/audio_renderer_impl.cc',
         'filters/audio_renderer_impl.h',
         'filters/decoder_base.h',
+        'filters/ffmpeg_audio_decoder.cc',
+        'filters/ffmpeg_audio_decoder.h',
+        'filters/ffmpeg_common.cc',
+        'filters/ffmpeg_common.h',
+        'filters/ffmpeg_demuxer.cc',
+        'filters/ffmpeg_demuxer.h',
+        'filters/ffmpeg_glue.cc',
+        'filters/ffmpeg_glue.h',
+        'filters/ffmpeg_video_decoder.cc',
+        'filters/ffmpeg_video_decoder.h',
+        'filters/file_data_source.cc',
         'filters/file_data_source.cc',
         'filters/file_data_source.h',
-        'filters/test_video_decoder.h',
+        'filters/file_data_source.h',
         'filters/null_audio_renderer.cc',
         'filters/null_audio_renderer.h',
+        'filters/test_video_decoder.h',
+        'filters/test_video_renderer.h',
         'filters/video_renderer_base.cc',
         'filters/video_renderer_base.h',
         'player/player.cc',
       ],
+      'include_dirs': [
+        '../third_party/ffmpeg/include',
+      ],
       'direct_dependent_settings': {
         'include_dirs': [
           '..',
+          '../third_party/ffmpeg/include',
         ],
       },
       'conditions': [
@@ -88,12 +105,28 @@
               '$(SDKROOT)/System/Library/Frameworks/CoreAudio.framework',
             ],
           },
+          'sources!': [
+            'filters/ffmpeg_audio_decoder.cc',
+            'filters/ffmpeg_glue.cc',
+            'filters/ffmpeg_video_decoder.cc',
+          ],
+        }],
+        ['OS =="win"', {
+          'include_dirs': [
+            '../third_party/ffmpeg/include/win',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '../third_party/ffmpeg/include/win',
+            ],
+          },
         }],
       ],
     },
     {
       'target_name': 'media_unittests',
       'type': 'executable',
+      'msvs_guid': 'C8C6183C-B03C-11DD-B471-DFD256D89593',
       'dependencies': [
         'media',
         '../base/base.gyp:base',
@@ -107,6 +140,8 @@
         'base/run_all_unittests.cc',
         'base/video_frame_impl_unittest.cc',
         'base/yuv_convert_unittest.cc',
+        'filters/ffmpeg_demuxer_unittest.cc',
+        'filters/ffmpeg_glue_unittest.cc',
         'filters/file_data_source_unittest.cc',
         'filters/video_decoder_unittest.cc',
         'filters/video_renderer_unittest.cc',
@@ -121,7 +156,30 @@
             '../build/linux/system.gyp:gtk',
           ],
         }],
+        ['OS=="mac"', {
+          'sources!': [
+            'filters/ffmpeg_demuxer_unittest.cc',
+            'filters/ffmpeg_glue_unittest.cc',
+          ],
+        }],
       ],
     },
+  ],
+  'conditions': [
+    ['OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'media_player',
+          'type': 'executable',
+          'dependencies': [
+            'media',
+            '../base/base.gyp:base',
+          ],
+          'sources': [
+            'player/player.cc',
+          ],
+        },
+      ],
+    }],
   ],
 }
