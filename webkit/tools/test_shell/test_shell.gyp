@@ -63,6 +63,8 @@
         'test_webview_delegate.h',
         'test_webview_delegate_gtk.cc',
         'test_webview_delegate_win.cc',
+        'test_webworker_helper.cc',
+        'test_webworker_helper.h',
         'text_input_controller.cc',
         'text_input_controller.h',
         'webview_host.h',

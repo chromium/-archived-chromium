@@ -8,6 +8,8 @@
 
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
+#include "config.h"
+
 #include "base/file_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/native_widget_types.h"
@@ -29,6 +31,7 @@
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
+#include "webkit/tools/test_shell/test_webworker_helper.h"
 
 #if defined(OS_WIN)
 // TODO(port): make these files work everywhere.
@@ -848,4 +851,12 @@ std::wstring TestWebViewDelegate::GetFrameDescription(WebFrame* webframe) {
     else
       return L"frame (anonymous)";
   }
+}
+
+WebWorker* TestWebViewDelegate::CreateWebWorker(WebWorkerClient* client) {
+#if ENABLE(WORKERS)
+  return TestWebWorkerHelper::CreateWebWorker(client);
+#else
+  return NULL;
+#endif
 }
