@@ -137,8 +137,8 @@ input_files = ChromeFileList([
     '$CHROME_DIR/test/automation/automation_proxy_uitest.cc',
   ]),
   MSVSFilter('TestNPAPI', [
-    'layout_plugin_uitest.cc',
-    'npapi_uitest.cc',
+    'layout_plugin_uitest.cpp',
+    'npapi_uitest.cpp',
   ]),
   MSVSFilter('TestSessionHistory', [
     '$CHROME_DIR/browser/session_history_uitest.cc',
