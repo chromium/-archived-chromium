@@ -33,6 +33,7 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
         ASCIIToUTF16(webkit_glue::GetUIResourceProtocol()));
     WebKit::registerExtension(extensions_v8::GearsExtension::Get());
     WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
+    WebKit::enableWebWorkers();
   }
 
   ~TestShellWebKitInit() {
@@ -42,10 +43,10 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebMimeRegistry* mimeRegistry() {
     return &mime_registry_;
   }
-    
+
   WebKit::WebClipboard* clipboard() {
     if (!clipboard_.get()) {
-      // Mock out clipboard calls in layout test mode so that tests don't mess 
+      // Mock out clipboard calls in layout test mode so that tests don't mess
       // with each other's copies/pastes when running in parallel.
       if (TestShell::layout_test_mode()) {
         clipboard_.reset(new MockWebClipboardImpl());

@@ -451,6 +451,19 @@ DEFER : LayoutTests/fast/replaced/table-percent-height.html = FAIL
 DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
 // -----------------------------------------------------------------
+// Workers
+// -----------------------------------------------------------------
+
+SKIP LINUX MAC : LayoutTests/fast/workers = TIMEOUT FAIL
+SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT FAIL
+SKIP : LayoutTests/fast/workers/worker-timeout.html = TIMEOUT FAIL
+SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
+SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT FAIL
+
+// General V8 bug.
+SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT FAIL
+
+// -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
 // -----------------------------------------------------------------
 
@@ -464,10 +477,6 @@ DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 // Tests deferred until we provide support for a particular feature.
 // -----------------------------------------------------------------
 
-// Worker related tests (ENABLE_WORKERS):
-DEFER SKIP : LayoutTests/fast/workers = TIMEOUT FAIL
-DEFER SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
-DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT
 DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // These tests rely on the keygen tag, which we haven't wired up.
@@ -2312,7 +2321,7 @@ DEFER WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
 // Needs rebaseline. See WebKit 41980
 DEFER WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
-
+  
 // Merge WebKit: 41944:41999, Linux failures.
 DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/focus2.html = FAIL

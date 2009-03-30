@@ -67,13 +67,17 @@ WebWorkerClientImpl::~WebWorkerClientImpl() {
 }
 
 void WebWorkerClientImpl::set_webworker(WebWorker* webworker) {
-  webworker_.reset(webworker);
+  webworker_ = webworker;
 }
 
 void WebWorkerClientImpl::startWorkerContext(
     const WebCore::KURL& scriptURL,
     const WebCore::String& userAgent,
     const WebCore::String& sourceCode) {
+  // Worker.terminate() could be called from JS before the context is started.
+  if (asked_to_terminate_)
+      return;
+
   webworker_->StartWorkerContext(webkit_glue::KURLToGURL(scriptURL),
                                  webkit_glue::StringToString16(userAgent),
                                  webkit_glue::StringToString16(sourceCode));
@@ -89,6 +93,10 @@ void WebWorkerClientImpl::terminateWorkerContext() {
 
 void WebWorkerClientImpl::postMessageToWorkerContext(
     const WebCore::String& message) {
+  // Worker.terminate() could be called from JS before the context is started.
+  if (asked_to_terminate_)
+      return;
+
   ++unconfirmed_message_count_;
   webworker_->PostMessageToWorkerContext(
       webkit_glue::StringToString16(message));
