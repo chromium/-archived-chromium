@@ -201,13 +201,9 @@ class HTTPSRequestTest : public testing::Test {
 #if defined(OS_MACOSX)
 // ssl_client_socket_mac.cc crashes currently in GetSSLInfo
 // when called on a connection with an unrecognized certificate
-#define MAYBE_HTTPSGetTest        DISABLED_HTTPSGetTest
-#define MAYBE_HTTPSMismatchedTest DISABLED_HTTPSMismatchedTest
-#define MAYBE_HTTPSExpiredTest    DISABLED_HTTPSExpiredTest
+#define MAYBE_HTTPSGetTest   DISABLED_HTTPSGetTest
 #else
-#define MAYBE_HTTPSGetTest        HTTPSGetTest
-#define MAYBE_HTTPSMismatchedTest HTTPSMismatchedTest
-#define MAYBE_HTTPSExpiredTest    HTTPSExpiredTest
+#define MAYBE_HTTPSGetTest   HTTPSGetTest
 #endif
 
 TEST_F(HTTPSRequestTest, MAYBE_HTTPSGetTest) {
@@ -237,63 +233,7 @@ TEST_F(HTTPSRequestTest, MAYBE_HTTPSGetTest) {
 #endif
 }
 
-TEST_F(HTTPSRequestTest, MAYBE_HTTPSMismatchedTest) {
-  scoped_refptr<HTTPSTestServer> server =
-      HTTPSTestServer::CreateMismatchedServer(L"net/data/ssl");
-  ASSERT_TRUE(NULL != server.get());
-
-  bool err_allowed = true;
-  for (int i = 0; i < 2 ; i++, err_allowed = !err_allowed) {
-    TestDelegate d;
-    {
-      d.set_allow_certificate_errors(err_allowed);
-      TestURLRequest r(server->TestServerPage(""), &d);
-
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
-
-      MessageLoop::current()->Run();
-
-      EXPECT_EQ(1, d.response_started_count());
-      EXPECT_FALSE(d.received_data_before_response());
-      EXPECT_TRUE(d.have_certificate_errors());
-      if (err_allowed)
-        EXPECT_NE(0, d.bytes_received());
-      else
-        EXPECT_EQ(0, d.bytes_received());
-    }
-  }
-}
-
-TEST_F(HTTPSRequestTest, MAYBE_HTTPSExpiredTest) {
-  scoped_refptr<HTTPSTestServer> server =
-      HTTPSTestServer::CreateExpiredServer(L"net/data/ssl");
-  ASSERT_TRUE(NULL != server.get());
-
-  // Iterate from false to true, just so that we do the opposite of the
-  // previous test in order to increase test coverage.
-  bool err_allowed = false;
-  for (int i = 0; i < 2 ; i++, err_allowed = !err_allowed) {
-    TestDelegate d;
-    {
-      d.set_allow_certificate_errors(err_allowed);
-      TestURLRequest r(server->TestServerPage(""), &d);
-
-      r.Start();
-      EXPECT_TRUE(r.is_pending());
-
-      MessageLoop::current()->Run();
-
-      EXPECT_EQ(1, d.response_started_count());
-      EXPECT_FALSE(d.received_data_before_response());
-      EXPECT_TRUE(d.have_certificate_errors());
-      if (err_allowed)
-        EXPECT_NE(0, d.bytes_received());
-      else
-        EXPECT_EQ(0, d.bytes_received());
-    }
-  }
-}
+// TODO(dkegel): add test for expired and mismatched certificates here
 
 TEST_F(URLRequestTest, CancelTest) {
   TestDelegate d;

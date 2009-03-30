@@ -279,6 +279,12 @@ int SSLClientSocketMac::Connect(CompletionCallback* callback) {
   return rv;
 }
 
+int SSLClientSocketMac::ReconnectIgnoringLastError(
+    CompletionCallback* callback) {
+  // TODO(darin): implement me!
+  return ERR_FAILED;
+}
+
 void SSLClientSocketMac::Disconnect() {
   completed_handshake_ = false;
 
@@ -445,13 +451,7 @@ int SSLClientSocketMac::DoLoop(int last_io_result) {
 
 int SSLClientSocketMac::DoConnect() {
   next_state_ = STATE_CONNECT_COMPLETE;
-
-  // The caller has to make sure that the transport socket is connected. If
-  // it isn't, we will eventually fail when trying to negotiate an SSL session.
-  // But we cannot call transport_->Connect(), as we do not know if there is
-  // any proxy negotiation that needs to be performed prior to establishing
-  // the SSL session.
-  return OK;
+  return transport_->Connect(&io_callback_);
 }
 
 int SSLClientSocketMac::DoConnectComplete(int result) {

@@ -106,6 +106,11 @@ int TCPClientSocket::Connect(CompletionCallback* callback) {
   return ERR_IO_PENDING;
 }
 
+int TCPClientSocket::ReconnectIgnoringLastError(CompletionCallback* callback) {
+  // No ignorable errors!
+  return ERR_UNEXPECTED;
+}
+
 void TCPClientSocket::Disconnect() {
   if (socket_ == INVALID_SOCKET)
     return;

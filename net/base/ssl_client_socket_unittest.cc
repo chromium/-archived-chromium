@@ -79,14 +79,8 @@ TEST_F(SSLClientSocketTest, MAYBE_Connect) {
                             &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
-  net::ClientSocket *transport = new net::TCPClientSocket(addr);
-  rv = transport->Connect(&callback);
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
-
   scoped_ptr<net::SSLClientSocket> sock(
-      socket_factory_->CreateSSLClientSocket(transport,
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
           server_.kHostName, kDefaultSSLConfig));
 
   EXPECT_FALSE(sock->IsConnected());
@@ -117,14 +111,8 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectExpired) {
                             &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
-  net::ClientSocket *transport = new net::TCPClientSocket(addr);
-  rv = transport->Connect(&callback);
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
-
   scoped_ptr<net::SSLClientSocket> sock(
-      socket_factory_->CreateSSLClientSocket(transport,
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
           server_.kHostName, kDefaultSSLConfig));
 
   EXPECT_FALSE(sock->IsConnected());
@@ -138,9 +126,7 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectExpired) {
     EXPECT_EQ(net::ERR_CERT_DATE_INVALID, rv);
   }
 
-  // We cannot test sock->IsConnected(), as the NSS implementation disconnects
-  // the socket when it encounters an error, whereas other implementations
-  // leave it connected.
+  EXPECT_TRUE(sock->IsConnected());
 }
 
 TEST_F(SSLClientSocketTest, MAYBE_ConnectMismatched) {
@@ -154,14 +140,8 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectMismatched) {
                             &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
-  net::ClientSocket *transport = new net::TCPClientSocket(addr);
-  rv = transport->Connect(&callback);
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
-
   scoped_ptr<net::SSLClientSocket> sock(
-      socket_factory_->CreateSSLClientSocket(transport,
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
           server_.kMismatchedHostName, kDefaultSSLConfig));
 
   EXPECT_FALSE(sock->IsConnected());
@@ -175,9 +155,13 @@ TEST_F(SSLClientSocketTest, MAYBE_ConnectMismatched) {
     EXPECT_EQ(net::ERR_CERT_COMMON_NAME_INVALID, rv);
   }
 
-  // We cannot test sock->IsConnected(), as the NSS implementation disconnects
-  // the socket when it encounters an error, whereas other implementations
-  // leave it connected.
+  // The Windows code happens to keep the connection
+  // open now in spite of an error.  The designers of
+  // this API intended to also allow the connection
+  // to be closed on error, in which case the caller
+  // should call ReconnectIgnoringLastError, but
+  // that's currently unimplemented.
+  EXPECT_TRUE(sock->IsConnected());
 }
 
 // TODO(wtc): Add unit tests for IsConnectedAndIdle:
@@ -199,14 +183,8 @@ TEST_F(SSLClientSocketTest, MAYBE_Read) {
   rv = callback.WaitForResult();
   EXPECT_EQ(net::OK, rv);
 
-  net::ClientSocket *transport = new net::TCPClientSocket(addr);
-  rv = transport->Connect(&callback);
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
-
   scoped_ptr<net::SSLClientSocket> sock(
-      socket_factory_->CreateSSLClientSocket(transport,
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
                                              server_.kHostName,
                                              kDefaultSSLConfig));
 
@@ -253,14 +231,8 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_SmallChunks) {
                             &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
-  net::ClientSocket *transport = new net::TCPClientSocket(addr);
-  rv = transport->Connect(&callback);
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
-
   scoped_ptr<net::SSLClientSocket> sock(
-      socket_factory_->CreateSSLClientSocket(transport,
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
           server_.kHostName, kDefaultSSLConfig));
 
   rv = sock->Connect(&callback);
@@ -305,14 +277,8 @@ TEST_F(SSLClientSocketTest, MAYBE_Read_Interrupted) {
                             &addr, NULL);
   EXPECT_EQ(net::OK, rv);
 
-  net::ClientSocket *transport = new net::TCPClientSocket(addr);
-  rv = transport->Connect(&callback);
-  if (rv == net::ERR_IO_PENDING)
-    rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
-
   scoped_ptr<net::SSLClientSocket> sock(
-      socket_factory_->CreateSSLClientSocket(transport,
+      socket_factory_->CreateSSLClientSocket(new net::TCPClientSocket(addr),
           server_.kHostName, kDefaultSSLConfig));
 
   rv = sock->Connect(&callback);

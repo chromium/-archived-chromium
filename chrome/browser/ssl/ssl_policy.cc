@@ -318,13 +318,9 @@ SSLErrorInfo SSLPolicy::GetSSLErrorInfo(SSLManager::CertError* error) {
 
 void SSLPolicy::OnDenyCertificate(SSLManager::CertError* error) {
   // Default behavior for rejecting a certificate.
-  //
-  // While DenyCertForHost() executes synchronously on this thread,
-  // CancelRequest() gets posted to a different thread. Calling
-  // DenyCertForHost() first ensures deterministic ordering.
+  error->CancelRequest();
   error->manager()->DenyCertForHost(error->ssl_info().cert,
                                     error->request_url().host());
-  error->CancelRequest();
 }
 
 void SSLPolicy::OnAllowCertificate(SSLManager::CertError* error) {
@@ -334,13 +330,9 @@ void SSLPolicy::OnAllowCertificate(SSLManager::CertError* error) {
   // new NavigationEntry will not be set until DidNavigate.  This is ok,
   // because the new NavigationEntry will have its max security style set
   // within DidNavigate.
-  //
-  // While AllowCertForHost() executes synchronously on this thread,
-  // ContinueRequest() gets posted to a different thread. Calling
-  // AllowCertForHost() first ensures deterministic ordering.
+  error->ContinueRequest();
   error->manager()->AllowCertForHost(error->ssl_info().cert,
                                      error->request_url().host());
-  error->ContinueRequest();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -80,13 +80,9 @@ int HttpNetworkTransaction::Start(const HttpRequestInfo* request_info,
 
 int HttpNetworkTransaction::RestartIgnoringLastError(
     CompletionCallback* callback) {
-  if (connection_.socket()->IsConnected()) {
-    next_state_ = STATE_WRITE_HEADERS;
-  } else {
-    connection_.set_socket(NULL);
-    connection_.Reset();
-    next_state_ = STATE_INIT_CONNECTION;
-  }
+  // TODO(wtc): If the connection is no longer alive, call
+  // connection_.socket()->ReconnectIgnoringLastError().
+  next_state_ = STATE_WRITE_HEADERS;
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
@@ -253,7 +249,7 @@ LoadState HttpNetworkTransaction::GetLoadState() const {
       return LOAD_STATE_RESOLVING_PROXY_FOR_URL;
     case STATE_RESOLVE_HOST_COMPLETE:
       return LOAD_STATE_RESOLVING_HOST;
-    case STATE_TCP_CONNECT_COMPLETE:
+    case STATE_CONNECT_COMPLETE:
       return LOAD_STATE_CONNECTING;
     case STATE_WRITE_HEADERS_COMPLETE:
     case STATE_WRITE_BODY_COMPLETE:
@@ -412,23 +408,23 @@ int HttpNetworkTransaction::DoLoop(int result) {
         rv = DoResolveHostComplete(rv);
         TRACE_EVENT_END("http.resolve_host", request_, request_->url.spec());
         break;
-      case STATE_TCP_CONNECT:
+      case STATE_CONNECT:
         DCHECK_EQ(OK, rv);
-        TRACE_EVENT_BEGIN("http.tcp_connect", request_, request_->url.spec());
-        rv = DoTCPConnect();
+        TRACE_EVENT_BEGIN("http.connect", request_, request_->url.spec());
+        rv = DoConnect();
         break;
-      case STATE_TCP_CONNECT_COMPLETE:
-        rv = DoTCPConnectComplete(rv);
-        TRACE_EVENT_END("http.tcp_connect", request_, request_->url.spec());
+      case STATE_CONNECT_COMPLETE:
+        rv = DoConnectComplete(rv);
+        TRACE_EVENT_END("http.connect", request_, request_->url.spec());
         break;
-      case STATE_SSL_CONNECT:
+      case STATE_SSL_CONNECT_OVER_TUNNEL:
         DCHECK_EQ(OK, rv);
-        TRACE_EVENT_BEGIN("http.ssl_connect", request_, request_->url.spec());
-        rv = DoSSLConnect();
+        TRACE_EVENT_BEGIN("http.ssl_tunnel", request_, request_->url.spec());
+        rv = DoSSLConnectOverTunnel();
         break;
-      case STATE_SSL_CONNECT_COMPLETE:
-        rv = DoSSLConnectComplete(rv);
-        TRACE_EVENT_END("http.ssl_connect", request_, request_->url.spec());
+      case STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE:
+        rv = DoSSLConnectOverTunnelComplete(rv);
+        TRACE_EVENT_END("http.ssl_tunnel", request_, request_->url.spec());
         break;
       case STATE_WRITE_HEADERS:
         DCHECK_EQ(OK, rv);
@@ -582,42 +578,48 @@ int HttpNetworkTransaction::DoResolveHostComplete(int result) {
   bool ok = (result == OK);
   DidFinishDnsResolutionWithStatus(ok, request_->referrer, this);
   if (ok) {
-    next_state_ = STATE_TCP_CONNECT;
+    next_state_ = STATE_CONNECT;
   } else {
     result = ReconsiderProxyAfterError(result);
   }
   return result;
 }
 
-int HttpNetworkTransaction::DoTCPConnect() {
-  next_state_ = STATE_TCP_CONNECT_COMPLETE;
+int HttpNetworkTransaction::DoConnect() {
+  next_state_ = STATE_CONNECT_COMPLETE;
 
   DCHECK(!connection_.socket());
 
   ClientSocket* s = socket_factory_->CreateTCPClientSocket(addresses_);
+
+  // If we are using a direct SSL connection, then go ahead and create the SSL
+  // wrapper socket now.  Otherwise, we need to first issue a CONNECT request.
+  if (using_ssl_ && !using_tunnel_)
+    s = socket_factory_->CreateSSLClientSocket(s, request_->url.host(),
+                                               ssl_config_);
+
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
 }
 
-int HttpNetworkTransaction::DoTCPConnectComplete(int result) {
-  // If we are using a direct SSL connection, then go ahead and establish the
-  // SSL connection now.  Otherwise, we need to first issue a CONNECT request.
+int HttpNetworkTransaction::DoConnectComplete(int result) {
+  if (IsCertificateError(result))
+    result = HandleCertificateError(result);
+
   if (result == OK) {
-    if (using_ssl_ && !using_tunnel_) {
-      next_state_ = STATE_SSL_CONNECT;
-    } else {
-      next_state_ = STATE_WRITE_HEADERS;
-      if (using_tunnel_)
-        establishing_tunnel_ = true;
-    }
+    next_state_ = STATE_WRITE_HEADERS;
+    if (using_tunnel_)
+      establishing_tunnel_ = true;
   } else {
-    result = ReconsiderProxyAfterError(result);
+    result = HandleSSLHandshakeError(result);
+    if (result != OK)
+      result = ReconsiderProxyAfterError(result);
   }
   return result;
 }
 
-int HttpNetworkTransaction::DoSSLConnect() {
-  next_state_ = STATE_SSL_CONNECT_COMPLETE;
+int HttpNetworkTransaction::DoSSLConnectOverTunnel() {
+  next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE;
 
   // Add a SSL socket on top of our existing transport socket.
   ClientSocket* s = connection_.release_socket();
@@ -627,7 +629,7 @@ int HttpNetworkTransaction::DoSSLConnect() {
   return connection_.socket()->Connect(&io_callback_);
 }
 
-int HttpNetworkTransaction::DoSSLConnectComplete(int result) {
+int HttpNetworkTransaction::DoSSLConnectOverTunnelComplete(int result) {
   if (IsCertificateError(result))
     result = HandleCertificateError(result);
 
@@ -1017,7 +1019,7 @@ int HttpNetworkTransaction::DidReadResponseHeaders() {
           // The proxy sent extraneous data after the headers.
           return ERR_TUNNEL_CONNECTION_FAILED;
         }
-        next_state_ = STATE_SSL_CONNECT;
+        next_state_ = STATE_SSL_CONNECT_OVER_TUNNEL;
         // Reset for the real request and response headers.
         request_headers_.clear();
         request_headers_bytes_sent_ = 0;
@@ -1148,12 +1150,6 @@ int HttpNetworkTransaction::HandleCertificateError(int error) {
     SSLClientSocket* ssl_socket =
         reinterpret_cast<SSLClientSocket*>(connection_.socket());
     ssl_socket->GetSSLInfo(&response_.ssl_info);
-
-    // Add the bad certificate to the set of allowed certificates in the
-    // SSL info object. This data structure will be consulted after calling
-    // RestartIgnoringLastError(). And the user will be asked interactively
-    // before RestartIgnoringLastError() is ever called.
-    ssl_config_.allowed_bad_certs_.insert(response_.ssl_info.cert);
   }
   return error;
 }

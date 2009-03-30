@@ -32,6 +32,9 @@ class MockClientSocket : public net::ClientSocket {
     connected_ = true;
     return net::OK;
   }
+  virtual int ReconnectIgnoringLastError(net::CompletionCallback* callback) {
+    return net::ERR_FAILED;
+  }
   virtual void Disconnect() {
     connected_ = false;
   }

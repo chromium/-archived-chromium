@@ -17,8 +17,6 @@
 
 namespace net {
 
-class X509Certificate;
-
 // An SSL client socket implemented with Mozilla NSS.
 class SSLClientSocketNSS : public SSLClientSocket {
  public:
@@ -36,6 +34,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback);
+  virtual int ReconnectIgnoringLastError(CompletionCallback* callback);
   virtual void Disconnect();
   virtual bool IsConnected() const;
   virtual bool IsConnectedAndIdle() const;
@@ -45,8 +44,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   virtual int Write(const char* buf, int buf_len, CompletionCallback* callback);
 
  private:
-  void InvalidateSessionIfBadCertificate();
-  X509Certificate* UpdateServerCert();
   void DoCallback(int result);
   void OnIOComplete(int result);
 
@@ -62,12 +59,7 @@ class SSLClientSocketNSS : public SSLClientSocket {
   void BufferSendComplete(int result);
   void BufferRecvComplete(int result);
 
-  // NSS calls this when checking certificates. We pass 'this' as the first
-  // argument.
-  static SECStatus OwnAuthCertHandler(void* arg, PRFileDesc* socket,
-                                      PRBool checksig, PRBool is_server);
-
-  // NSS calls this on error.  We pass 'this' as the first argument.
+  // nss calls this on error.  We pass 'this' as the first argument.
   static SECStatus OwnBadCertHandler(void* arg, PRFileDesc* socket);
 
   CompletionCallbackImpl<SSLClientSocketNSS> buffer_send_callback_;
@@ -88,9 +80,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   // Set when handshake finishes.  Value is net error code, see net_errors.h
   int server_cert_error_;
-
-  // Set during handshake.
-  scoped_refptr<X509Certificate> server_cert_;
 
   bool completed_handshake_;
 

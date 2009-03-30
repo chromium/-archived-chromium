@@ -280,6 +280,12 @@ int SSLClientSocketWin::Connect(CompletionCallback* callback) {
   return rv;
 }
 
+int SSLClientSocketWin::ReconnectIgnoringLastError(
+    CompletionCallback* callback) {
+  // TODO(darin): implement me!
+  return ERR_FAILED;
+}
+
 void SSLClientSocketWin::Disconnect() {
   // TODO(wtc): Send SSL close_notify alert.
   completed_handshake_ = false;
@@ -444,13 +450,7 @@ int SSLClientSocketWin::DoLoop(int last_io_result) {
 
 int SSLClientSocketWin::DoConnect() {
   next_state_ = STATE_CONNECT_COMPLETE;
-
-  // The caller has to make sure that the transport socket is connected. If
-  // it isn't, we will eventually fail when trying to negotiate an SSL session.
-  // But we cannot call transport_->Connect(), as we do not know if there is
-  // any proxy negotiation that needs to be performed prior to establishing
-  // the SSL session.
-  return OK;
+  return transport_->Connect(&io_callback_);
 }
 
 int SSLClientSocketWin::DoConnectComplete(int result) {
