@@ -102,7 +102,13 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
 
 def StartTestShell(command, args):
   """Returns the process for a new test_shell started in layout-tests mode."""
-  cmd = command + ['--layout-tests'] + args
+  cmd = []
+  # Hook for injecting valgrind or other runtime instrumentation,
+  # used by e.g. tools/valgrind/valgrind_tests.py.
+  wrapper = os.environ["BROWSER_WRAPPER"]
+  if wrapper != None:
+    cmd += [wrapper]
+  cmd += command + ['--layout-tests'] + args
   return subprocess.Popen(cmd,
                           stdin=subprocess.PIPE,
                           stdout=subprocess.PIPE,
