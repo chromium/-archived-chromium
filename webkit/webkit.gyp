@@ -4135,7 +4135,7 @@
             '../third_party/WebKit/WebKit/chromium/public/gdk',
           ],
           'sources': [
-            '../third_party/WebKit/WebKit/chromium/src/gdk/WebInputEventFactory.cpp',
+            '../third_party/WebKit/WebKit/chromium/src/gtk/WebInputEventFactory.cpp',
           ],
         }],
         ['OS=="mac"', {
