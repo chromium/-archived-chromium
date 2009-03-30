@@ -13,6 +13,6 @@
 		Name="VCLinkerTool"
 		DelayLoadDLLs="crypt32.dll;cryptui.dll;winhttp.dll;wininet.dll;wsock32.dll;winspool.drv;comdlg32.dll;imagehlp.dll;psapi.dll;urlmon.dll;imm32.dll"
 		ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
-		BaseAddress="0x01000000"
+		BaseAddress="0x01c30000"
 	/>
 </VisualStudioPropertySheet>
