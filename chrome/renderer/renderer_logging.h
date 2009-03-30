@@ -6,8 +6,7 @@
 #define CHROME_RENDERER_RENDERER_LOGGING_H_
 
 #include "base/basictypes.h"
-
-class GURL;
+#include "googleurl/src/gurl.h"
 
 namespace renderer_logging {
 
@@ -19,13 +18,38 @@ void SetActiveRendererURL(const GURL& url);
 // and clears the active rendering URL in the destructor.
 class ScopedActiveRenderingURLSetter {
  public:
-  explicit ScopedActiveRenderingURLSetter(const GURL& url);
-  ~ScopedActiveRenderingURLSetter();
+  explicit ScopedActiveRenderingURLSetter(const GURL& url)  {
+    SetActiveRendererURL(url);
+  }
+
+  ~ScopedActiveRenderingURLSetter()  {
+    SetActiveRendererURL(GURL());
+  }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(ScopedActiveRenderingURLSetter);
 };
 
 }  // namespace renderer_logging
+
+#if defined(OS_MACOSX) && __OBJC__
+// Exported for testing purposes.
+
+@class NSString;
+
+typedef void (*SetCrashKeyValueFuncPtr)(NSString*, NSString*);
+typedef void (*ClearCrashKeyValueFuncPtr)(NSString*);
+
+namespace renderer_logging {
+void SetActiveRendererURLImpl(const GURL& url,
+                              SetCrashKeyValueFuncPtr set_key_func,
+                              ClearCrashKeyValueFuncPtr clear_key_func);
+
+extern const int kMaxNumCrashURLChunks;
+extern const int kMaxNumURLChunkValueLength;
+extern const char *kUrlChunkFormatStr;
+}  // namespace renderer_logging
+
+#endif  // defined(OS_MACOSX) && __OBJC__
 
 #endif  // CHROME_RENDERER_RENDERER_LOGGING_H_

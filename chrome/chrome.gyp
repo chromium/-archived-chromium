@@ -1417,6 +1417,10 @@
         'renderer/renderer_glue.cc',
         'renderer/renderer_histogram_snapshots.cc',
         'renderer/renderer_histogram_snapshots.h',
+        'renderer/renderer_logging.h',
+        'renderer/renderer_logging_linux.cc',
+        'renderer/renderer_logging_mac.mm',
+        'renderer/renderer_logging_win.cc',
         'renderer/renderer_main.cc',
         'renderer/renderer_main_platform_delegate.h',
         'renderer/renderer_main_platform_delegate_linux.cc',
@@ -2031,6 +2035,7 @@
         '..',
       ],
       'sources': [
+        'app/breakpad_mac.mm',
         # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
         'browser/autocomplete/history_contents_provider_unittest.cc',
@@ -2160,6 +2165,7 @@
         'renderer/render_thread_unittest.cc',
         'renderer/render_view_unittest.cc',
         'renderer/render_widget_unittest.cc',
+        'renderer/renderer_logging_mac_unittest.mm',
         'renderer/renderer_main_unittest.cc',
         'test/browser_with_test_window_test.cc',
         'test/browser_with_test_window_test.h',

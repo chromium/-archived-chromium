@@ -16,4 +16,17 @@ bool IsCrashReporterEnabled();
 // Call on clean process shutdown.
 void DestructCrashReporter();
 
+#if __OBJC__
+
+@class NSString;
+
+// Set and clear meta information for Minidump.
+// IMPORTANT: On OS X, the key/value pairs are sent to the crash server
+// out of bounds and not recorded on disk in the minidump, this means
+// that if you look at the minidump file locally you won't see them!
+void SetCrashKeyValue(NSString* key, NSString* value);
+void ClearCrashKeyValue(NSString* key);
+
+#endif  // __OBJC__
+
 #endif  // CHROME_APP_BREAKPAD_MAC_H_

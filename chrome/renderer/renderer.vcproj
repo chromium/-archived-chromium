@@ -342,11 +342,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\renderer_logging.cc"
+			RelativePath=".\renderer_logging.h"
 			>
 		</File>
 		<File
-			RelativePath=".\renderer_logging.h"
+			RelativePath=".\renderer_logging_win.cc"
 			>
 		</File>
 		<File

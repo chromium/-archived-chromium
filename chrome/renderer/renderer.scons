@@ -123,6 +123,7 @@ if env.Bit('linux'):
   # Linux-specific.
   input_files.Append(
       'renderer_main_platform_delegate_linux.cc',
+      'renderer_logging_linux.cc',
   )
 
   # TODO(port): Port these to Linux

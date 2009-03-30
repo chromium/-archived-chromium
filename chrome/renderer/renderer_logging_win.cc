@@ -30,12 +30,4 @@ void SetActiveRendererURL(const GURL& url) {
   (set_active_renderer_url)(UTF8ToWide(url.possibly_invalid_spec()).c_str());
 }
 
-ScopedActiveRenderingURLSetter::ScopedActiveRenderingURLSetter(const GURL& url) {
-  SetActiveRendererURL(url);
-}
-
-ScopedActiveRenderingURLSetter::~ScopedActiveRenderingURLSetter() {
-  SetActiveRendererURL(GURL());
-}
-
-}
+}  // namespace renderer_logging

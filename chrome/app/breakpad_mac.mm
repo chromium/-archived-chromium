@@ -4,27 +4,38 @@
 
 #import "chrome/app/breakpad_mac.h"
 
-#import <objc/objc-class.h>
+#import <dlfcn.h>
 #import <Foundation/Foundation.h>
 
 #import "base/basictypes.h"
 #import "base/logging.h"
 #import "base/scoped_nsautorelease_pool.h"
 
-// TODO(jeremy): Remove this block once we include the breakpad sources
-// in the public tree.
-@interface GoogleBreakpadWrapper : NSObject
-  +(void*)Create:(NSDictionary*) parameters;
-  +(void)Release:(void*) ref;
-@end
-typedef void* GoogleBreakpadRef;
-
-namespace {
+// For definition of SetActiveRendererURL().
+#import "chrome/renderer/renderer_logging.h"
+#import "googleurl/src/gurl.h"
 
 // TODO(jeremy): On Windows we store the current URL when a process crashes
 // we probably want to do the same on OS X.
 
+namespace {
+
+// TODO(jeremy): Remove this block once we include the breakpad sources
+// in the public tree.
+typedef void* GoogleBreakpadRef;
+
+typedef void (*GoogleBreakpadSetKeyValuePtr) (GoogleBreakpadRef, NSString*,
+                                              NSString*);
+typedef void (*GoogleBreakpadRemoveKeyValuePtr) (GoogleBreakpadRef, NSString*);
+typedef GoogleBreakpadRef (*GoogleBreakPadCreatePtr) (NSDictionary*);
+typedef void (*GoogleBreakPadReleasePtr) (GoogleBreakpadRef);
+
+
 GoogleBreakpadRef gBreakpadRef = NULL;
+GoogleBreakPadCreatePtr gBreakPadCreateFunc = NULL;
+GoogleBreakPadReleasePtr gBreakPadReleaseFunc = NULL;
+GoogleBreakpadSetKeyValuePtr gBreakpadSetKeyValueFunc = NULL;
+GoogleBreakpadRemoveKeyValuePtr gBreakpadRemoveKeyValueFunc = NULL;
 
 // Did the user optin for reporting stats.
 bool IsStatsReportingAllowed() {
@@ -40,8 +51,8 @@ bool IsCrashReporterEnabled() {
 
 void DestructCrashReporter() {
   if (gBreakpadRef) {
-    Class breakpad_interface = objc_getClass("GoogleBreakpadWrapper");
-    [breakpad_interface Release:gBreakpadRef];
+    DCHECK(gBreakPadReleaseFunc != NULL);
+    gBreakPadReleaseFunc(gBreakpadRef);
     gBreakpadRef = NULL;
   }
 }
@@ -75,21 +86,66 @@ void InitCrashReporter() {
     return;
   }
 
-  Class breakpad_interface = [breakpad_bundle
-      classNamed:@"GoogleBreakpadWrapper"];
+  // Retrieve Breakpad interface functions.
+  gBreakPadCreateFunc = reinterpret_cast<GoogleBreakPadCreatePtr>(
+      dlsym(RTLD_DEFAULT, "GoogleBreakpadCreate"));
+  gBreakPadReleaseFunc = reinterpret_cast<GoogleBreakPadReleasePtr>(
+      dlsym(RTLD_DEFAULT, "GoogleBreakpadRelease"));
+  gBreakpadSetKeyValueFunc = reinterpret_cast<GoogleBreakpadSetKeyValuePtr>(
+      dlsym(RTLD_DEFAULT, "GoogleBreakpadSetKeyValue"));
+  gBreakpadRemoveKeyValueFunc =
+      reinterpret_cast<GoogleBreakpadRemoveKeyValuePtr>(
+          dlsym(RTLD_DEFAULT, "GoogleBreakpadRemoveKeyValue"));
 
-  if (!breakpad_interface) {
-     LOG(ERROR) << "Failed to find GoogleBreakpadWrapper class.";
+  if (!gBreakPadCreateFunc || !gBreakPadReleaseFunc
+      || !gBreakpadSetKeyValueFunc || !gBreakpadRemoveKeyValueFunc) {
+    LOG(ERROR) << "Failed to find Breakpad wrapper classes.";
     return;
   }
 
   NSDictionary* info_dictionary = [main_bundle infoDictionary];
-  GoogleBreakpadRef breakpad = 0;
-  breakpad = [breakpad_interface Create:info_dictionary];
+  GoogleBreakpadRef breakpad = NULL;
+  breakpad = gBreakPadCreateFunc(info_dictionary);
   if (!breakpad) {
     LOG(ERROR) << "Breakpad init failed.";
     return;
   }
 
+  // TODO(jeremy): determine whether we're running in the browser or
+  // renderer processes.
+  bool is_renderer = false;
+
+  // This needs to be set before calling SetCrashKeyValue().
   gBreakpadRef = breakpad;
+
+  // Set breakpad MetaData values.
+  NSString* version_str = [info_dictionary objectForKey:@"CFBundleVersion"];
+  SetCrashKeyValue(@"ver", version_str);
+  NSString* prod_name_str = [info_dictionary objectForKey:@"CFBundleExecutable"];
+  SetCrashKeyValue(@"prod", prod_name_str);
+  SetCrashKeyValue(@"plat", @"OS X");
+  NSString *product_type = is_renderer ? @"renderer" : @"browser";
+  SetCrashKeyValue(@"ptype", product_type);
+}
+
+void SetCrashKeyValue(NSString* key, NSString* value) {
+  // Comment repeated from header to prevent confusion:
+  // IMPORTANT: On OS X, the key/value pairs are sent to the crash server
+  // out of bounds and not recorded on disk in the minidump, this means
+  // that if you look at the minidump file locally you won't see them!
+  if (gBreakpadRef == NULL) {
+    return;
+  }
+
+  DCHECK(gBreakpadSetKeyValueFunc != NULL);
+  gBreakpadSetKeyValueFunc(gBreakpadRef, key, value);
+}
+
+void ClearCrashKeyValue(NSString* key) {
+  if (gBreakpadRef == NULL) {
+    return;
+  }
+
+  DCHECK(gBreakpadRemoveKeyValueFunc != NULL);
+  gBreakpadRemoveKeyValueFunc(gBreakpadRef, key);
 }
