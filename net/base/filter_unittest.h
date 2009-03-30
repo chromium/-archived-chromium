@@ -17,7 +17,8 @@ class MockFilterContext : public FilterContext {
   explicit MockFilterContext(int buffer_size)
     : buffer_size_(buffer_size),
       is_cached_content_(false),
-      is_sdch_response_(false) {
+      is_sdch_response_(false),
+      response_code_(-1) {
   }
 
   void SetBufferSize(int buffer_size) { buffer_size_ = buffer_size; }
@@ -25,6 +26,7 @@ class MockFilterContext : public FilterContext {
   void SetURL(const GURL& gurl) { gurl_ = gurl; }
   void SetRequestTime(const base::Time time) { request_time_ = time; }
   void SetCached(bool is_cached) { is_cached_content_ = is_cached; }
+  void SetResponseCode(int response_code) { response_code_ = response_code; }
   void SetSdchResponse(bool is_sdch_response) {
     is_sdch_response_ = is_sdch_response;
   }
@@ -55,6 +57,8 @@ class MockFilterContext : public FilterContext {
   // How many bytes were fed to filter(s) so far?
   virtual int64 GetByteReadCount() const { return 0; }
 
+  virtual int GetResponseCode() const { return response_code_; }
+
   // What is the desirable input buffer size for these filters?
   virtual int GetInputStreamBufferSize() const { return buffer_size_; }
 
@@ -66,6 +70,7 @@ class MockFilterContext : public FilterContext {
   base::Time request_time_;
   bool is_cached_content_;
   bool is_sdch_response_;
+  int response_code_;
 
   DISALLOW_COPY_AND_ASSIGN(MockFilterContext);
 };

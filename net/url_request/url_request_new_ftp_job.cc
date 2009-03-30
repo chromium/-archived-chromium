@@ -56,7 +56,7 @@ void URLRequestNewFtpJob::GetResponseInfo() {
   NOTIMPLEMENTED();
 }
 
-int URLRequestNewFtpJob::GetResponseCode() {
+int URLRequestNewFtpJob::GetResponseCode() const {
   NOTIMPLEMENTED();
   return -1;
 }

@@ -182,7 +182,7 @@ bool URLRequestHttpJob::GetResponseCookies(
   return true;
 }
 
-int URLRequestHttpJob::GetResponseCode() {
+int URLRequestHttpJob::GetResponseCode() const {
   DCHECK(transaction_.get());
 
   if (!response_info_)

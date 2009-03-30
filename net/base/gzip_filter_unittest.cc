@@ -279,6 +279,9 @@ TEST_F(GZipUnitTest, DecodeGZipWithMistakenSdch) {
   filter_types.push_back(Filter::FILTER_TYPE_SDCH);
   filter_types.push_back(Filter::FILTER_TYPE_GZIP);
   MockFilterContext filter_context(kDefaultBufferSize);
+  // We need a good response code to be sure that a proxy isn't injecting an
+  // error page (As is done by BlueCoat proxies and described in bug 8916).
+  filter_context.SetResponseCode(200);
   scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
   ASSERT_TRUE(filter.get());
   memcpy(filter->stream_buffer()->data(), gzip_encode_buffer_,

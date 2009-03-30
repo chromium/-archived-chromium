@@ -151,7 +151,7 @@ void URLRequestInterceptJob::GetResponseInfo(net::HttpResponseInfo* info) {
   }
 }
 
-int URLRequestInterceptJob::GetResponseCode() {
+int URLRequestInterceptJob::GetResponseCode() const {
   if (!plugin_)
     return -1;
 

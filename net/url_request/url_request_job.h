@@ -105,7 +105,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   }
 
   // Returns the HTTP response code for the request.
-  virtual int GetResponseCode() { return -1; }
+  virtual int GetResponseCode() const { return -1; }
 
   // Called to fetch the encoding types for this request. Only makes sense for
   // some types of requests. Returns true on success. Calling this on a request
@@ -195,10 +195,10 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // FilterContext methods:
   // These methods are not applicable to all connections.
   virtual bool GetMimeType(std::string* mime_type) const { return false; }
-  virtual int64 GetByteReadCount() const;
   virtual bool GetURL(GURL* gurl) const;
   virtual base::Time GetRequestTime() const;
   virtual bool IsCachedContent() const;
+  virtual int64 GetByteReadCount() const;
   virtual int GetInputStreamBufferSize() const { return kFilterBufSize; }
 
  protected:

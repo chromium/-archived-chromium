@@ -42,7 +42,7 @@ class URLRequestHttpJob : public URLRequestJob {
   virtual bool GetCharset(std::string* charset);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
   virtual bool GetResponseCookies(std::vector<std::string>* cookies);
-  virtual int GetResponseCode();
+  virtual int GetResponseCode() const;
   virtual bool GetContentEncodings(
       std::vector<Filter::FilterType>* encoding_type);
   virtual bool IsSdchResponse() const;

@@ -227,7 +227,21 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
       DCHECK(DECODING_ERROR == decoding_status_);
       DCHECK(0 == dest_buffer_excess_index_);
       DCHECK(dest_buffer_excess_.empty());
-      if (possible_pass_through_) {
+      // This is where we try very hard to do error recovery, and make this
+      // protocol robust in teh face of proxies that do many different things.
+      // If we decide that things are looking very bad (too hard to recover),
+      // we may even issue a "meta-refresh" to reload the page without an SDCH
+      // advertisement (so that we are sure we're not hurting anything).  First
+      // we try for some light weight recovery, and teh final else clause below
+      // supports the last ditch meta-refresh approach.
+      //
+      // Watch out for an error page inserted by the proxy as part of a 40x
+      // error response.  When we see such content molestation, we certainly
+      // need to fall into the meta-refresh case.
+      bool successful_response = filter_context().GetResponseCode() == 200;
+      if (possible_pass_through_ && successful_response) {
+        // This is the most graceful response. There really was no error. We
+        // were just overly cautious.
         // We added the sdch coding tag, and it should not have been added.
         // This can happen in server experiments, where the server decides
         // not to use sdch, even though there is a dictionary.  To be
@@ -236,7 +250,7 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
         SdchManager::SdchErrorRecovery(SdchManager::DISCARD_TENTATIVE_SDCH);
         decoding_status_ = PASS_THROUGH;
         dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
-      } else if (!dictionary_hash_is_plausible_) {
+      } else if (successful_response && !dictionary_hash_is_plausible_) {
         // One of the first 9 bytes precluded consideration as a hash.
         // This can't be an SDCH payload, even though the server said it was.
         // This is a major error, as the server or proxy tagged this SDCH even
@@ -246,11 +260,16 @@ Filter::FilterStatus SdchFilter::ReadFilteredData(char* dest_buffer,
         decoding_status_ = PASS_THROUGH;
         dest_buffer_excess_ = dictionary_hash_;  // Send what we scanned.
       } else {
-        // We don't have the dictionary that was demanded.
+        // This is where we try to do the expensive meta-refresh.
+        // Either this was an error response (probably an error page inserted
+        // by a proxy, as in bug 8916) or else we don't have the dictionary that
+        // was demanded.
         // With very low probability, random garbage data looked like a
         // dictionary specifier (8 ASCII characters followed by a null), but
         // that is sufficiently unlikely that we ignore it.
-        if (std::string::npos == mime_type_.find_first_of("text/html")) {
+        if (std::string::npos == mime_type_.find("text/html")) {
+          // Since we can't do a meta-refresh (along with an exponential
+          // backoff), we'll just make sure this NEVER happens again.
           SdchManager::BlacklistDomainForever(url_);
           if (was_cached_)
             SdchManager::SdchErrorRecovery(

@@ -147,7 +147,7 @@ static std::string NewSdchDictionary(const std::string& domain) {
 
 //------------------------------------------------------------------------------
 
-TEST_F(SdchFilterTest, BasicBadDictionary) {
+TEST_F(SdchFilterTest, EmptyInputOk) {
   std::vector<Filter::FilterType> filter_types;
   filter_types.push_back(Filter::FILTER_TYPE_SDCH);
   const int kInputBufferSize(30);
@@ -165,8 +165,183 @@ TEST_F(SdchFilterTest, BasicBadDictionary) {
 
   EXPECT_EQ(0, output_bytes_or_buffer_size);
   EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA, status);
+}
 
-  // Supply bogus data (which doesnt't yet specify a full dictionary hash).
+TEST_F(SdchFilterTest, PassThroughWhenTentative) {
+  std::vector<Filter::FilterType> filter_types;
+  // Selective a tentative filter (which can fall back to pass through).
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  const int kInputBufferSize(30);
+  char output_buffer[20];
+  MockFilterContext filter_context(kInputBufferSize);
+  // Response code needs to be 200 to allow a pass through.
+  filter_context.SetResponseCode(200);
+  std::string url_string("http://ignore.com");
+  filter_context.SetURL(GURL(url_string));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+  // Supply enough data to force a pass-through mode, which means we have
+  // provided more than 9 characters that can't be a dictionary hash.
+  std::string non_sdch_content("This is not SDCH");
+
+  char* input_buffer = filter->stream_buffer()->data();
+  int input_buffer_size = filter->stream_buffer_size();
+  EXPECT_EQ(kInputBufferSize, input_buffer_size);
+
+  EXPECT_LT(static_cast<int>(non_sdch_content.size()),
+            input_buffer_size);
+  memcpy(input_buffer, non_sdch_content.data(),
+         non_sdch_content.size());
+  filter->FlushStreamBuffer(non_sdch_content.size());
+
+  // Try to read output.
+  int output_bytes_or_buffer_size = sizeof(output_buffer);
+  Filter::FilterStatus status = filter->ReadData(output_buffer,
+                                                 &output_bytes_or_buffer_size);
+
+  EXPECT_TRUE(non_sdch_content.size() == output_bytes_or_buffer_size);
+  ASSERT_TRUE(sizeof(output_buffer) > output_bytes_or_buffer_size);
+  output_buffer[output_bytes_or_buffer_size] = '\0';
+  EXPECT_TRUE(non_sdch_content == output_buffer);
+  EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA, status);
+}
+
+TEST_F(SdchFilterTest, RefreshBadReturnCode) {
+  std::vector<Filter::FilterType> filter_types;
+  // Selective a tentative filter (which can fall back to pass through).
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  const int kInputBufferSize(30);
+  char output_buffer[20];
+  MockFilterContext filter_context(kInputBufferSize);
+  // Response code needs to be 200 to allow a pass through.
+  filter_context.SetResponseCode(403);
+  // Meta refresh will only appear for html content
+  filter_context.SetMimeType("text/html");
+  std::string url_string("http://ignore.com");
+  filter_context.SetURL(GURL(url_string));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+  // Supply enough data to force a pass-through mode, which means we have
+  // provided more than 9 characters that can't be a dictionary hash.
+  std::string non_sdch_content("This is not SDCH");
+
+  char* input_buffer = filter->stream_buffer()->data();
+  int input_buffer_size = filter->stream_buffer_size();
+  EXPECT_EQ(kInputBufferSize, input_buffer_size);
+
+  EXPECT_LT(static_cast<int>(non_sdch_content.size()),
+            input_buffer_size);
+  memcpy(input_buffer, non_sdch_content.data(),
+         non_sdch_content.size());
+  filter->FlushStreamBuffer(non_sdch_content.size());
+
+  // Try to read output.
+  int output_bytes_or_buffer_size = sizeof(output_buffer);
+  Filter::FilterStatus status = filter->ReadData(output_buffer,
+                                                 &output_bytes_or_buffer_size);
+
+  // We should have read a long and complicated meta-refresh request.
+  EXPECT_TRUE(sizeof(output_buffer) == output_bytes_or_buffer_size);
+  // Check at least the prefix of the return.
+  EXPECT_EQ(0, strncmp(output_buffer,
+      "<head><META HTTP-EQUIV=\"Refresh\" CONTENT=\"0\"></head>",
+      sizeof(output_buffer)));
+  EXPECT_EQ(Filter::FILTER_OK, status);
+}
+
+TEST_F(SdchFilterTest, ErrorOnBadReturnCode) {
+  std::vector<Filter::FilterType> filter_types;
+  // Selective a tentative filter (which can fall back to pass through).
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  const int kInputBufferSize(30);
+  char output_buffer[20];
+  MockFilterContext filter_context(kInputBufferSize);
+  // Response code needs to be 200 to allow a pass through.
+  filter_context.SetResponseCode(403);
+  // Meta refresh will only appear for html content, so set to something else
+  // to induce an error (we can't meta refresh).
+  filter_context.SetMimeType("anything");
+  std::string url_string("http://ignore.com");
+  filter_context.SetURL(GURL(url_string));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+  // Supply enough data to force a pass-through mode, which means we have
+  // provided more than 9 characters that can't be a dictionary hash.
+  std::string non_sdch_content("This is not SDCH");
+
+  char* input_buffer = filter->stream_buffer()->data();
+  int input_buffer_size = filter->stream_buffer_size();
+  EXPECT_EQ(kInputBufferSize, input_buffer_size);
+
+  EXPECT_LT(static_cast<int>(non_sdch_content.size()),
+            input_buffer_size);
+  memcpy(input_buffer, non_sdch_content.data(),
+         non_sdch_content.size());
+  filter->FlushStreamBuffer(non_sdch_content.size());
+
+  // Try to read output.
+  int output_bytes_or_buffer_size = sizeof(output_buffer);
+  Filter::FilterStatus status = filter->ReadData(output_buffer,
+                                                 &output_bytes_or_buffer_size);
+
+  EXPECT_EQ(0, output_bytes_or_buffer_size);
+  EXPECT_EQ(Filter::FILTER_ERROR, status);
+}
+
+TEST_F(SdchFilterTest, ErrorOnBadReturnCodeWithHtml) {
+  std::vector<Filter::FilterType> filter_types;
+  // Selective a tentative filter (which can fall back to pass through).
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH_POSSIBLE);
+  const int kInputBufferSize(30);
+  char output_buffer[20];
+  MockFilterContext filter_context(kInputBufferSize);
+  // Response code needs to be 200 to allow a pass through.
+  filter_context.SetResponseCode(403);
+  // Meta refresh will only appear for html content
+  filter_context.SetMimeType("text/html");
+  std::string url_string("http://ignore.com");
+  filter_context.SetURL(GURL(url_string));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+  // Supply enough data to force a pass-through mode, which means we have
+  // provided more than 9 characters that can't be a dictionary hash.
+  std::string non_sdch_content("This is not SDCH");
+
+  char* input_buffer = filter->stream_buffer()->data();
+  int input_buffer_size = filter->stream_buffer_size();
+  EXPECT_EQ(kInputBufferSize, input_buffer_size);
+
+  EXPECT_LT(static_cast<int>(non_sdch_content.size()),
+            input_buffer_size);
+  memcpy(input_buffer, non_sdch_content.data(),
+         non_sdch_content.size());
+  filter->FlushStreamBuffer(non_sdch_content.size());
+
+  // Try to read output.
+  int output_bytes_or_buffer_size = sizeof(output_buffer);
+  Filter::FilterStatus status = filter->ReadData(output_buffer,
+                                                 &output_bytes_or_buffer_size);
+
+  // We should have read a long and complicated meta-refresh request.
+  EXPECT_EQ(sizeof(output_buffer), output_bytes_or_buffer_size);
+  // Check at least the prefix of the return.
+  EXPECT_EQ(0, strncmp(output_buffer,
+      "<head><META HTTP-EQUIV=\"Refresh\" CONTENT=\"0\"></head>",
+      sizeof(output_buffer)));
+  EXPECT_EQ(Filter::FILTER_OK, status);
+}
+
+TEST_F(SdchFilterTest, BasicBadDictionary) {
+  std::vector<Filter::FilterType> filter_types;
+  filter_types.push_back(Filter::FILTER_TYPE_SDCH);
+  const int kInputBufferSize(30);
+  char output_buffer[20];
+  MockFilterContext filter_context(kInputBufferSize);
+  std::string url_string("http://ignore.com");
+  filter_context.SetURL(GURL(url_string));
+  scoped_ptr<Filter> filter(Filter::Factory(filter_types, filter_context));
+
+  // Supply bogus data (which doesn't yet specify a full dictionary hash).
   // Dictionary hash is 8 characters followed by a null.
   std::string dictionary_hash_prefix("123");
 
@@ -181,8 +356,9 @@ TEST_F(SdchFilterTest, BasicBadDictionary) {
   filter->FlushStreamBuffer(dictionary_hash_prefix.size());
 
   // With less than a dictionary specifier, try to read output.
-  output_bytes_or_buffer_size = sizeof(output_buffer);
-  status = filter->ReadData(output_buffer, &output_bytes_or_buffer_size);
+  int output_bytes_or_buffer_size = sizeof(output_buffer);
+  Filter::FilterStatus status = filter->ReadData(output_buffer,
+                                                 &output_bytes_or_buffer_size);
 
   EXPECT_EQ(0, output_bytes_or_buffer_size);
   EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA, status);

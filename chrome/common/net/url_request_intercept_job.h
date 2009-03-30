@@ -40,7 +40,7 @@ class URLRequestInterceptJob
   virtual bool GetMimeType(std::string* mime_type) const;
   virtual bool GetCharset(std::string* charset);
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
-  virtual int GetResponseCode();
+  virtual int GetResponseCode() const;
   virtual bool GetContentEncoding(std::string* encoding_type);
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
 

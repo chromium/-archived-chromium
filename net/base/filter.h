@@ -72,6 +72,10 @@ class FilterContext {
   // pushed into a filter for processing)?
   virtual int64 GetByteReadCount() const = 0;
 
+  // What response code was received with the associated network transaction?
+  // For example: 200 is ok.   4xx are error codes. etc.
+  virtual int GetResponseCode() const = 0;
+
   // What is the desirable input buffer size for these filters?
   // This value is currently supplied by the context, and is constant for all
   // filters, even when they are part of a chain of filters. (i.e., we currently

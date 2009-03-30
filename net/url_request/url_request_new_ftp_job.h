@@ -31,7 +31,7 @@ class URLRequestNewFtpJob : public URLRequestJob {
   virtual void Kill();
   virtual uint64 GetUploadProgress() const;
   virtual void GetResponseInfo();
-  virtual int GetResponseCode();
+  virtual int GetResponseCode() const;
   virtual bool GetMoreData();
   virtual bool ReadRawData(net::IOBuffer* buf, int buf_size, int *bytes_read);
 
