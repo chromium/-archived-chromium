@@ -1,7 +1,0 @@
-{
-   # See http://crbug.com/9450
-   v8_bindings_leak_crbug_9450
-   Memcheck:Leak
-   fun:_Znwj
-   fun:_ZN7WebCore7V8Proxy20RegisterGlobalHandleENS_16GlobalHandleTypeEPvN2v810PersistentINS3_5ValueEEE
-}
