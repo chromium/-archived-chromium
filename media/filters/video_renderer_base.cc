@@ -103,7 +103,7 @@ void VideoRendererBase::SubmitReads() {
     number_of_reads_needed_ = 0;
   }
   while (number_to_read > 0) {
-    decoder_->Read(new AssignableBuffer<VideoRendererBase, VideoFrame>(this));
+    decoder_->Read(NewCallback(this, &VideoRendererBase::ReadComplete));
     --number_to_read;
   }
 }
@@ -172,7 +172,7 @@ void VideoRendererBase::TimeUpdateCallback(base::TimeDelta time) {
   }
 }
 
-void VideoRendererBase::OnAssignment(VideoFrame* video_frame) {
+void VideoRendererBase::ReadComplete(VideoFrame* video_frame) {
   bool call_initialized = false;
   bool request_repaint = false;
   {

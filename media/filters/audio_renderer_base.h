@@ -35,9 +35,6 @@ class AudioRendererBase : public AudioRenderer {
   // AudioRenderer implementation.
   virtual bool Initialize(AudioDecoder* decoder);
 
-  // AssignableBuffer<AudioRendererBase, BufferInterface> implementation.
-  virtual void OnAssignment(Buffer* buffer_in);
-
  protected:
   // The default maximum size of the queue.
   static const size_t kDefaultMaxQueueSize;
@@ -54,6 +51,9 @@ class AudioRendererBase : public AudioRenderer {
   // Called by Stop().  Subclasses should perform any necessary cleanup during
   // this time, such as stopping any running threads.
   virtual void OnStop() = 0;
+
+  // Called when a AudioDecoder::Read() completes.
+  virtual void OnReadComplete(Buffer* buffer_in);
 
   // Fills the given buffer with audio data by dequeuing buffers and copying the
   // data into the |dest|.  FillBuffer also takes care of updating the clock.
@@ -94,6 +94,10 @@ class AudioRendererBase : public AudioRenderer {
 
   // Whether or not we've stopped.
   bool stopped_;
+
+  // Audio time at end of last call to FillBuffer().
+  // TODO(ralphl): Update this value after seeking.
+  base::TimeDelta last_fill_buffer_time_;
 
   // Posts a task on the pipeline thread to read a sample from the decoder.  The
   // resulting buffer will be placed in the queue.

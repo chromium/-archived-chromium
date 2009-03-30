@@ -321,7 +321,7 @@ class MockAudioDecoder : public AudioDecoder {
     return media_format_;
   }
 
-  virtual void Read(Assignable<Buffer>* buffer) {
+  virtual void Read(Callback1<Buffer*>::Type* callback) {
     // TODO(ralphl): implement mock read.
     NOTREACHED();
   }
@@ -429,15 +429,16 @@ class MockVideoDecoder : public VideoDecoder {
     return media_format_;
   }
 
-  virtual void Read(Assignable<VideoFrame>* buffer) {
-    buffer->AddRef();
-    host_->PostTask(NewRunnableMethod(this, &MockVideoDecoder::DoRead, buffer));
+  virtual void Read(Callback1<VideoFrame*>::Type* callback) {
+    host_->PostTask(NewRunnableMethod(
+        this, &MockVideoDecoder::DoRead, callback));
   }
 
  private:
   virtual ~MockVideoDecoder() {}
 
-  void DoRead(Assignable<VideoFrame>* buffer) {
+  void DoRead(Callback1<VideoFrame*>::Type* callback) {
+    scoped_ptr<Callback1<VideoFrame*>::Type> scoped_callback(callback);
     if (mock_frame_time_ < config_->media_duration) {
       // TODO(ralphl): Mock video decoder only works with YV12.  Implement other
       // formats as needed.
@@ -459,11 +460,9 @@ class MockVideoDecoder : public VideoDecoder {
         }
         InitializeYV12Frame(frame, (mock_frame_time_.InSecondsF() /
                                     config_->media_duration.InSecondsF()));
-        buffer->SetBuffer(frame);
-        buffer->OnAssignment();
+        callback->Run(frame);
       }
     }
-    buffer->Release();
   }
 
   MediaFormat media_format_;

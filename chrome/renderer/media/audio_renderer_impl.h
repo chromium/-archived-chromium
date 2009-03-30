@@ -83,7 +83,7 @@
 //       Called from AudioRendererBase for stop event.
 //
 // Audio decoder thread (If there's one.)
-// \-- OnAssignment()
+// \-- OnReadComplete()
 //       A raw PCM audio packet buffer is received here, this method is called
 //       from pipeline thread if audio decoder thread does not exist.
 
@@ -129,14 +129,14 @@ class AudioRendererImpl : public media::AudioRendererBase {
   // media::AudioRenderer implementation.
   virtual void SetVolume(float volume);
 
-  // AssignableBuffer<AudioRendererBase, BufferInterface> implementation.
-  virtual void OnAssignment(media::Buffer* buffer_in);
-
  protected:
   // Methods called on audio renderer thread ----------------------------------
   // These methods are called from AudioRendererBase.
   virtual bool OnInitialize(const media::MediaFormat& media_format);
   virtual void OnStop();
+
+  // Called when the decoder completes a Read().
+  virtual void OnReadComplete(media::Buffer* buffer_in);
 
  private:
   friend class media::FilterFactoryImpl1<AudioRendererImpl,

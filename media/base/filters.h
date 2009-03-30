@@ -4,8 +4,7 @@
 
 // Filters are connected in a strongly typed manner, with downstream filters
 // always reading data from upstream filters.  Upstream filters have no clue
-// who is actually reading from them, and return the results via OnAssignment
-// using the AssignableInterface<SomeBufferType> interface:
+// who is actually reading from them, and return the results via callbacks.
 //
 //                         DemuxerStream(Video) <- VideoDecoder <- VideoRenderer
 // DataSource <- Demuxer <
@@ -35,7 +34,6 @@
 
 namespace media {
 
-template <class TBuffer> class Assignable;
 class Buffer;
 class Decoder;
 class DemuxerStream;
@@ -202,8 +200,8 @@ class VideoDecoder : public MediaFilter {
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat& media_format() = 0;
 
-  // Schedules a read and takes ownership of the given buffer.
-  virtual void Read(Assignable<VideoFrame>* video_frame) = 0;
+  // Schedules a read.  Decoder takes ownership of the callback.
+  virtual void Read(Callback1<VideoFrame*>::Type* read_callback) = 0;
 };
 
 
@@ -223,8 +221,8 @@ class AudioDecoder : public MediaFilter {
   // Returns the MediaFormat for this filter.
   virtual const MediaFormat& media_format() = 0;
 
-  // Schedules a read and takes ownership of the given buffer.
-  virtual void Read(Assignable<Buffer>* buffer) = 0;
+  // Schedules a read.  Decoder takes ownership of the callback.
+  virtual void Read(Callback1<Buffer*>::Type* read_callbasck) = 0;
 };
 
 

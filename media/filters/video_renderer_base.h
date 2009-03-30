@@ -38,9 +38,6 @@ class VideoRendererBase : public VideoRenderer {
   // VideoRenderer implementation.
   virtual bool Initialize(VideoDecoder* decoder);
 
-  // Implementation of AssignableBuffer<this>::OnAssignment method.
-  void OnAssignment(VideoFrame* video_frame);
-
  protected:
   // Default tuning parameter values used to initialize the base class.
   static const size_t           kDefaultNumberOfFrames;
@@ -95,6 +92,9 @@ class VideoRendererBase : public VideoRenderer {
                                int* height_out);
 
  private:
+  // Called from decoder's Read() method when a frame is available.
+  void ReadComplete(VideoFrame* video_frame);
+
   // Used internally to post a task that will call the SubmitReads() method.
   // The |lock_| must be acquired before calling this method.  If the value of
   // |number_of_reads_needed_| is 0 or if there is already a pending task then

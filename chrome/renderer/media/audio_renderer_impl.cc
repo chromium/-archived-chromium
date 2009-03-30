@@ -63,9 +63,9 @@ void AudioRendererImpl::OnStop() {
   }
 }
 
-void AudioRendererImpl::OnAssignment(media::Buffer* buffer_in) {
+void AudioRendererImpl::OnReadComplete(media::Buffer* buffer_in) {
   // Use the base class to queue the buffer.
-  AudioRendererBase::OnAssignment(buffer_in);
+  AudioRendererBase::OnReadComplete(buffer_in);
   // Post a task to render thread to notify a packet reception.
   render_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &AudioRendererImpl::OnNotifyAudioPacketReady));

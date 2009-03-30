@@ -177,60 +177,6 @@ class VideoFrame : public StreamSample {
   virtual void Unlock() = 0;
 };
 
-
-// An interface for receiving the results of an asynchronous read.  Downstream
-// filters typically implement this interface or use AssignableBuffer and
-// provide it to upstream filters as a read request.  When the upstream filter
-// has completed the read, they call SetBuffer/OnAssignment to notify the
-// downstream filter.
-//
-// TODO(scherkus): rethink the Assignable interface -- it's a bit kludgy.
-template <class BufferType>
-class Assignable
-    : public base::RefCountedThreadSafe< Assignable<BufferType> > {
- public:
-  // Assigns a buffer to the owner.
-  virtual void SetBuffer(BufferType* buffer) = 0;
-
-  // Notifies the owner that an assignment has been completed.
-  virtual void OnAssignment() = 0;
-
-  // TODO(scherkus): figure out a solution to friending a template.
-  // See http://www.comeaucomputing.com/techtalk/templates/#friendclassT for
-  // an explanation.
-  // protected:
-  // friend class base::RefCountedThreadSafe< Assignable<class T> >;
-  virtual ~Assignable() {}
-};
-
-
-// Template for easily creating Assignable buffers.  Pass in the pointer of the
-// object to receive the OnAssignment callback.
-template <class OwnerType, class BufferType>
-class AssignableBuffer : public Assignable<BufferType> {
- public:
-  explicit AssignableBuffer(OwnerType* owner)
-      : owner_(owner),
-        buffer_(NULL) {
-    DCHECK(owner_);
-  }
-
-  // AssignableBuffer<BufferType> implementation.
-  virtual void SetBuffer(BufferType* buffer) {
-    buffer_ = buffer;
-  }
-
-  virtual void OnAssignment() {
-    owner_->OnAssignment(buffer_.get());
-  }
-
- private:
-  OwnerType* owner_;
-  scoped_refptr<BufferType> buffer_;
-
-  DISALLOW_COPY_AND_ASSIGN(AssignableBuffer);
-};
-
 }  // namespace media
 
 #endif  // MEDIA_BASE_BUFFERS_H_

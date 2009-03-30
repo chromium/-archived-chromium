@@ -21,6 +21,8 @@ namespace media {
 template <class Decoder, class Output>
 class DecoderBase : public Decoder {
  public:
+  typedef CallbackRunner< Tuple1<Output*> > ReadCallback;
+
   // MediaFilter implementation.
   virtual void Stop() {
     OnStop();
@@ -61,19 +63,19 @@ class DecoderBase : public Decoder {
   virtual const MediaFormat& media_format() { return media_format_; }
 
   // Audio or Video decoder.
-  virtual void Read(Assignable<Output>* output) {
+  virtual void Read(ReadCallback* read_callback) {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
-      output->AddRef();
-      output_queue_.push_back(output);
+      read_queue_.push_back(read_callback);
       ScheduleProcessTask();
+    } else {
+      delete read_callback;
     }
   }
 
   void OnReadComplete(Buffer* buffer) {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
-      buffer->AddRef();
       input_queue_.push_back(buffer);
       --pending_reads_;
       ScheduleProcessTask();
@@ -103,7 +105,6 @@ class DecoderBase : public Decoder {
   void EnqueueResult(Output* output) {
     AutoLock auto_lock(lock_);
     if (IsRunning()) {
-      output->AddRef();
       result_queue_.push_back(output);
     }
   }
@@ -174,9 +175,9 @@ class DecoderBase : public Decoder {
     lock_.AssertAcquired();
     bool did_read = false;
     if (IsRunning() &&
-        pending_reads_ + input_queue_.size() < output_queue_.size()) {
+        pending_reads_ + input_queue_.size() < read_queue_.size()) {
       did_read = true;
-      size_t read = output_queue_.size() - pending_reads_ - input_queue_.size();
+      size_t read = read_queue_.size() - pending_reads_ - input_queue_.size();
       pending_reads_ += read;
       {
         AutoUnlock unlock(lock_);
@@ -197,36 +198,32 @@ class DecoderBase : public Decoder {
     bool did_decode = false;
     while (IsRunning() && !input_queue_.empty()) {
       did_decode = true;
-      Buffer* input = input_queue_.front();
+      scoped_refptr<Buffer> input = input_queue_.front();
       input_queue_.pop_front();
       // Release |lock_| before calling the derived class to do the decode.
       {
         AutoUnlock unlock(lock_);
         OnDecode(input);
-        input->Release();
       }
     }
     return did_decode;
   }
 
-  // Removes any buffers from the |result_queue_| and assigns them to a pending
-  // read Assignable buffer in the |output_queue_|.
+  // Removes any buffers from the |result_queue_| and calls the next callback
+  // in the |read_queue_|.
   bool ProcessOutput() {
     lock_.AssertAcquired();
     bool called_renderer = false;
-    while (IsRunning() && !output_queue_.empty() && !result_queue_.empty()) {
+    while (IsRunning() && !read_queue_.empty() && !result_queue_.empty()) {
       called_renderer = true;
-      Output* output = result_queue_.front();
+      scoped_refptr<Output> output = result_queue_.front();
       result_queue_.pop_front();
-      Assignable<Output>* assignable_output = output_queue_.front();
-      output_queue_.pop_front();
+      scoped_ptr<ReadCallback> read_callback(read_queue_.front());
+      read_queue_.pop_front();
       // Release |lock_| before calling the renderer.
       {
         AutoUnlock unlock(lock_);
-        assignable_output->SetBuffer(output);
-        output->Release();
-        assignable_output->OnAssignment();
-        assignable_output->Release();
+        read_callback->Run(output);
       }
     }
     return called_renderer;
@@ -235,17 +232,11 @@ class DecoderBase : public Decoder {
   // Throw away all buffers in all queues.
   void DiscardQueues() {
     lock_.AssertAcquired();
-    while (!input_queue_.empty()) {
-      input_queue_.front()->Release();
-      input_queue_.pop_front();
-    }
-    while (!result_queue_.empty()) {
-      result_queue_.front()->Release();
-      result_queue_.pop_front();
-    }
-    while (!output_queue_.empty()) {
-      output_queue_.front()->Release();
-      output_queue_.pop_front();
+    input_queue_.clear();
+    result_queue_.clear();
+    while (!read_queue_.empty()) {
+      delete read_queue_.front();
+      read_queue_.pop_front();
     }
   }
 
@@ -269,8 +260,8 @@ class DecoderBase : public Decoder {
 
   CancelableTask* process_task_;
 
-  // Queue of buffers read from teh |demuxer_stream_|
-  typedef std::deque<Buffer*> InputQueue;
+  // Queue of buffers read from the |demuxer_stream_|.
+  typedef std::deque< scoped_refptr<Buffer> > InputQueue;
   InputQueue input_queue_;
 
   // Queue of decoded samples produced in the OnDecode() method of the decoder.
@@ -280,12 +271,12 @@ class DecoderBase : public Decoder {
   // buffer from the OutputQueue and write to it directly.  Until we change
   // from the Assignable buffer to callbacks and renderer-allocated buffers,
   // we need this extra queue.
-  typedef std::deque<Output*> ResultQueue;
+  typedef std::deque< scoped_refptr<Output> > ResultQueue;
   ResultQueue result_queue_;
 
-  // Queue of buffers supplied by the renderer through the Read() method.
-  typedef std::deque<Assignable<Output>*> OutputQueue;
-  OutputQueue output_queue_;
+  // Queue of callbacks supplied by the renderer through the Read() method.
+  typedef std::deque<ReadCallback*> ReadQueue;
+  ReadQueue read_queue_;
 
   DISALLOW_COPY_AND_ASSIGN(DecoderBase);
 };

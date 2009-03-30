@@ -25,7 +25,7 @@ AudioRendererBase::AudioRendererBase(size_t max_queue_size)
 }
 
 AudioRendererBase::~AudioRendererBase() {
-  // Stop() should have been called and OnAssignment() should have stopped
+  // Stop() should have been called and OnReadComplete() should have stopped
   // enqueuing data.
   DCHECK(stopped_);
   DCHECK(queue_.empty());
@@ -55,7 +55,7 @@ bool AudioRendererBase::Initialize(AudioDecoder* decoder) {
   return OnInitialize(decoder_->media_format());
 }
 
-void AudioRendererBase::OnAssignment(Buffer* buffer_in) {
+void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
   bool initialization_complete = false;
   {
     AutoLock auto_lock(lock_);
@@ -80,17 +80,15 @@ void AudioRendererBase::OnAssignment(Buffer* buffer_in) {
 }
 
 size_t AudioRendererBase::FillBuffer(uint8* dest, size_t len) {
+  // Update the pipeline's time.
+  host_->SetTime(last_fill_buffer_time_);
+
   size_t result = 0;
   size_t buffers_released = 0;
-  base::TimeDelta timestamp;
   {
     AutoLock auto_lock(lock_);
     // Loop until the buffer has been filled.
-    while (len > 0) {
-      if (queue_.empty()) {
-        // TODO(scherkus): consider blocking here until more data arrives.
-        break;
-      }
+    while (len > 0 && !queue_.empty()) {
       Buffer* buffer = queue_.front();
 
       // Determine how much to copy.
@@ -105,13 +103,24 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t len) {
       data_offset_ += data_len;
       result += data_len;
 
+      // If we're done with the read, compute the time.
+      if (len == 0) {
+        // Integer divide so multiply before divide to work properly.
+        int64 us_written = (buffer->GetDuration().InMicroseconds() *
+                            data_offset_) / buffer->GetDataSize();
+        last_fill_buffer_time_ = buffer->GetTimestamp() +
+                                 base::TimeDelta::FromMicroseconds(us_written);
+      }
+
       // Check to see if we're finished with the front buffer.
       if (data_offset_ == buffer->GetDataSize()) {
+        // Update the time.  If this is the last buffer in the queue, we'll
+        // drop out of the loop before len == 0, so we need to always update
+        // the time here.
+        last_fill_buffer_time_ = buffer->GetTimestamp() + buffer->GetDuration();
+
         // Dequeue the buffer.
         queue_.pop_front();
-
-        // Remember the latest time value and how many buffers we've released.
-        timestamp = buffer->GetTimestamp();
         buffer->Release();
         ++buffers_released;
 
@@ -121,20 +130,17 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t len) {
     }
   }
 
-  // If we've released any buffers, update the clock and read more buffers from
-  // the decoder.
-  if (buffers_released > 0) {
-    host_->SetTime(timestamp);
-    for (size_t i = 0; i < buffers_released; ++i) {
-      ScheduleRead();
-    }
+  // If we've released any buffers, read more buffers from the decoder.
+  for (size_t i = 0; i < buffers_released; ++i) {
+    ScheduleRead();
   }
+
   return result;
 }
 
 void AudioRendererBase::ScheduleRead() {
   host_->PostTask(NewRunnableMethod(decoder_, &AudioDecoder::Read,
-      new AssignableBuffer<AudioRendererBase, Buffer>(this)));
+      NewCallback(this, &AudioRendererBase::OnReadComplete)));
 }
 
 // static
