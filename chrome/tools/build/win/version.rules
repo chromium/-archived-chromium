@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="Version"
 			DisplayName="Version"
-			CommandLine="$(SolutionDir)/tools/build/win/version.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(IntDir)&quot; &quot;$(IntDir)/$(InputName)&quot;"
+			CommandLine="$(SolutionDir)/../chrome/tools/build/win/version.bat [inputs] &quot;$(SolutionDir)/../chrome/&quot; &quot;$(IntDir)&quot; &quot;$(IntDir)/$(InputName)&quot;"
 			Outputs="$(IntDir)/$(InputName)"
 			AdditionalDependencies="$(SolutionDir)/VERSION;$(SolutionDir)/tools/build/win/version.bat"
 			FileExtensions="*.version"
