@@ -666,13 +666,6 @@ std::string GetDataResource(int resource_id) {
     case IDR_TEXTAREA_RESIZER:
       resource_id = IDR_TEXTAREA_RESIZER_TESTSHELL;
       break;
-    case IDR_SEARCH_CANCEL:
-    case IDR_SEARCH_CANCEL_PRESSED:
-    case IDR_SEARCH_MAGNIFIER:
-    case IDR_SEARCH_MAGNIFIER_RESULTS:
-      break;
-    default:
-      NOTREACHED();
   }
   return TestShell::NetResourceProvider(resource_id).as_string();
 }
