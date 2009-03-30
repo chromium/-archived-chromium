@@ -9,6 +9,7 @@
 
 #include "base/file_util.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_constants.h"
@@ -91,11 +92,13 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   int process_id = 0;
   ASSERT_TRUE(tab->GetProcessID(&process_id));
   ASSERT_NE(0, process_id);
+  base::ProcessHandle process_handle = base::OpenProcessHandle(process_id);
   // Fake Access Violation.
-  base::KillProcessById(process_id, 0xc0000005, true);
+  base::KillProcess(process_handle, 0xc0000005, true);
+  base::CloseProcessHandle(process_handle);
 
   // Give the browser a chance to notice the crashed tab.
-  Sleep(1000);
+  PlatformThread::Sleep(1000);
 
   QuitBrowser();
 

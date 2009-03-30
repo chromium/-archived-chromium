@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/test/automation/automation_proxy.h"
@@ -62,7 +63,7 @@ void CacheTest::RunCacheTest(const std::wstring &url,
   NavigateToURL(test_page);
   std::wstring original_time = GetActiveTabTitle();
 
-  Sleep(kWaitForCacheUpdateMsec);
+  PlatformThread::Sleep(kWaitForCacheUpdateMsec);
 
   GetNewTab(automation(), test_page);
   std::wstring revisit_time = GetActiveTabTitle();
@@ -73,7 +74,7 @@ void CacheTest::RunCacheTest(const std::wstring &url,
     EXPECT_NE(original_time, revisit_time);
   }
 
-  Sleep(kWaitForCacheUpdateMsec);
+  PlatformThread::Sleep(kWaitForCacheUpdateMsec);
 
   // Force reload, overriding the caching behavior
   NavigateToURL(test_page);
@@ -82,7 +83,7 @@ void CacheTest::RunCacheTest(const std::wstring &url,
   EXPECT_NE(revisit_time, reload_time);
 
   if (expect_delayed_reload) {
-    Sleep(kWaitForCacheUpdateMsec * kCacheWaitMultiplier);
+    PlatformThread::Sleep(kWaitForCacheUpdateMsec * kCacheWaitMultiplier);
 
     GetNewTab(automation(), test_page);
     revisit_time = GetActiveTabTitle();
