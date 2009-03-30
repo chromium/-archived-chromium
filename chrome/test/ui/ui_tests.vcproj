@@ -178,6 +178,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\javascript_test_util.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\javascript_test_util.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ui_test.cc"
 				>
 			</File>
@@ -555,6 +563,14 @@
 			>
 			<File
 				RelativePath=".\sunspider_uitest.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TestV8Benchmark"
+			>
+			<File
+				RelativePath=".\v8_benchmark_uitest.cc"
 				>
 			</File>
 		</Filter>

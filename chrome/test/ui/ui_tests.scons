@@ -98,6 +98,8 @@ input_files = ChromeFileList([
     '$CHROME_DIR/tools/build/win/precompiled_wtl$OBJSUFFIX',
     '$CHROME_DIR/tools/build/win/precompiled_wtl.h',
     'run_all_unittests.cc',
+    'javascript_test_util.cc',
+    'javascript_test_util.h',
     '$CHROME_DIR/test/testing_browser_process.h',
     'ui_test.cc',
     'ui_test.h',
@@ -232,6 +234,9 @@ input_files = ChromeFileList([
   MSVSFilter('TestSunSpider', [
     'sunspider_uitest.cc',
   ]),
+  MSVSFilter('TestV8Benchmark', [
+    'v8_benchmark_uitest.cc',
+  ]),
 ])
 
 if not env.Bit('windows'):
@@ -243,6 +248,7 @@ if not env.Bit('windows'):
       'omnibox_uitest.cc',
       'dom_checker_uitest.cc',
       'sunspider_uitest.cc',
+      'v8_benchmark_uitest.cc',
 
       'sandbox_uitests.cc',
 

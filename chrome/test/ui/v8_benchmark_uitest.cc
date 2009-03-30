@@ -20,22 +20,22 @@
 namespace {
 
 static const FilePath::CharType kStartFile[] =
-    FILE_PATH_LITERAL("sunspider-driver.html");
+    FILE_PATH_LITERAL("run.html");
 
-const wchar_t kRunSunSpider[] = L"run-sunspider";
+const wchar_t kRunV8Benchmark[] = L"run-v8-benchmark";
 
-class SunSpiderTest : public UITest {
+class V8BenchmarkTest : public UITest {
  public:
   typedef std::map<std::string, std::string> ResultsMap;
 
-  SunSpiderTest() : reference_(false) {
+  V8BenchmarkTest() : reference_(false) {
     dom_automation_enabled_ = true;
     show_window_ = true;
   }
 
   void RunTest() {
     FilePath::StringType start_file(kStartFile);
-    FilePath test_path = GetSunSpiderDir();
+    FilePath test_path = GetV8BenchmarkDir();
     test_path = test_path.Append(start_file);
     GURL test_url(net::FilePathToFileURL(test_path));
 
@@ -52,11 +52,11 @@ class SunSpiderTest : public UITest {
   bool reference_;  // True if this is a reference build.
 
  private:
-  // Return the path to the SunSpider directory on the local filesystem.
-  FilePath GetSunSpiderDir() {
+  // Return the path to the V8 benchmark directory on the local filesystem.
+  FilePath GetV8BenchmarkDir() {
     FilePath test_dir;
     PathService::Get(chrome::DIR_TEST_DATA, &test_dir);
-    return test_dir.AppendASCII("sunspider");
+    return test_dir.AppendASCII("v8_benchmark");
   }
 
   bool WaitUntilTestCompletes(TabProxy* tab, const GURL& test_url) {
@@ -64,11 +64,11 @@ class SunSpiderTest : public UITest {
                                 UITest::test_timeout_ms(), "1");
   }
 
-  bool GetTotal(TabProxy* tab, std::string* total) {
-    std::wstring total_wide;
+  bool GetScore(TabProxy* tab, std::string* score) {
+    std::wstring score_wide;
     bool succeeded = tab->ExecuteAndExtractString(L"",
-        L"window.domAutomationController.send(automation.GetTotal());",
-        &total_wide);
+        L"window.domAutomationController.send(automation.GetScore());",
+        &score_wide);
 
     // Note that we don't use ASSERT_TRUE here (and in some other places) as it
     // doesn't work inside a function with a return type other than void.
@@ -76,7 +76,7 @@ class SunSpiderTest : public UITest {
     if (!succeeded)
       return false;
 
-    total->assign(WideToUTF8(total_wide));
+    score->assign(WideToUTF8(score_wide));
     return true;
   }
 
@@ -96,27 +96,28 @@ class SunSpiderTest : public UITest {
   }
 
   void PrintResults(TabProxy* tab) {
-    std::string total;
-    ASSERT_TRUE(GetTotal(tab, &total));
+    std::string score;
+    ASSERT_TRUE(GetScore(tab, &score));
 
     ResultsMap results;
     ASSERT_TRUE(GetResults(tab, &results));
 
-    std::string trace_name = reference_ ? "t_ref" : "t";
+    std::string trace_name = reference_ ? "score_ref" : "score";
+    std::string unit_name = "score (bigger is better)";
 
-    PrintResultMeanAndError("total", "", trace_name, total, "ms", true);
+    PrintResult("score", "", trace_name, score, unit_name, true);
 
     ResultsMap::const_iterator it = results.begin();
     for (; it != results.end(); ++it)
-      PrintResultList(it->first, "", trace_name, it->second, "ms", false);
+      PrintResult(it->first, "", trace_name, it->second, unit_name, false);
   }
 
-  DISALLOW_COPY_AND_ASSIGN(SunSpiderTest);
+  DISALLOW_COPY_AND_ASSIGN(V8BenchmarkTest);
 };
 
-class SunSpiderReferenceTest : public SunSpiderTest {
+class V8BenchmarkReferenceTest : public V8BenchmarkTest {
  public:
-  SunSpiderReferenceTest() : SunSpiderTest() {
+  V8BenchmarkReferenceTest() : V8BenchmarkTest() {
     reference_ = true;
   }
 
@@ -134,15 +135,15 @@ class SunSpiderReferenceTest : public SunSpiderTest {
 
 }  // namespace
 
-TEST_F(SunSpiderTest, Perf) {
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunSunSpider))
+TEST_F(V8BenchmarkTest, Perf) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunV8Benchmark))
     return;
 
   RunTest();
 }
 
-TEST_F(SunSpiderReferenceTest, Perf) {
-  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunSunSpider))
+TEST_F(V8BenchmarkReferenceTest, Perf) {
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunV8Benchmark))
     return;
 
   RunTest();

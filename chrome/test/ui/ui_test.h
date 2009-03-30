@@ -201,6 +201,15 @@ class UITest : public testing::Test {
                    const std::string& units,
                    bool important);
 
+  // Like the above version of PrintResult(), but takes a std::string value
+  // instead of a size_t.
+  void PrintResult(const std::string& measurement,
+                   const std::string& modifier,
+                   const std::string& trace,
+                   const std::string& value,
+                   const std::string& units,
+                   bool important);
+
   // Like PrintResult(), but prints a (mean, standard deviation) result pair.
   // The |<values>| should be two comma-seaprated numbers, the mean and
   // standard deviation (or other error metric) of the measurement.

@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>V8 Benchmark Suite</title>
+<script type="text/javascript" src="json2.js"></script>
+<script type="text/javascript" src="../../ui/v8_benchmark_uitest.js"></script>
 <script type="text/javascript" src="base.js"></script>
 <script type="text/javascript" src="richards.js"></script>
 <script type="text/javascript" src="deltablue.js"></script>
@@ -22,6 +24,7 @@ function ShowProgress(name) {
 
 
 function AddResult(name, result) {
+  automation.AddResult(name, result);
   var text = name + ': ' + result;
   var results = document.getElementById("results");
   results.innerHTML += (text + "<br/>");  
@@ -35,6 +38,8 @@ function AddError(name, error) {
 
 
 function AddScore(score) {
+  automation.SetScore(score);
+  automation.SetDone();
   var status = document.getElementById("status");
   if (success) {
     status.innerHTML = "Score: " + score;

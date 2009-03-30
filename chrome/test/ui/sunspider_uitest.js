@@ -4,7 +4,7 @@
   found in the LICENSE file.
 */
 
-// Automation utilities.
+// Automation utilities for running SunSpider as a UI test.
 
 function Automation() {
 }

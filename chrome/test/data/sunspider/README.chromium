@@ -8,8 +8,8 @@ http://webkit.org/perf/sunspider-0.9/sunspider.html
 Version: 0.9
 
 Modifications:
-  - Added automation.js to provide an interface between the benchmark and the
-    test automation. Included this file in sunspider-results.html.
+  - Included sunspider_uitest.js in sunspider-results.html. This file provides
+    an interface between the benchmark and the test automation.
   - Added json2.js, a parser/stringifier for JSON in JavaScript. This is used
     to stringify results for consumption by the test automation. Included this
     file in sunspider-results.html.

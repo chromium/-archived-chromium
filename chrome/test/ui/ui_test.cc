@@ -363,7 +363,8 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
     CommandLine wrapped_command(ASCIIToWide(browser_wrapper));
     wrapped_command.AppendArguments(command_line, true);
     command_line = wrapped_command;
-    LOG(INFO) << "BROWSER_WRAPPER was set, prefixing command_line with " << browser_wrapper;
+    LOG(INFO) << "BROWSER_WRAPPER was set, prefixing command_line with "
+              << browser_wrapper;
   }
 
   bool started = base::LaunchApp(command_line.argv(),
@@ -810,6 +811,16 @@ void UITest::PrintResult(const std::string& measurement,
                          bool important) {
   PrintResultsImpl(measurement, modifier, trace, UintToString(value),
                    "", "", units, important);
+}
+
+void UITest::PrintResult(const std::string& measurement,
+                         const std::string& modifier,
+                         const std::string& trace,
+                         const std::string& value,
+                         const std::string& units,
+                         bool important) {
+  PrintResultsImpl(measurement, modifier, trace, value, "", "", units,
+                   important);
 }
 
 void UITest::PrintResultMeanAndError(const std::string& measurement,
