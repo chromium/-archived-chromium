@@ -199,8 +199,10 @@ TEST_F(SdchFilterTest, PassThroughWhenTentative) {
   Filter::FilterStatus status = filter->ReadData(output_buffer,
                                                  &output_bytes_or_buffer_size);
 
-  EXPECT_TRUE(non_sdch_content.size() == output_bytes_or_buffer_size);
-  ASSERT_TRUE(sizeof(output_buffer) > output_bytes_or_buffer_size);
+  EXPECT_TRUE(non_sdch_content.size() ==
+              static_cast<size_t>(output_bytes_or_buffer_size));
+  ASSERT_TRUE(sizeof(output_buffer) >
+              static_cast<size_t>(output_bytes_or_buffer_size));
   output_buffer[output_bytes_or_buffer_size] = '\0';
   EXPECT_TRUE(non_sdch_content == output_buffer);
   EXPECT_EQ(Filter::FILTER_NEED_MORE_DATA, status);
@@ -323,7 +325,8 @@ TEST_F(SdchFilterTest, ErrorOnBadReturnCodeWithHtml) {
                                                  &output_bytes_or_buffer_size);
 
   // We should have read a long and complicated meta-refresh request.
-  EXPECT_EQ(sizeof(output_buffer), output_bytes_or_buffer_size);
+  EXPECT_EQ(sizeof(output_buffer),
+            static_cast<size_t>(output_bytes_or_buffer_size));
   // Check at least the prefix of the return.
   EXPECT_EQ(0, strncmp(output_buffer,
       "<head><META HTTP-EQUIV=\"Refresh\" CONTENT=\"0\"></head>",
