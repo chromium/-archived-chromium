@@ -286,11 +286,11 @@
 			Name="TestNPAPI"
 			>
 			<File
-				RelativePath=".\layout_plugin_uitest.cpp"
+				RelativePath=".\layout_plugin_uitest.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\npapi_uitest.cpp"
+				RelativePath=".\npapi_uitest.cc"
 				>
 			</File>
 		</Filter>
