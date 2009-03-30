@@ -23,10 +23,12 @@ devtools.DebuggerAgent = function() {
  * processed in handleScriptsResponse_.
  */
 devtools.DebuggerAgent.prototype.requestScripts = function() {
-  var cmd = new devtools.DebugCommand("scripts");
+  var cmd = new devtools.DebugCommand('scripts', {
+    'includeSource': true
+  });
   RemoteDebuggerCommandExecutor.DebuggerCommand(cmd.toJSONProtocol());
   // Force v8 execution so that it gets to processing the requested command.
-  devtools.tools.evaluateJavaSctipt("javascript:void(0)");
+  devtools.tools.evaluateJavaSctipt('javascript:void(0)');
 };
 
 
@@ -37,17 +39,16 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
  * @param {string} output
  */
 devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
-  debugPrint("handleDebuggerOutput_: " + output)
   var msg;
   try {
     msg = new devtools.DebuggerMessage(output);
   } catch(e) {
-    debugPrint("Failed to handle debugger reponse:\n" + e);
+    debugPrint('Failed to handle debugger reponse:\n' + e);
     throw e;
   }
   
-  if (response.getType() == "response") {
-    if (msg.getCommand() == "scripts") {
+  if (msg.getType() == 'response') {
+    if (msg.getCommand() == 'scripts') {
       this.handleScriptsResponse_(msg);
     }
   }
@@ -58,18 +59,24 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
  * @param {devtools.DebuggerMessage} msg
  */
 devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
-  debugPrint("handleScriptsResponse_: " + msg)
+  var scripts = msg.getBody();
+  for (var i = 0; i < scripts.length; i++) {
+    var script = scripts[i];
+    WebInspector.parsedScriptSource(
+        script.id, script.name, script.source, script.lineOffset);
+  }
 };
-
 
 
 /**
  * JSON based commands sent to v8 debugger.
+ * @param {string} command Name of the command to execute.
+ * @param {Object} opt_arguments Command-specific arguments map.
  * @constructor
  */
 devtools.DebugCommand = function(command, opt_arguments) {
   this.command_ = command;
-  this.type_ = "request";	
+  this.type_ = 'request';	
   this.seq_ = ++devtools.DebugCommand.nextSeq_;
   if (opt_arguments) {
     this.arguments_ = opt_arguments;
@@ -116,7 +123,8 @@ devtools.DebugCommand.prototype.toJSONProtocol = function() {
  * @constructor
  */
 devtools.DebuggerMessage = function(msg) {
-  this.packet_ = msg;
+  var jsExpression = '[' + msg + '][0]';
+  this.packet_ = eval(jsExpression);
   this.refs_ = [];
   if (this.packet_.refs) {
     for (var i = 0; i < this.packet_.refs.length; i++) {

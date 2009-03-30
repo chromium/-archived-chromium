@@ -143,15 +143,15 @@ void WebDevToolsClientImpl::JsAddSourceToFrame(
   Node* node = document->getElementById(
       webkit_glue::StdStringToString(node_id));
   if (!node) {
-    result->SetNull();
+    result->Set(false);
     return;
   }
 
-  page->inspectorController()->addSourceToFrame(
+  bool r = page->inspectorController()->addSourceToFrame(
       webkit_glue::StdStringToString(mime_type),
       webkit_glue::StdStringToString(source),
       node);
-  result->SetNull();
+  result->Set(r);
 }
 
 void WebDevToolsClientImpl::JsLoaded(

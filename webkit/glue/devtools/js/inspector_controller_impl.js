@@ -45,8 +45,7 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
   if (!element.id) {
     element.id = "f" + this.frame_element_id_++; 
   }
-  DevToolsHost.addSourceToFrame(mimeType, source, element.id);
-  return true;
+  return DevToolsHost.addSourceToFrame(mimeType, source, element.id);
 };
 
 
