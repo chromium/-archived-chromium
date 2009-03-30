@@ -42,6 +42,7 @@
     {
       'target_name': 'printing_unittests',
       'type': 'executable',
+      'msvs_guid': '8B2EE5D9-41BC-4AA2-A401-2DC143A05D2E',
       'dependencies': [
         'printing',
         '../testing/gtest.gyp:gtest',

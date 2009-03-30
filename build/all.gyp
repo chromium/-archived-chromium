@@ -22,8 +22,9 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:*',
-        '../net/net.gyp:*',
         '../media/media.gyp:*',
+        '../net/net.gyp:*',
+        '../printing/printing.gyp:*',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -39,7 +40,6 @@
         ['all_gyps', {
           'dependencies': [
             '../chrome/chrome.gyp:*',
-            '../printing/printing.gyp:*',
             '../sdch/sdch.gyp:*',
             '../skia/skia.gyp:*',
             '../testing/gtest.gyp:*',
