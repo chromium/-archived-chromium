@@ -10,6 +10,7 @@
 #include "googleurl/src/gurl.h"
 #if defined(OS_WIN)
 // FFmpeg is not ready for Linux and Mac yet.
+#include "media/filters/ffmpeg_audio_decoder.h"
 #include "media/filters/ffmpeg_demuxer.h"
 #endif
 
@@ -59,6 +60,7 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
 #if defined(OS_WIN)
   // FFmpeg is not ready for Linux and Mac yet.
   filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
+  filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
 #endif
   filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(this));
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));

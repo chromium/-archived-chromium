@@ -63,6 +63,8 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
                                  stream->codec->channels);
       media_format_.SetAsInteger(MediaFormat::kSampleRate,
                                  stream->codec->sample_rate);
+      media_format_.SetAsInteger(MediaFormat::kSampleBits,
+                                 stream->codec->bits_per_raw_sample);
       break;
     case CODEC_TYPE_VIDEO:
       media_format_.SetAsString(MediaFormat::kMimeType,
