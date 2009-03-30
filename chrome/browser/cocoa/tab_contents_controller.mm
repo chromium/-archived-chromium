@@ -62,8 +62,12 @@ class LocationBarBridge : public LocationBar {
   virtual std::wstring GetInputString() const;
   virtual WindowOpenDisposition GetWindowOpenDisposition() const
       { NOTIMPLEMENTED(); return CURRENT_TAB; }
+  // TODO(rohitrao): Fix this to return different types once autocomplete and
+  // the onmibar are implemented.  For now, any URL that comes from the
+  // LocationBar has to have been entered by the user, and thus is of type
+  // PageTransition::TYPED.
   virtual PageTransition::Type GetPageTransition() const
-      { NOTIMPLEMENTED(); return 0; }
+      { NOTIMPLEMENTED(); return PageTransition::TYPED; }
   virtual void AcceptInput() { NOTIMPLEMENTED(); }
   virtual void AcceptInputWithDisposition(WindowOpenDisposition disposition)
       { NOTIMPLEMENTED(); }
