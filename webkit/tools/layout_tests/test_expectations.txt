@@ -2312,14 +2312,6 @@ DEFER WIN LINUX : LayoutTests/fast/text/complex-text-opacity.html = FAIL
   
 // Needs rebaseline. See WebKit 41980
 DEFER WIN LINUX : LayoutTests/fast/transforms/transforms-with-zoom.html = FAIL
-  
-// Need baseline, new tests. See WebKit 41955
-DEFER WIN LINUX : LayoutTests/fonts/cursive.html = FAIL
-DEFER WIN LINUX : LayoutTests/fonts/default.html = FAIL
-DEFER WIN LINUX : LayoutTests/fonts/fantasy.html = FAIL
-DEFER WIN LINUX : LayoutTests/fonts/monospace.html = FAIL
-DEFER WIN LINUX : LayoutTests/fonts/sans-serif.html = FAIL
-DEFER WIN LINUX : LayoutTests/fonts/serif.html = FAIL
 
 // Merge WebKit: 41944:41999, Linux failures.
 DEFER LINUX : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL
