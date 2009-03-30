@@ -153,7 +153,8 @@ class BookmarkManagerView : public views::View,
   virtual void ExecuteCommand(int id);
 
   // SelectFileDialog::Listener.
-  virtual void FileSelected(const std::wstring& path, void* params);
+  virtual void FileSelected(const std::wstring& path,
+                            int index, void* params);
   virtual void FileSelectionCanceled(void* params);
 
   // Creates the table model to use when searching. This returns NULL if there

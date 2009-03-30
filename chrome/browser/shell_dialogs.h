@@ -48,9 +48,11 @@ class SelectFileDialog
   class Listener {
    public:
     // Notifies the Listener that a file/folder selection has been made. The
-    // file/folder path is in |selected_path|. |params| is contextual passed to
-    // SelectFile.
-    virtual void FileSelected(const std::wstring& path, void* params) = 0;
+    // file/folder path is in |path|. |params| is contextual passed to
+    // SelectFile. |index| specifies the index of the filter passed to the
+    // the initial call to SelectFile.
+    virtual void FileSelected(const std::wstring& path,
+                              int index, void* params) = 0;
 
     // Notifies the Listener that many files have been selected. The
     // files are in |files|. |params| is contextual passed to SelectFile.
@@ -80,6 +82,9 @@ class SelectFileDialog
   // show.
   // |filter| is a null (\0) separated list of alternating filter description
   // and filters and terminated with two nulls.
+  // |filter_index| is the 1-based index into the filter list in |filter|.
+  // Specify 0 if you don't need filters, or if you only need the default
+  // (first filter) behavior.
   // |owning_window| is the window the dialog is modal to, or NULL for a
   // modeless dialog.
   // |default_extension| is the default extension to add to the file if the
@@ -93,6 +98,7 @@ class SelectFileDialog
                           const std::wstring& title,
                           const std::wstring& default_path,
                           const std::wstring& filter,
+                          int filter_index,
                           const std::wstring& default_extension,
                           gfx::NativeWindow owning_window,
                           void* params) = 0;

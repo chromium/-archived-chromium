@@ -32,10 +32,19 @@ class WebContents;
 class URLRequestContext;
 class WebContents;
 
+#if defined(OS_WIN) || defined(OS_LINUX)
+// TODO(port): port this header.
+#include "chrome/browser/shell_dialogs.h"
+#elif defined(OS_MACOSX)
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
+
 namespace base {
 class Thread;
 class Time;
 }
+
+struct SavePackageParam;
 
 // The SavePackage object manages the process of saving a page as only-html or
 // complete-html and providing the information for displaying saving status.
@@ -50,7 +59,8 @@ class Time;
 // by the SavePackage. SaveItems are created when a user initiates a page
 // saving job, and exist for the duration of one tab's life time.
 class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
-                    public RenderViewHostDelegate::Save {
+                    public RenderViewHostDelegate::Save,
+                    public SelectFileDialog::Listener {
  public:
   enum SavePackageType {
     // User chose to save only the HTML of the page.
@@ -76,6 +86,14 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
     FAILED
   };
 
+  // Constructor for user initiated page saving. This constructor results in a
+  // SavePackage that will generate and sanitize a suggested name for the user
+  // in the "Save As" dialog box.
+  SavePackage(WebContents* web_content);
+
+  // This contructor is used only for testing. We can bypass the file and
+  // directory name generation / sanitization by providing well known paths
+  // better suited for tests.
   SavePackage(WebContents* web_content,
               SavePackageType save_type,
               const FilePath& file_full_path,
@@ -117,6 +135,11 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // Now we actually use render_process_id as tab's unique id.
   int tab_id() const { return tab_id_; }
 
+  void GetSaveInfo();
+  void ContinueSave(SavePackageParam* param,
+                    const std::wstring& final_name,
+                    int index);
+
   // RenderViewHostDelegate::Save ----------------------------------------------
 
   // Process all of the current page's savable links of subresources, resources
@@ -144,28 +167,6 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
   // title.
   static FilePath GetSuggestNameForSaveAs(PrefService* prefs,
                                           const FilePath& name);
-
-  // This structure is for storing parameters which we will use to create
-  // a SavePackage object later.
-  struct SavePackageParam {
-    // MIME type of current tab contents.
-    const std::string& current_tab_mime_type;
-    // Pointer to preference service.
-    PrefService* prefs;
-    // Type about saving page as only-html or complete-html.
-    SavePackageType save_type;
-    // File path for main html file.
-    FilePath saved_main_file_path;
-    // Directory path for saving sub resources and sub html frames.
-    FilePath dir;
-
-    SavePackageParam(const std::string& mime_type)
-        : current_tab_mime_type(mime_type) { }
-  };
-  static bool GetSaveInfo(const FilePath& suggest_name,
-                          gfx::NativeView container_window,
-                          SavePackageParam* param,
-                          DownloadManager* download_manager);
 
   // Check whether we can do the saving page operation for the specified URL.
   static bool IsSavableURL(const GURL& url);
@@ -200,6 +201,10 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
                                   const FilePath::StringType& file_name_ext,
                                   uint32 max_file_path_len,
                                   FilePath::StringType* pure_file_name);
+
+  // SelectFileDialog::Listener interface.
+  virtual void FileSelected(const std::wstring& path, int index, void* params);
+  virtual void FileSelectionCanceled(void* params);
 
  private:
   // For testing only.
@@ -300,6 +305,9 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
   // Unique id for this SavePackage.
   const int tab_id_;
+
+  // For managing select file dialogs.
+  scoped_refptr<SelectFileDialog> select_file_dialog_;
 
   friend class SavePackageTest;
   DISALLOW_COPY_AND_ASSIGN(SavePackage);

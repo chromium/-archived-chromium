@@ -194,7 +194,8 @@ ContentPageView::~ContentPageView() {
 ////////////////////////////////////////////////////////////////////////////////
 // ContentPageView, SelectFileDialog::Listener implementation:
 
-void ContentPageView::FileSelected(const std::wstring& path, void* params) {
+void ContentPageView::FileSelected(const std::wstring& path,
+                                   int index, void* params) {
   UserMetricsRecordAction(L"Options_SetDownloadDirectory",
                           profile()->GetPrefs());
   default_download_location_.SetValue(path);
@@ -215,7 +216,7 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
                                     dialog_title,
                                     profile()->GetPrefs()->GetString(
                                         prefs::kDownloadDefaultDirectory),
-                                    std::wstring(), std::wstring(),
+                                    std::wstring(), 0, std::wstring(),
                                     GetRootWindow(),
                                     NULL);
   } else if (sender == download_ask_for_save_location_checkbox_) {

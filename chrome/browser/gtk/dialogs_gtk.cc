@@ -33,6 +33,7 @@ class SelectFileDialogImpl : public SelectFileDialog {
   virtual void SelectFile(Type type, const std::wstring& title,
                           const std::wstring& default_path,
                           const std::wstring& filter,
+                          int filter_index,
                           const std::wstring& default_extension,
                           gfx::NativeWindow parent_window,
                           void* params);
@@ -121,6 +122,7 @@ void SelectFileDialogImpl::SelectFile(
     const std::wstring& title,
     const std::wstring& default_path,
     const std::wstring& filter,
+    int filter_index,
     const std::wstring& default_extension,
     gfx::NativeWindow parent_window,
     void* params) {
@@ -162,7 +164,7 @@ void SelectFileDialogImpl::FileSelected(GtkWidget* dialog,
     const FilePath& path) {
   void* params = PopParamsForDialog(dialog);
   if (listener_)
-    listener_->FileSelected(path.ToWStringHack(), params);
+    listener_->FileSelected(path.ToWStringHack(), 0, params);
   RemoveParentForDialog(dialog);
   gtk_widget_destroy(dialog);
 }

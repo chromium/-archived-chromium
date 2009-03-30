@@ -518,6 +518,7 @@ void BookmarkManagerView::ExecuteCommand(int id) {
 }
 
 void BookmarkManagerView::FileSelected(const std::wstring& path,
+                                       int index,
                                        void* params) {
   int id = reinterpret_cast<int>(params);
   if (id == IDS_BOOKMARK_MANAGER_IMPORT_MENU) {
@@ -718,7 +719,7 @@ void BookmarkManagerView::ShowImportBookmarksFileChooser() {
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
       SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), L"bookmarks.html",
-      filter_string, std::wstring(), GetWidget()->GetNativeView(),
+      filter_string, 0, std::wstring(), GetWidget()->GetNativeView(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
 }
 
@@ -729,7 +730,7 @@ void BookmarkManagerView::ShowExportBookmarksFileChooser() {
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
       SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(), L"bookmarks.html",
-      win_util::GetFileFilterFromPath(L"bookmarks.html"), L"html",
+      win_util::GetFileFilterFromPath(L"bookmarks.html"), 0, L"html",
       GetWidget()->GetNativeView(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_EXPORT_MENU));
 }

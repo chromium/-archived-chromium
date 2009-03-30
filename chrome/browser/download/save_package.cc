@@ -44,6 +44,22 @@
 
 using base::Time;
 
+// This structure is for storing parameters which we will use to create a
+// SavePackage object later.
+struct SavePackageParam {
+  // MIME type of current tab contents.
+  const std::string current_tab_mime_type;
+  // Pointer to preference service.
+  SavePackage::SavePackageType save_type;
+  // File path for main html file.
+  FilePath saved_main_file_path;
+  // Directory path for saving sub resources and sub html frames.
+  FilePath dir;
+
+  SavePackageParam(const std::string& mime_type)
+      : current_tab_mime_type(mime_type) { }
+};
+
 namespace {
 
 // Default name which will be used when we can not get proper name from
@@ -93,53 +109,6 @@ FilePath::StringType StripOrdinalNumber(
   return pure_file_name.substr(0, l_paren_index);
 }
 
-// In testing mode, |should_prompt_user| will be false, and we simply set the
-// final name as the suggested name. Otherwise we pop up a Save As dialog.
-bool SaveFileAsWithFilter(gfx::NativeView owner,
-                          const std::wstring& suggested_name,
-                          const std::wstring& filter,
-                          const std::wstring& def_ext,
-                          bool ignore_suggested_ext,
-                          unsigned* index,
-                          std::wstring* final_name,
-                          bool should_prompt_user) {
-// TODO(port): Until we have an equivalent call on other platforms, assume
-// |suggested_name| will work just fine.
-#if defined(OS_WIN)
-  if (should_prompt_user)
-    return win_util::SaveFileAsWithFilter(owner,
-                                          suggested_name,
-                                          filter,
-                                          def_ext,
-                                          ignore_suggested_ext,
-                                          index,
-                                          final_name);
-#elif defined(OS_POSIX)
-  NOTIMPLEMENTED();
-#endif
-
-  final_name->assign(suggested_name);
-  return true;
-}
-
-// As above, in testing mode, just assign |final_name| to be |suggested_name|.
-bool SaveFileAs(gfx::NativeView owner,
-                const std::wstring& suggested_name,
-                std::wstring* final_name,
-                bool should_prompt_user) {
-// TODO(port): Until we have an equivalent call on other platforms, assume
-// |suggested_name| will work just fine.
-#if defined(OS_WIN)
-  if (should_prompt_user)
-    return win_util::SaveFileAs(owner, suggested_name, final_name);
-#elif defined(OS_POSIX)
-  NOTIMPLEMENTED();
-#endif
-
-  final_name->assign(suggested_name);
-  return true;
-}
-
 }  // namespace
 
 SavePackage::SavePackage(WebContents* web_content,
@@ -167,6 +136,20 @@ SavePackage::SavePackage(WebContents* web_content,
          saved_main_file_path_.value().length() <= kMaxFilePathLength);
   DCHECK(!saved_main_directory_path_.empty() &&
          saved_main_directory_path_.value().length() < kMaxFilePathLength);
+}
+
+SavePackage::SavePackage(WebContents* web_contents)
+    : web_contents_(web_contents),
+      download_(NULL),
+      finished_(false),
+      user_canceled_(false),
+      disk_error_occurred_(false),
+      all_save_items_count_(0),
+      wait_state_(INITIALIZE),
+      tab_id_(web_contents->process()->pid()) {
+  const GURL& current_page_url = web_contents_->GetURL();
+  DCHECK(current_page_url.is_valid());
+  page_url_ = current_page_url;
 }
 
 // This is for testing use. Set |finished_| as true because we don't want
@@ -218,6 +201,11 @@ SavePackage::~SavePackage() {
     download_ = NULL;
   }
   file_manager_ = NULL;
+
+  // If there's an outstanding save dialog, make sure it doesn't call us back
+  // now that we're gone.
+  if (select_file_dialog_.get())
+    select_file_dialog_->ListenerDestroyed();
 }
 
 // Cancel all in progress request, might be called by user or internal error.
@@ -996,59 +984,74 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
   return suggest_name;
 }
 
-// Static.
-bool SavePackage::GetSaveInfo(const FilePath& suggest_name,
-                              gfx::NativeView container_window,
-                              SavePackageParam* param,
-                              DownloadManager* download_manager) {
-  // TODO(tc): It might be nice to move this code into the download
-  // manager.  http://crbug.com/6025
-
+void SavePackage::GetSaveInfo() {
+#if defined(OS_WIN)
   // Use "Web Page, Complete" option as default choice of saving page.
-  unsigned index = 2;
+  int filter_index = 2;
+  std::wstring filter;
+  std::wstring default_extension;
+  FilePath title =
+      FilePath::FromWStringHack(UTF16ToWideHack(web_contents_->GetTitle()));
+  FilePath suggested_path =
+      GetSuggestNameForSaveAs(web_contents_->profile()->GetPrefs(), title);
+  std::wstring suggested_name = suggested_path.ToWStringHack();
+
+  SavePackageParam* save_params =
+      new SavePackageParam(web_contents_->contents_mime_type());
 
   // If the contents can not be saved as complete-HTML, do not show the
   // file filters.
-  if (CanSaveAsComplete(param->current_tab_mime_type)) {
-    // Create filter string.
-    std::wstring filter = l10n_util::GetString(IDS_SAVE_PAGE_FILTER);
+  if (CanSaveAsComplete(save_params->current_tab_mime_type)) {
+    filter = l10n_util::GetString(IDS_SAVE_PAGE_FILTER);
     filter.resize(filter.size() + 2);
     filter[filter.size() - 1] = L'\0';
     filter[filter.size() - 2] = L'\0';
-
-    // Since we take the suggested name from the web page's title, we want to
-    // ignore the file extension generated by SaveFileAsWithFilter, since it
-    // will always be ".htm".
-    std::wstring main_file_path;
-    bool success = SaveFileAsWithFilter(container_window,
-        suggest_name.ToWStringHack(), filter, L"htm", true, &index,
-        &main_file_path, g_should_prompt_for_filename);
-    param->saved_main_file_path = FilePath::FromWStringHack(main_file_path);
-    if (!success)
-      return false;
+    default_extension = L"htm";
   } else {
-    std::wstring main_file_path;
-    bool success = SaveFileAs(container_window, suggest_name.ToWStringHack(),
-                              &main_file_path, g_should_prompt_for_filename);
-    param->saved_main_file_path = FilePath::FromWStringHack(main_file_path);
-    if (!success)
-      return false;
-
-    // Set save-as type to only-HTML if the contents of current tab can not be
-    // saved as complete-HTML.
-    index = 1;
+    filter = win_util::GetFileFilterFromPath(suggested_name);
+    filter_index = 1;
   }
 
+  if (g_should_prompt_for_filename) {
+    if (!select_file_dialog_.get())
+      select_file_dialog_ = SelectFileDialog::Create(this);
+    select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
+                                    std::wstring(),
+                                    suggested_name,
+                                    filter,
+                                    filter_index,
+                                    default_extension,
+                                    GetAncestor(web_contents_->GetNativeView(),
+                                                GA_ROOT),
+                                    save_params);
+  } else {
+    // Just use 'suggested_name' instead of opening the dialog prompt.
+    ContinueSave(save_params, suggested_name, filter_index);
+    delete save_params;
+  }
+#else
+  NOTIMPLEMENTED();
+#endif  // OS_WIN
+}
+
+// Called after the save file dialog box returns.
+void SavePackage::ContinueSave(SavePackageParam* param,
+                               const std::wstring& final_name,
+                               int index) {
   // Ensure the filename is safe.
-  download_manager->GenerateSafeFilename(param->current_tab_mime_type,
-                                         &param->saved_main_file_path);
+  param->saved_main_file_path = FilePath::FromWStringHack(final_name);
+  DownloadManager* dlm = web_contents_->profile()->GetDownloadManager();
+  DCHECK(dlm);
+  dlm->GenerateSafeFilename(param->current_tab_mime_type,
+                            &param->saved_main_file_path);
 
   // The option index is not zero-based.
   DCHECK(index > 0 && index < 3);
   param->dir = param->saved_main_file_path.DirName();
 
+  PrefService* prefs = web_contents_->profile()->GetPrefs();
   StringPrefMember save_file_path;
-  save_file_path.Init(prefs::kSaveFileDefaultDirectory, param->prefs, NULL);
+  save_file_path.Init(prefs::kSaveFileDefaultDirectory, prefs, NULL);
   // If user change the default saving directory, we will remember it just
   // like IE and FireFox.
   if (save_file_path.GetValue() != param->dir.ToWStringHack())
@@ -1064,7 +1067,11 @@ bool SavePackage::GetSaveInfo(const FilePath& suggest_name,
         FILE_PATH_LITERAL("_files"));
   }
 
-  return true;
+  save_type_ = param->save_type;
+  saved_main_file_path_ = param->saved_main_file_path;
+  saved_main_directory_path_ = param->dir;
+
+  Init();
 }
 
 // Static
@@ -1118,4 +1125,17 @@ bool SavePackage::GetSafePureFileName(const FilePath& dir_path,
   // Not enough room to even use a shortened |pure_file_name|.
   pure_file_name->clear();
   return false;
+}
+
+// SelectFileDialog::Listener interface.
+void SavePackage::FileSelected(const std::wstring& path,
+                               int index, void* params) {
+  SavePackageParam* save_params = reinterpret_cast<SavePackageParam*>(params);
+  ContinueSave(save_params, path, index);
+  delete save_params;
+}
+
+void SavePackage::FileSelectionCanceled(void* params) {
+  SavePackageParam* save_params = reinterpret_cast<SavePackageParam*>(params);
+  delete save_params;
 }

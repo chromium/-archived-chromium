@@ -427,8 +427,8 @@ class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
   };
   void ListenerDestroyed() { NOTIMPLEMENTED(); }
   void SelectFile(Type, const std::wstring&, const std::wstring&,
-                  const std::wstring&, const std::wstring&, gfx::NativeWindow,
-                  void*) { NOTIMPLEMENTED(); }
+                  const std::wstring&, int, const std::wstring&,
+		  gfx::NativeWindow, void*) { NOTIMPLEMENTED(); }
   static SelectFileDialog* Create(WebContents*) {
     NOTIMPLEMENTED();
     return new SelectFileDialog;

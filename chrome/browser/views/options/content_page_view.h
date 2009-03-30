@@ -34,7 +34,7 @@ class ContentPageView : public OptionsPageView,
   virtual void ButtonPressed(views::Button* sender);
 
   // SelectFileDialog::Listener implementation:
-  virtual void FileSelected(const std::wstring& path, void* params);
+  virtual void FileSelected(const std::wstring& path, int index, void* params);
 
   // OptionsPageView implementation:
   virtual bool CanClose() const;

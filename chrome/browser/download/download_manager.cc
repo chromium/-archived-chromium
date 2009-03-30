@@ -647,7 +647,7 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     std::wstring(),
                                     info->suggested_path.ToWStringHack(),
-                                    filter, std::wstring(),
+                                    filter, 0, std::wstring(),
                                     owning_window, info);
   } else {
     // No prompting for download, just continue with the suggested name.
@@ -1297,7 +1297,7 @@ void DownloadManager::SaveAutoOpens() {
 }
 
 void DownloadManager::FileSelected(const std::wstring& path_string,
-                                   void* params) {
+                                   int index, void* params) {
   FilePath path = FilePath::FromWStringHack(path_string);
   DownloadCreateInfo* info = reinterpret_cast<DownloadCreateInfo*>(params);
   if (info->save_as)

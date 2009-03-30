@@ -48,7 +48,7 @@ class UserDataDirDialog : public views::DialogDelegate,
   virtual bool Dispatch(const MSG& msg);
 
   // SelectFileDialog::Listener Methods:
-  virtual void FileSelected(const std::wstring& path, void* params);
+  virtual void FileSelected(const std::wstring& path, int index, void* params);
   virtual void FileSelectionCanceled(void* params);
 
  private:

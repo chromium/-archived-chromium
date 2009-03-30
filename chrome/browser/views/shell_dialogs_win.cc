@@ -195,6 +195,7 @@ class SelectFileDialogImpl : public SelectFileDialog,
   virtual void SelectFile(Type type, const std::wstring& title,
                           const std::wstring& default_path,
                           const std::wstring& filter,
+                          int filter_index,
                           const std::wstring& default_extension,
                           HWND owning_hwnd,
                           void* params);
@@ -202,18 +203,39 @@ class SelectFileDialogImpl : public SelectFileDialog,
   virtual void ListenerDestroyed();
 
  private:
+  // A struct for holding all the state necessary for displaying a Save dialog.
+  struct ExecuteSelectParams {
+    ExecuteSelectParams(Type type,
+                        const std::wstring& title,
+                        const std::wstring& default_path,
+                        const std::wstring& filter,
+                        int filter_index,
+                        const std::wstring& default_extension,
+                        RunState run_state,
+                        HWND owner,
+                        void* params)
+        : type(type), title(title), default_path(default_path), filter(filter),
+          filter_index(filter_index), default_extension(default_extension),
+          run_state(run_state), owner(owner), params(params) {
+    }
+    SelectFileDialog::Type type;
+    std::wstring title;
+    std::wstring default_path;
+    std::wstring filter;
+    int filter_index;
+    std::wstring default_extension;
+    RunState run_state;
+    HWND owner;
+    void* params;
+  };
+
   // Shows the file selection dialog modal to |owner| and calls the result
   // back on the ui thread. Run on the dialog thread.
-  void ExecuteSelectFile(Type type,
-                         const std::wstring& title,
-                         const std::wstring& default_path,
-                         const std::wstring& filter,
-                         const std::wstring& default_extension,
-                         RunState run_state,
-                         void* params);
+  void ExecuteSelectFile(const ExecuteSelectParams& params);
 
   // Notifies the listener that a folder was chosen. Run on the ui thread.
-  void FileSelected(const std::wstring& path, void* params, RunState run_state);
+  void FileSelected(const std::wstring& path, int index,
+                    void* params, RunState run_state);
 
   // Notifies listener that multiple files were chosen. Run on the ui thread.
   void MultiFilesSelected(const std::vector<std::wstring>& paths, void* params,
@@ -269,14 +291,16 @@ void SelectFileDialogImpl::SelectFile(Type type,
                                       const std::wstring& title,
                                       const std::wstring& default_path,
                                       const std::wstring& filter,
+                                      int filter_index,
                                       const std::wstring& default_extension,
                                       HWND owner,
                                       void* params) {
-  RunState run_state = BeginRun(owner);
-  run_state.dialog_thread->message_loop()->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &SelectFileDialogImpl::ExecuteSelectFile, type,
-                        title, default_path, filter, default_extension,
-                        run_state, params));
+  ExecuteSelectParams execute_params(type, title, default_path, filter,
+                                     filter_index, default_extension,
+                                     BeginRun(owner), owner, params);
+  execute_params.run_state.dialog_thread->message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &SelectFileDialogImpl::ExecuteSelectFile,
+                        execute_params));
 }
 
 bool SelectFileDialogImpl::IsRunning(HWND owning_hwnd) const {
@@ -290,47 +314,50 @@ void SelectFileDialogImpl::ListenerDestroyed() {
 }
 
 void SelectFileDialogImpl::ExecuteSelectFile(
-    Type type,
-    const std::wstring& title,
-    const std::wstring& default_path,
-    const std::wstring& filter,
-    const std::wstring& default_extension,
-    RunState run_state,
-    void* params) {
-  std::wstring path = default_path;
+    const ExecuteSelectParams& params) {
+  std::wstring path = params.default_path;
   bool success = false;
-  if (type == SELECT_FOLDER) {
-    success = RunSelectFolderDialog(title, run_state.owner, &path);
-  } else if (type == SELECT_SAVEAS_FILE) {
-    unsigned index = 0;
-    success = win_util::SaveFileAsWithFilter(run_state.owner, default_path,
-        filter, default_extension, false, &index, &path);
-    DisableOwner(run_state.owner);
-  } else if (type == SELECT_OPEN_FILE) {
-    success = RunOpenFileDialog(title, filter, run_state.owner, &path);
-  } else if (type == SELECT_OPEN_MULTI_FILE) {
+  unsigned filter_index = params.filter_index;
+  if (params.type == SELECT_FOLDER) {
+    success = RunSelectFolderDialog(params.title,
+                                    params.run_state.owner,
+                                    &path);
+  } else if (params.type == SELECT_SAVEAS_FILE) {
+    success = win_util::SaveFileAsWithFilter(params.run_state.owner,
+        params.default_path, params.filter, params.default_extension, false,
+        &filter_index, &path);
+    DisableOwner(params.run_state.owner);
+  } else if (params.type == SELECT_OPEN_FILE) {
+    success = RunOpenFileDialog(params.title, params.filter,
+                                params.run_state.owner, &path);
+  } else if (params.type == SELECT_OPEN_MULTI_FILE) {
     std::vector<std::wstring> paths;
-    if (RunOpenMultiFileDialog(title, filter, run_state.owner, &paths)) {
+    if (RunOpenMultiFileDialog(params.title, params.filter,
+                               params.run_state.owner, &paths)) {
       ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
-          &SelectFileDialogImpl::MultiFilesSelected, paths, params, run_state));
+          &SelectFileDialogImpl::MultiFilesSelected,
+          paths, params.params, params.run_state));
       return;
     }
   }
 
   if (success) {
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
-        &SelectFileDialogImpl::FileSelected, path, params, run_state));
+        &SelectFileDialogImpl::FileSelected, path, filter_index,
+        params.params, params.run_state));
   } else {
     ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(this,
-        &SelectFileDialogImpl::FileNotSelected, params, run_state));
+        &SelectFileDialogImpl::FileNotSelected, params.params,
+        params.run_state));
   }
 }
 
 void SelectFileDialogImpl::FileSelected(const std::wstring& selected_folder,
+                                        int index,
                                         void* params,
                                         RunState run_state) {
   if (listener_)
-    listener_->FileSelected(selected_folder, params);
+    listener_->FileSelected(selected_folder, index, params);
   EndRun(run_state);
 }
 

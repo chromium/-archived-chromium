@@ -653,26 +653,18 @@ void WebContents::OnSavePage() {
     return;
   }
 
-  // Get our user preference state.
-  PrefService* prefs = profile()->GetPrefs();
-  DCHECK(prefs);
+  Stop();
 
-  FilePath suggest_name = SavePackage::GetSuggestNameForSaveAs(prefs,
-      FilePath::FromWStringHack(UTF16ToWideHack(GetTitle())));
-
-  SavePackage::SavePackageParam param(contents_mime_type());
-  param.prefs = prefs;
-
-  // TODO(rocking): Use new asynchronous dialog boxes to prevent the SaveAs
-  // dialog blocking the UI thread. See bug: http://b/issue?id=1129694.
-  if (SavePackage::GetSaveInfo(suggest_name, view_->GetNativeView(),
-                               &param, profile()->GetDownloadManager())) {
-    SavePage(param.saved_main_file_path.ToWStringHack(),
-             param.dir.ToWStringHack(),
-             param.save_type);
-  }
+  // Create the save package and possibly prompt the user for the name to save
+  // the page as. The user prompt is an asynchronous operation that runs on
+  // another thread.
+  save_package_ = new SavePackage(this);
+  save_package_->GetSaveInfo();
 }
 
+// Used in automated testing to bypass prompting the user for file names.
+// Instead, the names and paths are hard coded rather than running them through
+// file name sanitation and extension / mime checking.
 void WebContents::SavePage(const std::wstring& main_file,
                            const std::wstring& dir_path,
                            SavePackage::SavePackageType save_type) {
@@ -1157,8 +1149,8 @@ void WebContents::RunFileChooser(bool multiple_files,
   SelectFileDialog::Type dialog_type =
     multiple_files ? SelectFileDialog::SELECT_OPEN_MULTI_FILE :
                      SelectFileDialog::SELECT_OPEN_FILE;
-  select_file_dialog_->SelectFile(dialog_type, title, default_file, filter,
-                                  std::wstring(),
+  select_file_dialog_->SelectFile(dialog_type, title, default_file,
+                                  filter, 0, std::wstring(),
                                   view_->GetTopLevelNativeWindow(), NULL);
 }
 
@@ -1573,7 +1565,8 @@ bool WebContents::CanTerminate() const {
   return !delegate()->IsExternalTabContainer();
 }
 
-void WebContents::FileSelected(const std::wstring& path, void* params) {
+void WebContents::FileSelected(const std::wstring& path,
+                               int index, void* params) {
   render_view_host()->FileSelected(path);
 }
 

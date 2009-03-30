@@ -943,7 +943,7 @@ void Browser::OpenFile() {
   gfx::NativeWindow parent_window = window_->GetNativeHandle();
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
                                   std::wstring(), std::wstring(),
-                                  std::wstring(), std::wstring(),
+                                  std::wstring(), 0, std::wstring(),
                                   parent_window, NULL);
 }
 #endif
@@ -1928,7 +1928,7 @@ void Browser::RenderWidgetShowing() {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, SelectFileDialog::Listener implementation:
 
-void Browser::FileSelected(const std::wstring& path, void* params) {
+void Browser::FileSelected(const std::wstring& path, int index, void* params) {
   GURL file_url = net::FilePathToFileURL(path);
   if (!file_url.is_empty())
     OpenURL(file_url, GURL(), CURRENT_TAB, PageTransition::TYPED);
