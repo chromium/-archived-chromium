@@ -54,11 +54,18 @@ class DOMUITest : public RenderViewHostTestHarness {
     EXPECT_FALSE(contents->FocusLocationBarByDefault());
 
     // Commit the regular page load. Note that we must send it to the "pending"
-    // RenderViewHost, since this transition will also cause a process
-    // transition, and our RVH pointer will be the "committed" one.
-    static_cast<TestRenderViewHost*>(
-        contents->render_manager()->pending_render_view_host())->SendNavigate(
-            page_id + 1, next_url);
+    // RenderViewHost if there is one, since this transition will also cause a
+    // process transition, and our RVH pointer will be the "committed" one.
+    // In the second call to this function from DOMUIToStandard, it won't
+    // actually be pending, which is the point of this test.
+    if (contents->render_manager()->pending_render_view_host()) {
+      static_cast<TestRenderViewHost*>(
+          contents->render_manager()->pending_render_view_host())->SendNavigate(
+              page_id + 1, next_url);
+    } else {
+      static_cast<TestRenderViewHost*>(
+          contents->render_view_host())->SendNavigate(page_id + 1, next_url);
+    }
 
     // The state should now reflect a regular page.
     EXPECT_TRUE(contents->ShouldDisplayURL());
@@ -74,17 +81,22 @@ class DOMUITest : public RenderViewHostTestHarness {
 // Tests that the New Tab Page flags are correctly set and propogated by
 // WebContents when we first navigate to a DOM UI page, then to a standard
 // non-DOM-UI page.
-/* TODO(brettw) uncomment this test when it doesn't crash.
 TEST_F(DOMUITest, DOMUIToStandard) {
   DoNavigationTest(contents(), 1);
 
-  // Check for a non-first 
+  // Test the case where we're not doing the initial navigation. This is
+  // slightly different than the very-first-navigation case since the
+  // SiteInstance will be the same (the original WebContents must still be
+  // alive), which will trigger different behavior in RenderViewHostManager.
   WebContents* contents2 = new TestWebContents(profile_.get(), NULL,
       &rvh_factory_);
+  NavigationController* controller2 =
+      new NavigationController(contents2, profile_.get());
+  contents2->set_controller(controller2);
+
   DoNavigationTest(contents2, 101);
   contents2->CloseContents();
 }
-*/
 
 TEST_F(DOMUITest, DOMUIToDOMUI) {
   // Do a load (this state is tested above).
