@@ -127,22 +127,15 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
   // Check button and its Name, Role, State.
   EXPECT_EQ(l10n_util::GetString(IDS_ACCNAME_BACK), GetName(acc_obj));
   EXPECT_EQ(ROLE_SYSTEM_BUTTONDROPDOWN, GetRole(acc_obj));
-  // State "has popup" only supported in XP and higher.
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
 
   // Now check Back status in different situations.
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  int old_tab_count = -1;
-  int new_tab_count = -1;
+  int tab_count = -1;
 
   // Set URL and check button status.
   scoped_ptr<TabProxy> tab1(window->GetTab(0));
@@ -151,62 +144,40 @@ TEST_F(AccessibilityTest, DISABLED_TestBackBtnStatusOnNewTab) {
   file_util::AppendToPath(&test_file1, L"title1.html");
   tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP | STATE_SYSTEM_FOCUSABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE, GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP | STATE_SYSTEM_FOCUSABLE,
+            GetState(acc_obj));
   // Go Back and check status.
   window->ApplyAccelerator(IDC_BACK);
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
 
   // Add empty new tab and check status.
-  ASSERT_TRUE(window->GetTabCount(&old_tab_count));
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
   ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
                                               action_max_timeout_ms()));
-  // Check tab count. Also, check accessibility object's children.
-  ASSERT_GE(new_tab_count, old_tab_count);
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
+  // Check accessibility object's children.
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
 
   // Add new tab with URL and check status.
-  old_tab_count = new_tab_count;
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
   std::wstring test_file2 = test_data_directory_;
   file_util::AppendToPath(&test_file2, L"title1.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
                                               action_max_timeout_ms()));
-  // Check tab count. Also, check accessibility object's children.
-  ASSERT_GE(new_tab_count, old_tab_count);
+  // Check accessibility object's children.
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
-
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
   CHK_RELEASE(acc_obj);
 }
 
@@ -266,8 +237,7 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   // Now check Back status in different situations.
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
-  int old_tab_count = -1;
-  int new_tab_count = -1;
+  int tab_count = -1;
 
   // Set URL and check button status.
   scoped_ptr<TabProxy> tab1(window->GetTab(0));
@@ -276,74 +246,45 @@ TEST_F(AccessibilityTest, DISABLED_TestForwardBtnStatusOnNewTab) {
   file_util::AppendToPath(&test_file1, L"title1.html");
   tab1->NavigateToURL(net::FilePathToFileURL(test_file1));
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
   // Go Back and check status.
   window->ApplyAccelerator(IDC_BACK);
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP | STATE_SYSTEM_FOCUSABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE, GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP | STATE_SYSTEM_FOCUSABLE,
+            GetState(acc_obj));
   // Go Forward and check status.
   window->ApplyAccelerator(IDC_FORWARD);
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
 
   // Add empty new tab and check status.
-  ASSERT_TRUE(window->GetTabCount(&old_tab_count));
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
   ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
                                               action_max_timeout_ms()));
-  // Check tab count.
-  ASSERT_GE(new_tab_count, old_tab_count);
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
 
   // Add new tab with URL and check status.
-  old_tab_count = new_tab_count;
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
   std::wstring test_file2 = test_data_directory_;
   file_util::AppendToPath(&test_file2, L"title1.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
                                               action_max_timeout_ms()));
-  // Check tab count.
-  ASSERT_GE(new_tab_count, old_tab_count);
   Sleep(sleep_timeout_ms());
-  if (win_util::GetWinVersion() > win_util::WINVERSION_2000) {
-    EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
-              STATE_SYSTEM_FOCUSABLE |
-              STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  } else {
-    EXPECT_EQ(STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_UNAVAILABLE,
-              GetState(acc_obj));
-  }
-
+  EXPECT_EQ(STATE_SYSTEM_HASPOPUP |
+            STATE_SYSTEM_FOCUSABLE |
+            STATE_SYSTEM_UNAVAILABLE,
+            GetState(acc_obj));
   CHK_RELEASE(acc_obj);
 }
 
@@ -394,26 +335,23 @@ TEST_F(AccessibilityTest, DISABLED_TestStarBtnStatusOnNewTab) {
   EXPECT_EQ(STATE_SYSTEM_FOCUSABLE, GetState(acc_obj));
 
   // Add empty new tab and check status.
-  int old_tab_count = -1;
-  ASSERT_TRUE(window->GetTabCount(&old_tab_count));
+  int tab_count = -1;
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
   ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  int new_tab_count;
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
                                               action_max_timeout_ms()));
   // Check tab count. Also, check accessibility object's state.
-  ASSERT_GE(new_tab_count, old_tab_count);
   Sleep(sleep_timeout_ms());
   EXPECT_EQ(STATE_SYSTEM_FOCUSABLE, GetState(acc_obj));
 
   // Add new tab with URL and check status.
-  old_tab_count = new_tab_count;
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
   std::wstring test_file2 = test_data_directory_;
   file_util::AppendToPath(&test_file2, L"title1.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(test_file2)));
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
                                               action_max_timeout_ms()));
   // Check tab count. Also, check accessibility object's state.
-  ASSERT_GE(new_tab_count, old_tab_count);
   Sleep(sleep_timeout_ms());
   EXPECT_EQ(STATE_SYSTEM_FOCUSABLE, GetState(acc_obj));
 

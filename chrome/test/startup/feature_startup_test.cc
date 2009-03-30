@@ -64,28 +64,21 @@ class NewTabUIStartupTest : public UITest {
       // first (the first is about:blank).
       BrowserProxy* window = automation()->GetBrowserWindow(0);
       ASSERT_TRUE(window);
-      int old_tab_count = -1;
-      ASSERT_TRUE(window->GetTabCount(&old_tab_count));
-      ASSERT_EQ(1, old_tab_count);
+      int tab_count = -1;
+      ASSERT_TRUE(window->GetTabCount(&tab_count));
+      ASSERT_EQ(1, tab_count);
 
       // Hit ctl-t and wait for the tab to load.
       window->ApplyAccelerator(IDC_NEW_TAB);
-      int new_tab_count = -1;
-      ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
-                                                  5000));
-      ASSERT_EQ(2, new_tab_count);
+      ASSERT_TRUE(window->WaitForTabCountToBecome(2, 5000));
       int load_time;
       ASSERT_TRUE(automation()->WaitForInitialNewTabUILoad(&load_time));
       timings[i] = TimeDelta::FromMilliseconds(load_time);
 
       if (want_warm) {
         // Bring up a second tab, now that we've already shown one tab.
-        old_tab_count = new_tab_count;
-        new_tab_count = -1;
         window->ApplyAccelerator(IDC_NEW_TAB);
-        ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count,
-                                                    &new_tab_count, 5000));
-        ASSERT_EQ(3, new_tab_count);
+        ASSERT_TRUE(window->WaitForTabCountToBecome(3, 5000));
         ASSERT_TRUE(automation()->WaitForInitialNewTabUILoad(&load_time));
         timings[i] = TimeDelta::FromMilliseconds(load_time);
       }

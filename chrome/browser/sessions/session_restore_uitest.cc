@@ -377,23 +377,24 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
 
   // Create two new tabs.
-  int new_tab_count;
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
                                                      action_timeout_ms()));
-  scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(new_tab_count - 1));
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  scoped_ptr<TabProxy> last_tab(browser_proxy->GetTab(tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
-  tab_count = new_tab_count;
   ASSERT_TRUE(browser_proxy->ApplyAccelerator(IDC_NEW_TAB));
-  ASSERT_TRUE(browser_proxy->WaitForTabCountToChange(tab_count, &new_tab_count,
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
                                                      action_timeout_ms()));
-  last_tab.reset(browser_proxy->GetTab(new_tab_count - 1));
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  last_tab.reset(browser_proxy->GetTab(tab_count - 1));
   ASSERT_TRUE(last_tab.get() != NULL);
   // Do a reload to ensure new tab page has loaded.
   ASSERT_TRUE(last_tab->Reload());
   int expected_process_count = GetBrowserProcessCount();
+  int expected_tab_count = tab_count;
 
   // Restart.
   browser_proxy.reset();
@@ -404,14 +405,13 @@ TEST_F(SessionRestoreUITest, DISABLED_ShareProcessesOnRestore) {
   // count matches.
   browser_proxy.reset(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser_proxy.get() != NULL);
-  int restored_tab_count;
-  ASSERT_TRUE(browser_proxy->GetTabCount(&restored_tab_count));
-  ASSERT_EQ(new_tab_count, restored_tab_count);
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(expected_tab_count, tab_count);
 
-  scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(restored_tab_count - 2));
+  scoped_ptr<TabProxy> tab_proxy(browser_proxy->GetTab(tab_count - 2));
   ASSERT_TRUE(tab_proxy.get() != NULL);
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
-  tab_proxy.reset(browser_proxy->GetTab(restored_tab_count - 1));
+  tab_proxy.reset(browser_proxy->GetTab(tab_count - 1));
   ASSERT_TRUE(tab_proxy.get() != NULL);
   ASSERT_TRUE(tab_proxy->WaitForTabToBeRestored(action_timeout_ms()));
 

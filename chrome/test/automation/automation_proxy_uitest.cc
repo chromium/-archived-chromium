@@ -487,17 +487,14 @@ TEST_F(AutomationProxyTest, NavigateToURLAsync) {
 TEST_F(AutomationProxyTest, AcceleratorNewTab) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
 
-  int old_tab_count = -1;
-  ASSERT_TRUE(window->GetTabCount(&old_tab_count));
+  int tab_count = -1;
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
 
   ASSERT_TRUE(window->ApplyAccelerator(IDC_NEW_TAB));
-  int new_tab_count;
-  ASSERT_TRUE(window->WaitForTabCountToChange(old_tab_count, &new_tab_count,
-                                              5000));
-  if (new_tab_count == -1)
-    FAIL();
-  ASSERT_EQ(old_tab_count + 1, new_tab_count);
-  scoped_ptr<TabProxy> tab(window->GetTab(new_tab_count - 1));
+  ASSERT_TRUE(window->WaitForTabCountToBecome(tab_count + 1,
+                                              action_timeout_ms()));
+  ASSERT_TRUE(window->GetTabCount(&tab_count));
+  scoped_ptr<TabProxy> tab(window->GetTab(tab_count - 1));
   ASSERT_TRUE(tab.get());
 
   std::wstring title;

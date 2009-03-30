@@ -45,14 +45,13 @@ class TabSwitchingUITest : public UITest {
     int initial_tab_count = 0;
     ASSERT_TRUE(browser_proxy_->GetTabCount(&initial_tab_count));
     int new_tab_count = OpenTabs();
-    int final_tab_count = 0;
-    ASSERT_TRUE(browser_proxy_->WaitForTabCountToChange(initial_tab_count,
-                                                        &final_tab_count,
-                                                        10000));
-    ASSERT_TRUE(final_tab_count == initial_tab_count + new_tab_count);
+    ASSERT_TRUE(browser_proxy_->WaitForTabCountToBecome(
+        initial_tab_count + new_tab_count, 10000));
 
     // Switch linearly between tabs.
     browser_proxy_->ActivateTab(0);
+    int final_tab_count = 0;
+    ASSERT_TRUE(browser_proxy_->GetTabCount(&final_tab_count));
     for (int i = initial_tab_count; i < final_tab_count; ++i) {
       browser_proxy_->ActivateTab(i);
       ASSERT_TRUE(browser_proxy_->WaitForTabToBecomeActive(i, 10000));

@@ -455,11 +455,9 @@ bool AutomatedUITest::CloseActiveTab() {
   automation()->GetBrowserWindowCount(&browser_windows_count);
   // Avoid quitting the application by not closing the last window.
   if (tab_count > 1) {
-    int new_tab_count;
     return_value = browser->RunCommand(IDC_CLOSE_TAB);
     // Wait for the tab to close before we continue.
-    if (!browser->WaitForTabCountToChange(tab_count,
-                                          &new_tab_count,
+    if (!browser->WaitForTabCountToBecome(tab_count - 1,
                                           action_max_timeout_ms())) {
       AddWarningAttribute("tab_count_failed_to_change");
       return false;

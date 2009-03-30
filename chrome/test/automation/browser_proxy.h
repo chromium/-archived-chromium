@@ -139,14 +139,9 @@ class BrowserProxy : public AutomationResourceProxy {
                                        bool press_escape_en_route);
 #endif  // defined(OS_WIN)
 
-  // Block the thread until the tab count changes.
-  // |count| is the original tab count.
-  // |new_count| is updated with the number of new tabs.
-  // |wait_timeout| is the timeout, in milliseconds, for waiting.
-  // Returns false if the tab count does not change.
-  bool WaitForTabCountToChange(int count, int* new_count, int wait_timeout);
-
   // Block the thread until the tab count is |count|.
+  // |wait_timeout| is the timeout, in milliseconds, for waiting.
+  // Returns true on success.
   bool WaitForTabCountToBecome(int count, int wait_timeout);
 
   // Block the thread until the specified tab is the active tab.

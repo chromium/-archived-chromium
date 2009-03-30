@@ -56,12 +56,9 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
   scoped_ptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
-  // Make sure 3 tabs are open
-  int final_tab_count = 0;
-  ASSERT_TRUE(browser->WaitForTabCountToChange(initial_tab_count,
-                                               &final_tab_count,
+  // Make sure 3 tabs are open.
+  ASSERT_TRUE(browser->WaitForTabCountToBecome(initial_tab_count + 2,
                                                10000));
-  ASSERT_TRUE(final_tab_count == initial_tab_count + 2);
 
   // Get bounds for the tabs.
   gfx::Rect bounds1;
@@ -159,12 +156,9 @@ TEST_F(TabDraggingTest, Tab1Tab3) {
   scoped_ptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
-  // Make sure 3 tabs are open
-  int final_tab_count = 0;
-  ASSERT_TRUE(browser->WaitForTabCountToChange(initial_tab_count,
-                                               &final_tab_count,
+  // Make sure 3 tabs are open.
+  ASSERT_TRUE(browser->WaitForTabCountToBecome(initial_tab_count + 2,
                                                10000));
-  ASSERT_TRUE(final_tab_count == initial_tab_count + 2);
 
   // Get bounds for the tabs.
   gfx::Rect bounds1;
@@ -269,12 +263,9 @@ TEST_F(TabDraggingTest, Tab1Tab3Escape) {
   scoped_ptr<TabProxy> tab3(browser->GetTab(2));
   ASSERT_TRUE(tab3.get());
 
-  // Make sure 3 tabs are open
-  int final_tab_count = 0;
-  ASSERT_TRUE(browser->WaitForTabCountToChange(initial_tab_count,
-                                               &final_tab_count,
+  // Make sure 3 tabs are open.
+  ASSERT_TRUE(browser->WaitForTabCountToBecome(initial_tab_count + 2,
                                                10000));
-  ASSERT_TRUE(final_tab_count == initial_tab_count + 2);
 
   // Get bounds for the tabs.
   gfx::Rect bounds1;
@@ -383,11 +374,8 @@ TEST_F(TabDraggingTest, Tab2OutOfTabStrip) {
   ASSERT_TRUE(tab3.get());
 
   // Make sure 3 tabs are opened.
-  int final_tab_count = 0;
-  ASSERT_TRUE(browser->WaitForTabCountToChange(initial_tab_count,
-                                               &final_tab_count,
+  ASSERT_TRUE(browser->WaitForTabCountToBecome(initial_tab_count + 2,
                                                10000));
-  ASSERT_TRUE(final_tab_count == initial_tab_count + 2);
 
   // Make sure all the tab URL specs are different.
   ASSERT_TRUE(tab1_url != tab2_url);

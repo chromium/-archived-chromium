@@ -205,24 +205,6 @@ bool BrowserProxy::SimulateDragWithTimeout(const POINT& start,
 }
 #endif  // defined(OS_WIN)
 
-bool BrowserProxy::WaitForTabCountToChange(int count, int* new_count,
-                                           int wait_timeout) {
-  const TimeTicks start = TimeTicks::Now();
-  const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
-  while (TimeTicks::Now() - start < timeout) {
-    PlatformThread::Sleep(automation::kSleepTime);
-    bool is_timeout;
-    bool succeeded = GetTabCountWithTimeout(new_count, wait_timeout,
-                                            &is_timeout);
-    if (!succeeded)
-      return false;
-    if (count != *new_count)
-      return true;
-  }
-  // If we get here, the tab count hasn't changed.
-  return false;
-}
-
 bool BrowserProxy::WaitForTabCountToBecome(int count, int wait_timeout) {
   const TimeTicks start = TimeTicks::Now();
   const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
