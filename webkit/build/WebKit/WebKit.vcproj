@@ -220,14 +220,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\KeyIdentifier.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\KeyIdentifier.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebCache.cpp"
 					>
 				</File>
@@ -237,6 +229,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebImageSkia.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebInputEvent.cpp"
 					>
 				</File>
 				<File

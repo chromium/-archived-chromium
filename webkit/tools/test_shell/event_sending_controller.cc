@@ -32,11 +32,6 @@
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
-// TODO(darin): This is a temporary hack.  The better solution is to defer
-// generation of the keyIdentifier to the point where a PlatformKeyboardEvent
-// is created from our WebKeyboardEvent.
-#include "third_party/WebKit/WebKit/chromium/src/KeyIdentifier.h"
-
 #if defined(OS_WIN)
 #include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
 using WebKit::WebInputEventFactory;
@@ -408,10 +403,7 @@ void EventSendingController::keyDown(
       event_down.text[0] = code;
       event_down.unmodifiedText[0] = code;
     }
-
-    // TODO(darin): remove this temporary hack.
-    WebKit::keyIdentifierForWindowsKeyCode(
-        code, event_down.keyIdentifier, sizeof(event_down.keyIdentifier));
+    event_down.setKeyIdentifierFromWindowsKeyCode();
 
     if (args.size() >= 2 && (args[1].isObject() || args[1].isString()))
       ApplyKeyModifiers(&(args[1]), &event_down);

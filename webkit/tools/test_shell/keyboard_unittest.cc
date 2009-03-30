@@ -19,7 +19,6 @@ MSVC_POP_WARNING();
 #include "webkit/glue/event_conversion.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
-#include "third_party/WebKit/WebKit/chromium/src/KeyIdentifier.h"  // TODO(darin): TEMPORARY HACK
 
 using WebCore::PlatformKeyboardEvent;
 using WebCore::KeyboardEvent;
@@ -55,12 +54,7 @@ class KeyboardTest : public testing::Test {
     keyboard_event->modifiers = modifiers;
     keyboard_event->type = WebInputEvent::KeyDown;
     keyboard_event->text[0] = key_code;
-
-    // TODO(darin): remove this temporary hack.
-    WebKit::keyIdentifierForWindowsKeyCode(
-        key_code,
-        keyboard_event->keyIdentifier,
-        sizeof(keyboard_event->keyIdentifier));
+    keyboard_event->setKeyIdentifierFromWindowsKeyCode();
   }
 
   // Like InterpretKeyEvent, but with pressing down OSModifier+|key_code|.
