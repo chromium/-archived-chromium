@@ -11,6 +11,7 @@ import logging
 import optparse
 import os
 import sys
+import time
 from xml.dom.minidom import parse
 
 # These are functions (using C++ mangled names) that we look for in stack
@@ -189,10 +190,22 @@ class ValgrindAnalyze:
 
     self._errors = set()
     for file in files:
+      # Wait up to a minute for valgrind to finish writing.
+      f = open(file, "r")
+      ntries = 60
+      for tries in range(0, ntries):
+        f.seek(0)
+        if sum((1 for line in f if '</valgrindoutput>' in line)) > 0:
+          break
+        time.sleep(1)
+      f.close()
+      if tries == ntries-1:
+        logging.error("valgrind never finished?")
       raw_errors = parse(file).getElementsByTagName("error")
       for raw_error in raw_errors:
         # Ignore "possible" leaks for now by default.
-        if (show_all_leaks or getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
+        if (show_all_leaks or
+            getTextOf(raw_error, "kind") != "Leak_PossiblyLost"):
           self._errors.add(ValgrindError(source_dir, raw_error))
 
   def Report(self):

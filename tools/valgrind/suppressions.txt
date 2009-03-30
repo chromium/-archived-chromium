@@ -152,9 +152,8 @@
    v8_bug_275
    Memcheck:Leak
    fun:_Znaj
-   fun:_ZN2v88internal8NewArrayIcEEPT_i
+   ...
    fun:_ZN2v88internal8FlagList18SetFlagsFromStringEPKci
-   fun:_ZN2v82V818SetFlagsFromStringEPKci
 }
 ######### Baseline leaks -- just here to get test_shell_tests green -- fix later ######
 {
@@ -259,4 +258,33 @@
    fun:pango_font_map_load_fontset
    obj:*
    fun:pango_itemize_with_base_dir
+}
+{
+   # See http://crbug.com/9450
+   v8_bindings_leak_crbug_9450
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN7WebCore7V8Proxy20RegisterGlobalHandleENS_16GlobalHandleTypeEPvN2v810PersistentINS3_5ValueEEE
+}
+{
+   # Font memory leak.  See http://crbug.com/9475
+   bug_9475
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN7WebCore9FontCache22createFontPlatformDataERKNS_15FontDescriptionERKNS_12AtomicStringE
+}
+{
+   # V8 leak?  See http://crbug.com/9458
+   bug_9458
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_NPN_RegisterObject
+   fun:_Z25CreateV8ObjectForNPObjectP8NPObjectS0_
+}
+{
+   # webkit leak?  See http://crbug.com/9503
+   bug_9503
+   Memcheck:Leak
+   ...
+   fun:_ZN19TestWebViewDelegate24UpdateSelectionClipboardEb
 }
