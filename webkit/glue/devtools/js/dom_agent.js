@@ -223,13 +223,10 @@ devtools.DomNode.prototype.setAttribute = function(name, value) {
 devtools.DomNode.prototype.removeAttribute = function(name) {
   var self = this;
   this.ownerDocument.domAgent_.removeAttributeAsync(this, name, function() {
-    if (!success) {
-      return;
-    }
     delete self.attributesMap_[name];
-    for (var i = 0;  i < self.attributes_.length; ++i) {
-      if (self.attributes_[i].name == name) {
-        self.attributes_.splice(i, 1);
+    for (var i = 0;  i < self.attributes.length; ++i) {
+      if (self.attributes[i].name == name) {
+        self.attributes.splice(i, 1);
         break;
       }
     }

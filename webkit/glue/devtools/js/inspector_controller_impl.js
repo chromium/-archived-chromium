@@ -77,7 +77,7 @@ devtools.InspectorControllerImpl.prototype.hideDOMNodeHighlight = function() {
  */
 devtools.InspectorControllerImpl.prototype.highlightDOMNode =
     function(hoveredNode) {
-  RemoteToolsAgent.HighlightDOMNode(hoveredNode.id);
+  RemoteToolsAgent.HighlightDOMNode(hoveredNode.id_);
 };
 
 

@@ -25,7 +25,7 @@ devtools.Callback = function() {
  */
 devtools.Callback.prototype.wrap = function(callback) {
   var callbackId = this.lastCallbackId_++;
-  this.callbacks_[callbackId] = callback;
+  this.callbacks_[callbackId] = callback || function() {};
   return callbackId;
 };
 
