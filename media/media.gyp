@@ -98,6 +98,13 @@
         ],
       },
       'conditions': [
+        ['OS =="linux"', {
+          'sources!': [
+            'filters/ffmpeg_audio_decoder.cc',
+            'filters/ffmpeg_glue.cc',
+            'filters/ffmpeg_video_decoder.cc',
+          ],
+        }],
         ['OS =="mac"', {
           'link_settings': {
             'libraries': [
@@ -154,6 +161,10 @@
             #   ../base/test_suite.h
             #   gtk/gtk.h
             '../build/linux/system.gyp:gtk',
+          ],
+          'sources!': [
+            'filters/ffmpeg_demuxer_unittest.cc',
+            'filters/ffmpeg_glue_unittest.cc',
           ],
         }],
         ['OS=="mac"', {
