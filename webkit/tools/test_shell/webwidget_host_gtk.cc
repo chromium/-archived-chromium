@@ -15,6 +15,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/webwidget.h"
+#include "webkit/tools/test_shell/test_shell.h"
 
 using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;
@@ -178,7 +179,10 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleFocusIn(GtkWidget* widget,
                                 GdkEventFocus* focus,
                                 WebWidgetHost* host) {
-    host->webwidget()->SetFocus(true);
+    // Ignore focus calls in layout test mode so that tests don't mess with each
+    // other's focus when running in parallel.
+    if (!TestShell::layout_test_mode())
+      host->webwidget()->SetFocus(true);
     return FALSE;
   }
 
@@ -186,7 +190,10 @@ class WebWidgetHostGtkWidget {
   static gboolean HandleFocusOut(GtkWidget* widget,
                                  GdkEventFocus* focus,
                                  WebWidgetHost* host) {
-    host->webwidget()->SetFocus(false);
+    // Ignore focus calls in layout test mode so that tests don't mess with each
+    // other's focus when running in parallel.
+    if (!TestShell::layout_test_mode())
+      host->webwidget()->SetFocus(false);
     return FALSE;
   }
 

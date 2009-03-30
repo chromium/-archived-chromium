@@ -6,6 +6,7 @@
 #define CHROME_RENDERER_RENDERER_WEBKIT_CLIENT_IMPL_H_
 
 #include "webkit/glue/simple_webmimeregistry_impl.h"
+#include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webkitclient_impl.h"
 
 #if defined(OS_WIN)
@@ -15,6 +16,7 @@
 class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
  public:
   // WebKitClient methods:
+  virtual WebKit::WebClipboard* clipboard();
   virtual WebKit::WebMimeRegistry* mimeRegistry();
   virtual WebKit::WebSandboxSupport* sandboxSupport();
   virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length);
@@ -42,6 +44,8 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
     virtual bool ensureFontLoaded(HFONT);
   };
 #endif
+
+  webkit_glue::WebClipboardImpl clipboard_;
 
   MimeRegistry mime_registry_;
 #if defined(OS_WIN)

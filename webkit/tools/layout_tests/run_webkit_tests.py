@@ -685,6 +685,22 @@ def main(options, args):
   if options.platform is None:
     options.platform = path_utils.PlatformDir()
 
+  if options.num_test_shells is None:
+    cpus = 1
+    if sys.platform in ('win32', 'cygwin'):
+      cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+    elif (hasattr(os, "sysconf") and
+          os.sysconf_names.has_key("SC_NPROCESSORS_ONLN")):
+      # Linux & Unix:
+      ncpus = os.sysconf("SC_NPROCESSORS_ONLN")
+      if isinstance(ncpus, int) and ncpus > 0:
+        cpus = ncpus
+    elif sys.platform in ('darwin'): # OSX:
+      cpus = int(os.popen2("sysctl -n hw.ncpu")[1].read())
+
+    # TODO: Do timing tests on a single-core machine.
+    options.num_test_shells = 2 * cpus
+
   # Include all tests if none are specified.
   paths = args
   if not paths:
@@ -779,8 +795,7 @@ if '__main__' == __name__:
                                 "newly pass or fail.")
   option_parser.add_option("", "--num-test-shells",
                            default=1,
-                           help="Experimental. Number of testshells to run in "
-                                "parallel.")
+                           help="Number of testshells to run in parallel.")
   option_parser.add_option("", "--time-out-ms",
                            default=None,
                            help="Set the timeout for each test")

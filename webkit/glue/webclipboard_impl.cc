@@ -7,7 +7,6 @@
 #include "base/clipboard.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "base/string16.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/escape.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebImage.h"
@@ -23,7 +22,9 @@ using WebKit::WebURL;
 
 namespace webkit_glue {
 
-static std::string URLToMarkup(const WebURL& url, const WebString& title) {
+// Static
+std::string WebClipboardImpl::URLToMarkup(const WebURL& url,
+    const WebString& title) {
   std::string markup("<a href=\"");
   markup.append(url.spec());
   markup.append("\">");
@@ -33,8 +34,9 @@ static std::string URLToMarkup(const WebURL& url, const WebString& title) {
   return markup;
 }
 
-static std::string URLToImageMarkup(const WebURL& url,
-                                    const WebString& title) {
+// Static
+std::string WebClipboardImpl::URLToImageMarkup(const WebURL& url,
+    const WebString& title) {
   std::string markup("<img src=\"");
   markup.append(url.spec());
   markup.append("\"");

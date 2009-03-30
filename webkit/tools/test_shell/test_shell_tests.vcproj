@@ -183,6 +183,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mock_webclipboard_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\mock_webclipboard_impl.h"
+				>
+			</File>
+			<File
 				RelativePath="$(OutDir)\obj\global_intermediate\net\net_resources.rc"
 				>
 			</File>

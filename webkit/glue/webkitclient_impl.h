@@ -7,7 +7,6 @@
 
 #include "base/timer.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKitClient.h"
-#include "webkit/glue/webclipboard_impl.h"
 #if defined(OS_WIN)
 #include "webkit/glue/webthemeengine_impl_win.h"
 #endif
@@ -21,7 +20,6 @@ class WebKitClientImpl : public WebKit::WebKitClient {
   WebKitClientImpl();
 
   // WebKitClient methods (partial implementation):
-  virtual WebKit::WebClipboard* clipboard();
   virtual WebKit::WebThemeEngine* themeEngine();
   virtual void decrementStatsCounter(const char* name);
   virtual void incrementStatsCounter(const char* name);
@@ -40,7 +38,6 @@ class WebKitClientImpl : public WebKit::WebKitClient {
       shared_timer_func_();
   }
 
-  WebClipboardImpl clipboard_;
   MessageLoop* main_loop_;
   base::OneShotTimer<WebKitClientImpl> shared_timer_;
   void (*shared_timer_func_)();

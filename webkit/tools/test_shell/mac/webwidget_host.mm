@@ -13,6 +13,7 @@
 #include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/webwidget.h"
+#include "webkit/tools/test_shell/test_shell.h"
 
 using WebKit::WebInputEvent;
 using WebKit::WebInputEventFactory;
@@ -248,7 +249,10 @@ void WebWidgetHost::KeyEvent(NSEvent *event) {
 }
 
 void WebWidgetHost::SetFocus(bool enable) {
-  webwidget_->SetFocus(enable);
+  // Ignore focus calls in layout test mode so that tests don't mess with each
+  // other's focus when running in parallel.
+  if (!TestShell::layout_test_mode())
+    webwidget_->SetFocus(enable);
 }
 
 void WebWidgetHost::TrackMouseLeave(bool track) {

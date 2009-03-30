@@ -11,10 +11,12 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 #include "webkit/glue/simple_webmimeregistry_impl.h"
+#include "webkit/glue/webclipboard_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webkitclient_impl.h"
 #include "webkit/extensions/v8/gears_extension.h"
 #include "webkit/extensions/v8/interval_extension.h"
+#include "webkit/tools/test_shell/mock_webclipboard_impl.h"
 #include "webkit/tools/test_shell/simple_resource_loader_bridge.h"
 #include "v8/include/v8.h"
 
@@ -39,6 +41,19 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
 
   virtual WebKit::WebMimeRegistry* mimeRegistry() {
     return &mime_registry_;
+  }
+    
+  WebKit::WebClipboard* clipboard() {
+    if (!clipboard_.get()) {
+      // Mock out clipboard calls in layout test mode so that tests don't mess 
+      // with each other's copies/pastes when running in parallel.
+      if (TestShell::layout_test_mode()) {
+        clipboard_.reset(new MockWebClipboardImpl());
+      } else {
+        clipboard_.reset(new webkit_glue::WebClipboardImpl());
+      }
+    }
+    return clipboard_.get();
   }
 
   virtual WebKit::WebSandboxSupport* sandboxSupport() {
@@ -93,6 +108,7 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
 
  private:
   webkit_glue::SimpleWebMimeRegistryImpl mime_registry_;
+  scoped_ptr<WebKit::WebClipboard> clipboard_;
 };
 
 #endif  // WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_

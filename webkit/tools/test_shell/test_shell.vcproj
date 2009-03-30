@@ -242,6 +242,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\mock_webclipboard_impl.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\mock_webclipboard_impl.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\glue\simple_clipboard_impl.cc"
 			>
 		</File>

@@ -10,6 +10,7 @@
 class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
  public:
   // WebKitClient methods:
+  virtual WebKit::WebClipboard* clipboard();
   virtual WebKit::WebMimeRegistry* mimeRegistry();
   virtual WebKit::WebSandboxSupport* sandboxSupport();
   virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length);

@@ -21,6 +21,10 @@ using WebKit::WebURL;
 
 //------------------------------------------------------------------------------
 
+WebKit::WebClipboard* RendererWebKitClientImpl::clipboard() {
+  return &clipboard_;
+} 
+
 WebKit::WebMimeRegistry* RendererWebKitClientImpl::mimeRegistry() {
   return &mime_registry_;
 }

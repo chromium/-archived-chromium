@@ -115,6 +115,7 @@ env_lib.SConscript([
 input_files = [
     'event_sending_controller.cc',
     'layout_test_controller.cc',
+    'mock_webclipboard_impl.cc',
     'simple_resource_loader_bridge.cc',
 
     # This file is only used by test_shell/test_shell_tests.  It should

@@ -199,30 +199,40 @@ class TestTypeBase(object):
         #
         # http://mail.python.org/pipermail/python-list/2008-August/505753.html
         # http://bugs.python.org/issue3210
+        #
+        # It also has a threading bug, so we don't output wdiff if the Popen
+        # raises a ValueError.
+        # http://bugs.python.org/issue1236
         if _wdiff_available:
           wdiff = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+          wdiff_failed = False
+
       except OSError, e:
         if e.errno == errno.ENOENT or e.errno == errno.EACCES:
           _wdiff_available = False
         else:
           raise e
+      except ValueError, e:
+        wdiff_failed = True
+
+      out = open(filename, 'wb')
 
       if not _wdiff_available:
-        out = open(filename, 'wb')
         out.write(
             """wdiff not installed.<br/>"""
             """If you're running OS X, you can install via macports.<br/>"""
             """If running Ubuntu linux, you can run "sudo apt-get install"""
             """ wdiff".""")
-        out.close()
-        return
+      elif wdiff_failed:
+        out.write('wdiff failed due to running with multiple test_shells in '
+                  'parallel.')
+      else:
+        wdiff = cgi.escape(wdiff)
+        wdiff = wdiff.replace('##WDIFF_DEL##', '<span class=del>')
+        wdiff = wdiff.replace('##WDIFF_ADD##', '<span class=add>')
+        wdiff = wdiff.replace('##WDIFF_END##', '</span>')
+        out.write('<head><style>.del { background: #faa; } ')
+        out.write('.add { background: #afa; }</style></head>')
+        out.write('<pre>' + wdiff + '</pre>')
 
-      wdiff = cgi.escape(wdiff)
-      wdiff = wdiff.replace('##WDIFF_DEL##', '<span class=del>')
-      wdiff = wdiff.replace('##WDIFF_ADD##', '<span class=add>')
-      wdiff = wdiff.replace('##WDIFF_END##', '</span>')
-      out = open(filename, 'wb')
-      out.write('<head><style>.del { background: #faa; } ')
-      out.write('.add { background: #afa; }</style></head>')
-      out.write('<pre>' + wdiff + '</pre>')
       out.close()

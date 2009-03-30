@@ -40,6 +40,8 @@
         'foreground_helper.h',
         'layout_test_controller.cc',
         'layout_test_controller.h',
+        'mock_webclipboard_impl.cc',
+        'mock_webclipboard_impl.h',
         'resource.h',
         'simple_resource_loader_bridge.cc',
         'simple_resource_loader_bridge.h',

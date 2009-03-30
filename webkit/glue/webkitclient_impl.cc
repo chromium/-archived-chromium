@@ -11,7 +11,6 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
 #include "webkit/glue/webkit_glue.h"
 
-using WebKit::WebClipboard;
 using WebKit::WebCString;
 using WebKit::WebThemeEngine;
 
@@ -20,10 +19,6 @@ namespace webkit_glue {
 WebKitClientImpl::WebKitClientImpl()
     : main_loop_(MessageLoop::current()),
       shared_timer_func_(NULL) {
-}
-
-WebClipboard* WebKitClientImpl::clipboard() {
-  return &clipboard_;
 }
 
 WebThemeEngine* WebKitClientImpl::themeEngine() {
