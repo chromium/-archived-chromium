@@ -968,6 +968,13 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
       "Net.Transaction_Latency_Total_Under_10", "DnsImpact").data(),
       total_duration, base::TimeDelta::FromMilliseconds(1),
       base::TimeDelta::FromMinutes(10), 100);
+  if (!reused_socket_) {
+    UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+        "Net.Transaction_Latency_Total_New_Connection_Under_10",
+        "DnsImpact").data(),
+        total_duration, base::TimeDelta::FromMilliseconds(1),
+        base::TimeDelta::FromMinutes(10), 100);
+  }
   if (!duration.InMilliseconds())
     return;
   UMA_HISTOGRAM_COUNTS("Net.Transaction_Bandwidth",
