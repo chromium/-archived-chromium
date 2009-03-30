@@ -37,8 +37,9 @@ void decal_filter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int count);
 #define TILEY_PROCF(fy, max)    (((fy) & 0xFFFF) * ((max) + 1) >> 16)
 #define TILEX_LOW_BITS(fx, max) ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
 #define TILEY_LOW_BITS(fy, max) ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
-#define TILEX_TRANS(x, max)     ((x) % ((max) + 1))
-#define TILEY_TRANS(y, max)     ((y) % ((max) + 1))
+#define SK_MOD(a, b)            (((a)%(b)) < 0 ? ((a)%(b) + (b)) : (a)%(b))
+#define TILEX_TRANS(x, max)     (SK_MOD((x), ((max) + 1)))
+#define TILEY_TRANS(y, max)     (SK_MOD((y), ((max) + 1)))
 #include "SkBitmapProcState_matrix.h"
 
 #define MAKENAME(suffix)        GeneralXY ## suffix
