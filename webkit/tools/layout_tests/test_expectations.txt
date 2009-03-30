@@ -2323,7 +2323,7 @@ DEFER LINUX : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER LINUX : LayoutTests/fast/forms/slider-transformed.html = FAIL
 
 // Mac flaky failures.
-DEFER MAC RELEASE : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
+DEFER MAC : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
 
 // <input type="search">; various failures, some tests may simply need new
 // baselines, others have more problems.
