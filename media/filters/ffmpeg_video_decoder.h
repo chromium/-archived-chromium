@@ -26,7 +26,7 @@ class FFmpegVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
   virtual void OnDecode(Buffer* input);
 
  private:
-  friend FilterFactoryImpl0<FFmpegVideoDecoder>;
+  friend class FilterFactoryImpl0<FFmpegVideoDecoder>;
   FFmpegVideoDecoder();
   virtual ~FFmpegVideoDecoder();
 

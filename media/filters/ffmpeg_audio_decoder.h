@@ -26,7 +26,7 @@ class FFmpegAudioDecoder : public DecoderBase<AudioDecoder, Buffer> {
   virtual void OnDecode(Buffer* input);
 
  private:
-  friend FilterFactoryImpl0<FFmpegAudioDecoder>;
+  friend class FilterFactoryImpl0<FFmpegAudioDecoder>;
   FFmpegAudioDecoder();
   virtual ~FFmpegAudioDecoder();
 
