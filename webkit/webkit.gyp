@@ -4132,7 +4132,7 @@
             '../build/linux/system.gyp:gtk',
           ],
           'include_dirs': [
-            '../third_party/WebKit/WebKit/chromium/public/gdk',
+            '../third_party/WebKit/WebKit/chromium/public/gtk',
           ],
           'sources': [
             '../third_party/WebKit/WebKit/chromium/src/gtk/WebInputEventFactory.cpp',
