@@ -99,6 +99,10 @@ class FirstRunBubbleView : public views::View,
     AddChildView(change_button_);
   }
 
+  void BubbleShown() {
+    keep_button_->RequestFocus();
+  }
+
   // Overridden from ButtonListener.
   virtual void ButtonPressed(views::Button* sender) {
     bubble_window_->Close();
@@ -151,11 +155,6 @@ class FirstRunBubbleView : public views::View,
     keep_button_->SetBounds(change_button_->x() - pref_size.width() -
                             kRelatedButtonHSpacing, change_button_->y(),
                             pref_size.width(), pref_size.height());
-  }
-
-  virtual void ViewHierarchyChanged(bool is_add, View* parent, View* child) {
-    if (keep_button_)
-      keep_button_->RequestFocus();
   }
 
   // Overridden from views::View.
@@ -237,6 +236,7 @@ FirstRunBubble* FirstRunBubble::Show(Profile* profile, HWND parent_hwnd,
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(window->GetNativeView());
   focus_manager->AddFocusChangeListener(view);
+  view->BubbleShown();
   return window;
 }
 
