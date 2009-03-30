@@ -231,6 +231,8 @@
     'd8_source_files': [
       '../../v8/src/d8-debug.cc',
       '../../v8/src/d8-readline.cc',
+      '../../v8/src/d8-windows.cc',
+      '../../v8/src/d8-posix.cc',
       '../../v8/src/d8.cc',
     ],
   },
@@ -469,15 +471,17 @@
       ],
       'conditions': [
         [ 'OS=="linux"', {
+          'sources!': [ '../../v8/src/d8-windows.cc' ],
           'link_settings': { 'libraries': [ '-lreadline' ] },
         }],
         [ 'OS=="mac"', {
+          'sources!': [ '../../v8/src/d8-windows.cc' ],
           'link_settings': { 'libraries': [
             '$(SDKROOT)/usr/lib/libreadline.dylib'
           ]},
         }],
         [ 'OS=="win"', {
-          'sources!': [ '../../v8/src/d8-readline.cc' ],
+          'sources!': [ '../../v8/src/d8-readline.cc', '../../v8/src/d8-posix.cc' ],
         }],
       ],
     },
@@ -585,15 +589,17 @@
       ],
       'conditions': [
         [ 'OS=="linux"', {
+          'sources!': [ '../../v8/src/d8-windows.cc' ],
           'link_settings': { 'libraries': [ '-lreadline' ] },
         }],
         [ 'OS=="mac"', {
+          'sources!': [ '../../v8/src/d8-windows.cc' ],
           'link_settings': { 'libraries': [
             '$(SDKROOT)/usr/lib/libreadline.dylib'
           ]},
         }],
         [ 'OS=="win"', {
-          'sources!': [ '../../v8/src/d8-readline.cc' ],
+          'sources!': [ '../../v8/src/d8-readline.cc', '../../v8/src/d8-posix.cc' ],
         }],
       ],
     },
