@@ -230,9 +230,9 @@
     ],
     'd8_source_files': [
       '../../v8/src/d8-debug.cc',
+      '../../v8/src/d8-posix.cc',
       '../../v8/src/d8-readline.cc',
       '../../v8/src/d8-windows.cc',
-      '../../v8/src/d8-posix.cc',
       '../../v8/src/d8.cc',
     ],
   },
