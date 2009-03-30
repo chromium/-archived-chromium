@@ -76,5 +76,19 @@ inline int pthread_cond_broadcast(pthread_cond_t *) {
   return 0;
 }
 
+// ----------------------------------------------------------------------------
+// pthread_key_t
+
+typedef int pthread_key_t;
+
+void pthread_setspecific(pthread_key_t key, void* value) {
+  TlsSetValue(key, value);
+}
+
+void pthread_key_create(pthread_key_t* key, void* destructor) {
+  // TODO(mbelshe): hook up the per-thread destructor.
+  *key = TlsAlloc();
+}
+
 
 #endif  // CHROME_WEBKIT_BUILD_JAVASCRIPTCORE_PTHREAD_H__
