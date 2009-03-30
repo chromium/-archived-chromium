@@ -104,9 +104,6 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
     return false;
   }
 
-  // Returns the HTTP response code for the request.
-  virtual int GetResponseCode() const { return -1; }
-
   // Called to fetch the encoding types for this request. Only makes sense for
   // some types of requests. Returns true on success. Calling this on a request
   // that doesn't have or specify an encoding type will return false.
@@ -199,6 +196,7 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   virtual base::Time GetRequestTime() const;
   virtual bool IsCachedContent() const;
   virtual int64 GetByteReadCount() const;
+  virtual int GetResponseCode() const { return -1; }
   virtual int GetInputStreamBufferSize() const { return kFilterBufSize; }
 
  protected:
