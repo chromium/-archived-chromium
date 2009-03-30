@@ -19,7 +19,7 @@
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
-#include "chrome/browser/gtk/tab_strip_gtk.h"
+#include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
