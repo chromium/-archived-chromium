@@ -15,6 +15,7 @@
 #include <pk11pub.h>
 #undef Lock
 
+#include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/nss_init.h"
 #include "base/string_util.h"
@@ -129,6 +130,34 @@ int SSLClientSocketNSS::Init() {
   return OK;
 }
 
+// As part of Connect(), the SSLClientSocketNSS object performs an SSL
+// handshake. This requires network IO, which in turn calls
+// BufferRecvComplete() with a non-zero byte count. This byte count eventually
+// winds its way through the state machine and ends up being passed to the
+// callback. For Read() and Write(), that's what we want. But for Connect(),
+// the caller expects OK (i.e. 0) for success.
+//
+// The ConnectCallbackWrapper object changes the argument that gets passed
+// to the callback function. Any positive value gets turned into OK.
+class ConnectCallbackWrapper :
+      public CompletionCallbackImpl<ConnectCallbackWrapper> {
+ public:
+  ConnectCallbackWrapper(CompletionCallback* user_callback)
+      : ALLOW_THIS_IN_INITIALIZER_LIST(
+          CompletionCallbackImpl<ConnectCallbackWrapper>(this,
+                                 &ConnectCallbackWrapper::ReturnValueWrapper)),
+        user_callback_(user_callback) {
+  }
+
+ private:
+  void ReturnValueWrapper(int rv) {
+    user_callback_->Run(rv > OK ? OK : rv);
+    delete this;
+  }
+
+  CompletionCallback* user_callback_;
+};
+
 int SSLClientSocketNSS::Connect(CompletionCallback* callback) {
   EnterFunction("");
   DCHECK(transport_.get());
@@ -138,28 +167,38 @@ int SSLClientSocketNSS::Connect(CompletionCallback* callback) {
   GotoState(STATE_CONNECT);
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
-    user_callback_ = callback;
+    user_callback_ = new ConnectCallbackWrapper(callback);
 
   LeaveFunction("");
-  return rv;
+  return rv > OK ? OK : rv;
 }
 
-int SSLClientSocketNSS::ReconnectIgnoringLastError(
-        CompletionCallback* callback) {
-  EnterFunction("");
-  // TODO(darin): implement me!
-  LeaveFunction("");
-  return ERR_FAILED;
+void SSLClientSocketNSS::InvalidateSessionIfBadCertificate() {
+  if (UpdateServerCert() != NULL &&
+      ssl_config_.allowed_bad_certs_.count(server_cert_)) {
+    SSL_InvalidateSession(nss_fd_);
+  }
 }
 
 void SSLClientSocketNSS::Disconnect() {
   EnterFunction("");
+
+  // Reset object state
+  transport_send_busy_ = false;
+  transport_recv_busy_ = false;
+  user_buf_            = NULL;
+  user_buf_len_        = 0;
+  server_cert_error_   = OK;
+  completed_handshake_ = false;
+  nss_bufs_            = NULL;
+
   // TODO(wtc): Send SSL close_notify alert.
   if (nss_fd_ != NULL) {
+    InvalidateSessionIfBadCertificate();
     PR_Close(nss_fd_);
     nss_fd_ = NULL;
   }
-  completed_handshake_ = false;
+
   transport_->Disconnect();
   LeaveFunction("");
 }
@@ -229,6 +268,20 @@ int SSLClientSocketNSS::Write(const char* buf, int buf_len,
   return rv;
 }
 
+X509Certificate *SSLClientSocketNSS::UpdateServerCert() {
+  // We set the server_cert_ from OwnAuthCertHandler(), but this handler
+  // does not necessarily get called if we are continuing a cached SSL
+  // session.
+  if (server_cert_ == NULL) {
+    X509Certificate::OSCertHandle nss_cert = SSL_PeerCertificate(nss_fd_);
+    if (nss_cert) {
+      server_cert_ = X509Certificate::CreateFromHandle(
+          nss_cert, X509Certificate::SOURCE_FROM_NETWORK);
+    }
+  }
+  return server_cert_;
+}
+
 void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
   EnterFunction("");
   ssl_info->Reset();
@@ -248,13 +301,12 @@ void SSLClientSocketNSS::GetSSLInfo(SSLInfo* ssl_info) {
       LOG(DFATAL) << "SSL_GetCipherSuiteInfo returned " << PR_GetError()
                   << " for cipherSuite " << channel_info.cipherSuite;
     }
+    UpdateServerCert();
   }
   if (server_cert_error_ != net::OK)
     ssl_info->SetCertError(server_cert_error_);
-  X509Certificate::OSCertHandle nss_cert = SSL_PeerCertificate(nss_fd_);
-  if (nss_cert)
-    ssl_info->cert = X509Certificate::CreateFromHandle(nss_cert,
-                         X509Certificate::SOURCE_FROM_NETWORK);
+  DCHECK(server_cert_ != NULL);
+  ssl_info->cert = server_cert_;
   LeaveFunction("");
 }
 
@@ -355,7 +407,6 @@ void SSLClientSocketNSS::BufferRecvComplete(int result) {
   LeaveFunction("");
 }
 
-
 int SSLClientSocketNSS::DoLoop(int last_io_result) {
   EnterFunction(last_io_result);
   bool network_moved;
@@ -409,20 +460,49 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
 int SSLClientSocketNSS::DoConnect() {
   EnterFunction("");
   GotoState(STATE_CONNECT_COMPLETE);
-  return transport_->Connect(&io_callback_);
+
+  // The caller has to make sure that the transport socket is connected. If
+  // it isn't, we will eventually fail when trying to negotiate an SSL session.
+  // But we cannot call transport_->Connect(), as we do not know if there is
+  // any proxy negotiation that needs to be performed prior to establishing
+  // the SSL session.
+  return OK;
+}
+
+// static
+// NSS calls this if an incoming certificate needs to be verified.
+SECStatus SSLClientSocketNSS::OwnAuthCertHandler(void* arg,
+                                                 PRFileDesc* socket,
+                                                 PRBool checksig,
+                                                 PRBool is_server) {
+  SSLClientSocketNSS* that = reinterpret_cast<SSLClientSocketNSS*>(arg);
+
+  // Remember the certificate as it will no longer be accessible if the
+  // handshake fails.
+  that->UpdateServerCert();
+
+  return SSL_AuthCertificate(CERT_GetDefaultCertDB(), socket, checksig,
+                             is_server);
 }
 
 // static
 // NSS calls this if an incoming certificate is invalid.
-SECStatus SSLClientSocketNSS::OwnBadCertHandler(void* arg, PRFileDesc* socket) {
+SECStatus SSLClientSocketNSS::OwnBadCertHandler(void* arg,
+                                                PRFileDesc* socket) {
   SSLClientSocketNSS* that = reinterpret_cast<SSLClientSocketNSS*>(arg);
+
+  if (that->server_cert_ &&
+      that->ssl_config_.allowed_bad_certs_.count(that->server_cert_)) {
+    LOG(INFO) << "accepting bad SSL certificate, as user told us to";
+
+    return SECSuccess;
+  }
   PRErrorCode prerr = PR_GetError();
   that->server_cert_error_ = NetErrorFromNSPRError(prerr);
   LOG(INFO) << "server certificate is invalid; NSS error code " << prerr
             << ", net error " << that->server_cert_error_;
-  // Return SECSuccess to override the problem.
-  // Chromium wants it to succeed here, and may abort the connection later.
-  return SECSuccess;
+
+  return SECFailure;
 }
 
 int SSLClientSocketNSS::DoConnectComplete(int result) {
@@ -503,6 +583,10 @@ int SSLClientSocketNSS::DoConnectComplete(int result) {
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
 
+  rv = SSL_AuthCertificateHook(nss_fd_, OwnAuthCertHandler, this);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
   rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, this);
   if (rv != SECSuccess)
      return ERR_UNEXPECTED;
@@ -520,11 +604,14 @@ int SSLClientSocketNSS::DoConnectComplete(int result) {
 
 int SSLClientSocketNSS::DoHandshakeRead() {
   EnterFunction("");
-  int net_error;
+  int net_error = net::OK;
   int rv = SSL_ForceHandshake(nss_fd_);
 
   if (rv == SECSuccess) {
-    net_error = server_cert_error_;
+    DCHECK(server_cert_error_ == net::OK);
+
+    InvalidateSessionIfBadCertificate();
+
     // there's a callback for this, too
     completed_handshake_ = true;
     // Done!
