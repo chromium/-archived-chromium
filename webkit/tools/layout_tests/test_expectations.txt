@@ -451,18 +451,6 @@ DEFER : LayoutTests/fast/replaced/table-percent-height.html = FAIL
 DEFER : LayoutTests/fast/events/stopPropagation-submit.html = FAIL
 
 // -----------------------------------------------------------------
-// Workers
-// -----------------------------------------------------------------
-
-DEFER LINUX MAC : LayoutTests/fast/workers = TIMEOUT FAIL
-DEFER SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT
-DEFER SKIP : LayoutTests/fast/workers/worker-timeout.html = TIMEOUT
-DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT
-
-// General V8 bug.
-DEFER SKIP : LayoutTests/fast/workers/worker-replace-self.html = FAIL
-
-// -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
 // -----------------------------------------------------------------
 
@@ -476,6 +464,10 @@ DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 // Tests deferred until we provide support for a particular feature.
 // -----------------------------------------------------------------
 
+// Worker related tests (ENABLE_WORKERS):
+DEFER SKIP : LayoutTests/fast/workers = TIMEOUT FAIL
+DEFER SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
+DEFER SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT
 DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // These tests rely on the keygen tag, which we haven't wired up.

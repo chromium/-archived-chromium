@@ -83,7 +83,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type);
-  virtual WebWorker* CreateWebWorker(WebWorkerClient* client);
   virtual void OpenURL(WebView* webview,
                        const GURL& url,
                        const GURL& referrer,

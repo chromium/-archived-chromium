@@ -314,14 +314,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\test_webworker_helper.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\test_webworker_helper.h"
-			>
-		</File>
-		<File
 			RelativePath=".\text_input_controller.cc"
 			>
 		</File>

@@ -7,6 +7,7 @@
 
 #if ENABLE(WORKERS)
 
+#include "base/scoped_ptr.h"
 #include "webkit/glue/webworkerclient.h"
 
 #include "WorkerContextProxy.h"
@@ -60,7 +61,7 @@ class WebWorkerClientImpl : public WebCore::WorkerContextProxy,
   WTF::RefPtr<WebCore::ScriptExecutionContext> script_execution_context_;
 
   WebCore::Worker* worker_;
-  WebWorker* webworker_;
+  scoped_ptr<WebWorker> webworker_;
   bool asked_to_terminate_;
   uint32 unconfirmed_message_count_;
   bool worker_context_had_pending_activity_;
