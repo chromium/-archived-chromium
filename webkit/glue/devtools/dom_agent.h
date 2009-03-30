@@ -11,7 +11,7 @@
 // WebDevToolsAgent. It is capable of sending DOM tree to the client as well
 // as providing DOM notifications for the nodes known to the client.
 // DomAgent's environment is represented with the DomAgentDelegate interface.
-#define DOM_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+#define DOM_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, METHOD4) \
   /* Requests that the document root element is sent to the delegate. */ \
   METHOD0(GetDocumentElement) \
   \
@@ -19,13 +19,16 @@
   METHOD2(GetChildNodes, int /* call_id */, int /* id */) \
   \
   /* Sets attribute value in the element with given id. */ \
-  METHOD3(SetAttribute, int /* id */, String /* name */, String /* value */) \
+  METHOD4(SetAttribute, int /* call_id */, int /* id */, String /* name */, \
+      String /* value */) \
   \
   /* Removes attribute from the element with given id. */ \
-  METHOD2(RemoveAttribute, int /* id */, String /* name */) \
+  METHOD3(RemoveAttribute, int /* call_id */, int /* id */, \
+      String /* name */) \
   \
   /* Sets text node value in the node with given id. */ \
-  METHOD2(SetTextNodeValue, int /* id */, String /* text */) \
+  METHOD3(SetTextNodeValue, int /* call_id */, int /* id */, \
+      String /* text */) \
   \
   /* Perform search. */ \
   METHOD2(PerformSearch, int /* call_id */, String /* query */) \
@@ -37,12 +40,16 @@
 
 DEFINE_RPC_CLASS(DomAgent, DOM_AGENT_STRUCT)
 
-#define DOM_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+#define DOM_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
+    METHOD4) \
   /* Response to GetChildNodes. */ \
   METHOD1(DidGetChildNodes, int /* call_id */) \
   \
   /* Perform search. */ \
   METHOD2(DidPerformSearch, int /* call_id */, Value /* results */) \
+  \
+  /* Ack for the Set/RemoveAttribute, SetTextNodeValue. */ \
+  METHOD2(DidApplyDomChange, int /* call_id */, bool /* success */) \
   \
   /* Notifies the delegate that element's attributes are updated. */ \
   METHOD2(AttributesUpdated, int /* id */, Value /* attributes */) \

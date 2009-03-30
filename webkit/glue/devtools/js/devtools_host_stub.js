@@ -95,15 +95,24 @@ RemoteDomAgentStub.prototype.GetChildNodes = function(callId, id) {
 };
 
 
-RemoteDomAgentStub.prototype.SetAttribute = function() {
+RemoteDomAgentStub.prototype.SetAttribute = function(callId) {
+  setTimeout(function() {
+    RemoteDomAgent.DidApplyDomChange(callId, true);
+  }, 0);
 };
 
 
-RemoteDomAgentStub.prototype.RemoveAttribute = function() {
+RemoteDomAgentStub.prototype.RemoveAttribute = function(callId) {
+  setTimeout(function() {
+    RemoteDomAgent.DidApplyDomChange(callId, true);
+  }, 0);
 };
 
 
-RemoteDomAgentStub.prototype.SetTextNodeValue = function() {
+RemoteDomAgentStub.prototype.SetTextNodeValue = function(callId) {
+  setTimeout(function() {
+    RemoteDomAgent.DidApplyDomChange(callId, true);
+  }, 0);
 };
 
 
@@ -144,6 +153,18 @@ RemoteToolsAgentStub.prototype.EvaluateJavaSctipt = function(callId, script) {
   }, 0);
 };
 
+
+/**
+ * @constructor
+ */
+RemoteDebuggerCommandExecutorStub = function() {
+};
+
+
+RemoteDebuggerCommandExecutorStub.prototype.DebuggerCommand = function() {
+};
+
+
 /**
  * @constructor
  */
@@ -168,6 +189,8 @@ DevToolsHostStub.prototype.loaded = function() {
 
 if (!window['DevToolsHost']) {
   window['RemoteDebuggerAgent'] = new RemoteDebuggerAgentStub();
+  window['RemoteDebuggerCommandExecutor'] =
+      new RemoteDebuggerCommandExecutorStub();
   window['RemoteDomAgent'] = new RemoteDomAgentStub();
   window['RemoteNetAgent'] = new RemoteNetAgentStub();
   window['RemoteToolsAgent'] = new RemoteToolsAgentStub();

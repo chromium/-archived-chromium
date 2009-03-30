@@ -6,7 +6,7 @@
 // implementation. The client is responsible for defining the Rpc-enabled
 // interface in terms of its macros:
 //
-// #define MYAPI_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3)
+// #define MYAPI_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, METHOD4)
 //   METHOD0(Method1)
 //   METHOD3(Method2, int, String, Value)
 //   METHOD1(Method3, int)
@@ -122,10 +122,17 @@ struct RpcTypeTrait<std::string> {
                       RpcTypeTrait<T2>::ApiType t2, \
                       RpcTypeTrait<T3>::ApiType t3) = 0;
 
+#define TOOLS_RPC_API_METHOD4(Method, T1, T2, T3, T4) \
+  virtual void Method(RpcTypeTrait<T1>::ApiType t1, \
+                      RpcTypeTrait<T2>::ApiType t2, \
+                      RpcTypeTrait<T3>::ApiType t3, \
+                      RpcTypeTrait<T4>::ApiType t4) = 0;
+
 #define TOOLS_RPC_ENUM_LITERAL0(Method) METHOD_##Method,
 #define TOOLS_RPC_ENUM_LITERAL1(Method, T1) METHOD_##Method,
 #define TOOLS_RPC_ENUM_LITERAL2(Method, T1, T2) METHOD_##Method,
 #define TOOLS_RPC_ENUM_LITERAL3(Method, T1, T2, T3) METHOD_##Method,
+#define TOOLS_RPC_ENUM_LITERAL4(Method, T1, T2, T3, T4) METHOD_##Method,
 
 ///////////////////////////////////////////////////////
 // RPC stub method implementations
@@ -152,6 +159,15 @@ struct RpcTypeTrait<std::string> {
                       RpcTypeTrait<T3>::ApiType t3) { \
     InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
         &t3); \
+  }
+
+#define TOOLS_RPC_STUB_METHOD4(Method, T1, T2, T3, T4) \
+  virtual void Method(RpcTypeTrait<T1>::ApiType t1, \
+                      RpcTypeTrait<T2>::ApiType t2, \
+                      RpcTypeTrait<T3>::ApiType t3, \
+                      RpcTypeTrait<T4>::ApiType t4) { \
+    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
+        &t3, &t4); \
   }
 
 ///////////////////////////////////////////////////////
@@ -201,6 +217,25 @@ case CLASS::METHOD_##Method: { \
   return true; \
 }
 
+#define TOOLS_RPC_DISPATCH4(Method, T1, T2, T3, T4) \
+case CLASS::METHOD_##Method: { \
+  RpcTypeTrait<T1>::DispatchType t1; \
+  RpcTypeTrait<T2>::DispatchType t2; \
+  RpcTypeTrait<T3>::DispatchType t3; \
+  RpcTypeTrait<T4>::DispatchType t4; \
+  DevToolsRpc::GetListValue(message, 2, &t1); \
+  DevToolsRpc::GetListValue(message, 3, &t2); \
+  DevToolsRpc::GetListValue(message, 4, &t3); \
+  DevToolsRpc::GetListValue(message, 5, &t4); \
+  delegate->Method( \
+      RpcTypeTrait<T1>::Pass(t1), \
+      RpcTypeTrait<T2>::Pass(t2), \
+      RpcTypeTrait<T3>::Pass(t3), \
+      RpcTypeTrait<T4>::Pass(t4) \
+  ); \
+  return true; \
+}
+
 #define TOOLS_END_RPC_DISPATCH() \
 }
 
@@ -214,15 +249,20 @@ class Class {\
   ~Class() {} \
   \
   enum MethodNames { \
-    STRUCT(TOOLS_RPC_ENUM_LITERAL0, TOOLS_RPC_ENUM_LITERAL1, \
-        TOOLS_RPC_ENUM_LITERAL2, TOOLS_RPC_ENUM_LITERAL3) \
+    STRUCT( \
+        TOOLS_RPC_ENUM_LITERAL0, \
+        TOOLS_RPC_ENUM_LITERAL1, \
+        TOOLS_RPC_ENUM_LITERAL2, \
+        TOOLS_RPC_ENUM_LITERAL3, \
+        TOOLS_RPC_ENUM_LITERAL4) \
   }; \
   \
   STRUCT( \
       TOOLS_RPC_API_METHOD0, \
       TOOLS_RPC_API_METHOD1, \
       TOOLS_RPC_API_METHOD2, \
-      TOOLS_RPC_API_METHOD3) \
+      TOOLS_RPC_API_METHOD3, \
+      TOOLS_RPC_API_METHOD4) \
  private: \
   DISALLOW_COPY_AND_ASSIGN(Class); \
 }; \
@@ -233,10 +273,11 @@ class Class##Stub : public Class, public DevToolsRpc { \
   virtual ~Class##Stub() {} \
   typedef Class CLASS; \
   STRUCT( \
-    TOOLS_RPC_STUB_METHOD0, \
-    TOOLS_RPC_STUB_METHOD1, \
-    TOOLS_RPC_STUB_METHOD2, \
-    TOOLS_RPC_STUB_METHOD3) \
+      TOOLS_RPC_STUB_METHOD0, \
+      TOOLS_RPC_STUB_METHOD1, \
+      TOOLS_RPC_STUB_METHOD2, \
+      TOOLS_RPC_STUB_METHOD3, \
+      TOOLS_RPC_STUB_METHOD4) \
  private: \
   DISALLOW_COPY_AND_ASSIGN(Class##Stub); \
 }; \
@@ -266,7 +307,8 @@ class Class##Dispatch { \
           TOOLS_RPC_DISPATCH0, \
           TOOLS_RPC_DISPATCH1, \
           TOOLS_RPC_DISPATCH2, \
-          TOOLS_RPC_DISPATCH3) \
+          TOOLS_RPC_DISPATCH3, \
+          TOOLS_RPC_DISPATCH4) \
       default: return false; \
     } \
   } \
@@ -342,6 +384,18 @@ class DevToolsRpc {
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     message.Append(CreateValue(t3));
+    SendValueMessage(message);
+  }
+
+  template<class T1, class T2, class T3, class T4>
+  void InvokeAsync(int class_id, int method, T1 t1, T2 t2, T3 t3, T4 t4) {
+    ListValue message;
+    message.Append(CreateValue(&class_id));
+    message.Append(CreateValue(&method));
+    message.Append(CreateValue(t1));
+    message.Append(CreateValue(t2));
+    message.Append(CreateValue(t3));
+    message.Append(CreateValue(t4));
     SendValueMessage(message);
   }
 

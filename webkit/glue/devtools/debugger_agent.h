@@ -7,13 +7,15 @@
 
 #include "webkit/glue/devtools/devtools_rpc.h"
 
-#define DEBUGGER_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+#define DEBUGGER_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
+    METHOD4) \
   /* Stops v8 execution as soon as it gets control. */ \
   METHOD0(DebugBreak)
 
 DEFINE_RPC_CLASS(DebuggerAgent, DEBUGGER_AGENT_STRUCT)
 
-#define DEBUGGER_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+#define DEBUGGER_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
+    METHOD4) \
   METHOD1(DebuggerOutput, std::string /* output text */)
 
 DEFINE_RPC_CLASS(DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)

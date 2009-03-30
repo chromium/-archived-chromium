@@ -11,7 +11,7 @@
 // WebDevToolsAgent. It is capable of sniffing network calls and passing the
 // HTTPRequest-related data to the client.
 // NetAgent's environment is represented with the NetAgentDelegate interface.
-#define NET_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+#define NET_AGENT_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, METHOD4) \
   /* Requests that the agent sends content of the resource with given id to the
      delegate. */ \
   METHOD3(GetResourceContent, int /* call_id */, int /* identifier */, \
@@ -19,7 +19,8 @@
 
 DEFINE_RPC_CLASS(NetAgent, NET_AGENT_STRUCT)
 
-#define NET_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3) \
+#define NET_AGENT_DELEGATE_STRUCT(METHOD0, METHOD1, METHOD2, METHOD3, \
+    METHOD4) \
   /* Notifies the delegate that a request is about to be sent out. */ \
   METHOD2(WillSendRequest, int, Value) \
   \

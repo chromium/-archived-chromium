@@ -36,10 +36,10 @@ devtools.PayloadIndex = {
 devtools.DomNode = function(doc, payload) {
   this.ownerDocument = doc;
 
-  this.id = payload[devtools.PayloadIndex.ID];
+  this.id_ = payload[devtools.PayloadIndex.ID];
   this.nodeType = payload[devtools.PayloadIndex.TYPE];
   this.nodeName = payload[devtools.PayloadIndex.NAME];
-  this.nodeValue = payload[devtools.PayloadIndex.VALUE];
+  this.nodeValue_ = payload[devtools.PayloadIndex.VALUE];
   this.textContent = this.nodeValue;
 
   this.attributes = [];
@@ -65,14 +65,37 @@ devtools.DomNode = function(doc, payload) {
 
 
 /**
+ * Overrides for getters and setters.
+ */
+devtools.DomNode.prototype = {
+  get nodeValue() {
+    return this.nodeValue_;
+  },
+
+  set nodeValue(value) {
+    if (this.nodeType != Node.TEXT_NODE) {
+      return;
+    }
+    var self = this;
+    this.ownerDocument.domAgent_.setTextNodeValueAsync(this, value,
+        function() {
+          self.nodeValue_ = value;
+          self.textContent = value;
+        });
+  }
+};
+
+
+/**
  * Sets attributes for a given node based on a given attrs payload.
  * @param {Array.<string>} attrs Attribute key-value pairs to set.
  * @private
  */
 devtools.DomNode.prototype.setAttributesPayload_ = function(attrs) {
   for (var i = 0; i < attrs.length; i += 2) {
-    this.attributes.push({"name" : attrs[i], "value" : attrs[i+1]});
-    this.attributesMap_[attrs[i]] = attrs[i+1];
+    var attr = {"name" : attrs[i], "value" : attrs[i+1]};
+    this.attributes.push(attr);
+    this.attributesMap_[attrs[i]] = attr;
   }
 };
 
@@ -164,18 +187,62 @@ devtools.DomNode.prototype.renumber_ = function() {
 /**
  * Returns attribute value.
  * @param {string} name Attribute name to get value for.
- @ @return {string} Attribute value.
+ * @return {string} Attribute value.
  */
 devtools.DomNode.prototype.getAttribute = function(name) {
-  return this.attributesMap_[name];
+  var attr = this.attributesMap_[name];
+  return attr ? attr.value : undefined;
+};
+
+
+/**
+ * Sends 'set attribute' command to the remote agent.
+ * @param {string} name Attribute name to set value for.
+ * @param {string} value Attribute value to set.
+ */
+devtools.DomNode.prototype.setAttribute = function(name, value) {
+  var self = this;
+  this.ownerDocument.domAgent_.setAttributeAsync(this, name, value,
+      function() {
+        var attr = self.attributesMap_[name];
+        if (attr) {
+          attr.value = value;
+        } else {
+          attr = {"name" : name, "value" : value};
+          self.attributesMap_[name] = attr;
+          self.attributes_.push(attr);
+        }
+      });
+};
+
+
+/**
+ * Sends 'remove attribute' command to the remote agent.
+ * @param {string} name Attribute name to set value for.
+ */
+devtools.DomNode.prototype.removeAttribute = function(name) {
+  var self = this;
+  this.ownerDocument.domAgent_.removeAttributeAsync(this, name, function() {
+    if (!success) {
+      return;
+    }
+    delete self.attributesMap_[name];
+    for (var i = 0;  i < self.attributes_.length; ++i) {
+      if (self.attributes_[i].name == name) {
+        self.attributes_.splice(i, 1);
+        break;
+      }
+    }
+  });
 };
 
 
 /**
  * Remote Dom document abstraction.
+ * @param {devtools.DomAgent} domAgent owner agent.
  * @constructor.
  */
-devtools.DomDocument = function() {
+devtools.DomDocument = function(domAgent) {
   devtools.DomNode.call(this, null,
     [
       0,   // id
@@ -190,6 +257,7 @@ devtools.DomDocument = function() {
     getComputedStyle : function() {},
     getMatchedCSSRules : function() {}
   };
+  this.domAgent_ = domAgent;
 };
 goog.inherits(devtools.DomDocument, devtools.DomNode);
 
@@ -256,6 +324,12 @@ devtools.DomAgent = function() {
       devtools.Callback.processCallback;
   RemoteDomAgent.DidPerformSearch =
       devtools.Callback.processCallback;
+  RemoteDomAgent.DidApplyDomChange =
+      devtools.Callback.processCallback;
+  RemoteDomAgent.DidRemoveAttribute =
+      devtools.Callback.processCallback;
+  RemoteDomAgent.DidSetTextNodeValue =
+      devtools.Callback.processCallback;
   RemoteDomAgent.AttributesUpdated =
       goog.bind(this.attributesUpdated, this);
   RemoteDomAgent.SetDocumentElement =
@@ -297,8 +371,7 @@ devtools.DomAgent = function() {
  * Rests dom agent to its initial state.
  */
 devtools.DomAgent.prototype.reset = function() {
-  RemoteDomAgent.DiscardBindings();
-  this.document_ = new devtools.DomDocument();
+  this.document_ = new devtools.DomDocument(this);
   this.idToDomNode_ = { 0 : this.document_ };
   this.searchResults_ = [];
 };
@@ -325,25 +398,86 @@ devtools.DomAgent.prototype.getDocumentElementAsync = function() {
 
 /**
  * Asynchronously fetches children from the element with given id.
- * @param {number} parentId Element to get children for.
+ * @param {devtools.DomNode} parent Element to get children for.
  * @param {function(devtools.DomNode):undefined} opt_callback Callback with
  *     the result.
  */
-devtools.DomAgent.prototype.getChildNodesAsync = function(parentId,
+devtools.DomAgent.prototype.getChildNodesAsync = function(parent,
     opt_callback) {
-  var children = this.idToDomNode_[parentId].children;
+  var children = parent.children;
   if (children && opt_callback) {
     opt_callback(children);
     return;
   }
-  var self = this;
   var mycallback = function() {
     if (opt_callback) {
-      opt_callback(self.idToDomNode_[parentId].children);
+      opt_callback(parent.children);
     }
   };
   var callId = devtools.Callback.wrap(mycallback);
-  RemoteDomAgent.GetChildNodes(callId, parentId);
+  RemoteDomAgent.GetChildNodes(callId, parent.id_);
+};
+
+
+/**
+ * Sends 'set attribute' command to the remote agent.
+ * @param {devtools.DomNode} node Node to change.
+ * @param {string} name Attribute name to set value for.
+ * @param {string} value Attribute value to set.
+ * @param {function():undefined} opt_callback Callback on success.
+ */
+devtools.DomAgent.prototype.setAttributeAsync = function(node, name, value,
+    callback) {
+  var mycallback = goog.bind(this.didApplyDomChange_, this, node, callback);
+  RemoteDomAgent.SetAttribute(devtools.Callback.wrap(mycallback),
+      node.id_, name, value);
+};
+
+
+/**
+ * Sends 'remove attribute' command to the remote agent.
+ * @param {devtools.DomNode} node Node to change.
+ * @param {string} name Attribute name to set value for.
+ * @param {function():undefined} opt_callback Callback on success.
+ */
+devtools.DomAgent.prototype.removeAttributeAsync = function(node, name,
+    callback) {
+  var mycallback = goog.bind(this.didApplyDomChange_, this, node, callback);
+  RemoteDomAgent.RemoveAttribute(devtools.Callback.wrap(mycallback),
+      node.id_, name);
+};
+
+
+/**
+ * Sends 'set text node value' command to the remote agent.
+ * @param {devtools.DomNode} node Node to change.
+ * @param {string} text Text value to set.
+ * @param {function():undefined} opt_callback Callback on success.
+ */
+devtools.DomAgent.prototype.setTextNodeValueAsync = function(node, text,
+    callback) {
+  var mycallback = goog.bind(this.didApplyDomChange_, this, node, callback);
+  RemoteDomAgent.SetTextNodeValue(devtools.Callback.wrap(mycallback),
+      node.id_, text);
+};
+
+
+/**
+ * Universal callback wrapper for edit dom operations.
+ * @param {devtools.DomNode} node Node to apply local changes on.
+ * @param {Function} callback Post-operation call.
+ * @param {boolean} success True iff operation has completed successfully.
+ */
+devtools.DomAgent.prototype.didApplyDomChange_ = function(node, 
+    callback, success) {
+  if (!success) {
+   return;
+  }
+  callback();
+  var elem = WebInspector.panels.elements.treeOutline.findTreeElement(node);
+  if (elem) {
+    elem._updateTitle();
+  }
 };
 
 
@@ -403,7 +537,7 @@ devtools.DomAgent.prototype.setChildNodes = function(parentId, payloads) {
 devtools.DomAgent.prototype.bindNodes_ = function(children) {
   for (var i = 0; i < children.length; ++i) {
     var child = children[i];
-    this.idToDomNode_[child.id] = child;
+    this.idToDomNode_[child.id_] = child;
     if (child.children) {
       this.bindNodes_(child.children);
     }
@@ -428,7 +562,7 @@ devtools.DomAgent.prototype.childNodeInserted = function(
   var parent = this.idToDomNode_[parentId];
   var prev = this.idToDomNode_[prevId];
   var node = parent.insertChild_(prev, payload);
-  this.idToDomNode_[node.id] = node;
+  this.idToDomNode_[node.id_] = node;
   var event = { target : node, relatedNode : parent };
   this.document_.fireDomEvent_("DOMNodeInserted", event);
 };

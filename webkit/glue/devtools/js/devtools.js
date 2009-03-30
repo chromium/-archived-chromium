@@ -145,7 +145,7 @@ var webkitUpdateChildren =
 
 WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
   var self = this;
-  devtools.tools.getDomAgent().getChildNodesAsync(this.representedObject.id,
+  devtools.tools.getDomAgent().getChildNodesAsync(this.representedObject,
       function() {
         webkitUpdateChildren.call(self);
       });

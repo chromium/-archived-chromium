@@ -35,11 +35,18 @@ class DomAgentImpl : public DomAgent {
   void GetDocumentElement();
   void GetChildNodes(int call_id, int element_id);
   void SetAttribute(
+      int call_id,
       int element_id,
       const WebCore::String& name,
       const WebCore::String& value);
-  void RemoveAttribute(int element_id, const WebCore::String& name);
-  void SetTextNodeValue(int element_id, const WebCore::String& value);
+  void RemoveAttribute(
+      int call_id,
+      int element_id,
+      const WebCore::String& name);
+  void SetTextNodeValue(
+      int call_id,
+      int element_id,
+      const WebCore::String& value);
   void PerformSearch(int call_id, const String& query);
   void DiscardBindings();
 

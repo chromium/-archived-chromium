@@ -69,7 +69,9 @@ DomAgentImpl::~DomAgentImpl() {
 }
 
 void DomAgentImpl::SetDocument(Document* doc) {
-  DiscardBindings();
+  if (documents_.size() && doc == documents_.begin()->get()) {
+    return;
+  }
 
   ListHashSet<RefPtr<Document> > copy = documents_;
   for (ListHashSet<RefPtr<Document> >::iterator it = copy.begin();
@@ -84,6 +86,8 @@ void DomAgentImpl::SetDocument(Document* doc) {
       GetDocumentElement();
       document_element_requested_ = false;
     }
+  } else {
+    DiscardBindings();
   }
 }
 
@@ -289,33 +293,49 @@ int DomAgentImpl::PushNodePathToClient(Node* node_to_select) {
 }
 
 void DomAgentImpl::SetAttribute(
+    int call_id,
     int element_id,
     const String& name,
     const String& value) {
   Node* node = GetNodeForId(element_id);
   if (node && (node->nodeType() == Node::ELEMENT_NODE)) {
     Element* element = static_cast<Element*>(node);
-        ExceptionCode ec = 0;
+    ExceptionCode ec = 0;
     element->setAttribute(name, value, ec);
+    delegate_->DidApplyDomChange(call_id, ec == 0);
+  } else {
+    delegate_->DidApplyDomChange(call_id, false);
   }
 }
 
-void DomAgentImpl::RemoveAttribute(int element_id, const String& name) {
+void DomAgentImpl::RemoveAttribute(
+    int call_id,
+    int element_id,
+    const String& name) {
   Node* node = GetNodeForId(element_id);
   if (node && (node->nodeType() == Node::ELEMENT_NODE)) {
     Element* element = static_cast<Element*>(node);
     ExceptionCode ec = 0;
     element->removeAttribute(name, ec);
+    delegate_->DidApplyDomChange(call_id, ec == 0);
+  } else {
+    delegate_->DidApplyDomChange(call_id, false);
   }
 }
 
-void DomAgentImpl::SetTextNodeValue(int element_id, const String& value) {
+void DomAgentImpl::SetTextNodeValue(
+    int call_id,
+    int element_id,
+    const String& value) {
   Node* node = GetNodeForId(element_id);
   if (node && (node->nodeType() == Node::TEXT_NODE)) {
     Text* text_node = static_cast<Text*>(node);
     ExceptionCode ec = 0;
     // TODO(pfeldman): Add error handling
     text_node->replaceWholeText(value, ec);
+    delegate_->DidApplyDomChange(call_id, ec == 0);
+  } else {
+    delegate_->DidApplyDomChange(call_id, false);
   }
 }
 
