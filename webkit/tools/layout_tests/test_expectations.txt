@@ -2411,3 +2411,22 @@ WIN : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT 
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL
 DEFER : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
+
+// Merge WebKit: 42116:42132 regressions
+
+// These probably just need rebaselining after http://trac.webkit.org/changeset/42131 BUG:9578
+WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
+WIN : LayoutTests/fast/loader/reload-policy-delegate.html = FAIL
+WIN : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
+WIN : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
+WIN : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
+WIN : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
+WIN : LayoutTests/fast/repaint/text-shadow-horizontal.html = FAIL
+WIN : LayoutTests/fast/repaint/text-shadow.html = FAIL
+WIN : LayoutTests/fast/transforms/shadows.html = FAIL
+
+// Possibly due to http://trac.webkit.org/changeset/42120 ?
+WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
+WIN : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
