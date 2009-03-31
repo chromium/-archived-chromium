@@ -64,6 +64,9 @@ PREFIX : moz_z_inflate_fast___moz_z_inflate___gzipfilter::doinflate
 # 8020
 PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
 
+# 9566
+SUBSTRING : tabcontents::destroy___webcontents::destroy
+
 # 7694
 PREFIX : webcore::containernode::willremove
 
