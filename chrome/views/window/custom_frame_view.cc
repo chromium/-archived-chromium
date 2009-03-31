@@ -317,6 +317,9 @@ void CustomFrameView::GetWindowMask(const gfx::Size& size,
                                     gfx::Path* window_mask) {
   DCHECK(window_mask);
 
+  if (frame_->IsMaximized())
+    return;
+
   // Redefine the window visible region for the new size.
   window_mask->moveTo(0, 3);
   window_mask->lineTo(1, 2);
@@ -392,8 +395,7 @@ void CustomFrameView::ButtonPressed(Button* sender) {
 // CustomFrameView, private:
 
 int CustomFrameView::FrameBorderThickness() const {
-  return frame_->IsMaximized() ?
-      GetSystemMetrics(SM_CXSIZEFRAME) : kFrameBorderThickness;
+  return frame_->IsMaximized() ? 0 : kFrameBorderThickness;
 }
 
 int CustomFrameView::NonClientBorderThickness() const {
@@ -570,13 +572,11 @@ void CustomFrameView::LayoutWindowControls() {
   // button to the screen corner to obey Fitts' Law.
   int right_extra_width = is_maximized ?
       (kFrameBorderThickness - kFrameShadowThickness) : 0;
-  int right_spacing = is_maximized ?
-      (GetSystemMetrics(SM_CXSIZEFRAME) + right_extra_width) : frame_thickness;
   gfx::Size close_button_size = close_button_->GetPreferredSize();
-  close_button_->SetBounds(width() - close_button_size.width() - right_spacing,
-                           caption_y,
-                           close_button_size.width() + right_extra_width,
-                           close_button_size.height() + top_extra_height);
+  close_button_->SetBounds(width() - close_button_size.width() -
+      right_extra_width - frame_thickness, caption_y,
+      close_button_size.width() + right_extra_width,
+      close_button_size.height() + top_extra_height);
 
   // When the window is restored, we show a maximized button; otherwise, we show
   // a restore button.
