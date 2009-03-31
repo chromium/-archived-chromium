@@ -281,6 +281,19 @@ bool BrowserProxy::GetHWND(HWND* handle) const {
 }
 #endif  // defined(OS_WIN)
 
+bool BrowserProxy::RunCommandAsync(int browser_command) const {
+  if (!is_valid())
+    return false;
+
+  bool result = false;
+
+  sender_->Send(new AutomationMsg_WindowExecuteCommandAsync(0, handle_,
+                                                            browser_command,
+                                                            &result));
+
+  return result;
+}
+
 bool BrowserProxy::RunCommand(int browser_command) const {
   if (!is_valid())
     return false;
@@ -290,19 +303,6 @@ bool BrowserProxy::RunCommand(int browser_command) const {
   sender_->Send(new AutomationMsg_WindowExecuteCommand(0, handle_,
                                                        browser_command,
                                                        &result));
-
-  return result;
-}
-
-bool BrowserProxy::RunCommandSync(int browser_command) const {
-  if (!is_valid())
-    return false;
-
-  bool result = false;
-
-  sender_->Send(new AutomationMsg_WindowExecuteCommandSync(0, handle_,
-                                                           browser_command,
-                                                           &result));
 
   return result;
 }

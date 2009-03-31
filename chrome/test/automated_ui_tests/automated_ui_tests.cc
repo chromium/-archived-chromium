@@ -416,7 +416,7 @@ bool AutomatedUITest::OpenAndActivateNewBrowserWindow() {
 }
 
 bool AutomatedUITest::BackButton() {
-  return RunCommand(IDC_BACK);
+  return RunCommandAsync(IDC_BACK);
 }
 
 bool AutomatedUITest::ChangeEncoding() {
@@ -436,7 +436,7 @@ bool AutomatedUITest::ChangeEncoding() {
     index = base::RandInt(0, len);
   }
 
-  return RunCommand((*encodings)[index].encoding_id);
+  return RunCommandAsync((*encodings)[index].encoding_id);
 }
 
 bool AutomatedUITest::CloseActiveTab() {
@@ -455,7 +455,7 @@ bool AutomatedUITest::CloseActiveTab() {
   automation()->GetBrowserWindowCount(&browser_windows_count);
   // Avoid quitting the application by not closing the last window.
   if (tab_count > 1) {
-    return_value = browser->RunCommand(IDC_CLOSE_TAB);
+    return_value = browser->RunCommandAsync(IDC_CLOSE_TAB);
     // Wait for the tab to close before we continue.
     if (!browser->WaitForTabCountToBecome(tab_count - 1,
                                           action_max_timeout_ms())) {
@@ -463,7 +463,7 @@ bool AutomatedUITest::CloseActiveTab() {
       return false;
     }
   } else if (tab_count == 1 && browser_windows_count > 1) {
-    return_value = browser->RunCommand(IDC_CLOSE_TAB);
+    return_value = browser->RunCommandAsync(IDC_CLOSE_TAB);
     // Wait for the window to close before we continue.
     if (!automation()->WaitForWindowCountToBecome(browser_windows_count - 1,
                                                   action_max_timeout_ms())) {
@@ -478,31 +478,31 @@ bool AutomatedUITest::CloseActiveTab() {
 }
 
 bool AutomatedUITest::DuplicateTab() {
-  return RunCommand(IDC_DUPLICATE_TAB);
+  return RunCommandAsync(IDC_DUPLICATE_TAB);
 }
 
 bool AutomatedUITest::FindInPage() {
-  return RunCommand(IDC_FIND);
+  return RunCommandAsync(IDC_FIND);
 }
 
 bool AutomatedUITest::ForwardButton() {
-  return RunCommand(IDC_FORWARD);
+  return RunCommandAsync(IDC_FORWARD);
 }
 
 bool AutomatedUITest::GoOffTheRecord() {
-  return RunCommand(IDC_NEW_INCOGNITO_WINDOW);
+  return RunCommandAsync(IDC_NEW_INCOGNITO_WINDOW);
 }
 
 bool AutomatedUITest::Home() {
-  return RunCommand(IDC_HOME);
+  return RunCommandAsync(IDC_HOME);
 }
 
 bool AutomatedUITest::JavaScriptConsole() {
-  return RunCommand(IDC_JS_CONSOLE);
+  return RunCommandAsync(IDC_JS_CONSOLE);
 }
 
 bool AutomatedUITest::JavaScriptDebugger() {
-  return RunCommand(IDC_DEBUGGER);
+  return RunCommandAsync(IDC_DEBUGGER);
 }
 
 bool AutomatedUITest::Navigate() {
@@ -547,35 +547,35 @@ bool AutomatedUITest::NewTab() {
   }
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.
-  return RunCommandSync(IDC_NEW_TAB);
+  return RunCommand(IDC_NEW_TAB);
 }
 
 bool AutomatedUITest::OpenAboutDialog() {
-  return RunCommand(IDC_ABOUT);
+  return RunCommandAsync(IDC_ABOUT);
 }
 
 bool AutomatedUITest::OpenClearBrowsingDataDialog() {
-  return RunCommand(IDC_CLEAR_BROWSING_DATA);
+  return RunCommandAsync(IDC_CLEAR_BROWSING_DATA);
 }
 
 bool AutomatedUITest::OpenEditSearchEnginesDialog() {
-  return RunCommand(IDC_EDIT_SEARCH_ENGINES);
+  return RunCommandAsync(IDC_EDIT_SEARCH_ENGINES);
 }
 
 bool AutomatedUITest::OpenImportSettingsDialog() {
-  return RunCommand(IDC_IMPORT_SETTINGS);
+  return RunCommandAsync(IDC_IMPORT_SETTINGS);
 }
 
 bool AutomatedUITest::OpenTaskManagerDialog() {
-  return RunCommand(IDC_TASK_MANAGER);
+  return RunCommandAsync(IDC_TASK_MANAGER);
 }
 
 bool AutomatedUITest::OpenViewPasswordsDialog() {
-  return RunCommand(IDC_VIEW_PASSWORDS);
+  return RunCommandAsync(IDC_VIEW_PASSWORDS);
 }
 
 bool AutomatedUITest::Options() {
-  return RunCommand(IDC_OPTIONS);
+  return RunCommandAsync(IDC_OPTIONS);
 }
 
 bool AutomatedUITest::PressDownArrow() {
@@ -611,47 +611,47 @@ bool AutomatedUITest::PressUpArrow() {
 }
 
 bool AutomatedUITest::ReloadPage() {
-  return RunCommand(IDC_RELOAD);
+  return RunCommandAsync(IDC_RELOAD);
 }
 
 bool AutomatedUITest::RestoreTab() {
-  return RunCommand(IDC_RESTORE_TAB);
+  return RunCommandAsync(IDC_RESTORE_TAB);
 }
 
 bool AutomatedUITest::SelectNextTab() {
-  return RunCommand(IDC_SELECT_NEXT_TAB);
+  return RunCommandAsync(IDC_SELECT_NEXT_TAB);
 }
 
 bool AutomatedUITest::SelectPreviousTab() {
-  return RunCommand(IDC_SELECT_PREVIOUS_TAB);
+  return RunCommandAsync(IDC_SELECT_PREVIOUS_TAB);
 }
 
 bool AutomatedUITest::ShowBookmarkBar() {
-  return RunCommand(IDC_SHOW_BOOKMARK_BAR);
+  return RunCommandAsync(IDC_SHOW_BOOKMARK_BAR);
 }
 
 bool AutomatedUITest::ShowDownloads() {
-  return RunCommand(IDC_SHOW_DOWNLOADS);
+  return RunCommandAsync(IDC_SHOW_DOWNLOADS);
 }
 
 bool AutomatedUITest::ShowHistory() {
-  return RunCommand(IDC_SHOW_HISTORY);
+  return RunCommandAsync(IDC_SHOW_HISTORY);
 }
 
 bool AutomatedUITest::StarPage() {
-  return RunCommand(IDC_STAR);
+  return RunCommandAsync(IDC_STAR);
 }
 
 bool AutomatedUITest::ViewSource() {
-  return RunCommand(IDC_VIEW_SOURCE);
+  return RunCommandAsync(IDC_VIEW_SOURCE);
 }
 
 bool AutomatedUITest::ZoomMinus() {
-  return RunCommand(IDC_ZOOM_MINUS);
+  return RunCommandAsync(IDC_ZOOM_MINUS);
 }
 
 bool AutomatedUITest::ZoomPlus() {
-  return RunCommand(IDC_ZOOM_PLUS);
+  return RunCommandAsync(IDC_ZOOM_PLUS);
 }
 
 bool AutomatedUITest::TestAboutChrome() {
@@ -829,6 +829,19 @@ WindowProxy* AutomatedUITest::GetAndActivateWindowForBrowser(
   return window;
 }
 
+bool AutomatedUITest::RunCommandAsync(int browser_command) {
+  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  if (browser.get() == NULL) {
+    AddErrorAttribute("browser_window_not_found");
+    return false;
+  }
+  if (!browser->RunCommandAsync(browser_command)) {
+    AddWarningAttribute("failure_running_browser_command");
+    return false;
+  }
+  return true;
+}
+
 bool AutomatedUITest::RunCommand(int browser_command) {
   scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
   if (browser.get() == NULL) {
@@ -836,19 +849,6 @@ bool AutomatedUITest::RunCommand(int browser_command) {
     return false;
   }
   if (!browser->RunCommand(browser_command)) {
-    AddWarningAttribute("failure_running_browser_command");
-    return false;
-  }
-  return true;
-}
-
-bool AutomatedUITest::RunCommandSync(int browser_command) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  if (!browser->RunCommandSync(browser_command)) {
     AddWarningAttribute("failure_running_browser_command");
     return false;
   }

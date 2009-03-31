@@ -471,8 +471,8 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details) {
     if (type == notification_type_) {
-      AutomationMsg_WindowExecuteCommandSync::WriteReplyParams(reply_message_,
-                                                               true);
+      AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message_,
+                                                           true);
       automation_->Send(reply_message_);
       delete this;
     } else {
@@ -837,9 +837,9 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowHWND, GetWindowHWND)
 #endif  // defined(OS_WIN)
-    IPC_MESSAGE_HANDLER(AutomationMsg_WindowExecuteCommand,
+    IPC_MESSAGE_HANDLER(AutomationMsg_WindowExecuteCommandAsync,
                         ExecuteBrowserCommand)
-    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowExecuteCommandSync,
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowExecuteCommand,
                         ExecuteBrowserCommandWithNotification)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds,
                         WindowGetViewBounds)
@@ -1335,8 +1335,7 @@ void AutomationProvider::ExecuteBrowserCommandWithNotification(
       return;
     }
   }
-  AutomationMsg_WindowExecuteCommandSync::WriteReplyParams(reply_message,
-                                                           false);
+  AutomationMsg_WindowExecuteCommand::WriteReplyParams(reply_message, false);
   Send(reply_message);
 }
 

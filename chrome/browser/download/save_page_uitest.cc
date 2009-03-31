@@ -135,7 +135,7 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
 
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   automation()->SavePackageShouldPromptUser(false);
-  EXPECT_TRUE(browser->RunCommand(IDC_SAVE_PAGE));
+  EXPECT_TRUE(browser->RunCommandAsync(IDC_SAVE_PAGE));
   EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
   automation()->SavePackageShouldPromptUser(true);
 
@@ -158,7 +158,7 @@ TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
 
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   automation()->SavePackageShouldPromptUser(false);
-  EXPECT_TRUE(browser->RunCommand(IDC_SAVE_PAGE));
+  EXPECT_TRUE(browser->RunCommandAsync(IDC_SAVE_PAGE));
   EXPECT_TRUE(WaitForDownloadShelfVisible(tab.get()));
   automation()->SavePackageShouldPromptUser(true);
 

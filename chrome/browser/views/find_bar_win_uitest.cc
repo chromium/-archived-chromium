@@ -315,7 +315,7 @@ TEST_F(FindInPageControllerTest, FindDisappearOnNewTabAndHistory) {
   EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), true));
 
   // Open History page.
-  EXPECT_TRUE(browser->RunCommand(IDC_SHOW_HISTORY));
+  EXPECT_TRUE(browser->RunCommandAsync(IDC_SHOW_HISTORY));
 
   // Wait for the Find box to disappear.
   EXPECT_TRUE(WaitForFindWindowVisibilityChange(browser.get(), false));

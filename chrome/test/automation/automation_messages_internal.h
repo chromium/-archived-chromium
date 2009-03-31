@@ -711,7 +711,7 @@ IPC_BEGIN_MESSAGES(Automation)
   // This message requests the execution of a browser command in the browser
   // for which the handle is specified.
   // The return value contains a boolean, whether the command was dispatched.
-  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_WindowExecuteCommand,
+  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_WindowExecuteCommandAsync,
                              int /* automation handle */,
                              int /* browser command */,
                              bool /* success flag */)
@@ -720,7 +720,7 @@ IPC_BEGIN_MESSAGES(Automation)
   // for which the handle is specified.
   // The return value contains a boolean, whether the command was dispatched
   // and successful executed.
-  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_WindowExecuteCommandSync,
+  IPC_SYNC_MESSAGE_ROUTED2_1(AutomationMsg_WindowExecuteCommand,
                              int /* automation handle */,
                              int /* browser command */,
                              bool /* success flag */)

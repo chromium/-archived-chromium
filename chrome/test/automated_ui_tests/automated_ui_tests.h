@@ -393,7 +393,7 @@ class AutomatedUITest : public UITest {
   // Returns true if the call is successfully dispatched.
   // Possible failures include the active window is not a browser window or
   // the message to apply the accelerator fails.
-  bool RunCommand(int browser_command);
+  bool RunCommandAsync(int browser_command);
 
   // Runs the specified browser command in the current active browser, wait
   // and return until the command has finished executing.
@@ -402,7 +402,7 @@ class AutomatedUITest : public UITest {
   // Possible failures include the active window is not a browser window, or
   // the message to apply the accelerator fails, or the command execution
   // fails.
-  bool RunCommandSync(int browser_command);
+  bool RunCommand(int browser_command);
 
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which
