@@ -25,7 +25,7 @@ namespace printing {
 class PrintedPage;
 class PrintedPagesSource;
 
-// A collection of rendered pages. The settings are immuable. If the print
+// A collection of rendered pages. The settings are immutable. If the print
 // settings are changed, a new PrintedDocument must be created.
 // Warning: May be accessed from many threads at the same time. Only one thread
 // will have write access. Sensible functions are protected by a lock.
@@ -93,7 +93,7 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
   // Note: locks for a short amount of time.
   int expected_page_count() const;
 
-  // Getters. All these items are immuable hence thread-safe.
+  // Getters. All these items are immutable hence thread-safe.
   const PrintSettings& settings() const { return immutable_.settings_; }
   const std::wstring& name() const {
     return immutable_.name_;
@@ -138,22 +138,22 @@ class PrintedDocument : public base::RefCountedThreadSafe<PrintedDocument> {
     Immutable(const PrintSettings& settings, PrintedPagesSource* source,
               int cookie);
 
-    // Print settings used to generate this document. Immuable.
+    // Print settings used to generate this document. Immutable.
     PrintSettings settings_;
 
     // Native thread for the render source.
     MessageLoop* source_message_loop_;
 
-    // Document name. Immuable.
+    // Document name. Immutable.
     std::wstring name_;
 
-    // URL that generated this document. Immuable.
+    // URL that generated this document. Immutable.
     GURL url_;
 
-    // The date on which this job started. Immuable.
+    // The date on which this job started. Immutable.
     std::wstring date_;
 
-    // The time at which this job started. Immuable.
+    // The time at which this job started. Immutable.
     std::wstring time_;
 
     // Cookie to uniquely identify this document. It is used to make sure that a

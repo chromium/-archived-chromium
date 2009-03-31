@@ -82,8 +82,8 @@ void PrintViewManager::DidPrintPage(
 
   PrintedDocument* document = print_job_->document();
   if (!document || params.document_cookie != document->cookie()) {
-    // Out of sync. It may happens since we are completely asynchronous. Old
-    // spurious message can happen if one of the processes is overloaded.
+    // Out of sync. It may happen since we are completely asynchronous. Old
+    // spurious messages can be received if one of the processes is overloaded.
     return;
   }
 

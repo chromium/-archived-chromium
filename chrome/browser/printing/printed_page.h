@@ -17,11 +17,11 @@ class Emf;
 namespace printing {
 
 // Contains the data to reproduce a printed page, either on screen or on
-// paper. Once created, this object is immuable. It has no reference to the
+// paper. Once created, this object is immutable. It has no reference to the
 // PrintedDocument containing this page.
 // Note: May be accessed from many threads at the same time. This is an non
-// issue since this object is immuable. The reason is that a page may be printed
-// and be displayed at the same time.
+// issue since this object is immutable. The reason is that a page may be
+// printed and be displayed at the same time.
 class PrintedPage : public base::RefCountedThreadSafe<PrintedPage> {
  public:
   PrintedPage(int page_number,
