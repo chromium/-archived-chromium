@@ -319,3 +319,33 @@ TEST_F(ExtensionsServiceTest, LoadExtension) {
   EXPECT_EQ(1u, GetErrors().size());
   ASSERT_EQ(1u, frontend->extensions()->size());
 }
+
+TEST_F(ExtensionsServiceTest, GenerateID) {
+  FilePath extensions_path;
+  ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &extensions_path));
+  extensions_path = extensions_path.AppendASCII("extensions");
+
+  scoped_refptr<ExtensionsServiceBackend> backend(
+      new ExtensionsServiceBackend(extensions_path));
+  scoped_refptr<ExtensionsServiceTestFrontend> frontend(
+      new ExtensionsServiceTestFrontend);
+
+  FilePath no_id_ext = extensions_path.AppendASCII("no_id");
+  backend->LoadSingleExtension(no_id_ext,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
+  frontend->GetMessageLoop()->RunAllPending();
+  EXPECT_EQ(0u, GetErrors().size());
+  ASSERT_EQ(1u, frontend->extensions()->size());
+  std::string id1 = frontend->extensions()->at(0)->id();
+  ASSERT_EQ("0000000000000000000000000000000000000000", id1);
+  ASSERT_EQ("chrome-extension://0000000000000000000000000000000000000000/",
+            frontend->extensions()->at(0)->url().spec());
+
+  backend->LoadSingleExtension(no_id_ext,
+      scoped_refptr<ExtensionsServiceFrontendInterface>(frontend.get()));
+  frontend->GetMessageLoop()->RunAllPending();
+  std::string id2 = frontend->extensions()->at(1)->id();
+  ASSERT_EQ("0000000000000000000000000000000000000001", id2);
+  ASSERT_EQ("chrome-extension://0000000000000000000000000000000000000001/",
+            frontend->extensions()->at(1)->url().spec());
+}

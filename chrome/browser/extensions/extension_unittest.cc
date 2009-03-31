@@ -43,26 +43,8 @@ TEST(ExtensionTest, InitFromValueInvalid) {
 
   scoped_ptr<DictionaryValue> input_value;
 
-  // Test missing and invalid format versions
-  input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(Extension::kFormatVersionKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_EQ(Extension::kInvalidFormatVersionError, error);
-
-  input_value->SetString(Extension::kFormatVersionKey, "foo");
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_EQ(Extension::kInvalidFormatVersionError, error);
-
-  input_value->SetInteger(Extension::kFormatVersionKey, 2);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_EQ(Extension::kInvalidFormatVersionError, error);
-
   // Test missing and invalid ids
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  input_value->Remove(Extension::kIdKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
-  EXPECT_EQ(Extension::kInvalidIdError, error);
-
   input_value->SetInteger(Extension::kIdKey, 42);
   EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
   EXPECT_EQ(Extension::kInvalidIdError, error);
@@ -222,7 +204,6 @@ TEST(ExtensionTest, InitFromValueValid) {
   DictionaryValue input_value;
 
   // Test minimal extension
-  input_value.SetInteger(Extension::kFormatVersionKey, 1);
   input_value.SetString(Extension::kIdKey,
       "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
@@ -246,7 +227,6 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
 #endif
   Extension extension(path);
   DictionaryValue input_value;
-  input_value.SetInteger(Extension::kFormatVersionKey, 1);
   input_value.SetString(Extension::kIdKey,
       "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");

@@ -18,7 +18,6 @@ const char Extension::kManifestFilename[] = "manifest.json";
 const wchar_t* Extension::kContentScriptsKey = L"content_scripts";
 const wchar_t* Extension::kCssKey = L"css";
 const wchar_t* Extension::kDescriptionKey = L"description";
-const wchar_t* Extension::kFormatVersionKey = L"format_version";
 const wchar_t* Extension::kIdKey = L"id";
 const wchar_t* Extension::kJsKey = L"js";
 const wchar_t* Extension::kMatchesKey = L"matches";
@@ -48,8 +47,6 @@ const char* Extension::kInvalidCssListError =
     "Required value 'content_scripts[*].css is invalid.";
 const char* Extension::kInvalidDescriptionError =
     "Invalid value for 'description'.";
-const char* Extension::kInvalidFormatVersionError =
-    "Required value 'format_version' is missing or invalid.";
 const char* Extension::kInvalidIdError =
     "Required value 'id' is missing or invalid.";
 const char* Extension::kInvalidJsError =
@@ -104,6 +101,21 @@ Extension::Extension(const Extension& rhs)
       plugins_dir_(rhs.plugins_dir_),
       zip_hash_(rhs.zip_hash_),
       theme_paths_(rhs.theme_paths_) {
+}
+
+const GURL& Extension::url() {
+  if (!extension_url_.is_valid())
+    extension_url_ = GURL(std::string(chrome::kExtensionScheme) +
+                          chrome::kStandardSchemeSeparator + id_ + "/");
+
+  return extension_url_;
+}
+
+void Extension::set_id(const std::string& id) {
+  id_ = id;
+
+  // Reset url_ so that it gets reinitialized next time.
+  extension_url_ = GURL();
 }
 
 const std::string Extension::VersionString() const {
@@ -325,35 +337,26 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
 
 bool Extension::InitFromValue(const DictionaryValue& source,
                               std::string* error) {
-  // Check format version.
-  int format_version = 0;
-  if (!source.GetInteger(kFormatVersionKey, &format_version) ||
-      static_cast<uint32>(format_version) != kExpectedFormatVersion) {
-    *error = kInvalidFormatVersionError;
-    return false;
+  // Initialize id. The ID is not required here because we don't require IDs for
+  // extensions used with --load-extension.
+  if (source.HasKey(kIdKey)) {
+    if (!source.GetString(kIdKey, &id_)) {
+      *error = kInvalidIdError;
+      return false;
+    }
+
+    // Normalize the string to lowercase, so it can be used as an URL component
+    // (where GURL will lowercase it).
+    StringToLowerASCII(&id_);
+
+    // Verify that the id is legal.  The id is a hex string of the SHA-1 hash of
+    // the public key.
+    std::vector<uint8> id_bytes;
+    if (!HexStringToBytes(id_, &id_bytes) || id_bytes.size() != kIdSize) {
+      *error = kInvalidIdError;
+      return false;
+    }
   }
-
-  // Initialize id.
-  if (!source.GetString(kIdKey, &id_)) {
-    *error = kInvalidIdError;
-    return false;
-  }
-
-  // Normalize the string to lowercase, so it can be used as an URL component
-  // (where GURL will lowercase it).
-  StringToLowerASCII(&id_);
-
-  // Verify that the id is legal.  The id is a hex string of the SHA-1 hash of
-  // the public key.
-  std::vector<uint8> id_bytes;
-  if (!HexStringToBytes(id_, &id_bytes) || id_bytes.size() != kIdSize) {
-    *error = kInvalidIdError;
-    return false;
-  }
-
-  // Initialize URL.
-  extension_url_ = GURL(std::string(chrome::kExtensionScheme) +
-                        chrome::kStandardSchemeSeparator + id_ + "/");
 
   // Initialize version.
   std::string version_str;

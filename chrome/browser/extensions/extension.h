@@ -25,9 +25,6 @@ class Extension {
   explicit Extension(const FilePath& path);
   explicit Extension(const Extension& path);
 
-  // The format for extension manifests that this code understands.
-  static const unsigned int kExpectedFormatVersion = 1;
-
   // The name of the manifest inside an extension.
   static const char kManifestFilename[];
 
@@ -35,7 +32,6 @@ class Extension {
   static const wchar_t* kContentScriptsKey;
   static const wchar_t* kCssKey;
   static const wchar_t* kDescriptionKey;
-  static const wchar_t* kFormatVersionKey;
   static const wchar_t* kIdKey;
   static const wchar_t* kJsKey;
   static const wchar_t* kMatchesKey;
@@ -58,7 +54,6 @@ class Extension {
   static const char* kInvalidCssError;
   static const char* kInvalidCssListError;
   static const char* kInvalidDescriptionError;
-  static const char* kInvalidFormatVersionError;
   static const char* kInvalidIdError;
   static const char* kInvalidJsError;
   static const char* kInvalidJsListError;
@@ -115,8 +110,9 @@ class Extension {
   FilePath GetThemeResourcePath(const int resource_id);
 
   const FilePath& path() const { return path_; }
-  const GURL& url() const { return extension_url_; }
+  const GURL& url();
   const std::string& id() const { return id_; }
+  void set_id(const std::string& id);
   const Version* version() const { return version_.get(); }
   // String representation of the version number.
   const std::string VersionString() const;

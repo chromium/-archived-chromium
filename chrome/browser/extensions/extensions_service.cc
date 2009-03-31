@@ -63,6 +63,9 @@ const wchar_t kRegistryExtensionVersion[] = L"version";
 // A marker file to indicate that an extension was installed from an external
 // source.
 const char kExternalInstallFile[] = "EXTERNAL_INSTALL";
+
+// The version of the extension package that this code understands.
+const uint32 kExpectedVersion = 1;
 }
 
 ExtensionsService::ExtensionsService(Profile* profile,
@@ -257,6 +260,16 @@ void ExtensionsServiceBackend::LoadSingleExtension(
 
   Extension* extension = LoadExtension(extension_path);
   if (extension) {
+    if (extension->id().empty()) {
+      // Generate an ID
+      static int counter = 0;
+      std::string id = StringPrintf("%x", counter);
+      ++counter;
+
+      // pad the string out to 40 chars with zeroes.
+      id.insert(0, 40 - id.length(), '0');
+      extension->set_id(id);
+    }
     ExtensionList* extensions = new ExtensionList;
     extensions->push_back(extension);
     ReportExtensionsLoaded(extensions);
@@ -382,7 +395,7 @@ DictionaryValue* ExtensionsServiceBackend::ReadManifest(
     ReportExtensionInstallError(extension_path, "bad magic number");
     return NULL;
   }
-  if (header.version != Extension::kExpectedFormatVersion) {
+  if (header.version != kExpectedVersion) {
     ReportExtensionInstallError(extension_path, "bad version number");
     return NULL;
   }
@@ -628,6 +641,12 @@ bool ExtensionsServiceBackend::InstallOrUpdateExtension(
   if (!extension.InitFromValue(*dict, &error)) {
     ReportExtensionInstallError(source_file,
                                 "Invalid extension manifest.");
+    return false;
+  }
+
+  // ID is required for installed extensions.
+  if (extension.id().empty()) {
+    ReportExtensionInstallError(source_file, "Required value 'id' is missing.");
     return false;
   }
 
