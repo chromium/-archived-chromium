@@ -69,11 +69,13 @@ class TestDelegate : public URLRequest::Delegate {
         cancel_in_rd_(false),
         cancel_in_rd_pending_(false),
         quit_on_complete_(true),
+        allow_certificate_errors_(false),
         response_started_count_(0),
         received_bytes_count_(0),
         received_redirect_count_(0),
         received_data_before_response_(false),
         request_failed_(false),
+        have_certificate_errors_(false),
         buf_(new net::IOBuffer(kBufferSize)) {
   }
 
@@ -158,10 +160,14 @@ class TestDelegate : public URLRequest::Delegate {
   virtual void OnSSLCertificateError(URLRequest* request,
                                      int cert_error,
                                      net::X509Certificate* cert) {
-    // Ignore SSL errors, we test the server is started and shut it down by
-    // performing GETs, no security restrictions should apply as we always want
-    // these GETs to go through.
-    request->ContinueDespiteLastError();
+    // The caller can control whether it needs all SSL requests to go through,
+    // independent of any possible errors, or whether it wants SSL errors to
+    // cancel the request.
+    have_certificate_errors_ = true;
+    if (allow_certificate_errors_)
+      request->ContinueDespiteLastError();
+    else
+      request->Cancel();
   }
 
   void set_cancel_in_received_redirect(bool val) { cancel_in_rr_ = val; }
@@ -171,6 +177,9 @@ class TestDelegate : public URLRequest::Delegate {
     cancel_in_rd_pending_ = val;
   }
   void set_quit_on_complete(bool val) { quit_on_complete_ = val; }
+  void set_allow_certificate_errors(bool val) {
+    allow_certificate_errors_ = val;
+  }
   void set_username(const std::wstring& u) { username_ = u; }
   void set_password(const std::wstring& p) { password_ = p; }
 
@@ -183,6 +192,7 @@ class TestDelegate : public URLRequest::Delegate {
     return received_data_before_response_;
   }
   bool request_failed() const { return request_failed_; }
+  bool have_certificate_errors() const { return have_certificate_errors_; }
 
  private:
   static const int kBufferSize = 4096;
@@ -192,6 +202,7 @@ class TestDelegate : public URLRequest::Delegate {
   bool cancel_in_rd_;
   bool cancel_in_rd_pending_;
   bool quit_on_complete_;
+  bool allow_certificate_errors_;
 
   std::wstring username_;
   std::wstring password_;
@@ -202,6 +213,7 @@ class TestDelegate : public URLRequest::Delegate {
   int received_redirect_count_;
   bool received_data_before_response_;
   bool request_failed_;
+  bool have_certificate_errors_;
   std::string data_received_;
 
   // our read buffer

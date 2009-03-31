@@ -33,11 +33,6 @@ class ClientSocket : public Socket {
   //
   virtual int Connect(CompletionCallback* callback) = 0;
 
-  // If a non-fatal error occurs during Connect, the consumer can call this
-  // method to re-Connect ignoring the error that occured.  This call is only
-  // valid for certain errors.
-  virtual int ReconnectIgnoringLastError(CompletionCallback* callback) = 0;
-
   // Called to disconnect a connected socket.  Does nothing if the socket is
   // already disconnected.  After calling Disconnect it is possible to call
   // Connect again to establish a new connection.

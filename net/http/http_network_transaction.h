@@ -72,10 +72,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoInitConnectionComplete(int result);
   int DoResolveHost();
   int DoResolveHostComplete(int result);
-  int DoConnect();
-  int DoConnectComplete(int result);
-  int DoSSLConnectOverTunnel();
-  int DoSSLConnectOverTunnelComplete(int result);
+  int DoTCPConnect();
+  int DoTCPConnectComplete(int result);
+  int DoSSLConnect();
+  int DoSSLConnectComplete(int result);
   int DoWriteHeaders();
   int DoWriteHeadersComplete(int result);
   int DoWriteBody();
@@ -296,10 +296,10 @@ class HttpNetworkTransaction : public HttpTransaction {
     STATE_INIT_CONNECTION_COMPLETE,
     STATE_RESOLVE_HOST,
     STATE_RESOLVE_HOST_COMPLETE,
-    STATE_CONNECT,
-    STATE_CONNECT_COMPLETE,
-    STATE_SSL_CONNECT_OVER_TUNNEL,
-    STATE_SSL_CONNECT_OVER_TUNNEL_COMPLETE,
+    STATE_TCP_CONNECT,
+    STATE_TCP_CONNECT_COMPLETE,
+    STATE_SSL_CONNECT,
+    STATE_SSL_CONNECT_COMPLETE,
     STATE_WRITE_HEADERS,
     STATE_WRITE_HEADERS_COMPLETE,
     STATE_WRITE_BODY,

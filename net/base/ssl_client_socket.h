@@ -15,8 +15,7 @@ class SSLInfo;
 //
 // NOTE: The SSL handshake occurs within the Connect method after a TCP
 // connection is established.  If a SSL error occurs during the handshake,
-// Connect will fail.  The consumer may choose to ignore certain SSL errors,
-// such as a name mismatch, by calling ReconnectIgnoringLastError.
+// Connect will fail.
 //
 class SSLClientSocket : public ClientSocket {
  public:

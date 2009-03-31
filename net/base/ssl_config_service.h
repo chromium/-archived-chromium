@@ -5,7 +5,10 @@
 #ifndef NET_BASE_SSL_CONFIG_SERVICE_H__
 #define NET_BASE_SSL_CONFIG_SERVICE_H__
 
+#include <set>
+
 #include "base/time.h"
+#include "net/base/x509_certificate.h"
 
 namespace net {
 
@@ -23,6 +26,12 @@ struct SSLConfig {
   bool ssl2_enabled;  // True if SSL 2.0 is enabled.
   bool ssl3_enabled;  // True if SSL 3.0 is enabled.
   bool tls1_enabled;  // True if TLS 1.0 is enabled.
+
+  // Add any known-bad SSL certificates to allowed_bad_certs_ that should not
+  // trigger an ERR_CERT_*_INVALID error when calling SSLClientSocket::Connect.
+  // This would normally be done in response to the user explicitly accepting
+  // the bad certificate.
+  std::set<scoped_refptr<X509Certificate> > allowed_bad_certs_;
 };
 
 // This class is responsible for getting and setting the SSL configuration.

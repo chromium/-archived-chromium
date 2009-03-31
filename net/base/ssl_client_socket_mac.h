@@ -34,7 +34,6 @@ class SSLClientSocketMac : public SSLClientSocket {
 
   // ClientSocket methods:
   virtual int Connect(CompletionCallback* callback);
-  virtual int ReconnectIgnoringLastError(CompletionCallback* callback);
   virtual void Disconnect();
   virtual bool IsConnected() const;
   virtual bool IsConnectedAndIdle() const;
