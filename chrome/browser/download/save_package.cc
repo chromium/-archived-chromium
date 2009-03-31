@@ -548,9 +548,9 @@ void SavePackage::CheckFinish() {
   if (in_process_count() || finished_)
     return;
 
-  FilePath dir = save_type_ == SAVE_AS_COMPLETE_HTML ?
-                 saved_main_directory_path_ :
-                 FilePath();
+  FilePath dir = (save_type_ == SAVE_AS_COMPLETE_HTML &&
+                  saved_success_items_.size() > 1) ?
+                  saved_main_directory_path_ : FilePath();
 
   // This vector contains the final names of all the successfully saved files
   // along with their save ids. It will be passed to SaveFileManager to do the
