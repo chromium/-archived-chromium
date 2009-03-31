@@ -3934,6 +3934,7 @@
       'msvs_disabled_warnings': [
         4138, 4244, 4291, 4305, 4344, 4355, 4521, 4099,
       ],
+      'scons_line_length' : 1,
       'xcode_settings': {
         # Some Mac-specific parts of WebKit won't compile without having this
         # prefix header injected.
