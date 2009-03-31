@@ -1526,8 +1526,8 @@ MAC : LayoutTests/fast/loader/local-JavaScript-from-local.html = FAIL
 MAC : LayoutTests/fast/loader/local-image-from-local.html = FAIL
 
 // the url comes back wrong, it should have a question mark for args on it.
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = FAIL CRASH
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = FAIL
+MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT CRASH
+MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT FAIL
 
 // whitespace differences (??)
 MAC : LayoutTests/fast/dom/tabindex-clamp.html = FAIL
@@ -2404,8 +2404,6 @@ MAC : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
 MAC : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
 
 // Merge WebKit: 42026:42115 new tests
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
