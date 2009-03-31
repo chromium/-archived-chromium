@@ -136,7 +136,7 @@ class TabRendererGtk {
   static ButtonImage close_button_;
   static ButtonImage newtab_button_;
 
-  static ChromeFont title_font_;
+  static ChromeFont* title_font_;
   static int title_font_height_;
 
   static SkBitmap* download_icon_;

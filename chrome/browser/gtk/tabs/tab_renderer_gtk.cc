@@ -56,7 +56,7 @@ TabRendererGtk::TabImage TabRendererGtk::tab_inactive_otr_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
 TabRendererGtk::ButtonImage TabRendererGtk::close_button_ = {0};
 TabRendererGtk::ButtonImage TabRendererGtk::newtab_button_ = {0};
-ChromeFont TabRendererGtk::title_font_;
+ChromeFont* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
 SkBitmap* TabRendererGtk::download_icon_ = NULL;
 int TabRendererGtk::download_icon_width_ = 0;
@@ -231,7 +231,7 @@ void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
 
   SkColor title_color = IsSelected() ? kSelectedTitleColor
                                      : kUnselectedTitleColor;
-  canvas->DrawStringInt(title, title_font_, title_color, title_bounds_.x(),
+  canvas->DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height());
 
@@ -374,8 +374,8 @@ void TabRendererGtk::InitResources() {
   LoadTabImages();
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  title_font_ = rb.GetFont(ResourceBundle::BaseFont);
-  title_font_height_ = title_font_.height();
+  title_font_ = new ChromeFont(rb.GetFont(ResourceBundle::BaseFont));
+  title_font_height_ = title_font_->height();
 
   initialized_ = true;
 }
