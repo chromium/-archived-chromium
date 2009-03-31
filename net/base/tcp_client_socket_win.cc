@@ -218,6 +218,7 @@ int TCPClientSocket::Write(const char* buf,
   DCHECK(socket_ != INVALID_SOCKET);
   DCHECK(wait_state_ == NOT_WAITING);
   DCHECK(!callback_);
+  DCHECK(buf_len > 0);
 
   buffer_.len = buf_len;
   buffer_.buf = const_cast<char*>(buf);
