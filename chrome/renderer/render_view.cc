@@ -464,8 +464,12 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   HDC hdc = emf.hdc();
   DCHECK(hdc);
   skia::PlatformDeviceWin::InitializeDC(hdc);
-  int size_x = canvas_size.width();
-  int size_y = canvas_size.height();
+  // Since WebKit extends the page width depending on the magical shrink
+  // factor we make sure the canvas covers the worst case scenario 
+  // (x2.0 currently).  PrintContext will then set the correct clipping region.
+  int size_x = static_cast<int>(canvas_size.width() * params.params.max_shrink);
+  int size_y = static_cast<int>(canvas_size.height() *
+      params.params.max_shrink);
   // Calculate the dpi adjustment.
   float shrink = static_cast<float>(canvas_size.width()) /
       params.params.printable_size.width();
