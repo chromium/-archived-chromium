@@ -52,17 +52,6 @@ size_t SkGlyph::computeImageSize() const {
     return size;
 }
 
-void SkGlyph::zeroMetrics() {
-    fAdvanceX = 0;
-    fAdvanceY = 0;
-    fWidth    = 0;
-    fHeight   = 0;
-    fTop      = 0;
-    fLeft     = 0;
-    fRsbDelta = 0;
-    fLsbDelta = 0;
-}
-
 #ifdef SK_DEBUG
     #define DUMP_RECx
 #endif

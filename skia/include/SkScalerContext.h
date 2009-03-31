@@ -85,12 +85,6 @@ struct SkGlyph {
     
     size_t computeImageSize() const;
     
-    /** Call this to set all of the metrics fields to 0 (e.g. if the scaler
-        encounters an error measuring a glyph). Note: this does not alter the
-        fImage, fPath, fID, fMaskFormat fields.
-     */
-    void zeroMetrics();
-
     enum {
         kSubBits = 2,
         kSubMask = ((1 << kSubBits) - 1),
@@ -169,16 +163,10 @@ public:
     SkScalerContext(const SkDescriptor* desc);
     virtual ~SkScalerContext();
 
-    // remember our glyph offset/base
     void setBaseGlyphCount(unsigned baseGlyphCount) {
         fBaseGlyphCount = baseGlyphCount;
     }
 
-    /** Return the corresponding glyph for the specified unichar. Since contexts
-        may be chained (under the hood), the glyphID that is returned may in
-        fact correspond to a different font/context. In that case, we use the
-        base-glyph-count to know how to translate back into local glyph space.
-     */
     uint16_t    charToGlyphID(SkUnichar uni);
 
     unsigned    getGlyphCount() const { return this->generateGlyphCount(); }
