@@ -1482,7 +1482,7 @@ MAC : LayoutTests/http/tests/navigation/reload-subframe-object.html = FAIL
 MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
+MAC : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL TIMEOUT
 LINUX MAC : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
 MAC : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
@@ -2353,6 +2353,7 @@ DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FA
 DEFER MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
+// BUG: 9581
 LayoutTests/fast/block/positioning/002.html = FAIL
 LayoutTests/fast/block/positioning/relative-overflow-block.html = FAIL
 LayoutTests/fast/encoding/mailto-always-utf-8.html = FAIL
@@ -2414,9 +2415,9 @@ DEFER : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
 // Merge WebKit: 42116:42132 regressions
 
-// These probably just need rebaselining after http://trac.webkit.org/changeset/42131 BUG:9578
+// These probably just need rebaselining after http://trac.webkit.org/changeset/42131
+// BUG:9578
 WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
-WIN LINUX : LayoutTests/fast/loader/reload-policy-delegate.html = FAIL
 WIN : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
 WIN : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
 WIN : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
@@ -2425,10 +2426,11 @@ WIN : LayoutTests/fast/repaint/text-shadow-horizontal.html = FAIL
 WIN : LayoutTests/fast/repaint/text-shadow.html = FAIL
 WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 
-WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
-
 // Possibly due to http://trac.webkit.org/changeset/42120 ?
+// BUG 9582
+WIN MAC LINUX : LayoutTests/fast/loader/reload-policy-delegate.html = FAIL
+WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
-WIN LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
+WIN MAC LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
