@@ -169,26 +169,19 @@ class TestRunner:
     Also remove skipped files from self._test_files, extract a subset of tests
     if desired, and create the sorted self._test_files_list.
     """
-    # Filter and sort out files from the skipped, ignored, and fixable file
-    # lists.
-    saved_test_files = set()
-    if len(self._test_files) == 1:
-      # If there's only one test file, we don't want to skip it, but we do want
-      # to sort it.  So we save it to add back to the list later.
-      saved_test_files = self._test_files
-
     # Remove skipped - both fixable and ignored - files from the
     # top-level list of files to test.
-    skipped = (self._expectations.GetSkipped() |
-               self._expectations.GetWontFixSkipped())
+    skipped = set()
+    # If there was only one test file, we'll run it even if it was skipped.
+    if len(self._test_files) > 1 and not self._options.force:
+      skipped = (self._expectations.GetSkipped() |
+                 self._expectations.GetWontFixSkipped())
+      self._test_files -= skipped
 
-    self._test_files -= skipped
-
-    # If there was only one test file, run the test even if it was skipped.
-    if len(saved_test_files):
-      self._test_files = saved_test_files
-
-    logging.info('Skipped: %d tests' % len(skipped))
+    if self._options.force:
+      logging.info('Skipped: 0 tests (--force)')
+    else:
+      logging.info('Skipped: %d tests' % len(skipped))
     logging.info('Skipped tests do not appear in any of the below numbers\n')
 
     # Create a sorted list of test files so the subset chunk, if used, contains
@@ -767,8 +760,8 @@ if '__main__' == __name__:
                            help="disable pixel-to-pixel PNG comparisons")
   option_parser.add_option("", "--fuzzy-pixel-tests", action="store_true",
                            default=False,
-                           help="Also use fuzzy matching to compare pixel test "
-                                "outputs.")
+                           help="Also use fuzzy matching to compare pixel test"
+                                " outputs.")
   option_parser.add_option("", "--results-directory",
                            default="layout-test-results",
                            help="Output results directory source dir,"
@@ -782,12 +775,16 @@ if '__main__' == __name__:
                            default=False, help="don't launch the test_shell"
                            " with results after the tests are done")
   option_parser.add_option("", "--full-results-html", action="store_true",
-                           default=False, help="show all failures in"
+                           default=False, help="show all failures in "
                            "results.html, rather than only regressions")
   option_parser.add_option("", "--lint-test-files", action="store_true",
-                           default=False, help="Makes sure the test files"
-                           "parse for all configurations. Does not run any"
+                           default=False, help="Makes sure the test files "
+                           "parse for all configurations. Does not run any "
                            "tests.")
+  option_parser.add_option("", "--force", action="store_true",
+                           default=False,
+                           help="Run all tests, even those marked SKIP in the "
+                                "test list")
   option_parser.add_option("", "--nocompare-failures", action="store_true",
                            default=False,
                            help="Disable comparison to the last test run. "
@@ -809,7 +806,7 @@ if '__main__' == __name__:
                            help="Override the platform for expected results")
   option_parser.add_option("", "--target", default="",
                            help="Set the build target configuration (overrides"
-                                 "--debug)")
+                                 " --debug)")
   # TODO(pamg): Support multiple levels of verbosity, and remove --sources.
   option_parser.add_option("-v", "--verbose", action="store_true",
                            default=False, help="include debug-level logging")
@@ -839,12 +836,12 @@ if '__main__' == __name__:
                                  "tracking down corruption)"))
   option_parser.add_option("", "--run-chunk",
                            default=None,
-                           help=("Run a specified chunk (n:l), the nth of len l"
-                                 ", of the layout tests"))
+                           help=("Run a specified chunk (n:l), the nth of len "
+                                 "l, of the layout tests"))
   option_parser.add_option("", "--run-part",
                            default=None,
-                           help=("Run a specified part (n:l), the nth of lth"
-                                 ", of the layout tests"))
+                           help=("Run a specified part (n:m), the nth of m"
+                                 " parts, of the layout tests"))
   option_parser.add_option("", "--batch-size",
                            default=None,
                            help=("Run a the tests in batches (n), after every "
