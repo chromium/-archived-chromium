@@ -2416,7 +2416,7 @@ DEFER : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
 // These probably just need rebaselining after http://trac.webkit.org/changeset/42131 BUG:9578
 WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
-WIN : LayoutTests/fast/loader/reload-policy-delegate.html = FAIL
+WIN LINUX : LayoutTests/fast/loader/reload-policy-delegate.html = FAIL
 WIN : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
 WIN : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
 WIN : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
@@ -2431,4 +2431,4 @@ WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FA
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
-WIN : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
+WIN LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
