@@ -698,10 +698,16 @@ int SSLClientSocketWin::DoVerifyCert() {
 int SSLClientSocketWin::DoVerifyCertComplete(int result) {
   LogConnectionTypeMetrics();
   if (renegotiating_) {
+    // A rehandshake, started in the middle of a Read, has completed.
     renegotiating_ = false;
     // Pick up where we left off.  Go back to reading data.
     if (result == OK)
       SetNextStateForRead();
+  } else {
+    // The initial handshake, kicked off by a Connect, has completed.
+    completed_handshake_ = true;
+    // Exit DoLoop and return the result to the caller of Connect.
+    DCHECK(next_state_ == STATE_NONE);
   }
   return result;
 }
@@ -946,7 +952,6 @@ int SSLClientSocketWin::DidCompleteHandshake() {
   server_cert_ = X509Certificate::CreateFromHandle(
       server_cert_handle, X509Certificate::SOURCE_FROM_NETWORK);
 
-  completed_handshake_ = true;
   next_state_ = STATE_VERIFY_CERT;
   return OK;
 }
