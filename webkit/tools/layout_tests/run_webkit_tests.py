@@ -794,7 +794,6 @@ if '__main__' == __name__:
                                 "When enabled, show stats on how many tests "
                                 "newly pass or fail.")
   option_parser.add_option("", "--num-test-shells",
-                           default=1,
                            help="Number of testshells to run in parallel.")
   option_parser.add_option("", "--time-out-ms",
                            default=None,
