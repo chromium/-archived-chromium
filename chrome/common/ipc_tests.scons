@@ -28,6 +28,21 @@ env.Append(
   LIBS = [
     'glue',
     'WTF',
+    'WebKit',
+
+    'bzip2',
+    'X11',
+    'Xrender',
+    'Xext',
+
+    'media',
+    'sdch',
+    'views',
+
+    'hunspell',
+    'printing',
+    'modp_b64',
+    'debugger',
   ],
 )
 
