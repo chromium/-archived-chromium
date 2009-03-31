@@ -383,7 +383,7 @@ class TestExpectationsFile:
       return True
 
     # Check if we've already seen a more precise path.
-    return prev_base_path.startswith(test_list_path)
+    return prev_base_path.startswith(os.path.normpath(test_list_path))
 
   def _AddError(self, lineno, msg, path):
     self._errors.append('\nLine:%s %s\n%s' % (lineno, msg, path))
