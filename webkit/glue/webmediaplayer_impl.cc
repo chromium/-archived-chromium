@@ -65,6 +65,21 @@ void WebMediaPlayerImpl::NotifyVolumeChange() {
     media_player_private_->volumeChanged();
 }
 
+void WebMediaPlayerImpl::NotifySizeChanged() {
+  if (media_player_private_)
+    media_player_private_->sizeChanged();
+}
+
+void WebMediaPlayerImpl::NotifyRateChanged() {
+  if (media_player_private_)
+    media_player_private_->rateChanged();
+}
+
+void WebMediaPlayerImpl::NotifyDurationChanged() {
+  if (media_player_private_)
+    media_player_private_->durationChanged();
+}
+
 void WebMediaPlayerImpl::Repaint() {
   if (media_player_private_)
     media_player_private_->repaint();

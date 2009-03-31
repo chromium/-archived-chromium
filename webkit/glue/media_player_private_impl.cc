@@ -80,29 +80,11 @@ void MediaPlayerPrivate::cancelLoad() {
 
 IntSize MediaPlayerPrivate::naturalSize() const {
   if (m_data) {
-    return IntSize(AsDelegate(m_data)->GetWidth(), AsDelegate(m_data)->GetHeight());
+    return IntSize(AsDelegate(m_data)->GetWidth(),
+                   AsDelegate(m_data)->GetHeight());
   } else {
     return IntSize(0, 0);
   }
-}
-
-MediaPlayerPrivateInterface* MediaPlayerPrivate::create(MediaPlayer* player)
-{
-    return new MediaPlayerPrivate(player);
-}
-
-void MediaPlayerPrivate::registerMediaEngine(MediaEngineRegistrar registrar)
-{
-    if (isAvailable())
-        registrar(create, getSupportedTypes, supportsType);
-}
-
-MediaPlayer::SupportsType MediaPlayerPrivate::supportsType(const String &type, const String &codecs)
-{
-    // FIXME: Do the real thing
-    notImplemented();
-
-    return MediaPlayer::IsSupported;
 }
 
 bool MediaPlayerPrivate::hasVideo() const {
@@ -194,41 +176,39 @@ MediaPlayer::NetworkState MediaPlayerPrivate::networkState() const {
     switch (AsDelegate(m_data)->GetNetworkState()) {
       case webkit_glue::WebMediaPlayer::EMPTY:
         return MediaPlayer::Empty;
-      case webkit_glue::WebMediaPlayer::LOADED:
-        return MediaPlayer::Loaded;
+      case webkit_glue::WebMediaPlayer::IDLE:
+        return MediaPlayer::Idle;
       case webkit_glue::WebMediaPlayer::LOADING:
         return MediaPlayer::Loading;
-      case webkit_glue::WebMediaPlayer::LOAD_FAILED:
-        return MediaPlayer::LoadFailed;
-      case webkit_glue::WebMediaPlayer::LOADED_META_DATA:
-        return MediaPlayer::LoadedMetaData;
-      case webkit_glue::WebMediaPlayer::LOADED_FIRST_FRAME:
-        return MediaPlayer::LoadedFirstFrame;
-      default:
-        return MediaPlayer::Empty;
+      case webkit_glue::WebMediaPlayer::LOADED:
+        return MediaPlayer::Loaded;
+      case webkit_glue::WebMediaPlayer::FORMAT_ERROR:
+        return MediaPlayer::FormatError;
+      case webkit_glue::WebMediaPlayer::NETWORK_ERROR:
+        return MediaPlayer::NetworkError;
+      case webkit_glue::WebMediaPlayer::DECODE_ERROR:
+        return MediaPlayer::DecodeError;
     }
-  } else {
-    return MediaPlayer::Empty;
   }
+  return MediaPlayer::Empty;
 }
 
 MediaPlayer::ReadyState MediaPlayerPrivate::readyState() const {
   if (m_data) {
     switch (AsDelegate(m_data)->GetReadyState()) {
-      case webkit_glue::WebMediaPlayer::CAN_PLAY:
-        return MediaPlayer::CanPlay;
-      case webkit_glue::WebMediaPlayer::CAN_PLAY_THROUGH:
-        return MediaPlayer::CanPlayThrough;
-      case webkit_glue::WebMediaPlayer::CAN_SHOW_CURRENT_FRAME:
-        return MediaPlayer::CanShowCurrentFrame;
-      case webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE:
-        return MediaPlayer::DataUnavailable;
-      default:
-        return MediaPlayer::DataUnavailable;
+      case webkit_glue::WebMediaPlayer::HAVE_NOTHING:
+        return MediaPlayer::HaveNothing;
+      case webkit_glue::WebMediaPlayer::HAVE_METADATA:
+        return MediaPlayer::HaveMetadata;
+      case webkit_glue::WebMediaPlayer::HAVE_CURRENT_DATA:
+        return MediaPlayer::HaveCurrentData;
+      case webkit_glue::WebMediaPlayer::HAVE_FUTURE_DATA:
+        return MediaPlayer::HaveFutureData;
+      case webkit_glue::WebMediaPlayer::HAVE_ENOUGH_DATA:
+        return MediaPlayer::HaveEnoughData;
     }
-  } else {
-    return MediaPlayer::DataUnavailable;
   }
+  return MediaPlayer::HaveNothing;
 }
 
 float MediaPlayerPrivate::maxTimeBuffered() const {
@@ -315,14 +295,39 @@ void MediaPlayerPrivate::repaint() {
   m_player->repaint();
 }
 
-// public static methods ------------------------------------------------------
-
-void MediaPlayerPrivate::getSupportedTypes(HashSet<String>& types) {
-  // Do nothing for now.
+void MediaPlayerPrivate::sizeChanged() {
+  m_player->sizeChanged();
 }
 
-bool MediaPlayerPrivate::isAvailable() {
-  return webkit_glue::IsMediaPlayerAvailable();
+void MediaPlayerPrivate::rateChanged() {
+  m_player->rateChanged();
+}
+
+void MediaPlayerPrivate::durationChanged() {
+  m_player->durationChanged();
+}
+
+// public static methods ------------------------------------------------------
+
+MediaPlayerPrivateInterface* MediaPlayerPrivate::create(MediaPlayer* player) {
+  return new MediaPlayerPrivate(player);
+}
+
+void MediaPlayerPrivate::registerMediaEngine(MediaEngineRegistrar registrar) {
+  if (webkit_glue::IsMediaPlayerAvailable())
+    registrar(create, getSupportedTypes, supportsType);
+}
+
+MediaPlayer::SupportsType MediaPlayerPrivate::supportsType(
+    const String &type, const String &codecs) {
+  // TODO(hclam): decide what to do here, now we just say we support everything.
+  return MediaPlayer::IsSupported;
+}
+
+void MediaPlayerPrivate::getSupportedTypes(HashSet<String>& types) {
+  // TODO(hclam): decide what to do here, we should fill in the HashSet about
+  // codecs that we support.
+  notImplemented();
 }
 
 }  // namespace WebCore

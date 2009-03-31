@@ -45,6 +45,15 @@ class WebMediaPlayerImpl : public WebMediaPlayer {
   // Notify the media player about volume change.
   virtual void NotifyVolumeChange();
 
+  // Notify the media player size of video frame changed.
+  virtual void NotifySizeChanged();
+
+  // Notify the media player playback rate has changed.
+  virtual void NotifyRateChanged();
+
+  // Notify the media player duration of the media file has changed.
+  virtual void NotifyDurationChanged();
+
   // Tell the media player to repaint itself.
   virtual void Repaint();
 

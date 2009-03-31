@@ -47,7 +47,7 @@ class NotifyWebMediaPlayerTask : public CancelableTask {
 
 WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
     : network_state_(webkit_glue::WebMediaPlayer::EMPTY),
-      ready_state_(webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE),
+      ready_state_(webkit_glue::WebMediaPlayer::HAVE_NOTHING),
       main_loop_(NULL),
       filter_factory_(new media::FilterFactoryCollection()),
       audio_renderer_(NULL),
@@ -292,13 +292,13 @@ void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
   if (successful) {
     // Since we have initialized the pipeline, we should be able to play it.
     // And we skip LOADED_METADATA state and starting with LOADED_FIRST_FRAME.
-    ready_state_ = webkit_glue::WebMediaPlayer::CAN_PLAY_THROUGH;
+    ready_state_ = webkit_glue::WebMediaPlayer::HAVE_ENOUGH_DATA;
     network_state_ = webkit_glue::WebMediaPlayer::LOADED;
   } else {
     // TODO(hclam): should use pipeline_.GetError() to determine the state
     // properly and reports error using MediaError.
-    ready_state_ = webkit_glue::WebMediaPlayer::DATA_UNAVAILABLE;
-    network_state_ = webkit_glue::WebMediaPlayer::LOAD_FAILED;
+    ready_state_ = webkit_glue::WebMediaPlayer::HAVE_NOTHING;
+    network_state_ = webkit_glue::WebMediaPlayer::NETWORK_ERROR;
   }
 
   PostTask(kNetworkStateTaskIndex,

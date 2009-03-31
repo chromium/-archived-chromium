@@ -17,18 +17,20 @@ class WebMediaPlayer {
 public:
   enum NetworkState {
     EMPTY,
-    LOAD_FAILED,
+    IDLE,
     LOADING,
-    LOADED_META_DATA,
-    LOADED_FIRST_FRAME,
-    LOADED
+    LOADED,
+    FORMAT_ERROR,
+    NETWORK_ERROR,
+    DECODE_ERROR,
   };
 
   enum ReadyState {
-    DATA_UNAVAILABLE,
-    CAN_SHOW_CURRENT_FRAME,
-    CAN_PLAY,
-    CAN_PLAY_THROUGH
+    HAVE_NOTHING,
+    HAVE_METADATA,
+    HAVE_CURRENT_DATA,
+    HAVE_FUTURE_DATA,
+    HAVE_ENOUGH_DATA,
   };
 
   WebMediaPlayer() {}
@@ -50,6 +52,15 @@ public:
 
   // Notify the media player about volume change.
   virtual void NotifyVolumeChange() = 0;
+
+  // Notify the media player size of video frame changed.
+  virtual void NotifySizeChanged() = 0;
+
+  // Notify the media player playback rate has changed.
+  virtual void NotifyRateChanged() = 0;
+
+  // Notify the media player duration of the media file has changed.
+  virtual void NotifyDurationChanged() = 0;
 
   // Tell the media player to repaint itself.
   virtual void Repaint() = 0;
