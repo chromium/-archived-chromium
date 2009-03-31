@@ -4337,6 +4337,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CheckedRadioButtons.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CheckedRadioButtons.h"
+				>
+			</File>
+
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ChildNodeList.cpp"
 				>
 			</File>

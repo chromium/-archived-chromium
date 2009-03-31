@@ -480,7 +480,7 @@ ListValue* DomAgentImpl::BuildValueForNode(Node* node, int depth) {
 ListValue* DomAgentImpl::BuildValueForElementAttributes(Element* element) {
   OwnPtr<ListValue> attributesValue(new ListValue());
   // Go through all attributes and serialize them.
-  const NamedAttrMap *attrMap = element->attributes(true);
+  const NamedNodeMap *attrMap = element->attributes(true);
   if (!attrMap) {
     return attributesValue.release();
   }

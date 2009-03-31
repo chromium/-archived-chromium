@@ -7,6 +7,7 @@
 
 MSVC_PUSH_WARNING_LEVEL(0);
 #include "Frame.h"
+#include "HTMLFormElement.h"
 #include "HTMLInputElement.h"
 #include "HTMLNames.h"
 MSVC_POP_WARNING();

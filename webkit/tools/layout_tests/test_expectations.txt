@@ -1468,7 +1468,7 @@ MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/table/003.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+MAC WIN : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
@@ -2102,8 +2102,8 @@ MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PA
 LINUX : LayoutTests/fast/css/percent-top-value-with-relative-position.html = FAIL
 
 // Looks like they started failing with r11542
-MAC : LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
-MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
+MAC WIN LINUX: LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
+MAC WIN LINUX: LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
 
 // Added 3/12/09
 MAC DEBUG : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
@@ -2353,3 +2353,55 @@ DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FA
 
 // Merge WebKit: 41999:42026, needs a rebaseline.
 DEFER WIN MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+
+// Merge WebKit: 42026:42115 regressions
+LayoutTests/fast/block/positioning/002.html = FAIL
+LayoutTests/fast/block/positioning/relative-overflow-block.html = FAIL
+LayoutTests/fast/encoding/mailto-always-utf-8.html = FAIL
+LayoutTests/fast/forms/mailto/get-multiple-items-text-plain.html = FAIL
+LayoutTests/fast/forms/mailto/get-multiple-items-x-www-form-urlencoded.html = FAIL
+LayoutTests/fast/forms/mailto/get-multiple-items.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii-always-utf-8.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii-text-plain-latin-1.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii-text-plain.html = FAIL
+LayoutTests/fast/forms/mailto/get-non-ascii.html = FAIL
+LayoutTests/fast/forms/mailto/get-overwrite-query.html = FAIL
+LayoutTests/fast/forms/mailto/post-append-query.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items-multipart-form-data.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items-text-plain.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items-x-www-form-urlencoded.html = FAIL
+LayoutTests/fast/forms/mailto/post-multiple-items.html = FAIL
+LayoutTests/fast/forms/mailto/post-text-plain-with-accept-charset.html = FAIL
+LayoutTests/fast/forms/mailto/post-text-plain.html = FAIL
+LayoutTests/fast/transforms/transforms-with-opacity.html = FAIL
+WIN : LayoutTests/http/tests/navigation/error404-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/post-basic.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/post-frames.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
+WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
+WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
+WIN LINUX : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
+WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
+WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+
+// Merge WebKit: 42026:42115 new tests
+DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
+DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL
+DEFER : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL

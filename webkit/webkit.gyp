@@ -1252,6 +1252,8 @@
         '../third_party/WebKit/WebCore/dom/CSSMappedAttributeDeclaration.h',
         '../third_party/WebKit/WebCore/dom/CharacterData.cpp',
         '../third_party/WebKit/WebCore/dom/CharacterData.h',
+        '../third_party/WebKit/WebCore/dom/CheckedRadioButtons.cpp',
+        '../third_party/WebKit/WebCore/dom/CheckedRadioButtons.h',
         '../third_party/WebKit/WebCore/dom/ChildNodeList.cpp',
         '../third_party/WebKit/WebCore/dom/ChildNodeList.h',
         '../third_party/WebKit/WebCore/dom/ClassNames.cpp',

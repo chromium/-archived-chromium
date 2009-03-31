@@ -84,6 +84,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #include "DOMWindow.h"
 #include "Editor.h"
 #include "EventHandler.h"
+#include "FormState.h"
 #include "Frame.h"
 #include "FrameChromium.h"
 #include "FrameLoader.h"

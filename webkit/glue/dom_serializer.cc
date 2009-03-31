@@ -352,7 +352,7 @@ void DomSerializer::OpenTagToString(const WebCore::Element* element,
   // Add open tag
   result += "<" + element->nodeName();
   // Go through all attributes and serialize them.
-  const WebCore::NamedAttrMap *attrMap = element->attributes(true);
+  const WebCore::NamedNodeMap *attrMap = element->attributes(true);
   if (attrMap) {
     unsigned numAttrs = attrMap->length();
     for (unsigned i = 0; i < numAttrs; i++) {

@@ -111,6 +111,7 @@ input_files = [
     '$WEBCORE_DIR/dom/BeforeUnloadEvent.cpp',
     '$WEBCORE_DIR/dom/CDATASection.cpp',
     '$WEBCORE_DIR/dom/CharacterData.cpp',
+    '$WEBCORE_DIR/dom/CheckedRadioButtons.cpp',
     '$WEBCORE_DIR/dom/ChildNodeList.cpp',
     '$WEBCORE_DIR/dom/ClassNames.cpp',
     '$WEBCORE_DIR/dom/ClassNodeList.cpp',
