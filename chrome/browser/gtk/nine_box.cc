@@ -5,28 +5,30 @@
 #include "chrome/browser/gtk/nine_box.h"
 
 #include "base/gfx/gtk_util.h"
+#include "base/gfx/point.h"
 #include "base/logging.h"
 
 namespace {
 
+// Get the (x,y) coordinates of the widget relative to its GdkWindow.
+gfx::Point GetWindowRelativeCoords(GtkWidget* widget) {
+  // GtkAllocation (x, y) is relative to widget->window for NO_WINDOW widgets.
+  if (GTK_WIDGET_NO_WINDOW(widget))
+    return gfx::Point(widget->allocation.x, widget->allocation.y);
+
+  return gfx::Point();
+}
+
 // Draw pixbuf |src| into |dst| at position (x, y).
 void DrawPixbuf(GtkWidget* dst, GdkPixbuf* src, int x, int y) {
+  gfx::Point offset = GetWindowRelativeCoords(dst);
+
   GdkGC* gc = dst->style->fg_gc[GTK_WIDGET_STATE(dst)];
   gdk_draw_pixbuf(dst->window,  // The destination drawable.
                   gc,  // Graphics context.
                   src, 0, 0,  // Source image and x,y offset.
-                  x, y, -1, -1,  // x, y, width, height.
+                  offset.x() + x, offset.y() + y, -1, -1,  // x, y, width, height.
                   GDK_RGB_DITHER_NONE, 0, 0);  // Dithering mode, x,y offsets.
-}
-
-// Fills the widget with |color|.
-void FillWidget(GtkWidget* dst, const GdkColor& color) {
-  GdkGC* copy = gdk_gc_new(dst->window);
-  gdk_gc_set_foreground(copy, &color);
-  gdk_draw_rectangle(dst->window, copy, TRUE, 0, 0,
-                     dst->allocation.width,
-                     dst->allocation.height);
-  g_object_unref(copy);
 }
 
 }  // anonymous namespace
@@ -48,13 +50,6 @@ void NineBox::RenderToWidget(GtkWidget* dst) {
 
   int dst_width = dst->allocation.width;
   int dst_height = dst->allocation.height;
-
-#ifndef NDEBUG
-  // Start by filling with a bright color so we can see any pixels
-  // we're missing.
-  GdkColor bright = GDK_COLOR_RGB(0x00, 0xFF, 0xFF);
-  FillWidget(dst, bright);
-#endif
 
   // This function paints one row at a time.
   // To make indexing sane, |images| points at the current row of images,
@@ -125,10 +120,7 @@ void NineBox::TileImage(GtkWidget* dst, GdkPixbuf* src,
   const int dst_width = dst->allocation.width;
   const int dst_height = dst->allocation.height;
 
-  x1 += dst->allocation.x;
-  y1 += dst->allocation.y;
-  x2 += dst->allocation.x;
-  y2 += dst->allocation.y;
+  gfx::Point offset = GetWindowRelativeCoords(dst);
 
   // We only tile along one axis (see above TODO about nuking all this code),
   // dx or dy will be nonzero along that axis.
@@ -141,7 +133,7 @@ void NineBox::TileImage(GtkWidget* dst, GdkPixbuf* src,
 
   for (int x = x1, y = y1; x < x2 || y < y2; x += dx, y += dy) {
     gdk_draw_pixbuf(dst->window, gc, src, 0, 0,
-                    x, y,
+                    offset.x() + x, offset.y() + y,
                     dx ? std::min(src_width,  dst_width - x) : src_width,
                     dy ? std::min(src_height, dst_height - y) : src_height,
                     GDK_RGB_DITHER_NONE, 0, 0);
