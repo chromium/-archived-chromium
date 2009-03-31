@@ -26,8 +26,32 @@ class SkWStream;
 
 /** \class SkFontHost
 
-    This class is ported to each environment. It is responsible for bridging the gap
-    between SkTypeface and the resulting platform-specific instance of SkScalerContext.
+    This class is ported to each environment. It is responsible for bridging
+    the gap between the (sort of) abstract class SkTypeface and the
+    platform-specific implementation that provides access to font files.
+ 
+    One basic task is for each create (subclass of) SkTypeface, the FontHost is
+    resonsible for assigning a uniqueID. The ID should be unique for the
+    underlying font file/data, not unique per typeface instance. Thus it is
+    possible/common to request a typeface for the same font more than once
+    (e.g. asking for the same font by name several times). The FontHost may
+    return seperate typeface instances in that case, or it may choose to use a
+    cache and return the same instance (but calling typeface->ref(), since the
+    caller is always responsible for calling unref() on each instance that is
+    returned). Either way, the fontID for those instance(s) will be the same.
+    In addition, the fontID should never be set to 0. That value is used as a
+    sentinel to indicate no-font-id.
+ 
+    The major aspects are:
+    1) Given either a name/style, return a subclass of SkTypeface that
+        references the closest matching font available on the host system.
+    2) Given the data for a font (either in a stream or a file name), return
+        a typeface that allows access to that data.
+    3) Each typeface instance carries a 32bit ID for its corresponding font.
+        SkFontHost turns that ID into a stream to access the font's data.
+    4) Given a font ID, return a subclass of SkScalerContext, which connects a
+        font scaler (e.g. freetype or other) to the font's data.
+    5) Utilites to manage the font cache (budgeting) and gamma correction
 */
 class SkFontHost {
 public:

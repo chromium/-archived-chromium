@@ -73,6 +73,9 @@ class SkScalerContext_FreeType : public SkScalerContext {
 public:
     SkScalerContext_FreeType(const SkDescriptor* desc);
     virtual ~SkScalerContext_FreeType();
+    bool success() const {
+        return fFaceRec != NULL && fFTSize != NULL;
+    }
 
 protected:
     virtual unsigned generateGlyphCount() const;
@@ -110,7 +113,7 @@ struct SkFaceRec {
 
     SkFaceRec(SkStream* strm, uint32_t fontID);
     ~SkFaceRec() {
-        SkFontHost::CloseStream(fFontID, fSkStream);
+        fSkStream->unref();
     }
 };
 
@@ -156,6 +159,7 @@ SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
     fFTStream.close = sk_stream_close;
 }
 
+// Will return 0 on failure
 static SkFaceRec* ref_ft_face(uint32_t fontID) {
     SkFaceRec* rec = gFaceRecHead;
     while (rec) {
@@ -170,7 +174,6 @@ static SkFaceRec* ref_ft_face(uint32_t fontID) {
     SkStream* strm = SkFontHost::OpenStream(fontID);
     if (NULL == strm) {
         SkDEBUGF(("SkFontHost::OpenStream failed opening %x\n", fontID));
-        sk_throw();
         return 0;
     }
 
@@ -197,7 +200,6 @@ static SkFaceRec* ref_ft_face(uint32_t fontID) {
     if (err) {    // bad filename, try the default font
         fprintf(stderr, "ERROR: unable to open font '%x'\n", fontID);
         SkDELETE(rec);
-        sk_throw();
         return 0;
     } else {
         SkASSERT(rec->fFace);
@@ -235,7 +237,7 @@ static void unref_ft_face(FT_Face face) {
 ///////////////////////////////////////////////////////////////////////////
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
-        : SkScalerContext(desc), fFTSize(NULL) {
+        : SkScalerContext(desc) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     FT_Error    err;
@@ -248,8 +250,13 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
     ++gFTCount;
 
     // load the font file
+    fFTSize = NULL;
+    fFace = NULL;
     fFaceRec = ref_ft_face(fRec.fFontID);
-    fFace = fFaceRec ? fFaceRec->fFace : NULL;
+    if (NULL == fFaceRec) {
+        return;
+    }
+    fFace = fFaceRec->fFace;
 
     // compute our factors from the record
 
@@ -308,13 +315,14 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
             render_flags = FT_LOAD_TARGET_LIGHT;
             break;
         case kNormal_Hints:
-            // Uncommenting the following line disables the font's hinting
-            // tables. For test_shell we want font hinting on so that we can
-            // generate baselines that look at little like Firefox. It's
-            // expected that Mike Reed will rework this code sometime soon so
-            // we don't wish to make more extensive changes.
-            //flags |= FT_LOAD_FORCE_AUTOHINT;
-#ifdef ANDROID
+#ifndef ANDROID
+            // The following line disables the font's hinting tables. For
+            // Chromium we want font hinting on so that we can generate
+            // baselines that look at little like Firefox. It's expected that
+            // Mike Reed will rework this code sometime soon so we don't wish
+            // to make more extensive changes.
+            flags |= FT_LOAD_FORCE_AUTOHINT;
+#else
             /*  Switch to light hinting (vertical only) to address some chars
                 that behaved poorly with NORMAL. In the future we could consider
                 making this choice exposed at runtime to the caller.
@@ -425,17 +433,6 @@ static FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
     }
 }
 
-static void set_glyph_metrics_on_error(SkGlyph* glyph) {
-    glyph->fRsbDelta = 0;
-    glyph->fLsbDelta = 0;
-    glyph->fWidth    = 0;
-    glyph->fHeight   = 0;
-    glyph->fTop      = 0;
-    glyph->fLeft     = 0;
-    glyph->fAdvanceX = 0;
-    glyph->fAdvanceY = 0;
-}
-
 void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
 #ifdef FT_ADVANCES_H
    /* unhinted and light hinted text have linearly scaled advances
@@ -445,7 +442,7 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
         SkAutoMutexAcquire  ac(gFTMutex);
 
         if (this->setupSize()) {
-            set_glyph_metrics_on_error(glyph);
+            glyph->zeroMetrics();
             return;
         }
 
@@ -486,7 +483,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         SkDEBUGF(("SkScalerContext_FreeType::generateMetrics(%x): FT_Load_Glyph(glyph:%d flags:%d) returned 0x%x\n",
                     fFaceRec->fFontID, glyph->getGlyphID(fBaseGlyphCount), fLoadGlyphFlags, err));
     ERROR:
-        set_glyph_metrics_on_error(glyph);
+        glyph->zeroMetrics();
         return;
     }
 
@@ -633,7 +630,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
 #define ft2sk(x)    SkFixedToScalar((x) << 10)
 
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 3
+#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 2
     #define CONST_PARAM const
 #else   // older freetype doesn't use const here
     #define CONST_PARAM
@@ -867,7 +864,12 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 ////////////////////////////////////////////////////////////////////////
 
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
-    return SkNEW_ARGS(SkScalerContext_FreeType, (desc));
+    SkScalerContext_FreeType* c = SkNEW_ARGS(SkScalerContext_FreeType, (desc));
+    if (!c->success()) {
+        SkDELETE(c);
+        c = NULL;
+    }
+    return c;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
