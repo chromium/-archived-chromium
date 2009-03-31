@@ -18,6 +18,7 @@ env.ApplySConscript([
     '$NET_DIR/using_net.scons',
     '$SKIA_DIR/using_skia.scons',
     '$ZLIB_DIR/using_zlib.scons',
+    '$CHROME_SRC_DIR/build/using_v8.scons',
 ])
 
 env.Prepend(
@@ -42,7 +43,6 @@ env.Prepend(
         'V8Bindings',
         'v8_snapshot',
         'libxml',
-        'v8_g',
         'port',
         'renderer',
         'JavaScriptCore_pcre',
