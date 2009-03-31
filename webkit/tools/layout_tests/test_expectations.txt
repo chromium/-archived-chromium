@@ -1468,7 +1468,7 @@ MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/table/003.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
-MAC WIN : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+MAC WIN LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
@@ -2148,7 +2148,6 @@ DEBUG LINUX : LayoutTests/fast/dom/dir-no-body.html = FAIL
 DEBUG LINUX : LayoutTests/fast/dynamic/containing-block-change.html = FAIL
 DEBUG LINUX : LayoutTests/fast/parser/bad-xml-slash.html = FAIL
 DEBUG LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
-DEBUG LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 DEBUG LINUX : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
 DEBUG LINUX : LayoutTests/fast/canvas/canvas-pattern-transform.html = CRASH
 DEBUG LINUX : LayoutTests/svg/custom/mask-excessive-malloc.svg = CRASH
@@ -2281,7 +2280,6 @@ DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAI
 DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
 // Adding more failures after the last merge:
-WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
@@ -2352,7 +2350,7 @@ DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = 
 DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
 
 // Merge WebKit: 41999:42026, needs a rebaseline.
-DEFER WIN MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+DEFER MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
 LayoutTests/fast/block/positioning/002.html = FAIL
@@ -2394,12 +2392,20 @@ WIN LINUX : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
-WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-WIN LINUX : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
-WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
+LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+WIN : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = CRASH
+MAC : LayoutTests/http/tests/navigation/post-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/post-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
+MAC : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
+MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
+MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
+MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
 
 // Merge WebKit: 42026:42115 new tests
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
