@@ -137,7 +137,7 @@ CPError CPB_GetCommandLineArgumentsCommon(const char* url,
     if (file_util::AbsolutePath(&user_data_dir) &&
         file_util::PathExists(user_data_dir)) {
       arguments_w += std::wstring(L"--") + switches::kUserDataDir +
-                     L'=' + user_data_dir;
+                     L"=\"" + user_data_dir + L"\" ";
     }
   }
 
