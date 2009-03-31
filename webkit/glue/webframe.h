@@ -11,8 +11,6 @@
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/console_message_level.h"
 #include "webkit/glue/feed.h"
-#include "webkit/glue/find_in_page_request.h"
-#include "webkit/glue/webscriptsource.h"
 
 class WebDataSource;
 class WebError;
@@ -24,6 +22,11 @@ struct NPObject;
 namespace gfx {
 class Rect;
 class Size;
+}
+
+namespace WebKit {
+struct WebFindInPageRequest;
+struct WebScriptSource;
 }
 
 // Every frame in a web page is represented by one WebFrame, including the
@@ -91,14 +94,14 @@ class WebFrame {
                                           const GURL& fake_url) = 0;
 
   // Executes JavaScript in the web frame.
-  virtual void ExecuteScript(const webkit_glue::WebScriptSource& source) = 0;
+  virtual void ExecuteScript(const WebKit::WebScriptSource& source) = 0;
 
   // Executes JavaScript in a new context associated with the web frame. The
   // script gets its own global scope and its own prototypes for intrinsic
   // JavaScript objects (String, Array, and so-on). It shares the wrappers for
   // all DOM nodes and DOM constructors.
   virtual void ExecuteScriptInNewContext(
-      const webkit_glue::WebScriptSource* sources, int num_sources) = 0;
+      const WebKit::WebScriptSource* sources, int num_sources) = 0;
 
   // Inserts the given CSS styles at the beginning of the document.
   virtual bool InsertCSSStyles(const std::string& css) = 0;
@@ -212,7 +215,7 @@ class WebFrame {
   // If no match is found, this function clears all tickmarks and highlighting.
   //
   // Returns true if the search string was found, false otherwise.
-  virtual bool Find(const FindInPageRequest& request,
+  virtual bool Find(const WebKit::WebFindInPageRequest& request,
                     bool wrap_within_frame,
                     gfx::Rect* selection_rect) = 0;
 
@@ -235,7 +238,7 @@ class WebFrame {
   // cancel at any time (see CancelPendingScopingEffort). The parameter Request
   // specifies what to look for and Reset signals whether this is a brand new
   // request or a continuation of the last scoping effort.
-  virtual void ScopeStringMatches(FindInPageRequest request,
+  virtual void ScopeStringMatches(const WebKit::WebFindInPageRequest& request,
                                   bool reset) = 0;
 
   // Cancels any outstanding requests for scoping string matches on a frame.

@@ -254,6 +254,11 @@ bool DecodeImage(const std::string& image_data, SkBitmap* image) {
   return false;
 }
 
+// NOTE: This pair of conversion functions are here instead of in glue_util.cc
+// since that file will eventually die.  This pair of functions will need to
+// remain as the concept of a file-path specific character encoding string type
+// will most likely not make its way into WebKit.
+
 FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str) {
 #if defined(OS_POSIX)
   return base::SysWideToNativeMB(UTF16ToWideHack(str));

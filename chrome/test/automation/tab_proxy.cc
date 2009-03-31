@@ -51,17 +51,17 @@ int TabProxy::FindInPage(const std::wstring& search_string,
   if (!is_valid())
     return -1;
 
-  FindInPageRequest request = {0};
-  request.search_string = WideToUTF16(search_string);
-  request.find_next = find_next;
-  // The explicit comparison to TRUE avoids a warning (C4800).
-  request.match_case = match_case == TRUE;
-  request.forward = forward == TRUE;
+  AutomationMsg_Find_Params params;
+  params.unused = 0;
+  params.search_string = WideToUTF16Hack(search_string);
+  params.find_next = find_next;
+  params.match_case = (match_case == CASE_SENSITIVE);
+  params.forward = (forward == FWD);
 
   int matches = 0;
   int ordinal2 = 0;
   bool succeeded = sender_->Send(new AutomationMsg_Find(0, handle_,
-                                                        request,
+                                                        params,
                                                         &ordinal2,
                                                         &matches));
   if (!succeeded)
@@ -622,4 +622,3 @@ void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
   sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
 }
 #endif  // defined(OS_WIN)
-

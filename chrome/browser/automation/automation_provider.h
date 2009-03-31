@@ -26,7 +26,6 @@
 #include "chrome/common/notification_observer.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/views/event.h"
-#include "webkit/glue/find_in_page_request.h"
 
 #if defined(OS_WIN)
 // TODO(port): enable these.
@@ -234,7 +233,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Responds to the FindInPage request, retrieves the search query parameters,
   // launches an observer to listen for results and issues a StartFind request.
   void HandleFindRequest(int handle,
-                         const FindInPageRequest& request,
+                         const AutomationMsg_Find_Params& params,
                          IPC::Message* reply_message);
 
   // Responds to requests to open the FindInPage window.

@@ -18,7 +18,9 @@ class String;
 }
 
 namespace WebKit {
+class WebCString;
 class WebString;
+class WebURL;
 }
 
 namespace gfx {
@@ -47,6 +49,14 @@ WebCore::String String16ToString(const string16& str);
 std::string StringToStdString(const WebCore::String& str);
 WebCore::String StdStringToString(const std::string& str);
 
+// WebCore::String <-> WebString.  No charset conversion.
+WebKit::WebString StringToWebString(const WebCore::String& str);
+WebCore::String WebStringToString(const WebKit::WebString& str);
+
+// WebCore::CString <-> WebCString.  No charset conversion.
+WebKit::WebCString CStringToWebCString(const WebCore::CString& str);
+WebCore::CString WebCStringToCString(const WebKit::WebCString& str);
+
 FilePath::StringType StringToFilePathString(const WebCore::String& str);
 WebCore::String FilePathStringToString(const FilePath::StringType& str);
 
@@ -56,6 +66,9 @@ WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str);
 GURL KURLToGURL(const WebCore::KURL& url);
 WebCore::KURL GURLToKURL(const GURL& url);
 GURL StringToGURL(const WebCore::String& spec);
+
+WebKit::WebURL KURLToWebURL(const WebCore::KURL& url);
+WebCore::KURL WebURLToKURL(const WebKit::WebURL& url);
 
 gfx::Rect FromIntRect(const WebCore::IntRect& r);
 WebCore::IntRect ToIntRect(const gfx::Rect& r);

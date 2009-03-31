@@ -8,7 +8,11 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 namespace extensions_v8 {
 
@@ -108,14 +112,14 @@ void ExtensionProcessBindings::ExecuteCallbackInFrame(
   std::string code = "chromium._dispatchCallback(";
   code += IntToString(callback_id);
   code += ", '";
-  
+
   size_t offset = code.length();
   code += response;
   ReplaceSubstringsAfterOffset(&code, offset, "\\", "\\\\");
   ReplaceSubstringsAfterOffset(&code, offset, "'", "\\'");
   code += "')";
 
-  frame->ExecuteScript(webkit_glue::WebScriptSource(code));
+  frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(code)));
 }
 
 }  // namespace extensions_v8

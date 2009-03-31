@@ -8,12 +8,14 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webscriptsource.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "webkit/tools/test_shell/test_shell_test.h"
 
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 // Provides functionality for creating plugin tests.
 class PluginTest : public TestShellTest {
@@ -69,8 +71,10 @@ TEST_F(PluginTest, DISABLED_Refresh) {
   test_shell_->WaitTestFinished();
 
   std::wstring text;
-  webkit_glue::WebScriptSource call_check("check();");
-  webkit_glue::WebScriptSource refresh("navigator.plugins.refresh(false)");
+  WebScriptSource call_check(
+      WebString::fromUTF8("check();"));
+  WebScriptSource refresh(
+      WebString::fromUTF8("navigator.plugins.refresh(false)"));
 
   test_shell_->webView()->GetMainFrame()->ExecuteScript(call_check);
   test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);

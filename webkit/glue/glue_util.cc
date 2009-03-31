@@ -2,6 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO(darin): This file will be deleted once we complete the move to
+// third_party/WebKit/WebKit/chromium
+
+// In this file, we pretend to be part of the WebKit implementation.
+// This is just a temporary hack while glue is still being moved into
+// third_party/WebKit/WebKit/chromium.
+#define WEBKIT_IMPLEMENTATION 1
+
 #include "config.h"
 #include "webkit/glue/glue_util.h"
 
@@ -20,11 +28,7 @@
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
-
-
-// TODO(darin): This file will be deleted once we complete the move to
-// third_party/WebKit/WebKit/chromium
-
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 
 namespace webkit_glue {
 
@@ -82,6 +86,22 @@ WebCore::String StdStringToString(const std::string& str) {
                                    static_cast<unsigned>(str.length()));
 }
 
+WebKit::WebString StringToWebString(const WebCore::String& str) {
+  return str;
+}
+
+WebCore::String WebStringToString(const WebKit::WebString& str) {
+  return str;
+}
+
+WebKit::WebCString CStringToWebCString(const WebCore::CString& str) {
+  return str;
+}
+
+WebCore::CString WebCStringToCString(const WebKit::WebCString& str) {
+  return str;
+}
+
 FilePath::StringType StringToFilePathString(const WebCore::String& str) {
 #if defined(OS_WIN)
   return StringToStdWString(str);
@@ -125,6 +145,14 @@ WebCore::KURL GURLToKURL(const GURL& url) {
 
 GURL StringToGURL(const WebCore::String& spec) {
   return GURL(WideToUTF8(StringToStdWString(spec)));
+}
+
+WebKit::WebURL KURLToWebURL(const WebCore::KURL& url) {
+  return url;
+}
+
+WebCore::KURL WebURLToKURL(const WebKit::WebURL& url) {
+  return url;
 }
 
 // Rect conversions ------------------------------------------------------------

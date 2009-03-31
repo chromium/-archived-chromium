@@ -25,6 +25,7 @@
 #include "net/http/http_response_headers.h"
 #include "net/url_request/url_request_status.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/context_menu.h"
@@ -368,6 +369,27 @@ struct ViewHostMsg_Audio_CreateStream {
 };
 
 namespace IPC {
+
+template <>
+struct ParamTraits<WebKit::WebString> {
+  typedef WebKit::WebString param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteData(reinterpret_cast<const char*>(p.data()),
+                 static_cast<int>(p.length()));
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    const char* data;
+    int length;
+    if (!m->ReadData(iter, &data, &length))
+      return false;
+    p->assign(reinterpret_cast<const WebKit::WebUChar*>(data),
+              static_cast<size_t>(length));
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(UTF16ToWideHack(p));
+  }
+};
 
 template <>
 struct ParamTraits<ResourceType::Type> {
@@ -1920,6 +1942,29 @@ struct ParamTraits<AudioOutputStream::State> {
     }
 
     LogParam(state, l);
+  }
+};
+
+template <>
+struct ParamTraits<WebKit::WebFindInPageRequest> {
+  typedef WebKit::WebFindInPageRequest param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.identifier);
+    WriteParam(m, p.text);
+    WriteParam(m, p.forward);
+    WriteParam(m, p.matchCase);
+    WriteParam(m, p.findNext);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->identifier) &&
+      ReadParam(m, iter, &p->text) &&
+      ReadParam(m, iter, &p->forward) &&
+      ReadParam(m, iter, &p->matchCase) &&
+      ReadParam(m, iter, &p->findNext);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<FindInPageRequest>");
   }
 };
 

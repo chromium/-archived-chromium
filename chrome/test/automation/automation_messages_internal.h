@@ -13,11 +13,11 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "base/string16.h"
 #include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/test/automation/autocomplete_edit_proxy.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/glue/find_in_page_request.h"
 
 // NOTE: All IPC messages have either a routing_id of 0 (for asynchronous
 //       messages), or one that's been assigned by the proxy (for calls
@@ -299,8 +299,8 @@ IPC_BEGIN_MESSAGES(Automation)
   // (1=case sensitive, 0=case insensitive). If an error occurs, matches_found
   // will be -1.
   //
-  // NOTE: These two messages have been deprecated, please use the new messages
-  // AutomationMsg_FindRequest and AutomationMsg_FindInPageResponse2 below.
+  // NOTE: This message has been deprecated, please use the new message
+  // AutomationMsg_Find below.
   //
   IPC_SYNC_MESSAGE_ROUTED4_2(AutomationMsg_FindInPage,   // DEPRECATED.
                              int, /* tab_handle */
@@ -746,12 +746,11 @@ IPC_BEGIN_MESSAGES(Automation)
 
   // This message starts a find within a tab corresponding to the supplied
   // tab handle. The parameter |request| specifies what to search for.
-  // If an error occurs, |matches_found| will be -1 (see response message
-  // AutomationMsg_FindInPageResponse2).
+  // If an error occurs, |matches_found| will be -1.
   //
   IPC_SYNC_MESSAGE_ROUTED2_2(AutomationMsg_Find,
-                             int, /* tab_handle */
-                             FindInPageRequest /* request */,
+                             int /* tab_handle */,
+                             AutomationMsg_Find_Params /* params */,
                              int /* active_ordinal */,
                              int /* matches_found */)
 

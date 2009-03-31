@@ -9,12 +9,16 @@
 #include "base/perftimer.h"
 #include "base/pickle.h"
 #include "base/shared_memory.h"
+#include "base/string_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webscriptsource.h"
 
 #include "grit/renderer_resources.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 // These two strings are injected before and after the Greasemonkey API and
 // user script to wrap it in an anonymous scope.
@@ -104,7 +108,7 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
   PerfTimer timer;
   int num_matched = 0;
 
-  std::vector<webkit_glue::WebScriptSource> sources;
+  std::vector<WebScriptSource> sources;
   for (size_t i = 0; i < scripts_.size(); ++i) {
     UserScript* script = scripts_[i];
     if (!script->MatchesUrl(frame->GetURL()))
@@ -121,15 +125,15 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
     if (script->run_location() == location) {
       for (size_t j = 0; j < script->js_scripts().size(); ++j) {
         UserScript::File &file = script->js_scripts()[j];
-        sources.push_back(webkit_glue::WebScriptSource(
-          file.GetContent().as_string(), file.url()));
+        sources.push_back(WebScriptSource(
+            WebString::fromUTF8(file.GetContent()), file.url()));
       }
     }
   }
 
   if (!sources.empty()) {
-    sources.insert(sources.begin(),
-                   webkit_glue::WebScriptSource(api_js_.as_string()));
+    sources.insert(
+        sources.begin(), WebScriptSource(WebString::fromUTF8(api_js_)));
     frame->ExecuteScriptInNewContext(&sources.front(), sources.size());
   }
 

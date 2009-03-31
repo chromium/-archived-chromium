@@ -49,6 +49,7 @@
 #include "printing/units.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/image_operations.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
@@ -84,6 +85,7 @@
 
 using base::TimeDelta;
 using webkit_glue::WebAccessibility;
+using WebKit::WebScriptSource;
 
 //-----------------------------------------------------------------------------
 
@@ -2083,7 +2085,7 @@ GURL RenderView::GetAlternateErrorPageURL(const GURL& failedURL,
   return url;
 }
 
-void RenderView::OnFind(const FindInPageRequest& request) {
+void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
   WebFrame* main_frame = webview()->GetMainFrame();
   WebFrame* frame_after_main = webview()->GetNextFrameAfter(main_frame, true);
   WebFrame* focused_frame = webview()->GetFocusedFrame();
@@ -2143,9 +2145,9 @@ void RenderView::OnFind(const FindInPageRequest& request) {
   //                fix for 792423.
   webview()->SetFocusedFrame(NULL);
 
-  if (request.find_next) {
+  if (request.findNext) {
     // Force the main_frame to report the actual count.
-    main_frame->IncreaseMatchCount(0, request.request_id);
+    main_frame->IncreaseMatchCount(0, request.identifier);
   } else {
     // If nothing is found, set result to "0 of 0", otherwise, set it to
     // "-1 of 1" to indicate that we found at least one item, but we don't know
@@ -2158,7 +2160,8 @@ void RenderView::OnFind(const FindInPageRequest& request) {
     bool final_status_update = !result;
 
     // Send the search result over to the browser process.
-    Send(new ViewHostMsg_Find_Reply(routing_id_, request.request_id,
+    Send(new ViewHostMsg_Find_Reply(routing_id_,
+                                    request.identifier,
                                     match_count,
                                     selection_rect,
                                     ordinal,
@@ -2434,8 +2437,7 @@ void RenderView::EvaluateScript(const std::wstring& frame_xpath,
   if (!web_frame)
     return;
 
-  web_frame->ExecuteScript(
-      webkit_glue::WebScriptSource(WideToUTF8(script)));
+  web_frame->ExecuteScript(WebScriptSource(WideToUTF16Hack(script)));
 }
 
 void RenderView::InsertCSS(const std::wstring& frame_xpath,

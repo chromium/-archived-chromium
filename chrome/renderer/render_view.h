@@ -72,9 +72,10 @@ class WaitableEvent;
 
 namespace webkit_glue {
 struct FileUploadData;
-//class WebAccessibility;
-//struct InParams;
-//struct OutParams;
+}
+
+namespace WebKit {
+struct WebFindInPageRequest;
 }
 
 // We need to prevent a page from trying to create infinite popups. It is not
@@ -484,7 +485,7 @@ class RenderView : public RenderWidget,
   void OnShowJavaScriptConsole();
   void OnSetupDevToolsClient();
   void OnCancelDownload(int32 download_id);
-  void OnFind(const FindInPageRequest& request);
+  void OnFind(const WebKit::WebFindInPageRequest& request);
   void OnZoom(int function);
   void OnSetPageEncoding(const std::wstring& encoding_name);
   void OnGetAllSavableResourceLinksForCurrentPage(const GURL& page_url);

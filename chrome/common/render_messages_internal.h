@@ -160,7 +160,7 @@ IPC_BEGIN_MESSAGES(View)
 
   // Sent when the user wants to search for a word on the page (find in page).
   // Request parameters are passed in as a FindInPageMsg_Request struct.
-  IPC_MESSAGE_ROUTED1(ViewMsg_Find, FindInPageRequest)
+  IPC_MESSAGE_ROUTED1(ViewMsg_Find, WebKit::WebFindInPageRequest)
 
   // Sent when the headers are available for a resource request.
   IPC_MESSAGE_ROUTED2(ViewMsg_Resource_ReceivedResponse,

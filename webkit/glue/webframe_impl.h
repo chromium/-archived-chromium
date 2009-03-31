@@ -91,9 +91,9 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
                                           const GURL& error_page_url,
                                           bool replace,
                                           const GURL& fake_url);
-  virtual void ExecuteScript(const webkit_glue::WebScriptSource& source);
+  virtual void ExecuteScript(const WebKit::WebScriptSource& source);
   virtual void ExecuteScriptInNewContext(
-      const webkit_glue::WebScriptSource* sources, int num_sources);
+      const WebKit::WebScriptSource* sources, int num_sources);
   virtual bool InsertCSSStyles(const std::string& css);
   virtual bool GetPreviousHistoryState(std::string* history_state) const;
   virtual bool GetCurrentHistoryState(std::string* history_state) const;
@@ -124,11 +124,12 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual NPObject* GetWindowNPObject();
 
   virtual void GetContentAsPlainText(int max_chars, std::wstring* text) const;
-  virtual bool Find(const FindInPageRequest& request,
-                    bool wrap_within_frame,
-                    gfx::Rect* selection_rect);
+  virtual bool Find(
+      const WebKit::WebFindInPageRequest& request, bool wrap_within_frame,
+      gfx::Rect* selection_rect);
   virtual void StopFinding(bool clear_selection);
-  virtual void ScopeStringMatches(FindInPageRequest request, bool reset);
+  virtual void ScopeStringMatches(
+      const WebKit::WebFindInPageRequest& request, bool reset);
   virtual void CancelPendingScopingEffort();
   virtual void ResetMatchCount();
   virtual bool Visible();
@@ -386,7 +387,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // It is not necessary if the frame is invisible, for example, or if this
   // is a repeat search that already returned nothing last time the same prefix
   // was searched.
-  bool ShouldScopeMatches(FindInPageRequest request);
+  bool ShouldScopeMatches(const WebKit::WebFindInPageRequest& request);
 
   // Only for test_shell
   int PendingFrameUnloadEventCount() const;

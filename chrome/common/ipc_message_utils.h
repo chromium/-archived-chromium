@@ -20,7 +20,6 @@
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/transport_dib.h"
 #include "webkit/glue/console_message_level.h"
-#include "webkit/glue/find_in_page_request.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -1387,30 +1386,6 @@ class MessageWithReply : public SyncMessage {
   static void WriteReplyParams(Message* reply, TA a, TB b, TC c, TD d, TE e) {
     ReplyParam p(a, b, c, d, e);
     WriteParam(reply, p);
-  }
-};
-
-// Traits for ViewMsg_FindInPageMsg_Request structure to pack/unpack.
-template <>
-struct ParamTraits<FindInPageRequest> {
-  typedef FindInPageRequest param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.request_id);
-    WriteParam(m, p.search_string);
-    WriteParam(m, p.forward);
-    WriteParam(m, p.match_case);
-    WriteParam(m, p.find_next);
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    return
-      ReadParam(m, iter, &p->request_id) &&
-      ReadParam(m, iter, &p->search_string) &&
-      ReadParam(m, iter, &p->forward) &&
-      ReadParam(m, iter, &p->match_case) &&
-      ReadParam(m, iter, &p->find_next);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<FindInPageRequest>");
   }
 };
 

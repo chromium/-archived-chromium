@@ -152,6 +152,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebFindInPageRequest.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebImage.h"
 					>
 				</File>
@@ -173,6 +177,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebRect.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebScriptSource.h"
 					>
 				</File>
 				<File

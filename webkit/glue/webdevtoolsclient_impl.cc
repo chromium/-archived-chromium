@@ -21,7 +21,7 @@
 #include "base/json_writer.h"
 #include "base/string_util.h"
 #include "base/values.h"
-
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/devtools/debugger_agent.h"
 #include "webkit/glue/devtools/devtools_rpc_js.h"
 #include "webkit/glue/devtools/dom_agent.h"
@@ -40,6 +40,8 @@ using WebCore::Node;
 using WebCore::Page;
 using WebCore::SecurityOrigin;
 using WebCore::String;
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 DEFINE_RPC_JS_BOUND_OBJ(DebuggerAgent, DEBUGGER_AGENT_STRUCT,
     DebuggerAgentDelegate, DEBUGGER_AGENT_DELEGATE_STRUCT)
@@ -126,7 +128,8 @@ void WebDevToolsClientImpl::DispatchMessageFromAgent(
           || net_agent_obj_->Dispatch(*message.get(), &expr)
           || tools_agent_obj_->Dispatch(*message.get(), &expr)
           || debugger_agent_obj_->Dispatch(*message.get(), &expr)) {
-    web_view_impl_->GetMainFrame()->ExecuteScript(expr);
+    web_view_impl_->GetMainFrame()->ExecuteScript(
+        WebScriptSource(WebString::fromUTF8(expr)));
   }
 }
 

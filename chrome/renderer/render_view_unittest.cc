@@ -10,10 +10,13 @@
 #include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
-#include "webkit/glue/webscriptsource.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 namespace {
 
@@ -42,7 +45,7 @@ class RenderViewTest : public testing::Test {
   // Executes the given JavaScript in the context of the main frame. The input
   // is a NULL-terminated UTF-8 string.
   void ExecuteJavaScript(const char* js) {
-    GetMainFrame()->ExecuteScript(webkit_glue::WebScriptSource(js));
+    GetMainFrame()->ExecuteScript(WebScriptSource(WebString::fromUTF8(js)));
   }
 
   // Loads the given HTML into the main frame as a data: URL.

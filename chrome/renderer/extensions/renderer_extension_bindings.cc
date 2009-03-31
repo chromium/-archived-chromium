@@ -6,7 +6,11 @@
 
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/render_thread.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/webframe.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 namespace {
 
@@ -94,7 +98,7 @@ void RendererExtensionBindings::HandleExtensionMessage(
   std::string script = StringPrintf(
       "void(chromium.Extension.dispatchOnMessage(\"%s\", %d))",
       message.c_str(), channel_id);
-  webframe->ExecuteScript(webkit_glue::WebScriptSource(script));
+  webframe->ExecuteScript(WebScriptSource(WebString::fromUTF8(script)));
 }
 
 }  // namespace extensions_v8

@@ -13,7 +13,47 @@
 #include "chrome/common/ipc_message_utils.h"
 #include "chrome/test/automation/automation_constants.h"
 
+struct AutomationMsg_Find_Params {
+  // Unused value, which exists only for backwards compat.
+  int unused;
+
+  // The word(s) to find on the page.
+  string16 search_string;
+
+  // Whether to search forward or backward within the page.
+  bool forward;
+
+  // Whether search should be Case sensitive.
+  bool match_case;
+
+  // Whether this operation is first request (Find) or a follow-up (FindNext).
+  bool find_next;
+};
+
 namespace IPC {
+
+template <>
+struct ParamTraits<AutomationMsg_Find_Params> {
+  typedef AutomationMsg_Find_Params param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.unused);
+    WriteParam(m, p.search_string);
+    WriteParam(m, p.forward);
+    WriteParam(m, p.match_case);
+    WriteParam(m, p.find_next);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+      ReadParam(m, iter, &p->unused) &&
+      ReadParam(m, iter, &p->search_string) &&
+      ReadParam(m, iter, &p->forward) &&
+      ReadParam(m, iter, &p->match_case) &&
+      ReadParam(m, iter, &p->find_next);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"<AutomationMsg_Find_Params>");
+  }
+};
 
 template <>
 struct ParamTraits<AutomationMsg_NavigationResponseValues> {

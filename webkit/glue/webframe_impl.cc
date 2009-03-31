@@ -135,6 +135,8 @@ MSVC_POP_WARNING();
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_operations_private.h"
@@ -191,6 +193,8 @@ using WebCore::SubstituteData;
 using WebCore::TextIterator;
 using WebCore::VisiblePosition;
 using WebCore::XPathResult;
+using WebKit::WebFindInPageRequest;
+using WebKit::WebScriptSource;
 
 // Key for a StatsCounter tracking how many WebFrames are active.
 static const char* const kWebFrameActiveCount = "WebFrameActiveCount";
@@ -932,16 +936,16 @@ void WebFrameImpl::ResetMatchCount() {
   frames_scoping_count_ = 0;
 }
 
-bool WebFrameImpl::Find(const FindInPageRequest& request,
+bool WebFrameImpl::Find(const WebFindInPageRequest& request,
                         bool wrap_within_frame,
                         gfx::Rect* selection_rect) {
   WebCore::String webcore_string =
-      webkit_glue::String16ToString(request.search_string);
+      webkit_glue::WebStringToString(request.text);
 
   WebFrameImpl* const main_frame_impl =
       static_cast<WebFrameImpl*>(GetView()->GetMainFrame());
 
-  if (!request.find_next)
+  if (!request.findNext)
     frame()->page()->unmarkAllTextMatches();
 
   // Starts the search from the current selection.
@@ -949,7 +953,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
 
   DCHECK(frame() && frame()->view());
   bool found = frame()->findString(webcore_string, request.forward,
-                                   request.match_case, wrap_within_frame,
+                                   request.matchCase, wrap_within_frame,
                                    start_in_selection);
   if (found) {
 #if defined(OS_WIN)
@@ -978,7 +982,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
       curr_selection_rect = active_match_->boundingBox();
     }
 
-    if (!request.find_next) {
+    if (!request.findNext) {
       // This is a Find operation, so we set the flag to ask the scoping effort
       // to find the active rect for us so we can update the ordinal (n of m).
       locating_active_rect_ = true;
@@ -1011,7 +1015,7 @@ bool WebFrameImpl::Find(const FindInPageRequest& request,
 
         ReportFindInPageSelection(rect,
                                   active_match_index_ + 1,
-                                  request.request_id);
+                                  request.identifier);
       }
 #endif
     }
@@ -1043,7 +1047,7 @@ int WebFrameImpl::OrdinalOfFirstMatchForFrame(WebFrameImpl* frame) const {
   return ordinal;
 }
 
-bool WebFrameImpl::ShouldScopeMatches(FindInPageRequest request) {
+bool WebFrameImpl::ShouldScopeMatches(const WebFindInPageRequest& request) {
   // Don't scope if we can't find a frame or if the frame is not visible.
   // The user may have closed the tab/application, so abort.
   if (!frame() || !Visible())
@@ -1058,7 +1062,7 @@ bool WebFrameImpl::ShouldScopeMatches(FindInPageRequest request) {
       !last_search_string_.empty() && last_match_count_ == 0) {
     // Check to see if the search string prefixes match.
     string16 previous_search_prefix =
-        request.search_string.substr(0, last_search_string_.length());
+        string16(request.text).substr(0, last_search_string_.length());
 
     if (previous_search_prefix == last_search_string_) {
       return false;  // Don't search this frame, it will be fruitless.
@@ -1119,7 +1123,7 @@ void WebFrameImpl::AddMarker(WebCore::Range* range) {
   }
 }
 
-void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
+void WebFrameImpl::ScopeStringMatches(const WebFindInPageRequest& request,
                                       bool reset) {
   if (!ShouldScopeMatches(request))
     return;
@@ -1152,7 +1156,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   }
 
   WebCore::String webcore_string =
-      webkit_glue::String16ToString(request.search_string);
+      webkit_glue::WebStringToString(request.text);
 
   RefPtr<Range> search_range(rangeOfContents(frame()->document()));
 
@@ -1187,7 +1191,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
     RefPtr<Range> result_range(findPlainText(search_range.get(),
                                             webcore_string,
                                             true,
-                                            request.match_case));
+                                            request.matchCase));
     if (result_range->collapsed(ec)) {
       if (!result_range->startContainer()->isInShadowTree())
         break;
@@ -1251,7 +1255,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
             webkit_glue::FromIntRect(
                 frame()->view()->convertToContainingWindow(result_bounds)),
                 active_match_index_ + 1,
-                request.request_id);
+                request.identifier);
   #endif
       }
     }
@@ -1262,7 +1266,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
 
   // Remember what we search for last time, so we can skip searching if more
   // letters are added to the search string (and last outcome was 0).
-  last_search_string_ = request.search_string;
+  last_search_string_ = request.text;
 
   if (match_count > 0) {
     frame()->setMarkedTextMatchesAreHighlighted(true);
@@ -1270,7 +1274,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
     last_match_count_ += match_count;
 
     // Let the mainframe know how much we found during this pass.
-    main_frame_impl->IncreaseMatchCount(match_count, request.request_id);
+    main_frame_impl->IncreaseMatchCount(match_count, request.identifier);
   }
 
   if (timeout) {
@@ -1298,7 +1302,7 @@ void WebFrameImpl::ScopeStringMatches(FindInPageRequest request,
   // If this is the last frame to finish scoping we need to trigger the final
   // update to be sent.
   if (main_frame_impl->frames_scoping_count_ == 0)
-    main_frame_impl->IncreaseMatchCount(0, request.request_id);
+    main_frame_impl->IncreaseMatchCount(0, request.identifier);
 
   // This frame is done, so show any scrollbar tickmarks we haven't drawn yet.
   InvalidateArea(INVALIDATE_SCROLLBAR);
@@ -1695,12 +1699,12 @@ void WebFrameImpl::LoadAlternateHTMLErrorPage(const WebRequest* request,
                                       error_page_url));
 }
 
-void WebFrameImpl::ExecuteScript(const webkit_glue::WebScriptSource& source) {
+void WebFrameImpl::ExecuteScript(const WebScriptSource& source) {
   frame_->loader()->executeScript(
       WebCore::ScriptSourceCode(
-          webkit_glue::StdStringToString(source.source),
-          webkit_glue::GURLToKURL(source.url),
-          source.start_line));
+          webkit_glue::WebStringToString(source.code),
+          webkit_glue::WebURLToKURL(source.url),
+          source.startLine));
 }
 
 bool WebFrameImpl::InsertCSSStyles(const std::string& css) {
@@ -1723,14 +1727,14 @@ bool WebFrameImpl::InsertCSSStyles(const std::string& css) {
 }
 
 void WebFrameImpl::ExecuteScriptInNewContext(
-    const webkit_glue::WebScriptSource* sources_in, int num_sources) {
+    const WebScriptSource* sources_in, int num_sources) {
   Vector<WebCore::ScriptSourceCode> sources;
 
   for (int i = 0; i < num_sources; ++i) {
     sources.append(WebCore::ScriptSourceCode(
-        webkit_glue::StdStringToString(sources_in[i].source),
-        webkit_glue::GURLToKURL(sources_in[i].url),
-        sources_in[i].start_line));
+        webkit_glue::WebStringToString(sources_in[i].code),
+        webkit_glue::WebURLToKURL(sources_in[i].url),
+        sources_in[i].startLine));
   }
 
   frame_->script()->evaluateInNewContext(sources);

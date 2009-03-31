@@ -34,9 +34,11 @@
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
 #include "webkit/glue/autofill_form.h"
 
 using base::TimeDelta;
+using WebKit::WebFindInPageRequest;
 using WebKit::WebInputEvent;
 
 namespace {
@@ -351,12 +353,12 @@ void RenderViewHost::StartFinding(int request_id,
   if (search_string.empty())
     return;
 
-  FindInPageRequest request;
-  request.request_id = request_id;
-  request.search_string = search_string;
+  WebFindInPageRequest request;
+  request.identifier = request_id;
+  request.text = search_string;
   request.forward = forward;
-  request.match_case = match_case;
-  request.find_next = find_next;
+  request.matchCase = match_case;
+  request.findNext = find_next;
   Send(new ViewMsg_Find(routing_id(), request));
 
   // This call is asynchronous and returns immediately.

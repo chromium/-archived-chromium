@@ -23,7 +23,6 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/ipc_message_utils.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
@@ -1914,9 +1913,10 @@ void AutomationProvider::HandleFindInPageRequest(
   return;
 }
 
-void AutomationProvider::HandleFindRequest(int handle,
-                                           const FindInPageRequest& request,
-                                           IPC::Message* reply_message) {
+void AutomationProvider::HandleFindRequest(
+    int handle,
+    const AutomationMsg_Find_Params& params,
+    IPC::Message* reply_message) {
   if (!tab_tracker_->ContainsHandle(handle)) {
     AutomationMsg_FindInPage::WriteReplyParams(reply_message, -1, -1);
     Send(reply_message);
@@ -1937,8 +1937,8 @@ void AutomationProvider::HandleFindRequest(int handle,
         FindInPageNotificationObserver::kFindInPageRequestId);
     web_contents->render_view_host()->StartFinding(
         FindInPageNotificationObserver::kFindInPageRequestId,
-        request.search_string, request.forward, request.match_case,
-        request.find_next);
+        params.search_string, params.forward, params.match_case,
+        params.find_next);
   }
 }
 
