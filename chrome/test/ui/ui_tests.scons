@@ -43,6 +43,33 @@ env.Prepend(
         'sqlite',
         'WTF',
         'views',
+
+        'WebKit',
+        'WebCore',
+        'V8Bindings',
+        'v8_snapshot',
+        'libxml',
+        'v8_g',
+        'port',
+        'renderer',
+        'JavaScriptCore_pcre',
+
+        'jpeg',
+
+        'bzip2',
+        'X11',
+        'Xrender',
+        'Xext',
+
+        'media',
+        'sdch',
+        'views',
+
+        'hunspell',
+        'printing',
+        'modp_b64',
+        'debugger',
+
     ]
 )
 
