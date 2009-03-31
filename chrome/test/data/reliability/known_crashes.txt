@@ -32,7 +32,6 @@ PREFIX : browserrenderprocesshost::inituserscripts___browserrenderprocesshost::i
 
 PREFIX : chromeurldatamanager::dataavailable___runnablemethod<chromeurldatamanager,void (__thiscall chromeurldatamanager::*)(int,scoped_refptr<refcountedvector<unsigned char> >),tuple2<int,scoped_refptr<refcountedvector<unsigned char> > > >::run___messageloop::runtask___messageloop::dowork___base::messagepumpforio::dorunloop
 
-SUBSTRING : purecall___windowdragresponsetask::run___messageloop::runtask
 SUBSTRING : purecall___messageloop::runtask
 
 # 8352
@@ -85,4 +84,4 @@ PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore:
 PREFIX : webplugindelegateproxy::backgroundchanged___webplugindelegateproxy::paint___webpluginimpl::paint___webcore::renderwidget::paint
 
 # 8033
-PREFIX : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
+SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
