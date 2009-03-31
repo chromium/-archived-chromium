@@ -1358,6 +1358,7 @@
       'dependencies': [
         'common',
         'resources',
+        '../printing/printing.gyp:printing',
         '../skia/skia.gyp:skia',
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
@@ -1369,7 +1370,14 @@
         '..',
       ],
       'sources': [
-        # All .cc, .h, and .mm files under renderer except tests and mocks.
+	# TODO(jrg): to link ipc_tests, these files need to be in renderer.a.
+	# But app/ is the wrong directory for them.
+	# Better is to remove the dep of *_tests on renderer, but in the
+	# short term I'd like the build to work.
+        'app/breakpad_win.cc',
+        'app/breakpad_win.h',
+        'app/breakpad_mac.mm',
+        'app/breakpad_mac.h',
         'renderer/automation/dom_automation_controller.cc',
         'renderer/automation/dom_automation_controller.h',
         'renderer/extensions/extension_process_bindings.cc',
@@ -1480,10 +1488,6 @@
       ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
-        'app/breakpad_win.cc',
-        'app/breakpad_win.h',
-        'app/breakpad_mac.mm',
-        'app/breakpad_mac.h',
         'app/chrome_dll_main.cc',
         'app/chrome_dll_resource.h',
         'app/chrome_exe_main.cc',
@@ -1829,7 +1833,9 @@
       'target_name': 'ipc_tests',
       'type': 'executable',
       'dependencies': [
+        'browser',
         'common',
+	'renderer',
         'test_support_unit',
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
@@ -1859,6 +1865,7 @@
         'app',
         'browser',
         'common',
+	'renderer',
         'resources',
         'test_support_ui',
         '../base/base.gyp:base',
@@ -2269,6 +2276,7 @@
         'app',
         'browser',
         'common',
+	'renderer',
         'resources',
         'test_support_ui',
         '../base/base.gyp:base',
