@@ -238,11 +238,23 @@ void RenderThread::InformHostOfCacheStatsLater() {
       kCacheStatsDelayMS);
 }
 
+static void* CreateHistogram(
+    const char *name, int min, int max, size_t buckets) {
+  return new Histogram(name, min, max, buckets);
+}
+
+static void AddHistogramSample(void* hist, int sample) {
+  Histogram* histogram = static_cast<Histogram *>(hist);
+  histogram->Add(sample);
+}
+
 void RenderThread::EnsureWebKitInitialized() {
   if (webkit_client_.get())
     return;
 
   v8::V8::SetCounterFunction(StatsTable::FindLocation);
+  v8::V8::SetCreateHistogramFunction(CreateHistogram);
+  v8::V8::SetAddHistogramSampleFunction(AddHistogramSample);
 
   webkit_client_.reset(new RendererWebKitClientImpl);
   WebKit::initialize(webkit_client_.get());
