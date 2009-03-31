@@ -1017,8 +1017,8 @@ int DownloadManager::RemoveDownloadsBetween(const base::Time remove_begin,
                                             const base::Time remove_end) {
   RemoveDownloadsFromHistoryBetween(remove_begin, remove_end);
 
-  int num_deleted = 0;
   DownloadMap::iterator it = downloads_.begin();
+  std::vector<DownloadItem*> pending_deletes;
   while (it != downloads_.end()) {
     DownloadItem* download = it->second;
     DownloadItem::DownloadState state = download->state();
@@ -1034,9 +1034,8 @@ int DownloadManager::RemoveDownloadsBetween(const base::Time remove_begin,
       if (dit != dangerous_finished_.end())
         dangerous_finished_.erase(dit);
 
-      delete download;
+      pending_deletes.push_back(download);
 
-      ++num_deleted;
       continue;
     }
 
@@ -1044,8 +1043,13 @@ int DownloadManager::RemoveDownloadsBetween(const base::Time remove_begin,
   }
 
   // Tell observers to refresh their views.
+  int num_deleted = static_cast<int>(pending_deletes.size());
   if (num_deleted > 0)
     FOR_EACH_OBSERVER(Observer, observers_, ModelChanged());
+
+  // Delete the download items after updating the observers.
+  STLDeleteContainerPointers(pending_deletes.begin(), pending_deletes.end());
+  pending_deletes.clear();
 
   return num_deleted;
 }
