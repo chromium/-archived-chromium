@@ -2395,7 +2395,6 @@ WIN LINUX : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
 LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
-WIN : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = CRASH
 MAC : LayoutTests/http/tests/navigation/post-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/post-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
@@ -2404,6 +2403,9 @@ MAC : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
 MAC : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
 MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
+WIN : LayoutTests/editing/execCommand/paste-2.html = FAIL
+WIN : LayoutTests/editing/selection/4776665.html = FAIL
+WIN : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT PASS
 
 // Merge WebKit: 42026:42115 new tests
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
