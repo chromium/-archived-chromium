@@ -1785,37 +1785,10 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   if (!child_frame->tree()->parent())
     return NULL;
 
-  // The following code was pulled from WebFrame.mm:_loadURL, with minor
-  // modifications.  The purpose is to ensure we load the right HistoryItem for
-  // this child frame.
-  HistoryItem* parent_item = frame_->loader()->currentHistoryItem();
-  FrameLoadType load_type = frame_->loader()->loadType();
-  FrameLoadType child_load_type =
-      WebCore::FrameLoadTypeRedirectWithLockedBackForwardList;
-  KURL new_url = request.resourceRequest().url();
-
-  // If we're moving in the backforward list, we might want to replace the
-  // content of this child frame with whatever was there at that point.
-  if (parent_item && parent_item->children().size() != 0 &&
-      isBackForwardLoadType(load_type)) {
-    HistoryItem* child_item =
-        parent_item->childItemWithName(request.frameName());
-    if (child_item) {
-      // Use the original URL to ensure we get all the side-effects, such as
-      // onLoad handlers, of any redirects that happened. An example of where
-      // this is needed is Radar 3213556.
-      new_url = child_item->originalURL();
-      child_load_type = load_type;
-      child_frame->loader()->setProvisionalHistoryItem(child_item);
-    }
-  }
-
-  child_frame->loader()->loadURL(new_url,
-                                 request.resourceRequest().httpReferrer(),
-                                 child_frame->tree()->name(),
-                                 false,
-                                 child_load_type, 0, 0);
-
+  frame_->loader()->loadURLIntoChildFrame(
+      request.resourceRequest().url(),
+      request.resourceRequest().httpReferrer(),
+      child_frame.get());
   // A synchronous navigation (about:blank) would have already processed
   // onload, so it is possible for the frame to have already been destroyed by
   // script in the page.
