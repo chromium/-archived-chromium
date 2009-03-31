@@ -44,8 +44,11 @@ void ProxyConfigServiceWin::SetFromIEConfig(
     const WINHTTP_CURRENT_USER_IE_PROXY_CONFIG& ie_config) {
   if (ie_config.fAutoDetect)
     config->auto_detect = true;
-  if (ie_config.lpszProxy)
-    config->proxy_rules = WideToASCII(ie_config.lpszProxy);
+  if (ie_config.lpszProxy) {
+    // lpszProxy may be a single proxy, or a proxy per scheme. The format
+    // is compatible with ProxyConfig::ProxyRules's string format.
+    config->proxy_rules.ParseFromString(WideToASCII(ie_config.lpszProxy));
+  }
   if (ie_config.lpszProxyBypass) {
     std::string proxy_bypass = WideToASCII(ie_config.lpszProxyBypass);
 

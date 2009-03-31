@@ -22,6 +22,9 @@ class ProxyList {
   // delimited by a semicolon.
   void Set(const std::string& proxy_uri_list);
 
+  // Set the proxy list to a single entry, |proxy_server|.
+  void SetSingleProxyServer(const ProxyServer& proxy_server);
+
   // Remove all proxies known to be bad from the proxy list.
   void RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info);
 

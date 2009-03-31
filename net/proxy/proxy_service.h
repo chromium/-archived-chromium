@@ -141,6 +141,11 @@ class ProxyService {
   // (ProxyResolver runs on PAC thread.)
   int TryToCompleteSynchronously(const GURL& url, ProxyInfo* result);
 
+  // Set |result| with the proxy to use for |url|, based on |rules|.
+  void ApplyProxyRules(const GURL& url,
+                       const ProxyConfig::ProxyRules& rules,
+                       ProxyInfo* result);
+
   // Starts the PAC thread if it isn't already running.
   void InitPacThread();
 

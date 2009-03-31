@@ -8,7 +8,6 @@
 
 #include "base/compiler_specific.h"
 #include "base/logging.h"
-#include "base/string_tokenizer.h"
 #include "base/string_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_errors.h"
@@ -294,42 +293,7 @@ int ProxyService::TryToCompleteSynchronously(const GURL& url,
     result->config_was_tried_ = true;
 
     if (!config_.proxy_rules.empty()) {
-      if (ShouldBypassProxyForURL(url)) {
-        result->UseDirect();
-      } else {
-        // If proxies are specified on a per protocol basis, the proxy server
-        // field contains a list the format of which is as below:-
-        // "scheme1=url:port;scheme2=url:port", etc.
-        std::string url_scheme = url.scheme();
-
-        StringTokenizer proxy_server_list(config_.proxy_rules, ";");
-        while (proxy_server_list.GetNext()) {
-          StringTokenizer proxy_server_for_scheme(
-              proxy_server_list.token_begin(), proxy_server_list.token_end(),
-              "=");
-
-          while (proxy_server_for_scheme.GetNext()) {
-            const std::string& proxy_server_scheme =
-                proxy_server_for_scheme.token();
-
-            // If we fail to get the proxy server here, it means that
-            // this is a regular proxy server configuration, i.e. proxies
-            // are not configured per protocol.
-            if (!proxy_server_for_scheme.GetNext()) {
-              result->UseNamedProxy(proxy_server_scheme);
-              return OK;
-            }
-
-            if (proxy_server_scheme == url_scheme) {
-              result->UseNamedProxy(proxy_server_for_scheme.token());
-              return OK;
-            }
-          }
-        }
-        // We failed to find a matching proxy server for the current URL
-        // scheme. Default to direct.
-        result->UseDirect();
-      }
+      ApplyProxyRules(url, config_.proxy_rules, result);
       return OK;
     }
 
@@ -349,6 +313,38 @@ int ProxyService::TryToCompleteSynchronously(const GURL& url,
   // otherwise, we have no proxy config
   result->UseDirect();
   return OK;
+}
+
+void ProxyService::ApplyProxyRules(const GURL& url,
+                                   const ProxyConfig::ProxyRules& proxy_rules,
+                                   ProxyInfo* result) {
+  DCHECK(!proxy_rules.empty());
+
+  if (ShouldBypassProxyForURL(url)) {
+    result->UseDirect();
+    return;
+  }
+
+  switch (proxy_rules.type) {
+    case ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY:
+      result->UseProxyServer(proxy_rules.single_proxy);
+      break;
+    case ProxyConfig::ProxyRules::TYPE_PROXY_PER_SCHEME: {
+      const ProxyServer* entry = proxy_rules.MapSchemeToProxy(url.scheme());
+      if (entry) {
+        result->UseProxyServer(*entry);
+      } else {
+        // We failed to find a matching proxy server for the current URL
+        // scheme. Default to direct.
+        result->UseDirect();
+      }
+      break;
+    }
+    default:
+      result->UseDirect();
+      NOTREACHED();
+      break;
+  }
 }
 
 void ProxyService::InitPacThread() {

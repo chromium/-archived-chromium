@@ -16,7 +16,8 @@ class ProxyConfigServiceFixed : public ProxyConfigService {
 
   // ProxyConfigService methods:
   virtual int GetProxyConfig(ProxyConfig* config) {
-    config->proxy_rules = pi_.proxy_server().ToURI();
+    config->proxy_rules.type = ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY;
+    config->proxy_rules.single_proxy = pi_.proxy_server();
     return OK;
   }
 

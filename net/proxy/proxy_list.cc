@@ -25,6 +25,12 @@ void ProxyList::Set(const std::string& proxy_uri_list) {
   }
 }
 
+void ProxyList::SetSingleProxyServer(const ProxyServer& proxy_server) {
+  proxies_.clear();
+  if (proxy_server.is_valid())
+    proxies_.push_back(proxy_server);
+}
+
 void ProxyList::RemoveBadProxies(const ProxyRetryInfoMap& proxy_retry_info) {
   std::vector<ProxyServer> new_proxy_list;
   std::vector<ProxyServer>::const_iterator iter = proxies_.begin();

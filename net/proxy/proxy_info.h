@@ -34,6 +34,9 @@ class ProxyInfo {
   // It is OK to have LWS between entries.
   void UseNamedProxy(const std::string& proxy_uri_list);
 
+  // Set the proxy list to a single entry, |proxy_server|.
+  void UseProxyServer(const ProxyServer& proxy_server);
+
   // Parse from the given PAC result.
   void UsePacString(const std::string& pac_string) {
     proxy_list_.SetFromPacString(pac_string);

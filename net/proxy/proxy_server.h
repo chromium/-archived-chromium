@@ -103,6 +103,12 @@ class ProxyServer {
   // scheme. Returns -1 if unknown.
   static int GetDefaultPortForScheme(Scheme scheme);
 
+  bool operator==(const ProxyServer& other) const {
+    return scheme_ == other.scheme_ &&
+           host_ == other.host_ &&
+           port_ == other.port_;
+  }
+
  private:
   // Create a ProxyServer given a scheme, and host/port string. If parsing the
   // host/port string fails, the returned instance will be invalid.

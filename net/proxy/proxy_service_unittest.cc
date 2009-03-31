@@ -687,7 +687,7 @@ TEST(ProxyServiceTest, ProxyBypassList) {
   // Test what happens when a proxy bypass list is specified.
 
   net::ProxyConfig config;
-  config.proxy_rules = "foopy1:8080;foopy2:9090";
+  config.proxy_rules.ParseFromString("foopy1:8080;foopy2:9090");
   config.auto_detect = false;
   config.proxy_bypass_local_names = true;
 
@@ -767,7 +767,7 @@ TEST(ProxyServiceTest, ProxyBypassList) {
 
 TEST(ProxyServiceTest, PerProtocolProxyTests) {
   net::ProxyConfig config;
-  config.proxy_rules = "http=foopy1:8080;https=foopy2:8080";
+  config.proxy_rules.ParseFromString("http=foopy1:8080;https=foopy2:8080");
   config.auto_detect = false;
 
   SyncProxyService service1(new MockProxyConfigService(config),
@@ -797,7 +797,7 @@ TEST(ProxyServiceTest, PerProtocolProxyTests) {
   EXPECT_FALSE(info3.is_direct());
   EXPECT_EQ("foopy2:8080", info3.proxy_server().ToURI());
 
-  config.proxy_rules = "foopy1:8080";
+  config.proxy_rules.ParseFromString("foopy1:8080");
   SyncProxyService service4(new MockProxyConfigService(config),
                             new MockProxyResolver);
   GURL test_url4("www.microsoft.com");

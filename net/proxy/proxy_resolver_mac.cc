@@ -176,8 +176,8 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
                                      kSCPropNetProxiesFTPProxy,
                                      kSCPropNetProxiesFTPPort);
     if (proxy_server.is_valid()) {
-      config->proxy_rules += "ftp=";
-      config->proxy_rules += proxy_server.ToURI();
+      config->proxy_rules.type = ProxyConfig::ProxyRules::TYPE_PROXY_PER_SCHEME;
+      config->proxy_rules.proxy_for_ftp = proxy_server;
     }
   }
   if (GetBoolFromDictionary(config_dict.get(),
@@ -189,10 +189,8 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
                                      kSCPropNetProxiesHTTPProxy,
                                      kSCPropNetProxiesHTTPPort);
     if (proxy_server.is_valid()) {
-      if (!config->proxy_rules.empty())
-        config->proxy_rules += ";";
-      config->proxy_rules += "http=";
-      config->proxy_rules += proxy_server.ToURI();
+      config->proxy_rules.type = ProxyConfig::ProxyRules::TYPE_PROXY_PER_SCHEME;
+      config->proxy_rules.proxy_for_http = proxy_server;
     }
   }
   if (GetBoolFromDictionary(config_dict.get(),
@@ -204,10 +202,8 @@ int ProxyConfigServiceMac::GetProxyConfig(ProxyConfig* config) {
                                      kSCPropNetProxiesHTTPSProxy,
                                      kSCPropNetProxiesHTTPSPort);
     if (proxy_server.is_valid()) {
-      if (!config->proxy_rules.empty())
-        config->proxy_rules += ";";
-      config->proxy_rules += "https=";
-      config->proxy_rules += proxy_server.ToURI();
+      config->proxy_rules.type = ProxyConfig::ProxyRules::TYPE_PROXY_PER_SCHEME;
+      config->proxy_rules.proxy_for_https = proxy_server;
     }
   }
 
