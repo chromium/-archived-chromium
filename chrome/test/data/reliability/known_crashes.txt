@@ -32,6 +32,8 @@ PREFIX : browserrenderprocesshost::inituserscripts___browserrenderprocesshost::i
 
 PREFIX : chromeurldatamanager::dataavailable___runnablemethod<chromeurldatamanager,void (__thiscall chromeurldatamanager::*)(int,scoped_refptr<refcountedvector<unsigned char> >),tuple2<int,scoped_refptr<refcountedvector<unsigned char> > > >::run___messageloop::runtask___messageloop::dowork___base::messagepumpforio::dorunloop
 
+SUBSTRING : windowdragresponsetask::run___messageloop::runtask
+
 # 8352
 SUBSTRING : webcore::cache::revalidationsucceeded___webcore::loader::host::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse___resourcedispatcher::onreceivedresponse
 
@@ -39,10 +41,6 @@ SUBSTRING : webcore::cache::revalidationsucceeded___webcore::loader::host::didre
 PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
 
 # End mysterious crash section.
-
-
-# 8875
-PREFIX : _87except____startoneargerrorhandling___sqrt___v8::internal::invoke
 
 # 8577
 PREFIX : `anonymous namespace'::invalidparameter____invalid_parameter_noinfo___std::deque
