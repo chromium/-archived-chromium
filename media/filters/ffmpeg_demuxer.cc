@@ -139,7 +139,7 @@ void FFmpegDemuxerStream::Read(Callback1<Buffer*>::Type* read_callback) {
     read_queue_.push_back(read_callback);
   }
   if (FulfillPendingReads()) {
-    demuxer_->ScheduleDemux();
+    demuxer_->SignalDemux();
   }
 }
 
@@ -169,21 +169,25 @@ bool FFmpegDemuxerStream::FulfillPendingReads() {
 // FFmpegDemuxer
 //
 FFmpegDemuxer::FFmpegDemuxer()
-    : demuxing_(false),
-      format_context_(NULL) {
+    : format_context_(NULL),
+      thread_(NULL),
+      wait_for_demux_(false, false),
+      shutdown_(false) {
 }
 
 FFmpegDemuxer::~FFmpegDemuxer() {
+  if (thread_) {
+    shutdown_ = true;
+    SignalDemux();
+    PlatformThread::Join(thread_);
+  }
   if (format_context_) {
     av_free(format_context_);
   }
 }
 
-void FFmpegDemuxer::ScheduleDemux() {
-  if (!demuxing_) {
-    demuxing_ = true;
-    host_->PostTask(NewRunnableMethod(this, &FFmpegDemuxer::Demux));
-  }
+void FFmpegDemuxer::SignalDemux() {
+  wait_for_demux_.Signal();
 }
 
 void FFmpegDemuxer::Stop() {
@@ -241,8 +245,13 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
     return false;
   }
 
-  // We have at least one supported stream, set the duration and notify we're
-  // done initializing.
+  // We have some streams to demux so create our thread.
+  if (!PlatformThread::Create(0, this, &thread_)) {
+    host_->Error(DEMUXER_ERROR_COULD_NOT_CREATE_THREAD);
+    return false;
+  }
+
+  // Good to go: set the duration and notify we're done initializing.
   host_->SetDuration(max_duration);
   host_->InitializationComplete();
   return true;
@@ -258,30 +267,34 @@ scoped_refptr<DemuxerStream> FFmpegDemuxer::GetStream(int stream) {
   return streams_[stream].get();
 }
 
-void FFmpegDemuxer::Demux() {
-  DCHECK(demuxing_);
+void FFmpegDemuxer::ThreadMain() {
+  PlatformThread::SetName("DemuxerThread");
+  while (!shutdown_) {
+    // Loop until we've satisfied every stream.
+    while (StreamsHavePendingReads()) {
+      // Allocate and read an AVPacket from the media.
+      scoped_ptr<AVPacket> packet(new AVPacket());
+      int result = av_read_frame(format_context_, packet.get());
+      if (result < 0) {
+        // TODO(scherkus): handle end of stream by marking Buffer with the end
+        // of stream flag.
+        NOTIMPLEMENTED();
+        break;
+      }
 
-  // Loop until we've satisfied every stream.
-  while (StreamsHavePendingReads()) {
-    // Allocate and read an AVPacket from the media.
-    scoped_ptr<AVPacket> packet(new AVPacket());
-    int result = av_read_frame(format_context_, packet.get());
-    if (result < 0) {
-      // TODO(scherkus): handle end of stream by marking Buffer with the end of
-      // stream flag.
-      NOTIMPLEMENTED();
-      break;
+      // Queue the packet with the appropriate stream.
+      // TODO(scherkus): should we post this back to the pipeline thread?  I'm
+      // worried about downstream filters (i.e., decoders) executing on this
+      // thread.
+      DCHECK(packet->stream_index >= 0);
+      DCHECK(packet->stream_index < static_cast<int>(streams_.size()));
+      FFmpegDemuxerStream* demuxer_stream = streams_[packet->stream_index];
+      demuxer_stream->EnqueuePacket(packet.release());
     }
 
-    // Queue the packet with the appropriate stream.
-    DCHECK(packet->stream_index >= 0);
-    DCHECK(packet->stream_index < static_cast<int>(streams_.size()));
-    FFmpegDemuxerStream* demuxer_stream = streams_[packet->stream_index];
-    demuxer_stream->EnqueuePacket(packet.release());
+    // Wait until we're signaled to either shutdown or satisfy more reads.
+    wait_for_demux_.Wait();
   }
-
-  // Finished demuxing.
-  demuxing_ = false;
 }
 
 bool FFmpegDemuxer::StreamsHavePendingReads() {

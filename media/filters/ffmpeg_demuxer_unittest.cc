@@ -115,7 +115,12 @@ void InitializeFFmpegMocks() {
 // Ref counted object so we can create callbacks to call DemuxerStream::Read().
 class TestReader : public base::RefCountedThreadSafe<TestReader> {
  public:
-  TestReader() : called_(false), expecting_call_(false) {}
+  TestReader()
+      : called_(false),
+        expecting_call_(false),
+        wait_for_read_(false, false) {
+  }
+
   virtual ~TestReader() {}
 
   void Reset() {
@@ -123,6 +128,7 @@ class TestReader : public base::RefCountedThreadSafe<TestReader> {
     expecting_call_ = false;
     called_ = false;
     buffer_ = NULL;
+    wait_for_read_.Reset();
   }
 
   void Read(DemuxerStream* stream) {
@@ -138,6 +144,11 @@ class TestReader : public base::RefCountedThreadSafe<TestReader> {
     expecting_call_ = false;
     called_ = true;
     buffer_ = buffer;
+    wait_for_read_.Signal();
+  }
+
+  bool WaitForRead() {
+    return wait_for_read_.TimedWait(base::TimeDelta::FromMilliseconds(500));
   }
 
   // Mock getters/setters.
@@ -149,6 +160,7 @@ class TestReader : public base::RefCountedThreadSafe<TestReader> {
   scoped_refptr<Buffer> buffer_;
   bool called_;
   bool expecting_call_;
+  base::WaitableEvent wait_for_read_;
 };
 
 }  // namespace
@@ -353,8 +365,9 @@ TEST(FFmpegDemuxerTest, Read) {
   scoped_refptr<TestReader> reader(new TestReader());
   reader->Read(audio_stream);
   pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
-  EXPECT_TRUE(reader->buffer());
+  ASSERT_TRUE(reader->buffer());
   EXPECT_EQ(audio_data, reader->buffer()->GetData());
   EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
@@ -367,8 +380,9 @@ TEST(FFmpegDemuxerTest, Read) {
   reader->Reset();
   reader->Read(video_stream);
   pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
-  EXPECT_TRUE(reader->buffer());
+  ASSERT_TRUE(reader->buffer());
   EXPECT_EQ(video_data, reader->buffer()->GetData());
   EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
@@ -379,6 +393,7 @@ TEST(FFmpegDemuxerTest, Read) {
   reader->Reset();
   reader->Read(audio_stream);
   pipeline.RunAllTasks();
+  EXPECT_FALSE(reader->WaitForRead());
   EXPECT_FALSE(reader->called());
   EXPECT_FALSE(reader->buffer());
 

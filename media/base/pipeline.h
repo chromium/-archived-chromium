@@ -40,6 +40,7 @@ enum PipelineError {
   DEMUXER_ERROR_COULD_NOT_OPEN,
   DEMUXER_ERROR_COULD_NOT_PARSE,
   DEMUXER_ERROR_NO_SUPPORTED_STREAMS,
+  DEMUXER_ERROR_COULD_NOT_CREATE_THREAD,
 };
 
 // Base class for Pipeline class which allows for read-only access to members.

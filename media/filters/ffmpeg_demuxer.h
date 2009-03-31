@@ -22,6 +22,8 @@
 #include <vector>
 
 #include "base/lock.h"
+#include "base/thread.h"
+#include "base/waitable_event.h"
 #include "media/base/buffers.h"
 #include "media/base/factory.h"
 #include "media/base/filters.h"
@@ -48,6 +50,8 @@ class FFmpegDemuxerStream : public DemuxerStream {
   virtual ~FFmpegDemuxerStream();
 
   // Returns true is this stream has pending reads, false otherwise.
+  //
+  // Safe to call on any thread.
   bool HasPendingReads();
 
   // Enqueues and takes ownership over the given AVPacket.
@@ -89,15 +93,15 @@ class FFmpegDemuxerStream : public DemuxerStream {
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxerStream);
 };
 
-class FFmpegDemuxer : public Demuxer {
+class FFmpegDemuxer : public Demuxer, public PlatformThread::Delegate {
  public:
   // FilterFactory provider.
   static FilterFactory* CreateFilterFactory() {
     return new FilterFactoryImpl0<FFmpegDemuxer>();
   }
 
-  // Called by FFmpegDemuxerStreams to schedule a Demux() task.
-  void ScheduleDemux();
+  // Called by FFmpegDemuxerStreams to signal the demux event.
+  void SignalDemux();
 
   // MediaFilter implementation.
   virtual void Stop();
@@ -107,20 +111,19 @@ class FFmpegDemuxer : public Demuxer {
   virtual size_t GetNumberOfStreams();
   virtual scoped_refptr<DemuxerStream> GetStream(int stream_id);
 
+  // PlatformThread::Delegate implementation.
+  virtual void ThreadMain();
+
  private:
   // Only allow a factory to create this class.
   friend class FilterFactoryImpl0<FFmpegDemuxer>;
   FFmpegDemuxer();
   virtual ~FFmpegDemuxer();
 
-  // Demuxing task scheduled by streams.
-  void Demux();
-
   // Returns true if any of the streams have pending reads.
+  //
+  // Safe to call on any thread.
   bool StreamsHavePendingReads();
-
-  // Flag to prevent multiple Demux() tasks from being scheduled.
-  bool demuxing_;
 
   // FFmpeg context handle.
   AVFormatContext* format_context_;
@@ -128,6 +131,15 @@ class FFmpegDemuxer : public Demuxer {
   // Vector of streams.
   typedef std::vector< scoped_refptr<FFmpegDemuxerStream> > StreamVector;
   StreamVector streams_;
+
+  // Thread handle.
+  PlatformThreadHandle thread_;
+
+  // Event to signal demux.
+  base::WaitableEvent wait_for_demux_;
+
+  // Used to signal |thread_| to terminate.
+  bool shutdown_;
 
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxer);
 };
