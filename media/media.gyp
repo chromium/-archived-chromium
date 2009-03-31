@@ -86,7 +86,6 @@
         'filters/test_video_renderer.h',
         'filters/video_renderer_base.cc',
         'filters/video_renderer_base.h',
-        'player/player.cc',
       ],
       'include_dirs': [
         '../third_party/ffmpeg/include',
