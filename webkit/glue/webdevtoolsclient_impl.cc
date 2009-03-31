@@ -7,10 +7,12 @@
 #include <string>
 
 #include "Document.h"
+#include "DOMWindow.h"
 #include "InspectorController.h"
 #include "Node.h"
 #include "Page.h"
 #include "PlatformString.h"
+#include "SecurityOrigin.h"
 #include <wtf/OwnPtr.h>
 #include <wtf/Vector.h>
 #undef LOG
@@ -36,6 +38,7 @@ using WebCore::Document;
 using WebCore::InspectorController;
 using WebCore::Node;
 using WebCore::Page;
+using WebCore::SecurityOrigin;
 using WebCore::String;
 
 DEFINE_RPC_JS_BOUND_OBJ(DebuggerAgent, DEBUGGER_AGENT_STRUCT,
@@ -158,6 +161,12 @@ void WebDevToolsClientImpl::JsLoaded(
     const CppArgumentList& args,
     CppVariant* result) {
   loaded_ = true;
+
+  // Grant the devtools page the ability to have source view iframes.
+  Page* page = web_view_impl_->page();
+  SecurityOrigin* origin = page->mainFrame()->domWindow()->securityOrigin();
+  origin->grantUniversalAccess();
+
   for (Vector<std::string>::iterator it = pending_incoming_messages_.begin();
        it != pending_incoming_messages_.end(); ++it) {
     DispatchMessageFromAgent(*it);

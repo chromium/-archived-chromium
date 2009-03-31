@@ -15,6 +15,28 @@ goog.provide('devtools.DebuggerAgent');
 devtools.DebuggerAgent = function() {
   RemoteDebuggerAgent.DebuggerOutput =
       goog.bind(this.handleDebuggerOutput_, this);
+      
+  /**
+   * Mapping from script id to script info.
+   * @type {Object}
+   */
+  this.parsedScripts_ = {};
+  
+  /**
+   * Mapping from the request id to the devtools.BreakpointInfo for the
+   * breakpoints whose v8 ids are not set yet. These breakpoints are waiting for
+   * 'setbreakpoint' responses to learn their ids in the v8 debugger.
+   * @see #handleSetBreakpointResponse_
+   * @type {!Object}
+   */
+  this.requestNumberToBreakpointInfo_ = {};
+  
+  /**
+   * Information on current stack top frame.
+   * See JavaScriptCallFrame.idl.
+   * @type {?Object}
+   */
+  this.currentCallFrame_ = null;
 };
 
 
@@ -26,9 +48,114 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
   var cmd = new devtools.DebugCommand('scripts', {
     'includeSource': true
   });
-  RemoteDebuggerCommandExecutor.DebuggerCommand(cmd.toJSONProtocol());
+  devtools.DebuggerAgent.sendCommand_(cmd);
   // Force v8 execution so that it gets to processing the requested command.
   devtools.tools.evaluateJavaSctipt('javascript:void(0)');
+};
+
+
+/**
+ * @param {number} sourceId Id of the script fot the breakpoint.
+ * @param {number} line Number of the line for the breakpoint.
+ */
+devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
+  var script = this.parsedScripts_[sourceId];
+  if (!script) {
+    return;
+  }
+  
+  var breakpointInfo = script.getBreakpointInfo(line);
+  if (breakpointInfo) {
+    return;
+  }
+  
+  breakpointInfo = new devtools.BreakpointInfo(sourceId, line);
+  script.addBreakpointInfo(breakpointInfo);
+
+  line += script.getLineOffset() - 1;
+  var cmd = new devtools.DebugCommand('setbreakpoint', {
+    'type': 'scriptId',
+    'target': sourceId,
+    'line': line
+  });
+  
+  this.requestNumberToBreakpointInfo_[cmd.getSequenceNumber()] = breakpointInfo;
+  
+  devtools.DebuggerAgent.sendCommand_(cmd);
+};
+
+
+/**
+ * Tells the v8 debugger to step into the next statement.
+ */
+devtools.DebuggerAgent.prototype.stepIntoStatement = function() {
+  this.stepCommand_('in');
+};
+
+
+/**
+ * Tells the v8 debugger to step out of current function.
+ */
+devtools.DebuggerAgent.prototype.stepOutOfFunction = function() {
+  this.stepCommand_('out');
+};
+
+
+/**
+ * Tells the v8 debugger to step over the next statement.
+ */
+devtools.DebuggerAgent.prototype.stepOverStatement = function() {
+  this.stepCommand_('next');
+};
+
+
+/**
+ * Tells the v8 debugger to continue execution after it has been stopped on a
+ * breakpoint or an exception.
+ */
+devtools.DebuggerAgent.prototype.continueExecution = function() {
+  var cmd = new devtools.DebugCommand('continue');
+  devtools.DebuggerAgent.sendCommand_(cmd);
+};
+
+
+/**
+ * Current stack top frame.
+ * @return {Object}
+ */
+devtools.DebuggerAgent.prototype.getCurrentCallFrame = function() {
+  return this.currentCallFrame_;
+};
+
+
+/**
+ * Sends 'backtrace' request to v8.
+ */
+devtools.DebuggerAgent.prototype.requestBacktrace_ = function() {
+  var cmd = new devtools.DebugCommand('backtrace');
+  devtools.DebuggerAgent.sendCommand_(cmd);
+};
+
+
+/**
+ * Sends command to v8 debugger.
+ * @param {devtools.DebugCommand} cmd Command to execute.
+ */
+devtools.DebuggerAgent.sendCommand_ = function(cmd) {
+  RemoteDebuggerCommandExecutor.DebuggerCommand(cmd.toJSONProtocol());
+};
+
+
+/**
+ * Tells the v8 debugger to make the next execution step.
+ * @param {string} action 'in', 'out' or 'next' action.
+ */
+devtools.DebuggerAgent.prototype.stepCommand_ = function(action) {
+  var cmd = new devtools.DebugCommand('continue', {
+    'stepaction': action,
+    'stepcount': 1
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
 };
 
 
@@ -47,11 +174,35 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
     throw e;
   }
   
-  if (msg.getType() == 'response') {
+  if (msg.getType() == 'event') {
+    if (msg.getEvent() == 'break') {
+      this.handleBreakEvent_(msg);
+    }
+  } else if (msg.getType() == 'response') {
     if (msg.getCommand() == 'scripts') {
       this.handleScriptsResponse_(msg);
+    } else if (msg.getCommand() == 'setbreakpoint') {
+      this.handleSetBreakpointResponse_(msg);
+    } else if (msg.getCommand() == 'backtrace') {
+      this.handleBacktraceResponse_(msg);
     }
   }
+};
+
+
+/**
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
+  var body = msg.getBody();
+  
+  this.currentCallFrame_ = {
+    'sourceID': body.script.id,
+    'line': body.sourceLine - body.script.lineOffset +1,
+    'script': body.script
+  };
+  
+  this.requestBacktrace_();
 };
 
 
@@ -62,10 +213,160 @@ devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
   var scripts = msg.getBody();
   for (var i = 0; i < scripts.length; i++) {
     var script = scripts[i];
+    
+    this.parsedScripts_[script.id] = new devtools.ScriptInfo(
+        script.id, script.lineOffset);
+    
     WebInspector.parsedScriptSource(
         script.id, script.name, script.source, script.lineOffset);
   }
 };
+
+
+/**
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
+  var requestSeq = msg.getRequestSeq();
+  var breakpointInfo = this.requestNumberToBreakpointInfo_[requestSeq]; 
+  if (!breakpointInfo) {
+    // TODO(yurys): handle this case
+    return;
+  }
+  delete this.requestNumberToBreakpointInfo_[requestSeq];
+  if (!msg.isSuccess()) {
+    // TODO(yurys): handle this case
+    return;
+  }
+  var idInV8 = msg.getBody().breakpoint;
+  breakpointInfo.setV8Id(idInV8);
+};
+
+
+/**
+ * Handles response to 'backtrace' command.
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
+  if (!this.currentCallFrame_) {
+    return;
+  }
+  
+  var script = this.currentCallFrame_.script;
+  
+  var caller = null;
+  var f = null;
+  var frames = msg.getBody().frames;
+  for (var i = frames.length - 1; i>=0; i--) {
+    var nextFrame = frames[i];
+    var func = msg.lookup(nextFrame.func.ref);
+    
+    // Format arguments.
+    var argv = [];
+    for (var j = 0; j < nextFrame.arguments.length; j++) {
+      var arg = nextFrame.arguments[j];
+      var val = msg.lookup(arg.value.ref);
+      if (val) {
+        if (val.value) {
+          argv.push(arg.name + " = " + val.value);
+        } else {
+          argv.push(arg.name + " = [" + val.type + "]");
+        }
+
+      } else {
+        argv.push(arg.name + " = {ref:" + arg.value.ref + "} ");
+      }
+    }
+
+    var funcName = func.name + "(" + argv.join(", ") + ")";
+
+    var f = {
+      'sourceID': script.id,
+      'line': nextFrame.line - script.lineOffset +1,
+      'type': 'function',
+      'functionName': funcName, //nextFrame.text,
+      'caller': caller
+    };
+    caller = f;
+  }
+  
+  this.currentCallFrame_ = f;
+  
+  WebInspector.pausedScript();
+};
+
+
+/**
+ * @param {number} scriptId Id of the script.
+ * @param {number} lineOffset First line 0-based offset in the containing
+ *     document.
+ * @constructor
+ */
+devtools.ScriptInfo = function(scriptId, lineOffset) {
+  this.scriptId_ = scriptId;
+  this.lineOffset_ = lineOffset; 
+  
+  this.lineToBreakpointInfo_ = {};
+};
+
+
+/**
+ * @return {number}
+ */
+devtools.ScriptInfo.prototype.getLineOffset = function() {
+  return this.lineOffset_;
+};
+
+
+/**
+ * @param {number} line 0-based line number in the script.
+ * @return {?devtools.BreakpointInfo} Information on a breakpoint at the
+ *     specified line in the script or undefined if there is no breakpoint at
+ *     that line.
+ */
+devtools.ScriptInfo.prototype.getBreakpointInfo = function(line) {
+  return this.lineToBreakpointInfo_[line];
+};
+
+
+/**
+ * Adds breakpoint info to the script.
+ * @param {devtools.BreakpointInfo} breakpoint
+ */
+devtools.ScriptInfo.prototype.addBreakpointInfo = function(breakpoint) {
+  this.lineToBreakpointInfo_[breakpoint.getLine()] = breakpoint;
+};
+
+
+
+/**
+ * @param {number} scriptId Id of the owning script.
+ * @param {number} line Breakpoint 0-based line number in the containing script.
+ * @constructor
+ */
+devtools.BreakpointInfo = function(sourceId, line) {
+  this.sourceId_ = sourceId;
+  this.line_ = line; 
+  this.v8id_ = -1;
+};
+
+
+/**
+ * @return {number}
+ */
+devtools.BreakpointInfo.prototype.getLine = function(n) {
+  return this.line_;
+};
+
+
+/**
+ * Sets id of this breakpoint in the v8 debugger.
+ * @param {number} id
+ */
+devtools.BreakpointInfo.prototype.setV8Id = function(id) {
+  this.v8id_ = id;
+};
+
 
 
 /**

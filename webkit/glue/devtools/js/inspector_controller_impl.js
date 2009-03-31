@@ -97,8 +97,13 @@ devtools.InspectorControllerImpl.prototype.debuggerEnabled = function() {
 
 
 devtools.InspectorControllerImpl.prototype.currentCallFrame = function() {
-  // TODO(yurys);
-  return null;
+  return devtools.tools.getDebuggerAgent().getCurrentCallFrame();
+};
+
+
+devtools.InspectorControllerImpl.prototype.addBreakpoint = function(
+    sourceID, line) {
+  devtools.tools.getDebuggerAgent().addBreakpoint(sourceID, line);
 };
 
 
@@ -113,16 +118,19 @@ devtools.InspectorControllerImpl.prototype.resumeDebugger = function() {
 
 devtools.InspectorControllerImpl.prototype.stepIntoStatementInDebugger =
     function() {
+  devtools.tools.getDebuggerAgent().stepIntoStatement();
 };
 
 
 devtools.InspectorControllerImpl.prototype.stepOutOfFunctionInDebugger =
     function() {
+  devtools.tools.getDebuggerAgent().stepOutOfFunction();
 };
 
 
 devtools.InspectorControllerImpl.prototype.stepOverStatementInDebugger =
     function() {
+  devtools.tools.getDebuggerAgent().stepOverStatement();
 };
 
 
