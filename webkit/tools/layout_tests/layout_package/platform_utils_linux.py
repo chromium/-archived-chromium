@@ -161,8 +161,7 @@ class PlatformUtility(object):
 
   def ImageCompareExecutablePath(self, target):
     """Path to the image_diff binary."""
-    # See mmoss TODO below.
-    return PathFromBase('chrome', 'Hammer', 'image_diff')
+    return PathFromBase('sconsbuild', target, 'image_diff')
 
   def TestShellBinary(self):
     """The name of the binary for TestShell."""
@@ -174,14 +173,7 @@ class PlatformUtility(object):
     Args:
       target: Build target mode (debug or release)
     """
-    # TODO(mmoss) - hard-coded to "Hammer" for now until I look into the scons
-    # output directory logic (and how/if it will change once Linux supports
-    # multiple debug/release targets).
-    try:
-      path = PathFromBase('webkit', 'Hammer', self.TestShellBinary())
-    except google.path_utils.PathNotFound:
-      path = PathFromBase('chrome', 'Hammer', self.TestShellBinary())
-    return path
+    return PathFromBase('sconsbuild', target, self.TestShellBinary())
 
   def FuzzyMatchBinaryPath(self):
     """Return the path to the fuzzy matcher binary."""

@@ -6,7 +6,7 @@
 # This is a small script for manually launching valgrind, along with passing
 # it the suppression file, and some helpful arguments (automatically attaching
 # the debugger on failures, etc).  Run it from your repo root, something like:
-#  $ sh ./tools/valgrind/valgrind.sh ./chrome/Hammer/chrome
+#  $ sh ./tools/valgrind/valgrind.sh ./sconsbuild/Debug/chrome
 #
 # This is mostly intended for running the chrome browser interactively.
 # To run unit tests, you probably want to run chrome_tests.sh instead.
