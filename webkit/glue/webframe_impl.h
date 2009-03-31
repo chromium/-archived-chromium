@@ -163,8 +163,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
                                         const std::string& value);
   virtual bool IsCoreCommandEnabled(const std::string& name);
 
-  virtual void AddMessageToConsole(const std::wstring& msg,
-                                   ConsoleMessageLevel level);
+  virtual void AddMessageToConsole(const WebKit::WebConsoleMessage&);
 
   virtual void ClosePage();
 

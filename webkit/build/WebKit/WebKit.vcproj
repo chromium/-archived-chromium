@@ -148,6 +148,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebConsoleMessage.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebCString.h"
 					>
 				</File>

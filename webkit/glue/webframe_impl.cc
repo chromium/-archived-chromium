@@ -135,6 +135,7 @@ MSVC_POP_WARNING();
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
@@ -193,6 +194,7 @@ using WebCore::SubstituteData;
 using WebCore::TextIterator;
 using WebCore::VisiblePosition;
 using WebCore::XPathResult;
+using WebKit::WebConsoleMessage;
 using WebKit::WebFindInPageRequest;
 using WebKit::WebScriptSource;
 
@@ -1815,22 +1817,21 @@ bool WebFrameImpl::IsCoreCommandEnabled(const std::string& name) {
       .isEnabled();
 }
 
-void WebFrameImpl::AddMessageToConsole(const std::wstring& msg,
-                                       ConsoleMessageLevel level) {
+void WebFrameImpl::AddMessageToConsole(const WebConsoleMessage& message) {
   ASSERT(frame());
 
   WebCore::MessageLevel webcore_message_level;
-  switch (level) {
-    case MESSAGE_LEVEL_TIP:
+  switch (message.level) {
+    case WebConsoleMessage::LevelTip:
       webcore_message_level = WebCore::TipMessageLevel;
       break;
-    case MESSAGE_LEVEL_LOG:
+    case WebConsoleMessage::LevelLog:
       webcore_message_level = WebCore::LogMessageLevel;
       break;
-    case MESSAGE_LEVEL_WARNING:
+    case WebConsoleMessage::LevelWarning:
       webcore_message_level = WebCore::WarningMessageLevel;
       break;
-    case MESSAGE_LEVEL_ERROR:
+    case WebConsoleMessage::LevelError:
       webcore_message_level = WebCore::ErrorMessageLevel;
       break;
     default:
@@ -1840,7 +1841,7 @@ void WebFrameImpl::AddMessageToConsole(const std::wstring& msg,
 
   frame()->domWindow()->console()->addMessage(
       WebCore::OtherMessageSource, webcore_message_level,
-      webkit_glue::StdWStringToString(msg), 1, String());
+      webkit_glue::WebStringToString(message.text), 1, String());
 }
 
 void WebFrameImpl::ClosePage() {

@@ -18,7 +18,6 @@
 #include "chrome/personalization/personalization.h"
 #endif
 #include "webkit/glue/autofill_form.h"
-#include "webkit/glue/console_message_level.h"
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -48,6 +47,10 @@ enum LoadState;
 
 namespace webkit_glue {
 struct WebApplicationInfo;
+}
+
+namespace WebKit {
+struct WebConsoleMessage;
 }
 
 //
@@ -236,8 +239,7 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Logs a message to the console of a frame in the page.
   void AddMessageToConsole(const std::wstring& frame_xpath,
-                           const std::wstring& msg,
-                           ConsoleMessageLevel level);
+                           const WebKit::WebConsoleMessage&);
 
   // Send command to the debugger
   void DebugCommand(const std::wstring& cmd);

@@ -9,7 +9,6 @@
 #include "googleurl/src/gurl.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"
-#include "webkit/glue/console_message_level.h"
 #include "webkit/glue/feed.h"
 
 class WebDataSource;
@@ -25,6 +24,7 @@ class Size;
 }
 
 namespace WebKit {
+struct WebConsoleMessage;
 struct WebFindInPageRequest;
 struct WebScriptSource;
 }
@@ -346,8 +346,7 @@ class WebFrame {
   virtual bool IsCoreCommandEnabled(const std::string& name) = 0;
 
   // Adds a message to the frame's console.
-  virtual void AddMessageToConsole(const std::wstring& msg,
-                                   ConsoleMessageLevel level) = 0;
+  virtual void AddMessageToConsole(const WebKit::WebConsoleMessage&) = 0;
 
   // Tells the current page to close, running the onunload handler.
   // TODO(creis): We'd rather use WebView::Close(), but that sets its delegate_

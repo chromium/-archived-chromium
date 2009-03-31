@@ -26,7 +26,6 @@
 #include "chrome/renderer/render_widget.h"
 #include "media/audio/audio_output.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
-#include "webkit/glue/console_message_level.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/feed.h"
 #include "webkit/glue/form_data.h"
@@ -75,6 +74,7 @@ struct FileUploadData;
 }
 
 namespace WebKit {
+struct WebConsoleMessage;
 struct WebFindInPageRequest;
 }
 
@@ -519,8 +519,7 @@ class RenderView : public RenderWidget,
   void OnCSSInsertRequest(const std::wstring& frame_xpath,
                           const std::string& css);
   void OnAddMessageToConsole(const std::wstring& frame_xpath,
-                             const std::wstring& msg,
-                             ConsoleMessageLevel level);
+                             const WebKit::WebConsoleMessage&);
   void OnDebugAttach();
 
   void OnReservePageIDRange(int size_of_range);

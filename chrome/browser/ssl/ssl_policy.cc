@@ -25,7 +25,7 @@
 #include "grit/generated_resources.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/ssl_info.h"
-#include "webkit/glue/console_message_level.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/resource_type.h"
 
 #if defined(OS_WIN)
@@ -34,6 +34,8 @@
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
+
+using WebKit::WebConsoleMessage;
 
 // Wrap all these helper classes in an anonymous namespace.
 namespace {
@@ -159,11 +161,14 @@ static void InitializeEntryIfNeeded(NavigationEntry* entry) {
 
 static void AddMixedContentWarningToConsole(
     SSLManager::MixedContentHandler* handler) {
-  const std::wstring& msg = l10n_util::GetStringF(
+  const std::wstring& text = l10n_util::GetStringF(
       IDS_MIXED_CONTENT_LOG_MESSAGE,
       UTF8ToWide(handler->frame_origin()),
       UTF8ToWide(handler->request_url().spec()));
-  handler->manager()->AddMessageToConsole(msg, MESSAGE_LEVEL_WARNING);
+  WebConsoleMessage message;
+  message.text = WideToUTF16Hack(text);
+  message.level = WebConsoleMessage::LevelWarning;
+  handler->manager()->AddMessageToConsole(message);
 }
 
 }  // namespace

@@ -19,7 +19,6 @@
 #include "chrome/common/ipc_sync_message.h"
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/transport_dib.h"
-#include "webkit/glue/console_message_level.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/window_open_disposition.h"
 
@@ -782,23 +781,6 @@ struct ParamTraits<WindowOpenDisposition> {
     int temp;
     bool res = m->ReadInt(iter, &temp);
     *r = static_cast<WindowOpenDisposition>(temp);
-    return res;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"%d", p));
-  }
-};
-
-template <>
-struct ParamTraits<ConsoleMessageLevel> {
-  typedef ConsoleMessageLevel param_type;
-  static void Write(Message* m, const param_type& p) {
-    m->WriteInt(p);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    int temp;
-    bool res = m->ReadInt(iter, &temp);
-    *r = static_cast<ConsoleMessageLevel>(temp);
     return res;
   }
   static void Log(const param_type& p, std::wstring* l) {

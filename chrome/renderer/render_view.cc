@@ -85,6 +85,7 @@
 
 using base::TimeDelta;
 using webkit_glue::WebAccessibility;
+using WebKit::WebConsoleMessage;
 using WebKit::WebScriptSource;
 
 //-----------------------------------------------------------------------------
@@ -465,7 +466,7 @@ void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
   DCHECK(hdc);
   skia::PlatformDeviceWin::InitializeDC(hdc);
   // Since WebKit extends the page width depending on the magical shrink
-  // factor we make sure the canvas covers the worst case scenario 
+  // factor we make sure the canvas covers the worst case scenario
   // (x2.0 currently).  PrintContext will then set the correct clipping region.
   int size_x = static_cast<int>(canvas_size.width() * params.params.max_shrink);
   int size_y = static_cast<int>(canvas_size.height() *
@@ -2464,13 +2465,10 @@ void RenderView::OnCSSInsertRequest(const std::wstring& frame_xpath,
 }
 
 void RenderView::OnAddMessageToConsole(const std::wstring& frame_xpath,
-                                       const std::wstring& msg,
-                                       ConsoleMessageLevel level) {
+                                       const WebConsoleMessage& message) {
   WebFrame* web_frame = GetChildFrame(frame_xpath);
-  if (!web_frame)
-    return;
-
-  web_frame->AddMessageToConsole(msg, level);
+  if (web_frame)
+    web_frame->AddMessageToConsole(message);
 }
 
 #if defined(OS_WIN)

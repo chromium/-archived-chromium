@@ -18,7 +18,6 @@
 #include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/transport_dib.h"
 #include "skia/include/SkBitmap.h"
-#include "webkit/glue/console_message_level.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
@@ -228,10 +227,9 @@ IPC_BEGIN_MESSAGES(View)
                       std::string  /* css string */)
 
   // Log a message to the console of the target frame
-  IPC_MESSAGE_ROUTED3(ViewMsg_AddMessageToConsole,
+  IPC_MESSAGE_ROUTED2(ViewMsg_AddMessageToConsole,
                       std::wstring, /* frame_xpath */
-                      std::wstring, /* msg */
-                      ConsoleMessageLevel /* level */)
+                      WebKit::WebConsoleMessage /* message */)
 
   // Initialize the V8 debugger in the renderer.
   IPC_MESSAGE_ROUTED0(ViewMsg_DebugAttach)

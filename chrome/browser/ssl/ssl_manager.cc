@@ -28,6 +28,7 @@
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/resource_type.h"
 
 #if defined(OS_WIN)
@@ -40,6 +41,7 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
+using WebKit::WebConsoleMessage;
 
 class SSLInfoBarDelegate : public ConfirmInfoBarDelegate {
  public:
@@ -177,8 +179,7 @@ bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
 }
 
 // Delegate API method.
-void SSLManager::AddMessageToConsole(const std::wstring& msg,
-                                     ConsoleMessageLevel level) {
+void SSLManager::AddMessageToConsole(const WebConsoleMessage& message) {
   TabContents* tab_contents = controller_->GetTabContents(TAB_CONTENTS_WEB);
   if (!tab_contents)
     return;
@@ -187,7 +188,7 @@ void SSLManager::AddMessageToConsole(const std::wstring& msg,
     return;
 
   web_contents->render_view_host()->AddMessageToConsole(
-      std::wstring(), msg, level);
+      std::wstring(), message);
 }
 
 // Delegate API method.

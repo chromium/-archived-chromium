@@ -27,10 +27,10 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="devtools file copy"
+				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="VCCustomBuildTool"
+				Name="devtools file copy"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -82,6 +82,9 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="devtools file copy"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -136,10 +139,6 @@
 			</File>
 			<File
 				RelativePath=".\autofill_form.h"
-				>
-			</File>
-			<File
-				RelativePath=".\console_message_level.h"
 				>
 			</File>
 			<File

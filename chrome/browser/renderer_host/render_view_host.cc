@@ -34,10 +34,12 @@
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
 #include "webkit/glue/autofill_form.h"
 
 using base::TimeDelta;
+using WebKit::WebConsoleMessage;
 using WebKit::WebFindInPageRequest;
 using WebKit::WebInputEvent;
 
@@ -434,9 +436,8 @@ void RenderViewHost::InsertCSSInWebFrame(
 }
 
 void RenderViewHost::AddMessageToConsole(
-    const std::wstring& frame_xpath, const std::wstring& msg,
-    ConsoleMessageLevel level) {
-  Send(new ViewMsg_AddMessageToConsole(routing_id(), frame_xpath, msg, level));
+    const std::wstring& frame_xpath, const WebConsoleMessage& message) {
+  Send(new ViewMsg_AddMessageToConsole(routing_id(), frame_xpath, message));
 }
 
 void RenderViewHost::DebugCommand(const std::wstring& cmd) {
