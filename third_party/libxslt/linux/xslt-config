@@ -89,11 +89,11 @@ while test $# -gt 0; do
     shift
 done
 
-the_libs="-L${libdir} -lxslt -L/home/mmoss/src/chrome/src/sconsbuild/Debug/third_party/libxml/scons -L/usr/local/lib -lxml2 -lz -lm -lm"
+the_libs="-L${libdir} -lxslt -L/home/mmoss/src/chrome/src/chrome/Hammer/third_party/libxml/scons -L/usr/local/lib -lxml2 -lz -lm -lm"
 if test "$includedir" != "/usr/include"; then
-    the_flags="$the_flags -I$includedir `/home/mmoss/src/chrome/src/sconsbuild/Debug/third_party/libxml/scons/xml2-config --cflags`"
+    the_flags="$the_flags -I$includedir `/home/mmoss/src/chrome/src/chrome/Hammer/third_party/libxml/scons/xml2-config --cflags`"
 else
-    the_flags="$the_flags `/home/mmoss/src/chrome/src/sconsbuild/Debug/third_party/libxml/scons/xml2-config --cflags`"
+    the_flags="$the_flags `/home/mmoss/src/chrome/src/chrome/Hammer/third_party/libxml/scons/xml2-config --cflags`"
 fi
 
 if $cflags; then
