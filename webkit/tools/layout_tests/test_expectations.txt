@@ -459,6 +459,7 @@ SKIP : LayoutTests/fast/workers/stress-js-execution.html = TIMEOUT FAIL
 SKIP : LayoutTests/fast/workers/worker-timeout.html = TIMEOUT FAIL
 SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
 SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT FAIL
+DEFER LINUX MAC : LayoutTests/fast/events/dispatchEvent-crash.html = CRASH 
 
 // General V8 bug.
 SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT FAIL
@@ -476,8 +477,6 @@ DEFER : LayoutTests/fast/repaint/bugzilla-6473.html = PASS FAIL
 // -----------------------------------------------------------------
 // Tests deferred until we provide support for a particular feature.
 // -----------------------------------------------------------------
-
-DEFER: LayoutTests/fast/events/dispatchEvent-crash.html = FAIL
 
 // These tests rely on the keygen tag, which we haven't wired up.
 // See bug 802185 for details.
