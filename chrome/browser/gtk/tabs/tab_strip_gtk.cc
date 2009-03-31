@@ -7,6 +7,7 @@
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
@@ -21,6 +22,8 @@ const int kNewTabButtonVOffset = 5;
 // which results in overlapping tabs.
 const int kTabHOffset = -16;
 
+SkBitmap* background = NULL;
+
 inline int Round(double x) {
   return static_cast<int>(floor(x + 0.5));
 }
@@ -34,8 +37,6 @@ gfx::Rect GetInitialWidgetBounds(GtkWidget* widget) {
 }
 
 }  // namespace
-
-NineBox* TabStripGtk::background_ = NULL;
 
 ////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, public:
@@ -56,7 +57,10 @@ TabStripGtk::~TabStripGtk() {
 void TabStripGtk::Init() {
   model_->AddObserver(this);
 
-  InitBackgroundNineBox();
+  if (!background) {
+    ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+    background = rb.GetBitmapNamed(IDR_WINDOW_TOP_CENTER);
+  }
 
   tabstrip_.Own(gtk_drawing_area_new());
   gtk_widget_set_size_request(tabstrip_.get(), -1,
@@ -372,7 +376,12 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
 // static
 gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
                                TabStripGtk* tabstrip) {
-  background_->RenderToWidget(widget);
+  ChromeCanvasPaint canvas(e);
+  if (canvas.isEmpty())
+    return TRUE;
+
+  canvas.TileImageInt(*background, 0, 0, tabstrip->bounds_.width(),
+                      tabstrip->bounds_.height());
 
   // Paint the tabs in reverse order, so they stack to the left.
   TabGtk* selected_tab = NULL;
@@ -383,7 +392,7 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
     // the model will be different to this object, e.g. when a Tab is being
     // removed after its TabContents has been destroyed.
     if (!tab->IsSelected()) {
-      tab->Paint(widget);
+      tab->Paint(&canvas);
     } else {
       selected_tab = tab;
     }
@@ -391,7 +400,7 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
 
   // Paint the selected tab last, so it overlaps all the others.
   if (selected_tab)
-    selected_tab->Paint(widget);
+    selected_tab->Paint(&canvas);
 
   return TRUE;
 }
@@ -403,18 +412,4 @@ gboolean TabStripGtk::OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
   tabstrip->SetBounds(bounds);
   tabstrip->Layout();
   return TRUE;
-}
-
-// static
-void TabStripGtk::InitBackgroundNineBox() {
-  if (background_)
-    return;
-
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-
-  GdkPixbuf* images[9] = {0};
-  images[0] = rb.LoadPixbuf(IDR_WINDOW_TOP_CENTER);
-  images[1] = rb.LoadPixbuf(IDR_WINDOW_TOP_CENTER);
-  images[2] = rb.LoadPixbuf(IDR_WINDOW_TOP_CENTER);
-  background_ = new NineBox(images);
 }

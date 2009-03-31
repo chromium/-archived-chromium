@@ -4,7 +4,6 @@
 
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 
-#include "base/gfx/gtk_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
@@ -22,8 +21,8 @@ const int kFavIconTitleSpacing = 4;
 const int kTitleCloseButtonSpacing = 5;
 const int kStandardTitleWidth = 175;
 const int kFavIconSize = 16;
-const GdkColor kSelectedTitleColor = GDK_COLOR_RGB(0, 0, 0);
-const GdkColor kUnselectedTitleColor = GDK_COLOR_RGB(64, 64, 64);
+const int kSelectedTitleColor = SK_ColorBLACK;
+const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 
 // The vertical and horizontal offset used to position the close button
 // in the tab. TODO(jhawkins): Ask pkasting what the Fuzz is about.
@@ -57,9 +56,9 @@ TabRendererGtk::TabImage TabRendererGtk::tab_inactive_otr_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
 TabRendererGtk::ButtonImage TabRendererGtk::close_button_ = {0};
 TabRendererGtk::ButtonImage TabRendererGtk::newtab_button_ = {0};
-GdkFont* TabRendererGtk::title_font_ = NULL;
+ChromeFont TabRendererGtk::title_font_;
 int TabRendererGtk::title_font_height_ = 0;
-GdkPixbuf* TabRendererGtk::download_icon_ = NULL;
+SkBitmap* TabRendererGtk::download_icon_ = NULL;
 int TabRendererGtk::download_icon_width_ = 0;
 int TabRendererGtk::download_icon_height_ = 0;
 
@@ -106,7 +105,7 @@ gfx::Size TabRendererGtk::GetMinimumUnselectedSize() {
   minimum_size.set_width(kLeftPadding + kRightPadding);
   // Since we use bitmap images, the real minimum height of the image is
   // defined most accurately by the height of the end cap images.
-  minimum_size.set_height(gdk_pixbuf_get_height(tab_active_.image_l));
+  minimum_size.set_height(tab_active_.image_l->height());
   return minimum_size;
 }
 
@@ -136,44 +135,44 @@ int TabRendererGtk::GetContentHeight() {
 void TabRendererGtk::LoadTabImages() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
 
-  tab_active_.image_l = rb.LoadPixbuf(IDR_TAB_ACTIVE_LEFT);
-  tab_active_.image_c = rb.LoadPixbuf(IDR_TAB_ACTIVE_CENTER);
-  tab_active_.image_r = rb.LoadPixbuf(IDR_TAB_ACTIVE_RIGHT);
-  tab_active_.l_width = gdk_pixbuf_get_width(tab_active_.image_l);
-  tab_active_.r_width = gdk_pixbuf_get_width(tab_active_.image_r);
+  tab_active_.image_l = rb.GetBitmapNamed(IDR_TAB_ACTIVE_LEFT);
+  tab_active_.image_c = rb.GetBitmapNamed(IDR_TAB_ACTIVE_CENTER);
+  tab_active_.image_r = rb.GetBitmapNamed(IDR_TAB_ACTIVE_RIGHT);
+  tab_active_.l_width = tab_active_.image_l->width();
+  tab_active_.r_width = tab_active_.image_r->width();
 
-  tab_inactive_.image_l = rb.LoadPixbuf(IDR_TAB_INACTIVE_LEFT);
-  tab_inactive_.image_c = rb.LoadPixbuf(IDR_TAB_INACTIVE_CENTER);
-  tab_inactive_.image_r = rb.LoadPixbuf(IDR_TAB_INACTIVE_RIGHT);
-  tab_inactive_.l_width = gdk_pixbuf_get_width(tab_inactive_.image_l);
-  tab_inactive_.r_width = gdk_pixbuf_get_width(tab_inactive_.image_r);
+  tab_inactive_.image_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT);
+  tab_inactive_.image_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER);
+  tab_inactive_.image_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT);
+  tab_inactive_.l_width = tab_inactive_.image_l->width();
+  tab_inactive_.r_width = tab_inactive_.image_r->width();
 
-  tab_hover_.image_l = rb.LoadPixbuf(IDR_TAB_HOVER_LEFT);
-  tab_hover_.image_c = rb.LoadPixbuf(IDR_TAB_HOVER_CENTER);
-  tab_hover_.image_r = rb.LoadPixbuf(IDR_TAB_HOVER_RIGHT);
+  tab_hover_.image_l = rb.GetBitmapNamed(IDR_TAB_HOVER_LEFT);
+  tab_hover_.image_c = rb.GetBitmapNamed(IDR_TAB_HOVER_CENTER);
+  tab_hover_.image_r = rb.GetBitmapNamed(IDR_TAB_HOVER_RIGHT);
 
-  tab_inactive_otr_.image_l = rb.LoadPixbuf(IDR_TAB_INACTIVE_LEFT_OTR);
-  tab_inactive_otr_.image_c = rb.LoadPixbuf(IDR_TAB_INACTIVE_CENTER_OTR);
-  tab_inactive_otr_.image_r = rb.LoadPixbuf(IDR_TAB_INACTIVE_RIGHT_OTR);
+  tab_inactive_otr_.image_l = rb.GetBitmapNamed(IDR_TAB_INACTIVE_LEFT_OTR);
+  tab_inactive_otr_.image_c = rb.GetBitmapNamed(IDR_TAB_INACTIVE_CENTER_OTR);
+  tab_inactive_otr_.image_r = rb.GetBitmapNamed(IDR_TAB_INACTIVE_RIGHT_OTR);
 
   // tab_[hover,inactive_otr] width are not used and are initialized to 0
   // during static initialization.
 
-  close_button_.normal = rb.LoadPixbuf(IDR_TAB_CLOSE);
-  close_button_.hot = rb.LoadPixbuf(IDR_TAB_CLOSE_H);
-  close_button_.pushed = rb.LoadPixbuf(IDR_TAB_CLOSE_P);
-  close_button_.width = gdk_pixbuf_get_width(close_button_.normal);
-  close_button_.height = gdk_pixbuf_get_height(close_button_.normal);
+  close_button_.normal = rb.GetBitmapNamed(IDR_TAB_CLOSE);
+  close_button_.hot = rb.GetBitmapNamed(IDR_TAB_CLOSE_H);
+  close_button_.pushed = rb.GetBitmapNamed(IDR_TAB_CLOSE_P);
+  close_button_.width = close_button_.normal->width();
+  close_button_.height = close_button_.normal->height();
 
-  newtab_button_.normal = rb.LoadPixbuf(IDR_NEWTAB_BUTTON);
-  newtab_button_.hot = rb.LoadPixbuf(IDR_NEWTAB_BUTTON_H);
-  newtab_button_.pushed = rb.LoadPixbuf(IDR_NEWTAB_BUTTON_P);
-  newtab_button_.width = gdk_pixbuf_get_width(newtab_button_.normal);
-  newtab_button_.height = gdk_pixbuf_get_height(newtab_button_.normal);
+  newtab_button_.normal = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON);
+  newtab_button_.hot = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_H);
+  newtab_button_.pushed = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_P);
+  newtab_button_.width = newtab_button_.normal->width();
+  newtab_button_.height = newtab_button_.normal->height();
 
-  download_icon_ = rb.LoadPixbuf(IDR_DOWNLOAD_ICON);
-  download_icon_width_ = gdk_pixbuf_get_width(download_icon_);
-  download_icon_height_ = gdk_pixbuf_get_height(download_icon_);
+  download_icon_ = rb.GetBitmapNamed(IDR_DOWNLOAD_ICON);
+  download_icon_width_ = download_icon_->width();
+  download_icon_height_ = download_icon_->height();
 }
 
 void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
@@ -191,8 +190,7 @@ std::wstring TabRendererGtk::GetTitle() const {
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, private:
 
-void TabRendererGtk::Paint(GtkWidget* canvas) {
-  GdkGC* gc = gdk_gc_new(canvas->window);
+void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
   // Don't paint if we're narrower than we can render correctly. (This should
   // only happen during animations).
   if (width() < GetMinimumUnselectedSize().width())
@@ -210,14 +208,13 @@ void TabRendererGtk::Paint(GtkWidget* canvas) {
   PaintTabBackground(canvas);
 
   if (show_icon && !data_.favicon.isNull()) {
-    GdkPixbuf* favicon = gfx::GdkPixbufFromSkBitmap(&data_.favicon);
-    DrawImageInt(canvas, favicon, favicon_bounds_.x(),
-                 favicon_bounds_.y() + fav_icon_hiding_offset_);
+    canvas->DrawBitmapInt(data_.favicon, favicon_bounds_.x(),
+                          favicon_bounds_.y() + fav_icon_hiding_offset_);
   }
 
   if (show_download_icon) {
-    DrawImageInt(canvas, download_icon_,
-                 download_icon_bounds_.x(), download_icon_bounds_.y());
+    canvas->DrawBitmapInt(*download_icon_,
+                          download_icon_bounds_.x(), download_icon_bounds_.y());
   }
 
   // Paint the Title.
@@ -232,21 +229,14 @@ void TabRendererGtk::Paint(GtkWidget* canvas) {
     Browser::FormatTitleForDisplay(&title);
   }
 
-  if (IsSelected()) {
-    gdk_gc_set_rgb_fg_color(gc, &kSelectedTitleColor);
-  } else {
-    gdk_gc_set_rgb_fg_color(gc, &kUnselectedTitleColor);
-  }
+  SkColor title_color = IsSelected() ? kSelectedTitleColor
+                                     : kUnselectedTitleColor;
+  canvas->DrawStringInt(title, title_font_, title_color, title_bounds_.x(),
+                        title_bounds_.y(), title_bounds_.width(),
+                        title_bounds_.height());
 
-  // TODO(jhawkins): Clip the title.
-  gdk_draw_text(canvas->window, title_font_, gc,
-                title_bounds_.x(), title_bounds_.y(),
-                WideToUTF8(title).c_str(), title.length());
-
-  DrawImageInt(canvas, close_button_.normal,
-               close_button_bounds_.x(), close_button_bounds_.y());
-
-  g_object_unref(gc);
+  canvas->DrawBitmapInt(*close_button_.normal,
+                        close_button_bounds_.x(), close_button_bounds_.y());
 }
 
 void TabRendererGtk::Layout() {
@@ -293,9 +283,7 @@ void TabRendererGtk::Layout() {
 
   // Size the Title text to fill the remaining space.
   int title_left = favicon_bounds_.right() + kFavIconTitleSpacing;
-  int title_top = bounds_.y() + kTopPadding +
-      (content_height - title_font_height_) / 2;
-  title_top = bounds_.height() - title_top;
+  int title_top = kTopPadding + (bounds_.height() + title_font_height_) / 2;
 
   // If the user has big fonts, the title will appear rendered too far down on
   // the y-axis if we use the regular top padding, so we need to adjust it so
@@ -320,39 +308,7 @@ void TabRendererGtk::Layout() {
   // TODO(jhawkins): Handle RTL layout.
 }
 
-void TabRendererGtk::DrawImageInt(GtkWidget* canvas, GdkPixbuf* pixbuf,
-                                  int x, int y) {
-  GdkGC* gc = canvas->style->fg_gc[GTK_WIDGET_STATE(canvas)];
-
-  gdk_draw_pixbuf(canvas->window,  // The destination drawable.
-                  gc,  // Graphics context.
-                  pixbuf,  // Source image.
-                  0, 0,  // Source x, y.
-                  x, y, -1, -1,  // Destination x, y, width, height.
-                  GDK_RGB_DITHER_NONE, 0, 0);  // Dithering mode, x,y offsets.
-}
-
-void TabRendererGtk::TileImageInt(GtkWidget* canvas, GdkPixbuf* pixbuf,
-                                  int x, int y, int w, int h) {
-  GdkGC* gc = canvas->style->fg_gc[GTK_WIDGET_STATE(canvas)];
-  int image_width = gdk_pixbuf_get_width(pixbuf);
-  int slices = w / image_width;
-  int remaining = w - slices * image_width;
-
-  for (int i = 0; i < slices; i++) {
-    gdk_draw_pixbuf(canvas->window, gc,
-                    pixbuf, 0, 0, x + image_width * i, y, -1, -1,
-                    GDK_RGB_DITHER_NONE, 0, 0);
-  }
-
-  if (remaining) {
-    gdk_draw_pixbuf(canvas->window, gc,
-                    pixbuf, 0, 0, x + image_width * slices, y, remaining, -1,
-                    GDK_RGB_DITHER_NONE, 0, 0);
-  }
-}
-
-void TabRendererGtk::PaintTabBackground(GtkWidget* canvas) {
+void TabRendererGtk::PaintTabBackground(ChromeCanvasPaint* canvas) {
   if (IsSelected()) {
     // Sometimes detaching a tab quickly can result in the model reporting it
     // as not being selected, so is_drag_clone_ ensures that we always paint
@@ -363,26 +319,29 @@ void TabRendererGtk::PaintTabBackground(GtkWidget* canvas) {
   }
 }
 
-void TabRendererGtk::PaintInactiveTabBackground(GtkWidget* canvas) {
+void TabRendererGtk::PaintInactiveTabBackground(ChromeCanvasPaint* canvas) {
   bool is_otr = data_.off_the_record;
   const TabImage& image = is_otr ? tab_inactive_otr_ : tab_inactive_;
 
-  DrawImageInt(canvas, image.image_l, bounds_.x(), bounds_.y());
-  TileImageInt(canvas, image.image_c,
-               bounds_.x() + tab_inactive_.l_width, bounds_.y(),
-               width() - tab_inactive_.l_width - tab_inactive_.r_width,
-               height());
-  DrawImageInt(canvas, image.image_r,
-               bounds_.x() + width() - tab_inactive_.r_width, bounds_.y());
+  canvas->DrawBitmapInt(*image.image_l, bounds_.x(), bounds_.y());
+  canvas->TileImageInt(*image.image_c,
+                       bounds_.x() + tab_inactive_.l_width, bounds_.y(),
+                       width() - tab_inactive_.l_width - tab_inactive_.r_width,
+                       height());
+  canvas->DrawBitmapInt(*image.image_r,
+                       bounds_.x() + width() - tab_inactive_.r_width,
+                       bounds_.y());
 }
 
-void TabRendererGtk::PaintActiveTabBackground(GtkWidget* canvas) {
-  DrawImageInt(canvas, tab_active_.image_l, bounds_.x(), bounds_.y());
-  TileImageInt(canvas, tab_active_.image_c,
-               bounds_.x() + tab_active_.l_width, bounds_.y(),
-               width() - tab_active_.l_width - tab_active_.r_width, height());
-  DrawImageInt(canvas, tab_active_.image_r,
-               bounds_.x() + width() - tab_active_.r_width, bounds_.y());
+void TabRendererGtk::PaintActiveTabBackground(ChromeCanvasPaint* canvas) {
+  canvas->DrawBitmapInt(*tab_active_.image_l, bounds_.x(), bounds_.y());
+  canvas->TileImageInt(*tab_active_.image_c,
+                       bounds_.x() + tab_active_.l_width, bounds_.y(),
+                       width() - tab_active_.l_width - tab_active_.r_width,
+                       height());
+  canvas->DrawBitmapInt(*tab_active_.image_r,
+                        bounds_.x() + width() - tab_active_.r_width,
+                        bounds_.y());
 }
 
 int TabRendererGtk::IconCapacity() const {
@@ -414,10 +373,9 @@ void TabRendererGtk::InitResources() {
 
   LoadTabImages();
 
-  // TODO(jhawkins): Move this into ChromeFont.  Also, my default gtk font
-  // is really ugly compared to the other fonts being used in the UI.
-  title_font_ = load_default_font();
-  DCHECK(title_font_);
-  title_font_height_ = gdk_char_height(title_font_, 'X');
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  title_font_ = rb.GetFont(ResourceBundle::BaseFont);
+  title_font_height_ = title_font_.height();
+
   initialized_ = true;
 }

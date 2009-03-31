@@ -9,6 +9,8 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/chrome_font.h"
 #include "skia/include/SkBitmap.h"
 
 namespace gfx {
@@ -55,7 +57,7 @@ class TabRendererGtk {
   void SetBounds(const gfx::Rect& bounds);
 
   // Paints the tab into |canvas|.
-  void Paint(GtkWidget* canvas);
+  void Paint(ChromeCanvasPaint* canvas);
 
  protected:
   const gfx::Rect& title_bounds() const { return title_bounds_; }
@@ -70,17 +72,12 @@ class TabRendererGtk {
   // Returns the largest of the favicon, title text, and the close button.
   static int GetContentHeight();
 
-  // TODO(jhawkins): Use a NineBox.
-  void DrawImageInt(GtkWidget* tabstrip, GdkPixbuf* pixbuf, int x, int y);
-  void TileImageInt(GtkWidget* tabstrip, GdkPixbuf* pixbuf,
-                    int x, int y, int w, int h);
-
   // Paint various portions of the Tab
   // TODO(jhawkins): Paint hover tab.
-  void PaintTabBackground(GtkWidget* canvas);
-  void PaintInactiveTabBackground(GtkWidget* canvas);
-  void PaintActiveTabBackground(GtkWidget* canvas);
-  void PaintLoadingAnimation(GtkWidget* canvas);
+  void PaintTabBackground(ChromeCanvasPaint* canvas);
+  void PaintInactiveTabBackground(ChromeCanvasPaint* canvas);
+  void PaintActiveTabBackground(ChromeCanvasPaint* canvas);
+  void PaintLoadingAnimation(ChromeCanvasPaint* canvas);
 
   // Returns the number of favicon-size elements that can fit in the tab's
   // current size.
@@ -118,9 +115,9 @@ class TabRendererGtk {
 
   // TODO(jhawkins): Move into TabResources class.
   struct TabImage {
-    GdkPixbuf* image_l;
-    GdkPixbuf* image_c;
-    GdkPixbuf* image_r;
+    SkBitmap* image_l;
+    SkBitmap* image_c;
+    SkBitmap* image_r;
     int l_width;
     int r_width;
   };
@@ -130,19 +127,19 @@ class TabRendererGtk {
   static TabImage tab_hover_;
 
   struct ButtonImage {
-    GdkPixbuf* normal;
-    GdkPixbuf* hot;
-    GdkPixbuf* pushed;
+    SkBitmap* normal;
+    SkBitmap* hot;
+    SkBitmap* pushed;
     int width;
     int height;
   };
   static ButtonImage close_button_;
   static ButtonImage newtab_button_;
 
-  static GdkFont* title_font_;
+  static ChromeFont title_font_;
   static int title_font_height_;
 
-  static GdkPixbuf* download_icon_;
+  static SkBitmap* download_icon_;
   static int download_icon_width_;
   static int download_icon_height_;
 

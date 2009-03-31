@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "base/gfx/rect.h"
-#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/owned_widget_gtk.h"
@@ -106,9 +105,6 @@ class TabStripGtk : public TabStripModelObserver,
   // stable representations of Tab positions.
   void GenerateIdealBounds();
 
-  // Loads the background resource into a NineBox.
-  static void InitBackgroundNineBox();
-
   // The Tabs we contain, and their last generated "good" bounds.
   struct TabData {
     TabGtk* tab;
@@ -136,9 +132,6 @@ class TabStripGtk : public TabStripModelObserver,
   // mouse exits the TabStrip.
   // TODO(beng): (Cleanup) this would be better named "needs_resize_layout_".
   bool resize_layout_scheduled_;
-
-  // The NineBox that renders the tabstrip background.
-  static NineBox* background_;
 
   // The drawing area widget.
   OwnedWidgetGtk tabstrip_;
