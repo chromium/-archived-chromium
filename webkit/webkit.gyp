@@ -3951,6 +3951,8 @@
           'sources!': [
             # Not yet ported to Linux.
             '../third_party/WebKit/WebCore/platform/graphics/chromium/FontCustomPlatformData.cpp',
+            # Conflicts with glue/resource_handle_impl.cc
+            '../third_party/WebKit/WebCore/platform/network/ResourceHandle.cpp',
           ],
           'sources/': [
             # Cherry-pick files excluded by the broader regular expressions above.

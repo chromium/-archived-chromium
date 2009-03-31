@@ -497,8 +497,8 @@
         'browser/cocoa/bookmark_bar_state_controller.mm',
         'browser/cocoa/bookmark_menu_bridge.h',
         'browser/cocoa/bookmark_menu_bridge.mm',
-	'browser/cocoa/bookmark_menu_cocoa_controller.h',
-	'browser/cocoa/bookmark_menu_cocoa_controller.mm',
+        'browser/cocoa/bookmark_menu_cocoa_controller.h',
+        'browser/cocoa/bookmark_menu_cocoa_controller.mm',
         'browser/cocoa/browser_test_helper.h',
         'browser/cocoa/browser_window_cocoa.h',
         'browser/cocoa/browser_window_cocoa.mm',
@@ -1370,10 +1370,10 @@
         '..',
       ],
       'sources': [
-	# TODO(jrg): to link ipc_tests, these files need to be in renderer.a.
-	# But app/ is the wrong directory for them.
-	# Better is to remove the dep of *_tests on renderer, but in the
-	# short term I'd like the build to work.
+        # TODO(jrg): to link ipc_tests, these files need to be in renderer.a.
+        # But app/ is the wrong directory for them.
+        # Better is to remove the dep of *_tests on renderer, but in the
+        # short term I'd like the build to work.
         'app/breakpad_win.cc',
         'app/breakpad_win.h',
         'app/breakpad_mac.mm',
@@ -1835,7 +1835,7 @@
       'dependencies': [
         'browser',
         'common',
-	'renderer',
+        'renderer',
         'test_support_unit',
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
@@ -1853,6 +1853,7 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            'views',
             '../build/linux/system.gyp:gtk',
           ],
         }],
@@ -1865,7 +1866,7 @@
         'app',
         'browser',
         'common',
-	'renderer',
+        'renderer',
         'resources',
         'test_support_ui',
         '../base/base.gyp:base',
@@ -2276,7 +2277,7 @@
         'app',
         'browser',
         'common',
-	'renderer',
+        'renderer',
         'resources',
         'test_support_ui',
         '../base/base.gyp:base',
@@ -2292,6 +2293,7 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            'views',
             '../build/linux/system.gyp:gtk',
           ],
         }],
@@ -2368,6 +2370,7 @@
           'dependencies': [
             'resources',
             'test_support_ui',
+            'views',
             '../base/base.gyp:base',
             '../skia/skia.gyp:skia',
             '../testing/gtest.gyp:gtest',
