@@ -26,6 +26,7 @@ ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_name,
       font_name_(font_name),
       font_size_(font_size),
       style_(style) {
+  tf->ref();
   calculateMetrics();
 }
 
