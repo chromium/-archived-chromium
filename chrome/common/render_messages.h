@@ -375,15 +375,15 @@ struct ParamTraits<WebKit::WebString> {
   typedef WebKit::WebString param_type;
   static void Write(Message* m, const param_type& p) {
     m->WriteData(reinterpret_cast<const char*>(p.data()),
-                 static_cast<int>(p.length()));
+                 static_cast<int>(p.length() * sizeof(WebKit::WebUChar)));
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     const char* data;
-    int length;
-    if (!m->ReadData(iter, &data, &length))
+    int data_len;
+    if (!m->ReadData(iter, &data, &data_len))
       return false;
     p->assign(reinterpret_cast<const WebKit::WebUChar*>(data),
-              static_cast<size_t>(length));
+              static_cast<size_t>(data_len / sizeof(WebKit::WebUChar)));
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
