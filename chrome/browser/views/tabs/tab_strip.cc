@@ -1008,8 +1008,10 @@ bool TabStrip::HasAvailableDragActions() const {
 // TabStrip, views::BaseButton::ButtonListener implementation:
 
 void TabStrip::ButtonPressed(views::Button* sender) {
-  if (sender == newtab_button_)
+  if (sender == newtab_button_) {
+    UserMetrics::RecordAction(L"NewTab_Button", model_->profile());
     model_->AddBlankTab(true);
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
