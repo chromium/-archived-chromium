@@ -11,6 +11,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
@@ -59,6 +60,19 @@ namespace {
     ASSERT_TRUE(file.is_open());
     file << contents;
     file.close();
+  }
+
+  bool IsFileInUse(std::wstring path) {
+    if (!file_util::PathExists(path))
+      return false;
+
+    HANDLE handle = ::CreateFile(path.c_str(), FILE_ALL_ACCESS,
+                                 NULL, NULL, OPEN_EXISTING, NULL, NULL);
+    if (handle  == INVALID_HANDLE_VALUE)
+      return true;
+
+    CloseHandle(handle);
+    return false;
   }
 
   // Simple function to read text from a file.
@@ -446,6 +460,10 @@ TEST_F(CopyTreeWorkItemTest, NewNameAndCopyTest) {
   work_item.reset(WorkItem::CreateCopyTreeWorkItem(
       file_name_from, file_name_to, temp_dir_, WorkItem::NEW_NAME_IF_IN_USE,
       alternate_to));
+  if (IsFileInUse(file_name_to))
+    PlatformThread::Sleep(2000);
+  // If file is still in use, the rest of the test will fail.
+  ASSERT_FALSE(IsFileInUse(file_name_to));
   EXPECT_TRUE(work_item->Do());
 
   EXPECT_TRUE(file_util::PathExists(file_name_from));
