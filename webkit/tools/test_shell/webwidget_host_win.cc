@@ -10,7 +10,9 @@
 #include "skia/ext/platform_canvas.h"
 #include "skia/ext/platform_canvas_win.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -19,6 +21,8 @@ using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
 
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
@@ -271,6 +275,10 @@ void WebWidgetHost::Paint() {
 
   // Draw children
   UpdateWindow(view_);
+}
+
+WebScreenInfo WebWidgetHost::GetScreenInfo() {
+  return WebScreenInfoFactory::screenInfo(view_);
 }
 
 void WebWidgetHost::Resize(LPARAM lparam) {

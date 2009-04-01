@@ -18,6 +18,7 @@
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -38,6 +39,8 @@
 #include "webkit/tools/test_shell/drag_delegate.h"
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif
+
+using WebKit::WebScreenInfo;
 
 namespace {
 
@@ -724,8 +727,15 @@ void TestWebViewDelegate::Blur(WebWidget* webwidget) {
     shell_->SetFocus(host, false);
 }
 
-bool TestWebViewDelegate::IsHidden() {
+bool TestWebViewDelegate::IsHidden(WebWidget* webwidget) {
   return false;
+}
+
+WebScreenInfo TestWebViewDelegate::GetScreenInfo(WebWidget* webwidget) {
+  if (WebWidgetHost* host = GetHostForWidget(webwidget))
+    return host->GetScreenInfo();
+
+  return WebScreenInfo();
 }
 
 void TestWebViewDelegate::RegisterDragDrop() {

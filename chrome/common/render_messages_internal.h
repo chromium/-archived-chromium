@@ -19,7 +19,6 @@
 #include "chrome/common/transport_dib.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/dom_operations.h"
-#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin.h"
 
@@ -882,10 +881,12 @@ IPC_BEGIN_MESSAGES(ViewHost)
                               LOGFONT /* font data */)
 #endif  // defined(OS_WIN)
 
-  // Returns ScreenInfo corresponding to the given window.
+  // Returns WebScreenInfo corresponding to the view.
+  // TODO(darin): Change this to be a routed message so we don't need to pass
+  // the view id.
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_GetScreenInfo,
-                              gfx::NativeViewId /* window */,
-                              webkit_glue::ScreenInfo /* results */)
+                              gfx::NativeViewId /* native view id */,
+                              WebKit::WebScreenInfo /* results */)
 
   // Send the tooltip text for the current mouse position to the browser.
   IPC_MESSAGE_ROUTED1(ViewHostMsg_SetTooltipText,

@@ -11,7 +11,9 @@
 #include "base/gfx/size.h"
 #include "base/logging.h"
 #include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -20,6 +22,8 @@ using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
 
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
@@ -212,6 +216,10 @@ void WebWidgetHost::Paint() {
 
     [view_ unlockFocus];
   }
+}
+
+WebScreenInfo WebWidgetHost::GetScreenInfo() {
+  return WebScreenInfoFactory::screenInfo(view_);
 }
 
 void WebWidgetHost::Resize(const gfx::Rect& rect) {

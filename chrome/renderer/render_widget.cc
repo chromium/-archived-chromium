@@ -14,6 +14,7 @@
 #include "chrome/common/transport_dib.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 
 #if defined(OS_POSIX)
 #include "skia/include/SkPixelRef.h"
@@ -24,6 +25,7 @@
 #include "webkit/glue/webwidget.h"
 
 using WebKit::WebInputEvent;
+using WebKit::WebScreenInfo;
 
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
     : routing_id_(MSG_ROUTING_NONE),
@@ -764,4 +766,11 @@ void RenderWidget::DidMove(WebWidget* webwidget,
 
   if (i == plugin_window_moves_.size())
     plugin_window_moves_.push_back(move);
+}
+
+WebScreenInfo RenderWidget::GetScreenInfo(WebWidget* webwidget) {
+  WebScreenInfo results;
+  RenderThread::current()->Send(
+      new ViewHostMsg_GetScreenInfo(host_window_, &results));
+  return results;
 }

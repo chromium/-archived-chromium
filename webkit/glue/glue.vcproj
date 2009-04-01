@@ -666,10 +666,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\webkit_glue_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\webkitclient_impl.cc"
 				>
 			</File>

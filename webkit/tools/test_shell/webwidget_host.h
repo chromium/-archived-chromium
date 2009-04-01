@@ -18,6 +18,10 @@ namespace gfx {
 class Size;
 }
 
+namespace WebKit {
+struct WebScreenInfo;
+}
+
 #if defined(OS_MACOSX)
 #ifdef __OBJC__
 @class NSEvent;
@@ -53,6 +57,8 @@ class WebWidgetHost {
   // expose or WM_PAINT event, we need to update the paint rect.
   void UpdatePaintRect(const gfx::Rect& rect);
   void Paint();
+
+  WebKit::WebScreenInfo GetScreenInfo();
 
  protected:
   WebWidgetHost();

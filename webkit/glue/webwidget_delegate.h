@@ -13,8 +13,12 @@
 #include "webkit/glue/window_open_disposition.h"
 
 namespace gfx {
-  class Point;
-  class Rect;
+class Point;
+class Rect;
+}
+
+namespace WebKit {
+struct WebScreenInfo;
 }
 
 class WebWidget;
@@ -121,7 +125,10 @@ class WebWidgetDelegate {
   virtual void Release() = 0;
 
   // Returns true if the widget is in a background tab.
-  virtual bool IsHidden() = 0;
+  virtual bool IsHidden(WebWidget* webwidget) = 0;
+
+  // Returns information about the screen associated with this widget.
+  virtual WebKit::WebScreenInfo GetScreenInfo(WebWidget* webwidget) = 0;
 
   WebWidgetDelegate() { }
   virtual ~WebWidgetDelegate() { }

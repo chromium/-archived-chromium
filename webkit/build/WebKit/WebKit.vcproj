@@ -211,6 +211,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebScreenInfoFactory.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\win\WebThemeEngine.h"
 						>
 					</File>
@@ -268,6 +272,10 @@
 					>
 					<File
 						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\win\WebInputEventFactory.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\win\WebScreenInfoFactory.cpp"
 						>
 					</File>
 				</Filter>

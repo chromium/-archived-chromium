@@ -42,7 +42,17 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
+#if defined(OS_WIN)
+#include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
+#elif defined(OS_MACOSX)
+#include "third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
+#elif defined(OS_LINUX)
+#include "third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h"
+#endif
+
 using WebKit::WebCache;
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
 
 namespace {
 
@@ -442,9 +452,11 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
 }
 #endif
 
-void ResourceMessageFilter::OnGetScreenInfo(
-    gfx::NativeViewId window, webkit_glue::ScreenInfo* results) {
-  *results = webkit_glue::GetScreenInfoHelper(gfx::NativeViewFromId(window));
+void ResourceMessageFilter::OnGetScreenInfo(gfx::NativeViewId view,
+                                            WebScreenInfo* results) {
+  // TODO(darin): Change this into a routed message so that we can eliminate
+  // the NativeViewId parameter.
+  *results = WebScreenInfoFactory::screenInfo(gfx::NativeViewFromId(view));
 }
 
 void ResourceMessageFilter::OnGetPlugins(bool refresh,

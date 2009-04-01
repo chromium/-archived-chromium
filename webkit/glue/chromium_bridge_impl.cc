@@ -31,14 +31,14 @@
 #include "build/build_config.h"
 #include "googleurl/src/url_util.h"
 #include "skia/ext/skia_utils_win.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "webkit/glue/chrome_client_impl.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/plugins/plugin_instance.h"
-#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin_impl.h"
-#include "webkit/glue/webview.h"
+#include "webkit/glue/webview_impl.h"
 
 #if defined(OS_WIN)
 #include <windows.h>
@@ -70,6 +70,17 @@ ChromeClientImpl* ToChromeClient(WebCore::Widget* widget) {
     return NULL;
 
   return static_cast<ChromeClientImpl*>(page->chrome()->client());
+}
+
+WebViewImpl* ToWebView(WebCore::Widget* widget) {
+  ChromeClientImpl* chrome_client = ToChromeClient(widget);
+  if (!chrome_client)
+    return NULL;
+  return chrome_client->webview();
+}
+
+WebCore::IntRect ToIntRect(const WebKit::WebRect& input) {
+  return WebCore::IntRect(input.x, input.y, input.width, input.height);
 }
 
 }  // namespace
@@ -163,25 +174,38 @@ String ChromiumBridge::uiResourceProtocol() {
 // Screen ---------------------------------------------------------------------
 
 int ChromiumBridge::screenDepth(Widget* widget) {
-  return webkit_glue::GetScreenInfo(ToNativeId(widget)).depth;
+  WebViewImpl* view = ToWebView(widget);
+  if (!view || !view->delegate())
+    return NULL;
+  return view->delegate()->GetScreenInfo(view).depth;
 }
 
 int ChromiumBridge::screenDepthPerComponent(Widget* widget) {
-  return webkit_glue::GetScreenInfo(ToNativeId(widget)).depth_per_component;
+  WebViewImpl* view = ToWebView(widget);
+  if (!view || !view->delegate())
+    return NULL;
+  return view->delegate()->GetScreenInfo(view).depthPerComponent;
 }
 
 bool ChromiumBridge::screenIsMonochrome(Widget* widget) {
-  return webkit_glue::GetScreenInfo(ToNativeId(widget)).is_monochrome;
+  WebViewImpl* view = ToWebView(widget);
+  if (!view || !view->delegate())
+    return NULL;
+  return view->delegate()->GetScreenInfo(view).isMonochrome;
 }
 
 IntRect ChromiumBridge::screenRect(Widget* widget) {
-  return webkit_glue::ToIntRect(
-      webkit_glue::GetScreenInfo(ToNativeId(widget)).rect);
+  WebViewImpl* view = ToWebView(widget);
+  if (!view || !view->delegate())
+    return IntRect();
+  return ToIntRect(view->delegate()->GetScreenInfo(view).rect);
 }
 
 IntRect ChromiumBridge::screenAvailableRect(Widget* widget) {
-  return webkit_glue::ToIntRect(
-      webkit_glue::GetScreenInfo(ToNativeId(widget)).available_rect);
+  WebViewImpl* view = ToWebView(widget);
+  if (!view || !view->delegate())
+    return IntRect();
+  return ToIntRect(view->delegate()->GetScreenInfo(view).availableRect);
 }
 
 // Widget ---------------------------------------------------------------------

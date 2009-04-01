@@ -818,6 +818,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\webkit_param_traits.h"
+			>
+		</File>
+		<File
 			RelativePath=".\win_safe_util.cc"
 			>
 		</File>

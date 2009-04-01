@@ -45,8 +45,8 @@ class PrinterQuery;
 class PrintJobManager;
 }
 
-namespace webkit_glue {
-struct ScreenInfo;
+namespace WebKit {
+struct WebScreenInfo;
 }
 
 // This class filters out incoming IPC messages for network requests and
@@ -128,7 +128,7 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 #endif
 
   void OnGetScreenInfo(gfx::NativeViewId window,
-                       webkit_glue::ScreenInfo* results);
+                       WebKit::WebScreenInfo* results);
   void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
   void OnGetPluginPath(const GURL& url,
                        const std::string& mime_type,

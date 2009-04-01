@@ -219,13 +219,6 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
       new ViewHostMsg_GetPlugins(refresh, plugins));
 }
 
-webkit_glue::ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
-  webkit_glue::ScreenInfo results;
-  RenderThread::current()->Send(
-      new ViewHostMsg_GetScreenInfo(window, &results));
-  return results;
-}
-
 // static factory function
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& method,

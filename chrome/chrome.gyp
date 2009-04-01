@@ -292,6 +292,7 @@
         'common/url_constants.h',
         'common/visitedlink_common.cc',
         'common/visitedlink_common.h',
+        'common/webkit_param_traits.h',
         'common/win_safe_util.cc',
         'common/win_safe_util.h',
         'common/win_util.cc',

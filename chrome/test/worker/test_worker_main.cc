@@ -14,7 +14,6 @@
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/resource_loader_bridge.h"
-#include "webkit/glue/screen_info.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webworker.h"
 #include "webkit/glue/webworkerclient.h"
@@ -106,10 +105,6 @@ bool SpellCheckWord(const wchar_t* word, int word_len,
   *misspelling_start = 0;
   *misspelling_len = 0;
   return true;
-}
-
-ScreenInfo GetScreenInfo(gfx::NativeViewId window) {
-  return GetScreenInfoHelper(gfx::NativeViewFromId(window));
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {

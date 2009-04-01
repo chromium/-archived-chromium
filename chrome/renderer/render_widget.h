@@ -70,6 +70,11 @@ class RenderWidget : public IPC::Channel::Listener,
                              const gfx::Rect& clip_rect);
   virtual void SetCursor(WebWidget* webwidget, const WebCursor& cursor);
   virtual void Show(WebWidget* webwidget, WindowOpenDisposition disposition);
+  virtual void ShowWithItems(WebWidget* webwidget,
+                             const gfx::Rect& bounds,
+                             int item_height,
+                             int selected_index,
+                             const std::vector<MenuItem>& items);
   virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);
@@ -79,12 +84,8 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget) {}
-  virtual bool IsHidden() { return is_hidden_; }
-  virtual void ShowWithItems(WebWidget* webwidget,
-                             const gfx::Rect& bounds,
-                             int item_height,
-                             int selected_index,
-                             const std::vector<MenuItem>& items);
+  virtual bool IsHidden(WebWidget* webwidget) { return is_hidden_; }
+  virtual WebKit::WebScreenInfo GetScreenInfo(WebWidget* webwidget);
 
   // Close the underlying WebWidget.
   void Close();

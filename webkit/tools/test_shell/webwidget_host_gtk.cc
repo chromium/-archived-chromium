@@ -13,7 +13,9 @@
 #include "skia/ext/platform_canvas_linux.h"
 #include "skia/ext/platform_device_linux.h"
 #include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -21,6 +23,8 @@ using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
+using WebKit::WebScreenInfo;
+using WebKit::WebScreenInfoFactory;
 
 namespace {
 
@@ -359,6 +363,10 @@ void WebWidgetHost::Paint() {
   cairo_destroy(cairo_drawable);
 
   gdk_window_end_paint(window);
+}
+
+WebScreenInfo WebWidgetHost::GetScreenInfo() {
+  return WebScreenInfoFactory::screenInfo(view_);
 }
 
 void WebWidgetHost::ResetScrollRect() {

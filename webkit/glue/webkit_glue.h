@@ -31,8 +31,6 @@ class WebString;
 
 namespace webkit_glue {
 
-struct ScreenInfo;
-
 
 //---- BEGIN FUNCTIONS IMPLEMENTED BY WEBKIT/GLUE -----------------------------
 
@@ -40,10 +38,6 @@ void SetJavaScriptFlags(const std::wstring& flags);
 
 // Turn on the logging for notImplemented() calls from WebCore.
 void EnableWebCoreNotImplementedLogging();
-
-// Returns screen information corresponding to the given window.  This is the
-// default implementation.
-ScreenInfo GetScreenInfoHelper(gfx::NativeView window);
 
 // Returns the text of the document element.
 std::wstring DumpDocumentText(WebFrame* web_frame);
@@ -192,9 +186,6 @@ bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
 // Returns true if the plugins run in the same process as the renderer, and
 // false otherwise.
 bool IsPluginRunningInRendererProcess();
-
-// Returns screen information corresponding to the given window.
-ScreenInfo GetScreenInfo(gfx::NativeViewId window);
 
 // Returns a bool indicating if the Null plugin should be enabled or not.
 bool IsDefaultPluginEnabled();

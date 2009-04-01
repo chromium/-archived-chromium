@@ -300,6 +300,6 @@ bool WebWidgetImpl::isHidden() {
   if (!delegate_)
     return true;
 
-  return delegate_->IsHidden();
+  return delegate_->IsHidden(this);
 }
 #endif
