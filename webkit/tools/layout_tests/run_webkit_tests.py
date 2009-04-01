@@ -681,7 +681,7 @@ def main(options, args):
   if not options.num_test_shells:
     # For now, only run Windows-Release in parallel until we make other
     # configurations more stable.
-    if sys.platform in ('win32', 'cygwin') and options.target == 'Release':
+    if sys.platform in ('win32', 'cygwin'):
       cpus = 1
       if sys.platform in ('win32', 'cygwin'):
         cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
@@ -700,11 +700,12 @@ def main(options, args):
       # Some HTTP tests start timing out when tests are run in parallel.
       # TODO(ojan): Impelement per-test-timeouts instead. http://crbug.com/9613
       if not options.time_out_ms:
-        options.time_out_ms = 20000
+        options.time_out_ms = '20000'
 
     else:
       options.num_test_shells = 1
   
+  print str(options.num_test_shells) + '|' + str(options.time_out_ms)
   # Include all tests if none are specified.
   paths = args
   if not paths:
