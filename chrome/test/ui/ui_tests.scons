@@ -286,6 +286,7 @@ if not env.Bit('windows'):
       '$CHROME_DIR/browser/download/save_page_uitest.cc',
       '$CHROME_DIR/browser/errorpage_uitest.cc',
       '$CHROME_DIR/browser/iframe_uitest.cc',
+      '$CHROME_DIR/browser/history/redirect_uitest.cc',
       '$CHROME_DIR/browser/interstitial_page_uitest.cc',
       '$CHROME_DIR/browser/login_prompt_uitest.cc',
       '$CHROME_DIR/browser/metrics/metrics_service_uitest.cc',
