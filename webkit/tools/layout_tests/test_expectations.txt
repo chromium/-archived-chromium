@@ -2425,4 +2425,7 @@ WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FA
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
+
+DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
+
 WIN MAC LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
