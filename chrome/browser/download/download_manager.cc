@@ -28,6 +28,7 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
@@ -636,14 +637,11 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
 #if defined(OS_WIN)
     std::wstring filter =
         win_util::GetFileFilterFromPath(info->suggested_path.value());
-    gfx::NativeWindow owning_window =
-        contents ? GetAncestor(contents->GetNativeView(), GA_ROOT) : NULL;
 #elif defined(OS_LINUX)
     std::wstring filter;
-    gfx::NativeWindow owning_window = contents ?
-        GTK_WINDOW(gtk_widget_get_toplevel(contents->GetNativeView())) :
-        NULL;
 #endif
+    gfx::NativeWindow owning_window =
+        contents ? platform_util::GetTopLevel(contents->GetNativeView()) : NULL;
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     std::wstring(),
                                     info->suggested_path.ToWStringHack(),

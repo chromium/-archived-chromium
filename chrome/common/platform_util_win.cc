@@ -13,6 +13,7 @@
 
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/logging.h"
 #include "chrome/common/win_util.h"
 
@@ -78,6 +79,10 @@ void ShowItemInFolder(const FilePath& full_path) {
   };
   (*open_folder_and_select_itemsPtr)(dir_item, arraysize(highlight),
                                      highlight, NULL);
+}
+
+gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
+  return GetAncestor(view, GA_ROOT);
 }
 
 }  // namespace platform_util

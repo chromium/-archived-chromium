@@ -26,6 +26,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/stl_util-inl.h"
@@ -985,7 +986,6 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
 }
 
 void SavePackage::GetSaveInfo() {
-#if defined(OS_WIN)
   // Use "Web Page, Complete" option as default choice of saving page.
   int filter_index = 2;
   std::wstring filter;
@@ -1008,10 +1008,17 @@ void SavePackage::GetSaveInfo() {
     filter[filter.size() - 2] = L'\0';
     default_extension = L"htm";
   } else {
+#if defined(OS_WIN)
     filter = win_util::GetFileFilterFromPath(suggested_name);
+#else
+    // TODO(port): implement this.
+    NOTIMPLEMENTED();
+#endif
     filter_index = 1;
   }
 
+
+#if defined(OS_LINUX) || defined(OS_WIN)
   if (g_should_prompt_for_filename) {
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
@@ -1021,17 +1028,16 @@ void SavePackage::GetSaveInfo() {
                                     filter,
                                     filter_index,
                                     default_extension,
-                                    GetAncestor(web_contents_->GetNativeView(),
-                                                GA_ROOT),
+                                    platform_util::GetTopLevel(
+                                        web_contents_->GetNativeView()),
                                     save_params);
-  } else {
+  } else
+#endif  // defined(OS_LINUX) || defined(OS_WIN)
+  {
     // Just use 'suggested_name' instead of opening the dialog prompt.
     ContinueSave(save_params, suggested_name, filter_index);
     delete save_params;
   }
-#else
-  NOTIMPLEMENTED();
-#endif  // OS_WIN
 }
 
 // Called after the save file dialog box returns.
