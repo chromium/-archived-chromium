@@ -2646,8 +2646,6 @@
         '../third_party/WebKit/WebCore/platform/network/ProtectionSpace.h',
         '../third_party/WebKit/WebCore/platform/network/ResourceErrorBase.cpp',
         '../third_party/WebKit/WebCore/platform/network/ResourceErrorBase.h',
-        '../third_party/WebKit/WebCore/platform/network/ResourceHandle.cpp',
-        '../third_party/WebKit/WebCore/platform/network/ResourceHandle.h',
         '../third_party/WebKit/WebCore/platform/network/ResourceHandleClient.h',
         '../third_party/WebKit/WebCore/platform/network/ResourceHandleInternal.h',
         '../third_party/WebKit/WebCore/platform/network/ResourceRequestBase.cpp',
@@ -3951,8 +3949,6 @@
           'sources!': [
             # Not yet ported to Linux.
             '../third_party/WebKit/WebCore/platform/graphics/chromium/FontCustomPlatformData.cpp',
-            # Conflicts with glue/resource_handle_impl.cc
-            '../third_party/WebKit/WebCore/platform/network/ResourceHandle.cpp',
           ],
           'sources/': [
             # Cherry-pick files excluded by the broader regular expressions above.
@@ -4068,9 +4064,6 @@
             ['include', '/opentype/'],
             ['include', '/TransparencyWin\\.cpp$'],
             ['include', '/SkiaFontWin\\.cpp$'],
-          ],
-          'sources!': [
-            '../third_party/WebKit/WebCore/platform/network/ResourceHandle.cpp',
           ],
           'defines': [
             '__PRETTY_FUNCTION__=__FUNCTION__',
