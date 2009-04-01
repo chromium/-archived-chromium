@@ -17,7 +17,12 @@
   METHOD0(HideDOMNodeHighlight) \
   \
   /* Executes JavaScript in the context of the inspected window. */ \
-  METHOD2(EvaluateJavaSctipt, int /* call_id */, String /* JS expression */)
+  METHOD2(EvaluateJavaScript, int /* call_id */, String /* JS expression */) \
+  \
+  /* Requests that utility js function is executed with the given args. */ \
+  METHOD4(ExecuteUtilityFunction, int /* call_id */, \
+      String /* function_name */, int /* context_node_id */, \
+      String /* json_args */)
 
 DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
 
@@ -26,11 +31,14 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   /* Updates focused node on the client. */ \
   METHOD1(UpdateFocusedNode, int /* node_id */) \
   \
-  /* Response message to EvaluateJavaSctipt. */ \
-  METHOD2(DidEvaluateJavaSctipt, int /* call_id */, String /* result */) \
+  /* Response message to EvaluateJavaScript. */ \
+  METHOD2(DidEvaluateJavaScript, int /* call_id */, String /* result */) \
   \
   /* Updates focused node on the client. */ \
-  METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */)
+  METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */) \
+  \
+  /* Response to the GetNodeProperties. */ \
+  METHOD2(DidExecuteUtilityFunction, int /* call_id */, String /* json */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 

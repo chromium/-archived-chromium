@@ -42,7 +42,12 @@ class WebDevToolsAgentImpl
   // ToolsAgent implementation.
   virtual void HighlightDOMNode(int node_id);
   virtual void HideDOMNodeHighlight();
-  virtual void EvaluateJavaSctipt(int call_id, const String& js);
+  virtual void EvaluateJavaScript(int call_id, const String& js);
+  virtual void ExecuteUtilityFunction(
+      int call_id,
+      const WebCore::String& function_name,
+      int node_id,
+      const WebCore::String& json_args);
 
   // WebDevToolsAgent implementation.
   virtual void Attach();

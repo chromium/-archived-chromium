@@ -50,7 +50,7 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
   });
   devtools.DebuggerAgent.sendCommand_(cmd);
   // Force v8 execution so that it gets to processing the requested command.
-  devtools.tools.evaluateJavaSctipt('javascript:void(0)');
+  devtools.tools.evaluateJavaScript("javascript:void(0)");
 };
 
 

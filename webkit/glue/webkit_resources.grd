@@ -18,6 +18,9 @@
       <include name="IDR_SEARCH_MAGNIFIER" file="resources\search_magnifier.png" type="BINDATA" />
       <include name="IDR_SEARCH_MAGNIFIER_RESULTS" file="resources\search_magnifier_results.png" type="BINDATA" />
       <include name="IDR_TEXTAREA_RESIZER" file="resources\textarea_resize_corner.png" type="BINDATA" />
+      <include name="IDR_DEVTOOLS_BASE_JS" file="devtools\js\base.js" type="BINDATA" />
+      <include name="IDR_DEVTOOLS_JSON_JS" file="devtools\js\json.js" type="BINDATA" />
+      <include name="IDR_DEVTOOLS_INJECT_JS" file="devtools\js\inject.js" type="BINDATA" />
       <if expr="os == 'linux2'">
         <include name="IDR_LINUX_CHECKBOX_OFF" file="resources\linux-checkbox-off.png" type="BINDATA" />
         <include name="IDR_LINUX_CHECKBOX_ON" file="resources\linux-checkbox-on.png" type="BINDATA" />

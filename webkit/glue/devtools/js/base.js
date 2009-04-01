@@ -33,7 +33,7 @@
  * @define {boolean} Overridden to true by the compiler when
  *     --mark_as_compiled is specified.
  */
-var COMPILED = false;
+var COMPILED = true;
 
 
 /**

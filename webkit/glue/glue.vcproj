@@ -957,6 +957,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\devtools\js\inject.js"
+					>
+				</File>
+				<File
 					RelativePath=".\devtools\js\inspector_controller.js"
 					>
 				</File>

@@ -77,7 +77,7 @@ class DomAgentImpl : public DomAgent {
     static PassRefPtr<EventListenerWrapper> Create(
         DomAgentImpl* dom_agent_impl);
     virtual ~EventListenerWrapper() {}
-    virtual void handleEvent(WebCore::Event* event, bool isWindowEvent);
+    virtual void handleEvent(WebCore::Event* event, bool is_window_event);
    private:
     explicit EventListenerWrapper(DomAgentImpl* dom_agent_impl);
     DomAgentImpl* dom_agent_impl_;

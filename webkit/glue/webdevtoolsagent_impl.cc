@@ -60,6 +60,7 @@ void WebDevToolsAgentImpl::Attach() {
   dom_agent_impl_.reset(new DomAgentImpl(dom_agent_delegate_stub_.get()));
   net_agent_impl_.reset(new NetAgentImpl(net_agent_delegate_stub_.get()));
   if (document_) {
+    debugger_agent_impl_->SetDocument(document_);
     dom_agent_impl_->SetDocument(document_);
     net_agent_impl_->SetDocument(document_);
   }
@@ -67,9 +68,9 @@ void WebDevToolsAgentImpl::Attach() {
 }
 
 void WebDevToolsAgentImpl::Detach() {
+  debugger_agent_impl_.reset(NULL);
   dom_agent_impl_.reset(NULL);
   net_agent_impl_.reset(NULL);
-  debugger_agent_impl_.reset(NULL);
   attached_ = false;
 }
 
@@ -81,6 +82,7 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
     document_ = NULL;
   }
   if (attached_) {
+    debugger_agent_impl_->SetDocument(document_);
     dom_agent_impl_->SetDocument(document_);
     net_agent_impl_->SetDocument(document_);
   }
@@ -93,7 +95,6 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
   if (!attached_) {
     return;
   }
-  dom_agent_impl_->DiscardBindings();
   WebDataSource* ds = frame->GetDataSource();
   const WebRequest& request = ds->GetRequest();
   GURL url = ds->HasUnreachableURL() ?
@@ -119,7 +120,7 @@ void WebDevToolsAgentImpl::HideDOMNodeHighlight() {
   page->inspectorController()->hideHighlight();
 }
 
-void WebDevToolsAgentImpl::EvaluateJavaSctipt(int call_id, const String& js) {
+void WebDevToolsAgentImpl::EvaluateJavaScript(int call_id, const String& js) {
   Page* page = web_view_impl_->page();
   if (!page->mainFrame()) {
     return;
@@ -129,7 +130,22 @@ void WebDevToolsAgentImpl::EvaluateJavaSctipt(int call_id, const String& js) {
   if (!result.hasNoValue()) {
     result_string = result.toString(NULL);
   }
-  tools_agent_delegate_stub_->DidEvaluateJavaSctipt(call_id, result_string);
+  tools_agent_delegate_stub_->DidEvaluateJavaScript(call_id, result_string);
+}
+
+void WebDevToolsAgentImpl::ExecuteUtilityFunction(
+      int call_id,
+      const String& function_name,
+      int node_id,
+      const String& json_args) {
+  Node* node = dom_agent_impl_->GetNodeForId(node_id);
+  String result;
+  if (node) {
+    result = debugger_agent_impl_->ExecuteUtilityFunction(function_name, node,
+        json_args);
+  }
+  tools_agent_delegate_stub_->DidExecuteUtilityFunction(call_id,
+      result);
 }
 
 void WebDevToolsAgentImpl::DispatchMessageFromClient(

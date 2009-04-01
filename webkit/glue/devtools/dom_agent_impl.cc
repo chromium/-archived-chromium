@@ -478,24 +478,24 @@ ListValue* DomAgentImpl::BuildValueForNode(Node* node, int depth) {
 }
 
 ListValue* DomAgentImpl::BuildValueForElementAttributes(Element* element) {
-  OwnPtr<ListValue> attributesValue(new ListValue());
+  OwnPtr<ListValue> attributes_value(new ListValue());
   // Go through all attributes and serialize them.
-  const NamedNodeMap *attrMap = element->attributes(true);
-  if (!attrMap) {
-    return attributesValue.release();
+  const NamedNodeMap* attr_map = element->attributes(true);
+  if (!attr_map) {
+    return attributes_value.release();
   }
-  unsigned numAttrs = attrMap->length();
-  for (unsigned i = 0; i < numAttrs; i++) {
+  unsigned num_attrs = attr_map->length();
+  for (unsigned i = 0; i < num_attrs; i++) {
     // Add attribute pair
-    const Attribute *attribute = attrMap->attributeItem(i);
+    const Attribute *attribute = attr_map->attributeItem(i);
     OwnPtr<Value> name(Value::CreateStringValue(
         webkit_glue::StringToStdWString(attribute->name().toString())));
     OwnPtr<Value> value(Value::CreateStringValue(
         webkit_glue::StringToStdWString(attribute->value())));
-    attributesValue->Append(name.release());
-    attributesValue->Append(value.release());
+    attributes_value->Append(name.release());
+    attributes_value->Append(value.release());
   }
-  return attributesValue.release();
+  return attributes_value.release();
 }
 
 ListValue* DomAgentImpl::BuildValueForElementChildren(

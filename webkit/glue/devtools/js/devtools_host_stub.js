@@ -146,10 +146,43 @@ RemoteToolsAgentStub.prototype.evaluate = function(expr) {
   window.eval(expr);
 };
 
-RemoteToolsAgentStub.prototype.EvaluateJavaSctipt = function(callId, script) {
+RemoteToolsAgentStub.prototype.EvaluateJavaScript = function(callId, script) {
   setTimeout(function() {
     var result = eval(script);
-    RemoteToolsAgent.DidEvaluateJavaSctipt(callId, result);
+    RemoteToolsAgent.DidEvaluateJavaScript(callId, result);
+  }, 0);
+};
+
+
+RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId, 
+    functionName, nodeId, args) {
+  setTimeout(function() {
+    var result = [];
+    if (functionName == 'devtools$$getProperties') {
+      result = [
+        'undefined', 'undefined_key', undefined,
+        'string', 'string_key', 'value',
+        'function', 'func', undefined,
+        'array', 'array_key', [10],
+        'object', 'object_key', undefined,
+        'boolean', 'boolean_key', true,
+        'number', 'num_key', 911,
+        'date', 'date_key', new Date() ];
+    } else if (functionName == 'devtools$$getPrototypes') {
+      result = ['Proto1', 'Proto2', 'Proto3'];
+    } else {
+      alert('Unexpected utility function:' + functionName);
+    }
+    RemoteToolsAgent.DidExecuteUtilityFunction(callId,
+        goog.json.serialize(result));
+  }, 0);
+};
+
+
+RemoteToolsAgentStub.prototype.GetNodePrototypes = function(callId, nodeId) {
+  setTimeout(function() {
+    RemoteToolsAgent.DidGetNodePrototypes(callId,
+        goog.json.serialize());
   }, 0);
 };
 

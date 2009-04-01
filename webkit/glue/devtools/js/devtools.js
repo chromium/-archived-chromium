@@ -14,7 +14,9 @@ goog.require('devtools.DomAgent');
 goog.require('devtools.NetAgent');
 
 devtools.ToolsAgent = function() {
-  RemoteToolsAgent.DidEvaluateJavaSctipt = devtools.Callback.processCallback;
+  RemoteToolsAgent.DidEvaluateJavaScript = devtools.Callback.processCallback;
+  RemoteToolsAgent.DidExecuteUtilityFunction =
+      devtools.Callback.processCallback;
   RemoteToolsAgent.UpdateFocusedNode =
       goog.bind(this.updateFocusedNode, this);
   RemoteToolsAgent.FrameNavigate =
@@ -36,13 +38,44 @@ devtools.ToolsAgent.prototype.reset = function() {
 
 
 /**
- * @param {string} script Sctipt exression to be evaluated in the context of the
+ * @param {string} script Script exression to be evaluated in the context of the
  *     inspected page.
- * @param {Function} callback
+ * @param {function(string):undefined} callback Function to call with the
+ *     result.
  */
-devtools.ToolsAgent.prototype.evaluateJavaSctipt = function(script, callback) {
+devtools.ToolsAgent.prototype.evaluateJavaScript = function(script, callback) {
   var callbackId = devtools.Callback.wrap(callback);
-  RemoteToolsAgent.EvaluateJavaSctipt(callbackId, script);
+  RemoteToolsAgent.EvaluateJavaScript(callbackId, script);
+};
+
+
+/**
+ * Returns all properties of the given node.
+ * @param {devtools.DomNode} node Node to get properties for.
+ * @param {Array.<string>} path Path to the object.
+ * @param {number} protoDepth Depth to the exact proto level.
+ * @param {function(string):undefined} callback Function to call with the
+ *     result.
+ */
+devtools.ToolsAgent.prototype.getNodePropertiesAsync = function(nodeId,
+    path, protoDepth, callback) {
+  var callbackId = devtools.Callback.wrap(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'devtools$$getProperties', nodeId,
+      goog.json.serialize([path, protoDepth]));
+};
+
+
+/**
+ * Returns prototype chain for a given node.
+ * @param {devtools.DomNode} node Node to get prototypes for.
+ * @param {Function} callback.
+ */
+devtools.ToolsAgent.prototype.getNodePrototypesAsync = function(nodeId,
+    callback) {
+  var callbackId = devtools.Callback.wrap(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'devtools$$getPrototypes', nodeId, '');
 };
 
 
@@ -183,4 +216,106 @@ WebInspector.ElementsPanel.prototype.jumpToPreviousSearchResult = function() {
 
 WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
   return devtools.tools.evaluate(expr);
+};
+
+
+WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
+  var body = this.bodyElement;
+  body.removeChildren();
+
+  this.sections = [];
+
+  if (!object) {
+    return;
+  }
+
+  
+  var self = this;
+  devtools.tools.getNodePrototypesAsync(object.id_, function(json) {
+    var prototypes = goog.json.parse(json);
+    for (var i = 0; i < prototypes.length; ++i) {
+      var prototype = {};
+      prototype.id_ = object.id_;
+      prototype.protoDepth_ = i;
+      var section = new WebInspector.ObjectPropertiesSection(prototype,
+          prototypes[i]);
+      self.sections.push(section);
+      body.appendChild(section.element);
+    }
+  });
+};
+
+
+WebInspector.ObjectPropertiesSection.prototype.onpopulate = function() {
+  var nodeId = this.object.id_;
+  var protoDepth = this.object.protoDepth_;
+  var path = [];
+  devtools.tools.getNodePropertiesAsync(nodeId, path, protoDepth,
+      goog.partial(WebInspector.didGetNodePropertiesAsync_,
+          this.propertiesTreeOutline,
+          this.treeElementConstructor,
+          nodeId,
+          path));
+};
+
+
+WebInspector.ObjectPropertyTreeElement.prototype.onpopulate = function() {
+  var nodeId = this.parentObject.devtools$$nodeId_;
+  var path = this.parentObject.devtools$$path_.slice(0);
+  path.push(this.propertyName);
+  devtools.tools.getNodePropertiesAsync(nodeId, path, -1, goog.partial(
+      WebInspector.didGetNodePropertiesAsync_,
+      this,
+      this.treeOutline.section.treeElementConstructor,
+      nodeId, path));
+};
+
+
+/**
+ * Dummy object used during properties inspection.
+ * @see WebInspector.didGetNodePropertiesAsync_
+ */
+WebInspector.dummyObject_ = { 'foo' : 'bar' };
+
+
+/**
+ * Dummy function used during properties inspection.
+ * @see WebInspector.didGetNodePropertiesAsync_
+ */
+WebInspector.dummyFunction_ = function() {};
+
+
+/**
+ * Callback function used with the getNodeProperties.
+ */
+WebInspector.didGetNodePropertiesAsync_ = function(treeOutline, constructor,
+    nodeId, path, json) {
+  var props = goog.json.parse(json);
+  var properties = [];
+  var obj = {};
+  obj.devtools$$nodeId_ = nodeId;
+  obj.devtools$$path_ = path;
+  for (var i = 0; i < props.length; i += 3) {
+    var type = props[i];
+    var name = props[i + 1];
+    var value = props[i + 2];
+    properties.push(name);
+    if (type == 'object') {
+      // fake object is going to be replaced on expand.
+      obj[name] = WebInspector.dummyObject_;
+    } else if (type == 'function') {
+      // fake function is going to be replaced on expand.
+      obj[name] = WebInspector.dummyFunction_;
+    } else {
+      obj[name] = value;
+    }
+  }
+  properties.sort();
+
+  treeOutline.removeChildren();
+
+  for (var i = 0; i < properties.length; ++i) {
+    var propertyName = properties[i];
+    treeOutline.appendChild(new constructor(obj, propertyName));
+  }
 };
