@@ -340,6 +340,11 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
 }
 
 void RenderWidgetHostViewGtk::ShowCurrentCursor() {
+  // The widget may not have a window. If that's the case, abort mission. This
+  // is the same issue as that explained above in Paint().
+  if (!view_.get()->window)
+    return;
+
   GdkCursor* gdk_cursor;
   switch(current_cursor_.GetCursorType()) {
     case GDK_CURSOR_IS_PIXMAP:
