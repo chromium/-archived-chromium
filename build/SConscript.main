@@ -155,7 +155,13 @@ root_env = Environment(
                              '__env__, RDirs, TARGET, SOURCE)}'),
 )
 
-root_env['req_system_libs'] = ARGUMENTS.get('SYSTEM_LIBS', '').split(',')
+root_env['req_system_libs'] = []
+if 'SYSTEM_LIBS' in ARGUMENTS:
+  root_env['req_system_libs'] = ARGUMENTS['SYSTEM_LIBS'].split(',')
+  print "WARNING: Using system libs is not yet supported and may fail."
+  print "WARNING: You should only use this flag if you're willing to diagnose"
+  print "WARNING: and fix the inevitable link failures."
+
 root_env['_GYP'] = ARGUMENTS.get('GYP') and '_gyp' or ''
 
 def WantSystemLib(env, lib):
@@ -589,6 +595,9 @@ if ARGUMENTS.get('SYMBOLS') == '1':
 
 # Build shared libraries (useful for fast links) when SHARED=1.
 if ARGUMENTS.get('SHARED') == '1':
+  print "WARNING: The shared link frequently breaks and is unlikely to work."
+  print "WARNING: You should only use this flag if you're willing to diagnose"
+  print "WARNING: and fix the inevitable link failures."
   linux_env.Replace(COMPONENT_STATIC=False)
 
 # Build with system-provided NSS and GTK.
