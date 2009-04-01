@@ -679,9 +679,8 @@ def main(options, args):
     options.platform = path_utils.PlatformDir()
 
   if not options.num_test_shells:
-    # For now, only run Windows-Release in parallel until we make other
-    # configurations more stable.
-    if sys.platform in ('win32', 'cygwin') and options.target == 'Release':
+    # All configurations are still to flaky to have this on by default.
+    if False:
       cpus = 1
       if sys.platform in ('win32', 'cygwin'):
         cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
@@ -704,6 +703,8 @@ def main(options, args):
 
     else:
       options.num_test_shells = 1
+  
+  logging.info("Running %s test_shells in parallel" % options.num_test_shells)
   
   # Include all tests if none are specified.
   paths = args
