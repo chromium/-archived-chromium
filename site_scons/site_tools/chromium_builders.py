@@ -302,7 +302,7 @@ def ChromeInstall(env, target, source):
   copy_action = Action('cp $SOURCE $TARGET', 'Copying $TARGET')
   for s in source:
     dest = str(target) + '/' + os.path.split(str(s))[1]
-    result.extend(env.Command(dest, s, copy_action)
+    result.extend(env.Command(dest, s, copy_action))
   return result
 
 def generate(env):
