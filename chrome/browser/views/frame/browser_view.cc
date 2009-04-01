@@ -204,6 +204,7 @@ BrowserView::BrowserView(Browser* browser)
       browser_(browser),
       active_bookmark_bar_(NULL),
       active_download_shelf_(NULL),
+      tabstrip_(NULL),
       toolbar_(NULL),
       infobar_container_(NULL),
       find_bar_y_(0),

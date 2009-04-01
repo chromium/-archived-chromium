@@ -185,6 +185,11 @@ class NonClientView : public View {
     client_view_ = client_view;
   }
 
+  // Layout just the frame view. This is necessary on Windows when non-client
+  // metrics such as the position of the window controls changes independently
+  // of a window resize message.
+  void LayoutFrameView();
+
   // NonClientView, View overrides:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();

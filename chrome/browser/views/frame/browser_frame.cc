@@ -165,6 +165,15 @@ LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
 
   UpdateDWMFrame();
 
+  // Non-client metrics such as the window control positions may change as a
+  // result of us processing this message so we need to re-layout the frame view
+  // which may position items (such as the distributor logo) based on these
+  // metrics. We only do this once the non-client view has been properly
+  // initialized and added to the view hierarchy.
+  views::NonClientView* non_client_view = GetNonClientView();
+  if (non_client_view && non_client_view->GetParent())
+    non_client_view->LayoutFrameView();
+
   // We'd like to return WVR_REDRAW in some cases here, but because we almost
   // always have nonclient area (except in fullscreen mode, where it doesn't
   // matter), we can't.  See comments in window.cc:OnNCCalcSize() for more info.

@@ -112,15 +112,7 @@ void NonClientView::ResetWindowControls() {
   frame_view_->ResetWindowControls();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// NonClientView, View overrides:
-
-gfx::Size NonClientView::GetPreferredSize() {
-  gfx::Rect client_bounds(gfx::Point(), client_view_->GetPreferredSize());
-  return GetWindowBoundsForClientBounds(client_bounds).size();
-}
-
-void NonClientView::Layout() {
+void NonClientView::LayoutFrameView() {
   // First layout the NonClientFrameView, which determines the size of the
   // ClientView...
   frame_view_->SetBounds(0, 0, width(), height());
@@ -133,6 +125,18 @@ void NonClientView::Layout() {
   // to do nothing so that SetBounds above doesn't cause Layout to be called
   // twice.
   frame_view_->Layout();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// NonClientView, View overrides:
+
+gfx::Size NonClientView::GetPreferredSize() {
+  gfx::Rect client_bounds(gfx::Point(), client_view_->GetPreferredSize());
+  return GetWindowBoundsForClientBounds(client_bounds).size();
+}
+
+void NonClientView::Layout() {
+  LayoutFrameView();
 
   // Then layout the ClientView, using those bounds.
   client_view_->SetBounds(frame_view_->GetBoundsForClientView());
