@@ -2380,7 +2380,7 @@ MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 
 // Changed in http://trac.webkit.org/changeset/42082
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
-LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
+WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
 
 // Implement layoutTestController.waitForPolicyDelegate
 // BUG: 9595
