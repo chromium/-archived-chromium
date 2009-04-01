@@ -121,14 +121,34 @@ class V8Custom {
                       kDefaultWrapperInternalFieldCount + 1;
 #endif
 
-  static const int kDOMWindowHistoryIndex =
+  static const int kDOMWindowConsoleIndex =
                       kDefaultWrapperInternalFieldCount + 0;
-  static const int kDOMWindowNavigatorIndex =
+  static const int kDOMWindowHistoryIndex =
                       kDefaultWrapperInternalFieldCount + 1;
-  static const int kDOMWindowLocationIndex =
+  static const int kDOMWindowLocationbarIndex =
                       kDefaultWrapperInternalFieldCount + 2;
-  static const int kDOMWindowInternalFieldCount =
+  static const int kDOMWindowMenubarIndex =
                       kDefaultWrapperInternalFieldCount + 3;
+  static const int kDOMWindowNavigatorIndex =
+                      kDefaultWrapperInternalFieldCount + 4;
+  static const int kDOMWindowPersonalbarIndex =
+                      kDefaultWrapperInternalFieldCount + 5;
+  static const int kDOMWindowScreenIndex =
+                      kDefaultWrapperInternalFieldCount + 6;
+  static const int kDOMWindowScrollbarsIndex =
+                      kDefaultWrapperInternalFieldCount + 7;
+  static const int kDOMWindowSelectionIndex =
+                      kDefaultWrapperInternalFieldCount + 8;
+  static const int kDOMWindowStatusbarIndex =
+                      kDefaultWrapperInternalFieldCount + 9;
+  static const int kDOMWindowToolbarIndex =
+                      kDefaultWrapperInternalFieldCount + 10;
+  static const int kDOMWindowLocationIndex =
+                      kDefaultWrapperInternalFieldCount + 11;
+  static const int kDOMWindowDOMSelectionIndex =
+                      kDefaultWrapperInternalFieldCount + 12;
+  static const int kDOMWindowInternalFieldCount =
+                      kDefaultWrapperInternalFieldCount + 13;
 
   static const int kStyleSheetOwnerNodeIndex =
                       kDefaultWrapperInternalFieldCount + 0;

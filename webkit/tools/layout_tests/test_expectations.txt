@@ -1957,7 +1957,6 @@ LINUX : LayoutTests/fast/overflow/hit-test-overflow-controls.html = FAIL
 
 // Regressions from merge 41217:41268
 // New tests
-DEFER : LayoutTests/fast/dom/Window/customized-property-survives-gc.html = FAIL
 DEFER : LayoutTests/fast/dom/Window/webkitConvertPoint.html = FAIL
 DEFER LINUX WIN : LayoutTests/fast/gradients/background-clipped.html = FAIL
 

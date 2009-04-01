@@ -2369,13 +2369,17 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type, void
       else
         SetJSWrapperForDOMObject(imp, result);
 
-      // Special case for non-node objects History, Location and
-      // Navigator. Both Safari and FF let Location and Navigator JS
-      // wrappers survive GC. To mimic their behaviors, V8 creates
+      // Special case for non-node objects associated with a
+      // DOMWindow. Both Safari and FF let the JS wrappers for these
+      // objects survive GC. To mimic their behavior, V8 creates
       // hidden references from the DOMWindow to these wrapper
       // objects. These references get cleared when the DOMWindow is
       // reused by a new page.
       switch (type) {
+        case V8ClassIndex::CONSOLE:
+          SetHiddenWindowReference(static_cast<Console*>(imp)->frame(),
+                                   V8Custom::kDOMWindowConsoleIndex, result);
+          break;
         case V8ClassIndex::HISTORY:
           SetHiddenWindowReference(static_cast<History*>(imp)->frame(),
                                    V8Custom::kDOMWindowHistoryIndex, result);
@@ -2384,10 +2388,43 @@ v8::Handle<v8::Value> V8Proxy::ToV8Object(V8ClassIndex::V8WrapperType type, void
           SetHiddenWindowReference(static_cast<Navigator*>(imp)->frame(),
                                    V8Custom::kDOMWindowNavigatorIndex, result);
           break;
+        case V8ClassIndex::SCREEN:
+          SetHiddenWindowReference(static_cast<Screen*>(imp)->frame(),
+                                   V8Custom::kDOMWindowScreenIndex, result);
+          break;
         case V8ClassIndex::LOCATION:
           SetHiddenWindowReference(static_cast<Location*>(imp)->frame(),
                                    V8Custom::kDOMWindowLocationIndex, result);
           break;
+        case V8ClassIndex::DOMSELECTION:
+          SetHiddenWindowReference(static_cast<DOMSelection*>(imp)->frame(),
+                                   V8Custom::kDOMWindowDOMSelectionIndex, result);
+          break;
+        case V8ClassIndex::BARINFO: {
+          BarInfo* barinfo = static_cast<BarInfo*>(imp);
+          Frame* frame = barinfo->frame();
+          switch (barinfo->type()) {
+            case BarInfo::Locationbar:
+              SetHiddenWindowReference(frame, V8Custom::kDOMWindowLocationbarIndex, result);
+              break;
+            case BarInfo::Menubar:
+              SetHiddenWindowReference(frame, V8Custom::kDOMWindowMenubarIndex, result);
+              break;
+            case BarInfo::Personalbar:
+              SetHiddenWindowReference(frame, V8Custom::kDOMWindowPersonalbarIndex, result);
+              break;
+            case BarInfo::Scrollbars:
+              SetHiddenWindowReference(frame, V8Custom::kDOMWindowScrollbarsIndex, result);
+              break;
+            case BarInfo::Statusbar:
+              SetHiddenWindowReference(frame, V8Custom::kDOMWindowStatusbarIndex, result);
+              break;
+            case BarInfo::Toolbar:
+              SetHiddenWindowReference(frame, V8Custom::kDOMWindowToolbarIndex, result);
+              break;
+          }
+          break;
+        }
         default:
           break;
       }
