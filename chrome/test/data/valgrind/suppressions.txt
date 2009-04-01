@@ -7,6 +7,6 @@
 {
    bug_6532
    Memcheck:Leak
-   fun:_Znwj
+   ...
    fun:_Z17NewRunnableMethodIN3IPC12ChannelProxy7ContextEMS2_FvvEEP14CancelableTaskPT_T0_
 }
