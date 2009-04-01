@@ -191,7 +191,7 @@ def ChromeProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     prog = env.Program(target, source, *args, **kw)
-    result = env.Install('$TOP_BUILDDIR', prog)
+    result = env.ChromeInstall('$TOP_BUILDDIR', prog)
   else:
     result = env.ComponentProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
@@ -202,7 +202,7 @@ def ChromeTestProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     prog = env.Program(target, source, *args, **kw)
-    result = env.Install('$TOP_BUILDDIR', prog)
+    result = env.ChromeInstall('$TOP_BUILDDIR', prog)
   else:
     result = env.ComponentTestProgram(target, source, *args, **kw)
   if env.get('INCREMENTAL'):
@@ -213,7 +213,7 @@ def ChromeLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     lib = env.Library(target, source, *args, **kw)
-    result = env.Install('$LIB_DIR', lib)
+    result = env.ChromeInstall('$LIB_DIR', lib)
   else:
     result = env.ComponentLibrary(target, source, *args, **kw)
   return result
@@ -231,7 +231,7 @@ def ChromeStaticLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     lib = env.StaticLibrary(target, source, *args, **kw)
-    result = env.Install('$LIB_DIR', lib)
+    result = env.ChromeInstall('$LIB_DIR', lib)
   else:
     kw['COMPONENT_STATIC'] = True
     result = env.ComponentLibrary(target, source, *args, **kw)
@@ -241,7 +241,7 @@ def ChromeSharedLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
     lib = env.SharedLibrary(target, source, *args, **kw)
-    result = env.Install('$LIB_DIR', lib)
+    result = env.ChromeInstall('$LIB_DIR', lib)
   else:
     kw['COMPONENT_STATIC'] = False
     result = [env.ComponentLibrary(target, source, *args, **kw)[0]]
@@ -293,6 +293,18 @@ def ChromeMSVSSolution(env, *args, **kw):
     Alias('msvs', i)
   return result
 
+def ChromeInstall(env, target, source):
+  """
+  Replacement for the stock SCons Install() builder to use the
+  external cp utility instead of Python internals.
+  """
+  result = []
+  copy_action = Action('cp $SOURCE $TARGET', 'Copying $TARGET')
+  for s in source:
+    dest = str(target) + '/' + os.path.split(str(s))[1]
+    result.extend(env.Command(dest, s, copy_action)
+  return result
+
 def generate(env):
   env.AddMethod(ChromeProgram)
   env.AddMethod(ChromeTestProgram)
@@ -304,6 +316,7 @@ def generate(env):
   env.AddMethod(ChromeMSVSFolder)
   env.AddMethod(ChromeMSVSProject)
   env.AddMethod(ChromeMSVSSolution)
+  env.AddMethod(ChromeInstall)
 
   env.AddMethod(FilterOut)
 
