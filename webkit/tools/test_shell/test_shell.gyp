@@ -170,14 +170,16 @@
                 '<(SHARED_INTERMEDIATE_DIR)/webkit/webkit_strings_en-US.pak',
               ],
               'outputs': [
-                '<(PRODUCT_DIR)/test_shell.pak',
+                '<(INTERMEDIATE_DIR)/repack/test_shell.pak',
               ],
               'action': ['python', '../../../tools/data_pack/repack.py', '<@(_outputs)', '<@(_inputs)'],
             },
           ],
-          'scons_depends': [
-            ['<(PRODUCT_DIR)/test_shell'],
-            ['<(PRODUCT_DIR)/test_shell.pak'],
+          'copies': [
+            {
+              'destination': '<(PRODUCT_DIR)',
+              'files': ['<(INTERMEDIATE_DIR)/repack/test_shell.pak'],
+            },
           ],
         }],
         ['OS=="mac"', {
