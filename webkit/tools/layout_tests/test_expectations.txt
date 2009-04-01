@@ -1468,7 +1468,7 @@ MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/table/003.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
-MAC WIN LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
@@ -2344,29 +2344,25 @@ DEFER MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
 // BUG: 9581
-WIN : LayoutTests/http/tests/navigation/error404-goback.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
-WIN MAC LINUX : LayoutTests/http/tests/navigation/post-basic.html = FAIL
-WIN MAC LINUX : LayoutTests/http/tests/navigation/post-frames.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
-WIN MAC LINUX : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
-WIN MAC LINUX : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
-WIN MAC LINUX : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
-WIN MAC LINUX : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-WIN LINUX : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
-WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
-WIN : LayoutTests/editing/execCommand/paste-2.html = FAIL
-WIN : LayoutTests/editing/selection/4776665.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/post-basic.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/post-frames.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
+MAC LINUX : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
+LINUX : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
 
 // Changed in http://trac.webkit.org/changeset/42063
 MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
@@ -2423,4 +2419,4 @@ WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
-WIN MAC LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
+MAC LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
