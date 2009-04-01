@@ -381,10 +381,13 @@ DECLARE_CALLBACK(LocationReload)
 DECLARE_CALLBACK(LocationToString)
 DECLARE_CALLBACK(LocationValueOf)
 
-// Implementation of EventTarget::addEventListener
-// and EventTarget::removeEventListener
+// Implementation of custom Node methods.
 DECLARE_CALLBACK(NodeAddEventListener)
 DECLARE_CALLBACK(NodeRemoveEventListener)
+DECLARE_CALLBACK(NodeInsertBefore)
+DECLARE_CALLBACK(NodeReplaceChild)
+DECLARE_CALLBACK(NodeRemoveChild)
+DECLARE_CALLBACK(NodeAppendChild)
 
 // Custom implementation is Navigator properties.
 // We actually only need this because WebKit has
