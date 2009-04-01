@@ -25,7 +25,7 @@ typedef BOOL (WINAPI* HeapSetFn)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
 
 namespace base {
 
-int GetCurrentProcId() {
+ProcessId GetCurrentProcId() {
   return ::GetCurrentProcessId();
 }
 
@@ -33,7 +33,7 @@ ProcessHandle GetCurrentProcessHandle() {
   return ::GetCurrentProcess();
 }
 
-ProcessHandle OpenProcessHandle(int pid) {
+ProcessHandle OpenProcessHandle(ProcessId pid) {
   return OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE, FALSE, pid);
 }
 
@@ -100,7 +100,7 @@ bool GetProcIdViaNtQueryInformationProcess(ProcessHandle process, DWORD* id) {
   return true;
 }
 
-int GetProcId(ProcessHandle process) {
+ProcessId GetProcId(ProcessHandle process) {
   // Get a handle to |process| that has PROCESS_QUERY_INFORMATION rights.
   HANDLE current_process = GetCurrentProcess();
   HANDLE process_with_query_rights;
@@ -160,7 +160,7 @@ bool LaunchApp(const CommandLine& cl,
 // Attempts to kill the process identified by the given process
 // entry structure, giving it the specified exit code.
 // Returns true if this is successful, false otherwise.
-bool KillProcessById(DWORD process_id, int exit_code, bool wait) {
+bool KillProcessById(ProcessId process_id, int exit_code, bool wait) {
   HANDLE process = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE,
                                FALSE,  // Don't inherit handle
                                process_id);

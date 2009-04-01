@@ -62,14 +62,14 @@ enum {
 };
 
 // Returns the id of the current process.
-int GetCurrentProcId();
+ProcessId GetCurrentProcId();
 
 // Returns the ProcessHandle of the current process.
 ProcessHandle GetCurrentProcessHandle();
 
 // Converts a PID to a process handle. This handle must be closed by
 // CloseProcessHandle when you are done with it.
-ProcessHandle OpenProcessHandle(int pid);
+ProcessHandle OpenProcessHandle(ProcessId pid);
 
 // Closes the process handle opened by OpenProcessHandle.
 void CloseProcessHandle(ProcessHandle process);
@@ -77,7 +77,7 @@ void CloseProcessHandle(ProcessHandle process);
 // Returns the unique ID for the specified process. This is functionally the
 // same as Windows' GetProcessId(), but works on versions of Windows before
 // Win XP SP1 as well.
-int GetProcId(ProcessHandle process);
+ProcessId GetProcId(ProcessHandle process);
 
 #if defined(OS_POSIX)
 // Sets all file descriptors to close on exec except for stdin, stdout
@@ -129,7 +129,7 @@ class ProcessFilter {
  public:
   // Returns true to indicate set-inclusion and false otherwise.  This method
   // should not have side-effects and should be idempotent.
-  virtual bool Includes(uint32 pid, uint32 parent_pid) const = 0;
+  virtual bool Includes(ProcessId pid, ProcessId parent_pid) const = 0;
   virtual ~ProcessFilter() { }
 };
 
@@ -153,7 +153,7 @@ bool KillProcesses(const std::wstring& executable_name, int exit_code,
 // Returns true if this is successful, false otherwise.
 bool KillProcess(ProcessHandle process, int exit_code, bool wait);
 #if defined(OS_WIN)
-bool KillProcessById(DWORD process_id, int exit_code, bool wait);
+bool KillProcessById(ProcessId process_id, int exit_code, bool wait);
 #endif
 
 // Get the termination status (exit code) of the process and return true if the

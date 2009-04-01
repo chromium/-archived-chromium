@@ -107,7 +107,7 @@ bool Process::EmptyWorkingSet() {
   return rv == TRUE;
 }
 
-int32 Process::pid() const {
+ProcessId Process::pid() const {
   if (process_ == 0)
     return 0;
 

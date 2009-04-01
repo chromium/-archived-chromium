@@ -28,8 +28,8 @@ BrowserProcessFilter::BrowserProcessFilter(const std::wstring user_data_dir)
     GetWindowThreadProcessId(message_window, &browser_process_id_);
 }
 
-bool BrowserProcessFilter::Includes(uint32 pid,
-                                    uint32 parent_pid) const {
+bool BrowserProcessFilter::Includes(base::ProcessId pid,
+                                    base::ProcessId parent_pid) const {
   return browser_process_id_ && (browser_process_id_ == pid ||
                                  browser_process_id_ == parent_pid);
 }

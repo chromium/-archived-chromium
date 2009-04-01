@@ -27,7 +27,7 @@ const int kMicrosecondsPerSecond = 1000000;
 
 namespace base {
 
-int GetCurrentProcId() {
+ProcessId GetCurrentProcId() {
   return getpid();
 }
 
@@ -35,7 +35,7 @@ ProcessHandle GetCurrentProcessHandle() {
   return GetCurrentProcId();
 }
 
-ProcessHandle OpenProcessHandle(int pid) {
+ProcessHandle OpenProcessHandle(ProcessId pid) {
   // On Posix platforms, process handles are the same as PIDs, so we
   // don't need to do anything.
   return pid;
@@ -46,7 +46,7 @@ void CloseProcessHandle(ProcessHandle process) {
   return;
 }
 
-int GetProcId(ProcessHandle process) {
+ProcessId GetProcId(ProcessHandle process) {
   return process;
 }
 

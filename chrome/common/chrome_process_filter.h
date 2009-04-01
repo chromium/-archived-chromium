@@ -18,7 +18,7 @@ class BrowserProcessFilter : public base::ProcessFilter {
 
   uint32 browser_process_id() const { return browser_process_id_; }
 
-  virtual bool Includes(uint32 pid, uint32 parent_pid) const;
+  virtual bool Includes(base::ProcessId pid, base::ProcessId parent_pid) const;
 
  private:
   std::wstring user_data_dir_;
