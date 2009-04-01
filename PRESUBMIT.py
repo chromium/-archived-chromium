@@ -16,8 +16,8 @@ SOURCE_FILE_EXTENSIONS = [
 EXCLUDED_PATHS = [
     r"breakpad[\\\/].*",
     r"chrome[\\\/]Debug[\\\/].*",
-    r"chrome[\\\/]Hammer[\\\/].*",
     r"chrome[\\\/]Release[\\\/].*",
+    r"sconsbuild[\\\/].*",
     r"xcodebuild[\\\/].*",
     r"skia[\\\/].*",
     r".*third_party[\\\/].*",

@@ -32,7 +32,7 @@ bool PathProviderLinux(int key, FilePath* result) {
     }
     case base::DIR_SOURCE_ROOT:
       // On linux, unit tests execute two levels deep from the source root.
-      // For example:  chrome/{Debug|Hammer}/net_unittest
+      // For example:  sconsbuild/{Debug|Release}/net_unittest
       if (!PathService::Get(base::DIR_EXE, &path))
         return false;
       path = path.Append(FilePath::kParentDirectory)

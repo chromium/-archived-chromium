@@ -114,7 +114,6 @@ stage_install() {
     "${STAGEDIR}${INSTALLDIR}/locales/"
   install -m 644 "${BUILDDIR}/themes/default.pak" \
     "${STAGEDIR}${INSTALLDIR}/themes/"
-  install -m 644 "${BUILDDIR}/icudt38l.dat" "${STAGEDIR}${INSTALLDIR}/"
   install -m 644 "${SCRIPTDIR}/../common/${PACKAGE}/${PACKAGE}.png" \
     "${STAGEDIR}${INSTALLDIR}/"
   process_template "${SCRIPTDIR}/../common/wrapper" \
@@ -313,7 +312,7 @@ process_opts() {
 SCRIPTDIR=$(readlink -f "$(dirname "$0")")
 OUTPUTDIR="${PWD}"
 STAGEDIR=deb.build
-BUILDDIR=$(readlink -f "${SCRIPTDIR}/../../../Hammer")
+BUILDDIR=$(readlink -f "${SCRIPTDIR}/../../../../sconsbuild/Release")
 CHANGELOG=changelog.auto
 # Default to a bogus low version, so if somebody creates and installs a package
 # with no version info, it won't prevent upgrading when trying to install a
