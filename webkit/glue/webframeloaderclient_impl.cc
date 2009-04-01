@@ -1563,14 +1563,18 @@ bool WebFrameLoaderClient::ActionSpecifiesDisposition(
     return false;
 
   const MouseEvent* event = static_cast<const MouseEvent*>(action.event());
-  const bool middle_or_ctrl = (event->button() == 1) || event->ctrlKey();
+#if defined(OS_WIN) || defined(OS_LINUX)
+  const bool new_tab_modifier = (event->button() == 1) || event->ctrlKey();
+#elif defined(OS_MACOSX)
+  const bool new_tab_modifier = (event->button() == 1) || event->metaKey();
+#endif
   const bool shift = event->shiftKey();
   const bool alt = event->altKey();
-  if (!middle_or_ctrl && !shift && !alt)
+  if (!new_tab_modifier && !shift && !alt)
     return false;
 
   DCHECK(disposition);
-  if (middle_or_ctrl)
+  if (new_tab_modifier)
     *disposition = shift ? NEW_FOREGROUND_TAB : NEW_BACKGROUND_TAB;
   else
     *disposition = shift ? NEW_WINDOW : SAVE_TO_DISK;
