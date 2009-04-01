@@ -441,7 +441,7 @@ void WebPluginProxy::InitiateHTTPRangeRequest(const char* url,
                                               const char* range_info,
                                               intptr_t existing_stream,
                                               bool notify_needed,
-                                              int notify_data) {
+                                              intptr_t notify_data) {
 
   Send(new PluginHostMsg_InitiateHTTPRangeRequest(route_id_, url,
                                                   range_info, existing_stream,

@@ -1288,7 +1288,7 @@ void WebPluginImpl::InitiateHTTPRangeRequest(const char* url,
                                              const char* range_info,
                                              intptr_t existing_stream,
                                              bool notify_needed,
-                                             int notify_data) {
+                                             intptr_t notify_data) {
   int resource_id = GetNextResourceId();
   std::string complete_url_string;
   CompleteURL(url, &complete_url_string);
