@@ -36,7 +36,9 @@ ChromeFont::ChromeFont() {
     default_font_ = new ChromeFont(CreateFont(UTF8ToWide(name),
                                    size / PANGO_SCALE));
 
+    pango_font_description_free(desc);
     g_free(font_name);
+    g_value_unset(&value);
 
     DCHECK(default_font_);
   }
