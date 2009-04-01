@@ -94,11 +94,6 @@ class StatsCounter {
     Add(1);
   }
 
-  // TODO(jar) temporary hack include method till base and chrome use new name.
-  void Increment(int value) {
-    Add(value);
-  }
-
   virtual void Add(int value) {
     int* loc = GetPtr();
     if (loc)
@@ -111,11 +106,6 @@ class StatsCounter {
   }
 
   void Subtract(int value) {
-    Add(-value);
-  }
-
-  // TODO(jar) temporary hack includes method till base and chrome use new name.
-  void Decrement(int value) {
     Add(-value);
   }
 
@@ -207,11 +197,6 @@ class StatsCounterTimer : protected StatsCounter {
   // Accept a TimeDelta to increment.
   virtual void AddTime(base::TimeDelta time) {
     Add(static_cast<int>(time.InMilliseconds()));
-  }
-
-  // TODO(jar)  temporary hack include method till base and chrome use new name.
-  void IncrementTimer(base::TimeDelta time) {
-    AddTime(time);
   }
 
  protected:

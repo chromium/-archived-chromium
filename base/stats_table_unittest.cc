@@ -280,11 +280,11 @@ TEST_F(StatsTableTest, StatsCounter) {
   EXPECT_EQ(0, table.GetCounterValue("c:foo"));
 
   // Test Decrement.
-  foo.Decrement(1);
+  foo.Subtract(1);
   EXPECT_EQ(-1, table.GetCounterValue("c:foo"));
-  foo.Decrement(0);
+  foo.Subtract(0);
   EXPECT_EQ(-1, table.GetCounterValue("c:foo"));
-  foo.Decrement(-1);
+  foo.Subtract(-1);
   EXPECT_EQ(0, table.GetCounterValue("c:foo"));
 
   DeleteShmem(kTableName);
