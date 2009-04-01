@@ -14,6 +14,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
@@ -23,6 +24,9 @@
 
 using std::string;
 using std::wstring;
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
 
 #if defined(OS_WIN)
 namespace {
@@ -84,7 +88,8 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("waitUntilDone", &LayoutTestController::waitUntilDone);
   BindMethod("notifyDone", &LayoutTestController::notifyDone);
   BindMethod("queueReload", &LayoutTestController::queueReload);
-  BindMethod("queueScript", &LayoutTestController::queueScript);
+  BindMethod("queueLoadingScript", &LayoutTestController::queueLoadingScript);
+  BindMethod("queueNonLoadingScript", &LayoutTestController::queueNonLoadingScript);
   BindMethod("queueLoad", &LayoutTestController::queueLoad);
   BindMethod("queueBackNavigation", &LayoutTestController::queueBackNavigation);
   BindMethod("queueForwardNavigation", &LayoutTestController::queueForwardNavigation);
@@ -161,15 +166,17 @@ void LayoutTestController::WorkQueue::ProcessWorkSoon() {
 
 void LayoutTestController::WorkQueue::ProcessWork() {
   // Quit doing work once a load is in progress.
-  while (!queue_.empty() && !shell_->delegate()->top_loading_frame()) {
-    queue_.front()->Run(shell_);
+  while (!queue_.empty()) {
+    bool started_load = queue_.front()->Run(shell_);
     delete queue_.front();
     queue_.pop();
+
+    if (started_load)
+      return;
   }
 
-  if (!shell_->delegate()->top_loading_frame() && !wait_until_done_) {
+  if (!wait_until_done_)
     shell_->TestFinished();
-  }
 }
 
 void LayoutTestController::WorkQueue::Reset() {
@@ -280,8 +287,9 @@ void LayoutTestController::notifyDone(
 class WorkItemBackForward : public LayoutTestController::WorkItem {
  public:
   WorkItemBackForward(int distance) : distance_(distance) {}
-  void Run(TestShell* shell) {
+  bool Run(TestShell* shell) {
     shell->GoBackOrForward(distance_);
+    return true;  // TODO(darin): Did it really start a navigation?
   }
  private:
   int distance_;
@@ -303,8 +311,9 @@ void LayoutTestController::queueForwardNavigation(
 
 class WorkItemReload : public LayoutTestController::WorkItem {
  public:
-  void Run(TestShell* shell) {
+  bool Run(TestShell* shell) {
     shell->Reload();
+    return true;
   }
 };
 
@@ -314,21 +323,41 @@ void LayoutTestController::queueReload(
   result->SetNull();
 }
 
-class WorkItemScript : public LayoutTestController::WorkItem {
+class WorkItemLoadingScript : public LayoutTestController::WorkItem {
  public:
-  WorkItemScript(const string& script) : script_(script) {}
-  void Run(TestShell* shell) {
-    wstring url = L"javascript:" + UTF8ToWide(script_);
-    shell->LoadURL(url.c_str());
+  WorkItemLoadingScript(const string& script) : script_(script) {}
+  bool Run(TestShell* shell) {
+    shell->webView()->GetMainFrame()->ExecuteScript(
+        WebScriptSource(WebString::fromUTF8(script_)));
+    return true;  // TODO(darin): Did it really start a navigation?
   }
  private:
   string script_;
 };
 
-void LayoutTestController::queueScript(
+class WorkItemNonLoadingScript : public LayoutTestController::WorkItem {
+ public:
+  WorkItemNonLoadingScript(const string& script) : script_(script) {}
+  bool Run(TestShell* shell) {
+    shell->webView()->GetMainFrame()->ExecuteScript(
+        WebScriptSource(WebString::fromUTF8(script_)));
+    return false;
+  }
+ private:
+  string script_;
+};
+
+void LayoutTestController::queueLoadingScript(
     const CppArgumentList& args, CppVariant* result) {
   if (args.size() > 0 && args[0].isString())
-    work_queue_.AddWork(new WorkItemScript(args[0].ToString()));
+    work_queue_.AddWork(new WorkItemLoadingScript(args[0].ToString()));
+  result->SetNull();
+}
+
+void LayoutTestController::queueNonLoadingScript(
+    const CppArgumentList& args, CppVariant* result) {
+  if (args.size() > 0 && args[0].isString())
+    work_queue_.AddWork(new WorkItemNonLoadingScript(args[0].ToString()));
   result->SetNull();
 }
 
@@ -336,9 +365,10 @@ class WorkItemLoad : public LayoutTestController::WorkItem {
  public:
   WorkItemLoad(const GURL& url, const string& target)
       : url_(url), target_(target) {}
-  void Run(TestShell* shell) {
+  bool Run(TestShell* shell) {
     shell->LoadURLForFrame(UTF8ToWide(url_.spec()).c_str(),
                            UTF8ToWide(target_).c_str());
+    return true;  // TODO(darin): Did it really start a navigation?
   }
  private:
   GURL url_;

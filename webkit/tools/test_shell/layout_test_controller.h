@@ -80,7 +80,8 @@ class LayoutTestController : public CppBoundClass {
   void queueBackNavigation(const CppArgumentList& args, CppVariant* result);
   void queueForwardNavigation(const CppArgumentList& args, CppVariant* result);
   void queueReload(const CppArgumentList& args, CppVariant* result);
-  void queueScript(const CppArgumentList& args, CppVariant* result);
+  void queueLoadingScript(const CppArgumentList& args, CppVariant* result);
+  void queueNonLoadingScript(const CppArgumentList& args, CppVariant* result);
   void queueLoad(const CppArgumentList& args, CppVariant* result);
 
   // Although this is named "objC" to match the Mac version, it actually tests
@@ -214,7 +215,9 @@ class LayoutTestController : public CppBoundClass {
   class WorkItem {
    public:
     virtual ~WorkItem() {}
-    virtual void Run(TestShell* shell) = 0;
+
+    // Returns true if this started a load.
+    virtual bool Run(TestShell* shell) = 0;
   };
 
   // Used to clear the value of shell_ from test_shell_tests.
