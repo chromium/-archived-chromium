@@ -260,6 +260,8 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            # Linux tests use the built test_shell beside the test
+            'test_shell',
             '../../../build/linux/system.gyp:gtk',
           ],
           'sources!': [
