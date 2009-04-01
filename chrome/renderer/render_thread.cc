@@ -174,10 +174,7 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
 void RenderThread::OnSetNextPageID(int32 next_page_id) {
   // This should only be called at process initialization time, so we shouldn't
   // have to worry about thread-safety.
-  // TODO(port)
-#if !defined(OS_LINUX)
   RenderView::SetNextPageID(next_page_id);
-#endif
 }
 
 void RenderThread::OnCreateNewView(gfx::NativeViewId parent_hwnd,
