@@ -4,7 +4,7 @@
 
 """
 Tool module for adding, to a construction environment, Chromium-specific
-wrappers around Hammer builders.  This gives us a central place for any
+wrappers around SCons builders.  This gives us a central place for any
 customization we need to make to the different things we build.
 """
 
@@ -13,7 +13,6 @@ import sys
 from SCons.Script import *
 
 import SCons.Node
-import _Node_MSVS as MSVS
 
 class Null(object):
   def __new__(cls, *args, **kwargs):
@@ -256,43 +255,6 @@ def ChromeObject(env, *args, **kw):
     result = env.ComponentObject(*args, **kw)
   return result
 
-def ChromeMSVSFolder(env, *args, **kw):
-  if not env.Bit('msvs'):
-    return Null()
-  return env.MSVSFolder(*args, **kw)
-
-def ChromeMSVSProject(env, *args, **kw):
-  if not env.Bit('msvs'):
-    return Null()
-  try:
-    dest = kw['dest']
-  except KeyError:
-    dest = None
-  else:
-    del kw['dest']
-  result = env.MSVSProject(*args, **kw)
-  env.AlwaysBuild(result)
-  if dest:
-    i = env.Command(dest, result, Copy('$TARGET', '$SOURCE'))
-    Alias('msvs', i)
-  return result
-
-def ChromeMSVSSolution(env, *args, **kw):
-  if not env.Bit('msvs'):
-    return Null()
-  try:
-    dest = kw['dest']
-  except KeyError:
-    dest = None
-  else:
-    del kw['dest']
-  result = env.MSVSSolution(*args, **kw)
-  env.AlwaysBuild(result)
-  if dest:
-    i = env.Command(dest, result, Copy('$TARGET', '$SOURCE'))
-    Alias('msvs', i)
-  return result
-
 def ChromeInstall(env, target, source):
   """
   Replacement for the stock SCons Install() builder to use the
@@ -313,9 +275,6 @@ def generate(env):
   env.AddMethod(ChromeStaticLibrary)
   env.AddMethod(ChromeSharedLibrary)
   env.AddMethod(ChromeObject)
-  env.AddMethod(ChromeMSVSFolder)
-  env.AddMethod(ChromeMSVSProject)
-  env.AddMethod(ChromeMSVSSolution)
   env.AddMethod(ChromeInstall)
 
   env.AddMethod(FilterOut)
