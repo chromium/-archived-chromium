@@ -205,7 +205,8 @@ class DownloadFileManager
 
   // The download manager has provided a final name for a download. Sent from
   // the UI thread and run on the download thread.
-  void OnFinalDownloadName(int id, const FilePath& full_path);
+  void OnFinalDownloadName(int id, const FilePath& full_path,
+                           DownloadManager* download_manager);
 
   // Timer notifications.
   void UpdateInProgressDownloads();

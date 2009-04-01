@@ -51,7 +51,7 @@ void OpenDownload(DownloadItem* download) {
   if (download->state() == DownloadItem::IN_PROGRESS)
     download->set_open_when_complete(!download->open_when_complete());
   else if (download->state() == DownloadItem::COMPLETE)
-    download->manager()->OpenDownloadInShell(download, NULL);
+    download->manager()->OpenDownload(download, NULL);
 }
 
 // Download progress painting --------------------------------------------------

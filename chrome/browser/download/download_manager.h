@@ -335,6 +335,9 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   void PauseDownload(int32 download_id, bool pause);
   void RemoveDownload(int64 download_handle);
 
+  // Called when the download is renamed to its final name.
+  void DownloadRenamedToFinalName(int download_id, const FilePath& full_path);
+
   // Remove downloads after remove_begin (inclusive) and before remove_end
   // (exclusive). You may pass in null Time values to do an unbounded delete
   // in either direction.
@@ -364,10 +367,14 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   void OnSearchComplete(HistoryService::Handle handle,
                         std::vector<int64>* results);
 
-  // Show or Open a download via the Windows shell.
+  // Opens a download. For Chrome extensions call
+  // ExtensionsServices::InstallExtension, for everything else call
+  // OpenDownloadInShell.
+  void OpenDownload(const DownloadItem* download,
+                    gfx::NativeView parent_window);
+
+  // Show a download via the Windows shell.
   void ShowDownloadInShell(const DownloadItem* download);
-  void OpenDownloadInShell(const DownloadItem* download,
-                           gfx::NativeView parent_window);
 
   // The number of in progress (including paused) downloads.
   int in_progress_count() const {
@@ -420,6 +427,13 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
                             FilePath* file_name);
 
  private:
+  // Opens a download via the Windows shell.
+  void OpenDownloadInShell(const DownloadItem* download,
+                           gfx::NativeView parent_window);
+
+  // Opens downloaded Chrome extension file (*.crx).
+  void OpenChromeExtension(const FilePath& full_path);
+
   // Shutdown the download manager.  This call is needed only after Init.
   void Shutdown();
 

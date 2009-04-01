@@ -315,7 +315,7 @@ void DownloadsDOMHandler::HandleGetDownloads(const Value* value) {
 void DownloadsDOMHandler::HandleOpenFile(const Value* value) {
   DownloadItem* file = GetDownloadByValue(value);
   if (file)
-    download_manager_->OpenDownloadInShell(file, NULL);
+    download_manager_->OpenDownload(file, NULL);
 }
 
 void DownloadsDOMHandler::HandleDrag(const Value* value) {

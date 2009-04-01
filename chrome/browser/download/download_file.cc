@@ -550,7 +550,8 @@ void DownloadFileManager::OnOpenDownloadInShell(const FilePath& full_path,
 // download specified by 'id'. Rename the in progress download, and remove it
 // from our table if it has been completed or cancelled already.
 void DownloadFileManager::OnFinalDownloadName(int id,
-                                              const FilePath& full_path) {
+                                              const FilePath& full_path,
+                                              DownloadManager* manager) {
   DCHECK(MessageLoop::current() == file_loop_);
   DownloadFileMap::iterator it = downloads_.find(id);
   if (it == downloads_.end())
@@ -559,7 +560,13 @@ void DownloadFileManager::OnFinalDownloadName(int id,
   file_util::CreateDirectory(full_path.DirName());
 
   DownloadFile* download = it->second;
-  if (!download->Rename(full_path)) {
+  if (download->Rename(full_path)) {
+    ui_loop_->PostTask(FROM_HERE,
+        NewRunnableMethod(manager,
+                          &DownloadManager::DownloadRenamedToFinalName,
+                          id,
+                          full_path));
+  } else {
     // Error. Between the time the UI thread generated 'full_path' to the time
     // this code runs, something happened that prevents us from renaming.
     DownloadManagerMap::iterator dmit = managers_.find(download->id());
