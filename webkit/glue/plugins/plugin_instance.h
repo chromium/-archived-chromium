@@ -138,7 +138,7 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
 
   // Helper method to set some persistent data for getURLNotify since
   // resource fetches happen async.
-  void SetURLLoadData(const GURL& url, void* notify_data);
+  void SetURLLoadData(const GURL& url, intptr_t notify_data);
 
   // If true, send the Mozilla user agent instead of Chrome's to the plugin.
   bool use_mozilla_user_agent() { return use_mozilla_user_agent_; }
@@ -166,7 +166,8 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   bool NPP_Print(NPPrint* platform_print);
 
   void SendJavaScriptStream(const std::string& url, const std::wstring& result,
-                            bool success, bool notify_needed, int notify_data);
+                            bool success, bool notify_needed,
+                            intptr_t notify_data);
 
   void DidReceiveManualResponse(const std::string& url,
                                 const std::string& mime_type,
@@ -231,7 +232,7 @@ class PluginInstance : public base::RefCountedThreadSafe<PluginInstance> {
   WebPlugin*                               webplugin_;
   std::string                              mime_type_;
   GURL                                     get_url_;
-  void*                                    get_notify_data_;
+  intptr_t                                 get_notify_data_;
   bool                                     use_mozilla_user_agent_;
 #if defined(OS_WIN)
   scoped_refptr<MozillaExtensionApi>       mozilla_extenstions_;

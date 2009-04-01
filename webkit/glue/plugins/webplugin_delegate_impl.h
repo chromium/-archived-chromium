@@ -65,7 +65,7 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual void SendJavaScriptStream(const std::string& url,
                                     const std::wstring& result,
                                     bool success, bool notify_needed,
-                                    int notify_data);
+                                    intptr_t notify_data);
   virtual void DidReceiveManualResponse(const std::string& url,
                                         const std::string& mime_type,
                                         const std::string& headers,
@@ -79,11 +79,11 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,
                                                         bool notify_needed,
-                                                        void *notify_data,
-                                                        void* stream);
+                                                        intptr_t notify_data,
+                                                        intptr_t stream);
 
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
-                                void* notify_data);
+                                intptr_t notify_data);
   virtual bool IsWindowless() const { return windowless_ ; }
   virtual const gfx::Rect& GetRect() const { return window_rect_; }
   virtual const gfx::Rect& GetClipRect() const { return clip_rect_; }

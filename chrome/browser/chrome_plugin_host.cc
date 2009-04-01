@@ -33,6 +33,7 @@
 #include "chrome/common/gears_api.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/net/url_request_intercept_job.h"
+#include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/base64.h"
 #include "net/base/cookie_monster.h"
@@ -43,7 +44,6 @@
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "chrome/browser/dom_ui/html_dialog_contents.h"
-#include "chrome/common/plugin_messages.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif

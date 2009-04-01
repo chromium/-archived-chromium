@@ -336,8 +336,7 @@ WebPluginImpl::WebPluginImpl(WebCore::HTMLPlugInElement* element,
 WebPluginImpl::~WebPluginImpl() {
 }
 
-bool WebPluginImpl::SetWindow(gfx::NativeView window,
-                              HANDLE pump_messages_event) {
+bool WebPluginImpl::SetWindow(gfx::NativeView window) {
   if (window) {
     DCHECK(!windowless_);  // Make sure not called twice.
     window_ = window;
@@ -366,7 +365,7 @@ bool WebPluginImpl::CompleteURL(const std::string& url_in,
 bool WebPluginImpl::ExecuteScript(const std::string& url,
                                   const std::wstring& script,
                                   bool notify_needed,
-                                  int notify_data,
+                                  intptr_t notify_data,
                                   bool popups_allowed) {
   // This could happen if the WebPluginContainer was already deleted.
   if (!frame())
@@ -1006,7 +1005,7 @@ void WebPluginImpl::didReceiveResponse(WebCore::ResourceHandle* handle,
           WebPluginResourceClient* resource_client =
               delegate_->CreateResourceClient(clients_[i].id,
                                               plugin_url_.spec().c_str(),
-                                              NULL, false, NULL);
+                                              false, 0, NULL);
           clients_[i].client = resource_client;
           client = resource_client;
           break;
@@ -1151,7 +1150,7 @@ void WebPluginImpl::HandleURLRequest(const char *method,
                                      const char* target, unsigned int len,
                                      const char* buf, bool is_file_data,
                                      bool notify, const char* url,
-                                     void* notify_data, bool popups_allowed) {
+                                     intptr_t notify_data, bool popups_allowed) {
   HandleURLRequestInternal(method, is_javascript_url, target, len, buf,
                            is_file_data, notify, url, notify_data,
                            popups_allowed, true);
@@ -1160,7 +1159,7 @@ void WebPluginImpl::HandleURLRequest(const char *method,
 void WebPluginImpl::HandleURLRequestInternal(
     const char *method, bool is_javascript_url, const char* target,
     unsigned int len, const char* buf, bool is_file_data, bool notify,
-    const char* url, void* notify_data, bool popups_allowed,
+    const char* url, intptr_t notify_data, bool popups_allowed,
     bool use_plugin_src_as_referrer) {
   // For this request, we either route the output to a frame
   // because a target has been specified, or we handle the request
@@ -1190,9 +1189,8 @@ void WebPluginImpl::HandleURLRequestInternal(
         WebCore::String(escaped_script.data(),
                                   static_cast<int>(escaped_script.length())));
 
-    ExecuteScript(original_url,
-                  webkit_glue::StringToStdWString(script), notify,
-                  reinterpret_cast<int>(notify_data), popups_allowed);
+    ExecuteScript(original_url, webkit_glue::StringToStdWString(script), notify,
+                  notify_data, popups_allowed);
   } else {
     std::string complete_url_string;
     CompleteURL(url, &complete_url_string);
@@ -1288,9 +1286,9 @@ void WebPluginImpl::CancelDocumentLoad() {
 
 void WebPluginImpl::InitiateHTTPRangeRequest(const char* url,
                                              const char* range_info,
-                                             HANDLE existing_stream,
+                                             intptr_t existing_stream,
                                              bool notify_needed,
-                                             HANDLE notify_data) {
+                                             int notify_data) {
   int resource_id = GetNextResourceId();
   std::string complete_url_string;
   CompleteURL(url, &complete_url_string);

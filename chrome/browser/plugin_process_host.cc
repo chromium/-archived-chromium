@@ -33,26 +33,27 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/file_stream.h"
 #include "net/base/io_buffer.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_context.h"
+#include "webkit/glue/plugins/plugin_constants_win.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
-#include "chrome/common/plugin_messages.h"
 #include "chrome/common/win_util.h"
 #include "sandbox/src/sandbox.h"
-#include "webkit/glue/plugins/plugin_constants_win.h"
 #endif
 
 static const char kDefaultPluginFinderURL[] =
     "http://dl.google.com/chrome/plugins/plugins2.xml";
 
+#if defined(OS_WIN)
 
 // The PluginDownloadUrlHelper is used to handle one download URL request
 // from the plugin. Each download request is handled by a new instance
@@ -109,11 +110,7 @@ PluginDownloadUrlHelper::PluginDownloadUrlHelper(
       download_file_caller_window_(caller_window),
       download_url_(download_url),
       download_source_pid_(source_pid) {
-#if defined(OS_WIN)
   DCHECK(::IsWindow(caller_window));
-#else
-  // TODO(port): Some window verification for mac and linux.
-#endif
   memset(download_file_buffer_->data(), 0, kDownloadFileBufferSize);
   download_file_.reset(new net::FileStream());
 }
@@ -156,14 +153,8 @@ void PluginDownloadUrlHelper::OnResponseStarted(URLRequest* request) {
     file_util::GetTempDir(&download_file_path_);
 
     GURL request_url = request->url();
-#if defined(OS_WIN)
     download_file_path_ = download_file_path_.Append(
         UTF8ToWide(request_url.ExtractFileName()));
-#else
-    download_file_path_ = download_file_path_.Append(
-        request_url.ExtractFileName());
-#endif
-
     download_file_->Open(download_file_path_,
                          base::PLATFORM_FILE_CREATE_ALWAYS |
                          base::PLATFORM_FILE_READ | base::PLATFORM_FILE_WRITE);
@@ -247,7 +238,6 @@ void PluginDownloadUrlHelper::DownloadCompletedHelper(bool success) {
       download_file_.reset();
   }
 
-#if defined(OS_WIN)
   std::wstring path = download_file_path_.value();
   COPYDATASTRUCT download_file_data = {0};
   download_file_data.cbData =
@@ -259,16 +249,12 @@ void PluginDownloadUrlHelper::DownloadCompletedHelper(bool success) {
     ::SendMessage(download_file_caller_window_, WM_COPYDATA, NULL,
                   reinterpret_cast<LPARAM>(&download_file_data));
   }
-#else
-  // TODO(port): Send the file data to the caller.
-  NOTIMPLEMENTED();
-#endif
 
   // Don't access any members after this.
   delete this;
 }
 
-#if defined(OS_WIN)
+
 // Sends the reply to the create window message on the IO thread.
 class SendReplyTask : public Task {
  public:
@@ -354,6 +340,14 @@ void PluginProcessHost::OnDestroyWindow(HWND window) {
   }
 
   PostMessage(window, WM_CLOSE, 0, 0);
+}
+
+void PluginProcessHost::OnDownloadUrl(const std::string& url,
+                                      int source_pid,
+                                      gfx::NativeWindow caller_window) {
+  PluginDownloadUrlHelper* download_url_helper =
+      new PluginDownloadUrlHelper(url, source_pid, caller_window);
+  download_url_helper->InitiateDownload();
 }
 
 void PluginProcessHost::AddWindow(HWND window) {
@@ -499,25 +493,22 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
 }
 
 void PluginProcessHost::OnMessageReceived(const IPC::Message& msg) {
-#if defined(OS_WIN)
   IPC_BEGIN_MESSAGE_MAP(PluginProcessHost, msg)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_ChannelCreated, OnChannelCreated)
-    IPC_MESSAGE_HANDLER(PluginProcessHostMsg_DownloadUrl, OnDownloadUrl)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetPluginFinderUrl,
                         OnGetPluginFinderUrl)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_PluginMessage, OnPluginMessage)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_GetCookies, OnGetCookies)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginProcessHostMsg_ResolveProxy,
                                     OnResolveProxy)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(PluginProcessHostMsg_CreateWindow,
                                     OnCreateWindow)
     IPC_MESSAGE_HANDLER(PluginProcessHostMsg_DestroyWindow, OnDestroyWindow)
+    IPC_MESSAGE_HANDLER(PluginProcessHostMsg_DownloadUrl, OnDownloadUrl)
+#endif
     IPC_MESSAGE_UNHANDLED_ERROR()
   IPC_END_MESSAGE_MAP()
-#else
-  // TODO(port): Port plugin_messages_internal.h.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void PluginProcessHost::OnChannelConnected(int32 peer_pid) {
@@ -634,14 +625,6 @@ void PluginProcessHost::OnChannelCreated(const std::wstring& channel_name) {
                   info_.path,
                   sent_requests_.front().reply_msg);
   sent_requests_.pop();
-}
-
-void PluginProcessHost::OnDownloadUrl(const std::string& url,
-                                      int source_pid,
-                                      gfx::NativeWindow caller_window) {
-  PluginDownloadUrlHelper* download_url_helper =
-      new PluginDownloadUrlHelper(url, source_pid, caller_window);
-  download_url_helper->InitiateDownload();
 }
 
 void PluginProcessHost::OnGetPluginFinderUrl(std::string* plugin_finder_url) {

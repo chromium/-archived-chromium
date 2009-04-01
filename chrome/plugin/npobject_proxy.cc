@@ -48,7 +48,7 @@ NPObjectProxy* NPObjectProxy::GetProxy(NPObject* object) {
 NPObjectProxy::NPObjectProxy(
     PluginChannelBase* channel,
     int route_id,
-    void* npobject_ptr,
+    intptr_t npobject_ptr,
     base::WaitableEvent* modal_dialog_event)
     : channel_(channel),
       route_id_(route_id),
@@ -67,7 +67,7 @@ NPObjectProxy::~NPObjectProxy() {
 
 NPObject* NPObjectProxy::Create(PluginChannelBase* channel,
                                 int route_id,
-                                void* npobject_ptr,
+                                intptr_t npobject_ptr,
                                 base::WaitableEvent* modal_dialog_event) {
   NPObjectWrapper* obj = reinterpret_cast<NPObjectWrapper*>(
       NPN_CreateObject(0, &npclass_proxy_));

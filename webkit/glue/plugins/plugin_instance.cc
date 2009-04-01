@@ -167,7 +167,7 @@ NPObject *PluginInstance::GetPluginScriptableObject() {
 }
 
 void PluginInstance::SetURLLoadData(const GURL& url,
-                                    void* notify_data) {
+                                    intptr_t notify_data) {
   get_url_ = url;
   get_notify_data_ = notify_data;
 }
@@ -175,7 +175,8 @@ void PluginInstance::SetURLLoadData(const GURL& url,
 // WebPluginLoadDelegate methods
 void PluginInstance::DidFinishLoadWithReason(NPReason reason) {
   if (!get_url_.is_empty()) {
-    NPP_URLNotify(get_url_.spec().c_str(), reason, get_notify_data_);
+    NPP_URLNotify(get_url_.spec().c_str(), reason,
+        reinterpret_cast<void*>(get_notify_data_));
   }
 
   get_url_ = GURL();
@@ -351,7 +352,7 @@ void PluginInstance::SendJavaScriptStream(const std::string& url,
                                           const std::wstring& result,
                                           bool success,
                                           bool notify_needed,
-                                          int notify_data) {
+                                          intptr_t notify_data) {
   if (success) {
     PluginStringStream *stream =
       new PluginStringStream(this, url, notify_needed,
@@ -505,9 +506,9 @@ void PluginInstance::RequestRead(NPStream* stream, NPByteRange* range_list) {
 
       webplugin_->InitiateHTTPRangeRequest(
           stream->url, range_info.c_str(),
-          plugin_stream,
+          reinterpret_cast<intptr_t>(plugin_stream),
           plugin_stream->notify_needed(),
-          plugin_stream->notify_data());
+          reinterpret_cast<intptr_t>(plugin_stream->notify_data()));
       break;
     }
   }

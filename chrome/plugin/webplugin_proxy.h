@@ -30,12 +30,15 @@ class WebPluginProxy : public WebPlugin {
   // marshalled WebPlugin calls.
   WebPluginProxy(PluginChannel* channel,
                  int route_id,
-                 WebPluginDelegate* delegate,
-                 HANDLE modal_dialog_event);
+                 WebPluginDelegate* delegate);
   ~WebPluginProxy();
 
   // WebPlugin overrides
-  bool SetWindow(HWND window, HANDLE pump_messages_event);
+  bool SetWindow(gfx::NativeView window);
+#if defined(OS_WIN)
+  void SetWindowlessPumpEvent(HANDLE pump_messages_event);
+  void SetModalDialogEvent(HANDLE modal_dialog_event);
+#endif
   void CancelResource(int id);
   void Invalidate();
   void InvalidateRect(const gfx::Rect& rect);
@@ -79,7 +82,7 @@ class WebPluginProxy : public WebPlugin {
                         const char* target, unsigned int len,
                         const char* buf, bool is_file_data,
                         bool notify, const char* url,
-                        void* notify_data, bool popups_allowed);
+                        intptr_t notify_data, bool popups_allowed);
 
   void UpdateGeometry(const gfx::Rect& window_rect,
                       const gfx::Rect& clip_rect,
@@ -90,9 +93,9 @@ class WebPluginProxy : public WebPlugin {
 
   void InitiateHTTPRangeRequest(const char* url,
                                 const char* range_info,
-                                void* existing_stream,
+                                intptr_t existing_stream,
                                 bool notify_needed,
-                                HANDLE notify_data);
+                                intptr_t notify_data);
 
   bool IsOffTheRecord();
 

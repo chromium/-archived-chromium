@@ -340,16 +340,10 @@ static NPError GetURLNotify(NPP id,
 
   scoped_refptr<NPAPI::PluginInstance> plugin = FindInstance(id);
   if (plugin.get()) {
-    plugin->webplugin()->HandleURLRequest("GET",
-                                          is_javascript_url,
-                                          target,
-                                          0,
-                                          0,
-                                          false,
-                                          notify,
-                                          url,
-                                          notify_data,
-                                          plugin->popups_allowed());
+    plugin->webplugin()->HandleURLRequest(
+        "GET", is_javascript_url, target, 0, 0, false,
+        notify, url, reinterpret_cast<intptr_t>(notify_data),
+        plugin->popups_allowed());
   } else {
     NOTREACHED();
     return NPERR_GENERIC_ERROR;
@@ -485,16 +479,9 @@ static NPError PostURLNotify(NPP id,
   // Unfortunately, our stream needs these broken apart,
   // so we need to parse the data and set headers and data
   // separately.
-  plugin->webplugin()->HandleURLRequest("POST",
-                                        is_javascript_url,
-                                        target,
-                                        len,
-                                        buf,
-                                        false,
-                                        notify,
-                                        url,
-                                        notify_data,
-                                        plugin->popups_allowed());
+  plugin->webplugin()->HandleURLRequest(
+      "POST", is_javascript_url, target, len, buf, false, notify, url,
+      reinterpret_cast<intptr_t>(notify_data), plugin->popups_allowed());
   return NPERR_NO_ERROR;
 }
 

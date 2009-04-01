@@ -105,7 +105,7 @@ class WebPluginDelegate {
   virtual void SendJavaScriptStream(const std::string& url,
                                     const std::wstring& result,
                                     bool success, bool notify_needed,
-                                    int notify_data) = 0;
+                                    intptr_t notify_data) = 0;
 
   // Receives notification about data being available.
   virtual void DidReceiveManualResponse(const std::string& url,
@@ -133,12 +133,12 @@ class WebPluginDelegate {
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,
                                                         bool notify_needed,
-                                                        void *notify_data,
-                                                        void* stream) = 0;
+                                                        intptr_t notify_data,
+                                                        intptr_t stream) = 0;
 
   // Notifies the delegate about a Get/Post URL request getting routed.
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
-                                void* notify_data) = 0;
+                                intptr_t notify_data) = 0;
 
   virtual bool IsWindowless() const;
 

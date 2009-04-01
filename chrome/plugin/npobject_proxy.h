@@ -35,7 +35,7 @@ class NPObjectProxy : public IPC::Channel::Listener,
   // modal_dialog_event_ is must be valid for the lifetime of the NPObjectProxy.
   static NPObject* Create(PluginChannelBase* channel,
                           int route_id,
-                          void* npobject_ptr,
+                          intptr_t npobject_ptr,
                           base::WaitableEvent* modal_dialog_event);
 
   // IPC::Message::Sender implementation:
@@ -45,7 +45,7 @@ class NPObjectProxy : public IPC::Channel::Listener,
 
   // Returns the real NPObject's pointer (obviously only valid in the other
   // process).
-  void* npobject_ptr() { return npobject_ptr_; }
+  intptr_t npobject_ptr() { return npobject_ptr_; }
 
   // The next 8 functions are called on NPObjects from the plugin and browser.
   static bool NPHasMethod(NPObject *obj,
@@ -96,7 +96,7 @@ class NPObjectProxy : public IPC::Channel::Listener,
  private:
   NPObjectProxy(PluginChannelBase* channel,
                 int route_id,
-                void* npobject_ptr,
+                intptr_t npobject_ptr,
                 base::WaitableEvent* modal_dialog_event);
 
   // IPC::Channel::Listener implementation:
@@ -111,7 +111,7 @@ class NPObjectProxy : public IPC::Channel::Listener,
   static NPClass npclass_proxy_;
 
   int route_id_;
-  void* npobject_ptr_;
+  intptr_t npobject_ptr_;
   scoped_refptr<PluginChannelBase> channel_;
   base::WaitableEvent* modal_dialog_event_;
 };

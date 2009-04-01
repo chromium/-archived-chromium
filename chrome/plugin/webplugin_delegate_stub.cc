@@ -127,10 +127,12 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   FilePath path =
       FilePath(command_line.GetSwitchValue(switches::kPluginPath));
   delegate_ = WebPluginDelegate::Create(
-      path, mime_type_, params.containing_window);
+      path, mime_type_, gfx::NativeViewFromId(params.containing_window));
   if (delegate_) {
-    webplugin_ = new WebPluginProxy(
-        channel_, instance_id_, delegate_, params.modal_dialog_event);
+    webplugin_ = new WebPluginProxy(channel_, instance_id_, delegate_);
+#if defined(OS_WIN)
+    webplugin_->SetModalDialogEvent(params.modal_dialog_event);
+#endif
     *result = delegate_->Initialize(
         params.url, argn, argv, argc, webplugin_, params.load_manually);
   }
@@ -211,7 +213,8 @@ void WebPluginDelegateStub::OnDidPaint() {
   webplugin_->DidPaint();
 }
 
-void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
+void WebPluginDelegateStub::OnPrint(base::SharedMemoryHandle* shared_memory,
+                                    size_t* size) {
   gfx::Emf emf;
   if (!emf.CreateDc(NULL, NULL)) {
     NOTREACHED();
@@ -225,14 +228,13 @@ void WebPluginDelegateStub::OnPrint(PluginMsg_PrintResponse_Params* params) {
     return;
   }
 
-  size_t size = emf.GetDataSize();
-  DCHECK(size);
-  params->size = size;
+  *size = emf.GetDataSize();
+  DCHECK(*size);
   base::SharedMemory shared_buf;
-  CreateSharedBuffer(size, &shared_buf, &params->shared_memory);
+  CreateSharedBuffer(*size, &shared_buf, shared_memory);
 
   // Retrieve a copy of the data.
-  bool success = emf.GetData(shared_buf.memory(), size);
+  bool success = emf.GetData(shared_buf.memory(), *size);
   DCHECK(success);
 }
 
@@ -246,7 +248,7 @@ void WebPluginDelegateStub::OnUpdateGeometry(
 }
 
 void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,
-                                                        void** npobject_ptr) {
+                                                        intptr_t* npobject_ptr) {
   NPObject* object = delegate_->GetPluginScriptableObject();
   if (!object) {
     *route_id = MSG_ROUTING_NONE;
@@ -254,7 +256,7 @@ void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,
   }
 
   *route_id = channel_->GenerateRouteID();
-  *npobject_ptr = object;
+  *npobject_ptr = reinterpret_cast<intptr_t>(object);
   // The stub will delete itself when the proxy tells it that it's released, or
   // otherwise when the channel is closed.
   NPObjectStub* stub = new NPObjectStub(
@@ -268,7 +270,7 @@ void WebPluginDelegateStub::OnSendJavaScriptStream(const std::string& url,
                                                    const std::wstring& result,
                                                    bool success,
                                                    bool notify_needed,
-                                                   int notify_data) {
+                                                   intptr_t notify_data) {
   delegate_->SendJavaScriptStream(url, result, success, notify_needed,
                                   notify_data);
 }
@@ -337,6 +339,6 @@ void WebPluginDelegateStub::OnHandleURLRequestReply(
 
 void WebPluginDelegateStub::OnURLRequestRouted(const std::string& url,
                                                bool notify_needed,
-                                               HANDLE notify_data) {
+                                               intptr_t notify_data) {
   delegate_->URLRequestRouted(url, notify_needed, notify_data);
 }

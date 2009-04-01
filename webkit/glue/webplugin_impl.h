@@ -147,7 +147,10 @@ class WebPluginImpl : public WebPlugin,
                 int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
-  bool SetWindow(gfx::NativeView window, HANDLE pump_messages_event);
+  bool SetWindow(gfx::NativeView window);
+#if defined(OS_WIN)
+  void SetWindowlessPumpEvent(HANDLE pump_messages_event) { }
+#endif
 
   // Given a (maybe partial) url, completes using the base url.
   bool CompleteURL(const std::string& url_in, std::string* url_out);
@@ -158,7 +161,7 @@ class WebPluginImpl : public WebPlugin,
   // plugin as is. This avoids having to track the notification arguments
   // in the plugin process.
   bool ExecuteScript(const std::string& url, const std::wstring& script,
-                     bool notify_needed, int notify_data, bool popups_allowed);
+                     bool notify_needed, intptr_t notify_data, bool popups_allowed);
 
   // Given a download request, check if we need to route the output
   // to a frame.  Returns ROUTED if the load is done and routed to
@@ -289,13 +292,13 @@ class WebPluginImpl : public WebPlugin,
                         const char* target, unsigned int len,
                         const char* buf, bool is_file_data,
                         bool notify, const char* url,
-                        void* notify_data, bool popups_allowed);
+                        intptr_t notify_data, bool popups_allowed);
 
   void CancelDocumentLoad();
 
   void InitiateHTTPRangeRequest(const char* url, const char* range_info,
-                                HANDLE existing_stream, bool notify_needed,
-                                HANDLE notify_data);
+                                intptr_t existing_stream, bool notify_needed,
+                                intptr_t notify_data);
 
   // Ignore in-process plugins mode for this flag.
   bool IsOffTheRecord() { return false; }
@@ -309,7 +312,7 @@ class WebPluginImpl : public WebPlugin,
                                 const char* target, unsigned int len,
                                 const char* buf, bool is_file_data,
                                 bool notify, const char* url,
-                                void* notify_data, bool popups_allowed,
+                                intptr_t notify_data, bool popups_allowed,
                                 bool use_plugin_src_as_referrer);
 
   // Tears down the existing plugin instance and creates a new plugin instance

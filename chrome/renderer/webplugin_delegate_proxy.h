@@ -75,7 +75,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual void SendJavaScriptStream(const std::string& url,
                                     const std::wstring& result,
                                     bool success, bool notify_needed,
-                                    int notify_data);
+                                    intptr_t notify_data);
 
   virtual void DidReceiveManualResponse(const std::string& url,
                                         const std::string& mime_type,
@@ -90,12 +90,12 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   virtual WebPluginResourceClient* CreateResourceClient(int resource_id,
                                                         const std::string &url,
                                                         bool notify_needed,
-                                                        void* notify_data,
-                                                        void* existing_stream);
+                                                        intptr_t notify_data,
+                                                        intptr_t existing_stream);
 
   // Notifies the delegate about a Get/Post URL request getting routed
   virtual void URLRequestRouted(const std::string&url, bool notify_needed,
-                                void* notify_data);
+                                intptr_t notify_data);
 
  protected:
   template<class WebPluginDelegateProxy> friend class DeleteTask;
@@ -108,16 +108,18 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Message handlers for messages that proxy WebPlugin methods, which
   // we translate into calls to the real WebPlugin.
-  void OnSetWindow(gfx::NativeView window,
-                   HANDLE modal_loop_pump_messages_event);
+  void OnSetWindow(gfx::NativeViewId window);
+#if defined(OS_WIN)
+  void OnSetWindowlessPumpEvent(HANDLE modal_loop_pump_messages_event);
+#endif
   void OnCompleteURL(const std::string& url_in, std::string* url_out,
                      bool* result);
   void OnHandleURLRequest(const PluginHostMsg_URLRequest_Params& params);
   void OnCancelResource(int id);
   void OnInvalidateRect(const gfx::Rect& rect);
   void OnGetWindowScriptNPObject(int route_id, bool* success,
-                                 void** npobject_ptr);
-  void OnGetPluginElement(int route_id, bool* success, void** npobject_ptr);
+                                 intptr_t* npobject_ptr);
+  void OnGetPluginElement(int route_id, bool* success, intptr_t* npobject_ptr);
   void OnSetCookie(const GURL& url,
                    const GURL& policy_url,
                    const std::string& cookie);
@@ -131,8 +133,9 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   void OnCancelDocumentLoad();
   void OnInitiateHTTPRangeRequest(const std::string& url,
                                   const std::string& range_info,
-                                  HANDLE existing_stream, bool notify_needed,
-                                  HANDLE notify_data);
+                                  intptr_t existing_stream,
+                                  bool notify_needed,
+                                  intptr_t notify_data);
 
   // Draw a graphic indicating a crashed plugin.
   void PaintSadPlugin(HDC hdc, const gfx::Rect& rect);

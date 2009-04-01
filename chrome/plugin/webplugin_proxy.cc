@@ -29,8 +29,7 @@ static ContextMap& GetContextMap() {
 WebPluginProxy::WebPluginProxy(
     PluginChannel* channel,
     int route_id,
-    WebPluginDelegate* delegate,
-    HANDLE modal_dialog_event)
+    WebPluginDelegate* delegate)
     : channel_(channel),
       route_id_(route_id),
       cp_browsing_context_(0),
@@ -41,19 +40,6 @@ WebPluginProxy::WebPluginProxy(
 #pragma warning(suppress: 4355)  // can use this
       runnable_method_factory_(this),
       parent_window_(NULL) {
-
-  HANDLE event;
-  BOOL result = DuplicateHandle(channel->renderer_handle(),
-      modal_dialog_event,
-      GetCurrentProcess(),
-      &event,
-      SYNCHRONIZE,
-      FALSE,
-      0);
-  DCHECK(result) <<
-      "Couldn't duplicate the modal dialog handle for the plugin." \
-      "handle: " << channel->renderer_handle() << ". err: " << GetLastError();
-  modal_dialog_event_.reset(new base::WaitableEvent(event));
 }
 
 WebPluginProxy::~WebPluginProxy() {
@@ -70,18 +56,8 @@ bool WebPluginProxy::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-bool WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
-  HANDLE pump_messages_event_for_renderer = NULL;
-
-  if (pump_messages_event) {
-    DCHECK(window == NULL);
-    DuplicateHandle(GetCurrentProcess(), pump_messages_event,
-                    channel_->renderer_handle(),
-                    &pump_messages_event_for_renderer,
-                    0, FALSE, DUPLICATE_SAME_ACCESS);
-    DCHECK(pump_messages_event_for_renderer != NULL);
-  } else {
-    DCHECK (window);
+bool WebPluginProxy::SetWindow(gfx::NativeView window) {
+  if (window) {
     // To make scrolling windowed plugins fast, we create the page's direct
     // child windows in the browser process.  This way no cross process messages
     // are sent.
@@ -102,11 +78,40 @@ bool WebPluginProxy::SetWindow(HWND window, HANDLE pump_messages_event) {
     window = parent_window_;
   }
 
-  Send(new PluginHostMsg_SetWindow(route_id_, window,
-                                   pump_messages_event_for_renderer));
+  Send(new PluginHostMsg_SetWindow(route_id_, gfx::IdFromNativeView(window)));
 
   return false;
 }
+
+#if defined(OS_WIN)
+void WebPluginProxy::SetWindowlessPumpEvent(HANDLE pump_messages_event) {
+  HANDLE pump_messages_event_for_renderer = NULL;
+  DuplicateHandle(GetCurrentProcess(), pump_messages_event,
+                  channel_->renderer_handle(),
+                  &pump_messages_event_for_renderer,
+                  0, FALSE, DUPLICATE_SAME_ACCESS);
+  DCHECK(pump_messages_event_for_renderer != NULL);
+  Send(new PluginHostMsg_SetWindowlessPumpEvent(
+      route_id_, pump_messages_event_for_renderer));
+}
+
+void WebPluginProxy::SetModalDialogEvent(HANDLE modal_dialog_event) {
+  // TODO(port): figure out how this will be set in the browser process, or
+  // come up with a different mechanism.
+  HANDLE event;
+  BOOL result = DuplicateHandle(channel_->renderer_handle(),
+      modal_dialog_event,
+      GetCurrentProcess(),
+      &event,
+      SYNCHRONIZE,
+      FALSE,
+      0);
+  DCHECK(result) <<
+      "Couldn't duplicate the modal dialog handle for the plugin." \
+      "handle: " << channel_->renderer_handle() << ". err: " << GetLastError();
+  modal_dialog_event_.reset(new base::WaitableEvent(event));
+}
+#endif
 
 void WebPluginProxy::CancelResource(int id) {
   Send(new PluginHostMsg_CancelResource(route_id_, id));
@@ -147,7 +152,7 @@ NPObject* WebPluginProxy::GetWindowScriptNPObject() {
 
   int npobject_route_id = channel_->GenerateRouteID();
   bool success = false;
-  void* npobject_ptr;
+  intptr_t npobject_ptr;
   Send(new PluginHostMsg_GetWindowScriptNPObject(
       route_id_, npobject_route_id, &success, &npobject_ptr));
   if (!success)
@@ -167,7 +172,7 @@ NPObject* WebPluginProxy::GetPluginElement() {
 
   int npobject_route_id = channel_->GenerateRouteID();
   bool success = false;
-  void* npobject_ptr;
+  intptr_t npobject_ptr;
   Send(new PluginHostMsg_GetPluginElement(
       route_id_, npobject_route_id, &success, &npobject_ptr));
   if (!success)
@@ -265,7 +270,8 @@ void WebPluginProxy::HandleURLRequest(const char *method,
                                       const char* target, unsigned int len,
                                       const char* buf, bool is_file_data,
                                       bool notify, const char* url,
-                                      void* notify_data, bool popups_allowed) {
+                                      intptr_t notify_data,
+                                      bool popups_allowed) {
   if (!url) {
     NOTREACHED();
     return;
@@ -433,9 +439,9 @@ void WebPluginProxy::CancelDocumentLoad() {
 
 void WebPluginProxy::InitiateHTTPRangeRequest(const char* url,
                                               const char* range_info,
-                                              void* existing_stream,
+                                              intptr_t existing_stream,
                                               bool notify_needed,
-                                              HANDLE notify_data) {
+                                              int notify_data) {
 
   Send(new PluginHostMsg_InitiateHTTPRangeRequest(route_id_, url,
                                                   range_info, existing_stream,

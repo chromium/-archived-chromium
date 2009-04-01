@@ -114,6 +114,7 @@ void PluginThread::OnPluginMessage(const std::vector<unsigned char> &data) {
 
 namespace webkit_glue {
 
+#if defined(OS_WIN)
 bool DownloadUrl(const std::string& url, HWND caller_window) {
   PluginThread* plugin_thread = PluginThread::current();
   if (!plugin_thread) {
@@ -126,6 +127,7 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
                                            caller_window);
   return plugin_thread->Send(message);
 }
+#endif
 
 bool GetPluginFinderURL(std::string* plugin_finder_url) {
   if (!plugin_finder_url) {

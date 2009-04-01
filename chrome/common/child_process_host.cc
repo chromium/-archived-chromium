@@ -14,12 +14,10 @@
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
+#include "chrome/common/plugin_messages.h"
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/result_codes.h"
 
-#if defined(OS_WIN)
-#include "chrome/common/plugin_messages.h"
-#endif
 
 namespace {
 typedef std::list<ChildProcessHost*> ChildProcessList;
@@ -153,7 +151,6 @@ void ChildProcessHost::ListenerHook::OnMessageReceived(
       msg, host_, &msg_is_ok);
 
   if (!handled) {
-#if defined(OS_WIN)
     if (msg.type() == PluginProcessHostMsg_ShutdownRequest::ID) {
       // Must remove the process from the list now, in case it gets used for a
       // new instance before our watcher tells us that the process terminated.
@@ -161,9 +158,6 @@ void ChildProcessHost::ListenerHook::OnMessageReceived(
       if (host_->CanShutdown())
         host_->Send(new PluginProcessMsg_Shutdown());
     } else {
-#else
-    {
-#endif
       host_->OnMessageReceived(msg);
     }
   }
@@ -180,9 +174,7 @@ void ChildProcessHost::ListenerHook::OnMessageReceived(
 void ChildProcessHost::ListenerHook::OnChannelConnected(int32 peer_pid) {
   host_->opening_channel_ = false;
   host_->OnChannelConnected(peer_pid);
-#if defined(OS_WIN)
   host_->Send(new PluginProcessMsg_AskBeforeShutdown());
-#endif
 
   // Notify in the main loop of the connection.
   host_->Notify(NotificationType::CHILD_PROCESS_HOST_CONNECTED);

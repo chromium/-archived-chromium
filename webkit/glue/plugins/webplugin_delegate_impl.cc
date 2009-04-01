@@ -253,6 +253,13 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
     return false;
 
   windowless_ = instance_->windowless();
+  if (!windowless_) {
+    if (!WindowedCreatePlugin())
+      return false;
+  }
+
+  windowed_manage_position_ = plugin->SetWindow(windowed_handle_);
+#if defined(OS_WIN)
   if (windowless_) {
     // For windowless plugins we should set the containing window handle
     // as the instance window handle. This is what Safari does. Not having
@@ -262,13 +269,9 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
     instance_->set_window_handle(parent_);
     CreateDummyWindowForActivation();
     handle_event_pump_messages_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
-  } else {
-    if (!WindowedCreatePlugin())
-      return false;
+    plugin->SetWindowlessPumpEvent(handle_event_pump_messages_event_);
   }
-
-  windowed_manage_position_ =
-      plugin->SetWindow(windowed_handle_, handle_event_pump_messages_event_);
+#endif
   plugin_url_ = url.spec();
 
   // The windowless version of the Silverlight plugin calls the
@@ -382,7 +385,7 @@ void WebPluginDelegateImpl::SendJavaScriptStream(const std::string& url,
                                                  const std::wstring& result,
                                                  bool success,
                                                  bool notify_needed,
-                                                 int notify_data) {
+                                                 intptr_t notify_data) {
   instance()->SendJavaScriptStream(url, result, success, notify_needed,
                                    notify_data);
 }
@@ -1090,7 +1093,7 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
 WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
     int resource_id, const std::string &url, bool notify_needed,
-    void *notify_data, void* existing_stream) {
+    intptr_t notify_data, intptr_t existing_stream) {
   // Stream already exists. This typically happens for range requests
   // initiated via NPN_RequestRead.
   if (existing_stream) {
@@ -1106,17 +1109,15 @@ WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
     instance()->SetURLLoadData(GURL(url.c_str()), notify_data);
   }
   std::string mime_type;
-  NPAPI::PluginStreamUrl *stream = instance()->CreateStream(resource_id,
-                                                            url,
-                                                            mime_type,
-                                                            notify_needed,
-                                                            notify_data);
+  NPAPI::PluginStreamUrl *stream = instance()->CreateStream(
+      resource_id, url, mime_type, notify_needed,
+      reinterpret_cast<void*>(notify_data));
   return stream;
 }
 
 void WebPluginDelegateImpl::URLRequestRouted(const std::string&url,
                                              bool notify_needed,
-                                             void* notify_data) {
+                                             intptr_t notify_data) {
   if (notify_needed) {
     instance()->SetURLLoadData(GURL(url.c_str()), notify_data);
   }

@@ -41,11 +41,6 @@ IPC_BEGIN_MESSAGES(PluginProcessHost)
   IPC_MESSAGE_CONTROL1(PluginProcessHostMsg_ChannelCreated,
                        std::wstring /* channel_name */)
 
-  IPC_MESSAGE_ROUTED3(PluginProcessHostMsg_DownloadUrl,
-                      std::string /* URL */,
-                      int /* process id */,
-                      HWND /* caller window */)
-
   IPC_SYNC_MESSAGE_CONTROL0_1(PluginProcessHostMsg_GetPluginFinderUrl,
                               std::string /* plugin finder URL */)
 
@@ -77,6 +72,7 @@ IPC_BEGIN_MESSAGES(PluginProcessHost)
                               int /* network error */,
                               std::string /* proxy list */)
 
+#if defined(OS_WIN)
   // Creates a child window of the given parent window on the UI thread.
   IPC_SYNC_MESSAGE_CONTROL1_1(PluginProcessHostMsg_CreateWindow,
                               HWND /* parent */,
@@ -85,6 +81,12 @@ IPC_BEGIN_MESSAGES(PluginProcessHost)
   // Destroys the given window on the UI thread.
   IPC_MESSAGE_CONTROL1(PluginProcessHostMsg_DestroyWindow,
                        HWND /* window */)
+
+  IPC_MESSAGE_ROUTED3(PluginProcessHostMsg_DownloadUrl,
+                      std::string /* URL */,
+                      int /* process id */,
+                      HWND /* caller window */)
+#endif
 
 IPC_END_MESSAGES(PluginProcessHost)
 
@@ -122,12 +124,13 @@ IPC_BEGIN_MESSAGES(Plugin)
   // plugin knows it can send more invalidates.
   IPC_MESSAGE_ROUTED0(PluginMsg_DidPaint)
 
-  IPC_SYNC_MESSAGE_ROUTED0_1(PluginMsg_Print,
-                             PluginMsg_PrintResponse_Params /* params */)
+  IPC_SYNC_MESSAGE_ROUTED0_2(PluginMsg_Print,
+                             base::SharedMemoryHandle /* shared_memory*/,
+                             size_t /* size */)
 
   IPC_SYNC_MESSAGE_ROUTED0_2(PluginMsg_GetPluginScriptableObject,
                              int /* route_id */,
-                             void* /* npobject_ptr */)
+                             intptr_t /* npobject_ptr */)
 
   IPC_SYNC_MESSAGE_ROUTED1_0(PluginMsg_DidFinishLoadWithReason,
                              int /* reason */)
@@ -173,7 +176,7 @@ IPC_BEGIN_MESSAGES(Plugin)
                       std::wstring /* result */,
                       bool /* success */,
                       bool /* notify required */,
-                      int /* notify data */)
+                      intptr_t /* notify data */)
 
   IPC_MESSAGE_ROUTED2(PluginMsg_DidReceiveManualResponse,
                       std::string /* url */,
@@ -194,7 +197,7 @@ IPC_BEGIN_MESSAGES(Plugin)
   IPC_SYNC_MESSAGE_ROUTED3_0(PluginMsg_URLRequestRouted,
                              std::string /* url */,
                              bool /* notify_needed */,
-                             HANDLE /* notify data */)
+                             intptr_t /* notify data */)
 IPC_END_MESSAGES(Plugin)
 
 
@@ -206,13 +209,17 @@ IPC_BEGIN_MESSAGES(PluginHost)
   // Sends the plugin window information to the renderer.
   // The window parameter is a handle to the window if the plugin is a windowed
   // plugin. It is NULL for windowless plugins.
+  IPC_SYNC_MESSAGE_ROUTED1_0(PluginHostMsg_SetWindow,
+                             gfx::NativeViewId /* window */)
+
+#if defined(OS_WIN)
   // The modal_loop_pump_messages_event parameter is an event handle which is
   // passed in for windowless plugins and is used to indicate if messages
   // are to be pumped in sync calls to the plugin process. Currently used
   // in HandleEvent calls.
-  IPC_SYNC_MESSAGE_ROUTED2_0(PluginHostMsg_SetWindow,
-                             HWND /* window */,
+  IPC_SYNC_MESSAGE_ROUTED1_0(PluginHostMsg_SetWindowlessPumpEvent,
                              HANDLE /* modal_loop_pump_messages_event */)
+#endif
 
   IPC_MESSAGE_ROUTED1(PluginHostMsg_URLRequest,
                       PluginHostMsg_URLRequest_Params)
@@ -226,12 +233,12 @@ IPC_BEGIN_MESSAGES(PluginHost)
   IPC_SYNC_MESSAGE_ROUTED1_2(PluginHostMsg_GetWindowScriptNPObject,
                              int /* route id */,
                              bool /* success */,
-                             void* /* npobject_ptr */)
+                             intptr_t /* npobject_ptr */)
 
   IPC_SYNC_MESSAGE_ROUTED1_2(PluginHostMsg_GetPluginElement,
                              int /* route id */,
                              bool /* success */,
-                             void* /* npobject_ptr */)
+                             intptr_t /* npobject_ptr */)
 
   IPC_MESSAGE_ROUTED3(PluginHostMsg_SetCookie,
                       GURL /* url */,
@@ -264,9 +271,9 @@ IPC_BEGIN_MESSAGES(PluginHost)
   IPC_MESSAGE_ROUTED5(PluginHostMsg_InitiateHTTPRangeRequest,
                       std::string /* url */,
                       std::string /* range_info */,
-                      HANDLE      /* existing_stream */,
+                      intptr_t    /* existing_stream */,
                       bool        /* notify_needed */,
-                      HANDLE      /* notify_data */)
+                      intptr_t    /* notify_data */)
 
 IPC_END_MESSAGES(PluginHost)
 

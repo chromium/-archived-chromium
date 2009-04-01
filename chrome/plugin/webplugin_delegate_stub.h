@@ -20,7 +20,6 @@ class WebPluginProxy;
 class WebPluginDelegate;
 struct PluginMsg_Init_Params;
 struct PluginMsg_DidReceiveResponseParams;
-struct PluginMsg_PrintResponse_Params;
 struct PluginMsg_URLRequestReply_Params;
 class WebCursor;
 
@@ -63,17 +62,17 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
   void OnPaint(const gfx::Rect& damaged_rect);
   void OnDidPaint();
 
-  void OnPrint(PluginMsg_PrintResponse_Params* params);
+  void OnPrint(base::SharedMemoryHandle* shared_memory, size_t* size);
 
   void OnUpdateGeometry(const gfx::Rect& window_rect,
                         const gfx::Rect& clip_rect,
                         const base::SharedMemoryHandle& windowless_buffer,
                         const base::SharedMemoryHandle& background_buffer);
-  void OnGetPluginScriptableObject(int* route_id, void** npobject_ptr);
+  void OnGetPluginScriptableObject(int* route_id, intptr_t* npobject_ptr);
   void OnSendJavaScriptStream(const std::string& url,
                               const std::wstring& result,
                               bool success, bool notify_needed,
-                              int notify_data);
+                              intptr_t notify_data);
 
   void OnDidReceiveManualResponse(
       const std::string& url,
@@ -87,7 +86,7 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
       const PluginMsg_URLRequestReply_Params& params);
 
   void OnURLRequestRouted(const std::string& url, bool notify_needed,
-                          HANDLE notify_data);
+                          intptr_t notify_data);
 
   void CreateSharedBuffer(size_t size,
                           base::SharedMemory* shared_buf,

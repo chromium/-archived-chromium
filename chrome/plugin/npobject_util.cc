@@ -193,7 +193,8 @@ void CreateNPVariantParam(const NPVariant& variant,
           NPObjectStub* object_stub = new NPObjectStub(
               variant.value.objectValue, channel, route_id, modal_dialog_event);
           param->npobject_routing_id = route_id;
-          param->npobject_pointer = variant.value.objectValue;
+          param->npobject_pointer =
+              reinterpret_cast<intptr_t>(variant.value.objectValue);
         } else {
           param->type = NPVARIANT_PARAM_VOID;
         }
@@ -249,7 +250,7 @@ void CreateNPVariant(const NPVariant_Param& param,
     case NPVARIANT_PARAM_OBJECT_POINTER:
       result->type = NPVariantType_Object;
       result->value.objectValue =
-          static_cast<NPObject*>(param.npobject_pointer);
+          reinterpret_cast<NPObject*>(param.npobject_pointer);
       NPN_RetainObject(result->value.objectValue);
       break;
     default:

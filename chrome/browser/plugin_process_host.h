@@ -97,8 +97,6 @@ class PluginProcessHost : public ChildProcessHost,
                             IPC::Message* reply_msg);
   // Message handlers.
   void OnChannelCreated(const std::wstring& channel_name);
-  void OnDownloadUrl(const std::string& url, int source_pid,
-                     gfx::NativeWindow caller_window);
   void OnGetPluginFinderUrl(std::string* plugin_finder_url);
   void OnGetCookies(uint32 request_context, const GURL& url,
                     std::string* cookies);
@@ -108,6 +106,8 @@ class PluginProcessHost : public ChildProcessHost,
 #if defined(OS_WIN)
   void OnCreateWindow(HWND parent, IPC::Message* reply_msg);
   void OnDestroyWindow(HWND window);
+  void OnDownloadUrl(const std::string& url, int source_pid,
+                     gfx::NativeWindow caller_window);
 #endif
 
   virtual bool CanShutdown() { return sent_requests_.empty(); }

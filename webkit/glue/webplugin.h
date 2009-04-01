@@ -86,15 +86,17 @@ class WebPlugin {
   // windowed (i.e. handle is not NULL) or windowless (handle is NULL).  This
   // tells the WebPlugin to send mouse/keyboard events to the plugin delegate,
   // as well as the information about the HDC for paint operations.
-  // The pump_messages_event is a event handle which is valid only for
-  // windowless plugins and is used in NPP_HandleEvent calls to pump messages
-  // if the plugin enters a modal loop.
   // The return value is only valid for windowed plugins.  If true, it means
   // that the the HWND position should be managed by the delegate.  If false,
   // the plugin should be kept at the origin and it'll get moved elsewhere.
-  virtual bool SetWindow(gfx::NativeView window,
-                         HANDLE pump_messages_event) = 0;
+  virtual bool SetWindow(gfx::NativeView window) = 0;
+#if defined(OS_WIN)
+  // The pump_messages_event is a event handle which is valid only for
+  // windowless plugins and is used in NPP_HandleEvent calls to pump messages
+  // if the plugin enters a modal loop.
   // Cancels a pending request.
+  virtual void SetWindowlessPumpEvent(HANDLE pump_messages_event) = 0;
+#endif
   virtual void CancelResource(int id) = 0;
   virtual void Invalidate() = 0;
   virtual void InvalidateRect(const gfx::Rect& rect) = 0;
@@ -132,7 +134,7 @@ class WebPlugin {
                                 const char* target, unsigned int len,
                                 const char* buf, bool is_file_data,
                                 bool notify, const char* url,
-                                void* notify_data, bool popups_allowed) = 0;
+                                intptr_t notify_data, bool popups_allowed) = 0;
 
   // Cancels document load.
   virtual void CancelDocumentLoad() = 0;
@@ -140,9 +142,9 @@ class WebPlugin {
   // Initiates a HTTP range request.
   virtual void InitiateHTTPRangeRequest(const char* url,
                                         const char* range_info,
-                                        void* existing_stream,
+                                        intptr_t existing_stream,
                                         bool notify_needed,
-                                        HANDLE notify_data) = 0;
+                                        intptr_t notify_data) = 0;
 
   // Returns true iff in off the record (Incognito) mode.
   virtual bool IsOffTheRecord() = 0;

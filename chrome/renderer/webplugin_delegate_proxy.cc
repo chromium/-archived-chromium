@@ -45,7 +45,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
   }
 
   void Initialize(int resource_id, const std::string &url, bool notify_needed,
-                  void *notify_data, void* existing_stream) {
+                  intptr_t notify_data, intptr_t existing_stream) {
     resource_id_ = resource_id;
     url_ = url;
     notify_needed_ = notify_needed;
@@ -128,7 +128,7 @@ private:
   scoped_refptr<PluginChannelHost> channel_;
   std::string url_;
   bool notify_needed_;
-  void* notify_data_;
+  intptr_t notify_data_;
   // Set to true if the response expected is a multibyte response.
   // For e.g. response for a HTTP byte range request.
   bool multibyte_response_expected_;
@@ -231,7 +231,7 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
 
   // Now tell the PluginInstance in the plugin process to initialize.
   PluginMsg_Init_Params params;
-  params.containing_window = gfx::NativeViewFromId(render_view_->host_window());
+  params.containing_window = render_view_->host_window();
   params.url = url;
   for (int i = 0; i < argc; ++i) {
     params.arg_names.push_back(argn[i]);
@@ -243,7 +243,9 @@ bool WebPluginDelegateProxy::Initialize(const GURL& url, char** argn,
     }
   }
   params.load_manually = load_manually;
+#if defined(OS_WIN)
   params.modal_dialog_event = render_view_->modal_dialog_event()->handle();
+#endif
 
   plugin_ = plugin;
 
@@ -268,7 +270,7 @@ void WebPluginDelegateProxy::SendJavaScriptStream(const std::string& url,
                                                   const std::wstring& result,
                                                   bool success,
                                                   bool notify_needed,
-                                                  int notify_data) {
+                                                  intptr_t notify_data) {
   PluginMsg_SendJavaScriptStream* msg =
       new PluginMsg_SendJavaScriptStream(instance_id_, url, result,
                                          success, notify_needed,
@@ -317,6 +319,8 @@ void WebPluginDelegateProxy::InstallMissingPlugin() {
 void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(WebPluginDelegateProxy, msg)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindow, OnSetWindow)
+    IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindowlessPumpEvent,
+                        OnSetWindowlessPumpEvent)
     IPC_MESSAGE_HANDLER(PluginHostMsg_CancelResource, OnCancelResource)
     IPC_MESSAGE_HANDLER(PluginHostMsg_InvalidateRect, OnInvalidateRect)
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetWindowScriptNPObject,
@@ -517,17 +521,19 @@ bool WebPluginDelegateProxy::BackgroundChanged(
 }
 
 void WebPluginDelegateProxy::Print(HDC hdc) {
-  PluginMsg_PrintResponse_Params params = { 0 };
-  Send(new PluginMsg_Print(instance_id_, &params));
+  base::SharedMemoryHandle shared_memory;
+  size_t size;
+  if (!Send(new PluginMsg_Print(instance_id_, &shared_memory, &size)))
+    return;
 
-  base::SharedMemory memory(params.shared_memory, true);
-  if (!memory.Map(params.size)) {
+  base::SharedMemory memory(shared_memory, true);
+  if (!memory.Map(size)) {
     NOTREACHED();
     return;
   }
 
   gfx::Emf emf;
-  if (!emf.CreateFromData(memory.memory(), params.size)) {
+  if (!emf.CreateFromData(memory.memory(), size)) {
     NOTREACHED();
     return;
   }
@@ -540,7 +546,7 @@ NPObject* WebPluginDelegateProxy::GetPluginScriptableObject() {
     return NPN_RetainObject(npobject_);
 
   int route_id = MSG_ROUTING_NONE;
-  void* npobject_ptr;
+  intptr_t npobject_ptr;
   Send(new PluginMsg_GetPluginScriptableObject(
       instance_id_, &route_id, &npobject_ptr));
   if (route_id == MSG_ROUTING_NONE)
@@ -579,21 +585,22 @@ int WebPluginDelegateProxy::GetProcessId() {
   return channel_host_->peer_pid();
 }
 
-void WebPluginDelegateProxy::OnSetWindow(
-    HWND window, HANDLE modal_loop_pump_messages_event) {
+void WebPluginDelegateProxy::OnSetWindow(gfx::NativeViewId window_id) {
+  gfx::NativeView window = gfx::NativeViewFromId(window_id);
   windowless_ = window == NULL;
   if (plugin_)
-    plugin_->SetWindow(window, modal_loop_pump_messages_event);
+    plugin_->SetWindow(window);
+}
 
+#if defined(OS_WIN)
+  void WebPluginDelegateProxy::OnSetWindowlessPumpEvent(
+      HANDLE modal_loop_pump_messages_event) {
   DCHECK(modal_loop_pump_messages_event_ == NULL);
 
-  if (modal_loop_pump_messages_event) {
-    modal_loop_pump_messages_event_.reset(
-        new base::WaitableEvent(modal_loop_pump_messages_event));
-  } else {
-    modal_loop_pump_messages_event_.reset();
-  }
+  modal_loop_pump_messages_event_.reset(
+      new base::WaitableEvent(modal_loop_pump_messages_event));
 }
+#endif
 
 void WebPluginDelegateProxy::OnCancelResource(int id) {
   if (plugin_)
@@ -610,7 +617,7 @@ void WebPluginDelegateProxy::OnInvalidateRect(const gfx::Rect& rect) {
 }
 
 void WebPluginDelegateProxy::OnGetWindowScriptNPObject(
-    int route_id, bool* success, void** npobject_ptr) {
+    int route_id, bool* success, intptr_t* npobject_ptr) {
   *success = false;
   NPObject* npobject = NULL;
   if (plugin_)
@@ -627,11 +634,11 @@ void WebPluginDelegateProxy::OnGetWindowScriptNPObject(
   window_script_object_ = stub;
   window_script_object_->set_proxy(this);
   *success = true;
-  *npobject_ptr = npobject;
+  *npobject_ptr = reinterpret_cast<intptr_t>(npobject);
 }
 
 void WebPluginDelegateProxy::OnGetPluginElement(
-    int route_id, bool* success, void** npobject_ptr) {
+    int route_id, bool* success, intptr_t* npobject_ptr) {
   *success = false;
   NPObject* npobject = NULL;
   if (plugin_)
@@ -645,7 +652,7 @@ void WebPluginDelegateProxy::OnGetPluginElement(
       npobject, channel_host_.get(), route_id,
       render_view_->modal_dialog_event());
   *success = true;
-  *npobject_ptr = npobject;
+  *npobject_ptr = reinterpret_cast<intptr_t>(npobject);
 }
 
 void WebPluginDelegateProxy::OnSetCookie(const GURL& url,
@@ -741,7 +748,7 @@ void WebPluginDelegateProxy::OnHandleURLRequest(
 
 WebPluginResourceClient* WebPluginDelegateProxy::CreateResourceClient(
     int resource_id, const std::string &url, bool notify_needed,
-    void* notify_data, void* npstream) {
+    intptr_t notify_data, intptr_t npstream) {
   ResourceClientProxy* proxy = new ResourceClientProxy(channel_host_,
                                                        instance_id_);
   proxy->Initialize(resource_id, url, notify_needed, notify_data, npstream);
@@ -750,7 +757,7 @@ WebPluginResourceClient* WebPluginDelegateProxy::CreateResourceClient(
 
 void WebPluginDelegateProxy::URLRequestRouted(const std::string& url,
                                                bool notify_needed,
-                                               void* notify_data) {
+                                               intptr_t notify_data) {
   Send(new PluginMsg_URLRequestRouted(instance_id_, url, notify_needed,
                                       notify_data));
 }
@@ -761,7 +768,7 @@ void WebPluginDelegateProxy::OnCancelDocumentLoad() {
 
 void WebPluginDelegateProxy::OnInitiateHTTPRangeRequest(
    const std::string& url, const std::string& range_info,
-   HANDLE existing_stream, bool notify_needed, HANDLE notify_data) {
+   intptr_t existing_stream, bool notify_needed, intptr_t notify_data) {
   plugin_->InitiateHTTPRangeRequest(url.c_str(), range_info.c_str(),
                                     existing_stream, notify_needed,
                                     notify_data);

@@ -128,7 +128,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
       return false;
   }
 
-  plugin->SetWindow(windowed_handle_, /* unused event param */ NULL);
+  plugin->SetWindow(windowed_handle_);
   plugin_url_ = url.spec();
 
   return true;
@@ -197,7 +197,7 @@ void WebPluginDelegateImpl::SendJavaScriptStream(const std::string& url,
                                                  const std::wstring& result,
                                                  bool success,
                                                  bool notify_needed,
-                                                 int notify_data) {
+                                                 intptr_t notify_data) {
   instance()->SendJavaScriptStream(url, result, success, notify_needed,
                                    notify_data);
 }
@@ -653,7 +653,7 @@ bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
 
 WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
     int resource_id, const std::string &url, bool notify_needed,
-    void *notify_data, void* existing_stream) {
+    intptr_t notify_data, intptr_t existing_stream) {
   // Stream already exists. This typically happens for range requests
   // initiated via NPN_RequestRead.
   if (existing_stream) {
@@ -669,17 +669,15 @@ WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
     instance()->SetURLLoadData(GURL(url.c_str()), notify_data);
   }
   std::string mime_type;
-  NPAPI::PluginStreamUrl *stream = instance()->CreateStream(resource_id,
-                                                            url,
-                                                            mime_type,
-                                                            notify_needed,
-                                                            notify_data);
+  NPAPI::PluginStreamUrl *stream = instance()->CreateStream(
+      resource_id, url, mime_type, notify_needed,
+      reinterpret_cast<void*>(notify_data));
   return stream;
 }
 
 void WebPluginDelegateImpl::URLRequestRouted(const std::string&url,
                                              bool notify_needed,
-                                             void* notify_data) {
+                                             intptr_t notify_data) {
   if (notify_needed) {
     instance()->SetURLLoadData(GURL(url.c_str()), notify_data);
   }

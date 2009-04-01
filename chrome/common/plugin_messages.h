@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "base/basictypes.h"
 #include "chrome/common/ipc_message_utils.h"
@@ -27,12 +28,14 @@
 // predefined IPC message.
 
 struct PluginMsg_Init_Params {
-  HWND containing_window;
+  gfx::NativeViewId containing_window;
   GURL url;
   std::vector<std::string> arg_names;
   std::vector<std::string> arg_values;
-  bool load_manually;
+#if defined(OS_WIN)
   HANDLE modal_dialog_event;
+#endif
+  bool load_manually;
 };
 
 struct PluginHostMsg_URLRequest_Params {
@@ -43,7 +46,7 @@ struct PluginHostMsg_URLRequest_Params {
   bool is_file_data;
   bool notify;
   std::string url;
-  HANDLE notify_data;
+  intptr_t notify_data;
   bool popups_allowed;
 };
 
@@ -51,13 +54,8 @@ struct PluginMsg_URLRequestReply_Params {
   int resource_id;
   std::string url;
   bool notify_needed;
-  HANDLE notify_data;
-  HANDLE stream;
-};
-
-struct PluginMsg_PrintResponse_Params {
-  HANDLE shared_memory;
-  size_t size;
+  intptr_t notify_data;
+  intptr_t stream;
 };
 
 struct PluginMsg_DidReceiveResponseParams {
@@ -96,7 +94,7 @@ struct NPVariant_Param {
   double double_value;
   std::string string_value;
   int npobject_routing_id;
-  void* npobject_pointer;
+  intptr_t npobject_pointer;
 };
 
 
@@ -112,16 +110,20 @@ struct ParamTraits<PluginMsg_Init_Params> {
     DCHECK(p.arg_names.size() == p.arg_values.size());
     WriteParam(m, p.arg_names);
     WriteParam(m, p.arg_values);
-    WriteParam(m, p.load_manually);
+#if defined(OS_WIN)
     WriteParam(m, p.modal_dialog_event);
+#endif
+    WriteParam(m, p.load_manually);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return ReadParam(m, iter, &p->containing_window) &&
            ReadParam(m, iter, &p->url) &&
            ReadParam(m, iter, &p->arg_names) &&
            ReadParam(m, iter, &p->arg_values) &&
-           ReadParam(m, iter, &p->load_manually) &&
-           ReadParam(m, iter, &p->modal_dialog_event);
+#if defined(OS_WIN)
+           ReadParam(m, iter, &p->modal_dialog_event) &&
+#endif
+           ReadParam(m, iter, &p->load_manually);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -133,9 +135,11 @@ struct ParamTraits<PluginMsg_Init_Params> {
     l->append(L", ");
     LogParam(p.arg_values, l);
     l->append(L", ");
-    LogParam(p.load_manually, l);
-    l->append(L", ");
+#if defined(OS_WIN)
     LogParam(p.modal_dialog_event, l);
+    l->append(L", ");
+#endif
+    LogParam(p.load_manually, l);
     l->append(L")");
   }
 };
@@ -223,22 +227,6 @@ struct ParamTraits<PluginMsg_URLRequestReply_Params> {
 };
 
 template <>
-struct ParamTraits<PluginMsg_PrintResponse_Params> {
-  typedef PluginMsg_PrintResponse_Params param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.shared_memory);
-    WriteParam(m, p.size);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ReadParam(m, iter, &r->shared_memory) &&
-      ReadParam(m, iter, &r->size);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-  }
-};
-
-template <>
 struct ParamTraits<PluginMsg_DidReceiveResponseParams> {
   typedef PluginMsg_DidReceiveResponseParams param_type;
   static void Write(Message* m, const param_type& p) {
@@ -294,6 +282,7 @@ struct ParamTraits<NPEvent> {
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
+#if defined(OS_WIN)
     std::wstring event, wparam, lparam;
     lparam = StringPrintf(L"(%d, %d)", LOWORD(p.lParam), HIWORD(p.lParam));
     switch(p.event) {
@@ -356,6 +345,9 @@ struct ParamTraits<NPEvent> {
     l->append(L", ");
     LogParam(lparam, l);
     l->append(L")");
+#else
+    l->append(L"<NPEvent>");
+#endif
   }
 };
 
