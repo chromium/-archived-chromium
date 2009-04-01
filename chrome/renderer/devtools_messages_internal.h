@@ -48,14 +48,6 @@
 // browser.
 IPC_BEGIN_MESSAGES(DevToolsClient)
 
-  // Response message for DevToolsAgentMsg_DebugAttach.
-  IPC_MESSAGE_CONTROL0(DevToolsClientMsg_DidDebugAttach)
-
-  // WebKit and JavaScript error messages to log to the console
-  // or debugger UI.
-  IPC_MESSAGE_CONTROL1(DevToolsClientMsg_DebuggerOutput,
-                       std::wstring /* msg */)
-
   // Sends glue-level Rpc message to the client.
   IPC_MESSAGE_CONTROL1(DevToolsClientMsg_RpcMessage,
                        std::string  /* raw_msg */)
@@ -73,20 +65,6 @@ IPC_BEGIN_MESSAGES(DevToolsAgent)
 
   // Tells agent that there is no longer a client host connected to it.
   IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_Detach)
-
-  // Initialize the V8 debugger in the renderer.
-  IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_DebugAttach)
-
-  // Shutdown the V8 debugger in the renderer.
-  IPC_MESSAGE_CONTROL0(DevToolsAgentMsg_DebugDetach)
-
-  // Break V8 execution.
-  IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_DebugBreak,
-                       bool  /* force */)
-
-  // Send a command to the V8 debugger.
-  IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_DebugCommand,
-                       std::wstring  /* cmd */)
 
   // Sends glue-level Rpc message to the agent.
   IPC_MESSAGE_CONTROL1(DevToolsAgentMsg_RpcMessage,

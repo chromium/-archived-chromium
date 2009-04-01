@@ -12,7 +12,6 @@
 #include "base/scoped_ptr.h"
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/renderer/devtools_messages.h"
-#include "webkit/glue/debugger_bridge.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 
 class MessageLoop;
@@ -24,7 +23,6 @@ class WebDevToolsAgent;
 // go through browser process. On the renderer side of the tools UI there's
 // a corresponding ToolsClient object.
 class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
-                      public DebuggerBridge::Delegate,
                       public WebDevToolsAgentDelegate {
  public:
   // DevToolsAgent is a field of the RenderView. The view is supposed to remove
@@ -52,9 +50,6 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   virtual bool OnMessageReceived(const IPC::Message& message);
   virtual void OnFilterRemoved();
 
-  // Debugger::Delegate callback method to handle debugger output.
-  void DebuggerOutput(const std::wstring& out);
-
   void Attach();
   void Detach();
   void DispatchRpcMessage(const std::string& raw_msg);
@@ -68,15 +63,9 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   // handle debug messages even when v8 is stopped.
   void OnAttach();
   void OnDetach();
-  void OnDebugAttach();
-  void OnDebugDetach();
-  void OnDebugBreak(bool force);
-  void OnDebugCommand(const std::wstring& cmd);
   void OnRpcMessage(const std::string& raw_msg);
   void OnDebuggerCommand(const std::string& command);
   void OnInspectElement(int x, int y);
-
-  scoped_refptr<DebuggerBridge> debugger_;
 
   int routing_id_; //  View routing id that we can access from IO thread.
   RenderView* view_;

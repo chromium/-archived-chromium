@@ -55,6 +55,14 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
 
 
 /**
+ * Tells the v8 debugger to stop on as soon as possible.
+ */
+devtools.DebuggerAgent.prototype.pauseExecution = function() {
+  RemoteDebuggerAgent.DebugBreak();
+};
+
+
+/**
  * @param {number} sourceId Id of the script fot the breakpoint.
  * @param {number} line Number of the line for the breakpoint.
  */
@@ -86,6 +94,31 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
 
 
 /**
+ * @param {number} sourceId Id of the script fot the breakpoint.
+ * @param {number} line Number of the line for the breakpoint.
+ */
+devtools.DebuggerAgent.prototype.removeBreakpoint = function(sourceId, line) {
+  var script = this.parsedScripts_[sourceId];
+  if (!script) {
+    return;
+  }
+  
+  var breakpointInfo = script.getBreakpointInfo(line);
+  script.removeBreakpointInfo(breakpointInfo);
+  breakpointInfo.markAsRemoved();
+
+  var id = breakpointInfo.getV8Id();
+
+  // If we don't know id of this breakpoint in the v8 debugger we cannot send
+  // 'clearbreakpoint' request. In that case it will be removed in
+  // 'setbreakpoint' response handler when we learn the id.
+  if (id != -1) {
+    this.requestClearBreakpoint_(id);
+  }
+};
+
+
+/**
  * Tells the v8 debugger to step into the next statement.
  */
 devtools.DebuggerAgent.prototype.stepIntoStatement = function() {
@@ -113,7 +146,7 @@ devtools.DebuggerAgent.prototype.stepOverStatement = function() {
  * Tells the v8 debugger to continue execution after it has been stopped on a
  * breakpoint or an exception.
  */
-devtools.DebuggerAgent.prototype.continueExecution = function() {
+devtools.DebuggerAgent.prototype.resumeExecution = function() {
   var cmd = new devtools.DebugCommand('continue');
   devtools.DebuggerAgent.sendCommand_(cmd);
 };
@@ -125,6 +158,19 @@ devtools.DebuggerAgent.prototype.continueExecution = function() {
  */
 devtools.DebuggerAgent.prototype.getCurrentCallFrame = function() {
   return this.currentCallFrame_;
+};
+
+
+/**
+ * Removes specified breakpoint from the v8 debugger.
+ * @param {number} breakpointId Id of the breakpoint in the v8 debugger.
+ */
+devtools.DebuggerAgent.prototype.requestClearBreakpoint_ = function(
+    breakpointId) {
+  var cmd = new devtools.DebugCommand('clearbreakpoint', {
+    'breakpoint': breakpointId
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
 };
 
 
@@ -183,6 +229,8 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
       this.handleScriptsResponse_(msg);
     } else if (msg.getCommand() == 'setbreakpoint') {
       this.handleSetBreakpointResponse_(msg);
+    } else if (msg.getCommand() == 'clearbreakpoint') {
+      this.handleClearBreakpointResponse_(msg);
     } else if (msg.getCommand() == 'backtrace') {
       this.handleBacktraceResponse_(msg);
     }
@@ -199,7 +247,9 @@ devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
   this.currentCallFrame_ = {
     'sourceID': body.script.id,
     'line': body.sourceLine - body.script.lineOffset +1,
-    'script': body.script
+    'script': body.script,
+    'scopeChain': [],
+    'thisObject': {}
   };
   
   this.requestBacktrace_();
@@ -240,6 +290,19 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
   }
   var idInV8 = msg.getBody().breakpoint;
   breakpointInfo.setV8Id(idInV8);
+  
+  if (breakpointInfo.isRemoved()) {
+    this.requestClearBreakpoint_(idInV8);
+  }
+};
+
+
+/**
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.handleClearBreakpointResponse_ = function(
+    msg) {
+  // Do nothing.
 };
 
 
@@ -285,7 +348,9 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
       'line': nextFrame.line - script.lineOffset +1,
       'type': 'function',
       'functionName': funcName, //nextFrame.text,
-      'caller': caller
+      'caller': caller,
+      'scopeChain': [],
+      'thisObject': {}
     };
     caller = f;
   }
@@ -304,7 +369,7 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
  */
 devtools.ScriptInfo = function(scriptId, lineOffset) {
   this.scriptId_ = scriptId;
-  this.lineOffset_ = lineOffset; 
+  this.lineOffset_ = lineOffset;
   
   this.lineToBreakpointInfo_ = {};
 };
@@ -338,6 +403,15 @@ devtools.ScriptInfo.prototype.addBreakpointInfo = function(breakpoint) {
 };
 
 
+/**
+ * @param {devtools.BreakpointInfo} breakpoint Breakpoint info to be removed.
+ */
+devtools.ScriptInfo.prototype.removeBreakpointInfo = function(breakpoint) {
+  var line = breakpoint.getLine();
+  delete this.lineToBreakpointInfo_[line];
+};
+
+
 
 /**
  * @param {number} scriptId Id of the owning script.
@@ -348,6 +422,15 @@ devtools.BreakpointInfo = function(sourceId, line) {
   this.sourceId_ = sourceId;
   this.line_ = line; 
   this.v8id_ = -1;
+  this.removed_ = false;
+};
+
+
+/**
+ * @return {number}
+ */
+devtools.BreakpointInfo.prototype.getSourceId = function(n) {
+  return this.sourceId_;
 };
 
 
@@ -360,11 +443,36 @@ devtools.BreakpointInfo.prototype.getLine = function(n) {
 
 
 /**
+ * @return {number} Unique identifier of this breakpoint in the v8 debugger.
+ */
+devtools.BreakpointInfo.prototype.getV8Id = function(n) {
+  return this.v8id_;
+};
+
+
+/**
  * Sets id of this breakpoint in the v8 debugger.
  * @param {number} id
  */
 devtools.BreakpointInfo.prototype.setV8Id = function(id) {
   this.v8id_ = id;
+};
+
+
+/**
+ * Marks this breakpoint as removed from the  front-end.
+ */
+devtools.BreakpointInfo.prototype.markAsRemoved = function() {
+  this.removed_ = true;
+};
+
+
+/**
+ * @return {boolean} Whether this breakpoint has been removed from the
+ *     front-end.
+ */
+devtools.BreakpointInfo.prototype.isRemoved = function() {
+  return this.removed_;
 };
 
 

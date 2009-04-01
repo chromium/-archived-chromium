@@ -33,7 +33,7 @@ DebuggerAgentImpl::~DebuggerAgentImpl() {
 }
 
 void DebuggerAgentImpl::DebugBreak() {
-  // TODO(yurys): implement
+  DebuggerAgentManager::DebugBreak(this);
 }
 
 void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {

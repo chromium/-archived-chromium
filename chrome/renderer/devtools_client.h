@@ -38,7 +38,6 @@ class DevToolsClient : public WebDevToolsClientDelegate {
   virtual void SendDebuggerCommandToAgent(const std::string& command);
 
  private:
-  void DidDebugAttach();
   void OnRpcMessage(const std::string& raw_msg);
 
   // Sends message to DevToolsAgent.

@@ -22,6 +22,12 @@ devtools.InspectorControllerImpl = function() {
       },
       get Element() {
         return devtools.DomNode;
+      },
+      /**
+       * See usages in ScopeChainSidebarPane.js where it's called as
+       * constructor.
+       */
+      Object : function() {
       }
   };
 };
@@ -109,10 +115,17 @@ devtools.InspectorControllerImpl.prototype.addBreakpoint = function(
 
 devtools.InspectorControllerImpl.prototype.removeBreakpoint = function(
     sourceID, line) {
+  devtools.tools.getDebuggerAgent().removeBreakpoint(sourceID, line);
+};
+
+
+devtools.InspectorController.prototype.pauseInDebugger = function() {
+  devtools.tools.getDebuggerAgent().pauseExecution();
 };
 
 
 devtools.InspectorControllerImpl.prototype.resumeDebugger = function() {
+  devtools.tools.getDebuggerAgent().resumeExecution();
 };
 
 

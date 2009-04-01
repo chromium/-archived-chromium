@@ -59,6 +59,14 @@ void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
 }
 
 // static
+void DebuggerAgentManager::DebugBreak(DebuggerAgentImpl* debugger_agent) {
+#if USE(V8)
+  DCHECK(attached_agents_->contains(debugger_agent));
+  v8::Debug::DebugBreak();
+#endif
+}
+
+// static
 void DebuggerAgentManager::DebuggerOutput(const std::string& out) {
   DebuggerAgentImpl* agent = GetAgentForCurrentV8Context();
   if (!agent) {

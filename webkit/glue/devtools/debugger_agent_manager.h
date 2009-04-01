@@ -24,10 +24,14 @@ class DebuggerAgentImpl;
 // would expect some actions from the handler. If there is no appropriate
 // debugger agent to handle such messages the manager should perform the action
 // itself, otherwise v8 may hang waiting for the action.
+//
+// TODO(yurys): disable plugin message handling while v8 is paused on a
+// breakpoint.
 class DebuggerAgentManager {
  public:
   static void DebugAttach(DebuggerAgentImpl* debugger_agent);
   static void DebugDetach(DebuggerAgentImpl* debugger_agent);
+  static void DebugBreak(DebuggerAgentImpl* debugger_agent);
   static void DebugCommand(const std::string& command);
 
   static void ExecuteDebuggerCommand(const std::string& command);
