@@ -594,8 +594,6 @@ class RenderView : public RenderWidget,
   // Notification of volume property of an audio output stream.
   void OnAudioStreamVolume(int stream_id, double left, double right);
 
-  void OnHandleExtensionMessage(const std::string& message, int channel_id);
-
   // Sends the selection text to the browser.
   void OnRequestSelectionText();
 

@@ -4,6 +4,7 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/mock_render_thread.h"
 #include "chrome/renderer/render_view.h"
@@ -65,6 +66,8 @@ class RenderViewTest : public testing::Test {
   // testing::Test
   virtual void SetUp() {
     WebKit::initialize(&webkitclient_);
+    WebKit::registerExtension(
+        extensions_v8::RendererExtensionBindings::Get(&render_thread_));
 
     mock_process_.reset(new MockProcess());
 
@@ -366,4 +369,91 @@ TEST_F(RenderViewTest, OnSetTextDirection) {
     GetMainFrame()->GetContentAsPlainText(kMaxOutputCharacters, &output);
     EXPECT_EQ(output, kTextDirection[i].expected_result);
   }
+}
+
+// Tests that the bindings for opening a channel to an extension and sending
+// and receiving messages through that channel all works.
+TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
+  render_thread_.sink().ClearMessages();
+  LoadHTML("<body></body>");
+  ExecuteJavaScript(
+    "var e = new chromium.Extension('foobar');"
+    "var port = e.openChannel();"
+    "port.onMessage = doOnMessage;"
+    "port.postMessage('content ready');"
+    "function doOnMessage(msg, port) {"
+    "  alert('content got: ' + msg);"
+    "}");
+
+  // Verify that we opened a channel and sent a message through it.
+  const IPC::Message* open_channel_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_OpenChannelToExtension::ID);
+  EXPECT_TRUE(open_channel_msg);
+
+  const IPC::Message* post_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_ExtensionPostMessage::ID);
+  EXPECT_TRUE(post_msg);
+  ViewHostMsg_ExtensionPostMessage::Param post_params;
+  ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
+  EXPECT_EQ("content ready", post_params.b);
+
+  // Now simulate getting a message back from the other side.
+  render_thread_.sink().ClearMessages();
+  const int kPortId = 0;
+  extensions_v8::RendererExtensionBindings::HandleMessage("42", kPortId);
+
+  // Verify that we got it.
+  const IPC::Message* alert_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_RunJavaScriptMessage::ID);
+  EXPECT_TRUE(alert_msg);
+  void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
+  ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
+  IPC::ReadParam(alert_msg, &iter, &alert_param);
+  EXPECT_EQ(L"content got: 42", alert_param.a);
+}
+
+// Tests that the bindings for handling a new channel connection and sending
+// and receiving messages through that channel all works.
+TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
+  LoadHTML("<body></body>");
+  ExecuteJavaScript(
+    "chromium.addConnectListener(function (port) {"
+    "  port.onMessage = doOnMessage;"
+    "  port.postMessage('onconnect');"
+    "  });"
+    "function doOnMessage(msg, port) {"
+    "  alert('got: ' + msg);"
+    "}");
+
+  render_thread_.sink().ClearMessages();
+
+  // Simulate a new connection being opened.
+  const int kPortId = 0;
+  extensions_v8::RendererExtensionBindings::HandleConnect(kPortId);
+
+  // Verify that we handled the new connection by posting a message.
+  const IPC::Message* post_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_ExtensionPostMessage::ID);
+  EXPECT_TRUE(post_msg);
+  ViewHostMsg_ExtensionPostMessage::Param post_params;
+  ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
+  EXPECT_EQ("onconnect", post_params.b);
+
+  // Now simulate getting a message back from the channel opener.
+  render_thread_.sink().ClearMessages();
+  extensions_v8::RendererExtensionBindings::HandleMessage("42", kPortId);
+
+  // Verify that we got it.
+  const IPC::Message* alert_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_RunJavaScriptMessage::ID);
+  EXPECT_TRUE(alert_msg);
+  void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
+  ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
+  IPC::ReadParam(alert_msg, &iter, &alert_param);
+  EXPECT_EQ(L"got: 42", alert_param.a);
 }

@@ -122,6 +122,9 @@ class RenderThread : public RenderThreadBase,
   // Send all histograms to browser.
   void OnGetRendererHistograms();
 
+  void OnExtensionHandleConnect(int channel_id);
+  void OnExtensionHandleMessage(const std::string& message, int channel_id);
+
   // Gather usage statistics from the in-memory cache and inform our host.
   // These functions should be call periodically so that the host can make
   // decisions about how to allocation resources using current information.

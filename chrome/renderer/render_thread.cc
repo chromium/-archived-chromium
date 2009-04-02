@@ -166,6 +166,10 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                         OnGetCacheResourceStats)
     IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_NewScripts,
                         OnUpdateUserScripts)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleConnect,
+                        OnExtensionHandleConnect)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleMessage,
+                        OnExtensionHandleMessage)
     IPC_MESSAGE_HANDLER(ViewMsg_Extension_SetFunctionNames,
                         OnSetExtensionFunctionNames)
   IPC_END_MESSAGE_MAP()
@@ -265,7 +269,8 @@ void RenderThread::EnsureWebKitInitialized() {
 
   WebKit::registerExtension(extensions_v8::GearsExtension::Get());
   WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
-  WebKit::registerExtension(extensions_v8::RendererExtensionBindings::Get());
+  WebKit::registerExtension(
+      extensions_v8::RendererExtensionBindings::Get(this));
 
   WebKit::registerExtension(extensions_v8::ExtensionProcessBindings::Get(),
       WebKit::WebString::fromUTF8(chrome::kExtensionScheme));
@@ -279,4 +284,13 @@ void RenderThread::EnsureWebKitInitialized() {
   if (command_line.HasSwitch(switches::kEnableWebWorkers)) {
     WebKit::enableWebWorkers();
   }
+}
+
+void RenderThread::OnExtensionHandleConnect(int port_id) {
+  extensions_v8::RendererExtensionBindings::HandleConnect(port_id);
+}
+
+void RenderThread::OnExtensionHandleMessage(const std::string& message,
+                                            int port_id) {
+  extensions_v8::RendererExtensionBindings::HandleMessage(message, port_id);
 }

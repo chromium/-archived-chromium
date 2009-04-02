@@ -15,8 +15,17 @@ body {
 <div class="content">
 <script>
   alert('Sir, I exist');
-  chromium.Extension.onMessage = function(msg) {
-    alert('Incoming: ' + msg);
+
+  chromium.addConnectListener(function (port) {
+    port.onMessage = doOnMessage;
+    port.postMessage('extension onconnect');
+  });
+
+  function doOnMessage(msg, port) {
+    if (!port.didRespond) {
+      port.postMessage('extension msg ack: ' + msg);
+      port.didRespond = true;
+    }
   }
 </script>
 <button onclick="alert('clicked')">HTML button</button>

@@ -1247,9 +1247,12 @@ void GenerateLogData(const std::wstring& channel, const Message& message,
                      LogData* data);
 
 // Used for synchronous messages.
-template <class SendParam, class ReplyParam>
+template <class SendParamType, class ReplyParamType>
 class MessageWithReply : public SyncMessage {
  public:
+  typedef SendParamType SendParam;
+  typedef ReplyParamType ReplyParam;
+
   MessageWithReply(int32 routing_id, uint16 type,
                    const SendParam& send, const ReplyParam& reply)
       : SyncMessage(routing_id, type, PRIORITY_NORMAL,

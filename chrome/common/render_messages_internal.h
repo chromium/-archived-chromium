@@ -528,11 +528,16 @@ IPC_BEGIN_MESSAGES(View)
                       int /* callback id */,
                       std::string /* response */)
 
-  // Relay a message sent from a renderer to an extension process.  channel_id
-  // is a handle that can be used for sending a response.
-  IPC_MESSAGE_ROUTED2(ViewMsg_HandleExtensionMessage,
-                      std::string /* message */,
-                      int /* channel_id */)
+  // Tell the extension process about a new channel that has been opened from a
+  // renderer.  source_port_id identifies the port that the extension can
+  // respond to.
+  IPC_MESSAGE_CONTROL1(ViewMsg_ExtensionHandleConnect,
+                       int /* source_port_id */)
+
+  // Send a javascript message to a renderer from the given port.
+  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleMessage,
+                       std::string /* message */,
+                       int /* source_port_id */)
 
   // Tell the renderer process all known extension function names.
   IPC_MESSAGE_CONTROL1(ViewMsg_Extension_SetFunctionNames,
@@ -1280,16 +1285,16 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_UpdateFeedList,
                       ViewHostMsg_UpdateFeedList_Params)
 
-  // Get a handle to a currently-running extension process for the extension
-  // with the given ID.  If no such extension is found, -1 is returned.  The
-  // handle can be used for sending messages to the extension.
+  // Get a port handle to a currently-running extension process for the
+  // extension with the given ID.  If no such extension is found, -1 is
+  // returned.  The handle can be used for sending messages to the extension.
   IPC_SYNC_MESSAGE_CONTROL1_1(ViewHostMsg_OpenChannelToExtension,
                               std::string /* extension_id */,
-                              int /* channel_id */)
+                              int /* port_id */)
 
   // Send a message to an extension process.  The handle is the value returned
   // by ViewHostMsg_OpenChannelToExtension.
   IPC_MESSAGE_CONTROL2(ViewHostMsg_ExtensionPostMessage,
-                       int /* channel_id */,
+                       int /* port_id */,
                        std::string /* message */)
 IPC_END_MESSAGES(ViewHost)

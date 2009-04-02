@@ -69,6 +69,10 @@ class MockRenderThread : public RenderThreadBase {
                          bool activatable,
                          int* route_id);
 
+  // The callee expects to be returned a valid channel_id.
+  void OnMsgOpenChannelToExtension(const std::string& extension_id,
+                                   int* channel_id);
+
   IPC::TestSink sink_;
 
   // Routing id what will be assigned to the Widget.

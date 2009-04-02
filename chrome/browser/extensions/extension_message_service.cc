@@ -13,121 +13,117 @@
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/render_messages.h"
 
-// This class acts as the port to an extension process.  It is basically just
-// gymnastics to get access to the IPC::Channel (not the ChannelProxy) belonging
-// to an ExtensionView.
-// Created on the UI thread, but accessed fully on the IO thread.
-class ExtensionMessageService::ExtensionFilter :
-    public IPC::ChannelProxy::MessageFilter {
- public:
-  ExtensionFilter(const std::string& extension_id, int routing_id) :
-      extension_id_(extension_id), routing_id_(routing_id), channel_(NULL) {
-  }
-  ~ExtensionFilter() {
-    ExtensionMessageService::GetInstance()->OnExtensionUnregistered(this);
-  }
+// Since we have 2 ports for every channel, we just index channels by half the
+// port ID.
+#define GET_CHANNEL_ID(port_id) (port_id / 2)
 
-  virtual void OnFilterAdded(IPC::Channel* channel) {
-    channel_ = channel;
-    ExtensionMessageService::GetInstance()->OnExtensionRegistered(this);
-  }
-  virtual void OnChannelClosing() {
-    channel_ = NULL;
-  }
+// Port1 is always even, port2 is always odd.
+#define IS_PORT1_ID(port_id) ((port_id & 1) == 0)
 
-  bool Send(IPC::Message* message) {
-    if (!channel_) {
-      delete message;
-      return false;
-    }
-    return channel_->Send(message);
-  }
-
-  IPC::Channel* channel() { return channel_; }
-  const std::string& extension_id() { return extension_id_; }
-  int routing_id() { return routing_id_; }
-
- private:
-  std::string extension_id_;
-  int routing_id_;
-  IPC::Channel* channel_;
-};
+// Change even to odd and vice versa, to get the other side of a given channel.
+#define GET_OPPOSITE_PORT_ID(source_port_id) (source_port_id ^ 1)
 
 ExtensionMessageService* ExtensionMessageService::GetInstance() {
   return Singleton<ExtensionMessageService>::get();
 }
 
 ExtensionMessageService::ExtensionMessageService()
-    : next_channel_id_(0) {
+    : next_port_id_(0) {
 }
 
-void ExtensionMessageService::RegisterExtensionView(ExtensionView* view) {
-  view->render_view_host()->process()->channel()->AddFilter(
-      new ExtensionFilter(view->extension()->id(),
-                          view->render_view_host()->routing_id()));
-}
-
-void ExtensionMessageService::OnExtensionRegistered(ExtensionFilter* filter) {
-  extensions_[filter->extension_id()] = filter;
-}
-
-void ExtensionMessageService::OnExtensionUnregistered(ExtensionFilter* filter) {
-  // TODO(mpcomplete): support multiple filters per extension_id
-  //DCHECK(extensions_[filter->extension_id()] == filter);
-  extensions_.erase(filter->extension_id());
-
-  // Close any channels that share this filter.
-  for (MessageChannelMap::iterator it = channels_.begin();
-       it != channels_.end(); ) {
-    MessageChannelMap::iterator current = it++;
-    if (current->second.extension_port == filter)
-      channels_.erase(current);
-  }
+void ExtensionMessageService::RegisterExtension(
+    const std::string& extension_id, int render_process_id) {
+  AutoLock lock(renderers_lock_);
+  // TODO(mpcomplete): We need to ensure an extension always ends up in a single
+  // process.  I think this means having an ExtensionProcessManager which holds
+  // a BrowsingContext for each extension.
+  //DCHECK(process_ids_.find(extension_id) == process_ids_.end());
+  process_ids_[extension_id] = render_process_id;
 }
 
 int ExtensionMessageService::OpenChannelToExtension(
-    const std::string& extension_id, ResourceMessageFilter* renderer_port) {
+    const std::string& extension_id, ResourceMessageFilter* source) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  ExtensionMap::iterator extension_port = extensions_.find(extension_id);
-  if (extension_port == extensions_.end())
-    return -1;
+  // Lookup the targeted extension process.
+  ResourceMessageFilter* dest = NULL;
+  {
+    AutoLock lock(renderers_lock_);
+    ProcessIDMap::iterator process_id = process_ids_.find(extension_id);
+    if (process_id == process_ids_.end())
+      return -1;
 
-  int channel_id = next_channel_id_++;
+    RendererMap::iterator renderer = renderers_.find(process_id->second);
+    if (renderer == renderers_.end())
+      return -1;
+    dest = renderer->second;
+  }
+
+  // Create a channel ID for both sides of the channel.
+  int port1_id = next_port_id_++;
+  int port2_id = next_port_id_++;
+  DCHECK(IS_PORT1_ID(port1_id));
+  DCHECK(GET_OPPOSITE_PORT_ID(port1_id) == port2_id);
+  DCHECK(GET_OPPOSITE_PORT_ID(port2_id) == port1_id);
+  DCHECK(GET_CHANNEL_ID(port1_id) == GET_CHANNEL_ID(port2_id));
+
   MessageChannel channel;
-  channel.renderer_port = renderer_port;
-  channel.extension_port = extension_port->second;
-  channels_[channel_id] = channel;
+  channel.port1 = source;
+  channel.port2 = dest;
+  channels_[GET_CHANNEL_ID(port1_id)] = channel;
 
-  return channel_id;
+  // Send each process the id for the opposite port.
+  dest->Send(new ViewMsg_ExtensionHandleConnect(port1_id));
+  return port2_id;
 }
 
-void ExtensionMessageService::PostMessageToExtension(
-    int channel_id, const std::string& message) {
+void ExtensionMessageService::PostMessageFromRenderer(
+    int port_id, const std::string& message, ResourceMessageFilter* source) {
   DCHECK(MessageLoop::current() ==
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  MessageChannelMap::iterator iter = channels_.find(channel_id);
+  // Look up the channel by port1's ID.
+  MessageChannelMap::iterator iter =
+      channels_.find(GET_CHANNEL_ID(port_id));
   if (iter == channels_.end())
     return;
-
   MessageChannel& channel = iter->second;
-  channel.extension_port->Send(new ViewMsg_HandleExtensionMessage(
-      channel.extension_port->routing_id(), message, channel_id));
+
+  // Figure out which port the ID corresponds to.
+  ResourceMessageFilter* dest = NULL;
+  if (IS_PORT1_ID(port_id)) {
+    dest = channel.port1;
+    DCHECK(source == channel.port2);
+  } else {
+    dest = channel.port2;
+    DCHECK(source == channel.port1);
+  }
+
+  int source_port_id = GET_OPPOSITE_PORT_ID(port_id);
+  dest->Send(new ViewMsg_ExtensionHandleMessage(message, source_port_id));
+}
+
+void ExtensionMessageService::RendererReady(ResourceMessageFilter* renderer) {
+  AutoLock lock(renderers_lock_);
+  DCHECK(renderers_.find(renderer->GetProcessId()) == renderers_.end());
+  renderers_[renderer->GetProcessId()] = renderer;
 }
 
 void ExtensionMessageService::RendererShutdown(
-    ResourceMessageFilter* renderer_port) {
-  DCHECK(MessageLoop::current() ==
-         ChromeThread::GetMessageLoop(ChromeThread::IO));
+    ResourceMessageFilter* renderer) {
+  {
+    AutoLock lock(renderers_lock_);
+    DCHECK(renderers_.find(renderer->GetProcessId()) != renderers_.end());
+    renderers_.erase(renderer->GetProcessId());
+  }
 
   // Close any channels that share this filter.
   // TODO(mpcomplete): should we notify the other side of the port?
   for (MessageChannelMap::iterator it = channels_.begin();
        it != channels_.end(); ) {
     MessageChannelMap::iterator current = it++;
-    if (current->second.renderer_port == renderer_port)
+    if (current->second.port1 == renderer || current->second.port2 == renderer)
       channels_.erase(current);
   }
 }

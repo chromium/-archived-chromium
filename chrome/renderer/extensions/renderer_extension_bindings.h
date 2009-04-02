@@ -9,16 +9,23 @@
 
 #include <string>
 
+class RenderThreadBase;
 class WebFrame;
 
 namespace extensions_v8 {
 
-// This class adds extension-related javascript bindings to a renderer.
+// This class adds extension-related javascript bindings to a renderer.  It is
+// used by both web renderers and extension processes.
 class RendererExtensionBindings {
  public:
-  static v8::Extension* Get();
-  static void HandleExtensionMessage(
-      WebFrame* webframe, const std::string& message, int channel_id);
+  static v8::Extension* Get(RenderThreadBase* render_thread);
+
+  // Notify any listeners that a message channel has been opened to this
+  // process.
+  static void HandleConnect(int port_id);
+
+  // Dispatch the given message sent on this channel.
+  static void HandleMessage(const std::string& message, int port_id);
 };
 
 }  // namespace extensions_v8

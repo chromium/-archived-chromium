@@ -71,6 +71,8 @@ void MockRenderThread::OnMessageReceived(const IPC::Message& msg) {
   bool msg_is_ok = true;
   IPC_BEGIN_MESSAGE_MAP_EX(MockRenderThread, msg, msg_is_ok)
     IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_OpenChannelToExtension,
+                        OnMsgOpenChannelToExtension);
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP_EX()
 }
@@ -81,4 +83,9 @@ void MockRenderThread::OnMsgCreateWidget(int opener_id,
                                          int* route_id) {
   opener_id_ = opener_id;
   *route_id = routing_id_;
+}
+
+void MockRenderThread::OnMsgOpenChannelToExtension(
+    const std::string& extension_id, int* channel_id) {
+  *channel_id = 0;
 }

@@ -155,6 +155,8 @@ ResourceMessageFilter::~ResourceMessageFilter() {
 void ResourceMessageFilter::Init(int render_process_id) {
   render_process_id_ = render_process_id;
   render_widget_helper_->Init(render_process_id, resource_dispatcher_host_);
+
+  ExtensionMessageService::GetInstance()->RendererReady(this);
 }
 
 // Called on the IPC thread:
@@ -809,13 +811,13 @@ void ResourceMessageFilter::OnFreeTransportDIB(
 #endif
 
 void ResourceMessageFilter::OnOpenChannelToExtension(
-    const std::string& extension_id, int* channel_id) {
-  *channel_id = ExtensionMessageService::GetInstance()->
+    const std::string& extension_id, int* port_id) {
+  *port_id = ExtensionMessageService::GetInstance()->
       OpenChannelToExtension(extension_id, this);
 }
 
 void ResourceMessageFilter::OnExtensionPostMessage(
-    int channel_id, const std::string& message) {
-  ExtensionMessageService::GetInstance()->PostMessageToExtension(
-      channel_id, message);
+    int port_id, const std::string& message) {
+  ExtensionMessageService::GetInstance()->
+      PostMessageFromRenderer(port_id, message, this);
 }

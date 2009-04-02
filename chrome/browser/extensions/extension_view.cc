@@ -7,6 +7,7 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/resource_bundle.h"
 
 #include "grit/browser_resources.h"
@@ -26,8 +27,9 @@ void ExtensionView::CreatingRenderer() {
   render_view_host()->AllowExtensionBindings();
 }
 
-void ExtensionView::RenderViewCreated(RenderViewHost* render_view_host) {
-  ExtensionMessageService::GetInstance()->RegisterExtensionView(this);
+void ExtensionView::RenderViewCreated(RenderViewHost* rvh) {
+  ExtensionMessageService::GetInstance()->RegisterExtension(
+      extension_->id(), render_view_host()->process()->pid());
 }
 
 WebPreferences ExtensionView::GetWebkitPrefs() {
