@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H__
-#define WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H__
+#ifndef WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H_
+#define WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H_
 
 enum WindowOpenDisposition {
   SUPPRESS_OPEN,
   CURRENT_TAB,
+  SINGLETON_TAB,
   NEW_FOREGROUND_TAB,
   NEW_BACKGROUND_TAB,
   NEW_POPUP,
@@ -17,4 +18,4 @@ enum WindowOpenDisposition {
   IGNORE_ACTION
 };
 
-#endif  // WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H__
+#endif  // WEBKIT_GLUE_WINDOW_OPEN_DISPOSITION_H_

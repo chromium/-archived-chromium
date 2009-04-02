@@ -191,6 +191,7 @@ void ExternalTabContainer::OpenURLFromTab(TabContents* source,
                            PageTransition::Type transition) {
   switch (disposition) {
     case CURRENT_TAB:
+    case SINGLETON_TAB:
     case NEW_FOREGROUND_TAB:
     case NEW_BACKGROUND_TAB:
     case NEW_WINDOW:

@@ -1634,7 +1634,10 @@ void Browser::OpenURLFromTab(TabContents* source,
   if (profile_->IsOffTheRecord() && disposition == OFF_THE_RECORD)
     disposition = NEW_FOREGROUND_TAB;
 
-  if (disposition == NEW_WINDOW) {
+  if (disposition == SINGLETON_TAB) {
+    ShowSingleDOMUITab(url);
+    return;
+  } else if (disposition == NEW_WINDOW) {
     Browser* browser = Browser::Create(profile_);
     new_contents = browser->AddTabWithURL(url, referrer, transition, true,
                                           instance);

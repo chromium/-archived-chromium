@@ -27,7 +27,7 @@ void DownloadShelf::ShowAllDownloads() {
   if (profile)
     UserMetrics::RecordAction(L"ShowDownloads", profile);
   tab_contents_->OpenURL(GURL(chrome::kChromeUIDownloadsURL), GURL(),
-                         NEW_FOREGROUND_TAB, PageTransition::AUTO_BOOKMARK);
+                         SINGLETON_TAB, PageTransition::AUTO_BOOKMARK);
 }
 
 void DownloadShelf::ChangeTabContents(TabContents* old_contents,
