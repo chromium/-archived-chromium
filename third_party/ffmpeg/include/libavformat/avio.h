@@ -1,5 +1,4 @@
 /*
- * unbuffered io for ffmpeg system
  * copyright (c) 2001 Fabrice Bellard
  *
  * This file is part of FFmpeg.
@@ -21,7 +20,17 @@
 #ifndef AVFORMAT_AVIO_H
 #define AVFORMAT_AVIO_H
 
+/**
+ * @file libavformat/avio.h
+ * unbuffered I/O operations
+ *
+ * @warning This file has to be considered an internal but installed
+ * header, so it should not be directly included in your projects.
+ */
+
 #include <stdint.h>
+
+#include "libavutil/common.h"
 
 /* unbuffered I/O */
 
@@ -67,6 +76,15 @@ int64_t url_seek(URLContext *h, int64_t pos, int whence);
 int url_close(URLContext *h);
 int url_exist(const char *filename);
 int64_t url_filesize(URLContext *h);
+
+/**
+ * Return the file descriptor associated with this URL. For RTP, this
+ * will return only the RTP file descriptor, not the RTCP file descriptor.
+ * To get both, use rtp_get_file_handles().
+ *
+ * @return the file descriptor associated with this URL, or <0 on error.
+ */
+int url_get_file_handle(URLContext *h);
 
 /**
  * Return the maximum packet size associated to packetized file
@@ -135,14 +153,30 @@ typedef struct URLProtocol {
     int (*url_read_pause)(URLContext *h, int pause);
     int64_t (*url_read_seek)(URLContext *h, int stream_index,
                              int64_t timestamp, int flags);
+    int (*url_get_file_handle)(URLContext *h);
 } URLProtocol;
 
+#if LIBAVFORMAT_VERSION_MAJOR < 53
 extern URLProtocol *first_protocol;
+#endif
+
 extern URLInterruptCB *url_interrupt_cb;
 
+/**
+ * If protocol is NULL, returns the first registered protocol,
+ * if protocol is non-NULL, returns the next registered protocol after protocol,
+ * or NULL if protocol is the last one.
+ */
 URLProtocol *av_protocol_next(URLProtocol *p);
 
-int register_protocol(URLProtocol *protocol);
+#if LIBAVFORMAT_VERSION_MAJOR < 53
+/**
+ * @deprecated Use av_register_protocol() instead.
+ */
+attribute_deprecated int register_protocol(URLProtocol *protocol);
+#endif
+
+int av_register_protocol(URLProtocol *protocol);
 
 /**
  * Bytestream IO Context.
@@ -365,6 +399,8 @@ void init_checksum(ByteIOContext *s,
 /* udp.c */
 int udp_set_remote_url(URLContext *h, const char *uri);
 int udp_get_local_port(URLContext *h);
+#if (LIBAVFORMAT_VERSION_MAJOR <= 52)
 int udp_get_file_handle(URLContext *h);
+#endif
 
 #endif /* AVFORMAT_AVIO_H */

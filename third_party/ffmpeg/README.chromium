@@ -1,5 +1,5 @@
 This contains FFmpeg's public header files from the output of a "make install"
-command.  The header files are from FFmpeg revision 16647.
+command.  The header files are from FFmpeg revision 18286.
 
 Steps to reproduce:
   1) If on Windows, refer to http://ffmpeg.arrozcru.org for environment setup

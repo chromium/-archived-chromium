@@ -170,7 +170,7 @@ bool PathProvider(int key, FilePath* result) {
         return false;
       break;
     case chrome::FILE_LIBAVUTIL:
-      if (!GetFFmpegLibraryPath(&cur, FILE_PATH_LITERAL("avutil-49.dll")))
+      if (!GetFFmpegLibraryPath(&cur, FILE_PATH_LITERAL("avutil-50.dll")))
         return false;
       break;
     // The following are only valid in the development environment, and

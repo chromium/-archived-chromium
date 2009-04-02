@@ -1,4 +1,4 @@
-LIBRARY avutil-49
+LIBRARY avutil-50
 EXPORTS
   av_free
   av_malloc

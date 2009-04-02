@@ -2,9 +2,12 @@ LIBRARY avcodec-52
 EXPORTS
   av_bitstream_filter_init
   avcodec_alloc_context
+  avcodec_decode_audio2
+  avcodec_decode_video
   avcodec_find_decoder
   avcodec_get_frame_defaults
   avcodec_init
   avcodec_open
-  avcodec_decode_audio2
-  avcodec_decode_video
+  avcodec_thread_execute
+  avcodec_thread_free
+  avcodec_thread_init
