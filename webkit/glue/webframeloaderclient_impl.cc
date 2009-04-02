@@ -1246,7 +1246,7 @@ bool WebFrameLoaderClient::canShowMIMEType(const String& mime_type) const {
   // See if the type is handled by an installed plugin, if so, we can show it.
   // TODO(beng): (http://b/1085524) This is the place to stick a preference to
   //             disable full page plugins (optionally for certain types!)
-  return plugin_data && plugin_data->supportsMimeType(mime_type);
+  return !mime_type.isEmpty() && plugin_data && plugin_data->supportsMimeType(mime_type);
 }
 
 bool WebFrameLoaderClient::representationExistsForURLScheme(const String& URLScheme) const {
