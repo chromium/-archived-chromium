@@ -37,6 +37,13 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
   }
 }
 
+SafeBrowsingResourceHandler::~SafeBrowsingResourceHandler() {
+  // If we're being deleted before the SafeBrowsing check has completed, cancel
+  // the check.
+  if (in_safe_browsing_check_)
+    safe_browsing_->CancelCheck(this);
+}
+
 bool SafeBrowsingResourceHandler::OnUploadProgress(int request_id,
                                                    uint64 position,
                                                    uint64 size) {

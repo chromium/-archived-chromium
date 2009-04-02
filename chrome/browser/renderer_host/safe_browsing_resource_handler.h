@@ -24,6 +24,7 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
                               ResourceType::Type resource_type,
                               SafeBrowsingService* safe_browsing,
                               ResourceDispatcherHost* resource_dispatcher_host);
+  ~SafeBrowsingResourceHandler();
 
   // ResourceHandler implementation:
   bool OnUploadProgress(int request_id, uint64 position, uint64 size);
