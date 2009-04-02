@@ -7,7 +7,8 @@
 
 #include <string>
 
-#include "base/scoped_ptr.h"
+#include <wtf/OwnPtr.h>
+
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/devtools/dom_agent.h"
 #include "webkit/glue/devtools/net_agent.h"
@@ -70,13 +71,13 @@ class WebDevToolsAgentImpl
   WebDevToolsAgentDelegate* delegate_;
   WebViewImpl* web_view_impl_;
   WebCore::Document* document_;
-  scoped_ptr<DebuggerAgentDelegateStub> debugger_agent_delegate_stub_;
-  scoped_ptr<DomAgentDelegateStub> dom_agent_delegate_stub_;
-  scoped_ptr<NetAgentDelegateStub> net_agent_delegate_stub_;
-  scoped_ptr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
-  scoped_ptr<DebuggerAgentImpl> debugger_agent_impl_;
-  scoped_ptr<DomAgentImpl> dom_agent_impl_;
-  scoped_ptr<NetAgentImpl> net_agent_impl_;
+  OwnPtr<DebuggerAgentDelegateStub> debugger_agent_delegate_stub_;
+  OwnPtr<DomAgentDelegateStub> dom_agent_delegate_stub_;
+  OwnPtr<NetAgentDelegateStub> net_agent_delegate_stub_;
+  OwnPtr<ToolsAgentDelegateStub> tools_agent_delegate_stub_;
+  OwnPtr<DebuggerAgentImpl> debugger_agent_impl_;
+  OwnPtr<DomAgentImpl> dom_agent_impl_;
+  OwnPtr<NetAgentImpl> net_agent_impl_;
   bool attached_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };

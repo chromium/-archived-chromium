@@ -33,6 +33,7 @@ devtools.ToolsAgent = function() {
  */
 devtools.ToolsAgent.prototype.reset = function() {
   this.domAgent_.reset();
+  this.netAgent_.reset();
   this.domAgent_.getDocumentElementAsync();
 };
 
@@ -114,11 +115,15 @@ devtools.ToolsAgent.prototype.updateFocusedNode = function(nodeId) {
 
 
 /**
+ * @param {string} url Url frame navigated to.
+ * @param {bool} topLevel True iff top level navigation occurred.
  * @see tools_agent.h
  */
 devtools.ToolsAgent.prototype.frameNavigate = function(url, topLevel) {
-  this.reset();
-  WebInspector.reset();
+  if (topLevel) {
+    this.reset();
+    WebInspector.reset();
+  }
 };
 
 

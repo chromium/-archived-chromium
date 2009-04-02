@@ -73,7 +73,12 @@ class NetAgentImpl : public NetAgent {
 
   NetAgentDelegate* delegate_;
   WebCore::Document* document_;
-  HashMap<int, RefPtr<WebCore::DocumentLoader> > loaders_;
+  typedef HashMap<int, DictionaryValue*, DefaultHash<int>::Hash,
+                  WTF::UnsignedWithZeroKeyHashTraits<int> > CachedResources;
+  typedef HashMap<int, RefPtr<WebCore::DocumentLoader>, DefaultHash<int>::Hash,
+                  WTF::UnsignedWithZeroKeyHashTraits<int> > CachedLoaders;
+  CachedResources pending_resources_;
+  CachedLoaders loaders_;
   int last_cached_identifier_;
   DISALLOW_COPY_AND_ASSIGN(NetAgentImpl);
 };

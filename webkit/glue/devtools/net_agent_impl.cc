@@ -38,6 +38,11 @@ NetAgentImpl::NetAgentImpl(NetAgentDelegate* delegate)
 
 NetAgentImpl::~NetAgentImpl() {
   SetDocument(NULL);
+  for (CachedResources::iterator  it = pending_resources_.begin();
+       it != pending_resources_.end(); ++it) {
+    delete it->second;
+  }
+  pending_resources_.clear();
 }
 
 void NetAgentImpl::SetDocument(Document* doc) {
@@ -57,42 +62,43 @@ void NetAgentImpl::WillSendRequest(
     int identifier,
     const ResourceRequest& request) {
   KURL url = request.url();
-  DictionaryValue value;
-  value.SetReal(L"startTime", WTF::currentTime());
-  value.SetString(L"url",  webkit_glue::StringToStdString(url.string()));
-  value.SetString(L"domain", webkit_glue::StringToStdString(url.host()));
-  value.SetString(L"path", webkit_glue::StringToStdString(url.path()));
-  value.SetString(L"lastPathComponent",
+  DictionaryValue* resource = new DictionaryValue();
+
+  resource->SetReal(L"startTime", WTF::currentTime());
+  resource->SetString(L"url",  webkit_glue::StringToStdString(url.string()));
+  resource->SetString(L"domain", webkit_glue::StringToStdString(url.host()));
+  resource->SetString(L"path", webkit_glue::StringToStdString(url.path()));
+  resource->SetString(L"lastPathComponent",
       webkit_glue::StringToStdString(url.lastPathComponent()));
-  value.Set(L"requestHeaders",
+  resource->Set(L"requestHeaders",
       BuildValueForHeaders(request.httpHeaderFields()));
-  delegate_->WillSendRequest(identifier, value);
+  delegate_->WillSendRequest(identifier, *resource);
+  pending_resources_.set(identifier, resource);
 }
 
 void NetAgentImpl::DidReceiveResponse(
     DocumentLoader* loader,
     int identifier,
     const ResourceResponse &response) {
-  if (!document_) {
+  KURL url = response.url();
+  if (!pending_resources_.contains(identifier)) {
     return;
   }
-  KURL url = response.url();
-
-  DictionaryValue value;
-  value.SetReal(L"responseReceivedTime", WTF::currentTime());
-  value.SetString(L"url",
+  DictionaryValue* resource = pending_resources_.get(identifier);
+  resource->SetReal(L"responseReceivedTime", WTF::currentTime());
+  resource->SetString(L"url",
       webkit_glue::StringToStdWString(url.string()));
-  value.SetInteger(L"expectedContentLength",
+  resource->SetInteger(L"expectedContentLength",
       static_cast<int>(response.expectedContentLength()));
-  value.SetInteger(L"responseStatusCode", response.httpStatusCode());
-  value.SetString(L"mimeType",
+  resource->SetInteger(L"responseStatusCode", response.httpStatusCode());
+  resource->SetString(L"mimeType",
       webkit_glue::StringToStdWString(response.mimeType()));
-  value.SetString(L"suggestedFilename",
+  resource->SetString(L"suggestedFilename",
       webkit_glue::StringToStdWString(response.suggestedFilename()));
-  value.Set(L"responseHeaders",
+  resource->Set(L"responseHeaders",
       BuildValueForHeaders(response.httpHeaderFields()));
 
-  delegate_->DidReceiveResponse(identifier, value);
+  delegate_->DidReceiveResponse(identifier, *resource);
 }
 
 void NetAgentImpl::DidReceiveContentLength(
@@ -104,21 +110,31 @@ void NetAgentImpl::DidReceiveContentLength(
 void NetAgentImpl::DidFinishLoading(
     DocumentLoader* loader,
     int identifier) {
-  DictionaryValue value;
-  value.SetReal(L"endTime", WTF::currentTime());
-  delegate_->DidFinishLoading(identifier, value);
+  if (!pending_resources_.contains(identifier)) {
+    return;
+  }
+  DictionaryValue* resource = pending_resources_.get(identifier);
+  resource->SetReal(L"endTime", WTF::currentTime());
+  delegate_->DidFinishLoading(identifier, *resource);
+  pending_resources_.remove(identifier);
+  delete resource;
 }
 
 void NetAgentImpl::DidFailLoading(
     DocumentLoader* loader,
     int identifier,
     const ResourceError& error) {
-  DictionaryValue value;
-  value.SetReal(L"endTime", WTF::currentTime());
-  value.SetInteger(L"errorCode", error.errorCode());
-  value.SetString(L"localizedDescription",
+  if (!pending_resources_.contains(identifier)) {
+    return;
+  }
+  DictionaryValue* resource = pending_resources_.get(identifier);
+  resource->SetReal(L"endTime", WTF::currentTime());
+  resource->SetInteger(L"errorCode", error.errorCode());
+  resource->SetString(L"localizedDescription",
       webkit_glue::StringToStdString(error.localizedDescription()));
-  delegate_->DidFailLoading(identifier, value);
+  delegate_->DidFailLoading(identifier, *resource);
+  pending_resources_.remove(identifier);
+  delete resource;
 }
 
 void NetAgentImpl::DidLoadResourceFromMemoryCache(
@@ -137,8 +153,7 @@ void NetAgentImpl::GetResourceContent(
   if (!document_) {
     return;
   }
-  HashMap<int, RefPtr<DocumentLoader> >::iterator it =
-      loaders_.find(identifier);
+  CachedLoaders::iterator it = loaders_.find(identifier);
   if (it == loaders_.end() || !it->second) {
     return;
   }

@@ -27,6 +27,15 @@ devtools.NetAgent = function() {
 
 
 /**
+ * Resets dom agent to its initial state.
+ */
+devtools.NetAgent.prototype.reset = function() {
+  this.resources_ = {};
+  this.id_for_url_ = {};
+};
+
+
+/**
  * Returns resource object for given identifier.
  * @param {number} identifier Identifier to get resource for.
  * @return {WebInspector.Resouce} Resulting resource.
@@ -63,6 +72,12 @@ devtools.NetAgent.prototype.getResourceContentAsync = function(identifier,
  * {@inheritDoc}.
  */
 devtools.NetAgent.prototype.willSendRequest = function(identifier, request) {
+  // Resource object is already created.
+  var resource = this.resources_[identifier];
+  if (resource) {
+    return;
+  }
+
   var mainResource = false;
   var cached = false;
   var resource = new WebInspector.Resource(request.requestHeaders, 
@@ -84,6 +99,7 @@ devtools.NetAgent.prototype.didReceiveResponse = function(identifier, response) 
   if (!resource) {
     return;
   }
+
   resource.expectedContentLength = response.expectedContentLength;
   resource.responseStatusCode = response.responseStatusCode;
   resource.mimeType = response.mimeType;
@@ -108,6 +124,11 @@ devtools.NetAgent.prototype.didReceiveResponse = function(identifier, response) 
  * {@inheritDoc}.
  */
 devtools.NetAgent.prototype.didFinishLoading = function(identifier, value) {
+  // When loading main resource we are only getting the didFinishLoading
+  // that is happening after the reset. Replay previous commands here.
+  this.willSendRequest(identifier, value);
+  this.didReceiveResponse(identifier, value);
+
   var resource = this.resources_[identifier];
   if (!resource) {
     return;

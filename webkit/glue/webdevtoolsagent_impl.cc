@@ -42,10 +42,10 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
       web_view_impl_(web_view_impl),
       document_(NULL),
       attached_(false) {
-  debugger_agent_delegate_stub_.reset(new DebuggerAgentDelegateStub(this));
-  dom_agent_delegate_stub_.reset(new DomAgentDelegateStub(this));
-  net_agent_delegate_stub_.reset(new NetAgentDelegateStub(this));
-  tools_agent_delegate_stub_.reset(new ToolsAgentDelegateStub(this));
+  debugger_agent_delegate_stub_.set(new DebuggerAgentDelegateStub(this));
+  dom_agent_delegate_stub_.set(new DomAgentDelegateStub(this));
+  net_agent_delegate_stub_.set(new NetAgentDelegateStub(this));
+  tools_agent_delegate_stub_.set(new ToolsAgentDelegateStub(this));
 }
 
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
@@ -55,10 +55,10 @@ void WebDevToolsAgentImpl::Attach() {
   if (attached_) {
     return;
   }
-  debugger_agent_impl_.reset(
+  debugger_agent_impl_.set(
       new DebuggerAgentImpl(debugger_agent_delegate_stub_.get()));
-  dom_agent_impl_.reset(new DomAgentImpl(dom_agent_delegate_stub_.get()));
-  net_agent_impl_.reset(new NetAgentImpl(net_agent_delegate_stub_.get()));
+  dom_agent_impl_.set(new DomAgentImpl(dom_agent_delegate_stub_.get()));
+  net_agent_impl_.set(new NetAgentImpl(net_agent_delegate_stub_.get()));
   if (document_) {
     debugger_agent_impl_->SetDocument(document_);
     dom_agent_impl_->SetDocument(document_);
@@ -68,13 +68,14 @@ void WebDevToolsAgentImpl::Attach() {
 }
 
 void WebDevToolsAgentImpl::Detach() {
-  debugger_agent_impl_.reset(NULL);
-  dom_agent_impl_.reset(NULL);
-  net_agent_impl_.reset(NULL);
+  debugger_agent_impl_.set(NULL);
+  dom_agent_impl_.set(NULL);
+  net_agent_impl_.set(NULL);
   attached_ = false;
 }
 
 void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
+  // Store document reference no matter if client is attached.
   if (ready) {
     Page* page = web_view_impl_->page();
     document_ = page->mainFrame()->document();
@@ -106,11 +107,13 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
 }
 
 void WebDevToolsAgentImpl::HighlightDOMNode(int node_id) {
-  if (!attached_)
+  if (!attached_) {
     return;
+  }
   Node* node = dom_agent_impl_->GetNodeForId(node_id);
-  if (!node)
+  if (!node) {
     return;
+  }
   Page* page = web_view_impl_->page();
   page->inspectorController()->highlight(node);
 }
@@ -152,28 +155,34 @@ void WebDevToolsAgentImpl::DispatchMessageFromClient(
     const std::string& raw_msg) {
   OwnPtr<ListValue> message(
       static_cast<ListValue*>(DevToolsRpc::ParseMessage(raw_msg)));
-  if (ToolsAgentDispatch::Dispatch(this, *message.get()))
+  if (ToolsAgentDispatch::Dispatch(this, *message.get())) {
     return;
+  }
 
-  if (!attached_)
+  if (!attached_) {
     return;
+  }
 
   if (debugger_agent_impl_.get() &&
       DebuggerAgentDispatch::Dispatch(
           debugger_agent_impl_.get(),
-          *message.get()))
+          *message.get())) {
     return;
+  }
 
-  if (DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get()))
+  if (DomAgentDispatch::Dispatch(dom_agent_impl_.get(), *message.get())) {
     return;
-  if (NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get()))
+  }
+  if (NetAgentDispatch::Dispatch(net_agent_impl_.get(), *message.get())) {
     return;
+  }
 }
 
 void WebDevToolsAgentImpl::InspectElement(int x, int y) {
   Node* node = web_view_impl_->GetNodeForWindowPos(x, y);
-  if (!node)
+  if (!node) {
     return;
+  }
 
   int node_id = dom_agent_impl_->PushNodePathToClient(node);
   tools_agent_delegate_stub_->UpdateFocusedNode(node_id);

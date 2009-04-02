@@ -61,7 +61,8 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
 devtools.InspectorControllerImpl.prototype.addResourceSourceToFrame =
     function(identifier, element) {
   var self = this;
-  tools.getNetAgent().getResourceContentAsync(identifier, function(source) {
+  var netAgent = devtools.tools.getNetAgent();
+  netAgent.getResourceContentAsync(identifier, function(source) {
     var resource = netAgent.getResource(identifier);
     self.addSourceToFrame(resource.mimeType, source, element);
   });
