@@ -38,12 +38,8 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   void RenderViewDestroyed();
 
  private:
-  // Sends message to DevToolsClient. May be called on any thread.
+  // Sends message to DevToolsClient. Should be called on the render thread.
   void Send(const IPC::Message& tools_client_message);
-
-  // Sends message to DevToolsClient. Must be called on IO thread. Takes
-  // ownership of the message.
-  void SendFromIOThread(IPC::Message* message);
 
   // IPC::ChannelProxy::MessageFilter overrides. Called on IO thread.
   virtual void OnFilterAdded(IPC::Channel* channel);
@@ -71,7 +67,6 @@ class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
   RenderView* view_;
   MessageLoop* view_loop_;
 
-  IPC::Channel* channel_;
   MessageLoop* io_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsAgent);

@@ -32,7 +32,6 @@ DevToolsAgent::DevToolsAgent(int routing_id,
     : routing_id_(routing_id),
       view_(view),
       view_loop_(view_loop),
-      channel_(NULL),
       io_loop_(NULL) {
 }
 
@@ -46,30 +45,20 @@ void DevToolsAgent::RenderViewDestroyed() {
 }
 
 void DevToolsAgent::Send(const IPC::Message& tools_client_message) {
-  // It's possible that this will get cleared out from under us.
-  MessageLoop* io_loop = io_loop_;
-  if (!io_loop)
+  DCHECK(MessageLoop::current() == view_loop_);
+  if (!view_) {
     return;
+  }
 
   IPC::Message* m = new ViewHostMsg_ForwardToDevToolsClient(
       routing_id_,
       tools_client_message);
-  io_loop->PostTask(FROM_HERE, NewRunnableMethod(
-      this, &DevToolsAgent::SendFromIOThread, m));
-}
-
-void DevToolsAgent::SendFromIOThread(IPC::Message* message) {
-  if (channel_) {
-    channel_->Send(message);
-  } else {
-    delete message;
-  }
+  view_->Send(m);
 }
 
 // Called on the IO thread.
 void DevToolsAgent::OnFilterAdded(IPC::Channel* channel) {
   io_loop_ = MessageLoop::current();
-  channel_ = channel;
 }
 
 // Called on the IO thread.
@@ -79,6 +68,10 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   if (message.routing_id() != routing_id_)
     return false;
 
+  // TODO(yurys): only DebuggerCommand message is handled on the IO thread
+  // all other messages could be handled in RenderView::OnMessageReceived. With
+  // that approach we wouldn't have to call view_loop_->PostTask for each of the
+  // messages.
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(DevToolsAgent, message)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnAttach)
@@ -95,7 +88,6 @@ bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
 // Called on the IO thread.
 void DevToolsAgent::OnFilterRemoved() {
   io_loop_ = NULL;
-  channel_ = NULL;
 }
 
 void DevToolsAgent::EvaluateScript(const std::wstring& script) {

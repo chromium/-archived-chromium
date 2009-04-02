@@ -35,7 +35,10 @@ void DebuggerAgentManager::DebugAttach(DebuggerAgentImpl* debugger_agent) {
 #if USE(V8)
   if (!attached_agents_) {
     attached_agents_ = new AttachedAgentsSet();
-    v8::Debug::SetMessageHandler(&DebuggerAgentManager::V8DebugMessageHandler);
+    v8::Debug::SetMessageHandler(
+        &DebuggerAgentManager::V8DebugMessageHandler,
+        NULL, /* no additional data */
+        false /* don't create separate thread for sending debugger output */);
   }
   attached_agents_->add(debugger_agent);
 #endif
