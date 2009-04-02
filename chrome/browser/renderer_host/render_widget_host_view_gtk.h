@@ -14,6 +14,8 @@
 
 class RenderWidgetHost;
 
+typedef struct _GtkClipboard GtkClipboard;
+
 // -----------------------------------------------------------------------------
 // See comments in render_widget_host_view.h about this class and its members.
 // -----------------------------------------------------------------------------
@@ -56,6 +58,7 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void RenderViewGone();
   void Destroy();
   void SetTooltipText(const std::wstring& tooltip_text);
+  void PasteFromSelectionClipboard();
   BackingStore* AllocBackingStore(const gfx::Size& size);
   // ---------------------------------------------------------------------------
 
@@ -66,6 +69,10 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
  private:
   // Update the display cursor for the render view.
   void ShowCurrentCursor();
+
+  static void ReceivedSelectionText(GtkClipboard* clipboard,
+                                    const gchar* text,
+                                    gpointer userdata);
 
   // The model object.
   RenderWidgetHost *const host_;

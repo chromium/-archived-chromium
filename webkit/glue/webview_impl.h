@@ -93,6 +93,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void ZoomIn(bool text_only);
   virtual void ZoomOut(bool text_only);
   virtual void ResetZoom();
+  virtual void InsertText(const string16& text);
   virtual void CopyImageAt(int x, int y);
   virtual void InspectElement(int x, int y);
   virtual void ShowJavaScriptConsole();

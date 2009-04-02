@@ -285,6 +285,8 @@ class RenderView : public RenderWidget,
 
   virtual WebDevToolsAgentDelegate* GetWebDevToolsAgentDelegate();
 
+  virtual void PasteFromSelectionClipboard();
+
   virtual void OnPasswordFormsSeen(WebView* webview,
                                    const std::vector<PasswordForm>& forms);
 
@@ -487,6 +489,7 @@ class RenderView : public RenderWidget,
   void OnCancelDownload(int32 download_id);
   void OnFind(const WebKit::WebFindInPageRequest& request);
   void OnZoom(int function);
+  void OnInsertText(const string16& text);
   void OnSetPageEncoding(const std::wstring& encoding_name);
   void OnGetAllSavableResourceLinksForCurrentPage(const GURL& page_url);
   void OnGetSerializedHtmlDataForCurrentPageWithLocalLinks(

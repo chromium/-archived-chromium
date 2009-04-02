@@ -11,6 +11,7 @@
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/native_web_keyboard_event.h"
+#include "chrome/common/render_messages.h"
 #include "chrome/common/x11_util.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -320,6 +321,11 @@ BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
                           use_render, use_shared_memory);
 }
 
+void RenderWidgetHostViewGtk::PasteFromSelectionClipboard() {
+  GtkClipboard* x_clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+  gtk_clipboard_request_text(x_clipboard, ReceivedSelectionText, this);
+}
+
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
   BackingStore* backing_store = host_->GetBackingStore();
 
@@ -379,4 +385,12 @@ void RenderWidgetHostViewGtk::ShowCurrentCursor() {
   // The window now owns the cursor.
   if (gdk_cursor)
     gdk_cursor_unref(gdk_cursor);
+}
+
+void RenderWidgetHostViewGtk::ReceivedSelectionText(GtkClipboard* clipboard,
+    const gchar* text, gpointer userdata) {
+  RenderWidgetHostViewGtk* host_view =
+      reinterpret_cast<RenderWidgetHostViewGtk*>(userdata);
+  host_view->host_->Send(new ViewMsg_InsertText(host_view->host_->routing_id(),
+                                                UTF8ToUTF16(text)));
 }

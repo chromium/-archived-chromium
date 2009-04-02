@@ -772,6 +772,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnRemoveAutofillEntry)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateFeedList, OnMsgUpdateFeedList)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionRequest, OnExtensionRequest)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_PasteFromSelectionClipboard,
+                        OnPasteFromSelectionClipboard)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
   IPC_END_MESSAGE_MAP_EX()
@@ -1363,4 +1365,9 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
 void RenderViewHost::SendExtensionResponse(int callback_id,
                                            const std::string& response) {
   Send(new ViewMsg_ExtensionResponse(routing_id(), callback_id, response));
+}
+
+void RenderViewHost::OnPasteFromSelectionClipboard() {
+  if (view())
+    view()->PasteFromSelectionClipboard();
 }

@@ -565,6 +565,8 @@ class RenderViewHost : public RenderWidgetHost {
   void OnExtensionRequest(const std::string& name, const std::string& args,
                           int callback_id);
 
+  void OnPasteFromSelectionClipboard();
+
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload
   // handler, so this function might buffer the message rather than sending it.

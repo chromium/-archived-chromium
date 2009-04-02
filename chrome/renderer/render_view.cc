@@ -358,6 +358,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_CopyImageAt, OnCopyImageAt)
     IPC_MESSAGE_HANDLER(ViewMsg_Find, OnFind)
     IPC_MESSAGE_HANDLER(ViewMsg_Zoom, OnZoom)
+    IPC_MESSAGE_HANDLER(ViewMsg_InsertText, OnInsertText)
     IPC_MESSAGE_HANDLER(ViewMsg_SetPageEncoding, OnSetPageEncoding)
     IPC_MESSAGE_HANDLER(ViewMsg_InspectElement, OnInspectElement)
     IPC_MESSAGE_HANDLER(ViewMsg_ShowJavaScriptConsole, OnShowJavaScriptConsole)
@@ -2362,6 +2363,10 @@ void RenderView::OnZoom(int function) {
   }
 }
 
+void RenderView::OnInsertText(const string16& text) {
+  webview()->InsertText(text);
+}
+
 void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
   webview()->SetPageEncoding(encoding_name);
 }
@@ -2423,6 +2428,10 @@ void RenderView::DownloadUrl(const GURL& url, const GURL& referrer) {
 
 WebDevToolsAgentDelegate* RenderView::GetWebDevToolsAgentDelegate() {
   return devtools_agent_;
+}
+
+void RenderView::PasteFromSelectionClipboard() {
+  Send(new ViewHostMsg_PasteFromSelectionClipboard(routing_id_));
 }
 
 WebFrame* RenderView::GetChildFrame(const std::wstring& frame_xpath) const {

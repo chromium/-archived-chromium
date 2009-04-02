@@ -457,7 +457,7 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
   if (clicked_node.get() && clicked_node == GetFocusedNode()) {
     // Focus has not changed, show the autocomplete popup.
     static_cast<EditorClientImpl*>(page_->editorClient())->
-          ShowAutofillForNode(clicked_node.get());
+        ShowAutofillForNode(clicked_node.get());
   }
 
   // Dispatch the contextmenu event regardless of if the click was swallowed.
@@ -471,6 +471,21 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
 #elif defined(OS_LINUX)
   if (event.button == WebMouseEvent::ButtonRight)
     MouseContextMenu(event);
+#endif
+
+#if defined(OS_LINUX)
+  // If the event was a middle click, attempt to copy text into the focused
+  // frame.
+  if (event.button == WebMouseEvent::ButtonMiddle) {
+    Frame* focused = GetFocusedWebCoreFrame();
+    if (!focused)
+      return;
+    Editor* editor = focused->editor();
+    if (!editor || !editor->canEdit())
+      return;
+
+    delegate_->PasteFromSelectionClipboard();
+  }
 #endif
 }
 
@@ -1479,6 +1494,18 @@ void WebViewImpl::ResetZoom() {
   main_frame()->frame()->setZoomFactor(
       1.0f,
       main_frame()->frame()->isZoomFactorTextOnly());
+}
+
+void WebViewImpl::InsertText(const string16& text) {
+  Frame* focused = GetFocusedWebCoreFrame();
+  if (!focused)
+    return;
+  Editor* editor = focused->editor();
+  if (!editor || !editor->canEdit())
+    return;
+
+  editor->insertTextWithoutSendingTextEvent(
+      webkit_glue::String16ToString(text), false, NULL);
 }
 
 void WebViewImpl::CopyImageAt(int x, int y) {

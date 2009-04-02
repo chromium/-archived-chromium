@@ -112,6 +112,10 @@ class RenderWidgetHostView {
   // the page has changed.
   virtual void SetTooltipText(const std::wstring& tooltip_text) = 0;
 
+  // Tells the View to get the text from the selection clipboard and send it
+  // back to the renderer asynchronously.
+  virtual void PasteFromSelectionClipboard() { }
+
   // Allocate a backing store for this view
   virtual BackingStore* AllocBackingStore(const gfx::Size& size) = 0;
 

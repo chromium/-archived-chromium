@@ -254,6 +254,10 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_ROUTED1(ViewMsg_Zoom,
                       int /* One of PageZoom::Function */)
 
+  // Insert text in the currently focused input area.
+  IPC_MESSAGE_ROUTED1(ViewMsg_InsertText,
+                      string16  /* text */)
+
   // Change encoding of page in the renderer.
   IPC_MESSAGE_ROUTED1(ViewMsg_SetPageEncoding,
                       std::wstring /*new encoding name*/)
@@ -802,6 +806,10 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED2(ViewHostMsg_UpdateFavIconURL,
                       int32 /* page_id */,
                       GURL /* url of the favicon */)
+
+  // Request that the browser get the text from the selection clipboard and send
+  // it back to the renderer via ViewMsg_SelectionClipboardResponse.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_PasteFromSelectionClipboard)
 
   // Used to tell the parent that the user right clicked on an area of the
   // content area, and a context menu should be shown for it. The params

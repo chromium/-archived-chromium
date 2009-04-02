@@ -753,6 +753,14 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return NULL;
   }
 
+  // Selection clipboard -----------------------------------------------------
+
+  // Request the text on the selection clipboard be sent back to the webview
+  // so it can be inserted into the current focus area. In response to this call
+  // the delegate should get the text and send it to the WebView via
+  // InsertText().
+  virtual void PasteFromSelectionClipboard() { }
+
   // Editor Client -----------------------------------------------------------
 
   // Returns true if the word is spelled correctly. The word may begin or end
