@@ -169,6 +169,22 @@
           'HOME',
           'LINK',
         ],
+        'configurations': {
+          'Debug': {
+            'defines': [
+              '_DEBUG',
+            ],
+            'cflags': [
+              '-O0',
+              '-g',
+            ],
+          },
+          'Release': {
+            'cflags': [
+              '-O2',
+            ],
+          },
+        },
       },
     }],
     ['OS=="mac"', {
