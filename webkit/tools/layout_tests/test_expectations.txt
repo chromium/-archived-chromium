@@ -2411,7 +2411,7 @@ WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 
 // Possibly due to http://trac.webkit.org/changeset/42120 ?
 // BUG 9582
-WIN MAC LINUX : LayoutTests/fast/loader/reload-policy-delegate.html = FAIL
+WIN MAC LINUX : LayoutTests/fast/loader/reload-policy-delegate.html = TIMEOUT
 WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
