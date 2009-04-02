@@ -2333,13 +2333,6 @@ DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FA
 DEFER MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
-// BUG: 9581
-MAC : LayoutTests/http/tests/navigation/post-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/post-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
-MAC : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
-MAC : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
-MAC : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
 
 // Changed in http://trac.webkit.org/changeset/42063
 MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
@@ -2368,8 +2361,6 @@ WIN : LayoutTests/fast/repaint/text-shadow.html = FAIL
 WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
-
-MAC : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
 
 WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
