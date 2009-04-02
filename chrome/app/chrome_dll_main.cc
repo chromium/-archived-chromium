@@ -18,6 +18,7 @@
 #endif
 
 #if defined(OS_LINUX)
+#include <string.h>
 #include <gtk/gtk.h>
 #endif
 
@@ -159,16 +160,24 @@ bool IncorrectChromeHtmlArguments(const std::wstring& command_line) {
 #endif  // OS_WIN
 
 #if defined(OS_LINUX)
-static void GLibFatalLogHandler(const gchar* log_domain,
-                                GLogLevelFlags log_level,
-                                const gchar* message,
-                                gpointer userdata) {
+static void GLibLogHandler(const gchar* log_domain,
+                           GLogLevelFlags log_level,
+                           const gchar* message,
+                           gpointer userdata) {
   if (!log_domain)
     log_domain = "<unknown>";
   if (!message)
     message = "<no message>";
 
-  LOG(FATAL) << log_domain << ": " << message;
+  // http://code.google.com/p/chromium/issues/detail?id=9643
+  // Until we have a real 64-bit build or all of these 32-bit package issues
+  // are sorted out, don't fatal on ELF 32/64-bit mismatch warnings.
+  if (strstr(message, "Loading IM context type") ||
+      strstr(message, "wrong ELF class: ELFCLASS64")) {
+    LOG(ERROR) << "Bug 9643: " << log_domain << ": " << message;
+  } else {
+    LOG(FATAL) << log_domain << ": " << message;
+  }
 }
 
 static void SetUpGLibLogHandler() {
@@ -181,7 +190,7 @@ static void SetUpGLibLogHandler() {
                                                   G_LOG_LEVEL_ERROR |
                                                   G_LOG_LEVEL_CRITICAL |
                                                   G_LOG_LEVEL_WARNING),
-                      GLibFatalLogHandler,
+                      GLibLogHandler,
                       NULL);
   }
 }
