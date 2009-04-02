@@ -148,8 +148,6 @@ BUG761653 WONTFIX : LayoutTests/svg/webarchive = FAIL PASS
 BUG761653 WONTFIX : LayoutTests/svg/custom/image-with-prefix-in-webarchive.svg = FAIL PASS
 BUG761653 WONTFIX SKIP : LayoutTests/http/tests/webarchive = FAIL PASS
 
-BUG932737 WONTFIX LINUX MAC : LayoutTests/webarchive/loading/test-loading-archive.html = TIMEOUT
-
 // Run the Mac-specific platform tests, but only to check for crashes.
 WONTFIX : LayoutTests/platform/gtk = FAIL PASS
 WONTFIX : LayoutTests/platform/mac = FAIL PASS TIMEOUT
@@ -2192,8 +2190,6 @@ LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
 
 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
-WIN : LayoutTests/webarchive/loading/cache-expired-subresource.html = CRASH PASS TIMEOUT
-WIN : LayoutTests/webarchive/loading/test-loading-archive.html = CRASH TIMEOUT PASS
 LINUX : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL PASS
 MAC : LayoutTests/fast/css/rgb-float.html = FAIL PASS
 MAC : LayoutTests/fast/forms/003.html = FAIL PASS
