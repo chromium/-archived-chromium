@@ -1537,6 +1537,13 @@
             # Needed for chrome_dll_main.cc #include of gtk/gtk.h
             '../build/linux/system.gyp:gtk',
           ],
+          'link_settings': {
+            'libraries': [
+              '-lX11',
+              '-lXrender',
+              '-lXext',
+            ],
+          },
           'copies': [
             {
               'destination': '<(PRODUCT_DIR)',
