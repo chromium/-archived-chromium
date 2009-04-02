@@ -39,6 +39,13 @@ TEST(HttpAuthTest, ChooseBestChallenge) {
 
       // Pick Digset over Basic
       "DigestRealm",
+    },
+    {
+      "Y: Digest realm=\"X\", nonce=\"aaaaaaaaaa\"\n"
+      "www-authenticate:\n",
+
+      // Handle null header value.
+      "",
     }
   };
 

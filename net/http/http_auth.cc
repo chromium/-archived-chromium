@@ -55,8 +55,12 @@ void HttpAuth::CreateAuthHandler(const std::string& challenge,
                                  scoped_refptr<HttpAuthHandler>* handler) {
   // Find the right auth handler for the challenge's scheme.
   ChallengeTokenizer props(challenge.begin(), challenge.end());
-  scoped_refptr<HttpAuthHandler> tmp_handler;
+  if (!props.valid()) {
+    *handler = NULL;
+    return;
+  }
 
+  scoped_refptr<HttpAuthHandler> tmp_handler;
   if (LowerCaseEqualsASCII(props.scheme(), "basic")) {
     tmp_handler = new HttpAuthHandlerBasic();
   } else if (LowerCaseEqualsASCII(props.scheme(), "digest")) {
