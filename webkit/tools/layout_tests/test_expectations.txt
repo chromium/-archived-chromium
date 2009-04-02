@@ -2096,8 +2096,8 @@ MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PA
 LINUX : LayoutTests/fast/css/percent-top-value-with-relative-position.html = FAIL
 
 // Looks like they started failing with r11542
-MAC WIN LINUX: LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
-MAC WIN LINUX: LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
+MAC LINUX: LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
+MAC LINUX: LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
 
 // Added 3/12/09
 MAC DEBUG : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
@@ -2132,7 +2132,7 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 // Merge 41709:41733
 // Expectations changed upstream.
 LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
-WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
+LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
 
 // Tests that fail in debug mode on linux
 DEBUG LINUX : LayoutTests/fast/css/remove-shorthand.html = FAIL
@@ -2372,25 +2372,6 @@ MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
 
-// Implement layoutTestController.waitForPolicyDelegate
-// BUG: 9595
-LayoutTests/fast/encoding/mailto-always-utf-8.html = FAIL
-LayoutTests/fast/forms/mailto/get-multiple-items-text-plain.html = FAIL
-LayoutTests/fast/forms/mailto/get-multiple-items-x-www-form-urlencoded.html = FAIL
-LayoutTests/fast/forms/mailto/get-multiple-items.html = FAIL
-LayoutTests/fast/forms/mailto/get-non-ascii-always-utf-8.html = FAIL
-LayoutTests/fast/forms/mailto/get-non-ascii-text-plain-latin-1.html = FAIL
-LayoutTests/fast/forms/mailto/get-non-ascii-text-plain.html = FAIL
-LayoutTests/fast/forms/mailto/get-non-ascii.html = FAIL
-LayoutTests/fast/forms/mailto/get-overwrite-query.html = FAIL
-LayoutTests/fast/forms/mailto/post-append-query.html = FAIL
-LayoutTests/fast/forms/mailto/post-multiple-items-multipart-form-data.html = FAIL
-LayoutTests/fast/forms/mailto/post-multiple-items-text-plain.html = FAIL
-LayoutTests/fast/forms/mailto/post-multiple-items-x-www-form-urlencoded.html = FAIL
-LayoutTests/fast/forms/mailto/post-multiple-items.html = FAIL
-LayoutTests/fast/forms/mailto/post-text-plain-with-accept-charset.html = FAIL
-LayoutTests/fast/forms/mailto/post-text-plain.html = FAIL
-
 // Merge WebKit: 42026:42115 new tests
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL
@@ -2408,14 +2389,6 @@ WIN : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
 WIN : LayoutTests/fast/repaint/text-shadow-horizontal.html = FAIL
 WIN : LayoutTests/fast/repaint/text-shadow.html = FAIL
 WIN : LayoutTests/fast/transforms/shadows.html = FAIL
-
-// Possibly due to http://trac.webkit.org/changeset/42120 ?
-// BUG 9582
-WIN MAC LINUX : LayoutTests/fast/loader/reload-policy-delegate.html = TIMEOUT
-WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL
-WIN : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
-WIN : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
-WIN : LayoutTests/http/tests/ssl/verify-ssl-enabled.php = FAIL
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
