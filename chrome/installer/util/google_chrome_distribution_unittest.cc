@@ -228,6 +228,31 @@ TEST_F(GoogleChromeDistributionTest, TestExtractUninstallMetrics) {
   EXPECT_EQ(expected_url_string, uninstall_metrics_string);
 }
 
+#else
+// The distribution strings should not be empty. The unit tests are not linking
+// with the chrome resources so we cannot test official build.
+TEST(BrowserDistribution, StringsTest) {
+  BrowserDistribution *dist = BrowserDistribution::GetDistribution();
+  ASSERT_TRUE(dist != NULL);
+  std::wstring name = dist->GetApplicationName();
+  EXPECT_FALSE(name.empty());
+  std::wstring desc = dist->GetAppDescription();
+  EXPECT_FALSE(desc.empty());
+  std::wstring alt_name = dist->GetAlternateApplicationName();
+  EXPECT_FALSE(alt_name.empty());
+}
+
+// The shortcut strings obtained by the shell utility functions should not
+// be empty or be the same.
+TEST(BrowserDistribution, AlternateAndNormalShortcutName) {
+  std::wstring normal_name;
+  std::wstring alternate_name;
+  EXPECT_TRUE(ShellUtil::GetChromeShortcutName(&normal_name, false));
+  EXPECT_TRUE(ShellUtil::GetChromeShortcutName(&alternate_name, true));
+  EXPECT_NE(normal_name, alternate_name);
+  EXPECT_FALSE(normal_name.empty());
+  EXPECT_FALSE(alternate_name.empty());
+}
 #endif
 
 TEST(MasterPreferences, ParseDistroParams) {
@@ -271,26 +296,3 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(file_util::Delete(prefs, false));
 }
 
-// The distribution strings should not be empty on chrome or chromium distros.
-TEST(BrowserDistribution, StringsTest) {
-  BrowserDistribution *dist = BrowserDistribution::GetDistribution();
-  ASSERT_TRUE(dist != NULL);
-  std::wstring name = dist->GetApplicationName();
-  EXPECT_FALSE(name.empty());
-  std::wstring desc = dist->GetAppDescription();
-  EXPECT_FALSE(desc.empty());
-  std::wstring alt_name = dist->GetAlternateApplicationName();
-  EXPECT_FALSE(alt_name.empty());
-}
-
-// The shortcut strings obtained by the shell utility functions should not
-// be empty or be the same.
-TEST(BrowserDistribution, AlternateAndNormalShortcutName) {
-  std::wstring normal_name;
-  std::wstring alternate_name;
-  EXPECT_TRUE(ShellUtil::GetChromeShortcutName(&normal_name, false));
-  EXPECT_TRUE(ShellUtil::GetChromeShortcutName(&alternate_name, true));
-  EXPECT_NE(normal_name, alternate_name);
-  EXPECT_FALSE(normal_name.empty());
-  EXPECT_FALSE(alternate_name.empty());
-}
