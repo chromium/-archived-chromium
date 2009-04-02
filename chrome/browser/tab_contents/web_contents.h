@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -210,6 +210,11 @@ class WebContents : public TabContents,
   bool find_ui_active() const { return find_ui_active_; }
   void set_find_ui_active(bool find_ui_active) {
       find_ui_active_ = find_ui_active;
+  }
+
+  // Setter for find_op_aborted_.
+  void set_find_op_aborted(bool find_op_aborted) {
+    find_op_aborted_ = find_op_aborted;
   }
 
   // Used _only_ by testing to set the current request ID, since it calls
@@ -681,7 +686,9 @@ class WebContents : public TabContents,
 
   // True if a Find operation was aborted. This can happen if the Find box is
   // closed or if the search term inside the Find box is erased while a search
-  // is in progress.
+  // is in progress. This can also be set if a page has been reloaded, and will
+  // on FindNext result in a full Find operation so that the highlighting for
+  // inactive matches can be repainted.
   bool find_op_aborted_;
 
   // Each time a search request comes in we assign it an id before passing it
