@@ -461,9 +461,6 @@ SKIP : LayoutTests/http/tests/workers = TIMEOUT FAIL
 SKIP : LayoutTests/http/tests/xmlhttprequest/workers = TIMEOUT FAIL
 DEFER LINUX MAC : LayoutTests/fast/events/dispatchEvent-crash.html = CRASH FAIL
 
-// General V8 bug.
-SKIP : LayoutTests/fast/workers/worker-replace-self.html = TIMEOUT FAIL
-
 // -----------------------------------------------------------------
 // PENDING TESTS (forked to pending/, need to be sent upstream)
 // -----------------------------------------------------------------
