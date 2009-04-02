@@ -46,12 +46,19 @@ class ChromeMiniInstaller {
   // Closes specified process.
   void CloseProcesses(const std::wstring& executable_name);
 
+  // This method will first install the full installer and
+  // then over installs with diff installer.
+  void InstallDifferentialInstaller();
+
+  // Installs the latest full installer.
+  void InstallFullInstaller();
+
   // Installs Google Chrome through meta installer.
   void InstallMetaInstaller();
 
   // Installs Chrome Mini Installer.
   void InstallMiniInstaller(bool over_install = false,
-                            const wchar_t* exe_name = L"");
+                            const std::wstring& path = L"");
 
   // This will test the standalone installer.
   void InstallStandaloneIntaller();
@@ -116,7 +123,7 @@ class ChromeMiniInstaller {
   HKEY GetRootRegistryKey();
 
   // Returns Chrome pv registry key value
-  bool GetRegistryKey(std::wstring *return_reg_key_value);
+  bool GetChromeVersionFromRegistry(std::wstring *return_reg_key_value);
 
   // This method gets the shortcut path from start menu based on install type.
   std::wstring GetStartMenuShortcutPath();
@@ -143,6 +150,11 @@ class ChromeMiniInstaller {
   // Compares the registry key values after overinstall.
   bool VerifyOverInstall(const std::wstring& reg_key_value_before_overinstall,
                          const std::wstring& reg_key_value_after_overinstall);
+
+  // Checks if the differential install is correct.
+  bool VerifyDifferentialInstall(const std::wstring& full_installer_value,
+                                 const std::wstring& diff_installer_value,
+                                 const std::wstring& diff_installer_name);
 
   // This method will verify if the installed build is correct.
   bool VerifyStandaloneInstall();

@@ -32,11 +32,20 @@ class MiniInstallTest : public testing::Test {
   };
 };
 
+TEST_F(MiniInstallTest, FullInstallerTest) {
+  ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
+  installer.InstallFullInstaller();
+}
+
+// Will enable this test after bug#9593 gets fixed.
+TEST_F(MiniInstallTest, DISABLED_DifferentialInstallerTest) {
+  ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
+  installer.InstallDifferentialInstaller();
+}
+
 TEST_F(MiniInstallTest, StandaloneInstallerTest) {
-  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
-    ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
-    installer.InstallStandaloneIntaller();
-  }
+  ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
+  installer.InstallStandaloneIntaller();
 }
 
 TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
