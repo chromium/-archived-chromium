@@ -35,6 +35,7 @@ const char net::RegistryControlledDomainService::kDomainData[] =
   "!nacion.ar\n"
   "!national-library-scotland.uk\n"
   "!nel.uk\n"
+  "!nhs.uk\n"
   "!nic.ar\n"
   "!nic.pa\n"
   "!nls.uk\n"
