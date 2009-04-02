@@ -895,7 +895,6 @@ LINUX : LayoutTests/svg/carto.net/slider.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/textbox.svg = FAIL
 LINUX : LayoutTests/svg/carto.net/window.svg = FAIL
 LINUX : LayoutTests/svg/custom/coords-relative-units-transforms.svg = FAIL
-LINUX : LayoutTests/svg/custom/glyph-setting-d-attribute.svg = FAIL
 LINUX : LayoutTests/svg/custom/svg-fonts-in-html.html = FAIL
 LINUX : LayoutTests/svg/custom/use-referencing-nonexisting-symbol.svg = FAIL
 LINUX : LayoutTests/svg/hixie/perf/003.xml = FAIL
@@ -1468,7 +1467,7 @@ MAC : LayoutTests/fast/parser/entity-comment-in-textarea.html = FAIL
 MAC : LayoutTests/fast/table/003.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
@@ -2096,8 +2095,8 @@ MAC : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PA
 LINUX : LayoutTests/fast/css/percent-top-value-with-relative-position.html = FAIL
 
 // Looks like they started failing with r11542
-MAC LINUX: LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
-MAC LINUX: LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
+MAC : LayoutTests/fast/forms/mailto/advanced-get.html = FAIL
+MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
 
 // Added 3/12/09
 MAC DEBUG : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
@@ -2131,7 +2130,6 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 
 // Merge 41709:41733
 // Expectations changed upstream.
-LINUX : LayoutTests/http/tests/misc/url-in-utf16le.html = FAIL
 LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
 
 // Tests that fail in debug mode on linux
@@ -2181,7 +2179,6 @@ WIN DEBUG : LayoutTests/fast/js/large-expressions.html = FAIL
 
 // Merge 41768:41807
 // Perhaps just needs new baseline?
-LINUX : LayoutTests/editing/style/block-styles-007.html = FAIL
 // These tests were rebaselined with failure long ago. We shouldn't do this, and
 // instead work upstream to improve tests so that they don't fail.
 DEFER LINUX WIN : LayoutTests/fast/forms/textarea-appearance-wrap.html = FAIL
@@ -2254,23 +2251,18 @@ DEFER WIN : LayoutTests/fast/forms/slider-thumb-shared-style.html = FAIL
 DEFER WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
 DEFER WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
-DEFER WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
 DEFER WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
 DEFER WIN : LayoutTests/svg/carto.net/selectionlist.svg = FAIL
-DEFER WIN LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
-DEFER WIN LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+DEFER WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
+DEFER WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 DEFER WIN LINUX : LayoutTests/svg/custom/js-update-image.svg = FAIL
-DEFER WIN LINUX: LayoutTests/svg/custom/text-image-opacity.svg = FAIL
+DEFER WIN : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 DEFER MAC : LayoutTests/fast/forms/search-zoomed.html = FAIL
-DEFER LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
 DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
-DEFER LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
 DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
-DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
 DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
-DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
 DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
-DEFER LINUX : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
 // Adding more failures after the last merge:
@@ -2278,8 +2270,6 @@ WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
 WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
-LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = FAIL
-LINUX : LayoutTests/editing/selection/4776665.html = FAIL
 
 // Merge WebKit: 41944:41999
 // All these seem to be the same issue. None of them is crashing when run separately.
@@ -2344,25 +2334,12 @@ DEFER MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
 // BUG: 9581
-LINUX : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/post-basic.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/post-frames.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/post-goback2.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
-MAC LINUX : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/success200-goback.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/success200-loadsame.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/success200-reload.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/timerredirect-goback.html = FAIL
+MAC : LayoutTests/http/tests/navigation/post-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/post-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-basic.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-frames.html = FAIL
+MAC : LayoutTests/http/tests/navigation/postredirect-goback1.html = FAIL
+MAC : LayoutTests/http/tests/navigation/restore-form-state-https.html = FAIL
 
 // Changed in http://trac.webkit.org/changeset/42063
 MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
@@ -2370,7 +2347,7 @@ MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 
 // Changed in http://trac.webkit.org/changeset/42082
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
-WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT
+WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT CRASH
 
 // Merge WebKit: 42026:42115 new tests
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
@@ -2392,4 +2369,8 @@ WIN : LayoutTests/fast/transforms/shadows.html = FAIL
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
-MAC LINUX : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
+MAC : LayoutTests/fast/loader/simultaneous-reloads-assert.html = TIMEOUT
+
+WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
+WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
