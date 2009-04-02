@@ -280,8 +280,18 @@ devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
     this.parsedScripts_[script.id] = new devtools.ScriptInfo(
         script.id, script.lineOffset);
     
+    var name = script.name;
+    if (name.indexOf('http') == 0) {
+      var slash = name.lastIndexOf('/');
+      if (slash != -1) {
+        name = name.substr(slash + 1);
+      }
+    }
+    if (name.length > 100) {
+      name = name.substr(0, 50) + '...' + name.substr(name.length - 50);
+    }
     WebInspector.parsedScriptSource(
-        script.id, script.name, script.source, script.lineOffset);
+        script.id, name, script.source, script.lineOffset);
   }
 };
 
