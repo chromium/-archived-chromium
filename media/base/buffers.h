@@ -157,8 +157,9 @@ struct VideoSurface {
   size_t planes;
 
   // Array of strides for each plane, typically greater or equal to the width
-  // of the surface divided by the horizontal sampling period.
-  size_t strides[kMaxPlanes];
+  // of the surface divided by the horizontal sampling period.  Note that
+  // strides can be negative.
+  int32 strides[kMaxPlanes];
 
   // Array of data pointers to each plane.
   uint8* data[kMaxPlanes];

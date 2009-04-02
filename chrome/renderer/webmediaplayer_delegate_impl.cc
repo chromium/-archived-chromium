@@ -12,6 +12,7 @@
 // FFmpeg is not ready for Linux and Mac yet.
 #include "media/filters/ffmpeg_audio_decoder.h"
 #include "media/filters/ffmpeg_demuxer.h"
+#include "media/filters/ffmpeg_video_decoder.h"
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -61,6 +62,7 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
   // FFmpeg is not ready for Linux and Mac yet.
   filter_factory_->AddFactory(media::FFmpegDemuxer::CreateFilterFactory());
   filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
+  filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
 #endif
   filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(this));
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
