@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
 
 #include "base/gfx/gtk_util.h"
+#include "base/gfx/point.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -46,7 +47,8 @@ TabStripGtk::TabStripGtk(TabStripModel* model)
       current_selected_width_(TabGtk::GetStandardSize().width()),
       available_width_for_tabs_(-1),
       resize_layout_scheduled_(false),
-      model_(model) {
+      model_(model),
+      hover_index_(-1) {
 }
 
 TabStripGtk::~TabStripGtk() {
@@ -70,6 +72,12 @@ void TabStripGtk::Init() {
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "configure-event",
                    G_CALLBACK(OnConfigure), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "motion-notify-event",
+                   G_CALLBACK(OnMotionNotify), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "button-press-event",
+                   G_CALLBACK(OnButtonPress), this);
+  gtk_widget_add_events(tabstrip_.get(),
+                        GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK);
   gtk_widget_show_all(tabstrip_.get());
 
   bounds_ = GetInitialWidgetBounds(tabstrip_.get());
@@ -411,5 +419,71 @@ gboolean TabStripGtk::OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
   gfx::Rect bounds = gfx::Rect(event->x, event->y, event->width, event->height);
   tabstrip->SetBounds(bounds);
   tabstrip->Layout();
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
+                                     TabStripGtk* tabstrip) {
+  int old_hover_index = tabstrip->hover_index_;
+  tabstrip->hover_index_ = -1;
+
+  gfx::Point coord(event->x, event->y);
+  // Get a rough estimate for which tab the mouse is over.
+  int index = std::floor(
+      event->x / (tabstrip->current_unselected_width_ + kTabHOffset));
+
+  if (index >= tabstrip->model_->count()) {
+    if (old_hover_index != -1) {
+      tabstrip->GetTabAt(old_hover_index)->SetHovering(false);
+      gtk_widget_queue_draw(tabstrip->tabstrip_.get());
+    }
+
+    return TRUE;
+  }
+
+  // Tab hovering calcuation.
+  // Using the rough estimate tab index, we check the tab bounds in a smart
+  // order to reduce the number of tabs we need to check.  If the tab at the
+  // estimated index is selected, check it first as it covers both tabs below
+  // it.  Otherwise, check the tab to the left, then the estimated tab, and
+  // finally the tab to the right (tabs stack to the left.)
+
+  if (tabstrip->model()->selected_index() == index &&
+      tabstrip->GetTabAt(index)->IsPointInBounds(coord)) {
+    tabstrip->hover_index_ = index;
+  } else if (index > 0 &&
+             tabstrip->GetTabAt(index - 1)->IsPointInBounds(coord)) {
+    tabstrip->hover_index_ = index - 1;
+  } else if (tabstrip->model()->selected_index() != index &&
+             tabstrip->GetTabAt(index)->IsPointInBounds(coord)) {
+    tabstrip->hover_index_ = index;
+  } else if (index < tabstrip->model_->count() - 1 &&
+             tabstrip->GetTabAt(index + 1)->IsPointInBounds(coord)) {
+    tabstrip->hover_index_ = index + 1;
+  }
+
+  // Nothing to do if the indexes are the same.
+  if (tabstrip->hover_index_ != old_hover_index) {
+    if (tabstrip->hover_index_ != -1)
+      tabstrip->GetTabAt(tabstrip->hover_index_)->SetHovering(true);
+
+    if (old_hover_index != -1)
+      tabstrip->GetTabAt(old_hover_index)->SetHovering(false);
+
+    gtk_widget_queue_draw(tabstrip->tabstrip_.get());
+  }
+
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event,
+                                    TabStripGtk* tabstrip) {
+  if (tabstrip->hover_index_ != -1 &&
+      tabstrip->hover_index_ != tabstrip->model()->selected_index()) {
+    tabstrip->model()->SelectTabContentsAt(tabstrip->hover_index_, true);
+  }
+
   return TRUE;
 }

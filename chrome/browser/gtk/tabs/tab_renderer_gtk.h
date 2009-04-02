@@ -59,6 +59,12 @@ class TabRendererGtk {
   // Paints the tab into |canvas|.
   void Paint(ChromeCanvasPaint* canvas);
 
+  // Checks whether |coord| is inside the bounds of the tab.
+  bool IsPointInBounds(const gfx::Point& coord);
+
+  // Sets the hovering status of the tab.
+  void SetHovering(bool hovering) { hovering_ = hovering; }
+
  protected:
   const gfx::Rect& title_bounds() const { return title_bounds_; }
 
@@ -73,10 +79,10 @@ class TabRendererGtk {
   static int GetContentHeight();
 
   // Paint various portions of the Tab
-  // TODO(jhawkins): Paint hover tab.
   void PaintTabBackground(ChromeCanvasPaint* canvas);
   void PaintInactiveTabBackground(ChromeCanvasPaint* canvas);
   void PaintActiveTabBackground(ChromeCanvasPaint* canvas);
+  void PaintHoverTabBackground(ChromeCanvasPaint* canvas, double opacity);
   void PaintLoadingAnimation(ChromeCanvasPaint* canvas);
 
   // Returns the number of favicon-size elements that can fit in the tab's
@@ -162,6 +168,9 @@ class TabRendererGtk {
 
   // The bounds of this Tab.
   gfx::Rect bounds_;
+
+  // Set when the mouse is hovering over this tab and the tab is not selected.
+  bool hovering_;
 
   DISALLOW_COPY_AND_ASSIGN(TabRendererGtk);
 };

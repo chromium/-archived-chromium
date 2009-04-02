@@ -10,6 +10,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
+#include "skia/ext/image_operations.h"
 
 namespace {
 
@@ -28,6 +29,9 @@ const int kUnselectedTitleColor = SkColorSetRGB(64, 64, 64);
 // in the tab. TODO(jhawkins): Ask pkasting what the Fuzz is about.
 const int kCloseButtonVertFuzz = 0;
 const int kCloseButtonHorzFuzz = 5;
+
+// How opaque to make the hover state (out of 1).
+const double kHoverOpacity = 0.33;
 
 // TODO(jhawkins): Move this code into ChromeFont and allow pulling out a
 // GdkFont*.
@@ -70,7 +74,8 @@ TabRendererGtk::TabRendererGtk()
       showing_download_icon_(false),
       showing_close_button_(false),
       fav_icon_hiding_offset_(0),
-      should_display_crashed_favicon_(false) {
+      should_display_crashed_favicon_(false),
+      hovering_(false) {
   InitResources();
 }
 
@@ -178,6 +183,11 @@ void TabRendererGtk::LoadTabImages() {
 void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
   bounds_ = bounds;
   Layout();
+}
+
+bool TabRendererGtk::IsPointInBounds(const gfx::Point& coord) {
+  // TODO(jhawkins): Use a GdkRegion that better maps to the shape of the tab.
+  return bounds_.Contains(coord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -315,7 +325,13 @@ void TabRendererGtk::PaintTabBackground(ChromeCanvasPaint* canvas) {
     // the active representation for the dragged tab.
     PaintActiveTabBackground(canvas);
   } else {
-    PaintInactiveTabBackground(canvas);
+    // Draw our hover state.
+    // TODO(jhawkins): Hover animations.
+    if (hovering_) {
+      PaintHoverTabBackground(canvas, kHoverOpacity);
+    } else {
+      PaintInactiveTabBackground(canvas);
+    }
   }
 }
 
@@ -331,6 +347,26 @@ void TabRendererGtk::PaintInactiveTabBackground(ChromeCanvasPaint* canvas) {
   canvas->DrawBitmapInt(*image.image_r,
                        bounds_.x() + width() - tab_inactive_.r_width,
                        bounds_.y());
+}
+
+void TabRendererGtk::PaintHoverTabBackground(ChromeCanvasPaint* canvas,
+                                             double opacity) {
+  bool is_otr = data_.off_the_record;
+  const TabImage& image = is_otr ? tab_inactive_otr_ : tab_inactive_;
+
+  SkBitmap left = skia::ImageOperations::CreateBlendedBitmap(
+      *image.image_l, *tab_hover_.image_l, opacity);
+  SkBitmap center = skia::ImageOperations::CreateBlendedBitmap(
+      *image.image_c, *tab_hover_.image_c, opacity);
+  SkBitmap right = skia::ImageOperations::CreateBlendedBitmap(
+      *image.image_r, *tab_hover_.image_r, opacity);
+
+  canvas->DrawBitmapInt(left, bounds_.x(), bounds_.y());
+  canvas->TileImageInt(center, bounds_.x() + tab_active_.l_width, bounds_.y(),
+      bounds_.width() - tab_active_.l_width - tab_active_.r_width,
+      bounds_.height());
+  canvas->DrawBitmapInt(right,
+      bounds_.x() + bounds_.width() - tab_active_.r_width, bounds_.y());
 }
 
 void TabRendererGtk::PaintActiveTabBackground(ChromeCanvasPaint* canvas) {

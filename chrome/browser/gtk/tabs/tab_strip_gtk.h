@@ -70,6 +70,14 @@ class TabStripGtk : public TabStripModelObserver,
   static gboolean OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
                               TabStripGtk* tabstrip);
 
+  // motion-notify-event handler that handles mouse movement in the tabstrip.
+  static gboolean OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
+                                 TabStripGtk* tabstrip);
+
+  // button-press-event handler that handles mouse clicks.
+  static gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event,
+                                TabStripGtk* tabstrip);
+
   // Gets the number of Tabs in the collection.
   int GetTabCount() const;
 
@@ -141,6 +149,9 @@ class TabStripGtk : public TabStripModelObserver,
 
   // Our model.
   TabStripModel* model_;
+
+  // The index of the tab the mouse is currently over.  -1 if not over a tab.
+  int hover_index_;
 };
 
 #endif  // CHROME_BROWSER_GTK_TAB_STRIP_GTK_H_
