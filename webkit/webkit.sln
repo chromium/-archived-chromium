@@ -139,9 +139,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_shell_tests", "tools\t
 		{FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED} = {FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "..\third_party\libxml\build\libxml.vcproj", "{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxml", "..\third_party\libxml\libxml.vcproj", "{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxslt", "..\third_party\libxslt\build\libxslt.vcproj", "{FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libxslt", "..\third_party\libxslt\libxslt.vcproj", "{FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7} = {F9810DE8-CBC3-4605-A7B1-ECA2D5292FD7}
 	EndProjectSection
