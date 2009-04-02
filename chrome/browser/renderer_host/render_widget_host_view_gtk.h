@@ -5,16 +5,19 @@
 #ifndef CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_
 #define CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_
 
+#include <gdk/gdk.h>
 #include <vector>
 
 #include "base/gfx/native_widget_types.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/common/owned_widget_gtk.h"
+#include "chrome/common/render_messages.h"
 #include "webkit/glue/webcursor.h"
 
 class RenderWidgetHost;
 
 typedef struct _GtkClipboard GtkClipboard;
+typedef struct _GtkSelectionData GtkSelectionData;
 
 // -----------------------------------------------------------------------------
 // See comments in render_widget_host_view.h about this class and its members.
@@ -58,6 +61,8 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void RenderViewGone();
   void Destroy();
   void SetTooltipText(const std::wstring& tooltip_text);
+  void SelectionChanged();
+  void SetSelectionText(const std::string& text);
   void PasteFromSelectionClipboard();
   BackingStore* AllocBackingStore(const gfx::Size& size);
   // ---------------------------------------------------------------------------
@@ -67,9 +72,20 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   void Paint(const gfx::Rect&);
 
  private:
+  friend class RenderWidgetHostViewGtkWidget;
+
+  void set_event_selection(GdkEventSelection* event_selection) {
+    event_selection_ = *event_selection;
+    event_selection_active_ = true;
+  }
+
   // Update the display cursor for the render view.
   void ShowCurrentCursor();
 
+  void RequestSelectionText();
+
+  // When we've requested the text from the X clipboard, GTK returns it to us
+  // through this callback.
   static void ReceivedSelectionText(GtkClipboard* clipboard,
                                     const gchar* text,
                                     gpointer userdata);
@@ -99,6 +115,17 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
 
   // The cursor for the page. This is passed up from the renderer.
   WebCursor current_cursor_;
+
+  // We cache the text that is selected on the page. This is used for copying to
+  // the X clipboard. We update |selection_text_| whenever X asks us for it and
+  // the cache is empty. We invalidate it (set it to empty) whenever the
+  // renderer sends a SelectionChanged message.
+  std::string selection_text_;
+
+  // A struct that keeps state for the XSelectionEvent we are handling (if any).
+  GdkEventSelection event_selection_;
+  // Tracks whether we are currently handling an XSelectionEvent.
+  bool event_selection_active_;
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_WIDGET_HOST_VIEW_GTK_H_

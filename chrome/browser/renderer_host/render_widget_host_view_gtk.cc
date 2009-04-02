@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
+#include <gdk/gdkx.h>
 #include <cairo/cairo.h>
 
 #include "base/logging.h"
@@ -16,12 +17,9 @@
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
+#include "webkit/glue/webcursor_gtk_data.h"
 
 using WebKit::WebInputEventFactory;
-
-namespace {
-
-#include "webkit/glue/webcursor_gtk_data.h"
 
 // This class is a simple convenience wrapper for Gtk functions. It has only
 // static methods.
@@ -48,9 +46,9 @@ class RenderWidgetHostViewGtkWidget {
     g_signal_connect(widget, "key-release-event",
                      G_CALLBACK(KeyPressReleaseEvent), host_view);
     g_signal_connect(widget, "focus-in-event",
-                     G_CALLBACK(FocusIn), host_view);
+                     G_CALLBACK(OnFocusIn), host_view);
     g_signal_connect(widget, "focus-out-event",
-                     G_CALLBACK(FocusOut), host_view);
+                     G_CALLBACK(OnFocusOut), host_view);
     g_signal_connect(widget, "button-press-event",
                      G_CALLBACK(ButtonPressReleaseEvent), host_view);
     g_signal_connect(widget, "button-release-event",
@@ -60,6 +58,34 @@ class RenderWidgetHostViewGtkWidget {
     g_signal_connect(widget, "scroll-event",
                      G_CALLBACK(MouseScrollEvent), host_view);
 
+    GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
+    gtk_target_list_add_text_targets(target_list, 0);
+    gint num_targets = 0;
+    GtkTargetEntry* targets = gtk_target_table_new_from_list(target_list,
+                                                            &num_targets);
+    gtk_selection_clear_targets(widget, GDK_SELECTION_PRIMARY);
+    gtk_selection_add_targets(widget, GDK_SELECTION_PRIMARY, targets,
+                              num_targets);
+    gtk_target_table_free(targets, num_targets);
+
+    // When X requests the contents of the clipboard, GTK will emit the
+    // selection_request_event signal. The default handler would then
+    // synchronously emit the selection_get signal. However, we want to
+    // respond to the selection_request_event asynchronously, so we intercept
+    // the signal in OnSelectionRequest, request the selection text from the
+    // render view, and return TRUE so the default handler won't be called. Then
+    // when we get the selection text back from the renderer in
+    // SetSelectionText() we will call manually the selection_request_event
+    // default handler.
+    g_signal_connect(widget, "selection_request_event",
+                     G_CALLBACK(OnSelectionRequest), host_view);
+    g_signal_connect(widget, "selection_get",
+                     G_CALLBACK(OnSelectionGet), host_view);
+
+    // In OnSelectionGet, we need to access |host_view| to get the selection
+    // text.
+    g_object_set_data(G_OBJECT(widget), "render-widget-host-view-gtk",
+                      host_view);
     return widget;
   }
 
@@ -87,13 +113,13 @@ class RenderWidgetHostViewGtkWidget {
     return TRUE;
   }
 
-  static gboolean FocusIn(GtkWidget* widget, GdkEventFocus* focus,
+  static gboolean OnFocusIn(GtkWidget* widget, GdkEventFocus* focus,
                           RenderWidgetHostViewGtk* host_view) {
     host_view->GetRenderWidgetHost()->Focus();
     return FALSE;
   }
 
-  static gboolean FocusOut(GtkWidget* widget, GdkEventFocus* focus,
+  static gboolean OnFocusOut(GtkWidget* widget, GdkEventFocus* focus,
                            RenderWidgetHostViewGtk* host_view) {
     // Whenever we lose focus, set the cursor back to that of our parent window,
     // which should be the default arrow.
@@ -130,16 +156,48 @@ class RenderWidgetHostViewGtkWidget {
     return FALSE;
   }
 
+
+  static gboolean OnSelectionRequest(GtkWidget* widget,
+                                     GdkEventSelection* event) {
+    RenderWidgetHostViewGtk* host_view =
+        reinterpret_cast<RenderWidgetHostViewGtk*>(
+        g_object_get_data(G_OBJECT(widget), "render-widget-host-view-gtk"));
+
+    // If we already know the selection text, return FALSE to let the default
+    // handler run. Also, don't try to handle two events simultaneously,
+    // because we might end up sending the wrong |event_selection_| back to GTK.
+    if (!host_view->selection_text_.empty() ||
+         host_view->event_selection_active_)
+      return FALSE;
+
+    host_view->event_selection_ = *event;
+    host_view->event_selection_active_ = true;
+    if (host_view->selection_text_.empty())
+      host_view->RequestSelectionText();
+
+    return TRUE;
+  }
+
+  static void OnSelectionGet(GtkWidget* widget,
+                             GtkSelectionData* data,
+                             guint info, guint time,
+                             RenderWidgetHostViewGtk* host_view) {
+    DCHECK(!host_view->selection_text_.empty() ||
+           host_view->event_selection_active_);
+
+    gtk_selection_data_set(data, data->target, 8,
+        reinterpret_cast<const guchar*>(host_view->selection_text_.c_str()),
+        host_view->selection_text_.length());
+  }
+
   DISALLOW_IMPLICIT_CONSTRUCTORS(RenderWidgetHostViewGtkWidget);
 };
 
-gboolean OnPopupParentFocusOut(GtkWidget* parent, GdkEventFocus* focus,
-                               RenderWidgetHost* host) {
+static gboolean OnPopupParentFocusOut(GtkWidget* parent, GdkEventFocus* focus,
+                                      RenderWidgetHost* host) {
   host->Shutdown();
   return FALSE;
 }
-
-}  // namespace
 
 // static
 RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
@@ -153,7 +211,8 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       parent_(NULL),
       popup_signal_id_(0),
       activatable_(true),
-      is_loading_(false) {
+      is_loading_(false),
+      event_selection_active_(false) {
   host_->set_view(this);
 }
 
@@ -308,6 +367,22 @@ void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
   }
 }
 
+void RenderWidgetHostViewGtk::SelectionChanged() {
+  selection_text_.clear();
+
+  guint32 timestamp = gdk_x11_get_server_time(view_.get()->window);
+  gtk_selection_owner_set(view_.get(), GDK_SELECTION_PRIMARY, timestamp);
+}
+
+void RenderWidgetHostViewGtk::SetSelectionText(const std::string& text) {
+  selection_text_ = text;
+  DCHECK(event_selection_active_);
+  event_selection_active_ = false;
+  // Resume normal handling of the active selection_request_event.
+  GtkWidgetClass* klass = GTK_WIDGET_CLASS(gtk_type_class(GTK_TYPE_WIDGET));
+  klass->selection_request_event(view_.get(), &event_selection_);
+}
+
 BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
     const gfx::Size& size) {
   Display* display = x11_util::GetXDisplay();
@@ -385,6 +460,10 @@ void RenderWidgetHostViewGtk::ShowCurrentCursor() {
   // The window now owns the cursor.
   if (gdk_cursor)
     gdk_cursor_unref(gdk_cursor);
+}
+
+void RenderWidgetHostViewGtk::RequestSelectionText() {
+  host_->Send(new ViewMsg_RequestSelectionText(host_->routing_id()));
 }
 
 void RenderWidgetHostViewGtk::ReceivedSelectionText(GtkClipboard* clipboard,

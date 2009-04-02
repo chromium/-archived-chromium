@@ -280,6 +280,9 @@ class RenderView : public RenderWidget,
   virtual void OnNavStateChanged(WebView* webview);
   virtual void SetTooltipText(WebView* webview,
                               const std::wstring& tooltip_text);
+  // Called when the text selection changed. This is only called on linux since
+  // on other platforms the RenderView doesn't act as an editor client delegate.
+  virtual void DidChangeSelection(bool is_empty_selection);
 
   virtual void DownloadUrl(const GURL& url, const GURL& referrer);
 
@@ -593,6 +596,9 @@ class RenderView : public RenderWidget,
 
   void OnHandleExtensionMessage(const std::string& message, int channel_id);
 
+  // Sends the selection text to the browser.
+  void OnRequestSelectionText();
+
   // Prints the page listed in |params|.
   void PrintPage(const ViewMsg_PrintPage_Params& params,
                  const gfx::Size& canvas_size,
@@ -814,6 +820,10 @@ class RenderView : public RenderWidget,
 
   // Maps pending callback IDs to their frames.
   IDMap<WebFrame> pending_extension_callbacks_;
+
+  // The currently selected text. This is currently only updated on Linux, where
+  // it's for the selection clipboard.
+  std::string selection_text_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };

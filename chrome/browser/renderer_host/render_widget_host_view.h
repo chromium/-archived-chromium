@@ -112,6 +112,12 @@ class RenderWidgetHostView {
   // the page has changed.
   virtual void SetTooltipText(const std::wstring& tooltip_text) = 0;
 
+  // Notifies the View that the renderer text selection has changed.
+  virtual void SelectionChanged() { };
+
+  // Notifies the View what the current selection text is.
+  virtual void SetSelectionText(const std::string& text) { };
+
   // Tells the View to get the text from the selection clipboard and send it
   // back to the renderer asynchronously.
   virtual void PasteFromSelectionClipboard() { }

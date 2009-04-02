@@ -6,17 +6,11 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Small program to dump the contents of GTK's clipboard to the terminal.
- * Feel free to add to it or improve formatting or whatnot.
- */
-int main(int argc, char* argv[]) {
-  gtk_init(&argc, &argv);
+namespace {
+
+void PrintClipboardContents(GtkClipboard* clip) {
   GdkAtom* targets;
   int num_targets = 0;
-  // For now only look at GDK_SELECTION_CLIPBOARD. This could be extended
-  // to look at GDK_SELECTION_PRIMARY (the X clipboard).
-  GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-
   gtk_clipboard_wait_for_targets(clip, &targets, &num_targets);
 
   printf("Available targets:\n---------------\n");
@@ -34,6 +28,10 @@ int main(int argc, char* argv[]) {
     if (strstr(gdk_atom_name(targets[i]), "image")) {
       printf("(image omitted)\n\n");
       continue;
+    } else if (strstr(gdk_atom_name(targets[i]), "TIMESTAMP")) {
+      // TODO(estade): Print the time stamp in human readable format.
+      printf("(time omitted)\n\n");
+      continue;
     }
 
     for (int j = 0; j < data->length; j++) {
@@ -43,4 +41,19 @@ int main(int argc, char* argv[]) {
     }
     printf("\n\n");
   }
+}
+
+}
+
+/* Small program to dump the contents of GTK's clipboards to the terminal.
+ * Feel free to add to it or improve formatting or whatnot.
+ */
+int main(int argc, char* argv[]) {
+  gtk_init(&argc, &argv);
+
+  printf("Desktop clipboard\n");
+  PrintClipboardContents(gtk_clipboard_get(GDK_SELECTION_CLIPBOARD));
+
+  printf("X clipboard\n");
+  PrintClipboardContents(gtk_clipboard_get(GDK_SELECTION_PRIMARY));
 }

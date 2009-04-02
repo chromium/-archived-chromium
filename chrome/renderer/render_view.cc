@@ -297,6 +297,12 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
       MessageLoop::current());
   webwidget_ = WebView::Create(this, webkit_prefs);
 
+#if defined(OS_LINUX)
+  // We have to enable ourselves as the editor delegate on linux so we can copy
+  // text selections to the X clipboard.
+  webview()->SetUseEditorDelegate(true);
+#endif
+
   // Don't let WebCore keep a B/F list - we have our own.
   // We let it keep 1 entry because FrameLoader::goToItem expects an item in the
   // backForwardList, which is used only in ASSERTs.
@@ -425,6 +431,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_HandleExtensionMessage,
                         OnHandleExtensionMessage)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
+    IPC_MESSAGE_HANDLER(ViewMsg_RequestSelectionText, OnRequestSelectionText)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -452,6 +459,10 @@ void RenderView::SendThumbnail() {
 
   // send the thumbnail message to the browser process
   Send(new ViewHostMsg_Thumbnail(routing_id_, url, score, thumbnail));
+}
+
+void RenderView::OnRequestSelectionText() {
+  Send(new ViewHostMsg_SetSelectionText(routing_id_, selection_text_));
 }
 
 void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
@@ -2421,6 +2432,17 @@ void RenderView::SetTooltipText(WebView* webview,
                                 const std::wstring& tooltip_text) {
   Send(new ViewHostMsg_SetTooltipText(routing_id_, tooltip_text));
 }
+
+void RenderView::DidChangeSelection(bool is_empty_selection) {
+#if defined(OS_LINUX)
+  if (!is_empty_selection) {
+    // TODO(estade): find a way to incrementally update the selection text.
+    selection_text_ = webview()->GetMainFrame()->GetSelection(false);
+    Send(new ViewHostMsg_SelectionChanged(routing_id_));
+  }
+#endif
+}
+
 
 void RenderView::DownloadUrl(const GURL& url, const GURL& referrer) {
   Send(new ViewHostMsg_DownloadUrl(routing_id_, url, referrer));

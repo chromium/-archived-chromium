@@ -506,6 +506,9 @@ class RenderViewHost : public RenderWidgetHost {
 #endif
   void OnMsgGoToEntryAtOffset(int offset);
   void OnMsgSetTooltipText(const std::wstring& tooltip_text);
+  void OnMsgSelectionChanged();
+  void OnMsgSetSelectionText(const std::string& text);
+  void OnMsgPasteFromSelectionClipboard();
   void OnMsgRunFileChooser(bool multiple_files,
                            const std::wstring& title,
                            const std::wstring& default_file,
@@ -564,8 +567,6 @@ class RenderViewHost : public RenderWidgetHost {
 
   void OnExtensionRequest(const std::string& name, const std::string& args,
                           int callback_id);
-
-  void OnPasteFromSelectionClipboard();
 
   // Helper function to send a navigation message.  If a cross-site request is
   // in progress, we may be suspended while waiting for the onbeforeunload

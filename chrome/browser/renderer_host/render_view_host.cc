@@ -772,8 +772,10 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnRemoveAutofillEntry)
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateFeedList, OnMsgUpdateFeedList)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionRequest, OnExtensionRequest)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_SelectionChanged, OnMsgSelectionChanged)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_SetSelectionText, OnMsgSetSelectionText)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PasteFromSelectionClipboard,
-                        OnPasteFromSelectionClipboard)
+                        OnMsgPasteFromSelectionClipboard)
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidgetHost::OnMessageReceived(msg))
   IPC_END_MESSAGE_MAP_EX()
@@ -1094,6 +1096,21 @@ void RenderViewHost::OnMsgSetTooltipText(const std::wstring& tooltip_text) {
     view()->SetTooltipText(tooltip_text);
 }
 
+void RenderViewHost::OnMsgSelectionChanged() {
+  if (view())
+    view()->SelectionChanged();
+}
+
+void RenderViewHost::OnMsgSetSelectionText(const std::string& text) {
+  if (view())
+    view()->SetSelectionText(text);
+}
+
+void RenderViewHost::OnMsgPasteFromSelectionClipboard() {
+  if (view())
+    view()->PasteFromSelectionClipboard();
+}
+
 void RenderViewHost::OnMsgRunFileChooser(bool multiple_files,
                                          const std::wstring& title,
                                          const std::wstring& default_file,
@@ -1365,9 +1382,4 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
 void RenderViewHost::SendExtensionResponse(int callback_id,
                                            const std::string& response) {
   Send(new ViewMsg_ExtensionResponse(routing_id(), callback_id, response));
-}
-
-void RenderViewHost::OnPasteFromSelectionClipboard() {
-  if (view())
-    view()->PasteFromSelectionClipboard();
 }

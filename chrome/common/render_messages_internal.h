@@ -108,6 +108,10 @@ IPC_BEGIN_MESSAGES(View)
   // node.
   IPC_MESSAGE_ROUTED1(ViewMsg_SetInitialFocus, bool /* reverse */)
 
+  // Ask the renderer to send us the selection text via the SetSelectionText
+  // message.
+  IPC_MESSAGE_ROUTED0(ViewMsg_RequestSelectionText)
+
   // Tells the renderer to perform the specified navigation, interrupting any
   // existing navigation.
   IPC_MESSAGE_ROUTED1(ViewMsg_Navigate, ViewMsg_Navigate_Params)
@@ -900,6 +904,13 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_SetTooltipText,
                       std::wstring /* tooltip text string */)
 
+  // Notification that the text selection has changed.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_SelectionChanged)
+
+  // Send the current text selection.
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_SetSelectionText,
+                      std::string /* currently selected text */)
+
   // Asks the browser to display the file chooser.  The result is returned in a
   // ViewHost_RunFileChooserResponse message.
   IPC_MESSAGE_ROUTED4(ViewHostMsg_RunFileChooser,
@@ -1063,7 +1074,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_ROUTED1(ViewHostMsg_CrashedPlugin,
                       FilePath /* plugin_path */)
 
-  // Dsiplays a JavaScript out-of-memory message in the infobar.
+  // Displays a JavaScript out-of-memory message in the infobar.
   IPC_MESSAGE_ROUTED0(ViewHostMsg_JSOutOfMemory)
 
   // Displays a box to confirm that the user wants to navigate away from the
