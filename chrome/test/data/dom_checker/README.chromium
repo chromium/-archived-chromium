@@ -12,9 +12,9 @@ Modifications:
     necessary to help automate the test. The intent is to put most of the extra
     code into this file to mitigate the number of changes that need to be made
     to DOM checker.
-  - Added json2.js, a parser/stringifier for JSON in JavaScript. This is used
-    to stringify results for consumption by the test automation. Included this
-    file in dom_checker.html.
+  - Included json2.js, a parser/stringifier for JSON in JavaScript, in
+    dom_checker.html. This is used to stringify results for consumption by the
+    test automation.
   - Modified dom_checker.html to not complain when running the test on a
     specified port other than the default port.
   - Modified dom_checker.html to start the tests immediately on page load,

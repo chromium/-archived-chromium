@@ -10,8 +10,8 @@ Version: 0.9
 Modifications:
   - Included sunspider_uitest.js in sunspider-results.html. This file provides
     an interface between the benchmark and the test automation.
-  - Added json2.js, a parser/stringifier for JSON in JavaScript. This is used
-    to stringify results for consumption by the test automation. Included this
-    file in sunspider-results.html.
+  - Included json2.js, a parser/stringifier for JSON in JavaScript, in
+    sunspider-results.html. This is used to stringify results for consumption
+    by the test automation.
   - Modified sunspider-results.html to call automation.SetDone() after the
     results have been analyzed.

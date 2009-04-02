@@ -11,7 +11,7 @@ Version: 3
 Modifications:
   - Included v8_benchmark_uitest.js in run.html. This file provides an
     interface between the benchmark and the test automation.
-  - Added json2.js, a parser/stringifier for JSON in JavaScript. This is used
-    to stringify results for consumption by the test automation. Included this
-    file in run.html.
+  - Included json2.js, a parser/stringifier for JSON in JavaScript, in
+    run.html. This is used to stringify results for consumption by the test
+    automation.
   - Modified run.html to call automation functions as necessary.
