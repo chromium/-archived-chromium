@@ -118,18 +118,7 @@ public:
     // may arrive after the previous page has finished dumping its text and
     // therefore end up in the next test's results if the messages are still
     // enabled.
-    void ResetTestController() {
-      layout_test_controller_->Reset();
-      event_sending_controller_->Reset();
-
-      // Reset state in the test webview delegate.
-      delegate()->SetSmartInsertDeleteEnabled(true);
-#if defined(OS_WIN)
-      delegate()->SetSelectTrailingWhitespaceEnabled(true);
-#else
-      delegate()->SetSelectTrailingWhitespaceEnabled(false);
-#endif
-    }
+    void ResetTestController();
 
     // Passes options from LayoutTestController through to the delegate (or
     // any other caller).

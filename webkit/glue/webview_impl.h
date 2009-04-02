@@ -56,6 +56,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual bool ShouldClose();
   virtual void Close();
   virtual WebViewDelegate* GetDelegate();
+  virtual void SetDelegate(WebViewDelegate*);
   virtual void SetUseEditorDelegate(bool value);
   virtual void SetTabKeyCyclesThroughElements(bool value);
   virtual WebFrame* GetMainFrame();

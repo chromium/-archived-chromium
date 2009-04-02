@@ -113,6 +113,8 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("pauseTransitionAtTimeOnElementWithId", &LayoutTestController::pauseTransitionAtTimeOnElementWithId);
   BindMethod("elementDoesAutoCompleteForElementWithId", &LayoutTestController::elementDoesAutoCompleteForElementWithId);
   BindMethod("numberOfActiveAnimations", &LayoutTestController::numberOfActiveAnimations);
+  BindMethod("setCustomPolicyDelegate", &LayoutTestController::setCustomPolicyDelegate);
+  BindMethod("waitForPolicyDelegate", &LayoutTestController::waitForPolicyDelegate);
 
   // The following are stubs.
   BindMethod("dumpAsWebArchive", &LayoutTestController::dumpAsWebArchive);
@@ -130,7 +132,6 @@ LayoutTestController::LayoutTestController(TestShell* shell) {
   BindMethod("setCallCloseOnWebViews", &LayoutTestController::setCallCloseOnWebViews);
   BindMethod("setPrivateBrowsingEnabled", &LayoutTestController::setPrivateBrowsingEnabled);
   BindMethod("setUseDashboardCompatibilityMode", &LayoutTestController::setUseDashboardCompatibilityMode);
-  BindMethod("setCustomPolicyDelegate", &LayoutTestController::setCustomPolicyDelegate);
 
   // This typo (missing 'i') is intentional as it matches the typo in the layout test
   // see: LayoutTests/fast/canvas/fill-stroke-clip-reset-path.html.
@@ -454,6 +455,15 @@ void LayoutTestController::LocationChangeDone() {
     work_queue_.ProcessWorkSoon();
 }
 
+void LayoutTestController::PolicyDelegateDone() {
+  if (!shell_->layout_test_mode())
+    return;
+
+  DCHECK(wait_until_done_);
+  shell_->TestFinished();
+  wait_until_done_ = false;
+}
+
 void LayoutTestController::setCanOpenWindows(
     const CppArgumentList& args, CppVariant* result) {
   can_open_windows_ = true;
@@ -560,9 +570,20 @@ void LayoutTestController::setUseDashboardCompatibilityMode(
 void LayoutTestController::setCustomPolicyDelegate(
     const CppArgumentList& args, CppVariant* result) {
   if (args.size() > 0 && args[0].isBool()) {
-    shell_->delegate()->SetCustomPolicyDelegate(args[0].value.boolValue);
+    bool enable = args[0].value.boolValue;
+    bool permissive = false;
+    if (args.size() > 1 && args[1].isBool())
+      permissive = args[1].value.boolValue;
+    shell_->delegate()->SetCustomPolicyDelegate(enable, permissive);
   }
 
+  result->SetNull();
+}
+
+void LayoutTestController::waitForPolicyDelegate(
+    const CppArgumentList& args, CppVariant* result) {
+  shell_->delegate()->WaitForPolicyDelegate();
+  wait_until_done_ = true;
   result->SetNull();
 }
 

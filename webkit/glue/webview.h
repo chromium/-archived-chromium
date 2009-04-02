@@ -52,6 +52,9 @@ class WebView : public WebWidget {
   // it, it will be NULL during closing of the view.
   virtual WebViewDelegate* GetDelegate() = 0;
 
+  // Changes the delegate for this WebView.  It is valid to set this to NULL.
+  virtual void SetDelegate(WebViewDelegate* delegate) = 0;
+
   // Instructs the EditorClient whether to pass editing notifications on to a
   // delegate, if one is present.  This allows embedders that haven't
   // overridden any editor delegate methods to avoid the performance impact of

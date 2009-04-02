@@ -136,20 +136,25 @@ WindowOpenDisposition TestWebViewDelegate::DispositionForNavigationAction(
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect) {
-  if (is_custom_policy_delegate_) {
+  WindowOpenDisposition result;
+  if (policy_delegate_enabled_) {
     std::wstring frame_name = frame->GetName();
+    std::string url_description;
+    if (request->GetURL().SchemeIs("file")) {
+      url_description = request->GetURL().ExtractFileName();
+    } else {
+      url_description = request->GetURL().spec();
+    }
     printf("Policy delegate: attempt to load %s with navigation type '%s'\n",
-           request->GetURL().spec().c_str(), WebNavigationTypeToString(type));
-    return IGNORE_ACTION;
+           url_description.c_str(), WebNavigationTypeToString(type));
+    result = policy_delegate_is_permissive_ ? CURRENT_TAB : IGNORE_ACTION;
+    if (policy_delegate_should_notify_done_)
+      shell_->layout_test_controller()->PolicyDelegateDone();
   } else {
-    return WebViewDelegate::DispositionForNavigationAction(
-      webview, frame, request, type, disposition, is_redirect);
+    result = WebViewDelegate::DispositionForNavigationAction(
+        webview, frame, request, type, disposition, is_redirect);
   }
-}
-
-
-void TestWebViewDelegate::SetCustomPolicyDelegate(bool isCustom) {
-  is_custom_policy_delegate_ = isCustom;
+  return result;
 }
 
 void TestWebViewDelegate::AssignIdentifierToRequest(WebView* webview,
@@ -745,6 +750,17 @@ void TestWebViewDelegate::RegisterDragDrop() {
   drop_delegate_ = new TestDropDelegate(shell_->webViewWnd(),
                                         shell_->webView());
 #endif
+}
+
+void TestWebViewDelegate::SetCustomPolicyDelegate(bool is_custom,
+                                                  bool is_permissive) {
+  policy_delegate_enabled_ = is_custom;
+  policy_delegate_is_permissive_ = is_permissive;
+}
+
+void TestWebViewDelegate::WaitForPolicyDelegate() {
+  policy_delegate_enabled_ = true;
+  policy_delegate_should_notify_done_ = true;
 }
 
 // Private methods -----------------------------------------------------------

@@ -110,6 +110,9 @@ class LayoutTestController : public CppBoundClass {
   // don't actually want to open the mail program.
   void setCustomPolicyDelegate(const CppArgumentList& args, CppVariant* result);
 
+  // Delays completion of the test until the policy delegate runs.
+  void waitForPolicyDelegate(const CppArgumentList& args, CppVariant* result);
+
   // Converts a URL starting with file:///tmp/ to the local mapping.
   void pathToLocalResource(const CppArgumentList& args, CppVariant* result);
 
@@ -205,6 +208,10 @@ class LayoutTestController : public CppBoundClass {
 
   // Called by the webview delegate when the toplevel frame load is done.
   void LocationChangeDone();
+
+  // Called by the webview delegate when the policy delegate runs if the
+  // waitForPolicyDelegate was called.
+  void PolicyDelegateDone();
 
   // Reinitializes all static values.  The Reset() method should be called
   // before the start of each test (currently from

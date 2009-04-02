@@ -449,6 +449,15 @@ void TestShell::SizeToDefault() {
    SizeTo(kTestWindowWidth, kTestWindowHeight);
 }
 
+void TestShell::ResetTestController() {
+  layout_test_controller_->Reset();
+  event_sending_controller_->Reset();
+  
+  // Reset state in the test webview delegate.
+  delegate_ = new TestWebViewDelegate(this);
+  webView()->SetDelegate(delegate_);
+}
+
 void TestShell::LoadURL(const wchar_t* url) {
     LoadURLForFrame(url, NULL);
 }

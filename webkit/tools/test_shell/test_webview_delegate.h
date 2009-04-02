@@ -56,7 +56,9 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   typedef std::vector<CapturedContextMenuEvent> CapturedContextMenuEvents;
 
   TestWebViewDelegate(TestShell* shell)
-    : is_custom_policy_delegate_(false),
+    : policy_delegate_enabled_(false),
+      policy_delegate_is_permissive_(false),
+      policy_delegate_should_notify_done_(false),
       shell_(shell),
       top_loading_frame_(NULL),
       page_id_(-1),
@@ -204,7 +206,6 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
     WebNavigationType type,
     WindowOpenDisposition disposition,
     bool is_redirect);
-  void SetCustomPolicyDelegate(bool isCustom);
   virtual WebHistoryItem* GetHistoryEntryAtOffset(int offset);
   virtual int GetHistoryBackListCount();
   virtual int GetHistoryForwardListCount();
@@ -260,6 +261,9 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   // Sets the webview as a drop target.
   void RegisterDragDrop();
 
+  void SetCustomPolicyDelegate(bool is_custom, bool is_permissive);
+  void WaitForPolicyDelegate();
+
  protected:
   // Called the title of the page changes.
   // Can be used to update the title of the window.
@@ -297,7 +301,14 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   // Causes navigation actions just printout the intended navigation instead
   // of taking you to the page. This is used for cases like mailto, where you
   // don't actually want to open the mail program.
-  bool is_custom_policy_delegate_;
+  bool policy_delegate_enabled_;
+
+  // Toggles the behavior of the policy delegate.  If true, then navigations
+  // will be allowed.  Otherwise, they will be ignored (dropped).
+  bool policy_delegate_is_permissive_;
+
+  // If true, the policy delegate will signal layout test completion.
+  bool policy_delegate_should_notify_done_;
 
   // Non-owning pointer.  The delegate is owned by the host.
   TestShell* shell_;
