@@ -473,22 +473,26 @@ void Browser::OnWindowClosing() {
 TabContents* Browser::AddTabWithURL(
     const GURL& url, const GURL& referrer, PageTransition::Type transition,
     bool foreground, SiteInstance* instance) {
-  if ((type_ & TYPE_APP) != 0 && tabstrip_model_.count() == 1) {
-    NOTREACHED() << "Cannot add a tab in a mono tab application.";
-    return NULL;
+  TabContents* contents = NULL;
+  if (type_ == TYPE_NORMAL) {
+    GURL url_to_load = url;
+    if (url_to_load.is_empty())
+      url_to_load = GetHomePage();
+    contents = CreateTabContentsForURL(url_to_load, referrer, profile_,
+                                       transition, false, instance);
+    tabstrip_model_.AddTabContents(contents, -1, transition, foreground);
+    // By default, content believes it is not hidden.  When adding contents
+    // in the background, tell it that it's hidden.
+    if (!foreground)
+      contents->WasHidden();
+  } else {
+    // We're in an app window or a popup window. Find an existing browser to
+    // open this URL in, creating one if none exists.
+    Browser* b = GetOrCreateTabbedBrowser();
+    contents = b->AddTabWithURL(url, referrer, transition, foreground,
+                                instance);
+    b->window()->Show();
   }
-
-  GURL url_to_load = url;
-  if (url_to_load.is_empty())
-    url_to_load = GetHomePage();
-  TabContents* contents =
-      CreateTabContentsForURL(url_to_load, referrer, profile_, transition,
-                              false, instance);
-  tabstrip_model_.AddTabContents(contents, -1, transition, foreground);
-  // By default, content believes it is not hidden.  When adding contents
-  // in the background, tell it that it's hidden.
-  if (!foreground)
-    contents->WasHidden();
   return contents;
 }
 
