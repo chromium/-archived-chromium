@@ -12,8 +12,7 @@ namespace renderer_logging {
 // Sets the URL that is logged if the renderer crashes. Use GURL() to clear
 // the URL.
 void SetActiveRendererURL(const GURL& url) {
-  // TODO(port): Once breakpad is integrated we can turn this on.
-  NOTIMPLEMENTED();
+  // crbug.com/9646
 }
 
 }  // namespace renderer_logging
