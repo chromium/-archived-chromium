@@ -136,6 +136,8 @@
           # Linking of large files uses lots of RAM, so serialize links
           # using the handy flock command from util-linux.
           'FLOCK_LINK': ['flock', '$TOP_BUILDDIR/linker.lock', '$LINK'],
+          'FLOCK_SHLINK': ['flock', '$TOP_BUILDDIR/linker.lock', '$SHLINK'],
+          'FLOCK_LDMODULE': ['flock', '$TOP_BUILDDIR/linker.lock', '$LDMODULE'],
 
           # We have several cases where archives depend on each other in
           # a cyclic fashion.  Since the GNU linker does only a single
@@ -152,7 +154,8 @@
           # refactoring since this was first coded, which might have
           # eliminated the circular dependencies.
           'LINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$LINKFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'SHLINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$SHLINFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'SHLINKCOM': [['$FLOCK_SHLINK', '-o', '$TARGET', '$SHLINKFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'LDMODULECOM': [['$FLOCK_LDMODULE', '-o', '$TARGET', '$LDMODULEFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
           'IMPLICIT_COMMAND_DEPENDENCIES': 0,
         },
         'scons_import_variables': [
