@@ -4098,14 +4098,20 @@
         'WEBKIT_IMPLEMENTATION',
       ],
       'sources': [
+        '../third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebCache.h',
         '../third_party/WebKit/WebKit/chromium/public/WebCanvas.h',
-        '../third_party/WebKit/WebKit/chromium/public/WebColor.h',
-        '../third_party/WebKit/WebKit/chromium/public/WebCString.h',
         '../third_party/WebKit/WebKit/chromium/public/WebClipboard.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebColor.h',
         '../third_party/WebKit/WebKit/chromium/public/WebCommon.h',
         '../third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebCString.h',
         '../third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h',
         '../third_party/WebKit/WebKit/chromium/public/WebImage.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebInputEvent.h',
         '../third_party/WebKit/WebKit/chromium/public/WebKit.h',
         '../third_party/WebKit/WebKit/chromium/public/WebKitClient.h',
         '../third_party/WebKit/WebKit/chromium/public/WebMimeRegistry.h',
@@ -4116,9 +4122,17 @@
         '../third_party/WebKit/WebKit/chromium/public/WebSize.h',
         '../third_party/WebKit/WebKit/chromium/public/WebString.h',
         '../third_party/WebKit/WebKit/chromium/public/WebURL.h',
+        '../third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/win/WebSandboxSupport.h',
+        '../third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h',
         '../third_party/WebKit/WebKit/chromium/src/ChromiumBridge.cpp',
         '../third_party/WebKit/WebKit/chromium/src/ChromiumCurrentTime.cpp',
         '../third_party/WebKit/WebKit/chromium/src/ChromiumThreading.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/gtk/WebInputEventFactory.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/gtk/WebScreenInfoFactory.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/mac/WebInputEventFactory.mm',
+        '../third_party/WebKit/WebKit/chromium/src/mac/WebScreenInfoFactory.mm',
         '../third_party/WebKit/WebKit/chromium/src/WebCache.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebCString.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
@@ -4126,6 +4140,8 @@
         '../third_party/WebKit/WebKit/chromium/src/WebKit.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebString.cpp',
         '../third_party/WebKit/WebKit/chromium/src/WebURL.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/win/WebInputEventFactory.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/win/WebScreenInfoFactory.cpp',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -4135,33 +4151,25 @@
           'include_dirs': [
             '../third_party/WebKit/WebKit/chromium/public/gtk',
           ],
-          'sources': [
-            '../third_party/WebKit/WebKit/chromium/src/gtk/WebInputEventFactory.cpp',
-            '../third_party/WebKit/WebKit/chromium/src/gtk/WebScreenInfoFactory.cpp',
-          ],
+        }, { # else: OS!="linux"
+          'sources/': [['exclude', '/gtk/']],
         }],
         ['OS=="mac"', {
           'include_dirs': [
             '../third_party/WebKit/WebKit/chromium/public/mac',
           ],
-          'sources': [
-            '../third_party/WebKit/WebKit/chromium/src/mac/WebInputEventFactory.mm',
-            '../third_party/WebKit/WebKit/chromium/src/mac/WebScreenInfoFactory.mm',
-          ],
           'sources!': [
             '../third_party/WebKit/WebKit/chromium/src/WebImageSkia.cpp',
           ],
+        }, { # else: OS!="mac"
+          'sources/': [['exclude', '/mac/']],
         }],
         ['OS=="win"', {
           'include_dirs': [
             '../third_party/WebKit/WebKit/chromium/public/win',
           ],
-          'sources': [
-            '../third_party/WebKit/WebKit/chromium/public/win/WebSandboxSupport.h',
-            '../third_party/WebKit/WebKit/chromium/public/win/WebThemeEngine.h',
-            '../third_party/WebKit/WebKit/chromium/src/win/WebInputEventFactory.cpp',
-            '../third_party/WebKit/WebKit/chromium/src/win/WebScreenInfoFactory.cpp',
-          ],
+        }, { # else: OS!="win"
+          'sources/': [['exclude', '/win/']],
         }],
       ],
     },
