@@ -164,7 +164,7 @@ void SelectFileDialogImpl::FileSelected(GtkWidget* dialog,
     const FilePath& path) {
   void* params = PopParamsForDialog(dialog);
   if (listener_)
-    listener_->FileSelected(path.ToWStringHack(), 0, params);
+    listener_->FileSelected(path.ToWStringHack(), 1, params);
   RemoveParentForDialog(dialog);
   gtk_widget_destroy(dialog);
 }
