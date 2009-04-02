@@ -223,6 +223,8 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
   if (msg.getType() == 'event') {
     if (msg.getEvent() == 'break') {
       this.handleBreakEvent_(msg);
+    } else if (msg.getEvent() == 'exception') {
+      this.handleExceptionEvent_(msg);
     }
   } else if (msg.getType() == 'response') {
     if (msg.getCommand() == 'scripts') {
@@ -253,6 +255,17 @@ devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
   };
   
   this.requestBacktrace_();
+};
+
+
+/**
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
+  var body = msg.getBody();
+  debugPrint('Uncaught exception in ' + body.script.name + ':' +
+             body.sourceLine + '\n' + body.sourceLineText);
+  this.resumeExecution();
 };
 
 
