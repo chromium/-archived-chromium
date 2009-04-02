@@ -190,7 +190,9 @@ void MenuGtk::OnMenuItemActivated(GtkMenuItem* menuitem, MenuGtk* menu) {
     const MenuCreateMaterial* data =
         reinterpret_cast<const MenuCreateMaterial*>(
             g_object_get_data(G_OBJECT(menuitem), "menu-data"));
-    menu->delegate_->ExecuteCommand(data->id);
+    // The menu item can still be activated by hotkeys even if it is disabled.
+    if (menu->delegate_->IsCommandEnabled(data->id))
+      menu->delegate_->ExecuteCommand(data->id);
   }
 }
 
@@ -201,7 +203,9 @@ void MenuGtk::OnMenuItemActivatedById(GtkMenuItem* menuitem, MenuGtk* menu) {
   if (!gtk_menu_item_get_submenu(menuitem)) {
     int id = reinterpret_cast<int>(
         g_object_get_data(G_OBJECT(menuitem), "menu-id"));
-    menu->delegate_->ExecuteCommand(id);
+    // The menu item can still be activated by hotkeys even if it is disabled.
+    if (menu->delegate_->IsCommandEnabled(id))
+      menu->delegate_->ExecuteCommand(id);
   }
 }
 
