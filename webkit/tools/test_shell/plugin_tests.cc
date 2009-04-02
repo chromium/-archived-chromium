@@ -45,7 +45,7 @@ class PluginTest : public TestShellTest {
 };
 
 // Tests navigator.plugins.refresh() works.
-TEST_F(PluginTest, DISABLED_Refresh) {
+TEST_F(PluginTest, Refresh) {
   std::string html = "\
       <div id='result'>Test running....</div>\
       <script>\
@@ -65,17 +65,23 @@ TEST_F(PluginTest, DISABLED_Refresh) {
       </script>\
       ";
 
-  DeleteTestPlugin();  // Remove any leftover from previous tests if they exist.
-  test_shell_->webView()->GetMainFrame()->LoadHTMLString(
-      html, GURL("about:blank"));
-  test_shell_->WaitTestFinished();
-
-  std::wstring text;
   WebScriptSource call_check(
       WebString::fromUTF8("check();"));
   WebScriptSource refresh(
       WebString::fromUTF8("navigator.plugins.refresh(false)"));
 
+  // Remove any leftover from previous tests if they exist.  We must also
+  // refresh WebKit's plugin cache since it might have had an entry for the
+  // test plugin from a previous test.
+  DeleteTestPlugin();
+  ASSERT_FALSE(file_util::PathExists(plugin_file_path_));
+  test_shell_->webView()->GetMainFrame()->ExecuteScript(refresh);
+
+  test_shell_->webView()->GetMainFrame()->LoadHTMLString(
+      html, GURL("about:blank"));
+  test_shell_->WaitTestFinished();
+
+  std::wstring text;
   test_shell_->webView()->GetMainFrame()->ExecuteScript(call_check);
   test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);
   ASSERT_EQ(text, L"FAIL");
