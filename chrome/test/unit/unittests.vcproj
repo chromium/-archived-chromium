@@ -428,10 +428,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\browser\browser_unittest.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\browser\chrome_thread_unittest.cc"
 				>
 			</File>

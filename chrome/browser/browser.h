@@ -571,8 +571,6 @@ class Browser : public TabStripModelDelegate,
   // as a key to store window location per application URLs.
   static std::wstring ComputeApplicationNameFromURL(const GURL& url);
 
-  FRIEND_TEST(BrowserTest, NoTabsInPopups);
-
   // Create a preference dictionary for the provided application name. This is
   // done only once per application name / per session.
   static void RegisterAppPrefs(const std::wstring& app_name);
