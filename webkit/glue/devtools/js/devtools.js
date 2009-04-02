@@ -224,6 +224,30 @@ WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
 };
 
 
+WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
+  var stylesSidebarPane = this.sidebarPanes.styles;
+  if (!stylesSidebarPane.expanded || !stylesSidebarPane.needsUpdate)
+    return;
+   
+  var node = this.focusedDOMNode;
+  if (node && node.nodeType === Node.TEXT_NODE && node.parentNode)
+    node = node.parentNode;
+  
+  if (node && node.nodeType == Node.ELEMENT_NODE) {
+    var callback = function() {
+      stylesSidebarPane.update(node, null, forceUpdate);
+      stylesSidebarPane.needsUpdate = false;
+    };
+
+    devtools.tools.getDomAgent().getNodeStylesAsync(node,
+        !Preferences.showUserAgentStyles, callback);
+  } else {
+    stylesSidebarPane.update(null, null, forceUpdate);
+    stylesSidebarPane.needsUpdate = false;
+  }
+};
+
+
 WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
   var body = this.bodyElement;
   body.removeChildren();
