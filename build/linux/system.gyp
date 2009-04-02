@@ -33,16 +33,44 @@
       },
     },
     {
-      'target_name': 'pangoft2',
+      'target_name': 'freetype2',
       'type': 'settings',
       'direct_dependent_settings': {
         'cflags': [
-          '<!@(python pkg_config_wrapper.py --cflags pangoft2)',
+          '<!@(python pkg_config_wrapper.py --cflags freetype2)',
         ],
       },
       'link_settings': {
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs pangoft2)',
+          '<!@(python pkg_config_wrapper.py --libs freetype2)',
+        ],
+      },
+    },
+    {
+      'target_name': 'fontconfig',
+      'type': 'settings',
+      'direct_dependent_settings': {
+        'cflags': [
+          '<!@(python pkg_config_wrapper.py --cflags fontconfig)',
+        ],
+      },
+      'link_settings': {
+        'libraries': [
+          '<!@(python pkg_config_wrapper.py --libs fontconfig)',
+        ],
+      },
+    },
+    {
+      'target_name': 'gdk',
+      'type': 'settings',
+      'direct_dependent_settings': {
+        'cflags': [
+          '<!@(python pkg_config_wrapper.py --cflags gdk-2.0)',
+        ],
+      },
+      'link_settings': {
+        'libraries': [
+          '<!@(python pkg_config_wrapper.py --libs gdk-2.0)',
         ],
       },
     },

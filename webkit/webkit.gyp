@@ -4446,7 +4446,6 @@
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:gtk',
-            '../build/linux/system.gyp:pangoft2',
           ],
           'sources!': [
             'glue/plugins/plugin_stubs.cc',

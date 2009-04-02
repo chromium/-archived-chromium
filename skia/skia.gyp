@@ -688,7 +688,9 @@
         }],
         [ 'OS == "linux"', {
           'dependencies': [
-            '../build/linux/system.gyp:gtk',
+            '../build/linux/system.gyp:gdk',
+            '../build/linux/system.gyp:fontconfig',
+            '../build/linux/system.gyp:freetype2',
           ],
           'cflags': [
             '-Wno-unused',
