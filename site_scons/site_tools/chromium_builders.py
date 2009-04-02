@@ -188,33 +188,21 @@ def compilable_files(env, sources):
 
 def ChromeProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  if env.get('_GYP'):
-    prog = env.Program(target, source, *args, **kw)
-    result = env.ChromeInstall('$TOP_BUILDDIR', prog)
-  else:
-    result = env.ComponentProgram(target, source, *args, **kw)
+  result = env.Program('$TOP_BUILDDIR/' + str(target), source, *args, **kw)
   if env.get('INCREMENTAL'):
     env.Precious(result)
   return result
 
 def ChromeTestProgram(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  if env.get('_GYP'):
-    prog = env.Program(target, source, *args, **kw)
-    result = env.ChromeInstall('$TOP_BUILDDIR', prog)
-  else:
-    result = env.ComponentTestProgram(target, source, *args, **kw)
+  result = env.Program('$TOP_BUILDDIR/' + str(target), source, *args, **kw)
   if env.get('INCREMENTAL'):
     env.Precious(*result)
   return result
 
 def ChromeLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
-  if env.get('_GYP'):
-    lib = env.Library(target, source, *args, **kw)
-    result = env.ChromeInstall('$LIB_DIR', lib)
-  else:
-    result = env.ComponentLibrary(target, source, *args, **kw)
+  result = env.Library('$LIB_DIR/' + str(target), source, *args, **kw)
   return result
 
 def ChromeLoadableModule(env, target, source, *args, **kw):
@@ -229,8 +217,7 @@ def ChromeLoadableModule(env, target, source, *args, **kw):
 def ChromeStaticLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
-    lib = env.StaticLibrary(target, source, *args, **kw)
-    result = env.ChromeInstall('$LIB_DIR', lib)
+    result = env.StaticLibrary('$LIB_DIR/' + str(target), source, *args, **kw)
   else:
     kw['COMPONENT_STATIC'] = True
     result = env.ComponentLibrary(target, source, *args, **kw)
@@ -239,8 +226,7 @@ def ChromeStaticLibrary(env, target, source, *args, **kw):
 def ChromeSharedLibrary(env, target, source, *args, **kw):
   source = compilable_files(env, source)
   if env.get('_GYP'):
-    lib = env.SharedLibrary(target, source, *args, **kw)
-    result = env.ChromeInstall('$LIB_DIR', lib)
+    result = env.SharedLibrary('$LIB_DIR/' + str(target), source, *args, **kw)
   else:
     kw['COMPONENT_STATIC'] = False
     result = [env.ComponentLibrary(target, source, *args, **kw)[0]]
@@ -255,18 +241,6 @@ def ChromeObject(env, *args, **kw):
     result = env.ComponentObject(*args, **kw)
   return result
 
-def ChromeInstall(env, target, source):
-  """
-  Replacement for the stock SCons Install() builder to use the
-  external cp utility instead of Python internals.
-  """
-  result = []
-  copy_action = Action('cp $SOURCE $TARGET', 'Copying $TARGET')
-  for s in source:
-    dest = str(target) + '/' + os.path.split(str(s))[1]
-    result.extend(env.Command(dest, s, copy_action))
-  return result
-
 def generate(env):
   env.AddMethod(ChromeProgram)
   env.AddMethod(ChromeTestProgram)
@@ -275,7 +249,6 @@ def generate(env):
   env.AddMethod(ChromeStaticLibrary)
   env.AddMethod(ChromeSharedLibrary)
   env.AddMethod(ChromeObject)
-  env.AddMethod(ChromeInstall)
 
   env.AddMethod(FilterOut)
 
