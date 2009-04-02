@@ -127,6 +127,21 @@ RemoteDomAgentStub.prototype.DiscardBindings = function() {
 };
 
 
+RemoteDomAgentStub.prototype.GetNodeStyles = function(callId, id, authorOnly) {
+  var styles = {
+      computedStyle: "display: none",
+      inlineStyle: "display: none",
+      styleAttributes: {attr: "display: none"},
+      matchedCSSRules: [{selector: "S", cssText: "display: none",
+                         parentStyleSheetHref: "http://localhost",
+                         parentStyleSheetOwnerNodeName: "DIV"}]
+  };
+  setTimeout(function() {
+    RemoteDomAgent.DidGetNodeStyles(callId, styles);
+  }, 0);
+};
+
+
 /**
  * @constructor
  */

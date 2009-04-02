@@ -12,24 +12,6 @@ goog.provide('devtools.InspectorControllerImpl');
 devtools.InspectorControllerImpl = function() {
   devtools.InspectorController.call(this);
   this.frame_element_id_ = 1;
-
-  this.window_ = {
-      get document() {
-        return devtools.tools.getDomAgent().getDocument();
-      },
-      get Node() {
-        return devtools.DomNode;
-      },
-      get Element() {
-        return devtools.DomNode;
-      },
-      /**
-       * See usages in ScopeChainSidebarPane.js where it's called as
-       * constructor.
-       */
-      Object : function() {
-      }
-  };
 };
 goog.inherits(devtools.InspectorControllerImpl,
     devtools.InspectorController);
@@ -91,7 +73,7 @@ devtools.InspectorControllerImpl.prototype.highlightDOMNode =
  * {@inheritDoc}.
  */
 devtools.InspectorControllerImpl.prototype.inspectedWindow = function() {
-  return this.window_;
+  return devtools.tools.getDomAgent().getWindow();
 };
 
 

@@ -56,6 +56,9 @@ devtools.DomNode = function(doc, payload) {
   this.firstChild = null;
   this.parentNode = null;
 
+  this.styles_ = null;
+  this.disabledStyleProperties_ = {};
+
   if (payload.length > devtools.PayloadIndex.CHILD_NODES) {
     // Has children payloads
     this.setChildrenPayload_(
@@ -93,9 +96,7 @@ devtools.DomNode.prototype = {
  */
 devtools.DomNode.prototype.setAttributesPayload_ = function(attrs) {
   for (var i = 0; i < attrs.length; i += 2) {
-    var attr = {"name" : attrs[i], "value" : attrs[i+1]};
-    this.attributes.push(attr);
-    this.attributesMap_[attrs[i]] = attr;
+    this.addAttribute_(attrs[i], attrs[i + 1]);
   }
 };
 
@@ -208,11 +209,29 @@ devtools.DomNode.prototype.setAttribute = function(name, value) {
         if (attr) {
           attr.value = value;
         } else {
-          attr = {"name" : name, "value" : value};
-          self.attributesMap_[name] = attr;
-          self.attributes_.push(attr);
+          attr = self.addAttribute_(name, value);
         }
       });
+};
+
+/**
+ * Creates an attribute-like object and adds it to the object.
+ * @param {string} name Attribute name to set value for.
+ * @param {string} value Attribute value to set.
+ */
+devtools.DomNode.prototype.addAttribute_ = function(name, value) {  
+  var attr = {
+      "name": name,
+      "value": value,
+      node_: this,
+       /* Must be called after node.setStyles_. */
+      get style() {
+        return this.node_.styles_.attributes[this.name];
+      }
+  };
+    
+  this.attributesMap_[name] = attr;
+  this.attributes.push(attr);
 };
 
 
@@ -235,11 +254,114 @@ devtools.DomNode.prototype.removeAttribute = function(name) {
 
 
 /**
+ * Returns inline style (if styles has loaded). Must be called after
+ * node.setStyles_.
+ */
+devtools.DomNode.prototype.__defineGetter__("style", function() {
+  return this.styles_.inlineStyle;
+});
+
+
+
+/**
+ * Makes available the following methods and properties:
+ * - node.style property
+ * - node.document.defaultView.getComputedStyles(node)
+ * - node.document.defaultView.getMatchedCSSRules(node, ...)
+ * - style attribute of node's attributes
+ * @param {string} computedStyle is a cssText of result of getComputedStyle().
+ * @param {string} inlineStyle is a style.cssText (defined in the STYLE
+ *     attribute).
+ * @param {Object} styleAttributes represents 'style' property
+ *     of attributes.
+ * @param {Array.<object>} matchedCSSRules represents result of the
+ *     getMatchedCSSRules(node, "", authorOnly). Each elemet consists of:
+ *     selector, rule.style.cssText[, rule.parentStyleSheet.href
+ *     [, rule.parentStyleSheet.ownerNode.nodeName]].
+ */
+devtools.DomNode.prototype.setStyles_ = function(computedStyle, inlineStyle,
+     styleAttributes, matchedCSSRules) {
+  var styles = {};
+  styles.computedStyle = this.parseCSSText_(computedStyle, "computed");
+  styles.inlineStyle = this.parseCSSText_(inlineStyle, "inline");
+
+  styles.attributes = {};
+  for (var name in styleAttributes) {
+    var style = this.parseCSSText_(styleAttributes[name], "@" + name);
+    styles.attributes[name] = style;
+  }
+
+  styles.matchedCSSRules = [];
+  for (var i = 0; i < matchedCSSRules.length; i++) {
+    var descr = matchedCSSRules[i];
+    var selector = descr.selector;
+    var style = this.parseCSSText_(descr.cssText, "CSSRule#" + selector);
+
+    var parentStyleSheet = undefined;
+    if (descr.parentStyleSheetHref) {
+      parentStyleSheet = {href: descr.parentStyleSheetHref};
+
+      if (descr.parentStyleSheetOwnerNodeName) {
+        parentStyleSheet.ownerNode =
+            {nodeName: descr.parentStyleSheetOwnerNodeName};
+      }
+    }
+    
+    styles.matchedCSSRules.push({selectorText: selector, "style": style,
+                                 "parentStyleSheet": parentStyleSheet});
+  }
+  
+  this.styles_ = styles;
+}
+
+
+/**
+ * Creates a style object from the cssText.
+ * Since the StyleSidebarPane implies the
+ * style object lives as long as the node itself and stores data in
+ * __disabledPropertyPriorities this methods adds a getter which stores the
+ * data in the devtools.DomNode object.
+ * @param {string} cssText
+ * @param {string} styleId is used to distinguish associated part of
+ *     __disabledPropertyPriorities with the style object.
+ * @return {CSSStyleDescription}
+ */
+devtools.DomNode.prototype.parseCSSText_ = function(cssText, styleId) {
+  // There is no way to create CSSStyleDeclaration without creating a
+  // dummy element. In real DOM CSSStyleDeclaration has several
+  // implementations (for instance CSSComputedStyleDeclaration) and
+  // current method does not covers diffirences in behaviour.
+  // TODO (serya): correclty implement all types of CSSStyleDeclaration,
+  //               avoid creation a lot of dummy nodes.
+  
+  var style = document.createElement("SPAN").style;
+  style.cssText = cssText;
+  
+  var props = this.disabledStyleProperties_[styleId] || {};
+  this.disabledStyleProperties_[styleId] = props;
+  style.__disabledPropertyPriorities = props;
+  
+  return style;
+}
+
+
+/**
+ * Remove references to the style information to release
+ * resources when styles are not going to be used.
+ * @see setStyles_.
+ */
+devtools.DomNode.prototype.clearStyles_ = function() {
+  this.styles_ = null;
+}
+
+
+/**
  * Remote Dom document abstraction.
  * @param {devtools.DomAgent} domAgent owner agent.
+ * @param {devtools.DomWindow} defaultView owner window.
  * @constructor.
  */
-devtools.DomDocument = function(domAgent) {
+devtools.DomDocument = function(domAgent, defaultView) {
   devtools.DomNode.call(this, null,
     [
       0,   // id
@@ -250,11 +372,8 @@ devtools.DomDocument = function(domAgent) {
       0,   // childNodeCount
     ]);
   this.listeners_ = {};
-  this.defaultView = {
-    getComputedStyle : function() {},
-    getMatchedCSSRules : function() {}
-  };
   this.domAgent_ = domAgent;
+  this.defaultView = defaultView;
 };
 goog.inherits(devtools.DomDocument, devtools.DomNode);
 
@@ -312,6 +431,66 @@ devtools.DomDocument.prototype.fireDomEvent_ = function(name, event) {
 };
 
 
+
+/**
+ * Simulation of inspected DOMWindow.
+ * @param {devtools.DomAgent} domAgent owner agent.
+ * @constructor
+ */
+devtools.DomWindow = function(domAgent) {
+  this.document = new devtools.DomDocument(domAgent, this);
+};
+
+/**
+ * Represents DOM Node class.
+ */
+devtools.DomWindow.prototype.__defineGetter__("Node", function() {
+  return devtools.DomNode;
+});
+
+/**
+ * Represents DOM Element class.
+ * @constructor
+ */
+devtools.DomWindow.prototype.__defineGetter__("Element", function() {
+  return devtools.DomNode;
+});
+
+
+/**
+ * See usages in ScopeChainSidebarPane.js where it's called as
+ * constructor.
+ */
+devtools.DomWindow.prototype.Object = function() {
+};
+
+
+/**
+ * Simulates the DOM interface for styles. Must be called after
+ * node.setStyles_.
+ * @param {devtools.DomNode} node
+ * @return {CSSStyleDescription}
+ */
+devtools.DomWindow.prototype.getComputedStyle = function(node) {
+  return node.styles_.computedStyle;
+};
+
+
+/**
+ * Simulates the DOM interface for styles. Must be called after
+ * node.setStyles_.
+ * @param {devtools.DomNode} nodeStyles
+ * @param {string} pseudoElement assumed to be empty string.
+ * @param {boolean} authorOnly assumed to be equal to authorOnly argument of
+ *     getNodeStylesAsync.
+ * @return {CSSStyleDescription}
+ */
+devtools.DomWindow.prototype.getMatchedCSSRules = function(node,
+    pseudoElement, authorOnly) {
+  return node.styles_.matchedCSSRules;
+};
+
+
 /**
  * Creates DomAgent Js representation.
  * @constructor
@@ -322,6 +501,8 @@ devtools.DomAgent = function() {
   RemoteDomAgent.DidPerformSearch =
       devtools.Callback.processCallback;
   RemoteDomAgent.DidApplyDomChange =
+      devtools.Callback.processCallback;
+  RemoteDomAgent.DidGetNodeStyles =
       devtools.Callback.processCallback;
   RemoteDomAgent.DidRemoveAttribute =
       devtools.Callback.processCallback;
@@ -342,10 +523,10 @@ devtools.DomAgent = function() {
 
   /**
    * Top-level (and the only) document.
-   * @type {devtools.DomDocument}
+   * @type {devtools.DomWindow}
    * @private
    */
-  this.document_ = null;
+  this.window_ = null;
 
   /**
    * Id to node mapping.
@@ -368,17 +549,25 @@ devtools.DomAgent = function() {
  * Rests dom agent to its initial state.
  */
 devtools.DomAgent.prototype.reset = function() {
-  this.document_ = new devtools.DomDocument(this);
-  this.idToDomNode_ = { 0 : this.document_ };
+  this.window_ = new devtools.DomWindow(this);
+  this.idToDomNode_ = { 0 : this.getDocument() };
   this.searchResults_ = [];
 };
 
 
 /**
- * @return {devtools.DomDocument} Top level (and the only) document.
+ * @return {devtools.DomWindow} Window for the top level (and the only) document.
+ */
+devtools.DomAgent.prototype.getWindow = function() {
+  return this.window_;
+};
+
+
+/**
+ * @return {devtools.DomDocument} A document of the top level window.
  */
 devtools.DomAgent.prototype.getDocument = function() {
-  return this.document_;
+  return this.window_.document;
 };
 
 
@@ -386,7 +575,7 @@ devtools.DomAgent.prototype.getDocument = function() {
  * Requests that the document element is sent from the agent.
  */
 devtools.DomAgent.prototype.getDocumentElementAsync = function() {
-  if (this.document_.documentElement) {
+  if (this.getDocument().documentElement) {
     return;
   }
   RemoteDomAgent.GetDocumentElement();
@@ -503,13 +692,14 @@ devtools.DomAgent.prototype.getNodeForId = function(nodeId) {
  * {@inheritDoc}.
  */
 devtools.DomAgent.prototype.setDocumentElement = function(payload) {
-  if (this.document_.documentElement) {
+  var doc = this.getDocument();
+  if (doc.documentElement) {
     return;
   }
   this.setChildNodes(0, [payload]);
-  this.document_.documentElement = this.document_.firstChild;
-  this.document_.documentElement.ownerDocument = this.document_;
-  this.document_.fireDomEvent_("DOMContentLoaded");
+  doc.documentElement = doc.firstChild;
+  doc.documentElement.ownerDocument = doc;
+  doc.fireDomEvent_("DOMContentLoaded");
 };
 
 
@@ -561,7 +751,7 @@ devtools.DomAgent.prototype.childNodeInserted = function(
   var node = parent.insertChild_(prev, payload);
   this.idToDomNode_[node.id_] = node;
   var event = { target : node, relatedNode : parent };
-  this.document_.fireDomEvent_("DOMNodeInserted", event);
+  this.getDocument().fireDomEvent_("DOMNodeInserted", event);
 };
 
 
@@ -575,7 +765,7 @@ devtools.DomAgent.prototype.childNodeRemoved = function(
   var node = this.idToDomNode_[nodeId];
   parent.removeChild_(node);
   var event = { target : node, relatedNode : parent };
-  this.document_.fireDomEvent_("DOMNodeRemoved", event);
+  this.getDocument().fireDomEvent_("DOMNodeRemoved", event);
   delete this.idToDomNode_[nodeId];
 };
 
@@ -618,6 +808,40 @@ devtools.DomAgent.prototype.performSearchCallback_ = function(forEach,
     this.searchResults_.push(nodeIds[i]);
     forEach(node);
   }
+};
+
+
+/**
+ * Asyncronously requests all the information about styles for the node.
+ * @param {devtools.DomNode} node to get styles for.
+ * @param {boolean} authorOnly is a parameter for getMatchedCSSRules
+ * @param {function()} callback invoked while the node filled up with styles
+ */
+devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
+                                                          authorOnly,
+                                                          callback) {
+  RemoteDomAgent.GetNodeStyles(
+      devtools.Callback.wrap(
+          goog.bind(this.getNodeStylesCallback_, this, node, callback)),
+      node.id_, authorOnly);
+};
+
+
+/**
+ * Accepts results of RemoteDomAgent.GetNodeStyles
+ * @param {devtools.DomNode} node of the reveived styles.
+ * @param {function()} callback to notify the getNodeStylesAsync caller.
+ * @param {object} styles is structure representing all the styles.
+ */
+devtools.DomAgent.prototype.getNodeStylesCallback_ = function(node,
+    callback, styles) {
+  
+  node.setStyles_(styles.computedStyle, styles.inlineStyle,
+      styles.styleAttributes, styles.matchedCSSRules);
+  
+  callback();
+  
+  node.clearStyles_();
 };
 
 

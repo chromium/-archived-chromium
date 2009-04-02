@@ -16,12 +16,15 @@
 #include "webkit/glue/devtools/dom_agent.h"
 
 namespace WebCore {
+class CSSRuleList;
 class Document;
 class Element;
 class Event;
+class NameNodeMap;
 class Node;
 }
 
+class DictionaryValue;
 class ListValue;
 class Value;
 
@@ -48,6 +51,7 @@ class DomAgentImpl : public DomAgent {
       int element_id,
       const WebCore::String& value);
   void PerformSearch(int call_id, const String& query);
+  void GetNodeStyles(int call_id, int id, bool author_only);
   void DiscardBindings();
 
   // Initializes dom agent with the given document.
@@ -123,6 +127,12 @@ class DomAgentImpl : public DomAgent {
   WebCore::Node* InnerFirstChild(WebCore::Node* node);
   int InnerChildNodeCount(WebCore::Node* node);
   WebCore::Element* InnerParentElement(WebCore::Node* node);
+
+  // Helpers for GetNodeStyles
+  void BuildValueForCSSRules(WebCore::CSSRuleList& matched,
+                             ListValue& descriptionList);
+  void BuildValueForAttributeStyles(const WebCore::NamedNodeMap& attributes,
+                                    DictionaryValue& description);
 
   DomAgentDelegate* delegate_;
   HashMap<WebCore::Node*, int> node_to_id_;
