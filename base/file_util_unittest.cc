@@ -23,6 +23,9 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
+// This macro helps avoid wrapped lines in the test structs.
+#define FPL(x) FILE_PATH_LITERAL(x)
+
 namespace {
 
 // file_util winds up using autoreleased objects on the Mac, so this needs
@@ -148,60 +151,61 @@ TEST_F(FileUtilTest, AppendToPath) {
 }
 
 static const struct InsertBeforeExtensionCase {
-  std::wstring path;
-  FilePath::StringType suffix;
-  std::wstring result;
+  const FilePath::CharType* path;
+  const FilePath::CharType* suffix;
+  const FilePath::CharType* result;
 } kInsertBeforeExtension[] = {
-  {L"", FILE_PATH_LITERAL(""), L""},
-  {L"", FILE_PATH_LITERAL("txt"), L"txt"},
-  {L".", FILE_PATH_LITERAL("txt"), L"txt."},
-  {L".", FILE_PATH_LITERAL(""), L"."},
-  {L"foo.dll", FILE_PATH_LITERAL("txt"), L"footxt.dll"},
-  {L"foo.dll", FILE_PATH_LITERAL(".txt"), L"foo.txt.dll"},
-  {L"foo", FILE_PATH_LITERAL("txt"), L"footxt"},
-  {L"foo", FILE_PATH_LITERAL(".txt"), L"foo.txt"},
-  {L"foo.baz.dll", FILE_PATH_LITERAL("txt"), L"foo.baztxt.dll"},
-  {L"foo.baz.dll", FILE_PATH_LITERAL(".txt"), L"foo.baz.txt.dll"},
-  {L"foo.dll", FILE_PATH_LITERAL(""), L"foo.dll"},
-  {L"foo.dll", FILE_PATH_LITERAL("."), L"foo..dll"},
-  {L"foo", FILE_PATH_LITERAL(""), L"foo"},
-  {L"foo", FILE_PATH_LITERAL("."), L"foo."},
-  {L"foo.baz.dll", FILE_PATH_LITERAL(""), L"foo.baz.dll"},
-  {L"foo.baz.dll", FILE_PATH_LITERAL("."), L"foo.baz..dll"},
+  {FPL(""), FPL(""), FPL("")},
+  {FPL(""), FPL("txt"), FPL("txt")},
+  {FPL("."), FPL("txt"), FPL("txt.")},
+  {FPL("."), FPL(""), FPL(".")},
+  {FPL("foo.dll"), FPL("txt"), FPL("footxt.dll")},
+  {FPL("foo.dll"), FPL(".txt"), FPL("foo.txt.dll")},
+  {FPL("foo"), FPL("txt"), FPL("footxt")},
+  {FPL("foo"), FPL(".txt"), FPL("foo.txt")},
+  {FPL("foo.baz.dll"), FPL("txt"), FPL("foo.baztxt.dll")},
+  {FPL("foo.baz.dll"), FPL(".txt"), FPL("foo.baz.txt.dll")},
+  {FPL("foo.dll"), FPL(""), FPL("foo.dll")},
+  {FPL("foo.dll"), FPL("."), FPL("foo..dll")},
+  {FPL("foo"), FPL(""), FPL("foo")},
+  {FPL("foo"), FPL("."), FPL("foo.")},
+  {FPL("foo.baz.dll"), FPL(""), FPL("foo.baz.dll")},
+  {FPL("foo.baz.dll"), FPL("."), FPL("foo.baz..dll")},
 #if defined(OS_WIN)
-  {L"\\", L"", L"\\"},
-  {L"\\", L"txt", L"\\txt"},
-  {L"\\.", L"txt", L"\\txt."},
-  {L"\\.", L"", L"\\."},
-  {L"C:\\bar\\foo.dll", L"txt", L"C:\\bar\\footxt.dll"},
-  {L"C:\\bar.baz\\foodll", L"txt", L"C:\\bar.baz\\foodlltxt"},
-  {L"C:\\bar.baz\\foo.dll", L"txt", L"C:\\bar.baz\\footxt.dll"},
-  {L"C:\\bar.baz\\foo.dll.exe", L"txt", L"C:\\bar.baz\\foo.dlltxt.exe"},
-  {L"C:\\bar.baz\\foo", L"", L"C:\\bar.baz\\foo"},
-  {L"C:\\bar.baz\\foo.exe", L"", L"C:\\bar.baz\\foo.exe"},
-  {L"C:\\bar.baz\\foo.dll.exe", L"", L"C:\\bar.baz\\foo.dll.exe"},
-  {L"C:\\bar\\baz\\foo.exe", L" (1)", L"C:\\bar\\baz\\foo (1).exe"},
+  {FPL("\\"), FPL(""), FPL("\\")},
+  {FPL("\\"), FPL("txt"), FPL("\\txt")},
+  {FPL("\\."), FPL("txt"), FPL("\\txt.")},
+  {FPL("\\."), FPL(""), FPL("\\.")},
+  {FPL("C:\\bar\\foo.dll"), FPL("txt"), FPL("C:\\bar\\footxt.dll")},
+  {FPL("C:\\bar.baz\\foodll"), FPL("txt"), FPL("C:\\bar.baz\\foodlltxt")},
+  {FPL("C:\\bar.baz\\foo.dll"), FPL("txt"), FPL("C:\\bar.baz\\footxt.dll")},
+  {FPL("C:\\bar.baz\\foo.dll.exe"), FPL("txt"),
+   FPL("C:\\bar.baz\\foo.dlltxt.exe")},
+  {FPL("C:\\bar.baz\\foo"), FPL(""), FPL("C:\\bar.baz\\foo")},
+  {FPL("C:\\bar.baz\\foo.exe"), FPL(""), FPL("C:\\bar.baz\\foo.exe")},
+  {FPL("C:\\bar.baz\\foo.dll.exe"), FPL(""), FPL("C:\\bar.baz\\foo.dll.exe")},
+  {FPL("C:\\bar\\baz\\foo.exe"), FPL(" (1)"), FPL("C:\\bar\\baz\\foo (1).exe")},
 #elif defined(OS_POSIX)
-  {L"/", "", L"/"},
-  {L"/", "txt", L"/txt"},
-  {L"/.", "txt", L"/txt."},
-  {L"/.", "", L"/."},
-  {L"/bar/foo.dll", "txt", L"/bar/footxt.dll"},
-  {L"/bar.baz/foodll", "txt", L"/bar.baz/foodlltxt"},
-  {L"/bar.baz/foo.dll", "txt", L"/bar.baz/footxt.dll"},
-  {L"/bar.baz/foo.dll.exe", "txt", L"/bar.baz/foo.dlltxt.exe"},
-  {L"/bar.baz/foo", "", L"/bar.baz/foo"},
-  {L"/bar.baz/foo.exe", "", L"/bar.baz/foo.exe"},
-  {L"/bar.baz/foo.dll.exe", "", L"/bar.baz/foo.dll.exe"},
-  {L"/bar/baz/foo.exe", " (1)", L"/bar/baz/foo (1).exe"},
+  {FPL("/"), FPL(""), FPL("/")},
+  {FPL("/"), FPL("txt"), FPL("/txt")},
+  {FPL("/."), FPL("txt"), FPL("/txt.")},
+  {FPL("/."), FPL(""), FPL("/.")},
+  {FPL("/bar/foo.dll"), FPL("txt"), FPL("/bar/footxt.dll")},
+  {FPL("/bar.baz/foodll"), FPL("txt"), FPL("/bar.baz/foodlltxt")},
+  {FPL("/bar.baz/foo.dll"), FPL("txt"), FPL("/bar.baz/footxt.dll")},
+  {FPL("/bar.baz/foo.dll.exe"), FPL("txt"), FPL("/bar.baz/foo.dlltxt.exe")},
+  {FPL("/bar.baz/foo"), FPL(""), FPL("/bar.baz/foo")},
+  {FPL("/bar.baz/foo.exe"), FPL(""), FPL("/bar.baz/foo.exe")},
+  {FPL("/bar.baz/foo.dll.exe"), FPL(""), FPL("/bar.baz/foo.dll.exe")},
+  {FPL("/bar/baz/foo.exe"), FPL(" (1)"), FPL("/bar/baz/foo (1).exe")},
 #endif
 };
 
 TEST_F(FileUtilTest, InsertBeforeExtensionTest) {
   for (unsigned int i = 0; i < arraysize(kInsertBeforeExtension); ++i) {
-    FilePath path = FilePath::FromWStringHack(kInsertBeforeExtension[i].path);
+    FilePath path(kInsertBeforeExtension[i].path);
     file_util::InsertBeforeExtension(&path, kInsertBeforeExtension[i].suffix);
-    EXPECT_EQ(kInsertBeforeExtension[i].result, path.ToWStringHack());
+    EXPECT_EQ(kInsertBeforeExtension[i].result, path.value());
   }
 }
 
@@ -891,7 +895,8 @@ TEST_F(FileUtilTest, ReplaceExtensionTestWithPathSeparators) {
   // '/foo.bar/foo' with extension '.baz'
   FilePath result_path = path;
   file_util::ReplaceExtension(&result_path, FILE_PATH_LITERAL(".baz"));
-  EXPECT_EQ(path.ToWStringHack() + L".baz", result_path.ToWStringHack());
+  EXPECT_EQ(path.value() + FILE_PATH_LITERAL(".baz"),
+            result_path.value());
 }
 
 TEST_F(FileUtilTest, FileEnumeratorTest) {
@@ -1020,17 +1025,17 @@ void PathComponents(const std::wstring& path,
 }
 
 static const struct PathComponentsCase {
-  std::wstring path;
-  FilePath::StringType result;
+  const FilePath::CharType* path;
+  const FilePath::CharType* result;
 } kPathComponents[] = {
-  {L"/foo/bar/baz/", FILE_PATH_LITERAL("/|foo|bar|baz|")},
-  {L"/foo/bar/baz", FILE_PATH_LITERAL("/|foo|bar|baz")},
-  {L"e:/foo", FILE_PATH_LITERAL("e:|foo")},
+  {FILE_PATH_LITERAL("/foo/bar/baz/"), FILE_PATH_LITERAL("/|foo|bar|baz|")},
+  {FILE_PATH_LITERAL("/foo/bar/baz"), FILE_PATH_LITERAL("/|foo|bar|baz")},
+  {FILE_PATH_LITERAL("e:/foo"), FILE_PATH_LITERAL("e:|foo")},
 };
 
 TEST_F(FileUtilTest, PathComponentsTest) {
   for (size_t i = 0; i < arraysize(kPathComponents); ++i) {
-    FilePath path = FilePath::FromWStringHack(kPathComponents[i].path);
+    FilePath path(kPathComponents[i].path);
     std::vector<FilePath::StringType> comps;
     file_util::PathComponents(path, &comps);
 
@@ -1062,12 +1067,9 @@ TEST_F(FileUtilTest, Contains) {
   // which Contains() relies on in posix, to work.
   ASSERT_TRUE(file_util::CreateDirectory(foo));
   std::string data("hello");
-  ASSERT_TRUE(file_util::WriteFile(bar.ToWStringHack(), data.c_str(),
-                                   data.length()));
-  ASSERT_TRUE(file_util::WriteFile(baz.ToWStringHack(), data.c_str(),
-                                   data.length()));
-  ASSERT_TRUE(file_util::WriteFile(foobar.ToWStringHack(), data.c_str(),
-                                   data.length()));
+  ASSERT_TRUE(file_util::WriteFile(bar, data.c_str(), data.length()));
+  ASSERT_TRUE(file_util::WriteFile(baz, data.c_str(), data.length()));
+  ASSERT_TRUE(file_util::WriteFile(foobar, data.c_str(), data.length()));
 
   EXPECT_TRUE(file_util::ContainsPath(foo, bar));
   EXPECT_FALSE(file_util::ContainsPath(foo, baz));
