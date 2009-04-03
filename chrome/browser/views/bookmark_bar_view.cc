@@ -1157,8 +1157,9 @@ void BookmarkBarView::WriteDragData(BookmarkNode* node,
 
 int BookmarkBarView::GetDragOperations(View* sender, int x, int y) {
   if (size_animation_->IsAnimating() ||
-      size_animation_->GetCurrentValue() == 0) {
-    // Don't let the user drag while animating open or we're closed. This
+      (size_animation_->GetCurrentValue() == 0 && !OnNewTabPage())) {
+    // Don't let the user drag while animating open or we're closed (and not on
+    // the new tab page, on the new tab page size_animation_ is always 0). This
     // typically is only hit if the user does something to inadvertanty trigger
     // dnd, such as pressing the mouse and hitting control-b.
     return DragDropTypes::DRAG_NONE;
