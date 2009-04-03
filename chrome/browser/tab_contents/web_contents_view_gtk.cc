@@ -92,6 +92,8 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
                    G_CALLBACK(OnMouseMove), web_contents());
   gtk_widget_add_events(view->native_view(), GDK_LEAVE_NOTIFY_MASK |
                         GDK_POINTER_MOTION_MASK);
+  g_signal_connect(view->native_view(), "button-press-event",
+                   G_CALLBACK(OnMouseDown), this);
   gtk_container_foreach(GTK_CONTAINER(vbox_.get()), RemoveWidget, vbox_.get());
   gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view_, TRUE, TRUE, 0);
   return view;
@@ -216,7 +218,8 @@ void WebContentsViewGtk::OnFindReply(int request_id,
 }
 
 void WebContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
-  context_menu_.reset(new RenderViewContextMenuGtk(web_contents(), params));
+  context_menu_.reset(new RenderViewContextMenuGtk(web_contents(), params,
+                                                   last_mouse_down_time_));
   context_menu_->Popup();
 }
 
@@ -229,4 +232,10 @@ void WebContentsViewGtk::StartDragging(const WebDropData& drop_data) {
   // TODO(port): remove me when the above NOTIMPLEMENTED is fixed.
   if (web_contents()->render_view_host())
     web_contents()->render_view_host()->DragSourceSystemDragEnded();
+}
+
+gboolean WebContentsViewGtk::OnMouseDown(GtkWidget* widget,
+    GdkEventButton* event, WebContentsViewGtk* view) {
+  view->last_mouse_down_time_ = event->time;
+  return FALSE;
 }

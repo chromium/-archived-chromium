@@ -55,6 +55,10 @@ class WebContentsViewGtk : public WebContentsView {
                            int active_match_ordinal,
                            bool final_update);
  private:
+  // We keep track of the timestamp of the latest mousedown event.
+  static gboolean OnMouseDown(GtkWidget* widget,
+                              GdkEventButton* event, WebContentsViewGtk* view);
+
   // The native widget for the tab.
   OwnedWidgetGtk vbox_;
 
@@ -64,6 +68,10 @@ class WebContentsViewGtk : public WebContentsView {
   // The context menu is reset every time we show it, but we keep a pointer to
   // between uses so that it won't go out of scope before we're done with it.
   scoped_ptr<RenderViewContextMenuGtk> context_menu_;
+
+  // The event time for the last mouse down we handled. We need this to properly
+  // show context menus.
+  guint32 last_mouse_down_time_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContentsViewGtk);
 };

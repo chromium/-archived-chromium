@@ -20,7 +20,8 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
                                  public MenuGtk::Delegate {
  public:
   RenderViewContextMenuGtk(WebContents* web_contents,
-                           const ContextMenuParams& params);
+                           const ContextMenuParams& params,
+                           uint32_t triggering_event_time);
 
   ~RenderViewContextMenuGtk();
 
@@ -52,6 +53,7 @@ class RenderViewContextMenuGtk : public RenderViewContextMenu,
   std::vector<MenuCreateMaterial> menu_;
   std::vector<MenuCreateMaterial> submenu_;
   bool making_submenu_;
+  uint32_t triggering_event_time_;
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_RENDER_VIEW_CONTEXT_MENU_GTK_H_

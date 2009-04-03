@@ -69,13 +69,12 @@ void MenuGtk::Popup(GtkWidget* widget, gint button_type, guint32 timestamp) {
                  button_type, timestamp);
 }
 
-void MenuGtk::PopupAsContext() {
+void MenuGtk::PopupAsContext(guint32 event_time) {
   gtk_container_foreach(GTK_CONTAINER(menu_.get()), SetMenuItemInfo, this);
 
-  // TODO(estade): |button| value of 0 (6th argument) is not strictly true,
+  // TODO(estade): |button| value of 3 (6th argument) is not strictly true,
   // but does it matter?
-  gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL, NULL, NULL, 0,
-                 gtk_get_current_event_time());
+  gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL, NULL, NULL, 3, event_time);
 }
 
 void MenuGtk::BuildMenuIn(GtkWidget* menu,

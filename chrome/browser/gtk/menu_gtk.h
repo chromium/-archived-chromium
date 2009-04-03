@@ -55,7 +55,10 @@ class MenuGtk {
   void Popup(GtkWidget* widget, GdkEvent* event);
 
   // Displays the menu as a context menu, i.e. at the current cursor location.
-  void PopupAsContext();
+  // |event_time| is the time of the event that triggered the menu's display.
+  // In the future we may need to modify this to act differently based on the
+  // triggering event (e.g. right mouse click, context menu key, etc.).
+  void PopupAsContext(guint32 event_time);
 
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set

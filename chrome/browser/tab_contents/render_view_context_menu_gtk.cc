@@ -9,9 +9,11 @@
 
 RenderViewContextMenuGtk::RenderViewContextMenuGtk(
     WebContents* web_contents,
-    const ContextMenuParams& params)
+    const ContextMenuParams& params,
+    guint32 triggering_event_time)
     : RenderViewContextMenu(web_contents, params),
-      making_submenu_(false) {
+      making_submenu_(false),
+      triggering_event_time_(triggering_event_time) {
   InitMenu(params.node);
   DoneMakingMenu(&menu_);
   gtk_menu_.reset(new MenuGtk(this, menu_.data(), NULL));
@@ -21,7 +23,7 @@ RenderViewContextMenuGtk::~RenderViewContextMenuGtk() {
 }
 
 void RenderViewContextMenuGtk::Popup() {
-  gtk_menu_->PopupAsContext();
+  gtk_menu_->PopupAsContext(triggering_event_time_);
 }
 
 bool RenderViewContextMenuGtk::IsCommandEnabled(int id) const {
