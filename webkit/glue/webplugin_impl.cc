@@ -12,6 +12,7 @@
 #include "EventNames.h"
 #include "FloatPoint.h"
 #include "FormData.h"
+#include "FormState.h"
 #include "FocusController.h"
 #include "Frame.h"
 #include "FrameLoader.h"
@@ -19,6 +20,7 @@
 #include "FrameTree.h"
 #include "FrameView.h"
 #include "GraphicsContext.h"
+#include "HTMLFormElement.h"
 #include "HTMLNames.h"
 #include "HTMLPlugInElement.h"
 #include "IntRect.h"
@@ -514,13 +516,12 @@ RoutingStatus WebPluginImpl::RouteToFrame(const char *method,
   WebCore::FrameLoader *loader = frame()->loader();
   // we actually don't know whether usergesture is true or false,
   // passing true since all we can do is assume it is okay.
-  loader->loadFrameRequestWithFormAndValues(
+  loader->loadFrameRequest(
       load_request,
       false,  // lock history
       false,  // lock back forward list
       0,      // event
-      0,      // form element
-      HashMap<WebCore::String, WebCore::String>());
+      0);     // form state
 
   // load() can cause the frame to go away.
   if (webframe_) {
