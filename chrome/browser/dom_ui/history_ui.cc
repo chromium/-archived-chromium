@@ -27,6 +27,7 @@
 #include "grit/browser_resources.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
+#include "grit/locale_settings.h"
 
 // Maximum number of search results to return in a given search. We should
 // eventually remove this.
@@ -45,6 +46,8 @@ HistoryUIHTMLSource::HistoryUIHTMLSource()
 void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
                                            int request_id) {
   DictionaryValue localized_strings;
+  localized_strings.SetString(L"loading",
+      l10n_util::GetString(IDS_HISTORY_LOADING));
   localized_strings.SetString(L"title",
       l10n_util::GetString(IDS_HISTORY_TITLE));
   localized_strings.SetString(L"loading",
@@ -72,9 +75,7 @@ void HistoryUIHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"deletedaywarning",
       l10n_util::GetString(IDS_HISTORY_DELETE_PRIOR_VISITS_WARNING));
 
-  localized_strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       L"rtl" : L"ltr");
+  SetFontAndTextDirection(&localized_strings);
 
   static const StringPiece history_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(

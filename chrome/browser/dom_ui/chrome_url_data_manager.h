@@ -11,6 +11,7 @@
 #include "base/task.h"
 #include "chrome/common/ref_counted_util.h"
 
+class DictionaryValue;
 class GURL;
 class MessageLoop;
 class URLRequest;
@@ -60,6 +61,8 @@ class ChromeURLDataManager {
 
     MessageLoop* message_loop() const { return message_loop_; }
     const std::string& source_name() const { return source_name_; }
+
+    static void SetFontAndTextDirection(DictionaryValue* localized_strings);
 
    private:
     // The name of this source.

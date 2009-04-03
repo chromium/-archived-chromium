@@ -1105,8 +1105,17 @@ JstProcessor.prototype.jstValues_ = function(context, template, valuesStr) {
       context.setVariable(label, value);
 
     } else if (label.charAt(0) == '.') {
-      template[label.substr(1)] = value;
-
+      var nameSpaceLabel = label.substr(1).split('.');
+      var nameSpaceObject = template;
+      var nameSpaceDepth = jsLength(nameSpaceLabel);
+      for (var j = 0, J = nameSpaceDepth - 1; j < J; ++j) {
+        var jLabel = nameSpaceLabel[j];
+        if (!nameSpaceObject[jLabel]) {
+          nameSpaceObject[jLabel] = {};
+        }
+        nameSpaceObject = nameSpaceObject[jLabel];
+      }
+      nameSpaceObject[nameSpaceLabel[nameSpaceDepth - 1]] = value;
     } else if (label) {
       if (typeof value == 'boolean') {
         if (value) {

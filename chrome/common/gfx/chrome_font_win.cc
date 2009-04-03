@@ -148,12 +148,6 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
   font_info.lfItalic = ((style & ITALIC) == ITALIC);
   font_info.lfWeight = (style & BOLD) ? FW_BOLD : FW_NORMAL;
 
-  if (style & WEB) {
-    font_info.lfPitchAndFamily = FF_SWISS;
-    wcscpy_s(font_info.lfFaceName,
-             l10n_util::GetString(IDS_WEB_FONT_FAMILY).c_str());
-  }
-
   HFONT hfont = CreateFontIndirect(&font_info);
   return ChromeFont(CreateHFontRef(hfont));
 }

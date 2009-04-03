@@ -48,7 +48,6 @@ class ResourceBundle {
     // NOTE: depending upon the locale, this may *not* result in a bold font.
     MediumBoldFont,
     LargeFont,
-    WebFont
   };
 
   // Initialize the ResourceBundle for this process.

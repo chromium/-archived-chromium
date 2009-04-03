@@ -9,8 +9,10 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "base/thread.h"
+#include "base/values.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/ref_counted_util.h"
 #include "chrome/common/url_constants.h"
 #include "googleurl/src/url_util.h"
@@ -23,6 +25,8 @@
 // that will go away soon.
 #include "chrome/personalization/personalization.h"
 #endif
+
+#include "grit/locale_settings.h"
 
 // The URL scheme used for internal chrome resources.
 // TODO(glen): Choose a better location for this.
@@ -259,6 +263,18 @@ void ChromeURLDataManager::DataSource::SendResponse(
 }
 
 // static
+void ChromeURLDataManager::DataSource::SetFontAndTextDirection(
+    DictionaryValue* localized_strings) {
+  localized_strings->SetString(L"fontfamily",
+      l10n_util::GetString(IDS_WEB_FONT_FAMILY));
+  localized_strings->SetString(L"fontsize",
+      l10n_util::GetString(IDS_WEB_FONT_SIZE));
+
+  localized_strings->SetString(L"textdirection",
+      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+       L"rtl" : L"ltr");
+}
+
 URLRequestJob* ChromeURLDataManager::Factory(URLRequest* request,
                                              const std::string& scheme) {
   // Try first with a file handler

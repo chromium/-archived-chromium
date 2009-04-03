@@ -2,6 +2,7 @@
 <!DOCTYPE translationbundle>
 <translationbundle lang="gu">
 <translation id="IDS_WEB_FONT_FAMILY">Arial</translation>
+<translation id="IDS_WEB_FONT_SIZE">84%</translation>
 <translation id="IDS_ACCEPT_LANGUAGES">gu-IN,gu,en-US,en</translation>
 <translation id="IDS_DEFAULT_ENCODING">ISO-8859-1</translation>
 <translation id="IDS_STANDARD_FONT_IS_SERIF">true</translation>

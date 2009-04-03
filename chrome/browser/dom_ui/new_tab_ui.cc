@@ -255,9 +255,7 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"closedwindow",
       l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW));
 
-  localized_strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       kRTLHtmlTextDirection : kDefaultHtmlTextDirection);
+  SetFontAndTextDirection(&localized_strings);
 
   // Let the tab know whether it's the first tab being viewed.
   localized_strings.SetString(L"firstview",
@@ -316,9 +314,7 @@ void IncognitoTabHTMLSource::StartDataRequest(const std::string& path,
       l10n_util::GetStringF(IDS_NEW_TAB_OTR_MESSAGE,
           l10n_util::GetString(IDS_LEARN_MORE_INCOGNITO_URL)));
 
-  localized_strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       kRTLHtmlTextDirection : kDefaultHtmlTextDirection);
+  SetFontAndTextDirection(&localized_strings);
 
   static const StringPiece incognito_tab_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(

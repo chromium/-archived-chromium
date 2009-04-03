@@ -807,10 +807,8 @@ function historyDeleted() {
 </script>
 <style type="text/css">
 body {
-  font-family:arial;
   background-color:white;
   color:black;
-  font-size:84%;
   margin:10px;
 }
 .header {
@@ -921,7 +919,7 @@ html[dir='rtl'] .entry .title a {
 }
 </style>
 </head>
-<body onload="load();">
+<body onload="load();" jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
 <div class="header">
   <a href="" onclick="setSearch(''); return false;">
     <img src="../../app/theme/history_section.png"

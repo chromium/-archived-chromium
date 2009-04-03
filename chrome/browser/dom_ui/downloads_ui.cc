@@ -94,9 +94,7 @@ void DownloadsUIHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"control_resume",
       l10n_util::GetString(IDS_DOWNLOAD_LINK_RESUME));
 
-  localized_strings.SetString(L"textdirection",
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-       L"rtl" : L"ltr");
+  SetFontAndTextDirection(&localized_strings);
 
   static const StringPiece downloads_html(
       ResourceBundle::GetSharedInstance().GetRawDataResource(

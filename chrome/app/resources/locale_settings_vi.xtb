@@ -2,6 +2,7 @@
 <!DOCTYPE translationbundle>
 <translationbundle lang="vi">
 <translation id="IDS_WEB_FONT_FAMILY">Arial</translation>
+<translation id="IDS_WEB_FONT_SIZE">84%</translation>
 <translation id="IDS_ACCEPT_LANGUAGES">vi-VN,vi,fr-FR,fr,en-US,en</translation>
 <translation id="IDS_DEFAULT_ENCODING">windows-1258</translation>
 <translation id="IDS_STANDARD_FONT_IS_SERIF">true</translation>

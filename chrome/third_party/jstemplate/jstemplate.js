@@ -528,10 +528,23 @@ JstProcessor.prototype.jstValues_ = function(context, template, valuesStr) {
       context.setVariable(label, value);
 
     } else if (label.charAt(0) == '.') {
-      // A jsvalues entry whose name starts with . sets a property
-      // of the current template node.
-      template[label.substr(1)] = value;
-
+      // A jsvalues entry whose name starts with . sets a property of
+      // the current template node. The name may have further dot
+      // separated components, which are translated into namespace
+      // objects. This specifically allows to set properties on .style
+      // using jsvalues. NOTE(mesch): Setting the style attribute has
+      // no effect in IE and hence should not be done anyway.
+      var nameSpaceLabel = label.substr(1).split('.');
+      var nameSpaceObject = template;
+      var nameSpaceDepth = jsLength(nameSpaceLabel);
+      for (var j = 0, J = nameSpaceDepth - 1; j < J; ++j) {
+        var jLabel = nameSpaceLabel[j];
+        if (!nameSpaceObject[jLabel]) {
+          nameSpaceObject[jLabel] = {};
+        }
+        nameSpaceObject = nameSpaceObject[jLabel];
+      }
+      nameSpaceObject[nameSpaceLabel[nameSpaceDepth - 1]] = value;
     } else if (label) {
       // Any other jsvalues entry sets an attribute of the current
       // template node.

@@ -226,6 +226,12 @@
         Arial
       </message>
 
+      <!-- The relative font size in % used in web-style native pages
+      (e.g. History).  -->
+      <message name="IDS_WEB_FONT_SIZE" use_name_for_id="true">
+        84%
+      </message>
+
       <!-- The default value for HTTP Accept-Language header. -->
       <message name="IDS_ACCEPT_LANGUAGES" use_name_for_id="true">
         en-US,en

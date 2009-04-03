@@ -47,7 +47,6 @@ class ChromeFont {
     BOLD = 1,
     ITALIC = 2,
     UNDERLINED = 4,
-    WEB = 8,  // TODO(agl): what does this mean?
   };
 
   // Creates a ChromeFont given font name (e.g. arial), font size (e.g. 12).
@@ -66,7 +65,7 @@ class ChromeFont {
   // size_deta is the size to add to the current font. See the single
   // argument version of this method for an example.
   // The style parameter specifies the new style for the font, and is a
-  // bitmask of the values: BOLD, ITALIC, UNDERLINED and WEB.
+  // bitmask of the values: BOLD, ITALIC and UNDERLINED.
   ChromeFont DeriveFont(int size_delta, int style) const;
 
   // Returns the number of vertical pixels needed to display characters from

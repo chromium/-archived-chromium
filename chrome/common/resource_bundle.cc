@@ -185,10 +185,6 @@ void ResourceBundle::LoadFontsIfNecessary() {
 
     large_font_.reset(new ChromeFont());
     *large_font_ = base_font_->DeriveFont(8);
-
-    web_font_.reset(new ChromeFont());
-    *web_font_ = base_font_->DeriveFont(1,
-        base_font_->style() | ChromeFont::WEB);
   }
 }
 
@@ -203,8 +199,6 @@ ChromeFont ResourceBundle::GetFont(FontStyle style) {
       return *medium_bold_font_;
     case LargeFont:
       return *large_font_;
-    case WebFont:
-      return *web_font_;
     default:
       return *base_font_;
   }

@@ -184,9 +184,7 @@ logEvent('log start');
 <title jscontent="title"></title>
 <style type="text/css">
 body {
-  font-family:arial;
   background-color:white;
-  font-size:84%;
   margin:0px;
 }
 html[firstview='true'] #main {
@@ -391,7 +389,8 @@ html[dir='rtl'] #searches input {
 }
 </style>
 </head>
-<body onload="logEvent('body onload fired');">
+<body onload="logEvent('body onload fired');"
+      jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
 <div id="l10n" style="display:none;">
   <span id="closedwindow" jscontent="closedwindow">Window</span>
 </div>
