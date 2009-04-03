@@ -6,10 +6,11 @@
 
 #include "base/string_util.h"
 #include "base/command_line.h"
+#include "chrome/common/common_message_utils.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/ipc_logging.h"
 #include "chrome/common/plugin_messages.h"
+#include "ipc/ipc_logging.h"
 #include "webkit/glue/webkit_glue.h"
 
 

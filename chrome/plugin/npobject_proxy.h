@@ -9,7 +9,7 @@
 #define CHROME_PLUGIN_NPOBJECT_PROXY_H_
 
 #include "base/ref_counted.h"
-#include "chrome/common/ipc_channel.h"
+#include "ipc/ipc_channel.h"
 #include "third_party/npapi/bindings/npruntime.h"
 
 class PluginChannelBase;

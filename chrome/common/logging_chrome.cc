@@ -25,6 +25,23 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/env_vars.h"
 
+#if defined(OS_POSIX)
+// On POSIX, this file also handles IPC logging
+
+#include "ipc/ipc_logging.h"
+#include "ipc/ipc_message.h"
+
+#ifdef IPC_MESSAGE_LOG_ENABLED
+// This will cause render_messages.h etc to define ViewMsgLog and friends.
+#define IPC_MESSAGE_MACROS_LOG_ENABLED
+// This include list should contain all _messages.h header files so that they
+// can get *MsgLog function etc. This makes ipc logs much more informative.
+#include "chrome/common/render_messages.h"
+#include "chrome/test/automation/automation_messages.h"
+#endif
+
+#endif
+
 // When true, this means that error dialogs should not be shown.
 static bool dialogs_are_suppressed_ = false;
 
@@ -71,6 +88,10 @@ void InitChromeLogging(const CommandLine& command_line,
                        OldFileDeletionState delete_old_log_file) {
   DCHECK(!chrome_logging_initialized_) <<
     "Attempted to initialize logging when it was already initialized.";
+
+#if defined(OS_POSIX) && defined(IPC_MESSAGE_LOG_ENABLED)
+  IPC::Logging::SetLoggerFunctions(g_log_function_mapping);
+#endif
 
   // only use OutputDebugString in debug mode
 #ifdef NDEBUG

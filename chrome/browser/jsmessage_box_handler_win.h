@@ -6,11 +6,11 @@
 #define CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_WIN_H_
 
 #include "chrome/browser/jsmessage_box_handler.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/views/window/app_modal_dialog_delegate.h"
 #include "googleurl/src/gurl.h"
+#include "ipc/ipc_message.h"
 
 class MessageBoxView;
 class WebContents;

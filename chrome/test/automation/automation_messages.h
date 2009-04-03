@@ -10,8 +10,9 @@
 #include "base/basictypes.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/security_style.h"
-#include "chrome/common/ipc_message_utils.h"
+#include "chrome/common/common_message_utils.h"
 #include "chrome/test/automation/automation_constants.h"
+#include "ipc/ipc_message_utils.h"
 
 struct AutomationMsg_Find_Params {
   // Unused value, which exists only for backwards compat.
@@ -215,8 +216,13 @@ struct ParamTraits<Reposition_Params> {
 
 }  // namespace IPC
 
+#if 0
+// This for tools which parse #include lines, but cannot process when we
+// include via a macro name.
+#include "chrome/test/automation/automation_messages_internal.h"
+#endif
 #define MESSAGES_INTERNAL_FILE \
     "chrome/test/automation/automation_messages_internal.h"
-#include "chrome/common/ipc_message_macros.h"
+#include "ipc/ipc_message_macros.h"
 
 #endif  // CHROME_TEST_AUTOMATION_AUTOMATION_MESSAGES_H__

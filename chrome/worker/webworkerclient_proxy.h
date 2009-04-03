@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "chrome/common/ipc_channel.h"
+#include "ipc/ipc_channel.h"
 #include "googleurl/src/gurl.h"
 #include "webkit/glue/webworkerclient.h"
 

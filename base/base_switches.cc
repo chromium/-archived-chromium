@@ -40,4 +40,9 @@ const wchar_t kEnableDCHECK[]                  = L"enable-dcheck";
 // Available at http://www.adambarth.com/papers/2008/jackson-barth.pdf
 const wchar_t kForceHTTPS[]                    = L"force-https";
 
+// Will add kDebugOnStart to every child processes. If a value is passed, it
+// will be used as a filter to determine if the child process should have the
+// kDebugOnStart flag passed on or not.
+const wchar_t kDebugChildren[]                 = L"debug-children";
+
 }  // namespace switches

@@ -8,7 +8,7 @@
 #include <deque>
 #include <string>
 
-#include "chrome/common/ipc_message.h"
+#include "ipc/ipc_message.h"
 #include "net/base/completion_callback.h"
 #include "googleurl/src/gurl.h"
 #include "net/proxy/proxy_service.h"

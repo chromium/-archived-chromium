@@ -9,8 +9,8 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/child_process_host.h"
-#include "chrome/common/ipc_channel.h"
 #include "googleurl/src/gurl.h"
+#include "ipc/ipc_channel.h"
 
 class ResourceMessageFilter;
 

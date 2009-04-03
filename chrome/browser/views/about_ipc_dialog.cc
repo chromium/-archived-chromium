@@ -6,7 +6,7 @@
 // IPC_MESSAGE_LOG_ENABLED. We need to use it to define
 // IPC_MESSAGE_MACROS_LOG_ENABLED so render_messages.h will generate the
 // ViewMsgLog et al. functions.
-#include "chrome/common/ipc_message.h"
+#include "ipc/ipc_message.h"
 
 #ifdef IPC_MESSAGE_LOG_ENABLED
 #define IPC_MESSAGE_MACROS_LOG_ENABLED

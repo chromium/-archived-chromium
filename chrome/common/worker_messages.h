@@ -11,10 +11,15 @@
 #include <string>
 
 #include "base/basictypes.h"
-#include "chrome/common/ipc_message_utils.h"
+#include "ipc/ipc_message_utils.h"
+#include "chrome/common/common_message_utils.h"
 
-
+#if 0
+// This for tools which parse #include lines, but cannot process when we
+// include via a macro name.
+#include "chrome/common/worker_messages_internal.h"
+#endif
 #define MESSAGES_INTERNAL_FILE "chrome/common/worker_messages_internal.h"
-#include "chrome/common/ipc_message_macros.h"
+#include "ipc/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_WORKER_MESSAGES_H_

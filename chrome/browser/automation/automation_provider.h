@@ -21,11 +21,11 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/history/history.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/common/ipc_message.h"
-#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/notification_observer.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "chrome/views/event.h"
+#include "ipc/ipc_message.h"
+#include "ipc/ipc_sync_channel.h"
 
 #if defined(OS_WIN)
 // TODO(port): enable these.

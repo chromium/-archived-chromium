@@ -8,7 +8,7 @@
 
 #include "base/hash_tables.h"
 #include "chrome/common/child_process.h"
-#include "chrome/common/ipc_sync_message.h"
+#include "ipc/ipc_sync_message.h"
 
 typedef base::hash_map<std::wstring, scoped_refptr<PluginChannelBase> >
     PluginChannelMap;

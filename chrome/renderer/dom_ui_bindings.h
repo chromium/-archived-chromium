@@ -5,7 +5,7 @@
 #ifndef CHROME_RENDERER_DOM_UI_BINDINGS_H__
 #define CHROME_RENDERER_DOM_UI_BINDINGS_H__
 
-#include "chrome/common/ipc_message.h"
+#include "ipc/ipc_message.h"
 #include "webkit/glue/cpp_bound_class.h"
 
 // A DOMBoundBrowserObject is a backing for some object bound to the window

@@ -13,11 +13,11 @@
 #include "base/time.h"
 #include "base/thread.h"
 #include "base/waitable_event.h"
-#include "chrome/common/ipc_channel_proxy.h"
-#include "chrome/common/ipc_message.h"
-#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 #include "chrome/test/automation/automation_messages.h"
+#include "ipc/ipc_channel_proxy.h"
+#include "ipc/ipc_message.h"
+#include "ipc/ipc_sync_channel.h"
 
 #if defined(OS_WIN)
 // TODO(port): Enable this or equivalent.

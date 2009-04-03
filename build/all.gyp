@@ -22,6 +22,7 @@
       'type': 'none',
       'dependencies': [
         '../base/base.gyp:*',
+        '../ipc/ipc.gyp:*',
         '../media/media.gyp:*',
         '../net/net.gyp:*',
         '../printing/printing.gyp:*',

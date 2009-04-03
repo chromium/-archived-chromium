@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "chrome/common/ipc_test_sink.h"
+#include "ipc/ipc_test_sink.h"
 #include "chrome/renderer/render_thread.h"
 
 // This class is very simple mock of RenderThread. It simulates an IPC channel

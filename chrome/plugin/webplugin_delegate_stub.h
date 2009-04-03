@@ -11,7 +11,7 @@
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "base/task.h"
-#include "chrome/common/ipc_channel.h"
+#include "ipc/ipc_channel.h"
 #include "third_party/npapi/bindings/npapi.h"
 
 class GURL;

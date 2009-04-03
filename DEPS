@@ -65,6 +65,7 @@ include_rules = [
   # Everybody can use some things.
   "+base",
   "+build",
+  "+ipc",
 
   # For now, we allow ICU to be included by specifying "unicode/...", although
   # this should probably change.
@@ -81,6 +82,7 @@ include_rules = [
 skip_child_includes = [
    "breakpad",
    "gears",
+   "ipc",
    "sdch",
    "skia",
    "testing",

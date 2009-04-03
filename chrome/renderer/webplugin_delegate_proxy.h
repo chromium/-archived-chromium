@@ -10,8 +10,8 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
-#include "chrome/common/ipc_message.h"
 #include "chrome/renderer/plugin_channel_host.h"
+#include "ipc/ipc_message.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webplugin_delegate.h"
 

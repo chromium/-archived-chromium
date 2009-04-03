@@ -9,9 +9,10 @@
 #include <vector>
 
 #include "chrome/browser/autocomplete/autocomplete.h"
-#include "chrome/common/ipc_message.h"
-#include "chrome/common/ipc_message_utils.h"
+#include "chrome/common/common_message_utils.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
+#include "ipc/ipc_message.h"
+#include "ipc/ipc_message_utils.h"
 #include "googleurl/src/gurl.h"
 
 // The purpose of this class is to act as a serializable version of

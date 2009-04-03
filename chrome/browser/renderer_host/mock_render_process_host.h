@@ -7,7 +7,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/common/ipc_test_sink.h"
+#include "ipc/ipc_test_sink.h"
 
 class TransportDIB;
 

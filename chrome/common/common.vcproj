@@ -225,66 +225,6 @@
 			Name="ipc"
 			>
 			<File
-				RelativePath=".\ipc_channel.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_channel_proxy.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_channel_proxy.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_channel_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_logging.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_logging.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_message.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_message.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_message_macros.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_message_utils.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_message_utils.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_sync_channel.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_sync_channel.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_sync_message.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\ipc_sync_message.h"
-				>
-			</File>
-			<File
 				RelativePath=".\plugin_messages.h"
 				>
 			</File>
@@ -455,6 +395,10 @@
 		</File>
 		<File
 			RelativePath=".\common_glue.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\common_message_utils.cc"
 			>
 		</File>
 		<File

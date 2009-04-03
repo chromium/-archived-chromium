@@ -19,11 +19,6 @@ namespace chrome {
 //       we'd leak the extraneous StatsCounter object once, and that
 //       would be it.  But these are small objects, so this is ok.
 
-StatsCounter& Counters::ipc_send_counter() {
-  static StatsCounter* ctr = new StatsCounter("IPC.SendMsgCount");
-  return *ctr;
-}
-
 StatsCounterTimer& Counters::chrome_main() {
   static StatsCounterTimer* ctr = new StatsCounterTimer("Chrome.Init");
   return *ctr;

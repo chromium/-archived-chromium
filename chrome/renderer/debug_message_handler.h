@@ -9,7 +9,7 @@
 #ifndef CHROME_RENDERER_DEBUG_MESSAGE_HANDLER_H_
 #define CHROME_RENDERER_DEBUG_MESSAGE_HANDLER_H_
 
-#include "chrome/common/ipc_channel_proxy.h"
+#include "ipc/ipc_channel_proxy.h"
 #include "webkit/glue/debugger_bridge.h"
 
 class RenderView;

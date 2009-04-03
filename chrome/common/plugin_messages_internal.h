@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/shared_memory.h"
-#include "chrome/common/ipc_message_macros.h"
+#include "ipc/ipc_message_macros.h"
 #include "webkit/glue/webcursor.h"
 
 //-----------------------------------------------------------------------------

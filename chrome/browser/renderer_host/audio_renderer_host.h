@@ -42,7 +42,7 @@
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
 #include "base/waitable_event.h"
-#include "chrome/common/ipc_message.h"
+#include "ipc/ipc_message.h"
 #include "media/audio/audio_output.h"
 
 class AudioManager;

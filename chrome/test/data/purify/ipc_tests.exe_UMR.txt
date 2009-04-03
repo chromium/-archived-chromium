@@ -1,34 +1,34 @@
 Uninitialized memory read in strlen
 Error Location
    ...  
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::ProcessNextObject(void)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 
 Uninitialized memory read in WriteFile
 Error Location
    ...  
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
-   chrome/common/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::ProcessNextObject(void)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 Alloc Location
    ...  
@@ -36,47 +36,47 @@ Alloc Location
    base/pickle.cc  Pickle::BeginWrite(UINT)
    base/pickle.cc  Pickle::WriteBytes(void const*,int)
    base/pickle.cc  Pickle::WriteString(basic_string::std const&)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::ProcessNextObject(void)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 
 Uninitialized memory read in strlen
 Error Location
    ...  
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 
 Uninitialized memory read in WriteFile
 Error Location
    ...  
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
-   chrome/common/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 Alloc Location
    ...  
@@ -84,31 +84,31 @@ Alloc Location
    base/pickle.cc  Pickle::BeginWrite(UINT)
    base/pickle.cc  Pickle::WriteBytes(void const*,int)
    base/pickle.cc  Pickle::WriteString(basic_string::std const&)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 
 Uninitialized memory read in WriteFile
 Error Location
    ...  
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 Alloc Location
    ...  
@@ -116,33 +116,33 @@ Alloc Location
    base/pickle.cc  Pickle::BeginWrite(UINT)
    base/pickle.cc  Pickle::WriteBytes(void const*,int)
    base/pickle.cc  Pickle::WriteString(basic_string::std const&)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  MyChannelListener::OnMessageReceived(Message::IPC const&)
+   ipc/ipc_channel.cc  IPC::Channel::ProcessIncomingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::OnObjectSignaled(void *)
    base/message_loop.cc  MessageLoop::SignalWatcher(DWORD)
    base/message_loop.cc  MessageLoop::Run(Dispatcher::MessageLoop *)
    base/message_loop.cc  MessageLoop::Run(void)
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 
 Uninitialized memory read in strlen
 Error Location
    ...  
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 
 Uninitialized memory read in WriteFile
 Error Location
    ...  
-   chrome/common/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
-   chrome/common/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_channel.cc  IPC::Channel::ProcessOutgoingMessages(void)
+   ipc/ipc_channel.cc  IPC::Channel::Send(Message::IPC *)
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 Alloc Location
    ...  
@@ -150,8 +150,8 @@ Alloc Location
    base/pickle.cc  Pickle::BeginWrite(UINT)
    base/pickle.cc  Pickle::WriteBytes(void const*,int)
    base/pickle.cc  Pickle::WriteString(basic_string::std const&)
-   chrome/common/ipc_tests.cc  Send
-   chrome/common/ipc_tests.cc  RunTestClient
-   chrome/common/ipc_tests.cc  main
+   ipc/ipc_tests.cc  Send
+   ipc/ipc_tests.cc  RunTestClient
+   ipc/ipc_tests.cc  main
    ...  
 

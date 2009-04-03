@@ -15,7 +15,7 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "chrome/common/filter_policy.h"
-#include "chrome/common/ipc_channel.h"
+#include "ipc/ipc_channel.h"
 #include "webkit/glue/resource_loader_bridge.h"
 
 struct ResourceResponseHead;

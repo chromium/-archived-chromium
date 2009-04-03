@@ -12,8 +12,8 @@ namespace base {
 // able to use template specialisation to special-case their handling.
 //
 // WARNING: (Chromium only) There are subtleties to consider if serialising
-// these objects over IPC. See comments in chrome/common/ipc_message_utils.h
-// above the template specialisation for this structure.
+// these objects over IPC. See comments in ipc_message_utils.h above the
+// template specialisation for this structure.
 // -----------------------------------------------------------------------------
 struct FileDescriptor {
   FileDescriptor()
