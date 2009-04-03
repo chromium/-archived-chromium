@@ -23,6 +23,8 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
+#elif defined(OS_LINUX)
+#include <gtk/gtk.h>
 #endif
 
 class TestSuite {
@@ -31,6 +33,9 @@ class TestSuite {
     base::EnableTerminationOnHeapCorruption();
     CommandLine::Init(argc, argv);
     testing::InitGoogleTest(&argc, argv);
+#if defined(OS_LINUX)
+    gtk_init_check(&argc, &argv);
+#endif
     // Don't add additional code to this constructor.  Instead add it to
     // Initialize().  See bug 6436.
   }
