@@ -43,7 +43,11 @@ bool FFmpegVideoDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   media_format_.SetAsInteger(MediaFormat::kHeight, height_);
 
   codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
-
+  AVCodec* codec = avcodec_find_decoder(codec_context_->codec_id);
+  if (!codec || avcodec_open(codec_context_, codec) < 0) {
+    host_->Error(media::PIPELINE_ERROR_DECODE);
+    return false;
+  }
   return true;
 }
 
