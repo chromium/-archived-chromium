@@ -8,6 +8,7 @@
 
 #include "base/base_paths_linux.h"
 #include "base/command_line.h"
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
@@ -32,6 +33,8 @@
 #include "grit/theme_resources.h"
 
 namespace {
+
+const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
 class DummyButtonListener : public views::ButtonListener {
  public:
@@ -184,6 +187,13 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   toolbar_.reset(new BrowserToolbarGtk(browser_.get()));
   toolbar_->Init(browser_->profile(), window_);
   toolbar_->AddToolbarToBox(content_vbox_);
+
+  // Insert a border between the toolbar and the web contents.
+  GtkWidget* border = gtk_event_box_new();
+  gtk_widget_set_size_request(border, -1, 1);
+  gtk_widget_modify_bg(border, GTK_STATE_NORMAL, &kBorderColor);
+  gtk_box_pack_start(GTK_BOX(content_vbox_), border, FALSE, FALSE, 0);
+  gtk_widget_show(border);
 
   FindBarGtk* find_bar_gtk = new FindBarGtk();
   find_bar_controller_.reset(new FindBarController(find_bar_gtk));
