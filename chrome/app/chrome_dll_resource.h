@@ -31,6 +31,8 @@
 #define IDC_NPObjectNone                4014
 #define IDC_PluginHostAll               4015
 #define IDC_PluginHostNone              4016
+#define IDC_DevToolsAgent               4017
+#define IDC_DevToolsClient              4018
 
 // NOTE: Within each of the following sections, the IDs are ordered roughly by
 // how they appear in the GUI/menus (left to right, top to bottom, etc.).

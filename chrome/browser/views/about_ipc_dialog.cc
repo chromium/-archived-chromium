@@ -22,6 +22,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/chrome_constants.h"
+#include "chrome/common/devtools_messages.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/views/grid_layout.h"
@@ -82,7 +83,10 @@ struct Settings {
   CListViewCtrl* npobject;
   CListViewCtrl* plugin_process;
   CListViewCtrl* plugin_process_host;
-} settings_views = { NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+  CListViewCtrl* devtools_agent;
+  CListViewCtrl* devtools_client;
+
+} settings_views = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 
 void CreateColumn(uint16 start, uint16 end, HWND hwnd,
                   CListViewCtrl** control) {
@@ -143,6 +147,12 @@ void InitDialog(HWND hwnd) {
   CreateColumn(PluginProcessHostStart, PluginProcessHostEnd,
                ::GetDlgItem(hwnd, IDC_PluginProcessHost),
                &settings_views.plugin_process_host);
+  CreateColumn(DevToolsAgentStart, DevToolsAgentEnd,
+               ::GetDlgItem(hwnd, IDC_DevToolsAgent),
+               &settings_views.devtools_agent);
+  CreateColumn(DevToolsClientStart, DevToolsClientEnd,
+               ::GetDlgItem(hwnd, IDC_DevToolsClient),
+               &settings_views.devtools_client);
   init_done = true;
 }
 
@@ -153,6 +163,8 @@ void CloseDialog() {
   delete settings_views.npobject;
   delete settings_views.plugin_process;
   delete settings_views.plugin_process_host;
+  delete settings_views.devtools_agent;
+  delete settings_views.devtools_client;
   settings_views.view = NULL;
   settings_views.view_host = NULL;
   settings_views.plugin = NULL;
@@ -160,6 +172,8 @@ void CloseDialog() {
   settings_views.npobject = NULL;
   settings_views.plugin_process = NULL;
   settings_views.plugin_process_host = NULL;
+  settings_views.devtools_agent = NULL;
+  settings_views.devtools_client = NULL;
 
   init_done = false;
 

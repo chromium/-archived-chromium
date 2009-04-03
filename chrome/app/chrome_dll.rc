@@ -189,26 +189,28 @@ IDR_SAD_PLUGIN      BINDATA                     "resources\\sadplugin.png"
 // Dialog
 //
 
-IDD_IPC_SETTINGS DIALOGEX 0, 0, 723, 478
+IDD_IPC_SETTINGS DIALOGEX 0, 0, 723, 558
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "IPC Logging Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "",IDC_View,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,22,170,449
-    CONTROL         "",IDC_ViewHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,187,23,170,449
+    CONTROL         "",IDC_View,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,22,170,529
+    CONTROL         "",IDC_ViewHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,187,22,170,529
     CONTROL         "",IDC_Plugin,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,22,170,279
     CONTROL         "",IDC_PluginHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,22,170,279
-    CONTROL         "",IDC_NPObject,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,333,170,138
-    CONTROL         "",IDC_PluginProcess,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,353,170,50
-    CONTROL         "",IDC_PluginProcessHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,421,170,50
+    CONTROL         "",IDC_NPObject,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,326,170,145
+    CONTROL         "",IDC_PluginProcess,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,326,170,50
+    CONTROL         "",IDC_PluginProcessHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,381,170,90
+    CONTROL         "",IDC_DevToolsAgent,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,480,170,71
+    CONTROL         "",IDC_DevToolsClient,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,480,170,71
     PUSHBUTTON      "Check All",IDC_ViewAll,7,6,56,13
     PUSHBUTTON      "Check None",IDC_ViewNone,121,7,56,13
     PUSHBUTTON      "Check All",IDC_ViewHostAll,187,7,56,13
     PUSHBUTTON      "Check None",IDC_ViewHostNone,301,7,56,13
     PUSHBUTTON      "Check All",IDC_PluginAll,367,7,56,13
     PUSHBUTTON      "Check None",IDC_PluginNone,482,7,56,13
-    PUSHBUTTON      "Check All",IDC_NPObjectAll,367,317,56,13
-    PUSHBUTTON      "Check None",IDC_NPObjectNone,481,317,56,13
+    PUSHBUTTON      "Check All",IDC_NPObjectAll,367,310,56,13
+    PUSHBUTTON      "Check None",IDC_NPObjectNone,481,310,56,13
     PUSHBUTTON      "Check All",IDC_PluginHostAll,546,7,56,13
     PUSHBUTTON      "Check None",IDC_PluginHostNone,660,7,56,13
 END
