@@ -2805,5 +2805,32 @@
         },
       ]},  # 'targets'
     ],  # OS=="win"
+    # TODO(jrg): add in Windows code coverage targets.
+    # Also test on Linux.
+    ['coverage!=0 and OS=="mac"',
+      { 'targets': [
+        {
+          'target_name': 'coverage',
+          # do NOT place this in the 'all' list; most won't want it.
+          # In gyp, booleans are 0/1 not True/False.
+          'suppress_wildcard': 1,
+          'type': 'none',
+          'dependencies': [
+	    '../base/base.gyp:base_unittests',
+          ],
+          'actions': [
+            {
+              'inputs': [],
+              'outputs': [],
+              'action_name': 'coverage',
+              'action': [ 'python',
+                          '../tools/code_coverage/coverage_posix.py',
+                          '--directory',
+                          '<(PRODUCT_DIR)' ],
+            },
+          ],  # 'actions'
+        },
+      ]
+    }],
   ],  # 'conditions'
 }

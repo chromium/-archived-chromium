@@ -25,6 +25,12 @@
 
     # Override branding to select the desired branding flavor.
     'branding%': 'Chromium',
+
+    # Set to 1 to enable code coverage.  In addition to build changes
+    # (e.g. extra CFLAGS), also creates a new target in the src/chrome
+    # project file called "coverage".
+    # Currently ignored on Windows.
+    'coverage%': 0,
   },
   'target_defaults': {
     'conditions': [
@@ -33,6 +39,35 @@
       }, {  # else: branding!="Chrome"
         'defines': ['CHROMIUM_BUILD'],
       }],
+      ['coverage!=0', {
+        'conditions': [
+          ['OS=="mac"', {
+            'xcode_settings': {
+              'GCC_INSTRUMENT_PROGRAM_FLOW_ARCS': 'YES',
+              'GCC_GENERATE_TEST_COVERAGE_FILES': 'YES',
+	    },
+            # Add -lgcov for executables, not for static_libraries.
+            # This is a delayed conditional.
+            'target_conditions': [
+              ['_type=="executable"', {
+                'xcode_settings': { 'OTHER_LDFLAGS': [ '-lgcov' ] },
+	      }],
+	    ],
+	  }],
+          # TODO(jrg): complete this work once Linux transitions to gyp.
+          # This is untested (--> likely doesn't work).
+          ['OS=="linux"', {
+            'cflags': [ '-ftest-coverage',
+                        '-fprofile-arcs' ],
+            'target_conditions': [
+              ['_type=="executable"', {
+                'link_settings': { 'libraries': [ '-lgcov' ] },
+	      }],
+	    ],
+          }],
+        ]},
+      # TODO(jrg): options for code coverage on Windows
+      ],
     ],
     'default_configuration': 'Debug',
     'configurations': {
