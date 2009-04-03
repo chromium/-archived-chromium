@@ -51,8 +51,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
   void OnIOComplete(int result);
 
   int DoLoop(int last_io_result);
-  int DoConnect();
-  int DoConnectComplete(int result);
   int DoHandshakeRead();
   int DoPayloadRead();
   int DoPayloadWrite();
@@ -96,8 +94,6 @@ class SSLClientSocketNSS : public SSLClientSocket {
 
   enum State {
     STATE_NONE,
-    STATE_CONNECT,
-    STATE_CONNECT_COMPLETE,
     STATE_HANDSHAKE_READ,
     // No STATE_HANDSHAKE_READ_COMPLETE needed, go to STATE_NONE instead.
     STATE_PAYLOAD_WRITE,

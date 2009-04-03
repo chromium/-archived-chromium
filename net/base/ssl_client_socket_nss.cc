@@ -164,8 +164,95 @@ int SSLClientSocketNSS::Connect(CompletionCallback* callback) {
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
 
-  GotoState(STATE_CONNECT);
-  int rv = DoLoop(OK);
+  if (Init() != OK) {
+    NOTREACHED() << "Couldn't initialize nss";
+  }
+
+  // Transport connected, now hook it up to nss
+  // TODO(port): specify rx and tx buffer sizes separately
+  nss_fd_ = memio_CreateIOLayer(kRecvBufferSize);
+  if (nss_fd_ == NULL) {
+    return 9999;  // TODO(port): real error
+  }
+
+  // Tell NSS who we're connected to
+  PRNetAddr peername;
+  socklen_t len = sizeof(PRNetAddr);
+  int err = transport_->GetPeerName((struct sockaddr *)&peername, &len);
+  if (err) {
+    DLOG(ERROR) << "GetPeerName failed";
+    return 9999;  // TODO(port): real error
+  }
+  memio_SetPeerName(nss_fd_, &peername);
+
+  // Grab pointer to buffers
+  nss_bufs_ = memio_GetSecret(nss_fd_);
+
+  /* Create SSL state machine */
+  /* Push SSL onto our fake I/O socket */
+  nss_fd_ = SSL_ImportFD(NULL, nss_fd_);
+  if (nss_fd_ == NULL) {
+      return ERR_SSL_PROTOCOL_ERROR;  // TODO(port): real error
+  }
+  // TODO(port): set more ssl options!  Check errors!
+
+  int rv;
+
+  rv = SSL_OptionSet(nss_fd_, SSL_SECURITY, PR_TRUE);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SSL2, ssl_config_.ssl2_enabled);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  // SNI is enabled automatically if TLS is enabled -- as long as
+  // SSL_V2_COMPATIBLE_HELLO isn't.
+  // So don't do V2 compatible hellos unless we're really using SSL2,
+  // to avoid errors like
+  // "common name `mail.google.com' != requested host name `gmail.com'"
+  rv = SSL_OptionSet(nss_fd_, SSL_V2_COMPATIBLE_HELLO,
+                     ssl_config_.ssl2_enabled);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SSL3, ssl_config_.ssl3_enabled);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_TLS, ssl_config_.tls1_enabled);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+#ifdef SSL_ENABLE_SESSION_TICKETS
+  // Support RFC 5077
+  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SESSION_TICKETS, PR_TRUE);
+  if (rv != SECSuccess)
+     LOG(INFO) << "SSL_ENABLE_SESSION_TICKETS failed.  Old system nss?";
+#else
+  #error "You need to install NSS-3.12 or later to build chromium"
+#endif
+
+  rv = SSL_OptionSet(nss_fd_, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  rv = SSL_AuthCertificateHook(nss_fd_, OwnAuthCertHandler, this);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, this);
+  if (rv != SECSuccess)
+     return ERR_UNEXPECTED;
+
+  // Tell SSL the hostname we're trying to connect to.
+  SSL_SetURL(nss_fd_, hostname_.c_str());
+
+  // Tell SSL we're a client; needed if not letting NSPR do socket I/O
+  SSL_ResetHandshake(nss_fd_, 0);
+
+  GotoState(STATE_HANDSHAKE_READ);
+  rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = new ConnectCallbackWrapper(callback);
 
@@ -424,12 +511,6 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
       case STATE_NONE:
         // we're just pumping data between the buffer and the network
         break;
-      case STATE_CONNECT:
-        rv = DoConnect();
-        break;
-      case STATE_CONNECT_COMPLETE:
-        rv = DoConnectComplete(rv);
-        break;
       case STATE_HANDSHAKE_READ:
         rv = DoHandshakeRead();
         break;
@@ -455,18 +536,6 @@ int SSLClientSocketNSS::DoLoop(int last_io_result) {
             next_state_ != STATE_NONE);
   LeaveFunction("");
   return rv;
-}
-
-int SSLClientSocketNSS::DoConnect() {
-  EnterFunction("");
-  GotoState(STATE_CONNECT_COMPLETE);
-
-  // The caller has to make sure that the transport socket is connected. If
-  // it isn't, we will eventually fail when trying to negotiate an SSL session.
-  // But we cannot call transport_->Connect(), as we do not know if there is
-  // any proxy negotiation that needs to be performed prior to establishing
-  // the SSL session.
-  return OK;
 }
 
 // static
@@ -503,103 +572,6 @@ SECStatus SSLClientSocketNSS::OwnBadCertHandler(void* arg,
             << ", net error " << that->server_cert_error_;
 
   return SECFailure;
-}
-
-int SSLClientSocketNSS::DoConnectComplete(int result) {
-  EnterFunction(result);
-  if (result < 0)
-    return result;
-
-  if (Init() != OK) {
-    NOTREACHED() << "Couldn't initialize nss";
-  }
-
-  // Transport connected, now hook it up to nss
-  // TODO(port): specify rx and tx buffer sizes separately
-  nss_fd_ = memio_CreateIOLayer(kRecvBufferSize);
-  if (nss_fd_ == NULL) {
-    return 9999;  // TODO(port): real error
-  }
-
-  // Tell NSS who we're connected to
-  PRNetAddr peername;
-  socklen_t len = sizeof(PRNetAddr);
-  int err = transport_->GetPeerName((struct sockaddr *)&peername, &len);
-  if (err) {
-    DLOG(ERROR) << "GetPeerName failed";
-    return 9999;  // TODO(port): real error
-  }
-  memio_SetPeerName(nss_fd_, &peername);
-
-  // Grab pointer to buffers
-  nss_bufs_ = memio_GetSecret(nss_fd_);
-
-  /* Create SSL state machine */
-  /* Push SSL onto our fake I/O socket */
-  nss_fd_ = SSL_ImportFD(NULL, nss_fd_);
-  if (nss_fd_ == NULL) {
-      return ERR_SSL_PROTOCOL_ERROR;  // TODO(port): real error
-  }
-  // TODO(port): set more ssl options!  Check errors!
-
-  int rv;
-
-  rv = SSL_OptionSet(nss_fd_, SSL_SECURITY, PR_TRUE);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SSL2, ssl_config_.ssl2_enabled);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  // SNI is enabled automatically if TLS is enabled -- as long as
-  // SSL_V2_COMPATIBLE_HELLO isn't.
-  // So don't do V2 compatible hellos unless we're really using SSL2,
-  // to avoid errors like
-  // "common name `mail.google.com' != requested host name `gmail.com'"
-  rv = SSL_OptionSet(nss_fd_, SSL_V2_COMPATIBLE_HELLO,
-                     ssl_config_.ssl2_enabled);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SSL3, ssl_config_.ssl3_enabled);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_TLS, ssl_config_.tls1_enabled);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-#ifdef SSL_ENABLE_SESSION_TICKETS
-  // Support RFC 5077
-  rv = SSL_OptionSet(nss_fd_, SSL_ENABLE_SESSION_TICKETS, PR_TRUE);
-  if (rv != SECSuccess)
-     LOG(INFO) << "SSL_ENABLE_SESSION_TICKETS failed.  Old system nss?";
-#else
-  #error "You need to install NSS-3.12 or later to build chromium"
-#endif
-
-  rv = SSL_OptionSet(nss_fd_, SSL_HANDSHAKE_AS_CLIENT, PR_TRUE);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  rv = SSL_AuthCertificateHook(nss_fd_, OwnAuthCertHandler, this);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  rv = SSL_BadCertHook(nss_fd_, OwnBadCertHandler, this);
-  if (rv != SECSuccess)
-     return ERR_UNEXPECTED;
-
-  // Tell SSL the hostname we're trying to connect to.
-  SSL_SetURL(nss_fd_, hostname_.c_str());
-
-  // Tell SSL we're a client; needed if not letting NSPR do socket I/O
-  SSL_ResetHandshake(nss_fd_, 0);
-  GotoState(STATE_HANDSHAKE_READ);
-  // Return OK so DoLoop tries handshaking
-  LeaveFunction("");
-  return OK;
 }
 
 int SSLClientSocketNSS::DoHandshakeRead() {

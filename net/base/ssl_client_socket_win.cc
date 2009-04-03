@@ -273,7 +273,48 @@ int SSLClientSocketWin::Connect(CompletionCallback* callback) {
     return ERR_NO_SSL_VERSIONS_ENABLED;
   creds_ = GetCredHandle(ssl_version_mask);
 
-  next_state_ = STATE_CONNECT;
+  memset(&ctxt_, 0, sizeof(ctxt_));
+
+  SecBufferDesc buffer_desc;
+  DWORD out_flags;
+  DWORD flags = ISC_REQ_SEQUENCE_DETECT   |
+                ISC_REQ_REPLAY_DETECT     |
+                ISC_REQ_CONFIDENTIALITY   |
+                ISC_RET_EXTENDED_ERROR    |
+                ISC_REQ_ALLOCATE_MEMORY   |
+                ISC_REQ_STREAM;
+
+  send_buffer_.pvBuffer = NULL;
+  send_buffer_.BufferType = SECBUFFER_TOKEN;
+  send_buffer_.cbBuffer = 0;
+
+  buffer_desc.cBuffers = 1;
+  buffer_desc.pBuffers = &send_buffer_;
+  buffer_desc.ulVersion = SECBUFFER_VERSION;
+
+  TimeStamp expiry;
+  SECURITY_STATUS status;
+
+  status = InitializeSecurityContext(
+      creds_,
+      NULL,  // NULL on the first call
+      const_cast<wchar_t*>(ASCIIToWide(hostname_).c_str()),
+      flags,
+      0,  // Reserved
+      SECURITY_NATIVE_DREP,  // TODO(wtc): MSDN says this should be set to 0.
+      NULL,  // NULL on the first call
+      0,  // Reserved
+      &ctxt_,  // Receives the new context handle
+      &buffer_desc,
+      &out_flags,
+      &expiry);
+  if (status != SEC_I_CONTINUE_NEEDED) {
+    DLOG(ERROR) << "InitializeSecurityContext failed: " << status;
+    return MapSecurityError(status);
+  }
+
+  writing_first_token_ = true;
+  next_state_ = STATE_HANDSHAKE_WRITE;
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
@@ -394,12 +435,6 @@ int SSLClientSocketWin::DoLoop(int last_io_result) {
     State state = next_state_;
     next_state_ = STATE_NONE;
     switch (state) {
-      case STATE_CONNECT:
-        rv = DoConnect();
-        break;
-      case STATE_CONNECT_COMPLETE:
-        rv = DoConnectComplete(rv);
-        break;
       case STATE_HANDSHAKE_READ:
         rv = DoHandshakeRead();
         break;
@@ -440,66 +475,6 @@ int SSLClientSocketWin::DoLoop(int last_io_result) {
     }
   } while (rv != ERR_IO_PENDING && next_state_ != STATE_NONE);
   return rv;
-}
-
-int SSLClientSocketWin::DoConnect() {
-  next_state_ = STATE_CONNECT_COMPLETE;
-
-  // The caller has to make sure that the transport socket is connected. If
-  // it isn't, we will eventually fail when trying to negotiate an SSL session.
-  // But we cannot call transport_->Connect(), as we do not know if there is
-  // any proxy negotiation that needs to be performed prior to establishing
-  // the SSL session.
-  return OK;
-}
-
-int SSLClientSocketWin::DoConnectComplete(int result) {
-  if (result < 0)
-    return result;
-
-  memset(&ctxt_, 0, sizeof(ctxt_));
-
-  SecBufferDesc buffer_desc;
-  DWORD out_flags;
-  DWORD flags = ISC_REQ_SEQUENCE_DETECT   |
-                ISC_REQ_REPLAY_DETECT     |
-                ISC_REQ_CONFIDENTIALITY   |
-                ISC_RET_EXTENDED_ERROR    |
-                ISC_REQ_ALLOCATE_MEMORY   |
-                ISC_REQ_STREAM;
-
-  send_buffer_.pvBuffer = NULL;
-  send_buffer_.BufferType = SECBUFFER_TOKEN;
-  send_buffer_.cbBuffer = 0;
-
-  buffer_desc.cBuffers = 1;
-  buffer_desc.pBuffers = &send_buffer_;
-  buffer_desc.ulVersion = SECBUFFER_VERSION;
-
-  TimeStamp expiry;
-  SECURITY_STATUS status;
-
-  status = InitializeSecurityContext(
-      creds_,
-      NULL,  // NULL on the first call
-      const_cast<wchar_t*>(ASCIIToWide(hostname_).c_str()),
-      flags,
-      0,  // Reserved
-      SECURITY_NATIVE_DREP,  // TODO(wtc): MSDN says this should be set to 0.
-      NULL,  // NULL on the first call
-      0,  // Reserved
-      &ctxt_,  // Receives the new context handle
-      &buffer_desc,
-      &out_flags,
-      &expiry);
-  if (status != SEC_I_CONTINUE_NEEDED) {
-    DLOG(ERROR) << "InitializeSecurityContext failed: " << status;
-    return MapSecurityError(status);
-  }
-
-  writing_first_token_ = true;
-  next_state_ = STATE_HANDSHAKE_WRITE;
-  return OK;
 }
 
 int SSLClientSocketWin::DoHandshakeRead() {
@@ -690,12 +665,23 @@ int SSLClientSocketWin::DoVerifyCert() {
   next_state_ = STATE_VERIFY_CERT_COMPLETE;
 
   DCHECK(server_cert_);
+
   return verifier_.Verify(server_cert_, hostname_,
                           ssl_config_.rev_checking_enabled,
                           &server_cert_verify_result_, &io_callback_);
 }
 
 int SSLClientSocketWin::DoVerifyCertComplete(int result) {
+  // If we have been explicitly told to accept this certificate, override the
+  // result of verifier_.Verify.
+  // Eventually, we should cache the cert verification results so that we don't
+  // need to call verifier_.Verify repeatedly. But for now we need to do this.
+  // Alternatively, we might be able to store the cert's status along with
+  // the cert in the allowed_bad_certs_ set.
+  if (IsCertificateError(result) &&
+      ssl_config_.allowed_bad_certs_.count(server_cert_))
+    result = OK;
+
   LogConnectionTypeMetrics();
   if (renegotiating_) {
     // A rehandshake, started in the middle of a Read, has completed.

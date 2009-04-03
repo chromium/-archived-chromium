@@ -272,7 +272,44 @@ int SSLClientSocketMac::Connect(CompletionCallback* callback) {
   DCHECK(next_state_ == STATE_NONE);
   DCHECK(!user_callback_);
 
-  next_state_ = STATE_CONNECT;
+  OSStatus status = noErr;
+
+  status = SSLNewContext(false, &ssl_context_);
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  status = SSLSetProtocolVersionEnabled(ssl_context_,
+                                        kSSLProtocol2,
+                                        ssl_config_.ssl2_enabled);
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  status = SSLSetProtocolVersionEnabled(ssl_context_,
+                                        kSSLProtocol3,
+                                        ssl_config_.ssl3_enabled);
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  status = SSLSetProtocolVersionEnabled(ssl_context_,
+                                        kTLSProtocol1,
+                                        ssl_config_.tls1_enabled);
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  status = SSLSetIOFuncs(ssl_context_, SSLReadCallback, SSLWriteCallback);
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  status = SSLSetConnection(ssl_context_, this);
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  status = SSLSetPeerDomainName(ssl_context_, hostname_.c_str(),
+                                hostname_.length());
+  if (status)
+    return NetErrorFromOSStatus(status);
+
+  next_state_ = STATE_HANDSHAKE;
   int rv = DoLoop(OK);
   if (rv == ERR_IO_PENDING)
     user_callback_ = callback;
@@ -409,15 +446,6 @@ int SSLClientSocketMac::DoLoop(int last_io_result) {
     State state = next_state_;
     next_state_ = STATE_NONE;
     switch (state) {
-      case STATE_CONNECT:
-        // We must establish a connection to the other side using our
-        // lower-level transport.
-        rv = DoConnect();
-        break;
-      case STATE_CONNECT_COMPLETE:
-        // We have a connection to the other side; initialize our SSL engine.
-        rv = DoConnectComplete(rv);
-        break;
       case STATE_HANDSHAKE:
         // Do the SSL/TLS handshake.
         rv = DoHandshake();
@@ -441,62 +469,6 @@ int SSLClientSocketMac::DoLoop(int last_io_result) {
     }
   } while (rv != ERR_IO_PENDING && next_state_ != STATE_NONE);
   return rv;
-}
-
-int SSLClientSocketMac::DoConnect() {
-  next_state_ = STATE_CONNECT_COMPLETE;
-
-  // The caller has to make sure that the transport socket is connected. If
-  // it isn't, we will eventually fail when trying to negotiate an SSL session.
-  // But we cannot call transport_->Connect(), as we do not know if there is
-  // any proxy negotiation that needs to be performed prior to establishing
-  // the SSL session.
-  return OK;
-}
-
-int SSLClientSocketMac::DoConnectComplete(int result) {
-  if (result < 0)
-    return result;
-
-  OSStatus status = noErr;
-
-  status = SSLNewContext(false, &ssl_context_);
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  status = SSLSetProtocolVersionEnabled(ssl_context_,
-                                        kSSLProtocol2,
-                                        ssl_config_.ssl2_enabled);
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  status = SSLSetProtocolVersionEnabled(ssl_context_,
-                                        kSSLProtocol3,
-                                        ssl_config_.ssl3_enabled);
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  status = SSLSetProtocolVersionEnabled(ssl_context_,
-                                        kTLSProtocol1,
-                                        ssl_config_.tls1_enabled);
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  status = SSLSetIOFuncs(ssl_context_, SSLReadCallback, SSLWriteCallback);
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  status = SSLSetConnection(ssl_context_, this);
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  status = SSLSetPeerDomainName(ssl_context_, hostname_.c_str(),
-                                hostname_.length());
-  if (status)
-    return NetErrorFromOSStatus(status);
-
-  next_state_ = STATE_HANDSHAKE;
-  return OK;
 }
 
 int SSLClientSocketMac::DoHandshake() {

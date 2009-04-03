@@ -47,8 +47,6 @@ class SSLClientSocketMac : public SSLClientSocket {
   void OnIOComplete(int result);
 
   int DoLoop(int last_io_result);
-  int DoConnect();
-  int DoConnectComplete(int result);
   int DoPayloadRead();
   int DoPayloadWrite();
   int DoHandshake();
@@ -77,8 +75,6 @@ class SSLClientSocketMac : public SSLClientSocket {
 
   enum State {
     STATE_NONE,
-    STATE_CONNECT,
-    STATE_CONNECT_COMPLETE,
     STATE_PAYLOAD_READ,
     STATE_PAYLOAD_WRITE,
     STATE_HANDSHAKE,

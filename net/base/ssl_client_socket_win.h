@@ -52,8 +52,6 @@ class SSLClientSocketWin : public SSLClientSocket {
   void OnIOComplete(int result);
 
   int DoLoop(int last_io_result);
-  int DoConnect();
-  int DoConnectComplete(int result);
   int DoHandshakeRead();
   int DoHandshakeReadComplete(int result);
   int DoHandshakeWrite();
@@ -85,8 +83,6 @@ class SSLClientSocketWin : public SSLClientSocket {
 
   enum State {
     STATE_NONE,
-    STATE_CONNECT,
-    STATE_CONNECT_COMPLETE,
     STATE_HANDSHAKE_READ,
     STATE_HANDSHAKE_READ_COMPLETE,
     STATE_HANDSHAKE_WRITE,
