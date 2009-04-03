@@ -331,41 +331,11 @@ class TestRunner:
 
     test_files = self._test_files_list
 
-    # Create the thread safe queue of lists of (test filenames, test URIs)
-    # tuples. Each TestShellThread pulls a list from this queue and runs those
-    # tests in order before grabbing the next available list.
-    #
-    # Shard the lists by directory. This helps ensure that tests that depend
-    # on each other (aka bad tests!) continue to run together as most
-    # cross-tests dependencies tend to occur within the same directory.
-    self._tests_by_dir = {}
-    for test_file in test_files:
-      # Cut off the filename to grab the second to lowest level directory.
-      # TODO(ojan): See if we can grab the lowest level directory. That will
-      # provide better parallelization. We should at least be able to do so
-      # for some directories (e.g. LayoutTests/dom).
-      dir = test_file.rsplit('/', 2)[0]
-      if dir not in self._tests_by_dir:
-        self._tests_by_dir[dir] = []
-      self._tests_by_dir[dir].append((test_file,
-          path_utils.FilenameToUri(test_file)))
-
-    # Sort by the number of tests in the dir so that the ones with the most
-    # tests get run first in order to maximize parallelization. Number of tests
-    # is a good enough, but not perfect, approximation of how long that set of
-    # tests will take to run. We can't just use a PriorityQueue until we move
-    # to Python 2.6.
-    test_lists = []
-    for directory in self._tests_by_dir:
-      test_list = self._tests_by_dir[directory]
-      # Put the length of the list first so that the queue is sorted
-      # by that length and the largest lists are dequeued first.
-      test_lists.append((directory, test_list))
-    test_lists.sort(lambda a, b: cmp(len(b), len(a)))
-
+    # Create the thread safe queue of (test filenames, test URIs) tuples. Each
+    # TestShellThread pulls values from this queue.
     filename_queue = Queue.Queue()
-    for item in test_lists:
-      filename_queue.put(item)
+    for test_file in test_files:
+      filename_queue.put((test_file, path_utils.FilenameToUri(test_file)))
 
     # If we have http tests, the first one will be an http test.
     if test_files and test_files[0].find(self.HTTP_SUBDIR) >= 0:
@@ -412,7 +382,6 @@ class TestRunner:
 
     # Wait for the threads to finish and collect test failures.
     test_failures = {}
-    test_timings = {}
     try:
       for thread in threads:
         while thread.isAlive():
@@ -422,7 +391,6 @@ class TestRunner:
           # be interruptible by KeyboardInterrupt.
           thread.join(1.0)
         test_failures.update(thread.GetFailures())
-        test_timings.update(thread.GetTimingStats())
     except KeyboardInterrupt:
       for thread in threads:
         thread.Cancel()
@@ -449,7 +417,6 @@ class TestRunner:
 
     # Write summaries to stdout.
     self._PrintResults(test_failures, sys.stdout)
-    self._PrintTimingsForRuns(test_timings)
 
     # Write the same data to a log file.
     out_filename = os.path.join(self._options.results_directory, "score.txt")
@@ -466,18 +433,6 @@ class TestRunner:
     sys.stdout.flush()
     sys.stderr.flush()
     return len(regressions)
-
-  def _PrintTimingsForRuns(self, test_timings):
-    timings = []
-    for directory in test_timings:
-      num_tests, time = test_timings[directory]
-      timings.append((round(time, 1), directory, num_tests))
-    timings.sort()
-
-    logging.debug("Time to process each each subdirectory:")
-    for timing in timings:
-      logging.debug("%s took %s seconds to run %s tests." % \
-                    (timing[1], timing[0], timing[2]))
 
   def _PrintResults(self, test_failures, output):
     """Print a short summary to stdout about how many tests passed.
@@ -725,7 +680,7 @@ def main(options, args):
 
   if not options.num_test_shells:
     # Only run stable configurations with multiple test_shells by default.
-    if sys.platform in ('win32', 'cygwin') and options.target == 'Release':
+    if False:
       cpus = 1
       if sys.platform in ('win32', 'cygwin'):
         cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))

@@ -19,7 +19,6 @@ import subprocess
 import sys
 import thread
 import threading
-import time
 
 import path_utils
 import platform_utils
@@ -152,24 +151,23 @@ class SingleTestThread(threading.Thread):
 
 class TestShellThread(threading.Thread):
 
-  def __init__(self, filename_list_queue, test_shell_command, test_types,
+  def __init__(self, filename_queue, test_shell_command, test_types,
                test_args, shell_args, options):
     """Initialize all the local state for this test shell thread.
 
     Args:
-      filename_list_queue: A thread safe Queue class that contains lists of
-          tuples of (filename, uri) pairs.
+      filename_queue: A thread safe Queue class that contains tuples of
+                      (filename, uri) pairs.
       test_shell_command: A list specifying the command+args for test_shell
       test_types: A list of TestType objects to run the test output against.
       test_args: A TestArguments object to pass to each TestType.
       shell_args: Any extra arguments to be passed to test_shell.exe.
       options: A property dictionary as produced by optparse. The command-line
-          options should match those expected by run_webkit_tests; they
-          are typically passed via the run_webkit_tests.TestRunner class.
+               options should match those expected by run_webkit_tests; they
+               are typically passed via the run_webkit_tests.TestRunner class.
     """
     threading.Thread.__init__(self)
-    self._filename_list_queue = filename_list_queue
-    self._filename_list = []
+    self._filename_queue = filename_queue
     self._test_shell_command = test_shell_command
     self._test_types = test_types
     self._test_args = test_args
@@ -179,14 +177,6 @@ class TestShellThread(threading.Thread):
     self._failures = {}
     self._canceled = False
     self._exception_info = None
-    self._timing_stats = {}
-
-    # Current directory of tests we're running.
-    self._current_dir = None
-    # Number of tests in self._current_dir.
-    self._num_tests_in_current_dir = None
-    # Time at which we started running tests from self._current_dir.
-    self._current_dir_start_time = None
 
     if self._options.run_singly:
       # When we're running one test per test_shell process, we can enforce
@@ -204,11 +194,6 @@ class TestShellThread(threading.Thread):
     """Returns a dictionary mapping test filename to a list of
     TestFailures."""
     return self._failures
-  
-  def GetTimingStats(self):
-    """Returns a dictionary mapping test directory to a tuple of
-    (number of tests in that directory, time to run the tests)"""
-    return self._timing_stats;
 
   def Cancel(self):
     """Set a flag telling this thread to quit."""
@@ -247,25 +232,12 @@ class TestShellThread(threading.Thread):
       if self._canceled:
         logging.info('Testing canceled')
         return
-
-      if len(self._filename_list) is 0:
-        if self._current_dir is not None:
-          self._timing_stats[self._current_dir] = \
-              (self._num_tests_in_current_dir,
-               time.time() - self._current_dir_start_time)
-
-        try:
-          self._current_dir, self._filename_list = \
-              self._filename_list_queue.get_nowait()
-        except Queue.Empty:
-          self._KillTestShell()
-          logging.debug("queue empty, quitting test shell thread")
-          return
-
-        self._num_tests_in_current_dir = len(self._filename_list)
-        self._current_dir_start_time = time.time()
-
-      filename, test_uri = self._filename_list.pop()
+      try:
+        filename, test_uri = self._filename_queue.get_nowait()
+      except Queue.Empty:
+        self._KillTestShell()
+        logging.debug("queue empty, quitting test shell thread")
+        return
 
       # We have a url, run tests.
       batch_count += 1
