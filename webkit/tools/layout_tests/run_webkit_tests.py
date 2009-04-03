@@ -724,8 +724,8 @@ def main(options, args):
     options.platform = path_utils.PlatformDir()
 
   if not options.num_test_shells:
-    # All configurations are still to flaky to have this on by default.
-    if False:
+    # Only run stable configurations with multiple test_shells by default.
+    if sys.platform in ('win32', 'cygwin') and options.target == 'Release':
       cpus = 1
       if sys.platform in ('win32', 'cygwin'):
         cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
@@ -738,13 +738,9 @@ def main(options, args):
       elif sys.platform in ('darwin'): # OSX:
         cpus = int(os.popen2("sysctl -n hw.ncpu")[1].read())
 
-      # TODO: Do timing tests on a single-core machine.
-      options.num_test_shells = 2 * cpus
-
-      # Some HTTP tests start timing out when tests are run in parallel.
-      # TODO(ojan): Impelement per-test-timeouts instead. http://crbug.com/9613
-      if not options.time_out_ms:
-        options.time_out_ms = '20000'
+      # TODO: Do timing tests 1/2/4/8 cores and mac, linux, win to see what
+      # the optimal number here is.
+      options.num_test_shells = cpus + 1
 
     else:
       options.num_test_shells = 1
