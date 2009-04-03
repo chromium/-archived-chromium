@@ -27,7 +27,7 @@ eval $(sed -e 's/\([^=]*\)=\(.*\)/\1="\2"/' \
 LASTCHANGE=$(svn info 2>/dev/null | grep "Revision:" | cut -d" " -f2-)
 if [ -z "$LASTCHANGE" ]; then
   # Maybe it's a git client
-  LASTCHANGE=$(git-svn info 2>/dev/null | grep "Revision:" | cut -d" " -f2-)
+  LASTCHANGE=$(git log | perl -lnwe 'if (s/^\s*git-svn-id:\s+.*\@(\d+)\s[a-f\d\-]+$/$1/) {print; exit; }')
 fi
 
 OFFICIAL_BUILD="false"
