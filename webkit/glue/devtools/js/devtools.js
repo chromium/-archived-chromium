@@ -24,17 +24,19 @@ devtools.ToolsAgent = function() {
   this.debuggerAgent_ = new devtools.DebuggerAgent();
   this.domAgent_ = new devtools.DomAgent();
   this.netAgent_ = new devtools.NetAgent();
-  this.reset();
 };
 
 
 /**
- * Rests tools agent to its initial state.
+ * Resets tools agent to its initial state.
  */
 devtools.ToolsAgent.prototype.reset = function() {
   this.domAgent_.reset();
   this.netAgent_.reset();
+  this.debuggerAgent_.reset();
+  
   this.domAgent_.getDocumentElementAsync();
+  this.debuggerAgent_.requestScripts();
 };
 
 
@@ -168,12 +170,12 @@ var context = {};  // Used by WebCore's inspector routines.
 var oldLoaded = WebInspector.loaded;
 WebInspector.loaded = function() {
   devtools.tools = new devtools.ToolsAgent();
+  devtools.tools.reset();
 
   Preferences.ignoreWhitespace = false;
   oldLoaded.call(this);
 
   DevToolsHost.loaded();
-  devtools.tools.getDebuggerAgent().requestScripts();
 };
 
 
@@ -285,12 +287,13 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
   
   var self = this;
   devtools.tools.getNodePrototypesAsync(object.id_, function(json) {
+    // Get array of prototype user-friendly names.
     var prototypes = goog.json.parse(json);
     for (var i = 0; i < prototypes.length; ++i) {
       var prototype = {};
       prototype.id_ = object.id_;
       prototype.protoDepth_ = i;
-      var section = new WebInspector.ObjectPropertiesSection(prototype,
+      var section = new WebInspector.SidebarObjectPropertiesSection(prototype,
           prototypes[i]);
       self.sections.push(section);
       body.appendChild(section.element);
@@ -300,9 +303,24 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
 
 
 /**
+ * Our implementation of ObjectPropertiesSection for Elements tab.
+ * @constructor
+ */
+WebInspector.SidebarObjectPropertiesSection = function(object, title) {
+  WebInspector.ObjectPropertiesSection.call(this, object, title,
+      null /* subtitle */, null /* emptyPlaceholder */,
+      null /* ignoreHasOwnProperty */, null /* extraProperties */,
+      WebInspector.SidebarObjectPropertyTreeElement /* treeElementConstructor */
+      );
+};
+goog.inherits(WebInspector.SidebarObjectPropertiesSection,
+    WebInspector.ObjectPropertiesSection);
+
+
+/**
  * @override
  */
-WebInspector.ObjectPropertiesSection.prototype.onpopulate = function() {
+WebInspector.SidebarObjectPropertiesSection.prototype.onpopulate = function() {
   var nodeId = this.object.id_;
   var protoDepth = this.object.protoDepth_;
   var path = [];
@@ -316,9 +334,22 @@ WebInspector.ObjectPropertiesSection.prototype.onpopulate = function() {
 
 
 /**
+ * Our implementation of ObjectPropertyTreeElement for Elements tab.
+ * @constructor
+ */
+WebInspector.SidebarObjectPropertyTreeElement = function(parentObject,
+    propertyName) {
+  WebInspector.ObjectPropertyTreeElement.call(this, parentObject, propertyName);
+};
+goog.inherits(WebInspector.SidebarObjectPropertyTreeElement,
+    WebInspector.ObjectPropertyTreeElement);
+
+
+/**
  * @override
  */
-WebInspector.ObjectPropertyTreeElement.prototype.onpopulate = function() {
+WebInspector.SidebarObjectPropertyTreeElement.prototype.onpopulate =
+    function() {
   var nodeId = this.parentObject.devtools$$nodeId_;
   var path = this.parentObject.devtools$$path_.slice(0);
   path.push(this.propertyName);
@@ -412,4 +443,46 @@ WebInspector.didGetNodePropertiesAsync_ = function(treeOutline, constructor,
     var propertyName = properties[i];
     treeOutline.appendChild(new constructor(obj, propertyName));
   }
+};
+
+
+/**
+ * Replace WebKit method with our own implementation to use our call stack
+ * representation. Original method uses Object.prototype.toString.call to
+ * learn if scope object is a JSActivation which doesn't work in Chrome.
+ */
+WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
+  this.bodyElement.removeChildren();
+
+  this.sections = [];
+  this.callFrame = callFrame;
+
+  if (!callFrame) {
+      var infoElement = document.createElement("div");
+      infoElement.className = "info";
+      infoElement.textContent = WebInspector.UIString("Not Paused");
+      this.bodyElement.appendChild(infoElement);
+      return;
+  }
+
+  if (!callFrame._expandedProperties) {
+    callFrame._expandedProperties = {};
+  }
+
+  var scopeObject = callFrame.localScope;
+  var title = WebInspector.UIString("Local");
+  var subtitle = Object.describe(scopeObject, true);
+  var emptyPlaceholder = null;
+  var extraProperties = null;
+
+  var section = new WebInspector.ObjectPropertiesSection(scopeObject, title,
+      subtitle, emptyPlaceholder, true, extraProperties,
+      WebInspector.ScopeVariableTreeElement);
+  section.editInSelectedCallFrameWhenPaused = true;
+  section.pane = this;
+
+  section.expanded = true;
+
+  this.sections.push(section);
+  this.bodyElement.appendChild(section.element);
 };

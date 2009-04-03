@@ -540,13 +540,11 @@ devtools.DomAgent = function() {
    * @private
    */
   this.searchResults_ = null;
-
-  this.reset();
 };
 
 
 /**
- * Rests dom agent to its initial state.
+ * Resets dom agent to its initial state.
  */
 devtools.DomAgent.prototype.reset = function() {
   this.window_ = new devtools.DomWindow(this);

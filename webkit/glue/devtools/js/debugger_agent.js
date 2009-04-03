@@ -20,16 +20,16 @@ devtools.DebuggerAgent = function() {
    * Mapping from script id to script info.
    * @type {Object}
    */
-  this.parsedScripts_ = {};
+  this.parsedScripts_ = null;
   
   /**
    * Mapping from the request id to the devtools.BreakpointInfo for the
    * breakpoints whose v8 ids are not set yet. These breakpoints are waiting for
    * 'setbreakpoint' responses to learn their ids in the v8 debugger.
    * @see #handleSetBreakpointResponse_
-   * @type {!Object}
+   * @type {Object}
    */
-  this.requestNumberToBreakpointInfo_ = {};
+  this.requestNumberToBreakpointInfo_ = null;
   
   /**
    * Information on current stack top frame.
@@ -38,6 +38,16 @@ devtools.DebuggerAgent = function() {
    */
   this.currentCallFrame_ = null;
 };
+
+
+/**
+ * Resets debugger agent to its initial state.
+ */
+ devtools.DebuggerAgent.prototype.reset = function() {
+   this.parsedScripts_ = {};
+   this.requestNumberToBreakpointInfo_ = {};
+   this.currentCallFrame_ = null;
+ };
 
 
 /**
@@ -50,7 +60,7 @@ devtools.DebuggerAgent.prototype.requestScripts = function() {
   });
   devtools.DebuggerAgent.sendCommand_(cmd);
   // Force v8 execution so that it gets to processing the requested command.
-  devtools.tools.evaluateJavaScript("javascript:void(0)");
+  devtools.tools.evaluateJavaScript('javascript:void(0)');
 };
 
 
@@ -340,47 +350,145 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
   
   var script = this.currentCallFrame_.script;
   
-  var caller = null;
+  var callerFrame = null;
   var f = null;
   var frames = msg.getBody().frames;
   for (var i = frames.length - 1; i>=0; i--) {
     var nextFrame = frames[i];
-    var func = msg.lookup(nextFrame.func.ref);
-    
-    // Format arguments.
-    var argv = [];
-    for (var j = 0; j < nextFrame.arguments.length; j++) {
-      var arg = nextFrame.arguments[j];
-      var val = msg.lookup(arg.value.ref);
-      if (val) {
-        if (val.value) {
-          argv.push(arg.name + " = " + val.value);
-        } else {
-          argv.push(arg.name + " = [" + val.type + "]");
-        }
-
-      } else {
-        argv.push(arg.name + " = {ref:" + arg.value.ref + "} ");
-      }
-    }
-
-    var funcName = func.name + "(" + argv.join(", ") + ")";
-
-    var f = {
-      'sourceID': script.id,
-      'line': nextFrame.line - script.lineOffset +1,
-      'type': 'function',
-      'functionName': funcName, //nextFrame.text,
-      'caller': caller,
-      'scopeChain': [],
-      'thisObject': {}
-    };
-    caller = f;
+    var f = devtools.DebuggerAgent.formatCallFrame_(nextFrame, script, msg);
+    f.caller = callerFrame;
+    callerFrame = f;
   }
   
   this.currentCallFrame_ = f;
   
   WebInspector.pausedScript();
+};
+
+
+/**
+ * @param {Object} stackFrame Frame json object from 'backtrace' response.
+ * @param {Object} script Script json object from 'break' event.
+ * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
+ * @return {!Object} Object containing information related to the call frame in
+ *     the format expected by ScriptsPanel and its panes.
+ */
+devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
+  var funcName = devtools.DebuggerAgent.formatFunction_(stackFrame, msg);
+  
+  var scope = {};
+  
+  // Add arguments.
+  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.arguments, scope, msg);
+  
+  // Add local variables.
+  devtools.DebuggerAgent.valuesArrayToMap_(stackFrame.locals, scope, msg);
+
+  var thisObject = msg.lookup(stackFrame.receiver.ref);
+  // Add variable with name 'this' to the scope.
+  scope['this'] = devtools.DebuggerAgent.formatObject_(thisObject, msg);
+  
+  return {
+    'sourceID': script.id,
+    'line': stackFrame.line - script.lineOffset +1,
+    'type': 'function',
+    'functionName': funcName, //stackFrame.text,
+    'caller': null,
+    'localScope': scope,
+    'scopeChain': [scope],
+    'thisObject': thisObject,
+  };
+};
+
+
+/**
+ * Returns user-friendly representation of the function call from the stack
+ * frame.
+ * @param {Object} stackFrame Frame json object from 'backtrace' response.
+ * @return {!string} Function name with argument values.
+ */
+devtools.DebuggerAgent.formatFunction_ = function(stackFrame, msg) {
+  var func = msg.lookup(stackFrame.func.ref);
+  var argv = [];
+  for (var j = 0; j < stackFrame.arguments.length; j++) {
+    var arg = stackFrame.arguments[j];
+    var val = devtools.DebuggerAgent.formatObjectReference_(arg.value, msg);
+    argv.push(arg.name + ' = ' + val);
+  }
+  return func.name + '(' + argv.join(', ') + ')';
+};
+
+
+/**
+ * @param {Object} thisObject Receiver json object from 'backtrace' response.
+ * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
+ * @return {!Object} Object describing 'this' in the format expected by
+ *     ScriptsPanel and its panes.
+ */
+devtools.DebuggerAgent.formatObject_ = function(thisObject, msg) {
+  var result = {};
+  devtools.DebuggerAgent.propertiesToMap_(thisObject.properties, result, msg);
+  result.protoObject = devtools.DebuggerAgent.formatObjectReference_(
+      thisObject.protoObject, msg);
+  result.prototypeObject = devtools.DebuggerAgent.formatObjectReference_(
+      thisObject.prototypeObject, msg);
+  return result;
+};
+
+
+/**
+ * For each property in 'properties' puts its name and user-friendly value into
+ * 'map'.
+ * @param {Array.<Object>} properties Receiver properties array from 'backtrace'
+ *     response.
+ * @param {Object} map Result holder.
+ * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
+ */
+devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
+  for (var j = 0; j < properties.length; j++) {
+    var nextValue = properties[j];
+    map[nextValue.name] =devtools.DebuggerAgent.formatObjectReference_(
+        nextValue, msg);
+  }
+};
+
+
+/**
+ * For each property in 'array' puts its name and user-friendly value into
+ * 'map'.
+ * @param {Array.<Object>} array Arguments or locals array from 'backtrace'
+ *     response.
+ * @param {Object} map Result holder.
+ * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
+ */
+devtools.DebuggerAgent.valuesArrayToMap_ = function(array, map, msg) {
+  for (var j = 0; j < array.length; j++) {
+    var nextValue = array[j];
+    map[nextValue.name] = devtools.DebuggerAgent.formatObjectReference_(
+        nextValue.value, msg);
+  }
+};
+
+
+/**
+ * @param {Object} objectRef Object reference from the debugger protocol. 
+ * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
+ * @return {string} User-friendly representation of the reference.
+ */
+devtools.DebuggerAgent.formatObjectReference_ = function(objectRef, msg) {
+  if (!objectRef.ref) {
+    return 'illegal ref';
+  }
+  
+  var object = msg.lookup(objectRef.ref);
+  if (!object) {
+    return '{ref: ' + objectRef.ref + '}';
+  }
+  
+  if ('value' in object) {
+    return object.value;
+  }
+  return '[' + object.type + ']';
 };
 
 
