@@ -7,7 +7,9 @@
 #include "base/compiler_specific.h"
 
 #include "GenericWorkerTask.h"
+#include "KURL.h"
 #include "ScriptExecutionContext.h"
+#include "SecurityOrigin.h"
 #include "WorkerContext.h"
 #include "WorkerThread.h"
 #include <wtf/Threading.h>
@@ -27,7 +29,23 @@ WebWorker* WebWorker::Create(WebWorkerClient* client) {
 }
 
 
+// This function is called on the main thread to force to initialize some static
+// values used in WebKit before any worker thread is started. This is because in
+// our worker processs, we do not run any WebKit code in main thread and thus
+// when multiple workers try to start at the same time, we might hit crash due
+// to contention for initializing static values.
+void InitializeWebKitStaticValues() {
+  static bool initialized = false;
+  if (!initialized) {
+    initialized= true;
+    WTF::RefPtr<WebCore::SecurityOrigin> origin =
+        WebCore::SecurityOrigin::create(WebCore::KURL());
+    origin.release();
+  }
+}
+
 WebWorkerImpl::WebWorkerImpl(WebWorkerClient* client) : client_(client) {
+  InitializeWebKitStaticValues();
 }
 
 WebWorkerImpl::~WebWorkerImpl() {
