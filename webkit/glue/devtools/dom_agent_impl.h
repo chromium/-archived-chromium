@@ -121,18 +121,19 @@ class DomAgentImpl : public DomAgent {
       WebCore::Element* element,
       int depth);
 
+  // Serializes CSS rule list into the list value.
+  ListValue* BuildValueForCSSRules(WebCore::CSSRuleList& matched);
+
+  // Serializes attribute styles into the dictionary value.
+  DictionaryValue* BuildValueForAttributeStyles(
+      const WebCore::NamedNodeMap& attributes);
+
   // We represent embedded doms as a part of the same hierarchy. Hence we
   // treat children of frame owners differently. Following two methods
   // encapsulate frame owner specifics.
   WebCore::Node* InnerFirstChild(WebCore::Node* node);
   int InnerChildNodeCount(WebCore::Node* node);
   WebCore::Element* InnerParentElement(WebCore::Node* node);
-
-  // Helpers for GetNodeStyles
-  void BuildValueForCSSRules(WebCore::CSSRuleList& matched,
-                             ListValue& descriptionList);
-  void BuildValueForAttributeStyles(const WebCore::NamedNodeMap& attributes,
-                                    DictionaryValue& description);
 
   DomAgentDelegate* delegate_;
   HashMap<WebCore::Node*, int> node_to_id_;

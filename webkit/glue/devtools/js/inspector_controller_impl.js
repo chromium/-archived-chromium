@@ -40,21 +40,6 @@ devtools.InspectorControllerImpl.prototype.addSourceToFrame =
 /**
  * {@inheritDoc}.
  */
-devtools.InspectorControllerImpl.prototype.addResourceSourceToFrame =
-    function(identifier, element) {
-  var self = this;
-  var netAgent = devtools.tools.getNetAgent();
-  netAgent.getResourceContentAsync(identifier, function(source) {
-    var resource = netAgent.getResource(identifier);
-    self.addSourceToFrame(resource.mimeType, source, element);
-  });
-  return false;
-};
-
-
-/**
- * {@inheritDoc}.
- */
 devtools.InspectorControllerImpl.prototype.hideDOMNodeHighlight = function() {
   RemoteToolsAgent.HideDOMNodeHighlight();
 };

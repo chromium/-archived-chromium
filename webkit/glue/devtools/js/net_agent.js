@@ -102,16 +102,19 @@ devtools.NetAgent.prototype.didReceiveResponse = function(identifier, response) 
 
   resource.expectedContentLength = response.expectedContentLength;
   resource.responseStatusCode = response.responseStatusCode;
+  resource.responseHeaders = response.responseHeaders;
   resource.mimeType = response.mimeType;
   resource.suggestedFilename = response.suggestedFilename;
   var mimeType = response.mimeType;
-  if (mimeType.indexOf("image/") == 0) {
+  if (mimeType.indexOf('image/') == 0) {
     resource.type = WebInspector.Resource.Type.Image;
-  } else if (mimeType.indexOf("text/html") == 0) {
+  } else if (mimeType.indexOf('text/html') == 0) {
     resource.type = WebInspector.Resource.Type.Document;
-  } else if (mimeType.indexOf("script") != -1 ||
-      response.url.indexOf(".js") != -1) {
+  } else if (mimeType.indexOf('script') != -1 ||
+      resource.url.indexOf('.js') == resource.url.length - 3) {
     resource.type = WebInspector.Resource.Type.Script;
+  } else if (mimeType.indexOf('text/css') == 0) {
+    resource.type = WebInspector.Resource.Type.Stylesheet;
   } else {
     resource.type = WebInspector.Resource.Type.Other;
   } 

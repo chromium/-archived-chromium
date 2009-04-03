@@ -181,6 +181,9 @@ var webkitUpdateChildren =
     WebInspector.ElementsTreeElement.prototype.updateChildren;
 
 
+/**
+ * @override
+ */
 WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
   var self = this;
   devtools.tools.getDomAgent().getChildNodesAsync(this.representedObject,
@@ -190,6 +193,9 @@ WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ElementsPanel.prototype.performSearch = function(query) {
   this.searchCanceled();
   var self = this;
@@ -201,6 +207,9 @@ WebInspector.ElementsPanel.prototype.performSearch = function(query) {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ElementsPanel.prototype.searchCanceled = function() {
   var self = this;
   devtools.tools.getDomAgent().searchCanceled(function(node) {
@@ -211,19 +220,31 @@ WebInspector.ElementsPanel.prototype.searchCanceled = function() {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ElementsPanel.prototype.jumpToNextSearchResult = function() {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ElementsPanel.prototype.jumpToPreviousSearchResult = function() {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.Console.prototype._evalInInspectedWindow = function(expr) {
   return devtools.tools.evaluate(expr);
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
   var stylesSidebarPane = this.sidebarPanes.styles;
   if (!stylesSidebarPane.expanded || !stylesSidebarPane.needsUpdate)
@@ -248,6 +269,9 @@ WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
   var body = this.bodyElement;
   body.removeChildren();
@@ -275,6 +299,9 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ObjectPropertiesSection.prototype.onpopulate = function() {
   var nodeId = this.object.id_;
   var protoDepth = this.object.protoDepth_;
@@ -288,6 +315,9 @@ WebInspector.ObjectPropertiesSection.prototype.onpopulate = function() {
 };
 
 
+/**
+ * @override
+ */
 WebInspector.ObjectPropertyTreeElement.prototype.onpopulate = function() {
   var nodeId = this.parentObject.devtools$$nodeId_;
   var path = this.parentObject.devtools$$path_.slice(0);
@@ -297,6 +327,41 @@ WebInspector.ObjectPropertyTreeElement.prototype.onpopulate = function() {
       this,
       this.treeOutline.section.treeElementConstructor,
       nodeId, path));
+};
+
+
+/**
+ * This override is necessary for starting highlighting after the resource
+ * was added into the frame.
+ * @override
+ */
+WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
+  if (!this._frameNeedsSetup) {
+    return;
+  }
+
+  this.attach();
+
+  var self = this;
+  var identifier = this.resource.identifier;
+  var element = this.sourceFrame.element;
+  var netAgent = devtools.tools.getNetAgent();
+
+  netAgent.getResourceContentAsync(identifier, function(source) {
+    var resource = netAgent.getResource(identifier);
+    if (InspectorController.addSourceToFrame(resource.mimeType, source,
+                                             element)) {
+      delete self._frameNeedsSetup;
+      if (resource.type === WebInspector.Resource.Type.Script) {
+        self.sourceFrame.addEventListener("syntax highlighting complete",
+            self._syntaxHighlightingComplete, self);
+        self.sourceFrame.syntaxHighlightJavascript();
+      }
+    } else {
+      self._sourceFrameSetupFinished();
+    }
+  });
+  return true;
 };
 
 

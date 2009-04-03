@@ -836,8 +836,10 @@ devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
 devtools.DomAgent.prototype.getNodeStylesCallback_ = function(node,
     callback, styles) {
   
-  node.setStyles_(styles.computedStyle, styles.inlineStyle,
-      styles.styleAttributes, styles.matchedCSSRules);
+  if (styles.computedStyle) {
+    node.setStyles_(styles.computedStyle, styles.inlineStyle,
+        styles.styleAttributes, styles.matchedCSSRules);
+  }
   
   callback();
   

@@ -445,89 +445,36 @@ void DomAgentImpl::GetNodeStyles(int call_id,
                                  int element_id,
                                  bool author_only) {
   // TODO (serya): Currently styles are serialized as cssText.
-  //               It could be not enough.
-  String computed_style;
-  String inline_style;
-  OwnPtr<DictionaryValue> style_attributes(new DictionaryValue());
-  OwnPtr<ListValue> matched_css_rules(new ListValue());
+  // It could be not enough.
+
+  DictionaryValue result;
 
   Node* node = GetNodeForId(element_id);
   DCHECK(!node || node->nodeType() == Node::ELEMENT_NODE);
-  if (node && node->nodeType() == Node::ELEMENT_NODE) {
-    Element* element = static_cast<Element*>(node);
-    inline_style = element->style()->cssText();
-    DOMWindow* window = element->document()->defaultView();
-    computed_style = window->getComputedStyle(element, "")->cssText();
-    BuildValueForCSSRules(*window->getMatchedCSSRules(element, "",
-                          author_only), *matched_css_rules);
-    BuildValueForAttributeStyles(*element->attributes(),
-                                 *style_attributes);
+  if (!node) {
+    delegate_->DidGetNodeStyles(call_id, result);
+    return;
   }
 
-  DictionaryValue styles;
-
-  styles.SetString(L"computedStyle",
-      webkit_glue::StringToStdString(computed_style));
-  styles.SetString(L"inlineStyle",
+  Element* element = static_cast<Element*>(node);
+  String inline_style = element->style()->cssText();
+  result.SetString(L"inlineStyle",
       webkit_glue::StringToStdString(inline_style));
-  styles.Set(L"styleAttributes", style_attributes.release());
-  styles.Set(L"matchedCSSRules", matched_css_rules.release());
 
-  delegate_->DidGetNodeStyles(call_id, styles);
-}
+  DOMWindow* window = element->document()->defaultView();
+  String computed_style = window->getComputedStyle(element, "")->cssText();
+  result.SetString(L"computedStyle",
+      webkit_glue::StringToStdString(computed_style));
 
-void DomAgentImpl::BuildValueForCSSRules(CSSRuleList& matched,
-                                         ListValue& descriptionList) {
-  for (unsigned i = 0; i < matched.length(); ++i) {
-    if (!matched.item(i)->isStyleRule()) {
-      continue;
-    }
-
-    CSSStyleRule* rule = static_cast<CSSStyleRule*>(matched.item(i));
-    String selector_text = rule->selectorText();
-    String css_text;
-
-    CSSMutableStyleDeclaration* style = rule->style();
-    if (style) {
-      css_text = style->cssText();
-    }
-
-    OwnPtr<DictionaryValue> description(new DictionaryValue());
-    description->SetString(L"selector",
-        webkit_glue::StringToStdString(selector_text));
-    description->SetString(L"cssText",
-        webkit_glue::StringToStdString(css_text));
-
-    CSSStyleSheet* parent_style_sheet = rule->parentStyleSheet();
-    if (parent_style_sheet) {
-      description->SetString(L"parentStyleSheetHref",
-          webkit_glue::StringToStdString(parent_style_sheet->href()));
-
-      Node* owner_node = parent_style_sheet->ownerNode();
-      if (owner_node) {
-        description->SetString(L"parentStyleSheetOwnerNodeName",
-            webkit_glue::StringToStdString(owner_node->nodeName()));
-      }
-    }
-
-    descriptionList.Append(description.release());
+  RefPtr<CSSRuleList> rule_list = window->getMatchedCSSRules(element, "",
+      author_only);
+  if (rule_list) {
+    result.Set(L"matchedCSSRules", BuildValueForCSSRules(*rule_list));
   }
-}
+  result.Set(L"styleAttributes",
+      BuildValueForAttributeStyles(*element->attributes()));
 
-void DomAgentImpl::BuildValueForAttributeStyles(const NamedNodeMap& attributes,
-    DictionaryValue& description) {
-  for (size_t i = 0; i < attributes.length(); ++i) {
-    Attribute* attr = attributes.attributeItem(i);
-
-    if (CSSStyleDeclaration* style = attr->style()) {
-      std::wstring name =
-          webkit_glue::StringToStdWString(attr->name().toString());
-      std::string css_text =
-          webkit_glue::StringToStdString(style->cssText());
-
-      description.SetString(name, css_text);
-    }
-  }
+  delegate_->DidGetNodeStyles(call_id, result);
 }
 
 ListValue* DomAgentImpl::BuildValueForNode(Node* node, int depth) {
@@ -617,24 +564,79 @@ ListValue* DomAgentImpl::BuildValueForElementChildren(
   return children.release();
 }
 
+ListValue* DomAgentImpl::BuildValueForCSSRules(CSSRuleList& matched) {
+  OwnPtr<ListValue> description_list(new ListValue());
+  for (unsigned i = 0; i < matched.length(); ++i) {
+    if (!matched.item(i)->isStyleRule()) {
+      continue;
+    }
+    CSSStyleRule* rule = static_cast<CSSStyleRule*>(matched.item(i));
+    OwnPtr<DictionaryValue> description(new DictionaryValue());
+
+    description->SetString(L"selector",
+        webkit_glue::StringToStdString(rule->selectorText()));
+
+    CSSMutableStyleDeclaration* style = rule->style();
+    description->SetString(L"cssText",
+        webkit_glue::StringToStdString(style ? style->cssText() : ""));
+
+    CSSStyleSheet* parent_style_sheet = rule->parentStyleSheet();
+    if (parent_style_sheet) {
+      description->SetString(L"parentStyleSheetHref",
+          webkit_glue::StringToStdString(parent_style_sheet->href()));
+
+      Node* owner_node = parent_style_sheet->ownerNode();
+      if (owner_node) {
+        description->SetString(L"parentStyleSheetOwnerNodeName",
+            webkit_glue::StringToStdString(owner_node->nodeName()));
+      }
+    }
+    description_list->Append(description.release());
+  }
+  return description_list.release();
+}
+
+DictionaryValue* DomAgentImpl::BuildValueForAttributeStyles(
+    const NamedNodeMap& attributes) {
+  OwnPtr<DictionaryValue> description(new DictionaryValue());
+  for (size_t i = 0; i < attributes.length(); ++i) {
+    Attribute* attr = attributes.attributeItem(i);
+
+    if (CSSStyleDeclaration* style = attr->style()) {
+      std::wstring name =
+          webkit_glue::StringToStdWString(attr->name().toString());
+      std::string css_text =
+          webkit_glue::StringToStdString(style->cssText());
+
+      description->SetString(name, css_text);
+    }
+  }
+  return description.release();
+}
+
 Node* DomAgentImpl::InnerFirstChild(Node* node) {
   if (node->isFrameOwnerElement()) {
     HTMLFrameOwnerElement* frame_owner =
         static_cast<HTMLFrameOwnerElement*>(node);
     Document* doc = frame_owner->contentDocument();
-    StartListening(doc);
-    return doc->firstChild();
-  } else {
-    return node->firstChild();
+    if (doc) {
+      StartListening(doc);
+      return doc->firstChild();
+    }
   }
+  return node->firstChild();
 }
 
 int DomAgentImpl::InnerChildNodeCount(Node* node) {
   if (node->isFrameOwnerElement()) {
-    return 1;
-  } else {
-    return node->childNodeCount();
+    HTMLFrameOwnerElement* frame_owner =
+        static_cast<HTMLFrameOwnerElement*>(node);
+    Document* doc = frame_owner->contentDocument();
+    if (doc) {
+      return 1;
+    }
   }
+  return node->childNodeCount();
 }
 
 Element* DomAgentImpl::InnerParentElement(Node* node) {

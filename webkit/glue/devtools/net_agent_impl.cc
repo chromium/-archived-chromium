@@ -171,32 +171,40 @@ void NetAgentImpl::GetResourceContent(
       source = encoding.decode(buffer->data(), buffer->size());
     }
   } else {
-    CachedResource* cachedResource = document_->
+    CachedResource* cached_resource = document_->
         docLoader()->cachedResource(url);
-    if (!cachedResource->isPurgeable()) {
-      // TODO(pfeldman): Try making unpurgeable.
+    if (!cached_resource) {
+      delegate_->GetResourceContentResult(call_id, "");
       return;
+    }
+    if (cached_resource->isPurgeable()) {
+      // If the resource is purgeable then make it unpurgeable to get its data.
+      // This might fail, in which case we return an empty string.
+      if (!cached_resource->makePurgeable(false)) {
+        delegate_->GetResourceContentResult(call_id, "");
+        return;
+      }
     }
 
     // Try to get the decoded source.  Only applies to some CachedResource
     // types.
-    switch (cachedResource->type()) {
+    switch (cached_resource->type()) {
       case CachedResource::CSSStyleSheet: {
         CachedCSSStyleSheet *sheet =
-            reinterpret_cast<CachedCSSStyleSheet*>(cachedResource);
+            reinterpret_cast<CachedCSSStyleSheet*>(cached_resource);
         source = sheet->sheetText();
         break;
       }
       case CachedResource::Script: {
         CachedScript *script =
-            reinterpret_cast<CachedScript*>(cachedResource);
+            reinterpret_cast<CachedScript*>(cached_resource);
         source = script->script();
         break;
       }
 #if ENABLE(XSLT)
       case CachedResource::XSLStyleSheet: {
         CachedXSLStyleSheet *sheet =
-            reinterpret_cast<CachedXSLStyleSheet*>(cachedResource);
+            reinterpret_cast<CachedXSLStyleSheet*>(cached_resource);
         source = sheet->sheet();
         break;
       }
