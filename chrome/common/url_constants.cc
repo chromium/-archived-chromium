@@ -16,6 +16,7 @@ const char kDataScheme[] = "data";
 const char kExtensionScheme[] = "chrome-extension";
 const char kFileScheme[] = "file";
 const char kFtpScheme[] = "ftp";
+const char kGearsScheme[] = "gears";
 const char kHttpScheme[] = "http";
 const char kHttpsScheme[] = "https";
 const char kJavaScriptScheme[] = "javascript";
@@ -45,6 +46,7 @@ const char kChromeUINewTabURL[] = "chrome-ui://newtab";
 #endif
 
 const char kChromeUIDevToolsHost[] = "devtools";
+const char kChromeUIDialogHost[] = "dialog";
 const char kChromeUIDownloadsHost[] = "downloads";
 const char kChromeUIExtensionsHost[] = "extensions";
 const char kChromeUIFavIconPath[] = "favicon";

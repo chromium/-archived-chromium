@@ -60,7 +60,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ShowPasswordManager() {}
   virtual void ShowSelectProfileDialog() {}
   virtual void ShowNewProfileDialog() {}
-  virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+  virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) {}
   virtual bool GetFindBarWindowInfo(gfx::Point* position,
                                     bool* fully_visible) const { return false; }

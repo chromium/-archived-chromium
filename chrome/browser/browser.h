@@ -440,7 +440,7 @@ class Browser : public TabStripModelDelegate,
                                  bool proceed,
                                  bool* proceed_to_fire_unload);
   virtual gfx::Rect GetRootWindowResizerRect() const;
-  virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
+  virtual void ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
   virtual void SetFocusToLocationBar();
   virtual void RenderWidgetShowing();

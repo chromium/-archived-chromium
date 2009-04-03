@@ -17,6 +17,7 @@ extern const char kDataScheme[];
 extern const char kExtensionScheme[];
 extern const char kFileScheme[];
 extern const char kFtpScheme[];
+extern const char kGearsScheme[];
 extern const char kHttpScheme[];
 extern const char kHttpsScheme[];
 extern const char kJavaScriptScheme[];
@@ -47,6 +48,7 @@ extern const char kChromeUINewTabURL[];
 // chrome-ui components of URLs. Should be kept in sync with the full URLs
 // above.
 extern const char kChromeUIDevToolsHost[];
+extern const char kChromeUIDialogHost[];
 extern const char kChromeUIDownloadsHost[];
 extern const char kChromeUIExtensionsHost[];
 extern const char kChromeUIFavIconPath[];

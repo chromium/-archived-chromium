@@ -16,7 +16,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): port these headers to posix.
-#include "chrome/browser/dom_ui/html_dialog_contents.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -48,12 +47,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
                                  NULL);
       break;
-#if defined(OS_WIN)
-    // TODO(brettw) This extra tab contents type should be deleted.
-    case TAB_CONTENTS_HTML_DIALOG:
-      contents = new HtmlDialogContents(profile, instance, NULL);
-      break;
-#endif  // defined(OS_WIN)
     default:
       if (g_extra_types) {
         TabContentsFactoryMap::const_iterator it = g_extra_types->find(type);
@@ -65,9 +58,6 @@ TabContents* TabContents::CreateWithType(TabContentsType type,
       NOTREACHED() << "Don't know how to create tab contents of type " << type;
       contents = NULL;
   }
-
-  if (contents)
-    contents->CreateView();
 
   return contents;
 }
@@ -92,9 +82,6 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
   if (BrowserURLHandler::HandleBrowserURL(url, &type))
     return type;
-
-  if (HtmlDialogContents::IsHtmlDialogUrl(*url))
-    return TAB_CONTENTS_HTML_DIALOG;
 
 #elif defined(OS_POSIX)
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);

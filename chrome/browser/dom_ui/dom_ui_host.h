@@ -44,19 +44,6 @@ class DOMUIHost : public WebContents {
   void RegisterMessageCallback(const std::string& message,
                                MessageCallback* callback);
 
-
-  // Call a Javascript function by sending its name and arguments down to
-  // the renderer.  This is asynchronous; there's no way to get the result
-  // of the call, and should be thought of more like sending a message to
-  // the page.
-  // There are two function variants for one-arg and two-arg calls.
-  void CallJavascriptFunction(const std::wstring& function_name,
-                              const Value& arg);
-  void CallJavascriptFunction(const std::wstring& function_name,
-                              const Value& arg1,
-                              const Value& arg2);
-
-
   // Overrides from WebContents.
   virtual void ProcessDOMUIMessage(const std::string& message,
                                    const std::string& content);
@@ -76,8 +63,6 @@ class DOMUIHost : public WebContents {
   virtual ~DOMUIHost();
 
  private:
-  // Execute a string of raw Javascript on the page.
-  void ExecuteJavascript(const std::wstring& javascript);
 
   // The DOMMessageHandlers we own.
   std::vector<DOMMessageHandler*> handlers_;

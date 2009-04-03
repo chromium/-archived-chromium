@@ -8,12 +8,13 @@
 #include <vector>
 
 #include "base/gfx/size.h"
-#include "chrome/browser/dom_ui/html_dialog_contents.h"
+#include "chrome/browser/dom_ui/html_dialog_ui.h"
+#include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_observer.h"
 
 // This class can only be used on the UI thread.
 class ModalHtmlDialogDelegate
-    : public HtmlDialogContentsDelegate,
+    : public HtmlDialogUIDelegate,
       public NotificationObserver {
  public:
   ModalHtmlDialogDelegate(const GURL& url,
@@ -28,7 +29,7 @@ class ModalHtmlDialogDelegate
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // HTMLDialogContentsDelegate implementation:
+  // HTMLDialogUIDelegate implementation:
   virtual bool IsDialogModal() const;
   virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
   virtual GURL GetDialogContentURL() const;
@@ -46,7 +47,7 @@ class ModalHtmlDialogDelegate
   WebContents* contents_;
 
   // The parameters needed to display a modal HTML dialog.
-  HtmlDialogContents::HtmlDialogParams params_;
+  HtmlDialogUI::HtmlDialogParams params_;
 
   // Once we get our reply in OnModalDialogResponse we'll need to respond to the
   // plugin using this |sync_result| pointer so we store it between calls.

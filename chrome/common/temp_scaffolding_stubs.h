@@ -24,6 +24,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cancelable_request.h"
+#include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/browser/download/download_shelf.h"
 #include "chrome/browser/download/save_types.h"
 #include "chrome/browser/history/download_types.h"
@@ -428,7 +429,7 @@ class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
   void ListenerDestroyed() { NOTIMPLEMENTED(); }
   void SelectFile(Type, const std::wstring&, const std::wstring&,
                   const std::wstring&, int, const std::wstring&,
-		  gfx::NativeWindow, void*) { NOTIMPLEMENTED(); }
+                  gfx::NativeWindow, void*) { NOTIMPLEMENTED(); }
   static SelectFileDialog* Create(WebContents*) {
     NOTIMPLEMENTED();
     return new SelectFileDialog;
@@ -543,14 +544,17 @@ class ConstrainedWindow {
   void CloseConstrainedWindow() { NOTIMPLEMENTED(); }
 };
 
-class HtmlDialogContentsDelegate {
- public:
-};
-
-class ModalHtmlDialogDelegate : public HtmlDialogContentsDelegate {
+class ModalHtmlDialogDelegate : public HtmlDialogUIDelegate {
  public:
   ModalHtmlDialogDelegate(const GURL&, int, int, const std::string&,
                           IPC::Message*, WebContents*) { }
+
+   virtual bool IsDialogModal() const { return true; }
+   virtual std::wstring GetDialogTitle() const { return std::wstring(); }
+   virtual GURL GetDialogContentURL() const { return GURL(); }
+   virtual void GetDialogSize(gfx::Size* size) const {}
+   virtual std::string GetDialogArgs() const { return std::string(); }
+   virtual void OnDialogClosed(const std::string& json_retval) {}
 };
 
 class HtmlDialogContents {

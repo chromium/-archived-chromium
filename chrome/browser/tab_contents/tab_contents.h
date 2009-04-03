@@ -363,10 +363,6 @@ class TabContents : public PageNavigator,
     return GetNativeView();
   }
 
-  // Tell the subclass to set up the view (e.g. create the container HWND if
-  // applicable) and any other create-time setup.
-  virtual void CreateView() {}
-
   // Returns the NativeView associated with this TabContents. Outside of
   // automation in the context of the UI, this is required to be implemented.
   virtual gfx::NativeView GetNativeView() const { return NULL; }

@@ -578,12 +578,12 @@ bool RenderViewContextMenu::IsDevCommandEnabled(int id) const {
   if (!active_entry)
     return false;
 
-  // Don't inspect HTML dialogs.
-  if (source_web_contents_->type() == TAB_CONTENTS_HTML_DIALOG)
-    return false;
-
   // Don't inspect view source.
   if (active_entry->IsViewSourceMode())
+    return false;
+
+  // Don't inspect HTML dialogs (doesn't work anyway).
+  if (active_entry->url().SchemeIs(chrome::kGearsScheme))
     return false;
 
   // Don't inspect inspector, new tab UI, etc.

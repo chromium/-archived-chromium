@@ -12,7 +12,7 @@ class BrowserList;
 class BrowserWindowTesting;
 class GURL;
 class LocationBar;
-class HtmlDialogContentsDelegate;
+class HtmlDialogUIDelegate;
 class Profile;
 class StatusBubble;
 class TabContents;
@@ -169,7 +169,7 @@ class BrowserWindow {
   // Shows a dialog box with HTML content, e.g. for Gears. |parent_window| is
   // the window the dialog should be opened modal to and is a native window
   // handle.
-  virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+  virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) = 0;
 
   // Construct a BrowserWindow implementation for the specified |browser|.

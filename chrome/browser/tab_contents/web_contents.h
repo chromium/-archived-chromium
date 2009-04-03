@@ -156,7 +156,6 @@ class WebContents : public TabContents,
   // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
   // it should be killed altogether.
-  virtual void CreateView();
   virtual gfx::NativeView GetNativeView() const;
   virtual gfx::NativeView GetContentNativeView();
   virtual void GetContainerBounds(gfx::Rect *out) const;

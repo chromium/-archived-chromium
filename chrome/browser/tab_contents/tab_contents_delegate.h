@@ -11,7 +11,7 @@
 #include "chrome/common/navigation_types.h"
 
 class TabContents;
-class HtmlDialogContentsDelegate;
+class HtmlDialogUIDelegate;
 
 // Objects implement this interface to get notified about changes in the
 // TabContents and to provide necessary functionality.
@@ -123,7 +123,7 @@ class TabContentsDelegate : public PageNavigator {
   // delegate who knows how to display the dialog (which file URL and JSON
   // string input to use during initialization). |parent_window| is the window
   // that should be parent of the dialog, or NULL for the default.
-  virtual void ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
+  virtual void ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) { }
 
   // Tells us that we've finished firing this tab's beforeunload event.

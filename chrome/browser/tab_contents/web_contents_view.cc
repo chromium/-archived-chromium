@@ -37,8 +37,6 @@ void WebContentsView::CreateNewWindow(int route_id,
   new_contents->SetupController(web_contents()->profile());
   WebContentsView* new_view = new_contents->view();
 
-  new_view->CreateView();
-
   // TODO(brettw) it seems bogus that we have to call this function on the
   // newly created object and give it one of its own member variables.
   new_view->CreateViewForWidget(new_contents->render_view_host());

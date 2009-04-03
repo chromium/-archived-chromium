@@ -19,6 +19,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/chrome_plugin_browsing_context.h"
 #include "chrome/browser/chrome_thread.h"
+#include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/browser/gears_integration.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/plugin_service.h"
@@ -43,7 +44,7 @@
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
-#include "chrome/browser/dom_ui/html_dialog_contents.h"
+#include "chrome/browser/dom_ui/html_dialog_ui.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
@@ -282,7 +283,7 @@ PluginCommandHandler* PluginCommandHandler::instance_ = NULL;
 // This class acts as a helper to display the HTML dialog.  It is created
 // on demand on the plugin thread, and proxies calls to and from the UI thread
 // to display the UI.
-class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
+class ModelessHtmlDialogDelegate : public HtmlDialogUIDelegate {
  public:
   ModelessHtmlDialogDelegate(const GURL& url,
                              int width, int height,
@@ -311,7 +312,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
 
   // The following public methods are called from the UI thread.
 
-  // HtmlDialogContentsDelegate implementation:
+  // HtmlDialogUIDelegate implementation:
   virtual bool IsDialogModal() const { return false; }
   virtual std::wstring GetDialogTitle() const { return L"Google Gears"; }
   virtual GURL GetDialogContentURL() const { return params_.url; }
@@ -344,7 +345,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogContentsDelegate {
   }
 
   // The parameters needed to display a modal HTML dialog.
-  HtmlDialogContents::HtmlDialogParams params_;
+  HtmlDialogUI::HtmlDialogParams params_;
 
   // Message loops for sending messages between UI and IO threads.
   MessageLoop* main_message_loop_;

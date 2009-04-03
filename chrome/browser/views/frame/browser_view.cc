@@ -822,7 +822,7 @@ void BrowserView::ShowNewProfileDialog() {
   NewProfileDialog::RunDialog();
 }
 
-void BrowserView::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                  void* parent_window) {
   HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
   parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetNativeView();

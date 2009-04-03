@@ -8,6 +8,7 @@
 #include "chrome/browser/dom_ui/debugger_ui.h"
 #include "chrome/browser/dom_ui/devtools_ui.h"
 #include "chrome/browser/dom_ui/history_ui.h"
+#include "chrome/browser/dom_ui/html_dialog_ui.h"
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/common/url_constants.h"
@@ -24,8 +25,15 @@
 // pointer.
 static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
                         DOMUI** new_ui) {
-  // This will get called a lot to check all URLs, so do a quick check of the
-  // scheme to filter out most URLs.
+  // Currently, any gears: URL means an HTML dialog.
+  if (url.SchemeIs(chrome::kGearsScheme)) {
+    if (new_ui)
+      *new_ui = new HtmlDialogUI(web_contents);
+    return true;
+  }
+
+  // This will get called a lot to check all URLs, so do a quick check of other
+  // schemes (gears was handled above) to filter out most URLs.
   if (!url.SchemeIs(chrome::kChromeInternalScheme) &&
       !url.SchemeIs(chrome::kChromeUIScheme))
     return false;

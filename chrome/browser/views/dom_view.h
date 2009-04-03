@@ -11,29 +11,32 @@
 #include "chrome/views/controls/hwnd_view.h"
 #include "googleurl/src/gurl.h"
 
-class DOMUIHost;
 class Profile;
 class SiteInstance;
+class WebContents;
 
 class DOMView : public views::HWNDView {
  public:
   // Construct a DOMView to display the given data: URL.
-  explicit DOMView(const GURL& contents);
+  explicit DOMView();
   virtual ~DOMView();
 
-  // Initialize the view, causing it to load its contents.  This should be
+  // Initialize the view, creating the contents. This should be
   // called once the view has been added to a container.
+  //
   // If |instance| is not null, then the view will be loaded in the same
   // process as the given instance.
   bool Init(Profile* profile, SiteInstance* instance);
 
+  // Loads the given URL into the page. You must have previously called Init().
+  void LoadURL(const GURL& url);
+
  protected:
   virtual bool CanProcessTabKeyEvents() { return true; }
 
-  DOMUIHost* host_;
+  WebContents* web_contents_;
 
  private:
-  GURL contents_;
   bool initialized_;
 
   DISALLOW_COPY_AND_ASSIGN(DOMView);

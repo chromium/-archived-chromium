@@ -6,35 +6,31 @@
 
 #include "chrome/browser/dom_ui/dom_ui_host.h"
 
-DOMView::DOMView(const GURL& contents)
-    : contents_(contents), initialized_(false), host_(NULL) {
+DOMView::DOMView() : initialized_(false), web_contents_(NULL) {
   SetFocusable(true);
 }
 
 DOMView::~DOMView() {
-  if (host_) {
+  if (web_contents_) {
     Detach();
-    host_->Destroy();
-    host_ = NULL;
+    web_contents_->Destroy();
+    web_contents_ = NULL;
   }
 }
 
 bool DOMView::Init(Profile* profile, SiteInstance* instance) {
   if (initialized_)
     return true;
+
   initialized_ = true;
-
-  // TODO(timsteele): This should use a separate factory method; e.g
-  // a DOMUIHostFactory rather than TabContentsFactory, because DOMView's
-  // should only be associated with instances of DOMUIHost.
-  TabContentsType type = TabContents::TypeForURL(&contents_);
-  TabContents* tab_contents = TabContents::CreateWithType(type, profile,
-                                                          instance);
-  host_ = tab_contents->AsDOMUIHost();
-  DCHECK(host_);
-
-  views::HWNDView::Attach(host_->GetNativeView());
-  host_->SetupController(profile);
-  host_->controller()->LoadURL(contents_, GURL(), PageTransition::START_PAGE);
+  web_contents_ = new WebContents(profile, instance, NULL,
+                                  MSG_ROUTING_NONE, NULL);
+  views::HWNDView::Attach(web_contents_->GetNativeView());
+  web_contents_->SetupController(profile);
   return true;
+}
+
+void DOMView::LoadURL(const GURL& url) {
+  DCHECK(initialized_);
+  web_contents_->controller()->LoadURL(url, GURL(), PageTransition::START_PAGE);
 }

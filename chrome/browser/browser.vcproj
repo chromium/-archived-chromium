@@ -1566,11 +1566,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dom_ui\html_dialog_contents.cc"
+				RelativePath=".\dom_ui\html_dialog_ui.cc"
 				>
 			</File>
 			<File
-				RelativePath=".\dom_ui\html_dialog_contents.h"
+				RelativePath=".\dom_ui\html_dialog_ui.h"
 				>
 			</File>
 			<File

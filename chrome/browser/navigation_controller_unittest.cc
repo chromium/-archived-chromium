@@ -59,7 +59,6 @@ class NavigationControllerTest : public testing::Test,
 
     contents = new TestTabContents(type1());
     contents->set_delegate(this);
-    contents->CreateView();
     contents->SetupController(profile);
   }
 

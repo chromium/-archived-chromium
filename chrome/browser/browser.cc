@@ -1908,7 +1908,7 @@ gfx::Rect Browser::GetRootWindowResizerRect() const {
   return window_->GetRootWindowResizerRect();
 }
 
-void Browser::ShowHtmlDialog(HtmlDialogContentsDelegate* delegate,
+void Browser::ShowHtmlDialog(HtmlDialogUIDelegate* delegate,
                              void* parent_window) {
   window_->ShowHTMLDialog(delegate, parent_window);
 }

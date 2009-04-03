@@ -49,28 +49,6 @@ void DOMUIHost::RegisterMessageCallback(const std::string& name,
   message_callbacks_.insert(std::make_pair(name, callback));
 }
 
-
-void DOMUIHost::CallJavascriptFunction(const std::wstring& function_name,
-                                       const Value& arg) {
-  std::string json;
-  JSONWriter::Write(&arg, false, &json);
-  std::wstring javascript = function_name + L"(" + UTF8ToWide(json) + L");";
-
-  ExecuteJavascript(javascript);
-}
-
-void DOMUIHost::CallJavascriptFunction(
-    const std::wstring& function_name,
-    const Value& arg1, const Value& arg2) {
-  std::string json;
-  JSONWriter::Write(&arg1, false, &json);
-  std::wstring javascript = function_name + L"(" + UTF8ToWide(json);
-  JSONWriter::Write(&arg2, false, &json);
-  javascript += L"," + UTF8ToWide(json) + L");";
-
-  ExecuteJavascript(javascript);
-}
-
 void DOMUIHost::ProcessDOMUIMessage(const std::string& message,
                                     const std::string& content) {
   // Look up the callback for this message.
@@ -100,8 +78,4 @@ WebPreferences DOMUIHost::GetWebkitPrefs() {
   web_prefs.loads_images_automatically = true;
 
   return web_prefs;
-}
-
-void DOMUIHost::ExecuteJavascript(const std::wstring& javascript) {
-  render_view_host()->ExecuteJavascriptInWebFrame(std::wstring(), javascript);
 }

@@ -5,6 +5,7 @@
 #include "chrome/browser/views/html_dialog_view.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/window.h"
 
@@ -13,8 +14,8 @@
 
 HtmlDialogView::HtmlDialogView(Browser* parent_browser,
                                Profile* profile,
-                               HtmlDialogContentsDelegate* delegate)
-    : DOMView(delegate->GetDialogContentURL()),
+                               HtmlDialogUIDelegate* delegate)
+    : DOMView(),
       parent_browser_(parent_browser),
       profile_(profile),
       delegate_(delegate) {
@@ -66,7 +67,7 @@ views::View* HtmlDialogView::GetInitiallyFocusedView() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// HtmlDialogContentsDelegate implementation:
+// HtmlDialogUIDelegate implementation:
 
 bool HtmlDialogView::IsDialogModal() const {
   return IsModal();
@@ -122,10 +123,10 @@ void HtmlDialogView::ReplaceContents(TabContents* source,
 }
 
 void HtmlDialogView::AddNewContents(TabContents* source,
-                    TabContents* new_contents,
-                    WindowOpenDisposition disposition,
-                    const gfx::Rect& initial_pos,
-                    bool user_gesture) {
+                                    TabContents* new_contents,
+                                    WindowOpenDisposition disposition,
+                                    const gfx::Rect& initial_pos,
+                                    bool user_gesture) {
   parent_browser_->AddNewContents(
       source, new_contents, NEW_WINDOW, initial_pos, user_gesture);
 }
@@ -177,9 +178,10 @@ void HtmlDialogView::InitDialog() {
   // Now Init the DOMView. This view runs in its own process to render the html.
   DOMView::Init(profile_, NULL);
 
-  // Make sure this new TabContents we just created in Init() knows about us.
-  DCHECK(host_->type() == TAB_CONTENTS_HTML_DIALOG);
-  HtmlDialogContents* host = static_cast<HtmlDialogContents*>(host_);
-  host->Init(this);
-  host->set_delegate(this);
+  // Set the delegate. This must be done before loading the page. See
+  // the comment above HtmlDialogUI in its header file for why.
+  HtmlDialogUI::GetPropertyAccessor().SetProperty(web_contents_->property_bag(),
+                                                  this);
+
+  DOMView::LoadURL(delegate_->GetDialogContentURL());
 }

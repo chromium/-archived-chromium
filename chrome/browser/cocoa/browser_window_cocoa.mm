@@ -194,7 +194,7 @@ void BrowserWindowCocoa::ShowNewProfileDialog() {
   NOTIMPLEMENTED();
 }
 
-void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                         void* parent_window) {
   NOTIMPLEMENTED();
 }

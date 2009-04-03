@@ -95,7 +95,6 @@ class BackFwdMenuModelTest : public testing::Test {
  protected:
   TabContents* CreateTabContents() {
     TabContents* contents = new BackFwdMenuModelTestTabContents;
-    contents->CreateView();
     contents->SetupController(profile_);
     return contents;
   }

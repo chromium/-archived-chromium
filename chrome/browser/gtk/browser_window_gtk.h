@@ -73,7 +73,7 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual void ShowPasswordManager();
   virtual void ShowSelectProfileDialog();
   virtual void ShowNewProfileDialog();
-  virtual void ShowHTMLDialog(HtmlDialogContentsDelegate* delegate,
+  virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
 
   // Overridden from TabStripModelObserver:

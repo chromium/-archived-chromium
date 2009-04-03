@@ -98,7 +98,6 @@ void DebuggerView::OnInit() {
   // view hierarchy somewhere.
   Profile* profile = BrowserList::GetLastActive()->profile();
   web_contents_ = new WebContents(profile, NULL, NULL, MSG_ROUTING_NONE, NULL);
-  web_contents_->CreateView();
 
   web_contents_->SetupController(profile);
   web_contents_->set_delegate(this);
