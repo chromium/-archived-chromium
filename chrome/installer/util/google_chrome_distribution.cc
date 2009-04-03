@@ -11,6 +11,7 @@
 #include <windows.h>
 #include <msi.h>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/registry.h"
@@ -64,7 +65,7 @@ bool GoogleChromeDistribution::BuildUninstallMetricsString(
 bool GoogleChromeDistribution::ExtractUninstallMetricsFromFile(
     const std::wstring& file_path, std::wstring* uninstall_metrics_string) {
 
-  JSONFileValueSerializer json_serializer(file_path);
+  JSONFileValueSerializer json_serializer(FilePath::FromWStringHack(file_path));
 
   std::string json_error_string;
   scoped_ptr<Value> root(json_serializer.Deserialize(NULL));
@@ -166,7 +167,7 @@ std::wstring GoogleChromeDistribution::GetApplicationName() {
 
 std::wstring GoogleChromeDistribution::GetAlternateApplicationName() {
   const std::wstring& alt_product_name =
-      installer_util::GetLocalizedString(IDS_OEM_MAIN_SHORTCUT_NAME_BASE); 
+      installer_util::GetLocalizedString(IDS_OEM_MAIN_SHORTCUT_NAME_BASE);
   return alt_product_name;
 }
 

@@ -302,7 +302,7 @@ Extension* ExtensionsServiceBackend::LoadExtension(
     return NULL;
   }
 
-  JSONFileValueSerializer serializer(manifest_path.ToWStringHack());
+  JSONFileValueSerializer serializer(manifest_path);
   std::string error;
   scoped_ptr<Value> root(serializer.Deserialize(&error));
   if (!root.get()) {

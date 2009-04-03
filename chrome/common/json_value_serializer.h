@@ -69,10 +69,6 @@ class JSONFileValueSerializer : public ValueSerializer {
   // serializer will attempt to create the file at the specified location.
   JSONFileValueSerializer(const FilePath& json_file_path)
     : json_file_path_(json_file_path) {}
-  // DEPRECATED - DO NOT USE
-  // TODO(port): remove references to this
-  JSONFileValueSerializer(const std::wstring& json_file_path)
-    : json_file_path_(FilePath::FromWStringHack(json_file_path)) {}
 
   ~JSONFileValueSerializer() {}
 

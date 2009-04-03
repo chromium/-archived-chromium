@@ -116,8 +116,8 @@ void BookmarkStorage::SaveNow() {
 BookmarkStorageBackend::BookmarkStorageBackend(
     const FilePath& path,
     const FilePath& tmp_history_path)
-    : path_(path.ToWStringHack()),
-      tmp_history_path_(tmp_history_path.ToWStringHack()) {
+    : path_(path),
+      tmp_history_path_(tmp_history_path) {
   // Make a backup of the current file.
   FilePath backup_path = path.ReplaceExtension(kBackupExtension);
   file_util::CopyFile(path, backup_path);
@@ -133,11 +133,7 @@ void BookmarkStorageBackend::Write(Value* value) {
   JSONWriter::Write(value, true, &content);
 
   // Write to a temp file, then rename.
-  // TODO(port): this code was all written to use wstrings; needs cleaning up
-  // for FilePath.
-  FilePath tmp_file_filepath =
-      FilePath::FromWStringHack(path_).ReplaceExtension(kTmpExtension);
-  std::wstring tmp_file = tmp_file_filepath.ToWStringHack();
+  FilePath tmp_file = path_.ReplaceExtension(kTmpExtension);
 
   int bytes_written = file_util::WriteFile(tmp_file, content.c_str(),
                                            static_cast<int>(content.length()));
@@ -150,9 +146,9 @@ void BookmarkStorageBackend::Write(Value* value) {
       if (!move_result)
         LOG(WARNING) << " writing bookmarks failed, result=" << move_result;
       else
-        LOG(INFO) << "wrote bookmarks, file=" << path_;
+        LOG(INFO) << "wrote bookmarks, file=" << path_.value();
     } else {
-      LOG(INFO) << "wrote bookmarks, file=" << path_;
+      LOG(INFO) << "wrote bookmarks, file=" << path_.value();
     }
     // Nuke the history file so that we don't attempt to load from it again.
     file_util::Delete(tmp_history_path_, false);
@@ -165,7 +161,7 @@ void BookmarkStorageBackend::Write(Value* value) {
 void BookmarkStorageBackend::Read(scoped_refptr<BookmarkStorage> service,
                                   MessageLoop* message_loop,
                                   bool load_from_history) {
-  const std::wstring& path = load_from_history ? tmp_history_path_ : path_;
+  const FilePath& path = load_from_history ? tmp_history_path_ : path_;
   bool bookmark_file_exists = file_util::PathExists(path);
   Value* root = NULL;
   if (bookmark_file_exists) {

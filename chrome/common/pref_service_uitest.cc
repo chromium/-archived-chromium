@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/values.h"
 #include "chrome/common/chrome_constants.h"
@@ -71,7 +72,8 @@ TEST_F(PreferenceServiceTest, PreservedWindowPlacementIsLoaded) {
 
   ASSERT_TRUE(file_util::PathExists(tmp_pref_file_));
 
-  JSONFileValueSerializer deserializer(tmp_pref_file_);
+  JSONFileValueSerializer deserializer =
+      FilePath::FromWStringHack(tmp_pref_file_);
   scoped_ptr<Value> root(deserializer.Deserialize(NULL));
 
   ASSERT_TRUE(root.get());

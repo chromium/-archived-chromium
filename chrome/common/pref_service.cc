@@ -136,7 +136,7 @@ bool PrefService::LoadPersistentPrefs(const FilePath& file_path) {
   DCHECK(!file_path.empty());
   DCHECK(CalledOnValidThread());
 
-  JSONFileValueSerializer serializer(file_path.ToWStringHack());
+  JSONFileValueSerializer serializer(file_path);
   scoped_ptr<Value> root(serializer.Deserialize(NULL));
   if (!root.get())
     return false;
@@ -152,7 +152,7 @@ bool PrefService::LoadPersistentPrefs(const FilePath& file_path) {
 void PrefService::ReloadPersistentPrefs() {
   DCHECK(CalledOnValidThread());
 
-  JSONFileValueSerializer serializer(pref_filename_.ToWStringHack());
+  JSONFileValueSerializer serializer(pref_filename_);
   scoped_ptr<Value> root(serializer.Deserialize(NULL));
   if (!root.get())
     return;

@@ -15,7 +15,7 @@ namespace {
       std::string *error) {
     Value* value;
 
-    JSONFileValueSerializer serializer(path.ToWStringHack());
+    JSONFileValueSerializer serializer(path);
     value = serializer.Deserialize(error);
 
     return static_cast<DictionaryValue*>(value);

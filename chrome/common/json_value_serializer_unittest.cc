@@ -226,7 +226,8 @@ protected:
   virtual void SetUp() {
     // Name a subdirectory of the temp directory.
     ASSERT_TRUE(PathService::Get(base::DIR_TEMP, &test_dir_));
-    file_util::AppendToPath(&test_dir_, L"JSONFileValueSerializerTest");
+    test_dir_ =
+        test_dir_.Append(FILE_PATH_LITERAL("JSONFileValueSerializerTest"));
 
     // Create a fresh, empty copy of this directory.
     file_util::Delete(test_dir_, true);
@@ -239,14 +240,15 @@ protected:
   }
 
   // the path to temporary directory used to contain the test operations
-  std::wstring test_dir_;
+  FilePath test_dir_;
 };
 
 TEST_F(JSONFileValueSerializerTest, Roundtrip) {
-  std::wstring original_file_path;
+  FilePath original_file_path;
   ASSERT_TRUE(
     PathService::Get(chrome::DIR_TEST_DATA, &original_file_path));
-  file_util::AppendToPath(&original_file_path, L"serializer_test.js");
+  original_file_path =
+      original_file_path.Append(FILE_PATH_LITERAL("serializer_test.js"));
 
   ASSERT_TRUE(file_util::PathExists(original_file_path));
 
@@ -277,8 +279,8 @@ TEST_F(JSONFileValueSerializerTest, Roundtrip) {
   ASSERT_EQ(L"hello", string_value);
 
   // Now try writing.
-  std::wstring written_file_path = test_dir_;
-  file_util::AppendToPath(&written_file_path, L"test_output.js");
+  const FilePath written_file_path =
+      test_dir_.Append(FILE_PATH_LITERAL("test_output.js"));
 
   ASSERT_FALSE(file_util::PathExists(written_file_path));
   JSONFileValueSerializer serializer(written_file_path);
@@ -291,10 +293,11 @@ TEST_F(JSONFileValueSerializerTest, Roundtrip) {
 }
 
 TEST_F(JSONFileValueSerializerTest, RoundtripNested) {
-  std::wstring original_file_path;
+  FilePath original_file_path;
   ASSERT_TRUE(
     PathService::Get(chrome::DIR_TEST_DATA, &original_file_path));
-  file_util::AppendToPath(&original_file_path, L"serializer_nested_test.js");
+  original_file_path =
+      original_file_path.Append(FILE_PATH_LITERAL("serializer_nested_test.js"));
 
   ASSERT_TRUE(file_util::PathExists(original_file_path));
 
@@ -304,8 +307,8 @@ TEST_F(JSONFileValueSerializerTest, RoundtripNested) {
   ASSERT_TRUE(root.get());
 
   // Now try writing.
-  std::wstring written_file_path = test_dir_;
-  file_util::AppendToPath(&written_file_path, L"test_output.js");
+  FilePath written_file_path =
+      test_dir_.Append(FILE_PATH_LITERAL("test_output.js"));
 
   ASSERT_FALSE(file_util::PathExists(written_file_path));
   JSONFileValueSerializer serializer(written_file_path);
@@ -318,10 +321,10 @@ TEST_F(JSONFileValueSerializerTest, RoundtripNested) {
 }
 
 TEST_F(JSONFileValueSerializerTest, NoWhitespace) {
-  std::wstring source_file_path;
+  FilePath source_file_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &source_file_path));
-  file_util::AppendToPath(&source_file_path,
-                          L"serializer_test_nowhitespace.js");
+  source_file_path = source_file_path.Append(
+      FILE_PATH_LITERAL("serializer_test_nowhitespace.js"));
   ASSERT_TRUE(file_util::PathExists(source_file_path));
   JSONFileValueSerializer serializer(source_file_path);
   scoped_ptr<Value> root;

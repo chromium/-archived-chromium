@@ -33,7 +33,7 @@ TEST(ExtensionTest, InitFromValueInvalid) {
       .AppendASCII("1")
       .AppendASCII(Extension::kManifestFilename);
 
-  JSONFileValueSerializer serializer(extensions_path.ToWStringHack());
+  JSONFileValueSerializer serializer(extensions_path);
   scoped_ptr<DictionaryValue> valid_value(
       static_cast<DictionaryValue*>(serializer.Deserialize(&error)));
   ASSERT_TRUE(valid_value.get());

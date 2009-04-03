@@ -9,6 +9,7 @@
 
 #include "base/base_switches.h"
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
@@ -598,7 +599,7 @@ int UITest::GetBrowserProcessCount() {
                                &filter);
 }
 
-static DictionaryValue* LoadDictionaryValueFromPath(const std::wstring& path) {
+static DictionaryValue* LoadDictionaryValueFromPath(const FilePath& path) {
   if (path.empty())
     return NULL;
 
@@ -611,7 +612,7 @@ static DictionaryValue* LoadDictionaryValueFromPath(const std::wstring& path) {
 }
 
 DictionaryValue* UITest::GetLocalState() {
-  std::wstring local_state_path;
+  FilePath local_state_path;
   PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
   return LoadDictionaryValueFromPath(local_state_path);
 }
@@ -621,7 +622,7 @@ DictionaryValue* UITest::GetDefaultProfilePreferences() {
   PathService::Get(chrome::DIR_USER_DATA, &path);
   file_util::AppendToPath(&path, chrome::kNotSignedInProfile);
   file_util::AppendToPath(&path, chrome::kPreferencesFilename);
-  return LoadDictionaryValueFromPath(path);
+  return LoadDictionaryValueFromPath(FilePath::FromWStringHack(path));
 }
 #endif  // OS_WIN
 

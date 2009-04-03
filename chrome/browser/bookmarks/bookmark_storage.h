@@ -5,12 +5,12 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_STORAGE_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_STORAGE_H_
 
+#include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
 
 class BookmarkModel;
 class BookmarkStorageBackend;
-class FilePath;
 class Profile;
 class MessageLoop;
 class Value;
@@ -91,10 +91,10 @@ class BookmarkStorageBackend :
 
  private:
   // Path we read/write to.
-  const std::wstring path_;
+  const FilePath path_;
 
   // Path bookmarks are read from if asked to load from history file.
-  const std::wstring tmp_history_path_;
+  const FilePath tmp_history_path_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkStorageBackend);
 };
