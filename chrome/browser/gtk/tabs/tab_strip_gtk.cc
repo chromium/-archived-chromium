@@ -26,7 +26,7 @@ const int kTabHOffset = -16;
 SkBitmap* background = NULL;
 
 inline int Round(double x) {
-  return static_cast<int>(floor(x + 0.5));
+  return static_cast<int>(x + 0.5);
 }
 
 // widget->allocation is not guaranteed to be set.  After window creation,
@@ -430,8 +430,7 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
 
   gfx::Point coord(event->x, event->y);
   // Get a rough estimate for which tab the mouse is over.
-  int index = std::floor(
-      event->x / (tabstrip->current_unselected_width_ + kTabHOffset));
+  int index = event->x / (tabstrip->current_unselected_width_ + kTabHOffset);
 
   if (index >= tabstrip->model_->count()) {
     if (old_hover_index != -1) {
