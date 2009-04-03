@@ -102,7 +102,7 @@ sudo apt-get update
 echo "Finding missing packages..."
 new_list="$(yes n |
             sudo apt-get install --reinstall \
-                         ${pkg_list} ${lib_list} ${dbg_list} \
+                         ${dev_list} ${lib_list} ${dbg_list} \
                          $([ "$(uname -m)" = x86_64 ] && echo ${cmp_list}) \
                          2>/dev/null |
             sed -e 's/^  //;t;d')"
