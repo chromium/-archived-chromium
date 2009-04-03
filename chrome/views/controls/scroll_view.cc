@@ -277,25 +277,42 @@ void ScrollView::ScrollContentsRegionToBeVisible(int x,
     return;
   }
 
+  // Figure out the maximums for this scroll view.
   const int contents_max_x =
       std::max(viewport_->width(), contents_->width());
   const int contents_max_y =
       std::max(viewport_->height(), contents_->height());
+
+  // Make sure x and y are within the bounds of [0,contents_max_*].
   x = std::max(0, std::min(contents_max_x, x));
   y = std::max(0, std::min(contents_max_y, y));
+
+  // Figure out how far and down the rectangle will go taking width
+  // and height into account.  This will be "clipped" by the viewport.
   const int max_x = std::min(contents_max_x,
                              x + std::min(width, viewport_->width()));
   const int max_y = std::min(contents_max_y,
                              y + std::min(height,
                                           viewport_->height()));
+
+  // See if the rect is already visible. Note the width is (max_x - x)
+  // and the height is (max_y - y) to take into account the clipping of
+  // either viewport or the content size.
   const gfx::Rect vis_rect = GetVisibleRect();
-  if (vis_rect.Contains(gfx::Rect(x, y, max_x, max_y)))
+  if (vis_rect.Contains(gfx::Rect(x, y, max_x - x, max_y - y)))
     return;
 
+  // Shift contents_'s X and Y so that the region is visible. If we
+  // need to shift up or left from where we currently are then we need
+  // to get it so that the content appears in the upper/left
+  // corner. This is done by setting the offset to -X or -Y.  For down
+  // or right shifts we need to make sure it appears in the
+  // lower/right corner. This is calculated by taking max_x or max_y
+  // and scaling it back by the size of the viewport.
   const int new_x =
-      (vis_rect.x() < x) ? x : std::max(0, max_x - viewport_->width());
+      (vis_rect.x() > x) ? x : std::max(0, max_x - viewport_->width());
   const int new_y =
-      (vis_rect.y() < y) ? y : std::max(0, max_x - viewport_->height());
+      (vis_rect.y() > y) ? y : std::max(0, max_y - viewport_->height());
 
   contents_->SetX(-new_x);
   contents_->SetY(-new_y);
