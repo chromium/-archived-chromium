@@ -1040,6 +1040,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/V8Collection.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8DOMMap.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8DOMMap.h',
+        '../third_party/WebKit/WebCore/bindings/v8/V8EventListenerList.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/V8EventListenerList.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8LazyEventListener.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8LazyEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8NodeFilterCondition.cpp',
