@@ -1051,6 +1051,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/V8Proxy.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8WorkerContextEventListener.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8WorkerContextEventListener.h',
+        '../third_party/WebKit/WebCore/bindings/v8/V8WorkerContextObjectEventListener.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/V8WorkerContextObjectEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/V8XMLHttpRequestUtilities.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/V8XMLHttpRequestUtilities.h',
         '../third_party/WebKit/WebCore/bindings/v8/WorkerContextExecutionProxy.h',
