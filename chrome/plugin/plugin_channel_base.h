@@ -12,7 +12,7 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
-#include "ipc/ipc_sync_channel.h"
+#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/message_router.h"
 
 // Encapsulates an IPC channel between a renderer and a plugin process.

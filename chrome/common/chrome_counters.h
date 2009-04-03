@@ -15,6 +15,9 @@ namespace chrome {
 
 class Counters {
  public:
+  // The number of messages sent on IPC channels.
+  static StatsCounter& ipc_send_counter();
+
   // The amount of time spent in chrome initialization.
   static StatsCounterTimer& chrome_main();
 

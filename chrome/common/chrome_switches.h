@@ -7,7 +7,7 @@
 #ifndef CHROME_COMMON_CHROME_SWITCHES_H__
 #define CHROME_COMMON_CHROME_SWITCHES_H__
 
-#include "ipc/ipc_switches.h"
+#include "base/base_switches.h"
 
 namespace switches {
 
@@ -23,6 +23,7 @@ extern const wchar_t kPluginStartupDialog[];
 extern const wchar_t kTestShellStartupDialog[];
 extern const wchar_t kPluginLauncher[];
 
+extern const wchar_t kProcessChannelID[];
 extern const wchar_t kTestingChannelID[];
 extern const wchar_t kHomePage[];
 extern const wchar_t kRendererProcess[];
@@ -50,6 +51,7 @@ extern const wchar_t kUserAgent[];
 extern const wchar_t kJavaScriptFlags[];
 extern const wchar_t kCountry[];
 extern const wchar_t kLang[];
+extern const wchar_t kDebugChildren[];
 extern const wchar_t kWaitForDebuggerChildren[];
 
 extern const wchar_t kLogFilterPrefix[];
@@ -147,6 +149,8 @@ extern const wchar_t kTestName[];
 extern const wchar_t kRendererCmdPrefix[];
 
 extern const wchar_t kNewFtp[];
+
+extern const wchar_t kIPCUseFIFO[];
 
 extern const wchar_t kEnableOutOfProcessDevTools[];
 

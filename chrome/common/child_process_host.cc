@@ -11,13 +11,12 @@
 #include "base/singleton.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/chrome_thread.h"
-#include "chrome/common/common_message_utils.h"
+#include "chrome/common/ipc_logging.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/notification_type.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/process_watcher.h"
 #include "chrome/common/result_codes.h"
-#include "ipc/ipc_logging.h"
 
 
 namespace {

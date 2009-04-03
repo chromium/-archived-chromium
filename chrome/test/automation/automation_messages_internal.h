@@ -14,9 +14,9 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "base/string16.h"
+#include "chrome/common/ipc_message_macros.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/test/automation/autocomplete_edit_proxy.h"
-#include "ipc/ipc_message_macros.h"
 #include "googleurl/src/gurl.h"
 
 // NOTE: All IPC messages have either a routing_id of 0 (for asynchronous

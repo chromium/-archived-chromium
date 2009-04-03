@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "base/ref_counted.h"
-#include "ipc/ipc_channel.h"
+#include "chrome/common/ipc_channel.h"
 
 namespace base {
 class WaitableEvent;

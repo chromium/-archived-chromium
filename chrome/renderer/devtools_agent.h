@@ -10,8 +10,8 @@
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
 #include "base/scoped_ptr.h"
+#include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/renderer/devtools_messages.h"
-#include "ipc/ipc_channel_proxy.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 
 class MessageLoop;

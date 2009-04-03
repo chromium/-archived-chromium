@@ -5,7 +5,7 @@
 #include "chrome/worker/webworkerclient_proxy.h"
 
 #include "chrome/common/child_process.h"
-#include "ipc/ipc_logging.h"
+#include "chrome/common/ipc_logging.h"
 #include "chrome/common/worker_messages.h"
 #include "chrome/worker/worker_thread.h"
 #include "webkit/glue/webworker.h"

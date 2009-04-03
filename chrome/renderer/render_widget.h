@@ -13,8 +13,8 @@
 #include "base/gfx/size.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
+#include "chrome/common/ipc_channel.h"
 #include "chrome/renderer/render_process.h"
-#include "ipc/ipc_channel.h"
 #include "skia/ext/platform_canvas.h"
 
 #include "webkit/glue/webwidget_delegate.h"

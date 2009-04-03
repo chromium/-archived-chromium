@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "ipc/ipc_message.h"
+#include "chrome/common/ipc_message.h"
 
 class GURL;
 class WebContents;

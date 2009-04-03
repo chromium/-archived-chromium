@@ -11,10 +11,10 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/ipc_channel.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/test/testing_profile.h"
-#include "ipc/ipc_channel.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 static void InitNavigateParams(ViewHostMsg_FrameNavigate_Params* params,

@@ -16,8 +16,7 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "base/basictypes.h"
-#include "chrome/common/common_message_utils.h"
-#include "ipc/ipc_message_utils.h"
+#include "chrome/common/ipc_message_utils.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/npapi/bindings/npapi.h"
 #include "webkit/glue/npruntime_util.h"
@@ -448,12 +447,8 @@ struct ParamTraits<NPVariant_Param> {
 
 }  // namespace IPC
 
-#if 0
-// This for tools which parse #include lines, but cannot process when we
-// include via a macro name.
-#include "chrome/common/plugin_messages_internal.h"
-#endif
+
 #define MESSAGES_INTERNAL_FILE "chrome/common/plugin_messages_internal.h"
-#include "ipc/ipc_message_macros.h"
+#include "chrome/common/ipc_message_macros.h"
 
 #endif  // CHROME_COMMON_PLUGIN_MESSAGES_H__

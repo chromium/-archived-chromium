@@ -42,7 +42,7 @@
 //
 // This file describes developer tools message types.
 
-#include "ipc/ipc_message_macros.h"
+#include "chrome/common/ipc_message_macros.h"
 
 // These are messages sent from DevToolsAgent to DevToolsClient through the
 // browser.

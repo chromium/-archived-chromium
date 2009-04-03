@@ -3,10 +3,10 @@
 // found in the LICENSE file.
 
 #include "base/waitable_event.h"
+#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/render_thread.h"
-#include "ipc/ipc_sync_channel.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {

@@ -884,6 +884,26 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\common\ipc_message_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\ipc_sync_channel_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\ipc_sync_channel_unittest.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\ipc_sync_message_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\ipc_sync_message_unittest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\common\json_value_serializer_unittest.cc"
 				>
 			</File>

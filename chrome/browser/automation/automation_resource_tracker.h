@@ -8,8 +8,8 @@
 #include <map>
 
 #include "base/basictypes.h"
+#include "chrome/common/ipc_message.h"
 #include "chrome/common/notification_service.h"
-#include "ipc/ipc_message.h"
 
 // Template trick so that AutomationResourceTracker can be used with non-pointer
 // types.

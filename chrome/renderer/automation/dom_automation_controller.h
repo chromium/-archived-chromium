@@ -5,7 +5,7 @@
 #ifndef CHROME_RENDERER_AUTOMATION_DOM_AUTOMATION_CONTROLLER_H__
 #define CHROME_RENDERER_AUTOMATION_DOM_AUTOMATION_CONTROLLER_H__
 
-#include "ipc/ipc_message.h"
+#include "chrome/common/ipc_message.h"
 #include "webkit/glue/cpp_bound_class.h"
 
 /* DomAutomationController class:

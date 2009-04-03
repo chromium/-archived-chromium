@@ -14,7 +14,7 @@
 #include "base/waitable_event_watcher.h"
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/common/child_process_info.h"
-#include "ipc/ipc_channel.h"
+#include "chrome/common/ipc_channel.h"
 
 class NotificationType;
 

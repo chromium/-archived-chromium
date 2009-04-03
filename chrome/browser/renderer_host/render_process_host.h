@@ -10,8 +10,8 @@
 #include "base/id_map.h"
 #include "base/process.h"
 #include "base/scoped_ptr.h"
+#include "chrome/common/ipc_sync_channel.h"
 #include "chrome/common/transport_dib.h"
-#include "ipc/ipc_sync_channel.h"
 
 class Profile;
 

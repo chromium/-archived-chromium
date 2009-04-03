@@ -5,8 +5,8 @@
 #ifndef CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
 #define CHROME_RENDERER_EXTERNAL_HOST_BINDINGS_H_
 
+#include "chrome/common/ipc_message.h"
 #include "chrome/renderer/dom_ui_bindings.h"
-#include "ipc/ipc_message.h"
 
 // ExternalHostBindings is the class backing the "externalHost" object
 // accessible from Javascript

@@ -24,7 +24,7 @@
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/filter_policy.h"
-#include "ipc/ipc_message.h"
+#include "chrome/common/ipc_message.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_type.h"
 
