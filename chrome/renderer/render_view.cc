@@ -2950,11 +2950,13 @@ void RenderView::StartAudioStream(int stream_id) {
 
 void RenderView::CloseAudioStream(int stream_id) {
   DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
-  // Remove the entry from the map and send a close message to browser process,
-  // we won't be getting anything back from browser even if there's an error.
-  audio_renderers_.Remove(stream_id);
-  Send(new ViewHostMsg_CloseAudioStream(routing_id_, stream_id));
+  if (audio_renderers_.Lookup(stream_id) != NULL) {
+    // Remove the entry from the map and send a close message to browser
+    // process, we won't be getting anything back from browser even if there's
+    // an error.
+    audio_renderers_.Remove(stream_id);
+    Send(new ViewHostMsg_CloseAudioStream(routing_id_, stream_id));
+  }
 }
 
 void RenderView::NotifyAudioPacketReady(int stream_id, size_t size) {
