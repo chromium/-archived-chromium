@@ -466,6 +466,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\devtools_messages.h"
+			>
+		</File>
+		<File
+			RelativePath=".\devtools_messages_internal.h"
+			>
+		</File>
+		<File
 			RelativePath=".\drag_drop_types.cc"
 			>
 		</File>

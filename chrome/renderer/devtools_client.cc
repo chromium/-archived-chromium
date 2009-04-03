@@ -4,8 +4,8 @@
 
 #include "chrome/renderer/devtools_client.h"
 
+#include "chrome/common/devtools_messages.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/renderer/devtools_messages.h"
 #include "chrome/renderer/render_thread.h"
 #include "chrome/renderer/render_view.h"
 #include "webkit/glue/webdevtoolsclient.h"

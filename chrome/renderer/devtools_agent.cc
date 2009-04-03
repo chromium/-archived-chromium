@@ -16,8 +16,8 @@
 #include "chrome/renderer/devtools_agent.h"
 
 #include "base/message_loop.h"
+#include "chrome/common/devtools_messages.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/renderer/devtools_messages.h"
 // TODO(yurys): remove this macros once plugins available on other platforms
 #if defined(OS_WIN)
 #include "chrome/renderer/plugin_channel_host.h"

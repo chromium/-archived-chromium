@@ -8,7 +8,6 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
-#include "chrome/renderer/devtools_messages.h"
 #include "webkit/glue/webdevtoolsclient_delegate.h"
 
 namespace IPC {

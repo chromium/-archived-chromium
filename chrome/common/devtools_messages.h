@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_RENDERER_DEVTOOLS_MESSAGES_H_
-#define CHROME_RENDERER_DEVTOOLS_MESSAGES_H_
+#ifndef CHROME_COMMON_DEVTOOLS_MESSAGES_H_
+#define CHROME_COMMON_DEVTOOLS_MESSAGES_H_
 
-#define MESSAGES_INTERNAL_FILE "chrome/renderer/devtools_messages_internal.h"
+#define MESSAGES_INTERNAL_FILE "chrome/common/devtools_messages_internal.h"
 #include "chrome/common/ipc_message_macros.h"
 
-#endif  // CHROME_RENDERER_DEVTOOLS_MESSAGES_H_
+#endif  // CHROME_COMMON_DEVTOOLS_MESSAGES_H_

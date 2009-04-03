@@ -9,9 +9,9 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/devtools_messages.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_type.h"
-#include "chrome/renderer/devtools_messages.h"
 
 DevToolsManager::DevToolsManager() : web_contents_listeners_(NULL) {
 }
