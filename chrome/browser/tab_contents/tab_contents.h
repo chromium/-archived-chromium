@@ -13,13 +13,8 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
-#if defined(OS_WIN)
-// TODO(evanm): I mean really, c'mon, this can't have broken the build, right?
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/tab_contents/constrained_window.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/page_navigator.h"

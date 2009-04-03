@@ -9,6 +9,7 @@
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/url_constants.h"
@@ -16,7 +17,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): port these headers to posix.
-#include "chrome/browser/tab_contents/tab_contents.h"
 #elif defined(OS_POSIX)
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif

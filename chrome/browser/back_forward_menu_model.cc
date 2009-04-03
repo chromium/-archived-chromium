@@ -10,17 +10,11 @@
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
 #include "net/base/registry_controlled_domain.h"
-
-#if defined(OS_WIN)
-// TODO(port): port these headers and remove the platform defines.
-#include "chrome/browser/tab_contents/tab_contents.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 const int BackForwardMenuModel::kMaxHistoryItems = 12;
 const int BackForwardMenuModel::kMaxChapterStops = 5;

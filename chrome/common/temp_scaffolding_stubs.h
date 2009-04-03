@@ -59,7 +59,6 @@
 class BookmarkContextMenu;
 class Browser;
 class CommandLine;
-class ConstrainedWindow;
 class CPCommandInterface;
 class DOMUIHost;
 class DownloadItem;
@@ -532,16 +531,6 @@ class HungRendererWarning {
  public:
   static void HideForWebContents(WebContents*) { NOTIMPLEMENTED(); }
   static void ShowForWebContents(WebContents*) { NOTIMPLEMENTED(); }
-};
-
-class ConstrainedWindow {
- public:
-  bool WasHidden() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void DidBecomeSelected() { NOTIMPLEMENTED(); }
-  void CloseConstrainedWindow() { NOTIMPLEMENTED(); }
 };
 
 class ModalHtmlDialogDelegate : public HtmlDialogUIDelegate {

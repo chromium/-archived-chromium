@@ -7,6 +7,7 @@
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
 
+#include "base/string_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"

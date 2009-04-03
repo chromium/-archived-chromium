@@ -5,6 +5,7 @@
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 
 #include "chrome/browser/browser.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"

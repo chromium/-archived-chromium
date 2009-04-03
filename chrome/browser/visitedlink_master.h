@@ -15,12 +15,7 @@
 #include "base/file_path.h"
 #include "base/ref_counted.h"
 #include "base/shared_memory.h"
-#if defined(OS_WIN)
 #include "chrome/browser/history/history.h"
-#else
-// TODO(port): remove scaffolding, use history.h for both POSIX and WIN.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif  // !defined(OS_WIN)
 #include "chrome/common/visitedlink_common.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 
