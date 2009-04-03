@@ -72,8 +72,7 @@ class SafeBrowsingService
 
   // Initializes the service.  io_loop is the message loop that the
   // caller of this service (ResourceDispatcherHost) wants to be notified on
-  // for check results.  db_loop is the message loop for the thread to do
-  // the database work.
+  // for check results.
   void Initialize(MessageLoop* io_loop);
 
   // Called to initialize objects that are used on the io_thread.

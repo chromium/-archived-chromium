@@ -174,6 +174,7 @@ void InterstitialPage::Show() {
 
   DCHECK(!render_view_host_);
   render_view_host_ = CreateRenderViewHost();
+  CreateWebContentsView();
 
   std::string data_url = "data:text/html;charset=utf-8," +
                          EscapePath(GetHTMLContents());
@@ -253,16 +254,20 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
   RenderViewHost* render_view_host = new RenderViewHost(
       SiteInstance::CreateSiteInstance(tab()->profile()),
       this, MSG_ROUTING_NONE, NULL);
+  return render_view_host;
+}
+
+WebContentsView* InterstitialPage::CreateWebContentsView() {
   WebContentsView* web_contents_view = tab()->view();
   RenderWidgetHostView* view =
-      web_contents_view->CreateViewForWidget(render_view_host);
-  render_view_host->set_view(view);
-  render_view_host->AllowDomAutomationBindings();
-  render_view_host->CreateRenderView();
+      web_contents_view->CreateViewForWidget(render_view_host_);
+  render_view_host_->set_view(view);
+  render_view_host_->AllowDomAutomationBindings();
+  render_view_host_->CreateRenderView();
   view->SetSize(web_contents_view->GetContainerSize());
   // Don't show the interstitial until we have navigated to it.
   view->Hide();
-  return render_view_host;
+  return web_contents_view;
 }
 
 void InterstitialPage::Proceed() {

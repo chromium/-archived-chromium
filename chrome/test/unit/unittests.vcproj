@@ -628,6 +628,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\safe_browsing\safe_browsing_blocking_page_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\safe_browsing\safe_browsing_database_unittest.cc"
 				>
 			</File>

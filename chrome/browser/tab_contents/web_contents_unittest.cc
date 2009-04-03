@@ -150,6 +150,9 @@ class TestInterstitialPage : public InterstitialPage {
         this, MSG_ROUTING_NONE, NULL);
   }
 
+  virtual WebContentsView* CreateWebContentsView() { return NULL; }
+
+
   virtual void CommandReceived(const std::string& command) {
     command_received_count_++;
   }

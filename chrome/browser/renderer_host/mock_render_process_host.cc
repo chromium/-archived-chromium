@@ -7,6 +7,8 @@
 MockRenderProcessHost::MockRenderProcessHost(Profile* profile)
     : RenderProcessHost(profile),
       transport_dib_(NULL) {
+  static int prev_pid = 0;
+  SetProcessID(++prev_pid);
 }
 
 MockRenderProcessHost::~MockRenderProcessHost() {

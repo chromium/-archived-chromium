@@ -49,6 +49,30 @@ static const char* const kLearnMoreCommand = "learnMore";
 static const char* const kProceedCommand = "proceed";
 static const char* const kTakeMeBackCommand = "takeMeBack";
 
+// static
+SafeBrowsingBlockingPageFactory* SafeBrowsingBlockingPage::factory_ = NULL;
+
+// The default SafeBrowsingBlockingPageFactory.  Global, made a singleton so we
+// don't leak it.
+class SafeBrowsingBlockingPageFactoryImpl
+    : public SafeBrowsingBlockingPageFactory {
+ public:
+  SafeBrowsingBlockingPage* CreateSafeBrowsingPage(
+      SafeBrowsingService* service,
+      WebContents* web_contents,
+      const SafeBrowsingBlockingPage::UnsafeResourceList& unsafe_resources) {
+    return new SafeBrowsingBlockingPage(service, web_contents,
+                                        unsafe_resources);
+  }
+
+ private:
+  friend struct DefaultSingletonTraits<SafeBrowsingBlockingPageFactoryImpl>;
+
+  SafeBrowsingBlockingPageFactoryImpl() { }
+
+  DISALLOW_COPY_AND_ASSIGN(SafeBrowsingBlockingPageFactoryImpl);
+};
+
 SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
     SafeBrowsingService* sb_service,
     WebContents* web_contents,
@@ -349,8 +373,8 @@ void SafeBrowsingBlockingPage::Proceed() {
     // Build an interstitial for all the unsafe resources notifications.
     // Don't show it now as showing an interstitial while an interstitial is
     // already showing would cause DontProceed() to be invoked.
-    blocking_page = new SafeBrowsingBlockingPage(sb_service_, tab(),
-                                                 iter->second);
+    blocking_page = factory_->CreateSafeBrowsingPage(sb_service_, tab(),
+                                                     iter->second);
     unsafe_resource_map->erase(iter);
   }
 
@@ -391,11 +415,13 @@ void SafeBrowsingBlockingPage::NotifySafeBrowsingService(
     SafeBrowsingService* sb_service,
     const UnsafeResourceList& unsafe_resources,
     bool proceed) {
-  base::Thread* io_thread = g_browser_process->io_thread();
-  if (!io_thread)
-    return;
+  MessageLoop* message_loop;
+  if (g_browser_process->io_thread())
+    message_loop = g_browser_process->io_thread()->message_loop();
+  else  // For unit-tests, just post on the current thread.
+    message_loop = MessageLoop::current();
 
-  io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+  message_loop->PostTask(FROM_HERE, NewRunnableMethod(
       sb_service, &SafeBrowsingService::OnBlockingPageDone, unsafe_resources,
       proceed));
 }
@@ -418,8 +444,12 @@ void SafeBrowsingBlockingPage::ShowBlockingPage(
     // show this interstitial.
     std::vector<SafeBrowsingService::UnsafeResource> resources;
     resources.push_back(unsafe_resource);
+    // Set up the factory if this has not been done already (tests do that
+    // before this method is called).
+    if (!factory_)
+      factory_ = Singleton<SafeBrowsingBlockingPageFactoryImpl>::get();
     SafeBrowsingBlockingPage* blocking_page =
-        new SafeBrowsingBlockingPage(sb_service, web_contents, resources);
+        factory_->CreateSafeBrowsingPage(sb_service, web_contents, resources);
     blocking_page->Show();
     return;
   }

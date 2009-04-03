@@ -264,12 +264,14 @@ void SafeBrowsingService::DoDisplayBlockingPage(
   if (!wc) {
     // The tab is gone and we did not have a chance at showing the interstitial.
     // Just act as "Don't Proceed" was chosen.
-    base::Thread* io_thread = g_browser_process->io_thread();
-    if (!io_thread)
-      return;
     std::vector<UnsafeResource> resources;
     resources.push_back(resource);
-    io_thread->message_loop()->PostTask(FROM_HERE, NewRunnableMethod(
+    MessageLoop* message_loop;
+    if (g_browser_process->io_thread())
+      message_loop = g_browser_process->io_thread()->message_loop();
+    else  // For unit-tests, just post on the current thread.
+      message_loop = MessageLoop::current();
+    message_loop->PostTask(FROM_HERE, NewRunnableMethod(
         this, &SafeBrowsingService::OnBlockingPageDone, resources, false));
     return;
   }

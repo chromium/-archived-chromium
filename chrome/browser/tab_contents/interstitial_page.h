@@ -16,6 +16,7 @@
 class MessageLoop;
 class NavigationEntry;
 class WebContents;
+class WebContentsView;
 
 // This class is a base class for interstitial pages, pages that show some
 // informative message asking for user validation before reaching the target
@@ -111,9 +112,13 @@ class InterstitialPage : public NotificationObserver,
   const GURL& url() const { return url_; }
   RenderViewHost* render_view_host() const { return render_view_host_; }
 
-  // Creates and shows the RenderViewHost containing the interstitial content.
+  // Creates the RenderViewHost containing the interstitial content.
   // Overriden in unit tests.
   virtual RenderViewHost* CreateRenderViewHost();
+
+  // Creates the WebContentsView that shows the interstitial RVH.
+  // Overriden in unit tests.
+  virtual WebContentsView* CreateWebContentsView();
 
  private:
   // AutomationProvider needs access to Proceed and DontProceed to simulate

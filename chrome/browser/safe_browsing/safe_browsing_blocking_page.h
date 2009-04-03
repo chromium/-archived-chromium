@@ -38,8 +38,8 @@
 class DictionaryValue;
 class MessageLoop;
 class NavigationController;
+class SafeBrowsingBlockingPageFactory;
 class WebContents;
-
 
 class SafeBrowsingBlockingPage : public InterstitialPage {
  public:
@@ -54,23 +54,29 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
       SafeBrowsingService* service,
       const SafeBrowsingService::UnsafeResource& resource);
 
+  // Makes the passed |factory| the factory used to instanciate
+  // SafeBrowsingBlockingPage objects. Usefull for tests.
+  static void RegisterFactory(SafeBrowsingBlockingPageFactory* factory) {
+    factory_ = factory;
+  }
+
   // InterstitialPage method:
   virtual std::string GetHTMLContents();
   virtual void Proceed();
   virtual void DontProceed();
 
+  typedef std::vector<SafeBrowsingService::UnsafeResource> UnsafeResourceList;
+
  protected:
   // InterstitialPage method:
   virtual void CommandReceived(const std::string& command);
-
- private:
-  typedef std::vector<SafeBrowsingService::UnsafeResource> UnsafeResourceList;
 
   // Don't instanciate this class directly, use ShowBlockingPage instead.
   SafeBrowsingBlockingPage(SafeBrowsingService* service,
                            WebContents* web_contents,
                            const UnsafeResourceList& unsafe_resources);
 
+ private:
   // Fills the passed dictionary with the strings passed to JS Template when
   // creating the HTML.
   void PopulateMultipleThreatStringDictionary(DictionaryValue* strings);
@@ -103,6 +109,8 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
   static bool IsMainPage(const UnsafeResourceList& unsafe_resources);
 
  private:
+  friend class SafeBrowsingBlockingPageFactoryImpl;
+
   // For reporting back user actions.
   SafeBrowsingService* sb_service_;
   MessageLoop* report_loop_;
@@ -117,7 +125,23 @@ class SafeBrowsingBlockingPage : public InterstitialPage {
   // The list of unsafe resources this page is warning about.
   UnsafeResourceList unsafe_resources_;
 
+  // The factory used to instanciate SafeBrowsingBlockingPage objects.
+  // Usefull for tests, so they can provide their own implementation of
+  // SafeBrowsingBlockingPage.
+  static SafeBrowsingBlockingPageFactory* factory_;
+
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingBlockingPage);
+};
+
+// Factory for creating SafeBrowsingBlockingPage.  Useful for tests.
+class SafeBrowsingBlockingPageFactory {
+ public:
+  ~SafeBrowsingBlockingPageFactory() { }
+
+  virtual SafeBrowsingBlockingPage* CreateSafeBrowsingPage(
+      SafeBrowsingService* service,
+      WebContents* web_contents,
+      const SafeBrowsingBlockingPage::UnsafeResourceList& unsafe_resources) = 0;
 };
 
 #endif  // CHROME_BROWSER_SAFE_BROWSING_SAFE_BROWSING_BLOCKING_PAGE_H_
