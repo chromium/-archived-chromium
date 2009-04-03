@@ -2334,13 +2334,15 @@ WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FA
 WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
-LINUX : LayoutTests/fast/events/context-no-deselect.html = FAIL
+LayoutTests/fast/events/context-no-deselect.html = FAIL
+WIN MAC : LayoutTests/fast/forms/select-initial-position.html = FAIL
 LayoutTests/fast/js/regexp-overflow.html = FAIL
-LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
-LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
-LINUX : LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
-LINUX : LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
-LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-LINUX : LayoutTests/security/block-test-no-port.html = FAIL
-LINUX : LayoutTests/fast/js/regexp-overflow-too-big.html = TIMEOUT
-LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
+LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
+LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
+LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
+LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
+WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
+LayoutTests/security/block-test-no-port.html = FAIL
+WIN : LayoutTests/security/block-test.html = FAIL
+LayoutTests/fast/js/regexp-overflow-too-big.html = TIMEOUT
+LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
