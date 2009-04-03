@@ -13,6 +13,7 @@
 #include <string>
 
 #include "base/logging.h"
+#include "base/pickle.h"
 #include "base/string_util.h"
 
 using base::TimeDelta;

@@ -9,10 +9,11 @@
 #include <string>
 
 #include "base/file_path.h"
-#include "base/pickle.h"
 #include "base/string_piece.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "googleurl/src/gurl.h"
+
+class Pickle;
 
 // Represents a user script, either a standalone one, or one that is part of an
 // extension.

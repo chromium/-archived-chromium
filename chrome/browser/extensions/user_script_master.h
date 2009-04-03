@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_MASTER_H_
 #define CHROME_BROWSER_EXTENSIONS_USER_SCRIPT_MASTER_H_
 
+#include <vector>
+
 #include "base/directory_watcher.h"
 #include "base/file_path.h"
 #include "base/message_loop.h"
@@ -14,6 +16,7 @@
 #include "base/string_piece.h"
 #include "chrome/common/extensions/user_script.h"
 #include "googleurl/src/gurl.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 // Manages a segment of shared memory that contains the user scripts the user
 // has installed.  Lives on the UI thread.
@@ -77,8 +80,8 @@ class UserScriptMaster : public base::RefCounted<UserScriptMaster>,
     static void LoadScriptsFromDirectory(const FilePath script_dir,
                                          UserScriptList* result);
 
-    ScriptReloader(UserScriptMaster* master)
-         : master_(master), master_message_loop_(MessageLoop::current()) {}
+    explicit ScriptReloader(UserScriptMaster* master)
+        : master_(master), master_message_loop_(MessageLoop::current()) {}
 
     // Start a scan for scripts.
     // Will always send a message to the master upon completion.

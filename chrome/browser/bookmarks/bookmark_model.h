@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
-#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
+#ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_MODEL_H_
+#define CHROME_BROWSER_BOOKMARKS_BOOKMARK_MODEL_H_
 
 #include "build/build_config.h"
+
+#include <set>
+#include <vector>
 
 #include "base/lock.h"
 #include "base/observer_list.h"
@@ -19,6 +22,7 @@
 #include "chrome/views/controls/tree/tree_node_model.h"
 #include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class BookmarkEditorView;
 class BookmarkModel;
@@ -413,7 +417,7 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   // urls.
   // WARNING: nodes_ordered_by_url_set_ is accessed on multiple threads. As
   // such, be sure and wrap all usage of it around url_lock_.
-  typedef std::multiset<BookmarkNode*,NodeURLComparator> NodesOrderedByURLSet;
+  typedef std::multiset<BookmarkNode*, NodeURLComparator> NodesOrderedByURLSet;
   NodesOrderedByURLSet nodes_ordered_by_url_set_;
   Lock url_lock_;
 
@@ -433,4 +437,4 @@ class BookmarkModel : public NotificationObserver, public BookmarkService {
   DISALLOW_COPY_AND_ASSIGN(BookmarkModel);
 };
 
-#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_BAR_MODEL_H_
+#endif  // CHROME_BROWSER_BOOKMARKS_BOOKMARK_MODEL_H_

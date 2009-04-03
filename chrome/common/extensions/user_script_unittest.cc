@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/file_path.h"
+#include "base/pickle.h"
 #include "chrome/common/extensions/user_script.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"

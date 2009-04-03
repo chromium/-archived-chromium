@@ -17,7 +17,6 @@ MSVC_POP_WARNING();
 
 #undef LOG
 
-#include "base/pickle.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/glue_serialize.h"
 

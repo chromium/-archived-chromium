@@ -4,6 +4,7 @@
 
 #include "chrome/common/extensions/user_script.h"
 
+#include "base/pickle.h"
 #include "base/string_util.h"
 
 bool UserScript::MatchesUrl(const GURL& url) {

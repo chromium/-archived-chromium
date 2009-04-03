@@ -28,15 +28,14 @@
 // at the low end of the histogram scale, but allows the histogram to cover a
 // gigantic range with the addition of very few buckets.
 
-#ifndef BASE_HISTOGRAM_H__
-#define BASE_HISTOGRAM_H__
+#ifndef BASE_HISTOGRAM_H_
+#define BASE_HISTOGRAM_H_
 
 #include <map>
 #include <string>
 #include <vector>
 
 #include "base/lock.h"
-#include "base/pickle.h"
 #include "base/stats_counters.h"
 
 //------------------------------------------------------------------------------
@@ -201,6 +200,8 @@ static const int kRendererHistogramFlag = 1 << 4;
   } while (0)
 
 //------------------------------------------------------------------------------
+
+class Pickle;
 
 class Histogram : public StatsRate {
  public:
@@ -551,4 +552,4 @@ class StatisticsRecorder {
   DISALLOW_COPY_AND_ASSIGN(StatisticsRecorder);
 };
 
-#endif  // BASE_HISTOGRAM_H__
+#endif  // BASE_HISTOGRAM_H_

@@ -5,9 +5,12 @@
 #ifndef CHROME_BROWSER_GOOGLE_URL_TRACKER_H_
 #define CHROME_BROWSER_GOOGLE_URL_TRACKER_H_
 
+#include <string>
+
 #include "chrome/browser/net/url_fetcher.h"
 #include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class PrefService;
 
