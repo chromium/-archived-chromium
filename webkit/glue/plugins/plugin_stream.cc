@@ -228,7 +228,8 @@ bool PluginStream::Close(NPReason reason) {
     // Also, allow the plugin to access it now.
     if (TempFileIsValid()) {
       CloseTempFile();
-      WriteAsFile();
+      if (reason == NPRES_DONE)
+        WriteAsFile();
     }
 
     if (stream_.ndata != NULL) {
