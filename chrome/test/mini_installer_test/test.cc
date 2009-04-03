@@ -32,7 +32,7 @@ class MiniInstallTest : public testing::Test {
   };
 };
 
-TEST_F(MiniInstallTest, DISABLED_FullInstallerTest) {
+TEST_F(MiniInstallTest, FullInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.InstallFullInstaller();
 }
@@ -53,18 +53,16 @@ TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
   installer.OverInstall();
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall);
-    installer.InstallMiniInstaller(false,
-        mini_installer_constants::kChromeMiniInstallerExecutable);
+    installer.Install();
   }
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
-  installer.InstallMiniInstaller(false,
-      mini_installer_constants::kChromeMiniInstallerExecutable);
+  installer.Install();
 }
 
 TEST(InstallUtilTests, MiniInstallTestValidWindowsVersion) {

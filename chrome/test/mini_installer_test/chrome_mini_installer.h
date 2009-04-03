@@ -50,6 +50,9 @@ class ChromeMiniInstaller {
   // then over installs with diff installer.
   void InstallDifferentialInstaller();
 
+  // Installs chrome.
+  void Install();
+
   // Installs the latest full installer.
   void InstallFullInstaller();
 
