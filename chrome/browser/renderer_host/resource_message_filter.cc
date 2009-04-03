@@ -173,8 +173,11 @@ void ResourceMessageFilter::OnFilterAdded(IPC::Channel* channel) {
 // Called on the IPC thread:
 void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   DCHECK(!handle());
-  set_handle(base::OpenProcessHandle(peer_pid));
-  DCHECK(handle());
+  base::ProcessHandle peer_handle;
+  if (!base::OpenProcessHandle(peer_pid, &peer_handle)) {
+    NOTREACHED();
+  }
+  set_handle(peer_handle);
   // Hook AudioRendererHost to this object after channel is connected so it can
   // this object for sending messages.
   audio_renderer_host_->IPCChannelConnected(this);

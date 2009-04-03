@@ -33,8 +33,15 @@ ProcessHandle GetCurrentProcessHandle() {
   return ::GetCurrentProcess();
 }
 
-ProcessHandle OpenProcessHandle(ProcessId pid) {
-  return OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE, FALSE, pid);
+bool OpenProcessHandle(ProcessId pid, ProcessHandle* handle) {
+  ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE,
+                                     FALSE, pid);
+
+  if (result == INVALID_HANDLE_VALUE)
+    return false;
+
+  *handle = result;
+  return true;
 }
 
 void CloseProcessHandle(ProcessHandle process) {

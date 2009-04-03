@@ -92,7 +92,8 @@ TEST_F(MetricsServiceTest, CrashRenderers) {
   int process_id = 0;
   ASSERT_TRUE(tab->GetProcessID(&process_id));
   ASSERT_NE(0, process_id);
-  base::ProcessHandle process_handle = base::OpenProcessHandle(process_id);
+  base::ProcessHandle process_handle;
+  ASSERT_TRUE(base::OpenProcessHandle(process_id, &process_handle));
   // Fake Access Violation.
   base::KillProcess(process_handle, 0xc0000005, true);
   base::CloseProcessHandle(process_handle);

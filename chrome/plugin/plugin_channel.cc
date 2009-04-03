@@ -100,7 +100,11 @@ int PluginChannel::GenerateRouteID() {
 }
 
 void PluginChannel::OnChannelConnected(int32 peer_pid) {
-  renderer_handle_.Set(base::OpenProcessHandle(peer_pid));
+  base::ProcessHandle handle;
+  if (!base::OpenProcessHandle(peer_pid, &handle)) {
+    NOTREACHED();
+  }
+  renderer_handle_.Set(handle);
   PluginChannelBase::OnChannelConnected(peer_pid);
 }
 
