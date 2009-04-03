@@ -247,7 +247,6 @@ WONTFIX : LayoutTests/http/tests/history/redirect-js-location-replace-0-seconds.
 WONTFIX : LayoutTests/http/tests/history/redirect-js-location-replace-2-seconds.html = FAIL
 WONTFIX : LayoutTests/http/tests/history/redirect-js-location-replace-before-load.html = FAIL
 WONTFIX : LayoutTests/http/tests/history/redirect-meta-refresh-0-seconds.html = FAIL
-WONTFIX : LayoutTests/http/tests/history/redirect-js-form-submit-before-load.html = FAIL
 
 // This test expects weird behavior of __defineGetter__ on the
 // window object.  It expects variables introduced with 'var x = value'
@@ -1042,10 +1041,6 @@ LayoutTests/http/tests/misc/acid3.html = FAIL TIMEOUT
 
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
-DEFER : LayoutTests/http/tests/security/xss-DENIED-synchronous-form.html = FAIL
-
-// Expectations for this test changed upstream. We should fix this test, but
-// it doesn't need to block the current release
 DEFER : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-no-content-length-onProgress.html = FAIL
 
 // Times out because this uses dom storage which we don't implement.
@@ -1694,7 +1689,7 @@ BUG4360 DEFER SKIP : LayoutTests/http/tests/navigation/post-goback-repost-policy
 // Probably just needs to be rebaselined.  We generate the png before the
 // image in the iframe loads so its dimensions are 0x0.
 // TODO(tc): Failing on buildbots
-DEFER : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL
 
 // Missing expected results.  Probably going to fail anyway, since
 // chromium does not support webarchive format.
@@ -2128,7 +2123,6 @@ LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 // These don't look like merge regressions, but started occurring after the 41768:41807 merge.
 MAC : LayoutTests/css1/text_properties/text_transform.html = FAIL
 MAC : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
-MAC : LayoutTests/fast/text/international/bidi-AN-after-L.html = FAIL
 MAC : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
 MAC : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
 MAC : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
@@ -2248,11 +2242,11 @@ LINUX MAC : LayoutTests/fast/repaint/search-field-cancel.html = FAIL
 LINUX MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 
 // Merge WebKit: 41999:42026, new tests.
-DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
-DEFER WIN MAC LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
+DEFER WIN LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
+DEFER WIN LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
 
 // Merge WebKit: 41999:42026, needs a rebaseline.
-DEFER MAC LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
+DEFER LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
 
@@ -2265,9 +2259,9 @@ WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.h
 WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT CRASH
 
 // Merge WebKit: 42026:42115 new tests
-DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
-DEFER : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
+DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
 // Merge WebKit: 42116:42132 regressions
 
@@ -2290,10 +2284,10 @@ WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
 LayoutTests/fast/events/context-no-deselect.html = FAIL
-WIN MAC : LayoutTests/fast/forms/select-initial-position.html = FAIL
-LayoutTests/fast/js/regexp-overflow.html = FAIL
-LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
-LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
+WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
+LayoutTests/fast/js/regexp-overflow.html = FAIL TIMEOUT
+WIN LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
+WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
 LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
 LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
