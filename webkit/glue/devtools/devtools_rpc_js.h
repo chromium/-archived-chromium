@@ -71,14 +71,14 @@ struct RpcJsTypeTrait<std::string> {
 
 #define TOOLS_RPC_JS_STUB_METHOD0(Method) \
   void Js##Method(const CppArgumentList& args, CppVariant* result) { \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method); \
+    InvokeAsync(class_name, #Method); \
     result->SetNull(); \
   }
 
 #define TOOLS_RPC_JS_STUB_METHOD1(Method, T1) \
   void Js##Method(const CppArgumentList& args, CppVariant* result) { \
     T1 t1 = RpcJsTypeTrait<T1>::Pass(args[0]); \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1); \
+    InvokeAsync(class_name, #Method, &t1); \
     result->SetNull(); \
   }
 
@@ -86,7 +86,7 @@ struct RpcJsTypeTrait<std::string> {
   void Js##Method(const CppArgumentList& args, CppVariant* result) { \
     T1 t1 = RpcJsTypeTrait<T1>::Pass(args[0]); \
     T2 t2 = RpcJsTypeTrait<T2>::Pass(args[1]); \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2); \
+    InvokeAsync(class_name, #Method, &t1, &t2); \
     result->SetNull(); \
   }
 
@@ -95,8 +95,7 @@ struct RpcJsTypeTrait<std::string> {
     T1 t1 = RpcJsTypeTrait<T1>::Pass(args[0]); \
     T2 t2 = RpcJsTypeTrait<T2>::Pass(args[1]); \
     T3 t3 = RpcJsTypeTrait<T3>::Pass(args[2]); \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
-        &t3); \
+    InvokeAsync(class_name, #Method, &t1, &t2, &t3); \
     result->SetNull(); \
   }
 
@@ -106,8 +105,7 @@ struct RpcJsTypeTrait<std::string> {
     T2 t2 = RpcJsTypeTrait<T2>::Pass(args[1]); \
     T3 t3 = RpcJsTypeTrait<T3>::Pass(args[2]); \
     T4 t4 = RpcJsTypeTrait<T4>::Pass(args[3]); \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
-        &t3, &t4); \
+    InvokeAsync(class_name, #Method, &t1, &t2, &t3, &t4); \
     result->SetNull(); \
   }
 
@@ -115,13 +113,13 @@ struct RpcJsTypeTrait<std::string> {
 // JS RPC dispatch method implementations
 
 #define TOOLS_RPC_JS_DISPATCH0(Method) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   *expr = StringPrintf("%s.%s()", js_obj.c_str(), #Method); \
   return true; \
 }
 
 #define TOOLS_RPC_JS_DISPATCH1(Method, T1) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   Value* t1; \
   message.Get(2, &t1); \
   *expr = StringPrintf("%s.%s(%s)", js_obj.c_str(), #Method, \
@@ -130,7 +128,7 @@ case CLASS::METHOD_##Method: { \
 }
 
 #define TOOLS_RPC_JS_DISPATCH2(Method, T1, T2) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   Value* t1; \
   Value* t2; \
   message.Get(2, &t1); \
@@ -142,7 +140,7 @@ case CLASS::METHOD_##Method: { \
 }
 
 #define TOOLS_RPC_JS_DISPATCH3(Method, T1, T2, T3) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   Value* t1; \
   Value* t2; \
   Value* t3; \
@@ -157,7 +155,7 @@ case CLASS::METHOD_##Method: { \
 }
 
 #define TOOLS_RPC_JS_DISPATCH4(Method, T1, T2, T3, T4) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   Value* t1; \
   Value* t2; \
   Value* t3; \
@@ -182,23 +180,21 @@ class Js##Class##Dispatch { \
   virtual ~Js##Class##Dispatch() {} \
   \
   bool Dispatch(const ListValue& message, std::string* expr) { \
-    int class_id; \
-    message.GetInteger(0, &class_id); \
-    if (class_id != RpcTypeToNumber<Class>::number) { \
+    std::string class_name; \
+    message.GetString(0, &class_name); \
+    if (class_name != #Class) { \
       return false; \
     } \
-    int method; \
-    message.GetInteger(1, &method); \
+    std::string method_name; \
+    message.GetString(1, &method_name); \
     typedef Class CLASS; \
-    switch (method) { \
-      STRUCT( \
-          TOOLS_RPC_JS_DISPATCH0, \
-          TOOLS_RPC_JS_DISPATCH1, \
-          TOOLS_RPC_JS_DISPATCH2, \
-          TOOLS_RPC_JS_DISPATCH3, \
-          TOOLS_RPC_JS_DISPATCH4) \
-      default: return false; \
-    } \
+    STRUCT( \
+        TOOLS_RPC_JS_DISPATCH0, \
+        TOOLS_RPC_JS_DISPATCH1, \
+        TOOLS_RPC_JS_DISPATCH2, \
+        TOOLS_RPC_JS_DISPATCH3, \
+        TOOLS_RPC_JS_DISPATCH4) \
+    return false; \
   } \
  private: \
   std::string js_obj; \

@@ -128,37 +128,30 @@ struct RpcTypeTrait<std::string> {
                       RpcTypeTrait<T3>::ApiType t3, \
                       RpcTypeTrait<T4>::ApiType t4) = 0;
 
-#define TOOLS_RPC_ENUM_LITERAL0(Method) METHOD_##Method,
-#define TOOLS_RPC_ENUM_LITERAL1(Method, T1) METHOD_##Method,
-#define TOOLS_RPC_ENUM_LITERAL2(Method, T1, T2) METHOD_##Method,
-#define TOOLS_RPC_ENUM_LITERAL3(Method, T1, T2, T3) METHOD_##Method,
-#define TOOLS_RPC_ENUM_LITERAL4(Method, T1, T2, T3, T4) METHOD_##Method,
-
 ///////////////////////////////////////////////////////
 // RPC stub method implementations
 
 #define TOOLS_RPC_STUB_METHOD0(Method) \
   virtual void Method() { \
-  InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method); \
+    InvokeAsync(class_name, #Method); \
   }
 
 #define TOOLS_RPC_STUB_METHOD1(Method, T1) \
   virtual void Method(RpcTypeTrait<T1>::ApiType t1) { \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1); \
+    InvokeAsync(class_name, #Method, &t1); \
   }
 
 #define TOOLS_RPC_STUB_METHOD2(Method, T1, T2) \
   virtual void Method(RpcTypeTrait<T1>::ApiType t1, \
                       RpcTypeTrait<T2>::ApiType t2) { \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2); \
+    InvokeAsync(class_name, #Method, &t1, &t2); \
   }
 
 #define TOOLS_RPC_STUB_METHOD3(Method, T1, T2, T3) \
   virtual void Method(RpcTypeTrait<T1>::ApiType t1, \
                       RpcTypeTrait<T2>::ApiType t2, \
                       RpcTypeTrait<T3>::ApiType t3) { \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
-        &t3); \
+    InvokeAsync(class_name, #Method, &t1, &t2, &t3); \
   }
 
 #define TOOLS_RPC_STUB_METHOD4(Method, T1, T2, T3, T4) \
@@ -166,21 +159,20 @@ struct RpcTypeTrait<std::string> {
                       RpcTypeTrait<T2>::ApiType t2, \
                       RpcTypeTrait<T3>::ApiType t3, \
                       RpcTypeTrait<T4>::ApiType t4) { \
-    InvokeAsync(RpcTypeToNumber<CLASS>::number, METHOD_##Method, &t1, &t2, \
-        &t3, &t4); \
+    InvokeAsync(class_name, #Method, &t1, &t2, &t3, &t4); \
   }
 
 ///////////////////////////////////////////////////////
 // RPC dispatch method implementations
 
 #define TOOLS_RPC_DISPATCH0(Method) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   delegate->Method(); \
   return true; \
 }
 
 #define TOOLS_RPC_DISPATCH1(Method, T1) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
   DevToolsRpc::GetListValue(message, 2, &t1); \
   delegate->Method( \
@@ -189,7 +181,7 @@ case CLASS::METHOD_##Method: { \
 }
 
 #define TOOLS_RPC_DISPATCH2(Method, T1, T2) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
   DevToolsRpc::GetListValue(message, 2, &t1); \
@@ -202,7 +194,7 @@ case CLASS::METHOD_##Method: { \
 }
 
 #define TOOLS_RPC_DISPATCH3(Method, T1, T2, T3) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
   RpcTypeTrait<T3>::DispatchType t3; \
@@ -218,7 +210,7 @@ case CLASS::METHOD_##Method: { \
 }
 
 #define TOOLS_RPC_DISPATCH4(Method, T1, T2, T3, T4) \
-case CLASS::METHOD_##Method: { \
+if (method_name == #Method) { \
   RpcTypeTrait<T1>::DispatchType t1; \
   RpcTypeTrait<T2>::DispatchType t2; \
   RpcTypeTrait<T3>::DispatchType t3; \
@@ -245,17 +237,10 @@ case CLASS::METHOD_##Method: { \
 #define DEFINE_RPC_CLASS(Class, STRUCT) \
 class Class {\
  public: \
-  Class() {} \
+  Class() { \
+    class_name = #Class; \
+  } \
   ~Class() {} \
-  \
-  enum MethodNames { \
-    STRUCT( \
-        TOOLS_RPC_ENUM_LITERAL0, \
-        TOOLS_RPC_ENUM_LITERAL1, \
-        TOOLS_RPC_ENUM_LITERAL2, \
-        TOOLS_RPC_ENUM_LITERAL3, \
-        TOOLS_RPC_ENUM_LITERAL4) \
-  }; \
   \
   STRUCT( \
       TOOLS_RPC_API_METHOD0, \
@@ -263,6 +248,7 @@ class Class {\
       TOOLS_RPC_API_METHOD2, \
       TOOLS_RPC_API_METHOD3, \
       TOOLS_RPC_API_METHOD4) \
+  std::string class_name; \
  private: \
   DISALLOW_COPY_AND_ASSIGN(Class); \
 }; \
@@ -294,48 +280,25 @@ class Class##Dispatch { \
   } \
   \
   static bool Dispatch(Class* delegate, const ListValue& message) { \
-    int class_id; \
-    message.GetInteger(0, &class_id); \
-    if (class_id != RpcTypeToNumber<Class>::number) { \
+    std::string class_name; \
+    message.GetString(0, &class_name); \
+    if (class_name != #Class) { \
       return false; \
     } \
-    int method; \
-    message.GetInteger(1, &method); \
+    std::string method_name; \
+    message.GetString(1, &method_name); \
     typedef Class CLASS; \
-    switch (method) { \
-      STRUCT( \
-          TOOLS_RPC_DISPATCH0, \
-          TOOLS_RPC_DISPATCH1, \
-          TOOLS_RPC_DISPATCH2, \
-          TOOLS_RPC_DISPATCH3, \
-          TOOLS_RPC_DISPATCH4) \
-      default: return false; \
-    } \
+    STRUCT( \
+        TOOLS_RPC_DISPATCH0, \
+        TOOLS_RPC_DISPATCH1, \
+        TOOLS_RPC_DISPATCH2, \
+        TOOLS_RPC_DISPATCH3, \
+        TOOLS_RPC_DISPATCH4) \
+    return false; \
   } \
  private: \
   DISALLOW_COPY_AND_ASSIGN(Class##Dispatch); \
 };
-
-///////////////////////////////////////////////////////
-// Following templates allow mapping types to numbers.
-
-template <typename T>
-class RpcTypeToNumberCounter {
- public:
-  static int next_number_;
-};
-template <typename T>
-int RpcTypeToNumberCounter<T>::next_number_ = 0;
-
-template <typename T>
-class RpcTypeToNumber {
- public:
-  static const int number;
-};
-
-template <typename T>
-const int RpcTypeToNumber<T>::number =
-    RpcTypeToNumberCounter<void>::next_number_++;
 
 ///////////////////////////////////////////////////////
 // RPC base class
@@ -353,45 +316,62 @@ class DevToolsRpc {
   explicit DevToolsRpc(Delegate* delegate);
   virtual ~DevToolsRpc();
 
-  void InvokeAsync(int class_id, int method) {
+  void InvokeAsync(
+      const std::string& class_name,
+      const std::string& method_name) {
     ListValue message;
-    message.Append(CreateValue(&class_id));
-    message.Append(CreateValue(&method));
+    message.Append(CreateValue(&class_name));
+    message.Append(CreateValue(&method_name));
     SendValueMessage(message);
   }
-  template<class T1>
-  void InvokeAsync(int class_id, int method, T1 t1) {
+
+  template<typename T1>
+  void InvokeAsync(
+      const std::string& class_name,
+      const std::string& method_name,
+      T1 t1) {
     ListValue message;
-    message.Append(CreateValue(&class_id));
-    message.Append(CreateValue(&method));
+    message.Append(CreateValue(&class_name));
+    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     SendValueMessage(message);
   }
-  template<class T1, class T2>
-  void InvokeAsync(int class_id, int method, T1 t1, T2 t2) {
+
+  template<typename T1, typename T2>
+  void InvokeAsync(
+      const std::string& class_name,
+      const std::string& method_name,
+      T1 t1, T2 t2) {
     ListValue message;
-    message.Append(CreateValue(&class_id));
-    message.Append(CreateValue(&method));
+    message.Append(CreateValue(&class_name));
+    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     SendValueMessage(message);
   }
-  template<class T1, class T2, class T3>
-  void InvokeAsync(int class_id, int method, T1 t1, T2 t2, T3 t3) {
+
+  template<typename T1, typename T2, typename T3>
+  void InvokeAsync(
+      const std::string& class_name,
+      const std::string& method_name,
+      T1 t1, T2 t2, T3 t3) {
     ListValue message;
-    message.Append(CreateValue(&class_id));
-    message.Append(CreateValue(&method));
+    message.Append(CreateValue(&class_name));
+    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     message.Append(CreateValue(t3));
     SendValueMessage(message);
   }
 
-  template<class T1, class T2, class T3, class T4>
-  void InvokeAsync(int class_id, int method, T1 t1, T2 t2, T3 t3, T4 t4) {
+  template<typename T1, typename T2, typename T3, typename T4>
+  void InvokeAsync(
+      const std::string& class_name,
+      const std::string& method_name,
+      T1 t1, T2 t2, T3 t3, T4 t4) {
     ListValue message;
-    message.Append(CreateValue(&class_id));
-    message.Append(CreateValue(&method));
+    message.Append(CreateValue(&class_name));
+    message.Append(CreateValue(&method_name));
     message.Append(CreateValue(t1));
     message.Append(CreateValue(t2));
     message.Append(CreateValue(t3));
