@@ -603,13 +603,17 @@
             # Linux has an implementation of idle_timer, but it's unclear
             # if we want it yet, so leave it 'unported' for now.
             'idletimer_unittest.cc',
-	    'worker_pool_linux_unittest.cc',
+            'worker_pool_linux_unittest.cc',
           ],
           'dependencies': [
             '../build/linux/system.gyp:gtk',
           ],
         }],
-        ['OS != "mac"', {
+        ['OS == "mac"', {
+          'sources!': [
+            'directory_watcher_unittest.cc',
+          ],
+        }, {  # OS != "mac"
           'sources!': [
             'mac_util_unittest.cc',
           ],
@@ -626,7 +630,6 @@
         }, {  # OS != "win"
           'sources!': [
             'gfx/native_theme_unittest.cc',
-            'directory_watcher_unittest.cc',
             'object_watcher_unittest.cc',
             'pe_image_unittest.cc',
             'scoped_bstr_win_unittest.cc',
