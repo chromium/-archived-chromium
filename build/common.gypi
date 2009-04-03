@@ -127,7 +127,7 @@
           '-msse2',
           '-mfpmath=sse',
         ],
-        'linkflags': [
+        'ldflags': [
           '-m32',
           '-pthread',
         ],

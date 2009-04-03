@@ -13,8 +13,11 @@
         ],
       },
       'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gtk+-2.0)',
+        ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs gtk+-2.0)',
+          '<!@(python pkg_config_wrapper.py --libs-only-l gtk+-2.0)',
         ],
       },
     },
@@ -27,8 +30,11 @@
         ],
       },
       'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other nss)',
+        ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs nss)',
+          '<!@(python pkg_config_wrapper.py --libs-only-l nss)',
         ],
       },
     },
@@ -41,8 +47,11 @@
         ],
       },
       'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other freetype2)',
+        ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs freetype2)',
+          '<!@(python pkg_config_wrapper.py --libs-only-l freetype2)',
         ],
       },
     },
@@ -55,8 +64,11 @@
         ],
       },
       'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other fontconfig)',
+        ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs fontconfig)',
+          '<!@(python pkg_config_wrapper.py --libs-only-l fontconfig)',
         ],
       },
     },
@@ -69,8 +81,11 @@
         ],
       },
       'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gdk-2.0)',
+        ],
         'libraries': [
-          '<!@(python pkg_config_wrapper.py --libs gdk-2.0)',
+          '<!@(python pkg_config_wrapper.py --libs-only-l gdk-2.0)',
         ],
       },
     },
