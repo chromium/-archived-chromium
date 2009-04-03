@@ -43,7 +43,7 @@ static net::ProxyService* CreateProxyService(URLRequestContext* context,
                                              const CommandLine& command_line) {
   scoped_ptr<net::ProxyInfo> proxy_info(CreateProxyInfo(command_line));
 
-  bool use_v8 = command_line.HasSwitch(switches::kV8ProxyResolver);
+  bool use_v8 = !command_line.HasSwitch(switches::kWinHttpProxyResolver);
   if (use_v8 && command_line.HasSwitch(switches::kSingleProcess)) {
     // See the note about V8 multithreading in net/proxy/proxy_resolver_v8.h
     // to understand why we have this limitation.
@@ -52,8 +52,8 @@ static net::ProxyService* CreateProxyService(URLRequestContext* context,
   }
 
   return use_v8 ?
-    net::ProxyService::CreateUsingV8Resolver(proxy_info.get(), context) :
-    net::ProxyService::Create(proxy_info.get());
+      net::ProxyService::CreateUsingV8Resolver(proxy_info.get(), context) :
+      net::ProxyService::Create(proxy_info.get());
 }
 
 // static

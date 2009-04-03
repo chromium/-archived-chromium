@@ -78,7 +78,7 @@ extern const wchar_t kShowIcons[];
 extern const wchar_t kMakeDefaultBrowser[];
 
 extern const wchar_t kProxyServer[];
-extern const wchar_t kV8ProxyResolver[];
+extern const wchar_t kWinHttpProxyResolver[];
 extern const wchar_t kDebugPrint[];
 
 extern const wchar_t kDnsLogDetails[];
