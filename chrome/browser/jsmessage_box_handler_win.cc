@@ -84,7 +84,7 @@ int JavascriptMessageBoxHandler::GetDialogButtons() const {
 }
 
 std::wstring JavascriptMessageBoxHandler::GetWindowTitle() const {
-  if (!frame_url_.has_host())
+  if (!frame_url_.has_host() || !web_contents_)
     return l10n_util::GetString(IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE);
 
   // We really only want the scheme, hostname, and port.
@@ -189,9 +189,10 @@ views::View* JavascriptMessageBoxHandler::GetInitiallyFocusedView() {
 void JavascriptMessageBoxHandler::Observe(NotificationType type,
                                           const NotificationSource& source,
                                           const NotificationDetails& details) {
-  bool web_contents_gone = false;
   if (!web_contents_)
     return;
+
+  bool web_contents_gone = false;
 
   if (type == NotificationType::NAV_ENTRY_COMMITTED &&
       Source<NavigationController>(source).ptr() == web_contents_->controller())
