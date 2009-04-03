@@ -73,6 +73,11 @@
   BOOL dragging = YES;
   BOOL moved = NO;
 
+  // Do not start dragging until the user has "torn" the tab off by
+  // moving more than 3 pixels.
+  BOOL torn = NO;
+  static const double kDragStartDistance = 3.0;
+
   NSDate* targetDwellDate = nil; // The date this target was first chosen
   NSMutableArray* targets = [NSMutableArray array];
 
@@ -85,6 +90,20 @@
                            untilDate:[NSDate distantFuture]
                               inMode:NSDefaultRunLoopMode dequeue:YES];
     NSPoint thisPoint = [NSEvent mouseLocation];
+
+    // TODO(alcor): Pinkerton indicated that cole is adding a more
+    // formal concept of "magnetism" to tab detachment, which would
+    // be an alternative solution.
+    if (!torn) {
+      double dx = thisPoint.x - lastPoint.x;
+      double dy = thisPoint.y - lastPoint.y;
+
+      if (dx * dx + dy * dy < kDragStartDistance * kDragStartDistance
+	  && [theEvent type] == NSLeftMouseDragged) {
+	continue;
+      }
+      torn = YES;
+    }
 
     // Find all the windows that could be a target. It has to be of the
     // appropriate class, and visible (obviously).
