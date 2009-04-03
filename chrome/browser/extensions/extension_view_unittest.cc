@@ -14,7 +14,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
-#include "net/base/host_resolver_unittest.h"
 
 namespace {
 
@@ -101,14 +100,6 @@ class ExtensionLoadedObserver : public NotificationObserver {
 
 class ExtensionViewTest : public InProcessBrowserTest {
  public:
-  ExtensionViewTest() {
-    host_mapper_ = new net::RuleBasedHostMapper();
-    // TODO(aa): Don't make a real dns lookup here or simulate a failing lookup.
-    // But if it's really needed then remove the TODO.
-    host_mapper_->AllowDirectLookup("*.google.com");
-    scoped_host_mapper_.Init(host_mapper_.get());
-  }
-
   virtual void SetUp() {
     // Initialize the error reporter here, otherwise BrowserMain will create it
     // with the wrong MessageLoop.
@@ -119,10 +110,6 @@ class ExtensionViewTest : public InProcessBrowserTest {
 
     InProcessBrowserTest::SetUp();
   }
-
- private:
-  scoped_refptr<net::RuleBasedHostMapper> host_mapper_;
-  net::ScopedHostMapper scoped_host_mapper_;
 };
 
 // Tests that ExtensionView starts an extension process and runs the script

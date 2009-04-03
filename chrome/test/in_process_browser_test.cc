@@ -20,6 +20,7 @@
 #include "chrome/common/main_function_params.h"
 #include "chrome/test/testing_browser_process.h"
 #include "chrome/test/ui_test_utils.h"
+#include "net/base/host_resolver_unittest.h"
 #include "sandbox/src/sandbox_factory.h"
 #include "sandbox/src/dep.h"
 
@@ -110,6 +111,14 @@ void InProcessBrowserTest::SetUp() {
   MainFunctionParams params(*command_line, sandbox_wrapper, NULL);
   params.ui_task =
       NewRunnableMethod(this, &InProcessBrowserTest::RunTestOnMainThreadLoop);
+
+  // TODO(sky): Don't make a real dns lookup here or simulate a failing
+  // lookup.  But if it's really needed then remove the TODO.
+  scoped_refptr<net::RuleBasedHostMapper> host_mapper(
+      new net::RuleBasedHostMapper());
+  host_mapper->AllowDirectLookup("*.google.com");
+  net::ScopedHostMapper scoped_host_mapper;
+  scoped_host_mapper.Init(host_mapper.get());
   BrowserMain(params);
 }
 

@@ -13,7 +13,6 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
-#include "net/base/host_resolver_unittest.h"
 
 const std::wstring kFramePage = L"files/find_in_page/frames.html";
 const std::wstring kFrameData = L"files/find_in_page/framedata_general.html";
@@ -79,15 +78,6 @@ typedef enum FindInPageDirection { BACK = 0, FWD = 1 };
 typedef enum FindInPageCase { IGNORE_CASE = 0, CASE_SENSITIVE = 1 };
 
 class FindInPageControllerTest : public InProcessBrowserTest {
- public:
-  FindInPageControllerTest() {
-    host_mapper_ = new net::RuleBasedHostMapper();
-    // Avoid making external DNS lookups. In this test we don't need this
-    // to succeed.
-    host_mapper_->AddSimulatedFailure("*.google.com");
-    scoped_host_mapper_.Init(host_mapper_.get());
-  }
-
  protected:
   int FindInPage(const std::wstring& search_string,
                  FindInPageDirection forward,
@@ -106,10 +96,6 @@ class FindInPageControllerTest : public InProcessBrowserTest {
     }
     return 0;
   }
-
- private:
-  scoped_refptr<net::RuleBasedHostMapper> host_mapper_;
-  net::ScopedHostMapper scoped_host_mapper_;
 };
 
 // This test loads a page with frames and starts FindInPage requests
