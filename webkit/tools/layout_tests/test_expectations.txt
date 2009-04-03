@@ -2183,8 +2183,6 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-event
 MAC RELEASE : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-denied-events-post.html = TIMEOUT PASS
 
 // Merge 41827:41860 Regressions
-// Upstream r41849 added a large regex to this test which times out in V8.
-LayoutTests/fast/js/regexp-overflow.html = TIMEOUT
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
 
@@ -2313,7 +2311,7 @@ WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TI
 
 // Merge WebKit: 42026:42115 new tests
 DEFER : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
-DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL
+DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
 DEFER : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
 // Merge WebKit: 42116:42132 regressions
@@ -2337,7 +2335,7 @@ WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
 LINUX : LayoutTests/fast/events/context-no-deselect.html = FAIL
-LINUX : LayoutTests/fast/js/regexp-overflow.html = FAIL
+LayoutTests/fast/js/regexp-overflow.html = FAIL
 LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
 LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
 LINUX : LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
