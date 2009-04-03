@@ -1429,6 +1429,12 @@ void WebViewImpl::SetPreferences(const WebPreferences& preferences) {
   // universal access.
   settings->setAllowUniversalAccessFromFileURLs(false);
 
+  // We prevent WebKit from checking if it needs to add a "text direction"
+  // submenu to a context menu. it is not only because we don't need the result
+  // but also because it cause a possible crash in Editor::hasBidiSelection().
+  settings->setTextDirectionSubmenuInclusionBehavior(
+      TextDirectionSubmenuNeverIncluded);
+
 #if defined(OS_WIN)
   // RenderTheme is a singleton that needs to know the default font size to
   // draw some form controls.  We let it know each time the size changes.
