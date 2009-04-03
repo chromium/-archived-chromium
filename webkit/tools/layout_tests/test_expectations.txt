@@ -1495,10 +1495,6 @@ MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
 MAC : LayoutTests/fast/loader/local-JavaScript-from-local.html = FAIL
 MAC : LayoutTests/fast/loader/local-image-from-local.html = FAIL
 
-// the url comes back wrong, it should have a question mark for args on it.
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT CRASH
-MAC : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT FAIL
-
 // whitespace differences (??)
 MAC : LayoutTests/fast/dom/tabindex-clamp.html = FAIL
 
@@ -2255,8 +2251,11 @@ MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
 MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
 
 // Changed in http://trac.webkit.org/changeset/42082
-WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT
-WIN LINUX : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT CRASH
+// This is deferred because it involves a scenario (submitting a form to
+// about:blank) that is unlikely to occur on real web pages.  That only
+// explains why this test sometimes times-out.
+BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe-timeout.html = TIMEOUT CRASH
+BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIMEOUT CRASH
 
 // Merge WebKit: 42026:42115 new tests
 DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
