@@ -14,7 +14,21 @@ class SearchableFormData;
 class WebFrame;
 class WebRequest;
 class WebResponse;
+
+namespace base {
+class Time;
+}
+
 struct PasswordForm;
+
+enum WebNavigationType {
+  WebNavigationTypeLinkClicked,
+  WebNavigationTypeFormSubmitted,
+  WebNavigationTypeBackForward,
+  WebNavigationTypeReload,
+  WebNavigationTypeFormResubmitted,
+  WebNavigationTypeOther
+};
 
 class WebDataSource {
  public:
@@ -81,6 +95,30 @@ class WebDataSource {
 
   // Returns the page title.
   virtual string16 GetPageTitle() const = 0;
+
+  // Returns the time the document was request by the user.
+  virtual base::Time GetRequestTime() const = 0;
+
+  // Sets the request time. This is used to override the default behavior
+  // if the client knows more about the origination of the request than the
+  // underlying mechanism could.
+  virtual void SetRequestTime(base::Time time) = 0;
+
+  // Returns the time we started loading the page. This corresponds to
+  // the DidStartProvisionalLoadForFrame delegate notification.
+  virtual base::Time GetStartLoadTime() const = 0;
+
+  // Returns the time the document itself was finished loading. This corresponds
+  // to the DidFinishDocumentLoadForFrame delegate notification.
+  virtual base::Time GetFinishDocumentLoadTime() const = 0;
+
+  // Returns the time all dependent resources have been loaded and onload()
+  // has been called. This corresponds to the DidFinishLoadForFrame delegate
+  // notification.
+  virtual base::Time GetFinishLoadTime() const = 0;
+
+  // Returns the reason the document was loaded.
+  virtual WebNavigationType GetNavigationType() const = 0;
 };
 
 #endif  // #ifndef WEBKIT_GLUE_WEBDATASOURCE_H_

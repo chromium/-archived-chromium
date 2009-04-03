@@ -641,6 +641,8 @@ class RenderView : public RenderWidget,
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;
 
+  void DumpLoadHistograms() const;
+
   // Bitwise-ORed set of extra bindings that have been enabled.  See
   // BindingsPolicy for details.
   int enabled_bindings_;

@@ -8,6 +8,7 @@
 #include "DocumentLoader.h"
 
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "webkit/glue/searchable_form_data.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webresponse_impl.h"
@@ -20,7 +21,7 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
  public:
   static PassRefPtr<WebDataSourceImpl> Create(const WebCore::ResourceRequest&,
                                               const WebCore::SubstituteData&);
-  
+
   static WebDataSourceImpl* FromLoader(WebCore::DocumentLoader* loader) {
     return static_cast<WebDataSourceImpl*>(loader);
   }
@@ -37,6 +38,15 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   virtual const PasswordForm* GetPasswordFormData() const;
   virtual bool IsFormSubmit() const;
   virtual string16 GetPageTitle() const;
+  virtual base::Time GetRequestTime() const;
+  virtual void SetRequestTime(base::Time time);
+  virtual base::Time GetStartLoadTime() const;
+  virtual base::Time GetFinishDocumentLoadTime() const;
+  virtual base::Time GetFinishLoadTime() const;
+  virtual WebNavigationType GetNavigationType() const;
+
+  static WebNavigationType NavigationTypeToWebNavigationType(
+      WebCore::NavigationType type);
 
   // Called after creating a new data source if there is request info
   // available. Since we store copies of the WebRequests, the original
@@ -77,6 +87,22 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
     return form_submit_;
   }
 
+  void set_request_time(base::Time request_time) {
+    request_time_ = request_time;
+  }
+
+  void set_start_load_time(base::Time start_load_time) {
+    start_load_time_ = start_load_time;
+  }
+
+  void set_finish_document_load_time(base::Time finish_document_load_time) {
+    finish_document_load_time_ = finish_document_load_time;
+  }
+
+  void set_finish_load_time(base::Time finish_load_time) {
+    finish_load_time_ = finish_load_time;
+  }
+
  private:
   WebDataSourceImpl(const WebCore::ResourceRequest&,
                     const WebCore::SubstituteData&);
@@ -98,6 +124,12 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   scoped_ptr<const PasswordForm> password_form_data_;
 
   bool form_submit_;
+
+  // See webdatasource.h for a description of these time stamps.
+  base::Time request_time_;
+  base::Time start_load_time_;
+  base::Time finish_document_load_time_;
+  base::Time finish_load_time_;
 
   DISALLOW_COPY_AND_ASSIGN(WebDataSourceImpl);
 };

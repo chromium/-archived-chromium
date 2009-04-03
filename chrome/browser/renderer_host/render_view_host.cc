@@ -9,6 +9,7 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/cross_site_request_manager.h"
@@ -618,6 +619,7 @@ void RenderViewHost::MakeNavigateParams(const NavigationEntry& entry,
   params->transition = entry.transition_type();
   params->state = entry.content_state();
   params->reload = reload;
+  params->request_time = base::Time::Now();
 }
 
 bool RenderViewHost::CanBlur() const {

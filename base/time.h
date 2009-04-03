@@ -213,9 +213,11 @@ class Time {
   static Time FromTimeT(time_t tt);
   time_t ToTimeT() const;
 
-  // Converts time to a double which is the number of seconds since epoch
+  // Converts time to/from a double which is the number of seconds since epoch
   // (Jan 1, 1970).  Webkit uses this format to represent time.
+  static Time FromDoubleT(double dt);
   double ToDoubleT() const;
+
 
 #if defined(OS_WIN)
   static Time FromFileTime(FILETIME ft);

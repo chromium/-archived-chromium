@@ -5,17 +5,23 @@
 #include "config.h"
 #include "webkit/glue/webdatasource_impl.h"
 
-#include "KURL.h"
+#include "FrameLoaderTypes.h"
 #include "FrameLoadRequest.h"
+#include "KURL.h"
 #include "ResourceRequest.h"
 
 #undef LOG
+#include "base/histogram.h"
 #include "base/string_util.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/weburlrequest_impl.h"
+#include "webkit/glue/webview_delegate.h"
+
+using base::TimeDelta;
+using base::Time;
 
 // static
 PassRefPtr<WebDataSourceImpl> WebDataSourceImpl::Create(
@@ -98,4 +104,47 @@ bool WebDataSourceImpl::IsFormSubmit() const {
 
 string16 WebDataSourceImpl::GetPageTitle() const {
   return webkit_glue::StringToString16(title());
+}
+
+base::Time WebDataSourceImpl::GetRequestTime() const {
+  return request_time_;
+}
+
+void WebDataSourceImpl::SetRequestTime(base::Time time) {
+  request_time_ = time;
+}
+
+base::Time WebDataSourceImpl::GetStartLoadTime() const {
+  return start_load_time_;
+}
+
+base::Time WebDataSourceImpl::GetFinishDocumentLoadTime() const {
+  return finish_document_load_time_;
+}
+
+base::Time WebDataSourceImpl::GetFinishLoadTime() const {
+  return finish_load_time_;
+}
+
+WebNavigationType WebDataSourceImpl::GetNavigationType() const {
+  return NavigationTypeToWebNavigationType(triggeringAction().type());
+}
+
+WebNavigationType WebDataSourceImpl::NavigationTypeToWebNavigationType(
+    WebCore::NavigationType type) {
+  switch (type) {
+    case WebCore::NavigationTypeLinkClicked:
+      return WebNavigationTypeLinkClicked;
+    case WebCore::NavigationTypeFormSubmitted:
+      return WebNavigationTypeFormSubmitted;
+    case WebCore::NavigationTypeBackForward:
+      return WebNavigationTypeBackForward;
+    case WebCore::NavigationTypeReload:
+      return WebNavigationTypeReload;
+    case WebCore::NavigationTypeFormResubmitted:
+      return WebNavigationTypeFormResubmitted;
+    case WebCore::NavigationTypeOther:
+    default:
+      return WebNavigationTypeOther;
+  }
 }

@@ -42,6 +42,10 @@
 #include "skia/include/SkBitmap.h"
 #endif
 
+namespace base {
+class Time;
+}
+
 struct ViewHostMsg_UpdateFeedList_Params {
   // The page_id for this navigation, or -1 if it is a new navigation.  Back,
   // Forward, and Reload navigations should have a valid page_id.  If the load
@@ -78,6 +82,9 @@ struct ViewMsg_Navigate_Params {
   // Specifies if the URL should be loaded using 'reload' semantics (i.e.,
   // bypassing any locally cached content).
   bool reload;
+
+  // The time the request was created
+  base::Time request_time;
 };
 
 // Parameters structure for ViewHostMsg_FrameNavigate, which has too many data
@@ -662,6 +669,7 @@ struct ParamTraits<ViewMsg_Navigate_Params> {
     WriteParam(m, p.transition);
     WriteParam(m, p.state);
     WriteParam(m, p.reload);
+    WriteParam(m, p.request_time);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
@@ -670,7 +678,8 @@ struct ParamTraits<ViewMsg_Navigate_Params> {
       ReadParam(m, iter, &p->referrer) &&
       ReadParam(m, iter, &p->transition) &&
       ReadParam(m, iter, &p->state) &&
-      ReadParam(m, iter, &p->reload);
+      ReadParam(m, iter, &p->reload) &&
+      ReadParam(m, iter, &p->request_time);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -683,6 +692,8 @@ struct ParamTraits<ViewMsg_Navigate_Params> {
     LogParam(p.state, l);
     l->append(L", ");
     LogParam(p.reload, l);
+    l->append(L", ");
+    LogParam(p.request_time, l);
     l->append(L")");
   }
 };

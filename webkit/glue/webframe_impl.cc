@@ -131,7 +131,6 @@ MSVC_POP_WARNING();
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
 #include "base/string_util.h"
-#include "base/time.h"
 #include "net/base/net_errors.h"
 #include "skia/ext/bitmap_platform_device.h"
 #include "skia/ext/platform_canvas.h"

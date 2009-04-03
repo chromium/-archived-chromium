@@ -7,6 +7,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
+#include "base/process_util.h"
 #include "base/scoped_nsautorelease_pool.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
@@ -39,8 +40,10 @@ static void HandleRendererErrorTestParameters(const CommandLine& command_line) {
   if (command_line.HasSwitch(switches::kRendererStartupDialog)) {
 #if defined(OS_WIN)
     std::wstring title = l10n_util::GetString(IDS_PRODUCT_NAME);
+    std::wstring message = L"renderer starting with pid: ";
+    message += IntToWString(base::GetCurrentProcId());
     title += L" renderer";  // makes attaching to process easier
-    ::MessageBox(NULL, L"renderer starting...", title.c_str(),
+    ::MessageBox(NULL, message.c_str(), title.c_str(),
                  MB_OK | MB_SETFOREGROUND);
 #elif defined(OS_MACOSX)
     // TODO(playmobil): In the long term, overriding this flag doesn't seem

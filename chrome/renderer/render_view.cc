@@ -82,6 +82,7 @@
 #include "skia/ext/vector_canvas.h"
 #endif
 
+using base::Time;
 using base::TimeDelta;
 using webkit_glue::WebAccessibility;
 using WebKit::WebConsoleMessage;
@@ -134,8 +135,10 @@ namespace {
 class RenderViewExtraRequestData : public WebRequest::ExtraData {
  public:
   RenderViewExtraRequestData(int32 pending_page_id,
-                             PageTransition::Type transition)
+                             PageTransition::Type transition,
+                             Time request_time)
       : transition_type(transition),
+        request_time(request_time),
         request_committed(false),
         pending_page_id_(pending_page_id) {
   }
@@ -149,6 +152,7 @@ class RenderViewExtraRequestData : public WebRequest::ExtraData {
   // Contains the transition type that the browser specified when it
   // initiated the load.
   PageTransition::Type transition_type;
+  Time request_time;
 
   // True if we have already processed the "DidCommitLoad" event for this
   // request.  Used by session history.
@@ -807,7 +811,7 @@ void RenderView::OnNavigate(const ViewMsg_Navigate_Params& params) {
   scoped_ptr<WebRequest> request(WebRequest::Create(params.url));
   request->SetCachePolicy(cache_policy);
   request->SetExtraData(new RenderViewExtraRequestData(
-      params.page_id, params.transition));
+      params.page_id, params.transition, params.request_time));
 
   // If we are reloading, then WebKit will use the state of the current page.
   // Otherwise, we give it the state to navigate to.
@@ -1207,6 +1211,15 @@ void RenderView::DidStartProvisionalLoadForFrame(
     completed_client_redirect_src_ = GURL();
   }
 
+  WebDataSource* ds = frame->GetProvisionalDataSource();
+  if (ds) {
+    const WebRequest& req = ds->GetRequest();
+    RenderViewExtraRequestData* extra_data =
+        static_cast<RenderViewExtraRequestData*>(req.GetExtraData());
+    if (extra_data) {
+      ds->SetRequestTime(extra_data->request_time);
+    }
+  }
   Send(new ViewHostMsg_DidStartProvisionalLoadForFrame(
        routing_id_, webview->GetMainFrame() == frame,
        frame->GetProvisionalDataSource()->GetRequest().GetURL()));
@@ -1411,6 +1424,11 @@ void RenderView::DidReceiveTitle(WebView* webview,
 }
 
 void RenderView::DidFinishLoadForFrame(WebView* webview, WebFrame* frame) {
+  if (webview->GetMainFrame() == frame) {
+    const GURL& url = frame->GetURL();
+    if (url.SchemeIs("http") || url.SchemeIs("https"))
+      DumpLoadHistograms();
+  }
 }
 
 void RenderView::DidFailLoadWithError(WebView* webview,
@@ -2987,4 +3005,117 @@ void RenderView::OnExtensionResponse(int callback_id,
   extensions_v8::ExtensionProcessBindings::ExecuteCallbackInFrame(
       web_frame, callback_id, response);
   pending_extension_callbacks_.Remove(callback_id);
+}
+
+// Dump all load time histograms. We create 2 sets time based histograms,
+// one that is specific to the navigation type and one that aggregates all
+// navigation types
+//
+// Each set contains 5 histograms measuring various times.
+// The time points we keep are
+//    request: time document was requested by user
+//    start: time load of document started
+//    finishDoc: main document loaded, before onload()
+//    finish: after onload() and all resources are loaded
+// finish_document_load_time and finish_load_time.
+// The times that we histogram are
+//    requestToStart,
+//    startToFinishDoc,
+//    finishDocToFinish,
+//    startToFinish,
+//    requestToFinish,
+//
+void RenderView::DumpLoadHistograms() const {
+  WebFrame* main_frame = webview()->GetMainFrame();
+  WebDataSource* ds = main_frame->GetDataSource();
+  WebNavigationType nav_type = ds->GetNavigationType();
+  Time request_time = ds->GetRequestTime();
+  Time start_load_time = ds->GetStartLoadTime();
+  Time finish_document_load_time = ds->GetFinishDocumentLoadTime();
+  Time finish_load_time = ds->GetFinishLoadTime();
+  TimeDelta request_to_start = start_load_time - request_time;
+  TimeDelta start_to_finish_doc = finish_document_load_time - start_load_time;
+  TimeDelta finish_doc_to_finish = finish_load_time - finish_document_load_time;
+  TimeDelta start_to_finish = finish_load_time - start_load_time;
+  TimeDelta request_to_finish = finish_load_time - start_load_time;
+
+  UMA_HISTOGRAM_TIMES("Renderer.All.RequestToStart", request_to_start);
+  UMA_HISTOGRAM_TIMES("Renderer.All.StartToFinishDoc", start_to_finish_doc);
+  UMA_HISTOGRAM_TIMES("Renderer.All.FinishDocToFinish", finish_doc_to_finish);
+  UMA_HISTOGRAM_TIMES("Renderer.All.StartToFinish", start_to_finish);
+  UMA_HISTOGRAM_TIMES("Renderer.All.RequestToFinish", request_to_finish);
+  switch (nav_type) {
+    case WebNavigationTypeLinkClicked:
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.LinkClicked.RequestToStart", request_to_start);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.LinkClicked.StartToFinishDoc", start_to_finish_doc);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.LinkClicked.FinishDocToFinish", finish_doc_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.LinkClicked.RequestToFinish", request_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.LinkClicked.StartToFinish", start_to_finish);
+      break;
+    case WebNavigationTypeFormSubmitted:
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormSubmitted.RequestToStart", request_to_start);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormSubmitted.StartToFinishDoc", start_to_finish_doc);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormSubmitted.FinishDocToFinish", finish_doc_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormSubmitted.RequestToFinish", request_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormSubmitted.StartToFinish", start_to_finish);
+      break;
+    case WebNavigationTypeBackForward:
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.BackForward.RequestToStart", request_to_start);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.BackForward.StartToFinishDoc", start_to_finish_doc);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.BackForward.FinishDocToFinish", finish_doc_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.BackForward.RequestToFinish", request_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.BackForward.StartToFinish", start_to_finish);
+      break;
+    case WebNavigationTypeReload:
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Reload.RequestToStart", request_to_start);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Reload.StartToFinishDoc", start_to_finish_doc);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Reload.FinishDocToFinish", finish_doc_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Reload.RequestToFinish", request_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Reload.StartToFinish", start_to_finish);
+      break;
+    case WebNavigationTypeFormResubmitted:
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormResubmitted.RequestToStart", request_to_start);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormResubmitted.StartToFinishDoc", start_to_finish_doc);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormResubmitted.FinishDocToFinish", finish_doc_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormResubmitted.RequestToFinish", request_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.FormResubmitted.StartToFinish", start_to_finish);
+      break;
+    case WebNavigationTypeOther:
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Other.RequestToStart", request_to_start);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Other.StartToFinishDoc", start_to_finish_doc);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Other.FinishDocToFinish", finish_doc_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Other.RequestToFinish", request_to_finish);
+      UMA_HISTOGRAM_TIMES(
+          "Renderer.Other.StartToFinish", start_to_finish);
+      break;
+  }
 }

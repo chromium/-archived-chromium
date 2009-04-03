@@ -1392,6 +1392,8 @@
         'renderer/automation/dom_automation_controller.h',
         'renderer/extensions/extension_process_bindings.cc',
         'renderer/extensions/extension_process_bindings.h',
+        'renderer/extensions/loadtimes_extension_bindings.h',
+        'renderer/extensions/loadtimes_extension_bindings.cc',
         'renderer/extensions/renderer_extension_bindings.cc',
         'renderer/extensions/renderer_extension_bindings.h',
         'renderer/media/audio_renderer_impl.cc',

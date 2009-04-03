@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "webkit/glue/context_menu.h"
+#include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webwidget_delegate.h"
 
 namespace gfx {
@@ -57,15 +58,6 @@ class WebView;
 class WebWidget;
 class WebWorker;
 class WebWorkerClient;
-
-enum WebNavigationType {
-  WebNavigationTypeLinkClicked,
-  WebNavigationTypeFormSubmitted,
-  WebNavigationTypeBackForward,
-  WebNavigationTypeReload,
-  WebNavigationTypeFormResubmitted,
-  WebNavigationTypeOther
-};
 
 enum NavigationGesture {
   NavigationGestureUser,    // User initiated navigation/load. This is not

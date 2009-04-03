@@ -60,6 +60,12 @@ time_t Time::ToTimeT() const {
   return (us_ - kTimeTToMicrosecondsOffset) / kMicrosecondsPerSecond;
 }
 
+// static
+Time Time::FromDoubleT(double dt) {
+  return (dt * static_cast<double>(kMicrosecondsPerSecond)) +
+      kTimeTToMicrosecondsOffset;
+}
+
 double Time::ToDoubleT() const {
   if (us_ == 0)
     return 0;  // Preserve 0 so we can tell it doesn't exist.
