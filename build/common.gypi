@@ -223,6 +223,19 @@
             ],
           },
         },
+        'variants': {
+          'coverage': {
+            'cflags': ['-fprofile-arcs', '-ftest-coverage'],
+            'ldflags': ['-fprofile-arcs'],
+          },
+          'profile': {
+            'cflags': ['-pg', '-g'],
+            'ldflags': ['-pg'],
+          },
+          'symbols': {
+            'cflags': ['-g'],
+          },
+        },
       },
     }],
     ['OS=="mac"', {
