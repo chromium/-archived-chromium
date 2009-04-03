@@ -24,6 +24,7 @@ class Rect;
 
 extern const GdkColor kGdkWhite;
 extern const GdkColor kGdkBlack;
+extern const GdkColor kGdkGreen;
 
 // Modify the given region by subtracting the given rectangles.
 void SubtractRectanglesFromRegion(GdkRegion* region,

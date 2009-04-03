@@ -14,6 +14,7 @@ namespace gfx {
 
 const GdkColor kGdkWhite = GDK_COLOR_RGB(0xff, 0xff, 0xff);
 const GdkColor kGdkBlack = GDK_COLOR_RGB(0x00, 0x00, 0x00);
+const GdkColor kGdkGreen = GDK_COLOR_RGB(0x00, 0xff, 0x00);
 
 void SubtractRectanglesFromRegion(GdkRegion* region,
                                   const std::vector<Rect>& cutouts) {
@@ -71,7 +72,7 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
   // inside to get the sizes exactly of how we want the border painted.
   GtkWidget* ebox = gtk_event_box_new();
   gtk_widget_modify_bg(ebox, GTK_STATE_NORMAL, color);
-  GtkWidget* alignment = gtk_alignment_new(0, 0, 1, 1);
+  GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
   gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), top, bottom, left, right);
   gtk_container_add(GTK_CONTAINER(alignment), child);
   gtk_container_add(GTK_CONTAINER(ebox), alignment);

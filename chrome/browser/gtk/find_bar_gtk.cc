@@ -18,6 +18,7 @@
 namespace {
 
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
+const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
 // Padding around the container.
 const int kBarPadding = 4;
@@ -91,11 +92,11 @@ void FindBarGtk::InitWidgets() {
   // font size.
   gtk_widget_set_size_request(find_text_, -1, 20);
   gtk_entry_set_has_frame(GTK_ENTRY(find_text_), FALSE);
-  // TODO(tc): We need a border around the find box.  This should probably be
-  // drawn by the background.  I tried drawing one using
-  // gfx::CreateGtkBorderBin, but I couldn't get it to draw a 1px border on
-  // top and bottom.
-  gtk_box_pack_end(GTK_BOX(hbox), find_text_, FALSE, FALSE, 0);
+  GtkWidget* border_bin = gfx::CreateGtkBorderBin(find_text_, &kBorderColor,
+                                                  1, 1, 1, 0);
+  centering_vbox = gtk_vbox_new(FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
 
 
   g_signal_connect(G_OBJECT(find_text_), "changed",
