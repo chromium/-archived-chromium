@@ -186,11 +186,6 @@ void TabRendererGtk::SetBounds(const gfx::Rect& bounds) {
   Layout();
 }
 
-bool TabRendererGtk::IsPointInBounds(const gfx::Point& coord) {
-  // TODO(jhawkins): Use a GdkRegion that better maps to the shape of the tab.
-  return bounds_.Contains(coord);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, protected:
 

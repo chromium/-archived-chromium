@@ -68,13 +68,16 @@ class TabGtk : public TabRendererGtk {
   void set_closing(bool closing) { closing_ = closing; }
   bool closing() const { return closing_; }
 
-  // TabRenderer overrides:
+  // Checks whether |point| is inside the bounds of the tab.
+  bool IsPointInBounds(const gfx::Point& point);
+
+  // TabRendererGtk overrides:
   virtual bool IsSelected() const;
 
  private:
-  // Creates a path that contains the clickable region of the tab's visual
-  // representation. Used by GetViewForPoint for hit-testing.
-  void MakePathForTab(gfx::Path* path) const;
+  // Creates a clickable region of the tab's visual representation. Used for
+  // hit-testing.  Caller is responsible for destroying the region.
+  GdkRegion* MakeRegionForTab() const;
 
   // An instance of a delegate object that can perform various actions based on
   // user gestures.

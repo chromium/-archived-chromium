@@ -26,6 +26,13 @@ TabGtk::TabGtk(TabDelegate* delegate)
 TabGtk::~TabGtk() {
 }
 
+bool TabGtk::IsPointInBounds(const gfx::Point& point) {
+  GdkRegion* region = MakeRegionForTab();
+  bool in_bounds = (gdk_region_point_in(region, point.x(), point.y()) == TRUE);
+  gdk_region_destroy(region);
+  return in_bounds;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TabGtk, TabRendererGtk overrides:
 
@@ -36,28 +43,25 @@ bool TabGtk::IsSelected() const {
 ///////////////////////////////////////////////////////////////////////////////
 // TabGtk, private:
 
-void TabGtk::MakePathForTab(gfx::Path* path) const {
-  DCHECK(path);
+GdkRegion* TabGtk::MakeRegionForTab()const {
+  int w = width();
+  int h = height();
+  static const int kNumRegionPoints = 9;
 
-  SkScalar h = SkIntToScalar(height());
-  SkScalar w = SkIntToScalar(width());
+  GdkPoint polygon[kNumRegionPoints] = {
+    { 0, h },
+    { kTabBottomCurveWidth, h - kTabBottomCurveWidth },
+    { kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth },
+    { kTabCapWidth, 0 },
+    { w - kTabCapWidth, 0 },
+    { w - kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth },
+    { w - kTabBottomCurveWidth, h - kTabBottomCurveWidth },
+    { w, h },
+    { 0, h },
+  };
 
-  path->moveTo(0, h);
-
-  // Left end cap.
-  path->lineTo(kTabBottomCurveWidth, h - kTabBottomCurveWidth);
-  path->lineTo(kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth);
-  path->lineTo(kTabCapWidth, 0);
-
-  // Connect to the right cap.
-  path->lineTo(w - kTabCapWidth, 0);
-
-  // Right end cap.
-  path->lineTo(w - kTabCapWidth - kTabTopCurveWidth, kTabTopCurveWidth);
-  path->lineTo(w - kTabBottomCurveWidth, h - kTabBottomCurveWidth);
-  path->lineTo(w, h);
-
-  // Close out the path.
-  path->lineTo(0, h);
-  path->close();
+  GdkRegion* region = gdk_region_polygon(polygon, kNumRegionPoints,
+                                         GDK_WINDING_RULE);
+  gdk_region_offset(region, x(), y());
+  return region;
 }

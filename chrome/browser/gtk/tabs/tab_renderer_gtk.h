@@ -59,9 +59,6 @@ class TabRendererGtk {
   // Paints the tab into |canvas|.
   void Paint(ChromeCanvasPaint* canvas);
 
-  // Checks whether |coord| is inside the bounds of the tab.
-  bool IsPointInBounds(const gfx::Point& coord);
-
   // Sets the hovering status of the tab.
   void SetHovering(bool hovering) { hovering_ = hovering; }
 
