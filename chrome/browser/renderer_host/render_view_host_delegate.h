@@ -245,6 +245,9 @@ class RenderViewHostDelegate {
                                 bool errored,
                                 const SkBitmap& image) { }
 
+  // The content's intrinsic width (prefWidth) changed.
+  virtual void DidContentsPreferredWidthChange(const int pref_width) { }
+
   // The page wants to open a URL with the specified disposition.
   virtual void RequestOpenURL(const GURL& url,
                               const GURL& referrer,

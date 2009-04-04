@@ -33,6 +33,9 @@ class ExtensionView : public HWNDHtmlView,
   // RenderViewHostDelegate
   virtual Profile* GetProfile() const { return profile_; }
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
+  virtual void DidContentsPreferredWidthChange(const int pref_width);
+  virtual void DidStopLoading(RenderViewHost* render_view_host,
+      int32 page_id);
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(
       const std::wstring& message,

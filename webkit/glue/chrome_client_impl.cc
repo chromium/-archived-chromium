@@ -448,6 +448,15 @@ PlatformWidget ChromeClientImpl::platformWindow() const {
   return delegate ? delegate->GetContainingView(webview_) : NULL;
 }
 
+void ChromeClientImpl::contentsSizeChanged(WebCore::Frame* frame, const
+    WebCore::IntSize& size) const {
+  WebViewDelegate* delegate = webview_->delegate();
+
+  if (delegate) {
+    delegate->DidContentsSizeChange(webview_, size.width(), size.height());
+  }
+}
+
 void ChromeClientImpl::mouseDidMoveOverElement(
     const WebCore::HitTestResult& result, unsigned modifierFlags) {
   // Find out if the mouse is over a link, and if so, let our UI know... somehow

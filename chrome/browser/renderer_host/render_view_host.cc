@@ -712,6 +712,8 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_DidDownloadImage, OnMsgDidDownloadImage)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ContextMenu, OnMsgContextMenu)
     IPC_MESSAGE_HANDLER(ViewHostMsg_OpenURL, OnMsgOpenURL)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_DidContentsPreferredWidthChange,
+                        OnMsgDidContentsPreferredWidthChange)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DomOperationResponse,
                         OnMsgDomOperationResponse)
     IPC_MESSAGE_HANDLER(ViewHostMsg_DOMUISend,
@@ -1051,6 +1053,10 @@ void RenderViewHost::OnMsgOpenURL(const GURL& url,
             process()->pid(), &validated_url);
 
   delegate_->RequestOpenURL(validated_url, referrer, disposition);
+}
+
+void RenderViewHost::OnMsgDidContentsPreferredWidthChange(const int pref_width) {
+  delegate_->DidContentsPreferredWidthChange(pref_width);
 }
 
 void RenderViewHost::OnMsgDomOperationResponse(

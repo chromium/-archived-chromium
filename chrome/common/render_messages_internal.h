@@ -832,6 +832,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       GURL /* referrer */,
                       WindowOpenDisposition /* disposition */)
 
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_DidContentsPreferredWidthChange,
+                      int /* pref_width */)
+
   // Following message is used to communicate the values received by the
   // callback binding the JS to Cpp.
   // An instance of browser that has an automation host listening to it can

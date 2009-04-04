@@ -639,6 +639,11 @@ class HWNDHtmlView {
   RenderViewHost* render_view_host() { NOTIMPLEMENTED(); return NULL; }
   void InitHidden() { NOTIMPLEMENTED(); }
   void set_preferred_size(const gfx::Size& size) { NOTIMPLEMENTED(); }
+  virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
+  void SizeToPreferredSize() { NOTIMPLEMENTED(); }
+  HWNDHtmlView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
+  void Layout() { NOTIMPLEMENTED(); }
+  void SchedulePaint() { NOTIMPLEMENTED(); }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

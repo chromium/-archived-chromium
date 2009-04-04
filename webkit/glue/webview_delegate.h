@@ -485,6 +485,10 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                          const std::wstring& value) {
   }
 
+  virtual void DidContentsSizeChange(WebWidget* webwidget, int new_width,
+                                     int new_height) {
+  }
+
   // UIDelegate --------------------------------------------------------------
 
   // Asks the browser to show a modal HTML dialog.  The dialog is passed the

@@ -19,8 +19,38 @@ ExtensionView::ExtensionView(Extension* extension,
     : HWNDHtmlView(url, this, false),
       extension_(extension),
       profile_(profile) {
-  // TODO(mpcomplete): query this from the renderer somehow?
-  set_preferred_size(gfx::Size(100, 100));
+  // Set the width initially to 0, so that the WebCore::Document can
+  // correctly compute the minPrefWidth which is returned in
+  // DidContentsChangeSize()
+  set_preferred_size(gfx::Size(0, 100));
+  SetVisible(false);
+}
+
+void ExtensionView::DidStopLoading(RenderViewHost* render_view_host,
+      int32 page_id) {
+  SetVisible(true);
+  render_view_host->WasResized();
+}
+
+void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
+  if (pref_width > 0) {
+    // SchedulePaint first because new_width may be smaller and we want
+    // the Parent to paint the vacated space.
+    SchedulePaint();
+    set_preferred_size(gfx::Size(pref_width, 100));
+    SizeToPreferredSize();
+
+    // TODO(rafaelw): This assumes that the extension view is a child of an
+    // ExtensionToolstrip, which is a child of the BookmarkBarView. There should
+    // be a way to do this where the ExtensionView doesn't have to know it's
+    // containment hierarchy.
+    if (GetParent() != NULL && GetParent()->GetParent() != NULL) {
+      GetParent()->GetParent()->Layout();
+    }
+
+    SchedulePaint();
+    render_view_host()->WasResized();
+  }
 }
 
 void ExtensionView::CreatingRenderer() {

@@ -207,6 +207,9 @@ class RenderView : public RenderWidget,
                                                    WebFrame* frame,
                                                    bool is_new_navigation);
   virtual void DidReceiveIconForFrame(WebView* webview, WebFrame* frame);
+  virtual void DidContentsSizeChange(WebWidget* webwidget,
+                                     int new_width,
+                                     int new_height);
 
   virtual void WillPerformClientRedirect(WebView* webview,
                                          WebFrame* frame,

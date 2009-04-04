@@ -1944,6 +1944,19 @@ void RenderView::OpenURL(WebView* webview, const GURL& url,
   Send(new ViewHostMsg_OpenURL(routing_id_, url, referrer, disposition));
 }
 
+void RenderView::DidContentsSizeChange(WebWidget* webwidget,
+                                       int new_width,
+                                       int new_height) {
+  // TODO(rafaelw): This is a temporary solution. Only the ExtensionView wants
+  // this notification at the moment. It isn't clean to test for ExtensionView
+  // by examining the enabled_bindings. This needs to be generalized as it
+  // becomes clear what extension toolbars need.
+  if (BindingsPolicy::is_extension_enabled(enabled_bindings_)) {
+    int width = webview()->GetMainFrame()->GetContentsPreferredWidth();
+    Send(new ViewHostMsg_DidContentsPreferredWidthChange(routing_id_, width));
+  }
+}
+
 // We are supposed to get a single call to Show for a newly created RenderView
 // that was created via RenderView::CreateWebView.  So, we wait until this
 // point to dispatch the ShowView message.

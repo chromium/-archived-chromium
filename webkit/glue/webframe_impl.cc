@@ -105,6 +105,7 @@ MSVC_PUSH_WARNING_LEVEL(0);
 #if defined(OS_WIN)
 #include "RenderThemeChromiumWin.h"
 #endif
+#include "RenderView.h"
 #include "RenderWidget.h"
 #include "ReplaceSelectionCommand.h"
 #include "ResourceHandle.h"
@@ -536,6 +537,15 @@ GURL WebFrameImpl::GetOSDDURL() const {
     }
   }
   return GURL();
+}
+
+int WebFrameImpl::GetContentsPreferredWidth() const {
+  if ((frame_->document() != NULL) &&
+      (frame_->document()->renderView() != NULL)) {
+    return frame_->document()->renderView()->minPrefWidth();
+  } else {
+    return 0;
+  }
 }
 
 scoped_refptr<FeedList> WebFrameImpl::GetFeedList() const {

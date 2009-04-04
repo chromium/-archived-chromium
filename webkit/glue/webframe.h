@@ -140,6 +140,9 @@ class WebFrame {
   // the page does not have a valid document, an empty GURL is returned.
   virtual GURL GetOSDDURL() const = 0;
 
+  // Return the minPrefWidth of the content contained in the current Document
+  virtual int GetContentsPreferredWidth() const = 0;
+
   // Return the list of feeds specified in the document for the frame. If
   // the page does not have a valid document, an empty list is returned.
   virtual scoped_refptr<class FeedList> GetFeedList() const = 0;
