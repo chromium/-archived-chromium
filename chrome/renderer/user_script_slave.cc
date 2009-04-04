@@ -90,13 +90,15 @@ bool UserScriptSlave::UpdateScripts(base::SharedMemoryHandle shared_memory) {
       const char* body = NULL;
       int body_length = 0;
       CHECK(pickle.ReadData(&iter, &body, &body_length));
-      script->js_scripts()[j].set_external_content(body);
+      script->js_scripts()[j].set_external_content(
+          StringPiece(body, body_length));
     }
     for (size_t j = 0; j < script->css_scripts().size(); ++j) {
       const char* body = NULL;
       int body_length = 0;
       CHECK(pickle.ReadData(&iter, &body, &body_length));
-      script->css_scripts()[j].set_external_content(body);
+      script->css_scripts()[j].set_external_content(
+          StringPiece(body, body_length));
     }
   }
 
