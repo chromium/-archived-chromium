@@ -79,7 +79,16 @@ void WebContentsViewGtk::CreateView() {
 
 RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
     RenderWidgetHost* render_widget_host) {
-  DCHECK(!render_widget_host->view());
+  if (render_widget_host->view()) {
+    // During testing, the view will already be set up in most cases to the
+    // test view, so we don't want to clobber it with a real one. To verify that
+    // this actually is happening (and somebody isn't accidentally creating the
+    // view twice), we check for the RVH Factory, which will be set when we're
+    // making special ones (which go along with the special views).
+    DCHECK(web_contents()->render_manager()->has_render_view_host_factory());
+    return render_widget_host->view();
+  }
+
   RenderWidgetHostViewGtk* view =
       new RenderWidgetHostViewGtk(render_widget_host);
   view->InitAsChild();

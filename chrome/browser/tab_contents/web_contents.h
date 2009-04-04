@@ -109,10 +109,8 @@ class WebContents : public TabContents,
     return view_.get();
   }
 
-#ifdef UNIT_TEST
   // Expose the render manager for testing.
   RenderViewHostManager* render_manager() { return &render_manager_; }
-#endif
 
   // Page state getters & setters ----------------------------------------------
 

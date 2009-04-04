@@ -39,13 +39,14 @@ TabContentsType TabContentsFactory::NextUnusedType() {
 // static
 TabContents* TabContents::CreateWithType(TabContentsType type,
                                          Profile* profile,
-                                         SiteInstance* instance) {
+                                         SiteInstance* instance,
+                                         RenderViewHostFactory* rvh_factory) {
   TabContents* contents = NULL;
 
   switch (type) {
     case TAB_CONTENTS_WEB:
-      contents = new WebContents(profile, instance, NULL, MSG_ROUTING_NONE,
-                                 NULL);
+      contents = new WebContents(profile, instance, rvh_factory,
+                                 MSG_ROUTING_NONE, NULL);
       break;
     default:
       if (g_extra_types) {

@@ -2159,17 +2159,16 @@ void AutomationProvider::ShowInterstitialPage(int tab_handle,
   if (tab_tracker_->ContainsHandle(tab_handle)) {
     NavigationController* controller = tab_tracker_->GetResource(tab_handle);
     TabContents* tab_contents = controller->active_contents();
-    if (tab_contents->type() == TAB_CONTENTS_WEB) {
-      AddNavigationStatusListener<bool>(controller, reply_message, true,
-                                        false, false);
-      WebContents* web_contents = tab_contents->AsWebContents();
-      AutomationInterstitialPage* interstitial =
-          new AutomationInterstitialPage(web_contents,
-                                         GURL("about:interstitial"),
-                                         html_text);
-      interstitial->Show();
-      return;
-    }
+
+    AddNavigationStatusListener<bool>(controller, reply_message, true,
+                                      false, false);
+    WebContents* web_contents = tab_contents->AsWebContents();
+    AutomationInterstitialPage* interstitial =
+        new AutomationInterstitialPage(web_contents,
+                                       GURL("about:interstitial"),
+                                       html_text);
+    interstitial->Show();
+    return;
   }
 
   AutomationMsg_ShowInterstitialPage::WriteReplyParams(reply_message, false);
@@ -2345,7 +2344,7 @@ void AutomationProvider::ActionOnSSLBlockingPage(int handle, bool proceed,
     NavigationController* tab = tab_tracker_->GetResource(handle);
     NavigationEntry* entry = tab->GetActiveEntry();
     if (entry->page_type() == NavigationEntry::INTERSTITIAL_PAGE) {
-      TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
+      TabContents* tab_contents = tab->tab_contents();
       InterstitialPage* ssl_blocking_page =
           InterstitialPage::GetInterstitialPage(tab_contents->AsWebContents());
       if (ssl_blocking_page) {
@@ -2430,17 +2429,12 @@ void AutomationProvider::SavePage(int tab_handle,
     return;
   }
 
-  TabContents* tab_contents = nav->active_contents();
-  if (tab_contents->type() != TAB_CONTENTS_WEB) {
-    *success = false;
-    return;
-  }
-
   SavePackage::SavePackageType save_type =
       static_cast<SavePackage::SavePackageType>(type);
   DCHECK(save_type >= SavePackage::SAVE_AS_ONLY_HTML &&
          save_type <= SavePackage::SAVE_AS_COMPLETE_HTML);
-  tab_contents->AsWebContents()->SavePage(file_name, dir_path, save_type);
+  nav->tab_contents()->AsWebContents()->SavePage(
+      file_name, dir_path, save_type);
 
   *success = true;
 }
@@ -2505,7 +2499,7 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
       NOTREACHED();
       return;
     }
-    TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
+    TabContents* tab_contents = tab->tab_contents();
     if (!tab_contents) {
       NOTREACHED();
       return;
@@ -2532,7 +2526,7 @@ WebContents* AutomationProvider::GetWebContentsForHandle(
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     TabContents* tab_contents = nav_controller->active_contents();
-    if (tab_contents && tab_contents->type() == TAB_CONTENTS_WEB) {
+    if (tab_contents) {
       web_contents = tab_contents->AsWebContents();
       if (tab)
         *tab = nav_controller;
@@ -2544,12 +2538,8 @@ WebContents* AutomationProvider::GetWebContentsForHandle(
 ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    TabContents* tab_contents = tab->GetTabContents(TAB_CONTENTS_WEB);
-    DCHECK(tab_contents);
-    if (tab_contents) {
-      return ExternalTabContainer::GetContainerForTab(
-          tab_contents->GetNativeView());
-    }
+    return ExternalTabContainer::GetContainerForTab(
+        tab->tab_contents()->GetNativeView());
   }
 
   return NULL;
@@ -2734,7 +2724,6 @@ void AutomationProvider::GetPageCurrentEncoding(
 
     if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
       TabContents* tab_contents = nav->active_contents();
-      DCHECK(tab_contents->type() == TAB_CONTENTS_WEB);
       *current_encoding = tab_contents->AsWebContents()->encoding();
     }
   }
@@ -2753,7 +2742,6 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
 
     if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
       TabContents* tab_contents = nav->active_contents();
-      DCHECK(tab_contents->type() == TAB_CONTENTS_WEB);
       int selected_encoding_id =
           CharacterEncoding::GetCommandIdByCanonicalEncodingName(encoding_name);
       if (selected_encoding_id) {

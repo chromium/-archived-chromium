@@ -173,7 +173,6 @@ class RenderViewHostTestHarness : public testing::Test {
   RenderViewHostTestHarness()
       : rph_factory_(),
         rvh_factory_(&rph_factory_),
-        process_(NULL),
         contents_(NULL),
         controller_(NULL) {}
   virtual ~RenderViewHostTestHarness() {}
@@ -190,9 +189,18 @@ class RenderViewHostTestHarness : public testing::Test {
     return reinterpret_cast<TestRenderViewHost*>(contents_->render_view_host());
   }
 
-  Profile* profile() {
+  TestingProfile* profile() {
     return profile_.get();
   }
+
+  MockRenderProcessHost* process() { 
+    return static_cast<MockRenderProcessHost*>(rvh()->process());
+  }
+
+  // Creates a pending navigation to the given oURL with the default parameters
+  // and the commits the load with a page ID one larger than any seen. This
+  // emulates what happens on a new navigation.
+  void NavigateAndCommit(const GURL& url);
 
   // Marks the contents as already cleaned up. If a test calls CloseContents,
   // then our cleanup code shouldn't run. This function makes sure that happens.
@@ -205,19 +213,18 @@ class RenderViewHostTestHarness : public testing::Test {
   virtual void SetUp();
   virtual void TearDown();
 
-  MessageLoopForUI message_loop_;
-
   // This profile will be created in SetUp if it has not already been created.
   // This allows tests to override the profile if they so choose in their own
   // SetUp function before calling the base class's (us) SetUp().
   scoped_ptr<TestingProfile> profile_;
+
+  MessageLoopForUI message_loop_;
 
   MockRenderProcessHostFactory rph_factory_;
   TestRenderViewHostFactory rvh_factory_;
 
   // We clean up the WebContents by calling CloseContents, which deletes itself.
   // This in turn causes the destruction of these other things.
-  MockRenderProcessHost* process_;
   TestWebContents* contents_;
   NavigationController* controller_;
 

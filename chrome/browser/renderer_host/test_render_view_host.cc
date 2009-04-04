@@ -69,6 +69,11 @@ BackingStore* TestRenderWidgetHostView::AllocBackingStore(
   return new BackingStore(size);
 }
 
+void RenderViewHostTestHarness::NavigateAndCommit(const GURL& url) {
+  controller()->LoadURL(url, GURL(), 0);
+  rvh()->SendNavigate(process()->max_page_id() + 1, url);
+}
+
 void RenderViewHostTestHarness::SetUp() {
   // See comment above profile_ decl for why we check for NULL here.
   if (!profile_.get())

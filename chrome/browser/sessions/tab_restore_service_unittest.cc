@@ -2,67 +2,68 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/test/test_tab_contents.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class TabRestoreServiceTest : public testing::Test {
+class TabRestoreServiceTest : public RenderViewHostTestHarness {
  public:
-  TabRestoreServiceTest()
-      : tab_contents_factory_(
-            TestTabContentsFactory::CreateAndRegisterFactory()),
-        profile_(new TestingProfile()),
-        service_(new TabRestoreService(profile_.get())) {
-    test_contents_ = tab_contents_factory_->CreateInstanceImpl();
-    test_contents_->set_commit_on_navigate(true);
-    controller_ = new NavigationController(test_contents_, profile_.get());
-    url1_ = GURL(tab_contents_factory_->scheme() + "://1");
-    url2_ = GURL(tab_contents_factory_->scheme() + "://2");
-    url3_ = GURL(tab_contents_factory_->scheme() + "://3");
+  TabRestoreServiceTest() {
+    url1_ = GURL("http://1");
+    url2_ = GURL("http://2");
+    url3_ = GURL("http://3");
   }
 
   ~TabRestoreServiceTest() {
-    controller_->Destroy();
   }
 
  protected:
+  // testing::Test overrides
+  virtual void SetUp() {
+    RenderViewHostTestHarness::SetUp();
+    service_ = new TabRestoreService(profile());
+  }
+  virtual void TearDown() {
+    service_ = NULL;
+    RenderViewHostTestHarness::TearDown();
+  }
+
   void AddThreeNavigations() {
     // Navigate to three URLs.
-    controller_->LoadURL(url1_, GURL(), PageTransition::RELOAD);
-    controller_->LoadURL(url2_, GURL(), PageTransition::RELOAD);
-    controller_->LoadURL(url3_, GURL(), PageTransition::RELOAD);
+    NavigateAndCommit(url1_);
+    NavigateAndCommit(url2_);
+    NavigateAndCommit(url3_);
   }
 
   void NavigateToIndex(int index) {
     // Navigate back. We have to do this song and dance as NavigationController
     // isn't happy if you navigate immediately while going back.
-    test_contents_->set_commit_on_navigate(false);
-    controller_->GoToIndex(index);
-    test_contents_->CompleteNavigationAsRenderer(
-        controller_->GetPendingEntry()->page_id(),
-        controller_->GetPendingEntry()->url());
+    controller()->GoToIndex(index);
+    rvh()->SendNavigate(controller()->GetPendingEntry()->page_id(),
+                        controller()->GetPendingEntry()->url());
   }
 
   void RecreateService() {
-    // Must set service to null first so that it is destroyed.
+    // Must set service to null first so that it is destroyed before the new
+    // one is created.
     service_ = NULL;
-    service_ = new TabRestoreService(profile_.get());
+    service_ = new TabRestoreService(profile());
     service_->LoadTabsFromLastSession();
   }
 
   // Adds a window with one tab and url to the profile's session service.
   void AddWindowWithOneTabToSessionService() {
-    SessionService* session_service = profile_->GetSessionService();
+    SessionService* session_service = profile()->GetSessionService();
     SessionID tab_id;
     SessionID window_id;
     session_service->SetWindowType(window_id, Browser::TYPE_NORMAL);
     session_service->SetTabWindow(window_id, tab_id);
     session_service->SetTabIndexInWindow(window_id, tab_id, 0);
     session_service->SetSelectedTabInWindow(window_id, 0);
-    NavigationEntry entry(tab_contents_factory_->type());
+    NavigationEntry entry;
     entry.set_url(url1_);
     session_service->UpdateTabNavigation(window_id, tab_id, 0, entry);
   }
@@ -72,30 +73,26 @@ class TabRestoreServiceTest : public testing::Test {
   // way of AddWindowWithOneTabToSessionService.
   void CreateSessionServiceWithOneWindow() {
     // The profile takes ownership of this.
-    SessionService* session_service = new SessionService(profile_.get());
-    profile_->set_session_service(session_service);
+    SessionService* session_service = new SessionService(profile());
+    profile()->set_session_service(session_service);
 
     AddWindowWithOneTabToSessionService();
 
     // Set this, otherwise previous session won't be loaded.
-    profile_->set_last_session_exited_cleanly(false);
+    profile()->set_last_session_exited_cleanly(false);
   }
 
   GURL url1_;
   GURL url2_;
   GURL url3_;
-  scoped_ptr<TestTabContentsFactory> tab_contents_factory_;
-  scoped_ptr<TestingProfile> profile_;
   scoped_refptr<TabRestoreService> service_;
-  NavigationController* controller_;
-  TestTabContents* test_contents_;
 };
 
 TEST_F(TabRestoreServiceTest, Basic) {
   AddThreeNavigations();
 
   // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
 
   // Make sure an entry was created.
   ASSERT_EQ(1U, service_->entries().size());
@@ -113,7 +110,7 @@ TEST_F(TabRestoreServiceTest, Basic) {
   NavigateToIndex(1);
 
   // And check again.
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
 
   // There should be two entries now.
   ASSERT_EQ(2U, service_->entries().size());
@@ -132,7 +129,7 @@ TEST_F(TabRestoreServiceTest, Basic) {
 // Make sure TabRestoreService doesn't create an entry for a tab with no
 // navigations.
 TEST_F(TabRestoreServiceTest, DontCreateEmptyTab) {
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
   EXPECT_TRUE(service_->entries().empty());
 }
 
@@ -141,7 +138,7 @@ TEST_F(TabRestoreServiceTest, Restore) {
   AddThreeNavigations();
 
   // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
 
   // Recreate the service and have it load the tabs.
   RecreateService();
@@ -165,7 +162,7 @@ TEST_F(TabRestoreServiceTest, DontLoadRestoredTab) {
   AddThreeNavigations();
 
   // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
   ASSERT_EQ(1U, service_->entries().size());
 
   // Restore the tab.
@@ -182,12 +179,12 @@ TEST_F(TabRestoreServiceTest, DontLoadRestoredTab) {
 // Make sure we persist entries to disk that have post data.
 TEST_F(TabRestoreServiceTest, DontPersistPostData) {
   AddThreeNavigations();
-  controller_->GetEntryAtIndex(0)->set_has_post_data(true);
-  controller_->GetEntryAtIndex(1)->set_has_post_data(true);
-  controller_->GetEntryAtIndex(2)->set_has_post_data(true);
+  controller()->GetEntryAtIndex(0)->set_has_post_data(true);
+  controller()->GetEntryAtIndex(1)->set_has_post_data(true);
+  controller()->GetEntryAtIndex(2)->set_has_post_data(true);
 
   // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
   ASSERT_EQ(1U, service_->entries().size());
 
   // Recreate the service and have it load the tabs.
@@ -212,7 +209,7 @@ TEST_F(TabRestoreServiceTest, DontLoadTwice) {
   AddThreeNavigations();
 
   // Have the service record the tab.
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
   ASSERT_EQ(1U, service_->entries().size());
 
   // Recreate the service and have it load the tabs.
@@ -228,7 +225,7 @@ TEST_F(TabRestoreServiceTest, DontLoadTwice) {
 TEST_F(TabRestoreServiceTest, LoadPreviousSession) {
   CreateSessionServiceWithOneWindow();
 
-  profile_->GetSessionService()->MoveCurrentSessionToLastSession();
+  profile()->GetSessionService()->MoveCurrentSessionToLastSession();
 
   service_->LoadTabsFromLastSession();
 
@@ -249,9 +246,9 @@ TEST_F(TabRestoreServiceTest, LoadPreviousSession) {
 TEST_F(TabRestoreServiceTest, DontLoadAfterRestore) {
   CreateSessionServiceWithOneWindow();
 
-  profile_->GetSessionService()->MoveCurrentSessionToLastSession();
+  profile()->GetSessionService()->MoveCurrentSessionToLastSession();
 
-  profile_->set_restored_last_session(true);
+  profile()->set_restored_last_session(true);
 
   service_->LoadTabsFromLastSession();
 
@@ -263,9 +260,9 @@ TEST_F(TabRestoreServiceTest, DontLoadAfterRestore) {
 TEST_F(TabRestoreServiceTest, DontLoadAfterCleanExit) {
   CreateSessionServiceWithOneWindow();
 
-  profile_->GetSessionService()->MoveCurrentSessionToLastSession();
+  profile()->GetSessionService()->MoveCurrentSessionToLastSession();
 
-  profile_->set_last_session_exited_cleanly(true);
+  profile()->set_last_session_exited_cleanly(true);
 
   service_->LoadTabsFromLastSession();
 
@@ -275,11 +272,11 @@ TEST_F(TabRestoreServiceTest, DontLoadAfterCleanExit) {
 TEST_F(TabRestoreServiceTest, LoadPreviousSessionAndTabs) {
   CreateSessionServiceWithOneWindow();
 
-  profile_->GetSessionService()->MoveCurrentSessionToLastSession();
+  profile()->GetSessionService()->MoveCurrentSessionToLastSession();
 
   AddThreeNavigations();
 
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
 
   RecreateService();
 
@@ -316,11 +313,11 @@ TEST_F(TabRestoreServiceTest, ManyWindowsInSessionService) {
   for (size_t i = 0; i < TabRestoreService::kMaxEntries; ++i)
     AddWindowWithOneTabToSessionService();
 
-  profile_->GetSessionService()->MoveCurrentSessionToLastSession();
+  profile()->GetSessionService()->MoveCurrentSessionToLastSession();
 
   AddThreeNavigations();
 
-  service_->CreateHistoricalTab(controller_);
+  service_->CreateHistoricalTab(controller());
 
   RecreateService();
 

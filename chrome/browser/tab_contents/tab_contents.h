@@ -85,10 +85,12 @@ class TabContents : public PageNavigator,
   // (implemented in tab_contents_factory.cc)
 
   // Creates a new TabContents of the given type.  Will reuse the given
-  // instance's renderer, if it is not null.
+  // instance's renderer, if it is not null. The given render view host factory
+  // will be passed to the new TabContents (it may be NULL).
   static TabContents* CreateWithType(TabContentsType type,
                                      Profile* profile,
-                                     SiteInstance* instance);
+                                     SiteInstance* instance,
+                                     RenderViewHostFactory* rvh_factory);
 
   // Returns the type of TabContents needed to handle the URL. |url| may
   // end up being modified to contain the _real_ url being loaded if the

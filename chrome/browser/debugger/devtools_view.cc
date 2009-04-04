@@ -50,7 +50,7 @@ void DevToolsView::Init() {
   Profile* profile = BrowserList::GetLastActive()->profile();
 
   TabContents* tc = TabContents::CreateWithType(TAB_CONTENTS_WEB, profile,
-                                                NULL);
+                                                NULL, NULL);
   web_contents_ = tc->AsWebContents();
   web_contents_->SetupController(profile);
   web_contents_->set_delegate(this);

@@ -3,29 +3,30 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/download/download_request_manager.h"
+#include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/test/test_tab_contents.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-class DownloadRequestManagerTest : public testing::Test,
-    public DownloadRequestManager::Callback {
+class DownloadRequestManagerTest
+    : public RenderViewHostTestHarness,
+      public DownloadRequestManager::Callback {
  public:
   virtual void SetUp() {
+    RenderViewHostTestHarness::SetUp();
+
     allow_download_ = true;
     ask_allow_count_ = cancel_count_ = continue_count_ = 0;
-    factory_.reset(TestTabContentsFactory::CreateAndRegisterFactory());
-    TestTabContents* contents = factory_->CreateInstanceImpl();
-    contents->set_commit_on_navigate(true);
-    controller_ = new NavigationController(contents, &profile_);
+
     download_request_manager_ = new DownloadRequestManager(NULL, NULL);
     test_delegate_.reset(new DownloadRequestManagerTestDelegate(this));
     DownloadRequestManager::SetTestingDelegate(test_delegate_.get());
   }
 
   virtual void TearDown() {
-    controller_->Destroy();
     DownloadRequestManager::SetTestingDelegate(NULL);
+
+    RenderViewHostTestHarness::TearDown();
   }
 
   virtual void ContinueDownload() {
@@ -37,7 +38,7 @@ class DownloadRequestManagerTest : public testing::Test,
 
   void CanDownload() {
     download_request_manager_->CanDownloadImpl(
-        controller_->active_contents(), this);
+        controller()->tab_contents(), this);
   }
 
   bool ShouldAllowDownload() {
@@ -60,10 +61,7 @@ class DownloadRequestManagerTest : public testing::Test,
     DownloadRequestManagerTest* test_;
   };
 
-  TestingProfile profile_;
-  scoped_ptr<TestTabContentsFactory> factory_;
   scoped_ptr<DownloadRequestManagerTestDelegate> test_delegate_;
-  NavigationController* controller_;
   scoped_refptr<DownloadRequestManager> download_request_manager_;
 
   // Number of times ContinueDownload was invoked.
@@ -83,13 +81,13 @@ TEST_F(DownloadRequestManagerTest, Allow) {
   // All tabs should initially start at ALLOW_ONE_DOWNLOAD.
   ASSERT_EQ(DownloadRequestManager::ALLOW_ONE_DOWNLOAD,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // Ask if the tab can do a download. This moves to PROMPT_BEFORE_DOWNLOAD.
   CanDownload();
   ASSERT_EQ(DownloadRequestManager::PROMPT_BEFORE_DOWNLOAD,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
   // We should have been told we can download.
   ASSERT_EQ(1, continue_count_);
   ASSERT_EQ(0, cancel_count_);
@@ -104,7 +102,7 @@ TEST_F(DownloadRequestManagerTest, Allow) {
   ask_allow_count_ = 0;
   ASSERT_EQ(DownloadRequestManager::ALLOW_ALL_DOWNLOADS,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
   // We should have been told we can download.
   ASSERT_EQ(1, continue_count_);
   ASSERT_EQ(0, cancel_count_);
@@ -116,7 +114,7 @@ TEST_F(DownloadRequestManagerTest, Allow) {
   ASSERT_EQ(0, ask_allow_count_);
   ASSERT_EQ(DownloadRequestManager::ALLOW_ALL_DOWNLOADS,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
   // We should have been told we can download.
   ASSERT_EQ(1, continue_count_);
   ASSERT_EQ(0, cancel_count_);
@@ -124,7 +122,7 @@ TEST_F(DownloadRequestManagerTest, Allow) {
 }
 
 TEST_F(DownloadRequestManagerTest, ResetOnNavigation) {
-  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar"), GURL(), 0);
+  NavigateAndCommit(GURL("http://foo.com/bar"));
 
   // Do two downloads, allowing the second so that we end up with allow all.
   CanDownload();
@@ -133,12 +131,11 @@ TEST_F(DownloadRequestManagerTest, ResetOnNavigation) {
   ask_allow_count_ = continue_count_ = cancel_count_ = 0;
   ASSERT_EQ(DownloadRequestManager::ALLOW_ALL_DOWNLOADS,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // Navigate to a new URL with the same host, which shouldn't reset the allow
   // all state.
-  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar2"),
-                       GURL(), 0);
+  NavigateAndCommit(GURL("http://foo.com/bar2"));
   CanDownload();
   ASSERT_EQ(1, continue_count_);
   ASSERT_EQ(0, cancel_count_);
@@ -146,37 +143,37 @@ TEST_F(DownloadRequestManagerTest, ResetOnNavigation) {
   ask_allow_count_ = continue_count_ = cancel_count_ = 0;
   ASSERT_EQ(DownloadRequestManager::ALLOW_ALL_DOWNLOADS,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // Do a user gesture, because we're at allow all, this shouldn't change the
   // state.
-  download_request_manager_->OnUserGesture(controller_->active_contents());
+  download_request_manager_->OnUserGesture(controller()->tab_contents());
   ASSERT_EQ(DownloadRequestManager::ALLOW_ALL_DOWNLOADS,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // Navigate to a completely different host, which should reset the state.
-  controller_->LoadURL(GURL(factory_->scheme() + "://fooey.com"), GURL(), 0);
+  NavigateAndCommit(GURL("http://fooey.com"));
   ASSERT_EQ(DownloadRequestManager::ALLOW_ONE_DOWNLOAD,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 }
 
 TEST_F(DownloadRequestManagerTest, ResetOnUserGesture) {
-  controller_->LoadURL(GURL(factory_->scheme() + "://foo.com/bar"), GURL(), 0);
+  NavigateAndCommit(GURL("http://foo.com/bar"));
 
   // Do one download, which should change to prompt before download.
   CanDownload();
   ask_allow_count_ = continue_count_ = cancel_count_ = 0;
   ASSERT_EQ(DownloadRequestManager::PROMPT_BEFORE_DOWNLOAD,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // Do a user gesture, which should reset back to allow one.
-  download_request_manager_->OnUserGesture(controller_->active_contents());
+  download_request_manager_->OnUserGesture(controller()->tab_contents());
   ASSERT_EQ(DownloadRequestManager::ALLOW_ONE_DOWNLOAD,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // Ask twice, which triggers calling the delegate. Don't allow the download
   // so that we end up with not allowed.
@@ -185,13 +182,13 @@ TEST_F(DownloadRequestManagerTest, ResetOnUserGesture) {
   CanDownload();
   ASSERT_EQ(DownloadRequestManager::DOWNLOADS_NOT_ALLOWED,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 
   // A user gesture now should NOT change the state.
-  download_request_manager_->OnUserGesture(controller_->active_contents());
+  download_request_manager_->OnUserGesture(controller()->tab_contents());
   ASSERT_EQ(DownloadRequestManager::DOWNLOADS_NOT_ALLOWED,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
   // And make sure we really can't download.
   ask_allow_count_ = continue_count_ = cancel_count_ = 0;
   CanDownload();
@@ -201,5 +198,5 @@ TEST_F(DownloadRequestManagerTest, ResetOnUserGesture) {
   // And the state shouldn't have changed.
   ASSERT_EQ(DownloadRequestManager::DOWNLOADS_NOT_ALLOWED,
             download_request_manager_->GetDownloadStatus(
-                controller_->active_contents()));
+                controller()->tab_contents()));
 }

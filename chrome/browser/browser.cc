@@ -28,7 +28,6 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_constants.h"
@@ -1339,7 +1338,8 @@ TabContents* Browser::CreateTabContentsForURL(
   TabContentsType type = TabContents::TypeForURL(&real_url);
   DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
 
-  TabContents* contents = TabContents::CreateWithType(type, profile, instance);
+  TabContents* contents = TabContents::CreateWithType(type, profile, instance,
+                                                      NULL);
   contents->SetupController(profile);
 
   if (!defer_load) {
@@ -2365,7 +2365,8 @@ NavigationController* Browser::BuildRestoredNavigationController(
            selected_navigation < static_cast<int>(navigations.size()));
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
-    return new NavigationController(profile_, navigations, selected_navigation);
+    return new NavigationController(profile_, navigations, selected_navigation,
+                                    NULL);
   } else {
     // No navigations. Create a tab with about:blank.
     TabContents* contents =

@@ -84,6 +84,12 @@ class RenderViewHostManager : public NotificationObserver {
   // Schedules all RenderViewHosts for destruction.
   void Shutdown();
 
+  // Returns true if there is a RenderViewHostFactory that will generate
+  // non-standard RenderViewHosts.
+  bool has_render_view_host_factory() const {
+    return !!render_view_factory_;
+  }
+
   // Returns the currently actuive RenderViewHost.
   //
   // This will be non-NULL between Init() and Shutdown(). You may want to NULL

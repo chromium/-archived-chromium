@@ -21,6 +21,7 @@
 class NavigationEntry;
 class GURL;
 class Profile;
+class RenderViewHostFactory;
 class TabContents;
 class SiteInstance;
 class SkBitmap;
@@ -128,11 +129,13 @@ class NavigationController {
 
   // Creates a NavigationController from the specified history. Processing
   // for this is asynchronous and handled via the RestoreHelper (in
-  // navigation_controller.cc).
+  // navigation_controller.cc). The RenderViewHostFactory will be passed to
+  // new TabContentses, it is non-NULL only for testing.
   NavigationController(
       Profile* profile,
       const std::vector<TabNavigation>& navigations,
-      int selected_navigation);
+      int selected_navigation,
+      RenderViewHostFactory* rvh_factory);
   ~NavigationController();
 
   // Begin the destruction sequence for this NavigationController and all its
@@ -310,7 +313,17 @@ class NavigationController {
 
   // Returns the currently-active TabContents associated with this controller.
   // You should use GetActiveEntry instead of this in most cases.
+  // 
+  // TODO(brettw) this should be removed in preference to tab_contents().
   TabContents* active_contents() const {
+    return active_contents_;
+  }
+
+  // Returns the tab contents associated with this controller. Non-NULL except
+  // during set-up of the tab.
+  TabContents* tab_contents() const {
+    // This currently returns the active tab contents which should be renamed to
+    // tab_contents.
     return active_contents_;
   }
 
@@ -481,6 +494,10 @@ class NavigationController {
   // The user profile associated with this controller
   Profile* profile_;
 
+  // Non-owning pointer to the factory to pass to new TabContentes. This will be
+  // NULL except in testing, where it is used to create mock RVH's.
+  RenderViewHostFactory* rvh_factory_;
+
   // List of NavigationEntry for this tab
   typedef std::vector<linked_ptr<NavigationEntry> > NavigationEntries;
   NavigationEntries entries_;
@@ -520,6 +537,8 @@ class NavigationController {
   TabContentsCollectorMap tab_contents_collector_map_;
 
   // The tab contents that is currently active.
+  // TODO(brettw) this should be renamed to tab_contents_ and comments clarified
+  // that it never changes.
   TabContents* active_contents_;
 
   // The max restored page ID in this controller, if it was restored.  We must

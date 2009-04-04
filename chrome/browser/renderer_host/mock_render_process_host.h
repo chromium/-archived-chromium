@@ -23,6 +23,9 @@ class MockRenderProcessHost : public RenderProcessHost {
   // renderer via this RenderProcessHost.
   IPC::TestSink& sink() { return sink_; }
 
+  // Provides tests access to the max page ID currently used for this process.
+  int max_page_id() const { return max_page_id_; }
+
   // RenderProcessHost implementation (public portion).
   virtual bool Init();
   virtual int GetNextRoutingID();

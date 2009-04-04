@@ -180,9 +180,7 @@ bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
 
 // Delegate API method.
 void SSLManager::AddMessageToConsole(const WebConsoleMessage& message) {
-  TabContents* tab_contents = controller_->GetTabContents(TAB_CONTENTS_WEB);
-  if (!tab_contents)
-    return;
+  TabContents* tab_contents = controller_->tab_contents();
   WebContents* web_contents = tab_contents->AsWebContents();
   if (!web_contents)
     return;

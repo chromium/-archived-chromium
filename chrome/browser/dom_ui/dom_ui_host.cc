@@ -10,7 +10,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/tab_contents_type.h"
 
 DOMUIHost::DOMUIHost(Profile* profile,
                      SiteInstance* instance,

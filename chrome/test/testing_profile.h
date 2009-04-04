@@ -30,10 +30,12 @@
 class TestingProfile : public Profile {
  public:
   TestingProfile();
+
   // Creates a new profile by adding |count| to the end of the path. Use this
   // when you need to have more than one TestingProfile running at the same
   // time.
   explicit TestingProfile(int count);
+
   virtual ~TestingProfile();
 
   // Creates the history service. If |delete_file| is true, the history file is

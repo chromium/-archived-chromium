@@ -31,6 +31,18 @@ NavigationEntry::FaviconStatus::FaviconStatus() : valid_(false) {
   bitmap_ = *rb.GetBitmapNamed(IDR_DEFAULT_FAVICON);
 }
 
+
+NavigationEntry::NavigationEntry()
+    : unique_id_(GetUniqueID()),
+      tab_type_(TAB_CONTENTS_WEB),
+      site_instance_(NULL),
+      page_type_(NORMAL_PAGE),
+      page_id_(-1),
+      transition_type_(PageTransition::LINK),
+      has_post_data_(false),
+      restored_(false) {
+}
+
 NavigationEntry::NavigationEntry(TabContentsType type)
     : unique_id_(GetUniqueID()),
       tab_type_(type),

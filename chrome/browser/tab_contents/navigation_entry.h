@@ -174,6 +174,7 @@ class NavigationEntry {
 
   // ---------------------------------------------------------------------------
 
+  NavigationEntry();
   explicit NavigationEntry(TabContentsType type);
   NavigationEntry(TabContentsType type,
                   SiteInstance* instance,
@@ -290,9 +291,8 @@ class NavigationEntry {
   // state properly when the user goes back and forward.
   //
   // WARNING: This state is saved to the file and used to restore previous
-  // states. If you write a custom TabContents and provide your own state make
-  // sure you have the ability to modify the format in the future while being
-  // able to deal with older versions.
+  // states. If the format is modified in the future, we should still be able to
+  // deal with older versions.
   void set_content_state(const std::string& state) {
     content_state_ = state;
   }

@@ -53,10 +53,7 @@ void NotifyPrunedEntries(NavigationController* nav_controller,
 // this one. We don't want that. To avoid this we create a valid state which
 // WebKit will not treat as a new navigation.
 void SetContentStateIfEmpty(NavigationEntry* entry) {
-  if (entry->content_state().empty() &&
-      (entry->tab_type() == TAB_CONTENTS_WEB ||
-       entry->tab_type() == TAB_CONTENTS_HTML_DIALOG ||
-       entry->IsViewSourceMode())) {
+  if (entry->content_state().empty()) {
     entry->set_content_state(
         webkit_glue::CreateHistoryStateForURL(entry->url()));
   }
@@ -151,6 +148,7 @@ static void CreateNavigationEntriesFromTabNavigations(
 NavigationController::NavigationController(TabContents* contents,
                                            Profile* profile)
     : profile_(profile),
+      rvh_factory_(NULL),
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
@@ -168,8 +166,10 @@ NavigationController::NavigationController(TabContents* contents,
 NavigationController::NavigationController(
     Profile* profile,
     const std::vector<TabNavigation>& navigations,
-    int selected_navigation)
+    int selected_navigation,
+    RenderViewHostFactory* rvh_factory)
     : profile_(profile),
+      rvh_factory_(rvh_factory),
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
@@ -1047,7 +1047,7 @@ TabContents* NavigationController::GetTabContentsCreateIfNecessary(
   TabContents* contents = GetTabContents(entry.tab_type());
   if (!contents) {
     contents = TabContents::CreateWithType(entry.tab_type(), profile_,
-                                           entry.site_instance());
+                                           entry.site_instance(), rvh_factory_);
     if (!contents->AsWebContents()) {
       // Update the max page id, otherwise the newly created TabContents may
       // have reset its max page id resulting in all new navigations. We only
