@@ -274,7 +274,8 @@ class MockTabStripModelObserver : public TabStripModelObserver {
   virtual void TabDetachedAt(TabContents* contents, int index) {
     states_.push_back(new State(contents, index, DETACH));
   }
-  virtual void TabChangedAt(TabContents* contents, int index) {
+  virtual void TabChangedAt(TabContents* contents, int index,
+                            bool loading_only) {
     states_.push_back(new State(contents, index, CHANGE));
   }
   virtual void TabStripEmpty() {
@@ -465,7 +466,7 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
 
   // Test UpdateTabContentsStateAt
   {
-    tabstrip.UpdateTabContentsStateAt(0);
+    tabstrip.UpdateTabContentsStateAt(0, false);
     EXPECT_EQ(1, observer.GetStateCount());
     State s1(replacement_contents2, 0, MockTabStripModelObserver::CHANGE);
     EXPECT_TRUE(observer.StateEquals(0, s1));

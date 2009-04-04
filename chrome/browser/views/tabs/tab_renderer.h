@@ -37,8 +37,10 @@ class TabRenderer : public views::View,
   virtual ~TabRenderer();
 
   // Updates the data the Tab uses to render itself from the specified
-  // TabContents.
-  void UpdateData(TabContents* contents);
+  // TabContents. If only the loading state was updated, the loading_only flag
+  // should be specified. If other things change, set this flag to false to 
+  // update everything.
+  void UpdateData(TabContents* contents, bool loading_only);
 
   // Updates the display to reflect the contents of this TabRenderer's model.
   void UpdateFromModel();

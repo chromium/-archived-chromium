@@ -137,7 +137,7 @@ TEST_F(DOMUITest, StandardToDOMUI) {
   GURL new_tab_url(chrome::kChromeUINewTabURL);
   controller()->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
   EXPECT_FALSE(contents()->ShouldDisplayURL());
-  EXPECT_FALSE(contents()->ShouldDisplayFavIcon());
+  EXPECT_TRUE(contents()->ShouldDisplayFavIcon());
   EXPECT_FALSE(contents()->IsBookmarkBarAlwaysVisible());
   EXPECT_TRUE(contents()->FocusLocationBarByDefault());
 

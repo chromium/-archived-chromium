@@ -1657,10 +1657,10 @@ void Browser::OpenURLFromTab(TabContents* source,
     if (GetStatusBubble())
       GetStatusBubble()->Hide();
 
-    // Synchronously update the location bar. This allows us to immediately
-    // have the URL bar update when the user types something, rather than
-    // going through the normal system of ScheduleUIUpdate which has a delay.
-    UpdateToolbar(false);
+    // Update the location bar and load state. These are both synchronous
+    // updates inside of ScheduleUIUpdate.
+    ScheduleUIUpdate(source, TabContents::INVALIDATE_URL |
+                             TabContents::INVALIDATE_LOAD);
   } else if (disposition == OFF_THE_RECORD) {
     OpenURLOffTheRecord(profile_, url);
     return;
@@ -1868,7 +1868,7 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
 void Browser::ContentsStateChanged(TabContents* source) {
   int index = tabstrip_model_.GetIndexOfTabContents(source);
   if (index != TabStripModel::kNoTab)
-    tabstrip_model_.UpdateTabContentsStateAt(index);
+    tabstrip_model_.UpdateTabContentsStateAt(index, true);
 }
 
 bool Browser::ShouldDisplayURLField() {
@@ -2199,17 +2199,27 @@ void Browser::UpdateToolbar(bool should_restore_state) {
 
 void Browser::ScheduleUIUpdate(const TabContents* source,
                                unsigned changed_flags) {
-  // Synchronously update the URL.
+  // Do some synchronous updates.
   if (changed_flags & TabContents::INVALIDATE_URL &&
       source == GetSelectedTabContents()) {
     // Only update the URL for the current tab. Note that we do not update
     // the navigation commands since those would have already been updated
     // synchronously by NavigationStateChanged.
     UpdateToolbar(false);
-
-    if (changed_flags == TabContents::INVALIDATE_URL)
-      return;  // Just had an update URL and nothing else.
   }
+  if (changed_flags & TabContents::INVALIDATE_LOAD && source) {
+    // Update the loading state synchronously. This is so the throbber will
+    // immediately start/stop, which gives a more snappy feel. We want to do
+    // this for any tab so they start & stop quickly, but the source can be
+    // NULL, so we have to check for that.
+    tabstrip_model_.UpdateTabContentsStateAt(
+        tabstrip_model_.GetIndexOfController(source->controller()), true);
+  }
+
+  // If the only updates were synchronously handled above, we're done.
+  if (changed_flags ==
+      (TabContents::INVALIDATE_URL | TabContents::INVALIDATE_LOAD))
+    return;
 
   // Save the dirty bits.
   scheduled_updates_.push_back(UIUpdate(source, changed_flags));
@@ -2289,7 +2299,7 @@ void Browser::ProcessPendingUIUpdates() {
 
     if (invalidate_tab) {  // INVALIDATE_TITLE or INVALIDATE_FAVICON.
       tabstrip_model_.UpdateTabContentsStateAt(
-          tabstrip_model_.GetIndexOfController(contents->controller()));
+          tabstrip_model_.GetIndexOfController(contents->controller()), false);
       window_->UpdateTitleBar();
 
       if (contents == GetSelectedTabContents()) {

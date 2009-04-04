@@ -159,7 +159,7 @@ void TabStripModel::ReplaceTabContentsAt(int index,
   contents_data_[index]->contents = replacement_contents;
 
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
-      TabChangedAt(replacement_contents, index));
+      TabChangedAt(replacement_contents, index, false));
 
   // Re-use the logic for selecting tabs to ensure the replacement contents is
   // shown and sized appropriately.
@@ -215,11 +215,11 @@ int TabStripModel::GetIndexOfController(
   return kNoTab;
 }
 
-void TabStripModel::UpdateTabContentsStateAt(int index) {
+void TabStripModel::UpdateTabContentsStateAt(int index, bool loading_only) {
   DCHECK(ContainsIndex(index));
 
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
-      TabChangedAt(GetContentsAt(index), index));
+      TabChangedAt(GetContentsAt(index), index, loading_only));
 }
 
 void TabStripModel::CloseAllTabs() {

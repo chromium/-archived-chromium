@@ -806,11 +806,11 @@ void TabStrip::TabInsertedAt(TabContents* contents,
     if (index == TabStripModel::kNoTab) {
       TabData d = { tab, gfx::Rect() };
       tab_data_.push_back(d);
-      tab->UpdateData(contents);
+      tab->UpdateData(contents, false);
     } else {
       TabData d = { tab, gfx::Rect() };
       tab_data_.insert(tab_data_.begin() + index, d);
-      tab->UpdateData(contents);
+      tab->UpdateData(contents, false);
     }
   }
 
@@ -867,11 +867,12 @@ void TabStrip::TabMoved(TabContents* contents, int from_index, int to_index) {
   StartMoveTabAnimation(from_index, to_index);
 }
 
-void TabStrip::TabChangedAt(TabContents* contents, int index) {
+void TabStrip::TabChangedAt(TabContents* contents, int index,
+                            bool loading_only) {
   // Index is in terms of the model. Need to make sure we adjust that index in
   // case we have an animation going.
   Tab* tab = GetTabAtAdjustForAnimation(index);
-  tab->UpdateData(contents);
+  tab->UpdateData(contents, loading_only);
   tab->UpdateFromModel();
 }
 

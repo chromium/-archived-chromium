@@ -36,7 +36,7 @@ DraggedTabView::DraggedTabView(TabContents* datasource,
       close_animation_(this) {
   SetParentOwned(false);
 
-  renderer_->UpdateData(datasource);
+  renderer_->UpdateData(datasource, false);
 
   container_.reset(new views::WidgetWin);
   container_->set_delete_on_destroy(false);

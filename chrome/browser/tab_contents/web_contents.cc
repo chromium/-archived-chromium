@@ -372,6 +372,10 @@ bool WebContents::ShouldDisplayURL() {
 }
 
 bool WebContents::ShouldDisplayFavIcon() {
+  // Always display a throbber during pending loads.
+  if (controller()->GetLastCommittedEntry() && controller()->GetPendingEntry())
+    return true;
+
   DOMUI* dom_ui = GetDOMUIForCurrentState();
   if (dom_ui)
     return !dom_ui->hide_favicon();
@@ -1501,7 +1505,7 @@ void WebContents::LoadStateChanged(const GURL& url,
   if (load_state_ == net::LOAD_STATE_READING_RESPONSE)
     SetNotWaitingForResponse();
   if (is_loading())
-    NotifyNavigationStateChanged(INVALIDATE_LOAD);
+    NotifyNavigationStateChanged(INVALIDATE_LOAD | INVALIDATE_FAVICON);
 }
 
 void WebContents::OnDidGetApplicationInfo(

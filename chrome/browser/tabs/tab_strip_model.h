@@ -70,7 +70,8 @@ class TabStripModelObserver {
   // The specified TabContents at |index| changed in some way. |contents| may
   // be an entirely different object and the old value is no longer available
   // by the time this message is delivered.
-  virtual void TabChangedAt(TabContents* contents, int index) { }
+  virtual void TabChangedAt(TabContents* contents, int index,
+                            bool loading_only) { }
   // The TabStripModel now no longer has any "significant" (user created or
   // user manipulated) tabs. The implementer may use this as a trigger to try
   // and close the window containing the TabStripModel, for example...
@@ -286,8 +287,9 @@ class TabStripModel : public NotificationObserver {
   int GetIndexOfController(const NavigationController* controller) const;
 
   // Notify any observers that the TabContents at the specified index has
-  // changed in some way.
-  void UpdateTabContentsStateAt(int index);
+  // changed in some way. Loading only specifies whether only the loading state
+  // has changed.
+  void UpdateTabContentsStateAt(int index, bool loading_only);
 
   // Make sure there is an auto-generated New Tab tab in the TabStripModel.
   // If |force_create| is true, the New Tab will be created even if the
