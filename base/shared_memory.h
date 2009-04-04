@@ -166,8 +166,8 @@ class SharedMemory {
                             SharedMemoryHandle* new_handle,
                             bool close_self);
 
-  std::wstring       name_;
 #if defined(OS_WIN)
+  std::wstring       name_;
   HANDLE             mapped_file_;
 #elif defined(OS_POSIX)
   int                mapped_file_;
