@@ -70,7 +70,6 @@ std::string SSLBlockingPage::GetHTMLContents() {
 }
 
 void SSLBlockingPage::UpdateEntry(NavigationEntry* entry) {
-  DCHECK(tab()->type() == TAB_CONTENTS_WEB);
   WebContents* web = tab()->AsWebContents();
   const net::SSLInfo& ssl_info = error_->ssl_info();
   int cert_id = CertStore::GetSharedInstance()->StoreCert(

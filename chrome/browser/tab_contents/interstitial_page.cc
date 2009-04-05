@@ -161,7 +161,7 @@ void InterstitialPage::Show() {
   (*tab_to_interstitial_page_)[tab_] = this;
 
   if (new_navigation_) {
-    NavigationEntry* entry = new NavigationEntry(TAB_CONTENTS_WEB);
+    NavigationEntry* entry = new NavigationEntry;
     entry->set_url(url_);
     entry->set_display_url(url_);
     entry->set_page_type(NavigationEntry::INTERSTITIAL_PAGE);

@@ -12,7 +12,7 @@ class NavigationEntryTest : public testing::Test {
   }
 
   virtual void SetUp() {
-    entry1_.reset(new NavigationEntry(TAB_CONTENTS_WEB));
+    entry1_.reset(new NavigationEntry);
 
     instance_ = SiteInstance::CreateSiteInstance(NULL);
     entry2_.reset(new NavigationEntry(TAB_CONTENTS_WEB, instance_, 3,
@@ -123,10 +123,6 @@ TEST_F(NavigationEntryTest, NavigationEntrySSLStatus) {
 
 // Test other basic accessors
 TEST_F(NavigationEntryTest, NavigationEntryAccessors) {
-  // Type
-  EXPECT_EQ(TAB_CONTENTS_WEB, entry1_.get()->tab_type());
-  EXPECT_EQ(TAB_CONTENTS_WEB, entry2_.get()->tab_type());
-
   // SiteInstance
   EXPECT_TRUE(entry1_.get()->site_instance() == NULL);
   EXPECT_EQ(instance_, entry2_.get()->site_instance());

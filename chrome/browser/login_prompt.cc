@@ -348,21 +348,19 @@ class LoginDialogTask : public Task {
                               auth_info_->host,
                               auth_info_->realm);
     LoginView* view = new LoginView(explanation);
-    // Tell the password manager to look for saved passwords. There is only
-    // a password manager when dealing with a WebContents type.
-    if (parent_contents->type() == TAB_CONTENTS_WEB) {
-      PasswordManager* password_manager =
-          parent_contents->AsWebContents()->GetPasswordManager();
-      // Set the model for the login view. The model (password manager) is owned
-      // by the view's parent TabContents, so natural destruction order means we
-      // don't have to worry about calling SetModel(NULL), because the view will
-      // be deleted before the password manager.
-      view->SetModel(password_manager);
-      std::vector<PasswordForm> v;
-      MakeInputForPasswordManager(parent_contents->GetURL(), &v);
-      password_manager->PasswordFormsSeen(v);
-      handler_->set_password_manager(password_manager);
-    }
+
+    // Tell the password manager to look for saved passwords.
+    PasswordManager* password_manager =
+        parent_contents->AsWebContents()->GetPasswordManager();
+    // Set the model for the login view. The model (password manager) is owned
+    // by the view's parent TabContents, so natural destruction order means we
+    // don't have to worry about calling SetModel(NULL), because the view will
+    // be deleted before the password manager.
+    view->SetModel(password_manager);
+    std::vector<PasswordForm> v;
+    MakeInputForPasswordManager(parent_contents->GetURL(), &v);
+    password_manager->PasswordFormsSeen(v);
+    handler_->set_password_manager(password_manager);
 
     handler_->set_login_view(view);
     ConstrainedWindow* dialog =
