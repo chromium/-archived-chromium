@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -40,28 +40,11 @@ class View;
 class FindBarWin : public views::FocusChangeListener,
                    public views::WidgetWin,
                    public AnimationDelegate,
-                   public FindBar {
+                   public FindBar,
+                   public FindBarTesting {
  public:
   explicit FindBarWin(BrowserView* browser_view);
   virtual ~FindBarWin();
-
-  // Accessor for find_bar_controller so FindBarView can get back to
-  // FindBarController.
-  FindBarController* find_bar_controller() const {
-    return find_bar_controller_;
-  }
-  void set_find_bar_controller(FindBarController* find_bar_controller) {
-    find_bar_controller_ = find_bar_controller;
-  }
-
-  // If the find bar obscures the search results we need to move the window. To
-  // do that we need to know what is selected on the page. We simply calculate
-  // where it would be if we place it on the left of the selection and if it
-  // doesn't fit on the screen we try the right side. The parameter
-  // |selection_rect| is expected to have coordinates relative to the top of
-  // the web page area. If |no_redraw| is true, the window will be moved without
-  // redrawing siblings.
-  void MoveWindowIfNecessary(const gfx::Rect& selection_rect, bool no_redraw);
 
   // Moves the window according to the new window size.
   void RespondToResize(const gfx::Size& new_size);
@@ -77,11 +60,19 @@ class FindBarWin : public views::FocusChangeListener,
   void SetFocusChangeListener(HWND parent_hwnd);
 
   // FindBar implementation:
+  virtual FindBarController* GetFindBarController() const {
+    return find_bar_controller_;
+  }
+  virtual void SetFindBarController(FindBarController* find_bar_controller) {
+    find_bar_controller_ = find_bar_controller;
+  }
   virtual void Show();
   virtual void Hide(bool animate);
   virtual void SetFocusAndSelection();
   virtual void ClearResults(const FindNotificationDetails& results);
   virtual void StopAnimation();
+  virtual void MoveWindowIfNecessary(const gfx::Rect& selection_rect,
+                                     bool no_redraw);
   virtual void SetFindText(const string16& find_text);
   virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
                                      const string16& find_text);
@@ -89,6 +80,7 @@ class FindBarWin : public views::FocusChangeListener,
   virtual void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
   virtual bool IsFindBarVisible();
   virtual void RestoreSavedFocus();
+  virtual FindBarTesting* GetFindBarTesting();
 
   // Overridden from views::WidgetWin:
   virtual void OnFinalMessage(HWND window);
@@ -104,6 +96,9 @@ class FindBarWin : public views::FocusChangeListener,
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);
 
+  // FindBarTesting implementation:
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible);
  private:
   // Retrieves the boundaries that the find bar has to work with within the
   // Chrome frame window. The resulting rectangle will be a rectangle that

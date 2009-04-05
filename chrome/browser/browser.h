@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -37,6 +37,7 @@
 class BrowserIdleTimer;
 class BrowserWindow;
 class DebuggerWindow;
+class FindBarController;
 class GoButton;
 class LocationBar;
 class PrefService;
@@ -133,6 +134,7 @@ class Browser : public TabStripModelDelegate,
   ToolbarModel* toolbar_model() { return &toolbar_model_; }
   const SessionID& session_id() const { return session_id_; }
   CommandUpdater* command_updater() { return &command_updater_; }
+  FindBarController* find_bar() { return find_bar_controller_.get(); }
 
   // Setters /////////////////////////////////////////////////////////////////
 
@@ -277,6 +279,7 @@ class Browser : public TabStripModelDelegate,
   void BookmarkCurrentPage();
   void SavePage();
   void ViewSource();
+  void ShowFindBar();
 
   // Returns true if the Browser supports the specified feature.
   bool SupportsWindowFeature(WindowFeature feature) const;
@@ -666,6 +669,10 @@ class Browser : public TabStripModelDelegate,
 
   // The following factory is used to close the frame at a later time.
   ScopedRunnableMethodFactory<Browser> method_factory_;
+
+  // The Find Bar. This may be NULL if there is no Find Bar, and if it is
+  // non-NULL, it may or may not be visible.
+  scoped_ptr<FindBarController> find_bar_controller_;
 
   // Debugger Window, created lazily
   scoped_refptr<DebuggerWindow> debugger_window_;

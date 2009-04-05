@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,6 +16,8 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/devtools_manager.h"
+#include "chrome/browser/find_bar.h"
+#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/net/url_fixer_upper.h"
@@ -279,6 +281,12 @@ void Browser::CreateBrowserWindow() {
     local_state->ClearPref(prefs::kShouldShowFirstRunBubble);
     window_->GetLocationBar()->ShowFirstRunBubble();
   }
+
+#if defined(OS_WIN) 
+  FindBar* find_bar = BrowserWindow::CreateFindBar(this);
+  find_bar_controller_.reset(new FindBarController(find_bar));
+  find_bar->SetFindBarController(find_bar_controller_.get());
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -777,6 +785,10 @@ void Browser::ViewSource() {
     GURL url("view-source:" + entry->url().spec());
     OpenURL(url, GURL(), NEW_FOREGROUND_TAB, PageTransition::LINK);
   }
+}
+
+void Browser::ShowFindBar() {
+  find_bar_controller_->Show();
 }
 
 bool Browser::SupportsWindowFeature(WindowFeature feature) const {
@@ -1495,6 +1507,9 @@ void Browser::TabDetachedAt(TabContents* contents, int index) {
 
   RemoveScheduledUpdatesFor(contents);
 
+  if (find_bar_controller_.get() && index == tabstrip_model_.selected_index())
+    find_bar_controller_->ChangeWebContents(NULL);
+
   NotificationService::current()->RemoveObserver(
       this,
       NotificationType::WEB_CONTENTS_DISCONNECTED,
@@ -1537,6 +1552,12 @@ void Browser::TabSelectedAt(TabContents* old_contents,
 
     // Show the loading state (if any).
     status_bubble->SetStatus(GetSelectedTabContents()->GetStatusText());
+  }
+
+  if (find_bar_controller_.get()) {
+    find_bar_controller_->ChangeWebContents(new_contents->AsWebContents());
+    find_bar_controller_->find_bar()->MoveWindowIfNecessary(gfx::Rect(),
+                                                                true);
   }
 
   // Update sessions. Don't force creation of sessions. If sessions doesn't
@@ -2487,7 +2508,7 @@ GURL Browser::GetHomePage() const {
 }
 
 void Browser::FindInPage(bool find_next, bool forward_direction) {
-  window_->ShowFindBar();
+  ShowFindBar();
   if (find_next) {
     GetSelectedTabContents()->AsWebContents()->StartFinding(
         string16(),

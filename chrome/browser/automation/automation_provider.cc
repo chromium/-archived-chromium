@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -16,6 +16,8 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/browser/find_bar.h"
+#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_manager.h"
@@ -1959,33 +1961,23 @@ void AutomationProvider::GetFindWindowVisibility(int handle, bool* visible) {
   gfx::Point position;
   *visible = false;
   if (browser_tracker_->ContainsHandle(handle)) {
-#if defined(OS_WIN)
     Browser* browser = browser_tracker_->GetResource(handle);
-    BrowserWindowTesting* testing =
-        browser->window()->GetBrowserWindowTesting();
-    testing->GetFindBarWindowInfo(&position, visible);
-#else
-    // TODO(port): Depends on BrowserWindowTesting::GetFindBarWindowInfo.
-    NOTIMPLEMENTED();
-#endif
+    FindBarTesting* find_bar =
+        browser->find_bar()->find_bar()->GetFindBarTesting();
+    find_bar->GetFindBarWindowInfo(&position, visible);
   }
 }
 
 void AutomationProvider::HandleFindWindowLocationRequest(int handle, int* x,
                                                          int* y) {
   gfx::Point position(0, 0);
-#if defined(OS_WIN)
   bool visible = false;
   if (browser_tracker_->ContainsHandle(handle)) {
      Browser* browser = browser_tracker_->GetResource(handle);
-     BrowserWindowTesting* testing =
-         browser->window()->GetBrowserWindowTesting();
-     testing->GetFindBarWindowInfo(&position, &visible);
+     FindBarTesting* find_bar =
+       browser->find_bar()->find_bar()->GetFindBarTesting();
+     find_bar->GetFindBarWindowInfo(&position, &visible);
   }
-#else
-  // TODO(port): Depends on BrowserWindowTesting::GetFindBarWindowInfo.
-  NOTIMPLEMENTED();
-#endif
 
   *x = position.x();
   *y = position.y();

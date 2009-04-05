@@ -197,7 +197,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   FindBarGtk* find_bar_gtk = new FindBarGtk();
   find_bar_controller_.reset(new FindBarController(find_bar_gtk));
-  find_bar_gtk->set_find_bar_controller(find_bar_controller_.get());
+  find_bar_gtk->SetFindBarController(find_bar_controller_.get());
 
   contents_container_.reset(
       new TabContentsContainerGtk(find_bar_gtk->widget()));

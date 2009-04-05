@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/logging.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
 
@@ -16,4 +17,10 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
   BrowserWindowController* controller =
       [[BrowserWindowController alloc] initWithBrowser:browser];
   return [controller browserWindow];
+}
+
+// static
+FindBar* BrowserWindow::CreateFindBar(Browser* browser_window) {
+  NOTIMPLEMENTED();
+  return NULL;
 }

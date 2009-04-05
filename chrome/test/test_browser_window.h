@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -49,7 +49,6 @@ class TestBrowserWindow : public BrowserWindow {
   virtual bool IsBookmarkBarVisible() const { return false; }
   virtual gfx::Rect GetRootWindowResizerRect() const { return gfx::Rect(); }
   virtual void ToggleBookmarkBar() {}
-  virtual void ShowFindBar() {}
   virtual void ShowAboutChromeDialog() {}
   virtual void ShowBookmarkManager() {}
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) {}
@@ -62,8 +61,6 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ShowNewProfileDialog() {}
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) {}
-  virtual bool GetFindBarWindowInfo(gfx::Point* position,
-                                    bool* fully_visible) const { return false; }
  protected:
   virtual void DestroyBrowser() {}
 

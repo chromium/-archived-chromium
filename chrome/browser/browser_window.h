@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -10,6 +10,7 @@
 class Browser;
 class BrowserList;
 class BrowserWindowTesting;
+class FindBar;
 class GURL;
 class LocationBar;
 class HtmlDialogUIDelegate;
@@ -132,9 +133,6 @@ class BrowserWindow {
   // Shows or hides the bookmark bar depending on its current visibility.
   virtual void ToggleBookmarkBar() = 0;
 
-  // Shows the Find Bar.
-  virtual void ShowFindBar() = 0;
-
   // Shows the About Chrome dialog box.
   virtual void ShowAboutChromeDialog() = 0;
 
@@ -175,6 +173,9 @@ class BrowserWindow {
   // Construct a BrowserWindow implementation for the specified |browser|.
   static BrowserWindow* CreateBrowserWindow(Browser* browser);
 
+  // Construct a FindBar implementation for the specified |browser|.
+  static FindBar* CreateFindBar(Browser* browser_window);
+
  protected:
   friend class BrowserList;
   friend class BrowserView;
@@ -194,15 +195,6 @@ class BrowserWindowTesting {
 
   // Returns the LocationBarView.
   virtual LocationBarView* GetLocationBarView() const = 0;
-
-  // Computes the location of the find bar and whether it is fully visible in
-  // its parent window. The return value indicates if the window is visible at
-  // all. Both out arguments are required.
-  //
-  // This is used for UI tests of the find bar. If the find bar is not currently
-  // shown (return value of false), the out params will be {(0, 0), false}.
-  virtual bool GetFindBarWindowInfo(gfx::Point* position,
-                                    bool* fully_visible) const = 0;
 #endif
 };
 

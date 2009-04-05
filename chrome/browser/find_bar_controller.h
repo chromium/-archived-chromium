@@ -15,7 +15,7 @@ class WebContents;
 class FindBarController : public NotificationObserver {
  public:
   // FindBar takes ownership of |find_bar_view|.
-  FindBarController(FindBar* find_bar);
+  explicit FindBarController(FindBar* find_bar);
 
   virtual ~FindBarController();
 
@@ -37,7 +37,7 @@ class FindBarController : public NotificationObserver {
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  FindBar* get_find_bar() const { return find_bar_.get(); }
+  FindBar* find_bar() const { return find_bar_.get(); }
 
  private:
   scoped_ptr<FindBar> find_bar_;

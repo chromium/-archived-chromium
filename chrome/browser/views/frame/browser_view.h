@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -24,7 +24,6 @@ class BookmarkBarView;
 class Browser;
 class BrowserToolbarView;
 class EncodingMenuControllerDelegate;
-class FindBarController;
 class FullscreenExitBubble;
 class HtmlDialogUIDelegate;
 class InfoBarContainer;
@@ -190,7 +189,6 @@ class BrowserView : public BrowserWindow,
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void DisableInactiveFrame();
   virtual void ToggleBookmarkBar();
-  virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
@@ -203,8 +201,6 @@ class BrowserView : public BrowserWindow,
   virtual void ShowNewProfileDialog();
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
-  virtual bool GetFindBarWindowInfo(gfx::Point* position,
-                                    bool* fully_visible) const;
 
   // Overridden from BrowserWindowTesting:
   virtual BookmarkBarView* GetBookmarkBarView() const;
@@ -372,10 +368,6 @@ class BrowserView : public BrowserWindow,
 
   // The InfoBarContainer that contains InfoBars for the current tab.
   InfoBarContainer* infobar_container_;
-
-  // The Find Bar. This may be NULL if there is no Find Bar, and if it is
-  // non-NULL, it may or may not be visible.
-  scoped_ptr<FindBarController> find_bar_controller_;
 
   // The distance the FindBar is from the top of the window, in pixels.
   int find_bar_y_;

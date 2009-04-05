@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -429,13 +429,13 @@ void FindBarView::ButtonPressed(views::Button* sender) {
     case FIND_PREVIOUS_TAG:
     case FIND_NEXT_TAG:
       if (find_text_->GetText().length() > 0) {
-        container_->find_bar_controller()->web_contents()->StartFinding(
+        container_->GetFindBarController()->web_contents()->StartFinding(
             find_text_->GetText(),
             sender->tag() == FIND_NEXT_TAG);
       }
       break;
     case CLOSE_TAG:
-      container_->find_bar_controller()->EndFindSession();
+      container_->GetFindBarController()->EndFindSession();
       break;
     default:
       NOTREACHED() << L"Unknown button";
@@ -448,7 +448,7 @@ void FindBarView::ButtonPressed(views::Button* sender) {
 
 void FindBarView::ContentsChanged(views::TextField* sender,
                                   const std::wstring& new_contents) {
-  FindBarController* controller = container_->find_bar_controller();
+  FindBarController* controller = container_->GetFindBarController();
   DCHECK(controller);
   // We must guard against a NULL web_contents, which can happen if the text
   // in the Find box is changed right after the tab is destroyed. Otherwise, it
@@ -480,7 +480,7 @@ void FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
       std::wstring find_string = find_text_->GetText();
       if (find_string.length() > 0) {
         // Search forwards for enter, backwards for shift-enter.
-        container_->find_bar_controller()->web_contents()->StartFinding(
+        container_->GetFindBarController()->web_contents()->StartFinding(
             find_string,
             GetKeyState(VK_SHIFT) >= 0);
       }

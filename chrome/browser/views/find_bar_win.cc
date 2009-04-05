@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -220,8 +220,8 @@ void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
   // We only move the window if one is active for the current WebContents. If we
   // don't check this, then SetDialogPosition below will end up making the Find
   // Bar visible.
-  if (!find_bar_controller()->web_contents() ||
-      !find_bar_controller()->web_contents()->find_ui_active()) {
+  if (!find_bar_controller_->web_contents() ||
+      !find_bar_controller_->web_contents()->find_ui_active()) {
     return;
   }
 
@@ -321,6 +321,25 @@ void FindBarWin::AnimationEnded(const Animation* animation) {
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// FindBarTesting implementation:
+
+bool FindBarWin::GetFindBarWindowInfo(gfx::Point* position,
+                                      bool* fully_visible) {
+  CRect window_rect;
+  if (!find_bar_controller_ ||
+      !::IsWindow(GetNativeView()) ||
+      !::GetWindowRect(GetNativeView(), &window_rect)) {
+    *position = gfx::Point(0, 0);
+    *fully_visible = false;
+    return false;
+  }
+
+  *position = gfx::Point(window_rect.TopLeft().x, window_rect.TopLeft().y);
+  *fully_visible = IsVisible() && !IsAnimating();
+  return true;
+}
+
 void FindBarWin::GetDialogBounds(gfx::Rect* bounds) {
   DCHECK(bounds);
   // The BrowserView does Layout for the components that we care about
@@ -369,7 +388,7 @@ gfx::Rect FindBarWin::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
     RECT frame_rect = {0}, webcontents_rect = {0};
     ::GetWindowRect(GetParent(), &frame_rect);
     ::GetWindowRect(
-        find_bar_controller()->web_contents()->view()->GetNativeView(),
+        find_bar_controller_->web_contents()->view()->GetNativeView(),
         &webcontents_rect);
     avoid_overlapping_rect.Offset(0, webcontents_rect.top - frame_rect.top);
   }
@@ -447,10 +466,14 @@ void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
 void FindBarWin::RestoreSavedFocus() {
   if (focus_tracker_.get() == NULL) {
     // TODO(brettw) Focus() should be on WebContentsView.
-    find_bar_controller()->web_contents()->Focus();
+    find_bar_controller_->web_contents()->Focus();
   } else {
     focus_tracker_->FocusLastFocusedExternalView();
   }
+}
+
+FindBarTesting* FindBarWin::GetFindBarTesting() {
+  return this;
 }
 
 void FindBarWin::RegisterEscAccelerator() {

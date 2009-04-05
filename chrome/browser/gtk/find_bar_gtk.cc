@@ -129,6 +129,11 @@ void FindBarGtk::StopAnimation() {
   // No animation yet, so do nothing.
 }
 
+void FindBarGtk::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
+                                       bool no_redraw) {
+  // Not moving the window on demand, so do nothing.
+}
+
 void FindBarGtk::SetFindText(const string16& find_text) {
   std::string find_text_utf8 = UTF16ToUTF8(find_text);
   gtk_entry_set_text(GTK_ENTRY(find_text_), find_text_utf8.c_str());
@@ -150,6 +155,16 @@ bool FindBarGtk::IsFindBarVisible() {
 }
 
 void FindBarGtk::RestoreSavedFocus() {
+}
+
+FindBarTesting* FindBarGtk::GetFindBarTesting() {
+  return this;
+}
+
+bool FindBarGtk::GetFindBarWindowInfo(gfx::Point* position,
+                                      bool* fully_visible) {
+  NOTIMPLEMENTED();
+  return false;
 }
 
 void FindBarGtk::ContentsChanged() {

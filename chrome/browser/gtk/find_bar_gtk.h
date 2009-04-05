@@ -19,14 +19,11 @@ class WebContents;
 
 // Currently this class contains both a model and a view.  We may want to
 // eventually pull out the model specific bits and share with Windows.
-class FindBarGtk : public FindBar {
+class FindBarGtk : public FindBar,
+                   public FindBarTesting {
  public:
   FindBarGtk();
   virtual ~FindBarGtk();
-
-  void set_find_bar_controller(FindBarController* find_bar_controller) {
-    find_bar_controller_ = find_bar_controller;
-  }
 
   // Callback when the text in the find box changes.
   void ContentsChanged();
@@ -37,11 +34,19 @@ class FindBarGtk : public FindBar {
   GtkWidget* widget() const { return container_.get(); }
 
   // Methods from FindBar.
+  virtual FindBarController* GetFindBarController() const {
+    return find_bar_controller_;
+  }
+  virtual void SetFindBarController(FindBarController* find_bar_controller) {
+    find_bar_controller_ = find_bar_controller;
+  }
   virtual void Show();
   virtual void Hide(bool animate);
   virtual void SetFocusAndSelection();
   virtual void ClearResults(const FindNotificationDetails& results);
   virtual void StopAnimation();
+  virtual void MoveWindowIfNecessary(const gfx::Rect& selection_rect,
+                                     bool no_redraw);
   virtual void SetFindText(const string16& find_text);
   virtual void UpdateUIForFindResult(const FindNotificationDetails& result,
                                      const string16& find_text);
@@ -49,6 +54,11 @@ class FindBarGtk : public FindBar {
   virtual void SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw);
   virtual bool IsFindBarVisible();
   virtual void RestoreSavedFocus();
+  virtual FindBarTesting* GetFindBarTesting();
+
+  // Methods from FindBarTesting.
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible);
 
  private:
   void InitWidgets();

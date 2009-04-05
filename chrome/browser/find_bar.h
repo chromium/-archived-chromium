@@ -12,12 +12,19 @@
 #include "base/gfx/rect.h"
 #include "base/string16.h"
 
+class FindBarController;
+class FindBarTesting;
 class FindNotificationDetails;
 class WebContents;
 
 class FindBar {
  public:
   virtual ~FindBar() { }
+
+  // Accessor and setter for the FindBarController.
+  virtual FindBarController* GetFindBarController() const = 0;
+  virtual void SetFindBarController(
+      FindBarController* find_bar_controller) = 0;
 
   // Shows the find bar. Any previous search string will again be visible.
   virtual void Show() = 0;
@@ -34,6 +41,16 @@ class FindBar {
 
   // Stop the animation.
   virtual void StopAnimation() = 0;
+
+  // If the find bar obscures the search results we need to move the window. To
+  // do that we need to know what is selected on the page. We simply calculate
+  // where it would be if we place it on the left of the selection and if it
+  // doesn't fit on the screen we try the right side. The parameter
+  // |selection_rect| is expected to have coordinates relative to the top of
+  // the web page area. If |no_redraw| is true, the window will be moved without
+  // redrawing siblings.
+  virtual void MoveWindowIfNecessary(const gfx::Rect& selection_rect,
+                                     bool no_redraw) = 0;
 
   // Set the text in the find box.
   virtual void SetFindText(const string16& find_text) = 0;
@@ -68,6 +85,24 @@ class FindBar {
   // Upon dismissing the window, restore focus to the last focused view which is
   // not FindBarView or any of its children.
   virtual void RestoreSavedFocus() = 0;
+
+  // Returns a pointer to the testing interface to the FindBar, or NULL
+  // if there is none.
+  virtual FindBarTesting* GetFindBarTesting() = 0;
+};
+
+class FindBarTesting {
+ public:
+  virtual ~FindBarTesting() { }
+
+  // Computes the location of the find bar and whether it is fully visible in
+  // its parent window. The return value indicates if the window is visible at
+  // all. Both out arguments are required.
+  //
+  // This is used for UI tests of the find bar. If the find bar is not currently
+  // shown (return value of false), the out params will be {(0, 0), false}.
+  virtual bool GetFindBarWindowInfo(gfx::Point* position,
+                                    bool* fully_visible) = 0;
 };
 
 #endif  // CHROME_BROWSER_FIND_BAR_H_
