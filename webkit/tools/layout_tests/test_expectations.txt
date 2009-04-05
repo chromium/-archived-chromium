@@ -2297,3 +2297,6 @@ LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
 
 // Started failing between revisions 13096 and 13099.
 DEBUG WIN : LayoutTests/http/tests/navigation/post-basic.html = CRASH
+
+// Flaky since rev 13111.
+MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
