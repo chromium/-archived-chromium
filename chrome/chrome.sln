@@ -521,7 +521,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "theme_dll", "app\theme\them
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "security_tests", "test\security_tests\security_tests.vcproj", "{E750512D-FC7C-4C98-BF04-0A0DAF882055}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "googleurl", "..\googleurl\build\googleurl.vcproj", "{EF5E94AB-B646-4E5B-A058-52EF07B8351C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "googleurl", "..\build\temp_gyp\googleurl.vcproj", "{EF5E94AB-B646-4E5B-A058-52EF07B8351C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "npapi_test_plugin", "..\webkit\glue\plugins\test\npapi_test_plugin.vcproj", "{0D04AEC1-6B68-492C-BCCF-808DFD69ABC6}"
 	ProjectSection(ProjectDependencies) = postProject
