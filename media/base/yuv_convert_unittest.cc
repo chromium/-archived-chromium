@@ -9,9 +9,14 @@
 
 // Reference images were created with the following steps
 // ffmpeg -vframes 25 -i bali.mov -vcodec rawvideo -pix_fmt yuv420p -an
-//   bali.1280_720.yuv
-// yuvhalf -skip 24 bali.1280_720.yuv bali.640_360.yuv
-// yuvtool bali.640_360.yuv bali.640_360.rgb
+//   bali.yv12.1280_720.yuv
+// yuvhalf -yv12 -skip 24 bali.yv12.1280_720.yuv bali.yv12.640_360.yuv
+// yuvtool -yv12 bali.yv12.640_360.yuv bali.yv12.640_360.rgb
+
+// ffmpeg -vframes 25 -i bali.mov -vcodec rawvideo -pix_fmt yuv422p -an
+//   bali.yv16.1280_720.yuv
+// yuvhalf -yv16 -skip 24 bali.yv16.1280_720.yuv bali.yv16.640_360.yuv
+// yuvtool -yv16 bali.yv16.640_360.yuv bali.yv16.640_360.rgb
 
 // Size of raw image.
 static const int kWidth = 640;
@@ -25,8 +30,8 @@ TEST(YuvConvertTest, Basic) {
   yuv_url = yuv_url.Append(FILE_PATH_LITERAL("media"))
                    .Append(FILE_PATH_LITERAL("test"))
                    .Append(FILE_PATH_LITERAL("data"))
-                   .Append(FILE_PATH_LITERAL("bali.640_360.yuv"));
-  const size_t size_of_yuv = kWidth * kHeight * 12 / 8;
+                   .Append(FILE_PATH_LITERAL("bali.yv12.640_360.yuv"));
+  const size_t size_of_yuv = kWidth * kHeight * 12 / 8;  // 12 bpp.
   uint8* yuv_bytes = new uint8[size_of_yuv];
   EXPECT_EQ(static_cast<int>(size_of_yuv),
             file_util::ReadFile(yuv_url,
@@ -39,7 +44,7 @@ TEST(YuvConvertTest, Basic) {
   rgb_url = rgb_url.Append(FILE_PATH_LITERAL("media"))
                    .Append(FILE_PATH_LITERAL("test"))
                    .Append(FILE_PATH_LITERAL("data"))
-                   .Append(FILE_PATH_LITERAL("bali.640_360.rgb"));
+                   .Append(FILE_PATH_LITERAL("bali.yv12.640_360.rgb"));
   const size_t size_of_rgb = kWidth * kHeight * kBpp;
   uint8* rgb_bytes = new uint8[size_of_rgb];
   EXPECT_EQ(static_cast<int>(size_of_rgb),
@@ -54,6 +59,54 @@ TEST(YuvConvertTest, Basic) {
   media::ConvertYV12ToRGB32(yuv_bytes,                             // Y plane
                             yuv_bytes + kWidth * kHeight,          // U plane
                             yuv_bytes + kWidth * kHeight * 5 / 4,  // V plane
+                            rgb_converted_bytes,                   // Rgb output
+                            kWidth, kHeight,                       // Dimensions
+                            kWidth,                                // YStride
+                            kWidth / 2,                            // UvStride
+                            kWidth * kBpp);                        // RgbStride
+
+  // Compare converted YUV to reference conversion file.
+  int rgb_diff = memcmp(rgb_converted_bytes, rgb_bytes, size_of_rgb);
+
+  EXPECT_EQ(rgb_diff, 0);
+}
+
+TEST(YV16ConvertTest, Basic) {
+  // Read YV16 reference data from file.
+  FilePath yuv_url;
+  EXPECT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &yuv_url));
+  yuv_url = yuv_url.Append(FILE_PATH_LITERAL("media"))
+                   .Append(FILE_PATH_LITERAL("test"))
+                   .Append(FILE_PATH_LITERAL("data"))
+                   .Append(FILE_PATH_LITERAL("bali.yv16.640_360.yuv"));
+  const size_t size_of_yuv = kWidth * kHeight * 16 / 8;  // 16 bpp.
+  uint8* yuv_bytes = new uint8[size_of_yuv];
+  EXPECT_EQ(static_cast<int>(size_of_yuv),
+            file_util::ReadFile(yuv_url,
+                                reinterpret_cast<char*>(yuv_bytes),
+                                static_cast<int>(size_of_yuv)));
+
+  // Read RGB reference data from file.
+  FilePath rgb_url;
+  EXPECT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &rgb_url));
+  rgb_url = rgb_url.Append(FILE_PATH_LITERAL("media"))
+                   .Append(FILE_PATH_LITERAL("test"))
+                   .Append(FILE_PATH_LITERAL("data"))
+                   .Append(FILE_PATH_LITERAL("bali.yv16.640_360.rgb"));
+  const size_t size_of_rgb = kWidth * kHeight * kBpp;
+  uint8* rgb_bytes = new uint8[size_of_rgb];
+  EXPECT_EQ(static_cast<int>(size_of_rgb),
+            file_util::ReadFile(rgb_url,
+                                reinterpret_cast<char*>(rgb_bytes),
+                                static_cast<int>(size_of_rgb)));
+
+  // Convert a frame of YUV to 32 bit ARGB.
+  const size_t size_of_rgb_converted = kWidth * kHeight * kBpp;
+  uint8* rgb_converted_bytes = new uint8[size_of_rgb_converted];
+
+  media::ConvertYV16ToRGB32(yuv_bytes,                             // Y plane
+                            yuv_bytes + kWidth * kHeight,          // U plane
+                            yuv_bytes + kWidth * kHeight * 3 / 2,  // V plane
                             rgb_converted_bytes,                   // Rgb output
                             kWidth, kHeight,                       // Dimensions
                             kWidth,                                // YStride
