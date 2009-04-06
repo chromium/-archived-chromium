@@ -211,6 +211,6 @@ class PlatformUtility(google.platform_utils_win.PlatformUtility):
     return 'chromium-win'
 
   def PlatformNewResultsDir(self):
-      """Returns the directory name in which to output newly baselined tests.
-      """
+    """Returns the directory name in which to output newly baselined tests.
+    """
     return self.PlatformDir()

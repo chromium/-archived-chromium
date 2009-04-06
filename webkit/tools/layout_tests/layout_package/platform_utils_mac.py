@@ -187,6 +187,6 @@ class PlatformUtility(object):
     return platform_dir
 
   def PlatformNewResultsDir(self):
-      """Returns the directory name in which to output newly baselined tests.
-      """
-      return 'chromium-mac'
+    """Returns the directory name in which to output newly baselined tests.
+    """
+    return 'chromium-mac'

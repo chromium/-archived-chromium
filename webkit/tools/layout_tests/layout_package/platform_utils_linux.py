@@ -190,6 +190,6 @@ class PlatformUtility(object):
     return 'chromium-linux'
 
   def PlatformNewResultsDir(self):
-      """Returns the directory name in which to output newly baselined tests.
-      """
+    """Returns the directory name in which to output newly baselined tests.
+    """
     return self.PlatformDir()
