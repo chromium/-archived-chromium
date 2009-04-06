@@ -115,11 +115,11 @@ void TabStripGtk::TabInsertedAt(TabContents* contents,
   if (index == TabStripModel::kNoTab) {
     TabData d = { tab, gfx::Rect() };
     tab_data_.push_back(d);
-    tab->UpdateData(contents);
+    tab->UpdateData(contents, false);
   } else {
     TabData d = { tab, gfx::Rect() };
     tab_data_.insert(tab_data_.begin() + index, d);
-    tab->UpdateData(contents);
+    tab->UpdateData(contents, false);
   }
 
   Layout();
@@ -162,11 +162,12 @@ void TabStripGtk::TabMoved(TabContents* contents,
   Layout();
 }
 
-void TabStripGtk::TabChangedAt(TabContents* contents, int index) {
+void TabStripGtk::TabChangedAt(TabContents* contents, int index,
+                               bool loading_only) {
   // Index is in terms of the model. Need to make sure we adjust that index in
   // case we have an animation going.
   TabGtk* tab = GetTabAt(index);
-  tab->UpdateData(contents);
+  tab->UpdateData(contents, loading_only);
   tab->UpdateFromModel();
   gtk_widget_queue_draw(tabstrip_.get());
 }

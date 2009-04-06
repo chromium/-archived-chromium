@@ -43,7 +43,8 @@ class TabStripGtk : public TabStripModelObserver,
                              int index,
                              bool user_gesture);
   virtual void TabMoved(TabContents* contents, int from_index, int to_index);
-  virtual void TabChangedAt(TabContents* contents, int index);
+  virtual void TabChangedAt(TabContents* contents, int index,
+                            bool loading_only);
 
   // TabGtk::Delegate implementation:
   virtual bool IsTabSelected(const TabGtk* tab) const;

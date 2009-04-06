@@ -83,15 +83,20 @@ TabRendererGtk::TabRendererGtk()
 TabRendererGtk::~TabRendererGtk() {
 }
 
-void TabRendererGtk::UpdateData(TabContents* contents) {
+void TabRendererGtk::UpdateData(TabContents* contents, bool loading_only) {
   DCHECK(contents);
-  data_.favicon = contents->GetFavIcon();
-  data_.title = UTF16ToWideHack(contents->GetTitle());
+  if (!loading_only) {
+    data_.title = UTF16ToWideHack(contents->GetTitle());
+    data_.off_the_record = contents->profile()->IsOffTheRecord();
+    data_.show_download_icon = contents->IsDownloadShelfVisible();
+    data_.crashed = contents->is_crashed();
+    data_.favicon = contents->GetFavIcon();
+  }
+
+  // Loading state also involves whether we show the favicon, since that's where
+  // we display the throbber.
   data_.loading = contents->is_loading();
-  data_.off_the_record = contents->profile()->IsOffTheRecord();
   data_.show_icon = contents->ShouldDisplayFavIcon();
-  data_.show_download_icon = contents->IsDownloadShelfVisible();
-  data_.crashed = contents->is_crashed();
 }
 
 void TabRendererGtk::UpdateFromModel() {
