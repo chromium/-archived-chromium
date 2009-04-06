@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// You should run this with v8, like v8_shell_sample alloc.js datafile.json
+// You should run this with v8, like v8_shell alloc.js datafile.json
 
 function toHex(num) {
   var str = "";

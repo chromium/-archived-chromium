@@ -124,7 +124,7 @@ class ChromeTests:
       self._data_dir = os.path.join(module_dir, "test", "data", "purify")
     else:
       self._data_dir = os.path.join(module_dir, "data", "purify")
-      
+
     cmd = list(self._command_preamble)
     cmd.append("--data_dir=%s" % self._data_dir)
     cmd.append("--report_dir=%s" % self._report_dir)
@@ -344,7 +344,7 @@ class ChromeTests:
                              multi=True)
 
   def TestV8(self):
-    shell = "v8_shell_sample.exe"
+    shell = "v8_shell.exe"
     # We need to compute _build_dir early to in order to pass in the
     # shell path as an argument to the test script.
     self.ComputeBuildDir("chrome", shell)
@@ -402,4 +402,3 @@ def _main(argv):
 if __name__ == "__main__":
   ret = _main(sys.argv)
   sys.exit(ret)
-

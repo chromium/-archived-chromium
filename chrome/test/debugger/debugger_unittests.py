@@ -14,22 +14,21 @@ import google.path_utils
 import google.process_utils
 
 def RunTests(build_dir=None):
-  '''This is just a simple wrapper for running the test through v8_shell_sample.
-  Since v8_shell_sample always returns 0 whether the test passes or fails,
+  '''This is just a simple wrapper for running the test through v8_shell.
+  Since v8_shell always returns 0 whether the test passes or fails,
   buildbot looks at stdout to test for failure.
   '''
   script_dir = google.path_utils.ScriptDir()
   chrome_dir = google.path_utils.FindUpward(script_dir, "chrome")
   v8_dir = google.path_utils.FindUpward(script_dir, "v8")
   if build_dir:
-    v8_shell_sample = os.path.join(build_dir, "v8_shell_sample.exe")
+    v8_shell = os.path.join(build_dir, "v8_shell.exe")
   else:
-    v8_shell_sample = os.path.join(chrome_dir, "Debug", "v8_shell_sample.exe")
+    v8_shell = os.path.join(chrome_dir, "Debug", "v8_shell.exe")
     # look for Debug version first
-    if not os.path.isfile(v8_shell_sample):
-      v8_shell_sample = os.path.join(chrome_dir, "Release",
-                                     "v8_shell_sample.exe")
-  cmd = [v8_shell_sample,
+    if not os.path.isfile(v8_shell):
+      v8_shell = os.path.join(chrome_dir, "Release", "v8_shell.exe")
+  cmd = [v8_shell,
          "--allow-natives-syntax",
          "--expose-debug-as", "debugContext",
          os.path.join(chrome_dir, "browser", "debugger", "resources",
@@ -51,7 +50,7 @@ def RunTests(build_dir=None):
 if __name__ == "__main__":
   parser = optparse.OptionParser("usage: %prog [--build_dir=dir]")
   parser.add_option("", "--build_dir",
-                    help="directory where v8_shell_sample.exe was built")
+                    help="directory where v8_shell.exe was built")
   (options, args) = parser.parse_args()
   ret = RunTests(options.build_dir)
   sys.exit(ret)
