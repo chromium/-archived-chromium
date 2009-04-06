@@ -79,6 +79,10 @@ class TabStripGtk : public TabStripModelObserver,
   static gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event,
                                 TabStripGtk* tabstrip);
 
+  // leave-notify-event handler that signals when the mouse leaves the tabstrip.
+  static gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
+                                TabStripGtk* tabstrip);
+
   // Gets the number of Tabs in the collection.
   int GetTabCount() const;
 

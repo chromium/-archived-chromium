@@ -76,8 +76,10 @@ void TabStripGtk::Init() {
                    G_CALLBACK(OnMotionNotify), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "button-press-event",
                    G_CALLBACK(OnButtonPress), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "leave-notify-event",
+                   G_CALLBACK(OnLeaveNotify), this);
   gtk_widget_add_events(tabstrip_.get(),
-                        GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK);
+      GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_LEAVE_NOTIFY_MASK);
   gtk_widget_show_all(tabstrip_.get());
 
   bounds_ = GetInitialWidgetBounds(tabstrip_.get());
@@ -383,9 +385,9 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
 }
 
 // static
-gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* e,
+gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
                                TabStripGtk* tabstrip) {
-  ChromeCanvasPaint canvas(e);
+  ChromeCanvasPaint canvas(event);
   if (canvas.isEmpty())
     return TRUE;
 
@@ -483,6 +485,21 @@ gboolean TabStripGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event,
   if (tabstrip->hover_index_ != -1 &&
       tabstrip->hover_index_ != tabstrip->model()->selected_index()) {
     tabstrip->model()->SelectTabContentsAt(tabstrip->hover_index_, true);
+  }
+
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
+                                    TabStripGtk* tabstrip) {
+  // A leave-notify-event is generated on mouse click, which sets the mode to
+  // GDK_CROSSING_GRAB.  Ignore this event because it doesn't meant the mouse
+  // has left the tabstrip.
+  if (tabstrip->hover_index_ != -1 && event->mode != GDK_CROSSING_GRAB) {
+    tabstrip->GetTabAt(tabstrip->hover_index_)->SetHovering(false);
+    tabstrip->hover_index_ = -1;
+    gtk_widget_queue_draw(tabstrip->tabstrip_.get());
   }
 
   return TRUE;
