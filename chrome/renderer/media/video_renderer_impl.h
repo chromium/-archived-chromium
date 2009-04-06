@@ -49,6 +49,9 @@ class VideoRendererImpl : public media::VideoRendererBase {
   // Method called by base class during initialization.
   virtual bool OnInitialize(size_t width, size_t height);
 
+  // Method called by VideoRendererBase to tell us to stop.
+  virtual void OnStop();
+
   // Method called by the VideoRendererBase when a repaint is needed.
   virtual void OnPaintNeeded();
 

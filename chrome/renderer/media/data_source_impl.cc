@@ -45,6 +45,8 @@ void DataSourceImpl::Stop() {
     return;
   stopped_ = true;
 
+  delegate_->SetDataSource(NULL);
+
   // Wakes up demuxer waiting on |read_event_| in Read().
   read_event_.Signal();
   // Wakes up demuxer waiting on |seek_event_| in SetPosition().
@@ -226,6 +228,7 @@ void DataSourceImpl::ReleaseResources(bool render_thread_is_dying) {
     resource_loader_bridge_ = NULL;
   } else if (resource_loader_bridge_) {
     resource_loader_bridge_->Cancel();
+    delete resource_loader_bridge_;
     resource_loader_bridge_ = NULL;
   }
   resource_release_event_.Signal();

@@ -55,6 +55,7 @@ bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
 }
 
 void AudioRendererImpl::OnStop() {
+  delegate_->SetAudioRenderer(NULL);
   if (!resource_release_event_.IsSignaled()) {
     render_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this,

@@ -13,6 +13,10 @@ VideoRendererImpl::VideoRendererImpl(WebMediaPlayerDelegateImpl* delegate)
   delegate_->SetVideoRenderer(this);
 }
 
+void VideoRendererImpl::OnStop() {
+  delegate_->SetVideoRenderer(NULL);
+}
+
 bool VideoRendererImpl::OnInitialize(size_t width, size_t height) {
   video_size_.SetSize(width, height);
   bitmap_.setConfig(SkBitmap::kARGB_8888_Config, width, height);
