@@ -21,6 +21,7 @@
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
+#include "chrome/browser/gtk/infobar_container_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
@@ -197,6 +198,11 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
 
   bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get()));
   bookmark_bar_->AddBookmarkbarToBox(content_vbox_);
+
+  infobar_container_.reset(new InfoBarContainerGtk(this));
+  gtk_box_pack_start(GTK_BOX(content_vbox_),
+                     infobar_container_->widget(),
+                     FALSE, FALSE, 0);
 
   // Insert a border between the toolbar and the web contents.
   GtkWidget* border = gtk_event_box_new();
@@ -501,8 +507,7 @@ void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
   // the model has already removed |contents| from its list, so
   // browser_->GetSelectedTabContents() will return NULL or something else.
   if (index == browser_->tabstrip_model()->selected_index()) {
-    // TODO(port): Uncoment this line when we get infobars.
-    // infobar_container_->ChangeTabContents(NULL);
+    infobar_container_->ChangeTabContents(NULL);
     contents_container_->SetTabContents(NULL);
 
     // When dragging the last TabContents out of a window there is no selection
@@ -523,8 +528,7 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
 
   // Update various elements that are interested in knowing the current
   // TabContents.
-  // TOOD(port): Un-comment this line when we get infobars.
-  // infobar_container_->ChangeTabContents(new_contents);
+  infobar_container_->ChangeTabContents(new_contents);
   contents_container_->SetTabContents(new_contents);
 
   new_contents->DidBecomeSelected();

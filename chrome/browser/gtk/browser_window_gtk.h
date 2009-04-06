@@ -19,6 +19,7 @@
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
 class FindBarController;
+class InfoBarContainerGtk;
 class LocationBar;
 class NineBox;
 class StatusBubbleGtk;
@@ -168,6 +169,9 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // The tab strip.  Always non-NULL.
   scoped_ptr<TabStripGtk> tabstrip_;
+
+  // The container for info bars. Always non-NULL.
+  scoped_ptr<InfoBarContainerGtk> infobar_container_;
 
   // When it goes out of scope during our destruction, |method_factory_| will
   // cancel its pending tasks (which depend on us still existing).

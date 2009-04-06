@@ -130,15 +130,10 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_box_pack_start(GTK_BOX(shelf_), padding_bg, FALSE, FALSE, 0);
 
   // Create and pack the close button.
-  close_button_.reset(new CustomDrawButton(IDR_CLOSE_BAR,
-                      IDR_CLOSE_BAR_P, IDR_CLOSE_BAR_H, 0));
+  GtkWidget* centering_vbox_;
+  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
-  GTK_WIDGET_UNSET_FLAGS(close_button_->widget(), GTK_CAN_FOCUS);
-  GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(centering_vbox),
-                     close_button_->widget(), TRUE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(hbox_), centering_vbox, FALSE, FALSE, 0);
 
   // Create and pack the "Show all downloads..." link.
   // TODO(estade): there are some pixels above and below the link that

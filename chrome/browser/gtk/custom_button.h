@@ -32,6 +32,12 @@ class CustomDrawButton {
 
   GtkWidget* widget() const { return widget_.get(); }
 
+  // This is a convenience function for creating a widget that closes
+  // a bar (find bar, download shelf, info bars). The button will be packed in
+  // |hbox|.
+  // The caller is responsible for destroying the returned CustomDrawButton.
+  static CustomDrawButton* AddBarCloseButton(GtkWidget* hbox);
+
  private:
   // Callback for expose, used to draw the custom graphics.
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,

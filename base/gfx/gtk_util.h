@@ -39,6 +39,9 @@ GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap);
 GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
                               int top, int bottom, int left, int right);
 
+// Remove all children from this container.
+void RemoveAllChildren(GtkWidget* container);
+
 }  // namespace gfx
 
 #endif  // BASE_GFX_GTK_UTIL_H_

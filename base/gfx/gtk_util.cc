@@ -10,6 +10,15 @@
 #include "base/gfx/rect.h"
 #include "skia/include/SkBitmap.h"
 
+namespace {
+
+// Callback used in RemoveAllChildren.
+void RemoveWidget(GtkWidget* widget, gpointer container) {
+  gtk_container_remove(GTK_CONTAINER(container), widget);
+}
+
+}  // namespace
+
 namespace gfx {
 
 const GdkColor kGdkWhite = GDK_COLOR_RGB(0xff, 0xff, 0xff);
@@ -77,6 +86,10 @@ GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
   gtk_container_add(GTK_CONTAINER(alignment), child);
   gtk_container_add(GTK_CONTAINER(ebox), alignment);
   return ebox;
+}
+
+void RemoveAllChildren(GtkWidget* container) {
+  gtk_container_foreach(GTK_CONTAINER(container), RemoveWidget, container);
 }
 
 }  // namespace gfx

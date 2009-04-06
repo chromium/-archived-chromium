@@ -8,6 +8,7 @@
 #include <gtk/gtk.h>
 
 #include "base/string_util.h"
+#include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
@@ -49,11 +50,6 @@ gboolean OnMouseMove(GtkWidget* widget, GdkEventMotion* event,
   if (web_contents->delegate())
     web_contents->delegate()->ContentsMouseEvent(web_contents, true);
   return FALSE;
-}
-
-// Callback used in WebContentsViewGtk::CreateViewForWidget().
-void RemoveWidget(GtkWidget* widget, gpointer container) {
-  gtk_container_remove(GTK_CONTAINER(container), widget);
 }
 
 }  // namespace
@@ -103,7 +99,7 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
                         GDK_POINTER_MOTION_MASK);
   g_signal_connect(view->native_view(), "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
-  gtk_container_foreach(GTK_CONTAINER(vbox_.get()), RemoveWidget, vbox_.get());
+  gfx::RemoveAllChildren(vbox_.get());
   gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view_, TRUE, TRUE, 0);
   return view;
 }

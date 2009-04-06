@@ -334,6 +334,7 @@ void MemoryDetails::StartFetch() {
   NOTIMPLEMENTED();
 }
 
+#if defined(OS_MACOSX)
 InfoBar* ConfirmInfoBarDelegate::CreateInfoBar() {
   NOTIMPLEMENTED();
   return NULL;
@@ -348,6 +349,7 @@ InfoBar* LinkInfoBarDelegate::CreateInfoBar() {
   NOTIMPLEMENTED();
   return NULL;
 }
+#endif
 
 DownloadRequestDialogDelegate* DownloadRequestDialogDelegate::Create(
     TabContents* tab,

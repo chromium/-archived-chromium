@@ -54,18 +54,11 @@ void FindBarGtk::InitWidgets() {
   container_.Own(gfx::CreateGtkBorderBin(hbox, &kBackgroundColor, kBarPadding,
       kBarPadding, kBarPadding, kBarPadding));
 
-  close_button_.reset(new CustomDrawButton(IDR_CLOSE_BAR, IDR_CLOSE_BAR_P,
-                                           IDR_CLOSE_BAR_H, 0));
+  close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
                    G_CALLBACK(OnButtonPressed), this);
   gtk_widget_set_tooltip_text(close_button_->widget(),
-      WideToUTF8(l10n_util::GetString(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP))
-          .c_str());
-  // Wrap the close X in a vbox to vertically align it.
-  GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(centering_vbox),
-                     close_button_->widget(), TRUE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
+      WideToUTF8(l10n_util::GetString(IDS_FIND_IN_PAGE_CLOSE_TOOLTIP)).c_str());
 
   find_next_button_.reset(new CustomDrawButton(IDR_FINDINPAGE_NEXT,
       IDR_FINDINPAGE_NEXT_H, IDR_FINDINPAGE_NEXT_H, IDR_FINDINPAGE_NEXT_P));
@@ -94,7 +87,7 @@ void FindBarGtk::InitWidgets() {
   gtk_entry_set_has_frame(GTK_ENTRY(find_text_), FALSE);
   GtkWidget* border_bin = gfx::CreateGtkBorderBin(find_text_, &kBorderColor,
                                                   1, 1, 1, 0);
-  centering_vbox = gtk_vbox_new(FALSE, 0);
+  GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
 
