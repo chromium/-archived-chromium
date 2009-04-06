@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_GTK_TABS_TAB_RENDERER_GTK_H_
-#define CHROME_BROWSER_VIEWS_GTK_TABS_TAB_RENDERER_GTK_H_
+#ifndef CHROME_BROWSER_GTK_TABS_TAB_RENDERER_GTK_H_
+#define CHROME_BROWSER_GTK_TABS_TAB_RENDERER_GTK_H_
 
 #include <gtk/gtk.h>
 
@@ -172,4 +172,4 @@ class TabRendererGtk {
   DISALLOW_COPY_AND_ASSIGN(TabRendererGtk);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_GTK_TABS_TAB_RENDERER_GTK_H_
+#endif  // CHROME_BROWSER_GTK_TABS_TAB_RENDERER_GTK_H_
