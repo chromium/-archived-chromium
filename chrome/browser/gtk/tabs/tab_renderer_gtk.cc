@@ -289,16 +289,15 @@ void TabRendererGtk::Layout() {
 
   // Size the Title text to fill the remaining space.
   int title_left = favicon_bounds_.right() + kFavIconTitleSpacing;
-  int title_top = kTopPadding + (bounds_.height() + title_font_height_) / 2;
+  int title_top = kTopPadding + (content_height - title_font_height_) / 2;
 
   // If the user has big fonts, the title will appear rendered too far down on
   // the y-axis if we use the regular top padding, so we need to adjust it so
   // that the text appears centered.
   gfx::Size minimum_size = GetMinimumUnselectedSize();
   int text_height = title_top + title_font_height_ + kBottomPadding;
-  if (text_height > minimum_size.height()) {
+  if (text_height > minimum_size.height())
     title_top -= (text_height - minimum_size.height()) / 2;
-  }
 
   int title_width;
   if (close_button_bounds_.width() && close_button_bounds_.height()) {
