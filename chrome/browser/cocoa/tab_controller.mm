@@ -32,12 +32,21 @@
   [super dealloc];
 }
 
+// The internals of |-setSelected:| but doesn't check if we're already set
+// to |selected|. Pass the selection change to the subviews that need it and
+// mark ourselves as needing a redraw.
+- (void)internalSetSelected:(BOOL)selected {
+  selected_ = selected;
+  [backgroundButton_ setState:selected];
+  [[self view] setNeedsDisplay:YES];
+}
+
 // Called when the tab's nib is done loading and all outlets are hooked up.
 - (void)awakeFromNib {
   [[self view] addSubview:backgroundButton_
                positioned:NSWindowBelow
                relativeTo:nil];
-  [self setSelected:NO];
+  [self internalSetSelected:selected_];
 }
 
 - (IBAction)closeTab:(id)sender {
@@ -48,11 +57,8 @@
 }
 
 - (void)setSelected:(BOOL)selected {
-  if (selected_ != selected) {
-    selected_ = selected;
-    [backgroundButton_ setState:selected];
-    [[self view] setNeedsDisplay:YES];
-  }
+  if (selected_ != selected)
+    [self internalSetSelected:selected];
 }
 
 - (BOOL)selected {
