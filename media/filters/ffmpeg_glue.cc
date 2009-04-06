@@ -112,11 +112,6 @@ FFmpegGlue::FFmpegGlue() {
 }
 
 FFmpegGlue::~FFmpegGlue() {
-  DataSourceMap::iterator iter = data_sources_.begin();
-  while (iter != data_sources_.end()) {
-    DataSource* data_source = iter->second;
-    iter = data_sources_.erase(iter);
-  }
 }
 
 std::string FFmpegGlue::AddDataSource(DataSource* data_source) {
@@ -130,13 +125,13 @@ std::string FFmpegGlue::AddDataSource(DataSource* data_source) {
 
 void FFmpegGlue::RemoveDataSource(DataSource* data_source) {
   AutoLock auto_lock(lock_);
-  DataSourceMap::iterator iter = data_sources_.begin();
-  while (iter != data_sources_.end()) {
-    if (iter->second == data_source) {
-      iter = data_sources_.erase(iter);
-    } else {
-      ++iter;
-    }
+  for (DataSourceMap::iterator cur, iter = data_sources_.begin();
+       iter != data_sources_.end();) {
+    cur = iter;
+    iter++;
+
+    if (cur->second == data_source)
+      data_sources_.erase(cur);
   }
 }
 
