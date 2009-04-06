@@ -13,6 +13,7 @@
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -36,6 +37,9 @@
 #include "grit/theme_resources.h"
 
 namespace {
+
+// The number of milliseconds between loading animation frames.
+const int kLoadingAnimationFrameTimeMs = 30;
 
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
@@ -336,15 +340,42 @@ void BrowserWindowGtk::SelectedTabToolbarSizeChanged(bool is_animating) {
 void BrowserWindowGtk::UpdateTitleBar() {
   std::wstring title = browser_->GetCurrentPageTitle();
   gtk_window_set_title(window_, WideToUTF8(title).c_str());
-  if (browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR)) {
+  if (ShouldShowWindowIcon()) {
     // If we're showing a title bar, we should update the app icon.
     NOTIMPLEMENTED();
   }
 }
 
 void BrowserWindowGtk::UpdateLoadingAnimations(bool should_animate) {
-  // Need to implement loading animations.
-  // http://code.google.com/p/chromium/issues/detail?id=9380
+  if (should_animate) {
+    if (!loading_animation_timer_.IsRunning()) {
+      // Loads are happening, and the timer isn't running, so start it.
+      loading_animation_timer_.Start(
+          base::TimeDelta::FromMilliseconds(kLoadingAnimationFrameTimeMs), this,
+          &BrowserWindowGtk::LoadingAnimationCallback);
+    }
+  } else {
+    if (loading_animation_timer_.IsRunning()) {
+      loading_animation_timer_.Stop();
+      // Loads are now complete, update the state if a task was scheduled.
+      LoadingAnimationCallback();
+    }
+  }
+}
+
+void BrowserWindowGtk::LoadingAnimationCallback() {
+  if (browser_->type() == Browser::TYPE_NORMAL) {
+    // Loading animations are shown in the tab for tabbed windows.  We check the
+    // browser type instead of calling IsTabStripVisible() because the latter
+    // will return false for fullscreen windows, but we still need to update
+    // their animations (so that when they come out of fullscreen mode they'll
+    // be correct).
+    tabstrip_->UpdateLoadingAnimations();
+  } else if (ShouldShowWindowIcon()) {
+    // ... or in the window icon area for popups and app windows.
+    // http://code.google.com/p/chromium/issues/detail?id=9380
+    NOTIMPLEMENTED();
+  }
 }
 
 void BrowserWindowGtk::SetStarredState(bool is_starred) {
@@ -583,6 +614,10 @@ bool BrowserWindowGtk::CanClose() const {
       Source<GtkWindow>(window_),
       NotificationService::NoDetails());
   return true;
+}
+
+bool BrowserWindowGtk::ShouldShowWindowIcon() const {
+  return browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR);
 }
 
 void BrowserWindowGtk::ConnectAccelerators() {

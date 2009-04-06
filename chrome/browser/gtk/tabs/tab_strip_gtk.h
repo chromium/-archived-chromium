@@ -8,6 +8,7 @@
 #include <gtk/gtk.h>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
@@ -31,6 +32,9 @@ class TabStripGtk : public TabStripModelObserver,
 
   // Sets the bounds of the tabstrip.
   void SetBounds(const gfx::Rect& bounds) { bounds_ = bounds; }
+
+  // Updates loading animations for the TabStrip.
+  void UpdateLoadingAnimations();
 
  protected:
   // TabStripModelObserver implementation:
@@ -63,6 +67,11 @@ class TabStripGtk : public TabStripModelObserver,
   virtual bool HasAvailableDragActions() const;
 
  private:
+  struct TabData {
+    TabGtk* tab;
+    gfx::Rect ideal_bounds;
+  };
+
   // expose-event handler that redraws the tabstrip
   static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
                            TabStripGtk* tabstrip);
@@ -119,10 +128,6 @@ class TabStripGtk : public TabStripModelObserver,
   void GenerateIdealBounds();
 
   // The Tabs we contain, and their last generated "good" bounds.
-  struct TabData {
-    TabGtk* tab;
-    gfx::Rect ideal_bounds;
-  };
   std::vector<TabData> tab_data_;
 
   // The current widths of various types of tabs.  We save these so that, as
@@ -157,6 +162,8 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The index of the tab the mouse is currently over.  -1 if not over a tab.
   int hover_index_;
+
+  DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };
 
 #endif  // CHROME_BROWSER_GTK_TABS_TAB_STRIP_GTK_H_

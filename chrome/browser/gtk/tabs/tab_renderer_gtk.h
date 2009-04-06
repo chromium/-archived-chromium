@@ -15,12 +15,57 @@
 
 namespace gfx {
 class Size;
-}
+}  // namespace gfx
 
 class TabContents;
 
 class TabRendererGtk {
  public:
+  // Possible animation states.
+  enum AnimationState {
+    ANIMATION_NONE,
+    ANIMATION_WAITING,
+    ANIMATION_LOADING
+  };
+
+  class LoadingAnimation {
+   public:
+    struct Data {
+      SkBitmap* waiting_animation_frames;
+      SkBitmap* loading_animation_frames;
+      int loading_animation_frame_count;
+      int waiting_animation_frame_count;
+      int waiting_to_loading_frame_count_ratio;
+    };
+
+    explicit LoadingAnimation(const Data* data);
+
+    // Advance the loading animation to the next frame, or hide the animation if
+    // the tab isn't loading.
+    void ValidateLoadingAnimation(AnimationState animation_state);
+
+    AnimationState animation_state() const { return animation_state_; }
+    int animation_frame() const { return animation_frame_; }
+
+    const SkBitmap* waiting_animation_frames() const {
+      return data_->waiting_animation_frames;
+    }
+    const SkBitmap* loading_animation_frames() const {
+      return data_->loading_animation_frames;
+    }
+
+   private:
+    const Data* const data_;
+
+    // Current state of the animation.
+    AnimationState animation_state_;
+
+    // The current index into the Animation image strip.
+    int animation_frame_;
+
+    DISALLOW_COPY_AND_ASSIGN(LoadingAnimation);
+  };
+
   TabRendererGtk();
   virtual ~TabRendererGtk();
 
@@ -34,6 +79,10 @@ class TabRendererGtk {
 
   // Returns true if the Tab is selected, false otherwise.
   virtual bool IsSelected() const;
+
+  // Advance the loading animation to the next frame, or hide the animation if
+  // the tab isn't loading.
+  void ValidateLoadingAnimation(AnimationState animation_state);
 
   // Returns the minimum possible size of a single unselected Tab.
   static gfx::Size GetMinimumUnselectedSize();
@@ -70,6 +119,28 @@ class TabRendererGtk {
   std::wstring GetTitle() const;
 
  private:
+  // Model data. We store this here so that we don't need to ask the underlying
+  // model, which is tricky since instances of this object can outlive the
+  // corresponding objects in the underlying model.
+  struct TabData {
+    SkBitmap favicon;
+    std::wstring title;
+    bool loading;
+    bool crashed;
+    bool off_the_record;
+    bool show_icon;
+    bool show_download_icon;
+  };
+
+  // TODO(jhawkins): Move into TabResources class.
+  struct TabImage {
+    SkBitmap* image_l;
+    SkBitmap* image_c;
+    SkBitmap* image_r;
+    int l_width;
+    int r_width;
+  };
+
   // Generates the bounds for the interior items of the tab.
   void Layout();
 
@@ -103,28 +174,8 @@ class TabRendererGtk {
   gfx::Rect title_bounds_;
   gfx::Rect close_button_bounds_;
 
-  // Model data. We store this here so that we don't need to ask the underlying
-  // model, which is tricky since instances of this object can outlive the
-  // corresponding objects in the underlying model.
-  struct TabData {
-    SkBitmap favicon;
-    std::wstring title;
-    bool loading;
-    bool crashed;
-    bool off_the_record;
-    bool show_icon;
-    bool show_download_icon;
-  };
   TabData data_;
 
-  // TODO(jhawkins): Move into TabResources class.
-  struct TabImage {
-    SkBitmap* image_l;
-    SkBitmap* image_c;
-    SkBitmap* image_r;
-    int l_width;
-    int r_width;
-  };
   static TabImage tab_active_;
   static TabImage tab_inactive_;
   static TabImage tab_inactive_otr_;
@@ -169,6 +220,9 @@ class TabRendererGtk {
 
   // Set when the mouse is hovering over this tab and the tab is not selected.
   bool hovering_;
+
+  // Contains the loading animation state.
+  LoadingAnimation loading_animation_;
 
   DISALLOW_COPY_AND_ASSIGN(TabRendererGtk);
 };

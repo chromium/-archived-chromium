@@ -52,6 +52,41 @@ GdkFont* load_default_font() {
   return font;
 }
 
+TabRendererGtk::LoadingAnimation::Data loading_animation_data;
+
+// Loads the loading animation images and data.
+void InitializeLoadingAnimationData(
+    ResourceBundle* rb, TabRendererGtk::LoadingAnimation::Data* data) {
+  // The loading animation image is a strip of states. Each state must be
+  // square, so the height must divide the width evenly.
+  data->loading_animation_frames = rb->GetBitmapNamed(IDR_THROBBER);
+  DCHECK(data->loading_animation_frames);
+  DCHECK_EQ(data->loading_animation_frames->width() %
+            data->loading_animation_frames->height(), 0);
+  data->loading_animation_frame_count =
+      data->loading_animation_frames->width() /
+      data->loading_animation_frames->height();
+
+  data->waiting_animation_frames =
+      rb->GetBitmapNamed(IDR_THROBBER_WAITING);
+  DCHECK(data->waiting_animation_frames);
+  DCHECK_EQ(data->waiting_animation_frames->width() %
+            data->waiting_animation_frames->height(), 0);
+  data->waiting_animation_frame_count =
+      data->waiting_animation_frames->width() /
+      data->waiting_animation_frames->height();
+
+  data->waiting_to_loading_frame_count_ratio =
+      data->waiting_animation_frame_count /
+      data->loading_animation_frame_count;
+  // TODO(beng): eventually remove this when we have a proper themeing system.
+  //             themes not supporting IDR_THROBBER_WAITING are causing this
+  //             value to be 0 which causes DIV0 crashes. The value of 5
+  //             matches the current bitmaps in our source.
+  if (data->waiting_to_loading_frame_count_ratio == 0)
+    data->waiting_to_loading_frame_count_ratio = 5;
+}
+
 }  // namespace
 
 bool TabRendererGtk::initialized_ = false;
@@ -68,6 +103,38 @@ int TabRendererGtk::download_icon_width_ = 0;
 int TabRendererGtk::download_icon_height_ = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
+// TabRendererGtk::LoadingAnimation, public:
+//
+TabRendererGtk::LoadingAnimation::LoadingAnimation(const Data* data)
+    : data_(data), animation_state_(ANIMATION_NONE), animation_frame_(0) {
+}
+
+void TabRendererGtk::LoadingAnimation::ValidateLoadingAnimation(
+    AnimationState animation_state) {
+  if (animation_state_ != animation_state) {
+    // The waiting animation is the reverse of the loading animation, but at a
+    // different rate - the following reverses and scales the animation_frame_
+    // so that the frame is at an equivalent position when going from one
+    // animation to the other.
+    if (animation_state_ == ANIMATION_WAITING &&
+        animation_state == ANIMATION_LOADING) {
+      animation_frame_ = data_->loading_animation_frame_count -
+          (animation_frame_ / data_->waiting_to_loading_frame_count_ratio);
+    }
+    animation_state_ = animation_state;
+  }
+
+  if (animation_state_ != ANIMATION_NONE) {
+    animation_frame_ = ++animation_frame_ %
+                       ((animation_state_ == ANIMATION_WAITING) ?
+                         data_->waiting_animation_frame_count :
+                         data_->loading_animation_frame_count);
+  } else {
+    animation_frame_ = 0;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk, public:
 
 TabRendererGtk::TabRendererGtk()
@@ -76,7 +143,8 @@ TabRendererGtk::TabRendererGtk()
       showing_close_button_(false),
       fav_icon_hiding_offset_(0),
       should_display_crashed_favicon_(false),
-      hovering_(false) {
+      hovering_(false),
+      loading_animation_(&loading_animation_data) {
   InitResources();
 }
 
@@ -106,6 +174,10 @@ void TabRendererGtk::UpdateFromModel() {
 
 bool TabRendererGtk::IsSelected() const {
   return true;
+}
+
+void TabRendererGtk::ValidateLoadingAnimation(AnimationState animation_state) {
+  loading_animation_.ValidateLoadingAnimation(animation_state);
 }
 
 // static
@@ -218,9 +290,13 @@ void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
 
   PaintTabBackground(canvas);
 
-  if (show_icon && !data_.favicon.isNull()) {
-    canvas->DrawBitmapInt(data_.favicon, favicon_bounds_.x(),
-                          favicon_bounds_.y() + fav_icon_hiding_offset_);
+  if (show_icon) {
+    if (loading_animation_.animation_state() != ANIMATION_NONE) {
+      PaintLoadingAnimation(canvas);
+    } else if (!data_.favicon.isNull()) {
+      canvas->DrawBitmapInt(data_.favicon, favicon_bounds_.x(),
+                            favicon_bounds_.y() + fav_icon_hiding_offset_);
+    }
   }
 
   if (show_download_icon) {
@@ -380,6 +456,27 @@ void TabRendererGtk::PaintActiveTabBackground(ChromeCanvasPaint* canvas) {
                         bounds_.y());
 }
 
+void TabRendererGtk::PaintLoadingAnimation(ChromeCanvasPaint* canvas) {
+  const SkBitmap* frames =
+      (loading_animation_.animation_state() == ANIMATION_WAITING) ?
+      loading_animation_.waiting_animation_frames() :
+      loading_animation_.loading_animation_frames();
+  const int image_size = frames->height();
+  const int image_offset = loading_animation_.animation_frame() * image_size;
+  const int dst_y = (height() - image_size) / 2;
+
+  // Just like with the Tab's title and favicon, the position for the page
+  // loading animation also needs to be mirrored if the UI layout is RTL.
+  // TODO(willchan): Handle RTL.
+  // dst_x = x() + width() - kLeftPadding - image_size;
+  int dst_x = x() + kLeftPadding;
+
+
+  canvas->DrawBitmapInt(*frames, image_offset, 0, image_size,
+                        image_size, dst_x, dst_y, image_size, image_size,
+                        false);
+}
+
 int TabRendererGtk::IconCapacity() const {
   if (height() < GetMinimumUnselectedSize().height())
     return 0;
@@ -412,6 +509,8 @@ void TabRendererGtk::InitResources() {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   title_font_ = new ChromeFont(rb.GetFont(ResourceBundle::BaseFont));
   title_font_height_ = title_font_->height();
+
+  InitializeLoadingAnimationData(&rb, &loading_animation_data);
 
   initialized_ = true;
 }

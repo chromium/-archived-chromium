@@ -10,6 +10,7 @@
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "base/timer.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/notification_observer.h"
@@ -102,6 +103,8 @@ class BrowserWindowGtk : public BrowserWindow,
   // onbeforeunload handler that prevents us from closing.
   bool CanClose() const;
 
+  bool ShouldShowWindowIcon() const;
+
  protected:
   virtual void DestroyBrowser();
   GtkWindow* window_;
@@ -134,6 +137,9 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // A small shim for browser_->ExecuteCommand.
   void ExecuteBrowserCommand(int id);
+
+  // Callback for the loading animation(s) associated with this window.
+  void LoadingAnimationCallback();
 
   gfx::Rect bounds_;
   GdkWindowState state_;
@@ -169,6 +175,11 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // Experiment with using views for gtk.
   scoped_ptr<views::WidgetGtk> experimental_widget_;
+
+  // The timer used to update frames for the Loading Animation.
+  base::RepeatingTimer<BrowserWindowGtk> loading_animation_timer_;
+
+  DISALLOW_COPY_AND_ASSIGN(BrowserWindowGtk);
 };
 
 #endif  // CHROME_BROWSER_GTK_BROWSER_WINDOW_GTK_H_

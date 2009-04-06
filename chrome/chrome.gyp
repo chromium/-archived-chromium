@@ -2094,6 +2094,7 @@
         'browser/extensions/extensions_service_unittest.cc',
         'browser/extensions/user_script_master_unittest.cc',
         'browser/google_url_tracker_unittest.cc',
+	'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
         'browser/history/expire_history_backend_unittest.cc',
         'browser/history/history_backend_unittest.cc',
         'browser/history/history_querying_unittest.cc',
@@ -2232,6 +2233,7 @@
           'sources!': [
             'browser/back_forward_menu_model_unittest.cc',
             'browser/download/download_manager_unittest.cc',
+	    'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'browser/navigation_controller_unittest.cc',
             'browser/sessions/session_backend_unittest.cc',
             'browser/sessions/session_service_test_helper.cc',
@@ -2252,6 +2254,7 @@
             'third_party/wtl/include',
           ],
           'sources!': [
+	    'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'common/file_descriptor_set_unittest.cc',
             'common/net/url_util_unittest.cc',
           ],

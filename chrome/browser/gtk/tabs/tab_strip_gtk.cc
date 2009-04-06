@@ -102,6 +102,26 @@ void TabStripGtk::Layout() {
   gtk_widget_queue_draw(tabstrip_.get());
 }
 
+void TabStripGtk::UpdateLoadingAnimations() {
+  for (int i = 0, index = 0; i < GetTabCount(); ++i, ++index) {
+    TabGtk* current_tab = GetTabAt(i);
+    if (current_tab->closing()) {
+      --index;
+    } else {
+      TabContents* contents = model_->GetTabContentsAt(index);
+      if (!contents || !contents->is_loading()) {
+        current_tab->ValidateLoadingAnimation(TabGtk::ANIMATION_NONE);
+      } else if (contents->waiting_for_response()) {
+        current_tab->ValidateLoadingAnimation(TabGtk::ANIMATION_WAITING);
+      } else {
+        current_tab->ValidateLoadingAnimation(TabGtk::ANIMATION_LOADING);
+      }
+    }
+  }
+
+  gtk_widget_queue_draw(tabstrip_.get());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, TabStripModelObserver implementation:
 
@@ -294,7 +314,8 @@ int TabStripGtk::GetIndexOfTab(const TabGtk* tab) const {
 }
 
 TabGtk* TabStripGtk::GetTabAt(int index) const {
-  DCHECK(index >= 0 && index < GetTabCount());
+  DCHECK_GE(index, 0);
+  DCHECK_LT(index, GetTabCount());
   return tab_data_.at(index).tab;
 }
 
