@@ -19,7 +19,10 @@ void AppModalDialogQueue::AddDialog(views::AppModalDialogDelegate* dialog) {
     ShowModalDialog(dialog);
   }
 
-  app_modal_dialog_queue_->push(dialog);
+  // ShowModalDialog can wind up calling ShowNextDialog in some cases, which
+  // can then make app_modal_dialog_queue_ NULL.
+  if (app_modal_dialog_queue_)
+    app_modal_dialog_queue_->push(dialog);
 }
 
 // static
@@ -43,6 +46,9 @@ void AppModalDialogQueue::ActivateModalDialog() {
 // static
 void AppModalDialogQueue::ShowModalDialog(
     views::AppModalDialogDelegate* dialog) {
-  dialog->ShowModalDialog();
+  // ShowModalDialog can wind up calling ShowNextDialog in some cases,
+  // which will wind up calling this method recursively, so active_dialog_
+  // must be set first.
   active_dialog_ = dialog;
+  dialog->ShowModalDialog();
 }
