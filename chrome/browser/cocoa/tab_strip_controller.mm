@@ -295,6 +295,14 @@ class TabStripBridge : public TabStripModelObserver {
              previousContents:(TabContents*)oldContents
                       atIndex:(NSInteger)index
                   userGesture:(bool)wasUserGesture {
+  int selectedIndex = 0;
+  for (TabController* current in tabArray_) {
+    if ([current selected]) {
+      break;
+    }
+    ++selectedIndex;
+  }
+
   // De-select all other tabs and select the new tab.
   int i = 0;
   for (TabController* current in tabArray_) {
@@ -305,6 +313,13 @@ class TabStripBridge : public TabStripModelObserver {
   // Make this the top-most tab in the strips's z order.
   NSView* selectedTab = [self viewAtIndex:index];
   [tabView_ addSubview:selectedTab positioned:NSWindowAbove relativeTo:nil];
+
+  // Tell the current tab to lose focus.
+  if (selectedIndex < (int)[tabArray_ count]) {
+    TabContentsController* selectedController =
+        [tabContentsArray_ objectAtIndex:selectedIndex];
+    [selectedController defocusLocationBar];
+  }
 
   // Tell the new tab contents it is about to become the selected tab. Here it
   // can do things like make sure the toolbar is up to date.

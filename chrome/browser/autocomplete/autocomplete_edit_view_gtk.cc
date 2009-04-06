@@ -177,7 +177,7 @@ void AutocompleteEditViewGtk::OpenURL(const GURL& url,
   model_->SendOpenNotification(selected_line, keyword);
 
   if (disposition != NEW_BACKGROUND_TAB)
-    RevertAll();  // Revert the box to its unedited state
+    RevertAll();  // Revert the box to its unedited state.
   controller_->OnAutocompleteAccept(url, disposition, transition,
                                     alternate_nav_url);
 }
