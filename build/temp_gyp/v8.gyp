@@ -440,7 +440,7 @@
       ],
     },
     {
-      'target_name': 'v8_shell',
+      'target_name': 'v8_shell_sample',
       'type': 'executable',
       'dependencies': [
         'v8',
