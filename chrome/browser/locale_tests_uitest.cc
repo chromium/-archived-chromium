@@ -25,7 +25,7 @@ class LocaleTestsZhTw : public UITest {
   }
 };
 
-#ifdef 0
+#if 0
 // These 3 tests started failing between revisions 13115 and 13120.
 // See bug 9758.
 TEST_F(LocaleTestsDa, TestStart) {
