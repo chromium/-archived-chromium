@@ -16,6 +16,7 @@
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
+#include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/l10n_util.h"
@@ -115,8 +116,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new("  "), FALSE, FALSE, 0);
 
-  star_.reset(BuildToolbarButton(IDR_STAR, IDR_STAR_P, IDR_STAR_H, IDR_STAR_D,
-      l10n_util::GetString(IDS_TOOLTIP_STAR)));
+  star_.reset(BuildStarButton(l10n_util::GetString(IDS_TOOLTIP_STAR)));
 
   location_bar_->Init();
   gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
@@ -219,6 +219,20 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     const std::wstring& localized_tooltip) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
       highlight_id, depressed_id);
+
+  gtk_widget_set_tooltip_text(button->widget(),
+                              WideToUTF8(localized_tooltip).c_str());
+  g_signal_connect(G_OBJECT(button->widget()), "clicked",
+                   G_CALLBACK(OnButtonClick), this);
+  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
+
+  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
+  return button;
+}
+
+ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
+    const std::wstring& localized_tooltip) {
+  ToolbarStarToggleGtk* button = new ToolbarStarToggleGtk;
 
   gtk_widget_set_tooltip_text(button->widget(),
                               WideToUTF8(localized_tooltip).c_str());

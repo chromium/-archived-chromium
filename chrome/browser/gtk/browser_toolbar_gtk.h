@@ -24,6 +24,7 @@ class NineBox;
 class Profile;
 class TabContents;
 class ToolbarModel;
+class ToolbarStarToggleGtk;
 
 // View class that displays the GTK version of the toolbar and routes gtk
 // events back to the Browser.
@@ -64,6 +65,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Message that we should react to a state change.
   void UpdateTabContents(TabContents* contents, bool should_restore_state);
 
+  ToolbarStarToggleGtk* star() { return star_.get(); }
+
  private:
   // Builds a toolbar button with all the properties set.
   CustomDrawButton* BuildToolbarButton(int normal_id,
@@ -71,6 +74,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                        int highlight_id,
                                        int depressed_id,
                                        const std::wstring& localized_tooltip);
+
+  ToolbarStarToggleGtk* BuildStarButton(const std::wstring& localized_tooltip);
 
   CustomContainerButton* BuildToolbarMenuButton(
       int icon_id,
@@ -124,7 +129,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   scoped_ptr<CustomDrawButton> back_, forward_;
   scoped_ptr<CustomDrawButton> reload_;
   scoped_ptr<CustomDrawButton> home_;  // May be NULL.
-  scoped_ptr<CustomDrawButton> star_, go_;
+  scoped_ptr<ToolbarStarToggleGtk> star_;
+  scoped_ptr<CustomDrawButton> go_;
   scoped_ptr<CustomContainerButton> page_menu_button_, app_menu_button_;
 
   // The model that contains the security level, text, icon to display...

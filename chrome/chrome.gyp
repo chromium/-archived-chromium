@@ -703,6 +703,8 @@
         'browser/gtk/tabs/tab_renderer_gtk.h',
         'browser/gtk/tabs/tab_strip_gtk.cc',
         'browser/gtk/tabs/tab_strip_gtk.h',
+        'browser/gtk/toolbar_star_toggle_gtk.cc',
+        'browser/gtk/toolbar_star_toggle_gtk.h',
         'browser/hang_monitor/hung_plugin_action.cc',
         'browser/hang_monitor/hung_plugin_action.h',
         'browser/hang_monitor/hung_window_detector.cc',

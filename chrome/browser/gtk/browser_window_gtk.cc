@@ -22,6 +22,7 @@
 #include "chrome/browser/gtk/status_bubble_gtk.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_strip_gtk.h"
+#include "chrome/browser/gtk/toolbar_star_toggle_gtk.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -278,7 +279,7 @@ void BrowserWindowGtk::Close() {
 
   // TODO(tc): We should store the window position, perhaps using
   // gtk_window_set_role.
-  //SaveWindowPosition();
+  // SaveWindowPosition();
 
   GtkWidget* window = GTK_WIDGET(window_);
   // To help catch bugs in any event handlers that might get fired during the
@@ -333,9 +334,7 @@ void BrowserWindowGtk::UpdateLoadingAnimations(bool should_animate) {
 }
 
 void BrowserWindowGtk::SetStarredState(bool is_starred) {
-  // Hide our current lack of starring support from NOTIMPLEMENTED spew.
-  if (is_starred)
-    NOTIMPLEMENTED();
+  toolbar_->star()->SetStarred(is_starred);
 }
 
 gfx::Rect BrowserWindowGtk::GetNormalBounds() const {
@@ -509,8 +508,8 @@ bool BrowserWindowGtk::CanClose() const {
   // TODO(tc): We don't have tab dragging yet.
   // You cannot close a frame for which there is an active originating drag
   // session.
-  //if (tabstrip_->IsDragSessionActive())
-  //  return false;
+  // if (tabstrip_->IsDragSessionActive())
+  //   return false;
 
   // Give beforeunload handlers the chance to cancel the close before we hide
   // the window below.
