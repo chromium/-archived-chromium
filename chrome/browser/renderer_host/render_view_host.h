@@ -370,11 +370,11 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Notifies the RenderViewHost that a file has been chosen by the user from
   // an Open File dialog for the form.
-  void FileSelected(const std::wstring& path);
+  void FileSelected(const FilePath& path);
 
   // Notifies the Listener that many files have been chosen by the user from
   // an Open File dialog for the form.
-  void MultiFilesSelected(const std::vector<std::wstring>& files);
+  void MultiFilesSelected(const std::vector<FilePath>& files);
 
   // Notifies the RenderViewHost that its load state changed.
   void LoadStateChanged(const GURL& url, net::LoadState load_state);

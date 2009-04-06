@@ -997,12 +997,11 @@ void SavePackage::GetSaveInfo() {
   // Use "Web Page, Complete" option as default choice of saving page.
   int filter_index = 2;
   std::wstring filter;
-  std::wstring default_extension;
+  FilePath::StringType default_extension;
   FilePath title =
       FilePath::FromWStringHack(UTF16ToWideHack(web_contents_->GetTitle()));
   FilePath suggested_path =
       GetSuggestNameForSaveAs(web_contents_->profile()->GetPrefs(), title);
-  std::wstring suggested_name = suggested_path.ToWStringHack();
 
   SavePackageParam* save_params =
       new SavePackageParam(web_contents_->contents_mime_type());
@@ -1014,10 +1013,10 @@ void SavePackage::GetSaveInfo() {
     filter.resize(filter.size() + 2);
     filter[filter.size() - 1] = L'\0';
     filter[filter.size() - 2] = L'\0';
-    default_extension = L"htm";
+    default_extension = FILE_PATH_LITERAL("htm");
   } else {
 #if defined(OS_WIN)
-    filter = win_util::GetFileFilterFromPath(suggested_name);
+    filter = win_util::GetFileFilterFromPath(suggested_path.ToWStringHack());
 #else
     // TODO(port): implement this.
     NOTIMPLEMENTED();
@@ -1031,8 +1030,8 @@ void SavePackage::GetSaveInfo() {
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
-                                    std::wstring(),
-                                    suggested_name,
+                                    string16(),
+                                    suggested_path,
                                     filter,
                                     filter_index,
                                     default_extension,
@@ -1043,17 +1042,17 @@ void SavePackage::GetSaveInfo() {
 #endif  // defined(OS_LINUX) || defined(OS_WIN)
   {
     // Just use 'suggested_name' instead of opening the dialog prompt.
-    ContinueSave(save_params, suggested_name, filter_index);
+    ContinueSave(save_params, suggested_path, filter_index);
     delete save_params;
   }
 }
 
 // Called after the save file dialog box returns.
 void SavePackage::ContinueSave(SavePackageParam* param,
-                               const std::wstring& final_name,
+                               const FilePath& final_name,
                                int index) {
   // Ensure the filename is safe.
-  param->saved_main_file_path = FilePath::FromWStringHack(final_name);
+  param->saved_main_file_path = final_name;
   DownloadManager* dlm = web_contents_->profile()->GetDownloadManager();
   DCHECK(dlm);
   dlm->GenerateSafeFilename(param->current_tab_mime_type,
@@ -1142,7 +1141,7 @@ bool SavePackage::GetSafePureFileName(const FilePath& dir_path,
 }
 
 // SelectFileDialog::Listener interface.
-void SavePackage::FileSelected(const std::wstring& path,
+void SavePackage::FileSelected(const FilePath& path,
                                int index, void* params) {
   SavePackageParam* save_params = reinterpret_cast<SavePackageParam*>(params);
   ContinueSave(save_params, path, index);

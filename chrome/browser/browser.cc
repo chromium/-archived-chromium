@@ -282,7 +282,7 @@ void Browser::CreateBrowserWindow() {
     window_->GetLocationBar()->ShowFirstRunBubble();
   }
 
-#if defined(OS_WIN) 
+#if defined(OS_WIN)
   FindBar* find_bar = BrowserWindow::CreateFindBar(this);
   find_bar_controller_.reset(new FindBarController(find_bar));
   find_bar->SetFindBarController(find_bar_controller_.get());
@@ -953,8 +953,8 @@ void Browser::OpenFile() {
   // TODO(beng): figure out how to juggle this.
   gfx::NativeWindow parent_window = window_->GetNativeHandle();
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
-                                  std::wstring(), std::wstring(),
-                                  std::wstring(), 0, std::wstring(),
+                                  string16(), FilePath(),
+                                  std::wstring(), 0, FILE_PATH_LITERAL(""),
                                   parent_window, NULL);
 }
 #endif
@@ -1952,8 +1952,8 @@ void Browser::RenderWidgetShowing() {
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, SelectFileDialog::Listener implementation:
 
-void Browser::FileSelected(const std::wstring& path, int index, void* params) {
-  GURL file_url = net::FilePathToFileURL(path);
+void Browser::FileSelected(const FilePath& path, int index, void* params) {
+  GURL file_url = net::FilePathToFileURL(path.ToWStringHack());
   if (!file_url.is_empty())
     OpenURL(file_url, GURL(), CURRENT_TAB, PageTransition::TYPED);
 }

@@ -4,6 +4,7 @@
 
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/common/url_constants.h"
@@ -30,7 +31,7 @@ class RendererSecurityPolicy::SecurityState {
   }
 
   // Grant permission to upload the specified file to the web.
-  void GrantUploadFile(const std::wstring& file) {
+  void GrantUploadFile(const FilePath& file) {
     uploadable_files_.insert(file);
   }
 
@@ -51,7 +52,7 @@ class RendererSecurityPolicy::SecurityState {
 
   // Determine whether permission has been granted to upload file.
   // Files that have not been granted default to being denied.
-  bool CanUploadFile(const std::wstring& file) {
+  bool CanUploadFile(const FilePath& file) {
     return uploadable_files_.find(file) != uploadable_files_.end();
   }
 
@@ -59,7 +60,7 @@ class RendererSecurityPolicy::SecurityState {
 
  private:
   typedef std::map<std::string, bool> SchemeMap;
-  typedef std::set<std::wstring> FileSet;
+  typedef std::set<FilePath> FileSet;
 
   // Maps URL schemes to whether permission has been granted or revoked:
   //   |true| means the scheme has been granted.
@@ -181,7 +182,7 @@ void RendererSecurityPolicy::GrantRequestURL(int renderer_id, const GURL& url) {
 }
 
 void RendererSecurityPolicy::GrantUploadFile(int renderer_id,
-                                             const std::wstring& file) {
+                                             const FilePath& file) {
   AutoLock lock(lock_);
 
   SecurityStateMap::iterator state = security_state_.find(renderer_id);
@@ -266,7 +267,7 @@ bool RendererSecurityPolicy::CanRequestURL(int renderer_id, const GURL& url) {
 }
 
 bool RendererSecurityPolicy::CanUploadFile(int renderer_id,
-                                           const std::wstring& file) {
+                                           const FilePath& file) {
   AutoLock lock(lock_);
 
   SecurityStateMap::iterator state = security_state_.find(renderer_id);

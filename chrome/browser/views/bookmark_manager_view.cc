@@ -517,7 +517,7 @@ void BookmarkManagerView::ExecuteCommand(int id) {
   }
 }
 
-void BookmarkManagerView::FileSelected(const std::wstring& path,
+void BookmarkManagerView::FileSelected(const FilePath& path,
                                        int index,
                                        void* params) {
   int id = reinterpret_cast<int>(params);
@@ -526,7 +526,7 @@ void BookmarkManagerView::FileSelected(const std::wstring& path,
     ImporterHost* host = new ImporterHost();
     ProfileInfo profile_info;
     profile_info.browser_type = BOOKMARKS_HTML;
-    profile_info.source_path = path;
+    profile_info.source_path = path.ToWStringHack();
     StartImportingWithUI(GetWidget()->GetNativeView(), FAVORITES, host,
                          profile_info, profile_,
                          new ImportObserverImpl(profile()), false);
@@ -534,7 +534,7 @@ void BookmarkManagerView::FileSelected(const std::wstring& path,
     if (g_browser_process->io_thread()) {
       bookmark_html_writer::WriteBookmarks(
           g_browser_process->io_thread()->message_loop(), GetBookmarkModel(),
-          path);
+          path.ToWStringHack());
     }
   } else {
     NOTREACHED();
@@ -718,8 +718,10 @@ void BookmarkManagerView::ShowImportBookmarksFileChooser() {
       win_util::GetFileFilterFromExtensions(L"*.html;*.htm", true);
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
-      SelectFileDialog::SELECT_OPEN_FILE, std::wstring(), L"bookmarks.html",
-      filter_string, 0, std::wstring(), GetWidget()->GetNativeView(),
+      SelectFileDialog::SELECT_OPEN_FILE, std::wstring(),
+      FilePath(FILE_PATH_LITERAL("bookmarks.html")), filter_string, 0,
+      std::wstring(),
+      GetWidget()->GetNativeView(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_IMPORT_MENU));
 }
 
@@ -729,7 +731,8 @@ void BookmarkManagerView::ShowExportBookmarksFileChooser() {
 
   select_file_dialog_ = SelectFileDialog::Create(this);
   select_file_dialog_->SelectFile(
-      SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(), L"bookmarks.html",
+      SelectFileDialog::SELECT_SAVEAS_FILE, std::wstring(),
+      FilePath(FILE_PATH_LITERAL("bookmarks.html")),
       win_util::GetFileFilterFromPath(L"bookmarks.html"), 0, L"html",
       GetWidget()->GetNativeView(),
       reinterpret_cast<void*>(IDS_BOOKMARK_MANAGER_EXPORT_MENU));

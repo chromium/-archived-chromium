@@ -8,8 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/ref_counted.h"
+#include "base/string16.h"
 
 class ChromeFont;
 
@@ -51,13 +53,13 @@ class SelectFileDialog
     // file/folder path is in |path|. |params| is contextual passed to
     // SelectFile. |index| specifies the index of the filter passed to the
     // the initial call to SelectFile.
-    virtual void FileSelected(const std::wstring& path,
+    virtual void FileSelected(const FilePath& path,
                               int index, void* params) = 0;
 
     // Notifies the Listener that many files have been selected. The
     // files are in |files|. |params| is contextual passed to SelectFile.
     virtual void MultiFilesSelected(
-      const std::vector<std::wstring>& files, void* params) {};
+      const std::vector<FilePath>& files, void* params) {};
 
     // Notifies the Listener that the file/folder selection was aborted (via
     // the  user canceling or closing the selection dialog box, for example).
@@ -95,11 +97,11 @@ class SelectFileDialog
   // NOTE: only one instance of any shell dialog can be shown per owning_window
   //       at a time (for obvious reasons).
   virtual void SelectFile(Type type,
-                          const std::wstring& title,
-                          const std::wstring& default_path,
+                          const string16& title,
+                          const FilePath& default_path,
                           const std::wstring& filter,
                           int filter_index,
-                          const std::wstring& default_extension,
+                          const FilePath::StringType& default_extension,
                           gfx::NativeWindow owning_window,
                           void* params) = 0;
 };

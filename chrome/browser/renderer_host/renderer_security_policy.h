@@ -13,6 +13,7 @@
 #include "base/lock.h"
 #include "base/singleton.h"
 
+class FilePath;
 class GURL;
 
 // The RendererSecurityPolicy class is used to grant and revoke security
@@ -61,7 +62,7 @@ class RendererSecurityPolicy {
   // Whenever the user picks a file from a <input type="file"> element, the
   // browser should call this function to grant the renderer the capability to
   // upload the file to the web.
-  void GrantUploadFile(int renderer_id, const std::wstring& file);
+  void GrantUploadFile(int renderer_id, const FilePath& file);
 
   // Whenever the browser processes commands the renderer to run web inspector,
   // it should call this method to grant the renderer process the capability to
@@ -79,7 +80,7 @@ class RendererSecurityPolicy {
   // Before servicing a renderer's request to upload a file to the web, the
   // browser should call this method to determine whether the renderer has the
   // capability to upload the requested file.
-  bool CanUploadFile(int renderer_id, const std::wstring& file);
+  bool CanUploadFile(int renderer_id, const FilePath& file);
 
   // Returns true of the specified renderer_id has been granted DOMUIBindings.
   // The browser should check this property before assuming the renderer is

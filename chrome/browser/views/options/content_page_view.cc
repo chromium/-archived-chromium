@@ -194,11 +194,11 @@ ContentPageView::~ContentPageView() {
 ////////////////////////////////////////////////////////////////////////////////
 // ContentPageView, SelectFileDialog::Listener implementation:
 
-void ContentPageView::FileSelected(const std::wstring& path,
+void ContentPageView::FileSelected(const FilePath& path,
                                    int index, void* params) {
   UserMetricsRecordAction(L"Options_SetDownloadDirectory",
                           profile()->GetPrefs());
-  default_download_location_.SetValue(path);
+  default_download_location_.SetValue(path.ToWStringHack());
   // We need to call this manually here since because we're setting the value
   // through the pref member which avoids notifying the listener that set the
   // value.
@@ -214,8 +214,9 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
        l10n_util::GetString(IDS_OPTIONS_DOWNLOADLOCATION_BROWSE_TITLE);
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
                                     dialog_title,
-                                    profile()->GetPrefs()->GetString(
-                                        prefs::kDownloadDefaultDirectory),
+                                    FilePath::FromWStringHack(
+                                        profile()->GetPrefs()->GetString(
+                                        prefs::kDownloadDefaultDirectory)),
                                     std::wstring(), 0, std::wstring(),
                                     GetRootWindow(),
                                     NULL);

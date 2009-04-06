@@ -411,7 +411,7 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
 
   // Overridden from SelectFileDialog::Listener:
   // TODO(port): convert this to FilePath when SelectFileDialog gets converted.
-  virtual void FileSelected(const std::wstring& path, int index, void* params);
+  virtual void FileSelected(const FilePath& path, int index, void* params);
   virtual void FileSelectionCanceled(void* params);
 
   // Deletes the specified path on the file thread.

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
 #include "chrome/common/url_constants.h"
 #include "net/url_request/url_request.h"
@@ -189,16 +190,21 @@ TEST_F(RendererSecurityPolicyTest, CanUploadFiles) {
 
   p->Add(kRendererID);
 
-  EXPECT_FALSE(p->CanUploadFile(kRendererID, L"/etc/passwd"));
-  p->GrantUploadFile(kRendererID, L"/etc/passwd");
-  EXPECT_TRUE(p->CanUploadFile(kRendererID, L"/etc/passwd"));
-  EXPECT_FALSE(p->CanUploadFile(kRendererID, L"/etc/shadow"));
+  EXPECT_FALSE(p->CanUploadFile(kRendererID,
+      FilePath(FILE_PATH_LITERAL("/etc/passwd"))));
+  p->GrantUploadFile(kRendererID, FilePath(FILE_PATH_LITERAL("/etc/passwd")));
+  EXPECT_TRUE(p->CanUploadFile(kRendererID,
+      FilePath(FILE_PATH_LITERAL("/etc/passwd"))));
+  EXPECT_FALSE(p->CanUploadFile(kRendererID,
+      FilePath(FILE_PATH_LITERAL("/etc/shadow"))));
 
   p->Remove(kRendererID);
   p->Add(kRendererID);
 
-  EXPECT_FALSE(p->CanUploadFile(kRendererID, L"/etc/passwd"));
-  EXPECT_FALSE(p->CanUploadFile(kRendererID, L"/etc/shadow"));
+  EXPECT_FALSE(p->CanUploadFile(kRendererID,
+      FilePath(FILE_PATH_LITERAL("/etc/passwd"))));
+  EXPECT_FALSE(p->CanUploadFile(kRendererID,
+      FilePath(FILE_PATH_LITERAL("/etc/shadow"))));
 
   p->Remove(kRendererID);
 }
@@ -237,7 +243,7 @@ TEST_F(RendererSecurityPolicyTest, RemoveRace) {
   RendererSecurityPolicy* p = RendererSecurityPolicy::GetInstance();
 
   GURL url("file:///etc/passwd");
-  std::wstring file(L"/etc/passwd");
+  FilePath file(FILE_PATH_LITERAL("/etc/passwd"));
 
   p->Add(kRendererID);
 

@@ -225,6 +225,8 @@ bool ReadFileToString(const std::wstring& path, std::string* contents);
 // Resolve Windows shortcut (.LNK file)
 // Argument path specifies a valid LNK file. On success, return true and put
 // the URL into path. If path is a invalid .LNK file, return false.
+bool ResolveShortcut(FilePath* path);
+// Deprecated temporary compatibility function.
 bool ResolveShortcut(std::wstring* path);
 
 // Create a Windows shortcut (.LNK file)

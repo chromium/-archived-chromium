@@ -73,7 +73,7 @@ bool UserDataDirDialog::Accept() {
   HWND owning_hwnd =
       GetAncestor(message_box_view_->GetWidget()->GetNativeView(), GA_ROOT);
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
-                                  dialog_title, std::wstring(), std::wstring(),
+                                  dialog_title, FilePath(), std::wstring(),
                                   0, std::wstring(), owning_hwnd, NULL);
   return false;
 }
@@ -93,9 +93,9 @@ bool UserDataDirDialog::Dispatch(const MSG& msg) {
   return is_blocking_;
 }
 
-void UserDataDirDialog::FileSelected(const std::wstring& path,
+void UserDataDirDialog::FileSelected(const FilePath& path,
                                      int index, void* params) {
-  user_data_dir_ = path;
+  user_data_dir_ = path.ToWStringHack();
   is_blocking_ = false;
   window()->Close();
 }

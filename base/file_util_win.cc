@@ -240,6 +240,13 @@ bool GetFileCreationLocalTime(const std::wstring& filename,
 }
 
 bool ResolveShortcut(std::wstring* path) {
+  FilePath file_path(*path);
+  bool result = ResolveShortcut(&file_path);
+  *path = file_path.value();
+  return result;
+}
+
+bool ResolveShortcut(FilePath* path) {
   HRESULT result;
   IShellLink *shell = NULL;
   bool is_resolved = false;
@@ -256,14 +263,14 @@ bool ResolveShortcut(std::wstring* path) {
     if (SUCCEEDED(result)) {
       WCHAR temp_path[MAX_PATH];
       // Load the shell link
-      result = persist->Load(path->c_str(), STGM_READ);
+      result = persist->Load(path->value().c_str(), STGM_READ);
       if (SUCCEEDED(result)) {
         // Try to find the target of a shortcut
         result = shell->Resolve(0, SLR_NO_UI);
         if (SUCCEEDED(result)) {
           result = shell->GetPath(temp_path, MAX_PATH,
                                   NULL, SLGP_UNCPRIORITY);
-          *path = temp_path;
+          *path = FilePath(temp_path);
           is_resolved = true;
         }
       }

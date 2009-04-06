@@ -384,7 +384,7 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_ROUTED0(ViewMsg_InstallMissingPlugin)
 
   IPC_MESSAGE_ROUTED1(ViewMsg_RunFileChooserResponse,
-                      std::vector<std::wstring> /* selected files */)
+                      std::vector<FilePath> /* selected files */)
 
   // Used to instruct the RenderView to go into "view source" mode.
   IPC_MESSAGE_ROUTED0(ViewMsg_EnableViewSourceMode)

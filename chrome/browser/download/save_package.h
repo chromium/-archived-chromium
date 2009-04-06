@@ -137,7 +137,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
 
   void GetSaveInfo();
   void ContinueSave(SavePackageParam* param,
-                    const std::wstring& final_name,
+                    const FilePath& final_name,
                     int index);
 
   // RenderViewHostDelegate::Save ----------------------------------------------
@@ -203,7 +203,7 @@ class SavePackage : public base::RefCountedThreadSafe<SavePackage>,
                                   FilePath::StringType* pure_file_name);
 
   // SelectFileDialog::Listener interface.
-  virtual void FileSelected(const std::wstring& path, int index, void* params);
+  virtual void FileSelected(const FilePath& path, int index, void* params);
   virtual void FileSelectionCanceled(void* params);
 
  private:

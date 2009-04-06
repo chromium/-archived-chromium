@@ -30,11 +30,11 @@ class SelectFileDialogImpl : public SelectFileDialog {
 
   // SelectFileDialog implementation.
   // |params| is user data we pass back via the Listener interface.
-  virtual void SelectFile(Type type, const std::wstring& title,
-                          const std::wstring& default_path,
+  virtual void SelectFile(Type type, const string16& title,
+                          const FilePath& default_path,
                           const std::wstring& filter,
                           int filter_index,
-                          const std::wstring& default_extension,
+                          const FilePath::StringType& default_extension,
                           gfx::NativeWindow parent_window,
                           void* params);
 
@@ -43,9 +43,8 @@ class SelectFileDialogImpl : public SelectFileDialog {
   void FileSelected(GtkWidget* dialog, const FilePath& path);
 
   // Notifies the listener that multiple files were chosen.
-  // TODO(estade): this should deal in FilePaths.
   void MultiFilesSelected(GtkWidget* dialog,
-                          const std::vector<std::wstring>& files);
+                          const std::vector<FilePath>& files);
 
   // Notifies the listener that no file was chosen (the action was canceled).
   // Dialog is passed so we can find that |params| pointer that was passed to
@@ -119,11 +118,11 @@ void SelectFileDialogImpl::ListenerDestroyed() {
 // TODO(estade): use |filter|.
 void SelectFileDialogImpl::SelectFile(
     Type type,
-    const std::wstring& title,
-    const std::wstring& default_path,
+    const string16& title,
+    const FilePath& default_path,
     const std::wstring& filter,
     int filter_index,
-    const std::wstring& default_extension,
+    const FilePath::StringType& default_extension,
     gfx::NativeWindow parent_window,
     void* params) {
   // TODO(estade): on windows, parent_window may be null. But I'm not sure when
@@ -131,10 +130,7 @@ void SelectFileDialogImpl::SelectFile(
   DCHECK(parent_window);
   parents_.insert(parent_window);
 
-  // TODO(port): get rid of these conversions when the parameter types are
-  // ported.
-  std::string title_string = WideToUTF8(title);
-  FilePath default_file_path = FilePath::FromWStringHack(default_path);
+  std::string title_string = UTF16ToUTF8(title);
 
   GtkWidget* dialog = NULL;
   switch (type) {
@@ -147,8 +143,7 @@ void SelectFileDialogImpl::SelectFile(
       dialog = CreateMultiFileOpenDialog(title_string, parent_window);
       break;
     case SELECT_SAVEAS_FILE:
-      dialog = CreateSaveAsDialog(title_string, default_file_path,
-                                  parent_window);
+      dialog = CreateSaveAsDialog(title_string, default_path, parent_window);
       break;
     default:
       NOTIMPLEMENTED() << "Dialog type " << type << " not implemented.";
@@ -164,13 +159,13 @@ void SelectFileDialogImpl::FileSelected(GtkWidget* dialog,
     const FilePath& path) {
   void* params = PopParamsForDialog(dialog);
   if (listener_)
-    listener_->FileSelected(path.ToWStringHack(), 1, params);
+    listener_->FileSelected(path, 1, params);
   RemoveParentForDialog(dialog);
   gtk_widget_destroy(dialog);
 }
 
 void SelectFileDialogImpl::MultiFilesSelected(GtkWidget* dialog,
-    const std::vector<std::wstring>& files) {
+    const std::vector<FilePath>& files) {
   void* params = PopParamsForDialog(dialog);
   if (listener_)
     listener_->MultiFilesSelected(files, params);
@@ -285,13 +280,12 @@ void SelectFileDialogImpl::OnSelectMultiFileDialogResponse(
   }
 
   GSList* filenames = gtk_file_chooser_get_filenames(GTK_FILE_CHOOSER(dialog));
-  std::vector<std::wstring> filenames_w;
+  std::vector<FilePath> filenames_fp;
   for (GSList* iter = filenames; iter != NULL; iter = g_slist_next(iter)) {
-    filenames_w.push_back(base::SysNativeMBToWide(
-        static_cast<char*>(iter->data)));
+    filenames_fp.push_back(FilePath(static_cast<char*>(iter->data)));
     g_free(iter->data);
   }
 
   g_slist_free(filenames);
-  dialog_impl->MultiFilesSelected(dialog, filenames_w);
+  dialog_impl->MultiFilesSelected(dialog, filenames_fp);
 }

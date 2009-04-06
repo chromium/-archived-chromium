@@ -538,7 +538,7 @@ class RenderView : public RenderWidget,
       int client_x, int client_y, int screen_x, int screen_y, bool ended);
   void OnDragSourceSystemDragEnded();
   void OnInstallMissingPlugin();
-  void OnFileChooserResponse(const std::vector<std::wstring>& file_names);
+  void OnFileChooserResponse(const std::vector<FilePath>& file_names);
   void OnEnableViewSourceMode();
   void OnUpdateBackForwardListCount(int back_list_count,
                                     int forward_list_count);

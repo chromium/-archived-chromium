@@ -449,7 +449,7 @@ class Browser : public TabStripModelDelegate,
   virtual void RenderWidgetShowing();
 
   // Overridden from SelectFileDialog::Listener:
-  virtual void FileSelected(const std::wstring& path, int index, void* params);
+  virtual void FileSelected(const FilePath& path, int index, void* params);
 
   // Overridden from NotificationObserver:
   virtual void Observe(NotificationType type,

@@ -1142,8 +1142,8 @@ void WebContents::GetHistoryListCount(int* back_list_count,
 }
 
 void WebContents::RunFileChooser(bool multiple_files,
-                                 const std::wstring& title,
-                                 const std::wstring& default_file,
+                                 const string16& title,
+                                 const FilePath& default_file,
                                  const std::wstring& filter) {
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
@@ -1151,7 +1151,7 @@ void WebContents::RunFileChooser(bool multiple_files,
     multiple_files ? SelectFileDialog::SELECT_OPEN_MULTI_FILE :
                      SelectFileDialog::SELECT_OPEN_FILE;
   select_file_dialog_->SelectFile(dialog_type, title, default_file,
-                                  filter, 0, std::wstring(),
+                                  filter, 0, FILE_PATH_LITERAL(""),
                                   view_->GetTopLevelNativeWindow(), NULL);
 }
 
@@ -1566,12 +1566,12 @@ bool WebContents::CanTerminate() const {
   return !delegate()->IsExternalTabContainer();
 }
 
-void WebContents::FileSelected(const std::wstring& path,
+void WebContents::FileSelected(const FilePath& path,
                                int index, void* params) {
   render_view_host()->FileSelected(path);
 }
 
-void WebContents::MultiFilesSelected(const std::vector<std::wstring>& files,
+void WebContents::MultiFilesSelected(const std::vector<FilePath>& files,
                                      void* params) {
   render_view_host()->MultiFilesSelected(files);
 }
@@ -1579,7 +1579,7 @@ void WebContents::MultiFilesSelected(const std::vector<std::wstring>& files,
 void WebContents::FileSelectionCanceled(void* params) {
   // If the user cancels choosing a file to upload we pass back an
   // empty vector.
-  render_view_host()->MultiFilesSelected(std::vector<std::wstring>());
+  render_view_host()->MultiFilesSelected(std::vector<FilePath>());
 }
 
 void WebContents::BeforeUnloadFiredFromRenderManager(

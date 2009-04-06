@@ -402,7 +402,7 @@ void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
          iter(drop_data.filenames.begin());
        iter != drop_data.filenames.end(); ++iter) {
     policy->GrantRequestURL(process()->pid(), net::FilePathToFileURL(*iter));
-    policy->GrantUploadFile(process()->pid(), *iter);
+    policy->GrantUploadFile(process()->pid(), FilePath::FromWStringHack(*iter));
   }
   Send(new ViewMsg_DragTargetDragEnter(routing_id(), drop_data, client_pt,
                                        screen_pt));
@@ -638,17 +638,17 @@ void RenderViewHost::InstallMissingPlugin() {
   Send(new ViewMsg_InstallMissingPlugin(routing_id()));
 }
 
-void RenderViewHost::FileSelected(const std::wstring& path) {
+void RenderViewHost::FileSelected(const FilePath& path) {
   RendererSecurityPolicy::GetInstance()->GrantUploadFile(process()->pid(),
                                                          path);
-  std::vector<std::wstring> files;
+  std::vector<FilePath> files;
   files.push_back(path);
   Send(new ViewMsg_RunFileChooserResponse(routing_id(), files));
 }
 
 void RenderViewHost::MultiFilesSelected(
-         const std::vector<std::wstring>& files) {
-  for (std::vector<std::wstring>::const_iterator file = files.begin();
+         const std::vector<FilePath>& files) {
+  for (std::vector<FilePath>::const_iterator file = files.begin();
        file != files.end(); ++file) {
     RendererSecurityPolicy::GetInstance()->GrantUploadFile(
       process()->pid(), *file);

@@ -645,9 +645,9 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     gfx::NativeWindow owning_window =
         contents ? platform_util::GetTopLevel(contents->GetNativeView()) : NULL;
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
-                                    std::wstring(),
-                                    info->suggested_path.ToWStringHack(),
-                                    filter, 0, std::wstring(),
+                                    string16(),
+                                    info->suggested_path,
+                                    filter, 0, FILE_PATH_LITERAL(""),
                                     owning_window, info);
   } else {
     // No prompting for download, just continue with the suggested name.
@@ -1357,9 +1357,8 @@ void DownloadManager::SaveAutoOpens() {
   }
 }
 
-void DownloadManager::FileSelected(const std::wstring& path_string,
+void DownloadManager::FileSelected(const FilePath& path,
                                    int index, void* params) {
-  FilePath path = FilePath::FromWStringHack(path_string);
   DownloadCreateInfo* info = reinterpret_cast<DownloadCreateInfo*>(params);
   if (info->save_as)
     last_download_path_ = path.DirName();

@@ -153,7 +153,7 @@ class BookmarkManagerView : public views::View,
   virtual void ExecuteCommand(int id);
 
   // SelectFileDialog::Listener.
-  virtual void FileSelected(const std::wstring& path,
+  virtual void FileSelected(const FilePath& path,
                             int index, void* params);
   virtual void FileSelectionCanceled(void* params);
 

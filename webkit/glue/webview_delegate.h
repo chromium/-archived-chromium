@@ -45,6 +45,7 @@ struct PasswordForm;
 struct WebDropData;
 struct WebPreferences;
 class AutofillForm;
+class FilePath;
 class SkBitmap;
 class WebDevToolsAgentDelegate;
 class WebError;
@@ -80,7 +81,7 @@ class WebFileChooserCallback {
  public:
   WebFileChooserCallback() {}
   virtual ~WebFileChooserCallback() {}
-  virtual void OnFileChoose(const std::vector<std::wstring>& file_names) { }
+  virtual void OnFileChoose(const std::vector<FilePath>& file_names) { }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebFileChooserCallback);

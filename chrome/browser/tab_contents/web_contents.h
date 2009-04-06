@@ -369,8 +369,8 @@ class WebContents : public TabContents,
   virtual void GetHistoryListCount(int* back_list_count,
                                    int* forward_list_count);
   virtual void RunFileChooser(bool multiple_files,
-                              const std::wstring& title,
-                              const std::wstring& default_file,
+                              const string16& title,
+                              const FilePath& default_file,
                               const std::wstring& filter);
   virtual void RunJavaScriptMessage(const std::wstring& message,
                                     const std::wstring& default_prompt,
@@ -432,8 +432,8 @@ class WebContents : public TabContents,
 
   // SelectFileDialog::Listener ------------------------------------------------
 
-  virtual void FileSelected(const std::wstring& path, int index, void* params);
-  virtual void MultiFilesSelected(const std::vector<std::wstring>& files,
+  virtual void FileSelected(const FilePath& path, int index, void* params);
+  virtual void MultiFilesSelected(const std::vector<FilePath>& files,
                                   void* params);
   virtual void FileSelectionCanceled(void* params);
 
