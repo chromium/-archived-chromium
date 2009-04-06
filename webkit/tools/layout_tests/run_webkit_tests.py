@@ -307,13 +307,13 @@ class TestRunner:
       index = test_file.rfind('/chrome/')
 
     test_file = test_file[index + 1:]
-    test_file_parts = os.path.split(test_file)
+    test_file_parts = test_file.split(os.sep, 1)
     directory = test_file_parts[0]
     test_file = test_file_parts[1]
 
     return_value = directory
     while directory in TestRunner._shardable_directories:
-      test_file_parts = os.path.split(test_file)
+      test_file_parts = test_file.split(os.sep, 1)
       directory = test_file_parts[0]
       return_value = os.path.join(return_value, directory)
       test_file = test_file_parts[1]
