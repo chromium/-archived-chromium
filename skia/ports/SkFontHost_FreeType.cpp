@@ -606,16 +606,40 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
             const uint8_t*  src = (const uint8_t*)fFace->glyph->bitmap.buffer;
             uint8_t*        dst = (uint8_t*)glyph.fImage;
-            unsigned    srcRowBytes = fFace->glyph->bitmap.pitch;
-            unsigned    dstRowBytes = glyph.rowBytes();
-            unsigned    minRowBytes = SkMin32(srcRowBytes, dstRowBytes);
-            unsigned    extraRowBytes = dstRowBytes - minRowBytes;
 
-            for (int y = fFace->glyph->bitmap.rows - 1; y >= 0; --y) {
-                memcpy(dst, src, minRowBytes);
-                memset(dst + minRowBytes, 0, extraRowBytes);
-                src += srcRowBytes;
-                dst += dstRowBytes;
+            if (fFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
+                unsigned    srcRowBytes = fFace->glyph->bitmap.pitch;
+                unsigned    dstRowBytes = glyph.rowBytes();
+                unsigned    minRowBytes = SkMin32(srcRowBytes, dstRowBytes);
+                unsigned    extraRowBytes = dstRowBytes - minRowBytes;
+
+                for (int y = fFace->glyph->bitmap.rows - 1; y >= 0; --y) {
+                    memcpy(dst, src, minRowBytes);
+                    memset(dst + minRowBytes, 0, extraRowBytes);
+                    src += srcRowBytes;
+                    dst += dstRowBytes;
+                }
+            } else if (fFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+                for (int y = 0; y < fFace->glyph->bitmap.rows; ++y) {
+                    uint8_t byte = 0;
+                    int bits = 0;
+                    const uint8_t* src_row = src;
+                    uint8_t* dst_row = dst;
+
+                    for (int x = 0; x < fFace->glyph->bitmap.width; ++x) {
+                        if (!bits) {
+                            byte = *src_row++;
+                            bits = 8;
+                        }
+
+                        *dst_row++ = byte & 0x80 ? 0xff : 0;
+                        bits--;
+                        byte <<= 1;
+                    }
+
+                    src += fFace->glyph->bitmap.pitch;
+                    dst += glyph.rowBytes();
+                }
             }
         } break;
 
