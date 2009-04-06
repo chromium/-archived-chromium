@@ -150,8 +150,7 @@ class AutocompletePopupMenuClient : public WebCore::PopupMenuClient {
 
     FontDescription font_description;
 #if defined(OS_WIN)
-    theme()->systemFont(CSSValueWebkitControl, text_field->document(),
-                        font_description);
+    theme()->systemFont(CSSValueWebkitControl, font_description);
 #else
     NOTIMPLEMENTED();
 #endif
