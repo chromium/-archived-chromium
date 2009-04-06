@@ -316,6 +316,8 @@ class TestRunner:
       test_file_parts = test_file.split('/', 1)
       directory = test_file_parts[0]
       return_value = os.path.join(return_value, directory)
+      if len(test_file_parts) is not 2:
+        break
       test_file = test_file_parts[1]
 
     return return_value
@@ -359,13 +361,13 @@ class TestRunner:
       filename_queue.put(item)
     return filename_queue
 
-  def _GetTestShellArgs(self):
+  def _GetTestShellArgs(self, index):
     """Returns the tuple of arguments for tests and for test_shell."""
     shell_args = []
     test_args = test_type_base.TestArguments()
     if not self._options.no_pixel_tests:
       png_path = os.path.join(self._options.results_directory,
-                              "png_result%s.png" % i)
+                              "png_result%s.png" % index)
       shell_args.append("--pixel-tests=" + png_path)
       test_args.png_path = png_path
 
@@ -415,7 +417,7 @@ class TestRunner:
         test_types.append(t(self._options.platform,
                             self._options.results_directory))
 
-      test_args, shell_args = self._GetTestShellArgs()
+      test_args, shell_args = self._GetTestShellArgs(i)
       thread = test_shell_thread.TestShellThread(filename_queue,
                                                  test_shell_command,
                                                  test_types,
