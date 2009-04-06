@@ -4,6 +4,21 @@
 //
 // This file contains ParamTraits templates to support serialization of WebKit
 // data types over IPC.
+//
+// NOTE: IT IS IMPORTANT THAT ONLY POD (plain old data) TYPES ARE SERIALIZED.
+//
+// There are several reasons for this restrictions:
+//
+//   o  We don't want inclusion of this file to imply linking to WebKit code.
+//
+//   o  Many WebKit structures are not thread-safe.  WebString, for example,
+//      contains a reference counted buffer, which does not use thread-safe
+//      reference counting.  If we allowed serializing WebString, then we may run
+//      the risk of introducing subtle thread-safety bugs if people passed a
+//      WebString across threads via PostTask(NewRunnableMethod(...)).
+//
+//   o  The WebKit API has redundant types for strings, and we should avoid using
+//      those beyond code that interfaces with the WebKit API.
 
 #ifndef CHROME_COMMON_WEBKIT_PARAM_TRAITS_H_
 #define CHROME_COMMON_WEBKIT_PARAM_TRAITS_H_
@@ -11,7 +26,7 @@
 #include "chrome/common/ipc_message_utils.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebCache.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 
@@ -80,27 +95,6 @@ struct ParamTraits<WebKit::WebScreenInfo> {
 };
 
 template <>
-struct ParamTraits<WebKit::WebString> {
-  typedef WebKit::WebString param_type;
-  static void Write(Message* m, const param_type& p) {
-    m->WriteData(reinterpret_cast<const char*>(p.data()),
-                 static_cast<int>(p.length() * sizeof(WebKit::WebUChar)));
-  }
-  static bool Read(const Message* m, void** iter, param_type* p) {
-    const char* data;
-    int data_len;
-    if (!m->ReadData(iter, &data, &data_len))
-      return false;
-    p->assign(reinterpret_cast<const WebKit::WebUChar*>(data),
-              static_cast<size_t>(data_len / sizeof(WebKit::WebUChar)));
-    return true;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(UTF16ToWideHack(p));
-  }
-};
-
-template <>
 struct ParamTraits<WebKit::WebConsoleMessage::Level> {
   typedef WebKit::WebConsoleMessage::Level param_type;
   static void Write(Message* m, const param_type& p) {
@@ -119,46 +113,27 @@ struct ParamTraits<WebKit::WebConsoleMessage::Level> {
 };
 
 template <>
-struct ParamTraits<WebKit::WebConsoleMessage> {
-  typedef WebKit::WebConsoleMessage param_type;
+struct ParamTraits<WebKit::WebFindOptions> {
+  typedef WebKit::WebFindOptions param_type;
   static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.level);
-    WriteParam(m, p.text);
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    return
-      ReadParam(m, iter, &r->level) &&
-      ReadParam(m, iter, &r->text);
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"(");
-    LogParam(p.level, l);
-    l->append(L", ");
-    LogParam(p.text, l);
-    l->append(L")");
-  }
-};
-
-template <>
-struct ParamTraits<WebKit::WebFindInPageRequest> {
-  typedef WebKit::WebFindInPageRequest param_type;
-  static void Write(Message* m, const param_type& p) {
-    WriteParam(m, p.identifier);
-    WriteParam(m, p.text);
     WriteParam(m, p.forward);
     WriteParam(m, p.matchCase);
     WriteParam(m, p.findNext);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return
-      ReadParam(m, iter, &p->identifier) &&
-      ReadParam(m, iter, &p->text) &&
       ReadParam(m, iter, &p->forward) &&
       ReadParam(m, iter, &p->matchCase) &&
       ReadParam(m, iter, &p->findNext);
   }
   static void Log(const param_type& p, std::wstring* l) {
-    l->append(L"<FindInPageRequest>");
+    l->append(L"(");
+    LogParam(p.forward, l);
+    l->append(L", ");
+    LogParam(p.matchCase, l);
+    l->append(L", ");
+    LogParam(p.findNext, l);
+    l->append(L")");
   }
 };
 
@@ -176,7 +151,7 @@ struct ParamTraits<WebKit::WebInputEvent::Type> {
     return true;
   }
   static void Log(const param_type& p, std::wstring* l) {
-    std::wstring type;
+    const wchar_t* type;
     switch (p) {
      case WebKit::WebInputEvent::MouseDown:
       type = L"MouseDown";
@@ -209,11 +184,10 @@ struct ParamTraits<WebKit::WebInputEvent::Type> {
       type = L"None";
       break;
     }
-    LogParam(type, l);
+    LogParam(std::wstring(type), l);
   }
 };
 
-// Traits for WebKit::WebCache::UsageStats
 template <>
 struct ParamTraits<WebKit::WebCache::UsageStats> {
   typedef WebKit::WebCache::UsageStats param_type;

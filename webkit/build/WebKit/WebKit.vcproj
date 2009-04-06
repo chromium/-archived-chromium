@@ -156,7 +156,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebFindInPageRequest.h"
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebFindOptions.h"
 					>
 				</File>
 				<File

@@ -25,7 +25,7 @@ class Size;
 
 namespace WebKit {
 struct WebConsoleMessage;
-struct WebFindInPageRequest;
+struct WebFindOptions;
 struct WebScriptSource;
 }
 
@@ -218,7 +218,9 @@ class WebFrame {
   // If no match is found, this function clears all tickmarks and highlighting.
   //
   // Returns true if the search string was found, false otherwise.
-  virtual bool Find(const WebKit::WebFindInPageRequest& request,
+  virtual bool Find(int request_id,
+                    const string16& search_text,
+                    const WebKit::WebFindOptions& options,
                     bool wrap_within_frame,
                     gfx::Rect* selection_rect) = 0;
 
@@ -241,7 +243,9 @@ class WebFrame {
   // cancel at any time (see CancelPendingScopingEffort). The parameter Request
   // specifies what to look for and Reset signals whether this is a brand new
   // request or a continuation of the last scoping effort.
-  virtual void ScopeStringMatches(const WebKit::WebFindInPageRequest& request,
+  virtual void ScopeStringMatches(int request_id,
+                                  const string16& search_text,
+                                  const WebKit::WebFindOptions& options,
                                   bool reset) = 0;
 
   // Cancels any outstanding requests for scoping string matches on a frame.

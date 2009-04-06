@@ -4113,7 +4113,7 @@
         '../third_party/WebKit/WebKit/chromium/public/WebCommon.h',
         '../third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h',
         '../third_party/WebKit/WebKit/chromium/public/WebCString.h',
-        '../third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h',
+        '../third_party/WebKit/WebKit/chromium/public/WebFindOptions.h',
         '../third_party/WebKit/WebKit/chromium/public/WebImage.h',
         '../third_party/WebKit/WebKit/chromium/public/WebInputEvent.h',
         '../third_party/WebKit/WebKit/chromium/public/WebKit.h',

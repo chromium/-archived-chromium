@@ -161,8 +161,10 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_CONTROL1(ViewMsg_UserScripts_NewScripts, base::SharedMemoryHandle)
 
   // Sent when the user wants to search for a word on the page (find in page).
-  // Request parameters are passed in as a FindInPageMsg_Request struct.
-  IPC_MESSAGE_ROUTED1(ViewMsg_Find, WebKit::WebFindInPageRequest)
+  IPC_MESSAGE_ROUTED3(ViewMsg_Find,
+                      int /* request_id */,
+                      string16 /* search_text */,
+                      WebKit::WebFindOptions)
 
   // Sent when the headers are available for a resource request.
   IPC_MESSAGE_ROUTED2(ViewMsg_Resource_ReceivedResponse,
@@ -230,9 +232,10 @@ IPC_BEGIN_MESSAGES(View)
                       std::string  /* css string */)
 
   // Log a message to the console of the target frame
-  IPC_MESSAGE_ROUTED2(ViewMsg_AddMessageToConsole,
-                      std::wstring, /* frame_xpath */
-                      WebKit::WebConsoleMessage /* message */)
+  IPC_MESSAGE_ROUTED3(ViewMsg_AddMessageToConsole,
+                      string16 /* frame_xpath */,
+                      string16 /* message */,
+                      WebKit::WebConsoleMessage::Level /* message_level */)
 
   // Initialize the V8 debugger in the renderer.
   IPC_MESSAGE_ROUTED0(ViewMsg_DebugAttach)

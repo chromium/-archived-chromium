@@ -25,7 +25,6 @@
 #include "grit/generated_resources.h"
 #include "net/base/cert_status_flags.h"
 #include "net/base/ssl_info.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/resource_type.h"
 
 #if defined(OS_WIN)
@@ -165,10 +164,8 @@ static void AddMixedContentWarningToConsole(
       IDS_MIXED_CONTENT_LOG_MESSAGE,
       UTF8ToWide(handler->frame_origin()),
       UTF8ToWide(handler->request_url().spec()));
-  WebConsoleMessage message;
-  message.text = WideToUTF16Hack(text);
-  message.level = WebConsoleMessage::LevelWarning;
-  handler->manager()->AddMessageToConsole(message);
+  handler->manager()->AddMessageToConsole(
+      WideToUTF16Hack(text), WebConsoleMessage::LevelWarning);
 }
 
 }  // namespace

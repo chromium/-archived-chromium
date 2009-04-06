@@ -21,6 +21,7 @@
 #include "net/base/net_errors.h"
 #include "net/base/ssl_info.h"
 #include "net/base/x509_certificate.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/resource_type.h"
 
 class AutomationProvider;
@@ -36,10 +37,6 @@ class SSLHostState;
 class Task;
 class URLRequest;
 class WebContents;
-
-namespace WebKit {
-struct WebConsoleMessage;
-}
 
 // The SSLManager SSLManager controls the SSL UI elements in a TabContents.  It
 // listens for various events that influence when these elements should or
@@ -376,7 +373,8 @@ class SSLManager : public NotificationObserver {
   bool SetMaxSecurityStyle(SecurityStyle style);
 
   // Logs a message to the console of the page.
-  void AddMessageToConsole(const WebKit::WebConsoleMessage&);
+  void AddMessageToConsole(const string16& message,
+                           const WebKit::WebConsoleMessage::Level&);
 
   // Records that |cert| is permitted to be used for |host| in the future.
   void DenyCertForHost(net::X509Certificate* cert, const std::string& host);

@@ -126,11 +126,17 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual void GetContentAsPlainText(int max_chars, std::wstring* text) const;
   virtual bool Find(
-      const WebKit::WebFindInPageRequest& request, bool wrap_within_frame,
+      int request_id,
+      const string16& search_text,
+      const WebKit::WebFindOptions& options,
+      bool wrap_within_frame,
       gfx::Rect* selection_rect);
   virtual void StopFinding(bool clear_selection);
   virtual void ScopeStringMatches(
-      const WebKit::WebFindInPageRequest& request, bool reset);
+      int request_id,
+      const string16& search_text,
+      const WebKit::WebFindOptions& options,
+      bool reset);
   virtual void CancelPendingScopingEffort();
   virtual void ResetMatchCount();
   virtual bool Visible();
@@ -387,7 +393,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   // It is not necessary if the frame is invisible, for example, or if this
   // is a repeat search that already returned nothing last time the same prefix
   // was searched.
-  bool ShouldScopeMatches(const WebKit::WebFindInPageRequest& request);
+  bool ShouldScopeMatches(const string16& search_text);
 
   // Only for test_shell
   int PendingFrameUnloadEventCount() const;

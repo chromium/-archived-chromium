@@ -28,7 +28,6 @@
 #include "net/base/cert_status_flags.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/resource_type.h"
 
 #if defined(OS_WIN)
@@ -179,14 +178,15 @@ bool SSLManager::SetMaxSecurityStyle(SecurityStyle style) {
 }
 
 // Delegate API method.
-void SSLManager::AddMessageToConsole(const WebConsoleMessage& message) {
+void SSLManager::AddMessageToConsole(const string16& message,
+                                     const WebConsoleMessage::Level& level) {
   TabContents* tab_contents = controller_->tab_contents();
   WebContents* web_contents = tab_contents->AsWebContents();
   if (!web_contents)
     return;
 
   web_contents->render_view_host()->AddMessageToConsole(
-      std::wstring(), message);
+      string16(), message, level);
 }
 
 // Delegate API method.

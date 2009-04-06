@@ -35,13 +35,12 @@
 #include "chrome/common/thumbnail_score.h"
 #include "net/base/net_util.h"
 #include "skia/include/SkBitmap.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebFindInPageRequest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
 #include "webkit/glue/autofill_form.h"
 
 using base::TimeDelta;
 using WebKit::WebConsoleMessage;
-using WebKit::WebFindInPageRequest;
+using WebKit::WebFindOptions;
 using WebKit::WebInputEvent;
 
 namespace {
@@ -349,20 +348,18 @@ bool RenderViewHost::PrintPages() {
 }
 
 void RenderViewHost::StartFinding(int request_id,
-                                  const string16& search_string,
+                                  const string16& search_text,
                                   bool forward,
                                   bool match_case,
                                   bool find_next) {
-  if (search_string.empty())
+  if (search_text.empty())
     return;
 
-  WebFindInPageRequest request;
-  request.identifier = request_id;
-  request.text = search_string;
-  request.forward = forward;
-  request.matchCase = match_case;
-  request.findNext = find_next;
-  Send(new ViewMsg_Find(routing_id(), request));
+  WebFindOptions options;
+  options.forward = forward;
+  options.matchCase = match_case;
+  options.findNext = find_next;
+  Send(new ViewMsg_Find(routing_id(), request_id, search_text, options));
 
   // This call is asynchronous and returns immediately.
   // The result of the search is sent as a notification message by the renderer.
@@ -437,8 +434,11 @@ void RenderViewHost::InsertCSSInWebFrame(
 }
 
 void RenderViewHost::AddMessageToConsole(
-    const std::wstring& frame_xpath, const WebConsoleMessage& message) {
-  Send(new ViewMsg_AddMessageToConsole(routing_id(), frame_xpath, message));
+    const string16& frame_xpath,
+    const string16& message,
+    const WebConsoleMessage::Level& level) {
+  Send(new ViewMsg_AddMessageToConsole(
+      routing_id(), frame_xpath, message, level));
 }
 
 void RenderViewHost::DebugCommand(const std::wstring& cmd) {

@@ -2131,7 +2131,9 @@ GURL RenderView::GetAlternateErrorPageURL(const GURL& failedURL,
   return url;
 }
 
-void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
+void RenderView::OnFind(int request_id,
+                        const string16& search_text,
+                        const WebKit::WebFindOptions& options) {
   WebFrame* main_frame = webview()->GetMainFrame();
   WebFrame* frame_after_main = webview()->GetNextFrameAfter(main_frame, true);
   WebFrame* focused_frame = webview()->GetFocusedFrame();
@@ -2147,7 +2149,8 @@ void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
   bool result = false;
 
   do {
-    result = search_frame->Find(request, wrap_within_frame, &selection_rect);
+    result = search_frame->Find(
+        request_id, search_text, options, wrap_within_frame, &selection_rect);
 
     if (!result) {
       // don't leave text selected as you move to the next frame.
@@ -2157,7 +2160,7 @@ void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
       do {
         // What is the next frame to search? (we might be going backwards). Note
         // that we specify wrap=true so that search_frame never becomes NULL.
-        search_frame = request.forward ?
+        search_frame = options.forward ?
             webview()->GetNextFrameAfter(search_frame, true) :
             webview()->GetPreviousFrameBefore(search_frame, true);
       } while (!search_frame->Visible() && search_frame != focused_frame);
@@ -2171,8 +2174,9 @@ void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
       // reported matches, but no frames after the focused_frame contain a
       // match for the search word(s).
       if (multi_frame && search_frame == focused_frame) {
-        result = search_frame->Find(request, true,  // Force wrapping.
-                                    &selection_rect);
+        result = search_frame->Find(
+            request_id, search_text, options, true,  // Force wrapping.
+            &selection_rect);
       }
     }
 
@@ -2191,9 +2195,9 @@ void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
   //                fix for 792423.
   webview()->SetFocusedFrame(NULL);
 
-  if (request.findNext) {
+  if (options.findNext) {
     // Force the main_frame to report the actual count.
-    main_frame->IncreaseMatchCount(0, request.identifier);
+    main_frame->IncreaseMatchCount(0, request_id);
   } else {
     // If nothing is found, set result to "0 of 0", otherwise, set it to
     // "-1 of 1" to indicate that we found at least one item, but we don't know
@@ -2207,7 +2211,7 @@ void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
 
     // Send the search result over to the browser process.
     Send(new ViewHostMsg_Find_Reply(routing_id_,
-                                    request.identifier,
+                                    request_id,
                                     match_count,
                                     selection_rect,
                                     ordinal,
@@ -2227,7 +2231,9 @@ void RenderView::OnFind(const WebKit::WebFindInPageRequest& request) {
       if (result) {
         // Start new scoping request. If the scoping function determines that it
         // needs to scope, it will defer until later.
-        search_frame->ScopeStringMatches(request,
+        search_frame->ScopeStringMatches(request_id,
+                                         search_text,
+                                         options,
                                          true);  // reset the tickmarks
       }
 
@@ -2524,11 +2530,13 @@ void RenderView::OnCSSInsertRequest(const std::wstring& frame_xpath,
   InsertCSS(frame_xpath, css);
 }
 
-void RenderView::OnAddMessageToConsole(const std::wstring& frame_xpath,
-                                       const WebConsoleMessage& message) {
-  WebFrame* web_frame = GetChildFrame(frame_xpath);
+void RenderView::OnAddMessageToConsole(
+    const string16& frame_xpath,
+    const string16& message,
+    const WebConsoleMessage::Level& level) {
+  WebFrame* web_frame = GetChildFrame(UTF16ToWideHack(frame_xpath));
   if (web_frame)
-    web_frame->AddMessageToConsole(message);
+    web_frame->AddMessageToConsole(WebConsoleMessage(level, message));
 }
 
 #if defined(OS_WIN)

@@ -26,6 +26,7 @@
 #include "chrome/renderer/render_widget.h"
 #include "media/audio/audio_output.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/dom_serializer_delegate.h"
 #include "webkit/glue/feed.h"
 #include "webkit/glue/form_data.h"
@@ -75,8 +76,7 @@ struct FileUploadData;
 }
 
 namespace WebKit {
-struct WebConsoleMessage;
-struct WebFindInPageRequest;
+struct WebFindOptions;
 }
 
 // We need to prevent a page from trying to create infinite popups. It is not
@@ -494,7 +494,7 @@ class RenderView : public RenderWidget,
   void OnShowJavaScriptConsole();
   void OnSetupDevToolsClient();
   void OnCancelDownload(int32 download_id);
-  void OnFind(const WebKit::WebFindInPageRequest& request);
+  void OnFind(int request_id, const string16&, const WebKit::WebFindOptions&);
   void OnZoom(int function);
   void OnInsertText(const string16& text);
   void OnSetPageEncoding(const std::wstring& encoding_name);
@@ -528,8 +528,9 @@ class RenderView : public RenderWidget,
                            const std::wstring& jscript);
   void OnCSSInsertRequest(const std::wstring& frame_xpath,
                           const std::string& css);
-  void OnAddMessageToConsole(const std::wstring& frame_xpath,
-                             const WebKit::WebConsoleMessage&);
+  void OnAddMessageToConsole(const string16& frame_xpath,
+                             const string16& message,
+                             const WebKit::WebConsoleMessage::Level&);
   void OnDebugAttach();
 
   void OnReservePageIDRange(int size_of_range);
