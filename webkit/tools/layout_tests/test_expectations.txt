@@ -2262,19 +2262,6 @@ DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html 
 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
 DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
-// Merge WebKit: 42116:42132 regressions
-
-// These probably just need rebaselining after http://trac.webkit.org/changeset/42131
-// BUG:9578
-WIN : LayoutTests/fast/css/shadow-multiple.html = FAIL
-WIN : LayoutTests/fast/repaint/shadow-multiple-horizontal.html = FAIL
-WIN : LayoutTests/fast/repaint/shadow-multiple-strict-horizontal.html = FAIL
-WIN : LayoutTests/fast/repaint/shadow-multiple-strict-vertical.html = FAIL
-WIN : LayoutTests/fast/repaint/shadow-multiple-vertical.html = FAIL
-WIN : LayoutTests/fast/repaint/text-shadow-horizontal.html = FAIL
-WIN : LayoutTests/fast/repaint/text-shadow.html = FAIL
-WIN : LayoutTests/fast/transforms/shadows.html = FAIL
-
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
 WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
