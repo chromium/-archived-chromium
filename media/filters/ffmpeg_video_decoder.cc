@@ -80,12 +80,18 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
     return;
   }
 
+  // J (Motion JPEG) versions of YUV are full range 0..255.
+  // Regular (MPEG) YUV is 16..240.
+  // For now we will ignore the distinction and treat them the same.
+
   VideoSurface::Format surface_format;
   switch (codec_context_->pix_fmt) {
     case PIX_FMT_YUV420P:
+    case PIX_FMT_YUVJ420P:
       surface_format = VideoSurface::YV12;
       break;
     case PIX_FMT_YUV422P:
+    case PIX_FMT_YUVJ422P:
       surface_format = VideoSurface::YV16;
       break;
     default:
