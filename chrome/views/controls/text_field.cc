@@ -343,9 +343,9 @@ std::wstring TextField::Edit::GetSelectedText() const {
 }
 
 void TextField::Edit::SelectAll() {
-  // Using (0, -1) here is equivalent to calling SetSelAll(); both will select
-  // the "phantom newline" that we're trying to avoid.
-  SetSel(0, GetTextLength());
+  // Select from the end to the front so that the first part of the text is
+  // always visible.
+  SetSel(GetTextLength(), 0);
 }
 
 void TextField::Edit::ClearSelection() {
