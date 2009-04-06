@@ -103,7 +103,7 @@
         'common/extensions/user_script.h',
         'common/gfx/chrome_canvas.cc',
         'common/gfx/chrome_canvas.h',
-        'common/gfx/chrome_canvas_skia.cc',
+        'common/gfx/chrome_canvas_linux.cc',
         'common/gfx/chrome_canvas_win.cc',
         'common/gfx/chrome_font.h',
         'common/gfx/chrome_font_gtk.cc',

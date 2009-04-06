@@ -182,15 +182,6 @@ void ChromeCanvas::DrawStringInt(const std::wstring& text, HFONT font,
 void ChromeCanvas::DrawStringInt(const std::wstring& text,
                                  const ChromeFont& font,
                                  const SkColor& color,
-                                 int x, int y,
-                                 int w, int h) {
-  DrawStringInt(text, font, color, x, y, w, h,
-                l10n_util::DefaultCanvasTextAlignment());
-}
-
-void ChromeCanvas::DrawStringInt(const std::wstring& text,
-                                 const ChromeFont& font,
-                                 const SkColor& color,
                                  int x, int y, int w, int h, int flags) {
   DrawStringInt(text, font.hfont(), color, x, y, w, h, flags);
 }

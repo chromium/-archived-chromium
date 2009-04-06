@@ -206,6 +206,15 @@ void ChromeCanvas::DrawBitmapInt(const SkBitmap& bitmap, int src_x, int src_y,
   drawRect(dest_rect, p);
 }
 
+void ChromeCanvas::DrawStringInt(const std::wstring& text,
+                                 const ChromeFont& font,
+                                 const SkColor& color,
+                                 int x, int y,
+                                 int w, int h) {
+  DrawStringInt(text, font, color, x, y, w, h,
+                l10n_util::DefaultCanvasTextAlignment());
+}
+
 void ChromeCanvas::TileImageInt(const SkBitmap& bitmap,
                                 int x, int y, int w, int h) {
   TileImageInt(bitmap, 0, 0, x, y, w, h);
