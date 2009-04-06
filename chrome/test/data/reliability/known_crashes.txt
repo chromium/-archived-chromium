@@ -50,6 +50,9 @@ PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspa
 PREFIX : `anonymous namespace'::invalidparameter____invalid_parameter_noinfo___std::deque
 PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque
 
+# 9615
+SUBSTRING : history::HistoryBackend::~HistoryBackend
+
 # 4731, 6956
 SUBSTRING : net::httpcache::removependingtransaction
 SUBSTRING : net::httpcache::onprocesspendingqueue
