@@ -116,7 +116,8 @@ SavePackage::SavePackage(WebContents* web_content,
                          SavePackageType save_type,
                          const FilePath& file_full_path,
                          const FilePath& directory_full_path)
-    : web_contents_(web_content),
+    : file_manager_(NULL),
+      web_contents_(web_content),
       download_(NULL),
       saved_main_file_path_(file_full_path),
       saved_main_directory_path_(directory_full_path),
@@ -140,7 +141,8 @@ SavePackage::SavePackage(WebContents* web_content,
 }
 
 SavePackage::SavePackage(WebContents* web_contents)
-    : web_contents_(web_contents),
+    : file_manager_(NULL),
+      web_contents_(web_contents),
       download_(NULL),
       finished_(false),
       user_canceled_(false),
@@ -157,7 +159,8 @@ SavePackage::SavePackage(WebContents* web_contents)
 // method Cancel to be be called in destructor in test mode.
 SavePackage::SavePackage(const FilePath& file_full_path,
                          const FilePath& directory_full_path)
-    : download_(NULL),
+    : file_manager_(NULL),
+      download_(NULL),
       saved_main_file_path_(file_full_path),
       saved_main_directory_path_(directory_full_path),
       finished_(true),
@@ -507,6 +510,11 @@ bool SavePackage::UpdateSaveProgress(int32 save_id,
 // Stop all page saving jobs that are in progress and instruct the file thread
 // to delete all saved  files.
 void SavePackage::Stop() {
+  // If we haven't moved out of the initial state, there's nothing to cancel and
+  // there won't be valid pointers for file_manager_ or download_.
+  if (wait_state_ == INITIALIZE)
+    return;
+
   // When stopping, if it still has some items in in_progress, cancel them.
   DCHECK(canceled());
   if (in_process_count()) {
