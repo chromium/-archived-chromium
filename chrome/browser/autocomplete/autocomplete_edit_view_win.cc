@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -102,7 +102,7 @@ class EditDropTarget : public BaseDropTarget {
   // this is false regardless of whether the clipboard has a string.
   bool drag_has_string_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(EditDropTarget);
+  DISALLOW_COPY_AND_ASSIGN(EditDropTarget);
 };
 
 // A helper method for determining a valid DROPEFFECT given the allowed
@@ -1565,6 +1565,10 @@ void AutocompleteEditViewWin::OnPaste() {
     // different behaviors in such a case.
     if (IsSelectAll())
       model_->on_paste_replacing_all();
+    // Force a Paste operation to trigger the text_changed code in
+    // OnAfterPossibleChange(), even if identical contents are pasted into the
+    // text box.
+    text_before_change_.clear();
     ReplaceSel(text.c_str(), true);
   }
 }
