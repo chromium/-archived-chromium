@@ -380,8 +380,8 @@ bool SaveFileAsWithFilter(HWND owner,
   save_as.lpstrDefExt = &def_ext[0];
   save_as.lCustData = NULL;
 
-  if (win_util::GetWinVersion() <= win_util::WINVERSION_VISTA) {
-    // The save as on Windows XP and Windows Vista remembers its last position,
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+    // The save as on Windows XP remembers its last position,
     // and if the screen resolution changed, it will be off screen.
     save_as.Flags |= OFN_ENABLEHOOK;
     save_as.lpfnHook = &SaveAsDialogHook;
