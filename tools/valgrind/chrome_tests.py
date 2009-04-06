@@ -122,6 +122,16 @@ class ChromeTests:
       suppression_file = os.path.join(directory, "suppressions.txt")
       if os.path.exists(suppression_file):
         cmd.append("--suppressions=%s" % suppression_file)
+      # Platform specific suppression
+      suppression_platform = {
+        'darwin': 'mac',
+        'linux2': 'linux'
+      }[sys.platform]
+      suppression_file_platform = \
+          os.path.join(directory, 'suppressions_%s.txt' % suppression_platform)
+      if os.path.exists(suppression_file_platform):
+        cmd.append("--suppressions=%s" % suppression_file_platform)
+
     if self._options.baseline:
       cmd.append("--baseline")
     if self._options.verbose:

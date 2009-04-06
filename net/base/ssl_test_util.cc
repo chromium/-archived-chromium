@@ -126,6 +126,7 @@ void AppendToPythonPath(FilePath dir) {
 #elif defined(OS_POSIX)
   const char kPythonPath[] = "PYTHONPATH";
   const char* oldpath = getenv(kPythonPath);
+  // setenv() leaks memory intentionally on Mac
   if (!oldpath) {
     setenv(kPythonPath, dir.value().c_str(), 1);
   } else if (!strstr(oldpath, dir.value().c_str())) {

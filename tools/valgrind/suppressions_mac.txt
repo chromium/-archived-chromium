@@ -1,0 +1,10 @@
+{
+   # See http://code.google.com/p/chromium/issues/detail?id=9565
+   # This should have been handled by platform-specific suppression.
+   # Remove this when https://bugs.kde.org/show_bug.cgi?id=188572 is fixed
+   setenv() leaks on Mac intentionally.
+   Memcheck:Leak
+   ...
+   fun:__setenv
+   fun:setenv$UNIX2003
+}

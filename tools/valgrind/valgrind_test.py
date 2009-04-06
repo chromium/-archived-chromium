@@ -53,7 +53,7 @@ class Valgrind(object):
     self._parser.add_option("", "--source_dir",
                             help="path to top of source tree for this build"
                                  "(used to normalize source paths in baseline)")
-    self._parser.add_option("", "--suppressions", default=["."],
+    self._parser.add_option("", "--suppressions", default=[],
                             action="append",
                             help="path to a valgrind suppression file")
     self._parser.add_option("", "--gtest_filter", default="",
@@ -141,7 +141,7 @@ class Valgrind(object):
     return True
 
   def RunTestsAndAnalyze(self):
-    self.PrepareForTest()
+#self.PrepareForTest()
 
     self.Execute()
     if self._generate_suppressions:
