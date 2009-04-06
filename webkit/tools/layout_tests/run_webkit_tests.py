@@ -63,14 +63,17 @@ class TestRunner:
 
   HTTP_SUBDIR = os.sep.join(['', 'http', ''])
 
-  def __init__(self, options, paths):
+  def __init__(self, options, paths, platform_new_results_dir):
     """Collect a list of files to test.
 
     Args:
       options: a dictionary of command line options
       paths: a list of paths to crawl looking for test files
+      platform_new_results_dir: name of leaf directory to put rebaselined files
+                                in.
     """
     self._options = options
+    self._platform_new_results_dir = platform_new_results_dir
 
     self._http_server = http_server.Lighttpd(options.results_directory)
     # a list of TestType objects
@@ -413,7 +416,8 @@ class TestRunner:
       test_types = []
       for t in self._test_types:
         test_types.append(t(self._options.platform,
-                            self._options.results_directory))
+                            self._options.results_directory,
+                            self._platform_new_results_dir))
 
       test_args, shell_args = self._GetTestShellArgs(i)
       thread = test_shell_thread.TestShellThread(filename_queue,
@@ -770,6 +774,12 @@ def main(options, args):
 
   if options.platform is None:
     options.platform = path_utils.PlatformDir()
+    platform_new_results_dir = path_utils.PlatformNewResultsDir()
+  else:
+    # If the user specified a platform on the command line then use
+    # that as the name of the output directory for rebaselined files.
+    platform_new_results_dir = options.platform
+
 
   if not options.num_test_shells:
     # Only run stable configurations with multiple test_shells by default.
@@ -804,7 +814,7 @@ def main(options, args):
   if not paths:
     paths = ['.']
 
-  test_runner = TestRunner(options, paths)
+  test_runner = TestRunner(options, paths, platform_new_results_dir)
 
   if options.lint_test_files:
     # Just creating the TestRunner checks the syntax of the test lists.
@@ -823,8 +833,8 @@ def main(options, args):
   logging.info("Placing test results in %s" % options.results_directory)
   if options.new_baseline:
     logging.info("Placing new baselines in %s" %
-                 os.path.join(path_utils.PlatformResultsDir(options.platform),
-                              options.platform))
+                 os.path.join(path_utils.PlatformResultsEnclosingDir(options.platform),
+                              platform_new_results_dir))
   logging.info("Using %s build at %s" %
                (options.target, test_shell_binary_path))
   if not options.no_pixel_tests:

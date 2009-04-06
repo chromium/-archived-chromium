@@ -188,3 +188,8 @@ class PlatformUtility(object):
     results live.
     """
     return 'chromium-linux'
+
+  def PlatformNewResultsDir(self):
+      """Returns the directory name in which to output newly baselined tests.
+      """
+    return self.PlatformDir()

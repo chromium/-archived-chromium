@@ -67,10 +67,9 @@ class TestTextDiff(test_type_base.TestTypeBase):
                                    self.FILENAME_SUFFIX_EXPECTED + modifier)
     if isRenderTreeDump(data):
       relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
-      output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
-                                self._platform,
+      output_dir = os.path.join(path_utils.PlatformResultsEnclosingDir(self._platform),
+                                self._platform_new_results_dir,
                                 relative_dir)
-
       google.path_utils.MaybeMakeDirectory(output_dir)
       open(os.path.join(output_dir, output_file), "wb").write(data)
     else:
@@ -78,7 +77,7 @@ class TestTextDiff(test_type_base.TestTypeBase):
       # platforms.  Copy the file into the chromium-win and chromium-mac dirs.
       relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
       for platform in ('chromium-win', 'chromium-mac'):
-        output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
+        output_dir = os.path.join(path_utils.PlatformResultsEnclosingDir(self._platform),
                                   platform,
                                   relative_dir)
 

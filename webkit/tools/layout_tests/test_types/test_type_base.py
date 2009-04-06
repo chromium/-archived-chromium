@@ -48,16 +48,19 @@ class TestTypeBase(object):
   FILENAME_SUFFIX_WDIFF = "-wdiff.html"
   FILENAME_SUFFIX_COMPARE = "-diff.png"
 
-  def __init__(self, platform, root_output_dir):
+  def __init__(self, platform, root_output_dir, platform_new_results_dir):
     """Initialize a TestTypeBase object.
 
     Args:
       platform: the platform (e.g., 'chromium-mac-leopard') identifying the
-        platform-specific results to be used
+        platform-specific results to be used.
       root_output_dir: The unix style path to the output dir.
+      platform_new_results_dir: Name of the directory to put newly baselined
+        results in.
     """
     self._root_output_dir = root_output_dir
     self._platform = platform
+    self._platform_new_results_dir = platform_new_results_dir
 
   def _MakeOutputDirectory(self, filename):
     """Creates the output directory (if needed) for a given test filename."""
@@ -77,8 +80,8 @@ class TestTypeBase(object):
       modifier: type of the result file, e.g. ".txt" or ".png"
     """
     relative_dir = os.path.dirname(path_utils.RelativeTestFilename(filename))
-    output_dir = os.path.join(path_utils.PlatformResultsDir(self._platform),
-                              self._platform,
+    output_dir = os.path.join(path_utils.PlatformResultsEnclosingDir(self._platform),
+                              self._platform_new_results_dir,
                               relative_dir)
     output_file = os.path.basename(os.path.splitext(filename)[0] +
                                    self.FILENAME_SUFFIX_EXPECTED + modifier)
