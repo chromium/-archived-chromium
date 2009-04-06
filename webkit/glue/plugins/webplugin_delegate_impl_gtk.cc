@@ -171,9 +171,8 @@ void WebPluginDelegateImpl::UpdateGeometry(
 
 void WebPluginDelegateImpl::Paint(cairo_surface_t* context,
                                   const gfx::Rect& rect) {
-  if (windowless_) {
+  if (windowless_)
     WindowlessPaint(context, rect);
-  }
 }
 
 void WebPluginDelegateImpl::Print(cairo_surface_t* context) {
@@ -460,6 +459,25 @@ void WebPluginDelegateImpl::EnsurePixmapAtLeastSize(int width, int height) {
   gdk_drawable_set_colormap(GDK_DRAWABLE(pixmap_), colormap);
 }
 
+#ifdef DEBUG_RECTANGLES
+namespace {
+
+// Draw a rectangle on a Cairo surface.
+// Useful for debugging various rectangles involved in drawing plugins.
+void DrawDebugRectangle(cairo_surface_t* surface,
+                        const gfx::Rect& rect,
+                        float r, float g, float b) {
+  cairo_t* cairo = cairo_create(surface);
+  cairo_set_source_rgba(cairo, r, g, b, 0.5);
+  cairo_rectangle(cairo, rect.x(), rect.y(),
+                  rect.width(), rect.height());
+  cairo_stroke(cairo);
+  cairo_destroy(cairo);
+}
+
+}  // namespace
+#endif
+
 void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
                                             const gfx::Rect& damage_rect) {
   // Compare to:
@@ -482,12 +500,47 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   if (windowless_needs_set_window_)
     WindowlessSetWindow(false);
 
-  EnsurePixmapAtLeastSize(damage_rect.width(), damage_rect.height());
+  // The actual dirty region is just the intersection of the plugin
+  // window with the damage region.  However, the plugin wants to draw
+  // relative to the containing window's origin, so our pixmap must be
+  // from the window's origin down to the bottom-right edge of the
+  // dirty region.
+  //
+  // +-----------------------------+-----------------------------+
+  // |                             |                             |
+  // |    pixmap     +-------------+                             |
+  // |               |   damage    |                window       |
+  // |               |             |                             |
+  // |       +-------+-------------+----------+                  |
+  // |       |       | draw        |          |                  |
+  // +-------+-------+-------------+          |                  |
+  // |       |                                |                  |
+  // |       |        plugin                  |                  |
+  // |       +--------------------------------+                  |
+  // |                                                           |
+  // |                                                           |
+  // +-----------------------------------------------------------+
+  //
+  // TOOD(evanm): on Windows, we instead just translate the origin of
+  // the DC that we hand to the plugin.  Does such a thing exist on X?
+  // TODO(evanm): make use of the clip rect as well.
+
+  gfx::Rect plugin_rect(window_.x, window_.y, window_.width, window_.height);
+  gfx::Rect draw_rect = plugin_rect.Intersect(damage_rect);
+
+  gfx::Rect pixmap_rect(0, 0,
+                        draw_rect.x() + draw_rect.width(),
+                        draw_rect.y() + draw_rect.height());
+
+  EnsurePixmapAtLeastSize(pixmap_rect.width(), pixmap_rect.height());
 
   // Copy the current image into the pixmap, so the plugin can draw over
   // this background.
   cairo_t* cairo = gdk_cairo_create(pixmap_);
   cairo_set_source_surface(cairo, context, 0, 0);
+  cairo_rectangle(cairo, draw_rect.x(), draw_rect.y(),
+                  draw_rect.width(), draw_rect.height());
+  cairo_clip(cairo);
   cairo_paint(cairo);
   cairo_destroy(cairo);
 
@@ -496,10 +549,10 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   event.type = GraphicsExpose;
   event.display = GDK_DISPLAY();
   event.drawable = GDK_PIXMAP_XID(pixmap_);
-  event.x = damage_rect.x();
-  event.y = damage_rect.y();
-  event.width = damage_rect.width();
-  event.height = damage_rect.height();
+  event.x = draw_rect.x();
+  event.y = draw_rect.y();
+  event.width = draw_rect.width();
+  event.height = draw_rect.height();
 
   // Tell the plugin to paint into the pixmap.
   static StatsRate plugin_paint("Plugin.Paint");
@@ -510,8 +563,19 @@ void WebPluginDelegateImpl::WindowlessPaint(cairo_surface_t* context,
   // Now copy the rendered image pixmap back into the drawing buffer.
   cairo = cairo_create(context);
   gdk_cairo_set_source_pixmap(cairo, pixmap_, 0, 0);
+  cairo_rectangle(cairo, draw_rect.x(), draw_rect.y(),
+                  draw_rect.width(), draw_rect.height());
+  cairo_clip(cairo);
   cairo_paint(cairo);
   cairo_destroy(cairo);
+
+#ifdef DEBUG_RECTANGLES
+  // Draw some debugging rectangles.
+  // Pixmap rect = blue.
+  DrawDebugRectangle(context, pixmap_rect, 0, 0, 1);
+  // Drawing rect = red.
+  DrawDebugRectangle(context, draw_rect, 1, 0, 0);
+#endif
 }
 
 void WebPluginDelegateImpl::WindowlessSetWindow(bool force_set_window) {
@@ -568,87 +632,18 @@ void WebPluginDelegateImpl::SetFocus() {
 
 bool WebPluginDelegateImpl::HandleEvent(NPEvent* event,
                                         WebCursor* cursor) {
-  NOTIMPLEMENTED();
-#if 0
-  DCHECK(windowless_) << "events should only be received in windowless mode";
-  DCHECK(cursor != NULL);
-
-  // To ensure that the plugin receives keyboard events we set focus to the
-  // dummy window.
-  // TODO(iyengar) We need a framework in the renderer to identify which
-  // windowless plugin is under the mouse and to handle this. This would
-  // also require some changes in RenderWidgetHost to detect this in the
-  // WM_MOUSEACTIVATE handler and inform the renderer accordingly.
-  HWND prev_focus_window = NULL;
-  if (event->event == WM_RBUTTONDOWN) {
-    prev_focus_window = ::SetFocus(dummy_window_for_activation_);
-  }
-
-  if (ShouldTrackEventForModalLoops(event)) {
-    // A windowless plugin can enter a modal loop in a NPP_HandleEvent call.
-    // For e.g. Flash puts up a context menu when we right click on the
-    // windowless plugin area. We detect this by setting up a message filter
-    // hook pror to calling NPP_HandleEvent on the plugin and unhook on
-    // return from NPP_HandleEvent. If the plugin does enter a modal loop
-    // in that context we unhook on receiving the first notification in
-    // the message filter hook.
-    handle_event_message_filter_hook_ =
-        SetWindowsHookEx(WH_MSGFILTER, HandleEventMessageFilterHook, NULL,
-                         GetCurrentThreadId());
-  }
-
-  bool old_task_reentrancy_state =
-      MessageLoop::current()->NestableTasksAllowed();
-
-  current_plugin_instance_ = this;
-
-  handle_event_depth_++;
-
-  bool pop_user_gesture = false;
-
-  if (IsUserGestureMessage(event->event)) {
-    pop_user_gesture = true;
-    instance()->PushPopupsEnabledState(true);
-  }
-
   bool ret = instance()->NPP_HandleEvent(event) != 0;
 
+#if 0
   if (event->event == WM_MOUSEMOVE) {
     // Snag a reference to the current cursor ASAP in case the plugin modified
     // it. There is a nasty race condition here with the multiprocess browser
     // as someone might be setting the cursor in the main process as well.
     *cursor = current_windowless_cursor_;
   }
-
-  if (pop_user_gesture) {
-    instance()->PopPopupsEnabledState();
-  }
-
-  handle_event_depth_--;
-
-  current_plugin_instance_ = NULL;
-
-  MessageLoop::current()->SetNestableTasksAllowed(old_task_reentrancy_state);
-
-  if (handle_event_message_filter_hook_) {
-    UnhookWindowsHookEx(handle_event_message_filter_hook_);
-    handle_event_message_filter_hook_ = NULL;
-  }
-
-  // We could have multiple NPP_HandleEvent calls nested together in case
-  // the plugin enters a modal loop. Reset the pump messages event when
-  // the outermost NPP_HandleEvent call unwinds.
-  if (handle_event_depth_ == 0) {
-    ResetEvent(handle_event_pump_messages_event_);
-  }
-
-  if (event->event == WM_RBUTTONUP && ::IsWindow(prev_focus_window)) {
-    ::SetFocus(prev_focus_window);
-  }
+#endif
 
   return ret;
-#endif
-  return 0;
 }
 
 WebPluginResourceClient* WebPluginDelegateImpl::CreateResourceClient(
