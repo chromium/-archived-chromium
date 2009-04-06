@@ -294,10 +294,13 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
     case IDC_SPELLCHECK_SUGGESTION_3:
     case IDC_SPELLCHECK_SUGGESTION_4:
     case IDC_SPELLCHECK_MENU:
-    case IDC_CHECK_SPELLING_OF_THIS_FIELD:
     case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS:
     case IDS_CONTENT_CONTEXT_VIEWFRAMEINFO:
       return true;
+
+    case IDC_CHECK_SPELLING_OF_THIS_FIELD:
+      return source_web_contents_->profile()->GetPrefs()->GetBoolean(
+          prefs::kEnableSpellCheck);
 
     case IDS_CONTENT_CONTEXT_SAVEFRAMEAS:
     case IDS_CONTENT_CONTEXT_PRINTFRAME:
@@ -309,8 +312,11 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
 
 bool RenderViewContextMenu::ItemIsChecked(int id) const {
   // Check box for 'Check the Spelling of this field'.
-  if (id == IDC_CHECK_SPELLING_OF_THIS_FIELD)
-    return params_.spellcheck_enabled;
+  if (id == IDC_CHECK_SPELLING_OF_THIS_FIELD) {
+    PrefService* prefs = source_web_contents_->profile()->GetPrefs();
+    return (params_.spellcheck_enabled &&
+            prefs->GetBoolean(prefs::kEnableSpellCheck));
+  }
 
   // Don't bother getting the display language vector if this isn't a spellcheck
   // language.
