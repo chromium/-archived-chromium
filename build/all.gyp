@@ -27,6 +27,7 @@
         '../printing/printing.gyp:*',
         '../sdch/sdch.gyp:*',
         '../skia/skia.gyp:*',
+        '../testing/gtest.gyp:*',
         '../third_party/bzip2/bzip2.gyp:*',
         '../third_party/icu38/icu38.gyp:*',
         '../third_party/libjpeg/libjpeg.gyp:*',
@@ -38,6 +39,7 @@
         '../third_party/sqlite/sqlite.gyp:*',
         '../third_party/zlib/zlib.gyp:*',
         'temp_gyp/googleurl.gyp:*',
+        'temp_gyp/v8.gyp:*',
       ],
       'conditions': [
         ['OS=="linux"', {
@@ -57,10 +59,8 @@
         ['all_gyps', {
           'dependencies': [
             '../chrome/chrome.gyp:*',
-            '../testing/gtest.gyp:*',
             '../webkit/tools/test_shell/test_shell.gyp:*',
             '../webkit/webkit.gyp:*',
-            'temp_gyp/v8.gyp:*',
           ],
         }],
       ],
