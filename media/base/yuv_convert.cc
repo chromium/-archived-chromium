@@ -27,14 +27,15 @@
 // An article on optimizing YUV conversion using tables instead of multiplies
 //   http://lestourtereaux.free.fr/papers/data/yuvrgb.pdf
 //
+// YV12 is a full plane of Y and a half height, half width chroma planes
+// YV16 is a full plane of Y and a full height, half width chroma planes
+//
 // Implimentation notes
 //   This version uses MMX for Visual C and GCC, which should cover all
 //   current platforms.  C++ is included for reference and future platforms.
 //
-//   ARGB pixel format is assumed, which on little endian is stored as BGRA.
+//   ARGB pixel format is output, which on little endian is stored as BGRA.
 //   The alpha is filled in, allowing the application to use RGBA or RGB32.
-//   The row based conversion allows for a future YV16 version, and simplifies
-//   the platform specific portion of the code.
 //
 //  The Visual C assembler is considered the source.
 //  The GCC asm was created by compiling with Visual C and disassembling
@@ -383,14 +384,14 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   "mov    0x34(%esp),%ecx\n"
   "shr    %ecx\n"
 "1:\n"
-  "movzbl (%edi),%eax\n"
+  "movzb  (%edi),%eax\n"
   "add    $0x1,%edi\n"
-  "movzbl (%esi),%ebx\n"
+  "movzb  (%esi),%ebx\n"
   "add    $0x1,%esi\n"
   "movq   coefficients_RGB_U(,%eax,8),%mm0\n"
-  "movzbl (%edx),%eax\n"
+  "movzb  (%edx),%eax\n"
   "paddsw coefficients_RGB_V(,%ebx,8),%mm0\n"
-  "movzbl 0x1(%edx),%ebx\n"
+  "movzb  0x1(%edx),%ebx\n"
   "movq   coefficients_RGB_Y(,%eax,8),%mm1\n"
   "add    $0x2,%edx\n"
   "movq   coefficients_RGB_Y(,%ebx,8),%mm2\n"
@@ -428,14 +429,14 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   "xor    %eax,%eax\n"
   "xor    %ebx,%ebx\n"
 "1:\n"
-  "movzbl (%edi),%eax\n"
+  "movzb  (%edi),%eax\n"
   "add    $0x1,%edi\n"
-  "movzbl (%esi),%ebx\n"
+  "movzb  (%esi),%ebx\n"
   "add    $0x1,%esi\n"
   "movq   _coefficients_RGB_U(,%eax,8),%mm0\n"
-  "movzbl (%edx),%eax\n"
+  "movzb  (%edx),%eax\n"
   "paddsw _coefficients_RGB_V(,%ebx,8),%mm0\n"
-  "movzbl 0x1(%edx),%ebx\n"
+  "movzb  0x1(%edx),%ebx\n"
   "movq   _coefficients_RGB_Y(,%eax,8),%mm1\n"
   "add    $0x2,%edx\n"
   "movq   _coefficients_RGB_Y(,%ebx,8),%mm2\n"
@@ -464,7 +465,7 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
                            size_t width);
 #endif
 
-// Convert a frame of YUV to 32 bit ARGB.
+// Convert a frame of YV12 (aka YUV420) to 32 bit ARGB.
 void ConvertYV12ToRGB32(const uint8* y_buf,
                         const uint8* u_buf,
                         const uint8* v_buf,
@@ -487,6 +488,45 @@ void ConvertYV12ToRGB32(const uint8* y_buf,
     const uint8* y_ptr = y_buf + y * y_pitch;
     const uint8* u_ptr = u_buf + y/2 * uv_pitch;
     const uint8* v_ptr = v_buf + y/2 * uv_pitch;
+
+    ConvertYV12ToRGB32Row(y_ptr,
+                          u_ptr,
+                          v_ptr,
+                          d1,
+                          width);
+  }
+#if USE_MMX
+#if defined(_MSC_VER)
+  __asm emms;
+#else
+  asm("emms");
+#endif
+#endif
+}
+
+// Convert a frame of YV16 (aka YUV422) to 32 bit ARGB.
+void ConvertYV16ToRGB32(const uint8* y_buf,
+                        const uint8* u_buf,
+                        const uint8* v_buf,
+                        uint8* rgb_buf,
+                        size_t width,
+                        size_t height,
+                        int y_pitch,
+                        int uv_pitch,
+                        int rgb_pitch) {
+  // Image must be multiple of 2 in width.
+  DCHECK((width & 1) == 0);
+  // Check alignment. Use memalign to allocate the buffer if you hit this
+  // check:
+  DCHECK((reinterpret_cast<uintptr_t>(rgb_buf) & 7) == 0);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+  for (int y = 0; y < static_cast<int>(height); ++y) {
+    uint8* d1 = rgb_buf + y * rgb_pitch;
+    const uint8* y_ptr = y_buf + y * y_pitch;
+    const uint8* u_ptr = u_buf + y * uv_pitch;
+    const uint8* v_ptr = v_buf + y * uv_pitch;
 
     ConvertYV12ToRGB32Row(y_ptr,
                           u_ptr,

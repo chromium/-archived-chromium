@@ -9,7 +9,7 @@
 
 namespace media {
 
-// Convert a frame of YUV to 32 bit ARGB.
+// Convert a frame of YV12 (aka YUV420) to 32 bit ARGB.
 void ConvertYV12ToRGB32(const uint8* yplane,
                         const uint8* uplane,
                         const uint8* vplane,
@@ -19,6 +19,18 @@ void ConvertYV12ToRGB32(const uint8* yplane,
                         int ystride,
                         int uvstride,
                         int rgbstride);
+
+// Convert a frame of YV16 (aka YUV422) to 32 bit ARGB.
+void ConvertYV16ToRGB32(const uint8* yplane,
+                        const uint8* uplane,
+                        const uint8* vplane,
+                        uint8* rgbframe,
+                        size_t frame_width,
+                        size_t frame_height,
+                        int ystride,
+                        int uvstride,
+                        int rgbstride);
+
 
 #endif  // MEDIA_BASE_YUV_CONVERT_H_
 
