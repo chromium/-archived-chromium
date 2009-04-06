@@ -302,9 +302,9 @@ class TestRunner:
     # TODO(ojan): See if we can grab the lowest level directory. That will
     # provide better parallelization. We should at least be able to do so
     # for some directories (e.g. LayoutTests/dom).
-    index = test_file.rfind('/LayoutTests/')
+    index = test_file.rfind(os.sep + 'LayoutTests' + os.sep)
     if index is -1:
-      index = test_file.rfind('/chrome/')
+      index = test_file.rfind(os.sep + 'chrome' + os.sep)
 
     test_file = test_file[index + 1:]
     test_file_parts = test_file.split(os.sep, 1)
