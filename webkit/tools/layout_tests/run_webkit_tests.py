@@ -58,9 +58,6 @@ class TestRunner:
   # When collecting test cases, skip these directories
   _skipped_directories = set(['.svn', '_svn', 'resources'])
 
-  # Top-level directories to shard when running tests.
-  _shardable_directories = set(['chrome', 'LayoutTests'])
-
   HTTP_SUBDIR = os.sep.join(['', 'http', ''])
 
   def __init__(self, options, paths):
@@ -296,139 +293,6 @@ class TestRunner:
       return cmp(y_is_http, x_is_http)
     return cmp(x, y)
 
-  def _GetDirForTestFile(self, test_file):
-    """Returns the highest-level directory by which to shard the given test
-    file."""
-    # TODO(ojan): See if we can grab the lowest level directory. That will
-    # provide better parallelization. We should at least be able to do so
-    # for some directories (e.g. LayoutTests/dom).
-    index = test_file.rfind('/LayoutTests/')
-    if index is -1:
-      index = test_file.rfind('/chrome/')
-
-    test_file = test_file[index + 1:]
-    test_file_parts = test_file.split('/', 1)
-    directory = test_file_parts[0]
-    test_file = test_file_parts[1]
-
-    return_value = directory
-    while directory in TestRunner._shardable_directories:
-      test_file_parts = test_file.split('/', 1)
-      directory = test_file_parts[0]
-      return_value = os.path.join(return_value, directory)
-      if len(test_file_parts) is not 2:
-        break
-      test_file = test_file_parts[1]
-
-    return return_value
-
-  def _GetTestFileQueue(self, test_files):
-    """Create the thread safe queue of lists of (test filenames, test URIs)
-    tuples. Each TestShellThread pulls a list from this queue and runs those
-    tests in order before grabbing the next available list.
-
-    Shard the lists by directory. This helps ensure that tests that depend
-    on each other (aka bad tests!) continue to run together as most
-    cross-tests dependencies tend to occur within the same directory.
-
-    Return:
-      The Queue of lists of (test file, test uri) tuples.
-    """
-    tests_by_dir = {}
-    for test_file in test_files:
-      directory = self._GetDirForTestFile(test_file)
-      if directory not in tests_by_dir:
-        tests_by_dir[directory] = []
-      tests_by_dir[directory].append((test_file,
-          path_utils.FilenameToUri(test_file)))
-
-    # Sort by the number of tests in the dir so that the ones with the most
-    # tests get run first in order to maximize parallelization. Number of tests
-    # is a good enough, but not perfect, approximation of how long that set of
-    # tests will take to run. We can't just use a PriorityQueue until we move
-    # to Python 2.6.
-    test_lists = []
-    for directory in tests_by_dir:
-      test_list = tests_by_dir[directory]
-      # Keep the tests in alphabetical order.
-      # TODO: Remove once tests are fixed so they can be run in any order.
-      test_list.reverse()
-      test_lists.append((directory, test_list))
-    test_lists.sort(lambda a, b: cmp(len(b), len(a)))
-
-    filename_queue = Queue.Queue()
-    for item in test_lists:
-      filename_queue.put(item)
-    return filename_queue
-
-  def _GetTestShellArgs(self, index):
-    """Returns the tuple of arguments for tests and for test_shell."""
-    shell_args = []
-    test_args = test_type_base.TestArguments()
-    if not self._options.no_pixel_tests:
-      png_path = os.path.join(self._options.results_directory,
-                              "png_result%s.png" % index)
-      shell_args.append("--pixel-tests=" + png_path)
-      test_args.png_path = png_path
-
-    test_args.new_baseline = self._options.new_baseline
-    test_args.show_sources = self._options.sources
-
-    if self._options.startup_dialog:
-      shell_args.append('--testshell-startup-dialog')
-
-    if self._options.gp_fault_error_box:
-      shell_args.append('--gp-fault-error-box')
-
-    # larger timeout if page heap is enabled.
-    if self._options.time_out_ms:
-      shell_args.append('--time-out-ms=' + self._options.time_out_ms)
-
-    return (test_args, shell_args)
-
-  def _InstantiateTestShellThreads(self, test_shell_binary):
-    """Instantitates and starts the TestShellThread(s).
-
-    Return:
-      The list of threads.
-    """
-    test_shell_command = [test_shell_binary]
-
-    if self._options.wrapper:
-      # This split() isn't really what we want -- it incorrectly will
-      # split quoted strings within the wrapper argument -- but in
-      # practice it shouldn't come up and the --help output warns
-      # about it anyway.
-      test_shell_command = self._options.wrapper.split() + test_shell_command
-
-    test_files = self._test_files_list
-    filename_queue = self._GetTestFileQueue(test_files)
-
-    # If we have http tests, the first one will be an http test.
-    if test_files and test_files[0].find(self.HTTP_SUBDIR) >= 0:
-      self._http_server.Start()
-
-    # Instantiate TestShellThreads and start them.
-    threads = []
-    for i in xrange(int(self._options.num_test_shells)):
-      # Create separate TestTypes instances for each thread.
-      test_types = []
-      for t in self._test_types:
-        test_types.append(t(self._options.platform,
-                            self._options.results_directory))
-
-      test_args, shell_args = self._GetTestShellArgs(i)
-      thread = test_shell_thread.TestShellThread(filename_queue,
-                                                 test_shell_command,
-                                                 test_types,
-                                                 test_args,
-                                                 shell_args,
-                                                 self._options)
-      thread.start()
-      threads.append(thread)
-
-    return threads
-
   def Run(self):
     """Run all our tests on all our test files.
 
@@ -442,6 +306,14 @@ class TestRunner:
       return 0
     start_time = time.time()
     test_shell_binary = path_utils.TestShellBinaryPath(self._options.target)
+    test_shell_command = [test_shell_binary]
+
+    if self._options.wrapper:
+      # This split() isn't really what we want -- it incorrectly will
+      # split quoted strings within the wrapper argument -- but in
+      # practice it shouldn't come up and the --help output warns
+      # about it anyway.
+      test_shell_command = self._options.wrapper.split() + test_shell_command
 
     # Check that the system dependencies (themes, fonts, ...) are correct.
     if not self._options.nocheck_sys_deps:
@@ -457,11 +329,59 @@ class TestRunner:
     # Create the output directory if it doesn't already exist.
     google.path_utils.MaybeMakeDirectory(self._options.results_directory)
 
-    threads = self._InstantiateTestShellThreads(test_shell_binary)
+    test_files = self._test_files_list
+
+    # Create the thread safe queue of (test filenames, test URIs) tuples. Each
+    # TestShellThread pulls values from this queue.
+    filename_queue = Queue.Queue()
+    for test_file in test_files:
+      filename_queue.put((test_file, path_utils.FilenameToUri(test_file)))
+
+    # If we have http tests, the first one will be an http test.
+    if test_files and test_files[0].find(self.HTTP_SUBDIR) >= 0:
+      self._http_server.Start()
+
+    # Instantiate TestShellThreads and start them.
+    threads = []
+    for i in xrange(int(self._options.num_test_shells)):
+      shell_args = []
+      test_args = test_type_base.TestArguments()
+      if not self._options.no_pixel_tests:
+        png_path = os.path.join(self._options.results_directory,
+                                "png_result%s.png" % i)
+        shell_args.append("--pixel-tests=" + png_path)
+        test_args.png_path = png_path
+
+      test_args.new_baseline = self._options.new_baseline
+      test_args.show_sources = self._options.sources
+
+      # Create separate TestTypes instances for each thread.
+      test_types = []
+      for t in self._test_types:
+        test_types.append(t(self._options.platform,
+                            self._options.results_directory))
+
+      if self._options.startup_dialog:
+        shell_args.append('--testshell-startup-dialog')
+
+      if self._options.gp_fault_error_box:
+        shell_args.append('--gp-fault-error-box')
+
+      # larger timeout if page heap is enabled.
+      if self._options.time_out_ms:
+        shell_args.append('--time-out-ms=' + self._options.time_out_ms)
+
+      thread = test_shell_thread.TestShellThread(filename_queue,
+                                                 test_shell_command,
+                                                 test_types,
+                                                 test_args,
+                                                 shell_args,
+                                                 self._options)
+      thread.start()
+      threads.append(thread)
 
     # Wait for the threads to finish and collect test failures.
     test_failures = {}
-    test_timings = {}
     try:
       for thread in threads:
         while thread.isAlive():
@@ -471,7 +391,6 @@ class TestRunner:
           # be interruptible by KeyboardInterrupt.
           thread.join(1.0)
         test_failures.update(thread.GetFailures())
-        test_timings.update(thread.GetTimingStats())
     except KeyboardInterrupt:
       for thread in threads:
         thread.Cancel()
@@ -488,8 +407,6 @@ class TestRunner:
     print
     end_time = time.time()
     logging.info("%f total testing time" % (end_time - start_time))
-
-    self._PrintTimingsForRuns(test_timings)
 
     print "-" * 78
 
@@ -516,18 +433,6 @@ class TestRunner:
     sys.stdout.flush()
     sys.stderr.flush()
     return len(regressions)
-
-  def _PrintTimingsForRuns(self, test_timings):
-    timings = []
-    for directory in test_timings:
-      num_tests, time = test_timings[directory]
-      timings.append((round(time, 1), directory, num_tests))
-    timings.sort()
-
-    logging.debug("Time to process each each subdirectory:")
-    for timing in timings:
-      logging.debug("%s took %s seconds to run %s tests." % \
-                    (timing[1], timing[0], timing[2]))
 
   def _PrintResults(self, test_failures, output):
     """Print a short summary to stdout about how many tests passed.
