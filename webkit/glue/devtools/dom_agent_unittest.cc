@@ -66,7 +66,7 @@ class DomAgentTests : public TestShellTest {
 
     mock_delegate_.set(new MockDomAgentDelegate());
     dom_agent_.set(new DomAgentImpl(mock_delegate_.get()));
-    dom_agent_->SetDocument(document_.get());
+    dom_agent_->SetDocument(document_.get(), true);
   }
 
   virtual void TearDown() {

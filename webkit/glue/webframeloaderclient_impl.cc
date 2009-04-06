@@ -1107,12 +1107,15 @@ void WebFrameLoaderClient::postProgressFinishedNotification() {
 }
 
 void WebFrameLoaderClient::setMainFrameDocumentReady(bool ready) {
-  if (hasWebView()) {
-    WebDevToolsAgentImpl* tools_agent =
-        webframe_->webview_impl()->GetWebDevToolsAgentImpl();
-    if (tools_agent) {
-      tools_agent->SetMainFrameDocumentReady(ready);
-    }
+  WebViewImpl* web_view = webframe_->webview_impl();
+  if (!web_view)
+    return;
+  WebDevToolsAgentImpl* tools_agent = web_view->GetWebDevToolsAgentImpl();
+  if (!tools_agent)
+    return;
+
+  if (webframe_ == web_view->GetMainFrame()) {
+    tools_agent->SetMainFrameDocumentReady(ready);
   }
 }
 

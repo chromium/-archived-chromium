@@ -71,11 +71,11 @@ DomAgentImpl::DomAgentImpl(DomAgentDelegate* delegate)
 }
 
 DomAgentImpl::~DomAgentImpl() {
-  SetDocument(NULL);
+  SetDocument(NULL, false);
 }
 
-void DomAgentImpl::SetDocument(Document* doc) {
-  if (documents_.size() && doc == documents_.begin()->get()) {
+void DomAgentImpl::SetDocument(Document* doc, bool loaded) {
+  if (doc == GetMainFrameDocument()) {
     return;
   }
 
@@ -85,12 +85,12 @@ void DomAgentImpl::SetDocument(Document* doc) {
     StopListening((*it).get());
   }
   ASSERT(documents_.size() == 0);
+  ASSERT(loaded_documents_.size() == 0);
 
   if (doc) {
     StartListening(doc);
-    if (document_element_requested_) {
-      GetDocumentElement();
-      document_element_requested_ = false;
+    if (loaded) {
+      loaded_documents_.add(doc);
     }
   } else {
     DiscardBindings();
@@ -125,6 +125,7 @@ void DomAgentImpl::StopListening(Document* doc) {
   doc->removeEventListener(eventNames().DOMAttrModifiedEvent,
       event_listener_.get(), false);
   documents_.remove(doc);
+  loaded_documents_.remove(doc);
 }
 
 int DomAgentImpl::Bind(Node* node) {
@@ -153,7 +154,7 @@ void DomAgentImpl::Unbind(Node* node) {
 }
 
 void DomAgentImpl::PushDocumentElementToClient() {
-  Element* doc_elem = (*documents_.begin())->documentElement();
+  Element* doc_elem = GetMainFrameDocument()->documentElement();
   if (!node_to_id_.contains(doc_elem)) {
     OwnPtr<Value> value(BuildValueForNode(doc_elem, 0));
     delegate_->SetDocumentElement(*value.get());
@@ -249,12 +250,18 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
       delegate_->ChildNodeRemoved(parent_id, id);
     }
   } else if (type == eventNames().DOMContentLoadedEvent) {
-    //TODO(pfeldman): handle content load event.
+    Document* doc = static_cast<Document*>(node);
+    loaded_documents_.add(doc);
+    if (document_element_requested_ &&
+        loaded_documents_.contains(GetMainFrameDocument())) {
+      GetDocumentElement();
+      document_element_requested_ = false;
+    }
   }
 }
 
 void DomAgentImpl::GetDocumentElement() {
-  if (documents_.size() > 0) {
+  if (loaded_documents_.contains(GetMainFrameDocument())) {
     PushDocumentElementToClient();
   } else {
     document_element_requested_ = true;
@@ -390,7 +397,7 @@ void DomAgentImpl::PerformSearch(int call_id, const String& query) {
 
   ExceptionCode ec = 0;
   Vector<Document*> search_documents;
-  Document* main_document = (*documents_.begin()).get();
+  Document* main_document = GetMainFrameDocument();
   search_documents.append(main_document);
 
   // Find all frames, iframes and object elements to search their documents.
@@ -645,4 +652,12 @@ Element* DomAgentImpl::InnerParentElement(Node* node) {
     return node->ownerDocument()->ownerElement();
   }
   return element;
+}
+
+Document* DomAgentImpl::GetMainFrameDocument() {
+  ListHashSet<RefPtr<WebCore::Document> >::iterator it = documents_.begin();
+  if (it != documents_.end()) {
+    return it->get();
+  }
+  return NULL;
 }

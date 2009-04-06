@@ -59,10 +59,15 @@ void WebDevToolsAgentImpl::Attach() {
       new DebuggerAgentImpl(debugger_agent_delegate_stub_.get()));
   dom_agent_impl_.set(new DomAgentImpl(dom_agent_delegate_stub_.get()));
   net_agent_impl_.set(new NetAgentImpl(net_agent_delegate_stub_.get()));
-  if (document_) {
-    debugger_agent_impl_->SetDocument(document_);
-    dom_agent_impl_->SetDocument(document_);
-    net_agent_impl_->SetDocument(document_);
+
+  // We are potentially attaching to the running page -> init agents with
+  // Document if any.
+  Page* page = web_view_impl_->page();
+  Document* doc = page->mainFrame()->document();
+  if (doc) {
+    debugger_agent_impl_->SetDocument(doc);
+    dom_agent_impl_->SetDocument(doc, true);
+    net_agent_impl_->SetDocument(doc);
   }
   attached_ = true;
 }
@@ -75,18 +80,21 @@ void WebDevToolsAgentImpl::Detach() {
 }
 
 void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
-  // Store document reference no matter if client is attached.
+  if (!attached_) {
+    return;
+  }
+
+  // We were attached prior to the page load -> init agents with Document.
+  Document* doc;
   if (ready) {
     Page* page = web_view_impl_->page();
-    document_ = page->mainFrame()->document();
+    doc = page->mainFrame()->document();
   } else {
-    document_ = NULL;
+    doc = NULL;
   }
-  if (attached_) {
-    debugger_agent_impl_->SetDocument(document_);
-    dom_agent_impl_->SetDocument(document_);
-    net_agent_impl_->SetDocument(document_);
-  }
+  debugger_agent_impl_->SetDocument(doc);
+  dom_agent_impl_->SetDocument(doc, false);
+  net_agent_impl_->SetDocument(doc);
 }
 
 void WebDevToolsAgentImpl::DidCommitLoadForFrame(
