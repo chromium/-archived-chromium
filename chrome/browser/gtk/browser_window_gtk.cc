@@ -14,9 +14,11 @@
 #include "base/path_service.h"
 #include "base/string_util.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/find_bar_controller.h"
+#include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
@@ -189,6 +191,9 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   toolbar_->Init(browser_->profile(), window_);
   toolbar_->AddToolbarToBox(content_vbox_);
 
+  bookmark_bar_.reset(new BookmarkBarGtk(browser_->profile(), browser_.get()));
+  bookmark_bar_->AddBookmarkbarToBox(content_vbox_);
+
   // Insert a border between the toolbar and the web contents.
   GtkWidget* border = gtk_event_box_new();
   gtk_widget_set_size_request(border, -1, 1);
@@ -217,9 +222,18 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   gtk_widget_show(content_vbox_);
   gtk_widget_show(window_vbox_);
   browser_->tabstrip_model()->AddObserver(this);
+
+  NotificationService* ns = NotificationService::current();
+  ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                  NotificationService::AllSources());
 }
 
 BrowserWindowGtk::~BrowserWindowGtk() {
+  NotificationService* ns = NotificationService::current();
+  ns->RemoveObserver(this,
+                     NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                     NotificationService::AllSources());
+
   browser_->tabstrip_model()->RemoveObserver(this);
 }
 
@@ -379,8 +393,8 @@ void BrowserWindowGtk::FocusToolbar() {
 }
 
 bool BrowserWindowGtk::IsBookmarkBarVisible() const {
-  NOTIMPLEMENTED();
-  return false;
+  return browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR) &&
+      bookmark_bar_.get();
 }
 
 gfx::Rect BrowserWindowGtk::GetRootWindowResizerRect() const {
@@ -388,7 +402,7 @@ gfx::Rect BrowserWindowGtk::GetRootWindowResizerRect() const {
 }
 
 void BrowserWindowGtk::ToggleBookmarkBar() {
-  NOTIMPLEMENTED();
+  bookmark_utils::ToggleWhenVisible(browser_->profile());
 }
 
 void BrowserWindowGtk::ShowFindBar() {
@@ -441,6 +455,16 @@ void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowGtk::Observe(NotificationType type,
+                               const NotificationSource& source,
+                               const NotificationDetails& details) {
+  if (type == NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED) {
+    MaybeShowBookmarkBar(browser_->GetSelectedTabContents());
+  } else {
+    NOTREACHED() << "Got a notification we didn't register for!";
+  }
+}
+
 void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
   // We use index here rather than comparing |contents| because by this time
   // the model has already removed |contents| from its list, so
@@ -484,12 +508,40 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
   UpdateTitleBar();
   toolbar_->SetProfile(new_contents->profile());
   UpdateToolbar(new_contents, true);
+  UpdateUIForContents(new_contents);
 
   if (find_bar_controller_.get())
     find_bar_controller_->ChangeWebContents(new_contents->AsWebContents());
 }
 
 void BrowserWindowGtk::TabStripEmpty() {
+  UpdateUIForContents(NULL);
+}
+
+void BrowserWindowGtk::MaybeShowBookmarkBar(TabContents* contents) {
+  bool show_bar = false;
+
+  if (browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR)
+      && contents) {
+    bookmark_bar_->SetProfile(contents->profile());
+    bookmark_bar_->SetPageNavigator(contents);
+    show_bar = true;
+  }
+
+  if (show_bar) {
+    PrefService* prefs = contents->profile()->GetPrefs();
+    show_bar = prefs->GetBoolean(prefs::kShowBookmarkBar);
+  }
+
+  if (show_bar) {
+    bookmark_bar_->Show();
+  } else {
+    bookmark_bar_->Hide();
+  }
+}
+
+void BrowserWindowGtk::UpdateUIForContents(TabContents* contents) {
+  MaybeShowBookmarkBar(contents);
 }
 
 void BrowserWindowGtk::DestroyBrowser() {

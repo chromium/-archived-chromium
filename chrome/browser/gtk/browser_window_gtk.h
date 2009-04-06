@@ -12,8 +12,10 @@
 #include "base/task.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/common/notification_observer.h"
 #include "chrome/views/widget/widget_gtk.h"
 
+class BookmarkBarGtk;
 class BrowserToolbarGtk;
 class FindBarController;
 class LocationBar;
@@ -27,6 +29,7 @@ class TabStripGtk;
 // it needs to manipulate the window.
 
 class BrowserWindowGtk : public BrowserWindow,
+                         public NotificationObserver,
                          public TabStripModelObserver {
  public:
   explicit BrowserWindowGtk(Browser* browser);
@@ -76,6 +79,11 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
 
+  // Overridden from NotificationObserver:
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
+
   // Overridden from TabStripModelObserver:
   virtual void TabDetachedAt(TabContents* contents, int index);
   virtual void TabSelectedAt(TabContents* old_contents,
@@ -83,6 +91,9 @@ class BrowserWindowGtk : public BrowserWindow,
                              int index,
                              bool user_gesture);
   virtual void TabStripEmpty();
+
+  void MaybeShowBookmarkBar(TabContents* contents);
+  void UpdateUIForContents(TabContents* contents);
 
   void OnBoundsChanged(const gfx::Rect& bounds);
   void OnStateChanged(GdkWindowState state);
@@ -132,6 +143,9 @@ class BrowserWindowGtk : public BrowserWindow,
 
   // The object that manages all of the widgets in the toolbar.
   scoped_ptr<BrowserToolbarGtk> toolbar_;
+
+  // The object that manages the bookmark bar.
+  scoped_ptr<BookmarkBarGtk> bookmark_bar_;
 
   // The status bubble manager.  Always non-NULL.
   scoped_ptr<StatusBubbleGtk> status_bubble_;

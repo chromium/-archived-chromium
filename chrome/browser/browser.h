@@ -332,9 +332,7 @@ class Browser : public TabStripModelDelegate,
   void OpenBugReportDialog();
 #endif  // defined(OS_WIN)
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
   void ToggleBookmarkBar();
-#endif
 
 #if defined(OS_WIN)
   void OpenBookmarkManager();

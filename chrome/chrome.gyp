@@ -671,6 +671,8 @@
         'browser/google_util.h',
         'browser/gtk/back_forward_menu_model_gtk.cc',
         'browser/gtk/back_forward_menu_model_gtk.h',
+        'browser/gtk/bookmark_bar_gtk.cc',
+        'browser/gtk/bookmark_bar_gtk.h',
         'browser/gtk/browser_toolbar_gtk.cc',
         'browser/gtk/browser_toolbar_gtk.h',
         'browser/gtk/browser_window_factory_gtk.cc',

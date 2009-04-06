@@ -1021,12 +1021,10 @@ void Browser::OpenBugReportDialog() {
 #endif  // #if defined(OS_WIN)
 
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
 void Browser::ToggleBookmarkBar() {
   UserMetrics::RecordAction(L"ShowBookmarksBar", profile_);
   window_->ToggleBookmarkBar();
 }
-#endif
 
 #if defined(OS_WIN)
 void Browser::OpenBookmarkManager() {
@@ -1271,9 +1269,7 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_REPORT_BUG:            OpenBugReportDialog();         break;
 #endif
 
-#if defined(OS_WIN) || defined(OS_MACOSX)
     case IDC_SHOW_BOOKMARK_BAR:     ToggleBookmarkBar();           break;
-#endif
 
 #if defined(OS_WIN)
     case IDC_SHOW_BOOKMARK_MANAGER: OpenBookmarkManager();         break;

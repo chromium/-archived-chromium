@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class NineBox;
 
@@ -29,7 +30,7 @@ class CustomDrawButton {
   explicit CustomDrawButton(const std::string& filename);
   ~CustomDrawButton();
 
-  GtkWidget* widget() const { return widget_; }
+  GtkWidget* widget() const { return widget_.get(); }
 
  private:
   // Callback for expose, used to draw the custom graphics.
@@ -37,7 +38,7 @@ class CustomDrawButton {
                            CustomDrawButton* obj);
 
   // The actual button widget.
-  GtkWidget* widget_;
+  OwnedWidgetGtk widget_;
 
   // We store one GdkPixbuf* for each possible state of the button;
   // INSENSITIVE is the last available state;
@@ -51,7 +52,7 @@ class CustomContainerButton {
   CustomContainerButton();
   ~CustomContainerButton();
 
-  GtkWidget* widget() const { return widget_; }
+  GtkWidget* widget() const { return widget_.get(); }
 
  private:
   // Callback for expose, used to draw the custom graphics.
@@ -59,7 +60,7 @@ class CustomContainerButton {
                            CustomContainerButton* obj);
 
   // The button widget.
-  GtkWidget* widget_;
+  OwnedWidgetGtk widget_;
 
   // The theme graphics for when the mouse is over the button.
   scoped_ptr<NineBox> nine_box_prelight_;

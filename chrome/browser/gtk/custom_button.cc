@@ -12,7 +12,7 @@
 
 CustomDrawButton::CustomDrawButton(int normal_id,
     int active_id, int highlight_id, int depressed_id) {
-  widget_ = gtk_button_new();
+  widget_.Own(gtk_button_new());
 
   // Load the button images from the resource bundle.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
@@ -24,14 +24,14 @@ CustomDrawButton::CustomDrawButton(int normal_id,
   pixbufs_[GTK_STATE_INSENSITIVE] =
       depressed_id ? rb.LoadPixbuf(depressed_id) : NULL;
 
-  gtk_widget_set_size_request(widget_,
+  gtk_widget_set_size_request(widget_.get(),
                               gdk_pixbuf_get_width(pixbufs_[0]),
                               gdk_pixbuf_get_height(pixbufs_[0]));
 
-  gtk_widget_set_app_paintable(widget_, TRUE);
+  gtk_widget_set_app_paintable(widget_.get(), TRUE);
   // We effectively double-buffer by virtue of having only one image...
-  gtk_widget_set_double_buffered(widget_, FALSE);
-  g_signal_connect(G_OBJECT(widget_), "expose-event",
+  gtk_widget_set_double_buffered(widget_.get(), FALSE);
+  g_signal_connect(G_OBJECT(widget_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
 }
 
@@ -40,6 +40,8 @@ CustomDrawButton::~CustomDrawButton() {
     if (pixbufs_[i])
       gdk_pixbuf_unref(pixbufs_[i]);
   }
+
+  widget_.Destroy();
 }
 
 // static
@@ -92,13 +94,14 @@ CustomContainerButton::CustomContainerButton() {
   images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_RIGHT_P);
   nine_box_active_.reset(new NineBox(images));
 
-  widget_ = gtk_button_new();
-  gtk_widget_set_app_paintable(widget_, TRUE);
-  g_signal_connect(G_OBJECT(widget_), "expose-event",
+  widget_.Own(gtk_button_new());
+  gtk_widget_set_app_paintable(widget_.get(), TRUE);
+  g_signal_connect(G_OBJECT(widget_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
 }
 
 CustomContainerButton::~CustomContainerButton() {
+  widget_.Destroy();
 }
 
 // static
