@@ -7,66 +7,40 @@
 
 #include <string>
 
-#include "base/basictypes.h"
-#include "base/ref_counted.h"
-#include "base/scoped_ptr.h"
-#include "chrome/common/ipc_channel_proxy.h"
 #include "webkit/glue/webdevtoolsagent_delegate.h"
 
-class MessageLoop;
+namespace IPC {
+class Message;
+}
+
 class RenderView;
 class WebDevToolsAgent;
 
-// Inspected page end of communication channel between the render process of
-// the page being inspected and tools UI renderer process. All messages will
-// go through browser process. On the renderer side of the tools UI there's
-// a corresponding ToolsClient object.
-class DevToolsAgent : public IPC::ChannelProxy::MessageFilter,
-                      public WebDevToolsAgentDelegate {
+// DevToolsAgent belongs to the inspectable RenderView and provides Glue's
+// agents with the communication capabilities. All messages from/to Glue's
+// agents infrastructure are flowing through this comminucation agent.
+// There is a corresponding DevToolsClient object on the client side.
+class DevToolsAgent : public WebDevToolsAgentDelegate {
  public:
-  // DevToolsAgent is a field of the RenderView. The view is supposed to remove
-  // this agent from message filter list on IO thread before dying.
-  DevToolsAgent(int routing_id, RenderView* view, MessageLoop* view_loop);
+  DevToolsAgent(int routing_id, RenderView* view);
   virtual ~DevToolsAgent();
+
+  // IPC message interceptor. Called on the Render thread.
+  virtual bool OnMessageReceived(const IPC::Message& message);
 
   // WebDevToolsAgentDelegate implementation
   virtual void SendMessageToClient(const std::string& raw_msg);
 
-  // DevToolsAgent is created by RenderView which is supposed to call this
-  // method from its destructor.
-  void RenderViewDestroyed();
-
  private:
-  // Sends message to DevToolsClient. Should be called on the render thread.
-  void Send(const IPC::Message& tools_client_message);
-
-  // IPC::ChannelProxy::MessageFilter overrides. Called on IO thread.
-  virtual void OnFilterAdded(IPC::Channel* channel);
-  virtual bool OnMessageReceived(const IPC::Message& message);
-  virtual void OnFilterRemoved();
-
-  void Attach();
-  void Detach();
-  void DispatchRpcMessage(const std::string& raw_msg);
-  void InspectElement(int x, int y);
   WebDevToolsAgent* GetWebAgent();
 
-  // Evaluate javascript URL in the renderer
-  void EvaluateScript(const std::wstring& script);
-
-  // All these OnXXX methods will be executed in IO thread so that we can
-  // handle debug messages even when v8 is stopped.
   void OnAttach();
   void OnDetach();
   void OnRpcMessage(const std::string& raw_msg);
-  void OnDebuggerCommand(const std::string& command);
   void OnInspectElement(int x, int y);
 
   int routing_id_; //  View routing id that we can access from IO thread.
   RenderView* view_;
-  MessageLoop* view_loop_;
-
-  MessageLoop* io_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsAgent);
 };

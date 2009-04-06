@@ -1412,6 +1412,8 @@
         'renderer/debug_message_handler.h',
         'renderer/devtools_agent.cc',
         'renderer/devtools_agent.h',
+        'renderer/devtools_agent_filter.cc',
+        'renderer/devtools_agent_filter.h',
         'renderer/devtools_client.cc',
         'renderer/devtools_client.h',
         'renderer/dom_ui_bindings.cc',

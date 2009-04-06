@@ -30,6 +30,7 @@
 #include "chrome/renderer/about_handler.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
+#include "chrome/renderer/devtools_agent_filter.h"
 #include "chrome/renderer/devtools_client.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
@@ -181,6 +182,7 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
       first_default_plugin_(NULL),
       devtools_agent_(NULL),
+      devtools_agent_filter_(NULL),
       devtools_client_(NULL),
       history_back_list_count_(0),
       history_forward_list_count_(0),
@@ -207,9 +209,7 @@ RenderView::~RenderView() {
   }
 
   render_thread_->RemoveFilter(debug_message_handler_);
-
-  devtools_agent_->RenderViewDestroyed();
-  render_thread_->RemoveFilter(devtools_agent_);
+  render_thread_->RemoveFilter(devtools_agent_filter_);
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::CleanupRendererPersonalization(personalization_);
@@ -296,8 +296,8 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
     decrement_shared_popup_at_destruction_ = false;
   }
 
-  devtools_agent_ = new DevToolsAgent(routing_id, this,
-      MessageLoop::current());
+  devtools_agent_.reset(new DevToolsAgent(routing_id, this));
+  devtools_agent_filter_ = new DevToolsAgentFilter();
   webwidget_ = WebView::Create(this, webkit_prefs);
 
 #if defined(OS_LINUX)
@@ -335,8 +335,7 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
-
-  render_thread_->AddFilter(devtools_agent_);
+  render_thread_->AddFilter(devtools_agent_filter_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -346,6 +345,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 
   // If this is developer tools renderer intercept tools messages first.
   if (devtools_client_.get() && devtools_client_->OnMessageReceived(message))
+    return;
+  if (devtools_agent_->OnMessageReceived(message))
     return;
 
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
@@ -2477,7 +2478,7 @@ void RenderView::DownloadUrl(const GURL& url, const GURL& referrer) {
 }
 
 WebDevToolsAgentDelegate* RenderView::GetWebDevToolsAgentDelegate() {
-  return devtools_agent_;
+  return devtools_agent_.get();
 }
 
 void RenderView::PasteFromSelectionClipboard() {

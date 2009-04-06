@@ -234,6 +234,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\devtools_agent_filter.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\devtools_agent_filter.h"
+			>
+		</File>
+		<File
 			RelativePath=".\devtools_client.cc"
 			>
 		</File>
