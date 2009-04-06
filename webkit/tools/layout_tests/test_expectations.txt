@@ -1114,9 +1114,6 @@ LINUX : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 MAC : LayoutTests/fast/forms/input-baseline.html = FAIL
 MAC : LayoutTests/fast/forms/textfield-outline.html = FAIL
 
-// Hebrew font metrics.
-MAC : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
-
 // Layout totally different -- wrong font selected?
 LINUX : LayoutTests/fast/frames/viewsource-attribute.html = FAIL
 
@@ -1818,7 +1815,6 @@ MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
 MAC : LayoutTests/animations/change-keyframes.html = FAIL PASS
 
 // TODO(dsh): These started to fail after r9202.
-LINUX : LayoutTests/fast/block/positioning/047.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
 LINUX : LayoutTests/svg/text/text-path-01-b.svg = FAIL
 
@@ -1959,7 +1955,6 @@ DEFER LINUX WIN : LayoutTests/fast/block/float/nested-clearance.html = FAIL
 DEFER LINUX : LayoutTests/fast/css-generated-content/hit-test-generated-content.html = FAIL
 
 // From webkit merge 41447:41498
-LINUX : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size-2.html = FAIL
 LINUX MAC : LayoutTests/plugins/netscape-plugin-setwindow-size.html = FAIL
 LINUX MAC : LayoutTests/plugins/destroy-stream-twice.html = TIMEOUT
@@ -2270,7 +2265,6 @@ WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
 LayoutTests/fast/events/context-no-deselect.html = FAIL
-WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
 LayoutTests/fast/js/regexp-overflow.html = FAIL TIMEOUT
 WIN LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
