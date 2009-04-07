@@ -619,6 +619,20 @@ void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
   params.width = width;
   params.height = height;
   params.flags = flags;
+  params.set_parent = false;
+  params.parent_window = NULL;
   sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
 }
+
+void TabProxy::SetParentWindow(HWND window, HWND parent_window, long flags) {
+  IPC::Reposition_Params params = {0};
+  params.window = window;
+  params.flags = flags;
+  params.set_parent = true;
+  params.parent_window = parent_window;
+
+  sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
+}
+
+
 #endif  // defined(OS_WIN)

@@ -2771,7 +2771,15 @@ void AutomationProvider::OnTabReposition(
     return;
   }
 
+  if (params.set_parent) {
+    if (IsWindow(params.parent_window)) {
+      if (!SetParent(params.window, params.parent_window))
+        DLOG(WARNING) << "SetParent failed. Error 0x%x" << GetLastError();
+    }
+  }
+
   SetWindowPos(params.window, params.window_insert_after, params.left,
                params.top, params.width, params.height, params.flags);
 }
+
 #endif  // defined(OS_WIN)

@@ -169,6 +169,8 @@ struct Reposition_Params {
   int width;
   int height;
   int flags;
+  bool set_parent;
+  HWND parent_window;
 };
 
 // Traits for SetWindowPos_Params structure to pack/unpack.
@@ -183,6 +185,8 @@ struct ParamTraits<Reposition_Params> {
     WriteParam(m, p.width);
     WriteParam(m, p.height);
     WriteParam(m, p.flags);
+    WriteParam(m, p.set_parent);
+    WriteParam(m, p.parent_window);
   }
   static bool Read(const Message* m, void** iter, param_type* p) {
     return ReadParam(m, iter, &p->window) &&
@@ -191,7 +195,9 @@ struct ParamTraits<Reposition_Params> {
            ReadParam(m, iter, &p->top) &&
            ReadParam(m, iter, &p->width) &&
            ReadParam(m, iter, &p->height) &&
-           ReadParam(m, iter, &p->flags);
+           ReadParam(m, iter, &p->flags) &&
+           ReadParam(m, iter, &p->set_parent) &&
+           ReadParam(m, iter, &p->parent_window);
   }
   static void Log(const param_type& p, std::wstring* l) {
     l->append(L"(");
@@ -208,6 +214,10 @@ struct ParamTraits<Reposition_Params> {
     LogParam(p.height, l);
     l->append(L", ");
     LogParam(p.flags, l);
+    l->append(L", ");
+    LogParam(p.set_parent, l);
+    l->append(L", ");
+    LogParam(p.parent_window, l);
     l->append(L")");
   }
 };
