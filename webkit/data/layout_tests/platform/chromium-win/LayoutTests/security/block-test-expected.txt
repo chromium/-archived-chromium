@@ -1,9 +1,7 @@
-http://255.255.255.255/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255/test.jpg">
-<unknown> - didFinishLoading
 http://255.255.255.255:1/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:1/test.jpg">
-http://255.255.255.255/test.jpg - didFailLoadingWithError <WebError code -108, failing URL "http://255.255.255.255/test.jpg">
-http://255.255.255.255:1/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:1/test.jpg">
+<unknown> - didFinishLoading
 http://255.255.255.255:7/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:7/test.jpg">
+http://255.255.255.255:1/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:1/test.jpg">
 http://255.255.255.255:7/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:7/test.jpg">
 http://255.255.255.255:9/test.jpg - willSendRequest <WebRequest URL "http://255.255.255.255:9/test.jpg">
 http://255.255.255.255:9/test.jpg - didFailLoadingWithError <WebError code -312, failing URL "http://255.255.255.255:9/test.jpg">

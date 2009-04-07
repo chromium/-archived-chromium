@@ -43,6 +43,16 @@
 // SKIPPED TESTS
 // -----------------------------------------------------------------
 
+// The action taken when trying to load the resource
+// (http://255.255.255.255/test.jpg) depends on the network proxy settings
+// of the machine running the test, so we don't worry about that case.
+WONTFIX : LayoutTests/security/block-test-no-port.html = PASS FAIL
+
+// Since V8 is more interruptible than other engines, they use the standard
+// long-running-script mechanism to handle very-long-running regexps too.
+// See http://code.google.com/p/v8/issues/detail?id=287
+WONTFIX SKIP : LayoutTests/fast/js/regexp-overflow-too-big.html = TIMEOUT
+
 // XHTML tests.  These tests seem like they work, but only because the
 // expected output expects to see JS errors.  There is no point in running
 // these tests, because they are giving us a false sense of testing that isn't
@@ -1965,7 +1975,6 @@ MAC : LayoutTests/fast/dom/location-new-window-no-crash.html = CRASH FAIL
 LINUX : LayoutTests/fast/canvas/set-colors.html = PASS CRASH
 
 // Needs an FTP implementation to work completely.
-LINUX MAC : pending/security/block-test.html = FAIL
 LINUX MAC : LayoutTests/security/block-test.html = FAIL
 
 // Flakey. Not clear when it started, but it was before 3/9/09.
@@ -2263,15 +2272,11 @@ WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
 LayoutTests/fast/events/context-no-deselect.html = FAIL
-LayoutTests/fast/js/regexp-overflow.html = FAIL TIMEOUT
 WIN LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
 LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
 LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
-LayoutTests/security/block-test-no-port.html = FAIL
-WIN : LayoutTests/security/block-test.html = FAIL
-LayoutTests/fast/js/regexp-overflow-too-big.html = TIMEOUT
 LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
 
 // Started failing between revisions 13096 and 13099.
