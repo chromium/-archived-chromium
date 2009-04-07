@@ -10,12 +10,12 @@
 #include <string>
 #include <utility>
 
-#include "base/gfx/png_encoder.h"
+#include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
 
 namespace {
 
-const char* kMimePng = "image/png";
+const char* kMimeBmp = "image/bmp";
 const char* kMimeHtml = "text/html";
 const char* kMimeText = "text/plain";
 const char* kMimeWebkitSmartPaste = "chromium-internal/webkit-paste";
@@ -40,15 +40,20 @@ void GetData(GtkClipboard* clipboard,
   Clipboard::TargetMap* data_map =
       reinterpret_cast<Clipboard::TargetMap*>(user_data);
 
-  Clipboard::TargetMap::iterator iter =
-      data_map->find(GdkAtomToString(selection_data->target));
+  std::string target_string = GdkAtomToString(selection_data->target);
+  Clipboard::TargetMap::iterator iter = data_map->find(target_string);
 
   if (iter == data_map->end())
     return;
 
-  gtk_selection_data_set(selection_data, selection_data->target, 8,
-                         reinterpret_cast<guchar*>(iter->second.first),
-                         iter->second.second);
+  if (target_string == kMimeBmp) {
+    gtk_selection_data_set_pixbuf(selection_data,
+        reinterpret_cast<GdkPixbuf*>(iter->second.first));
+  } else {
+    gtk_selection_data_set(selection_data, selection_data->target, 8,
+                           reinterpret_cast<guchar*>(iter->second.first),
+                           iter->second.second);
+  }
 }
 
 // GtkClipboardClearFunc callback.
@@ -61,8 +66,12 @@ void ClearData(GtkClipboard* clipboard,
   std::set<char*> ptrs;
 
   for (Clipboard::TargetMap::iterator iter = map->begin();
-       iter != map->end(); ++iter)
-    ptrs.insert(iter->second.first);
+       iter != map->end(); ++iter) {
+    if (iter->first == kMimeBmp)
+      g_object_unref(reinterpret_cast<GdkPixbuf*>(iter->second.first));
+    else
+      ptrs.insert(iter->second.first);
+  }
 
   for (std::set<char*>::iterator iter = ptrs.begin();
        iter != ptrs.end(); ++iter)
@@ -85,6 +94,11 @@ void FreeTargetMap(Clipboard::TargetMap map) {
     delete[] *iter;
 
   map.clear();
+}
+
+// Called on GdkPixbuf destruction; see WriteBitmap().
+void GdkPixbufFree(guchar* pixels, gpointer data) {
+  free(pixels);
 }
 
 }  // namespace
@@ -161,24 +175,21 @@ void Clipboard::WriteWebSmartPaste() {
   InsertMapping(kMimeWebkitSmartPaste, NULL, 0);
 }
 
-// We have to convert the image to a PNG because gtk_clipboard_request_image()
-// only works with PNGs. Warning: this is an internal implementation detail of
-// gtk_clipboard_request_image() and might change in the future.
 void Clipboard::WriteBitmap(const char* pixel_data, const char* size_data) {
   const gfx::Size* size = reinterpret_cast<const gfx::Size*>(size_data);
 
-  std::vector<unsigned char> png_data;
-  if (!PNGEncoder::Encode(
-      reinterpret_cast<const unsigned char*>(pixel_data),
-      PNGEncoder::FORMAT_BGRA, size->width(), size->height(),
-      size->width() * 4, false, &png_data)) {
-    DLOG(ERROR) << "Failed to encode bitmap for clipboard.";
-    return;
-  }
-  char* data = new char[png_data.size()];
-  memcpy(data, png_data.data(), png_data.size());
+  int length = size->width() * size->height() * 4;
+  guchar* data = gfx::BGRAToRGBA(reinterpret_cast<const uint8_t*>(pixel_data),
+                                 size->width(), size->height(), 0);
 
-  InsertMapping(kMimePng, data, png_data.size());
+  GdkPixbuf* pixbuf =
+      gdk_pixbuf_new_from_data(data, GDK_COLORSPACE_RGB, TRUE,
+                               8, size->width(), size->height(),
+                               size->width() * 4, GdkPixbufFree, NULL);
+  // We store the GdkPixbuf*, and the size_t half of the pair is meaningless.
+  // Note that this contrasts with the vast majority of entries in our target
+  // map, which directly store the data and its length.
+  InsertMapping(kMimeBmp, reinterpret_cast<char*>(pixbuf), 0);
 }
 
 void Clipboard::WriteBookmark(const char* title_data, size_t title_len,
@@ -305,8 +316,12 @@ void Clipboard::InsertMapping(const char* key,
                               size_t data_len) {
   TargetMap::iterator iter = clipboard_data_->find(key);
 
-  if (iter != clipboard_data_->end())
-    delete[] iter->second.first;
+  if (iter != clipboard_data_->end()) {
+    if (strcmp(kMimeBmp, key) == 0)
+      g_object_unref(reinterpret_cast<GdkPixbuf*>(iter->second.first));
+    else
+      delete[] iter->second.first;
+  }
 
   (*clipboard_data_)[key] = std::make_pair(data, data_len);
 }

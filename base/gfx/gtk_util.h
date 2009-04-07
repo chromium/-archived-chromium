@@ -30,8 +30,13 @@ extern const GdkColor kGdkGreen;
 void SubtractRectanglesFromRegion(GdkRegion* region,
                                   const std::vector<Rect>& cutouts);
 
-// Convert and copy a SkBitmap to a GdkPixbuf.  NOTE: This is an expensive
-// operation, all of the pixels must be copied and their order swapped.
+// Makes a copy of |pixels| with the ordering changed from BGRA to RGBA.
+// The caller is responsible for free()ing the data. If |stride| is 0,
+// it's assumed to be 4 * |width|.
+uint8_t* BGRAToRGBA(const uint8_t* pixels, int width, int height, int stride);
+
+// Convert and copy a SkBitmap to a GdkPixbuf. NOTE: this uses BGRAToRGBA, so
+// it is an expensive operation.
 GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap);
 
 // Create a GtkBin with |child| as its child widget.  This bin will paint a
