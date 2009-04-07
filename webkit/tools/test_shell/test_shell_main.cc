@@ -125,7 +125,10 @@ int main(int argc, char* argv[]) {
 
   std::wstring cache_path =
       parsed_command_line.GetSwitchValue(test_shell::kCacheDir);
-  if (cache_path.empty()) {
+  // If the cache_path is empty and it's layout_test_mode, leave it empty
+  // so we use an in-memory cache. This makes running multiple test_shells
+  // in parallel less flaky.
+  if (cache_path.empty() && !layout_test_mode) {
     PathService::Get(base::DIR_EXE, &cache_path);
     file_util::AppendToPath(&cache_path, L"cache");
   }
