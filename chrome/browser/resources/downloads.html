@@ -32,9 +32,17 @@ html[dir='rtl'] .form {
   margin-top:12px;
   border-top:1px solid #9cc2ef;
   background-color:#ebeff9;
-  font-weight:bold;
   padding:3px;
   margin-bottom:6px;
+}
+#downloads-summary-text {
+  font-weight:bold;
+}
+#downloads-summary > a {
+  float:right;
+}
+html[dir='rtl'] #downloads-summary > a {
+  float:left;
 }
 #downloads-display {
   max-width:740px;
@@ -111,7 +119,7 @@ html[dir='rtl'] .name {
 }
 .download .url {
   color:#080;
-  width:500px;
+  max-width:500px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -239,7 +247,7 @@ function createButton(onclick, value) {
 function Downloads() {
   this.downloads_ = {};
   this.node_ = $('downloads-display');
-  this.summary_ = $('downloads-summary');
+  this.summary_ = $('downloads-summary-text');
   this.searchText_ = "";
 
   // Keep track of the dates of the newest and oldest downloads so that we
@@ -648,8 +656,7 @@ var downloads, localStrings, resultsTimeout;
 
 function load() {
   localStrings = new LocalStrings($('l10n'));
-  Download.Progress.dir =
-      !!(document.getElementsByTagName('html')[0].dir == 'rtl');
+  Download.Progress.dir = document.documentElement.dir == 'rtl';
   downloads = new Downloads();
   $('term').focus();
   setSearch("");
@@ -659,6 +666,13 @@ function setSearch(searchText) {
   downloads.clear();
   downloads.setSearchText(searchText);
   chrome.send("getDownloads", [searchText.toString()]);
+}
+
+function clearAll() {
+  downloads.clear();
+  downloads.setSearchText('');
+  chrome.send('clearAll', []);
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -673,6 +687,7 @@ function downloadsList(results) {
   window.console.log('results');
   downloads.clear();
   downloadUpdated(results);
+  downloads.updateSummary();
 }
 
 /**
@@ -683,17 +698,18 @@ function downloadUpdated(results) {
   if (!downloads)
     return;
 
-  if (results.length) {
-    downloads.updated(results[0]);
-
-    if (results.length > 1) {
+  var start = Date.now();
+  for (var i = 0; i < results.length; i++) {
+    downloads.updated(results[i]);
+    // Do as much as we can in 50ms.
+    if (Date.now() - start > 50) {
       clearTimeout(resultsTimeout);
-      resultsTimeout = setTimeout(downloadUpdated, 5, results.slice(1));
-    } else {
-      downloads.updateSummary();
+      resultsTimeout = setTimeout(downloadUpdated, 5, results.slice(i + 1));
+      break;
     }
   }
 }
+
 </script>
 </head>
 <body onload="load();" jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
@@ -709,7 +725,10 @@ function downloadUpdated(results) {
   </form>
 </div>
 <div class="main">
-  <div id="downloads-summary"></div>
+  <div id="downloads-summary">
+    <span id="downloads-summary-text" jscontent="downloads">Downloads</span>
+    <a id="clear-all" href="" onclick="clearAll();" jscontent="clear_all">Clear All</a>
+  </div>
   <div id="downloads-display"></div>
 </div>
 <div class="footer">

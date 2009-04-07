@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -64,11 +64,13 @@ void DownloadsUIHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"searchbutton",
       l10n_util::GetString(IDS_DOWNLOAD_SEARCH_BUTTON));
   localized_strings.SetString(L"no_results",
-    l10n_util::GetString(IDS_DOWNLOAD_SEARCH_BUTTON));
+      l10n_util::GetString(IDS_DOWNLOAD_SEARCH_BUTTON));
   localized_strings.SetString(L"searchresultsfor",
-    l10n_util::GetString(IDS_DOWNLOAD_SEARCHRESULTSFOR));
+      l10n_util::GetString(IDS_DOWNLOAD_SEARCHRESULTSFOR));
   localized_strings.SetString(L"downloads",
-    l10n_util::GetString(IDS_DOWNLOAD_TITLE));
+      l10n_util::GetString(IDS_DOWNLOAD_TITLE));
+  localized_strings.SetString(L"clear_all",
+      l10n_util::GetString(IDS_DOWNLOAD_LINK_CLEAR_ALL));
 
   // Status.
   localized_strings.SetString(L"status_cancelled",
@@ -160,6 +162,9 @@ class DownloadsDOMHandler : public DOMMessageHandler,
   // Callback for the "cancel" message - cancels the download.
   void HandleCancel(const Value* value);
 
+  // Callback for the "clearAll" message - clears all the downloads.
+  void HandleClearAll(const Value* value);
+
  private:
   // Send the current list of downloads to the page.
   void SendCurrentDownloads();
@@ -229,6 +234,9 @@ DownloadsDOMHandler::DownloadsDOMHandler(DOMUI* dom_ui, DownloadManager* dlm)
       NewCallback(this, &DownloadsDOMHandler::HandlePause));
   dom_ui_->RegisterMessageCallback("cancel",
       NewCallback(this, &DownloadsDOMHandler::HandleCancel));
+  dom_ui_->RegisterMessageCallback("clearAll",
+      NewCallback(this, &DownloadsDOMHandler::HandleClearAll));
+
 
   // Create our fileicon data source.
   g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
@@ -355,6 +363,10 @@ void DownloadsDOMHandler::HandleCancel(const Value* value) {
   DownloadItem* file = GetDownloadByValue(value);
   if (file)
     file->Cancel(true);
+}
+
+void DownloadsDOMHandler::HandleClearAll(const Value* value) {
+  download_manager_->RemoveAllDownloads();
 }
 
 // DownloadsDOMHandler, private: ----------------------------------------------

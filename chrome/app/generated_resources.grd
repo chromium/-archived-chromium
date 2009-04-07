@@ -1311,6 +1311,10 @@ each locale. -->
                desc="Indicate the download is in progress but paused">
         Paused
       </message>
+      <message name="IDS_DOWNLOAD_LINK_CLEAR_ALL"
+         desc="Clear all downloads link">
+        Clear All
+      </message>
 
       <!-- Download Context Menu Items -->
       <message name="IDS_DOWNLOAD_MENU_COPY_PATH"

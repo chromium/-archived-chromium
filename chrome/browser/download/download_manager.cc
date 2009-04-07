@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -1081,6 +1081,11 @@ int DownloadManager::RemoveDownloadsBetween(const base::Time remove_begin,
 
 int DownloadManager::RemoveDownloads(const base::Time remove_begin) {
   return RemoveDownloadsBetween(remove_begin, base::Time());
+}
+
+int DownloadManager::RemoveAllDownloads() {
+  // The null times make the date range unbounded.
+  return RemoveDownloadsBetween(base::Time(), base::Time());
 }
 
 // Initiate a download of a specific URL. We send the request to the

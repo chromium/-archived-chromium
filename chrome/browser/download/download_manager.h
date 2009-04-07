@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -354,6 +354,10 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   // the same or more recent than |remove_begin|. The number of downloads
   // deleted is returned back to the caller.
   int RemoveDownloads(const base::Time remove_begin);
+
+  // Remove all downloads will delete all downloads. The number of downloads
+  // deleted is returned back to the caller.
+  int RemoveAllDownloads();
 
   // Download the object at the URL. Used in cases such as "Save Link As..."
   void DownloadUrl(const GURL& url,
