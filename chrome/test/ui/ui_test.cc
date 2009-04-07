@@ -119,7 +119,7 @@ UITest::UITest()
 #if defined(OS_WIN)
   GetSystemTimeAsFileTime(&test_start_time_);
 #else
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=9833
 #endif
 }
 
@@ -179,7 +179,8 @@ void UITest::TearDown() {
   EXPECT_EQ(expected_crashes_, actual_crashes) << error_msg;
 #else
   // TODO(port): we don't catch crashes, nor have CountFilesCreatedAfter.
-  NOTIMPLEMENTED();
+  // http://code.google.com/p/chromium/issues/detail?id=9833
+  NOTIMPLEMENTED() << " bug 9833 and crash catching.";
 #endif
 }
 
