@@ -258,6 +258,7 @@ void TestWebViewDelegate::UpdateSelectionClipboard(bool is_empty_selection) {
   gtk_clipboard_set_with_data(clipboard, targets, num_targets,
                               SelectionClipboardGetContents, NULL,
                               shell_->webView());
+  gtk_target_list_unref(target_list);
   gtk_target_table_free(targets, num_targets);
 }
 

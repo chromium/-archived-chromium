@@ -66,6 +66,7 @@ class RenderWidgetHostViewGtkWidget {
     gtk_selection_clear_targets(widget, GDK_SELECTION_PRIMARY);
     gtk_selection_add_targets(widget, GDK_SELECTION_PRIMARY, targets,
                               num_targets);
+    gtk_target_list_unref(target_list);
     gtk_target_table_free(targets, num_targets);
 
     // When X requests the contents of the clipboard, GTK will emit the
