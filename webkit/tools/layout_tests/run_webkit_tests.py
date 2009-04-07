@@ -360,7 +360,7 @@ class TestRunner:
         http_tests = test_list_tuple
       else:
         test_lists.append(test_list_tuple)
-    test_lists.sort(lambda a, b: cmp(len(b), len(a)))
+    test_lists.sort(lambda a, b: cmp(len(b[1]), len(a[1])))
 
     # Put the http tests first. There are only a couple hundred of them, but
     # each http test takes a very long time to run, so sorting by the number
