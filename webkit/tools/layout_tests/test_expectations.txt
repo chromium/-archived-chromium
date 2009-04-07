@@ -2173,7 +2173,7 @@ DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html =
 
 // Adding more failures after the last merge:
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
-WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH TIMEOUT PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
 WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 
@@ -2335,6 +2335,8 @@ BUG9798 LINUX : LayoutTests/http/tests/security/postMessage/origin-unaffected-by
 BUG9798 LINUX : LayoutTests/http/tests/security/protocol-compare-case-insensitive.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
 BUG9798 LINUX : LayoutTests/transitions/shorthand-border-transitions.html = FAIL PASS
+BUG9798 LINUX RELEASE : LayoutTests/svg/carto.net/colourpicker.svg = FAIL PASS
+BUG9798 LINUX : chrome/http/tests/misc/set-window-opener-to-null.html = FAIL PASS
 BUG9798 WIN : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/empty-file-formdata.html = TIMEOUT PASS
@@ -2348,6 +2350,7 @@ BUG9798 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-i
 BUG9798 WIN : LayoutTests/fast/xmlhttprequest/xmlhttprequest-gc.html = CRASH PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-sync.html = FAIL PASS
+BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-response-headers.html = FAIL PASS
 BUG9798 MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = TIMEOUT FAIL
 BUG9798 MAC : LayoutTests/http/tests/security/cross-frame-access-name-getter.html = FAIL PASS
