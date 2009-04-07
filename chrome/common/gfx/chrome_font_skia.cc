@@ -42,7 +42,7 @@ void ChromeFont::calculateMetrics() {
     height_ = ascent_ + metrics.fVDMXDescent;
   } else {
     ascent_ = SkScalarRound(-metrics.fAscent);
-    height_ = SkScalarRound(metrics.fHeight);
+    height_ = SkScalarRound(metrics.fAscent + metrics.fDescent + metrics.fLeading);
   }
 
   if (metrics.fAvgCharWidth) {
