@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/renderer/extensions/loadtimes_extension_bindings.h"
+#include "chrome/renderer/loadtimes_extension_bindings.h"
 
 #include "base/time.h"
 #include "v8/include/v8.h"

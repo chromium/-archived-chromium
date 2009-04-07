@@ -193,14 +193,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\extensions\loadtimes_extension_bindings.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\extensions\loadtimes_extension_bindings.h"
-				>
-			</File>
-			<File
 				RelativePath=".\extensions\renderer_extension_bindings.cc"
 				>
 			</File>
@@ -271,6 +263,14 @@
 		</File>
 		<File
 			RelativePath=".\external_js_object.h"
+			>
+		</File>
+		<File
+			RelativePath=".\loadtimes_extension_bindings.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\loadtimes_extension_bindings.h"
 			>
 		</File>
 		<File
