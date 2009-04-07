@@ -2295,16 +2295,16 @@ DEFER BUG9768 : LayoutTests/fast/text/international/003.html = FAIL
 DEFER BUG9768 : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // Merge WebKit 42200:42244 regressions
-LayoutTests/fast/dom/Window/dom-access-from-closure-iframe.html = FAIL
-LayoutTests/fast/dom/Window/dom-access-from-closure-window.html = FAIL
-LayoutTests/fast/text/offsetForPosition-cluster-at-zero.html = FAIL
-LayoutTests/http/tests/security/cross-frame-access-history-prototype.html = FAIL
-LayoutTests/http/tests/security/cross-frame-access-location-prototype.html = FAIL
-WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
-LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-LayoutTests/http/tests/security/cross-frame-access-document-direct.html = TIMEOUT
-WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-enumeration.html = CRASH
+BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-iframe.html = FAIL
+BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-window.html = FAIL
+BUG9786 : LayoutTests/http/tests/security/cross-frame-access-history-prototype.html = FAIL
+BUG9786 : LayoutTests/http/tests/security/cross-frame-access-location-prototype.html = FAIL
+BUG9786 : LayoutTests/http/tests/security/cross-frame-access-document-direct.html = TIMEOUT
+BUG9786 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-enumeration.html = CRASH
+BUG9787 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
+BUG9787 : LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
+BUG9787 : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
+BUG9788 : LayoutTests/fast/text/offsetForPosition-cluster-at-zero.html = FAIL
 LINUX : LayoutTests/fast/text/international/thai-offsetForPosition-inside-character.html = FAIL
 MAC RELEASE : LayoutTests/fast/dom/Window/window-object-cross-frame-calls.html = FAIL
 MAC : LayoutTests/svg/hixie/perf/001.xml = FAIL
