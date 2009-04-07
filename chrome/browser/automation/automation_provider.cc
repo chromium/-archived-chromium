@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/app_modal_dialog.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
@@ -43,7 +44,7 @@
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/views/window/app_modal_dialog_delegate.h"
+#include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #endif  // defined(OS_WIN)
 
@@ -1227,8 +1228,7 @@ void AutomationProvider::GetBrowserWindowCount(int* window_count) {
 // TODO(port): Enable when dialog delegate is ported.
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
-  views::AppModalDialogDelegate* dialog_delegate =
-      AppModalDialogQueue::active_dialog();
+  AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
   *showing_dialog = (dialog_delegate != NULL);
   if (*showing_dialog)
     *dialog_button = dialog_delegate->GetDialogButtons();
@@ -1239,21 +1239,18 @@ void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
 void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
   *success = false;
 
-  views::AppModalDialogDelegate* dialog_delegate =
-      AppModalDialogQueue::active_dialog();
+  AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
   if (dialog_delegate &&
       (dialog_delegate->GetDialogButtons() & button) == button) {
-    views::DialogClientView* client_view =
-        dialog_delegate->window()->GetClientView()->AsDialogClientView();
     if ((button & views::DialogDelegate::DIALOGBUTTON_OK) ==
         views::DialogDelegate::DIALOGBUTTON_OK) {
-      client_view->AcceptWindow();
+      dialog_delegate->AcceptWindow();
       *success =  true;
     }
     if ((button & views::DialogDelegate::DIALOGBUTTON_CANCEL) ==
         views::DialogDelegate::DIALOGBUTTON_CANCEL) {
       DCHECK(!*success) << "invalid param, OK and CANCEL specified";
-      client_view->CancelWindow();
+      dialog_delegate->CancelWindow();
       *success =  true;
     }
   }

@@ -1149,7 +1149,7 @@ void RenderViewHost::OnMsgRunBeforeUnloadConfirm(const GURL& frame_url,
   StopHangMonitorTimeout();
   if (modal_dialog_count_++ == 0)
     modal_dialog_event_->Signal();
-  delegate_->RunBeforeUnloadConfirm(frame_url, message, reply_msg);
+  delegate_->RunBeforeUnloadConfirm(message, reply_msg);
 }
 
 void RenderViewHost::OnMsgShowModalHTMLDialog(

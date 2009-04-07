@@ -26,4 +26,12 @@ void RunJavascriptMessageBox(WebContents* web_contents,
                              bool display_suppress_checkbox,
                              IPC::Message* reply_msg);
 
+// This will display a modal dialog box with a header and footer asking the
+// the user if they wish to navigate away from a page, with additional text
+// |message_text| between the header and footer. The users response is
+// returned to the renderer using |reply_msg|.
+void RunBeforeUnloadDialog(WebContents* web_contents,
+                           const std::wstring& message_text,
+                           IPC::Message* reply_msg);
+
 #endif // CHROME_BROWSER_JSMESSAGE_BOX_HANDLER_H_

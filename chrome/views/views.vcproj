@@ -335,10 +335,6 @@
 			Name="window"
 			>
 			<File
-				RelativePath=".\window\app_modal_dialog_delegate.h"
-				>
-			</File>
-			<File
 				RelativePath=".\window\client_view.cc"
 				>
 			</File>

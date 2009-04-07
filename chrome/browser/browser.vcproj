@@ -642,6 +642,18 @@
 			Name="Browser Window"
 			>
 			<File
+				RelativePath=".\app_modal_dialog.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\app_modal_dialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\app_modal_dialog_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\app_modal_dialog_queue.cc"
 				>
 			</File>
@@ -718,27 +730,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\js_before_unload_handler.h"
-				>
-			</File>
-			<File
-				RelativePath=".\js_before_unload_handler_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\js_before_unload_handler_win.h"
+				RelativePath=".\jsmessage_box_handler.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\jsmessage_box_handler.h"
-				>
-			</File>
-			<File
-				RelativePath=".\jsmessage_box_handler_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\jsmessage_box_handler_win.h"
 				>
 			</File>
 			<File

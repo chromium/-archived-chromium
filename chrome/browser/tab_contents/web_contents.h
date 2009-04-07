@@ -236,7 +236,7 @@ class WebContents : public TabContents,
     suppress_javascript_messages_ = suppress_javascript_messages;
   }
 
-  // JavascriptMessageBoxHandler calls this when the dialog is closed.
+  // AppModalDialog calls this when the dialog is closed.
   void OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,
                                     bool success,
                                     const std::wstring& prompt);
@@ -378,8 +378,7 @@ class WebContents : public TabContents,
                                     const int flags,
                                     IPC::Message* reply_msg,
                                     bool* did_suppress_message);
-  virtual void RunBeforeUnloadConfirm(const GURL& frame_url,
-                                      const std::wstring& message,
+  virtual void RunBeforeUnloadConfirm(const std::wstring& message,
                                       IPC::Message* reply_msg);
   virtual void ShowModalHTMLDialog(const GURL& url, int width, int height,
                                    const std::string& json_arguments,

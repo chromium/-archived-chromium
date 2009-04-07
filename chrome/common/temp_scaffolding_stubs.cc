@@ -282,25 +282,6 @@ DownloadShelf* DownloadShelf::Create(TabContents* tab_contents) {
 
 //--------------------------------------------------------------------------
 
-void RunJavascriptMessageBox(WebContents* web_contents,
-                             const GURL& url,
-                             int dialog_flags,
-                             const std::wstring& message_text,
-                             const std::wstring& default_prompt_text,
-                             bool display_suppress_checkbox,
-                             IPC::Message* reply_msg) {
-  NOTIMPLEMENTED();
-}
-
-void RunBeforeUnloadDialog(WebContents* web_contents,
-                           const GURL& url,
-                           const std::wstring& message_text,
-                           IPC::Message* reply_msg) {
-  NOTIMPLEMENTED();
-}
-
-//--------------------------------------------------------------------------
-
 void RunRepostFormWarningDialog(NavigationController*) {
 }
 

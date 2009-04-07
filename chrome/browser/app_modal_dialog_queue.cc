@@ -7,15 +7,14 @@
 #include "chrome/browser/browser_list.h"
 
 // static
-std::queue<views::AppModalDialogDelegate*>*
+std::queue<AppModalDialog*>*
     AppModalDialogQueue::app_modal_dialog_queue_ = NULL;
-views::AppModalDialogDelegate* AppModalDialogQueue::active_dialog_ = NULL;
+AppModalDialog* AppModalDialogQueue::active_dialog_ = NULL;
 
 // static
-void AppModalDialogQueue::AddDialog(views::AppModalDialogDelegate* dialog) {
-  DCHECK(dialog->IsModal());
+void AppModalDialogQueue::AddDialog(AppModalDialog* dialog) {
   if (!app_modal_dialog_queue_) {
-    app_modal_dialog_queue_ = new std::queue<views::AppModalDialogDelegate*>;
+    app_modal_dialog_queue_ = new std::queue<AppModalDialog*>;
     ShowModalDialog(dialog);
   }
 
@@ -44,8 +43,7 @@ void AppModalDialogQueue::ActivateModalDialog() {
 }
 
 // static
-void AppModalDialogQueue::ShowModalDialog(
-    views::AppModalDialogDelegate* dialog) {
+void AppModalDialogQueue::ShowModalDialog(AppModalDialog* dialog) {
   // ShowModalDialog can wind up calling ShowNextDialog in some cases,
   // which will wind up calling this method recursively, so active_dialog_
   // must be set first.

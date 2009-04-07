@@ -634,6 +634,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\jsmessage_box_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\jsmessage_box_dialog.h"
+			>
+		</File>
+		<File
 			RelativePath=".\keyword_editor_view.cc"
 			>
 		</File>

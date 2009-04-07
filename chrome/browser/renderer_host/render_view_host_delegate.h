@@ -295,8 +295,7 @@ class RenderViewHostDelegate {
                                     IPC::Message* reply_msg,
                                     bool* did_suppress_message) { }
 
-  virtual void RunBeforeUnloadConfirm(const GURL& frame_url,
-                                      const std::wstring& message,
+  virtual void RunBeforeUnloadConfirm(const std::wstring& message,
                                       IPC::Message* reply_msg) { }
 
   // Display this RenderViewHost in a modal fashion.
