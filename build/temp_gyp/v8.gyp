@@ -240,18 +240,27 @@
     '../common.gypi',
   ],
   'target_defaults': {
+    'defines': [
+      'ENABLE_LOGGING_AND_PROFILING',
+    ],
     'configurations': {
       'Debug': {
         'defines': [
           'DEBUG',
+          '_DEBUG',
           'ENABLE_DISASSEMBLER',
-          'ENABLE_LOGGING_AND_PROFILING',
         ],
+        'msvs_settings': {
+          'VCCLCompilerTool': {
+            'Optimizations': '0',
+            'RuntimeLibrary': '1',
+          },
+          'VCLinkerTool': {
+            'LinkIncremental': '2',
+          },
+        },
       },
       'Release': {
-        'defines': [
-          'ENABLE_LOGGING_AND_PROFILING',
-        ],
         'conditions': [
           ['OS=="linux"', {
             'cflags!': [
@@ -264,6 +273,25 @@
               '-fomit-frame-pointer',
               '-O3',
             ],
+          }],
+          ['OS=="win"', {
+            'msvs_settings': {
+              'VCCLCompilerTool': {
+                'RuntimeLibrary': '0',
+                'Optimizations': '2',
+                'InlineFunctionExpansion': '2',
+                'EnableIntrinsicFunctions': 'true',
+                'FavorSizeOrSpeed': '0',
+                'OmitFramePointers': 'true',
+                'StringPooling': 'true',
+              },
+              'VCLinkerTool': {
+                'LinkIncremental': '1',
+                'OptimizeReferences': '2',
+                'OptimizeForWindows98': '1',
+                'EnableCOMDATFolding': '2',
+              },
+            },
           }],
         ],
       },
@@ -626,5 +654,22 @@
       ],
     },
   ]}], # OS != "linux" (temporary, TODO(sgk))
+
+
+    ['OS=="win"', {
+      'target_defaults': {
+        'defines': [
+          '_USE_32BIT_TIME_T'
+          'PCRE_STATIC',
+          '_CRT_SECURE_NO_DEPRECATE',
+          '_CRT_NONSTDC_NO_DEPRECATE',
+        ],
+        'msvs_settings': {
+          'VCLinkerTool': {
+            'AdditionalOptions': '/IGNORE:4221 /NXCOMPAT',
+          },
+        },
+      },
+    }],
   ],
 }
