@@ -48,13 +48,16 @@ class TabStripModelObserver {
   virtual void TabInsertedAt(TabContents* contents,
                              int index,
                              bool foreground) { }
+
   // The specified TabContents at |index| is being closed (and eventually
   // destroyed).
   virtual void TabClosingAt(TabContents* contents, int index) { }
+
   // The specified TabContents at |index| is being detached, perhaps to be
   // inserted in another TabStripModel. The implementer should take whatever
   // action is necessary to deal with the TabContents no longer being present.
   virtual void TabDetachedAt(TabContents* contents, int index) { }
+
   // The selected TabContents changed from |old_contents| to |new_contents| at
   // |index|. |user_gesture| specifies whether or not this was done by a user
   // input event (e.g. clicking on a tab, keystroke) or as a side-effect of
@@ -63,15 +66,25 @@ class TabStripModelObserver {
                              TabContents* new_contents,
                              int index,
                              bool user_gesture) { }
+
   // The specified TabContents at |from_index| was moved to |to_index|.
   virtual void TabMoved(TabContents* contents,
                         int from_index,
                         int to_index) { }
+
   // The specified TabContents at |index| changed in some way. |contents| may
   // be an entirely different object and the old value is no longer available
   // by the time this message is delivered.
+  //
+  // If only the loading state was updated, the loading_only flag should be
+  // specified. The tab model will update only the throbber and loading status.
+  // If other things change, set this flag to false to update all state,
+  // including the title and favicon. This allows us to start/stop throbbing
+  // without updating the title (which may be an ugly URL if the real title
+  // hasn't come in yet).
   virtual void TabChangedAt(TabContents* contents, int index,
                             bool loading_only) { }
+
   // The TabStripModel now no longer has any "significant" (user created or
   // user manipulated) tabs. The implementer may use this as a trigger to try
   // and close the window containing the TabStripModel, for example...
