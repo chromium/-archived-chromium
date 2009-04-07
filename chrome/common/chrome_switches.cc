@@ -400,6 +400,9 @@ const wchar_t kEnableOutOfProcessDevTools[]    = L"enable-oop-devtools";
 // Enable HTML5 Worker support
 const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
 
+// Causes the worker process allocation to use as many processes as cores.
+const wchar_t kWebWorkerProcessPerCore[]       = L"web-worker-process-per-core";
+
 // Enables experimental views under gtk.
 const wchar_t kViewsGtk[] = L"views-gtk";
 

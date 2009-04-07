@@ -156,6 +156,8 @@ extern const wchar_t kEnableOutOfProcessDevTools[];
 
 extern const wchar_t kEnableWebWorkers[];
 
+extern const wchar_t kWebWorkerProcessPerCore[];
+
 extern const wchar_t kViewsGtk[];
 
 extern const wchar_t kBookmarkMenu[];

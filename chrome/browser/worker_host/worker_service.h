@@ -44,6 +44,18 @@ class WorkerService {
   WorkerService();
   ~WorkerService();
 
+  // Returns a WorkerProcessHost object if one exists for the given domain, or
+  // NULL if there are no such workers yet.
+  WorkerProcessHost* GetProcessForDomain(const GURL& url);
+
+  // Returns a WorkerProcessHost based on a strategy of creating one worker per
+  // core.
+  WorkerProcessHost* GetProcessToFillUpCores();
+
+  // Returns the WorkerProcessHost from the existing set that has the least
+  // number of worker instance running.
+  WorkerProcessHost* GetLeastLoadedWorker();
+
   int next_worker_route_id_;
 
   DISALLOW_COPY_AND_ASSIGN(WorkerService);

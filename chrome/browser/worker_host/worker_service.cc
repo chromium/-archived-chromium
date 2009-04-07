@@ -4,13 +4,21 @@
 
 #include "chrome/browser/worker_host/worker_service.h"
 
+#include "base/command_line.h"
 #include "base/singleton.h"
+#include "base/sys_info.h"
 #include "base/thread.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/worker_host/worker_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/common/chrome_switches.h"
+#include "net/base/registry_controlled_domain.h"
+
+namespace {
+static const int kMaxWorkerProcesses = 10;
+}
 
 WorkerService* WorkerService::GetInstance() {
   return Singleton<WorkerService>::get();
@@ -27,11 +35,12 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
                                           ResourceMessageFilter* filter,
                                           int renderer_route_id) {
   WorkerProcessHost* worker = NULL;
-  // One worker process for quick bringup!
-  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
-       !iter.Done(); ++iter) {
-    worker = static_cast<WorkerProcessHost*>(*iter);
-    break;
+
+  if (CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kWebWorkerProcessPerCore)) {
+    worker = GetProcessToFillUpCores();
+  } else {
+    worker = GetProcessForDomain(url);
   }
 
   if (!worker) {
@@ -48,7 +57,6 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
   // it to.
   worker->CreateWorker(url, render_view_route_id, ++next_worker_route_id_,
                        renderer_route_id, filter);
-
   return true;
 }
 
@@ -69,4 +77,52 @@ void WorkerService::RendererShutdown(ResourceMessageFilter* filter) {
     WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
     worker->RendererShutdown(filter);
   }
+}
+
+WorkerProcessHost* WorkerService::GetProcessForDomain(const GURL& url) {
+  int num_processes = 0;
+  std::string domain =
+      net::RegistryControlledDomainService::GetDomainAndRegistry(url);
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
+       !iter.Done(); ++iter) {
+    num_processes++;
+    WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
+    for (WorkerProcessHost::Instances::const_iterator instance =
+             worker->instances().begin();
+         instance != worker->instances().end(); ++instance) {
+      if (net::RegistryControlledDomainService::GetDomainAndRegistry(
+          instance->url) == domain) {
+        return worker;
+      }
+    }
+  }
+
+  if (num_processes >= kMaxWorkerProcesses)
+    return GetLeastLoadedWorker();
+
+  return NULL;
+}
+
+WorkerProcessHost* WorkerService::GetProcessToFillUpCores() {
+  int num_processes = 0;
+  ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
+  for (; !iter.Done(); ++iter)
+    num_processes++;
+
+  if (num_processes >= base::SysInfo::NumberOfProcessors())
+    return GetLeastLoadedWorker();
+
+  return NULL;
+}
+
+WorkerProcessHost* WorkerService::GetLeastLoadedWorker() {
+  WorkerProcessHost* smallest = NULL;
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
+       !iter.Done(); ++iter) {
+    WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
+    if (!smallest || worker->instances().size() < smallest->instances().size())
+      smallest = worker;
+  }
+
+  return smallest;
 }

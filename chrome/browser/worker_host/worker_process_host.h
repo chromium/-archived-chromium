@@ -35,6 +35,22 @@ class WorkerProcessHost : public ChildProcessHost {
 
   void RendererShutdown(ResourceMessageFilter* filter);
 
+ protected:
+  friend class WorkerService;
+
+  // Contains information about each worker instance, needed to forward messages
+  // between the renderer and worker processes.
+  struct WorkerInstance {
+    GURL url;
+    int render_view_route_id;
+    int worker_route_id;
+    int renderer_route_id;
+    ResourceMessageFilter* filter;
+  };
+
+  typedef std::list<WorkerInstance> Instances;
+  const Instances& instances() const { return instances_; }
+
  private:
   // ResourceDispatcherHost::Receiver implementation:
   virtual URLRequestContext* GetRequestContext(
@@ -49,17 +65,6 @@ class WorkerProcessHost : public ChildProcessHost {
   // Updates the title shown in the task manager.
   void UpdateTitle();
 
-  // Contains information about each worker instance, needed to forward messages
-  // between the renderer and worker processes.
-  struct WorkerInstance {
-    GURL url;
-    int render_view_route_id;
-    int worker_route_id;
-    int renderer_route_id;
-    ResourceMessageFilter* filter;
-  };
-
-  typedef std::list<WorkerInstance> Instances;
   Instances instances_;
 
   DISALLOW_COPY_AND_ASSIGN(WorkerProcessHost);
