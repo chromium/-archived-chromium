@@ -39,7 +39,7 @@ namespace {
     scoped_ptr<DictionaryValue> extension_data(DeserializeJSONTestData(
         manifest_path, &error));
     EXPECT_EQ("", error);
-    EXPECT_TRUE(extension.InitFromValue(*extension_data, true, &error));
+    EXPECT_TRUE(extension.InitFromValue(*extension_data, &error));
     EXPECT_EQ("", error);
 
     scoped_ptr<DictionaryValue>expected_output_data(DeserializeJSONTestData(

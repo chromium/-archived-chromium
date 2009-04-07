@@ -141,7 +141,7 @@ class ExtensionsServiceBackend
  private:
   // Load a single extension from |extension_path|, the top directory of
   // a specific extension where its manifest file lives.
-  Extension* LoadExtension(const FilePath& extension_path, bool require_id);
+  Extension* LoadExtension(const FilePath& extension_path);
 
   // Load a single extension from |extension_path|, the top directory of
   // a versioned extension where its Current Version file lives.

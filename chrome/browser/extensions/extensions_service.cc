@@ -258,9 +258,18 @@ void ExtensionsServiceBackend::LoadSingleExtension(
   LOG(INFO) << "Loading single extension from " <<
       WideToASCII(extension_path.BaseName().ToWStringHack());
 
-  Extension* extension = LoadExtension(extension_path,
-                                       false);  // don't require ID
+  Extension* extension = LoadExtension(extension_path);
   if (extension) {
+    if (extension->id().empty()) {
+      // Generate an ID
+      static int counter = 0;
+      std::string id = StringPrintf("%x", counter);
+      ++counter;
+
+      // pad the string out to 40 chars with zeroes.
+      id.insert(0, 40 - id.length(), '0');
+      extension->set_id(id);
+    }
     ExtensionList* extensions = new ExtensionList;
     extensions->push_back(extension);
     ReportExtensionsLoaded(extensions);
@@ -281,12 +290,11 @@ Extension* ExtensionsServiceBackend::LoadExtensionCurrentVersion(
       WideToASCII(extension_path.BaseName().ToWStringHack()) <<
       " version: " << version_str;
 
-  return LoadExtension(extension_path.AppendASCII(version_str),
-                       true);  // require id
+  return LoadExtension(extension_path.AppendASCII(version_str));
 }
 
 Extension* ExtensionsServiceBackend::LoadExtension(
-    const FilePath& extension_path, bool require_id) {
+    const FilePath& extension_path) {
   FilePath manifest_path =
       extension_path.AppendASCII(Extension::kManifestFilename);
   if (!file_util::PathExists(manifest_path)) {
@@ -309,7 +317,7 @@ Extension* ExtensionsServiceBackend::LoadExtension(
 
   scoped_ptr<Extension> extension(new Extension(extension_path));
   if (!extension->InitFromValue(*static_cast<DictionaryValue*>(root.get()),
-                                require_id, &error)) {
+                                &error)) {
     ReportExtensionLoadError(extension_path, error);
     return NULL;
   }
@@ -630,9 +638,7 @@ bool ExtensionsServiceBackend::InstallOrUpdateExtension(
   DictionaryValue* dict = manifest.get();
   Extension extension;
   std::string error;
-  if (!extension.InitFromValue(*dict,
-                               true,  // require ID
-                               &error)) {
+  if (!extension.InitFromValue(*dict, &error)) {
     ReportExtensionInstallError(source_file,
                                 "Invalid extension manifest.");
     return false;

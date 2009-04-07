@@ -100,10 +100,7 @@ class Extension {
   }
 
   // Initialize the extension from a parsed manifest.
-  // If |require_id| is true, will return an error if the "id" key is missing
-  // from the value.
-  bool InitFromValue(const DictionaryValue& value, bool require_id,
-                     std::string* error);
+  bool InitFromValue(const DictionaryValue& value, std::string* error);
 
   // Returns an absolute path to a resource inside of an extension if the
   // extension has a theme defined with the given |resource_id|.  Otherwise
@@ -113,8 +110,9 @@ class Extension {
   FilePath GetThemeResourcePath(const int resource_id);
 
   const FilePath& path() const { return path_; }
-  const GURL& url() const { return extension_url_; }
+  const GURL& url();
   const std::string& id() const { return id_; }
+  void set_id(const std::string& id);
   const Version* version() const { return version_.get(); }
   // String representation of the version number.
   const std::string VersionString() const;

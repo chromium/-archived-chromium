@@ -103,6 +103,21 @@ Extension::Extension(const Extension& rhs)
       theme_paths_(rhs.theme_paths_) {
 }
 
+const GURL& Extension::url() {
+  if (!extension_url_.is_valid())
+    extension_url_ = GURL(std::string(chrome::kExtensionScheme) +
+                          chrome::kStandardSchemeSeparator + id_ + "/");
+
+  return extension_url_;
+}
+
+void Extension::set_id(const std::string& id) {
+  id_ = id;
+
+  // Reset url_ so that it gets reinitialized next time.
+  extension_url_ = GURL();
+}
+
 const std::string Extension::VersionString() const {
   return version_->GetString();
 }
@@ -320,9 +335,10 @@ bool Extension::LoadUserScriptHelper(const DictionaryValue* content_script,
   return true;
 }
 
-bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
+bool Extension::InitFromValue(const DictionaryValue& source,
                               std::string* error) {
-  // Initialize id.
+  // Initialize id. The ID is not required here because we don't require IDs for
+  // extensions used with --load-extension.
   if (source.HasKey(kIdKey)) {
     if (!source.GetString(kIdKey, &id_)) {
       *error = kInvalidIdError;
@@ -340,22 +356,7 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       *error = kInvalidIdError;
       return false;
     }
-  } else if (require_id) {
-    *error = kInvalidIdError;
-    return false;
-  } else {
-    // Generate a random ID
-    static int counter = 0;
-    id_ = StringPrintf("%x", counter);
-    ++counter;
-
-    // pad the string out to 40 chars with zeroes.
-    id_.insert(0, 40 - id_.length(), '0');
   }
-
-  // Initialize the URL.
-  extension_url_ = GURL(std::string(chrome::kExtensionScheme) +
-                        chrome::kStandardSchemeSeparator + id_ + "/");
 
   // Initialize version.
   std::string version_str;
@@ -456,7 +457,6 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       UserScript script;
       if (!LoadUserScriptHelper(content_script, i, error, &script))
         return false;  // Failed to parse script context definition
-      script.set_extension_id(id());
       content_scripts_.push_back(script);
     }
   }
