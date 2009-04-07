@@ -124,6 +124,7 @@
         'media',
         '../base/base.gyp:base',
         '../testing/gtest.gyp:gtest',
+        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
       ],
       'sources': [
         'audio/win/audio_output_win_unittest.cc',
