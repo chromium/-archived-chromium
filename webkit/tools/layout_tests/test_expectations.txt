@@ -2260,7 +2260,7 @@ DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FA
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
 WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
-WIN : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
+WIN MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
 WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
@@ -2304,3 +2304,9 @@ WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
 LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
 LayoutTests/http/tests/security/cross-frame-access-document-direct.html = TIMEOUT
+WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-enumeration.html = CRASH
+LINUX : LayoutTests/fast/text/international/thai-offsetForPosition-inside-character.html = FAIL
+MAC RELEASE : LayoutTests/fast/dom/Window/window-object-cross-frame-calls.html = FAIL
+MAC : LayoutTests/svg/hixie/perf/001.xml = FAIL
+MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
+
