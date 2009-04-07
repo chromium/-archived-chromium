@@ -7,9 +7,10 @@
 
 #include <string>
 
-#include "base/string_piece.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "v8/include/v8.h"
+
+class StringPiece;
 
 // A superclass for unit tests that involve running JavaScript.  This class
 // sets up V8 context and has methods that make it easy to execute scripts in

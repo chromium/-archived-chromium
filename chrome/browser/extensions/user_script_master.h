@@ -13,10 +13,11 @@
 #include "base/process.h"
 #include "base/scoped_ptr.h"
 #include "base/shared_memory.h"
-#include "base/string_piece.h"
 #include "chrome/common/extensions/user_script.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
+
+class StringPiece;
 
 // Manages a segment of shared memory that contains the user scripts the user
 // has installed.  Lives on the UI thread.
