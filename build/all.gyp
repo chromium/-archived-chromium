@@ -50,6 +50,8 @@
         ['OS=="win"', {
           'dependencies': [
             '../sandbox/sandbox.gyp:*',
+            '../webkit/activex_shim/activex_shim.gyp:*',
+            '../webkit/activex_shim_dll/activex_shim_dll.gyp:*',
             'temp_gyp/breakpad.gyp:*',
           ],
         }, {

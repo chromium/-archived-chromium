@@ -9,42 +9,52 @@
   'includes': [
     '../../build/common.gypi',
   ],
-  'targets': [
-    {
-      'target_name': 'activex_shim',
-      'type': 'static_library',
-      'msvs_guid': 'F4F4BCAA-EA59-445C-A119-3E6C29647A51',
-      'dependencies': [
-        '../../base/base.gyp:base',
-        '../../third_party/npapi/npapi.gyp:npapi',
-        '../../build/temp_gyp/googleurl.gyp:googleurl',
+  'conditions': [
+    [ 'OS=="win"', {
+      'targets': [
+        {
+          'target_name': 'activex_shim',
+          'type': 'static_library',
+          'msvs_guid': 'F4F4BCAA-EA59-445C-A119-3E6C29647A51',
+          'dependencies': [
+            '../../base/base.gyp:base',
+            '../../third_party/npapi/npapi.gyp:npapi',
+            '../../build/temp_gyp/googleurl.gyp:googleurl',
+          ],
+          'sources': [
+            'activex_plugin.cc',
+            'activex_plugin.h',
+            'activex_shared.cc',
+            'activex_shared.h',
+            'activex_util.cc',
+            'activex_util.h',
+            'dispatch_object.cc',
+            'dispatch_object.h',
+            'ihtmldocument_impl.h',
+            'iwebbrowser_impl.h',
+            'npn_scripting.cc',
+            'npn_scripting.h',
+            'npp_impl.cc',
+            'npp_impl.h',
+            'README',
+            'web_activex_container.cc',
+            'web_activex_container.h',
+            'web_activex_site.cc',
+            'web_activex_site.h',
+          ],
+          # TODO(bradnelson): Add direct support for this kind of thing to gyp.
+          'msvs_settings': {
+            'VCLibrarianTool': {
+              'AdditionalDependencies': 'urlmon.lib',
+            },
+          },
+          'link_settings': {
+            'libraries': [
+              '-lurlmon.lib',
+            ],
+          },
+        },
       ],
-      'sources': [
-        'activex_plugin.cc',
-        'activex_plugin.h',
-        'activex_shared.cc',
-        'activex_shared.h',
-        'activex_util.cc',
-        'activex_util.h',
-        'dispatch_object.cc',
-        'dispatch_object.h',
-        'ihtmldocument_impl.h',
-        'iwebbrowser_impl.h',
-        'npn_scripting.cc',
-        'npn_scripting.h',
-        'npp_impl.cc',
-        'npp_impl.h',
-        'README',
-        'web_activex_container.cc',
-        'web_activex_container.h',
-        'web_activex_site.cc',
-        'web_activex_site.h',
-      ],
-      'link_settings': {
-        'libraries': [
-          '-lurlmon.lib',
-        ],
-      },
-    },
+    }],
   ],
 }
