@@ -53,7 +53,13 @@ class DevToolsManager : public NotificationObserver,
   // exists.
   void InspectElement(WebContents* web_contents, int x, int y);
 
- private:
+  // Sends 'Attach' message to the agent using |target_host| in case
+  // there is a DevToolsClientHost registered for the |web_contents|.
+  void SendAttachToAgent(
+      const WebContents& web_contents,
+      RenderViewHost* target_host);
+
+private:
   // NotificationObserver override.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -75,7 +81,6 @@ class DevToolsManager : public NotificationObserver,
       NavigationController* navigation_controller);
   void StartListening(NavigationController* navigation_controller);
   void StopListening(NavigationController* navigation_controller);
-  void SendAttachToAgent(const WebContents& web_contents);
   void SendDetachToAgent(const WebContents& web_contents);
 
   // This object is not NULL iff there is at least one registered

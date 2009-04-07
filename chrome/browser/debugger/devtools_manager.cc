@@ -26,8 +26,7 @@ DevToolsManager::~DevToolsManager() {
 void DevToolsManager::Observe(NotificationType type,
                               const NotificationSource& source,
                               const NotificationDetails& details) {
-  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED ||
-      type == NotificationType::WEB_CONTENTS_SWAPPED);
+  DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
 
   if (type == NotificationType::WEB_CONTENTS_DISCONNECTED) {
     Source<WebContents> src(source);
@@ -43,12 +42,6 @@ void DevToolsManager::Observe(NotificationType type,
       // is closing.
       client_host->InspectedTabClosing();
       UnregisterDevToolsClientHost(client_host, controller);
-    }
-  } else if (type == NotificationType::WEB_CONTENTS_SWAPPED) {
-    Source<WebContents> src(source);
-    DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
-    if (client_host) {
-      SendAttachToAgent(*src.ptr());
     }
   }
 }
@@ -75,7 +68,7 @@ void DevToolsManager::RegisterDevToolsClientHostFor(
   client_host->set_close_listener(this);
 
   StartListening(navigation_controller);
-  SendAttachToAgent(web_contents);
+  SendAttachToAgent(web_contents, web_contents.render_view_host());
 }
 
 void DevToolsManager::ForwardToDevToolsAgent(
@@ -207,10 +200,6 @@ void DevToolsManager::StartListening(
         this,
         NotificationType::WEB_CONTENTS_DISCONNECTED,
         NotificationService::AllSources());
-    web_contents_listeners_->Add(
-        this,
-        NotificationType::WEB_CONTENTS_SWAPPED,
-        NotificationService::AllSources());
   }
 }
 
@@ -223,9 +212,9 @@ void DevToolsManager::StopListening(
   }
 }
 
-void DevToolsManager::SendAttachToAgent(const WebContents& wc) {
-  RenderViewHost* target_host = wc.render_view_host();
-  if (target_host) {
+void DevToolsManager::SendAttachToAgent(const WebContents& wc,
+                                        RenderViewHost* target_host) {
+  if (GetDevToolsClientHostFor(wc) && target_host) {
     IPC::Message* m = new DevToolsAgentMsg_Attach();
     m->set_routing_id(target_host->routing_id());
     target_host->Send(m);

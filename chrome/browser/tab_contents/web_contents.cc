@@ -13,6 +13,7 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/character_encoding.h"
+#include "chrome/browser/debugger/devtools_manager.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/dom_ui/dom_ui_factory.h"
@@ -415,6 +416,11 @@ bool WebContents::NavigateToPendingEntry(bool reload) {
   RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
   if (!dest_render_view_host)
     return false;  // Unable to create the desired render view host.
+
+  // Tell DevTools agent that it is attached prior to the navigation.
+  DevToolsManager* dev_tools_manager = g_browser_process->devtools_manager();
+  if (dev_tools_manager)  // NULL in unit tests.
+    dev_tools_manager->SendAttachToAgent(*this, dest_render_view_host);
 
   // Used for page load time metrics.
   current_load_start_ = TimeTicks::Now();
