@@ -227,8 +227,8 @@ TEST_F(GoogleChromeDistributionTest, TestExtractUninstallMetrics) {
                                     &uninstall_metrics_string));
   EXPECT_EQ(expected_url_string, uninstall_metrics_string);
 }
+#endif
 
-#else
 // The distribution strings should not be empty. The unit tests are not linking
 // with the chrome resources so we cannot test official build.
 TEST(BrowserDistribution, StringsTest) {
@@ -253,7 +253,6 @@ TEST(BrowserDistribution, AlternateAndNormalShortcutName) {
   EXPECT_FALSE(normal_name.empty());
   EXPECT_FALSE(alternate_name.empty());
 }
-#endif
 
 TEST(MasterPreferences, ParseDistroParams) {
   std::wstring prefs;
