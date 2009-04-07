@@ -111,6 +111,8 @@ const struct AcceleratorMapping {
 };
 
 int GetCommandFromKeyval(guint accel_key) {
+  // Bug 9806: If capslock is on, we will get a capital letter as accel_key.
+  accel_key = gdk_keyval_to_lower(accel_key);
   for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
     if (kAcceleratorMap[i].keyval == accel_key)
       return kAcceleratorMap[i].command_id;
