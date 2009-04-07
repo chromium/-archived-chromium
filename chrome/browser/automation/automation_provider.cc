@@ -2509,6 +2509,7 @@ void AutomationProvider::OnMessageFromExternalHost(int handle,
     view_host->ForwardMessageFromExternalHost(message, origin, target);
   }
 }
+#endif  // defined(OS_WIN)
 
 WebContents* AutomationProvider::GetWebContentsForHandle(
     int handle, NavigationController** tab) {
@@ -2525,6 +2526,7 @@ WebContents* AutomationProvider::GetWebContentsForHandle(
   return web_contents;
 }
 
+#if defined(OS_WIN)
 ExternalTabContainer* AutomationProvider::GetExternalTabForHandle(int handle) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);

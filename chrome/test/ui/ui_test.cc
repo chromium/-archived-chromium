@@ -82,8 +82,7 @@ const wchar_t kEnableErrorDialogs[] = L"enable-errdialogs";
 // attach.
 // #define WAIT_FOR_DEBUGGER_ON_OPEN 1
 
-// static
-bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
+bool UITest::DieFileDie(const FilePath& file, bool recurse) {
   if (!file_util::PathExists(file))
     return true;
 
@@ -94,6 +93,9 @@ bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
     PlatformThread::Sleep(action_max_timeout_ms() / 10);
   }
   return false;
+}
+bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
+  return DieFileDie(FilePath::FromWStringHack(file), recurse);
 }
 
 UITest::UITest()

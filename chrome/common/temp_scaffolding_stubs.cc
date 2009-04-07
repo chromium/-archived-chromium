@@ -47,12 +47,6 @@
 
 //--------------------------------------------------------------------------
 
-WebContents* AutomationProvider::GetWebContentsForHandle(
-    int handle, NavigationController** tab) {
-  NOTIMPLEMENTED();
-  return NULL;
-}
-
 void AutomationProvider::GetActiveWindow(int* handle) { NOTIMPLEMENTED(); }
 
 void AutomationProvider::IsWindowActive(int handle, bool* success,

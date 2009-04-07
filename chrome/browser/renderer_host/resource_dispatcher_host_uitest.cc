@@ -29,7 +29,7 @@ class ResourceDispatcherTest : public UITest {
     int max_wait_time = 5000;
     while (max_wait_time > 0) {
       max_wait_time -= kCheckDelayMs;
-      Sleep(kCheckDelayMs);
+      PlatformThread::Sleep(kCheckDelayMs);
       if (expected_title == GetActiveTabTitle())
         break;
     }
@@ -65,7 +65,7 @@ TEST_F(ResourceDispatcherTest, DoNotSniffHTMLFromImageGIF) {
 TEST_F(ResourceDispatcherTest, SniffNoContentTypeNoData) {
   CheckTitleTest(L"content-sniffer-test3.html",
                  L"Content Sniffer Test 3");
-  Sleep(sleep_timeout_ms() * 2);
+  PlatformThread::Sleep(sleep_timeout_ms() * 2);
   EXPECT_EQ(1, GetTabCount());
 
   // Make sure the download shelf is not showing.
@@ -210,7 +210,8 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   // Cause the renderer to crash.
   expected_crashes_ = 1;
   tab->NavigateToURLAsync(GURL("about:crash"));
-  Sleep(sleep_timeout_ms());  // Wait for browser to notice the renderer crash.
+  // Wait for browser to notice the renderer crash.
+  PlatformThread::Sleep(sleep_timeout_ms());
 
   // Navigate to a new cross-site page.  The browser should not wait around for
   // the old renderer's on{before}unload handlers to run.
@@ -268,7 +269,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   // reason as ErrorPageTest::DNSError.  See bug 1199491.
   tab->NavigateToURL(GURL(URLRequestFailedDnsJob::kTestUrl));
   for (int i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     if (GetActiveTabTitle() != L"set cookie on unload") {
       // Success, bail out.
       break;
@@ -289,10 +290,11 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   // the onunload handler, and the navigation would fail.
   // (Test by redirecting to javascript:window.location='someURL'.)
   GURL test_url(server->TestServerPageW(L"files/title2.html"));
-  std::wstring redirect_url = L"javascript:window.location='" +
-      ASCIIToWide(test_url.possibly_invalid_spec()) + L"'";
+  std::string redirect_url = "javascript:window.location='" +
+      test_url.possibly_invalid_spec() + "'";
   tab->NavigateToURLAsync(GURL(redirect_url));
-  Sleep(sleep_timeout_ms());  // Wait for JavaScript redirect to happen.
+  // Wait for JavaScript redirect to happen.
+  PlatformThread::Sleep(sleep_timeout_ms());
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
 }

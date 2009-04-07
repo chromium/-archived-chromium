@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_COMMON_JSON_VALUE_SERIALIZER_H__
-#define CHROME_COMMON_JSON_VALUE_SERIALIZER_H__
+#ifndef CHROME_COMMON_JSON_VALUE_SERIALIZER_H_
+#define CHROME_COMMON_JSON_VALUE_SERIALIZER_H_
 
 #include <string>
 
@@ -67,7 +67,7 @@ class JSONFileValueSerializer : public ValueSerializer {
   // deserialization or the destination of the serialization.
   // When deserializing, the file should exist, but when serializing, the
   // serializer will attempt to create the file at the specified location.
-  JSONFileValueSerializer(const FilePath& json_file_path)
+  explicit JSONFileValueSerializer(const FilePath& json_file_path)
     : json_file_path_(json_file_path) {}
 
   ~JSONFileValueSerializer() {}
@@ -92,7 +92,7 @@ class JSONFileValueSerializer : public ValueSerializer {
  private:
   FilePath json_file_path_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(JSONFileValueSerializer);
+  DISALLOW_IMPLICIT_CONSTRUCTORS(JSONFileValueSerializer);
 };
 
-#endif  // CHROME_COMMON_JSON_VALUE_SERIALIZER_H__
+#endif  // CHROME_COMMON_JSON_VALUE_SERIALIZER_H_

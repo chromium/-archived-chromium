@@ -63,9 +63,14 @@ class UITest : public testing::Test {
 
   // ********* Utility functions *********
 
-  // Tries to delete the specified file/directory returning true on success.
-  // This differs from file_util::Delete in that it repeatedly invokes Delete
-  // until successful, or a timeout is reached. Returns true on success.
+  // Tries to delete the specified file/directory returning true on
+  // success.  This differs from file_util::Delete in that it
+  // repeatedly invokes Delete until successful, or a timeout is
+  // reached.  (This retrying is to work around Windows file locks
+  // and shouldn't be necessary on POSIX, but it can't hurt.)
+  // Returns true on success.
+  bool DieFileDie(const FilePath& file, bool recurse);
+  // Deprecated backwards-compat version.
   bool DieFileDie(const std::wstring& file, bool recurse);
 
   // Launches the browser and IPC testing server.
