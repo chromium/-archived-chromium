@@ -61,6 +61,10 @@ class AudioOutputStreamMockWin : public AudioOutputStream {
     *right_level = right_volume_;
   }
 
+  virtual size_t GetNumBuffers() {
+    return 1;
+  }
+
   virtual void Close() {
     callback_->OnClose(this);
     callback_ = NULL;

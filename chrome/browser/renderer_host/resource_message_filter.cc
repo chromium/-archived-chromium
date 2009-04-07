@@ -182,7 +182,7 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
   set_handle(peer_handle);
   // Hook AudioRendererHost to this object after channel is connected so it can
   // this object for sending messages.
-  audio_renderer_host_->IPCChannelConnected(this);
+  audio_renderer_host_->IPCChannelConnected(render_process_id_, handle(), this);
 }
 
 // Called on the IPC thread:
@@ -204,6 +204,8 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                                                 message, this, &msg_is_ok) ||
                  app_cache_dispatcher_host_->OnMessageReceived(
                                                 message, &msg_is_ok);
+  if (!handled && msg_is_ok)
+    handled = audio_renderer_host_->OnMessageReceived(message, &msg_is_ok);
   if (!handled) {
     handled = true;
     IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
@@ -265,13 +267,6 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
       IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_ScriptedPrint,
                                       OnScriptedPrint)
 #endif
-      IPC_MESSAGE_HANDLER(ViewHostMsg_CreateAudioStream, OnCreateAudioStream)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_StartAudioStream, OnStartAudioStream)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_CloseAudioStream, OnCloseAudioStream)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_NotifyAudioPacketReady,
-                          OnNotifyAudioPacketReady)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_GetAudioVolume, OnGetAudioVolume)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_SetAudioVolume, OnSetAudioVolume)
 #if defined(OS_MACOSX)
       IPC_MESSAGE_HANDLER(ViewHostMsg_AllocTransportDIB,
                           OnAllocTransportDIB)
@@ -766,43 +761,6 @@ void ResourceMessageFilter::OnDnsPrefetch(
 void ResourceMessageFilter::OnRendererHistograms(
     const std::vector<std::string>& histograms) {
   Histogram::DeserializeHistogramList(histograms);
-}
-
-void ResourceMessageFilter::OnCreateAudioStream(
-    const IPC::Message& msg, int stream_id,
-    const ViewHostMsg_Audio_CreateStream& params) {
-  audio_renderer_host_->CreateStream(
-      handle(), msg.routing_id(), stream_id, params.format,
-      params.channels, params.sample_rate, params.bits_per_sample,
-      params.packet_size);
-}
-
-void ResourceMessageFilter::OnNotifyAudioPacketReady(
-    const IPC::Message& msg, int stream_id, size_t packet_size) {
-  audio_renderer_host_->NotifyPacketReady(msg.routing_id(),
-                                          stream_id, packet_size);
-}
-
-void ResourceMessageFilter::OnStartAudioStream(
-    const IPC::Message& msg, int stream_id) {
-  audio_renderer_host_->Start(msg.routing_id(), stream_id);
-}
-
-void ResourceMessageFilter::OnCloseAudioStream(
-    const IPC::Message& msg, int stream_id) {
-  audio_renderer_host_->Close(msg.routing_id(), stream_id);
-}
-
-void ResourceMessageFilter::OnGetAudioVolume(
-    const IPC::Message& msg, int stream_id) {
-  audio_renderer_host_->GetVolume(msg.routing_id(), stream_id);
-}
-
-void ResourceMessageFilter::OnSetAudioVolume(
-    const IPC::Message& msg, int stream_id,
-    double left_channel, double right_channel) {
-  audio_renderer_host_->SetVolume(
-      msg.routing_id(), stream_id, left_channel, right_channel);
 }
 
 #if defined(OS_MACOSX)

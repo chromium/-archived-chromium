@@ -1776,12 +1776,21 @@ struct ParamTraits<AudioOutputStream::State> {
   static void Log(const param_type& p, std::wstring* l) {
     std::wstring state;
     switch (p) {
-     case AudioOutputStream::STATE_PAUSED:
-      state = L"AudioOutputStream::STATE_PAUSED";
-      break;
+     case AudioOutputStream::STATE_CREATED:
+       state = L"AudioOutputStream::STATE_CREATED";
+       break;
      case AudioOutputStream::STATE_STARTED:
-      state = L"AudioOutputStream::STATE_STARTED";
-      break;
+       state = L"AudioOutputStream::STATE_STARTED";
+       break;
+     case AudioOutputStream::STATE_PAUSED:
+       state = L"AudioOutputStream::STATE_PAUSED";
+       break;
+     case AudioOutputStream::STATE_STOPPED:
+       state = L"AudioOutputStream::STATE_STOPPED";
+       break;
+     case AudioOutputStream::STATE_CLOSED:
+       state = L"AudioOutputStream::STATE_CLOSED";
+       break;
      case AudioOutputStream::STATE_ERROR:
        state = L"AudioOutputStream::STATE_ERROR";
        break;

@@ -25,9 +25,9 @@ class PCMQueueOutAudioOutputStream : public AudioOutputStream {
                                int channels, int sampling_rate,
                                char bits_per_sample);
   // The dtor is typically called by the AudioManager only and it is usually
-  // triggered by calling AudioOutputStream::Close(). 
+  // triggered by calling AudioOutputStream::Close().
   virtual ~PCMQueueOutAudioOutputStream();
-  
+
   // Implementation of AudioOutputStream.
   virtual bool Open(size_t packet_size);
   virtual void Close();
@@ -35,11 +35,12 @@ class PCMQueueOutAudioOutputStream : public AudioOutputStream {
   virtual void Stop();
   virtual void SetVolume(double left_level, double right_level);
   virtual void GetVolume(double* left_level, double* right_level);
-  
+  virtual size_t GetNumBuffers();
+
  private:
   // The audio is double buffered.
   static const size_t kNumBuffers = 2;
-  
+
   // The OS calls back here when an audio buffer has been processed.
   static void RenderCallback(void* p_this, AudioQueueRef queue,
                              AudioQueueBufferRef buffer);
@@ -56,7 +57,7 @@ class PCMQueueOutAudioOutputStream : public AudioOutputStream {
   AudioSourceCallback* source_;
   // Our creator, the audio manager needs to be notified when we close.
   AudioManagerMac* manager_;
-  
+
   DISALLOW_COPY_AND_ASSIGN(PCMQueueOutAudioOutputStream);
 };
 

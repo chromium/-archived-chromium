@@ -9,7 +9,7 @@
 
 PCMQueueOutAudioOutputStream::PCMQueueOutAudioOutputStream(
     AudioManagerMac* manager, int channels, int sampling_rate,
-    char bits_per_sample) 
+    char bits_per_sample)
         : format_(),
           audio_queue_(NULL),
           buffer_(),
@@ -91,7 +91,7 @@ void PCMQueueOutAudioOutputStream::Close() {
 }
 
 void PCMQueueOutAudioOutputStream::Stop() {
-  // TODO(cpu): Implement.  
+  // TODO(cpu): Implement.
 }
 
 void PCMQueueOutAudioOutputStream::SetVolume(double left_level,
@@ -102,6 +102,10 @@ void PCMQueueOutAudioOutputStream::SetVolume(double left_level,
 void PCMQueueOutAudioOutputStream::GetVolume(double* left_level,
                                              double* right_level) {
   // TODO(cpu): Implement.
+}
+
+size_t PCMQueueOutAudioOutputStream::GetNumBuffers() {
+  return kNumBuffers;
 }
 
 void PCMQueueOutAudioOutputStream::RenderCallback(void* p_this,

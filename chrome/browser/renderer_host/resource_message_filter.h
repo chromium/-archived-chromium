@@ -198,18 +198,6 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
       scoped_refptr<printing::PrinterQuery> printer_query,
       IPC::Message* reply_msg);
 #endif
-
-  // Audio related IPC message handlers.
-  void OnCreateAudioStream(const IPC::Message& msg, int stream_id,
-                           const ViewHostMsg_Audio_CreateStream& params);
-  void OnNotifyAudioPacketReady(const IPC::Message& msg, int stream_id,
-                                size_t packet_size);
-  void OnStartAudioStream(const IPC::Message& msg, int stream_id);
-  void OnCloseAudioStream(const IPC::Message& msg, int stream_id);
-  void OnGetAudioVolume(const IPC::Message& msg, int stream_id);
-  void OnSetAudioVolume(const IPC::Message& msg, int stream_id,
-                        double left_channel, double right_channel);
-
   // Browser side transport DIB allocation
   void OnAllocTransportDIB(size_t size,
                            TransportDIB::Handle* result);

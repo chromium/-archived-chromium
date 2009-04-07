@@ -42,8 +42,11 @@
 class AudioOutputStream {
  public:
   enum State {
-    STATE_STARTED = 0,  // The output stream is started.
+    STATE_CREATED = 0,  // The output stream is created.
+    STATE_STARTED,      // The output stream is started.
     STATE_PAUSED,       // The output stream is paused.
+    STATE_STOPPED,      // The output stream is stopped.
+    STATE_CLOSED,       // The output stream is closed.
     STATE_ERROR,        // The output stream is in error state.
   };
 
@@ -82,6 +85,10 @@ class AudioOutputStream {
   virtual bool Open(size_t packet_size) = 0;
 
   // Starts playing audio and generating AudioSourceCallback::OnMoreData().
+  // Since implementor of AudioOutputStream may have internal buffers, right
+  // after calling this method initial buffers are fetched. User of this
+  // object should prepare |AudioOutputStream::GetNumBuffers()| before calling
+  // AudioOutputStream::Start().
   virtual void Start(AudioSourceCallback* callback) = 0;
 
   // Stops playing audio. Effect might no be instantaneous as the hardware
@@ -99,6 +106,11 @@ class AudioOutputStream {
   // Close the stream. This also generates AudioSourceCallback::OnClose().
   // After calling this method, the object should not be used anymore.
   virtual void Close() = 0;
+
+  // Gets the number of internal buffers used in this output stream. This
+  // method is useful for providing information about how user of this object
+  // should prepare initial buffers before calling AudioOutputStream::Start().
+  virtual size_t GetNumBuffers() = 0;
 
  protected:
   virtual ~AudioOutputStream() {}
