@@ -66,8 +66,8 @@ string16 GetLocalizedString(int message_id) {
   return L"";
 }
 
-std::string GetDataResource(int resource_id) {
-  return "";
+StringPiece GetDataResource(int resource_id) {
+  return StringPiece();
 }
 
 void SetMediaPlayerAvailable(bool value) {

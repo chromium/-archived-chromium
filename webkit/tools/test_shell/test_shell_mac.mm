@@ -649,7 +649,7 @@ string16 GetLocalizedString(int message_id) {
                   res.length() / 2);
 }
 
-std::string GetDataResource(int resource_id) {
+StringPiece GetDataResource(int resource_id) {
   switch (resource_id) {
   case IDR_BROKENIMAGE: {
     // Use webkit's broken image icon (16x16)
@@ -673,7 +673,7 @@ std::string GetDataResource(int resource_id) {
     // a {{URL}} substring where the feed URL should go; see the code
     // that computes feed previews in feed_preview.cc:MakeFeedPreview.
     // This fixes issue #932714.
-    return std::string("Feed preview for {{URL}}");
+    return "Feed preview for {{URL}}";
   case IDR_TEXTAREA_RESIZER: {
     // Use webkit's text area resizer image.
     static std::string resize_corner_data;
@@ -693,13 +693,13 @@ std::string GetDataResource(int resource_id) {
   case IDR_SEARCH_CANCEL_PRESSED:
   case IDR_SEARCH_MAGNIFIER:
   case IDR_SEARCH_MAGNIFIER_RESULTS:
-    return TestShell::NetResourceProvider(resource_id).as_string();
+    return TestShell::NetResourceProvider(resource_id);
 
   default:
     break;
   }
 
-  return std::string();
+  return StringPiece();
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {

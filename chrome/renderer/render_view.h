@@ -67,6 +67,7 @@ struct ViewMsg_PrintPage_Params;
 struct ViewMsg_PrintPages_Params;
 struct ViewMsg_Print_Params;
 struct ViewMsg_UploadFile_Params;
+struct WebDropData;
 
 namespace base {
 class WaitableEvent;
@@ -77,6 +78,7 @@ struct FileUploadData;
 }
 
 namespace WebKit {
+class WebDragData;
 struct WebFindOptions;
 }
 
@@ -274,7 +276,7 @@ class RenderView : public RenderWidget,
                                int edit_flags,
                                const std::string& security_info);
   virtual void StartDragging(WebView* webview,
-                             const WebDropData& drag_data);
+                             const WebKit::WebDragData& drag_data);
 
   virtual void TakeFocus(WebView* webview, bool reverse);
   virtual void JSOutOfMemory();
@@ -536,8 +538,9 @@ class RenderView : public RenderWidget,
 
   void OnReservePageIDRange(int size_of_range);
 
-  void OnDragSourceEndedOrMoved(
-      int client_x, int client_y, int screen_x, int screen_y, bool ended);
+  void OnDragSourceEndedOrMoved(const gfx::Point& client_point,
+                                const gfx::Point& screen_point,
+                                bool ended);
   void OnDragSourceSystemDragEnded();
   void OnInstallMissingPlugin();
   void OnFileChooserResponse(const std::vector<FilePath>& file_names);

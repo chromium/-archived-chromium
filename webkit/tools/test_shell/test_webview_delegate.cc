@@ -17,8 +17,10 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -40,7 +42,9 @@
 #include "webkit/tools/test_shell/drop_delegate.h"
 #endif
 
+using WebKit::WebDragData;
 using WebKit::WebScreenInfo;
+using WebKit::WebString;
 
 namespace {
 
@@ -69,8 +73,8 @@ std::wstring UrlSuitableForTestResult(const std::wstring& url) {
 
 // Adds a file called "DRTFakeFile" to |data_object| (CF_HDROP).  Use to fake
 // dragging a file.
-void AddDRTFakeFileToDataObject(WebDropData* drop_data) {
-  drop_data->filenames.push_back(L"DRTFakeFile");
+void AddDRTFakeFileToDataObject(WebDragData* drag_data) {
+  drag_data->appendFileName(WebString::fromUTF8("DRTFakeFile"));
 }
 
 // Get a debugging string from a WebNavigationType.
@@ -480,17 +484,17 @@ void TestWebViewDelegate::SetStatusbarText(WebView* webview,
 }
 
 void TestWebViewDelegate::StartDragging(WebView* webview,
-                                        const WebDropData& drop_data) {
+                                        const WebDragData& drag_data) {
   if (WebKit::layoutTestMode()) {
-    WebDropData mutable_drop_data = drop_data;
+    WebDragData mutable_drag_data = drag_data;
     if (shell_->layout_test_controller()->ShouldAddFileToPasteboard()) {
       // Add a file called DRTFakeFile to the drag&drop clipboard.
-      AddDRTFakeFileToDataObject(&mutable_drop_data);
+      AddDRTFakeFileToDataObject(&mutable_drag_data);
     }
 
     // When running a test, we need to fake a drag drop operation otherwise
     // Windows waits for real mouse events to know when the drag is over.
-    EventSendingController::DoDragDrop(mutable_drop_data);
+    EventSendingController::DoDragDrop(mutable_drag_data);
   } else {
     // TODO(tc): Drag and drop is disabled in the test shell because we need
     // to be able to convert from WebDragData to an IDataObject.

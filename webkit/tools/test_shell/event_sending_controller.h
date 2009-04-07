@@ -24,9 +24,9 @@
 
 class TestShell;
 class WebView;
-struct WebDropData;
 
 namespace WebKit {
+class WebDragData;
 class WebMouseEvent;
 }
 
@@ -40,7 +40,7 @@ class EventSendingController : public CppBoundClass {
   void Reset();
 
   // Simulate drag&drop system call.
-  static void DoDragDrop(const WebDropData& drag_data);
+  static void DoDragDrop(const WebKit::WebDragData& drag_data);
 
   // JS callback methods.
   void mouseDown(const CppArgumentList& args, CppVariant* result);

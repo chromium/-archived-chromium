@@ -18,6 +18,7 @@
 #include "base/file_path.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/string16.h"
+#include "base/string_piece.h"
 
 class GURL;
 class SkBitmap;
@@ -136,7 +137,7 @@ string16 GetLocalizedString(int message_id);
 
 // Returns the raw data for a resource.  This resource must have been
 // specified as BINDATA in the relevant .rc file.
-std::string GetDataResource(int resource_id);
+StringPiece GetDataResource(int resource_id);
 
 #if defined(OS_WIN)
 // Loads and returns a cursor.

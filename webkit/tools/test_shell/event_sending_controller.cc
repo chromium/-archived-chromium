@@ -28,7 +28,8 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/time.h"
-#include "webkit/glue/webdropdata.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -43,9 +44,11 @@ using WebKit::WebInputEventFactory;
 using base::Time;
 using base::TimeTicks;
 
+using WebKit::WebDragData;
 using WebKit::WebInputEvent;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
+using WebKit::WebPoint;
 
 TestShell* EventSendingController::shell_ = NULL;
 gfx::Point EventSendingController::last_mouse_pos_;
@@ -56,7 +59,7 @@ int EventSendingController::last_button_number_ = -1;
 
 namespace {
 
-static scoped_ptr<WebDropData> drag_data_object;
+static WebDragData current_drag_data;
 static bool replaying_saved_events = false;
 static std::queue<WebMouseEvent> mouse_event_queue;
 
@@ -179,8 +182,8 @@ EventSendingController::EventSendingController(TestShell* shell)
 
 void EventSendingController::Reset() {
   // The test should have finished a drag and the mouse button state.
-  DCHECK(!drag_data_object.get());
-  drag_data_object.reset();
+  DCHECK(current_drag_data.isNull());
+  current_drag_data.reset();
   pressed_button_ = WebMouseEvent::ButtonNone;
   dragMode.Set(true);
 #if defined(OS_WIN)
@@ -198,16 +201,15 @@ void EventSendingController::Reset() {
   last_button_number_ = -1;
 }
 
-/* static */ WebView* EventSendingController::webview() {
+// static
+WebView* EventSendingController::webview() {
   return shell_->webView();
 }
 
-/* static */ void EventSendingController::DoDragDrop(const WebDropData& data_obj) {
-  WebDropData* drop_data_copy = new WebDropData;
-  *drop_data_copy = data_obj;
-  drag_data_object.reset(drop_data_copy);
-
-  webview()->DragTargetDragEnter(data_obj, 0, 0, 0, 0);
+// static
+void EventSendingController::DoDragDrop(const WebDragData& drag_data) {
+  current_drag_data = drag_data;
+  webview()->DragTargetDragEnter(drag_data, 0, WebPoint(), WebPoint());
 
   // Finish processing events.
   ReplaySavedEvents();
@@ -234,6 +236,7 @@ int EventSendingController::GetButtonNumberFromSingleArg(
 
   return button_code;
 }
+
 //
 // Implemented javascript methods.
 //
@@ -302,17 +305,20 @@ void EventSendingController::mouseUp(
   pressed_button_ = WebMouseEvent::ButtonNone;
 
   // If we're in a drag operation, complete it.
-  if (drag_data_object.get()) {
-    bool valid = webview()->DragTargetDragOver(e.x, e.y, e.globalX,
-                                               e.globalY);
+  if (!current_drag_data.isNull()) {
+    WebPoint client_point(e.x, e.y);
+    WebPoint screen_point(e.globalX, e.globalY);
+
+    bool valid = webview()->DragTargetDragOver(client_point, screen_point);
     if (valid) {
-      webview()->DragSourceEndedAt(e.x, e.y, e.globalX, e.globalY);
-      webview()->DragTargetDrop(e.x, e.y, e.globalX, e.globalY);
+      webview()->DragSourceEndedAt(client_point, screen_point);
+      webview()->DragTargetDrop(client_point, screen_point);
     } else {
-      webview()->DragSourceEndedAt(e.x, e.y, e.globalX, e.globalY);
+      webview()->DragSourceEndedAt(client_point, screen_point);
       webview()->DragTargetDragLeave();
     }
-    drag_data_object.reset();
+
+    current_drag_data.reset();
   }
 }
 
@@ -337,12 +343,17 @@ void EventSendingController::mouseMoveTo(
   }
 }
 
-/* static */ void EventSendingController::DoMouseMove(const WebMouseEvent& e) {
+// static
+void EventSendingController::DoMouseMove(const WebMouseEvent& e) {
   webview()->HandleInputEvent(&e);
 
-  if (pressed_button_ != WebMouseEvent::ButtonNone && drag_data_object.get()) {
-    webview()->DragSourceMovedTo(e.x, e.y, e.globalX, e.globalY);
-    webview()->DragTargetDragOver(e.x, e.y, e.globalX, e.globalY);
+  if (pressed_button_ != WebMouseEvent::ButtonNone &&
+      !current_drag_data.isNull()) {
+    WebPoint client_point(e.x, e.y);
+    WebPoint screen_point(e.globalX, e.globalY);
+
+    webview()->DragSourceMovedTo(client_point, screen_point);
+    webview()->DragTargetDragOver(client_point, screen_point);
   }
 }
 

@@ -11,7 +11,9 @@
 class GURL;
 
 namespace WebCore {
+class ChromiumDataObject;
 class CString;
+class IntPoint;
 class IntRect;
 class KURL;
 class String;
@@ -19,8 +21,14 @@ class String;
 
 namespace WebKit {
 class WebCString;
+class WebDragData;
 class WebString;
 class WebURL;
+struct WebPoint;
+}
+
+namespace WTF {
+template <typename T> class PassRefPtr;
 }
 
 namespace gfx {
@@ -72,6 +80,16 @@ WebCore::KURL WebURLToKURL(const WebKit::WebURL& url);
 
 gfx::Rect FromIntRect(const WebCore::IntRect& r);
 WebCore::IntRect ToIntRect(const gfx::Rect& r);
+
+// WebPoint <-> IntPoint
+WebCore::IntPoint WebPointToIntPoint(const WebKit::WebPoint&);
+WebKit::WebPoint IntPointToWebPoint(const WebCore::IntPoint&);
+
+// WebDragData <-> ChromiumDataObject
+WebKit::WebDragData ChromiumDataObjectToWebDragData(
+    const WTF::PassRefPtr<WebCore::ChromiumDataObject>&);
+WTF::PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
+    const WebKit::WebDragData&);
 
 }  // namespace webkit_glue
 

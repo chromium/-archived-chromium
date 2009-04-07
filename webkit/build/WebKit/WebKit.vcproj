@@ -156,6 +156,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebData.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebDragData.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebFindOptions.h"
 					>
 				</File>
@@ -197,6 +205,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebURL.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebVector.h"
 					>
 				</File>
 				<Filter
@@ -241,6 +253,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebCString.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebData.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebDragData.cpp"
 					>
 				</File>
 				<File

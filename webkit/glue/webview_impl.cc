@@ -84,9 +84,10 @@ MSVC_POP_WARNING();
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
 #include "webkit/glue/chrome_client_impl.h"
-#include "webkit/glue/clipboard_conversion.h"
 #include "webkit/glue/context_menu_client_impl.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dragclient_impl.h"
@@ -114,10 +115,12 @@ MSVC_POP_WARNING();
 
 using namespace WebCore;
 
+using WebKit::WebDragData;
 using WebKit::WebInputEvent;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
+using WebKit::WebPoint;
 
 // Change the text zoom level by kTextSizeMultiplierRatio each time the user
 // zooms text in or out (ie., change by 20%).  The min and max values limit
@@ -1554,18 +1557,20 @@ void WebViewImpl::ShowJavaScriptConsole() {
 }
 
 void WebViewImpl::DragSourceEndedAt(
-    int client_x, int client_y, int screen_x, int screen_y) {
-  PlatformMouseEvent pme(IntPoint(client_x, client_y),
-                         IntPoint(screen_x, screen_y),
+    const WebPoint& client_point,
+    const WebPoint& screen_point) {
+  PlatformMouseEvent pme(webkit_glue::WebPointToIntPoint(client_point),
+                         webkit_glue::WebPointToIntPoint(screen_point),
                          NoButton, MouseEventMoved, 0, false, false, false,
                          false, 0);
   page_->mainFrame()->eventHandler()->dragSourceEndedAt(pme, DragOperationCopy);
 }
 
 void WebViewImpl::DragSourceMovedTo(
-    int client_x, int client_y, int screen_x, int screen_y) {
-  PlatformMouseEvent pme(IntPoint(client_x, client_y),
-                         IntPoint(screen_x, screen_y),
+    const WebPoint& client_point,
+    const WebPoint& screen_point) {
+  PlatformMouseEvent pme(webkit_glue::WebPointToIntPoint(client_point),
+                         webkit_glue::WebPointToIntPoint(screen_point),
                          LeftButton, MouseEventMoved, 0, false, false, false,
                          false, 0);
   page_->mainFrame()->eventHandler()->dragSourceMovedTo(pme);
@@ -1577,15 +1582,22 @@ void WebViewImpl::DragSourceSystemDragEnded() {
   doing_drag_and_drop_ = false;
 }
 
-bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
-    int client_x, int client_y, int screen_x, int screen_y) {
-  DCHECK(!current_drop_data_.get());
+bool WebViewImpl::DragTargetDragEnter(
+    const WebDragData& web_drag_data,
+    int identity,
+    const WebPoint& client_point,
+    const WebPoint& screen_point) {
+  DCHECK(!current_drag_data_.get());
 
-  current_drop_data_ = webkit_glue::WebDropDataToChromiumDataObject(drop_data);
-  drag_identity_ = drop_data.identity;
+  current_drag_data_ =
+      webkit_glue::WebDragDataToChromiumDataObject(web_drag_data);
+  drag_identity_ = identity;
 
-  DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
-      IntPoint(screen_x, screen_y), kDropTargetOperation);
+  DragData drag_data(
+      current_drag_data_.get(),
+      webkit_glue::WebPointToIntPoint(client_point),
+      webkit_glue::WebPointToIntPoint(screen_point),
+      kDropTargetOperation);
   drag_target_dispatch_ = true;
   DragOperation effect = page_->dragController()->dragEntered(&drag_data);
   drag_target_dispatch_ = false;
@@ -1594,11 +1606,15 @@ bool WebViewImpl::DragTargetDragEnter(const WebDropData& drop_data,
 }
 
 bool WebViewImpl::DragTargetDragOver(
-    int client_x, int client_y, int screen_x, int screen_y) {
-  DCHECK(current_drop_data_.get());
+    const WebPoint& client_point,
+    const WebPoint& screen_point) {
+  DCHECK(current_drag_data_.get());
 
-  DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
-      IntPoint(screen_x, screen_y), kDropTargetOperation);
+  DragData drag_data(
+      current_drag_data_.get(),
+      webkit_glue::WebPointToIntPoint(client_point),
+      webkit_glue::WebPointToIntPoint(screen_point),
+      kDropTargetOperation);
   drag_target_dispatch_ = true;
   DragOperation effect = page_->dragController()->dragUpdated(&drag_data);
   drag_target_dispatch_ = false;
@@ -1607,29 +1623,36 @@ bool WebViewImpl::DragTargetDragOver(
 }
 
 void WebViewImpl::DragTargetDragLeave() {
-  DCHECK(current_drop_data_.get());
+  DCHECK(current_drag_data_.get());
 
-  DragData drag_data(current_drop_data_.get(), IntPoint(), IntPoint(),
-                     DragOperationNone);
+  DragData drag_data(
+      current_drag_data_.get(),
+      IntPoint(),
+      IntPoint(),
+      kDropTargetOperation);
   drag_target_dispatch_ = true;
   page_->dragController()->dragExited(&drag_data);
   drag_target_dispatch_ = false;
 
-  current_drop_data_ = NULL;
+  current_drag_data_ = NULL;
   drag_identity_ = 0;
 }
 
 void WebViewImpl::DragTargetDrop(
-    int client_x, int client_y, int screen_x, int screen_y) {
-  DCHECK(current_drop_data_.get());
+    const WebPoint& client_point,
+    const WebPoint& screen_point) {
+  DCHECK(current_drag_data_.get());
 
-  DragData drag_data(current_drop_data_.get(), IntPoint(client_x, client_y),
-      IntPoint(screen_x, screen_y), kDropTargetOperation);
+  DragData drag_data(
+      current_drag_data_.get(),
+      webkit_glue::WebPointToIntPoint(client_point),
+      webkit_glue::WebPointToIntPoint(screen_point),
+      kDropTargetOperation);
   drag_target_dispatch_ = true;
   page_->dragController()->performDrag(&drag_data);
   drag_target_dispatch_ = false;
 
-  current_drop_data_ = NULL;
+  current_drag_data_ = NULL;
   drag_identity_ = 0;
 }
 
@@ -1738,11 +1761,11 @@ void WebViewImpl::DidCommitLoad(bool* is_new_navigation) {
   observed_new_navigation_ = false;
 }
 
-void WebViewImpl::StartDragging(const WebDropData& drop_data) {
+void WebViewImpl::StartDragging(const WebDragData& drag_data) {
   if (delegate_) {
     DCHECK(!doing_drag_and_drop_);
     doing_drag_and_drop_ = true;
-    delegate_->StartDragging(this, drop_data);
+    delegate_->StartDragging(this, drag_data);
   }
 }
 

@@ -651,7 +651,7 @@ string16 GetLocalizedString(int message_id) {
                   res.length() / 2);
 }
 
-std::string GetDataResource(int resource_id) {
+StringPiece GetDataResource(int resource_id) {
   switch (resource_id) {
     case IDR_FEED_PREVIEW:
       // It is necessary to return a feed preview template that contains
@@ -667,7 +667,7 @@ std::string GetDataResource(int resource_id) {
       resource_id = IDR_TEXTAREA_RESIZER_TESTSHELL;
       break;
   }
-  return TestShell::NetResourceProvider(resource_id).as_string();
+  return TestShell::NetResourceProvider(resource_id);
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {

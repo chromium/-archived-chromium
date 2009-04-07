@@ -54,12 +54,12 @@ void DebuggerAgentImpl::SetDocument(Document* document) {
       V8Proxy::GetContext(document->frame()));
   v8::Context::Scope context_scope(context_);
 
-  std::string basejs = webkit_glue::GetDataResource(IDR_DEVTOOLS_BASE_JS);
-  v8::Script::Compile(v8::String::New(basejs.c_str()))->Run();
-  std::string jsonjs = webkit_glue::GetDataResource(IDR_DEVTOOLS_JSON_JS);
-  v8::Script::Compile(v8::String::New(jsonjs.c_str()))->Run();
-  std::string injectjs = webkit_glue::GetDataResource(IDR_DEVTOOLS_INJECT_JS);
-  v8::Script::Compile(v8::String::New(injectjs.c_str()))->Run();
+  StringPiece basejs = webkit_glue::GetDataResource(IDR_DEVTOOLS_BASE_JS);
+  v8::Script::Compile(v8::String::New(basejs.as_string().c_str()))->Run();
+  StringPiece jsonjs = webkit_glue::GetDataResource(IDR_DEVTOOLS_JSON_JS);
+  v8::Script::Compile(v8::String::New(jsonjs.as_string().c_str()))->Run();
+  StringPiece injectjs = webkit_glue::GetDataResource(IDR_DEVTOOLS_INJECT_JS);
+  v8::Script::Compile(v8::String::New(injectjs.as_string().c_str()))->Run();
 }
 
 String DebuggerAgentImpl::ExecuteUtilityFunction(

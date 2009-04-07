@@ -34,7 +34,8 @@ static std::string MakeFeedPreview(const std::string& url,
 
   // The feed preview template has {{URL}} in place of where the URL should go.
   const std::string kUrlTemplate = "{{URL}}";
-  std::string feed_template(webkit_glue::GetDataResource(IDR_FEED_PREVIEW));
+  const std::string& feed_template =
+      webkit_glue::GetDataResource(IDR_FEED_PREVIEW).as_string();
   std::string::size_type template_offset = feed_template.find(kUrlTemplate);
   DCHECK(template_offset != std::string::npos);
   // TODO(evanm): URL-escape URL!

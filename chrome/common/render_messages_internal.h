@@ -309,11 +309,9 @@ IPC_BEGIN_MESSAGES(View)
 
   // Notifies the renderer of updates in mouse position of an in-progress
   // drag.  if |ended| is true, then the user has ended the drag operation.
-  IPC_MESSAGE_ROUTED5(ViewMsg_DragSourceEndedOrMoved,
-                      int /* client_x */,
-                      int /* client_y */,
-                      int /* screen_x */,
-                      int /* screen_y */,
+  IPC_MESSAGE_ROUTED3(ViewMsg_DragSourceEndedOrMoved,
+                      gfx::Point /* client_pt */,
+                      gfx::Point /* screen_pt */,
                       bool /* ended */)
 
   // Notifies the renderer that the system DoDragDrop call has ended.

@@ -42,8 +42,12 @@ namespace webkit_glue {
 class WebMediaPlayerDelegate;
 }
 
+namespace WebKit {
+class WebDragData;
+struct WebPoint;
+}
+
 struct PasswordForm;
-struct WebDropData;
 struct WebPreferences;
 class AutofillForm;
 class FilePath;
@@ -601,7 +605,9 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // webview: The WebView sending the delegate method.
   // drop_data: a WebDropData struct which should contain all the necessary
   // information for dragging data out of the webview.
-  virtual void StartDragging(WebView* webview, const WebDropData& drop_data) { }
+  virtual void StartDragging(WebView* webview,
+                             const WebKit::WebDragData& drag_data) {
+  }
 
   // Returns the focus to the client.
   // reverse: Whether the focus should go to the previous (if true) or the next

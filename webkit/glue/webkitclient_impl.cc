@@ -8,10 +8,10 @@
 #include "base/stats_counters.h"
 #include "base/trace_event.h"
 #include "grit/webkit_resources.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "webkit/glue/webkit_glue.h"
 
-using WebKit::WebCString;
+using WebKit::WebData;
 using WebKit::WebThemeEngine;
 
 namespace webkit_glue {
@@ -47,7 +47,7 @@ void WebKitClientImpl::traceEventEnd(const char* name, void* id,
   TRACE_EVENT_END(name, id, extra);
 }
 
-WebCString WebKitClientImpl::loadResource(const char* name) {
+WebData WebKitClientImpl::loadResource(const char* name) {
   struct {
     const char* name;
     int id;
@@ -68,11 +68,13 @@ WebCString WebKitClientImpl::loadResource(const char* name) {
 #endif
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(resources); ++i) {
-    if (!strcmp(name, resources[i].name))
-      return webkit_glue::GetDataResource(resources[i].id);
+    if (!strcmp(name, resources[i].name)) {
+      StringPiece resource = webkit_glue::GetDataResource(resources[i].id);
+      return WebData(resource.data(), resource.size());
+    }
   }
   NOTREACHED() << "Unknown image resource " << name;
-  return WebCString();
+  return WebData();
 }
 
 double WebKitClientImpl::currentTime() {

@@ -13,7 +13,6 @@
 #include "base/gfx/size.h"
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/back_forward_list_client_impl.h"
-#include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview.h"
@@ -44,7 +43,6 @@ class WebMouseWheelEvent;
 class AutocompletePopupMenuClient;
 class ImageResourceFetcher;
 class SearchableFormData;
-struct WebDropData;
 class WebHistoryItemImpl;
 class WebDevToolsAgent;
 class WebDevToolsAgentImpl;
@@ -98,17 +96,23 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void InspectElement(int x, int y);
   virtual void ShowJavaScriptConsole();
   virtual void DragSourceEndedAt(
-      int client_x, int client_y, int screen_x, int screen_y);
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point);
   virtual void DragSourceMovedTo(
-      int client_x, int client_y, int screen_x, int screen_y);
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point);
   virtual void DragSourceSystemDragEnded();
-  virtual bool DragTargetDragEnter(const WebDropData& drop_data,
-      int client_x, int client_y, int screen_x, int screen_y);
+  virtual bool DragTargetDragEnter(
+      const WebKit::WebDragData& drag_data, int identity,
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point);
   virtual bool DragTargetDragOver(
-      int client_x, int client_y, int screen_x, int screen_y);
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point);
   virtual void DragTargetDragLeave();
   virtual void DragTargetDrop(
-      int client_x, int client_y, int screen_x, int screen_y);
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point);
   virtual int32 GetDragIdentity();
   virtual void AutofillSuggestionsForNode(
       int64 node_id,
@@ -193,7 +197,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   }
 
   // Start a system drag and drop operation.
-  void StartDragging(const WebDropData& drop_data);
+  void StartDragging(const WebKit::WebDragData& drag_data);
 
   // ImageResourceFetcher callback.
   void ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
@@ -258,7 +262,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   WebPreferences webprefs_;
 
   // A copy of the web drop data object we received from the browser.
-  RefPtr<WebCore::ChromiumDataObject> current_drop_data_;
+  RefPtr<WebCore::ChromiumDataObject> current_drag_data_;
 
  private:
   // Returns true if the event was actually processed.

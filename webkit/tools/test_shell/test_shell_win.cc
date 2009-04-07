@@ -697,7 +697,7 @@ string16 GetLocalizedString(int message_id) {
 }
 
 // TODO(tc): Convert this to using resources from test_shell.rc.
-std::string GetDataResource(int resource_id) {
+StringPiece GetDataResource(int resource_id) {
   switch (resource_id) {
   case IDR_BROKENIMAGE: {
     // Use webkit's broken image icon (16x16)
@@ -718,7 +718,7 @@ std::string GetDataResource(int resource_id) {
     // a {{URL}} substring where the feed URL should go; see the code
     // that computes feed previews in feed_preview.cc:MakeFeedPreview.
     // This fixes issue #932714.
-    return std::string("Feed preview for {{URL}}");
+    return "Feed preview for {{URL}}";
   case IDR_TEXTAREA_RESIZER: {
     // Use webkit's text area resizer image.
     static std::string resize_corner_data;
@@ -738,13 +738,13 @@ std::string GetDataResource(int resource_id) {
   case IDR_SEARCH_CANCEL_PRESSED:
   case IDR_SEARCH_MAGNIFIER:
   case IDR_SEARCH_MAGNIFIER_RESULTS:
-    return NetResourceProvider(resource_id).as_string();
+    return NetResourceProvider(resource_id);
 
   default:
     break;
   }
 
-  return std::string();
+  return StringPiece();
 }
 
 HCURSOR LoadCursor(int cursor_id) {

@@ -6,7 +6,7 @@
 #define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_WEBKIT_INIT_H_
 
 #include "base/string_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebCString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
@@ -83,7 +83,7 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
   virtual void prefetchHostName(const WebKit::WebString&) {
   }
 
-  virtual WebKit::WebCString loadResource(const char* name) {
+  virtual WebKit::WebData loadResource(const char* name) {
     if (!strcmp(name, "deleteButton")) {
       // Create a red 30x30 square.
       const char red_square[] =
@@ -98,7 +98,7 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
           "\x18\x50\xb9\x33\x47\xf9\xa8\x01\x32\xd4\xc2\x03\x00\x33\x84\x0d"
           "\x02\x3a\x91\xeb\xa5\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60"
           "\x82";
-      return WebKit::WebCString(red_square, arraysize(red_square));
+      return WebKit::WebData(red_square, arraysize(red_square));
     }
     return webkit_glue::WebKitClientImpl::loadResource(name);
   }

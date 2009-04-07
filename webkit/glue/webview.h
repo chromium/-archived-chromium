@@ -12,7 +12,11 @@
 #include "base/string16.h"
 #include "webkit/glue/webwidget.h"
 
-struct WebDropData;
+namespace WebKit {
+class WebDragData;
+struct WebPoint;
+}
+
 struct WebPreferences;
 class GURL;
 class WebDevToolsAgent;
@@ -174,25 +178,31 @@ class WebView : public WebWidget {
 
   // Notifies the webview that a drag has terminated.
   virtual void DragSourceEndedAt(
-      int client_x, int client_y, int screen_x, int screen_y) = 0;
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point) = 0;
 
   // Notifies the webview that a drag and drop operation is in progress, with
   // dropable items over the view.
   virtual void DragSourceMovedTo(
-      int client_x, int client_y, int screen_x, int screen_y) = 0;
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point) = 0;
 
   // Notfies the webview that the system drag and drop operation has ended.
   virtual void DragSourceSystemDragEnded() = 0;
 
   // Callback methods when a drag and drop operation is trying to drop
   // something on the renderer.
-  virtual bool DragTargetDragEnter(const WebDropData& drop_data,
-      int client_x, int client_y, int screen_x, int screen_y) = 0;
+  virtual bool DragTargetDragEnter(
+      const WebKit::WebDragData& drag_data, int identity,
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point) = 0;
   virtual bool DragTargetDragOver(
-      int client_x, int client_y, int screen_x, int screen_y) = 0;
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point) = 0;
   virtual void DragTargetDragLeave() = 0;
   virtual void DragTargetDrop(
-      int client_x, int client_y, int screen_x, int screen_y) = 0;
+      const WebKit::WebPoint& client_point,
+      const WebKit::WebPoint& screen_point) = 0;
   virtual int32 GetDragIdentity() = 0;
 
   // Notifies the webview that autofill suggestions are available for a node.

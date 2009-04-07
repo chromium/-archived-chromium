@@ -342,14 +342,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\clipboard_conversion.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\clipboard_conversion.h"
-				>
-			</File>
-			<File
 				RelativePath=".\context_menu_client_impl.cc"
 				>
 			</File>
@@ -631,6 +623,10 @@
 			</File>
 			<File
 				RelativePath=".\webdropdata.h"
+				>
+			</File>
+			<File
+				RelativePath=".\webdropdata_win.cc"
 				>
 			</File>
 			<File

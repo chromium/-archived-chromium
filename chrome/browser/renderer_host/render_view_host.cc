@@ -390,15 +390,16 @@ void RenderViewHost::FillPasswordForm(
   Send(new ViewMsg_FillPasswordForm(routing_id(), form_data));
 }
 
-void RenderViewHost::DragTargetDragEnter(const WebDropData& drop_data,
-    const gfx::Point& client_pt, const gfx::Point& screen_pt) {
+void RenderViewHost::DragTargetDragEnter(
+    const WebDropData& drop_data,
+    const gfx::Point& client_pt,
+    const gfx::Point& screen_pt) {
   // Grant the renderer the ability to load the drop_data.
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
   policy->GrantRequestURL(process()->pid(), drop_data.url);
-  for (std::vector<std::wstring>::const_iterator
-         iter(drop_data.filenames.begin());
+  for (std::vector<string16>::const_iterator iter(drop_data.filenames.begin());
        iter != drop_data.filenames.end(); ++iter) {
-    FilePath path = FilePath::FromWStringHack(*iter);
+    FilePath path = FilePath::FromWStringHack(UTF16ToWideHack(*iter));
     policy->GrantRequestURL(process()->pid(), net::FilePathToFileURL(path));
     policy->GrantUploadFile(process()->pid(), path);
   }
@@ -571,13 +572,19 @@ void RenderViewHost::ShowJavaScriptConsole() {
 void RenderViewHost::DragSourceEndedAt(
     int client_x, int client_y, int screen_x, int screen_y) {
   Send(new ViewMsg_DragSourceEndedOrMoved(
-      routing_id(), client_x, client_y, screen_x, screen_y, true));
+      routing_id(),
+      gfx::Point(client_x, client_y),
+      gfx::Point(screen_x, screen_y),
+      true));
 }
 
 void RenderViewHost::DragSourceMovedTo(
     int client_x, int client_y, int screen_x, int screen_y) {
   Send(new ViewMsg_DragSourceEndedOrMoved(
-      routing_id(), client_x, client_y, screen_x, screen_y, false));
+      routing_id(),
+      gfx::Point(client_x, client_y),
+      gfx::Point(screen_x, screen_y),
+      false));
 }
 
 void RenderViewHost::DragSourceSystemDragEnded() {

@@ -107,7 +107,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                    unsigned int line_no,
                                    const std::wstring& source_id);
   virtual void StartDragging(WebView* webview,
-                             const WebDropData& drop_data);
+                             const WebKit::WebDragData& drag_data);
   virtual void ShowContextMenu(WebView* webview,
                                ContextNode node,
                                int x,

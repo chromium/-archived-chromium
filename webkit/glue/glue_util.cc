@@ -15,7 +15,9 @@
 
 #include <string>
 
+#include "ChromiumDataObject.h"
 #include "CString.h"
+#include "IntPoint.h"
 #include "IntRect.h"
 #include "PlatformString.h"
 #include "KURL.h"
@@ -27,6 +29,8 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "googleurl/src/gurl.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 
@@ -164,6 +168,28 @@ gfx::Rect FromIntRect(const WebCore::IntRect& r) {
 
 WebCore::IntRect ToIntRect(const gfx::Rect& r) {
   return WebCore::IntRect(r.x(), r.y(), r.width(), r.height());
+}
+
+// Point conversions -----------------------------------------------------------
+
+WebCore::IntPoint WebPointToIntPoint(const WebKit::WebPoint& point) {
+  return point;
+}
+
+WebKit::WebPoint IntPointToWebPoint(const WebCore::IntPoint& point) {
+  return point;
+}
+
+// DragData conversions --------------------------------------------------------
+
+WebKit::WebDragData ChromiumDataObjectToWebDragData(
+    const PassRefPtr<WebCore::ChromiumDataObject>& data) {
+  return data;
+}
+
+PassRefPtr<WebCore::ChromiumDataObject> WebDragDataToChromiumDataObject(
+    const WebKit::WebDragData& data) {
+  return data;
 }
 
 }  // namespace webkit_glue

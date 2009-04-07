@@ -25,7 +25,7 @@ class WebKitClientImpl : public WebKit::WebKitClient {
   virtual void incrementStatsCounter(const char* name);
   virtual void traceEventBegin(const char* name, void* id, const char* extra);
   virtual void traceEventEnd(const char* name, void* id, const char* extra);
-  virtual WebKit::WebCString loadResource(const char* name);
+  virtual WebKit::WebData loadResource(const char* name);
   virtual double currentTime();
   virtual void setSharedTimerFiredFunction(void (*func)());
   virtual void setSharedTimerFireTime(double fireTime);

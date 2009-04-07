@@ -171,8 +171,8 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-std::string GetDataResource(int resource_id) {
-  return ResourceBundle::GetSharedInstance().GetDataResource(resource_id);
+StringPiece GetDataResource(int resource_id) {
+  return ResourceBundle::GetSharedInstance().GetRawDataResource(resource_id);
 }
 
 #if defined(OS_WIN)

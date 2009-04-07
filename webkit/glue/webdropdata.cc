@@ -4,27 +4,48 @@
 
 #include "webkit/glue/webdropdata.h"
 
-#include "base/clipboard_util.h"
-#include "googleurl/src/gurl.h"
-#include <shellapi.h>
-#include <shlobj.h>
+#include "third_party/WebKit/WebKit/chromium/public/WebData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebVector.h"
 
-/* static */
-void WebDropData::PopulateWebDropData(IDataObject* data_object,
-                                      WebDropData* drop_data) {
-  std::wstring url_str;
-  if (ClipboardUtil::GetUrl(data_object, &url_str, &drop_data->url_title)) {
-    GURL test_url(url_str);
-    if (test_url.is_valid())
-      drop_data->url = test_url;
+using WebKit::WebData;
+using WebKit::WebDragData;
+using WebKit::WebString;
+using WebKit::WebVector;
+
+WebDropData::WebDropData(const WebDragData& drag_data)
+    : identity(0),
+      url(drag_data.url()),
+      url_title(drag_data.urlTitle()),
+      file_extension(drag_data.fileExtension()),
+      plain_text(drag_data.plainText()),
+      text_html(drag_data.htmlText()),
+      html_base_url(drag_data.htmlBaseURL()),
+      file_description_filename(drag_data.fileContentFileName()) {
+  if (drag_data.hasFileNames()) {
+    WebVector<WebString> fileNames;
+    drag_data.fileNames(fileNames);
+    for (size_t i = 0; i < fileNames.size(); ++i)
+      filenames.push_back(fileNames[i]);
   }
-  ClipboardUtil::GetFilenames(data_object, &drop_data->filenames);
-  ClipboardUtil::GetPlainText(data_object, &drop_data->plain_text);
-  std::string base_url;
-  ClipboardUtil::GetHtml(data_object, &drop_data->text_html, &base_url);
-  if (!base_url.empty()) {
-    drop_data->html_base_url = GURL(base_url);
-  }
-  ClipboardUtil::GetFileContents(data_object,
-      &drop_data->file_description_filename, &drop_data->file_contents);
+  WebData contents = drag_data.fileContent();
+  if (!contents.isEmpty())
+    file_contents.assign(contents.data(), contents.size());
+}
+
+WebDragData WebDropData::ToDragData() const {
+  WebDragData result;
+  result.initialize();
+  result.setURL(url);
+  result.setURLTitle(url_title);
+  result.setFileExtension(file_extension);
+  result.setFileNames(filenames);
+  result.setPlainText(plain_text);
+  result.setHTMLText(text_html);
+  result.setHTMLBaseURL(html_base_url);
+  result.setFileContentFileName(file_description_filename);
+  result.setFileContent(WebData(file_contents.data(), file_contents.size()));
+  return result;
 }

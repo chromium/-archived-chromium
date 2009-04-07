@@ -20,12 +20,14 @@ MSVC_POP_WARNING();
 
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "webkit/glue/clipboard_conversion.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
 #include "webkit/glue/context_menu.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
+
+using WebKit::WebDragData;
 
 void DragClientImpl::willPerformDragDestinationAction(
     WebCore::DragDestinationAction,
@@ -60,13 +62,10 @@ void DragClientImpl::startDrag(WebCore::DragImageRef drag_image,
   // Add a ref to the frame just in case a load occurs mid-drag.
   RefPtr<WebCore::Frame> frame_protector = frame;
 
-  RefPtr<WebCore::ChromiumDataObject> data_object =
-      static_cast<WebCore::ClipboardChromium*>(clipboard)->dataObject();
-  DCHECK(data_object.get());
-  WebDropData drop_data = webkit_glue::ChromiumDataObjectToWebDropData(
-      data_object.get());
+  WebDragData drag_data = webkit_glue::ChromiumDataObjectToWebDragData(
+      static_cast<WebCore::ClipboardChromium*>(clipboard)->dataObject());
 
-  webview_->StartDragging(drop_data);
+  webview_->StartDragging(drag_data);
 }
 
 WebCore::DragImageRef DragClientImpl::createDragImageForLink(
