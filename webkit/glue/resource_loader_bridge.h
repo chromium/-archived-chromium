@@ -68,6 +68,9 @@ class ResourceLoaderBridge {
     // Content length if available. -1 if not available
     int64 content_length;
 
+    // The appcache this response was loaded from, or kNoAppCacheId.
+    int64 app_cache_id;
+
     // A platform specific handle for a file that carries response data. This
     // entry is used if the resource request is of type ResourceType::MEDIA and
     // the underlying cache layer keeps the response data in a standalone file.
@@ -172,6 +175,9 @@ class ResourceLoaderBridge {
   // request_type indicates if the current request is the main frame load, a
   // sub-frame load, or a sub objects load.
   //
+  // app_cache_context_id identifies that app cache context this request is
+  // associated with.
+  //
   // routing_id passed to this function allows it to be associated with a
   // frame's network context.
   static ResourceLoaderBridge* Create(const std::string& method,
@@ -185,6 +191,7 @@ class ResourceLoaderBridge {
                                       int load_flags,
                                       int requestor_pid,
                                       ResourceType::Type request_type,
+                                      int app_cache_context_id,
                                       int routing_id);
 
   // Call this method before calling Start() to append a chunk of binary data

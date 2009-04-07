@@ -14,6 +14,7 @@
 #include "chrome/common/child_thread.h"
 #include "chrome/renderer/renderer_histogram_snapshots.h"
 
+class AppCacheDispatcher;
 class FilePath;
 class NotificationService;
 class RenderDnsMaster;
@@ -147,6 +148,8 @@ class RenderThread : public RenderThreadBase,
   scoped_ptr<NotificationService> notification_service_;
 
   scoped_ptr<RendererWebKitClientImpl> webkit_client_;
+
+  scoped_ptr<AppCacheDispatcher> app_cache_dispatcher_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };

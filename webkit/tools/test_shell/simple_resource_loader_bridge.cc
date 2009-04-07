@@ -46,6 +46,7 @@
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
 #include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/tools/test_shell/test_shell_request_context.h"
 
 using webkit_glue::ResourceLoaderBridge;
@@ -99,6 +100,7 @@ struct RequestParams {
   GURL referrer;
   std::string headers;
   int load_flags;
+  int app_cache_context_id;
   scoped_refptr<net::UploadData> upload;
 };
 
@@ -287,6 +289,7 @@ class RequestProxy : public URLRequest::Delegate,
       info.request_time = request->request_time();
       info.response_time = request->response_time();
       info.headers = request->response_headers();
+      info.app_cache_id = WebAppCacheContext::kNoAppCacheId;
       request->GetMimeType(&info.mime_type);
       request->GetCharset(&info.charset);
       info.content_length = request->GetExpectedContentSize();
@@ -427,7 +430,8 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
                            const GURL& policy_url,
                            const GURL& referrer,
                            const std::string& headers,
-                           int load_flags)
+                           int load_flags,
+                           int app_cache_context_id)
       : params_(new RequestParams),
         proxy_(NULL) {
     params_->method = method;
@@ -436,6 +440,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->referrer = referrer;
     params_->headers = headers;
     params_->load_flags = load_flags;
+    params_->app_cache_context_id = app_cache_context_id;
   }
 
   virtual ~ResourceLoaderBridgeImpl() {
@@ -570,9 +575,11 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     int load_flags,
     int requestor_pid,
     ResourceType::Type request_type,
+    int app_cache_context_id,
     int routing_id) {
   return new ResourceLoaderBridgeImpl(method, url, policy_url,
-                                      referrer, headers, load_flags);
+                                      referrer, headers, load_flags,
+                                      app_cache_context_id);
 }
 
 // Issue the proxy resolve request on the io thread, and wait

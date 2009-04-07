@@ -42,6 +42,7 @@
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
+#include "webkit/glue/webappcachecontext.h"
 
 // TODO(port): Move these includes to the above section when porting is done.
 #if defined(OS_POSIX)
@@ -909,6 +910,7 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
   request->GetCharset(&response->response_head.charset);
   response->response_head.filter_policy = info->filter_policy;
   response->response_head.content_length = request->GetExpectedContentSize();
+  response->response_head.app_cache_id = WebAppCacheContext::kNoAppCacheId;
   request->GetMimeType(&response->response_head.mime_type);
 
   // Make sure we don't get a file handle if LOAD_ENABLE_FILE is not set.

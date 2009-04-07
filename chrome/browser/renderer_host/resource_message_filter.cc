@@ -20,6 +20,7 @@
 #include "chrome/browser/renderer_host/render_widget_helper.h"
 #include "chrome/browser/spellchecker.h"
 #include "chrome/browser/worker_host/worker_service.h"
+#include "chrome/common/app_cache/app_cache_dispatcher_host.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_plugin_util.h"
 #include "chrome/common/clipboard_service.h"
@@ -128,6 +129,7 @@ ResourceMessageFilter::ResourceMessageFilter(
       profile_(profile),
       render_widget_helper_(render_widget_helper),
       audio_renderer_host_(audio_renderer_host),
+      app_cache_dispatcher_host_(new AppCacheDispatcherHost),
       off_the_record_(profile->IsOffTheRecord()) {
   DCHECK(request_context_.get());
   DCHECK(request_context_->cookie_store());
@@ -155,7 +157,7 @@ ResourceMessageFilter::~ResourceMessageFilter() {
 void ResourceMessageFilter::Init(int render_process_id) {
   render_process_id_ = render_process_id;
   render_widget_helper_->Init(render_process_id, resource_dispatcher_host_);
-
+  app_cache_dispatcher_host_->Initialize(this);
   ExtensionMessageService::GetInstance()->RendererReady(this);
 }
 
@@ -199,7 +201,9 @@ void ResourceMessageFilter::OnChannelClosing() {
 bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
   bool msg_is_ok = true;
   bool handled = resource_dispatcher_host_->OnMessageReceived(
-      message, this, &msg_is_ok);
+                                                message, this, &msg_is_ok) ||
+                 app_cache_dispatcher_host_->OnMessageReceived(
+                                                message, &msg_is_ok);
   if (!handled) {
     handled = true;
     IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)

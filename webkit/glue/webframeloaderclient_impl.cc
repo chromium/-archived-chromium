@@ -50,6 +50,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/weberror_impl.h"
@@ -234,6 +235,8 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
   if (net_agent) {
     net_agent->WillSendRequest(loader, identifier, request);
   }
+
+  request.setAppCacheContextID(webframe_->GetAppCacheContext()->context_id());
 }
 
 bool WebFrameLoaderClient::shouldUseCredentialStorage(DocumentLoader*,
@@ -785,8 +788,9 @@ void WebFrameLoaderClient::dispatchDidReceiveTitle(const String& title) {
 }
 
 void WebFrameLoaderClient::dispatchDidCommitLoad() {
-  WebViewImpl* webview = webframe_->webview_impl();
+  webframe_->SelectAppCacheWithoutManifest();
 
+  WebViewImpl* webview = webframe_->webview_impl();
   bool is_new_navigation;
   webview->DidCommitLoad(&is_new_navigation);
   WebViewDelegate* d = webview->delegate();

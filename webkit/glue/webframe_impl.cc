@@ -144,6 +144,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/feed.h"
 #include "webkit/glue/glue_serialize.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdatasource_impl.h"
 #include "webkit/glue/weberror_impl.h"
 #include "webkit/glue/webframe_impl.h"
@@ -355,7 +356,8 @@ MSVC_POP_WARNING()
     total_matchcount_(-1),
     frames_scoping_count_(-1),
     scoping_complete_(false),
-    next_invalidate_after_(0) {
+    next_invalidate_after_(0),
+    app_cache_context_(WebAppCacheContext::Create()) {
   StatsCounter(kWebFrameActiveCount).Increment();
   live_object_count_++;
 }
@@ -384,6 +386,9 @@ void WebFrameImpl::InitMainFrame(WebViewImpl* webview_impl) {
   // We must call init() after frame_ is assigned because it is referenced
   // during init().
   frame_->init();
+
+  // Inform the  browser process of this top-level frame
+  app_cache_context_->Initialize(WebAppCacheContext::MAIN_FRAME, NULL);
 }
 
 void WebFrameImpl::LoadRequest(WebRequest* request) {
@@ -1806,10 +1811,15 @@ PassRefPtr<Frame> WebFrameImpl::CreateChildFrame(
   if (!child_frame->tree()->parent())
     return NULL;
 
+  // Inform the  browser process of this child frame
+  webframe->app_cache_context_->Initialize(WebAppCacheContext::CHILD_FRAME,
+                                           app_cache_context_.get());
+
   frame_->loader()->loadURLIntoChildFrame(
       request.resourceRequest().url(),
       request.resourceRequest().httpReferrer(),
       child_frame.get());
+
   // A synchronous navigation (about:blank) would have already processed
   // onload, so it is possible for the frame to have already been destroyed by
   // script in the page.
@@ -1913,6 +1923,32 @@ float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
 #endif
 
   return print_context_->spoolPage(spool, page);
+}
+
+void WebFrameImpl::SelectAppCacheWithoutManifest() {
+  WebDataSource* ds = GetDataSource();
+  DCHECK(ds);
+  if (ds->HasUnreachableURL()) {
+    app_cache_context_->SelectAppCacheWithoutManifest(
+                             ds->GetUnreachableURL(),
+                             WebAppCacheContext::kNoAppCacheId);
+  } else {
+    const WebResponse& response = ds->GetResponse();
+    app_cache_context_->SelectAppCacheWithoutManifest(
+                             GetURL(),
+                             response.GetAppCacheID());
+  }
+}
+
+void WebFrameImpl::SelectAppCacheWithManifest(const GURL &manifest_url) {
+  WebDataSource* ds = GetDataSource();
+  DCHECK(ds);
+  DCHECK(!ds->HasUnreachableURL());
+  const WebResponse& response = ds->GetResponse();
+  app_cache_context_->SelectAppCacheWithManifest(
+                           GetURL(),
+                           response.GetAppCacheID(),
+                           manifest_url);
 }
 
 void WebFrameImpl::EndPrint() {

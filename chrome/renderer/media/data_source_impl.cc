@@ -13,6 +13,7 @@
 #include "media/base/pipeline.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
+#include "webkit/glue/webappcachecontext.h"
 
 DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
     : delegate_(delegate),
@@ -215,6 +216,10 @@ void DataSourceImpl::OnInitialize(std::string uri) {
       base::GetCurrentProcId(),
       ResourceType::MEDIA,
       0,
+      // TODO(michaeln): delegate->mediaplayer->frame->
+      //                    app_cache_context()->context_id()
+      // For now don't service media resource requests from the appcache.
+      WebAppCacheContext::kNoAppCacheContextId,
       delegate_->view()->routing_id());
   // Start the resource loading.
   resource_loader_bridge_->Start(this);

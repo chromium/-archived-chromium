@@ -192,6 +192,7 @@ static ResourceResponse MakeResourceResponse(
   response.setHTTPStatusCode(status_code);
   response.setHTTPStatusText(status_text);
   response.setSecurityInfo(webkit_glue::StdStringToCString(info.security_info));
+  response.setAppCacheID(info.app_cache_id);
 
   // WebKit doesn't provide a way for us to set expected content length after
   // calling the constructor, so we parse the headers first and then swap in
@@ -431,6 +432,7 @@ bool ResourceHandleInternal::Start(
       load_flags_,
       requestor_pid,
       FromTargetType(request_.targetType()),
+      request_.appCacheContextID(),
       request_.requestorID()));
   if (!bridge_.get())
     return false;

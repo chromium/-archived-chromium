@@ -32,7 +32,7 @@ class ResourceDispatcher {
   // handled, else false.
   bool OnMessageReceived(const IPC::Message& message);
 
-  // creates a ResourceLoaderBridge for this type of dispatcher, this is so
+  // Creates a ResourceLoaderBridge for this type of dispatcher, this is so
   // this can be tested regardless of the ResourceLoaderBridge::Create
   // implementation.
   webkit_glue::ResourceLoaderBridge* CreateBridge(const std::string& method,
@@ -47,6 +47,7 @@ class ResourceDispatcher {
     int origin_pid,
     ResourceType::Type resource_type,
     uint32 request_context /* used for plugin->browser requests */,
+    int app_cache_context_id,
     int route_id);
 
   // Adds a request from the pending_requests_ list, returning the new

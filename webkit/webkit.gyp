@@ -4372,6 +4372,8 @@
         'glue/simple_webmimeregistry_impl.h',
         'glue/stacking_order_iterator.cc',
         'glue/stacking_order_iterator.h',
+        'glue/webappcachecontext.cc',
+        'glue/webappcachecontext.h',
         'glue/webclipboard_impl.cc',
         'glue/webclipboard_impl.h',
         'glue/webcursor.cc',

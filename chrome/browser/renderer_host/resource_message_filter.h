@@ -32,6 +32,7 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
+class AppCacheDispatcherHost;
 class AudioRendererHost;
 class ClipboardService;
 class Profile;
@@ -268,6 +269,9 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   // Object that should take care of audio related resource requests.
   scoped_refptr<AudioRendererHost> audio_renderer_host_;
+
+  // Handles appcache related messages
+  scoped_ptr<AppCacheDispatcherHost> app_cache_dispatcher_host_;
 
   // Whether this process is used for off the record tabs.
   bool off_the_record_;

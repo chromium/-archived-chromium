@@ -15,6 +15,7 @@
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_test_job.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "webkit/glue/webappcachecontext.h"
 
 static int RequestIDForMessage(const IPC::Message& msg) {
   int request_id = -1;
@@ -43,6 +44,7 @@ static ViewHostMsg_Resource_Request CreateResourceRequest(const char* method,
   request.origin_pid = 0;
   request.resource_type = ResourceType::SUB_RESOURCE;
   request.request_context = 0;
+  request.app_cache_context_id = WebAppCacheContext::kNoAppCacheContextId;
   return request;
 }
 

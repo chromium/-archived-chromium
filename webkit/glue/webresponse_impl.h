@@ -40,9 +40,13 @@ class WebResponseImpl : public WebResponse {
     response_ = response;
   }
 
- virtual bool IsContentFiltered() const {
-   return response_.isContentFiltered();
- }
+  virtual bool IsContentFiltered() const {
+    return response_.isContentFiltered();
+  }
+
+  virtual int64 GetAppCacheID() const {
+    return response_.getAppCacheID();
+  }
 
  private:
   WebCore::ResourceResponse response_;

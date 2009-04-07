@@ -10,6 +10,8 @@
 #include "base/command_line.h"
 #include "base/shared_memory.h"
 #include "base/stats_table.h"
+#include "chrome/common/app_cache/app_cache_context_impl.h"
+#include "chrome/common/app_cache/app_cache_dispatcher.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/notification_service.h"
@@ -91,8 +93,13 @@ void RenderThread::SendHistograms() {
   return histogram_snapshots_->SendHistograms();
 }
 
+static WebAppCacheContext* CreateAppCacheContextForRenderer() {
+  return new AppCacheContextImpl(RenderThread::current());
+}
+
 void RenderThread::Init() {
-  // TODO(darin): Why do we need COM here?  This is probably bogus.
+  // TODO(darin): Why do we need COM here?  This is probably bogus. Perhaps
+  // this is for InProcessPlugin support?
 #if defined(OS_WIN)
   // The renderer thread should wind-up COM.
   CoInitialize(0);
@@ -107,11 +114,15 @@ void RenderThread::Init() {
   user_script_slave_.reset(new UserScriptSlave());
   dns_master_.reset(new RenderDnsMaster());
   histogram_snapshots_.reset(new RendererHistogramSnapshots());
+  app_cache_dispatcher_.reset(new AppCacheDispatcher());
+  WebAppCacheContext::SetFactory(CreateAppCacheContextForRenderer);
 }
 
 void RenderThread::CleanUp() {
   // Shutdown in reverse of the initialization order.
 
+  WebAppCacheContext::SetFactory(NULL);
+  app_cache_dispatcher_.reset();
   histogram_snapshots_.reset();
   dns_master_.reset();
   user_script_slave_.reset();
@@ -154,6 +165,10 @@ void RenderThread::OnSetExtensionFunctionNames(
 }
 
 void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
+  // App cache messages are handled by a delegate.
+  if (app_cache_dispatcher_->OnMessageReceived(msg))
+    return;
+
   IPC_BEGIN_MESSAGE_MAP(RenderThread, msg)
     IPC_MESSAGE_HANDLER(ViewMsg_VisitedLink_NewTable, OnUpdateVisitedLinks)
     IPC_MESSAGE_HANDLER(ViewMsg_SetNextPageID, OnSetNextPageID)

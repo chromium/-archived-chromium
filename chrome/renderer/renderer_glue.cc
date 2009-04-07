@@ -232,12 +232,14 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
     int load_flags,
     int origin_pid,
     ResourceType::Type resource_type,
+    int app_cache_context_id,
     int routing_id) {
   ResourceDispatcher* dispatch = RenderThread::current()->resource_dispatcher();
   return dispatch->CreateBridge(method, url, policy_url, referrer,
                                 frame_origin, main_frame_origin, headers,
                                 default_mime_type, load_flags, origin_pid,
-                                resource_type, 0, routing_id);
+                                resource_type, 0,
+                                app_cache_context_id, routing_id);
 }
 
 void NotifyCacheStats() {

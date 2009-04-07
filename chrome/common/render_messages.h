@@ -33,6 +33,7 @@
 #include "webkit/glue/password_form_dom_manager.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webaccessibility.h"
+#include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webpreferences.h"
@@ -274,6 +275,10 @@ struct ViewHostMsg_Resource_Request {
 
   // Used by plugin->browser requests to get the correct URLRequestContext.
   uint32 request_context;
+
+  // Indicates which frame (or worker context) the request is being loaded into,
+  // or kNoAppCacheContextId.
+  int32 app_cache_context_id;
 
   // Optional upload data (may be null).
   scoped_refptr<net::UploadData> upload_data;
@@ -1222,6 +1227,7 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     WriteParam(m, p.origin_pid);
     WriteParam(m, p.resource_type);
     WriteParam(m, p.request_context);
+    WriteParam(m, p.app_cache_context_id);
     WriteParam(m, p.upload_data);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
@@ -1238,6 +1244,7 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
       ReadParam(m, iter, &r->origin_pid) &&
       ReadParam(m, iter, &r->resource_type) &&
       ReadParam(m, iter, &r->request_context) &&
+      ReadParam(m, iter, &r->app_cache_context_id) &&
       ReadParam(m, iter, &r->upload_data);
   }
   static void Log(const param_type& p, std::wstring* l) {
@@ -1261,6 +1268,8 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     LogParam(p.resource_type, l);
     l->append(L", ");
     LogParam(p.request_context, l);
+    l->append(L", ");
+    LogParam(p.app_cache_context_id, l);
     l->append(L")");
   }
 };
@@ -1352,6 +1361,7 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
     WriteParam(m, p.charset);
     WriteParam(m, p.security_info);
     WriteParam(m, p.content_length);
+    WriteParam(m, p.app_cache_id);
     WriteParam(m, p.response_data_file);
   }
   static bool Read(const Message* m, void** iter, param_type* r) {
@@ -1363,6 +1373,7 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
       ReadParam(m, iter, &r->charset) &&
       ReadParam(m, iter, &r->security_info) &&
       ReadParam(m, iter, &r->content_length) &&
+      ReadParam(m, iter, &r->app_cache_id) &&
       ReadParam(m, iter, &r->response_data_file);
   }
   static void Log(const param_type& p, std::wstring* l) {
@@ -1378,6 +1389,10 @@ struct ParamTraits<webkit_glue::ResourceLoaderBridge::ResponseInfo> {
     LogParam(p.charset, l);
     l->append(L", ");
     LogParam(p.security_info, l);
+    l->append(L", ");
+    LogParam(p.content_length, l);
+    l->append(L", ");
+    LogParam(p.app_cache_id, l);
     l->append(L")");
   }
 };
@@ -1769,6 +1784,40 @@ struct ParamTraits<AudioOutputStream::State> {
       break;
      case AudioOutputStream::STATE_ERROR:
        state = L"AudioOutputStream::STATE_ERROR";
+       break;
+     default:
+      state = L"UNKNOWN";
+      break;
+    }
+
+    LogParam(state, l);
+  }
+};
+
+template <>
+struct ParamTraits<WebAppCacheContext::ContextType> {
+  typedef WebAppCacheContext::ContextType param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteInt(static_cast<int>(p));
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    int type;
+    if (!m->ReadInt(iter, &type))
+      return false;
+    *p = static_cast<param_type>(type);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring state;
+    switch (p) {
+     case WebAppCacheContext::MAIN_FRAME:
+      state = L"MAIN_FRAME";
+      break;
+     case WebAppCacheContext::CHILD_FRAME:
+      state = L"CHILD_FRAME";
+      break;
+     case WebAppCacheContext::DEDICATED_WORKER:
+       state = L"DECICATED_WORKER";
        break;
      default:
       state = L"UNKNOWN";

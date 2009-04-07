@@ -31,6 +31,9 @@ class WebResponse {
   // security reasons).
   virtual bool IsContentFiltered() const = 0;
 
+  // Returns the appcacheId this response was loaded from, or kNoAppCacheId.
+  virtual int64 GetAppCacheID() const = 0;
+
   virtual ~WebResponse() {}
 };
 

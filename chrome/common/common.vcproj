@@ -329,6 +329,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="app_cache"
+			>
+			<File
+				RelativePath=".\app_cache\app_cache_context_impl.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\app_cache\app_cache_context_impl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\app_cache\app_cache_dispatcher.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\app_cache\app_cache_dispatcher.h"
+				>
+			</File>
+			<File
+				RelativePath=".\app_cache\app_cache_dispatcher_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\app_cache\app_cache_dispatcher_host.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\animation.cc"
 			>

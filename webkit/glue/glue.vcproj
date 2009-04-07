@@ -186,6 +186,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webappcachecontext.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\webappcachecontext.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webdatasource.h"
 				>
 			</File>

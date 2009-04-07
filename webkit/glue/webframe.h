@@ -11,6 +11,7 @@
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/feed.h"
 
+class WebAppCacheContext;
 class WebDataSource;
 class WebError;
 class WebRequest;
@@ -379,6 +380,14 @@ class WebFrame {
   // 1/1.25 and 1/2). Returns 0 if the page number is invalid or not in printing
   // mode.
   virtual float PrintPage(int page, skia::PlatformCanvas* canvas) = 0;
+
+  // Initiates app cache selection for the context with the resource currently
+  // committed in the webframe.
+  virtual void SelectAppCacheWithoutManifest() = 0;
+  virtual void SelectAppCacheWithManifest(const GURL& manifest_url) = 0;
+
+  // Returns a pointer to the WebAppCacheContext for this frame.
+  virtual WebAppCacheContext* GetAppCacheContext() const = 0;
 
   // Reformats the web frame for screen display.
   virtual void EndPrint() = 0;
