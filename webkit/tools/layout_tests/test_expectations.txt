@@ -2310,3 +2310,5 @@ MAC RELEASE : LayoutTests/fast/dom/Window/window-object-cross-frame-calls.html =
 MAC : LayoutTests/svg/hixie/perf/001.xml = FAIL
 MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 
+// Broken by r13217.
+LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
