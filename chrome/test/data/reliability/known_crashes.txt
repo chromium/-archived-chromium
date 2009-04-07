@@ -53,18 +53,8 @@ PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::dequ
 # 9615
 SUBSTRING : history::HistoryBackend::~HistoryBackend
 
-# 4731, 6956
-SUBSTRING : net::httpcache::removependingtransaction
-SUBSTRING : net::httpcache::onprocesspendingqueue
-
 # 7701
 PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
-
-# 7693
-PREFIX : messageloop::posttask___spellchecker::dictionarydownloadcontroller::onurlfetchcomplete___urlfetcher::core::oncompletedurlrequest
-
-# 6521
-PREFIX : moz_z_inflate_fast___moz_z_inflate___gzipfilter::doinflate
 
 # 8020
 PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
@@ -81,14 +71,8 @@ PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox
 # 8648
 PREFIX : webcore::rendertext::destroy___webcore::node::detach___webcore::containernode::detach
 
-# 6319
-PREFIX : webcore::scrollview::visiblecontentrect___webcore::scrollview::contentstowindow___webcore::scrollview::repaintcontentrectangle___webcore::frameview::repaintcontentrectangle___webcore::renderview::repaintviewrectangle
-
 # 7367
 PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore::htmltokenizer::parsetag___webcore::htmltokenizer::write
-
-# 6317
-PREFIX : webplugindelegateproxy::backgroundchanged___webplugindelegateproxy::paint___webpluginimpl::paint___webcore::renderwidget::paint
 
 # 8033
 SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
