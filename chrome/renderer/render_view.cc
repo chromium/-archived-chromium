@@ -1180,9 +1180,6 @@ void RenderView::DidStopLoading(WebView* webview) {
   if (!favicon_url.is_empty())
     Send(new ViewHostMsg_UpdateFavIconURL(routing_id_, page_id_, favicon_url));
 
-  // Update the list of available feeds.
-  UpdateFeedList(webview->GetMainFrame()->GetFeedList());
-
   AddGURLSearchProvider(webview->GetMainFrame()->GetOSDDURL(),
                         true);  // autodetected
 
