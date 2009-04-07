@@ -5,6 +5,7 @@
 #ifndef BASE_GFX_GTK_UTIL_H_
 #define BASE_GFX_GTK_UTIL_H_
 
+#include <stdint.h>
 #include <vector>
 
 typedef struct _GdkColor GdkColor;
