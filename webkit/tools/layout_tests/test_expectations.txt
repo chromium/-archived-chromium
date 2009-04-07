@@ -893,7 +893,7 @@ LINUX : LayoutTests/svg/carto.net/button.svg = FAIL
 
 // New tests. We should fix these, but they don't need to block the current release
 DEFER LINUX WIN : LayoutTests/svg/custom/getscreenctm-in-mixed-content2.xhtml = FAIL
-DEFER : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
+DEFER LINUX WIN : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = FAIL
 DEFER : LayoutTests/svg/custom/use-instanceRoot-event-listeners.xhtml = FAIL
 
 LINUX : LayoutTests/svg/carto.net/combobox.svg = FAIL
@@ -2319,15 +2319,19 @@ BUG9798 LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/transitions/transition-timing-function.html = FAIL PASS
+BUG9798 WIN : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
-BUG9798 MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-sync.html = FAIL PASS
+BUG9798 MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
+BUG9798 MAC : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = TIMEOUT FAIL
 
 BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/animations/change-keyframes.html = FAIL PASS
+BUG9797 WIN DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/state-after-network-error.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH PASS
