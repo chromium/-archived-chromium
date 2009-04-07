@@ -128,6 +128,7 @@ class DownloadsDOMHandler : public DOMMessageHandler,
 
   // DownloadItem::Observer interface
   virtual void OnDownloadUpdated(DownloadItem* download);
+  virtual void OnDownloadOpened(DownloadItem* download) { }
 
   // DownloadManager::Observer interface
   virtual void ModelChanged();

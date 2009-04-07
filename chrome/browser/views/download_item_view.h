@@ -50,6 +50,7 @@ class DownloadItemView : public views::ButtonListener,
 
   // DownloadObserver method
   virtual void OnDownloadUpdated(DownloadItem* download);
+  virtual void OnDownloadOpened(DownloadItem* download);
 
   // View overrides
   virtual void Layout();
@@ -136,6 +137,10 @@ class DownloadItemView : public views::ButtonListener,
   // and simply returned on subsequent calls.
   void SizeLabelToMinWidth();
 
+  // Reenables the item after it has been disabled when a user clicked it to
+  // open the downloaded file.
+  void Reenable();
+
   // The different images used for the background.
   BodyImageSet normal_body_image_set_;
   BodyImageSet hot_body_image_set_;
@@ -219,6 +224,13 @@ class DownloadItemView : public views::ButtonListener,
 
   // The size of the buttons.  Cached so animation works when hidden.
   gfx::Size cached_button_size_;
+
+  // Whether we are currently disabled as part of opening the downloaded file.
+  bool disabled_while_opening_;
+
+  // Method factory used to delay reenabling of the item when opening the
+  // downloaded file.
+  ScopedRunnableMethodFactory<DownloadItemView> reenable_method_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(DownloadItemView);
 };

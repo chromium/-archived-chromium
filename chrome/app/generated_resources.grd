@@ -1235,7 +1235,10 @@ each locale. -->
          desc="Status that the file download will be opened when the download completes.">
         Opening when complete
       </message>
-
+      <message name="IDS_DOWNLOAD_STATUS_OPENING"
+               desc="Temporary status shown when a user has clicked to open a downloaded file.">
+        Opening <ph name="FILE">$1<ex>image.jpg</ex></ph>...
+      </message>
       <message name="IDS_DOWNLOAD_STATUS_COMPLETE"
                desc="Size and units downloaded.">
         <ph name="DOWNLOAD_SIZE">$1<ex>54kB</ex></ph>, Complete

@@ -52,10 +52,15 @@ static const int kButtonPadding = 5;  // Pixels.
 static const int kLabelPadding = 4;  // Pixels.
 
 static const SkColor kFileNameColor = SkColorSetRGB(87, 108, 149);
+static const SkColor kFileNameDisabledColor = SkColorSetRGB(171, 192, 212);
 static const SkColor kStatusColor = SkColorSetRGB(123, 141, 174);
 
 // How long the 'download complete' animation should last for.
 static const int kCompleteAnimationDurationMs = 2500;
+
+// How long we keep the item disabled after the user clicked it to open the
+// downloaded item.
+static const int kDisabledOnOpenDuration = 3000;
 
 // DownloadShelfContextMenuWin -------------------------------------------------
 
@@ -136,7 +141,9 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     save_button_(NULL),
     discard_button_(NULL),
     dangerous_download_label_(NULL),
-    dangerous_download_label_sized_(false) {
+    dangerous_download_label_sized_(false),
+    reenable_method_factory_(this),
+    disabled_while_opening_(false) {
   // TODO(idana) Bug# 1163334
   //
   // We currently do not mirror each download item on the download shelf (even
@@ -364,6 +371,15 @@ void DownloadItemView::OnDownloadUpdated(DownloadItem* download) {
   GetParent()->SchedulePaint();
 }
 
+void DownloadItemView::OnDownloadOpened(DownloadItem* download) {
+  disabled_while_opening_ = true;
+  SetEnabled(false);
+  MessageLoop::current()->PostDelayedTask(
+      FROM_HERE,
+      reenable_method_factory_.NewRunnableMethod(&DownloadItemView::Reenable),
+      kDisabledOnOpenDuration);
+}
+
 // View overrides
 
 // In dangerous mode we have to layout our buttons.
@@ -514,16 +530,24 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   // Last value of x was the end of the right image, just before the button.
   // Note that in dangerous mode we use a label (as the text is multi-line).
   if (!IsDangerousMode()) {
-    std::wstring filename =
-        gfx::ElideFilename(download_->GetFileName().ToWStringHack(),
-                           font_,
-                           kTextWidth);
+    std::wstring filename;
+    if (!disabled_while_opening_) {
+      filename = gfx::ElideFilename(download_->GetFileName().ToWStringHack(),
+                                    font_, kTextWidth);
+    } else {
+      filename =
+          l10n_util::GetStringF(IDS_DOWNLOAD_STATUS_OPENING,
+                                download_->GetFileName().ToWStringHack());
+      filename = gfx::ElideFilename(filename, font_, kTextWidth);
+    }
 
     if (show_status_text_) {
       int y = box_y_ + kVerticalPadding;
 
       // Draw the file's name.
-      canvas->DrawStringInt(filename, font_, kFileNameColor,
+      canvas->DrawStringInt(filename, font_,
+                            IsEnabled() ? kFileNameColor :
+                                          kFileNameDisabledColor,
                             download_util::kSmallProgressIconSize, y,
                             kTextWidth, font_.height());
 
@@ -536,7 +560,9 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
       int y = box_y_ + (box_height_ - font_.height()) / 2;
 
       // Draw the file's name.
-      canvas->DrawStringInt(filename, font_, kFileNameColor,
+      canvas->DrawStringInt(filename, font_,
+                            IsEnabled() ? kFileNameColor :
+                                          kFileNameDisabledColor,
                             download_util::kSmallProgressIconSize, y,
                             kTextWidth, font_.height());
     }
@@ -569,9 +595,19 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
     }
 
     // Draw the icon image.
-    canvas->DrawBitmapInt(*icon,
-                          download_util::kSmallProgressIconOffset,
-                          download_util::kSmallProgressIconOffset);
+    if (IsEnabled()) {
+      canvas->DrawBitmapInt(*icon,
+                            download_util::kSmallProgressIconOffset,
+                            download_util::kSmallProgressIconOffset);
+    } else {
+      // Use an alpha to make the image look disabled.
+      SkPaint paint;
+      paint.setAlpha(120);
+      canvas->DrawBitmapInt(*icon,
+                            download_util::kSmallProgressIconOffset,
+                            download_util::kSmallProgressIconOffset,
+                            paint);
+    }
   }
 }
 
@@ -879,4 +915,9 @@ void DownloadItemView::SizeLabelToMinWidth() {
 
   dangerous_download_label_->SetBounds(0, 0, size.width(), size.height());
   dangerous_download_label_sized_ = true;
+}
+
+void DownloadItemView::Reenable() {
+  disabled_while_opening_ = false;
+  SetEnabled(true);  // Triggers a repaint.
 }

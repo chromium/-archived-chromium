@@ -26,6 +26,7 @@ class DownloadItemGtk : DownloadItem::Observer {
 
   // DownloadItem::Observer implementation
   virtual void OnDownloadUpdated(DownloadItem* download);
+  virtual void OnDownloadOpened(DownloadItem* download) { }
 
  private:
   static void InitNineBoxes();

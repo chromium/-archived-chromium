@@ -187,6 +187,10 @@ void DownloadItem::UpdateObservers() {
   FOR_EACH_OBSERVER(Observer, observers_, OnDownloadUpdated(this));
 }
 
+void DownloadItem::NotifyObserversDownloadOpened() {
+  FOR_EACH_OBSERVER(Observer, observers_, OnDownloadOpened(this));
+}
+
 // If we've received more data than we were expecting (bad server info?), revert
 // to 'unknown size mode'.
 void DownloadItem::UpdateSize(int64 bytes_so_far) {

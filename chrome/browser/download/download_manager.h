@@ -100,6 +100,9 @@ class DownloadItem {
   class Observer {
    public:
     virtual void OnDownloadUpdated(DownloadItem* download) = 0;
+
+    // Called when a downloaded file has been opened.
+    virtual void OnDownloadOpened(DownloadItem* download) = 0;
   };
 
   // Constructing from persistent store:
@@ -126,8 +129,11 @@ class DownloadItem {
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
-  // Notify our observers periodically
+  // Notifies our observers periodically.
   void UpdateObservers();
+
+  // Notifies our observers the downloaded file has been opened.
+  void NotifyObserversDownloadOpened();
 
   // Received a new chunk of data
   void Update(int64 bytes_so_far);
