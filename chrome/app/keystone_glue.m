@@ -29,12 +29,7 @@ typedef enum { kKSPathExistenceChecker } KSExistenceCheckerType;
   if (bundleIdentifier == nil) {
     bundleIdentifier = [mainBundle bundleIdentifier];
   }
-  // TODO(mmentovai): The svn version serves our purposes for now, but it will
-  // likely be replaced.  The key problem is that it does not monotonically
-  // increase for releases when considering svn branches and tags.  For the
-  // purposes of TestShell, though, which will likely only ever survive in
-  // auto-updatable form in builds straight from the trunk, this is fine.
-  NSString* version = [infoDictionary objectForKey:@"SVNRevision"];
+  NSString* version = [infoDictionary objectForKey:@"KSVersion"];
   if (!bundleIdentifier || !url || !version) {
     // If parameters required for Keystone are missing, don't use it.
     return;
