@@ -248,6 +248,25 @@
           'ENABLE_LOGGING_AND_PROFILING',
         ],
       },
+      'Release': {
+        'defines': [
+          'ENABLE_LOGGING_AND_PROFILING',
+        ],
+        'conditions': [
+          ['OS=="linux"', {
+            'cflags!': [
+              '-O2',
+            ],
+            'cflags': [
+              '-fno-rtti',
+              '-fdata-sections',
+              '-ffunction-sections',
+              '-fomit-frame-pointer',
+              '-O3',
+            ],
+          }],
+        ],
+      },
     },
     'xcode_settings': {
       'GCC_ENABLE_CPP_EXCEPTIONS': 'NO',
