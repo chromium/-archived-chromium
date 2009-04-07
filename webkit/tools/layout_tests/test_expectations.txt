@@ -883,7 +883,7 @@ LINUX : LayoutTests/svg/text/text-text-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-01-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-02-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-03-b.svg = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-04-b.svg = FAIL CRASH
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-05-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-06-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/fonts-elem-07-b.svg = FAIL
@@ -1060,7 +1060,7 @@ DEFER LINUX WIN : LayoutTests/editing/selection/caret-rtl-2.html = FAIL
 // it doesn't need to block the current release
 DEFER WIN : LayoutTests/fast/dom/resource-locations-in-created-html-document.html = FAIL
 
-DEBUG : LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
+LayoutTests/http/tests/messaging/cross-domain-message-event-dispatch.html = FAIL PASS TIMEOUT
 // See recent changes to test_shell_win.
 LINUX MAC : LayoutTests/http/tests/navigation/metaredirect-basic.html = FAIL
 
@@ -1462,7 +1462,7 @@ LINUX MAC : LayoutTests/http/tests/navigation/timerredirect-subframeload.html = 
 MAC : LayoutTests/http/tests/navigation/post-goback2.html = FAIL TIMEOUT
 MAC : LayoutTests/http/tests/navigation/postredirect-goback2.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL
+MAC : LayoutTests/http/tests/navigation/redirect302-subframeload.html = FAIL TIMEOUT
 MAC : LayoutTests/http/tests/navigation/relativeanchor-basic.html = FAIL
 MAC : LayoutTests/http/tests/navigation/relativeanchor-frames.html = FAIL
 
@@ -1594,7 +1594,7 @@ MAC : LayoutTests/fast/images/animated-background-image-crash.html = TIMEOUT PAS
 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH PASS TIMEOUT FAIL
 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH PASS TIMEOUT
-MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT
+MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT FAIL
 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH TIMEOUT FAIL
 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
@@ -2022,7 +2022,7 @@ MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
 
 // Added 3/12/09
 MAC DEBUG : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
-MAC DEBUG : LayoutTests/fast/html/body-offset-properties.html = CRASH PASS
+MAC : LayoutTests/fast/html/body-offset-properties.html = CRASH PASS
 MAC : LayoutTests/tables/mozilla/other/slashlogo.html = TIMEOUT PASS
 WIN DEBUG : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 
@@ -2260,7 +2260,7 @@ DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FA
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
 
 WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
-WIN MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
+LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
 WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
@@ -2314,4 +2314,21 @@ MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 
 // Broken after the change to run the tests in parallel. (r13212)
+LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
+LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
+LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
+WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
+WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
+MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
+MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
+
+// Not clear when these got flaky. It's likely either r13176 (bucket webkit
+// tests by directory) or r13199 (webkit merge 42200:42244)
+WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
+WIN DEBUG : LayoutTests/animations/change-keyframes.html = FAIL PASS
+WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
+LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
+
+
