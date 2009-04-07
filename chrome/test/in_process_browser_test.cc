@@ -43,6 +43,15 @@ bool DieFileDie(const std::wstring& file, bool recurse) {
   return false;
 }
 
+class ShadowingAtExitManager : public base::AtExitManager {
+ public:
+  ShadowingAtExitManager() : base::AtExitManager(true) {}
+  virtual ~ShadowingAtExitManager() {}
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(ShadowingAtExitManager);
+};
+
 }  // namespace
 
 InProcessBrowserTest::InProcessBrowserTest()
@@ -54,6 +63,8 @@ InProcessBrowserTest::InProcessBrowserTest()
 }
 
 void InProcessBrowserTest::SetUp() {
+  ShadowingAtExitManager at_exit_manager;
+
   // Cleanup the user data dir.
   std::wstring user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
@@ -163,7 +174,7 @@ Browser* InProcessBrowserTest::CreateBrowser(Profile* profile) {
   Browser* browser = Browser::Create(profile);
 
   browser->AddTabWithURL(
-      GURL("about:blank"), GURL(), PageTransition::START_PAGE, true, NULL);
+      GURL("about:blank"), GURL(), PageTransition::START_PAGE, true, -1, NULL);
 
   // Wait for the page to finish loading.
   ui_test_utils::WaitForNavigation(
@@ -189,8 +200,6 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
     MessageLoopForUI::current()->Quit();
     return;
   }
-
-  profile->InitExtensions();
 
   browser_ = CreateBrowser(profile);
 

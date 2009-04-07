@@ -139,7 +139,7 @@ Profile* ProfileManager::AddProfileByPath(const FilePath& path) {
 void ProfileManager::NewWindowWithProfile(Profile* profile) {
   DCHECK(profile);
   Browser* browser = Browser::Create(profile);
-  browser->AddTabWithURL(GURL(), GURL(), PageTransition::TYPED, true, NULL);
+  browser->AddTabWithURL(GURL(), GURL(), PageTransition::TYPED, true, -1, NULL);
   browser->window()->Show();
 }
 

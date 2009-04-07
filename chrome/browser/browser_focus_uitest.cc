@@ -177,8 +177,10 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, TabsRememberFocus) {
   ASSERT_TRUE(focus_manager);
 
   // Create several tabs.
-  for (int i = 0; i < 4; ++i)
-    browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, NULL);
+  for (int i = 0; i < 4; ++i) {
+    browser()->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, -1,
+                             NULL);
+  }
 
   // Alternate focus for the tab.
   const bool kFocusPage[3][5] = {

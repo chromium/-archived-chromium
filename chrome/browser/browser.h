@@ -202,9 +202,6 @@ class Browser : public TabStripModelDelegate,
   void SelectTabContentsAt(int index, bool user_gesture) {
     tabstrip_model_.SelectTabContentsAt(index, user_gesture);
   }
-  TabContents* AddBlankTab(bool foreground) {
-    return tabstrip_model_.AddBlankTab(foreground);
-  }
   void CloseAllTabs() {
     tabstrip_model_.CloseAllTabs();
   }
@@ -215,7 +212,7 @@ class Browser : public TabStripModelDelegate,
   // will be used to render the tab.
   TabContents* AddTabWithURL(
       const GURL& url, const GURL& referrer,
-      PageTransition::Type transition, bool foreground,
+      PageTransition::Type transition, bool foreground, int index,
       SiteInstance* instance);
 
   // Add a new tab, given a NavigationController. A TabContents appropriate to
@@ -371,7 +368,8 @@ class Browser : public TabStripModelDelegate,
   virtual void ExecuteCommand(int id);
 
   // Overridden from TabStripModelDelegate:
-  virtual GURL GetBlankTabURL() const;
+  virtual TabContents* AddBlankTab(bool foreground);
+  virtual TabContents* AddBlankTabAt(int index, bool foreground);
   virtual Browser* CreateNewStripWithContents(TabContents* detached_contents,
                                               const gfx::Rect& window_bounds,
                                               const DockInfo& dock_info);
@@ -571,6 +569,8 @@ class Browser : public TabStripModelDelegate,
   // Compute a deterministic name based on the URL. We use this pseudo name
   // as a key to store window location per application URLs.
   static std::wstring ComputeApplicationNameFromURL(const GURL& url);
+
+  FRIEND_TEST(BrowserTest, NoTabsInPopups);
 
   // Create a preference dictionary for the provided application name. This is
   // done only once per application name / per session.

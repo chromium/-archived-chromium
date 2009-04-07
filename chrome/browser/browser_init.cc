@@ -336,7 +336,7 @@ Browser* BrowserInit::LaunchWithProfile::OpenURLsInBrowser(
 
   for (size_t i = 0; i < urls.size(); ++i) {
     TabContents* tab = browser->AddTabWithURL(
-        urls[i], GURL(), PageTransition::START_PAGE, (i == 0), NULL);
+        urls[i], GURL(), PageTransition::START_PAGE, (i == 0), -1, NULL);
     if (i == 0 && process_startup)
       AddCrashedInfoBarIfNecessary(tab);
   }

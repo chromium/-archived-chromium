@@ -44,7 +44,8 @@ bool CreateTabFunction::RunImpl() {
   // TODO(aa): Handle all the other properties of the new tab.
   std::string url;
   static_cast<const DictionaryValue*>(args_)->GetString(L"url", &url);
-  browser->AddTabWithURL(GURL(url), GURL(), PageTransition::TYPED, true, NULL);
+  browser->AddTabWithURL(GURL(url), GURL(), PageTransition::TYPED, true, -1,
+                         NULL);
 
   // Return data about the newly created tab.
   if (has_callback())

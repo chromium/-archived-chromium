@@ -335,22 +335,6 @@ bool TabStripModel::ShouldResetGroupOnSelect(TabContents* contents) const {
   return contents_data_.at(index)->reset_group_on_select;
 }
 
-TabContents* TabStripModel::AddBlankTab(bool foreground) {
-  TabContents* contents = delegate_->CreateTabContentsForURL(
-      delegate_->GetBlankTabURL(), GURL(), profile_, PageTransition::TYPED,
-      false, NULL);
-  AddTabContents(contents, -1, PageTransition::TYPED, foreground);
-  return contents;
-}
-
-TabContents* TabStripModel::AddBlankTabAt(int index, bool foreground) {
-  TabContents* contents = delegate_->CreateTabContentsForURL(
-      delegate_->GetBlankTabURL(), GURL(), profile_, PageTransition::LINK,
-      false, NULL);
-  AddTabContents(contents, index, PageTransition::LINK, foreground);
-  return contents;
-}
-
 void TabStripModel::AddTabContents(TabContents* contents,
                                    int index,
                                    PageTransition::Type transition,
@@ -450,7 +434,7 @@ void TabStripModel::ExecuteContextMenuCommand(
   switch (command_id) {
     case CommandNewTab:
       UserMetrics::RecordAction(L"TabContextMenu_NewTab", profile_);
-      AddBlankTabAt(context_index + 1, true);
+      delegate()->AddBlankTabAt(context_index + 1, true);
       break;
     case CommandReload:
       UserMetrics::RecordAction(L"TabContextMenu_Reload", profile_);

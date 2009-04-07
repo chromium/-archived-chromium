@@ -105,8 +105,9 @@ class TabStripModelObserver {
 ///////////////////////////////////////////////////////////////////////////////
 class TabStripModelDelegate {
  public:
-  // Retrieve the URL that should be used to construct blank tabs.
-  virtual GURL GetBlankTabURL() const = 0;
+  // Adds what the delegate considers to be a blank tab to the model.
+  virtual TabContents* AddBlankTab(bool foreground) = 0;
+  virtual TabContents* AddBlankTabAt(int index, bool foreground) = 0;
 
   // Ask for a new TabStripModel to be created and the given tab contents to
   // be added to it. Its size and position are reflected in |window_bounds|.
@@ -359,10 +360,6 @@ class TabStripModel : public NotificationObserver {
   bool ShouldResetGroupOnSelect(TabContents* contents) const;
 
   // Command level API /////////////////////////////////////////////////////////
-
-  // Adds a blank tab to the TabStripModel.
-  TabContents* AddBlankTab(bool foreground);
-  TabContents* AddBlankTabAt(int index, bool foreground);
 
   // Adds a TabContents at the best position in the TabStripModel given the
   // specified insertion index, transition, etc. Ultimately, the insertion
