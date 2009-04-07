@@ -2,17 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "chrome/browser/app_controller_mac.h"
+#import "app_controller_mac.h"
 
-#include "base/message_loop.h"
-#include "chrome/app/chrome_dll_resource.h"
-#include "chrome/browser/browser.h"
-#include "chrome/browser/browser_list.h"
+#import "base/message_loop.h"
+#import "chrome/app/chrome_dll_resource.h"
+#import "chrome/browser/browser.h"
+#import "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
-#include "chrome/browser/command_updater.h"
-#include "chrome/browser/profile_manager.h"
-#include "chrome/common/temp_scaffolding_stubs.h"
+#import "chrome/browser/command_updater.h"
+#import "chrome/browser/profile_manager.h"
+#import "chrome/common/temp_scaffolding_stubs.h"
 
 @interface AppController(PRIVATE)
 - (void)initMenuState;

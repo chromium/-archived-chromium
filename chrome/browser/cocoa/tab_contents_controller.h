@@ -14,7 +14,6 @@
 class BookmarkModel;
 class CommandUpdater;
 class LocationBar;
-class LocationBarViewMac;
 class TabContents;
 class TabContentsCommandObserver;
 class TabStripModel;
@@ -38,7 +37,7 @@ class ToolbarModel;
  @private
   CommandUpdater* commands_;  // weak, may be nil
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
-  LocationBarViewMac* locationBarView_;
+  LocationBar* locationBarBridge_;
   TabContents* contents_;  // weak
 
   ToolbarModel* toolbarModel_;  // weak, one per window
@@ -103,8 +102,6 @@ class ToolbarModel;
 // Called to update the loading state. Handles updating the go/stop button
 // state.
 - (void)setIsLoading:(BOOL)isLoading;
-
-- (void)defocusLocationBar;
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar;
