@@ -2278,6 +2278,7 @@ LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
 LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
 LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
+MAC : LayoutTests/fast/js/regexp-overflow.html = FAIL TIMEOUT
 
 // Started failing between revisions 13096 and 13099.
 DEBUG WIN : LayoutTests/http/tests/navigation/post-basic.html = CRASH
