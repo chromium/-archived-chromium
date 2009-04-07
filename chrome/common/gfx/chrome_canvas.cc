@@ -58,9 +58,8 @@ void ChromeCanvas::FillRectInt(const SkColor& color,
 
 void ChromeCanvas::FillRectInt(int x, int y, int w, int h,
                                const SkPaint& paint) {
-  SkRect rc = {SkIntToScalar(x), SkIntToScalar(y),
-               SkIntToScalar(x + w), SkIntToScalar(y + h) };
-  drawRect(rc, paint);
+  SkIRect rc = {x, y, x + w, y + h};
+  drawIRect(rc, paint);
 }
 
 void ChromeCanvas::DrawRectInt(const SkColor& color,
@@ -68,18 +67,20 @@ void ChromeCanvas::DrawRectInt(const SkColor& color,
   DrawRectInt(color, x, y, w, h, SkPorterDuff::kSrcOver_Mode);
 }
 
-void ChromeCanvas::DrawRectInt(const SkColor& color, int x, int y, int w, int h,
+void ChromeCanvas::DrawRectInt(const SkColor& color,
+                               int x, int y, int w, int h,
                                SkPorterDuff::Mode mode) {
   SkPaint paint;
   paint.setColor(color);
   paint.setStyle(SkPaint::kStroke_Style);
-  // Contrary to the docs, a width of 0 results in nothing.
-  paint.setStrokeWidth(SkIntToScalar(1));
+  // Set a stroke width of 0, which will put us down the stroke rect path.  If
+  // we set a stroke width of 1, for example, this will internally create a
+  // path and fill it, which causes problems near the edge of the canvas.
+  paint.setStrokeWidth(SkIntToScalar(0));
   paint.setPorterDuffXfermode(mode);
 
-  SkRect rc = {SkIntToScalar(x), SkIntToScalar(y),
-               SkIntToScalar(x + w), SkIntToScalar(y + h) };
-  drawRect(rc, paint);
+  SkIRect rc = {x, y, x + w, y + h};
+  drawIRect(rc, paint);
 }
 
 void ChromeCanvas::DrawFocusRect(int x, int y, int width, int height) {
