@@ -349,6 +349,7 @@ class TestRunner:
     # tests will take to run. We can't just use a PriorityQueue until we move
     # to Python 2.6.
     test_lists = []
+    http_tests = None
     for directory in tests_by_dir:
       test_list = tests_by_dir[directory]
       # Keep the tests in alphabetical order.
@@ -364,7 +365,8 @@ class TestRunner:
     # Put the http tests first. There are only a couple hundred of them, but
     # each http test takes a very long time to run, so sorting by the number
     # of tests doesn't accurately capture how long they take to run.
-    test_lists.insert(0, http_tests)
+    if http_tests:
+      test_lists.insert(0, http_tests)
 
     filename_queue = Queue.Queue()
     for item in test_lists:
