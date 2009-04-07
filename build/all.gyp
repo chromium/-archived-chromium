@@ -50,6 +50,7 @@
         ['OS=="win"', {
           'dependencies': [
             '../sandbox/sandbox.gyp:*',
+            'temp_gyp/breakpad.gyp:*',
           ],
         }, {
           'dependencies': [
