@@ -12,6 +12,9 @@
 #include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/extensions/extensions_ui.h"
 #include "chrome/common/url_constants.h"
+#ifdef CHROME_PERSONALIZATION
+#include "chrome/personalization/personalization.h"
+#endif
 #include "googleurl/src/gurl.h"
 
 // Backend for both querying for and creating new DOMUI objects. If you're just
@@ -31,6 +34,14 @@ static bool CreateDOMUI(const GURL& url, WebContents* web_contents,
       *new_ui = new HtmlDialogUI(web_contents);
     return true;
   }
+
+#ifdef CHROME_PERSONALIZATION
+  if (Personalization::NeedsDOMUI(url)) {
+    if (new_ui)
+      *new_ui = new HtmlDialogUI(web_contents);
+    return true;
+  }
+#endif
 
   // This will get called a lot to check all URLs, so do a quick check of other
   // schemes (gears was handled above) to filter out most URLs.
