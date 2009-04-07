@@ -469,6 +469,9 @@ void RenderWidgetHostViewGtk::RequestSelectionText() {
 
 void RenderWidgetHostViewGtk::ReceivedSelectionText(GtkClipboard* clipboard,
     const gchar* text, gpointer userdata) {
+  // If there's nothing to paste (|text| is NULL), do nothing.
+  if (!text)
+    return;
   RenderWidgetHostViewGtk* host_view =
       reinterpret_cast<RenderWidgetHostViewGtk*>(userdata);
   host_view->host_->Send(new ViewMsg_InsertText(host_view->host_->routing_id(),
