@@ -648,14 +648,14 @@ void AutocompleteEditViewWin::SetWindowTextAndCaretPos(const std::wstring& text,
                                                        size_t caret_pos) {
   HIMC imm_context = ImmGetContext(m_hWnd);
   if (imm_context) {
-    // In Windows Vista, SetWindowText() automatically completes any ongoing
+    // In Windows Vista, SetWindowText() automatically cancels any ongoing
     // IME composition, and updates the text of the underlying edit control.
     // In Windows XP, however, SetWindowText() gets applied to the IME
     // composition string if it exists, and doesn't update the underlying edit
-    // control. To avoid this, we force the IME to complete any outstanding
+    // control. To avoid this, we force the IME to cancel any outstanding
     // compositions here.  This is harmless in Vista and in cases where the IME
     // isn't composing.
-    ImmNotifyIME(imm_context, NI_COMPOSITIONSTR, CPS_COMPLETE, 0);
+    ImmNotifyIME(imm_context, NI_COMPOSITIONSTR, CPS_CANCEL, 0);
     ImmReleaseContext(m_hWnd, imm_context);
   }
 
