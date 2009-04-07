@@ -46,6 +46,8 @@ InfoBarContainerGtk::InfoBarContainerGtk(BrowserWindow* browser_window)
 InfoBarContainerGtk::~InfoBarContainerGtk() {
   browser_window_ = NULL;
   ChangeTabContents(NULL);
+
+  container_.Destroy();
 }
 
 void InfoBarContainerGtk::ChangeTabContents(TabContents* contents) {
