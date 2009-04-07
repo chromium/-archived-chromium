@@ -29,6 +29,7 @@
         '../skia/skia.gyp:*',
         '../testing/gtest.gyp:*',
         '../third_party/bzip2/bzip2.gyp:*',
+        '../third_party/ffmpeg/ffmpeg.gyp:*',
         '../third_party/icu38/icu38.gyp:*',
         '../third_party/libjpeg/libjpeg.gyp:*',
         '../third_party/libpng/libpng.gyp:*',

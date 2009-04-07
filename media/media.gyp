@@ -22,6 +22,7 @@
       'type': 'static_library',
       'dependencies': [
         '../base/base.gyp:base',
+        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
       ],
       'include_dirs': [
         '..',
@@ -87,13 +88,9 @@
         'filters/video_renderer_base.cc',
         'filters/video_renderer_base.h',
       ],
-      'include_dirs': [
-        '../third_party/ffmpeg/include',
-      ],
       'direct_dependent_settings': {
         'include_dirs': [
           '..',
-          '../third_party/ffmpeg/include',
         ],
       },
       'conditions': [
@@ -116,16 +113,6 @@
             'filters/ffmpeg_glue.cc',
             'filters/ffmpeg_video_decoder.cc',
           ],
-        }],
-        ['OS =="win"', {
-          'include_dirs': [
-            '../third_party/ffmpeg/include/win',
-          ],
-          'direct_dependent_settings': {
-            'include_dirs': [
-              '../third_party/ffmpeg/include/win',
-            ],
-          },
         }],
       ],
     },
@@ -184,6 +171,7 @@
           'dependencies': [
             'media',
             '../base/base.gyp:base',
+            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
           ],
           'sources': [
             'player/player.cc',
