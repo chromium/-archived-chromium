@@ -1942,7 +1942,7 @@ MAC : LayoutTests/editing/pasteboard/copy-standalone-image.html = FAIL
 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 WIN DEBUG : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
-LINUX WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+WIN DEBUG : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 
 // New test added in the 41286:41362 merge. Not clear whether we pass.
 BUG8404 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
@@ -2312,3 +2312,6 @@ MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 
 // Broken by r13217.
 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+
+// Broken after the change to run the tests in parallel. (r13212)
+LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
