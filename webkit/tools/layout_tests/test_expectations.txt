@@ -2317,15 +2317,20 @@ BUG9798 : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
 BUG9798 MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
+BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-sync.html = FAIL PASS
 
 BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/animations/change-keyframes.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
+BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/state-after-network-error.html = CRASH PASS
+BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
 
 
