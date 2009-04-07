@@ -1827,7 +1827,7 @@ BUG7482 DEFER : LayoutTests/http/tests/misc/timer-vs-loading.html = FAIL PASS TI
 // These ones look to just need fresh pixel baselines (likely caused by
 // transformation matrices now using doubles instead of floats):
 LINUX : LayoutTests/fast/transforms/matrix-02.html = FAIL
-LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = PASS FAIL
+LINUX : LayoutTests/svg/W3C-SVG-1.1/text-text-07-t.svg = PASS FAIL CRASH
 // Misc failures:
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN LINUX : LayoutTests/fast/forms/option-mouseevents.html = FAIL
@@ -2320,6 +2320,7 @@ BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/transitions/transition-timing-function.html = FAIL PASS
+BUG9798 LINUX : pending/fast/repaint/bugzilla-6473.html = FAIL PASS
 BUG9798 WIN : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
@@ -2336,5 +2337,3 @@ BUG9797 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-tim
 BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/state-after-network-error.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
-
-
