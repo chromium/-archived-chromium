@@ -518,7 +518,14 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   MetricsService* metrics = NULL;
   if (!parsed_command_line.HasSwitch(switches::kDisableMetrics)) {
-    if (parsed_command_line.HasSwitch(switches::kMetricsRecordingOnly)) {
+    bool record_only =
+        parsed_command_line.HasSwitch(switches::kMetricsRecordingOnly);
+
+#if !defined(GOOGLE_CHROME_BUILD)
+    record_only = true;
+#endif
+
+    if (record_only) {
       local_state->transient()->SetBoolean(prefs::kMetricsReportingEnabled,
                                            false);
     }
@@ -527,7 +534,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
     // If we're testing then we don't care what the user preference is, we turn
     // on recording, but not reporting, otherwise tests fail.
-    if (parsed_command_line.HasSwitch(switches::kMetricsRecordingOnly)) {
+    if (record_only) {
       metrics->StartRecordingOnly();
     } else {
       // If the user permits metrics reporting with the checkbox in the
