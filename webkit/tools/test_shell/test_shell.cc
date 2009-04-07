@@ -126,6 +126,7 @@ TestShell::~TestShell() {
   CallJSGC();
   CallJSGC();
 
+  webView()->SetDelegate(NULL);
   PlatformCleanUp();
 
   StatsTable *table = StatsTable::current();
@@ -159,15 +160,15 @@ bool TestShell::CreateNewWindow(const std::wstring& startingURL,
 }
 
 void TestShell::ShutdownTestShell() {
-    PlatformShutdown();
-    SimpleResourceLoaderBridge::Shutdown();
-    delete window_list_;
-    delete TestShell::web_prefs_;
+  PlatformShutdown();
+  SimpleResourceLoaderBridge::Shutdown();
+  delete window_list_;
+  delete TestShell::web_prefs_;
 }
 
 // All fatal log messages (e.g. DCHECK failures) imply unit test failures
 static void UnitTestAssertHandler(const std::string& str) {
-    FAIL() << str;
+  FAIL() << str;
 }
 
 // static
@@ -446,13 +447,13 @@ void TestShell::SizeToSVG() {
 }
 
 void TestShell::SizeToDefault() {
-   SizeTo(kTestWindowWidth, kTestWindowHeight);
+  SizeTo(kTestWindowWidth, kTestWindowHeight);
 }
 
 void TestShell::ResetTestController() {
   layout_test_controller_->Reset();
   event_sending_controller_->Reset();
-  
+
   // Reset state in the test webview delegate.
   delegate_ = new TestWebViewDelegate(this);
   webView()->SetDelegate(delegate_);
