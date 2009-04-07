@@ -38,47 +38,52 @@ TEST(ExtensionTest, InitFromValueInvalid) {
       static_cast<DictionaryValue*>(serializer.Deserialize(&error)));
   ASSERT_TRUE(valid_value.get());
   ASSERT_EQ("", error);
-  ASSERT_TRUE(extension.InitFromValue(*valid_value, &error));
+  ASSERT_TRUE(extension.InitFromValue(*valid_value, true, &error));
   ASSERT_EQ("", error);
 
   scoped_ptr<DictionaryValue> input_value;
 
   // Test missing and invalid ids
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
+  input_value->Remove(Extension::kIdKey, NULL);
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
+  EXPECT_EQ(Extension::kInvalidIdError, error);
+
+  input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->SetInteger(Extension::kIdKey, 42);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidIdError, error);
 
   // Test missing and invalid versions
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->Remove(Extension::kVersionKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidVersionError, error);
 
   input_value->SetInteger(Extension::kVersionKey, 42);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidVersionError, error);
 
   // Test missing and invalid names
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->Remove(Extension::kNameKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidNameError, error);
 
   input_value->SetInteger(Extension::kNameKey, 42);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidNameError, error);
 
   // Test invalid description
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->SetInteger(Extension::kDescriptionKey, 42);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidDescriptionError, error);
 
   // Test invalid user scripts list
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->SetInteger(Extension::kContentScriptsKey, 42);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_EQ(Extension::kInvalidContentScriptsListError, error);
 
   // Test invalid user script item
@@ -87,7 +92,7 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   input_value->GetList(Extension::kContentScriptsKey, &content_scripts);
   ASSERT_FALSE(NULL == content_scripts);
   content_scripts->Set(0, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidContentScriptError));
 
   // Test missing and invalid matches array
@@ -96,21 +101,21 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   DictionaryValue* user_script = NULL;
   content_scripts->GetDictionary(0, &user_script);
   user_script->Remove(Extension::kMatchesKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchesError));
 
   user_script->Set(Extension::kMatchesKey, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchesError));
 
   ListValue* matches = new ListValue;
   user_script->Set(Extension::kMatchesKey, matches);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchCountError));
 
   // Test invalid match element
   matches->Set(0, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidMatchError));
 
   // Test missing and invalid files array
@@ -119,52 +124,52 @@ TEST(ExtensionTest, InitFromValueInvalid) {
   content_scripts->GetDictionary(0, &user_script);
   user_script->Remove(Extension::kJsKey, NULL);
   user_script->Remove(Extension::kCssKey, NULL);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kMissingFileError));
 
   user_script->Set(Extension::kJsKey, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsListError));
 
   user_script->Set(Extension::kCssKey, new ListValue);
   user_script->Set(Extension::kJsKey, new ListValue);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kMissingFileError));
   user_script->Remove(Extension::kCssKey, NULL);
 
   ListValue* files = new ListValue;
   user_script->Set(Extension::kJsKey, files);
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kMissingFileError));
 
   // Test invalid file element
   files->Set(0, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidJsError));
 
   user_script->Remove(Extension::kJsKey, NULL);
   // Test the css element
   user_script->Set(Extension::kCssKey, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidCssListError));
 
   // Test invalid file element
   ListValue* css_files = new ListValue;
   user_script->Set(Extension::kCssKey, css_files);
   css_files->Set(0, Value::CreateIntegerValue(42));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidCssError));
 
   // Test missing and invalid permissions array
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
-  EXPECT_TRUE(extension.InitFromValue(*input_value, &error));
+  EXPECT_TRUE(extension.InitFromValue(*input_value, true, &error));
   ListValue* permissions = NULL;
   input_value->GetList(Extension::kPermissionsKey, &permissions);
   ASSERT_FALSE(NULL == permissions);
 
   permissions = new ListValue;
   input_value->Set(Extension::kPermissionsKey, permissions);
-  EXPECT_TRUE(extension.InitFromValue(*input_value, &error));
+  EXPECT_TRUE(extension.InitFromValue(*input_value, true, &error));
   const std::vector<std::string>* error_vector =
       ExtensionErrorReporter::GetInstance()->GetErrors();
   const std::string log_error = error_vector->at(error_vector->size() - 1);
@@ -172,24 +177,24 @@ TEST(ExtensionTest, InitFromValueInvalid) {
       Extension::kInvalidPermissionCountWarning));
 
   input_value->Set(Extension::kPermissionsKey, Value::CreateIntegerValue(9));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidPermissionsError));
 
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->GetList(Extension::kPermissionsKey, &permissions);
   permissions->Set(0, Value::CreateIntegerValue(24));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidPermissionError));
 
   permissions->Set(0, Value::CreateStringValue("www.google.com"));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidPermissionError));
 
   // Test permissions scheme.
   input_value.reset(static_cast<DictionaryValue*>(valid_value->DeepCopy()));
   input_value->GetList(Extension::kPermissionsKey, &permissions);
   permissions->Set(0, Value::CreateStringValue("file:///C:/foo.txt"));
-  EXPECT_FALSE(extension.InitFromValue(*input_value, &error));
+  EXPECT_FALSE(extension.InitFromValue(*input_value, true, &error));
   EXPECT_TRUE(MatchPattern(error, Extension::kInvalidPermissionSchemeError));
 }
 
@@ -209,7 +214,7 @@ TEST(ExtensionTest, InitFromValueValid) {
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
 
-  EXPECT_TRUE(extension.InitFromValue(input_value, &error));
+  EXPECT_TRUE(extension.InitFromValue(input_value, true, &error));
   EXPECT_EQ("", error);
   EXPECT_EQ("00123456789abcdef0123456789abcdef0123456", extension.id());
   EXPECT_EQ("1.0.0.0", extension.VersionString());
@@ -231,7 +236,7 @@ TEST(ExtensionTest, GetResourceURLAndPath) {
       "00123456789ABCDEF0123456789ABCDEF0123456");
   input_value.SetString(Extension::kVersionKey, "1.0.0.0");
   input_value.SetString(Extension::kNameKey, "my extension");
-  EXPECT_TRUE(extension.InitFromValue(input_value, NULL));
+  EXPECT_TRUE(extension.InitFromValue(input_value, true, NULL));
 
   EXPECT_EQ(extension.url().spec() + "bar/baz.js",
             Extension::GetResourceURL(extension.url(), "bar/baz.js").spec());

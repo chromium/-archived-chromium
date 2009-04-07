@@ -40,6 +40,9 @@ void UserScript::Pickle(::Pickle* pickle) const {
   // Write the run location.
   pickle->WriteInt(run_location());
 
+  // Write the extension id.
+  pickle->WriteString(extension_id());
+
   // Write globs.
   pickle->WriteSize(globs_.size());
   for (std::vector<std::string>::const_iterator glob = globs_.begin();
@@ -75,6 +78,9 @@ void UserScript::Unpickle(const ::Pickle& pickle, void** iter) {
   CHECK(pickle.ReadInt(iter, &run_location));
   CHECK(run_location >= 0 && run_location < RUN_LOCATION_LAST);
   run_location_ = static_cast<RunLocation>(run_location);
+
+  // Read the extension ID.
+  CHECK(pickle.ReadString(iter, &extension_id_));
 
   // Read globs.
   size_t num_globs = 0;
