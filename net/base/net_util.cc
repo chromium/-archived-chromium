@@ -673,10 +673,6 @@ GURL FilePathToFileURL(const FilePath& path) {
   return GURL(url_string);
 }
 
-GURL FilePathToFileURL(const std::wstring& path_str) {
-  return FilePathToFileURL(FilePath::FromWStringHack(path_str));
-}
-
 std::wstring GetSpecificHeader(const std::wstring& headers,
                                const std::wstring& name) {
   return GetSpecificHeaderT(headers, name);
@@ -943,14 +939,6 @@ int SetNonBlocking(int fd) {
     flags = 0;
   return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 #endif
-}
-
-// Deprecated.
-bool FileURLToFilePath(const GURL& gurl, std::wstring* file_path) {
-  FilePath path;
-  bool rv = FileURLToFilePath(gurl, &path);
-  *file_path = path.ToWStringHack();
-  return rv;
 }
 
 bool GetHostAndPort(std::string::const_iterator host_and_port_begin,

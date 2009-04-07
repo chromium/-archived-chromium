@@ -1105,7 +1105,7 @@ struct ParamTraits<net::UploadData::Element> {
       r->SetToBytes(data, len);
     } else {
       DCHECK(type == net::UploadData::TYPE_FILE);
-      std::wstring file_path;
+      FilePath file_path;
       uint64 offset, length;
       if (!ReadParam(m, iter, &file_path))
         return false;

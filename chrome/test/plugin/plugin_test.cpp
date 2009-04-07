@@ -47,6 +47,7 @@
 #include <string.h>
 #include <memory.h>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/registry.h"
 #include "chrome/common/chrome_switches.h"
@@ -102,10 +103,10 @@ class PluginTest : public UITest {
   // Generate the URL for testing a particular test.
   // HTML for the tests is all located in test_directory\plugin\<testcase>
   GURL GetTestUrl(const std::wstring &test_case) {
-    std::wstring path;
+    FilePath path;
     PathService::Get(chrome::DIR_TEST_DATA, &path);
-    file_util::AppendToPath(&path, L"plugin");
-    file_util::AppendToPath(&path, test_case);
+    path = path.AppendASCII("plugin");
+    path = path.Append(FilePath::FromWStringHack(test_case));
     return net::FilePathToFileURL(path);
   }
 

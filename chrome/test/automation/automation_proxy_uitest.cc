@@ -194,8 +194,8 @@ TEST_F(AutomationProxyVisibleTest, AppendTab) {
   ASSERT_EQ(tab_count - 1, active_tab_index);
   ASSERT_NE(original_active_tab_index, active_tab_index);
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"title2.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("title2.html");
   ASSERT_TRUE(window->AppendTab(net::FilePathToFileURL(filename)));
 
   int appended_tab_index;
@@ -262,8 +262,8 @@ TEST_F(AutomationProxyTest, NavigateToURL) {
   // BUG [634097] : expected title should be "about:blank"
   ASSERT_STREQ(L"", title.c_str());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"title2.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("title2.html");
 
   tab->NavigateToURL(net::FilePathToFileURL(filename));
   ASSERT_TRUE(tab->GetTabTitle(&title));
@@ -279,8 +279,8 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
   scoped_ptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"title2.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("title2.html");
 
   bool is_timeout;
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename),
@@ -306,16 +306,16 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout2) {
   tab.reset(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
-  std::wstring filename1(test_data_directory_);
-  file_util::AppendToPath(&filename1, L"title1.html");
+  FilePath filename1(FilePath::FromWStringHack(test_data_directory_));
+  filename1 = filename1.AppendASCII("title1.html");
 
   bool is_timeout;
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename1),
                                 1, &is_timeout);
   ASSERT_TRUE(is_timeout);
 
-  std::wstring filename2(test_data_directory_);
-  file_util::AppendToPath(&filename2, L"title2.html");
+  FilePath filename2(FilePath::FromWStringHack(test_data_directory_));
+  filename2 = filename2.AppendASCII("title1.html");
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(filename2),
                                 10000, &is_timeout);
   ASSERT_FALSE(is_timeout);
@@ -338,8 +338,8 @@ TEST_F(AutomationProxyTest, GoBackForward) {
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"", title.c_str());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"title2.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("title2.html");
   ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
@@ -367,8 +367,8 @@ TEST_F(AutomationProxyTest, GetCurrentURL) {
   ASSERT_TRUE(tab->GetCurrentURL(&url));
   ASSERT_STREQ("about:blank", url.spec().c_str());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"cookie1.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("cookie1.html");
   GURL newurl = net::FilePathToFileURL(filename);
   ASSERT_TRUE(tab->NavigateToURL(newurl));
   ASSERT_TRUE(tab->GetCurrentURL(&url));
@@ -474,8 +474,8 @@ TEST_F(AutomationProxyTest, NavigateToURLAsync) {
   scoped_ptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"cookie1.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("cookie1.html");
   GURL newurl = net::FilePathToFileURL(filename);
 
   ASSERT_TRUE(tab->NavigateToURLAsync(newurl));
@@ -657,9 +657,9 @@ TEST_F(AutomationProxyTest, DISABLED_ConstrainedWindowTest) {
   tab.reset(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"constrained_files");
-  file_util::AppendToPath(&filename, L"constrained_window.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("constrained_files");
+  filename = filename.AppendASCII("constrained_window.html");
 
   ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
 
@@ -698,9 +698,9 @@ TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
   tab.reset(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"constrained_files");
-  file_util::AppendToPath(&filename, L"constrained_window_onload_moveto.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("constrained_files");
+  filename = filename.AppendASCII("constrained_window_onload_moveto.html");
 
   ASSERT_TRUE(tab->NavigateToURL(net::FilePathToFileURL(filename)));
 
@@ -1101,8 +1101,8 @@ TEST_F(AutomationProxyTest5, TestLifetimeOfDomAutomationController) {
   scoped_ptr<TabProxy> tab(window->GetTab(0));
   ASSERT_TRUE(tab.get());
 
-  std::wstring filename(test_data_directory_);
-  file_util::AppendToPath(&filename, L"dom_automation_test_with_popup.html");
+  FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+  filename = filename.AppendASCII("dom_automation_test_with_popup.html");
 
   tab->NavigateToURL(net::FilePathToFileURL(filename));
 

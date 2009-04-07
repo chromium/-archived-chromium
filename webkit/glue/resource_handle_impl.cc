@@ -451,7 +451,7 @@ bool ResourceHandleInternal::Start(
         }
       } else {
         bridge_->AppendFileToUpload(
-            webkit_glue::StringToStdWString(e.m_filename));
+            FilePath(webkit_glue::StringToFilePathString(e.m_filename)));
       }
     }
     bridge_->SetUploadIdentifier(request_.httpBody()->identifier());

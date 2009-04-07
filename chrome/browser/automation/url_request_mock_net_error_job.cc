@@ -54,11 +54,11 @@ URLRequestJob* URLRequestMockNetErrorJob::Factory(URLRequest* request,
   file_url.append(mock_info.base);
   file_url.append(UTF8ToWide(url.path()));
   // Convert the file:/// URL to a path on disk.
-  std::wstring file_path;
+  FilePath file_path;
   net::FileURLToFilePath(GURL(WideToUTF8(file_url)), &file_path);
   return new URLRequestMockNetErrorJob(request, mock_info.errors,
                                        mock_info.ssl_cert,
-                                       FilePath::FromWStringHack(file_path));
+                                       file_path);
 }
 
 URLRequestMockNetErrorJob::URLRequestMockNetErrorJob(URLRequest* request,

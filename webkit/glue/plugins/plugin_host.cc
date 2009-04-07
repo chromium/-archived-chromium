@@ -450,7 +450,9 @@ static NPError PostURLNotify(NPP id,
     if (StartsWithASCII(file_path_ascii, kFileUrlPrefix, false)) {
       GURL file_url(file_path_ascii);
       DCHECK(file_url.SchemeIsFile());
-      net::FileURLToFilePath(file_url, &file_path);
+      FilePath path;
+      net::FileURLToFilePath(file_url, &path);
+      file_path = path.ToWStringHack();
     } else {
       file_path = base::SysNativeMBToWide(file_path_ascii);
     }

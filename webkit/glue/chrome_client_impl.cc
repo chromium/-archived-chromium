@@ -52,17 +52,17 @@ class WebFileChooserCallbackImpl : public WebFileChooserCallback {
       : file_chooser_(file_chooser) {
   }
 
-  void OnFileChoose(const std::vector<std::wstring>& file_names) {
+  virtual void OnFileChoose(const std::vector<FilePath>& file_names) {
     if (file_names.empty()) {
       file_chooser_->chooseFile(WebCore::String(""));
     } else if (file_names.size() == 1) {
       file_chooser_->chooseFile(
-        webkit_glue::StdWStringToString(file_names.front()));
+          webkit_glue::FilePathStringToString(file_names.front().value()));
     } else {
       Vector<WebCore::String> paths;
-      for (std::vector<std::wstring>::const_iterator filename =
+      for (std::vector<FilePath>::const_iterator filename =
              file_names.begin(); filename != file_names.end(); ++filename) {
-        paths.append(webkit_glue::StdWStringToString(*filename));
+        paths.append(webkit_glue::FilePathStringToString((*filename).value()));
       }
       file_chooser_->chooseFiles(paths);
     }

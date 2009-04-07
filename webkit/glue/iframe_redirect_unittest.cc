@@ -21,13 +21,12 @@ typedef TestShellTest IFrameRedirectTest;
 // Tests that loading a page in an iframe from javascript results in
 // a redirect from about:blank.
 TEST_F(IFrameRedirectTest, Test) {
-  std::wstring iframes_data_dir_ = data_dir_;
-
-  file_util::AppendToPath(&iframes_data_dir_, L"test_shell");
-  file_util::AppendToPath(&iframes_data_dir_, L"iframe_redirect");
+  FilePath iframes_data_dir_ = data_dir_;
+  iframes_data_dir_ = iframes_data_dir_.AppendASCII("test_shell");
+  iframes_data_dir_ = iframes_data_dir_.AppendASCII("iframe_redirect");
   ASSERT_TRUE(file_util::PathExists(iframes_data_dir_));
 
-  std::wstring test_url = GetTestURL(iframes_data_dir_, L"main.html");
+  std::wstring test_url = GetTestURL(iframes_data_dir_, "main.html");
 
   test_shell_->LoadURL(test_url.c_str());
   test_shell_->WaitTestFinished();

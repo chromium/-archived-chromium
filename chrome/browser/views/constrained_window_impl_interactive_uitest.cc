@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
@@ -38,9 +39,9 @@ class InteractiveConstrainedWindowTest : public UITest {
   }
 
   void NavigateMainTabTo(const std::wstring& file_name) {
-    std::wstring filename(test_data_directory_);
-    file_util::AppendToPath(&filename, L"constrained_files");
-    file_util::AppendToPath(&filename, file_name);
+    FilePath filename(FilePath::FromWStringHack(test_data_directory_));
+    filename = filename.AppendASCII("constrained_files");
+    filename = filename.Append(FilePath::FromWStringHack(file_name));
     ASSERT_TRUE(tab_->NavigateToURL(net::FilePathToFileURL(filename)));
   }
 

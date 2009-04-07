@@ -61,8 +61,8 @@ class VisibleBrowserTest : public UITest {
 // Launch the app on a page with no title, check that the app title was set
 // correctly.
 TEST_F(BrowserTest, NoTitle) {
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"title1.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
   Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
@@ -74,8 +74,8 @@ TEST_F(BrowserTest, NoTitle) {
 // Launch the app, navigate to a page with a title, check that the app title
 // was set correctly.
 TEST_F(BrowserTest, Title) {
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"title2.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("title2.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
   Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
@@ -90,8 +90,8 @@ TEST_F(BrowserTest, Title) {
 // had a hard limit of 31 processes and this test is mainly directed at
 // verifying that we don't crash when we pass this limit.
 TEST_F(BrowserTest, ThirtyFourTabs) {
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"title2.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("title2.html");
   GURL url(net::FilePathToFileURL(test_file));
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   // There is one initial tab.
@@ -116,8 +116,8 @@ TEST_F(BrowserTest, ThirtyFourTabs) {
 
 // The browser should quit quickly if it receives a WM_ENDSESSION message.
 TEST_F(BrowserTest, WindowsSessionEnd) {
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"title1.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
   Sleep(action_timeout_ms());
@@ -186,12 +186,12 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  std::wstring test_file(test_data_directory_);
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   scoped_ptr<TabProxy> tab(window->GetActiveTab());
 
   // Start with a file:// url
-  file_util::AppendToPath(&test_file, L"title2.html");
+  test_file = test_file.AppendASCII("title2.html");
   tab->NavigateToURL(net::FilePathToFileURL(test_file));
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
@@ -226,12 +226,12 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  std::wstring test_file(test_data_directory_);
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   scoped_ptr<TabProxy> tab(window->GetActiveTab());
 
   // Start with a file:// url
-  file_util::AppendToPath(&test_file, L"title2.html");
+  test_file = test_file.AppendASCII("title2.html");
   tab->NavigateToURL(net::FilePathToFileURL(test_file));
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
@@ -263,8 +263,8 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 }
 
 TEST_F(VisibleBrowserTest, WindowOpenClose) {
-  std::wstring test_file(test_data_directory_);
-  file_util::AppendToPath(&test_file, L"window.close.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("window.close.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
 

@@ -1949,7 +1949,7 @@ void Browser::RenderWidgetShowing() {
 // Browser, SelectFileDialog::Listener implementation:
 
 void Browser::FileSelected(const FilePath& path, int index, void* params) {
-  GURL file_url = net::FilePathToFileURL(path.ToWStringHack());
+  GURL file_url = net::FilePathToFileURL(path);
   if (!file_url.is_empty())
     OpenURL(file_url, GURL(), CURRENT_TAB, PageTransition::TYPED);
 }

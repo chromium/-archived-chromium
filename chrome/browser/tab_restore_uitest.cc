@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/win_util.h"
 #include "chrome/app/chrome_dll_resource.h"
@@ -19,11 +20,10 @@
 class TabRestoreUITest : public UITest {
  public:
   TabRestoreUITest() : UITest() {
-    std::wstring path_prefix = test_data_directory_;
-    file_util::AppendToPath(&path_prefix, L"session_history");
-    path_prefix += FilePath::kSeparators[0];
-    url1_ = net::FilePathToFileURL(path_prefix + L"bot1.html");
-    url2_ = net::FilePathToFileURL(path_prefix + L"bot2.html");
+    FilePath path_prefix(FilePath::FromWStringHack(test_data_directory_));
+    path_prefix = path_prefix.AppendASCII("session_history");
+    url1_ = net::FilePathToFileURL(path_prefix.AppendASCII("bot1.html"));
+    url2_ = net::FilePathToFileURL(path_prefix.AppendASCII("bot2.html"));
   }
 
  protected:

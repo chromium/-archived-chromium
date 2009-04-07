@@ -8,6 +8,7 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
+#include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/shared_memory.h"
 #include "base/string_util.h"
@@ -60,7 +61,7 @@ class IPCResourceLoaderBridge : public ResourceLoaderBridge {
 
   // ResourceLoaderBridge
   virtual void AppendDataToUpload(const char* data, int data_len);
-  virtual void AppendFileRangeToUpload(const std::wstring& path,
+  virtual void AppendFileRangeToUpload(const FilePath& path,
                                        uint64 offset, uint64 length);
   virtual void SetUploadIdentifier(int64 identifier);
   virtual bool Start(Peer* peer);
@@ -157,7 +158,7 @@ void IPCResourceLoaderBridge::AppendDataToUpload(const char* data,
 }
 
 void IPCResourceLoaderBridge::AppendFileRangeToUpload(
-    const std::wstring& path, uint64 offset, uint64 length) {
+    const FilePath& path, uint64 offset, uint64 length) {
   DCHECK(request_id_ == -1) << "request already started";
 
   if (!request_.upload_data)

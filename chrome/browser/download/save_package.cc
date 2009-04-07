@@ -1041,7 +1041,7 @@ void SavePackage::GetSaveInfo() {
   } else
 #endif  // defined(OS_LINUX) || defined(OS_WIN)
   {
-    // Just use 'suggested_name' instead of opening the dialog prompt.
+    // Just use 'suggested_path' instead of opening the dialog prompt.
     ContinueSave(save_params, suggested_path, filter_index);
     delete save_params;
   }

@@ -5,6 +5,7 @@
 #include "chrome/plugin/chrome_plugin_host.h"
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "chrome/common/child_process.h"
@@ -127,11 +128,11 @@ class PluginRequestHandlerProxy
     upload_content_.back().SetToBytes(bytes, bytes_len);
   }
 
-  void AppendFileToUpload(const std::wstring &filepath) {
+  void AppendFileToUpload(const FilePath &filepath) {
     AppendFileRangeToUpload(filepath, 0, kuint64max);
   }
 
-  void AppendFileRangeToUpload(const std::wstring &filepath,
+  void AppendFileRangeToUpload(const FilePath &filepath,
                                uint64 offset, uint64 length) {
     upload_content_.push_back(net::UploadData::Element());
     upload_content_.back().SetToFilePathRange(filepath, offset, length);
@@ -475,7 +476,8 @@ CPError STDCALL CPR_AppendFileToUpload(CPRequest* request, const char* filepath,
 
   if (!length) length = kuint64max;
   std::wstring wfilepath(UTF8ToWide(filepath));
-  handler->AppendFileRangeToUpload(wfilepath, offset, length);
+  handler->AppendFileRangeToUpload(FilePath::FromWStringHack(wfilepath), offset,
+                                   length);
   return CPERR_SUCCESS;
 }
 

@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "webkit/glue/webframe.h"
@@ -24,12 +25,12 @@ class ContextMenuCapturing : public TestShellTest {
     TestShellTest::SetUp();
 
     iframes_data_dir_ = data_dir_;
-    file_util::AppendToPath(&iframes_data_dir_, L"test_shell");
-    file_util::AppendToPath(&iframes_data_dir_, L"iframes");
+    iframes_data_dir_ = iframes_data_dir_.AppendASCII("test_shell");
+    iframes_data_dir_ = iframes_data_dir_.AppendASCII("iframes");
     ASSERT_TRUE(file_util::PathExists(iframes_data_dir_));
   }
 
-  std::wstring iframes_data_dir_;
+  FilePath iframes_data_dir_;
 };
 
 
@@ -40,7 +41,7 @@ TEST_F(ContextMenuCapturing, ContextMenuCapturing) {
   test_delegate->clear_captured_context_menu_events();
   EXPECT_EQ(0U, test_delegate->captured_context_menu_events().size());
 
-  std::wstring test_url = GetTestURL(iframes_data_dir_, L"testiframe.html");
+  std::wstring test_url = GetTestURL(iframes_data_dir_, "testiframe.html");
   test_shell_->LoadURL(test_url.c_str());
   test_shell_->WaitTestFinished();
 

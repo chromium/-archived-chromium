@@ -108,18 +108,17 @@ class TabSwitchingUITest : public UITest {
   // Opens new tabs. Returns the number of tabs opened.
   int OpenTabs() {
     // Add tabs.
-    static const wchar_t* files[] = { L"espn.go.com", L"bugzilla.mozilla.org",
-                                      L"news.cnet.com", L"www.amazon.com",
-                                      L"kannada.chakradeo.net", L"allegro.pl",
-                                      L"ml.wikipedia.org", L"www.bbc.co.uk",
-                                      L"126.com", L"www.altavista.com"};
+    static const char* files[] = { "espn.go.com", "bugzilla.mozilla.org",
+                                   "news.cnet.com", "www.amazon.com",
+                                   "kannada.chakradeo.net", "allegro.pl",
+                                   "ml.wikipedia.org", "www.bbc.co.uk",
+                                   "126.com", "www.altavista.com"};
     int number_of_new_tabs_opened = 0;
-    std::wstring file_name;
+    FilePath file_name;
     for (int i = 0; i < arraysize(files); ++i) {
-      file_name = path_prefix_;
-      file_name += files[i];
-      file_name += FilePath::kSeparators[0];
-      file_name += L"index.html";
+      file_name = FilePath::FromWStringHack(path_prefix_);
+      file_name = file_name.AppendASCII(files[i]);
+      file_name = file_name.AppendASCII("index.html");
       browser_proxy_->AppendTab(net::FilePathToFileURL(file_name));
       number_of_new_tabs_opened++;
     }

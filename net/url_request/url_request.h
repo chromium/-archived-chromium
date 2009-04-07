@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
 #include "googleurl/src/gurl.h"
@@ -236,9 +237,9 @@ class URLRequest {
   // When uploading a file range, length must be non-zero. If length
   // exceeds the end-of-file, the upload is clipped at end-of-file.
   void AppendBytesToUpload(const char* bytes, int bytes_len);
-  void AppendFileRangeToUpload(const std::wstring& file_path,
+  void AppendFileRangeToUpload(const FilePath& file_path,
                                uint64 offset, uint64 length);
-  void AppendFileToUpload(const std::wstring& file_path) {
+  void AppendFileToUpload(const FilePath& file_path) {
     AppendFileRangeToUpload(file_path, 0, kuint64max);
   }
 

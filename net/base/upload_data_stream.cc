@@ -65,19 +65,19 @@ void UploadDataStream::FillBuf() {
       if (!next_element_stream_.IsOpen()) {
         int flags = base::PLATFORM_FILE_OPEN |
                     base::PLATFORM_FILE_READ;
-        int rv = next_element_stream_.Open(
-            FilePath::FromWStringHack(element.file_path()), flags);
+        int rv = next_element_stream_.Open(element.file_path(), flags);
         // If the file does not exist, that's technically okay.. we'll just
         // upload an empty file.  This is for consistency with Mozilla.
-        DLOG_IF(WARNING, rv != OK) << "Failed to open \"" <<
-            element.file_path() << "\" for reading: " << rv;
+        DLOG_IF(WARNING, rv != OK) << "Failed to open \""
+                                   << element.file_path().value()
+                                   << "\" for reading: " << rv;
 
         next_element_remaining_ = 0;  // Default to reading nothing.
         if (rv == OK) {
           uint64 offset = element.file_range_offset();
           if (offset && next_element_stream_.Seek(FROM_BEGIN, offset) < 0) {
-            DLOG(WARNING) << "Failed to seek \"" << element.file_path() <<
-                "\" to offset: " << offset;
+            DLOG(WARNING) << "Failed to seek \"" << element.file_path().value()
+                          << "\" to offset: " << offset;
           } else {
             next_element_remaining_ = element.file_range_length();
           }

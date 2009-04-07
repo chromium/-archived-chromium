@@ -774,7 +774,7 @@ GURL UITest::GetTestUrl(const std::wstring& test_directory,
   PathService::Get(chrome::DIR_TEST_DATA, &path);
   file_util::AppendToPath(&path, test_directory);
   file_util::AppendToPath(&path, test_case);
-  return net::FilePathToFileURL(path);
+  return net::FilePathToFileURL(FilePath::FromWStringHack(path));
 }
 
 void UITest::WaitForFinish(const std::string &name,

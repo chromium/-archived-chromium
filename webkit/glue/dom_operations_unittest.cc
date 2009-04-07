@@ -20,7 +20,7 @@ class DomOperationsTests : public TestShellTest {
   // Test function GetAllSavableResourceLinksForCurrentPage with a web page.
   // We expect result of GetAllSavableResourceLinksForCurrentPage exactly
   // matches expected_resources_set.
-  void GetSavableResourceLinksForPage(const std::wstring& page_file_path,
+  void GetSavableResourceLinksForPage(const FilePath& page_file_path,
       const std::set<GURL>& expected_resources_set);
 
  protected:
@@ -36,7 +36,7 @@ class DomOperationsTests : public TestShellTest {
 
 
 void DomOperationsTests::GetSavableResourceLinksForPage(
-    const std::wstring& page_file_path,
+    const FilePath& page_file_path,
     const std::set<GURL>& expected_resources_set) {
   // Convert local file path to file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
@@ -75,30 +75,29 @@ void DomOperationsTests::GetSavableResourceLinksForPage(
 TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasValidLinks) {
   std::set<GURL> expected_resources_set;
   // Set directory of test data.
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer");
+  FilePath page_file_path = data_dir_.AppendASCII("dom_serializer");
 
   const char* expected_sub_resource_links[] = {
     "file:///c:/yt/css/base_all-vfl36460.css",
     "file:///c:/yt/js/base_all_with_bidi-vfl36451.js",
     "file:///c:/yt/img/pixel-vfl73.gif"
   };
-  const wchar_t* expected_frame_links[] = {
-    L"youtube_1.htm",
-    L"youtube_2.htm"
+  const char* expected_frame_links[] = {
+    "youtube_1.htm",
+    "youtube_2.htm"
   };
   // Add all expected links of sub-resource to expected set.
   for (size_t i = 0; i < arraysize(expected_sub_resource_links); ++i)
     expected_resources_set.insert(GURL(expected_sub_resource_links[i]));
   // Add all expected links of frame to expected set.
   for (size_t i = 0; i < arraysize(expected_frame_links); ++i) {
-    std::wstring expected_frame_url = page_file_path;
-    file_util::AppendToPath(&expected_frame_url, expected_frame_links[i]);
+    const FilePath expected_frame_url =
+        page_file_path.AppendASCII(expected_frame_links[i]);
     expected_resources_set.insert(
         net::FilePathToFileURL(expected_frame_url));
   }
 
-  file_util::AppendToPath(&page_file_path, std::wstring(L"youtube_1.htm"));
+  page_file_path = page_file_path.AppendASCII("youtube_1.htm");
   GetSavableResourceLinksForPage(page_file_path, expected_resources_set);
 }
 
@@ -107,21 +106,20 @@ TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasValidLinks) {
 TEST_F(DomOperationsTests, GetSavableResourceLinksWithPageHasInvalidLinks) {
   std::set<GURL> expected_resources_set;
   // Set directory of test data.
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer");
+  FilePath page_file_path = data_dir_.AppendASCII("dom_serializer");
 
-  const wchar_t* expected_frame_links[] = {
-    L"youtube_2.htm"
+  const char* expected_frame_links[] = {
+    "youtube_2.htm"
   };
   // Add all expected links of frame to expected set.
   for (size_t i = 0; i < arraysize(expected_frame_links); ++i) {
-    std::wstring expected_frame_url = page_file_path;
-    file_util::AppendToPath(&expected_frame_url, expected_frame_links[i]);
+    FilePath expected_frame_url =
+        page_file_path.AppendASCII(expected_frame_links[i]);
     expected_resources_set.insert(
         net::FilePathToFileURL(expected_frame_url));
   }
 
-  file_util::AppendToPath(&page_file_path, std::wstring(L"youtube_2.htm"));
+  page_file_path = page_file_path.AppendASCII("youtube_2.htm");
   GetSavableResourceLinksForPage(page_file_path, expected_resources_set);
 }
 

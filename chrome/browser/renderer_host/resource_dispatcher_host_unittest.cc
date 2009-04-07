@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
 #include "chrome/browser/renderer_host/renderer_security_policy.h"
@@ -532,7 +533,7 @@ TEST_F(ResourceDispatcherHostTest, CalculateApproximateMemoryCost) {
   EXPECT_EQ(4434, ResourceDispatcherHost::CalculateApproximateMemoryCost(&req));
 
   // Add a file upload -- should have no effect.
-  req.AppendFileToUpload(L"does-not-exist.png");
+  req.AppendFileToUpload(FilePath(FILE_PATH_LITERAL("does-not-exist.png")));
   EXPECT_EQ(4434, ResourceDispatcherHost::CalculateApproximateMemoryCost(&req));
 }
 

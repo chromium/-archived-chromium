@@ -7,6 +7,7 @@
 // here might indicate that WebKit changed the calls our glue layer gets in
 // the case of redirects. It may also mean problems with the history system.
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "base/scoped_ptr.h"
@@ -81,8 +82,8 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
   ASSERT_TRUE(NULL != server.get());
 
   GURL final_url = server->TestServerPageW(std::wstring());
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"file_client_redirect.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("file_client_redirect.html");
   GURL first_url = net::FilePathToFileURL(test_file);
 
   NavigateToURL(first_url);
@@ -107,8 +108,8 @@ TEST_F(RedirectTest, ClientEmptyReferer) {
 // Tests to make sure a location change when a pending redirect exists isn't
 // flagged as a redirect.
 TEST_F(RedirectTest, ClientCancelled) {
-  std::wstring first_path = test_data_directory_;
-  file_util::AppendToPath(&first_path, L"cancelled_redirect_test.html");
+  FilePath first_path(FilePath::FromWStringHack(test_data_directory_));
+  first_path = first_path.AppendASCII("cancelled_redirect_test.html");
   ASSERT_TRUE(file_util::AbsolutePath(&first_path));
   GURL first_url = net::FilePathToFileURL(first_path);
 
@@ -132,11 +133,12 @@ TEST_F(RedirectTest, ClientCancelled) {
   // containing an anchor using FilePathToFileURL will escape the anchor as
   // %23, but in current_url the anchor will be '#'.
   std::string final_ref = "myanchor";
-  std::wstring current_path;
+  FilePath current_path;
   ASSERT_TRUE(net::FileURLToFilePath(current_url, &current_path));
   ASSERT_TRUE(file_util::AbsolutePath(&current_path));
   // Path should remain unchanged.
-  EXPECT_EQ(StringToLowerASCII(first_path), StringToLowerASCII(current_path));
+  EXPECT_EQ(StringToLowerASCII(first_path.value()),
+            StringToLowerASCII(current_path.value()));
   EXPECT_EQ(final_ref, current_url.ref());
 }
 
@@ -202,8 +204,8 @@ TEST_F(RedirectTest, NoHttpToFile) {
   scoped_refptr<HTTPTestServer> server =
     HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"http_to_file.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("http_to_file.html");
   GURL file_url = net::FilePathToFileURL(test_file);
 
   GURL initial_url = server->TestServerPageW(
@@ -226,8 +228,8 @@ TEST_F(RedirectTest, ClientFragments) {
     HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"ref_redirect.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("ref_redirect.html");
   GURL first_url = net::FilePathToFileURL(test_file);
   std::vector<GURL> redirects;
 

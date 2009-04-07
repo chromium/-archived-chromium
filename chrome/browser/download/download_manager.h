@@ -410,7 +410,6 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   bool HasAutoOpenFileTypesRegistered() const;
 
   // Overridden from SelectFileDialog::Listener:
-  // TODO(port): convert this to FilePath when SelectFileDialog gets converted.
   virtual void FileSelected(const FilePath& path, int index, void* params);
   virtual void FileSelectionCanceled(void* params);
 

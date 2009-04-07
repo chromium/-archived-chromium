@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "googleurl/src/gurl.h"
@@ -22,7 +23,7 @@ class NetUtilTest : public testing::Test {
 
 struct FileCase {
   const wchar_t* file;
-  const wchar_t* url;
+  const char* url;
 };
 
 struct HeaderCase {
@@ -114,76 +115,76 @@ TEST(NetUtilTest, FileURLConversion) {
   // a list of test file names and the corresponding URLs
   const FileCase round_trip_cases[] = {
 #if defined(OS_WIN)
-    {L"C:\\foo\\bar.txt", L"file:///C:/foo/bar.txt"},
+    {L"C:\\foo\\bar.txt", "file:///C:/foo/bar.txt"},
     {L"\\\\some computer\\foo\\bar.txt",
-     L"file://some%20computer/foo/bar.txt"}, // UNC
+     "file://some%20computer/foo/bar.txt"}, // UNC
     {L"D:\\Name;with%some symbols*#",
-     L"file:///D:/Name%3Bwith%25some%20symbols*%23"},
+     "file:///D:/Name%3Bwith%25some%20symbols*%23"},
     {L"D:\\Chinese\\\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc",
-     L"file:///D:/Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91"
-         L"%E9%A1%B5.doc"},
+     "file:///D:/Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD%91"
+         "%E9%A1%B5.doc"},
 #elif defined(OS_POSIX)
-    {L"/foo/bar.txt", L"file:///foo/bar.txt"},
-    {L"/foo/BAR.txt", L"file:///foo/BAR.txt"},
-    {L"/C:/foo/bar.txt", L"file:///C:/foo/bar.txt"},
-    {L"/some computer/foo/bar.txt", L"file:///some%20computer/foo/bar.txt"},
-    {L"/Name;with%some symbols*#", L"file:///Name%3Bwith%25some%20symbols*%23"},
+    {L"/foo/bar.txt", "file:///foo/bar.txt"},
+    {L"/foo/BAR.txt", "file:///foo/BAR.txt"},
+    {L"/C:/foo/bar.txt", "file:///C:/foo/bar.txt"},
+    {L"/some computer/foo/bar.txt", "file:///some%20computer/foo/bar.txt"},
+    {L"/Name;with%some symbols*#", "file:///Name%3Bwith%25some%20symbols*%23"},
     {L"/Chinese/\x6240\x6709\x4e2d\x6587\x7f51\x9875.doc",
-     L"file:///Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD"
-         L"%91%E9%A1%B5.doc"},
+     "file:///Chinese/%E6%89%80%E6%9C%89%E4%B8%AD%E6%96%87%E7%BD"
+         "%91%E9%A1%B5.doc"},
 #endif
   };
 
   // First, we'll test that we can round-trip all of the above cases of URLs
-  std::wstring output;
+  FilePath output;
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(round_trip_cases); i++) {
     // convert to the file URL
-    GURL file_url(net::FilePathToFileURL(round_trip_cases[i].file));
-    EXPECT_EQ(std::wstring(round_trip_cases[i].url),
-              UTF8ToWide(file_url.spec()));
+    GURL file_url(net::FilePathToFileURL(
+        FilePath::FromWStringHack(round_trip_cases[i].file)));
+    EXPECT_EQ(round_trip_cases[i].url, file_url.spec());
 
     // Back to the filename.
     EXPECT_TRUE(net::FileURLToFilePath(file_url, &output));
-    EXPECT_EQ(std::wstring(round_trip_cases[i].file), output);
+    EXPECT_EQ(round_trip_cases[i].file, output.ToWStringHack());
   }
 
   // Test that various file: URLs get decoded into the correct file type
   FileCase url_cases[] = {
 #if defined(OS_WIN)
-    {L"C:\\foo\\bar.txt", L"file:c|/foo\\bar.txt"},
-    {L"C:\\foo\\bar.txt", L"file:/c:/foo/bar.txt"},
-    {L"\\\\foo\\bar.txt", L"file://foo\\bar.txt"},
-    {L"C:\\foo\\bar.txt", L"file:///c:/foo/bar.txt"},
-    {L"\\\\foo\\bar.txt", L"file:////foo\\bar.txt"},
-    {L"\\\\foo\\bar.txt", L"file:/foo/bar.txt"},
-    {L"\\\\foo\\bar.txt", L"file://foo\\bar.txt"},
-    {L"C:\\foo\\bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
+    {L"C:\\foo\\bar.txt", "file:c|/foo\\bar.txt"},
+    {L"C:\\foo\\bar.txt", "file:/c:/foo/bar.txt"},
+    {L"\\\\foo\\bar.txt", "file://foo\\bar.txt"},
+    {L"C:\\foo\\bar.txt", "file:///c:/foo/bar.txt"},
+    {L"\\\\foo\\bar.txt", "file:////foo\\bar.txt"},
+    {L"\\\\foo\\bar.txt", "file:/foo/bar.txt"},
+    {L"\\\\foo\\bar.txt", "file://foo\\bar.txt"},
+    {L"C:\\foo\\bar.txt", "file:\\\\\\c:/foo/bar.txt"},
 #elif defined(OS_POSIX)
-    {L"/c:/foo/bar.txt", L"file:/c:/foo/bar.txt"},
-    {L"/c:/foo/bar.txt", L"file:///c:/foo/bar.txt"},
-    {L"/foo/bar.txt", L"file:/foo/bar.txt"},
-    {L"/c:/foo/bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
-    {L"/foo/bar.txt", L"file:foo/bar.txt"},
-    {L"/bar.txt", L"file://foo/bar.txt"},
-    {L"/foo/bar.txt", L"file:///foo/bar.txt"},
-    {L"/foo/bar.txt", L"file:////foo/bar.txt"},
-    {L"/foo/bar.txt", L"file:////foo//bar.txt"},
-    {L"/foo/bar.txt", L"file:////foo///bar.txt"},
-    {L"/foo/bar.txt", L"file:////foo////bar.txt"},
-    {L"/c:/foo/bar.txt", L"file:\\\\\\c:/foo/bar.txt"},
-    {L"/c:/foo/bar.txt", L"file:c:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", "file:/c:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", "file:///c:/foo/bar.txt"},
+    {L"/foo/bar.txt", "file:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", "file:\\\\\\c:/foo/bar.txt"},
+    {L"/foo/bar.txt", "file:foo/bar.txt"},
+    {L"/bar.txt", "file://foo/bar.txt"},
+    {L"/foo/bar.txt", "file:///foo/bar.txt"},
+    {L"/foo/bar.txt", "file:////foo/bar.txt"},
+    {L"/foo/bar.txt", "file:////foo//bar.txt"},
+    {L"/foo/bar.txt", "file:////foo///bar.txt"},
+    {L"/foo/bar.txt", "file:////foo////bar.txt"},
+    {L"/c:/foo/bar.txt", "file:\\\\\\c:/foo/bar.txt"},
+    {L"/c:/foo/bar.txt", "file:c:/foo/bar.txt"},
     // We get these wrong because GURL turns back slashes into forward
     // slashes.
-    //{L"/foo%5Cbar.txt", L"file://foo\\bar.txt"},
-    //{L"/c|/foo%5Cbar.txt", L"file:c|/foo\\bar.txt"},
-    //{L"/foo%5Cbar.txt", L"file://foo\\bar.txt"},
-    //{L"/foo%5Cbar.txt", L"file:////foo\\bar.txt"},
-    //{L"/foo%5Cbar.txt", L"file://foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", "file://foo\\bar.txt"},
+    //{L"/c|/foo%5Cbar.txt", "file:c|/foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", "file://foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", "file:////foo\\bar.txt"},
+    //{L"/foo%5Cbar.txt", "file://foo\\bar.txt"},
 #endif
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(url_cases); i++) {
-    net::FileURLToFilePath(GURL(WideToUTF8(url_cases[i].url)), &output);
-    EXPECT_EQ(std::wstring(url_cases[i].file), output);
+    net::FileURLToFilePath(GURL(url_cases[i].url), &output);
+    EXPECT_EQ(url_cases[i].file, output.ToWStringHack());
   }
 
   // Here, we test that UTF-8 encoded strings get decoded properly, even when
@@ -199,7 +200,7 @@ TEST(NetUtilTest, FileURLConversion) {
                          L"\x96\x87\xe7\xbd\x91\xe9\xa1\xb5.doc";
 #endif
   EXPECT_TRUE(net::FileURLToFilePath(GURL(WideToUTF8(utf8)), &output));
-  EXPECT_EQ(std::wstring(wide), output);
+  EXPECT_EQ(wide, output.ToWStringHack());
 
   // Unfortunately, UTF8ToWide discards invalid UTF8 input.
 #ifdef BUG_878908_IS_FIXED

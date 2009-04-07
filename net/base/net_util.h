@@ -28,16 +28,12 @@ namespace net {
 // Given the full path to a file name, creates a file: URL. The returned URL
 // may not be valid if the input is malformed.
 GURL FilePathToFileURL(const FilePath& path);
-// Deprecated temporary compatibility function.
-GURL FilePathToFileURL(const std::wstring& file_path);
 
 // Converts a file: URL back to a filename that can be passed to the OS. The
 // file URL must be well-formed (GURL::is_valid() must return true); we don't
 // handle degenerate cases here. Returns true on success, false if it isn't a
 // valid file URL. On failure, *file_path will be empty.
 bool FileURLToFilePath(const GURL& url, FilePath* file_path);
-// Deprecated temporary compatibility function.
-bool FileURLToFilePath(const GURL& url, std::wstring* file_path);
 
 // Split an input of the form <host>[":"<port>] into its consitituent parts.
 // Saves the result into |*host| and |*port|. If the input did not have

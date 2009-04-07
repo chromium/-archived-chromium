@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <string>
 
+#include "base/file_path.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/process_util.h"
@@ -526,16 +527,17 @@ TEST_F(URLRequestTest, PostFileTest) {
     PathService::Get(base::DIR_EXE, &dir);
     file_util::SetCurrentDirectory(dir);
 
-    std::wstring path;
+    FilePath path;
     PathService::Get(base::DIR_SOURCE_ROOT, &path);
-    file_util::AppendToPath(&path, L"net");
-    file_util::AppendToPath(&path, L"data");
-    file_util::AppendToPath(&path, L"url_request_unittest");
-    file_util::AppendToPath(&path, L"with-headers.html");
+    path = path.Append(FILE_PATH_LITERAL("net"));
+    path = path.Append(FILE_PATH_LITERAL("data"));
+    path = path.Append(FILE_PATH_LITERAL("url_request_unittest"));
+    path = path.Append(FILE_PATH_LITERAL("with-headers.html"));
     r.AppendFileToUpload(path);
 
     // This file should just be ignored in the upload stream.
-    r.AppendFileToUpload(L"c:\\path\\to\\non\\existant\\file.randomness.12345");
+    r.AppendFileToUpload(FilePath(FILE_PATH_LITERAL(
+        "c:\\path\\to\\non\\existant\\file.randomness.12345")));
 
     r.Start();
     EXPECT_TRUE(r.is_pending());
@@ -586,7 +588,7 @@ TEST_F(URLRequestTest, AboutBlankTest) {
 TEST_F(URLRequestTest, FileTest) {
   FilePath app_path;
   PathService::Get(base::FILE_EXE, &app_path);
-  GURL app_url = net::FilePathToFileURL(app_path.ToWStringHack());
+  GURL app_url = net::FilePathToFileURL(app_path);
 
   TestDelegate d;
   {
@@ -760,7 +762,7 @@ TEST_F(URLRequestTest, ResolveShortcutTest) {
 
   TestDelegate d;
   {
-    TestURLRequest r(net::FilePathToFileURL(lnk_path), &d);
+    TestURLRequest r(net::FilePathToFileURL(FilePath(lnk_path)), &d);
 
     r.Start();
     EXPECT_TRUE(r.is_pending());
@@ -823,11 +825,10 @@ TEST_F(URLRequestTest, FileDirCancelTest) {
 
   TestDelegate d;
   {
-    std::wstring file_path;
+    FilePath file_path;
     PathService::Get(base::DIR_SOURCE_ROOT, &file_path);
-    file_util::AppendToPath(&file_path, L"net");
-    file_util::AppendToPath(&file_path, L"data");
-    file_util::AppendToPath(&file_path, L"");
+    file_path = file_path.Append(FILE_PATH_LITERAL("net"));
+    file_path = file_path.Append(FILE_PATH_LITERAL("data"));
 
     TestURLRequest req(net::FilePathToFileURL(file_path), &d);
     req.Start();

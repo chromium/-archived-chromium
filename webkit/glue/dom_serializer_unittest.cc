@@ -238,8 +238,9 @@ bool IsMetaElement(const WebCore::Node* node, WebCore::String* charset_info) {
 // If original contents have document type, the serialized contents also have
 // document type.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_1.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("youtube_1.htm");
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   // Load the test file.
@@ -269,8 +270,9 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithDocType) {
 // If original contents do not have document type, the serialized contents
 // also do not have document type.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithoutDocType) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_2.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("youtube_2.htm");
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   // Load the test file.
@@ -301,8 +303,9 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithoutDocType) {
 // finishing serialization, the serialized contents should be same
 // with original XML document.
 TEST_F(DomSerializerTests, SerialzeXMLDocWithBuiltInEntities) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer/note.xml");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("note.xml");
   // Read original contents for later comparison.
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
@@ -322,8 +325,9 @@ TEST_F(DomSerializerTests, SerialzeXMLDocWithBuiltInEntities) {
 
 // When serializing DOM, we add MOTW declaration before html tag.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithAddingMOTW) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_2.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("youtube_2.htm");
   // Read original contents for later comparison .
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
@@ -355,8 +359,9 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithAddingMOTW) {
 // http://bugs.webkit.org/show_bug.cgi?id=16621 even the original document
 // does not have META charset declaration.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNoMetaCharsetInOriginalDoc) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_1.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("youtube_1.htm");
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
@@ -417,8 +422,9 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNoMetaCharsetInOriginalDoc) {
 // declarations.
 TEST_F(DomSerializerTests,
        SerialzeHTMLDOMWithMultipleMetaCharsetInOriginalDoc) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path, L"dom_serializer/youtube_2.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("youtube_2.htm");
   // Get file URL.
   GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
@@ -480,9 +486,9 @@ TEST_F(DomSerializerTests,
 
 // Test situation of html entities in text when serializing HTML DOM.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path,
-                          L"dom_serializer/htmlentities_in_text.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("htmlentities_in_text.htm");
   // Read original contents for later comparison .
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
@@ -520,9 +526,10 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInText) {
 // Test situation of html entities in attribute value when serializing
 // HTML DOM.
 TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
-  std::wstring page_file_path = data_dir_;
-  file_util::AppendToPath(&page_file_path,
-      L"dom_serializer/htmlentities_in_attribute_value.htm");
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path =
+      page_file_path.AppendASCII("htmlentities_in_attribute_value.htm");
   // Read original contents for later comparison.
   std::string orginal_contents;
   ASSERT_TRUE(file_util::ReadFileToString(page_file_path, &orginal_contents));
@@ -565,17 +572,16 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithBaseTag) {
   // There are total 2 available base tags in this test file.
   const int kTotalBaseTagCountInTestFile = 2;
 
-  FilePath page_file_path = FilePath::FromWStringHack(data_dir_).AppendASCII(
-      "dom_serializer");
+  FilePath page_file_path = data_dir_.AppendASCII("dom_serializer");
   file_util::EnsureEndsWithSeparator(&page_file_path);
 
   // Get page dir URL which is base URL of this file.
-  GURL path_dir_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
+  GURL path_dir_url = net::FilePathToFileURL(page_file_path);
   // Get file path.
   page_file_path =
       page_file_path.AppendASCII("html_doc_has_base_tag.htm");
   // Get file URL.
-  GURL file_url = net::FilePathToFileURL(page_file_path.ToWStringHack());
+  GURL file_url = net::FilePathToFileURL(page_file_path);
   ASSERT_TRUE(file_url.SchemeIsFile());
   // Load the test file.
   LoadPageFromURL(file_url);

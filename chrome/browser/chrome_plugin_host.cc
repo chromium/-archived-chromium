@@ -8,6 +8,7 @@
 
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/gfx/png_encoder.h"
 #include "base/histogram.h"
@@ -637,8 +638,8 @@ CPError STDCALL CPR_AppendFileToUpload(CPRequest* request, const char* filepath,
   CHECK(handler);
 
   if (!length) length = kuint64max;
-  std::wstring wfilepath(UTF8ToWide(filepath));
-  handler->request()->AppendFileRangeToUpload(wfilepath, offset, length);
+  FilePath path(FilePath::FromWStringHack(UTF8ToWide(filepath)));
+  handler->request()->AppendFileRangeToUpload(path, offset, length);
   return CPERR_SUCCESS;
 }
 

@@ -12,6 +12,7 @@
 #include "build/build_config.h"
 
 #include "base/clipboard.h"
+#include "base/file_path.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"

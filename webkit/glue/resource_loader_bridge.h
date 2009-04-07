@@ -21,6 +21,7 @@
 #if defined(OS_POSIX)
 #include "base/file_descriptor_posix.h"
 #endif
+#include "base/file_path.h"
 #include "base/platform_file.h"
 #include "base/ref_counted.h"
 #include "base/time.h"
@@ -192,13 +193,13 @@ class ResourceLoaderBridge {
 
   // Call this method before calling Start() to append the contents of a file
   // to the request body.  May only be used with HTTP(S) POST requests.
-  void AppendFileToUpload(const std::wstring& file_path) {
+  void AppendFileToUpload(const FilePath& file_path) {
     AppendFileRangeToUpload(file_path, 0, kuint64max);
   }
 
   // Call this method before calling Start() to append the contents of a file
   // to the request body.  May only be used with HTTP(S) POST requests.
-  virtual void AppendFileRangeToUpload(const std::wstring& file_path,
+  virtual void AppendFileRangeToUpload(const FilePath& file_path,
                                        uint64 offset, uint64 length) = 0;
 
   // Call this method before calling Start() to assign an upload identifier to

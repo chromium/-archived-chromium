@@ -570,7 +570,7 @@ void TestShell::LoadURLForFrame(const wchar_t* url,
   // PathExists will reject any string with no leading '/'
   // as well as empty strings.
   if (file_util::AbsolutePath(&path))
-    gurl = net::FilePathToFileURL(path);
+    gurl = net::FilePathToFileURL(FilePath::FromWStringHack(path));
   else
     gurl = GURL(WideToUTF8(url));
 

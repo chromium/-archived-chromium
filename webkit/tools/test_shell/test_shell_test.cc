@@ -4,16 +4,18 @@
 
 #include "webkit/tools/test_shell/test_shell_test.h"
 
+#include <string>
+
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 
-std::wstring TestShellTest::GetTestURL(std::wstring test_case_path,
-                                       const std::wstring& test_case) {
-  file_util::AppendToPath(&test_case_path, test_case);
-  return test_case_path;
+std::wstring TestShellTest::GetTestURL(const FilePath& test_case_path,
+                                       const std::string& test_case) {
+  return test_case_path.AppendASCII(test_case).ToWStringHack();
 }
 
 void TestShellTest::SetUp() {
@@ -23,8 +25,8 @@ void TestShellTest::SetUp() {
 
   // Point data_dir_ to the root of the test case dir
   ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &data_dir_));
-  file_util::AppendToPath(&data_dir_, L"webkit");
-  file_util::AppendToPath(&data_dir_, L"data");
+  data_dir_ = data_dir_.Append(FILE_PATH_LITERAL("webkit"));
+  data_dir_ = data_dir_.Append(FILE_PATH_LITERAL("data"));
   ASSERT_TRUE(file_util::PathExists(data_dir_));
 }
 

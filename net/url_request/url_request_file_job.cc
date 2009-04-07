@@ -238,7 +238,7 @@ bool URLRequestFileJob::IsRedirectResponse(
   if (!resolved)
     return false;
 
-  *location = net::FilePathToFileURL(new_path);
+  *location = net::FilePathToFileURL(FilePath(new_path));
   *http_status_code = 301;
   return true;
 #else

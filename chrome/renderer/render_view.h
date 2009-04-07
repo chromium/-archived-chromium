@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "base/id_map.h"

@@ -456,7 +456,7 @@ class ResourceLoaderBridgeImpl : public ResourceLoaderBridge {
     params_->upload->AppendBytes(data, data_len);
   }
 
-  virtual void AppendFileRangeToUpload(const std::wstring& file_path,
+  virtual void AppendFileRangeToUpload(const FilePath& file_path,
                                        uint64 offset, uint64 length) {
     DCHECK(params_.get());
     if (!params_->upload)

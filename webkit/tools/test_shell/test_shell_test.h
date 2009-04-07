@@ -10,6 +10,9 @@
 #ifndef WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_TEST_H__
 #define WEBKIT_TOOLS_TEST_SHELL_TEST_SHELL_TEST_H__
 
+#include <string>
+
+#include "base/file_path.h"
 #include "webkit/glue/window_open_disposition.h"
 #include "webkit/tools/test_shell/test_shell.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -17,8 +20,8 @@
 class TestShellTest : public testing::Test {
  protected:
   // Returns the path "test_case_path/test_case".
-  std::wstring GetTestURL(std::wstring test_case_path,
-                          const std::wstring& test_case);
+  std::wstring GetTestURL(const FilePath& test_case_path,
+                          const std::string& test_case);
 
   virtual void SetUp();
   virtual void TearDown();
@@ -30,7 +33,7 @@ class TestShellTest : public testing::Test {
 
  protected:
   // Location of SOURCE_ROOT/webkit/data/
-  std::wstring data_dir_;
+  FilePath data_dir_;
 
   TestShell* test_shell_;
 };

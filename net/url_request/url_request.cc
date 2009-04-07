@@ -94,9 +94,9 @@ void URLRequest::AppendBytesToUpload(const char* bytes, int bytes_len) {
   upload_->AppendBytes(bytes, bytes_len);
 }
 
-void URLRequest::AppendFileRangeToUpload(const wstring& file_path,
+void URLRequest::AppendFileRangeToUpload(const FilePath& file_path,
                                          uint64 offset, uint64 length) {
-  DCHECK(file_path.length() > 0 && length > 0);
+  DCHECK(file_path.value().length() > 0 && length > 0);
   if (!upload_)
     upload_ = new UploadData();
   upload_->AppendFileRange(file_path, offset, length);

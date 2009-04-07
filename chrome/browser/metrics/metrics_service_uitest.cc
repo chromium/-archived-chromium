@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/platform_thread.h"
@@ -33,14 +34,14 @@ class MetricsServiceTest : public UITest {
     window_ = automation()->GetBrowserWindow(0);
     ASSERT_TRUE(window_);
 
-    std::wstring page1_path;
+    FilePath page1_path;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &page1_path));
-    file_util::AppendToPath(&page1_path, L"title2.html");
+    page1_path = page1_path.AppendASCII("title2.html");
     ASSERT_TRUE(window_->AppendTab(net::FilePathToFileURL(page1_path)));
 
-    std::wstring page2_path;
+    FilePath page2_path;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &page2_path));
-    file_util::AppendToPath(&page2_path, L"iframe.html");
+    page2_path = page2_path.AppendASCII("iframe.html");
     ASSERT_TRUE(window_->AppendTab(net::FilePathToFileURL(page2_path)));
   }
 

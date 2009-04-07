@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/platform_thread.h"
 #include "chrome/test/ui/ui_test.h"
@@ -10,9 +11,9 @@
 
 class IFrameTest : public UITest {
  protected:
-  void NavigateAndVerifyTitle(const wchar_t* url, const wchar_t* page_title) {
-    std::wstring test_file = test_data_directory_;
-    file_util::AppendToPath(&test_file, url);
+  void NavigateAndVerifyTitle(const char* url, const wchar_t* page_title) {
+    FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+    test_file = test_file.AppendASCII(url);
 
     NavigateToURL(net::FilePathToFileURL(test_file));
     // The browser lazily updates the title.
@@ -27,9 +28,9 @@ class IFrameTest : public UITest {
 };
 
 TEST_F(IFrameTest, Crash) {
-  NavigateAndVerifyTitle(L"iframe.html", L"iframe test");
+  NavigateAndVerifyTitle("iframe.html", L"iframe test");
 }
 
 TEST_F(IFrameTest, InEmptyFrame) {
-  NavigateAndVerifyTitle(L"iframe_in_empty_frame.html", L"iframe test");
+  NavigateAndVerifyTitle("iframe_in_empty_frame.html", L"iframe test");
 }

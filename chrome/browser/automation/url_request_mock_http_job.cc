@@ -32,10 +32,9 @@ URLRequestJob* URLRequestMockHTTPJob::Factory(URLRequest* request,
   }
 
   // Convert the file:/// URL to a path on disk.
-  std::wstring file_path;
+  FilePath file_path;
   net::FileURLToFilePath(GURL(WideToUTF8(file_url)), &file_path);
-  return new URLRequestMockHTTPJob(request,
-                                   FilePath::FromWStringHack(file_path));
+  return new URLRequestMockHTTPJob(request, file_path);
 }
 
 /* static */

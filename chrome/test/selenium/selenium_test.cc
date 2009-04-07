@@ -12,6 +12,7 @@
 #include <list>
 #include <set>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/rand_util.h"
@@ -101,7 +102,7 @@ class SeleniumTest : public UITest {
     file_util::AppendToPath(&test_path, L"core");
     file_util::AppendToPath(&test_path, L"TestRunner.html");
 
-    GURL test_url(net::FilePathToFileURL(test_path));
+    GURL test_url(net::FilePathToFileURL(FilePath::FromWStringHack(test_path)));
     scoped_ptr<TabProxy> tab(GetActiveTab());
     tab->NavigateToURL(test_url);
 

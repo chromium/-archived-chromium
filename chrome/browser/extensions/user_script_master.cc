@@ -155,7 +155,7 @@ void UserScriptMaster::ScriptReloader::LoadScriptsFromDirectory(
       UserScript& user_script = result->back();
       // Push single js file in this UserScript.
       GURL url(std::string(chrome::kUserScriptScheme) + ":/" +
-          net::FilePathToFileURL(file.ToWStringHack()).ExtractFileName());
+          net::FilePathToFileURL(file).ExtractFileName());
       user_script.js_scripts().push_back(UserScript::File(file, url));
       UserScript::File& script_file = user_script.js_scripts().back();
       LoadScriptContent(&script_file);

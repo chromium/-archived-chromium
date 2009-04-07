@@ -172,7 +172,8 @@ void WebRequestImpl::GetUploadData(net::UploadData* data) const {
     if (element.m_type == WebCore::FormDataElement::data) {
       data->AppendBytes(element.m_data.data(), element.m_data.size());
     } else if (element.m_type == WebCore::FormDataElement::encodedFile) {
-      data->AppendFile(webkit_glue::StringToStdWString(element.m_filename));
+      data->AppendFile(
+          FilePath(webkit_glue::StringToFilePathString(element.m_filename)));
     } else {
       NOTREACHED();
     }
@@ -195,7 +196,7 @@ void WebRequestImpl::SetUploadData(const net::UploadData& data)
           element.bytes().size());
     } else if (element.type() == net::UploadData::TYPE_FILE) {
       formdata->appendFile(
-          webkit_glue::StdWStringToString(element.file_path()));
+          webkit_glue::FilePathStringToString(element.file_path().value()));
     } else {
       NOTREACHED();
     }

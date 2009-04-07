@@ -231,8 +231,8 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationNonBuffered) {
 
   // Now load a file:// page, which does not use the BufferedEventHandler.
   // Make sure that the page loads and displays a title, and doesn't get stuck.
-  std::wstring test_file = test_data_directory_;
-  file_util::AppendToPath(&test_file, L"title2.html");
+  FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
+  test_file = test_file.AppendASCII("title2.html");
   bool timed_out = false;
   tab->NavigateToURLWithTimeout(net::FilePathToFileURL(test_file),
                                 action_max_timeout_ms(),
