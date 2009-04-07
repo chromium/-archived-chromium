@@ -2901,7 +2901,9 @@ MessageLoop* RenderView::GetMessageLoopForIO() {
 void RenderView::OnRequestAudioPacket(int stream_id) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
   if (!audio_renderer) {
-    NOTREACHED();
+    // It is possible that AudioRendererImpl is un-registered but we still
+    // receives packet requests here, because of closing a stream is not a
+    // synchronous operation with the browser process.
     return;
   }
   audio_renderer->OnRequestPacket();
@@ -2911,7 +2913,6 @@ void RenderView::OnAudioStreamCreated(
     int stream_id, base::SharedMemoryHandle handle, int length) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
   if (!audio_renderer) {
-    NOTREACHED();
     return;
   }
   audio_renderer->OnCreated(handle, length);
@@ -2921,7 +2922,6 @@ void RenderView::OnAudioStreamStateChanged(
     int stream_id, AudioOutputStream::State state, int info) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
   if (!audio_renderer) {
-    NOTREACHED();
     return;
   }
   audio_renderer->OnStateChanged(state, info);
@@ -2930,7 +2930,6 @@ void RenderView::OnAudioStreamStateChanged(
 void RenderView::OnAudioStreamVolume(int stream_id, double left, double right) {
   AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
   if (!audio_renderer) {
-    NOTREACHED();
     return;
   }
   audio_renderer->OnVolume(left, right);
