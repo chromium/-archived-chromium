@@ -33,6 +33,7 @@ MSVC_POP_WARNING();
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest_impl.h"
@@ -285,6 +286,10 @@ void ChromeClientImpl::addMessageToConsole(const WebCore::String& message,
     std::wstring wstr_source_id = webkit_glue::StringToStdWString(source_id);
     delegate->AddMessageToConsole(webview_, wstr_message,
                                   line_no, wstr_source_id);
+  }
+  WebDevToolsAgentImpl* devtools_agent = webview_->GetWebDevToolsAgentImpl();
+  if (devtools_agent) {
+    devtools_agent->AddMessageToConsole(message, source_id, line_no);
   }
 }
 

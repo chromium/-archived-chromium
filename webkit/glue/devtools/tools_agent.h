@@ -22,7 +22,10 @@
   /* Requests that utility js function is executed with the given args. */ \
   METHOD4(ExecuteUtilityFunction, int /* call_id */, \
       String /* function_name */, int /* context_node_id */, \
-      String /* json_args */)
+      String /* json_args */) \
+  \
+  /* Clears cached console messages. */ \
+  METHOD0(ClearConsoleMessages)
 
 DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
 
@@ -38,7 +41,11 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */) \
   \
   /* Response to the GetNodeProperties. */ \
-  METHOD2(DidExecuteUtilityFunction, int /* call_id */, String /* json */)
+  METHOD2(DidExecuteUtilityFunction, int /* call_id */, String /* json */) \
+  \
+  /* Adds message to console. */ \
+  METHOD3(AddMessageToConsole, String /* message */, \
+      String /* source_id */, int /* line_no */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 

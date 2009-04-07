@@ -20,6 +20,14 @@ goog.inherits(devtools.InspectorControllerImpl,
 /**
  * {@inheritDoc}.
  */
+devtools.InspectorController.prototype.clearMessages = function() {
+  RemoteToolsAgent.ClearConsoleMessages();
+};
+
+
+/**
+ * {@inheritDoc}.
+ */
 devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
   return "profiles,databases";
 };

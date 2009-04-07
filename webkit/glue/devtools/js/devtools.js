@@ -21,6 +21,8 @@ devtools.ToolsAgent = function() {
       goog.bind(this.updateFocusedNode, this);
   RemoteToolsAgent.FrameNavigate =
       goog.bind(this.frameNavigate, this);
+  RemoteToolsAgent.AddMessageToConsole =
+      goog.bind(this.addMessageToConsole, this);
   this.debuggerAgent_ = new devtools.DebuggerAgent();
   this.domAgent_ = new devtools.DomAgent();
   this.netAgent_ = new devtools.NetAgent();
@@ -125,6 +127,22 @@ devtools.ToolsAgent.prototype.frameNavigate = function(url, topLevel) {
   if (topLevel) {
     this.reset();
     WebInspector.reset();
+  }
+};
+
+
+/**
+ * @param {string} message Message to add.
+ * @param {string} source Source url.
+ * @param {number} line Line number in source.
+ * @see tools_agent.h
+ */
+devtools.ToolsAgent.prototype.addMessageToConsole = function(message, source,
+    line) {
+  var console = WebInspector.console;
+  if (console) {
+    console.addMessage(new WebInspector.ConsoleMessage(
+        "", undefined, line, source, undefined, 1, message));
   }
 };
 

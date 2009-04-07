@@ -8,6 +8,7 @@
 #include <string>
 
 #include <wtf/OwnPtr.h>
+#include <wtf/Vector.h>
 
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/devtools/dom_agent.h"
@@ -49,6 +50,7 @@ class WebDevToolsAgentImpl
       const WebCore::String& function_name,
       int node_id,
       const WebCore::String& json_args);
+  virtual void ClearConsoleMessages();
 
   // WebDevToolsAgent implementation.
   virtual void Attach();
@@ -64,10 +66,24 @@ class WebDevToolsAgentImpl
   void DidCommitLoadForFrame(WebViewImpl* webview,
                              WebFrame* frame,
                              bool is_new_navigation);
+  void AddMessageToConsole(
+      const WebCore::String& message,
+      const WebCore::String& source_id,
+      unsigned int line_no);
 
   NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }
 
  private:
+  struct ConsoleMessage {
+    ConsoleMessage(const String& m, const String& sid, unsigned li)
+        : message(m),
+          source_id(sid),
+          line_no(li) {
+    }
+    WebCore::String message;
+    WebCore::String source_id;
+    unsigned int line_no;
+  };
   WebDevToolsAgentDelegate* delegate_;
   WebViewImpl* web_view_impl_;
   WebCore::Document* document_;
@@ -78,6 +94,7 @@ class WebDevToolsAgentImpl
   OwnPtr<DebuggerAgentImpl> debugger_agent_impl_;
   OwnPtr<DomAgentImpl> dom_agent_impl_;
   OwnPtr<NetAgentImpl> net_agent_impl_;
+  Vector<ConsoleMessage> console_log_;
   bool attached_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };

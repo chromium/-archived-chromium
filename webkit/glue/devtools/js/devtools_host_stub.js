@@ -202,6 +202,10 @@ RemoteToolsAgentStub.prototype.GetNodePrototypes = function(callId, nodeId) {
 };
 
 
+RemoteToolsAgentStub.prototype.ClearConsoleMessages = function() {
+};
+
+
 /**
  * @constructor
  */
@@ -232,6 +236,7 @@ DevToolsHostStub.prototype.loaded = function() {
   RemoteDomAgentStub.sendChildNodes_(1);
   RemoteDomAgentStub.sendChildNodes_(2);
   devtools.tools.updateFocusedNode(4);
+  devtools.tools.addMessageToConsole('message', 'source', 3);
 };
 
 

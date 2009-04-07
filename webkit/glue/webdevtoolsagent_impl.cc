@@ -35,6 +35,9 @@ using WebCore::Page;
 using WebCore::ScriptValue;
 using WebCore::String;
 
+// Maximum size of the console message cache.
+static const size_t kMaxConsoleMessages = 200;
+
 WebDevToolsAgentImpl::WebDevToolsAgentImpl(
     WebViewImpl* web_view_impl,
     WebDevToolsAgentDelegate* delegate)
@@ -69,6 +72,16 @@ void WebDevToolsAgentImpl::Attach() {
     dom_agent_impl_->SetDocument(doc, true);
     net_agent_impl_->SetDocument(doc);
   }
+
+  // Populate console.
+  for (Vector<ConsoleMessage>::iterator it = console_log_.begin();
+       it != console_log_.end(); ++it) {
+    tools_agent_delegate_stub_->AddMessageToConsole(
+        it->message,
+        it->source_id,
+        it->line_no);
+  }
+
   attached_ = true;
 }
 
@@ -114,6 +127,24 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
       webview->GetMainFrame() == frame);
 }
 
+void WebDevToolsAgentImpl::AddMessageToConsole(
+    const String& message,
+    const String& source_id,
+    unsigned int line_no) {
+  ConsoleMessage cm(message, source_id, line_no);
+  console_log_.append(cm);
+  if (console_log_.size() >= kMaxConsoleMessages) {
+    // Batch shifts to save ticks.
+    console_log_.remove(0, kMaxConsoleMessages / 5);
+  }
+  if (attached_) {
+    tools_agent_delegate_stub_->AddMessageToConsole(
+        message,
+        source_id,
+        line_no);
+  }
+}
+
 void WebDevToolsAgentImpl::HighlightDOMNode(int node_id) {
   if (!attached_) {
     return;
@@ -157,6 +188,10 @@ void WebDevToolsAgentImpl::ExecuteUtilityFunction(
   }
   tools_agent_delegate_stub_->DidExecuteUtilityFunction(call_id,
       result);
+}
+
+void WebDevToolsAgentImpl::ClearConsoleMessages() {
+  console_log_.clear();
 }
 
 void WebDevToolsAgentImpl::DispatchMessageFromClient(
