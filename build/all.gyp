@@ -44,6 +44,7 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            '../third_party/harfbuzz/harfbuzz.gyp:*',
             '../tools/gtk_clipboard_dump/gtk_clipboard_dump.gyp:*',
           ],
         }],
