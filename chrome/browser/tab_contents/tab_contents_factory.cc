@@ -74,21 +74,11 @@ TabContentsType TabContents::TypeForURL(GURL* url) {
     }
   }
 
-// TODO(port): port the rest of this function.
-#if defined(OS_WIN)
   // Try to handle as a browser URL. If successful, |url| will end up
   // containing the real url being loaded (browser url's are just an alias).
   TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
   if (BrowserURLHandler::HandleBrowserURL(url, &type))
     return type;
-
-#elif defined(OS_POSIX)
-  TabContentsType type(TAB_CONTENTS_UNKNOWN_TYPE);
-  if (BrowserURLHandler::HandleBrowserURL(url, &type)) {
-    return type;
-  }
-  NOTIMPLEMENTED();
-#endif
 
   // NOTE: Even the empty string can be loaded by a WebContents.
   return TAB_CONTENTS_WEB;
