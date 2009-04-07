@@ -365,6 +365,18 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
     return gptr - glyphs;
 }
 
+#ifdef SKIA_HARFBUZZ
+void SkPaint::setupShaper(HB_ShaperItem* item) {
+    SkAutoGlyphCache autoCache(*this, NULL);
+    autoCache.getCache()->setupShaper(item);
+}
+
+void SkPaint::releaseShaper(HB_ShaperItem* item) {
+    SkAutoGlyphCache autoCache(*this, NULL);
+    autoCache.getCache()->releaseShaper(item);
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static uint32_t sk_glyphID_next(const char** text)

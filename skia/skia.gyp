@@ -691,6 +691,8 @@
             '../build/linux/system.gyp:gdk',
             '../build/linux/system.gyp:fontconfig',
             '../build/linux/system.gyp:freetype2',
+            '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz',
+            '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz_interface',
           ],
           'cflags': [
             '-Wno-unused',
@@ -699,6 +701,9 @@
           'sources!': [
             'ports/SkFontHost_none.cpp',
             'sgl/SkTypeface_fake.cpp',
+          ],
+          'defines': [
+            'SKIA_HARFBUZZ',
           ],
         }],
         [ 'OS == "mac"', {

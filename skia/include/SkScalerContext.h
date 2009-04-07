@@ -28,6 +28,8 @@ class SkMaskFilter;
 class SkPathEffect;
 class SkRasterizer;
 
+typedef struct HB_ShaperItem_ HB_ShaperItem;
+
 // needs to be != to any valid SkMask::Format
 #define MASK_FORMAT_JUST_ADVANCE    (0xFF)
 
@@ -191,6 +193,14 @@ public:
 
     static inline void MakeRec(const SkPaint&, const SkMatrix*, Rec* rec);
     static SkScalerContext* Create(const SkDescriptor*);
+
+#ifdef SKIA_HARFBUZZ
+    // This will fill in |item->font| and |item->face| with valid values for
+    // this font.
+    virtual void setupShaper(HB_ShaperItem* item) = 0;
+    // This will release the references held by |item->font| and |item->face|.
+    virtual void releaseShaper(HB_ShaperItem* item) = 0;
+#endif
 
 protected:
     Rec         fRec;

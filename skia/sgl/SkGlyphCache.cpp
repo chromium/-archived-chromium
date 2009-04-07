@@ -328,6 +328,18 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SKIA_HARFBUZZ
+void SkGlyphCache::setupShaper(HB_ShaperItem* item) {
+    fScalerContext->setupShaper(item);
+}
+
+void SkGlyphCache::releaseShaper(HB_ShaperItem* item) {
+    fScalerContext->releaseShaper(item);
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 bool SkGlyphCache::getAuxProcData(void (*proc)(void*), void** dataPtr) const {
     const AuxProcRec* rec = fAuxProcList;
     while (rec) {

@@ -36,6 +36,13 @@
 #include FT_ADVANCES_H
 #endif
 
+#ifdef SKIA_HARFBUZZ
+extern "C" {
+#include <harfbuzz-shaper.h>
+#include <harfbuzz-freetype.h>
+}
+#endif
+
 #if 0
 // Also include the files by name for build tools which require this.
 #include <freetype/freetype.h>
@@ -77,6 +84,11 @@ public:
         return fFaceRec != NULL && fFTSize != NULL;
     }
 
+#ifdef SKIA_HARFBUZZ
+    virtual void setupShaper(HB_ShaperItem* item);
+    virtual void releaseShaper(HB_ShaperItem* item);
+#endif
+
 protected:
     virtual unsigned generateGlyphCount() const;
     virtual uint16_t generateCharToGlyph(SkUnichar uni);
@@ -111,8 +123,25 @@ struct SkFaceRec {
     uint32_t        fRefCnt;
     uint32_t        fFontID;
 
+#ifdef SKIA_HARFBUZZ
+    // A lazily created Harfbuzz face object.
+    HB_Face         fHBFace;
+    // If |fHBFace| is non-NULL, then this member is valid.
+    HB_FontRec*     fHBFont;
+
+    void setupShaper(HB_ShaperItem* item);
+    void releaseShaper(HB_ShaperItem* item);
+#endif
+
     SkFaceRec(SkStream* strm, uint32_t fontID);
     ~SkFaceRec() {
+#ifdef SKIA_HARFBUZZ
+        if (fHBFace) {
+            free(fHBFace);
+            free(fHBFont);
+        }
+#endif
+
         fSkStream->unref();
     }
 };
@@ -157,6 +186,11 @@ SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
     fFTStream.descriptor.pointer = fSkStream;
     fFTStream.read  = sk_stream_read;
     fFTStream.close = sk_stream_close;
+
+#ifdef SKIA_HARFBUZZ
+    fHBFace = NULL;
+#endif
+
 }
 
 // Will return 0 on failure
@@ -232,6 +266,27 @@ static void unref_ft_face(FT_Face face) {
         rec = next;
     }
     SkASSERT("shouldn't get here, face not in list");
+}
+
+void SkFaceRec::setupShaper(HB_ShaperItem* item) {
+    if (!fHBFace) {
+        fHBFace = HB_NewFace(fFace, hb_freetype_table_sfnt_get);
+        fHBFont = (HB_FontRec *) calloc(sizeof(HB_FontRec), 1);
+        fHBFont->klass = &hb_freetype_class;
+        fHBFont->userData = fFace;
+        fHBFont->x_ppem  = fFace->size->metrics.x_ppem;
+        fHBFont->y_ppem  = fFace->size->metrics.y_ppem;
+        fHBFont->x_scale = fFace->size->metrics.x_scale;
+        fHBFont->y_scale = fFace->size->metrics.y_scale;
+    }
+
+    item->face = fHBFace;
+    item->font = fHBFont;
+    fRefCnt++;
+}
+
+void SkFaceRec::releaseShaper(HB_ShaperItem* item) {
+    fRefCnt--;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -648,6 +703,16 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         goto ERROR;
     }
 }
+
+#ifdef SKIA_HARFBUZZ
+void SkScalerContext_FreeType::setupShaper(HB_ShaperItem* item) {
+    fFaceRec->setupShaper(item);
+}
+
+void SkScalerContext_FreeType::releaseShaper(HB_ShaperItem* item) {
+    fFaceRec->releaseShaper(item);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

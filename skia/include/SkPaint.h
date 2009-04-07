@@ -39,6 +39,8 @@ class SkDrawLooper;
 class SkTypeface;
 class SkXfermode;
 
+typedef struct HB_ShaperItem_ HB_ShaperItem;
+
 typedef const SkGlyph& (*SkDrawCacheProc)(SkGlyphCache*, const char**,
                                            SkFixed x, SkFixed y);
 
@@ -735,6 +737,11 @@ public:
     */
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
+
+#ifdef SKIA_HARFBUZZ
+    void setupShaper(HB_ShaperItem* item);
+    void releaseShaper(HB_ShaperItem* item);
+#endif
 
 private:
     SkTypeface*     fTypeface;
