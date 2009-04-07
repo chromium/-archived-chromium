@@ -109,7 +109,7 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
                                                &siteDeleteCounter,
                                                &browsingDeleteCounter);
   WebContents* contents = new WebContents(
-      profile.get(), instance, NULL, MSG_ROUTING_NONE, NULL);
+      profile.get(), instance, MSG_ROUTING_NONE, NULL);
   contents->SetupController(profile.get());
   EXPECT_EQ(1, siteDeleteCounter);
   EXPECT_EQ(1, browsingDeleteCounter);

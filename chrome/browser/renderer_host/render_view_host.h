@@ -651,16 +651,4 @@ class RenderViewHost : public RenderWidgetHost {
   DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
 };
 
-// Factory for creating RenderViewHosts.  Useful for unit tests.
-class RenderViewHostFactory {
- public:
-  virtual ~RenderViewHostFactory() {}
-
-  virtual RenderViewHost* CreateRenderViewHost(
-      SiteInstance* instance,
-      RenderViewHostDelegate* delegate,
-      int routing_id,
-      base::WaitableEvent* modal_dialog_event) = 0;
-};
-
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H_

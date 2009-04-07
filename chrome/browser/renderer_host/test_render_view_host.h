@@ -11,6 +11,7 @@
 #include "chrome/browser/renderer_host/mock_render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/browser/tab_contents/test_web_contents.h"
 #include "chrome/test/testing_profile.h"
@@ -134,12 +135,18 @@ class TestRenderViewHost : public RenderViewHost {
 
 // TestRenderViewHostFactory ---------------------------------------------------
 
+// Manages creation of the RenderViewHosts using our special subclass. This
+// automatically registers itself when it goes in scope, and unregisters itself
+// when it goes out of scope. Since you can't have more than one factory
+// registered at a time, you can only have one of these objects at a time.
 class TestRenderViewHostFactory : public RenderViewHostFactory {
  public:
   TestRenderViewHostFactory(RenderProcessHostFactory* rph_factory)
       : render_process_host_factory_(rph_factory) {
+    RenderViewHostFactory::RegisterFactory(this);
   }
   virtual ~TestRenderViewHostFactory() {
+    RenderViewHostFactory::UnregisterFactory();
   }
 
   virtual RenderViewHost* CreateRenderViewHost(

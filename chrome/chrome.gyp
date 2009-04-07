@@ -910,6 +910,8 @@
         'browser/renderer_host/render_view_host.cc',
         'browser/renderer_host/render_view_host.h',
         'browser/renderer_host/render_view_host_delegate.h',
+        'browser/renderer_host/render_view_host_factory.cc',
+        'browser/renderer_host/render_view_host_factory.h',
         'browser/renderer_host/render_widget_helper.cc',
         'browser/renderer_host/render_widget_helper.h',
         'browser/renderer_host/render_widget_host.cc',

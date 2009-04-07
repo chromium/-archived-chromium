@@ -65,7 +65,7 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
 class TabStripModelTest : public RenderViewHostTestHarness {
  public:
   TabContents* CreateTabContents() {
-    WebContents* con = new WebContents(profile(), NULL, &rvh_factory_, 0, NULL);
+    WebContents* con = new WebContents(profile(), NULL, 0, NULL);
     con->SetupController(profile());
     return con;
   }

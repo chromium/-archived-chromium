@@ -82,7 +82,7 @@ void RenderViewHostTestHarness::SetUp() {
   // This will be deleted when the WebContents goes away.
   SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
 
-  contents_ = new TestWebContents(profile_.get(), instance, &rvh_factory_);
+  contents_ = new TestWebContents(profile_.get(), instance);
   controller_ = new NavigationController(contents_, profile_.get());
 }
 

@@ -64,20 +64,11 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
 
   DCHECK(focus_manager);
   focus_manager->AddKeystrokeListener(this);
-  tab_contents_ = TabContents::CreateWithType(TAB_CONTENTS_WEB, profile,
-                                              NULL, NULL);
-  if (!tab_contents_) {
-    NOTREACHED();
-    DestroyWindow();
-    return false;
-  }
 
+  tab_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
   tab_contents_->SetupController(profile);
   tab_contents_->set_delegate(this);
-
-  WebContents* web_conents = tab_contents_->AsWebContents();
-  if (web_conents)
-    web_conents->render_view_host()->AllowExternalHostBindings();
+  tab_contents_->render_view_host()->AllowExternalHostBindings();
 
   // Create a TabContentsContainerView to handle focus cycling using Tab and
   // Shift-Tab.
@@ -402,7 +393,7 @@ void ExternalTabContainer::ProcessUnhandledAccelerator(const MSG& msg) {
 void ExternalTabContainer::SetInitialFocus(bool reverse) {
   DCHECK(tab_contents_);
   if (tab_contents_) {
-    tab_contents_->SetInitialFocus(reverse);
+    static_cast<TabContents*>(tab_contents_)->SetInitialFocus(reverse);
   }
 }
 

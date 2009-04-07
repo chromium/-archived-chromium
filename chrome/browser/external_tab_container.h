@@ -21,7 +21,7 @@
 #include "chrome/views/widget/widget.h"
 
 class AutomationProvider;
-class TabContents;
+class WebContents;
 class Profile;
 class TabContentsContainerView;
 // This class serves as the container window for an external tab.
@@ -48,7 +48,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   ExternalTabContainer(AutomationProvider* automation);
   ~ExternalTabContainer();
 
-  TabContents* tab_contents() const {
+  WebContents* tab_contents() const {
     return tab_contents_;
   }
 
@@ -141,7 +141,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   void OnFinalMessage(HWND window);
 
  protected:
-  TabContents *tab_contents_;
+  WebContents* tab_contents_;
   scoped_refptr<AutomationProvider> automation_;
 
   NotificationRegistrar registrar_;
@@ -153,6 +153,7 @@ class ExternalTabContainer : public TabContentsDelegate,
   unsigned int external_accel_entry_count_;
   // A view to handle focus cycling
   TabContentsContainerView* tab_contents_container_;
+
  private:
   // A failed navigation like a 404 is followed in chrome with a success
   // navigation for the 404 page. We need to ignore the next navigation
@@ -163,4 +164,4 @@ class ExternalTabContainer : public TabContentsDelegate,
   DISALLOW_COPY_AND_ASSIGN(ExternalTabContainer);
 };
 
-#endif  // CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H__
+#endif  // CHROME_BROWSER_EXTERNAL_TAB_CONTAINER_H_

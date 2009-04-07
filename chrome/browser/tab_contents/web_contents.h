@@ -42,7 +42,6 @@ class PasswordManager;
 class PluginInstaller;
 class RenderProcessHost;
 class RenderViewHost;
-class RenderViewHostFactory;
 class RenderWidgetHost;
 struct ThumbnailScore;
 struct ViewHostMsg_FrameNavigate_Params;
@@ -75,7 +74,6 @@ class WebContents : public TabContents,
   // directly.
   WebContents(Profile* profile,
               SiteInstance* instance,
-              RenderViewHostFactory* render_view_factory,
               int routing_id,
               base::WaitableEvent* modal_dialog_event);
 
@@ -109,8 +107,10 @@ class WebContents : public TabContents,
     return view_.get();
   }
 
+#ifdef UNIT_TEST
   // Expose the render manager for testing.
   RenderViewHostManager* render_manager() { return &render_manager_; }
+#endif
 
   // Page state getters & setters ----------------------------------------------
 
@@ -596,9 +596,6 @@ class WebContents : public TabContents,
 
   // Manages creation and swapping of render views.
   RenderViewHostManager render_manager_;
-
-  // For testing, passed to new RenderViewHost managers.
-  RenderViewHostFactory* render_view_factory_;
 
   // Handles print preview and print job for this contents.
   printing::PrintViewManager printing_;

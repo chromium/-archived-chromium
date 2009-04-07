@@ -16,7 +16,6 @@ DOMUIHost::DOMUIHost(Profile* profile,
                      RenderViewHostFactory* render_view_factory)
     : WebContents(profile,
                   instance,
-                  render_view_factory,
                   MSG_ROUTING_NONE,
                   NULL) {
   // Implementors of this class will have a specific tab contents type.

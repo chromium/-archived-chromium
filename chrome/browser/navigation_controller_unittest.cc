@@ -1063,7 +1063,7 @@ TEST_F(NavigationControllerTest, RestoreNavigate) {
                                       ASCIIToUTF16("Title"), "state",
                                       PageTransition::LINK));
   NavigationController* our_controller =
-      new NavigationController(profile(), navigations, 0, &rvh_factory_);
+      new NavigationController(profile(), navigations, 0);
   our_controller->GoToIndex(0);
 
   // We should now have one entry, and it should be "pending".
@@ -1355,9 +1355,6 @@ TEST_F(NavigationControllerTest, SameSubframe) {
   EXPECT_EQ(controller()->GetLastCommittedEntryIndex(), 0);
 }
 
-/* TODO(brettw) These test pass on my local machine but fail on the buildbot
-   cleaning up the directory after they run. This should be fixed.
-
 // A basic test case. Navigates to a single url, and make sure the history
 // db matches.
 TEST_F(NavigationControllerHistoryTest, Basic) {
@@ -1373,6 +1370,9 @@ TEST_F(NavigationControllerHistoryTest, Basic) {
                      PageTransition::LINK);
   session_helper_.AssertNavigationEquals(nav1, windows_[0]->tabs[0]->navigations[0]);
 }
+
+/* TODO(brettw) These test pass on my local machine but fail on the buildbot
+   cleaning up the directory after they run. This should be fixed.
 
 // Navigates to three urls, then goes back and make sure the history database
 // is in sync.

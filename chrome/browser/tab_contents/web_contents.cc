@@ -192,14 +192,11 @@ int WebContents::find_request_id_counter_ = -1;
 
 WebContents::WebContents(Profile* profile,
                          SiteInstance* site_instance,
-                         RenderViewHostFactory* render_view_factory,
                          int routing_id,
                          base::WaitableEvent* modal_dialog_event)
     : TabContents(TAB_CONTENTS_WEB),
       view_(WebContentsView::Create(this)),
-      ALLOW_THIS_IN_INITIALIZER_LIST(
-          render_manager_(render_view_factory, this, this)),
-      render_view_factory_(render_view_factory),
+      ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(this, this)),
       printing_(*this),
       notify_disconnection_(false),
       received_page_title_(false),

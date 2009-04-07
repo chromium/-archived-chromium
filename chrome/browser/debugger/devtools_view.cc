@@ -49,9 +49,7 @@ void DevToolsView::Init() {
   // view hierarchy somewhere.
   Profile* profile = BrowserList::GetLastActive()->profile();
 
-  TabContents* tc = TabContents::CreateWithType(TAB_CONTENTS_WEB, profile,
-                                                NULL, NULL);
-  web_contents_ = tc->AsWebContents();
+  web_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
   web_contents_->SetupController(profile);
   web_contents_->set_delegate(this);
   web_container_->SetTabContents(web_contents_);

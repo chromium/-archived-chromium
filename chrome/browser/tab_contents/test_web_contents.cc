@@ -6,9 +6,8 @@
 
 #include "chrome/browser/renderer_host/test_render_view_host.h"
 
-TestWebContents::TestWebContents(Profile* profile, SiteInstance* instance,
-                                 RenderViewHostFactory* rvh_factory)
-    : WebContents(profile, instance, rvh_factory, MSG_ROUTING_NONE, NULL),
+TestWebContents::TestWebContents(Profile* profile, SiteInstance* instance)
+    : WebContents(profile, instance, MSG_ROUTING_NONE, NULL),
       transition_cross_site(false) {
 }
 

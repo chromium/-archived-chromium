@@ -1346,8 +1346,7 @@ TabContents* Browser::CreateTabContentsForURL(
   TabContentsType type = TabContents::TypeForURL(&real_url);
   DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
 
-  TabContents* contents = TabContents::CreateWithType(type, profile, instance,
-                                                      NULL);
+  TabContents* contents = TabContents::CreateWithType(type, profile, instance);
   contents->SetupController(profile);
 
   if (!defer_load) {
@@ -2382,8 +2381,7 @@ NavigationController* Browser::BuildRestoredNavigationController(
            selected_navigation < static_cast<int>(navigations.size()));
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
-    return new NavigationController(profile_, navigations, selected_navigation,
-                                    NULL);
+    return new NavigationController(profile_, navigations, selected_navigation);
   } else {
     // No navigations. Create a tab with about:blank.
     TabContents* contents =

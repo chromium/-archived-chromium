@@ -61,17 +61,13 @@ class RenderViewHostManager : public NotificationObserver {
         GetLastCommittedNavigationEntryForRenderManager() = 0;
   };
 
-  // The factory is optional. It is used by unit tests to supply custom render
-  // view hosts. When NULL, the regular RenderViewHost will be created.
-  //
   // Both delegate pointers must be non-NULL and are not owned by this class.
   // They must outlive this class. The RenderViewHostDelegate is what will be
   // installed into all RenderViewHosts that are created.
   //
   // You must call Init() before using this class and Shutdown() before
   // deleting it.
-  RenderViewHostManager(RenderViewHostFactory* render_view_factory,
-                        RenderViewHostDelegate* render_view_delegate,
+  RenderViewHostManager(RenderViewHostDelegate* render_view_delegate,
                         Delegate* delegate);
   ~RenderViewHostManager();
 
@@ -83,12 +79,6 @@ class RenderViewHostManager : public NotificationObserver {
 
   // Schedules all RenderViewHosts for destruction.
   void Shutdown();
-
-  // Returns true if there is a RenderViewHostFactory that will generate
-  // non-standard RenderViewHosts.
-  bool has_render_view_host_factory() const {
-    return !!render_view_factory_;
-  }
 
   // Returns the currently actuive RenderViewHost.
   //
@@ -212,12 +202,6 @@ class RenderViewHostManager : public NotificationObserver {
   // Helper method to create a pending RenderViewHost for a cross-site
   // navigation.
   bool CreatePendingRenderView(SiteInstance* instance);
-
-  // Creates a RenderViewHost using render_view_factory_ (or directly, if the
-  // factory is NULL).
-  RenderViewHost* CreateRenderViewHost(SiteInstance* instance,
-                                       int routing_id,
-                                       base::WaitableEvent* modal_dialog_event);
 
   // Sets the pending RenderViewHost/DOMUI to be the active one. Note that this
   // doesn't require the pending render_view_host_ pointer to be non-NULL, since

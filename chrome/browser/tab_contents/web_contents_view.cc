@@ -31,7 +31,6 @@ void WebContentsView::CreateNewWindow(int route_id,
   WebContents* new_contents =
       new WebContents(web_contents()->profile(),
                       web_contents()->GetSiteInstance(),
-                      web_contents()->render_view_factory_,
                       route_id,
                       modal_dialog_event);
   new_contents->SetupController(web_contents()->profile());

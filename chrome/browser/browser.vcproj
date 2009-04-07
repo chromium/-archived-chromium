@@ -2086,6 +2086,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer_host\render_view_host_factory.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer_host\render_view_host_factory.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer_host\render_widget_helper.cc"
 				>
 			</File>

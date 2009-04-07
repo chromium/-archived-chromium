@@ -13,6 +13,7 @@
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_win.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_win.h"
 #include "chrome/browser/tab_contents/interstitial_page.h"
@@ -88,7 +89,7 @@ RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
     // this actually is happening (and somebody isn't accidentally creating the
     // view twice), we check for the RVH Factory, which will be set when we're
     // making special ones (which go along with the special views).
-    DCHECK(web_contents()->render_manager()->has_render_view_host_factory());
+    DCHECK(RenderViewHostFactory::has_factory());
     return render_widget_host->view();
   }
 

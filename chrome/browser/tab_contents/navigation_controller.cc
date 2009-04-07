@@ -148,7 +148,6 @@ static void CreateNavigationEntriesFromTabNavigations(
 NavigationController::NavigationController(TabContents* contents,
                                            Profile* profile)
     : profile_(profile),
-      rvh_factory_(NULL),
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
@@ -166,10 +165,8 @@ NavigationController::NavigationController(TabContents* contents,
 NavigationController::NavigationController(
     Profile* profile,
     const std::vector<TabNavigation>& navigations,
-    int selected_navigation,
-    RenderViewHostFactory* rvh_factory)
+    int selected_navigation)
     : profile_(profile),
-      rvh_factory_(rvh_factory),
       pending_entry_(NULL),
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
@@ -1047,7 +1044,7 @@ TabContents* NavigationController::GetTabContentsCreateIfNecessary(
   TabContents* contents = GetTabContents(entry.tab_type());
   if (!contents) {
     contents = TabContents::CreateWithType(entry.tab_type(), profile_,
-                                           entry.site_instance(), rvh_factory_);
+                                           entry.site_instance());
     if (!contents->AsWebContents()) {
       // Update the max page id, otherwise the newly created TabContents may
       // have reset its max page id resulting in all new navigations. We only

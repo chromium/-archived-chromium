@@ -21,7 +21,6 @@
 class NavigationEntry;
 class GURL;
 class Profile;
-class RenderViewHostFactory;
 class TabContents;
 class SiteInstance;
 class SkBitmap;
@@ -129,13 +128,11 @@ class NavigationController {
 
   // Creates a NavigationController from the specified history. Processing
   // for this is asynchronous and handled via the RestoreHelper (in
-  // navigation_controller.cc). The RenderViewHostFactory will be passed to
-  // new TabContentses, it is non-NULL only for testing.
+  // navigation_controller.cc).
   NavigationController(
       Profile* profile,
       const std::vector<TabNavigation>& navigations,
-      int selected_navigation,
-      RenderViewHostFactory* rvh_factory);
+      int selected_navigation);
   ~NavigationController();
 
   // Begin the destruction sequence for this NavigationController and all its
@@ -493,10 +490,6 @@ class NavigationController {
 
   // The user profile associated with this controller
   Profile* profile_;
-
-  // Non-owning pointer to the factory to pass to new TabContentes. This will be
-  // NULL except in testing, where it is used to create mock RVH's.
-  RenderViewHostFactory* rvh_factory_;
 
   // List of NavigationEntry for this tab
   typedef std::vector<linked_ptr<NavigationEntry> > NavigationEntries;

@@ -89,8 +89,7 @@ class TabContents : public PageNavigator,
   // will be passed to the new TabContents (it may be NULL).
   static TabContents* CreateWithType(TabContentsType type,
                                      Profile* profile,
-                                     SiteInstance* instance,
-                                     RenderViewHostFactory* rvh_factory);
+                                     SiteInstance* instance);
 
   // Returns the type of TabContents needed to handle the URL. |url| may
   // end up being modified to contain the _real_ url being loaded if the

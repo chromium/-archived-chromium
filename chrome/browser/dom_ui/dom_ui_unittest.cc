@@ -88,8 +88,7 @@ TEST_F(DOMUITest, DOMUIToStandard) {
   // slightly different than the very-first-navigation case since the
   // SiteInstance will be the same (the original WebContents must still be
   // alive), which will trigger different behavior in RenderViewHostManager.
-  WebContents* contents2 = new TestWebContents(profile_.get(), NULL,
-      &rvh_factory_);
+  WebContents* contents2 = new TestWebContents(profile_.get(), NULL);
   NavigationController* controller2 =
       new NavigationController(contents2, profile_.get());
   contents2->set_controller(controller2);

@@ -23,8 +23,7 @@ bool DOMView::Init(Profile* profile, SiteInstance* instance) {
     return true;
 
   initialized_ = true;
-  web_contents_ = new WebContents(profile, instance, NULL,
-                                  MSG_ROUTING_NONE, NULL);
+  web_contents_ = new WebContents(profile, instance, MSG_ROUTING_NONE, NULL);
   views::HWNDView::Attach(web_contents_->GetNativeView());
   web_contents_->SetupController(profile);
   return true;

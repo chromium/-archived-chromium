@@ -10,6 +10,7 @@
 #include "chrome/browser/dom_ui/dom_ui_factory.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/renderer_host/render_view_host_factory.h"
 #include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
@@ -23,12 +24,10 @@ class WaitableEvent;
 }
 
 RenderViewHostManager::RenderViewHostManager(
-    RenderViewHostFactory* render_view_factory,
     RenderViewHostDelegate* render_view_delegate,
     Delegate* delegate)
     : delegate_(delegate),
       cross_navigation_pending_(false),
-      render_view_factory_(render_view_factory),
       render_view_delegate_(render_view_delegate),
       render_view_host_(NULL),
       pending_render_view_host_(NULL),
@@ -52,8 +51,8 @@ void RenderViewHostManager::Init(Profile* profile,
   // ref counted.
   if (!site_instance)
     site_instance = SiteInstance::CreateSiteInstance(profile);
-  render_view_host_ = CreateRenderViewHost(
-      site_instance, routing_id, modal_dialog_event);
+  render_view_host_ = RenderViewHostFactory::Create(
+      site_instance, render_view_delegate_, routing_id, modal_dialog_event);
 }
 
 void RenderViewHostManager::Shutdown() {
@@ -399,8 +398,8 @@ bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
     // we're about to switch away, so that it sends an UpdateState message.
   }
 
-  pending_render_view_host_ =
-      CreateRenderViewHost(instance, MSG_ROUTING_NONE, NULL);
+  pending_render_view_host_ = RenderViewHostFactory::Create(
+      instance, render_view_delegate_, MSG_ROUTING_NONE, NULL);
 
   bool success = delegate_->CreateRenderViewForRenderManager(
       pending_render_view_host_);
@@ -411,19 +410,6 @@ bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
     CancelPending();
   }
   return success;
-}
-
-RenderViewHost* RenderViewHostManager::CreateRenderViewHost(
-    SiteInstance* instance,
-    int routing_id,
-    base::WaitableEvent* modal_dialog_event) {
-  if (render_view_factory_) {
-    return render_view_factory_->CreateRenderViewHost(
-        instance, render_view_delegate_, routing_id, modal_dialog_event);
-  } else {
-    return new RenderViewHost(instance, render_view_delegate_, routing_id,
-                              modal_dialog_event);
-  }
 }
 
 void RenderViewHostManager::CommitPending() {

@@ -351,8 +351,7 @@ TEST_F(WebContentsTest, NavigateTwoTabsCrossSite) {
   contents()->TestDidNavigate(orig_rvh, params1);
 
   // Open a new tab with the same SiteInstance, navigated to the same site.
-  TestWebContents* contents2 = new TestWebContents(profile(), instance1,
-                                                   &rvh_factory_);
+  TestWebContents* contents2 = new TestWebContents(profile(), instance1);
   params1.page_id = 2;  // Need this since the site instance is the same (which
                         // is the scope of page IDs) and we want to consider
                         // this a new page.
@@ -409,8 +408,7 @@ TEST_F(WebContentsTest, CrossSiteComparesAgainstCurrentPage) {
   contents()->TestDidNavigate(orig_rvh, params1);
 
   // Open a related tab to a second site.
-  TestWebContents* contents2 = new TestWebContents(profile(), instance1,
-                                                   &rvh_factory_);
+  TestWebContents* contents2 = new TestWebContents(profile(), instance1);
   contents2->transition_cross_site = true;
   contents2->SetupController(profile());
   const GURL url2("http://www.yahoo.com");
