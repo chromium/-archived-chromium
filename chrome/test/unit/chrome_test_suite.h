@@ -23,6 +23,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/test/testing_browser_process.h"
 #include "net/base/host_resolver_unittest.h"
+#include "net/base/net_util.h"
 
 // In many cases it may be not obvious that a test makes a real DNS lookup.
 // We generally don't want to rely on external DNS servers for our tests,
@@ -32,11 +33,16 @@ class WarningHostMapper : public net::HostMapper {
   virtual std::string Map(const std::string& host) {
     const char* kLocalHostNames[] = {"localhost", "127.0.0.1"};
     bool local = false;
-    for (size_t i = 0; i < arraysize(kLocalHostNames); i++)
-      if (host == kLocalHostNames[i]) {
-        local = true;
-        break;
-      }
+
+    if (host == net::GetHostName()) {
+      local = true;
+    } else {
+      for (size_t i = 0; i < arraysize(kLocalHostNames); i++)
+        if (host == kLocalHostNames[i]) {
+          local = true;
+          break;
+        }
+    }
 
     // Make the test fail so it's harder to ignore.
     // If you really need to make real DNS query, use net::RuleBasedHostMapper

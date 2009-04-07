@@ -112,13 +112,15 @@ void InProcessBrowserTest::SetUp() {
   params.ui_task =
       NewRunnableMethod(this, &InProcessBrowserTest::RunTestOnMainThreadLoop);
 
-  // TODO(sky): Don't make a real dns lookup here or simulate a failing
-  // lookup.  But if it's really needed then remove the TODO.
   scoped_refptr<net::RuleBasedHostMapper> host_mapper(
       new net::RuleBasedHostMapper());
+  // TODO(sky): Don't make a real dns lookup here or simulate a failing
+  // lookup.
   host_mapper->AllowDirectLookup("*.google.com");
-  net::ScopedHostMapper scoped_host_mapper;
-  scoped_host_mapper.Init(host_mapper.get());
+  // See http://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
+  // We don't want the test code to use it.
+  host_mapper->AddSimulatedFailure("wpad");
+  net::ScopedHostMapper scoped_host_mapper(host_mapper.get());
   BrowserMain(params);
 }
 
