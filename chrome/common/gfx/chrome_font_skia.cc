@@ -19,11 +19,11 @@ ChromeFont& ChromeFont::operator=(const ChromeFont& other) {
   return *this;
 }
 
-ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_name,
+ChromeFont::ChromeFont(SkTypeface* tf, const std::wstring& font_family,
                        int font_size, int style)
     : typeface_helper_(new SkAutoUnref(tf)),
       typeface_(tf),
-      font_name_(font_name),
+      font_family_(font_family),
       font_size_(font_size),
       style_(style) {
   tf->ref();
@@ -60,7 +60,7 @@ void ChromeFont::CopyChromeFont(const ChromeFont& other) {
   typeface_helper_.reset(new SkAutoUnref(other.typeface_));
   typeface_ = other.typeface_;
   typeface_->ref();
-  font_name_ = other.font_name_;
+  font_family_ = other.font_family_;
   font_size_ = other.font_size_;
   style_ = other.style_;
   height_ = other.height_;
@@ -80,15 +80,16 @@ int ChromeFont::ave_char_width() const {
   return avg_width_;
 }
 
-ChromeFont ChromeFont::CreateFont(const std::wstring& font_name,
+ChromeFont ChromeFont::CreateFont(const std::wstring& font_family,
                                   int font_size) {
   DCHECK_GT(font_size, 0);
 
-  SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_name).c_str(),
+  SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_family).c_str(),
                                       SkTypeface::kNormal);
+  DCHECK(tf) << "Could not find font: " << base::SysWideToUTF8(font_family);
   SkAutoUnref tf_helper(tf);
 
-  return ChromeFont(tf, font_name, font_size, NORMAL);
+  return ChromeFont(tf, font_family, font_size, NORMAL);
 }
 
 ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
@@ -99,7 +100,7 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
 
   if (style == style_) {
     // Fast path, we just use the same typeface at a different size
-    return ChromeFont(typeface_, font_name_, font_size_ + size_delta, style_);
+    return ChromeFont(typeface_, font_family_, font_size_ + size_delta, style_);
   }
 
   // If the style has changed we may need to load a new face
@@ -109,11 +110,11 @@ ChromeFont ChromeFont::DeriveFont(int size_delta, int style) const {
   if (ITALIC & style)
     skstyle |= SkTypeface::kItalic;
 
-  SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_name_).c_str(),
+  SkTypeface* tf = SkTypeface::Create(base::SysWideToUTF8(font_family_).c_str(),
                                       static_cast<SkTypeface::Style>(skstyle));
   SkAutoUnref tf_helper(tf);
 
-  return ChromeFont(tf, font_name_, font_size_ + size_delta, skstyle);
+  return ChromeFont(tf, font_family_, font_size_ + size_delta, skstyle);
 }
 
 void ChromeFont::PaintSetup(SkPaint* paint) const {
@@ -154,7 +155,7 @@ int ChromeFont::style() const {
 }
 
 std::wstring ChromeFont::FontName() {
-  return font_name_;
+  return font_family_;
 }
 
 int ChromeFont::FontSize() {

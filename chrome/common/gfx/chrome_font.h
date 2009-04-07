@@ -50,6 +50,7 @@ class ChromeFont {
   };
 
   // Creates a ChromeFont given font name (e.g. arial), font size (e.g. 12).
+  // Skia actually expects a family name and not a font name.
   static ChromeFont CreateFont(const std::wstring& font_name, int font_size);
 
   ~ChromeFont() { }
@@ -91,6 +92,8 @@ class ChromeFont {
   int style() const;
 
   // Font Name.
+  // It is actually a font family name, because Skia expects a family name
+  // and not a font name.
   std::wstring FontName();
 
   // Font Size.
@@ -204,7 +207,8 @@ class ChromeFont {
   SkTypeface *typeface_;
 
   // Additional information about the face
-  std::wstring font_name_;
+  // Skia actually expects a family name and not a font name.
+  std::wstring font_family_;
   int font_size_;
   int style_;
 
