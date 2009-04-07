@@ -1811,7 +1811,7 @@ LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 DEFER WIN MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
 MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
 MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
-MAC : LayoutTests/animations/change-keyframes.html = FAIL PASS
+LayoutTests/animations/change-keyframes.html = FAIL PASS
 
 // TODO(dsh): These started to fail after r9202.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/text-path-01-b.svg = FAIL
@@ -1926,7 +1926,7 @@ LINUX : LayoutTests/fast/replaced/003.html = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/filters-blend-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
-LINUX : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+LINUX : LayoutTests/svg/carto.net/scrollbar.svg = FAIL TIMEOUT
 LINUX : LayoutTests/tables/mozilla/bugs/bug1296.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug137388-2.html = FAIL
 LINUX : LayoutTests/tables/mozilla/bugs/bug1430.html = FAIL
@@ -1971,7 +1971,7 @@ LINUX MAC : LayoutTests/security/block-test.html = FAIL
 // Flakey. Not clear when it started, but it was before 3/9/09.
 // This test also started failing with the merge of March 25th 2009
 LINUX : LayoutTests/fast/clip/outline-overflowClip.html = CRASH PASS FAIL
-DEFER WIN : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
+DEFER : LayoutTests/transitions/transition-end-event-transform.html = FAIL PASS
 
 // Timing out starting 03/10/09
 MAC : LayoutTests/fast/dom/navigator-detached-no-crash.html = PASS TIMEOUT
@@ -2312,6 +2312,7 @@ MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 
 BUG9798 : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
+
 BUG9798 LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
@@ -2319,7 +2320,7 @@ BUG9798 LINUX : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL
 BUG9798 LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/transitions/transition-timing-function.html = FAIL PASS
 BUG9798 LINUX : pending/fast/repaint/bugzilla-6473.html = FAIL PASS
-BUG9798 LINUX : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL PASS
+BUG9798 LINUX MAC : LayoutTests/editing/pasteboard/drag-drop-dead-frame.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/dom/onerror-img.html = CRASH PASS
@@ -2337,6 +2338,11 @@ BUG9798 LINUX : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL
 BUG9798 LINUX : LayoutTests/transitions/shorthand-border-transitions.html = FAIL PASS
 BUG9798 LINUX RELEASE : LayoutTests/svg/carto.net/colourpicker.svg = FAIL PASS
 BUG9798 LINUX : chrome/http/tests/misc/set-window-opener-to-null.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/animations/animation-iteration-event-destroy-renderer.html = TIMEOUT PASS
+BUG9798 LINUX : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/failed-auth.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-non-simple-allow-async.html = FAIL PASS
+
 BUG9798 WIN : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/empty-file-formdata.html = TIMEOUT PASS
@@ -2348,6 +2354,8 @@ BUG9798 WIN : LayoutTests/http/tests/misc/redirect.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect-with-quotes.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/fast/xmlhttprequest/xmlhttprequest-gc.html = CRASH PASS
+BUG9798 WIN : LayoutTests/fast/lists/inlineBoxWrapperNullCheck.html = FAIL PASS
+
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-sync.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-response-headers.html = FAIL PASS
@@ -2358,13 +2366,13 @@ BUG9798 MAC : LayoutTests/fast/dom/onerror-img.html = FAIL PASS
 BUG9798 MAC : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-sub-frame-2-level.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/security/cross-frame-access-selection.html = FAIL PASS
-BUG9798 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = FAIL PASS
+BUG9798 MAC : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-targeted-link-navigation.html = FAIL PASS
+BUG9798 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = FAIL CRASH PASS
 BUG9798 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-subframe.html = FAIL PASS
 BUG9798 MAC : LayoutTests/fast/images/load-img-with-empty-src.html = FAIL PASS
 
 BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/editing/selection/4776665.html = FAIL PASS
-BUG9797 WIN DEBUG : LayoutTests/animations/change-keyframes.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/state-after-network-error.html = CRASH PASS
