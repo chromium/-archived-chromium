@@ -2347,6 +2347,10 @@ BUG9798 LINUX : LayoutTests/animations/animation-iteration-event-destroy-rendere
 BUG9798 LINUX : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/failed-auth.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-non-simple-allow-async.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/fast/backgrounds/001.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/http/tests/navigation/error404-frames.html = TIMEOUT PASS
+BUG9798 LINUX : LayoutTests/tables/mozilla/bugs/45621.html = FAIL PASS
+BUG9798 LINUX : LayoutTests/transitions/interrupted-all-transition.html = FAIL PASS
 
 BUG9798 WIN : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
@@ -2358,8 +2362,10 @@ BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-p
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect-with-quotes.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
+BUG9798 WIN : LayoutTests/http/tests/misc/url-in-utf32le.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/fast/xmlhttprequest/xmlhttprequest-gc.html = CRASH PASS
 BUG9798 WIN : LayoutTests/fast/lists/inlineBoxWrapperNullCheck.html = FAIL PASS
+BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = TIMEOUT PASS
 
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-sync.html = FAIL PASS
@@ -2375,6 +2381,7 @@ BUG9798 MAC : LayoutTests/http/tests/security/frameNavigation/xss-DENIED-targete
 BUG9798 MAC : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-window-open.html = FAIL CRASH PASS
 BUG9798 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-javascript-url-in-foreign-domain-subframe.html = FAIL PASS
 BUG9798 MAC : LayoutTests/fast/images/load-img-with-empty-src.html = FAIL PASS
+BUG9798 MAC : LayoutTests/fast/js/regexp-overflow.html = TIMEOUT PASS
 
 BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/editing/selection/4776665.html = FAIL PASS
