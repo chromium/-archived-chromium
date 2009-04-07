@@ -28,7 +28,8 @@
 - (void)tabDetachedWithContents:(TabContents*)contents
                         atIndex:(NSInteger)index;
 - (void)tabChangedWithContents:(TabContents*)contents
-                       atIndex:(NSInteger)index;
+                       atIndex:(NSInteger)index
+                   loadingOnly:(BOOL)loading;
 @end
 
 // A C++ bridge class to handle receiving notifications from the C++ tab
@@ -51,7 +52,8 @@ class TabStripBridge : public TabStripModelObserver {
   virtual void TabMoved(TabContents* contents,
                         int from_index,
                         int to_index);
-  virtual void TabChangedAt(TabContents* contents, int index);
+  virtual void TabChangedAt(TabContents* contents, int index,
+                            bool loading_only);
   virtual void TabStripEmpty();
 
  private:
@@ -274,19 +276,21 @@ class TabStripBridge : public TabStripModelObserver {
     [contentsController toggleBookmarkBar:YES];
   [tabContentsArray_ insertObject:contentsController atIndex:index];
 
-  // Make a new tab and add it to the strip. Keep track of its controller. We
-  // don't call |-layoutTabs| here because it will get called when the new
-  // tab is selected by the tab model.
+  // Make a new tab and add it to the strip. Keep track of its controller.
   TabController* newController = [self newTab];
   [tabArray_ insertObject:newController atIndex:index];
   NSView* newView = [newController view];
-  [tabView_ addSubview:newView];
+  [tabView_ addSubview:newView
+            positioned:inForeground ? NSWindowAbove : NSWindowBelow
+            relativeTo:nil];
 
   [self setTabTitle:newController withContents:contents];
 
-  // Select the newly created tab if in the foreground
-  if (inForeground)
-    [self swapInTabAtIndex:index];
+  // We don't need to call |-layoutTabs| if the tab will be in the foreground
+  // because it will get called when the new tab is selected by the tab model.
+  if (!inForeground) {
+    [self layoutTabs];
+  }
 }
 
 // Called when a notification is received from the model to select a particular
@@ -344,7 +348,8 @@ class TabStripBridge : public TabStripModelObserver {
 // Called when a notification is received from the model that the given tab
 // has been updated.
 - (void)tabChangedWithContents:(TabContents*)contents
-                       atIndex:(NSInteger)index {
+                       atIndex:(NSInteger)index
+                   loadingOnly:(BOOL)loading {
   [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
 
   TabContentsController* updatedController =
@@ -472,8 +477,11 @@ void TabStripBridge::TabMoved(TabContents* contents,
   NOTIMPLEMENTED();
 }
 
-void TabStripBridge::TabChangedAt(TabContents* contents, int index) {
-  [controller_ tabChangedWithContents:contents atIndex:index];
+void TabStripBridge::TabChangedAt(TabContents* contents, int index,
+                                  bool loading_only) {
+  [controller_ tabChangedWithContents:contents
+                              atIndex:index
+                          loadingOnly:loading_only ? YES : NO];
 }
 
 void TabStripBridge::TabStripEmpty() {
