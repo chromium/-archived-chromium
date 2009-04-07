@@ -2313,22 +2313,19 @@ MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 // Broken by r13217.
 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 
-// Broken after the change to run the tests in parallel. (r13212)
-LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
-LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
-LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
-LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
-WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
-WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
-WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
-MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
-MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
+BUG9798 : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
+BUG9798 LINUX : LayoutTests/svg/custom/use-detach.svg = FAIL PASS
+BUG9798 LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
+BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
+BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
+BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
+BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
+BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
+BUG9798 MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
 
-// Not clear when these got flaky. It's likely either r13176 (bucket webkit
-// tests by directory) or r13199 (webkit merge 42200:42244)
-WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
-WIN DEBUG : LayoutTests/animations/change-keyframes.html = FAIL PASS
-WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
-LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
+BUG9797 WIN DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
+BUG9797 WIN DEBUG : LayoutTests/animations/change-keyframes.html = FAIL PASS
+BUG9797 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
+BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
 
 
