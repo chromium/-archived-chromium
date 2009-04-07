@@ -705,6 +705,15 @@
           'defines': [
             'SKIA_HARFBUZZ',
           ],
+          'direct_dependent_settings': {
+            'defines': [
+              'SKIA_HARFBUZZ',
+            ],
+          },
+          'export_dependent_settings': [
+            '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz',
+            '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz_interface',
+          ],
         }],
         [ 'OS == "mac"', {
           'defines': [
