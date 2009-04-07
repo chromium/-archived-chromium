@@ -783,7 +783,7 @@ def main(options, args):
 
   if not options.num_test_shells:
     # Only run stable configurations with multiple test_shells by default.
-    if False:
+    if options.target == 'Release':
       cpus = 1
       if sys.platform in ('win32', 'cygwin'):
         cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
