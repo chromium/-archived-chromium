@@ -18,7 +18,6 @@
 
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
-class FindBarController;
 class InfoBarContainerGtk;
 class LocationBar;
 class NineBox;
@@ -67,7 +66,6 @@ class BrowserWindowGtk : public BrowserWindow,
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
-  virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
@@ -105,6 +103,9 @@ class BrowserWindowGtk : public BrowserWindow,
   bool CanClose() const;
 
   bool ShouldShowWindowIcon() const;
+
+  // Add the find bar widget to the window hierarchy.
+  void AddFindBar(GtkWidget* findbar);
 
  protected:
   virtual void DestroyBrowser();
@@ -161,11 +162,6 @@ class BrowserWindowGtk : public BrowserWindow,
   // (along with associated infobars, shelves, and other things that are part
   // of the content area).
   scoped_ptr<TabContentsContainerGtk> contents_container_;
-
-  // The Find Bar. This may be NULL if there is no Find Bar, and if it is
-  // non-NULL, it may or may not be visible.  It is possible for the Find Bar
-  // to move among windows as tabs are dragged around.
-  scoped_ptr<FindBarController> find_bar_controller_;
 
   // The tab strip.  Always non-NULL.
   scoped_ptr<TabStripGtk> tabstrip_;

@@ -18,7 +18,6 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
-#include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
@@ -213,13 +212,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
   gtk_box_pack_start(GTK_BOX(content_vbox_), border, FALSE, FALSE, 0);
   gtk_widget_show(border);
 
-  FindBarGtk* find_bar_gtk = new FindBarGtk();
-  find_bar_controller_.reset(new FindBarController(find_bar_gtk));
-  find_bar_gtk->SetFindBarController(find_bar_controller_.get());
-
-  contents_container_.reset(
-      new TabContentsContainerGtk(find_bar_gtk->widget()));
-
+  contents_container_.reset(new TabContentsContainerGtk());
   contents_container_->AddContainerToBox(content_vbox_);
 
   // Note that calling this the first time is necessary to get the
@@ -444,10 +437,6 @@ void BrowserWindowGtk::ToggleBookmarkBar() {
   bookmark_utils::ToggleWhenVisible(browser_->profile());
 }
 
-void BrowserWindowGtk::ShowFindBar() {
-  find_bar_controller_->Show();
-}
-
 void BrowserWindowGtk::ShowAboutChromeDialog() {
   NOTIMPLEMENTED();
 }
@@ -511,11 +500,6 @@ void BrowserWindowGtk::TabDetachedAt(TabContents* contents, int index) {
   if (index == browser_->tabstrip_model()->selected_index()) {
     infobar_container_->ChangeTabContents(NULL);
     contents_container_->SetTabContents(NULL);
-
-    // When dragging the last TabContents out of a window there is no selection
-    // notification that causes the find bar for that window to be un-registered
-    // for notifications from this TabContents.
-    find_bar_controller_->ChangeWebContents(NULL);
   }
 }
 
@@ -546,9 +530,6 @@ void BrowserWindowGtk::TabSelectedAt(TabContents* old_contents,
   toolbar_->SetProfile(new_contents->profile());
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
-
-  if (find_bar_controller_.get())
-    find_bar_controller_->ChangeWebContents(new_contents->AsWebContents());
 }
 
 void BrowserWindowGtk::TabStripEmpty() {
@@ -624,6 +605,10 @@ bool BrowserWindowGtk::CanClose() const {
 
 bool BrowserWindowGtk::ShouldShowWindowIcon() const {
   return browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR);
+}
+
+void BrowserWindowGtk::AddFindBar(GtkWidget* findbar) {
+  contents_container_->AddFindBar(findbar);
 }
 
 void BrowserWindowGtk::ConnectAccelerators() {

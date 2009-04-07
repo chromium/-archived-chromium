@@ -12,6 +12,7 @@
 #include "chrome/browser/find_bar.h"
 #include "chrome/common/owned_widget_gtk.h"
 
+class BrowserWindowGtk;
 class CustomDrawButton;
 class FindBarController;
 class TabContentsContainerGtk;
@@ -22,7 +23,7 @@ class WebContents;
 class FindBarGtk : public FindBar,
                    public FindBarTesting {
  public:
-  FindBarGtk();
+  FindBarGtk(BrowserWindowGtk* browser);
   virtual ~FindBarGtk();
 
   // Callback when the text in the find box changes.

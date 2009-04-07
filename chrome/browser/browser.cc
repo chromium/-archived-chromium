@@ -282,7 +282,7 @@ void Browser::CreateBrowserWindow() {
     window_->GetLocationBar()->ShowFirstRunBubble();
   }
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   FindBar* find_bar = BrowserWindow::CreateFindBar(this);
   find_bar_controller_.reset(new FindBarController(find_bar));
   find_bar->SetFindBarController(find_bar_controller_.get());

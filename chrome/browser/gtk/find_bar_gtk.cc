@@ -9,6 +9,7 @@
 #include "base/gfx/gtk_util.h"
 #include "base/string_util.h"
 #include "chrome/browser/find_bar_controller.h"
+#include "chrome/browser/gtk/browser_window_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
@@ -37,8 +38,18 @@ gboolean KeyPressEvent(GtkWindow* window, GdkEventKey* event,
 
 }
 
-FindBarGtk::FindBarGtk() {
+FindBarGtk::FindBarGtk(BrowserWindowGtk* browser) {
   InitWidgets();
+
+  // Insert the widget into the browser gtk hierarchy.
+  browser->AddFindBar(container_.get());
+
+  // Hook up signals after the widget has been added to the hierarchy so the
+  // widget will be realized.
+  g_signal_connect(G_OBJECT(find_text_), "changed",
+                   G_CALLBACK(EntryContentsChanged), this);
+  g_signal_connect(G_OBJECT(find_text_), "key-press-event",
+                   G_CALLBACK(KeyPressEvent), this);
 }
 
 FindBarGtk::~FindBarGtk() {
@@ -91,11 +102,6 @@ void FindBarGtk::InitWidgets() {
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
 
-
-  g_signal_connect(G_OBJECT(find_text_), "changed",
-                   G_CALLBACK(EntryContentsChanged), this);
-  g_signal_connect(G_OBJECT(find_text_), "key-press-event",
-                   G_CALLBACK(KeyPressEvent), this);
 }
 
 void FindBarGtk::Show() {
@@ -141,6 +147,8 @@ gfx::Rect FindBarGtk::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
 }
 
 void FindBarGtk::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
+  if (!IsFindBarVisible())
+    Show();  // TODO(tc): This should be a no animation show.
 }
 
 bool FindBarGtk::IsFindBarVisible() {

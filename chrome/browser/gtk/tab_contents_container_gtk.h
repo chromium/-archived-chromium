@@ -15,14 +15,14 @@ class TabContents;
 
 class TabContentsContainerGtk : public NotificationObserver {
  public:
-  // |findbar| is a pointer to the find bar container widget.  Since the
-  // position is relative to the tab contents, we position the find bar using
-  // the tab contents container.
-  explicit TabContentsContainerGtk(GtkWidget* findbar);
+  TabContentsContainerGtk();
   ~TabContentsContainerGtk();
 
   // Inserts our GtkWidget* hierarchy into a GtkBox managed by our owner.
   void AddContainerToBox(GtkWidget* widget);
+
+  // Add the findbar to the top of the tab contents container.
+  void AddFindBar(GtkWidget* widget);
 
   // Make the specified tab visible.
   void SetTabContents(TabContents* tab_contents);
