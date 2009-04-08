@@ -811,9 +811,8 @@ def main(options, args):
       elif sys.platform in ('darwin'): # OSX:
         cpus = int(os.popen2("sysctl -n hw.ncpu")[1].read())
 
-      # TODO: Do timing tests 1/2/4/8 cores and mac, linux, win to see what
-      # the optimal number here is.
-      options.num_test_shells = cpus + 1
+      # TODO(ojan): Use cpus+1 once we flesh out the flakiness.
+      options.num_test_shells = cpus
 
     else:
       options.num_test_shells = 1
