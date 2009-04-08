@@ -259,10 +259,6 @@ struct ViewHostMsg_Resource_Request {
   // Additional HTTP request headers.
   std::string headers;
 
-  // The default MIME type to use if the response lacks a Content-Type header.
-  // Use the empty string here if you don't want special MIME type handling.
-  std::string default_mime_type;
-
   // URLRequest load flags (0 by default).
   int load_flags;
 
@@ -1222,7 +1218,6 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     WriteParam(m, p.frame_origin);
     WriteParam(m, p.main_frame_origin);
     WriteParam(m, p.headers);
-    WriteParam(m, p.default_mime_type);
     WriteParam(m, p.load_flags);
     WriteParam(m, p.origin_pid);
     WriteParam(m, p.resource_type);
@@ -1239,7 +1234,6 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
       ReadParam(m, iter, &r->frame_origin) &&
       ReadParam(m, iter, &r->main_frame_origin) &&
       ReadParam(m, iter, &r->headers) &&
-      ReadParam(m, iter, &r->default_mime_type) &&
       ReadParam(m, iter, &r->load_flags) &&
       ReadParam(m, iter, &r->origin_pid) &&
       ReadParam(m, iter, &r->resource_type) &&
@@ -1258,8 +1252,6 @@ struct ParamTraits<ViewHostMsg_Resource_Request> {
     LogParam(p.frame_origin, l);
     l->append(L", ");
     LogParam(p.main_frame_origin, l);
-    l->append(L", ");
-    LogParam(p.default_mime_type, l);
     l->append(L", ");
     LogParam(p.load_flags, l);
     l->append(L", ");

@@ -397,7 +397,6 @@ void ResourceDispatcherHost::BeginRequest(
                            request_id,
                            request_data.frame_origin,
                            request_data.main_frame_origin,
-                           request_data.default_mime_type,
                            request_data.resource_type,
                            upload_size);
   extra_info->allow_download =
@@ -534,7 +533,6 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
                            request_id_,
                            "null",  // frame_origin
                            "null",  // main_frame_origin
-                           "", // default_mime_type
                            ResourceType::SUB_RESOURCE,
                            0 /* upload_size */);
   extra_info->allow_download = true;
@@ -589,7 +587,6 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
                            request_id_,
                            "null",  // frame_origin
                            "null",  // main_frame_origin
-                           "", // default_mime_type
                            ResourceType::SUB_RESOURCE,
                            0 /* upload_size */);
   // Just saving some resources we need, disallow downloading.
