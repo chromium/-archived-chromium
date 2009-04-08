@@ -22,7 +22,7 @@
 
 namespace {
 
-// Checks the visiblilty of the enumerated window and signals once a visible
+// Checks the visibility of the enumerated window and signals once a visible
 // window has been found.
 BOOL CALLBACK BrowserWindowEnumeration(HWND window, LPARAM param) {
   bool* result = reinterpret_cast<bool*>(param);
@@ -33,14 +33,15 @@ BOOL CALLBACK BrowserWindowEnumeration(HWND window, LPARAM param) {
 
 }  // namespace
 
+// Look for a Chrome instance that uses the same profile directory.
 ProcessSingleton::ProcessSingleton(const FilePath& user_data_dir)
-    : window_(NULL),
-      locked_(false) {
-  // Look for a Chrome instance that uses the same profile directory:
-  remote_window_ = FindWindowEx(HWND_MESSAGE,
-                                NULL,
-                                chrome::kMessageWindowClass,
+    : window_(NULL), locked_(false) {
+  // FindWindoEx and Create() should be one atomic operation in order to not
+  // have a race condition.
+  remote_window_ = FindWindowEx(HWND_MESSAGE, NULL, chrome::kMessageWindowClass,
                                 user_data_dir.ToWStringHack().c_str());
+  if (!remote_window_)
+    Create();
 }
 
 ProcessSingleton::~ProcessSingleton() {
@@ -126,9 +127,14 @@ bool ProcessSingleton::NotifyOtherProcess() {
   return false;
 }
 
+// For windows, there is no need to call Create() since the call is made in
+// the constructor but to avoid having more platform specific code in
+// browser_main.cc we tolerate a second call which will do nothing.
 void ProcessSingleton::Create() {
-  DCHECK(!window_);
   DCHECK(!remote_window_);
+  if (window_)
+    return;
+
   HINSTANCE hinst = GetModuleHandle(NULL);
 
   WNDCLASSEX wc = {0};
