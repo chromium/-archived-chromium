@@ -93,5 +93,7 @@ class ChromeURLRequestContext : public URLRequestContext,
 
   scoped_ptr<SQLitePersistentCookieStore> cookie_db_;
   PrefService* prefs_;
+  bool is_media_;
   bool is_off_the_record_;
+  bool owns_http_transaction_factory_;
 };

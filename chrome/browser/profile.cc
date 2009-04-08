@@ -482,6 +482,16 @@ ProfileImpl::~ProfileImpl() {
     request_context_ = NULL;
   }
 
+  if (media_request_context_) {
+    media_request_context_->CleanupOnUIThread();
+
+    // Clean up request context on IO thread.
+    g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+        NewRunnableMethod(media_request_context_,
+            &base::RefCountedThreadSafe<URLRequestContext>::Release));
+    media_request_context_ = NULL;
+  }
+
   // HistoryService may call into the BookmarkModel, as such we need to
   // delete HistoryService before the BookmarkModel. The destructor for
   // HistoryService will join with HistoryService's backend thread so that
