@@ -175,6 +175,7 @@ class TestShellThread(threading.Thread):
     self._canceled = False
     self._exception_info = None
     self._timing_stats = {}
+    self._test_times = []
 
     # Current directory of tests we're running.
     self._current_dir = None
@@ -202,6 +203,11 @@ class TestShellThread(threading.Thread):
     """Returns a dictionary mapping test directory to a tuple of
     (number of tests in that directory, time to run the tests)"""
     return self._timing_stats;
+
+  def GetIndividualTestTimingStats(self):
+    """Returns a list of (time, test_filename) tuples where time is the
+    time it took to run the test."""
+    return self._test_times
 
   def Cancel(self):
     """Set a flag telling this thread to quit."""
@@ -339,10 +345,15 @@ class TestShellThread(threading.Thread):
     # try to recover here.
     self._test_shell_proc.stdin.flush()
 
+    start_time = time.time()
+
     # ...and read the response
-    return ProcessOutput(self._test_shell_proc, filename, test_uri,
-                         self._test_types, self._test_args,
-                         self._options.target)
+    failures = ProcessOutput(self._test_shell_proc, filename, test_uri,
+        self._test_types, self._test_args, self._options.target)
+
+    time_to_run_test = time.time() - start_time
+    self._test_times.append((time_to_run_test, filename))
+    return failures
 
 
   def _EnsureTestShellIsRunning(self):

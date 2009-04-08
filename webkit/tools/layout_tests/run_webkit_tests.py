@@ -480,6 +480,7 @@ class TestRunner:
     # Wait for the threads to finish and collect test failures.
     test_failures = {}
     test_timings = {}
+    individual_test_timings = []
     try:
       for thread in threads:
         while thread.isAlive():
@@ -490,6 +491,7 @@ class TestRunner:
           thread.join(1.0)
         test_failures.update(thread.GetFailures())
         test_timings.update(thread.GetTimingStats())
+        individual_test_timings.extend(thread.GetIndividualTestTimingStats())
     except KeyboardInterrupt:
       for thread in threads:
         thread.Cancel()
@@ -507,7 +509,8 @@ class TestRunner:
     end_time = time.time()
     logging.info("%f total testing time" % (end_time - start_time))
 
-    self._PrintTimingsForRuns(test_timings)
+    print
+    self._PrintTimingStatistics(test_timings, individual_test_timings)
 
     print "-" * 78
 
@@ -535,7 +538,22 @@ class TestRunner:
     sys.stderr.flush()
     return len(regressions)
 
-  def _PrintTimingsForRuns(self, test_timings):
+  def _PrintTimingStatistics(self, test_timings, individual_test_timings):
+    # Don't need to do any processing here for non-debug logging.
+    if logging.getLogger().getEffectiveLevel() > 10:
+      return
+
+    logging.debug("%s slowest tests:" % self._options.num_slow_tests_to_log)
+
+    individual_test_timings.sort(reverse=True)
+    slowests_tests = \
+        individual_test_timings[:self._options.num_slow_tests_to_log]
+
+    for test in slowests_tests:
+      logging.debug("%s took %s seconds" % (test[1], round(test[0], 1)))
+
+    print
+
     timings = []
     for directory in test_timings:
       num_tests, time = test_timings[directory]
@@ -932,6 +950,8 @@ if '__main__' == __name__:
   option_parser.add_option("", "--debug", action="store_true", default=False,
                            help="use the debug binary instead of the release "
                                 "binary")
+  option_parser.add_option("", "--num-slow-tests-to-log", default=50,
+                           help="Number of slow tests whose timings to print.")
   option_parser.add_option("", "--platform",
                            help="Override the platform for expected results")
   option_parser.add_option("", "--target", default="",
