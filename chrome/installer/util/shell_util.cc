@@ -93,60 +93,45 @@ class RegistryEntry {
                                          ShellUtil::kChromeExtProgId));
 
     BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+    std::wstring start_menu_entry(ShellUtil::kRegStartMenuInternet);
+    start_menu_entry.append(L"\\" + dist->GetApplicationName());
+    entries.push_front(new RegistryEntry(start_menu_entry,
+                                         dist->GetApplicationName()));
     entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe",
-        dist->GetApplicationName()));
+        start_menu_entry + ShellUtil::kRegShellOpen, quoted_exe_path));
     entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\shell\\open\\"
-            L"command",
-        quoted_exe_path));
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\DefaultIcon",
-        icon_path));
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\InstallInfo",
-        L"ReinstallCommand",
+        start_menu_entry + ShellUtil::kRegDefaultIcon, icon_path));
+
+    std::wstring install_info(start_menu_entry + L"\\InstallInfo");
+    entries.push_front(new RegistryEntry(install_info, L"ReinstallCommand",
         quoted_exe_path + L" --" + switches::kMakeDefaultBrowser));
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\InstallInfo",
-        L"HideIconsCommand",
+    entries.push_front(new RegistryEntry(install_info, L"HideIconsCommand",
         quoted_exe_path + L" --" + switches::kHideIcons));
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\InstallInfo",
-        L"ShowIconsCommand",
+    entries.push_front(new RegistryEntry(install_info, L"ShowIconsCommand",
         quoted_exe_path + L" --" + switches::kShowIcons));
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\InstallInfo",
-        L"IconsVisible", 1));
+    entries.push_front(new RegistryEntry(install_info, L"IconsVisible", 1));
 
+    std::wstring capabilities(start_menu_entry + L"\\Capabilities");
+    entries.push_front(new RegistryEntry(ShellUtil::kRegRegisteredApplications,
+                                         dist->GetApplicationName(),
+                                         capabilities));
     entries.push_front(new RegistryEntry(
-        ShellUtil::kRegRegisteredApplications,
-        dist->GetApplicationName(),
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities"));
+        capabilities, L"ApplicationDescription", dist->GetApplicationName()));
     entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities",
-        L"ApplicationDescription", dist->GetApplicationName()));
+        capabilities, L"ApplicationIcon", icon_path));
     entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities",
-        L"ApplicationIcon", icon_path));
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities",
-        L"ApplicationName", dist->GetApplicationName()));
+        capabilities, L"ApplicationName", dist->GetApplicationName()));
 
-    entries.push_front(new RegistryEntry(
-        L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\"
-            L"StartMenu",
-        L"StartMenuInternet", L"chrome.exe"));
+    entries.push_front(new RegistryEntry(capabilities + L"\\StartMenu",
+        L"StartMenuInternet", dist->GetApplicationName()));
     for (int i = 0; ShellUtil::kFileAssociations[i] != NULL; i++) {
       entries.push_front(new RegistryEntry(
-          L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\"
-              L"FileAssociations",
+          capabilities + L"\\FileAssociations",
           ShellUtil::kFileAssociations[i], ShellUtil::kChromeHTMLProgId));
     }
     for (int i = 0; ShellUtil::kProtocolAssociations[i] != NULL; i++) {
       entries.push_front(new RegistryEntry(
-          L"Software\\Clients\\StartMenuInternet\\chrome.exe\\Capabilities\\"
-              L"URLAssociations",
+          capabilities + L"\\URLAssociations",
           ShellUtil::kProtocolAssociations[i], ShellUtil::kChromeHTMLProgId));
     }
     return entries;
@@ -266,11 +251,11 @@ bool BindChromeAssociations(HKEY root_key, const std::wstring& chrome_exe) {
   }
 
   // start->Internet shortcut.
-  std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
   std::wstring start_internet(ShellUtil::kRegStartMenuInternet);
   items->AddCreateRegKeyWorkItem(root_key, start_internet);
+  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
   items->AddSetRegValueWorkItem(root_key, start_internet, L"",
-                                exe_name, true);
+                                dist->GetApplicationName(), true);
 
   // Apply all the registry changes and if there is a problem, rollback
   if (!items->Do()) {

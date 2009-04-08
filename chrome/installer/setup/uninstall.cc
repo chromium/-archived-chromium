@@ -249,8 +249,14 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   DeleteRegistryKey(key, html_prog_id);
 
   std::wstring set_access_key(ShellUtil::kRegStartMenuInternet);
-  file_util::AppendToPath(&set_access_key, installer_util::kChromeExe);
+  file_util::AppendToPath(&set_access_key, dist->GetApplicationName());
   DeleteRegistryKey(key, set_access_key);
+  // We have renamed the StartMenuInternet\chrome.exe to
+  // StartMenuInternet\Chromium so for old users we still need to delete
+  // the old key.
+  std::wstring old_set_access_key(ShellUtil::kRegStartMenuInternet);
+  file_util::AppendToPath(&old_set_access_key, installer_util::kChromeExe);
+  DeleteRegistryKey(key, old_set_access_key);
 
   DeleteRegistryValue(reg_root, ShellUtil::kRegRegisteredApplications,
                       dist->GetApplicationName());
