@@ -15,6 +15,7 @@
 
 class Browser;
 class CustomContainerButton;
+class NineBox;
 class PageNavigator;
 class Profile;
 
@@ -109,12 +110,41 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   }
 
  private:
-  CustomContainerButton* CreateBookmarkButton(BookmarkNode* node);
+  GtkWidget* CreateBookmarkButton(BookmarkNode* node);
+  GtkToolItem* CreateBookmarkToolItem(BookmarkNode* node);
 
   std::string BuildTooltip(BookmarkNode* node);
 
+  void LoadNineboxImages();
+
+  // GtkButton callbacks
+  static gboolean OnButtonPressed(GtkWidget* sender,
+                                  GdkEventButton* event,
+                                  BookmarkBarGtk* bar);
   static gboolean OnButtonReleased(GtkWidget* sender, GdkEventButton* event,
                                    BookmarkBarGtk* bar);
+  static gboolean OnButtonExpose(GtkWidget* widget, GdkEventExpose* e,
+                                 BookmarkBarGtk* button);
+  static void OnButtonDragBegin(GtkWidget* widget,
+                                GdkDragContext* drag_context,
+                                BookmarkBarGtk* bar);
+  static void OnButtonDragEnd(GtkWidget* button,
+                              GdkDragContext* drag_context,
+                              BookmarkBarGtk* bar);
+
+  // GtkToolbar callbacks
+  static gboolean OnToolbarExpose(GtkWidget* widget, GdkEventExpose* event,
+                                  BookmarkBarGtk* window);
+  static gboolean OnToolbarDragMotion(GtkToolbar* toolbar,
+                                      GdkDragContext* context,
+                                      gint x,
+                                      gint y,
+                                      guint time,
+                                      BookmarkBarGtk* bar);
+  static gboolean OnToolbarDragLeave(GtkToolbar* toolbar,
+                                     GdkDragContext* context,
+                                     guint time,
+                                     BookmarkBarGtk* bar);
 
   Profile* profile_;
 
@@ -137,12 +167,30 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // A GtkLabel to display when there are no bookmark buttons to display.
   GtkWidget* instructions_;
 
+  // GtkToolbar which contains all the bookmark buttons.
+  OwnedWidgetGtk bookmark_toolbar_;
+
+  // The other bookmarks button.
+  CustomContainerButton* other_bookmarks_button_;
+
+  // Whether we should ignore the next button release event (because we were
+  // dragging).
+  bool ignore_button_release_;
+
+  // The BookmarkNode from the model being dragged. NULL when we aren't
+  // dragging.
+  BookmarkNode* dragged_node_;
+
+  // We create a GtkToolbarItem from |dragged_node_| for display.
+  GtkToolItem* toolbar_drop_item_;
+
   // Whether we should show the instructional text in the bookmark bar.
   bool show_instructions_;
 
-  // Bookmark buttons. We keep these references so we can deallocate them
-  // properly.
-  std::vector<CustomContainerButton*> current_bookmark_buttons_;
+  // The theme graphics for when the mouse is over the button.
+  scoped_ptr<NineBox> nine_box_prelight_;
+  // The theme graphics for when the button is clicked.
+  scoped_ptr<NineBox> nine_box_active_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_BAR_GTK_H_
