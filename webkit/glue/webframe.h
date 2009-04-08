@@ -19,15 +19,12 @@ class WebView;
 class WebTextInput;
 struct NPObject;
 
-namespace gfx {
-class Rect;
-class Size;
-}
-
 namespace WebKit {
 struct WebConsoleMessage;
 struct WebFindOptions;
+struct WebRect;
 struct WebScriptSource;
+struct WebSize;
 }
 
 // Every frame in a web page is represented by one WebFrame, including the
@@ -223,7 +220,7 @@ class WebFrame {
                     const string16& search_text,
                     const WebKit::WebFindOptions& options,
                     bool wrap_within_frame,
-                    gfx::Rect* selection_rect) = 0;
+                    WebKit::WebRect* selection_rect) = 0;
 
   // Notifies the frame that we are no longer interested in searching. This will
   // abort any asynchronous scoping effort already under way (see the function
@@ -259,7 +256,7 @@ class WebFrame {
 
   // Notifies the webview-delegate about a new selection rect. This will result
   // in the browser getting notified. For more information see WebViewDelegate.
-  virtual void ReportFindInPageSelection(const gfx::Rect& selection_rect,
+  virtual void ReportFindInPageSelection(const WebKit::WebRect& selection_rect,
                                          int active_match_ordinal,
                                          int request_id) = 0;
 
@@ -364,7 +361,7 @@ class WebFrame {
   virtual void ClosePage() = 0;
 
   // The current scroll offset from the top of frame in pixels.
-  virtual gfx::Size ScrollOffset() const = 0;
+  virtual WebKit::WebSize ScrollOffset() const = 0;
 
   // Reformats the web frame for printing. |page_size_px| is the page size in
   // pixels.
@@ -372,7 +369,7 @@ class WebFrame {
   // |page_count| is the number of printed pages.
   // Returns false if it fails. It'll fail if the main frame failed to load but
   // will succeed even if a child frame failed to load.
-  virtual bool BeginPrint(const gfx::Size& page_size_px,
+  virtual bool BeginPrint(const WebKit::WebSize& page_size_px,
                           int* page_count) = 0;
 
   // Prints one page. |page| is 0-based.

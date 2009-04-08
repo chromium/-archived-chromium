@@ -15,6 +15,7 @@ class ChromiumDataObject;
 class CString;
 class IntPoint;
 class IntRect;
+class IntSize;
 class KURL;
 class String;
 }
@@ -25,6 +26,8 @@ class WebDragData;
 class WebString;
 class WebURL;
 struct WebPoint;
+struct WebRect;
+struct WebSize;
 }
 
 namespace WTF {
@@ -84,6 +87,14 @@ WebCore::IntRect ToIntRect(const gfx::Rect& r);
 // WebPoint <-> IntPoint
 WebCore::IntPoint WebPointToIntPoint(const WebKit::WebPoint&);
 WebKit::WebPoint IntPointToWebPoint(const WebCore::IntPoint&);
+
+// WebRect <-> IntRect
+WebCore::IntRect WebRectToIntRect(const WebKit::WebRect&);
+WebKit::WebRect IntRectToWebRect(const WebCore::IntRect&);
+
+// WebSize <-> IntSize
+WebCore::IntSize WebSizeToIntSize(const WebKit::WebSize&);
+WebKit::WebSize IntSizeToWebSize(const WebCore::IntSize&);
 
 // WebDragData <-> ChromiumDataObject
 WebKit::WebDragData ChromiumDataObjectToWebDragData(

@@ -65,23 +65,26 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // WebWidgetDelegate
   virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
-  virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
+  virtual void DidInvalidateRect(WebWidget* webwidget,
+                                 const WebKit::WebRect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                             const gfx::Rect& clip_rect);
+                             const WebKit::WebRect& clip_rect);
   virtual void SetCursor(WebWidget* webwidget, const WebCursor& cursor);
   virtual void Show(WebWidget* webwidget, WindowOpenDisposition disposition);
   virtual void ShowWithItems(WebWidget* webwidget,
-                             const gfx::Rect& bounds,
+                             const WebKit::WebRect& bounds,
                              int item_height,
                              int selected_index,
                              const std::vector<MenuItem>& items);
   virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);
-  virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect);
-  virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect);
-  virtual void GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect);
-  virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect);
+  virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
+  virtual void SetWindowRect(WebWidget* webwidget,
+                             const WebKit::WebRect& rect);
+  virtual void GetRootWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
+  virtual void GetRootWindowResizerRect(WebWidget* webwidget,
+                                        WebKit::WebRect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget) {}
   virtual bool IsHidden(WebWidget* webwidget) { return is_hidden_; }

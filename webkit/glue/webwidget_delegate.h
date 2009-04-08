@@ -12,12 +12,8 @@
 #include "base/string16.h"
 #include "webkit/glue/window_open_disposition.h"
 
-namespace gfx {
-class Point;
-class Rect;
-}
-
 namespace WebKit {
+struct WebRect;
 struct WebScreenInfo;
 }
 
@@ -47,12 +43,13 @@ class WebWidgetDelegate {
   virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget) = 0;
 
   // Called when a region of the WebWidget needs to be re-painted.
-  virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect) = 0;
+  virtual void DidInvalidateRect(WebWidget* webwidget,
+                                 const WebKit::WebRect& rect) = 0;
 
   // Called when a region of the WebWidget, given by clip_rect, should be
   // scrolled by the specified dx and dy amounts.
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                             const gfx::Rect& clip_rect) = 0;
+                             const WebKit::WebRect& clip_rect) = 0;
 
   // This method is called to instruct the window containing the WebWidget to
   // show itself as the topmost window.  This method is only used after a
@@ -71,7 +68,7 @@ class WebWidgetDelegate {
   // such as the type (separator, option, group), the text representation and
   // the item's enabled status.
   virtual void ShowWithItems(WebWidget* webwidget,
-                             const gfx::Rect& bounds,
+                             const WebKit::WebRect& bounds,
                              int item_height,
                              int selected_index,
                              const std::vector<MenuItem>& items) = 0;
@@ -93,7 +90,7 @@ class WebWidgetDelegate {
   virtual void SetCursor(WebWidget* webwidget,
                          const WebCursor& cursor) = 0;
   // Returns the rectangle of the WebWidget in screen coordinates.
-  virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
+  virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect) = 0;
 
   // This method is called to re-position the WebWidget on the screen.  The given
   // rect is in screen coordinates.  The implementation may choose to ignore
@@ -101,15 +98,18 @@ class WebWidgetDelegate {
   // has been called.
   // TODO(darin): this is more of a request; does this need to take effect
   // synchronously?
-  virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect) = 0;
+  virtual void SetWindowRect(WebWidget* webwidget,
+                             const WebKit::WebRect& rect) = 0;
 
   // Returns the rectangle of the window in which this WebWidget is embeded.
-  virtual void GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
+  virtual void GetRootWindowRect(WebWidget* webwidget,
+                                 WebKit::WebRect* rect) = 0;
 
   // Returns the resizer rectangle of the window this WebWidget is in. This
   // is used on Mac to determine if a scrollbar is over the in-window resize
   // area at the bottom right corner.
-  virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect) = 0;
+  virtual void GetRootWindowResizerRect(WebWidget* webwidget,
+                                        WebKit::WebRect* rect) = 0;
 
   // Keeps track of the necessary window move for a plugin window that resulted
   // from a scroll operation.  That way, all plugin windows can be moved at the

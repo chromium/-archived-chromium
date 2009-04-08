@@ -14,7 +14,9 @@
 #include "chrome/common/transport_dib.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 
 #if defined(OS_POSIX)
 #include "skia/include/SkPixelRef.h"
@@ -25,7 +27,9 @@
 #include "webkit/glue/webwidget.h"
 
 using WebKit::WebInputEvent;
+using WebKit::WebRect;
 using WebKit::WebScreenInfo;
+using WebKit::WebSize;
 
 RenderWidget::RenderWidget(RenderThreadBase* render_thread, bool activatable)
     : routing_id_(MSG_ROUTING_NONE),
@@ -454,13 +458,13 @@ gfx::NativeViewId RenderWidget::GetContainingView(WebWidget* webwidget) {
 }
 
 void RenderWidget::DidInvalidateRect(WebWidget* webwidget,
-                                     const gfx::Rect& rect) {
+                                     const WebRect& rect) {
   // We only want one pending DoDeferredPaint call at any time...
   bool paint_pending = !paint_rect_.IsEmpty();
 
   // If this invalidate overlaps with a pending scroll, then we have to
   // downgrade to invalidating the scroll rect.
-  if (rect.Intersects(scroll_rect_)) {
+  if (gfx::Rect(rect).Intersects(scroll_rect_)) {
     paint_rect_ = paint_rect_.Union(scroll_rect_);
     scroll_rect_ = gfx::Rect();
   }
@@ -486,7 +490,7 @@ void RenderWidget::DidInvalidateRect(WebWidget* webwidget,
 }
 
 void RenderWidget::DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                                 const gfx::Rect& clip_rect) {
+                                 const WebRect& clip_rect) {
   if (dx != 0 && dy != 0) {
     // We only support scrolling along one axis at a time.
     DidScrollRect(webwidget, 0, dy, clip_rect);
@@ -498,7 +502,7 @@ void RenderWidget::DidScrollRect(WebWidget* webwidget, int dx, int dy,
   // If we already have a pending scroll operation or if this scroll operation
   // intersects the existing paint region, then just failover to invalidating.
   if (!scroll_rect_.IsEmpty() || intersects_with_painting) {
-    if (!intersects_with_painting && scroll_rect_ == clip_rect) {
+    if (!intersects_with_painting && scroll_rect_ == gfx::Rect(clip_rect)) {
       // OK, we can just update the scroll delta (requires same scrolling axis)
       if (!dx && !scroll_delta_.x()) {
         scroll_delta_.set_y(scroll_delta_.y() + dy);
@@ -561,7 +565,7 @@ void RenderWidget::Show(WebWidget* webwidget,
 }
 
 void RenderWidget::ShowWithItems(WebWidget* webwidget,
-                                 const gfx::Rect& bounds,
+                                 const WebRect& bounds,
                                  int item_height,
                                  int selected_index,
                                  const std::vector<MenuItem>& items) {
@@ -598,11 +602,13 @@ void RenderWidget::Close() {
   }
 }
 
-void RenderWidget::GetWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
-  Send(new ViewHostMsg_GetWindowRect(routing_id_, host_window_, rect));
+void RenderWidget::GetWindowRect(WebWidget* webwidget, WebRect* result) {
+  gfx::Rect rect;
+  Send(new ViewHostMsg_GetWindowRect(routing_id_, host_window_, &rect));
+  *result = rect;
 }
 
-void RenderWidget::SetWindowRect(WebWidget* webwidget, const gfx::Rect& pos) {
+void RenderWidget::SetWindowRect(WebWidget* webwidget, const WebRect& pos) {
   if (did_show_) {
     Send(new ViewHostMsg_RequestMove(routing_id_, pos));
   } else {
@@ -610,12 +616,14 @@ void RenderWidget::SetWindowRect(WebWidget* webwidget, const gfx::Rect& pos) {
   }
 }
 
-void RenderWidget::GetRootWindowRect(WebWidget* webwidget, gfx::Rect* rect) {
-  Send(new ViewHostMsg_GetRootWindowRect(routing_id_, host_window_, rect));
+void RenderWidget::GetRootWindowRect(WebWidget* webwidget, WebRect* result) {
+  gfx::Rect rect;
+  Send(new ViewHostMsg_GetRootWindowRect(routing_id_, host_window_, &rect));
+  *result = rect;
 }
 
 void RenderWidget::GetRootWindowResizerRect(WebWidget* webwidget,
-                                            gfx::Rect* rect) {
+                                            WebRect* rect) {
   *rect = resizer_rect_;
 }
 
@@ -694,7 +702,7 @@ void RenderWidget::UpdateIME() {
   // Retrieve the caret position from the focused widget and verify we should
   // enabled IMEs attached to the browser process.
   bool enable_ime = false;
-  gfx::Rect caret_rect;
+  WebRect caret_rect;
   if (!webwidget_ ||
       !webwidget_->ImeUpdateStatus(&enable_ime, &caret_rect)) {
     // There are not any editable widgets attached to this process.
@@ -740,8 +748,8 @@ void RenderWidget::UpdateIME() {
     // The input focus is not changed.
     // Notify the caret position to a browser process only if it is changed.
     if (ime_control_enable_ime_) {
-      if (caret_rect.x() != ime_control_x_ ||
-          caret_rect.y() != ime_control_y_) {
+      if (caret_rect.x != ime_control_x_ ||
+          caret_rect.y != ime_control_y_) {
         Send(new ViewHostMsg_ImeUpdateStatus(routing_id(), IME_MOVE_WINDOWS,
                                              caret_rect));
       }
@@ -750,8 +758,8 @@ void RenderWidget::UpdateIME() {
   // Save the updated IME status to prevent from sending the same IPC messages.
   ime_control_updated_ = false;
   ime_control_enable_ime_ = ime_control_new_state_;
-  ime_control_x_ = caret_rect.x();
-  ime_control_y_ = caret_rect.y();
+  ime_control_x_ = caret_rect.x;
+  ime_control_y_ = caret_rect.y;
 }
 
 void RenderWidget::DidMove(WebWidget* webwidget,

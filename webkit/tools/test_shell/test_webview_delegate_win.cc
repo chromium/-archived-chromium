@@ -19,6 +19,7 @@
 #include "base/string_util.h"
 #include "base/trace_event.h"
 #include "net/base/net_errors.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/weberror.h"
@@ -34,6 +35,8 @@
 #include "webkit/tools/test_shell/drop_delegate.h"
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
+
+using WebKit::WebRect;
 
 // WebViewDelegate -----------------------------------------------------------
 
@@ -79,7 +82,7 @@ void TestWebViewDelegate::Show(WebWidget* webwidget, WindowOpenDisposition) {
 }
 
 void TestWebViewDelegate::ShowWithItems(WebWidget* webwidget,
-                                        const gfx::Rect& bounds,
+                                        const WebRect& bounds,
                                         int item_height,
                                         int selected_index,
                                         const std::vector<MenuItem>& items) {
@@ -104,7 +107,7 @@ void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
-                                        gfx::Rect* out_rect) {
+                                        WebRect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     RECT rect;
     ::GetWindowRect(host->view_handle(), &rect);
@@ -113,17 +116,17 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
-                                        const gfx::Rect& rect) {
+                                        const WebRect& rect) {
   if (webwidget == shell_->webView()) {
     // ignored
   } else if (webwidget == shell_->popup()) {
     MoveWindow(shell_->popupWnd(),
-               rect.x(), rect.y(), rect.width(), rect.height(), FALSE);
+               rect.x, rect.y, rect.width, rect.height, FALSE);
   }
 }
 
 void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
-                                            gfx::Rect* out_rect) {
+                                            WebRect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     RECT rect;
     HWND root_window = ::GetAncestor(host->view_handle(), GA_ROOT);
@@ -133,7 +136,7 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
-                                                   gfx::Rect* out_rect) {
+                                                   WebRect* out_rect) {
   // Not necessary on Windows.
   *out_rect = gfx::Rect();
 }

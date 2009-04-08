@@ -11,6 +11,7 @@
 #include "skia/ext/platform_canvas_win.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #include "webkit/glue/webwidget.h"
@@ -23,6 +24,7 @@ using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
 using WebKit::WebScreenInfo;
 using WebKit::WebScreenInfoFactory;
+using WebKit::WebSize;
 
 static const wchar_t kWindowClassName[] = L"WebWidgetHost";
 
@@ -285,7 +287,7 @@ void WebWidgetHost::Resize(LPARAM lparam) {
   // Force an entire re-paint.  TODO(darin): Maybe reuse this memory buffer.
   DiscardBackingStore();
 
-  webwidget_->Resize(gfx::Size(LOWORD(lparam), HIWORD(lparam)));
+  webwidget_->Resize(WebSize(LOWORD(lparam), HIWORD(lparam)));
 }
 
 void WebWidgetHost::MouseEvent(UINT message, WPARAM wparam, LPARAM lparam) {

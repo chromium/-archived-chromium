@@ -8,13 +8,10 @@
 #include "skia/ext/platform_canvas.h"
 #include "webkit/glue/webtextdirection.h"
 
-namespace gfx {
-class Rect;
-class Size;
-}
-
 namespace WebKit {
 class WebInputEvent;
+struct WebRect;
+struct WebSize;
 }
 
 class WebWidgetDelegate;
@@ -33,10 +30,10 @@ class WebWidget {
   virtual void Close() = 0;
 
   // Called to resize the WebWidget.
-  virtual void Resize(const gfx::Size& new_size) = 0;
+  virtual void Resize(const WebKit::WebSize& new_size) = 0;
 
   // Returns the current size of the WebWidget.
-  virtual gfx::Size GetSize() = 0;
+  virtual WebKit::WebSize GetSize() = 0;
 
   // Called to layout the WebWidget.  This MUST be called before Paint, and it
   // may result in calls to WebWidgetDelegate::DidInvalidateRect.
@@ -47,7 +44,8 @@ class WebWidget {
   // multiple times once Layout has been called, assuming no other changes are
   // made to the WebWidget (e.g., once events are processed, it should be assumed
   // that another call to Layout is warranted before painting again).
-  virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) = 0;
+  virtual void Paint(skia::PlatformCanvas* canvas,
+                     const WebKit::WebRect& rect) = 0;
 
   // Called to inform the WebWidget of an input event.
   // Returns true if the event has been processed, false otherwise.
@@ -66,7 +64,8 @@ class WebWidget {
                                  const std::wstring& ime_string) = 0;
 
   // Retrieve the status of this widget required by IME APIs.
-  virtual bool ImeUpdateStatus(bool* enable_ime, gfx::Rect* caret_rect) = 0;
+  virtual bool ImeUpdateStatus(bool* enable_ime,
+                               WebKit::WebRect* caret_rect) = 0;
 
   // Changes the text direction of the selected input node.
   virtual void SetTextDirection(WebTextDirection direction) = 0;

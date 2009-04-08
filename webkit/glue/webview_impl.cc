@@ -121,6 +121,8 @@ using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
 using WebKit::WebPoint;
+using WebKit::WebRect;
+using WebKit::WebSize;
 
 // Change the text zoom level by kTextSizeMultiplierRatio each time the user
 // zooms text in or out (ie., change by 20%).  The min and max values limit
@@ -363,7 +365,7 @@ WebViewImpl::WebViewImpl()
   WTF::initializeThreading();
 
   // set to impossible point so we always get the first mouse pos
-  last_mouse_position_.SetPoint(-1, -1);
+  last_mouse_position_ = WebPoint(-1, -1);
 
   // the page will take ownership of the various clients
   page_.reset(new Page(new ChromeClientImpl(this),
@@ -406,7 +408,7 @@ void WebViewImpl::MouseMove(const WebMouseEvent& event) {
   if (!main_frame() || !main_frame()->frameview())
     return;
 
-  last_mouse_position_.SetPoint(event.x, event.y);
+  last_mouse_position_ = WebPoint(event.x, event.y);
 
   // We call mouseMoved here instead of handleMouseMovedEvent because we need
   // our ChromeClientImpl to receive changes to the mouse position and
@@ -957,18 +959,18 @@ WebFrame* WebViewImpl::GetNextFrameAfter(WebFrame* frame, bool wrap) {
   return next ? WebFrameImpl::FromFrame(next) : NULL;
 }
 
-void WebViewImpl::Resize(const gfx::Size& new_size) {
+void WebViewImpl::Resize(const WebSize& new_size) {
   if (size_ == new_size)
     return;
   size_ = new_size;
 
   if (main_frame()->frameview()) {
-    main_frame()->frameview()->resize(size_.width(), size_.height());
+    main_frame()->frameview()->resize(size_.width, size_.height);
     main_frame()->frame()->eventHandler()->sendResizeEvent();
   }
 
   if (delegate_) {
-    gfx::Rect damaged_rect(0, 0, size_.width(), size_.height());
+    WebRect damaged_rect(0, 0, size_.width, size_.height);
     delegate_->DidInvalidateRect(this, damaged_rect);
   }
 }
@@ -993,7 +995,7 @@ void WebViewImpl::Layout() {
   }
 }
 
-void WebViewImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebViewImpl::Paint(skia::PlatformCanvas* canvas, const WebRect& rect) {
   WebFrameImpl* webframe = main_frame();
   if (webframe)
     webframe->Paint(canvas, rect);
@@ -1248,7 +1250,7 @@ bool WebViewImpl::ImeSetComposition(int string_type,
 }
 
 bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
-                                  gfx::Rect* caret_rect) {
+                                  WebRect* caret_rect) {
   // Store whether the selected node needs IME and the caret rectangle.
   // This process consists of the following four steps:
   //  1. Retrieve the selection controller of the focused frame;
@@ -1259,22 +1261,27 @@ bool WebViewImpl::ImeUpdateStatus(bool* enable_ime,
   const Frame* focused = GetFocusedWebCoreFrame();
   if (!focused)
     return false;
+
   const Editor* editor = focused->editor();
   if (!editor || !editor->canEdit())
     return false;
+
   SelectionController* controller = focused->selection();
   if (!controller)
     return false;
+
   const Node* node = controller->start().node();
   if (!node)
     return false;
+
   *enable_ime = node->shouldUseInputMethod() &&
       !controller->isInPasswordField();
   const FrameView* view = node->document()->view();
   if (!view)
     return false;
-  const IntRect rect(view->contentsToWindow(controller->absoluteCaretBounds()));
-  caret_rect->SetRect(rect.x(), rect.y(), rect.width(), rect.height());
+
+  *caret_rect = webkit_glue::IntRectToWebRect(
+      view->contentsToWindow(controller->absoluteCaretBounds()));
   return true;
 }
 
@@ -1286,6 +1293,7 @@ void WebViewImpl::SetTextDirection(WebTextDirection direction) {
   const Frame* focused = GetFocusedWebCoreFrame();
   if (!focused)
     return;
+
   Editor* editor = focused->editor();
   if (!editor || !editor->canEdit())
     return;
@@ -1862,7 +1870,7 @@ void WebViewImpl::RefreshAutofillPopup() {
     WebWidgetImpl* web_widget =
         static_cast<WebWidgetImpl*>(autocomplete_popup_->client());
     web_widget->delegate()->SetWindowRect(
-        web_widget, webkit_glue::FromIntRect(new_bounds));
+        web_widget, webkit_glue::IntRectToWebRect(new_bounds));
   }
 }
 
