@@ -36,17 +36,15 @@
 #include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
-#include "net/base/cookie_monster.h"
-#include "webkit/glue/webkit_glue.h"
-
-#if defined(OS_WIN)
-
-#include "base/win_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 #include "grit/theme_resources.h"
+#include "net/base/cookie_monster.h"
+#include "webkit/glue/webkit_glue.h"
 
+#if defined(OS_WIN)
+#include "base/win_util.h"
 #endif
 
 namespace {
@@ -67,12 +65,7 @@ class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
     delete this;
   }
   virtual std::wstring GetMessageText() const {
-#if defined(OS_WIN)
     return l10n_util::GetString(IDS_SESSION_CRASHED_VIEW_MESSAGE);
-#else
-    // TODO(port): implement session crashed info bar.
-    return L"Portme";
-#endif
   }
   virtual SkBitmap* GetIcon() const {
     return ResourceBundle::GetSharedInstance().GetBitmapNamed(
@@ -80,12 +73,7 @@ class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
   }
   virtual int GetButtons() const { return BUTTON_OK; }
   virtual std::wstring GetButtonLabel(InfoBarButton button) const {
-#if defined(OS_WIN)
     return l10n_util::GetString(IDS_SESSION_CRASHED_VIEW_RESTORE_BUTTON);
-#else
-    // TODO(port): implement session crashed info bar.
-    return L"Portme";
-#endif
   }
   virtual bool Accept() {
     // Restore the session.
