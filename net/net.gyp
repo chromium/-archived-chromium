@@ -217,6 +217,7 @@
         'http/http_chunked_decoder.h',
         'http/http_network_layer.cc',
         'http/http_network_layer.h',
+        'http/http_network_session.cc',
         'http/http_network_session.h',
         'http/http_network_transaction.cc',
         'http/http_network_transaction.h',

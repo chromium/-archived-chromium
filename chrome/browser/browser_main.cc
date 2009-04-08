@@ -48,6 +48,7 @@
 #include "grit/generated_resources.h"
 #include "grit/net_resources.h"
 #include "net/base/net_module.h"
+#include "net/http/http_network_session.h"
 
 #if defined(OS_POSIX)
 // TODO(port): get rid of this include. It's used just to provide declarations
@@ -316,7 +317,7 @@ int BrowserMain(const MainFunctionParams& parameters) {
 
   if (!parsed_command_line.HasSwitch(switches::kNoErrorDialogs)) {
     // Display a warning if the user is running windows 2000.
-    // TODO(port). We should probably change this to a "check for minimum
+    // TODO(port): We should probably change this to a "check for minimum
     // requirements" function, implemented by each platform.
     CheckForWin2000();
   }
@@ -439,20 +440,33 @@ int BrowserMain(const MainFunctionParams& parameters) {
   net::EnsureWinsockInit();
 #endif  // defined(OS_WIN)
 
-  // Set up a field trial.
+  // Set up a field trial to see what disabling DNS pre-resolution does to
+  // latency of network transactions.
   FieldTrial::Probability kDIVISOR = 100;
-  FieldTrial::Probability kDISABLE = 1;  // 1%.
+  FieldTrial::Probability k_PROBABILITY_PER_GROUP = 10;  // 10%.
   scoped_refptr<FieldTrial> dns_trial = new FieldTrial("DnsImpact", kDIVISOR);
-  int disabled_group = dns_trial->AppendGroup("_disabled_prefetch", kDISABLE);
+
+  dns_trial->AppendGroup("_disabled_prefetch", k_PROBABILITY_PER_GROUP);
+  int disabled_plus_4_connections = dns_trial->AppendGroup(
+      "_disabled_prefetch_4_connections", k_PROBABILITY_PER_GROUP);
+  int enabled_plus_4_connections = dns_trial->AppendGroup(
+      "_enabled_prefetch_4_connections", k_PROBABILITY_PER_GROUP);
 
   scoped_ptr<chrome_browser_net::DnsPrefetcherInit> dns_prefetch_init;
-  if (dns_trial->group() != disabled_group) {
+  if (dns_trial->group() == FieldTrial::kNotParticipating ||
+      dns_trial->group() == enabled_plus_4_connections) {
     // Initialize the DNS prefetch system
     dns_prefetch_init.reset(
         new chrome_browser_net::DnsPrefetcherInit(user_prefs));
     chrome_browser_net::DnsPrefetchHostNamesAtStartup(user_prefs, local_state);
     chrome_browser_net::RestoreSubresourceReferrers(local_state);
   }
+
+  if (dns_trial->group() == disabled_plus_4_connections ||
+      dns_trial->group() == enabled_plus_4_connections) {
+    net::HttpNetworkSession::set_max_sockets_per_group(4);
+  }
+
 
 #if defined(OS_WIN)
   // Init common control sex.

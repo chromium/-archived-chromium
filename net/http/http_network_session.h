@@ -17,13 +17,8 @@ class ProxyService;
 // This class holds session objects used by HttpNetworkTransaction objects.
 class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
  public:
-  // Allow up to 6 connections per host.
-  enum {
-    MAX_SOCKETS_PER_GROUP = 6
-  };
-
   explicit HttpNetworkSession(ProxyService* proxy_service)
-      : connection_pool_(new ClientSocketPool(MAX_SOCKETS_PER_GROUP)),
+      : connection_pool_(new ClientSocketPool(max_sockets_per_group_)),
         proxy_service_(proxy_service) {
     DCHECK(proxy_service);
   }
@@ -35,7 +30,14 @@ class HttpNetworkSession : public base::RefCounted<HttpNetworkSession> {
   SSLConfigService* ssl_config_service() { return &ssl_config_service_; }
 #endif
 
+  static void set_max_sockets_per_group(int socket_count);
+
  private:
+  // Default to allow up to 6 connections per host. Experiment and tuning may
+  // try other values (greater than 0).  Too large may cause many problems, such
+  // as home routers blocking the connections!?!?
+  static int max_sockets_per_group_;
+
   HttpAuthCache auth_cache_;
   scoped_refptr<ClientSocketPool> connection_pool_;
   ProxyService* proxy_service_;
