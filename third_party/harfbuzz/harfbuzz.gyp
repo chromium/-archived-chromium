@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'harfbuzz',
-      'type': 'static_library',
+      'type': '<(library)',
       'sources': [
         'src/harfbuzz-buffer.c',
         'src/harfbuzz-stream.c',
@@ -46,7 +46,7 @@
     },
     {
       'target_name': 'harfbuzz_interface',
-      'type': 'static_library',
+      'type': '<(library)',
       'sources': [
         'contrib/harfbuzz-freetype.c',
         'contrib/harfbuzz-unicode.c',

@@ -11,7 +11,7 @@
       'targets': [
         {
           'target_name': 'sandbox',
-          'type': 'static_library',
+          'type': '<(library)',
           'dependencies': [
             '../testing/gtest.gyp:gtest',
             '../base/base.gyp:base',

@@ -13,7 +13,7 @@
       'targets': [
         {
           'target_name': 'default_plugin',
-          'type': 'static_library',
+          'type': '<(library)',
           'dependencies': [
             '../../third_party/libxml/libxml.gyp:libxml',
             '../../third_party/icu38/icu38.gyp:icui18n',

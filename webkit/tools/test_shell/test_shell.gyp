@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'test_shell_common',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../../../base/base.gyp:base',
         '../../../base/base.gyp:base_gfx',

@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'sdch',
-      'type': 'static_library',
+      'type': '<(library)',
       'msvs_guid': 'F54ABC59-5C00-414A-A9BA-BAF26D1699F0',
       'sources': [
         'open-vcdiff/src/addrcache.cc',

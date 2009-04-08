@@ -31,6 +31,14 @@
     # project file called "coverage".
     # Currently ignored on Windows.
     'coverage%': 0,
+
+    # To do a shared build on linux we need to be able to choose between type
+    # static_library and shared_library. We default to doing a static build
+    # but you can override this with "gyp -Dlibrary=shared_library" or you
+    # can add the following line (without the #) to ~/.gyp/include.gypi
+    # {'variables': {'library': 'shared_library'}}
+    # to compile as shared by default
+    'library%': 'static_library',
   },
   'target_defaults': {
     'conditions': [

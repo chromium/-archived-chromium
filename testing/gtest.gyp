@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'gtest',
-      'type': 'static_library',
+      'type': '<(library)',
       'msvs_guid': 'BFE8E2A7-3B3B-43B0-A994-3058B852DB8B',
       'sources': [
         'gtest/include/gtest/internal/gtest-death-test-internal.h',

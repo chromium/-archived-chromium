@@ -19,7 +19,7 @@
   'targets': [
     {
       'target_name': 'media',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../base/base.gyp:base',
         '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',

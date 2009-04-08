@@ -13,7 +13,7 @@
     {
       'target_name': 'libevent',
       'product_name': 'event',
-      'type': 'static_library',
+      'type': '<(library)',
       'sources': [
         'buffer.c',
         'evbuffer.c',

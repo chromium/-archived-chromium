@@ -368,7 +368,7 @@
     # Targets to build v8 for the native architecture (ia32).
     {
       'target_name': 'v8_base',
-      'type': 'static_library',
+      'type': '<(library)',
       'include_dirs': [
         '../../v8/src',
       ],
@@ -422,7 +422,7 @@
     },
     {
       'target_name': 'v8_nosnapshot',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'js2c',
         'v8_base',
@@ -451,7 +451,7 @@
     },
     {
       'target_name': 'v8',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'js2c',
         'mksnapshot',
@@ -546,7 +546,7 @@
     # (src/simulator-arm.cc).  The ARM targets are not snapshot-enabled.
     {
       'target_name': 'v8_arm',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'js2c',
       ],

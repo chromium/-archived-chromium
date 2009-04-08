@@ -31,7 +31,7 @@
             ],
           },
         }, { # else: OS != "linux" or ! use_system_libxslt
-          'type': 'static_library',
+          'type': '<(library)',
           'msvs_guid': 'FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED',
           'sources': [
             'libxslt/attributes.c',

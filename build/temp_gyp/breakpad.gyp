@@ -11,7 +11,7 @@
       'targets': [
         {
           'target_name': 'breakpad_handler',
-          'type': 'static_library',
+          'type': '<(library)',
           'msvs_guid': 'B55CA863-B374-4BAF-95AC-539E4FA4C90C',
           'sources': [
             '../../breakpad/src/client/windows/crash_generation/client_info.cc',
@@ -45,7 +45,7 @@
         },
         {
           'target_name': 'breakpad_sender',
-          'type': 'static_library',
+          'type': '<(library)',
           'msvs_guid': '9946A048-043B-4F8F-9E07-9297B204714C',
           'sources': [
             '../../breakpad/src/client/windows/sender/crash_report_sender.cc',

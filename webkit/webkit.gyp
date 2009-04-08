@@ -200,7 +200,7 @@
     },
     {
       'target_name': 'wtf',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'config',
         '../third_party/icu38/icu38.gyp:icui18n',
@@ -362,7 +362,7 @@
     },
     {
       'target_name': 'pcre',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'config',
         'wtf',
@@ -404,7 +404,7 @@
     },
     {
       'target_name': 'webcore',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'config',
         'pcre',
@@ -4090,7 +4090,7 @@
     },
     {
       'target_name': 'webkit',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'webcore',
       ],
@@ -4216,7 +4216,7 @@
     },
     {
       'target_name': 'glue',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'webcore',
         'webkit',

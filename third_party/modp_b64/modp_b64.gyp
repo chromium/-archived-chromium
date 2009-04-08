@@ -9,7 +9,7 @@
   'targets': [
     {
       'target_name': 'modp_b64',
-      'type': 'static_library',
+      'type': '<(library)',
       'msvs_guid': '7100F41F-868D-4E99-80A2-AF8E6574749D',
       'sources': [
         'modp_b64.cc',

@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'printing',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../base/base.gyp:base',
       ],

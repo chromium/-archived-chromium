@@ -9,7 +9,7 @@
   'targets': [
     {
       'target_name': 'libpng',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../zlib/zlib.gyp:zlib',
       ],

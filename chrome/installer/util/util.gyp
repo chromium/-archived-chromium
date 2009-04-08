@@ -5,7 +5,7 @@
   'targets': [
     {
       'target_name': 'installer_util',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'prebuild/util_prebuild.gyp:installer_util_prebuild',
         '../../chrome.gyp:common',

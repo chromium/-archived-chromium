@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'net',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../base/base.gyp:base',
         '../build/temp_gyp/googleurl.gyp:googleurl',
@@ -537,7 +537,7 @@
     },
     {
       'target_name': 'net_test_support',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'net',
         '../base/base.gyp:base',

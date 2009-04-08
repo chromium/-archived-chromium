@@ -12,7 +12,7 @@
   'targets': [
     {
       'target_name': 'base',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',
@@ -452,7 +452,7 @@
     },
     {
       'target_name': 'base_gfx',
-      'type': 'static_library',
+      'type': '<(library)',
       'msvs_guid': 'A508ADD3-CECE-4E0F-8448-2F5E454DF551',
       'sources': [
         'gfx/gdi_util.cc',
@@ -646,7 +646,7 @@
     },
     {
       'target_name': 'test_support_base',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'base',
         '../testing/gtest.gyp:gtest',

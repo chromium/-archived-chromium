@@ -9,7 +9,7 @@
   'targets': [
     {
       'target_name': 'libjpeg',
-      'type': 'static_library',
+      'type': '<(library)',
       'msvs_guid': '238CE175-76CE-4A25-A676-69D115885601',
       'sources': [
         'jcapimin.c',

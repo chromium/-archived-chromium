@@ -77,7 +77,7 @@
     },
     {
       'target_name': 'common',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'resources',
         '../base/base.gyp:base',
@@ -357,7 +357,7 @@
     },
     {
       'target_name': 'browser',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'common',
         'resources',
@@ -1382,7 +1382,7 @@
     },
     {
       'target_name': 'renderer',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'common',
         'resources',
@@ -1736,7 +1736,7 @@
       # This target contains mocks and test utilities that don't belong in
       # production libraries but are used by more than one test executable.
       'target_name': 'test_support_common',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'browser',
         'common',
@@ -1799,7 +1799,7 @@
     },
     {
       'target_name': 'test_support_ui',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'test_support_common',
         'resources',
@@ -1834,7 +1834,7 @@
     },
     {
       'target_name': 'test_support_unit',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         'test_support_common',
         'resources',
@@ -2468,7 +2468,7 @@
       { 'targets': [
         {
           'target_name': 'views',
-          'type': 'static_library',
+          'type': '<(library)',
           'dependencies': [
             'common',
             'resources',
@@ -2736,7 +2736,7 @@
       { 'targets': [
         {
           'target_name': 'plugin',
-          'type': 'static_library',
+          'type': '<(library)',
           'dependencies': [
             'common',
             'resources',
@@ -2792,7 +2792,7 @@
         },
         {
           'target_name': 'worker',
-          'type': 'static_library',
+          'type': '<(library)',
           'dependencies': [
             '../base/base.gyp:base',
             '../webkit/webkit.gyp:webkit',

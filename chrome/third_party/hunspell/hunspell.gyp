@@ -9,7 +9,7 @@
   'targets': [
     {
       'target_name': 'hunspell',
-      'type': 'static_library',
+      'type': '<(library)',
       'dependencies': [
         '../../../base/base.gyp:base',
         '../../../third_party/icu38/icu38.gyp:icuuc',
