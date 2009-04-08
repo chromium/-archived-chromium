@@ -2409,4 +2409,4 @@ BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/colourpicker.svg = CRASH FAIL
 BUG9850 : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
 BUG9850 : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
 BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
-BUG9850 MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
+BUG9850 WIN MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
