@@ -34,6 +34,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
+#include "chrome/common/resource_bundle.h"
 #include "chrome/common/result_codes.h"
 #include "net/base/cookie_monster.h"
 #include "webkit/glue/webkit_glue.h"
@@ -41,7 +42,6 @@
 #if defined(OS_WIN)
 
 #include "base/win_util.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
@@ -75,13 +75,8 @@ class SessionCrashedInfoBarDelegate : public ConfirmInfoBarDelegate {
 #endif
   }
   virtual SkBitmap* GetIcon() const {
-#if defined(OS_WIN)
     return ResourceBundle::GetSharedInstance().GetBitmapNamed(
         IDR_INFOBAR_RESTORE_SESSION);
-#else
-    // TODO(port): implement session crashed info bar.
-    return NULL;
-#endif
   }
   virtual int GetButtons() const { return BUTTON_OK; }
   virtual std::wstring GetButtonLabel(InfoBarButton button) const {
