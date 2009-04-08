@@ -52,7 +52,7 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
   gtk_widget_set_size_request(widget_.get(), -1, kInfoBarHeight);
 
   close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_));
-  g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
+  g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnCloseButton), this);
 
   g_object_set_data(G_OBJECT(widget_.get()), "info-bar", this);
@@ -130,7 +130,35 @@ class ConfirmInfoBar : public AlertInfoBar {
  public:
   ConfirmInfoBar(ConfirmInfoBarDelegate* delegate)
       : AlertInfoBar(delegate) {
-    NOTIMPLEMENTED();
+    AddConfirmButton(ConfirmInfoBarDelegate::BUTTON_CANCEL);
+    AddConfirmButton(ConfirmInfoBarDelegate::BUTTON_OK);
+  }
+
+ private:
+  // Adds a button to the info bar by type. It will do nothing if the delegate
+  // doesn't specify a button of the given type.
+  void AddConfirmButton(ConfirmInfoBarDelegate::InfoBarButton type) {
+    if (delegate_->AsConfirmInfoBarDelegate()->GetButtons() & type) {
+      GtkWidget* button = gtk_button_new_with_label(WideToUTF8(
+          delegate_->AsConfirmInfoBarDelegate()->GetButtonLabel(type)).c_str());
+      GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
+      gtk_box_pack_end(GTK_BOX(centering_vbox), button, TRUE, FALSE, 0);
+      gtk_box_pack_end(GTK_BOX(hbox_), centering_vbox, FALSE, FALSE, 0);
+      g_signal_connect(button, "clicked",
+                       G_CALLBACK(type == ConfirmInfoBarDelegate::BUTTON_OK ?
+                                  OnOkButton : OnCancelButton),
+                       this);
+    }
+  }
+
+  static void OnCancelButton(GtkWidget* button, ConfirmInfoBar* info_bar) {
+    if (info_bar->delegate_->AsConfirmInfoBarDelegate()->Cancel())
+      info_bar->RemoveInfoBar();
+  }
+
+  static void OnOkButton(GtkWidget* button, ConfirmInfoBar* info_bar) {
+    if (info_bar->delegate_->AsConfirmInfoBarDelegate()->Accept())
+      info_bar->RemoveInfoBar();
   }
 };
 
