@@ -37,6 +37,7 @@
 #include "chrome/browser/views/tabs/tab_strip.h"
 #include "chrome/browser/views/toolbar_star_toggle.h"
 #include "chrome/browser/views/toolbar_view.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
@@ -120,6 +121,7 @@ static const struct {
   { false, IDC_SHOW_AS_TAB, IDS_SHOW_AS_TAB },
   { false, IDC_COPY_URL, IDS_APP_MENU_COPY_URL },
   { false, IDC_DUPLICATE_TAB, IDS_APP_MENU_DUPLICATE_APP_WINDOW },
+  { false, IDC_RESTORE_TAB, IDS_RESTORE_TAB },
   { true, 0, 0 },
   { false, IDC_RELOAD, IDS_APP_MENU_RELOAD },
   { false, IDC_FORWARD, IDS_CONTENT_CONTEXT_FORWARD },
@@ -415,9 +417,11 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
     // |command| can be zero on submenu items (IDS_ENCODING,
     // IDS_ZOOM) and on separators.
     if (command != 0) {
-      system_menu_->EnableMenuItemByID(
-          command,
-          browser_->command_updater()->IsCommandEnabled(command));
+      bool enabled = browser_->command_updater()->IsCommandEnabled(command);
+      if (enabled && command == IDC_RESTORE_TAB)
+        enabled = browser_->profile()->GetTabRestoreService() &&
+            !browser_->profile()->GetTabRestoreService()->entries().empty();
+      system_menu_->EnableMenuItemByID(command, enabled);
     }
   }
 }
@@ -1249,6 +1253,11 @@ void BrowserView::InitSystemMenu() {
     system_menu_->AddSeparator(insertion_index);
     system_menu_->AddMenuItemWithLabel(insertion_index, IDC_TASK_MANAGER,
                                        l10n_util::GetString(IDS_TASK_MANAGER));
+    system_menu_->AddSeparator(insertion_index);
+    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_RESTORE_TAB,
+                                       l10n_util::GetString(IDS_RESTORE_TAB));
+    system_menu_->AddMenuItemWithLabel(insertion_index, IDC_NEW_TAB,
+                                       l10n_util::GetString(IDS_NEW_TAB));
     // If it's a regular browser window with tabs, we don't add any more items,
     // since it already has menus (Page, Chrome).
   } else {

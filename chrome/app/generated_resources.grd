@@ -571,6 +571,9 @@ each locale. -->
       <message name="IDS_TASK_MANAGER" desc="The text label of the Task Manager menu item" >
         &amp;Task manager
       </message>
+      <message name="IDS_RESTORE_TAB" desc="The text label of the Restore Tab menu item" >
+        &amp;Undo Tab Close
+      </message>
       <!-- This really belongs under Generic Terms above. -->
       <message name="IDS_CLOSE" desc="A generic term for Close on buttons and menus.">
         Close
