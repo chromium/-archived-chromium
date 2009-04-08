@@ -31,6 +31,9 @@ namespace {
 url_parse::Component UTF8ComponentToWideComponent(
     string text_utf8,
     const url_parse::Component& component_utf8) {
+  if (component_utf8.len == -1)
+    return url_parse::Component();
+
   string before_component_string = text_utf8.substr(0, component_utf8.begin);
   string component_string = text_utf8.substr(component_utf8.begin,
                                              component_utf8.len);

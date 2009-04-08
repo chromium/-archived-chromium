@@ -234,6 +234,7 @@ TEST(AutocompleteTest, InputType) {
     { L"http://foo.com/", AutocompleteInput::URL },
     { L"127.0.0.1", AutocompleteInput::URL },
     { L"browser.tabs.closeButtons", AutocompleteInput::UNKNOWN },
+    { L"\u6d4b\u8bd5", AutocompleteInput::UNKNOWN },
   };
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(input_cases); ++i) {
