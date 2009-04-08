@@ -25,11 +25,6 @@ import path_utils
 import platform_utils
 import test_failures
 
-# The per-test timeout in milliseconds, if no --time-out-ms option was given to
-# run_webkit_tests. This should correspond to the default timeout in
-# test_shell.exe.
-DEFAULT_TEST_TIMEOUT_MS = 10 * 1000
-
 def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
   """Receives the output from a test_shell process, subjects it to a number
   of tests, and returns a list of failure types the test produced.
@@ -193,8 +188,6 @@ class TestShellThread(threading.Thread):
       # a hard timeout. test_shell uses a default of 10 seconds if no
       # time-out-ms is given, and the test_shell watchdog uses 2.5x the
       # test_shell's value.  We want to be larger than that.
-      if not self._options.time_out_ms:
-        self._options.time_out_ms = DEFAULT_TEST_TIMEOUT_MS
       self._time_out_sec = int(self._options.time_out_ms) * 3.0 / 1000.0
       logging.info("Setting Python per-test timeout to %s ms (%s sec)" %
                    (1000 * self._time_out_sec, self._time_out_sec))

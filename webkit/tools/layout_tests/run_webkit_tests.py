@@ -63,6 +63,11 @@ class TestRunner:
 
   HTTP_SUBDIR = os.sep.join(['', 'http', ''])
 
+  # The per-test timeout in milliseconds, if no --time-out-ms option was given
+  # to run_webkit_tests. This should correspond to the default timeout in
+  # test_shell.exe.
+  DEFAULT_TEST_TIMEOUT_MS = 10 * 1000
+
   def __init__(self, options, paths, platform_new_results_dir):
     """Collect a list of files to test.
 
@@ -791,7 +796,6 @@ def main(options, args):
     # that as the name of the output directory for rebaselined files.
     platform_new_results_dir = options.platform
 
-
   if not options.num_test_shells:
     # Only run stable configurations with multiple test_shells by default.
     if options.target == 'Release':
@@ -815,7 +819,13 @@ def main(options, args):
       options.num_test_shells = 1
   
   logging.info("Running %s test_shells in parallel" % options.num_test_shells)
-  
+
+  if not options.time_out_ms:
+    if options.num_test_shells > 1:
+      options.time_out_ms = str(2 * TestRunner.DEFAULT_TEST_TIMEOUT_MS)      
+    else:
+      options.time_out_ms = str(TestRunner.DEFAULT_TEST_TIMEOUT_MS)
+
   # Include all tests if none are specified.
   paths = args
   if not paths:
