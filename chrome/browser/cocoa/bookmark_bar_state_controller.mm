@@ -5,6 +5,8 @@
 #import "chrome/browser/cocoa/bookmark_bar_state_controller.h"
 #import "chrome/browser/bookmarks/bookmark_utils.h"
 #import "chrome/browser/browser.h"
+#import "chrome/common/pref_names.h"
+#import "chrome/common/pref_service.h"
 
 
 @implementation BookmarkBarStateController

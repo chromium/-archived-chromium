@@ -32,6 +32,8 @@
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/controls/button/text_button.h"
 #include "grit/theme_resources.h"

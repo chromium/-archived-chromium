@@ -10,6 +10,7 @@
 #include "chrome/browser/renderer_host/render_widget_host_view_mac.h"
 #include "chrome/browser/tab_contents/render_view_context_menu_mac.h"
 #include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/common/notification_type.h"
 
 #include "chrome/common/temp_scaffolding_stubs.h"
 

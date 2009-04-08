@@ -8,42 +8,22 @@
 
 #include <vector>
 
-#include "base/file_util.h"
 #include "base/logging.h"
-#include "base/thread.h"
-#include "base/path_service.h"
-#include "base/string_piece.h"
-#include "base/singleton.h"
-#include "base/task.h"
-#include "chrome/browser/autocomplete/history_url_provider.h"
 #include "chrome/browser/automation/automation_provider.h"
-#include "chrome/browser/browser.h"
-#include "chrome/browser/browser_shutdown.h"
-#include "chrome/browser/debugger/debugger_shell.h"
-#include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/download/download_request_dialog_delegate.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/first_run.h"
-#include "chrome/browser/history/in_memory_history_backend.h"
 #include "chrome/browser/memory_details.h"
-#include "chrome/browser/profile_manager.h"
-#include "chrome/browser/renderer_host/render_widget_helper.h"
-#include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/browser/rlz/rlz.h"
-#include "chrome/browser/search_engines/template_url_prepopulate_data.h"
 #include "chrome/browser/shell_integration.h"
-#include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/chrome_constants.h"
-#include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_plugin_util.h"
-#include "chrome/common/gfx/chrome_font.h"
-#include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/pref_service.h"
 #include "chrome/common/process_watcher.h"
-#include "net/url_request/url_request_context.h"
-#include "webkit/glue/webcursor.h"
-#include "webkit/glue/webkit_glue.h"
+
+#if defined(OS_MACOSX)
+#include "chrome/browser/download/download_item_model.h"
+#include "chrome/browser/download/download_shelf.h"
+#endif
+
+class TabContents;
 
 //--------------------------------------------------------------------------
 

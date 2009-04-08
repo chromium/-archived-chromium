@@ -9,108 +9,39 @@
 // during the porting effort. It is not meant to be permanent, and classes will
 // be removed from here as they are fleshed out more completely.
 
-#include <list>
 #include <string>
 
 #include "base/basictypes.h"
-#include "base/clipboard.h"
 #include "base/file_path.h"
 #include "base/logging.h"
-#include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/string16.h"
 #include "base/gfx/native_widget_types.h"
-#include "base/gfx/rect.h"
-#include "chrome/browser/bookmarks/bookmark_model.h"
-#include "chrome/browser/browser_process.h"
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/dom_ui/html_dialog_ui.h"
-#include "chrome/browser/download/download_shelf.h"
-#include "chrome/browser/download/save_types.h"
-#include "chrome/browser/history/download_types.h"
-#include "chrome/browser/history/history.h"
-#include "chrome/browser/renderer_host/resource_handler.h"
-#include "chrome/browser/safe_browsing/safe_browsing_util.h"
-#include "chrome/browser/safe_browsing/safe_browsing_service.h"
-#include "chrome/browser/search_engines/template_url.h"
-#include "chrome/browser/sessions/session_id.h"
-#include "chrome/browser/ssl/ssl_error_info.h"
-#include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
-#include "chrome/browser/tab_contents/page_navigator.h"
-#include "chrome/browser/tab_contents/tab_contents_type.h"
-#include "chrome/browser/renderer_host/render_view_host.h"
-#include "chrome/browser/renderer_host/render_widget_host.h"
-#include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "chrome/common/child_process_info.h"
-#include "chrome/common/navigation_types.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/page_transition_types.h"
-#include "chrome/common/pref_names.h"
-#include "chrome/common/pref_service.h"
 #include "googleurl/src/gurl.h"
-#include "net/base/load_states.h"
 #include "skia/include/SkBitmap.h"
-#include "webkit/glue/password_form.h"
-#include "webkit/glue/webplugin.h"
-#include "webkit/glue/window_open_disposition.h"
 
 class BookmarkContextMenu;
+class BookmarkNode;
 class Browser;
 class CommandLine;
-class CPCommandInterface;
-class DOMUIHost;
 class DownloadItem;
-class DownloadManager;
-class HistoryService;
-class LoginHandler;
-class MetricsService;
-class MixedContentHandler;
-class ModalHtmlDialogDelegate;
+class MessageLoop;
 class NavigationController;
-class NavigationEntry;
-class NotificationService;
-class PluginService;
-class ProfileManager;
 class Profile;
-class RenderProcessHost;
-class RenderWidgetHelper;
 class RenderViewHostDelegate;
-class ResourceMessageFilter;
-class SessionBackend;
-class SessionCommand;
-class SessionID;
-class SiteInstance;
-class SpellChecker;
-class TabContentsDelegate;
-class TabContentsFactory;
-class TabNavigation;
-struct ThumbnailScore;
-class Task;
-class TemplateURL;
-class TemplateURLRef;
 class URLRequest;
-class URLRequestContext;
-class UserScriptMaster;
-class VisitedLinkMaster;
 class WebContents;
-class WebContentsView;
-struct WebPluginGeometry;
-class WebPreferences;
+struct ViewHostMsg_DidPrintPage_Params;
 
-namespace base {
-class Thread;
+namespace gfx {
+class Rect;
 }
 
 namespace IPC {
 class Message;
-}
-
-namespace net {
-class AuthChallengeInfo;
-class IOBuffer;
-class X509Certificate;
 }
 
 //---------------------------------------------------------------------------
@@ -473,10 +404,6 @@ class WindowSizer {
 //---------------------------------------------------------------------------
 // These stubs are for Profile
 
-namespace base {
-class SharedMemory;
-}
-
 class Encryptor {
  public:
   static bool EncryptString16(const string16& plaintext,
@@ -546,6 +473,9 @@ class HtmlDialogContents {
 };
 
 #if defined(OS_MACOSX)
+
+class WebContentsView;
+
 class FindBarMac {
  public:
   FindBarMac(WebContentsView*, gfx::NativeWindow) { }
@@ -571,6 +501,10 @@ class LoginHandler {
   void CancelAuth() { NOTIMPLEMENTED(); }
   void OnRequestCancelled() { NOTIMPLEMENTED(); }
 };
+
+namespace net {
+class AuthChallengeInfo;
+}
 
 LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
                                 URLRequest* request,
