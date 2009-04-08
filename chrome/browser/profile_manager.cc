@@ -25,12 +25,6 @@
 #include "net/url_request/url_request_job.h"
 #include "net/url_request/url_request_job_tracker.h"
 
-#if defined(OS_POSIX)
-// TODO(port): get rid of this include. It's used just to provide declarations
-// and stub definitions for classes we encouter during the porting effort.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
 // static
 void ProfileManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterStringPref(prefs::kProfileName, L"");

@@ -15,11 +15,6 @@
 #include "chrome/common/url_constants.h"
 #include "net/base/net_util.h"
 
-#if defined(OS_WIN)
-// TODO(port): port these headers to posix.
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 typedef std::map<TabContentsType, TabContentsFactory*> TabContentsFactoryMap;
 static TabContentsFactoryMap* g_extra_types;  // Only allocated if needed.

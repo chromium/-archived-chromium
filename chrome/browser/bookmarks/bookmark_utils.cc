@@ -14,6 +14,7 @@
 #include "chrome/browser/history/query_parser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/drag_drop_types.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -26,7 +27,6 @@
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/os_exchange_data.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"

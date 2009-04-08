@@ -27,9 +27,6 @@
 
 #if defined(OS_WIN)
 #include <windows.h>
-#else
-// TODO(port): port ResourceDispatcherHost.
-#include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 class AppCacheDispatcherHost;

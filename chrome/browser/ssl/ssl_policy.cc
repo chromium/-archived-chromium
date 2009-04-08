@@ -10,6 +10,7 @@
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/ssl/ssl_error_info.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/jstemplate_builder.h"
@@ -27,12 +28,6 @@
 #include "net/base/ssl_info.h"
 #include "webkit/glue/resource_type.h"
 
-#if defined(OS_WIN)
-// TODO(port): port these files.
-#include "chrome/browser/tab_contents/tab_contents.h"
-#elif defined(OS_POSIX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 using WebKit::WebConsoleMessage;
 

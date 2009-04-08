@@ -13,9 +13,11 @@
 #include "chrome/browser/ssl/ssl_error_info.h"
 #include "chrome/browser/ssl/ssl_host_state.h"
 #include "chrome/browser/ssl/ssl_policy.h"
+#include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
@@ -33,8 +35,6 @@
 #if defined(OS_WIN)
 // TODO(port): Port these files.
 #include "chrome/browser/load_notification_details.h"
-#include "chrome/browser/tab_contents/infobar_delegate.h"
-#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/views/controls/link.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"

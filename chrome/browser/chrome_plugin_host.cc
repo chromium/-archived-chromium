@@ -43,12 +43,6 @@
 #include "net/url_request/url_request_error_job.h"
 #include "skia/include/SkBitmap.h"
 
-// TODO(port): Port these files.
-#if defined(OS_WIN)
-#include "chrome/browser/dom_ui/html_dialog_ui.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 using base::TimeDelta;
 

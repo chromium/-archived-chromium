@@ -473,17 +473,6 @@ class WindowSizer {
 //---------------------------------------------------------------------------
 // These stubs are for Profile
 
-class TemplateURLFetcher {
- public:
-  explicit TemplateURLFetcher(Profile* profile) { }
-  bool Init(Profile* profile) {
-    NOTIMPLEMENTED();
-    return true;
-  }
-  void ScheduleDownload(const std::wstring&, const GURL&, const GURL&,
-                        const gfx::NativeView, bool) { NOTIMPLEMENTED(); }
-};
-
 namespace base {
 class SharedMemory;
 }

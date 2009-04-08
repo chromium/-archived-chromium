@@ -16,6 +16,7 @@
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/jankometer.h"
 #include "chrome/browser/metrics/metrics_service.h"
+#include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -26,13 +27,6 @@
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/resource_bundle.h"
 #include "net/dns_global.h"
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/plugin_process_host.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 
 using base::Time;

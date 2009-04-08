@@ -13,6 +13,7 @@
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents_factory.h"
 #include "chrome/common/notification_registrar.h"
@@ -25,13 +26,6 @@
 #include "net/base/net_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "webkit/glue/webkit_glue.h"
-
-// TODO(port): get rid of this section, finish porting.
-#if defined(OS_WIN)
-#include "chrome/browser/tab_contents/tab_contents.h"
-#else
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 using base::Time;
 
