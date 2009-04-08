@@ -15,6 +15,8 @@
 #include <atlapp.h>
 #include <malloc.h>
 #include <new.h>
+#elif defined(OS_POSIX)
+#include <signal.h>
 #endif
 
 #if defined(OS_LINUX)
@@ -315,6 +317,20 @@ int ChromeMain(int argc, const char** argv) {
 
     browser_pid = StringToInt(WideToASCII(channel_name));
     DCHECK(browser_pid != 0);
+
+#if defined(OS_POSIX)
+    // When you hit Ctrl-C in a terminal running the browser
+    // process, a SIGINT is delivered to the entire process group.
+    // When debugging the browser process via gdb, gdb catches the
+    // SIGINT for the browser process (and dumps you back to the gdb
+    // console) but doesn't for the child processes, killing them.
+    // The fix is to have child processes ignore SIGINT; they'll die
+    // on their own when the browser process goes away.
+    // Note that we *can't* rely on DebugUtil::BeingDebugged to catch this
+    // case because we are the child process, which is not being debugged.
+    if (!DebugUtil::BeingDebugged())
+      signal(SIGINT, SIG_IGN);
+#endif
   }
   SetupCRT(parsed_command_line);
 
