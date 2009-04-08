@@ -860,8 +860,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         return;
     }
 
-    SkPoint pts[7];
-    SkFixed ys[7];
+    SkPoint pts[6];
+    SkFixed ys[6];
     FT_Face face = fFace;
     int     upem = face->units_per_EM;
     SkFixed scaleY = fScaleY;
@@ -870,7 +870,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     SkScalar xmin = static_cast<SkScalar>(face->bbox.xMin) / upem;
     SkScalar xmax = static_cast<SkScalar>(face->bbox.xMax) / upem;
 
-    int leading = face->height - face->ascender + face->descender;
+    int leading = face->height - (face->ascender + -face->descender);
     if (leading < 0) {
         leading = 0;
     }
@@ -884,8 +884,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     ys[2] = -face->descender;
     ys[3] = -face->bbox.yMin;
     ys[4] = leading;
-    ys[5] = face->height;
-    ys[6] = os2 ? os2->xAvgCharWidth : 0;
+    ys[5] = os2 ? os2->xAvgCharWidth : 0;
 
     SkScalar x_height;
     if (os2 && os2->sxHeight) {
@@ -904,7 +903,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     }
 
     // convert upem-y values into scalar points
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 6; i++) {
         SkFixed y = SkMulDiv(scaleY, ys[i], upem);
         SkFixed x = SkFixedMul(mxy, y);
         y = SkFixedMul(myy, y);
@@ -917,8 +916,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fDescent = pts[2].fX;
         mx->fBottom = pts[3].fX;
         mx->fLeading = pts[4].fX;
-        mx->fHeight = pts[5].fX;
-        mx->fAvgCharWidth = pts[6].fX;
+        mx->fAvgCharWidth = pts[5].fX;
         mx->fXMin = xmin;
         mx->fXMax = xmax;
         mx->fXHeight = x_height;
@@ -933,8 +931,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fDescent = pts[2].fY;
         my->fBottom = pts[3].fY;
         my->fLeading = pts[4].fY;
-        my->fHeight = pts[5].fY;
-        my->fAvgCharWidth = pts[6].fY;
+        my->fAvgCharWidth = pts[5].fY;
         my->fXMin = xmin;
         my->fXMax = xmax;
         my->fXHeight = x_height;
