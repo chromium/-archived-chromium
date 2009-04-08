@@ -10,7 +10,6 @@
 #include <string>
 
 class RenderThreadBase;
-class WebFrame;
 
 namespace extensions_v8 {
 

@@ -16,8 +16,8 @@ body {
 <script>
   alert('Sir, I exist');
 
-  chromium.addConnectListener(function (port) {
-    port.onMessage = doOnMessage;
+  chromium.onconnect.addListener(function (port) {
+    port.onmessage.addListener(doOnMessage);
     port.postMessage('extension onconnect');
   });
 

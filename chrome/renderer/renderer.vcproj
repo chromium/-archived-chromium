@@ -185,11 +185,19 @@
 			Name="extensions"
 			>
 			<File
-				RelativePath=".\extensions\extension_process_bindings.cc"
+				RelativePath=".\extensions\bindings_utils.h"
 				>
 			</File>
 			<File
-				RelativePath=".\extensions\extension_process_bindings.h"
+				RelativePath=".\extensions\event_bindings.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\event_bindings.h"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_process_bindings.cc"
 				>
 			</File>
 			<File

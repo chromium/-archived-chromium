@@ -267,6 +267,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kEnableVideo,
     switches::kEnableWebWorkers,
     switches::kEnableStatsTable,
+    switches::kEnableExtensions,
   };
 
   for (size_t i = 0; i < arraysize(switch_names); ++i) {

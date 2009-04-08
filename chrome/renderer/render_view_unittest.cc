@@ -4,6 +4,7 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/mock_render_thread.h"
@@ -66,6 +67,7 @@ class RenderViewTest : public testing::Test {
   // testing::Test
   virtual void SetUp() {
     WebKit::initialize(&webkitclient_);
+    WebKit::registerExtension(EventBindings::Get());
     WebKit::registerExtension(
         extensions_v8::RendererExtensionBindings::Get(&render_thread_));
 
@@ -378,8 +380,8 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   LoadHTML("<body></body>");
   ExecuteJavaScript(
     "var e = new chromium.Extension('foobar');"
-    "var port = e.openChannel();"
-    "port.onMessage = doOnMessage;"
+    "var port = e.connect();"
+    "port.onmessage.addListener(doOnMessage);"
     "port.postMessage('content ready');"
     "function doOnMessage(msg, port) {"
     "  alert('content got: ' + msg);"
@@ -420,10 +422,10 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
 TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   LoadHTML("<body></body>");
   ExecuteJavaScript(
-    "chromium.addConnectListener(function (port) {"
-    "  port.onMessage = doOnMessage;"
+    "chromium.onconnect.addListener(function (port) {"
+    "  port.onmessage.addListener(doOnMessage);"
     "  port.postMessage('onconnect');"
-    "  });"
+    "});"
     "function doOnMessage(msg, port) {"
     "  alert('got: ' + msg);"
     "}");

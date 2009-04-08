@@ -15,6 +15,7 @@
       <include name="IDR_GREASEMONKEY_API_JS" file="resources\greasemonkey_api.js" type="BINDATA" />
       <include name="IDR_EXTENSION_PROCESS_BINDINGS_JS" file="resources\extension_process_bindings.js" type="BINDATA" />
       <include name="IDR_RENDERER_EXTENSION_BINDINGS_JS" file="resources\renderer_extension_bindings.js" type="BINDATA" />
+      <include name="IDR_EVENT_BINDINGS_JS" file="resources\event_bindings.js" type="BINDATA" />
     </includes>
   </release>
 </grit>
