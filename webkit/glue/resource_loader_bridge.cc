@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include "webkit/glue/resource_loader_bridge.h"
+#include "webkit/glue/webappcachecontext.h"
 
 #include "net/http/http_response_headers.h"
 
@@ -13,6 +14,7 @@ namespace webkit_glue {
 
 ResourceLoaderBridge::ResponseInfo::ResponseInfo() {
   content_length = -1;
+  app_cache_id = WebAppCacheContext::kNoAppCacheId;
 #if defined(OS_WIN)
   response_data_file = base::kInvalidPlatformFileValue;
 #elif defined(OS_POSIX)
