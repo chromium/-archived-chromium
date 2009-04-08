@@ -6,6 +6,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/platform_thread.h"
+#include "build/build_config.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/base/net_util.h"
 
@@ -31,6 +32,10 @@ TEST_F(IFrameTest, Crash) {
   NavigateAndVerifyTitle("iframe.html", L"iframe test");
 }
 
+#if !defined(OS_LINUX)
+// Temporarily disabled on Linux -- see bug 9870.
+// http://code.google.com/p/chromium/issues/detail?id=9870
 TEST_F(IFrameTest, InEmptyFrame) {
   NavigateAndVerifyTitle("iframe_in_empty_frame.html", L"iframe test");
 }
+#endif
