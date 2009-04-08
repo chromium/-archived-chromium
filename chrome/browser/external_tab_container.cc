@@ -7,6 +7,7 @@
 #include "base/logging.h"
 #include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -213,6 +214,13 @@ void ExternalTabContainer::AddNewContents(TabContents* source,
                             WindowOpenDisposition disposition,
                             const gfx::Rect& initial_pos,
                             bool user_gesture) {
+  if (disposition == NEW_POPUP || disposition == NEW_WINDOW) {
+    Browser::BuildPopupWindowHelper(source, new_contents, initial_pos,
+                                    Browser::TYPE_POPUP,
+                                    tab_contents_->profile(), true);
+  } else {
+    NOTREACHED();
+  }
 }
 
 void ExternalTabContainer::ActivateContents(TabContents* contents) {

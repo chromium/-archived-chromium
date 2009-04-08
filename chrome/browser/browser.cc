@@ -2487,14 +2487,29 @@ Browser* Browser::GetOrCreateTabbedBrowser() {
 void Browser::BuildPopupWindow(TabContents* source,
                                TabContents* new_contents,
                                const gfx::Rect& initial_pos) {
-  Browser* browser =
-      new Browser((type_ & TYPE_APP) ? TYPE_APP_POPUP : TYPE_POPUP, profile_);
+  BuildPopupWindowHelper(source, new_contents, initial_pos,
+                         (type_ & TYPE_APP) ? TYPE_APP_POPUP : TYPE_POPUP,
+                         profile_, false);
+}
+
+void Browser::BuildPopupWindowHelper(TabContents* source,
+                                     TabContents* new_contents,
+                                     const gfx::Rect& initial_pos,
+                                     Browser::Type browser_type,
+                                     Profile* profile,
+                                     bool start_restored) {
+  Browser* browser = new Browser(browser_type, profile);
   browser->set_override_bounds(initial_pos);
+
+  if (start_restored)
+    browser->set_maximized_state(MAXIMIZED_STATE_UNMAXIMIZED);
+
   browser->CreateBrowserWindow();
   // We need to Show before AddNewContents, otherwise AddNewContents will focus
   // it (via BrowserView::TabSelectedAt calling RestoreFocus), triggering any
   // onblur="" handlers.
   browser->window()->Show();
+
   // TODO(beng): See if this can be made to use
   //             TabStripModel::AppendTabContents.
   browser->AddNewContents(source, new_contents, NEW_FOREGROUND_TAB,

@@ -493,7 +493,9 @@ void RenderWidgetHostViewWin::OnActivate(UINT action, BOOL minimized,
 void RenderWidgetHostViewWin::OnDestroy() {
   ResetTooltip();
   TrackMouseLeave(false);
+#ifdef ENABLE_TRACK_HWND_DESTRUCTION
   TRACK_HWND_DESTRUCTION(m_hWnd);
+#endif //  ENABLE_TRACK_HWND_DESTRUCTION
 }
 
 void RenderWidgetHostViewWin::OnPaint(HDC dc) {

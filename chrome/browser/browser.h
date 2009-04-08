@@ -452,6 +452,13 @@ class Browser : public TabStripModelDelegate,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
+  // Helper function to create a new popup window.
+  static void BuildPopupWindowHelper(TabContents* source,
+                                     TabContents* new_contents,
+                                     const gfx::Rect& initial_pos,
+                                     Browser::Type browser_type,
+                                     Profile* profile,
+                                     bool honor_saved_maximized_state);
  private:
   // Command and state updating ///////////////////////////////////////////////
 
