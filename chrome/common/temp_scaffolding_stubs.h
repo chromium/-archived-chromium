@@ -177,7 +177,24 @@ void InstallJankometer(const CommandLine&);
 class CancelableTask;
 class ViewMsg_Print_Params;
 
+// Printing is all (obviously) not implemented.
+// http://code.google.com/p/chromium/issues/detail?id=9847
 namespace printing {
+
+class PrintViewManager {
+ public:
+  PrintViewManager(WebContents&) { }
+  void Stop() { NOTIMPLEMENTED(); }
+  void Destroy() { }
+  bool OnRenderViewGone(RenderViewHost*) {
+    NOTIMPLEMENTED();
+    return true;  // Assume for now that all renderer crashes are important.
+  }
+  void DidGetPrintedPagesCount(int, int) { NOTIMPLEMENTED(); }
+  void DidPrintPage(const ViewHostMsg_DidPrintPage_Params&) {
+    NOTIMPLEMENTED();
+  }
+};
 
 class PrintingContext {
  public:
@@ -212,7 +229,7 @@ class PrinterQuery : public base::RefCountedThreadSafe<PrinterQuery> {
 
 class PrintJobManager {
  public:
-  void OnQuit() { NOTIMPLEMENTED(); }
+  void OnQuit() { }
   void PopPrinterQuery(int document_cookie, scoped_refptr<PrinterQuery>* job) {
     NOTIMPLEMENTED();
   }
@@ -509,23 +526,6 @@ class WebApp : public base::RefCountedThreadSafe<WebApp> {
     return SkBitmap();
   }
 };
-
-namespace printing {
-class PrintViewManager {
- public:
-  PrintViewManager(WebContents&) { }
-  void Stop() { NOTIMPLEMENTED(); }
-  void Destroy() { NOTIMPLEMENTED(); }
-  bool OnRenderViewGone(RenderViewHost*) {
-    NOTIMPLEMENTED();
-    return true;  // Assume for now that all renderer crashes are important.
-  }
-  void DidGetPrintedPagesCount(int, int) { NOTIMPLEMENTED(); }
-  void DidPrintPage(const ViewHostMsg_DidPrintPage_Params&) {
-    NOTIMPLEMENTED();
-  }
-};
-}
 
 class HungRendererWarning {
  public:
