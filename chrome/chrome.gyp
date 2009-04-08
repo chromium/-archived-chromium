@@ -1880,7 +1880,6 @@
         'common/ipc_message_unittest.cc',
         'common/ipc_send_fds_test.cc',
         'common/ipc_sync_channel_unittest.cc',
-        'common/ipc_sync_channel_unittest.h',
         'common/ipc_sync_message_unittest.cc',
         'common/ipc_sync_message_unittest.h',
         'common/ipc_tests.cc',
