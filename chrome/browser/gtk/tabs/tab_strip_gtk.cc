@@ -75,11 +75,14 @@ void TabStripGtk::Init() {
   g_signal_connect(G_OBJECT(tabstrip_.get()), "motion-notify-event",
                    G_CALLBACK(OnMotionNotify), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "button-press-event",
-                   G_CALLBACK(OnButtonPress), this);
+                   G_CALLBACK(OnMousePress), this);
+  g_signal_connect(G_OBJECT(tabstrip_.get()), "button-release-event",
+                   G_CALLBACK(OnMouseRelease), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "leave-notify-event",
                    G_CALLBACK(OnLeaveNotify), this);
   gtk_widget_add_events(tabstrip_.get(),
-      GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_LEAVE_NOTIFY_MASK);
+      GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK |
+      GDK_BUTTON_RELEASE_MASK |GDK_LEAVE_NOTIFY_MASK);
   gtk_widget_show_all(tabstrip_.get());
 
   bounds_ = GetInitialWidgetBounds(tabstrip_.get());
@@ -452,7 +455,7 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
   int old_hover_index = tabstrip->hover_index_;
   tabstrip->hover_index_ = -1;
 
-  gfx::Point coord(event->x, event->y);
+  gfx::Point point(event->x, event->y);
   // Get a rough estimate for which tab the mouse is over.
   int index = event->x / (tabstrip->current_unselected_width_ + kTabHOffset);
 
@@ -474,16 +477,16 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
   // finally the tab to the right (tabs stack to the left.)
 
   if (tabstrip->model()->selected_index() == index &&
-      tabstrip->GetTabAt(index)->IsPointInBounds(coord)) {
+      tabstrip->GetTabAt(index)->IsPointInBounds(point)) {
     tabstrip->hover_index_ = index;
   } else if (index > 0 &&
-             tabstrip->GetTabAt(index - 1)->IsPointInBounds(coord)) {
+             tabstrip->GetTabAt(index - 1)->IsPointInBounds(point)) {
     tabstrip->hover_index_ = index - 1;
   } else if (tabstrip->model()->selected_index() != index &&
-             tabstrip->GetTabAt(index)->IsPointInBounds(coord)) {
+             tabstrip->GetTabAt(index)->IsPointInBounds(point)) {
     tabstrip->hover_index_ = index;
   } else if (index < tab_count - 1 &&
-             tabstrip->GetTabAt(index + 1)->IsPointInBounds(coord)) {
+             tabstrip->GetTabAt(index + 1)->IsPointInBounds(point)) {
     tabstrip->hover_index_ = index + 1;
   }
 
@@ -498,16 +501,39 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
   }
 
+  // Forward the mouse movement to the tab.  Used to handle close button input.
+  if (tabstrip->hover_index_ != -1) {
+    if (tabstrip->GetTabAt(tabstrip->hover_index_)->OnMotionNotify(point))
+      gtk_widget_queue_draw(tabstrip->tabstrip_.get());
+  }
+
   return TRUE;
 }
 
 // static
-gboolean TabStripGtk::OnButtonPress(GtkWidget* widget, GdkEventButton* event,
-                                    TabStripGtk* tabstrip) {
-  if (tabstrip->hover_index_ != -1 &&
-      tabstrip->hover_index_ != tabstrip->model()->selected_index()) {
+gboolean TabStripGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
+                                   TabStripGtk* tabstrip) {
+  // TODO(jhawkins): Handle middle and right-click.
+  // TODO(jhawkins): Are there no gdk constants for event->button?
+  if (tabstrip->hover_index_ == -1 || event->button != 1)
+    return TRUE;
+
+  if (tabstrip->GetTabAt(tabstrip->hover_index_)->OnMousePress())
+    gtk_widget_queue_draw(tabstrip->tabstrip_.get());
+  else if (tabstrip->hover_index_ != tabstrip->model()->selected_index())
     tabstrip->model()->SelectTabContentsAt(tabstrip->hover_index_, true);
-  }
+
+  return TRUE;
+}
+
+// static
+gboolean TabStripGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
+                                     TabStripGtk* tabstrip) {
+  if (event->button != 1)
+    return TRUE;
+
+  if (tabstrip->hover_index_ != -1)
+    tabstrip->GetTabAt(tabstrip->hover_index_)->OnMouseRelease();
 
   return TRUE;
 }

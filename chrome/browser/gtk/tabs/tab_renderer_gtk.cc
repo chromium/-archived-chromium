@@ -144,7 +144,8 @@ TabRendererGtk::TabRendererGtk()
       fav_icon_hiding_offset_(0),
       should_display_crashed_favicon_(false),
       hovering_(false),
-      loading_animation_(&loading_animation_data) {
+      loading_animation_(&loading_animation_data),
+      close_button_state_(BS_NORMAL) {
   InitResources();
 }
 
@@ -322,8 +323,23 @@ void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height());
 
-  canvas->DrawBitmapInt(*close_button_.normal,
+  SkBitmap close_button = *close_button_.normal;
+  if (close_button_state_ == BS_HOT)
+    close_button = *close_button_.hot;
+  else if (close_button_state_ == BS_PUSHED)
+    close_button = *close_button_.pushed;
+
+  canvas->DrawBitmapInt(close_button,
                         close_button_bounds_.x(), close_button_bounds_.y());
+}
+
+void TabRendererGtk::SetHovering(bool hovering) {
+  hovering_ = hovering;
+
+  // If the mouse is not hovering over the tab, the close button can't be
+  // highlighted.
+  if (!hovering)
+    close_button_state_ = BS_NORMAL;
 }
 
 void TabRendererGtk::Layout() {

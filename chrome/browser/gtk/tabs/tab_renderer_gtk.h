@@ -28,6 +28,13 @@ class TabRendererGtk {
     ANIMATION_LOADING
   };
 
+  // Possible close button states
+  enum CloseButtonState {
+    BS_NORMAL,
+    BS_HOT,
+    BS_PUSHED
+  };
+
   class LoadingAnimation {
    public:
     struct Data {
@@ -110,13 +117,20 @@ class TabRendererGtk {
   void Paint(ChromeCanvasPaint* canvas);
 
   // Sets the hovering status of the tab.
-  void SetHovering(bool hovering) { hovering_ = hovering; }
+  void SetHovering(bool hovering);
 
  protected:
   const gfx::Rect& title_bounds() const { return title_bounds_; }
+  const gfx::Rect& close_button_bounds() const { return close_button_bounds_; }
+  CloseButtonState close_button_state() const { return close_button_state_; }
 
   // Returns the title of the Tab.
   std::wstring GetTitle() const;
+
+  // Sets whether the close button should be highlighted or not.
+  void set_close_button_state(CloseButtonState state) {
+    close_button_state_ = state;
+  }
 
  private:
   // Model data. We store this here so that we don't need to ask the underlying
@@ -220,6 +234,9 @@ class TabRendererGtk {
 
   // Set when the mouse is hovering over this tab and the tab is not selected.
   bool hovering_;
+
+  // The state of the close button as it relates to mouse input.
+  CloseButtonState close_button_state_;
 
   // Contains the loading animation state.
   LoadingAnimation loading_animation_;

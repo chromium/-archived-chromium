@@ -20,7 +20,8 @@ static const SkScalar kTabBottomCurveWidth = 3;
 TabGtk::TabGtk(TabDelegate* delegate)
     : TabRendererGtk(),
       delegate_(delegate),
-      closing_(false) {
+      closing_(false),
+      mouse_pressed_(false) {
 }
 
 TabGtk::~TabGtk() {
@@ -31,6 +32,40 @@ bool TabGtk::IsPointInBounds(const gfx::Point& point) {
   bool in_bounds = (gdk_region_point_in(region, point.x(), point.y()) == TRUE);
   gdk_region_destroy(region);
   return in_bounds;
+}
+
+bool TabGtk::OnMotionNotify(const gfx::Point& point) {
+  CloseButtonState state;
+  if (close_button_bounds().Contains(point)) {
+    if (mouse_pressed_) {
+      state = BS_PUSHED;
+    } else {
+      state = BS_HOT;
+    }
+  } else {
+    state = BS_NORMAL;
+  }
+
+  bool need_redraw = (close_button_state() != state);
+  set_close_button_state(state);
+  return need_redraw;
+}
+
+bool TabGtk::OnMousePress() {
+  if (close_button_state() == BS_HOT) {
+    mouse_pressed_ = true;
+    set_close_button_state(BS_PUSHED);
+    return true;
+  }
+
+  return false;
+}
+
+void TabGtk::OnMouseRelease() {
+  mouse_pressed_ = false;
+
+  if (close_button_state() == BS_PUSHED)
+    delegate_->CloseTab(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

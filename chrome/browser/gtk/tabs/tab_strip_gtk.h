@@ -85,8 +85,12 @@ class TabStripGtk : public TabStripModelObserver,
                                  TabStripGtk* tabstrip);
 
   // button-press-event handler that handles mouse clicks.
-  static gboolean OnButtonPress(GtkWidget* widget, GdkEventButton* event,
-                                TabStripGtk* tabstrip);
+  static gboolean OnMousePress(GtkWidget* widget, GdkEventButton* event,
+                               TabStripGtk* tabstrip);
+
+  // button-release-event handler that handles mouse click releases.
+  static gboolean OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
+                                 TabStripGtk* tabstrip);
 
   // leave-notify-event handler that signals when the mouse leaves the tabstrip.
   static gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,

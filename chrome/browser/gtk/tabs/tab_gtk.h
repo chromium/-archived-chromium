@@ -74,6 +74,18 @@ class TabGtk : public TabRendererGtk {
   // TabRendererGtk overrides:
   virtual bool IsSelected() const;
 
+  // Sent by the tabstrip when the mouse moves within this tab.  Mouse is at
+  // |point|.  Returns true if the tabstrip needs to be redrawn as a result
+  // of the motion.
+  bool OnMotionNotify(const gfx::Point& point);
+
+  // Sent by the tabstrip when the mouse clicks within this tab.  Returns true
+  // if the tabstrip needs to be redrawn as a result of the click.
+  bool OnMousePress();
+
+  // Sent by the tabstrip when the mouse click is released.
+  void OnMouseRelease();
+
  private:
   // Creates a clickable region of the tab's visual representation. Used for
   // hit-testing.  Caller is responsible for destroying the region.
@@ -85,6 +97,9 @@ class TabGtk : public TabRendererGtk {
 
   // True if the tab is being animated closed.
   bool closing_;
+
+  // Set if the mouse is pressed anywhere inside the tab.
+  bool mouse_pressed_;
 
   DISALLOW_COPY_AND_ASSIGN(TabGtk);
 };
