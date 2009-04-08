@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -441,6 +441,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_RequestSelectionText, OnRequestSelectionText)
+    IPC_MESSAGE_HANDLER(ViewMsg_ClearFocusedNode, OnClearFocusedNode)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -3009,6 +3010,11 @@ void RenderView::OnResize(const gfx::Size& new_size,
   if (webview())
     webview()->HideAutofillPopup();
   RenderWidget::OnResize(new_size, resizer_rect);
+}
+
+void RenderView::OnClearFocusedNode() {
+  if (webview())
+    webview()->ClearFocusedNode();
 }
 
 void RenderView::SendExtensionRequest(const std::string& name,

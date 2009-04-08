@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -343,6 +343,9 @@ class RenderViewHost : public RenderWidgetHost {
   // Tells the renderer view to focus the first (last if reverse is true) node.
   void SetInitialFocus(bool reverse);
 
+  // Clears the node that is currently focused (if any).
+  void ClearFocusedNode();
+
   // Update render view specific (WebKit) preferences.
   void UpdateWebPreferences(const WebPreferences& prefs);
 
@@ -648,7 +651,7 @@ class RenderViewHost : public RenderWidgetHost {
   // Handles processing IPC messages request extension functions be executed.
   ExtensionFunctionDispatcher extension_function_dispatcher_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RenderViewHost);
+  DISALLOW_COPY_AND_ASSIGN(RenderViewHost);
 };
 
 #endif  // CHROME_BROWSER_RENDERER_HOST_RENDER_VIEW_HOST_H_

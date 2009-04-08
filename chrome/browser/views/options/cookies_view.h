@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H__
-#define CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H_
+#define CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H_
 
 #include "base/task.h"
 #include "chrome/views/controls/button/button.h"
@@ -50,7 +50,7 @@ class CookiesView : public views::View,
   // views::TextField::Controller implementation:
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(views::TextField* sender,
+  virtual bool HandleKeystroke(views::TextField* sender,
                                UINT message, TCHAR key, UINT repeat_count,
                                UINT flags);
 
@@ -112,7 +112,7 @@ class CookiesView : public views::View,
   // window somewhere.
   static views::Window* instance_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CookiesView);
+  DISALLOW_COPY_AND_ASSIGN(CookiesView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_OPTIONS_GENERAL_PAGE_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_OPTIONS_COOKIES_VIEW_H_

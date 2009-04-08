@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -31,7 +31,9 @@ class TextField : public View {
                                  const std::wstring& new_contents) = 0;
 
     // This method is called to get notified about keystrokes in the edit.
-    virtual void HandleKeystroke(TextField* sender,
+    // This method returns true if the message was handled and should not be
+    // processed further. If it returns false the processing continues.
+    virtual bool HandleKeystroke(TextField* sender,
                                  UINT message, TCHAR key, UINT repeat_count,
                                  UINT flags) = 0;
   };

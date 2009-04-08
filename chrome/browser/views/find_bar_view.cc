@@ -473,11 +473,11 @@ void FindBarView::ContentsChanged(views::TextField* sender,
   }
 }
 
-void FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
+bool FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
                                   TCHAR key, UINT repeat_count, UINT flags) {
   // If the dialog is not visible, there is no reason to process keyboard input.
   if (!container_->IsVisible())
-    return;
+    return false;
 
   switch (key) {
     case VK_RETURN: {
@@ -491,7 +491,18 @@ void FindBarView::HandleKeystroke(views::TextField* sender, UINT message,
       }
       break;
     }
+#if defined(OS_WIN)
+    // TODO(port): Handle this for other platforms.
+    case VK_UP:
+    case VK_DOWN:
+    case VK_PRIOR:  // Page up
+    case VK_NEXT:   // Page down
+      container_->ForwardKeystrokeToWebpage(key);
+      return true;  // Message has been handled. No further processing needed.
+#endif
   }
+
+  return false;
 }
 
 void FindBarView::ResetMatchCountBackground() {

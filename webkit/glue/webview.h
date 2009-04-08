@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef WEBKIT_GLUE_WEBVIEW_H__
-#define WEBKIT_GLUE_WEBVIEW_H__
+#ifndef WEBKIT_GLUE_WEBVIEW_H_
+#define WEBKIT_GLUE_WEBVIEW_H_
 
 #include <string>
 #include <vector>
@@ -129,6 +129,10 @@ class WebView : public WebWidget {
   // bug is fixed.
   virtual void StoreFocusForFrame(WebFrame* frame) = 0;
 
+  // Clears the focused node (and selection if a text field is focused) to
+  // ensure that a text field on the page is not eating keystrokes we send it.
+  virtual void ClearFocusedNode() = 0;
+
   // Requests the webview to download an image. When done, the delegate is
   // notified by way of DidDownloadImage. Returns true if the request was
   // successfully started, false otherwise. id is used to uniquely identify the
@@ -218,7 +222,7 @@ class WebView : public WebWidget {
   virtual WebDevToolsAgent* GetWebDevToolsAgent() = 0;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WebView);
+  DISALLOW_COPY_AND_ASSIGN(WebView);
 };
 
-#endif  // WEBKIT_GLUE_WEBVIEW_H__
+#endif  // WEBKIT_GLUE_WEBVIEW_H_

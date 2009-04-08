@@ -232,6 +232,24 @@ void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
   view_->SchedulePaint();
 }
 
+void FindBarWin::ForwardKeystrokeToWebpage(TCHAR key) {
+  WebContents* contents = find_bar_controller_->web_contents();
+  if (!contents)
+    return;
+
+  RenderViewHost* render_view_host = contents->render_view_host();
+
+  // Make sure we don't have a text field element interfering with keyboard
+  // input. Otherwise Up and Down arrow key strokes get eaten. "Nom Nom Nom".
+  render_view_host->ClearFocusedNode();
+
+  HWND hwnd = contents->GetContentNativeView();
+  render_view_host->ForwardKeyboardEvent(
+      NativeWebKeyboardEvent(hwnd, WM_KEYDOWN, key, 0));
+  render_view_host->ForwardKeyboardEvent(
+      NativeWebKeyboardEvent(hwnd, WM_KEYUP, key, 0));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // FindBarWin, views::WidgetWin implementation:
 

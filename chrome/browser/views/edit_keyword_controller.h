@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -56,7 +56,7 @@ class EditKeywordController : public views::TextField::Controller,
   // valid.
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(views::TextField* sender,
+  virtual bool HandleKeystroke(views::TextField* sender,
                                UINT message,
                                TCHAR key,
                                UINT repeat_count,

@@ -70,6 +70,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual bool HandleInputEvent(const WebKit::WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
+  virtual void ClearFocusedNode();
   virtual void StoreFocusForFrame(WebFrame* frame);
   virtual bool ImeSetComposition(int string_type,
                                  int cursor_position,

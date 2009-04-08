@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -564,6 +564,9 @@ IPC_BEGIN_MESSAGES(View)
   //     WEB_TEXT_DIRECTION_RTL     RightToLeftWritingDirection ("ltr")
   IPC_MESSAGE_ROUTED1(ViewMsg_SetTextDirection,
                       int /* direction */)
+
+  // Tells the renderer to clear the focused node (if any).
+  IPC_MESSAGE_ROUTED0(ViewMsg_ClearFocusedNode)
 IPC_END_MESSAGES(View)
 
 

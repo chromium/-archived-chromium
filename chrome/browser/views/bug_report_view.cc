@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -91,7 +91,7 @@ class BugReportComboBoxModel : public views::ComboBox::Model {
   }
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(BugReportComboBoxModel);
+  DISALLOW_COPY_AND_ASSIGN(BugReportComboBoxModel);
 };
 
 // Simple URLFetcher::Delegate to clean up URLFetcher on completion
@@ -107,7 +107,7 @@ class BugReportView::PostCleanup : public URLFetcher::Delegate {
                                   const ResponseCookies& cookies,
                                   const std::string& data);
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(PostCleanup);
+  DISALLOW_COPY_AND_ASSIGN(PostCleanup);
 };
 
 BugReportView::PostCleanup::PostCleanup() {
@@ -260,9 +260,10 @@ void BugReportView::ContentsChanged(views::TextField* sender,
                                     const std::wstring& new_contents) {
 }
 
-void BugReportView::HandleKeystroke(views::TextField* sender,
+bool BugReportView::HandleKeystroke(views::TextField* sender,
                                     UINT message, TCHAR key,
                                     UINT repeat_count, UINT flags) {
+  return false;
 }
 
 std::wstring BugReportView::GetDialogButtonLabel(DialogButton button) const {

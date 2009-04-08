@@ -805,13 +805,19 @@ void TextField::Edit::HandleKeystroke(UINT message,
                                       UINT repeat_count,
                                       UINT flags) {
   ScopedFreeze freeze(this, GetTextObjectModel());
-  OnBeforePossibleChange();
-  DefWindowProc(message, key, MAKELPARAM(repeat_count, flags));
-  OnAfterPossibleChange();
 
   TextField::Controller* controller = parent_->GetController();
-  if (controller)
-    controller->HandleKeystroke(parent_, message, key, repeat_count, flags);
+  bool handled = false;
+  if (controller) {
+    handled =
+        controller->HandleKeystroke(parent_, message, key, repeat_count, flags);
+  }
+
+  if (!handled) {
+    OnBeforePossibleChange();
+    DefWindowProc(message, key, MAKELPARAM(repeat_count, flags));
+    OnAfterPossibleChange();
+  }
 }
 
 void TextField::Edit::OnBeforePossibleChange() {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -456,7 +456,7 @@ void BookmarkManagerView::ContentsChanged(views::TextField* sender,
       kSearchDelayMS);
 }
 
-void BookmarkManagerView::HandleKeystroke(views::TextField* sender,
+bool BookmarkManagerView::HandleKeystroke(views::TextField* sender,
                                           UINT message, TCHAR key,
                                           UINT repeat_count,
                                           UINT flags) {
@@ -464,6 +464,8 @@ void BookmarkManagerView::HandleKeystroke(views::TextField* sender,
     PerformSearch();
     search_tf_->SelectAll();
   }
+
+  return false;
 }
 
 void BookmarkManagerView::ShowContextMenu(views::View* source,

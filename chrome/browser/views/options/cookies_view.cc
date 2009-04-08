@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -75,7 +75,7 @@ class CookiesTableModel : public views::TableModel {
 
   views::TableModelObserver* observer_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CookiesTableModel);
+  DISALLOW_COPY_AND_ASSIGN(CookiesTableModel);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ class CookiesTableView : public views::TableView {
   // Our model, as a CookiesTableModel.
   CookiesTableModel* cookies_model_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CookiesTableView);
+  DISALLOW_COPY_AND_ASSIGN(CookiesTableView);
 };
 
 CookiesTableView::CookiesTableView(
@@ -353,7 +353,7 @@ class CookieInfoView : public views::View {
   views::Label* expires_label_;
   views::TextField* expires_value_field_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CookieInfoView);
+  DISALLOW_COPY_AND_ASSIGN(CookieInfoView);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -620,7 +620,7 @@ void CookiesView::ContentsChanged(views::TextField* sender,
           &CookiesView::UpdateSearchResults), kSearchFilterDelayMs);
 }
 
-void CookiesView::HandleKeystroke(views::TextField* sender, UINT message,
+bool CookiesView::HandleKeystroke(views::TextField* sender, UINT message,
                                   TCHAR key, UINT repeat_count, UINT flags) {
   switch (key) {
     case VK_ESCAPE:
@@ -631,6 +631,7 @@ void CookiesView::HandleKeystroke(views::TextField* sender, UINT message,
       UpdateSearchResults();
       break;
   }
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H__
-#define CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H__
+#ifndef CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H_
+#define CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H_
 
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/history.h"
@@ -67,9 +67,9 @@ class ShelfItemDialog : public views::View,
   // TextField::Controller.
   virtual void ContentsChanged(views::TextField* sender,
                                const std::wstring& new_contents);
-  virtual void HandleKeystroke(views::TextField* sender,
+  virtual bool HandleKeystroke(views::TextField* sender,
                                UINT message, TCHAR key, UINT repeat_count,
-                               UINT flags) {}
+                               UINT flags) { return false; }
 
   // Overridden from View.
   virtual gfx::Size GetPreferredSize();
@@ -120,7 +120,7 @@ class ShelfItemDialog : public views::View,
   // The delegate.
   ShelfItemDialogDelegate* delegate_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(ShelfItemDialog);
+  DISALLOW_COPY_AND_ASSIGN(ShelfItemDialog);
 };
 
-#endif  // CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H__
+#endif  // CHROME_BROWSER_VIEWS_SHELF_ITEM_DIALOG_H_

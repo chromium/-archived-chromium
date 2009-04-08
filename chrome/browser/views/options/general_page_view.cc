@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -96,7 +96,7 @@ class GeneralPageView::DefaultBrowserWorker
   MessageLoop* ui_loop_;
   MessageLoop* file_loop_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(GeneralPageView::DefaultBrowserWorker);
+  DISALLOW_COPY_AND_ASSIGN(GeneralPageView::DefaultBrowserWorker);
 };
 
 GeneralPageView::DefaultBrowserWorker::DefaultBrowserWorker(
@@ -239,7 +239,7 @@ class CustomHomePagesTableModel : public views::TableModel {
   // Used in loading favicons.
   CancelableRequestConsumer fav_icon_consumer_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(CustomHomePagesTableModel);
+  DISALLOW_COPY_AND_ASSIGN(CustomHomePagesTableModel);
 };
 
 // static
@@ -418,7 +418,7 @@ class SearchEngineListModel : public views::ComboBox::Model,
   typedef std::vector<const TemplateURL*> TemplateURLs;
   TemplateURLs template_urls_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(SearchEngineListModel);
+  DISALLOW_COPY_AND_ASSIGN(SearchEngineListModel);
 };
 
 SearchEngineListModel::SearchEngineListModel(Profile* profile)
@@ -614,10 +614,10 @@ void GeneralPageView::ContentsChanged(views::TextField* sender,
   }
 }
 
-void GeneralPageView::HandleKeystroke(views::TextField* sender,
+bool GeneralPageView::HandleKeystroke(views::TextField* sender,
                                       UINT message, TCHAR key,
                                       UINT repeat_count, UINT flags) {
-  // Not necessary.
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

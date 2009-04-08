@@ -1075,6 +1075,39 @@ void WebViewImpl::SetBackForwardListSize(int size) {
   page_->backForwardList()->setCapacity(size);
 }
 
+void WebViewImpl::ClearFocusedNode() {
+  // Get the last focused frame or the mainframe.
+  RefPtr<Frame> frame = last_focused_frame_;
+  if (!frame.get() && page_.get())
+    frame = page_->mainFrame();
+  if (!frame.get())
+    return;
+
+  RefPtr<Document> document = frame->document();
+  if (!document.get())
+    return;
+
+  RefPtr<Node> old_focused_node = document->focusedNode();
+
+  // Clear the focused node.
+  document->setFocusedNode(NULL);
+
+  if (!old_focused_node.get())
+    return;
+
+  // If a text field has focus, we need to make sure the selection controller
+  // knows to remove selection from it. Otherwise, the text field is still
+  // processing keyboard events even though focus has been moved to the page and
+  // keystrokes get eaten as a result.
+  if (old_focused_node->hasTagName(HTMLNames::textareaTag) ||
+      (old_focused_node->hasTagName(HTMLNames::inputTag) &&
+       static_cast<HTMLInputElement*>(old_focused_node.get())->isTextField())) {
+    // Clear the selection.
+    SelectionController* selection = frame->selection();
+    selection->clear();
+  }
+}
+
 void WebViewImpl::SetFocus(bool enable) {
   if (enable) {
     // Getting the focused frame will have the side-effect of setting the main
