@@ -77,7 +77,7 @@ HANDLE TaskManagerWebContentsResource::GetProcess() const {
 }
 
 TabContents* TaskManagerWebContentsResource::GetTabContents() const {
-  return dynamic_cast<TabContents*>(web_contents_);
+  return static_cast<TabContents*>(web_contents_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
