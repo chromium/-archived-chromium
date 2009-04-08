@@ -43,8 +43,6 @@ class ResourceDispatcherTest : public UITest {
   }
 };
 
-}  // namespace
-
 TEST_F(ResourceDispatcherTest, SniffHTMLWithNoContentType) {
   CheckTitleTest(L"content-sniffer-test0.html",
                  L"Content Sniffer Test 0");
@@ -298,3 +296,5 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
 }
+
+}  // namespace

@@ -44,8 +44,6 @@ class InterstitialPageTest : public UITest {
   }
 };
 
-}  // namespace
-
 // Shows and hides an interstitial page.
 // Note that we cannot rely on the page title in this case (and we use the page
 // type instead) as showing an interstitial without creating a navigation entry
@@ -159,3 +157,5 @@ TEST_F(InterstitialPageTest, DISABLED_TestShowInterstitialThenCloseBrowser) {
   EXPECT_TRUE(CloseBrowser(browser_proxy.get(), &application_closed));
   EXPECT_TRUE(application_closed);
 }
+
+}  // namespace

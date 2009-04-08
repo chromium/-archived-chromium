@@ -32,8 +32,6 @@ class ViewSourceTest : public UITest {
    std::wstring test_html_;
 };
 
-}  // namespace
-
 // This test renders a page in view-source and then checks to see if a cookie
 // set in the html was set successfully (it shouldn't because we rendered the
 // page in view source)
@@ -107,3 +105,5 @@ TEST_F(ViewSourceTest, ViewSourceInPageMenuDisabledWhileViewingSource) {
 
   EXPECT_FALSE(IsPageMenuCommandEnabled(IDC_VIEW_SOURCE));
 }
+
+}  // namespace

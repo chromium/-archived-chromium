@@ -214,8 +214,6 @@ class DomCheckerTest : public UITest {
   DISALLOW_COPY_AND_ASSIGN(DomCheckerTest);
 };
 
-}  // namespace
-
 TEST_F(DomCheckerTest, File) {
   if (!CommandLine::ForCurrentProcess()->HasSwitch(kRunDomCheckerTest))
     return;
@@ -233,3 +231,5 @@ TEST_F(DomCheckerTest, Http) {
   RunTest(true, &new_passes, &new_failures);
   PrintResults(new_passes, new_failures);
 }
+
+}  // namespace
