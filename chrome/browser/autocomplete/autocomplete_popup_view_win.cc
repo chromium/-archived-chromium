@@ -345,7 +345,8 @@ void AutocompletePopupViewWin::OnMouseMove(UINT keys, const CPoint& point) {
 
 void AutocompletePopupViewWin::OnPaint(HDC other_dc) {
   const AutocompleteResult& result = model_->result();
-  DCHECK(!result.empty());  // Shouldn't be drawing an empty popup.
+  CHECK(!result.empty());  // Shouldn't be drawing an empty popup; any empty
+                           // result set should have synchronously closed us.
 
   CPaintDC dc(m_hWnd);
 
@@ -365,8 +366,18 @@ void AutocompletePopupViewWin::OnPaint(HDC other_dc) {
   }
 
   // Only repaint the invalid lines.
+  // In rare cases, it seems possible to get line offsets off the end of the
+  // popup.  I suspect this can happen when the user invalidates a new line
+  // (e.g. by moving the mouse) and, before the paint request is serviced, hits
+  // a key that causes autocomplete to run, causing the results list to become
+  // shorter (at least initially).  So sanitize the line numbers here.
+  const size_t last_valid_line = result.size() - 1;
   const size_t first_line = PixelToLine(dc.m_ps.rcPaint.top);
-  const size_t last_line = PixelToLine(dc.m_ps.rcPaint.bottom);
+  if (first_line > last_valid_line)
+    return;
+  const size_t last_line =
+      std::min(PixelToLine(dc.m_ps.rcPaint.bottom), last_valid_line);
+
   for (size_t i = first_line; i <= last_line; ++i) {
     DrawLineInfo::LineStatus status;
     // Selection should take precedence over hover.
