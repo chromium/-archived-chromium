@@ -946,13 +946,21 @@ sub GenerateBatchedAttributeData
       $propAttr = "v8::ReadOnly";
 
     # EventListeners
-    } elsif ($attrExt->{"ProtectedListener"}) {
+    } elsif ($attribute->signature->type eq "EventListener") {
       if ($interfaceName eq "DOMWindow") {
         $getter = "V8Custom::v8DOMWindowEventHandlerAccessorGetter";
         $setter = "V8Custom::v8DOMWindowEventHandlerAccessorSetter";
-      } else {
+      } elsif ($interfaceName eq "Node" || $interfaceName eq "SVGElementInstance") {
         $getter = "V8Custom::v8ElementEventHandlerAccessorGetter";
         $setter = "V8Custom::v8ElementEventHandlerAccessorSetter";
+      } else {
+        $getter = "V8Custom::v8${customAccessor}AccessorGetter";
+        if ($interfaceName eq "WorkerContext" and $attrName eq "self") {
+          $setter = "0";
+          $propAttr = "v8::ReadOnly";
+        } else {
+          $setter = "V8Custom::v8${customAccessor}AccessorSetter";
+        }
       }
 
     # Custom Getter and Setter
