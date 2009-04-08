@@ -158,6 +158,12 @@ class BrowserView : public BrowserWindow,
     return browser_->type() == Browser::TYPE_NORMAL;
   }
 
+  // Returns true if the frame containing this BrowserView should show the
+  // distributor logo.
+  bool ShouldShowDistributorLogo() const {
+    return browser_->ShouldShowDistributorLogo();
+  }
+
   // Register preferences specific to this view.
   static void RegisterBrowserViewPrefs(PrefService* prefs);
 

@@ -260,7 +260,8 @@ int GlassBrowserFrameView::NonClientTopBorderHeight() const {
 void GlassBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
-  if (!frame_->IsMaximized() && distributor_logo_) {
+  if (!frame_->IsMaximized() && distributor_logo_ &&
+      browser_view_->ShouldShowDistributorLogo()) {
     // NOTE: We don't mirror the logo placement here because the outer frame
     // itself isn't mirrored in RTL.  This is a bug; if it is fixed, this should
     // be mirrored as in opaque_non_client_view.cc.
@@ -337,7 +338,7 @@ void GlassBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
 }
 
 void GlassBrowserFrameView::LayoutDistributorLogo() {
-  if (distributor_logo_) {
+  if (distributor_logo_ && browser_view_->ShouldShowDistributorLogo()) {
     logo_bounds_.SetRect(frame_->GetMinimizeButtonOffset() -
         distributor_logo_->width() - kLogoCaptionSpacing, kLogoTopSpacing,
         distributor_logo_->width(), distributor_logo_->height());

@@ -777,7 +777,8 @@ void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
 void OpaqueBrowserFrameView::PaintDistributorLogo(ChromeCanvas* canvas) {
   // The distributor logo is only painted when the frame is not maximized and
   // when we actually have a logo.
-  if (!frame_->IsMaximized() && distributor_logo_) {
+  if (!frame_->IsMaximized() && distributor_logo_ &&
+      browser_view_->ShouldShowDistributorLogo()) {
     canvas->DrawBitmapInt(*distributor_logo_,
         MirroredLeftPointForRect(logo_bounds_), logo_bounds_.y());
   }
@@ -951,7 +952,7 @@ void OpaqueBrowserFrameView::LayoutWindowControls() {
 void OpaqueBrowserFrameView::LayoutDistributorLogo() {
   // Always lay out the logo, even when it's not present, so we can lay out the
   // window title based on its position.
-  if (distributor_logo_) {
+  if (distributor_logo_ && browser_view_->ShouldShowDistributorLogo()) {
     logo_bounds_.SetRect(minimize_button_->x() - distributor_logo_->width() -
         kLogoCaptionSpacing, TopResizeHeight(), distributor_logo_->width(),
         distributor_logo_->height());

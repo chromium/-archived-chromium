@@ -414,7 +414,12 @@ std::wstring Browser::GetCurrentPageTitle() const {
   if (title.empty())
     title = l10n_util::GetString(IDS_TAB_UNTITLED_TITLE);
 
-  return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, title);
+  int string_id = IDS_BROWSER_WINDOW_TITLE_FORMAT;
+  // Don't append the app name to window titles when we're not displaying a
+  // distributor logo for the frame.
+  if (!ShouldShowDistributorLogo())
+    string_id = IDS_BROWSER_WINDOW_TITLE_FORMAT_NO_LOGO;
+  return l10n_util::GetStringF(string_id, title);
 }
 
 // static
@@ -428,6 +433,10 @@ void Browser::FormatTitleForDisplay(std::wstring* title) {
   }
 }
 
+bool Browser::ShouldShowDistributorLogo() const {
+  // Don't show the distributor logo on app frames and app popups.
+  return !(type_ & TYPE_APP);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, OnBeforeUnload handling:
