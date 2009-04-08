@@ -692,12 +692,13 @@ devtools.DomAgent.prototype.getNodeForId = function(nodeId) {
 devtools.DomAgent.prototype.setDocumentElement = function(payload) {
   var doc = this.getDocument();
   if (doc.documentElement) {
-    return;
+    this.reset();
+    doc = this.getDocument();
   }
   this.setChildNodes(0, [payload]);
   doc.documentElement = doc.firstChild;
   doc.documentElement.ownerDocument = doc;
-  doc.fireDomEvent_("DOMContentLoaded");
+  WebInspector.panels.elements.reset();
 };
 
 
@@ -735,6 +736,13 @@ devtools.DomAgent.prototype.bindNodes_ = function(children) {
  * {@inheritDoc}.
  */
 devtools.DomAgent.prototype.hasChildrenUpdated = function(nodeId, newValue) {
+  var node = this.idToDomNode_[nodeId];
+  var outline = WebInspector.panels.elements.treeOutline;
+  var treeElement = outline.findTreeElement(node);
+  if (treeElement) {
+    treeElement.hasChildren = newValue;
+    treeElement.whitespaceIgnored = Preferences.ignoreWhitespace;
+  }
 };
 
 

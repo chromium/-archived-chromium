@@ -55,11 +55,7 @@ class DomAgentImpl : public DomAgent {
   void DiscardBindings();
 
   // Initializes dom agent with the given document.
-  // 'loaded' must be set to true iff main resource has been loaded
-  // and document has been parsed. Otherwise, 'loaded' should be
-  // false. DomAgent will then add itself as a listener to the
-  // DOMContentLoaded event and will track document loading by itself.
-  void SetDocument(WebCore::Document* document, bool loaded);
+  void SetDocument(WebCore::Document* document);
 
   // Returns node for given id according to the present binding.
   WebCore::Node* GetNodeForId(int id);
@@ -146,7 +142,6 @@ class DomAgentImpl : public DomAgent {
   HashSet<int> children_requested_;
   int last_node_id_;
   ListHashSet<RefPtr<WebCore::Document> > documents_;
-  HashSet<RefPtr<WebCore::Document> > loaded_documents_;
   RefPtr<WebCore::EventListener> event_listener_;
   // Captures pending document element request's call id.
   // Defaults to 0 meaning no pending request.

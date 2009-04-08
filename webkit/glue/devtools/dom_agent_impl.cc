@@ -71,10 +71,10 @@ DomAgentImpl::DomAgentImpl(DomAgentDelegate* delegate)
 }
 
 DomAgentImpl::~DomAgentImpl() {
-  SetDocument(NULL, false);
+  SetDocument(NULL);
 }
 
-void DomAgentImpl::SetDocument(Document* doc, bool loaded) {
+void DomAgentImpl::SetDocument(Document* doc) {
   if (doc == GetMainFrameDocument()) {
     return;
   }
@@ -85,12 +85,12 @@ void DomAgentImpl::SetDocument(Document* doc, bool loaded) {
     StopListening((*it).get());
   }
   ASSERT(documents_.size() == 0);
-  ASSERT(loaded_documents_.size() == 0);
 
   if (doc) {
     StartListening(doc);
-    if (loaded) {
-      loaded_documents_.add(doc);
+    if (document_element_requested_) {
+      GetDocumentElement();
+      document_element_requested_ = false;
     }
   } else {
     DiscardBindings();
@@ -125,7 +125,6 @@ void DomAgentImpl::StopListening(Document* doc) {
   doc->removeEventListener(eventNames().DOMAttrModifiedEvent,
       event_listener_.get(), false);
   documents_.remove(doc);
-  loaded_documents_.remove(doc);
 }
 
 int DomAgentImpl::Bind(Node* node) {
@@ -250,18 +249,15 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
       delegate_->ChildNodeRemoved(parent_id, id);
     }
   } else if (type == eventNames().DOMContentLoadedEvent) {
-    Document* doc = static_cast<Document*>(node);
-    loaded_documents_.add(doc);
-    if (document_element_requested_ &&
-        loaded_documents_.contains(GetMainFrameDocument())) {
-      GetDocumentElement();
-      document_element_requested_ = false;
-    }
+    // Re-push document once it is loaded.
+    DiscardBindings();
+    PushDocumentElementToClient();
   }
 }
 
 void DomAgentImpl::GetDocumentElement() {
-  if (loaded_documents_.contains(GetMainFrameDocument())) {
+  Document* main_document = GetMainFrameDocument();
+  if (main_document) {
     PushDocumentElementToClient();
   } else {
     document_element_requested_ = true;

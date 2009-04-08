@@ -126,7 +126,8 @@ void DevToolsManager::ForwardToDevToolsClient(const RenderViewHost& from,
   }
   DevToolsClientHost* target_host = GetDevToolsClientHostFor(*wc);
   if (!target_host) {
-    NOTREACHED();
+    // Client window was closed while there were messages
+    // being sent to it.
     return;
   }
   target_host->SendMessageToClient(message);

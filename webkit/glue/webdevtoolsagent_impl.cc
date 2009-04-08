@@ -71,7 +71,7 @@ void WebDevToolsAgentImpl::Attach() {
   Document* doc = page->mainFrame()->document();
   if (doc) {
     debugger_agent_impl_->SetDocument(doc);
-    dom_agent_impl_->SetDocument(doc, true);
+    dom_agent_impl_->SetDocument(doc);
     net_agent_impl_->SetDocument(doc);
   }
 
@@ -108,7 +108,7 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
     doc = NULL;
   }
   debugger_agent_impl_->SetDocument(doc);
-  dom_agent_impl_->SetDocument(doc, false);
+  dom_agent_impl_->SetDocument(doc);
   net_agent_impl_->SetDocument(doc);
 }
 
