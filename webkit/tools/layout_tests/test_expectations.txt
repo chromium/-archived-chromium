@@ -1671,7 +1671,7 @@ LINUX MAC : LayoutTests/fast/transforms/transformed-focused-text-input.html = FA
 LINUX : LayoutTests/fast/events/5056619.html = PASS FAIL
 
 // Failed with r6844 (dglazkov)
-LINUX MAC : LayoutTests/http/tests/navigation/error404-goback.html = FAIL
+LINUX MAC : LayoutTests/http/tests/navigation/error404-goback.html = FAIL TIMEOUT
 
 // Passes when run by itself.  Fails on the buildbot.
 // For Windows, see bug.
@@ -2054,7 +2054,7 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 
 // Merge 41709:41733
 // Expectations changed upstream.
-LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH
+WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH PASS
 
 // Tests that fail in debug mode on linux
 DEBUG LINUX : LayoutTests/fast/css/remove-shorthand.html = FAIL
@@ -2183,7 +2183,7 @@ DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html =
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH TIMEOUT PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
-WIN : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
+WIN LINUX : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 
 // Merge WebKit: 41944:41999
 // All these seem to be the same issue. None of them is crashing when run separately.
@@ -2267,7 +2267,6 @@ DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html
 
 WIN : LayoutTests/editing/selection/5136696.html = FAIL PASS
 LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PASS
-WIN : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH PASS
 
 // Merge WebKit 42133:42199 regressions
 LayoutTests/fast/events/context-no-deselect.html = FAIL
@@ -2317,12 +2316,12 @@ MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 
 BUG9798 : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
+BUG9798 : LayoutTests/editing/execCommand/15381.html = FAIL PASS
 
 BUG9798 LINUX : LayoutTests/animations/animation-iteration-event-destroy-renderer.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/animations/change-one-anim.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/animations/combo-transform-translate+scale.html = FAIL PASS
-BUG9798 LINUX : LayoutTests/editing/execCommand/15381.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/backgrounds/001.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/dom/delete-contents.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL PASS
@@ -2360,11 +2359,13 @@ BUG9798 LINUX : LayoutTests/transitions/transition-end-event-multiple-04.html = 
 BUG9798 WIN RELEASE : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 BUG9798 WIN : LayoutTests/fast/lists/inlineBoxWrapperNullCheck.html = FAIL PASS
 BUG9798 WIN : LayoutTests/fast/xmlhttprequest/xmlhttprequest-gc.html = CRASH PASS
+BUG9798 WIN : LayoutTests/http/tests/misc/css-reject-any-type-in-strict-mode.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/empty-file-formdata.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect-with-quotes.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/submit-get-in-utf7.html = TIMEOUT PASS
+BUG9798 WIN : LayoutTests/http/tests/misc/submit-get-in-utf16le.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/submit-post-in-utf7.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/submit-post-in-utf32be.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/url-in-utf16le.html = TIMEOUT PASS
