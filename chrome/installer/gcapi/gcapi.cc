@@ -162,7 +162,7 @@ bool IsChromeInstalled(HKEY root_key) {
   return false;
 }
 
-bool IsWinXPSp1OrLater(bool* is_vista_or_later) {
+bool IsWinXPSp2OrLater(bool* is_vista_or_later) {
   OSVERSIONINFOEX osviex = { sizeof(OSVERSIONINFOEX) };
   int r = ::GetVersionEx((LPOSVERSIONINFO)&osviex);
   // If this failed we're on Win9X or a pre NT4SP6 OS.
@@ -177,8 +177,8 @@ bool IsWinXPSp1OrLater(bool* is_vista_or_later) {
     return true;    // way beyond Windows XP;
   }
 
-  if (osviex.dwMinorVersion >= 1 && osviex.wServicePackMajor >= 1)
-    return true;    // Windows XP SP1 or better.
+  if (osviex.dwMinorVersion >= 1 && osviex.wServicePackMajor >= 2)
+    return true;    // Windows XP SP2 or better.
 
   return false;     // Windows 2000, WinXP no Service Pack.
 }
@@ -231,7 +231,7 @@ bool VerifyHKLMAccess(const wchar_t* sub_key) {
 bool IsRunningElevated() {
   // This method should be called only for Vista or later.
   bool is_vista_or_later = false;
-  IsWinXPSp1OrLater(&is_vista_or_later);
+  IsWinXPSp2OrLater(&is_vista_or_later);
   if (!is_vista_or_later || !VerifyAdminGroup())
     return false;
 
@@ -289,7 +289,7 @@ DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag,
 
   bool is_vista_or_later = false;
   // System requirements?
-  if (!IsWinXPSp1OrLater(&is_vista_or_later))
+  if (!IsWinXPSp2OrLater(&is_vista_or_later))
     local_reasons |= GCCC_ERROR_OSNOTSUPPORTED;
 
   if (IsChromeInstalled(HKEY_LOCAL_MACHINE))
