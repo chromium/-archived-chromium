@@ -300,8 +300,12 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
   }
 
   devtools_agent_.reset(new DevToolsAgent(routing_id, this));
-  devtools_agent_filter_ = new DevToolsAgentFilter();
+
   webwidget_ = WebView::Create(this, webkit_prefs);
+
+  devtools_agent_filter_ = new DevToolsAgentFilter(
+      webview()->GetWebDevToolsAgent(),
+      routing_id);
 
 #if defined(OS_LINUX)
   // We have to enable ourselves as the editor delegate on linux so we can copy

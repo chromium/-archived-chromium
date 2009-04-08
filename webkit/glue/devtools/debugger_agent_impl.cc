@@ -16,6 +16,7 @@
 #include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webview_impl.h"
 
 using WebCore::Document;
 using WebCore::Node;
@@ -23,8 +24,13 @@ using WebCore::String;
 using WebCore::V8ClassIndex;
 using WebCore::V8Proxy;
 
-DebuggerAgentImpl::DebuggerAgentImpl(DebuggerAgentDelegate* delegate)
-    : delegate_(delegate) {
+DebuggerAgentImpl::DebuggerAgentImpl(
+    WebViewImpl* web_view_impl,
+    DebuggerAgentDelegate* delegate,
+    WebDevToolsAgent* webdevtools_agent)
+    : web_view_impl_(web_view_impl),
+      delegate_(delegate),
+      webdevtools_agent_(webdevtools_agent) {
   DebuggerAgentManager::DebugAttach(this);
 }
 
@@ -85,4 +91,8 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
 
   v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
   return WebCore::toWebCoreString(res_json);
+}
+
+WebCore::Page* DebuggerAgentImpl::GetPage() {
+  return web_view_impl_->page();
 }

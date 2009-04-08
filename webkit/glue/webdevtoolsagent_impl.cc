@@ -59,7 +59,9 @@ void WebDevToolsAgentImpl::Attach() {
     return;
   }
   debugger_agent_impl_.set(
-      new DebuggerAgentImpl(debugger_agent_delegate_stub_.get()));
+      new DebuggerAgentImpl(web_view_impl_,
+                            debugger_agent_delegate_stub_.get(),
+                            this));
   dom_agent_impl_.set(new DomAgentImpl(dom_agent_delegate_stub_.get()));
   net_agent_impl_.set(new NetAgentImpl(net_agent_delegate_stub_.get()));
 
@@ -236,6 +238,8 @@ void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {
 }
 
 // static
-void WebDevToolsAgent::ExecuteDebuggerCommand(const std::string& command) {
-  DebuggerAgentManager::ExecuteDebuggerCommand(command);
+void WebDevToolsAgent::ExecuteDebuggerCommand(
+    const std::string& command,
+    WebDevToolsAgent* webdevtools_agent) {
+  DebuggerAgentManager::ExecuteDebuggerCommand(command, webdevtools_agent);
 }

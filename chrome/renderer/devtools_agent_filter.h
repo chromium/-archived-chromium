@@ -9,6 +9,8 @@
 
 #include "chrome/common/ipc_channel_proxy.h"
 
+class WebDevToolsAgent;
+
 // DevToolsAgentFilter is registered as an IPC filter in order to be able to
 // dispatch messages while on the IO thread. The reason for that is that while
 // debugging, Render thread is being held by the v8 and hence no messages
@@ -20,7 +22,12 @@ class DevToolsAgentFilter : public IPC::ChannelProxy::MessageFilter {
   // DevToolsAgentFilter is a field of the RenderView. The view is supposed
   // to remove this agent from the message filter list on IO thread before
   // dying.
-  DevToolsAgentFilter();
+  //
+  // Note that the pointer to WebDevToolsAgent should never be dereferenced on
+  // the IO thread because it is destroyed asynchronously on the render thread.
+  // However the filter needs it to pass along with debugger command request
+  // to WebDevToolsAgent::ExecuteDebuggerCommand static method.
+  DevToolsAgentFilter(WebDevToolsAgent* webdevtools_agent, int routing_id);
   virtual ~DevToolsAgentFilter();
 
  private:
@@ -31,6 +38,7 @@ class DevToolsAgentFilter : public IPC::ChannelProxy::MessageFilter {
   // handle debug messages even when v8 is stopped.
   void OnDebuggerCommand(const std::string& command);
 
+  WebDevToolsAgent* webdevtools_agent_;
   int routing_id_;  // View routing id that we can access from IO thread.
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsAgentFilter);

@@ -5,12 +5,15 @@
 #ifndef WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_MANAGER_H_
 #define WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_MANAGER_H_
 
+#include <wtf/HashMap.h>
 #include <wtf/HashSet.h>
 
 #include "base/basictypes.h"
 #include "v8/include/v8-debug.h"
 
 class DebuggerAgentImpl;
+class DictionaryValue;
+class WebDevToolsAgent;
 
 // There is single v8 instance per render process. Also there may be several
 // RenderViews and consequently devtools agents in the process that want to talk
@@ -34,7 +37,8 @@ class DebuggerAgentManager {
   static void DebugBreak(DebuggerAgentImpl* debugger_agent);
   static void DebugCommand(const std::string& command);
 
-  static void ExecuteDebuggerCommand(const std::string& command);
+  static void ExecuteDebuggerCommand(const std::string& command,
+                                     WebDevToolsAgent* webdevtools_agent);
 
  private:
   DebuggerAgentManager();
@@ -44,7 +48,16 @@ class DebuggerAgentManager {
                                     int length,
                                     void* data);
   static void DebuggerOutput(const std::string& out);
-  static DebuggerAgentImpl* GetAgentForCurrentV8Context();
+  static void SendCommandToV8(const std::wstring& cmd);
+  static bool SendCommandResponse(DictionaryValue* response);
+
+  static DebuggerAgentImpl* FindAgentForCurrentV8Context();
+  static DebuggerAgentImpl* FindDebuggerAgentForToolsAgent(
+      WebDevToolsAgent* webdevtools_agent);
+
+  static const std::string ReplaceRequestSequenceId(
+      const std::string& request,
+      WebDevToolsAgent* webdevtools_agent);
 
   typedef HashSet<DebuggerAgentImpl*> AttachedAgentsSet;
   static AttachedAgentsSet* attached_agents_;
