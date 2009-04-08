@@ -2406,5 +2406,7 @@ BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/filters-gauss-01-b.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/colourpicker.svg = CRASH FAIL
 
-BUG9850 LINUX MAC : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL PASS
-BUG9850 LINUX MAC : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL PASS
+BUG9850 : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
+BUG9850 : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
+BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
+BUG9850 MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
