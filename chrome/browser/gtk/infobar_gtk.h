@@ -47,9 +47,11 @@ class InfoBar {
   // (Will lead to this InfoBar being closed).
   void RemoveInfoBar() const;
 
- private:
   // The top level GTK widget.
   OwnedWidgetGtk widget_;
+
+  // The hbox that holds infobar elements (button, text, icon, etc.).
+  GtkWidget* hbox_;
 
   // The x that closes the bar.
   scoped_ptr<CustomDrawButton> close_button_;
@@ -59,6 +61,9 @@ class InfoBar {
 
   // The InfoBar's delegate.
   InfoBarDelegate* delegate_;
+
+ private:
+  static void OnCloseButton(GtkWidget* button, InfoBar* info_bar);
 
   DISALLOW_COPY_AND_ASSIGN(InfoBar);
 };
