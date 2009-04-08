@@ -16,7 +16,7 @@ class BookmarkModel;
 class Browser;
 class CommandUpdater;
 class LocationBar;
-class TabStripBridge;
+class TabStripModelObserverBridge;
 class TabStripModel;
 class TabContents;
 class ToolbarModel;
@@ -37,7 +37,7 @@ class ToolbarModel;
   TabContents* currentTab_;   // weak, tab for which we're showing state
   TabStripView* tabView_;  // weak
   NSButton* newTabButton_;  // weak, obtained from the nib.
-  TabStripBridge* bridge_;
+  TabStripModelObserverBridge* bridge_;
   TabStripModel* tabModel_;  // weak
   ToolbarModel* toolbarModel_;  // weak, one per browser
   BookmarkModel* bookmarkModel_;  // weak, one per profile (= one per Browser*)

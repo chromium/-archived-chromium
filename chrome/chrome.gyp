@@ -540,6 +540,8 @@
         'browser/cocoa/tab_controller.mm',
         'browser/cocoa/tab_strip_controller.h',
         'browser/cocoa/tab_strip_controller.mm',
+        'browser/cocoa/tab_strip_model_observer_bridge.h',
+        'browser/cocoa/tab_strip_model_observer_bridge.mm',
         'browser/cocoa/tab_strip_view.h',
         'browser/cocoa/tab_strip_view.mm',
         'browser/cocoa/tab_view.h',

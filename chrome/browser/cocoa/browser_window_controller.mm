@@ -5,12 +5,16 @@
 #include "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
+#import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 #import "chrome/browser/cocoa/tab_view.h"
+
 
 @implementation BrowserWindowController
 
@@ -21,6 +25,8 @@
   if ((self = [super initWithWindowNibName:@"BrowserWindow"])) {
     browser_ = browser;
     DCHECK(browser_);
+    tabObserver_ = new TabStripModelObserverBridge(browser->tabstrip_model(),
+                                                   self);
     windowShim_ = new BrowserWindowCocoa(browser, self, [self window]);
 
     // The window is now fully realized and |-windowDidLoad:| has been
@@ -45,8 +51,9 @@
 - (void)dealloc {
   browser_->CloseAllTabs();
   [tabStripController_ release];
-  delete browser_;
   delete windowShim_;
+  delete tabObserver_;
+  delete browser_;
   [super dealloc];
 }
 
@@ -269,4 +276,41 @@
   return browser_->tabstrip_model()->count();
 }
 
+- (void)selectTabWithContents:(TabContents*)newContents
+             previousContents:(TabContents*)oldContents
+                      atIndex:(NSInteger)index
+                  userGesture:(bool)wasUserGesture {
+  DCHECK(oldContents != newContents);
+
+  // We do not store the focus when closing the tab to work-around bug 4633.
+  // Some reports seem to show that the focus manager and/or focused view can
+  // be garbage at that point, it is not clear why.
+  if (oldContents && !oldContents->is_being_destroyed() &&
+      oldContents->AsWebContents())
+    oldContents->AsWebContents()->view()->StoreFocus();
+
+  // Update various elements that are interested in knowing the current
+  // TabContents.
+#if 0
+// TODO(pinkerton):Update as more things become window-specific
+  infobar_container_->ChangeTabContents(new_contents);
+  contents_container_->SetTabContents(new_contents);
+#endif
+  newContents->DidBecomeSelected();
+
+  if (BrowserList::GetLastActive() == browser_ &&
+      !browser_->tabstrip_model()->closing_all() &&
+      newContents->AsWebContents()) {
+    newContents->AsWebContents()->view()->RestoreFocus();
+  }
+
+#if 0
+// TODO(pinkerton):Update as more things become window-specific
+  // Update all the UI bits.
+  UpdateTitleBar();
+  toolbar_->SetProfile(new_contents->profile());
+  UpdateToolbar(new_contents, true);
+  UpdateUIForContents(new_contents);
+#endif
+}
 @end

@@ -19,6 +19,7 @@ class LocationBar;
 class TabContents;
 @class TabContentsController;
 @class TabStripController;
+class TabStripModelObserverBridge;
 @class TabStripView;
 
 @interface BrowserWindowController :
@@ -26,6 +27,7 @@ class TabContents;
  @private
   TabStripController* tabStripController_;
   Browser* browser_;
+  TabStripModelObserverBridge* tabObserver_;
   BrowserWindowCocoa* windowShim_;
 }
 

@@ -12,54 +12,10 @@
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 #import "chrome/browser/cocoa/tab_controller.h"
+#import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_view.h"
 #import "chrome/browser/tab_contents/tab_contents.h"
 #import "chrome/browser/tabs/tab_strip_model.h"
-
-// The private methods the brige object needs from the controller.
-@interface TabStripController(BridgeMethods)
-- (void)insertTabWithContents:(TabContents*)contents
-                      atIndex:(NSInteger)index
-                 inForeground:(bool)inForeground;
-- (void)selectTabWithContents:(TabContents*)newContents
-             previousContents:(TabContents*)oldContents
-                      atIndex:(NSInteger)index
-                  userGesture:(bool)wasUserGesture;
-- (void)tabDetachedWithContents:(TabContents*)contents
-                        atIndex:(NSInteger)index;
-- (void)tabChangedWithContents:(TabContents*)contents
-                       atIndex:(NSInteger)index
-                   loadingOnly:(BOOL)loading;
-@end
-
-// A C++ bridge class to handle receiving notifications from the C++ tab
-// strip model. Doesn't do much on its own, just sends everything straight
-// to the Cocoa controller.
-class TabStripBridge : public TabStripModelObserver {
- public:
-  TabStripBridge(TabStripModel* model, TabStripController* controller);
-  ~TabStripBridge();
-
-  // Overridden from TabStripModelObserver
-  virtual void TabInsertedAt(TabContents* contents,
-                             int index,
-                             bool foreground);
-  virtual void TabDetachedAt(TabContents* contents, int index);
-  virtual void TabSelectedAt(TabContents* old_contents,
-                             TabContents* new_contents,
-                             int index,
-                             bool user_gesture);
-  virtual void TabMoved(TabContents* contents,
-                        int from_index,
-                        int to_index);
-  virtual void TabChangedAt(TabContents* contents, int index,
-                            bool loading_only);
-  virtual void TabStripEmpty();
-
- private:
-  TabStripController* controller_;  // weak, owns me
-  TabStripModel* model_;  // weak, owned by Browser
-};
 
 @implementation TabStripController
 
@@ -72,7 +28,7 @@ class TabStripBridge : public TabStripModelObserver {
     toolbarModel_ = browser->toolbar_model();
     bookmarkModel_ = browser->profile()->GetBookmarkModel();
     commands_ = browser->command_updater();
-    bridge_ = new TabStripBridge(tabModel_, self);
+    bridge_ = new TabStripModelObserverBridge(tabModel_, self);
     tabContentsArray_ = [[NSMutableArray alloc] init];
     tabArray_ = [[NSMutableArray alloc] init];
     bookmarkBarStateController_ = [[BookmarkBarStateController alloc]
@@ -346,11 +302,13 @@ class TabStripBridge : public TabStripModelObserver {
 }
 
 // Called when a notification is received from the model that the given tab
-// has been updated.
+// has been updated. |loading| will be YES when we only want to update the
+// throbber state, not anything else about the (partially) loading tab.
 - (void)tabChangedWithContents:(TabContents*)contents
                        atIndex:(NSInteger)index
                    loadingOnly:(BOOL)loading {
-  [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
+  if (!loading)
+    [self setTabTitle:[tabArray_ objectAtIndex:index] withContents:contents];
 
   TabContentsController* updatedController =
       [tabContentsArray_ objectAtIndex:index];
@@ -431,59 +389,4 @@ class TabStripBridge : public TabStripModelObserver {
 
 }
 
-
 @end
-
-//--------------------------------------------------------------------------
-
-TabStripBridge::TabStripBridge(TabStripModel* model,
-                               TabStripController* controller)
-    : controller_(controller), model_(model) {
-  // Register to be a listener on the model so we can get updates and tell
-  // the TabStripController about them.
-  model_->AddObserver(this);
-}
-
-TabStripBridge::~TabStripBridge() {
-  // Remove ourselves from receiving notifications.
-  model_->RemoveObserver(this);
-}
-
-void TabStripBridge::TabInsertedAt(TabContents* contents,
-                                   int index,
-                                   bool foreground) {
-  [controller_ insertTabWithContents:contents
-                             atIndex:index
-                        inForeground:foreground];
-}
-
-void TabStripBridge::TabDetachedAt(TabContents* contents, int index) {
-  [controller_ tabDetachedWithContents:contents atIndex:index];
-}
-
-void TabStripBridge::TabSelectedAt(TabContents* old_contents,
-                                   TabContents* new_contents,
-                                   int index,
-                                   bool user_gesture) {
-  [controller_ selectTabWithContents:new_contents
-                    previousContents:old_contents
-                             atIndex:index
-                         userGesture:user_gesture];
-}
-
-void TabStripBridge::TabMoved(TabContents* contents,
-                              int from_index,
-                              int to_index) {
-  NOTIMPLEMENTED();
-}
-
-void TabStripBridge::TabChangedAt(TabContents* contents, int index,
-                                  bool loading_only) {
-  [controller_ tabChangedWithContents:contents
-                              atIndex:index
-                          loadingOnly:loading_only ? YES : NO];
-}
-
-void TabStripBridge::TabStripEmpty() {
-  NOTIMPLEMENTED();
-}
