@@ -456,8 +456,9 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
   // Get a rough estimate for which tab the mouse is over.
   int index = event->x / (tabstrip->current_unselected_width_ + kTabHOffset);
 
-  if (index >= tabstrip->model_->count()) {
-    if (old_hover_index != -1) {
+  int tab_count = tabstrip->GetTabCount();
+  if (index >= tab_count) {
+    if (old_hover_index != -1 && old_hover_index < tab_count) {
       tabstrip->GetTabAt(old_hover_index)->SetHovering(false);
       gtk_widget_queue_draw(tabstrip->tabstrip_.get());
     }
@@ -481,7 +482,7 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
   } else if (tabstrip->model()->selected_index() != index &&
              tabstrip->GetTabAt(index)->IsPointInBounds(coord)) {
     tabstrip->hover_index_ = index;
-  } else if (index < tabstrip->model_->count() - 1 &&
+  } else if (index < tab_count - 1 &&
              tabstrip->GetTabAt(index + 1)->IsPointInBounds(coord)) {
     tabstrip->hover_index_ = index + 1;
   }
@@ -491,7 +492,7 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
     if (tabstrip->hover_index_ != -1)
       tabstrip->GetTabAt(tabstrip->hover_index_)->SetHovering(true);
 
-    if (old_hover_index != -1)
+    if (old_hover_index != -1 && old_hover_index < tab_count)
       tabstrip->GetTabAt(old_hover_index)->SetHovering(false);
 
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
