@@ -32,7 +32,7 @@ Error Location
    chrome/browser/tabs/tab_strip_model.cc  TabStripModel::ChangeSelectedContentsFrom(TabContents *,int,bool)
    chrome/browser/tabs/tab_strip_model.cc  TabStripModel::InsertTabContentsAt(int,TabContents *,bool,bool)
    chrome/browser/tabs/tab_strip_model.cc  TabStripModel::AddTabContents(TabContents *,int,UINT,bool)
-   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,SiteInstance *)
+   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,int,SiteInstance *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::CreateBrowser(Profile *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::RunTestOnMainThreadLoop(void)
    base/tuple.h  ?DispatchToMethod@VInProcessBrowserTest@@P81@AEXXZ@@YAXPAVInProcessBrowserTest@@P80@AEXXZABUTuple0@@@Z
@@ -52,7 +52,7 @@ Error Location
    chrome/browser/tabs/tab_strip_model.cc  TabStripModel::ChangeSelectedContentsFrom(TabContents *,int,bool)
    chrome/browser/tabs/tab_strip_model.cc  TabStripModel::InsertTabContentsAt(int,TabContents *,bool,bool)
    chrome/browser/tabs/tab_strip_model.cc  TabStripModel::AddTabContents(TabContents *,int,UINT,bool)
-   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,SiteInstance *)
+   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,int,SiteInstance *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::CreateBrowser(Profile *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::RunTestOnMainThreadLoop(void)
    base/tuple.h  ?DispatchToMethod@VInProcessBrowserTest@@P81@AEXXZ@@YAXPAVInProcessBrowserTest@@P80@AEXXZABUTuple0@@@Z

@@ -28,7 +28,27 @@ Alloc Location
    chrome/browser/tab_contents/navigation_controller.cc  NavigationController::LoadEntry(NavigationEntry *)
    chrome/browser/tab_contents/navigation_controller.cc  NavigationController::LoadURL(GURL const&,GURL const&,UINT)
    chrome/browser/browser.cc  Browser::CreateTabContentsForURL(GURL const&,GURL const&,Profile *,UINT,bool,SiteInstance *)const
-   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,SiteInstance *)
+   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,int,SiteInstance *)
+   chrome/test/in_process_browser_test.cc  InProcessBrowserTest::CreateBrowser(Profile *)
+   chrome/test/in_process_browser_test.cc  InProcessBrowserTest::RunTestOnMainThreadLoop(void)
+   base/tuple.h  ?DispatchToMethod@VInProcessBrowserTest@@P81@AEXXZ@@YAXPAVInProcessBrowserTest@@P80@AEXXZABUTuple0@@@Z
+   ^^^  
+
+?_Allocate@U_Node@?$_Tree_nod@V?$_Tset_traits@VFilePath@@U?$less@VFilePath@@@std@@V?$allocator@VFilePath@@@3@$0A@@std@@@std@@@std@@YAPAU_Node@?$_Tree_nod@V?$_Tset_traits@VFilePath@@U?$less@VFilePath@@@std@@V?$allocator@VFilePath@@@3@$0A@@std@@@0@IPAU120@@Z [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/renderer_host/renderer_security_policy.cc  RendererSecurityPolicy::SecurityState::SecurityState(void)
+   chrome/browser/renderer_host/renderer_security_policy.cc  RendererSecurityPolicy::Add(int)
+   chrome/browser/renderer_host/browser_render_process_host.cc  BrowserRenderProcessHost::Init(void)
+   chrome/browser/renderer_host/render_view_host.cc  RenderViewHost::CreateRenderView(void)
+   chrome/browser/tab_contents/web_contents.cc  WebContents::CreateRenderViewForRenderManager(RenderViewHost *)
+   chrome/browser/tab_contents/render_view_host_manager.cc  RenderViewHostManager::Navigate(NavigationEntry const&)
+   chrome/browser/tab_contents/web_contents.cc  WebContents::NavigateToPendingEntry(bool)
+   chrome/browser/tab_contents/navigation_controller.cc  NavigationController::NavigateToPendingEntry(bool)
+   chrome/browser/tab_contents/navigation_controller.cc  NavigationController::LoadEntry(NavigationEntry *)
+   chrome/browser/tab_contents/navigation_controller.cc  NavigationController::LoadURL(GURL const&,GURL const&,UINT)
+   chrome/browser/browser.cc  Browser::CreateTabContentsForURL(GURL const&,GURL const&,Profile *,UINT,bool,SiteInstance *)const
+   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,int,SiteInstance *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::CreateBrowser(Profile *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::RunTestOnMainThreadLoop(void)
    base/tuple.h  ?DispatchToMethod@VInProcessBrowserTest@@P81@AEXXZ@@YAXPAVInProcessBrowserTest@@P80@AEXXZABUTuple0@@@Z
@@ -48,9 +68,8 @@ Alloc Location
    chrome/browser/tab_contents/navigation_controller.cc  NavigationController::LoadEntry(NavigationEntry *)
    chrome/browser/tab_contents/navigation_controller.cc  NavigationController::LoadURL(GURL const&,GURL const&,UINT)
    chrome/browser/browser.cc  Browser::CreateTabContentsForURL(GURL const&,GURL const&,Profile *,UINT,bool,SiteInstance *)const
-   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,SiteInstance *)
+   chrome/browser/browser.cc  Browser::AddTabWithURL(GURL const&,GURL const&,UINT,bool,int,SiteInstance *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::CreateBrowser(Profile *)
    chrome/test/in_process_browser_test.cc  InProcessBrowserTest::RunTestOnMainThreadLoop(void)
    base/tuple.h  ?DispatchToMethod@VInProcessBrowserTest@@P81@AEXXZ@@YAXPAVInProcessBrowserTest@@P80@AEXXZABUTuple0@@@Z
    ^^^  
- 
