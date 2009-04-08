@@ -2003,6 +2003,8 @@
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
             'test/ui/omnibox_uitest.cc',
+             # these pass locally but fail on the bots
+            'common/net/cache_uitest.cc',
           ],
         }],
         ['OS=="win"', {
