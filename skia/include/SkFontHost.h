@@ -24,6 +24,9 @@ class SkDescriptor;
 class SkStream;
 class SkWStream;
 
+typedef uint32_t SkFontTableTag;
+typedef uint32_t SkFontID;
+
 /** \class SkFontHost
 
     This class is ported to each environment. It is responsible for bridging
@@ -69,18 +72,57 @@ public:
     /** Return the typeface associated with the uniqueID, or null if that ID
         does not match any faces.
     */
-    static SkTypeface* ResolveTypeface(uint32_t uniqueID);
+    static SkTypeface* ResolveTypeface(SkFontID uniqueID);
     
     /** Return a new stream to read the font data, or null if the uniqueID does
         not match an existing typeface
     */
-    static SkStream* OpenStream(uint32_t uniqueID);
-    static void CloseStream(uint32_t uniqueID, SkStream*);
+    static SkStream* OpenStream(SkFontID uniqueID);
+    static void CloseStream(SkFontID uniqueID, SkStream*);
 
     /** Return a new typeface given the data buffer (owned by the caller).
         If the data does not represent a valid font, return null.
     */
     static SkTypeface* CreateTypeface(SkStream*);
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    /** Return the number of tables in the font
+     */
+    static int CountTables(SkFontID);
+
+    /** Copy into tags[] (allocated by the caller) the list of table tags in
+        the font, and return the number. This will be the same as CountTables()
+        or 0 if an error occured.
+     */
+    static int GetTableTags(SkFontID, SkFontTableTag[]);
+
+    /** Given a table tag, return the size of its contents, or 0 if not present
+     */
+    static size_t GetTableSize(SkFontID, SkFontTableTag);
+
+    /** Copy the contents of a table into data (allocated by the caller). Note
+        that the contents of the table will be in their native endian order
+        (which for most truetype tables is big endian). If the table tag is
+        not found, or there is an error copying the data, then 0 is returned.
+        If this happens, it is possible that some or all of the memory pointed
+        to by data may have been written to, even though an error has occured.
+
+        @param fontID the font to copy the table from
+        @param tag  The table tag whose contents are to be copied
+        @param offset The offset in bytes into the table's contents where the
+                copy should start from.
+        @param length The number of bytes, starting at offset, of table data
+                to copy.
+        @param data storage address where the table contents are copied to
+        @return the number of bytes actually copied into data. If offset+length
+                exceeds the table's size, then only the bytes up to the table's
+                size are actually copied, and this is the value returned. If
+                offset > the table's size, or tag is not a valid table,
+                then 0 is returned.
+     */
+    static size_t GetTableData(SkFontID fontID, SkFontTableTag tag,
+                               size_t offset, size_t length, void* data);
 
     ///////////////////////////////////////////////////////////////////////////
 
