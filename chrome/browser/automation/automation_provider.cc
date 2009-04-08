@@ -453,20 +453,37 @@ class BrowserClosedNotificationObserver : public NotificationObserver {
   IPC::Message* reply_message_;
 };
 
+namespace {
+
+// Define mapping from command to notification
+struct CommandNotification {
+  int command;
+  NotificationType::Type notification_type;
+};
+
+const struct CommandNotification command_notifications[] = {
+  {IDC_NEW_TAB, NotificationType::TAB_PARENTED}
+};
+
+}  // namespace
+
 class ExecuteBrowserCommandObserver : public NotificationObserver {
  public:
-  ExecuteBrowserCommandObserver(
-      AutomationProvider* automation,
-      NotificationType::Type notification_type,
-      IPC::Message* reply_message)
+  ExecuteBrowserCommandObserver(AutomationProvider* automation,
+                                IPC::Message* reply_message)
       : automation_(automation),
-        notification_type_(notification_type),
         reply_message_(reply_message) {
-    registrar_.Add(this, notification_type,
-                    NotificationService::AllSources());
   }
 
   ~ExecuteBrowserCommandObserver() {
+  }
+
+  bool Register(int command) {
+    if (!GetNotificationType(command, &notification_type_))
+      return false;
+    registrar_.Add(this, notification_type_,
+                   NotificationService::AllSources());
+    return true;
   }
 
   virtual void Observe(NotificationType type,
@@ -483,6 +500,20 @@ class ExecuteBrowserCommandObserver : public NotificationObserver {
   }
 
  private:
+  bool GetNotificationType(int command, NotificationType::Type* type) {
+    if (!type)
+      return false;
+    bool found = false;
+    for (unsigned int i = 0; i < arraysize(command_notifications); i++) {
+      if (command_notifications[i].command == command) {
+        *type = command_notifications[i].notification_type;
+        found = true;
+        break;
+      }
+    }
+    return found;
+  }
+
   AutomationProvider* automation_;
   NotificationType::Type notification_type_;
   IPC::Message* reply_message_;
@@ -1326,11 +1357,12 @@ void AutomationProvider::ExecuteBrowserCommandWithNotification(
     Browser* browser = browser_tracker_->GetResource(handle);
     if (browser->command_updater()->SupportsCommand(command) &&
         browser->command_updater()->IsCommandEnabled(command)) {
-      // TODO(huanr): mapping command to notification type.
-      // For now only IDC_NEW_TAB uses this code path.
-      NotificationType::Type type = NotificationType::TAB_PARENTED;
-      new ExecuteBrowserCommandObserver(this, type, reply_message);
-      browser->ExecuteCommand(command);
+      ExecuteBrowserCommandObserver* observer =
+          new ExecuteBrowserCommandObserver(this, reply_message);
+      if (observer->Register(command))
+        browser->ExecuteCommand(command);
+      else
+        delete observer;
       return;
     }
   }

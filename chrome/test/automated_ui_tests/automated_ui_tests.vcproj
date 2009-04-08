@@ -201,6 +201,14 @@
 				RelativePath=".\automated_ui_tests.h"
 				>
 			</File>
+			<File
+				RelativePath=".\automated_ui_test_base.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\automated_ui_test_base.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

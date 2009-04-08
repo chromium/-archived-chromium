@@ -101,12 +101,13 @@
 //                       after each action. Useful for debugging.
 //
 
+#include "chrome/test/automated_ui_tests/automated_ui_test_base.h"
 #include "chrome/test/ui/ui_test.h"
 
-class AutomatedUITest : public UITest {
+class AutomatedUITest : public AutomatedUITestBase {
  protected:
   AutomatedUITest();
-  ~AutomatedUITest();
+  virtual ~AutomatedUITest();
 
   // Runs a reproduction of one set of actions, reporting whether they crash
   // or not.
@@ -184,11 +185,6 @@ class AutomatedUITest : public UITest {
   // XML element: <Navigate/>
   // Optional Attributes: url="|address|" will navigate to |address|
   bool Navigate();
-
-  // Opens a new tab in the active window using an accelerator.
-  // Returns true if call to activate the accelerator is successful.
-  // XML element: <NewTab/>
-  bool NewTab();
 
   // Opens a new browser window by calling automation()->OpenNewBrowserWindow
   // Then activates the tab opened in the new window.
@@ -388,22 +384,6 @@ class AutomatedUITest : public UITest {
   // window to the top.
   WindowProxy* GetAndActivateWindowForBrowser(BrowserProxy* browser);
 
-  // Runs the specified browser command in the current active browser.
-  // See browser_commands.cc for the list of commands.
-  // Returns true if the call is successfully dispatched.
-  // Possible failures include the active window is not a browser window or
-  // the message to apply the accelerator fails.
-  bool RunCommandAsync(int browser_command);
-
-  // Runs the specified browser command in the current active browser, wait
-  // and return until the command has finished executing.
-  // See browser_commands.cc for the list of commands.
-  // Returns true if the call is successfully dispatched and executed.
-  // Possible failures include the active window is not a browser window, or
-  // the message to apply the accelerator fails, or the command execution
-  // fails.
-  bool RunCommand(int browser_command);
-
   // Calls SimulateOSKeyPress on the active window. Simulates a key press at
   // the OS level. |key| is the key pressed  and |flags| specifies which
   // modifiers keys are also pressed (as defined in chrome/views/event.h).
@@ -462,6 +442,11 @@ class AutomatedUITest : public UITest {
   // A "new" crash log is one that was produced since DidCrash was last called
   // with |update_total_crashes| set to true.
   bool DidCrash(bool update_total_crashes);
+
+  // Override the message logging in AutomatedUITestBase.
+  virtual void LogErrorMessage(const std::string &error);
+
+  virtual void LogWarningMessage(const std::string &warning);
 
   // Overridden so that UI Test doesn't set up when the tests start.
   // We use DoAction("SetUp") to set up, because it logs it and makes

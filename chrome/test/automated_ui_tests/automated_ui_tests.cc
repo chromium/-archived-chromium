@@ -539,17 +539,6 @@ bool AutomatedUITest::Navigate() {
   return true;
 }
 
-bool AutomatedUITest::NewTab() {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  // Apply accelerator and wait for a new tab to open, if either
-  // fails, return false. Apply Accelerator takes care of logging its failure.
-  return RunCommand(IDC_NEW_TAB);
-}
-
 bool AutomatedUITest::OpenAboutDialog() {
   return RunCommandAsync(IDC_ABOUT);
 }
@@ -829,32 +818,6 @@ WindowProxy* AutomatedUITest::GetAndActivateWindowForBrowser(
   return window;
 }
 
-bool AutomatedUITest::RunCommandAsync(int browser_command) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  if (!browser->RunCommandAsync(browser_command)) {
-    AddWarningAttribute("failure_running_browser_command");
-    return false;
-  }
-  return true;
-}
-
-bool AutomatedUITest::RunCommand(int browser_command) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  if (!browser->RunCommand(browser_command)) {
-    AddWarningAttribute("failure_running_browser_command");
-    return false;
-  }
-  return true;
-}
-
 
 bool AutomatedUITest::SimulateKeyPressInActiveWindow(wchar_t key, int flags) {
   scoped_ptr<WindowProxy> window(automation()->GetActiveWindow());
@@ -948,6 +911,14 @@ void AutomatedUITest::AddWarningAttribute(const std::string &warning) {
 
 void AutomatedUITest::AddErrorAttribute(const std::string &error) {
   xml_writer_.AddAttribute("error", error);
+}
+
+void AutomatedUITest::LogErrorMessage(const std::string &error) {
+  AddErrorAttribute(error);
+}
+
+void AutomatedUITest::LogWarningMessage(const std::string &warning) {
+  AddWarningAttribute(warning);
 }
 
 std::wstring AutomatedUITest::GetMostRecentCrashDump() {
