@@ -43,7 +43,6 @@ MSVC_POP_WARNING();
 
 using WebKit::WebInputEvent;
 using WebKit::WebMouseEvent;
-using WebKit::WebRect;
 
 // Callback class that's given to the WebViewDelegate during a file choose
 // operation.
@@ -101,20 +100,26 @@ void ChromeClientImpl::setWindowRect(const WebCore::FloatRect& r) {
 }
 
 WebCore::FloatRect ChromeClientImpl::windowRect() {
-  WebRect rect;
   if (webview_->delegate()) {
+    gfx::Rect rect;
     webview_->delegate()->GetRootWindowRect(webview_, &rect);
+    return WebCore::FloatRect(
+        static_cast<float>(rect.x()),
+        static_cast<float>(rect.y()),
+        static_cast<float>(rect.width()),
+        static_cast<float>(rect.height()));
   } else {
     // These numbers will be fairly wrong. The window's x/y coordinates will
     // be the top left corner of the screen and the size will be the content
     // size instead of the window size.
-    rect.width = webview_->size().width;
-    rect.height = webview_->size().height;
+    gfx::Point origin;
+    const gfx::Size size = webview_->size();
+    return WebCore::FloatRect(
+        static_cast<float>(origin.x()),
+        static_cast<float>(origin.y()),
+        static_cast<float>(size.width()),
+        static_cast<float>(size.height()));
   }
-  return WebCore::FloatRect(static_cast<float>(rect.x),
-                            static_cast<float>(rect.y),
-                            static_cast<float>(rect.width),
-                            static_cast<float>(rect.height));
 }
 
 WebCore::FloatRect ChromeClientImpl::pageRect() {
@@ -388,13 +393,16 @@ bool ChromeClientImpl::tabsToLinks() const {
 }
 
 WebCore::IntRect ChromeClientImpl::windowResizerRect() const {
-  WebCore::IntRect result;
+  WebCore::IntRect rv;
   if (webview_->delegate()) {
-    WebRect resizer_rect;
+    gfx::Rect resizer_rect;
     webview_->delegate()->GetRootWindowResizerRect(webview_, &resizer_rect);
-    result = webkit_glue::WebRectToIntRect(resizer_rect);
+    rv = WebCore::IntRect(resizer_rect.x(),
+                          resizer_rect.y(),
+                          resizer_rect.width(),
+                          resizer_rect.height());
   }
-  return result;
+  return rv;
 }
 
 void ChromeClientImpl::repaint(
@@ -405,8 +413,7 @@ void ChromeClientImpl::repaint(
     return;
   WebViewDelegate* delegate = webview_->delegate();
   if (delegate)
-    delegate->DidInvalidateRect(webview_,
-                                webkit_glue::IntRectToWebRect(paint_rect));
+    delegate->DidInvalidateRect(webview_, webkit_glue::FromIntRect(paint_rect));
 }
 
 void ChromeClientImpl::scroll(
@@ -417,7 +424,7 @@ void ChromeClientImpl::scroll(
     int dx = scroll_delta.width();
     int dy = scroll_delta.height();
     delegate->DidScrollRect(webview_, dx, dy,
-                            webkit_glue::IntRectToWebRect(clip_rect));
+                            webkit_glue::FromIntRect(clip_rect));
   }
 }
 
@@ -433,9 +440,9 @@ WebCore::IntRect ChromeClientImpl::windowToScreen(
 
   WebViewDelegate* delegate = webview_->delegate();
   if (delegate) {
-    WebRect window_rect;
+    gfx::Rect window_rect;
     delegate->GetWindowRect(webview_, &window_rect);
-    screen_rect.move(window_rect.x, window_rect.y);
+    screen_rect.move(window_rect.x(), window_rect.y());
   }
 
   return screen_rect;
@@ -514,7 +521,7 @@ void ChromeClientImpl::popupOpened(WebCore::FramelessScrollView* popup_view,
     WebWidgetImpl* webwidget =
         static_cast<WebWidgetImpl*>(delegate->CreatePopupWidget(webview_,
                                                                 activatable));
-    webwidget->Init(popup_view, webkit_glue::IntRectToWebRect(bounds));
+    webwidget->Init(popup_view, webkit_glue::FromIntRect(bounds));
   }
 }
 
@@ -559,7 +566,7 @@ void ChromeClientImpl::popupOpenedWithItems(
   }
 
   webwidget->InitWithItems(popup_view,
-                           webkit_glue::IntRectToWebRect(bounds),
+                           webkit_glue::FromIntRect(bounds),
                            item_height,
                            selected_index,
                            popup_items);

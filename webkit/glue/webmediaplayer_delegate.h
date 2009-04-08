@@ -13,9 +13,8 @@
 
 class GURL;
 
-namespace WebKit {
-struct WebRect;
-struct WebSize;
+namespace gfx {
+class Rect;
 }
 
 namespace webkit_glue {
@@ -44,12 +43,11 @@ class WebMediaPlayerDelegate {
   virtual float GetMaxTimeSeekable() const = 0;
 
   // Methods for painting.
-  virtual void SetSize(const WebKit::WebSize& size) = 0;
+  virtual void SetSize(const gfx::Size& size) = 0;
 
   // TODO(hclam): Using paint at the moment, maybe we just need to return a
   //              SkiaBitmap?
-  virtual void Paint(skia::PlatformCanvas *canvas,
-                     const WebKit::WebRect& rect) = 0;
+  virtual void Paint(skia::PlatformCanvas *canvas, const gfx::Rect& rect) = 0;
 
   // True if a video is loaded.
   virtual bool IsVideo() const = 0;

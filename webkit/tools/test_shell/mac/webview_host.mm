@@ -10,12 +10,9 @@
 #include "base/gfx/platform_canvas.h"
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/webview.h"
 
-using WebKit::WebSize;
-
-// static
+/*static*/
 WebViewHost* WebViewHost::Create(NSView* parent_view,
                                  WebViewDelegate* delegate,
                                  const WebPreferences& prefs) {
@@ -34,8 +31,8 @@ WebViewHost* WebViewHost::Create(NSView* parent_view,
   [host->view_ release];
 
   host->webwidget_ = WebView::Create(delegate, prefs);
-  host->webwidget_->Resize(WebSize(content_rect.size.width,
-                                   content_rect.size.height));
+  host->webwidget_->Resize(gfx::Size(content_rect.size.width,
+                                     content_rect.size.height));
 
   return host;
 }

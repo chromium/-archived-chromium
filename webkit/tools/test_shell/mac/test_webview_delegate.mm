@@ -7,14 +7,11 @@
 #import <Cocoa/Cocoa.h>
 #include "base/sys_string_conversions.h"
 #include "base/string_util.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
 #include "webkit/tools/test_shell/test_shell.h"
-
-using WebKit::WebRect;
 
 // MenuDelegate ----------------------------------------------------------------
 // A class for determining whether an item was selected from an HTML select
@@ -124,7 +121,7 @@ void TestWebViewDelegate::Show(WebWidget* webview,
 // Display a HTML select menu.
 void TestWebViewDelegate::ShowWithItems(
     WebWidget* webview,
-    const WebRect& bounds,
+    const gfx::Rect& bounds,
     int item_height,
     int selected_index,
     const std::vector<MenuItem>& items) {
@@ -144,9 +141,9 @@ void TestWebViewDelegate::ShowWithItems(
   [button selectItemAtIndex:selected_index];
   NSView* web_view = shell_->webViewWnd();
   NSRect view_rect = [web_view bounds];
-  int y_offset = bounds.y + bounds.height;
-  NSRect position = NSMakeRect(bounds.x, view_rect.size.height - y_offset,
-                               bounds.width, bounds.height);
+  int y_offset = bounds.y() + bounds.height();
+  NSRect position = NSMakeRect(bounds.x(), view_rect.size.height - y_offset,
+                               bounds.width(), bounds.height());
 
   // Display the menu, and set a flag to determine if something was chosen. If
   // nothing was chosen (i.e., the user dismissed the popup by the "ESC" key or
@@ -229,7 +226,7 @@ void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
-                                        WebRect* out_rect) {
+                                        gfx::Rect* out_rect) {
   DCHECK(out_rect);
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     NSView *view = host->view_handle();
@@ -239,7 +236,7 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
-                                        const WebRect& rect) {
+                                        const gfx::Rect& rect) {
   // TODO: Mac window movement
   if (webwidget == shell_->webView()) {
     // ignored
@@ -250,7 +247,7 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
-                                            WebRect* out_rect) {
+                                            gfx::Rect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     NSView *view = host->view_handle();
     NSRect rect = [[[view window] contentView] frame];
@@ -263,7 +260,7 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
 @end
 
 void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
-                                                   WebRect* out_rect) {
+                                                   gfx::Rect* out_rect) {
   NSRect resize_rect = NSMakeRect(0, 0, 0, 0);
   WebWidgetHost* host = GetHostForWidget(webwidget);
   // To match the WebKit screen shots, we need the resize area to overlap

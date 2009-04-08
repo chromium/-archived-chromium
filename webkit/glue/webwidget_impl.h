@@ -9,9 +9,8 @@
 #include "base/compiler_specific.h"
 #include "base/ref_counted.h"
 #include "base/gfx/native_widget_types.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
+#include "base/gfx/point.h"
+#include "base/gfx/size.h"
 #include "webkit/glue/webwidget.h"
 
 #include "FramelessScrollViewClient.h"
@@ -41,11 +40,10 @@ class WebWidgetImpl : public WebWidget,
  public:
   // WebWidget
   virtual void Close();
-  virtual void Resize(const WebKit::WebSize& new_size);
-  virtual WebKit::WebSize GetSize() { return size(); }
+  virtual void Resize(const gfx::Size& new_size);
+  virtual gfx::Size GetSize() { return size(); }
   virtual void Layout();
-  virtual void Paint(skia::PlatformCanvas* canvas,
-                     const WebKit::WebRect& rect);
+  virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
   virtual bool HandleInputEvent(const WebKit::WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
@@ -55,19 +53,18 @@ class WebWidgetImpl : public WebWidget,
                                  int target_end,
                                  const std::wstring& ime_string);
   virtual bool ImeUpdateStatus(bool* enable_ime,
-                               WebKit::WebRect* caret_rect);
+                               gfx::Rect* caret_rect);
   virtual void SetTextDirection(WebTextDirection direction);
 
   // WebWidgetImpl
-  void Init(WebCore::FramelessScrollView* widget,
-            const WebKit::WebRect& bounds);
+  void Init(WebCore::FramelessScrollView* widget, const gfx::Rect& bounds);
   void InitWithItems(WebCore::FramelessScrollView* widget,
-                     const WebKit::WebRect& bounds,
+                     const gfx::Rect& bounds,
                      int item_height,
                      int selected_index,
                      const std::vector<MenuItem>& items);
 
-  const WebKit::WebSize& size() const { return size_; }
+  const gfx::Size& size() const { return size_; }
 
   WebWidgetDelegate* delegate() {
     return delegate_;
@@ -114,9 +111,9 @@ class WebWidgetImpl : public WebWidget,
 #endif
 
   WebWidgetDelegate* delegate_;
-  WebKit::WebSize size_;
+  gfx::Size size_;
 
-  WebKit::WebPoint last_mouse_position_;
+  gfx::Point last_mouse_position_;
 
   // This is a non-owning ref.  The popup will notify us via popupClosed()
   // before it is destroyed.

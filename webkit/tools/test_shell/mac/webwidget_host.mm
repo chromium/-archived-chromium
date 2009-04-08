@@ -14,7 +14,6 @@
 #include "third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -25,7 +24,6 @@ using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
 using WebKit::WebScreenInfo;
 using WebKit::WebScreenInfoFactory;
-using WebKit::WebSize;
 
 /*static*/
 WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
@@ -41,8 +39,8 @@ WebWidgetHost* WebWidgetHost::Create(NSView* parent_view,
   // win_util::SetWindowUserData(host->hwnd_, host);
 
   host->webwidget_ = WebWidget::Create(delegate);
-  host->webwidget_->Resize(WebSize(content_rect.size.width,
-                                   content_rect.size.height));
+  host->webwidget_->Resize(gfx::Size(content_rect.size.width,
+                                     content_rect.size.height));
   return host;
 }
 
@@ -227,7 +225,7 @@ WebScreenInfo WebWidgetHost::GetScreenInfo() {
 void WebWidgetHost::Resize(const gfx::Rect& rect) {
   // Force an entire re-paint.  TODO(darin): Maybe reuse this memory buffer.
   DiscardBackingStore();
-  webwidget_->Resize(WebSize(rect.width(), rect.height()));
+  webwidget_->Resize(gfx::Size(rect.width(), rect.height()));
 }
 
 void WebWidgetHost::MouseEvent(NSEvent *event) {

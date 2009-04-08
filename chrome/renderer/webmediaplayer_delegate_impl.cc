@@ -2,12 +2,11 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
-
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/data_source_impl.h"
 #include "chrome/renderer/media/video_renderer_impl.h"
 #include "chrome/renderer/render_view.h"
+#include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "googleurl/src/gurl.h"
 #if defined(OS_WIN)
 // FFmpeg is not ready for Linux and Mac yet.
@@ -15,11 +14,6 @@
 #include "media/filters/ffmpeg_demuxer.h"
 #include "media/filters/ffmpeg_video_decoder.h"
 #endif
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
-
-using WebKit::WebRect;
-using WebKit::WebSize;
 
 /////////////////////////////////////////////////////////////////////////////
 // Task to be posted on main thread that fire WebMediaPlayer methods.
@@ -276,17 +270,17 @@ int64 WebMediaPlayerDelegateImpl::GetTotalBytes() const {
   return pipeline_.GetTotalBytes();
 }
 
-void WebMediaPlayerDelegateImpl::SetSize(const WebSize& size) {
+void WebMediaPlayerDelegateImpl::SetSize(const gfx::Size& size) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   if (video_renderer_) {
     // TODO(scherkus): Change API to use SetSize().
-    video_renderer_->SetRect(gfx::Rect(0, 0, size.width, size.height));
+    video_renderer_->SetRect(gfx::Rect(0, 0, size.width(), size.height()));
   }
 }
 
 void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
-                                       const WebRect& rect) {
+                                       const gfx::Rect& rect) {
   if (video_renderer_) {
     video_renderer_->Paint(canvas, rect);
   }

@@ -137,9 +137,7 @@ MSVC_POP_WARNING();
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebFindOptions.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/alt_error_page_resource_fetcher.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_operations_private.h"
@@ -201,9 +199,7 @@ using WebCore::XPathResult;
 
 using WebKit::WebConsoleMessage;
 using WebKit::WebFindOptions;
-using WebKit::WebRect;
 using WebKit::WebScriptSource;
-using WebKit::WebSize;
 
 // Key for a StatsCounter tracking how many WebFrames are active.
 static const char* const kWebFrameActiveCount = "WebFrameActiveCount";
@@ -939,7 +935,7 @@ void WebFrameImpl::IncreaseMatchCount(int count, int request_id) {
                                                  frames_scoping_count_ == 0);
 }
 
-void WebFrameImpl::ReportFindInPageSelection(const WebRect& selection_rect,
+void WebFrameImpl::ReportFindInPageSelection(const gfx::Rect& selection_rect,
                                              int active_match_ordinal,
                                              int request_id) {
   // Update the UI with the latest selection rect.
@@ -962,7 +958,7 @@ bool WebFrameImpl::Find(int request_id,
                         const string16& search_text,
                         const WebFindOptions& options,
                         bool wrap_within_frame,
-                        WebRect* selection_rect) {
+                        gfx::Rect* selection_rect) {
   WebCore::String webcore_string = webkit_glue::String16ToString(search_text);
 
   WebFrameImpl* const main_frame_impl =
@@ -1030,10 +1026,10 @@ bool WebFrameImpl::Find(int request_id,
 #if defined(OS_WIN)
       // TODO(pinkerton): Fix Mac scrolling to be more like Win ScrollView
       if (selection_rect) {
-        WebRect rect = webkit_glue::IntRectToWebRect(
+        gfx::Rect rect = webkit_glue::FromIntRect(
             frame()->view()->convertToContainingWindow(curr_selection_rect));
-        rect.x -= frameview()->scrollOffset().width();
-        rect.y -= frameview()->scrollOffset().height();
+        rect.Offset(-frameview()->scrollOffset().width(),
+                    -frameview()->scrollOffset().height());
         *selection_rect = rect;
 
         ReportFindInPageSelection(rect,
@@ -1278,10 +1274,10 @@ void WebFrameImpl::ScopeStringMatches(int request_id,
         result_bounds.move(-frameview()->scrollOffset().width(),
                            -frameview()->scrollOffset().height());
         ReportFindInPageSelection(
-            webkit_glue::IntRectToWebRect(
+            webkit_glue::FromIntRect(
                 frame()->view()->convertToContainingWindow(result_bounds)),
-            active_match_index_ + 1,
-            request_id);
+                active_match_index_ + 1,
+                request_id);
 #endif
       }
     }
@@ -1551,8 +1547,9 @@ void WebFrameImpl::CreateFrameView() {
 
   WebCore::FrameView* view;
   if (is_main_frame) {
-    IntSize size = webkit_glue::WebSizeToIntSize(webview_impl_->size());
-    view = new FrameView(frame_, size);
+    IntSize initial_size(
+        webview_impl_->size().width(), webview_impl_->size().height());
+    view = new FrameView(frame_, initial_size);
   } else {
     view = new FrameView(frame_);
   }
@@ -1597,12 +1594,12 @@ void WebFrameImpl::Layout() {
     FromFrame(child)->Layout();
 }
 
-void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const WebRect& rect) {
+void WebFrameImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
   static StatsRate rendering("WebFramePaintTime");
   StatsScope<StatsRate> rendering_scope(rendering);
 
-  if (!rect.isEmpty()) {
-    IntRect dirty_rect(webkit_glue::WebRectToIntRect(rect));
+  if (!rect.IsEmpty()) {
+    IntRect dirty_rect(rect.x(), rect.y(), rect.width(), rect.height());
 #if defined(OS_MACOSX)
     CGContextRef context = canvas->getTopPlatformDevice().GetBitmapContext();
     GraphicsContext gc(context);
@@ -1878,28 +1875,28 @@ void WebFrameImpl::ClosePage() {
   frame_->loader()->closeURL();
 }
 
-WebSize WebFrameImpl::ScrollOffset() const {
+gfx::Size WebFrameImpl::ScrollOffset() const {
   WebCore::FrameView* view = frameview();
   if (view) {
     WebCore::IntSize s = view->scrollOffset();
-    return WebSize(s.width(), s.height());
+    return gfx::Size(s.width(), s.height());
   }
 
-  return WebSize();
+  return gfx::Size();
 }
 
 void WebFrameImpl::SetAllowsScrolling(bool flag) {
   frame_->view()->setCanHaveScrollbars(flag);
 }
 
-bool WebFrameImpl::BeginPrint(const WebSize& page_size_px,
+bool WebFrameImpl::BeginPrint(const gfx::Size& page_size_px,
                               int* page_count) {
   DCHECK_EQ(frame()->document()->isFrameSet(), false);
 
   print_context_.reset(new ChromePrintContext(frame()));
   WebCore::FloatRect rect(0, 0,
-                          static_cast<float>(page_size_px.width),
-                          static_cast<float>(page_size_px.height));
+                          static_cast<float>(page_size_px.width()),
+                          static_cast<float>(page_size_px.height()));
   print_context_->begin(rect.width());
   float page_height;
   // We ignore the overlays calculation for now since they are generated in the

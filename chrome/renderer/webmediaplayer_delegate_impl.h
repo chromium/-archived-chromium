@@ -89,10 +89,9 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   virtual bool IsTotalBytesKnown();
 
   // Methods for painting.
-  virtual void SetSize(const WebKit::WebSize& size);
+  virtual void SetSize(const gfx::Size& size);
 
-  virtual void Paint(skia::PlatformCanvas *canvas,
-                     const WebKit::WebRect& rect);
+  virtual void Paint(skia::PlatformCanvas *canvas, const gfx::Rect& rect);
 
   // True if a video is loaded.
   virtual bool IsVideo() const;

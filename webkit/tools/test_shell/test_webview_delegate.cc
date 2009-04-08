@@ -43,9 +43,7 @@
 #endif
 
 using WebKit::WebDragData;
-using WebKit::WebRect;
 using WebKit::WebScreenInfo;
-using WebKit::WebSize;
 using WebKit::WebString;
 
 namespace {
@@ -717,13 +715,13 @@ gfx::NativeViewId TestWebViewDelegate::GetContainingView(WebWidget* webwidget) {
 }
 
 void TestWebViewDelegate::DidInvalidateRect(WebWidget* webwidget,
-                                            const WebRect& rect) {
+                                            const gfx::Rect& rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     host->DidInvalidateRect(rect);
 }
 
 void TestWebViewDelegate::DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                                        const WebRect& clip_rect) {
+                                        const gfx::Rect& clip_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget))
     host->DidScrollRect(dx, dy, clip_rect);
 }

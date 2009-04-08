@@ -33,6 +33,11 @@
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webwidget_delegate.h"
 
+namespace gfx {
+class Point;
+class Rect;
+}
+
 namespace webkit_glue {
 class WebMediaPlayerDelegate;
 }
@@ -40,7 +45,6 @@ class WebMediaPlayerDelegate;
 namespace WebKit {
 class WebDragData;
 struct WebPoint;
-struct WebRect;
 }
 
 struct PasswordForm;
@@ -161,7 +165,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // selection rect is currently located.
   virtual void ReportFindInPageSelection(int request_id,
                                          int active_match_ordinal,
-                                         const WebKit::WebRect& selection) {
+                                         const gfx::Rect& selection_rect) {
   }
 
   // This function is called to retrieve a resource bitmap from the

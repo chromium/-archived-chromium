@@ -14,7 +14,6 @@
 #include "base/string_util.h"
 #include "net/base/net_errors.h"
 #include "chrome/common/page_transition_types.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webdatasource.h"
 #include "webkit/glue/webdropdata.h"
@@ -30,9 +29,8 @@
 #include "webkit/tools/test_shell/test_navigation_controller.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
-using WebKit::WebRect;
-
 namespace {
+
 
 enum SelectionClipboardType {
   TEXT_HTML,
@@ -116,7 +114,7 @@ void TestWebViewDelegate::Show(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::ShowWithItems(WebWidget* webwidget,
-                                        const WebRect& bounds,
+                                        const gfx::Rect& bounds,
                                         int item_height,
                                         int selected_index,
                                         const std::vector<MenuItem>& items) {
@@ -161,7 +159,7 @@ void TestWebViewDelegate::SetCursor(WebWidget* webwidget,
 }
 
 void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
-                                        WebRect* out_rect) {
+                                        gfx::Rect* out_rect) {
   DCHECK(out_rect);
   WebWidgetHost* host = GetHostForWidget(webwidget);
   GtkWidget* drawing_area = host->view_handle();
@@ -173,13 +171,12 @@ void TestWebViewDelegate::GetWindowRect(WebWidget* webwidget,
   x += vbox->allocation.x + drawing_area->allocation.x;
   y += vbox->allocation.y + drawing_area->allocation.y;
 
-  *out_rect = WebRect(x, y,
-                      drawing_area->allocation.width,
-                      drawing_area->allocation.height);
+  out_rect->SetRect(x, y, drawing_area->allocation.width,
+                    drawing_area->allocation.height);
 }
 
 void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
-                                        const WebRect& rect) {
+                                        const gfx::Rect& rect) {
   if (webwidget == shell_->webView()) {
     // ignored
   } else if (webwidget == shell_->popup()) {
@@ -187,13 +184,13 @@ void TestWebViewDelegate::SetWindowRect(WebWidget* webwidget,
     GtkWidget* drawing_area = host->view_handle();
     GtkWidget* window =
         gtk_widget_get_parent(gtk_widget_get_parent(drawing_area));
-    gtk_window_resize(GTK_WINDOW(window), rect.width, rect.height);
-    gtk_window_move(GTK_WINDOW(window), rect.x, rect.y);
+    gtk_window_resize(GTK_WINDOW(window), rect.width(), rect.height());
+    gtk_window_move(GTK_WINDOW(window), rect.x(), rect.y());
   }
 }
 
 void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
-                                            WebRect* out_rect) {
+                                            gfx::Rect* out_rect) {
   if (WebWidgetHost* host = GetHostForWidget(webwidget)) {
     // We are being asked for the x/y and width/height of the entire browser
     // window.  This means the x/y is the distance from the corner of the
@@ -205,14 +202,14 @@ void TestWebViewDelegate::GetRootWindowRect(WebWidget* webwidget,
     gint x, y, width, height;
     gtk_window_get_position(GTK_WINDOW(window), &x, &y);
     gtk_window_get_size(GTK_WINDOW(window), &width, &height);
-    *out_rect = WebRect(x, y, width, height);
+    out_rect->SetRect(x, y, width, height);
   }
 }
 
 void TestWebViewDelegate::GetRootWindowResizerRect(WebWidget* webwidget,
-                                                   WebRect* out_rect) {
+                                                   gfx::Rect* out_rect) {
   // Not necessary on Linux.
-  *out_rect = WebRect();
+  *out_rect = gfx::Rect();
 }
 
 void TestWebViewDelegate::DidMove(WebWidget* webwidget,

@@ -16,7 +16,6 @@
 #include "third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
@@ -26,7 +25,6 @@ using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
 using WebKit::WebScreenInfo;
 using WebKit::WebScreenInfoFactory;
-using WebKit::WebSize;
 
 namespace {
 
@@ -124,14 +122,14 @@ class WebWidgetHostGtkWidget {
   static void HandleSizeAllocate(GtkWidget* widget,
                                  GtkAllocation* allocation,
                                  WebWidgetHost* host) {
-    host->Resize(WebSize(allocation->width, allocation->height));
+    host->Resize(gfx::Size(allocation->width, allocation->height));
   }
 
   // Size, position, or stacking of the GdkWindow changed.
   static gboolean HandleConfigure(GtkWidget* widget,
                                   GdkEventConfigure* config,
                                   WebWidgetHost* host) {
-    host->Resize(WebSize(config->width, config->height));
+    host->Resize(gfx::Size(config->width, config->height));
     return FALSE;
   }
 

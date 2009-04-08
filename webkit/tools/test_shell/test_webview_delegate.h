@@ -212,13 +212,12 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 
   // WebWidgetDelegate
   virtual gfx::NativeViewId GetContainingView(WebWidget* webwidget);
-  virtual void DidInvalidateRect(WebWidget* webwidget,
-                                 const WebKit::WebRect& rect);
+  virtual void DidInvalidateRect(WebWidget* webwidget, const gfx::Rect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
-                             const WebKit::WebRect& clip_rect);
+                             const gfx::Rect& clip_rect);
   virtual void Show(WebWidget* webview, WindowOpenDisposition disposition);
   virtual void ShowWithItems(WebWidget* webwidget,
-                             const WebKit::WebRect& bounds,
+                             const gfx::Rect& bounds,
                              int item_height,
                              int selected_index,
                              const std::vector<MenuItem>& items);
@@ -227,12 +226,10 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void Blur(WebWidget* webwidget);
   virtual void SetCursor(WebWidget* webwidget,
                          const WebCursor& cursor);
-  virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
-  virtual void SetWindowRect(WebWidget* webwidget,
-                             const WebKit::WebRect& rect);
-  virtual void GetRootWindowRect(WebWidget *, WebKit::WebRect *);
-  virtual void GetRootWindowResizerRect(WebWidget* webwidget,
-                                        WebKit::WebRect* rect);
+  virtual void GetWindowRect(WebWidget* webwidget, gfx::Rect* rect);
+  virtual void SetWindowRect(WebWidget* webwidget, const gfx::Rect& rect);
+  virtual void GetRootWindowRect(WebWidget *, gfx::Rect *);
+  virtual void GetRootWindowResizerRect(WebWidget* webwidget, gfx::Rect* rect);
   virtual void DidMove(WebWidget* webwidget, const WebPluginGeometry& move);
   virtual void RunModal(WebWidget* webwidget);
   virtual bool IsHidden(WebWidget* webwidget);

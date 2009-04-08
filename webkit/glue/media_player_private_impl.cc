@@ -15,8 +15,6 @@
 
 #include "base/gfx/rect.h"
 #include "googleurl/src/gurl.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/glue_util.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webkit_glue.h"
@@ -261,14 +259,14 @@ void MediaPlayerPrivate::setVisible(bool visible) {
 
 void MediaPlayerPrivate::setSize(const IntSize& size) {
   if (m_data) {
-    AsDelegate(m_data)->SetSize(webkit_glue::IntSizeToWebSize(size));
+    AsDelegate(m_data)->SetSize(gfx::Size(size.width(), size.height()));
   }
 }
 
 void MediaPlayerPrivate::paint(GraphicsContext* p, const IntRect& r) {
   if (m_data) {
-    AsDelegate(m_data)->Paint(p->platformContext()->canvas(),
-                              webkit_glue::IntRectToWebRect(r));
+    gfx::Rect rect(r.x(), r.y(), r.width(), r.height());
+    AsDelegate(m_data)->Paint(p->platformContext()->canvas(), rect);
   }
 }
 

@@ -17,7 +17,6 @@ MSVC_POP_WARNING();
 #undef LOG
 #include "base/logging.h"
 #include "base/gfx/rect.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/inspector_client_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/weburlrequest.h"
@@ -26,9 +25,6 @@ MSVC_POP_WARNING();
 #include "net/base/net_util.h"
 
 using namespace WebCore;
-
-using WebKit::WebRect;
-using WebKit::WebSize;
 
 static const float kDefaultInspectorXPos = 10;
 static const float kDefaultInspectorYPos = 50;
@@ -143,8 +139,8 @@ static void invalidateNodeBoundingRect(WebViewImpl* web_view) {
   // TODO(ojan): http://b/1143996 Is it important to just invalidate the rect
   // of the node region given that this is not on a critical codepath?
   // In order to do so, we'd have to take scrolling into account.
-  const WebSize& size = web_view->size();
-  WebRect damaged_rect(0, 0, size.width, size.height);
+  gfx::Size size = web_view->size();
+  gfx::Rect damaged_rect(0, 0, size.width(), size.height());
   web_view->GetDelegate()->DidInvalidateRect(web_view, damaged_rect);
 }
 
