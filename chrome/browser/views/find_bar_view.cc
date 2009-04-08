@@ -433,6 +433,11 @@ void FindBarView::ButtonPressed(views::Button* sender) {
             find_text_->GetText(),
             sender->tag() == FIND_NEXT_TAG);
       }
+      // Move the focus back to the text-field, we don't want the button
+      // focused.
+      // TODO(jcampan): http://crbug.com/9867 we should not change the focus
+      //                when teh button was pressed by pressing a key.
+      find_text_->RequestFocus();
       break;
     case CLOSE_TAG:
       container_->GetFindBarController()->EndFindSession();
