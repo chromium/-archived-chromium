@@ -313,11 +313,17 @@ const struct {
    "image/jpeg",
    L"download.jpg"},
 
-  // For bug 5772
+  // Issue=5772.
   {"",
    "http://www.example.com/foo.tar.gz",
    "application/x-tar",
    L"foo.tar.gz"},
+
+  // Issue=7337.
+  {"",
+   "http://maged.lordaeron.org/blank.reg",
+   "text/x-registry",
+   L"blank.reg"},
 
   {"",
    "http://www.example.com/bar.tar",
