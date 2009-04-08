@@ -749,9 +749,9 @@ AutomationProvider::AutomationProvider(Profile* profile)
       reply_message_(NULL) {
   browser_tracker_.reset(new AutomationBrowserTracker(this));
   tab_tracker_.reset(new AutomationTabTracker(this));
+  window_tracker_.reset(new AutomationWindowTracker(this));
 #if defined(OS_WIN)
   // TODO(port): Enable as the trackers get ported.
-  window_tracker_.reset(new AutomationWindowTracker(this));
   autocomplete_edit_tracker_.reset(
       new AutomationAutocompleteEditTracker(this));
   cwindow_tracker_.reset(new AutomationConstrainedWindowTracker(this));
@@ -1705,14 +1705,9 @@ void AutomationProvider::GetTabTitle(int handle, int* title_string_size,
 }
 
 void AutomationProvider::HandleUnused(const IPC::Message& message, int handle) {
-#if defined(OS_WIN)
   if (window_tracker_->ContainsHandle(handle)) {
     window_tracker_->Remove(window_tracker_->GetResource(handle));
   }
-#else
-  // TODO(port): Enable when window_tracker is ported.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void AutomationProvider::OnChannelError() {
@@ -2114,6 +2109,7 @@ void AutomationProvider::OpenNewBrowserWindow(int show_command) {
   if (show_command != SW_HIDE)
     browser->window()->Show();
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::GetWindowForBrowser(int browser_handle,
                                              bool* success,
@@ -2123,13 +2119,15 @@ void AutomationProvider::GetWindowForBrowser(int browser_handle,
 
   if (browser_tracker_->ContainsHandle(browser_handle)) {
     Browser* browser = browser_tracker_->GetResource(browser_handle);
-    HWND hwnd = reinterpret_cast<HWND>(browser->window()->GetNativeHandle());
+    gfx::NativeWindow win = browser->window()->GetNativeHandle();
     // Add() returns the existing handle for the resource if any.
-    *handle = window_tracker_->Add(hwnd);
+    *handle = window_tracker_->Add(win);
     *success = true;
   }
 }
 
+#if defined(OS_WIN)
+// TODO(port): Remove windowsisms.
 void AutomationProvider::GetAutocompleteEditForBrowser(
     int browser_handle,
     bool* success,

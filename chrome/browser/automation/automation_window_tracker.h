@@ -5,26 +5,49 @@
 #ifndef CHROME_BROWSER_AUTOMATION_AUTOMATION_WINDOW_TRACKER_H__
 #define CHROME_BROWSER_AUTOMATION_AUTOMATION_WINDOW_TRACKER_H__
 
+#include "base/gfx/native_widget_types.h"
+#include "build/build_config.h"
 #include "chrome/browser/automation/automation_resource_tracker.h"
+
+#if defined(OS_WIN)
+// Since HWNDs aren't pointers, we can't have NativeWindow
+// be directly a pointer and so must explicitly declare the Source types
+// for it.
 #include "chrome/views/widget/hwnd_notification_source.h"
+#elif defined(OS_LINUX) || defined(OS_MACOSX)
+// But on Linux and Mac, it is a pointer so this definition suffices.
+template<>
+class Source<gfx::NativeWindow> : public NotificationSource {
+ public:
+  explicit Source(gfx::NativeWindow win) : NotificationSource(win) {}
+
+  explicit Source(const NotificationSource& other)
+      : NotificationSource(other) {}
+
+  gfx::NativeWindow operator->() const { return ptr(); }
+  gfx::NativeWindow ptr() const { return static_cast<gfx::NativeWindow>(ptr_); }
+};
+#endif
 
 class AutomationWindowTracker
-    : public AutomationResourceTracker<HWND> {
+    : public AutomationResourceTracker<gfx::NativeWindow> {
  public:
   AutomationWindowTracker(IPC::Message::Sender* automation)
-      : AutomationResourceTracker(automation) { }
+      : AutomationResourceTracker<gfx::NativeWindow>(automation) { }
   virtual ~AutomationWindowTracker() {
     ClearAllMappings();
   }
 
-  virtual void AddObserver(HWND resource) {
+  virtual void AddObserver(gfx::NativeWindow resource) {
     NotificationService::current()->AddObserver(
-        this, NotificationType::WINDOW_CLOSED, Source<HWND>(resource));
+        this, NotificationType::WINDOW_CLOSED,
+        Source<gfx::NativeWindow>(resource));
   }
 
-  virtual void RemoveObserver(HWND resource) {
+  virtual void RemoveObserver(gfx::NativeWindow resource) {
     NotificationService::current()->RemoveObserver(
-        this, NotificationType::WINDOW_CLOSED, Source<HWND>(resource));
+        this, NotificationType::WINDOW_CLOSED,
+        Source<gfx::NativeWindow>(resource));
   }
 };
 

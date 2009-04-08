@@ -68,13 +68,6 @@ void AutomationProvider::OpenNewBrowserWindow(int show_command) {
   NOTIMPLEMENTED();
 }
 
-void AutomationProvider::GetWindowForBrowser(int browser_handle,
-                                             bool* success,
-                                             int* handle) {
-  *success = false;
-  NOTIMPLEMENTED();
-}
-
 void AutomationProvider::GetAutocompleteEditForBrowser(
     int browser_handle,
     bool* success,
