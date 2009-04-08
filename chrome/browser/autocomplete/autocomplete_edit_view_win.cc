@@ -38,6 +38,7 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/common/win_util.h"
+#include "chrome/views/focus/focus_util_win.h"
 #include "googleurl/src/url_util.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
@@ -1609,6 +1610,16 @@ void AutocompleteEditViewWin::OnWindowPosChanging(WINDOWPOS* window_pos) {
   if (force_hidden_)
     window_pos->flags &= ~SWP_SHOWWINDOW;
   SetMsgHandled(true);
+}
+
+BOOL AutocompleteEditViewWin::OnMouseWheel(UINT flags,
+                                           short delta,
+                                           CPoint point) {
+  // Forward the mouse-wheel message to the window under the mouse.
+  if (!views::RerouteMouseWheel(m_hWnd, MAKEWPARAM(flags, delta),
+                                MAKELPARAM(point.x, point.y)))
+    SetMsgHandled(false);
+  return 0;
 }
 
 void AutocompleteEditViewWin::HandleKeystroke(UINT message,

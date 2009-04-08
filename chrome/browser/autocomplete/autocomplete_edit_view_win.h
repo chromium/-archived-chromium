@@ -162,6 +162,7 @@ class AutocompleteEditViewWin
     MSG_WM_MBUTTONUP(OnNonLButtonUp)
     MSG_WM_MOUSEACTIVATE(OnMouseActivate)
     MSG_WM_MOUSEMOVE(OnMouseMove)
+    MSG_WM_MOUSEWHEEL(OnMouseWheel)
     MSG_WM_PAINT(OnPaint)
     MSG_WM_PASTE(OnPaste)
     MSG_WM_RBUTTONDOWN(OnNonLButtonDown)
@@ -240,6 +241,7 @@ class AutocompleteEditViewWin
   void OnLButtonUp(UINT keys, const CPoint& point);
   LRESULT OnMouseActivate(HWND window, UINT hit_test, UINT mouse_message);
   void OnMouseMove(UINT keys, const CPoint& point);
+  BOOL OnMouseWheel(UINT flags, short delta, CPoint point);
   void OnNonLButtonDown(UINT keys, const CPoint& point);
   void OnNonLButtonUp(UINT keys, const CPoint& point);
   void OnPaint(HDC bogus_hdc);
