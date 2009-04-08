@@ -267,11 +267,11 @@
               '-O2',
             ],
             'cflags': [
-              '-fno-rtti',
-              '-fdata-sections',
-              '-ffunction-sections',
               '-fomit-frame-pointer',
               '-O3',
+            ],
+            'cflags_cc': [
+              '-fno-rtti',
             ],
           }],
           ['OS=="win"', {
