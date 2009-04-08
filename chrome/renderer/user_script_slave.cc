@@ -25,6 +25,8 @@ using WebKit::WebString;
 static const char kUserScriptHead[] = "(function (unsafeWindow) {\n";
 static const char kUserScriptTail[] = "\n})(window);";
 
+static const char kInitSelf[] = "chromium.self = new chromium.Extension('%s')";
+
 UserScriptSlave::UserScriptSlave()
     : shared_memory_(NULL),
       script_deleter_(&scripts_),
@@ -110,8 +112,8 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
   PerfTimer timer;
   int num_matched = 0;
 
-  std::vector<WebScriptSource> sources;
   for (size_t i = 0; i < scripts_.size(); ++i) {
+    std::vector<WebScriptSource> sources;
     UserScript* script = scripts_[i];
     if (!script->MatchesUrl(frame->GetURL()))
       continue;  // This frame doesn't match the script url pattern, skip it.
@@ -127,16 +129,35 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
     if (script->run_location() == location) {
       for (size_t j = 0; j < script->js_scripts().size(); ++j) {
         UserScript::File &file = script->js_scripts()[j];
+        std::string content = file.GetContent().as_string();
+
+        // We add this dumb function wrapper for standalone user script to
+        // emulate what Greasemonkey does.
+        if (script->is_standalone()) {
+          content.insert(0, kUserScriptHead);
+          content += kUserScriptTail;
+        }
         sources.push_back(WebScriptSource(
-            WebString::fromUTF8(file.GetContent()), file.url()));
+            WebString::fromUTF8(content.c_str(), content.length()),
+            file.url()));
       }
     }
-  }
 
-  if (!sources.empty()) {
-    sources.insert(
-        sources.begin(), WebScriptSource(WebString::fromUTF8(api_js_)));
-    frame->ExecuteScriptInNewContext(&sources.front(), sources.size());
+    if (!sources.empty()) {
+      if (script->is_standalone()) {
+        // For standalone scripts, we try to emulate the Greasemonkey API.
+        sources.insert(sources.begin(),
+            WebScriptSource(WebString::fromUTF8(api_js_.as_string())));
+      } else {
+        // Setup chromium.self to contain an Extension object with the correct
+        // ID.
+        sources.insert(sources.begin(),
+            WebScriptSource(WebString::fromUTF8(
+                StringPrintf(kInitSelf, script->extension_id().c_str()))));
+      }
+
+      frame->ExecuteScriptInNewContext(&sources.front(), sources.size());
+    }
   }
 
   // Log debug info.
