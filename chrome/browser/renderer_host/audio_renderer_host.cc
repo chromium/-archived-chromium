@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/histogram.h"
 #include "base/lock.h"
 #include "base/message_loop.h"
 #include "base/process.h"
@@ -9,6 +10,17 @@
 #include "base/waitable_event.h"
 #include "chrome/browser/renderer_host/audio_renderer_host.h"
 #include "chrome/common/render_messages.h"
+
+namespace {
+
+void RecordIPCAudioLatency(base::TimeDelta latency) {
+  // Create a histogram of minimum 1ms and maximum 1000ms with 100 buckets.
+  static ThreadSafeHistogram histogram("Audio.IPCTransportLatency",
+                                       1, 1000, 100);
+  histogram.AddTime(latency);
+}
+
+}  // namespace
 
 //-----------------------------------------------------------------------------
 // AudioRendererHost::IPCAudioSource implementations.
@@ -140,6 +152,7 @@ void AudioRendererHost::IPCAudioSource::GetVolume() {
 size_t AudioRendererHost::IPCAudioSource::OnMoreData(AudioOutputStream* stream,
                                                      void* dest,
                                                      size_t max_size) {
+  base::TimeTicks tick_start = base::TimeTicks::HighResNow();
   {
     AutoLock auto_lock(lock_);
     // If we are ever stopped, don't ask for more audio packet from the
@@ -180,8 +193,10 @@ size_t AudioRendererHost::IPCAudioSource::OnMoreData(AudioOutputStream* stream,
      last_packet_size = last_packet_size_;
   }
 
-  return SafeCopyBuffer(dest, max_size,
-                        shared_memory_.memory(), last_packet_size);
+  size_t copied = SafeCopyBuffer(dest, max_size,
+                                 shared_memory_.memory(), last_packet_size);
+  RecordIPCAudioLatency(base::TimeTicks::HighResNow() - tick_start);
+  return copied;
 }
 
 void AudioRendererHost::IPCAudioSource::OnClose(AudioOutputStream* stream) {
