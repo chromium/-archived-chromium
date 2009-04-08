@@ -14,6 +14,7 @@
 class BookmarkModel;
 class CommandUpdater;
 class LocationBar;
+class LocationBarViewMac;
 class TabContents;
 class TabContentsCommandObserver;
 class TabStripModel;
@@ -37,7 +38,7 @@ class ToolbarModel;
  @private
   CommandUpdater* commands_;  // weak, may be nil
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
-  LocationBar* locationBarBridge_;
+  LocationBarViewMac* locationBarView_;
   TabContents* contents_;  // weak
 
   ToolbarModel* toolbarModel_;  // weak, one per window

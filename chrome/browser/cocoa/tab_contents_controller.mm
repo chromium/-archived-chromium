@@ -2,19 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/cocoa/tab_contents_controller.h"
+#import "chrome/browser/cocoa/tab_contents_controller.h"
 
-#import "base/sys_string_conversions.h"
-#import "chrome/app/chrome_dll_resource.h"
-#import "chrome/browser/bookmarks/bookmark_model.h"
-#import "chrome/browser/command_updater.h"
-#import "chrome/browser/location_bar.h"
-#import "chrome/browser/tab_contents/tab_contents.h"
-#import "chrome/browser/toolbar_model.h"
-#import "chrome/browser/net/url_fixer_upper.h"
-
-// For now, tab_contents lives here. TODO(port):fix
-#include "chrome/common/temp_scaffolding_stubs.h"
+#include "base/sys_string_conversions.h"
+#include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/bookmarks/bookmark_model.h"
+#import "chrome/browser/cocoa/location_bar_view_mac.h"
+#include "chrome/browser/command_updater.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/toolbar_model.h"
 
 // Names of images in the bundle for the star icon (normal and 'starred').
 static NSString* const kStarImageName = @"star";
@@ -22,11 +18,6 @@ static NSString* const kStarredImageName = @"starred";
 
 @interface TabContentsController(CommandUpdates)
 - (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
-@end
-
-@interface TabContentsController(LocationBar)
-- (NSString*)locationBarString;
-- (void)focusLocationBar;
 @end
 
 @interface TabContentsController(Private)
@@ -50,36 +41,6 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
   CommandUpdater* commands_;  // weak
 };
 
-// A C++ bridge class that handles responding to requests from the
-// cross-platform code for information about the location bar. Just passes
-// everything back to the controller.
-class LocationBarBridge : public LocationBar {
- public:
-  LocationBarBridge(TabContentsController* controller);
-
-  // Overridden from LocationBar
-  virtual void ShowFirstRunBubble() { NOTIMPLEMENTED(); }
-  virtual std::wstring GetInputString() const;
-  virtual WindowOpenDisposition GetWindowOpenDisposition() const
-      { NOTIMPLEMENTED(); return CURRENT_TAB; }
-  // TODO(rohitrao): Fix this to return different types once autocomplete and
-  // the onmibar are implemented.  For now, any URL that comes from the
-  // LocationBar has to have been entered by the user, and thus is of type
-  // PageTransition::TYPED.
-  virtual PageTransition::Type GetPageTransition() const
-      { NOTIMPLEMENTED(); return PageTransition::TYPED; }
-  virtual void AcceptInput() { NOTIMPLEMENTED(); }
-  virtual void AcceptInputWithDisposition(WindowOpenDisposition disposition)
-      { NOTIMPLEMENTED(); }
-  virtual void FocusLocation();
-  virtual void FocusSearch() { NOTIMPLEMENTED(); }
-  virtual void UpdateFeedIcon() { /* http://crbug.com/8832 */ }
-  virtual void SaveStateToContents(TabContents* contents) { NOTIMPLEMENTED(); }
-
- private:
-  TabContentsController* controller_;  // weak, owns me
-};
-
 @implementation TabContentsController
 
 - (id)initWithNibName:(NSString*)name
@@ -92,7 +53,6 @@ class LocationBarBridge : public LocationBar {
     commands_ = commands;
     if (commands_)
       observer_ = new TabContentsCommandObserver(self, commands);
-    locationBarBridge_ = new LocationBarBridge(self);
     contents_ = contents;
     toolbarModel_ = toolbarModel;
     bookmarkModel_ = bookmarkModel;
@@ -104,7 +64,7 @@ class LocationBarBridge : public LocationBar {
   // make sure our contents have been removed from the window
   [[self view] removeFromSuperview];
   delete observer_;
-  delete locationBarBridge_;
+  delete locationBarView_;
   [super dealloc];
 }
 
@@ -116,11 +76,14 @@ class LocationBarBridge : public LocationBar {
   // doesn't change between tabs.
   [self updateToolbarCommandStatus];
 
+  locationBarView_ = new LocationBarViewMac(locationBar_);
+  locationBarView_->Init();
+
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }
 
 - (LocationBar*)locationBar {
-  return locationBarBridge_;
+  return locationBarView_;
 }
 
 // Returns YES if the tab represented by this controller is the front-most.
@@ -188,12 +151,10 @@ class LocationBarBridge : public LocationBar {
   [contentsBox_ setContentView:contents_->GetNativeView()];
 }
 
-- (NSString*)locationBarString {
-  return [locationBar_ stringValue];
-}
-
 - (void)focusLocationBar {
-  [[locationBar_ window] makeFirstResponder:locationBar_];
+  if (locationBarView_) {
+    locationBarView_->FocusLocation();
+  }
 }
 
 - (void)updateToolbarWithContents:(TabContents*)tab {
@@ -311,23 +272,4 @@ void TabContentsCommandObserver::EnabledStateChangedForCommand(int command,
                                                                bool enabled) {
   [controller_ enabledStateChangedForCommand:command
                                      enabled:enabled ? YES : NO];
-}
-
-//--------------------------------------------------------------------------
-
-LocationBarBridge::LocationBarBridge(TabContentsController* controller)
-    : controller_(controller) {
-}
-
-std::wstring LocationBarBridge::GetInputString() const {
-  // TODO(shess): This code is temporary until the omnibox code takes
-  // over.
-  std::wstring url = base::SysNSStringToWide([controller_ locationBarString]);
-
-  // Try to flesh out the input to make a real URL.
-  return URLFixerUpper::FixupURL(url, std::wstring());
-}
-
-void LocationBarBridge::FocusLocation() {
-  [controller_ focusLocationBar];
 }
