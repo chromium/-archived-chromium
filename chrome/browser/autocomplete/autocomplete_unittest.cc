@@ -244,6 +244,12 @@ TEST(AutocompleteTest, InputType) {
   }
 }
 
+// This tests for a regression where certain input in the omnibox caused us to
+// crash. As long as the test completes without crashing, we're fine.
+TEST(AutocompleteTest, InputCrash) {
+  AutocompleteInput input(L"\uff65@s", std::wstring(), true, false, false);
+}
+
 // Test that we can properly compare matches' relevance when at least one is
 // negative.
 TEST(AutocompleteMatch, MoreRelevant) {

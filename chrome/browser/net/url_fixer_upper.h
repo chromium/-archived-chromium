@@ -26,7 +26,6 @@ namespace URLFixerUpper {
   // Deprecated temporary compatibility function.
   std::wstring SegmentURL(const std::wstring& text, url_parse::Parsed* parts);
 
-
   // Converts |text| to a fixed-up URL and returns it. Attempts to make
   // some "smart" adjustments to obviously-invalid input where possible.
   // |text| may be an absolute path to a file, which will get converted to a

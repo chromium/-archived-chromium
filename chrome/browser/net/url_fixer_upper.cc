@@ -21,6 +21,53 @@
 
 using namespace std;
 
+namespace {
+
+// TODO(estade): Remove these ugly, ugly functions. They are only used in
+// SegmentURL. A url_parse::Parsed object keeps track of a bunch of indices into
+// a url string, and these need to be updated when the URL is converted from
+// UTF8 to UTF16. Instead of this after-the-fact adjustment, we should parse it
+// in the correct string format to begin with.
+url_parse::Component UTF8ComponentToWideComponent(
+    string text_utf8,
+    const url_parse::Component& component_utf8) {
+  string before_component_string = text_utf8.substr(0, component_utf8.begin);
+  string component_string = text_utf8.substr(component_utf8.begin,
+                                             component_utf8.len);
+  wstring before_component_string_w = UTF8ToWide(before_component_string);
+  wstring component_string_w = UTF8ToWide(component_string);
+  url_parse::Component component_w(before_component_string_w.length(),
+                                   component_string_w.length());
+  return component_w;
+}
+
+void UTF8PartsToWideParts(string text_utf8, const url_parse::Parsed& parts_utf8,
+                          url_parse::Parsed* parts) {
+  if (IsStringASCII(text_utf8)) {
+    *parts = parts_utf8;
+    return;
+  }
+
+  parts->scheme =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.scheme);
+  parts ->username =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.username);
+  parts->password =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.password);
+  parts->host =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.host);
+  parts->port =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.port);
+  parts->path =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.path);
+  parts->query =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.query);
+  parts->ref =
+      UTF8ComponentToWideComponent(text_utf8, parts_utf8.ref);
+}
+
+}  // namespace
+
 // does some basic fixes for input that we want to test for file-ness
 static void PrepareStringForFileOps(const FilePath& text,
                                     FilePath::StringType* output) {
@@ -469,14 +516,18 @@ string URLFixerUpper::FixupRelativeFile(const FilePath& base_dir,
 // Deprecated functions. To be removed when all callers are updated.
 wstring URLFixerUpper::SegmentURL(const wstring& text,
                                   url_parse::Parsed* parts) {
-  return UTF8ToWide(SegmentURL(WideToUTF8(text), parts));
+  string text_utf8 = WideToUTF8(text);
+  url_parse::Parsed parts_utf8;
+  string scheme_utf8 = SegmentURL(text_utf8, &parts_utf8);
+  UTF8PartsToWideParts(text_utf8, parts_utf8, parts);
+  return UTF8ToWide(scheme_utf8);
 }
 wstring URLFixerUpper::FixupURL(const wstring& text,
-                 const wstring& desired_tld) {
+                                const wstring& desired_tld) {
   return UTF8ToWide(FixupURL(WideToUTF8(text), WideToUTF8(desired_tld)));
 }
 wstring URLFixerUpper::FixupRelativeFile(const wstring& base_dir,
-                          const wstring& text) {
+                                         const wstring& text) {
   return UTF8ToWide(FixupRelativeFile(FilePath::FromWStringHack(base_dir),
                                       FilePath::FromWStringHack(text)));
 }
