@@ -117,7 +117,6 @@ class SafeBrowsingService
     Client* client;
     bool need_get_hash;
     base::Time start;  // Time that check was sent to SB service.
-    base::TimeDelta db_time;  // How long DB look-up took.
     UrlCheckResult result;
     std::vector<SBPrefix> prefix_hits;
     std::vector<SBFullHashResult> full_hits;
@@ -187,9 +186,6 @@ class SafeBrowsingService
 
   // Release the final reference to the database on the db thread.
   void ReleaseDatabase(SafeBrowsingDatabase* database);
-
-  // Called on the database thread to check a url.
-  void CheckDatabase(SafeBrowsingCheck* info, base::Time last_update);
 
   // Called on the IO thread with the check result.
   void OnCheckDone(SafeBrowsingCheck* info);

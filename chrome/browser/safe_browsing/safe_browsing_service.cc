@@ -204,7 +204,6 @@ bool SafeBrowsingService::CheckUrl(const GURL& url, Client* client) {
   check->url = url;
   check->client = client;
   check->result = URL_SAFE;
-  check->start = Time::Now();
   check->need_get_hash = full_hits.empty();
   check->prefix_hits.swap(prefix_hits);
   check->full_hits.swap(full_hits);
@@ -321,33 +320,6 @@ void SafeBrowsingService::CancelCheck(Client* client) {
   }
 }
 
-void SafeBrowsingService::CheckDatabase(SafeBrowsingCheck* info,
-                                        Time last_update) {
-  DCHECK(MessageLoop::current() == db_thread_->message_loop());
-  // If client == NULL it means it was cancelled, no need for db lookup.
-  if (info->client && GetDatabase()) {
-    Time now = Time::Now();
-    std::string list;
-    if (GetDatabase()->ContainsUrl(info->url,
-                                   &list,
-                                   &info->prefix_hits,
-                                   &info->full_hits,
-                                   last_update)) {
-      if (info->prefix_hits.empty()) {
-        info->result = GetResultFromListname(list);
-      } else {
-        if (info->full_hits.empty())
-          info->need_get_hash = true;
-      }
-    }
-    info->db_time = Time::Now() - now;
-  }
-
-  if (io_loop_)
-    io_loop_->PostTask(FROM_HERE, NewRunnableMethod(
-        this, &SafeBrowsingService::OnCheckDone, info));
-}
-
 void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* check) {
   DCHECK(MessageLoop::current() == io_loop_);
 
@@ -356,7 +328,6 @@ void SafeBrowsingService::OnCheckDone(SafeBrowsingCheck* check) {
   if (!enabled_ || checks_.find(check) == checks_.end())
     return;
 
-  UMA_HISTOGRAM_TIMES("SB.Database", Time::Now() - check->start);
   if (check->client && check->need_get_hash) {
     // We have a partial match so we need to query Google for the full hash.
     // Clean up will happen in HandleGetHashResults.
