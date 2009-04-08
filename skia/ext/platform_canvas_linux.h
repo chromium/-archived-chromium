@@ -93,12 +93,13 @@ class CanvasPaintT : public T {
     if (!isEmpty()) {
       T::restoreToCount(1);
 
-      cairo_t* cairo_drawable = gdk_cairo_create(window_);
-      cairo_set_source_surface(cairo_drawable, surface_, 0, 0);
-      cairo_paint(cairo_drawable);
-      cairo_destroy(cairo_drawable);
-
-      gdk_window_end_paint(window_);
+      // Blit the dirty rect to the window.
+      cairo_t* cr = gdk_cairo_create(window_);
+      cairo_set_source_surface(cr, surface_, 0.0, 0.0);
+      cairo_rectangle(cr, rectangle_.x, rectangle_.y,
+                      rectangle_.width, rectangle_.height);
+      cairo_fill(cr);
+      cairo_destroy(cr);
     }
   }
 
@@ -114,19 +115,12 @@ class CanvasPaintT : public T {
 
  private:
   void init(bool opaque) {
-    gdk_window_begin_paint_rect(window_, &rectangle_);
-
     if (!T::initialize(rectangle_.width, rectangle_.height, opaque, NULL)) {
       // Cause a deliberate crash;
       *(char*) 0 = 0;
     }
 
     surface_ = T::getTopPlatformDevice().beginPlatformPaint();
-
-    // This will bring the canvas into the screen coordinate system for the
-    // dirty rect
-    T::translate(SkIntToScalar(-rectangle_.x),
-                 SkIntToScalar(-rectangle_.y));
   }
 
   cairo_surface_t* surface_;
