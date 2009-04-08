@@ -10,7 +10,6 @@ import re
 import signal
 import subprocess
 import sys
-import logging
 
 import google.path_utils
 
@@ -174,27 +173,6 @@ class PlatformUtility(object):
     Args:
       target: Build target mode (debug or release)
     """
-
-    if target in ('Debug', 'Release'):
-      debug_path = PathFromBase('sconsbuild', 'Debug', self.TestShellBinary())
-      release_path = PathFromBase('sconsbuild', 'Release', \
-                                  self.TestShellBinary())
-      try:
-        debug_mtime = os.stat(debug_path).st_mtime
-        release_mtime = os.stat(release_path).st_mtime
-
-        if debug_mtime > release_mtime and target == 'Release' or \
-           release_mtime > debug_mtime and target == 'Debug':
-          logging.info('\x1b[31mWarning: you are not running the most ' + \
-                       'recent test_shell binary. You need to pass ' + \
-                       '--debug or not to select between Debug and ' + \
-                       'Release.\x1b[0m')
-      except OSError:
-        # This will fail if we don't have both a debug and release binary.
-        # That's fine because, in this case, we must already be running the
-        # most up-to-date one.
-        pass
-
     return PathFromBase('sconsbuild', target, self.TestShellBinary())
 
   def FuzzyMatchBinaryPath(self):
