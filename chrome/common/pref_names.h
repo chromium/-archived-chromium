@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -81,7 +81,12 @@ extern const wchar_t kBookmarkManagerPlacement[];
 extern const wchar_t kBookmarkManagerSplitLocation[];
 extern const wchar_t kEnableSpellCheck[];
 extern const wchar_t kDeleteTimePeriod[];
-
+extern const wchar_t kPrintingPageHeaderLeft[];
+extern const wchar_t kPrintingPageHeaderCenter[];
+extern const wchar_t kPrintingPageHeaderRight[];
+extern const wchar_t kPrintingPageFooterLeft[];
+extern const wchar_t kPrintingPageFooterCenter[];
+extern const wchar_t kPrintingPageFooterRight[];
 // Local state
 extern const wchar_t kAvailableProfiles[];
 

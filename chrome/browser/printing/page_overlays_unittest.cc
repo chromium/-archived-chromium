@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -73,4 +73,17 @@ TEST_F(PageOverlaysTest, StringConversion) {
     EXPECT_EQ(StringPrintf(L"foo%lsbar", kOverlayKeys[i].expected), out) <<
         kOverlayKeys[i].key;
   }
+
+  // Check if SetOverlay really sets the page overlay.
+  overlays.SetOverlay(printing::PageOverlays::LEFT,
+                      printing::PageOverlays::TOP,
+                      UTF16ToWide(L"Page {page}"));
+  input = overlays.GetOverlay(printing::PageOverlays::LEFT,
+                              printing::PageOverlays::TOP);
+  EXPECT_EQ(input, L"Page {page}");
+
+  // Replace the variables to see if the page number is correct.
+  out = printing::PageOverlays::ReplaceVariables(input, *doc.get(),
+                                                 *page.get());
+  EXPECT_EQ(out, L"Page 1");
 }

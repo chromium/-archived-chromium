@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -234,6 +234,14 @@ const wchar_t kBookmarkManagerSplitLocation[] =
 
 // Boolean pref to define the default values for using spellchecker.
 const wchar_t kEnableSpellCheck[] = L"browser.enable_spellchecking";
+
+// String pref to define the default values for print overlays.
+const wchar_t kPrintingPageHeaderLeft[] = L"printing.page.header.left";
+const wchar_t kPrintingPageHeaderCenter[] = L"printing.page.header.center";
+const wchar_t kPrintingPageHeaderRight[] = L"printing.page.header.right";
+const wchar_t kPrintingPageFooterLeft[] = L"printing.page.footer.left";
+const wchar_t kPrintingPageFooterCenter[] = L"printing.page.footer.center";
+const wchar_t kPrintingPageFooterRight[] = L"printing.page.footer.right";
 
 // *************** LOCAL STATE ***************
 // These are attached to the machine/installation

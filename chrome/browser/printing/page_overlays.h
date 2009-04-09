@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -38,6 +38,10 @@ class PageOverlays {
   // Returns the string of an overlay according to its x,y position.
   const std::wstring& GetOverlay(HorizontalPosition x,
                                  VerticalPosition y) const;
+
+  // Sets the string of an overlay according to its x,y position.
+  void SetOverlay(HorizontalPosition x, VerticalPosition y,
+                  std::wstring& input);
 
   // Replaces the variables in |input| with their actual values according to the
   // properties of the current printed document and the current printed page.

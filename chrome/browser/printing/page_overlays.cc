@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -82,6 +82,54 @@ const std::wstring& PageOverlays::GetOverlay(HorizontalPosition x,
   }
   NOTREACHED();
   return EmptyWString();
+}
+
+void PageOverlays::SetOverlay(HorizontalPosition x, VerticalPosition y,
+                              std::wstring& input) {
+  switch (x) {
+    case LEFT:
+      switch (y) {
+        case TOP:
+          top_left = input;
+          break;
+        case BOTTOM:
+          bottom_left = input;
+          break;
+        default:
+          NOTREACHED();
+          break;
+      }
+      break;
+    case CENTER:
+      switch (y) {
+        case TOP:
+          top_center = input;
+          break;
+        case BOTTOM:
+          bottom_center = input;
+          break;
+        default:
+          NOTREACHED();
+          break;
+      }
+      break;
+    case RIGHT:
+      switch (y) {
+        case TOP:
+          top_right = input;
+          break;
+        case BOTTOM:
+          bottom_right = input;
+          break;
+        default:
+          NOTREACHED();
+          break;
+      }
+      break;
+    default:
+      NOTREACHED();
+      break;
+  }
 }
 
 //static
