@@ -66,6 +66,7 @@ std::wstring GetLocalName(const std::string& locale_code_str,
 
 // Pulls resource string from the string bundle and returns it.
 std::wstring GetString(int message_id);
+std::string GetStringUTF8(int message_id);
 
 // Get a resource string and replace $1-$2-$3 with |a| and |b|
 // respectively.  Additionally, $$ is replaced by $.
@@ -78,6 +79,15 @@ std::wstring GetStringF(int message_id,
                         const std::wstring& a,
                         const std::wstring& b,
                         const std::wstring& c);
+std::string GetStringFUTF8(int message_id,
+                           const string16& a);
+std::string GetStringFUTF8(int message_id,
+                           const string16& a,
+                           const string16& b);
+std::string GetStringFUTF8(int message_id,
+                           const string16& a,
+                           const string16& b,
+                           const string16& c);
 
 // Variants that return the offset(s) of the replaced parameters. The
 // vector based version returns offsets ordered by parameter. For example if

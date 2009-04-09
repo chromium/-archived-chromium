@@ -297,6 +297,10 @@ std::wstring GetString(int message_id) {
   return rb.GetLocalizedString(message_id);
 }
 
+std::string GetStringUTF8(int message_id) {
+  return WideToUTF8(GetString(message_id));
+}
+
 static std::wstring GetStringF(int message_id,
                                const std::wstring& a,
                                const std::wstring& b,
@@ -326,6 +330,31 @@ std::wstring GetStringF(int message_id,
                         const std::wstring& b,
                         const std::wstring& c) {
   return GetStringF(message_id, a, b, c, std::wstring(), NULL);
+}
+
+std::string GetStringFUTF8(int message_id,
+                           const string16& a) {
+  // TODO(tc): Once this whole file uses string16, we can drop the UTF16ToWide
+  // conversions.  http://crbug.com/9911
+  return WideToUTF8(GetStringF(message_id, UTF16ToWide(a)));
+}
+
+std::string GetStringFUTF8(int message_id,
+                           const string16& a,
+                           const string16& b) {
+  // TODO(tc): Once this whole file uses string16, we can drop the UTF16ToWide
+  // conversions.  http://crbug.com/9911
+  return WideToUTF8(GetStringF(message_id, UTF16ToWide(a), UTF16ToWide(b)));
+}
+
+std::string GetStringFUTF8(int message_id,
+                           const string16& a,
+                           const string16& b,
+                           const string16& c) {
+  // TODO(tc): Once this whole file uses string16, we can drop the UTF16ToWide
+  // conversions.  http://crbug.com/9911
+  return WideToUTF8(GetStringF(message_id, UTF16ToWide(a), UTF16ToWide(b),
+                               UTF16ToWide(c)));
 }
 
 std::wstring GetStringF(int message_id,
