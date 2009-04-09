@@ -268,6 +268,7 @@ static void unref_ft_face(FT_Face face) {
     SkASSERT("shouldn't get here, face not in list");
 }
 
+#ifdef SKIA_HARFBUZZ
 void SkFaceRec::setupShaper(HB_ShaperItem* item) {
     if (!fHBFace) {
         fHBFace = HB_NewFace(fFace, hb_freetype_table_sfnt_get);
@@ -288,6 +289,7 @@ void SkFaceRec::setupShaper(HB_ShaperItem* item) {
 void SkFaceRec::releaseShaper(HB_ShaperItem* item) {
     fRefCnt--;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 
