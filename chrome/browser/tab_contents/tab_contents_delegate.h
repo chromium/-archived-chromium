@@ -20,11 +20,18 @@ class TabContentsDelegate : public PageNavigator {
   // Opens a new URL inside the passed in TabContents (if source is 0 open
   // in the current front-most tab), unless |disposition| indicates the url
   // should be opened in a new tab or window.
+  //
+  // A NULL source indicates the current tab (callers should probably use
+  // OpenURL() for these cases which does it for you).
   virtual void OpenURLFromTab(TabContents* source,
                               const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition) = 0;
 
+  // Wrapper around OpenURLFromTab when there is no source for the given URL
+  // (it will use the current onep.
+  //
+  // This implements the PageNavigator interface.
   virtual void OpenURL(const GURL& url, const GURL& referrer,
                        WindowOpenDisposition disposition,
                        PageTransition::Type transition) {
