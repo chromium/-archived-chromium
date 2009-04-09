@@ -1407,10 +1407,6 @@
         # But app/ is the wrong directory for them.
         # Better is to remove the dep of *_tests on renderer, but in the
         # short term I'd like the build to work.
-        'app/breakpad_win.cc',
-        'app/breakpad_win.h',
-        'app/breakpad_mac.mm',
-        'app/breakpad_mac.h',
         'renderer/automation/dom_automation_controller.cc',
         'renderer/automation/dom_automation_controller.h',
         'renderer/extensions/bindings_utils.h',
@@ -1528,6 +1524,10 @@
       ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
+        'app/breakpad_win.cc',
+        'app/breakpad_win.h',
+        'app/breakpad_mac.mm',
+        'app/breakpad_mac.h',
         'app/chrome_dll_main.cc',
         'app/chrome_dll_resource.h',
         'app/chrome_exe_main.cc',
