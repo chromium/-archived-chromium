@@ -360,7 +360,7 @@ IPC_BEGIN_MESSAGES(Automation)
 
   // Opens a new browser window.
   IPC_SYNC_MESSAGE_ROUTED1_0(AutomationMsg_OpenNewBrowserWindow,
-                             int /* show_command*/ )
+                             bool /* show */ )
 
   // This message requests the handle (int64 app-unique identifier) of the
   // current active top window.  On error, the returned handle value is 0.

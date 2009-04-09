@@ -80,10 +80,10 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Returns true if the load is successful.
   bool WaitForInitialNewTabUILoad(int* load_time);
 
-  // Open a new browser window, returning true on success. |show_command|
-  // identifies how the window should be shown.
+  // Open a new browser window, returning true on success. |show|
+  // identifies whether the window should be shown.
   // False likely indicates an IPC error.
-  bool OpenNewBrowserWindow(int show_command);
+  bool OpenNewBrowserWindow(bool show);
 
   // Fills the number of open browser windows into the given variable, returning
   // true on success. False likely indicates an IPC error.

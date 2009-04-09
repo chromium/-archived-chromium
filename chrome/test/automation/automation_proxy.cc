@@ -466,8 +466,8 @@ void AutomationProxy::InvalidateHandle(const IPC::Message& message) {
   }
 }
 
-bool AutomationProxy::OpenNewBrowserWindow(int show_command) {
-  return Send(new AutomationMsg_OpenNewBrowserWindow(0, show_command));
+bool AutomationProxy::OpenNewBrowserWindow(bool show) {
+  return Send(new AutomationMsg_OpenNewBrowserWindow(0, show));
 }
 
 #if defined(OS_WIN)
