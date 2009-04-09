@@ -15,9 +15,9 @@
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
 #include "webkit/glue/window_open_disposition.h"
 
-class AutocompletePopupModel;
 class AutocompleteEditModel;
 class AutocompleteEditViewGtk;
+class AutocompletePopupModel;
 class Profile;
 class SkBitmap;
 
@@ -38,14 +38,23 @@ class AutocompletePopupViewGtk : public AutocompletePopupView {
   AutocompletePopupModel* model() { return model_.get(); }
 
  private:
-  void Show();
+  void Show(size_t num_results);
   void Hide();
+
+  static gboolean HandleExposeThunk(GtkWidget* widget, GdkEventExpose* event,
+                                    gpointer userdata) {
+    return reinterpret_cast<AutocompletePopupViewGtk*>(userdata)->
+        HandleExpose(widget, event);
+  }
+
+  gboolean HandleExpose(GtkWidget* widget, GdkEventExpose* event);
+
+  PangoFontDescription* font_;
 
   scoped_ptr<AutocompletePopupModel> model_;
   AutocompleteEditViewGtk* edit_view_;
 
   GtkWidget* window_;
-  GtkWidget* vbox_;
 
   bool opened_;
 
