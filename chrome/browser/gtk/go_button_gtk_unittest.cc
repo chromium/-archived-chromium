@@ -56,9 +56,9 @@ TEST_F(GoButtonGtkTest, ChangeModeGo) {
 }
 
 TEST_F(GoButtonGtkTest, ChangeModeStop) {
-  go_.ChangeMode(GoButtonGtk::MODE_GO);
-  EXPECT_EQ(GoButtonGtk::MODE_GO, peer_.intended_mode());
-  EXPECT_EQ(GoButtonGtk::MODE_GO, peer_.visible_mode());
+  go_.ChangeMode(GoButtonGtk::MODE_STOP);
+  EXPECT_EQ(GoButtonGtk::MODE_STOP, peer_.intended_mode());
+  EXPECT_EQ(GoButtonGtk::MODE_STOP, peer_.visible_mode());
 }
 
 TEST_F(GoButtonGtkTest, ScheduleChangeModeNormalGo) {
