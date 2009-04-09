@@ -18,6 +18,8 @@
 class TabStripGtk : public TabStripModelObserver,
                     public TabGtk::TabDelegate {
  public:
+  class TabAnimation;
+
   explicit TabStripGtk(TabStripModel* model);
   virtual ~TabStripGtk();
 
@@ -35,6 +37,10 @@ class TabStripGtk : public TabStripModelObserver,
 
   // Updates loading animations for the TabStrip.
   void UpdateLoadingAnimations();
+
+  // Returns true if Tabs in this TabStrip are currently changing size or
+  // position.
+  bool IsAnimating() const;
 
  protected:
   // TabStripModelObserver implementation:
@@ -67,6 +73,9 @@ class TabStripGtk : public TabStripModelObserver,
   virtual bool HasAvailableDragActions() const;
 
  private:
+  friend class InsertTabAnimation;
+  friend class TabAnimation;
+
   struct TabData {
     TabGtk* tab;
     gfx::Rect ideal_bounds;
@@ -131,6 +140,19 @@ class TabStripGtk : public TabStripModelObserver,
   // stable representations of Tab positions.
   void GenerateIdealBounds();
 
+  // -- Animations -------------------------------------------------------------
+
+  // A generic Layout method for various classes of TabStrip animations,
+  // including Insert, Remove and Resize Layout cases.
+  void AnimationLayout(double unselected_width);
+
+  // Starts various types of TabStrip animations.
+  void StartInsertTabAnimation(int index);
+
+  // Notifies the TabStrip that the specified TabAnimation has completed.
+  // Optionally a full Layout will be performed, specified by |layout|.
+  void FinishAnimation(TabAnimation* animation, bool layout);
+
   // The Tabs we contain, and their last generated "good" bounds.
   std::vector<TabData> tab_data_;
 
@@ -166,6 +188,9 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The index of the tab the mouse is currently over.  -1 if not over a tab.
   int hover_index_;
+
+  // The currently running animation.
+  scoped_ptr<TabAnimation> active_animation_;
 
   DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };

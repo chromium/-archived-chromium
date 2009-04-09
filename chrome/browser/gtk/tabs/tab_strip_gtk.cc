@@ -11,10 +11,13 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/slide_animation.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
 namespace {
+
+const int kDefaultAnimationDurationMs = 100;
 
 const int kNewTabButtonHOffset = -5;
 const int kNewTabButtonVOffset = 5;
@@ -38,6 +41,188 @@ gfx::Rect GetInitialWidgetBounds(GtkWidget* widget) {
 }
 
 }  // namespace
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// TabAnimation
+//
+//  A base class for all TabStrip animations.
+//
+class TabStripGtk::TabAnimation : public AnimationDelegate {
+ public:
+  friend class TabStripGtk;
+
+  // Possible types of animation.
+  enum Type {
+    INSERT,
+    REMOVE,
+    MOVE,
+    RESIZE
+  };
+
+  TabAnimation(TabStripGtk* tabstrip, Type type)
+      : tabstrip_(tabstrip),
+        animation_(this),
+        start_selected_width_(0),
+        start_unselected_width_(0),
+        end_selected_width_(0),
+        end_unselected_width_(0),
+        layout_on_completion_(false),
+        type_(type) {
+  }
+  virtual ~TabAnimation() {}
+
+  Type type() const { return type_; }
+
+  void Start() {
+    animation_.SetSlideDuration(GetDuration());
+    animation_.SetTweenType(SlideAnimation::EASE_OUT);
+    if (!animation_.IsShowing()) {
+      animation_.Reset();
+      animation_.Show();
+    }
+  }
+
+  void Stop() {
+    animation_.Stop();
+  }
+
+  void set_layout_on_completion(bool layout_on_completion) {
+    layout_on_completion_ = layout_on_completion;
+  }
+
+  // Retrieves the width for the Tab at the specified index if an animation is
+  // active.
+  static double GetCurrentTabWidth(TabStripGtk* tabstrip,
+                                   TabStripGtk::TabAnimation* animation,
+                                   int index) {
+    double unselected, selected;
+    tabstrip->GetCurrentTabWidths(&unselected, &selected);
+    TabGtk* tab = tabstrip->GetTabAt(index);
+    double tab_width = tab->IsSelected() ? selected : unselected;
+
+    if (animation) {
+      double specified_tab_width = animation->GetWidthForTab(index);
+      if (specified_tab_width != -1)
+        tab_width = specified_tab_width;
+    }
+
+    return tab_width;
+  }
+
+  // Overridden from AnimationDelegate:
+  virtual void AnimationProgressed(const Animation* animation) {
+    tabstrip_->AnimationLayout(end_unselected_width_);
+  }
+
+  virtual void AnimationEnded(const Animation* animation) {
+    tabstrip_->FinishAnimation(this, layout_on_completion_);
+    // This object is destroyed now, so we can't do anything else after this.
+  }
+
+  virtual void AnimationCanceled(const Animation* animation) {
+    AnimationEnded(animation);
+  }
+
+ protected:
+  // Returns the duration of the animation.
+  virtual int GetDuration() const {
+    return kDefaultAnimationDurationMs;
+  }
+
+  // Subclasses override to return the width of the Tab at the specified index
+  // at the current animation frame. -1 indicates the default width should be
+  // used for the Tab.
+  virtual double GetWidthForTab(int index) const {
+    return -1;  // Use default.
+  }
+
+  // Figure out the desired start and end widths for the specified pre- and
+  // post- animation tab counts.
+  void GenerateStartAndEndWidths(int start_tab_count, int end_tab_count) {
+    tabstrip_->GetDesiredTabWidths(start_tab_count, &start_unselected_width_,
+                                   &start_selected_width_);
+    double standard_tab_width =
+        static_cast<double>(TabRendererGtk::GetStandardSize().width());
+
+    if (start_tab_count < end_tab_count &&
+        start_unselected_width_ < standard_tab_width) {
+      double minimum_tab_width = static_cast<double>(
+          TabRendererGtk::GetMinimumUnselectedSize().width());
+      start_unselected_width_ -= minimum_tab_width / start_tab_count;
+    }
+
+    tabstrip_->GenerateIdealBounds();
+    tabstrip_->GetDesiredTabWidths(end_tab_count,
+                                   &end_unselected_width_,
+                                   &end_selected_width_);
+  }
+
+  TabStripGtk* tabstrip_;
+  SlideAnimation animation_;
+
+  double start_selected_width_;
+  double start_unselected_width_;
+  double end_selected_width_;
+  double end_unselected_width_;
+
+ private:
+  // True if a complete re-layout is required upon completion of the animation.
+  // Subclasses set this if they don't perform a complete layout
+  // themselves and canceling the animation may leave the strip in an
+  // inconsistent state.
+  bool layout_on_completion_;
+
+  const Type type_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(TabAnimation);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+// Handles insertion of a Tab at |index|.
+class InsertTabAnimation : public TabStripGtk::TabAnimation {
+ public:
+  explicit InsertTabAnimation(TabStripGtk* tabstrip, int index)
+      : TabAnimation(tabstrip, INSERT),
+        index_(index) {
+    int tab_count = tabstrip->GetTabCount();
+    GenerateStartAndEndWidths(tab_count - 1, tab_count);
+  }
+  virtual ~InsertTabAnimation() {}
+
+ protected:
+  // Overridden from TabStrip::TabAnimation:
+  virtual double GetWidthForTab(int index) const {
+    if (index == index_) {
+      bool is_selected = tabstrip_->model()->selected_index() == index;
+      double target_width =
+          is_selected ? end_unselected_width_ : end_selected_width_;
+      double start_width =
+          is_selected ? TabGtk::GetMinimumSelectedSize().width() :
+                        TabGtk::GetMinimumUnselectedSize().width();
+
+      double delta = target_width - start_width;
+      if (delta > 0)
+        return start_width + (delta * animation_.GetCurrentValue());
+
+      return start_width;
+    }
+
+    if (tabstrip_->GetTabAt(index)->IsSelected()) {
+      double delta = end_selected_width_ - start_selected_width_;
+      return start_selected_width_ + (delta * animation_.GetCurrentValue());
+    }
+
+    double delta = end_unselected_width_ - start_unselected_width_;
+    return start_unselected_width_ + (delta * animation_.GetCurrentValue());
+  }
+
+ private:
+  int index_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(InsertTabAnimation);
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, public:
@@ -95,6 +280,10 @@ void TabStripGtk::AddTabStripToBox(GtkWidget* box) {
 void TabStripGtk::Layout() {
   // Called from:
   // - window resize
+  // - animation completion
+  if (active_animation_.get())
+    active_animation_->Stop();
+
   GenerateIdealBounds();
   int tab_count = GetTabCount();
   for (int i = 0; i < tab_count; ++i) {
@@ -125,6 +314,10 @@ void TabStripGtk::UpdateLoadingAnimations() {
   gtk_widget_queue_draw(tabstrip_.get());
 }
 
+bool TabStripGtk::IsAnimating() const {
+  return active_animation_.get() != NULL;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, TabStripModelObserver implementation:
 
@@ -133,6 +326,9 @@ void TabStripGtk::TabInsertedAt(TabContents* contents,
                                 bool foreground) {
   DCHECK(contents);
   DCHECK(index == TabStripModel::kNoTab || model_->ContainsIndex(index));
+
+  if (active_animation_.get())
+    active_animation_->Stop();
 
   TabGtk* tab = new TabGtk(this);
 
@@ -147,7 +343,12 @@ void TabStripGtk::TabInsertedAt(TabContents* contents,
     tab->UpdateData(contents, false);
   }
 
-  Layout();
+  // Don't animate the first tab; it looks weird.
+  if (GetTabCount() > 1) {
+    StartInsertTabAnimation(index);
+  } else {
+    Layout();
+  }
 }
 
 void TabStripGtk::TabDetachedAt(TabContents* contents, int index) {
@@ -168,7 +369,7 @@ void TabStripGtk::TabSelectedAt(TabContents* old_contents,
   // We have "tiny tabs" if the tabs are so tiny that the unselected ones are
   // a different size to the selected ones.
   bool tiny_tabs = current_unselected_width_ != current_selected_width_;
-  if (!resize_layout_scheduled_ || tiny_tabs) {
+  if (!IsAnimating() && (!resize_layout_scheduled_ || tiny_tabs)) {
     Layout();
   } else {
     gtk_widget_queue_draw(tabstrip_.get());
@@ -406,6 +607,42 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
           (min_unselected_width * (tab_count - 1)), min_selected_width);
     }
   }
+}
+
+// Called from:
+// - animation tick
+void TabStripGtk::AnimationLayout(double unselected_width) {
+  int tab_height = TabGtk::GetStandardSize().height();
+  double tab_x = 0;
+  for (int i = 0; i < GetTabCount(); ++i) {
+    TabAnimation* animation = active_animation_.get();
+    double tab_width = TabAnimation::GetCurrentTabWidth(this, animation, i);
+    double end_of_tab = tab_x + tab_width;
+    int rounded_tab_x = Round(tab_x);
+    TabGtk* tab = GetTabAt(i);
+    gfx::Rect bounds(rounded_tab_x, 0, Round(end_of_tab) - rounded_tab_x,
+                     tab_height);
+    tab->SetBounds(bounds);
+    tab_x = end_of_tab + kTabHOffset;
+  }
+  // TODO(jhawkins): Layout new tab button.
+  gtk_widget_queue_draw(tabstrip_.get());
+}
+
+void TabStripGtk::StartInsertTabAnimation(int index) {
+  // The TabStrip can now use its entire width to lay out Tabs.
+  available_width_for_tabs_ = -1;
+  if (active_animation_.get())
+    active_animation_->Stop();
+  active_animation_.reset(new InsertTabAnimation(this, index));
+  active_animation_->Start();
+}
+
+void TabStripGtk::FinishAnimation(TabStripGtk::TabAnimation* animation,
+                                  bool layout) {
+  active_animation_.reset(NULL);
+  if (layout)
+    Layout();
 }
 
 // static
