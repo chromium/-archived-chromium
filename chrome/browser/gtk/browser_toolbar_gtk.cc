@@ -13,6 +13,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
@@ -121,7 +122,8 @@ void BrowserToolbarGtk::Init(Profile* profile,
   location_bar_->Init();
   gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
 
-  go_.reset(BuildToolbarButton(IDR_GO, IDR_GO_P, IDR_GO_H, 0, L""));
+  go_.reset(new GoButtonGtk(browser_));
+  gtk_box_pack_start(GTK_BOX(toolbar_), go_->widget(), FALSE, FALSE, 0);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
@@ -285,8 +287,6 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
     tag = IDC_FORWARD;
   else if (button == toolbar->reload_->widget())
     tag = IDC_RELOAD;
-  else if (button == toolbar->go_->widget())
-    tag = IDC_GO;
   else if (toolbar->home_.get() && button == toolbar->home_->widget())
     tag = IDC_HOME;
   else if (button == toolbar->star_->widget())
@@ -295,7 +295,7 @@ void BrowserToolbarGtk::OnButtonClick(GtkWidget* button,
   if (tag == IDC_BACK || tag == IDC_FORWARD)
     toolbar->show_menu_factory_.RevokeAll();
 
-  DCHECK(tag != -1) << "Impossible button click callback";
+  DCHECK_NE(tag, -1) << "Impossible button click callback";
   toolbar->browser_->ExecuteCommand(tag);
 }
 

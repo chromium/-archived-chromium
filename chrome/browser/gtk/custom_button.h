@@ -17,6 +17,29 @@ class NineBox;
 // These classes implement two kinds of custom-drawn buttons.  They're
 // used on the toolbar and the bookmarks bar.
 
+// CustomDrawButtonBase provides the base for building a custom drawn button.
+// It handles managing the pixbufs containing all the static images used to draw
+// the button.  It also manages painting these pixbufs.
+class CustomDrawButtonBase {
+ public:
+  CustomDrawButtonBase(int normal_id,
+                       int active_id,
+                       int highlight_id,
+                       int depressed_id);
+  ~CustomDrawButtonBase();
+
+  GdkPixbuf* pixbufs(int i) const { return pixbufs_[i]; }
+
+  gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e);
+
+ private:
+  // We store one GdkPixbuf* for each possible state of the button;
+  // INSENSITIVE is the last available state;
+  GdkPixbuf* pixbufs_[GTK_STATE_INSENSITIVE + 1];
+
+  DISALLOW_COPY_AND_ASSIGN(CustomDrawButtonBase);
+};
+
 // CustomDrawButton is a plain button where all its various states are drawn
 // with static images.
 class CustomDrawButton {
@@ -40,15 +63,16 @@ class CustomDrawButton {
 
  private:
   // Callback for expose, used to draw the custom graphics.
-  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
+  static gboolean OnExpose(GtkWidget* widget,
+                           GdkEventExpose* e,
                            CustomDrawButton* obj);
 
   // The actual button widget.
   OwnedWidgetGtk widget_;
 
-  // We store one GdkPixbuf* for each possible state of the button;
-  // INSENSITIVE is the last available state;
-  GdkPixbuf* pixbufs_[GTK_STATE_INSENSITIVE + 1];
+  CustomDrawButtonBase button_base_;
+
+  DISALLOW_COPY_AND_ASSIGN(CustomDrawButton);
 };
 
 // CustomContainerButton wraps another widget and uses a NineBox of

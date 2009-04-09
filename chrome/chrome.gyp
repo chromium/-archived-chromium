@@ -698,6 +698,8 @@
         'browser/gtk/download_item_gtk.h',
         'browser/gtk/download_shelf_gtk.cc',
         'browser/gtk/download_shelf_gtk.h',
+	'browser/gtk/go_button_gtk.cc',
+	'browser/gtk/go_button_gtk.h',
         'browser/gtk/infobar_gtk.cc',
         'browser/gtk/infobar_gtk.h',
         'browser/gtk/infobar_container_gtk.cc',
@@ -2098,6 +2100,7 @@
         'browser/extensions/test_extension_loader.cc',
         'browser/extensions/user_script_master_unittest.cc',
         'browser/google_url_tracker_unittest.cc',
+	'browser/gtk/go_button_gtk_unittest.cc',
 	'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
         'browser/history/expire_history_backend_unittest.cc',
         'browser/history/history_backend_unittest.cc',
@@ -2237,6 +2240,7 @@
           'sources!': [
             'browser/back_forward_menu_model_unittest.cc',
             'browser/download/download_manager_unittest.cc',
+            'browser/gtk/go_button_gtk_unittest.cc',
 	    'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'browser/navigation_controller_unittest.cc',
             'browser/sessions/session_backend_unittest.cc',
@@ -2258,6 +2262,7 @@
             'third_party/wtl/include',
           ],
           'sources!': [
+	    'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
 	    'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'common/file_descriptor_set_unittest.cc',
             'common/net/url_util_unittest.cc',

@@ -5,8 +5,9 @@
 #ifndef CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 #define CHROME_BROWSER_VIEWS_GO_BUTTON_H__
 
-#include "chrome/views/controls/button/image_button.h"
+#include "base/basictypes.h"
 #include "base/task.h"
+#include "chrome/views/controls/button/image_button.h"
 
 class Browser;
 class LocationBarView;
@@ -26,10 +27,10 @@ class LocationBarView;
 class GoButton : public views::ToggleImageButton,
                  public views::ButtonListener {
  public:
+  typedef enum Mode { MODE_GO = 0, MODE_STOP };
+
   GoButton(LocationBarView* location_bar, Browser* Browser);
   virtual ~GoButton();
-
-  typedef enum Mode { MODE_GO = 0, MODE_STOP };
 
   // Force the button state
   void ChangeMode(Mode mode);
@@ -60,7 +61,7 @@ class GoButton : public views::ToggleImageButton,
   // The currently-visible mode - this may different from the intended mode
   Mode visible_mode_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(GoButton);
+  DISALLOW_COPY_AND_ASSIGN(GoButton);
 };
 
 #endif  // CHROME_BROWSER_VIEWS_GO_BUTTON_H__

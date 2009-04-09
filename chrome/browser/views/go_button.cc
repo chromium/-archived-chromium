@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/go_button.h"
 
+#include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/views/event_utils.h"
@@ -97,8 +98,6 @@ void GoButton::ButtonPressed(views::Button* button) {
 // GoButton, View overrides:
 
 void GoButton::OnMouseExited(const views::MouseEvent& e) {
-  using namespace views;
-
   if (visible_mode_ != intended_mode_)
     ChangeMode(intended_mode_);
 

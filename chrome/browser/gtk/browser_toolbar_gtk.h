@@ -18,6 +18,7 @@ class BackForwardMenuModelGtk;
 class Browser;
 class CustomContainerButton;
 class CustomDrawButton;
+class GoButtonGtk;
 class LocationBar;
 class LocationBarViewGtk;
 class NineBox;
@@ -46,6 +47,8 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   void AddToolbarToBox(GtkWidget* box);
 
   virtual LocationBar* GetLocationBar() const;
+
+  GoButtonGtk* GetGoButton() { return go_.get(); }
 
   // Overridden from CommandUpdater::CommandObserver:
   virtual void EnabledStateChangedForCommand(int id, bool enabled);
@@ -130,7 +133,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   scoped_ptr<CustomDrawButton> reload_;
   scoped_ptr<CustomDrawButton> home_;  // May be NULL.
   scoped_ptr<ToolbarStarToggleGtk> star_;
-  scoped_ptr<CustomDrawButton> go_;
+  scoped_ptr<GoButtonGtk> go_;
   scoped_ptr<CustomContainerButton> page_menu_button_, app_menu_button_;
 
   // The model that contains the security level, text, icon to display...

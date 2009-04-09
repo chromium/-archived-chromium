@@ -20,6 +20,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
+#include "chrome/browser/gtk/go_button_gtk.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
 #include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/gtk/status_bubble_gtk.h"
@@ -413,8 +414,8 @@ void BrowserWindowGtk::SetFocusToLocationBar() {
 }
 
 void BrowserWindowGtk::UpdateStopGoState(bool is_loading) {
-  // Need to implement stop/go button.
-  // http://code.google.com/p/chromium/issues/detail?id=9381
+  toolbar_->GetGoButton()->ChangeMode(
+      is_loading ? GoButtonGtk::MODE_STOP : GoButtonGtk::MODE_GO);
 }
 
 void BrowserWindowGtk::UpdateToolbar(TabContents* contents,

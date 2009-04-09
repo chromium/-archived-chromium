@@ -10,10 +10,11 @@
 
 #include "grit/theme_resources.h"
 
-CustomDrawButton::CustomDrawButton(int normal_id,
-    int active_id, int highlight_id, int depressed_id) {
-  widget_.Own(gtk_button_new());
-
+CustomDrawButtonBase::CustomDrawButtonBase(
+    int normal_id,
+    int active_id,
+    int highlight_id,
+    int depressed_id) {
   // Load the button images from the resource bundle.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   pixbufs_[GTK_STATE_NORMAL] = normal_id ? rb.LoadPixbuf(normal_id) : NULL;
@@ -23,35 +24,21 @@ CustomDrawButton::CustomDrawButton(int normal_id,
   pixbufs_[GTK_STATE_SELECTED] = NULL;
   pixbufs_[GTK_STATE_INSENSITIVE] =
       depressed_id ? rb.LoadPixbuf(depressed_id) : NULL;
-
-  gtk_widget_set_size_request(widget_.get(),
-                              gdk_pixbuf_get_width(pixbufs_[0]),
-                              gdk_pixbuf_get_height(pixbufs_[0]));
-
-  gtk_widget_set_app_paintable(widget_.get(), TRUE);
-  // We effectively double-buffer by virtue of having only one image...
-  gtk_widget_set_double_buffered(widget_.get(), FALSE);
-  g_signal_connect(G_OBJECT(widget_.get()), "expose-event",
-                   G_CALLBACK(OnExpose), this);
 }
 
-CustomDrawButton::~CustomDrawButton() {
+CustomDrawButtonBase::~CustomDrawButtonBase() {
   for (size_t i = 0; i < arraysize(pixbufs_); ++i) {
     if (pixbufs_[i])
-      gdk_pixbuf_unref(pixbufs_[i]);
+      g_object_unref(pixbufs_[i]);
   }
-
-  widget_.Destroy();
 }
 
-// static
-gboolean CustomDrawButton::OnExpose(GtkWidget* widget, GdkEventExpose* e,
-                                    CustomDrawButton* button) {
-  GdkPixbuf* pixbuf = button->pixbufs_[GTK_WIDGET_STATE(widget)];
+gboolean CustomDrawButtonBase::OnExpose(GtkWidget* widget, GdkEventExpose* e) {
+  GdkPixbuf* pixbuf = pixbufs(GTK_WIDGET_STATE(widget));
 
   // Fall back to the default image if we don't have one for this state.
   if (!pixbuf)
-    pixbuf = button->pixbufs_[GTK_STATE_NORMAL];
+    pixbuf = pixbufs(GTK_STATE_NORMAL);
 
   if (!pixbuf)
     return FALSE;
@@ -64,6 +51,36 @@ gboolean CustomDrawButton::OnExpose(GtkWidget* widget, GdkEventExpose* e,
                   GDK_RGB_DITHER_NONE, 0, 0);
 
   return TRUE;
+}
+
+CustomDrawButton::CustomDrawButton(
+    int normal_id,
+    int active_id,
+    int highlight_id,
+    int depressed_id)
+    : button_base_(normal_id, active_id, highlight_id, depressed_id) {
+  widget_.Own(gtk_button_new());
+
+  gtk_widget_set_size_request(widget_.get(),
+                              gdk_pixbuf_get_width(button_base_.pixbufs(0)),
+                              gdk_pixbuf_get_height(button_base_.pixbufs(0)));
+
+  gtk_widget_set_app_paintable(widget_.get(), TRUE);
+  // We effectively double-buffer by virtue of having only one image...
+  gtk_widget_set_double_buffered(widget_.get(), FALSE);
+  g_signal_connect(G_OBJECT(widget_.get()), "expose-event",
+                   G_CALLBACK(OnExpose), this);
+}
+
+CustomDrawButton::~CustomDrawButton() {
+  widget_.Destroy();
+}
+
+// static
+gboolean CustomDrawButton::OnExpose(GtkWidget* widget,
+                                    GdkEventExpose* e,
+                                    CustomDrawButton* button) {
+  return button->button_base_.OnExpose(widget, e);
 }
 
 // static
