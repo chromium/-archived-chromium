@@ -16,6 +16,7 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/debugger/devtools_manager.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/find_bar.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/location_bar.h"
@@ -176,6 +177,7 @@ Browser::Browser(Type type, Profile* profile)
       toolbar_model_(this),
       chrome_updater_factory_(this),
       is_attempting_to_close_browser_(false),
+      cancel_download_confirmation_state_(NOT_PROMPTED),
       maximized_state_(MAXIMIZED_STATE_DEFAULT),
       method_factory_(this),
       idle_task_(new BrowserIdleTimer) {
@@ -442,9 +444,12 @@ bool Browser::ShouldShowDistributorLogo() const {
 // Browser, OnBeforeUnload handling:
 
 bool Browser::ShouldCloseWindow() {
-  if (HasCompletedUnloadProcessing()) {
+  if (!CanCloseWithInProgressDownloads())
+    return false;
+
+  if (HasCompletedUnloadProcessing())
     return true;
-  }
+
   is_attempting_to_close_browser_ = true;
 
   for (int i = 0; i < tab_count(); ++i) {
@@ -484,7 +489,27 @@ void Browser::OnWindowClosing() {
   CloseAllTabs();
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// In-progress download termination handling:
+
+void Browser::InProgressDownloadResponse(bool cancel_downloads) {
+  if (cancel_downloads) {
+    cancel_download_confirmation_state_ = RESPONSE_RECEIVED;
+    CloseWindow();
+    return;
+  }
+
+  // Sets the confirmation state to NOT_PROMPTED so that if the user tries to
+  // close again we'll show the warning again.
+  cancel_download_confirmation_state_ = NOT_PROMPTED;
+
+  // Show the download page so the user can figure-out what downloads are still
+  // in-progress.
+  ShowDownloadsTab();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 // Browser, Tab adding/showing functions:
 
 TabContents* Browser::AddTabWithURL(
@@ -2481,6 +2506,51 @@ void Browser::ClearUnloadState(TabContents* tab) {
   ProcessPendingTabs();
 }
 
+
+///////////////////////////////////////////////////////////////////////////////
+// Browser, In-progress download termination handling (private):
+
+bool Browser::CanCloseWithInProgressDownloads() {
+  if (cancel_download_confirmation_state_ != NOT_PROMPTED) {
+    // This should probably not happen.
+    DCHECK(cancel_download_confirmation_state_ != WAITING_FOR_RESPONSE);
+    return true;
+  }
+
+  // If there are no download in-progress, our job is done.
+  DownloadManager* download_manager = profile_->GetDownloadManager();
+  if (!download_manager || download_manager->in_progress_count() == 0)
+    return true;
+
+  // Let's figure out if we are the last window for our profile.
+  // Note that we cannot just use BrowserList::GetBrowserCount as browser
+  // windows closing is delayed and the returned count might include windows
+  // that are being closed.
+  int count = 0;
+  for (BrowserList::const_iterator iter = BrowserList::begin();
+       iter != BrowserList::end(); ++iter) {
+    // Don't count this browser window or any other in the process of closing.
+    if (*iter == this || (*iter)->is_attempting_to_close_browser_)
+      continue;
+
+    // We test the original profile, because an incognito browser window keeps
+    // the original profile alive (and its DownloadManager).
+    // We also need to test explicitly the profile directly so that 2 incognito
+    // profiles count as a match.
+    if ((*iter)->profile() == profile() ||
+        (*iter)->profile()->GetOriginalProfile() == profile())
+      count++;
+  }
+  if (count > 0)
+    return true;
+
+  cancel_download_confirmation_state_ = WAITING_FOR_RESPONSE;
+  window_->ConfirmBrowserCloseWithPendingDownloads();
+
+  // Return false so the browser does not close.  We'll close if the user
+  // confirms in the dialog.
+  return false;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Browser, Assorted utility functions (private):

@@ -1349,6 +1349,17 @@ each locale. -->
         &amp;Remove
       </message>
 
+      <!-- Remove in-progress downloads confirmation dialog -->
+      <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_TITLE" desc="Title of the dialog asking for user confirmation to close the browser when downloads are in-progress.">
+        You have <ph name="DOWNLOAD_COUNT">$1<ex>3</ex></ph> download(s) in progress. If you close Google Chrome, uncompleted downloads will be canceled and removed.
+      </message>
+      <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL" desc="Button text for OKing to close the browser when downloads are in-progress.">
+        Close and remove downloads
+      </message>
+      <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL" desc="Button text for canceling the closing of the browser when downloads are in-progress.">
+        Wait for downloads to finish
+      </message>
+
       <!-- Gears shortcut strings -->
       <message name="IDS_CREATE_SHORTCUTS" desc="Default installation menu label">
         Create application &amp;shortcuts...

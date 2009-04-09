@@ -187,6 +187,14 @@ class Browser : public TabStripModelDelegate,
   // cleanup.
   void OnWindowClosing();
 
+  // In-progress download termination handling /////////////////////////////////
+
+  // Called when the user has decided whether to proceed or not with the browser
+  // closure.  |cancel_downloads| is true if the downloads should be canceled
+  // and the browser closed, false if the browser should stay open and the
+  // downloads running.
+  void InProgressDownloadResponse(bool cancel_downloads);
+
   // TabStripModel pass-thrus /////////////////////////////////////////////////
 
   TabStripModel* tabstrip_model() const {
@@ -551,6 +559,13 @@ class Browser : public TabStripModelDelegate,
   // successfully fired.
   void ClearUnloadState(TabContents* tab);
 
+  // In-progress download termination handling /////////////////////////////////
+
+  // Called when the window is closing to check if potential in-progress
+  // downloads should prevent it from closing.
+  // Returns true if the window can close, false otherwise.
+  bool CanCloseWithInProgressDownloads();
+
   // Assorted utility functions ///////////////////////////////////////////////
 
   // Retrieve the last active tabbed browser with the same profile as the
@@ -666,6 +681,19 @@ class Browser : public TabStripModelDelegate,
   // Whether we are processing the beforeunload and unload events of each tab
   // in preparation for closing the browser.
   bool is_attempting_to_close_browser_;
+
+  // In-progress download termination handling /////////////////////////////////
+
+  enum CancelDownloadConfirmationState {
+    NOT_PROMPTED,          // We have not asked the user.
+    WAITING_FOR_RESPONSE,  // We have asked the user and have not received a
+                           // reponse yet.
+    RESPONSE_RECEIVED      // The user was prompted and made a decision already.
+  };
+
+  // State used to figure-out whether we should prompt the user for confirmation
+  // when the browser is closed with in-progress downloads.
+  CancelDownloadConfirmationState cancel_download_confirmation_state_;
 
   /////////////////////////////////////////////////////////////////////////////
 

@@ -164,6 +164,12 @@ class BrowserWindow {
   // Shows the New Profile dialog box.
   virtual void ShowNewProfileDialog() = 0;
 
+  // Shows the confirmation dialog box warning that the browser is closing with
+  // in-progress downloads.
+  // This method should call Browser::InProgressDownloadResponse once the user
+  // has confirmed.
+  virtual void ConfirmBrowserCloseWithPendingDownloads() = 0;
+
   // Shows a dialog box with HTML content, e.g. for Gears. |parent_window| is
   // the window the dialog should be opened modal to and is a native window
   // handle.

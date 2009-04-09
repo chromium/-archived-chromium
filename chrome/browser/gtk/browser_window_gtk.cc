@@ -486,6 +486,11 @@ void BrowserWindowGtk::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowGtk::ConfirmBrowserCloseWithPendingDownloads() {
+  NOTIMPLEMENTED();
+  browser_->InProgressDownloadResponse(false);
+}
+
 void BrowserWindowGtk::Observe(NotificationType type,
                                const NotificationSource& source,
                                const NotificationDetails& details) {

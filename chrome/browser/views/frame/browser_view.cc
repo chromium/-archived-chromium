@@ -12,6 +12,7 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/find_bar_controller.h"
 #include "chrome/browser/view_ids.h"
@@ -53,6 +54,7 @@
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
+#include "chrome/views/fill_layout.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
@@ -191,6 +193,73 @@ class ResizeCorner : public views::View {
   DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
 };
 
+////////////////////////////////////////////////////////////////////////////////
+// DownloadInProgressConfirmDialogDelegate
+
+class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
+                                                public views::View {
+ public:
+  explicit DownloadInProgressConfirmDialogDelegate(Browser* browser)
+      : browser_(browser) {
+    int download_count = browser->profile()->GetDownloadManager()->
+        in_progress_count();
+    label_ = new views::Label(l10n_util::GetStringF(
+        IDS_DOWNLOAD_REMOVE_CONFIRM_TITLE, download_count));
+    label_->SetMultiLine(true);
+    label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
+    label_->set_border(views::Border::CreateEmptyBorder(10, 10, 10, 10));
+    AddChildView(label_);
+    SetParentOwned(false);
+    SetLayoutManager(new views::FillLayout());
+  }
+
+  // View implementation:
+  virtual gfx::Size GetPreferredSize() {
+    const int kContentWidth = 400;
+    return gfx::Size(kContentWidth, label_->GetHeightForWidth(kContentWidth));
+  }
+
+  // DialogDelegate implementation:
+  virtual int GetDefaultDialogButton() const {
+    return DIALOGBUTTON_CANCEL;
+  }
+
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const {
+    if (button == DIALOGBUTTON_OK)
+      return l10n_util::GetString(IDS_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL);
+
+    DCHECK_EQ(DIALOGBUTTON_CANCEL, button);
+    return l10n_util::GetString(
+        IDS_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL);
+  }
+
+  virtual bool Accept() {
+    browser_->InProgressDownloadResponse(true);
+    return true;
+  }
+
+  virtual bool Cancel() {
+    browser_->InProgressDownloadResponse(false);
+    return true;
+  }
+
+  virtual void DeleteDelegate() {
+    delete this;
+  }
+
+  // WindowDelegate implementation:
+  virtual bool IsModal() const { return true; }
+
+  virtual views::View* GetContentsView() {
+    return this;
+  }
+
+ private:
+  Browser* browser_;
+  views::Label* label_;
+
+  DISALLOW_COPY_AND_ASSIGN(DownloadInProgressConfirmDialogDelegate);
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, public:
@@ -820,6 +889,13 @@ void BrowserView::ShowSelectProfileDialog() {
 
 void BrowserView::ShowNewProfileDialog() {
   NewProfileDialog::RunDialog();
+}
+
+void BrowserView::ConfirmBrowserCloseWithPendingDownloads() {
+  DownloadInProgressConfirmDialogDelegate* delegate =
+      new DownloadInProgressConfirmDialogDelegate(browser_.get());
+  views::Window::CreateChromeWindow(GetWidget()->GetNativeView(), gfx::Rect(),
+                                    delegate)->Show();
 }
 
 void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,

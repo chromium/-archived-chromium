@@ -59,6 +59,7 @@ class TestBrowserWindow : public BrowserWindow {
   virtual void ShowPasswordManager() {}
   virtual void ShowSelectProfileDialog() {}
   virtual void ShowNewProfileDialog() {}
+  virtual void ConfirmBrowserCloseWithPendingDownloads() {}
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window) {}
  protected:

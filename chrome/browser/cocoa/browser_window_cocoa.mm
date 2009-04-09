@@ -194,6 +194,11 @@ void BrowserWindowCocoa::ShowNewProfileDialog() {
   NOTIMPLEMENTED();
 }
 
+void BrowserWindowCocoa::ConfirmBrowserCloseWithPendingDownloads() {
+  NOTIMPLEMENTED();
+  browser_->InProgressDownloadResponse(false);
+}
+
 void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                         void* parent_window) {
   NOTIMPLEMENTED();
