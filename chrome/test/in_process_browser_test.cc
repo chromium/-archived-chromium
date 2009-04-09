@@ -125,7 +125,12 @@ void InProcessBrowserTest::SetUp() {
 
   scoped_refptr<net::RuleBasedHostMapper> host_mapper(
       new net::RuleBasedHostMapper());
-  ConfigureHostMapper(host_mapper.get());
+  // TODO(sky): Don't make a real dns lookup here or simulate a failing
+  // lookup.
+  host_mapper->AllowDirectLookup("*.google.com");
+  // See http://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
+  // We don't want the test code to use it.
+  host_mapper->AddSimulatedFailure("wpad");
   net::ScopedHostMapper scoped_host_mapper(host_mapper.get());
   BrowserMain(params);
 }
@@ -215,12 +220,4 @@ void InProcessBrowserTest::RunTestOnMainThreadLoop() {
   http_server_ = NULL;
 
   MessageLoopForUI::current()->Quit();
-}
-
-void InProcessBrowserTest::ConfigureHostMapper(
-    net::RuleBasedHostMapper* host_mapper) {
-  host_mapper->AllowDirectLookup("*.google.com");
-  // See http://en.wikipedia.org/wiki/Web_Proxy_Autodiscovery_Protocol
-  // We don't want the test code to use it.
-  host_mapper->AddSimulatedFailure("wpad");
 }

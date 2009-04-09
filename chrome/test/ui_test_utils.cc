@@ -20,11 +20,8 @@ namespace {
 // Used to block until a navigation completes.
 class NavigationNotificationObserver : public NotificationObserver {
  public:
-  NavigationNotificationObserver(NavigationController* controller,
-                                 int number_of_navigations)
-      : navigation_started_(false),
-        navigations_completed_(0),
-        number_of_navigations_(number_of_navigations) {
+  explicit NavigationNotificationObserver(NavigationController* controller)
+      : navigation_started_(false) {
     registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                    Source<NavigationController>(controller));
     registrar_.Add(this, NotificationType::LOAD_START,
@@ -41,8 +38,7 @@ class NavigationNotificationObserver : public NotificationObserver {
         type == NotificationType::LOAD_START) {
       navigation_started_ = true;
     } else if (type == NotificationType::LOAD_STOP) {
-      if (navigation_started_ &&
-          ++navigations_completed_ == number_of_navigations_) {
+      if (navigation_started_) {
         navigation_started_ = false;
         MessageLoopForUI::current()->Quit();
       }
@@ -54,12 +50,6 @@ class NavigationNotificationObserver : public NotificationObserver {
 
   // If true the navigation has started.
   bool navigation_started_;
-
-  // The number of navigations that have been completed.
-  int navigations_completed_;
-
-  // The number of navigations to wait for.
-  int number_of_navigations_;
 
   DISALLOW_COPY_AND_ASSIGN(NavigationNotificationObserver);
 };
@@ -76,26 +66,15 @@ void RunMessageLoop() {
 }
 
 void WaitForNavigation(NavigationController* controller) {
-  WaitForNavigations(controller, 1);
-}
-
-void WaitForNavigations(NavigationController* controller,
-                        int number_of_navigations) {
-  NavigationNotificationObserver observer(controller, number_of_navigations);
+  NavigationNotificationObserver observer(controller);
 }
 
 void NavigateToURL(Browser* browser, const GURL& url) {
-  NavigateToURLBlockUntilNavigationsComplete(browser, url, 1);
-}
-
-void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
-                                                const GURL& url,
-                                                int number_of_navigations) {
   NavigationController* controller =
       browser->GetSelectedTabContents()->controller();
   browser->OpenURLFromTab(browser->GetSelectedTabContents(), url, GURL(),
                           CURRENT_TAB, PageTransition::TYPED);
-  WaitForNavigations(controller, number_of_navigations);
+  WaitForNavigation(controller);
 }
 
 }  // namespace ui_test_utils

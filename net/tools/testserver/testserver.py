@@ -565,15 +565,13 @@ class TestPageHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """This handler sends the contents of the requested file.  Wow, it's like
     a real webserver!"""
 
-    prefix = self.server.file_root_url
+    prefix='/files/'
     if not self.path.startswith(prefix):
       return False
 
     file = self.path[len(prefix):]
     entries = file.split('/');
     path = os.path.join(self.server.data_dir, *entries)
-    if os.path.isdir(path):
-      path = os.path.join(path, 'index.html')
 
     if not os.path.isfile(path):
       print "File not found " + file + " full path:" + path
@@ -1049,7 +1047,6 @@ def main(options, args):
       print 'HTTP server started on port %d...' % port
 
     server.data_dir = MakeDataDir()
-    server.file_root_url = options.file_root_url
     MakeDumpDir(server.data_dir)
 
   # means FTP Server
@@ -1105,8 +1102,6 @@ if __name__ == '__main__':
                            help='Specify that https should be used, specify '
                            'the path to the cert containing the private key '
                            'the server should use')
-  option_parser.add_option('', '--file-root-url', default='/files/',
-                           help='Specify a root URL for files served.')
   options, args = option_parser.parse_args()
 
   sys.exit(main(options, args))

@@ -39,15 +39,12 @@ class TestServerLauncher {
   // Start src/net/tools/testserver/testserver.py and
   // ask it to serve the given protocol.
   // If protocol is HTTP, and cert_path is not empty, serves HTTPS.
-  // file_root_url specifies the root url on the server that documents will be
-  // served out of. This is /files/ by default.
   // Returns true on success, false if files not found or root cert
   // not trusted.
   bool Start(Protocol protocol,
              const std::string& host_name, int port,
              const FilePath& document_root,
-             const FilePath& cert_path,
-             const std::wstring& file_root_url);
+             const FilePath& cert_path);
 
   // Stop the server started by Start().
   bool Stop();
