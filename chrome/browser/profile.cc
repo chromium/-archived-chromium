@@ -374,6 +374,11 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->AddPrefObserver(prefs::kEnableSpellCheck, this);
+#if defined(OS_LINUX)
+  // TODO(port): Remove ifdef when the Linux splash page is not needed.
+  prefs->transient()->SetString(prefs::kHomePage, "about:linux-splash");
+  prefs->transient()->SetBoolean(prefs::kHomePageIsNewTabPage, false);
+#endif
 }
 
 void ProfileImpl::InitExtensions() {

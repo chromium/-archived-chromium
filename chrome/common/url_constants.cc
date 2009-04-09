@@ -38,12 +38,7 @@ const char kChromeUIHistoryURL[] = "chrome-ui://history/";
 const char kChromeUIInspectorURL[] = "chrome-ui://inspector/";
 const char kChromeUIIPCURL[] = "chrome-ui://about/ipc";
 const char kChromeUINetworkURL[] = "chrome-ui://about/network";
-#if defined(OS_LINUX)
-// TODO(port): Remove ifdef when we think that Linux splash page is not needed.
-const char kChromeUINewTabURL[] = "about:linux-splash";
-#else
 const char kChromeUINewTabURL[] = "chrome-ui://newtab";
-#endif
 
 const char kChromeUIDevToolsHost[] = "devtools";
 const char kChromeUIDialogHost[] = "dialog";
