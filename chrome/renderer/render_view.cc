@@ -3031,8 +3031,8 @@ void RenderView::OnExtensionResponse(int callback_id,
   if (!web_frame)
     return;  // The frame went away.
 
-  extensions_v8::ExtensionProcessBindings::ExecuteCallbackInFrame(
-      web_frame, callback_id, response);
+  ExtensionProcessBindings::ExecuteCallbackInFrame(web_frame, callback_id,
+                                                   response);
   pending_extension_callbacks_.Remove(callback_id);
 }
 

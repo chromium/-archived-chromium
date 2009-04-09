@@ -27,7 +27,7 @@ namespace {
 // We use the generic interface so that unit tests can inject a mock.
 RenderThreadBase* render_thread_ = NULL;
 
-const char* kExtensionName = "v8/RendererExtensionBindings";
+const char* kExtensionName = "chrome/RendererExtensionBindings";
 const char* kExtensionDeps[] = { EventBindings::kName };
 
 class ExtensionImpl : public v8::Extension {
@@ -76,8 +76,6 @@ class ExtensionImpl : public v8::Extension {
 
 }  // namespace
 
-namespace extensions_v8 {
-
 v8::Extension* RendererExtensionBindings::Get(RenderThreadBase* render_thread) {
   render_thread_ = render_thread;
   return new ExtensionImpl();
@@ -100,5 +98,3 @@ void RendererExtensionBindings::HandleMessage(const std::string& message,
   EventBindings::CallFunction("chromium.Port.dispatchOnMessage_",
                               arraysize(argv), argv);
 }
-
-}  // namespace extensions_v8

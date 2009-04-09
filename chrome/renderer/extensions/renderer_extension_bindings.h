@@ -11,8 +11,6 @@
 
 class RenderThreadBase;
 
-namespace extensions_v8 {
-
 // This class adds extension-related javascript bindings to a renderer.  It is
 // used by both web renderers and extension processes.
 class RendererExtensionBindings {
@@ -26,7 +24,5 @@ class RendererExtensionBindings {
   // Dispatch the given message sent on this channel.
   static void HandleMessage(const std::string& message, int port_id);
 };
-
-}  // namespace extensions_v8
 
 #endif  // CHROME_RENDERER_EXTENSIONS_RENDERER_EXTENSION_BINDINGS_H_

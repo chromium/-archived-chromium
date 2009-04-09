@@ -25,6 +25,14 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE. 
 
+// NOTE: This file has been changed from the one on doctype. The following
+// changes were made:
+// - Removed goog.globalEval because it calls eval() which is not allowed from
+//   inside v8 extensions. If we ever need to use globalEval, we will need to
+//   find a way to work around this problem.
+// - Remove Function.prototype.apply() emulation for the same reason. This one
+//   is useless anyway because V8 supports apply() natively.
+
 /**
  * @fileoverview Bootstrap for the Google JS Library
  */
@@ -811,47 +819,6 @@ goog.now = Date.now || (function() {
 
 
 /**
- * Evals javascript in the global scope.  In IE this uses execScript, other
- * browsers use goog.global.eval. If goog.global.eval does not evaluate in the
- * global scope (for example, in Safari), appends a script tag instead.
- * Throws an exception if neither execScript or eval is defined.
- * @param {string} script JavaScript string.
- */
-goog.globalEval = function(script) {
-  if (goog.global.execScript) {
-    goog.global.execScript(script, 'JavaScript');
-  } else if (goog.global.eval) {
-    // Test to see if eval works
-    if (goog.evalWorksForGlobals_ == null) {
-      goog.global.eval('var _et_ = 1;');
-      if (typeof goog.global['_et_'] != 'undefined') {
-        delete goog.global['_et_'];
-        goog.evalWorksForGlobals_ = true;
-      } else {
-        goog.evalWorksForGlobals_ = false;
-      }
-    }
-
-    if (goog.evalWorksForGlobals_) {
-      goog.global.eval(script);
-    } else {
-      var doc = goog.global.document;
-      var scriptElt = doc.createElement('script');
-      scriptElt.type = 'text/javascript';
-      scriptElt.defer = false;
-      // Note(pupius): can't use .innerHTML since "t('<test>')" will fail and 
-      // .text doesn't work in Safari 2.  Therefore we append a text node.
-      scriptElt.appendChild(doc.createTextNode(script));
-      doc.body.appendChild(scriptElt);
-      doc.body.removeChild(scriptElt);
-    }
-  } else {
-    throw Error('goog.globalEval not available');
-  }
-};
-
-
-/**
  * Abstract implementation of goog.getMsg for use with localized messages
  * @param {string} str Translatable string, places holders in the form.{$foo}
  * @param {Object} opt_values Map of place holder name to value.
@@ -909,41 +876,6 @@ goog.exportProperty = function(object, publicName, symbol) {
 //==============================================================================
 // Extending Function
 //==============================================================================
-
-
-/**
- * Some old browsers don't have Function.apply. So sad. We emulate it for them.
- * @param {Object} oScope The Object within the scope of which the Function is
- *     applied. In other words, |this| will be bound to oScope within the body
- *     of the Function called with apply.
- * @param {Array} args Arguments for the function.
- * @return {Object} Value returned from the function.
- */
-if (!Function.prototype.apply) {
-  Function.prototype.apply = function(oScope, args) {
-    var sarg = [];
-    var rtrn, call;
-
-    if (!oScope) oScope = goog.global;
-    if (!args) args = [];
-
-    for (var i = 0; i < args.length; i++) {
-      sarg[i] = 'args[' + i + ']';
-    }
-
-    call = 'oScope.__applyTemp__.peek().(' + sarg.join(',') + ');';
-
-    if (!oScope['__applyTemp__']) {
-      oScope['__applyTemp__'] = [];
-    }
-
-    oScope['__applyTemp__'].push(this);
-    rtrn = eval(call);
-    oScope['__applyTemp__'].pop();
-
-    return rtrn;
-  };
-}
 
 
 /**

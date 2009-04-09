@@ -68,8 +68,7 @@ class RenderViewTest : public testing::Test {
   virtual void SetUp() {
     WebKit::initialize(&webkitclient_);
     WebKit::registerExtension(EventBindings::Get());
-    WebKit::registerExtension(
-        extensions_v8::RendererExtensionBindings::Get(&render_thread_));
+    WebKit::registerExtension(RendererExtensionBindings::Get(&render_thread_));
 
     mock_process_.reset(new MockProcess());
 
@@ -404,7 +403,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   // Now simulate getting a message back from the other side.
   render_thread_.sink().ClearMessages();
   const int kPortId = 0;
-  extensions_v8::RendererExtensionBindings::HandleMessage("42", kPortId);
+  RendererExtensionBindings::HandleMessage("42", kPortId);
 
   // Verify that we got it.
   const IPC::Message* alert_msg =
@@ -434,7 +433,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
 
   // Simulate a new connection being opened.
   const int kPortId = 0;
-  extensions_v8::RendererExtensionBindings::HandleConnect(kPortId);
+  RendererExtensionBindings::HandleConnect(kPortId);
 
   // Verify that we handled the new connection by posting a message.
   const IPC::Message* post_msg =
@@ -447,7 +446,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
 
   // Now simulate getting a message back from the channel opener.
   render_thread_.sink().ClearMessages();
-  extensions_v8::RendererExtensionBindings::HandleMessage("42", kPortId);
+  RendererExtensionBindings::HandleMessage("42", kPortId);
 
   // Verify that we got it.
   const IPC::Message* alert_msg =

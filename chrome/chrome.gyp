@@ -1447,6 +1447,8 @@
         'renderer/external_host_bindings.h',
         'renderer/external_js_object.cc',
         'renderer/external_js_object.h',
+        'renderer/js_only_v8_extensions.cc',
+        'renderer/js_only_v8_extensions.h',
         'renderer/localized_error.cc',
         'renderer/localized_error.h',
         'renderer/plugin_channel_host.cc',

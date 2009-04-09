@@ -14,8 +14,6 @@
 
 class WebFrame;
 
-namespace extensions_v8 {
-
 class ExtensionProcessBindings {
  public:
   static void SetFunctionNames(const std::vector<std::string>& names);
@@ -23,7 +21,5 @@ class ExtensionProcessBindings {
   static void ExecuteCallbackInFrame(WebFrame* frame, int callback_id,
                                      const std::string& response);
 };
-
-}  // namespace extensions_v8
 
 #endif  // CHROME_RENDERER_EXTENSIONS_EXTENSION_PROCESS_BINDINGS_H_

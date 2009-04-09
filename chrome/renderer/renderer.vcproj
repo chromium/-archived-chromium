@@ -201,6 +201,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_process_bindings.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\renderer_extension_bindings.cc"
 				>
 			</File>
@@ -271,6 +275,14 @@
 		</File>
 		<File
 			RelativePath=".\external_js_object.h"
+			>
+		</File>
+		<File
+			RelativePath=".\js_only_v8_extensions.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\js_only_v8_extensions.h"
 			>
 		</File>
 		<File

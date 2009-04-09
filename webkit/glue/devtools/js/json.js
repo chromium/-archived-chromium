@@ -25,6 +25,13 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE. 
 
+// NOTE: This file has been changed from the one on doctype. The following
+// changes were made:
+// - Modified unsafeParse() to use new Function() instead of eval() because eval
+//   is not allowed inside v8 extensions.
+// - Modified parse() to delegate to unsafeParse() instead of calling eval()
+//   directly.
+
 /**
  * @fileoverview JSON utility functions
  */
@@ -103,7 +110,7 @@ goog.json.parse = function(s) {
   if (goog.json.isValid_(s)) {
     /** @preserveTry */
     try {
-      return eval('(' + s + ')');
+      return goog.json.unsafeParse(s);
     } catch (ex) {
     }
   }
@@ -119,7 +126,10 @@ goog.json.parse = function(s) {
  * @return {Object} The object generated from the JSON string.
  */
 goog.json.unsafeParse = function(s) {
-  return eval('(' + s + ')');
+  // This is lame. V8 disallows direct access to eval() in extensions (see:
+  // v8::internal::Parser::ParseLeftHandSideExpression()). So we must use this
+  // nasty hack instead.
+  return new Function('return ('+ s + ')')();
 };
 
 

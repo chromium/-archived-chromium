@@ -5,7 +5,7 @@
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 
 #include "chrome/common/render_messages.h"
-#include "chrome/common/resource_bundle.h"
+#include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
@@ -14,14 +14,15 @@
 using WebKit::WebScriptSource;
 using WebKit::WebString;
 
-namespace extensions_v8 {
+namespace {
 
-const char kExtensionProcessExtensionName[] = "v8/ExtensionProcess";
+const char kExtensionName[] = "chrome/ExtensionProcessBindings";
 
-class ExtensionProcessBindingsWrapper : public v8::Extension {
+class ExtensionImpl : public v8::Extension {
  public:
-  ExtensionProcessBindingsWrapper()
-      : v8::Extension(kExtensionProcessExtensionName, GetSource()) {}
+  ExtensionImpl() : v8::Extension(
+      kExtensionName, GetStringResource<IDR_EXTENSION_PROCESS_BINDINGS_JS>(),
+      NULL, NULL) {}
 
   static void SetFunctionNames(const std::vector<std::string>& names) {
     function_names_ = new std::set<std::string>();
@@ -42,21 +43,6 @@ class ExtensionProcessBindingsWrapper : public v8::Extension {
   }
 
  private:
-   static const char* GetSource() {
-    // This is weird. The v8::Extension constructor expects a null-terminated
-    // string which it doesn't own (all current uses are constant). The value
-    // returned by GetDataResource is *not* null-terminated, and simply
-    // converting it to a string, then using that string's c_str() in this
-    // class's constructor doesn't work because the resulting string is stack-
-    // allocated.
-     if (!source_)
-      source_ = new std::string(
-          ResourceBundle::GetSharedInstance().GetRawDataResource(
-              IDR_EXTENSION_PROCESS_BINDINGS_JS).as_string());
-
-    return source_->c_str();
-  }
-
   static v8::Handle<v8::Value> GetNextCallbackId(const v8::Arguments& args) {
     static int next_callback_id = 0;
     return v8::Integer::New(next_callback_id++);
@@ -87,26 +73,22 @@ class ExtensionProcessBindingsWrapper : public v8::Extension {
     return v8::Undefined();
   }
 
-  static std::string* source_;
   static std::set<std::string>* function_names_;
 };
 
-std::string* ExtensionProcessBindingsWrapper::source_;
-std::set<std::string>* ExtensionProcessBindingsWrapper::function_names_;
+std::set<std::string>* ExtensionImpl::function_names_;
 
+}  // namespace
 
-// static
 v8::Extension* ExtensionProcessBindings::Get() {
-  return new ExtensionProcessBindingsWrapper();
+  return new ExtensionImpl();
 }
 
-// static
 void ExtensionProcessBindings::SetFunctionNames(
     const std::vector<std::string>& names) {
-  ExtensionProcessBindingsWrapper::SetFunctionNames(names);
+  ExtensionImpl::SetFunctionNames(names);
 }
 
-// static
 void ExtensionProcessBindings::ExecuteCallbackInFrame(
     WebFrame* frame, int callback_id, const std::string& response) {
   std::string code = "chromium._dispatchCallback(";
@@ -121,5 +103,3 @@ void ExtensionProcessBindings::ExecuteCallbackInFrame(
 
   frame->ExecuteScript(WebScriptSource(WebString::fromUTF8(code)));
 }
-
-}  // namespace extensions_v8

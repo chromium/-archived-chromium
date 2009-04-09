@@ -28,6 +28,7 @@
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
+#include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/loadtimes_extension_bindings.h"
 #include "chrome/renderer/net/render_dns_master.h"
 #include "chrome/renderer/render_process.h"
@@ -162,7 +163,7 @@ void RenderThread::OnUpdateUserScripts(
 
 void RenderThread::OnSetExtensionFunctionNames(
     const std::vector<std::string>& names) {
-  extensions_v8::ExtensionProcessBindings::SetFunctionNames(names);
+  ExtensionProcessBindings::SetFunctionNames(names);
 }
 
 void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
@@ -288,13 +289,18 @@ void RenderThread::EnsureWebKitInitialized() {
   WebKit::registerExtension(extensions_v8::IntervalExtension::Get());
   WebKit::registerExtension(extensions_v8::LoadTimesExtension::Get());
 
+  WebKit::registerExtension(ExtensionProcessBindings::Get(),
+      WebKit::WebString::fromUTF8(chrome::kExtensionScheme));
+
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
+
+  // TODO(aa): Add a way to restrict extensions to the content script context
+  // only so that we don't have to gate these on --enable-extensions.
   if (command_line.HasSwitch(switches::kEnableExtensions)) {
+    WebKit::registerExtension(BaseJsV8Extension::Get());
+    WebKit::registerExtension(JsonJsV8Extension::Get());
     WebKit::registerExtension(EventBindings::Get());
-    WebKit::registerExtension(
-        extensions_v8::RendererExtensionBindings::Get(this));
-    WebKit::registerExtension(extensions_v8::ExtensionProcessBindings::Get(),
-        WebKit::WebString::fromUTF8(chrome::kExtensionScheme));
+    WebKit::registerExtension(RendererExtensionBindings::Get(this));
   }
 
   if (command_line.HasSwitch(switches::kPlaybackMode) ||
@@ -308,10 +314,10 @@ void RenderThread::EnsureWebKitInitialized() {
 }
 
 void RenderThread::OnExtensionHandleConnect(int port_id) {
-  extensions_v8::RendererExtensionBindings::HandleConnect(port_id);
+  RendererExtensionBindings::HandleConnect(port_id);
 }
 
 void RenderThread::OnExtensionHandleMessage(const std::string& message,
                                             int port_id) {
-  extensions_v8::RendererExtensionBindings::HandleMessage(message, port_id);
+  RendererExtensionBindings::HandleMessage(message, port_id);
 }

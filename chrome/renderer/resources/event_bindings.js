@@ -25,7 +25,7 @@ var chromium = chromium || {};
   chromium.Event.dispatchJSON_ = function(name, data) {
     if (chromium.Event.attached_[name]) {
       if (data) {
-        data = chromium.json.deserialize_(data);
+        data = chromium.json.parse(data);
       }
       chromium.Event.attached_[name].dispatch_(data);
     }
