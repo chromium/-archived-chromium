@@ -178,6 +178,19 @@
             'player/player.cc',
           ],
         },
+        {
+          'target_name': 'media_bench',
+          'type': 'executable',
+          'msvs_guid': '45BC4F87-4604-4962-A751-7C7B29A080BF',
+          'dependencies': [
+            'media',
+            '../base/base.gyp:base',
+            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+          ],
+          'sources': [
+            'bench/bench.cc',
+          ],
+        },
       ],
     }],
   ],
