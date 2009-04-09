@@ -131,10 +131,26 @@
   ],
   'targets': [
     {
+      # Currently, builders assume webkit.sln builds test_shell on windows.
+      # We should change this, but for now allows trybot runs.
+      # for now.
+      'target_name': 'pull_in_test_shell',
+      'type': 'none',
+      'conditions': [
+        ['OS=="win"', {
+          'dependencies': [
+            'tools/test_shell/test_shell.gyp:*',
+            'activex_shim_dll/activex_shim_dll.gyp:*',
+          ],
+        }],
+      ],
+    },
+    {
       # This target creates config.h suitable for a WebKit-V8 build and
       # copies a few other files around as needed.
       'target_name': 'config',
       'type': 'none',
+      'msvs_guid': '2E2D3301-2EC4-4C0F-B889-87073B30F673',
       'actions': [
         {
           'action_name': 'config.h',
@@ -201,6 +217,7 @@
     {
       'target_name': 'wtf',
       'type': '<(library)',
+      'msvs_guid': 'AA8A5A85-592B-4357-BC60-E0E91E026AF6',
       'dependencies': [
         'config',
         '../third_party/icu38/icu38.gyp:icui18n',
@@ -367,6 +384,7 @@
         'config',
         'wtf',
       ],
+      'msvs_guid': '49909552-0B0C-4C14-8CF6-DB8A2ADE0934',
       'actions': [
         {
           'action_name': 'dftables',
@@ -405,6 +423,7 @@
     {
       'target_name': 'webcore',
       'type': '<(library)',
+      'msvs_guid': '1C16337B-ACF3-4D03-AA90-851C5B5EADA6',
       'dependencies': [
         'config',
         'pcre',
@@ -2195,6 +2214,7 @@
         '../third_party/WebKit/WebCore/platform/graphics/mac/WebLayer.mm',
         '../third_party/WebKit/WebCore/platform/graphics/mac/WebTiledLayer.h',
         '../third_party/WebKit/WebCore/platform/graphics/mac/WebTiledLayer.mm',
+        '../third_party/WebKit/WebCore/platform/graphics/MediaPlayer.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/opentype/OpenTypeUtilities.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/opentype/OpenTypeUtilities.h',
         '../third_party/WebKit/WebCore/platform/graphics/qt/ColorQt.cpp',
@@ -4082,15 +4102,21 @@
         }],
         ['OS!="linux"', {'sources/': [['exclude', '(Gtk|Linux)\\.cpp$']]}],
         ['OS!="mac"', {'sources/': [['exclude', 'Mac\\.(cpp|mm?)$']]}],
-        ['OS!="win"', {'sources/': [
-          ['exclude', 'Win\\.cpp$'],
-          ['exclude', '/(Windows|Uniscribe)[^/]*\\.cpp$']
-        ]}],
+        ['OS!="win"', {
+          'sources/': [
+            ['exclude', 'Win\\.cpp$'],
+            ['exclude', '/(Windows|Uniscribe)[^/]*\\.cpp$']
+          ],
+          'sources!': [
+            '../third_party/WebKit/WebCore/platform/graphics/MediaPlayer.cpp',
+          ],
+        }],
       ],
     },
     {
       'target_name': 'webkit',
       'type': '<(library)',
+      'msvs_guid': '5ECEC9E5-8F23-47B6-93E0-C3B328B3BE65',
       'dependencies': [
         'webcore',
       ],
@@ -4185,6 +4211,7 @@
     {
       'target_name': 'webkit_resources',
       'type': 'none',
+      'msvs_guid': '0B469837-3D46-484A-AFB3-C5A6C68730B9',
       'dependencies': [
         'webcore',
         'webkit',
@@ -4217,6 +4244,7 @@
     {
       'target_name': 'glue',
       'type': '<(library)',
+      'msvs_guid': 'C66B126D-0ECE-4CA2-B6DC-FA780AFBBF09',
       'dependencies': [
         'webcore',
         'webkit',
@@ -4332,7 +4360,8 @@
         'glue/feed_preview.cc',
         'glue/feed_preview.h',
         'glue/form_data.h',
-        'glue/glue_accessibility.cc',
+        'glue/glue_accessibility_object.cc',
+        'glue/glue_accessibility_object.h',
         'glue/glue_serialize.cc',
         'glue/glue_serialize.h',
         'glue/glue_util.cc',
@@ -4368,6 +4397,10 @@
         'glue/simple_webmimeregistry_impl.h',
         'glue/stacking_order_iterator.cc',
         'glue/stacking_order_iterator.h',
+        'glue/webaccessibility.h',
+        'glue/webaccessibilitymanager.h',
+        'glue/webaccessibilitymanager_impl.cc',
+        'glue/webaccessibilitymanager_impl.h',
         'glue/webappcachecontext.cc',
         'glue/webappcachecontext.h',
         'glue/webclipboard_impl.cc',
@@ -4422,6 +4455,7 @@
         'glue/webtextinput.h',
         'glue/webtextinput_impl.cc',
         'glue/webtextinput_impl.h',
+        'glue/webthemeengine_impl_win.cc',
         'glue/weburlrequest.h',
         'glue/weburlrequest_impl.cc',
         'glue/weburlrequest_impl.h',
@@ -4477,9 +4511,16 @@
 
             # These files are Windows-only now but may be ported to other
             # platforms.
+            'glue/glue_accessibility_object.cc',
+            'glue/glue_accessibility_object.h',
             'glue/plugins/mozilla_extensions.cc',
             'glue/plugins/webplugin_delegate_impl.cc',
-            'glue/glue_accessibility.cc',
+            'glue/webaccessibility.h',
+            'glue/webaccessibilitymanager.h',
+            'glue/webaccessibilitymanager_impl.cc',
+            'glue/webaccessibilitymanager_impl.cc',
+            'glue/webaccessibilitymanager_impl.h',
+            'glue/webthemeengine_impl_win.cc',
             'pending/AccessibleBase.cpp',
             'pending/AccessibleDocument.cpp',
           ],
@@ -4491,6 +4532,8 @@
           ],
           'sources!': [
             'glue/plugins/plugin_stubs.cc',
+            # Used directly in test_shell* so it can be replaced in chromium.
+            'glue/simple_clipboard_impl.cc',
           ],
         }],
       ],
