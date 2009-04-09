@@ -8,6 +8,8 @@
 #include <gtk/gtk.h>
 
 #include "base/basictypes.h"
+#include "chrome/browser/gtk/custom_button.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class GURL;
 
@@ -22,7 +24,7 @@ class ToolbarStarToggleGtk {
 
   void SetStarred(bool starred);
 
-  GtkWidget* widget() const { return widget_; }
+  GtkWidget* widget() const { return widget_.get(); }
 
  private:
   // Callback for expose, used to draw the custom graphics.
@@ -30,16 +32,13 @@ class ToolbarStarToggleGtk {
                            ToolbarStarToggleGtk* obj);
 
   // The actual button widget.
-  GtkWidget* widget_;
+  OwnedWidgetGtk widget_;
 
   // Whether we show the yellow star.
-  bool starred_;
+  bool is_starred_;
 
-  // Unstarred images
-  GdkPixbuf* unstarred_pixbuf_[GTK_STATE_INSENSITIVE + 1];
-
-  // Starred images
-  GdkPixbuf* starred_pixbuf_[GTK_STATE_INSENSITIVE + 1];
+  CustomDrawButtonBase unstarred_;
+  CustomDrawButtonBase starred_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ToolbarStarToggleGtk);
 };
