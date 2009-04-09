@@ -4,6 +4,7 @@
 
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/platform_thread.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
@@ -33,7 +34,7 @@ TEST_F(CrashRecoveryUITest, Reload) {
   expected_crashes_ = 1;
   tab->NavigateToURLAsync(GURL("about:crash"));
 
-  Sleep(1000);  // Wait for the browser to notice the renderer crash.
+  PlatformThread::Sleep(1000);  // Wait for the browser to notice the renderer crash.
 
   tab->Reload();
 
@@ -66,7 +67,7 @@ TEST_F(CrashRecoveryUITest, LoadInNewTab) {
   expected_crashes_ = 1;
   tab->NavigateToURLAsync(GURL("about:crash"));
 
-  Sleep(1000);  // Wait for the browser to notice the renderer crash.
+  PlatformThread::Sleep(1000);  // Wait for the browser to notice the renderer crash.
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser_proxy->AppendTab(url));

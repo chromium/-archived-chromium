@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#if defined(OS_WIN)
 #include <shlwapi.h>
+#endif
 #include <sstream>
 #include <string>
 
@@ -19,14 +21,17 @@
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
+#include "net/base/net_util.h"
 #include "net/url_request/url_request_unittest.h"
 
+using std::string;
 using std::wstring;
 
 namespace {
 
 const wchar_t kDocRoot[] = L"chrome/test/data";
 
+#if defined(OS_WIN)
 // Checks if the volume supports Alternate Data Streams. This is required for
 // the Zone Identifier implementation.
 bool VolumeSupportsADS(const std::wstring path) {
@@ -64,56 +69,57 @@ void CheckZoneIdentifier(const std::wstring full_path) {
 
   ASSERT_EQ(0, strcmp(kIdentifier, buffer));
 }
+#endif
 
 class DownloadTest : public UITest {
  protected:
   DownloadTest() : UITest() {}
 
-  void CleanUpDownload(const std::wstring& client_filename,
-                       const std::wstring& server_filename) {
+  void CleanUpDownload(const FilePath& client_filename,
+                       const FilePath& server_filename) {
     // Find the path on the client.
-    std::wstring file_on_client(download_prefix_);
-    file_on_client.append(client_filename);
+    FilePath file_on_client(download_prefix_);
+    file_on_client = file_on_client.Append(client_filename);
     EXPECT_TRUE(file_util::PathExists(file_on_client));
 
     // Find the path on the server.
-    std::wstring file_on_server;
+    FilePath file_on_server;
     ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA,
                                  &file_on_server));
-    file_on_server.append(L"\\");
-    file_on_server.append(server_filename);
+    file_on_server = file_on_server.Append(server_filename);
     ASSERT_TRUE(file_util::PathExists(file_on_server));
 
     // Check that we downloaded the file correctly.
     EXPECT_TRUE(file_util::ContentsEqual(file_on_server,
                                          file_on_client));
 
+#if defined(OS_WIN)
     // Check if the Zone Identifier is correclty set.
-    if (VolumeSupportsADS(file_on_client))
-      CheckZoneIdentifier(file_on_client);
+    if (VolumeSupportsADS(file_on_client.value()))
+      CheckZoneIdentifier(file_on_client.value());
+#endif
 
     // Delete the client copy of the file.
     EXPECT_TRUE(file_util::Delete(file_on_client, false));
   }
 
-  void CleanUpDownload(const std::wstring& file) {
+  void CleanUpDownload(const FilePath& file) {
     CleanUpDownload(file, file);
   }
 
   virtual void SetUp() {
     UITest::SetUp();
-    download_prefix_ = GetDownloadDirectory();
-    download_prefix_ += FilePath::kSeparators[0];
+    download_prefix_ = FilePath::FromWStringHack(GetDownloadDirectory());
   }
 
  protected:
-  void RunSizeTest(const wstring& url,
+  void RunSizeTest(const GURL& url,
                    const wstring& expected_title_in_progress,
                    const wstring& expected_title_finished) {
     {
       EXPECT_EQ(1, GetTabCount());
 
-      NavigateToURL(GURL(url));
+      NavigateToURL(url);
       // Downloads appear in the shelf
       WaitUntilTabCount(1);
       // TODO(tc): check download status text
@@ -132,19 +138,22 @@ class DownloadTest : public UITest {
       EXPECT_TRUE(WaitForDownloadShelfVisible(dl_tab.get()));
     }
 
-    std::wstring filename = file_util::GetFilenameFromPath(url);
-    EXPECT_TRUE(file_util::PathExists(download_prefix_ + filename));
+    FilePath filename;
+    net::FileURLToFilePath(url, &filename);
+    filename = filename.BaseName();
+    FilePath download_path = download_prefix_.Append(filename);
+    EXPECT_TRUE(file_util::PathExists(download_path));
 
     // Delete the file we just downloaded.
     for (int i = 0; i < 10; ++i) {
-      if (file_util::Delete(download_prefix_ + filename, false))
+      if (file_util::Delete(download_path, false))
         break;
       PlatformThread::Sleep(action_max_timeout_ms() / 10);
     }
-    EXPECT_FALSE(file_util::PathExists(download_prefix_ + filename));
+    EXPECT_FALSE(file_util::PathExists(download_path));
   }
 
-  wstring download_prefix_;
+  FilePath download_prefix_;
 };
 
 }  // namespace
@@ -152,12 +161,11 @@ class DownloadTest : public UITest {
 // Download a file with non-viewable content, verify that the
 // download tab opened and the file exists.
 TEST_F(DownloadTest, DownloadMimeType) {
-  wstring file = L"download-test1.lib";
-  wstring expected_title = L"100% - " + file;
+  FilePath file(FILE_PATH_LITERAL("download-test1.lib"));
 
   EXPECT_EQ(1, GetTabCount());
 
-  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file));
+  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file.ToWStringHack()));
   // No new tabs created, downloads appear in the current tab's download shelf.
   WaitUntilTabCount(1);
 
@@ -174,16 +182,15 @@ TEST_F(DownloadTest, DownloadMimeType) {
 // Access a file with a viewable mime-type, verify that a download
 // did not initiate.
 TEST_F(DownloadTest, NoDownload) {
-  wstring file = L"download-test2.html";
-  wstring file_path = download_prefix_;
-  file_util::AppendToPath(&file_path, file);
+  FilePath file(FILE_PATH_LITERAL("download-test2.html"));
+  FilePath file_path = download_prefix_.Append(file);
 
   if (file_util::PathExists(file_path))
     ASSERT_TRUE(file_util::Delete(file_path, false));
 
   EXPECT_EQ(1, GetTabCount());
 
-  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file));
+  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file.ToWStringHack()));
   WaitUntilTabCount(1);
 
   // Wait to see if the file will be downloaded.
@@ -202,13 +209,12 @@ TEST_F(DownloadTest, NoDownload) {
 // download tab opened and the file exists as the filename specified in the
 // header.  This also ensures we properly handle empty file downloads.
 TEST_F(DownloadTest, ContentDisposition) {
-  wstring file = L"download-test3.gif";
-  wstring download_file = L"download-test3-attachment.gif";
-  wstring expected_title = L"100% - " + download_file;
+  FilePath file(FILE_PATH_LITERAL("download-test3.gif"));
+  FilePath download_file(FILE_PATH_LITERAL("download-test3-attachment.gif"));
 
   EXPECT_EQ(1, GetTabCount());
 
-  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file));
+  NavigateToURL(URLRequestMockHTTPJob::GetMockUrl(file.ToWStringHack()));
   WaitUntilTabCount(1);
 
   // Wait until the file is downloaded.
@@ -229,14 +235,20 @@ TEST_F(DownloadTest, ContentDisposition) {
 // in the middle until the server receives a second request for
 // "download-finish.  At that time, the download will finish.
 TEST_F(DownloadTest, UnknownSize) {
-  std::wstring url(URLRequestSlowDownloadJob::kUnknownSizeUrl);
-  std::wstring filename = file_util::GetFilenameFromPath(url);
-  RunSizeTest(url, L"32.0 KB - " + filename, L"100% - " + filename);
+  GURL url(URLRequestSlowDownloadJob::kUnknownSizeUrl);
+  FilePath filename;
+  net::FileURLToFilePath(url, &filename);
+  filename = filename.BaseName();
+  RunSizeTest(url, L"32.0 KB - " + filename.ToWStringHack(),
+              L"100% - " + filename.ToWStringHack());
 }
 
 // http://b/1158253
 TEST_F(DownloadTest, DISABLED_KnownSize) {
-  std::wstring url(URLRequestSlowDownloadJob::kKnownSizeUrl);
-  std::wstring filename = file_util::GetFilenameFromPath(url);
-  RunSizeTest(url, L"71% - " + filename, L"100% - " + filename);
+  GURL url(URLRequestSlowDownloadJob::kKnownSizeUrl);
+  FilePath filename;
+  net::FileURLToFilePath(url, &filename);
+  filename = filename.BaseName();
+  RunSizeTest(url, L"71% - " + filename.ToWStringHack(),
+              L"100% - " + filename.ToWStringHack());
 }

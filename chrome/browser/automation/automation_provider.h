@@ -266,7 +266,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   void GetAutocompleteEditForBrowser(int browser_handle, bool* success,
                                      int* autocomplete_edit_handle);
 
-  void OpenNewBrowserWindow(int show_command);
+  void OpenNewBrowserWindow(bool show);
 
   void ShowInterstitialPage(int tab_handle,
                             const std::string& html_text,
