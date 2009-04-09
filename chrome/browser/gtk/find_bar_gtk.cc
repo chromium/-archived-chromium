@@ -31,8 +31,10 @@ gboolean EntryContentsChanged(GtkWindow* window, FindBarGtk* find_bar) {
 
 gboolean KeyPressEvent(GtkWindow* window, GdkEventKey* event,
                        FindBarGtk* find_bar) {
-  if (GDK_Escape == event->keyval)
+  if (GDK_Escape == event->keyval) {
     find_bar->EscapePressed();
+    return TRUE;
+  }
   return FALSE;
 }
 

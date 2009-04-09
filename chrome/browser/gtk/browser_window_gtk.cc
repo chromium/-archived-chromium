@@ -123,6 +123,38 @@ int GetCommandFromKeyval(guint accel_key) {
   return 0;
 }
 
+// An event handler for key press events.  We need to special case key
+// combinations that are not valid gtk accelerators.  This function returns
+// TRUE if it can handle the key press.
+gboolean HandleCustomAccelerator(guint keyval, GdkModifierType modifier,
+                                 Browser* browser) {
+  // Filter modifier to only include accelerator modifiers.
+  modifier = static_cast<GdkModifierType>(
+      modifier & gtk_accelerator_get_default_mod_mask());
+  switch (keyval) {
+    // Gtk doesn't allow GDK_Tab or GDK_ISO_Left_Tab to be an accelerator (see
+    // gtk_accelerator_valid), so we need to handle these accelerators
+    // manually.
+    case GDK_Tab:
+      if (GDK_CONTROL_MASK == modifier) {
+        browser->ExecuteCommand(IDC_SELECT_NEXT_TAB);
+        return TRUE;
+      }
+      break;
+
+    case GDK_ISO_Left_Tab:
+      if ((GDK_CONTROL_MASK | GDK_SHIFT_MASK) == modifier) {
+        browser->ExecuteCommand(IDC_SELECT_PREVIOUS_TAB);
+        return TRUE;
+      }
+      break;
+
+    default:
+      break;
+  }
+  return FALSE;
+}
+
 // Usually accelerators are checked before propagating the key event, but if the
 // focus is on the render area we want to reverse the order of things to allow
 // webkit to handle key events like ctrl-l.
@@ -131,10 +163,11 @@ gboolean OnKeyPress(GtkWindow* window, GdkEventKey* event, Browser* browser) {
       browser->tabstrip_model()->GetSelectedTabContents();
   // If there is no current tab contents or it is not focused then let the
   // default GtkWindow key handler run.
-  if (!current_tab_contents)
-    return FALSE;
-  if (!gtk_widget_is_focus(current_tab_contents->GetContentNativeView()))
-    return FALSE;
+  if (!current_tab_contents ||
+      !gtk_widget_is_focus(current_tab_contents->GetContentNativeView())) {
+    return HandleCustomAccelerator(event->keyval,
+        static_cast<GdkModifierType>(event->state), browser);
+  }
 
   // If the content area is focused, let it handle the key event.
   gboolean result = gtk_window_propagate_key_event(window, event);
@@ -247,26 +280,9 @@ BrowserWindowGtk::~BrowserWindowGtk() {
 
 void BrowserWindowGtk::HandleAccelerator(guint keyval,
                                          GdkModifierType modifier) {
-  // Filter modifier to only include accelerator modifiers.
-  modifier = static_cast<GdkModifierType>(
-      modifier & gtk_accelerator_get_default_mod_mask());
-  switch (keyval) {
-    // Gtk doesn't allow GDK_Tab or GDK_ISO_Left_Tab to be an accelerator (see
-    // gtk_accelerator_valid), so we need to handle these accelerators
-    // manually.
-    case GDK_Tab:
-      if (GDK_CONTROL_MASK == modifier)
-        ExecuteBrowserCommand(IDC_SELECT_NEXT_TAB);
-      break;
-
-    case GDK_ISO_Left_Tab:
-      if ((GDK_CONTROL_MASK | GDK_SHIFT_MASK) == modifier)
-        ExecuteBrowserCommand(IDC_SELECT_PREVIOUS_TAB);
-      break;
-
-    default:
-      // Pass the accelerator on to GTK.
-      gtk_accel_groups_activate(G_OBJECT(window_), keyval, modifier);
+  if (!HandleCustomAccelerator(keyval, modifier, browser_.get())) {
+    // Pass the accelerator on to GTK.
+    gtk_accel_groups_activate(G_OBJECT(window_), keyval, modifier);
   }
 }
 
