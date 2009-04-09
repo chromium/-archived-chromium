@@ -8,7 +8,9 @@
 
 void ExtensionFunction::SendResponse(bool success) {
   if (success) {
-    dispatcher_->SendResponse(this);
+    if (has_callback()) {
+      dispatcher_->SendResponse(this);
+    }
   } else {
     // TODO(aa): In case of failure, send the error message to an error
     // callback.
