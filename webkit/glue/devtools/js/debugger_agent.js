@@ -364,6 +364,13 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
  *     the format expected by ScriptsPanel and its panes.
  */
 devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
+  var sourceId = script.id;
+  var func = msg.lookup(stackFrame.func.ref);
+  var funcScript = msg.lookup(func.script.ref);
+  if (funcScript && 'id' in funcScript) {
+    sourceId = funcScript.id;
+  }
+
   var funcName = devtools.DebuggerAgent.formatFunction_(stackFrame, msg);
   
   var scope = {};
@@ -379,7 +386,7 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   scope['this'] = devtools.DebuggerAgent.formatObject_(thisObject, msg);
   
   return {
-    'sourceID': script.id,
+    'sourceID': sourceId,
     'line': stackFrame.line - script.lineOffset +1,
     'type': 'function',
     'functionName': funcName, //stackFrame.text,
