@@ -7,6 +7,7 @@
 #include "base/gfx/gtk_util.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/custom_button.h"
+#include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
@@ -44,7 +45,6 @@ BookmarkBarGtk::BookmarkBarGtk(Profile* profile, Browser* browser)
       instructions_(NULL),
       show_instructions_(true) {
   Init(profile);
-  LoadNineboxImages();
   SetProfile(profile);
 }
 
@@ -114,11 +114,11 @@ void BookmarkBarGtk::Init(Profile* profile) {
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), gtk_vseparator_new(),
                      FALSE, FALSE, 0);
 
-  other_bookmarks_button_ = new CustomContainerButton();
-  gtk_button_set_label(GTK_BUTTON(other_bookmarks_button_->widget()),
+  other_bookmarks_button_ = gtk_chrome_button_new();
+  gtk_button_set_label(GTK_BUTTON(other_bookmarks_button_),
                        "Other bookmarks");
   // TODO(erg): Hook up a popup menu to |other_bookmarks_button_|.
-  gtk_box_pack_start(GTK_BOX(bookmark_hbox_), other_bookmarks_button_->widget(),
+  gtk_box_pack_start(GTK_BOX(bookmark_hbox_), other_bookmarks_button_,
                      FALSE, FALSE, 0);
 }
 
@@ -178,7 +178,7 @@ bool BookmarkBarGtk::IsAlwaysShown() {
 
 GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
     BookmarkNode* node) {
-  GtkWidget* button = gtk_button_new();
+  GtkWidget* button = gtk_chrome_button_new();
 
   if (node->is_url()) {
     gtk_widget_set_tooltip_text(button, BuildTooltip(node).c_str());
@@ -188,10 +188,6 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
     gtk_label_set_max_width_chars(
         GTK_LABEL(gtk_bin_get_child(GTK_BIN(button))),
         kMaxCharsOnAButton);
-
-    gtk_widget_set_app_paintable(button, TRUE);
-    g_signal_connect(G_OBJECT(button), "expose-event",
-                     G_CALLBACK(&OnButtonExpose), this);
 
     // The tool item is also a source for dragging
     gtk_drag_source_set(button, GDK_BUTTON1_MASK,
@@ -235,35 +231,6 @@ std::string BookmarkBarGtk::BuildTooltip(BookmarkNode* node) {
   return node->GetURL().possibly_invalid_spec();
 }
 
-void BookmarkBarGtk::LoadNineboxImages() {
-  GdkPixbuf* images[9];
-  int i = 0;
-
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_LEFT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_RIGHT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_LEFT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_CENTER_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_RIGHT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_LEFT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_RIGHT_H);
-  nine_box_prelight_.reset(new NineBox(images));
-
-  i = 0;
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_LEFT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_RIGHT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_LEFT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_CENTER_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_RIGHT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_LEFT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_RIGHT_P);
-  nine_box_active_.reset(new NineBox(images));
-}
-
 gboolean BookmarkBarGtk::OnButtonPressed(GtkWidget* sender,
                                          GdkEventButton* event,
                                          BookmarkBarGtk* bar) {
@@ -299,29 +266,6 @@ gboolean BookmarkBarGtk::OnButtonReleased(GtkWidget* sender,
 
   // Allow other handlers to run so the button state is updated correctly.
   return FALSE;
-}
-
-// static
-gboolean BookmarkBarGtk::OnButtonExpose(GtkWidget* widget, GdkEventExpose* e,
-                                        BookmarkBarGtk* button) {
-  NineBox* nine_box = NULL;
-  if (GTK_WIDGET_STATE(widget) == GTK_STATE_PRELIGHT)
-    nine_box = button->nine_box_prelight_.get();
-  else if (GTK_WIDGET_STATE(widget) == GTK_STATE_ACTIVE)
-    nine_box = button->nine_box_active_.get();
-
-  // Only draw theme graphics if we have some.
-  if (nine_box)
-    nine_box->RenderToWidget(widget);
-
-  // If we return FALSE from the function, the button paints itself.
-  // If we return TRUE, no children are painted.
-  // So we return TRUE and send the expose along directly to the child.
-  gtk_container_propagate_expose(GTK_CONTAINER(widget),
-                                 gtk_bin_get_child(GTK_BIN(widget)),
-                                 e);
-
-  return TRUE;  // Prevent normal painting.
 }
 
 // static

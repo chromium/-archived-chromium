@@ -115,8 +115,6 @@ class BookmarkBarGtk : public BookmarkModelObserver {
 
   std::string BuildTooltip(BookmarkNode* node);
 
-  void LoadNineboxImages();
-
   // GtkButton callbacks
   static gboolean OnButtonPressed(GtkWidget* sender,
                                   GdkEventButton* event,
@@ -171,7 +169,7 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   OwnedWidgetGtk bookmark_toolbar_;
 
   // The other bookmarks button.
-  CustomContainerButton* other_bookmarks_button_;
+  GtkWidget* other_bookmarks_button_;
 
   // Whether we should ignore the next button release event (because we were
   // dragging).

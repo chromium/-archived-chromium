@@ -75,27 +75,4 @@ class CustomDrawButton {
   DISALLOW_COPY_AND_ASSIGN(CustomDrawButton);
 };
 
-// CustomContainerButton wraps another widget and uses a NineBox of
-// images to draw a highlight around the edges when you mouse over it.
-class CustomContainerButton {
- public:
-  CustomContainerButton();
-  ~CustomContainerButton();
-
-  GtkWidget* widget() const { return widget_.get(); }
-
- private:
-  // Callback for expose, used to draw the custom graphics.
-  static gboolean OnExpose(GtkWidget* widget, GdkEventExpose* e,
-                           CustomContainerButton* obj);
-
-  // The button widget.
-  OwnedWidgetGtk widget_;
-
-  // The theme graphics for when the mouse is over the button.
-  scoped_ptr<NineBox> nine_box_prelight_;
-  // The theme graphics for when the button is clicked.
-  scoped_ptr<NineBox> nine_box_active_;
-};
-
 #endif  // CHROME_BROWSER_GTK_CUSTOM_BUTTON_H_

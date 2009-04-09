@@ -16,7 +16,6 @@
 
 class BackForwardMenuModelGtk;
 class Browser;
-class CustomContainerButton;
 class CustomDrawButton;
 class GoButtonGtk;
 class LocationBar;
@@ -80,9 +79,10 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
 
   ToolbarStarToggleGtk* BuildStarButton(const std::wstring& localized_tooltip);
 
-  CustomContainerButton* BuildToolbarMenuButton(
+  void BuildToolbarMenuButton(
       int icon_id,
-      const std::wstring& localized_tooltip);
+      const std::wstring& localized_tooltip,
+      OwnedWidgetGtk* owner);
 
   // Adds a keyboard accelerator which trigers a button. (i.e., Ctrl+R is now
   // equivalent to a reload click).
@@ -134,7 +134,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   scoped_ptr<CustomDrawButton> home_;  // May be NULL.
   scoped_ptr<ToolbarStarToggleGtk> star_;
   scoped_ptr<GoButtonGtk> go_;
-  scoped_ptr<CustomContainerButton> page_menu_button_, app_menu_button_;
+  OwnedWidgetGtk page_menu_button_, app_menu_button_;
 
   // The model that contains the security level, text, icon to display...
   ToolbarModel* model_;

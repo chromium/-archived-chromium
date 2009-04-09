@@ -14,6 +14,7 @@
 #include "chrome/browser/gtk/back_forward_menu_model_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
+#include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/gtk/location_bar_view_gtk.h"
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/gtk/standard_menus.h"
@@ -62,6 +63,8 @@ BrowserToolbarGtk::~BrowserToolbarGtk() {
   // group.  Make sure to tear them down before |accel_group_|.
   page_menu_.reset();
   app_menu_.reset();
+  page_menu_button_.Destroy();
+  app_menu_button_.Destroy();
   back_forward_menu_.reset();
   g_object_unref(accel_group_);
 }
@@ -127,13 +130,15 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
-  page_menu_button_.reset(BuildToolbarMenuButton(IDR_MENU_PAGE,
-      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP)));
+  BuildToolbarMenuButton(IDR_MENU_PAGE,
+      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP),
+      &page_menu_button_);
   page_menu_.reset(new MenuGtk(this, GetStandardPageMenu(), accel_group_));
 
-  app_menu_button_.reset(BuildToolbarMenuButton(IDR_MENU_CHROME,
+  BuildToolbarMenuButton(IDR_MENU_CHROME,
       l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
-                            l10n_util::GetString(IDS_PRODUCT_NAME))));
+                            l10n_util::GetString(IDS_PRODUCT_NAME)),
+      &app_menu_button_);
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
 
   gtk_widget_show_all(toolbar_);
@@ -246,25 +251,24 @@ ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
   return button;
 }
 
-CustomContainerButton* BrowserToolbarGtk::BuildToolbarMenuButton(
+void BrowserToolbarGtk::BuildToolbarMenuButton(
     int icon_id,
-    const std::wstring& localized_tooltip) {
-  CustomContainerButton* button = new CustomContainerButton;
+    const std::wstring& localized_tooltip,
+    OwnedWidgetGtk* owner) {
+  GtkWidget* button = gtk_chrome_button_new();
+  owner->Own(button);
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  gtk_container_set_border_width(GTK_CONTAINER(button->widget()), 2);
-  gtk_container_add(GTK_CONTAINER(button->widget()),
+  gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+  gtk_container_add(GTK_CONTAINER(button),
                     gtk_image_new_from_pixbuf(rb.LoadPixbuf(icon_id)));
 
-  gtk_widget_set_tooltip_text(button->widget(),
-                              WideToUTF8(localized_tooltip).c_str());
-  g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
+  gtk_widget_set_tooltip_text(button, WideToUTF8(localized_tooltip).c_str());
+  g_signal_connect(G_OBJECT(button), "button-press-event",
                    G_CALLBACK(OnMenuButtonPressEvent), this);
-  GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
+  GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
 
-  gtk_box_pack_start(GTK_BOX(toolbar_), button->widget(), FALSE, FALSE, 0);
-
-  return button;
+  gtk_box_pack_start(GTK_BOX(toolbar_), button, FALSE, FALSE, 0);
 }
 
 // static
@@ -311,10 +315,10 @@ gboolean BrowserToolbarGtk::OnMenuButtonPressEvent(GtkWidget* button,
     GdkEventButton* event_button = reinterpret_cast<GdkEventButton*>(event);
     if (event_button->button == 1) {
       // We have a button press we should respond to.
-      if (button == toolbar->page_menu_button_->widget()) {
+      if (button == toolbar->page_menu_button_.get()) {
         toolbar->RunPageMenu(event);
         return TRUE;
-      } else if (button == toolbar->app_menu_button_->widget()) {
+      } else if (button == toolbar->app_menu_button_.get()) {
         toolbar->RunAppMenu(event);
         return TRUE;
       }
@@ -384,11 +388,11 @@ void BrowserToolbarGtk::ShowBackForwardMenu(GtkWidget* widget,
 }
 
 void BrowserToolbarGtk::RunPageMenu(GdkEvent* button_press_event) {
-  page_menu_->Popup(page_menu_button_->widget(), button_press_event);
+  page_menu_->Popup(page_menu_button_.get(), button_press_event);
 }
 
 void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
-  app_menu_->Popup(app_menu_button_->widget(), button_press_event);
+  app_menu_->Popup(app_menu_button_.get(), button_press_event);
 }
 
 CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
