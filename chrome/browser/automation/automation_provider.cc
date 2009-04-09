@@ -10,6 +10,7 @@
 #include "base/thread.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/app_modal_dialog.h"
+#include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/automation_provider_list.h"
 #include "chrome/browser/automation/url_request_failed_dns_job.h"
 #include "chrome/browser/automation/url_request_mock_http_job.h"
@@ -35,7 +36,6 @@
 
 #if defined(OS_WIN)
 // TODO(port): Port these headers.
-#include "chrome/browser/app_modal_dialog_queue.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/download/save_package.h"
@@ -1257,7 +1257,8 @@ void AutomationProvider::GetBrowserWindowCount(int* window_count) {
 }
 
 #if defined(OS_WIN)
-// TODO(port): Enable when dialog delegate is ported.
+// TODO(port): Move the views::DialogDelegate::DialogButton enum out into a
+// common place then remove the OS_WIN guard.
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
   AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();

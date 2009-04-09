@@ -384,6 +384,7 @@
         'browser/app_controller_mac.mm',
         'browser/app_modal_dialog.cc',
         'browser/app_modal_dialog.h',
+        'browser/app_modal_dialog_gtk.cc',
         'browser/app_modal_dialog_win.cc',
         'browser/app_modal_dialog_queue.cc',
         'browser/app_modal_dialog_queue.h',
@@ -1345,7 +1346,6 @@
             ['exclude', '^browser/views/'],
           ],
           'sources!': [
-            'browser/app_modal_dialog_queue.cc',
             'browser/autocomplete/autocomplete_accessibility.cc',
             'browser/automation/ui_controls.cc',
             'browser/browser_accessibility.cc',

@@ -53,7 +53,7 @@ void RunJavascriptMessageBox(WebContents* web_contents,
                              IPC::Message* reply_msg) {
   std::wstring title = GetWindowTitle(web_contents, frame_url);
 
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   AppModalDialogQueue::AddDialog(new AppModalDialog(web_contents, title,
       dialog_flags, message_text, default_prompt_text,
       display_suppress_checkbox, false, reply_msg));
@@ -68,7 +68,7 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
   std::wstring full_message =
       message_text + L"\n\n" +
       l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER);
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   AppModalDialogQueue::AddDialog(new AppModalDialog(
       web_contents, l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE),
       MessageBox::kIsJavascriptConfirm, message_text, std::wstring(), false,

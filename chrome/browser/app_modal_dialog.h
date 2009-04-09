@@ -15,7 +15,8 @@
 class JavascriptMessageBoxDialog;
 typedef JavascriptMessageBoxDialog* NativeDialog;
 #elif defined(OS_LINUX)
-typedef void* NativeDialog;
+typedef struct _GtkWidget GtkWidget;
+typedef GtkWidget* NativeDialog;
 #elif defined(OS_MACOSX)
 typedef void* NativeDialog;
 #endif
