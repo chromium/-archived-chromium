@@ -242,11 +242,20 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   DeleteRegistryKey(key, dist->GetVersionKey());
 
   // Delete Software\Classes\ChromeHTML,
+  // Delete Software\Classes\ChromeExt,
+  // Delete Software\Classes\.crx,
   // Software\Clients\StartMenuInternet\chrome.exe and
   // Software\RegisteredApplications\Chrome
   std::wstring html_prog_id(ShellUtil::kRegClasses);
   file_util::AppendToPath(&html_prog_id, ShellUtil::kChromeHTMLProgId);
   DeleteRegistryKey(key, html_prog_id);
+  std::wstring ext_prog_id(ShellUtil::kRegClasses);
+  file_util::AppendToPath(&ext_prog_id, ShellUtil::kChromeExtProgId);
+  DeleteRegistryKey(key, ext_prog_id);
+  std::wstring ext_association(ShellUtil::kRegClasses);
+  ext_association.append(L".");
+  ext_association.append(chrome::kExtensionFileExtension);
+  DeleteRegistryKey(key, ext_association);
 
   std::wstring set_access_key(ShellUtil::kRegStartMenuInternet);
   file_util::AppendToPath(&set_access_key, dist->GetApplicationName());
@@ -285,6 +294,8 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   if (remove_all) {
     DeleteRegistryKey(hklm_key, set_access_key);
     DeleteRegistryKey(hklm_key, html_prog_id);
+    DeleteRegistryKey(hklm_key, ext_prog_id);
+    DeleteRegistryKey(hklm_key, ext_association);
     DeleteRegistryValue(HKEY_LOCAL_MACHINE,
                         ShellUtil::kRegRegisteredApplications,
                         dist->GetApplicationName());
