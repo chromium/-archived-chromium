@@ -21,8 +21,6 @@ devtools.NetAgent = function() {
       goog.bind(this.didReceiveResponse, this);
   RemoteNetAgent.DidFinishLoading =
       goog.bind(this.didFinishLoading, this);
-  RemoteNetAgent.DidFailLoading =
-      goog.bind(this.didFailLoading, this);
 };
 
 
@@ -138,20 +136,5 @@ devtools.NetAgent.prototype.didFinishLoading = function(identifier, value) {
   }
   resource.endTime = value.endTime;
   resource.finished = true;
-  resource.failed = false;
-};
-
-
-/**
- * @see NetAgentDelegate.
- * {@inheritDoc}.
- */
-devtools.NetAgent.prototype.didFailLoading = function(identifier, value) {
-  var resource = this.resources_[identifier];
-  if (!resource) {
-    return;
-  }
-  resource.endTime = value.endTime;
-  resource.finished = false;
-  resource.failed = true;
+  resource.failed = !!value.errorCode;
 };

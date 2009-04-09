@@ -33,28 +33,47 @@ using namespace WebCore;
 NetAgentImpl::NetAgentImpl(NetAgentDelegate* delegate)
     : delegate_(delegate),
       document_(NULL),
-      last_cached_identifier_(-2) {
+      main_loader_(NULL),
+      last_cached_identifier_(-2),
+      attached_(false)  {
 }
 
 NetAgentImpl::~NetAgentImpl() {
   SetDocument(NULL);
-  for (CachedResources::iterator  it = pending_resources_.begin();
-       it != pending_resources_.end(); ++it) {
-    delete it->second;
-  }
+  DidCommitMainResourceLoad();
+  deleteAllValues(pending_resources_);
   pending_resources_.clear();
 }
 
 void NetAgentImpl::SetDocument(Document* doc) {
-//  loaders_.clear();
   document_ = doc;
+}
+
+void NetAgentImpl::Attach() {
+  for (FinishedResources::iterator it = finished_resources_.begin();
+       it != finished_resources_.end(); ++it) {
+    delegate_->DidFinishLoading(it->first, *it->second);
+  }
+  attached_ = true;
+}
+
+void NetAgentImpl::Detach() {
+  attached_ = false;
+}
+
+void NetAgentImpl::DidCommitMainResourceLoad() {
+  for (FinishedResources::iterator it = finished_resources_.begin();
+       it != finished_resources_.end(); ++it) {
+    delete it->second;
+  }
+  finished_resources_.clear();
+  main_loader_ = NULL;
 }
 
 void NetAgentImpl::AssignIdentifierToRequest(
     DocumentLoader* loader,
     int identifier,
     const ResourceRequest& request) {
-  loaders_.set(identifier, loader);
 }
 
 void NetAgentImpl::WillSendRequest(
@@ -72,18 +91,22 @@ void NetAgentImpl::WillSendRequest(
       webkit_glue::StringToStdString(url.lastPathComponent()));
   resource->Set(L"requestHeaders",
       BuildValueForHeaders(request.httpHeaderFields()));
-  delegate_->WillSendRequest(identifier, *resource);
   pending_resources_.set(identifier, resource);
+
+  if (attached_) {
+    delegate_->WillSendRequest(identifier, *resource);
+  }
 }
 
 void NetAgentImpl::DidReceiveResponse(
     DocumentLoader* loader,
     int identifier,
     const ResourceResponse &response) {
-  KURL url = response.url();
   if (!pending_resources_.contains(identifier)) {
     return;
   }
+
+  KURL url = response.url();
   DictionaryValue* resource = pending_resources_.get(identifier);
   resource->SetReal(L"responseReceivedTime", WTF::currentTime());
   resource->SetString(L"url",
@@ -98,7 +121,9 @@ void NetAgentImpl::DidReceiveResponse(
   resource->Set(L"responseHeaders",
       BuildValueForHeaders(response.httpHeaderFields()));
 
-  delegate_->DidReceiveResponse(identifier, *resource);
+  if (attached_) {
+    delegate_->DidReceiveResponse(identifier, *resource);
+  }
 }
 
 void NetAgentImpl::DidReceiveContentLength(
@@ -113,11 +138,31 @@ void NetAgentImpl::DidFinishLoading(
   if (!pending_resources_.contains(identifier)) {
     return;
   }
+
+  // This is the first command being dispatched after
+  // DidCommitMainResourceLoad, we know that the first resource to be reported
+  // as loaded is main resource.
+  if (!main_loader_.get()) {
+    main_loader_ = loader;
+  }
+
   DictionaryValue* resource = pending_resources_.get(identifier);
   resource->SetReal(L"endTime", WTF::currentTime());
-  delegate_->DidFinishLoading(identifier, *resource);
+
   pending_resources_.remove(identifier);
-  delete resource;
+  finished_resources_.append(std::make_pair(identifier, resource));
+
+  // Start removing resources from the cache once there are too many of them.
+  if (finished_resources_.size() > 200) {
+    for (int i = 0; i < 50; ++i) {
+      delete finished_resources_[i].second;
+    }
+    finished_resources_.remove(0, 50);
+  }
+
+  if (attached_) {
+    delegate_->DidFinishLoading(identifier, *resource);
+  }
 }
 
 void NetAgentImpl::DidFailLoading(
@@ -128,13 +173,10 @@ void NetAgentImpl::DidFailLoading(
     return;
   }
   DictionaryValue* resource = pending_resources_.get(identifier);
-  resource->SetReal(L"endTime", WTF::currentTime());
   resource->SetInteger(L"errorCode", error.errorCode());
   resource->SetString(L"localizedDescription",
       webkit_glue::StringToStdString(error.localizedDescription()));
-  delegate_->DidFailLoading(identifier, *resource);
-  pending_resources_.remove(identifier);
-  delete resource;
+  DidFinishLoading(loader, identifier);
 }
 
 void NetAgentImpl::DidLoadResourceFromMemoryCache(
@@ -143,7 +185,6 @@ void NetAgentImpl::DidLoadResourceFromMemoryCache(
     const ResourceResponse& response,
     int length) {
   int identifier = last_cached_identifier_--;
-  loaders_.set(identifier, loader);
 }
 
 void NetAgentImpl::GetResourceContent(
@@ -153,16 +194,11 @@ void NetAgentImpl::GetResourceContent(
   if (!document_) {
     return;
   }
-  CachedLoaders::iterator it = loaders_.find(identifier);
-  if (it == loaders_.end() || !it->second) {
-    return;
-  }
 
-  RefPtr<DocumentLoader> loader = it->second;
   String source;
 
-  if (url == loader->requestURL()) {
-    RefPtr<SharedBuffer> buffer = loader->mainResourceData();
+  if (main_loader_.get() && main_loader_->requestURL() == url) {
+    RefPtr<SharedBuffer> buffer = main_loader_->mainResourceData();
     String text_encoding_name = document_->inputEncoding();
     if (buffer) {
       WebCore::TextEncoding encoding(text_encoding_name);

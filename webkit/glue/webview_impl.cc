@@ -332,9 +332,14 @@ WebView* WebView::Create(WebViewDelegate* delegate,
   // Set the delegate after initializing the main frame, to avoid trying to
   // respond to notifications before we're fully initialized.
   instance->delegate_ = delegate;
-  instance->devtools_agent_.reset(
-      new WebDevToolsAgentImpl(instance,
-          delegate->GetWebDevToolsAgentDelegate()));
+
+  WebDevToolsAgentDelegate* tools_delegate =
+      delegate->GetWebDevToolsAgentDelegate();
+  if (tools_delegate) {
+    instance->devtools_agent_.reset(
+      new WebDevToolsAgentImpl(instance, tools_delegate));
+  }
+
   // Restrict the access to the local file system
   // (see WebView.mm WebView::_commonInitializationWithFrameName).
   FrameLoader::setLocalLoadPolicy(

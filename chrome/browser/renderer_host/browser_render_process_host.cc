@@ -270,6 +270,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kEnableWebWorkers,
     switches::kEnableStatsTable,
     switches::kEnableExtensions,
+    switches::kEnableOutOfProcessDevTools,
   };
 
   for (size_t i = 0; i < arraysize(switch_names); ++i) {
