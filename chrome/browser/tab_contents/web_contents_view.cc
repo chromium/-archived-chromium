@@ -112,6 +112,7 @@ void WebContentsView::ShowCreatedWidgetInternal(
 
   widget_host_view->InitAsPopup(
       web_contents_->render_widget_host_view(), initial_pos);
-  web_contents_->delegate()->RenderWidgetShowing();
+  if (web_contents_->delegate())
+    web_contents_->delegate()->RenderWidgetShowing();
   widget_host->Init();
 }
