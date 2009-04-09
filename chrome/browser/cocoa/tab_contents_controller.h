@@ -9,16 +9,12 @@
 
 @class BookmarkView;
 @class GrowBoxView;
-@class ToolbarView;
 
 class BookmarkModel;
-class CommandUpdater;
-class LocationBar;
-class LocationBarViewMac;
 class TabContents;
 class TabContentsCommandObserver;
 class TabStripModel;
-class ToolbarModel;
+@class ToolbarView;
 
 // A class that controls the contents of a tab, including the toolbar and
 // web area.
@@ -36,25 +32,14 @@ class ToolbarModel;
 
 @interface TabContentsController : NSViewController {
  @private
-  CommandUpdater* commands_;  // weak, may be nil
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
-  LocationBarViewMac* locationBarView_;
   TabContents* contents_;  // weak
-
-  ToolbarModel* toolbarModel_;  // weak, one per window
-  IBOutlet ToolbarView* toolbarView_;
 
   BookmarkModel* bookmarkModel_;  // weak; one per window
 
   // TODO(jrg): write a BookmarkView
   IBOutlet ToolbarView* /* BookmarkView* */ bookmarkView_;
 
-  IBOutlet NSButton* backButton_;
-  IBOutlet NSButton* forwardButton_;
-  IBOutlet NSButton* reloadButton_;
-  IBOutlet NSButton* starButton_;
-  IBOutlet NSButton* goButton_;
-  IBOutlet NSTextField* locationBar_;
   IBOutlet NSBox* contentsBox_;
   IBOutlet GrowBoxView* growBox_;
 
@@ -69,15 +54,10 @@ class ToolbarModel;
 - (id)initWithNibName:(NSString*)name
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
-             commands:(CommandUpdater*)commands
-         toolbarModel:(ToolbarModel*)toolbarModel
         bookmarkModel:(BookmarkModel*)bookmarkModel;
 
 // Take this view (toolbar and web contents) full screen
 - (IBAction)fullScreen:(id)sender;
-
-// Get the C++ bridge object representing the location bar for this tab.
-- (LocationBar*)locationBar;
 
 // Called when the tab contents is about to be put into the view hierarchy as
 // the selected tab. Handles things such as ensuring the toolbar is correctly
@@ -89,23 +69,9 @@ class ToolbarModel;
 // an entirely new tab contents object.
 - (void)tabDidChange:(TabContents*)updatedContents;
 
-// Called when any url bar state changes. If |tabForRestoring| is non-NULL,
-// it points to a TabContents whose state we should restore.
-- (void)updateToolbarWithContents:(TabContents*)tabForRestoring;
-
-// Sets whether or not the current page in the frontmost tab is bookmarked.
-- (void)setStarredState:(BOOL)isStarred;
-
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of this tab.
 - (NSRect)growBoxRect;
-
-// Called to update the loading state. Handles updating the go/stop button
-// state.
-- (void)setIsLoading:(BOOL)isLoading;
-
-// Make the location bar the first responder, if possible.
-- (void)focusLocationBar;
 
 // Change the visibility state of the bookmark bar.
 - (void)toggleBookmarkBar:(BOOL)enable;

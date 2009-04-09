@@ -14,7 +14,11 @@
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 #import "chrome/browser/cocoa/tab_view.h"
+#import "chrome/browser/cocoa/toolbar_controller.h"
 
+@interface BrowserWindowController(Private)
+- (void)positionToolbar;
+@end
 
 @implementation BrowserWindowController
 
@@ -43,7 +47,17 @@
     // registering for the appropriate tab notifications from the back-end and
     // managing the creation of new tabs.
     tabStripController_ = [[TabStripController alloc]
-                            initWithView:[self tabStripView] browser:browser_];
+                            initWithView:[self tabStripView]
+                              switchView:[self tabContentArea]
+                                 browser:browser_];
+
+    // Create a controller for the toolbar, giving it the toolbar model object
+    // and the toolbar view from the nib. The controller will handle
+    // registering for the appropriate command state changes from the back-end.
+    toolbarController_ = [[ToolbarController alloc]
+                            initWithModel:browser->toolbar_model()
+                                 commands:browser->command_updater()];
+    [self positionToolbar];
   }
   return self;
 }
@@ -51,6 +65,7 @@
 - (void)dealloc {
   browser_->CloseAllTabs();
   [tabStripController_ release];
+  [toolbarController_ release];
   delete windowShim_;
   delete tabObserver_;
   delete browser_;
@@ -60,6 +75,28 @@
 // Access the C++ bridge between the NSWindow and the rest of Chromium
 - (BrowserWindow*)browserWindow {
   return windowShim_;
+}
+
+// Position |toolbarView_| below the tab strip, but not as a sibling. The
+// toolbar is part of the window's contentView, mainly because we want the
+// opacity during drags to be the same as the web content.
+- (void)positionToolbar {
+  NSView* contentView = [self tabContentArea];
+  NSRect contentFrame = [contentView frame];
+  NSView* toolbarView = [toolbarController_ view];
+  NSRect toolbarFrame = [toolbarView frame];
+
+  // Shrink the content area by the height of the toolbar.
+  contentFrame.size.height -= toolbarFrame.size.height;
+  [contentView setFrame:contentFrame];
+
+  // Move the toolbar above the content area, within the window's content view
+  // (as opposed to the tab strip, which is a sibling).
+  toolbarFrame.origin.y = NSMaxY(contentFrame);
+  toolbarFrame.origin.x = 0;
+  toolbarFrame.size.width = contentFrame.size.width;
+  [toolbarView setFrame:toolbarFrame];
+  [[[self window] contentView] addSubview:toolbarView];
 }
 
 - (void)destroyBrowser {
@@ -172,29 +209,27 @@
 }
 
 - (LocationBar*)locationBar {
-  return [tabStripController_ locationBar];
+  return [toolbarController_ locationBar];
 }
 
 - (void)updateToolbarWithContents:(TabContents*)tab
                shouldRestoreState:(BOOL)shouldRestore {
-  [tabStripController_ updateToolbarWithContents:tab
-                                 shouldRestoreState:shouldRestore];
+  [toolbarController_ updateToolbarWithContents:shouldRestore ? tab : NULL];
 }
 
 - (void)setStarredState:(BOOL)isStarred {
-  [tabStripController_ setStarredState:isStarred];
+  [toolbarController_ setStarredState:isStarred];
 }
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.
 // |windowGrowBox| needs to be in the window's coordinate system.
 - (NSRect)selectedTabGrowBoxRect {
-  return [tabStripController_
-              selectedTabGrowBoxRect];
+  return [tabStripController_ selectedTabGrowBoxRect];
 }
 
 - (void)setIsLoading:(BOOL)isLoading {
-  [tabStripController_ setIsLoading:isLoading];
+  [toolbarController_ setIsLoading:isLoading];
 }
 
 // Called to start/stop the loading animations.
@@ -211,7 +246,7 @@
 
 // Make the location bar the first responder, if possible.
 - (void)focusLocationBar {
-  [tabStripController_ focusLocationBar];
+  [toolbarController_ focusLocationBar];
 }
 
 - (void)arrangeTabs {
@@ -313,4 +348,5 @@
   UpdateUIForContents(new_contents);
 #endif
 }
+
 @end

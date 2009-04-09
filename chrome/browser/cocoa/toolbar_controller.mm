@@ -1,0 +1,123 @@
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#import "chrome/browser/cocoa/toolbar_controller.h"
+
+#include "base/sys_string_conversions.h"
+#include "chrome/app/chrome_dll_resource.h"
+#import "chrome/browser/cocoa/location_bar_view_mac.h"
+#include "chrome/browser/toolbar_model.h"
+
+// Names of images in the bundle for the star icon (normal and 'starred').
+static NSString* const kStarImageName = @"star";
+static NSString* const kStarredImageName = @"starred";
+
+@interface ToolbarController(Private)
+- (void)initCommandStatus:(CommandUpdater*)commands;
+@end
+
+@implementation ToolbarController
+
+- (id)initWithModel:(ToolbarModel*)model
+           commands:(CommandUpdater*)commands {
+  DCHECK(model && commands);
+  if ((self = [super initWithNibName:@"Toolbar" bundle:nil])) {
+    toolbarModel_ = model;
+    commands_ = commands;
+
+    // Register for notifications about state changes for the toolbar buttons
+    commandObserver_ = new CommandObserverBridge(self, commands);
+    commandObserver_->ObserveCommand(IDC_BACK);
+    commandObserver_->ObserveCommand(IDC_FORWARD);
+    commandObserver_->ObserveCommand(IDC_RELOAD);
+    commandObserver_->ObserveCommand(IDC_HOME);
+    commandObserver_->ObserveCommand(IDC_STAR);
+  }
+  return self;
+}
+
+// Called after the view is done loading and the outlets have been hooked up.
+// Now we can hook up bridges that rely on UI objects such as the location
+// bar and button state.
+- (void)awakeFromNib {
+  [self initCommandStatus:commands_];
+  locationBarView_ = new LocationBarViewMac(locationBar_);
+  locationBarView_->Init();
+  [locationBar_ setStringValue:@"http://dev.chromium.org"];
+}
+
+- (void)dealloc {
+  delete locationBarView_;
+  delete commandObserver_;
+  [super dealloc];
+}
+
+- (LocationBar*)locationBar {
+  return locationBarView_;
+}
+
+- (void)focusLocationBar {
+  if (locationBarView_) {
+    locationBarView_->FocusLocation();
+  }
+}
+
+// Called when the state for a command changes to |enabled|. Update the
+// corresponding UI element.
+- (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled {
+  NSButton* button = nil;
+  switch (command) {
+    case IDC_BACK:
+      button = backButton_;
+      break;
+    case IDC_FORWARD:
+      button = forwardButton_;
+      break;
+    case IDC_HOME:
+      // TODO(pinkerton): add home button
+      break;
+    case IDC_STAR:
+      button = starButton_;
+      break;
+  }
+  [button setEnabled:enabled];
+}
+
+// Init the enabled state of the buttons on the toolbar to match the state in
+// the controller.
+- (void)initCommandStatus:(CommandUpdater*)commands {
+  [backButton_ setEnabled:commands->IsCommandEnabled(IDC_BACK) ? YES : NO];
+  [forwardButton_
+      setEnabled:commands->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
+  [reloadButton_
+      setEnabled:commands->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
+  // TODO(pinkerton): Add home button.
+  [starButton_ setEnabled:commands->IsCommandEnabled(IDC_STAR) ? YES : NO];
+}
+
+- (void)updateToolbarWithContents:(TabContents*)tab {
+  // TODO(pinkerton): there's a lot of ui code in autocomplete_edit.cc
+  // that we'll want to duplicate. For now, just handle setting the text.
+
+  // TODO(pinkerton): update the security lock icon and background color
+
+  NSString* urlString = base::SysWideToNSString(toolbarModel_->GetText());
+  [locationBar_ setStringValue:urlString];
+}
+
+- (void)setStarredState:(BOOL)isStarred {
+  NSString* starImageName = kStarImageName;
+  if (isStarred)
+    starImageName = kStarredImageName;
+  [starButton_ setImage:[NSImage imageNamed:starImageName]];
+}
+
+- (void)setIsLoading:(BOOL)isLoading {
+  NSString* imageName = @"go";
+  if (isLoading)
+    imageName = @"stop";
+  [goButton_ setImage:[NSImage imageNamed:imageName]];
+}
+
+@end

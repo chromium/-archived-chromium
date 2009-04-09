@@ -11,6 +11,7 @@
 #import <Cocoa/Cocoa.h>
 
 #import "chrome/browser/cocoa/tab_window_controller.h"
+#import "chrome/browser/cocoa/toolbar_view.h"
 
 class Browser;
 class BrowserWindow;
@@ -21,11 +22,13 @@ class TabContents;
 @class TabStripController;
 class TabStripModelObserverBridge;
 @class TabStripView;
+@class ToolbarController;
 
 @interface BrowserWindowController :
     TabWindowController<NSUserInterfaceValidations> {
  @private
   TabStripController* tabStripController_;
+  ToolbarController* toolbarController_;
   Browser* browser_;
   TabStripModelObserverBridge* tabObserver_;
   BrowserWindowCocoa* windowShim_;

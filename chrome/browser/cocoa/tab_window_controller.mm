@@ -13,19 +13,16 @@
 
 @implementation TabWindowController
 @synthesize tabStripView = tabStripView_;
+@synthesize tabContentArea = tabContentArea_;
 
 - (void)windowDidLoad {
   // Place the tab bar above the content box and add it to the view hierarchy
   // as a sibling of the content view so it can overlap with the window frame.
-  NSRect tabFrame = [contentBox_ frame];
+  NSRect tabFrame = [tabContentArea_ frame];
   tabFrame.origin = NSMakePoint(0, NSMaxY(tabFrame));
   tabFrame.size.height = NSHeight([tabStripView_ frame]);
   [tabStripView_ setFrame:tabFrame];
   [[[[self window] contentView] superview] addSubview:tabStripView_];
-
-  // tab switching will destroy the content area, so nil this out to ensure
-  // that nobody tries to use it.
-  contentBox_ = nil;
 }
 
 - (void)removeOverlay {
@@ -43,6 +40,21 @@
 
 - (void)showOverlay {
   [self setUseOverlay:YES];
+}
+
+- (NSArray*)viewsToMoveToOverlay {
+  return [NSArray arrayWithObject:[self tabStripView]];
+}
+
+// if |useOverlay| is true, we're moving views into the overlay's content
+// area. If false, we're moving out of the overlay back into the window's
+// content.
+- (void)moveViewsBetweenWindowAndOverlay:(BOOL)useOverlay {
+  NSView* moveTo = useOverlay ?
+      [overlayWindow_ contentView] : [cachedContentView_ superview];
+  NSArray* viewsToMove = [self viewsToMoveToOverlay];
+  for (NSView* view in viewsToMove)
+    [moveTo addSubview:view];
 }
 
 // If |useOverlay| is YES, creates a new overlay window and puts the tab strip
@@ -66,7 +78,7 @@
     NSView *contentView = [overlayWindow_ contentView];
     [contentView addSubview:[self tabStripView]];
     cachedContentView_ = [[self window] contentView];
-    [contentView addSubview:cachedContentView_];
+    [self moveViewsBetweenWindowAndOverlay:useOverlay];
     [overlayWindow_ setHasShadow:YES];
     [[self window] addChildWindow:overlayWindow_ ordered:NSWindowAbove];
     [overlayWindow_ orderFront:nil];
@@ -75,7 +87,7 @@
     DCHECK(cachedContentView_);
     [[self window] setHasShadow:YES];
     [[self window] setContentView:cachedContentView_];
-    [[cachedContentView_ superview] addSubview:[self tabStripView]];
+    [self moveViewsBetweenWindowAndOverlay:useOverlay];
     [[self window] makeFirstResponder:cachedContentView_];
     [[self window] display];
     [[self window] removeChildWindow:overlayWindow_];

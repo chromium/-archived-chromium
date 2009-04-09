@@ -11,6 +11,12 @@
 // know anything about the actual tab implementation or model, as that is fairly
 // application-specific. It only provides an API to be overridden by subclasses
 // to fill in the details.
+//
+// This assumes that there will be a view in the nib, connected to
+// |tabContentArea_|, that indicates the content that it switched when switching
+// between tabs. It needs to be a regular NSView, not something like an NSBox
+// because the TabStripController makes certain assumptions about how it can
+// swap out subviews.
 
 #import <Cocoa/Cocoa.h>
 
@@ -19,9 +25,7 @@
 
 @interface TabWindowController : NSWindowController {
  @private
-  IBOutlet NSBox* contentBox_;  // Only valid at window creation time, used
-                                // to position the tab strip. nil afterwards.
-                                // TODO(pinkerton): get rid of this.
+  IBOutlet NSView* tabContentArea_;
   IBOutlet TabStripView* tabStripView_;
   NSWindow* overlayWindow_;  // Used during dragging for window opacity tricks
   NSView* cachedContentView_;  // Used during dragging for identifying which
@@ -29,6 +33,7 @@
                                // (weak)
 }
 @property(readonly, nonatomic) TabStripView* tabStripView;
+@property(readonly, nonatomic) NSView* tabContentArea;
 
 // Used during tab dragging to turn on/off the overlay window when a tab
 // is torn off.
@@ -60,6 +65,13 @@
 // dragging the only tab in the window.
 - (NSInteger)numberOfTabs;
 
+@end
+
+@interface TabWindowController(ProtectedMethods)
+// A list of all the views that need to move to the overlay window. Subclasses
+// can override this to add more things besides the tab strip. Be sure to
+// call the superclass' version if overridden.
+- (NSArray*)viewsToMoveToOverlay;
 @end
 
 #endif  // CHROME_BROWSER_TAB_WINDOW_CONTROLLER_H_

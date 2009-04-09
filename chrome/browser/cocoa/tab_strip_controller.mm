@@ -20,12 +20,13 @@
 @implementation TabStripController
 
 - (id)initWithView:(TabStripView*)view
+        switchView:(NSView*)switchView
            browser:(Browser*)browser {
-  DCHECK(view && browser);
+  DCHECK(view && switchView && browser);
   if ((self = [super init])) {
     tabView_ = view;
+    switchView_ = switchView;
     tabModel_ = browser->tabstrip_model();
-    toolbarModel_ = browser->toolbar_model();
     bookmarkModel_ = browser->profile()->GetBookmarkModel();
     commands_ = browser->command_updater();
     bridge_ = new TabStripModelObserverBridge(tabModel_, self);
@@ -62,22 +63,20 @@
   TabContentsController* controller = [tabContentsArray_ objectAtIndex:index];
 
   // Resize the new view to fit the window
-  NSView* contentView = [[tabView_ window] contentView];
   NSView* newView = [controller view];
-  NSRect frame = [contentView bounds];
-  frame.size.height -= 14.0;
+  NSRect frame = [switchView_ bounds];
   [newView setFrame:frame];
 
   // Remove the old view from the view hierarchy. We know there's only one
-  // child of the contentView because we're the one who put it there. There
+  // child of |switchView_| because we're the one who put it there. There
   // may not be any children in the case of a tab that's been closed, in
   // which case there's no swapping going on.
-  NSArray* subviews = [contentView subviews];
+  NSArray* subviews = [switchView_ subviews];
   if ([subviews count]) {
     NSView* oldView = [subviews objectAtIndex:0];
-    [contentView replaceSubview:oldView with:newView];
+    [switchView_ replaceSubview:oldView with:newView];
   } else {
-    [contentView addSubview:newView];
+    [switchView_ addSubview:newView];
   }
 }
 
@@ -224,8 +223,6 @@
       [[[TabContentsController alloc] initWithNibName:@"TabContents"
                                                bundle:nil
                                              contents:contents
-                                             commands:commands_
-                                         toolbarModel:toolbarModel_
                                         bookmarkModel:bookmarkModel_]
           autorelease];
   if ([self isBookmarkBarVisible])
@@ -315,32 +312,6 @@
   [updatedController tabDidChange:contents];
 }
 
-- (LocationBar*)locationBar {
-  TabContentsController* selectedController =
-      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
-  return [selectedController locationBar];
-}
-
-- (void)updateToolbarWithContents:(TabContents*)tab
-               shouldRestoreState:(BOOL)shouldRestore {
-  // TODO(pinkerton): OS_WIN maintains this, but I'm not sure why. It's
-  // available by querying the model, which we have available to us.
-  currentTab_ = tab;
-
-  // tell the appropriate controller to update its state. |shouldRestore| being
-  // YES means we're going back to this tab and should put back any state
-  // associated with it.
-  TabContentsController* controller =
-      [tabContentsArray_ objectAtIndex:tabModel_->GetIndexOfTabContents(tab)];
-  [controller updateToolbarWithContents:shouldRestore ? tab : nil];
-}
-
-- (void)setStarredState:(BOOL)isStarred {
-  TabContentsController* selectedController =
-      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
-  [selectedController setStarredState:isStarred];
-}
-
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect {
@@ -358,23 +329,6 @@
   return [selectedController growBoxRect];
 }
 
-// Called to tell the selected tab to update its loading state.
-- (void)setIsLoading:(BOOL)isLoading {
-  // TODO(pinkerton): update the favicon on the selected tab view to/from
-  // a spinner?
-
-  TabContentsController* selectedController =
-      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
-  [selectedController setIsLoading:isLoading];
-}
-
-// Make the location bar the first responder, if possible.
-- (void)focusLocationBar {
-  TabContentsController* selectedController =
-      [tabContentsArray_ objectAtIndex:tabModel_->selected_index()];
-  [selectedController focusLocationBar];
-}
-
 - (BOOL)isBookmarkBarVisible {
   return [bookmarkBarStateController_ visible];
 }
@@ -386,7 +340,6 @@
   for (TabContentsController *controller in tabContentsArray_) {
     [controller toggleBookmarkBar:visible];
   }
-
 }
 
 @end

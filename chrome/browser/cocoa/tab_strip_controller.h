@@ -36,10 +36,10 @@ class ToolbarModel;
  @private
   TabContents* currentTab_;   // weak, tab for which we're showing state
   TabStripView* tabView_;  // weak
+  NSView* switchView_;  // weak
   NSButton* newTabButton_;  // weak, obtained from the nib.
   TabStripModelObserverBridge* bridge_;
   TabStripModel* tabModel_;  // weak
-  ToolbarModel* toolbarModel_;  // weak, one per browser
   BookmarkModel* bookmarkModel_;  // weak, one per profile (= one per Browser*)
   CommandUpdater* commands_;  // weak, may be nil
   // access to the TabContentsControllers (which own the parent view
@@ -56,32 +56,17 @@ class ToolbarModel;
 }
 
 // Initialize the controller with a view and browser that contains
-// everything else we'll need.
+// everything else we'll need. |switchView| is the view whose contents get
+// "switched" every time the user switches tabs. The children of this view
+// will be released, so if you want them to stay around, make sure
+// you have retained them.
 - (id)initWithView:(TabStripView*)view
+        switchView:(NSView*)switchView
            browser:(Browser*)browser;
-
-// Get the C++ bridge object representing the location bar for the current tab.
-- (LocationBar*)locationBar;
-
-// Updates the toolbar (and transitively the location bar) with the states of
-// the specified |tab|.  If |shouldRestore| is true, we're switching
-// (back?) to this tab and should restore any previous location bar state
-// (such as user editing) as well.
-- (void)updateToolbarWithContents:(TabContents*)tab
-               shouldRestoreState:(BOOL)shouldRestore;
-
-// Sets whether or not the current page in the frontmost tab is bookmarked.
-- (void)setStarredState:(BOOL)isStarred;
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect;
-
-// Called to tell the selected tab to update its loading state.
-- (void)setIsLoading:(BOOL)isLoading;
-
-// Make the location bar the first responder, if possible.
-- (void)focusLocationBar;
 
 // Return a boolean (ObjC BOOL, not C++ bool) to say if the bookmark
 // bar is visible.

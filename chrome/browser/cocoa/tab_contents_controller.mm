@@ -5,56 +5,21 @@
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 
 #include "base/sys_string_conversions.h"
-#include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
-#import "chrome/browser/cocoa/location_bar_view_mac.h"
-#include "chrome/browser/command_updater.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/toolbar_model.h"
-
-// Names of images in the bundle for the star icon (normal and 'starred').
-static NSString* const kStarImageName = @"star";
-static NSString* const kStarredImageName = @"starred";
-
-@interface TabContentsController(CommandUpdates)
-- (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
-@end
 
 @interface TabContentsController(Private)
-- (void)updateToolbarCommandStatus;
 - (void)applyContentsBoxOffset:(BOOL)apply;
 @end
-
-// A C++ bridge class that handles listening for updates to commands and
-// passing them back to the controller.
-class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
- public:
-  TabContentsCommandObserver(TabContentsController* controller,
-                             CommandUpdater* commands);
-  ~TabContentsCommandObserver();
-
-  // Overridden from CommandUpdater::CommandObserver
-  void EnabledStateChangedForCommand(int command, bool enabled);
-
- private:
-  TabContentsController* controller_;  // weak, owns me
-  CommandUpdater* commands_;  // weak
-};
 
 @implementation TabContentsController
 
 - (id)initWithNibName:(NSString*)name
                bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
-             commands:(CommandUpdater*)commands
-         toolbarModel:(ToolbarModel*)toolbarModel
         bookmarkModel:(BookmarkModel*)bookmarkModel {
   if ((self = [super initWithNibName:name bundle:bundle])) {
-    commands_ = commands;
-    if (commands_)
-      observer_ = new TabContentsCommandObserver(self, commands);
     contents_ = contents;
-    toolbarModel_ = toolbarModel;
     bookmarkModel_ = bookmarkModel;
   }
   return self;
@@ -63,27 +28,12 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
 - (void)dealloc {
   // make sure our contents have been removed from the window
   [[self view] removeFromSuperview];
-  delete observer_;
-  delete locationBarView_;
   [super dealloc];
 }
 
 - (void)awakeFromNib {
   [contentsBox_ setContentView:contents_->GetNativeView()];
   [self applyContentsBoxOffset:YES];
-
-  // Provide a starting point since we won't get notifications if the state
-  // doesn't change between tabs.
-  [self updateToolbarCommandStatus];
-
-  locationBarView_ = new LocationBarViewMac(locationBar_);
-  locationBarView_->Init();
-
-  [locationBar_ setStringValue:@"http://dev.chromium.org"];
-}
-
-- (LocationBar*)locationBar {
-  return locationBarView_;
 }
 
 // Returns YES if the tab represented by this controller is the front-most.
@@ -91,34 +41,6 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
   // We're the current tab if we're in the view hierarchy, otherwise some other
   // tab is.
   return [[self view] superview] ? YES : NO;
-}
-
-// Called when the state for a command changes to |enabled|. Update the
-// corresponding UI element.
-- (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled {
-  // We don't need to update anything if we're not the frontmost tab.
-  // TODO(pinkerton): i'm worried that observer ordering could cause the
-  // notification to be sent before we've been put into the view, but we
-  // appear to be called in the right order so far.
-  if (![self isCurrentTab])
-    return;
-
-  NSButton* button = nil;
-  switch (command) {
-    case IDC_BACK:
-    button = backButton_;
-    break;
-    case IDC_FORWARD:
-    button = forwardButton_;
-    break;
-    case IDC_HOME:
-    // TODO(pinkerton): add home button
-    break;
-    case IDC_STAR:
-    button = starButton_;
-    break;
-  }
-  [button setEnabled:enabled];
 }
 
 - (IBAction)fullScreen:(id)sender {
@@ -129,49 +51,12 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
   }
 }
 
-// Set the enabled state of the buttons on the toolbar to match the state in
-// the controller. We can't only rely on notifications to do this because the
-// command model only assumes a single toolbar and won't send notifications if
-// the state doesn't change.
-- (void)updateToolbarCommandStatus {
-  [backButton_ setEnabled:commands_->IsCommandEnabled(IDC_BACK) ? YES : NO];
-  [forwardButton_
-      setEnabled:commands_->IsCommandEnabled(IDC_FORWARD) ? YES : NO];
-  [reloadButton_
-      setEnabled:commands_->IsCommandEnabled(IDC_RELOAD) ? YES : NO];
-  [starButton_ setEnabled:commands_->IsCommandEnabled(IDC_STAR) ? YES : NO];
-}
-
 - (void)willBecomeSelectedTab {
-  [self updateToolbarCommandStatus];
 }
 
 - (void)tabDidChange:(TabContents*)updatedContents {
   contents_ = updatedContents;
   [contentsBox_ setContentView:contents_->GetNativeView()];
-}
-
-- (void)focusLocationBar {
-  if (locationBarView_) {
-    locationBarView_->FocusLocation();
-  }
-}
-
-- (void)updateToolbarWithContents:(TabContents*)tab {
-  // TODO(pinkerton): there's a lot of ui code in autocomplete_edit.cc
-  // that we'll want to duplicate. For now, just handle setting the text.
-
-  // TODO(pinkerton): update the security lock icon and background color
-
-  NSString* urlString = base::SysWideToNSString(toolbarModel_->GetText());
-  [locationBar_ setStringValue:urlString];
-}
-
-- (void)setStarredState:(BOOL)isStarred {
-  NSString* starImageName = kStarImageName;
-  if (isStarred)
-    starImageName = kStarredImageName;
-  [starButton_ setImage:[NSImage imageNamed:starImageName]];
 }
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
@@ -197,13 +82,6 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
             localGrowBox.size.height;
   }
   return localGrowBox;
-}
-
-- (void)setIsLoading:(BOOL)isLoading {
-  NSString* imageName = @"go";
-  if (isLoading)
-    imageName = @"stop";
-  [goButton_ setImage:[NSImage imageNamed:imageName]];
 }
 
 - (void)toggleBookmarkBar:(BOOL)enable {
@@ -248,28 +126,3 @@ class TabContentsCommandObserver : public CommandUpdater::CommandObserver {
 }
 
 @end
-
-//--------------------------------------------------------------------------
-
-TabContentsCommandObserver::TabContentsCommandObserver(
-    TabContentsController* controller, CommandUpdater* commands)
-        : controller_(controller), commands_(commands) {
-  DCHECK(controller_ && commands);
-  // Register for notifications about state changes for the toolbar buttons
-  commands_->AddCommandObserver(IDC_BACK, this);
-  commands_->AddCommandObserver(IDC_FORWARD, this);
-  commands_->AddCommandObserver(IDC_RELOAD, this);
-  commands_->AddCommandObserver(IDC_HOME, this);
-  commands_->AddCommandObserver(IDC_STAR, this);
-}
-
-TabContentsCommandObserver::~TabContentsCommandObserver() {
-  // Unregister the notifications
-  commands_->RemoveCommandObserver(this);
-}
-
-void TabContentsCommandObserver::EnabledStateChangedForCommand(int command,
-                                                               bool enabled) {
-  [controller_ enabledStateChangedForCommand:command
-                                     enabled:enabled ? YES : NO];
-}
