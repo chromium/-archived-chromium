@@ -82,7 +82,6 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOriginal(
         record_mode ? net::HttpCache::RECORD : net::HttpCache::PLAYBACK);
   }
   context->http_transaction_factory_ = cache;
-  context->owns_http_transaction_factory_ = true;
 
   // The kNewFtp switch is Windows specific only because we have multiple FTP
   // implementations on Windows.
@@ -126,7 +125,6 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateOffTheRecord(
 
   context->http_transaction_factory_ =
       new net::HttpCache(context->proxy_service_, 0);
-  context->owns_http_transaction_factory_ = true;
   context->cookie_store_ = new net::CookieMonster;
 
   return context;
@@ -171,13 +169,11 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
         static_cast<net::HttpNetworkLayer*>(original_cache->network_layer());
     cache = new net::HttpCache(original_network_layer->GetSession(),
         disk_cache_path.ToWStringHack(), 240000000);
-    context->owns_http_transaction_factory_ = false;
   } else {
     // If original HttpCache doesn't exist, simply construct one with a whole
     // new set of network stack.
     cache = new net::HttpCache(original_context->proxy_service(),
         disk_cache_path.ToWStringHack(), 240000000);
-    context->owns_http_transaction_factory_ = true;
   }
 
   // Set the cache type to media.
@@ -194,8 +190,7 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
 ChromeURLRequestContext::ChromeURLRequestContext(Profile* profile)
     : prefs_(profile->GetPrefs()),
       is_media_(false),
-      is_off_the_record_(profile->IsOffTheRecord()),
-      owns_http_transaction_factory_(false) {
+      is_off_the_record_(profile->IsOffTheRecord()) {
   // Set up Accept-Language and Accept-Charset header values
   accept_language_ = net::HttpUtil::GenerateAcceptLanguageHeader(
       WideToASCII(prefs_->GetString(prefs::kAcceptLanguages)));
@@ -319,9 +314,7 @@ ChromeURLRequestContext::~ChromeURLRequestContext() {
       NotificationService::NoDetails());
 
   delete ftp_transaction_factory_;
-
-  if (owns_http_transaction_factory_)
-    delete http_transaction_factory_;
+  delete http_transaction_factory_;
 
   // Do not delete the cookie store in the case of the media context, as it is
   // owned by the original context.

@@ -95,5 +95,4 @@ class ChromeURLRequestContext : public URLRequestContext,
   PrefService* prefs_;
   bool is_media_;
   bool is_off_the_record_;
-  bool owns_http_transaction_factory_;
 };
