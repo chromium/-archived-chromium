@@ -845,7 +845,9 @@
         'browser/options_window.h',
         'browser/page_state.cc',
         'browser/page_state.h',
-        'browser/password_manager/encryptor.cc',
+        'browser/password_manager/encryptor_linux.cc',
+        'browser/password_manager/encryptor_mac.mm',
+        'browser/password_manager/encryptor_win.cc',
         'browser/password_manager/encryptor.h',
         'browser/password_manager/ie7_password.cc',
         'browser/password_manager/ie7_password.h',
@@ -1329,9 +1331,8 @@
             # Exclude all of hang_monitor.
             ['exclude', '^browser/hang_monitor/'],
 
-            # Exclude most of password_manager.
-            ['exclude', '^browser/password_manager/'],
-            ['include', '^browser/password_manager/password(_form)?_manager\\.cc$'],
+            # Exclude parts of password_manager.
+            ['exclude', '^browser/password_manager/ie7_password\\.cc$'],
 
             # Exclude most of printing.
             ['exclude', '^browser/printing/'],
@@ -2285,7 +2286,6 @@
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',
             'browser/login_prompt_unittest.cc',
-            'browser/password_manager/encryptor_unittest.cc',
             'browser/password_manager/password_form_manager_unittest.cc',
             'browser/printing/page_number_unittest.cc',
             'browser/printing/page_overlays_unittest.cc',

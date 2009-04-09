@@ -29,7 +29,7 @@ bool Encryptor::EncryptString(const std::string& plaintext,
                               std::string* ciphertext) {
   DATA_BLOB input;
   input.pbData = const_cast<BYTE*>(
-    reinterpret_cast<const BYTE*>(plaintext.data()));
+      reinterpret_cast<const BYTE*>(plaintext.data()));
   input.cbData = static_cast<DWORD>(plaintext.length());
 
   DATA_BLOB output;
@@ -50,7 +50,7 @@ bool Encryptor::DecryptString(const std::string& ciphertext,
                               std::string* plaintext) {
   DATA_BLOB input;
   input.pbData = const_cast<BYTE*>(
-    reinterpret_cast<const BYTE*>(ciphertext.data()));
+      reinterpret_cast<const BYTE*>(ciphertext.data()));
   input.cbData = static_cast<DWORD>(ciphertext.length());
 
   DATA_BLOB output;

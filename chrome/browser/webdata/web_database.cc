@@ -12,26 +12,17 @@
 #include "base/gfx/png_encoder.h"
 #include "base/string_util.h"
 #include "base/time.h"
-#include "base/values.h"
 #include "chrome/browser/history/history_database.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/scoped_vector.h"
 #include "webkit/glue/password_form.h"
 
-#if defined(OS_POSIX)
-// TODO(port): get rid of this include. It's used just to provide declarations
-// and stub definitions for classes we encouter during the porting effort.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
-// TODO(port): Get rid of this section and finish porting.
-#if defined(OS_WIN)
 // Encryptor is the *wrong* way of doing things; we need to turn it into a
-// bottleneck to use the platform methods (e.g. Keychain on the Mac). That's
-// going to take a massive change in its API...
+// bottleneck to use the platform methods (e.g. Keychain on the Mac, Gnome
+// Keyring / KWallet on Linux). That's going to take a massive change in its
+// API... see:
+// http://code.google.com/p/chromium/issues/detail?id=8205 (Linux)
 #include "chrome/browser/password_manager/encryptor.h"
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 //

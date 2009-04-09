@@ -404,21 +404,6 @@ class WindowSizer {
 //---------------------------------------------------------------------------
 // These stubs are for Profile
 
-class Encryptor {
- public:
-  static bool EncryptString16(const string16& plaintext,
-                              std::string* ciphertext) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-
-  static bool DecryptString16(const std::string& ciphertext,
-                              string16* plaintext) {
-    NOTIMPLEMENTED();
-    return false;
-  }
-};
-
 class WebAppLauncher {
  public:
   static void Launch(Profile* profile, const GURL& url) {

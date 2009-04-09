@@ -1422,7 +1422,7 @@
 			Name="Password Manager"
 			>
 			<File
-				RelativePath=".\password_manager\encryptor.cc"
+				RelativePath=".\password_manager\encryptor_win.cc"
 				>
 			</File>
 			<File
