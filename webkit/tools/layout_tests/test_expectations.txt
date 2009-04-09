@@ -1817,7 +1817,7 @@ LINUX : LayoutTests/svg/W3C-SVG-1.1/text-fonts-02-t.svg = FAIL
 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 
 // New test. We should fix it, but it doesn't need to block the current release
-DEFER WIN MAC : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
+DEFER : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
 MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
 MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
 LayoutTests/animations/change-keyframes.html = FAIL PASS
@@ -2182,7 +2182,7 @@ DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html =
 // Adding more failures after the last merge:
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
 WIN : LayoutTests/http/tests/xmlhttprequest/null-auth.php = CRASH TIMEOUT PASS
-WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS
+WIN : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = CRASH PASS FAIL
 WIN LINUX : LayoutTests/transitions/interrupt-zero-duration.html = FAIL PASS
 
 // Merge WebKit: 41944:41999
@@ -2362,6 +2362,7 @@ BUG9798 WIN : LayoutTests/fast/xmlhttprequest/xmlhttprequest-gc.html = CRASH PAS
 BUG9798 WIN : LayoutTests/http/tests/misc/css-reject-any-type-in-strict-mode.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/empty-file-formdata.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/image-blocked-src-change.html = FAIL PASS
+BUG9798 WIN : LayoutTests/http/tests/misc/xhtml.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect-with-quotes.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/redirect.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/misc/submit-get-in-utf7.html = TIMEOUT PASS
@@ -2375,6 +2376,7 @@ BUG9798 WIN : LayoutTests/http/tests/uri/css-href.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
+BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-contenttype-empty.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/transitions/change-values-during-transition.html = FAIL PASS
 
 BUG9798 MAC : LayoutTests/fast/dom/onerror-img.html = FAIL PASS
@@ -2403,6 +2405,7 @@ BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-
 BUG9797 WIN DEBUG : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/svg/css/css-box-min-width.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRASH PASS
+BUG9797 WIN DEBUG : LayoutTests/traversal/node-iterator-009.html = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/tabgroup.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/filters-gauss-01-b.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/colourpicker.svg = CRASH FAIL
