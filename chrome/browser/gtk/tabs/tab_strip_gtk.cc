@@ -18,6 +18,7 @@
 namespace {
 
 const int kDefaultAnimationDurationMs = 100;
+const int kResizeLayoutAnimationDurationMs = 166;
 
 const int kNewTabButtonHOffset = -5;
 const int kNewTabButtonVOffset = 5;
@@ -175,10 +176,10 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
 
   const Type type_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TabAnimation);
+  DISALLOW_COPY_AND_ASSIGN(TabAnimation);
 };
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 // Handles insertion of a Tab at |index|.
 class InsertTabAnimation : public TabStripGtk::TabAnimation {
@@ -221,10 +222,10 @@ class InsertTabAnimation : public TabStripGtk::TabAnimation {
  private:
   int index_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(InsertTabAnimation);
+  DISALLOW_COPY_AND_ASSIGN(InsertTabAnimation);
 };
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 // Handles removal of a Tab from |index|
 class RemoveTabAnimation : public TabStripGtk::TabAnimation {
@@ -236,7 +237,7 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
     GenerateStartAndEndWidths(tab_count, tab_count - 1);
   }
 
-  virtual ~RemoveTabAnimation() { }
+  virtual ~RemoveTabAnimation() {}
 
   // Returns the index of the tab being removed.
   int index() const { return index_; }
@@ -307,7 +308,62 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
 
   int index_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(RemoveTabAnimation);
+  DISALLOW_COPY_AND_ASSIGN(RemoveTabAnimation);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+// Handles the animated resize layout of the entire TabStrip from one width
+// to another.
+class ResizeLayoutAnimation : public TabStripGtk::TabAnimation {
+ public:
+  explicit ResizeLayoutAnimation(TabStripGtk* tabstrip)
+      : TabAnimation(tabstrip, RESIZE) {
+    int tab_count = tabstrip->GetTabCount();
+    GenerateStartAndEndWidths(tab_count, tab_count);
+    InitStartState();
+  }
+  virtual ~ResizeLayoutAnimation() {}
+
+  // Overridden from AnimationDelegate:
+  virtual void AnimationEnded(const Animation* animation) {
+    tabstrip_->resize_layout_scheduled_ = false;
+    TabStripGtk::TabAnimation::AnimationEnded(animation);
+  }
+
+ protected:
+  // Overridden from TabStripGtk::TabAnimation:
+  virtual int GetDuration() const {
+    return kResizeLayoutAnimationDurationMs;
+  }
+
+  virtual double GetWidthForTab(int index) const {
+    if (tabstrip_->GetTabAt(index)->IsSelected()) {
+      double delta = end_selected_width_ - start_selected_width_;
+      return start_selected_width_ + (delta * animation_.GetCurrentValue());
+    }
+
+    double delta = end_unselected_width_ - start_unselected_width_;
+    return start_unselected_width_ + (delta * animation_.GetCurrentValue());
+  }
+
+ private:
+  // We need to start from the current widths of the Tabs as they were last
+  // laid out, _not_ the last known good state, which is what'll be done if we
+  // don't measure the Tab sizes here and just go with the default TabAnimation
+  // behavior...
+  void InitStartState() {
+    for (int i = 0; i < tabstrip_->GetTabCount(); ++i) {
+      TabGtk* current_tab = tabstrip_->GetTabAt(i);
+      if (current_tab->IsSelected()) {
+        start_selected_width_ = current_tab->width();
+      } else {
+        start_unselected_width_ = current_tab->width();
+      }
+    }
+  }
+
+  DISALLOW_COPY_AND_ASSIGN(ResizeLayoutAnimation);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -699,6 +755,19 @@ void TabStripGtk::GetDesiredTabWidths(int tab_count,
   }
 }
 
+void TabStripGtk::ResizeLayoutTabs() {
+  available_width_for_tabs_ = -1;
+  double unselected, selected;
+  GetDesiredTabWidths(GetTabCount(), &unselected, &selected);
+  TabGtk* first_tab = GetTabAt(0);
+  int w = Round(first_tab->IsSelected() ? selected : selected);
+
+  // We only want to run the animation if we're not already at the desired
+  // size.
+  if (abs(first_tab->width() - w) > 1)
+    StartResizeLayoutAnimation();
+}
+
 // Called from:
 // - animation tick
 void TabStripGtk::AnimationLayout(double unselected_width) {
@@ -740,6 +809,13 @@ void TabStripGtk::StartRemoveTabAnimation(int index, TabContents* contents) {
   }
 
   active_animation_.reset(new RemoveTabAnimation(this, index, contents));
+  active_animation_->Start();
+}
+
+void TabStripGtk::StartResizeLayoutAnimation() {
+  if (active_animation_.get())
+    active_animation_->Stop();
+  active_animation_.reset(new ResizeLayoutAnimation(this));
   active_animation_->Start();
 }
 
@@ -798,7 +874,17 @@ gboolean TabStripGtk::OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
                                   TabStripGtk* tabstrip) {
   gfx::Rect bounds = gfx::Rect(event->x, event->y, event->width, event->height);
   tabstrip->SetBounds(bounds);
-  tabstrip->Layout();
+
+  // Do a regular layout on the first configure-event so we don't animate
+  // the first tab.
+  // TODO(jhawkins): Windows resizes the layout tabs continuously during
+  // a resize.  I need to investigate which signal to watch in order to
+  // reproduce this behavior.
+  if (tabstrip->GetTabCount() == 1)
+    tabstrip->Layout();
+  else
+    tabstrip->ResizeLayoutTabs();
+
   return TRUE;
 }
 

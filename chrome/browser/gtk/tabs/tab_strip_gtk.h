@@ -75,6 +75,7 @@ class TabStripGtk : public TabStripModelObserver,
  private:
   friend class InsertTabAnimation;
   friend class RemoveTabAnimation;
+  friend class ResizeLayoutAnimation;
   friend class TabAnimation;
 
   struct TabData {
@@ -124,6 +125,9 @@ class TabStripGtk : public TabStripModelObserver,
                            double* unselected_width,
                            double* selected_width) const;
 
+  // Perform an animated resize-relayout of the TabStrip immediately.
+  void ResizeLayoutTabs();
+
   // Calculates the available width for tabs, assuming a Tab is to be closed.
   int GetAvailableWidthForTabs(TabGtk* last_tab) const;
 
@@ -150,6 +154,7 @@ class TabStripGtk : public TabStripModelObserver,
   // Starts various types of TabStrip animations.
   void StartInsertTabAnimation(int index);
   void StartRemoveTabAnimation(int index, TabContents* contents);
+  void StartResizeLayoutAnimation();
 
   // Returns true if detach or select changes in the model should be reflected
   // in the TabStrip. This returns false if we're closing all tabs in the
