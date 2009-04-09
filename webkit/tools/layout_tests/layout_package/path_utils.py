@@ -31,14 +31,14 @@ def WinPathToUnix(path):
   return path.replace('\\', '/')
 
 def WebKitRoot():
-  """Returns the full path to the directory containing webkit.sln.  Raises
-  PathNotFound if we're unable to find webkit.sln."""
+  """Returns the full path to the directory containing webkit.gyp.  Raises
+  PathNotFound if we're unable to find webkit.gyp."""
   global _webkit_root
   if _webkit_root:
     return _webkit_root
-  webkit_sln_path = google.path_utils.FindUpward(google.path_utils.ScriptDir(),
-                                                 'webkit.sln')
-  _webkit_root = os.path.dirname(webkit_sln_path)
+  webkit_gyp_path = google.path_utils.FindUpward(google.path_utils.ScriptDir(),
+                                                 'webkit.gyp')
+  _webkit_root = os.path.dirname(webkit_gyp_path)
   return _webkit_root
 
 def LayoutDataDir():
