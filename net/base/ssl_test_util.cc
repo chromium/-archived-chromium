@@ -152,7 +152,8 @@ void TestServerLauncher::SetPythonPath() {
 bool TestServerLauncher::Start(Protocol protocol,
                                const std::string& host_name, int port,
                                const FilePath& document_root,
-                               const FilePath& cert_path) {
+                               const FilePath& cert_path,
+                               const std::wstring& file_root_url) {
   if (!cert_path.value().empty()) {
     if (!LoadTestRootCert())
       return false;
@@ -196,6 +197,11 @@ bool TestServerLauncher::Start(Protocol protocol,
   if (!cert_path.value().empty()) {
     command_line.append(L" --https=\"");
     command_line.append(cert_path.ToWStringHack());
+    command_line.append(L"\"");
+  }
+  if (!file_root_url.empty()) {
+    command_line.append(L" --file-root-url=\"");
+    command_line.append(file_root_url);
     command_line.append(L"\"");
   }
 

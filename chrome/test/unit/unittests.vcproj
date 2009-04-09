@@ -704,6 +704,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\search_engines\template_url_scraper_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\search_engines\template_url_unittest.cc"
 				>
 			</File>

@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>Submit handler TemplateURL scraping test</title>
+<script>
+
+function submit_handler() {
+  document.getElementById("data").value = "test_data";
+}
+
+function submit_form() {
+  document.forms[0].submit();
+}
+
+</script>
+</head>
+
+<body onload="submit_form();">
+<form action="http://www.foo.com:1337" onsubmit="submit_handler();">
+<input type="hidden" id="data" />
+<input type="text" name="q" />
+<input type="submit" />
+</form>
+</body>
+</html>
