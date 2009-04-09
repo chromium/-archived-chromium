@@ -11,6 +11,7 @@
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/scoped_ptr.h"
@@ -28,12 +29,12 @@
 #include "chrome/test/automation/automation_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
+#include "chrome/test/chrome_process_util.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
 
 #if defined(OS_WIN)
-// TODO(port): these just need to be ported.
-#include "chrome/common/chrome_process_filter.h"
+// TODO(port): this just needs to be ported.
 #include "chrome/test/automation/window_proxy.h"
 #endif
 
@@ -448,30 +449,22 @@ void UITest::AssertAppNotRunning(const std::wstring& error_message) {
 #if defined(OS_WIN)
   ASSERT_EQ(0, GetBrowserProcessCount()) << error_message;
 #else
-  // TODO(port): Enable when chrome_process_filter is ported.
+  // TODO(port): Enable when chrome_process_util is ported.
   NOTIMPLEMENTED();
 #endif
 }
 
 void UITest::CleanupAppProcesses() {
 #if defined(OS_WIN)
-  BrowserProcessFilter filter(L"");
-
-  // Make sure that no instances of the browser remain.
-  const int kExitTimeoutMs = 5000;
-  const int kExitCode = 1;
-  base::CleanupProcesses(
-      chrome::kBrowserProcessExecutableName, kExitTimeoutMs, kExitCode,
-      &filter);
+  TerminateAllChromeProcesses(FilePath::FromWStringHack(user_data_dir()));
 
   // Suppress spammy failures that seem to be occurring when running
   // the UI tests in single-process mode.
   // TODO(jhughes): figure out why this is necessary at all, and fix it
-  if (!in_process_renderer_) {
+  if (!in_process_renderer_)
     AssertAppNotRunning(L"Unable to quit all browser processes.");
-  }
 #else
-  // TODO(port): depends on BrowserProcessFilter.
+  // TODO(port): depends on chrome_process_util.
   NOTIMPLEMENTED();
 #endif
 }
@@ -593,13 +586,13 @@ bool UITest::CrashAwareSleep(int time_out_ms) {
 }
 
 #if defined(OS_WIN)
-// TODO(port): Port BrowserProcessFilter and sort out one wstring/string issue.
+// TODO(port): Port GetRunningChromeProcesses and sort out one w/string issue.
 
 /*static*/
 int UITest::GetBrowserProcessCount() {
-  BrowserProcessFilter filter(L"");
-  return base::GetProcessCount(chrome::kBrowserProcessExecutableName,
-                               &filter);
+  FilePath data_dir;
+  PathService::Get(chrome::DIR_USER_DATA, &data_dir);
+  return GetRunningChromeProcesses(data_dir).size();
 }
 
 static DictionaryValue* LoadDictionaryValueFromPath(const FilePath& path) {

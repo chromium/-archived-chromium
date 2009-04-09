@@ -6,9 +6,12 @@
 #include <psapi.h>
 
 #include "base/basictypes.h"
+#include "base/file_path.h"
+#include "base/path_service.h"
 #include "base/process_util.h"
 #include "chrome/common/chrome_constants.h"
-#include "chrome/common/chrome_process_filter.h"
+#include "chrome/common/chrome_paths.h"
+#include "chrome/test/chrome_process_util.h"
 #include "chrome/test/perf/mem_usage.h"
 
 bool GetMemoryInfo(uint32 process_id,
@@ -80,20 +83,21 @@ size_t GetSystemCommitCharge() {
 
 void PrintChromeMemoryUsageInfo() {
   printf("\n");
-  BrowserProcessFilter chrome_filter(L"");
-  base::NamedProcessIterator
-      chrome_process_itr(chrome::kBrowserProcessExecutableName, &chrome_filter);
 
-  const PROCESSENTRY32* chrome_entry;
-  while (chrome_entry = chrome_process_itr.NextProcessEntry()) {
-    uint32 pid = chrome_entry->th32ProcessID;
+  FilePath data_dir;
+  PathService::Get(chrome::DIR_USER_DATA, &data_dir);
+  int browser_process_pid = ChromeBrowserProcessId(data_dir);
+  ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
+
+  ChromeProcessList::const_iterator it;
+  for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
     size_t peak_virtual_size;
     size_t current_virtual_size;
     size_t peak_working_set_size;
     size_t current_working_set_size;
-    if (GetMemoryInfo(pid, &peak_virtual_size, &current_virtual_size,
+    if (GetMemoryInfo(*it, &peak_virtual_size, &current_virtual_size,
                       &peak_working_set_size, &current_working_set_size)) {
-      if (pid == chrome_filter.browser_process_id()) {
+      if (*it == browser_process_pid) {
         wprintf(L"browser_vm_peak = %d\n", peak_virtual_size);
         wprintf(L"browser_vm_current = %d\n", current_virtual_size);
         wprintf(L"browser_ws_peak = %d\n", peak_working_set_size);

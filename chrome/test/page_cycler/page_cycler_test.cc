@@ -11,13 +11,10 @@
 #include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
-#if defined(OS_WIN)
-// TODO(port): Enable when chrome_process_filter.h is ported.
-#include "chrome/common/chrome_process_filter.h"
-#endif  // defined(OS_WIN)
 #include "chrome/common/chrome_switches.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
+#include "chrome/test/chrome_process_util.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/test/perf/mem_usage.h"
 #include "googleurl/src/gurl.h"
@@ -88,19 +85,19 @@ class PageCyclerTest : public UITest {
   }
 
 #if defined(OS_WIN)
-  // TODO(port): Code below depends on BrowserProcessFilter and has windowsisms.
+  // TODO(port): Port chrome_process_util and remove windowsisms.
   void PrintIOPerfInfo(const char* test_name) {
-    BrowserProcessFilter chrome_filter(L"");
-    base::NamedProcessIterator
-        chrome_process_itr(chrome::kBrowserProcessExecutableName,
-                           &chrome_filter);
+    FilePath data_dir;
+    PathService::Get(chrome::DIR_USER_DATA, &data_dir);
+    int browser_process_pid = ChromeBrowserProcessId(data_dir);
+    ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
 
-    const PROCESSENTRY32* chrome_entry;
-    while(chrome_entry = chrome_process_itr.NextProcessEntry()) {
-      uint32 pid = chrome_entry->th32ProcessID;
-      HANDLE process_handle = OpenProcess(PROCESS_QUERY_INFORMATION,
-                                          false,
-                                          pid);
+    ChromeProcessList::const_iterator it;
+    for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
+      base::ProcessHandle process_handle;
+      if (!base::OpenProcessHandle(*it, &process_handle)) {
+        NOTREACHED();
+      }
 
       scoped_ptr<base::ProcessMetrics> process_metrics;
       IO_COUNTERS io_counters;
@@ -111,8 +108,7 @@ class PageCyclerTest : public UITest {
       if (process_metrics.get()->GetIOCounters(&io_counters)) {
         // Print out IO performance.  We assume that the values can be
         // converted to size_t (they're reported as ULONGLONG, 64-bit numbers).
-        std::string chrome_name =
-            (pid == chrome_filter.browser_process_id()) ? "_b" : "_r";
+        std::string chrome_name = (*it == browser_process_pid) ? "_b" : "_r";
 
         PrintResult("read_op", chrome_name,
                     "r_op" + chrome_name + test_name,
@@ -156,27 +152,27 @@ class PageCyclerTest : public UITest {
 
 
       }
+
+      base::CloseProcessHandle(process_handle);
     }
   }
 
   void PrintMemoryUsageInfo(const char* test_name) {
-    BrowserProcessFilter chrome_filter(L"");
-    base::NamedProcessIterator
-        chrome_process_itr(chrome::kBrowserProcessExecutableName,
-                           &chrome_filter);
+    FilePath data_dir;
+    PathService::Get(chrome::DIR_USER_DATA, &data_dir);
+    int browser_process_pid = ChromeBrowserProcessId(data_dir);
+    ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
 
-    const PROCESSENTRY32* chrome_entry;
-    while(chrome_entry = chrome_process_itr.NextProcessEntry()) {
-      uint32 pid = chrome_entry->th32ProcessID;
+    ChromeProcessList::const_iterator it;
+    for (it = chrome_processes.begin(); it != chrome_processes.end(); ++it) {
       size_t peak_virtual_size;
       size_t current_virtual_size;
       size_t peak_working_set_size;
       size_t current_working_set_size;
-      if (GetMemoryInfo(pid, &peak_virtual_size, &current_virtual_size,
+      if (GetMemoryInfo(*it, &peak_virtual_size, &current_virtual_size,
                         &peak_working_set_size, &current_working_set_size)) {
 
-        std::string chrome_name =
-            (pid == chrome_filter.browser_process_id()) ? "_b" : "_r";
+        std::string chrome_name = (*it == browser_process_pid) ? "_b" : "_r";
 
         std::string trace_name(test_name);
         PrintResult("vm_peak", chrome_name,

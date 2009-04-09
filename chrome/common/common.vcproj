@@ -454,14 +454,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\chrome_process_filter.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\chrome_process_filter.h"
-			>
-		</File>
-		<File
 			RelativePath=".\chrome_switches.cc"
 			>
 		</File>

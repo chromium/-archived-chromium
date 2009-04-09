@@ -34,7 +34,10 @@ ProcessHandle GetCurrentProcessHandle() {
 }
 
 bool OpenProcessHandle(ProcessId pid, ProcessHandle* handle) {
-  ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE | PROCESS_TERMINATE,
+  ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE |
+                                         PROCESS_TERMINATE |
+                                         PROCESS_QUERY_INFORMATION |
+                                         SYNCHRONIZE,
                                      FALSE, pid);
 
   if (result == INVALID_HANDLE_VALUE)

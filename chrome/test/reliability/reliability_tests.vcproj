@@ -168,6 +168,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\chrome_process_util.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\chrome_process_util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\chrome_process_util_win.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\testing_browser_process.h"
 				>
 			</File>
