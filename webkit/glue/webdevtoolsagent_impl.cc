@@ -49,9 +49,6 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
   dom_agent_delegate_stub_.set(new DomAgentDelegateStub(this));
   net_agent_delegate_stub_.set(new NetAgentDelegateStub(this));
   tools_agent_delegate_stub_.set(new ToolsAgentDelegateStub(this));
-
-  // Sniff for requests from the beginning, do not wait for attach.
-  net_agent_impl_.set(new NetAgentImpl(net_agent_delegate_stub_.get()));
 }
 
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
@@ -66,6 +63,7 @@ void WebDevToolsAgentImpl::Attach() {
                             debugger_agent_delegate_stub_.get(),
                             this));
   dom_agent_impl_.set(new DomAgentImpl(dom_agent_delegate_stub_.get()));
+  net_agent_impl_.set(new NetAgentImpl(net_agent_delegate_stub_.get()));
 
   // We are potentially attaching to the running page -> init agents with
   // Document if any.
@@ -86,14 +84,13 @@ void WebDevToolsAgentImpl::Attach() {
         it->line_no);
   }
 
-  net_agent_impl_->Attach();
   attached_ = true;
 }
 
 void WebDevToolsAgentImpl::Detach() {
   debugger_agent_impl_.set(NULL);
   dom_agent_impl_.set(NULL);
-  net_agent_impl_->Detach();
+  net_agent_impl_.set(NULL);
   attached_ = false;
 }
 
@@ -119,9 +116,6 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
     WebViewImpl* webview,
     WebFrame* frame,
     bool is_new_navigation) {
-  if (webview->GetMainFrame() == frame) {
-    net_agent_impl_->DidCommitMainResourceLoad();
-  }
   if (!attached_) {
     return;
   }

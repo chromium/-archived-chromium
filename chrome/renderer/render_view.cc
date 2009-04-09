@@ -299,19 +299,13 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
     decrement_shared_popup_at_destruction_ = false;
   }
 
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-
-  bool dev_tools_enabled = command_line.HasSwitch(
-      switches::kEnableOutOfProcessDevTools);
-  if (dev_tools_enabled)
-    devtools_agent_.reset(new DevToolsAgent(routing_id, this));
+  devtools_agent_.reset(new DevToolsAgent(routing_id, this));
 
   webwidget_ = WebView::Create(this, webkit_prefs);
 
-  if (dev_tools_enabled)
-    devtools_agent_filter_ = new DevToolsAgentFilter(
-        webview()->GetWebDevToolsAgent(),
-        routing_id);
+  devtools_agent_filter_ = new DevToolsAgentFilter(
+      webview()->GetWebDevToolsAgent(),
+      routing_id);
 
 #if defined(OS_LINUX)
   // We have to enable ourselves as the editor delegate on linux so we can copy
@@ -340,6 +334,7 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
   host_window_ = parent_hwnd;
   modal_dialog_event_.reset(modal_dialog_event);
 
+  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   if (command_line.HasSwitch(switches::kDomAutomationController))
     enabled_bindings_ |= BindingsPolicy::DOM_AUTOMATION;
   disable_popup_blocking_ =
@@ -347,8 +342,7 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
-  if (dev_tools_enabled)
-    render_thread_->AddFilter(devtools_agent_filter_);
+  render_thread_->AddFilter(devtools_agent_filter_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -359,7 +353,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
   // If this is developer tools renderer intercept tools messages first.
   if (devtools_client_.get() && devtools_client_->OnMessageReceived(message))
     return;
-  if (devtools_agent_.get() && devtools_agent_->OnMessageReceived(message))
+  if (devtools_agent_->OnMessageReceived(message))
     return;
 
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)

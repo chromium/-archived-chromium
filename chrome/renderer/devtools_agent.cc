@@ -61,7 +61,6 @@ void DevToolsAgent::OnRpcMessage(const std::string& raw_msg) {
 void DevToolsAgent::OnInspectElement(int x, int y) {
   WebDevToolsAgent* web_agent = GetWebAgent();
   if (web_agent) {
-    web_agent->Attach();
     web_agent->InspectElement(x, y);
   }
 }

@@ -31,6 +31,9 @@ DEFINE_RPC_CLASS(NetAgent, NET_AGENT_STRUCT)
      errors */ \
   METHOD2(DidFinishLoading, int /* identifier */, Value /* response */) \
   \
+  /* Notifies the delegate that resource loading has failed. */ \
+  METHOD2(DidFailLoading, int /* identifier */, Value /* response */) \
+  \
   /* Response to the async call. */ \
   METHOD2(GetResourceContentResult, int /* call_id */, std::string /* content */)
 

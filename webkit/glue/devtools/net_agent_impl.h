@@ -5,12 +5,9 @@
 #ifndef WEBKIT_GLUE_DEVTOOLS_NET_AGENT_IMPL_H_
 #define WEBKIT_GLUE_DEVTOOLS_NET_AGENT_IMPL_H_
 
-#include <utility>
-
 #include <wtf/HashMap.h>
 #include <wtf/RefCounted.h>
 #include <wtf/RefPtr.h>
-#include <wtf/Vector.h>
 
 #include "webkit/glue/devtools/net_agent.h"
 
@@ -37,15 +34,6 @@ class NetAgentImpl : public NetAgent {
 
   // Initializes net agent with the given document.
   void SetDocument(WebCore::Document* document);
-
-  // Tells agent it has attached client.
-  void Attach();
-
-  // Tells agent it has no attached client.
-  void Detach();
-
-  // Tells agent that new load has been committed.
-  void DidCommitMainResourceLoad();
 
   // NetAgent implementation.
   void GetResourceContent(int call_id, int identifier,
@@ -85,14 +73,13 @@ class NetAgentImpl : public NetAgent {
 
   NetAgentDelegate* delegate_;
   WebCore::Document* document_;
-  RefPtr<WebCore::DocumentLoader> main_loader_;
   typedef HashMap<int, DictionaryValue*, DefaultHash<int>::Hash,
-                  WTF::UnsignedWithZeroKeyHashTraits<int> > ResourcesMap;
-  typedef Vector<std::pair<int, DictionaryValue*> > FinishedResources;
-  ResourcesMap pending_resources_;
-  FinishedResources finished_resources_;
+                  WTF::UnsignedWithZeroKeyHashTraits<int> > CachedResources;
+  typedef HashMap<int, RefPtr<WebCore::DocumentLoader>, DefaultHash<int>::Hash,
+                  WTF::UnsignedWithZeroKeyHashTraits<int> > CachedLoaders;
+  CachedResources pending_resources_;
+  CachedLoaders loaders_;
   int last_cached_identifier_;
-  bool attached_;
   DISALLOW_COPY_AND_ASSIGN(NetAgentImpl);
 };
 
