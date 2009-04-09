@@ -11,6 +11,19 @@
 #include "chrome/views/widget/widget.h"
 #include "chrome/views/widget/widget_win.h"
 
+HWNDHtmlView::HWNDHtmlView(const GURL& content_url,
+                           RenderViewHostDelegate* delegate,
+                           bool allow_dom_ui_bindings, SiteInstance* instance)
+    : render_view_host_(NULL),
+      content_url_(content_url),
+      allow_dom_ui_bindings_(allow_dom_ui_bindings),
+      delegate_(delegate),
+      initialized_(false),
+      site_instance_(instance) {
+  if (!site_instance_)
+    site_instance_ = SiteInstance::CreateSiteInstance(delegate_->GetProfile());
+}
+
 HWNDHtmlView::~HWNDHtmlView() {
   if (render_view_host_) {
     Detach();
@@ -29,8 +42,7 @@ void HWNDHtmlView::InitHidden() {
 void HWNDHtmlView::Init(HWND parent_hwnd) {
   DCHECK(!render_view_host_) << "Already initialized.";
   RenderViewHost* rvh = new RenderViewHost(
-    SiteInstance::CreateSiteInstance(delegate_->GetProfile()),
-    delegate_, MSG_ROUTING_NONE, NULL);
+    site_instance_, delegate_, MSG_ROUTING_NONE, NULL);
   render_view_host_ = rvh;
 
   RenderWidgetHostViewWin* view = new RenderWidgetHostViewWin(rvh);

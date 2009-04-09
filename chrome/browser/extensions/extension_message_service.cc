@@ -12,19 +12,41 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/render_messages.h"
+#include "chrome/common/stl_util-inl.h"
 
 // Since we have 2 ports for every channel, we just index channels by half the
 // port ID.
-#define GET_CHANNEL_ID(port_id) (port_id / 2)
+#define GET_CHANNEL_ID(port_id) ((port_id) / 2)
 
 // Port1 is always even, port2 is always odd.
-#define IS_PORT1_ID(port_id) ((port_id & 1) == 0)
+#define IS_PORT1_ID(port_id) (((port_id) & 1) == 0)
 
 // Change even to odd and vice versa, to get the other side of a given channel.
-#define GET_OPPOSITE_PORT_ID(source_port_id) (source_port_id ^ 1)
+#define GET_OPPOSITE_PORT_ID(source_port_id) ((source_port_id) ^ 1)
 
-ExtensionMessageService* ExtensionMessageService::GetInstance() {
-  return Singleton<ExtensionMessageService>::get();
+namespace {
+typedef std::map<URLRequestContext*, ExtensionMessageService*> InstanceMap;
+struct SingletonData {
+  ~SingletonData() {
+    STLDeleteContainerPairSecondPointers(map.begin(), map.end());
+  }
+  Lock lock;
+  InstanceMap map;
+};
+}  // namespace
+
+// static
+ExtensionMessageService* ExtensionMessageService::GetInstance(
+    URLRequestContext* context) {
+  SingletonData* data = Singleton<SingletonData>::get();
+  AutoLock lock(data->lock);
+
+  ExtensionMessageService* instance = data->map[context];
+  if (!instance) {
+    instance = new ExtensionMessageService();
+    data->map[context] = instance;
+  }
+  return instance;
 }
 
 ExtensionMessageService::ExtensionMessageService()
@@ -37,7 +59,8 @@ void ExtensionMessageService::RegisterExtension(
   // TODO(mpcomplete): We need to ensure an extension always ends up in a single
   // process.  I think this means having an ExtensionProcessManager which holds
   // a BrowsingContext for each extension.
-  //DCHECK(process_ids_.find(extension_id) == process_ids_.end());
+  DCHECK(process_ids_.find(extension_id) == process_ids_.end() ||
+         process_ids_[extension_id] == render_process_id);
   process_ids_[extension_id] = render_process_id;
 }
 

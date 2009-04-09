@@ -1934,6 +1934,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_process_manager.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_process_manager.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_protocols.cc"
 				>
 			</File>

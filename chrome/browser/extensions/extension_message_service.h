@@ -12,6 +12,7 @@
 
 class ExtensionView;
 class ResourceMessageFilter;
+class URLRequestContext;
 
 // This class manages message passing between renderer processes.  It maintains
 // a list of available extensions and which renderers each lives in, as well as
@@ -24,7 +25,9 @@ class ResourceMessageFilter;
 //   messages on the IO thread.
 class ExtensionMessageService {
  public:
-  static ExtensionMessageService* GetInstance();
+  // Returns the message service for the given context.  Messages can only
+  // be sent within a single context.
+  static ExtensionMessageService* GetInstance(URLRequestContext* context);
 
   ExtensionMessageService();
 

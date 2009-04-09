@@ -6,6 +6,7 @@
 
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_message_service.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/common/resource_bundle.h"
@@ -15,10 +16,9 @@
 
 ExtensionView::ExtensionView(Extension* extension,
                              const GURL& url,
-                             Profile* profile)
-    : HWNDHtmlView(url, this, false),
-      extension_(extension),
-      profile_(profile) {
+                             SiteInstance* instance)
+    : HWNDHtmlView(url, this, false, instance),
+      extension_(extension) {
   // Set the width initially to 0, so that the WebCore::Document can
   // correctly compute the minPrefWidth which is returned in
   // DidContentsChangeSize()
@@ -58,7 +58,8 @@ void ExtensionView::CreatingRenderer() {
 }
 
 void ExtensionView::RenderViewCreated(RenderViewHost* rvh) {
-  ExtensionMessageService::GetInstance()->RegisterExtension(
+  URLRequestContext* context = rvh->process()->profile()->GetRequestContext();
+  ExtensionMessageService::GetInstance(context)->RegisterExtension(
       extension_->id(), render_view_host()->process()->pid());
 }
 

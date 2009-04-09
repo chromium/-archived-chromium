@@ -539,7 +539,7 @@ class BaseDragSource {
 class HWNDHtmlView {
  public:
   HWNDHtmlView(const GURL& content_url, RenderViewHostDelegate* delegate,
-               bool allow_dom_ui_bindings) {
+               bool allow_dom_ui_bindings, SiteInstance* instance) {
     NOTIMPLEMENTED();
   }
   virtual ~HWNDHtmlView() {}

@@ -15,7 +15,6 @@
 #endif
 
 class Extension;
-class Profile;
 struct WebPreferences;
 
 // This class is the browser component of an extension component's RenderView.
@@ -25,13 +24,14 @@ struct WebPreferences;
 class ExtensionView : public HWNDHtmlView,
                       public RenderViewHostDelegate {
  public:
-  ExtensionView(Extension* extension, const GURL& url, Profile* profile);
+  ExtensionView(Extension* extension, const GURL& url, SiteInstance* instance);
 
   // HWNDHtmlView
   virtual void CreatingRenderer();
 
   // RenderViewHostDelegate
-  virtual Profile* GetProfile() const { return profile_; }
+  // TODO(mpcomplete): GetProfile is unused.
+  virtual Profile* GetProfile() const { return NULL; }
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void DidContentsPreferredWidthChange(const int pref_width);
   virtual void DidStopLoading(RenderViewHost* render_view_host,
@@ -51,9 +51,6 @@ class ExtensionView : public HWNDHtmlView,
  private:
   // The extension that we're hosting in this view.
   Extension* extension_;
-
-  // The profile that owns this extension.
-  Profile* profile_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionView);
 };

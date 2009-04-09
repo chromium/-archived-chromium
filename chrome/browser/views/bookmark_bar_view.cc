@@ -13,6 +13,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/drag_utils.h"
 #include "chrome/browser/extensions/extension.h"
+#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -300,7 +301,8 @@ class ExtensionToolstrip : public views::View {
   static const int kPadding = 2;
 
   ExtensionToolstrip(Extension* extension, const GURL& url, Profile* profile)
-      : view_(new ExtensionView(extension, url, profile)) {
+      : view_(ExtensionProcessManager::GetInstance()->CreateView(
+          extension, url, profile)) {
     AddChildView(view_);
     set_border(views::Border::CreateEmptyBorder(
         kPadding, kPadding, kPadding, kPadding));

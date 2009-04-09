@@ -10,6 +10,7 @@
 
 class RenderViewHost;
 class RenderViewHostDelegate;
+class SiteInstance;
 
 // A simple view that wraps a RenderViewHost in an HWNDView to facilitate
 // rendering HTML as arbitrary browser views.
@@ -17,13 +18,7 @@ class RenderViewHostDelegate;
 class HWNDHtmlView : public views::HWNDView {
  public:
   HWNDHtmlView(const GURL& content_url, RenderViewHostDelegate* delegate,
-               bool allow_dom_ui_bindings)
-      : render_view_host_(NULL),
-        content_url_(content_url),
-        allow_dom_ui_bindings_(allow_dom_ui_bindings),
-        delegate_(delegate),
-        initialized_(false) {
-  }
+               bool allow_dom_ui_bindings, SiteInstance* instance);
   virtual ~HWNDHtmlView();
 
   RenderViewHost* render_view_host() { return render_view_host_; }
@@ -49,6 +44,9 @@ class HWNDHtmlView : public views::HWNDView {
 
   // Our HTML rendering component.
   RenderViewHost* render_view_host_;
+
+  // The site instance that the renderer belongs to.
+  SiteInstance* site_instance_;
 
   // Whether or not the rendered content is permitted to send messages back to
   // the view, through |delegate_| via ProcessDOMUIMessage.
