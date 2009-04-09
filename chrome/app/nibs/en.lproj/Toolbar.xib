@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">352.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="4"/>
+			<integer value="1"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -80,42 +80,13 @@
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="464583340">
 							<int key="NSCellFlags">-1804468671</int>
-							<int key="NSCellFlags2">33792</int>
-							<object class="NSAttributedString" key="NSContents">
-								<string key="NSString">chromium.org</string>
-								<object class="NSDictionary" key="NSAttributes">
-									<bool key="EncodedWithXMLCoder">YES</bool>
-									<object class="NSMutableArray" key="dict.sortedKeys">
-										<bool key="EncodedWithXMLCoder">YES</bool>
-										<string>NSColor</string>
-										<string>NSFont</string>
-										<string>NSOriginalFont</string>
-										<string>NSParagraphStyle</string>
-									</object>
-									<object class="NSMutableArray" key="dict.values">
-										<bool key="EncodedWithXMLCoder">YES</bool>
-										<object class="NSColor" id="573052423">
-											<int key="NSColorSpace">6</int>
-											<string key="NSCatalogName">System</string>
-											<string key="NSColorName">textColor</string>
-											<object class="NSColor" key="NSColor">
-												<int key="NSColorSpace">3</int>
-												<bytes key="NSWhite">MAA</bytes>
-											</object>
-										</object>
-										<object class="NSFont" id="381849655">
-											<string key="NSName">LucidaGrande</string>
-											<double key="NSSize">1.600000e+01</double>
-											<int key="NSfFlags">16</int>
-										</object>
-										<reference ref="381849655"/>
-										<object class="NSMutableParagraphStyle">
-											<nil key="NSTabStops"/>
-										</object>
-									</object>
-								</object>
+							<int key="NSCellFlags2">1024</int>
+							<string key="NSContents">chromium.org</string>
+							<object class="NSFont" key="NSSupport">
+								<string key="NSName">LucidaGrande</string>
+								<double key="NSSize">1.600000e+01</double>
+								<int key="NSfFlags">16</int>
 							</object>
-							<reference key="NSSupport" ref="381849655"/>
 							<reference key="NSControlView" ref="535508469"/>
 							<bool key="NSDrawsBackground">YES</bool>
 							<object class="NSColor" key="NSBackgroundColor">
@@ -127,7 +98,15 @@
 									<bytes key="NSWhite">MQA</bytes>
 								</object>
 							</object>
-							<reference key="NSTextColor" ref="573052423"/>
+							<object class="NSColor" key="NSTextColor">
+								<int key="NSColorSpace">6</int>
+								<string key="NSCatalogName">System</string>
+								<string key="NSColorName">textColor</string>
+								<object class="NSColor" key="NSColor">
+									<int key="NSColorSpace">3</int>
+									<bytes key="NSWhite">MAA</bytes>
+								</object>
+							</object>
 						</object>
 					</object>
 					<object class="NSButton" id="368496192">
@@ -609,6 +588,7 @@
 				<bool key="EncodedWithXMLCoder">YES</bool>
 				<object class="IBPartialClassDescription">
 					<string key="className">FirstResponder</string>
+					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="actions">
 						<string key="NS.key.0">commandDispatch:</string>
 						<string key="NS.object.0">id</string>
