@@ -68,25 +68,6 @@ class RenderWidgetHostViewGtkWidget {
                               num_targets);
     gtk_target_list_unref(target_list);
     gtk_target_table_free(targets, num_targets);
-
-    // When X requests the contents of the clipboard, GTK will emit the
-    // selection_request_event signal. The default handler would then
-    // synchronously emit the selection_get signal. However, we want to
-    // respond to the selection_request_event asynchronously, so we intercept
-    // the signal in OnSelectionRequest, request the selection text from the
-    // render view, and return TRUE so the default handler won't be called. Then
-    // when we get the selection text back from the renderer in
-    // SetSelectionText() we will call manually the selection_request_event
-    // default handler.
-    g_signal_connect(widget, "selection_request_event",
-                     G_CALLBACK(OnSelectionRequest), host_view);
-    g_signal_connect(widget, "selection_get",
-                     G_CALLBACK(OnSelectionGet), host_view);
-
-    // In OnSelectionGet, we need to access |host_view| to get the selection
-    // text.
-    g_object_set_data(G_OBJECT(widget), "render-widget-host-view-gtk",
-                      host_view);
     return widget;
   }
 
@@ -157,40 +138,6 @@ class RenderWidgetHostViewGtkWidget {
     return FALSE;
   }
 
-
-  static gboolean OnSelectionRequest(GtkWidget* widget,
-                                     GdkEventSelection* event) {
-    RenderWidgetHostViewGtk* host_view =
-        reinterpret_cast<RenderWidgetHostViewGtk*>(
-        g_object_get_data(G_OBJECT(widget), "render-widget-host-view-gtk"));
-
-    // If we already know the selection text, return FALSE to let the default
-    // handler run. Also, don't try to handle two events simultaneously,
-    // because we might end up sending the wrong |event_selection_| back to GTK.
-    if (!host_view->selection_text_.empty() ||
-         host_view->event_selection_active_)
-      return FALSE;
-
-    host_view->event_selection_ = *event;
-    host_view->event_selection_active_ = true;
-    if (host_view->selection_text_.empty())
-      host_view->RequestSelectionText();
-
-    return TRUE;
-  }
-
-  static void OnSelectionGet(GtkWidget* widget,
-                             GtkSelectionData* data,
-                             guint info, guint time,
-                             RenderWidgetHostViewGtk* host_view) {
-    DCHECK(!host_view->selection_text_.empty() ||
-           host_view->event_selection_active_);
-
-    gtk_selection_data_set(data, data->target, 8,
-        reinterpret_cast<const guchar*>(host_view->selection_text_.c_str()),
-        host_view->selection_text_.length());
-  }
-
   DISALLOW_IMPLICIT_CONSTRUCTORS(RenderWidgetHostViewGtkWidget);
 };
 
@@ -212,8 +159,7 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       parent_(NULL),
       popup_signal_id_(0),
       activatable_(true),
-      is_loading_(false),
-      event_selection_active_(false) {
+      is_loading_(false) {
   host_->set_view(this);
 }
 
@@ -368,20 +314,9 @@ void RenderWidgetHostViewGtk::SetTooltipText(const std::wstring& tooltip_text) {
   }
 }
 
-void RenderWidgetHostViewGtk::SelectionChanged() {
-  selection_text_.clear();
-
-  guint32 timestamp = gdk_x11_get_server_time(view_.get()->window);
-  gtk_selection_owner_set(view_.get(), GDK_SELECTION_PRIMARY, timestamp);
-}
-
-void RenderWidgetHostViewGtk::SetSelectionText(const std::string& text) {
-  selection_text_ = text;
-  DCHECK(event_selection_active_);
-  event_selection_active_ = false;
-  // Resume normal handling of the active selection_request_event.
-  GtkWidgetClass* klass = GTK_WIDGET_CLASS(gtk_type_class(GTK_TYPE_WIDGET));
-  klass->selection_request_event(view_.get(), &event_selection_);
+void RenderWidgetHostViewGtk::SelectionChanged(const std::string& text) {
+  GtkClipboard* x_clipboard = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+  gtk_clipboard_set_text(x_clipboard, text.c_str(), text.length());
 }
 
 BackingStore* RenderWidgetHostViewGtk::AllocBackingStore(
@@ -461,10 +396,6 @@ void RenderWidgetHostViewGtk::ShowCurrentCursor() {
   // The window now owns the cursor.
   if (gdk_cursor)
     gdk_cursor_unref(gdk_cursor);
-}
-
-void RenderWidgetHostViewGtk::RequestSelectionText() {
-  host_->Send(new ViewMsg_RequestSelectionText(host_->routing_id()));
 }
 
 void RenderWidgetHostViewGtk::ReceivedSelectionText(GtkClipboard* clipboard,

@@ -789,7 +789,6 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_UpdateFeedList, OnMsgUpdateFeedList)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ExtensionRequest, OnExtensionRequest)
     IPC_MESSAGE_HANDLER(ViewHostMsg_SelectionChanged, OnMsgSelectionChanged)
-    IPC_MESSAGE_HANDLER(ViewHostMsg_SetSelectionText, OnMsgSetSelectionText)
     IPC_MESSAGE_HANDLER(ViewHostMsg_PasteFromSelectionClipboard,
                         OnMsgPasteFromSelectionClipboard)
     // Have the super handle all other messages.
@@ -1116,14 +1115,9 @@ void RenderViewHost::OnMsgSetTooltipText(const std::wstring& tooltip_text) {
     view()->SetTooltipText(tooltip_text);
 }
 
-void RenderViewHost::OnMsgSelectionChanged() {
+void RenderViewHost::OnMsgSelectionChanged(const std::string& text) {
   if (view())
-    view()->SelectionChanged();
-}
-
-void RenderViewHost::OnMsgSetSelectionText(const std::string& text) {
-  if (view())
-    view()->SetSelectionText(text);
+    view()->SelectionChanged(text);
 }
 
 void RenderViewHost::OnMsgPasteFromSelectionClipboard() {

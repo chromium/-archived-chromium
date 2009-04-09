@@ -835,10 +835,6 @@ class RenderView : public RenderWidget,
   // Maps pending callback IDs to their frames.
   IDMap<WebFrame> pending_extension_callbacks_;
 
-  // The currently selected text. This is currently only updated on Linux, where
-  // it's for the selection clipboard.
-  std::string selection_text_;
-
   DISALLOW_COPY_AND_ASSIGN(RenderView);
 };
 

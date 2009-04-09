@@ -110,10 +110,6 @@ IPC_BEGIN_MESSAGES(View)
   // node.
   IPC_MESSAGE_ROUTED1(ViewMsg_SetInitialFocus, bool /* reverse */)
 
-  // Ask the renderer to send us the selection text via the SetSelectionText
-  // message.
-  IPC_MESSAGE_ROUTED0(ViewMsg_RequestSelectionText)
-
   // Tells the renderer to perform the specified navigation, interrupting any
   // existing navigation.
   IPC_MESSAGE_ROUTED1(ViewMsg_Navigate, ViewMsg_Navigate_Params)
@@ -927,10 +923,7 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::wstring /* tooltip text string */)
 
   // Notification that the text selection has changed.
-  IPC_MESSAGE_ROUTED0(ViewHostMsg_SelectionChanged)
-
-  // Send the current text selection.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_SetSelectionText,
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_SelectionChanged,
                       std::string /* currently selected text */)
 
   // Asks the browser to display the file chooser.  The result is returned in a

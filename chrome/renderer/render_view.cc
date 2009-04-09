@@ -440,7 +440,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamVolume, OnAudioStreamVolume)
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
-    IPC_MESSAGE_HANDLER(ViewMsg_RequestSelectionText, OnRequestSelectionText)
     IPC_MESSAGE_HANDLER(ViewMsg_ClearFocusedNode, OnClearFocusedNode)
 
     // Have the super handle all other messages.
@@ -469,10 +468,6 @@ void RenderView::SendThumbnail() {
 
   // send the thumbnail message to the browser process
   Send(new ViewHostMsg_Thumbnail(routing_id_, url, score, thumbnail));
-}
-
-void RenderView::OnRequestSelectionText() {
-  Send(new ViewHostMsg_SetSelectionText(routing_id_, selection_text_));
 }
 
 void RenderView::PrintPage(const ViewMsg_PrintPage_Params& params,
@@ -2477,9 +2472,8 @@ void RenderView::SetTooltipText(WebView* webview,
 void RenderView::DidChangeSelection(bool is_empty_selection) {
 #if defined(OS_LINUX)
   if (!is_empty_selection) {
-    // TODO(estade): find a way to incrementally update the selection text.
-    selection_text_ = webview()->GetMainFrame()->GetSelection(false);
-    Send(new ViewHostMsg_SelectionChanged(routing_id_));
+    Send(new ViewHostMsg_SelectionChanged(routing_id_,
+         webview()->GetMainFrame()->GetSelection(false)));
   }
 #endif
 }

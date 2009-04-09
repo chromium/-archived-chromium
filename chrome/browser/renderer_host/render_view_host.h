@@ -508,8 +508,7 @@ class RenderViewHost : public RenderWidgetHost {
 #endif
   void OnMsgGoToEntryAtOffset(int offset);
   void OnMsgSetTooltipText(const std::wstring& tooltip_text);
-  void OnMsgSelectionChanged();
-  void OnMsgSetSelectionText(const std::string& text);
+  void OnMsgSelectionChanged(const std::string& text);
   void OnMsgPasteFromSelectionClipboard();
   void OnMsgRunFileChooser(bool multiple_files,
                            const std::wstring& title,
