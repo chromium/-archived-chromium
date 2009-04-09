@@ -38,6 +38,8 @@
         '../third_party/npapi/npapi.gyp:*',
         '../third_party/sqlite/sqlite.gyp:*',
         '../third_party/zlib/zlib.gyp:*',
+        '../webkit/tools/test_shell/test_shell.gyp:*',
+        '../webkit/webkit.gyp:*',
         'temp_gyp/googleurl.gyp:*',
         'temp_gyp/v8.gyp:*',
       ],
@@ -63,8 +65,6 @@
         ['all_gyps', {
           'dependencies': [
             '../chrome/chrome.gyp:*',
-            '../webkit/tools/test_shell/test_shell.gyp:*',
-            '../webkit/webkit.gyp:*',
           ],
         }],
       ],
