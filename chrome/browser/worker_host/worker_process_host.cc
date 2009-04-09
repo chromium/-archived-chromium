@@ -147,19 +147,26 @@ void WorkerProcessHost::RendererShutdown(ResourceMessageFilter* filter) {
 }
 
 void WorkerProcessHost::UpdateTitle() {
-  std::set<std::string> worker_domains;
+  std::set<std::string> titles;
   for (Instances::iterator i = instances_.begin(); i != instances_.end(); ++i) {
-    worker_domains.insert(
-      net::RegistryControlledDomainService::GetDomainAndRegistry(i->url));
+    std::string title =
+        net::RegistryControlledDomainService::GetDomainAndRegistry(i->url);
+    // Use the host name if the domain is empty, i.e. localhost or IP address.
+    if (title.empty())
+      title = i->url.host();
+    // If the host name is empty, i.e. file url, use the path.
+    if (title.empty())
+      title = i->url.path();
+    titles.insert(title);
   }
 
-  std::string title;
-  for (std::set<std::string>::iterator i = worker_domains.begin();
-       i != worker_domains.end(); ++i) {
-    if (!title.empty())
-      title += ", ";
-    title += *i;
+  std::string display_title;
+  for (std::set<std::string>::iterator i = titles.begin();
+       i != titles.end(); ++i) {
+    if (!display_title.empty())
+      display_title += ", ";
+    display_title += *i;
   }
 
-  set_name(ASCIIToWide(title));
+  set_name(ASCIIToWide(display_title));
 }
