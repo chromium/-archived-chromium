@@ -673,7 +673,7 @@ DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-11-b.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/W3C-SVG-1.1/pservers-grad-13-b.svg = FAIL
 
 // Merge 39744:39829 - regression
-DEFER : LayoutTests/svg/custom/path-bad-data.svg = FAIL
+DEFER RELEASE : LayoutTests/svg/custom/path-bad-data.svg = FAIL
 
 // Upstream dumprendertree changes caused the expected to change.
 // Now our baseline is out of date, and we differ from Mac expected on the
@@ -1450,7 +1450,6 @@ MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
 LINUX MAC : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = FAIL TIMEOUT PASS
 MAC : LayoutTests/http/tests/navigation/metaredirect-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
-MAC : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = FAIL
 MAC : LayoutTests/http/tests/navigation/redirect302-frames.html = FAIL
 MAC : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
 MAC : LayoutTests/http/tests/navigation/reload-subframe-object.html = FAIL TIMEOUT
@@ -2317,6 +2316,10 @@ LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
 
 BUG9798 : LayoutTests/http/tests/xmlhttprequest/basic-auth.html = TIMEOUT PASS
 BUG9798 : LayoutTests/editing/execCommand/15381.html = FAIL PASS
+BUG9798 DEBUG : LayoutTests/svg/custom/path-bad-data.svg = CRASH FAIL
+BUG9798 DEBUG : chrome/fast/dom/extensions/interval.html = FAIL PASS
+BUG9798 MAC : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = TIMEOUT FAIL
+BUG9798 LINUX WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = TIMEOUT PASS
 
 BUG9798 LINUX : LayoutTests/animations/animation-iteration-event-destroy-renderer.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/animations/change-keyframes-name.html = FAIL PASS

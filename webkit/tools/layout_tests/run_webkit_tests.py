@@ -815,25 +815,20 @@ def main(options, args):
     platform_new_results_dir = options.platform
 
   if not options.num_test_shells:
-    # Only run stable configurations with multiple test_shells by default.
-    if options.target == 'Release':
-      cpus = 1
-      if sys.platform in ('win32', 'cygwin'):
-        cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
-      elif (hasattr(os, "sysconf") and
-            os.sysconf_names.has_key("SC_NPROCESSORS_ONLN")):
-        # Linux & Unix:
-        ncpus = os.sysconf("SC_NPROCESSORS_ONLN")
-        if isinstance(ncpus, int) and ncpus > 0:
-          cpus = ncpus
-      elif sys.platform in ('darwin'): # OSX:
-        cpus = int(os.popen2("sysctl -n hw.ncpu")[1].read())
+    cpus = 1
+    if sys.platform in ('win32', 'cygwin'):
+      cpus = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
+    elif (hasattr(os, "sysconf") and
+          os.sysconf_names.has_key("SC_NPROCESSORS_ONLN")):
+      # Linux & Unix:
+      ncpus = os.sysconf("SC_NPROCESSORS_ONLN")
+      if isinstance(ncpus, int) and ncpus > 0:
+        cpus = ncpus
+    elif sys.platform in ('darwin'): # OSX:
+      cpus = int(os.popen2("sysctl -n hw.ncpu")[1].read())
 
-      # TODO(ojan): Use cpus+1 once we flesh out the flakiness.
-      options.num_test_shells = cpus
-
-    else:
-      options.num_test_shells = 1
+    # TODO(ojan): Use cpus+1 once we flesh out the flakiness.
+    options.num_test_shells = cpus
   
   logging.info("Running %s test_shells in parallel" % options.num_test_shells)
 
