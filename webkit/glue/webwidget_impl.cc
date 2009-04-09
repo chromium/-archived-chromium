@@ -19,7 +19,6 @@ MSVC_PUSH_WARNING_LEVEL(0);
 MSVC_POP_WARNING();
 
 #undef LOG
-#include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
@@ -34,6 +33,9 @@ using WebKit::WebInputEvent;
 using WebKit::WebKeyboardEvent;
 using WebKit::WebMouseEvent;
 using WebKit::WebMouseWheelEvent;
+using WebKit::WebPoint;
+using WebKit::WebRect;
+using WebKit::WebSize;
 
 // WebWidget ----------------------------------------------------------------
 
@@ -48,7 +50,7 @@ WebWidgetImpl::WebWidgetImpl(WebWidgetDelegate* delegate)
     : delegate_(delegate),
       widget_(NULL) {
   // set to impossible point so we always get the first mouse pos
-  last_mouse_position_.SetPoint(-1, -1);
+  last_mouse_position_ = WebPoint(-1, -1);
 }
 
 WebWidgetImpl::~WebWidgetImpl() {
@@ -57,7 +59,7 @@ WebWidgetImpl::~WebWidgetImpl() {
 }
 
 void WebWidgetImpl::Init(WebCore::FramelessScrollView* widget,
-                         const gfx::Rect& bounds) {
+                         const WebRect& bounds) {
   widget_ = widget;
   widget_->setClient(this);
 
@@ -68,7 +70,7 @@ void WebWidgetImpl::Init(WebCore::FramelessScrollView* widget,
 }
 
 void WebWidgetImpl::InitWithItems(WebCore::FramelessScrollView* widget,
-                                  const gfx::Rect& bounds,
+                                  const WebRect& bounds,
                                   int item_height,
                                   int selected_index,
                                   const std::vector<MenuItem>& items) {
@@ -83,10 +85,9 @@ void WebWidgetImpl::InitWithItems(WebCore::FramelessScrollView* widget,
 
 void WebWidgetImpl::MouseMove(const WebMouseEvent& event) {
   // don't send mouse move messages if the mouse hasn't moved.
-  if (event.x != last_mouse_position_.x() ||
-      event.y != last_mouse_position_.y()) {
-    last_mouse_position_.SetPoint(event.x, event.y);
-
+  if (event.x != last_mouse_position_.x ||
+      event.y != last_mouse_position_.y) {
+    last_mouse_position_ = WebPoint(event.x, event.y);
     widget_->handleMouseMoveEvent(MakePlatformMouseEvent(widget_, event));
   }
 }
@@ -123,18 +124,18 @@ void WebWidgetImpl::Close() {
   Release();  // Balances AddRef from WebWidget::Create
 }
 
-void WebWidgetImpl::Resize(const gfx::Size& new_size) {
+void WebWidgetImpl::Resize(const WebSize& new_size) {
   if (size_ == new_size)
     return;
   size_ = new_size;
 
   if (widget_) {
-    IntRect new_geometry(0, 0, size_.width(), size_.height());
+    IntRect new_geometry(0, 0, size_.width, size_.height);
     widget_->setFrameRect(new_geometry);
   }
 
   if (delegate_) {
-    gfx::Rect damaged_rect(0, 0, size_.width(), size_.height());
+    WebRect damaged_rect(0, 0, size_.width, size_.height);
     delegate_->DidInvalidateRect(this, damaged_rect);
   }
 }
@@ -142,11 +143,11 @@ void WebWidgetImpl::Resize(const gfx::Size& new_size) {
 void WebWidgetImpl::Layout() {
 }
 
-void WebWidgetImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
+void WebWidgetImpl::Paint(skia::PlatformCanvas* canvas, const WebRect& rect) {
   if (!widget_)
     return;
 
-  if (!rect.IsEmpty()) {
+  if (!rect.isEmpty()) {
 #if defined(OS_MACOSX)
     CGContextRef context = canvas->getTopPlatformDevice().GetBitmapContext();
     GraphicsContext gc(context);
@@ -156,9 +157,7 @@ void WebWidgetImpl::Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect) {
     GraphicsContext gc(reinterpret_cast<PlatformGraphicsContext*>(&context));
 #endif
 
-    IntRect dirty_rect(rect.x(), rect.y(), rect.width(), rect.height());
-
-    widget_->paint(&gc, dirty_rect);
+    widget_->paint(&gc, webkit_glue::WebRectToIntRect(rect));
   }
 }
 
@@ -217,7 +216,7 @@ bool WebWidgetImpl::ImeSetComposition(int string_type,
 }
 
 bool WebWidgetImpl::ImeUpdateStatus(bool* enable_ime,
-                                    gfx::Rect* caret_rect) {
+                                    WebRect* caret_rect) {
   return false;
 }
 
@@ -235,7 +234,8 @@ void WebWidgetImpl::repaint(const WebCore::IntRect& paint_rect,
   if (!content_changed || paint_rect.isEmpty())
     return;
   if (delegate_)
-    delegate_->DidInvalidateRect(this, webkit_glue::FromIntRect(paint_rect));
+    delegate_->DidInvalidateRect(this,
+                                 webkit_glue::IntRectToWebRect(paint_rect));
 }
 
 void WebWidgetImpl::scroll(const WebCore::IntSize& scroll_delta,
@@ -244,7 +244,8 @@ void WebWidgetImpl::scroll(const WebCore::IntSize& scroll_delta,
   if (delegate_) {
     int dx = scroll_delta.width();
     int dy = scroll_delta.height();
-    delegate_->DidScrollRect(this, dx, dy, webkit_glue::FromIntRect(clip_rect));
+    delegate_->DidScrollRect(this, dx, dy,
+                             webkit_glue::IntRectToWebRect(clip_rect));
   }
 }
 

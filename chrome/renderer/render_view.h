@@ -307,7 +307,7 @@ class RenderView : public RenderWidget,
                                           bool final_update);
   virtual void ReportFindInPageSelection(int request_id,
                                          int active_match_ordinal,
-                                         const gfx::Rect& selection_rect);
+                                         const WebKit::WebRect& selection);
   virtual bool WasOpenedByUserGesture(WebView* webview) const;
   virtual void SpellCheck(const std::wstring& word, int& misspell_location,
                           int& misspell_length);

@@ -51,7 +51,9 @@
 #include "skia/ext/image_operations.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
@@ -90,6 +92,7 @@ using base::TimeDelta;
 using webkit_glue::WebAccessibility;
 using WebKit::WebConsoleMessage;
 using WebKit::WebDragData;
+using WebKit::WebRect;
 using WebKit::WebScriptSource;
 
 //-----------------------------------------------------------------------------
@@ -762,7 +765,7 @@ bool RenderView::CaptureThumbnail(WebFrame* frame,
     }
   }
 
-  score->at_top = (frame->ScrollOffset().height() == 0);
+  score->at_top = (frame->ScrollOffset().height == 0);
 
   SkBitmap subset;
   device->accessBitmap(false).extractSubset(&subset, src_rect);
@@ -2153,7 +2156,7 @@ void RenderView::OnFind(int request_id,
   // frame, so we check here if we only have main_frame in the chain.
   bool wrap_within_frame = !multi_frame;
 
-  gfx::Rect selection_rect;
+  WebRect selection_rect;
   bool result = false;
 
   do {
@@ -2262,7 +2265,7 @@ void RenderView::ReportFindInPageMatchCount(int count, int request_id,
         routing_id_,
         request_id,
         count,
-        gfx::Rect(0, 0, 0, 0),
+        gfx::Rect(),
         -1,  // Don't update active match ordinal.
         final_update);
     queued_find_reply_message_.reset(msg);
@@ -2272,7 +2275,7 @@ void RenderView::ReportFindInPageMatchCount(int count, int request_id,
         routing_id_,
         request_id,
         count,
-        gfx::Rect(0, 0, 0, 0),
+        gfx::Rect(),
         -1,  // // Don't update active match ordinal.
         final_update));
   }
@@ -2280,7 +2283,7 @@ void RenderView::ReportFindInPageMatchCount(int count, int request_id,
 
 void RenderView::ReportFindInPageSelection(int request_id,
                                            int active_match_ordinal,
-                                           const gfx::Rect& selection_rect) {
+                                           const WebRect& selection_rect) {
   // Send the search result over to the browser process.
   Send(new ViewHostMsg_Find_Reply(routing_id_,
                                   request_id,

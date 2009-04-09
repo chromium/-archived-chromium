@@ -9,9 +9,9 @@
 
 #include "base/basictypes.h"
 #include "base/compiler_specific.h"
-#include "base/gfx/point.h"
-#include "base/gfx/size.h"
 #include "skia/ext/platform_canvas.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/back_forward_list_client_impl.h"
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webpreferences.h"
@@ -63,10 +63,10 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual WebFrame* GetFrameWithName(const std::wstring& name);
   virtual WebFrame* GetPreviousFrameBefore(WebFrame* frame, bool wrap);
   virtual WebFrame* GetNextFrameAfter(WebFrame* frame, bool wrap);
-  virtual void Resize(const gfx::Size& new_size);
-  virtual gfx::Size GetSize() { return size(); }
+  virtual void Resize(const WebKit::WebSize& new_size);
+  virtual WebKit::WebSize GetSize() { return size(); }
   virtual void Layout();
-  virtual void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
+  virtual void Paint(skia::PlatformCanvas* canvas, const WebKit::WebRect& rect);
   virtual bool HandleInputEvent(const WebKit::WebInputEvent* input_event);
   virtual void MouseCaptureLost();
   virtual void SetFocus(bool enable);
@@ -78,7 +78,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
                                  int target_end,
                                  const std::wstring& ime_string);
   virtual bool ImeUpdateStatus(bool* enable_ime,
-                               gfx::Rect* caret_rect);
+                               WebKit::WebRect* caret_rect);
   virtual void SetTextDirection(WebTextDirection direction);
   virtual void StopLoading();
   virtual void SetBackForwardListSize(int size);
@@ -126,9 +126,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
 
   // WebViewImpl
 
-  const gfx::Size& size() const { return size_; }
+  const WebKit::WebSize& size() const { return size_; }
 
-  const gfx::Point& last_mouse_down_point() const {
+  const WebKit::WebPoint& last_mouse_down_point() const {
       return last_mouse_down_point_;
   }
 
@@ -237,9 +237,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   SearchableFormData* CreateSearchableFormDataForFocusedNode();
 
   scoped_refptr<WebViewDelegate> delegate_;
-  gfx::Size size_;
+  WebKit::WebSize size_;
 
-  gfx::Point last_mouse_position_;
+  WebKit::WebPoint last_mouse_position_;
   // Reference to the Frame that last had focus. This is set once when
   // we lose focus, and used when focus is gained to reinstall focus to
   // the correct element.
@@ -302,7 +302,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   // mouse was at when the drag was initiated, only the current point, which
   // can be misleading as it is usually not over the element the user actually
   // dragged by the time a drag is initiated.
-  gfx::Point last_mouse_down_point_;
+  WebKit::WebPoint last_mouse_down_point_;
 
   // Keeps track of the current text zoom level.  0 means no zoom, positive
   // values mean larger text, negative numbers mean smaller.

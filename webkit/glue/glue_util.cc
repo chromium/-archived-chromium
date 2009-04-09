@@ -31,6 +31,8 @@
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebDragData.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebPoint.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
 
@@ -178,6 +180,26 @@ WebCore::IntPoint WebPointToIntPoint(const WebKit::WebPoint& point) {
 
 WebKit::WebPoint IntPointToWebPoint(const WebCore::IntPoint& point) {
   return point;
+}
+
+// Rect conversions ------------------------------------------------------------
+
+WebCore::IntRect WebRectToIntRect(const WebKit::WebRect& rect) {
+  return rect;
+}
+
+WebKit::WebRect IntRectToWebRect(const WebCore::IntRect& rect) {
+  return rect;
+}
+
+// Size conversions ------------------------------------------------------------
+
+WebCore::IntSize WebSizeToIntSize(const WebKit::WebSize& size) {
+  return size;
+}
+
+WebKit::WebSize IntSizeToWebSize(const WebCore::IntSize& size) {
+  return size;
 }
 
 // DragData conversions --------------------------------------------------------

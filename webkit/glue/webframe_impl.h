@@ -130,7 +130,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
       const string16& search_text,
       const WebKit::WebFindOptions& options,
       bool wrap_within_frame,
-      gfx::Rect* selection_rect);
+      WebKit::WebRect* selection_rect);
   virtual void StopFinding(bool clear_selection);
   virtual void ScopeStringMatches(
       int request_id,
@@ -174,9 +174,9 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual void ClosePage();
 
-  virtual gfx::Size ScrollOffset() const;
+  virtual WebKit::WebSize ScrollOffset() const;
 
-  virtual bool BeginPrint(const gfx::Size& page_size_px,
+  virtual bool BeginPrint(const WebKit::WebSize& page_size_px,
                           int* page_count);
   virtual float PrintPage(int page, skia::PlatformCanvas* canvas);
   virtual void EndPrint();
@@ -193,7 +193,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   // WebFrameImpl
   void Layout();
-  void Paint(skia::PlatformCanvas* canvas, const gfx::Rect& rect);
+  void Paint(skia::PlatformCanvas* canvas, const WebKit::WebRect& rect);
 
   bool IsLoading();
 
@@ -286,7 +286,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   // See WebFrame.h for details.
   virtual void IncreaseMatchCount(int count, int request_id);
-  virtual void ReportFindInPageSelection(const gfx::Rect& selection_rect,
+  virtual void ReportFindInPageSelection(const WebKit::WebRect& selection_rect,
                                          int active_match_ordinal,
                                          int request_id);
 
