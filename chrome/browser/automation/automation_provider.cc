@@ -2100,14 +2100,17 @@ void AutomationProvider::GetDownloadDirectory(
   }
 }
 
-void AutomationProvider::OpenNewBrowserWindow(bool show) {
+#if defined(OS_WIN)
+// TODO(port): Remove windowsisms.
+void AutomationProvider::OpenNewBrowserWindow(int show_command) {
   // We may have no current browser windows open so don't rely on
   // asking an existing browser to execute the IDC_NEWWINDOW command
   Browser* browser = Browser::Create(profile_);
   browser->AddBlankTab(true);
-  if (show)
+  if (show_command != SW_HIDE)
     browser->window()->Show();
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::GetWindowForBrowser(int browser_handle,
                                              bool* success,

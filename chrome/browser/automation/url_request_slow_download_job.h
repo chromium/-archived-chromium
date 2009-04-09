@@ -32,9 +32,9 @@ class URLRequestSlowDownloadJob : public URLRequestJob {
                                 const std::string& scheme);
 
   // Test URLs.
-  static const char kUnknownSizeUrl[];
-  static const char kKnownSizeUrl[];
-  static const char kFinishDownloadUrl[];
+  static const wchar_t kUnknownSizeUrl[];
+  static const wchar_t kKnownSizeUrl[];
+  static const wchar_t kFinishDownloadUrl[];
 
   // For UI tests: adds the testing URLs to the URLRequestFilter.
   static void AddUITestUrls();

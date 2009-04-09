@@ -14,12 +14,12 @@
 const int kFirstDownloadSize = 1024 * 35;
 const int kSecondDownloadSize = 1024 * 10;
 
-const char URLRequestSlowDownloadJob::kUnknownSizeUrl[] =
-  "http://url.handled.by.slow.download/download-unknown-size";
-const char URLRequestSlowDownloadJob::kKnownSizeUrl[] =
-  "http://url.handled.by.slow.download/download-known-size";
-const char URLRequestSlowDownloadJob::kFinishDownloadUrl[] =
-  "http://url.handled.by.slow.download/download-finish";
+const wchar_t URLRequestSlowDownloadJob::kUnknownSizeUrl[] =
+  L"http://url.handled.by.slow.download/download-unknown-size";
+const wchar_t URLRequestSlowDownloadJob::kKnownSizeUrl[] =
+  L"http://url.handled.by.slow.download/download-known-size";
+const wchar_t URLRequestSlowDownloadJob::kFinishDownloadUrl[] =
+  L"http://url.handled.by.slow.download/download-finish";
 
 std::vector<URLRequestSlowDownloadJob*>
     URLRequestSlowDownloadJob::kPendingRequests;
@@ -32,11 +32,11 @@ void URLRequestSlowDownloadJob::Start() {
 /* static */
 void URLRequestSlowDownloadJob::AddUITestUrls() {
   URLRequestFilter* filter = URLRequestFilter::GetInstance();
-  filter->AddUrlHandler(GURL(kUnknownSizeUrl),
+  filter->AddUrlHandler(GURL(WideToUTF8(kUnknownSizeUrl)),
                         &URLRequestSlowDownloadJob::Factory);
-  filter->AddUrlHandler(GURL(kKnownSizeUrl),
+  filter->AddUrlHandler(GURL(WideToUTF8(kKnownSizeUrl)),
                         &URLRequestSlowDownloadJob::Factory);
-  filter->AddUrlHandler(GURL(kFinishDownloadUrl),
+  filter->AddUrlHandler(GURL(WideToUTF8(kFinishDownloadUrl)),
                         &URLRequestSlowDownloadJob::Factory);
 }
 
@@ -44,7 +44,7 @@ void URLRequestSlowDownloadJob::AddUITestUrls() {
 URLRequestJob* URLRequestSlowDownloadJob::Factory(URLRequest* request,
     const std::string& scheme) {
   URLRequestSlowDownloadJob* job = new URLRequestSlowDownloadJob(request);
-  if (request->url().spec() != kFinishDownloadUrl)
+  if (request->url().spec() != WideToUTF8(kFinishDownloadUrl))
     URLRequestSlowDownloadJob::kPendingRequests.push_back(job);
   return job;
 }

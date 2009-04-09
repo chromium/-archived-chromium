@@ -103,7 +103,7 @@ TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
   tab_proxy->NavigateToURL(url2_);
 
   // Create a new browser.
-  ASSERT_TRUE(automation()->OpenNewBrowserWindow(false));
+  ASSERT_TRUE(automation()->OpenNewBrowserWindow(SW_HIDE));
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(
       2, action_max_timeout_ms()));
 
@@ -225,7 +225,7 @@ TEST_F(TabRestoreUITest, RestoreWindow) {
   // Create a new window.
   int window_count;
   ASSERT_TRUE(automation()->GetBrowserWindowCount(&window_count));
-  ASSERT_TRUE(automation()->OpenNewBrowserWindow(false));
+  ASSERT_TRUE(automation()->OpenNewBrowserWindow(SW_HIDE));
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(
       ++window_count, action_max_timeout_ms()));
 

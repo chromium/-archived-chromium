@@ -311,7 +311,7 @@ TEST_F(SessionRestoreUITest, DISABLED_TwoWindowsCloseOneRestoreOnlyOne) {
               initial_window_count == 1);
 
   // Open a second window.
-  ASSERT_TRUE(automation()->OpenNewBrowserWindow(true));
+  ASSERT_TRUE(automation()->OpenNewBrowserWindow(SW_SHOWNORMAL));
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, action_timeout_ms()));
 
   // Close it.

@@ -44,6 +44,10 @@ void AutomationProvider::GetFocusedViewID(int handle, int* view_id) {
   NOTIMPLEMENTED();
 }
 
+void AutomationProvider::OpenNewBrowserWindow(int show_command) {
+  NOTIMPLEMENTED();
+}
+
 void AutomationProvider::GetAutocompleteEditForBrowser(
     int browser_handle,
     bool* success,
