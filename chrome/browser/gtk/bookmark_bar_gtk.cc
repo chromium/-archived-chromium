@@ -30,7 +30,8 @@ const int kMaxCharsOnAButton = 15;
 
 // Our custom draging type for bookmarks.
 static GtkTargetEntry target_table[] = {
-  { "application/x-bookmark-toolbar-item", GTK_TARGET_SAME_APP, 0 }
+  { const_cast<char*>("application/x-bookmark-toolbar-item"),
+    GTK_TARGET_SAME_APP, 0 }
 };
 
 }  // namespace
