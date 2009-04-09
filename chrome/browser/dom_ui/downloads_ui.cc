@@ -475,17 +475,20 @@ std::wstring DownloadsDOMHandler::GetProgressStatusText(
     received_size.assign(amount_localized);
   }
 
-  amount_units = GetByteDisplayUnits(total);
-  std::wstring total_text = FormatBytes(total, amount_units, true);
-  std::wstring total_text_localized;
-  if (l10n_util::AdjustStringForLocaleDirection(total_text,
-                                                &total_text_localized))
-    total_text.assign(total_text_localized);
+  if (total) {
+    amount_units = GetByteDisplayUnits(total);
+    std::wstring total_text = FormatBytes(total, amount_units, true);
+    std::wstring total_text_localized;
+    if (l10n_util::AdjustStringForLocaleDirection(total_text,
+                                                  &total_text_localized))
+      total_text.assign(total_text_localized);
 
-  amount = l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_SIZE,
-                                 received_size,
-                                 total_text);
-
+    amount = l10n_util::GetStringF(IDS_DOWNLOAD_TAB_PROGRESS_SIZE,
+                                   received_size,
+                                   total_text);
+  } else {
+    amount.assign(received_size);
+  }
   amount_units = GetByteDisplayUnits(download->CurrentSpeed());
   std::wstring speed_text = FormatSpeed(download->CurrentSpeed(),
                                         amount_units, true);
