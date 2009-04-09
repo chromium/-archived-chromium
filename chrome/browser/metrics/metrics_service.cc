@@ -534,10 +534,12 @@ void MetricsService::Observe(NotificationType type,
           *Details<AutocompleteLog>(details).ptr());
       break;
 
-    case NotificationType::BOOKMARK_MODEL_LOADED:
-      LogBookmarks(Source<Profile>(source)->GetBookmarkModel());
+    case NotificationType::BOOKMARK_MODEL_LOADED: {
+      Profile* p = Source<Profile>(source).ptr();
+      if (p)
+        LogBookmarks(p->GetBookmarkModel());
       break;
-
+    }
     default:
       NOTREACHED();
       break;

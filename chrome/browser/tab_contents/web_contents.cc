@@ -1637,7 +1637,7 @@ void WebContents::Observe(NotificationType type,
       // Somewhere, a URL has been starred.
       // Ignore notifications for profiles other than our current one.
       Profile* source_profile = Source<Profile>(source).ptr();
-      if (!source_profile->IsSameProfile(profile()))
+      if (!source_profile || !source_profile->IsSameProfile(profile()))
         return;
 
       UpdateStarredStateForCurrentURL();
