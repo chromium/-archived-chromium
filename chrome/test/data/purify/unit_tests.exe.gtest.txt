@@ -16,3 +16,6 @@ IPCSyncChannelTest.ChattyServer
 
 # issue 8362
 ExtensionViewTest.Index
+
+# issue 9897
+ExtensionContentScriptInjectTest.Simple
