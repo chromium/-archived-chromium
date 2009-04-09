@@ -634,7 +634,7 @@ void EditorClientImpl::handleKeyboardEvent(WebCore::KeyboardEvent* evt) {
   if (evt->keyCode() == WebCore::VKEY_DOWN ||
       evt->keyCode() == WebCore::VKEY_UP) {
     DCHECK(evt->target()->toNode());
-    ShowAutofillForNode(evt->target()->toNode());
+    ShowFormAutofillForNode(evt->target()->toNode());
   }
 
   if (handleEditingKeyboardEvent(evt))
@@ -663,18 +663,20 @@ void EditorClientImpl::textDidChangeInTextField(WebCore::Element* element) {
   DCHECK(element->hasLocalName(WebCore::HTMLNames::inputTag));
   // Note that we only show the autofill popup in this case if the caret is at
   // the end.  This matches FireFox and Safari but not IE.
-  Autofill(static_cast<WebCore::HTMLInputElement*>(element), false, true);
+  Autofill(static_cast<WebCore::HTMLInputElement*>(element),
+           false, false, true);
 }
 
-bool EditorClientImpl::ShowAutofillForNode(WebCore::Node* node) {
+bool EditorClientImpl::ShowFormAutofillForNode(WebCore::Node* node) {
   WebCore::HTMLInputElement* input_element =
       webkit_glue::NodeToHTMLInputElement(node);
   if (input_element)
-    return Autofill(input_element, true, false);
+    return Autofill(input_element, true, true, false);
   return false;
 }
 
 bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
+                                bool form_autofill_only,
                                 bool autofill_on_empty_value,
                                 bool requires_caret_at_end) {
   // Cancel any pending DoAutofill calls.
@@ -695,7 +697,7 @@ bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
     return false;
 
   if (!requires_caret_at_end) {
-    DoAutofill(input_element, autofill_on_empty_value,
+    DoAutofill(input_element, form_autofill_only, autofill_on_empty_value,
                false, backspace_pressed_);
   } else {
     // We post a task for doing the autofill as the caret position is not set
@@ -707,6 +709,7 @@ bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
         FROM_HERE,
         autofill_factory_.NewRunnableMethod(&EditorClientImpl::DoAutofill,
                                             input_element,
+                                            form_autofill_only,
                                             autofill_on_empty_value,
                                             true,
                                             backspace_pressed_));
@@ -715,6 +718,7 @@ bool EditorClientImpl::Autofill(WebCore::HTMLInputElement* input_element,
 }
 
 void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
+                                  bool form_autofill_only,
                                   bool autofill_on_empty_value,
                                   bool requires_caret_at_end,
                                   bool backspace) {
@@ -732,11 +736,16 @@ void EditorClientImpl::DoAutofill(WebCore::HTMLInputElement* input_element,
   }
 
   // First let's see if there is a password listener for that element.
+  // We won't trigger form autofill in that case, as having both behavior on
+  // a node would be confusing.
   WebFrameImpl* webframe =
       WebFrameImpl::FromFrame(input_element->document()->frame());
   webkit_glue::PasswordAutocompleteListener* listener =
       webframe->GetPasswordListener(input_element);
   if (listener) {
+    if (form_autofill_only)
+      return;
+
     if (backspace)  // No autocomplete for password on backspace.
       return;
 

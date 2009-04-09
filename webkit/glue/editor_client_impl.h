@@ -115,18 +115,21 @@ class EditorClientImpl : public WebCore::EditorClient {
   virtual std::wstring Describe(WebCore::EAffinity affinity);
   virtual std::wstring Describe(WebCore::CSSStyleDeclaration* style);
 
-  // Shows the autofill popup for |node| if it is an HTMLInputElement and it is
-  // empty.  This is called when you press the up or down arrow in a text field
-  // or when clicking an already focused text-field.
+  // Shows the form autofill popup for |node| if it is an HTMLInputElement and
+  // it is empty.  This is called when you press the up or down arrow in a
+  // text-field or when clicking an already focused text-field.
   // Returns true if the autofill popup has been scheduled to be shown, false
   // otherwise.
-  virtual bool ShowAutofillForNode(WebCore::Node* node);
+  virtual bool ShowFormAutofillForNode(WebCore::Node* node);
 
  private:
   void ModifySelection(WebCore::Frame* frame,
                        WebCore::KeyboardEvent* event);
 
-  // Popups an autofill menu for |input_element| is applicable.
+  // Triggers autofill for |input_element| if applicable.  This can be form
+  // autofill (via a popup-menu) or password autofill depending on
+  // |input_element|.  If |form_autofill_only| is true, password autofill is not
+  // triggered.
   // |autofill_on_empty_value| indicates whether the autofill should be shown
   // when the text-field is empty.
   // If |requires_caret_at_end| is true, the autofill popup is only shown if the
@@ -134,6 +137,7 @@ class EditorClientImpl : public WebCore::EditorClient {
   // Returns true if the autofill popup has been scheduled to be shown, false
   // otherwise.
   bool Autofill(WebCore::HTMLInputElement* input_element,
+                bool form_autofill_only,
                 bool autofill_on_empty_value,
                 bool requires_caret_at_end);
 
@@ -142,6 +146,7 @@ class EditorClientImpl : public WebCore::EditorClient {
   // reflecting the last text change yet and we need it to decide whether or not
   // to show the autofill popup.
   void DoAutofill(WebCore::HTMLInputElement* input_element,
+                  bool form_autofill_only,
                   bool autofill_on_empty_value,
                   bool requires_caret_at_end,
                   bool backspace);

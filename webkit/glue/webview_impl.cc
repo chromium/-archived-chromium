@@ -459,7 +459,7 @@ void WebViewImpl::MouseDown(const WebMouseEvent& event) {
   if (clicked_node.get() && clicked_node == GetFocusedNode()) {
     // Focus has not changed, show the autocomplete popup.
     static_cast<EditorClientImpl*>(page_->editorClient())->
-        ShowAutofillForNode(clicked_node.get());
+        ShowFormAutofillForNode(clicked_node.get());
   }
 
   // Dispatch the contextmenu event regardless of if the click was swallowed.
