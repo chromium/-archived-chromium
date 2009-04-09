@@ -2415,6 +2415,7 @@ BUG9850 : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
 BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 BUG9850 WIN MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
 
+// Failed in WebKit merge 42287:42324
 BUG9916 : LayoutTests/css2.1/t0803-c5502-mrgn-r-02-c.html = FAIL
 BUG9916 : LayoutTests/css2.1/t0803-c5505-mrgn-02-c.html = FAIL
 BUG9916 : LayoutTests/fast/block/float/013.html = FAIL
