@@ -780,40 +780,68 @@ devtools.DomAgent.prototype.childNodeRemoved = function(
  * @see DomAgentDelegate.
  * {@inheritDoc}.
  */
-devtools.DomAgent.prototype.performSearch = function(query, forEach) {
+devtools.DomAgent.prototype.performSearch = function(query, callback) {
+  this.searchResults_ = [];
   RemoteDomAgent.PerformSearch(
       devtools.Callback.wrap(
-          goog.bind(this.performSearchCallback_, this, forEach)),
+          goog.bind(this.performSearchCallback_, this, callback,
+                    this.searchResults_)),
       query);
 };
 
 
 /**
- * Invokes callback for each node that needs to clear highlighting.
- * @param {function(devtools.DomNode):undefined} forEach callback to call.
+ * Invokes callback for nodes that needs to clear highlighting.
+ * @param {function(Array.<devtools.DomNode>)} callback to accept the result.
  */
-devtools.DomAgent.prototype.searchCanceled = function(forEach) {
+devtools.DomAgent.prototype.searchCanceled = function(callback) {
+  if (!this.searchResults_)
+    return;
+
+  var nodes = [];
   for (var i = 0; i < this.searchResults_.length; ++i) {
     var nodeId = this.searchResults_[i];
     var node = this.idToDomNode_[nodeId];
-    forEach(node);
+    nodes.push(node);
   }
+
+  callback(nodes);
+  this.searchResults_ = null;
 };
 
 
 /**
  * Invokes callback for each node that needs to gain highlighting.
- * @param {function(devtools.DomNode):undefined} forEach callback to call.
+ * @param {function(Array.<devtools.DomNode>)} callback to accept the result.
+ * @param {Array.<number>} searchResults to be populated.
  * @param {Array.<number>} nodeIds Ids to highlight.
  */
-devtools.DomAgent.prototype.performSearchCallback_ = function(forEach,
-    nodeIds) {
-  this.searchResults_ = [];
+devtools.DomAgent.prototype.performSearchCallback_ = function(callback,
+    searchResults, nodeIds) {
+
+  if (this.searchResults_ !== searchResults)
+    return; // another search has requested and this results are obsolete
+  
+  var nodes = [];
+
   for (var i = 0; i < nodeIds.length; ++i) {
     var node = this.idToDomNode_[nodeIds[i]];
-    this.searchResults_.push(nodeIds[i]);
-    forEach(node);
+    searchResults.push(nodeIds[i]);
+    nodes.push(node);
   }
+
+  callback(nodes);
+};
+
+
+/**
+ * Returns a node by index from the actual search results
+ * (last performSearch).
+ * @param {number} index in the results.
+ * @return {devtools.DomNode}
+ */
+devtools.DomAgent.prototype.getSearchResultNode = function(index) {
+  return this.idToDomNode_[this.searchResults_[index]];
 };
 
 

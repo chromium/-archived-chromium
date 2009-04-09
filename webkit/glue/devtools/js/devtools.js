@@ -218,12 +218,24 @@ WebInspector.ElementsTreeElement.prototype.updateChildren = function() {
  */
 WebInspector.ElementsPanel.prototype.performSearch = function(query) {
   this.searchCanceled();
-  var self = this;
-  devtools.tools.getDomAgent().performSearch(query, function(node) {
-    var treeElement = self.treeOutline.findTreeElement(node);
+  devtools.tools.getDomAgent().performSearch(query,
+      goog.bind(this.performSearchCallback_, this));
+};
+
+
+WebInspector.ElementsPanel.prototype.performSearchCallback_ = function(nodes) {
+  for (var i = 0; i < nodes.length; ++i) {
+    var treeElement = this.treeOutline.findTreeElement(nodes[i]);
     if (treeElement)
       treeElement.highlighted = true;
-  });
+  }
+  
+  if (nodes.length) {
+    this.currentSearchResultIndex_ = 0;
+    this.focusedDOMNode = nodes[0];
+  }
+  
+  this.searchResultCount_ = nodes.length;
 };
 
 
@@ -231,12 +243,19 @@ WebInspector.ElementsPanel.prototype.performSearch = function(query) {
  * @override
  */
 WebInspector.ElementsPanel.prototype.searchCanceled = function() {
-  var self = this;
-  devtools.tools.getDomAgent().searchCanceled(function(node) {
-    var treeElement = self.treeOutline.findTreeElement(node);
+  this.currentSearchResultIndex_ = 0;
+  this.searchResultCount_ = 0;
+  devtools.tools.getDomAgent().searchCanceled(
+      goog.bind(this.searchCanceledCallback_, this));
+};
+
+
+WebInspector.ElementsPanel.prototype.searchCanceledCallback_ = function(nodes) {
+  for (var i = 0; i < nodes.length; i++) {
+    var treeElement = this.treeOutline.findTreeElement(nodes[i]);
     if (treeElement)
       treeElement.highlighted = false;
-  });
+  }
 };
 
 
@@ -244,6 +263,14 @@ WebInspector.ElementsPanel.prototype.searchCanceled = function() {
  * @override
  */
 WebInspector.ElementsPanel.prototype.jumpToNextSearchResult = function() {
+  if (!this.searchResultCount_)
+    return;
+
+  if (++this.currentSearchResultIndex_ >= this.searchResultCount_)
+    this.currentSearchResultIndex_ = 0;
+
+  this.focusedDOMNode = devtools.tools.getDomAgent().
+      getSearchResultNode(this.currentSearchResultIndex_);
 };
 
 
@@ -251,6 +278,14 @@ WebInspector.ElementsPanel.prototype.jumpToNextSearchResult = function() {
  * @override
  */
 WebInspector.ElementsPanel.prototype.jumpToPreviousSearchResult = function() {
+  if (!this.searchResultCount_)
+    return;
+
+  if (--this.currentSearchResultIndex_ < 0)
+    this.currentSearchResultIndex_ = this.searchResultCount_ - 1;
+
+  this.focusedDOMNode = devtools.tools.getDomAgent().
+      getSearchResultNode(this.currentSearchResultIndex_);
 };
 
 
