@@ -31,7 +31,7 @@ class NineBox {
 
   // Render the top row of images to |dst| between |x1| and |x2|.
   // This is split from RenderToWidget so the toolbar can use it.
-  void RenderTopCenterStrip(GtkWidget* dst, int x1, int x2);
+  void RenderTopCenterStrip(GtkWidget* dst, int x1, int x2, int y1);
 
  private:
   // Repeatedly stamp src across dst.
