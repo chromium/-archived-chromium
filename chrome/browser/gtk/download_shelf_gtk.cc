@@ -130,15 +130,13 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_box_pack_start(GTK_BOX(shelf_), padding_bg, FALSE, FALSE, 0);
 
   // Create and pack the close button.
-  GtkWidget* centering_vbox_;
   close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
 
   // Create and pack the "Show all downloads..." link.
   // TODO(estade): there are some pixels above and below the link that
-  // can be clicked. I tried to fix this with a vbox (akin to |centering_vbox|
-  // above), but no dice.
+  // can be clicked. I tried to fix this with a vbox, but no dice.
   GtkWidget* link_box;
   GtkWidget* link_button;
   std::string link_text =

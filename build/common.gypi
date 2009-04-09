@@ -169,6 +169,9 @@
           '-fno-exceptions',
           '-msse2',
           '-mfpmath=sse',
+          '-Wall',
+          # TODO(sgk): when chromium_code targets are clean of warnings.
+          #'-Werror',
         ],
         'ldflags': [
           '-m32',

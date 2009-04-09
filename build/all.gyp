@@ -4,7 +4,6 @@
 
 {
   'variables': {
-    'chromium_code': 1,
     'conditions': [
       ['OS!="win"', {
         'all_gyps%': 1,

@@ -326,7 +326,6 @@ gboolean BookmarkBarGtk::OnToolbarExpose(GtkWidget* widget,
   // A GtkToolbar's expose handler first draws a box. We don't want that so we
   // need to propagate the expose event to all the container's children.
   GList* children = gtk_container_get_children(GTK_CONTAINER(widget));
-  GList* start = children;
   while (children) {
     GList *next = children->next;
     gtk_container_propagate_expose(GTK_CONTAINER(widget),

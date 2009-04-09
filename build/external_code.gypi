@@ -4,6 +4,14 @@
 
 {
   'conditions': [
+    [ 'OS=="linux"', {
+      'target_defaults': {
+        'cflags!': [
+          '-Wall',
+          '-Werror',
+        ],
+      },
+    }],
     [ 'OS=="win"', {
       'target_defaults': {
         'defines': [
