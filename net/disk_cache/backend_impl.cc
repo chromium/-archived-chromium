@@ -1310,6 +1310,13 @@ void BackendImpl::ReportStats() {
   CACHE_UMA(HOURS, "TotalTime", 0, static_cast<int>(total_hours));
 
   int64 use_hours = stats_.GetCounter(Stats::LAST_REPORT_TIMER) / 120;
+  stats_.SetCounter(Stats::LAST_REPORT_TIMER, stats_.GetCounter(Stats::TIMER));
+
+  // We may see users with no use_hours at this point if this is the first time
+  // we are running this code.
+  if (use_hours)
+    use_hours = total_hours - use_hours;
+
   if (!use_hours || !GetEntryCount() || !data_->header.num_bytes)
     return;
 
@@ -1329,7 +1336,6 @@ void BackendImpl::ReportStats() {
 
   stats_.ResetRatios();
   stats_.SetCounter(Stats::TRIM_ENTRY, 0);
-  stats_.SetCounter(Stats::LAST_REPORT_TIMER, 0);
 }
 
 void BackendImpl::UpgradeTo2_1() {

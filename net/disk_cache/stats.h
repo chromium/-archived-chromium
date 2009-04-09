@@ -43,7 +43,7 @@ class Stats {
     GET_RANKINGS,  // We got the ranking info without reading the whole entry.
     FATAL_ERROR,
     LAST_REPORT,  // Time of the last time we sent a report.
-    LAST_REPORT_TIMER,  // Timer count since last report.
+    LAST_REPORT_TIMER,  // Timer count of the last time we sent a report.
     MAX_COUNTER
   };
 

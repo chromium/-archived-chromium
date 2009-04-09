@@ -539,6 +539,9 @@ EntryImpl* EntryImpl::Update(EntryImpl* entry) {
 
 bool EntryImpl::IsDirty(int32 current_id) {
   DCHECK(node_.HasData());
+  // We are checking if the entry is valid or not. If there is a pointer here,
+  // |dirty| has to be the id of the cache that is using the entry (the one
+  // that created the pointer), 0 is not a valid id.
   if (node_.Data()->pointer && !node_.Data()->dirty)
     return true;
 
