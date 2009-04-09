@@ -270,6 +270,12 @@
   gfx::Rect browserRect(windowRect.origin.x, windowRect.origin.y,
                         windowRect.size.width, windowRect.size.height);
 
+  // Detach it from the source window, which just updates the model without
+  // deleting the tab contents. This needs to come before creating the new
+  // Browser because it clears the TabContents' delegate, which gets hooked
+  // up during creation of the new window.
+  browser_->tabstrip_model()->DetachTabContentsAt(index);
+
   // Create the new window with a single tab in its model, the one being
   // dragged.
   DockInfo dockInfo;
@@ -282,10 +288,6 @@
   TabWindowController* controller =
       [newBrowser->window()->GetNativeHandle() delegate];
   DCHECK(controller && [controller isKindOfClass:[TabWindowController class]]);
-
-  // Detach it from the source window, which just updates the model without
-  // deleting the tab contents.
-  browser_->tabstrip_model()->DetachTabContentsAt(index);
 
   return controller;
 }

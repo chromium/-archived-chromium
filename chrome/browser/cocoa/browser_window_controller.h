@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_BROWSER_WINDOW_CONTROLLER_H_
-#define CHROME_BROWSER_BROWSER_WINDOW_CONTROLLER_H_
+#ifndef CHROME_BROWSER_COCOA_BROWSER_WINDOW_CONTROLLER_H_
+#define CHROME_BROWSER_COCOA_BROWSER_WINDOW_CONTROLLER_H_
 
 // A class acting as the Objective-C controller for the Browser object. Handles
 // interactions between Cocoa and the cross-platform code.
@@ -77,4 +77,4 @@ class TabStripModelObserverBridge;
 
 @end
 
-#endif  // CHROME_BROWSER_BROWSER_WINDOW_CONTROLLER_H_
+#endif  // CHROME_BROWSER_COCOA_BROWSER_WINDOW_CONTROLLER_H_
