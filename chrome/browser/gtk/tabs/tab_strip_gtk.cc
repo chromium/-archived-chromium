@@ -192,7 +192,7 @@ class InsertTabAnimation : public TabStripGtk::TabAnimation {
   virtual ~InsertTabAnimation() {}
 
  protected:
-  // Overridden from TabStrip::TabAnimation:
+  // Overridden from TabStripGtk::TabAnimation:
   virtual double GetWidthForTab(int index) const {
     if (index == index_) {
       bool is_selected = tabstrip_->model()->selected_index() == index;
@@ -222,6 +222,92 @@ class InsertTabAnimation : public TabStripGtk::TabAnimation {
   int index_;
 
   DISALLOW_EVIL_CONSTRUCTORS(InsertTabAnimation);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+// Handles removal of a Tab from |index|
+class RemoveTabAnimation : public TabStripGtk::TabAnimation {
+ public:
+  RemoveTabAnimation(TabStripGtk* tabstrip, int index, TabContents* contents)
+      : TabAnimation(tabstrip, REMOVE),
+        index_(index) {
+    int tab_count = tabstrip->GetTabCount();
+    GenerateStartAndEndWidths(tab_count, tab_count - 1);
+  }
+
+  virtual ~RemoveTabAnimation() { }
+
+  // Returns the index of the tab being removed.
+  int index() const { return index_; }
+
+ protected:
+  // Overridden from TabStripGtk::TabAnimation:
+  virtual double GetWidthForTab(int index) const {
+    TabGtk* tab = tabstrip_->GetTabAt(index);
+
+    if (index == index_) {
+      // The tab(s) being removed are gradually shrunken depending on the state
+      // of the animation.
+      // Removed animated Tabs are never selected.
+      double start_width = start_unselected_width_;
+      // Make sure target_width is at least abs(kTabHOffset), otherwise if
+      // less than kTabHOffset during layout tabs get negatively offset.
+      double target_width =
+          std::max(abs(kTabHOffset),
+                   TabGtk::GetMinimumUnselectedSize().width() + kTabHOffset);
+      double delta = start_width - target_width;
+      return start_width - (delta * animation_.GetCurrentValue());
+    }
+
+    if (tabstrip_->available_width_for_tabs_ != -1 &&
+        index_ != tabstrip_->GetTabCount() - 1) {
+      return TabStripGtk::TabAnimation::GetWidthForTab(index);
+    }
+
+    // All other tabs are sized according to the start/end widths specified at
+    // the start of the animation.
+    if (tab->IsSelected()) {
+      double delta = end_selected_width_ - start_selected_width_;
+      return start_selected_width_ + (delta * animation_.GetCurrentValue());
+    }
+
+    double delta = end_unselected_width_ - start_unselected_width_;
+    return start_unselected_width_ + (delta * animation_.GetCurrentValue());
+  }
+
+  virtual void AnimationEnded(const Animation* animation) {
+    tabstrip_->RemoveTabAt(index_);
+    HighlightCloseButton();
+    TabStripGtk::TabAnimation::AnimationEnded(animation);
+  }
+
+ private:
+  // When the animation completes, we send the Container a message to simulate
+  // a mouse moved event at the current mouse position. This tickles the Tab
+  // the mouse is currently over to show the "hot" state of the close button.
+  void HighlightCloseButton() {
+    if (tabstrip_->available_width_for_tabs_ == -1) {
+      // This function is not required (and indeed may crash!) for removes
+      // spawned by non-mouse closes and drag-detaches.
+      return;
+    }
+
+    /* get default display and screen */
+    GdkDisplay* display = gdk_display_get_default();
+    GdkScreen* screen = gdk_display_get_default_screen(display);
+
+    /* get cursor position */
+    int x, y;
+    gdk_display_get_pointer(display, NULL, &x, &y, NULL);
+
+    /* reset cusor position */
+    gdk_display_warp_pointer(display, screen, x, y);
+  }
+
+  int index_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(RemoveTabAnimation);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -352,12 +438,14 @@ void TabStripGtk::TabInsertedAt(TabContents* contents,
 }
 
 void TabStripGtk::TabDetachedAt(TabContents* contents, int index) {
-  GetTabAt(index)->set_closing(true);
-  // TODO(jhawkins): Remove erase call when animations are hooked up.
-  tab_data_.erase(tab_data_.begin() + index);
-  GenerateIdealBounds();
-  // TODO(jhawkins): Remove layout call when animations are hooked up.
-  Layout();
+  if (CanUpdateDisplay()) {
+    GenerateIdealBounds();
+    StartRemoveTabAnimation(index, contents);
+    // Have to do this _after_ calling StartRemoveTabAnimation, so that any
+    // previous remove is completed fully and index is valid in sync with the
+    // model index.
+    GetTabAt(index)->set_closing(true);
+  }
 }
 
 void TabStripGtk::TabSelectedAt(TabContents* old_contents,
@@ -366,13 +454,15 @@ void TabStripGtk::TabSelectedAt(TabContents* old_contents,
                                 bool user_gesture) {
   DCHECK(index >= 0 && index < static_cast<int>(GetTabCount()));
 
-  // We have "tiny tabs" if the tabs are so tiny that the unselected ones are
-  // a different size to the selected ones.
-  bool tiny_tabs = current_unselected_width_ != current_selected_width_;
-  if (!IsAnimating() && (!resize_layout_scheduled_ || tiny_tabs)) {
-    Layout();
-  } else {
-    gtk_widget_queue_draw(tabstrip_.get());
+  if (CanUpdateDisplay()) {
+    // We have "tiny tabs" if the tabs are so tiny that the unselected ones are
+    // a different size to the selected ones.
+    bool tiny_tabs = current_unselected_width_ != current_selected_width_;
+    if (!IsAnimating() && (!resize_layout_scheduled_ || tiny_tabs)) {
+      Layout();
+    } else {
+      gtk_widget_queue_draw(tabstrip_.get());
+    }
   }
 }
 
@@ -636,6 +726,32 @@ void TabStripGtk::StartInsertTabAnimation(int index) {
     active_animation_->Stop();
   active_animation_.reset(new InsertTabAnimation(this, index));
   active_animation_->Start();
+}
+
+void TabStripGtk::StartRemoveTabAnimation(int index, TabContents* contents) {
+  if (active_animation_.get()) {
+    // Some animations (e.g. MoveTabAnimation) cause there to be a Layout when
+    // they're completed (which includes canceled). Since |tab_data_| is now
+    // inconsistent with TabStripModel, doing this Layout will crash now, so
+    // we ask the MoveTabAnimation to skip its Layout (the state will be
+    // corrected by the RemoveTabAnimation we're about to initiate).
+    active_animation_->set_layout_on_completion(false);
+    active_animation_->Stop();
+  }
+
+  active_animation_.reset(new RemoveTabAnimation(this, index, contents));
+  active_animation_->Start();
+}
+
+bool TabStripGtk::CanUpdateDisplay() {
+  // Don't bother laying out/painting when we're closing all tabs.
+  if (model_->closing_all()) {
+    // Make sure any active animation is ended, too.
+    if (active_animation_.get())
+      active_animation_->Stop();
+    return false;
+  }
+  return true;
 }
 
 void TabStripGtk::FinishAnimation(TabStripGtk::TabAnimation* animation,

@@ -74,6 +74,7 @@ class TabStripGtk : public TabStripModelObserver,
 
  private:
   friend class InsertTabAnimation;
+  friend class RemoveTabAnimation;
   friend class TabAnimation;
 
   struct TabData {
@@ -148,6 +149,13 @@ class TabStripGtk : public TabStripModelObserver,
 
   // Starts various types of TabStrip animations.
   void StartInsertTabAnimation(int index);
+  void StartRemoveTabAnimation(int index, TabContents* contents);
+
+  // Returns true if detach or select changes in the model should be reflected
+  // in the TabStrip. This returns false if we're closing all tabs in the
+  // TabStrip and so we should prevent updating. This is not const because we
+  // use this as a signal to cancel any active animations.
+  bool CanUpdateDisplay();
 
   // Notifies the TabStrip that the specified TabAnimation has completed.
   // Optionally a full Layout will be performed, specified by |layout|.
