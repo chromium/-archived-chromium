@@ -209,8 +209,10 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
     label_->SetHorizontalAlignment(views::Label::ALIGN_LEFT);
     label_->set_border(views::Border::CreateEmptyBorder(10, 10, 10, 10));
     AddChildView(label_);
-    SetParentOwned(false);
     SetLayoutManager(new views::FillLayout());
+  }
+
+  ~DownloadInProgressConfirmDialogDelegate() {
   }
 
   // View implementation:
@@ -241,10 +243,6 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
   virtual bool Cancel() {
     browser_->InProgressDownloadResponse(false);
     return true;
-  }
-
-  virtual void DeleteDelegate() {
-    delete this;
   }
 
   // WindowDelegate implementation:
