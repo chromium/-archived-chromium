@@ -95,7 +95,6 @@ TabRendererGtk::TabImage TabRendererGtk::tab_inactive_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_inactive_otr_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
 TabRendererGtk::ButtonImage TabRendererGtk::close_button_ = {0};
-TabRendererGtk::ButtonImage TabRendererGtk::newtab_button_ = {0};
 ChromeFont* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
 SkBitmap* TabRendererGtk::download_icon_ = NULL;
@@ -247,12 +246,6 @@ void TabRendererGtk::LoadTabImages() {
   close_button_.pushed = rb.GetBitmapNamed(IDR_TAB_CLOSE_P);
   close_button_.width = close_button_.normal->width();
   close_button_.height = close_button_.normal->height();
-
-  newtab_button_.normal = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON);
-  newtab_button_.hot = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_H);
-  newtab_button_.pushed = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_P);
-  newtab_button_.width = newtab_button_.normal->width();
-  newtab_button_.height = newtab_button_.normal->height();
 
   download_icon_ = rb.GetBitmapNamed(IDR_DOWNLOAD_ICON);
   download_icon_width_ = download_icon_->width();

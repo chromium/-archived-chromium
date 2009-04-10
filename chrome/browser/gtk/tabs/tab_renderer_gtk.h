@@ -203,7 +203,6 @@ class TabRendererGtk {
     int height;
   };
   static ButtonImage close_button_;
-  static ButtonImage newtab_button_;
 
   static ChromeFont* title_font_;
   static int title_font_height_;
