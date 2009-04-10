@@ -375,8 +375,9 @@ void TextField::Edit::SetBackgroundColor(COLORREF bg_color) {
 bool TextField::Edit::IsCommandEnabled(int id) const {
   switch (id) {
     case IDS_UNDO:       return !parent_->IsReadOnly() && !!CanUndo();
-    case IDS_CUT:        return !parent_->IsReadOnly() && !!CanCut();
-    case IDS_COPY:       return !!CanCopy();
+    case IDS_CUT:        return !parent_->IsReadOnly() &&
+                                !parent_->IsPassword() && !!CanCut();
+    case IDS_COPY:       return !!CanCopy() && !parent_->IsPassword();
     case IDS_PASTE:      return !parent_->IsReadOnly() && !!CanPaste();
     case IDS_SELECT_ALL: return !!CanSelectAll();
     default:             NOTREACHED();
@@ -412,6 +413,9 @@ void TextField::Edit::OnContextMenu(HWND window, const CPoint& point) {
 }
 
 void TextField::Edit::OnCopy() {
+  if (parent_->IsPassword())
+    return;
+
   const std::wstring text(GetSelectedText());
 
   if (!text.empty()) {
@@ -427,7 +431,7 @@ LRESULT TextField::Edit::OnCreate(CREATESTRUCT* create_struct) {
 }
 
 void TextField::Edit::OnCut() {
-  if (parent_->IsReadOnly())
+  if (parent_->IsReadOnly() || parent_->IsPassword())
     return;
 
   OnCopy();
@@ -1030,6 +1034,10 @@ TextField::Controller* TextField::GetController() const {
 
 bool TextField::IsReadOnly() const {
   return edit_ ? ((edit_->GetStyle() & ES_READONLY) != 0) : read_only_;
+}
+
+bool TextField::IsPassword() const {
+  return GetStyle() & TextField::STYLE_PASSWORD;
 }
 
 bool TextField::IsMultiLine() const {

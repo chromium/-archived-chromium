@@ -3,11 +3,14 @@
 // found in the LICENSE file.
 
 #include "base/message_loop.h"
+#include "chrome/browser/browser_process.h"
+#include "chrome/common/clipboard_service.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/checkbox.h"
+#include "chrome/views/controls/text_field.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/root_view.h"
@@ -588,6 +591,116 @@ TEST_F(ViewTest, HitTestMasks) {
   EXPECT_EQ(v1, root_view->GetViewForPoint(v1_origin));
   EXPECT_EQ(root_view, root_view->GetViewForPoint(v2_origin));
 }
+
+#if defined(OS_WIN)
+// Tests that the TextField view respond appropiately to cut/copy/paste.
+TEST_F(ViewTest, TextFieldCutCopyPaste) {
+  const std::wstring kNormalText = L"Normal";
+  const std::wstring kReadOnlyText = L"Read only";
+  const std::wstring kPasswordText = L"Password! ** Secret stuff **";
+
+  ClipboardService* clipboard = g_browser_process->clipboard_service();
+
+  WidgetWin* window = new WidgetWin;
+  window->Init(NULL, gfx::Rect(0, 0, 100, 100), true);
+  RootView* root_view = window->GetRootView();
+
+  TextField* normal = new TextField();
+  TextField* read_only = new TextField();
+  read_only->SetReadOnly(true);
+  TextField* password = new TextField(TextField::STYLE_PASSWORD);
+
+  root_view->AddChildView(normal);
+  root_view->AddChildView(read_only);
+  root_view->AddChildView(password);
+
+  normal->SetText(kNormalText);
+  read_only->SetText(kReadOnlyText);
+  password->SetText(kPasswordText);
+
+  //
+  // Test cut.
+  //
+  ASSERT_TRUE(normal->GetNativeComponent());
+  normal->SelectAll();
+  ::SendMessage(normal->GetNativeComponent(), WM_CUT, 0, 0);
+
+  string16 result;
+  clipboard->ReadText(&result);
+  EXPECT_EQ(kNormalText, result);
+  normal->SetText(kNormalText);  // Let's revert to the original content.
+
+  ASSERT_TRUE(read_only->GetNativeComponent());
+  read_only->SelectAll();
+  ::SendMessage(read_only->GetNativeComponent(), WM_CUT, 0, 0);
+  result.clear();
+  clipboard->ReadText(&result);
+  // Cut should have failed, so the clipboard content should not have changed.
+  EXPECT_EQ(kNormalText, result);
+
+  ASSERT_TRUE(password->GetNativeComponent());
+  password->SelectAll();
+  ::SendMessage(password->GetNativeComponent(), WM_CUT, 0, 0);
+  result.clear();
+  clipboard->ReadText(&result);
+  // Cut should have failed, so the clipboard content should not have changed.
+  EXPECT_EQ(kNormalText, result);
+
+  //
+  // Test copy.
+  //
+
+  // Let's start with read_only as the clipboard already contains the content
+  // of normal.
+  read_only->SelectAll();
+  ::SendMessage(read_only->GetNativeComponent(), WM_COPY, 0, 0);
+  result.clear();
+  clipboard->ReadText(&result);
+  EXPECT_EQ(kReadOnlyText, result);
+
+  normal->SelectAll();
+  ::SendMessage(normal->GetNativeComponent(), WM_COPY, 0, 0);
+  result.clear();
+  clipboard->ReadText(&result);
+  EXPECT_EQ(kNormalText, result);
+
+  password->SelectAll();
+  ::SendMessage(password->GetNativeComponent(), WM_COPY, 0, 0);
+  result.clear();
+  clipboard->ReadText(&result);
+  // We don't let you copy from a password field, clipboard should not have
+  // changed.
+  EXPECT_EQ(kNormalText, result);
+
+  //
+  // Test Paste.
+  //
+  // Note that we use GetWindowText instead of TextField::GetText below as the
+  // text in the TextField class is synced to the text of the HWND on
+  // WM_KEYDOWN messages that we are not simulating here.
+
+  // Attempting to copy kNormalText in a read-only text-field should fail.
+  read_only->SelectAll();
+  ::SendMessage(read_only->GetNativeComponent(), WM_KEYDOWN, 0, 0);
+  wchar_t buffer[1024] = { 0 };
+  ::GetWindowText(read_only->GetNativeComponent(), buffer, 1024);
+  EXPECT_EQ(kReadOnlyText, std::wstring(buffer));
+
+  password->SelectAll();
+  ::SendMessage(password->GetNativeComponent(), WM_PASTE, 0, 0);
+  ::GetWindowText(password->GetNativeComponent(), buffer, 1024);
+  EXPECT_EQ(kNormalText, std::wstring(buffer));
+
+  // Copy from read_only so the string we are pasting is not the same as the
+  // current one.
+  read_only->SelectAll();
+  ::SendMessage(read_only->GetNativeComponent(), WM_COPY, 0, 0);
+  normal->SelectAll();
+  ::SendMessage(normal->GetNativeComponent(), WM_PASTE, 0, 0);
+  ::GetWindowText(normal->GetNativeComponent(), buffer, 1024);
+  EXPECT_EQ(kReadOnlyText, std::wstring(buffer));
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Dialogs' default button

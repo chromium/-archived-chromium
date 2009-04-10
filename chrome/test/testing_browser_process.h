@@ -17,6 +17,7 @@
 #include "base/string_util.h"
 #include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/common/clipboard_service.h"
 #include "chrome/common/notification_service.h"
 
 class TestingBrowserProcess : public BrowserProcess {
@@ -80,7 +81,11 @@ class TestingBrowserProcess : public BrowserProcess {
   }
 
   virtual ClipboardService* clipboard_service() {
-    return NULL;
+    if (!clipboard_service_.get()) {
+      // Note that we need a MessageLoop for the next call to work.
+      clipboard_service_.reset(new ClipboardService);
+    }
+    return clipboard_service_.get();
   }
 
   virtual GoogleURLTracker* google_url_tracker() {
@@ -132,6 +137,8 @@ class TestingBrowserProcess : public BrowserProcess {
  private:
   NotificationService notification_service_;
   scoped_ptr<base::WaitableEvent> shutdown_event_;
+  scoped_ptr<ClipboardService> clipboard_service_;
+
   DISALLOW_COPY_AND_ASSIGN(TestingBrowserProcess);
 };
 

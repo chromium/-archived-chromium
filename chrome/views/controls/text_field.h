@@ -84,6 +84,8 @@ class TextField : public View {
   void SetReadOnly(bool read_only);
   bool IsReadOnly() const;
 
+  bool IsPassword() const;
+
   // Whether the text field is multi-line or not, must be set when the text
   // field is created, using StyleFlags.
   bool IsMultiLine() const;
