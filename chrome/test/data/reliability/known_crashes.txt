@@ -62,6 +62,9 @@ PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager
 # 9566
 SUBSTRING : tabcontents::destroy___webcontents::destroy
 
+# 9975
+PREFIX : views::view::propagateremovenotifications
+
 # 7694
 PREFIX : webcore::containernode::willremove
 
