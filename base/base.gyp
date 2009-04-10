@@ -20,6 +20,12 @@
       'msvs_guid': '1832A374-8A74-4F9E-B536-69A699B3E165',
       'sources': [
         '../build/build_config.h',
+        'crypto/cssm_init.cc',
+        'crypto/cssm_init.h',
+        'crypto/signature_verifier.h',
+        'crypto/signature_verifier_mac.cc',
+        'crypto/signature_verifier_nss.cc',
+        'crypto/signature_verifier_win.cc',
         'third_party/dmg_fp/dmg_fp.h',
         'third_party/dmg_fp/dtoa.cc',
         'third_party/dmg_fp/g_fmt.cc',
@@ -159,6 +165,7 @@
         'non_thread_safe.cc',
         'non_thread_safe.h',
         'nss_init.cc',
+        'nss_init.h',
         'object_watcher.cc',
         'object_watcher.h',
         'observer_list.h',
@@ -381,12 +388,14 @@
           },
           {  # else: OS != "linux"
             'sources!': [
+              'crypto/signature_verifier_nss.cc',
               'atomicops_internals_x86_gcc.cc',
               'directory_watcher_inotify.cc',
               'hmac_nss.cc',
               'idle_timer_none.cc',
               'message_pump_glib.cc',
               'nss_init.cc',
+              'nss_init.h',
               'time_posix.cc',
             ],
           }
@@ -412,9 +421,16 @@
                 '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
                 '$(SDKROOT)/System/Library/Frameworks/CoreFoundation.framework',
                 '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+                '$(SDKROOT)/System/Library/Frameworks/Security.framework',
               ],
             },
           },
+          {  # else: OS != "mac"
+            'sources!': [
+              'crypto/cssm_init.cc',
+              'crypto/cssm_init.h',
+            ],
+          }
         ],
         [ 'OS == "win"', {
             'sources/': [ ['exclude', '_(linux|mac|posix)\\.cc$'],
@@ -515,6 +531,7 @@
       'type': 'executable',
       'msvs_guid': '27A30967-4BBA-48D1-8522-CDE95F7B1CEC',
       'sources': [
+        'crypto/signature_verifier_unittest.cc',
         'gfx/jpeg_codec_unittest.cc',
         'gfx/native_theme_unittest.cc',
         'gfx/png_codec_unittest.cc',
@@ -608,6 +625,7 @@
           ],
           'dependencies': [
             '../build/linux/system.gyp:gtk',
+            '../build/linux/system.gyp:nss',
           ],
         }],
         ['OS == "mac"', {
