@@ -387,7 +387,10 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   void InvalidateArea(AreaToInvalidate area);
 
   // Add a WebKit TextMatch-highlight marker to nodes in a range.
-  void AddMarker(WebCore::Range* range);
+  void AddMarker(WebCore::Range* range, bool active_match);
+
+  // Sets the markers within a range as active or inactive.
+  void SetMarkerActive(WebCore::Range* range, bool active);
 
   // Returns the ordinal of the first match in the frame specified. This
   // function enumerates the frames, starting with the main frame and up to (but
