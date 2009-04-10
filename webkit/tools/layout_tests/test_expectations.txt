@@ -2271,7 +2271,6 @@ LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-post.html = FAIL PAS
 LayoutTests/fast/events/context-no-deselect.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/reflection-repaint-test.html = FAIL
 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FAIL
-LayoutTests/fast/xmlhttprequest/xmlhttprequest-get.xhtml = FAIL
 LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
 LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
