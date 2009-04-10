@@ -6,6 +6,8 @@
 
 #include "AtomicString.h"
 #include "CSSComputedStyleDeclaration.h"
+#include "CSSParser.h"
+#include "CSSPropertyNames.h"
 #include "CSSRule.h"
 #include "CSSRuleList.h"
 #include "CSSStyleRule.h"
@@ -447,9 +449,6 @@ void DomAgentImpl::PerformSearch(int call_id, const String& query) {
 void DomAgentImpl::GetNodeStyles(int call_id,
                                  int element_id,
                                  bool author_only) {
-  // TODO (serya): Currently styles are serialized as cssText.
-  // It could be not enough.
-
   DictionaryValue result;
 
   Node* node = GetNodeForId(element_id);
@@ -460,14 +459,12 @@ void DomAgentImpl::GetNodeStyles(int call_id,
   }
 
   Element* element = static_cast<Element*>(node);
-  String inline_style = element->style()->cssText();
-  result.SetString(L"inlineStyle",
-      webkit_glue::StringToStdString(inline_style));
+  result.Set(L"inlineStyle",
+      BuildValueForStyle(*element->style()));
 
   DOMWindow* window = element->document()->defaultView();
-  String computed_style = window->getComputedStyle(element, "")->cssText();
-  result.SetString(L"computedStyle",
-      webkit_glue::StringToStdString(computed_style));
+  result.Set(L"computedStyle",
+      BuildValueForStyle(*window->getComputedStyle(element, "")));
 
   RefPtr<CSSRuleList> rule_list = window->getMatchedCSSRules(element, "",
       author_only);
@@ -580,8 +577,9 @@ ListValue* DomAgentImpl::BuildValueForCSSRules(CSSRuleList& matched) {
         webkit_glue::StringToStdString(rule->selectorText()));
 
     CSSMutableStyleDeclaration* style = rule->style();
-    description->SetString(L"cssText",
-        webkit_glue::StringToStdString(style ? style->cssText() : ""));
+    if (style) {
+      description->Set(L"style", BuildValueForStyle(*style));
+    }
 
     CSSStyleSheet* parent_style_sheet = rule->parentStyleSheet();
     if (parent_style_sheet) {
@@ -608,13 +606,39 @@ DictionaryValue* DomAgentImpl::BuildValueForAttributeStyles(
     if (CSSStyleDeclaration* style = attr->style()) {
       std::wstring name =
           webkit_glue::StringToStdWString(attr->name().toString());
-      std::string css_text =
-          webkit_glue::StringToStdString(style->cssText());
 
-      description->SetString(name, css_text);
+      description->Set(name, BuildValueForStyle(*style));
     }
   }
   return description.release();
+}
+
+ListValue* DomAgentImpl::BuildValueForStyle(const CSSStyleDeclaration& style) {
+  OwnPtr<ListValue> prop_list(new ListValue);
+  for (int i = 0; i != style.length(); ++i) {
+    String name = style.item(i);
+    int id = cssPropertyID(name);
+
+    bool important = style.getPropertyPriority(id);
+    bool implicit = style.isPropertyImplicit(id);
+    int shorthand_id = style.getPropertyShorthand(id);
+    String shorthand =
+        getPropertyName(static_cast<CSSPropertyID>(shorthand_id));
+
+    OwnPtr<ListValue> prop(new ListValue);
+    prop->Append(Value::CreateStringValue(
+        webkit_glue::StringToStdWString(name)));
+    prop->Append(Value::CreateBooleanValue(important));
+    prop->Append(Value::CreateBooleanValue(implicit));
+    prop->Append(Value::CreateStringValue(
+        webkit_glue::StringToStdWString(shorthand)));
+    prop->Append(Value::CreateStringValue(
+        webkit_glue::StringToStdWString(style.getPropertyValue(id))));
+
+    prop_list->Append(prop.release());
+  }
+
+  return prop_list.release();
 }
 
 Node* DomAgentImpl::InnerFirstChild(Node* node) {

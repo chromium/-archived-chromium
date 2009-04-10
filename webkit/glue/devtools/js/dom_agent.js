@@ -214,6 +214,7 @@ devtools.DomNode.prototype.setAttribute = function(name, value) {
       });
 };
 
+
 /**
  * Creates an attribute-like object and adds it to the object.
  * @param {string} name Attribute name to set value for.
@@ -262,7 +263,6 @@ devtools.DomNode.prototype.__defineGetter__("style", function() {
 });
 
 
-
 /**
  * Makes available the following methods and properties:
  * - node.style property
@@ -282,12 +282,12 @@ devtools.DomNode.prototype.__defineGetter__("style", function() {
 devtools.DomNode.prototype.setStyles_ = function(computedStyle, inlineStyle,
      styleAttributes, matchedCSSRules) {
   var styles = {};
-  styles.computedStyle = this.parseCSSText_(computedStyle, "computed");
-  styles.inlineStyle = this.parseCSSText_(inlineStyle, "inline");
+  styles.computedStyle = this.makeStyle_(computedStyle);
+  styles.inlineStyle = this.makeStyle_(inlineStyle);
 
   styles.attributes = {};
   for (var name in styleAttributes) {
-    var style = this.parseCSSText_(styleAttributes[name], "@" + name);
+    var style = this.makeStyle_(styleAttributes[name]);
     styles.attributes[name] = style;
   }
 
@@ -295,7 +295,7 @@ devtools.DomNode.prototype.setStyles_ = function(computedStyle, inlineStyle,
   for (var i = 0; i < matchedCSSRules.length; i++) {
     var descr = matchedCSSRules[i];
     var selector = descr.selector;
-    var style = this.parseCSSText_(descr.cssText, "CSSRule#" + selector);
+    var style = this.makeStyle_(descr.style);
 
     var parentStyleSheet = undefined;
     if (descr.parentStyleSheetHref) {
@@ -312,37 +312,18 @@ devtools.DomNode.prototype.setStyles_ = function(computedStyle, inlineStyle,
   }
   
   this.styles_ = styles;
-}
+};
 
 
 /**
- * Creates a style object from the cssText.
- * Since the StyleSidebarPane implies the
- * style object lives as long as the node itself and stores data in
- * __disabledPropertyPriorities this methods adds a getter which stores the
- * data in the devtools.DomNode object.
- * @param {string} cssText
- * @param {string} styleId is used to distinguish associated part of
- *     __disabledPropertyPriorities with the style object.
- * @return {CSSStyleDescription}
+ * Creates a style declaration.
+ * @param {payload} payload
+ * @return {devtools.CSSStyleDeclaration:undefined}
+ * @see devtools.CSSStyleDeclaration
  */
-devtools.DomNode.prototype.parseCSSText_ = function(cssText, styleId) {
-  // There is no way to create CSSStyleDeclaration without creating a
-  // dummy element. In real DOM CSSStyleDeclaration has several
-  // implementations (for instance CSSComputedStyleDeclaration) and
-  // current method does not covers diffirences in behaviour.
-  // TODO (serya): correclty implement all types of CSSStyleDeclaration,
-  //               avoid creation a lot of dummy nodes.
-  
-  var style = document.createElement("SPAN").style;
-  style.cssText = cssText;
-  
-  var props = this.disabledStyleProperties_[styleId] || {};
-  this.disabledStyleProperties_[styleId] = props;
-  style.__disabledPropertyPriorities = props;
-  
-  return style;
-}
+devtools.DomNode.prototype.makeStyle_ = function(payload) {
+  return payload && new devtools.CSSStyleDeclaration(payload);
+};
 
 
 /**
@@ -352,7 +333,7 @@ devtools.DomNode.prototype.parseCSSText_ = function(cssText, styleId) {
  */
 devtools.DomNode.prototype.clearStyles_ = function() {
   this.styles_ = null;
-}
+};
 
 
 /**
@@ -878,6 +859,68 @@ devtools.DomAgent.prototype.getNodeStylesCallback_ = function(node,
   callback();
   
   node.clearStyles_();
+};
+
+
+/**
+ * Represents remote CSSStyleDeclaration for using in StyleSidebarPane.
+ * @param {Array} payload built by DomAgentImpl::BuildValueForStyle.
+ * @consctuctor
+ */
+devtools.CSSStyleDeclaration = function(payload) {
+  this.length = payload.length;
+  this.important_ = {};
+  this.implicit_ = {};
+  this.shorthand_ = {};
+  this.value_ = {};
+
+  for (var i = 0; i < payload.length; ++i) {
+    var p = payload[i];
+    var name = p[0];
+    
+    this.important_[name] = p[1];
+    this.implicit_[name] = p[2];
+    this.shorthand_[name] = p[3];
+    this.value_[name] = p[4];
+
+    this[i] = name;
+  }
+};
+
+
+/**
+ * @param {string} name of a CSS property.
+ * @return {string}
+ */
+devtools.CSSStyleDeclaration.prototype.getPropertyValue = function(name) {
+  return this.value_[name] || '';
+};
+
+
+/**
+ * @param {string} name of a CSS property.
+ * @return {string} 'important' | ''.
+ */
+devtools.CSSStyleDeclaration.prototype.getPropertyPriority = function(name) {
+  return this.important_[name] ? 'important' : '';
+};
+
+
+/**
+ * @param {string} name of a CSS property.
+ * @return {string} shorthand name  or ''
+ */
+devtools.CSSStyleDeclaration.prototype.getPropertyShorthand = function(name) {
+  return this.shorthand_[name] || '';
+};
+
+
+/**
+ * @param {string} name of a CSS property.
+ * @return {boolean}
+ */
+devtools.CSSStyleDeclaration.prototype.isPropertyImplicit = function(name) {
+  return Boolean(this.implicit_[name]);
 };
 
 

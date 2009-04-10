@@ -128,13 +128,17 @@ RemoteDomAgentStub.prototype.DiscardBindings = function() {
 
 
 RemoteDomAgentStub.prototype.GetNodeStyles = function(callId, id, authorOnly) {
+  var prop = function(name, value) {
+    return [name, false, false, '', value];
+  };
+
   var styles = {
-      computedStyle: "display: none",
-      inlineStyle: "display: none",
-      styleAttributes: {attr: "display: none"},
-      matchedCSSRules: [{selector: "S", cssText: "display: none",
-                         parentStyleSheetHref: "http://localhost",
-                         parentStyleSheetOwnerNodeName: "DIV"}]
+      computedStyle: [prop('display', 'none')],
+      inlineStyle: [prop('display', 'none')],
+      styleAttributes: {attr: [prop('display', 'none')]},
+      matchedCSSRules: [{selector: 'S', style: [prop('display', 'none')],
+                         parentStyleSheetHref: 'http://localhost',
+                         parentStyleSheetOwnerNodeName: 'DIV'}]
   };
   setTimeout(function() {
     RemoteDomAgent.DidGetNodeStyles(callId, styles);

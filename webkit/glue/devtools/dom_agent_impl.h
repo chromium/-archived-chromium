@@ -114,7 +114,7 @@ class DomAgentImpl : public DomAgent {
       int depth);
 
   // Serializes given element's attributes into the list value.
-  ListValue* BuildValueForElementAttributes(WebCore::Element* elemen);
+  static ListValue* BuildValueForElementAttributes(WebCore::Element* elemen);
 
   // Serializes given elements's children into the list value.
   ListValue* BuildValueForElementChildren(
@@ -122,11 +122,17 @@ class DomAgentImpl : public DomAgent {
       int depth);
 
   // Serializes CSS rule list into the list value.
-  ListValue* BuildValueForCSSRules(WebCore::CSSRuleList& matched);
+  static ListValue* BuildValueForCSSRules(WebCore::CSSRuleList& matched);
 
   // Serializes attribute styles into the dictionary value.
-  DictionaryValue* BuildValueForAttributeStyles(
+  static DictionaryValue* BuildValueForAttributeStyles(
       const WebCore::NamedNodeMap& attributes);
+
+  // Serializes CSSStyleDeclaration into a list of properties
+  // where aeach property represented as an array as an
+  // [name, important, implicit, shorthand, value]
+  static ListValue* BuildValueForStyle(
+      const WebCore::CSSStyleDeclaration& style);
 
   // We represent embedded doms as a part of the same hierarchy. Hence we
   // treat children of frame owners differently. Following two methods
