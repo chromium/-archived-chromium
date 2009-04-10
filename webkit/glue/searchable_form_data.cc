@@ -320,10 +320,8 @@ SearchableFormData* SearchableFormData::Create(WebCore::HTMLFormElement* form) {
   if (frame == NULL)
     return NULL;
 
-  // Only consider forms that GET data, do not have script for onsubmit, and
-  // the action targets an http page.
-  if (!IsFormMethodGet(form) || FormHasOnSubmit(form) ||
-      !IsHTTPFormSubmit(form))
+  // Only consider forms that GET data and the action targets an http page.
+  if (!IsFormMethodGet(form) || !IsHTTPFormSubmit(form))
     return NULL;
 
   Vector<char> enc_string;

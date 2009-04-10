@@ -260,20 +260,22 @@ class BaseTestServer : public base::RefCounted<BaseTestServer> {
   bool Start(net::TestServerLauncher::Protocol protocol,
              const std::string& host_name, int port,
              const FilePath& document_root,
-             const FilePath& cert_path) {
+             const FilePath& cert_path,
+             const std::wstring& file_root_url) {
     std::string blank;
     return Start(protocol, host_name, port, document_root, cert_path,
-                 blank, blank);
+                 file_root_url, blank, blank);
   }
 
   bool Start(net::TestServerLauncher::Protocol protocol,
              const std::string& host_name, int port,
              const FilePath& document_root,
              const FilePath& cert_path,
+             const std::wstring& file_root_url,
              const std::string& url_user,
              const std::string& url_password) {
     if (!launcher_.Start(protocol,
-        host_name, port, document_root, cert_path))
+        host_name, port, document_root, cert_path, file_root_url))
       return false;
 
     std::string scheme;
@@ -338,13 +340,20 @@ class HTTPTestServer : public BaseTestServer {
   static scoped_refptr<HTTPTestServer> CreateServer(
       const std::wstring& document_root,
       MessageLoop* loop) {
+    return CreateServerWithFileRootURL(document_root, std::wstring(), loop);
+  }
+
+  static scoped_refptr<HTTPTestServer> CreateServerWithFileRootURL(
+      const std::wstring& document_root,
+      const std::wstring& file_root_url,
+      MessageLoop* loop) {
     scoped_refptr<HTTPTestServer> test_server = new HTTPTestServer();
     test_server->loop_ = loop;
     FilePath no_cert;
     FilePath docroot = FilePath::FromWStringHack(document_root);
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
                             kDefaultHostName, kHTTPDefaultPort,
-                            docroot, no_cert)) {
+                            docroot, no_cert, file_root_url)) {
       return NULL;
     }
     return test_server;
@@ -438,7 +447,7 @@ class HTTPSTestServer : public HTTPTestServer {
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
         net::TestServerLauncher::kHostName,
         net::TestServerLauncher::kOKHTTPSPort,
-        docroot, certpath)) {
+        docroot, certpath, std::wstring())) {
       return NULL;
     }
     return test_server;
@@ -454,7 +463,7 @@ class HTTPSTestServer : public HTTPTestServer {
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
         net::TestServerLauncher::kMismatchedHostName,
         net::TestServerLauncher::kOKHTTPSPort,
-        docroot, certpath)) {
+        docroot, certpath, std::wstring())) {
       return NULL;
     }
     return test_server;
@@ -469,7 +478,7 @@ class HTTPSTestServer : public HTTPTestServer {
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
         net::TestServerLauncher::kHostName,
         net::TestServerLauncher::kBadHTTPSPort,
-        docroot, certpath)) {
+        docroot, certpath, std::wstring())) {
       return NULL;
     }
     return test_server;
@@ -484,7 +493,7 @@ class HTTPSTestServer : public HTTPTestServer {
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath certpath = FilePath::FromWStringHack(cert_path);
     if (!test_server->Start(net::TestServerLauncher::ProtoHTTP,
-        host_name, port, docroot, certpath)) {
+        host_name, port, docroot, certpath, std::wstring())) {
       return NULL;
     }
     return test_server;
@@ -517,7 +526,7 @@ class FTPTestServer : public BaseTestServer {
     FilePath docroot = FilePath::FromWStringHack(document_root);
     FilePath no_cert;
     if (!test_server->Start(net::TestServerLauncher::ProtoFTP,
-        kDefaultHostName, kFTPDefaultPort, docroot, no_cert,
+        kDefaultHostName, kFTPDefaultPort, docroot, no_cert, std::wstring(),
         url_user, url_password)) {
       return NULL;
     }

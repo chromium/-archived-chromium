@@ -12,6 +12,9 @@
 
 class Browser;
 class Profile;
+namespace net {
+class RuleBasedHostMapper;
+}
 
 // Base class for tests wanting to bring up a browser in the unit test process.
 // Writing tests with InProcessBrowserTest is slightly different than that of
@@ -63,6 +66,11 @@ class InProcessBrowserTest : public testing::Test, public NotificationObserver {
 
   // Override this rather than TestBody.
   virtual void RunTestOnMainThread() = 0;
+
+  // Allows subclasses to configure the host mapper. By default this blocks
+  // requests to google.com as Chrome pings that on startup and we don't want to
+  // do that during testing.
+  virtual void ConfigureHostMapper(net::RuleBasedHostMapper* host_mapper);
 
   // Starts an HTTP server.
   HTTPTestServer* StartHTTPServer();

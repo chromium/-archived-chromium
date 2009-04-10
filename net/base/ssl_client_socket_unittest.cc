@@ -27,21 +27,21 @@ class SSLClientSocketTest : public PlatformTest {
   void StartOKServer() {
     bool success = server_.Start(net::TestServerLauncher::ProtoHTTP,
         server_.kHostName, server_.kOKHTTPSPort,
-        FilePath(), server_.GetOKCertPath());
+        FilePath(), server_.GetOKCertPath(), std::wstring());
     ASSERT_TRUE(success);
   }
 
   void StartMismatchedServer() {
     bool success = server_.Start(net::TestServerLauncher::ProtoHTTP,
         server_.kMismatchedHostName, server_.kOKHTTPSPort,
-        FilePath(), server_.GetOKCertPath());
+        FilePath(), server_.GetOKCertPath(), std::wstring());
     ASSERT_TRUE(success);
   }
 
   void StartExpiredServer() {
     bool success = server_.Start(net::TestServerLauncher::ProtoHTTP,
         server_.kHostName, server_.kBadHTTPSPort,
-        FilePath(), server_.GetExpiredCertPath());
+        FilePath(), server_.GetExpiredCertPath(), std::wstring());
     ASSERT_TRUE(success);
   }
 
