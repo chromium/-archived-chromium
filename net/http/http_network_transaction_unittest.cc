@@ -1780,8 +1780,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
     MockRead("WWW-Authenticate: NTLM\r\n"),
     MockRead("Connection: close\r\n"),
     MockRead("Content-Length: 42\r\n"),
-    MockRead("Content-Type: text/html\r\n"),
-    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("Content-Type: text/html\r\n\r\n"),
     // Missing content -- won't matter, as connection will be reset.
     MockRead(false, net::ERR_UNEXPECTED),
   };
@@ -1821,8 +1820,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
              "lAC4AYwBvAG0ABQAeAGMAbwByAHAALgBnAG8AbwBnAGwAZQAuAGMAbw"
              "BtAAAAAAA=\r\n"),
     MockRead("Content-Length: 42\r\n"),
-    MockRead("Content-Type: text/html\r\n"),
-    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("Content-Type: text/html\r\n\r\n"),
     MockRead("You are not authorized to view this page\r\n"),
 
     // Lastly we get the desired content.
@@ -1910,8 +1908,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
     MockRead("WWW-Authenticate: NTLM\r\n"),
     MockRead("Connection: close\r\n"),
     MockRead("Content-Length: 42\r\n"),
-    MockRead("Content-Type: text/html\r\n"),
-    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("Content-Type: text/html\r\n\r\n"),
     // Missing content -- won't matter, as connection will be reset.
     MockRead(false, net::ERR_UNEXPECTED),
   };
@@ -1951,8 +1948,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
              "lAC4AYwBvAG0ABQAeAGMAbwByAHAALgBnAG8AbwBnAGwAZQAuAGMAbw"
              "BtAAAAAAA=\r\n"),
     MockRead("Content-Length: 42\r\n"),
-    MockRead("Content-Type: text/html\r\n"),
-    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("Content-Type: text/html\r\n\r\n"),
     MockRead("You are not authorized to view this page\r\n"),
 
     // Wrong password.
@@ -1961,8 +1957,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
     MockRead("WWW-Authenticate: NTLM\r\n"),
     MockRead("Connection: close\r\n"),
     MockRead("Content-Length: 42\r\n"),
-    MockRead("Content-Type: text/html\r\n"),
-    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("Content-Type: text/html\r\n\r\n"),
     // Missing content -- won't matter, as connection will be reset.
     MockRead(false, net::ERR_UNEXPECTED),
   };
@@ -2002,8 +1997,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
              "lAC4AYwBvAG0ABQAeAGMAbwByAHAALgBnAG8AbwBnAGwAZQAuAGMAbw"
              "BtAAAAAAA=\r\n"),
     MockRead("Content-Length: 42\r\n"),
-    MockRead("Content-Type: text/html\r\n"),
-    MockRead("Proxy-Support: Session-Based-Authentication\r\n\r\n"),
+    MockRead("Content-Type: text/html\r\n\r\n"),
     MockRead("You are not authorized to view this page\r\n"),
 
     // Lastly we get the desired content.
