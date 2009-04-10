@@ -457,9 +457,7 @@ class WidgetWin : public Widget,
   virtual void OnVScroll(int scroll_type, short position, HWND scrollbar) {
     SetMsgHandled(FALSE);
   }
-  virtual void OnWindowPosChanging(WINDOWPOS* window_pos) {
-    SetMsgHandled(FALSE);
-  }
+  virtual void OnWindowPosChanging(WINDOWPOS* window_pos);
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos) {
     SetMsgHandled(FALSE);
   }
@@ -484,10 +482,6 @@ class WidgetWin : public Widget,
   void ProcessMouseReleased(const CPoint& point, UINT flags);
   void ProcessMouseMoved(const CPoint& point, UINT flags, bool is_nonclient);
   void ProcessMouseExited();
-
-  // Makes sure the window still fits on screen after a settings change message
-  // from the OS, e.g. a screen resolution change.
-  virtual void AdjustWindowToFitScreenSize();
 
   // Handles re-laying out content in response to a window size change.
   virtual void ChangeSize(UINT size_param, const CSize& size);
@@ -543,17 +537,21 @@ class WidgetWin : public Widget,
   // If necessary, this registers the window class.
   std::wstring GetWindowClassName();
 
+  // Stops ignoring SetWindowPos() requests (see below).
+  void StopIgnoringPosChanges() { ignore_window_pos_changes_ = false; }
+
   // The following factory is used for calls to close the WidgetWin
   // instance.
   ScopedRunnableMethodFactory<WidgetWin> close_widget_factory_;
+
+  // The following factory is used to ignore SetWindowPos() calls for short time
+  // periods.
+  ScopedRunnableMethodFactory<WidgetWin> ignore_pos_changes_factory_;
 
   // The flags currently being used with TrackMouseEvent to track mouse
   // messages. 0 if there is no active tracking. The value of this member is
   // used when tracking is canceled.
   DWORD active_mouse_tracking_flags_;
-
-  // Whether or not this is a top level window.
-  bool toplevel_;
 
   bool opaque_;
 
@@ -611,6 +609,16 @@ class WidgetWin : public Widget,
 
   // Our hwnd.
   HWND hwnd_;
+
+  // The last-seen monitor containing us, and its work area.  These are used to
+  // catch updates to the work area and react accordingly.
+  HMONITOR last_monitor_;
+  gfx::Rect last_work_area_;
+
+  // When true, this flag makes us discard incoming SetWindowPos() requests that
+  // only change our position/size.  (We still allow changes to Z-order,
+  // activation, etc.)
+  bool ignore_window_pos_changes_;
 };
 
 }  // namespace views
