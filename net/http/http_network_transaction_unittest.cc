@@ -2188,12 +2188,78 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   const net::HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response == NULL);
 
+  // Empty the current queue.  This is necessary because idle sockets are
+  // added to the connection pool asynchronously with a PostTask.
+  MessageLoop::current()->RunAllPending();
+
   // We now check to make sure the TCPClientSocket was not added back to
   // the pool.
   EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
   trans.reset();
+  MessageLoop::current()->RunAllPending();
   // Make sure that the socket didn't get recycled after calling the destructor.
   EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+}
+
+// Make sure that we recycle a socket after a zero-length response.
+// http://crbug.com/9880
+TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
+  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<net::HttpNetworkSession> session(
+      CreateSession(proxy_service.get()));
+
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      session.get(), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/csi?v=3&s=web&action=&"
+                     "tran=undefined&ei=mAXcSeegAo-SMurloeUN&"
+                     "e=17259,18167,19592,19773,19981,20133,20173,20233&"
+                     "rt=prt.2642,ol.2649,xjs.2951");
+  request.load_flags = 0;
+
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.1 204 No Content\r\n"
+             "Content-Length: 0\r\n"
+             "Content-Type: text/html\r\n\r\n"),
+    MockRead("junk"),  // Should not be read!!
+    MockRead(false, net::OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_TRUE(response != NULL);
+
+  EXPECT_TRUE(response->headers != NULL);
+  std::string status_line = response->headers->GetStatusLine();
+  EXPECT_EQ("HTTP/1.1 204 No Content", status_line);
+
+  EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+
+  std::string response_data;
+  rv = ReadTransaction(trans.get(), &response_data);
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ("", response_data);
+
+  // Empty the current queue.  This is necessary because idle sockets are
+  // added to the connection pool asynchronously with a PostTask.
+  MessageLoop::current()->RunAllPending();
+
+  // We now check to make sure the socket was added back to the pool.
+  EXPECT_EQ(1, session->connection_pool()->idle_socket_count());
 }
 
 TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
@@ -2812,7 +2878,7 @@ TEST_F(HttpNetworkTransactionTest, ResetStateForRestart) {
   trans->response_.auth_challenge = new AuthChallengeInfo();
   trans->response_.ssl_info.cert_status = -15;
   trans->response_.response_time = base::Time::Now();
-  trans->response_.was_cached = true; // (Wouldn't ever actually be true...)
+  trans->response_.was_cached = true;  // (Wouldn't ever actually be true...)
 
   { // Setup state for response_.vary_data
     HttpRequestInfo request;

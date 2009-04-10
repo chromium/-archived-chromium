@@ -49,6 +49,7 @@ HttpNetworkTransaction::HttpNetworkTransaction(HttpNetworkSession* session,
       using_proxy_(false),
       using_tunnel_(false),
       establishing_tunnel_(false),
+      reading_body_from_socket_(false),
       request_headers_bytes_sent_(0),
       header_buf_capacity_(0),
       header_buf_len_(0),
@@ -832,6 +833,7 @@ int HttpNetworkTransaction::DoReadBody() {
     return n;
   }
 
+  reading_body_from_socket_ = true;
   return connection_.socket()->Read(read_buf_->data(), read_buf_len_,
                                     &io_callback_);
 }
@@ -841,7 +843,8 @@ int HttpNetworkTransaction::DoReadBodyComplete(int result) {
   DCHECK(!establishing_tunnel_) <<
       "We should never read a response body of a tunnel.";
 
-  bool unfiltered_eof = (result == 0);
+  bool unfiltered_eof = (result == 0 && reading_body_from_socket_);
+  reading_body_from_socket_ = false;
 
   // Filter incoming data if appropriate.  FilterBuf may return an error.
   if (result > 0 && chunked_decoder_.get()) {
@@ -905,7 +908,8 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestart() {
 // method are almost the same.  Figure out a good way for these two methods
 // to share code.
 int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
-  bool unfiltered_eof = (result == 0);
+  bool unfiltered_eof = (result == 0 && reading_body_from_socket_);
+  reading_body_from_socket_ = false;
 
   // Filter incoming data if appropriate.  FilterBuf may return an error.
   if (result > 0 && chunked_decoder_.get()) {

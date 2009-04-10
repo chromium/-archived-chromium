@@ -239,6 +239,23 @@ class HttpNetworkTransaction : public HttpTransaction {
   // the real request/response of the transaction.
   bool establishing_tunnel_;
 
+  // Only used between the states
+  // STATE_READ_BODY/STATE_DRAIN_BODY_FOR_AUTH and
+  // STATE_READ_BODY_COMPLETE/STATE_DRAIN_BODY_FOR_AUTH_COMPLETE.
+  //
+  // Set to true when DoReadBody or DoDrainBodyForAuthRestart starts to read
+  // the response body from the socket, and set to false when the socket read
+  // call completes. DoReadBodyComplete and DoDrainBodyForAuthRestartComplete
+  // use this boolean to disambiguate a |result| of 0 between a connection
+  // closure (EOF) and reaching the end of the response body (no more data).
+  //
+  // TODO(wtc): this is similar to the |ignore_ok_result_| member of the
+  // SSLClientSocketWin class.  We may want to add an internal error code, say
+  // ERR_EOF, to indicate a connection closure, so that 0 simply means 0 bytes
+  // or OK.  Note that we already have an ERR_CONNECTION_CLOSED error code,
+  // but it isn't really being used.
+  bool reading_body_from_socket_;
+
   SSLConfig ssl_config_;
 
   std::string request_headers_;
