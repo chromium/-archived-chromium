@@ -725,6 +725,8 @@
         'browser/gtk/infobar_container_gtk.h',
         'browser/gtk/find_bar_gtk.cc',
         'browser/gtk/find_bar_gtk.h',
+        'browser/gtk/link_button_gtk.cc',
+        'browser/gtk/link_button_gtk.cc',
         'browser/gtk/location_bar_view_gtk.cc',
         'browser/gtk/location_bar_view_gtk.h',
         'browser/gtk/menu_gtk.cc',
