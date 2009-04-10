@@ -2363,6 +2363,7 @@ BUG9798 LINUX : LayoutTests/transitions/transition-end-event-multiple-04.html = 
 BUG9798 LINUX : LayoutTests/transitions/transition-end-event-all-properties.html = FAIL PASS
 
 BUG9798 WIN RELEASE : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
+BUG9798 WIN : LayoutTests/fast/dom/Window/window-lookup-precedence.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/fast/workers/worker-terminate.html = FAIL PASS
 BUG9798 WIN : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
 BUG9798 WIN : LayoutTests/fast/encoding/char-encoding.html = FAIL PASS
@@ -2385,6 +2386,7 @@ BUG9798 WIN : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-i
 BUG9798 WIN : LayoutTests/http/tests/uri/css-href.php = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/escaped-entity.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/uri/utf8-path.html = TIMEOUT PASS
+BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-header.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-timeout.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-contenttype-empty.html = TIMEOUT PASS
