@@ -9,6 +9,7 @@
 #include "googleurl/src/gurl.h"
 #include "net/base/auth.h"
 #include "net/base/io_buffer.h"
+#include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job_metrics.h"
@@ -30,6 +31,7 @@ URLRequestJob::URLRequestJob(URLRequest* request)
       has_handled_response_(false),
       expected_content_size_(-1),
       filter_input_byte_count_(0) {
+  load_flags_ = request_->load_flags();
   is_profiling_ = request->enable_profiling();
   if (is_profiling()) {
     metrics_.reset(new URLRequestJobMetrics());
@@ -51,6 +53,10 @@ void URLRequestJob::Kill() {
 
 void URLRequestJob::DetachRequest() {
   request_ = NULL;
+}
+
+bool URLRequestJob::IsDownload() const {
+  return (load_flags_ & net::LOAD_IS_DOWNLOAD) != 0;
 }
 
 void URLRequestJob::SetupFilter() {

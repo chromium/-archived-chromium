@@ -524,6 +524,8 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
   request->set_method("GET");
   request->set_referrer(referrer.spec());
   request->set_context(request_context);
+  request->set_load_flags(request->load_flags() |
+      net::LOAD_IS_DOWNLOAD);
 
   ExtraRequestInfo* extra_info =
       new ExtraRequestInfo(handler,

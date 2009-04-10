@@ -65,6 +65,9 @@ class FilterContext {
   // Is data supplied from cache, or fresh across the net?
   virtual bool IsCachedContent() const = 0;
 
+  // Is this a download?
+  virtual bool IsDownload() const = 0;
+
   // Was this data flagged as a response to a request with an SDCH dictionary?
   virtual bool IsSdchResponse() const = 0;
 

@@ -38,6 +38,8 @@ enum {
   LOAD_ENABLE_UPLOAD_PROGRESS = 1 << 6,
 
   // If present, try to download the resource to a standalone file.
+  // This hint tells the http cache to provide a native file handle
+  // of the cached file to the renderer process.
   LOAD_ENABLE_DOWNLOAD_FILE = 1 << 7,
 
   // If present, ignores certificate mismatches with the domain name.
@@ -71,6 +73,9 @@ enum {
   // Do not resolve proxies. This override is used when downloading PAC files
   // to avoid having a circular dependency.
   LOAD_BYPASS_PROXY = 1 << 15,
+
+  // Indicate this request is for a download, as opposed to viewing.
+  LOAD_IS_DOWNLOAD = 1 << 16,
 };
 
 }  // namespace net

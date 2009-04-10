@@ -104,9 +104,14 @@ void Filter::FixupEncodingTypes(
     // Firefox does not apply the filter to the following extensions.
     // See Firefox's nsHttpChannel::nsContentEncodings::GetNext() and
     // nonDecodableExtensions in nsExternalHelperAppService.cpp
+    // For the case of svgz files, we use the extension to distinguish
+    // between svgz files and svg files compressed with gzip by the server.
+    // When viewing a .svgz file, we need to uncompress it, but we don't
+    // want to do that when downloading.
     if (0 == extension.compare(FILE_PATH_LITERAL(".gz")) ||
         0 == extension.compare(FILE_PATH_LITERAL(".tgz")) ||
-        0 == extension.compare(FILE_PATH_LITERAL(".svgz"))) {
+        (0 == extension.compare(FILE_PATH_LITERAL(".svgz")) &&
+        filter_context.IsDownload())) {
       encoding_types->clear();
     }
   }

@@ -119,6 +119,9 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
     return false;
   }
 
+  // Find out if this is a download.
+  virtual bool IsDownload() const;
+
   // Find out if this is a response to a request that advertised an SDCH
   // dictionary.  Only makes sense for some types of requests.
   virtual bool IsSdchResponse() const { return false; }
@@ -292,6 +295,9 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // all the data or an error has been encountered. Set exclusively by
   // NotifyDone so that it is kept in sync with the request.
   bool done_;
+
+  // Cache the load flags from request_ because it might go away.
+  int load_flags_;
 
   // The data stream filter which is enabled on demand.
   scoped_ptr<Filter> filter_;
