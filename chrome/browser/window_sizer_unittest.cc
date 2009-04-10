@@ -20,10 +20,14 @@ static const gfx::Rect nineteentwenty(0, 0, 1920, 1200);
 static const gfx::Rect left_nonprimary(-1024, 0, 1024, 768);
 
 // Represents a 1024x768 monitor that is not the primary monitor, arranged to
+// the immediate right of the primary 1024x768 monitor.
+static const gfx::Rect right_nonprimary(1024, 0, 1024, 768);
+
+// Represents a 1024x768 monitor that is not the primary monitor, arranged to
 // the immediate top of the primary 1024x768 monitor.
 static const gfx::Rect top_nonprimary(0, -768, 1024, 768);
 
-// The working area for 1024x768 monitors with different taskbar orientations.
+// The work area for 1024x768 monitors with different taskbar orientations.
 static const gfx::Rect taskbar_bottom_work_area(0, 0, 1024, 734);
 static const gfx::Rect taskbar_top_work_area(0, 34, 1024, 734);
 static const gfx::Rect taskbar_left_work_area(107, 0, 917, 768);
@@ -36,80 +40,56 @@ class TestMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
   TestMonitorInfoProvider() {}
   virtual ~TestMonitorInfoProvider() {}
 
-  void AddMonitor(const gfx::Rect& bounds, const gfx::Rect& work_rect) {
-    DCHECK(bounds.Contains(work_rect));
-    monitor_bounds_.push_back(work_rect);
-    monitor_work_rects_.push_back(work_rect);
+  void AddMonitor(const gfx::Rect& bounds, const gfx::Rect& work_area) {
+    DCHECK(bounds.Contains(work_area));
+    monitor_bounds_.push_back(work_area);
+    work_areas_.push_back(work_area);
   }
 
   // Overridden from WindowSizer::MonitorInfoProvider:
-  virtual gfx::Rect GetPrimaryMonitorWorkingRect() const {
-    return monitor_work_rects_[0];
+  virtual gfx::Rect GetPrimaryMonitorWorkArea() const {
+    return work_areas_[0];
   }
+
   virtual gfx::Rect GetPrimaryMonitorBounds() const {
     return monitor_bounds_[0];
   }
-  virtual gfx::Rect GetMonitorWorkingRectMatching(
+
+  virtual gfx::Rect GetMonitorWorkAreaMatching(
       const gfx::Rect& match_rect) const {
-    return GetWorkingRectAt(GetMonitorIndexMatchingBounds(match_rect));
+    return work_areas_[GetMonitorIndexMatchingBounds(match_rect)];
   }
+
   virtual gfx::Point GetBoundsOffsetMatching(
       const gfx::Rect& match_rect) const {
     int monitor_index = GetMonitorIndexMatchingBounds(match_rect);
     gfx::Rect bounds = monitor_bounds_[monitor_index];
-    gfx::Rect work_rect = monitor_work_rects_[monitor_index];
-    return gfx::Point(work_rect.x() - bounds.x(), work_rect.y() - bounds.y());
-  }
-  virtual int GetMonitorCount() const {
-    return static_cast<int>(monitor_work_rects_.size());
-  }
-  virtual gfx::Rect GetWorkingRectAt(int index) const {
-    DCHECK(index >= 0 && index < GetMonitorCount());
-    return monitor_work_rects_.at(index);
+    const gfx::Rect& work_area = work_areas_[monitor_index];
+    return gfx::Point(work_area.x() - bounds.x(), work_area.y() - bounds.y());
   }
 
+  virtual void UpdateWorkAreas() { }
+
  private:
-  int GetMonitorIndexMatchingBounds(const gfx::Rect& match_rect) const {
-    int monitor_count = GetMonitorCount();
+  size_t GetMonitorIndexMatchingBounds(const gfx::Rect& match_rect) const {
     int max_area = 0;
-    int max_area_index = 0;
+    size_t max_area_index = 0;
     // Loop through all the monitors, finding the one that intersects the
     // largest area of the supplied match rect.
-    for (int i = 0; i < monitor_count; ++i) {
-      gfx::Rect current_rect = GetWorkingRectAt(i);
-      if (match_rect.right() < current_rect.right() &&
-          match_rect.right() >= current_rect.x() &&
-          match_rect.bottom() < current_rect.bottom() &&
-          match_rect.bottom() >= current_rect.y()) {
-        int covered_width, covered_height;
-        if (match_rect.x() < current_rect.x()) {
-          covered_width = match_rect.right() - current_rect.x();
-        } else if (match_rect.right() > current_rect.right()) {
-          covered_width = current_rect.right() - match_rect.x();
-        } else {
-          covered_width = match_rect.width();
-        }
-        if (match_rect.y() < current_rect.y()) {
-          covered_height = match_rect.bottom() - current_rect.y();
-        } else if (match_rect.bottom() > current_rect.bottom()) {
-          covered_height = current_rect.bottom() - match_rect.y();
-        } else {
-          covered_height = match_rect.height();
-        }
-        int area = covered_width * covered_height;
-        if (area > max_area) {
-          max_area = area;
-          max_area_index = i;
-        }
+    for (size_t i = 0; i < work_areas_.size(); ++i) {
+      gfx::Rect overlap(match_rect.Intersect(work_areas_[i]));
+      int area = overlap.width() * overlap.height();
+      if (area > max_area) {
+        max_area = area;
+        max_area_index = i;
       }
     }
     return max_area_index;
   }
 
   std::vector<gfx::Rect> monitor_bounds_;
-  std::vector<gfx::Rect> monitor_work_rects_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TestMonitorInfoProvider);
+  DISALLOW_COPY_AND_ASSIGN(TestMonitorInfoProvider);
 };
 
 // Testing implementation of WindowSizer::StateProvider that we use to fake
@@ -156,14 +136,14 @@ class TestStateProvider : public WindowSizer::StateProvider {
   gfx::Rect last_active_bounds_;
   bool has_last_active_data_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TestStateProvider);
+  DISALLOW_COPY_AND_ASSIGN(TestStateProvider);
 };
 
 // A convenience function to read the window bounds from the window sizer
 // according to the specified configuration.
 enum Source { DEFAULT, LAST_ACTIVE, PERSISTED };
 static void GetWindowBounds(const gfx::Rect& monitor1_bounds,
-                            const gfx::Rect& monitor1_work_rect,
+                            const gfx::Rect& monitor1_work_area,
                             const gfx::Rect& monitor2_bounds,
                             const gfx::Rect& state,
                             bool maximized,
@@ -171,7 +151,7 @@ static void GetWindowBounds(const gfx::Rect& monitor1_bounds,
                             gfx::Rect* out_bounds,
                             bool* out_maximized) {
   TestMonitorInfoProvider* mip = new TestMonitorInfoProvider;
-  mip->AddMonitor(monitor1_bounds, monitor1_work_rect);
+  mip->AddMonitor(monitor1_bounds, monitor1_work_area);
   if (!monitor2_bounds.IsEmpty())
     mip->AddMonitor(monitor2_bounds, monitor2_bounds);
   TestStateProvider* sp = new TestStateProvider;
@@ -462,6 +442,13 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
                     &maximized);
     EXPECT_FALSE(maximized);
     EXPECT_EQ(initial_bounds, window_bounds);
+
+    initial_bounds.Offset(tentwentyfour.width(), 0);
+    GetWindowBounds(tentwentyfour, tentwentyfour, right_nonprimary,
+                    initial_bounds, false, PERSISTED, &window_bounds,
+                    &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(initial_bounds, window_bounds);
   }
 
   { // split across two, bias left
@@ -469,6 +456,13 @@ TEST(WindowSizerTest, PersistedBoundsCase) {
     gfx::Rect window_bounds;
     bool maximized;
     GetWindowBounds(tentwentyfour, tentwentyfour, left_nonprimary,
+                    initial_bounds, false, PERSISTED, &window_bounds,
+                    &maximized);
+    EXPECT_FALSE(maximized);
+    EXPECT_EQ(initial_bounds, window_bounds);
+
+    initial_bounds.Offset(tentwentyfour.width(), 0);
+    GetWindowBounds(tentwentyfour, tentwentyfour, right_nonprimary,
                     initial_bounds, false, PERSISTED, &window_bounds,
                     &maximized);
     EXPECT_FALSE(maximized);

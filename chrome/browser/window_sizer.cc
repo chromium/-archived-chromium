@@ -24,14 +24,10 @@ static const int kWindowTilePixels = 10;
 // monitor information from Windows.
 class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
  public:
-  DefaultMonitorInfoProvider() {
-    EnumDisplayMonitors(NULL, NULL,
-                        &DefaultMonitorInfoProvider::MonitorEnumProc,
-                        reinterpret_cast<LPARAM>(&working_rects_));
-  }
+  DefaultMonitorInfoProvider() { }
 
   // Overridden from WindowSizer::MonitorInfoProvider:
-  virtual gfx::Rect GetPrimaryMonitorWorkingRect() const {
+  virtual gfx::Rect GetPrimaryMonitorWorkArea() const {
     return gfx::Rect(GetMonitorInfoForMonitor(MonitorFromWindow(NULL,
         MONITOR_DEFAULTTOPRIMARY)).rcWork);
   }
@@ -41,7 +37,7 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
         MONITOR_DEFAULTTOPRIMARY)).rcMonitor);
   }
 
-  virtual gfx::Rect GetMonitorWorkingRectMatching(
+  virtual gfx::Rect GetMonitorWorkAreaMatching(
       const gfx::Rect& match_rect) const {
     CRect other_bounds_crect = match_rect.ToRECT();
     MONITORINFO monitor_info = GetMonitorInfoForMonitor(MonitorFromRect(
@@ -58,13 +54,11 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
                       monitor_info.rcWork.top - monitor_info.rcMonitor.top);
   }
 
-  virtual int GetMonitorCount() const {
-    return static_cast<int>(working_rects_.size());
-  }
-
-  virtual gfx::Rect GetWorkingRectAt(int index) const {
-    DCHECK(index >= 0 && index < GetMonitorCount());
-    return working_rects_.at(index);
+  void UpdateWorkAreas() {
+    work_areas_.clear();
+    EnumDisplayMonitors(NULL, NULL,
+                        &DefaultMonitorInfoProvider::MonitorEnumProc,
+                        reinterpret_cast<LPARAM>(&work_areas_));
   }
 
  private:
@@ -74,25 +68,19 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
                                        HDC monitor_dc,
                                        LPRECT monitor_rect,
                                        LPARAM data) {
-    std::vector<gfx::Rect>* working_rects =
-        reinterpret_cast<std::vector<gfx::Rect>*>(data);
-    MONITORINFO info;
-    info.cbSize = sizeof(info);
-    GetMonitorInfo(monitor, &info);
-    working_rects->push_back(gfx::Rect(info.rcWork));
+    reinterpret_cast<std::vector<gfx::Rect>*>(data)->push_back(
+        gfx::Rect(GetMonitorInfoForMonitor(monitor).rcWork));
     return TRUE;
   }
 
   static MONITORINFO GetMonitorInfoForMonitor(HMONITOR monitor) {
-    MONITORINFO monitor_info;
+    MONITORINFO monitor_info = { 0 };
     monitor_info.cbSize = sizeof(monitor_info);
     GetMonitorInfo(monitor, &monitor_info);
     return monitor_info;
   }
 
-  std::vector<gfx::Rect> working_rects_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(DefaultMonitorInfoProvider);
+  DISALLOW_COPY_AND_ASSIGN(DefaultMonitorInfoProvider);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -266,12 +254,12 @@ void WindowSizer::GetDefaultWindowBounds(gfx::Rect* default_bounds) const {
   DCHECK(default_bounds);
   DCHECK(monitor_info_provider_);
 
-  gfx::Rect work_rect = monitor_info_provider_->GetPrimaryMonitorWorkingRect();
+  gfx::Rect work_area = monitor_info_provider_->GetPrimaryMonitorWorkArea();
 
   // The default size is either some reasonably wide width, or if the work
   // area is narrower, then the work area width less some aesthetic padding.
-  int default_width = std::min(work_rect.width() - 2 * kWindowTilePixels, 1050);
-  int default_height = work_rect.height() - 2 * kWindowTilePixels;
+  int default_width = std::min(work_area.width() - 2 * kWindowTilePixels, 1050);
+  int default_height = work_area.height() - 2 * kWindowTilePixels;
 
   // For wider aspect ratio displays at higher resolutions, we might size the
   // window narrower to allow two windows to easily be placed side-by-side.
@@ -284,42 +272,41 @@ void WindowSizer::GetDefaultWindowBounds(gfx::Rect* default_bounds) const {
   // We assume 16:9/10 is a fairly standard indicator of a wide aspect ratio
   // computer display.
   if (((width_to_height * 10) >= 16) &&
-      work_rect.width() > kMinScreenWidthForWindowHalving) {
+      work_area.width() > kMinScreenWidthForWindowHalving) {
     // Halve the work area, subtracting aesthetic padding on either side, plus
     // some more aesthetic padding for spacing between windows.
-    default_width = (work_rect.width() / 2) - 3 * kWindowTilePixels;
+    default_width = (work_area.width() / 2) - 3 * kWindowTilePixels;
   }
-  default_bounds->SetRect(kWindowTilePixels + work_rect.x(),
-                          kWindowTilePixels + work_rect.y(),
+  default_bounds->SetRect(kWindowTilePixels + work_area.x(),
+                          kWindowTilePixels + work_area.y(),
                           default_width, default_height);
 }
 
 bool WindowSizer::PositionIsOffscreen(int position, Edge edge) const {
   DCHECK(monitor_info_provider_);
-
-  int monitor_count = monitor_info_provider_->GetMonitorCount();
-  for (int i = 0; i < monitor_count; ++i) {
-    gfx::Rect working_rect = monitor_info_provider_->GetWorkingRectAt(i);
+  size_t monitor_count = monitor_info_provider_->GetMonitorCount();
+  for (size_t i = 0; i < monitor_count; ++i) {
+    gfx::Rect work_area = monitor_info_provider_->GetWorkAreaAt(i);
     switch (edge) {
       case TOP:
-        if (position >= working_rect.y())
-          return true;
+        if (position >= work_area.y())
+          return false;
         break;
       case LEFT:
-        if (position >= working_rect.x())
-          return true;
+        if (position >= work_area.x())
+          return false;
         break;
       case BOTTOM:
-        if (position <= working_rect.height())
-          return true;
+        if (position <= work_area.bottom())
+          return false;
         break;
       case RIGHT:
-        if (position <= working_rect.width())
-          return true;
+        if (position <= work_area.right())
+          return false;
         break;
     }
   }
-  return false;
+  return true;
 }
 
 void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
@@ -330,7 +317,7 @@ void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
   // Find the size of the work area of the monitor that intersects the bounds
   // of the anchor window.
   gfx::Rect work_area =
-      monitor_info_provider_->GetMonitorWorkingRectMatching(other_bounds);
+      monitor_info_provider_->GetMonitorWorkAreaMatching(other_bounds);
 
   // If height or width are 0, reset to the default size.
   gfx::Rect default_bounds;
@@ -341,34 +328,35 @@ void WindowSizer::AdjustBoundsToBeVisibleOnMonitorContaining(
     bounds->set_width(default_bounds.width());
 
   // First determine which screen edge(s) the window is offscreen on.
-  bool top_offscreen = !PositionIsOffscreen(bounds->y(), TOP);
-  bool left_offscreen = !PositionIsOffscreen(bounds->x(), LEFT);
-  bool bottom_offscreen =  !PositionIsOffscreen(bounds->bottom(), BOTTOM);
-  bool right_offscreen = !PositionIsOffscreen(bounds->right(), RIGHT);
+  monitor_info_provider_->UpdateWorkAreas();
+  bool top_offscreen = PositionIsOffscreen(bounds->y(), TOP);
+  bool left_offscreen = PositionIsOffscreen(bounds->x(), LEFT);
+  bool bottom_offscreen = PositionIsOffscreen(bounds->bottom(), BOTTOM);
+  bool right_offscreen = PositionIsOffscreen(bounds->right(), RIGHT);
 
   // Bump the window back onto the screen in the direction that it's offscreen.
+  int min_x = work_area.x() + kWindowTilePixels;
+  int min_y = work_area.y() + kWindowTilePixels;
   if (bottom_offscreen) {
-    int y = work_area.bottom() - kWindowTilePixels - bounds->height();
-    bounds->set_y(std::max(kWindowTilePixels, y));
+    bounds->set_y(std::max(
+        work_area.bottom() - kWindowTilePixels - bounds->height(), min_y));
   }
   if (right_offscreen) {
-    int x = work_area.right() - kWindowTilePixels - bounds->width();
-    bounds->set_x(std::max(kWindowTilePixels, x));
+    bounds->set_x(std::max(
+        work_area.right() - kWindowTilePixels - bounds->width(), min_x));
   }
   if (top_offscreen)
-    bounds->set_y(kWindowTilePixels + work_area.y());
+    bounds->set_y(min_y);
   if (left_offscreen)
-    bounds->set_x(kWindowTilePixels + work_area.x());
+    bounds->set_x(min_x);
 
   // Now that we've tried to correct the x/y position to something reasonable,
   // see if the window is still too tall or wide to fit, and resize it if need
   // be.
   if ((bottom_offscreen || top_offscreen) &&
-      bounds->bottom() > work_area.bottom()) {
+      bounds->bottom() > work_area.bottom())
     bounds->set_height(work_area.height() - 2 * kWindowTilePixels);
-  }
   if ((left_offscreen || right_offscreen) &&
-      bounds->right() > work_area.right()) {
+      bounds->right() > work_area.right())
     bounds->set_width(work_area.width() - 2 * kWindowTilePixels);
-  }
 }

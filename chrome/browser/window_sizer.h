@@ -35,28 +35,40 @@ class WindowSizer {
    public:
     virtual ~MonitorInfoProvider() { }
 
-    // Returns the bounds of the working rect of the primary monitor.
-    virtual gfx::Rect GetPrimaryMonitorWorkingRect() const = 0;
+    // Returns the bounds of the work area of the primary monitor.
+    virtual gfx::Rect GetPrimaryMonitorWorkArea() const = 0;
 
-    // Returns the bounds of the entire primary screen.
+    // Returns the bounds of the primary monitor.
     virtual gfx::Rect GetPrimaryMonitorBounds() const = 0;
 
-    // Returns the bounds of the working rect of the monitor that most closely
+    // Returns the bounds of the work area of the monitor that most closely
     // intersects the provided bounds.
-    virtual gfx::Rect GetMonitorWorkingRectMatching(
+    virtual gfx::Rect GetMonitorWorkAreaMatching(
         const gfx::Rect& match_rect) const = 0;
 
-    // Returns the delta between the working rect and the monitor size of the
+    // Returns the delta between the work area and the monitor bounds for the
     // monitor that most closely intersects the provided bounds.
     virtual gfx::Point GetBoundsOffsetMatching(
         const gfx::Rect& match_rect) const = 0;
 
-    // Returns the number of monitors on the system.
-    virtual int GetMonitorCount() const = 0;
+    // Ensures number and coordinates of work areas are up-to-date.  You must
+    // call this before calling either of the below functions, as work areas can
+    // change while the program is running.
+    virtual void UpdateWorkAreas() = 0;
 
-    // Returns the bounds of the working rect of the monitor at the specified
+    // Returns the number of monitors on the system.
+    size_t GetMonitorCount() const {
+      return work_areas_.size();
+    }
+
+    // Returns the bounds of the work area of the monitor at the specified
     // index.
-    virtual gfx::Rect GetWorkingRectAt(int index) const = 0;
+    gfx::Rect GetWorkAreaAt(size_t index) const {
+      return work_areas_[index];
+    }
+
+   protected:
+    std::vector<gfx::Rect> work_areas_;
   };
 
   // An interface implemented by an object that can retrieve state from either a
@@ -102,6 +114,9 @@ class WindowSizer {
                              bool* maximized) const;
 
  private:
+  // The edge of the screen to check for out-of-bounds.
+  enum Edge { TOP, LEFT, BOTTOM, RIGHT };
+
   explicit WindowSizer(const std::wstring& app_name);
 
   void Init(StateProvider* state_provider,
@@ -123,18 +138,17 @@ class WindowSizer {
   // size based on monitor size, etc.
   void GetDefaultWindowBounds(gfx::Rect* default_bounds) const;
 
-  // The edge of the work area to check for out-of-bounds.
-  enum Edge { TOP, LEFT, BOTTOM, RIGHT };
-
-  // Return true if the position is over the specified edge on the valid
-  // monitor work are rects.
+  // Returns true if the specified position is "offscreen" for the given edge,
+  // meaning that it's outside all work areas in the direction of that edge.
   bool PositionIsOffscreen(int position, Edge edge) const;
 
-  // Adjust the bounds specified in |bounds| so that they fit completely within
-  // the work area of the monitor that contains |other_bounds|.
+  // Adjusts |bounds| to be visible onscreen, biased toward the work area of the
+  // monitor containing |other_bounds|.  Despite the name, this doesn't
+  // guarantee the bounds are fully contained within this monitor's work rect;
+  // it just tried to ensure the edges are visible on _some_ work rect.
   void AdjustBoundsToBeVisibleOnMonitorContaining(
       const gfx::Rect& other_bounds,
-      gfx::Rect* bounds /* inout */) const;
+      gfx::Rect* bounds) const;
 
   // Providers for persistent storage and monitor metrics.
   StateProvider* state_provider_;
