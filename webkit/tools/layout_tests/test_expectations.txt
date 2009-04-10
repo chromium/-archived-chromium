@@ -2452,3 +2452,16 @@ BUG9924 WIN MAC : LayoutTests/fast/lists/001.html = FAIL
 
 // Started failing with WebKit merge 42324:42364. Unknown cause.
 BUG9926 WIN LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+
+// New tests from WebKit merge 42324:42364. May just need re-baselining.
+// TODO(pamg): investigate.
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-allow.html = FAIL
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-deny.html = FAIL
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag.html = FAIL
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny.html = FAIL
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-allow.html = FAIL
+BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
+BUG9962 : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
+BUG9962 : LayoutTests/fast/js/function-apply-aliased.html = FAIL
+BUG9962 : LayoutTests/fast/repaint/text-append-dirty-lines.html = FAIL
