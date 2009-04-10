@@ -269,6 +269,7 @@
           'GCC_DYNAMIC_NO_PIC': 'YES',
           'GCC_ENABLE_PASCAL_STRINGS': 'NO',
           'GCC_INLINES_ARE_PRIVATE_EXTERN': 'YES',
+          'GCC_OBJC_CALL_CXX_CDTORS': 'YES',
           'GCC_SYMBOLS_PRIVATE_EXTERN': 'YES',
           'GCC_TREAT_WARNINGS_AS_ERRORS': 'YES',
           'GCC_VERSION': '4.2',
