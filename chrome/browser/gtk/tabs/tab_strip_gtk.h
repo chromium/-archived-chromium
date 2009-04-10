@@ -15,6 +15,8 @@
 #include "chrome/common/owned_widget_gtk.h"
 #include "skia/include/SkBitmap.h"
 
+class NewTabButton;
+
 class TabStripGtk : public TabStripModelObserver,
                     public TabGtk::TabDelegate {
  public:
@@ -145,6 +147,10 @@ class TabStripGtk : public TabStripModelObserver,
   // stable representations of Tab positions.
   void GenerateIdealBounds();
 
+  // Lays out the New Tab button, assuming the right edge of the last Tab on
+  // the TabStrip at |last_tab_right|.
+  void LayoutNewTabButton(double last_tab_right, double unselected_width);
+
   // -- Animations -------------------------------------------------------------
 
   // A generic Layout method for various classes of TabStrip animations,
@@ -204,6 +210,9 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The currently running animation.
   scoped_ptr<TabAnimation> active_animation_;
+
+  // The New Tab button.
+  scoped_ptr<NewTabButton> newtab_button_;
 
   DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };
