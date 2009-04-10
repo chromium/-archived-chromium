@@ -26,7 +26,7 @@ const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xe6, 0xed, 0xf4);
 const int kBarPadding = 2;
 
 // Maximum number of characters on a bookmark button.
-const int kMaxCharsOnAButton = 15;
+const size_t kMaxCharsOnAButton = 15;
 
 // Our custom draging type for bookmarks.
 static GtkTargetEntry target_table[] = {
@@ -54,6 +54,9 @@ BookmarkBarGtk::~BookmarkBarGtk() {
   RemoveAllBookmarkButtons();
   bookmark_toolbar_.Destroy();
   container_.Destroy();
+
+  g_object_unref(default_bookmark_icon_);
+  g_object_unref(folder_icon_);
 }
 
 void BookmarkBarGtk::SetProfile(Profile* profile) {
@@ -86,6 +89,11 @@ void BookmarkBarGtk::SetPageNavigator(PageNavigator* navigator) {
 }
 
 void BookmarkBarGtk::Init(Profile* profile) {
+  // Load the default images from the resource bundle.
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  default_bookmark_icon_ = rb.LoadPixbuf(IDR_DEFAULT_FAVICON);
+  folder_icon_ = rb.LoadPixbuf(IDR_BOOKMARK_BAR_FOLDER);
+
   bookmark_hbox_ = gtk_hbox_new(FALSE, 0);
   container_.Own(gfx::CreateGtkBorderBin(bookmark_hbox_, &kBackgroundColor,
       kBarPadding, kBarPadding, kBarPadding, kBarPadding));
@@ -118,6 +126,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
   other_bookmarks_button_ = gtk_chrome_button_new();
   gtk_button_set_label(GTK_BUTTON(other_bookmarks_button_),
                        "Other bookmarks");
+  gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
+                       gtk_image_new_from_pixbuf(folder_icon_));
   // TODO(erg): Hook up a popup menu to |other_bookmarks_button_|.
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), other_bookmarks_button_,
                      FALSE, FALSE, 0);
@@ -269,11 +279,23 @@ bool BookmarkBarGtk::IsAlwaysShown() {
 void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
                                             GtkWidget* button) {
   gtk_widget_set_tooltip_text(button, BuildTooltip(node).c_str());
-  gtk_button_set_label(GTK_BUTTON(button),
-                       WideToUTF8(node->GetTitle()).c_str());
-  // TODO(erg): Munge the icon from a SkBitmap into something GtkButton can
-  // use. See BookmarkBarView::ConfigureButton() for the code I need to adapt
-  // to here...
+
+  // TODO(erg): Consider a soft maximum instead of this hard 15.
+  std::wstring title = node->GetTitle();
+  title = title.substr(0, std::min(title.size(), kMaxCharsOnAButton));
+  gtk_button_set_label(GTK_BUTTON(button), WideToUTF8(title).c_str());
+
+  if (node->is_url()) {
+    if (node->GetFavIcon().width() != 0) {
+      GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&node->GetFavIcon());
+      gtk_button_set_image(GTK_BUTTON(button),
+                           gtk_image_new_from_pixbuf(pixbuf));
+      gdk_pixbuf_unref(pixbuf);
+    } else {
+      gtk_button_set_image(GTK_BUTTON(button),
+                           gtk_image_new_from_pixbuf(default_bookmark_icon_));
+    }
+  }
 }
 
 GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
@@ -282,11 +304,6 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
   ConfigureButtonForNode(node, button);
 
   if (node->is_url()) {
-    // TODO(erg): Consider a soft maximum instead of this hard 15.
-    gtk_label_set_max_width_chars(
-        GTK_LABEL(gtk_bin_get_child(GTK_BIN(button))),
-        kMaxCharsOnAButton);
-
     // The tool item is also a source for dragging
     gtk_drag_source_set(button, GDK_BUTTON1_MASK,
                         target_table, G_N_ELEMENTS(target_table),
