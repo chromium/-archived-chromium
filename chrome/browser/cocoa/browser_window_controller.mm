@@ -27,11 +27,11 @@
 // up as the window's delegate.
 - (id)initWithBrowser:(Browser*)browser {
   if ((self = [super initWithWindowNibName:@"BrowserWindow"])) {
-    browser_ = browser;
-    DCHECK(browser_);
-    tabObserver_ = new TabStripModelObserverBridge(browser->tabstrip_model(),
-                                                   self);
-    windowShim_ = new BrowserWindowCocoa(browser, self, [self window]);
+    DCHECK(browser);
+    browser_.reset(browser);
+    tabObserver_.reset(
+        new TabStripModelObserverBridge(browser->tabstrip_model(), self));
+    windowShim_.reset(new BrowserWindowCocoa(browser, self, [self window]));
 
     // The window is now fully realized and |-windowDidLoad:| has been
     // called. We shouldn't do much in wDL because |windowShim_| won't yet
@@ -46,17 +46,17 @@
     // this window's Browser and the tab strip view. The controller will handle
     // registering for the appropriate tab notifications from the back-end and
     // managing the creation of new tabs.
-    tabStripController_ = [[TabStripController alloc]
-                            initWithView:[self tabStripView]
-                              switchView:[self tabContentArea]
-                                 browser:browser_];
+    tabStripController_.reset([[TabStripController alloc]
+                                initWithView:[self tabStripView]
+                                  switchView:[self tabContentArea]
+                                     browser:browser_.get()]);
 
     // Create a controller for the toolbar, giving it the toolbar model object
     // and the toolbar view from the nib. The controller will handle
     // registering for the appropriate command state changes from the back-end.
-    toolbarController_ = [[ToolbarController alloc]
-                            initWithModel:browser->toolbar_model()
-                                 commands:browser->command_updater()];
+    toolbarController_.reset([[ToolbarController alloc]
+                               initWithModel:browser->toolbar_model()
+                                    commands:browser->command_updater()]);
     [self positionToolbar];
   }
   return self;
@@ -64,17 +64,12 @@
 
 - (void)dealloc {
   browser_->CloseAllTabs();
-  [tabStripController_ release];
-  [toolbarController_ release];
-  delete windowShim_;
-  delete tabObserver_;
-  delete browser_;
   [super dealloc];
 }
 
 // Access the C++ bridge between the NSWindow and the rest of Chromium
 - (BrowserWindow*)browserWindow {
-  return windowShim_;
+  return windowShim_.get();
 }
 
 // Position |toolbarView_| below the tab strip, but not as a sibling. The
@@ -147,7 +142,7 @@
 
 // Called right after our window became the main window.
 - (void)windowDidBecomeMain:(NSNotification *)notification {
-  BrowserList::SetLastActive(browser_);
+  BrowserList::SetLastActive(browser_.get());
 }
 
 // Update a toggle state for an NSMenuItem if modified.

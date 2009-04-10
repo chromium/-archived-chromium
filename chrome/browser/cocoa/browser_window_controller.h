@@ -6,10 +6,14 @@
 #define CHROME_BROWSER_COCOA_BROWSER_WINDOW_CONTROLLER_H_
 
 // A class acting as the Objective-C controller for the Browser object. Handles
-// interactions between Cocoa and the cross-platform code.
+// interactions between Cocoa and the cross-platform code. Each window has a
+// single set of toolbars (main toolbar, bookmark bar, etc) and, by virtue of
+// being a TabWindowController, a tab strip along the top.
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_nsobject.h"
+#include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/tab_window_controller.h"
 #import "chrome/browser/cocoa/toolbar_view.h"
 
@@ -27,11 +31,11 @@ class TabStripModelObserverBridge;
 @interface BrowserWindowController :
     TabWindowController<NSUserInterfaceValidations> {
  @private
-  TabStripController* tabStripController_;
-  ToolbarController* toolbarController_;
-  Browser* browser_;
-  TabStripModelObserverBridge* tabObserver_;
-  BrowserWindowCocoa* windowShim_;
+  scoped_ptr<Browser> browser_;
+  scoped_ptr<TabStripModelObserverBridge> tabObserver_;
+  scoped_ptr<BrowserWindowCocoa> windowShim_;
+  scoped_nsobject<ToolbarController> toolbarController_;
+  scoped_nsobject<TabStripController> tabStripController_;
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.

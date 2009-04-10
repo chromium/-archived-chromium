@@ -12,7 +12,7 @@
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
                                        NSWindow* window)
-  : browser_(browser), controller_(controller), window_(window) {
+  : window_([window retain]), browser_(browser), controller_(controller) {
   status_bubble_.reset(new StatusBubbleMac(window_));
 }
 

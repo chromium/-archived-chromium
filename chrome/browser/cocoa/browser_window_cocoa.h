@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_COCOA_BROWSER_WINDOW_COCOA_H_
 
 #include "base/scoped_ptr.h"
+#include "base/scoped_nsobject.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
@@ -73,9 +74,13 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void DestroyBrowser();
 
  private:
-  Browser* browser_;
+  // We hold a strong ref to the window so that it will live after the
+  // NSWindowController (the BWC) has run its dealloc. We won't do anything
+  // with it, just make sure it survives until C++ teardown (where we get
+  // destroyed).
+  scoped_nsobject<NSWindow> window_;
+  Browser* browser_;  // weak, owned by controller
   BrowserWindowController* controller_;  // weak, owns us
-  NSWindow* window_;  // weak, owned by |controller_|
   // The status bubble manager.  Always non-NULL.
   scoped_ptr<StatusBubbleMac> status_bubble_;
 };
