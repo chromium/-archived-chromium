@@ -10,6 +10,7 @@
 #include "base/compiler_specific.h"
 #include "base/logging.h"
 #include "base/non_thread_safe.h"
+#include "base/stats_counters.h"
 #include "base/win_util.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/ipc_logging.h"

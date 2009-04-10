@@ -9,6 +9,7 @@
 #include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "base/scoped_nsautorelease_pool.h"
+#include "base/stats_counters.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
 #include "chrome/common/chrome_constants.h"

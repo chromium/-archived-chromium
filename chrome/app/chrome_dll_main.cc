@@ -32,6 +32,7 @@
 #include "base/path_service.h"
 #include "base/process_util.h"
 #include "base/scoped_nsautorelease_pool.h"
+#include "base/stats_counters.h"
 #include "base/stats_table.h"
 #include "base/string_util.h"
 #if defined(OS_WIN)

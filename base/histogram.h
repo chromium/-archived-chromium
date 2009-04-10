@@ -36,7 +36,7 @@
 #include <vector>
 
 #include "base/lock.h"
-#include "base/stats_counters.h"
+#include "base/time.h"
 
 //------------------------------------------------------------------------------
 // Provide easy general purpose histogram in a macro, just like stats counters.
@@ -203,7 +203,7 @@ static const int kRendererHistogramFlag = 1 << 4;
 
 class Pickle;
 
-class Histogram : public StatsRate {
+class Histogram {
  public:
   typedef int Sample;  // Used for samples (and ranges of samples).
   typedef int Count;  // Used to count samples in a bucket.
@@ -263,9 +263,11 @@ class Histogram : public StatsRate {
             base::TimeDelta maximum, size_t bucket_count);
   virtual ~Histogram();
 
-  // Hooks to override stats counter methods.  This ensures that we gather all
-  // input the stats counter sees.
-  virtual void Add(int value);
+  void Add(int value);
+  // Accept a TimeDelta to increment.
+  void AddTime(base::TimeDelta time) {
+    Add(static_cast<int>(time.InMilliseconds()));
+  }
 
   void AddSampleSet(const SampleSet& sample);
 
@@ -465,7 +467,7 @@ class BooleanHistogram : public LinearHistogram {
     : LinearHistogram(name, 0, 2, 3) {
   }
 
-  virtual void AddBoolean(bool value) { Add(value ? 1 : 0); }
+  void AddBoolean(bool value) { Add(value ? 1 : 0); }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(BooleanHistogram);
@@ -526,6 +528,7 @@ class StatisticsRecorder {
   // Method for extracting histograms which were marked for use by UMA.
   static void GetHistograms(Histograms* output);
 
+  // Find a histogram by name.  This method is thread safe.
   static Histogram* GetHistogram(const std::string& query);
 
   static void set_dump_on_exit(bool enable) { dump_on_exit_ = enable; }

@@ -25,8 +25,7 @@ const int Histogram::kHexRangePrintingFlag = 0x8000;
 
 Histogram::Histogram(const char* name, Sample minimum,
                      Sample maximum, size_t bucket_count)
-  : StatsRate(name),
-    histogram_name_(name),
+  : histogram_name_(name),
     declared_min_(minimum),
     declared_max_(maximum),
     bucket_count_(bucket_count),
@@ -39,8 +38,7 @@ Histogram::Histogram(const char* name, Sample minimum,
 
 Histogram::Histogram(const char* name, TimeDelta minimum,
                      TimeDelta maximum, size_t bucket_count)
-  : StatsRate(name),
-    histogram_name_(name),
+  : histogram_name_(name),
     declared_min_(static_cast<int> (minimum.InMilliseconds())),
     declared_max_(static_cast<int> (maximum.InMilliseconds())),
     bucket_count_(bucket_count),
@@ -58,14 +56,11 @@ Histogram::~Histogram() {
   DCHECK(ValidateBucketRanges());
 }
 
-// Hooks to override stats counter methods.  This ensures that we gather all
-// input the stats counter sees.
 void Histogram::Add(int value) {
   if (!registered_)
     registered_ = StatisticsRecorder::Register(this);
   if (value >= kSampleType_MAX)
     value = kSampleType_MAX - 1;
-  StatsRate::Add(value);
   if (value < 0)
     value = 0;
   size_t index = BucketIndex(value);
@@ -631,7 +626,6 @@ ThreadSafeHistogram::ThreadSafeHistogram(const char* name, Sample minimum,
 void ThreadSafeHistogram::Remove(int value) {
   if (value >= kSampleType_MAX)
     value = kSampleType_MAX - 1;
-  StatsRate::Add(-value);
   size_t index = BucketIndex(value);
   Accumulate(value, -1, index);
 }

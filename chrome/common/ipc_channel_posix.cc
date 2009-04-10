@@ -22,6 +22,7 @@
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
 #include "base/singleton.h"
+#include "base/stats_counters.h"
 #include "chrome/common/chrome_counters.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/file_descriptor_set_posix.h"
