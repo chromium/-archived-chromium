@@ -140,7 +140,7 @@ void RenderProcess::Init() {
     StatisticsRecorder::set_dump_on_exit(true);
   }
 
-  if (command_line.HasSwitch(switches::kEnableVideo) && LoadFFmpeg()) {
+  if (LoadFFmpeg()) {
     webkit_glue::SetMediaPlayerAvailable(true);
   }
 }

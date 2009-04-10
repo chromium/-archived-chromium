@@ -142,8 +142,6 @@ extern const wchar_t kIncognito[];
 
 extern const wchar_t kEnableRendererAccessibility[];
 
-extern const wchar_t kEnableVideo[];
-
 extern const wchar_t kTestName[];
 
 extern const wchar_t kRendererCmdPrefix[];

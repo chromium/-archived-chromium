@@ -376,9 +376,6 @@ const wchar_t kIncognito[]                     = L"incognito";
 // http://b/issue?id=1432077 is fixed.
 const wchar_t kEnableRendererAccessibility[] = L"enable-renderer-accessibility";
 
-// Enable HTML5 Video/Audio tag support
-const wchar_t kEnableVideo[]                   = L"enable-video";
-
 // Pass the name of the current running automated test to Chrome.
 const wchar_t kTestName[]                      = L"test-name";
 

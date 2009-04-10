@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
       base::MemoryDebug::DumpAllMemoryInUse();
     }
 
-    if (parsed_command_line.HasSwitch(test_shell::kEnableVideo)) {
+    if (false) {
       // TODO(scherkus): check for any DLL dependencies.
       webkit_glue::SetMediaPlayerAvailable(true);
     }
