@@ -15,19 +15,22 @@
 // of the debugger files without CHROME_DEBUGGER_DISABLED so the full
 // functionality is enabled.
 
-#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_
-#define CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_
+#ifndef CHROME_BROWSER_DEBUGGER_DEBUGGER_WRAPPER_H_
+#define CHROME_BROWSER_DEBUGGER_DEBUGGER_WRAPPER_H_
 
 #include <string>
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 
 class DebuggerHost;
+class DevToolsProtocolHandler;
+class DevToolsRemoteListenSocket;
 
 class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
  public:
-  DebuggerWrapper(int port);
+  explicit DebuggerWrapper(int port);
 
   virtual ~DebuggerWrapper();
 
@@ -41,6 +44,7 @@ class DebuggerWrapper : public base::RefCountedThreadSafe<DebuggerWrapper> {
 
  private:
   scoped_refptr<DebuggerHost> debugger_;
+  scoped_refptr<DevToolsProtocolHandler> proto_handler_;
 };
 
-#endif // CHROME_BROWSER_DEBUGGER_DEBUGGER_INTERFACE_H_
+#endif  // CHROME_BROWSER_DEBUGGER_DEBUGGER_WRAPPER_H_

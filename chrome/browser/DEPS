@@ -18,6 +18,7 @@ include_rules = [
   "+libxml", # For search engine definition parsing.
   "+media/audio", # Chrome's lightweight audio library.
   "+third_party/sqlite",
+  "+third_party/libevent", # For the remote V8 debugging server
   "+v8/include", # Browser uses V8 to get the version and run the debugger.
 
   # FIXME: this should probably not be here, we need to find a better
