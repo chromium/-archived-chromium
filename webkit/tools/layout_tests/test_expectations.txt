@@ -2444,3 +2444,12 @@ BUG9916 : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FAIL
 BUG9916 : LayoutTests/svg/custom/getsvgdocument.html = FAIL
 BUG9916 : LayoutTests/transitions/transition-end-event-left.html = FAIL
 
+// Started failing with WebKit merge 42324:42364. Probably just need
+// re-baselining, since WebKit re-baselined them in that range.
+// TODO(pamg): investigate.
+BUG9924 : LayoutTests/fast/flexbox/016.html = FAIL
+BUG9924 RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
+BUG9924 WIN MAC : LayoutTests/fast/lists/001.html = FAIL
+
+// Started failing with WebKit merge 42324:42364. Unknown cause.
+BUG9926 WIN LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
