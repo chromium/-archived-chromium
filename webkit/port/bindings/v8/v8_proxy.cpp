@@ -1914,7 +1914,6 @@ bool V8Proxy::CanAccessPrivate(DOMWindow* target_window)
 
     // We have seen crashes were the security origin of the target has not been
     // initialized.  Defend against that.
-    ASSERT(target_security_origin);
     if (!target_security_origin)
         return false;
 
