@@ -62,14 +62,8 @@ PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager
 # 9566
 SUBSTRING : tabcontents::destroy___webcontents::destroy
 
-# 9975
-PREFIX : views::view::propagateremovenotifications
-
 # 7694
 PREFIX : webcore::containernode::willremove
-
-# 9796
-PREFIX : webcore::imagebuffer::context___webcore::transparencywin::initializenewcontext___webcore::transparencywin::setuplayerforopaquecompositelayer___webcore::transparencywin::init
 
 # 7570
 PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
