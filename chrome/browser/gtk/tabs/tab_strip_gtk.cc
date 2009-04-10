@@ -176,15 +176,15 @@ class NewTabButton {
   // simulate a mouse moved event at the current mouse position. This tickles
   // the New Tab button to show the "hot" state.
   void HighlightNewTabButton() {
-    /* get default display and screen */
+    // Get default display and screen.
     GdkDisplay* display = gdk_display_get_default();
     GdkScreen* screen = gdk_display_get_default_screen(display);
 
-    /* get cursor position */
+    // Get cursor position.
     int x, y;
     gdk_display_get_pointer(display, NULL, &x, &y, NULL);
 
-    /* reset cusor position */
+    // Reset cusor position.
     gdk_display_warp_pointer(display, screen, x, y);
   }
 
@@ -457,15 +457,15 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
       return;
     }
 
-    /* get default display and screen */
+    // Get default display and screen.
     GdkDisplay* display = gdk_display_get_default();
     GdkScreen* screen = gdk_display_get_default_screen(display);
 
-    /* get cursor position */
+    // Get cursor position.
     int x, y;
     gdk_display_get_pointer(display, NULL, &x, &y, NULL);
 
-    /* reset cusor position */
+    // Reset cusor position.
     gdk_display_warp_pointer(display, screen, x, y);
   }
 

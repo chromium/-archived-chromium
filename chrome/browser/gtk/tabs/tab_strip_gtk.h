@@ -148,7 +148,9 @@ class TabStripGtk : public TabStripModelObserver,
   void GenerateIdealBounds();
 
   // Lays out the New Tab button, assuming the right edge of the last Tab on
-  // the TabStrip at |last_tab_right|.
+  // the TabStrip at |last_tab_right|.  |unselected_width| is the width of
+  // unselected tabs at the moment this function is called.  The value changes
+  // during animations, so we can't use current_unselected_width_.
   void LayoutNewTabButton(double last_tab_right, double unselected_width);
 
   // -- Animations -------------------------------------------------------------
