@@ -266,7 +266,6 @@
           'ALWAYS_SEARCH_USER_PATHS': 'NO',
           'GCC_C_LANGUAGE_STANDARD': 'c99',
           'GCC_CW_ASM_SYNTAX': 'NO',
-          'GCC_DYNAMIC_NO_PIC': 'YES',
           'GCC_ENABLE_PASCAL_STRINGS': 'NO',
           'GCC_INLINES_ARE_PRIVATE_EXTERN': 'YES',
           'GCC_OBJC_CALL_CXX_CDTORS': 'YES',
@@ -285,9 +284,6 @@
           ],
         },
         'target_conditions': [
-          ['_type=="shared_library" or _type=="loadable_module"', {
-            'xcode_settings': {'GCC_DYNAMIC_NO_PIC': 'NO'},
-          }],
           ['_type!="static_library"', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-search_paths_first']},
           }],

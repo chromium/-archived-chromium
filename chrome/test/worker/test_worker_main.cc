@@ -9,6 +9,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
+#include "base/string_util.h"
 #include "chrome/worker/worker_webkitclient_impl.h"
 #include "chrome/test/worker/test_webworker.h"
 #include "googleurl/src/gurl.h"
@@ -26,6 +27,10 @@ static base::AtExitManager global_at_exit_manager;
 // WebKit client used in DLL.
 static scoped_ptr<WorkerWebKitClientImpl> webkit_client;
 
+#if defined(COMPILER_GCC)
+#pragma GCC visibility push(default)
+#endif
+extern "C" {
 // DLL entry points
 WebWorker* API_CALL CreateWebWorker(WebWorkerClient* webworker_client,
                                     TestWebWorkerHelper* webworker_helper) {
@@ -40,11 +45,16 @@ WebWorker* API_CALL CreateWebWorker(WebWorkerClient* webworker_client,
   return NULL;
 #endif
 }
+}  // extern "C"
 
-// WebKit glue functions
-
+// WebKit glue stub functions.
 namespace webkit_glue {
 
+#if defined(COMPILER_GCC)
+// GCC hides the class methods like this by default, even in the scope
+// of the "#pragma visibility". Need the attribute.
+__attribute__((visibility("default")))
+#endif
 ResourceLoaderBridge* ResourceLoaderBridge::Create(
     const std::string& method,
     const GURL& url,
@@ -62,7 +72,7 @@ ResourceLoaderBridge* ResourceLoaderBridge::Create(
 }
 
 string16 GetLocalizedString(int message_id) {
-  return L"";
+  return EmptyString16();
 }
 
 StringPiece GetDataResource(int resource_id) {
@@ -145,4 +155,8 @@ bool DownloadUrl(const std::string& url, HWND caller_window) {
 }
 #endif
 
-}
+}  // namespace webkit_glue
+
+#if defined(COMPILER_GCC)
+#pragma GCC visibility pop
+#endif

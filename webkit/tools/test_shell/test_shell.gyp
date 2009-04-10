@@ -464,5 +464,34 @@
         },
       ],
     }],
+    # Need to do the same for Win and Linux. We build a separate dylib/dll/so
+    # so V8 can have a second set of global variables and run workers.
+    # Normally, workers run in a separate process.
+    ['OS=="mac"', {
+      'targets': [
+        {
+          'target_name': 'test_worker',
+          'type': 'shared_library',
+          'xcode_settings': {
+             'EXPORTED_SYMBOLS_FILE': '../../../chrome/test/worker/test_worker.exp',
+          },
+          'dependencies': [
+            '../../../base/base.gyp:base',
+            '../../../base/base.gyp:base_gfx',
+            '../../../net/net.gyp:net',
+            '../../../skia/skia.gyp:skia',
+            '../../../testing/gtest.gyp:gtest',
+            '../../../third_party/npapi/npapi.gyp:npapi',
+            '../../webkit.gyp:glue',
+            '../../webkit.gyp:webkit',
+          ],
+          'sources': [
+            '../../../chrome/test/worker/test_webworker.cc',
+            '../../../chrome/test/worker/test_worker_main.cc',
+            '../../../chrome/worker/worker_webkitclient_impl.cc',
+          ],
+        },
+      ],
+    }],
   ],
 }

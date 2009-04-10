@@ -37,13 +37,15 @@ class TestWebWorkerHelper {
   virtual void Unload();
 
  private:
-  bool Load();
+  void Load();
   static void UnloadHelper(void* param);
 
 #if defined(OS_WIN)
   // TODO(port): Remove ifdefs when we have portable replacement for HMODULE.
   HMODULE module_;
-#endif  // defined(OS_WIN)
+#elif defined(OS_MACOSX)
+  void* module_;
+#endif
 
   CreateWebWorkerFunc CreateWebWorker_;
 

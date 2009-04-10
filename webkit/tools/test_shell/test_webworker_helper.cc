@@ -11,12 +11,15 @@
 
 #include "webkit/tools/test_shell/test_webworker_helper.h"
 
+#if defined(OS_MACOSX)
+#include <dlfcn.h>
+#endif
+
 #include "base/logging.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
 #include "webkit/glue/webworkerclient.h"
-
 
 WebWorker* TestWebWorkerHelper::CreateWebWorker(WebWorkerClient* client) {
   TestWebWorkerHelper* loader = new TestWebWorkerHelper();
@@ -43,28 +46,38 @@ void TestWebWorkerHelper::DispatchToMainThread(WTF::MainThreadFunction* func,
   return WTF::callOnMainThread(func, context);
 }
 
-bool TestWebWorkerHelper::Load() {
-#if defined(OS_WIN)
+void TestWebWorkerHelper::Load() {
   FilePath path;
   PathService::Get(base::DIR_EXE, &path);
+
+#if defined(OS_WIN)
   path = path.AppendASCII("test_worker.dll");
 
   module_ = LoadLibrary(path.value().c_str());
   if (module_ == 0)
-    return false;
+    return;
 
   CreateWebWorker_ = reinterpret_cast<CreateWebWorkerFunc>
       (GetProcAddress(module_, "CreateWebWorker"));
   if (!CreateWebWorker_) {
     FreeLibrary(module_);
     module_ = 0;
-    return false;
   }
+#elif defined(OS_MACOSX)
+  path = path.AppendASCII("test_worker.dylib");
 
-  return true;
+  module_ = dlopen(path.value().c_str(), RTLD_NOW | RTLD_LOCAL);
+  if (!module_)
+    return;
+
+  CreateWebWorker_ = reinterpret_cast<CreateWebWorkerFunc>
+      (dlsym(module_, "CreateWebWorker"));
+  if (!CreateWebWorker_) {
+    dlclose(module_);
+    module_ = 0;
+  }
 #else
   NOTIMPLEMENTED();
-  return false;
 #endif
 }
 
