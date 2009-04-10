@@ -138,7 +138,7 @@ void InitLogging(const char* log_file, LoggingDestination logging_dest,
 // if this function is not called.
 void SetMinLogLevel(int level);
 
-// Gets the curreng log level.
+// Gets the current log level.
 int GetMinLogLevel();
 
 // Sets the log filter prefix.  Any log message below LOG_ERROR severity that
