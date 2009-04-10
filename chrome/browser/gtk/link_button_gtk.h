@@ -30,8 +30,22 @@ class LinkButtonGtk {
   // Called when the widget is exposed.
   static gboolean OnExpose(GtkWidget* widget,
                            GdkEventExpose* event,
-                           gpointer user_data);
+                           LinkButtonGtk* link_button);
 
+  // The button widget.
   OwnedWidgetGtk widget_;
+
+  // The text widget.
+  GtkWidget* label_;
+
+  // We keep this hand cursor so we don't have to recreate it every time the
+  // user mouses over the link.
   GdkCursor* hand_cursor_;
+
+  // Text markup for the link. We use the red one when the link is being
+  // clicked.
+  gchar* blue_markup;
+  gchar* red_markup;
+  // The current state of the text.
+  bool is_blue_;
 };

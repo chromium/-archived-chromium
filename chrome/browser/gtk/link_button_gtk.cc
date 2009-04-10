@@ -4,23 +4,49 @@
 
 #include "chrome/browser/gtk/link_button_gtk.h"
 
-static const char* kLinkMarkup = "<u><span color=\"blue\">%s</span></u>";
+static const char* kLinkMarkup = "<u><span color=\"%s\">%s</span></u>";
+
+namespace {
+
+// Set the GTK style on our custom link button. We don't want any border around
+// the link text.
+void SetLinkButtonStyle() {
+  static bool style_was_set = false;
+
+  if (style_was_set)
+    return;
+  style_was_set = true;
+
+  gtk_rc_parse_string(
+      "style \"chrome-link-button\" {"
+      "  GtkButton::inner-border = {0, 0, 0, 0}"
+      "  xthickness = 0"
+      "  ythickness = 0"
+      "}"
+      "widget \"*chrome-link-button\" style \"chrome-link-button\"");
+}
+
+}
 
 LinkButtonGtk::LinkButtonGtk(const char* text)
-    : hand_cursor_(gdk_cursor_new(GDK_HAND2)) {
+    : hand_cursor_(gdk_cursor_new(GDK_HAND2)),
+      is_blue_(true) {
+  SetLinkButtonStyle();
+
   // We put a label in a button so we can connect to the click event. We don't
   // let the button draw itself; catch all expose events to the button and pass
   // them through to the label.
-  // TODO(estade): the link should turn red during the user's click.
-  GtkWidget* label = gtk_label_new(NULL);
-  char* markup = g_markup_printf_escaped(kLinkMarkup, text);
-  gtk_label_set_markup(GTK_LABEL(label), markup);
-  g_free(markup);
+  label_ = gtk_label_new(NULL);
+  blue_markup = g_markup_printf_escaped(kLinkMarkup, "blue", text);
+  red_markup = g_markup_printf_escaped(kLinkMarkup, "red", text);
+  gtk_label_set_markup(GTK_LABEL(label_), blue_markup);
 
   widget_.Own(gtk_button_new());
+  gtk_container_add(GTK_CONTAINER(widget_.get()), label_);
+  gtk_widget_set_name(widget_.get(), "chrome-link-button");
   gtk_widget_set_app_paintable(widget_.get(), TRUE);
   g_signal_connect(widget_.get(), "expose-event",
-                   G_CALLBACK(OnExpose), NULL);
+                   G_CALLBACK(OnExpose), this);
   // We connect to these signals so we can set the cursor appropriately. We
   // could give the link button its own GdkWindow (e.g. by placing it in a
   // GtkEventBox), but that would wreak havok with painting of the parent
@@ -30,10 +56,11 @@ LinkButtonGtk::LinkButtonGtk(const char* text)
                    G_CALLBACK(OnEnter), this);
   g_signal_connect(widget_.get(), "leave",
                    G_CALLBACK(OnLeave), this);
-  gtk_container_add(GTK_CONTAINER(widget_.get()), label);
 }
 
 LinkButtonGtk::~LinkButtonGtk() {
+  g_free(red_markup);
+  g_free(blue_markup);
   gdk_cursor_unref(hand_cursor_);
   widget_.Destroy();
 }
@@ -55,7 +82,18 @@ gboolean LinkButtonGtk::OnLeave(GtkWidget* widget,
 // static
 gboolean LinkButtonGtk::OnExpose(GtkWidget* widget,
                                  GdkEventExpose* event,
-                                 gpointer user_data) {
+                                 LinkButtonGtk* link_button) {
+  if (GTK_WIDGET_STATE(widget) == GTK_STATE_ACTIVE && link_button->is_blue_) {
+    gtk_label_set_markup(GTK_LABEL(link_button->label_),
+                         link_button->red_markup);
+    link_button->is_blue_ = false;
+  } else if (GTK_WIDGET_STATE(widget) != GTK_STATE_ACTIVE &&
+             !link_button->is_blue_) {
+    gtk_label_set_markup(GTK_LABEL(link_button->label_),
+                         link_button->blue_markup);
+    link_button->is_blue_ = true;
+  }
+
   // Draw the link inside the button.
   gtk_container_propagate_expose(GTK_CONTAINER(widget),
                                  gtk_bin_get_child(GTK_BIN(widget)),

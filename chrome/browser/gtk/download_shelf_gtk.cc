@@ -100,7 +100,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gdk_pixbuf_unref(download_pixbuf);
 
   // Pack the link and the icon in an hbox.
-  link_hbox_ = gtk_hbox_new(FALSE, 0);
+  link_hbox_ = gtk_hbox_new(FALSE, 5);
   gtk_box_pack_start(GTK_BOX(link_hbox_), download_image, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(link_hbox_), link_button_->widget(),
                      FALSE, FALSE, 0);
