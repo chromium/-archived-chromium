@@ -15,7 +15,6 @@
 
 class Browser;
 class CustomContainerButton;
-class NineBox;
 class PageNavigator;
 class Profile;
 
@@ -57,9 +56,21 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   bool IsAlwaysShown();
 
  private:
-  // Helper function which destroys all the bookmark buttons in
-  // |current_bookmark_buttons_|.
+  // Helper function that sets visual properties of GtkButton |button| to the
+  // contents of |node|.
+  void ConfigureButtonForNode(BookmarkNode* node,
+                              GtkWidget* button);
+
+  // Helper function which generates GtkToolItems for |bookmark_toolbar_|.
+  void CreateAllBookmarkButtons(BookmarkNode* node);
+
+  // Helper function which destroys all the bookmark buttons in the GtkToolbar.
   void RemoveAllBookmarkButtons();
+
+  // Returns the number of buttons corresponding to starred urls/groups. This
+  // is equivalent to the number of children the bookmark bar node from the
+  // bookmark bar model has.
+  int GetBookmarkButtonCount();
 
   // Overridden from BookmarkModelObserver:
 
@@ -68,52 +79,39 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   virtual void Loaded(BookmarkModel* model);
 
   // Invoked when the model is being deleted.
-  virtual void BookmarkModelBeingDeleted(BookmarkModel* model) {
-    NOTIMPLEMENTED();
-  }
+  virtual void BookmarkModelBeingDeleted(BookmarkModel* model);
 
   // Invoked when a node has moved.
   virtual void BookmarkNodeMoved(BookmarkModel* model,
                                  BookmarkNode* old_parent,
                                  int old_index,
                                  BookmarkNode* new_parent,
-                                 int new_index) {
-    NOTIMPLEMENTED();
-  }
-
+                                 int new_index);
   virtual void BookmarkNodeAdded(BookmarkModel* model,
                                  BookmarkNode* parent,
-                                 int index) {
-    NOTIMPLEMENTED();
-  }
-
+                                 int index);
   virtual void BookmarkNodeRemoved(BookmarkModel* model,
                                    BookmarkNode* parent,
-                                   int index) {
-    NOTIMPLEMENTED();
-  }
-
+                                   int index);
   virtual void BookmarkNodeChanged(BookmarkModel* model,
-                                   BookmarkNode* node) {
-    NOTIMPLEMENTED();
-  }
-
+                                   BookmarkNode* node);
   // Invoked when a favicon has finished loading.
   virtual void BookmarkNodeFavIconLoaded(BookmarkModel* model,
-                                         BookmarkNode* node) {
-    NOTIMPLEMENTED();
-  }
-
+                                         BookmarkNode* node);
   virtual void BookmarkNodeChildrenReordered(BookmarkModel* model,
-                                             BookmarkNode* node) {
-    NOTIMPLEMENTED();
-  }
+                                             BookmarkNode* node);
 
  private:
   GtkWidget* CreateBookmarkButton(BookmarkNode* node);
   GtkToolItem* CreateBookmarkToolItem(BookmarkNode* node);
 
   std::string BuildTooltip(BookmarkNode* node);
+
+  // Finds the BookmarkNode from the model associated with |button|.
+  BookmarkNode* GetNodeForToolButton(GtkWidget* button);
+
+  // Creates and displays a popup menu for BookmarkNode |node|.
+  void PopupMenuForNode(BookmarkNode* node, GdkEventButton* event);
 
   // GtkButton callbacks
   static gboolean OnButtonPressed(GtkWidget* sender,
@@ -143,6 +141,12 @@ class BookmarkBarGtk : public BookmarkModelObserver {
                                  GdkDragContext* context,
                                  guint time,
                                  BookmarkBarGtk* bar);
+  static gboolean OnToolbarDragDrop(GtkWidget* toolbar,
+                                    GdkDragContext* drag_context,
+                                    gint x,
+                                    gint y,
+                                    guint time,
+                                    BookmarkBarGtk* bar);
 
   Profile* profile_;
 
@@ -184,11 +188,6 @@ class BookmarkBarGtk : public BookmarkModelObserver {
 
   // Whether we should show the instructional text in the bookmark bar.
   bool show_instructions_;
-
-  // The theme graphics for when the mouse is over the button.
-  scoped_ptr<NineBox> nine_box_prelight_;
-  // The theme graphics for when the button is clicked.
-  scoped_ptr<NineBox> nine_box_active_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_BAR_GTK_H_

@@ -8,7 +8,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
-#include "chrome/browser/gtk/nine_box.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gfx/text_elider.h"
@@ -69,7 +68,7 @@ void BookmarkBarGtk::SetProfile(Profile* profile) {
   if (model_)
     model_->RemoveObserver(this);
 
-  // TODO(erg): Add the other bookmarked button, disabled.
+  gtk_widget_set_sensitive(other_bookmarks_button_, false);
 
   // TODO(erg): Handle extensions
 
@@ -110,6 +109,8 @@ void BookmarkBarGtk::Init(Profile* profile) {
                    G_CALLBACK(&OnToolbarDragMotion), this);
   g_signal_connect(bookmark_toolbar_.get(), "drag-leave",
                    G_CALLBACK(&OnToolbarDragLeave), this);
+  g_signal_connect(bookmark_toolbar_.get(), "drag-drop",
+                   G_CALLBACK(&OnToolbarDragDrop), this);
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), gtk_vseparator_new(),
                      FALSE, FALSE, 0);
@@ -151,7 +152,90 @@ void BookmarkBarGtk::Loaded(BookmarkModel* model) {
 
   BookmarkNode* node = model_->GetBookmarkBarNode();
   DCHECK(node && model_->other_node());
+  CreateAllBookmarkButtons(node);
 
+  gtk_widget_set_sensitive(other_bookmarks_button_, true);
+}
+
+void BookmarkBarGtk::BookmarkModelBeingDeleted(BookmarkModel* model) {
+  // The bookmark model should never be deleted before us. This code exists
+  // to check for regressions in shutdown code and not crash.
+  NOTREACHED();
+
+  // Do minimal cleanup, presumably we'll be deleted shortly.
+  model_->RemoveObserver(this);
+  model_ = NULL;
+}
+
+void BookmarkBarGtk::BookmarkNodeMoved(BookmarkModel* model,
+                                       BookmarkNode* old_parent,
+                                       int old_index,
+                                       BookmarkNode* new_parent,
+                                       int new_index) {
+  BookmarkNodeRemoved(model, old_parent, old_index);
+  BookmarkNodeAdded(model, new_parent, new_index);
+}
+
+void BookmarkBarGtk::BookmarkNodeAdded(BookmarkModel* model,
+                                       BookmarkNode* parent,
+                                       int index) {
+  if (parent != model_->GetBookmarkBarNode()) {
+    // We only care about nodes on the bookmark bar.
+    return;
+  }
+  DCHECK(index >= 0 && index <= GetBookmarkButtonCount());
+
+  gtk_toolbar_insert(GTK_TOOLBAR(bookmark_toolbar_.get()),
+                     CreateBookmarkToolItem(parent->GetChild(index)),
+                     index);
+}
+
+void BookmarkBarGtk::BookmarkNodeRemoved(BookmarkModel* model,
+                                         BookmarkNode* parent,
+                                         int index) {
+  if (parent != model_->GetBookmarkBarNode()) {
+    // We only care about nodes on the bookmark bar.
+    return;
+  }
+  DCHECK(index >= 0 && index < GetBookmarkButtonCount());
+
+  GtkWidget* to_remove = GTK_WIDGET(gtk_toolbar_get_nth_item(
+      GTK_TOOLBAR(bookmark_toolbar_.get()), index));
+  gtk_container_remove(GTK_CONTAINER(bookmark_toolbar_.get()),
+                       to_remove);
+}
+
+void BookmarkBarGtk::BookmarkNodeChanged(BookmarkModel* model,
+                                         BookmarkNode* node) {
+  if (node->GetParent() != model_->GetBookmarkBarNode()) {
+    // We only care about nodes on the bookmark bar.
+    return;
+  }
+  int index = model_->GetBookmarkBarNode()->IndexOfChild(node);
+  DCHECK(index != -1);
+
+  GtkToolItem* item = gtk_toolbar_get_nth_item(
+      GTK_TOOLBAR(bookmark_toolbar_.get()), index);
+  GtkWidget* button = gtk_bin_get_child(GTK_BIN(item));
+  ConfigureButtonForNode(node, button);
+}
+
+void BookmarkBarGtk::BookmarkNodeFavIconLoaded(BookmarkModel* model,
+                                               BookmarkNode* node) {
+  BookmarkNodeChanged(model, node);
+}
+
+void BookmarkBarGtk::BookmarkNodeChildrenReordered(BookmarkModel* model,
+                                                   BookmarkNode* node) {
+  if (node != model_->GetBookmarkBarNode())
+    return;  // We only care about reordering of the bookmark bar node.
+
+  // Purge and rebuild the bar.
+  RemoveAllBookmarkButtons();
+  CreateAllBookmarkButtons(node);
+}
+
+void BookmarkBarGtk::CreateAllBookmarkButtons(BookmarkNode* node) {
   // Create a button for each of the children on the bookmark bar.
   for (int i = 0; i < node->GetChildCount(); ++i) {
     GtkToolItem* item = CreateBookmarkToolItem(node->GetChild(i));
@@ -164,26 +248,40 @@ void BookmarkBarGtk::Loaded(BookmarkModel* model) {
   } else {
     gtk_widget_hide(instructions_);
   }
-
-  // TODO(erg): Reenable the other bookmarks button here once it exists.
 }
 
 void BookmarkBarGtk::RemoveAllBookmarkButtons() {
   gfx::RemoveAllChildren(bookmark_toolbar_.get());
 }
 
+int BookmarkBarGtk::GetBookmarkButtonCount() {
+  GList* children = gtk_container_get_children(
+      GTK_CONTAINER(bookmark_toolbar_.get()));
+  int count = g_list_length(children);
+  g_list_free(children);
+  return count;
+}
+
 bool BookmarkBarGtk::IsAlwaysShown() {
   return profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
+}
+
+void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
+                                            GtkWidget* button) {
+  gtk_widget_set_tooltip_text(button, BuildTooltip(node).c_str());
+  gtk_button_set_label(GTK_BUTTON(button),
+                       WideToUTF8(node->GetTitle()).c_str());
+  // TODO(erg): Munge the icon from a SkBitmap into something GtkButton can
+  // use. See BookmarkBarView::ConfigureButton() for the code I need to adapt
+  // to here...
 }
 
 GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
     BookmarkNode* node) {
   GtkWidget* button = gtk_chrome_button_new();
+  ConfigureButtonForNode(node, button);
 
   if (node->is_url()) {
-    gtk_widget_set_tooltip_text(button, BuildTooltip(node).c_str());
-    gtk_button_set_label(GTK_BUTTON(button),
-                         WideToUTF8(node->GetTitle()).c_str());
     // TODO(erg): Consider a soft maximum instead of this hard 15.
     gtk_label_set_max_width_chars(
         GTK_LABEL(gtk_bin_get_child(GTK_BIN(button))),
@@ -206,8 +304,6 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
     g_signal_connect(G_OBJECT(button), "button-release-event",
                      G_CALLBACK(OnButtonReleased), this);
     GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
-
-    g_object_set_data(G_OBJECT(button), "bookmark-node", node);
   } else {
     NOTIMPLEMENTED();
   }
@@ -231,6 +327,36 @@ std::string BookmarkBarGtk::BuildTooltip(BookmarkNode* node) {
   return node->GetURL().possibly_invalid_spec();
 }
 
+BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* button) {
+  GtkWidget* item_to_find = gtk_widget_get_parent(button);
+  int index_to_use = -1;
+  int index = 0;
+  GList* children = gtk_container_get_children(
+      GTK_CONTAINER(bookmark_toolbar_.get()));
+  for (GList* item = children; item; item = item->next, index++) {
+    if (item->data == item_to_find) {
+      index_to_use = index;
+      break;
+    }
+  }
+  g_list_free(children);
+
+  if (index_to_use != -1)
+    return model_->GetBookmarkBarNode()->GetChild(index_to_use);
+
+  return NULL;
+}
+
+void BookmarkBarGtk::PopupMenuForNode(BookmarkNode* node,
+                                      GdkEventButton* event) {
+  GtkWidget* menu = gtk_menu_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu),
+                        gtk_menu_item_new_with_label("TODO(erg): Write menus"));
+  gtk_widget_show_all(menu);
+  gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event->button,
+                 event->time);
+}
+
 gboolean BookmarkBarGtk::OnButtonPressed(GtkWidget* sender,
                                          GdkEventButton* event,
                                          BookmarkBarGtk* bar) {
@@ -247,10 +373,14 @@ gboolean BookmarkBarGtk::OnButtonReleased(GtkWidget* sender,
     return FALSE;
   }
 
-  gpointer user_data = g_object_get_data(G_OBJECT(sender), "bookmark-node");
-  BookmarkNode* node = static_cast<BookmarkNode*>(user_data);
+  BookmarkNode* node = bar->GetNodeForToolButton(sender);
   DCHECK(node);
   DCHECK(bar->page_navigator_);
+
+  if (event->button == 3) {
+    bar->PopupMenuForNode(node, event);
+    return FALSE;
+  }
 
   if (node->is_url()) {
     bar->page_navigator_->OpenURL(
@@ -276,8 +406,7 @@ void BookmarkBarGtk::OnButtonDragBegin(GtkWidget* button,
   // pressing.
   bar->ignore_button_release_ = true;
 
-  gpointer user_data = g_object_get_data(G_OBJECT(button), "bookmark-node");
-  BookmarkNode* node = static_cast<BookmarkNode*>(user_data);
+  BookmarkNode* node = bar->GetNodeForToolButton(button);
   DCHECK(node);
 
   bar->dragged_node_ = node;
@@ -326,12 +455,10 @@ gboolean BookmarkBarGtk::OnToolbarExpose(GtkWidget* widget,
   // A GtkToolbar's expose handler first draws a box. We don't want that so we
   // need to propagate the expose event to all the container's children.
   GList* children = gtk_container_get_children(GTK_CONTAINER(widget));
-  while (children) {
-    GList *next = children->next;
+  for (GList* item = children; item; item = item->next) {
     gtk_container_propagate_expose(GTK_CONTAINER(widget),
-                                   GTK_WIDGET(children->data),
+                                   GTK_WIDGET(item->data),
                                    event);
-    children = next;
   }
   g_list_free(children);
 
@@ -369,4 +496,25 @@ void BookmarkBarGtk::OnToolbarDragLeave(GtkToolbar* toolbar,
   }
 
   gtk_toolbar_set_drop_highlight_item(toolbar, NULL, 0);
+}
+
+// static
+gboolean BookmarkBarGtk::OnToolbarDragDrop(GtkWidget* toolbar,
+                                           GdkDragContext* drag_context,
+                                           gint x,
+                                           gint y,
+                                           guint time,
+                                           BookmarkBarGtk* bar) {
+  // TODO(erg): This implementation only works within the same profile, which
+  // is OK for now because we're restricted to drags from within the same
+  // window.
+  if (bar->dragged_node_) {
+    gint index = gtk_toolbar_get_drop_index(GTK_TOOLBAR(toolbar), x, y);
+    // Drag from same profile, do a move.
+    bar->model_->Move(bar->dragged_node_, bar->model_->GetBookmarkBarNode(),
+                      index);
+    return TRUE;
+  }
+
+  return FALSE;
 }
