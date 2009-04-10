@@ -73,13 +73,13 @@ void WebWidgetImpl::InitWithItems(WebCore::FramelessScrollView* widget,
                                   const WebRect& bounds,
                                   int item_height,
                                   int selected_index,
-                                  const std::vector<MenuItem>& items) {
+                                  const std::vector<WebMenuItem>& items) {
   widget_ = widget;
   widget_->setClient(this);
 
   if (delegate_) {
-    delegate_->SetWindowRect(this, bounds);
-    delegate_->ShowWithItems(this, bounds, item_height, selected_index, items);
+    delegate_->ShowAsPopupWithItems(this, bounds, item_height,
+                                    selected_index, items);
   }
 }
 

@@ -65,7 +65,7 @@ class WebWidgetImpl : public WebWidget,
                      const WebKit::WebRect& bounds,
                      int item_height,
                      int selected_index,
-                     const std::vector<MenuItem>& items);
+                     const std::vector<WebMenuItem>& items);
 
   const WebKit::WebSize& size() const { return size_; }
 

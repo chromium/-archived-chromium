@@ -27,15 +27,17 @@ using WebKit::WebRect;
   NSMenu* menu_;  // Non-owning
   BOOL menuItemWasChosen_;
 }
-- (id)initWithItems:(const std::vector<MenuItem>&)items forMenu:(NSMenu*)menu;
-- (void)addItem:(const MenuItem&)item;
+- (id)initWithItems:(const std::vector<WebMenuItem>&)items
+            forMenu:(NSMenu*)menu;
+- (void)addItem:(const WebMenuItem&)item;
 - (BOOL)menuItemWasChosen;
 - (void)menuItemSelected:(id)sender;
 @end
 
 @implementation MenuDelegate
 
-- (id)initWithItems:(const std::vector<MenuItem>&)items forMenu:(NSMenu*)menu {
+- (id)initWithItems:(const std::vector<WebMenuItem>&)items
+            forMenu:(NSMenu*)menu {
   if ((self = [super init])) {
     menu_ = menu;
     menuItemWasChosen_ = NO;
@@ -45,8 +47,8 @@ using WebKit::WebRect;
   return self;
 }
 
-- (void)addItem:(const MenuItem&)item {
-  if (item.type == MenuItem::SEPARATOR) {
+- (void)addItem:(const WebMenuItem&)item {
+  if (item.type == WebMenuItem::SEPARATOR) {
     [menu_ addItem:[NSMenuItem separatorItem]];
     return;
   }
@@ -55,7 +57,7 @@ using WebKit::WebRect;
   NSMenuItem* menu_item = [menu_ addItemWithTitle:title
                                            action:@selector(menuItemSelected:)
                                     keyEquivalent:@""];
-  [menu_item setEnabled:(item.enabled && item.type != MenuItem::GROUP)];
+  [menu_item setEnabled:(item.enabled && item.type != WebMenuItem::GROUP)];
   [menu_item setTarget:self];
 }
 
@@ -122,12 +124,12 @@ void TestWebViewDelegate::Show(WebWidget* webview,
 }
 
 // Display a HTML select menu.
-void TestWebViewDelegate::ShowWithItems(
+void TestWebViewDelegate::ShowAsPopupWithItems(
     WebWidget* webview,
     const WebRect& bounds,
     int item_height,
     int selected_index,
-    const std::vector<MenuItem>& items) {
+    const std::vector<WebMenuItem>& items) {
   // Populate the menu.
   NSMenu* menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
   [menu setAutoenablesItems:NO];

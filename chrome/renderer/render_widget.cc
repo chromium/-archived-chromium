@@ -564,11 +564,11 @@ void RenderWidget::Show(WebWidget* webwidget,
   }
 }
 
-void RenderWidget::ShowWithItems(WebWidget* webwidget,
-                                 const WebRect& bounds,
-                                 int item_height,
-                                 int selected_index,
-                                 const std::vector<MenuItem>& items) {
+void RenderWidget::ShowAsPopupWithItems(WebWidget* webwidget,
+                                        const WebRect& bounds,
+                                        int item_height,
+                                        int selected_index,
+                                        const std::vector<WebMenuItem>& items) {
   // TODO(paulg): Implement this for Mac HTML select menus in Chromium, bug
   // number: http://crbug.com/8389
 }

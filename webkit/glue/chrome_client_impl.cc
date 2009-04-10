@@ -506,29 +506,30 @@ void ChromeClientImpl::runOpenPanel(WebCore::Frame* frame,
                            std::wstring(), chooser);
 }
 
-void ChromeClientImpl::popupOpened(WebCore::FramelessScrollView* popup_view,
+void ChromeClientImpl::popupOpened(WebCore::PopupContainer* popup_container,
                                    const WebCore::IntRect& bounds,
-                                   bool activatable) {
+                                   bool activatable,
+                                   bool handle_external) {
+  if (handle_external) {
+    // We're going to handle the popup with native controls by the external
+    // embedder.
+    popupOpenedInternal(popup_container, bounds, activatable);
+    return;
+  }
+
   WebViewDelegate* delegate = webview_->delegate();
   if (delegate) {
     WebWidgetImpl* webwidget =
         static_cast<WebWidgetImpl*>(delegate->CreatePopupWidget(webview_,
                                                                 activatable));
-    webwidget->Init(popup_view, webkit_glue::IntRectToWebRect(bounds));
+    webwidget->Init(popup_container, webkit_glue::IntRectToWebRect(bounds));
   }
 }
 
-void ChromeClientImpl::popupOpenedWithItems(
-    WebCore::FramelessScrollView* popup_view,
+void ChromeClientImpl::popupOpenedInternal(
+    WebCore::PopupContainer* popup_container,
     const WebCore::IntRect& bounds,
-    bool activatable,
-    int item_height,
-    int selected_index,
-    const WTF::Vector<WebCore::PopupListData*>& items) {
-  /*
-  Uncomment this section once the changes to
-  WebKit/WebCore/platform/chromium/PopupMenuChromium* have landed in our tree.
-
+    bool activatable) {
   WebViewDelegate* delegate = webview_->delegate();
   if (!delegate)
     return;
@@ -537,20 +538,21 @@ void ChromeClientImpl::popupOpenedWithItems(
       static_cast<WebWidgetImpl*>(delegate->CreatePopupWidget(webview_,
                                                               activatable));
   // Convert WebKit types for Chromium.
-  std::vector<MenuItem> popup_items;
-  for (int i = 0; i < items.size(); ++i) {
-    MenuItem menu_item;
+  std::vector<WebMenuItem> popup_items;
+  const WTF::Vector<WebCore::PopupItem*>& items = popup_container->popupData();
+  for (int i = 0; i < static_cast<int>(items.size()); ++i) {
+    WebMenuItem menu_item;
     menu_item.label = webkit_glue::StringToString16(items[i]->label);
     menu_item.enabled = items[i]->enabled;
     switch (items[i]->type) {
-      case WebCore::PopupListData::TypeOption:
-        menu_item.type = MenuItem::OPTION;
+      case WebCore::PopupItem::TypeOption:
+        menu_item.type = WebMenuItem::OPTION;
         break;
-      case WebCore::PopupListData::TypeGroup:
-        menu_item.type = MenuItem::GROUP;
+      case WebCore::PopupItem::TypeGroup:
+        menu_item.type = WebMenuItem::GROUP;
         break;
-      case WebCore::PopupListData::TypeSeparator:
-        menu_item.type = MenuItem::SEPARATOR;
+      case WebCore::PopupItem::TypeSeparator:
+        menu_item.type = WebMenuItem::SEPARATOR;
         break;
       default:
         NOTIMPLEMENTED();
@@ -558,12 +560,11 @@ void ChromeClientImpl::popupOpenedWithItems(
     popup_items.push_back(menu_item);
   }
 
-  webwidget->InitWithItems(popup_view,
+  webwidget->InitWithItems(popup_container,
                            webkit_glue::IntRectToWebRect(bounds),
-                           item_height,
-                           selected_index,
+                           popup_container->menuItemHeight(),
+                           popup_container->selectedIndex(),
                            popup_items);
-  */
 }
 
 void ChromeClientImpl::SetCursor(const WebCursor& cursor) {

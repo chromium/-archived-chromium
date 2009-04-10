@@ -21,7 +21,7 @@ class WebWidget;
 class WebCursor;
 struct WebPluginGeometry;
 
-struct MenuItem {
+struct WebMenuItem {
   // Container for information about entries in an HTML select popup menu.
   // Types must be kept in sync with PopupListBox::ListItemType in
   // WebCore/platform/chromium/PopupMenuChromium.h. This won't change often
@@ -57,21 +57,20 @@ class WebWidgetDelegate {
   // window should be displayed, but generally only means something for WebViews.
   virtual void Show(WebWidget* webwidget, WindowOpenDisposition disposition) = 0;
 
-  // Used for displaying HTML select elements as popup menus on Mac OS X (other
-  // platforms will use Show() above). |bounds| represents the positioning on
-  // the screen (in WebKit coordinates, origin at the top left corner) of the
-  // button that will display the menu. It will be used, along with
-  // |item_height| (which refers to the size of each entry in the menu), to
-  // position the menu on the screen. |selected_index| indicates the menu item
-  // that should be drawn as selected when the menu initially is displayed.
-  // |items| contains information about each of the entries in the popup menu,
-  // such as the type (separator, option, group), the text representation and
-  // the item's enabled status.
-  virtual void ShowWithItems(WebWidget* webwidget,
-                             const WebKit::WebRect& bounds,
-                             int item_height,
-                             int selected_index,
-                             const std::vector<MenuItem>& items) = 0;
+  // Used for displaying HTML popup menus on Mac OS X (other platforms will use
+  // Show() above). |bounds| represents the positioning on the screen (in WebKit
+  // coordinates, origin at the top left corner) of the button that will display
+  // the menu. It will be used, along with |item_height| (which refers to the
+  // size of each entry in the menu), to position the menu on the screen.
+  // |selected_index| indicates the menu item that should be drawn as selected
+  // when the menu initially is displayed. |items| contains information about
+  // each of the entries in the popup menu, such as the type (separator, option,
+  // group), the text representation and the item's enabled status.
+  virtual void ShowAsPopupWithItems(WebWidget* webwidget,
+                                    const WebKit::WebRect& bounds,
+                                    int item_height,
+                                    int selected_index,
+                                    const std::vector<WebMenuItem>& items) = 0;
 
   // This method is called to instruct the window containing the WebWidget to
   // close.  Note: This method should just be the trigger that causes the

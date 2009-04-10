@@ -69,16 +69,16 @@ class RenderWidget : public IPC::Channel::Listener,
                                  const WebKit::WebRect& rect);
   virtual void DidScrollRect(WebWidget* webwidget, int dx, int dy,
                              const WebKit::WebRect& clip_rect);
-  virtual void SetCursor(WebWidget* webwidget, const WebCursor& cursor);
   virtual void Show(WebWidget* webwidget, WindowOpenDisposition disposition);
-  virtual void ShowWithItems(WebWidget* webwidget,
-                             const WebKit::WebRect& bounds,
-                             int item_height,
-                             int selected_index,
-                             const std::vector<MenuItem>& items);
+  virtual void ShowAsPopupWithItems(WebWidget* webwidget,
+                                    const WebKit::WebRect& bounds,
+                                    int item_height,
+                                    int selected_index,
+                                    const std::vector<WebMenuItem>& items);
   virtual void CloseWidgetSoon(WebWidget* webwidget);
   virtual void Focus(WebWidget* webwidget);
   virtual void Blur(WebWidget* webwidget);
+  virtual void SetCursor(WebWidget* webwidget, const WebCursor& cursor);
   virtual void GetWindowRect(WebWidget* webwidget, WebKit::WebRect* rect);
   virtual void SetWindowRect(WebWidget* webwidget,
                              const WebKit::WebRect& rect);

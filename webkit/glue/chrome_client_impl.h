@@ -15,7 +15,7 @@ class WebCursor;
 class WebViewImpl;
 
 namespace WebCore {
-struct PopupListData;
+class PopupContainer;
 class SecurityOrigin;
 struct WindowFeatures;
 }
@@ -117,15 +117,13 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
 
   virtual void runOpenPanel(WebCore::Frame*,
                             PassRefPtr<WebCore::FileChooser>);
-  virtual void popupOpened(WebCore::FramelessScrollView* popup_view,
+  virtual void popupOpened(WebCore::PopupContainer* popup_container,
                            const WebCore::IntRect& bounds,
-                           bool activatable);
-  void popupOpenedWithItems(WebCore::FramelessScrollView* popupView,
+                           bool activatable,
+                           bool handle_external);
+  void popupOpenedInternal(WebCore::PopupContainer* popup_container,
                             const WebCore::IntRect& bounds,
-                            bool activatable,
-                            int item_height,
-                            int selected_index,
-                            const WTF::Vector<WebCore::PopupListData*>& items);
+                            bool activatable);
 
   void SetCursor(const WebCursor& cursor);
   void SetCursorForPlugin(const WebCursor& cursor);

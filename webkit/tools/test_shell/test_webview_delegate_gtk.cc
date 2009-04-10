@@ -115,12 +115,13 @@ void TestWebViewDelegate::Show(WebWidget* webwidget,
   gtk_widget_show_all(window);
 }
 
-void TestWebViewDelegate::ShowWithItems(WebWidget* webwidget,
-                                        const WebRect& bounds,
-                                        int item_height,
-                                        int selected_index,
-                                        const std::vector<MenuItem>& items) {
-  NOTIMPLEMENTED();
+void TestWebViewDelegate::ShowAsPopupWithItems(
+    WebWidget* webwidget,
+    const WebRect& bounds,
+    int item_height,
+    int selected_index,
+    const std::vector<WebMenuItem>& items) {
+  NOTREACHED();
 }
 
 void TestWebViewDelegate::CloseWidgetSoon(WebWidget* webwidget) {
