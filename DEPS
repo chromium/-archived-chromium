@@ -22,7 +22,7 @@ deps = {
     "/trunk/deps/third_party/WebKit@13492",
 
   "src/third_party/icu38":
-    "/trunk/deps/third_party/icu38@13083",
+    "/trunk/deps/third_party/icu38@13472",
 
   # TODO(mark): Remove once this has moved into depot_tools.
   "src/tools/gyp":
