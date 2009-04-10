@@ -10,6 +10,7 @@
 #include <iostream>
 #include <windows.h>
 
+#include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/logging.h"
@@ -23,6 +24,8 @@ const wchar_t kVideoThreads[]           = L"video-threads";
 }  // namespace switches
 
 int main(int argc, const char** argv) {
+  base::AtExitManager exit_manager;
+
   CommandLine::Init(argc, argv);
   const CommandLine* cmd_line = CommandLine::ForCurrentProcess();
 
