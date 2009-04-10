@@ -5,6 +5,8 @@
 #ifndef CHROME_BROWSER_WINDOW_SIZER_H__
 #define CHROME_BROWSER_WINDOW_SIZER_H__
 
+#include <vector>
+
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 
