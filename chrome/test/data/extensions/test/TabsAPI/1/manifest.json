@@ -1,0 +1,8 @@
+{
+  "id": "1234567890123456789012345678901234567890",
+  "name": "TabsAPI",
+  "description": "Utility for working with the extension tabs api",
+  "version": "0.1",
+  "format_version": 1,
+  "toolstrips": ["tabs_api.html"]
+}

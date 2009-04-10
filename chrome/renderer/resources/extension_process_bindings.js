@@ -6,8 +6,15 @@ var chromium;
   // callback handling
   var callbacks = [];
   chromium._dispatchCallback = function(callbackId, str) {
-    callbacks[callbackId](goog.json.parse(str));
-    delete callbacks[callbackId];
+    try {
+      if (str) {
+        callbacks[callbackId](goog.json.parse(str));
+      } else {
+        callbacks[callbackId]();
+      }
+    } finally {
+      delete callbacks[callbackId];
+    }
   };
 
   // Send an API request and optionally register a callback.
@@ -29,8 +36,20 @@ var chromium;
     native function GetTabsForWindow();
     sendRequest(GetTabsForWindow, null, callback);
   };
+  chromium.tabs.getTab = function(tabId, callback) {
+    native function GetTab();
+    sendRequest(GetTab, tabId, callback);
+  };
   chromium.tabs.createTab = function(tab, callback) {
     native function CreateTab();
     sendRequest(CreateTab, tab, callback);
+  };
+  chromium.tabs.updateTab = function(tab) {
+    native function UpdateTab();
+    sendRequest(UpdateTab, tab);
+  };
+  chromium.tabs.removeTab = function(tabId) {
+    native function RemoveTab();
+    sendRequest(RemoveTab, tabId);
   };
 })();

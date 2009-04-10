@@ -47,7 +47,10 @@ FactoryRegistry::FactoryRegistry() {
   // Register all functions here.
   factories_["GetTabsForWindow"] =
       &NewExtensionFunction<GetTabsForWindowFunction>;
+  factories_["GetTab"] = &NewExtensionFunction<GetTabFunction>;
   factories_["CreateTab"] = &NewExtensionFunction<CreateTabFunction>;
+  factories_["UpdateTab"] = &NewExtensionFunction<UpdateTabFunction>;
+  factories_["RemoveTab"] = &NewExtensionFunction<RemoveTabFunction>;
 }
 
 void FactoryRegistry::GetAllNames(

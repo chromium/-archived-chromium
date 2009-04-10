@@ -1,0 +1,69 @@
+<html>
+<head>
+<script src="jstemplate_compiled.js" type="text/javascript"></script> 
+<script>
+var tabs = {};
+
+function loadTabList() {
+  chromium.tabs.getTabsForWindow(function(tabList) {
+    tabs = tabList;
+    
+    var input = new JsExprContext(tabList);
+    var output = document.getElementById('tabList');
+    jstProcess(input, output);
+  });
+}
+
+function getTabData(id) {
+  return {
+    'id': id,
+    'index': parseInt(document.getElementById('index_' + id).value),
+    'windowId': document.getElementById('windowId_' + id).value,
+    'title': document.getElementById('title_' + id).value,
+    'url': document.getElementById('url_' + id).value,
+    'selected': document.getElementById('selected_' + id).value ? true : false  
+  } 
+}
+
+function updateTab(id){
+  chromium.tabs.updateTab(getTabData(id)); 
+}
+
+function createTab() {
+  chromium.tabs.createTab(getTabData('new'));
+}
+
+function updateAll() {
+  for (var i = 0; i < tabs.length; i++) {
+    chromium.tabs.updateTab(getTabData(tabs[i].id)); 
+  }
+}
+</script>
+</head>
+  <body onload="loadTabList();">
+	<div id="tabList">
+	   <div style="background-color: #EEEEEE; margin: 8px; padding: 4px" jsselect="$this">
+       <div jscontent="'TabId: ' + id"></div>
+       <div> index: <input style="width: 90%" type="text" jsvalues="value:$this.index;id:'index_' + id" /></div>
+       <div> windowId: <input style="width: 40px" type="text" jsvalues="value:windowId;id:'windowId_' + id" /></div>
+       <div> title: <input style="width: 90%" type="text" jsvalues="value:title;id:'title_' + id" /></div>
+       <div> url: <input style="width: 90%" type="text" jsvalues="value:url;id:'url_' + id" /></div>
+       <div jscontent="url"></div>
+       <div> <input type="checkbox" jsvalues="checked:selected; id:'selected_' + id" /> Selected</div>
+       <button onclick="updateTab(this.jstdata)" jsvalues=".jstdata:id">Update Tab</button>
+       <button onclick="chromium.tabs.removeTab(this.jstdata);" jsvalues=".jstdata:id">Close Tab</button>
+	   </div>
+	</div>
+     <div style="background-color: #9999EE; margin: 8px; padding: 4px">
+       <div> index: <input style="width: 90%" type="text" id="index_new" /></div>
+       <div> windowId: <input style="width: 40px" type="text" id="windowId_new" /></div>
+       <div> title: <input style="width: 90%" type="text" id="title_new" /></div>
+       <div> url: <input style="width: 90%" type="text" id="url_new" /></div>
+       <div> <input type="checkbox" id="selected_new" /> Selected</div>
+       <button onclick="createTab();">Create Tab</button>
+     </div>
+  <button onclick="loadTabList();">Refresh</button>
+  <button onclick="updateAll();">Update All</button>
+  </body>
+</html>
+

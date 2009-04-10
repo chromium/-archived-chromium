@@ -13,5 +13,14 @@ class GetTabsForWindowFunction : public SyncExtensionFunction {
 class CreateTabFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
+class GetTabFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class UpdateTabFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
+class RemoveTabFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_TABS_MODULE_H__

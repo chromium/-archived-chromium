@@ -14,6 +14,9 @@
 static DictionaryValue* CreateTabValue(TabStripModel* tab_strip_model,
                                        int tab_index);
 
+static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,
+                            int* tab_index);
+
 bool GetTabsForWindowFunction::RunImpl() {
   if (!args_->IsType(Value::TYPE_NULL))
     return false;
@@ -41,20 +44,151 @@ bool CreateTabFunction::RunImpl() {
   if (!browser)
     return false;
 
-  // TODO(aa): Handle all the other properties of the new tab.
+  TabStripModel *tab_strip = browser->tabstrip_model();
+  const DictionaryValue *args_hash = static_cast<const DictionaryValue*>(args_);
+
+  // TODO(rafaelw): handle setting remaining tab properties:
+  // -windowId
+  // -title
+  // -favIconUrl
+
   std::string url;
-  static_cast<const DictionaryValue*>(args_)->GetString(L"url", &url);
-  browser->AddTabWithURL(GURL(url), GURL(), PageTransition::TYPED, true, -1,
-                         NULL);
+  args_hash->GetString(L"url", &url);
+
+  // Default to foreground for the new tab. The presence of 'selected' property
+  // will override this default.
+  bool selected = true;
+  args_hash->GetBoolean(L"selected", &selected);
+
+  // If index is specified, honor the value, but keep it bound to
+  // 0 <= index <= tab_strip->count()
+  int index = -1;
+  args_hash->GetInteger(L"index", &index);
+  if (index < 0) {
+    // Default insert behavior
+    index = -1;
+  }
+  if (index > tab_strip->count()) {
+    index = tab_strip->count();
+  }
+
+  TabContents* contents = browser->AddTabWithURL(GURL(url), GURL(),
+      PageTransition::TYPED, selected, index, NULL);
+  index = tab_strip->GetIndexOfTabContents(contents);
 
   // Return data about the newly created tab.
   if (has_callback())
-    result_.reset(CreateTabValue(browser->tabstrip_model(),
-                                 browser->tabstrip_model()->count() - 1));
+    result_.reset(CreateTabValue(tab_strip, index));
 
   return true;
 }
 
+bool GetTabFunction::RunImpl() {
+  if (!args_->IsType(Value::TYPE_INTEGER))
+    return false;
+
+  Browser* browser = BrowserList::GetLastActive();
+  if (!browser)
+    return false;
+
+  int tab_id;
+  args_->GetAsInteger(&tab_id);
+
+  int tab_index;
+  TabStripModel* tab_strip = browser->tabstrip_model();
+  // TODO(rafaelw): return an error if the tab is not found by |tab_id|
+  if (!GetIndexOfTabId(tab_strip, tab_id, &tab_index))
+    return false;
+
+  TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+  NavigationController* controller = tab_contents->controller();
+  DCHECK(controller);
+  result_.reset(CreateTabValue(tab_strip, tab_index));
+  return true;
+}
+
+bool UpdateTabFunction::RunImpl() {
+  // TODO(aa): Do data-driven validation in JS.
+  if (!args_->IsType(Value::TYPE_DICTIONARY))
+    return false;
+
+  Browser* browser = BrowserList::GetLastActive();
+  if (!browser)
+    return false;
+
+  int tab_id;
+  const DictionaryValue *args_hash = static_cast<const DictionaryValue*>(args_);
+  if (!args_hash->GetInteger(L"id", &tab_id))
+    return false;
+
+  int tab_index;
+  TabStripModel* tab_strip = browser->tabstrip_model();
+  // TODO(rafaelw): return an error if the tab is not found by |tab_id|
+  if (!GetIndexOfTabId(tab_strip, tab_id, &tab_index))
+    return false;
+
+  TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+  NavigationController* controller = tab_contents->controller();
+  DCHECK(controller);
+
+  // TODO(rafaelw): handle setting remaining tab properties:
+  // -index
+  // -windowId
+  // -title
+  // -favIconUrl
+
+  // Navigate the tab to a new location if the url different.
+  std::string url;
+  if (args_hash->GetString(L"url", &url)) {
+    GURL new_gurl(url);
+    if (new_gurl.is_valid()) {
+      controller->LoadURL(new_gurl, GURL(), PageTransition::TYPED);
+    } else {
+      // TODO(rafaelw): return some reasonable error?
+    }
+  }
+
+  bool selected;
+  // TODO(rafaelw): Setting |selected| from js doesn't make much sense.
+  // Move tab selection management up to window.
+  if (args_hash->GetBoolean(L"selected", &selected) &&
+      selected &&
+      tab_strip->selected_index() != tab_index) {
+    tab_strip->SelectTabContentsAt(tab_index, false);
+  }
+
+  return true;
+}
+
+
+bool RemoveTabFunction::RunImpl() {
+  // TODO(rafaelw): This should have a callback, but it can't because it could
+  // close it's own tab.
+
+  if (!args_->IsType(Value::TYPE_INTEGER))
+    return false;
+
+  Browser* browser = BrowserList::GetLastActive();
+  if (!browser)
+    return false;
+
+  int tab_id;
+  if (!args_->GetAsInteger(&tab_id)) {
+    return false;
+  }
+
+  int tab_index;
+  TabStripModel* tab_strip = browser->tabstrip_model();
+  if (GetIndexOfTabId(tab_strip, tab_id, &tab_index)) {
+    TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+    NavigationController* controller = tab_contents->controller();
+    DCHECK(controller);
+    browser->CloseContents(tab_contents);
+    return true;
+  }
+
+  return false;
+}
 
 // static helpers
 static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
@@ -65,6 +199,7 @@ static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
 
   DictionaryValue* result = new DictionaryValue();
   result->SetInteger(L"id", controller->session_id().id());
+  result->SetInteger(L"index", tab_index);
   result->SetInteger(L"windowId", controller->window_id().id());
   result->SetString(L"url", contents->GetURL().spec());
   result->SetString(L"title", UTF16ToWide(contents->GetTitle()));
@@ -77,4 +212,19 @@ static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
   }
 
   return result;
+}
+
+static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,
+                            int* tab_index) {
+  for (int i = 0; i < tab_strip->count(); ++i) {
+    TabContents* tab_contents = tab_strip->GetTabContentsAt(i);
+    NavigationController* controller = tab_contents->controller();
+    DCHECK(controller);  // TODO(aa): Is this a valid assumption?
+
+    if (controller->session_id().id() == tab_id) {
+      *tab_index = i;
+      return true;
+    }
+  }
+  return false;
 }
