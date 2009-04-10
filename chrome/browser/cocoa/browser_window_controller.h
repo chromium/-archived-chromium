@@ -31,9 +31,9 @@ class TabStripModelObserverBridge;
 @interface BrowserWindowController :
     TabWindowController<NSUserInterfaceValidations> {
  @private
+  scoped_ptr<Browser> browser_;
   scoped_nsobject<TabStripController> tabStripController_;
   scoped_nsobject<ToolbarController> toolbarController_;
-  scoped_ptr<Browser> browser_;
   scoped_ptr<TabStripModelObserverBridge> tabObserver_;
   scoped_ptr<BrowserWindowCocoa> windowShim_;
 }
