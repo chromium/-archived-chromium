@@ -107,7 +107,7 @@ class BackendImpl : public Backend {
 
   // Returns the full histogram name, for the given base |name| and experiment,
   // and the current cache type. The name will be "DiskCache.t.name_e" where n
-  // is th ecache type and e the provided |experiment|.
+  // is the cache type and e the provided |experiment|.
   std::string HistogramName(const char* name, int experiment);
 
   net::CacheType cache_type() {

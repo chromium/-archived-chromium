@@ -142,7 +142,7 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
   if (first_trim_) {
     first_trim_ = false;
     if (backend_->ShouldReportAgain()) {
-      CACHE_UMA(AGE, "TrimAge", header_->experiment, entry->GetLastUsed());
+      CACHE_UMA(AGE, "TrimAge", 0, entry->GetLastUsed());
     }
 
     if (header_->create_time && !header_->lru.filled) {
