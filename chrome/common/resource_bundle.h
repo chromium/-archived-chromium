@@ -114,7 +114,7 @@ class ResourceBundle {
 
   // Loads and returns a cursor from the app module.
   HCURSOR LoadCursor(int cursor_id);
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   // Load a theme image as a GdkPixbuf.
   GdkPixbuf* LoadPixbuf(int resource_id);
 #endif

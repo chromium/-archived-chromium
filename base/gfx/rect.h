@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,9 +19,7 @@
 
 #if defined(OS_WIN)
 typedef struct tagRECT RECT;
-#elif defined(OS_LINUX)
-// It's wrong to hide GDK stuff behind OS_LINUX, but until we have a different
-// linux target, this is less complex.
+#elif defined(TOOLKIT_GTK)
 typedef struct _GdkRectangle GdkRectangle;
 #endif
 
@@ -36,7 +34,7 @@ class Rect {
   explicit Rect(const RECT& r);
 #elif defined(OS_MACOSX)
   explicit Rect(const CGRect& r);
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   explicit Rect(const GdkRectangle& r);
 #endif
   Rect(const gfx::Point& origin, const gfx::Size& size);
@@ -47,7 +45,7 @@ class Rect {
   Rect& operator=(const RECT& r);
 #elif defined(OS_MACOSX)
   Rect& operator=(const CGRect& r);
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   Rect& operator=(const GdkRectangle& r);
 #endif
 
@@ -99,7 +97,7 @@ class Rect {
 #if defined(OS_WIN)
   // Construct an equivalent Win32 RECT object.
   RECT ToRECT() const;
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   GdkRectangle ToGdkRectangle() const;
 #elif defined(OS_MACOSX)
   // Construct an equivalent CoreGraphics object.

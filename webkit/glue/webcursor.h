@@ -15,7 +15,7 @@
 typedef struct HINSTANCE__* HINSTANCE;
 typedef struct HICON__* HICON;
 typedef HICON HCURSOR;
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
 // GdkCursorType is an enum, which we can't forward-declare.  :(
 #include <gdk/gdkcursor.h>
 #elif defined(OS_MACOSX)
@@ -71,7 +71,7 @@ class WebCursor {
   // APIs on it.
   void InitFromExternalCursor(HCURSOR handle);
 
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   // Return the stock GdkCursorType for this cursor, or GDK_CURSOR_IS_PIXMAP
   // if it's a custom cursor. Return GDK_LAST_CURSOR to indicate that the cursor
   // should be set to the system default.

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -8,7 +8,7 @@
 #include <windows.h>
 #elif defined(OS_MACOSX)
 #include <CoreGraphics/CGGeometry.h>
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
 #include <gdk/gdk.h>
 #endif
 
@@ -74,7 +74,7 @@ Rect& Rect::operator=(const CGRect& r) {
   set_height(r.size.height);
   return *this;
 }
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
 Rect::Rect(const GdkRectangle& r)
     : origin_(r.x, r.y) {
   set_width(r.width);
@@ -140,7 +140,7 @@ RECT Rect::ToRECT() const {
   r.bottom = bottom();
   return r;
 }
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
 GdkRectangle Rect::ToGdkRectangle() const {
   GdkRectangle r = {x(), y(), width(), height()};
   return r;

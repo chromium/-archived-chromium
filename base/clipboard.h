@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -18,7 +18,9 @@ class Clipboard {
  public:
   typedef std::string FormatType;
 #if defined(OS_LINUX)
+#if defined(TOOLKIT_GTK)
   typedef struct _GtkClipboard GtkClipboard;
+#endif
   typedef std::map<FormatType, std::pair<char*, size_t> > TargetMap;
 #endif
 
@@ -195,7 +197,9 @@ class Clipboard {
   void InsertMapping(const char* key, char* data, size_t data_len);
 
   TargetMap* clipboard_data_;
+#if defined(TOOLKIT_GTK)
   GtkClipboard* clipboard_;
+#endif
 #endif
 
   DISALLOW_EVIL_CONSTRUCTORS(Clipboard);

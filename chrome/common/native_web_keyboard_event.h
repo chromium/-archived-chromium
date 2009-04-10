@@ -16,7 +16,7 @@
 #else
 class NSEvent;
 #endif  // __OBJC__
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
 #include <gdk/gdk.h>
 #endif
 
@@ -29,7 +29,7 @@ struct NativeWebKeyboardEvent : public WebKit::WebKeyboardEvent {
   NativeWebKeyboardEvent(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam);
 #elif defined(OS_MACOSX)
   explicit NativeWebKeyboardEvent(NSEvent *event);
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   explicit NativeWebKeyboardEvent(const GdkEventKey* event);
 #endif
 
@@ -42,7 +42,7 @@ struct NativeWebKeyboardEvent : public WebKit::WebKeyboardEvent {
   MSG os_event;
 #elif defined(OS_MACOSX)
   NSEvent* os_event;
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   GdkEventKey* os_event;
 #endif
 };

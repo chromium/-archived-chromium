@@ -4,7 +4,9 @@
 
 #include "chrome/common/chrome_paths_internal.h"
 
+#if defined(TOOLKIT_GTK)
 #include <glib.h>
+#endif
 #include <stdlib.h>
 
 #include "base/file_path.h"
@@ -19,9 +21,11 @@ FilePath GetHomeDir() {
   if (home_dir && home_dir[0])
     return FilePath(home_dir);
 
+#if defined(TOOLKIT_GTK)
   home_dir = g_get_home_dir();
   if (home_dir && home_dir[0])
     return FilePath(home_dir);
+#endif
 
   FilePath rv;
   if (PathService::Get(base::DIR_TEMP, &rv))

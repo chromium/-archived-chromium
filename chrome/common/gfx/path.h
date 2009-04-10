@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -25,7 +25,7 @@ class Path : public SkPath {
   // Creates a HRGN from the path. The caller is responsible for freeing
   // resources used by this region.  This only supports polygon paths.
   HRGN CreateHRGN() const;
-#elif defined(OS_LINUX)
+#elif defined(TOOLKIT_GTK)
   // Creates a Gdkregion from the path. The caller is responsible for freeing
   // resources used by this region.  This only supports polygon paths.
   GdkRegion* CreateGdkRegion() const;

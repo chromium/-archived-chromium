@@ -4,7 +4,9 @@
 
 #include "chrome/common/resource_bundle.h"
 
+#if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
+#endif
 
 #include "base/base_paths.h"
 #include "base/data_pack.h"
@@ -120,6 +122,7 @@ std::wstring ResourceBundle::GetLocalizedString(int message_id) {
   return UTF16ToWide(msg);
 }
 
+#if defined(TOOLKIT_GTK)
 GdkPixbuf* ResourceBundle::LoadPixbuf(int resource_id) {
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   std::vector<unsigned char> data;
@@ -143,3 +146,4 @@ GdkPixbuf* ResourceBundle::LoadPixbuf(int resource_id) {
 
   return pixbuf;
 }
+#endif

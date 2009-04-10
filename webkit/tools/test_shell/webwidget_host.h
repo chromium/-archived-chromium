@@ -8,15 +8,12 @@
 #include "base/basictypes.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/gfx/rect.h"
+#include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "skia/ext/platform_canvas.h"
 
 class WebWidget;
 class WebWidgetDelegate;
-
-namespace gfx {
-class Size;
-}
 
 namespace WebKit {
 struct WebScreenInfo;
@@ -51,12 +48,17 @@ class WebWidgetHost {
 #if defined(OS_WIN)
   void SetCursor(HCURSOR cursor);
 #endif
+#if defined(LINUX2)
+  const gfx::Size& size() const { return size_; }
+#endif
 
   void DiscardBackingStore();
   // Allow clients to update the paint rect. For example, if we get a gdk
   // expose or WM_PAINT event, we need to update the paint rect.
   void UpdatePaintRect(const gfx::Rect& rect);
   void Paint();
+
+  skia::PlatformCanvas* canvas() const { return canvas_.get(); }
 
   WebKit::WebScreenInfo GetScreenInfo();
 
@@ -111,6 +113,12 @@ class WebWidgetHost {
     painting_ = value;
 #endif
   }
+
+#if defined(LINUX2)
+  void ScheduleRepaint(const gfx::Rect& bounds);
+
+  gfx::Size size_;
+#endif
 
   gfx::NativeView view_;
   WebWidget* webwidget_;

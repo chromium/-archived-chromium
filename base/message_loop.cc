@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,7 +19,7 @@
 #if defined(OS_POSIX)
 #include "base/message_pump_libevent.h"
 #endif
-#if defined(OS_LINUX)
+#if defined(TOOLKIT_GTK)
 #include "base/message_pump_glib.h"
 #endif
 
@@ -99,7 +99,11 @@ MessageLoop::MessageLoop(Type type)
 #if defined(OS_MACOSX)
     pump_ = base::MessagePumpMac::Create();
 #elif defined(OS_LINUX)
+#if defined(TOOLKIT_GTK)
     pump_ = new base::MessagePumpForUI();
+#else
+    pump_ = new base::MessagePumpDefault();
+#endif
 #endif  // OS_LINUX
   } else if (type_ == TYPE_IO) {
     pump_ = new base::MessagePumpLibevent();
