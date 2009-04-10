@@ -41,10 +41,6 @@ class BrowserWithTestWindowTest : public testing::Test {
 
   TestingProfile* profile() const { return profile_.get(); }
 
-  TestTabContentsFactory* tab_contents_factory() const {
-    return tab_contents_factory_.get();
-  }
-
   // Adds a tab to |browser| whose TabContents comes from a
   // TestTabContentsFactory. Use test_url_with_path to obtain a URL that
   // that uses the newly created TabContents.
@@ -55,6 +51,16 @@ class BrowserWithTestWindowTest : public testing::Test {
   GURL test_url_with_path(const std::string& path) const {
     return tab_contents_factory_->test_url_with_path(path);
   }
+
+  // Creates a pending navigation on the given navigation controller to the
+  // given URL with the default parameters and the commits the load with a page
+  // ID one larger than any seen. This emulates what happens on a new
+  // navigation.
+  void NavigateAndCommit(NavigationController* controller,
+                         const GURL& url);
+
+  // Navigates the current tab. This is a wrapper around NavigateAndCommit.
+  void NavigateAndCommitActiveTab(const GURL& url);
 
  private:
   // We need to create a MessageLoop, otherwise a bunch of things fails.

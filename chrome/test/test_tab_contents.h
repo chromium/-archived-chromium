@@ -19,10 +19,8 @@ class TestTabContents : public TabContents {
     site_instance_ = site_instance;
   }
 
-  // Sets whether we commit the load on NavigateToPendingEntry. The default is
-  // false.
-  void set_commit_on_navigate(bool commit_on_navigate) {
-    commit_on_navigate_ = commit_on_navigate;
+  int GetNextPageID() {
+    return next_page_id_++;
   }
 
   // Overridden from TabContents so we can provide a non-NULL site instance in
@@ -32,19 +30,12 @@ class TestTabContents : public TabContents {
     return site_instance_;
   }
 
-  // Does one of two things. If |commit_on_navigate| is true the navigation is
-  // committed immediately. Otherwise this returns true and you must invoke
-  // CompleteNavigationAsRenderer when you want to commit the load.
+  // Overrides to be more like WebContents (don't autocommit).
   virtual bool NavigateToPendingEntry(bool reload);
-
-  // Sets up a call to RendererDidNavigate pretending to be a main frame
-  // navigation to the given URL.
-  void CompleteNavigationAsRenderer(int page_id, const GURL& url);
 
  private:
   static SiteInstance* site_instance_;
 
-  bool commit_on_navigate_;
   int next_page_id_;
 
   DISALLOW_COPY_AND_ASSIGN(TestTabContents);

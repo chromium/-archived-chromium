@@ -49,9 +49,9 @@ TEST_F(BrowserCommandsTest, DuplicateTab) {
 
   // Navigate to the three urls, then go back.
   AddTestingTab(browser());
-  browser()->OpenURL(url1, GURL(), CURRENT_TAB, PageTransition::TYPED);
-  browser()->OpenURL(url2, GURL(), CURRENT_TAB, PageTransition::TYPED);
-  browser()->OpenURL(url3, GURL(), CURRENT_TAB, PageTransition::TYPED);
+  NavigateAndCommitActiveTab(url1);
+  NavigateAndCommitActiveTab(url2);
+  NavigateAndCommitActiveTab(url3);
 
   size_t initial_window_count = BrowserList::size();
 
