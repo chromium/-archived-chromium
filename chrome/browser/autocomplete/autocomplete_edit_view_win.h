@@ -32,7 +32,7 @@ class View;
 class AutocompleteEditController;
 class AutocompleteEditModel;
 class AutocompleteEditView;
-class AutocompletePopupViewWin;
+class AutocompletePopupView;
 
 // Provides the implementation of an edit control with a drop-down
 // autocomplete box. The box itself is implemented in autocomplete_popup.cc
@@ -355,7 +355,7 @@ class AutocompleteEditViewWin
 
   scoped_ptr<AutocompleteEditModel> model_;
 
-  scoped_ptr<AutocompletePopupViewWin> popup_view_;
+  scoped_ptr<AutocompletePopupView> popup_view_;
 
   AutocompleteEditController* controller_;
 

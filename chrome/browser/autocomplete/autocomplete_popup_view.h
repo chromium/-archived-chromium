@@ -15,6 +15,12 @@ class AutocompleteEditView;
 class AutocompletePopupModel;
 class ChromeFont;
 
+#if defined(OS_WIN)
+class AutocompleteEditViewWin;
+class AutocompleteEditModel;
+class Profile;
+#endif
+
 class AutocompletePopupView {
  public:
   virtual ~AutocompletePopupView() { }
@@ -34,6 +40,19 @@ class AutocompletePopupView {
 
   // Paint any pending updates.
   virtual void PaintUpdatesNow() = 0;
+
+  // Returns the popup's model.
+  virtual AutocompletePopupModel* GetModel() = 0;
+
+#if defined(OS_WIN)
+  // Create a popup view implementation. It may make sense for this to become
+  // platform independent eventually.
+  static AutocompletePopupView* CreatePopupView(
+      const ChromeFont& font,
+      AutocompleteEditViewWin* edit_view,
+      AutocompleteEditModel* edit_model,
+      Profile* profile);
+#endif
 };
 
 #endif  // CHROME_BROWSER_AUTOCOMPLETE_AUTOCOMPLETE_POPUP_VIEW_H_

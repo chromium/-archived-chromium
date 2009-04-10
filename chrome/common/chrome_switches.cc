@@ -404,12 +404,15 @@ const wchar_t kEnableWebWorkers[]              = L"enable-web-workers";
 const wchar_t kWebWorkerProcessPerCore[]       = L"web-worker-process-per-core";
 
 // Enables experimental views under gtk.
-const wchar_t kViewsGtk[] = L"views-gtk";
+const wchar_t kViewsGtk[]                      = L"views-gtk";
 
 // Enables the bookmark menu.
-const wchar_t kBookmarkMenu[] = L"bookmark-menu";
+const wchar_t kBookmarkMenu[]                  = L"bookmark-menu";
 
 // Enables StatsTable, logging statistics to a global named shared memory table.
-const wchar_t kEnableStatsTable[] = L"enable-stats-table";
+const wchar_t kEnableStatsTable[]              = L"enable-stats-table";
+
+// Enables the Omnibox2 popup and functionality.
+const wchar_t kEnableOmnibox2[]                = L"enable-omnibox2";
 
 }  // namespace switches

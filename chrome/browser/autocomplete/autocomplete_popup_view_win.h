@@ -68,7 +68,7 @@ class AutocompletePopupViewWin
 
   virtual void PaintUpdatesNow() { UpdateWindow(); }
 
-  AutocompletePopupModel* model() { return model_.get(); }
+  virtual AutocompletePopupModel* GetModel() { return model_.get(); }
 
  private:
   class MirroringContext;

@@ -11,6 +11,7 @@
 #include <atlmisc.h>
 #include <cmath>
 
+#include "base/command_line.h"
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
@@ -21,7 +22,9 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "chrome/browser/views/location_bar_view.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
@@ -673,4 +676,15 @@ void AutocompletePopupViewWin::DrawStar(HDC dc, int x, int y) const {
   canvas.DrawBitmapInt(*star_, 0, 0);
   canvas.getTopPlatformDevice().drawToHDC(
       dc, mirroring_context_->GetLeft(x, x + star_->width()), y, NULL);
+}
+
+// static
+AutocompletePopupView* AutocompletePopupView::CreatePopupView(
+    const ChromeFont& font,
+    AutocompleteEditViewWin* edit_view,
+    AutocompleteEditModel* edit_model,
+    Profile* profile) {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableOmnibox2))
+    return new AutocompletePopupWin(font, edit_view, edit_model, profile);
+  return new AutocompletePopupViewWin(font, edit_view, edit_model, profile);
 }
