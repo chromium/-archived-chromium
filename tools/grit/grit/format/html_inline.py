@@ -98,8 +98,12 @@ def InlineFile(input_filename, output_filename):
 
   # TODO(glen): Make this regex not match url('') that is not inside a style
   flat_text = re.sub('background:[ ]*url\(\'(?P<filename>[^"\']*)\'',
-                    SrcReplace,
-                    flat_text)
+                     SrcReplace,
+                     flat_text)
+
+  flat_text = re.sub('<link rel="icon".+?href="(?P<filename>[^"\']*)"',
+                     SrcReplace,
+                     flat_text)
 
   out_file = open(output_filename, 'wb')
   out_file.writelines(flat_text)
@@ -114,4 +118,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
