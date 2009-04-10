@@ -1305,6 +1305,11 @@ LINUX : LayoutTests/editing/pasteboard/subframe-dragndrop-1.html = FAIL
 // Windows is missing the green box.
 BUG8729 DEFER WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = FAIL
 
+// This is a repaint test. When it passes, the pixel results will show a white
+// background for only the last couple of lines, instead of the whole
+// paragraph.  New test in merge 42324:42364.
+BUG9962 : LayoutTests/fast/repaint/text-append-dirty-lines.html = FAIL
+
 // -----------------------------------------------------------------
 // MAC PORT TESTS
 // -----------------------------------------------------------------
@@ -2442,26 +2447,20 @@ BUG9916 : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FAIL
 BUG9916 : LayoutTests/svg/custom/getsvgdocument.html = FAIL
 BUG9916 : LayoutTests/transitions/transition-end-event-left.html = FAIL
 
-// Started failing with WebKit merge 42324:42364. Probably just need
-// re-baselining, since WebKit re-baselined them in that range.
-// TODO(pamg): investigate.
-BUG9924 : LayoutTests/fast/flexbox/016.html = FAIL
-BUG9924 RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
-BUG9924 WIN MAC : LayoutTests/fast/lists/001.html = FAIL
-
 // Started failing with WebKit merge 42324:42364. Unknown cause.
 BUG9926 WIN LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 
-// New tests from WebKit merge 42324:42364. May just need re-baselining.
-// TODO(pamg): investigate.
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-allow.html = FAIL
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-deny.html = FAIL
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag.html = FAIL
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny.html = FAIL
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-allow.html = FAIL
-BUG9962 : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
-BUG9962 : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
-BUG9962 : LayoutTests/fast/js/function-apply-aliased.html = FAIL
-BUG9962 : LayoutTests/fast/repaint/text-append-dirty-lines.html = FAIL
-BUG9962 LINUX : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
+// New tests or failures from WebKit merge 42324:42364. Re-baselined on
+// Windows. Probably just need the same on other platforms.
+BUG9924 MAC LINUX : LayoutTests/fast/flexbox/016.html = FAIL
+BUG9924 MAC LINUX RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
+BUG9924 MAC : LayoutTests/fast/lists/001.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/fast/js/function-apply-aliased.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-allow.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-deny.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-allow.html = FAIL
+BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
