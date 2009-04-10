@@ -61,6 +61,9 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   // everything.  Popup should already be visible.
   virtual void PaintUpdatesNow();
 
+  // Returns the popup's model.
+  virtual AutocompletePopupModel* GetModel();
+
   // Helpers which forward to model_, otherwise our Objective-C helper
   // object would need model_ to be public:.
   void StopAutocomplete();

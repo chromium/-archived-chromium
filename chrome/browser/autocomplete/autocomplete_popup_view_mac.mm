@@ -156,6 +156,10 @@ void AutocompletePopupViewMac::PaintUpdatesNow() {
   [table selectRowIndexes:set byExtendingSelection:NO];
 }
 
+AutocompletePopupModel* AutocompletePopupViewMac::GetModel() {
+  return model_.get();
+}
+
 void AutocompletePopupViewMac::StopAutocomplete() {
   model_->StopAutocomplete();
 }
