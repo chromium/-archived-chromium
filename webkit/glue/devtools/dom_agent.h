@@ -33,10 +33,6 @@
   /* Perform search. */ \
   METHOD2(PerformSearch, int /* call_id */, String /* query */) \
   \
-  /* Requests that the element's style information is sent to the client. */ \
-  METHOD3(GetNodeStyles, int /* call_id */, int /* id */,\
-      bool /* author_only */) \
-  \
   /* Tells dom agent that the client has lost all of the dom-related
    information and is no longer interested in the notifications related to the
    nodes issued earlier. */ \
@@ -51,9 +47,6 @@ DEFINE_RPC_CLASS(DomAgent, DOM_AGENT_STRUCT)
   \
   /* Perform search. */ \
   METHOD2(DidPerformSearch, int /* call_id */, Value /* results */) \
-  \
-  /* Response to GetNodeStyles. */ \
-  METHOD2(DidGetNodeStyles, int /* call_id */, Value /* styles */) \
   \
   /* Ack for the Set/RemoveAttribute, SetTextNodeValue. */ \
   METHOD2(DidApplyDomChange, int /* call_id */, bool /* success */) \

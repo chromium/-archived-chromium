@@ -67,7 +67,7 @@ devtools.InspectorController.prototype.isWindowVisible = function() {
  * @return {string} Platform identifier.
  */
 devtools.InspectorController.prototype.platform = function() { 
-  return "windows"; 
+  return 'windows'; 
 };
 
 
@@ -231,7 +231,7 @@ devtools.InspectorController.prototype.windowUnloading = function() {
  * @return {string} Identifiers of the panels that should be hidden.
  */
 devtools.InspectorController.prototype.hiddenPanels = function() {
-  return "";
+  return '';
 };
 
 

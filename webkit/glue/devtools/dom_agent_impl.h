@@ -16,7 +16,6 @@
 #include "webkit/glue/devtools/dom_agent.h"
 
 namespace WebCore {
-class CSSRuleList;
 class Document;
 class Element;
 class Event;
@@ -51,7 +50,6 @@ class DomAgentImpl : public DomAgent {
       int element_id,
       const WebCore::String& value);
   void PerformSearch(int call_id, const String& query);
-  void GetNodeStyles(int call_id, int id, bool author_only);
   void DiscardBindings();
 
   // Initializes dom agent with the given document.
@@ -120,13 +118,6 @@ class DomAgentImpl : public DomAgent {
   ListValue* BuildValueForElementChildren(
       WebCore::Element* element,
       int depth);
-
-  // Serializes CSS rule list into the list value.
-  static ListValue* BuildValueForCSSRules(WebCore::CSSRuleList& matched);
-
-  // Serializes attribute styles into the dictionary value.
-  static DictionaryValue* BuildValueForAttributeStyles(
-      const WebCore::NamedNodeMap& attributes);
 
   // Serializes CSSStyleDeclaration into a list of properties
   // where aeach property represented as an array as an

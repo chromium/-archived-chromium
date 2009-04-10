@@ -222,8 +222,8 @@ devtools.DomNode.prototype.setAttribute = function(name, value) {
  */
 devtools.DomNode.prototype.addAttribute_ = function(name, value) {  
   var attr = {
-      "name": name,
-      "value": value,
+      'name': name,
+      'value': value,
       node_: this,
        /* Must be called after node.setStyles_. */
       get style() {
@@ -258,7 +258,7 @@ devtools.DomNode.prototype.removeAttribute = function(name) {
  * Returns inline style (if styles has loaded). Must be called after
  * node.setStyles_.
  */
-devtools.DomNode.prototype.__defineGetter__("style", function() {
+devtools.DomNode.prototype.__defineGetter__('style', function() {
   return this.styles_.inlineStyle;
 });
 
@@ -275,11 +275,11 @@ devtools.DomNode.prototype.__defineGetter__("style", function() {
  * @param {Object} styleAttributes represents 'style' property
  *     of attributes.
  * @param {Array.<object>} matchedCSSRules represents result of the
- *     getMatchedCSSRules(node, "", authorOnly). Each elemet consists of:
+ *     getMatchedCSSRules(node, '', authorOnly). Each elemet consists of:
  *     selector, rule.style.cssText[, rule.parentStyleSheet.href
  *     [, rule.parentStyleSheet.ownerNode.nodeName]].
  */
-devtools.DomNode.prototype.setStyles_ = function(computedStyle, inlineStyle,
+devtools.DomNode.prototype.setStyles = function(computedStyle, inlineStyle,
      styleAttributes, matchedCSSRules) {
   var styles = {};
   styles.computedStyle = this.makeStyle_(computedStyle);
@@ -307,8 +307,11 @@ devtools.DomNode.prototype.setStyles_ = function(computedStyle, inlineStyle,
       }
     }
     
-    styles.matchedCSSRules.push({selectorText: selector, "style": style,
-                                 "parentStyleSheet": parentStyleSheet});
+    styles.matchedCSSRules.push({
+      'selectorText': selector,
+      'style': style,
+      'parentStyleSheet': parentStyleSheet
+    });
   }
   
   this.styles_ = styles;
@@ -331,7 +334,7 @@ devtools.DomNode.prototype.makeStyle_ = function(payload) {
  * resources when styles are not going to be used.
  * @see setStyles_.
  */
-devtools.DomNode.prototype.clearStyles_ = function() {
+devtools.DomNode.prototype.clearStyles = function() {
   this.styles_ = null;
 };
 
@@ -347,8 +350,8 @@ devtools.DomDocument = function(domAgent, defaultView) {
     [
       0,   // id
       9,   // type = Node.DOCUMENT_NODE,
-      "",  // nodeName
-      "",  // nodeValue 
+      '',  // nodeName
+      '',  // nodeValue 
       [],  // attributes
       0,   // childNodeCount
     ]);
@@ -425,7 +428,7 @@ devtools.DomWindow = function(domAgent) {
 /**
  * Represents DOM Node class.
  */
-devtools.DomWindow.prototype.__defineGetter__("Node", function() {
+devtools.DomWindow.prototype.__defineGetter__('Node', function() {
   return devtools.DomNode;
 });
 
@@ -433,7 +436,7 @@ devtools.DomWindow.prototype.__defineGetter__("Node", function() {
  * Represents DOM Element class.
  * @constructor
  */
-devtools.DomWindow.prototype.__defineGetter__("Element", function() {
+devtools.DomWindow.prototype.__defineGetter__('Element', function() {
   return devtools.DomNode;
 });
 
@@ -482,8 +485,6 @@ devtools.DomAgent = function() {
   RemoteDomAgent.DidPerformSearch =
       devtools.Callback.processCallback;
   RemoteDomAgent.DidApplyDomChange =
-      devtools.Callback.processCallback;
-  RemoteDomAgent.DidGetNodeStyles =
       devtools.Callback.processCallback;
   RemoteDomAgent.DidRemoveAttribute =
       devtools.Callback.processCallback;
@@ -738,7 +739,7 @@ devtools.DomAgent.prototype.childNodeInserted = function(
   var node = parent.insertChild_(prev, payload);
   this.idToDomNode_[node.id_] = node;
   var event = { target : node, relatedNode : parent };
-  this.getDocument().fireDomEvent_("DOMNodeInserted", event);
+  this.getDocument().fireDomEvent_('DOMNodeInserted', event);
 };
 
 
@@ -752,7 +753,7 @@ devtools.DomAgent.prototype.childNodeRemoved = function(
   var node = this.idToDomNode_[nodeId];
   parent.removeChild_(node);
   var event = { target : node, relatedNode : parent };
-  this.getDocument().fireDomEvent_("DOMNodeRemoved", event);
+  this.getDocument().fireDomEvent_('DOMNodeRemoved', event);
   delete this.idToDomNode_[nodeId];
 };
 
@@ -827,49 +828,60 @@ devtools.DomAgent.prototype.getSearchResultNode = function(index) {
 
 
 /**
- * Asyncronously requests all the information about styles for the node.
- * @param {devtools.DomNode} node to get styles for.
- * @param {boolean} authorOnly is a parameter for getMatchedCSSRules
- * @param {function()} callback invoked while the node filled up with styles
+ * Returns all properties of the given node.
+ * @param {number} nodeId Node to get properties for.
+ * @param {Array.<string>} path Path to the object.
+ * @param {number} protoDepth Depth to the exact proto level.
+ * @param {function(string):undefined} callback Function to call with the
+ *     result.
  */
-devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
-                                                          authorOnly,
-                                                          callback) {
-  RemoteDomAgent.GetNodeStyles(
-      devtools.Callback.wrap(
-          goog.bind(this.getNodeStylesCallback_, this, node, callback)),
-      node.id_, authorOnly);
+devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
+    path, protoDepth, callback) {
+  var callbackId = devtools.Callback.wrap(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'devtools$$getProperties', nodeId,
+      goog.json.serialize([path, protoDepth]));
 };
 
 
 /**
- * Accepts results of RemoteDomAgent.GetNodeStyles
- * @param {devtools.DomNode} node of the reveived styles.
- * @param {function()} callback to notify the getNodeStylesAsync caller.
- * @param {object} styles is structure representing all the styles.
+ * Returns prototype chain for a given node.
+ * @param {number} nodeId Node to get prototypes for.
+ * @param {Function} callback.
  */
-devtools.DomAgent.prototype.getNodeStylesCallback_ = function(node,
-    callback, styles) {
-  
-  if (styles.computedStyle) {
-    node.setStyles_(styles.computedStyle, styles.inlineStyle,
-        styles.styleAttributes, styles.matchedCSSRules);
-  }
-  
-  callback();
-  
-  node.clearStyles_();
+devtools.DomAgent.prototype.getNodePrototypesAsync = function(nodeId,
+    callback) {
+  var callbackId = devtools.Callback.wrap(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'devtools$$getPrototypes', nodeId, '');
+};
+
+
+/**
+ * Returns styles for given node.
+ * @param {devtools.DomNode} node Node to get prototypes for.
+ * @param {boolean} authorOnly Returns only author styles if true.
+ * @param {Function} callback.
+ */
+devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
+    authorOnly, callback) {
+  var callbackId = devtools.Callback.wrap(callback);
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'devtools$$getStyles',
+      node.id_,
+      goog.json.serialize(authorOnly));
 };
 
 
 /**
  * Represents remote CSSStyleDeclaration for using in StyleSidebarPane.
- * @param {Array} payload built by DomAgentImpl::BuildValueForStyle.
+ * @param {Array<Object>} payload built by devtools$$getStyle from the injected
+ *     js.
  * @consctuctor
  */
 devtools.CSSStyleDeclaration = function(payload) {
   this.length = payload.length;
-  this.important_ = {};
+  this.priority_ = {};
   this.implicit_ = {};
   this.shorthand_ = {};
   this.value_ = {};
@@ -878,7 +890,7 @@ devtools.CSSStyleDeclaration = function(payload) {
     var p = payload[i];
     var name = p[0];
     
-    this.important_[name] = p[1];
+    this.priority_[name] = p[1];
     this.implicit_[name] = p[2];
     this.shorthand_[name] = p[3];
     this.value_[name] = p[4];
@@ -902,7 +914,7 @@ devtools.CSSStyleDeclaration.prototype.getPropertyValue = function(name) {
  * @return {string} 'important' | ''.
  */
 devtools.CSSStyleDeclaration.prototype.getPropertyPriority = function(name) {
-  return this.important_[name] ? 'important' : '';
+  return this.priority_[name] || '';
 };
 
 
@@ -920,7 +932,7 @@ devtools.CSSStyleDeclaration.prototype.getPropertyShorthand = function(name) {
  * @return {boolean}
  */
 devtools.CSSStyleDeclaration.prototype.isPropertyImplicit = function(name) {
-  return Boolean(this.implicit_[name]);
+  return !!this.implicit_[name];
 };
 
 

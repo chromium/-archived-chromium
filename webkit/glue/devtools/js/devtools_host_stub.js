@@ -37,9 +37,9 @@ RemoteDomAgentStub.sendDocumentElement_ = function() {
   RemoteDomAgent.SetDocumentElement([
     1,       // id
     1,       // type = Node.ELEMENT_NODE,
-    "HTML",  // nodeName
-    "",      // nodeValue 
-    ["foo","bar"],  // attributes
+    'HTML',  // nodeName
+    '',      // nodeValue 
+    ['foo','bar'],  // attributes
     2,       // childNodeCount
   ]);
 };
@@ -52,16 +52,16 @@ RemoteDomAgentStub.sendChildNodes_ = function(id) {
         [
          2,       // id
          1,       // type = Node.ELEMENT_NODE,
-         "DIV",   // nodeName
-         "",      // nodeValue 
-         ["foo","bar"],  // attributes
+         'DIV',   // nodeName
+         '',      // nodeValue 
+         ['foo','bar'],  // attributes
          1,       // childNodeCount
         ],
         [
          3,  // id
          3,  // type = Node.TEXT_NODE,
-         "", // nodeName
-         "Text", // nodeValue 
+         '', // nodeName
+         'Text', // nodeValue 
         ]
       ]);
   } else if (id == 2) {
@@ -70,9 +70,9 @@ RemoteDomAgentStub.sendChildNodes_ = function(id) {
         [
         4,       // id
         1,       // type = Node.ELEMENT_NODE,
-        "span",   // nodeName
-        "",      // nodeValue 
-        ["foo","bar"],  // attributes
+        'span',   // nodeName
+        '',      // nodeValue 
+        ['foo','bar'],  // attributes
         0,       // childNodeCount
       ]
     ]);
@@ -127,25 +127,6 @@ RemoteDomAgentStub.prototype.DiscardBindings = function() {
 };
 
 
-RemoteDomAgentStub.prototype.GetNodeStyles = function(callId, id, authorOnly) {
-  var prop = function(name, value) {
-    return [name, false, false, '', value];
-  };
-
-  var styles = {
-      computedStyle: [prop('display', 'none')],
-      inlineStyle: [prop('display', 'none')],
-      styleAttributes: {attr: [prop('display', 'none')]},
-      matchedCSSRules: [{selector: 'S', style: [prop('display', 'none')],
-                         parentStyleSheetHref: 'http://localhost',
-                         parentStyleSheetOwnerNodeName: 'DIV'}]
-  };
-  setTimeout(function() {
-    RemoteDomAgent.DidGetNodeStyles(callId, styles);
-  }, 0);
-};
-
-
 /**
  * @constructor
  */
@@ -189,6 +170,21 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
         'date', 'date_key', new Date() ];
     } else if (functionName == 'devtools$$getPrototypes') {
       result = ['Proto1', 'Proto2', 'Proto3'];
+    } else if (functionName == 'devtools$$getStyles') {
+      result = {
+        'computedStyle' : [['display', false, false, '', 'none']],
+        'inlineStyle' : [['display', false, false, '', 'none']],
+        'styleAttributes' : {
+           attr: [['display', false, false, '', 'none']]
+        },
+        'matchedCSSRules' : [
+          { 'selector' : 'S',
+            'style' : [['display', false, false, '', 'none']],
+            'parentStyleSheetHref' : 'http://localhost',
+            'parentStyleSheetOwnerNodeName' : 'DIV'
+          }
+        ]
+      };
     } else {
       alert('Unexpected utility function:' + functionName);
     }

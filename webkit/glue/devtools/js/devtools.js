@@ -55,36 +55,6 @@ devtools.ToolsAgent.prototype.evaluateJavaScript = function(script, callback) {
 
 
 /**
- * Returns all properties of the given node.
- * @param {devtools.DomNode} node Node to get properties for.
- * @param {Array.<string>} path Path to the object.
- * @param {number} protoDepth Depth to the exact proto level.
- * @param {function(string):undefined} callback Function to call with the
- *     result.
- */
-devtools.ToolsAgent.prototype.getNodePropertiesAsync = function(nodeId,
-    path, protoDepth, callback) {
-  var callbackId = devtools.Callback.wrap(callback);
-  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'devtools$$getProperties', nodeId,
-      goog.json.serialize([path, protoDepth]));
-};
-
-
-/**
- * Returns prototype chain for a given node.
- * @param {devtools.DomNode} node Node to get prototypes for.
- * @param {Function} callback.
- */
-devtools.ToolsAgent.prototype.getNodePrototypesAsync = function(nodeId,
-    callback) {
-  var callbackId = devtools.Callback.wrap(callback);
-  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'devtools$$getPrototypes', nodeId, '');
-};
-
-
-/**
  * @return {devtools.DebuggerAgent} Debugger agent instance.
  */
 devtools.ToolsAgent.prototype.getDebuggerAgent = function() {
@@ -142,7 +112,7 @@ devtools.ToolsAgent.prototype.addMessageToConsole = function(message, source,
   var console = WebInspector.console;
   if (console) {
     console.addMessage(new WebInspector.ConsoleMessage(
-        "", undefined, line, source, undefined, 1, message));
+        '', undefined, line, source, undefined, 1, message));
   }
 };
 
@@ -165,7 +135,7 @@ function debugPrint(text) {
   var console = WebInspector.console;
   if (console) {
     console.addMessage(new WebInspector.ConsoleMessage(
-        "", undefined, 1, "", undefined, 1, text));
+        '', undefined, 1, '', undefined, 1, text));
   } else {
     alert(text);
   }
@@ -310,13 +280,22 @@ WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
     node = node.parentNode;
   
   if (node && node.nodeType == Node.ELEMENT_NODE) {
-    var callback = function() {
+    var callback = function(stylesStr) {
+      var styles = goog.json.parse(stylesStr);
+      if (!styles.computedStyle) {
+        return;
+      }
+      node.setStyles(styles.computedStyle, styles.inlineStyle,
+          styles.styleAttributes, styles.matchedCSSRules);
       stylesSidebarPane.update(node, null, forceUpdate);
       stylesSidebarPane.needsUpdate = false;
+      node.clearStyles();
     };
 
-    devtools.tools.getDomAgent().getNodeStylesAsync(node,
-        !Preferences.showUserAgentStyles, callback);
+    devtools.tools.getDomAgent().getNodeStylesAsync(
+        node,
+        !Preferences.showUserAgentStyles,
+        callback);
   } else {
     stylesSidebarPane.update(null, null, forceUpdate);
     stylesSidebarPane.needsUpdate = false;
@@ -339,19 +318,21 @@ WebInspector.PropertiesSidebarPane.prototype.update = function(object) {
 
   
   var self = this;
-  devtools.tools.getNodePrototypesAsync(object.id_, function(json) {
-    // Get array of prototype user-friendly names.
-    var prototypes = goog.json.parse(json);
-    for (var i = 0; i < prototypes.length; ++i) {
-      var prototype = {};
-      prototype.id_ = object.id_;
-      prototype.protoDepth_ = i;
-      var section = new WebInspector.SidebarObjectPropertiesSection(prototype,
-          prototypes[i]);
-      self.sections.push(section);
-      body.appendChild(section.element);
-    }
-  });
+  devtools.tools.getDomAgent().getNodePrototypesAsync(object.id_, 
+      function(json) {
+        // Get array of prototype user-friendly names.
+        var prototypes = goog.json.parse(json);
+        for (var i = 0; i < prototypes.length; ++i) {
+          var prototype = {};
+          prototype.id_ = object.id_;
+          prototype.protoDepth_ = i;
+          var section = new WebInspector.SidebarObjectPropertiesSection(
+              prototype,
+              prototypes[i]);
+          self.sections.push(section);
+          body.appendChild(section.element);
+        }
+      });
 };
 
 
@@ -377,7 +358,7 @@ WebInspector.SidebarObjectPropertiesSection.prototype.onpopulate = function() {
   var nodeId = this.object.id_;
   var protoDepth = this.object.protoDepth_;
   var path = [];
-  devtools.tools.getNodePropertiesAsync(nodeId, path, protoDepth,
+  devtools.tools.getDomAgent().getNodePropertiesAsync(nodeId, path, protoDepth,
       goog.partial(WebInspector.didGetNodePropertiesAsync_,
           this.propertiesTreeOutline,
           this.treeElementConstructor,
@@ -392,7 +373,8 @@ WebInspector.SidebarObjectPropertiesSection.prototype.onpopulate = function() {
  */
 WebInspector.SidebarObjectPropertyTreeElement = function(parentObject,
     propertyName) {
-  WebInspector.ObjectPropertyTreeElement.call(this, parentObject, propertyName);
+  WebInspector.ObjectPropertyTreeElement.call(this, parentObject,
+      propertyName);
 };
 goog.inherits(WebInspector.SidebarObjectPropertyTreeElement,
     WebInspector.ObjectPropertyTreeElement);
@@ -406,11 +388,12 @@ WebInspector.SidebarObjectPropertyTreeElement.prototype.onpopulate =
   var nodeId = this.parentObject.devtools$$nodeId_;
   var path = this.parentObject.devtools$$path_.slice(0);
   path.push(this.propertyName);
-  devtools.tools.getNodePropertiesAsync(nodeId, path, -1, goog.partial(
-      WebInspector.didGetNodePropertiesAsync_,
-      this,
-      this.treeOutline.section.treeElementConstructor,
-      nodeId, path));
+  devtools.tools.getDomAgent().getNodePropertiesAsync(nodeId, path, -1, 
+      goog.partial(
+          WebInspector.didGetNodePropertiesAsync_,
+          this,
+          this.treeOutline.section.treeElementConstructor,
+          nodeId, path));
 };
 
 
@@ -437,7 +420,7 @@ WebInspector.SourceView.prototype.setupSourceFrameIfNeeded = function() {
                                              element)) {
       delete self._frameNeedsSetup;
       if (resource.type === WebInspector.Resource.Type.Script) {
-        self.sourceFrame.addEventListener("syntax highlighting complete",
+        self.sourceFrame.addEventListener('syntax highlighting complete',
             self._syntaxHighlightingComplete, self);
         self.sourceFrame.syntaxHighlightJavascript();
       }
@@ -511,9 +494,9 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
   this.callFrame = callFrame;
 
   if (!callFrame) {
-      var infoElement = document.createElement("div");
-      infoElement.className = "info";
-      infoElement.textContent = WebInspector.UIString("Not Paused");
+      var infoElement = document.createElement('div');
+      infoElement.className = 'info';
+      infoElement.textContent = WebInspector.UIString('Not Paused');
       this.bodyElement.appendChild(infoElement);
       return;
   }
@@ -523,7 +506,7 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
   }
 
   var scopeObject = callFrame.localScope;
-  var title = WebInspector.UIString("Local");
+  var title = WebInspector.UIString('Local');
   var subtitle = Object.describe(scopeObject, true);
   var emptyPlaceholder = null;
   var extraProperties = null;

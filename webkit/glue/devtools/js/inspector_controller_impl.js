@@ -29,7 +29,7 @@ devtools.InspectorController.prototype.clearMessages = function() {
  * {@inheritDoc}.
  */
 devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
-  return "profiles,databases";
+  return 'profiles,databases';
 };
 
 
@@ -39,7 +39,7 @@ devtools.InspectorControllerImpl.prototype.hiddenPanels = function() {
 devtools.InspectorControllerImpl.prototype.addSourceToFrame =
     function(mimeType, source, element) {
   if (!element.id) {
-    element.id = "f" + this.frame_element_id_++; 
+    element.id = 'f' + this.frame_element_id_++; 
   }
   return DevToolsHost.addSourceToFrame(mimeType, source, element.id);
 };

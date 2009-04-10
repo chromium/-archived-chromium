@@ -5,13 +5,6 @@
 #include "config.h"
 
 #include "AtomicString.h"
-#include "CSSComputedStyleDeclaration.h"
-#include "CSSParser.h"
-#include "CSSPropertyNames.h"
-#include "CSSRule.h"
-#include "CSSRuleList.h"
-#include "CSSStyleRule.h"
-#include "CSSStyleSheet.h"
 #include "DOMWindow.h"
 #include "Document.h"
 #include "Event.h"
@@ -446,37 +439,6 @@ void DomAgentImpl::PerformSearch(int call_id, const String& query) {
   delegate_->DidPerformSearch(call_id, list);
 }
 
-void DomAgentImpl::GetNodeStyles(int call_id,
-                                 int element_id,
-                                 bool author_only) {
-  DictionaryValue result;
-
-  Node* node = GetNodeForId(element_id);
-  DCHECK(!node || node->nodeType() == Node::ELEMENT_NODE);
-  if (!node) {
-    delegate_->DidGetNodeStyles(call_id, result);
-    return;
-  }
-
-  Element* element = static_cast<Element*>(node);
-  result.Set(L"inlineStyle",
-      BuildValueForStyle(*element->style()));
-
-  DOMWindow* window = element->document()->defaultView();
-  result.Set(L"computedStyle",
-      BuildValueForStyle(*window->getComputedStyle(element, "")));
-
-  RefPtr<CSSRuleList> rule_list = window->getMatchedCSSRules(element, "",
-      author_only);
-  if (rule_list) {
-    result.Set(L"matchedCSSRules", BuildValueForCSSRules(*rule_list));
-  }
-  result.Set(L"styleAttributes",
-      BuildValueForAttributeStyles(*element->attributes()));
-
-  delegate_->DidGetNodeStyles(call_id, result);
-}
-
 ListValue* DomAgentImpl::BuildValueForNode(Node* node, int depth) {
   OwnPtr<ListValue> value(new ListValue());
   int id = Bind(node);
@@ -562,83 +524,6 @@ ListValue* DomAgentImpl::BuildValueForElementChildren(
     children->Append(BuildValueForNode(child, depth));
   }
   return children.release();
-}
-
-ListValue* DomAgentImpl::BuildValueForCSSRules(CSSRuleList& matched) {
-  OwnPtr<ListValue> description_list(new ListValue());
-  for (unsigned i = 0; i < matched.length(); ++i) {
-    if (!matched.item(i)->isStyleRule()) {
-      continue;
-    }
-    CSSStyleRule* rule = static_cast<CSSStyleRule*>(matched.item(i));
-    OwnPtr<DictionaryValue> description(new DictionaryValue());
-
-    description->SetString(L"selector",
-        webkit_glue::StringToStdString(rule->selectorText()));
-
-    CSSMutableStyleDeclaration* style = rule->style();
-    if (style) {
-      description->Set(L"style", BuildValueForStyle(*style));
-    }
-
-    CSSStyleSheet* parent_style_sheet = rule->parentStyleSheet();
-    if (parent_style_sheet) {
-      description->SetString(L"parentStyleSheetHref",
-          webkit_glue::StringToStdString(parent_style_sheet->href()));
-
-      Node* owner_node = parent_style_sheet->ownerNode();
-      if (owner_node) {
-        description->SetString(L"parentStyleSheetOwnerNodeName",
-            webkit_glue::StringToStdString(owner_node->nodeName()));
-      }
-    }
-    description_list->Append(description.release());
-  }
-  return description_list.release();
-}
-
-DictionaryValue* DomAgentImpl::BuildValueForAttributeStyles(
-    const NamedNodeMap& attributes) {
-  OwnPtr<DictionaryValue> description(new DictionaryValue());
-  for (size_t i = 0; i < attributes.length(); ++i) {
-    Attribute* attr = attributes.attributeItem(i);
-
-    if (CSSStyleDeclaration* style = attr->style()) {
-      std::wstring name =
-          webkit_glue::StringToStdWString(attr->name().toString());
-
-      description->Set(name, BuildValueForStyle(*style));
-    }
-  }
-  return description.release();
-}
-
-ListValue* DomAgentImpl::BuildValueForStyle(const CSSStyleDeclaration& style) {
-  OwnPtr<ListValue> prop_list(new ListValue);
-  for (int i = 0; i != style.length(); ++i) {
-    String name = style.item(i);
-    int id = cssPropertyID(name);
-
-    bool important = style.getPropertyPriority(id);
-    bool implicit = style.isPropertyImplicit(id);
-    int shorthand_id = style.getPropertyShorthand(id);
-    String shorthand =
-        getPropertyName(static_cast<CSSPropertyID>(shorthand_id));
-
-    OwnPtr<ListValue> prop(new ListValue);
-    prop->Append(Value::CreateStringValue(
-        webkit_glue::StringToStdWString(name)));
-    prop->Append(Value::CreateBooleanValue(important));
-    prop->Append(Value::CreateBooleanValue(implicit));
-    prop->Append(Value::CreateStringValue(
-        webkit_glue::StringToStdWString(shorthand)));
-    prop->Append(Value::CreateStringValue(
-        webkit_glue::StringToStdWString(style.getPropertyValue(id))));
-
-    prop_list->Append(prop.release());
-  }
-
-  return prop_list.release();
 }
 
 Node* DomAgentImpl::InnerFirstChild(Node* node) {
