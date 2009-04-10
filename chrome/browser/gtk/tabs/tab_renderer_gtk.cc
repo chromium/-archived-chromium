@@ -143,8 +143,8 @@ TabRendererGtk::TabRendererGtk()
       fav_icon_hiding_offset_(0),
       should_display_crashed_favicon_(false),
       hovering_(false),
-      loading_animation_(&loading_animation_data),
-      close_button_state_(BS_NORMAL) {
+      close_button_state_(BS_NORMAL),
+      loading_animation_(&loading_animation_data) {
   InitResources();
 }
 

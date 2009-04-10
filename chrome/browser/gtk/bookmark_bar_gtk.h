@@ -139,10 +139,10 @@ class BookmarkBarGtk : public BookmarkModelObserver {
                                       gint y,
                                       guint time,
                                       BookmarkBarGtk* bar);
-  static gboolean OnToolbarDragLeave(GtkToolbar* toolbar,
-                                     GdkDragContext* context,
-                                     guint time,
-                                     BookmarkBarGtk* bar);
+  static void OnToolbarDragLeave(GtkToolbar* toolbar,
+                                 GdkDragContext* context,
+                                 guint time,
+                                 BookmarkBarGtk* bar);
 
   Profile* profile_;
 

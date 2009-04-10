@@ -359,10 +359,10 @@ gboolean BookmarkBarGtk::OnToolbarDragMotion(GtkToolbar* toolbar,
 }
 
 // static
-gboolean BookmarkBarGtk::OnToolbarDragLeave(GtkToolbar* toolbar,
-                                            GdkDragContext* context,
-                                            guint time,
-                                            BookmarkBarGtk* bar) {
+void BookmarkBarGtk::OnToolbarDragLeave(GtkToolbar* toolbar,
+                                        GdkDragContext* context,
+                                        guint time,
+                                        BookmarkBarGtk* bar) {
   if (bar->toolbar_drop_item_) {
     g_object_unref(bar->toolbar_drop_item_);
     bar->toolbar_drop_item_ = NULL;

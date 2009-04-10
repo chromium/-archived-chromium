@@ -148,9 +148,8 @@ class NewTabButton {
   // Creates a clickable region of the button's visual representation. Used for
   // hit-testing.  Caller is responsible for destroying the region.
   GdkRegion* MakeRegionForButton() const {
-    int w = width();
-    int h = height();
-    static const int kNumRegionPoints = 8;
+    const int w = width();
+    const int kNumRegionPoints = 8;
 
     // These values are defined by the shape of the new tab bitmap. Should that
     // bitmap ever change, these values will need to be updated. They're so
