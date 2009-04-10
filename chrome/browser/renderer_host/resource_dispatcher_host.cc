@@ -910,7 +910,8 @@ bool ResourceDispatcherHost::CompleteResponseStarted(URLRequest* request) {
   response->response_head.app_cache_id = WebAppCacheContext::kNoAppCacheId;
   request->GetMimeType(&response->response_head.mime_type);
 
-  // Make sure we don't get a file handle if LOAD_ENABLE_FILE is not set.
+  // Make sure we don't get a file handle if LOAD_ENABLE_DOWNLOAD_FILE is not
+  // set.
   DCHECK((request->load_flags() & net::LOAD_ENABLE_DOWNLOAD_FILE) ||
          request->response_data_file() == base::kInvalidPlatformFileValue);
 #if defined(OS_POSIX)
