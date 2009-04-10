@@ -145,6 +145,10 @@ void AutocompletePopupViewGtk::PaintUpdatesNow() {
   gdk_window_process_updates(window_->window, FALSE);
 }
 
+AutocompletePopupModel* AutocompletePopupViewGtk::GetModel() {
+  return model_.get();
+}
+
 void AutocompletePopupViewGtk::Show(size_t num_results) {
   gint x, y, width;
   edit_view_->BottomLeftPosWidth(&x, &y, &width);

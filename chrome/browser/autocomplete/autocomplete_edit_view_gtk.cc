@@ -49,7 +49,7 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
       command_updater_(command_updater),
       popup_window_mode_(false),  // TODO(deanm)
       scheme_security_level_(ToolbarModel::NORMAL) {
-  model_->set_popup_model(popup_view_->model());
+  model_->set_popup_model(popup_view_->GetModel());
 }
 
 AutocompleteEditViewGtk::~AutocompleteEditViewGtk() {
@@ -247,7 +247,7 @@ void AutocompleteEditViewGtk::UpdatePopup() {
 }
 
 void AutocompleteEditViewGtk::ClosePopup() {
-  popup_view_->model()->StopAutocomplete();
+  popup_view_->GetModel()->StopAutocomplete();
 }
 
 void AutocompleteEditViewGtk::OnTemporaryTextMaybeChanged(
