@@ -42,7 +42,8 @@ static NSString* const kStarredImageName = @"starred";
 // bar and button state.
 - (void)awakeFromNib {
   [self initCommandStatus:commands_];
-  locationBarView_ = new LocationBarViewMac(locationBar_);
+  locationBarView_ = new LocationBarViewMac(locationBar_, commands_,
+                                            toolbarModel_);
   locationBarView_->Init();
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }
@@ -100,8 +101,21 @@ static NSString* const kStarredImageName = @"starred";
   // TODO(pinkerton): there's a lot of ui code in autocomplete_edit.cc
   // that we'll want to duplicate. For now, just handle setting the text.
 
+  // TODO(shess): This is the start of what pinkerton refers to.
+  // Unfortunately, I'm going to need to spend some time wiring things
+  // up.  This call should suffice to close any open autocomplete
+  // pulldown.  It should also be the right thing to do to save and
+  // restore state, but at this time it's not clear that this is the
+  // right place, and tab is not the right parameter.
+  if (locationBarView_) {
+    locationBarView_->SaveStateToContents(NULL);
+  }
+
   // TODO(pinkerton): update the security lock icon and background color
 
+  // TODO(shess): Determine whether this should happen via
+  // locationBarView_, instead, in which case this class can
+  // potentially lose the locationBar_ reference.
   NSString* urlString = base::SysWideToNSString(toolbarModel_->GetText());
   [locationBar_ setStringValue:urlString];
 }

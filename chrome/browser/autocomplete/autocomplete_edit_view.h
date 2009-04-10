@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 // This file defines the interface class AutocompleteEditView.  Each toolkit
-// will implement the edit view differently, so that code is inheriently
+// will implement the edit view differently, so that code is inherently
 // platform specific.  However, the AutocompleteEditModel needs to do some
 // communication with the view.  Since the model is shared between platforms,
 // we need to define an interface that all view implementations will share.

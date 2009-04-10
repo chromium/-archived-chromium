@@ -8,11 +8,18 @@
 #include "chrome/browser/cocoa/location_bar_view_mac.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+// TODO(shess): Figure out how to unittest this.  The code below was
+// testing the hacked-up behavior so you didn't have to be pedantic
+// WRT http://.  But that approach is completely and utterly wrong in
+// a world where omnibox is running.
+// http://code.google.com/p/chromium/issues/detail?id=9977
+
+#if 0
 class LocationBarViewMacTest : public testing::Test {
  public:
   LocationBarViewMacTest()
       : field_([[NSTextField alloc] init]),
-        locationBarView_(new LocationBarViewMac(field_)) {
+        locationBarView_(new LocationBarViewMac(field_, NULL, NULL)) {
   }
 
   scoped_nsobject<NSTextField> field_;
@@ -32,11 +39,15 @@ TEST_F(LocationBarViewMacTest, GetInputString) {
   EXPECT_EQ(locationBarView_->GetInputString(), ASCIIToWide("http://chost/"));
 
   [field_ setStringValue:@"www.example.com"];
-  EXPECT_EQ(locationBarView_->GetInputString(), ASCIIToWide("http://www.example.com/"));
+  EXPECT_EQ(locationBarView_->GetInputString(),
+            ASCIIToWide("http://www.example.com/"));
 
   [field_ setStringValue:@"http://example.com"];
-  EXPECT_EQ(locationBarView_->GetInputString(), ASCIIToWide("http://example.com/"));
+  EXPECT_EQ(locationBarView_->GetInputString(),
+            ASCIIToWide("http://example.com/"));
 
   [field_ setStringValue:@"https://www.example.com"];
-  EXPECT_EQ(locationBarView_->GetInputString(), ASCIIToWide("https://www.example.com/"));
+  EXPECT_EQ(locationBarView_->GetInputString(),
+            ASCIIToWide("https://www.example.com/"));
 }
+#endif

@@ -7,14 +7,24 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_ptr.h"
+#include "chrome/browser/autocomplete/autocomplete_edit.h"
 #include "chrome/browser/location_bar.h"
 
-// A C++ bridge class that handles responding to requests from the
-// cross-platform code for information about the location bar.
+class AutocompleteEditViewMac;
+class CommandUpdater;
+class ToolbarModel;
 
-class LocationBarViewMac : public LocationBar {
+// A C++ bridge class that represents the location bar UI element to
+// the portable code.  Wires up an AutocompleteEditViewMac instance to
+// the location bar text field, which handles most of the work.
+
+class LocationBarViewMac : public AutocompleteEditController,
+                           public LocationBar {
  public:
-  LocationBarViewMac(NSTextField* field);
+  LocationBarViewMac(NSTextField* field,
+                     CommandUpdater* command_updater,
+                     ToolbarModel* toolbar_model);
   virtual ~LocationBarViewMac();
 
   // TODO(shess): This is a placeholder for the Omnibox code.  The
@@ -27,24 +37,44 @@ class LocationBarViewMac : public LocationBar {
   // Overridden from LocationBar
   virtual void ShowFirstRunBubble() { NOTIMPLEMENTED(); }
   virtual std::wstring GetInputString() const;
-  virtual WindowOpenDisposition GetWindowOpenDisposition() const
-      { NOTIMPLEMENTED(); return CURRENT_TAB; }
-  // TODO(rohitrao): Fix this to return different types once autocomplete and
-  // the onmibar are implemented.  For now, any URL that comes from the
-  // LocationBar has to have been entered by the user, and thus is of type
-  // PageTransition::TYPED.
-  virtual PageTransition::Type GetPageTransition() const
-      { NOTIMPLEMENTED(); return PageTransition::TYPED; }
+  virtual WindowOpenDisposition GetWindowOpenDisposition() const;
+  virtual PageTransition::Type GetPageTransition() const;
   virtual void AcceptInput() { NOTIMPLEMENTED(); }
   virtual void AcceptInputWithDisposition(WindowOpenDisposition disposition)
       { NOTIMPLEMENTED(); }
   virtual void FocusLocation();
   virtual void FocusSearch() { NOTIMPLEMENTED(); }
   virtual void UpdateFeedIcon() { /* http://crbug.com/8832 */ }
-  virtual void SaveStateToContents(TabContents* contents) { NOTIMPLEMENTED(); }
+  virtual void SaveStateToContents(TabContents* contents);
+
+  virtual void OnAutocompleteAccept(const GURL& url,
+      WindowOpenDisposition disposition,
+      PageTransition::Type transition,
+      const GURL& alternate_nav_url);
+  virtual void OnChanged();
+  virtual void OnInputInProgress(bool in_progress);
+  virtual SkBitmap GetFavIcon() const;
+  virtual std::wstring GetTitle() const;
 
  private:
+  scoped_ptr<AutocompleteEditViewMac> edit_view_;
+
   NSTextField* field_;  // weak, owned by TabContentsController
+  // TODO(shess): Determine ownership of these.  We definitely
+  // shouldn't.
+  CommandUpdater* command_updater_;  // weak
+  ToolbarModel* toolbar_model_;  // weak
+
+  // When we get an OnAutocompleteAccept notification from the autocomplete
+  // edit, we save the input string so we can give it back to the browser on
+  // the LocationBar interface via GetInputString().
+  std::wstring location_input_;
+
+  // The user's desired disposition for how their input should be opened
+  WindowOpenDisposition disposition_;
+
+  // The transition type to use for the navigation
+  PageTransition::Type transition_;
 
   DISALLOW_COPY_AND_ASSIGN(LocationBarViewMac);
 };
