@@ -65,6 +65,10 @@ class InfoBarDelegate {
   // platform-specific.
   virtual InfoBar* CreateInfoBar() = 0;
 
+  // Return the icon to be shown for this InfoBar. If the returned bitmap is
+  // NULL, no icon is shown.
+  virtual SkBitmap* GetIcon() const { return NULL; }
+
   // Returns a pointer to the AlertInfoBarDelegate interface, if implemented.
   virtual AlertInfoBarDelegate* AsAlertInfoBarDelegate() {
     return NULL;
@@ -108,8 +112,7 @@ class AlertInfoBarDelegate : public InfoBarDelegate {
   // Returns the message string to be displayed for the InfoBar.
   virtual std::wstring GetMessageText() const = 0;
 
-  // Return the icon to be shown for this InfoBar. If the returned bitmap is
-  // NULL, no icon is shown.
+  // Overridden from InfoBarDelegate.
   virtual SkBitmap* GetIcon() const { return NULL; }
 
   // Overridden from InfoBarDelegate:
@@ -139,8 +142,7 @@ class LinkInfoBarDelegate : public InfoBarDelegate {
   // Returns the text of the link to be displayed.
   virtual std::wstring GetLinkText() const = 0;
 
-  // Returns the icon that should be shown for this InfoBar, or NULL if there is
-  // none.
+  // Overridden from InfoBarDelegate.
   virtual SkBitmap* GetIcon() const { return NULL; }
 
   // Called when the Link is clicked. The |disposition| specifies how the

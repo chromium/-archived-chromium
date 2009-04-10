@@ -10,6 +10,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
+#include "chrome/browser/gtk/link_button_gtk.h"
 
 namespace {
 
@@ -50,6 +51,15 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
   widget_.Own(gfx::CreateGtkBorderBin(bg_box, &kBorderColor,
                                       1, 0, 0, 0));
   gtk_widget_set_size_request(widget_.get(), -1, kInfoBarHeight);
+
+  // Add the icon on the left, if any.
+  SkBitmap* icon = delegate->GetIcon();
+  if (icon) {
+    GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(icon);
+    GtkWidget* image = gtk_image_new_from_pixbuf(pixbuf);
+    gdk_pixbuf_unref(pixbuf);
+    gtk_box_pack_start(GTK_BOX(hbox_), image, FALSE, FALSE, 0);
+  }
 
   close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_));
   g_signal_connect(close_button_->widget(), "clicked",
@@ -99,13 +109,6 @@ class AlertInfoBar : public InfoBar {
       : InfoBar(delegate) {
     std::wstring text = delegate->GetMessageText();
     GtkWidget* label = gtk_label_new(WideToUTF8(text).c_str());
-
-    SkBitmap* icon = delegate->GetIcon();
-    GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(icon);
-    GtkWidget* image = gtk_image_new_from_pixbuf(pixbuf);
-    gdk_pixbuf_unref(pixbuf);
-
-    gtk_box_pack_start(GTK_BOX(hbox_), image, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox_), label, FALSE, FALSE, 0);
   }
 };
@@ -116,12 +119,52 @@ class LinkInfoBar : public InfoBar {
  public:
   LinkInfoBar(LinkInfoBarDelegate* delegate)
       : InfoBar(delegate) {
-    // TODO(estade): remove these lines.
-    NOTIMPLEMENTED();
-    GtkWidget* label = gtk_label_new("LinkInfoBar not yet implemented. "
-                                     "Check back later.");
-    gtk_box_pack_start(GTK_BOX(hbox_), label, FALSE, FALSE, 10);
+    size_t link_offset;
+    std::wstring display_text =
+        delegate->GetMessageTextWithOffset(&link_offset);
+    std::wstring link_text = delegate->GetLinkText();
+
+    // Create the link button.
+    link_button_.reset(new LinkButtonGtk(WideToUTF8(link_text).c_str()));
+    g_signal_connect(link_button_->widget(), "clicked",
+                     G_CALLBACK(OnLinkClick), this);
+
+    // If link_offset is npos, we right-align the link instead of embedding it
+    // in the text.
+    if (link_offset == std::wstring::npos) {
+      gtk_box_pack_end(GTK_BOX(hbox_), link_button_->widget(), FALSE, FALSE, 0);
+      GtkWidget* label = gtk_label_new(WideToUTF8(display_text).c_str());
+      gtk_box_pack_start(GTK_BOX(hbox_), label, FALSE, FALSE, 0);
+    } else {
+      GtkWidget* initial_label = gtk_label_new(
+          WideToUTF8(display_text.substr(0, link_offset)).c_str());
+      GtkWidget* trailing_label = gtk_label_new(
+          WideToUTF8(display_text.substr(link_offset)).c_str());
+
+      // We don't want any spacing between the elements, so we pack them into
+      // this hbox that doesn't use kElementPadding.
+      // TODO(estade): we need to reduce the padding on the button, because
+      // currently the link has extra space on either side and it looks odd.
+      GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
+      gtk_box_pack_start(GTK_BOX(hbox), initial_label, FALSE, FALSE, 0);
+      gtk_box_pack_start(GTK_BOX(hbox), link_button_->widget(),
+                         FALSE, FALSE, 0);
+      gtk_box_pack_start(GTK_BOX(hbox), trailing_label, FALSE, FALSE, 0);
+      gtk_box_pack_start(GTK_BOX(hbox_), hbox, FALSE, FALSE, 0);
+    }
   }
+
+ private:
+  static void OnLinkClick(GtkWidget* button, LinkInfoBar* link_info_bar) {
+    // TODO(estade): we need an equivalent for DispositionFromEventFlags().
+    if (link_info_bar->delegate_->AsLinkInfoBarDelegate()->
+        LinkClicked(CURRENT_TAB)) {
+      link_info_bar->RemoveInfoBar();
+    }
+  }
+
+  // The clickable link text.
+  scoped_ptr<LinkButtonGtk> link_button_;
 };
 
 // ConfirmInfoBar --------------------------------------------------------------
