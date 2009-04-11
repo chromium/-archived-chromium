@@ -61,6 +61,10 @@ bool IsCodebaseAllowed(const std::string& clsid, const std::string& codebase);
 // "application/oleobject"
 bool IsMimeTypeActiveX(const std::string& mimetype);
 
+// Returns the NPAPI mime type for the CLSID passed in. On failure
+// return false
+bool GetMimeTypeForClsid(const std::string& clsid, std::string* mime_type);
+
 }  // namespace activex_shim
 
 #endif // #ifndef WEBKIT_ACTIVEX_SHIM_ACTIVEX_SHARED_H__
