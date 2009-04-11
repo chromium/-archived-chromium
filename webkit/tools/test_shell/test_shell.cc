@@ -7,7 +7,7 @@
 
 #include "webkit/tools/test_shell/test_shell.h"
 
-
+#include "base/base_paths.h"
 #include "base/command_line.h"
 #include "base/debug_on_start.h"
 #include "base/file_path.h"
@@ -614,6 +614,14 @@ bool GetPluginFinderURL(std::string* plugin_finder_url) {
 
 #if !defined(LINUX2)
 bool IsDefaultPluginEnabled() {
+  FilePath exe_path;
+
+  if (PathService::Get(base::FILE_EXE, &exe_path)) {
+    std::wstring exe_name = file_util::GetFilenameFromPath(
+        exe_path.ToWStringHack());
+    if (StartsWith(exe_name, L"test_shell_tests", false))
+      return true;
+  }
   return false;
 }
 

@@ -5,6 +5,7 @@
 #include "webkit/default_plugin/plugin_main.h"
 
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "webkit/activex_shim/npp_impl.h"
 #include "webkit/default_plugin/plugin_impl.h"
 #include "webkit/glue/webkit_glue.h"
@@ -54,6 +55,31 @@ NPError API_CALL NP_Shutdown(void) {
   return 0;
 }
 
+namespace {
+// This function is only invoked when the default plugin is invoked
+// with a special mime type application/chromium-test-default-plugin
+void SignalTestResult(NPP instance) {
+  NPObject *window_obj = NULL;
+  g_browser->getvalue(instance, NPNVWindowNPObject, &window_obj);
+  if (!window_obj) {
+    NOTREACHED();
+    return;
+  }
+
+  std::string script = "javascript:onSuccess()";
+  NPString script_string;
+  script_string.UTF8Characters = script.c_str();
+  script_string.UTF8Length =
+      static_cast<unsigned int>(script.length());
+
+  NPVariant result_var;
+  NPError result = g_browser->evaluate(instance, window_obj,
+                                       &script_string, &result_var);
+  g_browser->releaseobject(window_obj);
+}
+
+}  // namespace CHROMIUM_DefaultPluginTest
+
 NPError NPP_New(NPMIMEType plugin_type, NPP instance, uint16 mode, int16 argc,
                 char* argn[], char* argv[], NPSavedData* saved) {
   if (instance == NULL)
@@ -63,8 +89,14 @@ NPError NPP_New(NPMIMEType plugin_type, NPP instance, uint16 mode, int16 argc,
   // 1. Test-shell
   // 2. The plugin is running in the renderer process.
   if (webkit_glue::IsPluginRunningInRendererProcess()) {
+    if (!base::strcasecmp(plugin_type,
+        "application/chromium-test-default-plugin")) {
+      SignalTestResult(instance);
+      return NPERR_NO_ERROR;
+    }
     return NPERR_GENERIC_ERROR;
   }
+
 
   PluginInstallerImpl* plugin_impl = new PluginInstallerImpl(mode);
   plugin_impl->Initialize(GetCurrentModuleHandle(), instance, plugin_type, argc,
