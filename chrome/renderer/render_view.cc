@@ -44,6 +44,7 @@
 #include "chrome/renderer/webworker_proxy.h"
 #include "grit/generated_resources.h"
 #include "grit/renderer_resources.h"
+#include "net/base/data_url.h"
 #include "net/base/escape.h"
 #include "net/base/net_errors.h"
 #include "printing/units.h"
@@ -57,6 +58,7 @@
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/dom_operations.h"
 #include "webkit/glue/dom_serializer.h"
+#include "webkit/glue/image_decoder.h"
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/searchable_form_data.h"
@@ -2065,9 +2067,33 @@ void RenderView::DidDownloadImage(int id,
 void RenderView::OnDownloadImage(int id,
                                  const GURL& image_url,
                                  int image_size) {
-  if (!webview()->DownloadImage(id, image_url, image_size))
+
+  bool data_image_failed = false;
+  if (image_url.SchemeIs("data")) {
+    SkBitmap data_image = ImageFromDataUrl(image_url);
+    data_image_failed = data_image.empty();
+    if (!data_image_failed) {
+      Send(new ViewHostMsg_DidDownloadImage(routing_id_, id, image_url, false,
+                                            data_image));
+    }
+  }
+
+  if (data_image_failed || !webview()->DownloadImage(id, image_url, image_size))
     Send(new ViewHostMsg_DidDownloadImage(routing_id_, id, image_url, true,
                                           SkBitmap()));
+}
+
+SkBitmap RenderView::ImageFromDataUrl(const GURL& url) const {
+  std::string mime_type, char_set, data;
+  if (net::DataURL::Parse(url, &mime_type, &char_set, &data) && !data.empty()) {
+    // Decode the favicon using WebKit's image decoder.
+    webkit_glue::ImageDecoder decoder(gfx::Size(kFavIconSize, kFavIconSize));
+    const unsigned char* src_data =
+        reinterpret_cast<const unsigned char*>(&data[0]);
+
+    return decoder.Decode(src_data, data.size());
+  }
+  return SkBitmap();
 }
 
 void RenderView::OnGetApplicationInfo(int page_id) {

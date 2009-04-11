@@ -649,6 +649,9 @@ class RenderView : public RenderWidget,
 
   virtual void DidAddHistoryItem();
 
+  // Decodes a data: URL image or returns an empty image in case of failure.
+  SkBitmap ImageFromDataUrl(const GURL&) const;
+
   // A helper method used by WasOpenedByUserGesture.
   bool WasOpenedByUserGestureHelper() const;
 
