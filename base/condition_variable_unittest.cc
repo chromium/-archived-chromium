@@ -14,6 +14,7 @@
 #include "base/scoped_ptr.h"
 #include "base/spin_wait.h"
 #include "base/thread_collision_warner.h"
+#include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -98,6 +99,7 @@ class WorkQueue : public PlatformThread::Delegate {
   int GetNumThreadsTakingAssignments() const;
   int GetNumThreadsCompletingTasks() const;
   int GetNumberOfCompletedTasks() const;
+  TimeDelta GetWorkTime() const;
 
   void SetWorkTime(TimeDelta delay);
   void SetTaskCount(int count);
@@ -180,21 +182,14 @@ TEST_F(ConditionVariableTest, TimeoutTest) {
   lock.Release();
 }
 
-// This test is flaky due to excessive timing sensitivity.
-// http://code.google.com/p/chromium/issues/detail?id=3599
-// TODO(jar): A recent change to the WorkQueue fixed flakyness for the test
-// LargeFastTaskTest.  Specifically, the test was accessing the member variable
-// WorkQueue::shutdown_task_count_ without a lock held.  The MultiThreadConsumer
-// test now ran successfully for 500 times on RalphL's machine.  RalphL did not
-// want to blindly re-enable this test if you know of other issues with it, but
-// it appears that the flakyness is gone, but I'll leave that to you to verify.
-TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
+// Test serial task servicing, as well as two parallel task servicing methods.
+TEST_F(ConditionVariableTest, MultiThreadConsumerTest) {
   const int kThreadCount = 10;
   WorkQueue queue(kThreadCount);  // Start the threads.
 
-  Lock private_lock;  // Used locally for master to wait.
-  AutoLock private_held_lock(private_lock);
-  ConditionVariable private_cv(&private_lock);
+  const int kTaskCount = 10;  // Number of tasks in each mini-test here.
+
+  base::Time start_time;  // Used to time task processing.
 
   {
     AutoLock auto_lock(*queue.lock());
@@ -203,10 +198,12 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   }
 
   // Wait a bit more to allow threads to reach their wait state.
-  private_cv.TimedWait(kTenMs);
+  // If threads aren't in a wait state, they may start to gobble up tasks in
+  // parallel, short-circuiting (breaking) this test.
+  PlatformThread::Sleep(100);
 
   {
-    // Since we have no tasks, all threads should be waiting by now.
+    // Since we have no tasks yet, all threads should be waiting by now.
     AutoLock auto_lock(*queue.lock());
     EXPECT_EQ(0, queue.GetNumThreadsTakingAssignments());
     EXPECT_EQ(0, queue.GetNumThreadsCompletingTasks());
@@ -215,28 +212,44 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
     EXPECT_EQ(0, queue.GetMinCompletionsByWorkerThread());
     EXPECT_EQ(0, queue.GetNumberOfCompletedTasks());
 
-    // Set up to make one worker do 3 30ms tasks.
+    // Set up to make one worker do 30ms tasks sequentially.
     queue.ResetHistory();
-    queue.SetTaskCount(3);
+    queue.SetTaskCount(kTaskCount);
     queue.SetWorkTime(kThirtyMs);
     queue.SetAllowHelp(false);
+
+    start_time = base::Time::Now();
   }
+
   queue.work_is_available()->Signal();  // Start up one thread.
-  // Wait to allow solo worker insufficient time to get done.
-  private_cv.TimedWait(kFortyFiveMs);  // Should take about 90 ms.
+
 
   {
-    // Check that all work HASN'T completed yet.
+    // Wait until all 10 work tasks have at least been assigned.
     AutoLock auto_lock(*queue.lock());
+    while(queue.task_count())
+      queue.no_more_tasks()->Wait();
+    // The last of the tasks *might* still be running, but... all but one should
+    // be done by now, since tasks are being done serially.
+    EXPECT_LT(queue.GetWorkTime().InMilliseconds() * (kTaskCount - 1),
+              (base::Time::Now() - start_time).InMilliseconds());
+
     EXPECT_EQ(1, queue.GetNumThreadsTakingAssignments());
     EXPECT_EQ(1, queue.GetNumThreadsCompletingTasks());
-    EXPECT_GT(2, queue.task_count());  // 2 should have started.
-    EXPECT_GT(3, queue.GetMaxCompletionsByWorkerThread());
+    EXPECT_LE(kTaskCount - 1, queue.GetMaxCompletionsByWorkerThread());
     EXPECT_EQ(0, queue.GetMinCompletionsByWorkerThread());
-    EXPECT_EQ(1, queue.GetNumberOfCompletedTasks());
+    EXPECT_LE(kTaskCount - 1, queue.GetNumberOfCompletedTasks());
   }
-  // Wait to allow solo workers to get done.
-  private_cv.TimedWait(kSixtyMs);  // Should take about 45ms more.
+
+  // Wait to be sure all tasks are done.
+  while (1) {
+    {
+      AutoLock auto_lock(*queue.lock());
+      if (kTaskCount == queue.GetNumberOfCompletedTasks())
+        break;
+    }
+    PlatformThread::Sleep(30);  // Wait a little.
+  }
 
   {
     // Check that all work was done by one thread id.
@@ -244,28 +257,46 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
     EXPECT_EQ(1, queue.GetNumThreadsTakingAssignments());
     EXPECT_EQ(1, queue.GetNumThreadsCompletingTasks());
     EXPECT_EQ(0, queue.task_count());
-    EXPECT_EQ(3, queue.GetMaxCompletionsByWorkerThread());
+    EXPECT_EQ(kTaskCount, queue.GetMaxCompletionsByWorkerThread());
     EXPECT_EQ(0, queue.GetMinCompletionsByWorkerThread());
-    EXPECT_EQ(3, queue.GetNumberOfCompletedTasks());
+    EXPECT_EQ(kTaskCount, queue.GetNumberOfCompletedTasks());
 
-    // Set up to make each task include getting help from another worker.
+    // Set up to make each task include getting help from another worker, so
+    // so that the work gets done in paralell.
     queue.ResetHistory();
-    queue.SetTaskCount(3);
+    queue.SetTaskCount(kTaskCount);
     queue.SetWorkTime(kThirtyMs);
     queue.SetAllowHelp(true);
+
+    start_time = base::Time::Now();
   }
+
   queue.work_is_available()->Signal();  // But each worker can signal another.
-  // Wait to allow the 3 workers to get done.
-  private_cv.TimedWait(kFortyFiveMs);  // Should  take about 30 ms.
+  // Wait to allow the all workers to get done.
+  while (1) {
+    {
+      AutoLock auto_lock(*queue.lock());
+      if (kTaskCount == queue.GetNumberOfCompletedTasks())
+        break;
+    }
+    PlatformThread::Sleep(30);  // Wait a little.
+  }
 
   {
+    // Wait until all work tasks have at least been assigned.
     AutoLock auto_lock(*queue.lock());
-    EXPECT_EQ(3, queue.GetNumThreadsTakingAssignments());
-    EXPECT_EQ(3, queue.GetNumThreadsCompletingTasks());
-    EXPECT_EQ(0, queue.task_count());
-    EXPECT_EQ(1, queue.GetMaxCompletionsByWorkerThread());
-    EXPECT_EQ(0, queue.GetMinCompletionsByWorkerThread());
-    EXPECT_EQ(3, queue.GetNumberOfCompletedTasks());
+    while(queue.task_count())
+      queue.no_more_tasks()->Wait();
+    // Since they can all run almost in parallel, there is no guarantee that all
+    // tasks are finished, but we should have gotten here faster than it would
+    // take to run all tasks serially.
+    EXPECT_GT(queue.GetWorkTime().InMilliseconds() * (kTaskCount - 1),
+              (base::Time::Now() - start_time).InMilliseconds());
+
+    // To avoid racy assumptions, we'll just assert that at least 2 threads
+    // did work.
+    EXPECT_LE(2, queue.GetNumThreadsTakingAssignments());
+    EXPECT_EQ(kTaskCount, queue.GetNumberOfCompletedTasks());
 
     // Try to ask all workers to help, and only a few will do the work.
     queue.ResetHistory();
@@ -275,7 +306,7 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   }
   queue.work_is_available()->Broadcast();  // Make them all try.
   // Wait to allow the 3 workers to get done.
-  private_cv.TimedWait(kFortyFiveMs);
+  PlatformThread::Sleep(45);
 
   {
     AutoLock auto_lock(*queue.lock());
@@ -294,7 +325,7 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   }
   queue.work_is_available()->Broadcast();  // We already signal all threads.
   // Wait to allow the 3 workers to get done.
-  private_cv.TimedWait(kOneHundredMs);
+  PlatformThread::Sleep(100);
 
   {
     AutoLock auto_lock(*queue.lock());
@@ -313,7 +344,7 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   }
   queue.work_is_available()->Signal();  // But each worker can signal another.
   // Wait to allow the 10 workers to get done.
-  private_cv.TimedWait(kOneHundredMs);  // Should take about 60 ms.
+  PlatformThread::Sleep(100);  // Should take about 60 ms.
 
   {
     AutoLock auto_lock(*queue.lock());
@@ -332,7 +363,7 @@ TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   }
   queue.work_is_available()->Broadcast();
   // Wait to allow the 10 workers to get done.
-  private_cv.TimedWait(kOneHundredMs);  // Should take about 60 ms.
+  PlatformThread::Sleep(100);  // Should take about 60 ms.
 
   {
     AutoLock auto_lock(*queue.lock());
@@ -614,6 +645,10 @@ int WorkQueue::GetNumberOfCompletedTasks() const {
   for (int i = 0; i < thread_count_; ++i)
     total += completion_history_[i];
   return total;
+}
+
+TimeDelta WorkQueue::GetWorkTime() const {
+  return worker_delay_;
 }
 
 void WorkQueue::SetWorkTime(TimeDelta delay) {
