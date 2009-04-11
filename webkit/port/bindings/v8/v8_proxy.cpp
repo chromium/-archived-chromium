@@ -358,7 +358,7 @@ ACTIVE_DOM_OBJECT_TYPES(MAKE_CASE)
     if (type == V8ClassIndex::MESSAGEPORT) {
       // Get the port and its entangled port.
       MessagePort* port1 = static_cast<MessagePort*>(obj);
-      MessagePort* port2 = port1->entangledPort();
+      MessagePortProxy* port2 = port1->entangledPort();
       if (port2 != NULL) {
         // As ports are always entangled in pairs only perform the entanglement
         // once for each pair (see ASSERT in MessagePort::unentangle()).

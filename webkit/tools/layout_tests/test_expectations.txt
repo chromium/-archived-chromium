@@ -408,8 +408,9 @@ BUG8941 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/web-apps/013
 BUG1316221 DEFER LINUX WIN : LayoutTests/css2.1/t1202-counter-04-b.html = FAIL
 BUG1316221 DEFER LINUX WIN : LayoutTests/css2.1/t1202-counters-04-b.html = FAIL
 
-// The max length is being applied correctly, but the over- and
-// under-lines aren't placed properly over the "x".
+// The max length doesn't appear to be applied correctly (or the test needs
+// changing), and furthermore, the over- and under-lines aren't placed
+// properly over the "x".
 BUG1124513 DEFER : LayoutTests/fast/forms/input-text-maxlength.html = FAIL
 BUG1124513 DEFER : LayoutTests/fast/forms/input-text-paste-maxlength.html = FAIL
 
@@ -2464,3 +2465,8 @@ BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-option
 BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny.html = FAIL
 BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-allow.html = FAIL
 BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
+
+// Regressions from WebKit merge 43264:42403, possibly due to r42375.
+BUG9992 : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
+BUG9992 : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
+BUG9992 : LayoutTests/fast/text/shadow-no-blur.html = FAIL
