@@ -1781,9 +1781,8 @@ void RenderView::UpdateTargetURL(WebView* webview, const GURL& url) {
 }
 
 void RenderView::RunFileChooser(bool multi_select,
-                                const std::wstring& title,
-                                const std::wstring& default_filename,
-                                const std::wstring& filter,
+                                const string16& title,
+                                const FilePath& default_filename,
                                 WebFileChooserCallback* file_chooser) {
   if (file_chooser_.get()) {
     // TODO(brettw): bug 1235154: This should be a synchronous message to deal
@@ -1797,7 +1796,7 @@ void RenderView::RunFileChooser(bool multi_select,
   }
   file_chooser_.reset(file_chooser);
   Send(new ViewHostMsg_RunFileChooser(routing_id_, multi_select, title,
-                                      default_filename, filter));
+                                      default_filename));
 }
 
 void RenderView::AddMessageToConsole(WebView* webview,

@@ -217,7 +217,7 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
                                     FilePath::FromWStringHack(
                                         profile()->GetPrefs()->GetString(
                                         prefs::kDownloadDefaultDirectory)),
-                                    std::wstring(), 0, std::wstring(),
+                                    NULL, 0, std::wstring(),
                                     GetRootWindow(),
                                     NULL);
   } else if (sender == download_ask_for_save_location_checkbox_) {

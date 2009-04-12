@@ -164,9 +164,8 @@ class RenderView : public RenderWidget,
   virtual void UpdateTargetURL(WebView* webview,
                                const GURL& url);
   virtual void RunFileChooser(bool multi_select,
-                              const std::wstring& title,
-                              const std::wstring& initial_filename,
-                              const std::wstring& filter,
+                              const string16& title,
+                              const FilePath& initial_filename,
                               WebFileChooserCallback* file_chooser);
   virtual void AddMessageToConsole(WebView* webview,
                                    const std::wstring& message,

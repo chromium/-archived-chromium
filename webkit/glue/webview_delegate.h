@@ -557,9 +557,8 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   // will own the WebFileChooserCallback object and is responsible for
   // freeing it.
   virtual void RunFileChooser(bool multi_select,
-                              const std::wstring& title,
-                              const std::wstring& initial_filename,
-                              const std::wstring& filter,
+                              const string16& title,
+                              const FilePath& initial_filename,
                               WebFileChooserCallback* file_chooser) {
     delete file_chooser;
   }

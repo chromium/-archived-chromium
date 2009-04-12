@@ -928,11 +928,10 @@ IPC_BEGIN_MESSAGES(ViewHost)
 
   // Asks the browser to display the file chooser.  The result is returned in a
   // ViewHost_RunFileChooserResponse message.
-  IPC_MESSAGE_ROUTED4(ViewHostMsg_RunFileChooser,
+  IPC_MESSAGE_ROUTED3(ViewHostMsg_RunFileChooser,
                       bool /* multiple_files */,
-                      std::wstring /* title */,
-                      std::wstring /* Default file name */,
-                      std::wstring /* filter */)
+                      string16 /* title */,
+                      FilePath /* Default file name */)
 
   // Notification that password forms have been seen that are candidates for
   // filling/submitting by the password manager

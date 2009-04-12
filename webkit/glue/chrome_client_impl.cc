@@ -497,13 +497,14 @@ void ChromeClientImpl::runOpenPanel(WebCore::Frame* frame,
 
   bool multiple_files = fileChooser->allowsMultipleFiles();
 
-  std::wstring suggestion;
+  FilePath suggestion;
   if (fileChooser->filenames().size() > 0)
-    suggestion = webkit_glue::StringToStdWString(fileChooser->filenames()[0]);
+    suggestion = FilePath(
+      webkit_glue::StringToFilePathString(fileChooser->filenames()[0]));
 
-  WebFileChooserCallbackImpl* chooser = new WebFileChooserCallbackImpl(fileChooser);
-  delegate->RunFileChooser(multiple_files, std::wstring(), suggestion,
-                           std::wstring(), chooser);
+  WebFileChooserCallbackImpl* chooser =
+      new WebFileChooserCallbackImpl(fileChooser);
+  delegate->RunFileChooser(multiple_files, string16(), suggestion, chooser);
 }
 
 void ChromeClientImpl::popupOpened(WebCore::PopupContainer* popup_container,

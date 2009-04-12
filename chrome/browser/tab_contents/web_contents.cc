@@ -1145,15 +1145,14 @@ void WebContents::GetHistoryListCount(int* back_list_count,
 
 void WebContents::RunFileChooser(bool multiple_files,
                                  const string16& title,
-                                 const FilePath& default_file,
-                                 const std::wstring& filter) {
+                                 const FilePath& default_file) {
   if (!select_file_dialog_.get())
     select_file_dialog_ = SelectFileDialog::Create(this);
   SelectFileDialog::Type dialog_type =
     multiple_files ? SelectFileDialog::SELECT_OPEN_MULTI_FILE :
                      SelectFileDialog::SELECT_OPEN_FILE;
   select_file_dialog_->SelectFile(dialog_type, title, default_file,
-                                  filter, 0, FILE_PATH_LITERAL(""),
+                                  NULL, 0, FILE_PATH_LITERAL(""),
                                   view_->GetTopLevelNativeWindow(), NULL);
 }
 

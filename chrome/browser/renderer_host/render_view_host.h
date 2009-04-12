@@ -511,9 +511,8 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgSelectionChanged(const std::string& text);
   void OnMsgPasteFromSelectionClipboard();
   void OnMsgRunFileChooser(bool multiple_files,
-                           const std::wstring& title,
-                           const std::wstring& default_file,
-                           const std::wstring& filter);
+                           const string16& title,
+                           const FilePath& default_file);
   void OnMsgRunJavaScriptMessage(const std::wstring& message,
                                  const std::wstring& default_prompt,
                                  const GURL& frame_url,

@@ -15,9 +15,6 @@
 
 class ChromeFont;
 
-// Helpers to show certain types of Windows shell dialogs in a way that doesn't
-// block the UI of the entire app.
-
 // A base class for shell dialogs.
 class BaseShellDialog {
  public:
@@ -71,36 +68,50 @@ class SelectFileDialog
   // object will have no reference (refcount is 0).
   static SelectFileDialog* Create(Listener* listener);
 
+  // Holds information about allowed extensions on a file save dialog.
+  // |extensions| is a list of allowed extensions. For example, it might be
+  //   { { "htm", "html" }, { "txt" } }. Only pass more than one extension
+  //   in the inner vector if the extensions are equivalent. Do NOT include
+  //   leading periods.
+  // |extension_description_overrides| overrides the system descriptions of the
+  //   specified extensions. Entries correspond to |extensions|; if left blank
+  //   the system descriptions will be used.
+  // |include_all_files| specifies whether all files (e.g. *.*) will be allowed
+  //   in the file filtering.
+  struct FileTypeInfo {
+    std::vector<std::vector<FilePath::StringType> > extensions;
+    std::vector<string16> extension_description_overrides;
+    bool include_all_files;
+  };
+
   // Selects a file. This will start displaying the dialog box. This will also
   // block the calling window until the dialog box is complete. The listener
   // associated with this object will be notified when the selection is
   // complete.
   // |type| is the type of file dialog to be shown, see Type enumeration above.
   // |title| is the title to be displayed in the dialog. If this string is
-  // empty, the default title is used.
+  //   empty, the default title is used.
   // |default_path| is the default path and suggested file name to be shown in
-  // the dialog. This only works for SELECT_SAVEAS_FILE and SELECT_OPEN_FILE.
-  // Can be an empty string to indicate Windows should choose the default to
-  // show.
-  // |filter| is a null (\0) separated list of alternating filter description
-  // and filters and terminated with two nulls.
-  // |filter_index| is the 1-based index into the filter list in |filter|.
-  // Specify 0 if you don't need filters, or if you only need the default
-  // (first filter) behavior.
-  // |owning_window| is the window the dialog is modal to, or NULL for a
-  // modeless dialog.
+  //   the dialog. This only works for SELECT_SAVEAS_FILE and SELECT_OPEN_FILE.
+  //   Can be an empty string to indicate the platform default.
+  // |file_types| holds the infomation about the file types allowed. Pass NULL
+  //   to get no special behavior
+  // |file_type_index| is the 1-based index into the file type list in
+  //   |file_types|. Specify 0 if you don't need to specify extension behavior.
   // |default_extension| is the default extension to add to the file if the
-  // user doesn't type one. This should NOT include the '.'. If you specify
-  // this you must also specify a filter.
+  //   user doesn't type one. This should NOT include the '.'. On Windows, if
+  //   you specify this you must also specify |file_types|.
+  // |owning_window| is the window the dialog is modal to, or NULL for a
+  //   modeless dialog.
   // |params| is data from the calling context which will be passed through to
-  // the listener. Can be NULL.
+  //   the listener. Can be NULL.
   // NOTE: only one instance of any shell dialog can be shown per owning_window
   //       at a time (for obvious reasons).
   virtual void SelectFile(Type type,
                           const string16& title,
                           const FilePath& default_path,
-                          const std::wstring& filter,
-                          int filter_index,
+                          const FileTypeInfo* file_types,
+                          int file_type_index,
                           const FilePath::StringType& default_extension,
                           gfx::NativeWindow owning_window,
                           void* params) = 0;

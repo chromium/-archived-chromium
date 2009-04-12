@@ -30,12 +30,13 @@ class SelectFileDialogImpl : public SelectFileDialog {
 
   // SelectFileDialog implementation.
   // |params| is user data we pass back via the Listener interface.
-  virtual void SelectFile(Type type, const string16& title,
+  virtual void SelectFile(Type type,
+                          const string16& title,
                           const FilePath& default_path,
-                          const std::wstring& filter,
-                          int filter_index,
+                          const FileTypeInfo* file_types,
+                          int file_type_index,
                           const FilePath::StringType& default_extension,
-                          gfx::NativeWindow parent_window,
+                          gfx::NativeWindow owning_window,
                           void* params);
 
  private:
@@ -114,21 +115,21 @@ void SelectFileDialogImpl::ListenerDestroyed() {
   listener_ = NULL;
 }
 
-// We ignore |filter| and |default_extension|.
-// TODO(estade): use |filter|.
+// We ignore |file_types| and |default_extension|.
+// TODO(estade): use |file_types|.
 void SelectFileDialogImpl::SelectFile(
     Type type,
     const string16& title,
     const FilePath& default_path,
-    const std::wstring& filter,
-    int filter_index,
+    const FileTypeInfo* file_types,
+    int file_type_index,
     const FilePath::StringType& default_extension,
-    gfx::NativeWindow parent_window,
+    gfx::NativeWindow owning_window,
     void* params) {
   // TODO(estade): on windows, parent_window may be null. But I'm not sure when
   // that's used and how to deal with it here. For now, don't allow it.
-  DCHECK(parent_window);
-  parents_.insert(parent_window);
+  DCHECK(owning_window);
+  parents_.insert(owning_window);
 
   std::string title_string = UTF16ToUTF8(title);
 
@@ -136,14 +137,14 @@ void SelectFileDialogImpl::SelectFile(
   switch (type) {
     case SELECT_OPEN_FILE:
       DCHECK(default_path.empty());
-      dialog = CreateFileOpenDialog(title_string, parent_window);
+      dialog = CreateFileOpenDialog(title_string, owning_window);
       break;
     case SELECT_OPEN_MULTI_FILE:
       DCHECK(default_path.empty());
-      dialog = CreateMultiFileOpenDialog(title_string, parent_window);
+      dialog = CreateMultiFileOpenDialog(title_string, owning_window);
       break;
     case SELECT_SAVEAS_FILE:
-      dialog = CreateSaveAsDialog(title_string, default_path, parent_window);
+      dialog = CreateSaveAsDialog(title_string, default_path, owning_window);
       break;
     default:
       NOTIMPLEMENTED() << "Dialog type " << type << " not implemented.";

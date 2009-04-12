@@ -995,8 +995,8 @@ FilePath SavePackage::GetSuggestNameForSaveAs(PrefService* prefs,
 
 void SavePackage::GetSaveInfo() {
   // Use "Web Page, Complete" option as default choice of saving page.
-  int filter_index = 2;
-  std::wstring filter;
+  int file_type_index = 2;
+  SelectFileDialog::FileTypeInfo file_type_info;
   FilePath::StringType default_extension;
   FilePath title =
       FilePath::FromWStringHack(UTF16ToWideHack(web_contents_->GetTitle()));
@@ -1009,21 +1009,21 @@ void SavePackage::GetSaveInfo() {
   // If the contents can not be saved as complete-HTML, do not show the
   // file filters.
   if (CanSaveAsComplete(save_params->current_tab_mime_type)) {
-    filter = l10n_util::GetString(IDS_SAVE_PAGE_FILTER);
-    filter.resize(filter.size() + 2);
-    filter[filter.size() - 1] = L'\0';
-    filter[filter.size() - 2] = L'\0';
+    file_type_info.extensions.resize(2);
+    file_type_info.extensions[0].push_back(FILE_PATH_LITERAL("htm"));
+    file_type_info.extension_description_overrides.push_back(
+        WideToUTF16(l10n_util::GetString(IDS_SAVE_PAGE_DESC_HTML_ONLY)));
+    file_type_info.extensions[1].push_back(FILE_PATH_LITERAL("htm"));
+    file_type_info.extension_description_overrides.push_back(
+        WideToUTF16(l10n_util::GetString(IDS_SAVE_PAGE_DESC_COMPLETE)));
+    file_type_info.include_all_files = false;
     default_extension = FILE_PATH_LITERAL("htm");
   } else {
-#if defined(OS_WIN)
-    filter = win_util::GetFileFilterFromPath(suggested_path.ToWStringHack());
-#else
-    // TODO(port): implement this.
-    NOTIMPLEMENTED();
-#endif
-    filter_index = 1;
+    file_type_info.extensions.resize(1);
+    file_type_info.extensions[0].push_back(suggested_path.Extension());
+    file_type_info.include_all_files = true;
+    file_type_index = 1;
   }
-
 
 #if defined(OS_LINUX) || defined(OS_WIN)
   if (g_should_prompt_for_filename) {
@@ -1032,8 +1032,8 @@ void SavePackage::GetSaveInfo() {
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     string16(),
                                     suggested_path,
-                                    filter,
-                                    filter_index,
+                                    &file_type_info,
+                                    file_type_index,
                                     default_extension,
                                     platform_util::GetTopLevel(
                                         web_contents_->GetNativeView()),
@@ -1042,7 +1042,7 @@ void SavePackage::GetSaveInfo() {
 #endif  // defined(OS_LINUX) || defined(OS_WIN)
   {
     // Just use 'suggested_path' instead of opening the dialog prompt.
-    ContinueSave(save_params, suggested_path, filter_index);
+    ContinueSave(save_params, suggested_path, file_type_index);
     delete save_params;
   }
 }

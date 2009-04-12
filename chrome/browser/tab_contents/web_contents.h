@@ -370,8 +370,7 @@ class WebContents : public TabContents,
                                    int* forward_list_count);
   virtual void RunFileChooser(bool multiple_files,
                               const string16& title,
-                              const FilePath& default_file,
-                              const std::wstring& filter);
+                              const FilePath& default_file);
   virtual void RunJavaScriptMessage(const std::wstring& message,
                                     const std::wstring& default_prompt,
                                     const GURL& frame_url,

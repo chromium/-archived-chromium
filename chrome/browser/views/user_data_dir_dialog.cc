@@ -73,7 +73,7 @@ bool UserDataDirDialog::Accept() {
   HWND owning_hwnd =
       GetAncestor(message_box_view_->GetWidget()->GetNativeView(), GA_ROOT);
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_FOLDER,
-                                  dialog_title, FilePath(), std::wstring(),
+                                  dialog_title, FilePath(), NULL,
                                   0, std::wstring(), owning_hwnd, NULL);
   return false;
 }

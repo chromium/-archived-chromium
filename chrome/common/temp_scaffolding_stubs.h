@@ -373,9 +373,14 @@ class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
   class Listener {
    public:
   };
+  struct FileTypeInfo {
+    std::vector<std::vector<FilePath::StringType> > extensions;
+    std::vector<string16> extension_description_overrides;
+    bool include_all_files;
+  };
   void ListenerDestroyed() { NOTIMPLEMENTED(); }
   void SelectFile(Type, const string16&, const FilePath&,
-                  const std::wstring&, int, const FilePath::StringType&,
+                  const FileTypeInfo*, int, const FilePath::StringType&,
                   gfx::NativeWindow, void*) { NOTIMPLEMENTED(); }
   static SelectFileDialog* Create(WebContents*) {
     NOTIMPLEMENTED();

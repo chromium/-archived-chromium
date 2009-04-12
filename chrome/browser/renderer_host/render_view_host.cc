@@ -1126,12 +1126,9 @@ void RenderViewHost::OnMsgPasteFromSelectionClipboard() {
 }
 
 void RenderViewHost::OnMsgRunFileChooser(bool multiple_files,
-                                         const std::wstring& title,
-                                         const std::wstring& default_file,
-                                         const std::wstring& filter) {
-  std::wstring real_filter = filter;
-  std::replace(real_filter.begin(), real_filter.end(), '|', '\0');
-  delegate_->RunFileChooser(multiple_files, title, default_file, real_filter);
+                                         const string16& title,
+                                         const FilePath& default_file) {
+  delegate_->RunFileChooser(multiple_files, title, default_file);
 }
 
 void RenderViewHost::OnMsgRunJavaScriptMessage(

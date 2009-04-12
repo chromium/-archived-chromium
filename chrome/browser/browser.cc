@@ -993,7 +993,7 @@ void Browser::OpenFile() {
   gfx::NativeWindow parent_window = window_->GetNativeHandle();
   select_file_dialog_->SelectFile(SelectFileDialog::SELECT_OPEN_FILE,
                                   string16(), FilePath(),
-                                  std::wstring(), 0, FILE_PATH_LITERAL(""),
+                                  NULL, 0, FILE_PATH_LITERAL(""),
                                   parent_window, NULL);
 }
 #endif

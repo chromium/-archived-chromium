@@ -283,9 +283,8 @@ class RenderViewHostDelegate {
 
   // A file chooser should be shown.
   virtual void RunFileChooser(bool multiple_files,
-                              const std::wstring& title,
-                              const std::wstring& default_file,
-                              const std::wstring& filter) { }
+                              const string16& title,
+                              const FilePath& default_file) { }
 
   // A javascript message, confirmation or prompt should be shown.
   virtual void RunJavaScriptMessage(const std::wstring& message,

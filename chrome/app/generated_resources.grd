@@ -3288,8 +3288,11 @@ each locale. -->
       </message>
       
       <!-- Saving Page-->
-      <message name="IDS_SAVE_PAGE_FILTER" desc="Filter string for save page. \0's are required separators and additional two \0's should be appended when using this.">
-        Web Page, HTML Only\0*.htm\0Web Page, Complete\0*.htm
+      <message name="IDS_SAVE_PAGE_DESC_HTML_ONLY" desc="In the Save Page dialog, the description of saving only the HTML of a web page.">
+        Web Page, HTML Only
+      </message>
+      <message name="IDS_SAVE_PAGE_DESC_COMPLETE" desc="In the Save Page dialog, the description of saving both the HTML and all shown resources.">
+        Web Page, Complete
       </message>
       <message name="IDS_SAVE_PAGE_STATUS_COMPLETED" desc="Save page status: completed">
         Completed

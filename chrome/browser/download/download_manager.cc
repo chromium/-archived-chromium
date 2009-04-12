@@ -640,18 +640,16 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
 
     WebContents* contents = tab_util::GetWebContentsByID(
         info->render_process_id, info->render_view_id);
-#if defined(OS_WIN)
-    std::wstring filter =
-        win_util::GetFileFilterFromPath(info->suggested_path.value());
-#elif defined(OS_LINUX)
-    std::wstring filter;
-#endif
+    SelectFileDialog::FileTypeInfo file_type_info;
+    file_type_info.extensions.resize(1);
+    file_type_info.extensions[0].push_back(info->suggested_path.Extension());
+    file_type_info.include_all_files = true;
     gfx::NativeWindow owning_window =
         contents ? platform_util::GetTopLevel(contents->GetNativeView()) : NULL;
     select_file_dialog_->SelectFile(SelectFileDialog::SELECT_SAVEAS_FILE,
                                     string16(),
                                     info->suggested_path,
-                                    filter, 0, FILE_PATH_LITERAL(""),
+                                    &file_type_info, 0, FILE_PATH_LITERAL(""),
                                     owning_window, info);
   } else {
     // No prompting for download, just continue with the suggested name.

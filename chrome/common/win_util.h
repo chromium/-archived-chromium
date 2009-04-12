@@ -133,14 +133,23 @@ bool OpenItemViaShellNoZoneCheck(const FilePath& full_path,
 // Returns 'true' on successful open, 'false' otherwise.
 bool OpenItemWithExternalApp(const std::wstring& full_path);
 
-std::wstring GetFileFilterFromPath(const std::wstring& file_name);
-
-// Returns a file filter whose description comes from the OS for the first file
-// extension in |extensions|. |extensions| is a semicolon separated list of
-// extensions. Each extension is specified as '*.foo' where foo is the
-// extension.
-std::wstring GetFileFilterFromExtensions(const std::wstring& extensions,
-                                         bool include_all_files);
+// Set up a filter for a Save/Open dialog, which will consist of |file_ext| file
+// extensions (internally separated by semicolons), |ext_desc| as the text
+// descriptions of the |file_ext| types (optional), and (optionally) the default
+// 'All Files' view. The purpose of the filter is to show only files of a
+// particular type in a Windows Save/Open dialog box. The resulting filter is
+// returned. The filters created here are:
+//   1. only files that have 'file_ext' as their extension
+//   2. all files (only added if 'include_all_files' is true)
+// Example:
+//   file_ext: { ".txt", ".htm;.html" }
+//   ext_desc: { "Text Document" }
+//   returned: "Text Document\0*.txt\0HTML Document\0.htm;.html\0"
+//             "All Files\0*.*\0\0" (in one big string)
+std::wstring FormatFilterForExtensions(
+    const std::vector<std::wstring>& file_ext,
+    const std::vector<std::wstring>& ext_desc,
+    bool include_all_files);
 
 // Prompt the user for location to save a file. 'suggested_name' is a full path
 // that gives the dialog box a hint as to how to initialize itself.
