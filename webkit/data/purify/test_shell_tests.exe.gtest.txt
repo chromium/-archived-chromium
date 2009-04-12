@@ -1,2 +1,4 @@
 # the BMP tests are currently too slow under Purify
 BMP*
+# IPR in WinsockInit. See bug 10012
+MimeTypeTests*
