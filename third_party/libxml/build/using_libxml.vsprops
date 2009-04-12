@@ -11,6 +11,5 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		DelayLoadDLLs="ws2_32.dll"
 	/>
 </VisualStudioPropertySheet>
