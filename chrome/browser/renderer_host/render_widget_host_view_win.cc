@@ -930,6 +930,14 @@ LRESULT RenderWidgetHostViewWin::OnKeyEvent(UINT message, WPARAM wparam,
 
 LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
                                               LPARAM lparam, BOOL& handled) {
+  // Forward the mouse-wheel message to the window under the mouse if it belongs
+  // to us.
+  if (message == WM_MOUSEWHEEL &&
+      views::RerouteMouseWheel(m_hWnd, wparam, lparam)) {
+    handled = TRUE;
+    return 0;
+  }
+
   // Workaround for Thinkpad mousewheel driver. We get mouse wheel/scroll
   // messages even if we are not in the foreground. So here we check if
   // we have any owned popup windows in the foreground and dismiss them.
@@ -939,14 +947,6 @@ LRESULT RenderWidgetHostViewWin::OnWheelEvent(UINT message, WPARAM wparam,
         GetCurrentThreadId(),
         DismissOwnedPopups,
         reinterpret_cast<LPARAM>(toplevel_hwnd));
-  }
-
-  // Forward the mouse-wheel message to the window under the mouse if it belongs
-  // to us.
-  if (message == WM_MOUSEWHEEL &&
-      views::RerouteMouseWheel(m_hWnd, wparam, lparam)) {
-    handled = TRUE;
-    return 0;
   }
 
   // This is a bit of a hack, but will work for now since we don't want to
