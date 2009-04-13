@@ -60,7 +60,8 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
       is_unresponsive_(false),
       view_being_painted_(false),
       text_direction_updated_(false),
-      text_direction_(WEB_TEXT_DIRECTION_LTR) {
+      text_direction_(WEB_TEXT_DIRECTION_LTR),
+      text_direction_canceled_(false) {
   if (routing_id_ == MSG_ROUTING_NONE)
     routing_id_ = process_->GetNextRoutingID();
 
@@ -364,11 +365,18 @@ void RenderWidgetHost::UpdateTextDirection(WebTextDirection direction) {
   text_direction_ = direction;
 }
 
+void RenderWidgetHost::CancelUpdateTextDirection() {
+  if (text_direction_updated_)
+    text_direction_canceled_ = true;
+}
+
 void RenderWidgetHost::NotifyTextDirection() {
   if (text_direction_updated_) {
+    if (!text_direction_canceled_)
+      Send(new ViewMsg_SetTextDirection(routing_id(),
+                                        static_cast<int>(text_direction_)));
     text_direction_updated_ = false;
-    Send(new ViewMsg_SetTextDirection(routing_id(),
-                                      static_cast<int>(text_direction_)));
+    text_direction_canceled_ = false;
   }
 }
 

@@ -65,6 +65,57 @@ BOOL CALLBACK DismissOwnedPopups(HWND window, LPARAM arg) {
   return TRUE;
 }
 
+// Returns the text direction according to the keyboard status.
+// This function retrieves the status of all keys and returns the following
+// values:
+// * WEB_TEXT_DIRECTION_RTL
+//   If only a control key and a right-shift key are down.
+// * WEB_TEXT_DIRECTION_LTR
+//   If only a control key and a left-shift key are down.
+static bool GetNewTextDirection(WebTextDirection* direction) {
+  uint8_t keystate[256];
+  if (!GetKeyboardState(&keystate[0]))
+    return false;
+
+  // To check if a user is pressing only a control key and a right-shift key
+  // (or a left-shift key), we use the steps below:
+  // 1. Check if a user is pressing a control key and a right-shift key (or
+  //    a left-shift key).
+  // 2. If the condition 1 is true, we should check if there are any other
+  //    keys pressed at the same time.
+  //    To ignore the keys checked in 1, we set their status to 0 before
+  //    checking the key status.
+  const int kKeyDownMask = 0x80;
+  if ((keystate[VK_CONTROL] & kKeyDownMask) == 0)
+    return false;
+
+  if (keystate[VK_RSHIFT] & kKeyDownMask) {
+    keystate[VK_RSHIFT] = 0;
+    *direction = WEB_TEXT_DIRECTION_RTL;
+  } else if (keystate[VK_LSHIFT] & kKeyDownMask) {
+    keystate[VK_LSHIFT] = 0;
+    *direction = WEB_TEXT_DIRECTION_LTR;
+  } else {
+    return false;
+  }
+
+  // Scan the key status to find pressed keys. We should adandon changing the
+  // text direction when there are other pressed keys.
+  // This code is executed only when a user is pressing a control key and a
+  // right-shift key (or a left-shift key), i.e. we should ignore the status of
+  // the keys: VK_SHIFT, VK_CONTROL, VK_RCONTROL, and VK_LCONTROL.
+  // So, we reset their status to 0 and ignore them.
+  keystate[VK_SHIFT] = 0;
+  keystate[VK_CONTROL] = 0;
+  keystate[VK_RCONTROL] = 0;
+  keystate[VK_LCONTROL] = 0;
+  for (int i = 0; i <= VK_PACKET; ++i) {
+    if (keystate[i] & kKeyDownMask)
+      return false;
+  }
+  return true;
+}
+
 }  // namespace
 
 // RenderWidgetHostView --------------------------------------------------------
@@ -848,24 +899,28 @@ LRESULT RenderWidgetHostViewWin::OnKeyEvent(UINT message, WPARAM wparam,
     return ::SendMessage(parent_hwnd_, message, wparam, lparam);
   }
 
-  if (wparam == VK_SHIFT || wparam == VK_CONTROL) {
-    // Bug 1845: we need to update the text direction when a user releases
-    // either a right-shift key or a right-control key after pressing both of
-    // them. So, we just update the text direction while a user is pressing the
-    // keys, and we notify the text direction when a user releases either of
-    // them.
-    if (message == WM_KEYDOWN) {
-      const int kKeyDownMask = 0x8000;
-      if ((GetKeyState(VK_RSHIFT) & kKeyDownMask) &&
-          (GetKeyState(VK_RCONTROL) & kKeyDownMask)) {
-        render_widget_host_->UpdateTextDirection(WEB_TEXT_DIRECTION_RTL);
-      } else if ((GetKeyState(VK_LSHIFT) & kKeyDownMask) &&
-                 (GetKeyState(VK_LCONTROL) & kKeyDownMask)) {
-        render_widget_host_->UpdateTextDirection(WEB_TEXT_DIRECTION_LTR);
-      }
-    } else if (message == WM_KEYUP) {
-      render_widget_host_->NotifyTextDirection();
+  // Bug 1845: we need to update the text direction when a user releases
+  // either a right-shift key or a right-control key after pressing both of
+  // them. So, we just update the text direction while a user is pressing the
+  // keys, and we notify the text direction when a user releases either of them.
+  if (message == WM_KEYDOWN) {
+    if (wparam == VK_SHIFT) {
+      WebTextDirection direction;
+      if (GetNewTextDirection(&direction))
+        render_widget_host_->UpdateTextDirection(direction);
+    } else if (wparam != VK_CONTROL) {
+      // A user pressed a key except shift and control keys.
+      // When a user presses a key while he/she holds control and shift keys,
+      // we adandon sending an IPC message in a succeeding NotifyTextDirection()
+      // call. To adandon it, this call set a flag that prevents sending an IPC
+      // message in NotifyTextDirection() only if we are going to send it.
+      // So, it is harmless to call this function if we aren't going to send it.
+      render_widget_host_->CancelUpdateTextDirection();
     }
+  } else if (message == WM_KEYUP &&
+             (wparam == VK_SHIFT || wparam == VK_CONTROL)) {
+    // We send an IPC message only if we need to update the text direction.
+    render_widget_host_->NotifyTextDirection();
   }
 
   render_widget_host_->ForwardKeyboardEvent(

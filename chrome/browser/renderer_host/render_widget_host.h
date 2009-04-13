@@ -238,12 +238,19 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   //     if (key_event.windows_key_code == 'A' &&
   //         key_event.modifiers == WebKeyboardEvent::CTRL_KEY) {
   //       UpdateTextDirection(dir);
+  //     } else {
+  //       CancelUpdateTextDirection();
   //     }
   //   } else if (key_event.type == WebKeyboardEvent::KEY_UP) {
   //     NotifyTextDirection();
   //   }
+  // Once we cancel updating the text direction, we have to ignore all
+  // succeeding UpdateTextDirection() requests until calling
+  // NotifyTextDirection(). (We may receive keydown events even after we
+  // canceled updating the text direction because of auto-repeat.)
   // Note: we cannot undo this change for compatibility with Firefox and IE.
   void UpdateTextDirection(WebTextDirection direction);
+  void CancelUpdateTextDirection();
   void NotifyTextDirection();
 
   // This is for derived classes to give us access to the resizer rect.
@@ -402,6 +409,11 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Set when we update the text direction of the selected input element.
   bool text_direction_updated_;
   WebTextDirection text_direction_;
+
+  // Set when we cancel updating the text direction.
+  // This flag also ignores succeeding update requests until we call
+  // NotifyTextDirection().
+  bool text_direction_canceled_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHost);
 };
