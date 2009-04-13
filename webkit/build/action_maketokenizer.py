@@ -55,17 +55,19 @@ def main(args):
   maketokenizer = inputs[0]
   flex_input = inputs[1]
 
-  # Build up the command.
-  command = 'flex -t %s | perl %s > %s' % (flex_input, maketokenizer, output)
-
   # Do it.  check_call is new in 2.5, so simulate its behavior with call and
   # assert.
-  # TODO(mark): Don't use shell=True, build up the pipeline directly.
-  p = subprocess.Popen(command, shell=True)
-  return_code = p.wait()
-  assert return_code == 0
+  outfile = open(output, 'wb')
+  p1 = subprocess.Popen(['flex', '-t', flex_input], stdout=subprocess.PIPE)
+  p2 = subprocess.Popen(['perl', maketokenizer], stdin=p1.stdout,
+                        stdout=outfile)
 
-  return return_code
+  r1 = p1.wait()
+  r2 = p2.wait()
+  assert r1 == 0
+  assert r2 == 0
+
+  return 0
 
 
 if __name__ == '__main__':
