@@ -131,6 +131,7 @@ extern const wchar_t kStabilityPluginCrashes[];
 extern const wchar_t kUninstallMetricsPageLoadCount[];
 extern const wchar_t kUninstallLaunchCount[];
 
+extern const wchar_t kUninstallMetricsInstallDate[];
 extern const wchar_t kUninstallMetricsUptimeSec[];
 extern const wchar_t kUninstallLastLaunchTimeSec[];
 extern const wchar_t kUninstallLastObservedRunTimeSec[];

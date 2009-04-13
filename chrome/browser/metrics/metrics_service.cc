@@ -339,6 +339,7 @@ void MetricsService::RegisterPrefs(PrefService* local_state) {
 
   local_state->RegisterInt64Pref(prefs::kUninstallMetricsPageLoadCount, 0);
   local_state->RegisterInt64Pref(prefs::kUninstallLaunchCount, 0);
+  local_state->RegisterInt64Pref(prefs::kUninstallMetricsInstallDate, 0);
   local_state->RegisterInt64Pref(prefs::kUninstallMetricsUptimeSec, 0);
   local_state->RegisterInt64Pref(prefs::kUninstallLastLaunchTimeSec, 0);
   local_state->RegisterInt64Pref(prefs::kUninstallLastObservedRunTimeSec, 0);

@@ -101,21 +101,6 @@ bool GoogleChromeDistribution::ExtractUninstallMetrics(
     return false;
   }
 
-  // We use the creation date of the metric's client id as the installation
-  // date, as this is fairly close to the first-run date for those who
-  // opt-in to metrics from the get-go. Slightly more accurate would be to
-  // have setup.exe write something somewhere at installation time.
-  // As is, the absence of this field implies that the browser was never
-  // run with an opt-in to metrics selection.
-  std::wstring installation_date;
-  if (root.GetString(prefs::kMetricsClientIDTimestamp, &installation_date)) {
-    uninstall_metrics_string->append(L"&");
-    uninstall_metrics_string->append(
-        installer_util::kUninstallInstallationDate);
-    uninstall_metrics_string->append(L"=");
-    uninstall_metrics_string->append(installation_date);
-  }
-
   return true;
 }
 

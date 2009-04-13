@@ -194,7 +194,8 @@ TEST_F(GoogleChromeDistributionTest, TestExtractUninstallMetrics) {
       "    \"last_observed_running_time_sec\": \"1235341183\","
       "    \"launch_count\": \"11\","
       "    \"page_load_count\": \"68\","
-      "    \"uptime_sec\": \"809\"\n"
+      "    \"uptime_sec\": \"809\","
+      "    \"installation_date2\": \"1235341141\"\n"
       "  },\n"
       "  \"blah\": {\n"
       "    \"this_sentence_is_true\": false\n"
@@ -207,11 +208,11 @@ TEST_F(GoogleChromeDistributionTest, TestExtractUninstallMetrics) {
 
   // The URL string we expect to be generated from said make-believe file.
   std::wstring expected_url_string(
+      L"&installation_date2=1235341141"
       L"&last_launch_time_sec=1235341118"
       L"&last_observed_running_time_sec=1235341183"
-      L"&launch_count=11&page_load_count=68&uptime_sec=809&");
-  expected_url_string += installer_util::kUninstallInstallationDate;
-  expected_url_string += L"=1234567890";
+      L"&launch_count=11&page_load_count=68"
+      L"&uptime_sec=809");
 
   JSONStringValueSerializer json_deserializer(pref_string);
   std::string error_message;
@@ -294,4 +295,3 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_ALT_SHORTCUT_TXT);
   EXPECT_TRUE(file_util::Delete(prefs, false));
 }
-

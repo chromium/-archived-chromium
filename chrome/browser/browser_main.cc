@@ -17,6 +17,7 @@
 #include "base/string_piece.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
+#include "base/time.h"
 #include "base/tracked_objects.h"
 #include "base/values.h"
 #include "chrome/browser/browser_main_win.h"
@@ -371,6 +372,16 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // Now that local state and user prefs have been loaded, make the two pref
   // services aware of all our preferences.
   browser::RegisterAllPrefs(user_prefs, local_state);
+
+  // Now that all preferences have been registered, set the install date
+  // for the uninstall metrics if this is our first run. This only actually
+  // gets used if the user has metrics reporting enabled at uninstall time.
+  int64 install_date =
+      local_state->GetInt64(prefs::kUninstallMetricsInstallDate);
+  if (install_date == 0) {
+    local_state->SetInt64(prefs::kUninstallMetricsInstallDate,
+                          base::Time::Now().ToTimeT());
+  }
 
   // Record last shutdown time into a histogram.
   browser_shutdown::ReadLastShutdownInfo();
