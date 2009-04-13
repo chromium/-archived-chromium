@@ -42,6 +42,7 @@
 #include "V8HTMLDocument.h"
 #include "V8ObjectEventListener.h"
 #include "Worker.h"
+#include "WorkerContext.h"
 #include "WorkerContextExecutionProxy.h"
 
 namespace WebCore {
@@ -75,18 +76,24 @@ CALLBACK_FUNC_DECL(WorkerConstructor) {
     return v8::Undefined();
   }
 
-  // Get the document.
-  Frame* frame = V8Proxy::retrieveFrame();
-  if (!frame)
-    return v8::Undefined();
-  Document* document = frame->document();
+  // Get the script execution context.
+  ScriptExecutionContext* context = 0;
+  WorkerContextExecutionProxy* proxy = WorkerContextExecutionProxy::retrieve();
+  if (proxy)
+    context = proxy->workerContext();
+  else {
+    Frame* frame = V8Proxy::retrieveFrame();
+    if (!frame)
+      return v8::Undefined();
+    context = frame->document();
+  }
 
   // Create the worker object.
   // Note: it's OK to let this RefPtr go out of scope because we also call
   // SetDOMWrapper(), which effectively holds a reference to obj.
   ExceptionCode ec = 0;
   RefPtr<Worker> obj = Worker::create(
-      ToWebCoreString(script_url), document, ec);
+      ToWebCoreString(script_url), context, ec);
 
   // Setup the standard wrapper object internal fields.
   v8::Handle<v8::Object> wrapper_object = args.Holder();
