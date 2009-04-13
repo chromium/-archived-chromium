@@ -4,6 +4,7 @@
 
 #include "chrome/browser/automation/automation_provider.h"
 
+#include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -774,7 +775,12 @@ void AutomationProvider::ConnectToChannel(const std::wstring& channel_id) {
     new IPC::SyncChannel(channel_id, IPC::Channel::MODE_CLIENT, this, NULL,
                          g_browser_process->io_thread()->message_loop(),
                          true, g_browser_process->shutdown_event()));
-  channel_->Send(new AutomationMsg_Hello(0));
+  FileVersionInfo* file_version_info =
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule();
+  std::string version_string(WideToASCII(file_version_info->file_version()));
+
+  // Send a hello message with our current automation protocol version.
+  channel_->Send(new AutomationMsg_Hello(0, version_string.c_str()));
 }
 
 void AutomationProvider::SetExpectedTabCount(size_t expected_tabs) {

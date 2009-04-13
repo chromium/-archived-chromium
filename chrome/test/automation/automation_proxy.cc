@@ -7,6 +7,7 @@
 #include "chrome/test/automation/automation_proxy.h"
 
 #include "base/basictypes.h"
+#include "base/file_version_info.h"
 #include "base/logging.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
@@ -28,9 +29,9 @@ using base::TimeTicks;
 
 // This class exists to group together the data and functionality used for
 // synchronous automation requests.
-class AutomationRequest :
-    public base::RefCountedThreadSafe<AutomationRequest> {
-public:
+class AutomationRequest
+    : public base::RefCountedThreadSafe<AutomationRequest> {
+ public:
   AutomationRequest() : received_response_(true, false) {
     static int32 routing_id = 0;
     routing_id_ = ++routing_id;
@@ -59,12 +60,12 @@ public:
     return *(response_.get());
   }
 
-private:
-  DISALLOW_EVIL_CONSTRUCTORS(AutomationRequest);
-
+ private:
   int32 routing_id_;
   scoped_ptr<IPC::Message> response_;
   base::WaitableEvent received_response_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(AutomationRequest);
 };
 
 namespace {
@@ -103,8 +104,8 @@ class AutomationMessageFilter : public IPC::ChannelProxy::MessageFilter {
     bool handled = true;
 
     IPC_BEGIN_MESSAGE_MAP(AutomationMessageFilter, message)
-      IPC_MESSAGE_HANDLER_GENERIC(
-        AutomationMsg_Hello, server_->SignalAppLaunch());
+      IPC_MESSAGE_HANDLER_GENERIC(AutomationMsg_Hello,
+                                  OnAutomationHello(message));
       IPC_MESSAGE_HANDLER_GENERIC(
         AutomationMsg_InitialLoadsComplete, server_->SignalInitialLoads());
       IPC_MESSAGE_HANDLER(AutomationMsg_InitialNewTabUILoadComplete,
@@ -121,6 +122,19 @@ class AutomationMessageFilter : public IPC::ChannelProxy::MessageFilter {
     server_->SignalNewTabUITab(load_time);
   }
 
+  void OnAutomationHello(const IPC::Message& hello_message) {
+    std::string server_version;
+    void* iter = NULL;
+    if (!hello_message.ReadString(&iter, &server_version)) {
+      // We got an AutomationMsg_Hello from an old automation provider
+      // that doesn't send version info. Leave server_version as an empty
+      // string to signal a version mismatch.
+      LOG(ERROR) << "Pre-versioning protocol detected in automation provider.";
+    }
+
+    server_->SignalAppLaunch(server_version);
+  }
+
  private:
   AutomationProxy* server_;
 };
@@ -134,6 +148,8 @@ AutomationProxy::AutomationProxy(int command_execution_timeout_ms)
       new_tab_ui_load_complete_(true, false),
       shutdown_event_(new base::WaitableEvent(true, false)),
       current_request_(NULL),
+      app_launch_signaled_(0),
+      perform_version_check_(false),
       command_execution_timeout_(
           TimeDelta::FromMilliseconds(command_execution_timeout_ms)) {
   InitializeChannelID();
@@ -199,11 +215,43 @@ void AutomationProxy::InitializeHandleTracker() {
   tracker_.reset(new AutomationHandleTracker(this));
 }
 
-bool AutomationProxy::WaitForAppLaunch() {
-  return app_launched_.TimedWait(command_execution_timeout_);
+AutomationLaunchResult AutomationProxy::WaitForAppLaunch() {
+  AutomationLaunchResult result = AUTOMATION_SUCCESS;
+  if (app_launched_.TimedWait(command_execution_timeout_)) {
+    if (perform_version_check_) {
+      // Obtain our own version number and compare it to what the automation
+      // provider sent.
+      FileVersionInfo* file_version_info =
+          FileVersionInfo::CreateFileVersionInfoForCurrentModule();
+      DCHECK(file_version_info);
+      std::string version_string(
+          WideToASCII(file_version_info->file_version()));
+
+      // Note that we use a simple string comparison since we expect the version
+      // to be a punctuated numeric string. Consider using base/Version if we
+      // ever need something more complicated here.
+      if (server_version_ != version_string) {
+        result = AUTOMATION_VERSION_MISMATCH;
+      }
+    }
+  } else {
+    result = AUTOMATION_TIMEOUT;
+  }
+  return result;
 }
 
-void AutomationProxy::SignalAppLaunch() {
+void AutomationProxy::SignalAppLaunch(const std::string& version_string) {
+  // The synchronization of the reading / writing of server_version_ is a bit
+  // messy but does work as long as SignalAppLaunch is only called once.
+  // Review this if we ever want an AutomationProxy instance to launch
+  // multiple AutomationProviders.
+  app_launch_signaled_++;
+  if (app_launch_signaled_ > 1) {
+    NOTREACHED();
+    LOG(ERROR) << "Multiple AutomationMsg_Hello messages received";
+    return;
+  }
+  server_version_ = version_string;
   app_launched_.Signal();
 }
 

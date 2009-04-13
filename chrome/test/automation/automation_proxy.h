@@ -66,8 +66,13 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // Waits for the app to launch and the automation provider to say hello
   // (the app isn't fully done loading by this point).
-  // Returns true if the launch is successful
-  bool WaitForAppLaunch();
+  // Returns SUCCESS if the launch is successful.
+  // Returns TIMEOUT if there was no response by command_execution_timeout_
+  // Returns VERSION_MISMATCH if the automation protocol version of the
+  // automation provider does not match and if perform_version_check_ is set
+  // to true. Note that perform_version_check_ defaults to false, call
+  // set_perform_version_check() to set it.
+  AutomationLaunchResult WaitForAppLaunch();
 
   // Waits for any initial page loads to complete.
   // NOTE: this only fires once for a run of the application.
@@ -140,7 +145,7 @@ class AutomationProxy : public IPC::Channel::Listener,
   // These methods are intended to be called by the background thread
   // to signal that the given event has occurred, and that any corresponding
   // Wait... function can return.
-  void SignalAppLaunch();
+  void SignalAppLaunch(const std::string& version_string);
   void SignalInitialLoads();
   // load_time is how long, in ms, the tab contents took to load.
   void SignalNewTabUITab(int load_time);
@@ -187,6 +192,20 @@ class AutomationProxy : public IPC::Channel::Listener,
     return static_cast<int>(command_execution_timeout_.InMilliseconds());
   }
 
+  // Returns the server version of the server connected. You may only call this
+  // method after WaitForAppLaunch() has returned SUCCESS or VERSION_MISMATCH.
+  // If you call it before this, the return value is undefined.
+  std::string server_version() const {
+    return server_version_;
+  }
+
+  // Call this while passing true to tell the automation proxy to perform
+  // a version check when WaitForAppLaunch() is called. Note that
+  // platform_version_check_ defaults to false.
+  void set_perform_version_check(bool perform_version_check) {
+    perform_version_check_ = perform_version_check;
+  }
+
  private:
   void InitializeChannelID();
   void InitializeThread();
@@ -207,6 +226,18 @@ class AutomationProxy : public IPC::Channel::Listener,
   scoped_ptr<base::WaitableEvent> shutdown_event_;
 
   AutomationRequest* current_request_;
+
+  // The version of the automation provider we are communicating with.
+  std::string server_version_;
+
+  // Used to guard against multiple hello messages being received.
+  int app_launch_signaled_;
+
+  // Whether to perform a version check between the automation proxy and
+  // the automation provider at connection time. Defaults to false, you can
+  // set this to true if building the automation proxy into a module with
+  // a version resource.
+  bool perform_version_check_;
 
   // Delay to let the browser execute the command.
   base::TimeDelta command_execution_timeout_;
