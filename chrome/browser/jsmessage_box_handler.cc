@@ -19,9 +19,13 @@
 
 namespace {
 
-std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url) {
+std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url,
+                            int dialog_flags) {
+  bool is_alert = (dialog_flags == MessageBox::kIsJavascriptAlert);
   if (!frame_url.has_host())
-    return l10n_util::GetString(IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE);
+    return l10n_util::GetString(
+        is_alert ? IDS_JAVASCRIPT_ALERT_DEFAULT_TITLE
+                 : IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE);
 
   // We really only want the scheme, hostname, and port.
   GURL::Replacements replacements;
@@ -39,7 +43,9 @@ std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url) {
   // Force URL to have LTR directionality.
   if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT)
     l10n_util::WrapStringWithLTRFormatting(&base_address);
-  return l10n_util::GetStringF(IDS_JAVASCRIPT_MESSAGEBOX_TITLE, base_address);
+  return l10n_util::GetStringF(
+      is_alert ? IDS_JAVASCRIPT_ALERT_TITLE : IDS_JAVASCRIPT_MESSAGEBOX_TITLE,
+      base_address);
 }
 
 }
@@ -51,7 +57,7 @@ void RunJavascriptMessageBox(WebContents* web_contents,
                              const std::wstring& default_prompt_text,
                              bool display_suppress_checkbox,
                              IPC::Message* reply_msg) {
-  std::wstring title = GetWindowTitle(web_contents, frame_url);
+  std::wstring title = GetWindowTitle(web_contents, frame_url, dialog_flags);
 
 #if defined(OS_WIN) || defined(OS_LINUX)
   AppModalDialogQueue::AddDialog(new AppModalDialog(web_contents, title,

@@ -1662,11 +1662,18 @@ each locale. -->
       </message>
 
       <!-- Javascript Dialog Box strings -->
-      <message name="IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE" desc="Title for Javascript alert, prompt, and confirm if there is no hostname to display">
+      <message name="IDS_JAVASCRIPT_ALERT_DEFAULT_TITLE" desc="Title for Javascript alert if there is no hostname to display">
         Javascript Alert
       </message>
-      <message name="IDS_JAVASCRIPT_MESSAGEBOX_TITLE" desc="Title for Javascript alert, prompt, and confirm">
-        Alert <ph name="SITE">$1<ex>http://www.google.com</ex></ph>
+      <message name="IDS_JAVASCRIPT_MESSAGEBOX_DEFAULT_TITLE" desc="Title for Javascript prompt and confirm if there is no hostname to display">
+        Javascript
+      </message>
+      <message name="IDS_JAVASCRIPT_ALERT_TITLE" desc="Title for Javascript alert">
+        Alert <ph name="SITE">$1<ex>http://www.google.com</ex>
+        </ph>
+      </message>
+      <message name="IDS_JAVASCRIPT_MESSAGEBOX_TITLE" desc="Title for Javascript prompt and confirm">
+        <ph name="SITE">$1<ex>http://www.google.com</ex></ph>
       </message>
       <message name="IDS_JAVASCRIPT_MESSAGEBOX_SUPPRESS_OPTION" desc="Optional UI shown on the message box, in the form of a checkbox, allowing the user to suppress additional message boxes from the page.">
         Prevent this page from creating additional dialogs.
