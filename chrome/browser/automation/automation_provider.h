@@ -267,7 +267,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                                      int* autocomplete_edit_handle);
 
   // If |show| is true, call Show() on the new window after creating it.
-  void OpenNewBrowserWindow(bool show);
+  void OpenNewBrowserWindow(bool show, IPC::Message* reply_message);
 
   void ShowInterstitialPage(int tab_handle,
                             const std::string& html_text,

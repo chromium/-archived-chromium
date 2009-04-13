@@ -18,6 +18,42 @@ void AutomatedUITestBase::LogErrorMessage(const std::string& error) {}
 
 void AutomatedUITestBase::LogWarningMessage(const std::string& warning) {}
 
+void AutomatedUITestBase::LogInfoMessage(const std::string& info) {}
+
+void AutomatedUITestBase::SetUp() {
+  UITest::SetUp();
+  set_active_browser(automation()->GetBrowserWindow(0));
+}
+
+bool AutomatedUITestBase::DuplicateTab() {
+  return RunCommand(IDC_DUPLICATE_TAB);
+}
+
+bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow() {
+  if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
+    LogWarningMessage("failed_to_open_new_browser_window");
+    return false;
+  }
+  int num_browser_windows;
+  automation()->GetBrowserWindowCount(&num_browser_windows);
+  // Get the most recently opened browser window and activate the tab
+  // in order to activate this browser window.
+  scoped_ptr<BrowserProxy> browser(
+      automation()->GetBrowserWindow(num_browser_windows - 1));
+  if (browser.get() == NULL) {
+    LogErrorMessage("browser_window_not_found");
+    return false;
+  }
+  bool is_timeout;
+  if (!browser->ActivateTabWithTimeout(0, action_max_timeout_ms(),
+                                       &is_timeout)) {
+    LogWarningMessage("failed_to_activate_tab");
+    return false;
+  }
+  set_active_browser(browser.release());
+  return true;
+}
+
 bool AutomatedUITestBase::NewTab() {
   // Apply accelerator and wait for a new tab to open, if either
   // fails, return false. Apply Accelerator takes care of logging its failure.

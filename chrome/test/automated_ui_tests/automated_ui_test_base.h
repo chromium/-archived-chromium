@@ -12,16 +12,28 @@ class AutomatedUITestBase : public UITest {
   AutomatedUITestBase();
   virtual ~AutomatedUITestBase();
 
+  virtual void SetUp();
+
   virtual void LogErrorMessage(const std::string &error);
   virtual void LogWarningMessage(const std::string &warning);
+  virtual void LogInfoMessage(const std::string &info);
 
   // Actions
 
   // NOTE: This list is sorted alphabetically.
 
+  // Duplicates the current tab.
+  // Returns true if a duplicated tab is added.
+  bool DuplicateTab();
+
   // Opens a new tab in the active window using an accelerator.
   // Returns true if a new tab is successfully opened.
   bool NewTab();
+
+  // Opens a new browser window by calling automation()->OpenNewBrowserWindow.
+  // Then activates the tab opened in the new window.
+  // Returns true if window is successfully created.
+  bool OpenAndActivateNewBrowserWindow();
 
   // Runs the specified browser command in the current active browser.
   // See browser_commands.cc for the list of commands.
@@ -42,6 +54,7 @@ class AutomatedUITestBase : public UITest {
   void set_active_browser(BrowserProxy* browser) {
     active_browser_.reset(browser);
   }
+  BrowserProxy* release_active_browser() { return active_browser_.release(); }
   BrowserProxy* active_browser() const { return active_browser_.get(); }
 
  private:

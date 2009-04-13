@@ -391,30 +391,6 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   return did_complete_action;
 }
 
-bool AutomatedUITest::OpenAndActivateNewBrowserWindow() {
-  if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
-    AddWarningAttribute("failed_to_open_new_browser_window");
-    return false;
-  }
-  int num_browser_windows;
-  automation()->GetBrowserWindowCount(&num_browser_windows);
-  // Get the most recently opened browser window and activate the tab
-  // in order to activate this browser window.
-  scoped_ptr<BrowserProxy> browser(
-    automation()->GetBrowserWindow(num_browser_windows - 1));
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
-  bool is_timeout;
-  if (!browser->ActivateTabWithTimeout(0, action_max_timeout_ms(),
-                                       &is_timeout)) {
-    AddWarningAttribute("failed_to_activate_tab");
-    return false;
-  }
-  return true;
-}
-
 bool AutomatedUITest::BackButton() {
   return RunCommandAsync(IDC_BACK);
 }
@@ -475,10 +451,6 @@ bool AutomatedUITest::CloseActiveTab() {
     return false;
   }
   return return_value;
-}
-
-bool AutomatedUITest::DuplicateTab() {
-  return RunCommandAsync(IDC_DUPLICATE_TAB);
 }
 
 bool AutomatedUITest::FindInPage() {
@@ -919,6 +891,10 @@ void AutomatedUITest::LogErrorMessage(const std::string &error) {
 
 void AutomatedUITest::LogWarningMessage(const std::string &warning) {
   AddWarningAttribute(warning);
+}
+
+void AutomatedUITest::LogInfoMessage(const std::string &info) {
+  AddWarningAttribute(info);
 }
 
 std::wstring AutomatedUITest::GetMostRecentCrashDump() {

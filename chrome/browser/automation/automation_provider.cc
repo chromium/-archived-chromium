@@ -422,6 +422,36 @@ class TabClosedNotificationObserver : public TabStripNotificationObserver {
   IPC::Message* reply_message_;
 };
 
+class BrowserOpenedNotificationObserver : public NotificationObserver {
+ public:
+  BrowserOpenedNotificationObserver(AutomationProvider* automation,
+                                    IPC::Message* reply_message)
+      : automation_(automation),
+        reply_message_(reply_message) {
+    registrar_.Add(this, NotificationType::BROWSER_OPENED,
+                   NotificationService::AllSources());
+  }
+
+  ~BrowserOpenedNotificationObserver() {
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    if (type == NotificationType::BROWSER_OPENED) {
+      automation_->Send(reply_message_);
+      delete this;
+    } else {
+      NOTREACHED();
+    }
+  }
+
+ private:
+  AutomationProvider* automation_;
+  IPC::Message* reply_message_;
+  NotificationRegistrar registrar_;
+};
+
 class BrowserClosedNotificationObserver : public NotificationObserver {
  public:
   BrowserClosedNotificationObserver(Browser* browser,
@@ -463,6 +493,7 @@ struct CommandNotification {
 };
 
 const struct CommandNotification command_notifications[] = {
+  {IDC_DUPLICATE_TAB, NotificationType::TAB_PARENTED},
   {IDC_NEW_TAB, NotificationType::TAB_PARENTED}
 };
 
@@ -922,8 +953,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         SetFilteredInet);
     IPC_MESSAGE_HANDLER(AutomationMsg_DownloadDirectory,
                         GetDownloadDirectory);
-    IPC_MESSAGE_HANDLER(AutomationMsg_OpenNewBrowserWindow,
-                        OpenNewBrowserWindow);
+    IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_OpenNewBrowserWindow,
+                                    OpenNewBrowserWindow);
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowForBrowser,
                         GetWindowForBrowser);
     IPC_MESSAGE_HANDLER(AutomationMsg_AutocompleteEditForBrowser,
@@ -2106,7 +2137,9 @@ void AutomationProvider::GetDownloadDirectory(
   }
 }
 
-void AutomationProvider::OpenNewBrowserWindow(bool show) {
+void AutomationProvider::OpenNewBrowserWindow(bool show,
+                                              IPC::Message* reply_message) {
+  new BrowserOpenedNotificationObserver(this, reply_message);
   // We may have no current browser windows open so don't rely on
   // asking an existing browser to execute the IDC_NEWWINDOW command
   Browser* browser = Browser::Create(profile_);

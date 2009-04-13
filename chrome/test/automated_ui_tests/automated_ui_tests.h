@@ -142,11 +142,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <CloseTab/>
   bool CloseActiveTab();
 
-  // Duplicates the current tab.
-  // Returns true if call to activate the accelerator is successful.
-  // XML element: <DuplicateTab/>
-  bool DuplicateTab();
-
   // Opens one of the dialogs (chosen randomly) and exercises it.
   // XML element: <Dialog/>
   bool ExerciseDialog();
@@ -185,12 +180,6 @@ class AutomatedUITest : public AutomatedUITestBase {
   // XML element: <Navigate/>
   // Optional Attributes: url="|address|" will navigate to |address|
   bool Navigate();
-
-  // Opens a new browser window by calling automation()->OpenNewBrowserWindow
-  // Then activates the tab opened in the new window.
-  // Returns true if window is successfully created.
-  // XML element: <OpenWindow/>
-  bool OpenAndActivateNewBrowserWindow();
 
   // Opens the About dialog. This dialog is modal so a majority of the test
   // can't be completed until it is dismissed.
@@ -445,8 +434,8 @@ class AutomatedUITest : public AutomatedUITestBase {
 
   // Override the message logging in AutomatedUITestBase.
   virtual void LogErrorMessage(const std::string &error);
-
   virtual void LogWarningMessage(const std::string &warning);
+  virtual void LogInfoMessage(const std::string &info);
 
   // Overridden so that UI Test doesn't set up when the tests start.
   // We use DoAction("SetUp") to set up, because it logs it and makes
