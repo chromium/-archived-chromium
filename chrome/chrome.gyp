@@ -616,8 +616,6 @@
         'browser/dom_ui/dom_ui_factory.h',
         'browser/dom_ui/dom_ui_favicon_source.cc',
         'browser/dom_ui/dom_ui_favicon_source.h',
-        'browser/dom_ui/dom_ui_host.cc',
-        'browser/dom_ui/dom_ui_host.h',
         'browser/dom_ui/dom_ui_thumbnail_source.cc',
         'browser/dom_ui/dom_ui_thumbnail_source.h',
         'browser/dom_ui/downloads_ui.cc',

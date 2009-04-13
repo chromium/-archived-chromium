@@ -10,7 +10,6 @@
 #include "base/time.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/repost_form_warning.h"
@@ -1081,8 +1080,6 @@ void NavigationController::RegisterTabContents(TabContents* some_contents) {
       some_contents->set_controller(this);
     }
   }
-  if (some_contents->AsDOMUIHost())
-    some_contents->AsDOMUIHost()->AttachMessageHandlers();
 }
 
 // static

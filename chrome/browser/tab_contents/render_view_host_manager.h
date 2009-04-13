@@ -17,7 +17,6 @@ class NavigationController;
 class NavigationEntry;
 class Profile;
 class RenderViewHostDelegate;
-class RenderViewHostFactory;
 class RenderWidgetHostView;
 class SiteInstance;
 
@@ -220,9 +219,6 @@ class RenderViewHostManager : public NotificationObserver {
   // either cross-site request is (in the new process model), or when required
   // for the view type (like view source versus not).
   bool cross_navigation_pending_;
-
-  // Allows tests to create their own render view host types.
-  RenderViewHostFactory* render_view_factory_;
 
   // Implemented by the owner of this class, this delegate is installed into all
   // the RenderViewHosts that we create.

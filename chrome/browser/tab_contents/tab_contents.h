@@ -34,7 +34,6 @@ class WindowDelegate;
 
 class BlockedPopupContainer;
 class DOMUIContents;
-class DOMUIHost;
 class DownloadItem;
 class DownloadShelf;
 class InfoBarView;
@@ -136,9 +135,6 @@ class TabContents : public PageNavigator,
   WebContents* AsWebContents() const {
     return const_cast<TabContents*>(this)->AsWebContents();
   }
-
-  // Returns this object as a DOMUIHost if it is one, and NULL otherwise.
-  virtual DOMUIHost* AsDOMUIHost() { return NULL; }
 
   // Returns this object as a DOMUIContents if it is one, and NULL otherwise.
   virtual DOMUIContents* AsDOMUIContents() { return NULL; }

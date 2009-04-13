@@ -69,9 +69,7 @@ class WebContents : public TabContents,
  public:
   // If instance is NULL, then creates a new process for this view.  Otherwise
   // initialize with a process already created for a different WebContents.
-  // This will share the process between views in the same instance.  If
-  // render_view_factory is NULL, this will create RenderViewHost objects
-  // directly.
+  // This will share the process between views in the same instance.
   WebContents(Profile* profile,
               SiteInstance* instance,
               int routing_id,
@@ -470,10 +468,6 @@ class WebContents : public TabContents,
   //
   // If you are attaching to an already-existing RenderView, you should call
   // InitWithExistingID.
-  //
-  // TODO(brettw) clean this up! This logic seems out of place. This is called
-  // by the RenderViewHostManager, but also overridden by the DOMUIHost. Any
-  // logic that has to be here should have a more clear name.
   virtual bool CreateRenderViewForRenderManager(
       RenderViewHost* render_view_host);
 

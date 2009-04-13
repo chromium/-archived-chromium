@@ -4,7 +4,7 @@
 
 #include "chrome/browser/views/dom_view.h"
 
-#include "chrome/browser/dom_ui/dom_ui_host.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 
 DOMView::DOMView() : initialized_(false), web_contents_(NULL) {
   SetFocusable(true);

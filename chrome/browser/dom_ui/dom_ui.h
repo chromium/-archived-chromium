@@ -122,8 +122,8 @@ class DOMUI {
   DISALLOW_COPY_AND_ASSIGN(DOMUI);
 };
 
-// Messages sent from the DOM are forwarded via the DOMUIContents to handler
-// classes. These objects are owned by DOMUIHost and destroyed when the
+// Messages sent from the DOM are forwarded via the DOMUI to handler
+// classes. These objects are owned by DOMUI and destroyed when the
 // host is destroyed.
 class DOMMessageHandler {
  public:

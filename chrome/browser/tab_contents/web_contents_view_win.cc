@@ -9,7 +9,6 @@
 #include "chrome/browser/bookmarks/bookmark_drag_data.h"
 #include "chrome/browser/browser.h"  // TODO(beng): this dependency is awful.
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/dom_ui/dom_ui_host.h"
 #include "chrome/browser/download/download_request_manager.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"

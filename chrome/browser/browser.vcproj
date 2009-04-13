@@ -1522,14 +1522,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dom_ui\dom_ui_host.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\dom_ui\dom_ui_host.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dom_ui\dom_ui_thumbnail_source.cc"
 				>
 			</File>
