@@ -761,8 +761,15 @@ int HttpNetworkTransaction::DoReadHeadersComplete(int result) {
 
   // Record our best estimate of the 'response time' as the time when we read
   // the first bytes of the response headers.
-  if (header_buf_len_ == 0)
+  if (header_buf_len_ == 0) {
+    // After we call RestartWithAuth header_buf_len will be zero again, and
+    // we need to be cautious about incorrectly logging the duration across the
+    // authentication activitiy.
+    bool first_response = response_.response_time == Time();
     response_.response_time = Time::Now();
+    if (first_response)
+      LogTransactionConnectedMetrics();
+  }
 
   // The socket was closed before we found end-of-headers.
   if (result == 0) {
@@ -953,6 +960,15 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
   return OK;
 }
 
+void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {
+  base::TimeDelta total_duration = response_.response_time - start_time_;
+
+  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+      "Net.Transaction_Connected_Under_10", "DnsImpact").data(), total_duration,
+      base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+      100);
+}
+
 void HttpNetworkTransaction::LogTransactionMetrics() const {
   base::TimeDelta duration = base::Time::Now() - response_.request_time;
   if (60 < duration.InMinutes())
@@ -977,10 +993,6 @@ void HttpNetworkTransaction::LogTransactionMetrics() const {
         total_duration, base::TimeDelta::FromMilliseconds(1),
         base::TimeDelta::FromMinutes(10), 100);
   }
-  if (!duration.InMilliseconds())
-    return;
-  UMA_HISTOGRAM_COUNTS("Net.Transaction_Bandwidth",
-      static_cast<int> (response_body_read_ / duration.InMilliseconds()));
 }
 
 void HttpNetworkTransaction::LogBlockedTunnelResponse(

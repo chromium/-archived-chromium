@@ -8,6 +8,7 @@
 #include <string>
 
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "base/time.h"
 #include "net/base/address_list.h"
 #include "net/base/client_socket_handle.h"
@@ -87,8 +88,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoDrainBodyForAuthRestart();
   int DoDrainBodyForAuthRestartComplete(int result);
 
-  // Record histogram of latency (first byte sent till last byte received) as
-  // well as effective bandwidth used.
+  // Record histogram of time until first byte of header is received.
+  void LogTransactionConnectedMetrics() const;
+
+  // Record histogram of latency (durations until last byte received).
   void LogTransactionMetrics() const;
 
   // Writes a log message to help debugging in the field when we block a proxy
