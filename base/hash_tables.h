@@ -25,8 +25,22 @@ using stdext::hash_map;
 using stdext::hash_set;
 }
 #elif defined(COMPILER_GCC)
+// This is a hack to disable the gcc 4.4 warning about hash_map and hash_set
+// being deprecated.  We can get rid of this when we upgrade to VS2008 and we
+// can use <tr1/unordered_map> and <tr1/unordered_set>.
+#ifdef __DEPRECATED
+#define CHROME_OLD__DEPRECATED __DEPRECATED
+#undef __DEPRECATED
+#endif
+
 #include <ext/hash_map>
 #include <ext/hash_set>
+
+#ifdef CHROME_OLD__DEPRECATED
+#define __DEPRECATED CHROME_OLD__DEPRECATED
+#undef CHROME_OLD__DEPRECATED
+#endif
+
 #include <tr1/functional>
 namespace base {
 using __gnu_cxx::hash_map;
