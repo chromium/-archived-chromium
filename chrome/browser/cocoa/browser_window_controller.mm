@@ -17,9 +17,26 @@
 #import "chrome/browser/cocoa/tab_view.h"
 #import "chrome/browser/cocoa/toolbar_controller.h"
 
+namespace {
+
+// Size of the gradient. Empirically determined so that the gradient looks
+// like what the heuristic does when there are just a few tabs.
+const int kWindowGradientHeight = 24;
+
+}
+
 @interface BrowserWindowController(Private)
+
 - (void)positionToolbar;
+
+// Leopard's gradient heuristic gets confused by our tabs and makes the title
+// gradient jump when creating a tab that is less than a tab width from the
+// right side of the screen. This function disables Leopard's gradient
+// heuristic.
+- (void)fixWindowGradient;
+
 @end
+
 
 @implementation BrowserWindowController
 
@@ -61,6 +78,7 @@
                                initWithModel:browser->toolbar_model()
                                     commands:browser->command_updater()]);
     [self positionToolbar];
+    [self fixWindowGradient];
 
     // Create the bridge for the status bubble.
     statusBubble_.reset(new StatusBubbleMac([self window]));
@@ -76,28 +94,6 @@
 // Access the C++ bridge between the NSWindow and the rest of Chromium
 - (BrowserWindow*)browserWindow {
   return windowShim_.get();
-}
-
-// Position |toolbarView_| below the tab strip, but not as a sibling. The
-// toolbar is part of the window's contentView, mainly because we want the
-// opacity during drags to be the same as the web content.
-- (void)positionToolbar {
-  NSView* contentView = [self tabContentArea];
-  NSRect contentFrame = [contentView frame];
-  NSView* toolbarView = [toolbarController_ view];
-  NSRect toolbarFrame = [toolbarView frame];
-
-  // Shrink the content area by the height of the toolbar.
-  contentFrame.size.height -= toolbarFrame.size.height;
-  [contentView setFrame:contentFrame];
-
-  // Move the toolbar above the content area, within the window's content view
-  // (as opposed to the tab strip, which is a sibling).
-  toolbarFrame.origin.y = NSMaxY(contentFrame);
-  toolbarFrame.origin.x = 0;
-  toolbarFrame.size.width = contentFrame.size.width;
-  [toolbarView setFrame:toolbarFrame];
-  [[[self window] contentView] addSubview:toolbarView];
 }
 
 - (void)destroyBrowser {
@@ -354,6 +350,57 @@
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
 #endif
+}
+
+@end
+
+
+@interface NSWindow (NSPrivateApis)
+// Note: These functions are private, use -[NSObject respondsToSelector:]
+// before calling them.
+
+- (void)setAutorecalculatesContentBorderThickness:(BOOL)b
+                                          forEdge:(NSRectEdge)e;
+- (void)setContentBorderThickness:(CGFloat)b forEdge:(NSRectEdge)e;
+@end
+
+
+@implementation BrowserWindowController (Private)
+
+// Position |toolbarView_| below the tab strip, but not as a sibling. The
+// toolbar is part of the window's contentView, mainly because we want the
+// opacity during drags to be the same as the web content.
+- (void)positionToolbar {
+  NSView* contentView = [self tabContentArea];
+  NSRect contentFrame = [contentView frame];
+  NSView* toolbarView = [toolbarController_ view];
+  NSRect toolbarFrame = [toolbarView frame];
+
+  // Shrink the content area by the height of the toolbar.
+  contentFrame.size.height -= toolbarFrame.size.height;
+  [contentView setFrame:contentFrame];
+
+  // Move the toolbar above the content area, within the window's content view
+  // (as opposed to the tab strip, which is a sibling).
+  toolbarFrame.origin.y = NSMaxY(contentFrame);
+  toolbarFrame.origin.x = 0;
+  toolbarFrame.size.width = contentFrame.size.width;
+  [toolbarView setFrame:toolbarFrame];
+  [[[self window] contentView] addSubview:toolbarView];
+}
+
+- (void)fixWindowGradient {
+  NSWindow* win = [self window];
+  if ([win respondsToSelector:@selector(
+          setAutorecalculatesContentBorderThickness:forEdge:)] &&
+      [win respondsToSelector:@selector(
+           setContentBorderThickness:forEdge:)]) {
+    [win setAutorecalculatesContentBorderThickness:NO forEdge:NSMaxYEdge];
+    [win setContentBorderThickness:kWindowGradientHeight forEdge:NSMaxYEdge];
+
+    [win setAutorecalculatesContentBorderThickness:NO forEdge:NSMinYEdge];
+    [win setContentBorderThickness:kWindowGradientHeight forEdge:NSMinYEdge];
+  }
 }
 
 @end
