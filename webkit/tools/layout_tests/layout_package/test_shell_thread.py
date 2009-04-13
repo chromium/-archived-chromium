@@ -36,7 +36,7 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
     test_args: arguments to be passed to each test
     target: Debug or Release
 
-  Returns: a list of failure objects for the test being processed
+  Returns: a list of failure objects and times for the test being processed
   """
   outlines = []
   failures = []
@@ -45,6 +45,8 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
   # Some test args, such as the image hash, may be added or changed on a
   # test-by-test basis.
   local_test_args = copy.copy(test_args)
+
+  start_time = time.time()
 
   line = proc.stdout.readline()
   while line.rstrip() != "#EOF":
@@ -82,8 +84,12 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
       outlines.append(line)
     line = proc.stdout.readline()
 
+  end_test_time = time.time()
+
   # Check the output and save the results.
+  time_for_diffs = {}
   for test_type in test_types:
+    start_diff_time = time.time()
     new_failures = test_type.CompareOutput(filename, proc,
                                            ''.join(outlines),
                                            local_test_args,
@@ -92,8 +98,13 @@ def ProcessOutput(proc, filename, test_uri, test_types, test_args, target):
     # we don't double-report those tests.
     if not crash_or_timeout:
       failures.extend(new_failures)
+    time_for_diffs[test_type.__class__.__name__] = (
+        time.time() - start_diff_time)
 
-  return failures
+  total_time_for_all_diffs = time.time() - end_test_time
+  test_run_time = end_test_time - start_time
+  return TestStats(filename, failures, test_run_time, total_time_for_all_diffs,
+      time_for_diffs)
 
 
 def StartTestShell(command, args):
@@ -110,6 +121,14 @@ def StartTestShell(command, args):
                           stdout=subprocess.PIPE,
                           stderr=subprocess.STDOUT)
 
+class TestStats:
+  def __init__(self, filename, failures, test_run_time,
+               total_time_for_all_diffs, time_for_diffs):
+    self.filename = filename
+    self.failures = failures
+    self.test_run_time = test_run_time
+    self.total_time_for_all_diffs = total_time_for_all_diffs
+    self.time_for_diffs = time_for_diffs
 
 class SingleTestThread(threading.Thread):
   """Thread wrapper for running a single test file."""
@@ -130,20 +149,14 @@ class SingleTestThread(threading.Thread):
     self._test_types = test_types
     self._test_args = test_args
     self._target = target
-    self._single_test_failures = []
 
   def run(self):
     proc = StartTestShell(self._command, self._shell_args + [self._test_uri])
-    self._single_test_failures = ProcessOutput(proc,
-                                               self._filename,
-                                               self._test_uri,
-                                               self._test_types,
-                                               self._test_args,
-                                               self._target)
+    self._test_stats = ProcessOutput(proc, self._filename, self._test_uri,
+        self._test_types, self._test_args, self._target)
 
-  def GetFailures(self):
-    return self._single_test_failures
-
+  def GetTestStats(self):
+    return self._test_stats
 
 class TestShellThread(threading.Thread):
 
@@ -174,8 +187,8 @@ class TestShellThread(threading.Thread):
     self._failures = {}
     self._canceled = False
     self._exception_info = None
-    self._timing_stats = {}
-    self._test_times = []
+    self._directory_timing_stats = {}
+    self._test_stats = []
 
     # Current directory of tests we're running.
     self._current_dir = None
@@ -199,15 +212,15 @@ class TestShellThread(threading.Thread):
     TestFailures."""
     return self._failures
 
-  def GetTimingStats(self):
+  def GetDirectoryTimingStats(self):
     """Returns a dictionary mapping test directory to a tuple of
     (number of tests in that directory, time to run the tests)"""
-    return self._timing_stats;
+    return self._directory_timing_stats;
 
-  def GetIndividualTestTimingStats(self):
-    """Returns a list of (time, test_filename) tuples where time is the
-    time it took to run the test."""
-    return self._test_times
+  def GetIndividualTestStats(self):
+    """Returns a list of (test_filename, time_to_run_test,
+    total_time_for_all_diffs, time_for_diffs) tuples."""
+    return self._test_stats
 
   def Cancel(self):
     """Set a flag telling this thread to quit."""
@@ -249,7 +262,7 @@ class TestShellThread(threading.Thread):
 
       if len(self._filename_list) is 0:
         if self._current_dir is not None:
-          self._timing_stats[self._current_dir] = \
+          self._directory_timing_stats[self._current_dir] = \
               (self._num_tests_in_current_dir,
                time.time() - self._current_dir_start_time)
 
@@ -320,7 +333,15 @@ class TestShellThread(threading.Thread):
       platform_util = platform_utils.PlatformUtility('')
       platform_util.KillAllTestShells()
 
-    return worker.GetFailures()
+    try:
+      stats = worker.GetTestStats()
+      self._test_stats.append(stats)
+      failures = stats.failures
+    except AttributeError, e:
+      failures = []
+      logging.error('Cannot get results of test: %s' % filename)
+
+    return failures
 
 
   def _RunTest(self, filename, test_uri):
@@ -345,15 +366,11 @@ class TestShellThread(threading.Thread):
     # try to recover here.
     self._test_shell_proc.stdin.flush()
 
-    start_time = time.time()
-
-    # ...and read the response
-    failures = ProcessOutput(self._test_shell_proc, filename, test_uri,
+    stats = ProcessOutput(self._test_shell_proc, filename, test_uri,
         self._test_types, self._test_args, self._options.target)
 
-    time_to_run_test = time.time() - start_time
-    self._test_times.append((time_to_run_test, filename))
-    return failures
+    self._test_stats.append(stats)
+    return stats.failures
 
 
   def _EnsureTestShellIsRunning(self):

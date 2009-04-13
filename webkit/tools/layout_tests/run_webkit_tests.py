@@ -22,6 +22,7 @@ For details of the files' contents and purposes, see test_lists/README.
 
 import glob
 import logging
+import math
 import optparse
 import os
 import Queue
@@ -490,8 +491,8 @@ class TestRunner:
           # be interruptible by KeyboardInterrupt.
           thread.join(1.0)
         test_failures.update(thread.GetFailures())
-        test_timings.update(thread.GetTimingStats())
-        individual_test_timings.extend(thread.GetIndividualTestTimingStats())
+        test_timings.update(thread.GetDirectoryTimingStats())
+        individual_test_timings.extend(thread.GetIndividualTestStats())
     except KeyboardInterrupt:
       for thread in threads:
         thread.Cancel()
@@ -538,32 +539,75 @@ class TestRunner:
     sys.stderr.flush()
     return len(regressions)
 
-  def _PrintTimingStatistics(self, test_timings, individual_test_timings):
-    # Don't need to do any processing here for non-debug logging.
-    if logging.getLogger().getEffectiveLevel() > 10:
-      return
+  def _PrintTimingStatistics(self, directory_test_timings,
+      individual_test_timings):
+    test_types = individual_test_timings[0].time_for_diffs.keys()
+    times_for_test_shell = []
+    times_for_diff_processing = []
+    times_per_test_type = {}
+    for test_type in test_types:
+      times_per_test_type[test_type] = []
+
+    for test_stats in individual_test_timings:
+      times_for_test_shell.append(test_stats.test_run_time)
+      times_for_diff_processing.append(test_stats.total_time_for_all_diffs)
+      time_for_diffs = test_stats.time_for_diffs
+      for test_type in test_types:
+        times_per_test_type[test_type].append(time_for_diffs[test_type])
+
+    logging.debug("PER TEST TIME IN TESTSHELL (seconds):")
+    self._PrintStatisticsForTestTimings(times_for_test_shell)
+    logging.debug("PER TEST DIFF PROCESSING TIMES (seconds):")
+    self._PrintStatisticsForTestTimings(times_for_diff_processing)
+    for test_type in test_types:
+      logging.debug("TEST TYPE: %s" % test_type)
+      self._PrintStatisticsForTestTimings(times_per_test_type[test_type])
+
+    # Reverse-sort by the time spent in test_shell.
+    individual_test_timings.sort(lambda a, b:
+        cmp(b.test_run_time, a.test_run_time))
+    slowests_tests = (
+        individual_test_timings[:self._options.num_slow_tests_to_log] )
 
     logging.debug("%s slowest tests:" % self._options.num_slow_tests_to_log)
-
-    individual_test_timings.sort(reverse=True)
-    slowests_tests = \
-        individual_test_timings[:self._options.num_slow_tests_to_log]
-
     for test in slowests_tests:
-      logging.debug("%s took %s seconds" % (test[1], round(test[0], 1)))
+      logging.debug("%s took %s seconds" % (test.filename,
+          round(test.test_run_time, 1)))
 
     print
 
     timings = []
-    for directory in test_timings:
-      num_tests, time = test_timings[directory]
-      timings.append((round(time, 1), directory, num_tests))
+    for directory in directory_test_timings:
+      num_tests, time_for_directory = directory_test_timings[directory]
+      timings.append((round(time_for_directory, 1), directory, num_tests))
     timings.sort()
 
-    logging.debug("Time to process each each subdirectory:")
+    logging.debug("Time to process each subdirectory:")
     for timing in timings:
       logging.debug("%s took %s seconds to run %s tests." % \
                     (timing[1], timing[0], timing[2]))
+
+  def _PrintStatisticsForTestTimings(self, timings):
+    """Prints the median, mean and standard deviation of the values in timings.
+    Args:
+      timings: A list of floats representing times.
+    """
+    num_tests = len(timings)
+    if num_tests % 2 == 1:
+      median = timings[((num_tests - 1) / 2) - 1]
+    else:
+      lower = timings[num_tests / 2 - 1]
+      upper = timings[num_tests / 2]
+      median = (float(lower + upper)) / 2
+
+    mean = sum(timings) / num_tests
+
+    for time in timings:
+      sum_of_deviations = math.pow(time - mean, 2)
+
+    std_deviation = math.sqrt(sum_of_deviations / num_tests)
+    logging.debug(("Median: %s, Mean %s, Standard deviation: %s\n" %
+        (median, mean, std_deviation)))
 
   def _PrintResults(self, test_failures, output):
     """Print a short summary to stdout about how many tests passed.
