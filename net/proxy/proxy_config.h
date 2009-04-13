@@ -5,6 +5,7 @@
 #ifndef NET_PROXY_PROXY_CONFIG_H_
 #define NET_PROXY_PROXY_CONFIG_H_
 
+#include <ostream>
 #include <string>
 #include <vector>
 
@@ -105,5 +106,9 @@ class ProxyConfig {
 };
 
 }  // namespace net
+
+// Dump a human-readable string representation of the configuration to |out|;
+// used when logging the configuration changes.
+std::ostream& operator<<(std::ostream& out, const net::ProxyConfig& config);
 
 #endif  // NET_PROXY_PROXY_CONFIG_H_

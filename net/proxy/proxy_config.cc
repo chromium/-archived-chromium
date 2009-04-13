@@ -80,3 +80,67 @@ const ProxyServer* ProxyConfig::ProxyRules::MapSchemeToProxy(
 }
 
 }  // namespace net
+
+namespace {
+
+// Helper to stringize a ProxyServer.
+std::ostream& operator<<(std::ostream& out,
+                         const net::ProxyServer& proxy_server) {
+  if (proxy_server.is_valid())
+    out << proxy_server.ToURI();
+  return out;
+}
+
+// Helper to stringize a ProxyRules.
+std::ostream& operator<<(std::ostream& out,
+                         const net::ProxyConfig::ProxyRules& rules) {
+  // Stringize the type enum.
+  std::string type;
+  switch (rules.type) {
+    case net::ProxyConfig::ProxyRules::TYPE_NO_RULES:
+      type = "TYPE_NO_RULES";
+      break;
+    case net::ProxyConfig::ProxyRules::TYPE_PROXY_PER_SCHEME:
+      type = "TYPE_PROXY_PER_SCHEME";
+      break;
+    case net::ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY:
+      type = "TYPE_SINGLE_PROXY";
+      break;
+    default:
+      type = IntToString(rules.type);
+      break;
+  }
+  return out << "  {\n"
+             << "    type: " << type << "\n"
+             << "    single_proxy: " << rules.single_proxy << "\n"
+             << "    proxy_for_http: " << rules.proxy_for_http << "\n"
+             << "    proxy_for_https: " << rules.proxy_for_https << "\n"
+             << "    proxy_for_ftp: " << rules.proxy_for_ftp << "\n"
+             << "  }";
+}
+
+}  // namespace
+
+std::ostream& operator<<(std::ostream& out, const net::ProxyConfig& config) {
+  out << "{\n"
+      << "  auto_detect: " << config.auto_detect << "\n"
+      << "  pac_url: " << config.pac_url << "\n"
+      << "  proxy_rules:\n" << config.proxy_rules << "\n"
+      << "  proxy_bypass_local_names: " << config.proxy_bypass_local_names
+      << "\n"
+      << "  proxy_bypass_list:\n";
+
+  // Print out the proxy bypass list.
+  if (!config.proxy_bypass.empty()) {
+    out << "  {\n";
+    std::vector<std::string>::const_iterator it;
+    for (it = config.proxy_bypass.begin();
+         it != config.proxy_bypass.end(); ++it) {
+      out << "    " << *it << "\n";
+    }
+    out << "  }\n";
+  }
+
+  out << "}";
+  return out;
+}

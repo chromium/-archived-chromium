@@ -397,6 +397,9 @@ void ProxyService::ProcessPendingRequests(PacRequest* recent_req) {
 
     in_progress_fetch_config_id_ = config_.id();
 
+    LOG(INFO) << "Starting fetch of PAC script " << pac_url
+              << " for config_id=" << in_progress_fetch_config_id_;
+
     proxy_script_fetcher_->Fetch(
         pac_url, &in_progress_fetch_bytes_, &proxy_script_fetcher_callback_);
     return;
@@ -419,6 +422,12 @@ void ProxyService::RemoveFrontOfRequestQueue(PacRequest* expected_req) {
 void ProxyService::OnScriptFetchCompletion(int result) {
   DCHECK(IsFetchingPacScript());
   DCHECK(!resolver_->does_fetch());
+
+  LOG(INFO) << "Completed PAC script fetch for config_id="
+            << in_progress_fetch_config_id_
+            << " with error " << ErrorToString(result)
+            << ". Fetched a total of " << in_progress_fetch_bytes_.size()
+            << " bytes";
 
   // Notify the ProxyResolver of the new script data (will be empty string if
   // result != OK).
@@ -539,6 +548,8 @@ void ProxyService::UpdateConfig() {
 
   if (latest.Equals(config_))
     return;
+
+  LOG(INFO) << "New proxy configuration was loaded:\n" << latest;
 
   config_ = latest;
   config_is_bad_ = false;

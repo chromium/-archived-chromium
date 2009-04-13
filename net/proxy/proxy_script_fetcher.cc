@@ -5,6 +5,7 @@
 #include "net/proxy/proxy_script_fetcher.h"
 
 #include "base/compiler_specific.h"
+#include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/string_util.h"
@@ -26,6 +27,19 @@ int max_response_bytes = 1048576;  // 1 megabyte
 // The maximum duration (in milliseconds) allowed for fetching the PAC script.
 // Responses exceeding this will fail with ERR_TIMED_OUT.
 int max_duration_ms = 300000;  // 5 minutes
+
+// Returns true if |mime_type| is one of the known PAC mime type.
+bool IsPacMimeType(const std::string& mime_type) {
+  static const char * const kSupportedPacMimeTypes[] = {
+    "application/x-ns-proxy-autoconfig",
+    "application/x-javascript-config",
+  };
+  for (size_t i = 0; i < arraysize(kSupportedPacMimeTypes); ++i) {
+    if (LowerCaseEqualsASCII(mime_type, kSupportedPacMimeTypes[i]))
+      return true;
+  }
+  return false;
+}
 
 }  // namespace
 
@@ -165,6 +179,7 @@ void ProxyScriptFetcherImpl::OnAuthRequired(URLRequest* request,
                                             AuthChallengeInfo* auth_info) {
   DCHECK(request == cur_request_.get());
   // TODO(eroman):
+  LOG(WARNING) << "Auth required to fetch PAC script, aborting.";
   result_code_ = ERR_NOT_IMPLEMENTED;
   request->CancelAuth();
 }
@@ -173,6 +188,7 @@ void ProxyScriptFetcherImpl::OnSSLCertificateError(URLRequest* request,
                                                    int cert_error,
                                                    X509Certificate* cert) {
   DCHECK(request == cur_request_.get());
+  LOG(WARNING) << "SSL certificate error when fetching PAC script, aborting.";
   // Certificate errors are in same space as net errors.
   result_code_ = cert_error;
   request->Cancel();
@@ -194,15 +210,24 @@ void ProxyScriptFetcherImpl::OnResponseStarted(URLRequest* request) {
 
   // Require HTTP responses to have a success status code.
   if (request->url().SchemeIs("http") || request->url().SchemeIs("https")) {
-    // NOTE about mime types: We do not enforce mime types on PAC files.
-    // This is for compatibility with {IE 7, Firefox 3, Opera 9.5}
-
     // NOTE about status codes: We are like Firefox 3 in this respect.
     // {IE 7, Safari 3, Opera 9.5} do not care about the status code.
     if (request->GetResponseCode() != 200) {
       result_code_ = ERR_PAC_STATUS_NOT_OK;
       request->Cancel();
       return;
+    }
+
+    // NOTE about mime types: We do not enforce mime types on PAC files.
+    // This is for compatibility with {IE 7, Firefox 3, Opera 9.5}. We will
+    // however log mismatches to help with debugging.
+    if (logging::GetMinLogLevel() <= logging::LOG_INFO) {
+      std::string mime_type;
+      cur_request_->GetMimeType(&mime_type);
+      if (!!IsPacMimeType(mime_type)) {
+        LOG(INFO) << "Fetched PAC script does not have a proper mime type: "
+                  << mime_type;
+      }
     }
   }
 
