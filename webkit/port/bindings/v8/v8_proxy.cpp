@@ -924,12 +924,16 @@ static void RemoveEventListenerFromList(V8EventListenerList& list,
 
 void V8Proxy::RemoveV8EventListener(V8EventListener* listener)
 {
+  ASSERT(!m_context.IsEmpty());
+  v8::Context::Scope contextScope(m_context);
   RemoveEventListenerFromList(m_event_listeners, listener);
 }
 
 
 void V8Proxy::RemoveObjectEventListener(V8ObjectEventListener* listener)
 {
+  ASSERT(!m_context.IsEmpty());
+  v8::Context::Scope contextScope(m_context);
   RemoveEventListenerFromList(m_xhr_listeners, listener);
 }
 
@@ -947,8 +951,13 @@ static void DisconnectEventListenersInList(V8EventListenerList& list)
 
 void V8Proxy::DisconnectEventListeners()
 {
-  DisconnectEventListenersInList(m_event_listeners);
-  DisconnectEventListenersInList(m_xhr_listeners);
+  if (m_event_listeners.begin() != m_event_listeners.end() ||
+      m_xhr_listeners.begin() != m_xhr_listeners.end()) {
+    ASSERT(!m_context.IsEmpty());
+    v8::Context::Scope contextScope(m_context);
+    DisconnectEventListenersInList(m_event_listeners);
+    DisconnectEventListenersInList(m_xhr_listeners);
+  }
 }
 
 
