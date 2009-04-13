@@ -2233,10 +2233,6 @@ DEFER WIN LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
 
 // Merge WebKit: 42026:42115 regressions
 
-// Changed in http://trac.webkit.org/changeset/42063
-MAC : LayoutTests/svg/W3C-SVG-1.1/text-intro-05-t.svg = FAIL
-MAC : LayoutTests/svg/text/text-intro-05-t.svg = FAIL
-
 // Changed in http://trac.webkit.org/changeset/42082
 // This is deferred because it involves a scenario (submitting a form to
 // about:blank) that is unlikely to occur on real web pages.  That only
