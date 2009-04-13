@@ -862,9 +862,6 @@ LINUX : LayoutTests/svg/custom/pattern-rotate.svg = FAIL
 DEFER LINUX WIN : LayoutTests/svg/custom/pointer-events-image.svg = FAIL
 
 
-// Crash in DEBUG only
-DEBUG LINUX : LayoutTests/svg/W3C-SVG-1.1/interact-dom-01-b.svg = CRASH
-
 // I find it hard to care too much about SVG failures.
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-04-t.svg = FAIL
 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-05-t.svg = FAIL
@@ -1033,8 +1030,6 @@ BUG8407 DEFER : LayoutTests/fast/loader/main-document-url-for-non-http-loads.htm
 // Accessibility is off in the browser, and accessibility is not a priority
 // for the current release.
 DEFER : LayoutTests/accessibility = FAIL
-// brettw checked this result is correct, just needs rebaselining.
-DEFER LINUX : LayoutTests/fast/borders/border-image-omit-right-slice.html = FAIL
 // Border radius not anti-aliased.
 // New test. We should fix it, but it doesn't need to block the current release
 DEFER WIN : LayoutTests/fast/borders/fieldsetBorderRadius.html = FAIL
@@ -2062,15 +2057,6 @@ BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = TIMEOUT CRASH PASS
 
 // Tests that fail in debug mode on linux
-DEBUG LINUX : LayoutTests/fast/css/remove-shorthand.html = FAIL
-DEBUG LINUX : LayoutTests/fast/dom/HTMLInputElement/input-checked-reset.html = FAIL
-DEBUG LINUX : LayoutTests/fast/dom/clone-node-form-elements.html = FAIL
-DEBUG LINUX : LayoutTests/fast/dom/dir-no-body.html = FAIL
-DEBUG LINUX : LayoutTests/fast/dynamic/containing-block-change.html = FAIL
-DEBUG LINUX : LayoutTests/fast/parser/bad-xml-slash.html = FAIL
-DEBUG LINUX : LayoutTests/fast/replaced/replaced-breaking.html = FAIL
-DEBUG LINUX : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
-DEBUG LINUX : LayoutTests/fast/canvas/canvas-pattern-transform.html = CRASH
 DEBUG LINUX : LayoutTests/svg/custom/mask-excessive-malloc.svg = CRASH
 
 // Need rebaseline
@@ -2116,7 +2102,6 @@ DEFER LINUX WIN : LayoutTests/fast/forms/textarea-hard-linewrap.html = FAIL
 LINUX : LayoutTests/editing/inserting/6633727.html = FAIL
 LINUX : LayoutTests/fast/block/float/overlapping-floats-with-overflow-hidden.html = FAIL
 MAC LINUX : LayoutTests/fast/dom/java-applet-calls.html = FAIL
-LINUX : LayoutTests/fast/canvas/unclosed-canvas-3.html = CRASH
 // Just need rebaseline
 LINUX : LayoutTests/fast/forms/negativeLineHeight.html = FAIL
 LINUX : LayoutTests/fast/forms/textarea-width.html = FAIL
@@ -2138,7 +2123,6 @@ DEFER : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-event
 
 // Merge 41827:41860 Regressions
 MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
-LINUX DEBUG : LayoutTests/fast/forms/input-align-image.html = FAIL
 
 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
@@ -2247,9 +2231,6 @@ LINUX MAC : LayoutTests/fast/replaced/width100percent-searchfield.html = FAIL
 DEFER WIN LINUX : LayoutTests/compositing/overflow/ancestor-overflow.html = FAIL
 DEFER WIN LINUX : LayoutTests/compositing/overflow/parent-overflow.html = FAIL
 
-// Merge WebKit: 41999:42026, needs a rebaseline.
-DEFER LINUX : LayoutTests/fast/backgrounds/svg-as-background-4.html = FAIL
-
 // Merge WebKit: 42026:42115 regressions
 
 // Changed in http://trac.webkit.org/changeset/42063
@@ -2290,10 +2271,10 @@ MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
 
 // These tests were affected by rolling out WebKit i8n patches.
 DEFER BUG9768 : LayoutTests/fast/block/positioning/047.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/css/rtl-ordering.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/forms/select-initial-position.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
+DEFER BUG9768 MAC WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
+DEFER BUG9768 MAC WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
+DEFER BUG9768 MAC WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
+DEFER BUG9768 MAC WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
 DEFER BUG9768 : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
 DEFER BUG9768 : LayoutTests/fast/text/international/001.html = FAIL
 DEFER BUG9768 : LayoutTests/fast/text/international/002.html = FAIL
@@ -2434,8 +2415,8 @@ BUG9797 MAC DEBUG : LayoutTests/fast/body-propagation/overflow/004.html = FAIL P
 BUG9941 LINUX DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL
 BUG9941 WIN DEBUG : LayoutTests/svg/custom/missing-xlink.svg = FAIL
 
-BUG9850 : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
-BUG9850 : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
+BUG9850 WIN MAC : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
+BUG9850 WIN MAC : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
 BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 BUG9850 WIN MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
 
@@ -2445,11 +2426,11 @@ BUG9916 : LayoutTests/css2.1/t0803-c5505-mrgn-02-c.html = FAIL
 BUG9916 : LayoutTests/fast/block/float/013.html = FAIL
 BUG9916 : LayoutTests/http/tests/xmlhttprequest/set-dangerous-headers.html = FAIL
 BUG9916 : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FAIL
-BUG9916 : LayoutTests/svg/custom/getsvgdocument.html = FAIL
-BUG9916 : LayoutTests/transitions/transition-end-event-left.html = FAIL
+BUG9916 WIN MAC : LayoutTests/svg/custom/getsvgdocument.html = FAIL
+BUG9916 WIN MAC : LayoutTests/transitions/transition-end-event-left.html = FAIL
 
 // Started failing with WebKit merge 42324:42364. Unknown cause.
-BUG9926 WIN LINUX : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
+BUG9926 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 
 // New tests or failures from WebKit merge 42324:42364. Re-baselined on
 // Windows. Probably just need the same on other platforms.
@@ -2457,14 +2438,14 @@ BUG9924 MAC LINUX : LayoutTests/fast/flexbox/016.html = FAIL
 BUG9924 MAC LINUX RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
 BUG9924 MAC : LayoutTests/fast/lists/001.html = FAIL
 BUG9962 MAC LINUX : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/fast/js/function-apply-aliased.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-allow.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-deny.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-allow.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
+BUG9962 MAC : LayoutTests/fast/js/function-apply-aliased.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-allow.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-deny.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-allow.html = FAIL
+BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
 
 // Regressions from WebKit merge 43264:42403, possibly due to r42375.
 BUG9992 : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
