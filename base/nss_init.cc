@@ -6,6 +6,7 @@
 
 #include <nss.h>
 #include <plarena.h>
+#include <prerror.h>
 #include <prinit.h>
 
 // Work around https://bugzilla.mozilla.org/show_bug.cgi?id=455424
@@ -40,9 +41,16 @@ SECMODModule *InitDefaultRootCerts() {
 class NSSInitSingleton {
  public:
   NSSInitSingleton() {
-
     // Initialize without using a persistant database (e.g. ~/.netscape)
-    CHECK(NSS_NoDB_Init(".") == SECSuccess);
+    SECStatus status = NSS_NoDB_Init(".");
+    if (status != SECSuccess) {
+      char buffer[513] = "Couldn't retrieve error";
+      PRInt32 err_length = PR_GetErrorTextLength();
+      if (err_length > 0 && size_t(err_length) < sizeof(buffer))
+        PR_GetErrorText(buffer);
+
+      NOTREACHED() << "Error calling NSS_NoDB_Init: " << buffer;
+    }
 
     root_ = InitDefaultRootCerts();
 
