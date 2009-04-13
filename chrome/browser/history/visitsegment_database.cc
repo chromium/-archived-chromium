@@ -232,6 +232,7 @@ bool VisitSegmentDatabase::IncreaseSegmentVisitCount(SegmentID segment_id,
 
 void VisitSegmentDatabase::QuerySegmentUsage(
     const Time& from_time,
+    int max_result_count,
     std::vector<PageUsageData*>* results) {
   // This function gathers the highest-ranked segments in two queries.
   // The first gathers scores for all segments.
@@ -240,9 +241,6 @@ void VisitSegmentDatabase::QuerySegmentUsage(
   // TODO(evanm): this disregards the "presentation index", which was what was
   // used to lock results into position.  But the rest of our code currently
   // does as well.
-
-  // How many results we return, as promised in the header file.
-  const size_t kResultCount = 9;
 
   // Gather all the segment scores:
   SQLITE_UNIQUE_STATEMENT(statement, GetStatementCache(),
@@ -296,8 +294,8 @@ void VisitSegmentDatabase::QuerySegmentUsage(
 
   // Limit to the top kResultCount results.
   sort(results->begin(), results->end(), PageUsageData::Predicate);
-  if (results->size() > kResultCount)
-    results->resize(kResultCount);
+  if (static_cast<int>(results->size()) > max_result_count)
+    results->resize(max_result_count);
 
   // Now fetch the details about the entries we care about.
   SQLITE_UNIQUE_STATEMENT(statement2, GetStatementCache(),

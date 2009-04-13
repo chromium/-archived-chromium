@@ -49,8 +49,10 @@ class VisitSegmentDatabase {
                                  int amount);
 
   // Compute the segment usage since |from_time| using the provided aggregator.
-  // A PageUsageData is added in |result| for the nine highest-scored segments.
+  // A PageUsageData is added in |result| for the highest-scored segments up to
+  // |max_result_count|.
   void QuerySegmentUsage(const base::Time& from_time,
+                         int max_result_count,
                          std::vector<PageUsageData*>* result);
 
   // Delete all the segment usage data which is older than the provided time

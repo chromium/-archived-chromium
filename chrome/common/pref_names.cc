@@ -492,4 +492,7 @@ const wchar_t kNumKeywords[] = L"user_experience_metrics.num_keywords";
 const wchar_t kEnableExtensions[] = L"extensions.enabled";
 const wchar_t kEnableUserScripts[] = L"extensions.user_scripts_enabled";
 
+// New Tab Page URLs that should not be shown as most visited thumbnails.
+const wchar_t kNTPMostVisitedURLsBlacklist[] = L"ntp.most_visited_blacklist";
+
 }  // namespace prefs

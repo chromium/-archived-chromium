@@ -8,6 +8,7 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_shutdown.h"
+#include "chrome/browser/dom_ui/new_tab_ui.h"
 #include "chrome/browser/download/download_manager.h"
 #include "chrome/browser/external_protocol_handler.h"
 #include "chrome/browser/google_url_tracker.h"
@@ -62,6 +63,7 @@ void RegisterAllPrefs(PrefService* user_prefs, PrefService* local_state) {
   TabContents::RegisterUserPrefs(user_prefs);
   TemplateURLPrepopulateData::RegisterUserPrefs(user_prefs);
   WebContents::RegisterUserPrefs(user_prefs);
+  NewTabUI::RegisterUserPrefs(user_prefs);
 }
 
 }  // namespace browser

@@ -208,7 +208,8 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // Segment usage -------------------------------------------------------------
 
   void QuerySegmentUsage(scoped_refptr<QuerySegmentUsageRequest> request,
-                         const base::Time from_time);
+                         const base::Time from_time,
+                         int max_result_count);
   void DeleteOldSegmentData();
   void SetSegmentPresentationIndex(SegmentID segment_id, int index);
 

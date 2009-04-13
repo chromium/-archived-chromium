@@ -846,12 +846,13 @@ void HistoryBackend::SetSegmentPresentationIndex(SegmentID segment_id,
 
 void HistoryBackend::QuerySegmentUsage(
     scoped_refptr<QuerySegmentUsageRequest> request,
-    const Time from_time) {
+    const Time from_time,
+    int max_result_count) {
   if (request->canceled())
     return;
 
   if (db_.get()) {
-    db_->QuerySegmentUsage(from_time, &request->value.get());
+    db_->QuerySegmentUsage(from_time, max_result_count, &request->value.get());
 
     // If this is the first time we query segments, invoke
     // DeleteOldSegmentData asynchronously. We do this to cleanup old

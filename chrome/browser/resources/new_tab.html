@@ -387,6 +387,27 @@ html[dir='rtl'] #searches input {
   padding-top:4px;
   font-size:8pt;
 }
+.edit-visible {
+  display: none;
+}
+.edit-mode .edit-visible {
+  display: inline;
+}
+.non-edit-visible {
+  display: inline;
+}
+.edit-mode .non-edit-visible {
+  display: none;
+}
+.most-visited-container {
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+.edit-mode a.most-visited-item {
+  opacity: 0.5;
+  pointer-events: none;  /* Disable clicks */
+}
 </style>
 </head>
 <body onload="logEvent('body onload fired');"
@@ -406,7 +427,10 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
   <td valign="top">
   <div id="mostvisitedsection" class="section">
     <div id="mostvisited" style="position:relative;">
-      <div class="section-title" jscontent="mostvisited"></div>
+      <div>
+	<span class="section-title non-edit-visible" jscontent="mostvisited"></span>
+	<span class="section-title edit-visible" jseval="this.innerHTML = $this.editmodeheading;"></span>
+      </div>
       <div id="mostvisitedintro" style="display:none;">
         <div class="most-visited-text" style="position:absolute;" jseval="this.innerHTML = $this.mostvisitedintro;"></div>
         <table>
@@ -444,6 +468,16 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
         </tr>
       </table>
     </div>
+    <a href="#"
+       class="manage non-edit-visible"
+       onClick="enterEditMode(); return false">
+      <span jscontent="editthumbnails"></span></a>
+    <button type="button" class="edit-visible" onClick="exitEditMode();"
+	    jscontent="doneediting"></button>
+    <a href="#"
+       class="manage edit-visible"
+       onClick="restoreThumbnails(); return false">
+      <span jscontent="restorethumbnails"></span></a>
     <a href="#"
        jsvalues="href:showhistoryurl"
        class="manage">
@@ -534,7 +568,8 @@ function makeMostVisitedDOM(page, number) {
   */
   var root;
   if (page.url) {
-    root = DOM('a', {href:page.url,
+    root = DOM('a', {className:'most-visited-item',
+                     href:page.url,
                      title:page.title});
     root.addEventListener("mousedown", function(event) {
         chrome.send("metrics", ["NTP_MostVisited" + number])
@@ -563,10 +598,10 @@ function makeMostVisitedDOM(page, number) {
   /* The following if statement is a temporary workaround for
      http://crbug.com/7252 and http://crbug.com/7697. It should be removed
      before closing these bugs.
-  */       
+  */
   if (page.direction == 'rtl') {
     div_title.style.textOverflow = 'clip';
-  } 
+  }
   if (page.title) {
     div_title.appendChild(document.createTextNode(page.title));
   } else {
@@ -580,13 +615,28 @@ function makeMostVisitedDOM(page, number) {
   return root;
 }
 
+/* Return the DOM element for the cross that should be displayed in edit-mode
+   over a "most visited" entry. */
+function makeCrossImageDOM(url) {
+  var cross = DOM('div', {className:'edit-cross'});
+  cross.addEventListener("mousedown", function(event) {
+    chrome.send("blacklistURLFromMostVisited", [url])}, false);
+  return cross;
+}
+
 /* This function is called by the browser with the most visited pages list.
    |pages| is a list of page objects, which have url, title, and direction
    attributes. */
 function renderMostVisitedPages(pages) {
   logEvent('renderMostVisitedPages called: ' + pages.length);
 
-  document.getElementById("main").className = 'visible';
+  var table = document.getElementById("main");
+  // If we were in edit-mode, stay in that mode as this means this is a
+  // refresh triggered by thumbnails editing.
+  if (table.className.indexOf('edit-mode') != -1)
+    table.className = 'visible edit-mode';
+  else
+    document.getElementById("main").className = 'visible';
   var table = document.getElementById("mostvisitedtable");
   table.innerHTML = '';
 
@@ -608,10 +658,11 @@ function renderMostVisitedPages(pages) {
       rows[rowNum] = DOM('tr', {});
     }
 
-    var dom = makeMostVisitedDOM(page, i);
-
     var cell = DOM('td');
-    cell.appendChild(dom);
+    var container = DOM('div', { className: "most-visited-container"});
+    container.appendChild(makeCrossImageDOM(page.url));
+    container.appendChild(makeMostVisitedDOM(page, i));
+    cell.appendChild(container);
 
     rows[rowNum].appendChild(cell);
 
@@ -709,10 +760,10 @@ function renderRecentlyBookmarked(entries) {
       /* The following if statement is a temporary workaround for
          http://crbug.com/7252 and http://crbug.com/7697. It should be removed
          before closing these bugs.
-      */     
+      */
       if (entry.direction == 'rtl') {
         link.style.textOverflow = 'clip';
-      }   
+      }
       link.appendChild(document.createTextNode(entry.title));
       container.appendChild(link);
     }
@@ -810,10 +861,10 @@ function createRecentBookmark(tagName, data) {
   /* The following if statement is a temporary workaround for
      http://crbug.com/7252 and http://crbug.com/7697. It should be removed
      before closing these bugs.
-  */     
+  */
   if (data.direction == 'rtl') {
     link.style.textOverflow = 'clip';
-  }  
+  }
 
   link.appendChild(document.createTextNode(data.title));
   return link;
@@ -905,6 +956,34 @@ RecentlyClosedHoverCard.prototype.setHideTimeout_ = function() {
       setTimeout(bind(this.hide_, this), 200);
 };
 
+/**
+ * Switches to thumbnails editing mode.
+ */
+function enterEditMode() {
+  // If the cross-image in the heading has not been added yet, do it.
+  // Note that we have to insert the image node explicitly because the
+  // heading is localized and therefore set at run-time, and we need
+  // the image to be static so that it can be inlined at build-time.
+  var crossImageDiv = document.getElementById('cross-image-container');
+  if (crossImageDiv && !crossImageDiv.hasChildNodes()) {
+    var image = document.getElementById('small-cross-image');
+    image.parentNode.removeChild(image);
+    crossImageDiv.appendChild(image);
+    image.style.display = 'inline';
+    crossImageDiv.style.display = 'inline';
+  }
+  document.getElementById('main').className = 'visible edit-mode';
+}
+
+function exitEditMode() {
+  document.getElementById('main').className = 'visible';
+}
+
+function restoreThumbnails() {
+  exitEditMode();
+  chrome.send('clearMostVisitedURLsBlacklist');
+}
+
 function viewLog() {
   var lines = [];
   var start = log[0][1];
@@ -932,5 +1011,30 @@ processData();
 setTimeout(function(){document.getElementById('main').className = 'visible'},
            1000);
 </script>
+
+<img id="small-cross-image" style="display: none; vertical-align:middle;" alt="X"
+     src="../../app/theme/ntp_x_icon_small.png"/>
 </body>
+
+<style type="text/css">
+/* This CSS code is located at the end of file so it does not slow-down the page
+   loading, as it contains inlined images.
+*/
+.edit-mode div.edit-cross {
+  position: absolute;
+  z-index: 10;
+  width: 81px;
+  height: 81px;
+  left: 60px;
+  top: 47px;
+  background: url('../../app/theme/ntp_x_icon.png');
+}
+.edit-mode div.edit-cross:hover {
+  background: url('../../app/theme/ntp_x_icon_hover.png');
+}
+.edit-mode div.edit-cross:active {
+  background: url('../../app/theme/ntp_x_icon_active.png');
+}
+</style>
+
 </html>

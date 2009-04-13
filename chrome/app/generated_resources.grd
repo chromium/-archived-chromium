@@ -3033,6 +3033,22 @@ each locale. -->
                desc="The 'Show history' link on the new tab page">
         Show full history
       </message>
+      <message name="IDS_NEW_TAB_EDIT_THUMBNAILS"
+         desc="The 'Edit thumbnails' link on the new tab page">
+        Edit thumbnails
+      </message>
+      <message name="IDS_NEW_TAB_MOST_VISITED_DONE_EDITING_BUTTON"
+         desc="The caption of the button used to exit the edit thumbnails mode">
+        Done editing
+      </message>
+      <message name="IDS_NEW_TAB_RESTORE_THUMBNAILS_LINK"
+         desc="The link that restores previously removed thumbnails">
+        Restore all removed thumbnails
+      </message>
+      <message name="IDS_NEW_TAB_MOST_VISITED_EDIT_MODE_HEADING"
+        desc="The new tab page heading when in edit thumbnails mode.">
+        Click <ph name="CROSS_IMAGE">&lt;div id="cross-image-container"&gt;&lt;/div&gt;</ph> to remove the thumbnail
+      </message>
       <message name="IDS_NEW_TAB_HISTORY_SEARCH"
                desc="The label for the field that searches the user's history on the new tab page">
         Search your history

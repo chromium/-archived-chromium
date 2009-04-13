@@ -242,10 +242,11 @@ HistoryService::Handle HistoryService::ScheduleDBTask(
 HistoryService::Handle HistoryService::QuerySegmentUsageSince(
     CancelableRequestConsumerBase* consumer,
     const Time from_time,
+    int max_result_count,
     SegmentQueryCallback* callback) {
   return Schedule(PRIORITY_UI, &HistoryBackend::QuerySegmentUsage,
                   consumer, new history::QuerySegmentUsageRequest(callback),
-                  from_time);
+                  from_time, max_result_count);
 }
 
 void HistoryService::SetOnBackendDestroyTask(Task* task) {

@@ -468,6 +468,7 @@ class HistoryService : public CancelableRequestProvider,
   // representing the segment.
   Handle QuerySegmentUsageSince(CancelableRequestConsumerBase* consumer,
                                 const base::Time from_time,
+                                int max_result_count,
                                 SegmentQueryCallback* callback);
 
   // Set the presentation index for the segment identified by |segment_id|.

@@ -598,7 +598,7 @@ TEST_F(HistoryTest, Segments) {
 
   // Make sure a segment was created.
   history->QuerySegmentUsageSince(
-      &consumer_, Time::Now() - TimeDelta::FromDays(1),
+      &consumer_, Time::Now() - TimeDelta::FromDays(1), 10,
       NewCallback(static_cast<HistoryTest*>(this),
                   &HistoryTest::OnSegmentUsageAvailable));
 
@@ -616,7 +616,7 @@ TEST_F(HistoryTest, Segments) {
 
   // Query again
   history->QuerySegmentUsageSince(
-      &consumer_, Time::Now() - TimeDelta::FromDays(1),
+      &consumer_, Time::Now() - TimeDelta::FromDays(1), 10,
       NewCallback(static_cast<HistoryTest*>(this),
                   &HistoryTest::OnSegmentUsageAvailable));
 
@@ -633,7 +633,7 @@ TEST_F(HistoryTest, Segments) {
 
   // Query again
   history->QuerySegmentUsageSince(
-      &consumer_, Time::Now() - TimeDelta::FromDays(1),
+      &consumer_, Time::Now() - TimeDelta::FromDays(1), 10,
       NewCallback(static_cast<HistoryTest*>(this),
                   &HistoryTest::OnSegmentUsageAvailable));
 

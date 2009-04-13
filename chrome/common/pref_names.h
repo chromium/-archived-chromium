@@ -179,6 +179,8 @@ extern const wchar_t kNumKeywords[];
 
 extern const wchar_t kEnableExtensions[];
 extern const wchar_t kEnableUserScripts[];
+
+extern const wchar_t kNTPMostVisitedURLsBlacklist[];
 }
 
 #endif  // CHROME_COMMON_PREF_NAMES_H_

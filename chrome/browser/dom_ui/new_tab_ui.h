@@ -8,6 +8,7 @@
 #include "chrome/browser/dom_ui/dom_ui.h"
 
 class GURL;
+class PrefService;
 class Profile;
 
 // The TabContents used for the New Tab page.
@@ -15,6 +16,8 @@ class NewTabUI : public DOMUI {
  public:
   explicit NewTabUI(WebContents* manager);
   ~NewTabUI();
+
+  static void RegisterUserPrefs(PrefService* prefs);
 
  private:
   // The message id that should be displayed in this NewTabUIContents
