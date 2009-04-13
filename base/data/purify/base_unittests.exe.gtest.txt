@@ -25,3 +25,6 @@ ScopedTempDir.*
 # see issue 7477
 ObserverListThreadSafeTest.CrossThreadObserver
 ObserverListThreadSafeTest.CrossThreadNotifications
+
+# see bug 10031
+SignatureVerifierTest.BasicTest
