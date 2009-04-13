@@ -38,8 +38,10 @@ void InitializeWebKitStaticValues() {
   static bool initialized = false;
   if (!initialized) {
     initialized= true;
+    // Note that we have to pass a URL with valid protocol in order to follow
+    // the path to do static value initializations.
     WTF::RefPtr<WebCore::SecurityOrigin> origin =
-        WebCore::SecurityOrigin::create(WebCore::KURL());
+        WebCore::SecurityOrigin::create(WebCore::KURL("http://localhost"));
     origin.release();
   }
 }
