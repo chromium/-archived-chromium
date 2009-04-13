@@ -46,7 +46,7 @@ class NSSInitSingleton {
     if (status != SECSuccess) {
       char buffer[513] = "Couldn't retrieve error";
       PRInt32 err_length = PR_GetErrorTextLength();
-      if (err_length > 0 && size_t(err_length) < sizeof(buffer))
+      if (err_length > 0 && static_cast<size_t>(err_length) < sizeof(buffer))
         PR_GetErrorText(buffer);
 
       NOTREACHED() << "Error calling NSS_NoDB_Init: " << buffer;
