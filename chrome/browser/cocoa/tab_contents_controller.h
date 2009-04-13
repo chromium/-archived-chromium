@@ -16,19 +16,8 @@ class TabContentsCommandObserver;
 class TabStripModel;
 @class ToolbarView;
 
-// A class that controls the contents of a tab, including the toolbar and
-// web area.
-
-// TODO(pinkerton): Cole and I went back and forth about whether or not each
-// tab should have its own copy of the toolbar. Right now, we decided to leave
-// it like this as he expects it will make it easier for him to implement
-// tab dragging and tear-off into new windows. It's also not very expensive.
-// As we hook things up, we'll see if this imposes other restrictions (such
-// as command-handling or dispatch) that will require us to change the view
-// layout.
-// TODO(jrg): Following on to pink's comments... each tab does in fact
-// have its own ToolbarView.  Similarly, each also has its own
-// BookmarkView.  That makes things marginally more expensive.
+// A class that controls the web contents of a tab. It manages displaying the
+// native view for a given TabContents in |contentsBox_|.
 
 @interface TabContentsController : NSViewController {
  @private
@@ -49,10 +38,8 @@ class TabStripModel;
 }
 
 // Create the contents of a tab represented by |contents| and loaded from the
-// nib given by |name|. |commands| allows tracking of what's enabled and
-// disabled. It may be nil if no updating is desired.
+// nib given by |name|.
 - (id)initWithNibName:(NSString*)name
-               bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
         bookmarkModel:(BookmarkModel*)bookmarkModel;
 

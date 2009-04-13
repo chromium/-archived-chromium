@@ -15,12 +15,12 @@
 #include "base/scoped_nsobject.h"
 #include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/tab_window_controller.h"
-#import "chrome/browser/cocoa/toolbar_view.h"
 
 class Browser;
 class BrowserWindow;
 class BrowserWindowCocoa;
 class LocationBar;
+class StatusBubble;
 class TabContents;
 @class TabContentsController;
 @class TabStripController;
@@ -31,26 +31,39 @@ class TabStripModelObserverBridge;
 @interface BrowserWindowController :
     TabWindowController<NSUserInterfaceValidations> {
  @private
+  // The ordering of these members is important as it determines the order in
+  // which they are destroyed. |browser_| needs to be destroyed last as most of
+  // the other objects hold weak references to it or things it owns
+  // (tab/toolbar/bookmark models, profiles, etc). We hold a strong ref to the
+  // window so that it will live after the NSWindowController dealloc has run
+  // (which happens *before* these scoped pointers are torn down). Keeping it
+  // alive ensures that weak view or window pointers remain valid through
+  // their destruction sequence.
   scoped_ptr<Browser> browser_;
+  scoped_nsobject<NSWindow> window_;
   scoped_ptr<TabStripModelObserverBridge> tabObserver_;
   scoped_ptr<BrowserWindowCocoa> windowShim_;
   scoped_nsobject<ToolbarController> toolbarController_;
   scoped_nsobject<TabStripController> tabStripController_;
+  scoped_ptr<StatusBubble> statusBubble_;
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.
 // Takes ownership of |browser|.
 - (id)initWithBrowser:(Browser*)browser;
 
-// call to make the browser go away from other places in the cross-platform
+// Call to make the browser go away from other places in the cross-platform
 // code.
 - (void)destroyBrowser;
 
-// Access the C++ bridge between the NSWindow and the rest of Chromium
+// Access the C++ bridge between the NSWindow and the rest of Chromium.
 - (BrowserWindow*)browserWindow;
 
-// Get the C++ bridge object representing the location bar for the current tab.
+// Access the C++ bridge object representing the location bar.
 - (LocationBar*)locationBar;
+
+// Access the C++ bridge object representing the status bubble for the window.
+- (StatusBubble*)statusBubble;
 
 // Updates the toolbar (and transitively the location bar) with the states of
 // the specified |tab|.  If |shouldRestore| is true, we're switching

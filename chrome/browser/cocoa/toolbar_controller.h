@@ -7,6 +7,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/command_observer_bridge.h"
 
 class CommandUpdater;
@@ -23,8 +24,8 @@ class ToolbarView;
  @private
   ToolbarModel* toolbarModel_;  // weak, one per window
   CommandUpdater* commands_;  // weak, one per window
-  CommandObserverBridge* commandObserver_;
-  LocationBarViewMac* locationBarView_;
+  scoped_ptr<CommandObserverBridge> commandObserver_;
+  scoped_ptr<LocationBarViewMac> locationBarView_;
 
   IBOutlet NSButton* backButton_;
   IBOutlet NSButton* forwardButton_;

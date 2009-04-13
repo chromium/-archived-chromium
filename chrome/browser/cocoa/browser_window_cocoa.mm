@@ -7,13 +7,11 @@
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/cocoa/status_bubble_mac.h"
 
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
                                        NSWindow* window)
-  : window_([window retain]), browser_(browser), controller_(controller) {
-  status_bubble_.reset(new StatusBubbleMac(window_));
+  : window_(window), browser_(browser), controller_(controller) {
 }
 
 BrowserWindowCocoa::~BrowserWindowCocoa() {
@@ -64,7 +62,7 @@ BrowserWindowTesting* BrowserWindowCocoa::GetBrowserWindowTesting() {
 }
 
 StatusBubble* BrowserWindowCocoa::GetStatusBubble() {
-  return status_bubble_.get();
+  return [controller_ statusBubble];
 }
 
 void BrowserWindowCocoa::SelectedTabToolbarSizeChanged(bool is_animating) {

@@ -28,12 +28,11 @@
     switchView_ = switchView;
     tabModel_ = browser->tabstrip_model();
     bookmarkModel_ = browser->profile()->GetBookmarkModel();
-    commands_ = browser->command_updater();
-    bridge_ = new TabStripModelObserverBridge(tabModel_, self);
-    tabContentsArray_ = [[NSMutableArray alloc] init];
-    tabArray_ = [[NSMutableArray alloc] init];
-    bookmarkBarStateController_ = [[BookmarkBarStateController alloc]
-                                    initWithBrowser:browser];
+    bridge_.reset(new TabStripModelObserverBridge(tabModel_, self));
+    tabContentsArray_.reset([[NSMutableArray alloc] init]);
+    tabArray_.reset([[NSMutableArray alloc] init]);
+    bookmarkBarStateController_.reset([[BookmarkBarStateController alloc]
+                                        initWithBrowser:browser]);
     // Take the only child view present in the nib as the new tab button. For
     // some reason, if the view is present in the nib apriori, it draws
     // correctly. If we create it in code and add it to the tab view, it draws
@@ -47,14 +46,6 @@
     [tabView_ setWantsLayer:YES];
   }
   return self;
-}
-
-- (void)dealloc {
-  delete bridge_;
-  [bookmarkBarStateController_ release];
-  [tabContentsArray_ release];
-  [tabArray_ release];
-  [super dealloc];
 }
 
 // Finds the associated TabContentsController at the given |index| and swaps
@@ -103,7 +94,7 @@
 // Returns the index of the subview |view|. Returns -1 if not present.
 - (NSInteger)indexForTabView:(NSView*)view {
   NSInteger index = 0;
-  for (TabController* current in tabArray_) {
+  for (TabController* current in tabArray_.get()) {
     if ([current view] == view)
       return index;
     ++index;
@@ -162,7 +153,7 @@
               kMaxTabWidth),
           kMinTabWidth);
 
-  for (TabController* tab in tabArray_) {
+  for (TabController* tab in tabArray_.get()) {
     // BOOL isPlaceholder = ![[[tab view] superview] isEqual:tabView_];
     BOOL isPlaceholder = NO;
     NSRect tabFrame = [[tab view] frame];
@@ -221,7 +212,6 @@
   // the new controller with |contents| so it can be looked up later.
   TabContentsController* contentsController =
       [[[TabContentsController alloc] initWithNibName:@"TabContents"
-                                               bundle:nil
                                              contents:contents
                                         bookmarkModel:bookmarkModel_]
           autorelease];
@@ -254,7 +244,7 @@
                   userGesture:(bool)wasUserGesture {
   // De-select all other tabs and select the new tab.
   int i = 0;
-  for (TabController* current in tabArray_) {
+  for (TabController* current in tabArray_.get()) {
     [current setSelected:(i == index) ? YES : NO];
     ++i;
   }
@@ -337,7 +327,7 @@
 - (void)toggleBookmarkBar {
   [bookmarkBarStateController_ toggleBookmarkBar];
   BOOL visible = [self isBookmarkBarVisible];
-  for (TabContentsController *controller in tabContentsArray_) {
+  for (TabContentsController *controller in tabContentsArray_.get()) {
     [controller toggleBookmarkBar:visible];
   }
 }

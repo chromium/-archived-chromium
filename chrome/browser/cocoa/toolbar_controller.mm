@@ -27,7 +27,7 @@ static NSString* const kStarredImageName = @"starred";
     commands_ = commands;
 
     // Register for notifications about state changes for the toolbar buttons
-    commandObserver_ = new CommandObserverBridge(self, commands);
+    commandObserver_.reset(new CommandObserverBridge(self, commands));
     commandObserver_->ObserveCommand(IDC_BACK);
     commandObserver_->ObserveCommand(IDC_FORWARD);
     commandObserver_->ObserveCommand(IDC_RELOAD);
@@ -42,24 +42,22 @@ static NSString* const kStarredImageName = @"starred";
 // bar and button state.
 - (void)awakeFromNib {
   [self initCommandStatus:commands_];
-  locationBarView_ = new LocationBarViewMac(locationBar_, commands_,
-                                            toolbarModel_);
+  locationBarView_.reset(new LocationBarViewMac(locationBar_, commands_,
+                                                toolbarModel_));
   locationBarView_->Init();
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }
 
 - (void)dealloc {
-  delete locationBarView_;
-  delete commandObserver_;
   [super dealloc];
 }
 
 - (LocationBar*)locationBar {
-  return locationBarView_;
+  return locationBarView_.get();
 }
 
 - (void)focusLocationBar {
-  if (locationBarView_) {
+  if (locationBarView_.get()) {
     locationBarView_->FocusLocation();
   }
 }
@@ -107,7 +105,7 @@ static NSString* const kStarredImageName = @"starred";
   // pulldown.  It should also be the right thing to do to save and
   // restore state, but at this time it's not clear that this is the
   // right place, and tab is not the right parameter.
-  if (locationBarView_) {
+  if (locationBarView_.get()) {
     locationBarView_->SaveStateToContents(NULL);
   }
 

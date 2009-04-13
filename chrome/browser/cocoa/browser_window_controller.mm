@@ -10,6 +10,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
+#import "chrome/browser/cocoa/status_bubble_mac.h"
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_strip_controller.h"
@@ -36,6 +37,8 @@
     // The window is now fully realized and |-windowDidLoad:| has been
     // called. We shouldn't do much in wDL because |windowShim_| won't yet
     // be initialized (as it's called in response to |[self window]| above).
+    // Retain it per the comment in the header.
+    window_.reset([[self window] retain]);
 
     // Get the most appropriate size for the window. The window shim will handle
     // flipping the coordinates for us so we can use it to save some code.
@@ -58,6 +61,9 @@
                                initWithModel:browser->toolbar_model()
                                     commands:browser->command_updater()]);
     [self positionToolbar];
+
+    // Create the bridge for the status bubble.
+    statusBubble_.reset(new StatusBubbleMac([self window]));
   }
   return self;
 }
@@ -205,6 +211,10 @@
 
 - (LocationBar*)locationBar {
   return [toolbarController_ locationBar];
+}
+
+- (StatusBubble*)statusBubble {
+  return statusBubble_.get();
 }
 
 - (void)updateToolbarWithContents:(TabContents*)tab

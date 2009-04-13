@@ -15,10 +15,9 @@
 @implementation TabContentsController
 
 - (id)initWithNibName:(NSString*)name
-               bundle:(NSBundle*)bundle
              contents:(TabContents*)contents
         bookmarkModel:(BookmarkModel*)bookmarkModel {
-  if ((self = [super initWithNibName:name bundle:bundle])) {
+  if ((self = [super initWithNibName:name bundle:nil])) {
     contents_ = contents;
     bookmarkModel_ = bookmarkModel;
   }

@@ -16,6 +16,8 @@ class GURL;
 //
 class StatusBubble {
  public:
+  virtual ~StatusBubble() { };
+
   // Sets the bubble contents to a specific string and causes the bubble
   // to display immediately. Subsequent empty SetURL calls (typically called
   // when the cursor exits a link) will set the status bubble back to its

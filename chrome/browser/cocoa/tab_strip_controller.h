@@ -7,6 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include "base/scoped_nsobject.h"
+#include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/tab_controller_target.h"
 
 @class TabStripView;
@@ -14,7 +16,6 @@
 
 class BookmarkModel;
 class Browser;
-class CommandUpdater;
 class LocationBar;
 class TabStripModelObserverBridge;
 class TabStripModel;
@@ -38,21 +39,20 @@ class ToolbarModel;
   TabStripView* tabView_;  // weak
   NSView* switchView_;  // weak
   NSButton* newTabButton_;  // weak, obtained from the nib.
-  TabStripModelObserverBridge* bridge_;
+  scoped_ptr<TabStripModelObserverBridge> bridge_;
   TabStripModel* tabModel_;  // weak
   BookmarkModel* bookmarkModel_;  // weak, one per profile (= one per Browser*)
-  CommandUpdater* commands_;  // weak, may be nil
   // access to the TabContentsControllers (which own the parent view
   // for the toolbar and associated tab contents) given an index. This needs
   // to be kept in the same order as the tab strip's model as we will be
   // using its index from the TabStripModelObserver calls.
-  NSMutableArray* tabContentsArray_;
+  scoped_nsobject<NSMutableArray> tabContentsArray_;
   // an array of TabControllers which manage the actual tab views. As above,
   // this is kept in the same order as the tab strip model.
-  NSMutableArray* tabArray_;
+  scoped_nsobject<NSMutableArray> tabArray_;
 
   // Controller for bookmark bar state, shared among all TabContents.
-  BookmarkBarStateController* bookmarkBarStateController_;
+  scoped_nsobject<BookmarkBarStateController> bookmarkBarStateController_;
 }
 
 // Initialize the controller with a view and browser that contains
