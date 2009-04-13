@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -208,7 +208,8 @@ WebContents::WebContents(Profile* profile,
       load_state_(net::LOAD_STATE_IDLE),
       find_ui_active_(false),
       find_op_aborted_(false),
-      current_find_request_id_(find_request_id_counter_++) {
+      current_find_request_id_(find_request_id_counter_++),
+      find_prepopulate_text_(NULL) {
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
 
@@ -232,6 +233,10 @@ WebContents::WebContents(Profile* profile,
   NotificationService::current()->AddObserver(
       this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
       NotificationService::AllSources());
+
+  // Keep a global copy of the previous search string (if any).
+  static string16 global_last_search = string16();
+  find_prepopulate_text_ = &global_last_search;
 }
 
 WebContents::~WebContents() {
@@ -624,6 +629,9 @@ void WebContents::StartFinding(const string16& find_text,
     find_text_ = find_text;
 
   find_op_aborted_ = false;
+
+  // Keep track of what the last search was across the tabs.
+  *find_prepopulate_text_ = find_text;
 
   render_view_host()->StartFinding(current_find_request_id_,
                                    find_text_,

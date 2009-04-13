@@ -225,6 +225,10 @@ class WebContents : public TabContents,
   // active searches.
   string16 find_text() const { return find_text_; }
 
+  // Accessor for find_prepopulate_text_. Used to access the last search
+  // string entered, whatever tab that search was performed in.
+  string16 find_prepopulate_text() const { return *find_prepopulate_text_; }
+
   // Accessor for find_result_.
   const FindNotificationDetails& find_result() const { return find_result_; }
 
@@ -695,6 +699,9 @@ class WebContents : public TabContents,
   // The last string we searched for. This is used to figure out if this is a
   // Find or a FindNext operation (FindNext should not increase the request id).
   string16 find_text_;
+
+  // Keeps track of the last search string that was used to search in any tab.
+  string16* find_prepopulate_text_;
 
   // The last find result. This object contains details about the number of
   // matches, the find selection rectangle, etc. The UI can access this

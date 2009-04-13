@@ -76,12 +76,19 @@ void FindBarController::ChangeWebContents(WebContents* contents) {
         this, NotificationType::NAV_ENTRY_COMMITTED,
         Source<NavigationController>(web_contents_->controller()));
 
+    // Find out what we should show in the find text box. Usually, this will be
+    // the last search in this tab, but if no search has been issued in this tab
+    // we use the last search string (from any tab).
+    string16 find_string = web_contents_->find_text();
+    if (find_string.empty())
+      find_string = web_contents_->find_prepopulate_text();
+
     // Update the find bar with existing results and search text, regardless of
     // whether or not the find bar is visible, so that if it's subsequently
     // shown it is showing the right state for this tab. We update the find text
     // _first_ since the FindBarView checks its emptiness to see if it should
     // clear the result count display when there's nothing in the box.
-    find_bar_->SetFindText(web_contents_->find_text());
+    find_bar_->SetFindText(find_string);
 
     if (web_contents_->find_ui_active()) {
       // A tab with a visible find bar just got selected and we need to show the
