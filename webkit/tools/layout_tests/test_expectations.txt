@@ -2470,3 +2470,6 @@ BUG9962 MAC LINUX : LayoutTests/http/tests/security/XFrameOptions/x-frame-option
 BUG9992 : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
 BUG9992 : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
 BUG9992 : LayoutTests/fast/text/shadow-no-blur.html = FAIL
+BUG9992 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
+BUG9992 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+BUG9962 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
