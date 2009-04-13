@@ -413,14 +413,13 @@
             ['OS=="linux"', {
               'sources!': [
                 # TODO(port):  Port these.
-                # plugin_client.cc includes not ported headers.
+
                 # plugin_npobject_lifetime_test.cc has win32-isms
                 #   (HWND, CALLBACK).
-                # plugin_window_size_test.cc has w32-isms including HWND.
-                '../../glue/plugins/test/plugin_client.cc',
-                '../../glue/plugins/test/plugin_javascript_open_popup.cc',
                 '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
-                '../../glue/plugins/test/plugin_private_test.cc',
+
+                # The windowed/windowless APIs are necessarily
+                # platform-specific.
                 '../../glue/plugins/test/plugin_window_size_test.cc',
                 '../../glue/plugins/test/plugin_windowless_test.cc',
               ],

@@ -43,7 +43,7 @@ NPError PluginClient::GetEntryPoints(NPPluginFuncs* pFuncs) {
   pFuncs->urlnotify     = NPP_URLNotify;
   pFuncs->getvalue      = NPP_GetValue;
   pFuncs->setvalue      = NPP_SetValue;
-  pFuncs->javaClass     = static_cast<JRIGlobalRef>(NPP_GetJavaClass);
+  pFuncs->javaClass     = reinterpret_cast<JRIGlobalRef>(NPP_GetJavaClass);
 
   return NPERR_NO_ERROR;
 }
@@ -100,6 +100,8 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else if (base::strcasecmp(argv[name_index], "npobject_proxy") == 0) {
     new_test = new NPAPIClient::NPObjectProxyTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
+#if defined(OS_WIN)
+  // TODO(port): plugin_windowless_test.*.
   } else if ((base::strcasecmp(argv[name_index],
              "execute_script_delete_in_paint") == 0) ||
              (base::strcasecmp(argv[name_index],
@@ -107,16 +109,22 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
     new_test = new NPAPIClient::WindowlessPluginTest(instance,
       NPAPIClient::PluginClient::HostFunctions(), argv[name_index]);
     windowless_plugin = true;
+#endif
   } else if (base::strcasecmp(argv[name_index], "getjavascripturl") == 0) {
     new_test = new NPAPIClient::ExecuteGetJavascriptUrlTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
+#if defined(OS_WIN)
+  // TODO(port): plugin_window_size_test.*.
   } else if (base::strcasecmp(argv[name_index], "checkwindowrect") == 0) {
     new_test = new NPAPIClient::PluginWindowSizeTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
+#endif
   } else if (base::strcasecmp(argv[name_index],
              "self_delete_plugin_stream") == 0) {
     new_test = new NPAPIClient::DeletePluginInStreamTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
+#if defined(OS_WIN)
+  // TODO(port): plugin_npobject_lifetime_test.*.
   } else if (base::strcasecmp(argv[name_index],
              "npobject_lifetime_test") == 0) {
     new_test = new NPAPIClient::NPObjectLifetimeTest(instance,
@@ -125,13 +133,14 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
              "npobject_lifetime_test_second_instance") == 0) {
     new_test = new NPAPIClient::NPObjectLifetimeTestInstance2(instance,
       NPAPIClient::PluginClient::HostFunctions());
-  } else if (base::strcasecmp(argv[name_index], "new_fails") == 0) {
-    new_test = new NPAPIClient::NewFailsTest(instance,
-        NPAPIClient::PluginClient::HostFunctions());
   } else if (base::strcasecmp(argv[name_index],
              "npobject_delete_plugin_in_evaluate") == 0) {
     new_test = new NPAPIClient::NPObjectDeletePluginInNPN_Evaluate(instance,
       NPAPIClient::PluginClient::HostFunctions());
+#endif
+  } else if (base::strcasecmp(argv[name_index], "new_fails") == 0) {
+    new_test = new NPAPIClient::NewFailsTest(instance,
+        NPAPIClient::PluginClient::HostFunctions());
   } else if (base::strcasecmp(argv[name_index],
              "plugin_javascript_open_popup_with_plugin") == 0) {
     new_test = new NPAPIClient::ExecuteJavascriptOpenPopupWithPluginTest(
@@ -146,6 +155,8 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else {
     // If we don't have a test case for this, create a
     // generic one which basically never fails.
+    LOG(WARNING) << "Unknown test name '" << argv[name_index]
+                 << "'; using default test.";
     new_test = new NPAPIClient::PluginTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
   }

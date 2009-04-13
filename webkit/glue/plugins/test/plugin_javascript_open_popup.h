@@ -34,6 +34,11 @@ class ExecuteJavascriptPopupWindowTargetPluginTest : public PluginTest {
   virtual NPError SetWindow(NPWindow* window);
 
  private:
+  // Do a platform-specific validation of the passed-in |window|.
+  // E.g. on Windows, verifies window->window is a reasonable HWND.
+  // Returns true if the test should be marked complete.
+  bool CheckWindow(NPWindow* window);
+
   bool test_completed_;
 };
 
