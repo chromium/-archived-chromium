@@ -12,4 +12,7 @@ include_rules = [
   "-v8",
   "-webkit",
   "-tools",
+
+  # Brett's test. Contact him for questions.
+  "+frame_window",
 ]
