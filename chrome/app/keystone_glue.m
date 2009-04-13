@@ -60,6 +60,9 @@ typedef enum { kKSPathExistenceChecker } KSExistenceCheckerType;
     existenceCheckerString:[mainBundle bundlePath]
            serverURLString:url];
 
+  // Mark an active RIGHT NOW; don't wait an hour for the first one.
+  [ksr setActive];
+
   // Set up hourly activity pings.
   [NSTimer scheduledTimerWithTimeInterval:60 * 60  // One hour
                                    target:self
