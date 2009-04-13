@@ -47,6 +47,10 @@
 #include "base/win_util.h"
 #endif
 
+#ifdef FRAME_WINDOW
+#include "frame_window/frame_window.h"
+#endif
+
 namespace {
 
 // A delegate for the InfoBar shown when the previous session has crashed. The
@@ -534,6 +538,11 @@ bool BrowserInit::LaunchBrowserImpl(const CommandLine& command_line,
                                     bool process_startup,
                                     int* return_code) {
   DCHECK(profile);
+
+#ifdef FRAME_WINDOW
+  FrameWindow::Show(profile);
+  return true;
+#endif
 
   // Continue with the off-the-record profile from here on if --incognito
   if (command_line.HasSwitch(switches::kIncognito))

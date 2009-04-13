@@ -33,6 +33,9 @@ class HWNDView : public View {
   // Attach a window handle to this View, making the window it represents
   // subject to sizing according to this View's parent container's Layout
   // Manager's sizing heuristics.
+  //
+  // This object should be added to the view hierarchy before calling this
+  // function, which will expect the parent to be valid.
   void Attach(HWND hwnd);
 
   // Detach the attached window handle. It will no longer be updated
