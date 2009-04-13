@@ -31,8 +31,8 @@ const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
 class MockExtensionView : public ExtensionView {
  public:
   MockExtensionView(Extension* extension, const GURL& url,
-                    SiteInstance* instance)
-      : ExtensionView(extension, url, instance), got_message_(false) {
+                    SiteInstance* instance, Browser* browser)
+      : ExtensionView(extension, url, instance, browser), got_message_(false) {
     InitHidden();
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         new MessageLoop::QuitTask, kAlertTimeoutMs);
@@ -93,6 +93,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
   // Start the extension process and wait for it to show a javascript alert.
   MockExtensionView view(
       extension, url, ExtensionProcessManager::GetInstance()->
-          GetSiteInstanceForURL(url, browser()->profile()));
+          GetSiteInstanceForURL(url, browser()->profile()),
+          NULL);  // TODO(erikkay): do we need to get a Browser here?
   EXPECT_TRUE(view.got_message());
 }

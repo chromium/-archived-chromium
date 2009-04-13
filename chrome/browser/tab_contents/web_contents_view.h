@@ -13,6 +13,7 @@
 #include "base/gfx/rect.h"
 #include "base/gfx/size.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
 
 class Browser;
 class RenderViewHost;
@@ -136,6 +137,9 @@ class WebContentsView : public RenderViewHostDelegate::View {
                                                         bool activatable);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
                                          const gfx::Rect& initial_pos);
+
+  // Common implementations of some RenderViewHostDelegate::View methods.
+  RenderViewHostDelegateViewHelper delegate_view_helper_;
 
  private:
   // We implement these functions on RenderViewHostDelegate::View directly and

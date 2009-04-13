@@ -35,6 +35,8 @@ class HWNDHtmlView : public views::HWNDView {
   // opportunity to do some setup.
   virtual void CreatingRenderer() {}
 
+  SiteInstance* site_instance() { return site_instance_; }
+
  private:
   // Initialize the view, parented to |parent|, and show it.
   void Init(HWND parent);

@@ -9,6 +9,7 @@
 
 #include <map>
 
+class Browser;
 class BrowsingInstance;
 class Extension;
 class ExtensionView;
@@ -36,7 +37,7 @@ class ExtensionProcessManager {
   // (and therefore process) based on the URL and profile.
   ExtensionView* CreateView(Extension* extension,
                             const GURL& url,
-                            Profile* profile);
+                            Browser* browser);
 
   // Returns the SiteInstance that the given URL belongs to in this profile.
   SiteInstance* GetSiteInstanceForURL(const GURL& url, Profile* profile);

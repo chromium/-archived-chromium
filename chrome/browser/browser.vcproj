@@ -650,15 +650,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\app_modal_dialog_win.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\app_modal_dialog_queue.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\app_modal_dialog_queue.h"
+				>
+			</File>
+			<File
+				RelativePath=".\app_modal_dialog_win.cc"
 				>
 			</File>
 			<File
@@ -1422,11 +1422,11 @@
 			Name="Password Manager"
 			>
 			<File
-				RelativePath=".\password_manager\encryptor_win.cc"
+				RelativePath=".\password_manager\encryptor.h"
 				>
 			</File>
 			<File
-				RelativePath=".\password_manager\encryptor.h"
+				RelativePath=".\password_manager\encryptor_win.cc"
 				>
 			</File>
 			<File
@@ -2259,6 +2259,14 @@
 			</File>
 			<File
 				RelativePath=".\tab_contents\render_view_context_menu_win.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\render_view_host_delegate_helper.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\render_view_host_delegate_helper.h"
 				>
 			</File>
 			<File

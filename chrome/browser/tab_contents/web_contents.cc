@@ -1335,94 +1335,9 @@ GURL WebContents::GetAlternateErrorPageURL() const {
 }
 
 WebPreferences WebContents::GetWebkitPrefs() {
-  // Initialize web_preferences_ to chrome defaults.
-  WebPreferences web_prefs;
-  PrefService* prefs = profile()->GetPrefs();
-
-  web_prefs.fixed_font_family =
-      prefs->GetString(prefs::kWebKitFixedFontFamily);
-  web_prefs.serif_font_family =
-      prefs->GetString(prefs::kWebKitSerifFontFamily);
-  web_prefs.sans_serif_font_family =
-      prefs->GetString(prefs::kWebKitSansSerifFontFamily);
-  if (prefs->GetBoolean(prefs::kWebKitStandardFontIsSerif))
-    web_prefs.standard_font_family = web_prefs.serif_font_family;
-  else
-    web_prefs.standard_font_family = web_prefs.sans_serif_font_family;
-  web_prefs.cursive_font_family =
-      prefs->GetString(prefs::kWebKitCursiveFontFamily);
-  web_prefs.fantasy_font_family =
-      prefs->GetString(prefs::kWebKitFantasyFontFamily);
-
-  web_prefs.default_font_size =
-      prefs->GetInteger(prefs::kWebKitDefaultFontSize);
-  web_prefs.default_fixed_font_size =
-      prefs->GetInteger(prefs::kWebKitDefaultFixedFontSize);
-  web_prefs.minimum_font_size =
-      prefs->GetInteger(prefs::kWebKitMinimumFontSize);
-  web_prefs.minimum_logical_font_size =
-      prefs->GetInteger(prefs::kWebKitMinimumLogicalFontSize);
-
-  web_prefs.default_encoding = prefs->GetString(prefs::kDefaultCharset);
-
-  web_prefs.javascript_can_open_windows_automatically =
-      prefs->GetBoolean(prefs::kWebKitJavascriptCanOpenWindowsAutomatically);
-  web_prefs.dom_paste_enabled =
-      prefs->GetBoolean(prefs::kWebKitDomPasteEnabled);
-  web_prefs.shrinks_standalone_images_to_fit =
-      prefs->GetBoolean(prefs::kWebKitShrinksStandaloneImagesToFit);
-
-  {  // Command line switches are used for preferences with no user interface.
-    const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-    web_prefs.developer_extras_enabled =
-        !command_line.HasSwitch(switches::kDisableDevTools) &&
-        prefs->GetBoolean(prefs::kWebKitDeveloperExtrasEnabled);
-    web_prefs.javascript_enabled =
-        !command_line.HasSwitch(switches::kDisableJavaScript) &&
-        prefs->GetBoolean(prefs::kWebKitJavascriptEnabled);
-    web_prefs.web_security_enabled =
-        !command_line.HasSwitch(switches::kDisableWebSecurity) &&
-        prefs->GetBoolean(prefs::kWebKitWebSecurityEnabled);
-    web_prefs.plugins_enabled =
-        !command_line.HasSwitch(switches::kDisablePlugins) &&
-        prefs->GetBoolean(prefs::kWebKitPluginsEnabled);
-    web_prefs.java_enabled =
-        !command_line.HasSwitch(switches::kDisableJava) &&
-        prefs->GetBoolean(prefs::kWebKitJavaEnabled);
-    web_prefs.loads_images_automatically =
-        !command_line.HasSwitch(switches::kDisableImages) &&
-        prefs->GetBoolean(prefs::kWebKitLoadsImagesAutomatically);
-    web_prefs.uses_page_cache =
-        command_line.HasSwitch(switches::kEnableFastback);
-  }
-
-  web_prefs.uses_universal_detector =
-      prefs->GetBoolean(prefs::kWebKitUsesUniversalDetector);
-  web_prefs.text_areas_are_resizable =
-      prefs->GetBoolean(prefs::kWebKitTextAreasAreResizable);
-
-  // User CSS is currently disabled because it crashes chrome.  See
-  // webkit/glue/webpreferences.h for more details.
-
-  // Make sure we will set the default_encoding with canonical encoding name.
-  web_prefs.default_encoding =
-      CharacterEncoding::GetCanonicalEncodingNameByAliasName(
-          web_prefs.default_encoding);
-  if (web_prefs.default_encoding.empty()) {
-    prefs->ClearPref(prefs::kDefaultCharset);
-    web_prefs.default_encoding = prefs->GetString(
-        prefs::kDefaultCharset);
-  }
-  DCHECK(!web_prefs.default_encoding.empty());
-
-  // Override some prefs when we're a DOM UI, or the pages won't work. This is
-  // called during setup, so we will always use the pending one.
-  if (render_manager_.pending_dom_ui()) {
-    web_prefs.loads_images_automatically = true;
-    web_prefs.javascript_enabled = true;
-  }
-
-  return web_prefs;
+  PrefService* prefs = render_view_host()->process()->profile()->GetPrefs();
+  bool isDomUI = false;
+  return RenderViewHostDelegateHelper::GetWebkitPrefs(prefs, isDomUI);
 }
 
 void WebContents::OnMissingPluginStatus(int status) {

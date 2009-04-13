@@ -32,6 +32,7 @@ class MessageLoop;
 class NavigationController;
 class Profile;
 class RenderViewHostDelegate;
+class SiteInstance;
 class URLRequest;
 class WebContents;
 struct ViewHostMsg_DidPrintPage_Params;
@@ -557,6 +558,7 @@ class HWNDHtmlView {
   HWNDHtmlView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
   void Layout() { NOTIMPLEMENTED(); }
   void SchedulePaint() { NOTIMPLEMENTED(); }
+  SiteInstance* site_instance() { NOTIMPLEMENTED(); return NULL; }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

@@ -5,6 +5,7 @@
 #include "chrome/browser/extensions/extension_process_manager.h"
 
 #include "base/singleton.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 
@@ -21,8 +22,10 @@ ExtensionProcessManager::~ExtensionProcessManager() {
 
 ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
-                                                   Profile* profile) {
-  return new ExtensionView(extension, url, GetSiteInstanceForURL(url, profile));
+                                                   Browser* browser) {
+  return new ExtensionView(extension, url, 
+                           GetSiteInstanceForURL(url, browser->profile()),
+                           browser);
 }
 
 SiteInstance* ExtensionProcessManager::GetSiteInstanceForURL(

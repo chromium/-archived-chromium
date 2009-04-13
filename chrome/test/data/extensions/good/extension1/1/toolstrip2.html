@@ -9,6 +9,7 @@ body {
 .content {
   background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
   padding: 1;
+  white-space: nowrap;
 }
 </style>
 <body>
@@ -16,6 +17,6 @@ body {
 <script>
   alert(window.extension.getTestString());
 </script>
-<button onclick="alert('clicked')">HTML button</button>
+<button onclick="window.open('http://www.google.com', 'mywindow', 'width=640, height=480');">HTML button</button>
 </div>
 </body>

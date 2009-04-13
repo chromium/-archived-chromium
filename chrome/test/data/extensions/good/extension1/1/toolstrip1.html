@@ -9,12 +9,16 @@ body {
 .content {
   background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
   padding: 1;
+  white-space: nowrap;
 }
 </style>
 <body>
 <div class="content">
 <script>
+  // ExtensionViewTest depends on this alert, even though it doesn't work in
+  // the real browser.
   alert('Sir, I exist');
+  console.log('Sir, I exist');
 
   chromium.onconnect.addListener(function (port) {
     port.onmessage.addListener(doOnMessage);
@@ -28,6 +32,10 @@ body {
     }
   }
 </script>
-<button onclick="alert('clicked')">HTML button</button>
+<select>
+<option>one</option>
+<option>two</option>
+<option>three</option>
+</select>
 </div>
 </body>
