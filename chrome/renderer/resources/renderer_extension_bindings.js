@@ -30,6 +30,9 @@ var chromium = chromium || {};
   chromium.Port.dispatchOnMessage_ = function(msg, portId) {
     var port = chromium.Port.ports_[portId];
     if (port) {
+      if (msg) {
+        msg = goog.json.parse(msg);
+      }
       port.onmessage.dispatch(msg, port);
     }
   };
@@ -37,7 +40,7 @@ var chromium = chromium || {};
   // Sends a message asynchronously to the context on the other end of this
   // port.
   chromium.Port.prototype.postMessage = function(msg) {
-    PostMessage(this.portId_, msg);
+    PostMessage(this.portId_, goog.json.serialize(msg));
   };
 
   // Extension object.

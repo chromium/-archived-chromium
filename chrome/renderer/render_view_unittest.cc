@@ -6,6 +6,7 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
+#include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/mock_render_process.h"
 #include "chrome/renderer/mock_render_thread.h"
 #include "chrome/renderer/render_view.h"
@@ -67,6 +68,8 @@ class RenderViewTest : public testing::Test {
   // testing::Test
   virtual void SetUp() {
     WebKit::initialize(&webkitclient_);
+    WebKit::registerExtension(BaseJsV8Extension::Get());
+    WebKit::registerExtension(JsonJsV8Extension::Get());
     WebKit::registerExtension(EventBindings::Get());
     WebKit::registerExtension(RendererExtensionBindings::Get(&render_thread_));
 
@@ -381,9 +384,9 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
     "var e = new chromium.Extension('foobar');"
     "var port = e.connect();"
     "port.onmessage.addListener(doOnMessage);"
-    "port.postMessage('content ready');"
+    "port.postMessage({message: 'content ready'});"
     "function doOnMessage(msg, port) {"
-    "  alert('content got: ' + msg);"
+    "  alert('content got: ' + msg.val);"
     "}");
 
   // Verify that we opened a channel and sent a message through it.
@@ -395,21 +398,21 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   const IPC::Message* post_msg =
       render_thread_.sink().GetUniqueMessageMatching(
           ViewHostMsg_ExtensionPostMessage::ID);
-  EXPECT_TRUE(post_msg);
+  ASSERT_TRUE(post_msg);
   ViewHostMsg_ExtensionPostMessage::Param post_params;
   ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
-  EXPECT_EQ("content ready", post_params.b);
+  EXPECT_EQ("{\"message\":\"content ready\"}", post_params.b);
 
   // Now simulate getting a message back from the other side.
   render_thread_.sink().ClearMessages();
   const int kPortId = 0;
-  RendererExtensionBindings::HandleMessage("42", kPortId);
+  RendererExtensionBindings::HandleMessage("{\"val\": 42}", kPortId);
 
   // Verify that we got it.
   const IPC::Message* alert_msg =
       render_thread_.sink().GetUniqueMessageMatching(
           ViewHostMsg_RunJavaScriptMessage::ID);
-  EXPECT_TRUE(alert_msg);
+  ASSERT_TRUE(alert_msg);
   void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
   ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
   IPC::ReadParam(alert_msg, &iter, &alert_param);
@@ -423,10 +426,10 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   ExecuteJavaScript(
     "chromium.onconnect.addListener(function (port) {"
     "  port.onmessage.addListener(doOnMessage);"
-    "  port.postMessage('onconnect');"
+    "  port.postMessage({message: 'onconnect'});"
     "});"
     "function doOnMessage(msg, port) {"
-    "  alert('got: ' + msg);"
+    "  alert('got: ' + msg.val);"
     "}");
 
   render_thread_.sink().ClearMessages();
@@ -439,20 +442,20 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   const IPC::Message* post_msg =
       render_thread_.sink().GetUniqueMessageMatching(
           ViewHostMsg_ExtensionPostMessage::ID);
-  EXPECT_TRUE(post_msg);
+  ASSERT_TRUE(post_msg);
   ViewHostMsg_ExtensionPostMessage::Param post_params;
   ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
-  EXPECT_EQ("onconnect", post_params.b);
+  EXPECT_EQ("{\"message\":\"onconnect\"}", post_params.b);
 
   // Now simulate getting a message back from the channel opener.
   render_thread_.sink().ClearMessages();
-  RendererExtensionBindings::HandleMessage("42", kPortId);
+  RendererExtensionBindings::HandleMessage("{\"val\": 42}", kPortId);
 
   // Verify that we got it.
   const IPC::Message* alert_msg =
       render_thread_.sink().GetUniqueMessageMatching(
           ViewHostMsg_RunJavaScriptMessage::ID);
-  EXPECT_TRUE(alert_msg);
+  ASSERT_TRUE(alert_msg);
   void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
   ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
   IPC::ReadParam(alert_msg, &iter, &alert_param);

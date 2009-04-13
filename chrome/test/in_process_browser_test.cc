@@ -86,6 +86,8 @@ void InProcessBrowserTest::SetUp() {
   CommandLine* command_line = CommandLine::ForCurrentProcessMutable();
   original_command_line_.reset(new CommandLine(*command_line));
 
+  SetUpCommandLine(command_line);
+
   // Hide windows on show.
   if (!command_line->HasSwitch(kUnitTestShowWindows) && !show_window_)
     BrowserView::SetShowState(SW_HIDE);

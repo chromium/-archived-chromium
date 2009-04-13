@@ -6,6 +6,7 @@
 
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
+#include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_view.h"
 #include "grit/renderer_resources.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
@@ -17,12 +18,14 @@ using WebKit::WebString;
 namespace {
 
 const char kExtensionName[] = "chrome/ExtensionProcessBindings";
+const char* kExtensionDeps[] = { JsonJsV8Extension::kName };
 
 class ExtensionImpl : public v8::Extension {
  public:
   ExtensionImpl() : v8::Extension(
       kExtensionName, GetStringResource<IDR_EXTENSION_PROCESS_BINDINGS_JS>(),
-      NULL, NULL) {}
+      arraysize(kExtensionDeps), kExtensionDeps) {
+  }
 
   static void SetFunctionNames(const std::vector<std::string>& names) {
     function_names_ = new std::set<std::string>();

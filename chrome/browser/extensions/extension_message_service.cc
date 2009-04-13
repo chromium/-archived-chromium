@@ -73,7 +73,8 @@ int ExtensionMessageService::OpenChannelToExtension(
   ResourceMessageFilter* dest = NULL;
   {
     AutoLock lock(renderers_lock_);
-    ProcessIDMap::iterator process_id = process_ids_.find(extension_id);
+    ProcessIDMap::iterator process_id = process_ids_.find(
+        StringToLowerASCII(extension_id));
     if (process_id == process_ids_.end())
       return -1;
 
