@@ -2245,9 +2245,6 @@ WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = 
 LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
 MAC : LayoutTests/fast/js/regexp-overflow.html = FAIL TIMEOUT
 
-// Started failing between revisions 13096 and 13099.
-DEBUG WIN : LayoutTests/http/tests/navigation/post-basic.html = CRASH
-
 // Flaky since rev 13111.
 MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
 
@@ -2269,7 +2266,6 @@ BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-window.html = FAIL
 BUG9786 : LayoutTests/http/tests/security/cross-frame-access-history-prototype.html = FAIL
 BUG9786 : LayoutTests/http/tests/security/cross-frame-access-location-prototype.html = FAIL
 BUG9786 : LayoutTests/http/tests/security/cross-frame-access-document-direct.html = TIMEOUT
-BUG9786 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-enumeration.html = CRASH
 BUG9787 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 BUG9787 : LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
 BUG9787 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
@@ -2401,12 +2397,10 @@ BUG9797 WIN DEBUG : LayoutTests/svg/css/css-box-min-width.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/traversal/node-iterator-009.html = CRASH PASS
 
 BUG9941 LINUX DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL
-BUG9941 WIN DEBUG : LayoutTests/svg/custom/missing-xlink.svg = FAIL
 
-BUG9850 WIN : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
 BUG9850 WIN LINUX : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
 BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
-BUG9850 WIN MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
+BUG9850 MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
 
 // Failed in WebKit merge 42287:42324
 BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5502-mrgn-r-02-c.html = FAIL
@@ -2414,11 +2408,6 @@ BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5505-mrgn-02-c.html = FAIL
 BUG9916 WIN LINUX : LayoutTests/fast/block/float/013.html = FAIL
 BUG9916 : LayoutTests/http/tests/xmlhttprequest/set-dangerous-headers.html = FAIL
 BUG9916 WIN LINUX : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FAIL
-BUG9916 WIN : LayoutTests/svg/custom/getsvgdocument.html = FAIL
-BUG9916 WIN : LayoutTests/transitions/transition-end-event-left.html = FAIL
-
-// Started failing with WebKit merge 42324:42364. Unknown cause(s).
-BUG9926 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 
 // New tests or failures from WebKit merge 42324:42364. Re-baselined on
 // Windows. Probably just need the same on other platforms.
