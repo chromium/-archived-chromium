@@ -95,31 +95,3 @@ TEST_F(PluginTest, Refresh) {
 
   DeleteTestPlugin();
 }
-
-TEST_F(PluginTest, DefaultPluginLoadTest) {
-  std::string html = "\
-      <div id='result'>Test running....</div>\
-      <script>\
-      function onSuccess() {\
-        var result = document.getElementById('result');\
-        result.innerHTML = 'DONE';\
-      }\
-      </script>\
-      <DIV ID=PluginDiv>\
-      <object classid=\"clsid:9E8BC6CE-AF35-400c-ABF6-A3F746A1871D\">\
-      <embed type=\"application/chromium-test-default-plugin\"\
-        mode=\"np_embed\"\
-      ></embed>\
-      </object>\
-      </DIV>\
-      ";
-
-  test_shell_->webView()->GetMainFrame()->LoadHTMLString(
-      html, GURL("about:blank"));
-  test_shell_->WaitTestFinished();
-
-  std::wstring text;
-  test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);
-
-  ASSERT_EQ(true, StartsWith(text, L"DONE", true));
-}

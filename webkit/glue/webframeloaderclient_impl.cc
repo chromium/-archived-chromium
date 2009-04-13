@@ -1447,21 +1447,16 @@ Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay)
             webkit_glue::CStringToStdString(param_values[i].latin1()));
       }
     }
-
-    // Attempt to map this clsid to a known NPAPI mime type if possible, failing
-    // which we attempt to load the activex shim for the clsid.
-    if (!activex_shim::GetMimeTypeForClsid(clsid, &my_mime_type)) {
-      // We only allowed specific ActiveX controls to run from certain websites.
-      if (!activex_shim::IsActiveXAllowed(clsid, url))
-        return NULL;
-      // We need to pass the combined clsid + version to PluginsList, so that it
-      // would detect if the requested version is installed. If not, it needs
-      // to use the default plugin to update the control.
-      if (!version.empty())
-        combined_clsid = clsid + "#" + version;
-      else
-        combined_clsid = clsid;
-    }
+    // We only allowed specific ActiveX controls to run from certain websites.
+    if (!activex_shim::IsActiveXAllowed(clsid, url))
+      return NULL;
+    // We need to pass the combined clsid + version to PluginsList, so that it
+    // would detect if the requested version is installed. If not, it needs
+    // to use the default plugin to update the control.
+    if (!version.empty())
+      combined_clsid = clsid + "#" + version;
+    else
+      combined_clsid = clsid;
   }
 #endif
 

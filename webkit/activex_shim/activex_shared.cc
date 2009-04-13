@@ -225,17 +225,4 @@ bool IsMimeTypeActiveX(const std::string& mimetype) {
          LowerCaseEqualsASCII(mimetype, "application/oleobject");
 }
 
-bool GetMimeTypeForClsid(const std::string& clsid, std::string* mime_type) {
-  DCHECK(mime_type != NULL);
-
-  if (!base::strcasecmp(clsid.c_str(),
-                        "6BF52A52-394A-11D3-B153-00C04F79FAA6") ||
-      !base::strcasecmp(clsid.c_str(),
-                        "22D6F312-B0F6-11D0-94AB-0080C74C7E95")) {
-    *mime_type = "application/x-mplayer2";
-    return true;
-  }
-  return false;
-}
-
 }  // namespace activex_shim

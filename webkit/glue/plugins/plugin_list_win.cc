@@ -211,6 +211,20 @@ void PluginList::PlatformInit() {
 
   const PluginVersionInfo builtin_plugins[] = {
   {
+    FilePath(kActiveXShimFileName),
+    L"ActiveX Plug-in",
+    L"ActiveX Plug-in provides a shim to support ActiveX controls",
+    L"1, 0, 0, 1",
+    L"application/x-oleobject|application/oleobject",
+    L"*|*",
+    L"",
+    {
+      activex_shim::ActiveX_Shim_NP_GetEntryPoints,
+      activex_shim::ActiveX_Shim_NP_Initialize,
+      activex_shim::ActiveX_Shim_NP_Shutdown
+    }
+  },
+  {
     FilePath(kActiveXShimFileNameForMediaPlayer),
     kActiveXShimFileNameForMediaPlayer,
     L"Windows Media Player",
