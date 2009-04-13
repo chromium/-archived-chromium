@@ -13,6 +13,7 @@
 #include "chrome/common/owned_widget_gtk.h"
 
 class Browser;
+class LocationBarViewGtk;
 class Task;
 
 class GoButtonGtk {
@@ -20,7 +21,7 @@ class GoButtonGtk {
   enum Mode { MODE_GO = 0, MODE_STOP };
   enum ButtonState { BS_NORMAL = 0, BS_HOT };
 
-  explicit GoButtonGtk(Browser* browser);
+  GoButtonGtk(LocationBarViewGtk* location_bar, Browser* browser);
   ~GoButtonGtk();
 
   GtkWidget* widget() const { return widget_.get(); }
@@ -46,8 +47,13 @@ class GoButtonGtk {
   static gboolean OnLeave(GtkButton* widget, GoButtonGtk* button);
   static gboolean OnClicked(GtkButton* widget, GoButtonGtk* button);
 
+  void SetToggled();
+
   Task* CreateButtonTimerTask();
   void OnButtonTimer();
+  void SetTooltip();
+
+  LocationBarViewGtk* const location_bar_;
 
   // Keep a pointer to the Browser object to execute commands on it.
   Browser* const browser_;

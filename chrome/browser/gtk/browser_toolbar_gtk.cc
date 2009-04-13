@@ -125,7 +125,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
   location_bar_->Init();
   gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
 
-  go_.reset(new GoButtonGtk(browser_));
+  go_.reset(new GoButtonGtk(location_bar_.get(), browser_));
   gtk_box_pack_start(GTK_BOX(toolbar_), go_->widget(), FALSE, FALSE, 0);
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);

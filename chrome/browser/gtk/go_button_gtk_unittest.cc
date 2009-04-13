@@ -42,7 +42,7 @@ namespace {
 
 class GoButtonGtkTest : public testing::Test {
  protected:
-  GoButtonGtkTest() : go_(NULL), peer_(&go_) { }
+  GoButtonGtkTest() : go_(NULL, NULL), peer_(&go_) { }
 
  protected:
   GoButtonGtk go_;

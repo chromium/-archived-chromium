@@ -12,6 +12,7 @@
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
 #include "chrome/browser/autocomplete/autocomplete_edit.h"
+#include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
 #include "chrome/browser/location_bar.h"
 #include "chrome/common/owned_widget_gtk.h"
 #include "chrome/common/page_transition_types.h"
@@ -42,6 +43,10 @@ class LocationBarViewGtk : public AutocompleteEditController,
   // security style, and, if |tab_for_state_restoring| is non-NULL, also
   // restore saved state that the tab holds.
   void Update(const TabContents* tab_for_state_restoring);
+
+  AutocompleteEditView* location_entry() {
+    return location_entry_.get();
+  }
 
   // Implement the AutocompleteEditController interface.
   virtual void OnAutocompleteAccept(const GURL& url,

@@ -7,10 +7,14 @@
 #include "base/message_loop.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/location_bar_view_gtk.h"
+#include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
-GoButtonGtk::GoButtonGtk(Browser* browser)
-    : browser_(browser),
+GoButtonGtk::GoButtonGtk(LocationBarViewGtk* location_bar, Browser* browser)
+    : location_bar_(location_bar),
+      browser_(browser),
       button_delay_(0),
       stop_timer_(this),
       intended_mode_(MODE_GO),
@@ -37,8 +41,7 @@ GoButtonGtk::GoButtonGtk(Browser* browser)
                    G_CALLBACK(OnClicked), this);
   GTK_WIDGET_UNSET_FLAGS(widget_.get(), GTK_CAN_FOCUS);
 
-  // TODO(willchan): Implement tooltips.
-  gtk_widget_set_tooltip_text(widget_.get(), "Implement toggleable tooltips");
+  SetTooltip();
 }
 
 GoButtonGtk::~GoButtonGtk() {
@@ -48,10 +51,11 @@ GoButtonGtk::~GoButtonGtk() {
 void GoButtonGtk::ChangeMode(Mode mode) {
   if (mode != visible_mode_) {
     gtk_widget_queue_draw(widget_.get());
+    visible_mode_ = mode;
+    SetTooltip();
   }
   stop_timer_.RevokeAll();
   intended_mode_ = mode;
-  visible_mode_ = mode;
 }
 
 void GoButtonGtk::ScheduleChangeMode(Mode mode) {
@@ -153,4 +157,29 @@ gboolean GoButtonGtk::OnClicked(GtkButton* widget, GoButtonGtk* button) {
   }
 
   return TRUE;
+}
+
+void GoButtonGtk::SetTooltip() {
+  if (visible_mode_ == MODE_GO) {
+    // |location_bar_| can be NULL in tests.
+    std::wstring current_text(
+        location_bar_ ?  location_bar_->location_entry()->GetText() :
+        L"");
+    if (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) {
+      l10n_util::WrapStringWithLTRFormatting(&current_text);
+    }
+
+    // TODO(pkasting): http://b/868940 Use the right strings at the right
+    // times by asking the autocomplete system what to do.  Don't hardcode
+    // "Google" as the search provider name.
+    gtk_widget_set_tooltip_text(
+        widget_.get(),
+        true ? l10n_util::GetStringFUTF8(
+            IDS_TOOLTIP_GO_SITE, WideToUTF16(current_text)).c_str() :
+        l10n_util::GetStringFUTF8(IDS_TOOLTIP_GO_SEARCH, UTF8ToUTF16("Google"),
+                                  WideToUTF16(current_text)).c_str());
+  } else {
+    gtk_widget_set_tooltip_text(
+        widget_.get(), l10n_util::GetStringUTF8(IDS_TOOLTIP_STOP).c_str());
+  }
 }
