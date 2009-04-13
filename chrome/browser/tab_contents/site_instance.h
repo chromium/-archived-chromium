@@ -145,6 +145,9 @@ class SiteInstance : public base::RefCounted<SiteInstance>,
   const RenderProcessHostFactory* render_process_host_factory_;
 
   // Current RenderProcessHost that is rendering pages for this SiteInstance.
+  // This pointer will only change once the RenderProcessHost is destructed.  It
+  // will still remain the same even if the process crashes, since in that
+  // scenario the RenderProcessHost remains the same.
   RenderProcessHost* process_;
 
   // The current max_page_id in the SiteInstance's RenderProcessHost.  If the

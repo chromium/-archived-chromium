@@ -272,11 +272,13 @@ class NotificationType {
     // details are expected.
     CWINDOW_CLOSED,
 
-    // Indicates that a render process has terminated. The source will be the
-    // RenderProcessHost that corresponds to the process, and the details is a
-    // bool specifying whether the termination was expected, i.e. if false it
-    // means the process crashed.
+    // Indicates that a RenderProcessHost is destructing. The source will be the
+    // RenderProcessHost that corresponds to the process.
     RENDERER_PROCESS_TERMINATED,
+
+    // Indicates that a render process has crashed.  The source will be the
+    // corresponding RenderProcessHost.
+    RENDERER_PROCESS_CRASHED,
 
     // Indicates that a render process has become unresponsive for a period of
     // time. The source will be the RenderWidgetHost that corresponds to the

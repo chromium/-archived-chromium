@@ -507,9 +507,8 @@ void MetricsService::Observe(NotificationType type,
       LogLoadStarted();
       break;
 
-    case NotificationType::RENDERER_PROCESS_TERMINATED:
-      if (!*Details<bool>(details).ptr())
-        LogRendererCrash();
+    case NotificationType::RENDERER_PROCESS_CRASHED:
+      LogRendererCrash();
       break;
 
     case NotificationType::RENDERER_PROCESS_HANG:
@@ -792,7 +791,7 @@ void MetricsService::ListenerRegistration(bool start_listening) {
   AddOrRemoveObserver(this, NotificationType::LOAD_STOP, start_listening);
   AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_IN_SBOX,
                       start_listening);
-  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_TERMINATED,
+  AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_CRASHED,
                       start_listening);
   AddOrRemoveObserver(this, NotificationType::RENDERER_PROCESS_HANG,
                       start_listening);

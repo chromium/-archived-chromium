@@ -657,23 +657,15 @@ void BrowserRenderProcessHost::OnChannelError() {
 
   DCHECK(process_.handle());
   DCHECK(channel_.get());
-  base::ProcessHandle process = process_.handle();
 
-  bool clean_shutdown = !base::DidProcessCrash(process);
+  if (base::DidProcessCrash(process_.handle())) {
+    NotificationService::current()->Notify(
+        NotificationType::RENDERER_PROCESS_CRASHED,
+        Source<RenderProcessHost>(this), NotificationService::NoDetails());
+  }
 
   process_.Close();
-
   channel_.reset();
-
-  if (!notified_termination_) {
-    // If |close_expected| is false, it means the renderer process went away
-    // before the web views expected it; count it as a crash.
-    NotificationService::current()->Notify(
-        NotificationType::RENDERER_PROCESS_TERMINATED,
-        Source<RenderProcessHost>(this),
-        Details<bool>(&clean_shutdown));
-    notified_termination_ = true;
-  }
 
   // This process should detach all the listeners, causing the object to be
   // deleted. We therefore need a stack copy of the web view list to avoid

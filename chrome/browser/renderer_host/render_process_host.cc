@@ -65,7 +65,6 @@ bool RenderProcessHost::run_renderer_in_process_ = false;
 
 RenderProcessHost::RenderProcessHost(Profile* profile)
     : max_page_id_(-1),
-      notified_termination_(false),
       pid_(-1),
       profile_(profile) {
 }
@@ -87,14 +86,9 @@ void RenderProcessHost::Release(int listener_id) {
 
   // When no other owners of this object, we can delete ourselves
   if (listeners_.IsEmpty()) {
-    if (!notified_termination_) {
-      bool close_expected = true;
-      NotificationService::current()->Notify(
-          NotificationType::RENDERER_PROCESS_TERMINATED,
-          Source<RenderProcessHost>(this),
-          Details<bool>(&close_expected));
-      notified_termination_ = true;
-    }
+    NotificationService::current()->Notify(
+        NotificationType::RENDERER_PROCESS_TERMINATED,
+        Source<RenderProcessHost>(this), NotificationService::NoDetails());
     if (pid_ >= 0) {
       all_hosts.Remove(pid_);
       pid_ = -1;

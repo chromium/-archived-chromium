@@ -188,10 +188,6 @@ class RenderProcessHost : public IPC::Channel::Sender,
   // The maximum page ID we've ever seen from the renderer process.
   int32 max_page_id_;
 
-  // Indicates whether we have notified that the process has terminated. We
-  // only want to send this out once.
-  bool notified_termination_;
-
  private:
   int pid_;
 

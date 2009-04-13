@@ -41,6 +41,9 @@ CertStore::CertStore() : next_cert_id_(1) {
   NotificationService::current()->AddObserver(this,
       NotificationType::RENDERER_PROCESS_TERMINATED,
       NotificationService::AllSources());
+  NotificationService::current()->AddObserver(this,
+      NotificationType::RENDERER_PROCESS_CRASHED,
+      NotificationService::AllSources());
 }
 
 CertStore::~CertStore() {
@@ -135,7 +138,8 @@ void CertStore::RemoveCertsForRenderProcesHost(int process_id) {
 void CertStore::Observe(NotificationType type,
                         const NotificationSource& source,
                         const NotificationDetails& details) {
-  DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED);
+  DCHECK(type == NotificationType::RENDERER_PROCESS_TERMINATED ||
+         type == NotificationType::RENDERER_PROCESS_CRASHED);
   RenderProcessHost* rph = Source<RenderProcessHost>(source).ptr();
   DCHECK(rph);
   RemoveCertsForRenderProcesHost(rph->pid());
