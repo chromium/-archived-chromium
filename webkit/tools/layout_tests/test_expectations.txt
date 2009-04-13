@@ -1304,7 +1304,7 @@ BUG8729 DEFER WIN : LayoutTests/http/tests/multipart/invalid-image-data.html = F
 // This is a repaint test. When it passes, the pixel results will show a white
 // background for only the last couple of lines, instead of the whole
 // paragraph.  New test in merge 42324:42364.
-BUG9962 : LayoutTests/fast/repaint/text-append-dirty-lines.html = FAIL
+BUG9962 WIN LINUX : LayoutTests/fast/repaint/text-append-dirty-lines.html = FAIL
 
 // -----------------------------------------------------------------
 // MAC PORT TESTS
@@ -2050,7 +2050,6 @@ BUG9161 DEFER MAC LINUX WIN : LayoutTests/fast/forms/basic-textareas.html = FAIL
 BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-request-headers.html = FAIL
 BUG9163 DEFER MAC LINUX WIN : LayoutTests/http/tests/xmlhttprequest/xmlhttprequest-missing-file-exception.html = FAIL
 // Unknown what change caused these to fail.
-BUG9164 MAC : LayoutTests/fast/text/atsui-multiple-renderers.html = FAIL
 
 // Merge 41709:41733
 // Expectations changed upstream.
@@ -2079,7 +2078,6 @@ LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 
 LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
-MAC DEBUG : LayoutTests/fast/forms/select-max-length.html = TIMEOUT
 
 // This test hits a stack-overflow exception earlier in debug mode than in
 // release mode on Windows.
@@ -2108,11 +2106,6 @@ LINUX : LayoutTests/fast/forms/textarea-width.html = FAIL
 LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 
 // These don't look like merge regressions, but started occurring after the 41768:41807 merge.
-MAC : LayoutTests/css1/text_properties/text_transform.html = FAIL
-MAC : LayoutTests/css2.1/t1605-c545-txttrans-00-b-ag.html = FAIL
-MAC : LayoutTests/fast/text/international/bidi-AN-after-empty-run.html = FAIL
-MAC : LayoutTests/fast/text/international/bidi-CS-after-AN.html = FAIL
-MAC : LayoutTests/fast/text/international/bidi-neutral-run.html = FAIL
 LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 
 // Merge 41807:41827 New Tests
@@ -2120,9 +2113,6 @@ LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 // defer it until we have implemented per test timeout for out test tool.
 // Refer to this bug: http://code.google.com/p/chromium/issues/detail?id=9324
 DEFER : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT PASS
-
-// Merge 41827:41860 Regressions
-MAC : LayoutTests/fast/canvas/set-colors.html = FAIL
 
 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
@@ -2162,11 +2152,6 @@ DEFER WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
 DEFER WIN LINUX : LayoutTests/svg/custom/js-update-image.svg = FAIL
 DEFER WIN : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 DEFER MAC : LayoutTests/fast/forms/search-zoomed.html = FAIL
-DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-data.html = FAIL
-DEFER MAC DEBUG : LayoutTests/http/tests/security/originHeader/origin-header-for-post.html = FAIL
-DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/cookies.html = FAIL
-DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/get-dangerous-headers.html = FAIL
-DEFER MAC DEBUG : LayoutTests/http/tests/xmlhttprequest/post-content-type.html = FAIL
 
 // Adding more failures after the last merge:
 WIN : LayoutTests/http/tests/misc/uncacheable-script-repeated.html = CRASH PASS
@@ -2266,16 +2251,16 @@ DEBUG WIN : LayoutTests/http/tests/navigation/post-basic.html = CRASH
 MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
 
 // These tests were affected by rolling out WebKit i8n patches.
-DEFER BUG9768 : LayoutTests/fast/block/positioning/047.html = FAIL
-DEFER BUG9768 MAC WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
-DEFER BUG9768 MAC WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
-DEFER BUG9768 MAC WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
+DEFER BUG9768 LINUX WIN : LayoutTests/fast/block/positioning/047.html = FAIL
+DEFER BUG9768 WIN : LayoutTests/fast/css/rtl-ordering.html = FAIL
+DEFER BUG9768 WIN : LayoutTests/fast/forms/select-initial-position.html = FAIL
+DEFER BUG9768 WIN : LayoutTests/fast/forms/select-visual-hebrew.html = FAIL
 DEFER BUG9768 MAC WIN : LayoutTests/fast/forms/visual-hebrew-text-field.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/text/international/001.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/text/international/002.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/text/international/003.html = FAIL
-DEFER BUG9768 : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
+DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/cg-fallback-bolding.html = FAIL
+DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/001.html = FAIL
+DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/002.html = FAIL
+DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/003.html = FAIL
+DEFER BUG9768 LINUX WIN : LayoutTests/fast/text/international/wrap-CJK-001.html = FAIL
 
 // Merge WebKit 42200:42244 regressions
 BUG9786 : LayoutTests/fast/dom/Window/dom-access-from-closure-iframe.html = FAIL
@@ -2286,8 +2271,8 @@ BUG9786 : LayoutTests/http/tests/security/cross-frame-access-document-direct.htm
 BUG9786 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-enumeration.html = CRASH
 BUG9787 WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-41-t.svg = FAIL
 BUG9787 : LayoutTests/svg/W3C-SVG-1.1/coords-trans-01-b.svg = FAIL
-BUG9787 : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
-BUG9788 : LayoutTests/fast/text/offsetForPosition-cluster-at-zero.html = FAIL
+BUG9787 WIN LINUX : LayoutTests/svg/W3C-SVG-1.1/painting-render-01-b.svg = FAIL
+BUG9788 WIN LINUX : LayoutTests/fast/text/offsetForPosition-cluster-at-zero.html = FAIL
 LINUX : LayoutTests/fast/text/international/thai-offsetForPosition-inside-character.html = FAIL
 MAC RELEASE : LayoutTests/fast/dom/Window/window-object-cross-frame-calls.html = FAIL
 MAC : LayoutTests/svg/hixie/perf/001.xml = FAIL
@@ -2411,29 +2396,28 @@ BUG9797 MAC DEBUG : LayoutTests/fast/body-propagation/overflow/004.html = FAIL P
 BUG9941 LINUX DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL
 BUG9941 WIN DEBUG : LayoutTests/svg/custom/missing-xlink.svg = FAIL
 
-BUG9850 WIN MAC : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
-BUG9850 WIN MAC : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
+BUG9850 WIN : LayoutTests/editing/selection/thai-word-at-document-end.html = FAIL
+BUG9850 WIN LINUX : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
 BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
 BUG9850 WIN MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
 
 // Failed in WebKit merge 42287:42324
-BUG9916 : LayoutTests/css2.1/t0803-c5502-mrgn-r-02-c.html = FAIL
-BUG9916 : LayoutTests/css2.1/t0803-c5505-mrgn-02-c.html = FAIL
-BUG9916 : LayoutTests/fast/block/float/013.html = FAIL
+BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5502-mrgn-r-02-c.html = FAIL
+BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5505-mrgn-02-c.html = FAIL
+BUG9916 WIN LINUX : LayoutTests/fast/block/float/013.html = FAIL
 BUG9916 : LayoutTests/http/tests/xmlhttprequest/set-dangerous-headers.html = FAIL
-BUG9916 : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FAIL
-BUG9916 WIN MAC : LayoutTests/svg/custom/getsvgdocument.html = FAIL
-BUG9916 WIN MAC : LayoutTests/transitions/transition-end-event-left.html = FAIL
+BUG9916 WIN LINUX : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FAIL
+BUG9916 WIN : LayoutTests/svg/custom/getsvgdocument.html = FAIL
+BUG9916 WIN : LayoutTests/transitions/transition-end-event-left.html = FAIL
 
-// Started failing with WebKit merge 42324:42364. Unknown cause.
+// Started failing with WebKit merge 42324:42364. Unknown cause(s).
 BUG9926 WIN : LayoutTests/http/tests/security/originHeader/origin-header-for-https.html = TIMEOUT
 
 // New tests or failures from WebKit merge 42324:42364. Re-baselined on
 // Windows. Probably just need the same on other platforms.
-BUG9924 MAC LINUX : LayoutTests/fast/flexbox/016.html = FAIL
-BUG9924 MAC LINUX RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
-BUG9924 MAC : LayoutTests/fast/lists/001.html = FAIL
-BUG9962 MAC LINUX : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
+BUG9924 LINUX : LayoutTests/fast/flexbox/016.html = FAIL
+BUG9924 LINUX RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
+BUG9962 LINUX : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
 BUG9962 MAC : LayoutTests/fast/js/function-apply-aliased.html = FAIL
 BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
 BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-parent-same-origin-allow.html = FAIL
@@ -2444,9 +2428,11 @@ BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-pare
 BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-parent-same-origin-deny.html = FAIL
 
 // Regressions from WebKit merge 43264:42403, possibly due to r42375.
-BUG9992 : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
-BUG9992 : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
-BUG9992 : LayoutTests/fast/text/shadow-no-blur.html = FAIL
-BUG9992 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
-BUG9992 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
-BUG9962 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
+BUG9992 WIN LINUX : LayoutTests/fast/repaint/box-shadow-h.html = FAIL
+BUG9992 WIN LINUX : LayoutTests/fast/repaint/box-shadow-v.html = FAIL
+BUG9992 WIN LINUX : LayoutTests/fast/text/shadow-no-blur.html = FAIL
+
+// Regressions from WebKit merge 43264:42403, unknown cause(s)
+BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
+BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
+BUG10055 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
