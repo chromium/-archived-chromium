@@ -82,6 +82,8 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
     return;
   }
   
+  line = devtools.DebuggerAgent.webkitToV8LineNumber_(line);
+  
   var breakpointInfo = script.getBreakpointInfo(line);
   if (breakpointInfo) {
     return;
@@ -90,7 +92,6 @@ devtools.DebuggerAgent.prototype.addBreakpoint = function(sourceId, line) {
   breakpointInfo = new devtools.BreakpointInfo(sourceId, line);
   script.addBreakpointInfo(breakpointInfo);
 
-  line += script.getLineOffset() - 1;
   var cmd = new devtools.DebugCommand('setbreakpoint', {
     'type': 'scriptId',
     'target': sourceId,
@@ -113,6 +114,8 @@ devtools.DebuggerAgent.prototype.removeBreakpoint = function(sourceId, line) {
     return;
   }
   
+  line = devtools.DebuggerAgent.webkitToV8LineNumber_(line);
+
   var breakpointInfo = script.getBreakpointInfo(line);
   script.removeBreakpointInfo(breakpointInfo);
   breakpointInfo.markAsRemoved();
@@ -255,10 +258,11 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
  */
 devtools.DebuggerAgent.prototype.handleBreakEvent_ = function(msg) {
   var body = msg.getBody();
-  
+
+  var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(body.sourceLine);
   this.currentCallFrame_ = {
     'sourceID': body.script.id,
-    'line': body.sourceLine - body.script.lineOffset +1,
+    'line': line,
     'script': body.script,
     'scopeChain': [],
     'thisObject': {}
@@ -385,9 +389,10 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
   // Add variable with name 'this' to the scope.
   scope['this'] = devtools.DebuggerAgent.formatObject_(thisObject, msg);
   
+  var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(stackFrame.line);
   return {
     'sourceID': sourceId,
-    'line': stackFrame.line - script.lineOffset +1,
+    'line': line,
     'type': 'function',
     'functionName': funcName, //stackFrame.text,
     'caller': null,
@@ -486,6 +491,26 @@ devtools.DebuggerAgent.formatObjectReference_ = function(objectRef, msg) {
     return object.value;
   }
   return '[' + object.type + ']';
+};
+
+
+/**
+ * Converts line number from Web Inspector UI(1-based) to v8(0-based).
+ * @param {number} line Resource line number in Web Inspector UI.
+ * @return {number} The line number in v8.
+ */
+devtools.DebuggerAgent.webkitToV8LineNumber_ = function(line) {
+  return line - 1;
+};
+
+
+/**
+ * Converts line number from v8(0-based) to Web Inspector UI(1-based).
+ * @param {number} line Resource line number in v8.
+ * @return {number} The line number in Web Inspector.
+ */
+devtools.DebuggerAgent.v8ToWwebkitLineNumber_ = function(line) {
+  return line + 1;
 };
 
 
