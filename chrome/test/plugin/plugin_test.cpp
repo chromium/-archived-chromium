@@ -221,7 +221,7 @@ TEST_F(ActiveXTest, WMP) {
   TestActiveX(L"activex_wmp.html", kLongWaitTimeout, false);
 }
 
-TEST_F(ActiveXTest, CustomScripting) {
+TEST_F(ActiveXTest, DISABLED_CustomScripting) {
   TestActiveX(L"activex_custom_scripting.html", kShortWaitTimeout, true);
 }
 
