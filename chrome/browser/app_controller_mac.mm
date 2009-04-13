@@ -103,6 +103,24 @@
   };
 }
 
+// NSApplication delegate method called when someone clicks on the
+// dock icon and there are no open windows.  To match standard mac
+// behavior, we should open a new window.
+- (BOOL)applicationShouldHandleReopen:(NSApplication*)theApplication
+                    hasVisibleWindows:(BOOL)flag {
+  // Don't do anything if there are visible windows.  This will cause
+  // AppKit to unminimize the most recently minimized window.
+  if (flag)
+    return YES;
+
+  // Otherwise open a new window.
+  Browser::OpenEmptyWindow([self defaultProfile]);
+
+  // We've handled the reopen event, so return NO to tell AppKit not
+  // to do anything.
+  return NO;
+}
+
 - (void)initMenuState {
   menuState_ = new CommandUpdater(NULL);
   menuState_->UpdateCommandEnabled(IDC_NEW_WINDOW, true);
