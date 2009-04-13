@@ -609,9 +609,10 @@ bool TabProxy::OverrideEncoding(const std::wstring& encoding) {
 
 #if defined(OS_WIN)
 void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
-                          int top, int width, int height, int flags) {
+                          int top, int width, int height, int flags,
+                          HWND parent_window) {
 
-  IPC::Reposition_Params params;
+  IPC::Reposition_Params params = {0};
   params.window = window;
   params.window_insert_after = window_insert_after;
   params.left = left;
@@ -619,20 +620,9 @@ void TabProxy::Reposition(HWND window, HWND window_insert_after, int left,
   params.width = width;
   params.height = height;
   params.flags = flags;
-  params.set_parent = false;
-  params.parent_window = NULL;
-  sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
-}
-
-void TabProxy::SetParentWindow(HWND window, HWND parent_window, long flags) {
-  IPC::Reposition_Params params = {0};
-  params.window = window;
-  params.flags = flags;
-  params.set_parent = true;
+  params.set_parent = (::IsWindow(parent_window) ? true : false);
   params.parent_window = parent_window;
-
   sender_->Send(new AutomationMsg_TabReposition(0, handle_, params));
 }
-
 
 #endif  // defined(OS_WIN)

@@ -287,9 +287,10 @@ class TabProxy : public AutomationResourceProxy {
 
 #if defined(OS_WIN)
   // Resizes the tab window.
+  // The parent_window parameter allows a parent to be specified for the window
+  // passed in.
   void Reposition(HWND window, HWND window_insert_after, int left, int top,
-                  int width, int height, int flags);
-  void SetParentWindow(HWND window, HWND parent_window, long flags);
+                  int width, int height, int flags, HWND parent_window);
 #endif  // defined(OS_WIN)
 
  private:
