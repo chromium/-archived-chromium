@@ -6,6 +6,7 @@
 for layout tests.
 """
 
+import logging
 import os
 import re
 import sys
@@ -161,6 +162,8 @@ class TestExpectationsFile:
 
   PLATFORMS = [ 'mac', 'linux', 'win' ]
   
+  BUILD_TYPES = [ 'debug', 'release' ]
+
   MODIFIERS = { 'skip': SKIP,
                 'wontfix': WONTFIX,
                 'defer': DEFER,
@@ -178,6 +181,7 @@ class TestExpectationsFile:
 
     self._full_test_list = full_test_list
     self._errors = []
+    self._non_fatal_errors = []
     self._platform = platform
     self._is_debug_mode = is_debug_mode
     
@@ -220,27 +224,54 @@ class TestExpectationsFile:
   def Contains(self, test):
     return test in self._test_to_expectations
 
-  def _HasCurrentPlatform(self, options):
+  def _HasValidModifiersForCurrentPlatform(self, options, lineno,
+      test_and_expectations, modifiers):
     """ Returns true if the current platform is in the options list or if no
-    platforms are listed.
+    platforms are listed and if there are no fatal errors in the options list.
+
+    Args:
+      options: List of lowercase options.
+      lineno: The line in the file where the test is listed.
+      test_and_expectations: The path and expectations for the test.
+      modifiers: The set to populate with modifiers.
     """
-    has_any_platforms = False
+    has_any_platform = False
+    has_bug_id = False
+    for option in options:
+      if option in self.MODIFIERS:
+        modifiers.add(option)
+      elif option in self.PLATFORMS:
+        has_any_platform = True
+      elif option.startswith('bug'):
+        has_bug_id = True
+      elif option not in self.BUILD_TYPES:
+        self._AddError(lineno, 'Invalid modifier for test: %s' % option,
+            test_and_expectations)
 
-    for platform in self.PLATFORMS:
-      if platform in options:
-        has_any_platforms = True
-        break
+    if has_any_platform and not self._platform in options:
+      return False
 
-    if not has_any_platforms:
-      return True
+    if not has_bug_id and 'wontfix' not in options:
+      # TODO(ojan): Turn this into an AddError call once all the tests have
+      # BUG identifiers.
+      self._LogNonFatalError(lineno, 'Test lacks BUG modifier.',
+          test_and_expectations)
 
-    return self._platform in options
+    if 'release' in options or 'debug' in options:
+      if self._is_debug_mode and 'debug' not in options:
+        return False
+      if not self._is_debug_mode and 'release' not in options:
+        return False
+
+    if 'wontfix' in options and 'defer' in options:
+      self._AddError(lineno, 'Test cannot be both DEFER and WONTFIX.',
+          test_and_expectations)
+
+    return True
 
   def _Read(self, path):
     """For each test in an expectations file, generate the expectations for it.
-
     """
-
     lineno = 0
     for line in open(path):
       lineno += 1
@@ -254,23 +285,9 @@ class TestExpectationsFile:
         parts = line.split(':')
         test_and_expectations = parts[1]
         options = self._GetOptionsList(parts[0])
-
-        if not self._HasCurrentPlatform(options):
+        if not self._HasValidModifiersForCurrentPlatform(options, lineno,
+            test_and_expectations, modifiers):
           continue
-
-        if 'release' in options or 'debug' in options:
-          if self._is_debug_mode and 'debug' not in options:
-            continue
-          if not self._is_debug_mode and 'release' not in options:
-            continue
-
-        if 'wontfix' in options and 'defer' in options:
-          self._AddError(lineno, 'Test cannot be both DEFER and WONTFIX.',
-              test_and_expectations)
-
-        for option in options:
-          if option in self.MODIFIERS:
-            modifiers.add(option)
 
       tests_and_expecation_parts = test_and_expectations.split('=')
       if (len(tests_and_expecation_parts) is not 2):
@@ -278,11 +295,8 @@ class TestExpectationsFile:
         continue
 
       test_list_path = tests_and_expecation_parts[0].strip()
-      try:
-        expectations = self._ParseExpectations(tests_and_expecation_parts[1])
-      except SyntaxError, err:
-        self._AddError(lineno, err[0], test_list_path)
-        continue
+      expectations = self._ParseExpectations(tests_and_expecation_parts[1],
+          lineno, test_list_path)
 
       full_path = os.path.join(path_utils.LayoutDataDir(), test_list_path)
       full_path = os.path.normpath(full_path)
@@ -291,7 +305,10 @@ class TestExpectationsFile:
       # version exists.
       if not os.path.exists(full_path) and not \
         os.path.exists(full_path + '-disabled'):
-        self._AddError(lineno, 'Path does not exist.', test_list_path)
+        # Log a non fatal error here since you hit this case any time you
+        # update test_expectations.txt without syncing the LayoutTests
+        # directory
+        self._LogNonFatalError(lineno, 'Path does not exist.', test_list_path)
         continue
 
       if not self._full_test_list:
@@ -301,21 +318,28 @@ class TestExpectationsFile:
 
       self._AddTests(tests, expectations, test_list_path, lineno, modifiers)
 
-    if len(self._errors) is not 0:
-      print "\nFAILURES FOR PLATFORM: %s, IS_DEBUG_MODE: %s" \
-          % (self._platform.upper(), self._is_debug_mode)
-      raise SyntaxError('\n'.join(map(str, self._errors)))
+    if len(self._errors) or len(self._non_fatal_errors):
+      if self._is_debug_mode:
+        build_type = 'DEBUG'
+      else:
+        build_type = 'RELEASE'
+      print "\nFAILURES FOR PLATFORM: %s, BUILD_TYPE: %s" \
+          % (self._platform.upper(), build_type)
+      for error in self._non_fatal_errors:
+        logging.error(error)
+      if len(self._errors):
+        raise SyntaxError('\n'.join(map(str, self._errors)))
 
   def _GetOptionsList(self, listString):
-    # TODO(ojan): Add a check that all the options are either in self.MODIFIERS
-    # or self.PLATFORMS or starts with BUGxxxx
     return [part.strip().lower() for part in listString.strip().split(' ')]
 
-  def _ParseExpectations(self, string):
+  def _ParseExpectations(self, string, lineno, test_list_path):
     result = set()
     for part in self._GetOptionsList(string):
       if not part in self.EXPECTATIONS:
-        raise SyntaxError('Unsupported expectation: ' + part)
+        self._AddError(lineno, 'Unsupported expectation: %s' % part,
+            test_list_path)
+        continue
       expectation = self.EXPECTATIONS[part]
       result.add(expectation)
     return result
@@ -386,4 +410,12 @@ class TestExpectationsFile:
     return prev_base_path.startswith(os.path.normpath(test_list_path))
 
   def _AddError(self, lineno, msg, path):
-    self._errors.append('\nLine:%s %s\n%s' % (lineno, msg, path))
+    """Reports an error that will prevent running the tests. Does not
+    immediately raise an exception because we'd like to aggregate all the
+    errors so they can all be printed out."""
+    self._errors.append('\nLine:%s %s %s' % (lineno, msg, path))
+
+  def _LogNonFatalError(self, lineno, msg, path):
+    """Reports an error that will not prevent running the tests. These are
+    still errors, but not bad enough to warrant breaking test running."""
+    self._non_fatal_errors.append('Line:%s %s %s' % (lineno, msg, path))

@@ -895,7 +895,8 @@ def main(options, args):
 
   if options.lint_test_files:
     # Just creating the TestRunner checks the syntax of the test lists.
-    print "If there are no fail messages or exceptions, the lint succeeded."
+    print ("If there are no fail messages, errors or exceptions, then the "
+        "lint succeeded.")
     return
 
   try:
