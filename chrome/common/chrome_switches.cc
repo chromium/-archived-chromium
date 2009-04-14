@@ -218,6 +218,13 @@ const wchar_t kPlaybackMode[]                  = L"playback-mode";
 // Don't record/playback events when using record & playback.
 const wchar_t kNoEvents[]                      = L"no-events";
 
+// Support a separate switch that enables the v8 playback extension.
+// The extension causes javascript calls to Date.now() and Math.random()
+// to return consistent values, such that subsequent loads of the same
+// page will result in consistent js-generated data and XHR requests.
+// Pages may still be able to generate inconsistent data from plugins.
+const wchar_t kNoJsRandomness[]              = L"no-js-randomness";
+
 // Make Windows happy by allowing it to show "Enable access to this program"
 // checkbox in Add/Remove Programs->Set Program Access and Defaults. This
 // only shows an error box because the only way to hide Chrome is by

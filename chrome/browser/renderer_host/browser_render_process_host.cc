@@ -251,6 +251,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kJavaScriptFlags,
     switches::kRecordMode,
     switches::kPlaybackMode,
+    switches::kNoJsRandomness,
     switches::kDisableBreakpad,
     switches::kFullMemoryCrashReport,
     switches::kEnableLogging,

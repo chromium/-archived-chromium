@@ -72,6 +72,7 @@ extern const wchar_t kRestoreLastSession[];
 extern const wchar_t kRecordMode[];
 extern const wchar_t kPlaybackMode[];
 extern const wchar_t kNoEvents[];
+extern const wchar_t kNoJsRandomness[];
 
 extern const wchar_t kHideIcons[];
 extern const wchar_t kShowIcons[];

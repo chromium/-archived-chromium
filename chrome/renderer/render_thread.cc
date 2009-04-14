@@ -304,7 +304,8 @@ void RenderThread::EnsureWebKitInitialized() {
   }
 
   if (command_line.HasSwitch(switches::kPlaybackMode) ||
-      command_line.HasSwitch(switches::kRecordMode)) {
+      command_line.HasSwitch(switches::kRecordMode) ||
+      command_line.HasSwitch(switches::kNoJsRandomness)) {
     WebKit::registerExtension(extensions_v8::PlaybackExtension::Get());
   }
 
