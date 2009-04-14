@@ -293,12 +293,13 @@ std::wstring GetLocalName(const std::string& locale_code_str,
 }
 
 std::wstring GetString(int message_id) {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-  return rb.GetLocalizedString(message_id);
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  return UTF16ToWide(rb.GetLocalizedString(message_id));
 }
 
 std::string GetStringUTF8(int message_id) {
-  return WideToUTF8(GetString(message_id));
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  return UTF16ToUTF8(rb.GetLocalizedString(message_id));
 }
 
 static string16 GetStringF(int message_id,
@@ -307,9 +308,8 @@ static string16 GetStringF(int message_id,
                            const string16& c,
                            const string16& d,
                            std::vector<size_t>* offsets) {
-  // TODO(tc): ResourceBundle::GetLocalizedString should return a string16
-  // so we can avoid this conversion on linux/mac.
-  const string16& format_string = WideToUTF16(GetString(message_id));
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  const string16& format_string = rb.GetLocalizedString(message_id);
   string16 formatted = ReplaceStringPlaceholders(format_string, a, b, c, d,
                                                  offsets);
   return formatted;

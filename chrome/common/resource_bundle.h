@@ -100,7 +100,7 @@ class ResourceBundle {
 
   // Get a localized string given a message id.  Returns an empty
   // string if the message_id is not found.
-  std::wstring GetLocalizedString(int message_id);
+  string16 GetLocalizedString(int message_id);
 
   // Returns the font for the specified style.
   ChromeFont GetFont(FontStyle style);

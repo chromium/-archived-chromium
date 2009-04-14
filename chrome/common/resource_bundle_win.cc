@@ -135,12 +135,12 @@ HCURSOR ResourceBundle::LoadCursor(int cursor_id) {
                       MAKEINTRESOURCE(cursor_id));
 }
 
-std::wstring ResourceBundle::GetLocalizedString(int message_id) {
+string16 ResourceBundle::GetLocalizedString(int message_id) {
   // If for some reason we were unable to load a resource dll, return an empty
   // string (better than crashing).
   if (!locale_resources_data_) {
     LOG(WARNING) << "locale resources are not loaded";
-    return std::wstring();
+    return string16();
   }
 
   DCHECK(IS_INTRESOURCE(message_id));
@@ -159,6 +159,6 @@ std::wstring ResourceBundle::GetLocalizedString(int message_id) {
       return std::wstring();
     }
   }
-  // Copy into a wstring and return.
-  return std::wstring(image->achString, image->nLength);
+  // Copy into a string16 and return.
+  return string16(image->achString, image->nLength);
 }

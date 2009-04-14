@@ -97,12 +97,12 @@ StringPiece ResourceBundle::GetRawDataResource(int resource_id) {
   return data;
 }
 
-std::wstring ResourceBundle::GetLocalizedString(int message_id) {
+string16 ResourceBundle::GetLocalizedString(int message_id) {
   // If for some reason we were unable to load a resource dll, return an empty
   // string (better than crashing).
   if (!locale_resources_data_) {
     LOG(WARNING) << "locale resources are not loaded";
-    return std::wstring();
+    return string16();
   }
 
   StringPiece data;
@@ -112,14 +112,14 @@ std::wstring ResourceBundle::GetLocalizedString(int message_id) {
     data = GetRawDataResource(message_id);
     if (data.empty()) {
       NOTREACHED() << "unable to find resource: " << message_id;
-      return std::wstring();
+      return string16();
     }
   }
 
   // Data pack encodes strings as UTF16.
   string16 msg(reinterpret_cast<const char16*>(data.data()),
                data.length() / 2);
-  return UTF16ToWide(msg);
+  return msg;
 }
 
 #if defined(TOOLKIT_GTK)
