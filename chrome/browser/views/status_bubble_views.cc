@@ -27,12 +27,8 @@
 // The color of the background bubble.
 static const SkColor kBubbleColor = SkColorSetRGB(222, 234, 248);
 
-// The alpha and color of the bubble's shadow. This is a composite of the above
-// background color with 30% gray.
-static const SkColor kShadowColor = SkColorSetRGB(196, 206, 212);
-
-// How wide the bubble's shadow is.
-static const int kShadowSize = 1;
+// The alpha and color of the bubble's shadow.
+static const SkColor kShadowColor = SkColorSetARGB(30, 0, 0, 0);
 
 // The roundedness of the edges of our bubble.
 static const int kBubbleCornerRadius = 4;
@@ -47,9 +43,14 @@ static const SkColor kTextColor = SkColorSetRGB(100, 100, 100);
 // The color of the highlight text
 static const SkColor kTextHighlightColor = SkColorSetRGB(242, 250, 255);
 
-static const int kTextPadding = 3;
-static const int kTextPositionX = 4;
-static const int kTextPositionY = 1;
+// The horizontal offset of the text within the status bubble, not including the
+// outer shadow ring.
+static const int kTextPositionX = 3;
+
+// The minimum horizontal space between the (right) end of the text and the edge
+// of the status bubble, not including the outer shadow ring, or a 1 px gap we
+// leave so we can shit all the text by 1 px to produce a "highlight" effect.
+static const int kTextHorizPadding = 1;
 
 // Delays before we start hiding or showing the bubble after we receive a
 // show or hide request.
@@ -326,11 +327,6 @@ void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
   RECT parent_rect;
   ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
 
-  // Draw our background.
-  SkRect rect;
-  int width = parent_rect.right - parent_rect.left;
-  int height = parent_rect.bottom - parent_rect.top;
-
   // Figure out how to round the bubble's four corners.
   SkScalar rad[8];
 
@@ -387,42 +383,39 @@ void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
   }
 
   // Draw the bubble's shadow.
-  SkPaint shadow_paint;
-  shadow_paint.setFlags(SkPaint::kAntiAlias_Flag);
-  shadow_paint.setColor(kShadowColor);
-
+  int width = parent_rect.right - parent_rect.left;
+  int height = parent_rect.bottom - parent_rect.top;
+  SkRect rect;
   rect.set(0, 0,
            SkIntToScalar(width),
            SkIntToScalar(height));
-
   SkPath shadow_path;
   shadow_path.addRoundRect(rect, rad, SkPath::kCW_Direction);
+  SkPaint shadow_paint;
+  shadow_paint.setFlags(SkPaint::kAntiAlias_Flag);
+  shadow_paint.setColor(kShadowColor);
   canvas->drawPath(shadow_path, shadow_paint);
 
   // Draw the bubble.
+  rect.set(SkIntToScalar(kShadowThickness),
+           SkIntToScalar(kShadowThickness),
+           SkIntToScalar(width - kShadowThickness),
+           SkIntToScalar(height - kShadowThickness));
   SkPath path;
-  rect.set(SkIntToScalar(kShadowSize),
-           SkIntToScalar(kShadowSize),
-           SkIntToScalar(width - kShadowSize),
-           SkIntToScalar(height - kShadowSize));
-
   path.addRoundRect(rect, rad, SkPath::kCW_Direction);
   canvas->drawPath(path, paint);
-
-
-  int text_width = std::min(static_cast<int>(parent_rect.right -
-                                parent_rect.left - kTextPositionX -
-                                kTextPadding),
-                            static_cast<int>(views::Label::GetFont()
-                                .GetStringWidth(text_)));
 
   // Draw highlight text and then the text body. In order to make sure the text
   // is aligned to the right on RTL UIs, we mirror the text bounds if the
   // locale is RTL.
-  gfx::Rect body_bounds(kTextPositionX,
-                        kTextPositionY,
+  // The "- 1" on the end of the width and height ensures that when we add one
+  // to x() and y() for the highlight text, we still won't overlap the shadow.
+  int text_width = std::min(views::Label::GetFont().GetStringWidth(text_),
+      width - (kShadowThickness * 2) - kTextPositionX - kTextHorizPadding - 1);
+  gfx::Rect body_bounds(kShadowThickness + kTextPositionX,
+                        kShadowThickness,
                         text_width,
-                        parent_rect.bottom - parent_rect.top);
+                        height - (kShadowThickness * 2) - 1);
   body_bounds.set_x(MirroredLeftPointForRect(body_bounds));
   canvas->DrawStringInt(text_,
                         views::Label::GetFont(),
@@ -442,6 +435,8 @@ void StatusBubbleViews::StatusView::Paint(ChromeCanvas* canvas) {
 }
 
 // StatusBubble ---------------------------------------------------------------
+
+const int StatusBubbleViews::kShadowThickness = 1;
 
 StatusBubbleViews::StatusBubbleViews(views::Widget* frame)
     : popup_(NULL),
@@ -513,9 +508,8 @@ void StatusBubbleViews::SetURL(const GURL& url, const std::wstring& languages) {
   // Set Elided Text corresponding to the GURL object.
   RECT parent_rect;
   ::GetWindowRect(popup_->GetNativeView(), &parent_rect);
-  int text_width = static_cast<int>(parent_rect.right -
-                                    parent_rect.left - kTextPositionX -
-                                    kTextPadding);
+  int text_width = static_cast<int>(parent_rect.right - parent_rect.left - 
+      (kShadowThickness * 2) - kTextPositionX - kTextHorizPadding - 1);
   url_text_ = gfx::ElideUrl(url, view_->Label::GetFont(), text_width,
                             languages);
 
@@ -583,10 +577,10 @@ void StatusBubbleViews::AvoidMouse() {
     // Cap the offset and change the visual presentation of the bubble
     // depending on where it ends up (so that rounded corners square off
     // and mate to the edges of the tab content).
-    if (offset >= size_.cy - kShadowSize * 2) {
-      offset = size_.cy - kShadowSize * 2;
+    if (offset >= size_.cy - kShadowThickness * 2) {
+      offset = size_.cy - kShadowThickness * 2;
       view_->SetStyle(StatusView::STYLE_BOTTOM);
-    } else if (offset > kBubbleCornerRadius / 2 - kShadowSize) {
+    } else if (offset > kBubbleCornerRadius / 2 - kShadowThickness) {
       view_->SetStyle(StatusView::STYLE_FLOATING);
     } else {
       view_->SetStyle(StatusView::STYLE_STANDARD);

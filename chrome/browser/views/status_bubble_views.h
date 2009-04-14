@@ -17,6 +17,9 @@ class GURL;
 // to allow users to see where hovered links point to.
 class StatusBubbleViews : public StatusBubble {
  public:
+  // How wide the bubble's shadow is.
+  static const int kShadowThickness;
+
   explicit StatusBubbleViews(views::Widget* frame);
   ~StatusBubbleViews();
 

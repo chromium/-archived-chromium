@@ -78,8 +78,6 @@ static const int kToolbarTabStripVerticalOverlap = 3;
 static const int kTabShadowSize = 2;
 // The height of the status bubble.
 static const int kStatusBubbleHeight = 20;
-// The overlap of the status bubble with the window frame.
-static const int kStatusBubbleOverlap = 1;
 // An offset distance between certain toolbars and the toolbar that preceded
 // them in layout.
 static const int kSeparationLineHeight = 1;
@@ -1429,7 +1427,7 @@ int BrowserView::LayoutDownloadShelf() {
 void BrowserView::LayoutStatusBubble(int top) {
   // In restored mode, the client area has a client edge between it and the
   // frame.
-  int overlap = kStatusBubbleOverlap +
+  int overlap = StatusBubbleViews::kShadowThickness +
       (IsMaximized() ? 0 : views::NonClientFrameView::kClientEdgeThickness);
   gfx::Point origin(-overlap, top - kStatusBubbleHeight + overlap);
   ConvertPointToView(this, GetParent(), &origin);
