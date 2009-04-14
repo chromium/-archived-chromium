@@ -1089,6 +1089,11 @@ gboolean TabStripGtk::OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
   gfx::Rect bounds = gfx::Rect(event->x, event->y, event->width, event->height);
   tabstrip->SetBounds(bounds);
 
+  // No tabs, nothing to layout.  This happens when a browser window is created
+  // and shown before tabs are added (as in a popup window).
+  if (tabstrip->GetTabCount() == 0)
+    return TRUE;
+
   // Do a regular layout on the first configure-event so we don't animate
   // the first tab.
   // TODO(jhawkins): Windows resizes the layout tabs continuously during
