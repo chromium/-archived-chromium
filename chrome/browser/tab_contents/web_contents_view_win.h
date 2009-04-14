@@ -39,6 +39,7 @@ class WebContentsViewWin : public WebContentsView,
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
+  virtual void Focus();
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();

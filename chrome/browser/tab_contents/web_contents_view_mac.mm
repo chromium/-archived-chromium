@@ -145,6 +145,9 @@ bool WebContentsViewMac::GetFindBarWindowInfo(gfx::Point* position,
   return true;
 }
 
+void WebContentsViewMac::Focus() {
+}
+
 void WebContentsViewMac::SetInitialFocus() {
   // TODO(port)
 }

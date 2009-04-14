@@ -229,6 +229,23 @@ void WebContentsViewWin::SizeContents(const gfx::Size& size) {
   WasSized(size);
 }
 
+void WebContentsViewWin::Focus() {
+  /*HWND container_hwnd = GetNativeView();
+  if (!container_hwnd)
+    return;
+
+  views::FocusManager* focus_manager =
+      views::FocusManager::GetFocusManager(container_hwnd);
+  if (!focus_manager)
+    return;  // During testing we have no focus manager.
+  views::View* v = focus_manager->GetViewForWindow(container_hwnd, true);
+  DCHECK(v);
+  if (v)
+    v->RequestFocus();*/
+  views::View* asdf = GetRootView();
+  asdf->RequestFocus();
+}
+
 void WebContentsViewWin::SetInitialFocus() {
   if (web_contents()->FocusLocationBarByDefault())
     web_contents()->delegate()->SetFocusToLocationBar();

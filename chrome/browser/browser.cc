@@ -1390,12 +1390,8 @@ TabContents* Browser::CreateTabContentsForURL(
     const GURL& url, const GURL& referrer, Profile* profile,
     PageTransition::Type transition, bool defer_load,
     SiteInstance* instance) const {
-  // Create an appropriate tab contents.
-  GURL real_url = url;
-  TabContentsType type = TabContents::TypeForURL(&real_url);
-  DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
-
-  TabContents* contents = TabContents::CreateWithType(type, profile, instance);
+  WebContents* contents = new WebContents(profile, instance,
+                                          MSG_ROUTING_NONE, NULL);
   contents->SetupController(profile);
 
   if (!defer_load) {

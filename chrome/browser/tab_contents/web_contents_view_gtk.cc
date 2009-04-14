@@ -166,6 +166,9 @@ bool WebContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
   return false;
 }
 
+void WebContentsViewGtk::Focus() {
+}
+
 void WebContentsViewGtk::SetInitialFocus() {
   if (web_contents()->FocusLocationBarByDefault())
     web_contents()->delegate()->SetFocusToLocationBar();

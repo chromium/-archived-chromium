@@ -11,16 +11,12 @@
 
 // static
 NavigationEntry* TabNavigation::ToNavigationEntry(int page_id) const {
-  GURL real_url = url_;
-  TabContentsType type = TabContents::TypeForURL(&real_url);
-  DCHECK(type != TAB_CONTENTS_UNKNOWN_TYPE);
-
   NavigationEntry* entry = new NavigationEntry(
-      type,
+      TAB_CONTENTS_WEB,
       NULL,  // The site instance for restored tabs is sent on navigation
              // (WebContents::GetSiteInstanceForEntry).
       page_id,
-      real_url,
+      url_,
       referrer_,
       title_,
       // Use a transition type of reload so that we don't incorrectly

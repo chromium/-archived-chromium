@@ -8,24 +8,33 @@
 #include <string>
 
 #include "base/message_loop.h"
-#include "chrome/test/test_tab_contents.h"
+#include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 class Browser;
+class GURL;
+class NavigationController;
 class TestBrowserWindow;
 class TestingProfile;
 
 // Base class for browser based unit tests. BrowserWithTestWindowTest creates a
 // Browser with a TestingProfile and TestBrowserWindow. To add a tab use
-// AddTestingTab. This adds a Tab whose TabContents is a TestTabContents.
-// Use the method test_url_with_path to obtain a URL that targets the
-// TestTabContents. For example, the following adds a tab and navigates to
+// AddTestingTab. For example, the following adds a tab and navigates to
 // two URLs that target the TestTabContents:
-//   AddTestingTab(browser());
-//   browser()->OpenURL(test_url_with_path("1"), GURL(), CURRENT_TAB,
+//
+//   // Add a new tab and navigate it. This will be at index 0.
+//   AddTab(browser(), GURL("http://foo/1"));
+//   NavigationController* controller =
+//       browser()->GetTabContentsAt(0)->controller();
+//
+//   // Navigate somewhere else.
+//   GURL url2("http://foo/2");
+//   NavigateAndCommit(controller, url2);
+//
+//   // This is equivalent to the above, and lets you test pending navigations.
+//   browser()->OpenURL(GURL("http://foo/2"), GURL(), CURRENT_TAB,
 //                      PageTransition::TYPED);
-//   browser()->OpenURL(test_url_with_path("1"), GURL(), CURRENT_TAB,
-//                      PageTransition::TYPED);
+//   CommitPendingLoadAsNewNavigation(controller, url2);
 //
 // Subclasses must invoke BrowserWithTestWindowTest::SetUp as it is responsible
 // for creating the various objects of this class.
@@ -36,21 +45,23 @@ class BrowserWithTestWindowTest : public testing::Test {
 
   virtual void SetUp();
 
+  // Returns the current RenderViewHost for the current tab as a
+  // TestRenderViewHost.
+  TestRenderViewHost* TestRenderViewHostForTab(TabContents* tab_contents);
+
  protected:
   Browser* browser() const { return browser_.get(); }
 
   TestingProfile* profile() const { return profile_.get(); }
 
-  // Adds a tab to |browser| whose TabContents comes from a
-  // TestTabContentsFactory. Use test_url_with_path to obtain a URL that
-  // that uses the newly created TabContents.
-  void AddTestingTab(Browser* browser);
+  // Adds a tab to |browser| with the given URL and commits the load.
+  // This is a convenience function. The new tab will be added at index 0.
+  void AddTab(Browser* browser, const GURL& url);
 
-  // Returns a GURL that targets the testing TabContents created by way of
-  // AddTestingTab.
-  GURL test_url_with_path(const std::string& path) const {
-    return tab_contents_factory_->test_url_with_path(path);
-  }
+  // Commits the pending load as if we went to a new page (as opposed to back or
+  // forward).
+  void CommitPendingLoadAsNewNavigation(NavigationController* controller,
+                                        const GURL& url);
 
   // Creates a pending navigation on the given navigation controller to the
   // given URL with the default parameters and the commits the load with a page
@@ -67,9 +78,11 @@ class BrowserWithTestWindowTest : public testing::Test {
   MessageLoopForUI ui_loop_;
 
   scoped_ptr<TestingProfile> profile_;
-  scoped_ptr<TestTabContentsFactory> tab_contents_factory_;
   scoped_ptr<TestBrowserWindow> window_;
   scoped_ptr<Browser> browser_;
+
+  MockRenderProcessHostFactory rph_factory_;
+  TestRenderViewHostFactory rvh_factory_;
 
   DISALLOW_COPY_AND_ASSIGN(BrowserWithTestWindowTest);
 };

@@ -10,10 +10,12 @@
 #include "base/time.h"
 #include "chrome/browser/browser_about_handler.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browser_url_handler.h"
 #include "chrome/browser/sessions/session_types.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/repost_form_warning.h"
 #include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
@@ -85,43 +87,6 @@ bool AreURLsInPageNavigation(const GURL& existing_url, const GURL& new_url) {
 
 }  // namespace
 
-// TabContentsCollector ---------------------------------------------------
-
-// We never destroy a TabContents synchronously because there are some
-// complex code path that cause the current TabContents to be in the call
-// stack. So instead, we use a TabContentsCollector which either destroys
-// the TabContents or does nothing if it has been cancelled.
-class TabContentsCollector : public Task {
- public:
-  TabContentsCollector(NavigationController* target,
-                       TabContentsType target_type)
-      : target_(target),
-        target_type_(target_type) {
-  }
-
-  void Cancel() {
-    target_ = NULL;
-  }
-
-  virtual void Run() {
-    if (target_) {
-      // Note: this will cancel this task as a side effect so target_ is
-      // now null.
-      TabContents* tc = target_->GetTabContents(target_type_);
-      tc->Destroy();
-    }
-  }
-
- private:
-  // The NavigationController we are acting on.
-  NavigationController* target_;
-
-  // The TabContentsType that needs to be collected.
-  TabContentsType target_type_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(TabContentsCollector);
-};
-
 // NavigationController ---------------------------------------------------
 
 // static
@@ -151,13 +116,13 @@ NavigationController::NavigationController(TabContents* contents,
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
       transient_entry_index_(-1),
-      active_contents_(contents),
+      tab_contents_(contents),
       max_restored_page_id_(-1),
       ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
       needs_reload_(false),
       load_pending_entry_when_active_(false) {
   if (contents)
-    RegisterTabContents(contents);
+    contents->set_controller(this);
   DCHECK(profile_);
 }
 
@@ -170,7 +135,7 @@ NavigationController::NavigationController(
       last_committed_entry_index_(-1),
       pending_entry_index_(-1),
       transient_entry_index_(-1),
-      active_contents_(NULL),
+      tab_contents_(NULL),
       max_restored_page_id_(-1),
       ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
       needs_reload_(true),
@@ -187,9 +152,6 @@ NavigationController::NavigationController(
 }
 
 NavigationController::~NavigationController() {
-  DCHECK(tab_contents_map_.empty());
-  DCHECK(tab_contents_collector_map_.empty());
-
   DiscardNonCommittedEntriesInternal();
 
   NotificationService::current()->Notify(
@@ -199,9 +161,7 @@ NavigationController::~NavigationController() {
 }
 
 TabContents* NavigationController::GetTabContents(TabContentsType t) {
-  // Make sure the TabContents is no longer scheduled for collection.
-  CancelTabContentsCollection(t);
-  return tab_contents_map_[t];
+  return tab_contents_;
 }
 
 void NavigationController::Reload(bool check_for_repost) {
@@ -216,7 +176,7 @@ void NavigationController::Reload(bool check_for_repost) {
     // The user is asking to reload a page with POST data. Prompt to make sure
     // they really want to do this. If they do, the dialog will call us back
     // with check_for_repost = false.
-    active_contents_->Activate();
+    tab_contents_->Activate();
     RunRepostFormWarningDialog(this);
   } else {
     // Base the navigation on where we are now...
@@ -396,84 +356,33 @@ void NavigationController::RemoveEntryAtIndex(int index,
 }
 
 void NavigationController::Destroy() {
-  // Close all tab contents owned by this controller.  We make a list on the
-  // stack because they are removed from the map as they are Destroyed
-  // (invalidating the iterators), which may or may not occur synchronously.
-  // We also keep track of any NULL entries in the map so that we can clean
-  // them out.
-  std::list<TabContents*> tabs_to_destroy;
-  std::list<TabContentsType> tab_types_to_erase;
-  for (TabContentsMap::iterator i = tab_contents_map_.begin();
-       i != tab_contents_map_.end(); ++i) {
-    if (i->second)
-      tabs_to_destroy.push_back(i->second);
-    else
-      tab_types_to_erase.push_back(i->first);
-  }
-
-  // Clean out all NULL entries in the map so that we know empty map means all
-  // tabs destroyed.  This is needed since TabContentsWasDestroyed() won't get
-  // called for types that are in our map with a NULL contents.  (We don't do
-  // this by iterating over TAB_CONTENTS_NUM_TYPES because some tests create
-  // additional types.)
-  for (std::list<TabContentsType>::iterator i = tab_types_to_erase.begin();
-       i != tab_types_to_erase.end(); ++i) {
-    TabContentsMap::iterator map_iterator = tab_contents_map_.find(*i);
-    if (map_iterator != tab_contents_map_.end()) {
-      DCHECK(!map_iterator->second);
-      tab_contents_map_.erase(map_iterator);
-    }
-  }
-
-  // Cancel all the TabContentsCollectors.
-  for (TabContentsCollectorMap::iterator i =
-           tab_contents_collector_map_.begin();
-       i != tab_contents_collector_map_.end(); ++i) {
-    DCHECK(i->second);
-    i->second->Cancel();
-  }
-  tab_contents_collector_map_.clear();
-
-
-  // Finally destroy all the tab contents.
-  for (std::list<TabContents*>::iterator i = tabs_to_destroy.begin();
-       i != tabs_to_destroy.end(); ++i) {
-    (*i)->Destroy();
-  }
-  // We are deleted at this point.
+  // TODO(brettw) the destruction of TabContents/NavigationController makes no
+  // sense (see TabContentsWasDestroyed)
+  tab_contents_->Destroy();
+  // We are now deleted.
 }
 
 void NavigationController::TabContentsWasDestroyed(TabContentsType type) {
-  TabContentsMap::iterator i = tab_contents_map_.find(type);
-  DCHECK(i != tab_contents_map_.end());
-  tab_contents_map_.erase(i);
-
-  // Make sure we cancel any collector for that TabContents.
-  CancelTabContentsCollection(type);
-
-  // If that was the last tab to be destroyed, delete ourselves.
-  if (tab_contents_map_.empty())
-    delete this;
+  // TODO(brettw) the destruction of TabContents/NavigationController makes no
+  // sense (see Destroy).
+  delete this;
 }
 
 NavigationEntry* NavigationController::CreateNavigationEntry(
     const GURL& url, const GURL& referrer, PageTransition::Type transition) {
-  GURL real_url = url;
-  TabContentsType type;
-
-  // If the active contents supports |url|, use it.
-  // Note: in both cases, we give TabContents a chance to rewrite the URL.
+  // Allow the browser URL handler to rewrite the URL. This will, for example,
+  // remove "view-source:" from the beginning of the URL to get the URL that
+  // will actually be loaded. This real URL won't be shown to the user, just
+  // used internally.
   //
-  // TODO(brettw): The BrowserURLHandler::HandleBrowserURL call should just be
-  // moved here from inside TypeForURL once the tab contents types are removed.
-  TabContents* active = active_contents();
-  if (active && active->SupportsURL(&real_url))
-    type = active->type();
-  else
-    type = TabContents::TypeForURL(&real_url);
+  // TODO(brettw) this should be changed to something like GURL RewriteURL(GURL)
+  // rather than the current complex form.
+  GURL loaded_url(url);
+  TabContentsType type;
+  BrowserURLHandler::HandleBrowserURL(&loaded_url, &type);
 
-  NavigationEntry* entry = new NavigationEntry(type, NULL, -1, real_url,
-                                               referrer,
+  NavigationEntry* entry = new NavigationEntry(TAB_CONTENTS_WEB, NULL, -1,
+                                               loaded_url, referrer,
                                                string16(), transition);
   entry->set_display_url(url);
   entry->set_user_typed_url(url);
@@ -492,7 +401,7 @@ void NavigationController::AddTransientEntry(NavigationEntry* entry) {
   DiscardTransientEntry();
   entries_.insert(entries_.begin() + index, linked_ptr<NavigationEntry>(entry));
   transient_entry_index_  = index;
-  active_contents_->NotifyNavigationStateChanged(
+  tab_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 }
 
@@ -562,7 +471,7 @@ bool NavigationController::RendererDidNavigate(
   // pending entry is what this navigation is for. There is a similar TODO
   // w.r.t. the pending entry in RendererDidNavigateToNewPage.
   if (pending_entry_index_ >= 0)
-    pending_entry_->set_site_instance(active_contents_->GetSiteInstance());
+    pending_entry_->set_site_instance(tab_contents_->GetSiteInstance());
 
   // Do navigation-type specific actions. These will make and commit an entry.
   details->type = ClassifyNavigation(params);
@@ -622,9 +531,6 @@ bool NavigationController::RendererDidNavigate(
   details->http_status_code = params.http_status_code;
   NotifyNavigationEntryCommitted(details);
 
-  // It is now a safe time to schedule collection for any tab contents of a
-  // different type, because a navigation is necessary to get back to them.
-  ScheduleTabContentsCollectionForInactiveTabs();
   return true;
 }
 
@@ -639,7 +545,7 @@ NavigationType::Type NavigationController::ClassifyNavigation(
     return NavigationType::NAV_IGNORE;
   }
 
-  if (params.page_id > active_contents_->GetMaxPageID()) {
+  if (params.page_id > tab_contents_->GetMaxPageID()) {
     // Greater page IDs than we've ever seen before are new pages. We may or may
     // not have a pending entry for the page, and this may or may not be the
     // main frame.
@@ -660,8 +566,8 @@ NavigationType::Type NavigationController::ClassifyNavigation(
 
   // Now we know that the notification is for an existing page. Find that entry.
   int existing_entry_index = GetEntryIndexWithPageID(
-      active_contents_->type(),
-      active_contents_->GetSiteInstance(),
+      tab_contents_->type(),
+      tab_contents_->GetSiteInstance(),
       params.page_id);
   if (existing_entry_index == -1) {
     // The page was not found. It could have been pruned because of the limit on
@@ -724,14 +630,14 @@ void NavigationController::RendererDidNavigateToNewPage(
     // type must always be normal.
     new_entry->set_page_type(NavigationEntry::NORMAL_PAGE);
   } else {
-    new_entry = new NavigationEntry(active_contents_->type());
+    new_entry = new NavigationEntry(tab_contents_->type());
   }
 
   new_entry->set_url(params.url);
   new_entry->set_referrer(params.referrer);
   new_entry->set_page_id(params.page_id);
   new_entry->set_transition_type(params.transition);
-  new_entry->set_site_instance(active_contents_->GetSiteInstance());
+  new_entry->set_site_instance(tab_contents_->GetSiteInstance());
   new_entry->set_has_post_data(params.is_post);
 
   InsertEntry(new_entry);
@@ -746,8 +652,8 @@ void NavigationController::RendererDidNavigateToExistingPage(
   // guaranteed to exist by ClassifyNavigation, and we just need to update it
   // with new information from the renderer.
   int entry_index = GetEntryIndexWithPageID(
-      active_contents_->type(),
-      active_contents_->GetSiteInstance(),
+      tab_contents_->type(),
+      tab_contents_->GetSiteInstance(),
       params.page_id);
   DCHECK(entry_index >= 0 &&
          entry_index < static_cast<int>(entries_.size()));
@@ -758,8 +664,8 @@ void NavigationController::RendererDidNavigateToExistingPage(
   // assigned.
   entry->set_url(params.url);
   DCHECK(entry->site_instance() == NULL ||
-         entry->site_instance() == active_contents_->GetSiteInstance());
-  entry->set_site_instance(active_contents_->GetSiteInstance());
+         entry->site_instance() == tab_contents_->GetSiteInstance());
+  entry->set_site_instance(tab_contents_->GetSiteInstance());
 
   // The entry we found in the list might be pending if the user hit
   // back/forward/reload. This load should commit it (since it's already in the
@@ -779,8 +685,8 @@ void NavigationController::RendererDidNavigateToSamePage(
   // entry for this page ID. This entry is guaranteed to exist by
   // ClassifyNavigation. All we need to do is update the existing entry.
   NavigationEntry* existing_entry = GetEntryWithPageID(
-      active_contents_->type(),
-      active_contents_->GetSiteInstance(),
+      tab_contents_->type(),
+      tab_contents_->GetSiteInstance(),
       params.page_id);
 
   // We assign the entry's unique ID to be that of the new one. Since this is
@@ -797,8 +703,8 @@ void NavigationController::RendererDidNavigateInPage(
       "WebKit should only tell us about in-page navs for the main frame.";
   // We're guaranteed to have an entry for this one.
   NavigationEntry* existing_entry = GetEntryWithPageID(
-      active_contents_->type(),
-      active_contents_->GetSiteInstance(),
+      tab_contents_->type(),
+      tab_contents_->GetSiteInstance(),
       params.page_id);
 
   // Reference fragment navigation. We're guaranteed to have the last_committed
@@ -833,8 +739,8 @@ bool NavigationController::RendererDidNavigateAutoSubframe(
   // navigation entry. This is case "2." in NAV_AUTO_SUBFRAME comment in the
   // header file. In case "1." this will be a NOP.
   int entry_index = GetEntryIndexWithPageID(
-      active_contents_->type(),
-      active_contents_->GetSiteInstance(),
+      tab_contents_->type(),
+      tab_contents_->GetSiteInstance(),
       params.page_id);
   if (entry_index < 0 ||
       entry_index >= static_cast<int>(entries_.size())) {
@@ -882,8 +788,8 @@ void NavigationController::CommitPendingEntry() {
     // TabContents types. For WebContents, the IDs are generated by the
     // renderer, so we can't do this.
     details.type = NavigationType::NEW_PAGE;
-    pending_entry_->set_page_id(active_contents_->GetMaxPageID() + 1);
-    active_contents_->UpdateMaxPageID(pending_entry_->page_id());
+    pending_entry_->set_page_id(tab_contents_->GetMaxPageID() + 1);
+    tab_contents_->UpdateMaxPageID(pending_entry_->page_id());
     InsertEntry(new NavigationEntry(*pending_entry_));
   }
 
@@ -916,39 +822,10 @@ void NavigationController::DiscardNonCommittedEntries() {
   bool transient = transient_entry_index_ != -1;
   DiscardNonCommittedEntriesInternal();
 
-  // Synchronize the active_contents_ to the last committed entry.
-  NavigationEntry* last_entry = GetLastCommittedEntry();
-  if (last_entry && last_entry->tab_type() != active_contents_->type()) {
-    TabContents* from_contents = active_contents_;
-    from_contents->set_is_active(false);
-
-    // Switch back to the previous tab contents.
-    active_contents_ = GetTabContents(last_entry->tab_type());
-    DCHECK(active_contents_);
-
-    active_contents_->set_is_active(true);
-
-    // If we are transitioning from two types of WebContents, we need to migrate
-    // the download shelf if it is visible. The download shelf may have been
-    // created before the error that caused us to discard the entry.
-    TabContents::MigrateShelf(from_contents, active_contents_);
-
-    if (from_contents->delegate()) {
-      from_contents->delegate()->ReplaceContents(from_contents,
-                                                 active_contents_);
-    }
-
-    // The entry we just discarded needed a different TabContents type. We no
-    // longer need it but we can't destroy it just yet because the TabContents
-    // is very likely involved in the current stack.
-    DCHECK(from_contents != active_contents_);
-    ScheduleTabContentsCollection(from_contents->type());
-  }
-
   // If there was a transient entry, invalidate everything so the new active
   // entry state is shown.
   if (transient) {
-    active_contents_->NotifyNavigationStateChanged(
+    tab_contents_->NotifyNavigationStateChanged(
         TabContents::INVALIDATE_EVERYTHING);
   }
 }
@@ -988,7 +865,7 @@ void NavigationController::InsertEntry(NavigationEntry* entry) {
   last_committed_entry_index_ = static_cast<int>(entries_.size()) - 1;
 
   // This is a new page ID, so we need everybody to know about it.
-  active_contents_->UpdateMaxPageID(entry->page_id());
+  tab_contents_->UpdateMaxPageID(entry->page_id());
 }
 
 void NavigationController::SetWindowID(const SessionID& id) {
@@ -999,7 +876,7 @@ void NavigationController::SetWindowID(const SessionID& id) {
 }
 
 void NavigationController::NavigateToPendingEntry(bool reload) {
-  TabContents* from_contents = active_contents_;
+  TabContents* from_contents = tab_contents_;
 
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
@@ -1013,7 +890,7 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
   TabContents* contents = GetTabContentsCreateIfNecessary(*pending_entry_);
 
   contents->set_is_active(true);
-  active_contents_ = contents;
+  tab_contents_ = contents;
 
   if (from_contents && from_contents != contents && from_contents->delegate())
     from_contents->delegate()->ReplaceContents(from_contents, contents);
@@ -1028,7 +905,7 @@ void NavigationController::NotifyNavigationEntryCommitted(
   // TODO(pkasting): http://b/1113079 Probably these explicit notification paths
   // should be removed, and interested parties should just listen for the
   // notification below instead.
-  active_contents_->NotifyNavigationStateChanged(
+  tab_contents_->NotifyNavigationStateChanged(
       TabContents::INVALIDATE_EVERYTHING);
 
   details->entry = GetActiveEntry();
@@ -1040,46 +917,13 @@ void NavigationController::NotifyNavigationEntryCommitted(
 
 TabContents* NavigationController::GetTabContentsCreateIfNecessary(
     const NavigationEntry& entry) {
-  TabContents* contents = GetTabContents(entry.tab_type());
-  if (!contents) {
-    contents = TabContents::CreateWithType(entry.tab_type(), profile_,
-                                           entry.site_instance());
-    if (!contents->AsWebContents()) {
-      // Update the max page id, otherwise the newly created TabContents may
-      // have reset its max page id resulting in all new navigations. We only
-      // do this for non-WebContents as WebContents takes care of this via its
-      // SiteInstance. If this creation is the result of a restore, WebContents
-      // handles invoking ReservePageIDRange to make sure the renderer's
-      // max_page_id is updated to reflect the restored range of page ids.
-      int32 max_page_id = contents->GetMaxPageID();
-      for (size_t i = 0; i < entries_.size(); ++i) {
-        if (entries_[i]->tab_type() == entry.tab_type())
-          max_page_id = std::max(max_page_id, entries_[i]->page_id());
-      }
-      contents->UpdateMaxPageID(max_page_id);
-    }
-    RegisterTabContents(contents);
-  }
+  if (tab_contents_)
+    return tab_contents_;
 
-  // We should not be trying to collect this tab contents.
-  DCHECK(tab_contents_collector_map_.find(contents->type()) ==
-         tab_contents_collector_map_.end());
-
-  return contents;
-}
-
-void NavigationController::RegisterTabContents(TabContents* some_contents) {
-  DCHECK(some_contents);
-  TabContentsType t = some_contents->type();
-  TabContents* tc;
-  if ((tc = tab_contents_map_[t]) != some_contents) {
-    if (tc) {
-      NOTREACHED() << "Should not happen. Multiple contents for one type";
-    } else {
-      tab_contents_map_[t] = some_contents;
-      some_contents->set_controller(this);
-    }
-  }
+  tab_contents_ = new WebContents(profile_, entry.site_instance(),
+                                  MSG_ROUTING_NONE, NULL);
+  tab_contents_->set_controller(this);
+  return tab_contents_;  // TODO(brettw) it's stupid to both set and return it.
 }
 
 // static
@@ -1139,47 +983,6 @@ NavigationController* NavigationController::Clone() {
   return nc;
 }
 
-void NavigationController::ScheduleTabContentsCollectionForInactiveTabs() {
-  int index = GetCurrentEntryIndex();
-  if (index < 0 || GetPendingEntryIndex() != -1)
-    return;
-
-  TabContentsType active_type = GetEntryAtIndex(index)->tab_type();
-  for (TabContentsMap::iterator i = tab_contents_map_.begin();
-       i != tab_contents_map_.end(); ++i) {
-    if (i->first != active_type)
-      ScheduleTabContentsCollection(i->first);
-  }
-}
-
-void NavigationController::ScheduleTabContentsCollection(TabContentsType t) {
-  TabContentsCollectorMap::const_iterator i =
-      tab_contents_collector_map_.find(t);
-
-  // The tab contents is already scheduled for collection.
-  if (i != tab_contents_collector_map_.end())
-    return;
-
-  // If we currently don't have a TabContents for t, skip.
-  if (tab_contents_map_.find(t) == tab_contents_map_.end())
-    return;
-
-  // Create a collector and schedule it.
-  TabContentsCollector* tcc = new TabContentsCollector(this, t);
-  tab_contents_collector_map_[t] = tcc;
-  MessageLoop::current()->PostTask(FROM_HERE, tcc);
-}
-
-void NavigationController::CancelTabContentsCollection(TabContentsType t) {
-  TabContentsCollectorMap::iterator i = tab_contents_collector_map_.find(t);
-
-  if (i != tab_contents_collector_map_.end()) {
-    DCHECK(i->second);
-    i->second->Cancel();
-    tab_contents_collector_map_.erase(i);
-  }
-}
-
 void NavigationController::FinishRestore(int selected_index) {
   DCHECK(selected_index >= 0 && selected_index < GetEntryCount());
   ConfigureEntriesForRestore(&entries_);
@@ -1189,7 +992,7 @@ void NavigationController::FinishRestore(int selected_index) {
   last_committed_entry_index_ = selected_index;
 
   // Callers assume we have an active_contents after restoring, so set it now.
-  active_contents_ = GetTabContentsCreateIfNecessary(*entries_[selected_index]);
+  tab_contents_ = GetTabContentsCreateIfNecessary(*entries_[selected_index]);
 }
 
 void NavigationController::DiscardNonCommittedEntriesInternal() {

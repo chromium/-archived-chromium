@@ -313,7 +313,7 @@ class NavigationController {
   // 
   // TODO(brettw) this should be removed in preference to tab_contents().
   TabContents* active_contents() const {
-    return active_contents_;
+    return tab_contents_;
   }
 
   // Returns the tab contents associated with this controller. Non-NULL except
@@ -321,7 +321,7 @@ class NavigationController {
   TabContents* tab_contents() const {
     // This currently returns the active tab contents which should be renamed to
     // tab_contents.
-    return active_contents_;
+    return tab_contents_;
   }
 
   // For use by TabContents ----------------------------------------------------
@@ -447,28 +447,12 @@ class NavigationController {
   // parent is |parent|.  Becomes part of |entry|'s SiteInstance.
   TabContents* GetTabContentsCreateIfNecessary(const NavigationEntry& entry);
 
-  // Register the provided tab contents. This tab contents will be owned
-  // and deleted by this navigation controller
-  void RegisterTabContents(TabContents* some_contents);
-
   // Sets the max restored page ID this NavigationController has seen, if it
   // was restored from a previous session.
   void set_max_restored_page_id(int max_id) { max_restored_page_id_ = max_id; }
 
   NavigationEntry* CreateNavigationEntry(const GURL& url, const GURL& referrer,
                                          PageTransition::Type transition);
-
-  // Invokes ScheduleTabContentsCollection for all TabContents but the active
-  // one.
-  void ScheduleTabContentsCollectionForInactiveTabs();
-
-  // Schedule the TabContents currently allocated for |tc| for collection.
-  // The TabContents will be destroyed later from a different event.
-  void ScheduleTabContentsCollection(TabContentsType t);
-
-  // Cancel the collection of the TabContents allocated for |tc|. This method
-  // is used when we keep using a TabContents because a provisional load failed.
-  void CancelTabContentsCollection(TabContentsType t);
 
   // Invoked after session/tab restore or cloning a tab. Resets the transition
   // type of the entries, updates the max page id and creates the active
@@ -479,11 +463,10 @@ class NavigationController {
   // The new entry will become the active one.
   void InsertEntry(NavigationEntry* entry);
 
-  // Discards the pending and transient entries without updating
-  // active_contents_.
+  // Discards the pending and transient entries.
   void DiscardNonCommittedEntriesInternal();
 
-  // Discards the transient entry without updating active_contents_.
+  // Discards the transient entry.
   void DiscardTransientEntry();
 
   // ---------------------------------------------------------------------------
@@ -518,21 +501,9 @@ class NavigationController {
   // after the transient entry will become invalid if you navigate forward.
   int transient_entry_index_;
 
-  // Tab contents. One entry per type used. The tab controller owns
-  // every tab contents used.
-  typedef std::map<TabContentsType, TabContents*> TabContentsMap;
-  TabContentsMap tab_contents_map_;
-
-  // A map of TabContentsType -> TabContentsCollector containing all the
-  // pending collectors.
-  typedef std::map<TabContentsType, TabContentsCollector*>
-      TabContentsCollectorMap;
-  TabContentsCollectorMap tab_contents_collector_map_;
-
-  // The tab contents that is currently active.
-  // TODO(brettw) this should be renamed to tab_contents_ and comments clarified
-  // that it never changes.
-  TabContents* active_contents_;
+  // The tab contents associated with the controller. Possibly NULL during
+  // setup.
+  TabContents* tab_contents_;
 
   // The max restored page ID in this controller, if it was restored.  We must
   // store this so that WebContents can tell any renderer in charge of one of

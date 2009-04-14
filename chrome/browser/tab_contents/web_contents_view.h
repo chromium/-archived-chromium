@@ -110,6 +110,9 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // RenderWidgetHost is deleted. Removes |host| from internal maps.
   void RenderWidgetHostDestroyed(RenderWidgetHost* host);
 
+  // Sets focus to the native widget for this tab.
+  virtual void Focus() = 0;
+
   // Sets focus to the appropriate element when the tab contents is shown the
   // first time.
   virtual void SetInitialFocus() = 0;

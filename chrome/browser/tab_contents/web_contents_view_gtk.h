@@ -39,6 +39,7 @@ class WebContentsViewGtk : public WebContentsView {
   virtual void ReparentFindWindow(Browser* new_browser) const;
   virtual bool GetFindBarWindowInfo(gfx::Point* position,
                                     bool* fully_visible) const;
+  virtual void Focus();
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();

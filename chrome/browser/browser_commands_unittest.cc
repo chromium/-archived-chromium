@@ -8,6 +8,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+#include "chrome/common/url_constants.h"
 #include "chrome/test/browser_with_test_window_test.h"
 #include "chrome/test/testing_profile.h"
 
@@ -16,10 +17,12 @@ typedef BrowserWithTestWindowTest BrowserCommandsTest;
 // Tests IDC_SELECT_TAB_0, IDC_SELECT_NEXT_TAB, IDC_SELECT_PREVIOUS_TAB and
 // IDC_SELECT_LAST_TAB.
 TEST_F(BrowserCommandsTest, TabNavigationAccelerators) {
+  GURL about_blank(chrome::kAboutBlankURL);
+
   // Create three tabs.
-  AddTestingTab(browser());
-  AddTestingTab(browser());
-  AddTestingTab(browser());
+  AddTab(browser(), about_blank);
+  AddTab(browser(), about_blank);
+  AddTab(browser(), about_blank);
 
   // Select the second tab.
   browser()->SelectTabContentsAt(1, false);
@@ -43,13 +46,12 @@ TEST_F(BrowserCommandsTest, TabNavigationAccelerators) {
 
 // Tests IDC_DUPLICATE_TAB.
 TEST_F(BrowserCommandsTest, DuplicateTab) {
-  GURL url1 = test_url_with_path("1");
-  GURL url2 = test_url_with_path("2");
-  GURL url3 = test_url_with_path("3");
+  GURL url1("http://foo/1");
+  GURL url2("http://foo/2");
+  GURL url3("http://foo/3");
 
   // Navigate to the three urls, then go back.
-  AddTestingTab(browser());
-  NavigateAndCommitActiveTab(url1);
+  AddTab(browser(), url1);
   NavigateAndCommitActiveTab(url2);
   NavigateAndCommitActiveTab(url3);
 
@@ -81,8 +83,8 @@ TEST_F(BrowserCommandsTest, BookmarkCurrentPage) {
   profile()->BlockUntilBookmarkModelLoaded();
 
   // Navigate to a url.
-  GURL url1 = test_url_with_path("1");
-  AddTestingTab(browser());
+  GURL url1("http://foo/1");
+  AddTab(browser(), url1);
   browser()->OpenURL(url1, GURL(), CURRENT_TAB, PageTransition::TYPED);
 
   // TODO(beng): remove this once we can use WebContentses directly in testing

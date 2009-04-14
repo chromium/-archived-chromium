@@ -9,7 +9,9 @@
 #include "chrome/test/test_browser_window.h"
 #include "chrome/test/testing_profile.h"
 
-BrowserWithTestWindowTest::BrowserWithTestWindowTest() {
+BrowserWithTestWindowTest::BrowserWithTestWindowTest()
+    : rph_factory_(),
+      rvh_factory_(&rph_factory_) {
   OleInitialize(NULL);
 }
 
@@ -17,8 +19,6 @@ void BrowserWithTestWindowTest::SetUp() {
   // NOTE: I have a feeling we're going to want virtual methods for creating
   // these, as such they're in SetUp instead of the constructor.
   profile_.reset(new TestingProfile());
-  tab_contents_factory_.reset(
-      TestTabContentsFactory::CreateAndRegisterFactory());
   browser_.reset(new Browser(Browser::TYPE_NORMAL, profile()));
   window_.reset(new TestBrowserWindow(browser()));
   browser_->set_window(window_.get());
@@ -33,7 +33,6 @@ BrowserWithTestWindowTest::~BrowserWithTestWindowTest() {
   // loop.
   browser_.reset(NULL);
   window_.reset(NULL);
-  tab_contents_factory_.reset(NULL);
   profile_.reset(NULL);
 
   MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask);
@@ -42,31 +41,35 @@ BrowserWithTestWindowTest::~BrowserWithTestWindowTest() {
   OleUninitialize();
 }
 
-void BrowserWithTestWindowTest::AddTestingTab(Browser* browser) {
-  TestTabContents* tab_contents = tab_contents_factory_->CreateInstanceImpl();
-  tab_contents->SetupController(profile());
-  browser->tabstrip_model()->AddTabContents(
-      tab_contents, 0, PageTransition::TYPED, true);
+TestRenderViewHost* BrowserWithTestWindowTest::TestRenderViewHostForTab(
+    TabContents* tab_contents) {
+  return static_cast<TestRenderViewHost*>(
+      tab_contents->AsWebContents()->render_view_host());
+}
+
+void BrowserWithTestWindowTest::AddTab(Browser* browser, const GURL& url) {
+  TabContents* new_tab = browser->AddTabWithURL(url, GURL(),
+                                                PageTransition::TYPED, true,
+                                                0, NULL);
+  CommitPendingLoadAsNewNavigation(new_tab->controller(), url);
+}
+
+void BrowserWithTestWindowTest::CommitPendingLoadAsNewNavigation(
+    NavigationController* controller,
+    const GURL& url) {
+  TestRenderViewHost* test_rvh =
+      TestRenderViewHostForTab(controller->tab_contents());
+  MockRenderProcessHost* mock_rph = static_cast<MockRenderProcessHost*>(
+    test_rvh->process());
+
+  test_rvh->SendNavigate(mock_rph->max_page_id() + 1, url);
 }
 
 void BrowserWithTestWindowTest::NavigateAndCommit(
     NavigationController* controller,
     const GURL& url) {
   controller->LoadURL(url, GURL(), 0);
-
-  // Commit the load.
-  // TODO(brettw) once this uses TestRenderViewHost, we should call SendNavigate
-  // on it instead of doing this stuff.
-  ViewHostMsg_FrameNavigate_Params params;
-  params.page_id = reinterpret_cast<TestTabContents*>(
-      controller->tab_contents())->GetNextPageID();
-  params.url = url;
-  params.transition = PageTransition::LINK;
-  params.should_update_history = false;
-  params.gesture = NavigationGestureUser;
-  params.is_post = false;
-  NavigationController::LoadCommittedDetails details;
-  controller->RendererDidNavigate(params, &details);
+  CommitPendingLoadAsNewNavigation(controller, url);
 }
 
 void BrowserWithTestWindowTest::NavigateAndCommitActiveTab(const GURL& url) {

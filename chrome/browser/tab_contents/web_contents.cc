@@ -708,6 +708,10 @@ bool WebContents::IsActiveEntry(int32 page_id) {
           active_entry->page_id() == page_id);
 }
 
+void WebContents::Focus() {
+  view_->Focus();
+}
+
 void WebContents::SetInitialFocus(bool reverse) {
   render_view_host()->SetInitialFocus(reverse);
 }

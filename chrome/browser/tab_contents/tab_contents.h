@@ -80,28 +80,6 @@ class TabContents : public PageNavigator,
 
   static void RegisterUserPrefs(PrefService* prefs);
 
-  // Factory -------------------------------------------------------------------
-  // (implemented in tab_contents_factory.cc)
-
-  // Creates a new TabContents of the given type.  Will reuse the given
-  // instance's renderer, if it is not null. The given render view host factory
-  // will be passed to the new TabContents (it may be NULL).
-  static TabContents* CreateWithType(TabContentsType type,
-                                     Profile* profile,
-                                     SiteInstance* instance);
-
-  // Returns the type of TabContents needed to handle the URL. |url| may
-  // end up being modified to contain the _real_ url being loaded if the
-  // parameter was an alias (such as about: urls and chrome- urls).
-  static TabContentsType TypeForURL(GURL* url);
-
-  // This method can be used to register a new TabContents type dynamically,
-  // which can be very useful for unit testing.  If factory is null, then the
-  // tab contents type is unregistered.  Returns the previously registered
-  // factory for the given type or null if there was none.
-  static TabContentsFactory* RegisterFactory(TabContentsType type,
-                                             TabContentsFactory* factory);
-
   // Creation & destruction ----------------------------------------------------
 
   // Request this tab to shut down. This kills the tab's NavigationController,
@@ -365,7 +343,7 @@ class TabContents : public PageNavigator,
   }
 
   // Make the tab the focused window.
-  virtual void Focus();
+  virtual void Focus() = 0;
 
   // Invoked the first time this tab is getting the focus through TAB traversal.
   // By default this does nothing, but is overridden to set the focus for the

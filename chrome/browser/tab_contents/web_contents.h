@@ -146,6 +146,7 @@ class WebContents : public TabContents,
   virtual bool IsBookmarkBarAlwaysVisible();
   virtual void SetDownloadShelfVisible(bool visible);
   virtual void PopupNotificationVisibilityChanged(bool visible);
+  virtual void Focus();
 
   // Retarded pass-throughs to the view.
   // TODO(brettw) fix this, tab contents shouldn't have these methods, probably

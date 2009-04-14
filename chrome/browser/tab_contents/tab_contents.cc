@@ -120,12 +120,7 @@ void TabContents::SetupController(Profile* profile) {
 }
 
 bool TabContents::SupportsURL(GURL* url) {
-  GURL u(*url);
-  if (TabContents::TypeForURL(&u) == type()) {
-    *url = u;
-    return true;
-  }
-  return false;
+  return true;
 }
 
 const GURL& TabContents::GetURL() const {
@@ -340,22 +335,6 @@ void TabContents::CloseAllSuppressedPopups() {
     blocked_popups_->CloseAllPopups();
 }
 #endif
-
-void TabContents::Focus() {
-#if defined(OS_WIN)
-  HWND container_hwnd = GetNativeView();
-  if (!container_hwnd)
-    return;
-
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(container_hwnd);
-  DCHECK(focus_manager);
-  views::View* v = focus_manager->GetViewForWindow(container_hwnd, true);
-  DCHECK(v);
-  if (v)
-    v->RequestFocus();
-#endif
-}
 
 void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
   // Look through the existing InfoBarDelegates we have for a match. If we've
