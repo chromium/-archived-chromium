@@ -2096,6 +2096,7 @@
         '..',
       ],
       'sources': [
+        '../third_party/GTM/AppKit/GTMNSBezierPath+RoundRect.m',
         'app/breakpad_mac.mm',
         # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
@@ -2122,6 +2123,7 @@
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',
         'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
+        'browser/cocoa/status_bubble_mac_unittest.mm',
         'browser/command_updater_unittest.cc',
         'browser/debugger/devtools_manager_unittest.cc',
         'browser/dom_ui/dom_ui_unittest.cc',
@@ -2273,6 +2275,9 @@
           ],
         }],
         ['OS=="mac"', {
+          'include_dirs': [
+            '../third_party/GTM',
+          ],
           'sources!': [
             'browser/back_forward_menu_model_unittest.cc',
             'browser/download/download_manager_unittest.cc',

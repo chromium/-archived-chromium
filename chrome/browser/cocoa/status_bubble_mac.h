@@ -12,6 +12,7 @@
 #include "chrome/browser/status_bubble.h"
 
 class GURL;
+class StatusBubbleMacTest;
 
 class StatusBubbleMac : public StatusBubble {
  public:
@@ -25,6 +26,8 @@ class StatusBubbleMac : public StatusBubble {
   virtual void MouseMoved();
 
  private:
+  friend class StatusBubbleMacTest;
+
   void SetStatus(NSString* status, bool is_url);
 
   // Construct the window/widget if it does not already exist. (Safe to call if
