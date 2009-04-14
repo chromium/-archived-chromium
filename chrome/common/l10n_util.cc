@@ -301,79 +301,76 @@ std::string GetStringUTF8(int message_id) {
   return WideToUTF8(GetString(message_id));
 }
 
-static std::wstring GetStringF(int message_id,
-                               const std::wstring& a,
-                               const std::wstring& b,
-                               const std::wstring& c,
-                               const std::wstring& d,
-                               std::vector<size_t>* offsets) {
-  const std::wstring& format_string = GetString(message_id);
-  std::wstring formatted = ReplaceStringPlaceholders(format_string, a, b, c,
-                                                     d, offsets);
+static string16 GetStringF(int message_id,
+                           const string16& a,
+                           const string16& b,
+                           const string16& c,
+                           const string16& d,
+                           std::vector<size_t>* offsets) {
+  // TODO(tc): ResourceBundle::GetLocalizedString should return a string16
+  // so we can avoid this conversion on linux/mac.
+  const string16& format_string = WideToUTF16(GetString(message_id));
+  string16 formatted = ReplaceStringPlaceholders(format_string, a, b, c, d,
+                                                 offsets);
   return formatted;
 }
 
-std::wstring GetStringF(int message_id,
-                        const std::wstring& a) {
-  return GetStringF(message_id, a, std::wstring(), std::wstring(),
-                    std::wstring(), NULL);
+std::wstring GetStringF(int message_id, const std::wstring& a) {
+  return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), string16(),
+                                string16(), string16(), NULL));
 }
 
 std::wstring GetStringF(int message_id,
                         const std::wstring& a,
                         const std::wstring& b) {
-  return GetStringF(message_id, a, b, std::wstring(), std::wstring(), NULL);
+  return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), WideToUTF16(b),
+                                string16(), string16(), NULL));
 }
 
 std::wstring GetStringF(int message_id,
                         const std::wstring& a,
                         const std::wstring& b,
                         const std::wstring& c) {
-  return GetStringF(message_id, a, b, c, std::wstring(), NULL);
+  return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), WideToUTF16(b),
+                                WideToUTF16(c), string16(), NULL));
 }
 
 std::string GetStringFUTF8(int message_id,
                            const string16& a) {
-  // TODO(tc): Once this whole file uses string16, we can drop the UTF16ToWide
-  // conversions.  http://crbug.com/9911
-  return WideToUTF8(GetStringF(message_id, UTF16ToWide(a)));
+  return UTF16ToUTF8(GetStringF(message_id, a, string16(), string16(),
+                                string16(), NULL));
 }
 
 std::string GetStringFUTF8(int message_id,
                            const string16& a,
                            const string16& b) {
-  // TODO(tc): Once this whole file uses string16, we can drop the UTF16ToWide
-  // conversions.  http://crbug.com/9911
-  return WideToUTF8(GetStringF(message_id, UTF16ToWide(a), UTF16ToWide(b)));
+  return UTF16ToUTF8(GetStringF(message_id, a, b, string16(), string16(),
+                                NULL));
 }
 
 std::string GetStringFUTF8(int message_id,
                            const string16& a,
                            const string16& b,
                            const string16& c) {
-  // TODO(tc): Once this whole file uses string16, we can drop the UTF16ToWide
-  // conversions.  http://crbug.com/9911
-  return WideToUTF8(GetStringF(message_id, UTF16ToWide(a), UTF16ToWide(b),
-                               UTF16ToWide(c)));
+  return UTF16ToUTF8(GetStringF(message_id, a, b, c, string16(), NULL));
 }
 
-std::wstring GetStringF(int message_id,
-                        const std::wstring& a,
-                        size_t* offset) {
+std::wstring GetStringF(int message_id, const std::wstring& a, size_t* offset) {
   DCHECK(offset);
   std::vector<size_t> offsets;
-  std::wstring result = GetStringF(message_id, a, std::wstring(),
-                                   std::wstring(), std::wstring(), &offsets);
+  string16 result = GetStringF(message_id, WideToUTF16(a), string16(),
+                               string16(), string16(), &offsets);
   DCHECK(offsets.size() == 1);
   *offset = offsets[0];
-  return result;
+  return UTF16ToWide(result);
 }
 
 std::wstring GetStringF(int message_id,
                         const std::wstring& a,
                         const std::wstring& b,
                         std::vector<size_t>* offsets) {
-  return GetStringF(message_id, a, b, std::wstring(), std::wstring(), offsets);
+  return UTF16ToWide(GetStringF(message_id, WideToUTF16(a), WideToUTF16(b),
+                                string16(), string16(), offsets));
 }
 
 std::wstring GetStringF(int message_id, int a) {

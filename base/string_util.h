@@ -556,27 +556,27 @@ void SplitStringAlongWhitespace(const std::wstring& str,
 // Replace $1-$2-$3 in the format string with |a| and |b| respectively.
 // Additionally, $$ is replaced by $. The offset/offsets parameter here can be
 // NULL.
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       size_t* offset);
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   size_t* offset);
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       const std::wstring& b,
-                                       std::vector<size_t>* offsets);
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   const string16& b,
+                                   std::vector<size_t>* offsets);
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       const std::wstring& b,
-                                       const std::wstring& c,
-                                       std::vector<size_t>* offsets);
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   const string16& b,
+                                   const string16& c,
+                                   std::vector<size_t>* offsets);
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       const std::wstring& b,
-                                       const std::wstring& c,
-                                       const std::wstring& d,
-                                       std::vector<size_t>* offsets);
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   const string16& b,
+                                   const string16& c,
+                                   const string16& d,
+                                   std::vector<size_t>* offsets);
 
 // If the size of |input| is more than |max_len|, this function returns true and
 // |input| is shortened into |output| by removing chars in the middle (they are

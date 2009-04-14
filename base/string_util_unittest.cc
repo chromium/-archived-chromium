@@ -1421,14 +1421,18 @@ TEST(StringUtilTest, StartsWith) {
 TEST(StringUtilTest, GetStringFWithOffsets) {
   std::vector<size_t> offsets;
 
-  ReplaceStringPlaceholders(L"Hello, $1. Your number is $2.", L"1", L"2",
+  ReplaceStringPlaceholders(ASCIIToUTF16("Hello, $1. Your number is $2."),
+                            ASCIIToUTF16("1"),
+                            ASCIIToUTF16("2"),
                             &offsets);
   EXPECT_EQ(2U, offsets.size());
   EXPECT_EQ(7U, offsets[0]);
   EXPECT_EQ(25U, offsets[1]);
   offsets.clear();
 
-  ReplaceStringPlaceholders(L"Hello, $2. Your number is $1.", L"1", L"2",
+  ReplaceStringPlaceholders(ASCIIToUTF16("Hello, $2. Your number is $1."),
+                            ASCIIToUTF16("1"),
+                            ASCIIToUTF16("2"),
                             &offsets);
   EXPECT_EQ(2U, offsets.size());
   EXPECT_EQ(25U, offsets[0]);

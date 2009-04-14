@@ -1269,14 +1269,14 @@ void SplitStringAlongWhitespace(const std::wstring& str,
   }
 }
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       size_t* offset) {
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   size_t* offset) {
   std::vector<size_t> offsets;
-  std::wstring result = ReplaceStringPlaceholders(format_string, a,
-                                                  std::wstring(),
-                                                  std::wstring(),
-                                                  std::wstring(), &offsets);
+  string16 result = ReplaceStringPlaceholders(format_string, a,
+                                              string16(),
+                                              string16(),
+                                              string16(), &offsets);
   DCHECK(offsets.size() == 1);
   if (offset) {
     *offset = offsets[0];
@@ -1284,41 +1284,41 @@ std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
   return result;
 }
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       const std::wstring& b,
-                                       std::vector<size_t>* offsets) {
-  return ReplaceStringPlaceholders(format_string, a, b, std::wstring(),
-                                   std::wstring(), offsets);
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   const string16& b,
+                                   std::vector<size_t>* offsets) {
+  return ReplaceStringPlaceholders(format_string, a, b, string16(),
+                                   string16(), offsets);
 }
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       const std::wstring& b,
-                                       const std::wstring& c,
-                                       std::vector<size_t>* offsets) {
-  return ReplaceStringPlaceholders(format_string, a, b, c, std::wstring(),
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                   const string16& a,
+                                   const string16& b,
+                                   const string16& c,
+                                   std::vector<size_t>* offsets) {
+  return ReplaceStringPlaceholders(format_string, a, b, c, string16(),
                                    offsets);
 }
 
-std::wstring ReplaceStringPlaceholders(const std::wstring& format_string,
-                                       const std::wstring& a,
-                                       const std::wstring& b,
-                                       const std::wstring& c,
-                                       const std::wstring& d,
+string16 ReplaceStringPlaceholders(const string16& format_string,
+                                       const string16& a,
+                                       const string16& b,
+                                       const string16& c,
+                                       const string16& d,
                                        std::vector<size_t>* offsets) {
   // We currently only support up to 4 place holders ($1 through $4), although
   // it's easy enough to add more.
-  const std::wstring* subst_texts[] = { &a, &b, &c, &d };
+  const string16* subst_texts[] = { &a, &b, &c, &d };
 
-  std::wstring formatted;
+  string16 formatted;
   formatted.reserve(format_string.length() + a.length() +
       b.length() + c.length() + d.length());
 
   std::vector<ReplacementOffset> r_offsets;
 
   // Replace $$ with $ and $1-$4 with placeholder text if it exists.
-  for (std::wstring::const_iterator i = format_string.begin();
+  for (string16::const_iterator i = format_string.begin();
        i != format_string.end(); ++i) {
     if ('$' == *i) {
       if (i + 1 != format_string.end()) {
