@@ -54,6 +54,8 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
   virtual bool RunUnloadListenerBeforeClosing(TabContents* contents) {
     return false;
   }
+  virtual bool CanRestoreTab() { return false; }
+  virtual void RestoreTab() {}
 
  private:
   // A dummy TabContents we give to callers that expect us to actually build a

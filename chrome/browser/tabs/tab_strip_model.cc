@@ -9,6 +9,7 @@
 #include "base/string_util.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/sessions/tab_restore_service.h"
 #include "chrome/browser/tabs/tab_strip_model_order_controller.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -422,6 +423,8 @@ bool TabStripModel::IsContextMenuCommandEnabled(
     }
     case CommandDuplicate:
       return delegate_->CanDuplicateContentsAt(context_index);
+    case CommandRestoreTab:
+      return delegate_->CanRestoreTab();
     default:
       NOTREACHED();
   }
@@ -473,6 +476,11 @@ void TabStripModel::ExecuteContextMenuCommand(
           CloseTabContentsAt(i);
       }
 
+      break;
+    }
+    case CommandRestoreTab: {
+      UserMetrics::RecordAction(L"TabContextMenu_RestoreTab", profile_);
+      delegate_->RestoreTab();
       break;
     }
     default:

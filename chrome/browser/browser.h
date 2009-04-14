@@ -250,6 +250,9 @@ class Browser : public TabStripModelDelegate,
       const std::vector<TabNavigation>& navigations,
       int selected_navigation);
 
+  // Returns true if a tab can be restored.
+  virtual bool CanRestoreTab();
+
   // Show a DOMUI tab given a URL. If a tab with the same URL is already
   // visible in this browser, it becomes selected. Otherwise a new tab is
   // created.

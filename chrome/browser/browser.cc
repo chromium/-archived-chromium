@@ -576,6 +576,11 @@ void Browser::ReplaceRestoredTab(
       restored_controller);
 }
 
+bool Browser::CanRestoreTab() {
+  TabRestoreService* service = profile_->GetTabRestoreService();
+  return service && !service->entries().empty();
+}
+
 void Browser::ShowSingleDOMUITab(const GURL& url) {
   // See if we already have a tab with the given URL and select it if so.
   for (int i = 0; i < tabstrip_model_.count(); i++) {

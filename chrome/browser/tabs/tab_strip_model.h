@@ -165,6 +165,12 @@ class TabStripModelDelegate {
   // TabContents. If it returns false, there are no unload listeners and the
   // TabStripModel can close the TabContents immediately.
   virtual bool RunUnloadListenerBeforeClosing(TabContents* contents) = 0;
+
+  // Returns true if a tab can be restored.
+  virtual bool CanRestoreTab() = 0;
+
+  // Restores the last closed tab if CanRestoreTab would return true.
+  virtual void RestoreTab() = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -403,6 +409,7 @@ class TabStripModel : public NotificationObserver {
     CommandCloseOtherTabs,
     CommandCloseTabsToRight,
     CommandCloseTabsOpenedBy,
+    CommandRestoreTab,
     CommandLast
   };
 

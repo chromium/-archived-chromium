@@ -47,6 +47,8 @@ class Tab::ContextMenuController : public views::MenuDelegate {
     menu_->AppendMenuItemWithLabel(
         TabStripModel::CommandCloseTabsOpenedBy,
         l10n_util::GetString(IDS_TAB_CXMENU_CLOSETABSOPENEDBY));
+    menu_->AppendMenuItemWithLabel(
+      TabStripModel::CommandRestoreTab, l10n_util::GetString(IDS_RESTORE_TAB));
   }
 
   void RunMenuAt(int x, int y) {
