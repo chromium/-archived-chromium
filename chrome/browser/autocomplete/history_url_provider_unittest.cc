@@ -11,6 +11,9 @@
 #include "chrome/browser/history/history.h"
 #include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#if defined(OS_MACOSX)
+#include "base/mac_util.h"
+#endif
 
 using base::Time;
 using base::TimeDelta;
@@ -117,6 +120,13 @@ void HistoryURLProviderTest::OnProviderUpdate(bool updated_matches) {
 }
 
 void HistoryURLProviderTest::SetUp() {
+#if defined(OS_MACOSX)
+  FilePath path;
+  PathService::Get(base::DIR_EXE, &path);
+  path = path.AppendASCII("Chromium.app");
+  mac_util::SetOverrideAppBundlePath(path);
+#endif
+  
   profile_.reset(new TestingProfile());
   profile_->CreateBookmarkModel(true);
   profile_->CreateHistoryService(true);
@@ -128,6 +138,9 @@ void HistoryURLProviderTest::SetUp() {
 }
 
 void HistoryURLProviderTest::TearDown() {
+#if defined(OS_MACOSX)
+  mac_util::SetOverrideAppBundle(NULL);
+#endif
   autocomplete_ = NULL;
 }
 

@@ -2276,6 +2276,11 @@
           ],
         }],
         ['OS=="mac"', {
+           # The test fetches resources which means Mac need the app bundle to
+           # exist on disk so it can pull from it.
+          'dependencies': [
+            'app',
+          ],
           'include_dirs': [
             '../third_party/GTM',
           ],
