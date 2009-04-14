@@ -278,4 +278,49 @@ TEST(AutocompleteMatch, MoreRelevant) {
   }
 }
 
+TEST(AutocompleteInput, ParseForEmphasizeComponent) {
+  using url_parse::Component;
+  Component kInvalidComponent(0, -1);
+  struct test_data {
+    const wchar_t* input;
+    const Component scheme;
+    const Component host;
+  } input_cases[] = {
+    { L"", kInvalidComponent, kInvalidComponent },
+    { L"?", kInvalidComponent, kInvalidComponent },
+    { L"?http://foo.com/bar", kInvalidComponent, kInvalidComponent },
+    { L"foo/bar baz", kInvalidComponent, Component(0, 3) },
+    { L"http://foo/bar baz", Component(0, 4), Component(7, 3) },
+    { L"link:foo.com", Component(0, 4), kInvalidComponent },
+    { L"www.foo.com:81", kInvalidComponent, Component(0, 11) },
+    { L"\u6d4b\u8bd5", kInvalidComponent, Component(0, 2) },
+    { L"view-source:http://www.foo.com/", Component(12, 4), Component(19, 11) },
+    { L"view-source:https://example.com/",
+      Component(12, 5), Component(20, 11) },
+    { L"view-source:", Component(0, 11), kInvalidComponent },
+    { L"view-source:garbage", kInvalidComponent, Component(12, 7) },
+    { L"view-source:http://http://foo", Component(12, 4), Component(19, 4) },
+    { L"view-source:view-source:http://example.com/",
+      Component(12, 11), kInvalidComponent }
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(input_cases); ++i) {
+    Component scheme, host;
+    AutocompleteInput::ParseForEmphasizeComponents(input_cases[i].input,
+                                                   std::wstring(),
+                                                   &scheme,
+                                                   &host);
+    AutocompleteInput input(input_cases[i].input, std::wstring(), true, false,
+                            false);
+    EXPECT_EQ(input_cases[i].scheme.begin, scheme.begin) << "Input: " <<
+        input_cases[i].input;
+    EXPECT_EQ(input_cases[i].scheme.len, scheme.len) << "Input: " <<
+        input_cases[i].input;
+    EXPECT_EQ(input_cases[i].host.begin, host.begin) << "Input: " <<
+        input_cases[i].input;
+    EXPECT_EQ(input_cases[i].host.len, host.len) << "Input: " <<
+        input_cases[i].input;
+  }
+}
+
 }  // namespace

@@ -236,6 +236,47 @@ AutocompleteInput::Type AutocompleteInput::Parse(
   return desired_tld.empty() ? UNKNOWN : REQUESTED_URL;
 }
 
+// static
+void AutocompleteInput::ParseForEmphasizeComponents(
+    const std::wstring& text,
+    const std::wstring& desired_tld,
+    url_parse::Component* scheme,
+    url_parse::Component* host) {
+  url_parse::Parsed parts;
+  std::wstring scheme_str;
+  Parse(text, desired_tld, &parts, &scheme_str);
+
+  *scheme = parts.scheme;
+  *host = parts.host;
+
+  int after_scheme_and_colon = parts.scheme.end() + 1;
+  // For the view-source scheme, we should emphasize the scheme and host of
+  // the URL qualified by the view-source prefix.
+  if (LowerCaseEqualsASCII(scheme_str, chrome::kViewSourceScheme) &&
+      (static_cast<int>(text.length()) > after_scheme_and_colon)) {
+    // Obtain the URL prefixed by view-source and parse it.
+    std::wstring real_url(text.substr(after_scheme_and_colon));
+    url_parse::Parsed real_parts;
+    AutocompleteInput::Parse(real_url, desired_tld, &real_parts, NULL);
+    if (real_parts.scheme.is_nonempty() || real_parts.host.is_nonempty()) {
+      if (real_parts.scheme.is_nonempty()) {
+        *scheme = url_parse::Component(
+            after_scheme_and_colon + real_parts.scheme.begin,
+            real_parts.scheme.len);
+      } else {
+        scheme->reset();
+      }
+      if (real_parts.host.is_nonempty()) {
+        *host = url_parse::Component(
+            after_scheme_and_colon + real_parts.host.begin,
+            real_parts.host.len);
+      } else {
+        host->reset();
+      }
+    }
+  }
+}
+
 bool AutocompleteInput::Equals(const AutocompleteInput& other) const {
   return (text_ == other.text_) &&
          (type_ == other.type_) &&

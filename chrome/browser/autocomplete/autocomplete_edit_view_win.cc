@@ -1884,9 +1884,10 @@ void AutocompleteEditViewWin::EmphasizeURLComponents() {
   // this input.  This can tell us whether an UNKNOWN input string is going to
   // be treated as a search or a navigation, and is the same method the Paste
   // And Go system uses.
-  url_parse::Parsed parts;
-  AutocompleteInput::Parse(GetText(), model_->GetDesiredTLD(), &parts, NULL);
-  const bool emphasize = model_->CurrentTextIsURL() && (parts.host.len > 0);
+  url_parse::Component scheme, host;
+  AutocompleteInput::ParseForEmphasizeComponents(
+      GetText(), model_->GetDesiredTLD(), &scheme, &host);
+  const bool emphasize = model_->CurrentTextIsURL() && (host.len > 0);
 
   // Set the baseline emphasis.
   CHARFORMAT cf = {0};
@@ -1899,22 +1900,22 @@ void AutocompleteEditViewWin::EmphasizeURLComponents() {
   if (emphasize) {
     // We've found a host name, give it more emphasis.
     cf.crTextColor = GetSysColor(COLOR_WINDOWTEXT);
-    SetSelection(parts.host.begin, parts.host.end());
+    SetSelection(host.begin, host.end());
     SetSelectionCharFormat(cf);
   }
 
   // Emphasize the scheme for security UI display purposes (if necessary).
   insecure_scheme_component_.reset();
-  if (!model_->user_input_in_progress() && parts.scheme.is_nonempty() &&
+  if (!model_->user_input_in_progress() && scheme.is_nonempty() &&
       (scheme_security_level_ != ToolbarModel::NORMAL)) {
     if (scheme_security_level_ == ToolbarModel::SECURE) {
       cf.crTextColor = kSecureSchemeColor;
     } else {
-      insecure_scheme_component_.begin = parts.scheme.begin;
-      insecure_scheme_component_.len = parts.scheme.len;
+      insecure_scheme_component_.begin = scheme.begin;
+      insecure_scheme_component_.len = scheme.len;
       cf.crTextColor = kInsecureSchemeColor;
     }
-    SetSelection(parts.scheme.begin, parts.scheme.end());
+    SetSelection(scheme.begin, scheme.end());
     SetSelectionCharFormat(cf);
   }
 

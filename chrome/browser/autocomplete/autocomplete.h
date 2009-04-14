@@ -193,6 +193,15 @@ class AutocompleteInput {
                     url_parse::Parsed* parts,
                     std::wstring* scheme);
 
+  // Parses |text| and fill |scheme| and |host| by the positions of them.
+  // The results are almost as same as the result of Parse(), but if the scheme
+  // is view-source, this function returns the positions of scheme and host
+  // in the URL qualified by "view-source:" prefix.
+  static void ParseForEmphasizeComponents(const std::wstring& text,
+                                          const std::wstring& desired_tld,
+                                          url_parse::Component* scheme,
+                                          url_parse::Component* host);
+
   // User-provided text to be completed.
   const std::wstring& text() const { return text_; }
 
