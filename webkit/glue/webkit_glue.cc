@@ -316,7 +316,9 @@ struct UserAgentState {
 
 Singleton<UserAgentState> g_user_agent;
 
-void BuildUserAgent(bool mimic_safari, std::string* result) {
+std::string BuildOSCpuInfo() {
+  std::string os_cpu;
+
 #if defined(OS_WIN) || defined(OS_MACOSX)
   int32 os_major_version = 0;
   int32 os_minor_version = 0;
@@ -324,6 +326,43 @@ void BuildUserAgent(bool mimic_safari, std::string* result) {
   base::SysInfo::OperatingSystemVersionNumbers(&os_major_version,
                                                &os_minor_version,
                                                &os_bugfix_version);
+#endif
+
+  StringAppendF(
+      &os_cpu,
+#if defined(OS_WIN)
+      "Windows NT %d.%d",
+      os_major_version,
+      os_minor_version
+#elif defined(OS_MACOSX)
+      "Intel Mac OS X %d_%d_%d",
+      os_major_version,
+      os_minor_version,
+      os_bugfix_version
+#elif defined(OS_LINUX)
+      "Linux"            // Firefox also puts CPU info here
+#endif
+  );
+
+  return os_cpu;
+}
+
+void BuildUserAgent(bool mimic_safari, std::string* result) {
+  const char kUserAgentPlatform[] =
+#if defined(OS_WIN)
+      "Windows";
+#elif defined(OS_MACOSX)
+      "Macintosh";
+#elif defined(OS_LINUX)
+      "X11";              // strange, but that's what Firefox uses
+#else
+      "?";
+#endif
+
+  const char kUserAgentSecurity = 'U'; // "US" strength encryption
+
+  // TODO(port): figure out correct locale
+  const char kUserAgentLocale[] = "en-US";
 
   // Get the product name and version, and replace Safari's Version/X string
   // with it.  This is done to expose our product name in a manner that is
@@ -343,37 +382,18 @@ void BuildUserAgent(bool mimic_safari, std::string* result) {
   // Derived from Safari's UA string.
   StringAppendF(
       result,
-#if defined(OS_WIN)
-      "Mozilla/5.0 (Windows; U; Windows NT %d.%d; en-US) AppleWebKit/%d.%d"
-#elif defined(OS_MACOSX)
-      "Mozilla/5.0 (Macintosh; U; Intel Mac OS X %d_%d_%d; en-US) "
-      "AppleWebKit/%d.%d"
-#endif
+      "Mozilla/5.0 (%s; %c; %s; %s) AppleWebKit/%d.%d"
       " (KHTML, like Gecko) %s Safari/%d.%d",
-      os_major_version,
-      os_minor_version,
-#if defined(OS_MACOSX)
-      os_bugfix_version,
-#endif
+      kUserAgentPlatform,
+      kUserAgentSecurity,
+      BuildOSCpuInfo().c_str(),
+      kUserAgentLocale,
       WEBKIT_VERSION_MAJOR,
       WEBKIT_VERSION_MINOR,
       product.c_str(),
       WEBKIT_VERSION_MAJOR,
       WEBKIT_VERSION_MINOR
       );
-#elif defined(OS_LINUX)
-  // TODO(agl): We don't have version information embedded in files under Linux
-  // so we use the following string which is based off the UA string for
-  // Windows. Some solution for embedding the Chrome version number needs to be
-  // found here.
-  StringAppendF(
-      result,
-      "Mozilla/5.0 (Linux; U; en-US) AppleWebKit/525.13 "
-      "(KHTML, like Gecko) Chrome/0.2.149.27 Safari/525.13");
-#else
-  // TODO(port): we need something like FileVersionInfo for our UA string.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void SetUserAgentToDefault() {
