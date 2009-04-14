@@ -830,6 +830,7 @@ struct ParamTraits<WebCursor> {
 
 struct LogData {
   std::wstring channel;
+  int32 routing_id;
   uint16 type;
   std::wstring flags;
   int64 sent;  // Time that the message was sent (i.e. at Send()).
@@ -846,6 +847,7 @@ struct ParamTraits<LogData> {
   typedef LogData param_type;
   static void Write(Message* m, const param_type& p) {
     WriteParam(m, p.channel);
+    WriteParam(m, p.routing_id);
     WriteParam(m, static_cast<int>(p.type));
     WriteParam(m, p.flags);
     WriteParam(m, p.sent);
@@ -857,6 +859,7 @@ struct ParamTraits<LogData> {
     int type;
     bool result =
       ReadParam(m, iter, &r->channel) &&
+      ReadParam(m, iter, &r->routing_id);
       ReadParam(m, iter, &type) &&
       ReadParam(m, iter, &r->flags) &&
       ReadParam(m, iter, &r->sent) &&

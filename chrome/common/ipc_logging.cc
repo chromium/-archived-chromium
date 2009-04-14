@@ -268,8 +268,9 @@ void Logging::Log(const LogData& data) {
   }
 #elif defined(OS_POSIX)
   // On POSIX, for now, we just dump the log to stderr
-  fprintf(stderr, "ipc %s %d %s %s %s\n",
+  fprintf(stderr, "ipc %s %d %d %s %s %s\n",
           WideToUTF8(data.channel).c_str(),
+          data.routing_id,
           data.type,
           WideToUTF8(data.flags).c_str(),
           WideToUTF8(data.message_name).c_str(),
@@ -305,6 +306,7 @@ void GenerateLogData(const std::wstring& channel, const Message& message,
     Logging::GetMessageText(message.type(), &message_name, &message, &params);
 
     data->channel = channel;
+    data->routing_id = message.routing_id();
     data->type = message.type();
     data->flags = flags;
     data->sent = message.sent_time();
