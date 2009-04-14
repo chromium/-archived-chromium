@@ -342,6 +342,15 @@ void DisplayDebugMessage(const std::string& str) {
 #endif
 }
 
+#if defined(OS_WIN)
+LogMessage::SaveLastError::SaveLastError() : last_error_(::GetLastError()) {
+}
+
+LogMessage::SaveLastError::~SaveLastError() {
+  ::SetLastError(last_error_);
+}
+#endif  // defined(OS_WIN)
+
 LogMessage::LogMessage(const char* file, int line, LogSeverity severity,
                        int ctr)
     : severity_(severity) {

@@ -540,6 +540,25 @@ class LogMessage {
   std::ostringstream stream_;
   size_t message_start_;  // Offset of the start of the message (past prefix
                           // info).
+#if defined(OS_WIN)
+  // Stores the current value of GetLastError in the constructor and restores
+  // it in the destructor by calling SetLastError.
+  // This is useful since the LogMessage class uses a lot of Win32 calls
+  // that will lose the value of GLE and the code that called the log function
+  // will have lost the thread error value when the log call returns.
+  class SaveLastError {
+   public:
+    SaveLastError();
+    ~SaveLastError();
+
+    unsigned long get_error() const { return last_error_; }
+
+   protected:
+    unsigned long last_error_;
+  };
+
+  SaveLastError last_error_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
