@@ -232,10 +232,30 @@ void FindBarWin::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
   view_->SchedulePaint();
 }
 
-void FindBarWin::ForwardKeystrokeToWebpage(TCHAR key) {
+bool FindBarWin::MaybeForwardKeystrokeToWebpage(
+    UINT message, TCHAR key, UINT flags) {
+  // We specifically ignore WM_CHAR. See http://crbug.com/10509.
+  if (message != WM_KEYDOWN && message != WM_KEYUP)
+    return false;
+
+  switch (key) {
+    case VK_HOME:
+    case VK_END:
+      // Ctrl+Home and Ctrl+End should be forwarded to the page.
+      if (GetKeyState(VK_CONTROL) >= 0)
+        return false;  // Ctrl not pressed: Abort. Otherwise fall through.
+    case VK_UP:
+    case VK_DOWN:
+    case VK_PRIOR:  // Page up
+    case VK_NEXT:   // Page down
+      break;  // The keys above are the ones we want to forward to the page.
+    default:
+      return false;
+  }
+
   WebContents* contents = find_bar_controller_->web_contents();
   if (!contents)
-    return;
+    return false;
 
   RenderViewHost* render_view_host = contents->render_view_host();
 
@@ -245,9 +265,8 @@ void FindBarWin::ForwardKeystrokeToWebpage(TCHAR key) {
 
   HWND hwnd = contents->GetContentNativeView();
   render_view_host->ForwardKeyboardEvent(
-      NativeWebKeyboardEvent(hwnd, WM_KEYDOWN, key, 0));
-  render_view_host->ForwardKeyboardEvent(
-      NativeWebKeyboardEvent(hwnd, WM_KEYUP, key, 0));
+      NativeWebKeyboardEvent(hwnd, message, key, 0));
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

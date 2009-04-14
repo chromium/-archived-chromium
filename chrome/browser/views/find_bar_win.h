@@ -59,10 +59,11 @@ class FindBarWin : public views::FocusChangeListener,
   // new |parent_hwnd|.
   void SetFocusChangeListener(HWND parent_hwnd);
 
-  // Forwards keystrokes to the renderer. This is useful to make sure that
-  // arrow keys and PageUp and PageDown result in scrolling, instead of
-  // being eaten because the FindBar has focus.
-  void ForwardKeystrokeToWebpage(TCHAR key);
+  // Forwards selected keystrokes to the renderer. This is useful to make sure
+  // that arrow keys and PageUp and PageDown result in scrolling, instead of
+  // being eaten because the FindBar has focus. Returns true if the keystroke
+  // was forwarded, false if not.
+  bool MaybeForwardKeystrokeToWebpage(UINT message, TCHAR key, UINT flags);
 
   // FindBar implementation:
   virtual FindBarController* GetFindBarController() const {
