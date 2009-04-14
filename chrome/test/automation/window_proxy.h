@@ -13,6 +13,7 @@
 
 #include <string>
 
+#include "base/string16.h"
 #include "base/thread.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 
@@ -49,6 +50,9 @@ class WindowProxy : public AutomationResourceProxy {
   // window, the top window is clicked.
   bool SimulateOSClick(const POINT& click, int flags);
 #endif  // defined(OS_WIN)
+
+  // Get the title of the top level window.
+  bool GetWindowTitle(string16* text);
 
   // Simulates a key press at the OS level. |key| is the key pressed  and
   // |flags| specifies which modifiers keys are also pressed (as defined in

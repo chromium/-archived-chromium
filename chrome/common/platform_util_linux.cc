@@ -9,6 +9,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/process_util.h"
+#include "base/string_util.h"
 
 namespace platform_util {
 
@@ -29,6 +30,11 @@ void ShowItemInFolder(const FilePath& full_path) {
 
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
   return GTK_WINDOW(gtk_widget_get_toplevel(view));
+}
+
+string16 GetWindowTitle(gfx::NativeWindow window) {
+  const gchar* title = gtk_window_get_title(window);
+  return UTF8ToUTF16(title);
 }
 
 }  // namespace platform_util

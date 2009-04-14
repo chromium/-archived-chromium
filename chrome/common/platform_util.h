@@ -6,6 +6,7 @@
 #define CHROME_COMMON_PLATFORM_UTIL_H_
 
 #include "base/gfx/native_widget_types.h"
+#include "base/string16.h"
 
 class FilePath;
 
@@ -16,6 +17,9 @@ void ShowItemInFolder(const FilePath& full_path);
 
 // Get the top level window for the native view. This can return NULL.
 gfx::NativeWindow GetTopLevel(gfx::NativeView view);
+
+// Get the title of the window.
+string16 GetWindowTitle(gfx::NativeWindow window);
 
 }
 

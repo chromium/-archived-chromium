@@ -253,12 +253,7 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   std::wstring extra_chrome_flags =
       CommandLine::ForCurrentProcess()->GetSwitchValue(kExtraChromeFlagsSwitch);
   if (!extra_chrome_flags.empty()) {
-#if defined(OS_WIN)
     command_line.AppendLooseValue(extra_chrome_flags);
-#else
-    // TODO(port): figure out how to pass through extra flags via a string.
-    NOTIMPLEMENTED();
-#endif
   }
 
   // We need cookies on file:// for things like the page cycler.
@@ -446,7 +441,7 @@ void UITest::QuitBrowser() {
 }
 
 void UITest::AssertAppNotRunning(const std::wstring& error_message) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   ASSERT_EQ(0, GetBrowserProcessCount()) << error_message;
 #else
   // TODO(port): Enable when chrome_process_util is ported.
@@ -455,7 +450,7 @@ void UITest::AssertAppNotRunning(const std::wstring& error_message) {
 }
 
 void UITest::CleanupAppProcesses() {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   TerminateAllChromeProcesses(FilePath::FromWStringHack(user_data_dir()));
 
   // Suppress spammy failures that seem to be occurring when running
@@ -503,10 +498,6 @@ void UITest::NavigateToURL(const GURL& url) {
   ASSERT_FALSE(is_timeout) << url.spec();
 }
 
-// TODO(port): this #if effectively cuts out half of this file on
-// non-Windows platforms, and is a temporary hack to get things
-// building.
-#if defined(OS_WIN)
 bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   const int kCycles = 20;
   for (int i = 0; i < kCycles; i++) {
@@ -522,6 +513,10 @@ bool UITest::WaitForDownloadShelfVisible(TabProxy* tab) {
   return false;
 }
 
+// TODO(port): this #if effectively cuts out half of this file on
+// non-Windows platforms, and is a temporary hack to get things
+// building.
+#if defined(OS_WIN)
 bool UITest::WaitForFindWindowVisibilityChange(BrowserProxy* browser,
                                                bool wait_for_open) {
   const int kCycles = 20;
@@ -585,16 +580,15 @@ bool UITest::CrashAwareSleep(int time_out_ms) {
   return base::CrashAwareSleep(process_, time_out_ms);
 }
 
-#if defined(OS_WIN)
-// TODO(port): Port GetRunningChromeProcesses and sort out one w/string issue.
-
-/*static*/
+// static
 int UITest::GetBrowserProcessCount() {
   FilePath data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &data_dir);
   return GetRunningChromeProcesses(data_dir).size();
 }
 
+#if defined(OS_WIN)
+// TODO(port): Port GetRunningChromeProcesses and sort out one w/string issue.
 static DictionaryValue* LoadDictionaryValueFromPath(const FilePath& path) {
   if (path.empty())
     return NULL;

@@ -13,7 +13,7 @@
 #include "base/string_util.h"
 
 ProcessSingleton::ProcessSingleton(const FilePath& user_data_dir) {
-  socket_path_ = user_data_dir.Append("Singleton Socket");
+  socket_path_ = user_data_dir.Append("SingletonSocket");
 }
 
 ProcessSingleton::~ProcessSingleton() {

@@ -22,4 +22,9 @@ gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
   return [view window];
 }
 
+string16 GetWindowTitle(gfx::NativeWindow window) {
+  NOTIMPLEMENTED();
+  return string16();
+}
+
 }  // namespace platform_util

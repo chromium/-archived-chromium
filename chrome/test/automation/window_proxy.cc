@@ -16,6 +16,7 @@
 #include "chrome/test/automation/tab_proxy.h"
 #include "googleurl/src/gurl.h"
 
+#if defined(OS_WIN)
 bool WindowProxy::GetHWND(HWND* handle) const {
   if (!is_valid()) return false;
 
@@ -32,6 +33,18 @@ bool WindowProxy::SimulateOSClick(const POINT& click, int flags) {
 
   return sender_->Send(
       new AutomationMsg_WindowClick(0, handle_, click, flags));
+}
+#endif  // defined(OS_WIN)
+
+bool WindowProxy::GetWindowTitle(string16* text) {
+  if (!is_valid()) return false;
+
+  if (!text) {
+    NOTREACHED();
+    return false;
+  }
+
+  return sender_->Send(new AutomationMsg_WindowTitle(0, handle_, text));
 }
 
 bool WindowProxy::SimulateOSKeyPress(wchar_t key, int flags) {

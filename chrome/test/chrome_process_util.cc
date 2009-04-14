@@ -8,10 +8,31 @@
 
 #include "base/process_util.h"
 #include "base/time.h"
+#include "chrome/common/chrome_constants.h"
 #include "chrome/common/result_codes.h"
 
 using base::Time;
 using base::TimeDelta;
+
+namespace {
+
+class ChromeProcessFilter : public base::ProcessFilter {
+ public:
+  explicit ChromeProcessFilter(base::ProcessId browser_pid)
+      : browser_pid_(browser_pid) {}
+
+  virtual bool Includes(base::ProcessId pid, base::ProcessId parent_pid) const {
+    // Match browser process itself and its children.
+    return browser_pid_ == pid || browser_pid_ == parent_pid;
+  }
+
+ private:
+  base::ProcessId browser_pid_;
+
+  DISALLOW_COPY_AND_ASSIGN(ChromeProcessFilter);
+};
+
+}  // namespace
 
 void TerminateAllChromeProcesses(const FilePath& data_dir) {
   // Total time the function will wait for chrome processes
@@ -47,4 +68,26 @@ void TerminateAllChromeProcesses(const FilePath& data_dir) {
 
   for (it = handles.begin(); it != handles.end(); ++it)
     base::CloseProcessHandle(*it);
+}
+
+ChromeProcessList GetRunningChromeProcesses(const FilePath& data_dir) {
+  ChromeProcessList result;
+
+  base::ProcessId browser_pid = ChromeBrowserProcessId(data_dir);
+  if (browser_pid < 0)
+    return result;
+
+  ChromeProcessFilter filter(browser_pid);
+  base::NamedProcessIterator it(chrome::kBrowserProcessExecutableName, &filter);
+
+  const ProcessEntry* process_entry;
+  while ((process_entry = it.NextProcessEntry())) {
+#if defined(OS_WIN)
+    result.push_back(process_entry->th32ProcessID);
+#elif defined(OS_POSIX)
+    result.push_back(process_entry->pid);
+#endif
+  }
+
+  return result;
 }

@@ -22,16 +22,12 @@ namespace {
 class SessionRestoreUITest : public UITest {
  protected:
   SessionRestoreUITest() : UITest() {
-    FilePath path_prefix = FilePath::FromWStringHack(test_data_directory_);
-    path_prefix = path_prefix.AppendASCII("session_history")
-        .Append(FilePath::StringType(&FilePath::kSeparators[0], 1));
+    FilePath path_prefix = FilePath::FromWStringHack(test_data_directory_)
+        .AppendASCII("session_history");
 
-    url1 = net::FilePathToFileURL(
-        path_prefix.AppendASCII("bot1.html"));
-    url2 = net::FilePathToFileURL(
-        path_prefix.AppendASCII("bot2.html"));
-    url3 = net::FilePathToFileURL(
-        path_prefix.AppendASCII("bot3.html"));
+    url1 = net::FilePathToFileURL(path_prefix.AppendASCII("bot1.html"));
+    url2 = net::FilePathToFileURL(path_prefix.AppendASCII("bot2.html"));
+    url3 = net::FilePathToFileURL(path_prefix.AppendASCII("bot3.html"));
   }
 
   virtual void QuitBrowserAndRestore(int expected_tab_count) {
@@ -86,7 +82,7 @@ class SessionRestoreUITest : public UITest {
   GURL url3;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(SessionRestoreUITest);
+  DISALLOW_COPY_AND_ASSIGN(SessionRestoreUITest);
 };
 
 }  // namespace

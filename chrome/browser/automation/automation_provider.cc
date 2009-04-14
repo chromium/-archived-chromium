@@ -29,6 +29,7 @@
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/notification_registrar.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/test/automation/automation_messages.h"
 #include "net/base/cookie_monster.h"
@@ -1038,6 +1039,8 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         OverrideEncoding)
     IPC_MESSAGE_HANDLER(AutomationMsg_SavePackageShouldPromptUser,
                         SavePackageShouldPromptUser)
+    IPC_MESSAGE_HANDLER(AutomationMsg_WindowTitle,
+                        GetWindowTitle)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -1896,14 +1899,9 @@ void AutomationProvider::ExecuteJavascript(int handle,
 void AutomationProvider::GetShelfVisibility(int handle, bool* visible) {
   *visible = false;
 
-#if defined(OS_WIN)
   WebContents* web_contents = GetWebContentsForHandle(handle, NULL);
   if (web_contents)
     *visible = web_contents->IsDownloadShelfVisible();
-#else
-  // TODO(port): Enable when web_contents->IsDownloadShelfVisible is ported.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void AutomationProvider::GetConstrainedWindowCount(int handle, int* count) {
@@ -2450,7 +2448,7 @@ void AutomationProvider::IsPageMenuCommandEnabled(int browser_handle,
 }
 
 #if defined(OS_WIN)
-// TODO(port): Enable these.
+// TODO(port): Enable this.
 void AutomationProvider::PrintNow(int tab_handle,
                                   IPC::Message* reply_message) {
   NavigationController* tab = NULL;
@@ -2467,6 +2465,7 @@ void AutomationProvider::PrintNow(int tab_handle,
   AutomationMsg_PrintNow::WriteReplyParams(reply_message, false);
   Send(reply_message);
 }
+#endif
 
 void AutomationProvider::SavePage(int tab_handle,
                                   const std::wstring& file_name,
@@ -2496,6 +2495,8 @@ void AutomationProvider::SavePage(int tab_handle,
   *success = true;
 }
 
+#if defined(OS_WIN)
+// TODO(port): Enable these.
 void AutomationProvider::GetAutocompleteEditText(int autocomplete_edit_handle,
                                                  bool* success,
                                                  std::wstring* text) {
@@ -2850,3 +2851,8 @@ void AutomationProvider::OnTabReposition(
 }
 
 #endif  // defined(OS_WIN)
+
+void AutomationProvider::GetWindowTitle(int handle, string16* text) {
+  gfx::NativeWindow window = window_tracker_->GetResource(handle);
+  text->assign(platform_util::GetWindowTitle(window));
+}

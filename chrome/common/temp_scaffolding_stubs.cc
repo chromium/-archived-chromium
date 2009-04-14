@@ -83,15 +83,6 @@ void AutomationProvider::PrintNow(int tab_handle,
   NOTIMPLEMENTED();
 }
 
-void AutomationProvider::SavePage(int tab_handle,
-                                  const std::wstring& file_name,
-                                  const std::wstring& dir_path,
-                                  int type,
-                                  bool* success) {
-  *success = false;
-  NOTIMPLEMENTED();
-}
-
 void AutomationProvider::GetAutocompleteEditText(int autocomplete_edit_handle,
                                                  bool* success,
                                                  std::wstring* text) {

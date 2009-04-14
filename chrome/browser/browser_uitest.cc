@@ -3,12 +3,14 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
+#include "base/gfx/native_widget_types.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
 #include "base/values.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
@@ -31,6 +33,7 @@ std::wstring WindowCaptionFromPageTitle(std::wstring page_title) {
 
 class BrowserTest : public UITest {
  protected:
+#if defined(OS_WIN)
   HWND GetMainWindow() {
     scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
     scoped_ptr<WindowProxy> window(browser->GetWindow());
@@ -39,13 +42,15 @@ class BrowserTest : public UITest {
     EXPECT_TRUE(window->GetHWND(&window_handle));
     return window_handle;
   }
+#endif
 
   std::wstring GetWindowTitle() {
-    HWND window_handle = GetMainWindow();
-    std::wstring result;
-    int length = ::GetWindowTextLength(window_handle) + 1;
-    ::GetWindowText(window_handle, WriteInto(&result, length), length);
-    return result;
+    scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
+    scoped_ptr<WindowProxy> window(browser->GetWindow());
+
+    string16 title;
+    EXPECT_TRUE(window->GetWindowTitle(&title));
+    return UTF16ToWide(title);
   }
 };
 
@@ -65,8 +70,8 @@ TEST_F(BrowserTest, NoTitle) {
   test_file = test_file.AppendASCII("title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
-  Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
-
+  // The browser lazily updates the title.
+  PlatformThread::Sleep(sleep_timeout_ms());
   EXPECT_EQ(WindowCaptionFromPageTitle(L"title1.html"), GetWindowTitle());
   EXPECT_EQ(L"title1.html", GetActiveTabTitle());
 }
@@ -78,7 +83,8 @@ TEST_F(BrowserTest, Title) {
   test_file = test_file.AppendASCII("title2.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
-  Sleep(sleep_timeout_ms());  // The browser lazily updates the title.
+  // The browser lazily updates the title.
+  PlatformThread::Sleep(sleep_timeout_ms());
 
   const std::wstring test_title(L"Title Of Awesomeness");
   EXPECT_EQ(WindowCaptionFromPageTitle(test_title), GetWindowTitle());
@@ -114,20 +120,21 @@ TEST_F(BrowserTest, ThirtyFourTabs) {
   }
 }
 
+#if defined(OS_WIN)
 // The browser should quit quickly if it receives a WM_ENDSESSION message.
 TEST_F(BrowserTest, WindowsSessionEnd) {
   FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
   test_file = test_file.AppendASCII("title1.html");
 
   NavigateToURL(net::FilePathToFileURL(test_file));
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
 
   // Simulate an end of session. Normally this happens when the user
   // shuts down the pc or logs off.
   HWND window_handle = GetMainWindow();
   ASSERT_TRUE(::PostMessageW(window_handle, WM_ENDSESSION, 0, 0));
 
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
   ASSERT_FALSE(IsBrowserRunning());
 
   // Make sure the UMA metrics say we didn't crash.
@@ -151,6 +158,7 @@ TEST_F(BrowserTest, WindowsSessionEnd) {
                                         &exited_cleanly));
   ASSERT_TRUE(exited_cleanly);
 }
+#endif
 
 // This test is flakey, see bug 5668 for details.
 TEST_F(BrowserTest, DISABLED_JavascriptAlertActivatesTab) {
@@ -207,7 +215,7 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
   // Make sure that a new tab has been created and that we have a new renderer
   // process for it.
   tab->NavigateToURLAsync(fork_url);
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
   ASSERT_EQ(orig_process_count + 1, GetBrowserProcessCount());
   int new_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&new_tab_count));
@@ -215,6 +223,8 @@ TEST_F(BrowserTest, NullOpenerRedirectForksProcess) {
 }
 #endif
 
+#if !defined(OS_LINUX)
+// TODO(port): This passes on linux locally, but fails on the try bot.
 // Tests that non-Gmail-like script redirects (i.e., non-null window.opener) or
 // a same-page-redirect) will not fork a new process.
 TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
@@ -240,13 +250,13 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 
   // Use JavaScript URL to almost fork a new tab, but not quite.  (Leave the
   // opener non-null.)  Should not fork a process.
-  std::wstring url_prefix(L"javascript:(function(){w=window.open();");
+  std::string url_prefix("javascript:(function(){w=window.open();");
   GURL dont_fork_url(url_prefix +
-      L"w.document.location=\"http://localhost:1337\";})()");
+      "w.document.location=\"http://localhost:1337\";})()");
 
   // Make sure that a new tab but not new process has been created.
   tab->NavigateToURLAsync(dont_fork_url);
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
   ASSERT_EQ(orig_process_count, GetBrowserProcessCount());
   int new_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&new_tab_count));
@@ -254,14 +264,17 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
 
   // Same thing if the current tab tries to redirect itself.
   GURL dont_fork_url2(url_prefix +
-      L"document.location=\"http://localhost:1337\";})()");
+      "document.location=\"http://localhost:1337\";})()");
 
   // Make sure that no new process has been created.
   tab->NavigateToURLAsync(dont_fork_url2);
-  Sleep(action_timeout_ms());
+  PlatformThread::Sleep(action_timeout_ms());
   ASSERT_EQ(orig_process_count, GetBrowserProcessCount());
 }
+#endif
 
+#if defined(OS_WIN)
+// TODO(estade): need to port GetActiveTabTitle().
 TEST_F(VisibleBrowserTest, WindowOpenClose) {
   FilePath test_file(FilePath::FromWStringHack(test_data_directory_));
   test_file = test_file.AppendASCII("window.close.html");
@@ -270,7 +283,7 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
 
   int i;
   for (i = 0; i < 10; ++i) {
-    Sleep(action_max_timeout_ms() / 10);
+    PlatformThread::Sleep(action_max_timeout_ms() / 10);
     std::wstring title = GetActiveTabTitle();
     if (title == L"PASSED") {
       // Success, bail out.
@@ -281,3 +294,4 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
   if (i == 10)
     FAIL() << "failed to get error page title";
 }
+#endif

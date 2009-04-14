@@ -1814,6 +1814,8 @@
         'test/automation/window_proxy.h',
         'test/chrome_process_util.cc',
         'test/chrome_process_util.h',
+        'test/chrome_process_util_linux.cc',
+        'test/chrome_process_util_mac.cc',
         'test/chrome_process_util_win.cc',
         'test/testing_profile.cc',
         'test/testing_profile.h',
@@ -1827,11 +1829,6 @@
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
-          ],
-        }, { # else: OS != "win"
-          'sources!': [
-            'test/automation/window_proxy.cc',
-            'test/automation/window_proxy.h',
           ],
         }],
       ],
@@ -2009,10 +2006,7 @@
           'sources!': [
             # TODO(port)
             'app/chrome_main_uitest.cc',
-            'browser/browser_uitest.cc',
             'browser/crash_recovery_uitest.cc',
-            'browser/download/download_uitest.cc',
-            'browser/download/save_page_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
             'browser/sessions/session_restore_uitest.cc',

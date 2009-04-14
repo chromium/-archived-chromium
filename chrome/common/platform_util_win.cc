@@ -15,6 +15,7 @@
 #include "base/file_util.h"
 #include "base/gfx/native_widget_types.h"
 #include "base/logging.h"
+#include "base/string_util.h"
 #include "chrome/common/win_util.h"
 
 namespace platform_util {
@@ -83,6 +84,13 @@ void ShowItemInFolder(const FilePath& full_path) {
 
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
   return GetAncestor(view, GA_ROOT);
+}
+
+string16 GetWindowTitle(gfx::NativeWindow window_handle) {
+  std::wstring result;
+  int length = ::GetWindowTextLength(window_handle) + 1;
+  ::GetWindowText(window_handle, WriteInto(&result, length), length);
+  return WideToUTF16(result);
 }
 
 }  // namespace platform_util

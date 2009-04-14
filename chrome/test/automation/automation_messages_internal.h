@@ -881,4 +881,9 @@ IPC_BEGIN_MESSAGES(Automation)
                       IPC::Reposition_Params /* SetWindowPos params */)
 #endif  // defined(OS_WIN)
 
+  // Gets the title of the top level browser window.
+  IPC_SYNC_MESSAGE_ROUTED1_1(AutomationMsg_WindowTitle,
+                             int /* automation handle */,
+                             string16 /* title text */ )
+
 IPC_END_MESSAGES(Automation)
