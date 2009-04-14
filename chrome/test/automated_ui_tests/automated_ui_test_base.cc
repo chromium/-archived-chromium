@@ -61,12 +61,7 @@ bool AutomatedUITestBase::NewTab() {
 }
 
 bool AutomatedUITestBase::RunCommandAsync(int browser_command) {
-  scoped_ptr<BrowserProxy> last_browser;
   BrowserProxy* browser = active_browser();
-  if (NULL == browser) {
-    last_browser.reset(automation()->GetLastActiveBrowserWindow());
-    browser = last_browser.get();
-  }
   if (NULL == browser) {
     LogErrorMessage("browser_window_not_found");
     return false;
@@ -80,12 +75,7 @@ bool AutomatedUITestBase::RunCommandAsync(int browser_command) {
 }
 
 bool AutomatedUITestBase::RunCommand(int browser_command) {
-  scoped_ptr<BrowserProxy> last_browser;
   BrowserProxy* browser = active_browser();
-  if (NULL == browser) {
-    last_browser.reset(automation()->GetLastActiveBrowserWindow());
-    browser = last_browser.get();
-  }
   if (NULL == browser) {
     LogErrorMessage("browser_window_not_found");
     return false;

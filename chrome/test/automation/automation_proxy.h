@@ -128,9 +128,10 @@ class AutomationProxy : public IPC::Channel::Listener,
 
   // Returns the BrowserProxy for the browser window which was last active,
   // transferring ownership of the pointer to the caller.
-  // If there was no last active browser window, or the last active browser
-  // window no longer exists (for example, if it was closed), returns
-  // GetBrowserWindow(0).
+  // TODO: If there was no last active browser window, or the last active
+  // browser window no longer exists (for example, if it was closed),
+  // returns GetBrowserWindow(0). See crbug.com/10501. As for now this
+  // function is flakey.
   BrowserProxy* GetLastActiveBrowserWindow();
 
   // Returns the WindowProxy for the currently active window, transferring

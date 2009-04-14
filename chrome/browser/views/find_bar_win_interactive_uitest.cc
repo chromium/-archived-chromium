@@ -56,7 +56,7 @@ TEST_F(FindInPageTest, CrashEscHandlers) {
       HTTPTestServer::CreateServer(kDocRoot, NULL);
   ASSERT_TRUE(NULL != server.get());
 
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get() != NULL);
   scoped_ptr<WindowProxy> window(browser->GetWindow());
   ASSERT_TRUE(window.get() != NULL);

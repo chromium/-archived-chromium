@@ -195,6 +195,7 @@ void AutomatedUITest::RunAutomatedUITest() {
         // Try and start up again.
         CloseBrowserAndServer();
         LaunchBrowserAndServer();
+        set_active_browser(automation()->GetBrowserWindow(0));
         if (DidCrash(true)) {
           no_errors = false;
           // We crashed again, so skip to the end of the this command.
@@ -340,6 +341,7 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = ShowBookmarkBar();
   } else if (LowerCaseEqualsASCII(action, "setup")) {
     LaunchBrowserAndServer();
+    set_active_browser(automation()->GetBrowserWindow(0));
     did_complete_action = true;
   } else if (LowerCaseEqualsASCII(action, "sleep")) {
     // This is for debugging, it probably shouldn't be used real tests.
@@ -417,8 +419,8 @@ bool AutomatedUITest::ChangeEncoding() {
 
 bool AutomatedUITest::CloseActiveTab() {
   bool return_value = false;
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
     AddErrorAttribute("browser_window_not_found");
     return false;
   }
@@ -478,8 +480,8 @@ bool AutomatedUITest::JavaScriptDebugger() {
 }
 
 bool AutomatedUITest::Navigate() {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
     AddErrorAttribute("browser_window_not_found");
     return false;
   }
@@ -676,8 +678,8 @@ bool AutomatedUITest::FuzzyTestDialog(int num_actions) {
 }
 
 bool AutomatedUITest::ForceCrash() {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
-  if (browser.get() == NULL) {
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
     AddErrorAttribute("browser_window_not_found");
     return false;
   }
@@ -693,19 +695,20 @@ bool AutomatedUITest::ForceCrash() {
 }
 
 bool AutomatedUITest::DragActiveTab(bool drag_right, bool drag_out) {
-  scoped_ptr<BrowserProxy> browser(automation()->GetLastActiveBrowserWindow());
+  BrowserProxy* browser = active_browser();
+  if (browser == NULL) {
+    AddErrorAttribute("browser_window_not_found");
+    return false;
+  }
+
   scoped_ptr<WindowProxy> window(
-      GetAndActivateWindowForBrowser(browser.get()));
+      GetAndActivateWindowForBrowser(browser));
   if (window.get() == NULL) {
     AddErrorAttribute("active_window_not_found");
     return false;
   }
   bool is_timeout;
 
-  if (browser.get() == NULL) {
-    AddErrorAttribute("browser_window_not_found");
-    return false;
-  }
   int tab_count;
   browser->GetTabCountWithTimeout(&tab_count,
                                   action_max_timeout_ms(),
