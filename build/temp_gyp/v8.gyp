@@ -92,8 +92,6 @@
       '../../v8/src/frames-inl.h',
       '../../v8/src/frames.cc',
       '../../v8/src/frames.h',
-	  '../../v8/src/func-name-inferrer.cc',
-	  '../../v8/src/func-name-inferrer.h',
       '../../v8/src/global-handles.cc',
       '../../v8/src/global-handles.h',
       '../../v8/src/globals.h',
