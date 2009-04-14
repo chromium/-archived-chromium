@@ -33,7 +33,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   EXPECT_TRUE(post_msg);
   ViewHostMsg_ExtensionPostMessage::Param post_params;
   ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
-  EXPECT_EQ("content ready", post_params.b);
+  EXPECT_EQ("\"content ready\"", post_params.b);
 
   // Now simulate getting a message back from the other side.
   render_thread_.sink().ClearMessages();
@@ -77,7 +77,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   EXPECT_TRUE(post_msg);
   ViewHostMsg_ExtensionPostMessage::Param post_params;
   ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
-  EXPECT_EQ("onconnect", post_params.b);
+  EXPECT_EQ("\"onconnect\"", post_params.b);
 
   // Now simulate getting a message back from the channel opener.
   render_thread_.sink().ClearMessages();
