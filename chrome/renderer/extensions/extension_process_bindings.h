@@ -12,7 +12,6 @@
 
 #include "v8/include/v8.h"
 
-class RenderThreadBase;
 class WebFrame;
 
 class ExtensionProcessBindings {

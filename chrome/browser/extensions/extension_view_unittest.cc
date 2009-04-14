@@ -13,7 +13,6 @@
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/chrome_paths.h"
-#include "chrome/common/chrome_switches.h"
 #include "chrome/test/in_process_browser_test.h"
 #include "chrome/test/ui_test_utils.h"
 

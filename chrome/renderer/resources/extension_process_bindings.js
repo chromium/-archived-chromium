@@ -1,45 +1,7 @@
 var chromium;
 (function() {
-  native function GetNextCallbackId();
-  native function GetTabsForWindow();
-  native function GetTab();
-  native function CreateTab();
-  native function UpdateTab();
-  native function RemoveTab();
-
   if (!chromium)
     chromium = {};
-
-  // Validate arguments.
-  function validate(inst, schemas) {
-    if (inst.length > schemas.length)
-      throw new Error("Too many arguments.");
-
-    for (var i = 0; i < schemas.length; i++) {
-      if (inst[i]) {
-        var validator = new chromium.JSONSchemaValidator();
-        validator.validate(inst[i], schemas[i]);
-        if (validator.errors.length == 0)
-          continue;
-        
-        var message = "Invalid value for argument " + i + ". ";
-        for (var i = 0, err; err = validator.errors[i]; i++) {
-          if (err.path) {
-            message += "Property '" + err.path + "': ";
-          }
-          message += err.message;
-          message = message.substring(0, message.length - 1);
-          message += ", ";
-        }
-        message = message.substring(0, message.length - 2);
-        message += ".";
-
-        throw new Error(message);
-      } else if (!schemas[i].optional) {
-        throw new Error("Argument " + i + " is required.");
-      }
-    }
-  }
 
   // callback handling
   var callbacks = [];
@@ -60,6 +22,7 @@ var chromium;
     var sargs = goog.json.serialize(args);
     var callbackId = -1;
     if (callback) {
+      native function GetNextCallbackId();
       callbackId = GetNextCallbackId();
       callbacks[callbackId] = callback;
     }
@@ -70,61 +33,23 @@ var chromium;
   chromium.tabs = {};
   // TODO(aa): This should eventually take an optional windowId param.
   chromium.tabs.getTabsForWindow = function(callback) {
-    validate(arguments, arguments.callee.params);
+    native function GetTabsForWindow();
     sendRequest(GetTabsForWindow, null, callback);
   };
-  chromium.tabs.getTabsForWindow.params = [
-    chromium.types.optFun
-  ];
-
   chromium.tabs.getTab = function(tabId, callback) {
-    validate(arguments, arguments.callee.params);
+    native function GetTab();
     sendRequest(GetTab, tabId, callback);
   };
-  chromium.tabs.getTab.params = [
-    chromium.types.pInt,
-    chromium.types.optFun
-  ];
-
   chromium.tabs.createTab = function(tab, callback) {
-    validate(arguments, arguments.callee.params);
+    native function CreateTab();
     sendRequest(CreateTab, tab, callback);
   };
-  chromium.tabs.createTab.params = [
-    {
-      type: "object",
-      properties: {
-        windowId: chromium.types.optPInt,
-        url: chromium.types.optStr,
-        selected: chromium.types.optBool
-      },
-      additionalProperties: false
-    },
-    chromium.types.optFun
-  ];
-
   chromium.tabs.updateTab = function(tab) {
-    validate(arguments, arguments.callee.params);
+    native function UpdateTab();
     sendRequest(UpdateTab, tab);
   };
-  chromium.tabs.updateTab.params = [
-    {
-      type: "object",
-      properties: {
-        id: chromium.types.pInt,
-        windowId: chromium.types.optPInt,
-        url: chromium.types.optStr,
-        selected: chromium.types.optBool
-      },
-      additionalProperties: false
-    }
-  ];
-
   chromium.tabs.removeTab = function(tabId) {
-    validate(arguments, arguments.callee.params);
+    native function RemoveTab();
     sendRequest(RemoveTab, tabId);
   };
-  chromium.tabs.removeTab.params = [
-    chromium.types.pInt
-  ];
 })();

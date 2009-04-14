@@ -2,9 +2,107 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/scoped_ptr.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/test/render_view_test.h"
+#include "chrome/renderer/extensions/event_bindings.h"
+#include "chrome/renderer/extensions/renderer_extension_bindings.h"
+#include "chrome/renderer/js_only_v8_extensions.h"
+#include "chrome/renderer/mock_render_process.h"
+#include "chrome/renderer/mock_render_thread.h"
+#include "chrome/renderer/render_view.h"
+#include "chrome/renderer/renderer_webkitclient_impl.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "webkit/glue/webframe.h"
+#include "webkit/glue/weburlrequest.h"
+#include "webkit/glue/webview.h"
+
+using WebKit::WebScriptSource;
+using WebKit::WebString;
+
+namespace {
+
+const int32 kRouteId = 5;
+const int32 kOpenerId = 7;
+
+};
+
+class RenderViewTest : public testing::Test {
+ public:
+  RenderViewTest() {}
+  ~RenderViewTest() {}
+
+ protected:
+  // Spins the message loop to process all messages that are currently pending.
+  void ProcessPendingMessages() {
+    msg_loop_.PostTask(FROM_HERE, new MessageLoop::QuitTask());
+    msg_loop_.Run();
+  }
+
+  // Returns a pointer to the main frame.
+  WebFrame* GetMainFrame() {
+    return view_->webview()->GetMainFrame();
+  }
+
+  // Executes the given JavaScript in the context of the main frame. The input
+  // is a NULL-terminated UTF-8 string.
+  void ExecuteJavaScript(const char* js) {
+    GetMainFrame()->ExecuteScript(WebScriptSource(WebString::fromUTF8(js)));
+  }
+
+  // Loads the given HTML into the main frame as a data: URL.
+  void LoadHTML(const char* html) {
+    std::string url_str = "data:text/html;charset=utf-8,";
+    url_str.append(html);
+    GURL url(url_str);
+
+    scoped_ptr<WebRequest> request(WebRequest::Create(url));
+    GetMainFrame()->LoadRequest(request.get());
+
+    // The load actually happens asynchronously, so we pump messages to process
+    // the pending continuation.
+    ProcessPendingMessages();
+  }
+
+  // testing::Test
+  virtual void SetUp() {
+    WebKit::initialize(&webkitclient_);
+    WebKit::registerExtension(BaseJsV8Extension::Get());
+    WebKit::registerExtension(JsonJsV8Extension::Get());
+    WebKit::registerExtension(EventBindings::Get());
+    WebKit::registerExtension(RendererExtensionBindings::Get(&render_thread_));
+
+    mock_process_.reset(new MockProcess());
+
+    render_thread_.set_routing_id(kRouteId);
+
+    // This needs to pass the mock render thread to the view.
+    view_ = RenderView::Create(&render_thread_, NULL, NULL, kOpenerId,
+                               WebPreferences(),
+                               new SharedRenderViewCounter(0), kRouteId);
+  }
+  virtual void TearDown() {
+    render_thread_.SendCloseMessage();
+
+    // Run the loop so the release task from the renderwidget executes.
+    ProcessPendingMessages();
+
+    view_ = NULL;
+
+    mock_process_.reset();
+    WebKit::shutdown();
+
+    msg_loop_.RunAllPending();
+  }
+
+  MessageLoop msg_loop_;
+  MockRenderThread render_thread_;
+  scoped_ptr<MockProcess> mock_process_;
+  scoped_refptr<RenderView> view_;
+  RendererWebKitClientImpl webkitclient_;
+};
+
 
 TEST_F(RenderViewTest, OnLoadAlternateHTMLText) {
   // Test a new navigation.
@@ -275,4 +373,91 @@ TEST_F(RenderViewTest, OnSetTextDirection) {
     GetMainFrame()->GetContentAsPlainText(kMaxOutputCharacters, &output);
     EXPECT_EQ(output, kTextDirection[i].expected_result);
   }
+}
+
+// Tests that the bindings for opening a channel to an extension and sending
+// and receiving messages through that channel all works.
+TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
+  render_thread_.sink().ClearMessages();
+  LoadHTML("<body></body>");
+  ExecuteJavaScript(
+    "var e = new chromium.Extension('foobar');"
+    "var port = e.connect();"
+    "port.onmessage.addListener(doOnMessage);"
+    "port.postMessage({message: 'content ready'});"
+    "function doOnMessage(msg, port) {"
+    "  alert('content got: ' + msg.val);"
+    "}");
+
+  // Verify that we opened a channel and sent a message through it.
+  const IPC::Message* open_channel_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_OpenChannelToExtension::ID);
+  EXPECT_TRUE(open_channel_msg);
+
+  const IPC::Message* post_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_ExtensionPostMessage::ID);
+  ASSERT_TRUE(post_msg);
+  ViewHostMsg_ExtensionPostMessage::Param post_params;
+  ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
+  EXPECT_EQ("{\"message\":\"content ready\"}", post_params.b);
+
+  // Now simulate getting a message back from the other side.
+  render_thread_.sink().ClearMessages();
+  const int kPortId = 0;
+  RendererExtensionBindings::HandleMessage("{\"val\": 42}", kPortId);
+
+  // Verify that we got it.
+  const IPC::Message* alert_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_RunJavaScriptMessage::ID);
+  ASSERT_TRUE(alert_msg);
+  void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
+  ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
+  IPC::ReadParam(alert_msg, &iter, &alert_param);
+  EXPECT_EQ(L"content got: 42", alert_param.a);
+}
+
+// Tests that the bindings for handling a new channel connection and sending
+// and receiving messages through that channel all works.
+TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
+  LoadHTML("<body></body>");
+  ExecuteJavaScript(
+    "chromium.onconnect.addListener(function (port) {"
+    "  port.onmessage.addListener(doOnMessage);"
+    "  port.postMessage({message: 'onconnect'});"
+    "});"
+    "function doOnMessage(msg, port) {"
+    "  alert('got: ' + msg.val);"
+    "}");
+
+  render_thread_.sink().ClearMessages();
+
+  // Simulate a new connection being opened.
+  const int kPortId = 0;
+  RendererExtensionBindings::HandleConnect(kPortId);
+
+  // Verify that we handled the new connection by posting a message.
+  const IPC::Message* post_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_ExtensionPostMessage::ID);
+  ASSERT_TRUE(post_msg);
+  ViewHostMsg_ExtensionPostMessage::Param post_params;
+  ViewHostMsg_ExtensionPostMessage::Read(post_msg, &post_params);
+  EXPECT_EQ("{\"message\":\"onconnect\"}", post_params.b);
+
+  // Now simulate getting a message back from the channel opener.
+  render_thread_.sink().ClearMessages();
+  RendererExtensionBindings::HandleMessage("{\"val\": 42}", kPortId);
+
+  // Verify that we got it.
+  const IPC::Message* alert_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_RunJavaScriptMessage::ID);
+  ASSERT_TRUE(alert_msg);
+  void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
+  ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
+  IPC::ReadParam(alert_msg, &iter, &alert_param);
+  EXPECT_EQ(L"got: 42", alert_param.a);
 }

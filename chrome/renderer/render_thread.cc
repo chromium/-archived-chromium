@@ -299,7 +299,6 @@ void RenderThread::EnsureWebKitInitialized() {
   if (command_line.HasSwitch(switches::kEnableExtensions)) {
     WebKit::registerExtension(BaseJsV8Extension::Get());
     WebKit::registerExtension(JsonJsV8Extension::Get());
-    WebKit::registerExtension(JsonSchemaJsV8Extension::Get());
     WebKit::registerExtension(EventBindings::Get());
     WebKit::registerExtension(RendererExtensionBindings::Get(this));
   }
