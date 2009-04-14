@@ -217,10 +217,7 @@ TEST_F(DiskCacheTest, BlockFilesPerformance) {
   srand(seed);
 
   const int kNumEntries = 60000;
-  int32 buffer[kNumEntries];
-  memset(buffer, 0, sizeof(buffer));
-  disk_cache::Addr* address = reinterpret_cast<disk_cache::Addr*>(buffer);
-  ASSERT_EQ(sizeof(*address), sizeof(*buffer));
+  disk_cache::Addr* address = new disk_cache::Addr[kNumEntries];
 
   PerfTimeLogger timer1("Fill three block-files");
 
@@ -245,4 +242,5 @@ TEST_F(DiskCacheTest, BlockFilesPerformance) {
 
   timer2.Done();
   MessageLoop::current()->RunAllPending();
+  delete address;
 }
