@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_MESSAGE_SERVICE_H_
 
 #include <map>
+#include <set>
 #include <string>
 
 #include "base/lock.h"
@@ -53,7 +54,7 @@ class ExtensionMessageService : public NotificationObserver {
   // --- UI or IO thread:
 
   // Called to let us know that a renderer has been started.
-  void RendererReady(ResourceMessageFilter* port);
+  void RendererReady(ResourceMessageFilter* filter);
 
   // NotificationObserver interface.
   void Observe(NotificationType type,
@@ -89,6 +90,9 @@ class ExtensionMessageService : public NotificationObserver {
 
   // For generating unique channel IDs.
   int next_port_id_;
+
+  // For tracking the ResourceMessageFilters we are observing.
+  std::set<ResourceMessageFilter*> filters_;
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_MESSAGE_SERVICE_H_

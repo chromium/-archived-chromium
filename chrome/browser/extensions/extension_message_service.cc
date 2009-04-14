@@ -129,15 +129,19 @@ void ExtensionMessageService::PostMessageFromRenderer(
   dest->Send(new ViewMsg_ExtensionHandleMessage(message, source_port_id));
 }
 
-void ExtensionMessageService::RendererReady(ResourceMessageFilter* renderer) {
+void ExtensionMessageService::RendererReady(ResourceMessageFilter* filter) {
   AutoLock lock(renderers_lock_);
-  DCHECK(renderers_.find(renderer->GetProcessId()) == renderers_.end());
-  renderers_[renderer->GetProcessId()] = renderer;
+  DCHECK(renderers_.find(filter->GetProcessId()) == renderers_.end());
+  renderers_[filter->GetProcessId()] = filter;
 
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      Source<ResourceMessageFilter>(renderer));
+  // Only observe this filter if we haven't seen it before.
+  if (filters_.find(filter) == filters_.end()) {
+    filters_.insert(filter);
+    NotificationService::current()->AddObserver(
+        this,
+        NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+        Source<ResourceMessageFilter>(filter));
+  }
 }
 
 void ExtensionMessageService::Observe(NotificationType type,
@@ -161,9 +165,13 @@ void ExtensionMessageService::Observe(NotificationType type,
       channels_.erase(current);
   }
 
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      Source<ResourceMessageFilter>(filter));
+  std::set<ResourceMessageFilter*>::iterator fit = filters_.find(filter);
+  if (fit != filters_.end()) {
+    filters_.erase(fit);
+    NotificationService::current()->RemoveObserver(
+        this,
+        NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+        source);
+  }
 }
 
