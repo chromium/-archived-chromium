@@ -94,11 +94,11 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   back_.reset(BuildBackForwardButton(IDR_BACK, IDR_BACK_P, IDR_BACK_H,
               IDR_BACK_D,
-              l10n_util::GetString(IDS_TOOLTIP_BACK)));
+              l10n_util::GetStringUTF8(IDS_TOOLTIP_BACK)));
   AddAcceleratorToButton(back_, GDK_Left, GDK_MOD1_MASK);
   forward_.reset(BuildBackForwardButton(IDR_FORWARD, IDR_FORWARD_P,
                  IDR_FORWARD_H, IDR_FORWARD_D,
-                 l10n_util::GetString(IDS_TOOLTIP_FORWARD)));
+                 l10n_util::GetStringUTF8(IDS_TOOLTIP_FORWARD)));
   AddAcceleratorToButton(forward_, GDK_Right, GDK_MOD1_MASK);
 
   // TODO(estade): These blank labels are kind of ghetto. Padding should be
@@ -107,7 +107,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   reload_.reset(BuildToolbarButton(IDR_RELOAD, IDR_RELOAD_P, IDR_RELOAD_H, 0,
-      l10n_util::GetString(IDS_TOOLTIP_RELOAD)));
+      l10n_util::GetStringUTF8(IDS_TOOLTIP_RELOAD)));
   AddAcceleratorToButton(reload_, GDK_r, GDK_CONTROL_MASK);
   // Any modifier except alt can be combined with f5 (this matches windows
   // chromium).
@@ -120,7 +120,7 @@ void BrowserToolbarGtk::Init(Profile* profile,
 
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new("  "), FALSE, FALSE, 0);
 
-  star_.reset(BuildStarButton(l10n_util::GetString(IDS_TOOLTIP_STAR)));
+  star_.reset(BuildStarButton(l10n_util::GetStringUTF8(IDS_TOOLTIP_STAR)));
 
   location_bar_->Init();
   gtk_box_pack_start(GTK_BOX(toolbar_), location_bar_->widget(), TRUE, TRUE, 0);
@@ -131,13 +131,13 @@ void BrowserToolbarGtk::Init(Profile* profile,
   gtk_box_pack_start(GTK_BOX(toolbar_), gtk_label_new(" "), FALSE, FALSE, 0);
 
   BuildToolbarMenuButton(IDR_MENU_PAGE,
-      l10n_util::GetString(IDS_PAGEMENU_TOOLTIP),
+      l10n_util::GetStringUTF8(IDS_PAGEMENU_TOOLTIP),
       &page_menu_button_);
   page_menu_.reset(new MenuGtk(this, GetStandardPageMenu(), accel_group_));
 
   BuildToolbarMenuButton(IDR_MENU_CHROME,
-      l10n_util::GetStringF(IDS_APPMENU_TOOLTIP,
-                            l10n_util::GetString(IDS_PRODUCT_NAME)),
+      l10n_util::GetStringFUTF8(IDS_APPMENU_TOOLTIP,
+          WideToUTF16(l10n_util::GetString(IDS_PRODUCT_NAME))),
       &app_menu_button_);
   app_menu_.reset(new MenuGtk(this, GetStandardAppMenu(), accel_group_));
 
@@ -223,12 +223,12 @@ void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
     int normal_id, int active_id, int highlight_id, int depressed_id,
-    const std::wstring& localized_tooltip) {
+    const std::string& localized_tooltip) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
       highlight_id, depressed_id);
 
   gtk_widget_set_tooltip_text(button->widget(),
-                              WideToUTF8(localized_tooltip).c_str());
+                              localized_tooltip.c_str());
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
   GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
@@ -238,11 +238,11 @@ CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
 }
 
 ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
-    const std::wstring& localized_tooltip) {
+    const std::string& localized_tooltip) {
   ToolbarStarToggleGtk* button = new ToolbarStarToggleGtk;
 
   gtk_widget_set_tooltip_text(button->widget(),
-                              WideToUTF8(localized_tooltip).c_str());
+                              localized_tooltip.c_str());
   g_signal_connect(G_OBJECT(button->widget()), "clicked",
                    G_CALLBACK(OnButtonClick), this);
   GTK_WIDGET_UNSET_FLAGS(button->widget(), GTK_CAN_FOCUS);
@@ -253,7 +253,7 @@ ToolbarStarToggleGtk* BrowserToolbarGtk::BuildStarButton(
 
 void BrowserToolbarGtk::BuildToolbarMenuButton(
     int icon_id,
-    const std::wstring& localized_tooltip,
+    const std::string& localized_tooltip,
     OwnedWidgetGtk* owner) {
   GtkWidget* button = gtk_chrome_button_new();
   owner->Own(button);
@@ -263,7 +263,7 @@ void BrowserToolbarGtk::BuildToolbarMenuButton(
   gtk_container_add(GTK_CONTAINER(button),
                     gtk_image_new_from_pixbuf(rb.LoadPixbuf(icon_id)));
 
-  gtk_widget_set_tooltip_text(button, WideToUTF8(localized_tooltip).c_str());
+  gtk_widget_set_tooltip_text(button, localized_tooltip.c_str());
   g_signal_connect(G_OBJECT(button), "button-press-event",
                    G_CALLBACK(OnMenuButtonPressEvent), this);
   GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
@@ -333,12 +333,12 @@ CustomDrawButton* BrowserToolbarGtk::BuildBackForwardButton(
     int active_id,
     int highlight_id,
     int depressed_id,
-    const std::wstring& localized_tooltip) {
+    const std::string& localized_tooltip) {
   CustomDrawButton* button = new CustomDrawButton(normal_id, active_id,
                                                   highlight_id, depressed_id);
 
   gtk_widget_set_tooltip_text(button->widget(),
-                              WideToUTF8(localized_tooltip).c_str());
+                              localized_tooltip.c_str());
 
   g_signal_connect(G_OBJECT(button->widget()), "button-press-event",
                    G_CALLBACK(OnBackForwardPressEvent), this);
@@ -397,7 +397,7 @@ void BrowserToolbarGtk::RunAppMenu(GdkEvent* button_press_event) {
 
 CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
   return BuildToolbarButton(IDR_HOME, IDR_HOME_P, IDR_HOME_H, 0,
-                            l10n_util::GetString(IDS_TOOLTIP_HOME));
+                            l10n_util::GetStringUTF8(IDS_TOOLTIP_HOME));
 }
 
 void BrowserToolbarGtk::InitNineBox() {

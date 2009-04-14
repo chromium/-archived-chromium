@@ -75,13 +75,13 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                                        int active_id,
                                        int highlight_id,
                                        int depressed_id,
-                                       const std::wstring& localized_tooltip);
+                                       const std::string& localized_tooltip);
 
-  ToolbarStarToggleGtk* BuildStarButton(const std::wstring& localized_tooltip);
+  ToolbarStarToggleGtk* BuildStarButton(const std::string& localized_tooltip);
 
   void BuildToolbarMenuButton(
       int icon_id,
-      const std::wstring& localized_tooltip,
+      const std::string& localized_tooltip,
       OwnedWidgetGtk* owner);
 
   // Adds a keyboard accelerator which trigers a button. (i.e., Ctrl+R is now
@@ -160,7 +160,7 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
     int active_id,
     int highlight_id,
     int depressed_id,
-    const std::wstring& localized_tooltip);
+    const std::string& localized_tooltip);
 
   // Starts a timer to show the dropdown menu.
   static gboolean OnBackForwardPressEvent(GtkWidget* button,

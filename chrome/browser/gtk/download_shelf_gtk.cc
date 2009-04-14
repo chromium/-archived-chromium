@@ -88,7 +88,7 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 
   // Create the "Show all downloads..." link and connect to the click event.
   std::string link_text =
-      WideToUTF8(l10n_util::GetString(IDS_SHOW_ALL_DOWNLOADS));
+      l10n_util::GetStringUTF8(IDS_SHOW_ALL_DOWNLOADS);
   link_button_.reset(new LinkButtonGtk(link_text.c_str()));
   g_signal_connect(link_button_->widget(), "clicked",
                    G_CALLBACK(OnButtonClick), this);

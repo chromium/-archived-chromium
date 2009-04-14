@@ -100,7 +100,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
 
   instructions_ =
       gtk_label_new(
-          WideToUTF8(l10n_util::GetString(IDS_BOOKMARKS_NO_ITEMS)).c_str());
+          l10n_util::GetStringUTF8(IDS_BOOKMARKS_NO_ITEMS).c_str());
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), instructions_,
                      FALSE, FALSE, 0);
 
