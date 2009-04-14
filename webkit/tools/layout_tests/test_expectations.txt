@@ -388,7 +388,7 @@ BUG1234761 DEFER : LayoutTests/http/tests/xmlhttprequest/methods-async.html = FA
 BUG1234761 DEFER WIN LINUX MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow-preflight-cache-invalidation-by-method.html = FAIL TIMEOUT PASS
 // LightTPD doesn't accept unknown HTTP methods and passes CGIs a Content-Type
 // even when a request didn't send the header.
-BUG1234761 DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL CRASH
+BUG1234761 DEFER : LayoutTests/http/tests/xmlhttprequest/methods.html = FAIL TIMEOUT CRASH
 // This passes when run in Chrome. It appears to be because of a difference
 // in how lighttpd serves up the svn resource image (or the image
 // contained in the svg image).
@@ -1446,7 +1446,7 @@ BUG10364 MAC : LayoutTests/fast/table/003.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/anchor-frames.html = TIMEOUT FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/anchor-goback.html = FAIL
-BUG10364 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL
+BUG10364 MAC : LayoutTests/http/tests/navigation/anchor-subframeload.html = FAIL TIMEOUT
 BUG10364 MAC : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/javascriptlink-goback.html = FAIL
 BUG10364 MAC LINUX : LayoutTests/http/tests/navigation/javascriptlink-subframeload.html = TIMEOUT FAIL PASS
@@ -1952,6 +1952,7 @@ BUG10435 MAC : LayoutTests/editing/selection/designmode-no-caret.html = FAIL
 BUG10435 DEBUG WIN : LayoutTests/fast/dom/jsDevicePixelRatio.html = CRASH
 BUG10435 MAC : LayoutTests/animations/animation-controller-drt-api.html = TIMEOUT PASS
 BUG10435 DEBUG WIN : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+BUG10435 DEBUG MAC : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
 // New test added in the 41286:41362 merge. Not clear whether we pass.
 BUG8404 DEFER LINUX WIN : LayoutTests/fast/layers/inline-dirty-z-order-lists.html = FAIL
@@ -2243,7 +2244,6 @@ BUG10477 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FA
 BUG10477 : LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 BUG10477 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
 BUG10477 : LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
-BUG10477 MAC : LayoutTests/fast/js/regexp-overflow.html = TIMEOUT FAIL
 
 // Flaky since rev 13111.
 BUG10478 MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
@@ -2276,7 +2276,7 @@ BUG10479 MAC : LayoutTests/svg/hixie/perf/001.xml = FAIL
 BUG10479 MAC : LayoutTests/svg/hixie/perf/002.xml = FAIL
 
 // Broken by r13217.
-BUG10480 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL
+BUG10480 LINUX : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 
 BUG9798 : LayoutTests/editing/execCommand/15381.html = FAIL PASS
 BUG9798 : LayoutTests/fast/encoding/char-encoding.html = FAIL PASS
@@ -2396,11 +2396,10 @@ BUG9797 WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRAS
 BUG9797 WIN DEBUG : LayoutTests/svg/css/css-box-min-width.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/traversal/node-iterator-009.html = CRASH PASS
 
-BUG9941 LINUX DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL
+BUG9941 LINUX DEBUG : LayoutTests/transitions/repeated-firing-background-color.html = FAIL PASS
 
 BUG9850 WIN LINUX : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
 BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
-BUG9850 MAC DEBUG : LayoutTests/editing/execCommand/paste-2.html = FAIL
 
 // Failed in WebKit merge 42287:42324
 BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5502-mrgn-r-02-c.html = FAIL
