@@ -51,6 +51,8 @@
 using base::Time;
 using history::HistoryBackend;
 
+static const char* kHistoryThreadName = "Chrome_HistoryThread";
+
 // Sends messages from the backend to us on the main thread. This must be a
 // separate class from the history service so that it can hold a reference to
 // the history service (otherwise we would have to manually AddRef and
@@ -96,7 +98,7 @@ class HistoryService::BackendDelegate : public HistoryBackend::Delegate {
 const history::StarID HistoryService::kBookmarkBarID = 1;
 
 HistoryService::HistoryService()
-    : thread_(new ChromeThread(ChromeThread::HISTORY)),
+    : thread_(new base::Thread(kHistoryThreadName)),
       profile_(NULL),
       backend_loaded_(false) {
   // Is NULL when running generate_profile.
@@ -108,7 +110,7 @@ HistoryService::HistoryService()
 }
 
 HistoryService::HistoryService(Profile* profile)
-    : thread_(new ChromeThread(ChromeThread::HISTORY)),
+    : thread_(new base::Thread(kHistoryThreadName)),
       profile_(profile),
       backend_loaded_(false) {
   NotificationService::current()->AddObserver(
@@ -175,7 +177,7 @@ void HistoryService::Cleanup() {
   // Delete the thread, which joins with the background thread. We defensively
   // NULL the pointer before deleting it in case somebody tries to use it
   // during shutdown, but this shouldn't happen.
-  ChromeThread* thread = thread_;
+  base::Thread* thread = thread_;
   thread_ = NULL;
   delete thread;
 }

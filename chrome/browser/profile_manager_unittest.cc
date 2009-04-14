@@ -85,3 +85,36 @@ TEST_F(ProfileManagerTest, CreateProfile) {
   ASSERT_EQ(L"new-profile", prefs->GetString(prefs::kProfileID));
 #endif
 }
+
+TEST_F(ProfileManagerTest, CreateAndUseTwoProfiles) {
+  FilePath source_path;
+  PathService::Get(chrome::DIR_TEST_DATA, &source_path);
+  source_path = source_path.Append(FILE_PATH_LITERAL("profiles"));
+  source_path = source_path.Append(FILE_PATH_LITERAL("sample"));
+
+  FilePath dest_path1 = test_dir_;
+  dest_path1 = dest_path1.Append(FILE_PATH_LITERAL("New Profile 1"));
+  
+  FilePath dest_path2 = test_dir_;
+  dest_path2 = dest_path2.Append(FILE_PATH_LITERAL("New Profile 2"));
+
+  scoped_ptr<Profile> profile1;
+  scoped_ptr<Profile> profile2;
+
+  // Successfully create the profiles.
+  profile1.reset(ProfileManager::CreateProfile(dest_path1, L"New Profile 1",
+      L"", L"new-profile-1"));
+  ASSERT_TRUE(profile1.get());
+
+  profile2.reset(ProfileManager::CreateProfile(dest_path2, L"New Profile 2",
+      L"", L"new-profile-2"));
+  ASSERT_TRUE(profile2.get());
+
+  // Force lazy-init of some profile services to simulate use.
+  EXPECT_TRUE(profile1->GetHistoryService(Profile::EXPLICIT_ACCESS));
+  EXPECT_TRUE(profile1->GetBookmarkModel());
+  EXPECT_TRUE(profile2->GetBookmarkModel());
+  EXPECT_TRUE(profile2->GetHistoryService(Profile::EXPLICIT_ACCESS));
+  profile1.reset();
+  profile2.reset();
+}

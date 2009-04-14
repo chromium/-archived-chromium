@@ -24,7 +24,6 @@
 #include "chrome/common/ref_counted_util.h"
 
 class BookmarkService;
-class ChromeThread;
 struct DownloadCreateInfo;
 class FilePath;
 class GURL;
@@ -39,7 +38,8 @@ class SkBitmap;
 struct ThumbnailScore;
 
 namespace base {
-  class Time;
+class Thread;
+class Time;
 }
 
 namespace history {
@@ -742,7 +742,7 @@ class HistoryService : public CancelableRequestProvider,
   CancelableRequestConsumer internal_consumer_;
 
   // The thread used by the history service to run complicated operations
-  ChromeThread* thread_;
+  base::Thread* thread_;
 
   // This class has most of the implementation and runs on the 'thread_'.
   // You MUST communicate with this class ONLY through the thread_'s

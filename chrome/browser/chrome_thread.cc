@@ -9,7 +9,6 @@ static const char* chrome_thread_names[ChromeThread::ID_COUNT] = {
   "Chrome_IOThread",  // IO
   "Chrome_FileThread",  // FILE
   "Chrome_DBThread",  // DB
-  "Chrome_HistoryThread",  // HISTORY
 };
 
 Lock ChromeThread::lock_;
@@ -18,7 +17,6 @@ ChromeThread* ChromeThread::chrome_threads_[ID_COUNT] = {
   NULL,  // IO
   NULL,  // FILE
   NULL,  // DB
-  NULL,  // HISTORY
 };
 
 ChromeThread::ChromeThread(ChromeThread::ID identifier)

@@ -190,7 +190,6 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
   void CreateIOThread();
   void CreateFileThread();
   void CreateDBThread();
-  void CreateSafeBrowsingThread();
   void CreateTemplateURLModel();
   void CreateProfileManager();
   void CreateWebDataService();

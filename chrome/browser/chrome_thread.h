@@ -38,9 +38,6 @@ class ChromeThread : public base::Thread {
     // This is the thread that interacts with the database.
     DB,
 
-    // This is the thread that interacts with the history database.
-    HISTORY,
-
     // This identifier does not represent a thread.  Instead it counts the
     // number of well-known threads.  Insert new well-known threads before this
     // identifier.
@@ -72,7 +69,7 @@ class ChromeThread : public base::Thread {
 
   // An array of the ChromeThread objects.  This array is protected by |lock_|.
   // The threads are not owned by this array.  Typically, the threads are owned
-  // on the IU thread by the g_browser_process object.  ChromeThreads remove
+  // on the UI thread by the g_browser_process object.  ChromeThreads remove
   // themselves from this array upon destruction.
   static ChromeThread* chrome_threads_[ID_COUNT];
 };
