@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -42,11 +42,9 @@ class SearchProvider : public AutocompleteProvider,
  public:
   SearchProvider(ACProviderListener* listener, Profile* profile)
       : AutocompleteProvider(listener, profile, "Search"),
-        last_default_provider_(NULL),
         have_history_results_(false),
         history_request_pending_(false),
-        suggest_results_pending_(false),
-        fetcher_(NULL),
+        suggest_results_pending_(0),
         have_suggest_results_(false) {
   }
 
@@ -64,6 +62,73 @@ class SearchProvider : public AutocompleteProvider,
                                   const std::string& data);
 
  private:
+  // Manages the providers (TemplateURLs) used by SearchProvider. Two providers
+  // may be used:
+  // . The default provider. This corresponds to the user's default search
+  //   engine. This is always used, except for the rare case of no default
+  //   engine.
+  // . The keyword provider. This is used if the user has typed in a keyword.
+  class Providers {
+   public:
+    Providers() : default_provider_(NULL), keyword_provider_(NULL) {}
+
+    // Returns true if the specified providers match the two providers managed
+    // by this class.
+    bool equals(const TemplateURL* default_provider,
+                const TemplateURL* keyword_provider) {
+      return (default_provider == default_provider_ &&
+              keyword_provider == keyword_provider_);
+    }
+
+    // Resets the providers.
+    void Set(const TemplateURL* default_provider,
+             const TemplateURL* keyword_provider);
+
+    const TemplateURL& default_provider() const {
+      DCHECK(valid_default_provider());
+      return cached_default_provider_;
+    }
+
+    const TemplateURL& keyword_provider() const {
+      DCHECK(valid_keyword_provider());
+      return cached_keyword_provider_;
+    }
+
+    // Returns true of the keyword provider is valid.
+    bool valid_keyword_provider() const { return !!keyword_provider_; }
+
+    // Returns true if the keyword provider is valid and has a valid suggest
+    // url.
+    bool valid_suggest_for_keyword_provider() const {
+      return keyword_provider_ && cached_keyword_provider_.suggestions_url();
+    }
+
+    // Returns true of the default provider is valid.
+    bool valid_default_provider() const { return !!default_provider_; }
+
+    // Returns true if the default provider is valid and has a valid suggest
+    // url.
+    bool valid_suggest_for_default_provider() const {
+      return default_provider_ && cached_default_provider_.suggestions_url();
+    }
+
+    // Returns true if |from_keyword_provider| is true, or
+    // the keyword provider is not valid.
+    bool is_primary_provider(bool from_keyword_provider) const {
+      return from_keyword_provider || !valid_keyword_provider();
+    }
+
+   private:
+    // Cached across the life of a query so we behave consistently even if the
+    // user changes their default while the query is running.
+    TemplateURL cached_default_provider_;
+    TemplateURL cached_keyword_provider_;
+
+    // TODO(pkasting): http://b/1162970  We shouldn't need these.
+    const TemplateURL* default_provider_;
+    const TemplateURL* keyword_provider_;
+  };
+
   struct NavigationResult {
     NavigationResult(const GURL& url, const std::wstring& site_name)
         : url(url),
@@ -101,31 +166,72 @@ class SearchProvider : public AutocompleteProvider,
   void StopHistory();
   void StopSuggest();
 
+  // Schedules a history query requesting past searches against the engine
+  // whose id is |search_id| and whose text starts with |text|. 
+  void ScheduleHistoryQuery(TemplateURL::IDType search_id,
+                            const std::wstring& text);
+
   // Called back by the history system to return searches that begin with the
   // input text.
   void OnGotMostRecentKeywordSearchTerms(
       CancelableRequestProvider::Handle handle,
       HistoryResults* results);
 
+  // Creates a URLFetcher requesting suggest results for the specified
+  // TemplateURL. Ownership of the returned URLFetchet passes to the caller.
+  URLFetcher* CreateSuggestFetcher(const TemplateURL& provider,
+                                   const std::wstring& text);
+
   // Parses the results from the Suggest server and stores up to kMaxMatches of
   // them in server_results_.  Returns whether parsing succeeded.
-  bool ParseSuggestResults(Value* root_val);
+  bool ParseSuggestResults(Value* root_val,
+                           bool is_keyword,
+                           const std::wstring& input_text,
+                           SuggestResults* suggest_results);
 
   // Converts the parsed server results in server_results_ to a set of
   // AutocompleteMatches and adds them to |matches_|.  This also sets |done_|
   // correctly.
   void ConvertResultsToAutocompleteMatches();
 
+  // Converts the first navigation result in |navigation_results| to an
+  // AutocompleteMatch and adds it to |matches_|.
+  void AddNavigationResultsToMatches(
+    const NavigationResults& navigation_results,
+    bool is_keyword);
+
+  // Adds a match for each result in |results| to |map|. |is_keyword| indicates
+  // whether the results correspond to the keyword provider or default provider.
+  void AddHistoryResultsToMap(const HistoryResults& results,
+                              bool is_keyword,
+                              int did_not_accept_suggestion,
+                              MatchMap* map);
+
+  // Adds a match for each result in |suggest_results| to |map|. |is_keyword|
+  // indicates whether the results correspond to the keyword provider or default
+  // provider.
+  void AddSuggestResultsToMap(const SuggestResults& suggest_results,
+                              bool is_keyword,
+                              int did_not_accept_suggestion,
+                              MatchMap* map);
+
   // Determines the relevance for a particular match.  We use different scoring
   // algorithms for the different types of matches.
   int CalculateRelevanceForWhatYouTyped() const;
-  // |time| is the time at which this query was last seen.
-  int CalculateRelevanceForHistory(const base::Time& time) const;
-  // |suggestion_value| is which suggestion this is in the list returned from
-  // the server; the best suggestion is suggestion number 0.
-  int CalculateRelevanceForSuggestion(size_t suggestion_value) const;
-  // |suggestion_value| is same as above.
-  int CalculateRelevanceForNavigation(size_t suggestion_value) const;
+  // |time| is the time at which this query was last seen. |is_keyword| is true
+  // if the search is from the keyword provider.
+  int CalculateRelevanceForHistory(const base::Time& time,
+                                   bool is_keyword) const;
+  // |suggestion_value| is the index of the suggestion in |suggest_results| that
+  // was returned from the server; the best suggestion is suggestion number 0.
+  // |is_keyword| is true if the search is from the keyword provider.
+  int CalculateRelevanceForSuggestion(const SuggestResults& suggest_results,
+                                      size_t suggestion_number,
+                                      bool is_keyword) const;
+  // |suggestion_value| is same as above. |is_keyword| is true if the navigation
+  // result was suggested by the keyword provider.
+  int CalculateRelevanceForNavigation(size_t suggestion_value,
+                                      bool is_keyword) const;
 
   // Creates an AutocompleteMatch for "Search <engine> for |query_string|" with
   // the supplied relevance.  Adds this match to |map|; if such a match already
@@ -134,31 +240,37 @@ class SearchProvider : public AutocompleteProvider,
                      int relevance,
                      AutocompleteMatch::Type type,
                      int accepted_suggestion,
+                     bool is_keyword,
                      MatchMap* map);
   // Returns an AutocompleteMatch for a navigational suggestion.
   AutocompleteMatch NavigationToMatch(const NavigationResult& query_string,
-                                      int relevance);
+                                      int relevance,
+                                      bool is_keyword);
 
   // Trims "http:" and up to two subsequent slashes from |url|.  Returns the
   // number of characters that were trimmed.
   // TODO(kochi): this is duplicate from history_autocomplete
   static size_t TrimHttpPrefix(std::wstring* url);
 
+  // Maintains the TemplateURLs used.
+  Providers providers_;
+
   // The user's input.
   AutocompleteInput input_;
 
-  // Cached across the life of a query so we behave consistently even if the
-  // user changes their default while the query is running.
-  TemplateURL default_provider_;
+  // Input text when searching against the keyword provider.
+  std::wstring keyword_input_text_;
 
-  // TODO(pkasting): http://b/1162970  We shouldn't need this.
-  const TemplateURL* last_default_provider_;
-
-  // An object we can use to cancel history requests.
-  CancelableRequestConsumer history_request_consumer_;
+  // An object we can use to cancel history requests. The client data
+  // corresponds to the id of the search engine and is used in the callback to
+  // determine whether the request corresponds to the keyword of default
+  // provider.
+  CancelableRequestConsumerTSimple<TemplateURL::IDType>
+      history_request_consumer_;
 
   // Searches in the user's history that begin with the input text.
-  HistoryResults history_results_;
+  HistoryResults keyword_history_results_;
+  HistoryResults default_history_results_;
 
   // Whether history_results_ is valid (so we can tell invalid apart from
   // empty).
@@ -167,22 +279,28 @@ class SearchProvider : public AutocompleteProvider,
   // Whether we are waiting for a history request to finish.
   bool history_request_pending_;
 
-  // True if we're expecting suggest results that haven't yet arrived.  This
-  // could be because either |timer_| or |fetcher| is still running (see below).
-  bool suggest_results_pending_;
+  // Number of suggest results that haven't yet arrived. If greater than 0 it
+  // indicates either |timer_| or one of the URLFetchers is still running.
+  int suggest_results_pending_;
 
   // A timer to start a query to the suggest server after the user has stopped
   // typing for long enough.
   base::OneShotTimer<SearchProvider> timer_;
 
-  // The fetcher that retrieves suggest results from the server.
-  scoped_ptr<URLFetcher> fetcher_;
+  // The fetcher that retrieves suggest results for the keyword from the server.
+  scoped_ptr<URLFetcher> keyword_fetcher_;
+
+  // The fetcher that retrieves suggest results for the default engine from the
+  // server.
+  scoped_ptr<URLFetcher> default_fetcher_;
 
   // Suggestions returned by the Suggest server for the input text.
-  SuggestResults suggest_results_;
+  SuggestResults keyword_suggest_results_;
+  SuggestResults default_suggest_results_;
 
   // Navigational suggestions returned by the server.
-  NavigationResults navigation_results_;
+  NavigationResults keyword_navigation_results_;
+  NavigationResults default_navigation_results_;
 
   // Whether suggest_results_ is valid.
   bool have_suggest_results_;

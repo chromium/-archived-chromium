@@ -491,6 +491,11 @@ GURL TemplateURL::GenerateFaviconURL(const GURL& url) {
   return url.ReplaceComponents(rep);
 }
 
+// static
+bool TemplateURL::SupportsReplacement(const TemplateURL* turl) {
+  return turl && turl->url() && turl->url()->SupportsReplacement();
+}
+
 void TemplateURL::SetSuggestionsURL(const std::wstring& suggestions_url,
                                     int index_offset,
                                     int page_offset) {

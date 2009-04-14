@@ -212,8 +212,7 @@ bool AutocompletePopupModel::GetKeywordForMatch(const AutocompleteMatch& match,
   keyword->clear();
 
   // If the current match is a keyword, return that as the selected keyword.
-  if (match.template_url && match.template_url->url() &&
-      match.template_url->url()->SupportsReplacement()) {
+  if (TemplateURL::SupportsReplacement(match.template_url)) {
     keyword->assign(match.template_url->keyword());
     return false;
   }
@@ -230,8 +229,7 @@ bool AutocompletePopupModel::GetKeywordForMatch(const AutocompleteMatch& match,
   // Don't provide a hint if this keyword doesn't support replacement.
   const TemplateURL* const template_url =
       profile_->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword_hint);
-  if (!template_url || !template_url->url() ||
-      !template_url->url()->SupportsReplacement())
+  if (!TemplateURL::SupportsReplacement(template_url))
     return false;
 
   keyword->assign(keyword_hint);

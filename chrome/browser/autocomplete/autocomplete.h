@@ -45,35 +45,43 @@
 // --------------------------------------------------------------------|-----
 // Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // HistoryURL (exact or inline autocomplete match)                     | 1400
-// Search (what you typed)                                             | 1300
+// Search Primary Provider (what you typed)                            | 1300
 // HistoryURL (what you typed)                                         | 1200
 // Keyword (substituting, exact match)                                 | 1100
-// Search (past query in history)                                      | 1050--
+// Search Primary Provider (past query in history)                     | 1050--
 // HistoryContents (any match in title of starred page)                | 1000++
 // HistoryURL (inexact match)                                          |  900++
-// Search (navigational suggestion)                                    |  800++
+// Search Primary Provider (navigational suggestion)                   |  800++
 // HistoryContents (any match in title of nonstarred page)             |  700++
-// Search (suggestion)                                                 |  600++
+// Search Primary Provider (suggestion)                                |  600++
 // HistoryContents (any match in body of starred page)                 |  550++
 // HistoryContents (any match in body of nonstarred page)              |  500++
 // Keyword (inexact match)                                             |  450
+// Search Secondary Provider (what you typed)                          |  250
+// Search Secondary Provider (past query in history)                   |  200--
+// Search Secondary Provider (navigational suggestion)                 |  150++
+// Search Secondary Provider (suggestion)                              |  100++
 //
 // REQUESTED_URL input type:
 // --------------------------------------------------------------------|-----
 // Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // HistoryURL (exact or inline autocomplete match)                     | 1400
 // HistoryURL (what you typed)                                         | 1300
-// Search (what you typed)                                             | 1200
+// Search Primary Provider (what you typed)                            | 1200
 // Keyword (substituting, exact match)                                 | 1100
-// Search (past query in history)                                      | 1050--
+// Search Primary Provider (past query in history)                     | 1050--
 // HistoryContents (any match in title of starred page)                | 1000++
 // HistoryURL (inexact match)                                          |  900++
-// Search (navigational suggestion)                                    |  800++
+// Search Primary Provider (navigational suggestion)                   |  800++
 // HistoryContents (any match in title of nonstarred page)             |  700++
-// Search (suggestion)                                                 |  600++
+// Search Primary Provider (suggestion)                                |  600++
 // HistoryContents (any match in body of starred page)                 |  550++
 // HistoryContents (any match in body of nonstarred page)              |  500++
 // Keyword (inexact match)                                             |  450
+// Search Secondary Provider (what you typed)                          |  250
+// Search Secondary Provider (past query in history)                   |  200--
+// Search Secondary Provider (navigational suggestion)                 |  150++
+// Search Secondary Provider (suggestion)                              |  100++
 //
 // URL input type:
 // --------------------------------------------------------------------|-----
@@ -82,39 +90,52 @@
 // HistoryURL (what you typed)                                         | 1200
 // Keyword (substituting, exact match)                                 | 1100
 // HistoryURL (inexact match)                                          |  900++
-// Search (what you typed)                                             |  850
-// Search (navigational suggestion)                                    |  800++
-// Search (past query in history)                                      |  750--
+// Search Primary Provider (what you typed)                            |  850
+// Search Primary Provider (navigational suggestion)                   |  800++
+// Search Primary Provider (past query in history)                     |  750--
 // Keyword (inexact match)                                             |  700
-// Search (suggestion)                                                 |  300++
+// Search Primary Provider (suggestion)                                |  300++
+// Search Secondary Provider (what you typed)                          |  250
+// Search Secondary Provider (past query in history)                   |  200--
+// Search Secondary Provider (navigational suggestion)                 |  150++
+// Search Secondary Provider (suggestion)                              |  100++
 //
 // QUERY input type:
 // --------------------------------------------------------------------|-----
 // Keyword (non-substituting or in keyword UI mode, exact match)       | 1500
 // Keyword (substituting, exact match)                                 | 1400
-// Search (what you typed)                                             | 1300
-// Search (past query in history)                                      | 1250--
+// Search Primary Provider (what you typed)                            | 1300
+// Search Primary Provider (past query in history)                     | 1250--
 // HistoryContents (any match in title of starred page)                | 1200++
-// Search (navigational suggestion)                                    | 1000++
+// Search Primary Provider (navigational suggestion)                   | 1000++
 // HistoryContents (any match in title of nonstarred page)             |  900++
-// Search (suggestion)                                                 |  800++
+// Search Primary Provider (suggestion)                                |  800++
 // HistoryContents (any match in body of starred page)                 |  750++
 // HistoryContents (any match in body of nonstarred page)              |  700++
 // Keyword (inexact match)                                             |  650
+// Search Secondary Provider (what you typed)                          |  250
+// Search Secondary Provider (past query in history)                   |  200--
+// Search Secondary Provider (navigational suggestion)                 |  150++
+// Search Secondary Provider (suggestion)                              |  100++
 //
 // FORCED_QUERY input type:
 // --------------------------------------------------------------------|-----
-// Search (what you typed)                                             | 1500
-// Search (past query in history)                                      | 1250--
+// Search Primary Provider (what you typed)                            | 1500
+// Search Primary Provider (past query in history)                     | 1250--
 // HistoryContents (any match in title of starred page)                | 1200++
-// Search (navigational suggestion)                                    | 1000++
+// Search Primary Provider (navigational suggestion)                   | 1000++
 // HistoryContents (any match in title of nonstarred page)             |  900++
-// Search (suggestion)                                                 |  800++
+// Search Primary Provider (suggestion)                                |  800++
 // HistoryContents (any match in body of starred page)                 |  750++
 // HistoryContents (any match in body of nonstarred page)              |  700++
 //
 // (A search keyword is a keyword with a replacement string; a bookmark keyword
 // is a keyword with no replacement string, that is, a shortcut for a URL.)
+//
+// There are two possible providers for search suggestions. If the user has
+// typed a keyword, then the primary provider is the keyword provider and the
+// secondary provider is the default provider. If the user has not typed a
+// keyword, then the primary provider corresponds to the default provider.
 //
 // The value column gives the ranking returned from the various providers.
 // ++: a series of results with relevance from n up to (n + max_matches).

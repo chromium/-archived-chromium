@@ -277,8 +277,7 @@ void ProfileWriter::AddKeywords(const std::vector<TemplateURL*>& template_urls,
     }
     if (t_url->url() && t_url->url()->IsValid()) {
       model->Add(t_url);
-      if (default_keyword && t_url->url() &&
-          t_url->url()->SupportsReplacement())
+      if (default_keyword && TemplateURL::SupportsReplacement(t_url))
         model->SetDefaultSearchProvider(t_url);
     } else {
       // Don't add invalid TemplateURLs to the model.

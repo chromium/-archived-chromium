@@ -414,7 +414,7 @@ void KeywordEditorView::ModifyTemplateURL(const TemplateURL* template_url,
   url_model_->RemoveObserver(this);
   url_model_->ResetTemplateURL(template_url, title, keyword, url);
   if (url_model_->GetDefaultSearchProvider() == template_url &&
-      (!template_url->url() || !template_url->url()->SupportsReplacement())) {
+      !TemplateURL::SupportsReplacement(template_url)) {
     // The entry was the default search provider, but the url has been modified
     // so that it no longer supports replacement. Reset the default search
     // provider so that it doesn't point to a bogus entry.

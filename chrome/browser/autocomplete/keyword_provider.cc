@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -61,13 +61,28 @@ class CompareQuality {
 
 }  // namespace
 
+// static
+const TemplateURL* KeywordProvider::GetSubstitutingTemplateURLForInput(
+    Profile* profile,
+    const AutocompleteInput& input,
+    std::wstring* remaining_input) {
+  std::wstring keyword;
+  if (!ExtractKeywordFromInput(input, &keyword, remaining_input))
+    return NULL;
+
+  // Make sure the model is loaded. This is cheap and quickly bails out if
+  // the model is already loaded.
+  TemplateURLModel* model = profile->GetTemplateURLModel();
+  DCHECK(model);
+  model->Load();
+
+  const TemplateURL* template_url = model->GetTemplateURLForKeyword(keyword);
+  return TemplateURL::SupportsReplacement(template_url) ? template_url : NULL;
+}
+
 void KeywordProvider::Start(const AutocompleteInput& input,
                             bool minimal_changes) {
   matches_.clear();
-
-  if ((input.type() == AutocompleteInput::INVALID) ||
-      (input.type() == AutocompleteInput::FORCED_QUERY))
-    return;
 
   // Split user input into a keyword and some query input.
   //
@@ -82,10 +97,8 @@ void KeywordProvider::Start(const AutocompleteInput& input,
   // keywords, we might suggest keywords that haven't even been partially typed,
   // if the user uses them enough and isn't obviously typing something else.  In
   // this case we'd consider all input here to be query input.
-  std::wstring remaining_input;
-  std::wstring keyword(TemplateURLModel::CleanUserInputKeyword(
-      SplitKeywordFromInput(input.text(), &remaining_input)));
-  if (keyword.empty())
+  std::wstring keyword, remaining_input;
+  if (!ExtractKeywordFromInput(input, &keyword, &remaining_input))
     return;
 
   // Make sure the model is loaded. This is cheap and quickly bails out if
@@ -131,6 +144,19 @@ void KeywordProvider::Start(const AutocompleteInput& input,
                                                  remaining_input));
     }
   }
+}
+
+// static
+bool KeywordProvider::ExtractKeywordFromInput(const AutocompleteInput& input,
+                                              std::wstring* keyword,
+                                              std::wstring* remaining_input) {
+  if ((input.type() == AutocompleteInput::INVALID) ||
+      (input.type() == AutocompleteInput::FORCED_QUERY))
+    return false;
+
+  *keyword = TemplateURLModel::CleanUserInputKeyword(
+      SplitKeywordFromInput(input.text(), remaining_input));
+  return !keyword->empty();
 }
 
 // static

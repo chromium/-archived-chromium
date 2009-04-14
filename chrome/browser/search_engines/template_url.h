@@ -250,6 +250,10 @@ class TemplateURL {
   // Generates a favicon URL from the specified url.
   static GURL GenerateFaviconURL(const GURL& url);
 
+  // Returns true if |true| is non-null and has a search URL that supports
+  // replacement.
+  static bool SupportsReplacement(const TemplateURL* turl);
+
   TemplateURL()
       : autogenerate_keyword_(false),
         show_in_default_list_(false),

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -57,11 +57,28 @@ class KeywordProvider : public AutocompleteProvider {
   static std::wstring SplitReplacementStringFromInput(
       const std::wstring& input);
 
+  // Returns the matching substituting keyword for |input|, or NULL if there
+  // is no keyword for the specified input.
+  static const TemplateURL* GetSubstitutingTemplateURLForInput(
+      Profile* profile,
+      const AutocompleteInput& input,
+      std::wstring* remaining_input);
+
   // AutocompleteProvider
   virtual void Start(const AutocompleteInput& input,
                      bool minimal_changes);
 
  private:
+  // Extracts the keyword from |input| into |keyword|. Any remaining characters
+  // after the keyword are placed in |remaining_input|. Returns true if |input|
+  // is valid and has a keyword. This makes use of SplitKeywordFromInput to
+  // extract the keyword and remaining string, and uses
+  // TemplateURLModel::CleanUserInputKeyword to remove unnecessary characters.
+  // In general use this instead of SplitKeywordFromInput.
+  static bool ExtractKeywordFromInput(const AutocompleteInput& input,
+                                      std::wstring* keyword,
+                                      std::wstring* remaining_input);
+
   // Extracts the next whitespace-delimited token from input and returns it.
   // Sets |remaining_input| to everything after the first token (skipping over
   // intervening whitespace).
