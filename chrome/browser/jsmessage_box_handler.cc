@@ -19,6 +19,16 @@
 
 namespace {
 
+const size_t kMaxReasonableTextLength = 2048;
+
+// In some platforms, the underlying processing of humongous strings takes too
+// long and thus make the UI thread unresponsive.
+std::wstring MakeTextSafe(const std::wstring& text) {
+  if (text.size() > kMaxReasonableTextLength)
+    return text.substr(0, kMaxReasonableTextLength) + L"\x2026";
+  return text;
+}
+
 std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url,
                             int dialog_flags) {
   bool is_alert = (dialog_flags == MessageBox::kIsJavascriptAlert);
@@ -61,7 +71,7 @@ void RunJavascriptMessageBox(WebContents* web_contents,
 
 #if defined(OS_WIN) || defined(OS_LINUX)
   AppModalDialogQueue::AddDialog(new AppModalDialog(web_contents, title,
-      dialog_flags, message_text, default_prompt_text,
+      dialog_flags, MakeTextSafe(message_text), default_prompt_text,
       display_suppress_checkbox, false, reply_msg));
 #else
   NOTIMPLEMENTED();
@@ -77,8 +87,8 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
 #if defined(OS_WIN) || defined(OS_LINUX)
   AppModalDialogQueue::AddDialog(new AppModalDialog(
       web_contents, l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE),
-      MessageBox::kIsJavascriptConfirm, message_text, std::wstring(), false,
-      true, reply_msg));
+      MessageBox::kIsJavascriptConfirm, MakeTextSafe(message_text),
+      std::wstring(), false, true, reply_msg));
 #else
   NOTIMPLEMENTED();
 #endif
