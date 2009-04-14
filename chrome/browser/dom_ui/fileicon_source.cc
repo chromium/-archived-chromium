@@ -33,7 +33,7 @@ void FileIconSource::StartDataRequest(const std::string& path,
   // Fast look up.
 #if defined(OS_WIN)
   FilePath escaped_filepath(UTF8ToWide(escaped_path));
-#else if defined(OS_POSIX)
+#elif defined(OS_POSIX)
   // The correct encoding on Linux may not actually be UTF8.
   FilePath escaped_filepath(escaped_path);
 #endif
