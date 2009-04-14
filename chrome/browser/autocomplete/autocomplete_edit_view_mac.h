@@ -78,8 +78,8 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   virtual bool OnInlineAutocompleteTextMaybeChanged(
       const std::wstring& display_text, size_t user_text_length);
   virtual void OnRevertTemporaryText();
-  virtual void OnBeforePossibleChange() { NOTIMPLEMENTED(); }
-  virtual bool OnAfterPossibleChange() { NOTIMPLEMENTED(); return false; }
+  virtual void OnBeforePossibleChange();
+  virtual bool OnAfterPossibleChange();
 
   // Helper functions which forward to our private: model_.
   void OnUpOrDownKeyPressed(int dir);
@@ -87,11 +87,6 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   void OnSetFocus(bool f);
   void OnKillFocus();
   void AcceptInput(WindowOpenDisposition disposition, bool for_drop);
-  void OnAfterPossibleChange(const std::wstring& new_text,
-                             bool selection_differs,
-                             bool text_differs,
-                             bool just_deleted_text,
-                             bool at_end_of_edit);
 
   // TODO(shess): Get rid of this.  Right now it's needed because of
   // the ordering of initialization in tab_contents_controller.mm.
@@ -101,6 +96,10 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   void FocusLocation();
 
  private:
+  // Returns the field's currently selected range.  Only valid if the
+  // field has focus.
+  NSRange GetSelectedRange() const;
+
   scoped_ptr<AutocompleteEditModel> model_;
   scoped_ptr<AutocompletePopupViewMac> popup_view_;
 
@@ -117,6 +116,11 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   scoped_nsobject<AutocompleteEditHelper> edit_helper_;
 
   std::wstring saved_temporary_text_;
+
+  // Tracking state before and after a possible change for reporting
+  // to model_.
+  NSRange selection_before_change_;
+  std::wstring text_before_change_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompleteEditViewMac);
 };

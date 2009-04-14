@@ -92,6 +92,11 @@ std::wstring AutocompleteEditViewMac::GetText() const {
   return base::SysNSStringToWide([field_ stringValue]);
 }
 
+NSRange AutocompleteEditViewMac::GetSelectedRange() const {
+  DCHECK([field_ currentEditor]);
+  return [[field_ currentEditor] selectedRange];
+}
+
 void AutocompleteEditViewMac::SetWindowTextAndCaretPos(const std::wstring& text,
                                                        size_t caret_pos) {
   UpdateAndStyleText(text, text.size());
@@ -214,6 +219,44 @@ void AutocompleteEditViewMac::OnRevertTemporaryText() {
   saved_temporary_text_.clear();
 }
 
+void AutocompleteEditViewMac::OnBeforePossibleChange() {
+  selection_before_change_ = GetSelectedRange();
+  text_before_change_ = GetText();
+}
+
+bool AutocompleteEditViewMac::OnAfterPossibleChange() {
+  NSRange new_selection(GetSelectedRange());
+  std::wstring new_text(GetText());
+  const size_t length = new_text.length();
+
+  bool selection_differs = !NSEqualRanges(new_selection,
+                                          selection_before_change_);
+  bool at_end_of_edit = (length == new_selection.location);
+  bool text_differs = (new_text != text_before_change_);
+
+  // When the user has deleted text, we don't allow inline
+  // autocomplete.  This is assumed if the text has gotten shorter AND
+  // the selection has shifted towards the front of the text.  During
+  // normal typing the text will almost always be shorter (as the new
+  // input replaces the autocomplete suggestion), but in that case the
+  // selection point will have moved towards the end of the text.
+  // TODO(shess): In our implementation, we can catch -deleteBackward:
+  // and other methods to provide positive knowledge that a delete
+  // occured, rather than intuiting it from context.  Consider whether
+  // that would be a stronger approach.
+  bool just_deleted_text =
+      (length < text_before_change_.length() &&
+       new_selection.location <= selection_before_change_.location);
+
+  bool something_changed = model_->OnAfterPossibleChange(new_text,
+      selection_differs, text_differs, just_deleted_text, at_end_of_edit);
+
+  // TODO(shess): Restyle the text if something_changed.  Not fixing
+  // now because styling is currently broken.
+
+  return something_changed;
+}
+
 void AutocompleteEditViewMac::OnUpOrDownKeyPressed(int dir) {
   model_->OnUpOrDownKeyPressed(dir);
 }
@@ -229,15 +272,6 @@ void AutocompleteEditViewMac::OnKillFocus() {
 void AutocompleteEditViewMac::AcceptInput(
     WindowOpenDisposition disposition, bool for_drop) {
   model_->AcceptInput(disposition, for_drop);
-}
-void AutocompleteEditViewMac::OnAfterPossibleChange(
-    const std::wstring& new_text,
-    bool selection_differs,
-    bool text_differs,
-    bool just_deleted_text,
-    bool at_end_of_edit) {
-  model_->OnAfterPossibleChange(new_text, selection_differs, text_differs,
-                                just_deleted_text, at_end_of_edit);
 }
 void AutocompleteEditViewMac::SetField(NSTextField* field) {
   field_ = field;
@@ -282,21 +316,27 @@ void AutocompleteEditViewMac::FocusLocation() {
     edit_view_->AcceptInput(CURRENT_TAB, false);
     return YES;
   }
-  
+
+  // Capture the state before the operation changes the content.
+  // TODO(shess): Determine if this is always redundent WRT the call
+  // in -controlTextDidChange:.
+  edit_view_->OnBeforePossibleChange();
   return NO;
 }
 
 - (void)controlTextDidBeginEditing:(NSNotification*)aNotification {
   edit_view_->OnSetFocus(false);
+
+  // Capture the current state.
+  edit_view_->OnBeforePossibleChange();
 }
 
 - (void)controlTextDidChange:(NSNotification*)aNotification {
-  // TODO(shess): Make this more efficient?  Or not.  For now, just
-  // pass in the current text, indicating that the text and
-  // selection differ, ignoring deletions, and assuming that we're
-  // at the end of the text.
-  edit_view_->OnAfterPossibleChange(edit_view_->GetText(),
-                                    true, true, false, true);
+  // Figure out what changed and notify the model_.
+  edit_view_->OnAfterPossibleChange();
+
+  // Then capture the new state.
+  edit_view_->OnBeforePossibleChange();
 }
 
 - (void)controlTextDidEndEditing:(NSNotification*)aNotification {
