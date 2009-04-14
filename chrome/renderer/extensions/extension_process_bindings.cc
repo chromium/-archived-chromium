@@ -18,14 +18,17 @@ using WebKit::WebString;
 namespace {
 
 const char kExtensionName[] = "chrome/ExtensionProcessBindings";
-const char* kExtensionDeps[] = { JsonJsV8Extension::kName };
+const char* kDeps[] = {
+  BaseJsV8Extension::kName,
+  JsonJsV8Extension::kName,
+  JsonSchemaJsV8Extension::kName
+};
 
 class ExtensionImpl : public v8::Extension {
  public:
   ExtensionImpl() : v8::Extension(
       kExtensionName, GetStringResource<IDR_EXTENSION_PROCESS_BINDINGS_JS>(),
-      arraysize(kExtensionDeps), kExtensionDeps) {
-  }
+      arraysize(kDeps), kDeps) {}
 
   static void SetFunctionNames(const std::vector<std::string>& names) {
     function_names_ = new std::set<std::string>();
