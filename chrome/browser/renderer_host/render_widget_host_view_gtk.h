@@ -101,6 +101,12 @@ class RenderWidgetHostViewGtk : public RenderWidgetHostView {
   // activatable popup: <select> dropdown. Example of non-activatable popup:
   // form autocomplete.
   bool activatable_;
+  // This is true when we are currently painting and thus should handle extra
+  // paint requests by expanding the invalid rect rather than actually
+  // painting.
+  bool about_to_validate_and_paint_;
+  // This is the rectangle which we'll paint.
+  gfx::Rect invalid_rect_;
 
   // Whether we are currently loading.
   bool is_loading_;

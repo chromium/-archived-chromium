@@ -134,6 +134,7 @@ RenderWidgetHostViewWin::RenderWidgetHostViewWin(RenderWidgetHost* widget)
       track_mouse_leave_(false),
       ime_notification_(false),
       is_hidden_(false),
+      about_to_validate_and_paint_(false),
       close_on_deactivate_(false),
       tooltip_hwnd_(NULL),
       tooltip_showing_(false),
@@ -447,7 +448,10 @@ void RenderWidgetHostViewWin::DidPaintRect(const gfx::Rect& rect) {
   if (is_hidden_)
     return;
 
-  Redraw(rect);
+  if (about_to_validate_and_paint_)
+    InvalidateRect(&rect.ToRECT(), false);
+  else
+    Redraw(rect);
 }
 
 void RenderWidgetHostViewWin::DidScrollRect(
@@ -552,11 +556,16 @@ void RenderWidgetHostViewWin::OnDestroy() {
 void RenderWidgetHostViewWin::OnPaint(HDC dc) {
   DCHECK(render_widget_host_->process()->channel());
 
-  CPaintDC paint_dc(m_hWnd);
-  HBRUSH white_brush = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
-
+  about_to_validate_and_paint_ = true;
   BackingStore* backing_store = render_widget_host_->GetBackingStore();
 
+  // We initialize |paint_dc| (and thus call BeginPaint()) after calling
+  // GetBackingStore(), so that if it updates the invalid rect we'll catch the
+  // changes and repaint them.
+  about_to_validate_and_paint_ = false;
+  CPaintDC paint_dc(m_hWnd);
+
+  HBRUSH white_brush = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
   if (backing_store) {
     gfx::Rect damaged_rect(paint_dc.m_ps.rcPaint);
 

@@ -54,10 +54,10 @@ RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
       is_hidden_(false),
       repaint_ack_pending_(false),
       resize_ack_pending_(false),
-      suppress_view_updating_(false),
       mouse_move_pending_(false),
       needs_repainting_on_restore_(false),
       is_unresponsive_(false),
+      in_get_backing_store_(false),
       view_being_painted_(false),
       text_direction_updated_(false),
       text_direction_(WEB_TEXT_DIRECTION_LTR),
@@ -209,6 +209,11 @@ BackingStore* RenderWidgetHost::GetBackingStore() {
   // then it means that our consumer failed to call WasRestored.
   DCHECK(!is_hidden_) << "GetBackingStore called while hidden!";
 
+  // We should never be called recursively; this can theoretically lead to
+  // infinite recursion and almost certainly leads to lower performance.
+  DCHECK(!in_get_backing_store_) << "GetBackingStore called recursively!";
+  in_get_backing_store_ = true;
+
   // We might have a cached backing store that we can reuse!
   BackingStore* backing_store =
       BackingStoreManager::GetBackingStore(this, current_size_);
@@ -228,14 +233,13 @@ BackingStore* RenderWidgetHost::GetBackingStore() {
     IPC::Message msg;
     TimeDelta max_delay = TimeDelta::FromMilliseconds(kPaintMsgTimeoutMS);
     if (process_->WaitForPaintMsg(routing_id_, max_delay, &msg)) {
-      suppress_view_updating_ = true;
       ViewHostMsg_PaintRect::Dispatch(
           &msg, this, &RenderWidgetHost::OnMsgPaintRect);
-      suppress_view_updating_ = false;
       backing_store = BackingStoreManager::GetBackingStore(this, current_size_);
     }
   }
 
+  in_get_backing_store_ = false;
   return backing_store;
 }
 
@@ -506,11 +510,9 @@ void RenderWidgetHost::OnMsgPaintRect(
   // Now paint the view. Watch out: it might be destroyed already.
   if (view_) {
     view_->MovePluginWindows(params.plugin_window_moves);
-    if (!suppress_view_updating_) {
-      view_being_painted_ = true;
-      view_->DidPaintRect(params.bitmap_rect);
-      view_being_painted_ = false;
-    }
+    view_being_painted_ = true;
+    view_->DidPaintRect(params.bitmap_rect);
+    view_being_painted_ = false;
   }
 
   if (paint_observer_.get())

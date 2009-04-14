@@ -233,6 +233,11 @@ class RenderWidgetHostViewWin :
   // true if the View is not visible.
   bool is_hidden_;
 
+  // True if we're in the midst of a paint operation and should respond to
+  // DidPaintRect() notifications by merely invalidating.  See comments on
+  // render_widget_host_view.h:DidPaintRect().
+  bool about_to_validate_and_paint_;
+
   // true if the View should be closed when its HWND is deactivated (used to
   // support SELECT popups which are closed when they are deactivated).
   bool close_on_deactivate_;

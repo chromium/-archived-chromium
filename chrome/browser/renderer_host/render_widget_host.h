@@ -357,10 +357,6 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // The current size of the RenderWidget.
   gfx::Size current_size_;
 
-  // If true, then we should not ask our view to repaint when our backingstore
-  // is updated.
-  bool suppress_view_updating_;
-
   // True if a mouse move event was sent to the render view and we are waiting
   // for a corresponding ViewHostMsg_HandleInputEvent_ACK message.
   bool mouse_move_pending_;
@@ -390,6 +386,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
 
   // Optional observer that listens for notifications of painting.
   scoped_ptr<PaintObserver> paint_observer_;
+
+  // Flag to detect recurive calls to GetBackingStore().
+  bool in_get_backing_store_;
 
   // Set when we call DidPaintRect/DidScrollRect on the view.
   bool view_being_painted_;

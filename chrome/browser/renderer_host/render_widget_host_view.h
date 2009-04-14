@@ -91,8 +91,19 @@ class RenderWidgetHostView {
   virtual void IMEUpdateStatus(int control, const gfx::Rect& caret_rect) = 0;
 
   // Informs the view that a portion of the widget's backing store was painted.
-  // The view should copy the given rect from the backing store of the render
-  // widget onto the screen.
+  // The view should ensure this gets copied to the screen.
+  //
+  // There are subtle performance implications here.  The RenderWidget gets sent
+  // a paint ack after this returns, so if the view only ever invalidates in
+  // response to this, then on Windows, where WM_PAINT has lower priority than
+  // events which can cause renderer resizes/paint rect updates, e.g.
+  // drag-resizing can starve painting; this function thus provides the view its
+  // main chance to ensure it stays painted and not just invalidated.  On the
+  // other hand, if this always blindly paints, then if we're already in the
+  // midst of a paint on the callstack, we can double-paint unnecessarily.
+  // (Worse, we might recursively call RenderWidgetHost::GetBackingStore().)
+  // Thus implementers should generally paint as much of |rect| as possible
+  // synchronously with as little overpainting as possible.
   virtual void DidPaintRect(const gfx::Rect& rect) = 0;
 
   // Informs the view that a portion of the widget's backing store was scrolled

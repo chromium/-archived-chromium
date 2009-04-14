@@ -159,6 +159,7 @@ RenderWidgetHostViewGtk::RenderWidgetHostViewGtk(RenderWidgetHost* widget_host)
       parent_(NULL),
       popup_signal_id_(0),
       activatable_(true),
+      about_to_validate_and_paint_(false),
       is_loading_(false) {
   host_->set_view(this);
 }
@@ -277,7 +278,10 @@ void RenderWidgetHostViewGtk::IMEUpdateStatus(int control,
 }
 
 void RenderWidgetHostViewGtk::DidPaintRect(const gfx::Rect& rect) {
-  Paint(rect);
+  if (about_to_validate_and_paint_)
+    invalid_rect_ = invalid_rect_.Union(rect);
+  else
+    Paint(rect);
 }
 
 void RenderWidgetHostViewGtk::DidScrollRect(const gfx::Rect& rect, int dx,
@@ -338,7 +342,13 @@ void RenderWidgetHostViewGtk::PasteFromSelectionClipboard() {
 }
 
 void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
+  DCHECK(!about_to_validate_and_paint_);
+
+  invalid_rect_ = damage_rect;
+  about_to_validate_and_paint_ = true;
   BackingStore* backing_store = host_->GetBackingStore();
+  // Calling GetBackingStore maybe have changed |invalid_rect_|...
+  about_to_validate_and_paint_ = false;
 
   GdkWindow* window = view_.get()->window;
   if (backing_store) {
@@ -347,7 +357,7 @@ void RenderWidgetHostViewGtk::Paint(const gfx::Rect& damage_rect) {
     // Destroy()ed yet and it receives paint messages...
     if (window) {
       backing_store->ShowRect(
-          damage_rect, x11_util::GetX11WindowFromGtkWidget(view_.get()));
+          invalid_rect_, x11_util::GetX11WindowFromGtkWidget(view_.get()));
     }
   } else {
     if (window)
