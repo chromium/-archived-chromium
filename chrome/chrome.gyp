@@ -2130,7 +2130,6 @@
         'browser/download/download_manager_unittest.cc',
         'browser/download/download_request_manager_unittest.cc',
         'browser/download/save_package_unittest.cc',
-        'browser/extensions/extension_content_script_inject_unittest.cc',
         'browser/extensions/extension_process_manager_unittest.cc',
         'browser/extensions/extension_ui_unittest.cc',
         'browser/extensions/extension_unittest.cc',
