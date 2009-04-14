@@ -408,6 +408,7 @@ Filter::FilterStatus SdchFilter::InitializeDictionary() {
   }
   dictionary_ = dictionary;
   vcdiff_streaming_decoder_.reset(new open_vcdiff::VCDiffStreamingDecoder);
+  vcdiff_streaming_decoder_->SetAllowVcdTarget(false);
   vcdiff_streaming_decoder_->StartDecoding(dictionary_->text().data(),
                                            dictionary_->text().size());
   decoding_status_ = DECODING_IN_PROGRESS;
