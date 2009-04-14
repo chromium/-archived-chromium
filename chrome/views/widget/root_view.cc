@@ -68,7 +68,7 @@ RootView::RootView(Widget* widget)
 #if defined(OS_WIN)
     previous_cursor_(NULL),
 #endif
-    default_keyboard_hander_(NULL),
+    default_keyboard_handler_(NULL),
     focus_listener_(NULL),
     focus_on_mouse_pressed_(false),
     ignore_set_focus_calls_(false),
@@ -258,8 +258,8 @@ void RootView::ViewHierarchyChanged(bool is_add, View* parent, View* child) {
     if (child == drag_view_)
       drag_view_ = NULL;
 
-    if (default_keyboard_hander_ == child) {
-      default_keyboard_hander_ = NULL;
+    if (default_keyboard_handler_ == child) {
+      default_keyboard_handler_ = NULL;
     }
     NotificationService::current()->Notify(
         NotificationType::VIEW_REMOVED,
@@ -871,10 +871,10 @@ bool RootView::ProcessKeyEvent(const KeyEvent& event) {
         v->OnKeyPressed(event) : v->OnKeyReleased(event);
   }
 
-  if (!consumed && default_keyboard_hander_) {
+  if (!consumed && default_keyboard_handler_) {
     consumed = (event.GetType() == Event::ET_KEY_PRESSED) ?
-        default_keyboard_hander_->OnKeyPressed(event) :
-        default_keyboard_hander_->OnKeyReleased(event);
+        default_keyboard_handler_->OnKeyPressed(event) :
+        default_keyboard_handler_->OnKeyReleased(event);
   }
 
   return consumed;
@@ -890,14 +890,14 @@ bool RootView::ProcessMouseWheelEvent(const MouseWheelEvent& e) {
     }
   }
 
-  if (!consumed && default_keyboard_hander_) {
-    consumed = default_keyboard_hander_->OnMouseWheel(e);
+  if (!consumed && default_keyboard_handler_) {
+    consumed = default_keyboard_handler_->OnMouseWheel(e);
   }
   return consumed;
 }
 
 void RootView::SetDefaultKeyboardHandler(View* v) {
-  default_keyboard_hander_ = v;
+  default_keyboard_handler_ = v;
 }
 
 bool RootView::IsVisibleInRootView() const {

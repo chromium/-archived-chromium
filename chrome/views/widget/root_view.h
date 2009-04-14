@@ -316,7 +316,7 @@ class RootView : public View,
 #endif
 
   // Default keyboard handler
-  View* default_keyboard_hander_;
+  View* default_keyboard_handler_;
 
   // The listener that gets focus change notifications.
   FocusListener* focus_listener_;
