@@ -43,8 +43,8 @@ AppModalDialog::~AppModalDialog() {
 }
 
 void AppModalDialog::CreateAndShowDialog() {
-  GtkButtonsType buttons;
-  GtkMessageType message_type;
+  GtkButtonsType buttons = GTK_BUTTONS_NONE;
+  GtkMessageType message_type = GTK_MESSAGE_OTHER;
   switch (dialog_flags_) {
     case MessageBox::kIsJavascriptAlert:
       buttons = GTK_BUTTONS_OK;
