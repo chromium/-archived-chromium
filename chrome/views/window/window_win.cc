@@ -627,13 +627,13 @@ LRESULT WindowWin::OnNCCalcSize(BOOL mode, LPARAM l_param) {
     // disappear.
     HMONITOR monitor = MonitorFromWindow(GetNativeView(),
                                          MONITOR_DEFAULTTONEAREST);
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_LEFT, monitor))
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_LEFT, monitor))
       client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_TOP, monitor))
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_TOP, monitor))
       client_rect->top += win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_RIGHT, monitor))
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_RIGHT, monitor))
       client_rect->right -= win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_BOTTOM, monitor))
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_BOTTOM, monitor))
       client_rect->bottom -= win_util::kAutoHideTaskbarThicknessPx;
 
     // We cannot return WVR_REDRAW when there is nonclient area, or Windows

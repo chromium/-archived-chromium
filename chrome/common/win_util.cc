@@ -524,14 +524,15 @@ void CenterAndSizeWindow(HWND parent, HWND window, const SIZE& pref,
   }
 }
 
-bool EdgeHasAutoHideTaskbar(UINT edge, HMONITOR monitor) {
+bool EdgeHasTopmostAutoHideTaskbar(UINT edge, HMONITOR monitor) {
   APPBARDATA taskbar_data = { 0 };
   taskbar_data.cbSize = sizeof APPBARDATA;
   taskbar_data.uEdge = edge;
   HWND taskbar = reinterpret_cast<HWND>(SHAppBarMessage(ABM_GETAUTOHIDEBAR,
                                                         &taskbar_data));
   return ::IsWindow(taskbar) &&
-      (MonitorFromWindow(taskbar, MONITOR_DEFAULTTONEAREST) == monitor);
+      (MonitorFromWindow(taskbar, MONITOR_DEFAULTTONULL) == monitor) &&
+      (GetWindowLong(taskbar, GWL_EXSTYLE) & WS_EX_TOPMOST);
 }
 
 HANDLE GetSectionFromProcess(HANDLE section, HANDLE process, bool read_only) {

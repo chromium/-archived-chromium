@@ -138,13 +138,13 @@ LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
     // disappear.
     HMONITOR monitor = MonitorFromWindow(GetNativeView(),
                                          MONITOR_DEFAULTTONEAREST);
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_LEFT, monitor))
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_LEFT, monitor))
       client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_RIGHT, monitor))
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_RIGHT, monitor))
       client_rect->right -= win_util::kAutoHideTaskbarThicknessPx;
-    if (win_util::EdgeHasAutoHideTaskbar(ABE_BOTTOM, monitor)) {
+    if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_BOTTOM, monitor)) {
       client_rect->bottom -= win_util::kAutoHideTaskbarThicknessPx;
-    } else if (win_util::EdgeHasAutoHideTaskbar(ABE_TOP, monitor)) {
+    } else if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_TOP, monitor)) {
       // Tricky bit.  Due to a bug in DwmDefWindowProc()'s handling of
       // WM_NCHITTEST, having any nonclient area atop the window causes the
       // caption buttons to draw onscreen but not respond to mouse hover/clicks.

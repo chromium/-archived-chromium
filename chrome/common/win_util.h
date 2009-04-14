@@ -218,8 +218,8 @@ void CenterAndSizeWindow(HWND parent, HWND window, const SIZE& pref,
                          bool pref_is_client);
 
 // Returns true if edge |edge| (one of ABE_LEFT, TOP, RIGHT, or BOTTOM) of
-// monitor |monitor| has an auto-hiding taskbar.
-bool EdgeHasAutoHideTaskbar(UINT edge, HMONITOR monitor);
+// monitor |monitor| has an auto-hiding taskbar that's always-on-top.
+bool EdgeHasTopmostAutoHideTaskbar(UINT edge, HMONITOR monitor);
 
 // Duplicates a section handle from another process to the current process.
 // Returns the new valid handle if the function succeed. NULL otherwise.
