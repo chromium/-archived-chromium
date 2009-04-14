@@ -3050,8 +3050,6 @@ void RenderView::SendExtensionRequest(const std::string& name,
                                       const std::string& args,
                                       int callback_id,
                                       WebFrame* callback_frame) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-
   if (callback_id != -1) {
     DCHECK(callback_frame) << "Callback specified without frame";
     pending_extension_callbacks_.AddWithID(callback_frame, callback_id);

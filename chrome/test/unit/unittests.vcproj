@@ -192,6 +192,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\render_view_test.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\render_view_test.h"
+				>
+			</File>
+			<File
 				RelativePath=".\run_all_unittests.cc"
 				>
 			</File>
@@ -485,6 +493,10 @@
 			</File>
 			<File
 				RelativePath="..\..\browser\history\expire_history_backend_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\browser\extensions\extension_messages_unittest.cc"
 				>
 			</File>
 			<File
@@ -844,7 +856,15 @@
 			Name="renderer"
 			>
 			<File
+				RelativePath="..\..\renderer\extensions\extension_api_client_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\renderer\extensions\greasemonkey_api_unittest.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\..\renderer\extensions\json_schema_unittest.cc"
 				>
 			</File>
 			<File
