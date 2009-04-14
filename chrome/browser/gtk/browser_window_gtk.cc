@@ -103,13 +103,18 @@ gfx::Rect GetInitialWindowBounds(GtkWindow* window) {
 const struct AcceleratorMapping {
   guint keyval;
   int command_id;
+  GdkModifierType modifier_type;
 } kAcceleratorMap[] = {
-  { GDK_k, IDC_FOCUS_SEARCH },
-  { GDK_l, IDC_FOCUS_LOCATION },
-  { GDK_o, IDC_OPEN_FILE },
-  { GDK_Page_Down, IDC_SELECT_NEXT_TAB },
-  { GDK_Page_Up, IDC_SELECT_PREVIOUS_TAB },
-  { GDK_w, IDC_CLOSE_TAB },
+  { GDK_k, IDC_FOCUS_SEARCH, GDK_CONTROL_MASK },
+  { GDK_l, IDC_FOCUS_LOCATION, GDK_CONTROL_MASK },
+  { GDK_o, IDC_OPEN_FILE, GDK_CONTROL_MASK },
+  { GDK_Page_Down, IDC_SELECT_NEXT_TAB, GDK_CONTROL_MASK },
+  { GDK_Page_Up, IDC_SELECT_PREVIOUS_TAB, GDK_CONTROL_MASK },
+  { GDK_w, IDC_CLOSE_TAB, GDK_CONTROL_MASK },
+  { GDK_plus, IDC_ZOOM_PLUS, GdkModifierType(GDK_CONTROL_MASK|GDK_SHIFT_MASK) },
+  { GDK_equal, IDC_ZOOM_PLUS, GDK_CONTROL_MASK },
+  { GDK_0, IDC_ZOOM_NORMAL, GDK_CONTROL_MASK },
+  { GDK_minus, IDC_ZOOM_MINUS, GDK_CONTROL_MASK },
 };
 
 int GetCommandFromKeyval(guint accel_key) {
@@ -643,9 +648,11 @@ void BrowserWindowGtk::ConnectAccelerators() {
 
   for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
     gtk_accel_group_connect(
-        accel_group, kAcceleratorMap[i].keyval, GDK_CONTROL_MASK,
-        GtkAccelFlags(0), g_cclosure_new(G_CALLBACK(OnGtkAccelerator),
-        this, NULL));
+        accel_group,
+        kAcceleratorMap[i].keyval,
+        kAcceleratorMap[i].modifier_type,
+        GtkAccelFlags(0),
+        g_cclosure_new(G_CALLBACK(OnGtkAccelerator), this, NULL));
   }
 }
 

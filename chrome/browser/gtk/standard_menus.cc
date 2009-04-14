@@ -4,30 +4,22 @@
 
 #include "chrome/browser/gtk/standard_menus.h"
 
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
 #include "base/basictypes.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/l10n_util.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
 namespace {
 
 struct MenuCreateMaterial zoom_menu_materials[] = {
   { MENU_NORMAL, IDC_ZOOM_PLUS, IDS_ZOOM_PLUS, 0, NULL,
-    GDK_plus, GDK_CONTROL_MASK|GDK_SHIFT_MASK },
-  { MENU_NORMAL, IDC_ZOOM_PLUS, IDS_ZOOM_PLUS, 0, NULL,
-    GDK_equal, GDK_CONTROL_MASK },
-  { MENU_NORMAL, IDC_ZOOM_PLUS, IDS_ZOOM_PLUS, 0, NULL,
     GDK_KP_Add, GDK_CONTROL_MASK },
   { MENU_NORMAL, IDC_ZOOM_NORMAL, IDS_ZOOM_NORMAL, 0, NULL,
-    GDK_0, GDK_CONTROL_MASK },
-  { MENU_NORMAL, IDC_ZOOM_NORMAL, IDS_ZOOM_NORMAL, 0, NULL,
     GDK_KP_0, GDK_CONTROL_MASK },
-  { MENU_NORMAL, IDC_ZOOM_MINUS, IDS_ZOOM_MINUS, 0, NULL,
-    GDK_minus, GDK_CONTROL_MASK },
   { MENU_NORMAL, IDC_ZOOM_MINUS, IDS_ZOOM_MINUS, 0, NULL,
     GDK_KP_Subtract, GDK_CONTROL_MASK },
   { MENU_END }
