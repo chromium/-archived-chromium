@@ -4,64 +4,61 @@
 
 #include <CoreAudio/AudioHardware.h>
 
+#include "base/at_exit.h"
+#include "media/audio/mac/audio_manager_mac.h"
 #include "media/audio/mac/audio_output_mac.h"
 
-// Mac OS X implementation of the AudioManager singleton. This class is internal
-// to the audio output and only internal users can call methods not exposed by
-// the AudioManager class.
-class AudioManagerMac : public AudioManager {
- public:
-  AudioManagerMac() {
-  }
-  
-  virtual bool HasAudioDevices() {
-    AudioDeviceID output_device_id = 0;
-    size_t size = sizeof(output_device_id);
-    OSStatus err = AudioHardwareGetProperty(
-        kAudioHardwarePropertyDefaultOutputDevice, &size, &output_device_id);
-    return ((err == noErr) && (output_device_id > 0));
-  }
+bool AudioManagerMac::HasAudioDevices() {
+  AudioDeviceID output_device_id = 0;
+  size_t size = sizeof(output_device_id);
+  OSStatus err = AudioHardwareGetProperty(
+      kAudioHardwarePropertyDefaultOutputDevice, &size, &output_device_id);
+  return ((err == noErr) && (output_device_id > 0));
+}
 
-  virtual AudioOutputStream* MakeAudioStream(Format format, int channels,
-                                             int sample_rate,
-                                             char bits_per_sample) {
-    // TODO(cpu): add mock format.
-    if (format != AUDIO_PCM_LINEAR)
-      return NULL;
-    return new PCMQueueOutAudioOutputStream(this, channels, sample_rate,
-                                            bits_per_sample);
-  }
-
-  virtual void MuteAll() {
-    // TODO(cpu): implement.
-  }
-
-  virtual void UnMuteAll() {
-    // TODO(cpu): implement.
-  }
-
-  virtual const void* GetLastMockBuffer() {
-    // TODO(cpu): implement.
+AudioOutputStream* AudioManagerMac::MakeAudioStream(Format format, int channels,
+                                                    int sample_rate,
+                                                    char bits_per_sample) {
+  // TODO(cpu): add mock format.
+  if (format != AUDIO_PCM_LINEAR)
     return NULL;
-  }
+  return new PCMQueueOutAudioOutputStream(this, channels, sample_rate,
+                                          bits_per_sample);
+}
 
-  // Called by the stream when it has been released by calling Close().
-  void ReleaseStream(PCMQueueOutAudioOutputStream* stream) {
-    delete stream;
-  }
+void AudioManagerMac::MuteAll() {
+  // TODO(cpu): implement.
+}
 
- private:
-  virtual ~AudioManagerMac() {}
-  DISALLOW_COPY_AND_ASSIGN(AudioManagerMac);
-};
+void AudioManagerMac::UnMuteAll() {
+  // TODO(cpu): implement.
+}
+
+const void* AudioManagerMac::GetLastMockBuffer() {
+  // TODO(cpu): implement.
+  return NULL;
+}
+
+// Called by the stream when it has been released by calling Close().
+void AudioManagerMac::ReleaseStream(PCMQueueOutAudioOutputStream* stream) {
+  delete stream;
+}
+
+namespace {
+  AudioManagerMac* g_audio_manager = NULL;
+  
+}  // namespace.
+
+void DestroyAudioManagerMac(void* param) {
+  delete g_audio_manager;
+  g_audio_manager = NULL;
+}
 
 // By convention, the AudioManager is not thread safe.
 AudioManager* AudioManager::GetAudioManager() {
-  // TODO(cpu): Do not leak singleton.
-  static AudioManagerMac* instance = NULL;
-  if (!instance) {
-    instance = new AudioManagerMac();
+  if (!g_audio_manager) {
+    g_audio_manager = new AudioManagerMac();
+    base::AtExitManager::RegisterCallback(&DestroyAudioManagerMac, NULL);
   }
-  return instance;
+  return g_audio_manager;
 }
-

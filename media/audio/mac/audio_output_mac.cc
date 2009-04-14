@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "media/audio/mac/audio_manager_mac.h"
 #include "media/audio/mac/audio_output_mac.h"
 
 #include "base/basictypes.h"
@@ -15,6 +16,8 @@ PCMQueueOutAudioOutputStream::PCMQueueOutAudioOutputStream(
           buffer_(),
           source_(NULL),
           manager_(manager) {
+  // We must have a manager.
+  DCHECK(manager_);
   // A frame is one sample across all channels. In interleaved audio the per
   // frame fields identify the set of n |channels|. In uncompressed audio, a
   // packet is always one frame.
@@ -69,25 +72,27 @@ bool PCMQueueOutAudioOutputStream::Open(size_t packet_size) {
 }
 
 void PCMQueueOutAudioOutputStream::Close() {
-  // It is valid to call Close() before calling Open().
-  if (!audio_queue_)
-    return;
-  OSStatus err = 0;
-  for (size_t ix = 0; ix != kNumBuffers; ++ix) {
-    if (buffer_[ix]) {
-      err = AudioQueueFreeBuffer(audio_queue_, buffer_[ix]);
-      if (err) {
-        HandleError(err);
-        break;
+  // It is valid to call Close() before calling Open(), thus audio_queue_
+  // might be NULL.
+  if (audio_queue_) {
+    OSStatus err = 0;
+    for (size_t ix = 0; ix != kNumBuffers; ++ix) {
+      if (buffer_[ix]) {
+        err = AudioQueueFreeBuffer(audio_queue_, buffer_[ix]);
+        if (err) {
+          HandleError(err);
+          break;
+        }
       }
     }
+    err = AudioQueueDispose(audio_queue_, true);
+    if (err) {
+      HandleError(err);
+    }
   }
-  err = AudioQueueDispose(audio_queue_, true);
-  if (err) {
-    HandleError(err);
-  }
-  // TODO(cpu): Inform the audio manager that we have been closed
-  // right now we leak because of that.
+  // Inform the audio manager that we have been closed. This can cause our
+  // destruction.
+  manager_->ReleaseStream(this);
 }
 
 void PCMQueueOutAudioOutputStream::Stop() {
@@ -111,7 +116,23 @@ size_t PCMQueueOutAudioOutputStream::GetNumBuffers() {
 void PCMQueueOutAudioOutputStream::RenderCallback(void* p_this,
                                                   AudioQueueRef queue,
                                                   AudioQueueBufferRef buffer) {
-  // TODO(cpu): Implement.
+  PCMQueueOutAudioOutputStream* audio_stream =
+      static_cast<PCMQueueOutAudioOutputStream*>(p_this);
+  // Call the audio source to fill the free buffer with data.
+  size_t capacity = buffer->mAudioDataBytesCapacity;
+  size_t filled = audio_stream->source_->OnMoreData(audio_stream, 
+                                                    buffer->mAudioData,
+                                                    capacity);
+  if (filled > capacity) {
+    // User probably overran our buffer.
+    audio_stream->HandleError(0);
+    return;
+  }
+  // Queue the audio data to the audio driver.
+  buffer->mAudioDataByteSize = filled;
+  OSStatus err = AudioQueueEnqueueBuffer(queue, buffer, 0, NULL);
+  if (err != noErr) 
+    audio_stream->HandleError(err);
 }
 
 void PCMQueueOutAudioOutputStream::Start(AudioSourceCallback* callback) {
