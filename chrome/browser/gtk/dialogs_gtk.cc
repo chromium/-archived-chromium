@@ -83,9 +83,6 @@ class SelectFileDialogImpl : public SelectFileDialog {
   // The listener to be notified of selection completion.
   Listener* listener_;
 
-  // Our parent window.
-  gfx::NativeWindow parent_window_;
-
   // A map from dialog windows to the |params| user data associated with them.
   std::map<GtkWidget*, void*> params_map_;
 
@@ -126,7 +123,7 @@ void SelectFileDialogImpl::SelectFile(
     const FilePath::StringType& default_extension,
     gfx::NativeWindow owning_window,
     void* params) {
-  // TODO(estade): on windows, parent_window may be null. But I'm not sure when
+  // TODO(estade): on windows, owning_window may be null. But I'm not sure when
   // that's used and how to deal with it here. For now, don't allow it.
   DCHECK(owning_window);
   parents_.insert(owning_window);

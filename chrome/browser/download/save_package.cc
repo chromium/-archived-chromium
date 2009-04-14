@@ -1025,7 +1025,6 @@ void SavePackage::GetSaveInfo() {
     file_type_index = 1;
   }
 
-#if defined(OS_LINUX) || defined(OS_WIN)
   if (g_should_prompt_for_filename) {
     if (!select_file_dialog_.get())
       select_file_dialog_ = SelectFileDialog::Create(this);
@@ -1038,9 +1037,7 @@ void SavePackage::GetSaveInfo() {
                                     platform_util::GetTopLevel(
                                         web_contents_->GetNativeView()),
                                     save_params);
-  } else
-#endif  // defined(OS_LINUX) || defined(OS_WIN)
-  {
+  } else {
     // Just use 'suggested_path' instead of opening the dialog prompt.
     ContinueSave(save_params, suggested_path, file_type_index);
     delete save_params;

@@ -19,6 +19,7 @@
 #include "chrome/browser/download/save_item.h"
 #include "chrome/browser/download/save_types.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/shell_dialogs.h"
 
 class SaveFileManager;
 class SavePackage;
@@ -31,13 +32,6 @@ class Profile;
 class WebContents;
 class URLRequestContext;
 class WebContents;
-
-#if defined(OS_WIN) || defined(OS_LINUX)
-// TODO(port): port this header.
-#include "chrome/browser/shell_dialogs.h"
-#elif defined(OS_MACOSX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
 
 namespace base {
 class Thread;

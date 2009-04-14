@@ -1570,6 +1570,7 @@
       'mac_bundle_resources': [
         'app/nibs/en.lproj/BrowserWindow.xib',
         'app/nibs/en.lproj/MainMenu.xib',
+        'app/nibs/en.lproj/SaveAccessoryView.xib',
         'app/nibs/en.lproj/TabContents.xib',
         'app/nibs/en.lproj/TabView.xib',
         'app/nibs/en.lproj/Toolbar.xib',

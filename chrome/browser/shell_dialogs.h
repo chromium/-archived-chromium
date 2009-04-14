@@ -18,7 +18,7 @@ class ChromeFont;
 // A base class for shell dialogs.
 class BaseShellDialog {
  public:
-  // Returns true if the a shell dialog box is currently being shown modally
+  // Returns true if a shell dialog box is currently being shown modally
   // to the specified owner.
   virtual bool IsRunning(gfx::NativeWindow owning_window) const = 0;
 

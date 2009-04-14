@@ -3,7 +3,9 @@
 // found in the LICENSE file.
 
 #import "chrome/browser/cocoa/bookmark_bar_state_controller.h"
+
 #include "chrome/browser/bookmarks/bookmark_utils.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"

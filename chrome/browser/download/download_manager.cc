@@ -628,7 +628,6 @@ void DownloadManager::CheckIfSuggestedPathExists(DownloadCreateInfo* info) {
 }
 
 void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
-#if defined(OS_WIN) || defined(OS_LINUX)
   DCHECK(MessageLoop::current() == ui_loop_);
   DCHECK(info);
 
@@ -654,10 +653,6 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     // No prompting for download, just continue with the suggested name.
     ContinueStartDownload(info, info->suggested_path);
   }
-#elif defined(OS_MACOSX)
-  // TODO(port): port this file -- need dialogs.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void DownloadManager::ContinueStartDownload(DownloadCreateInfo* info,

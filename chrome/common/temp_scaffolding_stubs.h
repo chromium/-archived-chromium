@@ -362,34 +362,6 @@ class FaviconStatus {
   GURL url_;
 };
 
-#if defined(OS_MACOSX)
-class SelectFileDialog : public base::RefCountedThreadSafe<SelectFileDialog> {
- public:
-  enum Type {
-    SELECT_FOLDER,
-    SELECT_SAVEAS_FILE,
-    SELECT_OPEN_FILE,
-    SELECT_OPEN_MULTI_FILE
-  };
-  class Listener {
-   public:
-  };
-  struct FileTypeInfo {
-    std::vector<std::vector<FilePath::StringType> > extensions;
-    std::vector<string16> extension_description_overrides;
-    bool include_all_files;
-  };
-  void ListenerDestroyed() { NOTIMPLEMENTED(); }
-  void SelectFile(Type, const string16&, const FilePath&,
-                  const FileTypeInfo*, int, const FilePath::StringType&,
-                  gfx::NativeWindow, void*) { NOTIMPLEMENTED(); }
-  static SelectFileDialog* Create(WebContents*) {
-    NOTIMPLEMENTED();
-    return new SelectFileDialog;
-  }
-};
-#endif
-
 class DockInfo {
  public:
   bool GetNewWindowBounds(gfx::Rect*, bool*) const {

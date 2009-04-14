@@ -4,17 +4,18 @@
 
 #import "chrome/browser/cocoa/tab_strip_controller.h"
 
-#import "base/sys_string_conversions.h"
-#import "chrome/app/chrome_dll_resource.h"
-#import "chrome/browser/browser.h"
+#include "base/sys_string_conversions.h"
+#include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/browser.h"
+#include "chrome/browser/profile.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
 #import "chrome/browser/cocoa/tab_cell.h"
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 #import "chrome/browser/cocoa/tab_controller.h"
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_view.h"
-#import "chrome/browser/tab_contents/tab_contents.h"
-#import "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/browser/tabs/tab_strip_model.h"
 
 @implementation TabStripController
 

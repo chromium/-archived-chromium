@@ -51,14 +51,8 @@
 #include "chrome/browser/cancelable_request.h"
 #include "chrome/browser/history/download_types.h"
 #include "chrome/browser/history/history.h"
-#include "chrome/common/pref_member.h"
-
-#if defined(OS_WIN) || defined(OS_LINUX)
-// TODO(port): port this header.
 #include "chrome/browser/shell_dialogs.h"
-#elif defined(OS_MACOSX)
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
+#include "chrome/common/pref_member.h"
 
 class DownloadFileManager;
 class DownloadItemView;

@@ -36,6 +36,11 @@ const int kWindowGradientHeight = 24;
 // heuristic.
 - (void)fixWindowGradient;
 
+// We need to adjust where sheets come out of the window, as by default they
+// erupt from the omnibox, which is rather weird.
+- (NSRect)window:(NSWindow *)window
+willPositionSheet:(NSWindow *)sheet
+       usingRect:(NSRect)defaultSheetRect;
 @end
 
 
@@ -411,6 +416,14 @@ const int kWindowGradientHeight = 24;
     [win setAutorecalculatesContentBorderThickness:NO forEdge:NSMinYEdge];
     [win setContentBorderThickness:kWindowGradientHeight forEdge:NSMinYEdge];
   }
+}
+
+- (NSRect)window:(NSWindow *)window
+willPositionSheet:(NSWindow *)sheet
+       usingRect:(NSRect)defaultSheetRect {
+  NSRect windowFrame = [window frame];
+  defaultSheetRect.origin.y = windowFrame.size.height - 10;
+  return defaultSheetRect;
 }
 
 @end

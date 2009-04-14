@@ -15,6 +15,7 @@
 #include "chrome/browser/fav_icon_helper.h"
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
+#include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -28,9 +29,6 @@
 #include "chrome/common/temp_scaffolding_stubs.h"
 #elif defined(OS_WIN)
 #include "chrome/browser/printing/print_view_manager.h"
-#endif
-#if defined(OS_LINUX) || defined(OS_WIN)
-#include "chrome/browser/shell_dialogs.h"
 #endif
 
 class AutofillForm;

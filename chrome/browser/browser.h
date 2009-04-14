@@ -10,15 +10,11 @@
 #include <set>
 #include <vector>
 
-#if defined(OS_MACOSX)
-// Remove when we've finished porting the supporting classes.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#endif
-
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/sessions/session_id.h"
+#include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
@@ -29,10 +25,6 @@
 #include "base/scoped_ptr.h"
 #include "base/task.h"
 #include "skia/include/SkBitmap.h"
-
-#if defined(OS_WIN) || defined(OS_LINUX)
-#include "chrome/browser/shell_dialogs.h"
-#endif
 
 class BrowserIdleTimer;
 class BrowserWindow;

@@ -4,18 +4,22 @@
 
 #include "chrome/common/platform_util.h"
 
+#import <Cocoa/Cocoa.h>
+
 #include "base/file_path.h"
 #include "base/logging.h"
+#include "base/sys_string_conversions.h"
 
 namespace platform_util {
 
 void ShowItemInFolder(const FilePath& full_path) {
-  NOTIMPLEMENTED();
+  NSString* path_string = base::SysUTF8ToNSString(full_path.value());
+  [[NSWorkspace sharedWorkspace] selectFile:path_string
+                   inFileViewerRootedAtPath:nil];
 }
 
 gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
-  NOTIMPLEMENTED();
-  return NULL;
+  return [view window];
 }
 
 }  // namespace platform_util
