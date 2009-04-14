@@ -6,6 +6,7 @@
 {
   'variables': {
     'chromium_code': 1,
+    'msvs_use_common_release': 0,
     'base_source_files': [
       '../../v8/src/third_party/dtoa/dtoa.c',
       '../../v8/src/accessors.cc',
@@ -275,6 +276,11 @@
             ],
           }],
           ['OS=="win"', {
+            'msvs_configuration_attributes': {
+              'OutputDirectory': '$(SolutionDir)$(ConfigurationName)',
+              'IntermediateDirectory': '$(OutDir)\\obj\\$(ProjectName)',
+              'CharacterSet': '1',
+            },
             'msvs_settings': {
               'VCCLCompilerTool': {
                 'RuntimeLibrary': '0',
@@ -398,7 +404,7 @@
             ]
           }
         ],
-        ['OS=="mac"', 
+        ['OS=="mac"',
           {
             'sources/': [
               ['include', 'src/platform-macos\\.cc$'],
@@ -504,7 +510,9 @@
     },
   ],
 
-  'conditions': [ ['OS!="linux"', { 'targets': [
+  'conditions': [ ['OS=="mac"', { 'targets': [
+    # TODO(bradnelson):  temporarily disable 'd8' target on Windows while
+    # we work fix the performance regressions.
     # TODO(sgk):  temporarily disable 'd8' target on Linux while
     # we work out getting the readline library on all the systems.
     {
@@ -659,8 +667,7 @@
     ['OS=="win"', {
       'target_defaults': {
         'defines': [
-          '_USE_32BIT_TIME_T'
-          'PCRE_STATIC',
+          '_USE_32BIT_TIME_T',
           '_CRT_SECURE_NO_DEPRECATE',
           '_CRT_NONSTDC_NO_DEPRECATE',
         ],

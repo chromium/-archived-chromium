@@ -39,6 +39,12 @@
     # {'variables': {'library': 'shared_library'}}
     # to compile as shared by default
     'library%': 'static_library',
+
+    # TODO(bradnelson): eliminate this when possible.
+    # To allow local gyp files to prevent release.vsprops from being included.
+    # Yes(1) means include release.vsprops.
+    # Once all vsprops settings are migrated into gyp, this can go away.
+    'msvs_use_common_release%': 1,
   },
   'target_defaults': {
     'conditions': [
@@ -124,7 +130,7 @@
               'DEAD_CODE_STRIPPING': 'YES',
             }
           }],
-          [ 'OS=="win"', {
+          [ 'OS=="win" and msvs_use_common_release', {
             'configuration_platform': 'Win32',
             'msvs_props': ['release.vsprops'],
           }],
