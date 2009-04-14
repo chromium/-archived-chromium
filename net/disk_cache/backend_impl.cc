@@ -189,6 +189,32 @@ Backend* CreateCacheBackend(const std::wstring& full_path, bool force,
   return NULL;
 }
 
+int PreferedCacheSize(int64 available) {
+  // If there is not enough space to use kDefaultCacheSize, use 80% of the
+  // available space.
+  if (available < kDefaultCacheSize)
+    return static_cast<int32>(available * 8 / 10);
+
+  // Don't use more than 10% of the available space.
+  if (available < 10 * kDefaultCacheSize)
+    return kDefaultCacheSize;
+
+  // Use 10% of the free space until we reach 2.5 * kDefaultCacheSize.
+  if (available < static_cast<int64>(kDefaultCacheSize) * 25)
+    return static_cast<int32>(available / 10);
+
+  // After reaching our target size (2.5 * kDefaultCacheSize), attempt to use
+  // 1% of the availabe space.
+  if (available < static_cast<int64>(kDefaultCacheSize) * 100)
+    return kDefaultCacheSize * 5 / 2;
+
+  int64 one_percent = available / 100;
+  if (one_percent > kint32max)
+    return kint32max;
+
+  return static_cast<int32>(one_percent);
+}
+
 // ------------------------------------------------------------------------
 
 bool BackendImpl::Init() {
@@ -878,9 +904,14 @@ bool BackendImpl::InitBackingStore(bool* file_created) {
   return true;
 }
 
+// The maximum cache size will be either set explicitly by the caller, or
+// calculated by this code.
 void BackendImpl::AdjustMaxCacheSize(int table_len) {
   if (max_size_)
     return;
+
+  // If table_len is provided, the index file exists.
+  DCHECK(!table_len || data_->header.magic);
 
   // The user is not setting the size, let's figure it out.
   int64 available = base::SysInfo::AmountOfFreeDiskSpace(path_);
@@ -889,20 +920,15 @@ void BackendImpl::AdjustMaxCacheSize(int table_len) {
     return;
   }
 
-  // Attempt to use 1% of the disk available for this user.
-  available /= 100;
+  if (table_len)
+    available += data_->header.num_bytes;
 
-  if (available < kDefaultCacheSize)
-    max_size_ = kDefaultCacheSize;
-  else if (available > kint32max)
-    max_size_ = kint32max;
-  else
-    max_size_ = static_cast<int32>(available);
+  max_size_ = PreferedCacheSize(available);
 
   // Let's not use more than the default size while we tune-up the performance
   // of bigger caches. TODO(rvargas): remove this limit.
-  if (max_size_ > kDefaultCacheSize)
-    max_size_ = kDefaultCacheSize;
+  if (max_size_ > kDefaultCacheSize * 4)
+    max_size_ = kDefaultCacheSize * 4;
 
   if (!table_len)
     return;

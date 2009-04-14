@@ -247,6 +247,9 @@ class BackendImpl : public Backend {
   DISALLOW_EVIL_CONSTRUCTORS(BackendImpl);
 };
 
+// Returns the prefered max cache size given the available disk space.
+int PreferedCacheSize(int64 available);
+
 }  // namespace disk_cache
 
 #endif  // NET_DISK_CACHE_BACKEND_IMPL_H_

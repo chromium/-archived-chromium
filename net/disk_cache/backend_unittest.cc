@@ -1040,3 +1040,33 @@ TEST_F(DiskCacheTest, MultipleInstances) {
     entry->Close();
   }
 }
+
+// Test the four regions of the curve that determines the max cache size.
+TEST_F(DiskCacheTest, AutomaticMaxSize) {
+  const int kDefaultSize = 80 * 1024 * 1024;
+  int64 large_size = kDefaultSize;
+
+  EXPECT_EQ(kDefaultSize, disk_cache::PreferedCacheSize(large_size));
+  EXPECT_EQ((kDefaultSize / 2) * 8 / 10,
+            disk_cache::PreferedCacheSize(large_size / 2));
+
+  EXPECT_EQ(kDefaultSize, disk_cache::PreferedCacheSize(large_size * 2));
+  EXPECT_EQ(kDefaultSize, disk_cache::PreferedCacheSize(large_size * 4));
+  EXPECT_EQ(kDefaultSize, disk_cache::PreferedCacheSize(large_size * 10));
+
+  EXPECT_EQ(kDefaultSize * 2, disk_cache::PreferedCacheSize(large_size * 20));
+  EXPECT_EQ(kDefaultSize * 5 / 2,
+            disk_cache::PreferedCacheSize(large_size * 50 / 2));
+
+  EXPECT_EQ(kDefaultSize * 5 / 2,
+            disk_cache::PreferedCacheSize(large_size * 51 / 2));
+  EXPECT_EQ(kDefaultSize * 5 / 2,
+            disk_cache::PreferedCacheSize(large_size * 100 / 2));
+  EXPECT_EQ(kDefaultSize * 5 / 2,
+            disk_cache::PreferedCacheSize(large_size * 500 / 2));
+
+  EXPECT_EQ(kDefaultSize * 6 / 2,
+            disk_cache::PreferedCacheSize(large_size * 600 / 2));
+  EXPECT_EQ(kDefaultSize * 7 / 2,
+            disk_cache::PreferedCacheSize(large_size * 700 / 2));
+}
