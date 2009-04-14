@@ -157,6 +157,10 @@ class NotificationType {
     // both normal completion or via a cancel operation.
     DOWNLOAD_START, DOWNLOAD_STOP,
 
+    // Lets resource handlers and other interested observers know when the
+    // message filter is being deleted and can no longer be used.
+    RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+
     // Views -------------------------------------------------------------------
 
     // Notification that a view was removed from a view hierarchy.  The source

@@ -9,6 +9,7 @@
 #include <string>
 
 #include "base/lock.h"
+#include "chrome/common/notification_observer.h"
 
 class ExtensionView;
 class ResourceMessageFilter;
@@ -23,7 +24,7 @@ class URLRequestContext;
 // port: an IPC::Message::Sender interface through which we communicate to a
 //   process.  We use MessageFilters for this since that allows us to send our
 //   messages on the IO thread.
-class ExtensionMessageService {
+class ExtensionMessageService : public NotificationObserver {
  public:
   // Returns the message service for the given context.  Messages can only
   // be sent within a single context.
@@ -54,8 +55,10 @@ class ExtensionMessageService {
   // Called to let us know that a renderer has been started.
   void RendererReady(ResourceMessageFilter* port);
 
-  // Called to let us know that a renderer is going away.
-  void RendererShutdown(ResourceMessageFilter* port);
+  // NotificationObserver interface.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
 
  private:
   // A map of extension ID to the render_process_id that the extension lives in.

@@ -8,14 +8,15 @@
 #include <string>
 
 #include "base/time.h"
+#include "chrome/browser/renderer_host/resource_dispatcher_host.h"
 #include "chrome/browser/renderer_host/resource_handler.h"
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"
-
-class ResourceDispatcherHost;
+#include "chrome/common/notification_observer.h"
 
 // Checks that a url is safe.
 class SafeBrowsingResourceHandler : public ResourceHandler,
-                                    public SafeBrowsingService::Client {
+                                    public SafeBrowsingService::Client,
+                                    public NotificationObserver {
  public:
   SafeBrowsingResourceHandler(ResourceHandler* handler,
                               int render_process_host_id,
@@ -23,7 +24,8 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
                               const GURL& url,
                               ResourceType::Type resource_type,
                               SafeBrowsingService* safe_browsing,
-                              ResourceDispatcherHost* resource_dispatcher_host);
+                              ResourceDispatcherHost* resource_dispatcher_host,
+                              ResourceDispatcherHost::Receiver* receiver);
   ~SafeBrowsingResourceHandler();
 
   // ResourceHandler implementation:
@@ -47,6 +49,11 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
   // the user has decided to proceed with the current request, or go back.
   void OnBlockingPageComplete(bool proceed);
 
+  // NotificationObserver interface.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
+
  private:
   scoped_refptr<ResourceHandler> next_handler_;
   int render_process_host_id_;
@@ -62,6 +69,7 @@ class SafeBrowsingResourceHandler : public ResourceHandler,
   ResourceDispatcherHost* rdh_;
   base::Time pause_time_;
   ResourceType::Type resource_type_;
+  ResourceDispatcherHost::Receiver* receiver_;
 
   DISALLOW_COPY_AND_ASSIGN(SafeBrowsingResourceHandler);
 };

@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/singleton.h"
+#include "chrome/common/notification_observer.h"
 #include "googleurl/src/gurl.h"
 
 namespace IPC {
@@ -19,7 +20,7 @@ class MessageLoop;
 class WorkerProcessHost;
 class ResourceMessageFilter;
 
-class WorkerService {
+class WorkerService : public NotificationObserver {
  public:
   // Returns the WorkerService singleton.
   static WorkerService* GetInstance();
@@ -34,9 +35,10 @@ class WorkerService {
   // should be forwarded to the worker process.
   void ForwardMessage(const IPC::Message& message);
 
-  // Called by ResourceMessageFilter when it's destructed so that all the
-  // WorkerProcessHost objects can remove their pointers to it.
-  void RendererShutdown(ResourceMessageFilter* filter);
+  // NotificationObserver interface.
+  void Observe(NotificationType type,
+               const NotificationSource& source,
+               const NotificationDetails& details);
 
  private:
   friend struct DefaultSingletonTraits<WorkerService>;

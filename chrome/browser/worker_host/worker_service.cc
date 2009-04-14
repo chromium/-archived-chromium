@@ -14,6 +14,7 @@
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/chrome_switches.h"
+#include "chrome/common/notification_service.h"
 #include "net/base/registry_controlled_domain.h"
 
 namespace {
@@ -57,6 +58,13 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
   // it to.
   worker->CreateWorker(url, render_view_route_id, ++next_worker_route_id_,
                        renderer_route_id, filter);
+
+  // Receive a notification if the message filter is deleted.
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(filter));
+
   return true;
 }
 
@@ -69,14 +77,6 @@ void WorkerService::ForwardMessage(const IPC::Message& message) {
   }
 
   // TODO(jabdelmalek): tell sender that callee is gone
-}
-
-void WorkerService::RendererShutdown(ResourceMessageFilter* filter) {
-  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
-       !iter.Done(); ++iter) {
-    WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
-    worker->RendererShutdown(filter);
-  }
 }
 
 WorkerProcessHost* WorkerService::GetProcessForDomain(const GURL& url) {
@@ -125,4 +125,22 @@ WorkerProcessHost* WorkerService::GetLeastLoadedWorker() {
   }
 
   return smallest;
+}
+
+void WorkerService::Observe(NotificationType type,
+                            const NotificationSource& source,
+                            const NotificationDetails& details) {
+  DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
+  ResourceMessageFilter* filter = Source<ResourceMessageFilter>(source).ptr();
+
+  for (ChildProcessHost::Iterator iter(ChildProcessInfo::WORKER_PROCESS);
+       !iter.Done(); ++iter) {
+    WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
+    worker->RendererShutdown(filter);
+  }
+
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(filter));
 }

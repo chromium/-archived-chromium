@@ -11,6 +11,7 @@
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/stl_util-inl.h"
 
@@ -132,14 +133,23 @@ void ExtensionMessageService::RendererReady(ResourceMessageFilter* renderer) {
   AutoLock lock(renderers_lock_);
   DCHECK(renderers_.find(renderer->GetProcessId()) == renderers_.end());
   renderers_[renderer->GetProcessId()] = renderer;
+
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(renderer));
 }
 
-void ExtensionMessageService::RendererShutdown(
-    ResourceMessageFilter* renderer) {
+void ExtensionMessageService::Observe(NotificationType type,
+                                      const NotificationSource& source,
+                                      const NotificationDetails& details) {
+  DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
+  ResourceMessageFilter* filter = Source<ResourceMessageFilter>(source).ptr();
+
   {
     AutoLock lock(renderers_lock_);
-    DCHECK(renderers_.find(renderer->GetProcessId()) != renderers_.end());
-    renderers_.erase(renderer->GetProcessId());
+    DCHECK(renderers_.find(filter->GetProcessId()) != renderers_.end());
+    renderers_.erase(filter->GetProcessId());
   }
 
   // Close any channels that share this filter.
@@ -147,7 +157,13 @@ void ExtensionMessageService::RendererShutdown(
   for (MessageChannelMap::iterator it = channels_.begin();
        it != channels_.end(); ) {
     MessageChannelMap::iterator current = it++;
-    if (current->second.port1 == renderer || current->second.port2 == renderer)
+    if (current->second.port1 == filter || current->second.port2 == filter)
       channels_.erase(current);
   }
+
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(filter));
 }
+

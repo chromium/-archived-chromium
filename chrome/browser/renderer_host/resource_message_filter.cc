@@ -139,9 +139,11 @@ ResourceMessageFilter::ResourceMessageFilter(
 }
 
 ResourceMessageFilter::~ResourceMessageFilter() {
-  WorkerService::GetInstance()->RendererShutdown(this);
-  ExtensionMessageService::GetInstance(request_context_.get())->
-      RendererShutdown(this);
+  // Let interested observers know we are being deleted.
+  NotificationService::current()->Notify(
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(this),
+      NotificationService::NoDetails());
 
   if (handle())
     base::CloseProcessHandle(handle());

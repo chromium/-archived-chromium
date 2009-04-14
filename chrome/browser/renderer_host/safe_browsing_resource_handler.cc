@@ -5,6 +5,8 @@
 #include "chrome/browser/renderer_host/safe_browsing_resource_handler.h"
 
 #include "chrome/browser/renderer_host/resource_dispatcher_host.h"
+#include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/common/notification_service.h"
 
 // Maximum time to wait for a gethash response from the Safe Browsing servers.
 static const int kMaxGetHashMs = 1000;
@@ -16,7 +18,8 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
     const GURL& url,
     ResourceType::Type resource_type,
     SafeBrowsingService* safe_browsing,
-    ResourceDispatcherHost* resource_dispatcher_host)
+    ResourceDispatcherHost* resource_dispatcher_host,
+    ResourceDispatcherHost::Receiver* receiver)
     : next_handler_(handler),
       render_process_host_id_(render_process_host_id),
       render_view_id_(render_view_id),
@@ -26,7 +29,8 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
       safe_browsing_(safe_browsing),
       queued_error_request_id_(-1),
       rdh_(resource_dispatcher_host),
-      resource_type_(resource_type) {
+      resource_type_(resource_type),
+      receiver_(receiver) {
   if (safe_browsing_->CheckUrl(url, this)) {
     safe_browsing_result_ = SafeBrowsingService::URL_SAFE;
     safe_browsing_->LogPauseDelay(base::TimeDelta());  // No delay.
@@ -35,13 +39,20 @@ SafeBrowsingResourceHandler::SafeBrowsingResourceHandler(
     in_safe_browsing_check_ = true;
     // Can't pause now because it's too early, so we'll do it in OnWillRead.
   }
+
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(
+          static_cast<ResourceMessageFilter*>(receiver_)));
 }
 
 SafeBrowsingResourceHandler::~SafeBrowsingResourceHandler() {
-  // If we're being deleted before the SafeBrowsing check has completed, cancel
-  // the check.
-  if (in_safe_browsing_check_)
-    safe_browsing_->CancelCheck(this);
+  NotificationService::current()->RemoveObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      Source<ResourceMessageFilter>(
+          static_cast<ResourceMessageFilter*>(receiver_)));
 }
 
 bool SafeBrowsingResourceHandler::OnUploadProgress(int request_id,
@@ -190,3 +201,15 @@ void SafeBrowsingResourceHandler::OnBlockingPageComplete(bool proceed) {
 
   Release();
 }
+
+void SafeBrowsingResourceHandler::Observe(NotificationType type,
+                                          const NotificationSource& source,
+                                          const NotificationDetails& details) {
+  DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
+  if (in_safe_browsing_check_) {
+    safe_browsing_->CancelCheck(this);
+    in_safe_browsing_check_ = false;
+    Release();
+  }
+}
+
