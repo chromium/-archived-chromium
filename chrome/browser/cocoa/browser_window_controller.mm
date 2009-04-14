@@ -8,6 +8,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/web_contents_view.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
 #import "chrome/browser/cocoa/status_bubble_mac.h"
@@ -78,7 +79,16 @@ const int kWindowGradientHeight = 24;
                                initWithModel:browser->toolbar_model()
                                     commands:browser->command_updater()]);
     [self positionToolbar];
-    [self fixWindowGradient];
+
+    // After we've adjusted the toolbar, create a controller for the bookmark
+    // bar. It will show/hide itself based on the global preference and handle
+    // positioning itself (if visible) above the content area, which is why
+    // we need to do it after we've placed the toolbar.
+    bookmarkController_.reset([[BookmarkBarController alloc]
+                                initWithProfile:browser_->profile()
+                                    contentArea:[self tabContentArea]]);
+
+   [self fixWindowGradient];
 
     // Create the bridge for the status bubble.
     statusBubble_.reset(new StatusBubbleMac([self window]));
@@ -302,12 +312,12 @@ const int kWindowGradientHeight = 24;
 }
 
 - (BOOL)isBookmarkBarVisible {
-  return [tabStripController_ isBookmarkBarVisible];
+  return [bookmarkController_ isBookmarkBarVisible];
 
 }
 
 - (void)toggleBookmarkBar {
-  [tabStripController_ toggleBookmarkBar];
+  [bookmarkController_ toggleBookmarkBar];
 }
 
 - (NSInteger)numberOfTabs {

@@ -29,8 +29,8 @@ class BookmarkBarStateControllerTest : public testing::Test {
 TEST_F(BookmarkBarStateControllerTest, MainTest) {
   Browser* browser = browser_test_helper_.GetBrowser();
   NoPrefSaveBBStateController *c = [[[NoPrefSaveBBStateController alloc]
-                                     initWithBrowser:browser]
-                                     autorelease];
+                                     initWithProfile:browser->profile()]
+                                        autorelease];
   EXPECT_TRUE(c);
   EXPECT_FALSE(c->toggled_);
   BOOL old_visible = [c visible];

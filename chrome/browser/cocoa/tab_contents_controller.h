@@ -7,14 +7,11 @@
 
 #include <Cocoa/Cocoa.h>
 
-@class BookmarkView;
 @class GrowBoxView;
 
-class BookmarkModel;
 class TabContents;
 class TabContentsCommandObserver;
 class TabStripModel;
-@class ToolbarView;
 
 // A class that controls the web contents of a tab. It manages displaying the
 // native view for a given TabContents in |contentsBox_|.
@@ -24,24 +21,14 @@ class TabStripModel;
   TabContentsCommandObserver* observer_;  // nil if |commands_| is nil
   TabContents* contents_;  // weak
 
-  BookmarkModel* bookmarkModel_;  // weak; one per window
-
-  // TODO(jrg): write a BookmarkView
-  IBOutlet ToolbarView* /* BookmarkView* */ bookmarkView_;
-
   IBOutlet NSBox* contentsBox_;
   IBOutlet GrowBoxView* growBox_;
-
-  // The contents box will have an offset if shrunk to make room for
-  // the bookmark bar.
-  BOOL contentsBoxHasOffset_;
 }
 
 // Create the contents of a tab represented by |contents| and loaded from the
 // nib given by |name|.
 - (id)initWithNibName:(NSString*)name
-             contents:(TabContents*)contents
-        bookmarkModel:(BookmarkModel*)bookmarkModel;
+             contents:(TabContents*)contents;
 
 // Take this view (toolbar and web contents) full screen
 - (IBAction)fullScreen:(id)sender;
@@ -59,9 +46,6 @@ class TabStripModel;
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of this tab.
 - (NSRect)growBoxRect;
-
-// Change the visibility state of the bookmark bar.
-- (void)toggleBookmarkBar:(BOOL)enable;
 
 @end
 

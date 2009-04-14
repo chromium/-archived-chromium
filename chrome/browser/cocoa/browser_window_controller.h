@@ -16,6 +16,7 @@
 #include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/tab_window_controller.h"
 
+@class BookmarkBarController;
 class Browser;
 class BrowserWindow;
 class BrowserWindowCocoa;
@@ -44,6 +45,7 @@ class TabStripModelObserverBridge;
   scoped_ptr<TabStripModelObserverBridge> tabObserver_;
   scoped_ptr<BrowserWindowCocoa> windowShim_;
   scoped_nsobject<ToolbarController> toolbarController_;
+  scoped_nsobject<BookmarkBarController> bookmarkController_;
   scoped_nsobject<TabStripController> tabStripController_;
   scoped_ptr<StatusBubble> statusBubble_;
 }

@@ -3,19 +3,18 @@
 // found in the LICENSE file.
 
 #import "chrome/browser/cocoa/bookmark_bar_state_controller.h"
-#import "chrome/browser/bookmarks/bookmark_utils.h"
-#import "chrome/browser/browser.h"
-#import "chrome/common/pref_names.h"
-#import "chrome/common/pref_service.h"
-
+#include "chrome/browser/bookmarks/bookmark_utils.h"
+#include "chrome/browser/profile.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 
 @implementation BookmarkBarStateController
 
-- (id)initWithBrowser:(Browser *)browser {
+- (id)initWithProfile:(Profile*)profile {
   if ((self = [super init])) {
-    browser_ = browser;
+    profile_ = profile;
     // Initial visibility state comes from our preference.
-    if (browser_->profile()->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar)) {
+    if (profile_->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar)) {
       visible_ = YES;
     }
   }
@@ -29,7 +28,7 @@
 // Whack and save a preference change.  On Windows this call
 // is made from BookmarkBarView.
 - (void)togglePreference {
-  bookmark_utils::ToggleWhenVisible(browser_->profile());
+  bookmark_utils::ToggleWhenVisible(profile_);
 }
 
 - (void)toggleBookmarkBar {

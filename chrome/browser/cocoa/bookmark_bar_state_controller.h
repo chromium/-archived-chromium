@@ -7,17 +7,17 @@
 
 #import <Cocoa/Cocoa.h>
 
-class Browser;
+class Profile;
 
 // A class to manage bookmark bar state (visible or not).  State is
 // shared among all tabs and saved in a preference.
 @interface BookmarkBarStateController : NSObject {
  @private
-  Browser* browser_;
+  Profile* profile_;
   BOOL visible_;
 }
 
-- (id)initWithBrowser:(Browser *)browser;
+- (id)initWithProfile:(Profile *)browser;
 
 // Return YES or NO reflecting visibility state of the bookmark bar.
 - (BOOL)visible;

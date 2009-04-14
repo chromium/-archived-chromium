@@ -12,11 +12,8 @@
 #import "chrome/browser/cocoa/tab_controller_target.h"
 
 @class TabStripView;
-@class BookmarkBarStateController;
 
-class BookmarkModel;
 class Browser;
-class LocationBar;
 class TabStripModelObserverBridge;
 class TabStripModel;
 class TabContents;
@@ -41,7 +38,6 @@ class ToolbarModel;
   NSButton* newTabButton_;  // weak, obtained from the nib.
   scoped_ptr<TabStripModelObserverBridge> bridge_;
   TabStripModel* tabModel_;  // weak
-  BookmarkModel* bookmarkModel_;  // weak, one per profile (= one per Browser*)
   // access to the TabContentsControllers (which own the parent view
   // for the toolbar and associated tab contents) given an index. This needs
   // to be kept in the same order as the tab strip's model as we will be
@@ -50,9 +46,6 @@ class ToolbarModel;
   // an array of TabControllers which manage the actual tab views. As above,
   // this is kept in the same order as the tab strip model.
   scoped_nsobject<NSMutableArray> tabArray_;
-
-  // Controller for bookmark bar state, shared among all TabContents.
-  scoped_nsobject<BookmarkBarStateController> bookmarkBarStateController_;
 }
 
 // Initialize the controller with a view and browser that contains
@@ -67,13 +60,6 @@ class ToolbarModel;
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect;
-
-// Return a boolean (ObjC BOOL, not C++ bool) to say if the bookmark
-// bar is visible.
-- (BOOL)isBookmarkBarVisible;
-
-// Turn on or off the bookmark bar for *ALL* tabs.
-- (void)toggleBookmarkBar;
 
 // Given a tab view in the strip, return its index. Returns -1 if not present.
 - (NSInteger)indexForTabView:(NSView*)view;

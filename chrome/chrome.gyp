@@ -514,6 +514,8 @@
         'browser/chrome_thread.h',
         'browser/cocoa/base_view.h',
         'browser/cocoa/base_view.mm',
+        'browser/cocoa/bookmark_bar_controller.h',
+        'browser/cocoa/bookmark_bar_controller.mm',
         'browser/cocoa/bookmark_bar_state_controller.h',
         'browser/cocoa/bookmark_bar_state_controller.mm',
         'browser/cocoa/bookmark_menu_bridge.h',

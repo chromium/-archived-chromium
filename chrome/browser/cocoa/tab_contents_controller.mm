@@ -8,18 +8,12 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 
-@interface TabContentsController(Private)
-- (void)applyContentsBoxOffset:(BOOL)apply;
-@end
-
 @implementation TabContentsController
 
 - (id)initWithNibName:(NSString*)name
-             contents:(TabContents*)contents
-        bookmarkModel:(BookmarkModel*)bookmarkModel {
+             contents:(TabContents*)contents {
   if ((self = [super initWithNibName:name bundle:nil])) {
     contents_ = contents;
-    bookmarkModel_ = bookmarkModel;
   }
   return self;
 }
@@ -32,7 +26,6 @@
 
 - (void)awakeFromNib {
   [contentsBox_ setContentView:contents_->GetNativeView()];
-  [self applyContentsBoxOffset:YES];
 }
 
 // Returns YES if the tab represented by this controller is the front-most.
@@ -81,47 +74,6 @@
             localGrowBox.size.height;
   }
   return localGrowBox;
-}
-
-- (void)toggleBookmarkBar:(BOOL)enable {
-  contentsBoxHasOffset_ = enable;
-  [self applyContentsBoxOffset:enable];
-
-  if (enable) {
-    // TODO(jrg): display something useful in the bookmark bar
-    // TODO(jrg): use a BookmarksView, not a ToolbarView
-    // TODO(jrg): don't draw a border around it
-    // TODO(jrg): ...
-  }
-}
-
-// Apply a contents box offset to make (or remove) room for the
-// bookmark bar.  If apply==YES, always make room (the contentsBox_ is
-// "full size").  If apply==NO we are trying to undo an offset.  If no
-// offset there is nothing to undo.
-- (void)applyContentsBoxOffset:(BOOL)apply {
-
-  if (bookmarkView_ == nil) {
-    // We're too early, but awakeFromNib will call me again.
-    return;
-  }
-  if (!contentsBoxHasOffset_ && apply) {
-    // There is no offset to unconditionally apply.
-    return;
-  }
-
-  int offset = [bookmarkView_ frame].size.height;
-  NSRect frame = [contentsBox_ frame];
-  if (apply)
-    frame.size.height -= offset;
-  else
-    frame.size.height += offset;
-
-  // TODO(jrg): animate
-  [contentsBox_ setFrame:frame];
-
-  [bookmarkView_ setNeedsDisplay:YES];
-  [contentsBox_ setNeedsDisplay:YES];
 }
 
 @end
