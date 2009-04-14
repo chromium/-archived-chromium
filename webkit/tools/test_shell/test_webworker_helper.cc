@@ -95,6 +95,12 @@ void TestWebWorkerHelper::UnloadHelper(void* param) {
     FreeLibrary(this_ptr->module_);
     this_ptr->module_ = 0;
   }
+#elif defined(OS_MACOSX)
+  if (this_ptr->module_) {
+    dlclose(this_ptr->module_);
+    this_ptr->module_ = 0;
+    this_ptr->CreateWebWorker_ = 0;
+  }
 #else
   NOTIMPLEMENTED();
 #endif
