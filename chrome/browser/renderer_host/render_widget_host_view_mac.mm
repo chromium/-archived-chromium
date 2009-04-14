@@ -209,7 +209,16 @@ void RenderWidgetHostViewMac::DidScrollRect(
   if (is_hidden_)
     return;
 
-  [cocoa_view_ scrollRect:[cocoa_view_ RectToNSRect:rect]
+  // Before asking the cocoa view to scroll, shorten the rect's height
+  // by |dx| pixels if we are scrolling left and shorten its height by
+  // |dy| pixels if we are scrolling up.  This will prevent us from
+  // moving data beyond the bounds of the original rect, which in turn
+  // prevents us from accidentally drawing over the scrollbars.
+  gfx::Rect scroll_rect = rect;
+  scroll_rect.Inset(0, 0,
+                    dx > 0 ? dx : 0,
+                    dy > 0 ? dy : 0);
+  [cocoa_view_ scrollRect:[cocoa_view_ RectToNSRect:scroll_rect]
                        by:NSMakeSize(dx, -dy)];
 
   gfx::Rect new_rect = rect;
