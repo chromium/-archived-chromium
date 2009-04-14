@@ -250,13 +250,15 @@ class PageCyclerReferenceTest : public PageCyclerTest {
   }
 };
 
-}  // namespace
 
 // file-URL tests
 TEST_F(PageCyclerTest, MozFile) {
   RunTest("moz", false);
 }
 
+// TODO(port): Enable PageCyclerReferenceTest when reference build is
+// available for non-windows
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, MozFile) {
   RunTest("moz", false);
 }
@@ -265,6 +267,7 @@ TEST_F(PageCyclerTest, Intl1File) {
   RunTest("intl1", false);
 }
 
+// TODO(nirnimesh): Intl1File, Intl2File crash Chromium on Mac. Revisit later.
 TEST_F(PageCyclerReferenceTest, Intl1File) {
   RunTest("intl1", false);
 }
@@ -276,19 +279,23 @@ TEST_F(PageCyclerTest, Intl2File) {
 TEST_F(PageCyclerReferenceTest, Intl2File) {
   RunTest("intl2", false);
 }
+#endif  // !defined(OS_MACOSX)
 
 TEST_F(PageCyclerTest, DomFile) {
   RunTest("dom", false);
 }
 
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, DomFile) {
   RunTest("dom", false);
 }
+#endif
 
 TEST_F(PageCyclerTest, DhtmlFile) {
   RunTest("dhtml", false);
 }
 
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, DhtmlFile) {
   RunTest("dhtml", false);
 }
@@ -333,3 +340,6 @@ TEST_F(PageCyclerTest, BloatHttp) {
 TEST_F(PageCyclerReferenceTest, BloatHttp) {
   RunTest("bloat", true);
 }
+#endif  // !defined(OS_MACOSX)
+
+}  // namespace

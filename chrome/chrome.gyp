@@ -11,7 +11,7 @@
   ],
   'target_defaults': {
     'sources/': [
-      ['exclude', '/(cocoa|gtk)/'],
+      ['exclude', '/(cocoa|gtk|win)/'],
       ['exclude', '_(cocoa|gtk|linux|mac|posix|skia|win|x)\\.(cc|mm?)$'],
       ['exclude', '/(win|x11)_[^/]*\\.cc$'],
     ],
@@ -31,6 +31,7 @@
       }],
       ['OS=="win"', {'sources/': [
         ['include', '_(win)\\.cc$'],
+        ['include', '/win/'],
         ['include', '/win_[^/]*\\.cc$'],
       ]}],
     ],
@@ -2390,6 +2391,34 @@
         }],
       ],
     },
+    {
+      'target_name': 'page_cycler_tests',
+      'type': 'executable',
+      'dependencies': [
+        'resources',
+        'test_support_ui',
+        '../base/base.gyp:base',
+        '../skia/skia.gyp:skia',
+        '../testing/gtest.gyp:gtest',
+      ],
+      'sources': [
+        'test/page_cycler/page_cycler_test.cc',
+        'tools/build/win/precompiled.cc',
+        'tools/build/win/precompiled.h',
+      ],
+      'conditions': [
+        ['OS=="linux"', {
+          'dependencies': [
+            '../build/linux/system.gyp:gtk',
+          ],
+        }],
+        ['OS!="mac"', {
+          'dependencies': [
+            'views',
+          ],
+        }],
+      ],
+    },
   ],
   'conditions': [
     ['OS=="linux"', {
@@ -2448,34 +2477,6 @@
       ]
     }, { # else: OS != "mac"
       'targets': [
-        {
-          'target_name': 'page_cycler_tests',
-          'type': 'executable',
-          'dependencies': [
-            'resources',
-            'test_support_ui',
-            'views',
-            '../base/base.gyp:base',
-            '../skia/skia.gyp:skia',
-            '../testing/gtest.gyp:gtest',
-          ],
-          'sources': [
-            'test/page_cycler/page_cycler_test.cc',
-            'tools/build/win/precompiled.cc',
-            'tools/build/win/precompiled.h',
-          ],
-          'conditions': [
-            ['OS!="win"', {
-              'dependencies': [
-                '../build/linux/system.gyp:gtk',
-              ],
-              'sources!': [
-                'tools/build/win/precompiled.cc',
-                'tools/build/win/precompiled.h',
-              ],
-            }],
-          ],
-        },
         {
           'target_name': 'perf_tests',
           'type': 'executable',
