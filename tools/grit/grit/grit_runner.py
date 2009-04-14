@@ -31,7 +31,7 @@ import grit.tool.unit
 
 
 # Copyright notice
-_COPYRIGHT = '''
+_COPYRIGHT = '''\
 GRIT - the Google Resource and Internationalization Tool
 Copyright (c) Google Inc. %d
 ''' % util.GetCurrentYear()
@@ -62,6 +62,8 @@ _TOOLS = [
 
 
 def PrintUsage():
+  print _COPYRIGHT
+
   tool_list = ''
   for (tool, info) in _TOOLS:
     if not _HIDDEN in info.keys():
@@ -153,7 +155,6 @@ def _GetToolInfo(tool):
 def Main(args):
   '''Parses arguments and does the appropriate thing.'''
   util.ChangeStdoutEncoding()
-  print _COPYRIGHT
 
   if not len(args) or len(args) == 1 and args[0] == 'help':
     PrintUsage()

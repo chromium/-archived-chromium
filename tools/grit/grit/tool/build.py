@@ -208,14 +208,18 @@ are exported to translation interchange files (e.g. XMB files), etc.
       self.VerboseOut(' done.\n')
 
     # Print warnings if there are any duplicate shortcuts.
-    print '\n'.join(shortcuts.GenerateDuplicateShortcutsWarnings(
-      self.res.UberClique(), self.res.GetTcProject()))
+    warnings = shortcuts.GenerateDuplicateShortcutsWarnings(
+        self.res.UberClique(), self.res.GetTcProject())
+    if warnings:
+      print '\n'.join(warnings)
 
     # Print out any fallback warnings, and missing translation errors, and
     # exit with an error code if there are missing translations in a non-pseudo
     # build
-    print (self.res.UberClique().MissingTranslationsReport().
+    warnings = (self.res.UberClique().MissingTranslationsReport().
         encode('ascii', 'replace'))
+    if warnings:
+      print warnings
     if self.res.UberClique().HasMissingTranslations():
       sys.exit(-1)
 
