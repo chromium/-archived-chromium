@@ -9,7 +9,7 @@
 			DisplayName="Version"
 			CommandLine="$(SolutionDir)/../chrome/tools/build/win/version.bat [inputs] &quot;$(SolutionDir)/../chrome/&quot; &quot;$(IntDir)&quot; &quot;$(IntDir)/$(InputName)&quot;"
 			Outputs="$(IntDir)/$(InputName)"
-			AdditionalDependencies="$(SolutionDir)/VERSION;$(SolutionDir)/tools/build/win/version.bat"
+			AdditionalDependencies="$(SolutionDir)/../chrome/VERSION;$(SolutionDir)/../chrome/tools/build/win/version.bat"
 			FileExtensions="*.version"
 			ExecutionDescription="Generating version template file"
 			>
