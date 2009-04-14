@@ -125,6 +125,10 @@ class FilePath {
     return path_ == that.path_;
   }
 
+  bool operator!=(const FilePath& that) const {
+    return path_ != that.path_;
+  }
+
   // Required for some STL containers and operations
   bool operator<(const FilePath& that) const {
     return path_ < that.path_;

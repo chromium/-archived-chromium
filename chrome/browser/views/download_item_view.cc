@@ -571,7 +571,7 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   // Paint the icon.
   IconManager* im = g_browser_process->icon_manager();
   SkBitmap* icon = IsDangerousMode() ? warning_icon_ :
-      im->LookupIcon(download_->full_path().ToWStringHack(), IconLoader::SMALL);
+      im->LookupIcon(download_->full_path(), IconLoader::SMALL);
 
   // We count on the fact that the icon manager will cache the icons and if one
   // is available, it will be cached here. We *don't* want to request the icon
@@ -809,7 +809,7 @@ bool DownloadItemView::OnMouseDragged(const views::MouseEvent& event) {
   if (dragging_) {
     if (download_->state() == DownloadItem::COMPLETE) {
       IconManager* im = g_browser_process->icon_manager();
-      SkBitmap* icon = im->LookupIcon(download_->full_path().ToWStringHack(),
+      SkBitmap* icon = im->LookupIcon(download_->full_path(),
                                       IconLoader::SMALL);
       if (icon)
         download_util::DragDownload(download_, icon);
@@ -843,8 +843,7 @@ void DownloadItemView::OnExtractIconComplete(IconManager::Handle handle,
 
 void DownloadItemView::LoadIcon() {
   IconManager* im = g_browser_process->icon_manager();
-  im->LoadIcon(download_->full_path().ToWStringHack(), IconLoader::SMALL,
-               &icon_consumer_,
+  im->LoadIcon(download_->full_path(), IconLoader::SMALL, &icon_consumer_,
                NewCallback(this, &DownloadItemView::OnExtractIconComplete));
 }
 

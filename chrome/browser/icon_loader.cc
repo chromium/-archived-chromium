@@ -20,6 +20,7 @@
 #include "SkBitmap.h"
 
 namespace {
+
 class IconLoaderProcessor :
     public base::RefCountedThreadSafe<IconLoaderProcessor> {
  public:
@@ -29,7 +30,6 @@ class IconLoaderProcessor :
         small_icon_(NULL),
         large_icon_(NULL),
         loading_from_resource_(target->loading_from_resource_),
-        icon_type_(target->icon_type_),
         icon_size_(target->icon_size_) {
     DCHECK(target);
     path_ = target->path_;
@@ -48,7 +48,7 @@ class IconLoaderProcessor :
   // Loads the icon with the specified dimensions.
   HICON LoadSizedIcon(int width, int height) {
     return static_cast<HICON>(LoadImage(NULL,
-                                        path_.c_str(),
+                                        path_.value().c_str(),
                                         width, height,
                                         IMAGE_ICON,
                                         LR_LOADTRANSPARENT | LR_LOADFROMFILE));
@@ -105,14 +105,12 @@ class IconLoaderProcessor :
     // itself.
     HICON icon_to_convert = NULL;
     gfx::Size s;
-    if (icon_type_ == IconLoader::SK_BITMAP) {
-      if (large_icon_) {
-        icon_to_convert = large_icon_;
-        s.SetSize(large_width, large_height);
-      } else if (small_icon_) {
-        icon_to_convert = small_icon_;
-        s.SetSize(small_width, small_height);
-      }
+    if (large_icon_) {
+      icon_to_convert = large_icon_;
+      s.SetSize(large_width, large_height);
+    } else if (small_icon_) {
+      icon_to_convert = small_icon_;
+      s.SetSize(small_width, small_height);
     }
 
     if (icon_to_convert) {
@@ -144,7 +142,7 @@ class IconLoaderProcessor :
         NOTREACHED();
     }
     SHFILEINFO file_info = { 0 };
-    if (!SHGetFileInfo(path_.c_str(), FILE_ATTRIBUTE_NORMAL, &file_info,
+    if (!SHGetFileInfo(path_.value().c_str(), FILE_ATTRIBUTE_NORMAL, &file_info,
                        sizeof(SHFILEINFO),
                        SHGFI_ICON | size | SHGFI_USEFILEATTRIBUTES))
       return;
@@ -163,24 +161,9 @@ class IconLoaderProcessor :
 
   // Invoked in the target thread.
   void NotifyFetcher() {
-    if (target_) {
-      switch (target_->icon_type_) {
-        case IconLoader::SK_BITMAP:
-          if (target_->OnLoadComplete(bitmap_)) {
-            // Receiver took ownership of the bitmap.
-            bitmap_ = NULL;
-          }
-          break;
-        case IconLoader::WINDOWS_HICON:
-          if (target_->OnLoadComplete(small_icon_, large_icon_)) {
-            // Receiver took ownership of the icons.
-            small_icon_ = NULL;
-            large_icon_ = NULL;
-          }
-          break;
-        default:
-          NOTREACHED();
-      }
+    if (target_ && target_->OnLoadComplete(bitmap_)) {
+      // Receiver took ownership of the bitmap.
+      bitmap_ = NULL;
     }
   }
 
@@ -192,13 +175,12 @@ class IconLoaderProcessor :
   IconLoader* target_;
 
   // The path of the file.
-  std::wstring path_;
+  FilePath path_;
 
   // Fields from IconLoader that we need to copy as we cannot access them
   // directly from the target_ in a thread-safe way.
   bool loading_from_resource_;
   IconLoader::IconSize icon_size_;
-  IconLoader::IconType icon_type_;
 
   // The result bitmap.
   SkBitmap* bitmap_;
@@ -209,31 +191,22 @@ class IconLoaderProcessor :
   // The result large icon.
   HICON large_icon_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(IconLoaderProcessor);
+  DISALLOW_COPY_AND_ASSIGN(IconLoaderProcessor);
 };
-}
 
-// static
-IconLoader* IconLoader::CreateIconLoaderForFile(const std::wstring& path,
-                                                IconType icon_type,
-                                                Delegate* delegate) {
-  // Note: the icon size is unused in this case.
-  return new IconLoader(path, icon_type, false, IconLoader::NORMAL, delegate);
-}
+}  // namespace
 
 // static
 IconLoader* IconLoader::CreateIconLoaderForFileResource(
-    const std::wstring& path, IconSize size, Delegate* delegate) {
-  return new IconLoader(path, IconLoader::SK_BITMAP, true, size, delegate);
+    const FilePath& path, IconSize size, Delegate* delegate) {
+  return new IconLoader(path, true, size, delegate);
 }
 
-IconLoader::IconLoader(const std::wstring& path,
-                       IconType type,
+IconLoader::IconLoader(const FilePath& path,
                        bool from_resource,
                        IconSize size,
                        Delegate* delegate)
     : path_(path),
-      icon_type_(type),
       loading_from_resource_(from_resource),
       icon_size_(size),
       delegate_(delegate),
@@ -264,14 +237,6 @@ void IconLoader::Cancel() {
 bool IconLoader::OnLoadComplete(SkBitmap* bitmap) {
   if (delegate_) {
     return delegate_->OnSkBitmapLoaded(this, bitmap);
-    // We are likely deleted after this point.
-  }
-  return false;
-}
-
-bool IconLoader::OnLoadComplete(HICON small_icon, HICON large_icon) {
-  if (delegate_) {
-    return delegate_->OnHICONLoaded(this, small_icon, large_icon);
     // We are likely deleted after this point.
   }
   return false;

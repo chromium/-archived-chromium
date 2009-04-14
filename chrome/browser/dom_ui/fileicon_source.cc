@@ -31,7 +31,13 @@ void FileIconSource::StartDataRequest(const std::string& path,
   std::replace(escaped_path.begin(), escaped_path.end(), '/', '\\');
 
   // Fast look up.
-  SkBitmap* icon = im->LookupIcon(UTF8ToWide(escaped_path), IconLoader::NORMAL);
+#if defined(OS_WIN)
+  FilePath escaped_filepath(UTF8ToWide(escaped_path));
+#else if defined(OS_POSIX)
+  // The correct encoding on Linux may not actually be UTF8.
+  FilePath escaped_filepath(escaped_path);
+#endif
+  SkBitmap* icon = im->LookupIcon(escaped_filepath, IconLoader::NORMAL);
 
   if (icon) {
     std::vector<unsigned char> png_bytes;
@@ -41,7 +47,7 @@ void FileIconSource::StartDataRequest(const std::string& path,
     SendResponse(request_id, icon_data);
   } else {
     // Icon was not in cache, go fetch it slowly.
-    IconManager::Handle h = im->LoadIcon(UTF8ToWide(escaped_path),
+    IconManager::Handle h = im->LoadIcon(escaped_filepath,
         IconLoader::NORMAL,
         &cancelable_consumer_,
         NewCallback(this, &FileIconSource::OnFileIconDataAvailable));

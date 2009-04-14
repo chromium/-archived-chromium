@@ -39,8 +39,8 @@
 // Icon bitmaps returned should be treated as const since they may be referenced
 // by other clients. Make a copy of the icon if you need to modify it.
 
-#ifndef CHROME_BROWSER_ICON_MANAGER_H__
-#define CHROME_BROWSER_ICON_MANAGER_H__
+#ifndef CHROME_BROWSER_ICON_MANAGER_H_
+#define CHROME_BROWSER_ICON_MANAGER_H_
 
 #include <map>
 #include <set>
@@ -63,7 +63,7 @@ public:
   // it via 'LoadIcon'. The returned bitmap is owned by the IconManager and must
   // not be free'd by the caller. If the caller needs to modify the icon, it
   // must make a copy and modify the copy.
-  SkBitmap* LookupIcon(const std::wstring& file_name,
+  SkBitmap* LookupIcon(const FilePath& file_name,
                        IconLoader::IconSize size);
 
   // Asynchronous call to lookup and return the icon associated with file. The
@@ -75,25 +75,22 @@ public:
   typedef CancelableRequestProvider::Handle Handle;
   typedef Callback2<Handle, SkBitmap*>::Type IconRequestCallback;
 
-  Handle LoadIcon(const std::wstring& file_name,
+  Handle LoadIcon(const FilePath& file_name,
                   IconLoader::IconSize size,
                   CancelableRequestConsumerBase* consumer,
                   IconRequestCallback* callback);
 
   // IconLoader::Delegate interface.
   virtual bool OnSkBitmapLoaded(IconLoader* source, SkBitmap* result);
-  virtual bool OnHICONLoaded(IconLoader* source,
-                             HICON small_icon,
-                             HICON large_icon);
 
 private:
   struct CacheKey {
-    CacheKey(std::wstring file_name, IconLoader::IconSize size);
+    CacheKey(const FilePath& file_name, IconLoader::IconSize size);
 
     // Used as a key in the map below, so we need this comparator.
     bool operator<(const CacheKey &other) const;
 
-    std::wstring file_name;
+    FilePath file_name;
     IconLoader::IconSize size;
   };
 
@@ -103,7 +100,7 @@ private:
   typedef CancelableRequest<IconRequestCallback> IconRequest;
   typedef struct {
     scoped_refptr<IconRequest> request;
-    std::wstring file_name;
+    FilePath file_name;
     IconLoader::IconSize size;
   } ClientRequest;
 
@@ -111,7 +108,7 @@ private:
   typedef base::hash_map<IconLoader*, ClientRequest> ClientRequests;
   ClientRequests requests_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(IconManager);
+  DISALLOW_COPY_AND_ASSIGN(IconManager);
 };
 
-#endif  // #ifndef CHROME_BROWSER_ICON_MANAGER_H__
+#endif  // #ifndef CHROME_BROWSER_ICON_MANAGER_H_

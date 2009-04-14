@@ -344,9 +344,9 @@ class IconManager : public CancelableRequestProvider {
  public:
   typedef CancelableRequestProvider::Handle Handle;
   typedef Callback2<Handle, SkBitmap*>::Type IconRequestCallback;
-  SkBitmap* LookupIcon(const std::wstring&, IconLoader::IconSize)
+  SkBitmap* LookupIcon(const FilePath&, IconLoader::IconSize)
       { NOTIMPLEMENTED(); return NULL; }
-  Handle LoadIcon(const std::wstring&, IconLoader::IconSize,
+  Handle LoadIcon(const FilePath&, IconLoader::IconSize,
                   CancelableRequestConsumerBase*, IconRequestCallback*)
       { NOTIMPLEMENTED(); return NULL; }
 };

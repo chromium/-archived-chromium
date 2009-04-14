@@ -329,8 +329,7 @@ void DownloadsDOMHandler::HandleDrag(const Value* value) {
   DownloadItem* file = GetDownloadByValue(value);
   if (file) {
     IconManager* im = g_browser_process->icon_manager();
-    SkBitmap* icon = im->LookupIcon(file->full_path().ToWStringHack(),
-        IconLoader::NORMAL);
+    SkBitmap* icon = im->LookupIcon(file->full_path(), IconLoader::NORMAL);
     download_util::DragDownload(file, icon);
   }
 }

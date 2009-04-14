@@ -17,12 +17,14 @@ IconManager::~IconManager() {
   STLDeleteValues(&icon_cache_);
 }
 
-SkBitmap* IconManager::LookupIcon(const std::wstring& file_name,
+SkBitmap* IconManager::LookupIcon(const FilePath& file_name,
                                   IconLoader::IconSize size) {
-  std::wstring path = file_name;
-  std::wstring extension = file_util::GetFileExtensionFromPath(path);
+  FilePath path = file_name;
+  FilePath::StringType extension = file_util::GetFileExtensionFromPath(path);
+#if defined(OS_WIN)
   if (extension != L"exe" && extension != L"dll" && extension != L"ico")
-    path = L'.' + extension;
+    path = FilePath(L'.' + extension);
+#endif
 
   IconMap::iterator it = icon_cache_.find(CacheKey(path, size));
   if (it != icon_cache_.end())
@@ -32,14 +34,16 @@ SkBitmap* IconManager::LookupIcon(const std::wstring& file_name,
 }
 
 IconManager::Handle IconManager::LoadIcon(
-    const std::wstring& file_name,
+    const FilePath& file_name,
     IconLoader::IconSize size,
     CancelableRequestConsumerBase* consumer,
     IconRequestCallback* callback) {
-  std::wstring path = file_name;
-  std::wstring extension = file_util::GetFileExtensionFromPath(path);
+  FilePath path = file_name;
+  FilePath::StringType extension = file_util::GetFileExtensionFromPath(path);
+#if defined(OS_WIN)
   if (extension != L"exe" && extension != L"dll" && extension != L"ico")
-    path = L'.' + extension;
+    path = FilePath(L'.' + extension);
+#endif
 
   IconRequest* request = new IconRequest(callback);
   AddRequest(request, consumer);
@@ -91,14 +95,7 @@ bool IconManager::OnSkBitmapLoaded(IconLoader* source, SkBitmap* result) {
   return true;  // Indicates we took ownership of result.
 }
 
-bool IconManager::OnHICONLoaded(IconLoader* source,
-                                HICON small_icon,
-                                HICON large_icon) {
-  NOTREACHED();
-  return false;
-}
-
-IconManager::CacheKey::CacheKey(std::wstring file_name,
+IconManager::CacheKey::CacheKey(const FilePath& file_name,
                                 IconLoader::IconSize size)
     : file_name(file_name),
       size(size) {
