@@ -412,9 +412,6 @@ willPositionSheet:(NSWindow *)sheet
            setContentBorderThickness:forEdge:)]) {
     [win setAutorecalculatesContentBorderThickness:NO forEdge:NSMaxYEdge];
     [win setContentBorderThickness:kWindowGradientHeight forEdge:NSMaxYEdge];
-
-    [win setAutorecalculatesContentBorderThickness:NO forEdge:NSMinYEdge];
-    [win setContentBorderThickness:kWindowGradientHeight forEdge:NSMinYEdge];
   }
 }
 
