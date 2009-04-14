@@ -13,7 +13,6 @@
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/owned_widget_gtk.h"
-#include "skia/include/SkBitmap.h"
 
 class NewTabButton;
 

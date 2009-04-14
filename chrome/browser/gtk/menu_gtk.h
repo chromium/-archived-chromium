@@ -60,6 +60,9 @@ class MenuGtk {
   // triggering event (e.g. right mouse click, context menu key, etc.).
   void PopupAsContext(guint32 event_time);
 
+  // Closes the menu.
+  void Cancel();
+
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set
   // of GtkMenuItems.

@@ -81,6 +81,10 @@ void MenuGtk::PopupAsContext(guint32 event_time) {
   gtk_menu_popup(GTK_MENU(menu_.get()), NULL, NULL, NULL, NULL, 3, event_time);
 }
 
+void MenuGtk::Cancel() {
+  gtk_menu_detach(GTK_MENU(menu_.get()));
+}
+
 void MenuGtk::BuildMenuIn(GtkWidget* menu,
                           const MenuCreateMaterial* menu_data,
                           GtkAccelGroup* accel_group) {

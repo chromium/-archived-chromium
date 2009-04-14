@@ -84,12 +84,22 @@ class TabGtk : public TabRendererGtk {
   bool OnMousePress();
 
   // Sent by the tabstrip when the mouse click is released.
-  void OnMouseRelease();
+  void OnMouseRelease(GdkEventButton* event);
 
  private:
+  class ContextMenuController;
+
+  friend class ContextMenuController;
+
   // Creates a clickable region of the tab's visual representation. Used for
   // hit-testing.  Caller is responsible for destroying the region.
   GdkRegion* MakeRegionForTab() const;
+
+  // Shows the context menu.
+  void ShowContextMenu();
+
+  // Invoked when the context menu closes.
+  void ContextMenuClosed();
 
   // An instance of a delegate object that can perform various actions based on
   // user gestures.
@@ -100,6 +110,9 @@ class TabGtk : public TabRendererGtk {
 
   // Set if the mouse is pressed anywhere inside the tab.
   bool mouse_pressed_;
+
+  // The context menu controller.
+  scoped_ptr<ContextMenuController> menu_controller_;
 
   DISALLOW_COPY_AND_ASSIGN(TabGtk);
 };
