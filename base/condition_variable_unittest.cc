@@ -231,7 +231,7 @@ TEST_F(ConditionVariableTest, MultiThreadConsumerTest) {
       queue.no_more_tasks()->Wait();
     // The last of the tasks *might* still be running, but... all but one should
     // be done by now, since tasks are being done serially.
-    EXPECT_LT(queue.GetWorkTime().InMilliseconds() * (kTaskCount - 1),
+    EXPECT_LE(queue.GetWorkTime().InMilliseconds() * (kTaskCount - 1),
               (base::Time::Now() - start_time).InMilliseconds());
 
     EXPECT_EQ(1, queue.GetNumThreadsTakingAssignments());
