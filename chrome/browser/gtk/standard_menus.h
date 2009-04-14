@@ -41,6 +41,11 @@ struct MenuCreateMaterial {
 
   // GDK modifiers for the menu items (i.e., shift, ctrl, etc).
   unsigned int accel_modifiers;
+
+  // If true, the accelerator is only for show (does not do anything), although
+  // the same key combination may be handled by GTK. Windows handles this in
+  // toolbar_view.cc::GetAcceleratorInfo().
+  bool only_show;
 };
 
 // Returns the menu construction data structure for the page menu.

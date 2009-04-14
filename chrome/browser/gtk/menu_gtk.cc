@@ -38,18 +38,22 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,
                  GtkAccelGroup* accel_group)
     : delegate_(delegate),
+      dummy_accel_group_(gtk_accel_group_new()),
       menu_(gtk_menu_new()) {
   BuildMenuIn(menu_.get(), menu_data, accel_group);
 }
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate)
     : delegate_(delegate),
+      dummy_accel_group_(NULL),
       menu_(gtk_menu_new()) {
   BuildMenuFromDelegate();
 }
 
 MenuGtk::~MenuGtk() {
   menu_.Destroy();
+  if (dummy_accel_group_)
+    g_object_unref(dummy_accel_group_);
 }
 
 void MenuGtk::Popup(GtkWidget* widget, GdkEvent* event) {
@@ -133,7 +137,8 @@ void MenuGtk::BuildMenuIn(GtkWidget* menu,
       // keys.
       gtk_widget_add_accelerator(menu_item,
                                  "activate",
-                                 accel_group,
+                                 menu_data->only_show ? dummy_accel_group_ :
+                                                        accel_group,
                                  menu_data->accel_key,
                                  GdkModifierType(menu_data->accel_modifiers),
                                  GTK_ACCEL_VISIBLE);

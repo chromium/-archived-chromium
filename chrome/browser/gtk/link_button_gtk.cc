@@ -26,7 +26,7 @@ void SetLinkButtonStyle() {
       "widget \"*chrome-link-button\" style \"chrome-link-button\"");
 }
 
-}
+}  // namespace
 
 LinkButtonGtk::LinkButtonGtk(const char* text)
     : hand_cursor_(gdk_cursor_new(GDK_HAND2)),

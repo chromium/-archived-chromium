@@ -96,6 +96,11 @@ class MenuGtk {
   // Queries this object about the menu state.
   MenuGtk::Delegate* delegate_;
 
+  // For some menu items, we want to show the accelerator, but not actually
+  // explicitly handle it. To this end we connect those menu items' accelerators
+  // to this group, but don't attach this group to any top level window.
+  GtkAccelGroup* dummy_accel_group_;
+
   // gtk_menu_popup() does not appear to take ownership of popup menus, so
   // MenuGtk explicitly manages the lifetime of the menu.
   OwnedWidgetGtk menu_;
