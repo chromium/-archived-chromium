@@ -18,7 +18,33 @@ class TabGtk::ContextMenuController : public MenuGtk::Delegate {
  public:
   explicit ContextMenuController(TabGtk* tab)
       : tab_(tab) {
-    menu_.reset(new MenuGtk(this));
+    menu_.reset(new MenuGtk(this, false));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandNewTab,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_NEWTAB));
+    menu_->AppendSeparator();
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandReload,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_RELOAD));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandDuplicate,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_DUPLICATE));
+    menu_->AppendSeparator();
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseTab,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_CLOSETAB));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseOtherTabs,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_CLOSEOTHERTABS));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseTabsToRight,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_CLOSETABSTORIGHT));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandCloseTabsOpenedBy,
+        l10n_util::GetStringUTF8(IDS_TAB_CXMENU_CLOSETABSOPENEDBY));
+    menu_->AppendMenuItemWithLabel(
+        TabStripModel::CommandRestoreTab,
+        l10n_util::GetStringUTF8(IDS_RESTORE_TAB));
   }
 
   virtual ~ContextMenuController() {}
@@ -34,76 +60,21 @@ class TabGtk::ContextMenuController : public MenuGtk::Delegate {
 
  private:
 
-  // Converts the gtk command id to the tab command id.  Gtk includes the
-  // menu separators, but TabStripModel::ContextMenuCommand does not, so
-  // readjust the id to take into account separators.
-  // TODO(jhawkins): Add AppendMenuItemWithLabel and AppendSeparator methods
-  // to MenuGtk so we can avoid this hacky conversion.
-  int gtk_command_to_tab_command(int command_id) const {
-    if (command_id == 1)
-      return command_id;
-    else if (command_id < 5)
-      return command_id - 1;
-    else
-      return command_id - 2;
-  }
-
   // MenuGtk::Delegate implementation:
   virtual bool IsCommandEnabled(int command_id) const {
     if (!tab_)
       return false;
 
-    TabStripModel::ContextMenuCommand id;
-    id = static_cast<TabStripModel::ContextMenuCommand>(
-        gtk_command_to_tab_command(command_id));
-
-    return tab_->delegate()->IsCommandEnabledForTab(id, tab_);
+    return tab_->delegate()->IsCommandEnabledForTab(
+        static_cast<TabStripModel::ContextMenuCommand>(command_id), tab_);
   }
 
   virtual void ExecuteCommand(int command_id) {
     if (!tab_)
       return;
 
-    TabStripModel::ContextMenuCommand id;
-    id = static_cast<TabStripModel::ContextMenuCommand>(
-        gtk_command_to_tab_command(command_id));
-
-    tab_->delegate()->ExecuteCommandForTab(id, tab_);
-  }
-
-  virtual int GetItemCount() const {
-    return TabStripModel::CommandLast;
-  }
-
-  virtual bool IsItemSeparator(int command_id) const {
-    if (command_id == 2 || command_id == 5)
-      return true;
-
-    return false;
-  }
-
-  virtual std::string GetLabel(int command_id) const {
-    switch (command_id) {
-      case 1:
-        return WideToUTF8(l10n_util::GetString(IDS_TAB_CXMENU_NEWTAB));
-      case 3:
-        return WideToUTF8(l10n_util::GetString(IDS_TAB_CXMENU_RELOAD));
-      case 4:
-        return WideToUTF8(l10n_util::GetString(IDS_TAB_CXMENU_DUPLICATE));
-      case 6:
-        return WideToUTF8(l10n_util::GetString(IDS_TAB_CXMENU_CLOSETAB));
-      case 7:
-        return WideToUTF8(l10n_util::GetString(IDS_TAB_CXMENU_CLOSEOTHERTABS));
-      case 8:
-        return WideToUTF8(l10n_util::GetString(
-            IDS_TAB_CXMENU_CLOSETABSTORIGHT));
-      case 9:
-        return WideToUTF8(l10n_util::GetString(
-            IDS_TAB_CXMENU_CLOSETABSOPENEDBY));
-      default:
-        NOTREACHED();
-        return std::string();
-    }
+    tab_->delegate()->ExecuteCommandForTab(
+        static_cast<TabStripModel::ContextMenuCommand>(command_id), tab_);
   }
 
   // The context menu.

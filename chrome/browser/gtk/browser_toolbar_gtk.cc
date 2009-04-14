@@ -379,9 +379,9 @@ gboolean BrowserToolbarGtk::OnBackForwardPressEvent(GtkWidget* widget,
 void BrowserToolbarGtk::ShowBackForwardMenu(GtkWidget* widget,
                                             gint button_type) {
   if (widget == back_->widget()) {
-    back_forward_menu_.reset(new MenuGtk(back_menu_model_.get()));
+    back_forward_menu_.reset(new MenuGtk(back_menu_model_.get(), true));
   } else {
-    back_forward_menu_.reset(new MenuGtk(forward_menu_model_.get()));
+    back_forward_menu_.reset(new MenuGtk(forward_menu_model_.get(), true));
   }
 
   back_forward_menu_->Popup(widget, button_type, gtk_get_current_event_time());

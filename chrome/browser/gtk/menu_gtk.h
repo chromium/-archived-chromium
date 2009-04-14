@@ -41,10 +41,14 @@ class MenuGtk {
   // to create the menu.
   MenuGtk(MenuGtk::Delegate* delegate, const MenuCreateMaterial* menu_data,
           GtkAccelGroup* accel_group);
-  // Builds a MenuGtk that uses |delegate| to create the menu as well as perform
-  // actions.
-  explicit MenuGtk(MenuGtk::Delegate* delegate);
+  // Creates a MenuGtk that uses |delegate| to perform actions.  Builds the
+  // menu using |delegate| if |load| is true.
+  MenuGtk(MenuGtk::Delegate* delegate, bool load);
   ~MenuGtk();
+
+  // These methods are used to build the menu dynamically.
+  void AppendMenuItemWithLabel(int command_id, const std::string& label);
+  void AppendSeparator();
 
   // Displays the menu. |timestamp| is the time of activation. The popup is
   // statically positioned at |widget|.

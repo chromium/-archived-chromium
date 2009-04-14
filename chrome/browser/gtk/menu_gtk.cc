@@ -43,17 +43,38 @@ MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
   BuildMenuIn(menu_.get(), menu_data, accel_group);
 }
 
-MenuGtk::MenuGtk(MenuGtk::Delegate* delegate)
+MenuGtk::MenuGtk(MenuGtk::Delegate* delegate, bool load)
     : delegate_(delegate),
       dummy_accel_group_(NULL),
       menu_(gtk_menu_new()) {
-  BuildMenuFromDelegate();
+  if (load)
+    BuildMenuFromDelegate();
 }
 
 MenuGtk::~MenuGtk() {
   menu_.Destroy();
   if (dummy_accel_group_)
     g_object_unref(dummy_accel_group_);
+}
+
+void MenuGtk::AppendMenuItemWithLabel(int command_id,
+                                      const std::string& label) {
+  GtkWidget* menu_item = gtk_menu_item_new_with_label(label.c_str());
+
+  g_object_set_data(G_OBJECT(menu_item), "menu-id",
+                    reinterpret_cast<void*>(command_id));
+
+  g_signal_connect(G_OBJECT(menu_item), "activate",
+                   G_CALLBACK(OnMenuItemActivatedById), this);
+
+  gtk_widget_show(menu_item);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
+}
+
+void MenuGtk::AppendSeparator() {
+  GtkWidget* menu_item = gtk_separator_menu_item_new();
+  gtk_widget_show(menu_item);
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_.get()), menu_item);
 }
 
 void MenuGtk::Popup(GtkWidget* widget, GdkEvent* event) {
