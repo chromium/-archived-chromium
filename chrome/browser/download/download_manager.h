@@ -467,10 +467,6 @@ class DownloadManager : public base::RefCountedThreadSafe<DownloadManager>,
   void RemoveDownloadsFromHistoryBetween(const base::Time remove_begin,
                                          const base::Time remove_before);
 
-  // Inform the notification service of download starts and stops.
-  void NotifyAboutDownloadStart();
-  void NotifyAboutDownloadStop();
-
   // Create an extension based on the file name and mime type.
   void GenerateExtension(const FilePath& file_name,
                          const std::string& mime_type,

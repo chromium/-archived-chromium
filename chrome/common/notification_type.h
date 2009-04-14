@@ -153,10 +153,6 @@ class NotificationType {
     // change.  There are no details.
     SSL_INTERNAL_STATE_CHANGED,
 
-    // Download start and stop notifications. Stop notifications can occur on
-    // both normal completion or via a cancel operation.
-    DOWNLOAD_START, DOWNLOAD_STOP,
-
     // Lets resource handlers and other interested observers know when the
     // message filter is being deleted and can no longer be used.
     RESOURCE_MESSAGE_FILTER_SHUTDOWN,

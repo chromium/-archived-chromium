@@ -28,7 +28,6 @@
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/l10n_util.h"
-#include "chrome/common/notification_service.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -795,7 +794,6 @@ void DownloadManager::DownloadFinished(int32 download_id, int64 size) {
   // don't have a valid db_handle yet.
   if (download->db_handle() != kUninitializedHandle) {
     in_progress_.erase(it);
-    NotifyAboutDownloadStop();
     UpdateHistoryForDownload(download);
   }
 
@@ -948,7 +946,6 @@ void DownloadManager::DownloadCancelled(int32 download_id) {
   // don't have a valid db_handle yet.
   if (download->db_handle() != kUninitializedHandle) {
     in_progress_.erase(it);
-    NotifyAboutDownloadStop();
     UpdateHistoryForDownload(download);
   }
 
@@ -1098,20 +1095,6 @@ void DownloadManager::DownloadUrl(const GURL& url,
                              web_contents->process()->pid(),
                              web_contents->render_view_host()->routing_id(),
                              request_context_.get());
-}
-
-void DownloadManager::NotifyAboutDownloadStart() {
-  NotificationService::current()->Notify(
-      NotificationType::DOWNLOAD_START,
-      NotificationService::AllSources(),
-      NotificationService::NoDetails());
-}
-
-void DownloadManager::NotifyAboutDownloadStop() {
-  NotificationService::current()->Notify(
-      NotificationType::DOWNLOAD_STOP,
-      NotificationService::AllSources(),
-      NotificationService::NoDetails());
 }
 
 void DownloadManager::GenerateExtension(
@@ -1485,7 +1468,6 @@ void DownloadManager::OnCreateDownloadEntryComplete(DownloadCreateInfo info,
 
   // Inform interested objects about the new download.
   FOR_EACH_OBSERVER(Observer, observers_, ModelChanged());
-  NotifyAboutDownloadStart();
 
   // If this download has been completed before we've received the db handle,
   // post one final message to the history service so that it can be properly
@@ -1493,7 +1475,6 @@ void DownloadManager::OnCreateDownloadEntryComplete(DownloadCreateInfo info,
   // observers so that they get more than just the start notification.
   if (download->state() != DownloadItem::IN_PROGRESS) {
     in_progress_.erase(it);
-    NotifyAboutDownloadStop();
     UpdateHistoryForDownload(download);
     download->UpdateObservers();
   }
