@@ -160,7 +160,7 @@ void WebContentsViewMac::RestoreFocus() {
   // TODO(port)
 }
 
-void WebContentsView::SetChildSize(RenderWidgetHostView* rwh_view) {
+void WebContentsViewMac::SetChildSize(RenderWidgetHostView* rwh_view) {
   rwh_view->SetSize(GetContainerSize());
 }
 
