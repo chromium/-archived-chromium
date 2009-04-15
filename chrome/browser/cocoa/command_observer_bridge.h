@@ -2,6 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#ifndef CHROME_BROWSER_COCOA_COMMAND_OBSERVER_BRIDGE
+#define CHROME_BROWSER_COCOA_COMMAND_OBSERVER_BRIDGE
+
 #import <Cocoa/Cocoa.h>
 
 #include "chrome/browser/command_updater.h"
@@ -39,3 +42,5 @@ class CommandObserverBridge : public CommandUpdater::CommandObserver {
 @protocol CommandObserverProtocol
 - (void)enabledStateChangedForCommand:(NSInteger)command enabled:(BOOL)enabled;
 @end
+
+#endif  // CHROME_BROWSER_COCOA_COMMAND_OBSERVER_BRIDGE

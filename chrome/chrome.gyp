@@ -2117,6 +2117,7 @@
         'browser/cocoa/bookmark_bar_state_controller_unittest.mm',
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',
         'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',
+        'browser/cocoa/command_observer_bridge_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
         'browser/cocoa/status_bubble_mac_unittest.mm',
         'browser/command_updater_unittest.cc',
