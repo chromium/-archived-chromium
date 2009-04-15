@@ -585,6 +585,9 @@ BUG1124568 DEFER : LayoutTests/fast/dom/Window/window-function-name-getter-prece
 BUG4363 DEFER SKIP : LayoutTests/media = TIMEOUT
 BUG4363 DEFER SKIP : LayoutTests/fast/media = PASS FAIL
 BUG4363 DEFER : LayoutTests/http/tests/media = FAIL
+BUG4363 DEFER : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL
+BUG4363 DEFER : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL
+BUG4363 DEFER : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL
 BUG4363 DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // Function arguments object is copied for each access.
@@ -2464,6 +2467,9 @@ BUG10529 MAC RELEASE : LayoutTests/editing/inserting/6703873.html = FAIL
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
 BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.html = FAIL
+
+// New test from merge 42523:42547.  Needs rebaseline.
+BUG_TONY LINUX MAC : LayoutTests/fast/runin/generated.html = FAIL
 
 // TODO(brettw) Regressions from merge 42244:42287
 BUG10571 WIN : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
