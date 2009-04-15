@@ -19,6 +19,8 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/notification_service.h"
+#include "chrome/common/resource_bundle.h"
+#include "grit/theme_resources.h"
 
 namespace {
 
@@ -26,13 +28,30 @@ const GdkColor kBorderColor = GDK_COLOR_RGB(0xc7, 0xca, 0xce);
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xff, 0xff, 0xff);
 const GdkColor kSelectedBackgroundColor = GDK_COLOR_RGB(0xdf, 0xe6, 0xf6);
 
+// TODO(deanm): This is added to extend past just the location box, and to
+// be below the the star and go button.  Really this means that this should
+// probably plumb all the way back to the location bar view.
+const int kExtraSpace = 28;
+// We have a 1 pixel border around the entire results popup.
 const int kBorderThickness = 1;
-const int kHeightPerResult = 20;
+// The vertical height of each result.
+const int kHeightPerResult = 24;
 // Additional distance below the edit control.
 const int kTopMargin = 3;
-// Space between edge and the text.  This includes the border, so the text
-// will be kLeftRightPadding - kBorderThickness away from the border.
-const int kLeftRightPadding = 3;
+// Width of the icons.
+const int kIconWidth = 16;
+// We want to vertically center the image in the result space.
+const int kIconTopPadding = 4;
+// Space between the left edge (including the border) and the text.
+const int kIconLeftPadding = 6;
+// Space between the image and the text.  Would be 6 to line up with the
+// entry, but nudge it a bit more to match with the text in the entry.
+const int kIconRightPadding = 10;
+// Space between the left edge (including the border) and the text.
+const int kIconAreaWidth =
+    kIconLeftPadding + kIconWidth + kIconRightPadding;
+// Space between the right edge (including the border) and the text.
+const int kRightPadding = 3;
 
 // TODO(deanm): We should put this on ChromeFont so it can be shared.
 // Returns a new pango font, free with pango_font_description_free().
@@ -77,6 +96,16 @@ GdkRectangle GetRectForLine(size_t line, int width) {
                        width - (kBorderThickness * 2),
                        kHeightPerResult};
   return rect;
+}
+
+// Helper for drawing an entire pixbuf without dithering.
+void DrawFullPixbuf(GdkDrawable* drawable, GdkGC* gc, GdkPixbuf* pixbuf,
+                    gint dest_x, gint dest_y) {
+  gdk_draw_pixbuf(drawable, gc, pixbuf,
+                  0, 0,                        // Source.
+                  dest_x, dest_y,              // Dest.
+                  -1, -1,                      // Width/height (auto).
+                  GDK_RGB_DITHER_NONE, 0, 0);  // Don't dither.
 }
 
 }  // namespace
@@ -152,6 +181,9 @@ AutocompletePopupModel* AutocompletePopupViewGtk::GetModel() {
 void AutocompletePopupViewGtk::Show(size_t num_results) {
   gint x, y, width;
   edit_view_->BottomLeftPosWidth(&x, &y, &width);
+  x -= kExtraSpace;
+  width += kExtraSpace * 2;
+
   gtk_window_move(GTK_WINDOW(window_), x, y + kTopMargin);
   gtk_widget_set_size_request(window_, width,
       (num_results * kHeightPerResult) + (kBorderThickness * 2));
@@ -168,12 +200,21 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
                                                 GdkEventExpose* event) {
   const AutocompleteResult& result = model_->result();
 
+  // TODO(deanm): These would be better as pixmaps someday.
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  static GdkPixbuf* o2_globe = rb.LoadPixbuf(IDR_O2_GLOBE);
+  static GdkPixbuf* o2_history = rb.LoadPixbuf(IDR_O2_HISTORY);
+  static GdkPixbuf* o2_more = rb.LoadPixbuf(IDR_O2_MORE);
+  static GdkPixbuf* o2_search = rb.LoadPixbuf(IDR_O2_SEARCH);
+  static GdkPixbuf* o2_star = rb.LoadPixbuf(IDR_O2_STAR);
+
   GdkRectangle window_rect = GetWindowRect(event->window);
   // Handle when our window is super narrow.  A bunch of the calculations
   // below would go negative, and really we're not going to fit anything
   // useful in such a small window anyway.  Just don't paint anything.
   // This means we won't draw the border, but, yeah, whatever.
-  if (window_rect.width < (kLeftRightPadding * 3))
+  // TODO(deanm): Make the code more robust and remove this check.
+  if (window_rect.width < (kIconAreaWidth * 3))
     return TRUE;
 
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
@@ -211,20 +252,72 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
 
   pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
   pango_layout_set_width(layout,
-      (window_rect.width - (kLeftRightPadding * 2)) * PANGO_SCALE);
+      (window_rect.width - (kIconAreaWidth + kRightPadding)) * PANGO_SCALE);
   pango_layout_set_height(layout, kHeightPerResult * PANGO_SCALE);
   pango_layout_set_font_description(layout, font_);
 
   // TODO(deanm): Intersect the line and damage rects, and only repaint and
   // layout the lines that are actually damaged.  For now paint everything.
   for (size_t i = 0; i < result.size(); ++i) {
-    std::string contents_utf8 = WideToUTF8(result.match_at(i).contents);
-    pango_layout_set_text(layout, contents_utf8.data(), contents_utf8.size());
-    // TODO(deanm): Should probably try harder to vertically align the text.
+    const AutocompleteMatch& match = result.match_at(i);
+    int y = i * kHeightPerResult + kBorderThickness;
+
+    GdkPixbuf* icon = NULL;
+    if (match.starred) {
+      icon = o2_star;
+    } else {
+      switch (match.type) {
+        case AutocompleteMatch::URL_WHAT_YOU_TYPED:
+        case AutocompleteMatch::NAVSUGGEST:
+          icon = o2_globe;
+          break;
+        case AutocompleteMatch::HISTORY_URL:
+        case AutocompleteMatch::HISTORY_TITLE:
+        case AutocompleteMatch::HISTORY_BODY:
+        case AutocompleteMatch::HISTORY_KEYWORD:
+          icon = o2_history;
+          break;
+        case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
+        case AutocompleteMatch::SEARCH_HISTORY:
+        case AutocompleteMatch::SEARCH_SUGGEST:
+        case AutocompleteMatch::SEARCH_OTHER_ENGINE:
+          icon = o2_search;
+          break;
+        case AutocompleteMatch::OPEN_HISTORY_PAGE:
+          icon = o2_more;
+          break;
+        default:
+          NOTREACHED();
+          break;
+      }
+    }
+    
+    // Draw the icon for this result time.
+    DrawFullPixbuf(drawable, gc, icon,
+                   kIconLeftPadding, y + kIconTopPadding);
+
+    // Draw the results text vertically centered in the results space.
+    std::string contents = WideToUTF8(match.contents);
+    std::string description = WideToUTF8(match.description);
+    // TODO(deanm): I couldn't get the weight adjustment to be granular enough
+    // to match the mocks.  It was basically super bold or super thin.
+    char* markup = g_markup_printf_escaped(
+        "%s<b><span foreground=\"#ababab\">%s%s</span></b>",
+        contents.c_str(),
+        description.empty() ? "" : " - ",
+        description.c_str());
+    pango_layout_set_markup(layout, markup, -1);
+    g_free(markup);
+
+    int width, height;
+    pango_layout_get_size(layout, &width, &height);
+    height /= PANGO_SCALE;
+    DCHECK_LT(height, kHeightPerResult);  // Font too tall.
+    int text_y = std::max(y, y + ((kHeightPerResult - height) / 2));
+
     gdk_draw_layout(drawable, gc,
-                    kLeftRightPadding, i * kHeightPerResult + 1,
+                    kIconAreaWidth, text_y,
                     layout);
-    // TODO(deanm): Draw the "description" on the right of the contents.
   }
 
   g_object_unref(gc);
