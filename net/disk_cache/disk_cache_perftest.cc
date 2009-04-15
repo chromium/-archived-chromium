@@ -242,5 +242,5 @@ TEST_F(DiskCacheTest, BlockFilesPerformance) {
 
   timer2.Done();
   MessageLoop::current()->RunAllPending();
-  delete address;
+  delete[] address;
 }
