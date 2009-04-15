@@ -69,6 +69,8 @@ bool GoogleChromeDistribution::ExtractUninstallMetricsFromFile(
 
   std::string json_error_string;
   scoped_ptr<Value> root(json_serializer.Deserialize(NULL));
+  if (!root.get())
+    return false;
 
   // Preferences should always have a dictionary root.
   if (!root->IsType(Value::TYPE_DICTIONARY))

@@ -253,7 +253,7 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   file_util::AppendToPath(&ext_prog_id, ShellUtil::kChromeExtProgId);
   DeleteRegistryKey(key, ext_prog_id);
   std::wstring ext_association(ShellUtil::kRegClasses);
-  ext_association.append(L".");
+  ext_association.append(L"\\.");
   ext_association.append(chrome::kExtensionFileExtension);
   DeleteRegistryKey(key, ext_association);
 
