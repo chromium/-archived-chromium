@@ -2113,6 +2113,7 @@
         # It is safe to list */cocoa/* files in the "common" file list
         # without an explicit exclusion since gyp is smart enough to
         # exclude them from non-Mac builds.
+        'browser/cocoa/bookmark_bar_controller_unittest.mm',
         'browser/cocoa/bookmark_bar_state_controller_unittest.mm',
         'browser/cocoa/bookmark_menu_bridge_unittest.mm',
         'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',

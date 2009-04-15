@@ -35,15 +35,18 @@ class Profile;
 - (id)initWithProfile:(Profile*)profile
           contentArea:(NSView*)content;
 
-// Change the visibility state of the bookmark bar to |enable|.
-- (void)showBookmarkBar:(BOOL)enable;
+// Returns whether or not the bookmark bar is visible.
+- (BOOL)isBookmarkBarVisible;
 
 // Toggle the state of the bookmark bar.
 - (void)toggleBookmarkBar;
 
-// Returns whether or not the bookmark bar is visible.
-- (BOOL)isBookmarkBarVisible;
+@end
 
+// These APIs should only be used by unit tests, in place of "friend" classes.
+@interface BookmarkBarController(TestingAPI)
+// Access to the bookmark bar's view represented by this controller.
+- (NSView*)view;
 @end
 
 #endif  // CHROME_BROWSER_COCOA_BOOKMARK_BAR_CONTROLLER_H_

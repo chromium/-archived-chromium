@@ -11,6 +11,7 @@
 @interface BookmarkBarController(Private)
 - (void)applyContentAreaOffset:(BOOL)apply;
 - (void)positionBar;
+- (void)showBookmarkBar:(BOOL)enable;
 @end
 
 @implementation BookmarkBarController
@@ -55,11 +56,11 @@
   [bookmarkView_ setFrame:barFrame];
 }
 
-// Show or hide the bar based on the value of enable. Handles animating the
+// Show or hide the bar based on the value of |enable|. Handles animating the
 // resize of the content view.
 - (void)showBookmarkBar:(BOOL)enable {
   contentAreaHasOffset_ = enable;
-  [[bookmarkView_ animator] setHidden:enable ? NO : YES];
+  [bookmarkView_ setHidden:enable ? NO : YES];
   [self applyContentAreaOffset:enable];
 
   if (enable) {
@@ -106,6 +107,10 @@
   [bookmarkBarStateController_ toggleBookmarkBar];
   BOOL visible = [self isBookmarkBarVisible];
   [self showBookmarkBar:visible ? YES : NO];
+}
+
+- (NSView*)view {
+  return bookmarkView_;
 }
 
 @end
