@@ -3040,13 +3040,17 @@ each locale. -->
                desc="The 'Show history' link on the new tab page">
         Show full history
       </message>
-      <message name="IDS_NEW_TAB_EDIT_THUMBNAILS"
-         desc="The 'Edit thumbnails' link on the new tab page">
-        Edit thumbnails
+      <message name="IDS_NEW_TAB_REMOVE_THUMBNAILS"
+         desc="The 'Remove thumbnails' link on the new tab page">
+        Remove thumbnails
       </message>
-      <message name="IDS_NEW_TAB_MOST_VISITED_DONE_EDITING_BUTTON"
-         desc="The caption of the button used to exit the edit thumbnails mode">
-        Done editing
+      <message name="IDS_NEW_TAB_MOST_VISITED_DONE_REMOVING_BUTTON"
+         desc="The caption of the button used to validate the removal of thumbnails">
+        Done
+      </message>
+      <message name="IDS_NEW_TAB_MOST_VISITED_CANCEL_REMOVING_BUTTON"
+         desc="The caption of the button used to cancel the current removal thumbnails mode">
+        Cancel
       </message>
       <message name="IDS_NEW_TAB_RESTORE_THUMBNAILS_LINK"
          desc="The link that restores previously removed thumbnails">

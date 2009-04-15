@@ -204,6 +204,9 @@ class DictionaryValue : public Value {
   // Returns true if the current dictionary has a value for the given key.
   bool HasKey(const std::wstring& key) const;
 
+  // Returns the number of Values in this dictionary.
+  size_t GetSize() const { return dictionary_.size(); }
+
   // Clears any current contents of this dictionary.
   void Clear();
 
@@ -214,8 +217,8 @@ class DictionaryValue : public Value {
   // If the key at any step of the way doesn't exist, or exists but isn't
   // a DictionaryValue, a new DictionaryValue will be created and attached
   // to the path in that location.
-  // Note that the dictionary takes ownership of the value
-  // referenced by in_value.
+  // Note that the dictionary takes ownership of the value referenced by
+  // |in_value|.
   bool Set(const std::wstring& path, Value* in_value);
 
   // Convenience forms of Set().  These methods will replace any existing

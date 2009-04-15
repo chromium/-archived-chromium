@@ -246,13 +246,15 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"showhistoryurl",
       chrome::kChromeUIHistoryURL);
   localized_strings.SetString(L"editthumbnails",
-      l10n_util::GetString(IDS_NEW_TAB_EDIT_THUMBNAILS));
+      l10n_util::GetString(IDS_NEW_TAB_REMOVE_THUMBNAILS));
   localized_strings.SetString(L"restorethumbnails",
       l10n_util::GetString(IDS_NEW_TAB_RESTORE_THUMBNAILS_LINK));
   localized_strings.SetString(L"editmodeheading",
       l10n_util::GetString(IDS_NEW_TAB_MOST_VISITED_EDIT_MODE_HEADING));
   localized_strings.SetString(L"doneediting",
-      l10n_util::GetString(IDS_NEW_TAB_MOST_VISITED_DONE_EDITING_BUTTON));
+      l10n_util::GetString(IDS_NEW_TAB_MOST_VISITED_DONE_REMOVING_BUTTON));
+  localized_strings.SetString(L"cancelediting",
+      l10n_util::GetString(IDS_NEW_TAB_MOST_VISITED_CANCEL_REMOVING_BUTTON));
   localized_strings.SetString(L"searchhistory",
       l10n_util::GetString(IDS_NEW_TAB_HISTORY_SEARCH));
   localized_strings.SetString(L"recentlyclosed",
@@ -354,6 +356,9 @@ class MostVisitedHandler : public DOMMessageHandler,
   // Callback for the "blacklistURLFromMostVisited" message.
   void HandleBlacklistURL(const Value* url);
 
+  // Callback for the "removeURLsFromMostVisitedBlacklist" message.
+  void HandleRemoveURLsFromBlacklist(const Value* url);
+
   // Callback for the "clearMostVisitedURLsBlacklist" message.
   void HandleClearBlacklist(const Value* url);
 
@@ -376,11 +381,8 @@ class MostVisitedHandler : public DOMMessageHandler,
   // Puts the passed URL in the blacklist (so it does not show as a thumbnail).
   void BlacklistURL(const GURL& url);
 
-  // Returns true if the passed URL has been blacklisted.
-  bool IsURLBlacklisted(const GURL& url);
-
-  // Returns the URL blacklist.
-  ListValue* GetURLBlacklist();
+  // Returns the key used in url_blacklist_ for the passed |url|.
+  std::wstring GetBlacklistKeyForURL(const std::string& url);
 
   // Our consumer for the history service.
   CancelableRequestConsumerTSimple<PageUsageData*> cancelable_consumer_;
@@ -389,6 +391,11 @@ class MostVisitedHandler : public DOMMessageHandler,
   // Only used for matching up clicks on the page to which most visited entry
   // was clicked on for metrics purposes.
   std::vector<GURL> most_visited_urls_;
+
+  // The URL blacklist: URLs we do not want to show in the thumbnails list.  It
+  // is a dictionary for quick access (it associates a dummy boolean to the URL
+  // string).
+  DictionaryValue* url_blacklist_;
 
   DISALLOW_COPY_AND_ASSIGN(MostVisitedHandler);
 };
@@ -403,8 +410,13 @@ MostVisitedHandler::MostVisitedHandler(DOMUI* dom_ui)
   // Also register ourselves for any most-visited item blacklisting.
   dom_ui_->RegisterMessageCallback("blacklistURLFromMostVisited",
       NewCallback(this, &MostVisitedHandler::HandleBlacklistURL));
+  dom_ui_->RegisterMessageCallback("removeURLsFromMostVisitedBlacklist",
+      NewCallback(this, &MostVisitedHandler::HandleRemoveURLsFromBlacklist));
   dom_ui_->RegisterMessageCallback("clearMostVisitedURLsBlacklist",
       NewCallback(this, &MostVisitedHandler::HandleClearBlacklist));
+
+  url_blacklist_ = dom_ui_->GetProfile()->GetPrefs()->
+      GetMutableDictionary(prefs::kNTPMostVisitedURLsBlacklist);
 
   // Set up our sources for thumbnail and favicon data. Since we may be in
   // testing mode with no I/O thread, only add our handler when an I/O thread
@@ -436,7 +448,7 @@ void MostVisitedHandler::HandleGetMostVisited(const Value* value) {
   const int kMostVisitedCount = 9;
   // Let's query for the number of items we want plus the blacklist size as
   // we'll be filtering-out the returned list with the blacklist URLs.
-  int result_count = kMostVisitedCount + GetURLBlacklist()->GetSize();
+  int result_count = kMostVisitedCount + url_blacklist_->GetSize();
   HistoryService* hs =
       dom_ui_->GetProfile()->GetHistoryService(Profile::EXPLICIT_ACCESS);
   hs->QuerySegmentUsageSince(
@@ -462,8 +474,35 @@ void MostVisitedHandler::HandleBlacklistURL(const Value* value) {
   HandleGetMostVisited(NULL);
 }
 
+void MostVisitedHandler::HandleRemoveURLsFromBlacklist(const Value* urls) {
+  if (!urls->IsType(Value::TYPE_LIST)) {
+    NOTREACHED();
+    return;
+  }
+  const ListValue* list = static_cast<const ListValue*>(urls);
+  if (list->GetSize() == 0) {
+    NOTREACHED();
+    return;
+  }
+
+  for (ListValue::const_iterator iter = list->begin();
+       iter != list->end(); ++iter) {
+    std::wstring url;
+    bool r = (*iter)->GetAsString(&url);
+    if (!r) {
+      NOTREACHED();
+      return;
+    }
+    r = url_blacklist_->Remove(GetBlacklistKeyForURL(WideToUTF8(url)), NULL);
+    DCHECK(r) << "Unknown URL removed from the NTP Most Visited blacklist.";
+  }
+
+  // Force a refresh of the thumbnails.
+  HandleGetMostVisited(NULL);
+}
+
 void MostVisitedHandler::HandleClearBlacklist(const Value* value) {
-  GetURLBlacklist()->Clear();
+  url_blacklist_->Clear();
   // Force a refresh of the thumbnails.
   HandleGetMostVisited(NULL);
 }
@@ -477,7 +516,8 @@ void MostVisitedHandler::OnSegmentUsageAvailable(
   for (size_t i = 0; i < data->size(); ++i) {
     const PageUsageData& page = *(*data)[i];
     GURL url = page.GetURL();
-    if (IsURLBlacklisted(url))
+
+    if (url_blacklist_->HasKey(GetBlacklistKeyForURL(url.spec())))
       continue;
     DictionaryValue* page_value = new DictionaryValue;
     SetURLTitleAndDirection(page_value, page.GetTitle(), page.GetURL());
@@ -502,33 +542,19 @@ void MostVisitedHandler::Observe(NotificationType type,
 }
 
 void MostVisitedHandler::BlacklistURL(const GURL& url) {
-  if (IsURLBlacklisted(url))
+  std::wstring key = GetBlacklistKeyForURL(url.spec());
+  if (url_blacklist_->HasKey(key))
     return;
-  GetURLBlacklist()->Append(Value::CreateStringValue(url.spec()));
+  url_blacklist_->SetBoolean(key, true);
 }
 
-bool MostVisitedHandler::IsURLBlacklisted(const GURL& url) {
-  std::string url_spec = url.spec();
-  ListValue* blacklist = GetURLBlacklist();
-  for (ListValue::const_iterator iter = blacklist->begin();
-       iter != blacklist->end(); ++iter) {
-    std::string blacklisted_url;
-    bool success = (*iter)->GetAsString(&blacklisted_url);
-    DCHECK(success);
-    if (url_spec == blacklisted_url)
-      return true;
-  }
-  return false;
-}
-
-ListValue* MostVisitedHandler::GetURLBlacklist() {
-  return dom_ui_->GetProfile()->GetPrefs()->
-      GetMutableList(prefs::kNTPMostVisitedURLsBlacklist);
+std::wstring MostVisitedHandler::GetBlacklistKeyForURL(const std::string& url) {
+  return ASCIIToWide(MD5String(url));
 }
 
 // static
 void MostVisitedHandler::RegisterUserPrefs(PrefService* prefs) {
-  prefs->RegisterListPref(prefs::kNTPMostVisitedURLsBlacklist);
+  prefs->RegisterDictionaryPref(prefs::kNTPMostVisitedURLsBlacklist);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

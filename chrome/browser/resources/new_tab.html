@@ -36,6 +36,11 @@ var renderFunctionsDefined = false;
 // TODO(glen): Merge into common file used by this and history.
 var localStrings;
 
+// The list of URLs that have been blacklisted (so that thumbnails are not
+// shown) in the last set of change.  Used to revert changes when the Cancel
+// button is pressed.
+var blacklistedURLs = [];
+
 ///////////////////////////////////////////////////////////////////////////////
 // localStrings:
 /**
@@ -404,7 +409,7 @@ html[dir='rtl'] #searches input {
   left: 0px;
   top: 0px;
 }
-.edit-mode a.most-visited-item {
+.edit-mode .disabled-on-edit {
   opacity: 0.5;
   pointer-events: none;  /* Disable clicks */
 }
@@ -474,6 +479,8 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
       <span jscontent="editthumbnails"></span></a>
     <button type="button" class="edit-visible" onClick="exitEditMode();"
 	    jscontent="doneediting"></button>
+    <button type="button" class="edit-visible" onClick="cancelEdits();"
+	    jscontent="cancelediting"></button>
     <a href="#"
        class="manage edit-visible"
        onClick="restoreThumbnails(); return false">
@@ -560,15 +567,16 @@ function bind(fn, selfObj, var_args) {
    |page| should be an object with "title", "url", and "direction" fields. */
 function makeMostVisitedDOM(page, number) {
   /* The HTML we want looks like this:
-    <a class="most-visited-item" href="URL" title="gmail.com">
-      <div class="thumbnail-title"
+    <a class="disabled-on-edit" href="URL" title="gmail.com">
+      <div class="thumbnail-title disabled-on-edit"
            style="background-image:url(faviconurl);direction:ltr">gmail.com</div>
-      <img class="thumbnail" style="background-image:url(thumbnailurl);" />
+      <img class="thumbnail disabled-on-edit"
+	   style="background-image:url(thumbnailurl);" />
     </a>
   */
   var root;
   if (page.url) {
-    root = DOM('a', {className:'most-visited-item',
+    root = DOM('a', {className:'disabled-on-edit',
                      href:page.url,
                      title:page.title});
     root.addEventListener("mousedown", function(event) {
@@ -580,12 +588,12 @@ function makeMostVisitedDOM(page, number) {
   }
 
   /* Create the thumbnail */
-  var img_thumbnail = DOM('img', {className:'thumbnail'});
+  var img_thumbnail = DOM('img', {className:'thumbnail disabled-on-edit'});
   img_thumbnail.setAttribute('onload', "logEvent('image loaded');");
   img_thumbnail.src = 'chrome-ui://thumb/' + page.url;
 
   /* Create the title */
-  var div_title = DOM('div', {className:'thumbnail-title'});
+  var div_title = DOM('div', {className:'thumbnail-title disabled-on-edit'});
   div_title.style.backgroundImage =
       'url("chrome-ui://favicon/' + page.url + '")';
   /* Set the title's directionality independently of the overall page
@@ -619,8 +627,9 @@ function makeMostVisitedDOM(page, number) {
    over a "most visited" entry. */
 function makeCrossImageDOM(url) {
   var cross = DOM('div', {className:'edit-cross'});
-  cross.addEventListener("mousedown", function(event) {
-    chrome.send("blacklistURLFromMostVisited", [url])}, false);
+  cross.addEventListener("mousedown",
+                         function(event) { blacklistURL(url); },
+                         false);
   return cross;
 }
 
@@ -977,6 +986,18 @@ function enterEditMode() {
 
 function exitEditMode() {
   document.getElementById('main').className = 'visible';
+  blacklistedURLs = [];
+}
+
+function cancelEdits() {
+  if (blacklistedURLs.length > 0)
+    chrome.send("removeURLsFromMostVisitedBlacklist", blacklistedURLs);
+  exitEditMode();
+}
+
+function blacklistURL(url) {
+ blacklistedURLs.push(url);
+ chrome.send("blacklistURLFromMostVisited", [url]);
 }
 
 function restoreThumbnails() {
