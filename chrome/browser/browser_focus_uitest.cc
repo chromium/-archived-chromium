@@ -91,7 +91,7 @@ class JavaScriptRunner : public NotificationObserver {
 
 }  // namespace
 
-IN_PROC_BROWSER_TEST_F(BrowserFocusTest, BrowsersRememberFocus) {
+IN_PROC_BROWSER_TEST_F(BrowserFocusTest, DISABLED_BrowsersRememberFocus) {
   HTTPTestServer* server = StartHTTPServer();
 
   // First we navigate to our test page.
