@@ -401,6 +401,11 @@ void WindowWin::Init(HWND parent, const gfx::Rect& bounds) {
   }
 
   ResetWindowRegion(false);
+
+  NotificationService::current()->Notify(
+      NotificationType::WINDOW_CREATED,
+      Source<WindowWin>(this),
+      NotificationService::NoDetails());
 }
 
 void WindowWin::SizeWindowToDefault() {

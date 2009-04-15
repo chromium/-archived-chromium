@@ -184,6 +184,10 @@ class NotificationType {
     // details are passed.
     ALL_APPWINDOWS_CLOSED,
 
+    // Indicates a new top window has been created. The source is the
+    // WindowWin.
+    WINDOW_CREATED,
+
     // Indicates that a top window has been closed.  The source is the HWND
     // that was closed, no details are expected.
     WINDOW_CLOSED,
