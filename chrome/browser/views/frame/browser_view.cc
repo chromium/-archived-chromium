@@ -31,7 +31,7 @@
 #include "chrome/browser/views/infobars/infobar_container.h"
 #include "chrome/browser/views/keyword_editor_view.h"
 #include "chrome/browser/views/new_profile_dialog.h"
-#include "chrome/browser/views/password_manager_view.h"
+#include "chrome/browser/views/options/passwords_exceptions_window_view.h"
 #include "chrome/browser/views/select_profile_dialog.h"
 #include "chrome/browser/views/status_bubble_views.h"
 #include "chrome/browser/views/tab_contents_container_view.h"
@@ -876,7 +876,7 @@ void BrowserView::ShowSearchEnginesDialog() {
 }
 
 void BrowserView::ShowPasswordManager() {
-  PasswordManagerView::Show(browser_->profile());
+  PasswordsExceptionsWindowView::Show(browser_->profile());
 }
 
 void BrowserView::ShowSelectProfileDialog() {

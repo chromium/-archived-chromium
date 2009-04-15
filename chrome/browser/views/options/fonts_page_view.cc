@@ -16,7 +16,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
 #include "chrome/browser/shell_dialogs.h"
-#include "chrome/browser/views/password_manager_view.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/chrome_font.h"
@@ -402,7 +401,7 @@ void FontsPageView::InitFontLayout() {
       this,
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_BUTTON_LABEL));
-  
+
   sans_serif_font_label_ = new views::Label(
       l10n_util::GetString(
           IDS_FONT_LANGUAGE_SETTING_FONT_SELECTOR_SANS_SERIF_LABEL));

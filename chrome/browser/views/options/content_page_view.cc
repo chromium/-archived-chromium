@@ -15,8 +15,7 @@
 #include "chrome/browser/shell_dialogs.h"
 #include "chrome/browser/views/options/fonts_languages_window_view.h"
 #include "chrome/browser/views/options/options_group_view.h"
-#include "chrome/browser/views/password_manager_view.h"
-#include "chrome/browser/views/password_manager_exceptions_view.h"
+#include "chrome/browser/views/options/passwords_exceptions_window_view.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
@@ -180,7 +179,6 @@ ContentPageView::ContentPageView(Profile* profile)
       passwords_group_(NULL),
       passwords_asktosave_radio_(NULL),
       passwords_neversave_radio_(NULL),
-      passwords_show_passwords_button_(NULL),
       fonts_lang_group_(NULL),
       fonts_and_languages_label_(NULL),
       change_content_fonts_button_(NULL),
@@ -242,11 +240,8 @@ void ContentPageView::ButtonPressed(views::Button* sender) {
     }
     ask_to_save_passwords_.SetValue(enabled);
   } else if (sender == passwords_exceptions_button_) {
-    UserMetricsRecordAction(L"Options_ShowPasswordManagerExceptions", NULL);
-    PasswordManagerExceptionsView::Show(profile());
-  }else if (sender == passwords_show_passwords_button_) {
-    UserMetricsRecordAction(L"Options_ShowPasswordManager", NULL);
-    PasswordManagerView::Show(profile());
+    UserMetricsRecordAction(L"Options_ShowPasswordsExceptions", NULL);
+    PasswordsExceptionsWindowView::Show(profile());
   } else if (sender == form_autofill_checkbox_) {
     bool enabled = form_autofill_checkbox_->checked();
     if (enabled) {
@@ -413,8 +408,6 @@ void ContentPageView::InitPasswordSavingGroup() {
       kPasswordSavingRadioGroup);
   passwords_neversave_radio_->set_listener(this);
   passwords_neversave_radio_->SetMultiLine(true);
-  passwords_show_passwords_button_ = new views::NativeButton(
-      this, l10n_util::GetString(IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS));
   passwords_exceptions_button_ = new views::NativeButton(
       this, l10n_util::GetString(IDS_OPTIONS_PASSWORDS_EXCEPTIONS));
 
@@ -444,8 +437,7 @@ void ContentPageView::InitPasswordSavingGroup() {
   layout->StartRow(0, single_column_view_set_id);
   layout->AddView(passwords_neversave_radio_);
   layout->AddPaddingRow(0, kUnrelatedControlVerticalSpacing);
-  layout->StartRow(0, double_column_view_set_id);
-  layout->AddView(passwords_show_passwords_button_);
+  layout->StartRow(0, single_column_view_set_id);
   layout->AddView(passwords_exceptions_button_);
 
   passwords_group_ = new OptionsGroupView(

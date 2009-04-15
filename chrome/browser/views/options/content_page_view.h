@@ -70,7 +70,6 @@ class ContentPageView : public OptionsPageView,
   OptionsGroupView* passwords_group_;
   views::RadioButton* passwords_asktosave_radio_;
   views::RadioButton* passwords_neversave_radio_;
-  views::NativeButton* passwords_show_passwords_button_;
 
   // Controls for the Form Autofill group
   OptionsGroupView* form_autofill_group_;

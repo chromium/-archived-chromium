@@ -1,17 +1,17 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_PASSWORD_MANAGER_VIEW_H__
-#define CHROME_BROWSER_PASSWORD_MANAGER_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_OPTIONS_PASSWORDS_PAGE_VIEW_H_
+#define CHROME_BROWSER_VIEWS_OPTIONS_PASSWORDS_PAGE_VIEW_H_
 
 #include <vector>
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/profile.h"
+#include "chrome/browser/views/options/options_page_view.h"
 #include "chrome/browser/webdata/web_data_service.h"
-#include "chrome/common/stl_util-inl.h"
 #include "chrome/common/gfx/text_elider.h"
+#include "chrome/common/stl_util-inl.h"
 #include "chrome/views/controls/button/native_button.h"
 #include "chrome/views/controls/label.h"
 #include "chrome/views/controls/table/table_view.h"
@@ -21,26 +21,48 @@
 
 class Profile;
 
+///////////////////////////////////////////////////////////////////////////////
+// PasswordTableModelObserver
 // An observer interface to notify change of row count in a table model. This
-// allow the container view of TableView(i.e. PasswordManagerView and
-// PasswordManagerExceptionsView), to be notified of row count changes directly
+// allow the container view of TableView(i.e. PasswordsPageView and
+// ExceptionsPageView), to be notified of row count changes directly
 // from the TableModel. We have two different observers in
-// PasswordManagerTableModel, namely views::TableModelObserver and
-// PasswordManagerTableModelObserver, rather than adding this event to
+// PasswordsTableModel, namely views::TableModelObserver and
+// PasswordsTableModelObserver, rather than adding this event to
 // views::TableModelObserver because only container view of
-// PasswordManagerTableModel cares about this event. Because of the same reason
-// the relationship between a PasswordManagerTableModel and
-// PasswordManagerTableModelObserver is 1-to-1.
-class PasswordManagerTableModelObserver {
+// PasswordsTableModel cares about this event.
+class PasswordsTableModelObserver {
  public:
   virtual void OnRowCountChanged(size_t rows) = 0;
 };
 
-class PasswordManagerTableModel : public views::TableModel,
-                                  public WebDataServiceConsumer {
+///////////////////////////////////////////////////////////////////////////////
+// MultiLabelButtons
+// A button that can have 2 different labels set on it and for which the
+// preferred size is the size of the widest string.
+class MultiLabelButtons : public views::NativeButton {
  public:
-  explicit PasswordManagerTableModel(Profile* profile);
-  virtual ~PasswordManagerTableModel();
+  MultiLabelButtons(views::ButtonListener* listener,
+                    const std::wstring& label,
+                    const std::wstring& alt_label);
+
+  virtual gfx::Size GetPreferredSize();
+
+ private:
+  std::wstring label_;
+  std::wstring alt_label_;
+  gfx::Size pref_size_;
+
+  DISALLOW_COPY_AND_ASSIGN(MultiLabelButtons);
+};
+
+///////////////////////////////////////////////////////////////////////////////
+// PasswordsTableModel
+class PasswordsTableModel : public views::TableModel,
+                            public WebDataServiceConsumer {
+ public:
+  explicit PasswordsTableModel(Profile* profile);
+  virtual ~PasswordsTableModel();
 
   // TableModel methods.
   virtual int RowCount();
@@ -66,7 +88,7 @@ class PasswordManagerTableModel : public views::TableModel,
   PasswordForm* GetPasswordFormAt(int row);
 
   // Set the observer who concerns about how many rows are in the table.
-  void set_row_count_observer(PasswordManagerTableModelObserver* observer) {
+  void set_row_count_observer(PasswordsTableModelObserver* observer) {
     row_count_observer_ = observer;
   }
 
@@ -95,7 +117,7 @@ class PasswordManagerTableModel : public views::TableModel,
 
   // Dispatching row count events specific to this password manager table model
   // to this observer.
-  PasswordManagerTableModelObserver* row_count_observer_;
+  PasswordsTableModelObserver* row_count_observer_;
 
   // Handle to any pending WebDataService::GetLogins query.
   WebDataService::Handle pending_login_query_;
@@ -111,76 +133,38 @@ class PasswordManagerTableModel : public views::TableModel,
   // Cancel any pending login query involving a callback.
   void CancelLoginsQuery();
 
-  DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerTableModel);
+  DISALLOW_COPY_AND_ASSIGN(PasswordsTableModel);
 };
 
-// A button that can have 2 different labels set on it and for which the
-// preferred size is the size of the widest string.
-class MultiLabelButtons : public views::NativeButton {
+///////////////////////////////////////////////////////////////////////////////
+// PasswordsPageView
+class PasswordsPageView : public OptionsPageView,
+                          public views::TableViewObserver,
+                          public views::ButtonListener,
+                          public PasswordsTableModelObserver {
  public:
-  MultiLabelButtons(views::ButtonListener* listener,
-                    const std::wstring& label,
-                    const std::wstring& alt_label);
+  explicit PasswordsPageView(Profile* profile);
 
-  virtual gfx::Size GetPreferredSize();
-
- private:
-  std::wstring label_;
-  std::wstring alt_label_;
-  gfx::Size pref_size_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(MultiLabelButtons);
-};
-
-class PasswordManagerView : public views::View,
-                            public views::DialogDelegate,
-                            public views::TableViewObserver,
-                            public views::ButtonListener,
-                            public PasswordManagerTableModelObserver {
- public:
-  explicit PasswordManagerView(Profile* profile);
-  virtual ~PasswordManagerView();
-
-  // Show the PasswordManagerContentView for the given profile.
-  static void Show(Profile* profile);
-
-  // View methods.
-  virtual void Layout();
-  virtual gfx::Size GetPreferredSize();
-  virtual void ViewHierarchyChanged(bool is_add, views::View* parent,
-                                    views::View* child);
-  // views::TableViewObserver implementation.
+  // views::TableViewObserverImplementation.
   virtual void OnSelectionChanged();
 
-  // ButtonListener implementation.
+  // views::ButtonListener implementation.
   virtual void ButtonPressed(views::Button* sender);
 
-  // views::DialogDelegate methods:
-  virtual int GetDialogButtons() const;
-  virtual bool CanResize() const;
-  virtual bool CanMaximize() const;
-  virtual bool IsAlwaysOnTop() const;
-  virtual bool HasAlwaysOnTopMenu() const;
-  virtual std::wstring GetWindowTitle() const;
-  virtual void WindowClosing();
-  virtual views::View* GetContentsView();
-
-  // PasswordManagerTableModelObserver implementation.
+  // PasswordsTableModelObserver implementation.
   virtual void OnRowCountChanged(size_t rows);
 
- private:
-  // Wire up buttons, the model, and the table view, and query the DB for
-  // saved login data tied to the given profile.
-  void Init();
+ protected:
+  virtual void InitControlLayout();
 
+ private:
   // Helper to configure our buttons and labels.
   void SetupButtonsAndLabels();
 
   // Helper to configure our table view.
   void SetupTable();
 
-  // Components in this view.
-  PasswordManagerTableModel table_model_;
+  PasswordsTableModel table_model_;
   views::TableView* table_view_;
 
   // The buttons and labels.
@@ -189,8 +173,7 @@ class PasswordManagerView : public views::View,
   views::NativeButton remove_all_button_;
   views::Label password_label_;
 
-  static PasswordManagerView* instance_;
-
-  DISALLOW_EVIL_CONSTRUCTORS(PasswordManagerView);
+  DISALLOW_COPY_AND_ASSIGN(PasswordsPageView);
 };
-#endif  // CHROME_BROWSER_PASSWORD_MANAGER_VIEW_H__
+
+#endif  // CHROME_BROWSER_VIEWS_OPTIONS_PASSWORDS_PAGE_VIEW_H_

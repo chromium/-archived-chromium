@@ -221,6 +221,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\options\exceptions_page_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\options\exceptions_page_view.h"
+				>
+			</File>
+			<File
 				RelativePath=".\options\fonts_languages_window_view.cc"
 				>
 			</File>
@@ -278,6 +286,22 @@
 			</File>
 			<File
 				RelativePath=".\options\options_window_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\options\passwords_exceptions_window_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\options\passwords_exceptions_window_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\options\passwords_page_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\options\passwords_page_view.h"
 				>
 			</File>
 		</Filter>
@@ -350,6 +374,10 @@
 			</File>
 			<File
 				RelativePath=".\find_bar_win.h"
+				>
+			</File>
+			<File
+				RelativePath="..\page_state.h"
 				>
 			</File>
 		</Filter>
@@ -691,22 +719,6 @@
 		</File>
 		<File
 			RelativePath=".\page_info_window.h"
-			>
-		</File>
-		<File
-			RelativePath=".\password_manager_exceptions_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\password_manager_exceptions_view.h"
-			>
-		</File>
-		<File
-			RelativePath=".\password_manager_view.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\password_manager_view.h"
 			>
 		</File>
 		<File

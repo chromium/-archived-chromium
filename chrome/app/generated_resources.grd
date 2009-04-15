@@ -1862,45 +1862,47 @@ each locale. -->
         Kill pages
       </message>
 
+      <!-- Passwords and Exceptions Dialog -->
+      <message name="IDS_PASSWORDS_EXCEPTIONS_WINDOW_TITLE" desc="Title for 'Passwords and exceptions dialog'">
+        Passwords and Exceptions
+      </message>
+      <message name="IDS_PASSWORDS_SHOW_PASSWORDS_TAB_TITLE" desc="Title for 'Saved passwords' tab">
+        Saved passwords
+      </message>
+      <message name="IDS_PASSWORDS_EXCEPTIONS_TAB_TITLE" desc="Title for 'Exceptions' tab">
+        Exceptions
+      </message>
+      <message name="IDS_PASSWORDS_PAGE_VIEW_SITE_COLUMN" desc="Password table view Site column title">
+        Site
+      </message>
+      <message name="IDS_PASSWORDS_PAGE_VIEW_USERNAME_COLUMN" desc="Password table view Username column title">
+        Username
+      </message>
+      <message name="IDS_PASSWORDS_PAGE_VIEW_REMOVE_BUTTON" desc="Passwords page view's 'Remove' button text">
+        Remove
+      </message>
+      <message name="IDS_PASSWORDS_PAGE_VIEW_REMOVE_ALL_BUTTON" desc="Passwords page view's 'Remove all' button text">
+        Remove All
+      </message>
+      <message name="IDS_PASSWORDS_PAGE_VIEW_SHOW_BUTTON" desc="Text for passwords page view's button to show a stored password">
+        Show password
+      </message>
+      <message name="IDS_PASSWORDS_PAGE_VIEW_HIDE_BUTTON" desc="Text for passwords page view's button to hide a stored password">
+        Hide password
+      </message>
+      <message name="IDS_EXCEPTIONS_PAGE_VIEW_REMOVE_BUTTON" desc="Exceptions page view's 'Remove' button text">
+        Remove
+      </message>
+      <message name="IDS_EXCEPTIONS_PAGE_VIEW_REMOVE_ALL_BUTTON" desc="Exceptions page view's 'Remove all' button text">
+        Remove All
+      </message>
+
       <!-- Password Manager -->
       <message name="IDS_PASSWORD_MANAGER_SAVE_BUTTON" desc="Save button text for password manager">
         Save password
       </message>
       <message name="IDS_PASSWORD_MANAGER_BLACKLIST_BUTTON" desc="Button text for the 'Save Password' infobar's 'Never remember for this site' option">
         Never for this site
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_TITLE" desc="Password manager view window title">
-        Passwords
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_REMOVE_BUTTON" desc="Password manager view's remove button text">
-        Remove
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_REMOVE_ALL_BUTTON" desc="Password manager view's remove all button text">
-        Remove All
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_SHOW_BUTTON" desc="Text for password manager view's button to show a stored password">
-        Show password
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_HIDE_BUTTON" desc="Text for password manager view's button to hide a stored password">
-        Hide password
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_CLOSE_BUTTON" desc="Text for password manager view's close button">
-        Close      
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_SITE_COLUMN" desc="Password manager table view Site column title">
-        Site
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_VIEW_USERNAME_COLUMN" desc="Password manager table view Username column title">
-        Username
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_TITLE" desc="Password manager exceptions view window title">
-        Exceptions
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_REMOVE_BUTTON" desc="Password manager exceptions view's remove button text">
-        Remove
-      </message>
-      <message name="IDS_PASSWORD_MANAGER_EXCEPTIONS_VIEW_REMOVE_ALL_BUTTON" desc="Password manager exceptions view's remove all button text">
-        Remove All
       </message>
 
       <!-- Import Settings Dialog -->
@@ -2836,8 +2838,8 @@ each locale. -->
       <message name="IDS_OPTIONS_PASSWORDS_SHOWPASSWORDS" desc="The label of the 'Show passwords' button">
         Show saved passwords
       </message>
-      <message name="IDS_OPTIONS_PASSWORDS_EXCEPTIONS" desc="The label of the 'Exceptions' button">
-        Exceptions
+      <message name="IDS_OPTIONS_PASSWORDS_EXCEPTIONS" desc="The label of the 'Show saved passwords' button">
+        Show saved passwords
       </message>
 
       <message name="IDS_AUTOFILL_SETTING_WINDOWS_GROUP_NAME" desc="The title of the form autofill group">
