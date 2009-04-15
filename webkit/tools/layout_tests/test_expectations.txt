@@ -2464,3 +2464,7 @@ BUG10529 MAC RELEASE : LayoutTests/editing/inserting/6703873.html = FAIL
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
 BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.html = FAIL
+
+// TODO(brettw) Regressions from merge 42244:42287
+BUG10571 WIN : LayoutTests/http/tests/navigation/anchor-basic.html = FAIL
+BUG10571 WIN : LayoutTests/http/tests/navigation/anchor-frames.html = FAIL
