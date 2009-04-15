@@ -1292,8 +1292,9 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
                                                        V8ClassIndex::NODE);
       break;
     case V8ClassIndex::HTMLOPTIONSCOLLECTION:
-      desc->InstanceTemplate()->SetNamedPropertyHandler(
-        USE_NAMED_PROPERTY_GETTER(HTMLCollection));
+      setCollectionNamedGetter<HTMLOptionsCollection, Node>(
+          desc,
+          V8ClassIndex::NODE);
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
           USE_INDEXED_PROPERTY_GETTER(HTMLOptionsCollection),
           USE_INDEXED_PROPERTY_SETTER(HTMLOptionsCollection));
@@ -1302,7 +1303,12 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
       break;
     case V8ClassIndex::HTMLSELECTELEMENT:
       desc->InstanceTemplate()->SetNamedPropertyHandler(
-          USE_NAMED_PROPERTY_GETTER(HTMLSelectElementCollection));
+          nodeCollectionNamedPropertyGetter<HTMLSelectElement>,
+          0,
+          0,
+          0,
+          0,
+          v8::Integer::New(V8ClassIndex::NODE));
       desc->InstanceTemplate()->SetIndexedPropertyHandler(
           nodeCollectionIndexedPropertyGetter<HTMLSelectElement>,
           USE_INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection),
@@ -2402,7 +2408,6 @@ void* V8Proxy::ToNativeObjectImpl(V8ClassIndex::V8WrapperType type,
 
   return DOMWrapperToNative<void>(object);
 }
-
 
 v8::Handle<v8::Object> V8Proxy::LookupDOMWrapper(
     V8ClassIndex::V8WrapperType type, v8::Handle<v8::Value> value)
