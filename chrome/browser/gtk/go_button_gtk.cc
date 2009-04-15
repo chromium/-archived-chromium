@@ -48,35 +48,18 @@ GoButtonGtk::~GoButtonGtk() {
   widget_.Destroy();
 }
 
-void GoButtonGtk::ChangeMode(Mode mode) {
-  if (mode != visible_mode_) {
-    gtk_widget_queue_draw(widget_.get());
-    visible_mode_ = mode;
-    SetTooltip();
-  }
-  stop_timer_.RevokeAll();
+void GoButtonGtk::ChangeMode(Mode mode, bool force) {
   intended_mode_ = mode;
-}
 
-void GoButtonGtk::ScheduleChangeMode(Mode mode) {
-  if (mode == MODE_STOP) {
-    // If we still have a timer running, we can't yet change to a stop sign,
-    // so we'll queue up the change for when the timer expires or for when
-    // the mouse exits the button.
-    if (!stop_timer_.empty() && state() == BS_HOT) {
-      intended_mode_ = MODE_STOP;
-    } else {
-      ChangeMode(MODE_STOP);
-    }
-  } else {
-    // If we want to change the button to a go button, but the user's mouse
-    // is hovering, don't change the mode just yet - this prevents the
-    // stop button changing to a go under the user's mouse cursor.
-    if (visible_mode_ == MODE_STOP && state() == BS_HOT) {
-      intended_mode_ = MODE_GO;
-    } else {
-      ChangeMode(MODE_GO);
-    }
+  // If the change is forced, or the user isn't hovering the icon, or it's safe
+  // to change it to the other image type, make the change immediately;
+  // otherwise we'll let it happen later.
+  if (force || (state() != BS_HOT) || ((mode == MODE_STOP) ?
+      stop_timer_.empty() : (visible_mode_ != MODE_STOP))) {
+    stop_timer_.RevokeAll();
+    gtk_widget_queue_draw(widget_.get());
+    SetTooltip();
+    visible_mode_ = mode;
   }
 }
 
@@ -85,11 +68,8 @@ Task* GoButtonGtk::CreateButtonTimerTask() {
 }
 
 void GoButtonGtk::OnButtonTimer() {
-  if (intended_mode_ != visible_mode_) {
-    ChangeMode(intended_mode_);
-  }
-
   stop_timer_.RevokeAll();
+  ChangeMode(intended_mode_, true);
 }
 
 // static
@@ -114,9 +94,7 @@ gboolean GoButtonGtk::OnEnter(GtkButton* widget, GoButtonGtk* button) {
 gboolean GoButtonGtk::OnLeave(GtkButton* widget, GoButtonGtk* button) {
   DCHECK_EQ(BS_HOT, button->state());
   button->state_ = BS_NORMAL;
-  if (button->visible_mode_ != button->intended_mode_) {
-    button->ChangeMode(button->intended_mode_);
-  }
+  button->ChangeMode(button->intended_mode_, true);
   return TRUE;
 }
 
@@ -128,7 +106,7 @@ gboolean GoButtonGtk::OnClicked(GtkButton* widget, GoButtonGtk* button) {
 
     // The user has clicked, so we can feel free to update the button,
     // even if the mouse is still hovering.
-    button->ChangeMode(MODE_GO);
+    button->ChangeMode(MODE_GO, true);
   } else if (button->visible_mode_ == MODE_GO && button->stop_timer_.empty()) {
     // If the go button is visible and not within the double click timer, go.
     if (button->browser_)

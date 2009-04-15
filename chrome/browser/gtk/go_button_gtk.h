@@ -27,14 +27,9 @@ class GoButtonGtk {
   GtkWidget* widget() const { return widget_.get(); }
   ButtonState state() const { return state_; }
 
-  // Force the button state.  Useful for when the foreground tab changes.
-  void ChangeMode(Mode mode);
-
-  // Ask for a specified button state.  This is called when the loading state of
-  // the tab changes.  This method may postpone the actual ChangeMode() call
-  // until another event (such as waiting for a potential double click to end,
-  // or for the mouse to stop hovering over the button).
-  void ScheduleChangeMode(Mode mode);
+  // Ask for a specified button state.  If |force| is true this will be applied
+  // immediately.
+  void ChangeMode(Mode mode, bool force);
 
  private:
   friend class GoButtonGtkPeer;
