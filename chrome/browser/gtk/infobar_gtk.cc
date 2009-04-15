@@ -11,7 +11,6 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/infobar_container_gtk.h"
 #include "chrome/browser/gtk/link_button_gtk.h"
-#include "chrome/common/gtk_util.h"
 
 namespace {
 

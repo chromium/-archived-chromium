@@ -4,11 +4,35 @@
 
 #include "chrome/browser/gtk/menu_gtk.h"
 
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/string_util.h"
-#include "chrome/common/gtk_util.h"
 #include "chrome/common/l10n_util.h"
 #include "skia/include/SkBitmap.h"
+
+namespace {
+
+// GTK uses _ for accelerators.  Windows uses & with && as an escape for &.
+std::string ConvertAcceleratorsFromWindowsStyle(const std::string& label) {
+  std::string ret;
+  ret.reserve(label.length());
+  for (size_t i = 0; i < label.length(); ++i) {
+    if ('&' == label[i]) {
+      if (i + 1 < label.length() && '&' == label[i + 1]) {
+        ret.push_back(label[i]);
+        ++i;
+      } else {
+        ret.push_back('_');
+      }
+    } else {
+      ret.push_back(label[i]);
+    }
+  }
+
+  return ret;
+}
+
+}  // namespace
 
 MenuGtk::MenuGtk(MenuGtk::Delegate* delegate,
                  const MenuCreateMaterial* menu_data,
@@ -79,28 +103,7 @@ void MenuGtk::PopupAsContext(guint32 event_time) {
 }
 
 void MenuGtk::Cancel() {
-  gtk_menu_popdown(GTK_MENU(menu_.get()));
-}
-
-// static
-std::string MenuGtk::ConvertAcceleratorsFromWindowsStyle(
-    const std::string& label) {
-  std::string ret;
-  ret.reserve(label.length());
-  for (size_t i = 0; i < label.length(); ++i) {
-    if ('&' == label[i]) {
-      if (i + 1 < label.length() && '&' == label[i + 1]) {
-        ret.push_back(label[i]);
-        ++i;
-      } else {
-        ret.push_back('_');
-      }
-    } else {
-      ret.push_back(label[i]);
-    }
-  }
-
-  return ret;
+  gtk_menu_detach(GTK_MENU(menu_.get()));
 }
 
 void MenuGtk::BuildMenuIn(GtkWidget* menu,

@@ -34,10 +34,6 @@
         ['include', '/win/'],
         ['include', '/win_[^/]*\\.cc$'],
       ]}],
-      [ 'OS != "linux"', { 'sources!': [
-          'gfx/gtk_util.cc',
-          ],
-      }],
     ],
   },
   'targets': [
@@ -129,8 +125,6 @@
         'common/gfx/text_elider.cc',
         'common/gfx/text_elider.h',
         'common/gfx/utils.h',
-        'common/gtk_util.cc',
-        'common/gtk_util.h',
         'common/net/cookie_monster_sqlite.cc',
         'common/net/cookie_monster_sqlite.h',
         'common/net/dns.h',
@@ -714,8 +708,6 @@
         'browser/gtk/back_forward_menu_model_gtk.h',
         'browser/gtk/bookmark_bar_gtk.cc',
         'browser/gtk/bookmark_bar_gtk.h',
-        'browser/gtk/bookmark_context_menu_gtk.cc',
-        'browser/gtk/bookmark_context_menu_gtk.h',
         'browser/gtk/browser_toolbar_gtk.cc',
         'browser/gtk/browser_toolbar_gtk.h',
         'browser/gtk/browser_window_factory_gtk.cc',

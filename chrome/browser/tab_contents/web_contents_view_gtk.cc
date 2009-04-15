@@ -8,6 +8,7 @@
 #include <gtk/gtk.h>
 
 #include "base/string_util.h"
+#include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "base/gfx/rect.h"
 #include "chrome/browser/gtk/browser_window_gtk.h"
@@ -17,7 +18,6 @@
 #include "chrome/browser/tab_contents/render_view_context_menu_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/gtk_util.h"
 
 namespace {
 

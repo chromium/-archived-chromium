@@ -13,7 +13,6 @@
 #include "chrome/common/owned_widget_gtk.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 
-class BookmarkContextMenuGtk;
 class Browser;
 class CustomContainerButton;
 class PageNavigator;
@@ -112,15 +111,13 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   BookmarkNode* GetNodeForToolButton(GtkWidget* button);
 
   // Creates and displays a popup menu for BookmarkNode |node|.
-  void PopupMenuForNode(GtkWidget* sender, BookmarkNode* node,
-                        GdkEventButton* event);
+  void PopupMenuForNode(BookmarkNode* node, GdkEventButton* event);
 
   // GtkButton callbacks
   static gboolean OnButtonPressed(GtkWidget* sender,
                                   GdkEventButton* event,
                                   BookmarkBarGtk* bar);
-  static gboolean OnButtonReleased(GtkWidget* sender,
-                                   GdkEventButton* event,
+  static gboolean OnButtonReleased(GtkWidget* sender, GdkEventButton* event,
                                    BookmarkBarGtk* bar);
   static gboolean OnButtonExpose(GtkWidget* widget, GdkEventExpose* e,
                                  BookmarkBarGtk* button);
@@ -197,10 +194,6 @@ class BookmarkBarGtk : public BookmarkModelObserver {
 
   // Whether we should show the instructional text in the bookmark bar.
   bool show_instructions_;
-
-  // The last displayed right click menu, or NULL if no menus have been
-  // displayed yet.
-  scoped_ptr<BookmarkContextMenuGtk> current_context_menu_;
 };
 
 #endif  // CHROME_BROWSER_GTK_BOOKMARK_BAR_GTK_H_

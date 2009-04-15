@@ -67,11 +67,6 @@ class MenuGtk {
   // Closes the menu.
   void Cancel();
 
-  // Change windows accelerator style to GTK style. (GTK uses _ for
-  // accelerators.  Windows uses & with && as an escape for &.)
-  static std::string ConvertAcceleratorsFromWindowsStyle(
-      const std::string& label);
-
  private:
   // A recursive function that transforms a MenuCreateMaterial tree into a set
   // of GtkMenuItems.

@@ -13,7 +13,6 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/common/gtk_util.h"
 #include "chrome/common/l10n_util.h"
 #include "grit/generated_resources.h"
 

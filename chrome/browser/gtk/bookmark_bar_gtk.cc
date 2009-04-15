@@ -5,15 +5,12 @@
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 
 #include "base/gfx/gtk_util.h"
-#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/gtk/bookmark_context_menu_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/gtk_util.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
@@ -122,20 +119,16 @@ void BookmarkBarGtk::Init(Profile* profile) {
                    G_CALLBACK(&OnToolbarDragLeave), this);
   g_signal_connect(bookmark_toolbar_.get(), "drag-drop",
                    G_CALLBACK(&OnToolbarDragDrop), this);
-  g_signal_connect(bookmark_toolbar_.get(), "button-press-event",
-                   G_CALLBACK(&OnButtonPressed), this);
 
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), gtk_vseparator_new(),
                      FALSE, FALSE, 0);
 
   other_bookmarks_button_ = gtk_chrome_button_new();
-  g_signal_connect(other_bookmarks_button_, "button-press-event",
-                   G_CALLBACK(&OnButtonPressed), this);
   gtk_button_set_label(GTK_BUTTON(other_bookmarks_button_),
                        "Other bookmarks");
   gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
                        gtk_image_new_from_pixbuf(folder_icon_));
-
+  // TODO(erg): Hook up a popup menu to |other_bookmarks_button_|.
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), other_bookmarks_button_,
                      FALSE, FALSE, 0);
 }
@@ -351,16 +344,8 @@ std::string BookmarkBarGtk::BuildTooltip(BookmarkNode* node) {
   return node->GetURL().possibly_invalid_spec();
 }
 
-BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* widget) {
-  // First check to see if |button| is the special cased.
-  if (widget == other_bookmarks_button_)
-    return model_->other_node();
-  else if (widget == bookmark_toolbar_.get())
-    return model_->GetBookmarkBarNode();
-
-  // Search the contents of |bookmark_toolbar_| for the corresponding widget
-  // and find its index.
-  GtkWidget* item_to_find = gtk_widget_get_parent(widget);
+BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* button) {
+  GtkWidget* item_to_find = gtk_widget_get_parent(button);
   int index_to_use = -1;
   int index = 0;
   GList* children = gtk_container_get_children(
@@ -379,49 +364,20 @@ BookmarkNode* BookmarkBarGtk::GetNodeForToolButton(GtkWidget* widget) {
   return NULL;
 }
 
-void BookmarkBarGtk::PopupMenuForNode(GtkWidget* sender, BookmarkNode* node,
+void BookmarkBarGtk::PopupMenuForNode(BookmarkNode* node,
                                       GdkEventButton* event) {
-  if (!model_->IsLoaded()) {
-    // Don't do anything if the model isn't loaded.
-    return;
-  }
-
-  BookmarkNode* parent = NULL;
-  std::vector<BookmarkNode*> nodes;
-  if (sender == other_bookmarks_button_) {
-    parent = model_->GetBookmarkBarNode();
-    nodes.push_back(parent);
-  } else if (sender != bookmark_toolbar_.get()) {
-    nodes.push_back(node);
-    parent = node->GetParent();
-  } else {
-    parent = model_->GetBookmarkBarNode();
-    nodes.push_back(parent);
-  }
-
-  current_context_menu_.reset(new BookmarkContextMenuGtk(
-                                  GTK_WINDOW(gtk_widget_get_toplevel(sender)),
-                                  profile_, browser_, page_navigator_,
-                                  parent, nodes,
-                                  BookmarkContextMenuGtk::BOOKMARK_BAR));
-  current_context_menu_->PopupAsContext(event->time);
+  GtkWidget* menu = gtk_menu_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu),
+                        gtk_menu_item_new_with_label("TODO(erg): Write menus"));
+  gtk_widget_show_all(menu);
+  gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event->button,
+                 event->time);
 }
 
-// static
 gboolean BookmarkBarGtk::OnButtonPressed(GtkWidget* sender,
                                          GdkEventButton* event,
                                          BookmarkBarGtk* bar) {
-  if (sender != bar->other_bookmarks_button_ &&
-      sender != bar->bookmark_toolbar_.get())
-    bar->ignore_button_release_ = false;
-
-  if (event->button == 3) {
-    BookmarkNode* node = bar->GetNodeForToolButton(sender);
-    DCHECK(node);
-    DCHECK(bar->page_navigator_);
-    bar->PopupMenuForNode(sender, node, event);
-  }
-
+  bar->ignore_button_release_ = false;
   return FALSE;
 }
 
@@ -438,16 +394,19 @@ gboolean BookmarkBarGtk::OnButtonReleased(GtkWidget* sender,
   DCHECK(node);
   DCHECK(bar->page_navigator_);
 
+  if (event->button == 3) {
+    bar->PopupMenuForNode(node, event);
+    return FALSE;
+  }
+
   if (node->is_url()) {
     bar->page_navigator_->OpenURL(
         node->GetURL(), GURL(),
-        event_utils::DispositionFromEventFlags(event->state),
+        // TODO(erg): Detect the disposition based on the click type.
+        CURRENT_TAB,
         PageTransition::AUTO_BOOKMARK);
   } else {
-    bookmark_utils::OpenAll(
-        GTK_WINDOW(gtk_widget_get_toplevel(sender)), bar->profile_,
-        bar->page_navigator_, node,
-        event_utils::DispositionFromEventFlags(event->state));
+    // TODO(erg): Handle folders and extensions.
   }
 
   UserMetrics::RecordAction(L"ClickedBookmarkBarURLButton", bar->profile_);
