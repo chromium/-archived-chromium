@@ -232,13 +232,31 @@ void TestWebViewDelegate::DidMove(WebWidget* webwidget,
 
   // Update the window position.  Resizing is handled by WebPluginDelegate.
   // TODO(deanm): Verify that we only need to move and not resize.
-  // TODO(deanm): Can we avoid the X call if it's already at the right place,
-  // the GtkFixed knows where the child is, maybe it handles this for us?
+  // TODO(evanm): we should cache the last shape and position and skip all
+  // of this business in the common case where nothing has changed.
   WebWidgetHost* host = GetHostForWidget(webwidget);
-  gtk_fixed_move(GTK_FIXED(host->view_handle()),
-                 widget,
-                 move.window_rect.x(),
-                 move.window_rect.y());
+  int current_x, current_y;
+
+  // Until the above TODO is resolved, we can grab the last position
+  // off of the GtkFixed with a bit of hackery.
+  GValue value = {0};
+  g_value_init(&value, G_TYPE_INT);
+  gtk_container_child_get_property(GTK_CONTAINER(host->view_handle()), widget,
+                                   "x", &value);
+  current_x = g_value_get_int(&value);
+  gtk_container_child_get_property(GTK_CONTAINER(host->view_handle()), widget,
+                                   "y", &value);
+  current_y = g_value_get_int(&value);
+  g_value_unset(&value);
+
+  if (move.window_rect.x() != current_x || move.window_rect.y() != current_y) {
+    // Calling gtk_fixed_move unnecessarily is a no-no, as it causes the parent
+    // window to repaint!
+    gtk_fixed_move(GTK_FIXED(host->view_handle()),
+                   widget,
+                   move.window_rect.x(),
+                   move.window_rect.y());
+  }
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {

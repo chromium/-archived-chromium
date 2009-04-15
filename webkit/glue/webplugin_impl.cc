@@ -661,14 +661,16 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect,
   CalculateBounds(rect, &window_rect, &clip_rect, &cutout_rects);
 
   if (widget_dimensions_changed) {
+    // Notify the plugin that its parameters have changed.
     delegate_->UpdateGeometry(
         webkit_glue::FromIntRect(window_rect),
         webkit_glue::FromIntRect(clip_rect));
   }
 
   if (window_) {
-    // Let the WebViewDelegate know that the plugin window needs to be moved,
-    // so that all the HWNDs are moved together.
+    // Notify the window hosting the plugin (the WebViewDelegate) that
+    // it needs to adjust the plugin, so that all the HWNDs can be moved
+    // at the same time.
     WebPluginGeometry move;
     move.window = window_;
     move.window_rect = webkit_glue::FromIntRect(window_rect);
