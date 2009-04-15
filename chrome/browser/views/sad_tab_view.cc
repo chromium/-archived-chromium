@@ -25,8 +25,8 @@ static const SkColor kBackgroundEndColor = SkColorSetRGB(35, 48, 64);
 
 // static
 SkBitmap* SadTabView::sad_tab_bitmap_ = NULL;
-ChromeFont SadTabView::title_font_;
-ChromeFont SadTabView::message_font_;
+ChromeFont* SadTabView::title_font_ = NULL;
+ChromeFont* SadTabView::message_font_ = NULL;
 std::wstring SadTabView::title_;
 std::wstring SadTabView::message_;
 int SadTabView::title_width_;
@@ -47,12 +47,12 @@ void SadTabView::Paint(ChromeCanvas* canvas) {
 
   canvas->DrawBitmapInt(*sad_tab_bitmap_, icon_bounds_.x(), icon_bounds_.y());
 
-  canvas->DrawStringInt(title_, title_font_, kTitleColor, title_bounds_.x(),
+  canvas->DrawStringInt(title_, *title_font_, kTitleColor, title_bounds_.x(),
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height(),
                         ChromeCanvas::TEXT_ALIGN_CENTER);
 
-  canvas->DrawStringInt(message_, message_font_, kMessageColor,
+  canvas->DrawStringInt(message_, *message_font_, kMessageColor,
                         message_bounds_.x(), message_bounds_.y(),
                         message_bounds_.width(), message_bounds_.height(),
                         ChromeCanvas::MULTI_LINE);
@@ -67,13 +67,13 @@ void SadTabView::Layout() {
 
   int title_x = (width() - title_width_) / 2;
   int title_y = icon_bounds_.bottom() + kIconTitleSpacing;
-  int title_height = title_font_.height();
+  int title_height = title_font_->height();
   title_bounds_.SetRect(title_x, title_y, title_width_, title_height);
 
   ChromeCanvas cc(0, 0, true);
   int message_width = static_cast<int>(width() * kMessageSize);
   int message_height = 0;
-  cc.SizeStringInt(message_, message_font_, &message_width, &message_height,
+  cc.SizeStringInt(message_, *message_font_, &message_width, &message_height,
                    ChromeCanvas::MULTI_LINE);
   int message_x = (width() - message_width) / 2;
   int message_y = title_bounds_.bottom() + kTitleMessageSpacing;
@@ -85,13 +85,14 @@ void SadTabView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    title_font_ = rb.GetFont(ResourceBundle::BaseFont).
-        DeriveFont(2, ChromeFont::BOLD);
-    message_font_ = rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1);
+    title_font_ = new ChromeFont(
+        rb.GetFont(ResourceBundle::BaseFont).DeriveFont(2, ChromeFont::BOLD));
+    message_font_ = new ChromeFont(
+        rb.GetFont(ResourceBundle::BaseFont).DeriveFont(1));
     sad_tab_bitmap_ = rb.GetBitmapNamed(IDR_SAD_TAB);
 
     title_ = l10n_util::GetString(IDS_SAD_TAB_TITLE);
-    title_width_ = title_font_.GetStringWidth(title_);
+    title_width_ = title_font_->GetStringWidth(title_);
     message_ = l10n_util::GetString(IDS_SAD_TAB_MESSAGE);
 
     initialized = true;

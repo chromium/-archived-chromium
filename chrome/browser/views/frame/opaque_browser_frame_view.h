@@ -158,7 +158,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   static views::WindowResources* inactive_resources_;
   static views::WindowResources* active_otr_resources_;
   static views::WindowResources* inactive_otr_resources_;
-  static ChromeFont title_font_;
+  static ChromeFont* title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(OpaqueBrowserFrameView);
 };

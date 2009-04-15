@@ -20,6 +20,7 @@
 #include "base/string_util.h"
 #include "base/win_util.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "grit/generated_resources.h"
 #include "net/base/mime_util.h"
 
@@ -810,6 +811,7 @@ int MessageBox(HWND hwnd,
 ChromeFont GetWindowTitleFont() {
   NONCLIENTMETRICS ncm;
   win_util::GetNonClientMetrics(&ncm);
+  l10n_util::AdjustUIFont(&(ncm.lfCaptionFont));
   ScopedHFONT caption_font(CreateFontIndirect(&(ncm.lfCaptionFont)));
   return ChromeFont::CreateFont(caption_font);
 }

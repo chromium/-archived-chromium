@@ -267,12 +267,12 @@ class ConstrainedWindowFrameView
   static void InitClass();
 
   // The font to be used to render the titlebar text.
-  static ChromeFont title_font_;
+  static ChromeFont* title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ConstrainedWindowFrameView);
 };
 
-ChromeFont ConstrainedWindowFrameView::title_font_;
+ChromeFont* ConstrainedWindowFrameView::title_font_ = NULL;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -461,7 +461,7 @@ int ConstrainedWindowFrameView::TitleCoordinates(
   // The bottom spacing should be the same apparent height as the top spacing,
   // plus have the client edge tacked on.
   int title_bottom_spacing = *title_top_spacing + kClientEdgeThickness;
-  *title_thickness = std::max(title_font_.height(),
+  *title_thickness = std::max(title_font_->height(),
       min_titlebar_height - *title_top_spacing - title_bottom_spacing);
   return *title_top_spacing + *title_thickness + title_bottom_spacing;
 }
@@ -511,7 +511,7 @@ void ConstrainedWindowFrameView::PaintFrameBorder(ChromeCanvas* canvas) {
 }
 
 void ConstrainedWindowFrameView::PaintTitleBar(ChromeCanvas* canvas) {
-  canvas->DrawStringInt(container_->GetWindowTitle(), title_font_,
+  canvas->DrawStringInt(container_->GetWindowTitle(), *title_font_,
       GetTitleColor(), MirroredLeftPointForRect(title_bounds_),
       title_bounds_.y(), title_bounds_.width(), title_bounds_.height());
 }
@@ -545,9 +545,9 @@ void ConstrainedWindowFrameView::LayoutTitleBar() {
   int title_top_spacing, title_thickness;
   TitleCoordinates(&title_top_spacing, &title_thickness);
   title_bounds_.SetRect(title_x,
-      title_top_spacing + ((title_thickness - title_font_.height()) / 2),
+      title_top_spacing + ((title_thickness - title_font_->height()) / 2),
       std::max(0, close_button_->x() - kTitleCaptionSpacing - title_x),
-      title_font_.height());
+      title_font_->height());
 }
 
 void ConstrainedWindowFrameView::LayoutClientView() {
@@ -580,7 +580,7 @@ void ConstrainedWindowFrameView::InitWindowResources() {
 void ConstrainedWindowFrameView::InitClass() {
   static bool initialized = false;
   if (!initialized) {
-    title_font_ = win_util::GetWindowTitleFont();
+    title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
 
     initialized = true;
   }

@@ -39,8 +39,8 @@ class SadTabView : public views::View {
 
   // Assorted resources for display.
   static SkBitmap* sad_tab_bitmap_;
-  static ChromeFont title_font_;
-  static ChromeFont message_font_;
+  static ChromeFont* title_font_;
+  static ChromeFont* message_font_;
   static std::wstring title_;
   static std::wstring message_;
   static int title_width_;

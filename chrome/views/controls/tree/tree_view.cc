@@ -10,6 +10,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/icon_util.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
 #include "chrome/views/focus/focus_manager.h"
@@ -346,6 +347,8 @@ HWND TreeView::CreateNativeControl(HWND parent_container) {
                    reinterpret_cast<LONG_PTR>(&wrapper_));
   original_handler_ = win_util::SetWindowProc(tree_view_,
                                               &TreeWndProc);
+  l10n_util::AdjustUIFontForWindow(tree_view_);
+
   if (model_) {
     CreateRootItems();
     model_->SetObserver(this);

@@ -11,7 +11,7 @@
 
 #include "base/logging.h"
 #include "base/win_util.h"
-#include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "grit/generated_resources.h"
 #include "grit/locale_settings.h"
 
@@ -78,7 +78,12 @@ ChromeFont::HFontRef* ChromeFont::GetBaseFontRef() {
     NONCLIENTMETRICS metrics;
     win_util::GetNonClientMetrics(&metrics);
 
+    l10n_util::AdjustUIFont(&metrics.lfMessageFont);
+
     // See comment in ChromeFont::DeriveFont() about font size.
+    // TODO(jungshik): Add a per-locale resource entry for the minimum
+    // font size  and actually enforce the lower-bound. 5 is way too small
+    // for CJK, Thai, and Indian locales.
     DCHECK_GE(abs(metrics.lfMessageFont.lfHeight), 5);
     HFONT font = CreateFontIndirect(&metrics.lfMessageFont);
     DLOG_ASSERT(font);

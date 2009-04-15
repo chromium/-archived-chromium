@@ -2,9 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/views/widget/tooltip_manager.h"
+
 #include <limits>
 
-#include "chrome/common/gfx/chrome_font.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "chrome/common/l10n_util.h"
@@ -13,7 +14,6 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/view.h"
 #include "chrome/views/widget/root_view.h"
-#include "chrome/views/widget/tooltip_manager.h"
 #include "chrome/views/widget/widget.h"
 
 namespace views {
@@ -106,6 +106,8 @@ void TooltipManager::Init() {
       WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
       TOOLTIPS_CLASS, NULL, TTS_NOPREFIX, 0, 0, 0, 0,
       parent_, NULL, NULL, NULL);
+
+  l10n_util::AdjustUIFontForWindow(tooltip_hwnd_);
 
   // This effectively turns off clipping of tooltips. We need this otherwise
   // multi-line text (\r\n) won't work right. The size doesn't really matter

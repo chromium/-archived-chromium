@@ -12,6 +12,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/favicon_size.h"
 #include "chrome/common/gfx/icon_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/hwnd_view.h"
@@ -823,6 +824,7 @@ HWND TableView::CreateNativeControl(HWND parent_container) {
   if (table_type_ == CHECK_BOX_AND_TEXT)
     list_view_style |= LVS_EX_CHECKBOXES;
   ListView_SetExtendedListViewStyleEx(list_view_, 0, list_view_style);
+  l10n_util::AdjustUIFontForWindow(list_view_);
 
   // Add the columns.
   for (std::vector<int>::iterator i = visible_columns_.begin();
@@ -1203,6 +1205,7 @@ LRESULT TableView::OnCustomDraw(NMLVCUSTOMDRAW* draw_info) {
           // with a bool like we do with colors?
           if (custom_cell_font_)
             DeleteObject(custom_cell_font_);
+          l10n_util::AdjustUIFont(&logfont);
           custom_cell_font_ = CreateFontIndirect(&logfont);
           SelectObject(draw_info->nmcd.hdc, custom_cell_font_);
           draw_info->clrText = foreground.color_is_set

@@ -112,6 +112,9 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
           GetSystemMetrics(SM_CXMENUCHECK);
       if (data->submenu)
         lpmis->itemWidth += kArrowWidth;
+      // If the label contains an accelerator, make room for tab.
+      if (data->label.find(L'\t') != std::wstring::npos)
+        lpmis->itemWidth += font.GetStringWidth(L" ");
       lpmis->itemHeight = font.height() + kItemBottomMargin + kItemTopMargin;
     } else {
       // Measure separator size.
@@ -139,7 +142,6 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
     if (lpdis->itemData) {
       Menu::ItemData* data =
           reinterpret_cast<Menu::ItemData*>(lpdis->itemData);
-      wchar_t* str = const_cast<wchar_t*>(data->label.c_str());
 
       // Draw the background.
       HBRUSH hbr = CreateSolidBrush(GetBkColor(hDC));
@@ -149,15 +151,38 @@ class MenuHostWindow : public CWindowImpl<MenuHostWindow, CWindow,
       // Draw the label.
       RECT rect = lpdis->rcItem;
       rect.top += kItemTopMargin;
+      // Should we add kIconWidth only when icon.width() != 0 ? 
       rect.left += kItemLeftMargin + kIconWidth;
-      UINT format = DT_TOP | DT_LEFT | DT_SINGLELINE;
+      rect.right -= kItemRightMargin;
+      UINT format = DT_TOP | DT_SINGLELINE;
       // Check whether the mnemonics should be underlined.
       BOOL underline_mnemonics;
       SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &underline_mnemonics, 0);
       if (!underline_mnemonics)
         format |= DT_HIDEPREFIX;
-      DrawTextEx(hDC, str, static_cast<int>(data->label.size()),
-                 &rect, format, NULL);
+      ChromeFont font;
+      HGDIOBJ old_font = static_cast<HFONT>(SelectObject(hDC, font.hfont()));
+      int fontsize = font.FontSize();
+
+      // If an accelerator is specified (with a tab delimiting the rest
+      // of the label from the accelerator), we have to justify 
+      // the fist part on the left and the accelerator on the right. 
+      // TODO(jungshik):  This will break in RTL UI. Currently, he/ar
+      // use the window system UI font and will not hit here. 
+      std::wstring label = data->label;
+      std::wstring accel;
+      std::wstring::size_type tab_pos = label.find(L'\t');
+      if (tab_pos != std::wstring::npos) {
+        accel = label.substr(tab_pos);
+        label = label.substr(0, tab_pos);
+      }
+      DrawTextEx(hDC, const_cast<wchar_t*>(label.data()),
+                 static_cast<int>(label.size()), &rect, format | DT_LEFT, NULL);
+      if (!accel.empty())
+        DrawTextEx(hDC, const_cast<wchar_t*>(accel.data()),
+                   static_cast<int>(accel.size()), &rect,
+                   format | DT_RIGHT, NULL);
+      SelectObject(hDC, old_font);
 
       // Draw the icon after the label, otherwise it would be covered
       // by the label.
@@ -219,7 +244,7 @@ Menu::Menu(Delegate* delegate, AnchorPoint anchor, HWND owner)
       anchor_(anchor),
       owner_(owner),
       is_menu_visible_(false),
-      owner_draw_(false) {
+      owner_draw_(l10n_util::NeedOverrideDefaultUIFont(NULL, NULL)) {
   DCHECK(delegate_);
 }
 
@@ -229,7 +254,7 @@ Menu::Menu(Menu* parent)
       anchor_(parent->anchor_),
       owner_(parent->owner_),
       is_menu_visible_(false),
-      owner_draw_(false) {
+      owner_draw_(parent->owner_draw_) {
 }
 
 Menu::Menu(HMENU hmenu)

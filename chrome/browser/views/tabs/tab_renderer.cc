@@ -46,7 +46,7 @@ static const double kHoverOpacity = 0.33;
 static const double kHoverOpacityVista = 0.7;
 
 // TODO(beng): (Cleanup) This stuff should move onto the class.
-static ChromeFont title_font;
+static ChromeFont* title_font = NULL;
 static int title_font_height = 0;
 static SkBitmap* close_button_n = NULL;
 static SkBitmap* close_button_h = NULL;
@@ -74,8 +74,8 @@ void InitResources() {
   static bool initialized = false;
   if (!initialized) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-    title_font = rb.GetFont(ResourceBundle::BaseFont);
-    title_font_height = title_font.height();
+    title_font = new ChromeFont(rb.GetFont(ResourceBundle::BaseFont));
+    title_font_height = title_font->height();
 
     close_button_n = rb.GetBitmapNamed(IDR_TAB_CLOSE);
     close_button_h = rb.GetBitmapNamed(IDR_TAB_CLOSE_H);
@@ -413,7 +413,7 @@ void TabRenderer::Paint(ChromeCanvas* canvas) {
 
   SkColor title_color = IsSelected() ? kSelectedTitleColor
                                      : kUnselectedTitleColor;
-  canvas->DrawStringInt(title, title_font, title_color, title_bounds_.x(),
+  canvas->DrawStringInt(title, *title_font, title_color, title_bounds_.x(),
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height());
 }

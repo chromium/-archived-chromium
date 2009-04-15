@@ -72,6 +72,9 @@ void AeroTooltipManager::Init() {
       WS_EX_TRANSPARENT | l10n_util::GetExtendedTooltipStyles(),
       TOOLTIPS_CLASS, NULL, TTS_NOPREFIX, 0, 0, 0, 0,
       parent_, NULL, NULL, NULL);
+
+  l10n_util::AdjustUIFontForWindow(tooltip_hwnd_);
+
   // Add one tool that is used for all tooltips.
   toolinfo_.cbSize = sizeof(toolinfo_);
 

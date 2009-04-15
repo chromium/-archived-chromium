@@ -5,7 +5,36 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/l10n_util_win.h"
 
+#include <algorithm>
+#include <windowsx.h>
+
+#include "base/string_util.h"
 #include "base/win_util.h"
+
+#include "grit/locale_settings.h"
+
+namespace {
+
+void AdjustLogFont(const std::wstring& font_family,
+                   double font_size_scaler,
+                   LOGFONT* logfont) {
+  DCHECK(font_size_scaler > 0);
+  font_size_scaler = std::max(std::min(font_size_scaler, 2.0), 0.7);
+  logfont->lfHeight = static_cast<long>(font_size_scaler *
+      static_cast<double>(abs(logfont->lfHeight)) + 0.5) *
+      (logfont->lfHeight > 0 ? 1 : -1);
+
+  // TODO(jungshik): We may want to check the existence of the font.
+  // If it's not installed, we shouldn't adjust the font.
+  if (font_family != L"default") {
+    int name_len = std::min(static_cast<int>(font_family.size()),
+                            LF_FACESIZE -1);
+    memcpy(logfont->lfFaceName, font_family.data(), name_len * sizeof(WORD));
+    logfont->lfFaceName[name_len] = 0;
+  }
+}
+
+}  // namespace
 
 namespace l10n_util {
 
@@ -37,6 +66,45 @@ bool IsLocaleSupportedByOS(const std::wstring& locale) {
   // Block Oriya on Windows XP.
   return !(LowerCaseEqualsASCII(locale, "or") &&
       win_util::GetWinVersion() < win_util::WINVERSION_VISTA);
+}
+
+bool NeedOverrideDefaultUIFont(std::wstring* override_font_family,
+                               double* font_size_scaler) {
+  // This is rather simple-minded to deal with the UI font size
+  // issue for some Indian locales (ml, bn, hi) for which the default
+  // Windows fonts are too small to be legible.  For those locales,
+  // IDS_UI_FONT_FAMILY is set to an actual font family to use while
+  // for other locales, it's set to 'default'.
+  std::wstring ui_font_family = GetString(IDS_UI_FONT_FAMILY);
+  int scaler100 = StringToInt(l10n_util::GetString(IDS_UI_FONT_SIZE_SCALER));
+  if (ui_font_family == L"default" && scaler100 == 100)
+    return false;
+  if (override_font_family && font_size_scaler) {
+    override_font_family->swap(ui_font_family);
+    *font_size_scaler = scaler100 / 100.0; 
+  }
+  return true;
+}
+
+void AdjustUIFont(LOGFONT* logfont) {
+  std::wstring ui_font_family;
+  double ui_font_size_scaler;
+  if (NeedOverrideDefaultUIFont(&ui_font_family, &ui_font_size_scaler))
+    AdjustLogFont(ui_font_family, ui_font_size_scaler, logfont);
+}
+
+void AdjustUIFontForWindow(HWND hwnd) {
+  std::wstring ui_font_family;
+  double ui_font_size_scaler;
+  if (NeedOverrideDefaultUIFont(&ui_font_family, &ui_font_size_scaler)) {
+    LOGFONT logfont;
+    if (GetObject(GetWindowFont(hwnd), sizeof(logfont), &logfont)) {
+      AdjustLogFont(ui_font_family, ui_font_size_scaler, &logfont);
+      HFONT hfont = CreateFontIndirect(&logfont);
+      if (hfont)
+        SetWindowFont(hwnd, hfont, FALSE);
+    }
+  }
 }
 
 }  // namespace l10n_util

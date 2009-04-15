@@ -112,7 +112,7 @@ class CustomFrameView : public NonClientFrameView,
   static void InitClass();
   static WindowResources* active_resources_;
   static WindowResources* inactive_resources_;
-  static ChromeFont title_font_;
+  static ChromeFont* title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(CustomFrameView);
 };

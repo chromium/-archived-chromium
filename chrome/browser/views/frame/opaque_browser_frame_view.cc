@@ -259,7 +259,7 @@ views::WindowResources* OpaqueBrowserFrameView::inactive_resources_ = NULL;
 views::WindowResources* OpaqueBrowserFrameView::active_otr_resources_ = NULL;
 views::WindowResources* OpaqueBrowserFrameView::inactive_otr_resources_ = NULL;
 SkBitmap* OpaqueBrowserFrameView::distributor_logo_ = NULL;
-ChromeFont OpaqueBrowserFrameView::title_font_;
+ChromeFont* OpaqueBrowserFrameView::title_font_ = NULL;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -703,7 +703,7 @@ int OpaqueBrowserFrameView::TitleCoordinates(int* title_top_spacing,
     *title_top_spacing += title_adjust;
     title_bottom_spacing -= title_adjust;
   }
-  *title_thickness = std::max(title_font_.height(),
+  *title_thickness = std::max(title_font_->height(),
       min_titlebar_height - *title_top_spacing - title_bottom_spacing);
   return *title_top_spacing + *title_thickness + title_bottom_spacing +
       UnavailablePixelsAtBottomOfNonClientHeight();
@@ -788,7 +788,7 @@ void OpaqueBrowserFrameView::PaintTitleBar(ChromeCanvas* canvas) {
   // The window icon is painted by the TabIconView.
   views::WindowDelegate* d = frame_->GetDelegate();
   if (d->ShouldShowWindowTitle()) {
-    canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
+    canvas->DrawStringInt(d->GetWindowTitle(), *title_font_, SK_ColorWHITE,
         MirroredLeftPointForRect(title_bounds_), title_bounds_.y(),
         title_bounds_.width(), title_bounds_.height());
     /* TODO(pkasting):  If this window is active, we should also draw a drop
@@ -970,6 +970,7 @@ void OpaqueBrowserFrameView::LayoutTitleBar() {
   // The usable height of the titlebar area is the total height minus the top
   // resize border and any edge area we draw at its bottom.
   int title_top_spacing, title_thickness;
+  InitAppWindowResources();
   int top_height = TitleCoordinates(&title_top_spacing, &title_thickness);
   int available_height = top_height - frame_thickness -
       UnavailablePixelsAtBottomOfNonClientHeight();
@@ -1001,9 +1002,9 @@ void OpaqueBrowserFrameView::LayoutTitleBar() {
     int title_x = icon_x + icon_size +
         (d->ShouldShowWindowIcon() ? kIconTitleSpacing : 0);
     title_bounds_.SetRect(title_x,
-        title_top_spacing + ((title_thickness - title_font_.height()) / 2),
+        title_top_spacing + ((title_thickness - title_font_->height()) / 2),
         std::max(0, logo_bounds_.x() - kTitleLogoSpacing - title_x),
-        title_font_.height());
+        title_font_->height());
   }
 }
 
@@ -1057,7 +1058,7 @@ void OpaqueBrowserFrameView::InitClass() {
 void OpaqueBrowserFrameView::InitAppWindowResources() {
   static bool initialized = false;
   if (!initialized) {
-    title_font_ = win_util::GetWindowTitleFont();
+    title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
     initialized = true;
   }
 }

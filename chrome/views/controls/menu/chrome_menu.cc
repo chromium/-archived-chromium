@@ -19,6 +19,7 @@
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/l10n_util_win.h"
 #include "chrome/common/os_exchange_data.h"
 #include "chrome/views/border.h"
 #include "chrome/views/view_constants.h"
@@ -129,6 +130,7 @@ ChromeFont GetMenuFont() {
   NONCLIENTMETRICS metrics;
   win_util::GetNonClientMetrics(&metrics);
 
+  l10n_util::AdjustUIFont(&(metrics.lfMenuFont));
   HFONT font = CreateFontIndirect(&metrics.lfMenuFont);
   DLOG_ASSERT(font);
   return ChromeFont::CreateFont(font);

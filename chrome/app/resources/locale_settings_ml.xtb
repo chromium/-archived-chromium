@@ -3,6 +3,8 @@
 <translationbundle lang="ml">
 <translation id="IDS_WEB_FONT_FAMILY">Arial,AnjaliOldLipi,Rachana,Kartika</translation>
 <translation id="IDS_WEB_FONT_SIZE">84%</translation>
+<translation id="IDS_UI_FONT_FAMILY">kartika</translation> 
+<translation id="IDS_UI_FONT_SIZE_SCALER">150</translation>
 <translation id="IDS_ACCEPT_LANGUAGES">ml-IN,ml,en-US,en</translation>
 <translation id="IDS_DEFAULT_ENCODING">ISO-8859-1</translation>
 <translation id="IDS_STANDARD_FONT_IS_SERIF">true</translation>
@@ -17,7 +19,7 @@
 <translation id="IDS_MINIMUM_LOGICAL_FONT_SIZE">6</translation>
 <translation id="IDS_USES_UNIVERSAL_DETECTOR">false</translation>
 <translation id="IDS_SPELLCHECK_DICTIONARY">en-US</translation>
-<translation id="IDS_OPTIONS_DIALOG_WIDTH_CHARS">98</translation>
+<translation id="IDS_OPTIONS_DIALOG_WIDTH_CHARS">110</translation>
 <translation id="IDS_OPTIONS_DIALOG_HEIGHT_LINES">36</translation>
 <translation id="IDS_OPTIONS_DIALOG_LEFT_COLUMN_WIDTH_CHARS">26</translation>
 <translation id="IDS_BUGREPORT_DIALOG_WIDTH_CHARS">85</translation>

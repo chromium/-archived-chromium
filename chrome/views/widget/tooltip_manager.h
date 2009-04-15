@@ -6,8 +6,11 @@
 #define CHROME_VIEWS_WIDGET_TOOLTIP_MANAGER_H_
 
 #include <windows.h>
+#include <commctrl.h>
+
 #include <string>
 #include "base/basictypes.h"
+#include "base/task.h"
 
 class ChromeFont;
 

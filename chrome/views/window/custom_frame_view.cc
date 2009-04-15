@@ -106,7 +106,6 @@ class ActiveWindowResources : public WindowResources {
   }
 
   static SkBitmap* standard_frame_bitmaps_[FRAME_PART_BITMAP_COUNT];
-  static ChromeFont title_font_;
 
   DISALLOW_EVIL_CONSTRUCTORS(ActiveWindowResources);
 };
@@ -168,7 +167,7 @@ SkBitmap* InactiveWindowResources::standard_frame_bitmaps_[];
 // static
 WindowResources* CustomFrameView::active_resources_ = NULL;
 WindowResources* CustomFrameView::inactive_resources_ = NULL;
-ChromeFont CustomFrameView::title_font_;
+ChromeFont* CustomFrameView::title_font_ = NULL;
 
 namespace {
 // The frame border is only visible in restored mode and is hardcoded to 4 px on
@@ -433,7 +432,7 @@ int CustomFrameView::TitleCoordinates(int* title_top_spacing,
     *title_top_spacing += title_adjust;
     title_bottom_spacing -= title_adjust;
   }
-  *title_thickness = std::max(title_font_.height(),
+  *title_thickness = std::max(title_font_->height(),
       min_titlebar_height - *title_top_spacing - title_bottom_spacing);
   return *title_top_spacing + *title_thickness + title_bottom_spacing +
       BottomEdgeThicknessWithinNonClientHeight();
@@ -506,7 +505,7 @@ void CustomFrameView::PaintTitleBar(ChromeCanvas* canvas) {
   if (!d)
     return;
 
-  canvas->DrawStringInt(d->GetWindowTitle(), title_font_, SK_ColorWHITE,
+  canvas->DrawStringInt(d->GetWindowTitle(), *title_font_, SK_ColorWHITE,
       MirroredLeftPointForRect(title_bounds_), title_bounds_.y(),
       title_bounds_.width(), title_bounds_.height());
 }
@@ -667,8 +666,8 @@ void CustomFrameView::LayoutTitleBar() {
   int title_right = (should_show_minmax_buttons_ ?
       minimize_button_->x() : close_button_->x()) - kTitleCaptionSpacing;
   title_bounds_.SetRect(title_x,
-      title_top_spacing + ((title_thickness - title_font_.height()) / 2),
-      std::max(0, title_right - title_x), title_font_.height());
+      title_top_spacing + ((title_thickness - title_font_->height()) / 2),
+      std::max(0, title_right - title_x), title_font_->height());
 }
 
 void CustomFrameView::LayoutClientView() {
@@ -688,7 +687,7 @@ void CustomFrameView::InitClass() {
     active_resources_ = new ActiveWindowResources;
     inactive_resources_ = new InactiveWindowResources;
 
-    title_font_ = win_util::GetWindowTitleFont();
+    title_font_ = new ChromeFont(win_util::GetWindowTitleFont());
 
     initialized = true;
   }
