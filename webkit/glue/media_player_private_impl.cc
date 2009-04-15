@@ -6,7 +6,9 @@
 
 #if ENABLE(VIDEO)
 
+#include "Document.h"
 #include "GraphicsContext.h"
+#include "HTMLMediaElement.h"
 #include "IntRect.h"
 #include "MediaPlayerPrivateChromium.h"
 #include "NotImplemented.h"
@@ -274,7 +276,10 @@ void MediaPlayerPrivate::paint(GraphicsContext* p, const IntRect& r) {
 
 // Called from WebMediaPlayer -------------------------------------------------
 FrameView* MediaPlayerPrivate::frameView() {
-  return m_player->frameView();
+  // Unfortunately m_player->frameView() can be NULL for <audio> so get the
+  // FrameView from the document directly.
+  return static_cast<HTMLMediaElement*>(
+      m_player->mediaPlayerClient())->document()->view();
 }
 
 void MediaPlayerPrivate::networkStateChanged() {
