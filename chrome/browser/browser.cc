@@ -2154,6 +2154,8 @@ void Browser::InitCommandState() {
         // The debugger doesn't work in single process mode.
         normal_window && !RenderProcessHost::run_renderer_in_process());
 #endif
+    command_updater_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA,
+                                          normal_window);
   }
 
   // Initialize other commands whose state changes based on fullscreen mode.
@@ -2237,7 +2239,6 @@ void Browser::UpdateCommandsForFullscreenMode(bool is_fullscreen) {
   command_updater_.UpdateCommandEnabled(IDC_NEW_PROFILE, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_REPORT_BUG, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_SHOW_BOOKMARK_BAR, show_main_ui);
-  command_updater_.UpdateCommandEnabled(IDC_CLEAR_BROWSING_DATA, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_IMPORT_SETTINGS, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_OPTIONS, show_main_ui);
   command_updater_.UpdateCommandEnabled(IDC_EDIT_SEARCH_ENGINES, show_main_ui);
