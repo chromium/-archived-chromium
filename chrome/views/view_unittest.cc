@@ -774,7 +774,9 @@ class SimpleWindowDelegate : public WindowDelegate {
 
 // Tests that the mouse-wheel messages are correctly rerouted to the window
 // under the mouse.
-TEST_F(ViewTest, RerouteMouseWheelTest) {
+// TODO(jcampan): http://crbug.com/10572 Disabled as it fails on the Vista build
+//                bot.
+TEST_F(ViewTest, DISABLED_RerouteMouseWheelTest) {
   TestViewWithControls* view_with_controls = new TestViewWithControls();
   views::Window* window1 =
       views::Window::CreateChromeWindow(
