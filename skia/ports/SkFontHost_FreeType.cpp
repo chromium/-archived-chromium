@@ -887,7 +887,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     // WebKit to fix it correctly, but noones's around now and I
     // probably won't get a chance before the merge tomorrow morning
     //   -- agl
-    ys[2] = -face->descender + 2*face->ascender;
+    ys[2] = -face->descender;
     ys[3] = -face->bbox.yMin;
     ys[4] = leading;
     ys[5] = os2 ? os2->xAvgCharWidth : 0;

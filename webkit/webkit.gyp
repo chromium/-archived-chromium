@@ -3970,6 +3970,9 @@
           'dependencies': [
             '../build/linux/system.gyp:gtk',
           ],
+          'sources': [
+            '../third_party/WebKit/WebCore/platform/graphics/chromium/VDMXParser.cpp',
+          ],
           'sources!': [
             # Not yet ported to Linux.
             '../third_party/WebKit/WebCore/platform/graphics/chromium/FontCustomPlatformData.cpp',
