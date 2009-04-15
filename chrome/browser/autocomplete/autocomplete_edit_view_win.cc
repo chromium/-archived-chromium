@@ -398,11 +398,13 @@ AutocompleteEditViewWin::AutocompleteEditViewWin(
     HWND hwnd,
     Profile* profile,
     CommandUpdater* command_updater,
-    bool popup_window_mode)
+    bool popup_window_mode,
+    AutocompletePopupPositioner* popup_positioner)
     : model_(new AutocompleteEditModel(this, controller, profile)),
       popup_view_(AutocompletePopupView::CreatePopupView(font, this,
                                                          model_.get(),
-                                                         profile)),
+                                                         profile,
+                                                         popup_positioner)),
       controller_(controller),
       parent_view_(parent_view),
       toolbar_model_(toolbar_model),

@@ -309,6 +309,14 @@
       <include name="IDR_DOCK_HIGH" file="dock_tab_high.png" type="BINDATA" />
       <include name="IDR_DOCK_WIDE" file="dock_tab_wide.png" type="BINDATA" />
       <include name="IDR_MENU_BOOKMARK" file="menu_bookmark.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_L" file="omnibox_l.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_TL" file="omnibox_tl.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_T" file="omnibox_t.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_TR" file="omnibox_tr.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_R" file="omnibox_r.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_BR" file="omnibox_br.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_B" file="omnibox_b.png" type="BINDATA" />
+      <include name="IDR_OMNIBOX_POPUP_DS_BL" file="omnibox_bl.png" type="BINDATA" />
       <include name="IDR_O2_GLOBE" file="o2_globe.png" type="BINDATA" />
       <include name="IDR_O2_HISTORY" file="o2_history.png" type="BINDATA" />
       <include name="IDR_O2_MORE" file="o2_more.png" type="BINDATA" />

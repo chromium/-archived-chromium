@@ -145,11 +145,11 @@ RootView* WidgetGtk::GetRootView() {
   return root_view_.get();
 }
 
-bool WidgetGtk::IsVisible() {
+bool WidgetGtk::IsVisible() const {
   return GTK_WIDGET_VISIBLE(widget_);
 }
 
-bool WidgetGtk::IsActive() {
+bool WidgetGtk::IsActive() const {
   NOTIMPLEMENTED();
   return false;
 }

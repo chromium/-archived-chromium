@@ -300,11 +300,11 @@ RootView* WidgetWin::GetRootView() {
   return root_view_.get();
 }
 
-bool WidgetWin::IsVisible() {
+bool WidgetWin::IsVisible() const {
   return !!::IsWindowVisible(GetNativeView());
 }
 
-bool WidgetWin::IsActive() {
+bool WidgetWin::IsActive() const {
   return win_util::IsWindowActive(GetNativeView());
 }
 

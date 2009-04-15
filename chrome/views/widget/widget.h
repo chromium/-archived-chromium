@@ -58,10 +58,10 @@ class Widget {
   virtual RootView* GetRootView() = 0;
 
   // Returns whether the Widget is visible to the user.
-  virtual bool IsVisible() = 0;
+  virtual bool IsVisible() const = 0;
 
   // Returns whether the Widget is the currently active window.
-  virtual bool IsActive() = 0;
+  virtual bool IsActive() const = 0;
 
   // Returns the TooltipManager for this Widget. If this Widget does not support
   // tooltips, NULL is returned.

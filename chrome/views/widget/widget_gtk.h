@@ -41,8 +41,8 @@ class WidgetGtk : public Widget {
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual RootView* GetRootView();
-  virtual bool IsVisible();
-  virtual bool IsActive();
+  virtual bool IsVisible() const;
+  virtual bool IsActive() const;
   virtual TooltipManager* GetTooltipManager();
   virtual bool GetAccelerator(int cmd_id, Accelerator* accelerator);
 

@@ -13,6 +13,7 @@
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
@@ -42,7 +43,8 @@ class BrowserToolbarView : public views::View,
                            public NotificationObserver,
                            public GetProfilesHelper::Delegate,
                            public CommandUpdater::CommandObserver,
-                           public views::ButtonListener {
+                           public views::ButtonListener,
+                           public AutocompletePopupPositioner {
  public:
   explicit BrowserToolbarView(Browser* browser);
   virtual ~BrowserToolbarView();
@@ -122,6 +124,9 @@ class BrowserToolbarView : public views::View,
 
   // Overridden from views::BaseButton::ButtonListener:
   virtual void ButtonPressed(views::Button* sender);
+
+  // Overridden from AutocompletePopupPositioner:
+  virtual gfx::Rect GetPopupBounds() const;
 
  private:
   // Types of display mode this toolbar can have.

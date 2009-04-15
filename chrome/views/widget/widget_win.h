@@ -234,8 +234,8 @@ class WidgetWin : public Widget,
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual RootView* GetRootView();
-  virtual bool IsVisible();
-  virtual bool IsActive();
+  virtual bool IsVisible() const;
+  virtual bool IsActive() const;
   virtual TooltipManager* GetTooltipManager();
 
   // Overridden from MessageLoop::Observer:

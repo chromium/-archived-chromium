@@ -18,6 +18,7 @@ class ChromeFont;
 #if defined(OS_WIN)
 class AutocompleteEditViewWin;
 class AutocompleteEditModel;
+class AutocompletePopupPositioner;
 class Profile;
 #endif
 
@@ -51,7 +52,8 @@ class AutocompletePopupView {
       const ChromeFont& font,
       AutocompleteEditViewWin* edit_view,
       AutocompleteEditModel* edit_model,
-      Profile* profile);
+      Profile* profile,
+      AutocompletePopupPositioner* popup_positioner);
 #endif
 };
 

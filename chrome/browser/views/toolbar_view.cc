@@ -69,6 +69,14 @@ static const int kPopupTopSpacingNonGlass = 3;
 static const int kPopupBottomSpacingNonGlass = 2;
 static const int kPopupBottomSpacingGlass = 1;
 
+// The vertical distance between the bottom of the omnibox and the top of the
+// popup.
+static const int kOmniboxPopupVerticalSpacing = 2;
+// The number of pixels of margin on the buttons on either side of the omnibox.
+// We use this value to inset the bounds returned for the omnibox popup, since
+// we want the popup to be only as wide as the visible frame of the omnibox.
+static const int kOmniboxButtonsHorizontalMargin = 2;
+
 static SkBitmap* kPopupBackgroundEdge = NULL;
 
 BrowserToolbarView::BrowserToolbarView(Browser* browser)
@@ -220,7 +228,8 @@ void BrowserToolbarView::CreateCenterStack(Profile *profile) {
 
   location_bar_ = new LocationBarView(profile, browser_->command_updater(),
                                       model_, this,
-                                      display_mode_ == DISPLAYMODE_LOCATION);
+                                      display_mode_ == DISPLAYMODE_LOCATION,
+                                      this);
   AddChildView(location_bar_);
   location_bar_->Init();
 
@@ -844,6 +853,22 @@ void BrowserToolbarView::ButtonPressed(views::Button* sender) {
   browser_->ExecuteCommandWithDisposition(
       sender->tag(),
       event_utils::DispositionFromEventFlags(sender->mouse_event_flags()));
+}
+
+gfx::Rect BrowserToolbarView::GetPopupBounds() const {
+  gfx::Point origin;
+  views::View::ConvertPointToScreen(star_, &origin);
+  origin.set_y(origin.y() + star_->height() + kOmniboxPopupVerticalSpacing);
+  gfx::Rect popup_bounds(origin.x(), origin.y(),
+                         star_->width() + location_bar_->width() + go_->width(),
+                         0);
+  popup_bounds.set_x(popup_bounds.x());
+  popup_bounds.set_y(popup_bounds.y());
+  popup_bounds.set_width(popup_bounds.width());
+  // Inset the bounds a little, since the buttons on either edge of the omnibox
+  // have invisible padding that makes the popup appear too wide.
+  popup_bounds.Inset(kOmniboxButtonsHorizontalMargin, 0);
+  return popup_bounds;
 }
 
 // static

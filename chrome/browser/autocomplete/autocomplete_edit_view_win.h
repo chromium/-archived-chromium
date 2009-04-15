@@ -16,6 +16,7 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/toolbar_model.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/views/controls/menu/menu.h"
@@ -66,7 +67,8 @@ class AutocompleteEditViewWin
                           HWND hwnd,
                           Profile* profile,
                           CommandUpdater* command_updater,
-                          bool popup_window_mode);
+                          bool popup_window_mode,
+                          AutocompletePopupPositioner* popup_positioner);
   ~AutocompleteEditViewWin();
 
   views::View* parent_view() const { return parent_view_; }

@@ -80,7 +80,8 @@ LocationBarView::LocationBarView(Profile* profile,
                                  CommandUpdater* command_updater,
                                  ToolbarModel* model,
                                  Delegate* delegate,
-                                 bool popup_window_mode)
+                                 bool popup_window_mode,
+                                 AutocompletePopupPositioner* popup_positioner)
     : profile_(profile),
       command_updater_(command_updater),
       model_(model),
@@ -93,7 +94,8 @@ LocationBarView::LocationBarView(Profile* profile,
       security_image_view_(profile, model),
       rss_image_view_(model),
       popup_window_mode_(popup_window_mode),
-      first_run_bubble_(this) {
+      first_run_bubble_(this),
+      popup_positioner_(popup_positioner) {
   DCHECK(profile_);
   SetID(VIEW_ID_LOCATION_BAR);
   SetFocusable(true);
@@ -123,7 +125,8 @@ void LocationBarView::Init() {
   location_entry_.reset(new AutocompleteEditViewWin(font_, this, model_, this,
                                                     widget->GetNativeView(),
                                                     profile_, command_updater_,
-                                                    popup_window_mode_));
+                                                    popup_window_mode_,
+                                                    popup_positioner_));
 
   // View container for URL edit field.
   location_entry_view_ = new views::HWNDView;

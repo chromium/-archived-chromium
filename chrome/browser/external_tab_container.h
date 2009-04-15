@@ -28,7 +28,7 @@ class TabContentsContainerView;
 // An external tab is a Chrome tab that is meant to displayed in an
 // external process. This class provides the FocusManger needed by the
 // TabContents as well as an implementation of TabContentsDelagate.
-// It also implements Container
+// TODO(beng): Should override WidgetWin instead of Widget.
 class ExternalTabContainer : public TabContentsDelegate,
                              public NotificationObserver,
                              public views::Widget,
@@ -103,8 +103,8 @@ class ExternalTabContainer : public TabContentsDelegate,
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual views::RootView* GetRootView();
-  virtual bool IsVisible();
-  virtual bool IsActive();
+  virtual bool IsVisible() const;
+  virtual bool IsActive() const;
   virtual bool GetAccelerator(int cmd_id,
                               views::Accelerator* accelerator) {
     return false;

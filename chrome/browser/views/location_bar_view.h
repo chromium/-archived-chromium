@@ -20,6 +20,7 @@
 #include "chrome/views/controls/label.h"
 #include "chrome/views/painter.h"
 
+class AutocompletePopupPositioner;
 class CommandUpdater;
 class GURL;
 class Profile;
@@ -51,7 +52,8 @@ class LocationBarView : public LocationBar,
                   CommandUpdater* command_updater,
                   ToolbarModel* model_,
                   Delegate* delegate,
-                  bool popup_window_mode);
+                  bool popup_window_mode,
+                  AutocompletePopupPositioner* popup_positioner);
   virtual ~LocationBarView() { }
 
   void Init();
@@ -446,6 +448,9 @@ class LocationBarView : public LocationBar,
 
   // Used schedule a task for the first run info bubble.
   ScopedRunnableMethodFactory<LocationBarView> first_run_bubble_;
+
+  // The positioner that places the autocomplete popup.
+  AutocompletePopupPositioner* popup_positioner_;
 };
 
 #endif // CHROME_BROWSER_VIEWS_LOCATION_BAR_VIEW_H__

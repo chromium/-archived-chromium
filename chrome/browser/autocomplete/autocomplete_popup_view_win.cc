@@ -683,8 +683,11 @@ AutocompletePopupView* AutocompletePopupView::CreatePopupView(
     const ChromeFont& font,
     AutocompleteEditViewWin* edit_view,
     AutocompleteEditModel* edit_model,
-    Profile* profile) {
-  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableOmnibox2))
-    return new AutocompletePopupWin(font, edit_view, edit_model, profile);
+    Profile* profile,
+    AutocompletePopupPositioner* popup_positioner) {
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableOmnibox2)) {
+    return new AutocompletePopupWin(font, edit_view, edit_model, profile,
+                                    popup_positioner);
+  }
   return new AutocompletePopupViewWin(font, edit_view, edit_model, profile);
 }

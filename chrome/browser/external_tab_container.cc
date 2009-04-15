@@ -346,11 +346,11 @@ views::RootView* ExternalTabContainer::GetRootView() {
   return const_cast<views::RootView*>(&root_view_);
 }
 
-bool ExternalTabContainer::IsVisible() {
+bool ExternalTabContainer::IsVisible() const {
   return !!::IsWindowVisible(*this);
 }
 
-bool ExternalTabContainer::IsActive() {
+bool ExternalTabContainer::IsActive() const {
   return win_util::IsWindowActive(*this);
 }
 
