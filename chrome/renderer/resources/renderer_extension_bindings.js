@@ -10,10 +10,10 @@ var chromium = chromium || {};
       throw new Error("Port '" + portId + "' already exists.");
     }
     this.portId_ = portId;  // TODO(mpcomplete): readonly
-    this.onMessage = new chromium.Event();
+    this.onmessage = new chromium.Event();
     chromium.Port.ports_[portId] = this;
     // Note: this object will never get GCed.  If we ever care, we could
-    // add an "ondetach" method to the onMessage Event that gets called
+    // add an "ondetach" method to the onmessage Event that gets called
     // when there are no more listeners.
   };
 
@@ -33,7 +33,7 @@ var chromium = chromium || {};
       if (msg) {
         msg = goog.json.parse(msg);
       }
-      port.onMessage.dispatch(msg, port);
+      port.onmessage.dispatch(msg, port);
     }
   };
 
@@ -62,4 +62,6 @@ var chromium = chromium || {};
   chromium.Extension.prototype.getURL = function(path) {
     return "chrome-extension://" + this.id_ + "/" + path;
   };
+
+  chromium.onconnect = new chromium.Event("channel-connect");
 })();

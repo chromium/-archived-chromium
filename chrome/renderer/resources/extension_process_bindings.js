@@ -66,8 +66,6 @@ var chromium;
     request(sargs, callbackId);
   }
 
-  //----------------------------------------------------------------------------
-
   // Tabs
   chromium.tabs = {};
   // TODO(aa): This should eventually take an optional windowId param.
@@ -129,10 +127,4 @@ var chromium;
   chromium.tabs.removeTab.params = [
     chromium.types.pInt
   ];
-
-  //----------------------------------------------------------------------------
-
-  // Self
-  chromium.self = {};
-  chromium.self.onConnect = new chromium.Event("channel-connect");
 })();

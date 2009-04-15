@@ -25,9 +25,7 @@ using WebKit::WebString;
 static const char kUserScriptHead[] = "(function (unsafeWindow) {\n";
 static const char kUserScriptTail[] = "\n})(window);";
 
-// Creates a convenient reference to a content script's parent extension.
-static const char kInitExtension[] =
-    "chromium.extension = new chromium.Extension('%s')";
+static const char kInitSelf[] = "chromium.self = new chromium.Extension('%s')";
 
 UserScriptSlave::UserScriptSlave()
     : shared_memory_(NULL),
@@ -155,7 +153,7 @@ bool UserScriptSlave::InjectScripts(WebFrame* frame,
         // ID.
         sources.insert(sources.begin(),
             WebScriptSource(WebString::fromUTF8(
-                StringPrintf(kInitExtension, script->extension_id().c_str()))));
+                StringPrintf(kInitSelf, script->extension_id().c_str()))));
       }
 
       frame->ExecuteScriptInNewContext(&sources.front(), sources.size());

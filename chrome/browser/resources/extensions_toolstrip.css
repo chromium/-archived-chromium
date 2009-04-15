@@ -10,7 +10,6 @@ body {
 #main {
   background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
   padding-top: 3px;
-  height: 21px;
-  overflow: hidden;
-  white-space: nowrap;
+  height:19px;
+  overflow:hidden;
 }
