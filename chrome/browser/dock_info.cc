@@ -331,8 +331,14 @@ class DockToWindowFinder : public BaseWindowFinder {
 // DockInfo -------------------------------------------------------------------
 
 // static
+DockInfo::Factory* DockInfo::factory_ = NULL;
+
+// static
 DockInfo DockInfo::GetDockInfoAtPoint(const gfx::Point& screen_point,
                                       const std::set<HWND>& ignore) {
+  if (factory_)
+    return factory_->GetDockInfoAtPoint(screen_point, ignore);
+
   // Try docking to a window first.
   DockInfo info = DockToWindowFinder::GetDockInfoAtPoint(screen_point, ignore);
   if (info.type() != DockInfo::NONE)
@@ -368,6 +374,8 @@ int DockInfo::popup_height() {
 
 HWND DockInfo::GetLocalProcessWindowAtPoint(const gfx::Point& screen_point,
                                             const std::set<HWND>& ignore) {
+  if (factory_)
+    return factory_->GetLocalProcessWindowAtPoint(screen_point, ignore);
   return
       LocalProcessWindowFinder::GetProcessWindowAtPoint(screen_point, ignore);
 }
