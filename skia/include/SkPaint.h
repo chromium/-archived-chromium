@@ -39,8 +39,6 @@ class SkDrawLooper;
 class SkTypeface;
 class SkXfermode;
 
-typedef struct HB_ShaperItem_ HB_ShaperItem;
-
 typedef const SkGlyph& (*SkDrawCacheProc)(SkGlyphCache*, const char**,
                                            SkFixed x, SkFixed y);
 
@@ -620,12 +618,6 @@ public:
         SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
         SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
         SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
-
-        // VDMX values are exact ascent and descent values for scalable fonts at
-        // a certain pixel size.
-        bool        fVDMXMetricsValid;  //!< If true, the following members are valid
-        unsigned    fVDMXAscent;
-        unsigned    fVDMXDescent;
     };
     
     /** Return the recommend spacing between lines (which will be
@@ -734,11 +726,6 @@ public:
     */
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
-
-#ifdef SKIA_HARFBUZZ
-    void setupShaper(HB_ShaperItem* item);
-    void releaseShaper(HB_ShaperItem* item);
-#endif
 
 private:
     SkTypeface*     fTypeface;

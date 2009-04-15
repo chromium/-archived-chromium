@@ -37,13 +37,9 @@ void ChromeFont::calculateMetrics() {
   PaintSetup(&paint);
   paint.getFontMetrics(&metrics);
 
-  if (metrics.fVDMXMetricsValid) {
-    ascent_ = metrics.fVDMXAscent;
-    height_ = ascent_ + metrics.fVDMXDescent;
-  } else {
-    ascent_ = SkScalarRound(-metrics.fAscent);
-    height_ = SkScalarRound(metrics.fAscent + metrics.fDescent + metrics.fLeading);
-  }
+  ascent_ = SkScalarRound(-metrics.fAscent);
+  height_ = SkScalarRound(-metrics.fAscent + metrics.fDescent +
+                          metrics.fLeading);
 
   if (metrics.fAvgCharWidth) {
     avg_width_ = SkScalarRound(metrics.fAvgCharWidth);

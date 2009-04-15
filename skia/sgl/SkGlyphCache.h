@@ -27,7 +27,6 @@
 class SkPaint;
 
 class SkGlyphCache_Globals;
-typedef struct HB_ShaperItem_ HB_ShaperItem;
 
 /** \class SkGlyphCache
 
@@ -87,16 +86,6 @@ public:
     const SkPaint::FontMetrics& getFontMetricsY() const {
         return fFontMetricsY;
     }
-
-#ifdef SKIA_HARFBUZZ
-    /** Setup a Harfbuzz shaper item with the correct |font| and |face| members.
-    */
-    void setupShaper(HB_ShaperItem* item);
-    /** Release the given references associated with |item|.
-    */
-    void releaseShaper(HB_ShaperItem* item);
-#endif
-
     
     /*  AuxProc/Data allow a client to associate data with this cache entry.
         Multiple clients can use this, as their data is keyed with a function

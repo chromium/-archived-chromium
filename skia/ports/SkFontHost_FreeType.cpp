@@ -36,13 +36,6 @@
 #include FT_ADVANCES_H
 #endif
 
-#ifdef SKIA_HARFBUZZ
-extern "C" {
-#include <harfbuzz-shaper.h>
-#include <harfbuzz-freetype.h>
-}
-#endif
-
 #if 0
 // Also include the files by name for build tools which require this.
 #include <freetype/freetype.h>
@@ -80,14 +73,10 @@ class SkScalerContext_FreeType : public SkScalerContext {
 public:
     SkScalerContext_FreeType(const SkDescriptor* desc);
     virtual ~SkScalerContext_FreeType();
+
     bool success() const {
         return fFaceRec != NULL && fFTSize != NULL;
     }
-
-#ifdef SKIA_HARFBUZZ
-    virtual void setupShaper(HB_ShaperItem* item);
-    virtual void releaseShaper(HB_ShaperItem* item);
-#endif
 
 protected:
     virtual unsigned generateGlyphCount() const;
@@ -123,25 +112,9 @@ struct SkFaceRec {
     uint32_t        fRefCnt;
     uint32_t        fFontID;
 
-#ifdef SKIA_HARFBUZZ
-    // A lazily created Harfbuzz face object.
-    HB_Face         fHBFace;
-    // If |fHBFace| is non-NULL, then this member is valid.
-    HB_FontRec*     fHBFont;
-
-    void setupShaper(HB_ShaperItem* item);
-    void releaseShaper(HB_ShaperItem* item);
-#endif
-
+    // assumes ownership of the stream, will call unref() when its done
     SkFaceRec(SkStream* strm, uint32_t fontID);
     ~SkFaceRec() {
-#ifdef SKIA_HARFBUZZ
-        if (fHBFace) {
-            free(fHBFace);
-            free(fHBFont);
-        }
-#endif
-
         fSkStream->unref();
     }
 };
@@ -186,11 +159,6 @@ SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
     fFTStream.descriptor.pointer = fSkStream;
     fFTStream.read  = sk_stream_read;
     fFTStream.close = sk_stream_close;
-
-#ifdef SKIA_HARFBUZZ
-    fHBFace = NULL;
-#endif
-
 }
 
 // Will return 0 on failure
@@ -267,29 +235,6 @@ static void unref_ft_face(FT_Face face) {
     }
     SkASSERT("shouldn't get here, face not in list");
 }
-
-#ifdef SKIA_HARFBUZZ
-void SkFaceRec::setupShaper(HB_ShaperItem* item) {
-    if (!fHBFace) {
-        fHBFace = HB_NewFace(fFace, hb_freetype_table_sfnt_get);
-        fHBFont = (HB_FontRec *) calloc(sizeof(HB_FontRec), 1);
-        fHBFont->klass = &hb_freetype_class;
-        fHBFont->userData = fFace;
-        fHBFont->x_ppem  = fFace->size->metrics.x_ppem;
-        fHBFont->y_ppem  = fFace->size->metrics.y_ppem;
-        fHBFont->x_scale = fFace->size->metrics.x_scale;
-        fHBFont->y_scale = fFace->size->metrics.y_scale;
-    }
-
-    item->face = fHBFace;
-    item->font = fHBFont;
-    fRefCnt++;
-}
-
-void SkFaceRec::releaseShaper(HB_ShaperItem* item) {
-    fRefCnt--;
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -706,16 +651,6 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     }
 }
 
-#ifdef SKIA_HARFBUZZ
-void SkScalerContext_FreeType::setupShaper(HB_ShaperItem* item) {
-    fFaceRec->setupShaper(item);
-}
-
-void SkScalerContext_FreeType::releaseShaper(HB_ShaperItem* item) {
-    fFaceRec->releaseShaper(item);
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define ft2sk(x)    SkFixedToScalar((x) << 10)
@@ -799,51 +734,6 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph,
     path->close();
 }
 
-// -----------------------------------------------------------------------------
-// This is an extern from SkFontHost_TrueType_VDMX. See comments there in for
-// details of the arguments.
-// -----------------------------------------------------------------------------
-extern bool VDMX_Parse(int* ymax, int* ymin, const uint8_t* vdmx,
-                       const size_t vdmx_length, const unsigned target_pelsize);
-
-// -----------------------------------------------------------------------------
-// Attempt to load and parse a VDMX table from the given face, extracting a
-// ascender and descender values for the given pelsize.
-//   ymax: (output) the ascender value from the table
-//   ymin: (output) the descender value from the table (negative!)
-//   face: A FreeType TrueType or OpenType font
-//   target_pelsize: the pixel size of the font (e.g. 16)
-//
-// Returns true iff a suitable match are found. Otherwise, *ymax and *ymin are
-// untouched.
-// -----------------------------------------------------------------------------
-static bool
-SkFontHost_VDMX_Parse(int* ymax, int* ymin,
-                      FT_Face face, unsigned target_pelsize) {
-    FT_Error error;
-
-    // Request the length of the VDMX table (if any)
-    FT_ULong vdmx_length = 0;
-    error = FT_Load_Sfnt_Table(face, FT_MAKE_TAG('V', 'D', 'M', 'X'),
-                               0, NULL, &vdmx_length);
-
-    if (error || vdmx_length > 1024 * 1024)
-        return false;
-
-    uint8_t* vdmx = (uint8_t *) malloc(vdmx_length);
-    error = FT_Load_Sfnt_Table(face, FT_MAKE_TAG('V', 'D', 'M', 'X'),
-                               0, vdmx, NULL);
-    if (error) {
-        free(vdmx);
-        return false;
-    }
-
-    bool result = VDMX_Parse(ymax, ymin, vdmx, vdmx_length, target_pelsize);
-    free(vdmx);
-
-    return result;
-}
-
 void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
                                                    SkPaint::FontMetrics* my) {
     if (NULL == mx && NULL == my) {
@@ -883,10 +773,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
     ys[0] = -face->bbox.yMax;
     ys[1] = -face->ascender;
-    // Bodge this for now. I need another round trip land a patch in
-    // WebKit to fix it correctly, but noones's around now and I
-    // probably won't get a chance before the merge tomorrow morning
-    //   -- agl
     ys[2] = -face->descender;
     ys[3] = -face->bbox.yMin;
     ys[4] = leading;
@@ -926,10 +812,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fXMin = xmin;
         mx->fXMax = xmax;
         mx->fXHeight = x_height;
-
-        // The VDMX metrics only make sense in the horizontal direction
-        // I believe
-        my->fVDMXMetricsValid = false;
     }
     if (my) {
         my->fTop = pts[0].fY;
@@ -941,16 +823,6 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fXMin = xmin;
         my->fXMax = xmax;
         my->fXHeight = x_height;
-        my->fVDMXMetricsValid = false;
-
-        // Attempt to parse the VDMX table to get exact metrics
-        unsigned pelsize = (fScaleY + 0x8000) >> 16;
-        int ymax, ymin;
-        if (SkFontHost_VDMX_Parse(&ymax, &ymin, face, pelsize)) {
-          my->fVDMXMetricsValid = true;
-          my->fVDMXAscent = ymax;
-          my->fVDMXDescent = -ymin;
-        }
     }
 }
 

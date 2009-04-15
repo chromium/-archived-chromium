@@ -466,7 +466,6 @@
         #'ports/SkFontHost_linux.cpp',
         #'ports/SkFontHost_mac.cpp',
         'ports/SkFontHost_none.cpp',
-        'ports/SkFontHost_TrueType_Tables.cpp',
         #'ports/SkFontHost_win.cpp',
         'ports/SkGlobals_global.cpp',
         'ports/SkImageDecoder_Factory.cpp',
@@ -674,7 +673,6 @@
           'sources/': [ ['exclude', '_linux\\.(cc|cpp)$'] ],
           'sources!': [
             'ports/SkFontHost_FreeType.cpp',
-            'ports/SkFontHost_TryeType_Tables.cpp',
             'ports/SkFontHost_gamma_none.cpp',
             'ports/SkFontHost_fontconfig.cpp',
             'ports/SkFontHost_tables.cpp',
@@ -704,14 +702,6 @@
             'ports/SkFontHost_none.cpp',
             'sgl/SkTypeface_fake.cpp',
           ],
-          'defines': [
-            'SKIA_HARFBUZZ',
-          ],
-          'direct_dependent_settings': {
-            'defines': [
-              'SKIA_HARFBUZZ',
-            ],
-          },
           'export_dependent_settings': [
             '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz',
             '../third_party/harfbuzz/harfbuzz.gyp:harfbuzz_interface',
@@ -725,7 +715,6 @@
         [ 'OS == "win"', {
           'sources!': [
             'images/SkMMapStream.cpp',
-            'ports/SkFontHost_TrueType_Tables.cpp',
             'ports/SkThread_pthread.cpp',
             'ports/SkTime_Unix.cc',
           ],
