@@ -8,16 +8,6 @@
 #include <gtk/gtk.h>
 
 #include "base/gfx/rect.h"
-#include "skia/include/SkBitmap.h"
-
-namespace {
-
-// Callback used in RemoveAllChildren.
-void RemoveWidget(GtkWidget* widget, gpointer container) {
-  gtk_container_remove(GTK_CONTAINER(container), widget);
-}
-
-}  // namespace
 
 namespace gfx {
 
@@ -34,10 +24,6 @@ void SubtractRectanglesFromRegion(GdkRegion* region,
     // TODO(deanm): It would be nice to be able to reuse the GdkRegion here.
     gdk_region_destroy(rect_region);
   }
-}
-
-static void FreePixels(guchar* pixels, gpointer data) {
-  free(data);
 }
 
 uint8_t* BGRAToRGBA(const uint8_t* pixels, int width, int height, int stride) {
@@ -58,47 +44,6 @@ uint8_t* BGRAToRGBA(const uint8_t* pixels, int width, int height, int stride) {
   }
 
   return new_pixels;
-}
-
-GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
-  bitmap->lockPixels();
-  int width = bitmap->width();
-  int height = bitmap->height();
-  int stride = bitmap->rowBytes();
-  const guchar* orig_data = static_cast<guchar*>(bitmap->getPixels());
-  guchar* data = BGRAToRGBA(orig_data, width, height, stride);
-
-  // This pixbuf takes ownership of our malloc()ed data and will
-  // free it for us when it is destroyed.
-  GdkPixbuf* pixbuf = gdk_pixbuf_new_from_data(
-      data,
-      GDK_COLORSPACE_RGB,  // The only colorspace gtk supports.
-      true,  // There is an alpha channel.
-      8,
-      width, height, stride, &FreePixels, data);
-
-  // Assume ownership of pixbuf.
-  g_object_ref_sink(pixbuf);
-  bitmap->unlockPixels();
-  return pixbuf;
-}
-
-GtkWidget* CreateGtkBorderBin(GtkWidget* child, const GdkColor* color,
-                              int top, int bottom, int left, int right) {
-  // Use a GtkEventBox to get the background painted.  However, we can't just
-  // use a container border, since it won't paint there.  Use an alignment
-  // inside to get the sizes exactly of how we want the border painted.
-  GtkWidget* ebox = gtk_event_box_new();
-  gtk_widget_modify_bg(ebox, GTK_STATE_NORMAL, color);
-  GtkWidget* alignment = gtk_alignment_new(0.0, 0.0, 1.0, 1.0);
-  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), top, bottom, left, right);
-  gtk_container_add(GTK_CONTAINER(alignment), child);
-  gtk_container_add(GTK_CONTAINER(ebox), alignment);
-  return ebox;
-}
-
-void RemoveAllChildren(GtkWidget* container) {
-  gtk_container_foreach(GTK_CONTAINER(container), RemoveWidget, container);
 }
 
 }  // namespace gfx
