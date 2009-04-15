@@ -35,7 +35,7 @@ class WaitableEvent;
 // that should be the same for all platforms.
 class WebContentsView : public RenderViewHostDelegate::View {
  public:
-  WebContentsView(WebContents* web_contents);
+  explicit WebContentsView(WebContents* web_contents);
   virtual ~WebContentsView() {}
 
   // Creates the appropriate type of WebContentsView for the current system.
@@ -123,6 +123,10 @@ class WebContentsView : public RenderViewHostDelegate::View {
   // Restores focus to the last focus view. If StoreFocus has not yet been
   // invoked, SetInitialFocus is invoked.
   virtual void RestoreFocus() = 0;
+
+  // Sets children's size.  May involve packing them in order to get the
+  // toolkit to send them resize events.
+  virtual void SetChildSize(RenderWidgetHostView* rwh_view) = 0;
 
  protected:
   WebContentsView() {}  // Abstract interface.

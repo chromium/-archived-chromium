@@ -312,6 +312,10 @@ void WebContentsViewWin::RestoreFocus() {
   }
 }
 
+void WebContentsViewWin::SetChildSize(RenderWidgetHostView* rwh_view) {
+  rwh_view->SetSize(GetContainerSize());
+}
+
 void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }

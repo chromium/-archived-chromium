@@ -160,6 +160,10 @@ void WebContentsViewMac::RestoreFocus() {
   // TODO(port)
 }
 
+void WebContentsView::SetChildSize(RenderWidgetHostView* rwh_view) {
+  rwh_view->SetSize(GetContainerSize());
+}
+
 void WebContentsViewMac::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }
