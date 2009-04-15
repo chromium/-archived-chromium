@@ -2335,7 +2335,6 @@ BUG9798 LINUX WIN : LayoutTests/http/tests/navigation/metaredirect-subframeload.
 BUG9798 MAC : LayoutTests/dom/html/level2/html/HTMLSelectElement15.html = FAIL PASS
 BUG9798 MAC : LayoutTests/fast/dom/onerror-img.html = FAIL PASS
 BUG9798 MAC : LayoutTests/fast/images/load-img-with-empty-src.html = FAIL PASS
-BUG9798 MAC : LayoutTests/fast/js/regexp-overflow.html = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/http/tests/navigation/metaredirect-subframeload.html = TIMEOUT FAIL
 BUG9798 MAC : LayoutTests/http/tests/security/cross-frame-access-name-getter.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/security/cross-frame-access-selection.html = FAIL PASS
