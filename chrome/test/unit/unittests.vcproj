@@ -520,6 +520,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\find_backend_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\views\find_bar_win_unittest.cc"
 				>
 			</File>
