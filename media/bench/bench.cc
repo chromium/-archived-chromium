@@ -7,8 +7,9 @@
 // options.  We also use this tool to measure performance regressions when
 // testing newer builds of FFmpeg from trunk.
 
-#include <iostream>
 #include <windows.h>
+#include <iomanip>
+#include <iostream>
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
@@ -21,6 +22,8 @@
 namespace switches {
 const wchar_t kStream[]                 = L"stream";
 const wchar_t kVideoThreads[]           = L"video-threads";
+const wchar_t kFast2[]                  = L"fast2";
+const wchar_t kSkip[]                   = L"skip";
 }  // namespace switches
 
 int main(int argc, const char** argv) {
@@ -35,7 +38,11 @@ int main(int argc, const char** argv) {
               << "  --stream=[audio|video]          "
               << "Benchmark either the audio or video stream\n"
               << "  --video-threads=N               "
-              << "Decode video using N threads" << std::endl;
+              << "Decode video using N threads\n"
+              << "  --fast2                         "
+              << "Enable fast2 flag\n"
+              << "  --skip=[1|2|3]                  "
+              << "1=loop nonref, 2=loop, 3= frame nonref" << std::endl;
     return 1;
   }
 
@@ -61,6 +68,19 @@ int main(int argc, const char** argv) {
   std::wstring threads(cmd_line->GetSwitchValue(switches::kVideoThreads));
   if (!threads.empty() && !StringToInt(threads, &video_threads)) {
     video_threads = 0;
+  }
+
+  bool fast2 = false;
+  if (cmd_line->HasSwitch(switches::kFast2)) {
+    fast2 = true;
+  }
+
+  int skip = 0;
+  if (cmd_line->HasSwitch(switches::kSkip)) {
+    std::wstring skip_opt(cmd_line->GetSwitchValue(switches::kSkip));
+    if (!StringToInt(skip_opt, &skip)) {
+      skip = 0;
+    }
   }
 
   // Register FFmpeg and attempt to open file.
@@ -106,6 +126,18 @@ int main(int argc, const char** argv) {
   AVPacket packet;
   AVCodecContext* codec_context = format_context->streams[target_stream]->codec;
   AVCodec* codec = avcodec_find_decoder(codec_context->codec_id);
+
+  if (skip == 1) {
+    codec_context->skip_loop_filter = AVDISCARD_NONREF;
+  } else if (skip == 2) {
+    codec_context->skip_loop_filter = AVDISCARD_ALL;
+  } else if (skip == 3) {
+    codec_context->skip_loop_filter = AVDISCARD_ALL;
+    codec_context->skip_frame = AVDISCARD_NONREF;
+  }
+  if (fast2) {
+    codec_context->flags2 |= CODEC_FLAG2_FAST;
+  }
 
   // Initialize threaded decode.
   if (target_codec == CODEC_TYPE_VIDEO && video_threads > 0) {
@@ -190,12 +222,19 @@ int main(int argc, const char** argv) {
   // Calculate the standard deviation (jitter).
   double stddev = sqrt(squared_sum / decode_times.size());
 
-  // Print our results.
+    // Print our results.
+  std::cout.setf(std::ios::fixed);
+  std::cout.precision(3);
   std::cout << std::endl;
-  std::cout << "     Frames: " << decode_times.size() << std::endl;
-  std::cout << "      Total: " << total.InMillisecondsF() << "ms" << std::endl;
-  std::cout << "  Summation: " << sum << "ms" << std::endl;
-  std::cout << "    Average: " << average << "ms" << std::endl;
-  std::cout << "     StdDev: " << stddev << "ms" << std::endl;
+  std::cout << "     Frames:" << std::setw(10) << decode_times.size()
+            << std::endl;
+  std::cout << "      Total:" << std::setw(10) << total.InMillisecondsF()
+            << " ms" << std::endl;
+  std::cout << "  Summation:" << std::setw(10) << sum
+            << " ms" << std::endl;
+  std::cout << "    Average:" << std::setw(10) << average
+            << " ms" << std::endl;
+  std::cout << "     StdDev:" << std::setw(10) << stddev
+            << " ms" << std::endl;
   return 0;
 }
