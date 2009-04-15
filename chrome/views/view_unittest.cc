@@ -10,6 +10,10 @@
 #include "chrome/common/notification_service.h"
 #include "chrome/views/background.h"
 #include "chrome/views/controls/button/checkbox.h"
+#if defined(OS_WIN)
+#include "chrome/views/controls/button/native_button_win.h"
+#endif
+#include "chrome/views/controls/scroll_view.h"
 #include "chrome/views/controls/text_field.h"
 #include "chrome/views/event.h"
 #include "chrome/views/view.h"
@@ -699,6 +703,123 @@ TEST_F(ViewTest, TextFieldCutCopyPaste) {
   ::SendMessage(normal->GetNativeComponent(), WM_PASTE, 0, 0);
   ::GetWindowText(normal->GetNativeComponent(), buffer, 1024);
   EXPECT_EQ(kReadOnlyText, std::wstring(buffer));
+}
+#endif
+
+#if defined(OS_WIN)
+////////////////////////////////////////////////////////////////////////////////
+// Mouse-wheel message rerouting
+////////////////////////////////////////////////////////////////////////////////
+class ButtonTest : public NativeButton {
+ public:
+  ButtonTest(ButtonListener* listener, const std::wstring& label)
+      : NativeButton(listener, label) {
+  }
+  
+  HWND GetHWND() {
+    return static_cast<NativeButtonWin*>(native_wrapper_)->GetHWND();
+  }
+};
+
+class CheckboxTest : public Checkbox {
+ public:
+  explicit CheckboxTest(const std::wstring& label) : Checkbox(label) {
+  }
+  
+  HWND GetHWND() {
+    return static_cast<NativeCheckboxWin*>(native_wrapper_)->GetHWND();
+  }
+};
+
+class ScrollableTestView : public View {
+ public:
+  ScrollableTestView() { }
+  
+  virtual gfx::Size GetPreferredSize() {
+    return gfx::Size(100, 10000);
+  }
+  
+  virtual void Layout() {
+    SizeToPreferredSize();
+  }
+};
+
+class TestViewWithControls : public View {
+ public:
+  TestViewWithControls() {
+    button_ = new ButtonTest(NULL, L"Button");
+    checkbox_ = new CheckboxTest(L"My checkbox");
+    text_field_ = new TextField();
+    AddChildView(button_);
+    AddChildView(checkbox_);
+    AddChildView(text_field_);
+  }
+
+  ButtonTest* button_;
+  CheckboxTest* checkbox_;
+  TextField* text_field_;
+};
+
+class SimpleWindowDelegate : public WindowDelegate {
+ public:
+  SimpleWindowDelegate(View* contents) : contents_(contents) {  }
+  
+  virtual void DeleteDelegate() { delete this; }
+
+  virtual View* GetContentsView() { return contents_; }
+
+ private:
+  View* contents_;
+};
+
+// Tests that the mouse-wheel messages are correctly rerouted to the window
+// under the mouse.
+TEST_F(ViewTest, RerouteMouseWheelTest) {
+  TestViewWithControls* view_with_controls = new TestViewWithControls();
+  views::Window* window1 =
+      views::Window::CreateChromeWindow(
+          NULL, gfx::Rect(0, 0, 100, 100),
+          new SimpleWindowDelegate(view_with_controls));
+  window1->Show();
+  ScrollView* scroll_view = new ScrollView();
+  scroll_view->SetContents(new ScrollableTestView());
+  views::Window* window2 =
+      views::Window::CreateChromeWindow(NULL, gfx::Rect(200, 200, 100, 100),
+                                        new SimpleWindowDelegate(scroll_view));
+  window2->Show();
+  EXPECT_EQ(0, scroll_view->GetVisibleRect().y());
+
+  // Make the window1 active, as this is what it would be in real-world.
+  window1->Activate();
+
+  // Let's send a mouse-wheel message to the different controls and check that
+  // it is rerouted to the window under the mouse (effectively scrolling the
+  // scroll-view).
+  
+  // First to the Window's HWND.
+  ::SendMessage(view_with_controls->GetWidget()->GetNativeView(),
+                WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
+  EXPECT_EQ(20, scroll_view->GetVisibleRect().y());
+
+  // Then the button.
+  ::SendMessage(view_with_controls->button_->GetHWND(),
+                WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
+  EXPECT_EQ(40, scroll_view->GetVisibleRect().y());
+
+  // Then the check-box.
+  ::SendMessage(view_with_controls->checkbox_->GetHWND(),
+                WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
+  EXPECT_EQ(60, scroll_view->GetVisibleRect().y());
+  
+  // Then the text-field.
+  ::SendMessage(view_with_controls->text_field_->GetNativeComponent(),
+                WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(250, 250));
+  EXPECT_EQ(80, scroll_view->GetVisibleRect().y());
+  
+  // Ensure we don't scroll when the mouse is not over that window.
+  ::SendMessage(view_with_controls->text_field_->GetNativeComponent(),
+                WM_MOUSEWHEEL, MAKEWPARAM(0, -20), MAKELPARAM(50, 50));
+  EXPECT_EQ(80, scroll_view->GetVisibleRect().y());
 }
 #endif
 

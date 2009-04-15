@@ -24,6 +24,7 @@
 #include "chrome/common/win_util.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "chrome/views/controls/menu/menu.h"
+#include "chrome/views/focus/focus_util_win.h"
 #include "chrome/views/widget/widget.h"
 #include "grit/generated_resources.h"
 #include "skia/ext/skia_utils_win.h"
@@ -83,6 +84,7 @@ class TextField::Edit
     MSG_WM_MBUTTONDOWN(OnNonLButtonDown)
     MSG_WM_MOUSEMOVE(OnMouseMove)
     MSG_WM_MOUSELEAVE(OnMouseLeave)
+    MESSAGE_HANDLER_EX(WM_MOUSEWHEEL, OnMouseWheel)
     MSG_WM_NCCALCSIZE(OnNCCalcSize)
     MSG_WM_NCPAINT(OnNCPaint)
     MSG_WM_RBUTTONDOWN(OnNonLButtonDown)
@@ -130,6 +132,7 @@ class TextField::Edit
   void OnLButtonDown(UINT keys, const CPoint& point);
   void OnLButtonUp(UINT keys, const CPoint& point);
   void OnMouseLeave();
+  LRESULT OnMouseWheel(UINT message, WPARAM w_param, LPARAM l_param);
   void OnMouseMove(UINT keys, const CPoint& point);
   int OnNCCalcSize(BOOL w_param, LPARAM l_param);
   void OnNCPaint(HRGN region);
@@ -624,6 +627,15 @@ void TextField::Edit::OnLButtonUp(UINT keys, const CPoint& point) {
 
 void TextField::Edit::OnMouseLeave() {
   SetContainsMouse(false);
+}
+
+LRESULT TextField::Edit::OnMouseWheel(UINT message,
+                                      WPARAM w_param, LPARAM l_param) {
+  // Reroute the mouse-wheel to the window under the mouse pointer if
+  // applicable.
+  if (views::RerouteMouseWheel(m_hWnd, w_param, l_param))
+    return 0;
+  return DefWindowProc(message, w_param, l_param);;
 }
 
 void TextField::Edit::OnMouseMove(UINT keys, const CPoint& point) {
