@@ -2447,8 +2447,6 @@ BUG10055 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 // webkit merge 42403:42440.
 BUG10045 LINUX : LayoutTests/editing/inserting/5418891.html = FAIL
 BUG10045 LINUX : LayoutTests/editing/inserting/5510537.html = FAIL
-BUG10045 MAC RELEASE : LayoutTests/editing/inserting/5418891.html = FAIL
-BUG10045 MAC RELEASE : LayoutTests/editing/inserting/5510537.html = FAIL
 
 // New test from webkit merge 42403:42440.
 BUG10488 : LayoutTests/fast/css/zoom-body-scroll.html = FAIL
@@ -2457,12 +2455,10 @@ BUG10488 : LayoutTests/fast/css/zoom-body-scroll.html = FAIL
 // gets generated, probably just a matter of enabling ENABLE_CHANNEL_MESSAGING
 // due to http://trac.webkit.org/changeset/42428.
 BUG10489 LINUX MAC : chrome/fast/dom/messageport-gc.html = TIMEOUT
-BUG10489 WIN RELEASE : chrome/fast/dom/messageport-gc.html = TIMEOUT
 
 // New test added by http://trac.webkit.org/changeset/42501.
 // Has already been rebaselined for chromium-win.
 BUG10529 LINUX : LayoutTests/editing/inserting/6703873.html = FAIL
-BUG10529 MAC RELEASE : LayoutTests/editing/inserting/6703873.html = FAIL
 
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
