@@ -34,6 +34,10 @@
         ['include', '/win/'],
         ['include', '/win_[^/]*\\.cc$'],
       ]}],
+      [ 'OS != "linux"', { 'sources!': [
+          'gfx/gtk_util.cc',
+          ],
+      }],
     ],
   },
   'targets': [
