@@ -2447,3 +2447,10 @@ BUG10488 : LayoutTests/fast/css/zoom-body-scroll.html = FAIL
 // due to http://trac.webkit.org/changeset/42428.
 BUG10489 : chrome/fast/dom/messageport-gc.html = TIMEOUT
 
+// New test added by http://trac.webkit.org/changeset/42501.
+// Has already been rebaselined for chromium-win.
+BUG10529 MAC LINUX : LayoutTests/editing/inserting/6703873.html = FAIL
+
+// This test was changed upstream in http://trac.webkit.org/changeset/42447
+// to include window.showModalDialog, which we give as undefined.
+BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.html = FAIL

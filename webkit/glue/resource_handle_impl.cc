@@ -702,7 +702,7 @@ PassRefPtr<SharedBuffer> ResourceHandle::bufferedData() {
 }
 
 /*static*/ void ResourceHandle::loadResourceSynchronously(
-    const ResourceRequest& request, ResourceError& error,
+    const ResourceRequest& request, StoredCredentials, ResourceError& error,
     ResourceResponse& response, Vector<char>& data, Frame*) {
 
   RefPtr<ResourceHandle> handle =

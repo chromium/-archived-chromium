@@ -1042,7 +1042,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
 
   if (value->IsNull()) {
     // Clear the event listener
-    doc->removeWindowInlineEventListenerForType(event_type);
+    imp->removeInlineEventListenerForType(event_type);
   } else {
     V8Proxy* proxy = V8Proxy::retrieve(imp->frame());
     if (!proxy)
@@ -1051,7 +1051,7 @@ ACCESSOR_SETTER(DOMWindowEventHandler) {
     RefPtr<EventListener> listener =
       proxy->FindOrCreateV8EventListener(value, true);
     if (listener) {
-      doc->setWindowInlineEventListenerForType(event_type, listener);
+      imp->setInlineEventListenerForType(event_type, listener);
     }
   }
 }
@@ -1075,7 +1075,7 @@ ACCESSOR_GETTER(DOMWindowEventHandler) {
   String key = ToWebCoreString(name);
   String event_type = EventNameFromAttributeName(key);
 
-  EventListener* listener = doc->windowInlineEventListenerForType(event_type);
+  EventListener* listener = imp->inlineEventListenerForType(event_type);
   return V8Proxy::EventListenerToV8Object(listener);
 }
 
