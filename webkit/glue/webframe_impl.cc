@@ -882,6 +882,13 @@ void WebFrameImpl::CallJSGC() {
 #endif
 }
 
+void WebFrameImpl::AllowCrossOriginAccessHack() {
+  DCHECK(frame_ && frame_->document());
+  if (frame_ && frame_->document()) {
+    frame_->document()->securityOrigin()->grantUniversalAccess();
+  }
+}
+
 void WebFrameImpl::GetContentAsPlainText(int max_chars,
                                          std::wstring* text) const {
   text->clear();

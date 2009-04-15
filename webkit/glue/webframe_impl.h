@@ -121,6 +121,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
   virtual void CallJSGC();
 
   virtual void* GetFrameImplementation() { return frame(); }
+  virtual void AllowCrossOriginAccessHack();
 
   virtual NPObject* GetWindowNPObject();
 

@@ -1550,6 +1550,9 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
 }
 
 void RenderView::DocumentElementAvailable(WebFrame* frame) {
+  if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
+    frame->AllowCrossOriginAccessHack();
+
   if (RenderThread::current())  // Will be NULL during unit tests.
     RenderThread::current()->user_script_slave()->InjectScripts(
         frame, UserScript::DOCUMENT_START);
