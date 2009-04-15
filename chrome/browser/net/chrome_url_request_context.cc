@@ -153,7 +153,7 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
   // Also share the cookie store of the common profile.
   context->cookie_store_ = original_context->cookie_store();
 
-  // Create a media cache with maximum size of 240000000 (~240MB), which is a
+  // Create a media cache with maximum size of ~1.8GB, which is a
   // size cache backend won't complain.
   // TODO(hclam): make the maximum size of media cache configurable.
   net::HttpCache* original_cache =
@@ -168,12 +168,12 @@ ChromeURLRequestContext* ChromeURLRequestContext::CreateRequestContextForMedia(
     net::HttpNetworkLayer* original_network_layer =
         static_cast<net::HttpNetworkLayer*>(original_cache->network_layer());
     cache = new net::HttpCache(original_network_layer->GetSession(),
-        disk_cache_path.ToWStringHack(), 240000000);
+        disk_cache_path.ToWStringHack(), kint32max - kint32max / 10 - 1);
   } else {
     // If original HttpCache doesn't exist, simply construct one with a whole
     // new set of network stack.
     cache = new net::HttpCache(original_context->proxy_service(),
-        disk_cache_path.ToWStringHack(), 240000000);
+        disk_cache_path.ToWStringHack(), kint32max - kint32max / 10 - 1);
   }
 
   // Set the cache type to media.
