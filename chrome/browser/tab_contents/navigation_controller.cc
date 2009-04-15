@@ -160,10 +160,6 @@ NavigationController::~NavigationController() {
       NotificationService::NoDetails());
 }
 
-TabContents* NavigationController::GetTabContents(TabContentsType t) {
-  return tab_contents_;
-}
-
 void NavigationController::Reload(bool check_for_repost) {
   // Reloading a transient entry does nothing.
   if (transient_entry_index_ != -1)
@@ -196,8 +192,8 @@ void NavigationController::Reload(bool check_for_repost) {
 }
 
 NavigationEntry* NavigationController::GetEntryWithPageID(
-    TabContentsType type, SiteInstance* instance, int32 page_id) const {
-  int index = GetEntryIndexWithPageID(type, instance, page_id);
+    SiteInstance* instance, int32 page_id) const {
+  int index = GetEntryIndexWithPageID(instance, page_id);
   return (index != -1) ? entries_[index].get() : NULL;
 }
 
@@ -245,7 +241,7 @@ NavigationEntry* NavigationController::GetEntryAtOffset(int offset) const {
   int index = (transient_entry_index_ != -1) ?
                   transient_entry_index_ + offset :
                   last_committed_entry_index_ + offset;
-  if (index < 0 || index >= GetEntryCount())
+  if (index < 0 || index >= entry_count())
     return NULL;
 
   return entries_[index].get();
@@ -324,7 +320,7 @@ void NavigationController::GoToOffset(int offset) {
   int index = (transient_entry_index_ != -1) ?
                   transient_entry_index_ + offset :
                   last_committed_entry_index_ + offset;
-  if (index < 0 || index >= GetEntryCount())
+  if (index < 0 || index >= entry_count())
     return;
 
   GoToIndex(index);
@@ -362,7 +358,7 @@ void NavigationController::Destroy() {
   // We are now deleted.
 }
 
-void NavigationController::TabContentsWasDestroyed(TabContentsType type) {
+void NavigationController::TabContentsWasDestroyed() {
   // TODO(brettw) the destruction of TabContents/NavigationController makes no
   // sense (see Destroy).
   delete this;
@@ -374,12 +370,8 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
   // remove "view-source:" from the beginning of the URL to get the URL that
   // will actually be loaded. This real URL won't be shown to the user, just
   // used internally.
-  //
-  // TODO(brettw) this should be changed to something like GURL RewriteURL(GURL)
-  // rather than the current complex form.
   GURL loaded_url(url);
-  TabContentsType type;
-  BrowserURLHandler::HandleBrowserURL(&loaded_url, &type);
+  BrowserURLHandler::RewriteURLIfNecessary(&loaded_url);
 
   NavigationEntry* entry = new NavigationEntry(TAB_CONTENTS_WEB, NULL, -1,
                                                loaded_url, referrer,
@@ -456,7 +448,7 @@ bool NavigationController::RendererDidNavigate(
   // Save the previous state before we clobber it.
   if (GetLastCommittedEntry()) {
     details->previous_url = GetLastCommittedEntry()->url();
-    details->previous_entry_index = GetLastCommittedEntryIndex();
+    details->previous_entry_index = last_committed_entry_index();
   } else {
     details->previous_url = GURL();
     details->previous_entry_index = -1;
@@ -519,7 +511,7 @@ bool NavigationController::RendererDidNavigate(
   //
   // TODO(brettw) write a test for this complicated logic.
   details->is_auto = (PageTransition::IsRedirect(params.transition) &&
-                      !GetPendingEntry()) ||
+                      !pending_entry()) ||
       params.gesture == NavigationGestureAuto;
 
   // Now prep the rest of the details for the notification and broadcast.
@@ -566,7 +558,6 @@ NavigationType::Type NavigationController::ClassifyNavigation(
 
   // Now we know that the notification is for an existing page. Find that entry.
   int existing_entry_index = GetEntryIndexWithPageID(
-      tab_contents_->type(),
       tab_contents_->GetSiteInstance(),
       params.page_id);
   if (existing_entry_index == -1) {
@@ -651,10 +642,8 @@ void NavigationController::RendererDidNavigateToExistingPage(
   // This is a back/forward navigation. The existing page for the ID is
   // guaranteed to exist by ClassifyNavigation, and we just need to update it
   // with new information from the renderer.
-  int entry_index = GetEntryIndexWithPageID(
-      tab_contents_->type(),
-      tab_contents_->GetSiteInstance(),
-      params.page_id);
+  int entry_index = GetEntryIndexWithPageID(tab_contents_->GetSiteInstance(),
+                                            params.page_id);
   DCHECK(entry_index >= 0 &&
          entry_index < static_cast<int>(entries_.size()));
   NavigationEntry* entry = entries_[entry_index].get();
@@ -685,7 +674,6 @@ void NavigationController::RendererDidNavigateToSamePage(
   // entry for this page ID. This entry is guaranteed to exist by
   // ClassifyNavigation. All we need to do is update the existing entry.
   NavigationEntry* existing_entry = GetEntryWithPageID(
-      tab_contents_->type(),
       tab_contents_->GetSiteInstance(),
       params.page_id);
 
@@ -703,7 +691,6 @@ void NavigationController::RendererDidNavigateInPage(
       "WebKit should only tell us about in-page navs for the main frame.";
   // We're guaranteed to have an entry for this one.
   NavigationEntry* existing_entry = GetEntryWithPageID(
-      tab_contents_->type(),
       tab_contents_->GetSiteInstance(),
       params.page_id);
 
@@ -739,7 +726,6 @@ bool NavigationController::RendererDidNavigateAutoSubframe(
   // navigation entry. This is case "2." in NAV_AUTO_SUBFRAME comment in the
   // header file. In case "1." this will be a NOP.
   int entry_index = GetEntryIndexWithPageID(
-      tab_contents_->type(),
       tab_contents_->GetSiteInstance(),
       params.page_id);
   if (entry_index < 0 ||
@@ -759,14 +745,14 @@ bool NavigationController::RendererDidNavigateAutoSubframe(
 void NavigationController::CommitPendingEntry() {
   DiscardTransientEntry();
 
-  if (!GetPendingEntry())
+  if (!pending_entry())
     return;  // Nothing to do.
 
   // Need to save the previous URL for the notification.
   LoadCommittedDetails details;
   if (GetLastCommittedEntry()) {
     details.previous_url = GetLastCommittedEntry()->url();
-    details.previous_entry_index = GetLastCommittedEntryIndex();
+    details.previous_entry_index = last_committed_entry_index();
   } else {
     details.previous_entry_index = -1;
   }
@@ -967,13 +953,13 @@ void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
 NavigationController* NavigationController::Clone() {
   NavigationController* nc = new NavigationController(NULL, profile_);
 
-  if (GetEntryCount() == 0)
+  if (entry_count() == 0)
     return nc;
 
   nc->needs_reload_ = true;
 
   nc->entries_.reserve(entries_.size());
-  for (int i = 0, c = GetEntryCount(); i < c; ++i) {
+  for (int i = 0, c = entry_count(); i < c; ++i) {
     nc->entries_.push_back(linked_ptr<NavigationEntry>(
         new NavigationEntry(*GetEntryAtIndex(i))));
   }
@@ -984,10 +970,10 @@ NavigationController* NavigationController::Clone() {
 }
 
 void NavigationController::FinishRestore(int selected_index) {
-  DCHECK(selected_index >= 0 && selected_index < GetEntryCount());
+  DCHECK(selected_index >= 0 && selected_index < entry_count());
   ConfigureEntriesForRestore(&entries_);
 
-  set_max_restored_page_id(GetEntryCount());
+  set_max_restored_page_id(entry_count());
 
   last_committed_entry_index_ = selected_index;
 
@@ -1012,10 +998,9 @@ void NavigationController::DiscardTransientEntry() {
 }
 
 int NavigationController::GetEntryIndexWithPageID(
-    TabContentsType type, SiteInstance* instance, int32 page_id) const {
+    SiteInstance* instance, int32 page_id) const {
   for (int i = static_cast<int>(entries_.size()) - 1; i >= 0; --i) {
-    if ((entries_[i]->tab_type() == type) &&
-        (entries_[i]->site_instance() == instance) &&
+    if ((entries_[i]->site_instance() == instance) &&
         (entries_[i]->page_id() == page_id))
       return i;
   }

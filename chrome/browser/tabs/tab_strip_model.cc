@@ -113,7 +113,7 @@ void TabStripModel::ReplaceNavigationControllerAt(
   // This appears to be OK with no flicker since no redraw event
   // occurs between the call to add an aditional tab and one to close
   // the previous tab.
-  InsertTabContentsAt(index + 1, controller->active_contents(), true, true);
+  InsertTabContentsAt(index + 1, controller->tab_contents(), true, true);
   InternalCloseTabContentsAt(index, false);
 }
 
@@ -523,7 +523,7 @@ bool TabStripModel::IsNewTabAtEndOfTabStrip(TabContents* contents) const {
   return LowerCaseEqualsASCII(contents->GetURL().spec(),
                               chrome::kChromeUINewTabURL) &&
       contents == GetContentsAt(count() - 1) &&
-      contents->controller()->GetEntryCount() == 1;
+      contents->controller()->entry_count() == 1;
 }
 
 bool TabStripModel::InternalCloseTabContentsAt(int index,

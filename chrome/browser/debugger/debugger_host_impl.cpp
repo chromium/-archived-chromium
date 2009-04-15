@@ -40,7 +40,7 @@ class TabContentsReference : public NotificationObserver {
 
   TabContents* GetTabContents() {
     if (navigation_controller_) {
-      return navigation_controller_->active_contents();
+      return navigation_controller_->tab_contents();
     } else {
       return NULL;
     }

@@ -136,7 +136,7 @@ void SSLManager::ShowMessage(const std::wstring& msg) {
 void SSLManager::ShowMessageWithLink(const std::wstring& msg,
                                      const std::wstring& link_text,
                                      Task* task) {
-  if (controller_->GetPendingEntry()) {
+  if (controller_->pending_entry()) {
     // The main frame is currently loading, wait until the load is committed so
     // to show the error on the right page (once the location bar shows the
     // correct url).
@@ -155,9 +155,9 @@ void SSLManager::ShowMessageWithLink(const std::wstring& msg,
   if (entry->ssl().security_style() <= SECURITY_STYLE_UNAUTHENTICATED)
     return;
 
-  if (controller_->active_contents()) {
-    controller_->active_contents()->AddInfoBar(
-        new SSLInfoBarDelegate(controller_->active_contents(), msg, link_text,
+  if (controller_->tab_contents()) {
+    controller_->tab_contents()->AddInfoBar(
+        new SSLInfoBarDelegate(controller_->tab_contents(), msg, link_text,
                                task));
   }
 }

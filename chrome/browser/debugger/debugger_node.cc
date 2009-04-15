@@ -311,7 +311,7 @@ void TabNode::StopObserving(NotificationService *service) {
 
 TabContents* TabNode::GetTab() {
   if (IsValid()) {
-    return static_cast<NavigationController*>(data_)->active_contents();
+    return static_cast<NavigationController*>(data_)->tab_contents();
   } else {
     return NULL;
   }

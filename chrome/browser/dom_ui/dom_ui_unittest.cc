@@ -23,7 +23,7 @@ class DOMUITest : public RenderViewHostTestHarness {
     controller->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
 
     // The navigation entry should be pending with no committed entry.
-    ASSERT_TRUE(controller->GetPendingEntry());
+    ASSERT_TRUE(controller->pending_entry());
     ASSERT_FALSE(controller->GetLastCommittedEntry());
 
     // Check the things the pending DOM UI should have set.

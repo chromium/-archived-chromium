@@ -441,7 +441,7 @@ void SessionService::Observe(NotificationType type,
       } else {
         TabNavigationPathPrunedFromBack(controller->window_id(),
                                         controller->session_id(),
-                                        controller->GetEntryCount());
+                                        controller->entry_count());
       }
       break;
     }
@@ -888,15 +888,15 @@ void SessionService::BuildCommandsForTab(
   const int min_index = std::max(0,
                                  current_index - max_persist_navigation_count);
   const int max_index = std::min(current_index + max_persist_navigation_count,
-                                 controller->GetEntryCount());
-  const int pending_index = controller->GetPendingEntryIndex();
+                                 controller->entry_count());
+  const int pending_index = controller->pending_entry_index();
   if (tab_to_available_range) {
     (*tab_to_available_range)[controller->session_id().id()] =
         std::pair<int, int>(min_index, max_index);
   }
   for (int i = min_index; i < max_index; ++i) {
     const NavigationEntry* entry = (i == pending_index) ?
-        controller->GetPendingEntry() : controller->GetEntryAtIndex(i);
+        controller->pending_entry() : controller->GetEntryAtIndex(i);
     DCHECK(entry);
     if (ShouldTrackEntry(*entry)) {
       commands->push_back(

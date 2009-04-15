@@ -182,8 +182,8 @@ class NavigationControllerRestoredObserver : public NotificationObserver {
   }
 
   bool FinishedRestoring() {
-    return (!controller_->needs_reload() && !controller_->GetPendingEntry() &&
-            !controller_->active_contents()->is_loading());
+    return (!controller_->needs_reload() && !controller_->pending_entry() &&
+            !controller_->tab_contents()->is_loading());
   }
 
   void SendDone() {
@@ -1838,7 +1838,7 @@ void AutomationProvider::GetTabHWND(int handle, HWND* tab_hwnd) {
 
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    *tab_hwnd = tab->active_contents()->GetNativeView();
+    *tab_hwnd = tab->tab_contents()->GetNativeView();
   }
 }
 #endif  // defined(OS_WIN)
@@ -1849,8 +1849,8 @@ void AutomationProvider::GetTabProcessID(int handle, int* process_id) {
   if (tab_tracker_->ContainsHandle(handle)) {
     *process_id = 0;
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    if (tab->active_contents()->AsWebContents()) {
-      WebContents* web_contents = tab->active_contents()->AsWebContents();
+    if (tab->tab_contents()->AsWebContents()) {
+      WebContents* web_contents = tab->tab_contents()->AsWebContents();
       if (web_contents->process())
         *process_id = web_contents->process()->process().pid();
     }
@@ -1908,7 +1908,7 @@ void AutomationProvider::GetConstrainedWindowCount(int handle, int* count) {
   *count = -1;  // -1 is the error code
   if (tab_tracker_->ContainsHandle(handle)) {
       NavigationController* nav_controller = tab_tracker_->GetResource(handle);
-      TabContents* tab_contents = nav_controller->active_contents();
+      TabContents* tab_contents = nav_controller->tab_contents();
       if (tab_contents) {
         *count = static_cast<int>(tab_contents->child_windows_.size());
       }
@@ -1921,7 +1921,7 @@ void AutomationProvider::GetConstrainedWindow(int handle, int index,
   if (tab_tracker_->ContainsHandle(handle) && index >= 0) {
     NavigationController* nav_controller =
         tab_tracker_->GetResource(handle);
-    TabContents* tab = nav_controller->active_contents();
+    TabContents* tab = nav_controller->tab_contents();
     if (tab && index < static_cast<int>(tab->child_windows_.size())) {
 #if defined(OS_WIN)
       ConstrainedWindow* window = tab->child_windows_[index];
@@ -1987,7 +1987,7 @@ void AutomationProvider::HandleFindRequest(
   }
 
   NavigationController* nav = tab_tracker_->GetResource(handle);
-  TabContents* tab_contents = nav->active_contents();
+  TabContents* tab_contents = nav->tab_contents();
 
   find_in_page_observer_.reset(new
       FindInPageNotificationObserver(this, tab_contents,
@@ -2213,7 +2213,7 @@ void AutomationProvider::ShowInterstitialPage(int tab_handle,
                                               IPC::Message* reply_message) {
   if (tab_tracker_->ContainsHandle(tab_handle)) {
     NavigationController* controller = tab_tracker_->GetResource(tab_handle);
-    TabContents* tab_contents = controller->active_contents();
+    TabContents* tab_contents = controller->tab_contents();
 
     AddNavigationStatusListener<bool>(controller, reply_message, true,
                                       false, false);
@@ -2251,7 +2251,7 @@ void AutomationProvider::CloseTab(int tab_handle,
     new TabClosedNotificationObserver(browser, this,
                                       reply_message->routing_id(),
                                       wait_until_closed, reply_message);
-    browser->CloseContents(controller->active_contents());
+    browser->CloseContents(controller->tab_contents());
     return;
   }
 
@@ -2384,8 +2384,8 @@ void AutomationProvider::GetPageType(int handle, bool* success,
     // In order to return the proper result when an interstitial is shown and
     // no navigation entry were created for it we need to ask the WebContents.
     if (*page_type == NavigationEntry::NORMAL_PAGE &&
-        tab->active_contents()->AsWebContents() &&
-        tab->active_contents()->AsWebContents()->showing_interstitial_page())
+        tab->tab_contents()->AsWebContents() &&
+        tab->tab_contents()->AsWebContents()->showing_interstitial_page())
       *page_type = NavigationEntry::INTERSTITIAL_PAGE;
   } else {
     *success = false;
@@ -2584,7 +2584,7 @@ WebContents* AutomationProvider::GetWebContentsForHandle(
   WebContents* web_contents = NULL;
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
-    TabContents* tab_contents = nav_controller->active_contents();
+    TabContents* tab_contents = nav_controller->tab_contents();
     if (tab_contents) {
       web_contents = tab_contents->AsWebContents();
       if (tab)
@@ -2660,7 +2660,7 @@ void AutomationProvider::GetSSLInfoBarCount(int handle, int* count) {
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller)
-      *count = nav_controller->active_contents()->infobar_delegate_count();
+      *count = nav_controller->tab_contents()->infobar_delegate_count();
   }
 #else
   // TODO(port): Enable when TabContents infobar related stuff is ported.
@@ -2677,14 +2677,14 @@ void AutomationProvider::ClickSSLInfoBarLink(int handle,
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* nav_controller = tab_tracker_->GetResource(handle);
     if (nav_controller) {
-      int count = nav_controller->active_contents()->infobar_delegate_count();
+      int count = nav_controller->tab_contents()->infobar_delegate_count();
       if (info_bar_index >= 0 && info_bar_index < count) {
         if (wait_for_navigation) {
           AddNavigationStatusListener<bool>(nav_controller, reply_message,
                                             true, true, false);
         }
         InfoBarDelegate* delegate =
-            nav_controller->active_contents()->GetInfoBarDelegateAt(
+            nav_controller->tab_contents()->GetInfoBarDelegateAt(
                 info_bar_index);
         if (delegate->AsConfirmInfoBarDelegate())
           delegate->AsConfirmInfoBarDelegate()->Accept();
@@ -2783,7 +2783,7 @@ void AutomationProvider::GetPageCurrentEncoding(
     DCHECK(browser);
 
     if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
-      TabContents* tab_contents = nav->active_contents();
+      TabContents* tab_contents = nav->tab_contents();
       *current_encoding = tab_contents->AsWebContents()->encoding();
     }
   }
@@ -2801,7 +2801,7 @@ void AutomationProvider::OverrideEncoding(int tab_handle,
     DCHECK(browser);
 
     if (browser->command_updater()->IsCommandEnabled(IDC_ENCODING_MENU)) {
-      TabContents* tab_contents = nav->active_contents();
+      TabContents* tab_contents = nav->tab_contents();
       int selected_encoding_id =
           CharacterEncoding::GetCommandIdByCanonicalEncodingName(encoding_name);
       if (selected_encoding_id) {

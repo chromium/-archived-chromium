@@ -11,22 +11,19 @@
 #include "googleurl/src/gurl.h"
 
 // Handles rewriting view-source URLs for what we'll actually load.
-static bool HandleViewSource(GURL* url, TabContentsType* type) {
+static bool HandleViewSource(GURL* url) {
   if (url->SchemeIs(chrome::kViewSourceScheme)) {
     // Load the inner URL instead.
     *url = GURL(url->path());
-    *type = TAB_CONTENTS_WEB;
     return true;
   }
   return false;
 }
 
 // Handles URLs for DOM UI. These URLs need no rewriting.
-static bool HandleDOMUI(GURL* url, TabContentsType* type) {
+static bool HandleDOMUI(GURL* url) {
   if (!DOMUIFactory::UseDOMUIForURL(*url))
     return false;
-
-  *type = TAB_CONTENTS_WEB;
   return true;
 }
 
@@ -44,12 +41,11 @@ void BrowserURLHandler::InitURLHandlers() {
 }
 
 // static
-bool BrowserURLHandler::HandleBrowserURL(GURL* url, TabContentsType* type) {
+void BrowserURLHandler::RewriteURLIfNecessary(GURL* url) {
   if (url_handlers_.empty())
     InitURLHandlers();
   for (size_t i = 0; i < url_handlers_.size(); ++i) {
-    if ((*url_handlers_[i])(url, type))
-      return true;
+    if ((*url_handlers_[i])(url))
+      return;
   }
-  return false;
 }

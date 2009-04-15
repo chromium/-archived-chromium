@@ -106,7 +106,7 @@ void TabLoader::LoadTabs() {
     tabs_loading_.insert(tab);
     tabs_to_load_.pop_front();
     tab->LoadIfNecessary();
-    if (tab && tab->active_contents()) {
+    if (tab && tab->tab_contents()) {
       int tab_index;
       Browser* browser = Browser::GetBrowserForController(tab, &tab_index);
       if (browser && browser->selected_index() != tab_index) {
@@ -117,7 +117,7 @@ void TabLoader::LoadTabs() {
         // NOTE: We need to do this here rather than when the tab is added to
         // the Browser as at that time not everything has been created, so that
         // the call would do nothing.
-        tab->active_contents()->WasHidden();
+        tab->tab_contents()->WasHidden();
       }
     }
   }

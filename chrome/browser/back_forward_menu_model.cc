@@ -27,7 +27,7 @@ int BackForwardMenuModel::GetHistoryItemCount() const {
 
   if (model_type_ == FORWARD_MENU_DELEGATE) {
     // Only count items from n+1 to end (if n is current entry)
-    items = controller->GetEntryCount() -
+    items = controller->entry_count() -
             controller->GetCurrentEntryIndex() - 1;
   } else {
     items = controller->GetCurrentEntryIndex();
@@ -93,7 +93,7 @@ int BackForwardMenuModel::GetIndexOfNextChapterStop(int start_from,
   TabContents* contents = GetTabContents();
   NavigationController* controller = contents->controller();
 
-  int max_count = controller->GetEntryCount();
+  int max_count = controller->entry_count();
   if (start_from < 0 || start_from >= max_count)
     return -1;  // Out of bounds.
 
@@ -182,7 +182,7 @@ void BackForwardMenuModel::ExecuteCommandById(int menu_id) {
   }
 
   int index = MenuIdToNavEntryIndex(menu_id);
-  if (index >= 0 && index < controller->GetEntryCount())
+  if (index >= 0 && index < controller->entry_count())
     controller->GoToIndex(index);
 }
 

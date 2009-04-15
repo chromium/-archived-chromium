@@ -540,7 +540,7 @@ TabContents* Browser::AddTabWithURL(
 
 TabContents* Browser::AddTabWithNavigationController(
     NavigationController* ctrl, PageTransition::Type type) {
-  TabContents* tc = ctrl->active_contents();
+  TabContents* tc = ctrl->tab_contents();
   tabstrip_model_.AddTabContents(tc, -1, type, true);
   return tc;
 }
@@ -555,7 +555,7 @@ NavigationController* Browser::AddRestoredTab(
 
   tabstrip_model_.InsertTabContentsAt(
       tab_index,
-      restored_controller->active_contents(),
+      restored_controller->tab_contents(),
       select, false);
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
@@ -618,7 +618,7 @@ void Browser::GoBack(WindowOpenDisposition disposition) {
     if (disposition == NEW_FOREGROUND_TAB || disposition == NEW_BACKGROUND_TAB){
       controller = GetSelectedTabContents()->controller()->Clone();
       tabstrip_model_.AddTabContents(
-          controller->active_contents(), -1,
+          controller->tab_contents(), -1,
           PageTransition::LINK, disposition == NEW_FOREGROUND_TAB);
     } else {
       // Default disposition is CURRENT_TAB.
@@ -635,7 +635,7 @@ void Browser::GoForward(WindowOpenDisposition disp) {
     if (disp == NEW_FOREGROUND_TAB || disp == NEW_BACKGROUND_TAB) {
       controller = GetSelectedTabContents()->controller()->Clone();
       tabstrip_model_.AddTabContents(
-          controller->active_contents(), -1,
+          controller->tab_contents(), -1,
           PageTransition::LINK, disp == NEW_FOREGROUND_TAB);
     } else {
       // Default disposition is CURRENT_TAB.
@@ -1408,7 +1408,7 @@ bool Browser::CanDuplicateContentsAt(int index) {
   DCHECK(contents);
 
   NavigationController* nc = contents->controller();
-  return nc ? (nc->active_contents() && nc->GetLastCommittedEntry()) : false;
+  return nc ? (nc->tab_contents() && nc->GetLastCommittedEntry()) : false;
 }
 
 void Browser::DuplicateContentsAt(int index) {
@@ -1419,7 +1419,7 @@ void Browser::DuplicateContentsAt(int index) {
   if (type_ == TYPE_NORMAL) {
     // If this is a tabbed browser, just create a duplicate tab inside the same
     // window next to the tab being duplicated.
-    new_contents = contents->controller()->Clone()->active_contents();
+    new_contents = contents->controller()->Clone()->tab_contents();
     // If you duplicate a tab that is not selected, we need to make sure to
     // select the tab being duplicated so that DetermineInsertionIndex returns
     // the right index (if tab 5 is selected and we right-click tab 1 we want
@@ -1714,7 +1714,7 @@ void Browser::OpenURLFromTab(TabContents* source,
     controller->LoadURL(url, referrer, transition);
     // If the TabContents type has been swapped, we need to point to the current
     // active type otherwise there will be weirdness.
-    new_contents = controller->active_contents();
+    new_contents = controller->tab_contents();
     if (GetStatusBubble())
       GetStatusBubble()->Hide();
 

@@ -169,7 +169,7 @@ TEST_F(SafeBrowsingBlockingPageTest, MalwarePageDontProceed) {
   EXPECT_FALSE(GetSafeBrowsingBlockingPage());
 
   // We did not proceed, the pending entry should be gone.
-  EXPECT_FALSE(controller()->GetPendingEntry());
+  EXPECT_FALSE(controller()->pending_entry());
 }
 
 // Tests showing a blocking page for a malware page and then proceeding.
@@ -215,7 +215,7 @@ TEST_F(SafeBrowsingBlockingPageTest, PageWithMalwareResourceDontProceed) {
 
   // We did not proceed, we should be back to the first page, the 2nd one should
   // have been removed from the navigation controller.
-  ASSERT_EQ(1, controller()->GetEntryCount());
+  ASSERT_EQ(1, controller()->entry_count());
   EXPECT_EQ(kGoogleURL, controller()->GetActiveEntry()->url().spec());
 }
 
@@ -237,7 +237,7 @@ TEST_F(SafeBrowsingBlockingPageTest, PageWithMalwareResourceProceed) {
   EXPECT_FALSE(GetSafeBrowsingBlockingPage());
 
   // We did proceed, we should be back to showing the page.
-  ASSERT_EQ(1, controller()->GetEntryCount());
+  ASSERT_EQ(1, controller()->entry_count());
   EXPECT_EQ(kGoodURL, controller()->GetActiveEntry()->url().spec());
 }
 
@@ -270,7 +270,7 @@ TEST_F(SafeBrowsingBlockingPageTest,
 
   // We did not proceed, we should be back to the first page, the 2nd one should
   // have been removed from the navigation controller.
-  ASSERT_EQ(1, controller()->GetEntryCount());
+  ASSERT_EQ(1, controller()->entry_count());
   EXPECT_EQ(kGoogleURL, controller()->GetActiveEntry()->url().spec());
 }
 
@@ -313,7 +313,7 @@ TEST_F(SafeBrowsingBlockingPageTest,
 
   // We did not proceed, we should be back to the first page, the 2nd one should
   // have been removed from the navigation controller.
-  ASSERT_EQ(1, controller()->GetEntryCount());
+  ASSERT_EQ(1, controller()->entry_count());
   EXPECT_EQ(kGoogleURL, controller()->GetActiveEntry()->url().spec());
 }
 
@@ -350,6 +350,6 @@ TEST_F(SafeBrowsingBlockingPageTest, PageWithMultipleMalwareResourceProceed) {
   EXPECT_EQ(OK, user_response());
 
   // We did proceed, we should be back to the initial page.
-  ASSERT_EQ(1, controller()->GetEntryCount());
+  ASSERT_EQ(1, controller()->entry_count());
   EXPECT_EQ(kGoodURL, controller()->GetActiveEntry()->url().spec());
 }

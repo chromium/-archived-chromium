@@ -99,7 +99,7 @@ void DownloadRequestManager::TabDownloadState::Observe(
       // request. If this happens we may let a download through that we
       // shouldn't have. But this is rather rare, and it is difficult to get
       // 100% right, so we don't deal with it.
-      NavigationEntry* entry = controller_->GetPendingEntry();
+      NavigationEntry* entry = controller_->pending_entry();
       if (!entry)
         return;
 

@@ -375,7 +375,7 @@ bool WebContents::ShouldDisplayURL() {
 
 bool WebContents::ShouldDisplayFavIcon() {
   // Always display a throbber during pending loads.
-  if (controller()->GetLastCommittedEntry() && controller()->GetPendingEntry())
+  if (controller()->GetLastCommittedEntry() && controller()->pending_entry())
     return true;
 
   DOMUI* dom_ui = GetDOMUIForCurrentState();
@@ -412,7 +412,7 @@ std::wstring WebContents::GetStatusText() const {
 }
 
 bool WebContents::NavigateToPendingEntry(bool reload) {
-  const NavigationEntry& entry = *controller()->GetPendingEntry();
+  const NavigationEntry& entry = *controller()->pending_entry();
 
   RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
   if (!dest_render_view_host)
@@ -844,7 +844,7 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   // NavigationEntry and update it when it is notified via the delegate.
 
   int entry_index = controller()->GetEntryIndexWithPageID(
-      type(), GetSiteInstance(), page_id);
+      GetSiteInstance(), page_id);
   if (entry_index < 0)
     return;
   NavigationEntry* entry = controller()->GetEntryAtIndex(entry_index);
@@ -865,8 +865,7 @@ void WebContents::UpdateTitle(RenderViewHost* rvh,
   SetNotWaitingForResponse();
 
   DCHECK(rvh == render_view_host());
-  NavigationEntry* entry = controller()->GetEntryWithPageID(type(),
-                                                            GetSiteInstance(),
+  NavigationEntry* entry = controller()->GetEntryWithPageID(GetSiteInstance(),
                                                             page_id);
   if (!entry || !UpdateTitleForEntry(entry, title))
     return;
@@ -886,8 +885,7 @@ void WebContents::UpdateFeedList(
   if (rvh != render_view_host())
     return;
 
-  NavigationEntry* entry = controller()->GetEntryWithPageID(type(),
-                                                            GetSiteInstance(),
+  NavigationEntry* entry = controller()->GetEntryWithPageID(GetSiteInstance(),
                                                             params.page_id);
   if (!entry)
     return;
@@ -981,12 +979,10 @@ void WebContents::DidRedirectProvisionalLoad(int32 page_id,
                                              const GURL& source_url,
                                              const GURL& target_url) {
   NavigationEntry* entry;
-  if (page_id == -1) {
-    entry = controller()->GetPendingEntry();
-  } else {
-    entry = controller()->GetEntryWithPageID(type(), GetSiteInstance(),
-                                             page_id);
-  }
+  if (page_id == -1)
+    entry = controller()->pending_entry();
+  else
+    entry = controller()->GetEntryWithPageID(GetSiteInstance(), page_id);
   if (!entry || entry->tab_type() != type() || entry->url() != source_url)
     return;
   entry->set_url(target_url);
@@ -1051,7 +1047,7 @@ void WebContents::DidFailProvisionalLoadWithError(
     // decided to download the file instead of load it). Only discard the
     // pending entry if the URLs match, otherwise the user initiated a navigate
     // before the page loaded so that the discard would discard the wrong entry.
-    NavigationEntry* pending_entry = controller()->GetPendingEntry();
+    NavigationEntry* pending_entry = controller()->pending_entry();
     if (pending_entry && pending_entry->url() == url)
       controller()->DiscardNonCommittedEntries();
 
@@ -1149,9 +1145,9 @@ void WebContents::GetHistoryListCount(int* back_list_count,
   *forward_list_count = 0;
 
   if (controller()) {
-    int current_index = controller()->GetLastCommittedEntryIndex();
+    int current_index = controller()->last_committed_entry_index();
     *back_list_count = current_index;
-    *forward_list_count = controller()->GetEntryCount() - current_index - 1;
+    *forward_list_count = controller()->entry_count() - current_index - 1;
   }
 }
 
@@ -1270,7 +1266,7 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
   if (IsFormSubmit(base_entry)) {
     // If the current page is a form submit, find the last page that was not
     // a form submit and use its url to generate the keyword from.
-    int index = controller()->GetLastCommittedEntryIndex() - 1;
+    int index = controller()->last_committed_entry_index() - 1;
     while (index >= 0 && IsFormSubmit(controller()->GetEntryAtIndex(index)))
       index--;
     if (index >= 0)
@@ -1860,7 +1856,7 @@ void WebContents::GenerateKeywordIfNecessary(
   if (profile()->IsOffTheRecord())
     return;
 
-  const int last_index = controller()->GetLastCommittedEntryIndex();
+  int last_index = controller()->last_committed_entry_index();
   // When there was no previous page, the last index will be 0. This is
   // normally due to a form submit that opened in a new tab.
   // TODO(brettw) bug 916126: we should support keywords when form submits
@@ -1959,7 +1955,7 @@ DOMUI* WebContents::GetDOMUIForCurrentState() {
   //
   //  - Normal state with no load: committed nav entry + no pending nav entry:
   //    -> Use committed DOM UI.
-  if (controller()->GetPendingEntry() &&
+  if (controller()->pending_entry() &&
       (controller()->GetLastCommittedEntry() ||
        render_manager_.pending_dom_ui()))
     return render_manager_.pending_dom_ui();

@@ -158,7 +158,7 @@ WebContents* DebuggerRemoteService::ToWebContents(int32 tab_uid) {
   InspectableTabProxy::ControllersMap::const_iterator it =
       navcon_map.find(tab_uid);
   if (it != navcon_map.end()) {
-    TabContents* tab_contents = it->second->active_contents();
+    TabContents* tab_contents = it->second->tab_contents();
     if (tab_contents == NULL) {
       return NULL;
     } else {

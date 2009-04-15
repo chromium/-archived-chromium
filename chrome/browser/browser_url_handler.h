@@ -14,8 +14,6 @@
 
 #include <vector>
 
-#include "chrome/browser/tab_contents/tab_contents_type.h"
-
 class GURL;
 
 // BrowserURLHandler manages the list of all special URLs and manages
@@ -25,17 +23,14 @@ class BrowserURLHandler {
   // The type of functions that can process a URL.
   // If a handler handles |url|, it should :
   // - optionally modify |url| to the URL that should be sent to the renderer
-  // - set |type| to the proper TabContentsType
   // - optionally set |dispatcher| to the necessary DOMMessageDispatcher
   // - return true.
   // If the URL is not handled by a handler, it should return false.
-  typedef bool (*URLHandler)(GURL* url, TabContentsType* type);
+  typedef bool (*URLHandler)(GURL* url);
 
   // HandleBrowserURL gives all registered URLHandlers a shot at processing
-  // this URL, and returns true if one of them handled the URL.  If MaybeHandle
-  // returns false, then |type| and |dispatcher| should not be used and
-  // the URL should be handled like any normal URL.
-  static bool HandleBrowserURL(GURL* url, TabContentsType* type);
+  // the given URL, and modifies it in place.
+  static void RewriteURLIfNecessary(GURL* url);
 
   // We initialize the list of url_handlers_ lazily the first time MaybeHandle
   // is called.

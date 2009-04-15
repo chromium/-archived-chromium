@@ -107,11 +107,10 @@ void TabContents::Destroy() {
   // Notify our NavigationController.  Make sure we are deleted first, so
   // that the controller is the last to die.
   NavigationController* controller = controller_;
-  TabContentsType type = this->type();
 
   delete this;
 
-  controller->TabContentsWasDestroyed(type);
+  controller->TabContentsWasDestroyed();
 }
 
 void TabContents::SetupController(Profile* profile) {
@@ -263,7 +262,7 @@ void TabContents::OpenURL(const GURL& url, const GURL& referrer,
 bool TabContents::NavigateToPendingEntry(bool reload) {
   // Our benavior is just to report that the entry was committed.
   string16 default_title = WideToUTF16Hack(GetDefaultTitle());
-  controller()->GetPendingEntry()->set_title(default_title);
+  controller()->pending_entry()->set_title(default_title);
   controller()->CommitPendingEntry();
   return true;
 }

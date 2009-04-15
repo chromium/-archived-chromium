@@ -310,14 +310,14 @@ void TabRestoreService::Save() {
 void TabRestoreService::PopulateTabFromController(
     NavigationController* controller,
     Tab* tab) {
-  const int pending_index = controller->GetPendingEntryIndex();
-  int entry_count = controller->GetEntryCount();
+  const int pending_index = controller->pending_entry_index();
+  int entry_count = controller->entry_count();
   if (entry_count == 0 && pending_index == 0)
     entry_count++;
   tab->navigations.resize(static_cast<int>(entry_count));
   for (int i = 0; i < entry_count; ++i) {
     NavigationEntry* entry = (i == pending_index) ?
-        controller->GetPendingEntry() : controller->GetEntryAtIndex(i);
+        controller->pending_entry() : controller->GetEntryAtIndex(i);
     tab->navigations[i].SetFromNavigationEntry(*entry);
   }
   tab->current_navigation_index = controller->GetCurrentEntryIndex();

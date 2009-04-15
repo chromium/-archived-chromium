@@ -577,7 +577,7 @@ TEST_F(WebContentsTest,
   // Navigate to a page.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Initiate a browser navigation that will trigger the interstitial
   controller()->LoadURL(GURL("http://www.evil.com"), GURL(),
@@ -614,7 +614,7 @@ TEST_F(WebContentsTest,
   entry = controller()->GetActiveEntry();
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 }
 
 // Test navigating to a page (with the navigation initiated from the renderer,
@@ -625,7 +625,7 @@ TEST_F(WebContentsTest,
   // Navigate to a page.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial (no pending entry, the interstitial would have been
   // triggered by clicking on a link).
@@ -659,7 +659,7 @@ TEST_F(WebContentsTest,
   entry = controller()->GetActiveEntry();
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 }
 
 // Test navigating to a page that shows an interstitial without creating a new
@@ -669,7 +669,7 @@ TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationDontProceed) {
   // Navigate to a page.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state =
@@ -703,7 +703,7 @@ TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationDontProceed) {
   entry = controller()->GetActiveEntry();
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 }
 
 // Test navigating to a page (with the navigation initiated from the browser,
@@ -714,7 +714,7 @@ TEST_F(WebContentsTest,
   // Navigate to a page.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Initiate a browser navigation that will trigger the interstitial
   controller()->LoadURL(GURL("http://www.evil.com"), GURL(),
@@ -762,7 +762,7 @@ TEST_F(WebContentsTest,
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == url3);
 
-  EXPECT_EQ(2, controller()->GetEntryCount());
+  EXPECT_EQ(2, controller()->entry_count());
 }
 
 // Test navigating to a page (with the navigation initiated from the renderer,
@@ -773,7 +773,7 @@ TEST_F(WebContentsTest,
   // Navigate to a page.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state =
@@ -817,7 +817,7 @@ TEST_F(WebContentsTest,
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == url3);
 
-  EXPECT_EQ(2, controller()->GetEntryCount());
+  EXPECT_EQ(2, controller()->entry_count());
 }
 
 // Test navigating to a page that shows an interstitial without creating a new
@@ -827,7 +827,7 @@ TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationProceed) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state =
@@ -864,7 +864,7 @@ TEST_F(WebContentsTest, ShowInterstitialNoNewNavigationProceed) {
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == url1);
 
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 }
 
 // Test navigating to a page that shows an interstitial, then navigating away.
@@ -914,7 +914,7 @@ TEST_F(WebContentsTest, ShowInterstitialProceedMultipleCommands) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL url1("http://www.google.com");
   rvh()->SendNavigate(1, url1);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state =
@@ -948,7 +948,7 @@ TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL start_url("http://www.google.com");
   rvh()->SendNavigate(1, start_url);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state1 =
@@ -989,7 +989,7 @@ TEST_F(WebContentsTest, ShowInterstitialOnInterstitial) {
   NavigationEntry* entry = controller()->GetActiveEntry();
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == landing_url);
-  EXPECT_EQ(2, controller()->GetEntryCount());
+  EXPECT_EQ(2, controller()->entry_count());
 }
 
 // Test showing an interstitial, proceeding and then navigating to another
@@ -998,7 +998,7 @@ TEST_F(WebContentsTest, ShowInterstitialProceedShowInterstitial) {
   // Navigate to a page so we have a navigation entry in the controller.
   GURL start_url("http://www.google.com");
   rvh()->SendNavigate(1, start_url);
-  EXPECT_EQ(1, controller()->GetEntryCount());
+  EXPECT_EQ(1, controller()->entry_count());
 
   // Show an interstitial.
   TestInterstitialPage::InterstitialState state1 =
@@ -1044,7 +1044,7 @@ TEST_F(WebContentsTest, ShowInterstitialProceedShowInterstitial) {
   NavigationEntry* entry = controller()->GetActiveEntry();
   ASSERT_TRUE(entry != NULL);
   EXPECT_TRUE(entry->url() == landing_url);
-  EXPECT_EQ(2, controller()->GetEntryCount());
+  EXPECT_EQ(2, controller()->entry_count());
 }
 
 // Test that navigating away from an interstitial while it's loading cause it

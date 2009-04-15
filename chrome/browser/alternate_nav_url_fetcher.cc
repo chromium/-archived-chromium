@@ -30,7 +30,7 @@ void AlternateNavURLFetcher::Observe(NotificationType type,
   switch (type.value) {
     case NotificationType::NAV_ENTRY_PENDING:
       controller_ = Source<NavigationController>(source).ptr();
-      DCHECK(controller_->GetPendingEntry());
+      DCHECK(controller_->pending_entry());
 
       // Unregister for this notification now that we're pending, and start
       // listening for the corresponding commit. We also need to listen for the
@@ -118,7 +118,7 @@ void AlternateNavURLFetcher::ShowInfobarIfPossible() {
   if (!navigated_to_entry_ || state_ != SUCCEEDED)
     return;
 
-  infobar_contents_ = controller_->active_contents();
+  infobar_contents_ = controller_->tab_contents();
   StoreActiveEntryUniqueID(infobar_contents_);
   // We will be deleted when the InfoBar is destroyed. (See InfoBarClosed).
   infobar_contents_->AddInfoBar(this);

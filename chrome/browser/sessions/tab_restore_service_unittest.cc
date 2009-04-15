@@ -42,8 +42,8 @@ class TabRestoreServiceTest : public RenderViewHostTestHarness {
     // Navigate back. We have to do this song and dance as NavigationController
     // isn't happy if you navigate immediately while going back.
     controller()->GoToIndex(index);
-    rvh()->SendNavigate(controller()->GetPendingEntry()->page_id(),
-                        controller()->GetPendingEntry()->url());
+    rvh()->SendNavigate(controller()->pending_entry()->page_id(),
+                        controller()->pending_entry()->url());
   }
 
   void RecreateService() {

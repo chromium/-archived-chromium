@@ -17,7 +17,7 @@ class GURL;
 // handles all "about:" URLs as "about:blank.
 //
 // This is used by BrowserURLHandler.
-bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type);
+bool WillHandleBrowserAboutURL(GURL* url);
 
 // We have a few magic commands that don't cause navigations, but rather pop up
 // dialogs. This function handles those cases, and returns true if so. In this

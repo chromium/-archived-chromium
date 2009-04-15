@@ -14,7 +14,6 @@
 #include "googleurl/src/gurl.h"
 #include "chrome/browser/sessions/session_id.h"
 #include "chrome/browser/ssl/ssl_manager.h"
-#include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/page_transition_types.h"
 
@@ -172,7 +171,7 @@ class NavigationController {
   NavigationEntry* GetLastCommittedEntry() const;
 
   // Returns the index of the last committed entry.
-  int GetLastCommittedEntryIndex() const {
+  int last_committed_entry_index() const {
     return last_committed_entry_index_;
   }
 
@@ -181,7 +180,7 @@ class NavigationController {
   // Returns the number of entries in the NavigationController, excluding
   // the pending entry if there is one, but including the transient entry if
   // any.
-  int GetEntryCount() const {
+  int entry_count() const {
     return static_cast<int>(entries_.size());
   }
 
@@ -197,18 +196,14 @@ class NavigationController {
   // in this NavigationController.
   int GetIndexOfEntry(const NavigationEntry* entry) const;
 
-  // Return the index of the entry with the corresponding type, instance, and
-  // page_id, or -1 if not found.  Use a NULL instance if the type is not
-  // TAB_CONTENTS_WEB.
-  int GetEntryIndexWithPageID(TabContentsType type,
-                              SiteInstance* instance,
+  // Return the index of the entry with the corresponding instance and page_id,
+  // or -1 if not found.
+  int GetEntryIndexWithPageID(SiteInstance* instance,
                               int32 page_id) const;
 
-  // Return the entry with the corresponding type, instance, and page_id, or
-  // NULL if not found.  Use a NULL instance if the type is not
-  // TAB_CONTENTS_WEB.
-  NavigationEntry* GetEntryWithPageID(TabContentsType type,
-                                      SiteInstance* instance,
+  // Return the entry with the corresponding instance and page_id, or NULL if
+  // not found.
+  NavigationEntry* GetEntryWithPageID(SiteInstance* instance,
                                       int32 page_id) const;
 
   // Pending entry -------------------------------------------------------------
@@ -230,13 +225,13 @@ class NavigationController {
 
   // Returns the pending entry corresponding to the navigation that is
   // currently in progress, or null if there is none.
-  NavigationEntry* GetPendingEntry() const {
+  NavigationEntry* pending_entry() const {
     return pending_entry_;
   }
 
   // Returns the index of the pending entry or -1 if the pending entry
   // corresponds to a new navigation (created via LoadURL).
-  int GetPendingEntryIndex() const {
+  int pending_entry_index() const {
     return pending_entry_index_;
   }
 
@@ -302,19 +297,7 @@ class NavigationController {
 
   // Notifies the controller that a TabContents that it owns has been destroyed.
   // This is part of the NavigationController's Destroy sequence.
-  void TabContentsWasDestroyed(TabContentsType type);
-
-  // Returns the TabContents cached on this controller for the given type or
-  // NULL if there is none.
-  TabContents* GetTabContents(TabContentsType type);
-
-  // Returns the currently-active TabContents associated with this controller.
-  // You should use GetActiveEntry instead of this in most cases.
-  // 
-  // TODO(brettw) this should be removed in preference to tab_contents().
-  TabContents* active_contents() const {
-    return tab_contents_;
-  }
+  void TabContentsWasDestroyed();
 
   // Returns the tab contents associated with this controller. Non-NULL except
   // during set-up of the tab.

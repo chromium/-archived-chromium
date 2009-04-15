@@ -70,7 +70,7 @@ TEST_F(BrowserCommandsTest, DuplicateTab) {
   // Verify the stack of urls.
   NavigationController* controller =
       browser()->GetTabContentsAt(1)->controller();
-  ASSERT_EQ(3, controller->GetEntryCount());
+  ASSERT_EQ(3, controller->entry_count());
   ASSERT_EQ(2, controller->GetCurrentEntryIndex());
   ASSERT_TRUE(url1 == controller->GetEntryAtIndex(0)->url());
   ASSERT_TRUE(url2 == controller->GetEntryAtIndex(1)->url());

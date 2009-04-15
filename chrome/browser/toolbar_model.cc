@@ -36,7 +36,7 @@ std::wstring ToolbarModel::GetText() {
                     prefs::kAcceptLanguages);
     NavigationEntry* entry = navigation_controller->GetActiveEntry();
     // We may not have a navigation entry yet
-    if (!navigation_controller->active_contents()->ShouldDisplayURL()) {
+    if (!navigation_controller->tab_contents()->ShouldDisplayURL()) {
       // Explicitly hide the URL for this tab.
       url = GURL();
     } else if (entry) {

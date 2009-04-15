@@ -36,7 +36,7 @@ void DevToolsManager::Observe(NotificationType type,
     }
 
     NavigationController* controller = src->controller();
-    bool active = (controller->active_contents() == src.ptr());
+    bool active = (controller->tab_contents() == src.ptr());
     if (active) {
       // Active tab contents disconnecting from its renderer means that the tab
       // is closing.
@@ -99,7 +99,7 @@ void DevToolsManager::ForwardToDevToolsAgent(const DevToolsClientHost& from,
   }
 
   // TODO(yurys): notify client that the agent is no longer available
-  TabContents* tc = nav_controller->active_contents();
+  TabContents* tc = nav_controller->tab_contents();
   if (!tc) {
     return;
   }
@@ -162,7 +162,7 @@ void DevToolsManager::ClientHostClosing(DevToolsClientHost* host) {
     return;
   }
 
-  TabContents* tab_contents = controller->active_contents();
+  TabContents* tab_contents = controller->tab_contents();
   if (!tab_contents) {
     return;
   }

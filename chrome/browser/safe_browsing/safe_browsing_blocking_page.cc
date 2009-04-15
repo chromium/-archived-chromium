@@ -85,7 +85,7 @@ SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
       unsafe_resources_(unsafe_resources) {
   if (!is_main_frame_) {
     navigation_entry_index_to_remove_ =
-        tab()->controller()->GetLastCommittedEntryIndex();
+        tab()->controller()->last_committed_entry_index();
   } else {
     navigation_entry_index_to_remove_ = -1;
   }

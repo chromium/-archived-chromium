@@ -577,7 +577,7 @@ void AboutMemoryHandler::OnDetailsAvailable() {
 
 // -----------------------------------------------------------------------------
 
-bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type) {
+bool WillHandleBrowserAboutURL(GURL* url) {
   // We only handle about: schemes.
   if (!url->SchemeIs(chrome::kAboutScheme))
     return false;
@@ -592,7 +592,6 @@ bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type) {
   if (LowerCaseEqualsASCII(url->spec(), chrome::kAboutCacheURL)) {
     // Create an mapping from about:cache to the view-cache: internal URL.
     *url = GURL(std::string(chrome::kViewCacheScheme) + ":");
-    *type = TAB_CONTENTS_WEB;
     return true;
   }
 
@@ -614,7 +613,6 @@ bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type) {
   // the final page. See GetAboutMemoryRedirectResponse above for why.
   if (LowerCaseEqualsASCII(url->path(), kMemoryPath)) {
     *url = GURL("chrome-ui://about/memory-redirect");
-    *type = TAB_CONTENTS_WEB;
     return true;
   }
 
@@ -624,7 +622,6 @@ bool WillHandleBrowserAboutURL(GURL* url, TabContentsType* type) {
   std::string about_url = "chrome-ui://about/";
   about_url.append(url->path());
   *url = GURL(about_url);
-  *type = TAB_CONTENTS_WEB;
   return true;
 }
 
