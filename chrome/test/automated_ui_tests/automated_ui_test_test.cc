@@ -30,7 +30,9 @@ TEST_F(AutomatedUITestBase, DuplicateTab) {
   ASSERT_EQ(3, tab_count);
 }
 
-TEST_F(AutomatedUITestBase, OpenNewBrowserWindow) {
+// TODO(huanr) mmoss disabled this test because it's crashing periodically on
+// the buildbots and not giving useful debugging info.
+TEST_F(AutomatedUITestBase, DISABLED_OpenNewBrowserWindow) {
   int num_browser_windows;
   int tab_count;
   automation()->GetBrowserWindowCount(&num_browser_windows);
