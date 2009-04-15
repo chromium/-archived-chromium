@@ -202,7 +202,8 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
   // Allow Spell Check language items on sub menu for text area context menu.
   if ((id >= IDC_SPELLCHECK_LANGUAGES_FIRST) &&
       (id < IDC_SPELLCHECK_LANGUAGES_LAST)) {
-    return true;
+    return source_web_contents_->profile()->GetPrefs()->GetBoolean(
+        prefs::kEnableSpellCheck);
   }
 
   switch (id) {
