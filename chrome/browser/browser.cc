@@ -1580,7 +1580,7 @@ void Browser::TabSelectedAt(TabContents* old_contents,
   UpdateToolbar(true);
 
   // Update stop/go state.
-  UpdateStopGoState(new_contents->is_loading());
+  UpdateStopGoState(new_contents->is_loading(), true);
 
   // Update commands to reflect current state.
   UpdateCommandsForTabState();
@@ -1832,7 +1832,7 @@ void Browser::LoadingStateChanged(TabContents* source) {
   window_->UpdateTitleBar();
 
   if (source == GetSelectedTabContents()) {
-    UpdateStopGoState(source->is_loading());
+    UpdateStopGoState(source->is_loading(), false);
     if (GetStatusBubble())
       GetStatusBubble()->SetStatus(GetSelectedTabContents()->GetStatusText());
   }
@@ -2245,8 +2245,8 @@ void Browser::UpdateCommandsForFullscreenMode(bool is_fullscreen) {
   command_updater_.UpdateCommandEnabled(IDC_ABOUT, show_main_ui);
 }
 
-void Browser::UpdateStopGoState(bool is_loading) {
-  window_->UpdateStopGoState(is_loading);
+void Browser::UpdateStopGoState(bool is_loading, bool force) {
+  window_->UpdateStopGoState(is_loading, force);
   command_updater_.UpdateCommandEnabled(IDC_GO, !is_loading);
   command_updater_.UpdateCommandEnabled(IDC_STOP, is_loading);
 }

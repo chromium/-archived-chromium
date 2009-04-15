@@ -106,7 +106,7 @@ class BrowserWindow {
 
   // Informs the view whether or not a load is in progress for the current tab.
   // The view can use this notification to update the go/stop button.
-  virtual void UpdateStopGoState(bool is_loading) = 0;
+  virtual void UpdateStopGoState(bool is_loading, bool force) = 0;
 
   // Updates the toolbar with the state for the specified |contents|.
   virtual void UpdateToolbar(TabContents* contents,

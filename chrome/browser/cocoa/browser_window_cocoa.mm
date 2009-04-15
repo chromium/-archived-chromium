@@ -118,7 +118,7 @@ void BrowserWindowCocoa::SetFocusToLocationBar() {
   [controller_ focusLocationBar];
 }
 
-void BrowserWindowCocoa::UpdateStopGoState(bool is_loading) {
+void BrowserWindowCocoa::UpdateStopGoState(bool is_loading, bool force) {
   [controller_ setIsLoading:is_loading ? YES : NO];
 }
 

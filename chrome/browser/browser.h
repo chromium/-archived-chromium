@@ -480,9 +480,10 @@ class Browser : public TabStripModelDelegate,
   // mode.
   void UpdateCommandsForFullscreenMode(bool is_fullscreen);
 
-  // Set the correct stop/go icon and update the Go and Stop command states.
-  // |is_loading| is true if the current TabContents is loading.
-  void UpdateStopGoState(bool is_loading);
+  // Ask the Stop/Go button to change its icon, and update the Go and Stop
+  // command states.  |is_loading| is true if the current TabContents is
+  // loading.  |force| is true if the button should change its icon immediately.
+  void UpdateStopGoState(bool is_loading, bool force);
 
   // UI update coalescing and handling ////////////////////////////////////////
 

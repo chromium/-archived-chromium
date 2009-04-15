@@ -434,9 +434,9 @@ void BrowserWindowGtk::SetFocusToLocationBar() {
   GetLocationBar()->FocusLocation();
 }
 
-void BrowserWindowGtk::UpdateStopGoState(bool is_loading) {
+void BrowserWindowGtk::UpdateStopGoState(bool is_loading, bool force) {
   toolbar_->GetGoButton()->ChangeMode(
-      is_loading ? GoButtonGtk::MODE_STOP : GoButtonGtk::MODE_GO);
+      is_loading ? GoButtonGtk::MODE_STOP : GoButtonGtk::MODE_GO, force);
 }
 
 void BrowserWindowGtk::UpdateToolbar(TabContents* contents,
