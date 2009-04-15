@@ -4,6 +4,8 @@
 
 #include <deque>
 
+#include "base/singleton.h"
+#include "base/tuple.h"
 #include "media/base/filter_host.h"
 #include "media/base/filters.h"
 #include "media/base/mock_filter_host.h"
@@ -11,6 +13,67 @@
 #include "media/filters/ffmpeg_common.h"
 #include "media/filters/ffmpeg_demuxer.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+namespace {
+
+// Simulates a queue of media packets that get "demuxed" when av_read_frame()
+// is called.  It also tracks the number of packets read but not released,
+// which lets us test for memory leaks and handling seeks.
+class PacketQueue : public Singleton<PacketQueue> {
+ public:
+  bool IsEmpty() {
+    return packets_.empty();
+  }
+
+  void Enqueue(int stream, size_t size, uint8* data) {
+    packets_.push_back(PacketTuple(stream, size, data));
+  }
+
+  void Dequeue(AVPacket* packet) {
+    CHECK(!packets_.empty());
+    memset(packet, 0, sizeof(*packet));
+    packet->stream_index = packets_.front().a;
+    packet->size = packets_.front().b;
+    packet->data = packets_.front().c;
+    packet->destruct = &DestructPacket;
+    packets_.pop_front();
+
+    // We now have an outstanding packet which must be freed at some point.
+    ++outstanding_packets_;
+  }
+
+  int outstanding_packets() {
+    return outstanding_packets_;
+  }
+
+ private:
+  static void DestructPacket(AVPacket* packet) {
+    --(PacketQueue::get()->outstanding_packets_);
+  }
+
+  // Only allow Singleton to create and delete PacketQueue.
+  friend struct DefaultSingletonTraits<PacketQueue>;
+
+  PacketQueue() : outstanding_packets_(0) {}
+
+  ~PacketQueue() {
+    CHECK(outstanding_packets_ == 0);
+  }
+
+  // Packet queue for tests to enqueue mock packets, which are dequeued when
+  // FFmpegDemuxer calls av_read_frame().
+  typedef Tuple3<int, size_t, uint8*> PacketTuple;
+  std::deque<PacketTuple> packets_;
+
+  // Counts the number of packets "allocated" by av_read_frame() and "released"
+  // by av_free_packet().  This should always be zero after everything is
+  // cleaned up.
+  int outstanding_packets_;
+
+  DISALLOW_COPY_AND_ASSIGN(PacketQueue);
+};
+
+}  // namespace
 
 // FFmpeg mocks to remove dependency on having the DLLs present.
 extern "C" {
@@ -20,16 +83,17 @@ static AVStream g_streams[kMaxStreams];
 static AVCodecContext g_audio_codec;
 static AVCodecContext g_video_codec;
 static AVCodecContext g_data_codec;
-struct AVPacket g_packet;
 
 // FFmpeg return codes for various functions.
 static int g_av_open_input_file = 0;
 static int g_av_find_stream_info = 0;
 static int g_av_read_frame = 0;
+static int g_av_seek_frame = 0;
 
-// Counts the number of packets "allocated" by av_read_frame and "released" by
-// av_free_packet.  This should always be zero after everything is cleaned up.
-static int g_oustanding_packets = 0;
+// Expected values when seeking.
+static base::WaitableEvent* g_seek_event = NULL;
+static int64_t g_expected_seek_timestamp = 0;
+static int g_expected_seek_flags = 0;
 
 int av_open_input_file(AVFormatContext** format, const char* filename,
                        AVInputFormat* input_format, int buffer_size,
@@ -54,19 +118,23 @@ void av_free(void* ptr) {
   EXPECT_EQ(&g_format, ptr);
 }
 
-// Our packet destroying function.
-void DestructPacket(AVPacket* packet) {
-  --g_oustanding_packets;
-}
-
 int av_read_frame(AVFormatContext* format, AVPacket* packet) {
   EXPECT_EQ(&g_format, format);
-  memcpy(packet, &g_packet, sizeof(g_packet));
-  packet->destruct = &DestructPacket;
   if (g_av_read_frame == 0) {
-    ++g_oustanding_packets;
+    PacketQueue::get()->Dequeue(packet);
   }
   return g_av_read_frame;
+}
+
+int av_seek_frame(AVFormatContext *format, int stream_index, int64_t timestamp,
+                  int flags) {
+  EXPECT_EQ(&g_format, format);
+  EXPECT_EQ(-1, stream_index);  // Should always use -1 for default stream.
+  EXPECT_EQ(g_expected_seek_timestamp, timestamp);
+  EXPECT_EQ(g_expected_seek_flags, flags);
+  EXPECT_FALSE(g_seek_event->IsSignaled());
+  g_seek_event->Signal();
+  return g_av_seek_frame;
 }
 
 }  // extern "C"
@@ -107,9 +175,6 @@ void InitializeFFmpegMocks() {
   memset(&g_data_codec, 0, sizeof(g_data_codec));
   g_data_codec.codec_type = CODEC_TYPE_DATA;
   g_data_codec.codec_id = CODEC_ID_NONE;
-
-  // Initialize AVPacket structure.
-  memset(&g_packet, 0, sizeof(g_packet));
 }
 
 // Ref counted object so we can create callbacks to call DemuxerStream::Read().
@@ -266,8 +331,9 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   // Verify that 2 out of 3 streams were created.
   EXPECT_EQ(2, demuxer->GetNumberOfStreams());
 
-  // First stream should be video.
+  // First stream should be video and support FFmpegDemuxerStream interface.
   scoped_refptr<DemuxerStream> stream = demuxer->GetStream(0);
+  scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
   ASSERT_TRUE(stream);
   std::string mime_type;
   int result;
@@ -283,9 +349,13 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   EXPECT_TRUE(
       stream->media_format().GetAsInteger(MediaFormat::kWidth, &result));
   EXPECT_EQ(g_video_codec.width, result);
+  EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
+  EXPECT_TRUE(ffmpeg_demuxer_stream);
+  EXPECT_EQ(&g_streams[1], ffmpeg_demuxer_stream->av_stream());
 
-  // Second stream should be audio.
+  // Second stream should be audio and support FFmpegDemuxerStream interface.
   stream = demuxer->GetStream(1);
+  ffmpeg_demuxer_stream = NULL;
   ASSERT_TRUE(stream);
   EXPECT_TRUE(
       stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
@@ -299,9 +369,15 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   EXPECT_TRUE(
       stream->media_format().GetAsInteger(MediaFormat::kSampleRate, &result));
   EXPECT_EQ(g_audio_codec.sample_rate, result);
+  EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
+  EXPECT_TRUE(ffmpeg_demuxer_stream);
+  EXPECT_EQ(&g_streams[2], ffmpeg_demuxer_stream->av_stream());
 }
 
-TEST(FFmpegDemuxerTest, Read) {
+// TODO(scherkus): as we keep refactoring and improving our mocks (both FFmpeg
+// and pipeline/filters), try to break this test into two.  Big issue right now
+// is that it takes ~50 lines of code just to set up FFmpegDemuxer.
+TEST(FFmpegDemuxerTest, ReadAndSeek) {
   // Prepare some test data.
   const int kAudio = 0;
   const int kVideo = 1;
@@ -348,18 +424,8 @@ TEST(FFmpegDemuxerTest, Read) {
   ASSERT_TRUE(audio_stream);
   ASSERT_TRUE(video_stream);
 
-  // Both streams should support FFmpegDemuxerStream interface.
-  scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
-  EXPECT_TRUE(audio_stream->QueryInterface(&ffmpeg_demuxer_stream));
-  EXPECT_TRUE(ffmpeg_demuxer_stream);
-  ffmpeg_demuxer_stream = NULL;
-  EXPECT_TRUE(video_stream->QueryInterface(&ffmpeg_demuxer_stream));
-  EXPECT_TRUE(ffmpeg_demuxer_stream);
-
   // Prepare our test audio packet.
-  g_packet.stream_index = kAudio;
-  g_packet.data = audio_data;
-  g_packet.size = kDataSize;
+  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
 
   // Attempt a read from the audio stream and run the message loop until done.
   scoped_refptr<TestReader> reader(new TestReader());
@@ -368,13 +434,12 @@ TEST(FFmpegDemuxerTest, Read) {
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
+  EXPECT_FALSE(reader->buffer()->IsDiscontinuous());
   EXPECT_EQ(audio_data, reader->buffer()->GetData());
   EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
   // Prepare our test video packet.
-  g_packet.stream_index = kVideo;
-  g_packet.data = video_data;
-  g_packet.size = kDataSize;
+  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
 
   // Attempt a read from the video stream and run the message loop until done.
   reader->Reset();
@@ -383,14 +448,128 @@ TEST(FFmpegDemuxerTest, Read) {
   EXPECT_TRUE(reader->WaitForRead());
   EXPECT_TRUE(reader->called());
   ASSERT_TRUE(reader->buffer());
+  EXPECT_FALSE(reader->buffer()->IsDiscontinuous());
   EXPECT_EQ(video_data, reader->buffer()->GetData());
   EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+
+  // Manually release buffer, which should release any remaining AVPackets.
+  reader = NULL;
+  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+
+  //----------------------------------------------------------------------------
+  // Seek tests.
+  EXPECT_FALSE(g_seek_event);
+  g_seek_event = new base::WaitableEvent(false, false);
+
+  // Let's trigger a simple forward seek with no outstanding packets.
+  g_expected_seek_timestamp = 1234;
+  g_expected_seek_flags = 0;
+  demuxer->Seek(base::TimeDelta::FromMicroseconds(g_expected_seek_timestamp));
+  EXPECT_TRUE(g_seek_event->TimedWait(base::TimeDelta::FromSeconds(1)));
+
+  // The next read from each stream should now be discontinuous, but subsequent
+  // reads should not.
+
+  // Prepare our test audio packet.
+  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+
+  // Audio read #1, should be discontinuous.
+  reader = new TestReader();
+  reader->Read(audio_stream);
+  pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_TRUE(reader->buffer()->IsDiscontinuous());
+  EXPECT_EQ(audio_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+
+  // Audio read #2, should not be discontinuous.
+  reader->Reset();
+  reader->Read(audio_stream);
+  pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_FALSE(reader->buffer()->IsDiscontinuous());
+  EXPECT_EQ(audio_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+
+  // Prepare our test video packet.
+  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
+  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
+
+  // Video read #1, should be discontinuous.
+  reader->Reset();
+  reader->Read(video_stream);
+  pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_TRUE(reader->buffer()->IsDiscontinuous());
+  EXPECT_EQ(video_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+
+  // Video read #2, should not be discontinuous.
+  reader->Reset();
+  reader->Read(video_stream);
+  pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_FALSE(reader->buffer()->IsDiscontinuous());
+  EXPECT_EQ(video_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+
+  // Manually release buffer, which should release any remaining AVPackets.
+  reader = NULL;
+  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+
+  // Let's trigger another simple forward seek, but with outstanding packets.
+  // The outstanding packets should get freed after the Seek() is issued.
+  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
+
+  // Attempt a read from video stream, which will force the demuxer to queue
+  // the audio packets preceding the video packet.
+  reader = new TestReader();
+  reader->Read(video_stream);
+  pipeline.RunAllTasks();
+  EXPECT_TRUE(reader->WaitForRead());
+  EXPECT_TRUE(reader->called());
+  ASSERT_TRUE(reader->buffer());
+  EXPECT_FALSE(reader->buffer()->IsDiscontinuous());
+  EXPECT_EQ(video_data, reader->buffer()->GetData());
+  EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
+
+  // Manually release video buffer, remaining audio packets are outstanding.
+  reader = NULL;
+  EXPECT_EQ(3, PacketQueue::get()->outstanding_packets());
+
+  // Trigger the seek.
+  g_expected_seek_timestamp = 1234;
+  g_expected_seek_flags = 0;
+  demuxer->Seek(base::TimeDelta::FromMicroseconds(g_expected_seek_timestamp));
+  EXPECT_TRUE(g_seek_event->TimedWait(base::TimeDelta::FromSeconds(1)));
+
+  // All outstanding packets should have been freed.
+  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+
+  // Clean up.
+  delete g_seek_event;
+  g_seek_event = NULL;
+
+  //----------------------------------------------------------------------------
+  // End of stream tests.
 
   // Simulate end of stream.
   g_av_read_frame = AVERROR_IO;
 
   // Attempt a read from the audio stream and run the message loop until done.
-  reader->Reset();
+  reader = new TestReader();
   reader->Read(audio_stream);
   pipeline.RunAllTasks();
   EXPECT_FALSE(reader->WaitForRead());
@@ -399,5 +578,5 @@ TEST(FFmpegDemuxerTest, Read) {
 
   // Manually release buffer, which should release any remaining AVPackets.
   reader = NULL;
-  EXPECT_EQ(0, g_oustanding_packets);
+  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
 }

@@ -54,8 +54,12 @@ class FFmpegDemuxerStream : public DemuxerStream {
   // Safe to call on any thread.
   bool HasPendingReads();
 
-  // Enqueues and takes ownership over the given AVPacket.
-  void EnqueuePacket(AVPacket* packet);
+  // Enqueues and takes ownership over the given AVPacket, returns the timestamp
+  // of the enqueued packet.
+  base::TimeDelta EnqueuePacket(AVPacket* packet);
+
+  // Signals to empty queue and mark next packet as discontinuous.
+  void FlushBuffers();
 
   // Returns the duration of this stream.
   base::TimeDelta duration() { return duration_; }
@@ -82,6 +86,8 @@ class FFmpegDemuxerStream : public DemuxerStream {
   MediaFormat media_format_;
   base::TimeDelta time_base_;
   base::TimeDelta duration_;
+  bool discontinuous_;
+
   Lock lock_;
 
   typedef std::deque< scoped_refptr<Buffer> > BufferQueue;
@@ -93,26 +99,24 @@ class FFmpegDemuxerStream : public DemuxerStream {
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxerStream);
 };
 
-class FFmpegDemuxer : public Demuxer, public PlatformThread::Delegate {
+class FFmpegDemuxer : public Demuxer {
  public:
   // FilterFactory provider.
   static FilterFactory* CreateFilterFactory() {
     return new FilterFactoryImpl0<FFmpegDemuxer>();
   }
 
-  // Called by FFmpegDemuxerStreams to signal the demux event.
-  void SignalDemux();
+  // Called by FFmpegDemuxerStreams to post a demuxing task.
+  void PostDemuxTask();
 
   // MediaFilter implementation.
   virtual void Stop();
+  virtual void Seek(base::TimeDelta time);
 
   // Demuxer implementation.
   virtual bool Initialize(DataSource* data_source);
   virtual size_t GetNumberOfStreams();
   virtual scoped_refptr<DemuxerStream> GetStream(int stream_id);
-
-  // PlatformThread::Delegate implementation.
-  virtual void ThreadMain();
 
  private:
   // Only allow a factory to create this class.
@@ -120,7 +124,15 @@ class FFmpegDemuxer : public Demuxer, public PlatformThread::Delegate {
   FFmpegDemuxer();
   virtual ~FFmpegDemuxer();
 
-  // Returns true if any of the streams have pending reads.
+  // Carries out a seek on the demuxer thread.
+  void SeekTask(base::TimeDelta time);
+
+  // Carries out demuxing and satisfying stream reads on the demuxer thread.
+  void DemuxTask();
+
+  // Returns true if any of the streams have pending reads.  Since we lazily
+  // post a DemuxTask() for every read, we use this method to quickly terminate
+  // the tasks if there is no work to do.
   //
   // Safe to call on any thread.
   bool StreamsHavePendingReads();
@@ -128,18 +140,15 @@ class FFmpegDemuxer : public Demuxer, public PlatformThread::Delegate {
   // FFmpeg context handle.
   AVFormatContext* format_context_;
 
+  // Latest timestamp read on the demuxer thread.
+  base::TimeDelta current_timestamp_;
+
   // Vector of streams.
   typedef std::vector< scoped_refptr<FFmpegDemuxerStream> > StreamVector;
   StreamVector streams_;
 
   // Thread handle.
-  PlatformThreadHandle thread_;
-
-  // Event to signal demux.
-  base::WaitableEvent wait_for_demux_;
-
-  // Used to signal |thread_| to terminate.
-  bool shutdown_;
+  base::Thread thread_;
 
   DISALLOW_COPY_AND_ASSIGN(FFmpegDemuxer);
 };

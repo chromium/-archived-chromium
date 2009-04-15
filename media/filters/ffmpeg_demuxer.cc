@@ -51,7 +51,8 @@ class AVPacketBuffer : public Buffer {
 FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
                                          AVStream* stream)
     : demuxer_(demuxer),
-      av_stream_(stream) {
+      av_stream_(stream),
+      discontinuous_(false) {
   DCHECK(demuxer_);
 
   // Determine our media format.
@@ -116,7 +117,7 @@ bool FFmpegDemuxerStream::HasPendingReads() {
   return !read_queue_.empty();
 }
 
-void FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
+base::TimeDelta FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
   base::TimeDelta timestamp = time_base_ * packet->pts;
   base::TimeDelta duration = time_base_ * packet->duration;
   Buffer* buffer = new AVPacketBuffer(packet, timestamp, duration);
@@ -126,6 +127,13 @@ void FFmpegDemuxerStream::EnqueuePacket(AVPacket* packet) {
     buffer_queue_.push_back(buffer);
   }
   FulfillPendingReads();
+  return timestamp;
+}
+
+void FFmpegDemuxerStream::FlushBuffers() {
+  AutoLock auto_lock(lock_);
+  buffer_queue_.clear();
+  discontinuous_ = true;
 }
 
 const MediaFormat& FFmpegDemuxerStream::media_format() {
@@ -139,7 +147,7 @@ void FFmpegDemuxerStream::Read(Callback1<Buffer*>::Type* read_callback) {
     read_queue_.push_back(read_callback);
   }
   if (FulfillPendingReads()) {
-    demuxer_->SignalDemux();
+    demuxer_->PostDemuxTask();
   }
 }
 
@@ -158,6 +166,12 @@ bool FFmpegDemuxerStream::FulfillPendingReads() {
       read_callback.reset(read_queue_.front());
       buffer_queue_.pop_front();
       read_queue_.pop_front();
+
+      // Handle discontinuities due to FlushBuffers() being called.
+      if (discontinuous_) {
+        buffer->SetDiscontinuous(true);
+        discontinuous_ = false;
+      }
     }
     read_callback->Run(buffer);
   }
@@ -170,29 +184,28 @@ bool FFmpegDemuxerStream::FulfillPendingReads() {
 //
 FFmpegDemuxer::FFmpegDemuxer()
     : format_context_(NULL),
-      thread_(NULL),
-      wait_for_demux_(false, false),
-      shutdown_(false) {
+      thread_("DemuxerThread") {
 }
 
 FFmpegDemuxer::~FFmpegDemuxer() {
-  if (thread_) {
-    shutdown_ = true;
-    SignalDemux();
-    PlatformThread::Join(thread_);
-  }
+  Stop();
   if (format_context_) {
     av_free(format_context_);
   }
 }
 
-void FFmpegDemuxer::SignalDemux() {
-  wait_for_demux_.Signal();
+void FFmpegDemuxer::PostDemuxTask() {
+  thread_.message_loop()->PostTask(
+      FROM_HERE, NewRunnableMethod(this, &FFmpegDemuxer::DemuxTask));
 }
 
 void FFmpegDemuxer::Stop() {
-  // TODO(scherkus): implement Stop().
-  NOTIMPLEMENTED();
+  thread_.Stop();
+}
+
+void FFmpegDemuxer::Seek(base::TimeDelta time) {
+  thread_.message_loop()->PostTask(
+      FROM_HERE, NewRunnableMethod(this, &FFmpegDemuxer::SeekTask, time));
 }
 
 bool FFmpegDemuxer::Initialize(DataSource* data_source) {
@@ -246,7 +259,7 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
   }
 
   // We have some streams to demux so create our thread.
-  if (!PlatformThread::Create(0, this, &thread_)) {
+  if (!thread_.Start()) {
     host_->Error(DEMUXER_ERROR_COULD_NOT_CREATE_THREAD);
     return false;
   }
@@ -267,33 +280,54 @@ scoped_refptr<DemuxerStream> FFmpegDemuxer::GetStream(int stream) {
   return streams_[stream].get();
 }
 
-void FFmpegDemuxer::ThreadMain() {
-  PlatformThread::SetName("DemuxerThread");
-  while (!shutdown_) {
-    // Loop until we've satisfied every stream.
-    while (StreamsHavePendingReads()) {
-      // Allocate and read an AVPacket from the media.
-      scoped_ptr<AVPacket> packet(new AVPacket());
-      int result = av_read_frame(format_context_, packet.get());
-      if (result < 0) {
-        // TODO(scherkus): handle end of stream by marking Buffer with the end
-        // of stream flag.
-        NOTIMPLEMENTED();
-        break;
-      }
+void FFmpegDemuxer::SeekTask(base::TimeDelta time) {
+  // Tell streams to flush buffers due to seeking.
+  StreamVector::iterator iter;
+  for (iter = streams_.begin(); iter != streams_.end(); ++iter) {
+    (*iter)->FlushBuffers();
+  }
 
-      // Queue the packet with the appropriate stream.
-      // TODO(scherkus): should we post this back to the pipeline thread?  I'm
-      // worried about downstream filters (i.e., decoders) executing on this
-      // thread.
-      DCHECK(packet->stream_index >= 0);
-      DCHECK(packet->stream_index < static_cast<int>(streams_.size()));
-      FFmpegDemuxerStream* demuxer_stream = streams_[packet->stream_index];
-      demuxer_stream->EnqueuePacket(packet.release());
-    }
+  // Seek backwards if requested timestamp is behind FFmpeg's current time.
+  int flags = 0;
+  if (time <= current_timestamp_) {
+    flags |= AVSEEK_FLAG_BACKWARD;
+  }
 
-    // Wait until we're signaled to either shutdown or satisfy more reads.
-    wait_for_demux_.Wait();
+  if (av_seek_frame(format_context_, -1, time.InMicroseconds(), flags) < 0) {
+    // TODO(scherkus): signal error.
+    NOTIMPLEMENTED();
+  }
+}
+
+void FFmpegDemuxer::DemuxTask() {
+  // Make sure we have work to do before demuxing.
+  if (!StreamsHavePendingReads()) {
+    return;
+  }
+
+  // Allocate and read an AVPacket from the media.
+  scoped_ptr<AVPacket> packet(new AVPacket());
+  int result = av_read_frame(format_context_, packet.get());
+  if (result < 0) {
+    // TODO(scherkus): handle end of stream by marking Buffer with the end
+    // of stream flag.
+    NOTIMPLEMENTED();
+    return;
+  }
+
+  // Queue the packet with the appropriate stream.
+  // TODO(scherkus): should we post this back to the pipeline thread?  I'm
+  // worried about downstream filters (i.e., decoders) executing on this
+  // thread.
+  DCHECK(packet->stream_index >= 0);
+  DCHECK(packet->stream_index < static_cast<int>(streams_.size()));
+  FFmpegDemuxerStream* demuxer_stream = streams_[packet->stream_index];
+  current_timestamp_ = demuxer_stream->EnqueuePacket(packet.release());
+
+  // Create a loop by posting another task.  This allows seek and message loop
+  // quit tasks to get processed.
+  if (StreamsHavePendingReads()) {
+    PostDemuxTask();
   }
 }
 
