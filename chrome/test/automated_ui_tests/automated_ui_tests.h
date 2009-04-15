@@ -104,6 +104,10 @@
 #include "chrome/test/automated_ui_tests/automated_ui_test_base.h"
 #include "chrome/test/ui/ui_test.h"
 
+namespace base {
+class Time;
+}
+
 class AutomatedUITest : public AutomatedUITestBase {
  protected:
   AutomatedUITest();
@@ -456,7 +460,7 @@ class AutomatedUITest : public AutomatedUITestBase {
   XmlWriter xml_writer_;
 
   // Time the test was started. Used to find crash dumps.
-  FILETIME test_start_time_;
+  base::Time test_start_time_;
 
   // Number of times the browser has crashed during this run.
   // Used to check for new crashes.

@@ -27,6 +27,10 @@
 #include "base/scoped_ptr.h"
 #include "base/file_path.h"
 
+namespace base {
+class Time;
+}
+
 namespace file_util {
 
 //-----------------------------------------------------------------------------
@@ -135,10 +139,9 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char);
 
 #if defined(OS_WIN)
 // Returns the number of files matching the current path that were
-// created on or after the given FILETIME.  Doesn't count ".." or ".".
-// Filetime is UTC filetime, not LocalFiletime.
-int CountFilesCreatedAfter(const std::wstring& path,
-                           const FILETIME& file_time);
+// created on or after the given |file_time|.  Doesn't count ".." or ".".
+int CountFilesCreatedAfter(const FilePath& path,
+                           const base::Time& file_time);
 #endif  // defined(OS_WIN)
 
 // Deletes the given path, whether it's a file or a directory.
