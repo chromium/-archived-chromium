@@ -446,8 +446,13 @@ class UITest : public testing::Test {
   bool enable_file_cookies_;            // Enable file cookies, default is true.
 
  private:
-  base::Time test_start_time_;          // Time the test was started
+#if defined(OS_WIN)
+  // TODO(port): make this use base::Time instead.  It would seem easy, but
+  // the code also depends on file_util::CountFilesCreatedAfter which hasn't
+  // yet been made portable.
+  FILETIME test_start_time_;            // Time the test was started
                                         // (so we can check for new crash dumps)
+#endif
   static bool no_sandbox_;
   static bool safe_plugins_;
   static bool full_memory_dump_;        // If true, write full memory dump

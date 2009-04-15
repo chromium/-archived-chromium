@@ -113,13 +113,17 @@ UITest::UITest()
       include_testing_id_(true),
       use_existing_browser_(default_use_existing_browser_),
       enable_file_cookies_(true),
-      test_start_time_(base::Time::Now()),
       command_execution_timeout_ms_(kMaxTestExecutionTime),
       action_timeout_ms_(kWaitForActionMsec),
       action_max_timeout_ms_(kWaitForActionMaxMsec),
       sleep_timeout_ms_(kWaitForActionMsec) {
   PathService::Get(chrome::DIR_APP, &browser_directory_);
   PathService::Get(chrome::DIR_TEST_DATA, &test_data_directory_);
+#if defined(OS_WIN)
+  GetSystemTimeAsFileTime(&test_start_time_);
+#else
+  // http://code.google.com/p/chromium/issues/detail?id=9833
+#endif
 }
 
 void UITest::SetUp() {
@@ -164,7 +168,7 @@ void UITest::TearDown() {
 
 #if defined(OS_WIN)
   // Check for crashes during the test
-  FilePath crash_dump_path;
+  std::wstring crash_dump_path;
   PathService::Get(chrome::DIR_CRASH_DUMPS, &crash_dump_path);
   // Each crash creates two dump files, so we divide by two here.
   int actual_crashes =

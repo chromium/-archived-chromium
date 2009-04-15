@@ -14,7 +14,6 @@
 #include "base/logging.h"
 #include "base/scoped_handle.h"
 #include "base/string_util.h"
-#include "base/time.h"
 #include "base/win_util.h"
 
 namespace file_util {
@@ -40,14 +39,12 @@ bool AbsolutePath(FilePath* path) {
   return true;
 }
 
-int CountFilesCreatedAfter(const FilePath& path,
-                           const base::Time& comparison_time) {
+int CountFilesCreatedAfter(const std::wstring& path,
+                           const FILETIME& comparison_time) {
   int file_count = 0;
-  FILETIME comparison_filetime(comparison_time.ToFileTime());
 
   WIN32_FIND_DATA find_file_data;
-  // All files in given dir
-  std::wstring filename_spec = path.Append(L"*").value();
+  std::wstring filename_spec = path + L"\\*";  // All files in given dir
   HANDLE find_handle = FindFirstFile(filename_spec.c_str(), &find_file_data);
   if (find_handle != INVALID_HANDLE_VALUE) {
     do {
@@ -57,7 +54,7 @@ int CountFilesCreatedAfter(const FilePath& path,
         continue;
 
       long result = CompareFileTime(&find_file_data.ftCreationTime,
-                                    &comparison_filetime);
+                                    &comparison_time);
       // File was created after or on comparison time
       if ((result == 1) || (result == 0))
         ++file_count;
