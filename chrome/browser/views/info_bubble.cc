@@ -360,23 +360,24 @@ void InfoBubble::ContentView::Paint(ChromeCanvas* canvas) {
 
   // Draw the border.
   // Top border.
-  canvas->DrawRectInt(kBorderColor1,
+  canvas->DrawLineInt(kBorderColor1,
                       kInfoBubbleCornerWidth, bubble_y,
-                      border_w,
-                      0);
+                      kInfoBubbleCornerWidth + border_w, bubble_y);
   // Bottom border.
-  canvas->DrawRectInt(kBorderColor1,
+  canvas->DrawLineInt(kBorderColor1,
                       kInfoBubbleCornerWidth, bubble_y + bubble_h - 1,
-                      border_w, 0);
+                      kInfoBubbleCornerWidth + border_w,
+                      bubble_y + bubble_h - 1);
   // Left border.
-  canvas->DrawRectInt(kBorderColor1,
+  canvas->DrawLineInt(kBorderColor1,
                       bubble_x, bubble_y + kInfoBubbleCornerHeight,
-                      0, border_h);
+                      bubble_x, bubble_y + kInfoBubbleCornerHeight + border_h);
 
   // Right border.
-  canvas->DrawRectInt(kBorderColor1,
+  canvas->DrawLineInt(kBorderColor1,
                       width() - 1, bubble_y + kInfoBubbleCornerHeight,
-                      0, border_h);
+                      width() - 1,
+                      bubble_y + kInfoBubbleCornerHeight + border_h);
 
   // Draw the corners.
   canvas->DrawBitmapInt(*kInfoBubbleCornerTopLeft, 0, bubble_y);

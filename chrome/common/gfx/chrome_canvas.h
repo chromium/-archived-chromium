@@ -96,14 +96,21 @@ class ChromeCanvas : public skia::PlatformCanvas {
   // mode of SkPorterDuff::kSrcOver_Mode.
   void FillRectInt(const SkColor& color, int x, int y, int w, int h);
 
-  // Draws a single pixel line in the specified region with the specified
+  // Draws a single pixel rect in the specified region with the specified
   // color, using a transfer mode of SkPorterDuff::kSrcOver_Mode.
+  //
+  // NOTE: if you need a single pixel line, use DraLineInt.
   void DrawRectInt(const SkColor& color, int x, int y, int w, int h);
 
-  // Draws a single pixel line in the specified region with the specified
+  // Draws a single pixel rect in the specified region with the specified
   // color and transfer mode.
+  //
+  // NOTE: if you need a single pixel line, use DraLineInt.
   void DrawRectInt(const SkColor& color, int x, int y, int w, int h,
                    SkPorterDuff::Mode mode);
+
+  // Draws a single pixel line with the specified color.
+  void DrawLineInt(const SkColor& color, int x1, int y1, int x2, int y2);
 
   // Draws a bitmap with the origin at the specified location. The upper left
   // corner of the bitmap is rendered at the specified location.

@@ -83,6 +83,15 @@ void ChromeCanvas::DrawRectInt(const SkColor& color,
   drawIRect(rc, paint);
 }
 
+void ChromeCanvas::DrawLineInt(const SkColor& color,
+                               int x1, int y1, int x2, int y2) {
+  SkPaint paint;
+  paint.setColor(color);
+  paint.setStrokeWidth(SkIntToScalar(1));
+  drawLine(SkIntToScalar(x1), SkIntToScalar(y1), SkIntToScalar(x2),
+           SkIntToScalar(y2), paint);
+}
+
 void ChromeCanvas::DrawFocusRect(int x, int y, int width, int height) {
   // Create a 2D bitmap containing alternating on/off pixels - we do this
   // so that you never get two pixels of the same color around the edges
