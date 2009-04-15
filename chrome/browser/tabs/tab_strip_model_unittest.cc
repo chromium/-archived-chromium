@@ -288,38 +288,6 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     observer.ClearStates();
   }
 
-  // Test ReplaceTabContentsAt, replacing the selected index
-  TabContents* replacement_contents3 = CreateTabContents();
-  {
-    tabstrip.ReplaceTabContentsAt(2, replacement_contents3);
-    // ReplaceTabContentsAt doesn't delete the source.  It depends on
-    // NavigationCollector, which is not part of this test.
-    contents3->Destroy();
-
-    EXPECT_EQ(2, observer.GetStateCount());
-    State s1(replacement_contents3, 2, MockTabStripModelObserver::CHANGE);
-    EXPECT_TRUE(observer.StateEquals(0, s1));
-    State s2(replacement_contents3, 2, MockTabStripModelObserver::SELECT);
-    s2.src_contents = contents3;
-    s2.user_gesture = false;
-    EXPECT_TRUE(observer.StateEquals(1, s2));
-    observer.ClearStates();
-  }
-
-  // Test ReplaceTabContentsAt, replacing NOT the selected index
-  TabContents* replacement_contents2 = CreateTabContents();
-  {
-    tabstrip.ReplaceTabContentsAt(1, replacement_contents2);
-    // ReplaceTabContentsAt doesn't delete the source.  It depends on
-    // NavigationCollector, which is not part of this test.
-    contents2->Destroy();
-
-    EXPECT_EQ(1, observer.GetStateCount());
-    State s1(replacement_contents2, 1, MockTabStripModelObserver::CHANGE);
-    EXPECT_TRUE(observer.StateEquals(0, s1));
-    observer.ClearStates();
-  }
-
   // Test DetachTabContentsAt
   {
     // Detach
@@ -329,15 +297,15 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     EXPECT_EQ(4, observer.GetStateCount());
     State s1(detached, 2, MockTabStripModelObserver::DETACH);
     EXPECT_TRUE(observer.StateEquals(0, s1));
-    State s2(replacement_contents2, 1, MockTabStripModelObserver::SELECT);
-    s2.src_contents = replacement_contents3;
+    State s2(contents2, 1, MockTabStripModelObserver::SELECT);
+    s2.src_contents = contents3;
     s2.user_gesture = false;
     EXPECT_TRUE(observer.StateEquals(1, s2));
     State s3(detached, 2, MockTabStripModelObserver::INSERT);
     s3.foreground = true;
     EXPECT_TRUE(observer.StateEquals(2, s3));
     State s4(detached, 2, MockTabStripModelObserver::SELECT);
-    s4.src_contents = replacement_contents2;
+    s4.src_contents = contents2;
     s4.user_gesture = false;
     EXPECT_TRUE(observer.StateEquals(3, s4));
     observer.ClearStates();
@@ -349,12 +317,12 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     EXPECT_EQ(2, tabstrip.count());
 
     EXPECT_EQ(3, observer.GetStateCount());
-    State s1(replacement_contents3, 2, MockTabStripModelObserver::CLOSE);
+    State s1(contents3, 2, MockTabStripModelObserver::CLOSE);
     EXPECT_TRUE(observer.StateEquals(0, s1));
-    State s2(replacement_contents3, 2, MockTabStripModelObserver::DETACH);
+    State s2(contents3, 2, MockTabStripModelObserver::DETACH);
     EXPECT_TRUE(observer.StateEquals(1, s2));
-    State s3(replacement_contents2, 1, MockTabStripModelObserver::SELECT);
-    s3.src_contents = replacement_contents3;
+    State s3(contents2, 1, MockTabStripModelObserver::SELECT);
+    s3.src_contents = contents3;
     s3.user_gesture = false;
     EXPECT_TRUE(observer.StateEquals(2, s3));
     observer.ClearStates();
@@ -365,7 +333,7 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     tabstrip.MoveTabContentsAt(1, 0);
 
     EXPECT_EQ(1, observer.GetStateCount());
-    State s1(replacement_contents2, 0, MockTabStripModelObserver::MOVE);
+    State s1(contents2, 0, MockTabStripModelObserver::MOVE);
     s1.src_index = 1;
     EXPECT_TRUE(observer.StateEquals(0, s1));
     observer.ClearStates();
@@ -373,13 +341,12 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
 
   // Test Getters
   {
-    EXPECT_EQ(replacement_contents2, tabstrip.GetSelectedTabContents());
-    EXPECT_EQ(replacement_contents2, tabstrip.GetTabContentsAt(0));
+    EXPECT_EQ(contents2, tabstrip.GetSelectedTabContents());
+    EXPECT_EQ(contents2, tabstrip.GetTabContentsAt(0));
     EXPECT_EQ(contents1, tabstrip.GetTabContentsAt(1));
-    EXPECT_EQ(0, tabstrip.GetIndexOfTabContents(replacement_contents2));
+    EXPECT_EQ(0, tabstrip.GetIndexOfTabContents(contents2));
     EXPECT_EQ(1, tabstrip.GetIndexOfTabContents(contents1));
-    EXPECT_EQ(0, tabstrip.GetIndexOfController(
-        replacement_contents2->controller()));
+    EXPECT_EQ(0, tabstrip.GetIndexOfController(contents2->controller()));
     EXPECT_EQ(1, tabstrip.GetIndexOfController(contents1->controller()));
   }
 
@@ -387,7 +354,7 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
   {
     tabstrip.UpdateTabContentsStateAt(0, false);
     EXPECT_EQ(1, observer.GetStateCount());
-    State s1(replacement_contents2, 0, MockTabStripModelObserver::CHANGE);
+    State s1(contents2, 0, MockTabStripModelObserver::CHANGE);
     EXPECT_TRUE(observer.StateEquals(0, s1));
     observer.ClearStates();
   }

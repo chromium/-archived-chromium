@@ -1750,41 +1750,14 @@ void Browser::NavigationStateChanged(const TabContents* source,
     UpdateCommandsForTabState();
 }
 
-void Browser::ReplaceContents(TabContents* source, TabContents* new_contents) {
-  source->set_delegate(NULL);
-  new_contents->set_delegate(this);
-
-  RemoveScheduledUpdatesFor(source);
-
-  int index = tabstrip_model_.GetIndexOfTabContents(source);
-  tabstrip_model_.ReplaceTabContentsAt(index, new_contents);
-
-  if (is_attempting_to_close_browser_) {
-    // Need to do this asynchronously as it will close the tab, which is
-    // currently on the call stack above us.
-    MessageLoop::current()->PostTask(FROM_HERE,
-        method_factory_.NewRunnableMethod(&Browser::ClearUnloadState,
-        Source<TabContents>(source).ptr()));
-  }
-  // Need to remove ourselves as an observer for disconnection on the replaced
-  // TabContents, since we only care to fire onbeforeunload handlers on active
-  // Tabs. Make sure an observer is added for the replacement TabContents.
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::WEB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(source));
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::WEB_CONTENTS_DISCONNECTED,
-      Source<TabContents>(new_contents));
-}
-
 void Browser::AddNewContents(TabContents* source,
                              TabContents* new_contents,
                              WindowOpenDisposition disposition,
                              const gfx::Rect& initial_pos,
                              bool user_gesture) {
   DCHECK(disposition != SAVE_TO_DISK);  // No code for this yet
+  DCHECK(disposition != CURRENT_TAB);  // Can't create a new contents for the
+                                       // current tab.
 
   // If this is an application we can only have one tab so we need to process
   // this in tabbed browser window.
@@ -1813,8 +1786,6 @@ void Browser::AddNewContents(TabContents* source,
     browser->AddNewContents(source, new_contents, NEW_FOREGROUND_TAB,
                             initial_pos, user_gesture);
     browser->window()->Show();
-  } else if (disposition == CURRENT_TAB) {
-    ReplaceContents(source, new_contents);
   } else if (disposition != SUPPRESS_OPEN) {
     tabstrip_model_.AddTabContents(new_contents, -1, PageTransition::LINK,
                                    disposition == NEW_FOREGROUND_TAB);
@@ -2368,7 +2339,6 @@ void Browser::ProcessPendingUIUpdates() {
       if (contents == GetSelectedTabContents()) {
         TabContents* current_tab = GetSelectedTabContents();
         command_updater_.UpdateCommandEnabled(IDC_CREATE_SHORTCUTS,
-            current_tab->type() == TAB_CONTENTS_WEB &&
             !current_tab->GetFavIcon().isNull());
       }
     }

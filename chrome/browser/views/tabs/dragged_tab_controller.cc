@@ -261,7 +261,7 @@ DraggedTabController::DraggedTabController(Tab* source_tab,
       old_focused_view_(NULL),
       in_destructor_(false),
       last_move_screen_x_(0) {
-  ChangeDraggedContents(
+  SetDraggedContents(
       source_tabstrip_->model()->GetTabContentsAt(source_model_index_));
   // Listen for Esc key presses.
   MessageLoopForUI::current()->AddObserver(this);
@@ -276,7 +276,7 @@ DraggedTabController::~DraggedTabController() {
   // bounds, it won't be able to clean up properly since its cleanup routine
   // uses GetIndexForDraggedContents, which will be invalid.
   view_.reset(NULL);
-  ChangeDraggedContents(NULL); // This removes our observer.
+  SetDraggedContents(NULL); // This removes our observer.
 }
 
 void DraggedTabController::CaptureDragInfo(const gfx::Point& mouse_offset) {
@@ -339,45 +339,16 @@ void DraggedTabController::NavigationStateChanged(const TabContents* source,
     view_->Update();
 }
 
-void DraggedTabController::ReplaceContents(TabContents* source,
-                                           TabContents* new_contents) {
-  DCHECK(dragged_contents_ == source);
-
-  // If we're attached to a TabStrip, we need to tell the TabStrip that this
-  // TabContents was replaced.
-  if (attached_tabstrip_ && dragged_contents_) {
-    if (original_delegate_) {
-      original_delegate_->ReplaceContents(source, new_contents);
-      // ReplaceContents on the original delegate is going to reset the delegate
-      // for us. We need to unset original_delegate_ here so that
-      // ChangeDraggedContents doesn't attempt to restore the delegate to the
-      // wrong value.
-      original_delegate_ = NULL;
-    } else if (attached_tabstrip_->model()) {
-      int index =
-          attached_tabstrip_->model()->GetIndexOfTabContents(dragged_contents_);
-      if (index != TabStripModel::kNoTab)
-        attached_tabstrip_->model()->ReplaceTabContentsAt(index, new_contents);
-    }
-  }
-
-  // Update our internal state.
-  ChangeDraggedContents(new_contents);
-
-  if (view_.get())
-    view_->Update();
-}
-
 void DraggedTabController::AddNewContents(TabContents* source,
                                           TabContents* new_contents,
                                           WindowOpenDisposition disposition,
                                           const gfx::Rect& initial_pos,
                                           bool user_gesture) {
+  DCHECK(disposition != CURRENT_TAB);
+
   // Theoretically could be called while dragging if the page tries to
   // spawn a window. Route this message back to the browser in most cases.
-  if (disposition == CURRENT_TAB) {
-    ReplaceContents(source, new_contents);
-  } else if (original_delegate_) {
+  if (original_delegate_) {
     original_delegate_->AddNewContents(source, new_contents, disposition,
                                        initial_pos, user_gesture);
   }
@@ -501,7 +472,7 @@ void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
   }
 }
 
-void DraggedTabController::ChangeDraggedContents(TabContents* new_contents) {
+void DraggedTabController::SetDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
     NotificationService::current()->RemoveObserver(
         this,

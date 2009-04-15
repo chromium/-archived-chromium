@@ -193,8 +193,7 @@ WebContents::WebContents(Profile* profile,
                          SiteInstance* site_instance,
                          int routing_id,
                          base::WaitableEvent* modal_dialog_event)
-    : TabContents(TAB_CONTENTS_WEB),
-      view_(WebContentsView::Create(this)),
+    : view_(WebContentsView::Create(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(this, this)),
       printing_(*this),
       notify_disconnection_(false),
@@ -797,7 +796,7 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
     render_manager_.DidNavigateMainFrame(rvh);
 
   // We can't do anything about navigations when we're inactive.
-  if (!controller() || !is_active())
+  if (!controller())
     return;
 
   // Update the site of the SiteInstance if it doesn't have one yet.
@@ -983,7 +982,7 @@ void WebContents::DidRedirectProvisionalLoad(int32 page_id,
     entry = controller()->pending_entry();
   else
     entry = controller()->GetEntryWithPageID(GetSiteInstance(), page_id);
-  if (!entry || entry->tab_type() != type() || entry->url() != source_url)
+  if (!entry || entry->url() != source_url)
     return;
   entry->set_url(target_url);
 }

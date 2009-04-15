@@ -2298,10 +2298,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\tab_contents\tab_contents_type.h"
-				>
-			</File>
-			<File
 				RelativePath=".\tab_contents\tab_util.cc"
 				>
 			</File>

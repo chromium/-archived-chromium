@@ -15,7 +15,7 @@ class NavigationEntryTest : public testing::Test {
     entry1_.reset(new NavigationEntry);
 
     instance_ = SiteInstance::CreateSiteInstance(NULL);
-    entry2_.reset(new NavigationEntry(TAB_CONTENTS_WEB, instance_, 3,
+    entry2_.reset(new NavigationEntry(instance_, 3,
                                       GURL("test:url"),
                                       GURL("from"),
                                       ASCIIToUTF16("title"),

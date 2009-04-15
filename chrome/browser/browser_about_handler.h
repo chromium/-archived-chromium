@@ -7,8 +7,6 @@
 #ifndef CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H_
 #define CHROME_BROWSER_BROWSER_ABOUT_HANDLER_H_
 
-#include "chrome/browser/tab_contents/tab_contents_type.h"
-
 class GURL;
 
 // Decides whether the given URL will be handled by the browser about handler

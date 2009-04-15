@@ -153,23 +153,6 @@ void TabStripModel::SelectTabContentsAt(int index, bool user_gesture) {
   ChangeSelectedContentsFrom(GetSelectedTabContents(), index, user_gesture);
 }
 
-void TabStripModel::ReplaceTabContentsAt(int index,
-                                         TabContents* replacement_contents) {
-  DCHECK(ContainsIndex(index));
-  TabContents* old_contents = GetContentsAt(index);
-  contents_data_[index]->contents = replacement_contents;
-
-  FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
-      TabChangedAt(replacement_contents, index, false));
-
-  // Re-use the logic for selecting tabs to ensure the replacement contents is
-  // shown and sized appropriately.
-  if (index == selected_index_) {
-    FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
-        TabSelectedAt(old_contents, replacement_contents, index, false));
-  }
-}
-
 void TabStripModel::MoveTabContentsAt(int index, int to_position) {
   DCHECK(ContainsIndex(index));
   if (index == to_position)

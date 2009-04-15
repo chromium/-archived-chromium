@@ -282,11 +282,6 @@ class TabStripModel : public NotificationObserver {
   // action.
   void SelectTabContentsAt(int index, bool user_gesture);
 
-  // Replace the TabContents at the specified index with another TabContents.
-  // This is used when a navigation causes a different TabContentsType to be
-  // required, e.g. the transition from New Tab to a web page.
-  void ReplaceTabContentsAt(int index, TabContents* replacement_contents);
-
   // Move the TabContents at the specified index to another index. This method
   // does NOT send Detached/Attached notifications, rather it moves the
   // TabContents inline and sends a Moved notification instead.

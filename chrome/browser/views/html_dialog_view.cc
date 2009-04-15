@@ -118,10 +118,6 @@ void HtmlDialogView::NavigationStateChanged(const TabContents* source,
   // one, which we ignore because we're a dialog box.
 }
 
-void HtmlDialogView::ReplaceContents(TabContents* source,
-                                     TabContents* new_contents) {
-}
-
 void HtmlDialogView::AddNewContents(TabContents* source,
                                     TabContents* new_contents,
                                     WindowOpenDisposition disposition,

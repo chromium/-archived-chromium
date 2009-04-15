@@ -419,7 +419,6 @@ class Browser : public TabStripModelDelegate,
                              PageTransition::Type transition);
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
-  virtual void ReplaceContents(TabContents* source, TabContents* new_contents);
   virtual void AddNewContents(TabContents* source,
                               TabContents* new_contents,
                               WindowOpenDisposition disposition,

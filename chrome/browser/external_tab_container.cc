@@ -205,10 +205,6 @@ void ExternalTabContainer::NavigationStateChanged(const TabContents* source,
   }
 }
 
-void ExternalTabContainer::ReplaceContents(TabContents* source,
-                                           TabContents* new_contents) {
-}
-
 void ExternalTabContainer::AddNewContents(TabContents* source,
                             TabContents* new_contents,
                             WindowOpenDisposition disposition,

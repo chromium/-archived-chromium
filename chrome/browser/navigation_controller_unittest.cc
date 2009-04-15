@@ -146,7 +146,6 @@ void RegisterForAllNavNotifications(TestNotificationTracker* tracker,
 // -----------------------------------------------------------------------------
 
 TEST_F(NavigationControllerTest, Defaults) {
-  EXPECT_TRUE(contents()->is_active());
   EXPECT_TRUE(controller());
   EXPECT_FALSE(controller()->pending_entry());
   EXPECT_FALSE(controller()->GetLastCommittedEntry());
@@ -1189,7 +1188,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   notifications.Reset();
 
   // Adding a transient with no pending entry.
-  NavigationEntry* transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  NavigationEntry* transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
 
@@ -1216,7 +1215,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   EXPECT_EQ(controller()->entry_count(), 3);
 
   // Add a transient again, then navigate with no pending entry this time.
-  transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
   EXPECT_EQ(transient_url, controller()->GetActiveEntry()->url());
@@ -1227,7 +1226,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
 
   // Initiate a navigation, add a transient then commit navigation.
   controller()->LoadURL(url4, GURL(), PageTransition::TYPED);
-  transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
   EXPECT_EQ(transient_url, controller()->GetActiveEntry()->url());
@@ -1236,7 +1235,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   EXPECT_EQ(controller()->entry_count(), 5);
 
   // Add a transient and go back.  This should simply remove the transient.
-  transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
   EXPECT_EQ(transient_url, controller()->GetActiveEntry()->url());
@@ -1249,7 +1248,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   rvh()->SendNavigate(3, url3);
 
   // Add a transient and go to an entry before the current one.
-  transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
   EXPECT_EQ(transient_url, controller()->GetActiveEntry()->url());
@@ -1259,7 +1258,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   rvh()->SendNavigate(1, url1);
 
   // Add a transient and go to an entry after the current one.
-  transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
   EXPECT_EQ(transient_url, controller()->GetActiveEntry()->url());
@@ -1271,7 +1270,7 @@ TEST_F(NavigationControllerTest, TransientEntry) {
   rvh()->SendNavigate(2, url2);
 
   // Add a transient and go forward.
-  transient_entry = new NavigationEntry(TAB_CONTENTS_WEB);
+  transient_entry = new NavigationEntry;
   transient_entry->set_url(transient_url);
   controller()->AddTransientEntry(transient_entry);
   EXPECT_EQ(transient_url, controller()->GetActiveEntry()->url());

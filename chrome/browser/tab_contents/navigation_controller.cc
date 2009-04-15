@@ -373,8 +373,7 @@ NavigationEntry* NavigationController::CreateNavigationEntry(
   GURL loaded_url(url);
   BrowserURLHandler::RewriteURLIfNecessary(&loaded_url);
 
-  NavigationEntry* entry = new NavigationEntry(TAB_CONTENTS_WEB, NULL, -1,
-                                               loaded_url, referrer,
+  NavigationEntry* entry = new NavigationEntry(NULL, -1, loaded_url, referrer,
                                                string16(), transition);
   entry->set_display_url(url);
   entry->set_user_typed_url(url);
@@ -621,7 +620,7 @@ void NavigationController::RendererDidNavigateToNewPage(
     // type must always be normal.
     new_entry->set_page_type(NavigationEntry::NORMAL_PAGE);
   } else {
-    new_entry = new NavigationEntry(tab_contents_->type());
+    new_entry = new NavigationEntry;
   }
 
   new_entry->set_url(params.url);
@@ -862,27 +861,16 @@ void NavigationController::SetWindowID(const SessionID& id) {
 }
 
 void NavigationController::NavigateToPendingEntry(bool reload) {
-  TabContents* from_contents = tab_contents_;
-
   // For session history navigations only the pending_entry_index_ is set.
   if (!pending_entry_) {
     DCHECK(pending_entry_index_ != -1);
     pending_entry_ = entries_[pending_entry_index_].get();
   }
 
-  if (from_contents && from_contents->type() != pending_entry_->tab_type())
-    from_contents->set_is_active(false);
-
-  TabContents* contents = GetTabContentsCreateIfNecessary(*pending_entry_);
-
-  contents->set_is_active(true);
-  tab_contents_ = contents;
-
-  if (from_contents && from_contents != contents && from_contents->delegate())
-    from_contents->delegate()->ReplaceContents(from_contents, contents);
+  tab_contents_ = GetTabContentsCreateIfNecessary(*pending_entry_);
 
   NavigationEntry temp_entry(*pending_entry_);
-  if (!contents->NavigateToPendingEntry(reload))
+  if (!tab_contents_->NavigateToPendingEntry(reload))
     DiscardNonCommittedEntries();
 }
 

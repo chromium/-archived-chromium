@@ -12,7 +12,6 @@
 // static
 NavigationEntry* TabNavigation::ToNavigationEntry(int page_id) const {
   NavigationEntry* entry = new NavigationEntry(
-      TAB_CONTENTS_WEB,
       NULL,  // The site instance for restored tabs is sent on navigation
              // (WebContents::GetSiteInstanceForEntry).
       page_id,

@@ -828,11 +828,9 @@ void BrowserView::ShowReportBugDialog() {
                                                      current_tab);
 
   if (current_tab->controller()->GetLastCommittedEntry()) {
-    if (current_tab->type() == TAB_CONTENTS_WEB) {
-      // URL for the current page
-      bug_report_view->SetUrl(
-          current_tab->controller()->GetActiveEntry()->url());
-    }
+    // URL for the current page
+    bug_report_view->SetUrl(
+        current_tab->controller()->GetActiveEntry()->url());
   }
 
   // retrieve the application version info

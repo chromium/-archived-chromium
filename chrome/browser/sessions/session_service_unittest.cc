@@ -46,7 +46,7 @@ class SessionServiceTest : public testing::Test {
                         const TabNavigation& navigation,
                         int index,
                         bool select) {
-    NavigationEntry entry(TAB_CONTENTS_UNKNOWN_TYPE);
+    NavigationEntry entry;
     entry.set_url(navigation.url());
     entry.set_referrer(navigation.referrer());
     entry.set_title(navigation.title());

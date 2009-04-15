@@ -1080,7 +1080,6 @@
         'browser/tab_contents/tab_contents.cc',
         'browser/tab_contents/tab_contents.h',
         'browser/tab_contents/tab_contents_delegate.h',
-        'browser/tab_contents/tab_contents_type.h',
         'browser/tab_contents/tab_util.cc',
         'browser/tab_contents/tab_util.h',
         'browser/tab_contents/web_contents.cc',

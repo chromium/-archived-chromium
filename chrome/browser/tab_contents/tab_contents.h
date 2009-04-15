@@ -18,7 +18,6 @@
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
-#include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/property_bag.h"
@@ -96,9 +95,6 @@ class TabContents : public PageNavigator,
   virtual void Destroy();
 
   // Intrinsic tab state -------------------------------------------------------
-
-  // Returns the type of tab this is. See also the As* functions following.
-  TabContentsType type() const { return type_; }
 
   // Returns the property bag for this tab contents, where callers can add
   // extra data they may wish to associate with the tab. Returns a pointer
@@ -223,12 +219,6 @@ class TabContents : public PageNavigator,
   // also notify the delegate when the flag is changed.
   bool is_crashed() const { return is_crashed_; }
   void SetIsCrashed(bool state);
-
-  // Set whether this tab contents is active. A tab content is active for a
-  // given tab if it is currently being used to display some contents. Note that
-  // this is different from whether a tab is selected.
-  bool is_active() const { return is_active_; }
-  void set_is_active(bool active) { is_active_ = active; }
 
   // Whether the tab is in the process of being destroyed.
   // Added as a tentative work-around for focus related bug #4633.  This allows
@@ -426,10 +416,7 @@ class TabContents : public PageNavigator,
   // automation purposes.
   friend class AutomationProvider;
 
-  explicit TabContents(TabContentsType type);
-
-  // Some tab contents types need to override the type.
-  void set_type(TabContentsType type) { type_ = type; }
+  TabContents();
 
   // NOTE: the TabContents destructor can run after the NavigationController
   // has gone away, so any complicated unregistering that expects the profile
@@ -476,8 +463,6 @@ class TabContents : public PageNavigator,
 
   // Data ----------------------------------------------------------------------
 
-  TabContentsType type_;
-
   TabContentsDelegate* delegate_;
   NavigationController* controller_;
 
@@ -487,9 +472,6 @@ class TabContents : public PageNavigator,
 
   // Indicates whether we're currently loading a resource.
   bool is_loading_;
-
-  // See is_active() getter above.
-  bool is_active_;
 
   bool is_crashed_;  // true if the tab is considered crashed.
 

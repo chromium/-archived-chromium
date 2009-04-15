@@ -45,11 +45,6 @@ class TabContentsDelegate : public PageNavigator {
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags) = 0;
 
-  // Called to cause the delegate to replace the source contents with the new
-  // contents.
-  virtual void ReplaceContents(TabContents* source,
-                               TabContents* new_contents) = 0;
-
   // Creates a new tab with the already-created TabContents 'new_contents'.
   // The window for the added contents should be reparented correctly when this
   // method returns.  If |disposition| is NEW_POPUP, |pos| should hold the

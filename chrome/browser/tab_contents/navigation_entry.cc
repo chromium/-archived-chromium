@@ -34,7 +34,6 @@ NavigationEntry::FaviconStatus::FaviconStatus() : valid_(false) {
 
 NavigationEntry::NavigationEntry()
     : unique_id_(GetUniqueID()),
-      tab_type_(TAB_CONTENTS_WEB),
       site_instance_(NULL),
       page_type_(NORMAL_PAGE),
       page_id_(-1),
@@ -43,26 +42,13 @@ NavigationEntry::NavigationEntry()
       restored_(false) {
 }
 
-NavigationEntry::NavigationEntry(TabContentsType type)
-    : unique_id_(GetUniqueID()),
-      tab_type_(type),
-      site_instance_(NULL),
-      page_type_(NORMAL_PAGE),
-      page_id_(-1),
-      transition_type_(PageTransition::LINK),
-      has_post_data_(false),
-      restored_(false) {
-}
-
-NavigationEntry::NavigationEntry(TabContentsType type,
-                                 SiteInstance* instance,
+NavigationEntry::NavigationEntry(SiteInstance* instance,
                                  int page_id,
                                  const GURL& url,
                                  const GURL& referrer,
                                  const string16& title,
                                  PageTransition::Type transition_type)
     : unique_id_(GetUniqueID()),
-      tab_type_(type),
       site_instance_(instance),
       page_type_(NORMAL_PAGE),
       url_(url),

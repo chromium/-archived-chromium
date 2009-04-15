@@ -350,28 +350,6 @@ void BlockedPopupContainer::OpenURLFromTab(TabContents* source,
   owner_->OpenURL(url, referrer, disposition, transition);
 }
 
-void BlockedPopupContainer::ReplaceContents(TabContents* source,
-                                            TabContents* new_contents) {
-  // Walk the vector to find the correct TabContents and replace it.
-  bool found = false;
-  gfx::Rect rect;
-  for (std::vector<std::pair<TabContents*, gfx::Rect> >::iterator it =
-           blocked_popups_.begin(); it != blocked_popups_.end(); ++it) {
-    if (it->first == source) {
-      it->first->set_delegate(NULL);
-      rect = it->second;
-      found = true;
-      blocked_popups_.erase(it);
-      break;
-    }
-  }
-
-  if (found) {
-    new_contents->set_delegate(this);
-    blocked_popups_.push_back(std::make_pair(new_contents, rect));
-  }
-}
-
 void BlockedPopupContainer::AddNewContents(TabContents* source,
                                            TabContents* new_contents,
                                            WindowOpenDisposition disposition,

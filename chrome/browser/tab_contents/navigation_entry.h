@@ -10,7 +10,6 @@
 #include "base/string_util.h"
 #include "chrome/browser/tab_contents/security_style.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/tab_contents_type.h"
 #include "chrome/common/page_transition_types.h"
 #include "googleurl/src/gurl.h"
 #include "grit/theme_resources.h"
@@ -175,9 +174,7 @@ class NavigationEntry {
   // ---------------------------------------------------------------------------
 
   NavigationEntry();
-  explicit NavigationEntry(TabContentsType type);
-  NavigationEntry(TabContentsType type,
-                  SiteInstance* instance,
+  NavigationEntry(SiteInstance* instance,
                   int page_id,
                   const GURL& url,
                   const GURL& referrer,
@@ -197,12 +194,6 @@ class NavigationEntry {
   }
   int unique_id() const {
     return unique_id_;
-  }
-
-  // Return the TabContents type required to display this entry. Immutable
-  // because a tab can never change its type.
-  TabContentsType tab_type() const {
-    return tab_type_;
   }
 
   // The SiteInstance tells us how to share sub-processes when the tab type is
@@ -399,7 +390,6 @@ class NavigationEntry {
 
   // See the accessors above for descriptions.
   int unique_id_;
-  TabContentsType tab_type_;
   scoped_refptr<SiteInstance> site_instance_;
   PageType page_type_;
   GURL url_;

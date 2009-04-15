@@ -151,11 +151,6 @@ class BlockedPopupContainer : public ConstrainedWindow,
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags) { }
 
-  // Replaces |source| with |new_contents| in our list of blocked popups,
-  // preserving the associated window size.
-  virtual void ReplaceContents(TabContents* source,
-                               TabContents* new_contents);
-
   // Forwards AddNewContents to our |owner_|.
   virtual void AddNewContents(TabContents* source,
                               TabContents* new_contents,

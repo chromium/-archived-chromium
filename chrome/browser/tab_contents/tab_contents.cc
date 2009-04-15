@@ -37,12 +37,10 @@ BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
 }  // namespace
 #endif
 
-TabContents::TabContents(TabContentsType type)
-    : type_(type),
-      delegate_(NULL),
+TabContents::TabContents()
+    : delegate_(NULL),
       controller_(NULL),
       is_loading_(false),
-      is_active_(true),
       is_crashed_(false),
       waiting_for_response_(false),
       shelf_visible_(false),
@@ -497,10 +495,6 @@ void TabContents::SetIsLoading(bool is_loading,
 
   is_loading_ = is_loading;
   waiting_for_response_ = is_loading;
-
-  // Suppress notifications for this TabContents if we are not active.
-  if (!is_active_)
-    return;
 
   if (delegate_)
     delegate_->LoadingStateChanged(this);

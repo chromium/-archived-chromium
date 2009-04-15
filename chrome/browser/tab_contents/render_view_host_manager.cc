@@ -391,9 +391,8 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
 bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
   NavigationEntry* curr_entry =
       delegate_->GetControllerForRenderManager()->GetLastCommittedEntry();
-  if (curr_entry && curr_entry->tab_type() == TAB_CONTENTS_WEB) {
+  if (curr_entry) {
     DCHECK(!curr_entry->content_state().empty());
-
     // TODO(creis): Should send a message to the RenderView to let it know
     // we're about to switch away, so that it sends an UpdateState message.
   }

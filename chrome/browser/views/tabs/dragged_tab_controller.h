@@ -92,8 +92,6 @@ class DraggedTabController : public TabContentsDelegate,
                               PageTransition::Type transition);
   virtual void NavigationStateChanged(const TabContents* source,
                                       unsigned changed_flags);
-  virtual void ReplaceContents(TabContents* source,
-                               TabContents* new_contents);
   virtual void AddNewContents(TabContents* source,
                               TabContents* new_contents,
                               WindowOpenDisposition disposition,
@@ -127,11 +125,8 @@ class DraggedTabController : public TabContentsDelegate,
 
   void UpdateDockInfo(const gfx::Point& screen_point);
 
-  // Replaces the TabContents being dragged with the specified |new_contents|.
-  // This can occur if the active TabContents for the tab being dragged is
-  // replaced, e.g. if a transition from one TabContentsType to another occurs
-  // during the drag.
-  void ChangeDraggedContents(TabContents* new_contents);
+  // Sets the TabContents being dragged with the specified |new_contents|.
+  void SetDraggedContents(TabContents* new_contents);
 
   // Saves focus in the window that the drag initiated from. Focus will be
   // restored appropriately if the drag ends within this same window.
@@ -228,9 +223,7 @@ class DraggedTabController : public TabContentsDelegate,
 
   void BringWindowUnderMouseToFront();
 
-  // The TabContents being dragged. This can get replaced during the drag if
-  // the associated NavigationController is navigated to a different
-  // TabContentsType.
+  // The TabContents being dragged.
   TabContents* dragged_contents_;
 
   // The original TabContentsDelegate of |dragged_contents_|, before it was

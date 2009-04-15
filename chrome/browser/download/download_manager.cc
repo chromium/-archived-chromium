@@ -1447,12 +1447,10 @@ void DownloadManager::OnCreateDownloadEntryComplete(DownloadCreateInfo info,
   TabContents* contents =
       tab_util::GetWebContentsByID(info.render_process_id, info.render_view_id);
 
-  // If the contents no longer exists or is no longer active, we start the
-  // download in the last active browser. This is not ideal but better than
-  // fully hiding the download from the user. Note: non active means that the
-  // user navigated away from the tab contents. This has nothing to do with
-  // tab selection.
-  if (!contents || !contents->is_active()) {
+  // If the contents no longer exists, we start the download in the last active
+  // browser. This is not ideal but better than fully hiding the download from
+  // the user.
+  if (!contents) {
     Browser* last_active = BrowserList::GetLastActive();
     if (last_active)
       contents = last_active->GetSelectedTabContents();
