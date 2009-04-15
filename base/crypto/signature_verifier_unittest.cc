@@ -238,7 +238,14 @@ TEST(SignatureVerifierTest, BasicTest) {
   EXPECT_TRUE(ok);
   verifier.VerifyUpdate(bad_tbs_certificate, sizeof(bad_tbs_certificate));
   ok = verifier.VerifyFinal();
+
+  // Purify disables digital signature verification, causing the Windows
+  // CryptoAPI function CryptVerifySignature to always succeed.  So we can't
+  // check the signature verification results of the negative tests when
+  // running inside Purify.  See http://crbug.com/10031.
+#ifndef PURIFY
   EXPECT_FALSE(ok);
+#endif
 
   // Test 4: verify a bad signature.
   uint8 bad_signature[sizeof(signature)];
@@ -254,6 +261,8 @@ TEST(SignatureVerifierTest, BasicTest) {
   if (ok) {
     verifier.VerifyUpdate(tbs_certificate, sizeof(tbs_certificate));
     ok = verifier.VerifyFinal();
+#ifndef PURIFY
     EXPECT_FALSE(ok);
+#endif
   }
 }
