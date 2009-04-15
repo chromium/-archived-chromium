@@ -102,6 +102,12 @@ class WebView : public WebWidget {
 
   // ---- TODO(darin): remove from here ----
 
+  // TODO(mpcomplete): remove this before Chrome extensions ship.
+  // HACK.  This is a temporary workaround to allow cross-origin XHR for
+  // Chrome extensions.  It allows no fine-grained control over what origins
+  // are accessible, instead granting access to everything (include file URLs).
+  virtual void AllowCrossOriginAccessHack() = 0;
+
   //
   //  - (IBAction)stopLoading:(id)sender;
   virtual void StopLoading() = 0;

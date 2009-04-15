@@ -342,6 +342,8 @@ WebView* WebView::Create(WebViewDelegate* delegate,
       new WebDevToolsAgentImpl(instance, tools_delegate));
   }
 
+  instance->page_->settings()->setWebSecurityEnabled(false);
+
   // Restrict the access to the local file system
   // (see WebView.mm WebView::_commonInitializationWithFrameName).
   FrameLoader::setLocalLoadPolicy(
@@ -393,6 +395,12 @@ WebViewImpl::~WebViewImpl() {
        i != image_fetchers_.end(); ++i) {
     delete *i;
   }
+}
+
+void WebViewImpl::AllowCrossOriginAccessHack() {
+  DCHECK(page_.get());
+  if (page_.get())
+    page_->settings()->setWebSecurityEnabled(false);
 }
 
 void WebViewImpl::SetUseEditorDelegate(bool value) {

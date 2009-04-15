@@ -27,13 +27,12 @@ namespace {
 // We use the generic interface so that unit tests can inject a mock.
 RenderThreadBase* render_thread_ = NULL;
 
-const char* kExtensionName = "chrome/RendererExtensionBindings";
 const char* kExtensionDeps[] = { EventBindings::kName };
 
 class ExtensionImpl : public v8::Extension {
  public:
   ExtensionImpl()
-      : v8::Extension(kExtensionName,
+      : v8::Extension(RendererExtensionBindings::kName,
                       GetStringResource<IDR_RENDERER_EXTENSION_BINDINGS_JS>(),
                       arraysize(kExtensionDeps), kExtensionDeps) {
   }
@@ -75,6 +74,9 @@ class ExtensionImpl : public v8::Extension {
 };
 
 }  // namespace
+
+const char* RendererExtensionBindings::kName =
+    "chrome/RendererExtensionBindings";
 
 v8::Extension* RendererExtensionBindings::Get(RenderThreadBase* render_thread) {
   render_thread_ = render_thread;

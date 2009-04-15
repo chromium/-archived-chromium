@@ -15,7 +15,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   ExecuteJavaScript(
     "var e = new chromium.Extension('foobar');"
     "var port = e.connect();"
-    "port.onmessage.addListener(doOnMessage);"
+    "port.onMessage.addListener(doOnMessage);"
     "port.postMessage({message: 'content ready'});"
     "function doOnMessage(msg, port) {"
     "  alert('content got: ' + msg.val);"
@@ -56,8 +56,8 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
 TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   LoadHTML("<body></body>");
   ExecuteJavaScript(
-    "chromium.onconnect.addListener(function (port) {"
-    "  port.onmessage.addListener(doOnMessage);"
+    "chromium.self.onConnect.addListener(function (port) {"
+    "  port.onMessage.addListener(doOnMessage);"
     "  port.postMessage({message: 'onconnect'});"
     "});"
     "function doOnMessage(msg, port) {"
