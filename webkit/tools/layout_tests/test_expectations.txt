@@ -2403,9 +2403,6 @@ BUG9797 WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRAS
 BUG9797 WIN DEBUG : LayoutTests/svg/css/css-box-min-width.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/traversal/node-iterator-009.html = CRASH PASS
 
-BUG9850 WIN LINUX : LayoutTests/compositing/overflow/overflow-positioning.html = FAIL
-BUG9850 WIN : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
-
 // Failed in WebKit merge 42287:42324
 BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5502-mrgn-r-02-c.html = FAIL
 BUG9916 WIN LINUX : LayoutTests/css2.1/t0803-c5505-mrgn-02-c.html = FAIL
