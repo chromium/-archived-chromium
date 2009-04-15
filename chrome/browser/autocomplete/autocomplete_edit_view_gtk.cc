@@ -30,6 +30,10 @@ const GdkColor kBackgroundColorByLevel[] = {
   GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
 };
 
+size_t GetUTF8Offset(const std::wstring& wide_text, size_t wide_text_offset) {
+  return WideToUTF8(wide_text.substr(0, wide_text_offset)).size();
+}
+
 }  // namespace
 
 AutocompleteEditViewGtk::AutocompleteEditViewGtk(
@@ -505,7 +509,8 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
   // be treated as a search or a navigation, and is the same method the Paste
   // And Go system uses.
   url_parse::Parsed parts;
-  AutocompleteInput::Parse(GetText(), model_->GetDesiredTLD(), &parts, NULL);
+  std::wstring text = GetText();
+  AutocompleteInput::Parse(text, model_->GetDesiredTLD(), &parts, NULL);
   bool emphasize = model_->CurrentTextIsURL() && (parts.host.len > 0);
 
   // Set the baseline emphasis.
@@ -517,9 +522,11 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
 
     // We've found a host name, give it more emphasis.
     gtk_text_buffer_get_iter_at_line_index(text_buffer_, &start, 0,
-                                           parts.host.begin);
+                                           GetUTF8Offset(text,
+                                                         parts.host.begin));
     gtk_text_buffer_get_iter_at_line_index(text_buffer_, &end, 0,
-                                           parts.host.end());
+                                           GetUTF8Offset(text,
+                                                         parts.host.end()));
     gtk_text_buffer_remove_all_tags(text_buffer_, &start, &end);
   }
 
@@ -527,9 +534,11 @@ void AutocompleteEditViewGtk::EmphasizeURLComponents() {
   if (!model_->user_input_in_progress() && parts.scheme.is_nonempty() &&
       (scheme_security_level_ != ToolbarModel::NORMAL)) {
     gtk_text_buffer_get_iter_at_line_index(text_buffer_, &start, 0,
-                                           parts.scheme.begin);
+                                           GetUTF8Offset(text,
+                                                         parts.scheme.begin));
     gtk_text_buffer_get_iter_at_line_index(text_buffer_, &end, 0,
-                                           parts.scheme.end());
+                                           GetUTF8Offset(text,
+                                                         parts.scheme.end()));
     if (scheme_security_level_ == ToolbarModel::SECURE) {
       gtk_text_buffer_apply_tag(text_buffer_, secure_scheme_tag_,
                                 &start, &end);
