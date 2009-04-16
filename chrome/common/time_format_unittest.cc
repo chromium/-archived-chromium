@@ -32,16 +32,17 @@ TEST(TimeFormat, RelativeDate) {
 }
 
 namespace {
-void TestRemainingTime(const TimeDelta delta,
-                       const std::wstring& expected_short,
-                       const std::wstring& expected_long) {
-  EXPECT_EQ(expected_short, TimeFormat::TimeRemainingShort(delta));
-  EXPECT_EQ(expected_long, TimeFormat::TimeRemaining(delta));
+void TestTimeFormats(const TimeDelta delta, const std::wstring& expected) {
+  std::wstring expected_left = expected + L" left";
+  std::wstring expected_ago = expected + L" ago";
+  EXPECT_EQ(expected, TimeFormat::TimeRemainingShort(delta));
+  EXPECT_EQ(expected_left, TimeFormat::TimeRemaining(delta));
+  EXPECT_EQ(expected_ago, TimeFormat::TimeElapsed(delta));
 }
 
 } // namespace
 
-TEST(TimeFormat, RemainingTime) {
+TEST(TimeFormat, FormatTime) {
   const TimeDelta one_day = TimeDelta::FromDays(1);
   const TimeDelta three_days = TimeDelta::FromDays(3);
   const TimeDelta one_hour = TimeDelta::FromHours(1);
@@ -54,17 +55,15 @@ TEST(TimeFormat, RemainingTime) {
 
   // TODO(jungshik) : These test only pass when the OS locale is 'en'.
   // We need to add SetUp() and TearDown() to set the locale to 'en'.
-  TestRemainingTime(twohundred_millisecs, L"0 secs", L"0 secs left");
-  TestRemainingTime(one_sec - twohundred_millisecs, L"0 secs", L"0 secs left");
-  TestRemainingTime(one_sec + twohundred_millisecs, L"1 sec", L"1 sec left");
-  TestRemainingTime(five_secs + twohundred_millisecs, L"5 secs",
-                    L"5 secs left");
-  TestRemainingTime(one_min + five_secs, L"1 min", L"1 min left");
-  TestRemainingTime(three_mins + twohundred_millisecs,
-                    L"3 mins", L"3 mins left");
-  TestRemainingTime(one_hour + five_secs, L"1 hour", L"1 hour left");
-  TestRemainingTime(four_hours + five_secs, L"4 hours", L"4 hours left");
-  TestRemainingTime(one_day + five_secs, L"1 day", L"1 day left");
-  TestRemainingTime(three_days, L"3 days", L"3 days left");
-  TestRemainingTime(three_days + four_hours, L"3 days", L"3 days left");
+  TestTimeFormats(twohundred_millisecs, L"0 secs");
+  TestTimeFormats(one_sec - twohundred_millisecs, L"0 secs");
+  TestTimeFormats(one_sec + twohundred_millisecs, L"1 sec");
+  TestTimeFormats(five_secs + twohundred_millisecs, L"5 secs");
+  TestTimeFormats(one_min + five_secs, L"1 min");
+  TestTimeFormats(three_mins + twohundred_millisecs, L"3 mins");
+  TestTimeFormats(one_hour + five_secs, L"1 hour");
+  TestTimeFormats(four_hours + five_secs, L"4 hours");
+  TestTimeFormats(one_day + five_secs, L"1 day");
+  TestTimeFormats(three_days, L"3 days");
+  TestTimeFormats(three_days + four_hours, L"3 days");
 }

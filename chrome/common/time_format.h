@@ -18,13 +18,18 @@ class TimeDelta;
 
 class TimeFormat {
  public:
-  // Returns a localized string of approximate time remaining. The conditions
-  // are simpler than PastTime since this is used for in-progress operations
-  // and users have different expectations of units.
-  // Ex: "3 mins left", "2 days left".
+  // TimeElapsed, TimeRemaining and TimeRemainingShort functions:
+  // These functions return a localized string of approximate time duration. The
+  // conditions are simpler than PastTime since these functions are used for
+  // in-progress operations and users have different expectations of units.
+
+  // Returns times in elapsed-format: "3 mins ago", "2 days ago".
+  static std::wstring TimeElapsed(const base::TimeDelta& delta);
+
+  // Returns times in remaining-format: "3 mins left", "2 days left".
   static std::wstring TimeRemaining(const base::TimeDelta& delta);
 
-  // Same as TimeRemaining without the "left".
+  // Returns times in short-format: "3 mins", "2 days".
   static std::wstring TimeRemainingShort(const base::TimeDelta& delta);
 
   // For displaying a relative time in the past.  This method returns either
