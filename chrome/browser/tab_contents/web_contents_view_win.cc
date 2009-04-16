@@ -230,7 +230,7 @@ void WebContentsViewWin::SizeContents(const gfx::Size& size) {
 }
 
 void WebContentsViewWin::Focus() {
-  /*HWND container_hwnd = GetNativeView();
+  HWND container_hwnd = GetNativeView();
   if (!container_hwnd)
     return;
 
@@ -241,9 +241,7 @@ void WebContentsViewWin::Focus() {
   views::View* v = focus_manager->GetViewForWindow(container_hwnd, true);
   DCHECK(v);
   if (v)
-    v->RequestFocus();*/
-  views::View* asdf = GetRootView();
-  asdf->RequestFocus();
+    v->RequestFocus();
 }
 
 void WebContentsViewWin::SetInitialFocus() {
