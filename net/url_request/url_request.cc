@@ -44,7 +44,6 @@ URLRequest::URLRequest(const GURL& url, Delegate* delegate)
       load_flags_(net::LOAD_NORMAL),
       delegate_(delegate),
       is_pending_(false),
-      user_data_(NULL),
       enable_profiling_(false),
       redirect_limit_(kMaxRedirects),
       final_upload_progress_(0),
@@ -67,8 +66,6 @@ URLRequest::~URLRequest() {
 
   if (job_)
     OrphanJob();
-
-  delete user_data_;  // NULL check unnecessary for delete
 }
 
 // static
@@ -240,10 +237,14 @@ void URLRequest::set_referrer(const std::string& referrer) {
 }
 
 void URLRequest::Start() {
+  StartJob(GetJobManager()->CreateJob(this));
+}
+
+void URLRequest::StartJob(URLRequestJob* job) {
   DCHECK(!is_pending_);
   DCHECK(!job_);
 
-  job_ = GetJobManager()->CreateJob(this);
+  job_ = job;
   job_->SetExtraRequestHeaders(extra_request_headers_);
 
   if (upload_.get())
@@ -258,6 +259,20 @@ void URLRequest::Start() {
   // we probably don't want this: they should be sent asynchronously so
   // the caller does not get reentered.
   job_->Start();
+}
+
+void URLRequest::Restart() {
+  // Should only be called if the original job didn't make any progress.
+  DCHECK(job_ && !job_->has_response_started());
+  RestartWithJob(GetJobManager()->CreateJob(this));
+}
+
+void URLRequest::RestartWithJob(URLRequestJob *job) {
+  DCHECK(job->request() == this);
+  OrphanJob();
+  status_ = URLRequestStatus();
+  is_pending_ = false;
+  StartJob(job);
 }
 
 void URLRequest::Cancel() {
@@ -317,6 +332,24 @@ bool URLRequest::Read(net::IOBuffer* dest, int dest_size, int *bytes_read) {
   }
 
   return job_->Read(dest, dest_size, bytes_read);
+}
+
+void URLRequest::ReceivedRedirect(const GURL& location) {
+  URLRequestJob* job = GetJobManager()->MaybeInterceptRedirect(this, location);
+  if (job) {
+    RestartWithJob(job);
+  } else if (delegate_) {
+    delegate_->OnReceivedRedirect(this, location);
+  }
+}
+
+void URLRequest::ResponseStarted() {
+  URLRequestJob* job = GetJobManager()->MaybeInterceptResponse(this);
+  if (job) {
+    RestartWithJob(job);
+  } else if (delegate_) {
+    delegate_->OnResponseStarted(this);
+  }
 }
 
 void URLRequest::SetAuth(const wstring& username, const wstring& password) {
@@ -420,6 +453,17 @@ int64 URLRequest::GetExpectedContentSize() const {
     expected_content_size = job_->expected_content_size();
 
   return expected_content_size;
+}
+
+URLRequest::UserData* URLRequest::GetUserData(void* key) const {
+  UserDataMap::const_iterator found = user_data_.find(key);
+  if (found != user_data_.end())
+    return found->second.get();
+  return NULL;
+}
+
+void URLRequest::SetUserData(void* key, UserData* data) {
+  user_data_[key] = linked_ptr<UserData>(data);
 }
 
 #ifndef NDEBUG

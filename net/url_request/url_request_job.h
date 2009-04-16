@@ -227,6 +227,10 @@ class URLRequestJob : public base::RefCountedThreadSafe<URLRequestJob>,
   // we were canceled.
   void NotifyCanceled();
 
+  // Notifies the job the request should be restarted.
+  // Should only be called if the job has not started a resposne.
+  void NotifyRestartRequired();
+
   // Called to get more data from the request response. Returns true if there
   // is data immediately available to read. Return false otherwise.
   // Internally this function may initiate I/O operations to get more data.

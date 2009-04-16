@@ -5,12 +5,15 @@
 #ifndef NET_URL_REQUEST_URL_REQUEST_H_
 #define NET_URL_REQUEST_URL_REQUEST_H_
 
+#include <map>
 #include <string>
 #include <vector>
 
 #include "base/file_path.h"
+#include "base/linked_ptr.h"
 #include "base/logging.h"
 #include "base/ref_counted.h"
+#include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_states.h"
 #include "net/http/http_response_info.h"
@@ -48,7 +51,7 @@ typedef std::vector<std::string> ResponseCookies;
 class URLRequest {
  public:
   // Derive from this class and add your own data members to associate extra
-  // information with a URLRequest. Use user_data() and set_user_data()
+  // information with a URLRequest. Use GetUserData(key) and SetUserData()
   class UserData {
    public:
     UserData() {}
@@ -72,6 +75,29 @@ class URLRequest {
     // request if it should be intercepted, or NULL to allow the request to
     // be handled in the normal manner.
     virtual URLRequestJob* MaybeIntercept(URLRequest* request) = 0;
+
+    // Called after having received a redirect response, but prior to the
+    // the request delegate being informed of the redirect. Can return a new
+    // job to replace the existing job if it should be intercepted, or NULL
+    // to allow the normal handling to continue. If a new job is provided,
+    // the delegate never sees the original redirect response, instead the
+    // response produced by the intercept job will be returned.
+    virtual URLRequestJob* MaybeInterceptRedirect(URLRequest* request,
+                                                  const GURL& location) {
+      return NULL;
+    }
+
+    // Called after having received a final response, but prior to the
+    // the request delegate being informed of the response. This is also
+    // called when there is no server response at all to allow interception
+    // on dns or network errors. Can return a new job to replace the existing
+    // job if it should be intercepted, or NULL to allow the normal handling to
+    // continue. If a new job is provided, the delegate never sees the original
+    // response, instead the response produced by the intercept job will be
+    // returned.
+    virtual URLRequestJob* MaybeInterceptResponse(URLRequest* request) {
+      return NULL;
+    }
   };
 
   // The delegate's methods are called from the message loop of the thread
@@ -157,17 +183,12 @@ class URLRequest {
   // will not have any more of its methods called.
   ~URLRequest();
 
-  // The user data allows the owner to associate data with this request.
-  // This request will TAKE OWNERSHIP of the given pointer, and will delete
-  // the object if it is changed or the request is destroyed.
-  UserData* user_data() const {
-    return user_data_;
-  }
-  void set_user_data(UserData* user_data) {
-    if (user_data_)
-      delete user_data_;
-    user_data_ = user_data;
-  }
+  // The user data allows the clients to associate data with this request.
+  // Multiple user data values can be stored under different keys.
+  // This request will TAKE OWNERSHIP of the given data pointer, and will
+  // delete the object if it is changed or the request is destroyed.
+  UserData* GetUserData(void* key) const;
+  void SetUserData(void* key, UserData* data);
 
   // Registers a new protocol handler for the given scheme. If the scheme is
   // already handled, this will overwrite the given factory. To delete the
@@ -450,8 +471,22 @@ class URLRequest {
   // successful, otherwise an error code is returned.
   int Redirect(const GURL& location, int http_status_code);
 
+  // Called by URLRequestJob to allow interception when a redirect occurs.
+  void ReceivedRedirect(const GURL& location);
+
+  // Called by URLRequestJob to allow interception when the final response
+  // occurs.
+  void ResponseStarted();
+
+  // Allow an interceptor's URLRequestJob to restart this request.
+  // Should only be called if the original job has not started a resposne.
+  void Restart();
+
  private:
   friend class URLRequestJob;
+
+  void StartJob(URLRequestJob* job);
+  void RestartWithJob(URLRequestJob *job);
 
   // Detaches the job from this request in preparation for this object going
   // away or the job being replaced. The job will not call us back when it has
@@ -496,8 +531,9 @@ class URLRequest {
   // whether the job is active.
   bool is_pending_;
 
-  // Externally-defined data associated with this request
-  UserData* user_data_;
+  // Externally-defined data accessible by key
+  typedef std::map<void*, linked_ptr<UserData> > UserDataMap;
+  UserDataMap user_data_;
 
   // Whether to enable performance profiling on the job serving this request.
   bool enable_profiling_;

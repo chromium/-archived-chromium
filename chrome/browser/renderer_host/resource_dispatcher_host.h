@@ -309,20 +309,21 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   virtual void OnReadCompleted(URLRequest* request, int bytes_read);
   void OnResponseCompleted(URLRequest* request);
 
-  // Helper function to get our extra data out of a request. The given request
+  // Helper functions to get our extra data out of a request. The given request
   // must have been one we created so that it has the proper extra data pointer.
   static ExtraRequestInfo* ExtraInfoForRequest(URLRequest* request) {
-    ExtraRequestInfo* r = static_cast<ExtraRequestInfo*>(request->user_data());
-    DLOG_IF(WARNING, !r) << "Request doesn't seem to have our data";
-    return r;
+    ExtraRequestInfo* info
+        = static_cast<ExtraRequestInfo*>(request->GetUserData(NULL));
+    DLOG_IF(WARNING, !info) << "Request doesn't seem to have our data";
+    return info;
   }
 
   static const ExtraRequestInfo* ExtraInfoForRequest(
       const URLRequest* request) {
-    const ExtraRequestInfo* r =
-        static_cast<const ExtraRequestInfo*>(request->user_data());
-    DLOG_IF(WARNING, !r) << "Request doesn't seem to have our data";
-    return r;
+    const ExtraRequestInfo* info =
+        static_cast<const ExtraRequestInfo*>(request->GetUserData(NULL));
+    DLOG_IF(WARNING, !info) << "Request doesn't seem to have our data";
+    return info;
   }
 
   // Adds an observer.  The observer will be called on the IO thread.  To
@@ -379,6 +380,10 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   class ShutdownTask;
 
   friend class ShutdownTask;
+
+  void SetExtraInfoForRequest(URLRequest* request, ExtraRequestInfo* info) {
+    request->SetUserData(NULL, info);
+  }
 
   // A shutdown helper that runs on the IO thread.
   void OnShutdown();

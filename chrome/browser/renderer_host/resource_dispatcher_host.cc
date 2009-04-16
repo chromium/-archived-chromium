@@ -402,7 +402,7 @@ void ResourceDispatcherHost::BeginRequest(
                            upload_size);
   extra_info->allow_download =
       ResourceType::IsFrame(request_data.resource_type);
-  request->set_user_data(extra_info);  // takes pointer ownership
+  SetExtraInfoForRequest(request, extra_info);  // request takes ownership
 
   BeginRequestInternal(request);
 }
@@ -541,7 +541,7 @@ void ResourceDispatcherHost::BeginDownload(const GURL& url,
                            0 /* upload_size */);
   extra_info->allow_download = true;
   extra_info->is_download = true;
-  request->set_user_data(extra_info);  // Takes pointer ownership.
+  SetExtraInfoForRequest(request, extra_info);  // request takes ownership
 
   BeginRequestInternal(request);
 }
@@ -596,7 +596,7 @@ void ResourceDispatcherHost::BeginSaveFile(const GURL& url,
   // Just saving some resources we need, disallow downloading.
   extra_info->allow_download = false;
   extra_info->is_download = false;
-  request->set_user_data(extra_info);  // Takes pointer ownership.
+  SetExtraInfoForRequest(request, extra_info);  // request takes ownership
 
   BeginRequestInternal(request);
 }

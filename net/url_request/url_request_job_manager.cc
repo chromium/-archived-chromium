@@ -59,9 +59,8 @@ URLRequestJob* URLRequestJobManager::CreateJob(URLRequest* request) const {
   if (!request->url().is_valid())
     return new URLRequestErrorJob(request, net::ERR_INVALID_URL);
 
-  const std::string& scheme = request->url().scheme();  // already lowercase
-
   // We do this here to avoid asking interceptors about unsupported schemes.
+  const std::string& scheme = request->url().scheme();  // already lowercase
   if (!SupportsScheme(scheme))
     return new URLRequestErrorJob(request, net::ERR_UNKNOWN_URL_SCHEME);
 
@@ -102,6 +101,47 @@ URLRequestJob* URLRequestJobManager::CreateJob(URLRequest* request) const {
   // wasn't interested in handling the URL.  That is fairly unexpected, and we
   // don't know have a specific error to report here :-(
   return new URLRequestErrorJob(request, net::ERR_FAILED);
+}
+
+URLRequestJob* URLRequestJobManager::MaybeInterceptRedirect(
+                                         URLRequest* request,
+                                         const GURL& location) const {
+#ifndef NDEBUG
+  DCHECK(IsAllowedThread());
+#endif
+  if ((request->load_flags() & net::LOAD_DISABLE_INTERCEPT) ||
+      (request->status().status() == URLRequestStatus::CANCELED) ||
+      !request->url().is_valid() ||
+      !SupportsScheme(request->url().scheme()))
+    return NULL;
+
+  InterceptorList::const_iterator i;
+  for (i = interceptors_.begin(); i != interceptors_.end(); ++i) {
+    URLRequestJob* job = (*i)->MaybeInterceptRedirect(request, location);
+    if (job)
+      return job;
+  }
+  return NULL;
+}
+
+URLRequestJob* URLRequestJobManager::MaybeInterceptResponse(
+                                         URLRequest* request) const {
+#ifndef NDEBUG
+  DCHECK(IsAllowedThread());
+#endif
+  if ((request->load_flags() & net::LOAD_DISABLE_INTERCEPT) ||
+      (request->status().status() == URLRequestStatus::CANCELED) ||
+      !request->url().is_valid() ||
+      !SupportsScheme(request->url().scheme()))
+    return NULL;
+
+  InterceptorList::const_iterator i;
+  for (i = interceptors_.begin(); i != interceptors_.end(); ++i) {
+    URLRequestJob* job = (*i)->MaybeInterceptResponse(request);
+    if (job)
+      return job;
+  }
+  return NULL;
 }
 
 bool URLRequestJobManager::SupportsScheme(const std::string& scheme) const {

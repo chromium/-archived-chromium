@@ -337,9 +337,9 @@ void URLRequestJob::NotifyHeadersComplete() {
     // Toggle this flag to true so the consumer can access response headers.
     // Then toggle it back if we choose to follow the redirect.
     has_handled_response_ = true;
-    request_->delegate()->OnReceivedRedirect(request_, new_location);
+    request_->ReceivedRedirect(new_location);
 
-    // Ensure that the request wasn't destroyed in OnReceivedRedirect
+    // Ensure that the request wasn't detached or destroyed in ReceivedRedirect
     if (!request_ || !request_->delegate())
       return;
 
@@ -372,7 +372,7 @@ void URLRequestJob::NotifyHeadersComplete() {
       expected_content_size_ = StringToInt64(content_length);
   }
 
-  request_->delegate()->OnResponseStarted(request_);
+  request_->ResponseStarted();
 }
 
 void URLRequestJob::NotifyStartError(const URLRequestStatus &status) {
@@ -380,8 +380,7 @@ void URLRequestJob::NotifyStartError(const URLRequestStatus &status) {
   has_handled_response_ = true;
   if (request_) {
     request_->set_status(status);
-    if (request_->delegate())
-      request_->delegate()->OnResponseStarted(request_);
+    request_->ResponseStarted();
   }
 }
 
@@ -482,7 +481,7 @@ void URLRequestJob::CompleteNotifyDone() {
       request_->delegate()->OnReadCompleted(request_, -1);
     } else {
       has_handled_response_ = true;
-      request_->delegate()->OnResponseStarted(request_);
+      request_->ResponseStarted();
     }
   }
 }
@@ -492,6 +491,12 @@ void URLRequestJob::NotifyCanceled() {
     NotifyDone(URLRequestStatus(URLRequestStatus::CANCELED,
                                 net::ERR_ABORTED));
   }
+}
+
+void URLRequestJob::NotifyRestartRequired() {
+  DCHECK(!has_handled_response_);
+  if (GetStatus().status() != URLRequestStatus::CANCELED)
+    request_->Restart();
 }
 
 bool URLRequestJob::FilterHasData() {

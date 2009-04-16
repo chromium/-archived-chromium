@@ -34,6 +34,7 @@
 #include "net/http/http_response_headers.h"
 #include "net/proxy/proxy_service.h"
 #include "net/url_request/url_request.h"
+#include "net/url_request/url_request_test_job.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -1109,6 +1110,452 @@ TEST_F(URLRequestTest, Post307RedirectPost) {
   req.Start();
   MessageLoop::current()->Run();
   EXPECT_EQ(req.method(), "POST");
+}
+
+// Custom URLRequestJobs for use with interceptor tests
+class RestartTestJob : public URLRequestTestJob {
+ public:
+  RestartTestJob(URLRequest* request) : URLRequestTestJob(request, true) {}
+ protected:
+  virtual void StartAsync() {
+    this->NotifyRestartRequired();
+  }
+};
+
+class CancelTestJob : public URLRequestTestJob {
+ public:
+  CancelTestJob(URLRequest* request) : URLRequestTestJob(request, true) {}
+ protected:
+  virtual void StartAsync() {
+    request_->Cancel();
+  }
+};
+
+class CancelThenRestartTestJob : public URLRequestTestJob {
+ public:
+  CancelThenRestartTestJob(URLRequest* request)
+      : URLRequestTestJob(request, true) {
+  }
+ protected:
+  virtual void StartAsync() {
+    request_->Cancel();
+    this->NotifyRestartRequired();
+  }
+};
+
+// An Interceptor for use with interceptor tests
+class TestInterceptor : URLRequest::Interceptor {
+ public:
+  TestInterceptor()
+      : intercept_main_request_(false), restart_main_request_(false),
+        cancel_main_request_(false), cancel_then_restart_main_request_(false),
+        simulate_main_network_error_(false),
+        intercept_redirect_(false), cancel_redirect_request_(false),
+        intercept_final_response_(false), cancel_final_request_(false),
+        did_intercept_main_(false), did_restart_main_(false),
+        did_cancel_main_(false), did_cancel_then_restart_main_(false),
+        did_simulate_error_main_(false),
+        did_intercept_redirect_(false), did_cancel_redirect_(false),
+        did_intercept_final_(false), did_cancel_final_(false) {
+    URLRequest::RegisterRequestInterceptor(this);
+  }
+
+  ~TestInterceptor() {
+    URLRequest::UnregisterRequestInterceptor(this);
+  }
+
+  virtual URLRequestJob* MaybeIntercept(URLRequest* request) {
+    if (restart_main_request_) {
+      restart_main_request_ = false;
+      did_restart_main_ = true;
+      return new RestartTestJob(request);
+    }
+    if (cancel_main_request_) {
+      cancel_main_request_ = false;
+      did_cancel_main_ = true;
+      return new CancelTestJob(request);
+    }
+    if (cancel_then_restart_main_request_) {
+      cancel_then_restart_main_request_ = false;
+      did_cancel_then_restart_main_ = true;
+      return new CancelThenRestartTestJob(request);
+    }
+    if (simulate_main_network_error_) {
+      simulate_main_network_error_ = false;
+      did_simulate_error_main_ = true;
+      // will error since the requeted url is not one of its canned urls
+      return new URLRequestTestJob(request, true);
+    }
+    if (!intercept_main_request_)
+      return NULL;
+    intercept_main_request_ = false;
+    did_intercept_main_ = true;
+    return new URLRequestTestJob(request,
+                                 main_headers_,
+                                 main_data_,
+                                 true);
+  }
+
+  virtual URLRequestJob* MaybeInterceptRedirect(URLRequest* request,
+                                                const GURL& location) {
+    if (cancel_redirect_request_) {
+      cancel_redirect_request_ = false;
+      did_cancel_redirect_ = true;
+      return new CancelTestJob(request);
+    }
+    if (!intercept_redirect_)
+      return NULL;
+    intercept_redirect_ = false;
+    did_intercept_redirect_ = true;
+    return new URLRequestTestJob(request,
+                                 redirect_headers_,
+                                 redirect_data_,
+                                 true);
+  }
+
+  virtual URLRequestJob* MaybeInterceptResponse(URLRequest* request) {
+    if (cancel_final_request_) {
+      cancel_final_request_ = false;
+      did_cancel_final_ = true;
+      return new CancelTestJob(request);
+    }
+    if (!intercept_final_response_)
+      return NULL;
+    intercept_final_response_ = false;
+    did_intercept_final_ = true;
+    return new URLRequestTestJob(request,
+                                 final_headers_,
+                                 final_data_,
+                                 true);
+  }
+
+  // Whether to intercept the main request, and if so the response to return.
+  bool intercept_main_request_;
+  std::string main_headers_;
+  std::string main_data_;
+
+  // Other actions we take at MaybeIntercept time
+  bool restart_main_request_;
+  bool cancel_main_request_;
+  bool cancel_then_restart_main_request_;
+  bool simulate_main_network_error_;
+
+  // Whether to intercept redirects, and if so the response to return.
+  bool intercept_redirect_;
+  std::string redirect_headers_;
+  std::string redirect_data_;
+
+  // Other actions we can take at MaybeInterceptRedirect time
+  bool cancel_redirect_request_;
+
+  // Whether to intercept final response, and if so the response to return.
+  bool intercept_final_response_;
+  std::string final_headers_;
+  std::string final_data_;
+
+  // Other actions we can take at MaybeInterceptResponse time
+  bool cancel_final_request_;
+
+  // If we did something or not
+  bool did_intercept_main_;
+  bool did_restart_main_;
+  bool did_cancel_main_;
+  bool did_cancel_then_restart_main_;
+  bool did_simulate_error_main_;
+  bool did_intercept_redirect_;
+  bool did_cancel_redirect_;
+  bool did_intercept_final_;
+  bool did_cancel_final_;
+
+  // Static getters for canned response header and data strings
+
+  static std::string ok_data() {
+    return URLRequestTestJob::test_data_1();
+  }
+
+  static std::string ok_headers() {
+    return URLRequestTestJob::test_headers();
+  }
+
+  static std::string redirect_data() {
+    return std::string();
+  }
+
+  static std::string redirect_headers() {
+    return URLRequestTestJob::test_redirect_headers();
+  }
+
+  static std::string error_data() {
+    return std::string("ohhh nooooo mr. bill!");
+  }
+
+  static std::string error_headers() {
+    return URLRequestTestJob::test_error_headers();
+  }
+};
+
+TEST_F(URLRequestTest, Intercept) {
+  TestInterceptor interceptor;
+
+  // intercept the main request and respond with a simple response
+  interceptor.intercept_main_request_ = true;
+  interceptor.main_headers_ = TestInterceptor::ok_headers();
+  interceptor.main_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  URLRequest::UserData* user_data0 = new URLRequest::UserData();
+  URLRequest::UserData* user_data1 = new URLRequest::UserData();
+  URLRequest::UserData* user_data2 = new URLRequest::UserData();
+  req.SetUserData(NULL, user_data0);
+  req.SetUserData(&user_data1, user_data1);
+  req.SetUserData(&user_data2, user_data2);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Make sure we can retrieve our specific user data
+  EXPECT_EQ(user_data0, req.GetUserData(NULL));
+  EXPECT_EQ(user_data1, req.GetUserData(&user_data1));
+  EXPECT_EQ(user_data2, req.GetUserData(&user_data2));
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_intercept_main_);
+
+  // Check we got one good response
+  EXPECT_TRUE(req.status().is_success());
+  EXPECT_EQ(200, req.response_headers()->response_code());
+  EXPECT_EQ(TestInterceptor::ok_data(), d.data_received());
+  EXPECT_EQ(1, d.response_started_count());
+  EXPECT_EQ(0, d.received_redirect_count());
+}
+
+TEST_F(URLRequestTest, InterceptRedirect) {
+  TestInterceptor interceptor;
+
+  // intercept the main request and respond with a redirect
+  interceptor.intercept_main_request_ = true;
+  interceptor.main_headers_ = TestInterceptor::redirect_headers();
+  interceptor.main_data_ = TestInterceptor::redirect_data();
+
+  // intercept that redirect and respond a final OK response
+  interceptor.intercept_redirect_ = true;
+  interceptor.redirect_headers_ =  TestInterceptor::ok_headers();
+  interceptor.redirect_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_intercept_main_);
+  EXPECT_TRUE(interceptor.did_intercept_redirect_);
+
+  // Check we got one good response
+  EXPECT_TRUE(req.status().is_success());
+  EXPECT_EQ(200, req.response_headers()->response_code());
+  EXPECT_EQ(TestInterceptor::ok_data(), d.data_received());
+  EXPECT_EQ(1, d.response_started_count());
+  EXPECT_EQ(0, d.received_redirect_count());
+}
+
+TEST_F(URLRequestTest, InterceptServerError) {
+  TestInterceptor interceptor;
+
+  // intercept the main request to generate a server error response
+  interceptor.intercept_main_request_ = true;
+  interceptor.main_headers_ = TestInterceptor::error_headers();
+  interceptor.main_data_ = TestInterceptor::error_data();
+
+  // intercept that error and respond with an OK response
+  interceptor.intercept_final_response_ = true;
+  interceptor.final_headers_ = TestInterceptor::ok_headers();
+  interceptor.final_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_intercept_main_);
+  EXPECT_TRUE(interceptor.did_intercept_final_);
+
+  // Check we got one good response
+  EXPECT_TRUE(req.status().is_success());
+  EXPECT_EQ(200, req.response_headers()->response_code());
+  EXPECT_EQ(TestInterceptor::ok_data(), d.data_received());
+  EXPECT_EQ(1, d.response_started_count());
+  EXPECT_EQ(0, d.received_redirect_count());
+}
+
+TEST_F(URLRequestTest, InterceptNetworkError) {
+  TestInterceptor interceptor;
+
+  // intercept the main request to simulate a network error
+  interceptor.simulate_main_network_error_ = true;
+
+  // intercept that error and respond with an OK response
+  interceptor.intercept_final_response_ = true;
+  interceptor.final_headers_ = TestInterceptor::ok_headers();
+  interceptor.final_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_simulate_error_main_);
+  EXPECT_TRUE(interceptor.did_intercept_final_);
+
+  // Check we received one good response
+  EXPECT_TRUE(req.status().is_success());
+  EXPECT_EQ(200, req.response_headers()->response_code());
+  EXPECT_EQ(TestInterceptor::ok_data(), d.data_received());
+  EXPECT_EQ(1, d.response_started_count());
+  EXPECT_EQ(0, d.received_redirect_count());
+}
+
+TEST_F(URLRequestTest, InterceptRestartRequired) {
+  TestInterceptor interceptor;
+
+  // restart the main request
+  interceptor.restart_main_request_ = true;
+
+  // then intercept the new main request and respond with an OK response
+  interceptor.intercept_main_request_ = true;
+  interceptor.main_headers_ = TestInterceptor::ok_headers();
+  interceptor.main_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_restart_main_);
+  EXPECT_TRUE(interceptor.did_intercept_main_);
+
+  // Check we received one good response
+  EXPECT_TRUE(req.status().is_success());
+  EXPECT_EQ(200, req.response_headers()->response_code());
+  EXPECT_EQ(TestInterceptor::ok_data(), d.data_received());
+  EXPECT_EQ(1, d.response_started_count());
+  EXPECT_EQ(0, d.received_redirect_count());
+}
+
+TEST_F(URLRequestTest, InterceptRespectsCancelMain) {
+  TestInterceptor interceptor;
+
+  // intercept the main request and cancel from within the restarted job
+  interceptor.cancel_main_request_ = true;
+
+  // setup to intercept final response and override it with an OK response
+  interceptor.intercept_final_response_ = true;
+  interceptor.final_headers_ = TestInterceptor::ok_headers();
+  interceptor.final_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_cancel_main_);
+  EXPECT_FALSE(interceptor.did_intercept_final_);
+
+  // Check we see a canceled request
+  EXPECT_FALSE(req.status().is_success());
+  EXPECT_EQ(URLRequestStatus::CANCELED, req.status().status());
+}
+
+TEST_F(URLRequestTest, InterceptRespectsCancelRedirect) {
+  TestInterceptor interceptor;
+
+  // intercept the main request and respond with a redirect
+  interceptor.intercept_main_request_ = true;
+  interceptor.main_headers_ = TestInterceptor::redirect_headers();
+  interceptor.main_data_ = TestInterceptor::redirect_data();
+
+  // intercept the redirect and cancel from within that job
+  interceptor.cancel_redirect_request_ = true;
+
+  // setup to intercept final response and override it with an OK response
+  interceptor.intercept_final_response_ = true;
+  interceptor.final_headers_ = TestInterceptor::ok_headers();
+  interceptor.final_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_intercept_main_);
+  EXPECT_TRUE(interceptor.did_cancel_redirect_);
+  EXPECT_FALSE(interceptor.did_intercept_final_);
+
+  // Check we see a canceled request
+  EXPECT_FALSE(req.status().is_success());
+  EXPECT_EQ(URLRequestStatus::CANCELED, req.status().status());
+}
+
+TEST_F(URLRequestTest, InterceptRespectsCancelFinal) {
+  TestInterceptor interceptor;
+
+  // intercept the main request to simulate a network error
+  interceptor.simulate_main_network_error_ = true;
+
+  // setup to intercept final response and cancel from within that job
+  interceptor.cancel_final_request_ = true;
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_simulate_error_main_);
+  EXPECT_TRUE(interceptor.did_cancel_final_);
+
+  // Check we see a canceled request
+  EXPECT_FALSE(req.status().is_success());
+  EXPECT_EQ(URLRequestStatus::CANCELED, req.status().status());
+}
+
+TEST_F(URLRequestTest, InterceptRespectsCancelInRestart) {
+  TestInterceptor interceptor;
+
+  // intercept the main request and cancel then restart from within that job
+  interceptor.cancel_then_restart_main_request_ = true;
+
+  // setup to intercept final response and override it with an OK response
+  interceptor.intercept_final_response_ = true;
+  interceptor.final_headers_ = TestInterceptor::ok_headers();
+  interceptor.final_data_ = TestInterceptor::ok_data();
+
+  TestDelegate d;
+  TestURLRequest req(GURL("http://test_intercept/foo"), &d);
+  req.set_method("GET");
+  req.Start();
+  MessageLoop::current()->Run();
+
+  // Check the interceptor got called as expected
+  EXPECT_TRUE(interceptor.did_cancel_then_restart_main_);
+  EXPECT_FALSE(interceptor.did_intercept_final_);
+
+  // Check we see a canceled request
+  EXPECT_FALSE(req.status().is_success());
+  EXPECT_EQ(URLRequestStatus::CANCELED, req.status().status());
 }
 
 // FTP tests appear to be hanging some of the time
