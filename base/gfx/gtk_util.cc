@@ -6,6 +6,7 @@
 
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
+#include <stdlib.h>
 
 #include "base/gfx/rect.h"
 
