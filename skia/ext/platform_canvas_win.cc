@@ -19,17 +19,21 @@ namespace skia {
 // lines. This allows us to see in crash dumps the most likely reason for the
 // failure. It takes the size of the bitmap we were trying to allocate as its
 // arguments so we can check that as well.
-void CrashForBitmapAllocationFailure(int w, int h) {
-  // The maximum number of GDI objects per process is 10K. If we're very close
-  // to that, it's probably the problem.
-  const int kLotsOfGDIObjs = 9990;
-  CHECK(GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS) < kLotsOfGDIObjs);
-
+//
+// Note that in a sandboxed renderer this function crashes when trying to
+// call GetProcessMemoryInfo() because it tries to load psapi.dll, which
+// is fine but gives you a very hard to read crash dump.
+__declspec(noinline) void CrashForBitmapAllocationFailure(int w, int h) {
   // If the bitmap is ginormous, then we probably can't allocate it.
   // We use 64M pixels = 256MB @ 4 bytes per pixel.
   const __int64 kGinormousBitmapPxl = 64000000;
   CHECK(static_cast<__int64>(w) * static_cast<__int64>(h) <
         kGinormousBitmapPxl);
+
+  // The maximum number of GDI objects per process is 10K. If we're very close
+  // to that, it's probably the problem.
+  const int kLotsOfGDIObjs = 9990;
+  CHECK(GetGuiResources(GetCurrentProcess(), GR_GDIOBJECTS) < kLotsOfGDIObjs);
 
   // If we're using a crazy amount of virtual address space, then maybe there
   // isn't enough for our bitmap.
@@ -40,6 +44,14 @@ void CrashForBitmapAllocationFailure(int w, int h) {
 
   // Everything else.
   CHECK(0);
+}
+
+// Crashes the process. This is called when a bitmap allocation fails but
+// unlike its cousin CrashForBitmapAllocationFailure() it tries to detect if
+// the issue was a non-valid shared bitmap handle. 
+__declspec(noinline) void CrashIfInvalidSection(HANDLE shared_section) {
+  DWORD handle_info = 0;
+  CHECK(::GetHandleInformation(shared_section, &handle_info) == TRUE);
 }
 
 PlatformCanvasWin::PlatformCanvasWin() : SkCanvas() {
@@ -58,8 +70,10 @@ PlatformCanvasWin::PlatformCanvasWin(int width,
                                      HANDLE shared_section)
     : SkCanvas() {
   bool initialized = initialize(width, height, is_opaque, shared_section);
-  if (!initialized)
+  if (!initialized) {
+    CrashIfInvalidSection(shared_section);
     CrashForBitmapAllocationFailure(width, height);
+  }
 }
 
 PlatformCanvasWin::~PlatformCanvasWin() {
