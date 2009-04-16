@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_GTK_TABS_TAB_GTK_H_
 
 #include "base/basictypes.h"
+#include "chrome/browser/gtk/tabs/tab_button_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_renderer_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 
@@ -13,7 +14,8 @@ namespace gfx {
 class Path;
 }
 
-class TabGtk : public TabRendererGtk {
+class TabGtk : public TabRendererGtk,
+               public TabButtonGtk::Delegate {
  public:
   // An interface implemented by an object that can help this Tab complete
   // various actions. The index parameter is the index of this Tab in the
@@ -73,18 +75,29 @@ class TabGtk : public TabRendererGtk {
 
   // TabRendererGtk overrides:
   virtual bool IsSelected() const;
+  virtual void CloseButtonResized(const gfx::Rect& bounds);
+  virtual void Paint(ChromeCanvasPaint* canvas);
 
-  // Sent by the tabstrip when the mouse moves within this tab.  Mouse is at
-  // |point|.  Returns true if the tabstrip needs to be redrawn as a result
+  // Sent by the tabstrip when the mouse moves within this tab.  Mouse state is
+  // in |event|.  Returns true if the tabstrip needs to be redrawn as a result
   // of the motion.
-  bool OnMotionNotify(const gfx::Point& point);
+  bool OnMotionNotify(GdkEventMotion* event);
 
   // Sent by the tabstrip when the mouse clicks within this tab.  Returns true
   // if the tabstrip needs to be redrawn as a result of the click.
-  bool OnMousePress();
+  bool OnMousePress(const gfx::Point& point);
 
   // Sent by the tabstrip when the mouse click is released.
   void OnMouseRelease(GdkEventButton* event);
+
+  // Sent by the tabstrip when the mouse leaves this tab.  Returns true
+  // if the tabstrip needs to be redrawn as a result of the movement.
+  bool OnLeaveNotify();
+
+ protected:
+  // TabButtonGtk::Delegate implementation:
+  virtual GdkRegion* MakeRegionForButton(const TabButtonGtk* button) const;
+  virtual void OnButtonActivate(const TabButtonGtk* button);
 
  private:
   class ContextMenuController;
@@ -108,11 +121,10 @@ class TabGtk : public TabRendererGtk {
   // True if the tab is being animated closed.
   bool closing_;
 
-  // Set if the mouse is pressed anywhere inside the tab.
-  bool mouse_pressed_;
-
   // The context menu controller.
   scoped_ptr<ContextMenuController> menu_controller_;
+
+  scoped_ptr<TabButtonGtk> close_button_;
 
   DISALLOW_COPY_AND_ASSIGN(TabGtk);
 };

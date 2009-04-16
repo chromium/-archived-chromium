@@ -10,14 +10,14 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
+#include "chrome/browser/gtk/tabs/tab_button_gtk.h"
 #include "chrome/browser/gtk/tabs/tab_gtk.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/owned_widget_gtk.h"
 
-class NewTabButton;
-
 class TabStripGtk : public TabStripModelObserver,
-                    public TabGtk::TabDelegate {
+                    public TabGtk::TabDelegate,
+                    public TabButtonGtk::Delegate {
  public:
   class TabAnimation;
 
@@ -57,7 +57,7 @@ class TabStripGtk : public TabStripModelObserver,
   virtual void TabChangedAt(TabContents* contents, int index,
                             bool loading_only);
 
-  // TabGtk::Delegate implementation:
+  // TabGtk::TabDelegate implementation:
   virtual bool IsTabSelected(const TabGtk* tab) const;
   virtual void SelectTab(TabGtk* tab);
   virtual void CloseTab(TabGtk* tab);
@@ -72,6 +72,10 @@ class TabStripGtk : public TabStripModelObserver,
   virtual void StopAllHighlighting();
   virtual bool EndDrag(bool canceled);
   virtual bool HasAvailableDragActions() const;
+
+  // TabButtonGtk::Delegate implementation:
+  virtual GdkRegion* MakeRegionForButton(const TabButtonGtk* button) const;
+  virtual void OnButtonActivate(const TabButtonGtk* button);
 
  private:
   friend class InsertTabAnimation;
@@ -213,7 +217,7 @@ class TabStripGtk : public TabStripModelObserver,
   scoped_ptr<TabAnimation> active_animation_;
 
   // The New Tab button.
-  scoped_ptr<NewTabButton> newtab_button_;
+  scoped_ptr<TabButtonGtk> newtab_button_;
 
   DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };

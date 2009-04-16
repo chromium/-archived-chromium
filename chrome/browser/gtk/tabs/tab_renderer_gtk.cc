@@ -94,12 +94,13 @@ TabRendererGtk::TabImage TabRendererGtk::tab_active_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_inactive_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_inactive_otr_ = {0};
 TabRendererGtk::TabImage TabRendererGtk::tab_hover_ = {0};
-TabRendererGtk::ButtonImage TabRendererGtk::close_button_ = {0};
 ChromeFont* TabRendererGtk::title_font_ = NULL;
 int TabRendererGtk::title_font_height_ = 0;
 SkBitmap* TabRendererGtk::download_icon_ = NULL;
 int TabRendererGtk::download_icon_width_ = 0;
 int TabRendererGtk::download_icon_height_ = 0;
+int TabRendererGtk::close_button_width_ = 0;
+int TabRendererGtk::close_button_height_ = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // TabRendererGtk::LoadingAnimation, public:
@@ -143,7 +144,6 @@ TabRendererGtk::TabRendererGtk()
       fav_icon_hiding_offset_(0),
       should_display_crashed_favicon_(false),
       hovering_(false),
-      close_button_state_(BS_NORMAL),
       loading_animation_(&loading_animation_data) {
   InitResources();
 }
@@ -174,6 +174,10 @@ void TabRendererGtk::UpdateFromModel() {
 
 bool TabRendererGtk::IsSelected() const {
   return true;
+}
+
+void TabRendererGtk::CloseButtonResized(const gfx::Rect& bounds) {
+  // Nothing to do.
 }
 
 void TabRendererGtk::ValidateLoadingAnimation(AnimationState animation_state) {
@@ -211,7 +215,7 @@ int TabRendererGtk::GetContentHeight() {
   // The height of the content of the Tab is the largest of the favicon,
   // the title text and the close button graphic.
   int content_height = std::max(kFavIconSize, title_font_height_);
-  return std::max(content_height, close_button_.height);
+  return std::max(content_height, close_button_height_);
 }
 
 // static
@@ -241,11 +245,8 @@ void TabRendererGtk::LoadTabImages() {
   // tab_[hover,inactive_otr] width are not used and are initialized to 0
   // during static initialization.
 
-  close_button_.normal = rb.GetBitmapNamed(IDR_TAB_CLOSE);
-  close_button_.hot = rb.GetBitmapNamed(IDR_TAB_CLOSE_H);
-  close_button_.pushed = rb.GetBitmapNamed(IDR_TAB_CLOSE_P);
-  close_button_.width = close_button_.normal->width();
-  close_button_.height = close_button_.normal->height();
+  close_button_width_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->width();
+  close_button_height_ = rb.GetBitmapNamed(IDR_TAB_CLOSE)->height();
 
   download_icon_ = rb.GetBitmapNamed(IDR_DOWNLOAD_ICON);
   download_icon_width_ = download_icon_->width();
@@ -315,24 +316,12 @@ void TabRendererGtk::Paint(ChromeCanvasPaint* canvas) {
   canvas->DrawStringInt(title, *title_font_, title_color, title_bounds_.x(),
                         title_bounds_.y(), title_bounds_.width(),
                         title_bounds_.height());
-
-  SkBitmap close_button = *close_button_.normal;
-  if (close_button_state_ == BS_HOT)
-    close_button = *close_button_.hot;
-  else if (close_button_state_ == BS_PUSHED)
-    close_button = *close_button_.pushed;
-
-  canvas->DrawBitmapInt(close_button,
-                        close_button_bounds_.x(), close_button_bounds_.y());
 }
 
-void TabRendererGtk::SetHovering(bool hovering) {
+bool TabRendererGtk::set_hovering(bool hovering) {
+  bool paint = (hovering_ != hovering);
   hovering_ = hovering;
-
-  // If the mouse is not hovering over the tab, the close button can't be
-  // highlighted.
-  if (!hovering)
-    close_button_state_ = BS_NORMAL;
+  return paint;
 }
 
 void TabRendererGtk::Layout() {
@@ -368,14 +357,16 @@ void TabRendererGtk::Layout() {
   if (showing_close_button_) {
     int close_button_top =
         kTopPadding + kCloseButtonVertFuzz +
-        (content_height - close_button_.height) / 2;
+        (content_height - close_button_height_) / 2;
     close_button_bounds_.SetRect(bounds_.x() +
                                  local_bounds.width() + kCloseButtonHorzFuzz,
                                  bounds_.y() + close_button_top,
-                                 close_button_.width, close_button_.height);
+                                 close_button_width_, close_button_height_);
   } else {
     close_button_bounds_.SetRect(0, 0, 0, 0);
   }
+
+  CloseButtonResized(close_button_bounds_);
 
   // Size the Title text to fill the remaining space.
   int title_left = favicon_bounds_.right() + kFavIconTitleSpacing;

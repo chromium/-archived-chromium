@@ -9,6 +9,7 @@
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
+#include "grit/theme_resources.h"
 
 static const SkScalar kTabCapWidth = 15;
 static const SkScalar kTabTopCurveWidth = 4;
@@ -93,8 +94,18 @@ class TabGtk::ContextMenuController : public MenuGtk::Delegate {
 TabGtk::TabGtk(TabDelegate* delegate)
     : TabRendererGtk(),
       delegate_(delegate),
-      closing_(false),
-      mouse_pressed_(false) {
+      closing_(false) {
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  SkBitmap* bitmap = rb.GetBitmapNamed(IDR_TAB_CLOSE);
+
+  close_button_.reset(new TabButtonGtk(this));
+  close_button_.get()->SetImage(TabButtonGtk::BS_NORMAL, bitmap);
+  close_button_.get()->SetImage(TabButtonGtk::BS_HOT,
+                                rb.GetBitmapNamed(IDR_TAB_CLOSE_H));
+  close_button_.get()->SetImage(TabButtonGtk::BS_PUSHED,
+                                rb.GetBitmapNamed(IDR_TAB_CLOSE_P));
+  close_button_.get()->set_bounds(
+      gfx::Rect(0, 0, bitmap->width(), bitmap->height()));
 }
 
 TabGtk::~TabGtk() {
@@ -114,41 +125,36 @@ bool TabGtk::IsPointInBounds(const gfx::Point& point) {
   return in_bounds;
 }
 
-bool TabGtk::OnMotionNotify(const gfx::Point& point) {
-  CloseButtonState state;
-  if (close_button_bounds().Contains(point)) {
-    if (mouse_pressed_) {
-      state = BS_PUSHED;
-    } else {
-      state = BS_HOT;
-    }
-  } else {
-    state = BS_NORMAL;
-  }
+bool TabGtk::OnMotionNotify(GdkEventMotion* event) {
+  gfx::Point point(event->x, event->y);
+  bool paint = false;
 
-  bool need_redraw = (close_button_state() != state);
-  set_close_button_state(state);
-  return need_redraw;
+  if (!(event->state & GDK_BUTTON1_MASK))
+    paint = set_hovering(IsPointInBounds(point));
+
+  paint |= close_button_.get()->OnMotionNotify(event);
+  return paint;
 }
 
-bool TabGtk::OnMousePress() {
-  if (close_button_state() == BS_HOT) {
-    mouse_pressed_ = true;
-    set_close_button_state(BS_PUSHED);
-    return true;
-  }
+bool TabGtk::OnMousePress(const gfx::Point& point) {
+  if (close_button_.get()->IsPointInBounds(point))
+    return close_button_.get()->OnMousePress();
 
   return false;
 }
 
 void TabGtk::OnMouseRelease(GdkEventButton* event) {
-  mouse_pressed_ = false;
+  close_button_.get()->OnMouseRelease();
 
-  if (close_button_state() == BS_PUSHED) {
-    delegate_->CloseTab(this);
-  } else if (event->button == 3) {
+  if (event->button == 3) {
     ShowContextMenu();
   }
+}
+
+bool TabGtk::OnLeaveNotify() {
+  bool paint = set_hovering(false);
+  paint |= close_button_.get()->OnLeaveNotify();
+  return paint;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,6 +162,27 @@ void TabGtk::OnMouseRelease(GdkEventButton* event) {
 
 bool TabGtk::IsSelected() const {
   return delegate_->IsTabSelected(this);
+}
+
+void TabGtk::CloseButtonResized(const gfx::Rect& bounds) {
+  close_button_.get()->set_bounds(bounds);
+}
+
+void TabGtk::Paint(ChromeCanvasPaint* canvas) {
+  TabRendererGtk::Paint(canvas);
+  close_button_.get()->Paint(canvas);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// TabGtk, TabButtonGtk::Delegate implementation:
+
+GdkRegion* TabGtk::MakeRegionForButton(const TabButtonGtk* button) const {
+  // Use the close button bounds for hit-testing.
+  return NULL;
+}
+
+void TabGtk::OnButtonActivate(const TabButtonGtk* button) {
+  delegate_->CloseTab(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

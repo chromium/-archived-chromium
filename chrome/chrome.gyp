@@ -750,6 +750,8 @@
         'browser/gtk/status_bubble_gtk.h',
         'browser/gtk/tab_contents_container_gtk.cc',
         'browser/gtk/tab_contents_container_gtk.h',
+        'browser/gtk/tabs/tab_button_gtk.cc',
+        'browser/gtk/tabs/tab_button_gtk.h',
         'browser/gtk/tabs/tab_gtk.cc',
         'browser/gtk/tabs/tab_gtk.h',
         'browser/gtk/tabs/tab_renderer_gtk.cc',

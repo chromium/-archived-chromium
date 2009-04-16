@@ -28,13 +28,6 @@ class TabRendererGtk {
     ANIMATION_LOADING
   };
 
-  // Possible close button states
-  enum CloseButtonState {
-    BS_NORMAL,
-    BS_HOT,
-    BS_PUSHED
-  };
-
   class LoadingAnimation {
    public:
     struct Data {
@@ -87,6 +80,12 @@ class TabRendererGtk {
   // Returns true if the Tab is selected, false otherwise.
   virtual bool IsSelected() const;
 
+  // Notifies subclasses that the close button has been resized to |bounds|.
+  virtual void CloseButtonResized(const gfx::Rect& bounds);
+
+  // Paints the tab into |canvas|.
+  virtual void Paint(ChromeCanvasPaint* canvas);
+
   // Advance the loading animation to the next frame, or hide the animation if
   // the tab isn't loading.
   void ValidateLoadingAnimation(AnimationState animation_state);
@@ -110,27 +109,20 @@ class TabRendererGtk {
   int width() const { return bounds_.width(); }
   int height() const { return bounds_.height(); }
 
+  gfx::Rect bounds() const { return bounds_; }
+
   // Sets the bounds of the tab.
   void SetBounds(const gfx::Rect& bounds);
-
-  // Paints the tab into |canvas|.
-  void Paint(ChromeCanvasPaint* canvas);
-
-  // Sets the hovering status of the tab.
-  void SetHovering(bool hovering);
 
  protected:
   const gfx::Rect& title_bounds() const { return title_bounds_; }
   const gfx::Rect& close_button_bounds() const { return close_button_bounds_; }
-  CloseButtonState close_button_state() const { return close_button_state_; }
+
+  // Sets the hovering status of the tab.  Returns true if a repaint is needed.
+  bool set_hovering(bool hovering);
 
   // Returns the title of the Tab.
   std::wstring GetTitle() const;
-
-  // Sets whether the close button should be highlighted or not.
-  void set_close_button_state(CloseButtonState state) {
-    close_button_state_ = state;
-  }
 
  private:
   // Model data. We store this here so that we don't need to ask the underlying
@@ -195,21 +187,15 @@ class TabRendererGtk {
   static TabImage tab_inactive_otr_;
   static TabImage tab_hover_;
 
-  struct ButtonImage {
-    SkBitmap* normal;
-    SkBitmap* hot;
-    SkBitmap* pushed;
-    int width;
-    int height;
-  };
-  static ButtonImage close_button_;
-
   static ChromeFont* title_font_;
   static int title_font_height_;
 
   static SkBitmap* download_icon_;
   static int download_icon_width_;
   static int download_icon_height_;
+
+  static int close_button_width_;
+  static int close_button_height_;
 
   // Whether we're showing the icon. It is cached so that we can detect when it
   // changes and layout appropriately.
@@ -233,9 +219,6 @@ class TabRendererGtk {
 
   // Set when the mouse is hovering over this tab and the tab is not selected.
   bool hovering_;
-
-  // The state of the close button as it relates to mouse input.
-  CloseButtonState close_button_state_;
 
   // Contains the loading animation state.
   LoadingAnimation loading_animation_;

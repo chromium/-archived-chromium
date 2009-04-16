@@ -7,6 +7,7 @@
 #include "base/gfx/gtk_util.h"
 #include "base/gfx/point.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/gtk/tabs/tab_button_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/l10n_util.h"
@@ -33,6 +34,10 @@ inline int Round(double x) {
   return static_cast<int>(x + 0.5);
 }
 
+bool IsButtonPressed(guint state) {
+  return (state & GDK_BUTTON1_MASK);
+}
+
 // widget->allocation is not guaranteed to be set.  After window creation,
 // we pick up the normal bounds by connecting to the configure-event signal.
 gfx::Rect GetInitialWidgetBounds(GtkWidget* widget) {
@@ -42,168 +47,6 @@ gfx::Rect GetInitialWidgetBounds(GtkWidget* widget) {
 }
 
 }  // namespace
-
-///////////////////////////////////////////////////////////////////////////////
-// NewTabButton
-//
-//  Performs hit-testing and rendering of the New Tab button.
-//
-// TODO(jhawkins): This is shared functionality with the tab close button.
-// Refactor into a new TabButton class or implement the tabstrip using
-// custom gtk widgets.
-class NewTabButton {
- public:
-  // Possible button states
-  enum ButtonState {
-    BS_NORMAL,
-    BS_HOT,
-    BS_PUSHED,
-    BS_COUNT
-  };
-
-  explicit NewTabButton(TabStripModelDelegate* delegate)
-      : state_(BS_NORMAL),
-        mouse_pressed_(false),
-        delegate_(delegate) {
-  }
-
-  virtual ~NewTabButton() {}
-
-  // Returns the bounds of the button.
-  int x() const { return bounds_.x(); }
-  int y() const { return bounds_.y(); }
-  int width() const { return bounds_.width(); }
-  int height() const { return bounds_.height(); }
-
-  // Checks whether |point| is inside the bounds of the button.
-  bool IsPointInBounds(const gfx::Point& point) {
-    GdkRegion* region = MakeRegionForButton();
-    bool in_bounds =
-        (gdk_region_point_in(region, point.x(), point.y()) == TRUE);
-    gdk_region_destroy(region);
-    return in_bounds;
-  }
-
-  // Sent by the tabstrip when the mouse moves within this button.  Mouse is at
-  // |point|.  Returns true if the tabstrip needs to be redrawn as a result
-  // of the motion.
-  bool OnMotionNotify(const gfx::Point& point) {
-    ButtonState state;
-    if (IsPointInBounds(point)) {
-      if (mouse_pressed_) {
-        state = BS_PUSHED;
-      } else {
-        state = BS_HOT;
-      }
-    } else {
-      state = BS_NORMAL;
-    }
-
-    bool need_redraw = (state_ != state);
-    state_ = state;
-    return need_redraw;
-  }
-
-  // Sent by the tabstrip when the mouse clicks within this button.  Returns
-  // true if the tabstrip needs to be redrawn as a result of the click.
-  bool OnMousePress() {
-    if (state_ == BS_HOT) {
-      mouse_pressed_ = true;
-      state_ = BS_PUSHED;
-      return true;
-    }
-
-    return false;
-  }
-
-  // Sent by the tabstrip when the mouse click is released.
-  void OnMouseRelease() {
-    mouse_pressed_ = false;
-
-    if (state_ == BS_PUSHED) {
-      delegate_->AddBlankTab(true);
-      state_ = BS_NORMAL;
-
-      // Jiggle the mouse so we re-highlight the New Tab button.
-      HighlightNewTabButton();
-    }
-  }
-
-  // Paints the New Tab button into |canvas|.
-  void Paint(ChromeCanvasPaint* canvas) {
-    canvas->DrawBitmapInt(images_[state_], bounds_.x(), bounds_.y());
-  }
-
-  // Sets the image the button should use for the provided state.
-  void SetImage(ButtonState state, SkBitmap* bitmap) {
-    images_[state] = bitmap ? *bitmap : SkBitmap();
-  }
-
-  const gfx::Rect& bounds() const { return bounds_; }
-
-  // Sets the bounds of the button.
-  void set_bounds(const gfx::Rect& bounds) { bounds_ = bounds; }
-
- private:
-  // Creates a clickable region of the button's visual representation. Used for
-  // hit-testing.  Caller is responsible for destroying the region.
-  GdkRegion* MakeRegionForButton() const {
-    const int w = width();
-    const int kNumRegionPoints = 8;
-
-    // These values are defined by the shape of the new tab bitmap. Should that
-    // bitmap ever change, these values will need to be updated. They're so
-    // custom it's not really worth defining constants for.
-    GdkPoint polygon[kNumRegionPoints] = {
-      { 0, 1 },
-      { w - 7, 1 },
-      { w - 4, 4 },
-      { w, 16 },
-      { w - 1, 17 },
-      { 7, 17 },
-      { 4, 13 },
-      { 0, 1 },
-    };
-
-    GdkRegion* region = gdk_region_polygon(polygon, kNumRegionPoints,
-                                           GDK_WINDING_RULE);
-    gdk_region_offset(region, x(), y());
-    return region;
-  }
-
-  // When the insert tab animation completes, we send the widget a message to
-  // simulate a mouse moved event at the current mouse position. This tickles
-  // the New Tab button to show the "hot" state.
-  void HighlightNewTabButton() {
-    // Get default display and screen.
-    GdkDisplay* display = gdk_display_get_default();
-    GdkScreen* screen = gdk_display_get_default_screen(display);
-
-    // Get cursor position.
-    int x, y;
-    gdk_display_get_pointer(display, NULL, &x, &y, NULL);
-
-    // Reset cusor position.
-    gdk_display_warp_pointer(display, screen, x, y);
-  }
-
-  // The images used to render the different states of this button.
-  SkBitmap images_[BS_COUNT];
-
-  // The current state of the button.
-  ButtonState state_;
-
-  // THe current bounds of the button.
-  gfx::Rect bounds_;
-
-  // Set if the mouse is pressed anywhere inside the button.
-  bool mouse_pressed_;
-
-  // Our tabstrip model delegate for opening a new tab.
-  TabStripModelDelegate* delegate_;
-
-  DISALLOW_COPY_AND_ASSIGN(NewTabButton);
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -537,7 +380,7 @@ TabStripGtk::TabStripGtk(TabStripModel* model)
       available_width_for_tabs_(-1),
       resize_layout_scheduled_(false),
       model_(model),
-      hover_index_(-1) {
+      hover_index_(0) {
 }
 
 TabStripGtk::~TabStripGtk() {
@@ -578,11 +421,11 @@ void TabStripGtk::Init() {
   bounds_ = GetInitialWidgetBounds(tabstrip_.get());
 
   SkBitmap* bitmap = rb.GetBitmapNamed(IDR_NEWTAB_BUTTON);
-  newtab_button_.reset(new NewTabButton(model_->delegate()));
-  newtab_button_.get()->SetImage(NewTabButton::BS_NORMAL, bitmap);
-  newtab_button_.get()->SetImage(NewTabButton::BS_HOT,
+  newtab_button_.reset(new TabButtonGtk(this));
+  newtab_button_.get()->SetImage(TabButtonGtk::BS_NORMAL, bitmap);
+  newtab_button_.get()->SetImage(TabButtonGtk::BS_HOT,
                            rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_H));
-  newtab_button_.get()->SetImage(NewTabButton::BS_PUSHED,
+  newtab_button_.get()->SetImage(TabButtonGtk::BS_PUSHED,
                            rb.GetBitmapNamed(IDR_NEWTAB_BUTTON_P));
   newtab_button_.get()->set_bounds(
       gfx::Rect(0, 0, bitmap->width(), bitmap->height()));
@@ -721,7 +564,7 @@ void TabStripGtk::TabChangedAt(TabContents* contents, int index,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// TabStripGtk, TabGtk::Delegate implementation:
+// TabStripGtk, TabGtk::TabDelegate implementation:
 
 bool TabStripGtk::IsTabSelected(const TabGtk* tab) const {
   if (tab->closing())
@@ -814,6 +657,37 @@ bool TabStripGtk::EndDrag(bool canceled) {
 
 bool TabStripGtk::HasAvailableDragActions() const {
   return model_->delegate()->GetDragActions() != 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// TabStripGtk, TabButtonGtk::Delegate implementation:
+
+GdkRegion* TabStripGtk::MakeRegionForButton(const TabButtonGtk* button) const {
+  const int w = button->width();
+  const int kNumRegionPoints = 8;
+
+  // These values are defined by the shape of the new tab bitmap. Should that
+  // bitmap ever change, these values will need to be updated. They're so
+  // custom it's not really worth defining constants for.
+  GdkPoint polygon[kNumRegionPoints] = {
+    { 0, 1 },
+    { w - 7, 1 },
+    { w - 4, 4 },
+    { w, 16 },
+    { w - 1, 17 },
+    { 7, 17 },
+    { 4, 13 },
+    { 0, 1 },
+  };
+
+  GdkRegion* region = gdk_region_polygon(polygon, kNumRegionPoints,
+                                         GDK_WINDING_RULE);
+  gdk_region_offset(region, button->x(), button->y());
+  return region;
+}
+
+void TabStripGtk::OnButtonActivate(const TabButtonGtk* button) {
+  model_->delegate()->AddBlankTab(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1111,24 +985,10 @@ gboolean TabStripGtk::OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
 gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
                                      TabStripGtk* tabstrip) {
   int old_hover_index = tabstrip->hover_index_;
-  tabstrip->hover_index_ = -1;
-
   gfx::Point point(event->x, event->y);
+
   // Get a rough estimate for which tab the mouse is over.
   int index = event->x / (tabstrip->current_unselected_width_ + kTabHOffset);
-
-  int tab_count = tabstrip->GetTabCount();
-  if (index >= tab_count) {
-    if (old_hover_index != -1 && old_hover_index < tab_count) {
-      tabstrip->GetTabAt(old_hover_index)->SetHovering(false);
-      gtk_widget_queue_draw(tabstrip->tabstrip_.get());
-    }
-
-    if (tabstrip->newtab_button_.get()->OnMotionNotify(point))
-      gtk_widget_queue_draw(tabstrip->tabstrip_.get());
-
-    return TRUE;
-  }
 
   // Tab hovering calcuation.
   // Using the rough estimate tab index, we check the tab bounds in a smart
@@ -1137,36 +997,44 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
   // it.  Otherwise, check the tab to the left, then the estimated tab, and
   // finally the tab to the right (tabs stack to the left.)
 
-  if (tabstrip->model()->selected_index() == index &&
-      tabstrip->GetTabAt(index)->IsPointInBounds(point)) {
-    tabstrip->hover_index_ = index;
+  int tab_count = tabstrip->GetTabCount();
+  if (index == tab_count &&
+      tabstrip->GetTabAt(index - 1)->IsPointInBounds(point)) {
+    index--;
+  } else if (index >= tab_count) {
+    index = -1;
   } else if (index > 0 &&
              tabstrip->GetTabAt(index - 1)->IsPointInBounds(point)) {
-    tabstrip->hover_index_ = index - 1;
-  } else if (tabstrip->model()->selected_index() != index &&
-             tabstrip->GetTabAt(index)->IsPointInBounds(point)) {
-    tabstrip->hover_index_ = index;
+    index--;
   } else if (index < tab_count - 1 &&
              tabstrip->GetTabAt(index + 1)->IsPointInBounds(point)) {
-    tabstrip->hover_index_ = index + 1;
+    index++;
   }
 
-  // Nothing to do if the indexes are the same.
-  if (tabstrip->hover_index_ != old_hover_index) {
-    if (tabstrip->hover_index_ != -1)
-      tabstrip->GetTabAt(tabstrip->hover_index_)->SetHovering(true);
+  // Hovering does not take place outside of the currently highlighted tab if
+  // the button is pressed.
+  if (IsButtonPressed(event->state) && index != tabstrip->hover_index_)
+    return TRUE;
 
-    if (old_hover_index != -1 && old_hover_index < tab_count)
-      tabstrip->GetTabAt(old_hover_index)->SetHovering(false);
+  tabstrip->hover_index_ = index;
 
+  bool paint = false;
+  if (old_hover_index != -1 && old_hover_index != index &&
+      old_hover_index < tab_count ) {
+    // Notify the previously highlighted tab that the mouse has left.
+    paint = tabstrip->GetTabAt(old_hover_index)->OnLeaveNotify();
+  }
+
+  if (tabstrip->hover_index_ == -1) {
+    // If the hover index is out of bounds, try the new tab button.
+    paint |= tabstrip->newtab_button_.get()->OnMotionNotify(event);
+  } else {
+    // Notify the currently highlighted tab where the mouse is.
+    paint |= tabstrip->GetTabAt(tabstrip->hover_index_)->OnMotionNotify(event);
+  }
+
+  if (paint)
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
-  }
-
-  // Forward the mouse movement to the tab.  Used to handle close button input.
-  if (tabstrip->hover_index_ != -1) {
-    if (tabstrip->GetTabAt(tabstrip->hover_index_)->OnMotionNotify(point))
-      gtk_widget_queue_draw(tabstrip->tabstrip_.get());
-  }
 
   return TRUE;
 }
@@ -1187,7 +1055,7 @@ gboolean TabStripGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
     return TRUE;
   }
 
-  if (tabstrip->GetTabAt(tabstrip->hover_index_)->OnMousePress()) {
+  if (tabstrip->GetTabAt(tabstrip->hover_index_)->OnMousePress(point)) {
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
   } else if (tabstrip->hover_index_ != tabstrip->model()->selected_index()) {
     tabstrip->model()->SelectTabContentsAt(tabstrip->hover_index_, true);
@@ -1206,7 +1074,7 @@ gboolean TabStripGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
   gfx::Point point(event->x, event->y);
   if (tabstrip->hover_index_ != -1) {
     tabstrip->GetTabAt(tabstrip->hover_index_)->OnMouseRelease(event);
-  } else if (tabstrip->newtab_button_.get()->IsPointInBounds(point)) {
+  } else {
     tabstrip->newtab_button_.get()->OnMouseRelease();
   }
 
@@ -1216,11 +1084,15 @@ gboolean TabStripGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
 // static
 gboolean TabStripGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
                                     TabStripGtk* tabstrip) {
+  // No leave notification if the mouse button is pressed.
+  if (IsButtonPressed(event->state))
+    return TRUE;
+
   // A leave-notify-event is generated on mouse click, which sets the mode to
   // GDK_CROSSING_GRAB.  Ignore this event because it doesn't meant the mouse
   // has left the tabstrip.
   if (tabstrip->hover_index_ != -1 && event->mode != GDK_CROSSING_GRAB) {
-    tabstrip->GetTabAt(tabstrip->hover_index_)->SetHovering(false);
+    tabstrip->GetTabAt(tabstrip->hover_index_)->OnLeaveNotify();
     tabstrip->hover_index_ = -1;
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
   }
