@@ -41,18 +41,19 @@ class ChromeTests:
   '''
 
   def __init__(self, options, args, test):
-    # the known list of tests
+    # The known list of tests.  
+    # Recognise the original abbreviations as well as full executable names.
     self._test_list = {
-      "test_shell": self.TestTestShell,
-      "unit": self.TestUnit,
-      "net": self.TestNet,
-      "ipc": self.TestIpc,
-      "base": self.TestBase,
-      "googleurl": self.TestGoogleurl,
-      "media": self.TestMedia,
-      "printing": self.TestPrinting,
-      "layout": self.TestLayout,
-      "ui": self.TestUI
+      "base": self.TestBase,              "base_unittests": self.TestBase,
+      "googleurl": self.TestGoogleurl,    "googleurl_tests": self.TestGoogleurl,
+      "ipc": self.TestIpc,                "ipc_tests": self.TestIpc,
+      "layout": self.TestLayout,          "layout_tests": self.TestLayout,
+      "media": self.TestMedia,            "media_unittests": self.TestMedia,
+      "net": self.TestNet,                "net_unittests": self.TestNet,
+      "printing": self.TestPrinting,      "printing_unittests": self.TestPrinting,
+      "test_shell": self.TestTestShell,   "test_shell_tests": self.TestTestShell,
+      "ui": self.TestUI,                  "ui_tests": self.TestUI,
+      "unit": self.TestUnit,              "unit_tests": self.TestUnit,
     }
 
     if test not in self._test_list:
