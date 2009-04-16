@@ -4,6 +4,7 @@
 
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 
+#include "base/singleton.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
@@ -33,24 +34,33 @@ class ExtensionImpl : public v8::Extension {
       arraysize(kExtensionDeps), kExtensionDeps) {}
 
   static void SetFunctionNames(const std::vector<std::string>& names) {
-    function_names_ = new std::set<std::string>();
+    std::set<std::string>* name_set = GetFunctionNameSet();
     for (size_t i = 0; i < names.size(); ++i) {
-      function_names_->insert(names[i]);
+      name_set->insert(names[i]);
     }
   }
 
   virtual v8::Handle<v8::FunctionTemplate> GetNativeFunction(
       v8::Handle<v8::String> name) {
+    std::set<std::string>* names = GetFunctionNameSet();
+
     if (name->Equals(v8::String::New("GetNextCallbackId")))
       return v8::FunctionTemplate::New(GetNextCallbackId);
-    else if (function_names_->find(*v8::String::AsciiValue(name)) !=
-             function_names_->end())
+    else if (names->find(*v8::String::AsciiValue(name)) != names->end())
       return v8::FunctionTemplate::New(StartRequest, name);
 
     return v8::Handle<v8::FunctionTemplate>();
   }
 
  private:
+  struct SingletonData {
+    std::set<std::string> function_names_;
+  };
+
+  static std::set<std::string>* GetFunctionNameSet() {
+    return &Singleton<SingletonData>()->function_names_;
+  }
+
   static v8::Handle<v8::Value> GetNextCallbackId(const v8::Arguments& args) {
     static int next_callback_id = 0;
     return v8::Integer::New(next_callback_id++);
@@ -80,11 +90,7 @@ class ExtensionImpl : public v8::Extension {
 
     return v8::Undefined();
   }
-
-  static std::set<std::string>* function_names_;
 };
-
-std::set<std::string>* ExtensionImpl::function_names_;
 
 }  // namespace
 
