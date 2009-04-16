@@ -17,6 +17,8 @@ typedef struct HICON__* HICON;
 typedef HICON HCURSOR;
 #elif defined(TOOLKIT_GTK)
 // GdkCursorType is an enum, which we can't forward-declare.  :(
+// If you work around this, be sure to fix webkit.gyp:glue to not put
+// GTK in the export_dependent_settings section!
 #include <gdk/gdkcursor.h>
 #elif defined(OS_MACOSX)
 #ifdef __OBJC__
