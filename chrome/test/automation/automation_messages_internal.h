@@ -886,4 +886,7 @@ IPC_BEGIN_MESSAGES(Automation)
                              int /* automation handle */,
                              string16 /* title text */ )
 
+  // Tab load complete
+  IPC_MESSAGE_ROUTED1(AutomationMsg_TabLoaded, GURL)
+
 IPC_END_MESSAGES(Automation)

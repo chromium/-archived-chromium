@@ -8,6 +8,7 @@
 #include "base/win_util.h"
 #include "chrome/browser/automation/automation_provider.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/load_notification_details.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -95,6 +96,8 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  Source<NavigationController>(controller));
   registrar_.Add(this, NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
+                 Source<NavigationController>(controller));
+  registrar_.Add(this, NotificationType::LOAD_STOP,
                  Source<NavigationController>(controller));
   NotificationService::current()->Notify(
       NotificationType::EXTERNAL_TAB_CREATED,
@@ -269,17 +272,27 @@ void ExternalTabContainer::ForwardMessageToExternalHost(
 void ExternalTabContainer::Observe(NotificationType type,
                                    const NotificationSource& source,
                                    const NotificationDetails& details) {
+  if (!automation_)
+    return;
+
   static const int kHttpClientErrorStart = 400;
   static const int kHttpServerErrorEnd = 510;
 
   switch (type.value) {
-    case NotificationType::NAV_ENTRY_COMMITTED:
-      if (ignore_next_load_notification_) {
-        ignore_next_load_notification_ = false;
-        return;
+    case NotificationType::LOAD_STOP: {
+        const LoadNotificationDetails* load =
+            Details<LoadNotificationDetails>(details).ptr();
+        if (PageTransition::IsMainFrame(load->origin())) {
+          automation_->Send(new AutomationMsg_TabLoaded(0, load->url()));
+        }
+        break;
       }
+    case NotificationType::NAV_ENTRY_COMMITTED: {
+        if (ignore_next_load_notification_) {
+          ignore_next_load_notification_ = false;
+          return;
+        }
 
-      if (automation_) {
         const NavigationController::LoadCommittedDetails* commit =
             Details<NavigationController::LoadCommittedDetails>(details).ptr();
 
@@ -299,17 +312,15 @@ void ExternalTabContainer::Observe(NotificationType type,
                   tab_contents_->controller()->last_committed_entry_index(),
               commit->entry->url()));
         }
+        break;
       }
-      break;
     case NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR: {
-      if (automation_) {
-        const ProvisionalLoadDetails* load_details =
-            Details<ProvisionalLoadDetails>(details).ptr();
-        automation_->Send(new AutomationMsg_NavigationFailed(
-            0, load_details->error_code(), load_details->url()));
+      const ProvisionalLoadDetails* load_details =
+          Details<ProvisionalLoadDetails>(details).ptr();
+      automation_->Send(new AutomationMsg_NavigationFailed(
+          0, load_details->error_code(), load_details->url()));
 
-        ignore_next_load_notification_ = true;
-      }
+      ignore_next_load_notification_ = true;
       break;
     }
     default:
