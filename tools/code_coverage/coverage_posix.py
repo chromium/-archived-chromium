@@ -32,6 +32,7 @@ class Coverage(object):
   def __init__(self, directory):
     super(Coverage, self).__init__()
     self.directory = directory
+    self.directory_parent = os.path.dirname(self.directory)
     self.output_directory = os.path.join(self.directory, 'coverage')
     if not os.path.exists(self.output_directory):
       os.mkdir(self.output_directory)
@@ -40,7 +41,7 @@ class Coverage(object):
     self.lcov = os.path.join(self.lcov_directory, 'lcov')
     self.mcov = os.path.join(self.lcov_directory, 'mcov')
     self.genhtml = os.path.join(self.lcov_directory, 'genhtml')
-    self.coverage_info_file = self.directory + 'coverage.info'
+    self.coverage_info_file = os.path.join(self.directory, 'coverage.info')
     self.ConfirmPlatformAndPaths()
 
   def ConfirmPlatformAndPaths(self):
@@ -67,7 +68,7 @@ class Coverage(object):
   def ClearData(self):
     """Clear old gcda files"""
     subprocess.call([self.lcov,
-                     '--directory', self.directory,
+                     '--directory', self.directory_parent,
                      '--zerocounters'])
 
   def RunTests(self):
@@ -79,24 +80,31 @@ class Coverage(object):
       # TODO(jrg): add timeout?
       # TODO(jrg): check return value and choke if it failed?
       # TODO(jrg): add --gtest_print_time like as run from XCode?
+      print 'Running test: ' + fulltest
+      # subprocess.call([fulltest, '--gtest_filter=TupleTest*'])  # quick check
       subprocess.call([fulltest])
 
   def GenerateOutput(self):
     """Convert profile data to html."""
     if self.IsLinux():
-      subprocess.call([self.lcov,
-                       '--directory', self.directory,
-                       '--capture',
-                       '--output-file',
-                       self.coverage_info_file])
+      command = [self.lcov,
+                 '--directory', self.directory,
+                 '--capture',
+                 '--output-file',
+                 self.coverage_info_file]
     else:
-      subprocess.call([self.mcov,
-                       '--directory', self.directory,
-                       '--output', self.coverage_info_file])
-    subprocess.call([self.genhtml,
-                     self.coverage_info_file,
-                     '--output-directory',
-                     self.output_directory])
+      command = [self.mcov,
+                 '--directory', self.directory_parent,
+                 '--output', self.coverage_info_file]
+    print 'Assembly command: ' + ' '.join(command)
+    subprocess.call(command)
+
+    command = [self.genhtml,
+               self.coverage_info_file,
+               '--output-directory',
+               self.output_directory]
+    print 'html generation command: ' + ' '.join(command)
+    subprocess.call(command)
 
 def main():
   parser = optparse.OptionParser()
