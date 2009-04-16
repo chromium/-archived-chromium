@@ -100,11 +100,11 @@ static WebAppCacheContext* CreateAppCacheContextForRenderer() {
 }
 
 void RenderThread::Init() {
-  // TODO(darin): Why do we need COM here?  This is probably bogus. Perhaps
-  // this is for InProcessPlugin support?
 #if defined(OS_WIN)
-  // The renderer thread should wind-up COM.
-  CoInitialize(0);
+  // If you are running plugins in this thread you need COM active but in
+  // the normal case you don't.
+  if (RenderProcess::InProcessPlugins())
+    CoInitialize(0);
 #endif
 
   ChildThread::Init();
@@ -143,10 +143,9 @@ void RenderThread::CleanUp() {
 #if defined(OS_WIN)
   // Clean up plugin channels before this thread goes away.
   PluginChannelBase::CleanupChannels();
-#endif
-
-#if defined(OS_WIN)
-  CoUninitialize();
+  // Don't call COM if the renderer is in the sandbox.
+  if (RenderProcess::InProcessPlugins())
+    CoUninitialize();
 #endif
 }
 
