@@ -385,6 +385,7 @@
         'browser/app_modal_dialog.cc',
         'browser/app_modal_dialog.h',
         'browser/app_modal_dialog_gtk.cc',
+        'browser/app_modal_dialog_mac.mm',
         'browser/app_modal_dialog_win.cc',
         'browser/app_modal_dialog_queue.cc',
         'browser/app_modal_dialog_queue.h',
