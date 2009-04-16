@@ -90,6 +90,8 @@ class WebPluginDelegateImpl : public WebPluginDelegate {
   virtual int GetQuirks() const { return quirks_; }
 
  private:
+  friend class DeleteTask<WebPluginDelegateImpl>;
+
   WebPluginDelegateImpl(gfx::NativeView containing_view,
                         NPAPI::PluginInstance *instance);
   ~WebPluginDelegateImpl();

@@ -863,9 +863,12 @@ void WebPluginImpl::handleMouseEvent(WebCore::MouseEvent* event) {
   if (!delegate_->HandleEvent(&np_event, &cursor))
     event->setDefaultHandled();
 
+  WebCore::Page* page = parent_view->frame()->page();
+  if (!page)
+    return;
+
   ChromeClientImpl* chrome_client =
-      static_cast<ChromeClientImpl*>(
-          parent_view->frame()->page()->chrome()->client());
+      static_cast<ChromeClientImpl*>(page->chrome()->client());
 
   // A windowless plugin can change the cursor in response to the WM_MOUSEMOVE
   // event. We need to reflect the changed cursor in the frame view as the

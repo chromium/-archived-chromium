@@ -7,8 +7,10 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "net/base/escape.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webview.h"
 #include "webkit/tools/test_shell/test_shell.h"
@@ -122,4 +124,23 @@ TEST_F(PluginTest, DefaultPluginLoadTest) {
   test_shell_->webView()->GetMainFrame()->GetContentAsPlainText(10000, &text);
 
   ASSERT_EQ(true, StartsWith(text, L"DONE", true));
+}
+
+// Tests that if a frame is deleted as a result of calling NPP_HandleEvent, we
+// don't crash.
+TEST_F(PluginTest, DeleteFrameDuringEvent) {
+  FilePath test_html = data_dir_;
+  test_html = test_html.AppendASCII("plugins");
+  test_html = test_html.AppendASCII("delete_frame.html");
+  test_shell_->LoadURL(test_html.ToWStringHack().c_str());
+  test_shell_->WaitTestFinished();
+
+  WebKit::WebMouseEvent input;
+  input.button = WebKit::WebMouseEvent::ButtonLeft;
+  input.x = 50;
+  input.y = 50;
+  input.type = WebKit::WebInputEvent::MouseUp;
+  test_shell_->webView()->HandleInputEvent(&input);
+
+  // No crash means we passed.
 }

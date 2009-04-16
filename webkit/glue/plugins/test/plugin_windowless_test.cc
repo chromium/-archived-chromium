@@ -29,8 +29,7 @@ int16 WindowlessPluginTest::HandleEvent(void* event) {
 
   NPEvent* np_event = reinterpret_cast<NPEvent*>(event);
   if (WM_PAINT == np_event->event &&
-      base::strcasecmp(test_name_.c_str(),
-                       "execute_script_delete_in_paint") == 0) {
+      test_name_ == "execute_script_delete_in_paint") {
     HDC paint_dc = reinterpret_cast<HDC>(np_event->wParam);
     if (paint_dc == NULL) {
       SetError("Invalid Window DC passed to HandleEvent for WM_PAINT");
@@ -53,13 +52,11 @@ int16 WindowlessPluginTest::HandleEvent(void* event) {
     browser->geturl(id(), urlString, targetString);
     SignalTestCompleted();
   } else if (WM_MOUSEMOVE == np_event->event &&
-             base::strcasecmp(test_name_.c_str(),
-                              "execute_script_delete_in_mouse_move") == 0) {
+             test_name_ == "execute_script_delete_in_mouse_move") {
     std::string script = "javascript:DeletePluginWithinScript()";
     NPString script_string;
     script_string.UTF8Characters = script.c_str();
-    script_string.UTF8Length =
-        static_cast<unsigned int>(script.length());
+    script_string.UTF8Length = static_cast<unsigned int>(script.length());
 
     NPObject *window_obj = NULL;
     browser->getvalue(id(), NPNVWindowNPObject, &window_obj);
@@ -67,6 +64,19 @@ int16 WindowlessPluginTest::HandleEvent(void* event) {
     NPError result = browser->evaluate(id(), window_obj,
                                        &script_string, &result_var);
     SignalTestCompleted();
+  } else if (WM_LBUTTONUP == np_event->event &&
+            test_name_ == "delete_frame_test") {
+    std::string script =
+        "javascript:parent.document.getElementById('frame').outerHTML = ''";
+    NPString script_string;
+    script_string.UTF8Characters = script.c_str();
+    script_string.UTF8Length = static_cast<unsigned int>(script.length());
+
+    NPObject *window_obj = NULL;
+    browser->getvalue(id(), NPNVWindowNPObject, &window_obj);
+    NPVariant result_var;
+    NPError result = browser->evaluate(id(), window_obj,
+                                       &script_string, &result_var);
   }
   // If this test failed, then we'd have crashed by now.
   return PluginTest::HandleEvent(event);

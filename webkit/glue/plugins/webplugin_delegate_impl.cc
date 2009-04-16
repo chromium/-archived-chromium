@@ -220,7 +220,11 @@ WebPluginDelegateImpl::~WebPluginDelegateImpl() {
 }
 
 void WebPluginDelegateImpl::PluginDestroyed() {
-  delete this;
+  if (handle_event_depth_) {
+    MessageLoop::current()->DeleteSoon(FROM_HERE, this);
+  } else {
+    delete this;
+  }
 }
 
 bool WebPluginDelegateImpl::Initialize(const GURL& url,
