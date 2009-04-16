@@ -30,7 +30,7 @@ const GdkColor kBorderColor = GDK_COLOR_RGB(0xc7, 0xca, 0xce);
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xff, 0xff, 0xff);
 const GdkColor kSelectedBackgroundColor = GDK_COLOR_RGB(0xdf, 0xe6, 0xf6);
 
-const GdkColor kNormalTextColor = GDK_COLOR_RGB(0x00, 0x00, 0x00);
+const GdkColor kContentTextColor = GDK_COLOR_RGB(0x00, 0x00, 0x00);
 const GdkColor kURLTextColor = GDK_COLOR_RGB(0x00, 0x88, 0x00);
 const GdkColor kDescriptionTextColor = GDK_COLOR_RGB(0x80, 0x80, 0x80);
 const GdkColor kDescriptionSelectedTextColor = GDK_COLOR_RGB(0x78, 0x82, 0xb1);
@@ -115,8 +115,64 @@ void DrawFullPixbuf(GdkDrawable* drawable, GdkGC* gc, GdkPixbuf* pixbuf,
                   GDK_RGB_DITHER_NONE, 0, 0);  // Don't dither.
 }
 
-PangoAttribute* ForegroundAttrFromColor(const GdkColor& color) {
-  return pango_attr_foreground_new(color.red, color.green, color.blue);
+// TODO(deanm): Find some better home for this, and make it more efficient.
+size_t GetUTF8Offset(const std::wstring& wide_text, size_t wide_text_offset) {
+  return WideToUTF8(wide_text.substr(0, wide_text_offset)).size();
+}
+
+void SetupLayoutForMatch(PangoLayout* layout,
+      const std::wstring& text,
+      AutocompleteMatch::ACMatchClassifications classifications,
+      const GdkColor* base_color,
+      const std::string& prefix_text) {
+  std::string text_utf8 = prefix_text + WideToUTF8(text);
+  pango_layout_set_text(layout, text_utf8.data(), text_utf8.size());
+
+  PangoAttrList* attrs = pango_attr_list_new();
+
+  // TODO(deanm): This is a hack, just to handle coloring prefix_text.
+  // Hopefully I can clean up the match situation a bit and this will
+  // come out cleaner.  For now, apply the base color to the whole text
+  // so that our prefix will have the base color applied.
+  PangoAttribute* base_fg_attr = pango_attr_foreground_new(
+      base_color->red, base_color->green, base_color->blue);
+  pango_attr_list_insert(attrs, base_fg_attr);  // Ownership taken.
+
+  // Walk through the classifications, they are linear, in order, and should
+  // cover the entire text.  We create a bunch of overlapping attributes,
+  // extending from the offset to the end of the string.  The ones created
+  // later will override the previous ones, meaning we will still setup each
+  // portion correctly, we just don't need to compute the end offset.
+  for (ACMatchClassifications::const_iterator i = classifications.begin();
+       i != classifications.end(); ++i) {
+    size_t offset = GetUTF8Offset(text, i->offset) + prefix_text.size();
+
+    // TODO(deanm): All the colors should probably blend based on whether this
+    // result is selected or not.  This would include the green URLs.  Right
+    // now the caller is left to blend only the base color.  Do we need to
+    // handle things like DIM urls?  Turns out DIM means something different
+    // than you'd think, all of the description text is not DIM, it is a
+    // special case that is not very common, but we should figure out and
+    // support it.
+    const GdkColor* color = base_color;
+    if (i->style & ACMatchClassification::URL)
+        color = &kURLTextColor;
+
+    PangoAttribute* fg_attr = pango_attr_foreground_new(
+        color->red, color->green, color->blue);
+    fg_attr->start_index = offset;
+    pango_attr_list_insert(attrs, fg_attr);  // Ownership taken.
+
+    // Matched portions are bold, otherwise use the normal weight.
+    PangoWeight weight = (i->style & ACMatchClassification::MATCH) ?
+        PANGO_WEIGHT_BOLD : PANGO_WEIGHT_NORMAL;
+    PangoAttribute* weight_attr = pango_attr_weight_new(weight);
+    weight_attr->start_index = offset;
+    pango_attr_list_insert(attrs, weight_attr);  // Ownership taken.
+  }
+
+  pango_layout_set_attributes(layout, attrs);  // Ref taken.
+  pango_attr_list_unref(attrs);
 }
 
 }  // namespace
@@ -125,10 +181,11 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
     AutocompleteEditViewGtk* edit_view,
     AutocompleteEditModel* edit_model,
     Profile* profile)
-    : font_(NULL),
-      model_(new AutocompletePopupModel(this, edit_model, profile)),
+    : model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
       window_(gtk_window_new(GTK_WINDOW_POPUP)),
+      gc_(NULL),
+      layout_(NULL),
       opened_(false) {
   GTK_WIDGET_UNSET_FLAGS(window_, GTK_CAN_FOCUS);
   // Don't allow the window to be resized.  This also forces the window to
@@ -140,11 +197,18 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
   // Set the background color, so we don't need to paint it manually.
   gtk_widget_modify_bg(window_, GTK_STATE_NORMAL, &kBackgroundColor);
 
+  // Cache the layout so we don't have to create it for every expose.  If we
+  // were a real widget we should handle changing directions, but we're not
+  // doing RTL or anything yet, so it shouldn't be important now.
+  layout_ = gtk_widget_create_pango_layout(window_, NULL);
+  // We always ellipsize when drawing our text runs.
+  pango_layout_set_ellipsize(layout_, PANGO_ELLIPSIZE_END);
   // TODO(deanm): We might want to eventually follow what Windows does and
   // plumb a ChromeFont through.  This is because popup windows have a
   // different font size, although we could just derive that font here.
-  ChromeFont default_font;
-  font_ = PangoFontFromChromeFont(default_font);
+  PangoFontDescription* pfd = PangoFontFromChromeFont(ChromeFont());
+  pango_layout_set_font_description(layout_, pfd);
+  pango_font_description_free(pfd);
 
   g_signal_connect(window_, "expose-event", 
                    G_CALLBACK(&HandleExposeThunk), this);
@@ -155,8 +219,10 @@ AutocompletePopupViewGtk::~AutocompletePopupViewGtk() {
   // This is because the model destructor can call back into us, and we need
   // to make sure everything is still valid when it does.
   model_.reset();
+  g_object_unref(layout_);
+  if (gc_)
+    g_object_unref(gc_);
   gtk_widget_destroy(window_);
-  pango_font_description_free(font_);
 }
 
 void AutocompletePopupViewGtk::InvalidateLine(size_t line) {
@@ -229,26 +295,24 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     return TRUE;
 
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
-  GdkGC* gc = gdk_gc_new(drawable);
+  // We cache the GC across exposes.  This should be safe, since our window
+  // should not change.
+  if (!gc_)
+    gc_ = gdk_gc_new(drawable);
 
   // kBorderColor is unallocated, so use the GdkRGB routine.
-  gdk_gc_set_rgb_fg_color(gc, &kBorderColor);
+  gdk_gc_set_rgb_fg_color(gc_, &kBorderColor);
 
   // This assert is kinda ugly, but it would be more currently unneeded work
   // to support painting a border that isn't 1 pixel thick.  There is no point
   // in writing that code now, and explode if that day ever comes.
   COMPILE_ASSERT(kBorderThickness == 1, border_1px_implied);
   // Draw the 1px border around the entire window.
-  gdk_draw_rectangle(drawable, gc, FALSE,
+  gdk_draw_rectangle(drawable, gc_, FALSE,
                      0, 0,
                      window_rect.width - 1, window_rect.height - 1);
 
-  // TODO(deanm): Cache the layout?  How expensive is it to create?
-  PangoLayout* layout = gtk_widget_create_pango_layout(window_, NULL);
-
-  pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
-  pango_layout_set_height(layout, kHeightPerResult * PANGO_SCALE);
-  pango_layout_set_font_description(layout, font_);
+  pango_layout_set_height(layout_, kHeightPerResult * PANGO_SCALE);
 
   // TODO(deanm): Intersect the line and damage rects, and only repaint and
   // layout the lines that are actually damaged.  For now paint everything.
@@ -258,31 +322,27 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
 
     bool is_selected = (model_->selected_line() == i);
     if (is_selected) {
-      gdk_gc_set_rgb_fg_color(gc, &kSelectedBackgroundColor);
+      gdk_gc_set_rgb_fg_color(gc_, &kSelectedBackgroundColor);
       // This entry is selected, fill a rect with the selection color.
-      gdk_draw_rectangle(drawable, gc, TRUE,
+      gdk_draw_rectangle(drawable, gc_, TRUE,
                          result_rect.x, result_rect.y,
                          result_rect.width, result_rect.height);
     }
 
     GdkPixbuf* icon = NULL;
-    bool is_url = false;
     if (match.starred) {
       icon = o2_star;
-      is_url = true;
     } else {
       switch (match.type) {
         case AutocompleteMatch::URL_WHAT_YOU_TYPED:
         case AutocompleteMatch::NAVSUGGEST:
           icon = o2_globe;
-          is_url = true;
           break;
         case AutocompleteMatch::HISTORY_URL:
         case AutocompleteMatch::HISTORY_TITLE:
         case AutocompleteMatch::HISTORY_BODY:
         case AutocompleteMatch::HISTORY_KEYWORD:
           icon = o2_history;
-          is_url = true;
           break;
         case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
         case AutocompleteMatch::SEARCH_HISTORY:
@@ -300,7 +360,7 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     }
     
     // Draw the icon for this result time.
-    DrawFullPixbuf(drawable, gc, icon,
+    DrawFullPixbuf(drawable, gc_, icon,
                    kIconLeftPadding, result_rect.y + kIconTopPadding);
 
     // TODO(deanm): Bold the matched portions of text.
@@ -314,20 +374,13 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     int text_area_width = window_rect.width - (kIconAreaWidth + kRightPadding);
     if (has_description)
       text_area_width *= 0.7;
-    pango_layout_set_width(layout, text_area_width * PANGO_SCALE);
+    pango_layout_set_width(layout_, text_area_width * PANGO_SCALE);
 
-    PangoAttrList* contents_attrs = pango_attr_list_new();
-    PangoAttribute* fg_attr = ForegroundAttrFromColor(
-        is_url ? kURLTextColor : kNormalTextColor);
-    pango_attr_list_insert(contents_attrs, fg_attr);  // Owernship taken.
-    pango_layout_set_attributes(layout, contents_attrs);  // Ref taken.
-    pango_attr_list_unref(contents_attrs);
-
-    std::string contents = WideToUTF8(match.contents);
-    pango_layout_set_text(layout, contents.data(), contents.size());
+    SetupLayoutForMatch(layout_, match.contents, match.contents_class,
+                        &kContentTextColor, std::string());
 
     int content_width, content_height;
-    pango_layout_get_size(layout, &content_width, &content_height);
+    pango_layout_get_size(layout_, &content_width, &content_height);
     content_width /= PANGO_SCALE;
     content_height /= PANGO_SCALE;
 
@@ -335,30 +388,21 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     int content_y = std::max(result_rect.y,
         result_rect.y + ((kHeightPerResult - content_height) / 2));
 
-    gdk_draw_layout(drawable, gc,
+    gdk_draw_layout(drawable, gc_,
                     kIconAreaWidth, content_y,
-                    layout);
+                    layout_);
 
     if (has_description) {
-      PangoAttrList* description_attrs = pango_attr_list_new();
-      PangoAttribute* fg_attr = ForegroundAttrFromColor(
-          is_selected ? kDescriptionSelectedTextColor : kDescriptionTextColor);
-      pango_attr_list_insert(description_attrs, fg_attr);  // Owernship taken.
-      pango_layout_set_attributes(layout, description_attrs);  // Ref taken.
-      pango_attr_list_unref(description_attrs);
+      SetupLayoutForMatch(layout_, match.description, match.description_class,
+                          is_selected ? &kDescriptionSelectedTextColor :
+                              &kDescriptionTextColor,
+                          std::string(" - "));
 
-      std::string description(" - ");
-      description.append(WideToUTF8(match.description));
-      pango_layout_set_text(layout, description.data(), description.size());
-
-      gdk_draw_layout(drawable, gc,
+      gdk_draw_layout(drawable, gc_,
                       kIconAreaWidth + content_width, content_y,
-                      layout);
+                      layout_);
     }
   }
-
-  g_object_unref(layout);
-  g_object_unref(gc);
 
   return TRUE;
 }

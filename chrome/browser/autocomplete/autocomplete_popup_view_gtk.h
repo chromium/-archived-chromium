@@ -48,13 +48,18 @@ class AutocompletePopupViewGtk : public AutocompletePopupView {
 
   gboolean HandleExpose(GtkWidget* widget, GdkEventExpose* event);
 
-  PangoFontDescription* font_;
-
   scoped_ptr<AutocompletePopupModel> model_;
   AutocompleteEditViewGtk* edit_view_;
 
+  // Our popup window, which is the only widget used, and we paint it on our
+  // own.  This widget shouldn't be exposed outside of this class.
   GtkWidget* window_;
+  // The graphics context created from the window, cached across exposes.
+  GdkGC* gc_;
+  // The pango layout object created from the window, cached across exposes.
+  PangoLayout* layout_;
 
+  // Whether our popup is currently open / shown, or closed / hidden.
   bool opened_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupViewGtk);
