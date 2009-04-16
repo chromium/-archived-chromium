@@ -450,7 +450,7 @@ class PageLoadTest : public UITest {
       std::wstring saved_log_path =
           ConstructSavedDebugLogPath(log_path, index);
       if (file_util::Move(log_path, saved_log_path)) {
-        log_file << log_id << "=" << saved_log_path;
+        log_file << " " << log_id << "=" << saved_log_path;
       }
     }
   }
