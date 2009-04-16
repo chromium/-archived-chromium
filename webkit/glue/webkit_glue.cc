@@ -329,15 +329,14 @@ std::string BuildOSCpuInfo() {
                                                &os_minor_version,
                                                &os_bugfix_version);
 #else
-  // Should work on any Posix system
-  // Get CPU type and operating system name
+  // Should work on any Posix system.
   struct utsname unixinfo;
   uname(&unixinfo);
 
   std::string cputype;
   // special case for biarch systems
   if (strcmp(unixinfo.machine, "x86_64") == 0 &&
-      sizeof(void *) == sizeof(int32)) {
+      sizeof(void*) == sizeof(int32)) {
     cputype.assign("i686 (x86_64)");
   } else {
     cputype.assign(unixinfo.machine);
