@@ -20,7 +20,6 @@ class TestSourceBasic : public AudioOutputStream::AudioSourceCallback {
         had_error_(0),
         was_closed_(0) {
   }
-
   // AudioSourceCallback::OnMoreData implementation:
   virtual size_t OnMoreData(AudioOutputStream* stream,
                             void* dest, size_t max_size) {
@@ -30,22 +29,18 @@ class TestSourceBasic : public AudioOutputStream::AudioSourceCallback {
       reinterpret_cast<char*>(dest)[0] = 1;
     return max_size;
   }
-
   // AudioSourceCallback::OnClose implementation:
   virtual void OnClose(AudioOutputStream* stream) {
     ++was_closed_;
   }
-
   // AudioSourceCallback::OnError implementation:
   virtual void OnError(AudioOutputStream* stream, int code) {
     ++had_error_;
   }
-
   // Returns how many times OnMoreData() has been called.
   int callback_count() const {
     return callback_count_;
   }
-
   // Returns how many times the OnError callback was called.
   int had_error() const {
     return had_error_;
@@ -54,7 +49,6 @@ class TestSourceBasic : public AudioOutputStream::AudioSourceCallback {
   void set_error(bool error) {
     had_error_ += error ? 1 : 0;
   }
-
   // Returns how many times the OnClose callback was called.
   int was_closed() const {
     return was_closed_;
@@ -71,7 +65,6 @@ bool IsRunningHeadless() {
 }
 
 }  // namespace.
-
 
 // Specializes TestSourceBasic to detect that the AudioStream is using
 // double buffering correctly.
@@ -108,6 +101,26 @@ class TestSourceDoubleBuffer : public TestSourceBasic {
   void* buffer_address_[2];
 };
 
+// Specializes TestSourceBasic to simulate a source that blocks for some time
+// in the OnMoreData callback.
+class TestSourceLaggy : public TestSourceBasic {
+ public:
+  TestSourceLaggy(int laggy_after_buffer, int lag_in_ms) 
+      : laggy_after_buffer_(laggy_after_buffer), lag_in_ms_(lag_in_ms) {
+  }
+  virtual size_t OnMoreData(AudioOutputStream* stream,
+                            void* dest, size_t max_size) {
+    // Call the base, which increments the callback_count_.
+    TestSourceBasic::OnMoreData(stream, dest, max_size);
+    if (callback_count() > 2) {
+      ::Sleep(lag_in_ms_);
+    }
+    return max_size;
+  }
+ private:
+  int laggy_after_buffer_;
+  int lag_in_ms_;
+};
 
 
 // ============================================================================
@@ -231,6 +244,32 @@ TEST(WinAudioTest, PCMWaveStreamDoubleBuffer) {
   oas->Close();
 }
 
+// Test potential deadlock situations if the source is slow or blocks for some
+// time. The actual EXPECT_GT are mostly meaningless and the real test is that
+// the test completes in reasonable time.
+TEST(WinAudioTest, PCMWaveSlowSource) {
+  if (IsRunningHeadless())
+    return;
+  AudioManager* audio_man = AudioManager::GetAudioManager();
+  ASSERT_TRUE(NULL != audio_man);
+  if (!audio_man->HasAudioDevices())
+    return;
+  AudioOutputStream* oas =
+      audio_man->MakeAudioStream(AudioManager::AUDIO_PCM_LINEAR, 1, 16000, 16);
+  ASSERT_TRUE(NULL != oas);
+  TestSourceLaggy test_laggy(2, 90);
+  EXPECT_TRUE(oas->Open(512));
+  // The test parameters cause a callback every 32 ms and the source is 
+  // sleeping for 90 ms, so it is guaranteed that we run out of ready buffers.
+  oas->Start(&test_laggy);
+  ::Sleep(1000);
+  EXPECT_GT(test_laggy.callback_count(), 2);
+  EXPECT_FALSE(test_laggy.had_error());
+  oas->Stop();
+  ::Sleep(1000);
+  oas->Close();
+}
+
 // This test produces actual audio for 1.5 seconds on the default wave
 // device at 44.1K s/sec. Parameters have been chosen carefully so you should
 // not hear pops or noises while the sound is playing.
@@ -251,6 +290,7 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
   size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 10) * 2;
 
   EXPECT_TRUE(oas->Open(bytes_100_ms));
+  oas->SetVolume(1.0, 1.0);
   oas->Start(&source);
   ::Sleep(1500);
   oas->Stop();
@@ -259,7 +299,8 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone44Kss) {
 
 // This test produces actual audio for for 1.5 seconds on the default wave
 // device at 22K s/sec. Parameters have been chosen carefully so you should
-// not hear pops or noises while the sound is playing.
+// not hear pops or noises while the sound is playing. The audio also should
+// sound with a lower volume than PCMWaveStreamPlay200HzTone44Kss.
 TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
   if (IsRunningHeadless())
     return;
@@ -277,8 +318,20 @@ TEST(WinAudioTest, PCMWaveStreamPlay200HzTone22Kss) {
   size_t bytes_100_ms = (AudioManager::kAudioCDSampleRate / 20) * 2;
 
   EXPECT_TRUE(oas->Open(bytes_100_ms));
+
+  oas->SetVolume(0.5, 0.5);
   oas->Start(&source);
   ::Sleep(1500);
+
+  // Test that the volume is within the set limits.
+  double left_volume = 0.0;
+  double right_volume = 0.0;
+  oas->GetVolume(&left_volume, &right_volume);
+  EXPECT_LT(left_volume, 0.51);
+  EXPECT_GT(left_volume, 0.49);
+  EXPECT_LT(right_volume, 0.51);
+  EXPECT_GT(right_volume, 0.49);
   oas->Stop();
   oas->Close();
 }
+

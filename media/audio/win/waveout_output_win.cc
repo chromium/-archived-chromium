@@ -34,6 +34,10 @@ namespace {
 // between how fast data needs to be provided versus memory usage.
 const size_t kNumBuffers = 2;
 
+// The maximum volume for a PCM device on windows. Volume is logarithmic so the
+// perceived volume increase sounds linear.
+const double kMaxVolumeLevel = 65535.0;
+
 // Our sound buffers are allocated once and kept in a linked list using the
 // the WAVEHDR::dwUser variable. The last buffer points to the first buffer.
 WAVEHDR* GetNextBuffer(WAVEHDR* current) {
@@ -137,6 +141,16 @@ void PCMWaveOutAudioOutputStream::Start(AudioSourceCallback* callback) {
     QueueNextPacket(buffer);
     buffer = GetNextBuffer(buffer);
   }
+  buffer = buffer_;
+  // Send the buffers to the audio driver.
+  for (int ix = 0; ix != kNumBuffers; ++ix) {
+    MMRESULT result = ::waveOutWrite(waveout_, buffer, sizeof(WAVEHDR));
+    if (result != MMSYSERR_NOERROR) {
+      HandleError(result);
+      break;
+    }
+    buffer = GetNextBuffer(buffer);
+  }
 }
 
 // Stopping is tricky. First, no buffer should be locked by the audio driver
@@ -180,17 +194,32 @@ void PCMWaveOutAudioOutputStream::Close() {
   manager_->ReleaseStream(this);
 }
 
-// TODO(cpu): Implement SetVolume and GetVolume.
 void PCMWaveOutAudioOutputStream::SetVolume(double left_level,
                                             double right_level) {
-  if (state_ != PCMA_READY)
+  if (!waveout_)
     return;
+  uint16 left = static_cast<uint16>(left_level * kMaxVolumeLevel);
+  uint16 right = static_cast<uint16>(right_level * kMaxVolumeLevel);
+  DWORD volume_packed = MAKELONG(left, right);
+  MMRESULT res = ::waveOutSetVolume(waveout_, volume_packed);
+  if (res != MMSYSERR_NOERROR) {
+    HandleError(res);
+    return;
+  }
 }
 
 void PCMWaveOutAudioOutputStream::GetVolume(double* left_level,
                                             double* right_level) {
-  if (state_ != PCMA_READY)
+  if (!waveout_)
     return;
+  DWORD volume_packed = 0;
+  MMRESULT res = ::waveOutGetVolume(waveout_, &volume_packed);
+  if (res != MMSYSERR_NOERROR) {
+    HandleError(res);
+    return;
+  }
+  *left_level = double(LOWORD(volume_packed)) / kMaxVolumeLevel;
+  *right_level = double(HIWORD(volume_packed)) / kMaxVolumeLevel;
 }
 
 size_t PCMWaveOutAudioOutputStream::GetNumBuffers() {
@@ -206,19 +235,13 @@ void PCMWaveOutAudioOutputStream::QueueNextPacket(WAVEHDR *buffer) {
   // Call the source which will fill our buffer with pleasant sounds and
   // return to us how many bytes were used.
   size_t used = callback_->OnMoreData(this, buffer->lpData, buffer_size_);
-
   if (used <= buffer_size_) {
     buffer->dwBufferLength = used;
   } else {
     HandleError(0);
     return;
   }
-  // Time to queue the buffer to the audio driver. Since we are reusing
-  // the same buffers we can get away without calling waveOutPrepareHeader.
   buffer->dwFlags = WHDR_PREPARED;
-  MMRESULT result = ::waveOutWrite(waveout_, buffer, sizeof(WAVEHDR));
-  if (result != MMSYSERR_NOERROR)
-    HandleError(result);
 }
 
 // Windows call us back in this function when some events happen. Most notably
@@ -248,6 +271,12 @@ void PCMWaveOutAudioOutputStream::WaveCallback(HWAVEOUT hwo, UINT msg,
       return;
     }
     obj->QueueNextPacket(buffer);
+    // Time to send the buffer to the audio driver. Since we are reusing
+    // the same buffers we can get away without calling waveOutPrepareHeader.
+    MMRESULT result = ::waveOutWrite(hwo, buffer, sizeof(WAVEHDR));
+    if (result != MMSYSERR_NOERROR)
+      obj->HandleError(result);
+
   } else if (msg == WOM_CLOSE) {
     // We can be closed before calling Start, so it is possible to have a
     // null callback at this point.
