@@ -150,23 +150,12 @@ static void InstallLayoutTestColorProfile(void) {
   // Save the starting profile, and hook in as best we can to make sure when
   // we exit, it's restored (use atexit() so direct calls to exit() call us).
   gUsersColorProfile = previousProfile;
+
+  // Currently, layout test mode implies suppressing errors in
+  // test_shell_main.cc. So we call SuppressErrorReporting() and install all the
+  // appropriate signal handlers. If that ever changes we should find a way to
+  // restore the color profile on crashes without suppressing errors.
   atexit(RestoreUsersColorProfile);
-  // The less scary signals...
-  signal(SIGINT, SimpleSignalHandler);
-  signal(SIGHUP, SimpleSignalHandler);
-  signal(SIGTERM, SimpleSignalHandler);
-  // And now the scary ones...
-  signal(SIGABRT, CrashSignalHandler);  // abort() called
-  signal(SIGILL, CrashSignalHandler);   // 4:   illegal instruction
-  signal(SIGTRAP, CrashSignalHandler);  // 5:   trace trap
-  signal(SIGEMT, CrashSignalHandler);   // 7:   EMT instruction
-  signal(SIGFPE, CrashSignalHandler);   // 8:   floating point exception
-  signal(SIGBUS, CrashSignalHandler);   // 10:  bus error
-  signal(SIGSEGV, CrashSignalHandler);  // 11:  segmentation violation
-  signal(SIGSYS, CrashSignalHandler);   // 12:  bad argument to system call
-  signal(SIGPIPE, CrashSignalHandler);  // 13:  write on a pipe with no reader
-  signal(SIGXCPU, CrashSignalHandler);  // 24:  exceeded CPU time limit
-  signal(SIGXFSZ, CrashSignalHandler);  // 25:  exceeded file size limit
 }
 
 #if OBJC_API_VERSION == 2
@@ -278,7 +267,21 @@ void TestShellPlatformDelegate::SelectUnifiedTheme() {
 
 void TestShellPlatformDelegate::SuppressErrorReporting() {
   // If we die during tests, we don't want to be spamming the user's crash
-  // reporter. Set our exception port to null.
-  task_set_exception_ports(mach_task_self(), EXC_MASK_ALL, MACH_PORT_NULL,
-                           EXCEPTION_DEFAULT, THREAD_STATE_NONE);
+  // reporter.
+  // The less scary signals...
+  signal(SIGINT, SimpleSignalHandler);
+  signal(SIGHUP, SimpleSignalHandler);
+  signal(SIGTERM, SimpleSignalHandler);
+  // And now the scary ones...
+  signal(SIGABRT, CrashSignalHandler);  // abort() called
+  signal(SIGILL, CrashSignalHandler);   // 4:   illegal instruction
+  signal(SIGTRAP, CrashSignalHandler);  // 5:   trace trap
+  signal(SIGEMT, CrashSignalHandler);   // 7:   EMT instruction
+  signal(SIGFPE, CrashSignalHandler);   // 8:   floating point exception
+  signal(SIGBUS, CrashSignalHandler);   // 10:  bus error
+  signal(SIGSEGV, CrashSignalHandler);  // 11:  segmentation violation
+  signal(SIGSYS, CrashSignalHandler);   // 12:  bad argument to system call
+  signal(SIGPIPE, CrashSignalHandler);  // 13:  write on a pipe with no reader
+  signal(SIGXCPU, CrashSignalHandler);  // 24:  exceeded CPU time limit
+  signal(SIGXFSZ, CrashSignalHandler);  // 25:  exceeded file size limit
 }

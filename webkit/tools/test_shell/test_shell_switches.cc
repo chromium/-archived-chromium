@@ -64,10 +64,6 @@ const wchar_t kAllowScriptsToCloseWindows[] = L"allow-scripts-to-close-windows";
 extern const wchar_t kCheckLayoutTestSystemDeps[] =
     L"check-layout-test-sys-deps";
 
-// If set, we are running under GDB so allow a certain class of errors
-// to happen even if in layout test mode.
-extern const wchar_t kGDB[] = L"gdb";
-
 // Make functions of the Profiler class available in javascript
 extern const wchar_t kProfiler[] = L"profiler";
 

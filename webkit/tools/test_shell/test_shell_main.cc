@@ -94,8 +94,7 @@ int main(int argc, char* argv[]) {
   // Suppress abort message in v8 library in debugging mode (but not
   // actually under a debugger).  V8 calls abort() when it hits
   // assertion errors.
-  if (suppress_error_dialogs &&
-      !parsed_command_line.HasSwitch(test_shell::kGDB)) {
+  if (suppress_error_dialogs) {
     platform.SuppressErrorReporting();
   }
 
