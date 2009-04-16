@@ -720,8 +720,12 @@ TabGtk* TabStripGtk::GetTabAt(int index) const {
 }
 
 void TabStripGtk::RemoveTabAt(int index) {
+  TabGtk* removed = tab_data_.at(index).tab;
+
+  // Remove the Tab from the TabStrip's list.
   tab_data_.erase(tab_data_.begin() + index);
-  Layout();
+
+  delete removed;
 }
 
 void TabStripGtk::GenerateIdealBounds() {
