@@ -96,3 +96,4 @@ hooks = [
     "action": ["python", "src/tools/gyp/gyp_dogfood", "src/build/all.gyp"],
   },
 ]
+
