@@ -186,9 +186,12 @@ class RenderViewHostManager : public NotificationObserver {
   bool ShouldTransitionCrossSite();
 
   // Returns true if the two navigation entries are incompatible in some way
-  // other than site instances. This will cause us to swap RenderViewHosts even
-  // if the site instances are the same. Either of the entries may be NULL.
-  bool ShouldSwapRenderViewsForNavigation(
+  // other than site instances. Cases where this can happen include DOM UI
+  // to regular web pages. It will cause us to swap RenderViewHosts (and hence
+  // RenderProcessHosts) even if the site instance would otherwise be the same.
+  // As part of this, we'll also force new SiteInstances and BrowsingInstances.
+  // Either of the entries may be NULL.
+  bool ShouldSwapProcessesForNavigation(
       const NavigationEntry* cur_entry,
       const NavigationEntry* new_entry) const;
 

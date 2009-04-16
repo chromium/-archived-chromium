@@ -632,6 +632,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\tab_contents\render_view_host_manager_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\renderer_host\render_view_host_unittest.cc"
 				>
 			</File>

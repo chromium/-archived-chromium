@@ -2204,6 +2204,7 @@
         'browser/sessions/tab_restore_service_unittest.cc',
         'browser/site_instance_unittest.cc',
         'browser/spellcheck_unittest.cc',
+        'browser/tab_contents/render_view_host_manager_unittest.cc',
         'browser/tab_contents/web_contents_unittest.cc',
         'browser/tabs/tab_strip_model_unittest.cc',
         'browser/views/bookmark_editor_view_unittest.cc',

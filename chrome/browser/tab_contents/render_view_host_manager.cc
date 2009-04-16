@@ -277,7 +277,7 @@ bool RenderViewHostManager::ShouldTransitionCrossSite() {
   return !CommandLine::ForCurrentProcess()->HasSwitch(switches::kProcessPerTab);
 }
 
-bool RenderViewHostManager::ShouldSwapRenderViewsForNavigation(
+bool RenderViewHostManager::ShouldSwapProcessesForNavigation(
     const NavigationEntry* cur_entry,
     const NavigationEntry* new_entry) const {
   if (!cur_entry || !new_entry)
@@ -378,6 +378,15 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
 
   if (SiteInstance::IsSameWebSite(current_url, dest_url)) {
     return curr_instance;
+  } else if (ShouldSwapProcessesForNavigation(curr_entry, &entry)) {
+    // When we're swapping, we need to force the site instance AND browsing
+    // instance to be new ones. This addresses special cases where we use a
+    // single BrowsingInstance for all pages of a certain type (e.g., New Tab
+    // Pages), keeping them in the same process. When you navigate away from
+    // that page, we want to explicity ignore that BrowsingInstance and make a
+    // new process.
+    return SiteInstance::CreateSiteInstance(
+        delegate_->GetControllerForRenderManager()->profile());
   } else {
     // Start the new renderer in a new SiteInstance, but in the current
     // BrowsingInstance.  It is important to immediately give this new
@@ -489,7 +498,7 @@ RenderViewHost* RenderViewHostManager::UpdateRendererStateForNavigate(
     new_instance = GetSiteInstanceForEntry(entry, curr_instance);
 
   if (new_instance != curr_instance ||
-      ShouldSwapRenderViewsForNavigation(
+      ShouldSwapProcessesForNavigation(
           delegate_->GetLastCommittedNavigationEntryForRenderManager(),
           &entry)) {
     // New SiteInstance.
