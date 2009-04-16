@@ -513,7 +513,7 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
 
   var section = new WebInspector.ObjectPropertiesSection(scopeObject, title,
       subtitle, emptyPlaceholder, true, extraProperties,
-      WebInspector.ScopeVariableTreeElement);
+      WebInspector.ScopeChainSidebarPane.TreeElement);
   section.editInSelectedCallFrameWhenPaused = true;
   section.pane = this;
 
@@ -521,4 +521,42 @@ WebInspector.ScopeChainSidebarPane.prototype.update = function(callFrame) {
 
   this.sections.push(section);
   this.bodyElement.appendChild(section.element);
+};
+
+
+/**
+ * Custom implementation of TreeElement that asynchronously resolves children
+ * using the debugger agent.
+ * @constructor
+ */
+WebInspector.ScopeChainSidebarPane.TreeElement = function(parentObject,
+    propertyName) {
+  WebInspector.ScopeVariableTreeElement.call(this, parentObject, propertyName);
+}
+WebInspector.ScopeChainSidebarPane.TreeElement.inherits(
+    WebInspector.ScopeVariableTreeElement);
+
+
+/**
+ * @override
+ */
+WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
+    function() {
+  var obj = this.parentObject[this.propertyName].value;
+  devtools.tools.getDebuggerAgent().resolveChildren(obj,
+      goog.bind(this.didResolveChildren_, this));
+};
+
+
+/**
+ * Callback function used with the resolveChildren.
+ */
+ WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
+    function(object) {
+  this.removeChildren();
+  
+  var constructor = this.treeOutline.section.treeElementConstructor;
+  for (var name in object) {
+    this.appendChild(new constructor(object, name));
+  }
 };

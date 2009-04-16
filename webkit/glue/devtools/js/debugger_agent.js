@@ -37,6 +37,12 @@ devtools.DebuggerAgent = function() {
    * @type {?Object}
    */
   this.currentCallFrame_ = null;
+  
+  /**
+   * Mapping: request sequence number->callback.
+   * @type {Object}
+   */
+  this.requestSeqToCallback_ = null;  
 };
 
 
@@ -47,7 +53,8 @@ devtools.DebuggerAgent = function() {
    this.parsedScripts_ = {};
    this.requestNumberToBreakpointInfo_ = {};
    this.currentCallFrame_ = null;
- };
+   this.requestSeqToCallback_ = {};
+};
 
 
 /**
@@ -175,6 +182,57 @@ devtools.DebuggerAgent.prototype.getCurrentCallFrame = function() {
 
 
 /**
+ * Sends 'evaluate' request to the debugger.
+ * @param {string} expr Expression to evaluate.
+ * @param {function(devtools.DebuggerMessage)} callback Callback to be called
+ *     when response is received.
+ */
+devtools.DebuggerAgent.prototype.requestEvaluate = function(expr, callback) {
+  var cmd = new devtools.DebugCommand('evaluate', {
+    'expression': expr,
+    'global':true
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
+
+  this.requestSeqToCallback_[cmd.getSequenceNumber()] = callback;
+};
+
+
+/**
+ * Sends 'lookup' request for each unresolved property of the object. When
+ * response is received the properties will be changed with their resolved
+ * values.
+ * @param {Object} object Object whose properties should be resolved.
+ * @param {function(devtools.DebuggerMessage)} Callback to be called when all
+ *     children are resolved.
+ */
+devtools.DebuggerAgent.prototype.resolveChildren = function(object, callback) {
+  var handles = [];
+  var names = [];
+  for (var name in object) {
+    var value = object[name];
+    if (goog.isObject(value) && 'ref' in value) {
+      handles.push(value.ref);
+      names.push(name);
+    }
+  }
+  if (handles.length == 0) {
+    callback(object);
+    return;
+  }
+  this.requestLookup_(handles, function(msg) {
+    var handleToObject = msg.getBody();
+    for (var i = 0; i < names.length; i++) {
+      var name = names[i];
+      var jsonObj = handleToObject[object[name].ref]
+      object[name] = devtools.DebuggerAgent.formatValue_(jsonObj, msg);
+    }
+    callback(object);
+  });
+};
+
+
+/**
  * Removes specified breakpoint from the v8 debugger.
  * @param {number} breakpointId Id of the breakpoint in the v8 debugger.
  */
@@ -219,6 +277,19 @@ devtools.DebuggerAgent.prototype.stepCommand_ = function(action) {
 
 
 /**
+ * Sends 'lookup' request to v8.
+ * @param {number} handle Handle to the object to lookup.
+ */
+devtools.DebuggerAgent.prototype.requestLookup_ = function(handles, callback) {
+  var cmd = new devtools.DebugCommand('lookup', {
+    'handles': handles
+  });
+  devtools.DebuggerAgent.sendCommand_(cmd);
+  this.requestSeqToCallback_[cmd.getSequenceNumber()] = callback;
+};
+
+
+/**
  * Handles output sent by v8 debugger. The output is either asynchronous event
  * or response to a previously sent request.  See protocol definitioun for more
  * details on the output format.
@@ -248,6 +319,10 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
       this.handleClearBreakpointResponse_(msg);
     } else if (msg.getCommand() == 'backtrace') {
       this.handleBacktraceResponse_(msg);
+    } else if (msg.getCommand() == 'lookup') {
+      this.invokeCallbackForResponse_(msg);
+    } else if (msg.getCommand() == 'evaluate') {
+      this.invokeCallbackForResponse_(msg);
     }
   }
 };
@@ -361,6 +436,21 @@ devtools.DebuggerAgent.prototype.handleBacktraceResponse_ = function(msg) {
 
 
 /**
+ * Handles response to a command by invoking its callback (if any).
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.invokeCallbackForResponse_ = function(msg) {
+  var callback = this.requestSeqToCallback_[msg.getRequestSeq()];
+  if (!callback) {
+    // It may happend if reset was called.
+    return;
+  }
+  delete this.requestSeqToCallback_[msg.getRequestSeq()];
+  callback(msg);
+};
+
+
+/**
  * @param {Object} stackFrame Frame json object from 'backtrace' response.
  * @param {Object} script Script json object from 'break' event.
  * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
@@ -375,7 +465,7 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
     sourceId = funcScript.id;
   }
 
-  var funcName = devtools.DebuggerAgent.formatFunction_(stackFrame, msg);
+  var funcName = devtools.DebuggerAgent.formatFunctionCall_(stackFrame, msg);
   
   var scope = {};
   
@@ -409,7 +499,7 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
  * @param {Object} stackFrame Frame json object from 'backtrace' response.
  * @return {!string} Function name with argument values.
  */
-devtools.DebuggerAgent.formatFunction_ = function(stackFrame, msg) {
+devtools.DebuggerAgent.formatFunctionCall_ = function(stackFrame, msg) {
   var func = msg.lookup(stackFrame.func.ref);
   var argv = [];
   for (var j = 0; j < stackFrame.arguments.length; j++) {
@@ -422,19 +512,54 @@ devtools.DebuggerAgent.formatFunction_ = function(stackFrame, msg) {
 
 
 /**
- * @param {Object} thisObject Receiver json object from 'backtrace' response.
- * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
- * @return {!Object} Object describing 'this' in the format expected by
+ * Converts an object from the debugger response to the format understandable
+ * by ScriptsPanel.
+ * @param {Object} object An object from the debugger protocol response.
+ * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @return {!Object} Object describing 'object' in the format expected by
  *     ScriptsPanel and its panes.
  */
-devtools.DebuggerAgent.formatObject_ = function(thisObject, msg) {
+devtools.DebuggerAgent.formatObject_ = function(object, msg) {
   var result = {};
-  devtools.DebuggerAgent.propertiesToMap_(thisObject.properties, result, msg);
+  devtools.DebuggerAgent.formatObjectProperties_(object, msg, result);
+  return { 'value': result };
+};
+
+
+/**
+ * Converts a function from the debugger response to the format understandable
+ * by ScriptsPanel.
+ * @param {Object} func Function object from the debugger protocol response.
+ * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @return {!Object} Object describing 'func' in the format expected by
+ *     ScriptsPanel and its panes.
+ */
+devtools.DebuggerAgent.formatFunction_ = function(func, msg) {
+  var result = {};
+  devtools.DebuggerAgent.formatObjectProperties_(func, msg, result);
+  result.name = func.name;
+  
+  var holder = function() {};
+  holder.value = result;
+  return holder;
+};
+
+
+/**
+ * Collects properties for an object from the debugger response.
+ * @param {Object} object An object from the debugger protocol response.
+ * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @param {Object} result A map to put the properties in.
+ */
+devtools.DebuggerAgent.formatObjectProperties_ = function(object,
+    msg, result) {
+  devtools.DebuggerAgent.propertiesToMap_(object.properties, result, msg);
   result.protoObject = devtools.DebuggerAgent.formatObjectReference_(
-      thisObject.protoObject, msg);
+      object.protoObject, msg);
   result.prototypeObject = devtools.DebuggerAgent.formatObjectReference_(
-      thisObject.prototypeObject, msg);
-  return result;
+      object.prototypeObject, msg);
+  result.constructorFunction = devtools.DebuggerAgent.formatObjectReference_(
+      object.constructorFunction, msg);
 };
 
 
@@ -449,7 +574,7 @@ devtools.DebuggerAgent.formatObject_ = function(thisObject, msg) {
 devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
   for (var j = 0; j < properties.length; j++) {
     var nextValue = properties[j];
-    map[nextValue.name] =devtools.DebuggerAgent.formatObjectReference_(
+    map[nextValue.name] = devtools.DebuggerAgent.formatObjectReference_(
         nextValue, msg);
   }
 };
@@ -457,7 +582,8 @@ devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
 
 /**
  * For each property in 'array' puts its name and user-friendly value into
- * 'map'.
+ * 'map'. Each object referenced from the array is expected to be included in
+ * the message.
  * @param {Array.<Object>} array Arguments or locals array from 'backtrace'
  *     response.
  * @param {Object} map Result holder.
@@ -466,18 +592,82 @@ devtools.DebuggerAgent.propertiesToMap_ = function(properties, map, msg) {
 devtools.DebuggerAgent.valuesArrayToMap_ = function(array, map, msg) {
   for (var j = 0; j < array.length; j++) {
     var nextValue = array[j];
-    map[nextValue.name] = devtools.DebuggerAgent.formatObjectReference_(
-        nextValue.value, msg);
+    
+    var object = msg.lookup(nextValue.value.ref);
+    var val = object ?
+              devtools.DebuggerAgent.formatValue_(object, msg) :
+              '<unresolved ref: ' + nextValue.value.ref + '>';
+    map[nextValue.name] = val;
   }
 };
 
 
 /**
- * @param {Object} objectRef Object reference from the debugger protocol. 
- * @param {devtools.DebuggerMessage} msg Parsed 'backtrace' response.
- * @return {string} User-friendly representation of the reference.
+ * TODO(yurys): we should merge all this formatting code with the one for
+ * elements tree.
+ * @param {Object} object An object reference from the debugger response. 
+ * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @return {*} The reference representation expected by ScriptsPanel.
  */
 devtools.DebuggerAgent.formatObjectReference_ = function(objectRef, msg) {
+  if (!('ref' in objectRef)) {
+    return objectRef;
+  }
+  var object = msg.lookup(objectRef.ref);
+  if (!object) {
+    return objectRef;
+  }
+  switch (object.type) {
+    case 'number':
+    case 'string':
+    case 'boolean':
+      return object.value;
+    case 'undefined':
+      return undefined;
+    case 'null':
+      return null;
+    case 'function': {
+      var result = function() {};
+      result.ref = objectRef.ref;
+      return result;
+    }
+    case 'object':
+      return objectRef;
+    default:
+      return objectRef;
+  };
+};
+
+
+/**
+ * @param {Object} object An object from the debugger response. 
+ * @param {devtools.DebuggerMessage} msg Parsed debugger response.
+ * @return {*} The value representation expected by ScriptsPanel.
+ */
+devtools.DebuggerAgent.formatValue_ = function(object, msg) {
+  if (!object) {
+    return object;
+  }
+  switch (object.type) {
+    case 'number':
+    case 'string':
+    case 'boolean':
+      return object.value;
+    case 'undefined':
+      return undefined;
+    case 'null':
+      return null;
+    case 'function':
+      return devtools.DebuggerAgent.formatFunction_(object, msg);
+    case 'object':
+      return devtools.DebuggerAgent.formatObject_(object, msg);
+    default:
+      return '<invalid value>';
+  };
+};
+
+
+devtools.DebuggerAgent.formatObjectReference_old = function(objectRef, msg) {
   if (!objectRef.ref) {
     return 'illegal ref';
   }
