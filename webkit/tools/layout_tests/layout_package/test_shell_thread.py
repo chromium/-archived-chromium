@@ -152,7 +152,7 @@ class SingleTestThread(threading.Thread):
 
   def run(self):
     proc = StartTestShell(self._command, self._shell_args +
-        ["--time-out-ms=" + self.test_info.timeout, self._test_info.uri])
+        ["--time-out-ms=" + self._test_info.timeout, self._test_info.uri])
     self._test_stats = ProcessOutput(proc, self._test_info, self._test_types,
         self._test_args, self._target)
 
