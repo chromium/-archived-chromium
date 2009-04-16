@@ -43,7 +43,7 @@ NPError PluginClient::GetEntryPoints(NPPluginFuncs* pFuncs) {
   pFuncs->urlnotify     = NPP_URLNotify;
   pFuncs->getvalue      = NPP_GetValue;
   pFuncs->setvalue      = NPP_SetValue;
-  pFuncs->javaClass     = static_cast<JRIGlobalRef>(NPP_GetJavaClass);
+  pFuncs->javaClass     = reinterpret_cast<JRIGlobalRef>(NPP_GetJavaClass);
 
   return NPERR_NO_ERROR;
 }
