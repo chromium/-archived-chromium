@@ -53,6 +53,10 @@ class BrowserFrame : public views::WindowWin {
 
   BrowserView* browser_view() const { return browser_view_; }
 
+#if defined(FRAME_WINDOW)
+  void SetBrowserNonClientFrameView(BrowserNonClientFrameView* view);
+#endif
+
  protected:
   // Overridden from views::WidgetWin:
   virtual bool AcceleratorPressed(views::Accelerator* accelerator);

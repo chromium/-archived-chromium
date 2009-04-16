@@ -60,6 +60,15 @@ void BrowserFrame::UpdateThrobber(bool running) {
   browser_frame_view_->UpdateThrobber(running);
 }
 
+#if defined(FRAME_WINDOW)
+void BrowserFrame::SetBrowserNonClientFrameView(
+    BrowserNonClientFrameView* view) {
+  GetNonClientView()->SetFrameView(view);
+  // SetFrameView deletes the old browser_frame_view_.
+  browser_frame_view_ = view;
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserFrame, views::WidgetWin overrides:
 
