@@ -13,8 +13,10 @@ extern "C" {
 #include <sandbox.h>
 }
 
-#include "base/sys_info.h"
 #include "base/mac_util.h"
+#include "base/scoped_cftyperef.h"
+#include "base/scoped_nsautorelease_pool.h"
+#include "base/sys_info.h"
 #include "chrome/common/chrome_switches.h"
 #include "third_party/WebKit/WebKit/mac/WebCoreSupport/WebSystemInterface.h"
 
@@ -26,6 +28,52 @@ RendererMainPlatformDelegate::RendererMainPlatformDelegate(
 RendererMainPlatformDelegate::~RendererMainPlatformDelegate() {
 }
 
+// Warmup System APIs that empirically need to be accessed before the Sandbox
+// is turned on.
+// This method is layed out in blocks, each one containing a separate function
+// that needs to be warmed up. The OS version on which we found the need to
+// enable the function is also noted.
+// This function is tested on the following OS versions:
+//     10.5.6, 10.6 seed release
+void SandboxWarmup() {
+  base::ScopedNSAutoreleasePool scoped_pool;
+
+  { // CGColorSpaceCreateWithName(), CGBitmapContextCreate() - 10.5.6
+    CGColorSpaceRef rgb_colorspace =
+        CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+
+    // Allocate a 1 byte image.
+    char data[8];
+    CGContextRef tmp = CGBitmapContextCreate(data, 1, 1, 8, 1*8,
+                                             rgb_colorspace,
+                                             kCGImageAlphaPremultipliedFirst |
+                                             kCGBitmapByteOrder32Host);
+    CGColorSpaceRelease(rgb_colorspace);
+    CGContextRelease(tmp);
+  }
+
+  {  // [-NSColor colorUsingColorSpaceName] - 10.5.6
+    NSColor *color = [NSColor controlTextColor];
+    [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
+  }
+
+  {  // localtime() - 10.5.6
+    time_t tv = {0};
+    localtime(&tv);
+  }
+
+  {  // CGImageSourceGetStatus() - 10.6 seed release.
+    // Create a png with just enough data to get everything warmed up...
+    char png_header[] = {0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    NSData *data = [NSData dataWithBytes:png_header
+                                  length:arraysize(png_header)];
+    scoped_cftyperef<CGImageSourceRef> img(
+        CGImageSourceCreateWithData((CFDataRef)data,
+        NULL));
+    CGImageSourceGetStatus(img);
+  }
+}
+
 // TODO(mac-port): Any code needed to initialize a process for
 // purposes of running a renderer needs to also be reflected in
 // chrome_dll_main.cc for --single-process support.
@@ -33,28 +81,8 @@ void RendererMainPlatformDelegate::PlatformInitialize() {
   // Load WebKit system interfaces.
   InitWebCoreSystemInterface();
 
-  // Warmup CG - without these calls these two functions won't work in the
-  // sandbox.
-  CGColorSpaceRef rgb_colorspace =
-      CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-
-  // Allocate a 1 byte image.
-  char data[8];
-  CGContextRef tmp = CGBitmapContextCreate(data, 1, 1, 8, 1*8,
-                                           rgb_colorspace,
-                                           kCGImageAlphaPremultipliedFirst |
-                                           kCGBitmapByteOrder32Host);
-  CGColorSpaceRelease(rgb_colorspace);
-  CGContextRelease(tmp);
-
-  // Warm up NSColor conversion which also accesses the FS on it's first call.
-  NSColor *color = [NSColor controlTextColor];
-  [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
-
-  // Warm up localtime().
-  time_t tv = {0};
-  localtime(&tv);
-
+  // Warmup APIs before turning on the Sandbox.
+  SandboxWarmup();
 #if 0
 
   // Note: by default, Cocoa is NOT thread safe.  Use of NSThreads

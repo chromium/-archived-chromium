@@ -6,10 +6,16 @@
 (version 1)
 (deny default)
 
+; Each line is marked with the System version that needs it.
+; This profile is tested with the following system versions:
+;     10.5.6, 10.6 seed release
+
 ; Allow following symlinks
-(allow file-read-metadata)
+(allow file-read-metadata)  ; 10.5.6
 ; Allow reading files out of /System/Library
-(allow file-read-data (regex #"^/System/Library"))
+(allow file-read-data (regex #"^/System/Library"))  ; 10.5.6
 
 ; Needed for Fonts
-(allow mach-lookup (global-name "com.apple.FontObjectsServer"))
+(allow mach-lookup (global-name "com.apple.FontObjectsServer"))  ; 10.5.6
+(allow mach-lookup (global-name "com.apple.FontServer"))  ; 10.6 seed release
+(allow file-read-data (regex #"^/Library/Fonts"))  ; 10.6 seed release
