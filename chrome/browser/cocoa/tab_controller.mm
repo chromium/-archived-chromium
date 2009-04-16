@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#import "base/mac_util.h"
 #import "chrome/browser/cocoa/tab_controller.h"
 #import "chrome/browser/cocoa/tab_controller_target.h"
 
@@ -20,7 +21,7 @@
 }
 
 - (id)init {
-  self = [super initWithNibName:@"TabView" bundle:nil];
+  self = [super initWithNibName:@"TabView" bundle:mac_util::MainAppBundle()];
   if (self != nil) {
     [self setImage:[NSImage imageNamed:@"nav"]];
   }

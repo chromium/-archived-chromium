@@ -293,10 +293,8 @@
         },
         'target_conditions': [
           ['_type!="static_library"', {
-            'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-search_paths_first']},
-          }],
-          ['_mac_bundle', {
-            'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
+            'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-search_paths_first', 
+                                                 '-Wl,-ObjC']},
           }],
           ['_type=="executable"', {
             'postbuilds': [

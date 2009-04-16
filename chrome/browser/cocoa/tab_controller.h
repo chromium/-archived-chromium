@@ -23,7 +23,7 @@
   BOOL loading_;
   NSImage *image_;
   id<TabControllerTarget> target_;  // weak, where actions are sent
-  SEL action_;  // selector sent when tab is seleted by clicking
+  SEL action_;  // selector sent when tab is selected by clicking
 }
 
 @property(retain, nonatomic) NSImage *image;
