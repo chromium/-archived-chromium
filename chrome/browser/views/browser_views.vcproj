@@ -385,6 +385,14 @@
 			Name="Autocomplete"
 			>
 			<File
+				RelativePath=".\autocomplete\autocomplete_popup_contents_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\autocomplete\autocomplete_popup_contents_view.h"
+				>
+			</File>
+			<File
 				RelativePath=".\autocomplete\autocomplete_popup_win.cc"
 				>
 			</File>

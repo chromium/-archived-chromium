@@ -10,7 +10,7 @@
 
 class AutocompleteEditModel;
 class AutocompleteEditViewWin;
-class AutocompletePopupViewContents;
+class AutocompletePopupContentsView;
 class Profile;
 
 // Interface to retrieve the position of the popup.
@@ -69,7 +69,7 @@ class AutocompletePopupWin : public views::WidgetWin,
   AutocompletePopupPositioner* popup_positioner_;
 
   // The view that holds the result views.
-  AutocompletePopupViewContents* contents_;
+  AutocompletePopupContentsView* contents_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupWin);
 };
