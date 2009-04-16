@@ -546,6 +546,11 @@ IPC_BEGIN_MESSAGES(View)
                        std::string /* message */,
                        int /* source_port_id */)
 
+  // Route a browser event to all extension renderers within this process.
+  IPC_MESSAGE_CONTROL2(ViewMsg_ExtensionHandleEvent,
+                       std::string /* event_name */,
+                       std::string /* event_data */)
+
   // Tell the renderer process all known extension function names.
   IPC_MESSAGE_CONTROL1(ViewMsg_Extension_SetFunctionNames,
                        std::vector<std::string>)

@@ -8,12 +8,14 @@
 #include "base/ref_counted.h"
 
 #include <map>
+#include <string>
 
 class Browser;
 class BrowsingInstance;
 class Extension;
 class ExtensionView;
 class GURL;
+class ListValue;
 class Profile;
 class SiteInstance;
 
@@ -41,6 +43,12 @@ class ExtensionProcessManager {
 
   // Returns the SiteInstance that the given URL belongs to in this profile.
   SiteInstance* GetSiteInstanceForURL(const GURL& url, Profile* profile);
+
+  // Sends the event to each renderer process within the current profile that
+  // contain at least one extension renderer.
+  void DispatchEventToRenderers(Profile *profile,
+                                const std::string& event_name,
+                                const ListValue& data);
  private:
   // Returns our BrowsingInstance for the given profile.  Lazily created and
   // cached.

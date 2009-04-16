@@ -27,6 +27,12 @@ class RendererExtensionBindings {
 
   // Dispatch the given message sent on this channel.
   static void HandleMessage(const std::string& message, int port_id);
+
+  // Send this event to all extensions in this process. |args| is a JSON-
+  // serialized array that will be deserialized and provided to the callback
+  // function in event_bindings.js
+  static void HandleEvent(const std::string& event_name,
+                          const std::string& args);
 };
 
 #endif  // CHROME_RENDERER_EXTENSIONS_RENDERER_EXTENSION_BINDINGS_H_

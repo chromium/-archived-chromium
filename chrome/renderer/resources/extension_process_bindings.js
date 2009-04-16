@@ -129,6 +129,10 @@ var chromium;
   chromium.tabs.removeTab.params = [
     chromium.types.pInt
   ];
+  
+  // onTabMoved sends ({tabId, windowId, fromIndex, toIndex}) as named
+  // arguments.
+  chromium.tabs.onTabMoved = new chromium.Event("tab-moved");
 
   //----------------------------------------------------------------------------
 
@@ -136,3 +140,4 @@ var chromium;
   chromium.self = {};
   chromium.self.onConnect = new chromium.Event("channel-connect");
 })();
+

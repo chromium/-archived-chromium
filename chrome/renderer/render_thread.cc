@@ -184,10 +184,14 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                         OnGetCacheResourceStats)
     IPC_MESSAGE_HANDLER(ViewMsg_UserScripts_NewScripts,
                         OnUpdateUserScripts)
+    // TODO(rafaelw): create an ExtensionDispatcher that handles extension
+    // messages seperates their handling from the RenderThread.
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleConnect,
                         OnExtensionHandleConnect)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleMessage,
                         OnExtensionHandleMessage)
+    IPC_MESSAGE_HANDLER(ViewMsg_ExtensionHandleEvent,
+                        OnExtensionHandleEvent)
     IPC_MESSAGE_HANDLER(ViewMsg_Extension_SetFunctionNames,
                         OnSetExtensionFunctionNames)
   IPC_END_MESSAGE_MAP()
@@ -322,4 +326,9 @@ void RenderThread::OnExtensionHandleConnect(int port_id) {
 void RenderThread::OnExtensionHandleMessage(const std::string& message,
                                             int port_id) {
   RendererExtensionBindings::HandleMessage(message, port_id);
+}
+
+void RenderThread::OnExtensionHandleEvent(const std::string event_name,
+                                          const std::string event_data) {
+  RendererExtensionBindings::HandleEvent(event_name, event_data);
 }

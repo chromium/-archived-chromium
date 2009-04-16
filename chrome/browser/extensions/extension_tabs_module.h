@@ -7,6 +7,14 @@
 
 #include "chrome/browser/extensions/extension_function.h"
 
+class TabContents;
+
+class ExtensionTabUtil {
+ public:
+  static int GetTabId(const TabContents* tab_contents);
+  static int GetWindowIdOfTab(const TabContents* tab_contents);
+};
+
 class GetTabsForWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };

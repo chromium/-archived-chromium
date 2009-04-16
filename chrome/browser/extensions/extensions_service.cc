@@ -14,6 +14,7 @@
 #include "base/values.h"
 #include "net/base/file_stream.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/extensions/extension_view.h"
@@ -85,6 +86,9 @@ ExtensionsService::~ExtensionsService() {
 }
 
 bool ExtensionsService::Init() {
+  // Start up the extension event routers.
+  ExtensionBrowserEventRouter::GetInstance()->Init();
+
 #if defined(OS_WIN)
   // TODO(port): ExtensionsServiceBackend::CheckForExternalUpdates depends on
   // the Windows registry.

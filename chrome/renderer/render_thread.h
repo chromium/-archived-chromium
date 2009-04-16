@@ -5,6 +5,7 @@
 #ifndef CHROME_RENDERER_RENDER_THREAD_H_
 #define CHROME_RENDERER_RENDER_THREAD_H_
 
+#include <string>
 #include <vector>
 
 #include "base/gfx/native_widget_types.h"
@@ -125,6 +126,8 @@ class RenderThread : public RenderThreadBase,
 
   void OnExtensionHandleConnect(int channel_id);
   void OnExtensionHandleMessage(const std::string& message, int channel_id);
+  void OnExtensionHandleEvent(const std::string event_name,
+      const std::string event_data);
 
   // Gather usage statistics from the in-memory cache and inform our host.
   // These functions should be call periodically so that the host can make

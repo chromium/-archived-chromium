@@ -100,3 +100,14 @@ void RendererExtensionBindings::HandleMessage(const std::string& message,
   EventBindings::CallFunction("chromium.Port.dispatchOnMessage_",
                               arraysize(argv), argv);
 }
+
+void RendererExtensionBindings::HandleEvent(const std::string& event_name,
+                                            const std::string& args) {
+  v8::HandleScope handle_scope;
+  v8::Handle<v8::Value> argv[2];
+  argv[0] = v8::String::New(event_name.c_str());
+  argv[1] = v8::String::New(args.c_str());
+
+  EventBindings::CallFunction("chromium.Event.dispatchJSON_",
+                              arraysize(argv), argv);
+}

@@ -672,6 +672,8 @@
         'browser/extensions/extension_message_service.h',
         'browser/extensions/extension_process_manager.cc',
         'browser/extensions/extension_process_manager.h',
+        'browser/extensions/extension_browser_event_router.cc',
+        'browser/extensions/extension_browser_event_router.h',
         'browser/extensions/extension_protocols.cc',
         'browser/extensions/extension_protocols.h',
         'browser/extensions/extension_tabs_module.cc',

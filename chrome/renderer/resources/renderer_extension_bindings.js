@@ -23,7 +23,7 @@ var chromium = chromium || {};
   // Called by native code when a channel has been opened to this context.
   chromium.Port.dispatchOnConnect_ = function(portId) {
     var port = new chromium.Port(portId);
-    chromium.Event.dispatch_("channel-connect", port);
+    chromium.Event.dispatch_("channel-connect", [port]);
   };
 
   // Called by native code when a message has been sent to the given port.

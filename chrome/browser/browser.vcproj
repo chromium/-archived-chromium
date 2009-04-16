@@ -1894,6 +1894,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_browser_event_router.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_browser_event_router.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_error_reporter.cc"
 				>
 			</File>

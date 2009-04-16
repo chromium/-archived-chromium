@@ -54,12 +54,20 @@ ExtensionMessageService::ExtensionMessageService()
     : next_port_id_(0) {
 }
 
+std::set<int> ExtensionMessageService::GetUniqueProcessIds() {
+  std::set<int> ids;
+  ProcessIDMap::iterator it;
+  AutoLock lock(renderers_lock_);
+
+  for (it = process_ids_.begin(); it != process_ids_.end(); it++) {
+    ids.insert(it->second);
+  }
+  return ids;
+}
+
 void ExtensionMessageService::RegisterExtension(
     const std::string& extension_id, int render_process_id) {
   AutoLock lock(renderers_lock_);
-  // TODO(mpcomplete): We need to ensure an extension always ends up in a single
-  // process.  I think this means having an ExtensionProcessManager which holds
-  // a BrowsingContext for each extension.
   DCHECK(process_ids_.find(extension_id) == process_ids_.end() ||
          process_ids_[extension_id] == render_process_id);
   process_ids_[extension_id] = render_process_id;
@@ -174,4 +182,3 @@ void ExtensionMessageService::Observe(NotificationType type,
         source);
   }
 }
-

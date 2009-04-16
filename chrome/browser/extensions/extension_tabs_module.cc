@@ -17,6 +17,14 @@ static DictionaryValue* CreateTabValue(TabStripModel* tab_strip_model,
 static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,
                             int* tab_index);
 
+int ExtensionTabUtil::GetTabId(const TabContents* tab_contents) {
+  return tab_contents->controller()->session_id().id();
+}
+
+int ExtensionTabUtil::GetWindowIdOfTab(const TabContents* tab_contents) {
+  return tab_contents->controller()->window_id().id();
+}
+
 bool GetTabsForWindowFunction::RunImpl() {
   if (!args_->IsType(Value::TYPE_NULL))
     return false;
@@ -198,9 +206,9 @@ static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
   DCHECK(controller);  // TODO(aa): Is this a valid assumption?
 
   DictionaryValue* result = new DictionaryValue();
-  result->SetInteger(L"id", controller->session_id().id());
+  result->SetInteger(L"id", ExtensionTabUtil::GetTabId(contents));
   result->SetInteger(L"index", tab_index);
-  result->SetInteger(L"windowId", controller->window_id().id());
+  result->SetInteger(L"windowId", ExtensionTabUtil::GetWindowIdOfTab(contents));
   result->SetString(L"url", contents->GetURL().spec());
   result->SetString(L"title", UTF16ToWide(contents->GetTitle()));
   result->SetBoolean(L"selected", tab_index == tab_strip->selected_index());

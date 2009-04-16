@@ -7,6 +7,7 @@
 #include "base/singleton.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/extensions/bindings_utils.h"
+#include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
 #include "chrome/renderer/js_only_v8_extensions.h"
 #include "chrome/renderer/render_view.h"
@@ -22,6 +23,7 @@ namespace {
 const char kExtensionName[] = "chrome/ExtensionProcessBindings";
 const char* kExtensionDeps[] = {
   BaseJsV8Extension::kName,
+  EventBindings::kName,
   JsonJsV8Extension::kName,
   JsonSchemaJsV8Extension::kName,
   RendererExtensionBindings::kName,

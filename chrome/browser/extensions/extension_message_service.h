@@ -61,6 +61,8 @@ class ExtensionMessageService : public NotificationObserver {
                const NotificationSource& source,
                const NotificationDetails& details);
 
+  std::set<int> GetUniqueProcessIds();
+
  private:
   // A map of extension ID to the render_process_id that the extension lives in.
   typedef std::map<std::string, int> ProcessIDMap;

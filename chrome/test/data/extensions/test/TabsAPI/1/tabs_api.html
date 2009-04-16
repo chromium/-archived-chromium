@@ -38,6 +38,11 @@ function updateAll() {
     chromium.tabs.updateTab(getTabData(tabs[i].id)); 
   }
 }
+
+chromium.tabs.onTabMoved.addListener(function(updateParams) {
+  loadTabList();
+});
+
 </script>
 </head>
   <body onload="loadTabList();">

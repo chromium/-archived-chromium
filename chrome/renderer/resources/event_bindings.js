@@ -8,9 +8,9 @@ var chromium = chromium || {};
   // with that name will route through this object's listeners.
   //
   // Example:
-  //   chromium.ontabchanged = new Event('tabchanged');
-  //   chromium.ontabchanged.addListener(function(data) { alert(data); });
-  //   chromium.Event.dispatch_('tabchanged', 'hi');
+  //   chromium.tabs.onTabChanged = new chromium.Event("tab-changed");
+  //   chromium.tabs.onTabChanged.addListener(function(data) { alert(data); });
+  //   chromium.Event.dispatch_("tab-changed", "hi");
   // will result in an alert dialog that says 'hi'.
   chromium.Event = function(opt_eventName) {
     this.eventName_ = opt_eventName;
@@ -20,21 +20,24 @@ var chromium = chromium || {};
   // A map of event names to the event object that is registered to that name.
   chromium.Event.attached_ = {};
 
-  // Dispatches a named event with the given JSON data, which is deserialized
-  // before dispatch.
-  chromium.Event.dispatchJSON_ = function(name, data) {
+  // Dispatches a named event with the given JSON array, which is deserialized
+  // before dispatch. The JSON array is the list of arguments that will be
+  // sent with the event callback.
+  chromium.Event.dispatchJSON_ = function(name, args) {
     if (chromium.Event.attached_[name]) {
-      if (data) {
-        data = goog.json.parse(data);
+      if (args) {
+        args = goog.json.parse(args);
       }
-      chromium.Event.attached_[name].dispatch(data);
+      chromium.Event.attached_[name].dispatch.apply(
+          chromium.Event.attached_[name], args);
     }
   };
 
-  // Dispatches a named event with the given object data.
-  chromium.Event.dispatch_ = function(name, data) {
+  // Dispatches a named event with the given arguments, supplied as an array.
+  chromium.Event.dispatch_ = function(name, args) {
     if (chromium.Event.attached_[name]) {
-      chromium.Event.attached_[name].dispatch(data);
+      chromium.Event.attached_[name].dispatch.apply(
+          chromium.Event.attached_[name], args);
     }
   };
 

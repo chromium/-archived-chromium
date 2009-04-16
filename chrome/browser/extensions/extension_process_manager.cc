@@ -4,10 +4,14 @@
 
 #include "chrome/browser/extensions/extension_process_manager.h"
 
+#include "base/json_writer.h"
 #include "base/singleton.h"
+#include "base/values.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/extensions/extension_view.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/tab_contents/site_instance.h"
+#include "chrome/common/render_messages.h"
 
 // static
 ExtensionProcessManager* ExtensionProcessManager::GetInstance() {
@@ -23,7 +27,7 @@ ExtensionProcessManager::~ExtensionProcessManager() {
 ExtensionView* ExtensionProcessManager::CreateView(Extension* extension,
                                                    const GURL& url,
                                                    Browser* browser) {
-  return new ExtensionView(extension, url, 
+  return new ExtensionView(extension, url,
                            GetSiteInstanceForURL(url, browser->profile()),
                            browser);
 }
@@ -32,6 +36,21 @@ SiteInstance* ExtensionProcessManager::GetSiteInstanceForURL(
     const GURL& url, Profile* profile) {
   BrowsingInstance* browsing_instance = GetBrowsingInstance(profile);
   return browsing_instance->GetSiteInstanceForURL(url);
+}
+
+void ExtensionProcessManager::DispatchEventToRenderers(Profile *profile,
+    const std::string& event_name, const ListValue& data) {
+  std::string json_data;
+  JSONWriter::Write(&data, false, &json_data);
+
+  std::set<int> process_ids = ExtensionMessageService::GetInstance(
+      profile->GetRequestContext())->GetUniqueProcessIds();
+
+  std::set<int>::iterator id;
+  for (id = process_ids.begin(); id != process_ids.end(); ++id) {
+    RenderProcessHost* rph = RenderProcessHost::FromID(*id);
+    rph->Send(new ViewMsg_ExtensionHandleEvent(event_name, json_data));
+  }
 }
 
 BrowsingInstance* ExtensionProcessManager::GetBrowsingInstance(
