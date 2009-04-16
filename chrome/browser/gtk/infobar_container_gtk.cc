@@ -6,11 +6,11 @@
 
 #include <gtk/gtk.h>
 
-#include "base/gfx/gtk_util.h"
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/gtk/infobar_gtk.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/notification_service.h"
 
 namespace {

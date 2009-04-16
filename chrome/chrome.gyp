@@ -13,13 +13,13 @@
     'sources/': [
       ['exclude', '/(cocoa|gtk|win)/'],
       ['exclude', '_(cocoa|gtk|linux|mac|posix|skia|win|x)\\.(cc|mm?)$'],
-      ['exclude', '/(win|x11)_[^/]*\\.cc$'],
+      ['exclude', '/(gtk|win|x11)_[^/]*\\.cc$'],
     ],
     'conditions': [
       ['OS=="linux"', {'sources/': [
         ['include', '/gtk/'],
         ['include', '_(gtk|linux|posix|skia|x)\\.cc$'],
-        ['include', '/x11_[^/]*\\.cc$'],
+        ['include', '/(gtk|x11)_[^/]*\\.cc$'],
       ]}],
       ['OS=="mac"', {'sources/': [
         ['include', '/cocoa/'],
@@ -125,6 +125,8 @@
         'common/gfx/text_elider.cc',
         'common/gfx/text_elider.h',
         'common/gfx/utils.h',
+        'common/gtk_util.cc',
+        'common/gtk_util.h',
         'common/net/cookie_monster_sqlite.cc',
         'common/net/cookie_monster_sqlite.h',
         'common/net/dns.h',
@@ -710,6 +712,8 @@
         'browser/gtk/back_forward_menu_model_gtk.h',
         'browser/gtk/bookmark_bar_gtk.cc',
         'browser/gtk/bookmark_bar_gtk.h',
+        'browser/gtk/bookmark_context_menu_gtk.cc',
+        'browser/gtk/bookmark_context_menu_gtk.h',
         'browser/gtk/browser_toolbar_gtk.cc',
         'browser/gtk/browser_toolbar_gtk.h',
         'browser/gtk/browser_window_factory_gtk.cc',

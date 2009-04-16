@@ -15,6 +15,7 @@
 #include "chrome/browser/autocomplete/autocomplete_edit_view_gtk.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/page_transition_types.h"
 #include "skia/include/SkBitmap.h"
 #include "webkit/glue/window_open_disposition.h"

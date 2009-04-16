@@ -19,6 +19,7 @@
 #include "base/string_util.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/gfx/chrome_font.h"
+#include "chrome/common/gtk_util.h"
 #include "chrome/common/l10n_util.h"
 #include "SkBitmap.h"
 
