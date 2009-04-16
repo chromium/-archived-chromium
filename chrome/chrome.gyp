@@ -530,6 +530,7 @@
         'browser/cocoa/browser_window_cocoa.mm',
         'browser/cocoa/browser_window_controller.h',
         'browser/cocoa/browser_window_controller.mm',
+        'browser/cocoa/cocoa_test_helper.h',
         'browser/cocoa/command_observer_bridge.h',
         'browser/cocoa/command_observer_bridge.mm',
         'browser/cocoa/grow_box_view.h',
@@ -2095,7 +2096,6 @@
         '..',
       ],
       'sources': [
-        '../third_party/GTM/AppKit/GTMNSBezierPath+RoundRect.m',
         'app/breakpad_mac.mm',
         # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
@@ -2125,6 +2125,7 @@
         'browser/cocoa/command_observer_bridge_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
         'browser/cocoa/status_bubble_mac_unittest.mm',
+        'browser/cocoa/tab_controller_unittest.mm',
         'browser/command_updater_unittest.cc',
         'browser/debugger/devtools_manager_unittest.cc',
         'browser/dom_ui/dom_ui_unittest.cc',
@@ -2299,6 +2300,10 @@
             'test/test_notification_tracker.cc',
             'test/test_notification_tracker.h',
           ],
+          # TODO(mark): We really want this for all non-static library targets,
+          # but when we tried to pull it up to the common.gypi level, it broke
+          # other things like the ui, startup, and page_cycler tests. *shrug*
+          'xcode_settings': {'OTHER_LDFLAGS': ['-Wl,-ObjC']},
         }],
         ['OS=="win"', {
           'defines': [

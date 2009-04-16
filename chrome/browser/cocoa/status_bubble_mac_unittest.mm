@@ -6,6 +6,7 @@
 
 #include "base/scoped_nsobject.h"
 #include "base/scoped_ptr.h"
+#import "chrome/browser/cocoa/cocoa_test_helper.h"
 #include "chrome/browser/cocoa/status_bubble_mac.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -13,17 +14,8 @@
 class StatusBubbleMacTest : public testing::Test {
  public:
   StatusBubbleMacTest() {
-    // Bootstrap Cocoa. It's very unhappy without this.
-    [NSApplication sharedApplication];
-
-    NSRect frame = NSMakeRect(0, 0, 800, 600);
-    window_.reset([[NSWindow alloc] initWithContentRect:frame
-                                              styleMask:0
-                                                backing:NSBackingStoreBuffered
-                                                  defer:NO]);
-    [window_ orderFront:nil];
-    bubble_.reset(new StatusBubbleMac(window_.get()));
-    EXPECT_TRUE(window_.get());
+    NSWindow* window = cocoa_helper_.window();
+    bubble_.reset(new StatusBubbleMac(window));
     EXPECT_TRUE(bubble_.get());
     EXPECT_FALSE(bubble_->window_);  // lazily creates window
   }
@@ -38,7 +30,7 @@ class StatusBubbleMacTest : public testing::Test {
     return bubble_->url_text_;
   }
 
-  scoped_nsobject<NSWindow> window_;
+  CocoaTestHelper cocoa_helper_;  // Inits Cocoa, creates window, etc...
   scoped_ptr<StatusBubbleMac> bubble_;
 };
 
@@ -93,12 +85,13 @@ TEST_F(StatusBubbleMacTest, MouseMove) {
 }
 
 TEST_F(StatusBubbleMacTest, Delete) {
+  NSWindow* window = cocoa_helper_.window();
   // Create and delete immediately.
-  StatusBubbleMac* bubble = new StatusBubbleMac(window_);
+  StatusBubbleMac* bubble = new StatusBubbleMac(window);
   delete bubble;
 
   // Create then delete while visible.
-  bubble = new StatusBubbleMac(window_);
+  bubble = new StatusBubbleMac(window);
   bubble->SetStatus(L"showing");
   delete bubble;
 }

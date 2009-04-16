@@ -7,6 +7,7 @@
 #include "base/scoped_nsobject.h"
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #include "chrome/browser/cocoa/browser_test_helper.h"
+#import "chrome/browser/cocoa/cocoa_test_helper.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace {
@@ -16,25 +17,17 @@ static const int kContentAreaHeight = 500;
 class BookmarkBarControllerTest : public testing::Test {
  public:
   BookmarkBarControllerTest() {
-    // Bootstrap Cocoa. It's very unhappy without this.
-    [NSApplication sharedApplication];
-
-    // Create a window and put a content view in it that's slightly smaller in
-    // height.
-    NSRect frame = NSMakeRect(0, 0, 800, 600);
-    window_.reset([[NSWindow alloc] initWithContentRect:frame
-                                              styleMask:0
-                                                backing:NSBackingStoreBuffered
-                                                  defer:NO]);
-    [window_ orderFront:nil];
     NSRect content_frame = NSMakeRect(0, 0, 800, kContentAreaHeight);
     content_area_.reset([[NSView alloc] initWithFrame:content_frame]);
     bar_.reset(
         [[BookmarkBarController alloc] initWithProfile:helper_.GetProfile()
                                            contentArea:content_area_.get()]);
+    NSView* parent = [cocoa_helper_.window() contentView];
+    [parent addSubview:content_area_.get()];
+    [parent addSubview:[bar_ view]];
   }
 
-  scoped_nsobject<NSWindow> window_;
+  CocoaTestHelper cocoa_helper_;  // Inits Cocoa, creates window, etc...
   scoped_nsobject<NSView> content_area_;
   BrowserTestHelper helper_;
   scoped_nsobject<BookmarkBarController> bar_;
