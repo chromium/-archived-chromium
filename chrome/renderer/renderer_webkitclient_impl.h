@@ -19,8 +19,9 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
   virtual WebKit::WebClipboard* clipboard();
   virtual WebKit::WebMimeRegistry* mimeRegistry();
   virtual WebKit::WebSandboxSupport* sandboxSupport();
-  virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length);
-  virtual bool isLinkVisited(uint64_t linkHash);
+  virtual unsigned long long visitedLinkHash(
+      const char* canonicalURL, size_t length);
+  virtual bool isLinkVisited(unsigned long long linkHash);
   virtual void setCookies(
       const WebKit::WebURL& url, const WebKit::WebURL& policy_url,
       const WebKit::WebString&);

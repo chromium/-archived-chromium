@@ -23,7 +23,7 @@ using WebKit::WebURL;
 
 WebKit::WebClipboard* RendererWebKitClientImpl::clipboard() {
   return &clipboard_;
-} 
+}
 
 WebKit::WebMimeRegistry* RendererWebKitClientImpl::mimeRegistry() {
   return &mime_registry_;
@@ -37,13 +37,14 @@ WebKit::WebSandboxSupport* RendererWebKitClientImpl::sandboxSupport() {
 #endif
 }
 
-uint64_t RendererWebKitClientImpl::visitedLinkHash(const char* canonical_url,
-                                                   size_t length) {
+unsigned long long RendererWebKitClientImpl::visitedLinkHash(
+    const char* canonical_url,
+    size_t length) {
   return RenderThread::current()->visited_link_slave()->ComputeURLFingerprint(
       canonical_url, length);
 }
 
-bool RendererWebKitClientImpl::isLinkVisited(uint64_t link_hash) {
+bool RendererWebKitClientImpl::isLinkVisited(unsigned long long link_hash) {
   return RenderThread::current()->visited_link_slave()->IsVisited(link_hash);
 }
 

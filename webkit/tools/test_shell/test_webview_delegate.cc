@@ -76,7 +76,7 @@ std::wstring UrlSuitableForTestResult(const std::wstring& url) {
 // Adds a file called "DRTFakeFile" to |data_object| (CF_HDROP).  Use to fake
 // dragging a file.
 void AddDRTFakeFileToDataObject(WebDragData* drag_data) {
-  drag_data->appendFileName(WebString::fromUTF8("DRTFakeFile"));
+  drag_data->appendToFileNames(WebString::fromUTF8("DRTFakeFile"));
 }
 
 // Get a debugging string from a WebNavigationType.
@@ -273,7 +273,7 @@ void TestWebViewDelegate::DidFailProvisionalLoadWithError(
            GetFrameDescription(frame).c_str());
   }
 
-  LocationChangeDone(frame->GetProvisionalDataSource());
+  LocationChangeDone(frame);
 
   // Don't display an error page if we're running layout tests, because
   // DumpRenderTree doesn't.
@@ -337,7 +337,7 @@ void TestWebViewDelegate::DidFinishLoadForFrame(WebView* webview,
   }
 
   UpdateAddressBar(webview);
-  LocationChangeDone(frame->GetDataSource());
+  LocationChangeDone(frame);
 }
 
 void TestWebViewDelegate::DidFailLoadWithError(WebView* webview,
@@ -348,7 +348,7 @@ void TestWebViewDelegate::DidFailLoadWithError(WebView* webview,
            GetFrameDescription(frame).c_str());
   }
 
-  LocationChangeDone(frame->GetDataSource());
+  LocationChangeDone(frame);
 }
 
 void TestWebViewDelegate::DidFinishDocumentLoadForFrame(WebView* webview,
@@ -783,8 +783,8 @@ void TestWebViewDelegate::UpdateAddressBar(WebView* webView) {
   SetAddressBarURL(dataSource->GetRequest().GetMainDocumentURL());
 }
 
-void TestWebViewDelegate::LocationChangeDone(WebDataSource* data_source) {
-  if (data_source->GetWebFrame() == top_loading_frame_) {
+void TestWebViewDelegate::LocationChangeDone(WebFrame* frame) {
+  if (frame == top_loading_frame_) {
     top_loading_frame_ = NULL;
 
     if (shell_->layout_test_mode())

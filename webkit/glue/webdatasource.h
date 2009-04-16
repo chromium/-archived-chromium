@@ -34,9 +34,6 @@ class WebDataSource {
  public:
   virtual ~WebDataSource() {}
 
-  // Returns the frame that represents this data source.
-  virtual WebFrame* GetWebFrame() = 0;
-
   // Returns a reference to the original request data that created the
   // datasource. This request will be unmodified by WebKit.
   //

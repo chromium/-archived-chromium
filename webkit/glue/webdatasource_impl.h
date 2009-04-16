@@ -27,7 +27,6 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   }
 
   // WebDataSource methods:
-  virtual WebFrame* GetWebFrame();
   virtual const WebRequest& GetInitialRequest() const;
   virtual const WebRequest& GetRequest() const;
   virtual const WebResponse& GetResponse() const;

@@ -62,11 +62,12 @@ class TestShellWebKitInit : public webkit_glue::WebKitClientImpl {
     return NULL;
   }
 
-  virtual uint64_t visitedLinkHash(const char* canonicalURL, size_t length) {
+  virtual unsigned long long visitedLinkHash(const char* canonicalURL,
+                                             size_t length) {
     return 0;
   }
 
-  virtual bool isLinkVisited(uint64_t linkHash) {
+  virtual bool isLinkVisited(unsigned long long linkHash) {
     return false;
   }
 

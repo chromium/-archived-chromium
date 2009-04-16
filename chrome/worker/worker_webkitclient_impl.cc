@@ -23,13 +23,14 @@ WebKit::WebSandboxSupport* WorkerWebKitClientImpl::sandboxSupport() {
   return NULL;
 }
 
-uint64_t WorkerWebKitClientImpl::visitedLinkHash(const char* canonical_url,
-                                                 size_t length) {
+unsigned long long WorkerWebKitClientImpl::visitedLinkHash(
+    const char* canonical_url,
+    size_t length) {
   NOTREACHED();
   return 0;
 }
 
-bool WorkerWebKitClientImpl::isLinkVisited(uint64_t link_hash) {
+bool WorkerWebKitClientImpl::isLinkVisited(unsigned long long link_hash) {
   NOTREACHED();
   return false;
 }

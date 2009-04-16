@@ -638,8 +638,8 @@ bool WebFrameImpl::GetPreviousHistoryState(std::string* history_state) const {
 }
 
 bool WebFrameImpl::GetCurrentHistoryState(std::string* state) const {
-  if (frame_->loader())
-    frame_->loader()->saveDocumentAndScrollState();
+  frame_->loader()->saveDocumentAndScrollState();
+
   RefPtr<HistoryItem> item = frame_->page()->backForwardList()->currentItem();
   if (!item)
     return false;
@@ -683,8 +683,6 @@ static WebDataSource* DataSourceForDocLoader(DocumentLoader* loader) {
 }
 
 WebDataSource* WebFrameImpl::GetDataSource() const {
-  if (!frame_->loader())
-    return NULL;
   return DataSourceForDocLoader(frame_->loader()->documentLoader());
 }
 
@@ -694,8 +692,6 @@ WebDataSourceImpl* WebFrameImpl::GetDataSourceImpl() const {
 
 WebDataSource* WebFrameImpl::GetProvisionalDataSource() const {
   FrameLoader* frame_loader = frame_->loader();
-  if (!frame_loader)
-    return NULL;
 
   // We regard the policy document loader as still provisional.
   DocumentLoader* doc_loader = frame_loader->provisionalDocumentLoader();
@@ -1448,50 +1444,6 @@ void WebFrameImpl::Cut() {
   if (d)
     d->UserMetricsRecordAction(L"Cut");
 }
-
-#if defined(OS_WIN)
-// Returns a copy of data from a data handle retrieved from the clipboard. The
-// data is decoded according to the format that it is in. The caller is
-// responsible for freeing the data.
-static wchar_t* GetDataFromHandle(HGLOBAL data_handle,
-                                  unsigned int clipboard_format) {
-  switch (clipboard_format) {
-    case CF_TEXT: {
-      char* string_data = static_cast<char*>(::GlobalLock(data_handle));
-      int n_chars = ::MultiByteToWideChar(CP_ACP, 0, string_data, -1, NULL, 0);
-      wchar_t* wcs_data =
-        static_cast<wchar_t*>(malloc((n_chars * sizeof(wchar_t)) +
-          sizeof(wchar_t)));
-      if (!wcs_data) {
-        ::GlobalUnlock(data_handle);
-        return NULL;
-      }
-
-      ::MultiByteToWideChar(CP_ACP, 0, string_data, -1, wcs_data, n_chars);
-      ::GlobalUnlock(data_handle);
-      wcs_data[n_chars] = '\0';
-      return wcs_data;
-    }
-    case CF_UNICODETEXT: {
-      wchar_t* string_data = static_cast<wchar_t*>(::GlobalLock(data_handle));
-      size_t data_size_in_bytes = ::GlobalSize(data_handle);
-      wchar_t* wcs_data =
-        static_cast<wchar_t*>(malloc(data_size_in_bytes + sizeof(wchar_t)));
-      if (!wcs_data) {
-        ::GlobalUnlock(data_handle);
-        return NULL;
-      }
-
-      size_t n_chars = static_cast<int>(data_size_in_bytes / sizeof(wchar_t));
-      wmemcpy_s(wcs_data, n_chars, string_data, n_chars);
-      ::GlobalUnlock(data_handle);
-      wcs_data[n_chars] = '\0';
-      return wcs_data;
-    }
-  }
-  return NULL;
-}
-#endif
 
 void WebFrameImpl::Paste() {
   frame()->editor()->paste();

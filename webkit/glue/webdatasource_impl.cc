@@ -39,10 +39,6 @@ WebDataSourceImpl::WebDataSourceImpl(const WebCore::ResourceRequest& request,
 WebDataSourceImpl::~WebDataSourceImpl() {
 }
 
-WebFrame* WebDataSourceImpl::GetWebFrame() {
-  return WebFrameImpl::FromFrame(frame());
-}
-
 const WebRequest& WebDataSourceImpl::GetInitialRequest() const {
   // WebKit may change the frame load request as it sees fit, so we must sync
   // our request object.
