@@ -2472,16 +2472,3 @@ BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.h
 DEFER BUG10621 : LayoutTests/fast/js/array-reduce.html = FAIL
 DEFER BUG10621 : LayoutTests/fast/js/array-reduceRight.html = FAIL
 DEFER BUG10622 : LayoutTests/fast/js/array-enumerators-functions.html = FAIL
-
-// New regressions from webkit merge 42547:42580
-// These need to be rebaselined on linux.  Caused by
-// http://trac.webkit.org/changeset/42549
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/4076267-2.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/4840662.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/5156401-1.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/5387578.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/bad-placeholder.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/paste-into-anchor-text.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/paste-match-style-001.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/pasteboard/paste-text-019.html = FAIL
-BUG_TONY LINUX : LayoutTests/editing/selection/drag-text-delay.html = FAIL
