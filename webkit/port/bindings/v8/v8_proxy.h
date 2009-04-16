@@ -233,9 +233,6 @@ class V8Proxy {
   PassRefPtr<EventListener> createInlineEventListener(
       const String& functionName, const String& code, Node* node);
 #if ENABLE(SVG)
-  PassRefPtr<EventListener> createSVGEventHandler(
-      const String& functionName, const String& code, Node* node);
-
   static void SetSVGContext(void* object, SVGElement* context);
   static SVGElement* GetSVGContext(void* object);
 #endif

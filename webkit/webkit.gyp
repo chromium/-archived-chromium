@@ -3188,6 +3188,8 @@
         '../third_party/WebKit/WebCore/rendering/RenderSVGInline.h',
         '../third_party/WebKit/WebCore/rendering/RenderSVGInlineText.cpp',
         '../third_party/WebKit/WebCore/rendering/RenderSVGInlineText.h',
+        '../third_party/WebKit/WebCore/rendering/RenderSVGModelObject.cpp',
+        '../third_party/WebKit/WebCore/rendering/RenderSVGModelObject.h',
         '../third_party/WebKit/WebCore/rendering/RenderSVGRoot.cpp',
         '../third_party/WebKit/WebCore/rendering/RenderSVGRoot.h',
         '../third_party/WebKit/WebCore/rendering/RenderSVGTSpan.cpp',

@@ -236,18 +236,10 @@ void ScriptController::disposeJSResult(v8::Persistent<v8::Value> result)
 }
 
 PassRefPtr<EventListener> ScriptController::createInlineEventListener(
-    const String& functionName, const String& code, Node* node)
+    const String& functionName, const String& eventParameterName, const String& code, Node* node)
 {
     return m_proxy->createInlineEventListener(functionName, code, node);
 }
-
-#if ENABLE(SVG)
-PassRefPtr<EventListener> ScriptController::createSVGEventHandler(
-    const String& functionName, const String& code, Node* node)
-{
-    return m_proxy->createSVGEventHandler(functionName, code, node);
-}
-#endif
 
 void ScriptController::setEventHandlerLineno(int lineno)
 {
