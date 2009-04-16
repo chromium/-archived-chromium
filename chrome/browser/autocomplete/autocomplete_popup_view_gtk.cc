@@ -6,6 +6,8 @@
 
 #include <gtk/gtk.h>
 
+#include <algorithm>
+
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
 #include "base/logging.h"
@@ -27,6 +29,11 @@ namespace {
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xc7, 0xca, 0xce);
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xff, 0xff, 0xff);
 const GdkColor kSelectedBackgroundColor = GDK_COLOR_RGB(0xdf, 0xe6, 0xf6);
+
+const GdkColor kNormalTextColor = GDK_COLOR_RGB(0x00, 0x00, 0x00);
+const GdkColor kURLTextColor = GDK_COLOR_RGB(0x00, 0x88, 0x00);
+const GdkColor kDescriptionTextColor = GDK_COLOR_RGB(0x80, 0x80, 0x80);
+const GdkColor kDescriptionSelectedTextColor = GDK_COLOR_RGB(0x78, 0x82, 0xb1);
 
 // TODO(deanm): This is added to extend past just the location box, and to
 // be below the the star and go button.  Really this means that this should
@@ -106,6 +113,10 @@ void DrawFullPixbuf(GdkDrawable* drawable, GdkGC* gc, GdkPixbuf* pixbuf,
                   dest_x, dest_y,              // Dest.
                   -1, -1,                      // Width/height (auto).
                   GDK_RGB_DITHER_NONE, 0, 0);  // Don't dither.
+}
+
+PangoAttribute* ForegroundAttrFromColor(const GdkColor& color) {
+  return pango_attr_foreground_new(color.red, color.green, color.blue);
 }
 
 }  // namespace
@@ -220,9 +231,6 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
   GdkGC* gc = gdk_gc_new(drawable);
 
-  GdkGCValues default_gc_values;
-  gdk_gc_get_values(gc, &default_gc_values);
-
   // kBorderColor is unallocated, so use the GdkRGB routine.
   gdk_gc_set_rgb_fg_color(gc, &kBorderColor);
 
@@ -235,24 +243,10 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
                      0, 0,
                      window_rect.width - 1, window_rect.height - 1);
 
-  // Draw the background for the selected result line.
-  size_t selected = model_->selected_line();
-  if (selected != AutocompletePopupModel::kNoMatch) {
-    gdk_gc_set_rgb_fg_color(gc, &kSelectedBackgroundColor);
-    GdkRectangle rect = GetRectForLine(selected, window_rect.width);
-    gdk_draw_rectangle(drawable, gc, TRUE,
-                       rect.x, rect.y, rect.width, rect.height);
-  }
-
-  // Restore the original GC foreground color.
-  gdk_gc_set_foreground(gc, &default_gc_values.foreground);
-
   // TODO(deanm): Cache the layout?  How expensive is it to create?
   PangoLayout* layout = gtk_widget_create_pango_layout(window_, NULL);
 
   pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END);
-  pango_layout_set_width(layout,
-      (window_rect.width - (kIconAreaWidth + kRightPadding)) * PANGO_SCALE);
   pango_layout_set_height(layout, kHeightPerResult * PANGO_SCALE);
   pango_layout_set_font_description(layout, font_);
 
@@ -260,22 +254,35 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
   // layout the lines that are actually damaged.  For now paint everything.
   for (size_t i = 0; i < result.size(); ++i) {
     const AutocompleteMatch& match = result.match_at(i);
-    int y = i * kHeightPerResult + kBorderThickness;
+    GdkRectangle result_rect = GetRectForLine(i, window_rect.width);
+
+    bool is_selected = (model_->selected_line() == i);
+    if (is_selected) {
+      gdk_gc_set_rgb_fg_color(gc, &kSelectedBackgroundColor);
+      // This entry is selected, fill a rect with the selection color.
+      gdk_draw_rectangle(drawable, gc, TRUE,
+                         result_rect.x, result_rect.y,
+                         result_rect.width, result_rect.height);
+    }
 
     GdkPixbuf* icon = NULL;
+    bool is_url = false;
     if (match.starred) {
       icon = o2_star;
+      is_url = true;
     } else {
       switch (match.type) {
         case AutocompleteMatch::URL_WHAT_YOU_TYPED:
         case AutocompleteMatch::NAVSUGGEST:
           icon = o2_globe;
+          is_url = true;
           break;
         case AutocompleteMatch::HISTORY_URL:
         case AutocompleteMatch::HISTORY_TITLE:
         case AutocompleteMatch::HISTORY_BODY:
         case AutocompleteMatch::HISTORY_KEYWORD:
           icon = o2_history;
+          is_url = true;
           break;
         case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
         case AutocompleteMatch::SEARCH_HISTORY:
@@ -294,32 +301,63 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     
     // Draw the icon for this result time.
     DrawFullPixbuf(drawable, gc, icon,
-                   kIconLeftPadding, y + kIconTopPadding);
+                   kIconLeftPadding, result_rect.y + kIconTopPadding);
 
-    // Draw the results text vertically centered in the results space.
-    std::string contents = WideToUTF8(match.contents);
-    std::string description = WideToUTF8(match.description);
+    // TODO(deanm): Bold the matched portions of text.
     // TODO(deanm): I couldn't get the weight adjustment to be granular enough
     // to match the mocks.  It was basically super bold or super thin.
-    char* markup = g_markup_printf_escaped(
-        "%s<b><span foreground=\"#ababab\">%s%s</span></b>",
-        contents.c_str(),
-        description.empty() ? "" : " - ",
-        description.c_str());
-    pango_layout_set_markup(layout, markup, -1);
-    g_free(markup);
+    
+    // Draw the results text vertically centered in the results space.
+    // First draw the contents / url, but don't let it take up the whole width
+    // if there is also a description to be shown.
+    bool has_description = !match.description.empty();
+    int text_area_width = window_rect.width - (kIconAreaWidth + kRightPadding);
+    if (has_description)
+      text_area_width *= 0.7;
+    pango_layout_set_width(layout, text_area_width * PANGO_SCALE);
 
-    int width, height;
-    pango_layout_get_size(layout, &width, &height);
-    height /= PANGO_SCALE;
-    DCHECK_LT(height, kHeightPerResult);  // Font too tall.
-    int text_y = std::max(y, y + ((kHeightPerResult - height) / 2));
+    PangoAttrList* contents_attrs = pango_attr_list_new();
+    PangoAttribute* fg_attr = ForegroundAttrFromColor(
+        is_url ? kURLTextColor : kNormalTextColor);
+    pango_attr_list_insert(contents_attrs, fg_attr);  // Owernship taken.
+    pango_layout_set_attributes(layout, contents_attrs);  // Ref taken.
+    pango_attr_list_unref(contents_attrs);
+
+    std::string contents = WideToUTF8(match.contents);
+    pango_layout_set_text(layout, contents.data(), contents.size());
+
+    int content_width, content_height;
+    pango_layout_get_size(layout, &content_width, &content_height);
+    content_width /= PANGO_SCALE;
+    content_height /= PANGO_SCALE;
+
+    DCHECK_LT(content_height, kHeightPerResult);  // Font too tall.
+    int content_y = std::max(result_rect.y,
+        result_rect.y + ((kHeightPerResult - content_height) / 2));
 
     gdk_draw_layout(drawable, gc,
-                    kIconAreaWidth, text_y,
+                    kIconAreaWidth, content_y,
                     layout);
+
+    if (has_description) {
+      PangoAttrList* description_attrs = pango_attr_list_new();
+      PangoAttribute* fg_attr = ForegroundAttrFromColor(
+          is_selected ? kDescriptionSelectedTextColor : kDescriptionTextColor);
+      pango_attr_list_insert(description_attrs, fg_attr);  // Owernship taken.
+      pango_layout_set_attributes(layout, description_attrs);  // Ref taken.
+      pango_attr_list_unref(description_attrs);
+
+      std::string description(" - ");
+      description.append(WideToUTF8(match.description));
+      pango_layout_set_text(layout, description.data(), description.size());
+
+      gdk_draw_layout(drawable, gc,
+                      kIconAreaWidth + content_width, content_y,
+                      layout);
+    }
   }
 
+  g_object_unref(layout);
   g_object_unref(gc);
 
   return TRUE;
