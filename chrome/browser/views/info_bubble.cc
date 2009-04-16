@@ -9,6 +9,8 @@
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/gfx/path.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/notification_type.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "chrome/views/widget/root_view.h"
@@ -148,6 +150,11 @@ void InfoBubble::Init(HWND parent_hwnd,
                              RGB(0xFF, 0xFF, 0xFF),
                              kMinimumAlpha,
                              LWA_ALPHA);
+
+  NotificationService::current()->Notify(
+      NotificationType::INFO_BUBBLE_CREATED,
+      Source<InfoBubble>(this),
+      NotificationService::NoDetails());
 
   fade_animation_.reset(new SlideAnimation(this));
   fade_animation_->Show();

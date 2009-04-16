@@ -192,6 +192,10 @@ class NotificationType {
     // that was closed, no details are expected.
     WINDOW_CLOSED,
 
+    // Sent when an info bubble has been created but not yet shown. The source
+    // is the InfoBubble.
+    INFO_BUBBLE_CREATED,
+
     // Tabs --------------------------------------------------------------------
 
     // This notification is sent after a tab has been appended to the
