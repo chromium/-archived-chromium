@@ -8,6 +8,8 @@
 #if defined(OS_WIN)
 #include <objidl.h>
 #include <mlang.h>
+#elif defined(OS_LINUX)
+#include <sys/utsname.h>
 #endif
 
 #include "BackForwardList.h"
@@ -326,6 +328,20 @@ std::string BuildOSCpuInfo() {
   base::SysInfo::OperatingSystemVersionNumbers(&os_major_version,
                                                &os_minor_version,
                                                &os_bugfix_version);
+#else
+  // Should work on any Posix system
+  // Get CPU type and operating system name
+  struct utsname unixinfo;
+  uname(&unixinfo);
+
+  std::string cputype;
+  // special case for biarch systems
+  if (strcmp(unixinfo.machine, "x86_64") == 0 &&
+      sizeof(void *) == sizeof(int32)) {
+    cputype.assign("i686 (x86_64)");
+  } else {
+    cputype.assign(unixinfo.machine);
+  }
 #endif
 
   StringAppendF(
@@ -339,8 +355,10 @@ std::string BuildOSCpuInfo() {
       os_major_version,
       os_minor_version,
       os_bugfix_version
-#elif defined(OS_LINUX)
-      "Linux"            // Firefox also puts CPU info here
+#else
+      "%s %s",
+      unixinfo.sysname, // e.g. Linux
+      cputype.c_str()   // e.g. i686
 #endif
   );
 
