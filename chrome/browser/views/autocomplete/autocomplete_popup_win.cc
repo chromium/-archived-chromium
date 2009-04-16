@@ -9,15 +9,169 @@
 #include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/common/gfx/chrome_canvas.h"
+#include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/win_util.h"
 #include "grit/theme_resources.h"
+#include "skia/include/SkShader.h"
 
 // The stroke color around the popup border.
 static const SkColor kEdgeColor = SkColorSetRGB(183, 195, 219);
 static const int kPopupTransparency = 235;
+static const int kHoverRowAlpha = 0x40;
+
+// TODO(beng): documentation, finalize
+class AutocompleteResultViewModel {
+ public:
+  virtual bool IsSelectedIndex(size_t index) = 0;
+
+  virtual AutocompleteMatch::Type GetResultTypeAtIndex(size_t index) = 0;
+
+  virtual void OpenIndex(size_t index, WindowOpenDisposition disposition) = 0;
+
+  virtual void SetHoveredLine(size_t index) = 0;
+  virtual void SetSelectedLine(size_t index, bool revert_to_default) = 0;
+};
+
+class AutocompleteResultView : public views::View {
+ public:
+  AutocompleteResultView(AutocompleteResultViewModel* model, int model_index);
+  virtual ~AutocompleteResultView();
+
+  // Overridden from views::View:
+  virtual void Paint(ChromeCanvas* canvas);  
+  virtual gfx::Size GetPreferredSize();
+  virtual void OnMouseEntered(const views::MouseEvent& event);
+  virtual void OnMouseMoved(const views::MouseEvent& event);
+  virtual void OnMouseExited(const views::MouseEvent& event);
+  virtual bool OnMousePressed(const views::MouseEvent& event);
+  virtual void OnMouseReleased(const views::MouseEvent& event, bool canceled);
+  virtual bool OnMouseDragged(const views::MouseEvent& event);
+
+ private:
+  // Paint the result view in different ways.
+  void PaintAsSearchDefault(ChromeCanvas* canvas);
+  void PaintAsURLSuggestion(ChromeCanvas* canvas);
+  void PaintAsQuerySuggestion(ChromeCanvas* canvas);
+  void PaintAsMoreRow(ChromeCanvas* canvas);
+
+  // Get colors for row backgrounds and text for different row states.
+  SkColor GetHighlightRowColor() const;
+  SkColor GetHighlightTextColor() const;
+  SkColor GetHoverRowColor() const;
+  SkColor GetTextColor() const;
+
+  // This row's model and model index.
+  AutocompleteResultViewModel* model_;
+  size_t model_index_;
+
+  // True if the mouse is over this row.
+  bool hot_;
+
+  DISALLOW_COPY_AND_ASSIGN(AutocompleteResultView);
+};
+
+AutocompleteResultView::AutocompleteResultView(
+    AutocompleteResultViewModel* model,
+    int model_index)
+    : model_(model),
+      model_index_(model_index),
+      hot_(false) {
+}
+
+AutocompleteResultView::~AutocompleteResultView() {
+}
+
+void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
+  // Paint the row background if any.
+  if (model_->IsSelectedIndex(model_index_))
+    canvas->FillRectInt(GetHighlightRowColor(), 0, 0, width(), height());
+  else if (hot_)
+    canvas->FillRectInt(GetHoverRowColor(), 0, 0, width(), height());
+}
+
+gfx::Size AutocompleteResultView::GetPreferredSize() {
+  return gfx::Size(0, 30);
+}
+
+void AutocompleteResultView::OnMouseEntered(const views::MouseEvent& event) {
+  hot_ = true;
+  SchedulePaint();
+}
+
+void AutocompleteResultView::OnMouseMoved(const views::MouseEvent& event) {
+  if (!hot_) {
+    hot_ = true;
+    SchedulePaint();
+  }
+}
+
+void AutocompleteResultView::OnMouseExited(const views::MouseEvent& event) {
+  hot_ = false;
+  SchedulePaint();
+}
+
+bool AutocompleteResultView::OnMousePressed(const views::MouseEvent& event) {
+  if (event.IsOnlyLeftMouseButton()) {
+    model_->SetHoveredLine(model_index_);
+    model_->SetSelectedLine(model_index_, false);
+  } else if (event.IsOnlyMiddleMouseButton()) {
+    model_->SetHoveredLine(model_index_);
+  }
+  return true;
+}
+
+void AutocompleteResultView::OnMouseReleased(const views::MouseEvent& event,
+                                             bool canceled) {
+  if (canceled)
+    return;
+  if (event.IsOnlyMiddleMouseButton())
+    model_->OpenIndex(model_index_, NEW_BACKGROUND_TAB);
+  else if (event.IsOnlyLeftMouseButton())
+    model_->OpenIndex(model_index_, CURRENT_TAB);
+}
+
+bool AutocompleteResultView::OnMouseDragged(const views::MouseEvent& event) {
+  // TODO(beng): move all message handling into the contents view and override
+  //             GetViewForPoint.
+  return false;
+}
+
+void AutocompleteResultView::PaintAsSearchDefault(ChromeCanvas* canvas) {
+
+}
+
+void AutocompleteResultView::PaintAsURLSuggestion(ChromeCanvas* canvas) {
+
+}
+
+void AutocompleteResultView::PaintAsQuerySuggestion(ChromeCanvas* canvas) {
+
+}
+
+void AutocompleteResultView::PaintAsMoreRow(ChromeCanvas* canvas) {
+
+}
+
+SkColor AutocompleteResultView::GetHighlightRowColor() const {
+  return color_utils::GetSysSkColor(COLOR_HIGHLIGHT);
+}
+
+SkColor AutocompleteResultView::GetHighlightTextColor() const {
+  return color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
+}
+
+SkColor AutocompleteResultView::GetHoverRowColor() const {
+  COLORREF color = GetSysColor(COLOR_HIGHLIGHT);
+  return SkColorSetARGB(kHoverRowAlpha, GetRValue(color), GetGValue(color),
+                        GetBValue(color));
+}
+
+SkColor AutocompleteResultView::GetTextColor() const {
+  return color_utils::GetSysSkColor(COLOR_WINDOWTEXT);
+}
 
 class PopupBorder : public views::Border {
  public:
@@ -29,7 +183,7 @@ class PopupBorder : public views::Border {
   // Returns the border radius of the edge of the popup.
   static int GetBorderRadius() {
     InitClass();
-    return dropshadow_topleft_->width() - dropshadow_left_->width();
+    return dropshadow_topleft_->width() - dropshadow_left_->width() - 1;
   }
 
   // Overridden from views::Border:
@@ -117,69 +271,187 @@ void PopupBorder::InitClass() {
   }
 }
 
-class AutocompletePopupViewContents : public views::View {
+class AutocompletePopupViewContents : public views::View,
+                                      public AutocompleteResultViewModel {
  public:
-  AutocompletePopupViewContents() {
+  explicit AutocompletePopupViewContents(AutocompletePopupWin* popup)
+      : popup_(popup) {
     set_border(new PopupBorder);
   }
   virtual ~AutocompletePopupViewContents() {}
 
+  // Update the presentation with the latest result.
+  void SetAutocompleteResult(const AutocompleteResult& result);
+
+  // Schedule a repaint for the specified row.
+  void InvalidateLine(int index);
+
+  // Overridden from AutocompleteResultViewModel:
+  virtual bool IsSelectedIndex(size_t index);
+  virtual AutocompleteMatch::Type GetResultTypeAtIndex(size_t index);
+  virtual void OpenIndex(size_t index, WindowOpenDisposition disposition);
+  virtual void SetHoveredLine(size_t index);
+  virtual void SetSelectedLine(size_t index, bool revert_to_default);
+
   // Overridden from views::View:
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void PaintChildren(ChromeCanvas* canvas);
   virtual void Layout();
 
  private:
+  // Fill a path for the contents' roundrect. |bounding_rect| is the rect that
+  // bounds the path.
+  void MakeContentsPath(gfx::Path* path, const gfx::Rect& bounding_rect);
+
+  // Updates the window's blur region for the current size.
+  void UpdateBlurRegion();
+
+  // Makes the contents of the canvas slightly transparent.
+  void MakeCanvasTransparent(ChromeCanvas* canvas);
+
+  AutocompletePopupWin* popup_;
+
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupViewContents);
 };
 
-void AutocompletePopupViewContents::Paint(ChromeCanvas* canvas) {
-  gfx::Rect contents_rect = GetLocalBounds(false);
-
-  {
-    SkPaint paint;
-    SkRect rect;
-    rect.set(SkIntToScalar(contents_rect.x()),
-             SkIntToScalar(contents_rect.y()),
-             SkIntToScalar(contents_rect.right()),
-             SkIntToScalar(contents_rect.bottom()));
-
-    SkScalar radius = SkIntToScalar(PopupBorder::GetBorderRadius());
-    paint.setColor(SK_ColorWHITE);
-    paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kFill_Style);
-    canvas->drawRoundRect(rect, radius, radius, paint);
+void AutocompletePopupViewContents::SetAutocompleteResult(
+    const AutocompleteResult& result) {
+  RemoveAllChildViews(true);
+  for (size_t i = 0; i < result.size(); ++i) {
+    AutocompleteMatch match = result.match_at(i);
+    AutocompleteResultView* result = new AutocompleteResultView(this, i);
+    AddChildView(result);
   }
+  Layout();
+}
 
-  // Allow the window blur effect to show through the popup background.
+void AutocompletePopupViewContents::InvalidateLine(int index) {
+  GetChildViewAt(index)->SchedulePaint();
+}
+
+bool AutocompletePopupViewContents::IsSelectedIndex(size_t index) {
+  return index == popup_->GetModel()->selected_line();
+}
+
+AutocompleteMatch::Type AutocompletePopupViewContents::GetResultTypeAtIndex(
+    size_t index) {
+  return popup_->GetModel()->result().match_at(index).type;
+}
+
+void AutocompletePopupViewContents::OpenIndex(
+    size_t index,
+    WindowOpenDisposition disposition) {
+  popup_->OpenIndex(index, disposition);
+}
+
+void AutocompletePopupViewContents::SetHoveredLine(size_t index) {
+  popup_->SetHoveredLine(index);
+}
+
+void AutocompletePopupViewContents::SetSelectedLine(size_t index,
+                                                    bool revert_to_default) {
+  popup_->SetSelectedLine(index, revert_to_default);
+}
+
+void AutocompletePopupViewContents::PaintChildren(ChromeCanvas* canvas) {
+  // We paint our children in an unconventional way.
+  //
+  // Because the border of this view creates an anti-aliased round-rect region
+  // for the contents, we need to render our rectangular result child views into
+  // this round rect region. We can't use a simple clip because clipping is
+  // 1-bit and we get nasty jagged edges.
+  //
+  // Instead, we paint all our children into a second canvas and use that as a
+  // shader to fill a path representing the round-rect clipping region. This
+  // yields a nice anti-aliased edge.
+  gfx::Rect contents_rect = GetLocalBounds(false);
+  ChromeCanvas contents_canvas(contents_rect.width(), contents_rect.height(),
+                               true);
+  contents_canvas.FillRectInt(color_utils::GetSysSkColor(COLOR_WINDOW), 0, 0,
+                              contents_rect.width(), contents_rect.height());
+  // We want the contents background to be slightly transparent so we can see
+  // the blurry glass effect on DWM systems behind.
+  MakeCanvasTransparent(&contents_canvas);
+  View::PaintChildren(&contents_canvas);
+
+  // Now paint the contents of the contents canvas into the actual canvas.
   SkPaint paint;
-  paint.setColor(SkColorSetARGB(kPopupTransparency, 255, 255, 255));
-  paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);
-  paint.setStyle(SkPaint::kFill_Style);
-  canvas->FillRectInt(contents_rect.x(), contents_rect.y(),
-                      contents_rect.width(), contents_rect.height(), paint);
+  paint.setAntiAlias(true);
 
-  // Paint the dropshadow.
-  PaintBorder(canvas);
+  SkShader* shader = SkShader::CreateBitmapShader(
+      contents_canvas.getDevice()->accessBitmap(false),
+      SkShader::kClamp_TileMode,
+      SkShader::kClamp_TileMode);
+  paint.setShader(shader);
+  shader->unref();
+
+  gfx::Path path;
+  MakeContentsPath(&path, contents_rect);
+  canvas->drawPath(path, paint);
 }
 
 void AutocompletePopupViewContents::Layout() {
+  UpdateBlurRegion();
+
+  // Size our children to the available content area.
+  gfx::Rect contents_rect = GetLocalBounds(false);
+  int child_count = GetChildViewCount();
+  int top = contents_rect.y();
+  for (int i = 0; i < child_count; ++i) {
+    View* v = GetChildViewAt(i);
+    v->SetBounds(contents_rect.x(), top, contents_rect.width(),
+                 v->GetPreferredSize().height());
+    top = v->bounds().bottom();
+  }
+
+  // We need to manually schedule a paint here since we are a layered window and
+  // won't implicitly require painting until we ask for one.
+  SchedulePaint();
+}
+
+void AutocompletePopupViewContents::MakeContentsPath(
+    gfx::Path* path,
+    const gfx::Rect& bounding_rect) {
+  SkRect rect;
+  rect.set(SkIntToScalar(bounding_rect.x()),
+           SkIntToScalar(bounding_rect.y()),
+           SkIntToScalar(bounding_rect.right()),
+           SkIntToScalar(bounding_rect.bottom()));
+
+  SkScalar radius = SkIntToScalar(PopupBorder::GetBorderRadius());
+  path->addRoundRect(rect, radius, radius);
+}
+
+void AutocompletePopupViewContents::UpdateBlurRegion() {
   // Provide a blurred background effect within the contents region of the
   // popup.
   DWM_BLURBEHIND bb = {0};
   bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
   bb.fEnable = true;
 
+  // Translate the contents rect into widget coordinates, since that's what
+  // DwmEnableBlurBehindWindow expects a region in.
   gfx::Rect contents_rect = GetLocalBounds(false);
   gfx::Point origin(contents_rect.origin());
   views::View::ConvertPointToWidget(this, &origin);
   contents_rect.set_origin(origin);
 
+  gfx::Path contents_path;
+  MakeContentsPath(&contents_path, contents_rect);
   ScopedGDIObject<HRGN> popup_region;
-  popup_region.Set(CreateRectRgn(contents_rect.x(), contents_rect.y(),
-                                 contents_rect.right(),
-                                 contents_rect.bottom()));
+  popup_region.Set(contents_path.CreateHRGN());
   bb.hRgnBlur = popup_region.Get();
   DwmEnableBlurBehindWindow(GetWidget()->GetNativeView(), &bb);
+}
+
+void AutocompletePopupViewContents::MakeCanvasTransparent(
+    ChromeCanvas* canvas) {
+  // Allow the window blur effect to show through the popup background.
+  SkPaint paint;
+  paint.setColor(SkColorSetARGB(kPopupTransparency, 255, 255, 255));
+  paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);
+  paint.setStyle(SkPaint::kFill_Style);
+  canvas->FillRectInt(0, 0, canvas->getDevice()->width(),
+                      canvas->getDevice()->height(), paint);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,11 +466,10 @@ AutocompletePopupWin::AutocompletePopupWin(
     : model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
       popup_positioner_(popup_positioner),
-      contents_(new AutocompletePopupViewContents) {
+      contents_(new AutocompletePopupViewContents(this)) {
   set_delete_on_destroy(false);
   set_window_style(WS_POPUP | WS_CLIPCHILDREN);
   set_window_ex_style(WS_EX_TOOLWINDOW | WS_EX_LAYERED);
-  contents_ = new AutocompletePopupViewContents;
 }
 
 AutocompletePopupWin::~AutocompletePopupWin() {
@@ -212,6 +483,7 @@ bool AutocompletePopupWin::IsOpen() const {
 }
 
 void AutocompletePopupWin::InvalidateLine(size_t line) {
+  contents_->InvalidateLine(static_cast<int>(line));
 }
 
 void AutocompletePopupWin::UpdatePopupAppearance() {
@@ -246,16 +518,27 @@ void AutocompletePopupWin::UpdatePopupAppearance() {
     win_util::SetChildBounds(GetNativeView(), NULL, NULL, popup_bounds, 0,
                              flags);
   }
+  contents_->SetAutocompleteResult(result);
 }
 
 void AutocompletePopupWin::OnHoverEnabledOrDisabled(bool disabled) {
+  // TODO(beng): remove this from the interface.
 }
 
 void AutocompletePopupWin::PaintUpdatesNow() {
+  // TODO(beng): remove this from the interface.
 }
 
 AutocompletePopupModel* AutocompletePopupWin::GetModel() {
   return model_.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// AutocompletePopupWin, WidgetWin overrides:
+
+LRESULT AutocompletePopupWin::OnMouseActivate(HWND window, UINT hit_test,
+                                              UINT mouse_message) {
+  return MA_NOACTIVATE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,4 +553,25 @@ gfx::Rect AutocompletePopupWin::GetPopupBounds() const {
   contents_bounds.Inset(-insets.left(), -insets.top(), -insets.right(),
                         -insets.bottom());
   return contents_bounds;
+}
+
+void AutocompletePopupWin::OpenIndex(int index,
+                                     WindowOpenDisposition disposition) {
+  const AutocompleteMatch& match = model_->result().match_at(index);
+  // OpenURL() may close the popup, which will clear the result set and, by
+  // extension, |match| and its contents.  So copy the relevant strings out to
+  // make sure they stay alive until the call completes.
+  const GURL url(match.destination_url);
+  std::wstring keyword;
+  const bool is_keyword_hint = model_->GetKeywordForMatch(match, &keyword);
+  edit_view_->OpenURL(url, disposition, match.transition, GURL(), index,
+                      is_keyword_hint ? std::wstring() : keyword);  
+}
+
+void AutocompletePopupWin::SetHoveredLine(int index) {
+  model_->SetHoveredLine(index);
+}
+
+void AutocompletePopupWin::SetSelectedLine(int index, bool revert_to_default) {
+  model_->SetSelectedLine(index, revert_to_default);
 }

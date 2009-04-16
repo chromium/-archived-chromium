@@ -32,6 +32,14 @@ class AutocompletePopupWin : public views::WidgetWin,
                        AutocompletePopupPositioner* popup_positioner);
   virtual ~AutocompletePopupWin();
 
+  // Performs the action associated with the result at the specified index.
+  // TODO(beng): get rid of this.
+  void OpenIndex(int index, WindowOpenDisposition disposition);
+
+  // TODO(beng): get rid of these.
+  void SetHoveredLine(int index);
+  void SetSelectedLine(int index, bool revert_to_default);
+
   // Overridden from AutocompletePopupView:
   virtual bool IsOpen() const;
   virtual void InvalidateLine(size_t line);
@@ -39,6 +47,12 @@ class AutocompletePopupWin : public views::WidgetWin,
   virtual void OnHoverEnabledOrDisabled(bool disabled);
   virtual void PaintUpdatesNow();
   virtual AutocompletePopupModel* GetModel();
+
+ protected:
+  // Overridden from WidgetWin:
+  virtual LRESULT OnMouseActivate(HWND window,
+                                  UINT hit_test,
+                                  UINT mouse_message);
 
  private:
   // Returns the bounds of the popup window, in screen coordinates, adjusted for
