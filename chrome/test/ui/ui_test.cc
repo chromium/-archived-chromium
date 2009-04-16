@@ -95,9 +95,6 @@ bool UITest::DieFileDie(const FilePath& file, bool recurse) {
   }
   return false;
 }
-bool UITest::DieFileDie(const std::wstring& file, bool recurse) {
-  return DieFileDie(FilePath::FromWStringHack(file), recurse);
-}
 
 UITest::UITest()
     : testing::Test(),
@@ -302,7 +299,7 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir_);
   if (!user_data_dir_.empty())
     command_line.AppendSwitchWithValue(switches::kUserDataDir,
-                                       user_data_dir_);
+                                       user_data_dir_.ToWStringHack());
   if (!js_flags_.empty())
     command_line.AppendSwitchWithValue(switches::kJavaScriptFlags,
                                        js_flags_);
@@ -332,7 +329,7 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   // Clear user data directory to make sure test environment is consistent
   // We balk on really short (absolute) user_data_dir directory names, because
   // we're worried that they'd accidentally be root or something.
-  ASSERT_LT(10, static_cast<int>(user_data_dir_.size())) <<
+  ASSERT_LT(10, static_cast<int>(user_data_dir_.value().size())) <<
                 "The user data directory name passed into this test was too "
                 "short to delete safely.  Please check the user-data-dir "
                 "argument and try again.";
@@ -341,8 +338,9 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
 
   if (!template_user_data_.empty()) {
     // Recursively copy the template directory to the user_data_dir.
-    ASSERT_TRUE(file_util::CopyRecursiveDirNoCache(template_user_data_,
-                                                   user_data_dir_));
+    ASSERT_TRUE(file_util::CopyRecursiveDirNoCache(
+        template_user_data_,
+        user_data_dir_.ToWStringHack()));
   }
 
   browser_launch_time_ = TimeTicks::Now();
@@ -378,7 +376,7 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   if (use_existing_browser_) {
     DWORD pid = 0;
     HWND hwnd = FindWindowEx(HWND_MESSAGE, NULL, chrome::kMessageWindowClass,
-                             user_data_dir_.c_str());
+                             user_data_dir_.value().c_str());
     GetWindowThreadProcessId(hwnd, &pid);
     // This mode doesn't work if we wound up launching a new browser ourselves.
     ASSERT_NE(pid, base::GetProcId(process_));
@@ -451,7 +449,7 @@ void UITest::AssertAppNotRunning(const std::wstring& error_message) {
 
 void UITest::CleanupAppProcesses() {
 #if defined(OS_WIN) || defined(OS_LINUX)
-  TerminateAllChromeProcesses(FilePath::FromWStringHack(user_data_dir()));
+  TerminateAllChromeProcesses(user_data_dir());
 
   // Suppress spammy failures that seem to be occurring when running
   // the UI tests in single-process mode.

@@ -270,7 +270,7 @@ class MemoryTest : public UITest {
   void PrintIOPerfInfo(const char* test_name) {
     printf("\n");
 
-    FilePath data_dir(FilePath::FromWStringHack(user_data_dir()));
+    FilePath data_dir(user_data_dir());
     int browser_process_pid = ChromeBrowserProcessId(data_dir);
     ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
 
@@ -318,7 +318,7 @@ class MemoryTest : public UITest {
   void PrintMemoryUsageInfo(const char* test_name) {
     printf("\n");
 
-    FilePath data_dir(FilePath::FromWStringHack(user_data_dir()));
+    FilePath data_dir(user_data_dir());
     int browser_process_pid = ChromeBrowserProcessId(data_dir);
     ChromeProcessList chrome_processes(GetRunningChromeProcesses(data_dir));
 

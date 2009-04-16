@@ -70,8 +70,6 @@ class UITest : public testing::Test {
   // and shouldn't be necessary on POSIX, but it can't hurt.)
   // Returns true on success.
   bool DieFileDie(const FilePath& file, bool recurse);
-  // Deprecated backwards-compat version.
-  bool DieFileDie(const std::wstring& file, bool recurse);
 
   // Launches the browser and IPC testing server.
   void LaunchBrowserAndServer();
@@ -331,7 +329,7 @@ class UITest : public testing::Test {
 
   // Return the user data directory being used by the browser instance in
   // UITest::SetUp().
-  std::wstring user_data_dir() const { return user_data_dir_; }
+  FilePath user_data_dir() const { return user_data_dir_; }
 
   // Timeout accessors.
   int command_execution_timeout_ms() const {
@@ -432,7 +430,7 @@ class UITest : public testing::Test {
                                         // test run the dom automation case.
   std::wstring template_user_data_;     // See set_template_user_data().
   base::ProcessHandle process_;         // Handle to the first Chrome process.
-  std::wstring user_data_dir_;          // User data directory used for the test
+  FilePath user_data_dir_;              // User data directory used for the test
   static bool in_process_renderer_;     // true if we're in single process mode
   bool show_window_;                    // Determines if the window is shown or
                                         // hidden. Defaults to hidden.
