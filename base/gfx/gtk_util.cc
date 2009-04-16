@@ -77,8 +77,6 @@ GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
       8,
       width, height, stride, &FreePixels, data);
 
-  // Assume ownership of pixbuf.
-  g_object_ref_sink(pixbuf);
   bitmap->unlockPixels();
   return pixbuf;
 }

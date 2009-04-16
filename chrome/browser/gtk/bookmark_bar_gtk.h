@@ -186,12 +186,6 @@ class BookmarkBarGtk : public BookmarkModelObserver {
   // We create a GtkToolbarItem from |dragged_node_| for display.
   GtkToolItem* toolbar_drop_item_;
 
-  // Default bookmark icon to display.
-  GdkPixbuf* default_bookmark_icon_;
-
-  // Icon for bookmark folders.
-  GdkPixbuf* folder_icon_;
-
   // Whether we should show the instructional text in the bookmark bar.
   bool show_instructions_;
 };

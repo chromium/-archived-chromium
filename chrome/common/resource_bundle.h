@@ -25,7 +25,7 @@ namespace base {
   class DataPack;
 };
 #endif
-#if defined(OS_LINUX)
+#if defined(TOOLKIT_GTK)
 typedef struct _GdkPixbuf GdkPixbuf;
 #endif
 class ChromeFont;
@@ -66,9 +66,8 @@ class ResourceBundle {
 
   // Gets the bitmap with the specified resource_id, first by looking into the
   // theme data, than in the current module data if applicable.
-  // Returns a pointer to a shared instance of the SkBitmap in the given out
-  // parameter. This shared bitmap is owned by the resource bundle and should
-  // not be freed.
+  // Returns a pointer to a shared instance of the SkBitmap. This shared bitmap
+  // is owned by the resource bundle and should not be freed.
   //
   // The bitmap is assumed to exist. This function will log in release, and
   // assert in debug mode if it does not. On failure, this will return a
@@ -115,8 +114,16 @@ class ResourceBundle {
   // Loads and returns a cursor from the app module.
   HCURSOR LoadCursor(int cursor_id);
 #elif defined(TOOLKIT_GTK)
-  // Load a theme image as a GdkPixbuf.
-  GdkPixbuf* LoadPixbuf(int resource_id);
+  // Gets the GdkPixbuf with the specified resource_id, first by looking into
+  // the theme data, than in the current module data if applicable.  Returns a
+  // pointer to a shared instance of the GdkPixbuf.  This shared GdkPixbuf is
+  // owned by the resource bundle and should not be freed.
+  //
+  // The bitmap is assumed to exist. This function will log in release, and
+  // assert in debug mode if it does not. On failure, this will return a
+  // pointer to a shared empty placeholder bitmap so it will be visible what
+  // is missing.
+  GdkPixbuf* GetPixbufNamed(int resource_id);
 #endif
 
   // Sets an Extension object that can handle theme resource requests.
@@ -176,6 +183,10 @@ class ResourceBundle {
   // ownership of the pointers.
   typedef std::map<int, SkBitmap*> SkImageMap;
   SkImageMap skia_images_;
+#if defined(TOOLKIT_GTK)
+  typedef std::map<int, GdkPixbuf*> GdkPixbufMap;
+  GdkPixbufMap gdk_pixbufs_;
+#endif
 
   // The various fonts used. Cached to avoid repeated GDI creation/destruction.
   scoped_ptr<ChromeFont> base_font_;

@@ -33,27 +33,27 @@ static void gtk_chrome_button_class_init(GtkChromeButtonClass *button_class) {
   int i = 0;
 
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_LEFT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_RIGHT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_LEFT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_CENTER_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_RIGHT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_LEFT_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_H);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_RIGHT_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_TOP_LEFT_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_TOP_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_TOP_RIGHT_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_LEFT_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_CENTER_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_RIGHT_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_BOTTOM_LEFT_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_BOTTOM_H);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_BOTTOM_RIGHT_H);
   nine_box_prelight.reset(new NineBox(images));
 
   i = 0;
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_LEFT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_TOP_RIGHT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_LEFT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_CENTER_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_RIGHT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_LEFT_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_P);
-  images[i++] = rb.LoadPixbuf(IDR_TEXTBUTTON_BOTTOM_RIGHT_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_TOP_LEFT_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_TOP_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_TOP_RIGHT_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_LEFT_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_CENTER_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_RIGHT_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_BOTTOM_LEFT_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_BOTTOM_P);
+  images[i++] = rb.GetPixbufNamed(IDR_TEXTBUTTON_BOTTOM_RIGHT_P);
   nine_box_active.reset(new NineBox(images));
 }
 

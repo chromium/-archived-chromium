@@ -95,9 +95,8 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 
   // Make the download arrow icon.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  GdkPixbuf* download_pixbuf = rb.LoadPixbuf(IDR_DOWNLOADS_FAVICON);
+  GdkPixbuf* download_pixbuf = rb.GetPixbufNamed(IDR_DOWNLOADS_FAVICON);
   GtkWidget* download_image = gtk_image_new_from_pixbuf(download_pixbuf);
-  gdk_pixbuf_unref(download_pixbuf);
 
   // Pack the link and the icon in an hbox.
   link_hbox_ = gtk_hbox_new(FALSE, 5);

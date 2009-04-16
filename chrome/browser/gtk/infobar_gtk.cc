@@ -57,7 +57,7 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
   if (icon) {
     GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(icon);
     GtkWidget* image = gtk_image_new_from_pixbuf(pixbuf);
-    gdk_pixbuf_unref(pixbuf);
+    g_object_unref(pixbuf);
     gtk_box_pack_start(GTK_BOX(hbox_), image, FALSE, FALSE, 0);
   }
 

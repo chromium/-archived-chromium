@@ -12,6 +12,7 @@
 #include "base/data_pack.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
+#include "base/gfx/gtk_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_piece.h"
@@ -19,9 +20,48 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/l10n_util.h"
+#include "SkBitmap.h"
+
+namespace {
+
+#if defined(TOOLKIT_GTK)
+// Convert the raw image data into a GdkPixbuf.  The GdkPixbuf that is returned
+// has a ref count of 1 so the caller must call g_object_unref to free the
+// memory.
+GdkPixbuf* LoadPixbuf(std::vector<unsigned char>& data) {
+  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
+  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
+                                    data.size(), NULL);
+  if (!ok)
+    return NULL;
+  // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
+  // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
+  ok = gdk_pixbuf_loader_close(loader, NULL);
+  if (!ok)
+    return NULL;
+  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+  if (!pixbuf)
+    return NULL;
+
+  // The pixbuf is owned by the loader, so add a ref so when we delete the
+  // loader, the pixbuf still exists.
+  g_object_ref(pixbuf);
+  g_object_unref(loader);
+
+  return pixbuf;
+}
+#endif
+
+}  // namespace
 
 ResourceBundle::~ResourceBundle() {
   FreeImages();
+  // Free GdkPixbufs.
+  for (GdkPixbufMap::iterator i = gdk_pixbufs_.begin();
+       i != gdk_pixbufs_.end(); i++) {
+    g_object_unref(i->second);
+  }
+  gdk_pixbufs_.clear();
 
   delete locale_resources_data_;
   locale_resources_data_ = NULL;
@@ -123,27 +163,52 @@ string16 ResourceBundle::GetLocalizedString(int message_id) {
 }
 
 #if defined(TOOLKIT_GTK)
-GdkPixbuf* ResourceBundle::LoadPixbuf(int resource_id) {
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
+  // Check to see if we already have the pixbuf in the cache.
+  {
+    AutoLock lock_scope(lock_);
+    GdkPixbufMap::const_iterator found = gdk_pixbufs_.find(resource_id);
+    if (found != gdk_pixbufs_.end())
+      return found->second;
+  }
+
+
   std::vector<unsigned char> data;
-  rb.LoadImageResourceBytes(resource_id, &data);
+  LoadImageResourceBytes(resource_id, &data);
+  GdkPixbuf* pixbuf = LoadPixbuf(data);
 
-  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
-  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
-      data.size(), NULL);
-  DCHECK(ok) << "failed to write " << resource_id;
-  // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
-  // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
-  ok = gdk_pixbuf_loader_close(loader, NULL);
-  DCHECK(ok) << "close failed " << resource_id;
-  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-  DCHECK(pixbuf) << "failed to load " << resource_id << " " << data.size();
+  // We loaded successfully.  Cache the pixbuf.
+  if (pixbuf) {
+    AutoLock lock_scope(lock_);
 
-  // The pixbuf is owned by the loader, so add a ref so when we delete the
-  // loader, the pixbuf still exists.
-  g_object_ref(pixbuf);
-  g_object_unref(loader);
+    // Another thread raced us, and has already cached the pixbuf.
+    if (gdk_pixbufs_.count(resource_id)) {
+      g_object_unref(pixbuf);
+      return gdk_pixbufs_[resource_id];
+    }
 
-  return pixbuf;
+    gdk_pixbufs_[resource_id] = pixbuf;
+    return pixbuf;
+  }
+
+  // We failed to retrieve the bitmap, show a debugging red square.
+  {
+    LOG(WARNING) << "Unable to load GdkPixbuf with id " << resource_id;
+    NOTREACHED();  // Want to assert in debug mode.
+
+    AutoLock lock_scope(lock_);  // Guard empty_bitmap initialization.
+
+    static GdkPixbuf* empty_bitmap = NULL;
+    if (!empty_bitmap) {
+      // The placeholder bitmap is bright red so people notice the problem.
+      // This bitmap will be leaked, but this code should never be hit.
+      scoped_ptr<SkBitmap> skia_bitmap(new SkBitmap());
+      skia_bitmap->setConfig(SkBitmap::kARGB_8888_Config, 32, 32);
+      skia_bitmap->allocPixels();
+      skia_bitmap->eraseARGB(255, 255, 0, 0);
+      empty_bitmap = gfx::GdkPixbufFromSkBitmap(skia_bitmap.get());
+    }
+    return empty_bitmap;
+  }
 }
 #endif

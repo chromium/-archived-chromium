@@ -261,7 +261,7 @@ void BrowserToolbarGtk::BuildToolbarMenuButton(
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   gtk_container_set_border_width(GTK_CONTAINER(button), 2);
   gtk_container_add(GTK_CONTAINER(button),
-                    gtk_image_new_from_pixbuf(rb.LoadPixbuf(icon_id)));
+                    gtk_image_new_from_pixbuf(rb.GetPixbufNamed(icon_id)));
 
   gtk_widget_set_tooltip_text(button, localized_tooltip.c_str());
   g_signal_connect(G_OBJECT(button), "button-press-event",
@@ -404,15 +404,15 @@ void BrowserToolbarGtk::InitNineBox() {
   ResourceBundle &rb = ResourceBundle::GetSharedInstance();
 
   GdkPixbuf* images[9] = {
-    rb.LoadPixbuf(IDR_CONTENT_TOP_LEFT_CORNER),
-    rb.LoadPixbuf(IDR_CONTENT_TOP_CENTER),
-    rb.LoadPixbuf(IDR_CONTENT_TOP_RIGHT_CORNER),
-    rb.LoadPixbuf(IDR_CONTENT_LEFT_SIDE),
+    rb.GetPixbufNamed(IDR_CONTENT_TOP_LEFT_CORNER),
+    rb.GetPixbufNamed(IDR_CONTENT_TOP_CENTER),
+    rb.GetPixbufNamed(IDR_CONTENT_TOP_RIGHT_CORNER),
+    rb.GetPixbufNamed(IDR_CONTENT_LEFT_SIDE),
     NULL,
-    rb.LoadPixbuf(IDR_CONTENT_RIGHT_SIDE),
-    rb.LoadPixbuf(IDR_CONTENT_BOTTOM_LEFT_CORNER),
-    rb.LoadPixbuf(IDR_CONTENT_BOTTOM_CENTER),
-    rb.LoadPixbuf(IDR_CONTENT_BOTTOM_RIGHT_CORNER)
+    rb.GetPixbufNamed(IDR_CONTENT_RIGHT_SIDE),
+    rb.GetPixbufNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER),
+    rb.GetPixbufNamed(IDR_CONTENT_BOTTOM_CENTER),
+    rb.GetPixbufNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER)
   };
   background_ninebox_.reset(new NineBox(images));
 }

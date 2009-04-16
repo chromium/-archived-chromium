@@ -54,9 +54,6 @@ BookmarkBarGtk::~BookmarkBarGtk() {
   RemoveAllBookmarkButtons();
   bookmark_toolbar_.Destroy();
   container_.Destroy();
-
-  g_object_unref(default_bookmark_icon_);
-  g_object_unref(folder_icon_);
 }
 
 void BookmarkBarGtk::SetProfile(Profile* profile) {
@@ -91,8 +88,7 @@ void BookmarkBarGtk::SetPageNavigator(PageNavigator* navigator) {
 void BookmarkBarGtk::Init(Profile* profile) {
   // Load the default images from the resource bundle.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  default_bookmark_icon_ = rb.LoadPixbuf(IDR_DEFAULT_FAVICON);
-  folder_icon_ = rb.LoadPixbuf(IDR_BOOKMARK_BAR_FOLDER);
+  static GdkPixbuf* folder_icon = rb.GetPixbufNamed(IDR_BOOKMARK_BAR_FOLDER);
 
   bookmark_hbox_ = gtk_hbox_new(FALSE, 0);
   container_.Own(gfx::CreateGtkBorderBin(bookmark_hbox_, &kBackgroundColor,
@@ -127,7 +123,7 @@ void BookmarkBarGtk::Init(Profile* profile) {
   gtk_button_set_label(GTK_BUTTON(other_bookmarks_button_),
                        "Other bookmarks");
   gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
-                       gtk_image_new_from_pixbuf(folder_icon_));
+                       gtk_image_new_from_pixbuf(folder_icon));
   // TODO(erg): Hook up a popup menu to |other_bookmarks_button_|.
   gtk_box_pack_start(GTK_BOX(bookmark_hbox_), other_bookmarks_button_,
                      FALSE, FALSE, 0);
@@ -290,10 +286,13 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
       GdkPixbuf* pixbuf = gfx::GdkPixbufFromSkBitmap(&node->GetFavIcon());
       gtk_button_set_image(GTK_BUTTON(button),
                            gtk_image_new_from_pixbuf(pixbuf));
-      gdk_pixbuf_unref(pixbuf);
+      g_object_unref(pixbuf);
     } else {
+      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+      static GdkPixbuf* default_bookmark_icon = rb.GetPixbufNamed(
+          IDR_DEFAULT_FAVICON);
       gtk_button_set_image(GTK_BUTTON(button),
-                           gtk_image_new_from_pixbuf(default_bookmark_icon_));
+                           gtk_image_new_from_pixbuf(default_bookmark_icon));
     }
   }
 }

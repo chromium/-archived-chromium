@@ -17,20 +17,16 @@ CustomDrawButtonBase::CustomDrawButtonBase(
     int depressed_id) {
   // Load the button images from the resource bundle.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  pixbufs_[GTK_STATE_NORMAL] = normal_id ? rb.LoadPixbuf(normal_id) : NULL;
-  pixbufs_[GTK_STATE_ACTIVE] = active_id ? rb.LoadPixbuf(active_id) : NULL;
+  pixbufs_[GTK_STATE_NORMAL] = normal_id ? rb.GetPixbufNamed(normal_id) : NULL;
+  pixbufs_[GTK_STATE_ACTIVE] = active_id ? rb.GetPixbufNamed(active_id) : NULL;
   pixbufs_[GTK_STATE_PRELIGHT] =
-      highlight_id ? rb.LoadPixbuf(highlight_id) : NULL;
+      highlight_id ? rb.GetPixbufNamed(highlight_id) : NULL;
   pixbufs_[GTK_STATE_SELECTED] = NULL;
   pixbufs_[GTK_STATE_INSENSITIVE] =
-      depressed_id ? rb.LoadPixbuf(depressed_id) : NULL;
+      depressed_id ? rb.GetPixbufNamed(depressed_id) : NULL;
 }
 
 CustomDrawButtonBase::~CustomDrawButtonBase() {
-  for (size_t i = 0; i < arraysize(pixbufs_); ++i) {
-    if (pixbufs_[i])
-      g_object_unref(pixbufs_[i]);
-  }
 }
 
 gboolean CustomDrawButtonBase::OnExpose(GtkWidget* widget, GdkEventExpose* e) {

@@ -38,10 +38,6 @@ NineBox::NineBox(GdkPixbuf* images[9]) {
 }
 
 NineBox::~NineBox() {
-  for (int i = 0; i < 9; ++i) {
-    if (images_[i])
-      gdk_pixbuf_unref(images_[i]);
-  }
 }
 
 void NineBox::RenderToWidget(GtkWidget* dst) {

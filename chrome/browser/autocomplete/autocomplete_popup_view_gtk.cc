@@ -279,11 +279,11 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
 
   // TODO(deanm): These would be better as pixmaps someday.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  static GdkPixbuf* o2_globe = rb.LoadPixbuf(IDR_O2_GLOBE);
-  static GdkPixbuf* o2_history = rb.LoadPixbuf(IDR_O2_HISTORY);
-  static GdkPixbuf* o2_more = rb.LoadPixbuf(IDR_O2_MORE);
-  static GdkPixbuf* o2_search = rb.LoadPixbuf(IDR_O2_SEARCH);
-  static GdkPixbuf* o2_star = rb.LoadPixbuf(IDR_O2_STAR);
+  static GdkPixbuf* o2_globe = rb.GetPixbufNamed(IDR_O2_GLOBE);
+  static GdkPixbuf* o2_history = rb.GetPixbufNamed(IDR_O2_HISTORY);
+  static GdkPixbuf* o2_more = rb.GetPixbufNamed(IDR_O2_MORE);
+  static GdkPixbuf* o2_search = rb.GetPixbufNamed(IDR_O2_SEARCH);
+  static GdkPixbuf* o2_star = rb.GetPixbufNamed(IDR_O2_STAR);
 
   GdkRectangle window_rect = GetWindowRect(event->window);
   // Handle when our window is super narrow.  A bunch of the calculations
