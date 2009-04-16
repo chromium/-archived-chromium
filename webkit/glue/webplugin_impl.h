@@ -217,8 +217,7 @@ class WebPluginImpl : public WebPlugin,
   // Called by WebPluginContainer::setFrameRect, which overrides
   // Widget setFrameRect when our window changes size or position.
   // Used to notify the plugin when the size or position changes.
-  void setFrameRect(const WebCore::IntRect& rect,
-                    bool widget_dimensions_changed);
+  void setFrameRect(const WebCore::IntRect& rect);
 
   // Called by WebPluginContainer::paint, which overrides Widget::paint so we
   // can notify the underlying widget to repaint.
