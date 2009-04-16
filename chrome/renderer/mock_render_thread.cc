@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -73,6 +73,12 @@ void MockRenderThread::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget);
     IPC_MESSAGE_HANDLER(ViewHostMsg_OpenChannelToExtension,
                         OnMsgOpenChannelToExtension);
+#if defined(OS_WIN)
+    IPC_MESSAGE_HANDLER(ViewHostMsg_GetDefaultPrintSettings,
+                        OnGetDefaultPrintSettings);
+    IPC_MESSAGE_HANDLER(ViewHostMsg_ScriptedPrint,
+                        OnScriptedPrint);
+#endif
     IPC_MESSAGE_UNHANDLED(handled = false)
   IPC_END_MESSAGE_MAP_EX()
 }
@@ -88,4 +94,23 @@ void MockRenderThread::OnMsgCreateWidget(int opener_id,
 void MockRenderThread::OnMsgOpenChannelToExtension(
     const std::string& extension_id, int* channel_id) {
   *channel_id = 0;
+}
+
+void MockRenderThread::OnGetDefaultPrintSettings(ViewMsg_Print_Params* params) {
+  memset(params, 0, sizeof(ViewMsg_Print_Params));
+  params->dpi = 72;
+  params->desired_dpi = 72;
+  params->document_cookie = 1;
+  params->printable_size = gfx::Size(500, 500);
+}
+
+void MockRenderThread::OnScriptedPrint(gfx::NativeViewId host_window,
+                                       int cookie,
+                                       int expected_pages_count,
+                                       ViewMsg_PrintPages_Params* settings) {
+  memset(settings, 0, sizeof(ViewMsg_PrintPages_Params));
+  settings->params.dpi = 72;
+  settings->params.document_cookie = 1;
+  settings->params.desired_dpi = 72;
+  settings->params.printable_size = gfx::Size(500, 500);
 }

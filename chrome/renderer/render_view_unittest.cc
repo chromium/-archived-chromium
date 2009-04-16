@@ -1,4 +1,4 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -275,4 +275,37 @@ TEST_F(RenderViewTest, OnSetTextDirection) {
     GetMainFrame()->GetContentAsPlainText(kMaxOutputCharacters, &output);
     EXPECT_EQ(output, kTextDirection[i].expected_result);
   }
+}
+
+// Tests that printing pages work and sending and receiving messages through
+// that channel all works.
+TEST_F(RenderViewTest, OnPrintPages) {
+#if defined(OS_WIN)
+  // Lets simulate a print pages with Hello world.
+  LoadHTML("<body><p>Hello World!</p></body>");
+  view_->OnPrintPages();
+
+  // The renderer should be done calculating the number of rendered pages
+  // according to the specified settings defined in the mock render thread.
+  // Verify the page count is correct.
+  const IPC::Message* page_cnt_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_DidGetPrintedPagesCount::ID);
+  EXPECT_TRUE(page_cnt_msg);
+  ViewHostMsg_DidGetPrintedPagesCount::Param post_page_count_param;
+  ViewHostMsg_DidGetPrintedPagesCount::Read(page_cnt_msg,
+                                            &post_page_count_param);
+  EXPECT_EQ(1, post_page_count_param.b);
+
+  // Verify the rendered "printed page".
+  const IPC::Message* did_print_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_DidPrintPage::ID);
+  EXPECT_TRUE(did_print_msg);
+  ViewHostMsg_DidPrintPage::Param post_did_print_page_param;
+  ViewHostMsg_DidPrintPage::Read(did_print_msg, &post_did_print_page_param);
+  EXPECT_EQ(0, post_did_print_page_param.page_number);
+#else
+  NOTIMPLEMENTED();
+#endif
 }

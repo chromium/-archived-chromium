@@ -6,6 +6,7 @@
 #define CHROME_RENDERER_RENDER_VIEW_H_
 
 #include <string>
+#include <queue>
 #include <vector>
 
 #include "base/basictypes.h"
@@ -401,6 +402,7 @@ class RenderView : public RenderWidget,
   FRIEND_TEST(RenderViewTest, OnImeStateChanged);
   FRIEND_TEST(RenderViewTest, ImeComposition);
   FRIEND_TEST(RenderViewTest, OnSetTextDirection);
+  FRIEND_TEST(RenderViewTest, OnPrintPages);
 
   explicit RenderView(RenderThreadBase* render_thread);
 

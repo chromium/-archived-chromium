@@ -1,14 +1,18 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef CHROME_RENDERER_MOCK_RENDER_THREAD_H_
 #define CHROME_RENDERER_MOCK_RENDER_THREAD_H_
 
+#include <string>
 #include <vector>
 
 #include "chrome/common/ipc_test_sink.h"
 #include "chrome/renderer/render_thread.h"
+
+struct ViewMsg_Print_Params;
+struct ViewMsg_PrintPages_Params;
 
 // This class is very simple mock of RenderThread. It simulates an IPC channel
 // which supports only two messages:
@@ -72,6 +76,15 @@ class MockRenderThread : public RenderThreadBase {
   // The callee expects to be returned a valid channel_id.
   void OnMsgOpenChannelToExtension(const std::string& extension_id,
                                    int* channel_id);
+
+  // The RenderView expects default print settings.
+  void OnGetDefaultPrintSettings(ViewMsg_Print_Params* setting);
+
+  // The RenderView expects final print settings from the user.
+  void OnScriptedPrint(gfx::NativeViewId host_window,
+                       int cookie,
+                       int expected_pages_count,
+                       ViewMsg_PrintPages_Params* settings);
 
   IPC::TestSink sink_;
 
