@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="javascriptcore"
-	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops;.\using_javascriptcore.vsprops"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops;.\using_javascriptcore.vsprops;..\webkit_common.vsprops"
 	DeleteExtensionsOnClean="*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;$(TargetPath)"
 	>
 	<Tool
