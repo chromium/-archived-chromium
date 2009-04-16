@@ -909,9 +909,9 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowHWND, GetWindowHWND)
 #endif  // defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowExecuteCommandAsync,
-                        ExecuteBrowserCommand)
+                        ExecuteBrowserCommandAsync)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WindowExecuteCommand,
-                        ExecuteBrowserCommandWithNotification)
+                        ExecuteBrowserCommand)
     IPC_MESSAGE_HANDLER(AutomationMsg_WindowViewBounds,
                         WindowGetViewBounds)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetWindowVisible,
@@ -1379,8 +1379,8 @@ void AutomationProvider::GetWindowHWND(int handle, HWND* win32_handle) {
 }
 #endif  // defined(OS_WIN)
 
-void AutomationProvider::ExecuteBrowserCommand(int handle, int command,
-                                               bool* success) {
+void AutomationProvider::ExecuteBrowserCommandAsync(int handle, int command,
+                                                    bool* success) {
   *success = false;
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
@@ -1392,7 +1392,7 @@ void AutomationProvider::ExecuteBrowserCommand(int handle, int command,
   }
 }
 
-void AutomationProvider::ExecuteBrowserCommandWithNotification(
+void AutomationProvider::ExecuteBrowserCommand(
     int handle, int command, IPC::Message* reply_message) {
   if (browser_tracker_->ContainsHandle(handle)) {
     Browser* browser = browser_tracker_->GetResource(handle);
@@ -1858,10 +1858,8 @@ void AutomationProvider::GetTabProcessID(int handle, int* process_id) {
 }
 
 void AutomationProvider::ApplyAccelerator(int handle, int id) {
-  if (browser_tracker_->ContainsHandle(handle)) {
-    Browser* browser = browser_tracker_->GetResource(handle);
-    browser->ExecuteCommand(id);
-  }
+  NOTREACHED() << "This function has been deprecated. "
+               << "Please use ExecuteBrowserCommandAsync instead.";
 }
 
 void AutomationProvider::ExecuteJavascript(int handle,

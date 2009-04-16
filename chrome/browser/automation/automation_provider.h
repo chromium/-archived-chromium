@@ -141,9 +141,9 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // TODO(port): Replace HWND.
   void GetWindowHWND(int handle, HWND* win32_handle);
 #endif  // defined(OS_WIN)
-  void ExecuteBrowserCommand(int handle, int command, bool* success);
-  void ExecuteBrowserCommandWithNotification(int handle, int command,
-                                             IPC::Message* reply_message);
+  void ExecuteBrowserCommandAsync(int handle, int command, bool* success);
+  void ExecuteBrowserCommand(int handle, int command,
+                             IPC::Message* reply_message);
   void WindowGetViewBounds(int handle, int view_id, bool screen_coordinates,
                            bool* success, gfx::Rect* bounds);
 #if defined(OS_WIN)
@@ -209,8 +209,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
   // Returns the Browser if found.
   Browser* FindAndActivateTab(NavigationController* contents);
 
-  // Apply an accelerator with id (like IDC_BACK, IDC_FORWARD ...)
-  // to the Browser with given handle.
+  // Deprecated.
   void ApplyAccelerator(int handle, int id);
 
   void GetConstrainedWindowCount(int handle, int* count);

@@ -165,11 +165,7 @@ bool BrowserProxy::GetTabCountWithTimeout(int* num_tabs, uint32 timeout_ms,
 }
 
 bool BrowserProxy::ApplyAccelerator(int id) {
-  if (!is_valid())
-    return false;
-
-  return sender_->Send(
-      new AutomationMsg_ApplyAccelerator(0, handle_, id));
+  return RunCommandAsync(id);
 }
 
 #if defined(OS_WIN)
