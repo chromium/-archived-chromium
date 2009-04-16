@@ -52,8 +52,11 @@ class Tab::ContextMenuController : public views::MenuDelegate {
   }
 
   void RunMenuAt(int x, int y) {
+    views::MenuItemView::AnchorPosition anchor =
+        (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
+        views::MenuItemView::TOPRIGHT : views::MenuItemView::TOPLEFT;
     menu_->RunMenuAt(tab_->GetWidget()->GetNativeView(), gfx::Rect(x, y, 0, 0),
-                     views::MenuItemView::TOPLEFT, true);
+                     anchor, true);
     if (tab_)
       tab_->ContextMenuClosed();
     delete this;
