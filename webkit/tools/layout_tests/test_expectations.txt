@@ -19,6 +19,7 @@
 // BUG[0-9]+: See this bug for more information. Every test that isn't marked
 //            WONTFIX should have a BUG annotation.
 // SKIP: Doesn't run the test.
+// SLOW: The test takes a long time to run, but does not timeout indefinitely.
 // WONTFIX: For tests that we never intend to pass on a given platform.
 // DEFER: Test does not count in our statistics for the current release.
 // DEBUG: Expectations apply only to the debug build.
@@ -34,6 +35,7 @@
 // The above means that all the media tests are flaky, but only on Linux.
 //
 // Notes:
+// -A test cannot be both SLOW and TIMEOUT
 // -A test cannot be both DEFER and WONTFIX
 // -A test can be included twice, but not via the same path.
 // -If a test is included twice, then the more precise path wins.
@@ -1042,10 +1044,8 @@ BUG10322 DEFER WIN LINUX : LayoutTests/fast/gradients/generated-gradients.html =
 // Linux pixeltest failure: radial gradients don't have offset focal point
 // New test. We should fix it, but it doesn't need to block the current release
 BUG10322 DEFER WIN LINUX : LayoutTests/fast/gradients/simple-gradients.html = FAIL
-// This test isn't hanging, it just takes 12-13 seconds to run, which is more
-// than test_shell allows. However, we shouldn't look into the speed of the test
-// until we have reached PASS status.
-BUG10322 : LayoutTests/http/tests/misc/acid3.html = TIMEOUT FAIL
+// This test isn't hanging, it just takes 12-13 seconds to run.
+BUG10322 SLOW : LayoutTests/http/tests/misc/acid3.html = FAIL
 
 // Expectations for this test changed upstream. We should fix this test, but
 // it doesn't need to block the current release
@@ -1254,9 +1254,9 @@ BUG10353 MAC LINUX : LayoutTests/fast/replaced/width100percent-textarea.html = F
 BUG10353 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
 BUG10353 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
-// This test can end up taking longer than the amount of time we give
-// each test. DEFERd until we find a better way to deal with it.
-BUG10353 DEFER WIN LINUX : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
+
+BUG_OJAN WIN LINUX SLOW : LayoutTests/http/tests/misc/dns-prefetch-control.html = PASS
+
 // This is failing on the mac debug only, not sure why, but it's pretty repeatable on the bots, so we
 // go to the complexity to split out that one case to track any other changes for the other platforms.
 BUG10353 DEBUG MAC : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT FAIL PASS

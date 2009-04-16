@@ -15,7 +15,7 @@ import compare_failures
 
 
 # Test expectation and modifier constants.
-(PASS, FAIL, TIMEOUT, CRASH, SKIP, WONTFIX, DEFER, NONE) = range(8)
+(PASS, FAIL, TIMEOUT, CRASH, SKIP, WONTFIX, DEFER, SLOW, NONE) = range(9)
 
 class TestExpectations:
   TEST_LIST = "test_expectations.txt"
@@ -112,6 +112,9 @@ class TestExpectations:
   def IsIgnored(self, test):
     return self._expected_failures.HasModifier(test, WONTFIX)
 
+  def HasModifier(self, test, modifier):
+    return self._expected_failures.HasModifier(test, modifier)
+
 def StripComments(line):
   """Strips comments from a line and return None if the line is empty
   or else the contents of line with leading and trailing spaces removed
@@ -145,14 +148,19 @@ class TestExpectationsFile:
     DEFER LINUX WIN : LayoutTests/fast/js/no-good.js = TIMEOUT PASS
 
   SKIP: Doesn't run the test.
+  SLOW: The test takes a long time to run, but does not timeout indefinitely.
   WONTFIX: For tests that we never intend to pass on a given platform.
   DEFER: Test does not count in our statistics for the current release.
   DEBUG: Expectations apply only to the debug build.
   RELEASE: Expectations apply only to release build.
   LINUX/WIN/MAC: Expectations apply only to these platforms.
 
-  A test can be included twice, but not via the same path. If a test is included
-  twice, then the more precise path wins.
+  Notes:
+    -A test cannot be both SLOW and TIMEOUT
+    -A test cannot be both DEFER and WONTFIX
+    -A test can be included twice, but not via the same path.
+    -If a test is included twice, then the more precise path wins.
+    -CRASH tests cannot be DEFER or WONTFIX
   """
 
   EXPECTATIONS = { 'pass': PASS,
@@ -167,6 +175,7 @@ class TestExpectationsFile:
   MODIFIERS = { 'skip': SKIP,
                 'wontfix': WONTFIX,
                 'defer': DEFER,
+                'slow': SLOW,
                 'none': NONE }
 
   def __init__(self, path, full_test_list, platform, is_debug_mode):
@@ -297,6 +306,11 @@ class TestExpectationsFile:
       test_list_path = tests_and_expecation_parts[0].strip()
       expectations = self._ParseExpectations(tests_and_expecation_parts[1],
           lineno, test_list_path)
+
+      if 'slow' in options and TIMEOUT in expectations:
+        self._AddError(lineno, 'A test cannot be both slow and timeout. If the '
+            'test times out indefinitely, the it should be listed as timeout.',
+            test_and_expectations)
 
       full_path = os.path.join(path_utils.LayoutDataDir(), test_list_path)
       full_path = os.path.normpath(full_path)

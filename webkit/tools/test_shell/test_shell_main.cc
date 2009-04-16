@@ -263,15 +263,23 @@ int main(int argc, char* argv[]) {
         // Watch stdin for URLs.
         char filenameBuffer[kPathBufSize];
         while (fgets(filenameBuffer, sizeof(filenameBuffer), stdin)) {
-          char *newLine = strchr(filenameBuffer, '\n');
+          char* newLine = strchr(filenameBuffer, '\n');
           if (newLine)
             *newLine = '\0';
           if (!*filenameBuffer)
             continue;
 
-          params.test_url = filenameBuffer;
+          params.test_url = strtok(filenameBuffer, " ");
+
+          char* timeout = strtok(NULL, " ");
+          int old_timeout_ms = TestShell::GetLayoutTestTimeout();
+          if (timeout)
+            TestShell::SetFileTestTimeout(atoi(timeout));
+
           if (!TestShell::RunFileTest(params))
             break;
+
+          TestShell::SetFileTestTimeout(old_timeout_ms);
         }
       } else {
         params.test_url = WideToUTF8(uri).c_str();

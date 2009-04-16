@@ -48,6 +48,18 @@ from test_types import test_type_base
 from test_types import text_diff
 from test_types import simplified_text_diff
 
+class TestInfo:
+  """Groups information about a test for easy passing of data."""
+  def __init__(self, filename, timeout):
+    """Generates the URI and stores the filename and timeout for this test.
+    Args:
+      filename: Full path to the test.
+      timeout: Timeout for running the test in TestShell.
+      """
+    self.filename = filename
+    self.uri = path_utils.FilenameToUri(filename)
+    self.timeout = timeout
+
 
 class TestRunner:
   """A class for managing running a series of tests on a series of test
@@ -339,15 +351,20 @@ class TestRunner:
     cross-tests dependencies tend to occur within the same directory.
 
     Return:
-      The Queue of lists of (test file, test uri) tuples.
+      The Queue of lists of TestInfo objects.
     """
     tests_by_dir = {}
     for test_file in test_files:
       directory = self._GetDirForTestFile(test_file)
       if directory not in tests_by_dir:
         tests_by_dir[directory] = []
-      tests_by_dir[directory].append((test_file,
-          path_utils.FilenameToUri(test_file)))
+
+      if self._expectations.HasModifier(test_file, test_expectations.SLOW):
+        timeout = 10 * int(options.time_out_ms)
+      else:
+        timeout = self._options.time_out_ms
+
+      tests_by_dir[directory].append(TestInfo(test_file, timeout))
 
     # Sort by the number of tests in the dir so that the ones with the most
     # tests get run first in order to maximize parallelization. Number of tests
@@ -397,10 +414,6 @@ class TestRunner:
 
     if self._options.gp_fault_error_box:
       shell_args.append('--gp-fault-error-box')
-
-    # larger timeout if page heap is enabled.
-    if self._options.time_out_ms:
-      shell_args.append('--time-out-ms=' + self._options.time_out_ms)
 
     return (test_args, shell_args)
 
@@ -479,7 +492,7 @@ class TestRunner:
     threads = self._InstantiateTestShellThreads(test_shell_binary)
 
     # Wait for the threads to finish and collect test failures.
-    test_failures = {}
+    failures = {}
     test_timings = {}
     individual_test_timings = []
     try:
@@ -490,7 +503,7 @@ class TestRunner:
           # suffices to not use an indefinite blocking join for it to
           # be interruptible by KeyboardInterrupt.
           thread.join(1.0)
-        test_failures.update(thread.GetFailures())
+        failures.update(thread.GetFailures())
         test_timings.update(thread.GetDirectoryTimingStats())
         individual_test_timings.extend(thread.GetIndividualTestStats())
     except KeyboardInterrupt:
@@ -511,27 +524,27 @@ class TestRunner:
     logging.info("%f total testing time" % (end_time - start_time))
 
     print
-    self._PrintTimingStatistics(test_timings, individual_test_timings)
+    self._PrintTimingStatistics(test_timings, individual_test_timings, failures)
 
     print "-" * 78
 
     # Tests are done running. Compare failures with expected failures.
-    regressions = self._CompareFailures(test_failures)
+    regressions = self._CompareFailures(failures)
 
     print "-" * 78
 
     # Write summaries to stdout.
-    self._PrintResults(test_failures, sys.stdout)
+    self._PrintResults(failures, sys.stdout)
 
     # Write the same data to a log file.
     out_filename = os.path.join(self._options.results_directory, "score.txt")
     output_file = open(out_filename, "w")
-    self._PrintResults(test_failures, output_file)
+    self._PrintResults(failures, output_file)
     output_file.close()
 
     # Write the summary to disk (results.html) and maybe open the test_shell
     # to this file.
-    wrote_results = self._WriteResultsHtmlFile(test_failures, regressions)
+    wrote_results = self._WriteResultsHtmlFile(failures, regressions)
     if not self._options.noshow_results and wrote_results:
       self._ShowResultsHtmlFile()
 
@@ -540,7 +553,17 @@ class TestRunner:
     return len(regressions)
 
   def _PrintTimingStatistics(self, directory_test_timings,
-      individual_test_timings):
+      individual_test_timings, failures):
+    self._PrintAggregateTestStatistics(individual_test_timings)
+    self._PrintIndividualTestTimes(individual_test_timings, failures)
+    self._PrintDirectoryTimings(directory_test_timings)
+
+  def _PrintAggregateTestStatistics(self, individual_test_timings):
+    """Prints aggregate statistics (e.g. median, mean, etc.) for all tests.
+    Args:
+      individual_test_timings: List of test_shell_thread.TestStats for all
+          tests.
+    """
     test_types = individual_test_timings[0].time_for_diffs.keys()
     times_for_test_shell = []
     times_for_diff_processing = []
@@ -555,27 +578,72 @@ class TestRunner:
       for test_type in test_types:
         times_per_test_type[test_type].append(time_for_diffs[test_type])
 
-    logging.debug("PER TEST TIME IN TESTSHELL (seconds):")
-    self._PrintStatisticsForTestTimings(times_for_test_shell)
-    logging.debug("PER TEST DIFF PROCESSING TIMES (seconds):")
-    self._PrintStatisticsForTestTimings(times_for_diff_processing)
+    self._PrintStatisticsForTestTimings(
+        "PER TEST TIME IN TESTSHELL (seconds):",
+        times_for_test_shell)
+    self._PrintStatisticsForTestTimings(
+        "PER TEST DIFF PROCESSING TIMES (seconds):",
+        times_for_diff_processing)
     for test_type in test_types:
-      logging.debug("TEST TYPE: %s" % test_type)
-      self._PrintStatisticsForTestTimings(times_per_test_type[test_type])
+      self._PrintStatisticsForTestTimings(
+          "PER TEST TIMES BY TEST TYPE: %s" % test_type,
+          times_per_test_type[test_type])
 
+  def _PrintIndividualTestTimes(self, individual_test_timings, failures):
+    """Prints the run times for slow, timeout and crash tests.
+    Args:
+      individual_test_timings: List of test_shell_thread.TestStats for all
+          tests.
+      failures: Dictionary mapping test filenames to list of test_failures.
+    """
     # Reverse-sort by the time spent in test_shell.
     individual_test_timings.sort(lambda a, b:
         cmp(b.test_run_time, a.test_run_time))
-    slowests_tests = (
-        individual_test_timings[:self._options.num_slow_tests_to_log] )
 
-    logging.debug("%s slowest tests:" % self._options.num_slow_tests_to_log)
-    for test in slowests_tests:
-      logging.debug("%s took %s seconds" % (test.filename,
-          round(test.test_run_time, 1)))
+    num_printed = 0
+    slow_tests = []
+    timeout_or_crash_tests = []
+    unexpected_slow_tests = []
+    for test_tuple in individual_test_timings:
+      filename = test_tuple.filename
+      is_timeout_crash_or_slow = False
+      if self._expectations.HasModifier(filename, test_expectations.SLOW):
+        is_timeout_crash_or_slow = True
+        slow_tests.append(test_tuple)
+
+      if filename in failures:
+        for failure in failures[filename]:
+          if (failure.__class__ == test_failures.FailureTimeout or
+              failure.__class__ == test_failures.FailureCrash):
+            is_timeout_crash_or_slow = True
+            timeout_or_crash_tests.append(test_tuple)
+            break
+
+      if (not is_timeout_crash_or_slow and
+          num_printed < self._options.num_slow_tests_to_log):
+        num_printed = num_printed + 1
+        unexpected_slow_tests.append(test_tuple)
 
     print
+    self._PrintTestListTiming("%s slowest tests that are not marked as SLOW "
+        "and did not timeout/crash:" % self._options.num_slow_tests_to_log,
+        unexpected_slow_tests)
+    print
+    self._PrintTestListTiming("Tests marked as SLOW:", slow_tests)
+    print
+    self._PrintTestListTiming("Tests that timed out or crashed:",
+        timeout_or_crash_tests)
+    print
 
+  def _PrintTestListTiming(self, title, test_list):
+    logging.debug(title)
+    for test_tuple in test_list:
+      filename = test_tuple.filename[len(path_utils.LayoutDataDir()) + 1:]
+      filename = filename.replace('\\', '/')
+      test_run_time = round(test_tuple.test_run_time, 1)
+      logging.debug("%s took %s seconds" % (filename, test_run_time))
+
+  def _PrintDirectoryTimings(self, directory_test_timings):
     timings = []
     for directory in directory_test_timings:
       num_tests, time_for_directory = directory_test_timings[directory]
@@ -587,12 +655,19 @@ class TestRunner:
       logging.debug("%s took %s seconds to run %s tests." % \
                     (timing[1], timing[0], timing[2]))
 
-  def _PrintStatisticsForTestTimings(self, timings):
+  def _PrintStatisticsForTestTimings(self, title, timings):
     """Prints the median, mean and standard deviation of the values in timings.
     Args:
+      title: Title for these timings.
       timings: A list of floats representing times.
     """
+    logging.debug(title)
+    timings.sort()
+
     num_tests = len(timings)
+    percentile90 = timings[int(.9 * num_tests)]
+    percentile99 = timings[int(.99 * num_tests)]
+
     if num_tests % 2 == 1:
       median = timings[((num_tests - 1) / 2) - 1]
     else:
@@ -606,14 +681,15 @@ class TestRunner:
       sum_of_deviations = math.pow(time - mean, 2)
 
     std_deviation = math.sqrt(sum_of_deviations / num_tests)
-    logging.debug(("Median: %s, Mean %s, Standard deviation: %s\n" %
-        (median, mean, std_deviation)))
+    logging.debug(("Median: %s, Mean: %s, 90th percentile: %s, "
+        "99th percentile: %s, Standard deviation: %s\n" % (
+        median, mean, percentile90, percentile99, std_deviation)))
 
-  def _PrintResults(self, test_failures, output):
+  def _PrintResults(self, failures, output):
     """Print a short summary to stdout about how many tests passed.
 
     Args:
-      test_failures is a dictionary mapping the test filename to a list of
+      failures is a dictionary mapping the test filename to a list of
       TestFailure objects if the test failed
 
       output is the file descriptor to write the results to. For example,
@@ -636,7 +712,7 @@ class TestRunner:
       else:
         dictionary[key] = 1
 
-    for test, failures in test_failures.iteritems():
+    for test, failures in failures.iteritems():
       for failure in failures:
         AddFailure(failure_counts, failure.__class__)
         if self._expectations.IsDeferred(test):
@@ -682,7 +758,7 @@ class TestRunner:
     skipped |= self._expectations.GetWontFixSkipped()
     self._PrintResultSummary("=> All tests",
                              self._test_files,
-                             test_failures,
+                             failures,
                              failure_counts,
                              skipped,
                              output)
@@ -721,19 +797,19 @@ class TestRunner:
               'percent' : float(count) * 100 / total,
               'message' : message }))
 
-  def _CompareFailures(self, test_failures):
+  def _CompareFailures(self, failures):
     """Determine how the test failures from this test run differ from the
     previous test run and print results to stdout and a file.
 
     Args:
-      test_failures is a dictionary mapping the test filename to a list of
+      failures is a dictionary mapping the test filename to a list of
       TestFailure objects if the test failed
 
     Return:
       A set of regressions (unexpected failures, hangs, or crashes)
     """
     cf = compare_failures.CompareFailures(self._test_files,
-                                          test_failures,
+                                          failures,
                                           self._expectations)
 
     if not self._options.nocompare_failures:
@@ -747,11 +823,11 @@ class TestRunner:
 
     return cf.GetRegressions()
 
-  def _WriteResultsHtmlFile(self, test_failures, regressions):
+  def _WriteResultsHtmlFile(self, failures, regressions):
     """Write results.html which is a summary of tests that failed.
 
     Args:
-      test_failures: a dictionary mapping the test filename to a list of
+      failures: a dictionary mapping the test filename to a list of
           TestFailure objects if the test failed
       regressions: a set of test filenames that regressed
 
@@ -760,7 +836,7 @@ class TestRunner:
     """
     # test failures
     if self._options.full_results_html:
-      test_files = test_failures.keys()
+      test_files = failures.keys()
     else:
       test_files = list(regressions)
     if not len(test_files):
@@ -780,7 +856,7 @@ class TestRunner:
 
     test_files.sort()
     for test_file in test_files:
-      if test_file in test_failures: failures = test_failures[test_file]
+      if test_file in failures: failures = failures[test_file]
       else: failures = []  # unexpected passes
       out_file.write("<p><a href='%s'>%s</a><br />\n"
                      % (path_utils.FilenameToUri(test_file),
@@ -981,8 +1057,7 @@ if '__main__' == __name__:
                                 "newly pass or fail.")
   option_parser.add_option("", "--num-test-shells",
                            help="Number of testshells to run in parallel.")
-  option_parser.add_option("", "--time-out-ms",
-                           default=None,
+  option_parser.add_option("", "--time-out-ms", default=None,
                            help="Set the timeout for each test")
   option_parser.add_option("", "--run-singly", action="store_true",
                            default=False,
