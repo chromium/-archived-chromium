@@ -41,7 +41,7 @@ class ChromeTests:
   '''
 
   def __init__(self, options, args, test):
-    # The known list of tests.  
+    # The known list of tests.
     # Recognise the original abbreviations as well as full executable names.
     self._test_list = {
       "base": self.TestBase,              "base_unittests": self.TestBase,
@@ -254,6 +254,13 @@ class ChromeTests:
     script_cmd = ["python", script, "--run-singly", "-v",
                   "--noshow-results", "--time-out-ms=200000",
                   "--nocheck-sys-deps"]
+    # Pass build mode to run_webkit_tests.py.  We aren't passed it directly,
+    # so parse it out of build_dir.  run_webkit_tests.py can only handle
+    # the two values "Release" and "Debug".
+    # TODO(Hercules): unify how all our scripts pass around build mode
+    # (--mode / --target / --build_dir / --debug)
+    if self._options.build_dir.endswith("Debug"):
+      script_cmd.append("--debug");
     if (chunk_size > 0):
       script_cmd.append("--run-chunk=%d:%d" % (chunk_num, chunk_size))
     if len(self._args):
