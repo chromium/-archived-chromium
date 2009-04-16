@@ -22,6 +22,7 @@
 #if defined(OS_WIN)
 #include "chrome/browser/importer/ie_importer.h"
 #endif
+#include "chrome/browser/importer/toolbar_importer.h"
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/tab_contents/site_instance.h"
@@ -512,6 +513,32 @@ void ImporterHost::StartImportSettings(const ProfileInfo& profile_info,
     }
   }
 
+  #if defined(OS_WIN)
+  // For google toolbar import, we need the user to log in and store their GAIA
+  // credentials.
+  if (profile_info.browser_type == GOOGLE_TOOLBAR5) {
+    if (!toolbar_importer_utils::IsGoogleGAIACookieInstalled()) {
+      win_util::MessageBox(
+          NULL,
+          l10n_util::GetString(IDS_IMPORTER_GOOGLE_LOGIN_TEXT).c_str(),
+          L"",
+          MB_OK | MB_TOPMOST);
+
+      GURL url("https://www.google.com/accounts/ServiceLogin");
+      BrowsingInstance* instance = new BrowsingInstance(writer_->GetProfile());
+      SiteInstance* site = instance->GetSiteInstanceForURL(url);
+      Browser* browser = BrowserList::GetLastActive();
+      browser->AddTabWithURL(url, GURL(), PageTransition::TYPED, true, -1,
+                             site);
+
+      MessageLoop::current()->PostTask(FROM_HERE, NewRunnableMethod(
+        this, &ImporterHost::OnLockViewEnd, false));
+
+      is_source_readable_ = false;
+    }
+  }
+#endif
+
   // BookmarkModel should be loaded before adding IE favorites. So we observe
   // the BookmarkModel if needed, and start the task after it has been loaded.
   if ((items & FAVORITES) && !writer_->BookmarkModelIsLoaded()) {
@@ -582,6 +609,8 @@ Importer* ImporterHost::CreateImporterByType(ProfileType type) {
       return new Firefox2Importer();
     case FIREFOX3:
       return new Firefox3Importer();
+    case GOOGLE_TOOLBAR5:
+      return new Toolbar5Importer();
   }
   NOTREACHED();
   return NULL;
@@ -612,6 +641,8 @@ void ImporterHost::DetectSourceProfiles() {
     DetectIEProfiles();
     DetectFirefoxProfiles();
   }
+  // TODO(brg) : Current UI requires win_util.
+  DetectGoogleToolbarProfiles();
 #else
   DetectFirefoxProfiles();
 #endif
@@ -705,5 +736,18 @@ void ImporterHost::DetectFirefoxProfiles() {
     firefox->services_supported = HISTORY | FAVORITES | COOKIES | PASSWORDS |
         SEARCH_ENGINES;
     source_profiles_.push_back(firefox);
+  }
+}
+
+void ImporterHost::DetectGoogleToolbarProfiles() {
+  if (!FirstRun::IsChromeFirstRun()) {
+    ProfileInfo* google_toolbar = new ProfileInfo();
+    google_toolbar->browser_type = GOOGLE_TOOLBAR5;
+    google_toolbar->description = l10n_util::GetString(
+                                  IDS_IMPORT_FROM_GOOGLE_TOOLBAR);
+    google_toolbar->source_path.clear();
+    google_toolbar->app_path.clear();
+    google_toolbar->services_supported = FAVORITES;
+    source_profiles_.push_back(google_toolbar);
   }
 }

@@ -854,6 +854,10 @@
 					RelativePath="..\..\browser\tab_contents\test_web_contents.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\browser\importer\toolbar_importer_unittest.cc"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
