@@ -222,6 +222,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\audio_message_filter.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\audio_message_filter.h"
+			>
+		</File>
+		<File
 			RelativePath=".\debug_message_handler.cc"
 			>
 		</File>

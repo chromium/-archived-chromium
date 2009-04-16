@@ -28,6 +28,7 @@
 #include "chrome/common/thumbnail_score.h"
 #include "chrome/common/url_constants.h"
 #include "chrome/renderer/about_handler.h"
+#include "chrome/renderer/audio_message_filter.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
 #include "chrome/renderer/devtools_agent_filter.h"
@@ -219,6 +220,7 @@ RenderView::~RenderView() {
   render_thread_->RemoveFilter(debug_message_handler_);
   if (devtools_agent_filter_.get())
     render_thread_->RemoveFilter(devtools_agent_filter_);
+  render_thread_->RemoveFilter(audio_message_filter_);
 
 #ifdef CHROME_PERSONALIZATION
   Personalization::CleanupRendererPersonalization(personalization_);
@@ -355,6 +357,9 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
   render_thread_->AddFilter(debug_message_handler_);
   if (dev_tools_enabled)
     render_thread_->AddFilter(devtools_agent_filter_);
+
+  audio_message_filter_ = new AudioMessageFilter(routing_id_);
+  render_thread_->AddFilter(audio_message_filter_);
 }
 
 void RenderView::OnMessageReceived(const IPC::Message& message) {
@@ -445,11 +450,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
                         OnReceivedAutofillSuggestions)
     IPC_MESSAGE_HANDLER(ViewMsg_PopupNotificationVisiblityChanged,
                         OnPopupNotificationVisiblityChanged)
-    IPC_MESSAGE_HANDLER(ViewMsg_RequestAudioPacket, OnRequestAudioPacket)
-    IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamCreated, OnAudioStreamCreated)
-    IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamStateChanged,
-                        OnAudioStreamStateChanged)
-    IPC_MESSAGE_HANDLER(ViewMsg_NotifyAudioStreamVolume, OnAudioStreamVolume)
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_ClearFocusedNode, OnClearFocusedNode)
@@ -2937,104 +2937,9 @@ MessageLoop* RenderView::GetMessageLoopForIO() {
   return NULL;
 }
 
-void RenderView::OnRequestAudioPacket(int stream_id) {
-  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer) {
-    // It is possible that AudioRendererImpl is un-registered but we still
-    // receives packet requests here, because of closing a stream is not a
-    // synchronous operation with the browser process.
-    return;
-  }
-  audio_renderer->OnRequestPacket();
-}
-
-void RenderView::OnAudioStreamCreated(
-    int stream_id, base::SharedMemoryHandle handle, int length) {
-  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer) {
-    return;
-  }
-  audio_renderer->OnCreated(handle, length);
-}
-
-void RenderView::OnAudioStreamStateChanged(
-    int stream_id, AudioOutputStream::State state, int info) {
-  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer) {
-    return;
-  }
-  audio_renderer->OnStateChanged(state, info);
-}
-
-void RenderView::OnAudioStreamVolume(int stream_id, double left, double right) {
-  AudioRendererImpl* audio_renderer = audio_renderers_.Lookup(stream_id);
-  if (!audio_renderer) {
-    return;
-  }
-  audio_renderer->OnVolume(left, right);
-}
-
 void RenderView::OnMoveOrResizeStarted() {
   if (webview())
     webview()->HideAutofillPopup();
-}
-
-int32 RenderView::CreateAudioStream(AudioRendererImpl* audio_renderer,
-                                    AudioManager::Format format, int channels,
-                                    int sample_rate, int bits_per_sample,
-                                    size_t packet_size) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  // Loop through the map and make sure there's no renderer already in the map.
-  for (IDMap<AudioRendererImpl>::const_iterator iter = audio_renderers_.begin();
-       iter != audio_renderers_.end(); ++iter) {
-    DCHECK(iter->second != audio_renderer);
-  }
-
-  // Add to map and send the IPC to browser process.
-  int32 stream_id = audio_renderers_.Add(audio_renderer);
-  ViewHostMsg_Audio_CreateStream params;
-  params.format = format;
-  params.channels = channels;
-  params.sample_rate = sample_rate;
-  params.bits_per_sample = bits_per_sample;
-  params.packet_size = packet_size;
-  Send(new ViewHostMsg_CreateAudioStream(routing_id_, stream_id, params));
-  return stream_id;
-}
-
-void RenderView::StartAudioStream(int stream_id) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
-  Send(new ViewHostMsg_StartAudioStream(routing_id_, stream_id));
-}
-
-void RenderView::CloseAudioStream(int stream_id) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  if (audio_renderers_.Lookup(stream_id) != NULL) {
-    // Remove the entry from the map and send a close message to browser
-    // process, we won't be getting anything back from browser even if there's
-    // an error.
-    audio_renderers_.Remove(stream_id);
-    Send(new ViewHostMsg_CloseAudioStream(routing_id_, stream_id));
-  }
-}
-
-void RenderView::NotifyAudioPacketReady(int stream_id, size_t size) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
-  Send(new ViewHostMsg_NotifyAudioPacketReady(routing_id_, stream_id, size));
-}
-
-void RenderView::GetAudioVolume(int stream_id) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
-  Send(new ViewHostMsg_GetAudioVolume(routing_id_, stream_id));
-}
-
-void RenderView::SetAudioVolume(int stream_id, double left, double right) {
-  DCHECK(RenderThread::current()->message_loop() == MessageLoop::current());
-  DCHECK(audio_renderers_.Lookup(stream_id) != NULL);
-  Send(new ViewHostMsg_SetAudioVolume(routing_id_, stream_id, left, right));
 }
 
 void RenderView::OnResize(const gfx::Size& new_size,

@@ -57,7 +57,6 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       ready_state_(webkit_glue::WebMediaPlayer::HAVE_NOTHING),
       main_loop_(NULL),
       filter_factory_(new media::FilterFactoryCollection()),
-      audio_renderer_(NULL),
       video_renderer_(NULL),
       data_source_(NULL),
       web_media_player_(NULL),
@@ -70,7 +69,8 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
   filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
   filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
 #endif
-  filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(this));
+  filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(
+      view_->audio_message_filter()));
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
   filter_factory_->AddFactory(DataSourceImpl::CreateFactory(this));
 }
@@ -315,15 +315,8 @@ void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
            &webkit_glue::WebMediaPlayer::NotifyReadyStateChange);
 }
 
-void WebMediaPlayerDelegateImpl::SetAudioRenderer(
-    AudioRendererImpl* audio_renderer) {
-  DCHECK(!audio_renderer_);
-  audio_renderer_ = audio_renderer;
-}
-
 void WebMediaPlayerDelegateImpl::SetVideoRenderer(
     VideoRendererImpl* video_renderer) {
-  DCHECK(!video_renderer_);
   video_renderer_ = video_renderer;
 }
 
@@ -373,11 +366,6 @@ void WebMediaPlayerDelegateImpl::StopPipeline(bool render_thread_is_dying) {
   // Instruct the renderers and data source to release all Renderer related
   // resources during destruction of render thread, because they won't have any
   // chance to release these resources on render thread by posting tasks on it.
-  if (audio_renderer_) {
-    audio_renderer_->ReleaseResources(render_thread_is_dying);
-    audio_renderer_ = NULL;
-  }
-
   if (data_source_) {
     data_source_->ReleaseResources(render_thread_is_dying);
     data_source_ = NULL;

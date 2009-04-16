@@ -188,10 +188,6 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // the same lifetime as the pipeline.
   media::PipelineImpl pipeline_;
 
-  // Holds a pointer to the audio renderer so we can tell it to stop during
-  // render thread destruction.
-  scoped_refptr<AudioRendererImpl> audio_renderer_;
-
   // We have the interface to VideoRenderer to delegate paint messages to it
   // from WebKit.
   scoped_refptr<VideoRendererImpl> video_renderer_;

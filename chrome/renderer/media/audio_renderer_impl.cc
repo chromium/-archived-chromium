@@ -2,30 +2,40 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
+#include "chrome/common/render_messages.h"
+#include "chrome/renderer/audio_message_filter.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/render_view.h"
 #include "chrome/renderer/render_thread.h"
-#include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "media/base/filter_host.h"
 
-// We'll try to fill 4096 samples per buffer, which is roughly ~92ms of audio
+// We'll try to fill 8192 samples per buffer, which is roughly ~194ms of audio
 // data for a 44.1kHz audio source.
-static const size_t kSamplesPerBuffer = 4096;
+static const size_t kSamplesPerBuffer = 8192;
 
-AudioRendererImpl::AudioRendererImpl(WebMediaPlayerDelegateImpl* delegate)
+AudioRendererImpl::AudioRendererImpl(AudioMessageFilter* filter)
     : AudioRendererBase(kDefaultMaxQueueSize),
-      delegate_(delegate),
+      filter_(filter),
       stream_id_(0),
       shared_memory_(NULL),
       shared_memory_size_(0),
-      packet_requested_(false),
-      render_loop_(RenderThread::current()->message_loop()),
-      resource_release_event_(true, false) {
-  // TODO(hclam): do we need to move this method call to render thread?
-  delegate_->SetAudioRenderer(this);
+      io_loop_(filter->message_loop()),
+      stopped_(false),
+      packet_request_event_(true, false) {
+  DCHECK(io_loop_);
 }
 
 AudioRendererImpl::~AudioRendererImpl() {
+}
+
+bool AudioRendererImpl::HasStopped() {
+  AutoLock auto_lock(lock_);
+  return stopped_;
+}
+
+void AudioRendererImpl::SignalStop() {
+  AutoLock auto_lock(lock_);
+  stopped_ = true;
 }
 
 bool AudioRendererImpl::IsMediaFormatSupported(
@@ -47,32 +57,37 @@ bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
 
   // Create the audio output stream in browser process.
   size_t packet_size = kSamplesPerBuffer * channels * sample_bits / 8;
-  render_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &AudioRendererImpl::OnCreateAudioStream,
+  io_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &AudioRendererImpl::OnCreateStream,
           AudioManager::AUDIO_PCM_LINEAR, channels, sample_rate, sample_bits,
           packet_size));
   return true;
 }
 
 void AudioRendererImpl::OnStop() {
-  delegate_->SetAudioRenderer(NULL);
-  if (!resource_release_event_.IsSignaled()) {
-    render_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this,
-                        &AudioRendererImpl::ReleaseResources, false));
-    resource_release_event_.Wait();
-  }
+  if (HasStopped())
+    return;
+
+  SignalStop();
+  io_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &AudioRendererImpl::OnDestroy));
 }
 
 void AudioRendererImpl::OnReadComplete(media::Buffer* buffer_in) {
+  if (HasStopped())
+    return;
+
   // Use the base class to queue the buffer.
   AudioRendererBase::OnReadComplete(buffer_in);
   // Post a task to render thread to notify a packet reception.
-  render_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &AudioRendererImpl::OnNotifyAudioPacketReady));
+  io_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &AudioRendererImpl::OnNotifyPacketReady));
 }
 
 void AudioRendererImpl::SetPlaybackRate(float rate) {
+  if (HasStopped())
+    return;
+
   // TODO(hclam): handle playback rates not equal to 1.0.
   if (rate == 1.0f) {
     // TODO(hclam): what should I do here? OnCreated has fired StartAudioStream
@@ -83,30 +98,45 @@ void AudioRendererImpl::SetPlaybackRate(float rate) {
 }
 
 void AudioRendererImpl::SetVolume(float volume) {
+  if (HasStopped())
+    return;
+
   // TODO(hclam): change this to multichannel if possible.
-  render_loop_->PostTask(FROM_HERE,
+  io_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(
-          this, &AudioRendererImpl::OnSetAudioVolume, volume, volume));
+          this, &AudioRendererImpl::OnSetVolume, volume, volume));
 }
 
 void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
                                   size_t length) {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  if (HasStopped())
+    return;
+
   shared_memory_.reset(new base::SharedMemory(handle, false));
   shared_memory_->Map(length);
   shared_memory_size_ = length;
-  // TODO(hclam): is there any better place to do this?
-  OnStartAudioStream();
+
+  filter_->Send(new ViewHostMsg_StartAudioStream(0, stream_id_));
 }
 
 void AudioRendererImpl::OnRequestPacket() {
-  packet_requested_ = true;
-  // Post a task to render thread and try to grab a packet for sending back.
-  render_loop_->PostTask(FROM_HERE,
-      NewRunnableMethod(this, &AudioRendererImpl::OnNotifyAudioPacketReady));
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  packet_request_event_.Signal();
+
+  // Try to fill in the fulfil the packet request.
+  OnNotifyPacketReady();
 }
 
 void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
                                        int info) {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  if (HasStopped())
+    return;
+
   switch (state) {
     case AudioOutputStream::STATE_ERROR:
       host_->Error(media::PIPELINE_ERROR_AUDIO_HARDWARE);
@@ -122,46 +152,67 @@ void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
 }
 
 void AudioRendererImpl::OnVolume(double left, double right) {
+  if (HasStopped())
+    return;
+
   // TODO(hclam): decide whether we need to report the current volume to
   // pipeline.
 }
 
-void AudioRendererImpl::ReleaseResources(bool is_render_thread_dying) {
-  if (!is_render_thread_dying)
-    OnCloseAudioStream();
-  resource_release_event_.Signal();
-}
-
-void AudioRendererImpl::OnCreateAudioStream(
+void AudioRendererImpl::OnCreateStream(
     AudioManager::Format format, int channels, int sample_rate,
     int bits_per_sample, size_t packet_size) {
-  stream_id_ = delegate_->view()->CreateAudioStream(
-      this, format, channels, sample_rate, bits_per_sample, packet_size);
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  if (HasStopped())
+    return;
+
+  // Make sure we don't call create more than once.
+  DCHECK_EQ(0, stream_id_);
+  stream_id_ = filter_->AddDelegate(this);
+
+  ViewHostMsg_Audio_CreateStream params;
+  params.format = format;
+  params.channels = channels;
+  params.sample_rate = sample_rate;
+  params.bits_per_sample = bits_per_sample;
+  params.packet_size = packet_size;
+
+  filter_->Send(new ViewHostMsg_CreateAudioStream(0, stream_id_, params));
 }
 
-void AudioRendererImpl::OnStartAudioStream() {
-  delegate_->view()->StartAudioStream(stream_id_);
+void AudioRendererImpl::OnDestroy() {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  filter_->RemoveDelegate(stream_id_);
+  filter_->Send(new ViewHostMsg_CloseAudioStream(0, stream_id_));
 }
 
-void AudioRendererImpl::OnCloseAudioStream() {
-  // Unregister ourself from RenderView, we will not be called anymore.
-  delegate_->view()->CloseAudioStream(stream_id_);
+void AudioRendererImpl::OnSetVolume(double left, double right) {
+  DCHECK(MessageLoop::current() == io_loop_);
+
+  if (HasStopped())
+    return;
+
+  filter_->Send(new ViewHostMsg_SetAudioVolume(0, stream_id_, left, right));
 }
 
-void AudioRendererImpl::OnSetAudioVolume(double left, double right) {
-  delegate_->view()->SetAudioVolume(stream_id_, left, right);
-}
+void AudioRendererImpl::OnNotifyPacketReady() {
+  DCHECK(MessageLoop::current() == io_loop_);
 
-void AudioRendererImpl::OnNotifyAudioPacketReady() {
-  if (packet_requested_) {
+  if (HasStopped())
+    return;
+
+  if (packet_request_event_.IsSignaled()) {
     DCHECK(shared_memory_.get());
     // Fill into the shared memory.
     size_t filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
                                shared_memory_size_);
     if (filled > 0) {
-      packet_requested_ = false;
+      packet_request_event_.Reset();
       // Then tell browser process we are done filling into the buffer.
-      delegate_->view()->NotifyAudioPacketReady(stream_id_, filled);
+      filter_->Send(
+          new ViewHostMsg_NotifyAudioPacketReady(0, stream_id_, filled));
     }
   }
 }
