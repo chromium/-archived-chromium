@@ -37,10 +37,6 @@ def ReadFile(path):
   return contents
 
 
-# Seam for unit testing
-_ReadFile = ReadFile
-
-
 def CheckChangeOnUpload(input_api, output_api):
   # TODO(maruel): max_cols is temporarily disabled. Reenable once the source
   # tree is in better shape.
@@ -87,7 +83,7 @@ def LocalChecks(input_api, output_api, max_cols=80):
 
     # Need to read the file ourselves since AffectedFile.NewContents()
     # will normalize line endings.
-    contents = _ReadFile(path)
+    contents = ReadFile(path)
     if '\r' in contents:
       cr_files.append(path)
 

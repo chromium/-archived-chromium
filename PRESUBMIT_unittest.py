@@ -54,10 +54,11 @@ class PresubmitUnittest(unittest.TestCase):
     def MockReadFile(path):
       self.failIf(path.endswith('notsource'))
       return self.file_contents
-    PRESUBMIT._ReadFile = MockReadFile
+    self._ReadFile = PRESUBMIT.ReadFile
+    PRESUBMIT.ReadFile = MockReadFile
 
   def tearDown(self):
-    PRESUBMIT._ReadFile = PRESUBMIT.ReadFile
+    PRESUBMIT.ReadFile = self._ReadFile
 
   def testLocalChecks(self):
     api = MockInputApi()
