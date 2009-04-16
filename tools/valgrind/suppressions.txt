@@ -114,17 +114,20 @@
    Memcheck:Param
    write(buf)
    ...
-   fun:unixWrite
    fun:sqlite3OsWrite
    fun:writeJournalHdr
 }
 
+# Fixed in newer SQLite
+# http://www.sqlite.org/cvstrac/tktview?tn=3326
+# http://www.sqlite.org/cvstrac/tktview?tn=3575
+# (Caller of sqlite3VdbeExec is either sqlite3Step or its wrapper sqlite3_step)
 {
-   SQLite (when creating a new database) ?
+   SQLite_bug_3326
    Memcheck:Cond
    fun:sqlite3VdbeMemShallowCopy
    fun:sqlite3VdbeExec
-   fun:sqlite3Step
+   fun:sqlite3*tep
 }
 {
    libevent does not provide a way to clean up unused oneshot timers at exit
