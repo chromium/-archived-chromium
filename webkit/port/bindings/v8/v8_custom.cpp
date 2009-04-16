@@ -41,7 +41,9 @@
 #include "V8HTMLDocument.h"
 #include "V8HTMLImageElement.h"
 #include "V8HTMLOptionElement.h"
+#include "V8NamedNodesCollection.h"
 #include "V8Node.h"
+#include "V8Proxy.h"
 #include "V8XPathNSResolver.h"
 #include "V8XPathResult.h"
 
@@ -233,6 +235,34 @@ INDEXED_PROPERTY_SETTER(HTMLOptionsCollection) {
   return OptionsCollectionSetter(index, value, base);
 }
 
+NAMED_PROPERTY_GETTER(HTMLSelectElementCollection) {
+  INC_STATS("DOM.HTMLSelectElementCollection.NamedPropertySetter");
+  HTMLSelectElement* select =
+    V8Proxy::DOMWrapperToNode<HTMLSelectElement>(info.Holder());
+  v8::Handle<v8::Value> value = info.Holder()->GetRealNamedPropertyInPrototypeChain(name);
+
+  if (!value.IsEmpty())
+    return value;
+
+  // Search local callback properties next to find IDL defined
+  // properties.
+  if (info.Holder()->HasRealNamedCallbackProperty(name))
+    return notHandledByInterceptor();
+
+  PassRefPtr<HTMLOptionsCollection> collection = select->options();
+
+  Vector<RefPtr<Node> > items;
+  collection->namedItems(v8StringToAtomicWebCoreString(name), items);
+
+  if (!items.size())
+    return v8::Handle<v8::Value>();
+
+  if (items.size() == 1)
+    return V8Proxy::NodeToV8Object(items.at(0).get());
+
+  NodeList* list = new V8NamedNodesCollection(items);
+  return V8Proxy::ToV8Object(V8ClassIndex::NODELIST, list);
+}
 
 INDEXED_PROPERTY_SETTER(HTMLSelectElementCollection) {
   INC_STATS("DOM.HTMLSelectElementCollection.IndexedPropertySetter");
