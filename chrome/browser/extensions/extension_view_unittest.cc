@@ -6,7 +6,6 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
-#include "chrome/browser/extensions/extension_process_manager.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/test_extension_loader.h"
@@ -95,9 +94,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
   GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
 
   // Start the extension process and wait for it to show a javascript alert.
-  MockExtensionView view(
-      extension, url, ExtensionProcessManager::GetInstance()->
-          GetSiteInstanceForURL(url, browser()->profile()),
-          NULL);  // TODO(erikkay): do we need to get a Browser here?
+  MockExtensionView view(extension, url,
+      browser()->profile()->GetExtensionsService()->GetSiteInstanceForURL(url),
+      browser());
   EXPECT_TRUE(view.got_message());
 }

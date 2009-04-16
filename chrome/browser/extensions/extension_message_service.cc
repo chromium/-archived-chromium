@@ -5,6 +5,7 @@
 #include "chrome/browser/extensions/extension_message_service.h"
 
 #include "base/singleton.h"
+#include "base/values.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_view.h"
@@ -36,6 +37,13 @@ struct SingletonData {
 };
 }  // namespace
 
+// Since ExtensionMessageService is a collection of Singletons, we don't need to
+// grab a reference to it when creating Tasks involving it.
+template <> struct RunnableMethodTraits<ExtensionMessageService> {
+  static void RetainCallee(ExtensionMessageService*) {}
+  static void ReleaseCallee(ExtensionMessageService*) {}
+};
+
 // static
 ExtensionMessageService* ExtensionMessageService::GetInstance(
     URLRequestContext* context) {
@@ -52,17 +60,6 @@ ExtensionMessageService* ExtensionMessageService::GetInstance(
 
 ExtensionMessageService::ExtensionMessageService()
     : next_port_id_(0) {
-}
-
-std::set<int> ExtensionMessageService::GetUniqueProcessIds() {
-  std::set<int> ids;
-  ProcessIDMap::iterator it;
-  AutoLock lock(renderers_lock_);
-
-  for (it = process_ids_.begin(); it != process_ids_.end(); it++) {
-    ids.insert(it->second);
-  }
-  return ids;
 }
 
 void ExtensionMessageService::RegisterExtension(
@@ -135,6 +132,37 @@ void ExtensionMessageService::PostMessageFromRenderer(
 
   int source_port_id = GET_OPPOSITE_PORT_ID(port_id);
   dest->Send(new ViewMsg_ExtensionHandleMessage(message, source_port_id));
+}
+
+void ExtensionMessageService::DispatchEventToRenderers(
+    const std::string& event_name, const std::string& event_args) {
+  MessageLoop* io_thread = ChromeThread::GetMessageLoop(ChromeThread::IO);
+  if (MessageLoop::current() != io_thread) {
+    // Do the actual work on the IO thread.
+    io_thread->PostTask(FROM_HERE, NewRunnableMethod(this,
+        &ExtensionMessageService::DispatchEventToRenderers,
+        event_name, event_args));
+    return;
+  }
+
+  // TODO(mpcomplete): this set should probably just be a member var.
+  std::set<ResourceMessageFilter*> renderer_set;
+  {
+    ProcessIDMap::iterator it;
+    AutoLock lock(renderers_lock_);
+
+    for (it = process_ids_.begin(); it != process_ids_.end(); it++) {
+      RendererMap::iterator renderer = renderers_.find(it->second);
+      if (renderer != renderers_.end())
+        renderer_set.insert(renderer->second);
+    }
+  }
+
+  std::set<ResourceMessageFilter*>::iterator renderer;
+  for (renderer = renderer_set.begin(); renderer != renderer_set.end();
+       ++renderer) {
+    (*renderer)->Send(new ViewMsg_ExtensionHandleEvent(event_name, event_args));
+  }
 }
 
 void ExtensionMessageService::RendererReady(ResourceMessageFilter* filter) {

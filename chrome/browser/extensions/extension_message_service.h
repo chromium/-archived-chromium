@@ -13,6 +13,7 @@
 #include "chrome/common/notification_observer.h"
 
 class ExtensionView;
+class ListValue;
 class ResourceMessageFilter;
 class URLRequestContext;
 
@@ -61,7 +62,9 @@ class ExtensionMessageService : public NotificationObserver {
                const NotificationSource& source,
                const NotificationDetails& details);
 
-  std::set<int> GetUniqueProcessIds();
+  // Send an event to every registered extension renderer.
+  void DispatchEventToRenderers(
+      const std::string& event_name, const std::string& event_args);
 
  private:
   // A map of extension ID to the render_process_id that the extension lives in.

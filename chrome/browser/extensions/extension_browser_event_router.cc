@@ -4,9 +4,12 @@
 
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 
+#include "base/json_writer.h"
+#include "base/values.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/profile.h"
 #include "chrome/browser/extensions/extension.h"
-#include "chrome/browser/extensions/extension_process_manager.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
 #include "chrome/common/notification_service.h"
 
@@ -82,8 +85,12 @@ void ExtensionBrowserEventRouter::TabMoved(TabContents* contents,
   object_args->Set(L"toIndex", Value::CreateIntegerValue(to_index));
 
   args.Append(object_args);
-  ExtensionProcessManager::GetInstance()->DispatchEventToRenderers(profile,
-      kOnTabMoved, args);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+
+  ExtensionMessageService::GetInstance(profile->GetRequestContext())->
+      DispatchEventToRenderers(kOnTabMoved, json_args);
 }
 
 void ExtensionBrowserEventRouter::TabChangedAt(TabContents* contents,

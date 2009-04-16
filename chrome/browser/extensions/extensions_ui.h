@@ -7,11 +7,13 @@
 
 #include <string>
 
+#include "base/values.h"
 #include "chrome/browser/dom_ui/chrome_url_data_manager.h"
 #include "chrome/browser/dom_ui/dom_ui.h"
 #include "chrome/browser/extensions/extensions_service.h"
 
 class GURL;
+class UserScript;
 
 class ExtensionsUIHTMLSource : public ChromeURLDataManager::DataSource {
  public:

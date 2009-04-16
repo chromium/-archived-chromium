@@ -14,12 +14,15 @@
 #include "base/values.h"
 #include "net/base/file_stream.h"
 #include "chrome/browser/browser_process.h"
+#include "chrome/browser/browsing_instance.h"
+#include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/extensions/extension_view.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
@@ -74,8 +77,8 @@ ExtensionsService::ExtensionsService(Profile* profile,
     : message_loop_(MessageLoop::current()),
       install_directory_(profile->GetPath().AppendASCII(kInstallDirectoryName)),
       backend_(new ExtensionsServiceBackend(install_directory_)),
-      profile_(profile),
-      user_script_master_(user_script_master) {
+      user_script_master_(user_script_master),
+      browsing_instance_(new BrowsingInstance(profile)) {
 }
 
 ExtensionsService::~ExtensionsService() {
@@ -181,6 +184,16 @@ void ExtensionsService::OnExtensionInstalled(FilePath path, bool update) {
       Details<FilePath>(&path));
 
   // TODO(erikkay): Update UI if appropriate.
+}
+
+ExtensionView* ExtensionsService::CreateView(Extension* extension,
+                                             const GURL& url,
+                                             Browser* browser) {
+  return new ExtensionView(extension, url, GetSiteInstanceForURL(url), browser);
+}
+
+SiteInstance* ExtensionsService::GetSiteInstanceForURL(const GURL& url) {
+  return browsing_instance_->GetSiteInstanceForURL(url);
 }
 
 

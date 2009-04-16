@@ -14,9 +14,11 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
 #include "chrome/browser/extensions/extensions_service.h"
+#include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/extensions/url_pattern.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/json_value_serializer.h"
+#include "chrome/test/testing_profile.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -348,4 +350,39 @@ TEST_F(ExtensionsServiceTest, GenerateID) {
   ASSERT_EQ("0000000000000000000000000000000000000001", id2);
   ASSERT_EQ("chrome-extension://0000000000000000000000000000000000000001/",
             frontend->extensions()->at(1)->url().spec());
+}
+
+// Test that extensions get grouped in the right SiteInstance (and therefore
+// process) based on their URLs.
+TEST_F(ExtensionsServiceTest, ProcessGrouping) {
+  // Extensions in different profiles should always be different SiteInstances.
+  // Note: we don't initialize these, since we're not testing that
+  // functionality.  This means we can get away with a NULL UserScriptMaster.
+  TestingProfile profile1(1);
+  scoped_refptr<ExtensionsService> frontend1(
+      new ExtensionsService(&profile1, NULL));
+
+  TestingProfile profile2(2);
+  scoped_refptr<ExtensionsService> frontend2(
+      new ExtensionsService(&profile2, NULL));
+
+  // Extensions with common origins ("scheme://id/") should be grouped in the
+  // same SiteInstance.
+  GURL ext1_url1("chrome-extensions://ext1_id/index.html");
+  GURL ext1_url2("chrome-extensions://ext1_id/toolstrips/toolstrip.html");
+  GURL ext2_url1("chrome-extensions://ext2_id/index.html");
+
+  scoped_refptr<SiteInstance> site11 =
+      frontend1->GetSiteInstanceForURL(ext1_url1);
+  scoped_refptr<SiteInstance> site12 =
+      frontend1->GetSiteInstanceForURL(ext1_url2);
+  EXPECT_EQ(site11, site12);
+
+  scoped_refptr<SiteInstance> site21 =
+      frontend1->GetSiteInstanceForURL(ext2_url1);
+  EXPECT_NE(site11, site21);
+
+  scoped_refptr<SiteInstance> other_profile_site =
+      frontend2->GetSiteInstanceForURL(ext1_url1);
+  EXPECT_NE(site11, other_profile_site);
 }

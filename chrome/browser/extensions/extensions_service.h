@@ -12,12 +12,18 @@
 #include "base/message_loop.h"
 #include "base/ref_counted.h"
 #include "base/task.h"
-#include "chrome/browser/extensions/extension.h"
+#include "base/values.h"
 
-typedef std::vector<Extension*> ExtensionList;
+class Browser;
+class BrowsingInstance;
+class Extension;
+class ExtensionView;
 class ExtensionsServiceBackend;
+class GURL;
 class Profile;
+class SiteInstance;
 class UserScriptMaster;
+typedef std::vector<Extension*> ExtensionList;
 
 // Interface for the frontend to implement. Typically, this will be
 // ExtensionsService, but it can also be a test harness.
@@ -70,6 +76,15 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   virtual void OnExtensionsLoaded(ExtensionList* extensions);
   virtual void OnExtensionInstalled(FilePath path, bool is_update);
 
+  // Creates a new ExtensionView, grouping it in the appropriate SiteInstance
+  // (and therefore process) based on the URL and profile.
+  ExtensionView* CreateView(Extension* extension,
+                            const GURL& url,
+                            Browser* browser);
+
+  // Returns the SiteInstance that the given URL belongs to.
+  SiteInstance* GetSiteInstanceForURL(const GURL& url);
+
   // The name of the file that the current active version number is stored in.
   static const char* kCurrentVersionFileName;
 
@@ -90,11 +105,12 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   // The backend that will do IO on behalf of this instance.
   scoped_refptr<ExtensionsServiceBackend> backend_;
 
-  // The profile associated with this set of extensions.
-  Profile* profile_;
-
   // The user script master for this profile.
   scoped_refptr<UserScriptMaster> user_script_master_;
+
+  // The BrowsingInstance shared by all extensions in this profile.  This
+  // controls process grouping.
+  scoped_refptr<BrowsingInstance> browsing_instance_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };
