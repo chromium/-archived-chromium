@@ -584,7 +584,7 @@ void DraggedTabController::MoveTab(const gfx::Point& screen_point) {
       to_index = NormalizeIndexToAttachedTabStrip(to_index);
       if (from_index != to_index) {
         last_move_screen_x_ = screen_point.x();
-        attached_model->MoveTabContentsAt(from_index, to_index);
+        attached_model->MoveTabContentsAt(from_index, to_index, true);
       }
     }
   }
@@ -923,7 +923,8 @@ void DraggedTabController::RevertDrag() {
     } else {
       // The Tab was moved within the TabStrip where the drag was initiated.
       // Move it back to the starting location.
-      source_tabstrip_->model()->MoveTabContentsAt(index, source_model_index_);
+      source_tabstrip_->model()->MoveTabContentsAt(index, source_model_index_,
+          true);
     }
   } else {
     // TODO(beng): (Cleanup) seems like we should use Attach() for this

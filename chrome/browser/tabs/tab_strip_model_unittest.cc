@@ -328,14 +328,28 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     observer.ClearStates();
   }
 
-  // Test MoveTabContentsAt
+  // Test MoveTabContentsAt, select_after_move == true
   {
-    tabstrip.MoveTabContentsAt(1, 0);
+    tabstrip.MoveTabContentsAt(1, 0, true);
 
     EXPECT_EQ(1, observer.GetStateCount());
     State s1(contents2, 0, MockTabStripModelObserver::MOVE);
     s1.src_index = 1;
     EXPECT_TRUE(observer.StateEquals(0, s1));
+    EXPECT_EQ(0, tabstrip.selected_index());
+    observer.ClearStates();
+  }
+
+  // Test MoveTabContentsAt, select_after_move == false
+  {
+    tabstrip.MoveTabContentsAt(1, 0, false);
+    EXPECT_EQ(1, observer.GetStateCount());
+    State s1(contents1, 0, MockTabStripModelObserver::MOVE);
+    s1.src_index = 1;
+    EXPECT_TRUE(observer.StateEquals(0, s1));
+    EXPECT_EQ(1, tabstrip.selected_index());
+
+    tabstrip.MoveTabContentsAt(0, 1, false);
     observer.ClearStates();
   }
 

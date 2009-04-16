@@ -285,7 +285,10 @@ class TabStripModel : public NotificationObserver {
   // Move the TabContents at the specified index to another index. This method
   // does NOT send Detached/Attached notifications, rather it moves the
   // TabContents inline and sends a Moved notification instead.
-  void MoveTabContentsAt(int index, int to_position);
+  // If |select_after_move| is false, whatever tab was selected before the move
+  // will still be selected, but it's index may have incremented or decremented
+  // one slot.
+  void MoveTabContentsAt(int index, int to_position, bool select_after_move);
 
   // Returns the currently selected TabContents, or NULL if there is none.
   TabContents* GetSelectedTabContents() const;

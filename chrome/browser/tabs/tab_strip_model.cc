@@ -153,7 +153,8 @@ void TabStripModel::SelectTabContentsAt(int index, bool user_gesture) {
   ChangeSelectedContentsFrom(GetSelectedTabContents(), index, user_gesture);
 }
 
-void TabStripModel::MoveTabContentsAt(int index, int to_position) {
+void TabStripModel::MoveTabContentsAt(int index, int to_position,
+                                      bool select_after_move) {
   DCHECK(ContainsIndex(index));
   if (index == to_position)
     return;
@@ -162,7 +163,14 @@ void TabStripModel::MoveTabContentsAt(int index, int to_position) {
   contents_data_.erase(contents_data_.begin() + index);
   contents_data_.insert(contents_data_.begin() + to_position, moved_data);
 
-  selected_index_ = to_position;
+  // if !select_after_move, keep the same tab selected as was selected before.
+  if (select_after_move || index == selected_index_) {
+    selected_index_ = to_position;
+  } else if (index < selected_index_ && to_position >= selected_index_) {
+    selected_index_--;
+  } else if (index > selected_index_ && to_position <= selected_index_) {
+    selected_index_++;
+  }
 
   FOR_EACH_OBSERVER(TabStripModelObserver, observers_,
       TabMoved(moved_data->contents, index, to_position));
