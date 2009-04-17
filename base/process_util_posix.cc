@@ -312,6 +312,74 @@ int ProcessMetrics::GetCPUUsage() {
   return cpu;
 }
 
+bool GetAppOutput(const CommandLine& cl, std::string* output) {
+  int pipe_fd[2];
+  pid_t pid;
+
+  if (pipe(pipe_fd) < 0)
+    return false;
+
+  switch (pid = fork()) {
+    case -1:  // error
+      close(pipe_fd[0]);
+      close(pipe_fd[1]);
+      return false;
+    case 0:  // child
+      {
+        int rv;
+        do {
+          rv = dup2(pipe_fd[1], STDOUT_FILENO);
+        } while (rv == -1 && errno == EINTR);
+        do {
+          rv = dup2(pipe_fd[1], STDERR_FILENO);
+        } while (rv == -1 && errno == EINTR);
+        if (pipe_fd[0] != STDOUT_FILENO && pipe_fd[0] != STDERR_FILENO)
+          close(pipe_fd[0]);
+        if (pipe_fd[1] != STDOUT_FILENO && pipe_fd[1] != STDERR_FILENO)
+          close(pipe_fd[1]);
+
+        const std::vector<std::string> argv = cl.argv();
+        char* argv_cstr[argv.size() + 1];
+        for (size_t i = 0; i < argv.size(); i++)
+          argv_cstr[i] = const_cast<char*>(argv[i].c_str());
+        argv_cstr[argv.size()] = NULL;
+        execvp(argv_cstr[0], argv_cstr);
+        exit(127);
+      }
+    default:  // parent
+      {
+        // Close our writing end of pipe now. Otherwise later read would not
+        // be able to detect end of child's output (in theory we could still
+        // write to the pipe).
+        close(pipe_fd[1]);
+
+        int exit_code = EXIT_FAILURE;
+        bool success = WaitForExitCode(pid, &exit_code);
+        if (!success || exit_code != EXIT_SUCCESS) {
+          close(pipe_fd[0]);
+          return false;
+        }
+
+        char buffer[256];
+        std::string buf_output;
+        ssize_t bytes_read = 0;
+
+        while (true) {
+          bytes_read = read(pipe_fd[0], buffer, sizeof(buffer));
+          if (bytes_read == 0)
+            break;
+          if (bytes_read == -1 && errno != EINTR)
+            break;
+          if (bytes_read > 0)
+            buf_output.append(buffer, bytes_read);
+        }
+        output->assign(buf_output);
+        close(pipe_fd[0]);
+        return true;
+      }
+  }
+}
+
 int GetProcessCount(const std::wstring& executable_name,
                     const ProcessFilter* filter) {
   int count = 0;

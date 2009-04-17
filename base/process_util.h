@@ -124,6 +124,14 @@ bool LaunchApp(const std::vector<std::string>& argv,
 bool LaunchApp(const CommandLine& cl,
                bool wait, bool start_hidden, ProcessHandle* process_handle);
 
+#if defined(OS_POSIX)
+// Execute the application specified by |cl| and wait for it to exit. Store
+// the output (stdout and stderr) in |output|. Returns true on success
+// (application launched and exited cleanly, with exit code indicating success).
+// |output| is modified only when the function finished successfully.
+bool GetAppOutput(const CommandLine& cl, std::string* output);
+#endif  // defined(OS_POSIX)
+
 // Used to filter processes by process ID.
 class ProcessFilter {
  public:

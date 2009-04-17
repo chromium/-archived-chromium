@@ -4,6 +4,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include "base/command_line.h"
 #include "base/multiprocess_test.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
@@ -216,6 +217,21 @@ TEST_F(ProcessUtilTest, FDRemapping) {
   close(sockets[0]);
   close(sockets[1]);
   close(dev_null);
+}
+
+TEST_F(ProcessUtilTest, GetAppOutput) {
+  std::string output;
+  EXPECT_TRUE(GetAppOutput(CommandLine(L"true"), &output));
+  EXPECT_STREQ("", output.c_str());
+
+  EXPECT_FALSE(GetAppOutput(CommandLine(L"false"), &output));
+
+  std::vector<std::string> argv;
+  argv.push_back("/bin/echo");
+  argv.push_back("-n");
+  argv.push_back("foobar42");
+  EXPECT_TRUE(GetAppOutput(CommandLine(argv), &output));
+  EXPECT_STREQ("foobar42", output.c_str());
 }
 
 #endif  // defined(OS_POSIX)
