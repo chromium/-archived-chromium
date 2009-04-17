@@ -217,7 +217,7 @@ void ResetBeforeTestRun(WebView* view) {
   // This is papering over b/850700.  But it passes a few more tests, so we'll
   // keep it for now.
   if (frame && frame->script())
-    frame->script()->setEventHandlerLineno(0);
+    frame->script()->setEventHandlerLineNumber(0);
 
   // Reset the last click information so the clicks generated from previous
   // test aren't inherited (otherwise can mistake single/double/triple clicks)

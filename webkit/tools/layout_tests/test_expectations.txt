@@ -2472,3 +2472,35 @@ BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.h
 DEFER BUG10621 : LayoutTests/fast/js/array-reduce.html = FAIL
 DEFER BUG10621 : LayoutTests/fast/js/array-reduceRight.html = FAIL
 DEFER BUG10622 : LayoutTests/fast/js/array-enumerators-functions.html = FAIL
+
+// Need rebaselining for Mac and Linus, from WebKit merge 42580:42609
+BUG10662 LINUX MAC : LayoutTests/fast/forms/caret-rtl.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/forms/form-added-to-table.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/forms/form-in-malformed-markup.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/forms/formmove3.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/forms/preserveFormDuringResidualStyle.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/table/fixed-table-non-cell-in-row.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/table/inline-form-assert.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/table/insert-cell-before-form.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/fast/table/insert-row-before-form.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-03-b.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-color-01-b.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-comptran-01-b.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-group-02-b.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/carto.net/textbox.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Discrete.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Gamma.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Linear.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Table.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/svg/custom/image-clipped-hit.svg = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug2516.html = FAIL
+BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug32447.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug34538.html = FAIL
+BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug4527.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug78162.html = FAIL
+BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug96334.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug96343.html = FAIL
+BUG10662 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug1725.html = FAIL

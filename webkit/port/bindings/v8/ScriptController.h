@@ -216,7 +216,7 @@ public:
     static void gcUnprotectJSWrapper(void* object);
 
     void finishedWithEvent(Event*);
-    void setEventHandlerLineno(int lineno);
+    void setEventHandlerLineNumber(int lineno);
 
     void setProcessingTimerCallback(bool b) { m_processingTimerCallback = b; }
     bool processingUserGesture() const;

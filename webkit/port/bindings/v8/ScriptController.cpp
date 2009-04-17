@@ -241,7 +241,7 @@ PassRefPtr<EventListener> ScriptController::createInlineEventListener(
     return m_proxy->createInlineEventListener(functionName, code, node);
 }
 
-void ScriptController::setEventHandlerLineno(int lineno)
+void ScriptController::setEventHandlerLineNumber(int lineno)
 {
     m_proxy->setEventHandlerLineno(lineno);
 }
