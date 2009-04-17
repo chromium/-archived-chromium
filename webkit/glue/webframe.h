@@ -51,11 +51,10 @@ class WebFrame {
   // TODO(fqian): Remove this method when V8 supports NP runtime.
   virtual void* GetFrameImplementation() = 0;
 
-  // TODO(mpcomplete): remove this before Chrome extensions ship.
-  // HACK.  This is a temporary workaround to allow cross-origin XHR for Chrome
-  // extensions.  It allows no fine-grained control over what origins are
-  // accessible, instead granting access to everything (including file URLs).
-  virtual void AllowCrossOriginAccessHack() = 0;
+  // This grants the currently loaded Document access to all security origins
+  // (including file URLs).  Use with care.  The access is revoked when a new
+  // document is loaded into this frame.
+  virtual void GrantUniversalAccess() = 0;
 
   virtual NPObject* GetWindowNPObject() = 0;
 

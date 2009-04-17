@@ -1537,8 +1537,12 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
 }
 
 void RenderView::DocumentElementAvailable(WebFrame* frame) {
+  // TODO(mpcomplete): remove this before Chrome extensions ship.
+  // HACK.  This is a temporary workaround to allow cross-origin XHR for Chrome
+  // extensions.  It grants full access to every origin, when we really want
+  // to be able to restrict them more specifically.
   if (frame->GetURL().SchemeIs(chrome::kExtensionScheme))
-    frame->AllowCrossOriginAccessHack();
+    frame->GrantUniversalAccess();
 
   if (RenderThread::current())  // Will be NULL during unit tests.
     RenderThread::current()->user_script_slave()->InjectScripts(

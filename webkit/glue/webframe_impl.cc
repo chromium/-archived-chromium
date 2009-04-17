@@ -878,7 +878,7 @@ void WebFrameImpl::CallJSGC() {
 #endif
 }
 
-void WebFrameImpl::AllowCrossOriginAccessHack() {
+void WebFrameImpl::GrantUniversalAccess() {
   DCHECK(frame_ && frame_->document());
   if (frame_ && frame_->document()) {
     frame_->document()->securityOrigin()->grantUniversalAccess();
