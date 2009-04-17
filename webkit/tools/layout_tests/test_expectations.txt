@@ -1169,15 +1169,15 @@ BUG10349 LINUX : LayoutTests/fast/forms/select-style.html = FAIL
 BUG10350 LINUX : LayoutTests/fast/replaced/width100percent-radio.html = FAIL
 
 // Linux pixel tests: the select arrow is clipping wrong on one line.
-LINUX : chrome/fast/forms/basic-selects.html = FAIL
+BUG_GWILSON LINUX : chrome/fast/forms/basic-selects.html = FAIL
 
 // Depends on plugin support.
 BUG10351 MAC LINUX : LayoutTests/fast/dom/object-embed-plugin-scripting.html = FAIL
 BUG10351 MAC : LayoutTests/fast/dynamic/flash-replacement-test.html = FAIL
 BUG10351 MAC : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
 BUG10351 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug8499.html = FAIL
-LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
-MAC : chrome/plugins/call-as-function.html = FAIL
+BUG_GWILSON LINUX : chrome/plugins/call-as-function.html = CRASH FAIL
+BUG_GWILSON MAC : chrome/plugins/call-as-function.html = FAIL
 BUG10351 LINUX : LayoutTests/fast/js/navigator-mimeTypes-length.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/http/tests/plugins/cross-frame-object-access.html = FAIL
 BUG10351 LINUX : LayoutTests/http/tests/plugins/get-url.html = TIMEOUT
@@ -1205,15 +1205,15 @@ BUG10351 LINUX : LayoutTests/plugins/open-and-close-window-with-plugin.html = FA
 BUG10351 MAC LINUX : LayoutTests/plugins/plugin-javascript-access.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/plugin-remove-subframe.html = FAIL
 BUG10351 MAC LINUX : LayoutTests/plugins/return-error-from-new-stream-doesnt-invoke-destroy-stream.html = TIMEOUT
-LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
+BUG_GWILSON LINUX MAC : chrome/plugins/get-file-url.html = CRASH TIMEOUT
 // Skip because we throw an exception before we get to dumpAsText.
-SKIP LINUX MAC : chrome/plugins/get-url-with-blank-target.html = FAIL
-LINUX MAC : chrome/plugins/multiple-plugins.html = FAIL
-LINUX MAC : chrome/plugins/nested-plugin-objects.html = FAIL
-LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
-LINUX MAC : chrome/plugins/return-npobject.html = FAIL
-LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
-MAC : pending/plugins/iframe-shims.html = FAIL CRASH
+BUG_GWILSON SKIP LINUX MAC : chrome/plugins/get-url-with-blank-target.html = FAIL
+BUG_GWILSON LINUX MAC : chrome/plugins/multiple-plugins.html = FAIL
+BUG_GWILSON LINUX MAC : chrome/plugins/nested-plugin-objects.html = FAIL
+BUG_GWILSON LINUX MAC : chrome/plugins/refcount-leaks.html = FAIL
+BUG_GWILSON LINUX MAC : chrome/plugins/return-npobject.html = FAIL
+BUG_GWILSON LINUX MAC : chrome/plugins/script-object-invoke.html = FAIL
+BUG_GWILSON MAC : pending/plugins/iframe-shims.html = FAIL CRASH
 
 // NEW FOR MERGE 36102:37604
 
@@ -1253,7 +1253,7 @@ BUG10353 MAC LINUX : LayoutTests/fast/forms/form-element-geometry.html = FAIL
 BUG10353 MAC LINUX : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 BUG10353 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
 BUG10353 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
-chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
+BUG_GWILSON : chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 // This test sometimes fails indefinitely, other times it takes 1-2 seconds.
 BUG10353 WIN LINUX : LayoutTests/http/tests/misc/dns-prefetch-control.html = TIMEOUT PASS
 
@@ -1416,10 +1416,10 @@ BUG10363 MAC : LayoutTests/tables/mozilla/bugs/bug99948.html = FAIL
 BUG10363 MAC : LayoutTests/tables/mozilla/dom/tableDom.html = FAIL
 BUG10363 MAC : LayoutTests/tables/mozilla/other/move_row.html = FAIL
 BUG10363 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug92647-1.html = FAIL
-MAC : chrome/fast/forms/basic-buttons.html = FAIL
-MAC : chrome/fast/forms/basic-inputs.html = FAIL
-MAC : chrome/fast/forms/basic-selects.html = FAIL
-MAC : chrome/fast/forms/textarea-metrics.html = FAIL
+BUG_GWILSON MAC : chrome/fast/forms/basic-buttons.html = FAIL
+BUG_GWILSON MAC : chrome/fast/forms/basic-inputs.html = FAIL
+BUG_GWILSON MAC : chrome/fast/forms/basic-selects.html = FAIL
+BUG_GWILSON MAC : chrome/fast/forms/textarea-metrics.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/input-type-text-min-width.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/placeholder-set-attribute.html = FAIL
@@ -1593,7 +1593,7 @@ BUG10382 MAC : LayoutTests/animations/change-keyframes-name.html = FAIL PASS
 // TODO(ojan): Remove all the mac http tests that are now redundant with the
 // following two lines.
 BUG10383 MAC : LayoutTests/http = CRASH TIMEOUT PASS
-MAC : chrome/http = PASS CRASH TIMEOUT
+BUG_GWILSON MAC : chrome/http = PASS CRASH TIMEOUT
 
 // The following are flaky in that some times the timeout or crash, but we think
 // it is because of bugs in other parts of the code and not specific to what
@@ -1606,7 +1606,7 @@ BUG10384 MAC : LayoutTests/fast/images/animated-background-image-crash.html = TI
 BUG10384 MAC : LayoutTests/http/tests/security/javascriptURL/xss-ALLOWED-from-javascript-url-window-open.html = CRASH TIMEOUT FAIL PASS
 BUG10384 MAC : LayoutTests/fast/css/background-shorthand-invalid-url.html = CRASH PASS
 BUG10384 MAC : LayoutTests/fast/dom/Window/window-early-properties.html = CRASH TIMEOUT PASS
-MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT FAIL
+BUG_GWILSON MAC : chrome/http/tests/misc/set-window-opener-to-null.html = PASS TIMEOUT FAIL
 BUG10384 MAC : LayoutTests/fast/dom/Window/new-window-opener.html = CRASH TIMEOUT FAIL
 BUG10384 MAC : LayoutTests/fast/events/frame-tab-focus.html = CRASH FAIL
 BUG10384 MAC : LayoutTests/fast/forms/focus2.html = CRASH FAIL
@@ -2010,8 +2010,8 @@ BUG10446 LINUX : LayoutTests/fast/text/trailing-white-space.html = FAIL
 BUG10446 LINUX : LayoutTests/fast/text/trailing-white-space-2.html = FAIL
 BUG10446 LINUX : LayoutTests/editing/selection/extend-by-word-002.html = FAIL
 BUG10446 LINUX : LayoutTests/editing/selection/select-all-002.html = FAIL
-MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
-MAC : chrome/fast/forms/basic-textareas.html = FAIL
+BUG_GWILSON MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+BUG_GWILSON MAC : chrome/fast/forms/basic-textareas.html = FAIL
 
 // Needs rebaseline.
 BUG10447 MAC LINUX : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
@@ -2080,8 +2080,8 @@ BUG10455 LINUX : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
 BUG10455 LINUX : LayoutTests/fast/overflow/003.xml = FAIL
 BUG10455 LINUX : LayoutTests/fast/overflow/007.html = FAIL
 BUG10455 LINUX : LayoutTests/fast/repaint/selection-gap-overflow-scroll.html = FAIL
-LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
-LINUX : chrome/fast/forms/basic-textareas.html = FAIL
+BUG_GWILSON LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
+BUG_GWILSON LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 
 BUG10456 LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
 
