@@ -34,6 +34,7 @@
       NOTREACHED();
   }
   [self autorelease];
+  delete bridge;  // Done with the dialog, it needs be destroyed.
 }
 @end
 
