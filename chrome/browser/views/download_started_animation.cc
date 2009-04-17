@@ -37,11 +37,11 @@ DownloadStartedAnimation::DownloadStartedAnimation(TabContents* tab_contents)
   if (tab_contents_bounds_.height() < kDownloadImage->height())
     return;
 
-  NotificationService::current()->AddObserver(
+  registrar_.Add(
       this,
       NotificationType::TAB_CONTENTS_HIDDEN,
       Source<TabContents>(tab_contents_));
-  NotificationService::current()->AddObserver(
+  registrar_.Add(
       this,
       NotificationType::TAB_CONTENTS_DESTROYED,
       Source<TabContents>(tab_contents_));
@@ -81,11 +81,11 @@ void DownloadStartedAnimation::Close() {
   if (!tab_contents_)
     return;
 
-  NotificationService::current()->RemoveObserver(
+  registrar_.Remove(
       this,
       NotificationType::TAB_CONTENTS_HIDDEN,
       Source<TabContents>(tab_contents_));
-  NotificationService::current()->RemoveObserver(
+  registrar_.Remove(
       this,
       NotificationType::TAB_CONTENTS_DESTROYED,
       Source<TabContents>(tab_contents_));

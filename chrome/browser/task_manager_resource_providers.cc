@@ -137,19 +137,18 @@ void TaskManagerWebContentsResourceProvider::StartUpdating() {
       AddToTaskManager(web_contents);
   }
   // Then we register for notifications to get new tabs.
-  NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NotificationType::WEB_CONTENTS_CONNECTED,
-                       NotificationService::AllSources());
-  service->AddObserver(this, NotificationType::WEB_CONTENTS_SWAPPED,
-                       NotificationService::AllSources());
-  service->AddObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
-                       NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::WEB_CONTENTS_CONNECTED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::WEB_CONTENTS_SWAPPED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
+                 NotificationService::AllSources());
   // WEB_CONTENTS_DISCONNECTED should be enough to know when to remove a
   // resource.  This is an attempt at mitigating a crasher that seem to
   // indicate a resource is still referencing a deleted WebContents
   // (http://crbug.com/7321).
-  service->AddObserver(this, NotificationType::TAB_CONTENTS_DESTROYED,
-                       NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                 NotificationService::AllSources());
 
 }
 
@@ -158,15 +157,14 @@ void TaskManagerWebContentsResourceProvider::StopUpdating() {
   updating_ = false;
 
   // Then we unregister for notifications to get new tabs.
-  NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NotificationType::WEB_CONTENTS_CONNECTED,
-                          NotificationService::AllSources());
-  service->RemoveObserver(this, NotificationType::WEB_CONTENTS_SWAPPED,
-                          NotificationService::AllSources());
-  service->RemoveObserver(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
-                          NotificationService::AllSources());
-  service->RemoveObserver(this, NotificationType::TAB_CONTENTS_DESTROYED,
-                          NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::WEB_CONTENTS_CONNECTED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::WEB_CONTENTS_SWAPPED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::TAB_CONTENTS_DESTROYED,
+                    NotificationService::AllSources());
 
   // Delete all the resources.
   STLDeleteContainerPairSecondPointers(resources_.begin(), resources_.end());
@@ -323,11 +321,10 @@ void TaskManagerChildProcessResourceProvider::StartUpdating() {
   updating_ = true;
 
   // Register for notifications to get new plugin processes.
-  NotificationService* service = NotificationService::current();
-  service->AddObserver(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
-                       NotificationService::AllSources());
-  service->AddObserver(this, NotificationType::CHILD_PROCESS_HOST_DISCONNECTED,
-                       NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
+                 NotificationService::AllSources());
+  registrar_.Add(this, NotificationType::CHILD_PROCESS_HOST_DISCONNECTED,
+                 NotificationService::AllSources());
 
   // Get the existing plugins
   MessageLoop* io_loop_ = g_browser_process->io_thread()->message_loop();
@@ -340,12 +337,11 @@ void TaskManagerChildProcessResourceProvider::StopUpdating() {
   updating_ = false;
 
   // Unregister for notifications to get new plugin processes.
-  NotificationService* service = NotificationService::current();
-  service->RemoveObserver(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
-                          NotificationService::AllSources());
-  service->RemoveObserver(this,
-                          NotificationType::CHILD_PROCESS_HOST_DISCONNECTED,
-                          NotificationService::AllSources());
+  registrar_.Remove(this, NotificationType::CHILD_PROCESS_HOST_CONNECTED,
+                    NotificationService::AllSources());
+  registrar_.Remove(this,
+                    NotificationType::CHILD_PROCESS_HOST_DISCONNECTED,
+                    NotificationService::AllSources());
 
   // Delete all the resources.
   STLDeleteContainerPairSecondPointers(resources_.begin(), resources_.end());

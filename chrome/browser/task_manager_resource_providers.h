@@ -71,6 +71,9 @@ class TaskManagerWebContentsResourceProvider
   // resources.
   std::map<WebContents*, TaskManagerWebContentsResource*> resources_;
 
+  // A scoped container for notification registries.
+  NotificationRegistrar registrar_;
+
   DISALLOW_COPY_AND_ASSIGN(TaskManagerWebContentsResourceProvider);
 };
 
@@ -157,6 +160,9 @@ class TaskManagerChildProcessResourceProvider
   // Maps the pids to the resources (used for quick access to the resource on
   // byte read notifications).
   std::map<int, TaskManagerChildProcessResource*> pid_to_resources_;
+
+  // A scoped container for notification registries.
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManagerChildProcessResourceProvider);
 };

@@ -43,7 +43,7 @@ TabStripModel::TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
       closing_all_(false),
       order_controller_(NULL) {
   DCHECK(delegate_);
-  NotificationService::current()->AddObserver(this,
+  registrar_.Add(this,
       NotificationType::TAB_CONTENTS_DESTROYED,
       NotificationService::AllSources());
   order_controller_ = new TabStripModelOrderController(this);
@@ -52,9 +52,6 @@ TabStripModel::TabStripModel(TabStripModelDelegate* delegate, Profile* profile)
 TabStripModel::~TabStripModel() {
   STLDeleteContainerPointers(contents_data_.begin(), contents_data_.end());
   delete order_controller_;
-  NotificationService::current()->RemoveObserver(this,
-      NotificationType::TAB_CONTENTS_DESTROYED,
-      NotificationService::AllSources());
 }
 
 void TabStripModel::AddObserver(TabStripModelObserver* observer) {

@@ -7,7 +7,7 @@
 
 #include "base/gfx/rect.h"
 #include "chrome/common/animation.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/views/controls/image_view.h"
 
 namespace views {
@@ -53,6 +53,9 @@ class DownloadStartedAnimation : public Animation,
   // with the parent window, but it's so fast that this shouldn't cause too
   // much heartbreak.
   gfx::Rect tab_contents_bounds_;
+
+  // A scoped container for notification registries.
+  NotificationRegistrar registrar_;
 
   DISALLOW_COPY_AND_ASSIGN(DownloadStartedAnimation);
 };
