@@ -1,3 +1,12 @@
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// -----------------------------------------------------------------------------
+// NOTE: If you change this file you need to touch renderer_resources.grd to
+// have your change take effect.
+// -----------------------------------------------------------------------------
+
 // Implementation of the Greasemonkey API, see:
 // http://wiki.greasespot.net/Greasemonkey_Manual:APIs
 

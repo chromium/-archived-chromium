@@ -2,6 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// -----------------------------------------------------------------------------
+// NOTE: If you change this file you need to touch renderer_resources.grd to
+// have your change take effect.
+// -----------------------------------------------------------------------------
+
 //==============================================================================
 // This file contains a class that implements a subset of JSON Schema.
 // See: http://www.json.com/json-schema-proposal/ for more details.
