@@ -28,16 +28,6 @@ AudioRendererImpl::AudioRendererImpl(AudioMessageFilter* filter)
 AudioRendererImpl::~AudioRendererImpl() {
 }
 
-bool AudioRendererImpl::HasStopped() {
-  AutoLock auto_lock(lock_);
-  return stopped_;
-}
-
-void AudioRendererImpl::SignalStop() {
-  AutoLock auto_lock(lock_);
-  stopped_ = true;
-}
-
 bool AudioRendererImpl::IsMediaFormatSupported(
     const media::MediaFormat& media_format) {
   int channels;
@@ -65,18 +55,19 @@ bool AudioRendererImpl::OnInitialize(const media::MediaFormat& media_format) {
 }
 
 void AudioRendererImpl::OnStop() {
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
+  stopped_ = true;
 
-  SignalStop();
   io_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(this, &AudioRendererImpl::OnDestroy));
 }
 
 void AudioRendererImpl::OnReadComplete(media::Buffer* buffer_in) {
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
-
   // Use the base class to queue the buffer.
   AudioRendererBase::OnReadComplete(buffer_in);
   // Post a task to render thread to notify a packet reception.
@@ -85,9 +76,6 @@ void AudioRendererImpl::OnReadComplete(media::Buffer* buffer_in) {
 }
 
 void AudioRendererImpl::SetPlaybackRate(float rate) {
-  if (HasStopped())
-    return;
-
   // TODO(hclam): handle playback rates not equal to 1.0.
   if (rate == 1.0f) {
     // TODO(hclam): what should I do here? OnCreated has fired StartAudioStream
@@ -98,9 +86,9 @@ void AudioRendererImpl::SetPlaybackRate(float rate) {
 }
 
 void AudioRendererImpl::SetVolume(float volume) {
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
-
   // TODO(hclam): change this to multichannel if possible.
   io_loop_->PostTask(FROM_HERE,
       NewRunnableMethod(
@@ -111,7 +99,8 @@ void AudioRendererImpl::OnCreated(base::SharedMemoryHandle handle,
                                   size_t length) {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
 
   shared_memory_.reset(new base::SharedMemory(handle, false));
@@ -134,7 +123,8 @@ void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
                                        int info) {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
 
   switch (state) {
@@ -152,9 +142,6 @@ void AudioRendererImpl::OnStateChanged(AudioOutputStream::State state,
 }
 
 void AudioRendererImpl::OnVolume(double left, double right) {
-  if (HasStopped())
-    return;
-
   // TODO(hclam): decide whether we need to report the current volume to
   // pipeline.
 }
@@ -164,7 +151,8 @@ void AudioRendererImpl::OnCreateStream(
     int bits_per_sample, size_t packet_size) {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
 
   // Make sure we don't call create more than once.
@@ -191,18 +179,18 @@ void AudioRendererImpl::OnDestroy() {
 void AudioRendererImpl::OnSetVolume(double left, double right) {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
-
   filter_->Send(new ViewHostMsg_SetAudioVolume(0, stream_id_, left, right));
 }
 
 void AudioRendererImpl::OnNotifyPacketReady() {
   DCHECK(MessageLoop::current() == io_loop_);
 
-  if (HasStopped())
+  AutoLock auto_lock(lock_);
+  if (stopped_)
     return;
-
   if (packet_request_event_.IsSignaled()) {
     DCHECK(shared_memory_.get());
     // Fill into the shared memory.

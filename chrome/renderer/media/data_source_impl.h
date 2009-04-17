@@ -41,7 +41,7 @@
 //   |-- OnReceivedData()
 //   |-- OnCompletedRequest()
 //   |-- GetURLForDebugging()
-//   \-- ReleaseResources()
+//   \-- OnDestroy()
 //
 // Pipeline thread
 //   +-- Initialize()
@@ -84,6 +84,7 @@
 #include "media/base/factory.h"
 #include "media/base/filters.h"
 #include "media/base/media_format.h"
+#include "media/base/pipeline.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
 #include "webkit/glue/resource_loader_bridge.h"
@@ -114,21 +115,6 @@ class DataSourceImpl : public media::DataSource,
                                   const std::string& security_info);
   virtual std::string GetURLForDebugging();
 
-  // Release all resources associated with RenderView, particularly
-  // ResourceLoaderBridge created by ResourceDispatcher. This method should only
-  // be executed on render thread.
-  // There are three cases for this method to be called:
-  // 1. Posted as a task from DataSourceImpl::Stop() caused by an error in the
-  //    pipeline.
-  // 2. WebMediaPlayerDelegateImpl is being destroyed and all resources
-  //    associated with the pipeline should go away. In this case we can call
-  //    to objects that live inside render thread to cleanup,
-  //    e.g. ResourceDispatcher.
-  // 3. RenderThread is being destroyed, in this case we can't access any
-  //    object that lives inside render thread and should let the resources
-  //    leak.
-  void ReleaseResources(bool is_render_thread_dying);
-
   // Methods called from pipeline thread --------------------------------------
   virtual bool Initialize(const std::string& url);
   // media::MediaFilter implementation.
@@ -147,6 +133,9 @@ class DataSourceImpl : public media::DataSource,
  private:
   friend class media::FilterFactoryImpl1<DataSourceImpl,
                                          WebMediaPlayerDelegateImpl*>;
+  // Call to filter host to trigger an error, be sure not to call this method
+  // while the lock is acquired.
+  void HandleError(media::PipelineError error);
 
   // Methods called from render thread ----------------------------------------
   explicit DataSourceImpl(WebMediaPlayerDelegateImpl* delegate);
@@ -155,6 +144,7 @@ class DataSourceImpl : public media::DataSource,
   // Tasks to be posted on render thread.
   void OnInitialize(std::string uri);
   void OnCancel();
+  void OnDestroy();
 
   // Methods called from IO thread --------------------------------------------
   // Handlers for file reading.
@@ -174,8 +164,6 @@ class DataSourceImpl : public media::DataSource,
 
   // A common lock for protecting members accessed by multiple threads.
   Lock lock_;
-
-  // A flag that indicates whether this object has been called to stop.
   bool stopped_;
 
   // URI to the resource being downloaded.
@@ -189,8 +177,7 @@ class DataSourceImpl : public media::DataSource,
   bool download_completed_;
 
   // Members related to resource loading with RenderView.
-  webkit_glue::ResourceLoaderBridge* resource_loader_bridge_;
-  base::WaitableEvent resource_release_event_;
+  scoped_ptr<webkit_glue::ResourceLoaderBridge> resource_loader_bridge_;
 
   // Members used for reading.
   base::WaitableEvent read_event_;

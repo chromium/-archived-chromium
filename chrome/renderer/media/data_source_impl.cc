@@ -10,7 +10,6 @@
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
 #include "chrome/renderer/render_thread.h"
 #include "media/base/filter_host.h"
-#include "media/base/pipeline.h"
 #include "net/base/load_flags.h"
 #include "net/base/net_errors.h"
 #include "webkit/glue/webappcachecontext.h"
@@ -25,7 +24,6 @@ DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
       total_bytes_known_(false),
       download_completed_(false),
       resource_loader_bridge_(NULL),
-      resource_release_event_(true, false),
       read_event_(false, false),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           read_callback_(this, &DataSourceImpl::OnDidFileStreamRead)),
@@ -34,19 +32,16 @@ DataSourceImpl::DataSourceImpl(WebMediaPlayerDelegateImpl* delegate)
       position_(0),
       io_loop_(delegate->view()->GetMessageLoopForIO()),
       seek_event_(false, false) {
-  // Register ourselves with WebMediaPlayerDelgateImpl.
-  delegate_->SetDataSource(this);
 }
 
 DataSourceImpl::~DataSourceImpl() {
 }
 
 void DataSourceImpl::Stop() {
+  AutoLock auto_lock(lock_);
   if (stopped_)
     return;
   stopped_ = true;
-
-  delegate_->SetDataSource(NULL);
 
   // Wakes up demuxer waiting on |read_event_| in Read().
   read_event_.Signal();
@@ -55,13 +50,8 @@ void DataSourceImpl::Stop() {
   // Wakes up demuxer waiting on |download_event_| in Read() or SetPosition().
   download_event_.Signal();
 
-  if (!resource_release_event_.IsSignaled()) {
-    render_loop_->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &DataSourceImpl::ReleaseResources, false));
-    // We wait until the resource is released to make sure we won't receive
-    // any call from render thread when we wake up.
-    resource_release_event_.Wait();
-  }
+  render_loop_->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &DataSourceImpl::OnDestroy));
 }
 
 bool DataSourceImpl::Initialize(const std::string& url) {
@@ -76,27 +66,44 @@ bool DataSourceImpl::Initialize(const std::string& url) {
 size_t DataSourceImpl::Read(uint8* data, size_t size) {
   DCHECK(stream_.get());
   // Wait until we have downloaded the requested bytes.
-  while (!stopped_) {
+  while (true) {
     {
       AutoLock auto_lock(lock_);
-      if (download_completed_ || position_ + size <= downloaded_bytes_)
+      if (stopped_ || download_completed_ ||
+          position_ + size <= downloaded_bytes_)
         break;
     }
     download_event_.Wait();
   }
 
   last_read_size_ = media::DataSource::kReadError;
-  if (!stopped_) {
-    if (logging::DEBUG_MODE) {
-      AutoLock auto_lock(lock_);
-      DCHECK(download_completed_ || position_ + size <= downloaded_bytes_);
-    }
-    // Post a task to IO message loop to perform the actual reading.
-    io_loop_->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &DataSourceImpl::OnReadFileStream, data, size));
-    read_event_.Wait();
+  if (logging::DEBUG_MODE) {
+    AutoLock auto_lock(lock_);
+    DCHECK(stopped_ || download_completed_ ||
+           position_ + size <= downloaded_bytes_);
   }
-  return last_read_size_;
+
+  // Post a task to IO message loop to perform the actual reading.
+  bool task_posted = false;
+  {
+    AutoLock auto_lock(lock_);
+    if (!stopped_) {
+      io_loop_->PostTask(FROM_HERE,
+          NewRunnableMethod(this, &DataSourceImpl::OnReadFileStream,
+                            data, size));
+      task_posted = true;
+    }
+  }
+
+  if (task_posted)
+    read_event_.Wait();
+
+  {
+    AutoLock auto_lock(lock_);
+    if (!stopped_)
+      return last_read_size_;
+    return media::DataSource::kReadError;
+  }
 }
 
 bool DataSourceImpl::GetPosition(int64* position_out) {
@@ -107,38 +114,48 @@ bool DataSourceImpl::GetPosition(int64* position_out) {
 
 bool DataSourceImpl::SetPosition(int64 position) {
   DCHECK(stream_.get());
-  while (!stopped_) {
+  while (true) {
     {
       AutoLock auto_lock(lock_);
-      if (download_completed_ || position < downloaded_bytes_)
+      if (stopped_ || download_completed_ || position < downloaded_bytes_)
         break;
     }
     download_event_.Wait();
   }
-  if (!stopped_) {
-    if (logging::DEBUG_MODE) {
-      AutoLock auto_lock_(lock_);
-      DCHECK(download_completed_ || position < downloaded_bytes_);
+
+  if (logging::DEBUG_MODE) {
+    AutoLock auto_lock(lock_);
+    DCHECK(stopped_ || download_completed_ || position < downloaded_bytes_);
+  }
+
+  // Perform the seek operation on IO message loop.
+  bool task_posted = false;
+  {
+    AutoLock auto_lock(lock_);
+    if (!stopped_) {
+      io_loop_->PostTask(FROM_HERE,
+          NewRunnableMethod(this,
+              &DataSourceImpl::OnSeekFileStream, net::FROM_BEGIN, position));
+      task_posted =  true;
     }
-    // Perform the seek operation on IO message loop.
-    io_loop_->PostTask(FROM_HERE,
-        NewRunnableMethod(this,
-            &DataSourceImpl::OnSeekFileStream, net::FROM_BEGIN, position));
+  }
+  if (task_posted)
     seek_event_.Wait();
-    if (!stopped_ && logging::DEBUG_MODE) {
-      AutoLock auto_lock_(lock_);
-      DCHECK(position == position_);
-    }
+
+  if (logging::DEBUG_MODE) {
+    AutoLock auto_lock_(lock_);
+    DCHECK(stopped_ || position == position_);
   }
   return true;
 }
 
 bool DataSourceImpl::GetSize(int64* size_out) {
   AutoLock auto_lock(lock_);
-  if (!stopped_ && total_bytes_known_) {
+  if (total_bytes_known_) {
     *size_out = total_bytes_;
     return true;
   }
+  *size_out = 0;
   return false;
 }
 
@@ -149,6 +166,9 @@ bool DataSourceImpl::IsSeekable() {
 }
 
 void DataSourceImpl::OnCreateFileStream(base::PlatformFile file) {
+  AutoLock auto_lock(lock_);
+  if (stopped_)
+    return;
   stream_.reset(
       new net::FileStream(
           file, base::PLATFORM_FILE_READ | base::PLATFORM_FILE_ASYNC));
@@ -157,40 +177,38 @@ void DataSourceImpl::OnCreateFileStream(base::PlatformFile file) {
 }
 
 void DataSourceImpl::OnReadFileStream(uint8* data, size_t size) {
-  if (!stopped_ && stream_.get()) {
-    // net::FileStream::Read wants a char*, not uint8*.
-    char* c_data = reinterpret_cast<char*>(data);
-    COMPILE_ASSERT(sizeof(*c_data) == sizeof(*data), data_not_sizeof_char);
-
-    // This method IO operation is asynchronous, it is expected to return
-    // ERROR_IO_PENDING, when the operation is done, OnDidFileStreamRead() will
-    // be called.  Since the file handle is asynchronous, return value other
-    // than ERROR_IO_PENDING is an error.
-    if (stream_->Read(c_data, size, &read_callback_) != net::ERR_IO_PENDING) {
-      host_->Error(media::PIPELINE_ERROR_READ);
+  int error = net::ERR_IO_PENDING;
+  {
+    AutoLock auto_lock(lock_);
+    if (!stopped_) {
+      // net::FileStream::Read wants a char*, not uint8*.
+      char* c_data = reinterpret_cast<char*>(data);
+      COMPILE_ASSERT(sizeof(*c_data) == sizeof(*data), data_not_sizeof_char);
+      error = stream_->Read(c_data, size, &read_callback_);
     }
+  }
+
+  // Since the file handle is asynchronous, return value other than
+  // ERROR_IO_PENDING is an error.
+  if (error != net::ERR_IO_PENDING) {
+    HandleError(media::PIPELINE_ERROR_READ);
   }
 }
 
 void DataSourceImpl::OnSeekFileStream(net::Whence whence, int64 position) {
-  if (!stopped_ && stream_.get()) {
-    int64 new_position = stream_->Seek(whence, position);
-    // Make the critical section as small as possible, because we can't assume
-    // anything inside Seek() method above.
-    {
-      AutoLock auto_lock(lock_);
-      position_ = new_position;
-    }
+  {
+    AutoLock auto_lock(lock_);
+    if (!stopped_)
+      position_ = stream_->Seek(whence, position);
   }
   seek_event_.Signal();
 }
 
 void DataSourceImpl::OnDidFileStreamRead(int size) {
   if (size < 0) {
-    host_->Error(media::PIPELINE_ERROR_READ);
+    HandleError(media::PIPELINE_ERROR_READ);
   } else {
     AutoLock auto_lock(lock_);
-    // TODO(hclam): size may be an error code, handle that.
     position_ += size;
   }
   last_read_size_ = size;
@@ -200,7 +218,7 @@ void DataSourceImpl::OnDidFileStreamRead(int size) {
 void DataSourceImpl::OnInitialize(std::string uri) {
   uri_ = uri;
   // Create the resource loader bridge.
-  resource_loader_bridge_ =
+  resource_loader_bridge_.reset(
       RenderThread::current()->resource_dispatcher()->CreateBridge(
       "GET",
       GURL(uri),
@@ -219,23 +237,15 @@ void DataSourceImpl::OnInitialize(std::string uri) {
       //                    app_cache_context()->context_id()
       // For now don't service media resource requests from the appcache.
       WebAppCacheContext::kNoAppCacheContextId,
-      delegate_->view()->routing_id());
+      delegate_->view()->routing_id()));
   // Start the resource loading.
   resource_loader_bridge_->Start(this);
 }
 
-void DataSourceImpl::ReleaseResources(bool render_thread_is_dying) {
+void DataSourceImpl::OnDestroy() {
   DCHECK(MessageLoop::current() == render_loop_);
-  if (render_thread_is_dying) {
-    // If render thread is dying we can't call cancel on this pointer, we will
-    // just let this object leak.
-    resource_loader_bridge_ = NULL;
-  } else if (resource_loader_bridge_) {
-    resource_loader_bridge_->Cancel();
-    delete resource_loader_bridge_;
-    resource_loader_bridge_ = NULL;
-  }
-  resource_release_event_.Signal();
+  resource_loader_bridge_->Cancel();
+  resource_loader_bridge_.reset();
 }
 
 void DataSourceImpl::OnDownloadProgress(uint64 position, uint64 size) {
@@ -281,13 +291,19 @@ void DataSourceImpl::OnReceivedResponse(
       total_bytes_ = info.content_length;
     }
 
-    // Post a task to the IO message loop to create the file stream.
-    io_loop_->PostTask(FROM_HERE,
-        NewRunnableMethod(this, &DataSourceImpl::OnCreateFileStream,
-                          response_data_file));
+    {
+      // Post a task to the IO message loop to create the file stream.
+      // We don't want to post any more tasks once we are stopped.
+      AutoLock auto_lock(lock_);
+      if (!stopped_) {
+        io_loop_->PostTask(FROM_HERE,
+            NewRunnableMethod(this, &DataSourceImpl::OnCreateFileStream,
+                              response_data_file));
+      }
+    }
   } else {
     // TODO(hclam): handle the fallback case of using memory buffer here.
-    host_->Error(media::PIPELINE_ERROR_NETWORK);
+    HandleError(media::PIPELINE_ERROR_NETWORK);
   }
 }
 
@@ -304,7 +320,14 @@ void DataSourceImpl::OnCompletedRequest(const URLRequestStatus& status,
     download_completed_ = true;
   }
   if (status.status() != URLRequestStatus::SUCCESS) {
-    host_->Error(media::PIPELINE_ERROR_NETWORK);
+    HandleError(media::PIPELINE_ERROR_NETWORK);
+  }
+}
+
+void DataSourceImpl::HandleError(media::PipelineError error) {
+  AutoLock auto_lock(lock_);
+  if (!stopped_) {
+    host_->Error(error);
   }
 }
 

@@ -58,7 +58,6 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
       main_loop_(NULL),
       filter_factory_(new media::FilterFactoryCollection()),
       video_renderer_(NULL),
-      data_source_(NULL),
       web_media_player_(NULL),
       view_(view),
       tasks_(kLastTaskIndex) {
@@ -76,9 +75,7 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
 }
 
 WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {
-  // Stop the pipeline in the first place so we won't receive any more method
-  // calls from it.
-  StopPipeline(false);
+  pipeline_.Stop();
 
   // Cancel all tasks posted on the main_loop_.
   CancelAllTasks();
@@ -141,7 +138,7 @@ void WebMediaPlayerDelegateImpl::Stop() {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // We can fire Stop() multiple times.
-  StopPipeline(false);
+  pipeline_.Stop();
 }
 
 void WebMediaPlayerDelegateImpl::Seek(float time) {
@@ -293,7 +290,7 @@ void WebMediaPlayerDelegateImpl::Paint(skia::PlatformCanvas *canvas,
 }
 
 void WebMediaPlayerDelegateImpl::WillDestroyCurrentMessageLoop() {
-  StopPipeline(true);
+  pipeline_.Stop();
 }
 
 void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
@@ -318,11 +315,6 @@ void WebMediaPlayerDelegateImpl::DidInitializePipeline(bool successful) {
 void WebMediaPlayerDelegateImpl::SetVideoRenderer(
     VideoRendererImpl* video_renderer) {
   video_renderer_ = video_renderer;
-}
-
-void WebMediaPlayerDelegateImpl::SetDataSource(
-    DataSourceImpl* data_source) {
-  data_source_ = data_source;
 }
 
 void WebMediaPlayerDelegateImpl::DidTask(CancelableTask* task) {
@@ -360,19 +352,4 @@ void WebMediaPlayerDelegateImpl::PostTask(int index,
 
 void WebMediaPlayerDelegateImpl::PostRepaintTask() {
   PostTask(kRepaintTaskIndex, &webkit_glue::WebMediaPlayer::Repaint);
-}
-
-void WebMediaPlayerDelegateImpl::StopPipeline(bool render_thread_is_dying) {
-  // Instruct the renderers and data source to release all Renderer related
-  // resources during destruction of render thread, because they won't have any
-  // chance to release these resources on render thread by posting tasks on it.
-  if (data_source_) {
-    data_source_->ReleaseResources(render_thread_is_dying);
-    data_source_ = NULL;
-  }
-
-  // Stop the pipeline when the render thread is being destroyed so we won't be
-  // posting any more messages onto it. And we just let this object and
-  // associated WebMediaPlayer to leak.
-  pipeline_.Stop();
 }

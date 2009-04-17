@@ -142,9 +142,7 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
 
   // Public methods to be called from renderers and data source so that
   // WebMediaPlayerDelegateImpl has references to them.
-  void SetAudioRenderer(AudioRendererImpl* audio_renderer);
   void SetVideoRenderer(VideoRendererImpl* video_renderer);
-  void SetDataSource(DataSourceImpl* data_source);
 
   // Called from VideoRenderer to fire a repaint task to main_loop_.
   void PostRepaintTask();
@@ -160,10 +158,6 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
 
   // Cancel all tasks currently lives in |main_loop_|.
   void CancelAllTasks();
-
-  // Calls to renderers and data source to release all resources that live in
-  // render thread and stop the pipeline.
-  void StopPipeline(bool render_thread_is_dying);
 
   // Indexes for tasks.
   enum {
@@ -191,9 +185,6 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   // We have the interface to VideoRenderer to delegate paint messages to it
   // from WebKit.
   scoped_refptr<VideoRendererImpl> video_renderer_;
-
-  // Pointer to DataSourceImpl so we can release render resources.
-  scoped_refptr<DataSourceImpl> data_source_;
 
   webkit_glue::WebMediaPlayer* web_media_player_;
   RenderView* view_;

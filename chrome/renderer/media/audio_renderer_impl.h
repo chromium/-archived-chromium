@@ -143,9 +143,6 @@ class AudioRendererImpl : public media::AudioRendererBase,
   explicit AudioRendererImpl(AudioMessageFilter* filter);
   virtual ~AudioRendererImpl();
 
-  bool HasStopped();
-  void SignalStop();
-
   // Methods call on IO thread ------------------------------------------------
   // The following methods are tasks posted on the IO thread that needs to
   // be executed on that thread. They interact with AudioMessageFilter and
