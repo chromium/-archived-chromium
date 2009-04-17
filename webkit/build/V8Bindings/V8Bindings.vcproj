@@ -1520,6 +1520,22 @@
 				>
 			</File>
 			<File
+				RelativePath="$(IntDir)\DerivedSources\V8RGBColor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8RGBColor.h"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8Screen.cpp"
+				>
+			</File>
+			<File
+				RelativePath="$(IntDir)\DerivedSources\V8Screen.h"
+				>
+			</File>
+			<File
 				RelativePath="$(IntDir)\DerivedSources\V8SQLError.cpp"
 				>
 			</File>
@@ -1549,22 +1565,6 @@
 			</File>
 			<File
 				RelativePath="$(IntDir)\DerivedSources\V8SQLTransaction.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8RGBColor.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8RGBColor.h"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8Screen.cpp"
-				>
-			</File>
-			<File
-				RelativePath="$(IntDir)\DerivedSources\V8Screen.h"
 				>
 			</File>
 			<File
@@ -2913,6 +2913,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptFunctionCall.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptFunctionCall.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptInstance.cpp"
 			>
 		</File>
@@ -2921,7 +2929,35 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptObject.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptObject.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptObjectQuarantine.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptObjectQuarantine.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptScope.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptScope.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptSourceCode.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptState.cpp"
 			>
 		</File>
 		<File

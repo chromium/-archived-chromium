@@ -43,6 +43,7 @@
 #include "npruntime_priv.h"
 #include "NPV8Object.h"
 #include "ScriptSourceCode.h"
+#include "ScriptState.h"
 #include "Widget.h"
 
 #include "v8_proxy.h"
@@ -104,6 +105,7 @@ ScriptController::ScriptController(Frame* frame)
     , m_sourceURL(0)
     , m_processingTimerCallback(false)
     , m_paused(false)
+    , m_scriptState(new ScriptState(frame))
     , m_proxy(new V8Proxy(frame))
 #if ENABLE(NETSCAPE_PLUGIN_API)
     , m_windowScriptNPObject(0)

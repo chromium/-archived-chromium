@@ -129,6 +129,7 @@ class Frame;
 class HTMLPlugInElement;
 class Node;
 class ScriptSourceCode;
+class ScriptState;
 class String;
 class Widget;
 
@@ -166,6 +167,8 @@ public:
     // This is a bit of a hack, but provides reasonable compatibility
     // with what JSC does as well.
     ScriptController* windowShell() { return this; }
+
+    ScriptState* state() const { return m_scriptState.get(); }
 
     void disposeJSResult(JSResult result);
     void collectGarbage();
@@ -246,6 +249,7 @@ private:
     bool m_processingTimerCallback;
     bool m_paused;
 
+    OwnPtr<ScriptState> m_scriptState;
     OwnPtr<V8Proxy> m_proxy;
     typedef HashMap<void*, NPObject*> PluginObjectMap;
 

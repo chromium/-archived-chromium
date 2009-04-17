@@ -125,11 +125,43 @@
 			Name="inspector"
 			>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\ConsoleMessage.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\ConsoleMessage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorDatabaseResource.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorDatabaseResource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorDOMStorageResource.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorDOMStorageResource.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorResource.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorResource.h"
 				>
 			</File>
 		</Filter>

@@ -145,7 +145,8 @@ static void invalidateNodeBoundingRect(WebViewImpl* web_view) {
   // In order to do so, we'd have to take scrolling into account.
   const WebSize& size = web_view->size();
   WebRect damaged_rect(0, 0, size.width, size.height);
-  web_view->GetDelegate()->DidInvalidateRect(web_view, damaged_rect);
+  if (web_view->GetDelegate())
+    web_view->GetDelegate()->DidInvalidateRect(web_view, damaged_rect);
 }
 
 void WebInspectorClient::highlight(Node* node) {
