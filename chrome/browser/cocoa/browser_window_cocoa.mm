@@ -147,8 +147,9 @@ void BrowserWindowCocoa::ToggleBookmarkBar() {
   [controller_ toggleBookmarkBar];
 }
 
-void BrowserWindowCocoa::ShowFindBar() {
-  NOTIMPLEMENTED();
+void BrowserWindowCocoa::AddFindBar(
+    FindBarCocoaController* find_bar_cocoa_controller) {
+  return [controller_ addFindBar:find_bar_cocoa_controller];
 }
 
 void BrowserWindowCocoa::ShowAboutChromeDialog() {

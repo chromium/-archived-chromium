@@ -11,6 +11,8 @@
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
 #import "chrome/browser/cocoa/browser_window_cocoa.h"
 #import "chrome/browser/cocoa/browser_window_controller.h"
+#import "chrome/browser/cocoa/find_bar_cocoa_controller.h"
+#include "chrome/browser/cocoa/find_bar_bridge.h"
 #import "chrome/browser/cocoa/status_bubble_mac.h"
 #import "chrome/browser/cocoa/tab_strip_model_observer_bridge.h"
 #import "chrome/browser/cocoa/tab_strip_view.h"
@@ -35,6 +37,10 @@ const int kWindowGradientHeight = 24;
 // right side of the screen. This function disables Leopard's gradient
 // heuristic.
 - (void)fixWindowGradient;
+
+// Called by the Notification Center whenever the tabContentArea's
+// frame changes.  Re-positions the bookmark bar and the find bar.
+- (void)tabContentAreaFrameChanged:(id)sender;
 
 // We need to adjust where sheets come out of the window, as by default they
 // erupt from the omnibox, which is rather weird.
@@ -62,6 +68,14 @@ willPositionSheet:(NSWindow *)sheet
     // be initialized (as it's called in response to |[self window]| above).
     // Retain it per the comment in the header.
     window_.reset([[self window] retain]);
+
+    // Register ourselves for frame changed notifications from the
+    // tabContentArea.
+    [[NSNotificationCenter defaultCenter]
+      addObserver:self
+      selector:@selector(tabContentAreaFrameChanged:)
+      name:nil
+      object:[self tabContentArea]];
 
     // Get the most appropriate size for the window. The window shim will handle
     // flipping the coordinates for us so we can use it to save some code.
@@ -326,6 +340,16 @@ willPositionSheet:(NSWindow *)sheet
   [bookmarkController_ toggleBookmarkBar];
 }
 
+- (void)addFindBar:(FindBarCocoaController*)findBarCocoaController {
+  // Shouldn't call addFindBar twice.
+  DCHECK(!findBarCocoaController_.get());
+
+  // Create a controller for the findbar.
+  findBarCocoaController_.reset([findBarCocoaController retain]);
+  [[[self window] contentView] addSubview:[findBarCocoaController_ view]];
+  [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
+}
+
 - (NSInteger)numberOfTabs {
   return browser_->tabstrip_model()->count();
 }
@@ -413,6 +437,16 @@ willPositionSheet:(NSWindow *)sheet
            setContentBorderThickness:forEdge:)]) {
     [win setAutorecalculatesContentBorderThickness:NO forEdge:NSMaxYEdge];
     [win setContentBorderThickness:kWindowGradientHeight forEdge:NSMaxYEdge];
+  }
+}
+
+- (void)tabContentAreaFrameChanged:(id)sender {
+  // TODO(rohitrao): This is triggered by window resizes also.  Make
+  // sure we aren't doing anything wasteful in those cases.
+  [bookmarkController_ resizeBookmarkBar];
+
+  if (findBarCocoaController_.get()) {
+    [findBarCocoaController_ positionFindBarView:[self tabContentArea]];
   }
 }
 

@@ -10,6 +10,7 @@
 
 class Browser;
 @class BrowserWindowController;
+@class FindBarCocoaController;
 @class NSWindow;
 @class NSMenu;
 
@@ -51,7 +52,6 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual bool IsBookmarkBarVisible() const;
   virtual gfx::Rect GetRootWindowResizerRect() const;
   virtual void ToggleBookmarkBar();
-  virtual void ShowFindBar();
   virtual void ShowAboutChromeDialog();
   virtual void ShowBookmarkManager();
   virtual void ShowBookmarkBubble(const GURL& url, bool already_bookmarked);
@@ -65,6 +65,9 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void ConfirmBrowserCloseWithPendingDownloads();
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
+
+  // Adds the given FindBar cocoa controller to this browser window.
+  void AddFindBar(FindBarCocoaController* find_bar_cocoa_controller);
 
  protected:
   virtual void DestroyBrowser();

@@ -20,6 +20,7 @@
 class Browser;
 class BrowserWindow;
 class BrowserWindowCocoa;
+@class FindBarCocoaController;
 class LocationBar;
 class StatusBubble;
 class TabContents;
@@ -47,6 +48,7 @@ class TabStripModelObserverBridge;
   scoped_nsobject<ToolbarController> toolbarController_;
   scoped_nsobject<BookmarkBarController> bookmarkController_;
   scoped_nsobject<TabStripController> tabStripController_;
+  scoped_nsobject<FindBarCocoaController> findBarCocoaController_;
   scoped_ptr<StatusBubble> statusBubble_;
 }
 
@@ -93,6 +95,11 @@ class TabStripModelObserverBridge;
 - (BOOL)isBookmarkBarVisible;
 
 - (void)toggleBookmarkBar;
+
+// Retains the given FindBarCocoaController and adds its view to this
+// browser window.  Must only be called once per
+// BrowserWindowController.
+- (void)addFindBar:(FindBarCocoaController*)findBarCocoaController;
 
 @end
 

@@ -35,6 +35,9 @@ class Profile;
 - (id)initWithProfile:(Profile*)profile
           contentArea:(NSView*)content;
 
+// Resizes the bookmark bar based on the state of the content area.
+- (void)resizeBookmarkBar;
+
 // Returns whether or not the bookmark bar is visible.
 - (BOOL)isBookmarkBarVisible;
 

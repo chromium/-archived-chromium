@@ -3,8 +3,11 @@
 // found in the LICENSE file.
 
 #include "base/logging.h"
+#include "chrome/browser/browser.h"
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
+#include "chrome/browser/cocoa/find_bar_bridge.h"
 
 // Create the controller for the Browser, which handles loading the browser
 // window from the nib. The controller takes ownership of |browser|.
@@ -20,7 +23,6 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
 }
 
 // static
-FindBar* BrowserWindow::CreateFindBar(Browser* browser_window) {
-  NOTIMPLEMENTED();
-  return NULL;
+FindBar* BrowserWindow::CreateFindBar(Browser* browser) {
+  return new FindBarBridge(static_cast<BrowserWindowCocoa*>(browser->window()));
 }

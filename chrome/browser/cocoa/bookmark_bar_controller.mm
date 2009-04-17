@@ -39,20 +39,27 @@
 // view's visibility to match the pref. This doesn't move the content view at
 // all, you need to call |-showBookmarkBar:| to do that.
 - (void)positionBar {
-  NSRect contentFrame = [contentArea_ frame];
-  NSRect barFrame = [bookmarkView_ frame];
-
   // Hide or show bar based on initial visibility and set the resize flags.
   [bookmarkView_ setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
   [bookmarkView_ setHidden:[self isBookmarkBarVisible] ? NO : YES];
 
-  // Position the bar at the top of the content area, within the window's
-  // content view (as opposed to the tab strip, which is a sibling). We'll
-  // slide the content area down when we need to show this strip.
-  contentFrame.size.height -= barFrame.size.height;
-  barFrame.origin.y = NSMaxY(contentFrame);
-  barFrame.origin.x = 0;
-  barFrame.size.width = contentFrame.size.width;
+  // Set the bar's height to zero and position it at the top of the
+  // content area, within the window's content view (as opposed to the
+  // tab strip, which is a sibling). We'll enlarge it and slide the
+  // content area down when we need to show this strip.
+  NSRect contentFrame = [contentArea_ frame];
+  NSRect barFrame = NSMakeRect(0, NSMaxY(contentFrame),
+                               contentFrame.size.width, 0);
+  [bookmarkView_ setFrame:barFrame];
+}
+
+// Called when the contentArea's frame changes.  Enlarge the view to
+// stay with the top of the contentArea.
+- (void)resizeBookmarkBar {
+  NSRect barFrame = [bookmarkView_ frame];
+  const int maxY = NSMaxY(barFrame);
+  barFrame.origin.y = NSMaxY([contentArea_ frame]);
+  barFrame.size.height = maxY - barFrame.origin.y;
   [bookmarkView_ setFrame:barFrame];
 }
 
@@ -85,16 +92,14 @@
     return;
   }
 
-  int offset = [bookmarkView_ frame].size.height;
+  static const int kBookmarkBarHeight = 30;
   NSRect frame = [contentArea_ frame];
   if (apply)
-    frame.size.height -= offset;
+    frame.size.height -= kBookmarkBarHeight;
   else
-    frame.size.height += offset;
+    frame.size.height += kBookmarkBarHeight;
 
-  // TODO(jrg): animate
   [[contentArea_ animator] setFrame:frame];
-
   [bookmarkView_ setNeedsDisplay:YES];
   [contentArea_ setNeedsDisplay:YES];
 }
