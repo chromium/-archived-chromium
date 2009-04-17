@@ -1,10 +1,12 @@
 var chromium;
 (function() {
   native function GetNextCallbackId();
+  native function GetWindows();
   native function GetTabsForWindow();
   native function GetTab();
   native function CreateTab();
   native function UpdateTab();
+  native function MoveTab();
   native function RemoveTab();
 
   if (!chromium)
@@ -70,6 +72,27 @@ var chromium;
 
   // Tabs
   chromium.tabs = {};
+
+  chromium.tabs.getWindows = function(windowQuery, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetWindows, windowQuery, callback);
+  };
+  chromium.tabs.getWindows.params = [
+    {
+      type: "object",
+      properties: {
+        ids: {
+          type: "array",
+          items: chromium.types.pInt,
+          minItems: 1
+        }
+      },
+      optional: true,
+      additionalProperties: false
+    },
+    chromium.types.optFun
+  ];
+
   // TODO(aa): This should eventually take an optional windowId param.
   chromium.tabs.getTabsForWindow = function(callback) {
     validate(arguments, arguments.callee.params);
@@ -88,7 +111,7 @@ var chromium;
     chromium.types.optFun
   ];
 
-  chromium.tabs.createTab = function(tab, callback) {
+  chromium.tabs.createTab = function(tab, callback) {  
     validate(arguments, arguments.callee.params);
     sendRequest(CreateTab, tab, callback);
   };
@@ -122,6 +145,22 @@ var chromium;
     }
   ];
 
+  chromium.tabs.moveTab = function(tab) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(MoveTab, tab);
+  };
+  chromium.tabs.moveTab.params = [
+    {
+      type: "object",
+      properties: {
+        id: chromium.types.pInt,
+        windowId: chromium.types.optPInt,
+        index: chromium.types.pInt
+      },
+      additionalProperties: false
+    }
+  ];
+  
   chromium.tabs.removeTab = function(tabId) {
     validate(arguments, arguments.callee.params);
     sendRequest(RemoveTab, tabId);

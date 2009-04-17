@@ -11,11 +11,17 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 
 // Forward declare static helper functions defined below.
+static DictionaryValue* CreateWindowValue(Browser* browser);
+static ListValue* CreateTabList(Browser* browser);
 static DictionaryValue* CreateTabValue(TabStripModel* tab_strip_model,
                                        int tab_index);
-
 static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,
                             int* tab_index);
+
+// ExtensionTabUtil
+int ExtensionTabUtil::GetWindowId(const Browser* browser) {
+  return browser->session_id().id();
+}
 
 int ExtensionTabUtil::GetTabId(const TabContents* tab_contents) {
   return tab_contents->controller()->session_id().id();
@@ -23,6 +29,47 @@ int ExtensionTabUtil::GetTabId(const TabContents* tab_contents) {
 
 int ExtensionTabUtil::GetWindowIdOfTab(const TabContents* tab_contents) {
   return tab_contents->controller()->window_id().id();
+}
+
+bool GetWindowsFunction::RunImpl() {
+  std::set<int> window_ids;
+
+  // Look for |ids| named parameter as list of id's to fetch.
+  if (args_->IsType(Value::TYPE_DICTIONARY)) {
+    Value *ids_value;
+    if ((!static_cast<DictionaryValue*>(args_)->Get(L"ids", &ids_value)) ||
+        (!ids_value->IsType(Value::TYPE_LIST))) {
+      DCHECK(false);
+      return false;
+    }
+
+    ListValue *window_id_list = static_cast<ListValue*>(ids_value);
+    for (ListValue::iterator id = window_id_list->begin();
+         id != window_id_list->end(); ++id) {
+      int window_id;
+      if (!(*id)->GetAsInteger(&window_id)) {
+        DCHECK(false);
+        return false;
+      }
+
+      window_ids.insert(window_id);
+    }
+  }
+
+  // Default to all windows.
+  bool all_windows = (window_ids.size() == 0);
+
+  result_.reset(new ListValue());
+  for (BrowserList::const_iterator browser = BrowserList::begin();
+       browser != BrowserList::end(); ++browser) {
+    if (all_windows || (window_ids.find(ExtensionTabUtil::GetWindowId(*browser))
+        != window_ids.end())) {
+      static_cast<ListValue*>(result_.get())->Append(
+        CreateWindowValue(*browser));
+    }
+  }
+
+  return true;
 }
 
 bool GetTabsForWindowFunction::RunImpl() {
@@ -33,12 +80,7 @@ bool GetTabsForWindowFunction::RunImpl() {
   if (!browser)
     return false;
 
-  TabStripModel* tab_strip = browser->tabstrip_model();
-  result_.reset(new ListValue());
-  for (int i = 0; i < tab_strip->count(); ++i) {
-    static_cast<ListValue*>(result_.get())->Append(
-        CreateTabValue(tab_strip, i));
-  }
+  result_.reset(CreateTabList(browser));
 
   return true;
 }
@@ -53,7 +95,7 @@ bool CreateTabFunction::RunImpl() {
     return false;
 
   TabStripModel *tab_strip = browser->tabstrip_model();
-  const DictionaryValue *args_hash = static_cast<const DictionaryValue*>(args_);
+  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
 
   // TODO(rafaelw): handle setting remaining tab properties:
   // -windowId
@@ -61,17 +103,17 @@ bool CreateTabFunction::RunImpl() {
   // -favIconUrl
 
   std::string url;
-  args_hash->GetString(L"url", &url);
+  args->GetString(L"url", &url);
 
   // Default to foreground for the new tab. The presence of 'selected' property
   // will override this default.
   bool selected = true;
-  args_hash->GetBoolean(L"selected", &selected);
+  args->GetBoolean(L"selected", &selected);
 
   // If index is specified, honor the value, but keep it bound to
   // 0 <= index <= tab_strip->count()
   int index = -1;
-  args_hash->GetInteger(L"index", &index);
+  args->GetInteger(L"index", &index);
   if (index < 0) {
     // Default insert behavior
     index = -1;
@@ -125,8 +167,8 @@ bool UpdateTabFunction::RunImpl() {
     return false;
 
   int tab_id;
-  const DictionaryValue *args_hash = static_cast<const DictionaryValue*>(args_);
-  if (!args_hash->GetInteger(L"id", &tab_id))
+  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+  if (!args->GetInteger(L"id", &tab_id))
     return false;
 
   int tab_index;
@@ -140,14 +182,12 @@ bool UpdateTabFunction::RunImpl() {
   DCHECK(controller);
 
   // TODO(rafaelw): handle setting remaining tab properties:
-  // -index
-  // -windowId
   // -title
   // -favIconUrl
 
   // Navigate the tab to a new location if the url different.
   std::string url;
-  if (args_hash->GetString(L"url", &url)) {
+  if (args->GetString(L"url", &url)) {
     GURL new_gurl(url);
     if (new_gurl.is_valid()) {
       controller->LoadURL(new_gurl, GURL(), PageTransition::TYPED);
@@ -159,10 +199,55 @@ bool UpdateTabFunction::RunImpl() {
   bool selected;
   // TODO(rafaelw): Setting |selected| from js doesn't make much sense.
   // Move tab selection management up to window.
-  if (args_hash->GetBoolean(L"selected", &selected) &&
+  if (args->GetBoolean(L"selected", &selected) &&
       selected &&
       tab_strip->selected_index() != tab_index) {
     tab_strip->SelectTabContentsAt(tab_index, false);
+  }
+
+  return true;
+}
+
+bool MoveTabFunction::RunImpl() {
+  if (!args_->IsType(Value::TYPE_DICTIONARY))
+    return false;
+
+  Browser* browser = BrowserList::GetLastActive();
+  if (!browser)
+    return false;
+
+  int tab_id;
+  const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+  if (!args->GetInteger(L"id", &tab_id))
+    return false;
+
+  int tab_index;
+  TabStripModel* tab_strip = browser->tabstrip_model();
+  // TODO(rafaelw): return an error if the tab is not found by |tab_id|
+  if (!GetIndexOfTabId(tab_strip, tab_id, &tab_index))
+    return false;
+
+  TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+  NavigationController* controller = tab_contents->controller();
+  DCHECK(controller);
+
+  // TODO(rafaelw): support moving tabs between windows
+  // -windowId
+
+  int new_index;
+  DCHECK(args->GetInteger(L"index", &new_index));
+  if (new_index < 0) {
+    DCHECK(false);
+    return false;
+  }
+
+  // Clamp move location to the last position.
+  if (new_index >= tab_strip->count()) {
+    new_index = tab_strip->count() - 1;
+  }
+
+  if (new_index != tab_index) {
+    tab_strip->MoveTabContentsAt(tab_index, new_index, false);
   }
 
   return true;
@@ -199,6 +284,33 @@ bool RemoveTabFunction::RunImpl() {
 }
 
 // static helpers
+static DictionaryValue* CreateWindowValue(Browser* browser) {
+  DictionaryValue* result = new DictionaryValue();
+  result->SetInteger(L"id", ExtensionTabUtil::GetWindowId(browser));
+  result->SetBoolean(L"focused", browser->window()->IsActive());
+  gfx::Rect bounds = browser->window()->GetNormalBounds();
+
+  // TODO(rafaelw): zIndex ?
+  result->SetInteger(L"left", bounds.x());
+  result->SetInteger(L"top", bounds.y());
+  result->SetInteger(L"width", bounds.width());
+  result->SetInteger(L"height", bounds.height());
+
+  result->Set(L"tabs", CreateTabList(browser));
+
+  return result;
+}
+
+static ListValue* CreateTabList(Browser* browser) {
+  ListValue *tab_list = new ListValue();
+  TabStripModel* tab_strip = browser->tabstrip_model();
+  for (int i = 0; i < tab_strip->count(); ++i) {
+    tab_list->Append(CreateTabValue(tab_strip, i));
+  }
+
+  return tab_list;
+}
+
 static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
                                        int tab_index) {
   TabContents* contents = tab_strip->GetTabContentsAt(tab_index);
