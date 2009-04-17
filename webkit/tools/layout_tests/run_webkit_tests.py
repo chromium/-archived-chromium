@@ -20,6 +20,7 @@ directory.  Entire lines starting with '//' (comments) will be ignored.
 For details of the files' contents and purposes, see test_lists/README.
 """
 
+import errno
 import glob
 import logging
 import math
@@ -50,15 +51,25 @@ from test_types import simplified_text_diff
 
 class TestInfo:
   """Groups information about a test for easy passing of data."""
-  def __init__(self, filename, timeout):
+  def __init__(self, filename, timeout, platform):
     """Generates the URI and stores the filename and timeout for this test.
     Args:
       filename: Full path to the test.
       timeout: Timeout for running the test in TestShell.
+      platform: The platform whose test expected results to grab.
       """
     self.filename = filename
     self.uri = path_utils.FilenameToUri(filename)
     self.timeout = timeout
+    expected_hash_file = path_utils.ExpectedFilename(filename,
+                                                     '.checksum',
+                                                     platform)
+    try:
+      self.image_hash = open(expected_hash_file, "r").read()
+    except IOError, e:
+      if errno.ENOENT != e.errno:
+        raise
+      self.image_hash = None
 
 
 class TestRunner:
@@ -364,7 +375,8 @@ class TestRunner:
       else:
         timeout = self._options.time_out_ms
 
-      tests_by_dir[directory].append(TestInfo(test_file, timeout))
+      tests_by_dir[directory].append(TestInfo(test_file, timeout,
+          self._options.platform))
 
     # Sort by the number of tests in the dir so that the ones with the most
     # tests get run first in order to maximize parallelization. Number of tests

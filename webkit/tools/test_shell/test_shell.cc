@@ -228,7 +228,8 @@ void TestShell::Dump(TestShell* shell) {
       // command line (for the dump pixels argument), and the MD5 sum to
       // stdout.
       dumped_anything = true;
-      std::string md5sum = DumpImage(webFrame, params->pixel_file_name);
+      std::string md5sum = DumpImage(webFrame, params->pixel_file_name,
+          params->pixel_hash);
       printf("#MD5:%s\n", md5sum.c_str());
     }
     if (dumped_anything)
@@ -239,7 +240,7 @@ void TestShell::Dump(TestShell* shell) {
 
 // static
 std::string TestShell::DumpImage(WebFrame* web_frame,
-    const std::wstring& file_name) {
+    const std::wstring& file_name, const std::string& pixel_hash) {
   scoped_ptr<skia::BitmapPlatformDevice> device;
   if (!web_frame->CaptureImage(&device, true))
     return std::string();
@@ -264,14 +265,6 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
 #elif defined(OS_MACOSX)
   bool discard_transparency = false;
 #endif
-  PNGEncoder::Encode(
-      reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
-      color_format, src_bmp.width(), src_bmp.height(),
-      static_cast<int>(src_bmp.rowBytes()), discard_transparency, &png);
-
-  // Write to disk.
-  file_util::WriteFile(file_name, reinterpret_cast<const char *>(&png[0]),
-                       png.size());
 
   // Compute MD5 sum.
   MD5Context ctx;
@@ -280,7 +273,22 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
 
   MD5Digest digest;
   MD5Final(&digest, &ctx);
-  return MD5DigestToBase16(digest);
+  std::string md5hash = MD5DigestToBase16(digest);
+
+  // Only encode and dump the png if the hashes don't match. Encoding the image
+  // is really expensive.
+  if (md5hash.compare(0, pixel_hash.length(), pixel_hash) != 0) {
+    PNGEncoder::Encode(
+        reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
+        color_format, src_bmp.width(), src_bmp.height(),
+        static_cast<int>(src_bmp.rowBytes()), discard_transparency, &png);
+
+    // Write to disk.
+    file_util::WriteFile(file_name, reinterpret_cast<const char *>(&png[0]),
+                         png.size());
+  }
+
+  return md5hash;
 }
 
 // static

@@ -357,10 +357,12 @@ class TestShellThread(threading.Thread):
       A list of TestFailure objects describing the error.
     """
     self._EnsureTestShellIsRunning()
-    # Args to test_shell is a space-separated list of "uri timeout" or just a
-    # uri to use the default timeout specified in run_webkit_tests.
-    self._test_shell_proc.stdin.write(("%s %s\n" %
-        (test_info.uri, test_info.timeout)))
+    # Args to test_shell is a space-separated list of "uri timeout pixel_hash"
+    # The timeout and pixel_hash are optional.  The timeout is used if this
+    # test has a custom timeout. The pixel_hash is used to avoid doing an image
+    # dump if the checksums match.
+    self._test_shell_proc.stdin.write(("%s %s %s\n" %
+        (test_info.uri, test_info.timeout, test_info.image_hash)))
 
     # If the test shell is dead, the above may cause an IOError as we
     # try to write onto the broken pipe. If this is the first test for

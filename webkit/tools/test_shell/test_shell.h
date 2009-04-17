@@ -64,6 +64,8 @@ public:
 
       // Filename we dump pixels to (when pixel testing is enabled).
       std::wstring pixel_file_name;
+      // The md5 hash of the bitmap dump (when pixel testing is enabled).
+      std::string pixel_hash;
       // URL of the test.
       std::string test_url;
     };
@@ -201,7 +203,8 @@ public:
     // Writes the image captured from the given web frame to the given file.
     // The returned string is the ASCII-ized MD5 sum of the image.
     static std::string DumpImage(WebFrame* web_frame,
-                                 const std::wstring& file_name);
+                                 const std::wstring& file_name,
+                                 const std::string& pixel_hash);
 
     static void ResetWebPreferences();
 

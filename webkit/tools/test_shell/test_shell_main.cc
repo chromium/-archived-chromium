@@ -263,6 +263,10 @@ int main(int argc, char* argv[]) {
         // Watch stdin for URLs.
         char filenameBuffer[kPathBufSize];
         while (fgets(filenameBuffer, sizeof(filenameBuffer), stdin)) {
+          // When running layout tests we pass new line separated
+          // tests to TestShell. Each line is a space separated list
+          // of filename, timeout and expected pixel hash. The timeout
+          // and the pixel hash are optional.
           char* newLine = strchr(filenameBuffer, '\n');
           if (newLine)
             *newLine = '\0';
@@ -271,10 +275,15 @@ int main(int argc, char* argv[]) {
 
           params.test_url = strtok(filenameBuffer, " ");
 
-          char* timeout = strtok(NULL, " ");
           int old_timeout_ms = TestShell::GetLayoutTestTimeout();
-          if (timeout)
+
+          char* timeout = strtok(NULL, " ");
+          if (timeout) {
             TestShell::SetFileTestTimeout(atoi(timeout));
+            char* pixel_hash = strtok(NULL, " ");
+            if (pixel_hash)
+              params.pixel_hash = pixel_hash;
+          }
 
           if (!TestShell::RunFileTest(params))
             break;
@@ -282,6 +291,8 @@ int main(int argc, char* argv[]) {
           TestShell::SetFileTestTimeout(old_timeout_ms);
         }
       } else {
+        // TODO(ojan): Provide a way for run-singly tests to pass
+        // in a hash and then set params.pixel_hash here.
         params.test_url = WideToUTF8(uri).c_str();
         TestShell::RunFileTest(params);
       }
