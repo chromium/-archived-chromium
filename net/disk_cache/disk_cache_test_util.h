@@ -31,7 +31,7 @@ bool DeleteFiles(const wchar_t* path, const wchar_t* search_name);
 std::string GenerateKey(bool same_length);
 
 // Returns true if the cache is not corrupt.
-bool CheckCacheIntegrity(const std::wstring& path);
+bool CheckCacheIntegrity(const std::wstring& path, bool new_eviction);
 
 // Helper class which ensures that the cache dir returned by GetCachePath exists
 // and is clear in ctor and that the directory gets deleted in dtor.

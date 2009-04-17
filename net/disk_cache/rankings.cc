@@ -229,6 +229,8 @@ bool Rankings::GetRanking(CacheRankingsBlock* rankings) {
     // the invalid pointer and continue; the entry will be deleted when detected
     // from a regular open/create path.
     rankings->Data()->pointer = NULL;
+    if (!rankings->Data()->dirty)
+      rankings->Data()->dirty = backend_->GetCurrentEntryId() - 1;
     return true;
   }
 

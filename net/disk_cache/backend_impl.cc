@@ -825,6 +825,10 @@ void BackendImpl::SetUpgradeMode() {
   read_only_ = true;
 }
 
+void BackendImpl::SetNewEviction() {
+  new_eviction_ = true;
+}
+
 void BackendImpl::ClearRefCountForTest() {
   num_refs_ = 0;
 }

@@ -144,6 +144,9 @@ class BackendImpl : public Backend {
   // Sets internal parameters to enable upgrade mode (for internal tools).
   void SetUpgradeMode();
 
+  // Sets the eviction algorithm to version 2.
+  void SetNewEviction();
+
   // Clears the counter of references to test handling of corruptions.
   void ClearRefCountForTest();
 

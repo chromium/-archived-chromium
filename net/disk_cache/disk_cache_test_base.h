@@ -31,7 +31,7 @@ class DiskCacheTestWithCache : public DiskCacheTest {
   DiskCacheTestWithCache()
       : cache_(NULL), cache_impl_(NULL), mem_cache_(NULL), mask_(0), size_(0),
         memory_only_(false), implementation_(false), force_creation_(false),
-        first_cleanup_(true) {}
+        new_eviction_(false), first_cleanup_(true), integrity_(true) {}
 
   void InitCache();
   virtual void TearDown();
@@ -58,8 +58,16 @@ class DiskCacheTestWithCache : public DiskCacheTest {
     force_creation_ = true;
   }
 
+  void SetNewEviction() {
+    new_eviction_ = true;
+  }
+
   void DisableFirstCleanup() {
     first_cleanup_ = false;
+  }
+
+  void DisableIntegrityCheck() {
+    integrity_ = false;
   }
 
   // cache_ will always have a valid object, regardless of how the cache was
@@ -73,11 +81,16 @@ class DiskCacheTestWithCache : public DiskCacheTest {
   bool memory_only_;
   bool implementation_;
   bool force_creation_;
+  bool new_eviction_;
   bool first_cleanup_;
+  bool integrity_;
+  // This is intentionally left uninitialized, to be used by any test.
+  bool success_;
 
  private:
   void InitMemoryCache();
   void InitDiskCache();
+  void InitDiskCacheImpl(const std::wstring path);
 };
 
 #endif  // NET_DISK_CACHE_DISK_CACHE_TEST_BASE_H_

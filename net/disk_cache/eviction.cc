@@ -358,7 +358,6 @@ void Eviction::TrimDeleted(bool empty) {
   Rankings::ScopedRankingsBlock node(rankings_);
   Rankings::ScopedRankingsBlock next(rankings_,
     rankings_->GetPrev(node.get(), Rankings::DELETED));
-  DCHECK(next.get());
   for (int i = 0; (i < 4 || empty) && next.get(); i++) {
     node.reset(next.release());
     next.reset(rankings_->GetPrev(node.get(), Rankings::DELETED));

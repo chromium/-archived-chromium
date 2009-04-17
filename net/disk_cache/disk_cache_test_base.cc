@@ -22,7 +22,7 @@ void DiskCacheTestWithCache::SetMaxSize(int size) {
 }
 
 void DiskCacheTestWithCache::InitCache() {
-  if (mask_)
+  if (mask_ || new_eviction_)
     implementation_ = true;
 
   if (memory_only_)
@@ -62,6 +62,10 @@ void DiskCacheTestWithCache::InitDiskCache() {
     return;
   }
 
+  InitDiskCacheImpl(path);
+}
+
+void DiskCacheTestWithCache::InitDiskCacheImpl(const std::wstring path) {
   if (mask_)
     cache_impl_ = new disk_cache::BackendImpl(path, mask_);
   else
@@ -73,17 +77,19 @@ void DiskCacheTestWithCache::InitDiskCache() {
   if (size_)
     EXPECT_TRUE(cache_impl_->SetMaxSize(size_));
 
+  if (new_eviction_)
+    cache_impl_->SetNewEviction();
+
   ASSERT_TRUE(cache_impl_->Init());
 }
-
 
 void DiskCacheTestWithCache::TearDown() {
   MessageLoop::current()->RunAllPending();
   delete cache_;
 
-  if (!memory_only_) {
+  if (!memory_only_ && integrity_) {
     std::wstring path = GetCachePath();
-    EXPECT_TRUE(CheckCacheIntegrity(path));
+    EXPECT_TRUE(CheckCacheIntegrity(path, new_eviction_));
   }
 
   PlatformTest::TearDown();
@@ -96,18 +102,9 @@ void DiskCacheTestWithCache::SimulateCrash() {
 
   delete cache_impl_;
   std::wstring path = GetCachePath();
-  EXPECT_TRUE(CheckCacheIntegrity(path));
+  EXPECT_TRUE(CheckCacheIntegrity(path, new_eviction_));
 
-  if (mask_)
-    cache_impl_ = new disk_cache::BackendImpl(path, mask_);
-  else
-    cache_impl_ = new disk_cache::BackendImpl(path);
-  cache_ = cache_impl_;
-  ASSERT_TRUE(NULL != cache_);
-
-  if (size_)
-    cache_impl_->SetMaxSize(size_);
-  ASSERT_TRUE(cache_impl_->Init());
+  InitDiskCacheImpl(path);
 }
 
 void DiskCacheTestWithCache::SetTestMode() {
