@@ -26,24 +26,34 @@ class IsListeningFilter : public IPC::ChannelProxy::MessageFilter {
 };
 
 bool IsListeningFilter::OnMessageReceived(const IPC::Message& message) {
-  bool handled = true;
-  if (!IsListeningFilter::is_listening_) {
-    // reply to synchronous messages with an error (so they don't block while
-    // we're not listening)
-    if (message.is_sync()) {
-      IPC::Message* reply = IPC::SyncMessage::GenerateReply(&message);
-      reply->set_reply_error();
-      channel_->Send(reply);
-    }
-    handled = true;
-  } else {
-    handled = false;
+  if (IsListeningFilter::is_listening_) {
+    // Proceed with normal operation.
+    return false;
   }
-  return handled;
+
+  // Always process message reply to prevent renderer from hanging on sync
+  // messages.
+  if (message.is_reply() || message.is_reply_error()) {
+    return false;
+  }
+
+  // Reply to synchronous messages with an error (so they don't block while
+  // we're not listening).
+  if (message.is_sync()) {
+    IPC::Message* reply = IPC::SyncMessage::GenerateReply(&message);
+    reply->set_reply_error();
+    channel_->Send(reply);
+  }
+  return true;
 }
 
 // static
 bool IsListeningFilter::is_listening_ = true;
+
+// static
+bool PluginChannelHost::IsListening() {
+  return IsListeningFilter::is_listening_;
+}
 
 // static
 void PluginChannelHost::SetListening(bool flag) {

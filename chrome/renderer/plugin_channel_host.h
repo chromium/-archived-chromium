@@ -31,6 +31,8 @@ class PluginChannelHost : public PluginChannelBase {
 
   static void SetListening(bool flag);
 
+  static bool IsListening();
+
  private:
   // Called on the render thread
   PluginChannelHost();

@@ -1875,6 +1875,9 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     const std::string& clsid,
     std::string* actual_mime_type) {
 #if defined(OS_WIN)
+  if (!PluginChannelHost::IsListening())
+    return NULL;
+
   if (RenderProcess::current()->in_process_plugins()) {
     FilePath path;
     render_thread_->Send(
