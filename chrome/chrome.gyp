@@ -2133,6 +2133,7 @@
         'browser/cocoa/location_bar_view_mac_unittest.mm',
         'browser/cocoa/status_bubble_mac_unittest.mm',
         'browser/cocoa/tab_controller_unittest.mm',
+        'browser/cocoa/toolbar_controller_unittest.mm',
         'browser/command_updater_unittest.cc',
         'browser/debugger/devtools_manager_unittest.cc',
         'browser/dom_ui/dom_ui_unittest.cc',

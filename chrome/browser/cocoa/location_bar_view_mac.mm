@@ -17,10 +17,12 @@
 
 LocationBarViewMac::LocationBarViewMac(NSTextField* field,
                                        CommandUpdater* command_updater,
-                                       ToolbarModel* toolbar_model)
+                                       ToolbarModel* toolbar_model,
+                                       Profile* profile)
     : field_(field),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
+      profile_(profile),
       disposition_(CURRENT_TAB),
       transition_(PageTransition::TYPED) {
 }
@@ -30,13 +32,11 @@ LocationBarViewMac::~LocationBarViewMac() {
 }
 
 void LocationBarViewMac::Init() {
-  // TODO(shess): deanm indicates that it's likely we will eventually
-  // get the profile somewhere between point of construction and
-  // Init(), so mirroring how the gtk code sets this up.
-  Profile* profile = [[NSApp delegate] defaultProfile];
+  // TODO(shess): Get rid of Init() so we don't have to cache all these members
+  // as we don't use them beyond this method.
   edit_view_.reset(new AutocompleteEditViewMac(this,
                                                toolbar_model_,
-                                               profile,
+                                               profile_,
                                                command_updater_));
   // TODO(shess): Include in constructor.
   edit_view_->SetField(field_);

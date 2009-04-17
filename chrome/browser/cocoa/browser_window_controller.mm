@@ -82,7 +82,8 @@ willPositionSheet:(NSWindow *)sheet
     // registering for the appropriate command state changes from the back-end.
     toolbarController_.reset([[ToolbarController alloc]
                                initWithModel:browser->toolbar_model()
-                                    commands:browser->command_updater()]);
+                                    commands:browser->command_updater()
+                                     profile:browser->profile()]);
     [self positionToolbar];
 
     // After we've adjusted the toolbar, create a controller for the bookmark

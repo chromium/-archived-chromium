@@ -4,6 +4,7 @@
 
 #import "chrome/browser/cocoa/toolbar_controller.h"
 
+#include "base/mac_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #import "chrome/browser/cocoa/location_bar_view_mac.h"
@@ -20,11 +21,14 @@ static NSString* const kStarredImageName = @"starred";
 @implementation ToolbarController
 
 - (id)initWithModel:(ToolbarModel*)model
-           commands:(CommandUpdater*)commands {
-  DCHECK(model && commands);
-  if ((self = [super initWithNibName:@"Toolbar" bundle:nil])) {
+           commands:(CommandUpdater*)commands
+            profile:(Profile*)profile {
+  DCHECK(model && commands && profile);
+  if ((self = [super initWithNibName:@"Toolbar"
+                              bundle:mac_util::MainAppBundle()])) {
     toolbarModel_ = model;
     commands_ = commands;
+    profile_ = profile;
 
     // Register for notifications about state changes for the toolbar buttons
     commandObserver_.reset(new CommandObserverBridge(self, commands));
@@ -43,7 +47,7 @@ static NSString* const kStarredImageName = @"starred";
 - (void)awakeFromNib {
   [self initCommandStatus:commands_];
   locationBarView_.reset(new LocationBarViewMac(locationBar_, commands_,
-                                                toolbarModel_));
+                                                toolbarModel_, profile_));
   locationBarView_->Init();
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }
@@ -130,6 +134,12 @@ static NSString* const kStarredImageName = @"starred";
   if (isLoading)
     imageName = @"stop";
   [goButton_ setImage:[NSImage imageNamed:imageName]];
+}
+
+// Returns an array of views in the order of the outlets above.
+- (NSArray*)toolbarViews {
+  return [NSArray arrayWithObjects:backButton_, forwardButton_, reloadButton_,
+            starButton_, goButton_, locationBar_, nil];
 }
 
 @end

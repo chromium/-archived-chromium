@@ -24,7 +24,8 @@ class LocationBarViewMac : public AutocompleteEditController,
  public:
   LocationBarViewMac(NSTextField* field,
                      CommandUpdater* command_updater,
-                     ToolbarModel* toolbar_model);
+                     ToolbarModel* toolbar_model,
+                     Profile* profile);
   virtual ~LocationBarViewMac();
 
   // TODO(shess): This is a placeholder for the Omnibox code.  The
@@ -59,11 +60,10 @@ class LocationBarViewMac : public AutocompleteEditController,
  private:
   scoped_ptr<AutocompleteEditViewMac> edit_view_;
 
-  NSTextField* field_;  // weak, owned by TabContentsController
-  // TODO(shess): Determine ownership of these.  We definitely
-  // shouldn't.
-  CommandUpdater* command_updater_;  // weak
-  ToolbarModel* toolbar_model_;  // weak
+  NSTextField* field_;  // weak, owned by ToolbarController nib
+  CommandUpdater* command_updater_;  // weak, owned by Browser
+  ToolbarModel* toolbar_model_;  // weak, owned by Browser
+  Profile* profile_;  // weak, outlives the Browser
 
   // When we get an OnAutocompleteAccept notification from the autocomplete
   // edit, we save the input string so we can give it back to the browser on
