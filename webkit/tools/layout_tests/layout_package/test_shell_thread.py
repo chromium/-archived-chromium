@@ -396,4 +396,7 @@ class TestShellThread(threading.Thread):
       self._test_shell_proc.stdout.close()
       if self._test_shell_proc.stderr:
         self._test_shell_proc.stderr.close()
+      if sys.platform not in ('win32', 'cygwin'):
+        # Closing stdin/stdout/stderr hangs sometimes on OS X.
+        subprocess.Popen(["kill", "-9", str(self._test_shell_proc.pid)])
       self._test_shell_proc = None
