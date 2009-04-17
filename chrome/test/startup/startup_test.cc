@@ -30,10 +30,19 @@ class StartupTest : public UITest {
 
   void RunStartupTest(const char* graph, const char* trace,
       bool test_cold, bool important) {
-    const int kNumCycles = 20;
+    const int kNumCyclesMax = 20;
+    int numCycles = kNumCyclesMax;
+// It's ok for unit test code to use getenv(), isn't it?
+#if defined(OS_WIN)
+#pragma warning( disable : 4996 )
+#endif
+    const char* numCyclesEnv = getenv("STARTUP_TESTS_NUMCYCLES");
+    if (numCyclesEnv && StringToInt(numCyclesEnv, &numCycles))
+      LOG(INFO) << "STARTUP_TESTS_NUMCYCLES set in environment, "
+                << "so setting numCycles to " << numCycles;
 
-    TimeDelta timings[kNumCycles];
-    for (int i = 0; i < kNumCycles; ++i) {
+    TimeDelta timings[kNumCyclesMax];
+    for (int i = 0; i < numCycles; ++i) {
       if (test_cold) {
         FilePath dir_app;
         ASSERT_TRUE(PathService::Get(chrome::DIR_APP, &dir_app));
@@ -70,7 +79,7 @@ class StartupTest : public UITest {
     }
 
     std::string times;
-    for (int i = 0; i < kNumCycles; ++i)
+    for (int i = 0; i < numCycles; ++i)
       StringAppendF(&times, "%.2f,", timings[i].InMillisecondsF());
     PrintResultList(graph, "", trace, times, "ms", important);
   }

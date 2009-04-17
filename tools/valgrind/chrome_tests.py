@@ -44,16 +44,17 @@ class ChromeTests:
     # The known list of tests.
     # Recognise the original abbreviations as well as full executable names.
     self._test_list = {
-      "base": self.TestBase,              "base_unittests": self.TestBase,
-      "googleurl": self.TestGoogleurl,    "googleurl_tests": self.TestGoogleurl,
-      "ipc": self.TestIpc,                "ipc_tests": self.TestIpc,
-      "layout": self.TestLayout,          "layout_tests": self.TestLayout,
-      "media": self.TestMedia,            "media_unittests": self.TestMedia,
-      "net": self.TestNet,                "net_unittests": self.TestNet,
-      "printing": self.TestPrinting,      "printing_unittests": self.TestPrinting,
-      "test_shell": self.TestTestShell,   "test_shell_tests": self.TestTestShell,
-      "ui": self.TestUI,                  "ui_tests": self.TestUI,
-      "unit": self.TestUnit,              "unit_tests": self.TestUnit,
+      "base": self.TestBase,            "base_unittests": self.TestBase,
+      "googleurl": self.TestGURL,       "googleurl_unittests": self.TestGURL,
+      "ipc": self.TestIpc,              "ipc_tests": self.TestIpc,
+      "layout": self.TestLayout,        "layout_tests": self.TestLayout,
+      "media": self.TestMedia,          "media_unittests": self.TestMedia,
+      "net": self.TestNet,              "net_unittests": self.TestNet,
+      "printing": self.TestPrinting,    "printing_unittests": self.TestPrinting,
+      "startup": self.TestStartup,      "startup_tests": self.TestStartup,
+      "test_shell": self.TestTestShell, "test_shell_tests": self.TestTestShell,
+      "ui": self.TestUI,                "ui_tests": self.TestUI,
+      "unit": self.TestUnit,            "unit_tests": self.TestUnit,
     }
 
     if test not in self._test_list:
@@ -76,7 +77,7 @@ class ChromeTests:
     self._command_preamble = ["python", valgrind_test,
                               "--source_dir=%s" % (self._source_dir)]
 
-  def _DefaultCommand(self, module, exe=None):
+  def _DefaultCommand(self, module, exe=None, valgrind_test_args=None):
     '''Generates the default command array that most tests will use.'''
     module_dir = os.path.join(self._source_dir, module)
 
@@ -143,9 +144,9 @@ class ChromeTests:
       cmd.append("--track_origins")
     if self._options.generate_suppressions:
       cmd.append("--generate_suppressions")
-    if exe == "ui_tests":
-      cmd.append("--trace_children")
-      cmd.append("--indirect")
+    if valgrind_test_args != None:
+      for arg in valgrind_test_args:
+        cmd.append(arg)
     if exe:
       cmd.append(os.path.join(self._options.build_dir, exe))
       # Valgrind runs tests slowly, so slow tests hurt more; show elapased time
@@ -184,17 +185,18 @@ class ChromeTests:
     if gtest_filter:
       cmd.append("--gtest_filter=%s" % gtest_filter)
 
-  def SimpleTest(self, module, name, cmd_args=None):
-    cmd = self._DefaultCommand(module, name)
+  def SimpleTest(self, module, name, valgrind_test_args=None, cmd_args=None):
+    cmd = self._DefaultCommand(module, name, valgrind_test_args)
     self._ReadGtestFilterFile(name, cmd)
     if cmd_args:
+      cmd.extend(["--"])
       cmd.extend(cmd_args)
     return common.RunSubprocess(cmd, 0)
 
   def TestBase(self):
     return self.SimpleTest("base", "base_unittests")
 
-  def TestGoogleurl(self):
+  def TestGURL(self):
     return self.SimpleTest("chrome", "googleurl_unittests")
 
   def TestMedia(self):
@@ -209,6 +211,16 @@ class ChromeTests:
   def TestNet(self):
     return self.SimpleTest("net", "net_unittests")
 
+  def TestStartup(self):
+    # We don't need the performance results, we're just looking for pointer
+    # errors, so set number of iterations down to the minimum.
+    os.putenv("STARTUP_TESTS_NUMCYCLES", "1")
+    logging.info("export STARTUP_TESTS_NUMCYCLES=1");
+    return self.SimpleTest("chrome", "startup_tests",
+                           valgrind_test_args=[
+                            "--trace_children",
+                            "--indirect"])
+
   def TestTestShell(self):
     return self.SimpleTest("webkit", "test_shell_tests")
 
@@ -217,7 +229,10 @@ class ChromeTests:
 
   def TestUI(self):
     return self.SimpleTest("chrome", "ui_tests",
-                           cmd_args=["--",
+                           valgrind_test_args=[
+                            "--trace_children",
+                            "--indirect"],
+                           cmd_args=[
                             "--ui-test-timeout=120000",
                             "--ui-test-action-timeout=80000",
                             "--ui-test-action-max-timeout=180000"])
