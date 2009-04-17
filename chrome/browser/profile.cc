@@ -54,15 +54,8 @@ void Profile::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kSessionExitedCleanly, true);
   prefs->RegisterBooleanPref(prefs::kSafeBrowsingEnabled, true);
   // TODO(estade): IDS_SPELLCHECK_DICTIONARY should be an ASCII string.
-#if defined(OS_MACOSX)
-  // MASSIVE HACK!!! We don't have localization working yet. Undo this once we
-  // do. TODO(port): take this out
-  prefs->RegisterStringPref(prefs::kSpellCheckDictionary,
-      L"IDS_SPELLCHECK_DICTIONARY");
-#elif defined(OS_WIN) || defined(OS_LINUX)
   prefs->RegisterLocalizedStringPref(prefs::kSpellCheckDictionary,
       IDS_SPELLCHECK_DICTIONARY);
-#endif
   prefs->RegisterBooleanPref(prefs::kEnableSpellCheck, true);
   prefs->RegisterBooleanPref(prefs::kEnableUserScripts, false);
   prefs->RegisterBooleanPref(prefs::kEnableExtensions, false);
