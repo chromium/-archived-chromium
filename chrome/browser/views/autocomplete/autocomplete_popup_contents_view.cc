@@ -6,6 +6,7 @@
 
 #include <dwmapi.h>
 
+#include "chrome/browser/autocomplete/autocomplete_edit_view_win.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -262,9 +263,16 @@ void PopupBorder::InitClass() {
 // AutocompletePopupContentsView, public:
 
 AutocompletePopupContentsView::AutocompletePopupContentsView(
-    AutocompletePopupWin* popup)
-    : popup_(popup) {
-      set_border(new PopupBorder);
+    const ChromeFont& font,
+    AutocompleteEditViewWin* edit_view,
+    AutocompleteEditModel* edit_model,
+    Profile* profile,
+    AutocompletePopupPositioner* popup_positioner)
+    : popup_(new AutocompletePopupWin(this)),
+      model_(new AutocompletePopupModel(this, edit_model, profile)),
+      edit_view_(edit_view),
+      popup_positioner_(popup_positioner) {
+  set_border(new PopupBorder);
 }
 
 void AutocompletePopupContentsView::SetAutocompleteResult(
@@ -278,32 +286,89 @@ void AutocompletePopupContentsView::SetAutocompleteResult(
   Layout();
 }
 
-void AutocompletePopupContentsView::InvalidateLine(int index) {
-  GetChildViewAt(index)->SchedulePaint();
+gfx::Rect AutocompletePopupContentsView::GetPopupBounds() const {
+  gfx::Insets insets;
+  border()->GetInsets(&insets);
+  gfx::Rect contents_bounds = popup_positioner_->GetPopupBounds();
+  contents_bounds.set_height(100);  // TODO(beng): size to contents (once we
+                                    //             have contents!)
+  contents_bounds.Inset(-insets.left(), -insets.top(), -insets.right(),
+                        -insets.bottom());
+  return contents_bounds;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// AutocompletePopupContentsView, AutocompletePopupView overrides:
+
+bool AutocompletePopupContentsView::IsOpen() const {
+  return popup_->IsWindow() && popup_->IsVisible();
+}
+
+void AutocompletePopupContentsView::InvalidateLine(size_t line) {
+  GetChildViewAt(static_cast<int>(line))->SchedulePaint();
+}
+
+void AutocompletePopupContentsView::UpdatePopupAppearance() {
+  const AutocompleteResult& result = model_->result();
+  if (result.empty()) {
+    // No matches, close any existing popup.
+    if (popup_->IsWindow())
+      popup_->Hide();
+    return;
+  }
+
+  if (popup_->IsWindow())
+    popup_->Show();
+  else
+    popup_->Init(edit_view_, this);
+  SetAutocompleteResult(result);
+}
+
+void AutocompletePopupContentsView::OnHoverEnabledOrDisabled(bool disabled) {
+  // TODO(beng): remove this from the interface.
+}
+
+void AutocompletePopupContentsView::PaintUpdatesNow() {
+  // TODO(beng): remove this from the interface.
+}
+
+AutocompletePopupModel* AutocompletePopupContentsView::GetModel() {
+  return model_.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// AutocompletePopupContentsView, AutocompleteResultViewModel implementation:
+
 bool AutocompletePopupContentsView::IsSelectedIndex(size_t index) {
-  return index == popup_->GetModel()->selected_line();
+  return index == model_->selected_line();
 }
 
 AutocompleteMatch::Type AutocompletePopupContentsView::GetResultTypeAtIndex(
     size_t index) {
-  return popup_->GetModel()->result().match_at(index).type;
+  return model_->result().match_at(index).type;
 }
 
 void AutocompletePopupContentsView::OpenIndex(
     size_t index,
     WindowOpenDisposition disposition) {
-  popup_->OpenIndex(index, disposition);
+  const AutocompleteMatch& match = model_->result().match_at(index);
+  // OpenURL() may close the popup, which will clear the result set and, by
+  // extension, |match| and its contents.  So copy the relevant strings out to
+  // make sure they stay alive until the call completes.
+  const GURL url(match.destination_url);
+  std::wstring keyword;
+  const bool is_keyword_hint = model_->GetKeywordForMatch(match, &keyword);
+  edit_view_->OpenURL(url, disposition, match.transition, GURL(), index,
+                      is_keyword_hint ? std::wstring() : keyword);
 }
 
 void AutocompletePopupContentsView::SetHoveredLine(size_t index) {
-  popup_->SetHoveredLine(index);
+  model_->SetHoveredLine(index);
 }
 
 void AutocompletePopupContentsView::SetSelectedLine(size_t index,
                                                     bool revert_to_default) {
-  popup_->SetSelectedLine(index, revert_to_default);
+  model_->SetSelectedLine(index, revert_to_default);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

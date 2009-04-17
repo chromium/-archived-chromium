@@ -16,7 +16,7 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_edit_view.h"
 #include "chrome/browser/toolbar_model.h"
-#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/page_transition_types.h"
 #include "chrome/views/controls/menu/menu.h"

@@ -22,7 +22,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/search_engines/template_url.h"
 #include "chrome/browser/search_engines/template_url_model.h"
-#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/browser/views/location_bar_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -686,8 +686,8 @@ AutocompletePopupView* AutocompletePopupView::CreatePopupView(
     Profile* profile,
     AutocompletePopupPositioner* popup_positioner) {
   if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kEnableOmnibox2)) {
-    return new AutocompletePopupWin(font, edit_view, edit_model, profile,
-                                    popup_positioner);
+    return new AutocompletePopupContentsView(font, edit_view, edit_model,
+                                             profile, popup_positioner);
   }
   return new AutocompletePopupViewWin(font, edit_view, edit_model, profile);
 }

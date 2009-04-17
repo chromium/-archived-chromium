@@ -13,7 +13,7 @@
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/encoding_menu_controller_delegate.h"
 #include "chrome/browser/user_data_manager.h"
-#include "chrome/browser/views/autocomplete/autocomplete_popup_win.h"
+#include "chrome/browser/views/autocomplete/autocomplete_popup_contents_view.h"
 #include "chrome/browser/views/dom_view.h"
 #include "chrome/browser/views/go_button.h"
 #include "chrome/browser/views/location_bar_view.h"
