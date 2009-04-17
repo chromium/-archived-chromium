@@ -49,12 +49,12 @@ class WebAppCacheContext {
   static void SetFactory(WebAppCacheFactoryProc factory_proc);
 
   // Unique id within the child process housing this context
-  virtual int context_id() = 0;
+  virtual int GetContextID() = 0;
 
   // Which appcache is associated with the context. There are windows of
   // time where the appcache is not yet known, the return value is
   // kUnknownAppCacheId in that case.
-  virtual int64 app_cache_id() = 0;
+  virtual int64 GetAppCacheID() = 0;
 
   // The following methods result in async messages being sent to the
   // browser process. The initialize method tells the browser process about

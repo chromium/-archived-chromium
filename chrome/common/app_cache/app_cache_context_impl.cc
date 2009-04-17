@@ -39,7 +39,7 @@ void AppCacheContextImpl::Initialize(ContextType context_type,
 
   sender_->Send(new AppCacheMsg_ContextCreated(context_type,
                                                context_id_,
-                                               parent ? parent->context_id()
+                                               parent ? parent->GetContextID()
                                                       : kNoAppCacheContextId));
 }
 

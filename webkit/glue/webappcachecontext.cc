@@ -10,8 +10,8 @@ WebAppCacheContext::WebAppCacheFactoryProc factory_proc = NULL;
 
 class NoopWebAppCacheContext : public WebAppCacheContext {
  public:
-  virtual int context_id() { return kNoAppCacheContextId; }
-  virtual int64 app_cache_id() { return kNoAppCacheId; }
+  virtual int GetContextID() { return kNoAppCacheContextId; }
+  virtual int64 GetAppCacheID() { return kNoAppCacheId; }
   virtual void Initialize(ContextType context_type,
                           WebAppCacheContext* opt_parent) {}
   virtual void SelectAppCacheWithoutManifest(

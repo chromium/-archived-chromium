@@ -236,7 +236,8 @@ void WebFrameLoaderClient::dispatchWillSendRequest(
     net_agent->WillSendRequest(loader, identifier, request);
   }
 
-  request.setAppCacheContextID(webframe_->GetAppCacheContext()->context_id());
+  request.setAppCacheContextID(
+              webframe_->GetAppCacheContext()->GetContextID());
 }
 
 bool WebFrameLoaderClient::shouldUseCredentialStorage(DocumentLoader*,

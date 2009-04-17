@@ -383,6 +383,9 @@ class WebFrame {
   // mode.
   virtual float PrintPage(int page, skia::PlatformCanvas* canvas) = 0;
 
+  // Reformats the web frame for screen display.
+  virtual void EndPrint() = 0;
+
   // Initiates app cache selection for the context with the resource currently
   // committed in the webframe.
   virtual void SelectAppCacheWithoutManifest() = 0;
@@ -390,9 +393,6 @@ class WebFrame {
 
   // Returns a pointer to the WebAppCacheContext for this frame.
   virtual WebAppCacheContext* GetAppCacheContext() const = 0;
-
-  // Reformats the web frame for screen display.
-  virtual void EndPrint() = 0;
 
   // Only for test_shell
   virtual int PendingFrameUnloadEventCount() const = 0;

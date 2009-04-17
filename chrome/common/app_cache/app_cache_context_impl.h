@@ -19,8 +19,8 @@ class AppCacheContextImpl : public WebAppCacheContext {
   virtual ~AppCacheContextImpl();
 
   // WebAppCacheContext implementation
-  virtual int context_id() { return context_id_; }
-  virtual int64 app_cache_id() { return app_cache_id_; }
+  virtual int GetContextID() { return context_id_; }
+  virtual int64 GetAppCacheID() { return app_cache_id_; }
   virtual void Initialize(WebAppCacheContext::ContextType context_type,
                           WebAppCacheContext* opt_parent);
   virtual void SelectAppCacheWithoutManifest(
