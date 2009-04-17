@@ -266,8 +266,17 @@ void TestShellPlatformDelegate::SelectUnifiedTheme() {
 }
 
 void TestShellPlatformDelegate::SuppressErrorReporting() {
+  const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
+    
   // If we die during tests, we don't want to be spamming the user's crash
-  // reporter.
+  // reporter. Set our exception port to null and add signal handlers.
+  // Both of these are necessary to avoid the crash reporter. Although, we do
+  // still seem to be missing some cases.
+  if (!parsed_command_line.HasSwitch(test_shell::kGDB)) {
+    task_set_exception_ports(mach_task_self(), EXC_MASK_ALL, MACH_PORT_NULL,
+                             EXCEPTION_DEFAULT, THREAD_STATE_NONE);
+  }
+
   // The less scary signals...
   signal(SIGINT, SimpleSignalHandler);
   signal(SIGHUP, SimpleSignalHandler);
