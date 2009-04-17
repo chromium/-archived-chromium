@@ -49,7 +49,10 @@ class AppModalDialog : public NotificationObserver {
   /////////////////////////////////////////////////////////////////////////////
   // The following methods are platform specific and should be implemented in
   // the platform specific .cc files.
-  // Create the platform specific NativeDialog and display it.
+  // Create the platform specific NativeDialog and display it.  When the
+  // NativeDialog is closed, it should call OnAccept or OnCancel to notify the
+  // renderer of the user's action.  The NativeDialog is also expected to
+  // delete the AppModalDialog associated with it.
   void CreateAndShowDialog();
 
   // Close the dialog if it is showing.
