@@ -572,7 +572,7 @@ each locale. -->
         &amp;Task manager
       </message>
       <message name="IDS_RESTORE_TAB" desc="The text label of the Restore Tab menu item" >
-        &amp;Undo Tab Close
+        R&amp;eopen closed tab
       </message>
       <!-- This really belongs under Generic Terms above. -->
       <message name="IDS_CLOSE" desc="A generic term for Close on buttons and menus.">
