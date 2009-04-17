@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -1021,6 +1021,8 @@ void SavePackage::GetSaveInfo() {
   } else {
     file_type_info.extensions.resize(1);
     file_type_info.extensions[0].push_back(suggested_path.Extension());
+    if (!file_type_info.extensions[0][0].empty())
+      file_type_info.extensions[0][0].erase(0, 1);  // drop the .
     file_type_info.include_all_files = true;
     file_type_index = 1;
   }

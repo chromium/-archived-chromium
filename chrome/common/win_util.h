@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -146,6 +146,9 @@ bool OpenItemWithExternalApp(const std::wstring& full_path);
 //   ext_desc: { "Text Document" }
 //   returned: "Text Document\0*.txt\0HTML Document\0.htm;.html\0"
 //             "All Files\0*.*\0\0" (in one big string)
+// If a description is not provided for a file extension, it will be retrieved
+// from the registry. If the file extension does not exist in the registry, it
+// will be omitted from the filter, as it is likely a bogus extension.
 std::wstring FormatFilterForExtensions(
     const std::vector<std::wstring>& file_ext,
     const std::vector<std::wstring>& ext_desc,

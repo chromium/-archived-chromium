@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -250,7 +250,12 @@ std::wstring FormatFilterForExtensions(
       size_t first_separator_index = first_extension.find(L';');
       if (first_separator_index != std::wstring::npos)
         first_extension = first_extension.substr(0, first_separator_index);
-      GetRegistryDescriptionFromExtension(first_extension, &desc);
+      if (!GetRegistryDescriptionFromExtension(first_extension, &desc)) {
+        // The extension doesn't exist in the registry. It's likely bogus, so
+        // just drop it.
+        include_all_files = true;
+        continue;
+      }
       if (desc.empty())
         desc = L"*." + first_extension;
     }

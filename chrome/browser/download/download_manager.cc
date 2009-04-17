@@ -641,6 +641,8 @@ void DownloadManager::OnPathExistenceAvailable(DownloadCreateInfo* info) {
     SelectFileDialog::FileTypeInfo file_type_info;
     file_type_info.extensions.resize(1);
     file_type_info.extensions[0].push_back(info->suggested_path.Extension());
+    if (!file_type_info.extensions[0][0].empty())
+      file_type_info.extensions[0][0].erase(0, 1);  // drop the .
     file_type_info.include_all_files = true;
     gfx::NativeWindow owning_window =
         contents ? platform_util::GetTopLevel(contents->GetNativeView()) : NULL;
