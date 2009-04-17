@@ -53,12 +53,14 @@ class RegistryEntry {
     std::wstring quoted_exe_path = L"\"" + chrome_exe + L"\"";
     std::wstring open_cmd = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
 
-    entries.push_front(new RegistryEntry(L"Software\\Classes\\ChromeHTML",
+    std::wstring chrome_html_prog_id(ShellUtil::kRegClasses);
+    file_util::AppendToPath(&chrome_html_prog_id, ShellUtil::kChromeHTMLProgId);
+    entries.push_front(new RegistryEntry(chrome_html_prog_id,
                                          ShellUtil::kChromeHTMLProgIdDesc));
     entries.push_front(new RegistryEntry(
-        L"Software\\Classes\\ChromeHTML\\DefaultIcon", icon_path));
+        chrome_html_prog_id + ShellUtil::kRegDefaultIcon, icon_path));
     entries.push_front(new RegistryEntry(
-        L"Software\\Classes\\ChromeHTML\\shell\\open\\command", open_cmd));
+        chrome_html_prog_id + ShellUtil::kRegShellOpen, open_cmd));
 
     std::wstring exe_name = file_util::GetFilenameFromPath(chrome_exe);
     std::wstring app_key = L"Software\\Classes\\Applications\\" + exe_name +
@@ -357,7 +359,9 @@ ShellUtil::RegisterStatus RegisterOnVista(const std::wstring& chrome_exe,
 // Remove unnecessary "URL Protocol" entry from shell registration.  This value
 // was written by older installers so ignoring error conditions.
 void RemoveUrlProtocol(HKEY root) {
-  RegKey key(root, L"Software\\Classes\\ChromeHTML", KEY_ALL_ACCESS);
+  std::wstring chrome_html_prog_id(ShellUtil::kRegClasses);
+  file_util::AppendToPath(&chrome_html_prog_id, ShellUtil::kChromeHTMLProgId);
+  RegKey key(root, chrome_html_prog_id.c_str(), KEY_ALL_ACCESS);
   key.DeleteValue(ShellUtil::kRegUrlProtocol);
 }
 
@@ -379,8 +383,14 @@ const wchar_t* ShellUtil::kAppPathsRegistryKey =
     L"Software\\Microsoft\\Windows\\CurrentVersion\\App Paths";
 const wchar_t* ShellUtil::kAppPathsRegistryPathName = L"Path";
 
+#if defined(GOOGLE_CHROME_BUILD)
 const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromeHTML";
 const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chrome HTML";
+#else
+const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromiumHTML";
+const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chromium HTML";
+#endif
+
 const wchar_t* ShellUtil::kFileAssociations[] = {L".htm", L".html", L".shtml",
     L".xht", L".xhtml", NULL};
 const wchar_t* ShellUtil::kProtocolAssociations[] = {L"ftp", L"http", L"https",

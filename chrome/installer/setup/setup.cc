@@ -40,7 +40,7 @@ void AddChromeToMediaPlayerList() {
 
 }
 
-void DoFirstInstallTasks(std::wstring install_path, int options) {
+void RegisterChromeOnMachine(std::wstring install_path, int options) {
   bool system_level = (options & installer_util::SYSTEM_LEVEL) != 0;
   // Try to add Chrome to Media Player shim inclusion list. We don't do any
   // error checking here because this operation will fail if user doesn't
@@ -236,12 +236,9 @@ installer_util::InstallStatus installer::InstallOrUpdateChrome(
                                        install_path, new_version.GetString()))
       LOG(WARNING) << "Failed to create/update start menu shortcut.";
 
-    if (result == installer_util::FIRST_INSTALL_SUCCESS ||
-        result == installer_util::INSTALL_REPAIRED) {
-      DoFirstInstallTasks(install_path, options);
-    } else {
-      RemoveOldVersionDirs(install_path, new_version.GetString());
-    }
+    RemoveOldVersionDirs(install_path, new_version.GetString());
+
+    RegisterChromeOnMachine(install_path, options);
   }
 
   return result;

@@ -294,21 +294,6 @@ void ReplaceRegistryValue(const std::wstring& reg_key,
   }
 }
 
-// This method is only temporary to update Chrome open cmd for existing users
-// of Chrome. This can be deleted once we make one release including this patch
-// to every user.
-void UpdateChromeOpenCmd(bool system_install) {
-  std::wstring chrome_exe =  installer::GetChromeInstallPath(system_install);
-  file_util::AppendToPath(&chrome_exe, installer_util::kChromeExe);
-  std::wstring old_open_cmd = L"\"" + chrome_exe + L"\" \"%1\"";
-  std::wstring new_open_cmd = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
-  std::wstring reg_key[] = { L"ChromeHTML\\shell\\open\\command",
-                             L"http\\shell\\open\\command",
-                             L"https\\shell\\open\\command" };
-  for (int i = 0; i < _countof(reg_key); i++)
-    ReplaceRegistryValue(reg_key[i], old_open_cmd, new_open_cmd);
-}
-
 bool CheckPreInstallConditions(const installer::Version* installed_version,
                                int options,
                                installer_util::InstallStatus& status) {
@@ -445,9 +430,6 @@ installer_util::InstallStatus InstallChrome(const CommandLine& cmd_line,
           if (!(options & installer_util::DO_NOT_LAUNCH_CHROME) &&
               !(options & installer_util::SYSTEM_LEVEL))
             installer::LaunchChrome(system_install);
-        } else if (install_status == installer_util::NEW_VERSION_UPDATED) {
-          // This is temporary hack and will be deleted after one release.
-          UpdateChromeOpenCmd(system_install);
         }
       }
     }
