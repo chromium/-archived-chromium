@@ -18,5 +18,7 @@ import sys
 # included in any case so we don't get an import error.
 if sys.platform in ('cygwin', 'win32'):
   from platform_utils_win import *
+elif sys.platform == 'darwin':
+  from platform_utils_mac import *
 
 

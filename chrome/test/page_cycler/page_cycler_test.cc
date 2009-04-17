@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -263,11 +263,12 @@ TEST_F(PageCyclerReferenceTest, MozFile) {
   RunTest("moz", false);
 }
 
+// TODO(nirnimesh): Intl1File, Intl2File, Intl1Http, Intl2Http crash Chromium
+// on Mac. Revisit later.
 TEST_F(PageCyclerTest, Intl1File) {
   RunTest("intl1", false);
 }
 
-// TODO(nirnimesh): Intl1File, Intl2File crash Chromium on Mac. Revisit later.
 TEST_F(PageCyclerReferenceTest, Intl1File) {
   RunTest("intl1", false);
 }
@@ -299,12 +300,14 @@ TEST_F(PageCyclerTest, DhtmlFile) {
 TEST_F(PageCyclerReferenceTest, DhtmlFile) {
   RunTest("dhtml", false);
 }
+#endif
 
 // http (localhost) tests
 TEST_F(PageCyclerTest, MozHttp) {
   RunTest("moz", true);
 }
 
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, MozHttp) {
   RunTest("moz", true);
 }
@@ -324,22 +327,26 @@ TEST_F(PageCyclerTest, Intl2Http) {
 TEST_F(PageCyclerReferenceTest, Intl2Http) {
   RunTest("intl2", true);
 }
+#endif  // !defined(OS_MACOSX)
 
 TEST_F(PageCyclerTest, DomHttp) {
   RunTest("dom", true);
 }
 
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, DomHttp) {
   RunTest("dom", true);
 }
+#endif
 
 TEST_F(PageCyclerTest, BloatHttp) {
   RunTest("bloat", true);
 }
 
+#if !defined(OS_MACOSX)
 TEST_F(PageCyclerReferenceTest, BloatHttp) {
   RunTest("bloat", true);
 }
-#endif  // !defined(OS_MACOSX)
+#endif
 
 }  // namespace
