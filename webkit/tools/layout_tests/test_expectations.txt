@@ -2458,7 +2458,7 @@ BUG10488 : LayoutTests/fast/css/zoom-body-scroll.html = FAIL
 // Regression from WebKit merge 42403:42440 -- MessageChannel binding no longer
 // gets generated, probably just a matter of enabling ENABLE_CHANNEL_MESSAGING
 // due to http://trac.webkit.org/changeset/42428.
-BUG10489 LINUX MAC : chrome/fast/dom/messageport-gc.html = TIMEOUT
+BUG10489 : chrome/fast/dom/messageport-gc.html = TIMEOUT
 
 // New test added by http://trac.webkit.org/changeset/42501.
 // Has already been rebaselined for chromium-win.
