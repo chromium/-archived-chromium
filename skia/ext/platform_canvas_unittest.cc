@@ -388,7 +388,7 @@ TEST(PlatformCanvas, TranslateLayer) {
   canvas.restore();
   EXPECT_TRUE(VerifyRoundedRect(canvas, SK_ColorWHITE, SK_ColorBLACK,
                                 kInnerX + 1, kInnerY + 1, kInnerW, kInnerH));
-}
 #endif
+}
 
 }  // namespace skia
