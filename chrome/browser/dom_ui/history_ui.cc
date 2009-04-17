@@ -115,7 +115,8 @@ BrowsingHistoryHandler::BrowsingHistoryHandler(DOMUI* dom_ui)
   // Get notifications when history is cleared.
   NotificationService* service = NotificationService::current();
   service->AddObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                       Source<Profile>(dom_ui_->GetProfile()));
+                       Source<Profile>(
+                           dom_ui_->GetProfile()->GetOriginalProfile()));
 }
 
 BrowsingHistoryHandler::~BrowsingHistoryHandler() {
@@ -123,7 +124,8 @@ BrowsingHistoryHandler::~BrowsingHistoryHandler() {
 
   NotificationService* service = NotificationService::current();
   service->RemoveObserver(this, NotificationType::HISTORY_URLS_DELETED,
-                          Source<Profile>(dom_ui_->GetProfile()));
+                          Source<Profile>(
+                              dom_ui_->GetProfile()->GetOriginalProfile()));
 
   if (remover_.get())
     remover_->RemoveObserver(this);
