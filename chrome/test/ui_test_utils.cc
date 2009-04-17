@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,6 +6,7 @@
 
 #include "base/message_loop.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/notification_registrar.h"
@@ -96,6 +97,44 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
   browser->OpenURLFromTab(browser->GetSelectedTabContents(), url, GURL(),
                           CURRENT_TAB, PageTransition::TYPED);
   WaitForNavigations(controller, number_of_navigations);
+}
+
+JavaScriptRunner::JavaScriptRunner(WebContents* web_contents,
+                                   const std::wstring& frame_xpath,
+                                   const std::wstring& jscript)
+    : web_contents_(web_contents),
+      frame_xpath_(frame_xpath),
+      jscript_(jscript) {
+  NotificationService::current()->
+      AddObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
+      Source<WebContents>(web_contents));
+}
+
+void JavaScriptRunner::Observe(NotificationType type,
+                               const NotificationSource& source,
+                               const NotificationDetails& details) {
+  Details<DomOperationNotificationDetails> dom_op_details(details);
+  result_ = dom_op_details->json();
+  // The Jasonified response has quotes, remove them.
+  if (result_.length() > 1 && result_[0] == '"')
+    result_ = result_.substr(1, result_.length() - 2);
+
+  NotificationService::current()->
+      RemoveObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
+      Source<WebContents>(web_contents_));
+  MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+}
+
+std::string JavaScriptRunner::Run() {
+  // The DOMAutomationController requires an automation ID, even though we are
+  // not using it in this case.
+  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(
+      frame_xpath_, L"window.domAutomationController.setAutomationId(0);");
+
+  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath_,
+                                                                 jscript_);
+  ui_test_utils::RunMessageLoop();
+  return result_;
 }
 
 }  // namespace ui_test_utils

@@ -1370,12 +1370,10 @@ void WebFrameImpl::SetFindEndstateFocusAndSelection() {
 
   if (this == main_frame_impl->active_match_frame() &&
       active_match_.get()) {
-    // If the user has changed the selection since the match was found, we
+    // If the user has set the selection since the match was found, we
     // don't focus anything.
     VisibleSelection selection(frame()->selection()->selection());
-    if (selection.isNone() || (selection.start() == selection.end()) ||
-        active_match_->boundingBox() !=
-            selection.toNormalizedRange()->boundingBox())
+    if (!selection.isNone())
       return;
 
     // We will be setting focus ourselves, so we want the view to forget its

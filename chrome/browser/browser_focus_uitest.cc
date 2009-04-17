@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -6,16 +6,10 @@
 #include "base/ref_counted.h"
 #include "chrome/browser/automation/ui_controls.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/common/notification_details.h"
-#include "chrome/common/notification_observer.h"
-#include "chrome/common/notification_service.h"
-#include "chrome/common/notification_source.h"
-#include "chrome/common/notification_type.h"
 #include "chrome/views/focus/focus_manager.h"
 #include "chrome/views/view.h"
 #include "chrome/views/window/window.h"
@@ -38,55 +32,6 @@ class BrowserFocusTest : public InProcessBrowserTest {
     set_show_window(true);
     EnableDOMAutomation();
   }
-};
-
-class JavaScriptRunner : public NotificationObserver {
- public:
-  JavaScriptRunner(WebContents* web_contents,
-                   const std::wstring& frame_xpath,
-                   const std::wstring& jscript)
-      : web_contents_(web_contents),
-        frame_xpath_(frame_xpath),
-        jscript_(jscript) {
-    NotificationService::current()->
-        AddObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
-                    Source<WebContents>(web_contents));
-  }
-
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details) {
-    Details<DomOperationNotificationDetails> dom_op_details(details);
-    result_ = dom_op_details->json();
-    // The Jasonified response has quotes, remove them.
-    if (result_.length() > 1 && result_[0] == '"')
-      result_ = result_.substr(1, result_.length() - 2);
-
-    NotificationService::current()->
-        RemoveObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
-                       Source<WebContents>(web_contents_));
-    MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
-  }
-
-  std::string Run() {
-    // The DOMAutomationController requires an automation ID, eventhough we are
-    // not using it in this case.
-    web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(
-        frame_xpath_, L"window.domAutomationController.setAutomationId(0);");
-
-    web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath_,
-                                                                   jscript_);
-    ui_test_utils::RunMessageLoop();
-    return result_;
-  }
-
- private:
-  WebContents* web_contents_;
-  std::wstring frame_xpath_;
-  std::wstring jscript_;
-  std::string result_;
-
-  DISALLOW_COPY_AND_ASSIGN(JavaScriptRunner);
 };
 
 }  // namespace
@@ -319,7 +264,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
     // Now let's press tab to move the focus.
     for (int j = 0; j < 7; ++j) {
       // Let's make sure the focus is on the expected element in the page.
-      JavaScriptRunner js_runner(
+      ui_test_utils::JavaScriptRunner js_runner(
           browser()->GetSelectedTabContents()->AsWebContents(),
           L"",
           L"window.domAutomationController.send(getFocusedElement());");
@@ -330,7 +275,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
                                               new MessageLoop::QuitTask());
       ui_test_utils::RunMessageLoop();
       // Ideally, we wouldn't sleep here and instead would use the event
-      // processed ack nofification from the renderer.  I am reluctant to create
+      // processed ack notification from the renderer.  I am reluctant to create
       // a new notification/callback for that purpose just for this test.
       ::Sleep(kActionDelayMs);
     }
@@ -355,7 +300,7 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
       ::Sleep(kActionDelayMs);
 
       // Let's make sure the focus is on the expected element in the page.
-      JavaScriptRunner js_runner(
+      ui_test_utils::JavaScriptRunner js_runner(
           browser()->GetSelectedTabContents()->AsWebContents(),
           L"",
           L"window.domAutomationController.send(getFocusedElement());");

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,6 +19,7 @@ const std::wstring kFrameData = L"files/find_in_page/framedata_general.html";
 const std::wstring kUserSelectPage = L"files/find_in_page/user-select.html";
 const std::wstring kCrashPage = L"files/find_in_page/crash_1341577.html";
 const std::wstring kTooFewMatchesPage = L"files/find_in_page/bug_1155639.html";
+const std::wstring kEndState = L"files/find_in_page/end_state.html";
 
 class FindInPageNotificationObserver : public NotificationObserver {
  public:
@@ -78,6 +79,11 @@ typedef enum FindInPageDirection { BACK = 0, FWD = 1 };
 typedef enum FindInPageCase { IGNORE_CASE = 0, CASE_SENSITIVE = 1 };
 
 class FindInPageControllerTest : public InProcessBrowserTest {
+ public:
+  FindInPageControllerTest() {
+    EnableDOMAutomation();
+  }
+
  protected:
   int FindInPage(const std::wstring& search_string,
                  FindInPageDirection forward,
@@ -98,7 +104,7 @@ class FindInPageControllerTest : public InProcessBrowserTest {
   }
 };
 
-// This test loads a page with frames and starts FindInPage requests
+// This test loads a page with frames and starts FindInPage requests.
 IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageFrames) {
   HTTPTestServer* server = StartHTTPServer();
 
@@ -140,4 +146,57 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageFrames) {
   EXPECT_EQ(1, FindInPage(L"Hreggvi\u00F0ur", FWD, IGNORE_CASE, false));
   EXPECT_EQ(1, FindInPage(L"Hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
   EXPECT_EQ(0, FindInPage(L"hreggvi\u00F0ur", FWD, CASE_SENSITIVE, false));
+}
+
+std::string FocusedOnPage(WebContents* web_contents) {
+  ui_test_utils::JavaScriptRunner js_runner(
+      web_contents,
+      L"",
+      L"window.domAutomationController.send(getFocusedElement());");
+  return js_runner.Run();
+}
+
+// This tests the FindInPage end-state, in other words: what is focused when you
+// close the Find box (ie. if you find within a link the link should be
+// focused).
+// TODO(jcampan): This test needs to be enabled once Jay fixes the issues with
+// running two InProc browser tests that both start a web server (crashes).
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, DISABLED_FindInPageEndState) {
+  HTTPTestServer* server = StartHTTPServer();
+
+  // First we navigate to our special focus tracking page.
+  GURL url = server->TestServerPageW(kEndState);
+  ui_test_utils::NavigateToURL(browser(), url);
+
+  WebContents* web_contents =
+      browser()->GetSelectedTabContents()->AsWebContents();
+  ASSERT_TRUE(NULL != web_contents);
+
+  // Verify that nothing has focus.
+  ASSERT_STREQ("{nothing focused}", FocusedOnPage(web_contents).c_str());
+
+  // Search for a text that exists within a link on the page.
+  EXPECT_EQ(1, FindInPage(L"nk", FWD, IGNORE_CASE, false));
+
+  // End the find session, which should set focus to the link.
+  web_contents->StopFinding(false);
+
+  // Verify that the link is focused.
+  EXPECT_STREQ("link1", FocusedOnPage(web_contents).c_str());
+
+  // Search for a text that exists within a link on the page.
+  EXPECT_EQ(1, FindInPage(L"Google", FWD, IGNORE_CASE, false));
+
+  // Move the selection to link 1, after searching.
+  ui_test_utils::JavaScriptRunner js_runner(
+      web_contents,
+      L"",
+      L"window.domAutomationController.send(selectLink1());");
+  js_runner.Run();
+
+  // End the find session.
+  web_contents->StopFinding(false);
+
+  // Verify that link2 is not focused.
+  EXPECT_STREQ("", FocusedOnPage(web_contents).c_str());
 }
