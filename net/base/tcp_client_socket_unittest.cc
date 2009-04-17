@@ -35,7 +35,6 @@ class TCPClientSocketTest
 
  protected:
   int listen_port_;
-  scoped_ptr<net::TCPClientSocket> sock_;
 
  private:
   scoped_refptr<ListenSocket> listen_sock_;
@@ -49,32 +48,34 @@ void TCPClientSocketTest::SetUp() {
   ListenSocket *sock = NULL;
   int port;
   // Range of ports to listen on.  Shouldn't need to try many.
-  const int kMinPort = 10100;
-  const int kMaxPort = 10200;
+  static const int kMinPort = 10100;
+  static const int kMaxPort = 10200;
 #if defined(OS_WIN)
   net::EnsureWinsockInit();
 #endif
   for (port = kMinPort; port < kMaxPort; port++) {
     sock = ListenSocket::Listen("127.0.0.1", port, this);
     if (sock)
-      break;
+        break;
   }
   ASSERT_TRUE(sock != NULL);
   listen_sock_ = sock;
   listen_port_ = port;
-
-  net::AddressList addr;
-  net::HostResolver resolver;
-  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL);
-  CHECK(rv == net::OK);
-  sock_.reset(new net::TCPClientSocket(addr));
 }
 
 TEST_F(TCPClientSocketTest, Connect) {
+  net::AddressList addr;
+  net::HostResolver resolver;
   TestCompletionCallback callback;
-  EXPECT_FALSE(sock_->IsConnected());
 
-  int rv = sock_->Connect(&callback);
+  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL);
+  EXPECT_EQ(rv, net::OK);
+
+  net::TCPClientSocket sock(addr);
+
+  EXPECT_FALSE(sock.IsConnected());
+
+  rv = sock.Connect(&callback);
   if (rv != net::OK) {
     ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
@@ -82,10 +83,10 @@ TEST_F(TCPClientSocketTest, Connect) {
     EXPECT_EQ(rv, net::OK);
   }
 
-  EXPECT_TRUE(sock_->IsConnected());
+  EXPECT_TRUE(sock.IsConnected());
 
-  sock_->Disconnect();
-  EXPECT_FALSE(sock_->IsConnected());
+  sock.Disconnect();
+  EXPECT_FALSE(sock.IsConnected());
 }
 
 // TODO(wtc): Add unit tests for IsConnectedAndIdle:
@@ -93,8 +94,19 @@ TEST_F(TCPClientSocketTest, Connect) {
 //   - Server sends data unexpectedly.
 
 TEST_F(TCPClientSocketTest, Read) {
+  net::AddressList addr;
+  net::HostResolver resolver;
   TestCompletionCallback callback;
-  int rv = sock_->Connect(&callback);
+
+  int rv = resolver.Resolve("localhost", listen_port_, &addr, &callback);
+  EXPECT_EQ(rv, net::ERR_IO_PENDING);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(rv, net::OK);
+
+  net::TCPClientSocket sock(addr);
+
+  rv = sock.Connect(&callback);
   if (rv != net::OK) {
     ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
@@ -103,7 +115,7 @@ TEST_F(TCPClientSocketTest, Read) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &callback);
+  rv = sock.Write(request_text, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -113,7 +125,7 @@ TEST_F(TCPClientSocketTest, Read) {
 
   char buf[4096];
   for (;;) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
+    rv = sock.Read(buf, sizeof(buf), &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -126,8 +138,16 @@ TEST_F(TCPClientSocketTest, Read) {
 }
 
 TEST_F(TCPClientSocketTest, Read_SmallChunks) {
+  net::AddressList addr;
+  net::HostResolver resolver;
   TestCompletionCallback callback;
-  int rv = sock_->Connect(&callback);
+
+  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL);
+  EXPECT_EQ(rv, net::OK);
+
+  net::TCPClientSocket sock(addr);
+
+  rv = sock.Connect(&callback);
   if (rv != net::OK) {
     ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
@@ -136,7 +156,7 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &callback);
+  rv = sock.Write(request_text, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -146,7 +166,7 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
 
   char buf[1];
   for (;;) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
+    rv = sock.Read(buf, sizeof(buf), &callback);
     EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
     if (rv == net::ERR_IO_PENDING)
@@ -159,8 +179,16 @@ TEST_F(TCPClientSocketTest, Read_SmallChunks) {
 }
 
 TEST_F(TCPClientSocketTest, Read_Interrupted) {
+  net::AddressList addr;
+  net::HostResolver resolver;
   TestCompletionCallback callback;
-  int rv = sock_->Connect(&callback);
+
+  int rv = resolver.Resolve("localhost", listen_port_, &addr, NULL);
+  EXPECT_EQ(rv, net::OK);
+
+  net::TCPClientSocket sock(addr);
+
+  rv = sock.Connect(&callback);
   if (rv != net::OK) {
     ASSERT_EQ(rv, net::ERR_IO_PENDING);
 
@@ -169,7 +197,7 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
   }
 
   const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &callback);
+  rv = sock.Write(request_text, arraysize(request_text) - 1, &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING) {
@@ -179,89 +207,11 @@ TEST_F(TCPClientSocketTest, Read_Interrupted) {
 
   // Do a partial read and then exit.  This test should not crash!
   char buf[512];
-  rv = sock_->Read(buf, sizeof(buf), &callback);
+  rv = sock.Read(buf, sizeof(buf), &callback);
   EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
 
   if (rv == net::ERR_IO_PENDING)
     rv = callback.WaitForResult();
 
   EXPECT_NE(rv, 0);
-}
-
-TEST_F(TCPClientSocketTest, FullDuplex_ReadFirst) {
-  TestCompletionCallback callback;
-  int rv = sock_->Connect(&callback);
-  if (rv != net::OK) {
-    ASSERT_EQ(rv, net::ERR_IO_PENDING);
-
-    rv = callback.WaitForResult();
-    EXPECT_EQ(rv, net::OK);
-  }
-
-  char buf[4096];
-  rv = sock_->Read(buf, sizeof(buf), &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
-
-  const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  TestCompletionCallback write_callback;
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &write_callback);
-  EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
-
-  if (rv == net::ERR_IO_PENDING) {
-    rv = write_callback.WaitForResult();
-    EXPECT_EQ(rv, static_cast<int>(arraysize(request_text) - 1));
-  }
-
-  rv = callback.WaitForResult();
-  EXPECT_GE(rv, 0);
-  while (rv > 0) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
-    EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
-
-    if (rv == net::ERR_IO_PENDING)
-      rv = callback.WaitForResult();
-
-    EXPECT_GE(rv, 0);
-    if (rv <= 0)
-      break;
-  }
-}
-
-TEST_F(TCPClientSocketTest, FullDuplex_WriteFirst) {
-  TestCompletionCallback callback;
-  int rv = sock_->Connect(&callback);
-  if (rv != net::OK) {
-    ASSERT_EQ(rv, net::ERR_IO_PENDING);
-
-    rv = callback.WaitForResult();
-    EXPECT_EQ(rv, net::OK);
-  }
-
-  const char request_text[] = "GET / HTTP/1.0\r\n\r\n";
-  TestCompletionCallback write_callback;
-  rv = sock_->Write(request_text, arraysize(request_text) - 1, &write_callback);
-  EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
-
-  char buf[4096];
-  int read_rv = sock_->Read(buf, sizeof(buf), &callback);
-  EXPECT_TRUE(read_rv >= 0 || read_rv == net::ERR_IO_PENDING);
-
-  if (rv == net::ERR_IO_PENDING) {
-    rv = write_callback.WaitForResult();
-    EXPECT_EQ(static_cast<int>(arraysize(request_text) - 1), rv);
-  }
-
-  rv = callback.WaitForResult();
-  EXPECT_GE(rv, 0);
-  while (rv > 0) {
-    rv = sock_->Read(buf, sizeof(buf), &callback);
-    EXPECT_TRUE(rv >= 0 || rv == net::ERR_IO_PENDING);
-
-    if (rv == net::ERR_IO_PENDING)
-      rv = callback.WaitForResult();
-
-    EXPECT_GE(rv, 0);
-    if (rv <= 0)
-      break;
-  }
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "net/base/tcp_client_socket_libevent.h"
+#include "net/base/tcp_client_socket.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -65,20 +65,20 @@ static int MapPosixError(int err) {
 
 //-----------------------------------------------------------------------------
 
-TCPClientSocketLibevent::TCPClientSocketLibevent(const AddressList& addresses)
-    : socket_(kInvalidSocket),
-      addresses_(addresses),
-      current_ai_(addresses_.head()),
-      waiting_connect_(false),
-      read_callback_(NULL),
-      write_callback_(NULL) {
+TCPClientSocket::TCPClientSocket(const AddressList& addresses)
+  : socket_(kInvalidSocket),
+    addresses_(addresses),
+    current_ai_(addresses_.head()),
+    waiting_connect_(false),
+    write_callback_(NULL),
+    callback_(NULL) {
 }
 
-TCPClientSocketLibevent::~TCPClientSocketLibevent() {
+TCPClientSocket::~TCPClientSocket() {
   Disconnect();
 }
 
-int TCPClientSocketLibevent::Connect(CompletionCallback* callback) {
+int TCPClientSocket::Connect(CompletionCallback* callback) {
   // If already connected, then just return OK.
   if (socket_ != kInvalidSocket)
     return OK;
@@ -122,11 +122,11 @@ int TCPClientSocketLibevent::Connect(CompletionCallback* callback) {
   }
 
   waiting_connect_ = true;
-  read_callback_ = callback;
+  callback_ = callback;
   return ERR_IO_PENDING;
 }
 
-void TCPClientSocketLibevent::Disconnect() {
+void TCPClientSocket::Disconnect() {
   if (socket_ == kInvalidSocket)
     return;
 
@@ -141,7 +141,7 @@ void TCPClientSocketLibevent::Disconnect() {
   current_ai_ = addresses_.head();
 }
 
-bool TCPClientSocketLibevent::IsConnected() const {
+bool TCPClientSocket::IsConnected() const {
   if (socket_ == kInvalidSocket || waiting_connect_)
     return false;
 
@@ -156,7 +156,7 @@ bool TCPClientSocketLibevent::IsConnected() const {
   return true;
 }
 
-bool TCPClientSocketLibevent::IsConnectedAndIdle() const {
+bool TCPClientSocket::IsConnectedAndIdle() const {
   if (socket_ == kInvalidSocket || waiting_connect_)
     return false;
 
@@ -172,12 +172,12 @@ bool TCPClientSocketLibevent::IsConnectedAndIdle() const {
   return true;
 }
 
-int TCPClientSocketLibevent::Read(char* buf,
-                                  int buf_len,
-                                  CompletionCallback* callback) {
-  DCHECK_NE(socket_, kInvalidSocket);
+int TCPClientSocket::Read(char* buf,
+                          int buf_len,
+                          CompletionCallback* callback) {
+  DCHECK(socket_ != kInvalidSocket);
   DCHECK(!waiting_connect_);
-  DCHECK(!read_callback_);
+  DCHECK(!callback_);
   // Synchronous operation not supported
   DCHECK(callback);
   DCHECK(buf_len > 0);
@@ -194,27 +194,27 @@ int TCPClientSocketLibevent::Read(char* buf,
   }
 
   if (!MessageLoopForIO::current()->WatchFileDescriptor(
-          socket_, true, MessageLoopForIO::WATCH_READ,
-          &socket_watcher_, this)) {
+          socket_, true, MessageLoopForIO::WATCH_READ, &socket_watcher_, this))
+      {
     DLOG(INFO) << "WatchFileDescriptor failed on read, errno " << errno;
     return MapPosixError(errno);
   }
 
-  read_buf_ = buf;
-  read_buf_len_ = buf_len;
-  read_callback_ = callback;
+  buf_ = buf;
+  buf_len_ = buf_len;
+  callback_ = callback;
   return ERR_IO_PENDING;
 }
 
-int TCPClientSocketLibevent::Write(const char* buf,
-                                   int buf_len,
-                                   CompletionCallback* callback) {
+int TCPClientSocket::Write(const char* buf,
+                           int buf_len,
+                           CompletionCallback* callback) {
   DCHECK(socket_ != kInvalidSocket);
   DCHECK(!waiting_connect_);
   DCHECK(!write_callback_);
   // Synchronous operation not supported
   DCHECK(callback);
-  DCHECK_GT(buf_len, 0);
+  DCHECK(buf_len > 0);
 
   TRACE_EVENT_BEGIN("socket.write", this, "");
   int nwrite = write(socket_, buf, buf_len);
@@ -226,8 +226,8 @@ int TCPClientSocketLibevent::Write(const char* buf,
     return MapPosixError(errno);
 
   if (!MessageLoopForIO::current()->WatchFileDescriptor(
-          socket_, true, MessageLoopForIO::WATCH_WRITE,
-          &socket_watcher_, this)) {
+          socket_, true, MessageLoopForIO::WATCH_WRITE, &socket_watcher_, this))
+      {
     DLOG(INFO) << "WatchFileDescriptor failed on write, errno " << errno;
     return MapPosixError(errno);
   }
@@ -239,7 +239,7 @@ int TCPClientSocketLibevent::Write(const char* buf,
   return ERR_IO_PENDING;
 }
 
-int TCPClientSocketLibevent::CreateSocket(const addrinfo* ai) {
+int TCPClientSocket::CreateSocket(const addrinfo* ai) {
   socket_ = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
   if (socket_ == kInvalidSocket)
     return MapPosixError(errno);
@@ -250,18 +250,18 @@ int TCPClientSocketLibevent::CreateSocket(const addrinfo* ai) {
   return OK;
 }
 
-void TCPClientSocketLibevent::DoReadCallback(int rv) {
-  DCHECK_NE(rv, ERR_IO_PENDING);
-  DCHECK(read_callback_);
+void TCPClientSocket::DoCallback(int rv) {
+  DCHECK(rv != ERR_IO_PENDING);
+  DCHECK(callback_);
 
-  // since Run may result in Read being called, clear read_callback_ up front.
-  CompletionCallback* c = read_callback_;
-  read_callback_ = NULL;
+  // since Run may result in Read being called, clear callback_ up front.
+  CompletionCallback* c = callback_;
+  callback_ = NULL;
   c->Run(rv);
 }
 
-void TCPClientSocketLibevent::DoWriteCallback(int rv) {
-  DCHECK_NE(rv, ERR_IO_PENDING);
+void TCPClientSocket::DoWriteCallback(int rv) {
+  DCHECK(rv != ERR_IO_PENDING);
   DCHECK(write_callback_);
 
   // since Run may result in Write being called, clear write_callback_ up front.
@@ -270,7 +270,7 @@ void TCPClientSocketLibevent::DoWriteCallback(int rv) {
   c->Run(rv);
 }
 
-void TCPClientSocketLibevent::DidCompleteConnect() {
+void TCPClientSocket::DidCompleteConnect() {
   int result = ERR_UNEXPECTED;
 
   TRACE_EVENT_END("socket.connect", this, "");
@@ -295,7 +295,7 @@ void TCPClientSocketLibevent::DidCompleteConnect() {
     const addrinfo* next = current_ai_->ai_next;
     Disconnect();
     current_ai_ = next;
-    result = Connect(read_callback_);
+    result = Connect(callback_);
   } else {
     result = MapPosixError(error_code);
     socket_watcher_.StopWatchingFileDescriptor();
@@ -303,13 +303,13 @@ void TCPClientSocketLibevent::DidCompleteConnect() {
   }
 
   if (result != ERR_IO_PENDING) {
-    DoReadCallback(result);
+    DoCallback(result);
   }
 }
 
-void TCPClientSocketLibevent::DidCompleteRead() {
+void TCPClientSocket::DidCompleteRead() {
   int bytes_transferred;
-  bytes_transferred = read(socket_, read_buf_, read_buf_len_);
+  bytes_transferred = read(socket_, buf_, buf_len_);
 
   int result;
   if (bytes_transferred >= 0) {
@@ -321,14 +321,14 @@ void TCPClientSocketLibevent::DidCompleteRead() {
   }
 
   if (result != ERR_IO_PENDING) {
-    read_buf_ = NULL;
-    read_buf_len_ = 0;
+    buf_ = NULL;
+    buf_len_ = 0;
     socket_watcher_.StopWatchingFileDescriptor();
-    DoReadCallback(result);
+    DoCallback(result);
   }
 }
 
-void TCPClientSocketLibevent::DidCompleteWrite() {
+void TCPClientSocket::DidCompleteWrite() {
   int bytes_transferred;
   bytes_transferred = write(socket_, write_buf_, write_buf_len_);
 
@@ -349,15 +349,15 @@ void TCPClientSocketLibevent::DidCompleteWrite() {
   }
 }
 
-void TCPClientSocketLibevent::OnFileCanReadWithoutBlocking(int fd) {
+void TCPClientSocket::OnFileCanReadWithoutBlocking(int fd) {
   // When a socket connects it signals both Read and Write, we handle
   // DidCompleteConnect() in the write handler.
-  if (!waiting_connect_ && read_callback_) {
+  if (!waiting_connect_ && callback_) {
     DidCompleteRead();
   }
 }
 
-void TCPClientSocketLibevent::OnFileCanWriteWithoutBlocking(int fd) {
+void TCPClientSocket::OnFileCanWriteWithoutBlocking(int fd) {
   if (waiting_connect_) {
     DidCompleteConnect();
   } else if (write_callback_) {
@@ -365,8 +365,7 @@ void TCPClientSocketLibevent::OnFileCanWriteWithoutBlocking(int fd) {
   }
 }
 
-int TCPClientSocketLibevent::GetPeerName(struct sockaddr *name,
-                                         socklen_t *namelen) {
+int TCPClientSocket::GetPeerName(struct sockaddr *name, socklen_t *namelen) {
   return ::getpeername(socket_, name, namelen);
 }
 
