@@ -56,6 +56,37 @@ bool VerifyRect(const PlatformCanvas& canvas,
   return true;
 }
 
+bool IsOfColor(const SkBitmap& bitmap, int x, int y, uint32_t color) {
+  // For masking out the alpha values.
+  static uint32_t alpha_mask = 0xFF << SK_A32_SHIFT;
+  return (*bitmap.getAddr32(x, y) | alpha_mask) == (color | alpha_mask);
+}
+
+// Return true if canvas has something that passes for a rounded-corner
+// rectangle. Basically, we're just checking to make sure that the pixels in the
+// middle are of rect_color and pixels in the corners are of canvas_color.
+bool VerifyRoundedRect(const PlatformCanvas& canvas,
+                       uint32_t canvas_color, uint32_t rect_color,
+                       int x, int y, int w, int h) {
+  PlatformDevice& device = canvas.getTopPlatformDevice();
+  const SkBitmap& bitmap = device.accessBitmap(false);
+  SkAutoLockPixels lock(bitmap);
+
+  // Check corner points first. They should be of canvas_color.
+  if (!IsOfColor(bitmap, x, y, canvas_color)) return false;
+  if (!IsOfColor(bitmap, x + w, y, canvas_color)) return false;
+  if (!IsOfColor(bitmap, x, y + h, canvas_color)) return false;
+  if (!IsOfColor(bitmap, x + w, y, canvas_color)) return false;
+
+  // Check middle points. They should be of rect_color.
+  if (!IsOfColor(bitmap, (x + w / 2), y, rect_color)) return false;
+  if (!IsOfColor(bitmap, x, (y + h / 2), rect_color)) return false;
+  if (!IsOfColor(bitmap, x + w, (y + h / 2), rect_color)) return false;
+  if (!IsOfColor(bitmap, (x + w / 2), y + h, rect_color)) return false;
+
+  return true;
+}
+
 // Checks whether there is a white canvas with a black square at the given
 // location in pixels (not in the canvas coordinate system).
 bool VerifyBlackRect(const PlatformCanvas& canvas, int x, int y, int w, int h) {
@@ -151,6 +182,9 @@ const int kInnerX = 4;
 const int kInnerY = 5;
 const int kInnerW = 2;
 const int kInnerH = 3;
+
+// Radius used by some tests to draw a rounded-corner rectangle.
+const SkScalar kRadius = 2.0;
 
 }
 
@@ -313,17 +347,44 @@ TEST(PlatformCanvas, TranslateLayer) {
   canvas.translate(1, 1);
   {
     LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
+    canvas.drawColor(SK_ColorWHITE);
     canvas.translate(1, 1);
-    AddClip(canvas, kInnerX, kInnerY, kInnerW, kInnerH);
+    AddClip(canvas, kInnerX + 1, kInnerY + 1, kInnerW - 1, kInnerH - 1);
     DrawNativeRect(canvas, 0, 0, 100, 100);
 #if defined(OS_WIN)
-    canvas.getTopPlatformDevice().makeOpaque(kInnerX, kInnerY,
-                                             kInnerW, kInnerH);
+    canvas.getTopPlatformDevice().makeOpaque(kLayerX, kLayerY,
+                                             kLayerW, kLayerH);
 #endif
   }
   canvas.restore();
-  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX + 2, kInnerY + 2,
-                              kInnerW, kInnerH));
+  EXPECT_TRUE(VerifyBlackRect(canvas, kInnerX + 3, kInnerY + 3,
+                              kInnerW - 1, kInnerH - 1));
+
+  // Translate both before and after, and have a path clip.
+  canvas.drawColor(SK_ColorWHITE);
+  canvas.save();
+  canvas.translate(1, 1);
+  {
+    LayerSaver layer(canvas, kLayerX, kLayerY, kLayerW, kLayerH);
+    canvas.drawColor(SK_ColorWHITE);
+    canvas.translate(1, 1);
+
+    SkPath path;
+    SkRect rect;
+    rect.iset(kInnerX - 1, kInnerY - 1,
+              kInnerX + kInnerW, kInnerY + kInnerH);
+    path.addRoundRect(rect, kRadius, kRadius);
+    canvas.clipPath(path);
+
+    DrawNativeRect(canvas, 0, 0, 100, 100);
+#if defined(OS_WIN)
+    canvas.getTopPlatformDevice().makeOpaque(kLayerX, kLayerY,
+                                             kLayerW, kLayerH);
+#endif
+  }
+  canvas.restore();
+  EXPECT_TRUE(VerifyRoundedRect(canvas, SK_ColorWHITE, SK_ColorBLACK,
+                                kInnerX + 1, kInnerY + 1, kInnerW, kInnerH));
 }
 
 }  // namespace skia

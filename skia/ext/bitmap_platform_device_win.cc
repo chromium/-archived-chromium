@@ -159,9 +159,6 @@ void BitmapPlatformDeviceWin::BitmapPlatformDeviceWinData::LoadConfig() {
   // Transform.
   SkMatrix t(transform_);
   LoadTransformToDC(hdc_, t);
-  // We don't use transform_ for the clipping region since the translation is
-  // already applied to offset_x_ and offset_y_.
-  t.reset();
   LoadClippingRegionToDC(hdc_, clip_region_, t);
 }
 
