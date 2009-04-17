@@ -2,7 +2,6 @@
 // source code is governed by a BSD-style license that can be found in the
 // LICENSE file.
 
-
 #ifndef MEDIA_FILTERS_FFMPEG_VIDEO_DECODER_H_
 #define MEDIA_FILTERS_FFMPEG_VIDEO_DECODER_H_
 
@@ -16,8 +15,6 @@ struct AVCodecContext;
 struct AVFrame;
 
 namespace media {
-
-//------------------------------------------------------------------------------
 
 class FFmpegVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
  public:
@@ -37,10 +34,10 @@ class FFmpegVideoDecoder : public DecoderBase<VideoDecoder, VideoFrame> {
   virtual ~FFmpegVideoDecoder();
 
   bool EnqueueVideoFrame(VideoSurface::Format surface_format,
-                         const AVFrame& frame);
+                         const AVFrame* frame);
 
   void CopyPlane(size_t plane, const VideoSurface& surface,
-                 const AVFrame& frame);
+                 const AVFrame* frame);
 
   size_t width_;
   size_t height_;

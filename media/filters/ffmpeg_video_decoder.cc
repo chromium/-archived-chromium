@@ -9,7 +9,6 @@
 
 namespace media {
 
-
 FFmpegVideoDecoder::FFmpegVideoDecoder()
     : DecoderBase<VideoDecoder, VideoFrame>(NULL),
       width_(0),
@@ -66,10 +65,12 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
   const uint8_t* data_in = buffer->GetData();
   const size_t size_in = buffer->GetDataSize();
 
+  // We don't allocate AVFrame on the stack since different versions of FFmpeg
+  // may change the size of AVFrame, causing stack corruption.  The solution is
+  // to let FFmpeg allocate the structure via avcodec_alloc_frame().
   int decoded = 0;
-  AVFrame yuv_frame;
-  avcodec_get_frame_defaults(&yuv_frame);
-  int result = avcodec_decode_video(codec_context_, &yuv_frame, &decoded,
+  scoped_ptr_malloc<AVFrame, ScopedPtrAVFree> yuv_frame(avcodec_alloc_frame());
+  int result = avcodec_decode_video(codec_context_, yuv_frame.get(), &decoded,
                                     data_in, size_in);
 
   if (result < 0) {
@@ -101,13 +102,13 @@ void FFmpegVideoDecoder::OnDecode(Buffer* buffer) {
       host_->Error(PIPELINE_ERROR_DECODE);
       return;
   }
-  if (!EnqueueVideoFrame(surface_format, yuv_frame)) {
+  if (!EnqueueVideoFrame(surface_format, yuv_frame.get())) {
     host_->Error(PIPELINE_ERROR_DECODE);
   }
 }
 
 bool FFmpegVideoDecoder::EnqueueVideoFrame(VideoSurface::Format surface_format,
-                                           const AVFrame& frame) {
+                                           const AVFrame* frame) {
   // Dequeue the next time tuple and create a VideoFrame object with
   // that timestamp and duration.
   TimeTuple time = time_queue_.top();
@@ -138,11 +139,11 @@ bool FFmpegVideoDecoder::EnqueueVideoFrame(VideoSurface::Format surface_format,
 
 void FFmpegVideoDecoder::CopyPlane(size_t plane,
                                    const VideoSurface& surface,
-                                   const AVFrame& frame) {
+                                   const AVFrame* frame) {
   DCHECK(surface.width % 4 == 0);
   DCHECK(surface.height % 2 == 0);
-  const uint8* source = frame.data[plane];
-  const size_t source_stride = frame.linesize[plane];
+  const uint8* source = frame->data[plane];
+  const size_t source_stride = frame->linesize[plane];
   uint8* dest = surface.data[plane];
   const size_t dest_stride = surface.strides[plane];
   size_t bytes_per_line = surface.width;

@@ -183,15 +183,16 @@ bool FFmpegDemuxerStream::FulfillPendingReads() {
 // FFmpegDemuxer
 //
 FFmpegDemuxer::FFmpegDemuxer()
-    : format_context_(NULL),
-      thread_("DemuxerThread") {
+    : thread_("DemuxerThread") {
 }
 
 FFmpegDemuxer::~FFmpegDemuxer() {
   Stop();
-  if (format_context_) {
-    av_free(format_context_);
-  }
+  // TODO(scherkus): I believe we need to use av_close_input_file() here
+  // instead of scoped_ptr_malloc calling av_free().
+  //
+  // Note that av_close_input_file() doesn't close the codecs so we need to
+  // figure out who's responsible for closing the them.
 }
 
 void FFmpegDemuxer::PostDemuxTask() {
@@ -222,8 +223,9 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
   std::string key = FFmpegGlue::get()->AddDataSource(data_source);
 
   // Open FFmpeg AVFormatContext.
-  DCHECK(!format_context_);
-  int result = av_open_input_file(&format_context_, key.c_str(), NULL, 0, NULL);
+  DCHECK(!format_context_.get());
+  AVFormatContext* context = NULL;
+  int result = av_open_input_file(&context, key.c_str(), NULL, 0, NULL);
 
   // Remove our data source.
   FFmpegGlue::get()->RemoveDataSource(data_source);
@@ -233,8 +235,12 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
     return false;
   }
 
+  // Assign to our scoped_ptr_malloc.
+  DCHECK(context);
+  format_context_.reset(context);
+
   // Fully initialize AVFormatContext by parsing the stream a little.
-  result = av_find_stream_info(format_context_);
+  result = av_find_stream_info(format_context_.get());
   if (result < 0) {
     host_->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
     return false;
@@ -293,7 +299,8 @@ void FFmpegDemuxer::SeekTask(base::TimeDelta time) {
     flags |= AVSEEK_FLAG_BACKWARD;
   }
 
-  if (av_seek_frame(format_context_, -1, time.InMicroseconds(), flags) < 0) {
+  if (av_seek_frame(format_context_.get(), -1, time.InMicroseconds(),
+                    flags) < 0) {
     // TODO(scherkus): signal error.
     NOTIMPLEMENTED();
   }
@@ -307,7 +314,7 @@ void FFmpegDemuxer::DemuxTask() {
 
   // Allocate and read an AVPacket from the media.
   scoped_ptr<AVPacket> packet(new AVPacket());
-  int result = av_read_frame(format_context_, packet.get());
+  int result = av_read_frame(format_context_.get(), packet.get());
   if (result < 0) {
     // TODO(scherkus): handle end of stream by marking Buffer with the end
     // of stream flag.

@@ -9,13 +9,13 @@
 
 namespace media {
 
+// Size of the decoded audio buffer.
 const size_t FFmpegAudioDecoder::kOutputBufferSize =
     AVCODEC_MAX_AUDIO_FRAME_SIZE;
 
 FFmpegAudioDecoder::FFmpegAudioDecoder()
     : DecoderBase<AudioDecoder, Buffer>(NULL),
-      codec_context_(NULL),
-      output_buffer_(NULL) {
+      codec_context_(NULL) {
 }
 
 FFmpegAudioDecoder::~FFmpegAudioDecoder() {
@@ -64,8 +64,8 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   }
 
   // Prepare the output buffer.
-  output_buffer_ = static_cast<uint8*>(av_malloc(kOutputBufferSize));
-  if (!output_buffer_) {
+  output_buffer_.reset(static_cast<uint8*>(av_malloc(kOutputBufferSize)));
+  if (!output_buffer_.get()) {
     host_->Error(PIPELINE_ERROR_OUT_OF_MEMORY);
     return false;
   }
@@ -73,20 +73,16 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
 }
 
 void FFmpegAudioDecoder::OnStop() {
-  if (output_buffer_)
-    av_free(output_buffer_);
 }
 
 void FFmpegAudioDecoder::OnDecode(Buffer* input) {
-  const uint8_t* input_buffer = input->GetData();
-  size_t input_buffer_size = input->GetDataSize();
-
+  int16_t* output_buffer = reinterpret_cast<int16_t*>(output_buffer_.get());
   int output_buffer_size = kOutputBufferSize;
   int result = avcodec_decode_audio2(codec_context_,
-                                     reinterpret_cast<int16_t*>(output_buffer_),
+                                     output_buffer,
                                      &output_buffer_size,
-                                     input_buffer,
-                                     input_buffer_size);
+                                     input->GetData(),
+                                     input->GetDataSize());
 
   if (result < 0 || output_buffer_size > kOutputBufferSize) {
     host_->Error(PIPELINE_ERROR_DECODE);
@@ -96,7 +92,7 @@ void FFmpegAudioDecoder::OnDecode(Buffer* input) {
   } else {
     DataBuffer* result_buffer = new DataBuffer();
     memcpy(result_buffer->GetWritableData(output_buffer_size),
-      output_buffer_, output_buffer_size);
+           output_buffer, output_buffer_size);
     result_buffer->SetTimestamp(input->GetTimestamp());
     result_buffer->SetDuration(input->GetDuration());
     EnqueueResult(result_buffer);

@@ -115,7 +115,9 @@ int av_find_stream_info(AVFormatContext* format) {
 }
 
 void av_free(void* ptr) {
-  EXPECT_EQ(&g_format, ptr);
+  if (ptr) {
+    EXPECT_EQ(&g_format, ptr);
+  }
 }
 
 int av_read_frame(AVFormatContext* format, AVPacket* packet) {

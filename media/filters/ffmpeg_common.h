@@ -22,6 +22,15 @@ MSVC_POP_WARNING();
 
 namespace media {
 
+// Wraps FFmpeg's av_free() in a class that can be passed as a template argument
+// to scoped_ptr_malloc.
+class ScopedPtrAVFree {
+ public:
+  inline void operator()(void* x) const {
+    av_free(x);
+  }
+};
+
 // MediaFormat key identifying the CodecID.
 extern const char kFFmpegCodecID[];
 

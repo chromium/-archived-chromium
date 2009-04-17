@@ -41,6 +41,9 @@ namespace media {
 
 class FFmpegDemuxer;
 
+// Forward declaration for scoped_ptr_malloc.
+class ScopedPtrAVFree;
+
 class FFmpegDemuxerStream : public DemuxerStream {
  public:
   // Maintains a reference to |demuxer| and initializes itself using information
@@ -138,7 +141,7 @@ class FFmpegDemuxer : public Demuxer {
   bool StreamsHavePendingReads();
 
   // FFmpeg context handle.
-  AVFormatContext* format_context_;
+  scoped_ptr_malloc<AVFormatContext, ScopedPtrAVFree> format_context_;
 
   // Latest timestamp read on the demuxer thread.
   base::TimeDelta current_timestamp_;
