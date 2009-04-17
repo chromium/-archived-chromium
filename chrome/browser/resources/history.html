@@ -651,7 +651,7 @@ PageState.prototype.getHashData = function() {
   for (var i = 0; i < hashSplit.length; i++) {
     var pair = hashSplit[i].split("=");
     if (pair.length > 1) {
-      result[pair[0]] = decodeURIComponent(pair[1]);
+      result[pair[0]] = decodeURIComponent(pair[1].replace(/\+/g, ' '));
     }
   }
 
@@ -668,10 +668,9 @@ PageState.prototype.getHashData = function() {
 PageState.prototype.setUIState = function(term, page) {
   // Make sure the form looks pretty.
   document.forms[0].term.value = term;
-
-  var hash = PageState.getHashString(term, page);
-  if (window.location.hash.substr(1) != hash) {
-    window.location.hash = hash;
+  var currentHash = this.getHashData();
+  if (currentHash.q != term || currentHash.p != page) {
+    window.location.hash = PageState.getHashString(term, page);
   }
 }
 
