@@ -401,18 +401,14 @@ CustomDrawButton* BrowserToolbarGtk::MakeHomeButton() {
 }
 
 void BrowserToolbarGtk::InitNineBox() {
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
-
-  GdkPixbuf* images[9] = {
-    rb.GetPixbufNamed(IDR_CONTENT_TOP_LEFT_CORNER),
-    rb.GetPixbufNamed(IDR_CONTENT_TOP_CENTER),
-    rb.GetPixbufNamed(IDR_CONTENT_TOP_RIGHT_CORNER),
-    rb.GetPixbufNamed(IDR_CONTENT_LEFT_SIDE),
-    NULL,
-    rb.GetPixbufNamed(IDR_CONTENT_RIGHT_SIDE),
-    rb.GetPixbufNamed(IDR_CONTENT_BOTTOM_LEFT_CORNER),
-    rb.GetPixbufNamed(IDR_CONTENT_BOTTOM_CENTER),
-    rb.GetPixbufNamed(IDR_CONTENT_BOTTOM_RIGHT_CORNER)
-  };
-  background_ninebox_.reset(new NineBox(images));
+  background_ninebox_.reset(new NineBox(
+      IDR_CONTENT_TOP_LEFT_CORNER,
+      IDR_CONTENT_TOP_CENTER,
+      IDR_CONTENT_TOP_RIGHT_CORNER,
+      IDR_CONTENT_LEFT_SIDE,
+      0,
+      IDR_CONTENT_RIGHT_SIDE,
+      IDR_CONTENT_BOTTOM_LEFT_CORNER,
+      IDR_CONTENT_BOTTOM_CENTER,
+      IDR_CONTENT_BOTTOM_RIGHT_CORNER));
 }

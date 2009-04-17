@@ -20,9 +20,10 @@
 // nineboxes.
 class NineBox {
  public:
-  // Construct a NineBox with nine images.  NULL images are allowed.
-  // Takes ownership of each image, but not the |images| array.
-  NineBox(GdkPixbuf* images[9]);
+  // Construct a NineBox with nine images.  Images are specified using resource
+  // ids that will be passed to the resource bundle.  Use 0 for no image.
+  NineBox(int top_left, int top, int top_right, int left, int center, int right,
+          int bottom_left, int bottom, int bottom_right);
   ~NineBox();
 
   // Render the NineBox to |dst|.

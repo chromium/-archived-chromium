@@ -13,7 +13,6 @@
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
-#include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
@@ -222,80 +221,53 @@ void DownloadItemGtk::InitNineBoxes() {
   if (body_nine_box_normal_)
     return;
 
-  GdkPixbuf* images[9];
-  ResourceBundle &rb = ResourceBundle::GetSharedInstance();
+  body_nine_box_normal_ = new NineBox(
+      IDR_DOWNLOAD_BUTTON_LEFT_TOP,
+      IDR_DOWNLOAD_BUTTON_CENTER_TOP,
+      IDR_DOWNLOAD_BUTTON_RIGHT_TOP,
+      IDR_DOWNLOAD_BUTTON_LEFT_MIDDLE,
+      IDR_DOWNLOAD_BUTTON_CENTER_MIDDLE,
+      IDR_DOWNLOAD_BUTTON_RIGHT_MIDDLE,
+      IDR_DOWNLOAD_BUTTON_LEFT_BOTTOM,
+      IDR_DOWNLOAD_BUTTON_CENTER_BOTTOM,
+      IDR_DOWNLOAD_BUTTON_RIGHT_BOTTOM);
 
-  int i = 0;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_TOP);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_TOP);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_TOP);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_MIDDLE);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_MIDDLE);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_MIDDLE);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_BOTTOM);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_BOTTOM);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_BOTTOM);
-  body_nine_box_normal_ = new NineBox(images);
+  body_nine_box_prelight_ = new NineBox(
+      IDR_DOWNLOAD_BUTTON_LEFT_TOP_H,
+      IDR_DOWNLOAD_BUTTON_CENTER_TOP_H,
+      IDR_DOWNLOAD_BUTTON_RIGHT_TOP_H,
+      IDR_DOWNLOAD_BUTTON_LEFT_MIDDLE_H,
+      IDR_DOWNLOAD_BUTTON_CENTER_MIDDLE_H,
+      IDR_DOWNLOAD_BUTTON_RIGHT_MIDDLE_H,
+      IDR_DOWNLOAD_BUTTON_LEFT_BOTTOM_H,
+      IDR_DOWNLOAD_BUTTON_CENTER_BOTTOM_H,
+      IDR_DOWNLOAD_BUTTON_RIGHT_BOTTOM_H);
 
-  i = 0;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_TOP_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_TOP_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_TOP_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_MIDDLE_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_MIDDLE_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_MIDDLE_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_BOTTOM_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_BOTTOM_H);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_BOTTOM_H);
-  body_nine_box_prelight_ = new NineBox(images);
+  body_nine_box_active_ = new NineBox(
+      IDR_DOWNLOAD_BUTTON_LEFT_TOP_P,
+      IDR_DOWNLOAD_BUTTON_CENTER_TOP_P,
+      IDR_DOWNLOAD_BUTTON_RIGHT_TOP_P,
+      IDR_DOWNLOAD_BUTTON_LEFT_MIDDLE_P,
+      IDR_DOWNLOAD_BUTTON_CENTER_MIDDLE_P,
+      IDR_DOWNLOAD_BUTTON_RIGHT_MIDDLE_P,
+      IDR_DOWNLOAD_BUTTON_LEFT_BOTTOM_P,
+      IDR_DOWNLOAD_BUTTON_CENTER_BOTTOM_P,
+      IDR_DOWNLOAD_BUTTON_RIGHT_BOTTOM_P);
 
-  i = 0;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_TOP_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_TOP_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_TOP_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_MIDDLE_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_MIDDLE_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_MIDDLE_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_LEFT_BOTTOM_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_CENTER_BOTTOM_P);
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_RIGHT_BOTTOM_P);
-  body_nine_box_active_ = new NineBox(images);
+  menu_nine_box_normal_ = new NineBox(
+      IDR_DOWNLOAD_BUTTON_MENU_TOP, 0, 0,
+      IDR_DOWNLOAD_BUTTON_MENU_MIDDLE, 0, 0,
+      IDR_DOWNLOAD_BUTTON_MENU_BOTTOM, 0, 0);
 
-  i = 0;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_TOP);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_MIDDLE);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_BOTTOM);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  menu_nine_box_normal_ = new NineBox(images);
+  menu_nine_box_prelight_ = new NineBox(
+      IDR_DOWNLOAD_BUTTON_MENU_TOP_H, 0, 0,
+      IDR_DOWNLOAD_BUTTON_MENU_MIDDLE_H, 0, 0,
+      IDR_DOWNLOAD_BUTTON_MENU_BOTTOM_H, 0, 0);
 
-  i = 0;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_TOP_H);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_MIDDLE_H);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_BOTTOM_H);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  menu_nine_box_prelight_ = new NineBox(images);
-
-  i = 0;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_TOP_P);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_MIDDLE_P);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  images[i++] = rb.GetPixbufNamed(IDR_DOWNLOAD_BUTTON_MENU_BOTTOM_P);
-  images[i++] = NULL;
-  images[i++] = NULL;
-  menu_nine_box_active_ = new NineBox(images);
+  menu_nine_box_active_ = new NineBox(
+      IDR_DOWNLOAD_BUTTON_MENU_TOP_P, 0, 0,
+      IDR_DOWNLOAD_BUTTON_MENU_MIDDLE_P, 0, 0,
+      IDR_DOWNLOAD_BUTTON_MENU_BOTTOM_P, 0, 0);
 }
 
 // static
