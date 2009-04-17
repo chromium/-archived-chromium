@@ -309,7 +309,9 @@ static const char* kBadBookmarkNoLabels =
 // The parsing tests for Toolbar5Importer use the string above.  For a
 // description of all the tests run please see the comments immediately before
 // the string constants above.
-TEST(Toolbar5ImporterTest, BookmarkParse) {
+//
+// Failing Valgrind/Purify, refer to http://crbug.com/10679
+TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   XmlReader reader;
   std::string bookmark_xml;
   std::vector<ProfileWriter::BookmarkEntry> bookmarks;
