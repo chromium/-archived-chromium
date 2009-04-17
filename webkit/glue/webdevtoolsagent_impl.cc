@@ -41,7 +41,8 @@ static const size_t kMaxConsoleMessages = 200;
 WebDevToolsAgentImpl::WebDevToolsAgentImpl(
     WebViewImpl* web_view_impl,
     WebDevToolsAgentDelegate* delegate)
-    : delegate_(delegate),
+    : host_id_(delegate->GetHostId()),
+      delegate_(delegate),
       web_view_impl_(web_view_impl),
       document_(NULL),
       attached_(false) {
@@ -246,6 +247,11 @@ void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {
 // static
 void WebDevToolsAgent::ExecuteDebuggerCommand(
     const std::string& command,
-    WebDevToolsAgent* webdevtools_agent) {
-  DebuggerAgentManager::ExecuteDebuggerCommand(command, webdevtools_agent);
+    int caller_id) {
+  DebuggerAgentManager::ExecuteDebuggerCommand(command, caller_id);
+}
+
+// static
+void WebDevToolsAgent::ScheduleMessageDispatch(Message* message) {
+  DebuggerAgentManager::ScheduleMessageDispatch(message);
 }

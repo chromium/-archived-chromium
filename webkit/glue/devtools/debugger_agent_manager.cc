@@ -15,6 +15,7 @@
 #include "base/values.h"
 #include "webkit/glue/devtools/debugger_agent_impl.h"
 #include "webkit/glue/devtools/debugger_agent_manager.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 
 #if USE(V8)
 #include "v8/include/v8-debug.h"
@@ -32,6 +33,15 @@ void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
 #endif
 }
 
+void DebuggerAgentManager::V8DebugHostDispatchHandler(
+    void* dispatch,
+    void* data) {
+  WebDevToolsAgent::Message* m =
+      reinterpret_cast<WebDevToolsAgent::Message*>(dispatch);
+  m->Dispatch();
+  delete m;
+}
+
 // static
 DebuggerAgentManager::AttachedAgentsSet*
     DebuggerAgentManager::attached_agents_ = NULL;
@@ -45,6 +55,9 @@ void DebuggerAgentManager::DebugAttach(DebuggerAgentImpl* debugger_agent) {
         &DebuggerAgentManager::V8DebugMessageHandler,
         NULL, /* no additional data */
         false /* don't create separate thread for sending debugger output */);
+    v8::Debug::SetHostDispatchHandler(
+        &DebuggerAgentManager::V8DebugHostDispatchHandler,
+        NULL /* no additional data */);
   }
   attached_agents_->add(debugger_agent);
 #endif
@@ -61,6 +74,7 @@ void DebuggerAgentManager::DebugDetach(DebuggerAgentImpl* debugger_agent) {
   attached_agents_->remove(debugger_agent);
   if (attached_agents_->isEmpty()) {
     v8::Debug::SetMessageHandler(NULL);
+    v8::Debug::SetHostDispatchHandler(NULL);
     delete attached_agents_;
     attached_agents_ = NULL;
   }
@@ -126,8 +140,8 @@ bool DebuggerAgentManager::SendCommandResponse(DictionaryValue* response) {
     return false;
   }
 
-  int agent_ptr;
-  if (!request_seq->GetInteger(L"webdevtools_agent", &agent_ptr)) {
+  int caller_id;
+  if (!request_seq->GetInteger(L"caller_id", &caller_id)) {
     NOTREACHED();
     return false;
   }
@@ -140,7 +154,7 @@ bool DebuggerAgentManager::SendCommandResponse(DictionaryValue* response) {
   }
 
   DebuggerAgentImpl* debugger_agent = FindDebuggerAgentForToolsAgent(
-      reinterpret_cast<WebDevToolsAgent*>(agent_ptr));
+      caller_id);
   if (!debugger_agent) {
     return false;
   }
@@ -155,12 +169,20 @@ bool DebuggerAgentManager::SendCommandResponse(DictionaryValue* response) {
 // static
 void DebuggerAgentManager::ExecuteDebuggerCommand(
     const std::string& command,
-    WebDevToolsAgent* webdevtools_agent) {
+    int caller_id) {
   const std::string cmd = DebuggerAgentManager::ReplaceRequestSequenceId(
       command,
-      webdevtools_agent);
+      caller_id);
 
   SendCommandToV8(UTF8ToWide(cmd));
+}
+
+// static
+void DebuggerAgentManager::ScheduleMessageDispatch(
+    WebDevToolsAgent::Message* message) {
+#if USE(V8)
+  v8::Debug::SendHostDispatch(message);
+#endif
 }
 
 // static
@@ -195,7 +217,7 @@ DebuggerAgentImpl* DebuggerAgentManager::FindAgentForCurrentV8Context() {
 
 const std::string DebuggerAgentManager::ReplaceRequestSequenceId(
     const std::string& request,
-    WebDevToolsAgent* webdevtools_agent) {
+    int caller_id) {
   OwnPtr<Value> message(JSONReader::Read(request,
                                          false /* allow_trailing_comma */));
   if (!message.get()) {
@@ -219,8 +241,7 @@ const std::string DebuggerAgentManager::ReplaceRequestSequenceId(
 
   // TODO(yurys): get rid of this hack, handler pointer should be passed
   // into v8::Debug::SendCommand along with the command.
-  int agent_ptr = reinterpret_cast<int>(webdevtools_agent);
-  new_seq.Set(L"webdevtools_agent", Value::CreateIntegerValue(agent_ptr));
+  new_seq.SetInteger(L"caller_id", caller_id);
 
   // TODO(yurys): fix v8 parser so that it handle objects as ids correctly.
   std::string new_seq_str;
@@ -232,13 +253,11 @@ const std::string DebuggerAgentManager::ReplaceRequestSequenceId(
   return json;
 }
 
-// Note that we cannot safely dereference 'webdevtools_agent' bacause the
-// referenced agent may already have been detached and destroyed.
 DebuggerAgentImpl* DebuggerAgentManager::FindDebuggerAgentForToolsAgent(
-    WebDevToolsAgent* webdevtools_agent) {
+    int caller_id) {
   for (AttachedAgentsSet::iterator it = attached_agents_->begin();
        it != attached_agents_->end(); ++it) {
-    if ((*it)->webdevtools_agent() == webdevtools_agent) {
+    if ((*it)->webdevtools_agent()->host_id() == caller_id) {
       return *it;
     }
   }

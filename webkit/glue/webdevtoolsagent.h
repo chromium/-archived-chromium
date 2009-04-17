@@ -12,6 +12,15 @@
 // direct and delegate Apis to the host.
 class WebDevToolsAgent {
  public:
+  class Message {
+   public:
+    Message() {}
+    virtual ~Message() {}
+    virtual void Dispatch() = 0;
+   private:
+    DISALLOW_COPY_AND_ASSIGN(Message);
+  };
+
   WebDevToolsAgent() {}
   virtual ~WebDevToolsAgent() {}
 
@@ -24,9 +33,13 @@ class WebDevToolsAgent {
   virtual void InspectElement(int x, int y) = 0;
 
   // Asynchronously executes debugger command in the render thread.
-  // |webdevtools_agent| will be used for sending response.
+  // |caller_id| will be used for sending response.
   static void ExecuteDebuggerCommand(const std::string& command,
-                                     WebDevToolsAgent* webdevtools_agent);
+                                     int caller_id);
+
+  // Requests that debugger makes a callback on the render thread while on
+  // breakpoint. Takes ownership of message.
+  static void ScheduleMessageDispatch(Message* message);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgent);

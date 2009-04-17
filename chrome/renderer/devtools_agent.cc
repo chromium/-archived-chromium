@@ -9,19 +9,23 @@
 #include "chrome/renderer/render_view.h"
 #include "webkit/glue/webdevtoolsagent.h"
 
+// static
+std::map<int, DevToolsAgent*> DevToolsAgent::agent_for_routing_id_;
+
 DevToolsAgent::DevToolsAgent(int routing_id, RenderView* view)
     : routing_id_(routing_id),
       view_(view) {
+  agent_for_routing_id_[routing_id] = this;
 }
 
 DevToolsAgent::~DevToolsAgent() {
+  agent_for_routing_id_.erase(routing_id_);
 }
 
 // Called on the Renderer thread.
 bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(DevToolsAgent, message)
-    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnAttach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Detach, OnDetach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_RpcMessage, OnRpcMessage)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_InspectElement, OnInspectElement)
@@ -37,11 +41,18 @@ void DevToolsAgent::SendMessageToClient(const std::string& raw_msg) {
   view_->Send(m);
 }
 
-void DevToolsAgent::OnAttach() {
-  WebDevToolsAgent* web_agent = GetWebAgent();
-  if (web_agent) {
-    web_agent->Attach();
+int DevToolsAgent::GetHostId() {
+  return routing_id_;
+}
+
+// static
+DevToolsAgent* DevToolsAgent::FromHostId(int host_id) {
+  std::map<int, DevToolsAgent*>::iterator it =
+      agent_for_routing_id_.find(host_id);
+  if (it != agent_for_routing_id_.end()) {
+    return it->second;
   }
+  return NULL;
 }
 
 void DevToolsAgent::OnDetach() {

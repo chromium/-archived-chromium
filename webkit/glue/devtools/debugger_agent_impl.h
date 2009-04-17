@@ -8,7 +8,7 @@
 #include "v8.h"
 #include "webkit/glue/devtools/debugger_agent.h"
 
-class WebDevToolsAgent;
+class WebDevToolsAgentImpl;
 class WebViewImpl;
 
 namespace WebCore {
@@ -22,7 +22,7 @@ class DebuggerAgentImpl : public DebuggerAgent {
  public:
   DebuggerAgentImpl(WebViewImpl* web_view_impl,
                     DebuggerAgentDelegate* delegate,
-                    WebDevToolsAgent* webdevtools_agent);
+                    WebDevToolsAgentImpl* webdevtools_agent);
   virtual ~DebuggerAgentImpl();
 
   // Initializes dom agent with the given document.
@@ -42,13 +42,13 @@ class DebuggerAgentImpl : public DebuggerAgent {
       const WebCore::String& json_args);
 
   WebCore::Page* GetPage();
-  WebDevToolsAgent* webdevtools_agent() { return webdevtools_agent_; };
+  WebDevToolsAgentImpl* webdevtools_agent() { return webdevtools_agent_; };
 
  private:
   v8::Persistent<v8::Context> context_;
   WebViewImpl* web_view_impl_;
   DebuggerAgentDelegate* delegate_;
-  WebDevToolsAgent* webdevtools_agent_;
+  WebDevToolsAgentImpl* webdevtools_agent_;
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerAgentImpl);
 };

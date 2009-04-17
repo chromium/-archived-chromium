@@ -47,7 +47,6 @@ class AudioMessageFilter;
 class DictionaryValue;
 class DebugMessageHandler;
 class DevToolsAgent;
-class DevToolsAgentFilter;
 class DevToolsClient;
 class FilePath;
 class GURL;
@@ -742,9 +741,6 @@ class RenderView : public RenderWidget,
 
   // Provides access to this renderer from the remote Inspector UI.
   scoped_ptr<DevToolsAgent> devtools_agent_;
-
-  // Handles messages on the IO thread while Renderer is on breakpoint.
-  scoped_refptr<DevToolsAgentFilter> devtools_agent_filter_;
 
   // DevToolsClient for renderer hosting developer tools UI. It's NULL for other
   // render views.

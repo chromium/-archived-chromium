@@ -15,6 +15,9 @@ class WebDevToolsAgentDelegate {
 
   virtual void SendMessageToClient(const std::string& raw_msg) = 0;
 
+  // Returns the id of the entity hosting this agent.
+  virtual int GetHostId() = 0;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentDelegate);
 };

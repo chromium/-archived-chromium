@@ -25,6 +25,7 @@
 #include "chrome/plugin/plugin_channel_base.h"
 #include "webkit/glue/weburlrequest.h"
 #endif
+#include "chrome/renderer/devtools_agent_filter.h"
 #include "chrome/renderer/extensions/event_bindings.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
@@ -118,11 +119,14 @@ void RenderThread::Init() {
   histogram_snapshots_.reset(new RendererHistogramSnapshots());
   app_cache_dispatcher_.reset(new AppCacheDispatcher());
   WebAppCacheContext::SetFactory(CreateAppCacheContextForRenderer);
+  devtools_agent_filter_ = new DevToolsAgentFilter();
+  AddFilter(devtools_agent_filter_.get());
 }
 
 void RenderThread::CleanUp() {
   // Shutdown in reverse of the initialization order.
-
+  RemoveFilter(devtools_agent_filter_.get());
+  devtools_agent_filter_ = NULL;
   WebAppCacheContext::SetFactory(NULL);
   app_cache_dispatcher_.reset();
   histogram_snapshots_.reset();

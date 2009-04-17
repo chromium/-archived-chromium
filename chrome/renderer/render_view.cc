@@ -31,7 +31,6 @@
 #include "chrome/renderer/audio_message_filter.h"
 #include "chrome/renderer/debug_message_handler.h"
 #include "chrome/renderer/devtools_agent.h"
-#include "chrome/renderer/devtools_agent_filter.h"
 #include "chrome/renderer/devtools_client.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/localized_error.h"
@@ -191,7 +190,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       ALLOW_THIS_IN_INITIALIZER_LIST(method_factory_(this)),
       first_default_plugin_(NULL),
       devtools_agent_(NULL),
-      devtools_agent_filter_(NULL),
       devtools_client_(NULL),
       history_back_list_count_(0),
       history_forward_list_count_(0),
@@ -218,8 +216,6 @@ RenderView::~RenderView() {
   }
 
   render_thread_->RemoveFilter(debug_message_handler_);
-  if (devtools_agent_filter_.get())
-    render_thread_->RemoveFilter(devtools_agent_filter_);
   render_thread_->RemoveFilter(audio_message_filter_);
 
 #ifdef CHROME_PERSONALIZATION
@@ -316,11 +312,6 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   webwidget_ = WebView::Create(this, webkit_prefs);
 
-  if (dev_tools_enabled)
-    devtools_agent_filter_ = new DevToolsAgentFilter(
-        webview()->GetWebDevToolsAgent(),
-        routing_id);
-
 #if defined(OS_LINUX)
   // We have to enable ourselves as the editor delegate on linux so we can copy
   // text selections to the X clipboard.
@@ -355,8 +346,6 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
-  if (dev_tools_enabled)
-    render_thread_->AddFilter(devtools_agent_filter_);
 
   audio_message_filter_ = new AudioMessageFilter(routing_id_);
   render_thread_->AddFilter(audio_message_filter_);
@@ -369,8 +358,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
 
   // If this is developer tools renderer intercept tools messages first.
   if (devtools_client_.get() && devtools_client_->OnMessageReceived(message))
-    return;
-  if (devtools_agent_.get() && devtools_agent_->OnMessageReceived(message))
     return;
 
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)

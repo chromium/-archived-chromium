@@ -10,10 +10,10 @@
 
 #include "base/basictypes.h"
 #include "v8/include/v8-debug.h"
+#include "webkit/glue/webdevtoolsagent.h"
 
 class DebuggerAgentImpl;
 class DictionaryValue;
-class WebDevToolsAgent;
 
 // There is single v8 instance per render process. Also there may be several
 // RenderViews and consequently devtools agents in the process that want to talk
@@ -38,7 +38,11 @@ class DebuggerAgentManager {
   static void DebugCommand(const std::string& command);
 
   static void ExecuteDebuggerCommand(const std::string& command,
-                                     WebDevToolsAgent* webdevtools_agent);
+                                     int caller_id);
+
+  // Requests that debugger makes a callback on the render thread while on
+  // breakpoint.
+  static void ScheduleMessageDispatch(WebDevToolsAgent::Message* message);
 
  private:
   DebuggerAgentManager();
@@ -47,17 +51,18 @@ class DebuggerAgentManager {
   static void V8DebugMessageHandler(const uint16_t* message,
                                     int length,
                                     void* data);
+  static void V8DebugHostDispatchHandler(void* dispatch, void* data);
   static void DebuggerOutput(const std::string& out);
   static void SendCommandToV8(const std::wstring& cmd);
   static bool SendCommandResponse(DictionaryValue* response);
 
   static DebuggerAgentImpl* FindAgentForCurrentV8Context();
   static DebuggerAgentImpl* FindDebuggerAgentForToolsAgent(
-      WebDevToolsAgent* webdevtools_agent);
+      int caller_id);
 
   static const std::string ReplaceRequestSequenceId(
       const std::string& request,
-      WebDevToolsAgent* webdevtools_agent);
+      int caller_id);
 
   typedef HashSet<DebuggerAgentImpl*> AttachedAgentsSet;
   static AttachedAgentsSet* attached_agents_;

@@ -31,7 +31,7 @@ using WebCore::V8Proxy;
 DebuggerAgentImpl::DebuggerAgentImpl(
     WebViewImpl* web_view_impl,
     DebuggerAgentDelegate* delegate,
-    WebDevToolsAgent* webdevtools_agent)
+    WebDevToolsAgentImpl* webdevtools_agent)
     : web_view_impl_(web_view_impl),
       delegate_(delegate),
       webdevtools_agent_(webdevtools_agent) {

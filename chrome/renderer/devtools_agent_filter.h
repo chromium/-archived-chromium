@@ -5,6 +5,7 @@
 #ifndef CHROME_RENDERER_DEVTOOLS_AGENT_FILTER_H_
 #define CHROME_RENDERER_DEVTOOLS_AGENT_FILTER_H_
 
+#include <set>
 #include <string>
 
 #include "chrome/common/ipc_channel_proxy.h"
@@ -19,15 +20,8 @@ class WebDevToolsAgent;
 // is being used from this communication agent on the IO thread.
 class DevToolsAgentFilter : public IPC::ChannelProxy::MessageFilter {
  public:
-  // DevToolsAgentFilter is a field of the RenderView. The view is supposed
-  // to remove this agent from the message filter list on IO thread before
-  // dying.
-  //
-  // Note that the pointer to WebDevToolsAgent should never be dereferenced on
-  // the IO thread because it is destroyed asynchronously on the render thread.
-  // However the filter needs it to pass along with debugger command request
-  // to WebDevToolsAgent::ExecuteDebuggerCommand static method.
-  DevToolsAgentFilter(WebDevToolsAgent* webdevtools_agent, int routing_id);
+  // There is a single instance of this class instantiated by the RenderThread.
+  DevToolsAgentFilter();
   virtual ~DevToolsAgentFilter();
 
  private:
@@ -38,8 +32,17 @@ class DevToolsAgentFilter : public IPC::ChannelProxy::MessageFilter {
   // handle debug messages even when v8 is stopped.
   void OnDebuggerCommand(const std::string& command);
 
-  WebDevToolsAgent* webdevtools_agent_;
-  int routing_id_;  // View routing id that we can access from IO thread.
+  // Evaluates noop to kick the debugger.
+  void EvalNoop(int routing_id);
+
+  // Attaches agent.
+  void Attach(int routing_id);
+
+  static std::set<int> attached_routing_ids_;
+
+  int current_routing_id_;
+
+  bool devtools_enabled_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsAgentFilter);
 };

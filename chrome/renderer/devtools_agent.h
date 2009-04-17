@@ -5,6 +5,7 @@
 #ifndef CHROME_RENDERER_DEVTOOLS_AGENT_H_
 #define CHROME_RENDERER_DEVTOOLS_AGENT_H_
 
+#include <map>
 #include <string>
 
 #include "webkit/glue/webdevtoolsagent_delegate.h"
@@ -30,14 +31,23 @@ class DevToolsAgent : public WebDevToolsAgentDelegate {
 
   // WebDevToolsAgentDelegate implementation
   virtual void SendMessageToClient(const std::string& raw_msg);
+  virtual int GetHostId();
 
- private:
+  // Returns agent instance for its host id.
+  static DevToolsAgent* FromHostId(int host_id);
+
+  RenderView* render_view() { return view_; }
+
   WebDevToolsAgent* GetWebAgent();
 
-  void OnAttach();
+ private:
+  friend class DevToolsAgentFilter;
+
   void OnDetach();
   void OnRpcMessage(const std::string& raw_msg);
   void OnInspectElement(int x, int y);
+
+  static std::map<int, DevToolsAgent*> agent_for_routing_id_;
 
   int routing_id_; //  View routing id that we can access from IO thread.
   RenderView* view_;

@@ -71,6 +71,7 @@ class WebDevToolsAgentImpl
       const WebCore::String& source_id,
       unsigned int line_no);
 
+  int host_id() { return host_id_; }
   NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }
 
  private:
@@ -84,6 +85,7 @@ class WebDevToolsAgentImpl
     WebCore::String source_id;
     unsigned int line_no;
   };
+  int host_id_;
   WebDevToolsAgentDelegate* delegate_;
   WebViewImpl* web_view_impl_;
   WebCore::Document* document_;
