@@ -190,6 +190,10 @@
 			Name="TestSafeBrowsing"
 			>
 			<File
+				RelativePath="..\..\browser\safe_browsing\filter_false_positive_perftest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\safe_browsing\database_perftest.cc"
 				>
 			</File>
