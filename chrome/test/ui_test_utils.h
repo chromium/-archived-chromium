@@ -5,6 +5,8 @@
 #ifndef CHROME_TEST_UI_TEST_UTILS_H_
 #define CHROME_TEST_UI_TEST_UTILS_H_
 
+#include <string>
+
 #include "base/basictypes.h"
 #include "chrome/common/notification_observer.h"
 
