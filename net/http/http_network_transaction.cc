@@ -595,6 +595,8 @@ int HttpNetworkTransaction::DoTCPConnect() {
 
   DCHECK(!connection_.socket());
 
+  connect_start_time_ = base::Time::Now();
+
   ClientSocket* s = socket_factory_->CreateTCPClientSocket(addresses_);
   connection_.set_socket(s);
   return connection_.socket()->Connect(&io_callback_);
@@ -604,6 +606,7 @@ int HttpNetworkTransaction::DoTCPConnectComplete(int result) {
   // If we are using a direct SSL connection, then go ahead and establish the
   // SSL connection, now.  Otherwise, we need to first issue a CONNECT request.
   if (result == OK) {
+    LogTCPConnectionMetrics();
     if (using_ssl_ && !using_tunnel_) {
       next_state_ = STATE_SSL_CONNECT;
     } else {
@@ -958,6 +961,17 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
   }
 
   return OK;
+}
+
+void HttpNetworkTransaction::LogTCPConnectionMetrics() const {
+  DCHECK(connect_start_time_ != base::Time());
+  base::TimeDelta connect_duration =
+      base::Time::Now() - connect_start_time_;
+
+  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
+      "Net.TCP_Connection_Latency", "DnsImpact").data(), connect_duration,
+      base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+      100);
 }
 
 void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {
