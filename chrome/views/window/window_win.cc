@@ -286,30 +286,31 @@ void WindowWin::SetFullscreen(bool fullscreen) {
   if (fullscreen_ == fullscreen)
     return;  // Nothing to do.
 
-  // Toggle fullscreen mode.
-  fullscreen_ = fullscreen;
-
   // Reduce jankiness during the following position changes by hiding the window
   // until it's in the final position.
   PushForceHidden();
 
   // Size/position/style window appropriately.
-  HWND hwnd = GetNativeView();
-  if (fullscreen_) {
+  if (!fullscreen_) {
     // Save current window information.  We force the window into restored mode
     // before going fullscreen because Windows doesn't seem to hide the
     // taskbar if the window is in the maximized state.
     saved_window_info_.maximized = IsMaximized();
     if (saved_window_info_.maximized)
-      ExecuteSystemMenuCommand(SC_RESTORE);
+      Restore();
     saved_window_info_.style = GetWindowLong(GWL_STYLE);
     saved_window_info_.ex_style = GetWindowLong(GWL_EXSTYLE);
     GetWindowRect(&saved_window_info_.window_rect);
+  }
 
+  // Toggle fullscreen mode.
+  fullscreen_ = fullscreen;
+
+  if (fullscreen_) {
     // Set new window style and size.
     MONITORINFO monitor_info;
     monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST),
+    GetMonitorInfo(MonitorFromWindow(GetNativeView(), MONITOR_DEFAULTTONEAREST),
                    &monitor_info);
     gfx::Rect monitor_rect(monitor_info.rcMonitor);
     SetWindowLong(GWL_STYLE,
@@ -331,7 +332,7 @@ void WindowWin::SetFullscreen(bool fullscreen) {
                  new_rect.height(),
                  SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
     if (saved_window_info_.maximized)
-      ExecuteSystemMenuCommand(SC_MAXIMIZE);
+      Maximize();
   }
 
   // Undo our anti-jankiness hacks.
@@ -652,18 +653,19 @@ void WindowWin::OnInitMenu(HMENU menu) {
   if (non_client_view_->UseNativeFrame())
     WidgetWin::OnInitMenu(menu);
 
+  bool is_fullscreen = IsFullscreen();
   bool is_minimized = IsMinimized();
   bool is_maximized = IsMaximized();
-  bool is_restored = !is_minimized && !is_maximized;
+  bool is_restored = !is_fullscreen && !is_minimized && !is_maximized;
 
   ScopedRedrawLock lock(this);
-  EnableMenuItem(menu, SC_RESTORE, !is_restored);
+  EnableMenuItem(menu, SC_RESTORE, is_minimized || is_maximized);
   EnableMenuItem(menu, SC_MOVE, is_restored);
   EnableMenuItem(menu, SC_SIZE, window_delegate_->CanResize() && is_restored);
   EnableMenuItem(menu, SC_MAXIMIZE,
-                 window_delegate_->CanMaximize() && !is_maximized);
+      window_delegate_->CanMaximize() && !is_fullscreen && !is_maximized);
   EnableMenuItem(menu, SC_MINIMIZE,
-                 window_delegate_->CanMaximize() && !is_minimized);
+      window_delegate_->CanMaximize() && !is_minimized);
 }
 
 void WindowWin::OnMouseLeave() {
@@ -1045,10 +1047,16 @@ void WindowWin::OnSize(UINT size_param, const CSize& new_size) {
 }
 
 void WindowWin::OnSysCommand(UINT notification_code, CPoint click) {
+  // Windows uses the 4 lower order bits of |notification_code| for type-
+  // specific information so we must exclude this when comparing.
+  static const int sc_mask = 0xFFF0;
+  // Ignore size/move/maximize in fullscreen mode.
+  if (IsFullscreen() &&
+      (((notification_code & sc_mask) == SC_SIZE) ||
+       ((notification_code & sc_mask) == SC_MOVE) ||
+       ((notification_code & sc_mask) == SC_MAXIMIZE)))
+    return;
   if (!non_client_view_->UseNativeFrame()) {
-    // Windows uses the 4 lower order bits of |notification_code| for type-
-    // specific information so we must exclude this when comparing.
-    static const int sc_mask = 0xFFF0;
     if ((notification_code & sc_mask) == SC_MINIMIZE ||
         (notification_code & sc_mask) == SC_MAXIMIZE ||
         (notification_code & sc_mask) == SC_RESTORE) {
