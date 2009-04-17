@@ -81,7 +81,7 @@ class Browser : public TabStripModelDelegate,
   // Browser has a NULL window after its construction, CreateBrowserWindow must
   // be called after configuration for window() to be valid.
   Browser(Type type, Profile* profile);
-  ~Browser();
+  virtual ~Browser();
 
   // Creates a normal tabbed browser with the specified profile. The Browser's
   // window is created by this function call.
@@ -288,7 +288,7 @@ class Browser : public TabStripModelDelegate,
   void ShowFindBar();
 
   // Returns true if the Browser supports the specified feature.
-  bool SupportsWindowFeature(WindowFeature feature) const;
+  virtual bool SupportsWindowFeature(WindowFeature feature) const;
 
 // TODO(port): port these, and re-merge the two function declaration lists.
 #if defined(OS_WIN)
