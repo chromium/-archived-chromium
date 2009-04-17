@@ -531,7 +531,7 @@ bool EdgeHasTopmostAutoHideTaskbar(UINT edge, HMONITOR monitor) {
   taskbar_data.uEdge = edge;
   HWND taskbar = reinterpret_cast<HWND>(SHAppBarMessage(ABM_GETAUTOHIDEBAR,
                                                         &taskbar_data));
-  return ::IsWindow(taskbar) &&
+  return ::IsWindow(taskbar) && (monitor != NULL) &&
       (MonitorFromWindow(taskbar, MONITOR_DEFAULTTONULL) == monitor) &&
       (GetWindowLong(taskbar, GWL_EXSTYLE) & WS_EX_TOPMOST);
 }

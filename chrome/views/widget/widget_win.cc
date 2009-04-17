@@ -19,25 +19,6 @@
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
 
-namespace {
-
-bool GetMonitorAndWorkAreaForRect(const RECT& rect,
-                                  HMONITOR* monitor,
-                                  gfx::Rect* work_area) {
-  DCHECK(monitor);
-  DCHECK(work_area);
-  *monitor = MonitorFromRect(&rect, MONITOR_DEFAULTTONEAREST);
-  if (!*monitor)
-    return false;
-  MONITORINFO monitor_info = { 0 };
-  monitor_info.cbSize = sizeof(monitor_info);
-  GetMonitorInfo(*monitor, &monitor_info);
-  *work_area = monitor_info.rcWork;
-  return true;
-}
-
-}  // namespace
-
 namespace views {
 
 static const DWORD kWindowDefaultChildStyle =
@@ -121,7 +102,6 @@ static RegisteredClasses* registered_classes = NULL;
 
 WidgetWin::WidgetWin()
     : close_widget_factory_(this),
-      ignore_pos_changes_factory_(this),
       active_mouse_tracking_flags_(0),
       has_capture_(false),
       current_action_(FA_NONE),
@@ -134,9 +114,7 @@ WidgetWin::WidgetWin()
       last_mouse_event_was_move_(false),
       is_mouse_down_(false),
       class_style_(CS_DBLCLKS),
-      hwnd_(NULL),
-      last_monitor_(NULL),
-      ignore_window_pos_changes_(false) {
+      hwnd_(NULL) {
 }
 
 WidgetWin::~WidgetWin() {
@@ -169,9 +147,6 @@ void WidgetWin::Init(HWND parent, const gfx::Rect& bounds,
   DCHECK(hwnd_);
   TRACK_HWND_CREATION(hwnd_);
   SetWindowSupportsRerouteMouseWheel(hwnd_);
-
-  GetMonitorAndWorkAreaForRect(bounds.ToRECT(), &last_monitor_,
-                               &last_work_area_);
 
   // The window procedure should have set the data for us.
   DCHECK(win_util::GetWindowUserData(hwnd_) == this);
@@ -686,16 +661,6 @@ void WidgetWin::OnRButtonDblClk(UINT flags, const CPoint& point) {
   ProcessMousePressed(point, flags | MK_RBUTTON, true, false);
 }
 
-void WidgetWin::OnSettingChange(UINT flags, const wchar_t* section) {
-  if (!GetParent() && (flags == SPI_SETWORKAREA)) {
-    // Fire a dummy SetWindowPos() call, so we'll trip the code in
-    // OnWindowPosChanging() below that notices work area changes.
-    ::SetWindowPos(GetNativeView(), 0, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE |
-        SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
-    SetMsgHandled(TRUE);
-  }
-}
-
 void WidgetWin::OnSize(UINT param, const CSize& size) {
   ChangeSize(param, size);
 }
@@ -703,70 +668,6 @@ void WidgetWin::OnSize(UINT param, const CSize& size) {
 void WidgetWin::OnThemeChanged() {
   // Notify NativeTheme.
   gfx::NativeTheme::instance()->CloseHandles();
-}
-
-void WidgetWin::OnWindowPosChanging(WINDOWPOS* window_pos) {
-  if (ignore_window_pos_changes_) {
-    // If somebody's trying to toggle our visibility, change the nonclient area,
-    // change our Z-order, or activate us, we should probably let it go through.
-    if (!(window_pos->flags & ((IsVisible() ? SWP_HIDEWINDOW : SWP_SHOWWINDOW) |
-        SWP_FRAMECHANGED)) &&
-        (window_pos->flags & (SWP_NOZORDER | SWP_NOACTIVATE))) {
-      // Just sizing/moving the window; ignore.
-      window_pos->flags |= SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW;
-      window_pos->flags &= ~(SWP_SHOWWINDOW | SWP_HIDEWINDOW);
-    }
-  } else if (!GetParent()) {
-    CRect window_rect;
-    HMONITOR monitor;
-    gfx::Rect work_area;
-    if (GetWindowRect(&window_rect) &&
-        GetMonitorAndWorkAreaForRect(window_rect, &monitor, &work_area)) {
-      if ((monitor == last_monitor_) && (work_area != last_work_area_)) {
-        // The work area for the monitor we're on changed.  Normally Windows
-        // notifies us about this (and thus we're reaching here due to the
-        // SetWindowPos() call in OnSettingChange() above), but with some
-        // software (e.g. nVidia's nView desktop manager) the work area can
-        // change asynchronous to any notification, and we're just sent a
-        // SetWindowPos() call with a new (frequently incorrect) position/size.
-        // In either case, the best response is to throw away the existing
-        // position/size information in |window_pos| and recalculate it based on
-        // the old window coordinates, adjusted for the change in the work area.
-        if (IsZoomed()) {
-          window_pos->x = window_rect.left + work_area.x() - last_work_area_.x();
-          window_pos->y = window_rect.top + work_area.y() - last_work_area_.y();
-          window_pos->cx = window_rect.Width() + work_area.width() -
-              last_work_area_.width();
-          window_pos->cy = window_rect.Height() + work_area.height() -
-              last_work_area_.height();
-        } else {
-          gfx::Rect window_gfx_rect(window_rect);
-          gfx::Rect new_window_rect = window_gfx_rect.AdjustToFit(work_area);
-          window_pos->x = new_window_rect.x();
-          window_pos->y = new_window_rect.y();
-          window_pos->cx = new_window_rect.width();
-          window_pos->cy = new_window_rect.height();
-        }
-        // WARNING!  Don't set SWP_FRAMECHANGED here, it breaks moving the child
-        // HWNDs for some reason.
-        window_pos->flags &= ~(SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
-        window_pos->flags |= SWP_NOCOPYBITS;
-
-        // Now ignore all immediately-following SetWindowPos() changes.  Windows
-        // likes to (incorrectly) recalculate what our position/size should be
-        // and send us further updates.
-        ignore_window_pos_changes_ = true;
-        DCHECK(ignore_pos_changes_factory_.empty());
-        MessageLoop::current()->PostTask(FROM_HERE,
-            ignore_pos_changes_factory_.NewRunnableMethod(
-            &WidgetWin::StopIgnoringPosChanges));
-      }
-      last_monitor_ = monitor;
-      last_work_area_ = work_area;
-    }
-  }
-
-  SetMsgHandled(FALSE);
 }
 
 void WidgetWin::OnFinalMessage(HWND window) {

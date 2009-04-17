@@ -184,9 +184,10 @@ gfx::Point GlassBrowserFrameView::GetSystemMenuPoint() const {
     // (where we don't do this trick) maximized windows have no client edge and
     // only the frame edge is offscreen.
     system_menu_point.SetPoint(NonClientBorderThickness() -
-        (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0),
+        ((frame_->IsMaximized() || frame_->IsFullscreen()) ?
+         0 : kClientEdgeThickness),
         NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-        (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
+        (frame_->IsFullscreen() ? 0 : kClientEdgeThickness));
   } else {
     system_menu_point.SetPoint(0, -kFrameShadowThickness);
   }
@@ -239,16 +240,17 @@ void GlassBrowserFrameView::Layout() {
 // GlassBrowserFrameView, private:
 
 int GlassBrowserFrameView::FrameBorderThickness() const {
-  return browser_view_->CanCurrentlyResize() ?
-      GetSystemMetrics(SM_CXSIZEFRAME) : 0;
+  return (frame_->IsMaximized() || frame_->IsFullscreen()) ?
+      0 : GetSystemMetrics(SM_CXSIZEFRAME);
 }
 
 int GlassBrowserFrameView::NonClientBorderThickness() const {
-  return browser_view_->CanCurrentlyResize() ? kNonClientBorderThickness : 0;
+  return (frame_->IsMaximized() || frame_->IsFullscreen()) ?
+      0 : kNonClientBorderThickness;
 }
 
 int GlassBrowserFrameView::NonClientTopBorderHeight() const {
-  if (browser_view_->IsFullscreen())
+  if (frame_->IsFullscreen())
     return 0;
   // We'd like to use FrameBorderThickness() here, but the maximized Aero glass
   // frame has a 0 frame border around most edges and a CXSIZEFRAME-thick border

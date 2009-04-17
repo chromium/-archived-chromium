@@ -25,6 +25,28 @@
 #include "chrome/views/window/window_delegate.h"
 #include "grit/generated_resources.h"
 
+namespace {
+
+bool GetMonitorAndRects(const RECT& rect,
+                        HMONITOR* monitor,
+                        gfx::Rect* monitor_rect,
+                        gfx::Rect* work_area) {
+  DCHECK(monitor);
+  DCHECK(monitor_rect);
+  DCHECK(work_area);
+  *monitor = MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+  if (!*monitor)
+    return false;
+  MONITORINFO monitor_info = { 0 };
+  monitor_info.cbSize = sizeof(monitor_info);
+  GetMonitorInfo(*monitor, &monitor_info);
+  *monitor_rect = monitor_info.rcMonitor;
+  *work_area = monitor_info.rcWork;
+  return true;
+}
+
+}  // namespace
+
 namespace views {
 
 // A scoping class that prevents a window from being able to redraw in response
@@ -96,6 +118,19 @@ gfx::Rect WindowWin::GetBounds() const {
   return bounds;
 }
 
+gfx::Rect WindowWin::GetNormalBounds() const {
+  // If we're in fullscreen mode, we've changed the normal bounds to the monitor
+  // rect, so return the saved bounds instead.
+  if (IsFullscreen())
+    return gfx::Rect(saved_window_info_.window_rect);
+
+  WINDOWPLACEMENT wp;
+  wp.length = sizeof(wp);
+  const bool ret = !!GetWindowPlacement(GetNativeView(), &wp);
+  DCHECK(ret);
+  return gfx::Rect(wp.rcNormalPosition);
+}
+
 void WindowWin::SetBounds(const gfx::Rect& bounds) {
   SetBounds(bounds, NULL);
 }
@@ -136,6 +171,18 @@ int WindowWin::GetShowState() const {
 void WindowWin::ExecuteSystemMenuCommand(int command) {
   if (command)
     SendMessage(GetNativeView(), WM_SYSCOMMAND, command, 0);
+}
+
+void WindowWin::PushForceHidden() {
+  if (force_hidden_count_++ == 0)
+    Hide();
+}
+
+void WindowWin::PopForceHidden() {
+  if (--force_hidden_count_ <= 0) {
+    force_hidden_count_ = 0;
+    ShowWindow(SW_SHOW);
+  }
 }
 
 // static
@@ -233,6 +280,66 @@ bool WindowWin::IsMaximized() const {
 
 bool WindowWin::IsMinimized() const {
   return !!::IsIconic(GetNativeView());
+}
+
+void WindowWin::SetFullscreen(bool fullscreen) {
+  if (fullscreen_ == fullscreen)
+    return;  // Nothing to do.
+
+  // Toggle fullscreen mode.
+  fullscreen_ = fullscreen;
+
+  // Reduce jankiness during the following position changes by hiding the window
+  // until it's in the final position.
+  PushForceHidden();
+
+  // Size/position/style window appropriately.
+  HWND hwnd = GetNativeView();
+  if (fullscreen_) {
+    // Save current window information.  We force the window into restored mode
+    // before going fullscreen because Windows doesn't seem to hide the
+    // taskbar if the window is in the maximized state.
+    saved_window_info_.maximized = IsMaximized();
+    if (saved_window_info_.maximized)
+      ExecuteSystemMenuCommand(SC_RESTORE);
+    saved_window_info_.style = GetWindowLong(GWL_STYLE);
+    saved_window_info_.ex_style = GetWindowLong(GWL_EXSTYLE);
+    GetWindowRect(&saved_window_info_.window_rect);
+
+    // Set new window style and size.
+    MONITORINFO monitor_info;
+    monitor_info.cbSize = sizeof(monitor_info);
+    GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST),
+                   &monitor_info);
+    gfx::Rect monitor_rect(monitor_info.rcMonitor);
+    SetWindowLong(GWL_STYLE,
+                  saved_window_info_.style & ~(WS_CAPTION | WS_THICKFRAME));
+    SetWindowLong(GWL_EXSTYLE,
+                  saved_window_info_.ex_style & ~(WS_EX_DLGMODALFRAME |
+                  WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+    SetWindowPos(NULL, monitor_rect.x(), monitor_rect.y(),
+                 monitor_rect.width(), monitor_rect.height(),
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  } else {
+    // Reset original window style and size.  The multiple window size/moves
+    // here are ugly, but if SetWindowPos() doesn't redraw, the taskbar won't be
+    // repainted.  Better-looking methods welcome.
+    gfx::Rect new_rect(saved_window_info_.window_rect);
+    SetWindowLong(GWL_STYLE, saved_window_info_.style);
+    SetWindowLong(GWL_EXSTYLE, saved_window_info_.ex_style);
+    SetWindowPos(NULL, new_rect.x(), new_rect.y(), new_rect.width(),
+                 new_rect.height(),
+                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    if (saved_window_info_.maximized)
+      ExecuteSystemMenuCommand(SC_MAXIMIZE);
+  }
+
+  // Undo our anti-jankiness hacks.
+  PopForceHidden();
+}
+
+bool WindowWin::IsFullscreen() const {
+  return fullscreen_;
 }
 
 void WindowWin::EnableClose(bool enable) {
@@ -348,13 +455,17 @@ WindowWin::WindowWin(WindowDelegate* window_delegate)
       is_modal_(false),
       restored_enabled_(false),
       is_always_on_top_(false),
+      fullscreen_(false),
       window_closed_(false),
       disable_inactive_rendering_(false),
       is_active_(false),
       lock_updates_(false),
       saved_window_style_(0),
       saved_maximized_state_(0),
-      force_hidden_(false) {
+      ignore_window_pos_changes_(false),
+      ignore_pos_changes_factory_(this),
+      force_hidden_count_(0),
+      last_monitor_(NULL) {
   InitClass();
   DCHECK(window_delegate_);
   window_delegate_->window_.reset(this);
@@ -392,6 +503,9 @@ void WindowWin::Init(HWND parent, const gfx::Rect& bounds) {
 
   SetInitialBounds(bounds);
   InitAlwaysOnTopState();
+
+  GetMonitorAndRects(bounds.ToRECT(), &last_monitor_, &last_monitor_rect_,
+                     &last_work_area_);
 
   if (!IsAppWindow()) {
     notification_registrar_.Add(
@@ -497,9 +611,9 @@ LRESULT WindowWin::OnDwmCompositionChanged(UINT msg, WPARAM w_param,
   // Important step: restore the window first, since our hiding hack doesn't
   // work for maximized windows! We tell the frame not to allow itself to be
   // made visible though, which removes the brief flicker.
-  force_hidden_ = true;
+  ++force_hidden_count_;
   ::ShowWindow(GetNativeView(), SW_RESTORE);
-  force_hidden_ = false;
+  --force_hidden_count_;
 
   // We respond to this in response to WM_DWMCOMPOSITIONCHANGED since that is
   // the only thing we care about - we don't actually respond to WM_THEMECHANGED
@@ -631,7 +745,7 @@ LRESULT WindowWin::OnNCCalcSize(BOOL mode, LPARAM l_param) {
     // treated as a "fullscreen app", which would cause the taskbars to
     // disappear.
     HMONITOR monitor = MonitorFromWindow(GetNativeView(),
-                                         MONITOR_DEFAULTTONEAREST);
+                                         MONITOR_DEFAULTTONULL);
     if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_LEFT, monitor))
       client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
     if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_TOP, monitor))
@@ -905,6 +1019,18 @@ LRESULT WindowWin::OnSetText(const wchar_t* text) {
                        reinterpret_cast<LPARAM>(text));
 }
 
+void WindowWin::OnSettingChange(UINT flags, const wchar_t* section) {
+  if (!GetParent() && (flags == SPI_SETWORKAREA)) {
+    // Fire a dummy SetWindowPos() call, so we'll trip the code in
+    // OnWindowPosChanging() below that notices work area changes.
+    ::SetWindowPos(GetNativeView(), 0, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE |
+        SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+    SetMsgHandled(TRUE);
+  } else {
+    WidgetWin::OnSettingChange(flags, section);
+  }
+}
+
 void WindowWin::OnSize(UINT size_param, const CSize& new_size) {
   // Don't no-op if the new_size matches current size. If our normal bounds
   // and maximized bounds are the same, then we need to layout (because we
@@ -971,11 +1097,82 @@ void WindowWin::OnSysCommand(UINT notification_code, CPoint click) {
 }
 
 void WindowWin::OnWindowPosChanging(WINDOWPOS* window_pos) {
-  if (force_hidden_) {
+  if (force_hidden_count_) {
     // Prevent the window from being made visible if we've been asked to do so.
     // See comment in header as to why we might want this.
     window_pos->flags &= ~SWP_SHOWWINDOW;
   }
+
+  if (ignore_window_pos_changes_) {
+    // If somebody's trying to toggle our visibility, change the nonclient area,
+    // change our Z-order, or activate us, we should probably let it go through.
+    if (!(window_pos->flags & ((IsVisible() ? SWP_HIDEWINDOW : SWP_SHOWWINDOW) |
+        SWP_FRAMECHANGED)) &&
+        (window_pos->flags & (SWP_NOZORDER | SWP_NOACTIVATE))) {
+      // Just sizing/moving the window; ignore.
+      window_pos->flags |= SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW;
+      window_pos->flags &= ~(SWP_SHOWWINDOW | SWP_HIDEWINDOW);
+    }
+  } else if (!GetParent()) {
+    CRect window_rect;
+    HMONITOR monitor;
+    gfx::Rect monitor_rect, work_area;
+    if (GetWindowRect(&window_rect) &&
+        GetMonitorAndRects(window_rect, &monitor, &monitor_rect, &work_area)) {
+      if (monitor && (monitor == last_monitor_) &&
+          (IsFullscreen() || ((monitor_rect == last_monitor_rect_) &&
+                              (work_area != last_work_area_)))) {
+        // A rect for the monitor we're on changed.  Normally Windows notifies
+        // us about this (and thus we're reaching here due to the SetWindowPos()
+        // call in OnSettingChange() above), but with some software (e.g.
+        // nVidia's nView desktop manager) the work area can change asynchronous
+        // to any notification, and we're just sent a SetWindowPos() call with a
+        // new (frequently incorrect) position/size.  In either case, the best
+        // response is to throw away the existing position/size information in
+        // |window_pos| and recalculate it based on the old window coordinates,
+        // adjusted for the change in the work area (or, for fullscreen windows,
+        // to just set it to the monitor rect).
+        if (IsFullscreen()) {
+          window_pos->x = monitor_rect.x();
+          window_pos->y = monitor_rect.y();
+          window_pos->cx = monitor_rect.width();
+          window_pos->cy = monitor_rect.height();
+        } else if (IsZoomed()) {
+          window_pos->x =
+              window_rect.left + work_area.x() - last_work_area_.x();
+          window_pos->y = window_rect.top + work_area.y() - last_work_area_.y();
+          window_pos->cx = window_rect.Width() + work_area.width() -
+              last_work_area_.width();
+          window_pos->cy = window_rect.Height() + work_area.height() -
+              last_work_area_.height();
+        } else {
+          gfx::Rect window_gfx_rect(window_rect);
+          gfx::Rect new_window_rect = window_gfx_rect.AdjustToFit(work_area);
+          window_pos->x = new_window_rect.x();
+          window_pos->y = new_window_rect.y();
+          window_pos->cx = new_window_rect.width();
+          window_pos->cy = new_window_rect.height();
+        }
+        // WARNING!  Don't set SWP_FRAMECHANGED here, it breaks moving the child
+        // HWNDs for some reason.
+        window_pos->flags &= ~(SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
+        window_pos->flags |= SWP_NOCOPYBITS;
+
+        // Now ignore all immediately-following SetWindowPos() changes.  Windows
+        // likes to (incorrectly) recalculate what our position/size should be
+        // and send us further updates.
+        ignore_window_pos_changes_ = true;
+        DCHECK(ignore_pos_changes_factory_.empty());
+        MessageLoop::current()->PostTask(FROM_HERE,
+            ignore_pos_changes_factory_.NewRunnableMethod(
+            &WindowWin::StopIgnoringPosChanges));
+      }
+      last_monitor_ = monitor;
+      last_monitor_rect_ = monitor_rect;
+      last_work_area_ = work_area;
+    }
+  }
+
   WidgetWin::OnWindowPosChanging(window_pos);
 }
 
@@ -1167,12 +1364,12 @@ void WindowWin::SaveWindowPosition() {
 
 void WindowWin::LockUpdates() {
   lock_updates_ = true;
-  saved_window_style_ = GetWindowLong(GetNativeView(), GWL_STYLE);
-  SetWindowLong(GetNativeView(), GWL_STYLE, saved_window_style_ & ~WS_VISIBLE);
+  saved_window_style_ = GetWindowLong(GWL_STYLE);
+  SetWindowLong(GWL_STYLE, saved_window_style_ & ~WS_VISIBLE);
 }
 
 void WindowWin::UnlockUpdates() {
-  SetWindowLong(GetNativeView(), GWL_STYLE, saved_window_style_);
+  SetWindowLong(GWL_STYLE, saved_window_style_);
   lock_updates_ = false;
 }
 

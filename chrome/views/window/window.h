@@ -42,6 +42,9 @@ class Window {
   // Retrieves the window's bounds, including its frame.
   virtual gfx::Rect GetBounds() const = 0;
 
+  // Retrieves the restored bounds for the window.
+  virtual gfx::Rect GetNormalBounds() const = 0;
+
   // Sizes and/or places the window to the specified bounds, size or position.
   virtual void SetBounds(const gfx::Rect& bounds) = 0;
   
@@ -77,6 +80,10 @@ class Window {
   // Whether or not the window is maximized or minimized.
   virtual bool IsMaximized() const = 0;
   virtual bool IsMinimized() const = 0;
+
+  // Accessors for fullscreen state.
+  virtual void SetFullscreen(bool fullscreen) = 0;
+  virtual bool IsFullscreen() const = 0;
 
   // Toggles the enable state for the Close button (and the Close menu item in
   // the system menu).

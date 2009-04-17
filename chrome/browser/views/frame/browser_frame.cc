@@ -146,7 +146,7 @@ LRESULT BrowserFrame::OnNCCalcSize(BOOL mode, LPARAM l_param) {
     // treated as a "fullscreen app", which would cause the taskbars to
     // disappear.
     HMONITOR monitor = MonitorFromWindow(GetNativeView(),
-                                         MONITOR_DEFAULTTONEAREST);
+                                         MONITOR_DEFAULTTONULL);
     if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_LEFT, monitor))
       client_rect->left += win_util::kAutoHideTaskbarThicknessPx;
     if (win_util::EdgeHasTopmostAutoHideTaskbar(ABE_RIGHT, monitor))
@@ -238,7 +238,7 @@ void BrowserFrame::UpdateDWMFrame() {
   // because the GDI-drawn text in the web content composited over it will
   // become semi-transparent over any glass area.
   MARGINS margins = { 0 };
-  if (browser_view_->CanCurrentlyResize()) {
+  if (!IsMaximized() && !IsFullscreen()) {
     margins.cxLeftWidth = kClientEdgeThickness + 1;
     margins.cxRightWidth = kClientEdgeThickness + 1;
     margins.cyBottomHeight = kClientEdgeThickness + 1;

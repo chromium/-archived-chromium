@@ -59,7 +59,7 @@
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
 #include "chrome/views/window/non_client_view.h"
-#include "chrome/views/window/window.h"
+#include "chrome/views/window/window_win.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
@@ -136,8 +136,8 @@ class ResizeCorner : public views::View {
   ResizeCorner() { }
 
   virtual void Paint(ChromeCanvas* canvas) {
-    BrowserView* browser = GetBrowserView();
-    if (browser && !browser->CanCurrentlyResize())
+    views::WindowWin* window = GetWindow();
+    if (!window || (window->IsMaximized() || window->IsFullscreen()))
       return;
 
     SkBitmap* bitmap = ResourceBundle::GetSharedInstance().GetBitmapNamed(
@@ -164,8 +164,8 @@ class ResizeCorner : public views::View {
   }
 
   virtual gfx::Size GetPreferredSize() {
-    BrowserView* browser = GetBrowserView();
-    return (browser && !browser->CanCurrentlyResize()) ?
+    views::WindowWin* window = GetWindow();
+    return (!window || window->IsMaximized() || window->IsFullscreen()) ?
         gfx::Size() : GetSize();
   }
 
@@ -181,11 +181,11 @@ class ResizeCorner : public views::View {
   }
 
  private:
-  // Returns the BrowserView we're displayed in. Returns NULL if we're not
-  // currently in a browser view.
-  BrowserView* GetBrowserView() {
-    View* browser = GetAncestorWithClassName(kBrowserViewClassName);
-    return browser ? static_cast<BrowserView*>(browser) : NULL;
+  // Returns the WindowWin we're displayed in. Returns NULL if we're not
+  // currently in a window.
+  views::WindowWin* GetWindow() {
+    views::Widget* widget = GetWidget();
+    return widget ? static_cast<views::WindowWin*>(widget) : NULL;
   }
 
   DISALLOW_COPY_AND_ASSIGN(ResizeCorner);
@@ -277,7 +277,6 @@ BrowserView::BrowserView(Browser* browser)
       find_bar_y_(0),
       contents_container_(NULL),
       initialized_(false),
-      fullscreen_(false),
       ignore_layout_(false),
       hung_window_detector_(&hung_plugin_action_),
       ticker_(0)
@@ -338,10 +337,6 @@ void BrowserView::WindowMoveOrResizeStarted() {
   TabContents* tab_contents = GetSelectedTabContents();
   if (tab_contents && tab_contents->AsWebContents())
     tab_contents->AsWebContents()->WindowMoveOrResizeStarted();
-}
-
-bool BrowserView::CanCurrentlyResize() const {
-  return !IsMaximized() && !IsFullscreen();
 }
 
 gfx::Rect BrowserView::GetToolbarBounds() const {
@@ -603,16 +598,7 @@ void BrowserView::SetStarredState(bool is_starred) {
 }
 
 gfx::Rect BrowserView::GetNormalBounds() const {
-  // If we're in fullscreen mode, we've changed the normal bounds to the monitor
-  // rect, so return the saved bounds instead.
-  if (fullscreen_)
-    return gfx::Rect(saved_window_info_.window_rect);
-
-  WINDOWPLACEMENT wp;
-  wp.length = sizeof(wp);
-  const bool ret = !!GetWindowPlacement(frame_->GetNativeView(), &wp);
-  DCHECK(ret);
-  return gfx::Rect(wp.rcNormalPosition);
+  return frame_->GetNormalBounds();
 }
 
 bool BrowserView::IsMaximized() const {
@@ -620,30 +606,28 @@ bool BrowserView::IsMaximized() const {
 }
 
 void BrowserView::SetFullscreen(bool fullscreen) {
-  if (fullscreen_ == fullscreen)
+  if (IsFullscreen() == fullscreen)
     return;  // Nothing to do.
-
-  // Move focus out of the location bar if necessary.
-  LocationBarView* location_bar = toolbar_->GetLocationBarView();
-  if (!fullscreen_) {
-    views::FocusManager* focus_manager = GetFocusManager();
-    DCHECK(focus_manager);
-    if (focus_manager->GetFocusedView() == location_bar)
-      focus_manager->ClearFocus();
-  }
-  AutocompleteEditViewWin* edit_view =
-      static_cast<AutocompleteEditViewWin*>(location_bar->location_entry());
-
-  // Toggle fullscreen mode.
-  fullscreen_ = fullscreen;
 
   // Reduce jankiness during the following position changes by:
   //   * Hiding the window until it's in the final position
   //   * Ignoring all intervening Layout() calls, which resize the webpage and
   //     thus are slow and look ugly
   ignore_layout_ = true;
-  frame_->set_force_hidden(true);
-  if (fullscreen_) {
+  LocationBarView* location_bar = toolbar_->GetLocationBarView();
+  AutocompleteEditViewWin* edit_view =
+      static_cast<AutocompleteEditViewWin*>(location_bar->location_entry());
+  if (IsFullscreen()) {
+    // Hide the fullscreen bubble as soon as possible, since the mode toggle can
+    // take enough time for the user to notice.
+    fullscreen_bubble_.reset();
+  } else {
+    // Move focus out of the location bar if necessary.
+    views::FocusManager* focus_manager = GetFocusManager();
+    DCHECK(focus_manager);
+    if (focus_manager->GetFocusedView() == location_bar)
+      focus_manager->ClearFocus();
+
     // If we don't hide the edit and force it to not show until we come out of
     // fullscreen, then if the user was on the New Tab Page, the edit contents
     // will appear atop the web contents once we go into fullscreen mode.  This
@@ -652,59 +636,18 @@ void BrowserView::SetFullscreen(bool fullscreen) {
     edit_view->set_force_hidden(true);
     ShowWindow(edit_view->m_hWnd, SW_HIDE);
   }
-  frame_->Hide();
+  frame_->PushForceHidden();
 
   // Notify bookmark bar, so it can set itself to the appropriate drawing state.
   if (bookmark_bar_view_.get())
-    bookmark_bar_view_->OnFullscreenToggled(fullscreen_);
+    bookmark_bar_view_->OnFullscreenToggled(fullscreen);
 
-  // Size/position/style window appropriately.
-  views::Widget* widget = GetWidget();
-  HWND hwnd = widget->GetNativeView();
-  MONITORINFO monitor_info;
-  monitor_info.cbSize = sizeof(monitor_info);
-  GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY),
-                 &monitor_info);
-  gfx::Rect monitor_rect(monitor_info.rcMonitor);
-  if (fullscreen_) {
-    // Save current window information.  We force the window into restored mode
-    // before going fullscreen because Windows doesn't seem to hide the
-    // taskbar if the window is in the maximized state.
-    saved_window_info_.maximized = IsMaximized();
-    if (saved_window_info_.maximized)
-      frame_->ExecuteSystemMenuCommand(SC_RESTORE);
-    saved_window_info_.style = GetWindowLong(hwnd, GWL_STYLE);
-    saved_window_info_.ex_style = GetWindowLong(hwnd, GWL_EXSTYLE);
-    GetWindowRect(hwnd, &saved_window_info_.window_rect);
+  // Toggle fullscreen mode.
+  frame_->SetFullscreen(fullscreen);
 
-    // Set new window style and size.
-    SetWindowLong(hwnd, GWL_STYLE,
-                  saved_window_info_.style & ~(WS_CAPTION | WS_THICKFRAME));
-    SetWindowLong(hwnd, GWL_EXSTYLE,
-                  saved_window_info_.ex_style & ~(WS_EX_DLGMODALFRAME |
-                  WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
-    SetWindowPos(hwnd, NULL, monitor_rect.x(), monitor_rect.y(),
-                 monitor_rect.width(), monitor_rect.height(),
-                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-
-    fullscreen_bubble_.reset(new FullscreenExitBubble(widget, browser_.get()));
+  if (IsFullscreen()) {
+    fullscreen_bubble_.reset(new FullscreenExitBubble(frame_, browser_.get()));
   } else {
-    // Hide the fullscreen bubble as soon as possible, since the calls below can
-    // take enough time for the user to notice.
-    fullscreen_bubble_.reset();
-
-    // Reset original window style and size.  The multiple window size/moves
-    // here are ugly, but if SetWindowPos() doesn't redraw, the taskbar won't be
-    // repainted.  Better-looking methods welcome.
-    gfx::Rect new_rect(saved_window_info_.window_rect);
-    SetWindowLong(hwnd, GWL_STYLE, saved_window_info_.style);
-    SetWindowLong(hwnd, GWL_EXSTYLE, saved_window_info_.ex_style);
-    SetWindowPos(hwnd, NULL, new_rect.x(), new_rect.y(), new_rect.width(),
-                 new_rect.height(),
-                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-    if (saved_window_info_.maximized)
-      frame_->ExecuteSystemMenuCommand(SC_MAXIMIZE);
-
     // Show the edit again since we're no longer in fullscreen mode.
     edit_view->set_force_hidden(false);
     ShowWindow(edit_view->m_hWnd, SW_SHOW);
@@ -714,12 +657,11 @@ void BrowserView::SetFullscreen(bool fullscreen) {
   // it's in its final position.
   ignore_layout_ = false;
   Layout();
-  frame_->set_force_hidden(false);
-  ShowWindow(hwnd, SW_SHOW);
+  frame_->PopForceHidden();
 }
 
 bool BrowserView::IsFullscreen() const {
-  return fullscreen_;
+  return frame_->IsFullscreen();
 }
 
 LocationBar* BrowserView::GetLocationBar() const {
@@ -772,7 +714,7 @@ bool BrowserView::IsBookmarkBarVisible() const {
 }
 
 gfx::Rect BrowserView::GetRootWindowResizerRect() const {
-  if (!CanCurrentlyResize())
+  if (frame_->IsMaximized() || frame_->IsFullscreen())
     return gfx::Rect();
 
   // We don't specify a resize corner size if we have a bottom shelf either.
@@ -1051,10 +993,10 @@ std::wstring BrowserView::GetWindowName() const {
 void BrowserView::SaveWindowPlacement(const gfx::Rect& bounds,
                                       bool maximized,
                                       bool always_on_top) {
-  // If fullscreen_ is true, we've just changed into fullscreen mode, and we're
-  // catching the going-into-fullscreen sizing and positioning calls, which we
-  // want to ignore.
-  if (!fullscreen_ && browser_->ShouldSaveWindowPlacement()) {
+  // If IsFullscreen() is true, we've just changed into fullscreen mode, and
+  // we're catching the going-into-fullscreen sizing and positioning calls,
+  // which we want to ignore.
+  if (!IsFullscreen() && browser_->ShouldSaveWindowPlacement()) {
     WindowDelegate::SaveWindowPlacement(bounds, maximized, always_on_top);
     browser_->SaveWindowPlacement(bounds, maximized);
   }
@@ -1150,7 +1092,7 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   // area of the window. So we need to treat hit-tests in these regions as
   // hit-tests of the titlebar.
 
-  if (CanCurrentlyResize()) {
+  if (!frame_->IsMaximized() && !frame_->IsFullscreen()) {
     CRect client_rect;
     ::GetClientRect(frame_->GetNativeView(), &client_rect);
     gfx::Size resize_corner_size = ResizeCorner::GetSize();

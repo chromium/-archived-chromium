@@ -463,7 +463,7 @@ gfx::Point OpaqueBrowserFrameView::GetSystemMenuPoint() const {
   gfx::Point system_menu_point(
       MirroredXCoordinateInsideView(FrameBorderThickness()),
       NonClientTopBorderHeight() + browser_view_->GetTabStripHeight() -
-      (browser_view_->IsFullscreen() ? 0 : kClientEdgeThickness));
+      (frame_->IsFullscreen() ? 0 : kClientEdgeThickness));
   ConvertPointToScreen(this, &system_menu_point);
   return system_menu_point;
 }
@@ -503,7 +503,7 @@ void OpaqueBrowserFrameView::GetWindowMask(const gfx::Size& size,
                                            gfx::Path* window_mask) {
   DCHECK(window_mask);
 
-  if (!browser_view_->CanCurrentlyResize())
+  if (frame_->IsMaximized() || frame_->IsFullscreen())
     return;
 
   // Redefine the window visible region for the new size.
@@ -540,7 +540,7 @@ void OpaqueBrowserFrameView::ResetWindowControls() {
 // OpaqueBrowserFrameView, views::View overrides:
 
 void OpaqueBrowserFrameView::Paint(ChromeCanvas* canvas) {
-  if (browser_view_->IsFullscreen())
+  if (frame_->IsFullscreen())
     return;  // Nothing is visible, so don't bother to paint.
 
   if (frame_->IsMaximized())
@@ -647,7 +647,8 @@ SkBitmap OpaqueBrowserFrameView::GetFavIconForTabIconView() {
 // OpaqueBrowserFrameView, private:
 
 int OpaqueBrowserFrameView::FrameBorderThickness() const {
-  return browser_view_->CanCurrentlyResize() ? kFrameBorderThickness : 0;
+  return (frame_->IsMaximized() || frame_->IsFullscreen()) ?
+      0 : kFrameBorderThickness;
 }
 
 int OpaqueBrowserFrameView::TopResizeHeight() const {
@@ -657,7 +658,8 @@ int OpaqueBrowserFrameView::TopResizeHeight() const {
 int OpaqueBrowserFrameView::NonClientBorderThickness() const {
   // When we fill the screen, we don't show a client edge.
   return FrameBorderThickness() +
-      (browser_view_->CanCurrentlyResize() ? kClientEdgeThickness : 0);
+      ((frame_->IsMaximized() || frame_->IsFullscreen()) ?
+       0 : kClientEdgeThickness);
 }
 
 int OpaqueBrowserFrameView::NonClientTopBorderHeight() const {
@@ -666,8 +668,9 @@ int OpaqueBrowserFrameView::NonClientTopBorderHeight() const {
     return TitleCoordinates(&title_top_spacing, &title_thickness);
   }
 
-  return FrameBorderThickness() + (browser_view_->CanCurrentlyResize() ?
-      kNonClientRestoredExtraThickness : 0);
+  return FrameBorderThickness() +
+      ((frame_->IsMaximized() || frame_->IsFullscreen()) ?
+       0 : kNonClientRestoredExtraThickness);
 }
 
 int OpaqueBrowserFrameView::UnavailablePixelsAtBottomOfNonClientHeight() const {

@@ -282,8 +282,18 @@ class WidgetWin : public Widget,
     return ::GetParent(GetNativeView());
   }
 
+  LONG GetWindowLong(int index) {
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::GetWindowLong(GetNativeView(), index);
+  }
+
   BOOL GetWindowRect(RECT* rect) const {
     return ::GetWindowRect(GetNativeView(), rect);
+  }
+
+  LONG SetWindowLong(int index, LONG new_long) {
+    DCHECK(::IsWindow(GetNativeView()));
+    return ::SetWindowLong(GetNativeView(), index, new_long);
   }
 
   BOOL SetWindowPos(HWND hwnd_after, int x, int y, int cx, int cy, UINT flags) {
@@ -450,14 +460,18 @@ class WidgetWin : public Widget,
     SetMsgHandled(FALSE);
     return 0;
   }
-  virtual void OnSettingChange(UINT flags, const wchar_t* section);
+  virtual void OnSettingChange(UINT flags, const wchar_t* section) {
+    SetMsgHandled(FALSE);
+  }
   virtual void OnSize(UINT param, const CSize& size);
   virtual void OnSysCommand(UINT notification_code, CPoint click) { }
   virtual void OnThemeChanged();
   virtual void OnVScroll(int scroll_type, short position, HWND scrollbar) {
     SetMsgHandled(FALSE);
   }
-  virtual void OnWindowPosChanging(WINDOWPOS* window_pos);
+  virtual void OnWindowPosChanging(WINDOWPOS* window_pos) {
+    SetMsgHandled(FALSE);
+  }
   virtual void OnWindowPosChanged(WINDOWPOS* window_pos) {
     SetMsgHandled(FALSE);
   }
@@ -537,16 +551,9 @@ class WidgetWin : public Widget,
   // If necessary, this registers the window class.
   std::wstring GetWindowClassName();
 
-  // Stops ignoring SetWindowPos() requests (see below).
-  void StopIgnoringPosChanges() { ignore_window_pos_changes_ = false; }
-
   // The following factory is used for calls to close the WidgetWin
   // instance.
   ScopedRunnableMethodFactory<WidgetWin> close_widget_factory_;
-
-  // The following factory is used to ignore SetWindowPos() calls for short time
-  // periods.
-  ScopedRunnableMethodFactory<WidgetWin> ignore_pos_changes_factory_;
 
   // The flags currently being used with TrackMouseEvent to track mouse
   // messages. 0 if there is no active tracking. The value of this member is
@@ -609,16 +616,6 @@ class WidgetWin : public Widget,
 
   // Our hwnd.
   HWND hwnd_;
-
-  // The last-seen monitor containing us, and its work area.  These are used to
-  // catch updates to the work area and react accordingly.
-  HMONITOR last_monitor_;
-  gfx::Rect last_work_area_;
-
-  // When true, this flag makes us discard incoming SetWindowPos() requests that
-  // only change our position/size.  (We still allow changes to Z-order,
-  // activation, etc.)
-  bool ignore_window_pos_changes_;
 };
 
 }  // namespace views

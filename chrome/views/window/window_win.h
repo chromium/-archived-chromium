@@ -48,15 +48,23 @@ class WindowWin : public WidgetWin,
   // Executes the specified SC_command.
   void ExecuteSystemMenuCommand(int command);
 
+  // Hides the window if it hasn't already been force-hidden, then increments
+  // |force_hidden_count_| to prevent it from being shown again until
+  // PopForceHidden()) is called.
+  void PushForceHidden();
+
+  // Decrements |force_hidden_count_| and, if it is now zero, shows the window.
+  void PopForceHidden();
+
   // Accessors and setters for various properties.
   HWND owning_window() const { return owning_hwnd_; }
   void set_focus_on_creation(bool focus_on_creation) {
     focus_on_creation_ = focus_on_creation;
   }
-  void set_force_hidden(bool force_hidden) { force_hidden_ = force_hidden; }
 
   // Window overrides:
   virtual gfx::Rect GetBounds() const;
+  virtual gfx::Rect GetNormalBounds() const;
   virtual void SetBounds(const gfx::Rect& bounds);
   virtual void SetBounds(const gfx::Rect& bounds,
                          gfx::NativeWindow other_window);
@@ -70,6 +78,8 @@ class WindowWin : public WidgetWin,
   virtual bool IsVisible() const;
   virtual bool IsMaximized() const;
   virtual bool IsMinimized() const;
+  virtual void SetFullscreen(bool fullscreen);
+  virtual bool IsFullscreen() const;
   virtual void EnableClose(bool enable);
   virtual void DisableInactiveRendering();
   virtual void UpdateWindowTitle();
@@ -132,6 +142,7 @@ class WindowWin : public WidgetWin,
   virtual LRESULT OnSetCursor(HWND window, UINT hittest_code, UINT message);
   virtual LRESULT OnSetIcon(UINT size_type, HICON new_icon);
   virtual LRESULT OnSetText(const wchar_t* text);
+  virtual void OnSettingChange(UINT flags, const wchar_t* section);
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
   virtual void OnWindowPosChanging(WINDOWPOS* window_pos);
@@ -144,6 +155,15 @@ class WindowWin : public WidgetWin,
   }
 
  private:
+  // Information saved before going into fullscreen mode, used to restore the
+  // window afterwards.
+  struct SavedWindowInfo {
+    bool maximized;
+    LONG style;
+    LONG ex_style;
+    RECT window_rect;
+  };
+
   // Set the window as modal (by disabling all the other windows).
   void BecomeModal();
 
@@ -181,6 +201,9 @@ class WindowWin : public WidgetWin,
   class ScopedRedrawLock;
   void LockUpdates();
   void UnlockUpdates();
+
+  // Stops ignoring SetWindowPos() requests (see below).
+  void StopIgnoringPosChanges() { ignore_window_pos_changes_ = false; }
 
   // Resets the window region for the current window bounds if necessary.
   // If |force| is true, the window region is reset to NULL even for native
@@ -241,6 +264,12 @@ class WindowWin : public WidgetWin,
   // We need to own the text of the menu, the Windows API does not copy it.
   std::wstring always_on_top_menu_text_;
 
+  // True if we're in fullscreen mode.
+  bool fullscreen_;
+
+  // Saved window information from before entering fullscreen mode.
+  SavedWindowInfo saved_window_info_;
+
   // Set to true if the window is in the process of closing .
   bool window_closed_;
 
@@ -261,11 +290,25 @@ class WindowWin : public WidgetWin,
   // that explains why we save this.
   bool saved_maximized_state_;
 
-  // True if we should prevent attempts to make the window visible when we
-  // handle WM_WINDOWPOSCHANGING. Some calls like ShowWindow(SW_RESTORE) make
-  // the window visible in addition to restoring it, when all we want to do is
-  // restore it.
-  bool force_hidden_;
+  // When true, this flag makes us discard incoming SetWindowPos() requests that
+  // only change our position/size.  (We still allow changes to Z-order,
+  // activation, etc.)
+  bool ignore_window_pos_changes_;
+
+  // The following factory is used to ignore SetWindowPos() calls for short time
+  // periods.
+  ScopedRunnableMethodFactory<WindowWin> ignore_pos_changes_factory_;
+
+  // If this is greater than zero, we should prevent attempts to make the window
+  // visible when we handle WM_WINDOWPOSCHANGING. Some calls like
+  // ShowWindow(SW_RESTORE) make the window visible in addition to restoring it,
+  // when all we want to do is restore it.
+  int force_hidden_count_;
+
+  // The last-seen monitor containing us, and its rect and work area.  These are
+  // used to catch updates to the rect and work area and react accordingly.
+  HMONITOR last_monitor_;
+  gfx::Rect last_monitor_rect_, last_work_area_;
 
   // Hold onto notifications.
   NotificationRegistrar notification_registrar_;

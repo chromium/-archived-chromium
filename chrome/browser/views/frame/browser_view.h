@@ -72,11 +72,6 @@ class BrowserView : public BrowserWindow,
   // initiated.
   void WindowMoveOrResizeStarted();
 
-  // Returns whether the browser can be resized _now_.  This differs from
-  // CanResize() below, which returns whether the window is ever resizable in
-  // principle.
-  bool CanCurrentlyResize() const;
-
   // Returns the bounds of the toolbar, in BrowserView coordinates.
   gfx::Rect GetToolbarBounds() const;
 
@@ -269,15 +264,6 @@ class BrowserView : public BrowserWindow,
                                     views::View* parent,
                                     views::View* child);
  private:
-  // Information saved before going into fullscreen mode, used to restore the
-  // window afterwards.
-  struct SavedWindowInfo {
-    bool maximized;
-    LONG style;
-    LONG ex_style;
-    RECT window_rect;
-  };
-
   // Browser window related initializations.
   void Init();
 
@@ -391,15 +377,9 @@ class BrowserView : public BrowserWindow,
   // True if we have already been initialized.
   bool initialized_;
 
-  // True if we're in fullscreen mode.
-  bool fullscreen_;
-
   // True if we should ignore requests to layout.  This is set while toggling
   // fullscreen mode on and off to reduce jankiness.
   bool ignore_layout_;
-
-  // Saved window information from before entering fullscreen mode.
-  SavedWindowInfo saved_window_info_;
 
   scoped_ptr<FullscreenExitBubble> fullscreen_bubble_;
 

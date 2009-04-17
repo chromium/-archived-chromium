@@ -41,7 +41,7 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
       const gfx::Rect& match_rect) const {
     CRect other_bounds_crect = match_rect.ToRECT();
     MONITORINFO monitor_info = GetMonitorInfoForMonitor(MonitorFromRect(
-        &other_bounds_crect, MONITOR_DEFAULTTOPRIMARY));
+        &other_bounds_crect, MONITOR_DEFAULTTONEAREST));
     return gfx::Rect(monitor_info.rcWork);
   }
 
@@ -49,7 +49,7 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
       const gfx::Rect& match_rect) const {
     CRect other_bounds_crect = match_rect.ToRECT();
     MONITORINFO monitor_info = GetMonitorInfoForMonitor(MonitorFromRect(
-        &other_bounds_crect, MONITOR_DEFAULTTOPRIMARY));
+        &other_bounds_crect, MONITOR_DEFAULTTONEAREST));
     return gfx::Point(monitor_info.rcWork.left - monitor_info.rcMonitor.left,
                       monitor_info.rcWork.top - monitor_info.rcMonitor.top);
   }
@@ -130,9 +130,9 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
     for (; it != end; ++it) {
       Browser* last_active = *it;
       if (last_active && last_active->type() == Browser::TYPE_NORMAL) {
-        BrowserWindow* frame = last_active->window();
-        DCHECK(frame);
-        *bounds = frame->GetNormalBounds();
+        BrowserWindow* window = last_active->window();
+        DCHECK(window);
+        *bounds = window->GetNormalBounds();
         return true;
       }
     }
