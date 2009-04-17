@@ -43,24 +43,24 @@ TEST_F(MiniInstallTest, DISABLED_DifferentialInstallerTest) {
   installer.InstallDifferentialInstaller();
 }
 
-TEST_F(MiniInstallTest, StandaloneInstallerTest) {
+TEST_F(MiniInstallTest, DISABLED_StandaloneInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.InstallStandaloneIntaller();
 }
 
-TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeMetaInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.OverInstall();
 }
 
-TEST_F(MiniInstallTest, MiniInstallerSystemInstallTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kSystemInstall);
     installer.Install();
   }
 }
 
-TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
+TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.Install();
 }
