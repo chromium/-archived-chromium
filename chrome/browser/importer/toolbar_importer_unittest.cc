@@ -309,7 +309,6 @@ static const char* kBadBookmarkNoLabels =
 // The parsing tests for Toolbar5Importer use the string above.  For a
 // description of all the tests run please see the comments immediately before
 // the string constants above.
-//
 // Failing Valgrind/Purify, refer to http://crbug.com/10679
 TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   XmlReader reader;
@@ -322,8 +321,9 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // Test case 1 is parsing a basic bookmark with a single label.
   bookmark_xml = toolbar_importer_unittest::kGoodBookmark;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader1;
+  EXPECT_TRUE(reader1.Load(bookmark_xml));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader1, &bookmarks));
 
   EXPECT_EQ(bookmarks.size(), (size_t) 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
@@ -335,8 +335,9 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // Test case 2 is parsing a single bookmark with no label.
   bookmark_xml = toolbar_importer_unittest::kGoodBookmarkNoLabel;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader2;
+  EXPECT_TRUE(reader2.Load(bookmark_xml));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader2, &bookmarks));
 
   EXPECT_EQ(bookmarks.size(), (size_t) 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
@@ -347,8 +348,9 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // Test case 3 is parsing a single bookmark with two labels.
   bookmark_xml = toolbar_importer_unittest::kGoodBookmarkTwoLabels;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader3;
+  EXPECT_TRUE(reader3.Load(bookmark_xml));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader3, &bookmarks));
 
   EXPECT_EQ(bookmarks.size(), (size_t) 2);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
@@ -364,8 +366,9 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // this test file name translation between Toolbar and Chrome.
   bookmark_xml = toolbar_importer_unittest::kGoodBookmarkFolderLabel;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader4;
+  EXPECT_TRUE(reader4.Load(bookmark_xml));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader4, &bookmarks));
 
   EXPECT_EQ(bookmarks.size(), (size_t) 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
@@ -382,8 +385,9 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // Test case 5 is parsing a single bookmark without a favicon URL.
   bookmark_xml = toolbar_importer_unittest::kGoodBookmarkNoFavicon;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader5;
+  EXPECT_TRUE(reader5.Load(bookmark_xml));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader5, &bookmarks));
 
   EXPECT_EQ(bookmarks.size(), (size_t) 1);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
@@ -395,8 +399,9 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // Test case 6 is parsing two bookmarks.
   bookmark_xml = toolbar_importer_unittest::kGoodBookmark2Items;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader6;
+  EXPECT_TRUE(reader6.Load(bookmark_xml));
+  EXPECT_TRUE(Toolbar5Importer::ParseBookmarksFromReader(&reader6, &bookmarks));
 
   EXPECT_EQ(bookmarks.size(), (size_t) 2);
   EXPECT_FALSE(bookmarks[0].in_toolbar);
@@ -413,43 +418,50 @@ TEST(Toolbar5ImporterTest, DISABLED_BookmarkParse) {
   // Test case 7 is parsing an empty string for bookmarks.
   bookmark_xml = toolbar_importer_unittest::kEmptyString;
   bookmarks.clear();
-  EXPECT_FALSE(reader.Load(bookmark_xml));
+  XmlReader reader7;
+  EXPECT_FALSE(reader7.Load(bookmark_xml));
 
   // Test case 8 is testing the error when no <bookmarks> section is present.
   bookmark_xml = toolbar_importer_unittest::kBadBookmarkNoBookmarks;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader8;
+  EXPECT_TRUE(reader8.Load(bookmark_xml));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader8, &bookmarks));
 
   // Test case 9 tests when no <bookmark> section is present.
   bookmark_xml = toolbar_importer_unittest::kBadBookmarkNoBookmark;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader9;
+  EXPECT_TRUE(reader9.Load(bookmark_xml));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader9, &bookmarks));
 
 
   // Test case 10 tests when a bookmark has no <title> section.
   bookmark_xml = toolbar_importer_unittest::kBadBookmarkNoTitle;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader10;
+  EXPECT_TRUE(reader10.Load(bookmark_xml));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader10, &bookmarks));
 
 
   // Test case 11 tests when a bookmark has no <url> section.
   bookmark_xml = toolbar_importer_unittest::kBadBookmarkNoUrl;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader11;
+  EXPECT_TRUE(reader11.Load(bookmark_xml));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader11, &bookmarks));
 
   // Test case 12 tests when a bookmark has no <timestamp> section.
   bookmark_xml = toolbar_importer_unittest::kBadBookmarkNoTimestamp;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader12;
+  EXPECT_TRUE(reader12.Load(bookmark_xml));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader12, &bookmarks));
 
   // Test case 13 tests when a bookmark has no <labels> section.
   bookmark_xml = toolbar_importer_unittest::kBadBookmarkNoLabels;
   bookmarks.clear();
-  EXPECT_TRUE(reader.Load(bookmark_xml));
-  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader, &bookmarks));
+  XmlReader reader13;
+  EXPECT_TRUE(reader13.Load(bookmark_xml));
+  EXPECT_FALSE(Toolbar5Importer::ParseBookmarksFromReader(&reader13, &bookmarks));
 }
