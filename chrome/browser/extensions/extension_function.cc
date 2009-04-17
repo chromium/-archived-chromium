@@ -4,15 +4,24 @@
 
 #include "chrome/browser/extensions/extension_function.h"
 
+#include "base/logging.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
 
 void ExtensionFunction::SendResponse(bool success) {
-  if (success) {
+  if (bad_message_) {
+    dispatcher_->HandleBadMessage(this);
+  } else if (success) {
     if (has_callback()) {
       dispatcher_->SendResponse(this);
     }
   } else {
     // TODO(aa): In case of failure, send the error message to an error
     // callback.
+    LOG(WARNING) << error_;
   }
 }
+
+Profile* ExtensionFunction::profile() {
+  return dispatcher_->profile();
+}
+

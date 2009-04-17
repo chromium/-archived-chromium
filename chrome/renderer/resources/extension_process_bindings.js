@@ -86,6 +86,7 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(GetWindows, windowQuery, callback);
   };
+
   chromium.tabs.getWindows.params = [
     {
       type: "object",
@@ -107,6 +108,7 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(GetTabsForWindow, null, callback);
   };
+
   chromium.tabs.getTabsForWindow.params = [
     chromium.types.optFun
   ];
@@ -115,6 +117,7 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(GetTab, tabId, callback);
   };
+
   chromium.tabs.getTab.params = [
     chromium.types.pInt,
     chromium.types.optFun
@@ -124,6 +127,7 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(CreateTab, tab, callback);
   };
+
   chromium.tabs.createTab.params = [
     {
       type: "object",
@@ -141,6 +145,7 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(UpdateTab, tab);
   };
+
   chromium.tabs.updateTab.params = [
     {
       type: "object",
@@ -158,6 +163,7 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(MoveTab, tab);
   };
+
   chromium.tabs.moveTab.params = [
     {
       type: "object",
@@ -174,14 +180,119 @@ var chromium;
     validate(arguments, arguments.callee.params);
     sendRequest(RemoveTab, tabId);
   };
+
   chromium.tabs.removeTab.params = [
     chromium.types.pInt
   ];
-  
+
   // onTabMoved sends ({tabId, windowId, fromIndex, toIndex}) as named
   // arguments.
   chromium.tabs.onTabMoved = new chromium.Event("tab-moved");
 
+  //----------------------------------------------------------------------------
+
+  // Bookmarks
+  chromium.bookmarks = {};
+
+  chromium.bookmarks.get = function(ids, callback) {
+    native function GetBookmarks();
+    sendRequest(GetBookmarks, ids, callback);
+  };
+
+  chromium.bookmarks.get.params = [
+    {
+      type: "array",
+      items: {
+        type: chromium.types.pInt
+      },
+      minItems: 1,
+      optional: true,
+      additionalProperties: false
+    },
+    chromium.types.optFun
+  ];
+
+  chromium.bookmarks.search = function(query, callback) {
+    native function SearchBookmarks();
+    sendRequest(SearchBookmarks, query, callback);
+  };
+
+  chromium.bookmarks.search.params = [
+    chromium.types.string,
+    chromium.types.optFun
+  ];
+
+  chromium.bookmarks.remove = function(bookmark, callback) {
+    native function RemoveBookmark();
+    sendRequest(RemoveBookmark, bookmark, callback);
+  };
+
+  chromium.bookmarks.remove.params = [
+    {
+      type: "object",
+      properties: {
+        id: chromium.types.pInt,
+        recursive: chromium.types.bool
+      },
+      additionalProperties: false
+    },
+    chromium.types.optFun
+  ];
+
+  chromium.bookmarks.create = function(bookmark, callback) {
+    native function CreateBookmark();
+    sendRequest(CreateBookmark, bookmark, callback);
+  };
+
+  chromium.bookmarks.create.params = [
+    {
+      type: "object",
+      properties: {
+        parentId: chromium.types.optPInt,
+        index: chromium.types.optPInt,
+        title: chromium.types.optString,
+        url: chromium.types.optString,
+      },
+      additionalProperties: false
+    },
+    chromium.types.optFun
+  ];
+
+  chromium.bookmarks.move = function(obj, callback) {
+    native function MoveBookmark();
+    sendRequest(MoveBookmark, obj, callback);
+  };
+
+  chromium.bookmarks.move.params = [
+    {
+      type: "object",
+      properties: {
+        id: chromium.types.pInt,
+        parentId: chromium.types.optPInt,
+        index: chromium.types.optPInt
+      },
+      additionalProperties: false
+    },
+    chromium.types.optFun
+  ];
+
+  chromium.bookmarks.setTitle = function(bookmark, callback) {
+    native function SetBookmarkTitle();
+    sendRequest(SetBookmarkTitle, bookmark, callback);
+  };
+
+  chromium.bookmarks.setTitle.params = [
+    {
+      type: "object",
+      properties: {
+        id: chromium.types.pInt,
+        title: chromium.types.optString
+      },
+      additionalProperties: false
+    },
+    chromium.types.optFun
+  ];
+  
   //----------------------------------------------------------------------------
 
   // Self

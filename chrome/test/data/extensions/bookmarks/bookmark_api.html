@@ -1,0 +1,117 @@
+<html>
+<style>
+body {
+  overflow: hidden;
+  margin: 0 0 0 0;
+}
+
+/* TODO: put the background style into body when
+   https://bugs.webkit.org/show_bug.cgi?id=18445 is fixed. */
+.content {
+  background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
+  padding: 1;
+  white-space: nowrap;
+}
+
+.button {
+  display: inline;
+  border: 1px solid silver;
+  padding: 2px;
+  margin: 1px 3px;
+  height: 100%;
+}
+</style>
+<script>
+
+var dump = function(obj, indent) {
+  if (indent === undefined)
+    indent = "";
+  if (typeof obj == "object") {
+    var ret = "{<br/>";
+    var child_indent = indent + "  ";
+    for (var item in obj) {
+      var child = null;
+      try {
+        child = obj[item];
+      } catch (e) {
+        child = '<error>';
+      }
+      ret += child_indent + item + ": " + dump(child, indent + "  ");
+    }
+    return ret + indent + "}" + "<br/>";
+  } else {
+    return obj.toString() + "<br/>";
+  }
+}
+
+var testMoveBookmarks = function(event) {
+  if (event.shiftKey) {
+    // TODO - it would be nice to have a mechanism to do this built-in to a
+    // context menu.
+    window.location.reload();
+    return;
+  }
+  console.log("testMoveBookmarks");
+  chromium.bookmarks.get([], function(root) {
+    chromium.bookmarks.get(root[0].childrenIds, function(root_children) {
+      var bookmark_bar = root_children[0];  // bookmarks bar is always first
+      chromium.bookmarks.get(bookmark_bar.childrenIds,
+                                 function(bar_children) {
+        var folder_search = [];
+        bar_children.forEach(function(child) {
+          if (child.title == "folder" && child.url == undefined) {
+            folder_search.push(child);
+          }
+        });
+        if (folder_search.length == 1) {
+          console.log('moving children out of "folder"');
+          var folder = folder_search[0];
+          folder.childrenIds.forEach(function(folder_child_id) {
+            chromium.bookmarks.move({'id': folder_child_id,
+                                     'parentId': bookmark_bar.id});
+          });
+          chromium.bookmarks.remove({'id': folder.id});
+        } else if (folder_search.length == 0) {
+          console.log('creating "folder" and moving children into it');
+          chromium.bookmarks.create({'parentId': bookmark_bar.id, 
+                                     'title': 'folder'},
+                                      function(folder) {
+            chromium.bookmarks.search("oog", function(oog_search) {
+              oog_search.forEach(function(oog_match) {
+                chromium.bookmarks.move({'id': oog_match.id,
+                                         'parentId': folder.id})
+              });
+            });
+          });
+        } else {
+          console.log("my puny code wasn't written to handle this");
+        }
+      });
+    });
+  });
+};
+
+var dumpBookmarks = function(event) {
+  window.open("bookmark_view.html");
+  /*
+    console.dir(results);
+    var win = window.open();
+    win.document.write("<html><body><pre>");
+    win.document.write(dump(results));
+    win.document.write("</pre></body></html>");
+    win.document.title = "Bookmarks";
+  });
+  */
+};
+</script>
+<body>
+<div class="content">
+<div class="button" onclick="dumpBookmarks(window.event);">
+Dump Bookmarks
+</div>
+<div class="button" onclick="testMoveBookmarks(window.event);">
+Test Move
+</div>
+</div>
+</body>
+</html>

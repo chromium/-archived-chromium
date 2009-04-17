@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<title>Bookmark View</title>
+<style>
+
+.bookmark {
+  margin-left: 5px;
+  padding: 2px;
+}
+
+.bookmark_title {
+  display: inline;
+  border: 1px solid white;
+  padding: 0px 3px;
+}
+
+.bookmark_title:hover {
+  background-color: silver;
+  border: 1px solid black;
+}
+</style>
+<script>
+
+var prefix = "bookmark_";
+
+var toggleBookmark = function(event) {
+  event.stopPropagation();
+  var node = event.currentTarget;
+  var id_str = node.id;
+  if (id_str < prefix.length)
+    return;
+  var id = parseInt(id_str.substring(prefix.length));
+  if (id == NaN)
+    return;
+  console.log("toggle: " + id);
+  //console.dir(event);
+  chromium.bookmarks.get([id], function(bookmark) {
+    //console.log("toggle get");
+    console.dir(bookmark[0]);
+    if (bookmark[0].childrenIds && bookmark[0].childrenIds.length) {
+      if (node.childNodes.length != 1) {
+        //console.log("toggle collapse");
+        node.removeChild(node.childNodes[1]);
+      } else {
+        //console.log("before");
+        chromium.bookmarks.get(bookmark[0].childrenIds, function(children) {
+          //console.log("toggle expand");
+          if (children && children.length) {
+            console.dir(children);
+            addBookmarks(children, node);
+          }
+        });
+      }
+    }
+  });
+};
+
+var addBookmark = function(bookmark, parent) {
+  //console.log("addBookmark " + bookmark.id);
+  var child = document.createElement('li');
+  child.className = 'bookmark';
+  child.id = prefix + bookmark.id;
+  child.addEventListener('click', toggleBookmark, false);
+  if (bookmark.url && bookmark.url.length) {
+    var link = document.createElement('a');
+    link.href = bookmark.url;
+    link.innerHTML = bookmark.title;
+    link.className = 'bookmark_title';
+    child.appendChild(link);
+  } else {
+    var title = document.createElement('div');
+    title.innerHTML = bookmark.title;
+    title.className = 'bookmark_title';
+    child.appendChild(title);
+  }
+  parent.appendChild(child);
+};
+
+var addBookmarks = function(bookmarks, parent) {
+  console.log("addBookmarks " + parent.id);
+  var list = document.createElement("ul");
+  parent.appendChild(list);
+  bookmarks.forEach(function(bookmark) { addBookmark(bookmark, list); });
+};
+
+var loadBookmarks = function() {
+  var container = document.getElementById('container');
+  chromium.bookmarks.get([], function(results) {
+    var root = results[0];
+    console.dir(root);
+    var rootElement = document.createElement("div");
+    rootElement.id = prefix + root.id;
+    // root element is empty / invisible, just an id to be looked up
+    container.appendChild(rootElement);
+    chromium.bookmarks.get(root.childrenIds, function(children) {
+      addBookmarks(children, rootElement);
+    });
+  });
+};
+
+</script>
+<body onload="loadBookmarks()">
+<div id="container">
+</div>
+</body>

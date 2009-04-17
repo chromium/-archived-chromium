@@ -11,6 +11,7 @@
 #include "base/values.h"
 
 class ExtensionFunction;
+class Profile;
 class RenderViewHost;
 
 // ExtensionFunctionDispatcher receives requests to execute functions from
@@ -29,6 +30,13 @@ class ExtensionFunctionDispatcher {
 
   // Send a response to a function.
   void SendResponse(ExtensionFunction* api);
+
+  // Handle a malformed message.  Possibly the result of an attack, so kill
+  // the renderer.
+  void HandleBadMessage(ExtensionFunction* api);
+
+  // The profile that this dispatcher is associated with.
+  Profile* profile();
 
  private:
   RenderViewHost* render_view_host_;

@@ -6,11 +6,15 @@
 
 #include "base/json_reader.h"
 #include "base/json_writer.h"
+#include "base/process_util.h"
 #include "base/singleton.h"
 #include "base/values.h"
+#include "chrome/browser/extensions/extension_bookmarks_module.h"
 #include "chrome/browser/extensions/extension_function.h"
 #include "chrome/browser/extensions/extension_tabs_module.h"
+#include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/common/result_codes.h"
 
 // FactoryRegistry -------------------------------------------------------------
 
@@ -45,6 +49,8 @@ FactoryRegistry* FactoryRegistry::instance() {
 
 FactoryRegistry::FactoryRegistry() {
   // Register all functions here.
+
+  // Tabs
   factories_["GetWindows"] = &NewExtensionFunction<GetWindowsFunction>;
   factories_["GetTabsForWindow"] =
       &NewExtensionFunction<GetTabsForWindowFunction>;
@@ -53,6 +59,16 @@ FactoryRegistry::FactoryRegistry() {
   factories_["UpdateTab"] = &NewExtensionFunction<UpdateTabFunction>;
   factories_["MoveTab"] = &NewExtensionFunction<MoveTabFunction>;
   factories_["RemoveTab"] = &NewExtensionFunction<RemoveTabFunction>;
+
+  // Bookmarks
+  factories_["GetBookmarks"] = &NewExtensionFunction<GetBookmarksFunction>;
+  factories_["SearchBookmarks"] =
+      &NewExtensionFunction<SearchBookmarksFunction>;
+  factories_["RemoveBookmark"] = &NewExtensionFunction<RemoveBookmarkFunction>;
+  factories_["CreateBookmark"] = &NewExtensionFunction<CreateBookmarkFunction>;
+  factories_["MoveBookmark"] = &NewExtensionFunction<MoveBookmarkFunction>;
+  factories_["SetBookmarkTitle"] =
+      &NewExtensionFunction<SetBookmarkTitleFunction>;
 }
 
 void FactoryRegistry::GetAllNames(
@@ -118,3 +134,21 @@ void ExtensionFunctionDispatcher::SendResponse(ExtensionFunction* function) {
 
   render_view_host_->SendExtensionResponse(function->callback_id(), json);
 }
+
+void ExtensionFunctionDispatcher::HandleBadMessage(ExtensionFunction* api) {
+  LOG(ERROR) << "bad extension message " <<  // TODO(erikkay) name?
+                " : terminating renderer.";
+  if (RenderProcessHost::run_renderer_in_process()) {
+    // In single process mode it is better if we don't suicide but just crash.
+    CHECK(false);
+  } else {
+    NOTREACHED();
+    base::KillProcess(render_view_host_->process()->process().handle(),
+                      ResultCodes::KILLED_BAD_MESSAGE, false);
+  }
+}
+
+Profile* ExtensionFunctionDispatcher::profile() {
+  return render_view_host_->process()->profile();
+}
+

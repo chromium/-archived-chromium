@@ -672,6 +672,8 @@
         'browser/encoding_menu_controller_delegate.h',
         'browser/extensions/extension.cc',
         'browser/extensions/extension.h',
+        'browser/extensions/extension_bookmarks_module.cc',
+        'browser/extensions/extension_bookmarks_module.h',
         'browser/extensions/extension_error_reporter.cc',
         'browser/extensions/extension_error_reporter.h',
         'browser/extensions/extension_function.cc',

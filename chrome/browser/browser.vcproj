@@ -1902,6 +1902,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_bookmarks_module.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_bookmarks_module.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_browser_event_router.cc"
 				>
 			</File>

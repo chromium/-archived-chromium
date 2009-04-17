@@ -11,12 +11,21 @@
 #include "base/scoped_ptr.h"
 
 class ExtensionFunctionDispatcher;
+class Profile;
+
+#define EXTENSION_FUNCTION_VALIDATE(test) do { \
+    if (!test) { \
+      bad_message_ = true; \
+      return false; \
+    } \
+  } while (0)
 
 // Base class for an extension function.
 // TODO(aa): This will have to become reference counted when we introduce APIs
 // that live beyond a single stack frame.
 class ExtensionFunction {
  public:
+  ExtensionFunction() : bad_message_(false) {}
   virtual ~ExtensionFunction() {}
 
   void set_dispatcher(ExtensionFunctionDispatcher* dispatcher) {
@@ -43,6 +52,8 @@ class ExtensionFunction {
  protected:
   void SendResponse(bool success);
 
+  Profile* profile();
+
   // The arguments to the API. Only non-null if argument were specfied.
   Value* args_;
 
@@ -54,9 +65,15 @@ class ExtensionFunction {
   // class before Run() returns.
   std::string error_;
 
+  // Any class that gets a malformed message should set this to true before
+  // returning.  The calling renderer process will be killed.
+  bool bad_message_;
+
  private:
   ExtensionFunctionDispatcher* dispatcher_;
   int callback_id_;
+
+  DISALLOW_COPY_AND_ASSIGN(ExtensionFunction);
 };
 
 
@@ -69,6 +86,8 @@ class ExtensionFunction {
 // need to interact with things on the browser UI thread.
 class SyncExtensionFunction : public ExtensionFunction {
  public:
+  SyncExtensionFunction() {}
+
   // Derived classes should implement this method to do their work and return
   // success/failure.
   virtual bool RunImpl() = 0;
@@ -76,6 +95,9 @@ class SyncExtensionFunction : public ExtensionFunction {
   virtual void Run() {
     SendResponse(RunImpl());
   }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(SyncExtensionFunction);
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_H_
