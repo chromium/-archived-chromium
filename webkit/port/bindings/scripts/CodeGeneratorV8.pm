@@ -923,6 +923,7 @@ sub GenerateBatchedAttributeData
     my $getter;
     my $setter;
     my $propAttr = "v8::None";
+    my $hasCustomSetter = 0;
 
     # Check attributes.
     if ($attrExt->{"DontEnum"}) {
@@ -970,11 +971,13 @@ sub GenerateBatchedAttributeData
         $setter = "0";
         $propAttr = "v8::ReadOnly";
       } else {
+        $hasCustomSetter = 1;
         $setter = "V8Custom::v8${customAccessor}AccessorSetter";
       }
       
     # Custom Setter
     } elsif ($attrExt->{"CustomSetter"} || $attrExt->{"V8CustomSetter"}) {
+      $hasCustomSetter = 1;
       $getter = "${interfaceName}Internal::${attrName}AttrGetter";
       $setter = "V8Custom::v8${customAccessor}AccessorSetter";
 
@@ -994,6 +997,11 @@ sub GenerateBatchedAttributeData
     } else {
       $getter = "${interfaceName}Internal::${attrName}AttrGetter";
       $setter = "${interfaceName}Internal::${attrName}AttrSetter";
+    }
+
+    if ($attrExt->{"Replaceable"} && !$hasCustomSetter) {
+      $setter = "0";
+      $propAttr .= "|v8::ReadOnly";
     }
 
     # Read only attributes
