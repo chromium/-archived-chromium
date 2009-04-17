@@ -379,7 +379,9 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
 // TODO(scherkus): as we keep refactoring and improving our mocks (both FFmpeg
 // and pipeline/filters), try to break this test into two.  Big issue right now
 // is that it takes ~50 lines of code just to set up FFmpegDemuxer.
-TEST(FFmpegDemuxerTest, ReadAndSeek) {
+//
+// Refer to http://crbug.com/10653
+TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Prepare some test data.
   const int kAudio = 0;
   const int kVideo = 1;
