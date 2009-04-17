@@ -81,6 +81,9 @@ class SafeBrowsingDatabaseBloom : public SafeBrowsingDatabase {
 
   virtual bool NeedToCheckUrl(const GURL& url);
 
+  // How many bits to use per item.  See the design doc for more information.
+  static const int kBloomFilterSizeRatio = 25;
+
  private:
   // Opens the database.
   bool Open();

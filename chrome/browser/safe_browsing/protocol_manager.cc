@@ -196,6 +196,12 @@ void SafeBrowsingProtocolManager::OnURLFetchComplete(
     std::vector<SBFullHashResult> full_hashes;
     bool can_cache = false;
     if (response_code == 200 || response_code == 204) {
+      // For tracking our GetHash false positive (204) rate, compared to real
+      // (200) responses.
+      if (response_code == 200)
+        UMA_HISTOGRAM_COUNTS("SB2.GetHash200", 1);
+      else
+        UMA_HISTOGRAM_COUNTS("SB2.GetHash204", 1);
       can_cache = true;
       gethash_error_count_ = 0;
       gethash_back_off_mult_ = 1;

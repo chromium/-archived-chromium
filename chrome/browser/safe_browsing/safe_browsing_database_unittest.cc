@@ -905,6 +905,19 @@ TEST(SafeBrowsingDatabase, HashCaching) {
   // Prefix miss cache should be cleared.
   EXPECT_EQ(database->prefix_miss_cache()->size(), 0U);
 
+  // Cache a GetHash miss for a particular prefix, and even though the prefix is
+  // in the database, it is flagged as a miss so looking up the associated URL
+  // will not succeed.
+  prefixes.clear();
+  full_hashes.clear();
+  prefix_misses.clear();
+  empty_full_hash.clear();
+  prefix_misses.push_back(Sha256Prefix("www.evil.com/phishing.html"));
+  database->CacheHashResults(prefix_misses, empty_full_hash);
+  EXPECT_FALSE(database->ContainsUrl(GURL("http://www.evil.com/phishing.html"),
+                                     &listname, &prefixes,
+                                     &full_hashes, Time::Now()));
+
   lists.clear();
   prefixes.clear();
   full_hashes.clear();

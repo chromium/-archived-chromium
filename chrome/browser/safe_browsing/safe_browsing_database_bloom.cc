@@ -30,9 +30,6 @@ static const int kDatabaseVersion = 6;
 // downloading the data and then keep having to rebuild it.
 static const int kBloomFilterMinSize = 250000;
 
-// How many bits to use per item.  See the design doc for more information.
-static const int kBloomFilterSizeRatio = 13;
-
 // When we awake from a low power state, we try to avoid doing expensive disk
 // operations for a few minutes to let the system page itself in and settle
 // down.
@@ -1065,8 +1062,11 @@ bool SafeBrowsingDatabaseBloom::WritePrefixes(
     return false;
   }
 
+  // Determine the size of the new bloom filter. We will cap the maximum size at
+  // 2 MB to prevent an error from consuming large amounts of memory.
   int number_of_keys = std::max(add_count_, kBloomFilterMinSize);
-  int filter_size = number_of_keys * kBloomFilterSizeRatio;
+  int filter_size = std::min(number_of_keys * kBloomFilterSizeRatio,
+                             2 * 1024 * 1024 * 8);
   BloomFilter* new_filter = new BloomFilter(filter_size);
   SBPair* add = adds;
   int new_count = 0;
@@ -1357,6 +1357,7 @@ void SafeBrowsingDatabaseBloom::BuildBloomFilter() {
   UMA_HISTOGRAM_LONG_TIMES("SB2.BuildFilter", bloom_gen);
   UMA_HISTOGRAM_COUNTS("SB2.AddPrefixes", add_count_);
   UMA_HISTOGRAM_COUNTS("SB2.SubPrefixes", subs);
+  UMA_HISTOGRAM_COUNTS("SB2.FilterSize", filter->size());
   int64 size_64;
   if (file_util::GetFileSize(filename_, &size_64))
     UMA_HISTOGRAM_COUNTS("SB2.DatabaseBytes", static_cast<int>(size_64));
