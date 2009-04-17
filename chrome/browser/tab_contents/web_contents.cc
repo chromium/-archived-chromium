@@ -166,6 +166,16 @@ bool IsFormSubmit(const NavigationEntry* entry) {
           PageTransition::FORM_SUBMIT);
 }
 
+#if defined(OS_WIN)
+
+BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
+  // Note: erase is required to properly paint some widgets borders. This can
+  // be seen with textfields.
+  InvalidateRect(hwnd, NULL, TRUE);
+  return TRUE;
+}
+#endif
+
 }  // namespace
 
 class WebContents::GearsCreateShortcutCallbackFunctor {
@@ -321,6 +331,9 @@ PluginInstaller* WebContents::GetPluginInstaller() {
 }
 
 void WebContents::Destroy() {
+  DCHECK(!is_being_destroyed_);
+  is_being_destroyed_ = true;
+
   // Tell the notification service we no longer want notifications.
   NotificationService::current()->RemoveObserver(
       this, NotificationType::URLS_STARRED, NotificationService::AllSources());
@@ -346,7 +359,47 @@ void WebContents::Destroy() {
   NotifyDisconnected();
   HungRendererWarning::HideForWebContents(this);
   render_manager_.Shutdown();
-  TabContents::Destroy();
+
+  // First cleanly close all child windows.
+  // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
+  // some of these to close.  CloseWindows is async, so it might get called
+  // twice before it runs.
+  int size = static_cast<int>(child_windows_.size());
+  for (int i = size - 1; i >= 0; --i) {
+    ConstrainedWindow* window = child_windows_[i];
+    if (window)
+      window->CloseConstrainedWindow();
+  }
+
+  // Notify any lasting InfobarDelegates that have not yet been removed that
+  // whatever infobar they were handling in this TabContents has closed,
+  // because the TabContents is going away entirely.
+  for (int i = 0; i < infobar_delegate_count(); ++i) {
+    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
+    delegate->InfoBarClosed();
+  }
+  infobar_delegates_.clear();
+
+  // Notify any observer that have a reference on this tab contents.
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
+
+#if defined(OS_WIN)
+  // If we still have a window handle, destroy it. GetNativeView can return
+  // NULL if this contents was part of a window that closed.
+  if (GetNativeView())
+    ::DestroyWindow(GetNativeView());
+#endif
+
+  // Notify our NavigationController.  Make sure we are deleted first, so
+  // that the controller is the last to die.
+  NavigationController* controller = controller_;
+
+  delete this;
+
+  controller->TabContentsWasDestroyed();
 }
 
 const string16& WebContents::GetTitle() const {
@@ -358,7 +411,23 @@ const string16& WebContents::GetTitle() const {
     if (!title.empty())
       return title;
   }
-  return TabContents::GetTitle();
+
+  // We use the title for the last committed entry rather than a pending
+  // navigation entry. For example, when the user types in a URL, we want to
+  // keep the old page's title until the new load has committed and we get a new
+  // title.
+  // The exception is with transient pages, for which we really want to use
+  // their title, as they are not committed.
+  NavigationEntry* entry = controller_->GetTransientEntry();
+  if (entry)
+    return entry->GetTitleForDisplay(controller_);
+
+  entry = controller_->GetLastCommittedEntry();
+  if (entry)
+    return entry->GetTitleForDisplay(controller_);
+  else if (controller_->LoadingURLLazily())
+    return controller_->GetLazyTitle();
+  return EmptyString16();
 }
 
 SiteInstance* WebContents::GetSiteInstance() const {
@@ -475,7 +544,14 @@ void WebContents::DisassociateFromPopupCount() {
 }
 
 void WebContents::DidBecomeSelected() {
-  TabContents::DidBecomeSelected();
+  if (controller_)
+    controller_->SetActive(true);
+
+#if defined(OS_WIN)
+  // Invalidate all descendants. (take care to exclude invalidating ourselves!)
+  // TODO(brettw) this should be moved to the view!
+//  EnumChildWindows(GetNativeView(), InvalidateWindow, 0);
+#endif
 
   if (render_widget_host_view())
     render_widget_host_view()->DidBecomeSelected();
@@ -504,7 +580,10 @@ void WebContents::WasHidden() {
     }
   }
 
-  TabContents::WasHidden();
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_HIDDEN,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
 }
 
 void WebContents::ShowContents() {
@@ -551,7 +630,22 @@ bool WebContents::IsBookmarkBarAlwaysVisible() {
 }
 
 void WebContents::SetDownloadShelfVisible(bool visible) {
-  TabContents::SetDownloadShelfVisible(visible);
+  if (shelf_visible_ != visible) {
+    if (visible) {
+      // Invoke GetDownloadShelf to force the shelf to be created.
+      GetDownloadShelf();
+    }
+    shelf_visible_ = visible;
+
+    if (delegate_)
+      delegate_->ContentsStateChanged(this);
+  }
+
+  // SetShelfVisible can force-close the shelf, so make sure we lay out
+  // everything correctly, as if the animation had finished. This doesn't
+  // matter for showing the shelf, as the show animation will do it.
+  ToolbarSizeChanged(false);
+
   if (visible) {
     // Always set this value as it reflects the last time the download shelf
     // was made visible (even if it was already visible).
@@ -719,13 +813,30 @@ void WebContents::SetInitialFocus(bool reverse) {
 // loading, or done loading and calls the base implementation.
 void WebContents::SetIsLoading(bool is_loading,
                                LoadNotificationDetails* details) {
+  if (is_loading == is_loading_)
+    return;
+
   if (!is_loading) {
     load_state_ = net::LOAD_STATE_IDLE;
     load_state_host_.clear();
   }
 
-  TabContents::SetIsLoading(is_loading, details);
   render_manager_.SetIsLoading(is_loading);
+
+  is_loading_ = is_loading;
+  waiting_for_response_ = is_loading;
+
+  if (delegate_)
+    delegate_->LoadingStateChanged(this);
+
+  NotificationType type = is_loading ? NotificationType::LOAD_START :
+      NotificationType::LOAD_STOP;
+  NotificationDetails det = NotificationService::NoDetails();;
+  if (details)
+      det = Details<LoadNotificationDetails>(details);
+  NotificationService::current()->Notify(type,
+      Source<NavigationController>(this->controller()),
+      det);
 }
 
 RenderViewHostDelegate::View* WebContents::GetViewDelegate() const {
@@ -1581,10 +1692,18 @@ void WebContents::Observe(NotificationType type,
     case NotificationType::RENDER_WIDGET_HOST_DESTROYED:
       view_->RenderWidgetHostDestroyed(Source<RenderWidgetHost>(source).ptr());
       break;
-    default: {
-      TabContents::Observe(type, source, details);
+
+    case NotificationType::NAV_ENTRY_COMMITTED: {
+      DCHECK(controller() == Source<NavigationController>(source).ptr());
+
+      NavigationController::LoadCommittedDetails& committed_details =
+          *(Details<NavigationController::LoadCommittedDetails>(details).ptr());
+      ExpireInfoBars(committed_details);
       break;
     }
+
+    default:
+      NOTREACHED();
   }
 }
 

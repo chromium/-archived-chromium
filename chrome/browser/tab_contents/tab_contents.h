@@ -92,7 +92,7 @@ class TabContents : public PageNavigator,
   // If you override this, be sure to call this implementation at the end
   // of yours.
   // See also Close().
-  virtual void Destroy();
+  virtual void Destroy() = 0;
 
   // Intrinsic tab state -------------------------------------------------------
 
@@ -138,15 +138,10 @@ class TabContents : public PageNavigator,
     return controller_ ? controller_->profile() : NULL;
   }
 
-  // Returns whether this tab contents supports the provided URL. By default,
-  // this method matches the tab contents type with the result of TypeForURL().
-  // |url| points to the actual URL that will be used. It can be modified as
-  // needed.
-  // Override this method if your TabContents subclass supports various URL
-  // schemes but doesn't want to be the default handler for these schemes.
-  // For example, the NewTabUIContents overrides this method to support
-  // javascript: URLs.
-  virtual bool SupportsURL(GURL* url);
+  // Returns whether this tab contents supports the provided URL.This method
+  // matches the tab contents type with the result of TypeForURL(). |url| points
+  // to the actual URL that will be used. It can be modified as needed.
+  bool SupportsURL(GURL* url);
 
   // Tab navigation state ------------------------------------------------------
 
@@ -154,7 +149,7 @@ class TabContents : public PageNavigator,
   // pending may be provisional (e.g., the navigation could result in a
   // download, in which case the URL would revert to what it was previously).
   const GURL& GetURL() const;
-  virtual const string16& GetTitle() const;
+  virtual const string16& GetTitle() const = 0;
 
   // The max PageID of any page that this TabContents has loaded.  PageIDs
   // increase with each new page that is loaded by a tab.  If this is a
@@ -168,25 +163,25 @@ class TabContents : public PageNavigator,
   // Returns the site instance associated with the current page. By default,
   // there is no site instance. WebContents overrides this to provide proper
   // access to its site instance.
-  virtual SiteInstance* GetSiteInstance() const { return NULL; }
+  virtual SiteInstance* GetSiteInstance() const = 0;
 
   // Initial title assigned to NavigationEntries from Navigate.
-  virtual const std::wstring GetDefaultTitle() const;
+  const std::wstring GetDefaultTitle() const;
 
   // Defines whether this tab's URL should be displayed in the browser's URL
   // bar. Normally this is true so you can see the URL. This is set to false
   // for the new tab page and related pages so that the URL bar is empty and
   // the user is invited to type into it.
-  virtual bool ShouldDisplayURL() { return true; }
+  virtual bool ShouldDisplayURL() = 0;
 
   // Returns the favicon for this tab, or an isNull() bitmap if the tab does not
   // have a favicon. The default implementation uses the current navigation
   // entry.
-  virtual SkBitmap GetFavIcon() const;
+  SkBitmap GetFavIcon() const;
 
   // Returns whether the favicon should be displayed. If this returns false, no
   // space is provided for the favicon, and the favicon is never displayed.
-  virtual bool ShouldDisplayFavIcon() { return true; }
+  virtual bool ShouldDisplayFavIcon() = 0;
 
   // SSL related states.
   SecurityStyle GetSecurityStyle() const;
@@ -198,7 +193,7 @@ class TabContents : public PageNavigator,
   bool GetSSLEVText(std::wstring* ev_text, std::wstring* ev_tooltip_text) const;
 
   // Returns a human-readable description the tab's loading state.
-  virtual std::wstring GetStatusText() const { return std::wstring(); }
+  virtual std::wstring GetStatusText() const = 0;
 
   // Return whether this tab contents is loading a resource.
   bool is_loading() const { return is_loading_; }
@@ -231,15 +226,15 @@ class TabContents : public PageNavigator,
 
   // Invoked when the tab contents becomes selected. If you override, be sure
   // and invoke super's implementation.
-  virtual void DidBecomeSelected();
+  virtual void DidBecomeSelected() = 0;
 
   // Invoked when the tab contents becomes hidden.
   // NOTE: If you override this, call the superclass version too!
-  virtual void WasHidden();
+  virtual void WasHidden() = 0;
 
   // Activates this contents within its containing window, bringing that window
   // to the foreground if necessary.
-  virtual void Activate();
+  void Activate();
 
   // Commands ------------------------------------------------------------------
 
@@ -259,10 +254,10 @@ class TabContents : public PageNavigator,
   //
   // If this method returns false, then the navigation is discarded (equivalent
   // to calling DiscardPendingEntry on the NavigationController).
-  virtual bool NavigateToPendingEntry(bool reload);
+  virtual bool NavigateToPendingEntry(bool reload) = 0;
 
   // Stop any pending navigation.
-  virtual void Stop() {}
+  virtual void Stop() = 0;
 
   // TODO(erg): HACK ALERT! This was thrown together for beta and
   // needs to be completely removed after we ship it. Right now, the
@@ -271,12 +266,12 @@ class TabContents : public PageNavigator,
   // TabContents. Post-beta, this needs to be replaced with a unified
   // interface for supporting cut/copy/paste, and managing who has
   // cut/copy/paste focus. (http://b/1117225)
-  virtual void Cut() { }
-  virtual void Copy() { }
-  virtual void Paste() { }
+  virtual void Cut() = 0;
+  virtual void Copy() = 0;
+  virtual void Paste() = 0;
 
   // Called on a TabContents when it isn't a popup, but a new window.
-  virtual void DisassociateFromPopupCount() { }
+  virtual void DisassociateFromPopupCount() = 0;
 
   // Window management ---------------------------------------------------------
 
@@ -302,11 +297,6 @@ class TabContents : public PageNavigator,
   void AddConstrainedPopup(TabContents* new_contents,
                            const gfx::Rect& initial_pos);
 
-  // When a tab is closed, this method is called for all the remaining tabs. If
-  // they all return false or if no tabs are left, the window is closed. The
-  // default is to return true
-  virtual bool ShouldPreventWindowClose() { return true; }
-
   // Closes all constrained windows that represent web popups that have not yet
   // been activated by the user and are as such auto-positioned in the bottom
   // right of the screen. This is a quick way for users to "clean up" a flurry
@@ -314,23 +304,19 @@ class TabContents : public PageNavigator,
   void CloseAllSuppressedPopups();
 
   // Called when the blocked popup notification is shown or hidden.
-  virtual void PopupNotificationVisibilityChanged(bool visible) { }
+  virtual void PopupNotificationVisibilityChanged(bool visible) = 0;
 
   // Views and focus -----------------------------------------------------------
 
   // Returns the actual window that is focused when this TabContents is shown.
-  virtual gfx::NativeView GetContentNativeView() {
-    return GetNativeView();
-  }
+  virtual gfx::NativeView GetContentNativeView() = 0;
 
   // Returns the NativeView associated with this TabContents. Outside of
   // automation in the context of the UI, this is required to be implemented.
-  virtual gfx::NativeView GetNativeView() const { return NULL; }
+  virtual gfx::NativeView GetNativeView() const = 0;
 
   // Returns the bounds of this TabContents in the screen coordinate system.
-  virtual void GetContainerBounds(gfx::Rect *out) const {
-    out->SetRect(0, 0, 0, 0);
-  }
+  virtual void GetContainerBounds(gfx::Rect *out) const = 0;
 
   // Make the tab the focused window.
   virtual void Focus() = 0;
@@ -344,18 +330,7 @@ class TabContents : public PageNavigator,
   //
   // See also SetInitialFocus(no arg).
   // FIXME(brettw) having two SetInitialFocus that do different things is silly.
-  virtual void SetInitialFocus(bool reverse) { }
-
-  // TabContents that contain View hierarchy (such as NativeUIContents) should
-  // return their RootView.  Other TabContents (such as WebContents) should
-  // return NULL.
-  // This is used by the focus manager to figure out what to focus when the tab
-  // is focused (when a tab with no view hierarchy is focused, the
-  // TabContentsContainerView is focused) and how to process tab events.  If
-  // this returns NULL, the TabContents is supposed to know how to process TAB
-  // key events and is just sent the key messages.  If this returns a RootView,
-  // the focus is passed to the RootView.
-  virtual views::RootView* GetContentsRootView() { return NULL; }
+  virtual void SetInitialFocus(bool reverse) = 0;
 
   // Infobars ------------------------------------------------------------------
 
@@ -374,10 +349,10 @@ class TabContents : public PageNavigator,
   // Toolbars and such ---------------------------------------------------------
 
   // Returns whether the bookmark bar should be visible.
-  virtual bool IsBookmarkBarAlwaysVisible() { return false; }
+  virtual bool IsBookmarkBarAlwaysVisible() = 0;
 
   // Whether or not the shelf view is visible.
-  virtual void SetDownloadShelfVisible(bool visible);
+  virtual void SetDownloadShelfVisible(bool visible) = 0;
   bool IsDownloadShelfVisible() { return shelf_visible_; }
 
   // Notify our delegate that some of our content has animated.
@@ -406,11 +381,6 @@ class TabContents : public PageNavigator,
   void DidMoveOrResize(ConstrainedWindow* window);
 
  protected:
-  // NotificationObserver implementation:
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
   friend class NavigationController;
   // Used to access the child_windows_ (ConstrainedWindowList) for testing
   // automation purposes.
@@ -429,7 +399,8 @@ class TabContents : public PageNavigator,
   // Changes the IsLoading state and notifies delegate as needed
   // |details| is used to provide details on the load that just finished
   // (but can be null if not applicable). Can be overridden.
-  virtual void SetIsLoading(bool is_loading, LoadNotificationDetails* details);
+  virtual void SetIsLoading(bool is_loading,
+                            LoadNotificationDetails* details) = 0;
 
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds
@@ -437,9 +408,7 @@ class TabContents : public PageNavigator,
   void RepositionSupressedPopupsToFit(const gfx::Size& new_size);
 
   // Releases the download shelf. This method is used by MigrateShelfFrom.
-  // Sub-classes should clear any pointer they might keep to the shelf view and
-  // invoke TabContents::ReleaseDownloadShelf().
-  virtual void ReleaseDownloadShelf();
+  void ReleaseDownloadShelf();
 
   // Called by derived classes to indicate that we're no longer waiting for a
   // response. This won't actually update the throbber, but it will get picked
@@ -454,7 +423,6 @@ class TabContents : public PageNavigator,
   // determines whether to show itself).
   bool ShowingBlockedPopupNotification() const;
 
- private:
   // Expires InfoBars that need to be expired, according to the state carried
   // in |details|, in response to a new NavigationEntry being committed (the
   // user navigated to another page).

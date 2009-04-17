@@ -54,13 +54,6 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
       FocusManager::UninstallFocusSubclass(hwnd);
     }
 
-    views::RootView* root_view = tab_contents_->GetContentsRootView();
-    if (root_view) {
-      // Unlink the RootViews as a clean-up.
-      root_view->SetFocusTraversableParent(NULL);
-      root_view->SetFocusTraversableParentView(NULL);
-    }
-
     // Now detach the TabContents.
     Detach();
 
@@ -86,26 +79,16 @@ void TabContentsContainerView::SetTabContents(TabContents* tab_contents) {
     FocusManager::InstallFocusSubclass(contents_hwnd, this);
 
   AddObservers();
-
-  views::RootView* root_view = tab_contents_->GetContentsRootView();
-  if (root_view) {
-    // Link the RootViews for proper focus traversal (note that we skip the
-    // TabContentsContainerView as it acts as a FocusTraversable proxy).
-    root_view->SetFocusTraversableParent(GetRootView());
-    root_view->SetFocusTraversableParentView(this);
-  }
 }
 
 views::FocusTraversable* TabContentsContainerView::GetFocusTraversable() {
-  if (tab_contents_ && tab_contents_->GetContentsRootView())
-    return tab_contents_->GetContentsRootView();
   return NULL;
 }
 
 bool TabContentsContainerView::IsFocusable() const {
   // We need to be focusable when our contents is not a view hierarchy, as
   // clicking on the contents needs to focus us.
-  if (tab_contents_ && !tab_contents_->GetContentsRootView())
+  if (tab_contents_)
     return true;
 
   // If we do contain views, then we should just act as a regular container by
@@ -124,32 +107,19 @@ void TabContentsContainerView::AboutToRequestFocusFromTabTraversal(
 bool TabContentsContainerView::CanProcessTabKeyEvents() {
   // TabContents with no RootView are supposed to deal with the focus traversal
   // explicitly.  For that reason, they receive tab key events as is.
-  return tab_contents_ && !tab_contents_->GetContentsRootView();
+  return !!tab_contents_;
 }
 
-views::FocusTraversable*
-    TabContentsContainerView::GetFocusTraversableParent() {
-  if (tab_contents_ && tab_contents_->GetContentsRootView()) {
-    // Since we link the RootView of the TabContents to the RootView that
-    // contains us, this should not be invoked.
-    NOTREACHED();
-    return NULL;
-  }
+views::FocusTraversable* TabContentsContainerView::GetFocusTraversableParent() {
   return GetRootView();
 }
 
 views::View* TabContentsContainerView::GetFocusTraversableParentView() {
-  if (tab_contents_ && tab_contents_->GetContentsRootView()) {
-    // Since we link the RootView of the TabContents to the RootView that
-    // contains us, this should not be invoked.
-    NOTREACHED();
-    return NULL;
-  }
   return this;
 }
 
 void TabContentsContainerView::Focus() {
-  if (tab_contents_ && !tab_contents_->GetContentsRootView()) {
+  if (tab_contents_) {
     // Set the native focus on the actual content of the tab.
     ::SetFocus(tab_contents_->GetContentNativeView());
   }

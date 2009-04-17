@@ -24,19 +24,6 @@
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #endif
 
-#if defined(OS_WIN)
-namespace {
-
-BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
-  // Note: erase is required to properly paint some widgets borders. This can
-  // be seen with textfields.
-  InvalidateRect(hwnd, NULL, TRUE);
-  return TRUE;
-}
-
-}  // namespace
-#endif
-
 TabContents::TabContents()
     : delegate_(NULL),
       controller_(NULL),
@@ -126,25 +113,6 @@ const GURL& TabContents::GetURL() const {
   return entry ? entry->display_url() : GURL::EmptyGURL();
 }
 
-const string16& TabContents::GetTitle() const {
-  // We use the title for the last committed entry rather than a pending
-  // navigation entry. For example, when the user types in a URL, we want to
-  // keep the old page's title until the new load has committed and we get a new
-  // title.
-  // The exception is with transient pages, for which we really want to use
-  // their title, as they are not committed.
-  NavigationEntry* entry = controller_->GetTransientEntry();
-  if (entry)
-    return entry->GetTitleForDisplay(controller_);
-
-  entry = controller_->GetLastCommittedEntry();
-  if (entry)
-    return entry->GetTitleForDisplay(controller_);
-  else if (controller_->LoadingURLLazily())
-    return controller_->GetLazyTitle();
-  return EmptyString16();
-}
-
 int32 TabContents::GetMaxPageID() {
   if (GetSiteInstance())
     return GetSiteInstance()->max_page_id();
@@ -226,23 +194,6 @@ void TabContents::SetIsCrashed(bool state) {
 void TabContents::NotifyNavigationStateChanged(unsigned changed_flags) {
   if (delegate_)
     delegate_->NavigationStateChanged(this, changed_flags);
-}
-
-void TabContents::DidBecomeSelected() {
-  if (controller_)
-    controller_->SetActive(true);
-
-#if defined(OS_WIN)
-  // Invalidate all descendants. (take care to exclude invalidating ourselves!)
-  EnumChildWindows(GetNativeView(), InvalidateWindow, 0);
-#endif
-}
-
-void TabContents::WasHidden() {
-  NotificationService::current()->Notify(
-      NotificationType::TAB_CONTENTS_HIDDEN,
-      Source<TabContents>(this),
-      NotificationService::NoDetails());
 }
 
 void TabContents::Activate() {
@@ -382,24 +333,6 @@ void TabContents::ToolbarSizeChanged(bool is_animating) {
     d->ToolbarSizeChanged(this, is_animating);
 }
 
-void TabContents::SetDownloadShelfVisible(bool visible) {
-  if (shelf_visible_ != visible) {
-    if (visible) {
-      // Invoke GetDownloadShelf to force the shelf to be created.
-      GetDownloadShelf();
-    }
-    shelf_visible_ = visible;
-
-    if (delegate_)
-      delegate_->ContentsStateChanged(this);
-  }
-
-  // SetShelfVisible can force-close the shelf, so make sure we lay out
-  // everything correctly, as if the animation had finished. This doesn't
-  // matter for showing the shelf, as the show animation will do it.
-  ToolbarSizeChanged(false);
-}
-
 void TabContents::OnStartDownload(DownloadItem* download) {
   DCHECK(download);
   TabContents* tab_contents = this;
@@ -475,38 +408,6 @@ void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
 #if defined(OS_WIN)
   UpdateWindow(GetNativeView());
 #endif
-}
-
-void TabContents::Observe(NotificationType type,
-                          const NotificationSource& source,
-                          const NotificationDetails& details) {
-  DCHECK(type == NotificationType::NAV_ENTRY_COMMITTED);
-  DCHECK(controller() == Source<NavigationController>(source).ptr());
-
-  NavigationController::LoadCommittedDetails& committed_details =
-      *(Details<NavigationController::LoadCommittedDetails>(details).ptr());
-  ExpireInfoBars(committed_details);
-}
-
-void TabContents::SetIsLoading(bool is_loading,
-                               LoadNotificationDetails* details) {
-  if (is_loading == is_loading_)
-    return;
-
-  is_loading_ = is_loading;
-  waiting_for_response_ = is_loading;
-
-  if (delegate_)
-    delegate_->LoadingStateChanged(this);
-
-  NotificationType type = is_loading ? NotificationType::LOAD_START :
-      NotificationType::LOAD_STOP;
-  NotificationDetails det = NotificationService::NoDetails();;
-  if (details)
-      det = Details<LoadNotificationDetails>(details);
-  NotificationService::current()->Notify(type,
-      Source<NavigationController>(this->controller()),
-      det);
 }
 
 #if defined(OS_WIN)
