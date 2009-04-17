@@ -98,7 +98,8 @@ void AddInstallerCopyTasks(const std::wstring& exe_path,
                            const std::wstring& temp_path,
                            const std::wstring& install_path,
                            const std::wstring& new_version,
-                           WorkItemList* install_list) {
+                           WorkItemList* install_list,
+                           bool system_level) {
   std::wstring installer_dir(installer::GetInstallerPathUnderChrome(
       install_path, new_version));
   install_list->AddCreateDirWorkItem(installer_dir);
@@ -112,7 +113,12 @@ void AddInstallerCopyTasks(const std::wstring& exe_path,
 
   install_list->AddCopyTreeWorkItem(exe_path, exe_dst, temp_path,
                                     WorkItem::ALWAYS);
-  install_list->AddMoveTreeWorkItem(archive_path, archive_dst, temp_path);
+  if (system_level) {
+    install_list->AddCopyTreeWorkItem(archive_path, archive_dst, temp_path,
+                                      WorkItem::ALWAYS);
+  } else {
+    install_list->AddMoveTreeWorkItem(archive_path, archive_dst, temp_path);
+  }
 }
 
 // This method tells if we are running on 64 bit platform so that we can copy
@@ -150,11 +156,19 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   install_list->AddCreateDirWorkItem(temp_dir);
   install_list->AddCreateDirWorkItem(install_path);
 
-  // Move the version folder
-  install_list->AddMoveTreeWorkItem(
-      AppendPath(src_path, new_version.GetString()),
-      AppendPath(install_path, new_version.GetString()),
-      temp_dir);
+  // If it is system level install copy the version folder (since we want to
+  // take the permissions of %ProgramFiles% folder) otherwise just move it. 
+  if (reg_root == HKEY_LOCAL_MACHINE) {
+    install_list->AddCopyTreeWorkItem(
+        AppendPath(src_path, new_version.GetString()),
+        AppendPath(install_path, new_version.GetString()),
+        temp_dir, WorkItem::ALWAYS);
+  } else {
+    install_list->AddMoveTreeWorkItem(
+        AppendPath(src_path, new_version.GetString()),
+        AppendPath(install_path, new_version.GetString()),
+        temp_dir);
+  }
 
   // Delete any new_chrome.exe if present (we will end up create a new one
   // if required) and then copy chrome.exe
@@ -177,10 +191,10 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
 
   // Extra executable for 64 bit systems.
   if (Is64bit()) {
-    install_list->AddMoveTreeWorkItem(
+    install_list->AddCopyTreeWorkItem(
         AppendPath(src_path, installer::kWowHelperExe),
         AppendPath(install_path, installer::kWowHelperExe),
-        temp_dir);
+        temp_dir, WorkItem::ALWAYS);
   }
 
   // Copy the default Dictionaries only if the folder doesnt exist already
@@ -192,7 +206,8 @@ bool installer::InstallNewVersion(const std::wstring& exe_path,
   // Copy installer in install directory and
   // add shortcut in Control Panel->Add/Remove Programs.
   AddInstallerCopyTasks(exe_path, archive_path, temp_dir, install_path,
-      new_version.GetString(), install_list.get());
+                        new_version.GetString(), install_list.get(),
+                        (reg_root == HKEY_LOCAL_MACHINE));
   std::wstring product_name = dist->GetApplicationName();
   AddUninstallShortcutWorkItems(reg_root, exe_path, install_path,
       product_name, new_version.GetString(), install_list.get());
