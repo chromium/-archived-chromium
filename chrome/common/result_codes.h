@@ -36,6 +36,7 @@ class ResultCodes {
     UNINSTALL_CHROME_ALIVE,     // Uninstall detected another chrome instance.
     UNINSTALL_NO_SURVEY,        // Do not launch survey after uninstall.
     UNINSTALL_USER_CANCEL,      // The user changed her mind.
+    UNINSTALL_DELETE_PROFILE,   // Delete profile as well during uninstall.
     UNSUPPORTED_PARAM,          // Command line parameter is not supported.
     KILLED_BAD_MESSAGE,         // A bad message caused the process termination.
     IMPORTER_CANCEL,            // The user canceled the browser import.

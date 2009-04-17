@@ -193,7 +193,7 @@ be available for now. -->
         Please close all Chromium windows and try again.
       </message>
       <message name="IDS_UNINSTALL_VERIFY" desc="Message to confirm user wants to uninstall">
-        Are you sure you want to uninstall Chromium? (Was it something we said?)
+        Are you sure you want to uninstall Chromium?
       </message>
       <message name="IDS_UNINSTALL_CHROME" desc="The text of the shortcut in the Start Menu for uninstalling chrome.">
         Uninstall Chromium
@@ -330,6 +330,9 @@ be available for now. -->
       </message>
       <message name="IDS_SHORTCUT_TOOLTIP" desc="Text for the hover-on tooltip for the Chromium shortcuts.">
         Access the Internet
+      </message>
+      <message name="IDS_UNINSTALL_DELETE_PROFILE" desc="Text to show user to ask whether to delete all the profile data also during uninstallation.">
+        Delete all profile data
       </message>
     </messages>
   </release>

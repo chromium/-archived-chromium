@@ -14,13 +14,18 @@
 #include "base/win_util.h"
 #include "chrome/browser/first_run.h"
 #include "chrome/browser/metrics/metrics_service.h"
+#include "chrome/browser/views/uninstall_dialog.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/env_vars.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/common/result_codes.h"
 #include "chrome/installer/util/helper.h"
 #include "chrome/installer/util/install_util.h"
 #include "chrome/installer/util/shell_util.h"
+#include "chrome/views/controls/message_box_view.h"
+#include "chrome/views/widget/accelerator_handler.h"
+#include "chrome/views/window/window.h"
 #include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
@@ -37,11 +42,11 @@ bool CheckForWin2000() {
   return false;
 }
 
-bool AskForUninstallConfirmation() {
-  const std::wstring text = l10n_util::GetString(IDS_UNINSTALL_VERIFY);
-  const std::wstring caption = l10n_util::GetString(IDS_PRODUCT_NAME);
-  const UINT flags = MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST;
-  return (IDOK == win_util::MessageBox(NULL, text, caption, flags));
+int AskForUninstallConfirmation() {
+  int ret = ResultCodes::NORMAL_EXIT;
+  UninstallDialog::ShowUninstallDialog(ret);
+  MessageLoop::current()->Run();
+  return ret;
 }
 
 void ShowCloseBrowserFirstMessageBox() {
@@ -56,19 +61,19 @@ int DoUninstallTasks(bool chrome_still_running) {
     ShowCloseBrowserFirstMessageBox();
     return ResultCodes::UNINSTALL_CHROME_ALIVE;
   }
-  if (!AskForUninstallConfirmation())
-    return ResultCodes::UNINSTALL_USER_CANCEL;
-  // The following actions are just best effort.
-  LOG(INFO) << "Executing uninstall actions";
-  ResultCodes::ExitCode ret = ResultCodes::NORMAL_EXIT;
-  if (!FirstRun::RemoveSentinel())
-    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  // We want to remove user level shortcuts and we only care about the ones
-  // created by us and not by the installer so |alternate| is false.
-  if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER, false))
-    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
-  if (!ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER))
-    ret = ResultCodes::UNINSTALL_DELETE_FILE_ERROR;
+  int ret = AskForUninstallConfirmation();
+  if (ret != ResultCodes::UNINSTALL_USER_CANCEL) {
+    // The following actions are just best effort.
+    LOG(INFO) << "Executing uninstall actions";
+    if (!FirstRun::RemoveSentinel())
+      LOG(INFO) << "Failed to delete sentinel file.";
+    // We want to remove user level shortcuts and we only care about the ones
+    // created by us and not by the installer so |alternate| is false.
+    if (!ShellUtil::RemoveChromeDesktopShortcut(ShellUtil::CURRENT_USER, false))
+      LOG(INFO) << "Failed to delete desktop shortcut.";
+    if (!ShellUtil::RemoveChromeQuickLaunchShortcut(ShellUtil::CURRENT_USER))
+      LOG(INFO) << "Failed to delete quick launch shortcut.";
+  }
   return ret;
 }
 

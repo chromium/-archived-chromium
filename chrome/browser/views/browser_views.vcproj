@@ -858,6 +858,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\uninstall_dialog.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\uninstall_dialog.h"
+			>
+		</File>
+		<File
 			RelativePath=".\user_data_dir_dialog.cc"
 			>
 		</File>

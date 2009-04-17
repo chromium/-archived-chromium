@@ -28,6 +28,7 @@ enum InstallStatus {
   CHROME_NOT_INSTALLED,  // Chrome not installed (returned in case of uninstall)
   CHROME_RUNNING,        // Chrome currently running (when trying to uninstall)
   UNINSTALL_CONFIRMED,   // User has confirmed Chrome uninstall
+  UNINSTALL_DELETE_PROFILE, // User confirmed uninstall and profile deletion
   UNINSTALL_SUCCESSFUL,  // Chrome successfully uninstalled
   UNINSTALL_FAILED,      // Chrome uninstallation failed
   UNINSTALL_CANCELLED,   // User cancelled Chrome uninstallation

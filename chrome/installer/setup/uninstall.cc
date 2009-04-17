@@ -99,7 +99,7 @@ void DeleteChromeShortcut(bool system_uninstall) {
 // of error (only logs the error).
 bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
     const installer::Version& installed_version,
-    std::wstring* local_state_path) {
+    std::wstring* local_state_path, bool delete_profile) {
   std::wstring install_path(installer::GetChromeInstallPath(system_uninstall));
   if (install_path.empty()) {
     LOG(ERROR) << "Could not get installation destination path.";
@@ -134,6 +134,13 @@ bool DeleteFilesAndFolders(const std::wstring& exe_path, bool system_uninstall,
     CloseAllChromeProcesses();
     if (!file_util::Delete(install_path, true))
       LOG(ERROR) << "Failed to delete folder (2nd try): " << install_path;
+  }
+
+  if (delete_profile) {
+    LOG(INFO) << "Deleting user profile" << user_local_state.value();
+    if (!file_util::Delete(user_local_state, true))
+      LOG(ERROR) << "Failed to delete user profle dir: "
+                 << user_local_state.value();
   }
 
   // Now check and delete if the parent directories are empty
@@ -202,8 +209,11 @@ installer_util::InstallStatus IsChromeActiveOrUserCancelled(
               << exit_code;
     if ((exit_code == ResultCodes::UNINSTALL_CHROME_ALIVE) ||
         (exit_code == ResultCodes::UNINSTALL_USER_CANCEL) ||
-        (exit_code == ResultCodes::HUNG))
+        (exit_code == ResultCodes::HUNG)) {
       return installer_util::UNINSTALL_CANCELLED;
+    } else if (exit_code == ResultCodes::UNINSTALL_DELETE_PROFILE) {
+      return installer_util::UNINSTALL_DELETE_PROFILE;
+    }
   } else {
     LOG(ERROR) << "Failed to launch chrome.exe for uninstall confirmation.";
   }
@@ -217,10 +227,11 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
     const std::wstring& exe_path, bool system_uninstall,
     const installer::Version& installed_version,
     bool remove_all, bool force_uninstall) {
+  installer_util::InstallStatus status = installer_util::UNINSTALL_CONFIRMED;
   if (!force_uninstall) {
-    installer_util::InstallStatus status =
-        IsChromeActiveOrUserCancelled(system_uninstall);
-    if (status != installer_util::UNINSTALL_CONFIRMED)
+    status = IsChromeActiveOrUserCancelled(system_uninstall);
+    if (status != installer_util::UNINSTALL_CONFIRMED &&
+        status != installer_util::UNINSTALL_DELETE_PROFILE)
       return status;
   } else {
     // Since --force-uninstall command line option is used, we are going to
@@ -325,10 +336,12 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
 
   // Finally delete all the files from Chrome folder after moving setup.exe
   // and the user's Local State to a temp location.
+  bool delete_profile = (status == installer_util::UNINSTALL_DELETE_PROFILE);
   std::wstring local_state_path;
+  installer_util::InstallStatus ret = installer_util::UNINSTALL_SUCCESSFUL;
   if (!DeleteFilesAndFolders(exe_path, system_uninstall, installed_version,
-                             &local_state_path))
-    return installer_util::UNINSTALL_FAILED;
+                             &local_state_path, delete_profile))
+    ret = installer_util::UNINSTALL_FAILED;
 
   if (!force_uninstall) {
     LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
@@ -340,5 +353,5 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   if (!local_state_path.empty())
     file_util::Delete(local_state_path, false);
 
-  return installer_util::UNINSTALL_SUCCESSFUL;
+  return ret;
 }
