@@ -868,12 +868,12 @@ class TestRunner:
 
     test_files.sort()
     for test_file in test_files:
-      if test_file in failures: failures = failures[test_file]
-      else: failures = []  # unexpected passes
+      if test_file in failures: test_failures = failures[test_file]
+      else: test_failures = []  # unexpected passes
       out_file.write("<p><a href='%s'>%s</a><br />\n"
                      % (path_utils.FilenameToUri(test_file),
                         path_utils.RelativeTestFilename(test_file)))
-      for failure in failures:
+      for failure in test_failures:
         out_file.write("&nbsp;&nbsp;%s<br/>"
                        % failure.ResultHtmlOutput(
                          path_utils.RelativeTestFilename(test_file)))
