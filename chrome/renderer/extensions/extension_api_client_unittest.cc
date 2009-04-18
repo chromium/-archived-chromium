@@ -57,6 +57,8 @@ TEST_F(ExtensionAPIClientTest, CallbackDispatching) {
     "chromium.tabs.createTab({}, callback);"
   );
 
+  EXPECT_EQ("", GetConsoleMessage());
+
   // Ok, we should have gotten a message to create a tab, grab the callback ID.
   const IPC::Message* request_msg =
       render_thread_.sink().GetUniqueMessageMatching(
@@ -96,7 +98,7 @@ TEST_F(ExtensionAPIClientTest, GetTabsForWindow) {
 
 TEST_F(ExtensionAPIClientTest, GetTab) {
   ExpectJsFail("chromium.tabs.getTab(null, function(){});",
-               "Uncaught Error: Argument 0 is required.");
+               "Uncaught Error: Parameter 0 is required.");
 
   ExecuteJavaScript("chromium.tabs.getTab(42)");
     const IPC::Message* request_msg =
@@ -116,9 +118,9 @@ TEST_F(ExtensionAPIClientTest, CreateTab) {
   ExpectJsFail("chromium.tabs.createTab({url: 42}, function(){});",
                "Uncaught Error: Invalid value for argument 0. Property "
                "'url': Expected 'string' but got 'integer'.");
-  ExpectJsFail("chromium.tabs.createTab({selected: null}, function(){});",
+  ExpectJsFail("chromium.tabs.createTab({foo: 42}, function(){});",
                "Uncaught Error: Invalid value for argument 0. Property "
-               "'selected': Expected 'boolean' but got 'null'.");
+               "'foo': Unexpected property.");
 
   ExecuteJavaScript("chromium.tabs.createTab({"
                     "  url:'http://www.google.com/',"
@@ -140,16 +142,13 @@ TEST_F(ExtensionAPIClientTest, CreateTab) {
 TEST_F(ExtensionAPIClientTest, UpdateTab) {
   ExpectJsFail("chromium.tabs.updateTab({id: null});",
                "Uncaught Error: Invalid value for argument 0. Property "
-               "'id': Expected 'integer' but got 'null'.");
+               "'id': Property is required.");
   ExpectJsFail("chromium.tabs.updateTab({id: 42, windowId: 'foo'});",
                "Uncaught Error: Invalid value for argument 0. Property "
                "'windowId': Expected 'integer' but got 'string'.");
   ExpectJsFail("chromium.tabs.updateTab({id: 42, url: 42});",
                "Uncaught Error: Invalid value for argument 0. Property "
                "'url': Expected 'string' but got 'integer'.");
-  ExpectJsFail("chromium.tabs.updateTab({id: 42, selected: null});",
-               "Uncaught Error: Invalid value for argument 0. Property "
-               "'selected': Expected 'boolean' but got 'null'.");
 
   ExecuteJavaScript("chromium.tabs.updateTab({"
                     "  id:42,"

@@ -17,19 +17,25 @@ var chromium;
   native function UpdateTab();
   native function MoveTab();
   native function RemoveTab();
+  native function GetBookmarks();
+  native function SearchBookmarks();
+  native function RemoveBookmark();
+  native function CreateBookmark();
+  native function MoveBookmark();
+  native function SetBookmarkTitle();
 
   if (!chromium)
     chromium = {};
 
   // Validate arguments.
-  function validate(inst, schemas) {
-    if (inst.length > schemas.length)
+  function validate(args, schemas) {
+    if (args.length > schemas.length)
       throw new Error("Too many arguments.");
 
     for (var i = 0; i < schemas.length; i++) {
-      if (inst[i]) {
+      if (i in args && args[i] !== null && args[i] !== undefined) {
         var validator = new chromium.JSONSchemaValidator();
-        validator.validate(inst[i], schemas[i]);
+        validator.validate(args[i], schemas[i]);
         if (validator.errors.length == 0)
           continue;
         
@@ -47,14 +53,16 @@ var chromium;
 
         throw new Error(message);
       } else if (!schemas[i].optional) {
-        throw new Error("Argument " + i + " is required.");
+        throw new Error("Parameter " + i + " is required.");
       }
     }
   }
 
   // callback handling
+  // TODO(aa): This function should not be publicly exposed. Pass it into V8
+  // instead and hold one per-context. See the way event_bindings.js works.
   var callbacks = [];
-  chromium._dispatchCallback = function(callbackId, str) {
+  chromium.dispatchCallback_ = function(callbackId, str) {
     try {
       if (str) {
         callbacks[callbackId](goog.json.parse(str));
@@ -97,8 +105,7 @@ var chromium;
           minItems: 1
         }
       },
-      optional: true,
-      additionalProperties: false
+      optional: true
     },
     chromium.types.optFun
   ];
@@ -135,8 +142,7 @@ var chromium;
         windowId: chromium.types.optPInt,
         url: chromium.types.optStr,
         selected: chromium.types.optBool
-      },
-      additionalProperties: false
+      }
     },
     chromium.types.optFun
   ];
@@ -154,8 +160,7 @@ var chromium;
         windowId: chromium.types.optPInt,
         url: chromium.types.optStr,
         selected: chromium.types.optBool
-      },
-      additionalProperties: false
+      }
     }
   ];
 
@@ -171,8 +176,7 @@ var chromium;
         id: chromium.types.pInt,
         windowId: chromium.types.optPInt,
         index: chromium.types.pInt
-      },
-      additionalProperties: false
+      }
     }
   ];
   
@@ -192,10 +196,10 @@ var chromium;
   //----------------------------------------------------------------------------
 
   // Bookmarks
+  // TODO(erikkay): Call validate() in these functions.
   chromium.bookmarks = {};
 
   chromium.bookmarks.get = function(ids, callback) {
-    native function GetBookmarks();
     sendRequest(GetBookmarks, ids, callback);
   };
 
@@ -206,14 +210,12 @@ var chromium;
         type: chromium.types.pInt
       },
       minItems: 1,
-      optional: true,
-      additionalProperties: false
+      optional: true
     },
     chromium.types.optFun
   ];
 
   chromium.bookmarks.search = function(query, callback) {
-    native function SearchBookmarks();
     sendRequest(SearchBookmarks, query, callback);
   };
 
@@ -223,7 +225,6 @@ var chromium;
   ];
 
   chromium.bookmarks.remove = function(bookmark, callback) {
-    native function RemoveBookmark();
     sendRequest(RemoveBookmark, bookmark, callback);
   };
 
@@ -233,14 +234,12 @@ var chromium;
       properties: {
         id: chromium.types.pInt,
         recursive: chromium.types.bool
-      },
-      additionalProperties: false
+      }
     },
     chromium.types.optFun
   ];
 
   chromium.bookmarks.create = function(bookmark, callback) {
-    native function CreateBookmark();
     sendRequest(CreateBookmark, bookmark, callback);
   };
 
@@ -252,14 +251,12 @@ var chromium;
         index: chromium.types.optPInt,
         title: chromium.types.optString,
         url: chromium.types.optString,
-      },
-      additionalProperties: false
+      }
     },
     chromium.types.optFun
   ];
 
   chromium.bookmarks.move = function(obj, callback) {
-    native function MoveBookmark();
     sendRequest(MoveBookmark, obj, callback);
   };
 
@@ -270,14 +267,12 @@ var chromium;
         id: chromium.types.pInt,
         parentId: chromium.types.optPInt,
         index: chromium.types.optPInt
-      },
-      additionalProperties: false
+      }
     },
     chromium.types.optFun
   ];
 
   chromium.bookmarks.setTitle = function(bookmark, callback) {
-    native function SetBookmarkTitle();
     sendRequest(SetBookmarkTitle, bookmark, callback);
   };
 
@@ -287,8 +282,7 @@ var chromium;
       properties: {
         id: chromium.types.pInt,
         title: chromium.types.optString
-      },
-      additionalProperties: false
+      }
     },
     chromium.types.optFun
   ];

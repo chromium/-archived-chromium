@@ -11,8 +11,8 @@ function assertValid(type, instance, schema) {
   var validator = new chromium.JSONSchemaValidator();
   validator["validate" + type](instance, schema, "");
   if (validator.errors.length != 0) {
-    console.log("Got unexpected errors");
-    console.log(validator.errors);
+    log("Got unexpected errors");
+    log(validator.errors);
     assert(false);
   }
 }
@@ -124,6 +124,25 @@ function testEnum() {
                                                 [schema.enum.join(", ")])]);
 }
 
+function testChoices() {
+  var schema = {
+    choices: [
+      { type: "null" },
+      { type: "undefined" },
+      { type: "integer", minimum:42, maximum:42 },
+      { type: "object", properties: { foo: { type: "string" } } }
+    ]
+  }
+    assertValid("", null, schema);
+    assertValid("", undefined, schema);
+    assertValid("", 42, schema);
+    assertValid("", {foo: "bar"}, schema);
+
+    assertNotValid("", "foo", schema, [formatError("invalidChoice", [])]);
+    assertNotValid("", [], schema, [formatError("invalidChoice", [])]);
+    assertNotValid("", {foo: 42}, schema, [formatError("invalidChoice", [])]);
+}
+
 function testExtends() {
   var parent = {
     type: "number"
@@ -155,24 +174,27 @@ function testObject() {
   };
 
   assertValid("Object", {foo:"foo",bar:42}, schema);
-  assertValid("Object", {foo:"foo",bar:42,"extra":true}, schema);
+  assertNotValid("Object", {foo:"foo",bar:42,"extra":true}, schema,
+                 [formatError("unexpectedProperty")]);
   assertNotValid("Object", {foo:"foo"}, schema,
                  [formatError("propertyRequired")]);
   assertNotValid("Object", {foo:"foo", bar:"42"}, schema,
                  [formatError("invalidType", ["integer", "string"])]);
 
-  schema.additionalProperties = false;
-  assertNotValid("Object", {foo:"foo",bar:42,"extra":true}, schema,
-                 [formatError("unexpectedProperty")]);
-
-  schema.additionalProperties = {
-    type: "boolean"
-  };
+  schema.additionalProperties = { type: "any" };
   assertValid("Object", {foo:"foo",bar:42,"extra":true}, schema);
+  assertValid("Object", {foo:"foo",bar:42,"extra":"foo"}, schema);
+
+  schema.additionalProperties = { type: "boolean" };
+  assertValid("Object", {foo:"foo",bar:42,"extra":true}, schema);
+  assertNotValid("Object", {foo:"foo",bar:42,"extra":"foo"}, schema,
+                 [formatError("invalidType", ["boolean", "string"])]);
 
   schema.properties.bar.optional = true;
   assertValid("Object", {foo:"foo",bar:42}, schema);
   assertValid("Object", {foo:"foo"}, schema);
+  assertValid("Object", {foo:"foo",bar:null}, schema);
+  assertValid("Object", {foo:"foo",bar:undefined}, schema);
   assertNotValid("Object", {foo:"foo", bar:"42"}, schema,
                  [formatError("invalidType", ["integer", "string"])]);
 }
@@ -190,18 +212,17 @@ function testArrayTuple() {
   };
 
   assertValid("Array", ["42", 42], schema);
-  assertValid("Array", ["42", 42, "anything"], schema);
+  assertNotValid("Array", ["42", 42, "anything"], schema,
+                 [formatError("arrayMaxItems", [schema.items.length])]);
   assertNotValid("Array", ["42"], schema, [formatError("itemRequired")]);
   assertNotValid("Array", [42, 42], schema,
                  [formatError("invalidType", ["string", "integer"])]);
 
-  schema.additionalProperties = false;
-  assertNotValid("Array", ["42", 42, "anything"], schema,
-                 [formatError("arrayMaxItems", [schema.items.length])]);
+  schema.additionalProperties = { type: "any" };
+  assertValid("Array", ["42", 42, "anything"], schema);
+  assertValid("Array", ["42", 42, []], schema);
 
-  schema.additionalProperties = {
-    type: "boolean"
-  };
+  schema.additionalProperties = { type: "boolean" };
   assertNotValid("Array", ["42", 42, "anything"], schema,
                  [formatError("invalidType", ["boolean", "string"])]);
   assertValid("Array", ["42", 42, false], schema);
@@ -209,6 +230,8 @@ function testArrayTuple() {
   schema.items[0].optional = true;
   assertValid("Array", ["42", 42], schema);
   assertValid("Array", [, 42], schema);
+  assertValid("Array", [null, 42], schema);
+  assertValid("Array", [undefined, 42], schema);
   assertNotValid("Array", [42, 42], schema,
                  [formatError("invalidType", ["string", "integer"])]);
 }
@@ -289,6 +312,7 @@ function testType() {
   assertValid("Type", true, {type:"boolean"});
   assertValid("Type", false, {type:"boolean"});
   assertValid("Type", null, {type:"null"});
+  assertValid("Type", undefined, {type:"undefined"});
 
   // not valid
   assertNotValid("Type", [], {type: "object"},
@@ -309,6 +333,8 @@ function testType() {
                  [formatError("invalidType", ["boolean", "integer"])]);
   assertNotValid("Type", false, {type: "null"},
                  [formatError("invalidType", ["null", "boolean"])]);
+  assertNotValid("Type", undefined, {type: "null"},
+                 [formatError("invalidType", ["null", "undefined"])]);
   assertNotValid("Type", {}, {type: "function"},
                  [formatError("invalidType", ["function", "object"])]);
 }

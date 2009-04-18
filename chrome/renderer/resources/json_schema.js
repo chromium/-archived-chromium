@@ -15,7 +15,7 @@
 // - requires
 // - unique
 // - disallow
-// - union types
+// - union types (but replaced with 'choices')
 //
 // The following properties are not applicable to the interface exposed by
 // this class:
@@ -27,6 +27,13 @@
 // - default
 // - transient
 // - hidden
+//
+// There are also these departures from the JSON Schema proposal:
+// - function and undefined types are supported
+// - null counts as 'unspecified' for optional values
+// - added the 'choices' property, to allow specifying a list of possible types
+//   for a value
+// - made additionalProperties default to false
 //==============================================================================
 
 var chromium = chromium || {};
@@ -63,7 +70,8 @@ chromium.JSONSchemaValidator.messages = {
   numberMinValue: "Value must not be less than *.",
   numberMaxValue: "Value must not be greater than *.",
   numberMaxDecimal: "Value must not have more than * decimal places.",
-  invalidType: "Expected '*' but got '*'."
+  invalidType: "Expected '*' but got '*'.",
+  invalidChoice: "Value does not match any valid type choices."
 };
 
 /**
@@ -118,6 +126,13 @@ chromium.JSONSchemaValidator.prototype.validate = function(instance, schema,
   if (schema.extends)
     this.validate(instance, schema.extends, path);
 
+  // If the schema has a choices property, the instance must validate against at
+  // least one of the items in that array.
+  if (schema.choices) {
+    this.validateChoices(instance, schema, path);
+    return;
+  }
+
   // If the schema has an enum property, the instance must be one of those
   // values.
   if (schema.enum) {
@@ -149,6 +164,28 @@ chromium.JSONSchemaValidator.prototype.validate = function(instance, schema,
 };
 
 /**
+ * Validates an instance against a choices schema. The instance must match at
+ * least one of the provided choices.
+ */
+chromium.JSONSchemaValidator.prototype.validateChoices = function(instance,
+                                                                  schema,
+                                                                  path) {
+  var originalErrors = this.errors;
+
+  for (var i = 0; i < schema.choices.length; i++) {
+    this.errors = [];
+    this.validate(instance, schema.choices[i], path);
+    if (this.errors.length == 0) {
+      this.errors = originalErrors;
+      return;
+    }
+  }
+
+  this.errors = originalErrors;
+  this.addError(path, "invalidChoice");
+};
+
+/**
  * Validates an instance against a schema with an enum type. Populates the
  * |errors| property, and returns a boolean indicating whether the instance
  * validates.
@@ -172,28 +209,26 @@ chromium.JSONSchemaValidator.prototype.validateObject = function(instance,
                                                                  schema, path) {
   for (var prop in schema.properties) {
     var propPath = path ? path + "." + prop : prop;
-    if (instance.hasOwnProperty(prop)) {
+    if (prop in instance && instance[prop] !== null &&
+        instance[prop] !== undefined) {
       this.validate(instance[prop], schema.properties[prop], propPath);
     } else if (!schema.properties[prop].optional) {
       this.addError(propPath, "propertyRequired");
     }
   }
 
-  // The additionalProperties property can either be |false| or a schema
-  // definition. If |false|, additional properties are not allowed. If a schema
-  // defintion, all additional properties must validate against that schema.
-  if (typeof schema.additionalProperties != "undefined") {
-    for (var prop in instance) {
-      if (instance.hasOwnProperty(prop)) {
-        var propPath = path ? path + "." + prop : prop;
-        if (!schema.properties.hasOwnProperty(prop)) {
-          if (schema.additionalProperties === false)
-            this.addError(propPath, "unexpectedProperty");
-          else
-            this.validate(instance[prop], schema.additionalProperties, propPath);
-        }
-      }
-    }
+  // By default, additional properties are not allowed on instance objects. This
+  // can be overridden by setting the additionalProperties property to a schema
+  // which any additional properties must validate against.
+  for (var prop in instance) {
+    if (prop in schema.properties)
+      continue;
+
+    var propPath = path ? path + "." + prop : prop;
+    if (schema.additionalProperties)
+      this.validate(instance[prop], schema.additionalProperties, propPath);
+    else
+      this.addError(propPath, "unexpectedProperty");
   }
 };
 
@@ -218,28 +253,28 @@ chromium.JSONSchemaValidator.prototype.validateArray = function(instance,
     // If the items property is a single schema, each item in the array must
     // have that schema.
     for (var i = 0; i < instance.length; i++) {
-      this.validate(instance[i], schema.items, path + "[" + i + "]");
+      this.validate(instance[i], schema.items, path + "." + i);
     }
   } else if (typeOfItems == 'array') {
     // If the items property is an array of schemas, each item in the array must
     // validate against the corresponding schema.
     for (var i = 0; i < schema.items.length; i++) {
-      var itemPath = path ? path + "[" + i + "]" : String(i);
-      if (instance.hasOwnProperty(i)) {
+      var itemPath = path ? path + "." + i : String(i);
+      if (i in instance && instance[i] !== null && instance[i] !== undefined) {
         this.validate(instance[i], schema.items[i], itemPath);
       } else if (!schema.items[i].optional) {
         this.addError(itemPath, "itemRequired");
       }
     }
 
-    if (schema.additionalProperties === false) {
+    if (schema.additionalProperties) {
+      for (var i = schema.items.length; i < instance.length; i++) {
+        var itemPath = path ? path + "." + i : String(i);
+        this.validate(instance[i], schema.additionalProperties, itemPath);
+      }
+    } else {
       if (instance.length > schema.items.length) {
         this.addError(path, "arrayMaxItems", [schema.items.length]);
-      }
-    } else if (schema.additionalProperties) {
-      for (var i = schema.items.length; i < instance.length; i++) {
-        var itemPath = path ? path + "[" + i + "]" : String(i);
-        this.validate(instance[i], schema.additionalProperties, itemPath);
       }
     }
   }
@@ -328,6 +363,14 @@ chromium.JSONSchemaValidator.prototype.addError = function(path, key,
   types.optStr = extend(types.str, types.opt);
   types.optFun = extend(types.fun, types.opt);
   types.optPInt = extend(types.pInt, types.opt);
+  types.singleOrListOf = function(type) {
+    return {
+      choice: [
+        type,
+        { type: "array",  item: type }
+      ]
+    };
+  };
 
   chromium.types = types;
 })();
