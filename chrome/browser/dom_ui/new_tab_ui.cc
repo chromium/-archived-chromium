@@ -890,8 +890,9 @@ RecentlyClosedTabsHandler::~RecentlyClosedTabsHandler() {
 }
 
 void RecentlyClosedTabsHandler::HandleReopenTab(const Value* content) {
+  NavigationController* controller = dom_ui_->web_contents()->controller();
   Browser* browser = Browser::GetBrowserForController(
-      &dom_ui_->web_contents()->controller(), NULL);
+      controller, NULL);
   if (!browser)
     return;
 
@@ -1052,7 +1053,9 @@ void HistoryHandler::HandleSearchHistoryPage(const Value* content) {
 
 #if defined(OS_WIN)
 // TODO(port): include this once history is converted to HTML
-        dom_ui_->web_contents()->controller().LoadURL(
+        NavigationController* controller =
+            dom_ui_->web_contents()->controller();
+        controller->LoadURL(
             HistoryUI::GetHistoryURLWithSearchText(wstring_value),
             GURL(),
             PageTransition::LINK);

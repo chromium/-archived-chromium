@@ -24,9 +24,9 @@
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #endif
 
-TabContents::TabContents(Profile* profile)
+TabContents::TabContents()
     : delegate_(NULL),
-      controller_(this, profile),
+      controller_(NULL),
       is_loading_(false),
       is_crashed_(false),
       waiting_for_response_(false),
@@ -45,13 +45,71 @@ void TabContents::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kBlockPopups, false);
 }
 
+void TabContents::CloseContents() {
+  // Destroy our NavigationController, which will Destroy all tabs it owns.
+  controller_->Destroy();
+  // Note that the controller may have deleted us at this point,
+  // so don't touch any member variables here.
+}
+
+void TabContents::Destroy() {
+  DCHECK(!is_being_destroyed_);
+  is_being_destroyed_ = true;
+
+  // First cleanly close all child windows.
+  // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
+  // some of these to close.  CloseWindows is async, so it might get called
+  // twice before it runs.
+  int size = static_cast<int>(child_windows_.size());
+  for (int i = size - 1; i >= 0; --i) {
+    ConstrainedWindow* window = child_windows_[i];
+    if (window)
+      window->CloseConstrainedWindow();
+  }
+
+  // Notify any lasting InfobarDelegates that have not yet been removed that
+  // whatever infobar they were handling in this TabContents has closed,
+  // because the TabContents is going away entirely.
+  for (int i = 0; i < infobar_delegate_count(); ++i) {
+    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
+    delegate->InfoBarClosed();
+  }
+  infobar_delegates_.clear();
+
+  // Notify any observer that have a reference on this tab contents.
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
+
+#if defined(OS_WIN)
+  // If we still have a window handle, destroy it. GetNativeView can return
+  // NULL if this contents was part of a window that closed.
+  if (GetNativeView())
+    ::DestroyWindow(GetNativeView());
+#endif
+
+  // Notify our NavigationController.  Make sure we are deleted first, so
+  // that the controller is the last to die.
+  NavigationController* controller = controller_;
+
+  delete this;
+
+  controller->TabContentsWasDestroyed();
+}
+
+void TabContents::SetupController(Profile* profile) {
+  DCHECK(!controller_);
+  controller_ = new NavigationController(this, profile);
+}
+
 bool TabContents::SupportsURL(GURL* url) {
   return true;
 }
 
 const GURL& TabContents::GetURL() const {
   // We may not have a navigation entry yet
-  NavigationEntry* entry = controller_.GetActiveEntry();
+  NavigationEntry* entry = controller_->GetActiveEntry();
   return entry ? entry->display_url() : GURL::EmptyGURL();
 }
 
@@ -82,22 +140,22 @@ const std::wstring TabContents::GetDefaultTitle() const {
 SkBitmap TabContents::GetFavIcon() const {
   // Like GetTitle(), we also want to use the favicon for the last committed
   // entry rather than a pending navigation entry.
-  NavigationEntry* entry = controller_.GetTransientEntry();
+  NavigationEntry* entry = controller_->GetTransientEntry();
   if (entry)
     return entry->favicon().bitmap();
 
-  entry = controller_.GetLastCommittedEntry();
+  entry = controller_->GetLastCommittedEntry();
   if (entry)
     return entry->favicon().bitmap();
-  else if (controller_.LoadingURLLazily())
-    return controller_.GetLazyFavIcon();
+  else if (controller_->LoadingURLLazily())
+    return controller_->GetLazyFavIcon();
   return SkBitmap();
 }
 
 #if defined(OS_WIN)
 SecurityStyle TabContents::GetSecurityStyle() const {
   // We may not have a navigation entry yet.
-  NavigationEntry* entry = controller_.GetActiveEntry();
+  NavigationEntry* entry = controller_->GetActiveEntry();
   return entry ? entry->ssl().security_style() : SECURITY_STYLE_UNKNOWN;
 }
 
@@ -107,7 +165,7 @@ bool TabContents::GetSSLEVText(std::wstring* ev_text,
   ev_text->clear();
   ev_tooltip_text->clear();
 
-  NavigationEntry* entry = controller_.GetActiveEntry();
+  NavigationEntry* entry = controller_->GetActiveEntry();
   if (!entry ||
       net::IsCertStatusError(entry->ssl().cert_status()) ||
       ((entry->ssl().cert_status() & net::CERT_STATUS_IS_EV) == 0))
@@ -153,8 +211,8 @@ void TabContents::OpenURL(const GURL& url, const GURL& referrer,
 bool TabContents::NavigateToPendingEntry(bool reload) {
   // Our benavior is just to report that the entry was committed.
   string16 default_title = WideToUTF16Hack(GetDefaultTitle());
-  controller_.pending_entry()->set_title(default_title);
-  controller_.CommitPendingEntry();
+  controller()->pending_entry()->set_title(default_title);
+  controller()->CommitPendingEntry();
   return true;
 }
 
@@ -244,8 +302,9 @@ void TabContents::AddInfoBar(InfoBarDelegate* delegate) {
   // added. We use this notification to expire InfoBars that need to expire on
   // page transitions.
   if (infobar_delegates_.size() == 1) {
+    DCHECK(controller());
     registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
-                   Source<NavigationController>(&controller_));
+                   Source<NavigationController>(controller()));
   }
 }
 
@@ -263,7 +322,7 @@ void TabContents::RemoveInfoBar(InfoBarDelegate* delegate) {
     // Remove ourselves as an observer if we are tracking no more InfoBars.
     if (infobar_delegates_.empty()) {
       registrar_.Remove(this, NotificationType::NAV_ENTRY_COMMITTED,
-                        Source<NavigationController>(&controller_));
+                        Source<NavigationController>(controller()));
     }
   }
 }

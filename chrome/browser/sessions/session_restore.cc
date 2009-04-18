@@ -342,10 +342,10 @@ class SessionRestoreImpl : public NotificationObserver {
           std::min(selected_index,
                    static_cast<int>(tab.navigations.size() - 1)));
       tab_loader_->AddTab(
-          &browser->AddRestoredTab(tab.navigations,
-                                   static_cast<int>(i - window.tabs.begin()),
-                                   selected_index,
-                                   false)->controller());
+          browser->AddRestoredTab(tab.navigations,
+                                  static_cast<int>(i - window.tabs.begin()),
+                                  selected_index,
+                                  false));
     }
   }
 
@@ -383,7 +383,7 @@ class SessionRestoreImpl : public NotificationObserver {
   void NotifySessionServiceOfRestoredTabs(Browser* browser, int initial_count) {
     SessionService* session_service = profile_->GetSessionService();
     for (int i = initial_count; i < browser->tab_count(); ++i)
-      session_service->TabRestored(&browser->GetTabContentsAt(i)->controller());
+      session_service->TabRestored(browser->GetTabContentsAt(i)->controller());
   }
 
   // The profile to create the sessions for.

@@ -94,7 +94,7 @@ void TabStripModel::InsertTabContentsAt(int index,
       ForgetAllOpeners();
     }
     // Anything opened by a link we deem to have an opener.
-    data->SetGroup(&selected_contents->controller());
+    data->SetGroup(selected_contents->controller());
   }
   contents_data_.insert(contents_data_.begin() + index, data);
 
@@ -198,7 +198,7 @@ int TabStripModel::GetIndexOfController(
   int index = 0;
   TabContentsDataVector::const_iterator iter = contents_data_.begin();
   for (; iter != contents_data_.end(); ++iter, ++index) {
-    if (&(*iter)->contents->controller() == controller)
+    if ((*iter)->contents->controller() == controller)
       return index;
   }
   return kNoTab;
@@ -403,8 +403,10 @@ bool TabStripModel::IsContextMenuCommandEnabled(
     case CommandCloseTabsToRight:
       return context_index < (count() - 1);
     case CommandCloseTabsOpenedBy: {
-      int next_index = GetIndexOfNextTabContentsOpenedBy(
-          &GetTabContentsAt(context_index)->controller(), context_index, true);
+      NavigationController* opener =
+          GetTabContentsAt(context_index)->controller();
+      int next_index =
+          GetIndexOfNextTabContentsOpenedBy(opener, context_index, true);
       return next_index != kNoTab;
     }
     case CommandDuplicate:
@@ -427,7 +429,7 @@ void TabStripModel::ExecuteContextMenuCommand(
       break;
     case CommandReload:
       UserMetrics::RecordAction(L"TabContextMenu_Reload", profile_);
-      GetContentsAt(context_index)->controller().Reload(true);
+      GetContentsAt(context_index)->controller()->Reload(true);
       break;
     case CommandDuplicate:
       UserMetrics::RecordAction(L"TabContextMenu_Duplicate", profile_);
@@ -455,7 +457,7 @@ void TabStripModel::ExecuteContextMenuCommand(
     case CommandCloseTabsOpenedBy: {
       UserMetrics::RecordAction(L"TabContextMenu_CloseTabsOpenedBy", profile_);
       NavigationController* opener =
-          &GetTabContentsAt(context_index)->controller();
+          GetTabContentsAt(context_index)->controller();
 
       for (int i = count() - 1; i >= 0; --i) {
         if (OpenerMatches(contents_data_.at(i), opener, true))
@@ -476,7 +478,7 @@ void TabStripModel::ExecuteContextMenuCommand(
 
 std::vector<int> TabStripModel::GetIndexesOpenedBy(int index) const {
   std::vector<int> indices;
-  NavigationController* opener = &GetTabContentsAt(index)->controller();
+  NavigationController* opener = GetTabContentsAt(index)->controller();
   for (int i = count() - 1; i >= 0; --i) {
     if (OpenerMatches(contents_data_.at(i), opener, true))
       indices.push_back(i);
@@ -509,7 +511,7 @@ bool TabStripModel::IsNewTabAtEndOfTabStrip(TabContents* contents) const {
   return LowerCaseEqualsASCII(contents->GetURL().spec(),
                               chrome::kChromeUINewTabURL) &&
       contents == GetContentsAt(count() - 1) &&
-      contents->controller().entry_count() == 1;
+      contents->controller()->entry_count() == 1;
 }
 
 bool TabStripModel::InternalCloseTabContentsAt(int index,
@@ -532,9 +534,9 @@ bool TabStripModel::InternalCloseTabContentsAt(int index,
     if (create_historical_tab)
       delegate_->CreateHistoricalTab(detached_contents);
 
-    // Deleting the TabContents will call back to us via NotificationObserver
-    // and detach it.
-    delete detached_contents;
+    detached_contents->CloseContents();
+    // Closing the TabContents will later call back to us via
+    // NotificationObserver and detach it.
   }
   return true;
 }
@@ -562,7 +564,7 @@ void TabStripModel::ChangeSelectedContentsFrom(
 void TabStripModel::SetOpenerForContents(TabContents* contents,
                                     TabContents* opener) {
   int index = GetIndexOfTabContents(contents);
-  contents_data_.at(index)->opener = &opener->controller();
+  contents_data_.at(index)->opener = opener->controller();
 }
 
 // static

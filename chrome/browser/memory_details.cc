@@ -231,9 +231,9 @@ void MemoryDetails::CollectChildInfoOnUIThread() {
         //
         // Either the pending or last committed entries can be NULL.
         const NavigationEntry* pending_entry =
-            contents->controller().pending_entry();
+            contents->controller()->pending_entry();
         const NavigationEntry* last_committed_entry =
-            contents->controller().GetLastCommittedEntry();
+            contents->controller()->GetLastCommittedEntry();
         if ((last_committed_entry &&
              LowerCaseEqualsASCII(last_committed_entry->display_url().spec(),
                                   chrome::kAboutMemoryURL)) ||

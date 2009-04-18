@@ -86,9 +86,9 @@ const InspectableTabProxy::ControllersMap&
          end = BrowserList::end(); it != end; ++it) {
       TabStripModel* model = (*it)->tabstrip_model();
       for (int i = 0, size = model->count(); i < size; ++i) {
-        NavigationController& controller =
+        NavigationController* controller =
             model->GetTabContentsAt(i)->controller();
-        controllers_map_[controller.session_id().id()] = &controller;
+        controllers_map_[controller->session_id().id()] = controller;
       }
     }
   }

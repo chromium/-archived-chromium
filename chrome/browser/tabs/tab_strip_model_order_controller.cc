@@ -36,7 +36,7 @@ int TabStripModelOrderController::DetermineInsertionIndex(
       return tabstrip_->selected_index() + 1;
     }
     NavigationController* opener =
-        &tabstrip_->GetSelectedTabContents()->controller();
+        tabstrip_->GetSelectedTabContents()->controller();
     // Get the index of the next item opened by this tab, and insert before
     // it...
     int index = tabstrip_->GetIndexOfLastTabContentsOpenedBy(
@@ -60,7 +60,7 @@ int TabStripModelOrderController::DetermineNewSelectedIndex(
   // want to select the first in that child group, not the next tab in the same
   // group of the removed tab.
   NavigationController* removed_controller =
-      &tabstrip_->GetTabContentsAt(removing_index)->controller();
+      tabstrip_->GetTabContentsAt(removing_index)->controller();
   int index = tabstrip_->GetIndexOfNextTabContentsOpenedBy(removed_controller,
                                                            removing_index,
                                                            false);
@@ -109,8 +109,8 @@ void TabStripModelOrderController::TabSelectedAt(TabContents* old_contents,
   NavigationController* new_opener =
       tabstrip_->GetOpenerOfTabContentsAt(index);
   if (user_gesture && new_opener != old_opener &&
-      new_opener != &old_contents->controller() &&
-      old_opener != &new_contents->controller()) {
+      new_opener != old_contents->controller() &&
+      old_opener != new_contents->controller()) {
     tabstrip_->ForgetAllOpeners();
   }
 }

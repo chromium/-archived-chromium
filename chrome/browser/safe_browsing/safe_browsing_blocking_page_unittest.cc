@@ -154,7 +154,7 @@ class SafeBrowsingBlockingPageTest : public RenderViewHostTestHarness,
 // Tests showing a blocking page for a malware page and not proceeding.
 TEST_F(SafeBrowsingBlockingPageTest, MalwarePageDontProceed) {
   // Start a load.
-  controller().LoadURL(GURL(kBadURL), GURL(), PageTransition::TYPED);
+  controller()->LoadURL(GURL(kBadURL), GURL(), PageTransition::TYPED);
 
   // Simulate the load causing a safe browsing interstitial to be shown.
   ShowInterstitial(ResourceType::MAIN_FRAME, kBadURL);
@@ -169,13 +169,13 @@ TEST_F(SafeBrowsingBlockingPageTest, MalwarePageDontProceed) {
   EXPECT_FALSE(GetSafeBrowsingBlockingPage());
 
   // We did not proceed, the pending entry should be gone.
-  EXPECT_FALSE(controller().pending_entry());
+  EXPECT_FALSE(controller()->pending_entry());
 }
 
 // Tests showing a blocking page for a malware page and then proceeding.
 TEST_F(SafeBrowsingBlockingPageTest, MalwarePageProceed) {
   // Start a load.
-  controller().LoadURL(GURL(kBadURL), GURL(), PageTransition::TYPED);
+  controller()->LoadURL(GURL(kBadURL), GURL(), PageTransition::TYPED);
 
   // Simulate the load causing a safe browsing interstitial to be shown.
   ShowInterstitial(ResourceType::MAIN_FRAME, kBadURL);
@@ -215,8 +215,8 @@ TEST_F(SafeBrowsingBlockingPageTest, PageWithMalwareResourceDontProceed) {
 
   // We did not proceed, we should be back to the first page, the 2nd one should
   // have been removed from the navigation controller.
-  ASSERT_EQ(1, controller().entry_count());
-  EXPECT_EQ(kGoogleURL, controller().GetActiveEntry()->url().spec());
+  ASSERT_EQ(1, controller()->entry_count());
+  EXPECT_EQ(kGoogleURL, controller()->GetActiveEntry()->url().spec());
 }
 
 // Tests showing a blocking page for a page that contains malware subresources
@@ -237,8 +237,8 @@ TEST_F(SafeBrowsingBlockingPageTest, PageWithMalwareResourceProceed) {
   EXPECT_FALSE(GetSafeBrowsingBlockingPage());
 
   // We did proceed, we should be back to showing the page.
-  ASSERT_EQ(1, controller().entry_count());
-  EXPECT_EQ(kGoodURL, controller().GetActiveEntry()->url().spec());
+  ASSERT_EQ(1, controller()->entry_count());
+  EXPECT_EQ(kGoodURL, controller()->GetActiveEntry()->url().spec());
 }
 
 // Tests showing a blocking page for a page that contains multiple malware
@@ -270,8 +270,8 @@ TEST_F(SafeBrowsingBlockingPageTest,
 
   // We did not proceed, we should be back to the first page, the 2nd one should
   // have been removed from the navigation controller.
-  ASSERT_EQ(1, controller().entry_count());
-  EXPECT_EQ(kGoogleURL, controller().GetActiveEntry()->url().spec());
+  ASSERT_EQ(1, controller()->entry_count());
+  EXPECT_EQ(kGoogleURL, controller()->GetActiveEntry()->url().spec());
 }
 
 // Tests showing a blocking page for a page that contains multiple malware
@@ -313,8 +313,8 @@ TEST_F(SafeBrowsingBlockingPageTest,
 
   // We did not proceed, we should be back to the first page, the 2nd one should
   // have been removed from the navigation controller.
-  ASSERT_EQ(1, controller().entry_count());
-  EXPECT_EQ(kGoogleURL, controller().GetActiveEntry()->url().spec());
+  ASSERT_EQ(1, controller()->entry_count());
+  EXPECT_EQ(kGoogleURL, controller()->GetActiveEntry()->url().spec());
 }
 
 // Tests showing a blocking page for a page that contains multiple malware
@@ -350,6 +350,6 @@ TEST_F(SafeBrowsingBlockingPageTest, PageWithMultipleMalwareResourceProceed) {
   EXPECT_EQ(OK, user_response());
 
   // We did proceed, we should be back to the initial page.
-  ASSERT_EQ(1, controller().entry_count());
-  EXPECT_EQ(kGoodURL, controller().GetActiveEntry()->url().spec());
+  ASSERT_EQ(1, controller()->entry_count());
+  EXPECT_EQ(kGoodURL, controller()->GetActiveEntry()->url().spec());
 }

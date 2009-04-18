@@ -29,6 +29,9 @@ PrintViewManager::PrintViewManager(WebContents& owner)
 }
 
 PrintViewManager::~PrintViewManager() {
+}
+
+void PrintViewManager::Destroy() {
   DisconnectFromCurrentPrintJob();
 }
 
@@ -122,7 +125,7 @@ std::wstring PrintViewManager::RenderSourceName() {
 }
 
 GURL PrintViewManager::RenderSourceUrl() {
-  NavigationEntry* entry = owner_.controller().GetActiveEntry();
+  NavigationEntry* entry = owner_.controller()->GetActiveEntry();
   if (entry)
     return entry->display_url();
   else

@@ -146,7 +146,7 @@ void TabRestoreService::BrowserClosing(Browser* browser) {
   size_t entry_index = 0;
   for (int tab_index = 0; tab_index < browser->tab_count(); ++tab_index) {
     PopulateTabFromController(
-        &browser->GetTabContentsAt(tab_index)->controller(),
+        browser->GetTabContentsAt(tab_index)->controller(),
         &(window->tabs[entry_index]));
     if (window->tabs[entry_index].navigations.empty())
       window->tabs.erase(window->tabs.begin() + entry_index);
@@ -229,13 +229,13 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
       Browser* browser = Browser::Create(profile());
       for (size_t tab_i = 0; tab_i < window->tabs.size(); ++tab_i) {
         const Tab& tab = window->tabs[tab_i];
-        TabContents* restored_tab =
+        NavigationController* restored_controller =
             browser->AddRestoredTab(tab.navigations, browser->tab_count(),
                                     tab.current_navigation_index,
                                     (static_cast<int>(tab_i) ==
                                      window->selected_tab_index));
-        if (restored_tab)
-          restored_tab->controller().LoadIfNecessary();
+        if (restored_controller)
+          restored_controller->LoadIfNecessary();
       }
       browser->window()->Show();
     } else {

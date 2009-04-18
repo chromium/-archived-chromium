@@ -136,7 +136,7 @@ static void ShowErrorPage(SSLPolicy* policy, SSLManager::CertError* error) {
                                                    true,
                                                    error->request_url(),
                                                    security_info);
-  tab->controller().GetActiveEntry()->set_page_type(
+  tab->controller()->GetActiveEntry()->set_page_type(
       NavigationEntry::ERROR_PAGE);
 }
 

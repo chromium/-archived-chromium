@@ -47,7 +47,7 @@ class RenderViewHostManager : public NotificationObserver {
         RenderViewHost* render_view_host) = 0;
     virtual void UpdateRenderViewSizeForRenderManager() = 0;
     virtual void NotifySwappedFromRenderManager() = 0;
-    virtual NavigationController& GetControllerForRenderManager() = 0;
+    virtual NavigationController* GetControllerForRenderManager() = 0;
 
     // Creates a DOMUI object for the given URL if one applies. Ownership of the
     // returned pointer will be passed to the caller. If no DOMUI applies,
@@ -64,7 +64,8 @@ class RenderViewHostManager : public NotificationObserver {
   // They must outlive this class. The RenderViewHostDelegate is what will be
   // installed into all RenderViewHosts that are created.
   //
-  // You must call Init() before using this class.
+  // You must call Init() before using this class and Shutdown() before
+  // deleting it.
   RenderViewHostManager(RenderViewHostDelegate* render_view_delegate,
                         Delegate* delegate);
   ~RenderViewHostManager();
@@ -74,6 +75,9 @@ class RenderViewHostManager : public NotificationObserver {
             SiteInstance* site_instance,
             int routing_id,
             base::WaitableEvent* modal_dialog_event);
+
+  // Schedules all RenderViewHosts for destruction.
+  void Shutdown();
 
   // Returns the currently actuive RenderViewHost.
   //

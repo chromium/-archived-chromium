@@ -989,7 +989,7 @@ bool LocationBarView::SecurityImageView::OnMousePressed(
     const views::MouseEvent& event) {
   NavigationEntry* nav_entry =
       BrowserList::GetLastActive()->GetSelectedTabContents()->
-          controller().GetActiveEntry();
+          controller()->GetActiveEntry();
   if (!nav_entry) {
     NOTREACHED();
     return true;
@@ -1031,7 +1031,7 @@ bool LocationBarView::RssImageView::OnMousePressed(
     const views::MouseEvent& event) {
   NavigationEntry* entry =
       BrowserList::GetLastActive()->GetSelectedTabContents()->
-      controller().GetActiveEntry();
+      controller()->GetActiveEntry();
   if (!entry) {
     NOTREACHED();
     return true;

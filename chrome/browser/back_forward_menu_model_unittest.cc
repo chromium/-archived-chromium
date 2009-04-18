@@ -33,33 +33,33 @@ class BackFwdMenuModelTest : public RenderViewHostTestHarness {
 
   void LoadURLAndUpdateState(const char* url, const char* title) {
     NavigateAndCommit(GURL(url));
-    controller().GetLastCommittedEntry()->set_title(UTF8ToUTF16(title));
+    controller()->GetLastCommittedEntry()->set_title(UTF8ToUTF16(title));
   }
 
   // Navigate back or forward the given amount and commits the entry (which
   // will be pending after we ask to navigate there).
   void NavigateToOffset(int offset) {
-    controller().GoToOffset(offset);
-    const NavigationEntry* entry = controller().pending_entry();
+    controller()->GoToOffset(offset);
+    const NavigationEntry* entry = controller()->pending_entry();
     rvh()->SendNavigate(entry->page_id(), entry->url());
   }
 
   // Same as NavigateToOffset but goes to an absolute index.
   void NavigateToIndex(int index) {
-    controller().GoToIndex(index);
-    const NavigationEntry* entry = controller().pending_entry();
+    controller()->GoToIndex(index);
+    const NavigationEntry* entry = controller()->pending_entry();
     rvh()->SendNavigate(entry->page_id(), entry->url());
   }
 
   // Goes back/forward and commits the load.
   void GoBack() {
-    controller().GoBack();
-    const NavigationEntry* entry = controller().pending_entry();
+    controller()->GoBack();
+    const NavigationEntry* entry = controller()->pending_entry();
     rvh()->SendNavigate(entry->page_id(), entry->url());
   }
   void GoForward() {
-    controller().GoForward();
-    const NavigationEntry* entry = controller().pending_entry();
+    controller()->GoForward();
+    const NavigationEntry* entry = controller()->pending_entry();
     rvh()->SendNavigate(entry->page_id(), entry->url());
   }
 };

@@ -68,6 +68,7 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   focus_manager->AddKeystrokeListener(this);
 
   tab_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
+  tab_contents_->SetupController(profile);
   tab_contents_->set_delegate(this);
   tab_contents_->render_view_host()->AllowExternalHostBindings();
 
@@ -90,7 +91,8 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   DCHECK(dummy->IsFocusable());
   root_view_.AddChildView(dummy);
 
-  NavigationController* controller = &tab_contents_->controller();
+  NavigationController* controller = tab_contents_->controller();
+  DCHECK(controller);
   registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
                  Source<NavigationController>(controller));
   registrar_.Add(this, NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
@@ -129,12 +131,18 @@ bool ExternalTabContainer::Uninitialize(HWND window) {
 
   root_view_.RemoveAllChildViews(true);
   if (tab_contents_) {
+    NavigationController* controller = tab_contents_->controller();
+    DCHECK(controller);
+
     NotificationService::current()->Notify(
         NotificationType::EXTERNAL_TAB_CLOSED,
-        Source<NavigationController>(&tab_contents_->controller()),
+        Source<NavigationController>(controller),
         Details<ExternalTabContainer>(this));
 
-    delete tab_contents_;
+    tab_contents_->set_delegate(NULL);
+    tab_contents_->CloseContents();
+    // WARNING: tab_contents_ has likely been deleted.
+    tab_contents_ = NULL;
   }
 
   return true;
@@ -301,7 +309,7 @@ void ExternalTabContainer::Observe(NotificationType type,
           automation_->Send(new AutomationMsg_DidNavigate(
               0, commit->type,
               commit->previous_entry_index -
-                  tab_contents_->controller().last_committed_entry_index(),
+                  tab_contents_->controller()->last_committed_entry_index(),
               commit->entry->url()));
         }
         break;

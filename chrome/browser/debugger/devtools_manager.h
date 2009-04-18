@@ -36,7 +36,7 @@ class DevToolsManager : public NotificationObserver,
 
   // Registers new DevToolsClientHost for |web_contents|. There must be no
   // other DevToolsClientHosts registered for the WebContents at the moment.
-  void RegisterDevToolsClientHostFor(WebContents& web_contents,
+  void RegisterDevToolsClientHostFor(const WebContents& web_contents,
                                      DevToolsClientHost* client_host);
 
   void ForwardToDevToolsAgent(const RenderViewHost& client_rvh,

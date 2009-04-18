@@ -203,8 +203,7 @@ WebContents::WebContents(Profile* profile,
                          SiteInstance* site_instance,
                          int routing_id,
                          base::WaitableEvent* modal_dialog_event)
-    : TabContents(profile),
-      view_(WebContentsView::Create(this)),
+    : view_(WebContentsView::Create(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(this, this)),
       printing_(*this),
       notify_disconnection_(false),
@@ -235,12 +234,14 @@ WebContents::WebContents(Profile* profile,
   }
 
   // Register for notifications about URL starredness changing on any profile.
-  registrar_.Add(this, NotificationType::URLS_STARRED,
-                 NotificationService::AllSources());
-  registrar_.Add(this, NotificationType::BOOKMARK_MODEL_LOADED,
-                 NotificationService::AllSources());
-  registrar_.Add(this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
-                 NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::URLS_STARRED, NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::BOOKMARK_MODEL_LOADED,
+      NotificationService::AllSources());
+  NotificationService::current()->AddObserver(
+      this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
+      NotificationService::AllSources());
 
   // Keep a global copy of the previous search string (if any).
   static string16 global_last_search = string16();
@@ -248,60 +249,11 @@ WebContents::WebContents(Profile* profile,
 }
 
 WebContents::~WebContents() {
-  is_being_destroyed_ = true;
-
-  // We don't want any notifications while we're runnign our destructor.
-  registrar_.RemoveAll();
-
-  // Unregister the notifications of all observed prefs change.
-  PrefService* prefs = profile()->GetPrefs();
-  if (prefs) {
-    for (int i = 0; i < kPrefsToObserveLength; ++i)
-      prefs->RemovePrefObserver(kPrefsToObserve[i], this);
-  }
-
-  // Clean up subwindows like plugins and the find in page bar.
-  view_->OnContentsDestroy();
-
-  NotifyDisconnected();
-  HungRendererWarning::HideForWebContents(this);
-
   if (pending_install_.callback_functor)
     pending_install_.callback_functor->Cancel();
-
-  // First cleanly close all child windows.
-  // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
-  // some of these to close.  CloseWindows is async, so it might get called
-  // twice before it runs.
-  int size = static_cast<int>(child_windows_.size());
-  for (int i = size - 1; i >= 0; --i) {
-    ConstrainedWindow* window = child_windows_[i];
-    if (window)
-      window->CloseConstrainedWindow();
-  }
-
-  // Notify any lasting InfobarDelegates that have not yet been removed that
-  // whatever infobar they were handling in this TabContents has closed,
-  // because the TabContents is going away entirely.
-  for (int i = 0; i < infobar_delegate_count(); ++i) {
-    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
-    delegate->InfoBarClosed();
-  }
-  infobar_delegates_.clear();
-
-  // Notify any observer that have a reference on this tab contents.
-  NotificationService::current()->Notify(
-      NotificationType::TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(this),
-      NotificationService::NoDetails());
-
-  // TODO(brettw) this should be moved to the view.
-#if defined(OS_WIN)
-  // If we still have a window handle, destroy it. GetNativeView can return
-  // NULL if this contents was part of a window that closed.
-  if (GetNativeView())
-    ::DestroyWindow(GetNativeView());
-#endif
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::RENDER_WIDGET_HOST_DESTROYED,
+      NotificationService::AllSources());
 }
 
 // static
@@ -378,6 +330,78 @@ PluginInstaller* WebContents::GetPluginInstaller() {
   return plugin_installer_.get();
 }
 
+void WebContents::Destroy() {
+  DCHECK(!is_being_destroyed_);
+  is_being_destroyed_ = true;
+
+  // Tell the notification service we no longer want notifications.
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::URLS_STARRED, NotificationService::AllSources());
+  NotificationService::current()->RemoveObserver(
+      this, NotificationType::BOOKMARK_MODEL_LOADED,
+      NotificationService::AllSources());
+
+  // Destroy the print manager right now since a Print command may be pending.
+  printing_.Destroy();
+
+  // Unregister the notifications of all observed prefs change.
+  PrefService* prefs = profile()->GetPrefs();
+  if (prefs) {
+    for (int i = 0; i < kPrefsToObserveLength; ++i)
+      prefs->RemovePrefObserver(kPrefsToObserve[i], this);
+  }
+
+  cancelable_consumer_.CancelAllRequests();
+
+  // Clean up subwindows like plugins and the find in page bar.
+  view_->OnContentsDestroy();
+
+  NotifyDisconnected();
+  HungRendererWarning::HideForWebContents(this);
+  render_manager_.Shutdown();
+
+  // First cleanly close all child windows.
+  // TODO(mpcomplete): handle case if MaybeCloseChildWindows() already asked
+  // some of these to close.  CloseWindows is async, so it might get called
+  // twice before it runs.
+  int size = static_cast<int>(child_windows_.size());
+  for (int i = size - 1; i >= 0; --i) {
+    ConstrainedWindow* window = child_windows_[i];
+    if (window)
+      window->CloseConstrainedWindow();
+  }
+
+  // Notify any lasting InfobarDelegates that have not yet been removed that
+  // whatever infobar they were handling in this TabContents has closed,
+  // because the TabContents is going away entirely.
+  for (int i = 0; i < infobar_delegate_count(); ++i) {
+    InfoBarDelegate* delegate = GetInfoBarDelegateAt(i);
+    delegate->InfoBarClosed();
+  }
+  infobar_delegates_.clear();
+
+  // Notify any observer that have a reference on this tab contents.
+  NotificationService::current()->Notify(
+      NotificationType::TAB_CONTENTS_DESTROYED,
+      Source<TabContents>(this),
+      NotificationService::NoDetails());
+
+#if defined(OS_WIN)
+  // If we still have a window handle, destroy it. GetNativeView can return
+  // NULL if this contents was part of a window that closed.
+  if (GetNativeView())
+    ::DestroyWindow(GetNativeView());
+#endif
+
+  // Notify our NavigationController.  Make sure we are deleted first, so
+  // that the controller is the last to die.
+  NavigationController* controller = controller_;
+
+  delete this;
+
+  controller->TabContentsWasDestroyed();
+}
+
 const string16& WebContents::GetTitle() const {
   DOMUI* our_dom_ui = render_manager_.pending_dom_ui() ?
       render_manager_.pending_dom_ui() : render_manager_.dom_ui();
@@ -394,15 +418,15 @@ const string16& WebContents::GetTitle() const {
   // title.
   // The exception is with transient pages, for which we really want to use
   // their title, as they are not committed.
-  NavigationEntry* entry = controller_.GetTransientEntry();
+  NavigationEntry* entry = controller_->GetTransientEntry();
   if (entry)
-    return entry->GetTitleForDisplay(&controller_);
+    return entry->GetTitleForDisplay(controller_);
 
-  entry = controller_.GetLastCommittedEntry();
+  entry = controller_->GetLastCommittedEntry();
   if (entry)
-    return entry->GetTitleForDisplay(&controller_);
-  else if (controller_.LoadingURLLazily())
-    return controller_.GetLazyTitle();
+    return entry->GetTitleForDisplay(controller_);
+  else if (controller_->LoadingURLLazily())
+    return controller_->GetLazyTitle();
   return EmptyString16();
 }
 
@@ -419,7 +443,7 @@ bool WebContents::ShouldDisplayURL() {
 
 bool WebContents::ShouldDisplayFavIcon() {
   // Always display a throbber during pending loads.
-  if (controller_.GetLastCommittedEntry() && controller_.pending_entry())
+  if (controller()->GetLastCommittedEntry() && controller()->pending_entry())
     return true;
 
   DOMUI* dom_ui = GetDOMUIForCurrentState();
@@ -456,7 +480,7 @@ std::wstring WebContents::GetStatusText() const {
 }
 
 bool WebContents::NavigateToPendingEntry(bool reload) {
-  const NavigationEntry& entry = *controller_.pending_entry();
+  const NavigationEntry& entry = *controller()->pending_entry();
 
   RenderViewHost* dest_render_view_host = render_manager_.Navigate(entry);
   if (!dest_render_view_host)
@@ -519,19 +543,15 @@ void WebContents::DisassociateFromPopupCount() {
   render_view_host()->DisassociateFromPopupCount();
 }
 
-TabContents* WebContents::Clone() {
-  // We create a new SiteInstance so that the new tab won't share processes
-  // with the old one. This can be changed in the future if we need it to share
-  // processes for some reason.
-  TabContents* tc = new WebContents(profile(),
-                                    SiteInstance::CreateSiteInstance(profile()),
-                                    MSG_ROUTING_NONE, NULL);
-  tc->controller().CopyStateFrom(controller_);
-  return tc;
-}
-
 void WebContents::DidBecomeSelected() {
-  controller_.SetActive(true);
+  if (controller_)
+    controller_->SetActive(true);
+
+#if defined(OS_WIN)
+  // Invalidate all descendants. (take care to exclude invalidating ourselves!)
+  // TODO(brettw) this should be moved to the view!
+//  EnumChildWindows(GetNativeView(), InvalidateWindow, 0);
+#endif
 
   if (render_widget_host_view())
     render_widget_host_view()->DidBecomeSelected();
@@ -592,7 +612,7 @@ bool WebContents::IsBookmarkBarAlwaysVisible() {
   // See GetDOMUIForCurrentState() comment for more info. This case is very
   // similar, but for non-first loads, we want to use the committed entry. This
   // is so the bookmarks bar disappears at the same time the page does.
-  if (controller_.GetLastCommittedEntry()) {
+  if (controller()->GetLastCommittedEntry()) {
     // Not the first load, always use the committed DOM UI.
     if (render_manager_.dom_ui())
       return render_manager_.dom_ui()->force_bookmark_bar_visible();
@@ -657,7 +677,7 @@ void WebContents::GetContainerBounds(gfx::Rect *out) const {
 }
 
 void WebContents::CreateShortcut() {
-  NavigationEntry* entry = controller_.GetLastCommittedEntry();
+  NavigationEntry* entry = controller()->GetLastCommittedEntry();
   if (!entry)
     return;
 
@@ -775,7 +795,7 @@ bool WebContents::PrintNow() {
 }
 
 bool WebContents::IsActiveEntry(int32 page_id) {
-  NavigationEntry* active_entry = controller_.GetActiveEntry();
+  NavigationEntry* active_entry = controller()->GetActiveEntry();
   return (active_entry != NULL &&
           active_entry->site_instance() == GetSiteInstance() &&
           active_entry->page_id() == page_id);
@@ -815,7 +835,7 @@ void WebContents::SetIsLoading(bool is_loading,
   if (details)
       det = Details<LoadNotificationDetails>(details);
   NotificationService::current()->Notify(type,
-      Source<NavigationController>(&controller_),
+      Source<NavigationController>(this->controller()),
       det);
 }
 
@@ -832,7 +852,9 @@ Profile* WebContents::GetProfile() const {
 }
 
 void WebContents::RenderViewCreated(RenderViewHost* render_view_host) {
-  NavigationEntry* entry = controller_.GetActiveEntry();
+  if (!controller())
+    return;
+  NavigationEntry* entry = controller()->GetActiveEntry();
   if (!entry)
     return;
 
@@ -884,6 +906,10 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
   if (PageTransition::IsMainFrame(params.transition))
     render_manager_.DidNavigateMainFrame(rvh);
 
+  // We can't do anything about navigations when we're inactive.
+  if (!controller())
+    return;
+
   // Update the site of the SiteInstance if it doesn't have one yet.
   if (!GetSiteInstance()->has_site())
     GetSiteInstance()->SetSite(params.url);
@@ -900,7 +926,7 @@ void WebContents::DidNavigate(RenderViewHost* rvh,
     contents_mime_type_ = params.contents_mime_type;
 
   NavigationController::LoadCommittedDetails details;
-  if (!controller_.RendererDidNavigate(params, &details))
+  if (!controller()->RendererDidNavigate(params, &details))
     return;  // No navigation happened.
 
   // DO NOT ADD MORE STUFF TO THIS FUNCTION! Your component should either listen
@@ -918,6 +944,8 @@ void WebContents::UpdateState(RenderViewHost* rvh,
                               int32 page_id,
                               const std::string& state) {
   DCHECK(rvh == render_view_host());
+  if (!controller())
+    return;
 
   // We must be prepared to handle state updates for any page, these occur
   // when the user is scrolling and entering form data, as well as when we're
@@ -925,43 +953,49 @@ void WebContents::UpdateState(RenderViewHost* rvh,
   // the next page. The navigation controller will look up the appropriate
   // NavigationEntry and update it when it is notified via the delegate.
 
-  int entry_index = controller_.GetEntryIndexWithPageID(
+  int entry_index = controller()->GetEntryIndexWithPageID(
       GetSiteInstance(), page_id);
   if (entry_index < 0)
     return;
-  NavigationEntry* entry = controller_.GetEntryAtIndex(entry_index);
+  NavigationEntry* entry = controller()->GetEntryAtIndex(entry_index);
 
   if (state == entry->content_state())
     return;  // Nothing to update.
   entry->set_content_state(state);
-  controller_.NotifyEntryChanged(entry, entry_index);
+  controller()->NotifyEntryChanged(entry, entry_index);
 }
 
 void WebContents::UpdateTitle(RenderViewHost* rvh,
                               int32 page_id, const std::wstring& title) {
+  if (!controller())
+    return;
+
   // If we have a title, that's a pretty good indication that we've started
   // getting useful data.
   SetNotWaitingForResponse();
 
   DCHECK(rvh == render_view_host());
-  NavigationEntry* entry = controller_.GetEntryWithPageID(GetSiteInstance(),
+  NavigationEntry* entry = controller()->GetEntryWithPageID(GetSiteInstance(),
                                                             page_id);
   if (!entry || !UpdateTitleForEntry(entry, title))
     return;
 
   // Broadcast notifications when the UI should be updated.
-  if (entry == controller_.GetEntryAtOffset(0))
+  if (entry == controller()->GetEntryAtOffset(0))
     NotifyNavigationStateChanged(INVALIDATE_TITLE);
 }
 
 void WebContents::UpdateFeedList(
     RenderViewHost* rvh, const ViewHostMsg_UpdateFeedList_Params& params) {
+  if (!controller())
+    return;
+
   // We might have an old RenderViewHost sending messages, and we should ignore
   // those messages.
   if (rvh != render_view_host())
     return;
 
-  NavigationEntry* entry = controller_.GetEntryWithPageID(GetSiteInstance(),
+  NavigationEntry* entry = controller()->GetEntryWithPageID(GetSiteInstance(),
                                                             params.page_id);
   if (!entry)
     return;
@@ -969,7 +1003,7 @@ void WebContents::UpdateFeedList(
   entry->set_feedlist(params.feedlist);
 
   // Broadcast notifications when the UI should be updated.
-  if (entry == controller_.GetEntryAtOffset(0))
+  if (entry == controller()->GetEntryAtOffset(0))
     NotifyNavigationStateChanged(INVALIDATE_FEEDLIST);
 }
 
@@ -1011,23 +1045,24 @@ void WebContents::DidStartLoading(RenderViewHost* rvh, int32 page_id) {
 
 void WebContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
   scoped_ptr<LoadNotificationDetails> details;
+  if (controller()) {
+    NavigationEntry* entry = controller()->GetActiveEntry();
+    // An entry may not exist for a stop when loading an initial blank page or
+    // if an iframe injected by script into a blank page finishes loading.
+    if (entry) {
+      scoped_ptr<base::ProcessMetrics> metrics(
+          base::ProcessMetrics::CreateProcessMetrics(
+              process()->process().handle()));
 
-  NavigationEntry* entry = controller_.GetActiveEntry();
-  // An entry may not exist for a stop when loading an initial blank page or
-  // if an iframe injected by script into a blank page finishes loading.
-  if (entry) {
-    scoped_ptr<base::ProcessMetrics> metrics(
-        base::ProcessMetrics::CreateProcessMetrics(
-            process()->process().handle()));
+      TimeDelta elapsed = TimeTicks::Now() - current_load_start_;
 
-    TimeDelta elapsed = TimeTicks::Now() - current_load_start_;
-
-    details.reset(new LoadNotificationDetails(
-        entry->display_url(),
-        entry->transition_type(),
-        elapsed,
-        &controller_,
-        controller_.GetCurrentEntryIndex()));
+      details.reset(new LoadNotificationDetails(
+          entry->display_url(),
+          entry->transition_type(),
+          elapsed,
+          controller(),
+          controller()->GetCurrentEntryIndex()));
+    }
   }
 
   // Tell PasswordManager we've finished a page load, which serves as a
@@ -1042,11 +1077,11 @@ void WebContents::DidStartProvisionalLoadForFrame(
     bool is_main_frame,
     const GURL& url) {
   ProvisionalLoadDetails details(is_main_frame,
-                                 controller_.IsURLInPageNavigation(url),
+                                 controller()->IsURLInPageNavigation(url),
                                  url, std::string(), false);
   NotificationService::current()->Notify(
       NotificationType::FRAME_PROVISIONAL_LOAD_START,
-      Source<NavigationController>(&controller_),
+      Source<NavigationController>(controller()),
       Details<ProvisionalLoadDetails>(&details));
 }
 
@@ -1055,9 +1090,9 @@ void WebContents::DidRedirectProvisionalLoad(int32 page_id,
                                              const GURL& target_url) {
   NavigationEntry* entry;
   if (page_id == -1)
-    entry = controller_.pending_entry();
+    entry = controller()->pending_entry();
   else
-    entry = controller_.GetEntryWithPageID(GetSiteInstance(), page_id);
+    entry = controller()->GetEntryWithPageID(GetSiteInstance(), page_id);
   if (!entry || entry->url() != source_url)
     return;
   entry->set_url(target_url);
@@ -1068,6 +1103,9 @@ void WebContents::DidLoadResourceFromMemoryCache(
     const std::string& frame_origin,
     const std::string& main_frame_origin,
     const std::string& security_info) {
+  if (!controller())
+    return;
+
   // Send out a notification that we loaded a resource from our memory cache.
   int cert_id = 0, cert_status = 0, security_bits = 0;
   SSLManager::DeserializeSecurityInfo(security_info,
@@ -1078,7 +1116,7 @@ void WebContents::DidLoadResourceFromMemoryCache(
 
   NotificationService::current()->Notify(
       NotificationType::LOAD_FROM_MEMORY_CACHE,
-      Source<NavigationController>(&controller_),
+      Source<NavigationController>(controller()),
       Details<LoadFromMemoryCacheDetails>(&details));
 }
 
@@ -1088,6 +1126,9 @@ void WebContents::DidFailProvisionalLoadWithError(
     int error_code,
     const GURL& url,
     bool showing_repost_interstitial) {
+  if (!controller())
+    return;
+
   if (net::ERR_ABORTED == error_code) {
     // EVIL HACK ALERT! Ignore failed loads when we're showing interstitials.
     // This means that the interstitial won't be torn down properly, which is
@@ -1116,22 +1157,22 @@ void WebContents::DidFailProvisionalLoadWithError(
     // decided to download the file instead of load it). Only discard the
     // pending entry if the URLs match, otherwise the user initiated a navigate
     // before the page loaded so that the discard would discard the wrong entry.
-    NavigationEntry* pending_entry = controller_.pending_entry();
+    NavigationEntry* pending_entry = controller()->pending_entry();
     if (pending_entry && pending_entry->url() == url)
-      controller_.DiscardNonCommittedEntries();
+      controller()->DiscardNonCommittedEntries();
 
     render_manager_.RendererAbortedProvisionalLoad(render_view_host);
   }
 
   // Send out a notification that we failed a provisional load with an error.
   ProvisionalLoadDetails details(is_main_frame,
-                                 controller_.IsURLInPageNavigation(url),
+                                 controller()->IsURLInPageNavigation(url),
                                  url, std::string(), false);
   details.set_error_code(error_code);
 
   NotificationService::current()->Notify(
       NotificationType::FAIL_PROVISIONAL_LOAD_WITH_ERROR,
-      Source<NavigationController>(&controller_),
+      Source<NavigationController>(controller()),
       Details<ProvisionalLoadDetails>(&details));
 }
 
@@ -1203,14 +1244,21 @@ void WebContents::ProcessExternalHostMessage(const std::string& message,
 }
 
 void WebContents::GoToEntryAtOffset(int offset) {
-  controller_.GoToOffset(offset);
+  if (!controller())
+    return;
+  controller()->GoToOffset(offset);
 }
 
 void WebContents::GetHistoryListCount(int* back_list_count,
                                       int* forward_list_count) {
-  int current_index = controller_.last_committed_entry_index();
-  *back_list_count = current_index;
-  *forward_list_count = controller_.entry_count() - current_index - 1;
+  *back_list_count = 0;
+  *forward_list_count = 0;
+
+  if (controller()) {
+    int current_index = controller()->last_committed_entry_index();
+    *back_list_count = current_index;
+    *forward_list_count = controller()->entry_count() - current_index - 1;
+  }
 }
 
 void WebContents::RunFileChooser(bool multiple_files,
@@ -1306,7 +1354,7 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
                               bool autodetected) {
   // Make sure page_id is the current page, and the TemplateURLModel is loaded.
   DCHECK(url.is_valid());
-  if (!IsActiveEntry(page_id))
+  if (!controller() || !IsActiveEntry(page_id))
     return;
   TemplateURLModel* url_model = profile()->GetTemplateURLModel();
   if (!url_model)
@@ -1321,18 +1369,18 @@ void WebContents::PageHasOSDD(RenderViewHost* render_view_host,
   if (profile()->IsOffTheRecord())
     return;
 
-  const NavigationEntry* entry = controller_.GetLastCommittedEntry();
+  const NavigationEntry* entry = controller()->GetLastCommittedEntry();
   DCHECK(entry);
 
   const NavigationEntry* base_entry = entry;
   if (IsFormSubmit(base_entry)) {
     // If the current page is a form submit, find the last page that was not
     // a form submit and use its url to generate the keyword from.
-    int index = controller_.last_committed_entry_index() - 1;
-    while (index >= 0 && IsFormSubmit(controller_.GetEntryAtIndex(index)))
+    int index = controller()->last_committed_entry_index() - 1;
+    while (index >= 0 && IsFormSubmit(controller()->GetEntryAtIndex(index)))
       index--;
     if (index >= 0)
-      base_entry = controller_.GetEntryAtIndex(index);
+      base_entry = controller()->GetEntryAtIndex(index);
     else
       base_entry = NULL;
   }
@@ -1585,7 +1633,9 @@ DOMUI* WebContents::CreateDOMUIForRenderManager(const GURL& url) {
 
 NavigationEntry*
 WebContents::GetLastCommittedNavigationEntryForRenderManager() {
-  return controller_.GetLastCommittedEntry();
+  if (!controller())
+    return NULL;
+  return controller()->GetLastCommittedEntry();
 }
 
 bool WebContents::CreateRenderViewForRenderManager(
@@ -1644,7 +1694,7 @@ void WebContents::Observe(NotificationType type,
       break;
 
     case NotificationType::NAV_ENTRY_COMMITTED: {
-      DCHECK(&controller_ == Source<NavigationController>(source).ptr());
+      DCHECK(controller() == Source<NavigationController>(source).ptr());
 
       NavigationController::LoadCommittedDetails& committed_details =
           *(Details<NavigationController::LoadCommittedDetails>(details).ptr());
@@ -1778,7 +1828,7 @@ void WebContents::UpdateWebPreferences() {
 
 void WebContents::OnGearsCreateShortcutDone(
     const GearsShortcutData2& shortcut_data, bool success) {
-  NavigationEntry* current_entry = controller_.GetLastCommittedEntry();
+  NavigationEntry* current_entry = controller()->GetLastCommittedEntry();
   bool same_page =
       current_entry && pending_install_.page_id == current_entry->page_id();
 
@@ -1802,7 +1852,7 @@ void WebContents::UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,
   // Note that it is ok for conflicting page IDs to exist in another tab
   // (i.e., NavigationController), but if any page ID is larger than the max,
   // the back/forward list will get confused.
-  int max_restored_page_id = controller_.max_restored_page_id();
+  int max_restored_page_id = controller()->max_restored_page_id();
   if (max_restored_page_id > 0) {
     int curr_max_page_id = site_instance->max_page_id();
     if (max_restored_page_id > curr_max_page_id) {
@@ -1917,13 +1967,14 @@ void WebContents::NotifyDisconnected() {
 
 void WebContents::GenerateKeywordIfNecessary(
     const ViewHostMsg_FrameNavigate_Params& params) {
+  DCHECK(controller());
   if (!params.searchable_form_url.is_valid())
     return;
 
   if (profile()->IsOffTheRecord())
     return;
 
-  int last_index = controller_.last_committed_entry_index();
+  int last_index = controller()->last_committed_entry_index();
   // When there was no previous page, the last index will be 0. This is
   // normally due to a form submit that opened in a new tab.
   // TODO(brettw) bug 916126: we should support keywords when form submits
@@ -1931,7 +1982,7 @@ void WebContents::GenerateKeywordIfNecessary(
   if (last_index <= 0)
     return;
   const NavigationEntry* previous_entry =
-      controller_.GetEntryAtIndex(last_index - 1);
+      controller()->GetEntryAtIndex(last_index - 1);
   if (IsFormSubmit(previous_entry)) {
     // Only generate a keyword if the previous page wasn't itself a form
     // submit.
@@ -1972,9 +2023,9 @@ void WebContents::GenerateKeywordIfNecessary(
   new_url->set_short_name(keyword);
   new_url->SetURL(url, 0, 0);
   new_url->add_input_encoding(params.searchable_form_encoding);
-  DCHECK(controller_.GetLastCommittedEntry());
+  DCHECK(controller()->GetLastCommittedEntry());
   const GURL& favicon_url =
-      controller_.GetLastCommittedEntry()->favicon().url();
+      controller()->GetLastCommittedEntry()->favicon().url();
   if (favicon_url.is_valid()) {
     new_url->SetFavIconURL(favicon_url);
   } else {
@@ -2022,8 +2073,8 @@ DOMUI* WebContents::GetDOMUIForCurrentState() {
   //
   //  - Normal state with no load: committed nav entry + no pending nav entry:
   //    -> Use committed DOM UI.
-  if (controller_.pending_entry() &&
-      (controller_.GetLastCommittedEntry() ||
+  if (controller()->pending_entry() &&
+      (controller()->GetLastCommittedEntry() ||
        render_manager_.pending_dom_ui()))
     return render_manager_.pending_dom_ui();
   return render_manager_.dom_ui();

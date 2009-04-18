@@ -98,9 +98,8 @@ PasswordManager::~PasswordManager() {
 }
 
 void PasswordManager::ProvisionallySavePassword(PasswordForm form) {
-  if (!web_contents_->profile() ||
-      web_contents_->profile()->IsOffTheRecord() ||
-      !*password_manager_enabled_)
+  if (!web_contents_->controller() || !web_contents_->profile() ||
+      web_contents_->profile()->IsOffTheRecord() || !*password_manager_enabled_)
     return;
 
   // No password to save? Then don't.
@@ -135,7 +134,7 @@ void PasswordManager::ProvisionallySavePassword(PasswordForm form) {
     return;
 
   form.ssl_valid = form.origin.SchemeIsSecure() &&
-      !web_contents_->controller().ssl_manager()->
+      !web_contents_->controller()->ssl_manager()->
           ProcessedSSLErrorFromRequest();
   form.preferred = true;
   manager->ProvisionallySave(form);
@@ -167,6 +166,9 @@ void PasswordManager::DidStopLoading() {
   if (!web_contents_->profile() ||
       !web_contents_->profile()->GetWebDataService(Profile::IMPLICIT_ACCESS))
     return;
+  if (!web_contents_->controller())
+    return;
+
   if (provisional_save_manager_->IsNewLogin()) {
     web_contents_->AddInfoBar(
         new SavePasswordInfoBarDelegate(web_contents_,
@@ -184,11 +186,13 @@ void PasswordManager::PasswordFormsSeen(
   if (!web_contents_->profile() ||
       !web_contents_->profile()->GetWebDataService(Profile::EXPLICIT_ACCESS))
     return;
+  if (!web_contents_->controller())
+    return;
   if (!*password_manager_enabled_)
     return;
 
   // Ask the SSLManager for current security.
-  bool had_ssl_error = web_contents_->controller().ssl_manager()->
+  bool had_ssl_error = web_contents_->controller()->ssl_manager()->
       ProcessedSSLErrorFromRequest();
 
   std::vector<PasswordForm>::const_iterator iter;

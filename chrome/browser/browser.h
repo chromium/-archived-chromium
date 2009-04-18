@@ -227,13 +227,15 @@ class Browser : public TabStripModelDelegate,
                                               PageTransition::Type type);
 
   // Add a tab with its session history restored from the SessionRestore
-  // system. If select is true, the tab is selected. |tab_index| gives the index
-  // to insert the tab at. |selected_navigation| is the index of the
-  // TabNavigation in |navigations| to select.
-  TabContents* AddRestoredTab(const std::vector<TabNavigation>& navigations,
-                              int tab_index,
-                              int selected_navigation,
-                              bool select);
+  // system. If select is true, the tab is selected. Returns the created
+  // NavigationController. |tab_index| gives the index to insert the tab at.
+  // |selected_navigation| is the index of the TabNavigation in |navigations|
+  // to select.
+  NavigationController* AddRestoredTab(
+      const std::vector<TabNavigation>& navigations,
+      int tab_index,
+      int selected_navigation,
+      bool select);
 
   // Replaces the state of the currently selected tab with the session
   // history restored from the SessionRestore system.
@@ -523,10 +525,11 @@ class Browser : public TabStripModelDelegate,
   void SyncHistoryWithTabs(int index);
 
   // Called from AddRestoredTab and ReplaceRestoredTab to build a
-  // TabContents from an incoming vector of TabNavigations.
-  // Caller takes ownership of the returned TabContents.
-  TabContents* BuildRestoredTab(const std::vector<TabNavigation>& navigations,
-                                int selected_navigation);
+  // NavigationController from an incoming vector of TabNavigations.
+  // Caller takes ownership of the returned NavigationController.
+  NavigationController* BuildRestoredNavigationController(
+      const std::vector<TabNavigation>& navigations,
+      int selected_navigation);
 
   // OnBeforeUnload handling //////////////////////////////////////////////////
 
@@ -636,7 +639,7 @@ class Browser : public TabStripModelDelegate,
       // toolbar during window creation (i.e. before any tabs have been added
       // to the window).
       TabContents* current_tab = browser_->GetSelectedTabContents();
-      return current_tab ? &current_tab->controller() : NULL;
+      return current_tab ? current_tab->controller() : NULL;
     }
 
   private:

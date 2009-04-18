@@ -703,8 +703,8 @@ int TabStrip::OnPerformDrop(const DropTargetEvent& event) {
   } else {
     UserMetrics::RecordAction(L"Tab_DropURLOnTab", model_->profile());
 
-    model_->GetTabContentsAt(drop_index)->controller().LoadURL(
-        url, GURL(), PageTransition::GENERATED);
+    model_->GetTabContentsAt(drop_index)->controller()->
+        LoadURL(url, GURL(), PageTransition::GENERATED);
     model_->SelectTabContentsAt(drop_index, true);
   }
 

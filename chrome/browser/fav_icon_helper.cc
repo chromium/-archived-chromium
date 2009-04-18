@@ -129,7 +129,7 @@ void FavIconHelper::UpdateFavIcon(NavigationEntry* entry,
 }
 
 NavigationEntry* FavIconHelper::GetEntry() {
-  NavigationEntry* entry = web_contents_->controller().GetActiveEntry();
+  NavigationEntry* entry = web_contents_->controller()->GetActiveEntry();
   if (entry && entry->url() == url_ &&
       web_contents_->IsActiveEntry(entry->page_id())) {
     return entry;

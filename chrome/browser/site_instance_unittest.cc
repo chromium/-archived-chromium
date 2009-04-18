@@ -107,11 +107,15 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
       TestSiteInstance::CreateTestSiteInstance(profile.get(),
                                                &siteDeleteCounter,
                                                &browsingDeleteCounter);
-  {
-    WebContents contents(profile.get(), instance, MSG_ROUTING_NONE, NULL);
-    EXPECT_EQ(1, siteDeleteCounter);
-    EXPECT_EQ(1, browsingDeleteCounter);
-  }
+  WebContents* contents = new WebContents(
+      profile.get(), instance, MSG_ROUTING_NONE, NULL);
+  contents->SetupController(profile.get());
+  EXPECT_EQ(1, siteDeleteCounter);
+  EXPECT_EQ(1, browsingDeleteCounter);
+
+  contents->CloseContents();
+  // Make sure that we flush any messages related to WebContents destruction.
+  MessageLoop::current()->RunAllPending();
 
   EXPECT_EQ(2, siteDeleteCounter);
   EXPECT_EQ(2, browsingDeleteCounter);

@@ -29,6 +29,7 @@ void RenderViewHostDelegateViewHelper::CreateNewWindow(int route_id,
                       site,
                       route_id,
                       modal_dialog_event);
+  new_contents->SetupController(profile);
   WebContentsView* new_view = new_contents->view();
 
   // TODO(brettw) it seems bogus that we have to call this function on the

@@ -938,7 +938,7 @@ void SessionService::BuildCommandsForBrowser(
     TabContents* tab = browser->GetTabContentsAt(i);
     DCHECK(tab);
     if (tab->profile() == profile()) {
-      BuildCommandsForTab(browser->session_id(), &tab->controller(), i,
+      BuildCommandsForTab(browser->session_id(), tab->controller(), i,
                           commands, tab_to_available_range);
       if (windows_to_track && !added_to_windows_to_track) {
         windows_to_track->insert(browser->session_id().id());

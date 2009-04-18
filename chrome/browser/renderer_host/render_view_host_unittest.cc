@@ -12,6 +12,6 @@ class RenderViewHostTest : public RenderViewHostTestHarness {
 // See RenderViewHost::OnMsgNavigate for a discussion.
 TEST_F(RenderViewHostTest, FilterAbout) {
   rvh()->SendNavigate(1, GURL("about:cache"));
-  ASSERT_TRUE(controller().GetActiveEntry());
-  EXPECT_EQ(GURL("about:blank"), controller().GetActiveEntry()->url());
+  ASSERT_TRUE(controller()->GetActiveEntry());
+  EXPECT_EQ(GURL("about:blank"), controller()->GetActiveEntry()->url());
 }

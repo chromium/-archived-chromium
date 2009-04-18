@@ -208,10 +208,10 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
 
   switch (id) {
     case IDS_CONTENT_CONTEXT_BACK:
-      return source_web_contents_->controller().CanGoBack();
+      return source_web_contents_->controller()->CanGoBack();
 
     case IDS_CONTENT_CONTEXT_FORWARD:
-      return source_web_contents_->controller().CanGoForward();
+      return source_web_contents_->controller()->CanGoForward();
 
     case IDS_CONTENT_CONTEXT_VIEWPAGESOURCE:
     case IDS_CONTENT_CONTEXT_VIEWFRAMESOURCE:
@@ -283,7 +283,7 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
       return !params_.misspelled_word.empty();
 
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO:
-      return (source_web_contents_->controller().GetActiveEntry() != NULL);
+      return (source_web_contents_->controller()->GetActiveEntry() != NULL);
 
     case IDS_CONTENT_CONTEXT_RELOAD:
     case IDS_CONTENT_CONTEXT_COPYIMAGE:
@@ -393,11 +393,11 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_BACK:
-      source_web_contents_->controller().GoBack();
+      source_web_contents_->controller()->GoBack();
       break;
 
     case IDS_CONTENT_CONTEXT_FORWARD:
-      source_web_contents_->controller().GoForward();
+      source_web_contents_->controller()->GoForward();
       break;
 
     case IDS_CONTENT_CONTEXT_SAVEPAGEAS:
@@ -405,7 +405,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
       break;
 
     case IDS_CONTENT_CONTEXT_RELOAD:
-      source_web_contents_->controller().Reload(true);
+      source_web_contents_->controller()->Reload(true);
       break;
 
     case IDS_CONTENT_CONTEXT_PRINT:
@@ -424,7 +424,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
     case IDS_CONTENT_CONTEXT_VIEWPAGEINFO: {
 #if defined(OS_WIN)
       NavigationEntry* nav_entry =
-          source_web_contents_->controller().GetActiveEntry();
+          source_web_contents_->controller()->GetActiveEntry();
       PageInfoWindow::CreatePageInfo(
           source_web_contents_->profile(),
           nav_entry,
@@ -581,7 +581,7 @@ bool RenderViewContextMenu::IsDevCommandEnabled(int id) const {
     return true;
 
   NavigationEntry *active_entry =
-      source_web_contents_->controller().GetActiveEntry();
+      source_web_contents_->controller()->GetActiveEntry();
   if (!active_entry)
     return false;
 

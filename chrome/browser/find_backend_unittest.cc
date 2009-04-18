@@ -15,13 +15,16 @@ TEST_F(FindBackendTest, InternalState) {
   EXPECT_EQ(string16(), contents()->find_text());
 
   // Get another WebContents object ready.
-  TestWebContents contents2(profile_.get(), NULL);
+  WebContents* contents2 = new TestWebContents(profile_.get(), NULL);
+  NavigationController* controller2 =
+      new NavigationController(contents2, profile_.get());
+  contents2->set_controller(controller2);
 
   // No search has still been issued, strings should be blank.
   EXPECT_EQ(string16(), contents()->find_prepopulate_text());
   EXPECT_EQ(string16(), contents()->find_text());
-  EXPECT_EQ(string16(), contents2.find_prepopulate_text());
-  EXPECT_EQ(string16(), contents2.find_text());
+  EXPECT_EQ(string16(), contents2->find_prepopulate_text());
+  EXPECT_EQ(string16(), contents2->find_text());
 
   string16 search_term1 = L" I had a 401K    ";
   string16 search_term2 = L" but the economy ";
@@ -34,18 +37,18 @@ TEST_F(FindBackendTest, InternalState) {
   // should not.
   EXPECT_EQ(search_term1, contents()->find_prepopulate_text());
   EXPECT_EQ(search_term1, contents()->find_text());
-  EXPECT_EQ(search_term1, contents2.find_prepopulate_text());
-  EXPECT_EQ(string16(), contents2.find_text());
+  EXPECT_EQ(search_term1, contents2->find_prepopulate_text());
+  EXPECT_EQ(string16(), contents2->find_text());
 
   // Now search in the other WebContents.
-  contents2.StartFinding(search_term2, true);  // true=forward.
+  contents2->StartFinding(search_term2, true);  // true=forward.
 
   // Again, pre-populate string should always match between the two, but
   // find_text should not.
   EXPECT_EQ(search_term2, contents()->find_prepopulate_text());
   EXPECT_EQ(search_term1, contents()->find_text());
-  EXPECT_EQ(search_term2, contents2.find_prepopulate_text());
-  EXPECT_EQ(search_term2, contents2.find_text());
+  EXPECT_EQ(search_term2, contents2->find_prepopulate_text());
+  EXPECT_EQ(search_term2, contents2->find_text());
 
   // Search again in the first WebContents.
   contents()->StartFinding(search_term3, true);  // true=forward.
@@ -54,6 +57,8 @@ TEST_F(FindBackendTest, InternalState) {
   // find_text should not.
   EXPECT_EQ(search_term3, contents()->find_prepopulate_text());
   EXPECT_EQ(search_term3, contents()->find_text());
-  EXPECT_EQ(search_term3, contents2.find_prepopulate_text());
-  EXPECT_EQ(search_term2, contents2.find_text());
+  EXPECT_EQ(search_term3, contents2->find_prepopulate_text());
+  EXPECT_EQ(search_term2, contents2->find_text());
+
+  contents2->CloseContents();
 }

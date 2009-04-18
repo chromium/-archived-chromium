@@ -40,6 +40,11 @@ TaskManagerWebContentsResource::~TaskManagerWebContentsResource() {
 }
 
 std::wstring TaskManagerWebContentsResource::GetTitle() const {
+  // GetTitle() and GetURL() can only be invoked when the WebContents has a
+  // controller.
+  if (!web_contents_->controller())
+    return std::wstring();
+
   // Fall back on the URL if there's no title.
   std::wstring tab_title(UTF16ToWideHack(web_contents_->GetTitle()));
   if (tab_title.empty()) {

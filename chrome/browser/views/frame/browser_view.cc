@@ -769,10 +769,10 @@ void BrowserView::ShowReportBugDialog() {
   BugReportView* bug_report_view = new BugReportView(browser_->profile(),
                                                      current_tab);
 
-  if (current_tab->controller().GetLastCommittedEntry()) {
+  if (current_tab->controller()->GetLastCommittedEntry()) {
     // URL for the current page
     bug_report_view->SetUrl(
-        current_tab->controller().GetActiveEntry()->url());
+        current_tab->controller()->GetActiveEntry()->url());
   }
 
   // retrieve the application version info

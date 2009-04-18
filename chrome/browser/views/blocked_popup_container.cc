@@ -254,12 +254,12 @@ void BlockedPopupContainer::AddTabContents(TabContents* blocked_contents,
                                            const gfx::Rect& bounds) {
   if (has_been_dismissed_) {
     // We simply bounce this popup without notice.
-    delete blocked_contents;
+    blocked_contents->CloseContents();
     return;
   }
 
   if (blocked_popups_.size() > kImpossibleNumberOfPopups) {
-    delete blocked_contents;
+    blocked_contents->CloseContents();
     LOG(INFO) << "Warning: Renderer is sending more popups to us then should be"
         " possible. Renderer compromised?";
     return;
@@ -477,7 +477,7 @@ void BlockedPopupContainer::SetPosition() {
 void BlockedPopupContainer::CloseEachTabContents() {
   while (!blocked_popups_.empty()) {
     blocked_popups_.back().first->set_delegate(NULL);
-    delete blocked_popups_.back().first;
+    blocked_popups_.back().first->CloseContents();
     blocked_popups_.pop_back();
   }
 

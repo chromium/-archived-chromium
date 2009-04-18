@@ -16,7 +16,7 @@ class DOMUITest : public RenderViewHostTestHarness {
   // ID that we should use is passed as a parameter. We'll use the next two
   // values. This must be increasing for the life of the tests.
   static void DoNavigationTest(WebContents* contents, int page_id) {
-    NavigationController* controller = &contents->controller();
+    NavigationController* controller = contents->controller();
 
     // Start a pending load.
     GURL new_tab_url(chrome::kChromeUINewTabURL);
@@ -88,19 +88,23 @@ TEST_F(DOMUITest, DOMUIToStandard) {
   // slightly different than the very-first-navigation case since the
   // SiteInstance will be the same (the original WebContents must still be
   // alive), which will trigger different behavior in RenderViewHostManager.
-  TestWebContents contents2(profile_.get(), NULL);
+  WebContents* contents2 = new TestWebContents(profile_.get(), NULL);
+  NavigationController* controller2 =
+      new NavigationController(contents2, profile_.get());
+  contents2->set_controller(controller2);
 
-  DoNavigationTest(&contents2, 101);
+  DoNavigationTest(contents2, 101);
+  contents2->CloseContents();
 }
 
 TEST_F(DOMUITest, DOMUIToDOMUI) {
   // Do a load (this state is tested above).
   GURL new_tab_url(chrome::kChromeUINewTabURL);
-  controller().LoadURL(new_tab_url, GURL(), PageTransition::LINK);
+  controller()->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
   rvh()->SendNavigate(1, new_tab_url);
 
   // Start another pending load of the new tab page.
-  controller().LoadURL(new_tab_url, GURL(), PageTransition::LINK);
+  controller()->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
   rvh()->SendNavigate(2, new_tab_url);
 
   // The flags should be the same as the non-pending state.
@@ -113,7 +117,7 @@ TEST_F(DOMUITest, DOMUIToDOMUI) {
 TEST_F(DOMUITest, StandardToDOMUI) {
   // Start a pending navigation to a regular page.
   GURL std_url("http://google.com/");
-  controller().LoadURL(std_url, GURL(), PageTransition::LINK);
+  controller()->LoadURL(std_url, GURL(), PageTransition::LINK);
 
   // The state should now reflect the default.
   EXPECT_TRUE(contents()->ShouldDisplayURL());
@@ -130,7 +134,7 @@ TEST_F(DOMUITest, StandardToDOMUI) {
 
   // Start a pending load for a DOMUI.
   GURL new_tab_url(chrome::kChromeUINewTabURL);
-  controller().LoadURL(new_tab_url, GURL(), PageTransition::LINK);
+  controller()->LoadURL(new_tab_url, GURL(), PageTransition::LINK);
   EXPECT_FALSE(contents()->ShouldDisplayURL());
   EXPECT_TRUE(contents()->ShouldDisplayFavIcon());
   EXPECT_FALSE(contents()->IsBookmarkBarAlwaysVisible());

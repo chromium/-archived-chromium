@@ -36,8 +36,7 @@ void AppModalDialog::Observe(NotificationType type,
     return;
 
   if (type == NotificationType::NAV_ENTRY_COMMITTED &&
-      Source<NavigationController>(source).ptr() ==
-          &web_contents_->controller())
+      Source<NavigationController>(source).ptr() == web_contents_->controller())
     web_contents_ = NULL;
 
   if (type == NotificationType::TAB_CONTENTS_DESTROYED &&

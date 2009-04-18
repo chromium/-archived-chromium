@@ -24,11 +24,11 @@ int ExtensionTabUtil::GetWindowId(const Browser* browser) {
 }
 
 int ExtensionTabUtil::GetTabId(const TabContents* tab_contents) {
-  return tab_contents->controller().session_id().id();
+  return tab_contents->controller()->session_id().id();
 }
 
 int ExtensionTabUtil::GetWindowIdOfTab(const TabContents* tab_contents) {
-  return tab_contents->controller().window_id().id();
+  return tab_contents->controller()->window_id().id();
 }
 
 bool GetWindowsFunction::RunImpl() {
@@ -150,6 +150,9 @@ bool GetTabFunction::RunImpl() {
   if (!GetIndexOfTabId(tab_strip, tab_id, &tab_index))
     return false;
 
+  TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+  NavigationController* controller = tab_contents->controller();
+  DCHECK(controller);
   result_.reset(CreateTabValue(tab_strip, tab_index));
   return true;
 }
@@ -175,7 +178,8 @@ bool UpdateTabFunction::RunImpl() {
     return false;
 
   TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
-  NavigationController& controller = tab_contents->controller();
+  NavigationController* controller = tab_contents->controller();
+  DCHECK(controller);
 
   // TODO(rafaelw): handle setting remaining tab properties:
   // -title
@@ -186,7 +190,7 @@ bool UpdateTabFunction::RunImpl() {
   if (args->GetString(L"url", &url)) {
     GURL new_gurl(url);
     if (new_gurl.is_valid()) {
-      controller.LoadURL(new_gurl, GURL(), PageTransition::TYPED);
+      controller->LoadURL(new_gurl, GURL(), PageTransition::TYPED);
     } else {
       // TODO(rafaelw): return some reasonable error?
     }
@@ -222,6 +226,10 @@ bool MoveTabFunction::RunImpl() {
   // TODO(rafaelw): return an error if the tab is not found by |tab_id|
   if (!GetIndexOfTabId(tab_strip, tab_id, &tab_index))
     return false;
+
+  TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+  NavigationController* controller = tab_contents->controller();
+  DCHECK(controller);
 
   // TODO(rafaelw): support moving tabs between windows
   // -windowId
@@ -265,7 +273,10 @@ bool RemoveTabFunction::RunImpl() {
   int tab_index;
   TabStripModel* tab_strip = browser->tabstrip_model();
   if (GetIndexOfTabId(tab_strip, tab_id, &tab_index)) {
-    browser->CloseContents(tab_strip->GetTabContentsAt(tab_index));
+    TabContents* tab_contents = tab_strip->GetTabContentsAt(tab_index);
+    NavigationController* controller = tab_contents->controller();
+    DCHECK(controller);
+    browser->CloseContents(tab_contents);
     return true;
   }
 
@@ -303,6 +314,8 @@ static ListValue* CreateTabList(Browser* browser) {
 static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
                                        int tab_index) {
   TabContents* contents = tab_strip->GetTabContentsAt(tab_index);
+  NavigationController* controller = contents->controller();
+  DCHECK(controller);  // TODO(aa): Is this a valid assumption?
 
   DictionaryValue* result = new DictionaryValue();
   result->SetInteger(L"id", ExtensionTabUtil::GetTabId(contents));
@@ -312,7 +325,7 @@ static DictionaryValue* CreateTabValue(TabStripModel* tab_strip,
   result->SetString(L"title", UTF16ToWide(contents->GetTitle()));
   result->SetBoolean(L"selected", tab_index == tab_strip->selected_index());
 
-  NavigationEntry* entry = contents->controller().GetActiveEntry();
+  NavigationEntry* entry = controller->GetActiveEntry();
   if (entry) {
     if (entry->favicon().is_valid())
       result->SetString(L"favIconUrl", entry->favicon().url().spec());
@@ -325,7 +338,10 @@ static bool GetIndexOfTabId(const TabStripModel* tab_strip, int tab_id,
                             int* tab_index) {
   for (int i = 0; i < tab_strip->count(); ++i) {
     TabContents* tab_contents = tab_strip->GetTabContentsAt(i);
-    if (tab_contents->controller().session_id().id() == tab_id) {
+    NavigationController* controller = tab_contents->controller();
+    DCHECK(controller);  // TODO(aa): Is this a valid assumption?
+
+    if (controller->session_id().id() == tab_id) {
       *tab_index = i;
       return true;
     }

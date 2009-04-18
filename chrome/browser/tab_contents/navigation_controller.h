@@ -123,20 +123,33 @@ class NavigationController {
 
   // ---------------------------------------------------------------------------
 
-  NavigationController(TabContents* tab_contents, Profile* profile);
+  NavigationController(TabContents* initial_contents, Profile* profile);
+
+  // Creates a NavigationController from the specified history. Processing
+  // for this is asynchronous and handled via the RestoreHelper (in
+  // navigation_controller.cc).
+  NavigationController(
+      Profile* profile,
+      const std::vector<TabNavigation>& navigations,
+      int selected_navigation);
   ~NavigationController();
+
+  // Begin the destruction sequence for this NavigationController and all its
+  // registered tabs.  The sequence is as follows:
+  // 1. All tabs are asked to Destroy themselves.
+  // 2. When each tab is finished Destroying, it will notify the controller.
+  // 3. Once all tabs are Destroyed, the NavigationController deletes itself.
+  // This ensures that all the TabContents outlive the NavigationController.
+  void Destroy();
+
+  // Clone the receiving navigation controller. Only the active tab contents is
+  // duplicated.
+  NavigationController* Clone();
 
   // Returns the profile for this controller. It can never be NULL.
   Profile* profile() const {
     return profile_;
   }
-
-  // Initializes this NavigationController with the given saved navigations,
-  // using selected_navigation as the currently loaded entry. Before this call
-  // the controller should be unused (there should be no current entry). This is
-  // used for session restore.
-  void RestoreFromState(const std::vector<TabNavigation>& navigations,
-                        int selected_navigation);
 
   // Active entry --------------------------------------------------------------
 
@@ -282,6 +295,10 @@ class NavigationController {
 
   // TabContents ---------------------------------------------------------------
 
+  // Notifies the controller that a TabContents that it owns has been destroyed.
+  // This is part of the NavigationController's Destroy sequence.
+  void TabContentsWasDestroyed();
+
   // Returns the tab contents associated with this controller. Non-NULL except
   // during set-up of the tab.
   TabContents* tab_contents() const {
@@ -329,17 +346,13 @@ class NavigationController {
   // refs without reload, only change to "#" which we don't count as empty).
   bool IsURLInPageNavigation(const GURL& url) const;
 
-  // Copies the navigation state from the given controller to this one. This
-  // one should be empty (just created).
-  void CopyStateFrom(const NavigationController& source);
-
   // Random data ---------------------------------------------------------------
 
   // Returns true if this NavigationController is is configured to load a URL
   // lazily. If true, use GetLazyTitle() and GetLazyFavIcon() to discover the
   // titles and favicons. Since no request was made, this is the only info
   // we have about this page. This feature is used by web application clusters.
-  bool LoadingURLLazily() const;
+  bool LoadingURLLazily();
   const string16& GetLazyTitle() const;
   const SkBitmap& GetLazyFavIcon() const;
 
@@ -411,6 +424,11 @@ class NavigationController {
   // Allows the derived class to issue notifications that a load has been
   // committed. This will fill in the active entry to the details structure.
   void NotifyNavigationEntryCommitted(LoadCommittedDetails* details);
+
+  // Returns the TabContents for the |entry|'s type. If the TabContents
+  // doesn't yet exist, it is created. If a new TabContents is created, its
+  // parent is |parent|.  Becomes part of |entry|'s SiteInstance.
+  TabContents* GetTabContentsCreateIfNecessary(const NavigationEntry& entry);
 
   // Sets the max restored page ID this NavigationController has seen, if it
   // was restored from a previous session.
