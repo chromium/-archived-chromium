@@ -176,7 +176,7 @@ void LayoutTestController::WorkQueue::ProcessWork() {
       return;
   }
 
-  if (!wait_until_done_)
+  if (!wait_until_done_ && !shell_->delegate()->top_loading_frame())
     shell_->TestFinished();
 }
 
