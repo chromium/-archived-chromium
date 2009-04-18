@@ -20,6 +20,7 @@
 #include "base/logging.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
+#include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
@@ -316,30 +317,26 @@ TEST_F(FileUtilTest, GetDirectoryFromPath) {
 #if defined OS_WIN
 TEST_F(FileUtilTest, CountFilesCreatedAfter) {
   // Create old file (that we don't want to count)
-  FilePath old_file_name = test_dir_.Append(L"Old File.txt");
+  FilePath old_file_name = test_dir_.Append(FILE_PATH_LITERAL("Old File.txt"));
   CreateTextFile(old_file_name, L"Just call me Mr. Creakybits");
 
   // Age to perfection
   Sleep(100);
 
   // Establish our cutoff time
-  FILETIME test_start_time;
-  GetSystemTimeAsFileTime(&test_start_time);
-  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_.value(),
-                                                 test_start_time));
+  base::Time now(base::Time::NowFromSystemTime());
+  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_, now));
 
   // Create a new file (that we do want to count)
-  FilePath new_file_name = test_dir_.Append(L"New File.txt");
+  FilePath new_file_name = test_dir_.Append(FILE_PATH_LITERAL("New File.txt"));
   CreateTextFile(new_file_name, L"Waaaaaaaaaaaaaah.");
 
   // We should see only the new file.
-  EXPECT_EQ(1, file_util::CountFilesCreatedAfter(test_dir_.value(),
-                                                 test_start_time));
+  EXPECT_EQ(1, file_util::CountFilesCreatedAfter(test_dir_, now));
 
   // Delete new file, we should see no files after cutoff now
   EXPECT_TRUE(file_util::Delete(new_file_name, false));
-  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_.value(),
-                                                 test_start_time));
+  EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_, now));
 }
 #endif
 

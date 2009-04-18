@@ -207,6 +207,12 @@ class Time {
   // times are increasing, or that two calls to Now() won't be the same.
   static Time Now();
 
+  // Returns the current time. Same as Now() except that this function always
+  // uses system time so that there are no discrepancies between the returned
+  // time and system time even on virtual environments including our test bot.
+  // For timing sensitive unittests, this function should be used.
+  static Time NowFromSystemTime();
+
   // Converts to/from time_t in UTC and a Time class.
   // TODO(brettw) this should be removed once everybody starts using the |Time|
   // class.

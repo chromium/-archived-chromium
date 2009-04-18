@@ -126,8 +126,15 @@ Time Time::Now() {
       continue;
     }
 
-    return elapsed + initial_time;
+    return Time(elapsed + initial_time);
   }
+}
+
+// static
+Time Time::NowFromSystemTime() {
+  // Force resync.
+  InitializeClock();
+  return Time(initial_time);
 }
 
 // static

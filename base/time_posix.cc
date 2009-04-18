@@ -41,6 +41,12 @@ Time Time::Now() {
 }
 
 // static
+Time Time::NowFromSystemTime() {
+  // Just use Now() because Now() returns the system time.
+  return Now();
+}
+
+// static
 Time Time::FromExploded(bool is_local, const Exploded& exploded) {
   struct tm timestruct;
   timestruct.tm_sec    = exploded.second;

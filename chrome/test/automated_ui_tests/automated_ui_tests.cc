@@ -11,6 +11,7 @@
 #include "base/rand_util.h"
 #include "base/string_util.h"
 #include "base/sys_info.h"
+#include "base/time.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/character_encoding.h"
@@ -81,11 +82,11 @@ const std::string kDialogs[] = {
 };
 
 AutomatedUITest::AutomatedUITest()
-    : total_crashes_(0),
+    : test_start_time_(base::Time::NowFromSystemTime()),
+      total_crashes_(0),
       debug_logging_enabled_(false),
       post_action_delay_(0) {
   show_window_ = true;
-  GetSystemTimeAsFileTime(&test_start_time_);
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
   if (parsed_command_line.HasSwitch(kDebugModeSwitch))
     debug_logging_enabled_ = true;
@@ -941,7 +942,7 @@ std::wstring AutomatedUITest::GetMostRecentCrashDump() {
 }
 
 bool AutomatedUITest::DidCrash(bool update_total_crashes) {
-  std::wstring crash_dump_path;
+  FilePath crash_dump_path;
   PathService::Get(chrome::DIR_CRASH_DUMPS, &crash_dump_path);
   // Each crash creates two dump files, so we divide by two here.
   int actual_crashes = file_util::CountFilesCreatedAfter(
