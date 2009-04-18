@@ -68,23 +68,21 @@ class TabStripDummyDelegate : public TabStripModelDelegate {
 class TabStripModelTest : public RenderViewHostTestHarness {
  public:
   TabContents* CreateTabContents() {
-    WebContents* con = new WebContents(profile(), NULL, 0, NULL);
-    con->SetupController(profile());
-    return con;
+    return new WebContents(profile(), NULL, 0, NULL);
   }
 
   // Forwards a URL "load" request through to our dummy TabContents
   // implementation.
   void LoadURL(TabContents* con, const std::wstring& url) {
-    controller()->LoadURL(GURL(url), GURL(), PageTransition::LINK);
+    controller().LoadURL(GURL(url), GURL(), PageTransition::LINK);
   }
 
   void GoBack(TabContents* contents) {
-    controller()->GoBack();
+    controller().GoBack();
   }
 
   void GoForward(TabContents* contents) {
-    controller()->GoForward();
+    controller().GoForward();
   }
 
   void SwitchTabTo(TabContents* contents) {
@@ -360,8 +358,8 @@ TEST_F(TabStripModelTest, TestBasicAPI) {
     EXPECT_EQ(contents1, tabstrip.GetTabContentsAt(1));
     EXPECT_EQ(0, tabstrip.GetIndexOfTabContents(contents2));
     EXPECT_EQ(1, tabstrip.GetIndexOfTabContents(contents1));
-    EXPECT_EQ(0, tabstrip.GetIndexOfController(contents2->controller()));
-    EXPECT_EQ(1, tabstrip.GetIndexOfController(contents1->controller()));
+    EXPECT_EQ(0, tabstrip.GetIndexOfController(&contents2->controller()));
+    EXPECT_EQ(1, tabstrip.GetIndexOfController(&contents1->controller()));
   }
 
   // Test UpdateTabContentsStateAt
@@ -414,7 +412,7 @@ TEST_F(TabStripModelTest, TestBasicOpenerAPI) {
   // background with opener_contents set as their opener.
 
   TabContents* opener_contents = CreateTabContents();
-  NavigationController* opener = opener_contents->controller();
+  NavigationController* opener = &opener_contents->controller();
   tabstrip.AppendTabContents(opener_contents, true);
   TabContents* contents1 = CreateTabContents();
   TabContents* contents2 = CreateTabContents();
@@ -447,7 +445,7 @@ TEST_F(TabStripModelTest, TestBasicOpenerAPI) {
 
   // For a tab that has opened no other tabs, the return value should always be
   // -1...
-  NavigationController* o1 = contents1->controller();
+  NavigationController* o1 = &contents1->controller();
   EXPECT_EQ(-1, tabstrip.GetIndexOfNextTabContentsOpenedBy(o1, 3, false));
   EXPECT_EQ(-1, tabstrip.GetIndexOfLastTabContentsOpenedBy(o1, 3));
 
@@ -513,7 +511,7 @@ TEST_F(TabStripModelTest, TestInsertionIndexDetermination) {
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
-  NavigationController* opener = opener_contents->controller();
+  NavigationController* opener = &opener_contents->controller();
   tabstrip.AppendTabContents(opener_contents, true);
 
   // Open some other random unrelated tab in the background to monkey with our
@@ -592,7 +590,7 @@ TEST_F(TabStripModelTest, TestSelectOnClose) {
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
-  NavigationController* opener = opener_contents->controller();
+  NavigationController* opener = &opener_contents->controller();
   tabstrip.AppendTabContents(opener_contents, true);
 
   TabContents* contents1 = CreateTabContents();
@@ -670,7 +668,7 @@ TEST_F(TabStripModelTest, TestContextMenuCloseCommands) {
   EXPECT_TRUE(tabstrip.empty());
 
   TabContents* opener_contents = CreateTabContents();
-  NavigationController* opener = opener_contents->controller();
+  NavigationController* opener = &opener_contents->controller();
   tabstrip.AppendTabContents(opener_contents, true);
 
   TabContents* contents1 = CreateTabContents();

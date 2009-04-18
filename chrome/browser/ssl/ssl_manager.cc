@@ -292,7 +292,7 @@ void SSLManager::ErrorHandler::Dispatch() {
   }
 
   // Hand ourselves off to the SSLManager.
-  manager_ = web_contents->controller()->ssl_manager();
+  manager_ = web_contents->controller().ssl_manager();
   OnDispatched();
 }
 

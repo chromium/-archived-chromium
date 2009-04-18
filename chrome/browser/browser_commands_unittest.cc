@@ -68,13 +68,13 @@ TEST_F(BrowserCommandsTest, DuplicateTab) {
   ASSERT_EQ(2, browser()->tab_count());
 
   // Verify the stack of urls.
-  NavigationController* controller =
+  NavigationController& controller =
       browser()->GetTabContentsAt(1)->controller();
-  ASSERT_EQ(3, controller->entry_count());
-  ASSERT_EQ(2, controller->GetCurrentEntryIndex());
-  ASSERT_TRUE(url1 == controller->GetEntryAtIndex(0)->url());
-  ASSERT_TRUE(url2 == controller->GetEntryAtIndex(1)->url());
-  ASSERT_TRUE(url3 == controller->GetEntryAtIndex(2)->url());
+  ASSERT_EQ(3, controller.entry_count());
+  ASSERT_EQ(2, controller.GetCurrentEntryIndex());
+  ASSERT_TRUE(url1 == controller.GetEntryAtIndex(0)->url());
+  ASSERT_TRUE(url2 == controller.GetEntryAtIndex(1)->url());
+  ASSERT_TRUE(url3 == controller.GetEntryAtIndex(2)->url());
 }
 
 TEST_F(BrowserCommandsTest, BookmarkCurrentPage) {

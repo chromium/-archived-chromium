@@ -1293,7 +1293,7 @@ class NotificationTask : public Task {
       // Issue the notification.
       NotificationService::current()->Notify(
           type_,
-          Source<NavigationController>(tab_contents->controller()),
+          Source<NavigationController>(&tab_contents->controller()),
           Details<ResourceRequestDetails>(details_.get()));
     }
   }

@@ -55,7 +55,7 @@ void FindBarController::ChangeWebContents(WebContents* contents) {
         Source<TabContents>(web_contents_));
     NotificationService::current()->RemoveObserver(
         this, NotificationType::NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(web_contents_->controller()));
+        Source<NavigationController>(&web_contents_->controller()));
     find_bar_->StopAnimation();
   }
 
@@ -74,7 +74,7 @@ void FindBarController::ChangeWebContents(WebContents* contents) {
         Source<TabContents>(web_contents_));
     NotificationService::current()->AddObserver(
         this, NotificationType::NAV_ENTRY_COMMITTED,
-        Source<NavigationController>(web_contents_->controller()));
+        Source<NavigationController>(&web_contents_->controller()));
 
     // Find out what we should show in the find text box. Usually, this will be
     // the last search in this tab, but if no search has been issued in this tab
@@ -125,7 +125,7 @@ void FindBarController::Observe(NotificationType type,
   } else if (type == NotificationType::NAV_ENTRY_COMMITTED) {
     NavigationController* source_controller =
         Source<NavigationController>(source).ptr();
-    if (source_controller == web_contents_->controller()) {
+    if (source_controller == &web_contents_->controller()) {
       NavigationController::LoadCommittedDetails* commit_details =
           Details<NavigationController::LoadCommittedDetails>(details).ptr();
       PageTransition::Type transition_type =

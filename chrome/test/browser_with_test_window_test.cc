@@ -51,7 +51,7 @@ void BrowserWithTestWindowTest::AddTab(Browser* browser, const GURL& url) {
   TabContents* new_tab = browser->AddTabWithURL(url, GURL(),
                                                 PageTransition::TYPED, true,
                                                 0, NULL);
-  CommitPendingLoadAsNewNavigation(new_tab->controller(), url);
+  CommitPendingLoadAsNewNavigation(&new_tab->controller(), url);
 }
 
 void BrowserWithTestWindowTest::CommitPendingLoadAsNewNavigation(
@@ -73,5 +73,5 @@ void BrowserWithTestWindowTest::NavigateAndCommit(
 }
 
 void BrowserWithTestWindowTest::NavigateAndCommitActiveTab(const GURL& url) {
-  NavigateAndCommit(browser()->GetSelectedTabContents()->controller(), url);
+  NavigateAndCommit(&browser()->GetSelectedTabContents()->controller(), url);
 }

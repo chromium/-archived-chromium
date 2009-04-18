@@ -70,7 +70,7 @@ BackingStore* TestRenderWidgetHostView::AllocBackingStore(
 }
 
 void RenderViewHostTestHarness::NavigateAndCommit(const GURL& url) {
-  controller()->LoadURL(url, GURL(), 0);
+  controller().LoadURL(url, GURL(), 0);
   rvh()->SendNavigate(process()->max_page_id() + 1, url);
 }
 
@@ -87,11 +87,8 @@ void RenderViewHostTestHarness::SetUp() {
 }
 
 void RenderViewHostTestHarness::TearDown() {
-  if (contents_) {
-    contents_->CloseContents();
-    contents_ = NULL;
-  }
-  controller_ = NULL;
+  if (contents_)
+    delete contents_;
 
   // Make sure that we flush any messages related to WebContents destruction
   // before we destroy the profile.

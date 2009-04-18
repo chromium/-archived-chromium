@@ -175,7 +175,7 @@ Browser* InProcessBrowserTest::CreateBrowser(Profile* profile) {
 
   // Wait for the page to finish loading.
   ui_test_utils::WaitForNavigation(
-      browser->GetSelectedTabContents()->controller());
+      &browser->GetSelectedTabContents()->controller());
 
   browser->window()->Show();
 

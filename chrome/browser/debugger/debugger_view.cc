@@ -99,14 +99,13 @@ void DebuggerView::OnInit() {
   Profile* profile = BrowserList::GetLastActive()->profile();
   web_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
 
-  web_contents_->SetupController(profile);
   web_contents_->set_delegate(this);
   web_container_->SetTabContents(web_contents_);
   web_contents_->render_view_host()->AllowDOMUIBindings();
 
   GURL contents("chrome-ui://inspector/debugger.html");
-  web_contents_->controller()->LoadURL(contents, GURL(),
-                                       PageTransition::START_PAGE);
+  web_contents_->controller().LoadURL(contents, GURL(),
+                                      PageTransition::START_PAGE);
 }
 
 void DebuggerView::OnShow() {
@@ -115,7 +114,7 @@ void DebuggerView::OnShow() {
 
 void DebuggerView::OnClose() {
   web_container_->SetTabContents(NULL);
-  web_contents_->CloseContents();
+  delete web_contents_;
 }
 
 void DebuggerView::OpenURLFromTab(TabContents* source,

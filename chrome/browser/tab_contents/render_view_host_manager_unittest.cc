@@ -23,27 +23,22 @@ TEST_F(RenderViewHostManagerTest, NewTabPageProcesses) {
   NavigateAndCommit(dest);
 
   // Make a second tab.
-  WebContents* contents2 = new TestWebContents(profile_.get(), NULL);
-  NavigationController* controller2 =
-      new NavigationController(contents2, profile_.get());
-  contents2->set_controller(controller2);
+  TestWebContents contents2(profile_.get(), NULL);
 
   // Load the two URLs in the second tab. Note that the first navigation creates
   // a RVH that's not pending (since there is no cross-site transition), so
   // we use the committed one, but the second one is the opposite.
-  contents2->controller()->LoadURL(ntp, GURL(), PageTransition::LINK);
-  static_cast<TestRenderViewHost*>(contents2->render_manager()->
+  contents2.controller().LoadURL(ntp, GURL(), PageTransition::LINK);
+  static_cast<TestRenderViewHost*>(contents2.render_manager()->
      current_host())->SendNavigate(100, ntp);
-  contents2->controller()->LoadURL(dest, GURL(), PageTransition::LINK);
-  static_cast<TestRenderViewHost*>(contents2->render_manager()->
+  contents2.controller().LoadURL(dest, GURL(), PageTransition::LINK);
+  static_cast<TestRenderViewHost*>(contents2.render_manager()->
       pending_render_view_host())->SendNavigate(101, dest);
 
   // The two RVH's should be different in every way.
-  EXPECT_NE(rvh()->process(), contents2->render_view_host()->process());
+  EXPECT_NE(rvh()->process(), contents2.render_view_host()->process());
   EXPECT_NE(rvh()->site_instance(),
-      contents2->render_view_host()->site_instance());
+      contents2.render_view_host()->site_instance());
   EXPECT_NE(rvh()->site_instance()->browsing_instance(),
-      contents2->render_view_host()->site_instance()->browsing_instance());
-
-  contents2->CloseContents();
+      contents2.render_view_host()->site_instance()->browsing_instance());
 }

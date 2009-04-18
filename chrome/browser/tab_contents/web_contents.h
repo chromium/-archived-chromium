@@ -73,6 +73,8 @@ class WebContents : public TabContents,
               int routing_id,
               base::WaitableEvent* modal_dialog_event);
 
+  virtual ~WebContents();
+
   static void RegisterUserPrefs(PrefService* prefs);
 
   // Getters -------------------------------------------------------------------
@@ -126,7 +128,6 @@ class WebContents : public TabContents,
 
   // TabContents (public overrides) --------------------------------------------
 
-  virtual void Destroy();
   virtual WebContents* AsWebContents() { return this; }
   const string16& GetTitle() const;
   virtual SiteInstance* GetSiteInstance() const;
@@ -139,6 +140,7 @@ class WebContents : public TabContents,
   virtual void Copy();
   virtual void Paste();
   virtual void DisassociateFromPopupCount();
+  virtual TabContents* Clone();
   virtual void DidBecomeSelected();
   virtual void WasHidden();
   virtual void ShowContents();
@@ -292,9 +294,6 @@ class WebContents : public TabContents,
   }
 
  protected:
-  // Should be deleted via CloseContents.
-  virtual ~WebContents();
-
   RenderWidgetHostView* render_widget_host_view() const {
     return render_manager_.current_view();
   }
@@ -453,7 +452,7 @@ class WebContents : public TabContents,
   virtual void NotifySwappedFromRenderManager() {
     NotifySwapped();
   }
-  virtual NavigationController* GetControllerForRenderManager() {
+  virtual NavigationController& GetControllerForRenderManager() {
     return controller();
   }
   virtual DOMUI* CreateDOMUIForRenderManager(const GURL& url);

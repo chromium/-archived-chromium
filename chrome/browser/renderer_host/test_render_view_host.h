@@ -184,7 +184,7 @@ class RenderViewHostTestHarness : public testing::Test {
         controller_(NULL) {}
   virtual ~RenderViewHostTestHarness() {}
 
-  NavigationController* controller() {
+  NavigationController& controller() {
     return contents_->controller();
   }
 

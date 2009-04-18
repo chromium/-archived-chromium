@@ -93,7 +93,7 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
                                                 const GURL& url,
                                                 int number_of_navigations) {
   NavigationController* controller =
-      browser->GetSelectedTabContents()->controller();
+      &browser->GetSelectedTabContents()->controller();
   browser->OpenURLFromTab(browser->GetSelectedTabContents(), url, GURL(),
                           CURRENT_TAB, PageTransition::TYPED);
   WaitForNavigations(controller, number_of_navigations);

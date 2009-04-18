@@ -50,7 +50,6 @@ void DevToolsView::Init() {
   Profile* profile = BrowserList::GetLastActive()->profile();
 
   web_contents_ = new WebContents(profile, NULL, MSG_ROUTING_NONE, NULL);
-  web_contents_->SetupController(profile);
   web_contents_->set_delegate(this);
   web_container_->SetTabContents(web_contents_);
   web_contents_->render_view_host()->AllowDOMUIBindings();
@@ -59,8 +58,8 @@ void DevToolsView::Init() {
   GURL contents(std::string(chrome::kChromeUIDevToolsURL) + "devtools.html");
 
   // this will call CreateRenderView to create renderer process
-  web_contents_->controller()->LoadURL(contents, GURL(),
-                                       PageTransition::START_PAGE);
+  web_contents_->controller().LoadURL(contents, GURL(),
+                                      PageTransition::START_PAGE);
 }
 
 void DevToolsView::OnWindowClosing() {
@@ -70,7 +69,7 @@ void DevToolsView::OnWindowClosing() {
     web_container_->SetTabContents(NULL);
 
     // Destroy the tab and navigation controller.
-    web_contents_->CloseContents();
+    delete web_contents_;
     web_contents_ = NULL;
   }
 }

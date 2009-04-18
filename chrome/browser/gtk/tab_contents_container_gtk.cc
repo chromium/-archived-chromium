@@ -79,7 +79,7 @@ void TabContentsContainerGtk::AddObservers() {
     // we crash after that NOTIMPLEMENTED(), we'll need it.
     NotificationService::current()->AddObserver(
         this, NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(tab_contents_->controller()));
+        Source<NavigationController>(&tab_contents_->controller()));
   }
   NotificationService::current()->AddObserver(
       this,
@@ -93,7 +93,7 @@ void TabContentsContainerGtk::RemoveObservers() {
     NotificationService::current()->RemoveObserver(
         this,
         NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(tab_contents_->controller()));
+        Source<NavigationController>(&tab_contents_->controller()));
   }
   NotificationService::current()->RemoveObserver(
       this,

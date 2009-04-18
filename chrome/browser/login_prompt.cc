@@ -266,7 +266,7 @@ class LoginHandlerImpl : public LoginHandler,
     if (!requesting_contents)
       return;
 
-    NavigationController* controller = requesting_contents->controller();
+    NavigationController* controller = &requesting_contents->controller();
 
     if (!WasAuthHandled(false)) {
       LoginNotificationDetails details(this);

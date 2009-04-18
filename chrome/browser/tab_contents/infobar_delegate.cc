@@ -29,7 +29,7 @@ InfoBarDelegate::InfoBarDelegate(TabContents* contents)
 }
 
 void InfoBarDelegate::StoreActiveEntryUniqueID(TabContents* contents) {
-  NavigationEntry* active_entry = contents->controller()->GetActiveEntry();
+  NavigationEntry* active_entry = contents->controller().GetActiveEntry();
   contents_unique_id_ = active_entry ? active_entry->unique_id() : 0;
 }
 

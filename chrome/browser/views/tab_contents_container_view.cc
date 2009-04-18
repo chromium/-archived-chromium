@@ -181,7 +181,7 @@ void TabContentsContainerView::AddObservers() {
     // the focus subclass on the shown HWND so we intercept focus change events.
     NotificationService::current()->AddObserver(
         this, NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(tab_contents_->controller()));
+        Source<NavigationController>(&tab_contents_->controller()));
   }
   NotificationService::current()->AddObserver(
       this,
@@ -195,7 +195,7 @@ void TabContentsContainerView::RemoveObservers() {
     NotificationService::current()->RemoveObserver(
         this,
         NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(tab_contents_->controller()));
+        Source<NavigationController>(&tab_contents_->controller()));
   }
   NotificationService::current()->RemoveObserver(
       this,

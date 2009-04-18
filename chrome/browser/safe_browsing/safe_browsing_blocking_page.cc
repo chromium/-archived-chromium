@@ -85,7 +85,7 @@ SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
       unsafe_resources_(unsafe_resources) {
   if (!is_main_frame_) {
     navigation_entry_index_to_remove_ =
-        tab()->controller()->last_committed_entry_index();
+        tab()->controller().last_committed_entry_index();
   } else {
     navigation_entry_index_to_remove_ = -1;
   }
@@ -402,8 +402,8 @@ void SafeBrowsingBlockingPage::DontProceed() {
   // would trigger a navigation that would cause trouble as the render view host
   // for the tab has by then already been destroyed.
   if (navigation_entry_index_to_remove_ != -1 && !tab()->is_being_destroyed()) {
-    tab()->controller()->RemoveEntryAtIndex(navigation_entry_index_to_remove_,
-                                            GURL(chrome::kChromeUINewTabURL));
+    tab()->controller().RemoveEntryAtIndex(navigation_entry_index_to_remove_,
+                                           GURL(chrome::kChromeUINewTabURL));
     navigation_entry_index_to_remove_ = -1;
   }
   InterstitialPage::DontProceed();
