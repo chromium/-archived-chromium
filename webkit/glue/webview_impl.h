@@ -223,14 +223,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
                        WebCore::Frame* frame,
                        const WebCore::PlatformKeyboardEvent& e);
 
-  // TODO(darin): Figure out what happens to these methods.
-#if 0
-  // WebCore::WidgetClientWin
-  virtual const SkBitmap* getPreloadedResourceBitmap(int resource_id);
-  virtual void onScrollPositionChanged(WebCore::Widget* widget);
-  virtual bool isHidden();
-#endif
-
   // Creates and returns a new SearchableFormData for the focused node.
   // It's up to the caller to free the returned SearchableFormData.
   // This returns NULL if the focused node is NULL, or not in a valid form.

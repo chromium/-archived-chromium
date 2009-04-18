@@ -1825,32 +1825,6 @@ void WebViewImpl::ImageResourceDownloadDone(ImageResourceFetcher* fetcher,
   DeleteImageResourceFetcher(fetcher);
 }
 
-//-----------------------------------------------------------------------------
-// WebCore::WidgetClientWin
-
-// TODO(darin): Figure out what to do with these methods.
-#if 0
-const SkBitmap* WebViewImpl::getPreloadedResourceBitmap(int resource_id) {
-  if (!delegate_)
-    return NULL;
-
-  return delegate_->GetPreloadedResourceBitmap(resource_id);
-}
-
-void WebViewImpl::onScrollPositionChanged(WebCore::Widget* widget) {
-  // Scroll position changes should be reflected in the session history.
-  if (delegate_)
-    delegate_->OnNavStateChanged(this);
-}
-
-bool WebViewImpl::isHidden() {
-  if (!delegate_)
-    return true;
-
-  return delegate_->IsHidden(this);
-}
-#endif
-
 void WebViewImpl::SetCurrentHistoryItem(WebCore::HistoryItem* item) {
   back_forward_list_client_impl_.SetCurrentHistoryItem(item);
 }

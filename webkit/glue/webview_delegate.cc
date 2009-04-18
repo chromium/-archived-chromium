@@ -11,18 +11,6 @@
 #include "base/logging.h"
 #include "googleurl/src/gurl.h"
 
-void WebViewDelegate::SetSmartInsertDeleteEnabled(bool enabled) {
-  // This method is only used in test shell, which overrides this
-  // method.
-  NOTREACHED();
-}
-
-void WebViewDelegate::SetSelectTrailingWhitespaceEnabled(bool enabled) {
-  // This method is only used in test shell, which overrides this
-  // method.
-  NOTREACHED();
-}
-
 GURL WebViewDelegate::GetAlternateErrorPageURL(const GURL& failedURL,
                                                ErrorPageType error_type) {
   return GURL();

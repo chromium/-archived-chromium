@@ -284,23 +284,3 @@ void WebWidgetImpl::popupClosed(WebCore::FramelessScrollView* widget) {
   }
   delegate_->CloseWidgetSoon(this);
 }
-
-//-----------------------------------------------------------------------------
-// WebCore::WidgetClientWin
-
-// TODO(darin): Figure out what happens to these methods.
-#if 0
-const SkBitmap* WebWidgetImpl::getPreloadedResourceBitmap(int resource_id) {
-  return NULL;
-}
-
-void WebWidgetImpl::onScrollPositionChanged(Widget* widget) {
-}
-
-bool WebWidgetImpl::isHidden() {
-  if (!delegate_)
-    return true;
-
-  return delegate_->IsHidden(this);
-}
-#endif

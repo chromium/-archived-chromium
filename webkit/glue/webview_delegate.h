@@ -134,12 +134,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return NULL;
   }
 
-  // This method is called when default plugin has been correctly created and
-  // initialized, and found that the missing plugin is available to install or
-  // user has started installation.
-  virtual void OnMissingPluginStatus(WebPluginDelegate* delegate, int status) {
-  }
-
   // This method is called to open a URL in the specified manner.
   virtual void OpenURL(WebView* webview, const GURL& url,
                        const GURL& referrer,
@@ -162,13 +156,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   virtual void ReportFindInPageSelection(int request_id,
                                          int active_match_ordinal,
                                          const WebKit::WebRect& selection) {
-  }
-
-  // This function is called to retrieve a resource bitmap from the
-  // renderer that was cached as a result of the renderer receiving a
-  // ViewMsg_Preload_Bitmap message from the browser.
-  virtual const SkBitmap* GetPreloadedResourceBitmap(int resource_id) {
-    return NULL;
   }
 
   // Returns whether this WebView was opened by a user gesture.
@@ -666,8 +653,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return true;
   }
 
-  virtual void SetSmartInsertDeleteEnabled(bool enabled);
-
   virtual bool IsSelectTrailingWhitespaceEnabled() {
 #if defined(OS_WIN)
     return true;
@@ -675,8 +660,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
     return false;
 #endif
   }
-
-  virtual void SetSelectTrailingWhitespaceEnabled(bool enabled);
 
   virtual void DidBeginEditing() { }
   virtual void DidChangeSelection(bool is_empty_selection) { }

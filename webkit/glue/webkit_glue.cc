@@ -277,27 +277,6 @@ WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str) {
 #endif
 }
 
-// Convert from WebKit types to Glue types and notify the embedder. This should
-// not perform complex processing since it may be called a lot.
-void NotifyFormStateChanged(const WebCore::Document* document) {
-  if (!document)
-    return;
-
-  WebCore::Frame* frame = document->frame();
-  if (!frame)
-    return;
-
-  // Dispatch to the delegate of the view that owns the frame.
-  WebFrame* webframe = WebFrameImpl::FromFrame(document->frame());
-  WebView* webview = webframe->GetView();
-  if (!webview)
-    return;
-  WebViewDelegate* delegate = webview->GetDelegate();
-  if (!delegate)
-    return;
-  delegate->OnNavStateChanged(webview);
-}
-
 std::string GetWebKitVersion() {
   return StringPrintf("%d.%d", WEBKIT_VERSION_MAJOR, WEBKIT_VERSION_MINOR);
 }

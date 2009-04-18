@@ -187,9 +187,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
                                 std::wstring style,
                                 std::wstring range);
   virtual bool SmartInsertDeleteEnabled();
-  virtual void SetSmartInsertDeleteEnabled(bool enabled);
   virtual bool IsSelectTrailingWhitespaceEnabled();
-  virtual void SetSelectTrailingWhitespaceEnabled(bool enabled);
   virtual void DidBeginEditing();
   virtual void DidChangeSelection(bool is_empty_selection);
   virtual void DidChangeContents();
@@ -243,6 +241,9 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   virtual void Release() {
     base::RefCounted<TestWebViewDelegate>::Release();
   }
+
+  void SetSmartInsertDeleteEnabled(bool enabled);
+  void SetSelectTrailingWhitespaceEnabled(bool enabled);
 
   // Additional accessors
   WebFrame* top_loading_frame() { return top_loading_frame_; }

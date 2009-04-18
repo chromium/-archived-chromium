@@ -105,14 +105,6 @@ class WebWidgetImpl : public WebWidget,
   // WebCore::FramelessScrollViewClient methods:
   virtual void popupClosed(WebCore::FramelessScrollView* popup_view);
 
-  // TODO(darin): Figure out what happens to these methods.
-#if 0
-  // WebCore::WidgetClientWin
-  virtual const SkBitmap* getPreloadedResourceBitmap(int resource_id);
-  virtual void onScrollPositionChanged(WebCore::Widget* widget);
-  virtual bool isHidden();
-#endif
-
   WebWidgetDelegate* delegate_;
   WebKit::WebSize size_;
 
