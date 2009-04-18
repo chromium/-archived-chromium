@@ -89,6 +89,8 @@ SdchFilter::~SdchFilter() {
     UMA_HISTOGRAM_COUNTS("Sdch.MissingTimeVcdiffIn", source_bytes_);
     return;
   }
+  // Since read_times_ is not empty, we can assert we have some packets times.
+  DCHECK(final_packet_time_ != base::Time());
 
   base::TimeDelta duration = final_packet_time_ - connect_time_;
   // We clip our logging at 10 minutes to prevent anamolous data from being
