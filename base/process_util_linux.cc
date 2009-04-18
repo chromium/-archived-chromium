@@ -31,20 +31,14 @@ namespace base {
 bool LaunchApp(const std::vector<std::string>& argv,
                const file_handle_mapping_vector& fds_to_remap,
                bool wait, ProcessHandle* process_handle) {
-  bool retval = true;
-
-  char* argv_copy[argv.size() + 1];
-  for (size_t i = 0; i < argv.size(); i++) {
-    argv_copy[i] = new char[argv[i].size() + 1];
-    strcpy(argv_copy[i], argv[i].c_str());
-  }
-  argv_copy[argv.size()] = NULL;
-
   // Make sure we don't leak any FDs to the child process by marking all FDs
   // as close-on-exec.
   SetAllFDsToCloseOnExec();
 
-  int pid = fork();
+  pid_t pid = fork();
+  if (pid < 0)
+    return false;
+
   if (pid == 0) {
     for (file_handle_mapping_vector::const_iterator it = fds_to_remap.begin();
          it != fds_to_remap.end();
@@ -61,9 +55,12 @@ bool LaunchApp(const std::vector<std::string>& argv,
       }
     }
 
-    execvp(argv_copy[0], argv_copy);
-  } else if (pid < 0) {
-    retval = false;
+    char* argv_cstr[argv.size() + 1];
+    for (size_t i = 0; i < argv.size(); i++)
+      argv_cstr[i] = const_cast<char*>(argv[i].c_str());
+    argv_cstr[argv.size()] = NULL;
+    execvp(argv_cstr[0], argv_cstr);
+    exit(127);
   } else {
     if (wait)
       waitpid(pid, 0, 0);
@@ -72,10 +69,7 @@ bool LaunchApp(const std::vector<std::string>& argv,
       *process_handle = pid;
   }
 
-  for (size_t i = 0; i < argv.size(); i++)
-    delete[] argv_copy[i];
-
-  return retval;
+  return true;
 }
 
 bool LaunchApp(const CommandLine& cl,
