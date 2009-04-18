@@ -28,42 +28,8 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/transport_dib.h"
 #include "chrome/renderer/render_view.h"
+#include "media/base/media.h"
 #include "webkit/glue/webkit_glue.h"
-
-// Attempts to load FFmpeg before engaging the sandbox.  Returns true if all
-// libraries were loaded successfully, false otherwise.
-static bool LoadFFmpeg() {
-#if defined(OS_WIN)
-  int path_keys[] = {
-    chrome::FILE_LIBAVCODEC,
-    chrome::FILE_LIBAVFORMAT,
-    chrome::FILE_LIBAVUTIL
-  };
-  HMODULE libs[arraysize(path_keys)] = {NULL};
-  for (size_t i = 0; i < arraysize(path_keys); ++i) {
-    std::wstring path;
-    if (!PathService::Get(path_keys[i], &path))
-      break;
-    libs[i] = LoadLibrary(path.c_str());
-    if (!libs[i])
-      break;
-  }
-
-  // Check that we loaded all libraries successfully.
-  if (libs[arraysize(libs)-1])
-    return true;
-
-  // Free any loaded libraries if we weren't successful.
-  for (size_t i = 0; i < arraysize(libs) && libs[i] != NULL; ++i) {
-    FreeLibrary(libs[i]);
-  }
-  return false;
-#else
-  // TODO(port): Need to handle loading FFmpeg on non-Windows platforms.
-  NOTIMPLEMENTED();
-  return false;
-#endif
-}
 
 //-----------------------------------------------------------------------------
 
@@ -140,8 +106,11 @@ void RenderProcess::Init() {
     StatisticsRecorder::set_dump_on_exit(true);
   }
 
-  if (LoadFFmpeg()) {
-    webkit_glue::SetMediaPlayerAvailable(true);
+  FilePath module_path;
+  if (PathService::Get(base::DIR_MODULE, &module_path)) {
+    if (media::InitializeMediaLibrary(module_path)) {
+      webkit_glue::SetMediaPlayerAvailable(true);
+    }
   }
 }
 

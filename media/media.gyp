@@ -49,6 +49,9 @@
         'base/filter_host_impl.cc',
         'base/filter_host_impl.h',
         'base/filters.h',
+        'base/media_posix.cc',
+        'base/media_win.cc',
+        'base/media.h',
         'base/media_format.cc',
         'base/media_format.h',
         'base/mock_filter_host.h',
@@ -101,6 +104,8 @@
             'filters/ffmpeg_glue.cc',
             'filters/ffmpeg_video_decoder.cc',
           ],
+          'sources/': [ ['exclude', '_(mac|win)\\.cc$'],
+                        ['exclude', '\\.mm?$' ] ],
         }],
         ['OS =="mac"', {
           'link_settings': {
@@ -114,6 +119,11 @@
             'filters/ffmpeg_glue.cc',
             'filters/ffmpeg_video_decoder.cc',
           ],
+          'sources/': [ ['exclude', '_(linux|win)\\.cc$'] ],
+        }],
+        [ 'OS == "win"', {
+          'sources/': [ ['exclude', '_(linux|mac|posix)\\.cc$'],
+                        ['exclude', '\\.mm?$' ] ],
         }],
       ],
     },
