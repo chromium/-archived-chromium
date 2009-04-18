@@ -45,23 +45,17 @@
 // SLOW TESTS
 // -----------------------------------------------------------------
 
-SLOW : LayoutTests/fast/events/click-count.html = PASS
-SLOW : LayoutTests/fast/forms/textfield-drag-into-disabled.html = PASS
-SLOW : LayoutTests/fast/js/regexp-overflow.html = PASS
-SLOW : LayoutTests/fast/loader/local-CSS-from-local.html = PASS
-SLOW : LayoutTests/http/tests/misc/DOMContentLoaded-event.html = PASS
-SLOW : LayoutTests/http/tests/navigation/multiple-back-forward-entries.html = PASS
-SLOW : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = PASS
-SLOW : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = PASS
-SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = PASS
-SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = PASS
-SLOW : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = PASS
-SLOW : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = PASS
-SLOW : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = PASS
-SLOW : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
-SLOW : LayoutTests/svg/carto.net/scrollbar.svg = PASS
-SLOW : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = PASS
-SLOW : LayoutTests/tables/mozilla/other/slashlogo.html = PASS
+BUG_OJAN SLOW : LayoutTests/fast/js/regexp-overflow.html = PASS
+BUG_OJAN SLOW : LayoutTests/http/tests/misc/DOMContentLoaded-event.html = PASS
+BUG_OJAN SLOW : LayoutTests/http/tests/navigation/multiple-back-forward-entries.html = PASS
+BUG_OJAN SLOW : LayoutTests/http/tests/security/local-video-source-from-remote.html = PASS
+BUG_OJAN SLOW : LayoutTests/http/tests/security/local-video-src-from-remote.html = PASS
+BUG_OJAN SLOW : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = PASS
+BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = PASS
+BUG_OJAN SLOW WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
+BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
+BUG_OJAN SLOW WIN MAC : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = PASS
+BUG_OJAN SLOW : LayoutTests/tables/mozilla/other/slashlogo.html = PASS
 
 // -----------------------------------------------------------------
 // SKIPPED TESTS
@@ -610,8 +604,6 @@ BUG4363 DEFER SKIP : LayoutTests/media = TIMEOUT
 BUG4363 DEFER SKIP : LayoutTests/fast/media = PASS FAIL
 BUG4363 DEFER : LayoutTests/http/tests/media = FAIL
 BUG4363 DEFER : LayoutTests/http/tests/security/local-video-poster-from-remote.html = FAIL TIMEOUT
-BUG4363 DEFER : LayoutTests/http/tests/security/local-video-source-from-remote.html = FAIL TIMEOUT
-BUG4363 DEFER : LayoutTests/http/tests/security/local-video-src-from-remote.html = FAIL TIMEOUT
 BUG4363 DEFER : LayoutTests/fast/dom/Window/custom-constructors.html = FAIL
 
 // Function arguments object is copied for each access.
@@ -1402,7 +1394,7 @@ BUG10363 MAC : LayoutTests/fast/forms/input-type-change2.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/input-value.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/input-width.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/tabbing-input-iframe.html = FAIL
-BUG10363 MAC : LayoutTests/fast/forms/textfield-drag-into-disabled.html = FAIL
+BUG10363 MAC SLOW : LayoutTests/fast/forms/textfield-drag-into-disabled.html = FAIL
 BUG10363 MAC : LayoutTests/fast/forms/textfield-overflow.html = FAIL
 BUG10363 MAC : LayoutTests/fast/lists/dynamic-marker-crash.html = FAIL
 BUG10363 MAC : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL
@@ -1480,8 +1472,8 @@ BUG10364 MAC : LayoutTests/http/tests/navigation/metaredirect-goback.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/redirect302-frames.html = TIMEOUT FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/relativeanchor-goback.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/reload-subframe-object.html = TIMEOUT FAIL
-BUG10364 MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = TIMEOUT FAIL
-BUG10364 MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
+BUG10364 SLOW MAC : LayoutTests/http/tests/navigation/slowmetaredirect-basic.html = FAIL
+BUG10364 SLOW MAC : LayoutTests/http/tests/navigation/slowtimerredirect-basic.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/success200-basic.html = FAIL
 BUG10364 MAC : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = TIMEOUT FAIL
 BUG10364 MAC LINUX : LayoutTests/http/tests/navigation/success200-frames.html = FAIL PASS
@@ -1522,7 +1514,7 @@ BUG10369 LINUX : LayoutTests/editing/selection/5354455-2.html = FAIL
 BUG10370 MAC : LayoutTests/fast/css/font-weight-1.html = FAIL
 
 // not loading local files
-BUG10371 MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
+BUG10371 SLOW MAC : LayoutTests/fast/loader/local-CSS-from-local.html = FAIL
 BUG10371 MAC : LayoutTests/fast/loader/local-JavaScript-from-local.html = FAIL
 BUG10371 MAC : LayoutTests/fast/loader/local-image-from-local.html = FAIL
 
@@ -1540,7 +1532,7 @@ BUG10374 MAC : LayoutTests/plugins/open-and-close-window-with-plugin.html = CRAS
 BUG10374 MAC : LayoutTests/fast/dom/Window/setting-properties-on-closed-window.html = CRASH TIMEOUT PASS
 BUG10374 MAC : LayoutTests/fast/events/open-window-from-another-frame.html = CRASH TIMEOUT PASS
 BUG10374 MAC : LayoutTests/fast/history/history_reload.html = CRASH TIMEOUT PASS
-BUG10374 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
+SLOW BUG10374 MAC : LayoutTests/svg/carto.net/scrollbar.svg = CRASH PASS
 
 //  no html tags, bad html (unmatched tags)
 BUG10375 MAC : LayoutTests/fast/canvas/unclosed-canvas-1.html = CRASH PASS
@@ -1844,7 +1836,7 @@ BUG10417 LINUX : LayoutTests/svg/text/text-fonts-02-t.svg = FAIL
 
 // New test. We should fix it, but it doesn't need to block the current release
 BUG10418 DEFER : LayoutTests/transitions/zero-duration-with-non-zero-delay-end.html = FAIL PASS
-BUG10418 MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
+BUG10418 SLOW MAC : LayoutTests/fast/events/click-count.html = FAIL PASS
 BUG10418 MAC : LayoutTests/fast/dom/Window/timeout-callback-scope.html = CRASH PASS
 BUG10418 : LayoutTests/animations/change-keyframes.html = FAIL PASS
 
@@ -2056,7 +2048,6 @@ BUG10451 MAC : LayoutTests/fast/forms/mailto/advanced-put.html = FAIL
 // Added 3/12/09
 BUG10452 MAC : LayoutTests/fast/events/popup-blocking-click-in-iframe.html = CRASH PASS
 BUG10452 MAC : LayoutTests/fast/html/body-offset-properties.html = CRASH PASS
-BUG10452 MAC : LayoutTests/tables/mozilla/other/slashlogo.html = TIMEOUT PASS
 BUG10452 DEBUG WIN : LayoutTests/fast/dom/HTMLElement/innerHTML-selection-crash.html = CRASH PASS
 
 // Newly added test from 41613:41660
@@ -2136,12 +2127,6 @@ BUG10458 LINUX : LayoutTests/fast/parser/comment-in-textarea.html = FAIL
 // These don't look like merge regressions, but started occurring after the 41768:41807 merge.
 BUG10459 LINUX : LayoutTests/fast/text/international/rtl-white-space-pre-wrap.html = FAIL
 
-// Merge 41807:41827 New Tests
-// This test is time consuming in nature, it should pass given enough time (~20s),
-// defer it until we have implemented per test timeout for out test tool.
-// Refer to this bug: http://code.google.com/p/chromium/issues/detail?id=9324
-BUG10460 DEFER : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = TIMEOUT PASS
-
 BUG10461 WIN LINUX : LayoutTests/fast/repaint/renderer-destruction-by-invalidateSelection-crash.html = FAIL PASS
 BUG10461 WIN LINUX : LayoutTests/editing/selection/move-by-line-002.html = FAIL PASS
 BUG10461 LINUX : LayoutTests/http/tests/navigation/javascriptlink-basic.html = FAIL PASS
@@ -2173,7 +2158,7 @@ BUG10463 DEFER WIN : LayoutTests/fast/forms/slider-transformed.html = FAIL
 BUG10463 DEFER WIN LINUX : LayoutTests/fast/forms/slider-zoomed.html = FAIL
 BUG10463 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-36-t.svg = FAIL
 BUG10463 DEFER WIN : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
-BUG10463 DEFER WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
+SLOW BUG10463 DEFER WIN : LayoutTests/svg/carto.net/scrollbar.svg = FAIL
 BUG10463 DEFER WIN LINUX : LayoutTests/svg/carto.net/selectionlist.svg = CRASH FAIL
 BUG10463 DEFER WIN : LayoutTests/svg/custom/focus-ring.svg = FAIL
 BUG10463 DEFER WIN : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
@@ -2255,7 +2240,7 @@ BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIME
 
 // Merge WebKit: 42026:42115 new tests
 BUG10475 DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
-BUG10475 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = TIMEOUT FAIL
+BUG10475 SLOW DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL
 BUG10475 DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
@@ -2270,7 +2255,6 @@ BUG10477 WIN LINUX : LayoutTests/fast/repaint/transform-layout-repaint.html = FA
 BUG10477 : LayoutTests/fast/xmlhttprequest/xmlhttprequest-nonexistent-file.html = FAIL
 BUG10477 WIN LINUX : LayoutTests/http/tests/navigation/success200-frames-loadsame.html = FAIL
 BUG10477 : LayoutTests/http/tests/navigation/onload-navigation-iframe-2.html = TIMEOUT
-BUG10477 MAC RELEASE : LayoutTests/fast/js/regexp-overflow.html = TIMEOUT FAIL
 
 // Flaky since rev 13111.
 BUG10478 MAC : LayoutTests/fast/events/standalone-image-drag-to-editable.html = FAIL PASS
@@ -2336,7 +2320,6 @@ BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-allow
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/access-control-basic-non-simple-allow-async.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/document-domain-set.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/failed-auth.html = FAIL PASS
-BUG9798 LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/scrollbars/basic-scrollbar.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/batik/filters/filterRegions.svg = FAIL PASS
 BUG9798 LINUX : LayoutTests/svg/css/glyph-orientation-rounding-test.xhtml = FAIL PASS
@@ -2370,7 +2353,6 @@ BUG9798 MAC : LayoutTests/http/tests/security/javascriptURL/xss-DENIED-from-java
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/access-control-basic-whitelist-response-headers.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-sync.html = FAIL PASS
 BUG9798 MAC : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin.html = FAIL PASS
-BUG9798 MAC : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/svg/custom/use-instanceRoot-as-event-target.xhtml = TIMEOUT FAIL
 BUG9798 MAC : LayoutTests/svg/hixie/processing-model/003.xml = TIMEOUT PASS
 BUG9798 MAC : LayoutTests/tables/mozilla/other/test3.html = TIMEOUT PASS
@@ -2419,7 +2401,6 @@ BUG9798 WIN DEBUG : LayoutTests/fast/xsl/xslt-fragment-in-empty-doc.html = CRASH
 BUG9798 WIN DEBUG : LayoutTests/svg/dom/SVGScriptElement/script-change-externalResourcesRequired-while-loading.svg = CRASH PASS
 BUG9798 WIN RELEASE : LayoutTests/editing/selection/move-by-line-001.html = FAIL PASS
 BUG9798 WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/state-after-network-error.html = TIMEOUT PASS
-BUG9798 WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT PASS
 
 BUG9797 LINUX DEBUG : LayoutTests/svg/W3C-SVG-1.1/filters-gauss-01-b.svg = CRASH PASS
 BUG9797 LINUX DEBUG : LayoutTests/svg/carto.net/colourpicker.svg = CRASH FAIL
