@@ -578,6 +578,9 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
   // percent-encoded characters.
   StringToLowerASCII(&url_domain);
 
+  std::string url_domain_and_port = url_domain + ":"
+      + IntToString(url.EffectiveIntPort());
+
   if (config_.proxy_bypass_local_names) {
     if (url.host().find('.') == std::string::npos)
       return true;
@@ -591,24 +594,48 @@ bool ProxyService::ShouldBypassProxyForURL(const GURL& url) {
     // If no scheme is specified then it indicates that all schemes are
     // allowed for the current entry. For matching this we just use
     // the protocol scheme of the url passed in.
-    if (bypass_url_domain.find("://") == std::string::npos) {
+    size_t scheme_colon = bypass_url_domain.find("://");
+    if (scheme_colon == std::string::npos) {
       std::string bypass_url_domain_with_scheme = url.scheme();
+      scheme_colon = bypass_url_domain_with_scheme.length();
       bypass_url_domain_with_scheme += "://";
       bypass_url_domain_with_scheme += bypass_url_domain;
 
       bypass_url_domain = bypass_url_domain_with_scheme;
     }
+    std::string* url_compare_reference = &url_domain;
+    size_t port_colon = bypass_url_domain.rfind(":");
+    if (port_colon > scheme_colon) {
+      // If our match pattern includes a colon followed by a digit,
+      // and either it's preceded by ']' (IPv6 with port)
+      // or has no other colon (IPv4),
+      // then match against <domain>:<port>.
+      // TODO(sdoyon): straighten this out, in particular the IPv6 brackets,
+      // and do the parsing in ProxyConfig when we do the CIDR matching
+      // mentioned below.
+      std::string::const_iterator domain_begin =
+          bypass_url_domain.begin() + scheme_colon + 3;  // after ://
+      std::string::const_iterator port_iter =
+          bypass_url_domain.begin() + port_colon;
+      std::string::const_iterator end = bypass_url_domain.end();
+      if ((port_iter + 1) < end && IsAsciiDigit(*(port_iter + 1)) &&
+          (*(port_iter - 1) == ']' ||
+           std::find(domain_begin, port_iter, ':') == port_iter))
+        url_compare_reference = &url_domain_and_port;
+    }
 
     StringToLowerASCII(&bypass_url_domain);
 
-    if (MatchPattern(url_domain, bypass_url_domain))
+    if (MatchPattern(*url_compare_reference, bypass_url_domain))
       return true;
 
     // Some systems (the Mac, for example) allow CIDR-style specification of
     // proxy bypass for IP-specified hosts (e.g.  "10.0.0.0/8"; see
     // http://www.tcd.ie/iss/internet/osx_proxy.php for a real-world example).
     // That's kinda cool so we'll provide that for everyone.
-    // TODO(avi): implement here
+    // TODO(avi): implement here. See: http://crbug.com/9835.
+    // IP addresses ought to be canonicalized for comparison (whether
+    // with CIDR, port, or IP address alone).
   }
 
   return false;

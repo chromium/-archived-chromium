@@ -92,6 +92,8 @@ class ProxyConfig {
 
   // Indicates a list of hosts that should bypass any proxy configuration.  For
   // these hosts, a direct connection should always be used.
+  // The form <host>:<port> is also supported, meaning that only
+  // connections on the specified port should be direct.
   std::vector<std::string> proxy_bypass;
 
   // Indicates whether local names (no dots) bypass proxies.

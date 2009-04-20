@@ -686,83 +686,189 @@ TEST(ProxyServiceTest, ProxyFallback_BadConfig) {
 TEST(ProxyServiceTest, ProxyBypassList) {
   // Test what happens when a proxy bypass list is specified.
 
+  net::ProxyInfo info;
   net::ProxyConfig config;
   config.proxy_rules.ParseFromString("foopy1:8080;foopy2:9090");
   config.auto_detect = false;
   config.proxy_bypass_local_names = true;
 
-  SyncProxyService service(new MockProxyConfigService(config),
-                           new MockProxyResolver());
-  GURL url("http://www.google.com/");
-  // Get the proxy information.
-  net::ProxyInfo info;
-  int rv = service.ResolveProxy(url, &info);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_FALSE(info.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver());
+    GURL url("http://www.google.com/");
+    // Get the proxy information.
+    int rv = service.ResolveProxy(url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_FALSE(info.is_direct());
+  }
 
-  SyncProxyService service1(new MockProxyConfigService(config),
-                            new MockProxyResolver());
-  GURL test_url1("local");
-  net::ProxyInfo info1;
-  rv = service1.ResolveProxy(test_url1, &info1);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_TRUE(info1.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver());
+    GURL test_url("local");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
 
   config.proxy_bypass.clear();
   config.proxy_bypass.push_back("*.org");
   config.proxy_bypass_local_names = true;
-  SyncProxyService service2(new MockProxyConfigService(config),
-                            new MockProxyResolver);
-  GURL test_url2("http://www.webkit.org");
-  net::ProxyInfo info2;
-  rv = service2.ResolveProxy(test_url2, &info2);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_TRUE(info2.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("http://www.webkit.org");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
 
   config.proxy_bypass.clear();
   config.proxy_bypass.push_back("*.org");
   config.proxy_bypass.push_back("7*");
   config.proxy_bypass_local_names = true;
-  SyncProxyService service3(new MockProxyConfigService(config),
-                            new MockProxyResolver);
-  GURL test_url3("http://74.125.19.147");
-  net::ProxyInfo info3;
-  rv = service3.ResolveProxy(test_url3, &info3);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_TRUE(info3.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("http://74.125.19.147");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
 
   config.proxy_bypass.clear();
   config.proxy_bypass.push_back("*.org");
   config.proxy_bypass_local_names = true;
-  SyncProxyService service4(new MockProxyConfigService(config),
-                            new MockProxyResolver);
-  GURL test_url4("http://www.msn.com");
-  net::ProxyInfo info4;
-  rv = service4.ResolveProxy(test_url4, &info4);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_FALSE(info4.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("http://www.msn.com");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_FALSE(info.is_direct());
+  }
 
   config.proxy_bypass.clear();
   config.proxy_bypass.push_back("*.MSN.COM");
   config.proxy_bypass_local_names = true;
-  SyncProxyService service5(new MockProxyConfigService(config),
-                            new MockProxyResolver);
-  GURL test_url5("http://www.msnbc.msn.com");
-  net::ProxyInfo info5;
-  rv = service5.ResolveProxy(test_url5, &info5);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_TRUE(info5.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("http://www.msnbc.msn.com");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
 
   config.proxy_bypass.clear();
   config.proxy_bypass.push_back("*.msn.com");
   config.proxy_bypass_local_names = true;
-  SyncProxyService service6(new MockProxyConfigService(config),
-                            new MockProxyResolver);
-  GURL test_url6("HTTP://WWW.MSNBC.MSN.COM");
-  net::ProxyInfo info6;
-  rv = service6.ResolveProxy(test_url6, &info6);
-  EXPECT_EQ(rv, net::OK);
-  EXPECT_TRUE(info6.is_direct());
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("HTTP://WWW.MSNBC.MSN.COM");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
+}
+
+TEST(ProxyServiceTest, ProxyBypassListWithPorts) {
+  // Test port specification in bypass list entries.
+  net::ProxyInfo info;
+  net::ProxyConfig config;
+  config.proxy_rules.ParseFromString("foopy1:8080;foopy2:9090");
+  config.auto_detect = false;
+  config.proxy_bypass_local_names = false;
+
+  config.proxy_bypass.clear();
+  config.proxy_bypass.push_back("*.example.com:99");
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    {
+      GURL test_url("http://www.example.com:99");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_TRUE(info.is_direct());
+    }
+    {
+      GURL test_url("http://www.example.com:100");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_FALSE(info.is_direct());
+    }
+    {
+      GURL test_url("http://www.example.com");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_FALSE(info.is_direct());
+    }
+  }
+
+  config.proxy_bypass.clear();
+  config.proxy_bypass.push_back("*.example.com:80");
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("http://www.example.com");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
+
+  config.proxy_bypass.clear();
+  config.proxy_bypass.push_back("*.example.com");
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    GURL test_url("http://www.example.com:99");
+    int rv = service.ResolveProxy(test_url, &info);
+    EXPECT_EQ(rv, net::OK);
+    EXPECT_TRUE(info.is_direct());
+  }
+
+  // IPv6 with port.
+  config.proxy_bypass.clear();
+  config.proxy_bypass.push_back("[3ffe:2a00:100:7031::1]:99");
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    {
+      GURL test_url("http://[3ffe:2a00:100:7031::1]:99/");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_TRUE(info.is_direct());
+    }
+    {
+      GURL test_url("http://[3ffe:2a00:100:7031::1]/");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_FALSE(info.is_direct());
+    }
+  }
+
+  // IPv6 without port. The bypass entry ought to work without the
+  // brackets, but the bypass matching logic in ProxyService is
+  // currently limited.
+  config.proxy_bypass.clear();
+  config.proxy_bypass.push_back("[3ffe:2a00:100:7031::1]");
+  {
+    SyncProxyService service(new MockProxyConfigService(config),
+                             new MockProxyResolver);
+    {
+      GURL test_url("http://[3ffe:2a00:100:7031::1]:99/");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_TRUE(info.is_direct());
+    }
+    {
+      GURL test_url("http://[3ffe:2a00:100:7031::1]/");
+      int rv = service.ResolveProxy(test_url, &info);
+      EXPECT_EQ(rv, net::OK);
+      EXPECT_TRUE(info.is_direct());
+    }
+  }
 }
 
 TEST(ProxyServiceTest, PerProtocolProxyTests) {
