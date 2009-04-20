@@ -611,6 +611,22 @@ bool EditorClientImpl::handleEditingKeyboardEvent(
     return true;
   }
 
+  // In WebKit/gtk/WebCoreSupport/EditorClient.cpp, handleKeyboardEvent()
+  // checks modifiers.  If any modifiers (except shift) are pressed or
+  // no text in the key event, it won't try to insertText to the editor.
+  // This is necessary to prevent ascii letter from being inserted when a key
+  // pressed such as Ctrl-<letter>.  For example, when Ctrl-L pressed,
+  // we'll have a KeyDown key event with ctrlKey() == true and text = 'l',
+  // which will be disambiguated to the following two key events on Gtk.
+  //  RawKeyDown: ctrlKey == true, text = ""
+  //  Char:       ctrlKey == true, text = "l".
+  // For Mac, we'd like to ignore text if Command key (MetaKey) is pressed.
+  // Note that on Windows, we'll have a Char key event with ctrlKey() == true
+  // and text = "\x0c".
+  if (evt->keyEvent()->ctrlKey() || evt->keyEvent()->altKey() ||
+      evt->keyEvent()->metaKey() || evt->keyEvent()->text().isEmpty())
+    return false;
+
   if (evt->keyEvent()->text().length() == 1) {
     UChar ch = evt->keyEvent()->text()[0U];
 
