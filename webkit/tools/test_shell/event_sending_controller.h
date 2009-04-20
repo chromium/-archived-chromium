@@ -51,6 +51,8 @@ class EventSendingController : public CppBoundClass {
   void dispatchMessage(const CppArgumentList& args, CppVariant* result);
   void textZoomIn(const CppArgumentList& args, CppVariant* result);
   void textZoomOut(const CppArgumentList& args, CppVariant* result);
+  void zoomPageIn(const CppArgumentList& args, CppVariant* result);
+  void zoomPageOut(const CppArgumentList& args, CppVariant* result);
   void scheduleAsynchronousClick(const CppArgumentList& args,
                                  CppVariant* result);
 

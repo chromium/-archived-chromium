@@ -2455,9 +2455,6 @@ BUG10055 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 BUG10045 LINUX : LayoutTests/editing/inserting/5418891.html = FAIL
 BUG10045 LINUX : LayoutTests/editing/inserting/5510537.html = FAIL
 
-// New test from webkit merge 42403:42440.
-BUG10488 : LayoutTests/fast/css/zoom-body-scroll.html = FAIL
-
 // Regression from WebKit merge 42403:42440 -- MessageChannel binding no longer
 // gets generated, probably just a matter of enabling ENABLE_CHANNEL_MESSAGING
 // due to http://trac.webkit.org/changeset/42428.

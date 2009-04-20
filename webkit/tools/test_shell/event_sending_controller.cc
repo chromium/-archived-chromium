@@ -162,6 +162,8 @@ EventSendingController::EventSendingController(TestShell* shell)
   BindMethod("clearKillRing", &EventSendingController::clearKillRing);
   BindMethod("textZoomIn", &EventSendingController::textZoomIn);
   BindMethod("textZoomOut", &EventSendingController::textZoomOut);
+  BindMethod("zoomPageIn", &EventSendingController::zoomPageIn);
+  BindMethod("zoomPageOut", &EventSendingController::zoomPageOut);
   BindMethod("scheduleAsynchronousClick",
              &EventSendingController::scheduleAsynchronousClick);
 
@@ -501,6 +503,18 @@ void EventSendingController::textZoomIn(
 void EventSendingController::textZoomOut(
     const CppArgumentList& args, CppVariant* result) {
   webview()->ZoomOut(true);
+  result->SetNull();
+}
+
+void EventSendingController::zoomPageIn(
+    const CppArgumentList& args, CppVariant* result) {
+  webview()->ZoomIn(false);
+  result->SetNull();
+}
+
+void EventSendingController::zoomPageOut(
+    const CppArgumentList& args, CppVariant* result) {
+  webview()->ZoomOut(false);
   result->SetNull();
 }
 
