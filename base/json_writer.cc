@@ -67,6 +67,14 @@ void JSONWriter::BuildJSONString(const Value* const node, int depth) {
             real.find('E') == std::string::npos) {
           real.append(".0");
         }
+        // The JSON spec requires that non-integer values in the range (-1,1)
+        // have a zero before the decimal point - ".52" is not valid, "0.52" is.
+        if (real[0] == '.') {
+          real.insert(0, "0");
+        } else if (real.length() > 1 && real[0] == '-' && real[1] == '.') {
+          // "-.1" bad "-0.1" good
+          real.insert(1, "0");
+        }
         json_string_->append(real);
         break;
       }

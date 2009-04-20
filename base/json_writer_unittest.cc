@@ -32,6 +32,18 @@ TEST(JSONWriterTest, Writing) {
   ASSERT_EQ("1.0", output_js);
   delete root;
 
+  // Test Real values in the the range (-1, 1) must have leading zeros
+  root = Value::CreateRealValue(0.2);
+  JSONWriter::Write(root, false, &output_js);
+  ASSERT_EQ("0.2", output_js);
+  delete root;
+
+  // Test Real values in the the range (-1, 1) must have leading zeros
+  root = Value::CreateRealValue(-0.8);
+  JSONWriter::Write(root, false, &output_js);
+  ASSERT_EQ("-0.8", output_js);
+  delete root;
+  
   // Writer unittests like empty list/dict nesting,
   // list list nesting, etc.
   DictionaryValue root_dict;
