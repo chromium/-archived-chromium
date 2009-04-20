@@ -306,6 +306,15 @@ void CommandLine::AppendArguments(const CommandLine& other,
     switches_[i->first] = i->second;
 }
 
+void CommandLine::PrependWrapper(const std::wstring& wrapper) {
+  // The wrapper may have embedded arguments (like "gdb --args"). In this case,
+  // we don't pretend to do anything fancy, we just split on spaces.
+  std::vector<std::wstring> wrapper_and_args;
+  SplitString(wrapper, ' ', &wrapper_and_args);
+  program_ = wrapper_and_args[0];
+  command_line_string_ = wrapper + L" " + command_line_string_;
+}
+
 #elif defined(OS_POSIX)
 void CommandLine::AppendSwitch(const std::wstring& switch_string) {
   std::string ascii_switch = WideToASCII(switch_string);

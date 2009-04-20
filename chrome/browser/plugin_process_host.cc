@@ -439,11 +439,8 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
   // If specified, prepend a launcher program to the command line.
   std::wstring plugin_launcher =
       browser_command_line.GetSwitchValue(switches::kPluginLauncher);
-  if (!plugin_launcher.empty()) {
-    CommandLine new_cmd_line = CommandLine(plugin_launcher);
-    new_cmd_line.AppendArguments(cmd_line, true);
-    cmd_line = new_cmd_line;
-  }
+  if (!plugin_launcher.empty())
+    cmd_line.PrependWrapper(plugin_launcher);
 
   if (!locale.empty()) {
     // Pass on the locale so the null plugin will use the right language in the

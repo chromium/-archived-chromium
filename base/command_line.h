@@ -121,7 +121,7 @@ class CommandLine {
                        bool include_program);
 
   // On POSIX systems it's common to run processes via a wrapper (like
-  // "valgrind" or "gdb --args"). *Note, only availible on POSIX*
+  // "valgrind" or "gdb --args").
   void PrependWrapper(const std::wstring& wrapper);
 
  private:
