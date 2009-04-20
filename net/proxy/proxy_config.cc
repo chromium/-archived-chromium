@@ -91,7 +91,8 @@ std::ostream& operator<<(std::ostream& out,
   return out;
 }
 
-// Helper to stringize a ProxyRules.
+}  // namespace
+
 std::ostream& operator<<(std::ostream& out,
                          const net::ProxyConfig::ProxyRules& rules) {
   // Stringize the type enum.
@@ -118,8 +119,6 @@ std::ostream& operator<<(std::ostream& out,
              << "    proxy_for_ftp: " << rules.proxy_for_ftp << "\n"
              << "  }";
 }
-
-}  // namespace
 
 std::ostream& operator<<(std::ostream& out, const net::ProxyConfig& config) {
   out << "{\n"

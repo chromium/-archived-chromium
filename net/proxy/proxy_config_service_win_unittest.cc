@@ -6,37 +6,10 @@
 
 #include "net/base/net_errors.h"
 #include "net/proxy/proxy_config.h"
+#include "net/proxy/proxy_config_service_common_unittest.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace net {
-
-static ProxyConfig::ProxyRules MakeProxyRules(
-    ProxyConfig::ProxyRules::Type type,
-    const char* single_proxy,
-    const char* proxy_for_http,
-    const char* proxy_for_https,
-    const char* proxy_for_ftp) {
-  ProxyConfig::ProxyRules rules;
-  rules.type = type;
-  rules.single_proxy = ProxyServer::FromURI(single_proxy);
-  rules.proxy_for_http = ProxyServer::FromURI(proxy_for_http);
-  rules.proxy_for_https = ProxyServer::FromURI(proxy_for_https);
-  rules.proxy_for_ftp = ProxyServer::FromURI(proxy_for_ftp);
-  return rules;
-}
-
-static ProxyConfig::ProxyRules MakeSingleProxyRules(const char* single_proxy) {
-  return MakeProxyRules(ProxyConfig::ProxyRules::TYPE_SINGLE_PROXY,
-                        single_proxy, "", "", "");
-}
-
-static ProxyConfig::ProxyRules MakeProxyPerSchemeRules(
-    const char* proxy_http,
-    const char* proxy_https,
-    const char* proxy_ftp) {
-  return MakeProxyRules(ProxyConfig::ProxyRules::TYPE_PROXY_PER_SCHEME,
-                        "", proxy_http, proxy_https, proxy_ftp);
-}
 
 TEST(ProxyConfigServiceWinTest, SetFromIEConfig) {
   const struct {
@@ -193,18 +166,10 @@ TEST(ProxyConfigServiceWinTest, SetFromIEConfig) {
 
     EXPECT_EQ(tests[i].auto_detect, config.auto_detect);
     EXPECT_EQ(tests[i].pac_url, config.pac_url);
-
-    // Join the proxy bypass list using "\n" to make it into a single string.
-    std::string flattened_proxy_bypass;
-    typedef std::vector<std::string> BypassList;
-    for (BypassList::const_iterator it = config.proxy_bypass.begin();
-         it != config.proxy_bypass.end(); ++it) {
-      flattened_proxy_bypass += *it + "\n";
-    }
-
-    EXPECT_EQ(tests[i].proxy_bypass_list, flattened_proxy_bypass);
+    EXPECT_EQ(tests[i].proxy_bypass_list,
+              FlattenProxyBypass(config.proxy_bypass));
     EXPECT_EQ(tests[i].bypass_local_names, config.proxy_bypass_local_names);
-    EXPECT_TRUE(tests[i].proxy_rules == config.proxy_rules);
+    EXPECT_EQ(tests[i].proxy_rules, config.proxy_rules);
   }
 }
 

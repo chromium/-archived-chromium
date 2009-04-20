@@ -18,6 +18,8 @@
 #include "net/proxy/proxy_resolver_winhttp.h"
 #elif defined(OS_MACOSX)
 #include "net/proxy/proxy_resolver_mac.h"
+#elif defined(OS_LINUX)
+#include "net/proxy/proxy_config_service_linux.h"
 #endif
 #include "net/proxy/proxy_resolver.h"
 #include "net/proxy/proxy_resolver_v8.h"
@@ -203,12 +205,10 @@ ProxyService* ProxyService::Create(const ProxyInfo* pi) {
 #elif defined(OS_MACOSX)
   return new ProxyService(new ProxyConfigServiceMac(),
                           new ProxyResolverMac());
+#elif defined(OS_LINUX)
+  // On Linux we use the V8Resolver, no fallback implementation.
+  return CreateNull();
 #else
-  // TODO(port): implement ProxyConfigServiceLinux as well as make use of
-  // ProxyResolverV8 once it's implemented.
-  // See:
-  // - http://code.google.com/p/chromium/issues/detail?id=8143
-  // - http://code.google.com/p/chromium/issues/detail?id=2764
   return CreateNull();
 #endif
 }
@@ -228,9 +228,9 @@ ProxyService* ProxyService::CreateUsingV8Resolver(
   config_service = new ProxyConfigServiceWin();
 #elif defined(OS_MACOSX)
   config_service = new ProxyConfigServiceMac();
+#elif defined(OS_LINUX)
+  config_service = new ProxyConfigServiceLinux();
 #else
-  // TODO(port): implement ProxyConfigServiceLinux.
-  // See: http://code.google.com/p/chromium/issues/detail?id=8143
   return CreateNull();
 #endif
 

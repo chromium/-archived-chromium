@@ -23,7 +23,7 @@ fi
 # Packages need for development
 dev_list="subversion pkg-config python perl g++ g++-multilib bison flex gperf
           libnss3-dev libglib2.0-dev libgtk2.0-dev libnspr4-dev libsqlite3-dev
-          wdiff lighttpd php5-cgi msttcorefonts sun-java6-fonts"
+          wdiff lighttpd php5-cgi msttcorefonts sun-java6-fonts libgconf2-dev"
 
 # Full list of required run-time libraries
 lib_list="libatk1.0-0 libc6 libcairo2 libexpat1 libfontconfig1 libfreetype6

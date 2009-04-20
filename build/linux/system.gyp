@@ -89,5 +89,22 @@
         ],
       },
     },
+    {
+      'target_name': 'gconf',
+      'type': 'settings',
+      'direct_dependent_settings': {
+        'cflags': [
+          '<!@(python pkg_config_wrapper.py --cflags gconf-2.0)',
+        ],
+      },
+      'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gconf-2.0)',
+        ],
+        'libraries': [
+          '<!@(python pkg_config_wrapper.py --libs-only-l gconf-2.0)',
+        ],
+      },
+    },
   ],
 }

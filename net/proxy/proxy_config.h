@@ -107,8 +107,13 @@ class ProxyConfig {
 
 }  // namespace net
 
-// Dump a human-readable string representation of the configuration to |out|;
+// Dumps a human-readable string representation of the configuration to |out|;
 // used when logging the configuration changes.
 std::ostream& operator<<(std::ostream& out, const net::ProxyConfig& config);
+
+// Dumps a human-readable string representation of the |rules| to |out|;
+// used for logging and for better unittest failure output.
+std::ostream& operator<<(std::ostream& out,
+                         const net::ProxyConfig::ProxyRules& rules);
 
 #endif  // NET_PROXY_PROXY_CONFIG_H_

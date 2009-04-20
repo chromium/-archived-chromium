@@ -238,6 +238,8 @@
         'proxy/proxy_config.h',
         'proxy/proxy_config_service.h',
         'proxy/proxy_config_service_fixed.h',
+        'proxy/proxy_config_service_linux.cc',
+        'proxy/proxy_config_service_linux.h',
         'proxy/proxy_config_service_win.cc',
         'proxy/proxy_config_service_win.h',
         'proxy/proxy_info.cc',
@@ -307,6 +309,8 @@
       'conditions': [
         [ 'OS == "linux"', {
           'dependencies': [
+            '../build/linux/system.gyp:gconf',
+            '../build/linux/system.gyp:gdk',
             '../build/linux/system.gyp:nss',
           ],
         }],
@@ -427,6 +431,9 @@
         'http/http_transaction_unittest.h',
         'http/http_util_unittest.cc',
         'http/http_vary_data_unittest.cc',
+        'proxy/proxy_config_service_common_unittest.cc',
+        'proxy/proxy_config_service_common_unittest.h',
+        'proxy/proxy_config_service_linux_unittest.cc',
         'proxy/proxy_config_service_win_unittest.cc',
         'proxy/proxy_config_unittest.cc',
         'proxy/proxy_list_unittest.cc',
@@ -438,14 +445,18 @@
         'url_request/url_request_unittest.h',
       ],
       'conditions': [
+        [ 'OS == "win"', {
+            'sources/': [ ['exclude', '_(mac|linux|posix)_unittest\\.cc$'] ],
+          },
+        ],
         [ 'OS != "win"', {
             'sources!': [
               'base/wininet_util_unittest.cc',
-              'proxy/proxy_config_service_win_unittest.cc',
             ],
           },
         ],
         [ 'OS == "linux"', {
+            'sources/': [ ['exclude', '_(mac|win)_unittest\\.cc$'] ],
             'dependencies': [
               '../build/linux/system.gyp:gtk',
             ],
@@ -456,6 +467,7 @@
           },
         ],
         [ 'OS == "mac"', {
+            'sources/': [ ['exclude', '_(linux|win)_unittest\\.cc$'] ],
             'sources!': [
               'base/ssl_config_service_unittest.cc',
             ],

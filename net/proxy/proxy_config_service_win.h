@@ -17,7 +17,7 @@ namespace net {
 // settings.
 class ProxyConfigServiceWin : public ProxyConfigService {
  public:
-  // ProxyConfigService methods.
+  // ProxyConfigService methods:
   virtual int GetProxyConfig(ProxyConfig* config);
 
  private:
