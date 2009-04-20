@@ -38,13 +38,13 @@ const GdkColor kDescriptionSelectedTextColor = GDK_COLOR_RGB(0x78, 0x82, 0xb1);
 // TODO(deanm): This is added to extend past just the location box, and to
 // be below the the star and go button.  Really this means that this should
 // probably plumb all the way back to the location bar view.
-const int kExtraSpace = 28;
+const int kExtraSpace = 32;
 // We have a 1 pixel border around the entire results popup.
 const int kBorderThickness = 1;
 // The vertical height of each result.
 const int kHeightPerResult = 24;
 // Additional distance below the edit control.
-const int kTopMargin = 3;
+const int kTopMargin = 6;
 // Width of the icons.
 const int kIconWidth = 16;
 // We want to vertically center the image in the result space.

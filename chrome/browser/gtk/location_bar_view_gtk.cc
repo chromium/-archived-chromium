@@ -23,8 +23,12 @@
 namespace {
 
 // We are positioned with a little bit of extra space that we don't use now.
-const int kTopPadding = 1;
-const int kBottomPadding = 2;
+const int kTopMargin = 1;
+const int kBottomMargin = 2;
+// We don't want to edit control's text to be right against the edge.
+const int kEditLeftRightPadding = 4;
+// We draw a border on the top and bottom (but not on left or right).
+const int kBorderThickness = 1;
 
 // TODO(deanm): Eventually this should be painted with the background png
 // image, but for now we get pretty close by just drawing a solid border.
@@ -32,10 +36,16 @@ const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 
 }  // namespace
 
+// static
+const GdkColor LocationBarViewGtk::kBackgroundColorByLevel[3] = {
+  GDK_COLOR_RGB(255, 245, 195),  // SecurityLevel SECURE: Yellow.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel NORMAL: White.
+  GDK_COLOR_RGB(255, 255, 255),  // SecurityLevel INSECURE: White.
+};
+
 LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
                                        ToolbarModel* toolbar_model)
-    : inner_vbox_(NULL),
-      profile_(NULL),
+    : profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
       disposition_(CURRENT_TAB),
@@ -43,8 +53,8 @@ LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
 }
 
 LocationBarViewGtk::~LocationBarViewGtk() {
-  // All of our widgets should have be children of / owned by the outer bin.
-  outer_bin_.Destroy();
+  // All of our widgets should have be children of / owned by the alignment.
+  alignment_.Destroy();
 }
 
 void LocationBarViewGtk::Init() {
@@ -54,21 +64,20 @@ void LocationBarViewGtk::Init() {
                                                     command_updater_));
   location_entry_->Init();
 
-  inner_vbox_ = gtk_vbox_new(false, 0);
+  alignment_.Own(gtk_alignment_new(0.0, 0.0, 1.0, 1.0));
+  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment_.get()),
+                            kTopMargin + kBorderThickness,
+                            kBottomMargin + kBorderThickness,
+                            kEditLeftRightPadding, kEditLeftRightPadding);
+  // We will paint for the alignment, to paint the background and border.
+  gtk_widget_set_app_paintable(alignment_.get(), TRUE);
+  // Have GTK double buffer around the expose signal.
+  gtk_widget_set_double_buffered(alignment_.get(), TRUE);
+  g_signal_connect(alignment_.get(), "expose-event", 
+                   G_CALLBACK(&HandleExposeThunk), this);
 
-  // TODO(deanm): We use a bunch of widgets to get things to layout with a
-  // border, etc.  This should eventually be custom paint using the correct
-  // background image, etc.
-  gtk_box_pack_start(GTK_BOX(inner_vbox_), location_entry_->widget(),
-                     TRUE, TRUE, 0);
-
-  // Use an alignment to position our bordered location entry exactly.
-  outer_bin_.Own(gtk_alignment_new(0, 0, 1, 1));
-  gtk_alignment_set_padding(GTK_ALIGNMENT(outer_bin_.get()),
-                            kTopPadding, kBottomPadding, 0, 0);
-  gtk_container_add(
-      GTK_CONTAINER(outer_bin_.get()),
-      gfx::CreateGtkBorderBin(inner_vbox_, &kBorderColor, 1, 1, 0, 0));
+  gtk_container_add(GTK_CONTAINER(alignment_.get()),
+                    location_entry_->widget());
 }
 
 void LocationBarViewGtk::SetProfile(Profile* profile) {
@@ -77,6 +86,8 @@ void LocationBarViewGtk::SetProfile(Profile* profile) {
 
 void LocationBarViewGtk::Update(const TabContents* contents) {
   location_entry_->Update(contents);
+  // The security level (background color) could have changed, etc.
+  gtk_widget_queue_draw(alignment_.get());
 }
 
 void LocationBarViewGtk::OnAutocompleteAccept(const GURL& url,
@@ -178,4 +189,46 @@ void LocationBarViewGtk::UpdateFeedIcon() {
 
 void LocationBarViewGtk::SaveStateToContents(TabContents* contents) {
   NOTIMPLEMENTED();
+}
+
+gboolean LocationBarViewGtk::HandleExpose(GtkWidget* widget,
+                                          GdkEventExpose* event) {
+  GdkDrawable* drawable = GDK_DRAWABLE(event->window);
+  GdkGC* gc = gdk_gc_new(drawable);
+
+  GdkRectangle* alloc_rect = &alignment_.get()->allocation;
+
+  // The area outside of our margin, which includes the border.
+  GdkRectangle inner_rect = {
+      alloc_rect->x,
+      alloc_rect->y + kTopMargin,
+      alloc_rect->width,
+      alloc_rect->height - kTopMargin - kBottomMargin};
+
+  // Draw our 1px border.  TODO(deanm): Maybe this would be cleaner as an
+  // overdrawn stroked rect with a clip to the allocation?
+  gdk_gc_set_rgb_fg_color(gc, &kBorderColor);
+  gdk_draw_rectangle(drawable, gc, TRUE,
+                     inner_rect.x,
+                     inner_rect.y,
+                     inner_rect.width,
+                     kBorderThickness);
+  gdk_draw_rectangle(drawable, gc, TRUE,
+                     inner_rect.x,
+                     inner_rect.y + inner_rect.height - kBorderThickness,
+                     inner_rect.width,
+                     kBorderThickness);
+
+  // Draw the background within the border.
+  gdk_gc_set_rgb_fg_color(gc,
+      &kBackgroundColorByLevel[toolbar_model_->GetSchemeSecurityLevel()]);
+  gdk_draw_rectangle(drawable, gc, TRUE,
+                     inner_rect.x,
+                     inner_rect.y + kBorderThickness,
+                     inner_rect.width,
+                     inner_rect.height - (kBorderThickness * 2));
+
+  g_object_unref(gc);
+
+  return FALSE;  // Continue propagating the expose.
 }

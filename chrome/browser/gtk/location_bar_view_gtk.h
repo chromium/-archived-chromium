@@ -37,7 +37,7 @@ class LocationBarViewGtk : public AutocompleteEditController,
   void SetProfile(Profile* profile);
 
   // Returns the widget the caller should host.  You must call Init() first.
-  GtkWidget* widget() { return outer_bin_.get(); }
+  GtkWidget* widget() { return alignment_.get(); }
 
   // Updates the location bar.  We also reset the bar's permanent text and
   // security style, and, if |tab_for_state_restoring| is non-NULL, also
@@ -70,13 +70,21 @@ class LocationBarViewGtk : public AutocompleteEditController,
   virtual void UpdateFeedIcon();
   virtual void SaveStateToContents(TabContents* contents);
 
- private:
-  // The outermost widget we want to be hosted.
-  OwnedWidgetGtk outer_bin_;
+  // Translation between a security level and the background color.  Both the
+  // location bar and edit have to manage and match the background color.
+  static const GdkColor kBackgroundColorByLevel[3];
 
-  // This is the widget you probably care about, our inner vbox (inside the
-  // the border) which holds the elements inside the location bar.
-  GtkWidget* inner_vbox_;
+ private:
+  static gboolean HandleExposeThunk(GtkWidget* widget, GdkEventExpose* event,
+                                    gpointer userdata) {
+    return reinterpret_cast<LocationBarViewGtk*>(userdata)->
+        HandleExpose(widget, event);
+  }
+
+  gboolean HandleExpose(GtkWidget* widget, GdkEventExpose* event);
+
+  // The outermost widget we want to be hosted.
+  OwnedWidgetGtk alignment_;
 
   scoped_ptr<AutocompleteEditViewGtk> location_entry_;
 

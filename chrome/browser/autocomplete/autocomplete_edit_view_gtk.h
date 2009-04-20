@@ -35,7 +35,7 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   // Initialize, create the underlying widgets, etc.
   void Init();
 
-  GtkWidget* widget() { return text_view_.get(); }
+  GtkWidget* widget() { return alignment_.get(); }
 
   // Grab keyboard input focus, putting focus on the location widget.
   void SetFocus();
@@ -126,9 +126,6 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   }
   gboolean HandleKeyRelease(GtkWidget* widget, GdkEventKey* event);
 
-  static void HandleViewSizeRequest(GtkWidget* view, GtkRequisition* req,
-                                    gpointer unused);
-
   static gboolean HandleViewButtonPressThunk(GtkWidget* view,
                                              GdkEventButton* event,
                                              gpointer self) {
@@ -183,11 +180,15 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   // Internally invoked whenever the text changes in some way.
   void TextChanged();
 
-  OwnedWidgetGtk text_view_;
+  // The widget we expose, used for vertically centering the real text edit,
+  // since the height will change based on the font / font size, etc.
+  OwnedWidgetGtk alignment_;
+
+  // The actual text entry which will be owned by the alignment_.
+  GtkWidget* text_view_;
 
   GtkTextTagTable* tag_table_;
   GtkTextBuffer* text_buffer_;
-
   GtkTextTag* base_tag_;
   GtkTextTag* secure_scheme_tag_;
   GtkTextTag* insecure_scheme_tag_;
