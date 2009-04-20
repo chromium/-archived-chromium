@@ -13,6 +13,7 @@ import sys
 from SCons.Script import *
 
 import SCons.Node
+import SCons.Util
 
 class Null(object):
   def __new__(cls, *args, **kwargs):
@@ -116,7 +117,10 @@ class ChromeFileList(FileList):
       except ValueError:
         pass
       else:
-        top[i] = new
+        if SCons.Util.is_List(new):
+          top[i:i+1] = new
+        else:
+          top[i] = new
 
 
 def FilterOut(self, **kw):
@@ -158,6 +162,7 @@ non_compilable_suffixes = {
         '.bdic',
         '.css',
         '.dat',
+        '.gperf',
         '.h',
         '.html',
         '.hxx',
