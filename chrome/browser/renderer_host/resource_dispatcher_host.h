@@ -370,6 +370,14 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
     return false;
   }
 
+  static void DisableHttpPrioritization() {
+    g_is_http_prioritization_enabled = false;
+  }
+
+  static bool IsHttpPrioritizationEnabled() {
+    return g_is_http_prioritization_enabled;
+  }
+
  private:
   FRIEND_TEST(ResourceDispatcherHostTest, TestBlockedRequestsProcessDies);
   FRIEND_TEST(ResourceDispatcherHostTest,
@@ -555,6 +563,8 @@ class ResourceDispatcherHost : public URLRequest::Delegate {
   // Used during IPC message dispatching so that the handlers can get a pointer
   // to the source of the message.
   Receiver* receiver_;
+
+  static bool g_is_http_prioritization_enabled;
 
   DISALLOW_COPY_AND_ASSIGN(ResourceDispatcherHost);
 };

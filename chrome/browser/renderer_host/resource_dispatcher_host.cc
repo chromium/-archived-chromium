@@ -68,17 +68,7 @@ using base::TimeTicks;
 
 // ----------------------------------------------------------------------------
 
-// The interval for calls to ResourceDispatcherHost::UpdateLoadStates
-static const int kUpdateLoadStatesIntervalMsec = 100;
-
-// Maximum number of pending data messages sent to the renderer at any
-// given time for a given request.
-static const int kMaxPendingDataMessages = 20;
-
-// Maximum byte "cost" of all the outstanding requests for a renderer.
-// See delcaration of |max_outstanding_requests_cost_per_process_| for details.
-// This bound is 25MB, which allows for around 6000 outstanding requests.
-static const int kMaxOutstandingRequestsCostPerProcess = 26214400;
+bool ResourceDispatcherHost::g_is_http_prioritization_enabled = true;
 
 // A ShutdownTask proxies a shutdown task from the UI thread to the IO thread.
 // It should be constructed on the UI thread and run in the IO thread.
@@ -96,6 +86,18 @@ class ResourceDispatcherHost::ShutdownTask : public Task {
 };
 
 namespace {
+
+// The interval for calls to ResourceDispatcherHost::UpdateLoadStates
+const int kUpdateLoadStatesIntervalMsec = 100;
+
+// Maximum number of pending data messages sent to the renderer at any
+// given time for a given request.
+const int kMaxPendingDataMessages = 20;
+
+// Maximum byte "cost" of all the outstanding requests for a renderer.
+// See delcaration of |max_outstanding_requests_cost_per_process_| for details.
+// This bound is 25MB, which allows for around 6000 outstanding requests.
+const int kMaxOutstandingRequestsCostPerProcess = 26214400;
 
 // Consults the RendererSecurity policy to determine whether the
 // ResourceDispatcherHost should service this request.  A request might be
@@ -340,16 +342,16 @@ void ResourceDispatcherHost::BeginRequest(
   request->set_context(context);
   request->set_origin_pid(request_data.origin_pid);
 
-  // If the request is for the top level page or a frame/iframe, then we should
-  // prioritize it higher than other resource types.  Currently, we just use
-  // priorities 1 and 0.
-  // TODO(willchan): Revisit the actual priorities when looking at considering
-  // boosting priorities for requests for the foreground tab.
-  if (request_data.resource_type == ResourceType::MAIN_FRAME ||
-      request_data.resource_type == ResourceType::SUB_FRAME) {
-    request->set_priority(1);
-  } else {
-    request->set_priority(0);
+  if (IsHttpPrioritizationEnabled()) {
+    // If the request is for the top level page or a frame/iframe, then we
+    // should prioritize it higher than other resource types.  Currently, we
+    // just use priorities 1 and 0.
+    if (request_data.resource_type == ResourceType::MAIN_FRAME ||
+        request_data.resource_type == ResourceType::SUB_FRAME) {
+      request->set_priority(1);
+    } else {
+      request->set_priority(0);
+    }
   }
 
   // Set upload data.

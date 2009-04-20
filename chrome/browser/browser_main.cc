@@ -478,6 +478,15 @@ int BrowserMain(const MainFunctionParams& parameters) {
     net::HttpNetworkSession::set_max_sockets_per_group(4);
   }
 
+  scoped_refptr<FieldTrial> http_prioritization_trial =
+      new FieldTrial("HttpPrioritization", 100);
+  // Put 10% of people in the fallback experiment with the http prioritization
+  // code disabled.
+  const int holdback_group =
+      http_prioritization_trial->AppendGroup("_no_http_prioritization", 10);
+  if (http_prioritization_trial->group() == holdback_group) {
+    ResourceDispatcherHost::DisableHttpPrioritization();
+  }
 
 #if defined(OS_WIN)
   // Init common control sex.

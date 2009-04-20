@@ -977,10 +977,34 @@ void HttpNetworkTransaction::LogTCPConnectionMetrics() const {
 void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {
   base::TimeDelta total_duration = response_.response_time - start_time_;
 
-  UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
-      "Net.Transaction_Connected_Under_10", "DnsImpact").data(), total_duration,
+  UMA_HISTOGRAM_CLIPPED_TIMES(
+      FieldTrial::MakeName(
+          "Net.Transaction_Connected_Under_10",
+          "DnsImpact").data(),
+      total_duration,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
+
+  // Currently, non-zero priority requests are frame or sub-frame resource
+  // types.  This will change when we also prioritize certain subresources like
+  // css, js, etc.
+  if (request_->priority) {
+    UMA_HISTOGRAM_CLIPPED_TIMES(
+        FieldTrial::MakeName(
+            "Net.Priority_High_Latency",
+            "HttpPrioritization").data(),
+        total_duration,
+        base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+        100);
+  } else {
+    UMA_HISTOGRAM_CLIPPED_TIMES(
+        FieldTrial::MakeName(
+            "Net.Priority_Low_Latency",
+            "HttpPrioritization").data(),
+        total_duration,
+        base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+        100);
+  }
 }
 
 void HttpNetworkTransaction::LogTransactionMetrics() const {

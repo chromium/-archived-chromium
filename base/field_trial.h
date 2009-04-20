@@ -13,7 +13,7 @@
 // pseudo-randomly selected).
 //
 // States are typically generated randomly, either based on a one time
-// randomization (generated randomly once, and then persitently reused in the
+// randomization (generated randomly once, and then persistently reused in the
 // client during each future run of the program), or by a startup randomization
 // (generated each time the application starts up, but held constant during the
 // duration of the process), or by continuous randomization across a run (where
