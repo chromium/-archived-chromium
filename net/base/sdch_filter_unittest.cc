@@ -1144,3 +1144,43 @@ TEST_F(SdchFilterTest, DictionaryTooLarge) {
   EXPECT_FALSE(sdch_manager_->AddSdchDictionary(dictionary_text,
               GURL("http://" + dictionary_domain)));
 }
+
+TEST_F(SdchFilterTest, PathMatch) {
+  bool (*PathMatch)(const std::string& path, const std::string& restriction) =
+      SdchManager::Dictionary::PathMatch;
+  // Perfect match is supported.
+  EXPECT_TRUE(PathMatch("/search", "/search"));
+  EXPECT_TRUE(PathMatch("/search/", "/search/"));
+
+  // Prefix only works if last character of restriction is a slash, or first
+  // character in path after a match is a slash.  Validate each case separately.
+
+  // Rely on the slash in the path (not at the end of the restriction).
+  EXPECT_TRUE(PathMatch("/search/something", "/search"));
+  EXPECT_TRUE(PathMatch("/search/s", "/search"));
+  EXPECT_TRUE(PathMatch("/search/other", "/search"));
+  EXPECT_TRUE(PathMatch("/search/something", "/search"));
+
+  // Rely on the slash at the end of the restriction.
+  EXPECT_TRUE(PathMatch("/search/something", "/search/"));
+  EXPECT_TRUE(PathMatch("/search/s", "/search/"));
+  EXPECT_TRUE(PathMatch("/search/other", "/search/"));
+  EXPECT_TRUE(PathMatch("/search/something", "/search/"));
+
+  // Make sure less that sufficient prefix match is false.
+  EXPECT_FALSE(PathMatch("/sear", "/search"));
+  EXPECT_FALSE(PathMatch("/", "/search"));
+  EXPECT_FALSE(PathMatch("", "/search"));
+
+  // Add examples with several levels of direcories in the restriction.
+  EXPECT_FALSE(PathMatch("/search/something", "search/s"));
+  EXPECT_FALSE(PathMatch("/search/", "/search/s"));
+
+  // Make sure adding characters to path will also fail.
+  EXPECT_FALSE(PathMatch("/searching", "/search/"));
+  EXPECT_FALSE(PathMatch("/searching", "/search"));
+
+  // Make sure we're case sensitive.
+  EXPECT_FALSE(PathMatch("/ABC", "/abc"));
+  EXPECT_FALSE(PathMatch("/abc", "/ABC"));
+}

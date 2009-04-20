@@ -496,7 +496,7 @@ bool SdchManager::Dictionary::PathMatch(const std::string& path,
   size_t prefix_length = restriction.size();
   if (prefix_length > path.size())
     return false;  // Can't be a prefix.
-  if (0 != restriction.compare(0, prefix_length, path))
+  if (0 != path.compare(0, prefix_length, restriction))
     return false;
   return restriction[prefix_length - 1] == '/' || path[prefix_length] == '/';
 }
