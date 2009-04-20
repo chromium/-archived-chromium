@@ -8,7 +8,6 @@
 #include "chrome/browser/autocomplete/autocomplete.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_model.h"
 #include "chrome/browser/autocomplete/autocomplete_popup_view.h"
-#include "chrome/common/gfx/chrome_font.h"
 #include "chrome/views/view.h"
 
 class AutocompleteEditModel;
@@ -33,7 +32,7 @@ class AutocompleteResultViewModel {
   virtual bool IsSelectedIndex(size_t index) = 0;
 
   // Returns the type of match that the row corresponds to.
-  virtual const AutocompleteMatch& GetMatchAtIndex(size_t index) = 0;
+  virtual AutocompleteMatch::Type GetResultTypeAtIndex(size_t index) = 0;
 
   // Called when the line at the specified index should be opened with the
   // provided disposition.
@@ -75,7 +74,7 @@ class AutocompletePopupContentsView : public views::View,
 
   // Overridden from AutocompleteResultViewModel:
   virtual bool IsSelectedIndex(size_t index);
-  virtual const AutocompleteMatch& GetMatchAtIndex(size_t index);
+  virtual AutocompleteMatch::Type GetResultTypeAtIndex(size_t index);
   virtual void OpenIndex(size_t index, WindowOpenDisposition disposition);
   virtual void SetHoveredLine(size_t index);
   virtual void SetSelectedLine(size_t index, bool revert_to_default);
@@ -106,10 +105,6 @@ class AutocompletePopupContentsView : public views::View,
 
   // An object that tells the popup how to position itself.
   AutocompletePopupPositioner* popup_positioner_;
-
-  // The font used by the edit that created us. This is used by the result
-  // views to synthesize a suitable display font.
-  ChromeFont edit_font_;
 
   DISALLOW_COPY_AND_ASSIGN(AutocompletePopupContentsView);
 };

@@ -18,15 +18,14 @@
 #include "grit/theme_resources.h"
 #include "skia/include/SkShader.h"
 
-static const SkColor kTransparentColor = SkColorSetARGB(0, 0, 0, 0);
+// The stroke color around the popup border.
+static const SkColor kEdgeColor = SkColorSetRGB(183, 195, 219);
 static const int kPopupTransparency = 235;
 static const int kHoverRowAlpha = 0x40;
 
 class AutocompleteResultView : public views::View {
  public:
-  AutocompleteResultView(AutocompleteResultViewModel* model,
-                         int model_index,
-                         const ChromeFont& font);
+  AutocompleteResultView(AutocompleteResultViewModel* model, int model_index);
   virtual ~AutocompleteResultView();
 
   // Overridden from views::View:
@@ -47,7 +46,9 @@ class AutocompleteResultView : public views::View {
   void PaintAsMoreRow(ChromeCanvas* canvas);
 
   // Get colors for row backgrounds and text for different row states.
-  SkColor GetBackgroundColor() const;
+  SkColor GetHighlightRowColor() const;
+  SkColor GetHighlightTextColor() const;
+  SkColor GetHoverRowColor() const;
   SkColor GetTextColor() const;
 
   // This row's model and model index.
@@ -57,31 +58,26 @@ class AutocompleteResultView : public views::View {
   // True if the mouse is over this row.
   bool hot_;
 
-  // The font used to derive fonts for rendering the text in this row.
-  ChromeFont font_;
-
   DISALLOW_COPY_AND_ASSIGN(AutocompleteResultView);
 };
 
 AutocompleteResultView::AutocompleteResultView(
     AutocompleteResultViewModel* model,
-    int model_index,
-    const ChromeFont& font)
+    int model_index)
     : model_(model),
       model_index_(model_index),
-      hot_(false),
-      font_(font) {
+      hot_(false) {
 }
 
 AutocompleteResultView::~AutocompleteResultView() {
 }
 
 void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
-  canvas->FillRectInt(GetBackgroundColor(), 0, 0, width(), height());
-
-  const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
-  canvas->DrawStringInt(match.contents, font_, GetTextColor(), 0, 0, width(),
-                        height());
+  // Paint the row background if any.
+  if (model_->IsSelectedIndex(model_index_))
+    canvas->FillRectInt(GetHighlightRowColor(), 0, 0, width(), height());
+  else if (hot_)
+    canvas->FillRectInt(GetHoverRowColor(), 0, 0, width(), height());
 }
 
 gfx::Size AutocompleteResultView::GetPreferredSize() {
@@ -147,20 +143,21 @@ void AutocompleteResultView::PaintAsMoreRow(ChromeCanvas* canvas) {
 
 }
 
-SkColor AutocompleteResultView::GetBackgroundColor() const {
-  if (model_->IsSelectedIndex(model_index_))
-    return color_utils::GetSysSkColor(COLOR_HIGHLIGHT);
-  if (hot_) {
-    COLORREF color = GetSysColor(COLOR_HIGHLIGHT);
-    return SkColorSetARGB(kHoverRowAlpha, GetRValue(color), GetGValue(color),
-                          GetBValue(color));
-  }
-  return kTransparentColor;
+SkColor AutocompleteResultView::GetHighlightRowColor() const {
+  return color_utils::GetSysSkColor(COLOR_HIGHLIGHT);
+}
+
+SkColor AutocompleteResultView::GetHighlightTextColor() const {
+  return color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
+}
+
+SkColor AutocompleteResultView::GetHoverRowColor() const {
+  COLORREF color = GetSysColor(COLOR_HIGHLIGHT);
+  return SkColorSetARGB(kHoverRowAlpha, GetRValue(color), GetGValue(color),
+                        GetBValue(color));
 }
 
 SkColor AutocompleteResultView::GetTextColor() const {
-  if (model_->IsSelectedIndex(model_index_))
-    return color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
   return color_utils::GetSysSkColor(COLOR_WINDOWTEXT);
 }
 
@@ -274,30 +271,27 @@ AutocompletePopupContentsView::AutocompletePopupContentsView(
     : popup_(new AutocompletePopupWin(this)),
       model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
-      popup_positioner_(popup_positioner),
-      edit_font_(font) {
+      popup_positioner_(popup_positioner) {
   set_border(new PopupBorder);
 }
 
 void AutocompletePopupContentsView::SetAutocompleteResult(
     const AutocompleteResult& result) {
   RemoveAllChildViews(true);
-  for (size_t i = 0; i < result.size(); ++i)
-    AddChildView(new AutocompleteResultView(this, i, edit_font_));
-  // Update the popup's size by calling Show. This will cause us to be laid out
-  // again at the new size.
-  popup_->Show();
+  for (size_t i = 0; i < result.size(); ++i) {
+    AutocompleteMatch match = result.match_at(i);
+    AutocompleteResultView* result = new AutocompleteResultView(this, i);
+    AddChildView(result);
+  }
+  Layout();
 }
 
 gfx::Rect AutocompletePopupContentsView::GetPopupBounds() const {
   gfx::Insets insets;
   border()->GetInsets(&insets);
   gfx::Rect contents_bounds = popup_positioner_->GetPopupBounds();
-  int child_count = GetChildViewCount();
-  int height = 0;
-  for (int i = 0; i < child_count; ++i)
-    height += GetChildViewAt(i)->GetPreferredSize().height();
-  contents_bounds.set_height(height);
+  contents_bounds.set_height(100);  // TODO(beng): size to contents (once we
+                                    //             have contents!)
   contents_bounds.Inset(-insets.left(), -insets.top(), -insets.right(),
                         -insets.bottom());
   return contents_bounds;
@@ -349,9 +343,9 @@ bool AutocompletePopupContentsView::IsSelectedIndex(size_t index) {
   return index == model_->selected_line();
 }
 
-const AutocompleteMatch& AutocompletePopupContentsView::GetMatchAtIndex(
+AutocompleteMatch::Type AutocompletePopupContentsView::GetResultTypeAtIndex(
     size_t index) {
-  return model_->result().match_at(index);
+  return model_->result().match_at(index).type;
 }
 
 void AutocompletePopupContentsView::OpenIndex(
@@ -396,12 +390,10 @@ void AutocompletePopupContentsView::PaintChildren(ChromeCanvas* canvas) {
                                true);
   contents_canvas.FillRectInt(color_utils::GetSysSkColor(COLOR_WINDOW), 0, 0,
                               contents_rect.width(), contents_rect.height());
-  View::PaintChildren(&contents_canvas);
   // We want the contents background to be slightly transparent so we can see
-  // the blurry glass effect on DWM systems behind. We do this _after_ we paint
-  // the children since they paint text, and GDI will reset this alpha data if
-  // we paint text after this call.
+  // the blurry glass effect on DWM systems behind.
   MakeCanvasTransparent(&contents_canvas);
+  View::PaintChildren(&contents_canvas);
 
   // Now paint the contents of the contents canvas into the actual canvas.
   SkPaint paint;
