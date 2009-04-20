@@ -47,18 +47,18 @@ BOOL CALLBACK DetachPluginWindowsCallback(HWND window, LPARAM param) {
 }  // namespace
 
 // static
-WebContentsView* WebContentsView::Create(WebContents* web_contents) {
-  return new WebContentsViewWin(web_contents);
+TabContentsView* TabContentsView::Create(WebContents* web_contents) {
+  return new TabContentsViewWin(web_contents);
 }
 
-WebContentsViewWin::WebContentsViewWin(WebContents* web_contents)
-    : WebContentsView(web_contents),
+TabContentsViewWin::TabContentsViewWin(WebContents* web_contents)
+    : TabContentsView(web_contents),
       ignore_next_char_event_(false) {
   last_focused_view_storage_id_ =
       views::ViewStorage::GetSharedInstance()->CreateStorageID();
 }
 
-WebContentsViewWin::~WebContentsViewWin() {
+TabContentsViewWin::~TabContentsViewWin() {
   // Makes sure to remove any stored view we may still have in the ViewStorage.
   //
   // It is possible the view went away before us, so we only do this if the
@@ -68,7 +68,7 @@ WebContentsViewWin::~WebContentsViewWin() {
     view_storage->RemoveView(last_focused_view_storage_id_);
 }
 
-void WebContentsViewWin::CreateView() {
+void TabContentsViewWin::CreateView() {
   set_delete_on_destroy(false);
   // Since we create these windows parented to the desktop window initially, we
   // don't want to create them initially visible.
@@ -80,7 +80,7 @@ void WebContentsViewWin::CreateView() {
   drop_target_ = new WebDropTarget(GetNativeView(), web_contents());
 }
 
-RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
+RenderWidgetHostView* TabContentsViewWin::CreateViewForWidget(
     RenderWidgetHost* render_widget_host) {
   if (render_widget_host->view()) {
     // During testing, the view will already be set up in most cases to the
@@ -99,25 +99,25 @@ RenderWidgetHostView* WebContentsViewWin::CreateViewForWidget(
   return view;
 }
 
-gfx::NativeView WebContentsViewWin::GetNativeView() const {
+gfx::NativeView TabContentsViewWin::GetNativeView() const {
   return WidgetWin::GetNativeView();
 }
 
-gfx::NativeView WebContentsViewWin::GetContentNativeView() const {
+gfx::NativeView TabContentsViewWin::GetContentNativeView() const {
   if (!web_contents()->render_widget_host_view())
     return NULL;
   return web_contents()->render_widget_host_view()->GetPluginNativeView();
 }
 
-gfx::NativeWindow WebContentsViewWin::GetTopLevelNativeWindow() const {
+gfx::NativeWindow TabContentsViewWin::GetTopLevelNativeWindow() const {
   return ::GetAncestor(GetNativeView(), GA_ROOT);
 }
 
-void WebContentsViewWin::GetContainerBounds(gfx::Rect* out) const {
+void TabContentsViewWin::GetContainerBounds(gfx::Rect* out) const {
   GetBounds(out, false);
 }
 
-void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
+void TabContentsViewWin::StartDragging(const WebDropData& drop_data) {
   scoped_refptr<OSExchangeData> data(new OSExchangeData);
 
   // TODO(tc): Generate an appropriate drag image.
@@ -177,7 +177,7 @@ void WebContentsViewWin::StartDragging(const WebDropData& drop_data) {
     web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
-void WebContentsViewWin::OnContentsDestroy() {
+void TabContentsViewWin::OnContentsDestroy() {
   // TODO(brettw) this seems like maybe it can be moved into OnDestroy and this
   // function can be deleted? If you're adding more here, consider whether it
   // can be moved into OnDestroy which is a Windows message handler as the
@@ -199,14 +199,14 @@ void WebContentsViewWin::OnContentsDestroy() {
   EnumChildWindows(GetNativeView(), DetachPluginWindowsCallback, NULL);
 }
 
-void WebContentsViewWin::OnDestroy() {
+void TabContentsViewWin::OnDestroy() {
   if (drop_target_.get()) {
     RevokeDragDrop(GetNativeView());
     drop_target_ = NULL;
   }
 }
 
-void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
+void TabContentsViewWin::SetPageTitle(const std::wstring& title) {
   if (GetNativeView()) {
     // It's possible to get this after the hwnd has been destroyed.
     ::SetWindowText(GetNativeView(), title.c_str());
@@ -218,18 +218,18 @@ void WebContentsViewWin::SetPageTitle(const std::wstring& title) {
   }
 }
 
-void WebContentsViewWin::Invalidate() {
+void TabContentsViewWin::Invalidate() {
   // Note that it's possible to get this message after the window was destroyed.
   if (::IsWindow(GetNativeView()))
     InvalidateRect(GetNativeView(), NULL, FALSE);
 }
 
-void WebContentsViewWin::SizeContents(const gfx::Size& size) {
+void TabContentsViewWin::SizeContents(const gfx::Size& size) {
   // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
   WasSized(size);
 }
 
-void WebContentsViewWin::Focus() {
+void TabContentsViewWin::Focus() {
   HWND container_hwnd = GetNativeView();
   if (!container_hwnd)
     return;
@@ -244,14 +244,14 @@ void WebContentsViewWin::Focus() {
     v->RequestFocus();
 }
 
-void WebContentsViewWin::SetInitialFocus() {
+void TabContentsViewWin::SetInitialFocus() {
   if (web_contents()->FocusLocationBarByDefault())
     web_contents()->delegate()->SetFocusToLocationBar();
   else
     ::SetFocus(GetNativeView());
 }
 
-void WebContentsViewWin::StoreFocus() {
+void TabContentsViewWin::StoreFocus() {
   views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
 
   if (view_storage->RetrieveView(last_focused_view_storage_id_) != NULL)
@@ -281,7 +281,7 @@ void WebContentsViewWin::StoreFocus() {
   }
 }
 
-void WebContentsViewWin::RestoreFocus() {
+void TabContentsViewWin::RestoreFocus() {
   views::ViewStorage* view_storage = views::ViewStorage::GetSharedInstance();
   views::View* last_focused_view =
       view_storage->RetrieveView(last_focused_view_storage_id_);
@@ -310,15 +310,15 @@ void WebContentsViewWin::RestoreFocus() {
   }
 }
 
-void WebContentsViewWin::SetChildSize(RenderWidgetHostView* rwh_view) {
+void TabContentsViewWin::SetChildSize(RenderWidgetHostView* rwh_view) {
   rwh_view->SetSize(GetContainerSize());
 }
 
-void WebContentsViewWin::UpdateDragCursor(bool is_drop_target) {
+void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }
 
-void WebContentsViewWin::TakeFocus(bool reverse) {
+void TabContentsViewWin::TakeFocus(bool reverse) {
   views::FocusManager* focus_manager =
       views::FocusManager::GetFocusManager(GetNativeView());
 
@@ -328,7 +328,7 @@ void WebContentsViewWin::TakeFocus(bool reverse) {
     focus_manager->AdvanceFocus(reverse);
 }
 
-void WebContentsViewWin::HandleKeyboardEvent(
+void TabContentsViewWin::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   // Previous calls to TranslateMessage can generate CHAR events as well as
   // RAW_KEY_DOWN events, even if the latter triggered an accelerator.  In these
@@ -379,7 +379,7 @@ void WebContentsViewWin::HandleKeyboardEvent(
                 event.os_event.lParam);
 }
 
-void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
+void TabContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
   RenderViewContextMenuWin menu(web_contents(),
                                 params,
                                 GetNativeView());
@@ -395,12 +395,12 @@ void WebContentsViewWin::ShowContextMenu(const ContextMenuParams& params) {
   MessageLoop::current()->SetNestableTasksAllowed(old_state);
 }
 
-void WebContentsViewWin::OnHScroll(int scroll_type, short position,
+void TabContentsViewWin::OnHScroll(int scroll_type, short position,
                                    HWND scrollbar) {
   ScrollCommon(WM_HSCROLL, scroll_type, position, scrollbar);
 }
 
-void WebContentsViewWin::OnMouseLeave() {
+void TabContentsViewWin::OnMouseLeave() {
   // Let our delegate know that the mouse moved (useful for resetting status
   // bubble state).
   if (web_contents()->delegate())
@@ -408,7 +408,7 @@ void WebContentsViewWin::OnMouseLeave() {
   SetMsgHandled(FALSE);
 }
 
-LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
+LRESULT TabContentsViewWin::OnMouseRange(UINT msg,
                                          WPARAM w_param, LPARAM l_param) {
   switch (msg) {
     case WM_LBUTTONDOWN:
@@ -437,7 +437,7 @@ LRESULT WebContentsViewWin::OnMouseRange(UINT msg,
   return 0;
 }
 
-void WebContentsViewWin::OnPaint(HDC junk_dc) {
+void TabContentsViewWin::OnPaint(HDC junk_dc) {
   if (web_contents()->render_view_host() &&
       !web_contents()->render_view_host()->IsRenderViewLive()) {
     if (!sad_tab_.get())
@@ -460,7 +460,7 @@ void WebContentsViewWin::OnPaint(HDC junk_dc) {
 // A message is reflected here from view().
 // Return non-zero to indicate that it is handled here.
 // Return 0 to allow view() to further process it.
-LRESULT WebContentsViewWin::OnReflectedMessage(UINT msg, WPARAM w_param,
+LRESULT TabContentsViewWin::OnReflectedMessage(UINT msg, WPARAM w_param,
                                         LPARAM l_param) {
   MSG* message = reinterpret_cast<MSG*>(l_param);
   switch (message->message) {
@@ -482,7 +482,7 @@ LRESULT WebContentsViewWin::OnReflectedMessage(UINT msg, WPARAM w_param,
   return 0;
 }
 
-void WebContentsViewWin::OnSetFocus(HWND window) {
+void TabContentsViewWin::OnSetFocus(HWND window) {
   // TODO(jcampan): figure out why removing this prevents tabs opened in the
   //                background from properly taking focus.
   // We NULL-check the render_view_host_ here because Windows can send us
@@ -495,12 +495,12 @@ void WebContentsViewWin::OnSetFocus(HWND window) {
   }
 }
 
-void WebContentsViewWin::OnVScroll(int scroll_type, short position,
+void TabContentsViewWin::OnVScroll(int scroll_type, short position,
                                    HWND scrollbar) {
   ScrollCommon(WM_VSCROLL, scroll_type, position, scrollbar);
 }
 
-void WebContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
+void TabContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
   if (window_pos->flags & SWP_HIDEWINDOW) {
     WasHidden();
   } else {
@@ -518,7 +518,7 @@ void WebContentsViewWin::OnWindowPosChanged(WINDOWPOS* window_pos) {
   }
 }
 
-void WebContentsViewWin::OnSize(UINT param, const CSize& size) {
+void TabContentsViewWin::OnSize(UINT param, const CSize& size) {
   WidgetWin::OnSize(param, size);
 
   // Hack for thinkpad touchpad driver.
@@ -536,19 +536,19 @@ void WebContentsViewWin::OnSize(UINT param, const CSize& size) {
   ::SetScrollInfo(GetNativeView(), SB_VERT, &si, FALSE);
 }
 
-LRESULT WebContentsViewWin::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
+LRESULT TabContentsViewWin::OnNCCalcSize(BOOL w_param, LPARAM l_param) {
   // Hack for thinkpad mouse wheel driver. We have set the fake scroll bars
   // to receive scroll messages from thinkpad touchpad driver. Suppress
   // painting of scrollbars by returning 0 size for them.
   return 0;
 }
 
-void WebContentsViewWin::OnNCPaint(HRGN rgn) {
+void TabContentsViewWin::OnNCPaint(HRGN rgn) {
   // Suppress default WM_NCPAINT handling. We don't need to do anything
   // here since the view will draw everything correctly.
 }
 
-void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type,
+void TabContentsViewWin::ScrollCommon(UINT message, int scroll_type,
                                       short position, HWND scrollbar) {
   // This window can receive scroll events as a result of the ThinkPad's
   // Trackpad scroll wheel emulation.
@@ -561,15 +561,15 @@ void WebContentsViewWin::ScrollCommon(UINT message, int scroll_type,
   }
 }
 
-void WebContentsViewWin::WasHidden() {
+void TabContentsViewWin::WasHidden() {
   web_contents()->HideContents();
 }
 
-void WebContentsViewWin::WasShown() {
+void TabContentsViewWin::WasShown() {
   web_contents()->ShowContents();
 }
 
-void WebContentsViewWin::WasSized(const gfx::Size& size) {
+void TabContentsViewWin::WasSized(const gfx::Size& size) {
   if (web_contents()->interstitial_page())
     web_contents()->interstitial_page()->SetSize(size);
   if (web_contents()->render_widget_host_view())
@@ -579,7 +579,7 @@ void WebContentsViewWin::WasSized(const gfx::Size& size) {
   web_contents()->RepositionSupressedPopupsToFit(size);
 }
 
-bool WebContentsViewWin::ScrollZoom(int scroll_type) {
+bool TabContentsViewWin::ScrollZoom(int scroll_type) {
   // If ctrl is held, zoom the UI.  There are three issues with this:
   // 1) Should the event be eaten or forwarded to content?  We eat the event,
   //    which is like Firefox and unlike IE.
@@ -610,7 +610,7 @@ bool WebContentsViewWin::ScrollZoom(int scroll_type) {
   return false;
 }
 
-void WebContentsViewWin::WheelZoom(int distance) {
+void TabContentsViewWin::WheelZoom(int distance) {
   if (web_contents()->delegate()) {
     bool zoom_in = distance > 0;
     web_contents()->delegate()->ContentsZoomChange(zoom_in);

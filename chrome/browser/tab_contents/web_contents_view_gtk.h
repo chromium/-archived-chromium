@@ -11,15 +11,15 @@
 
 class RenderViewContextMenuGtk;
 
-class WebContentsViewGtk : public WebContentsView {
+class TabContentsViewGtk : public TabContentsView {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
   // because that's what was easiest when they were split.
-  explicit WebContentsViewGtk(WebContents* web_contents);
-  virtual ~WebContentsViewGtk();
+  explicit TabContentsViewGtk(WebContents* web_contents);
+  virtual ~TabContentsViewGtk();
 
-  // WebContentsView implementation --------------------------------------------
+  // TabContentsView implementation --------------------------------------------
 
   virtual void CreateView();
   virtual RenderWidgetHostView* CreateViewForWidget(
@@ -60,7 +60,7 @@ class WebContentsViewGtk : public WebContentsView {
  private:
   // We keep track of the timestamp of the latest mousedown event.
   static gboolean OnMouseDown(GtkWidget* widget,
-                              GdkEventButton* event, WebContentsViewGtk* view);
+                              GdkEventButton* event, TabContentsViewGtk* view);
 
   // The native widget for the tab.
   OwnedWidgetGtk vbox_;
@@ -76,7 +76,7 @@ class WebContentsViewGtk : public WebContentsView {
   // show context menus.
   guint32 last_mouse_down_time_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebContentsViewGtk);
+  DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_

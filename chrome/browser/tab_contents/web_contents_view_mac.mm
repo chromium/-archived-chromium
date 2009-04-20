@@ -15,34 +15,34 @@
 
 #include "chrome/common/temp_scaffolding_stubs.h"
 
-@interface WebContentsViewCocoa (Private)
-- (id)initWithWebContentsViewMac:(WebContentsViewMac*)w;
+@interface TabContentsViewCocoa (Private)
+- (id)initWithTabContentsViewMac:(TabContentsViewMac*)w;
 - (void)processKeyboardEvent:(NSEvent*)event;
 @end
 
 // static
-WebContentsView* WebContentsView::Create(WebContents* web_contents) {
-  return new WebContentsViewMac(web_contents);
+TabContentsView* TabContentsView::Create(WebContents* web_contents) {
+  return new TabContentsViewMac(web_contents);
 }
 
-WebContentsViewMac::WebContentsViewMac(WebContents* web_contents)
-    : WebContentsView(web_contents) {
+TabContentsViewMac::TabContentsViewMac(WebContents* web_contents)
+    : TabContentsView(web_contents) {
   registrar_.Add(this, NotificationType::WEB_CONTENTS_CONNECTED,
                  Source<WebContents>(web_contents));
   registrar_.Add(this, NotificationType::WEB_CONTENTS_DISCONNECTED,
                  Source<WebContents>(web_contents));
 }
 
-WebContentsViewMac::~WebContentsViewMac() {
+TabContentsViewMac::~TabContentsViewMac() {
 }
 
-void WebContentsViewMac::CreateView() {
-  WebContentsViewCocoa* view =
-      [[WebContentsViewCocoa alloc] initWithWebContentsViewMac:this];
+void TabContentsViewMac::CreateView() {
+  TabContentsViewCocoa* view =
+      [[TabContentsViewCocoa alloc] initWithTabContentsViewMac:this];
   cocoa_view_.reset(view);
 }
 
-RenderWidgetHostView* WebContentsViewMac::CreateViewForWidget(
+RenderWidgetHostView* TabContentsViewMac::CreateViewForWidget(
     RenderWidgetHost* render_widget_host) {
   DCHECK(!render_widget_host->view());
   RenderWidgetHostViewMac* view =
@@ -58,25 +58,25 @@ RenderWidgetHostView* WebContentsViewMac::CreateViewForWidget(
   return view;
 }
 
-gfx::NativeView WebContentsViewMac::GetNativeView() const {
+gfx::NativeView TabContentsViewMac::GetNativeView() const {
   return cocoa_view_.get();
 }
 
-gfx::NativeView WebContentsViewMac::GetContentNativeView() const {
+gfx::NativeView TabContentsViewMac::GetContentNativeView() const {
   if (!web_contents()->render_widget_host_view())
     return NULL;
   return web_contents()->render_widget_host_view()->GetPluginNativeView();
 }
 
-gfx::NativeWindow WebContentsViewMac::GetTopLevelNativeWindow() const {
+gfx::NativeWindow TabContentsViewMac::GetTopLevelNativeWindow() const {
   return [cocoa_view_.get() window];
 }
 
-void WebContentsViewMac::GetContainerBounds(gfx::Rect* out) const {
+void TabContentsViewMac::GetContainerBounds(gfx::Rect* out) const {
   *out = [cocoa_view_.get() NSRectToRect:[cocoa_view_.get() bounds]];
 }
 
-void WebContentsViewMac::StartDragging(const WebDropData& drop_data) {
+void TabContentsViewMac::StartDragging(const WebDropData& drop_data) {
   NOTIMPLEMENTED();
 
   // Until we have d'n'd implemented, just immediately pretend we're
@@ -87,26 +87,26 @@ void WebContentsViewMac::StartDragging(const WebDropData& drop_data) {
     web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
-void WebContentsViewMac::OnContentsDestroy() {
+void TabContentsViewMac::OnContentsDestroy() {
   // TODO(avi):Close the find bar if any.
   if (find_bar_.get())
     find_bar_->Close();
 }
 
-void WebContentsViewMac::SetPageTitle(const std::wstring& title) {
+void TabContentsViewMac::SetPageTitle(const std::wstring& title) {
   // Meaningless on the Mac; widgets don't have a "title" attribute
 }
 
-void WebContentsViewMac::Invalidate() {
+void TabContentsViewMac::Invalidate() {
   [cocoa_view_.get() setNeedsDisplay:YES];
 }
 
-void WebContentsViewMac::SizeContents(const gfx::Size& size) {
+void TabContentsViewMac::SizeContents(const gfx::Size& size) {
   // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
   NOTIMPLEMENTED();  // Leaving the hack unimplemented.
 }
 
-void WebContentsViewMac::FindInPage(const Browser& browser,
+void TabContentsViewMac::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
   if (!find_bar_.get()) {
     // We want the Chrome top-level (Frame) window.
@@ -121,7 +121,7 @@ void WebContentsViewMac::FindInPage(const Browser& browser,
     find_bar_->StartFinding(forward_direction);
 }
 
-void WebContentsViewMac::HideFindBar(bool end_session) {
+void TabContentsViewMac::HideFindBar(bool end_session) {
   if (find_bar_.get()) {
     if (end_session)
       find_bar_->EndFindSession();
@@ -130,7 +130,7 @@ void WebContentsViewMac::HideFindBar(bool end_session) {
   }
 }
 
-bool WebContentsViewMac::GetFindBarWindowInfo(gfx::Point* position,
+bool TabContentsViewMac::GetFindBarWindowInfo(gfx::Point* position,
                                               bool* fully_visible) const {
   if (!find_bar_.get() ||
       [find_bar_->GetView() isHidden]) {
@@ -145,39 +145,39 @@ bool WebContentsViewMac::GetFindBarWindowInfo(gfx::Point* position,
   return true;
 }
 
-void WebContentsViewMac::Focus() {
+void TabContentsViewMac::Focus() {
 }
 
-void WebContentsViewMac::SetInitialFocus() {
+void TabContentsViewMac::SetInitialFocus() {
   // TODO(port)
 }
 
-void WebContentsViewMac::StoreFocus() {
+void TabContentsViewMac::StoreFocus() {
   // TODO(port)
 }
 
-void WebContentsViewMac::RestoreFocus() {
+void TabContentsViewMac::RestoreFocus() {
   // TODO(port)
 }
 
-void WebContentsViewMac::SetChildSize(RenderWidgetHostView* rwh_view) {
+void TabContentsViewMac::SetChildSize(RenderWidgetHostView* rwh_view) {
   rwh_view->SetSize(GetContainerSize());
 }
 
-void WebContentsViewMac::UpdateDragCursor(bool is_drop_target) {
+void TabContentsViewMac::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewMac::TakeFocus(bool reverse) {
+void TabContentsViewMac::TakeFocus(bool reverse) {
   [cocoa_view_.get() becomeFirstResponder];
 }
 
-void WebContentsViewMac::HandleKeyboardEvent(
+void TabContentsViewMac::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   [cocoa_view_.get() processKeyboardEvent:event.os_event];
 }
 
-void WebContentsViewMac::OnFindReply(int request_id,
+void TabContentsViewMac::OnFindReply(int request_id,
                                      int number_of_matches,
                                      const gfx::Rect& selection_rect,
                                      int active_match_ordinal,
@@ -188,19 +188,19 @@ void WebContentsViewMac::OnFindReply(int request_id,
   }
 }
 
-void WebContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
+void TabContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {
   RenderViewContextMenuMac menu(web_contents(),
                                 params,
                                 GetNativeView());
 }
 
-RenderWidgetHostView* WebContentsViewMac::CreateNewWidgetInternal(
+RenderWidgetHostView* TabContentsViewMac::CreateNewWidgetInternal(
     int route_id,
     bool activatable) {
   // A RenderWidgetHostViewMac has lifetime scoped to the view. We'll retain it
   // to allow it to survive the trip without being hosted.
   RenderWidgetHostView* widget_view =
-      WebContentsView::CreateNewWidgetInternal(route_id, activatable);
+      TabContentsView::CreateNewWidgetInternal(route_id, activatable);
   RenderWidgetHostViewMac* widget_view_mac =
       static_cast<RenderWidgetHostViewMac*>(widget_view);
   [widget_view_mac->native_view() retain];
@@ -208,10 +208,10 @@ RenderWidgetHostView* WebContentsViewMac::CreateNewWidgetInternal(
   return widget_view;
 }
 
-void WebContentsViewMac::ShowCreatedWidgetInternal(
+void TabContentsViewMac::ShowCreatedWidgetInternal(
     RenderWidgetHostView* widget_host_view,
     const gfx::Rect& initial_pos) {
-  WebContentsView::ShowCreatedWidgetInternal(widget_host_view, initial_pos);
+  TabContentsView::ShowCreatedWidgetInternal(widget_host_view, initial_pos);
 
   // A RenderWidgetHostViewMac has lifetime scoped to the view. Now that it's
   // properly embedded (or purposefully ignored) we can release the retain we
@@ -221,7 +221,7 @@ void WebContentsViewMac::ShowCreatedWidgetInternal(
   [widget_view_mac->native_view() release];
 }
 
-void WebContentsViewMac::Observe(NotificationType type,
+void TabContentsViewMac::Observe(NotificationType type,
                                  const NotificationSource& source,
                                  const NotificationDetails& details) {
   switch (type.value) {
@@ -247,12 +247,12 @@ void WebContentsViewMac::Observe(NotificationType type,
   }
 }
 
-@implementation WebContentsViewCocoa
+@implementation TabContentsViewCocoa
 
-- (id)initWithWebContentsViewMac:(WebContentsViewMac*)w {
+- (id)initWithTabContentsViewMac:(TabContentsViewMac*)w {
   self = [super initWithFrame:NSZeroRect];
   if (self != nil) {
-    webContentsView_ = w;
+    TabContentsView_ = w;
   }
   return self;
 }
@@ -265,13 +265,13 @@ void WebContentsViewMac::Observe(NotificationType type,
 }
 
 - (void)mouseEvent:(NSEvent *)theEvent {
-  if (webContentsView_->web_contents()->delegate()) {
+  if (TabContentsView_->web_contents()->delegate()) {
     if ([theEvent type] == NSMouseMoved)
-      webContentsView_->web_contents()->delegate()->
-          ContentsMouseEvent(webContentsView_->web_contents(), true);
+      TabContentsView_->web_contents()->delegate()->
+          ContentsMouseEvent(TabContentsView_->web_contents(), true);
     if ([theEvent type] == NSMouseExited)
-      webContentsView_->web_contents()->delegate()->
-          ContentsMouseEvent(webContentsView_->web_contents(), false);
+      TabContentsView_->web_contents()->delegate()->
+          ContentsMouseEvent(TabContentsView_->web_contents(), false);
   }
 }
 
@@ -280,15 +280,15 @@ void WebContentsViewMac::Observe(NotificationType type,
 // WebCore.
 
 - (void)cut:(id)sender {
-  webContentsView_->web_contents()->Cut();
+  TabContentsView_->web_contents()->Cut();
 }
 
 - (void)copy:(id)sender {
-  webContentsView_->web_contents()->Copy();
+  TabContentsView_->web_contents()->Copy();
 }
 
 - (void)paste:(id)sender {
-  webContentsView_->web_contents()->Paste();
+  TabContentsView_->web_contents()->Paste();
 }
 
 // Tons of stuff goes here, where we grab events going on in Cocoaland and send

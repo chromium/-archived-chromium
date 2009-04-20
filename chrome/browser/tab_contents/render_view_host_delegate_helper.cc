@@ -23,13 +23,13 @@ void RenderViewHostDelegateViewHelper::CreateNewWindow(int route_id,
     base::WaitableEvent* modal_dialog_event, Profile* profile,
     SiteInstance* site) {
   // Create the new web contents. This will automatically create the new
-  // WebContentsView. In the future, we may want to create the view separately.
+  // TabContentsView. In the future, we may want to create the view separately.
   WebContents* new_contents =
       new WebContents(profile,
                       site,
                       route_id,
                       modal_dialog_event);
-  WebContentsView* new_view = new_contents->view();
+  TabContentsView* new_view = new_contents->view();
 
   // TODO(brettw) it seems bogus that we have to call this function on the
   // newly created object and give it one of its own member variables.

@@ -42,7 +42,7 @@ class TestSafeBrowsingBlockingPage :  public SafeBrowsingBlockingPage {
   }
 
   // Overriden from InterstitialPage.  Don't create a view.
-  virtual WebContentsView* CreateWebContentsView() {
+  virtual TabContentsView* CreateTabContentsView() {
     return NULL;
   }
 };

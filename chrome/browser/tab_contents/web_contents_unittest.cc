@@ -150,7 +150,7 @@ class TestInterstitialPage : public InterstitialPage {
         this, MSG_ROUTING_NONE, NULL);
   }
 
-  virtual WebContentsView* CreateWebContentsView() { return NULL; }
+  virtual TabContentsView* CreateTabContentsView() { return NULL; }
 
 
   virtual void CommandReceived(const std::string& command) {

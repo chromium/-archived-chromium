@@ -352,7 +352,7 @@ void TabContents::DidMoveOrResize(ConstrainedWindow* window) {
 }
 
 #if defined(OS_WIN)
-// TODO(brettw) This should be on the WebContentsView.
+// TODO(brettw) This should be on the TabContentsView.
 void TabContents::RepositionSupressedPopupsToFit(const gfx::Size& new_size) {
   // TODO(erg): There's no way to detect whether scroll bars are
   // visible, so for beta, we're just going to assume that the

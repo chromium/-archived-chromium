@@ -15,18 +15,18 @@ struct WebDropData;
 class WebDropTarget;
 
 
-// Windows-specific implementation of the WebContentsView. It is a HWND that
+// Windows-specific implementation of the TabContentsView. It is a HWND that
 // contains all of the contents of the tab and associated child views.
-class WebContentsViewWin : public WebContentsView,
+class TabContentsViewWin : public TabContentsView,
                            public views::WidgetWin {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
   // because that's what was easiest when they were split.
-  explicit WebContentsViewWin(WebContents* web_contents);
-  virtual ~WebContentsViewWin();
+  explicit TabContentsViewWin(WebContents* web_contents);
+  virtual ~TabContentsViewWin();
 
-  // WebContentsView implementation --------------------------------------------
+  // TabContentsView implementation --------------------------------------------
 
   virtual void CreateView();
   virtual RenderWidgetHostView* CreateViewForWidget(
@@ -102,7 +102,7 @@ class WebContentsViewWin : public WebContentsView,
   // The id used in the ViewStorage to store the last focused view.
   int last_focused_view_storage_id_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebContentsViewWin);
+  DISALLOW_COPY_AND_ASSIGN(TabContentsViewWin);
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_WIN_H_

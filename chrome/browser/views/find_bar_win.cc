@@ -502,7 +502,7 @@ void FindBarWin::SetFocusChangeListener(HWND parent_hwnd) {
 
 void FindBarWin::RestoreSavedFocus() {
   if (focus_tracker_.get() == NULL) {
-    // TODO(brettw) Focus() should be on WebContentsView.
+    // TODO(brettw) Focus() should be on TabContentsView.
     find_bar_controller_->web_contents()->Focus();
   } else {
     focus_tracker_->FocusLastFocusedExternalView();

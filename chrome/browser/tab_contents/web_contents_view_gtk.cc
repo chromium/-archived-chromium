@@ -56,25 +56,25 @@ gboolean OnMouseMove(GtkWidget* widget, GdkEventMotion* event,
 }  // namespace
 
 // static
-WebContentsView* WebContentsView::Create(WebContents* web_contents) {
-  return new WebContentsViewGtk(web_contents);
+TabContentsView* TabContentsView::Create(WebContents* web_contents) {
+  return new TabContentsViewGtk(web_contents);
 }
 
-WebContentsViewGtk::WebContentsViewGtk(WebContents* web_contents)
-    : WebContentsView(web_contents),
+TabContentsViewGtk::TabContentsViewGtk(WebContents* web_contents)
+    : TabContentsView(web_contents),
       vbox_(gtk_vbox_new(FALSE, 0)),
       content_view_(NULL) {
 }
 
-WebContentsViewGtk::~WebContentsViewGtk() {
+TabContentsViewGtk::~TabContentsViewGtk() {
   vbox_.Destroy();
 }
 
-void WebContentsViewGtk::CreateView() {
+void TabContentsViewGtk::CreateView() {
   NOTIMPLEMENTED();
 }
 
-RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
+RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
     RenderWidgetHost* render_widget_host) {
   if (render_widget_host->view()) {
     // During testing, the view will already be set up in most cases to the
@@ -104,20 +104,20 @@ RenderWidgetHostView* WebContentsViewGtk::CreateViewForWidget(
   return view;
 }
 
-gfx::NativeView WebContentsViewGtk::GetNativeView() const {
+gfx::NativeView TabContentsViewGtk::GetNativeView() const {
   return vbox_.get();
 }
 
-gfx::NativeView WebContentsViewGtk::GetContentNativeView() const {
+gfx::NativeView TabContentsViewGtk::GetContentNativeView() const {
   return content_view_;
 }
 
-gfx::NativeWindow WebContentsViewGtk::GetTopLevelNativeWindow() const {
+gfx::NativeWindow TabContentsViewGtk::GetTopLevelNativeWindow() const {
   GtkWidget* window = gtk_widget_get_ancestor(GetNativeView(), GTK_TYPE_WINDOW);
   return window ? GTK_WINDOW(window) : NULL;
 }
 
-void WebContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
+void TabContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
   // This is used for positioning the download shelf arrow animation,
   // as well as sizing some other widgets in Windows.  In GTK the size is
   // managed for us, so it appears to be only used for the download shelf
@@ -126,83 +126,83 @@ void WebContentsViewGtk::GetContainerBounds(gfx::Rect* out) const {
                vbox_.get()->allocation.width, vbox_.get()->allocation.height);
 }
 
-void WebContentsViewGtk::OnContentsDestroy() {
+void TabContentsViewGtk::OnContentsDestroy() {
   // TODO(estade): Windows uses this function cancel pending drag-n-drop drags.
   // We don't have drags yet, so do nothing for now.
 }
 
-void WebContentsViewGtk::SetPageTitle(const std::wstring& title) {
+void TabContentsViewGtk::SetPageTitle(const std::wstring& title) {
   // Set the window name to include the page title so it's easier to spot
   // when debugging (e.g. via xwininfo -tree).
   if (content_view_ && content_view_->window)
     gdk_window_set_title(content_view_->window, WideToUTF8(title).c_str());
 }
 
-void WebContentsViewGtk::Invalidate() {
+void TabContentsViewGtk::Invalidate() {
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewGtk::SizeContents(const gfx::Size& size) {
+void TabContentsViewGtk::SizeContents(const gfx::Size& size) {
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewGtk::FindInPage(const Browser& browser,
+void TabContentsViewGtk::FindInPage(const Browser& browser,
                                     bool find_next, bool forward_direction) {
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewGtk::HideFindBar(bool end_session) {
+void TabContentsViewGtk::HideFindBar(bool end_session) {
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewGtk::ReparentFindWindow(Browser* new_browser) const {
+void TabContentsViewGtk::ReparentFindWindow(Browser* new_browser) const {
   NOTIMPLEMENTED();
 }
 
-bool WebContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
+bool TabContentsViewGtk::GetFindBarWindowInfo(gfx::Point* position,
                                               bool* fully_visible) const {
   NOTIMPLEMENTED();
   return false;
 }
 
-void WebContentsViewGtk::Focus() {
+void TabContentsViewGtk::Focus() {
 }
 
-void WebContentsViewGtk::SetInitialFocus() {
+void TabContentsViewGtk::SetInitialFocus() {
   if (web_contents()->FocusLocationBarByDefault())
     web_contents()->delegate()->SetFocusToLocationBar();
   else
     gtk_widget_grab_focus(content_view_);
 }
 
-void WebContentsViewGtk::StoreFocus() {
+void TabContentsViewGtk::StoreFocus() {
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewGtk::RestoreFocus() {
+void TabContentsViewGtk::RestoreFocus() {
   // TODO(estade): implement this function.
   // For now just assume we are viewing the tab for the first time.
   SetInitialFocus();
   NOTIMPLEMENTED() << " --  need to restore the focus position on this page.";
 }
 
-void WebContentsViewGtk::SetChildSize(RenderWidgetHostView* rwh_view) {
+void TabContentsViewGtk::SetChildSize(RenderWidgetHostView* rwh_view) {
   // Packing the gtk widget in a container will cause a configure-event to be
   // sent to the widget.
   gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view_, TRUE, TRUE, 0);
 }
 
-void WebContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
+void TabContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }
 
 // This is called when we the renderer asks us to take focus back (i.e., it has
 // iterated past the last focusable element on the page).
-void WebContentsViewGtk::TakeFocus(bool reverse) {
+void TabContentsViewGtk::TakeFocus(bool reverse) {
   web_contents()->delegate()->SetFocusToLocationBar();
 }
 
-void WebContentsViewGtk::HandleKeyboardEvent(
+void TabContentsViewGtk::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   // This may be an accelerator. Try to pass it on to our browser window
   // to handle.
@@ -223,7 +223,7 @@ void WebContentsViewGtk::HandleKeyboardEvent(
       static_cast<GdkModifierType>(event.os_event->state));
 }
 
-void WebContentsViewGtk::OnFindReply(int request_id,
+void TabContentsViewGtk::OnFindReply(int request_id,
                                      int number_of_matches,
                                      const gfx::Rect& selection_rect,
                                      int active_match_ordinal,
@@ -231,13 +231,13 @@ void WebContentsViewGtk::OnFindReply(int request_id,
   NOTIMPLEMENTED();
 }
 
-void WebContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
+void TabContentsViewGtk::ShowContextMenu(const ContextMenuParams& params) {
   context_menu_.reset(new RenderViewContextMenuGtk(web_contents(), params,
                                                    last_mouse_down_time_));
   context_menu_->Popup();
 }
 
-void WebContentsViewGtk::StartDragging(const WebDropData& drop_data) {
+void TabContentsViewGtk::StartDragging(const WebDropData& drop_data) {
   NOTIMPLEMENTED();
 
   // Until we have d'n'd implemented, just immediately pretend we're
@@ -248,8 +248,8 @@ void WebContentsViewGtk::StartDragging(const WebDropData& drop_data) {
     web_contents()->render_view_host()->DragSourceSystemDragEnded();
 }
 
-gboolean WebContentsViewGtk::OnMouseDown(GtkWidget* widget,
-    GdkEventButton* event, WebContentsViewGtk* view) {
+gboolean TabContentsViewGtk::OnMouseDown(GtkWidget* widget,
+    GdkEventButton* event, TabContentsViewGtk* view) {
   view->last_mouse_down_time_ = event->time;
   return FALSE;
 }

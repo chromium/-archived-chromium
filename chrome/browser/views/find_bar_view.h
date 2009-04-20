@@ -98,7 +98,7 @@ class FindBarView : public views::View,
   };
 
   // Manages the OS-specific view for the find bar and acts as an intermediary
-  // between us and the WebContentsView.
+  // between us and the TabContentsView.
   FindBarWin* container_;
 
   // The controls in the window.

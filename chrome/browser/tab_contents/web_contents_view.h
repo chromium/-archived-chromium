@@ -26,22 +26,22 @@ namespace base {
 class WaitableEvent;
 }
 
-// The WebContentsView is an interface that is implemented by the platform-
+// The TabContentsView is an interface that is implemented by the platform-
 // dependent web contents views. The WebContents uses this interface to talk to
 // them. View-related messages will also get forwarded directly to this class
 // from RenderViewHost via RenderViewHostDelegate::View.
 //
 // It contains a small amount of logic with respect to creating new sub-view
 // that should be the same for all platforms.
-class WebContentsView : public RenderViewHostDelegate::View {
+class TabContentsView : public RenderViewHostDelegate::View {
  public:
-  explicit WebContentsView(WebContents* web_contents);
-  virtual ~WebContentsView() {}
+  explicit TabContentsView(WebContents* web_contents);
+  virtual ~TabContentsView() {}
 
-  // Creates the appropriate type of WebContentsView for the current system.
+  // Creates the appropriate type of TabContentsView for the current system.
   // The return value is a new heap allocated view with ownership passing to
   // the caller.
-  static WebContentsView* Create(WebContents* web_contents);
+  static TabContentsView* Create(WebContents* web_contents);
 
   WebContents* web_contents() const { return web_contents_; }
 
@@ -129,7 +129,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
   virtual void SetChildSize(RenderWidgetHostView* rwh_view) = 0;
 
  protected:
-  WebContentsView() {}  // Abstract interface.
+  TabContentsView() {}  // Abstract interface.
 
   // Internal functions used to support the CreateNewWidget() method. If a
   // platform requires plugging into widget creation at a lower level then a
@@ -174,7 +174,7 @@ class WebContentsView : public RenderViewHostDelegate::View {
   typedef std::map<int, RenderWidgetHostView*> PendingWidgetViews;
   PendingWidgetViews pending_widget_views_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebContentsView);
+  DISALLOW_COPY_AND_ASSIGN(TabContentsView);
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_H_

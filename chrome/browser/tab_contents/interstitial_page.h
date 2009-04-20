@@ -16,7 +16,7 @@
 class MessageLoop;
 class NavigationEntry;
 class WebContents;
-class WebContentsView;
+class TabContentsView;
 
 // This class is a base class for interstitial pages, pages that show some
 // informative message asking for user validation before reaching the target
@@ -116,9 +116,9 @@ class InterstitialPage : public NotificationObserver,
   // Overriden in unit tests.
   virtual RenderViewHost* CreateRenderViewHost();
 
-  // Creates the WebContentsView that shows the interstitial RVH.
+  // Creates the TabContentsView that shows the interstitial RVH.
   // Overriden in unit tests.
-  virtual WebContentsView* CreateWebContentsView();
+  virtual TabContentsView* CreateTabContentsView();
 
  private:
   // AutomationProvider needs access to Proceed and DontProceed to simulate

@@ -174,7 +174,7 @@ void InterstitialPage::Show() {
 
   DCHECK(!render_view_host_);
   render_view_host_ = CreateRenderViewHost();
-  CreateWebContentsView();
+  CreateTabContentsView();
 
   std::string data_url = "data:text/html;charset=utf-8," +
                          EscapePath(GetHTMLContents());
@@ -257,8 +257,8 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
   return render_view_host;
 }
 
-WebContentsView* InterstitialPage::CreateWebContentsView() {
-  WebContentsView* web_contents_view = tab()->view();
+TabContentsView* InterstitialPage::CreateTabContentsView() {
+  TabContentsView* web_contents_view = tab()->view();
   RenderWidgetHostView* view =
       web_contents_view->CreateViewForWidget(render_view_host_);
   render_view_host_->set_view(view);

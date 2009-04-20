@@ -44,7 +44,7 @@ class RenderWidgetHost;
 struct ThumbnailScore;
 struct ViewHostMsg_FrameNavigate_Params;
 struct ViewHostMsg_DidPrintPage_Params;
-class WebContentsView;
+class TabContentsView;
 
 namespace base {
 class WaitableEvent;
@@ -100,8 +100,8 @@ class WebContents : public TabContents,
     return render_manager_.current_host();
   }
 
-  // The WebContentsView will never change and is guaranteed non-NULL.
-  WebContentsView* view() const {
+  // The TabContentsView will never change and is guaranteed non-NULL.
+  TabContentsView* view() const {
     return view_.get();
   }
 
@@ -474,13 +474,13 @@ class WebContents : public TabContents,
   friend class TestWebContents;
 
   // Temporary until the view/contents separation is complete.
-  friend class WebContentsView;
+  friend class TabContentsView;
 #if defined(OS_WIN)
-  friend class WebContentsViewWin;
+  friend class TabContentsViewWin;
 #elif defined(OS_MACOSX)
-  friend class WebContentsViewMac;
+  friend class TabContentsViewMac;
 #elif defined(OS_LINUX)
-  friend class WebContentsViewGtk;
+  friend class TabContentsViewGtk;
 #endif
 
   // So InterstitialPage can access SetIsLoading.
@@ -586,7 +586,7 @@ class WebContents : public TabContents,
   // Data ----------------------------------------------------------------------
 
   // The corresponding view.
-  scoped_ptr<WebContentsView> view_;
+  scoped_ptr<TabContentsView> view_;
 
   // Manages creation and swapping of render views.
   RenderViewHostManager render_manager_;

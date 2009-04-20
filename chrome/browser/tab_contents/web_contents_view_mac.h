@@ -16,27 +16,27 @@
 
 class FindBarMac;
 @class SadTabView;
-class WebContentsViewMac;
+class TabContentsViewMac;
 
-@interface WebContentsViewCocoa : BaseView {
+@interface TabContentsViewCocoa : BaseView {
  @private
-  WebContentsViewMac* webContentsView_;  // WEAK; owns us
+  TabContentsViewMac* TabContentsView_;  // WEAK; owns us
 }
 
 @end
 
-// Mac-specific implementation of the WebContentsView. It owns an NSView that
+// Mac-specific implementation of the TabContentsView. It owns an NSView that
 // contains all of the contents of the tab and associated child views.
-class WebContentsViewMac : public WebContentsView,
+class TabContentsViewMac : public TabContentsView,
                            public NotificationObserver {
  public:
   // The corresponding WebContents is passed in the constructor, and manages our
   // lifetime. This doesn't need to be the case, but is this way currently
   // because that's what was easiest when they were split.
-  explicit WebContentsViewMac(WebContents* web_contents);
-  virtual ~WebContentsViewMac();
+  explicit TabContentsViewMac(WebContents* web_contents);
+  virtual ~TabContentsViewMac();
 
-  // WebContentsView implementation --------------------------------------------
+  // TabContentsView implementation --------------------------------------------
 
   virtual void CreateView();
   virtual RenderWidgetHostView* CreateViewForWidget(
@@ -86,7 +86,7 @@ class WebContentsViewMac : public WebContentsView,
   // ---------------------------------------------------------------------------
 
   // The Cocoa NSView that lives in the view hierarchy.
-  scoped_nsobject<WebContentsViewCocoa> cocoa_view_;
+  scoped_nsobject<TabContentsViewCocoa> cocoa_view_;
 
   // For find in page. This may be NULL if there is no find bar, and if it is
   // non-NULL, it may or may not be visible.
@@ -99,7 +99,7 @@ class WebContentsViewMac : public WebContentsView,
   // visible.
   scoped_nsobject<SadTabView> sad_tab_;
 
-  DISALLOW_COPY_AND_ASSIGN(WebContentsViewMac);
+  DISALLOW_COPY_AND_ASSIGN(TabContentsViewMac);
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_MAC_H_

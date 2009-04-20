@@ -143,7 +143,7 @@ void ExtensionView::ShowCreatedWidget(int route_id,
   RenderWidgetHostView* widget_host_view =
       delegate_view_helper_.GetCreatedWidget(route_id);
   browser_->RenderWidgetShowing();
-  // TODO(erikkay): These two lines could be refactored with WebContentsView.
+  // TODO(erikkay): These two lines could be refactored with TabContentsView.
   widget_host_view->InitAsPopup(render_view_host()->view(),
                                 initial_pos);
   widget_host_view->GetRenderWidgetHost()->Init();

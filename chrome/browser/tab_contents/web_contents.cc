@@ -204,7 +204,7 @@ WebContents::WebContents(Profile* profile,
                          int routing_id,
                          base::WaitableEvent* modal_dialog_event)
     : TabContents(profile),
-      view_(WebContentsView::Create(this)),
+      view_(TabContentsView::Create(this)),
       ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(this, this)),
       printing_(*this),
       notify_disconnection_(false),
@@ -1575,7 +1575,7 @@ void WebContents::BeforeUnloadFiredFromRenderManager(
 }
 
 void WebContents::UpdateRenderViewSizeForRenderManager() {
-  // TODO(brettw) this is a hack. See WebContentsView::SizeContents.
+  // TODO(brettw) this is a hack. See TabContentsView::SizeContents.
   view_->SizeContents(view_->GetContainerSize());
 }
 

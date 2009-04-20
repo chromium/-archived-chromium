@@ -437,11 +437,11 @@ class HtmlDialogContents {
 
 #if defined(OS_MACOSX)
 
-class WebContentsView;
+class TabContentsView;
 
 class FindBarMac {
  public:
-  FindBarMac(WebContentsView*, gfx::NativeWindow) { }
+  FindBarMac(TabContentsView*, gfx::NativeWindow) { }
   void Show() { }
   void Close() { }
   void StartFinding(bool&) { }
