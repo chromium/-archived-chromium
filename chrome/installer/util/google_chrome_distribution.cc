@@ -107,7 +107,8 @@ bool GoogleChromeDistribution::ExtractUninstallMetrics(
 }
 
 void GoogleChromeDistribution::DoPostUninstallOperations(
-    const installer::Version& version, const std::wstring& local_data_path) {
+    const installer::Version& version, const std::wstring& local_data_path,
+    const std::wstring& distribution_data) {
   // Send the Chrome version and OS version as params to the form.
   // It would be nice to send the locale, too, but I don't see an
   // easy way to get that in the existing code. It's something we
@@ -139,7 +140,13 @@ void GoogleChromeDistribution::DoPostUninstallOperations(
 
   std::wstring uninstall_metrics;
   if (ExtractUninstallMetricsFromFile(local_data_path, &uninstall_metrics)) {
+    // The user has opted into anonymous usage data collection, so append
+    // metrics and distribution data.
     command += uninstall_metrics;
+    if (!distribution_data.empty()) {
+      command += L"&";
+      command += distribution_data;
+    }
   }
 
   int pid = 0;
@@ -218,6 +225,25 @@ std::wstring GoogleChromeDistribution::GetStateKey() {
   key.append(L"\\");
   key.append(google_update::kChromeGuid);
   return key;
+}
+
+std::wstring GoogleChromeDistribution::GetDistributionData(RegKey* key) {
+  DCHECK(NULL != key);
+  std::wstring sub_key(google_update::kRegPathClientState);
+  sub_key.append(L"\\");
+  sub_key.append(google_update::kChromeGuid);
+
+  RegKey client_state_key(key->Handle(), sub_key.c_str());
+  std::wstring result;
+  std::wstring brand_value;
+  if (client_state_key.ReadValue(google_update::kRegRLZBrandField,
+                                 &brand_value)) {
+    result = google_update::kRegRLZBrandField;
+    result.append(L"=");
+    result.append(brand_value);
+  }
+
+  return result;
 }
 
 std::wstring GoogleChromeDistribution::GetUninstallLinkName() {

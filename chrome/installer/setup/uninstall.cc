@@ -249,6 +249,11 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
   HKEY reg_root = system_uninstall ? HKEY_LOCAL_MACHINE : HKEY_CURRENT_USER;
   RegKey key(reg_root, L"", KEY_ALL_ACCESS);
   BrowserDistribution* dist = BrowserDistribution::GetDistribution();
+
+  // Note that we must retrieve the distribution-specific data before deleting
+  // dist->GetVersionKey().
+  std::wstring distribution_data(dist->GetDistributionData(&key));
+
   DeleteRegistryKey(key, dist->GetUninstallRegPath());
   DeleteRegistryKey(key, dist->GetVersionKey());
 
@@ -345,7 +350,8 @@ installer_util::InstallStatus installer_setup::UninstallChrome(
 
   if (!force_uninstall) {
     LOG(INFO) << "Uninstallation complete. Launching Uninstall survey.";
-    dist->DoPostUninstallOperations(installed_version, local_state_path);
+    dist->DoPostUninstallOperations(installed_version, local_state_path,
+                                    distribution_data);
   }
 
   // Try and delete the preserved local state once the post-install

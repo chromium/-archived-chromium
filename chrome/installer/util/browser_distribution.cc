@@ -7,6 +7,7 @@
 // specific branding, we will need to extend this class with a custom
 // implementation.
 
+#include "base/registry.h"
 #include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_chrome_distribution.h"
 
@@ -23,7 +24,8 @@ BrowserDistribution* BrowserDistribution::GetDistribution() {
 }
 
 void BrowserDistribution::DoPostUninstallOperations(
-    const installer::Version& version, const std::wstring& local_data_path) {
+    const installer::Version& version, const std::wstring& local_data_path,
+    const std::wstring& distribution_data) {
 }
 
 std::wstring BrowserDistribution::GetApplicationName() {
@@ -53,6 +55,10 @@ int BrowserDistribution::GetInstallReturnCode(
 
 std::wstring BrowserDistribution::GetStateKey() {
   return L"Software\\Chromium";
+}
+
+std::wstring BrowserDistribution::GetDistributionData(RegKey* key) {
+  return L"";
 }
 
 std::wstring BrowserDistribution::GetUninstallLinkName() {
