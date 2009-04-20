@@ -71,6 +71,7 @@ TEST_F(TabControllerTest, Creation) {
   [[window contentView] addSubview:[controller view]];
   EXPECT_TRUE([controller tabView]);
   EXPECT_EQ([[controller view] window], window);
+  [[controller view] display];  // Test drawing to ensure nothing leaks/crashes.
   [[controller view] removeFromSuperview];
 }
 

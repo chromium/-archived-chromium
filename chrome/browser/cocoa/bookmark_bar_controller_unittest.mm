@@ -58,4 +58,9 @@ TEST_F(BookmarkBarControllerTest, Contents) {
   // TODO(jrg): When there are items on the bar, flesh this out.
 }
 
+// Test drawing, mostly to ensure nothing leaks or crashes.
+TEST_F(BookmarkBarControllerTest, Display) {
+  [[bar_ view] display];
+}
+
 }  // namespace

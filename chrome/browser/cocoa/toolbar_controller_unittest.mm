@@ -93,6 +93,11 @@ TEST_F(ToolbarControllerTest, FocusLocation) {
   EXPECT_EQ([window firstResponder], [(id)locationBar currentEditor]);
 }
 
+// Test drawing, mostly to ensure nothing leaks or crashes.
+TEST_F(ToolbarControllerTest, Display) {
+  [[bar_ view] display];
+}
+
 TEST_F(ToolbarControllerTest, LoadingState) {
   // TODO(pinkerton): Same problem testing this as the starred state above.
 }
