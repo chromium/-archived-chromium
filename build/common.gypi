@@ -231,11 +231,14 @@
         ],
         'configurations': {
           'Debug': {
+            'variables': {
+              'debug_optimize%': '0',
+            },
             'defines': [
               '_DEBUG',
             ],
             'cflags': [
-              '-O0',
+              '-O<(debug_optimize)',
               '-g',
             ],
           },
