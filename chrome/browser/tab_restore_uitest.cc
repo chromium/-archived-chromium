@@ -12,6 +12,7 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
+#include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/net_util.h"
@@ -49,6 +50,17 @@ class TabRestoreUITest : public UITest {
         action_max_timeout_ms()));
   }
 
+  // Ensure that the given browser occupies the currently active window.
+  void CheckActiveWindow(const BrowserProxy* browser) {
+    // The EXPECT_TRUE may fail during manual debugging, as well as if a user
+    // does other things while running the tests, because Chromium won't be
+    // the foremost application at all.
+    bool is_active = false;
+    scoped_ptr<WindowProxy> window_proxy(browser->GetWindow());
+    ASSERT_TRUE(window_proxy->IsActive(&is_active));
+    EXPECT_TRUE(is_active);
+  }
+
   GURL url1_;
   GURL url2_;
 
@@ -56,36 +68,144 @@ class TabRestoreUITest : public UITest {
   DISALLOW_EVIL_CONSTRUCTORS(TabRestoreUITest);
 };
 
+// Close the end tab in the current window, then restore it. The tab should be
+// in its original position, and active.
 TEST_F(TabRestoreUITest, Basic) {
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   int tab_count;
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  int starting_tab_count = tab_count;
 
   // Add a tab
   browser_proxy->AppendTab(url1_);
   ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
                                                      action_max_timeout_ms()));
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
-  scoped_ptr<TabProxy> new_tab(browser_proxy->GetTab(tab_count - 1));
+  ASSERT_EQ(starting_tab_count + 1, tab_count);
+
+  int closed_tab_index = tab_count - 1;
+  scoped_ptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
   // Make sure we're at url.
   new_tab->NavigateToURL(url1_);
   // Close the tab.
   new_tab->Close(true);
   new_tab.reset();
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count, tab_count);
 
   RestoreTab();
 
-  // And make sure the URL matches.
+  // And make sure everything looks right.
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count + 1, tab_count);
+  ASSERT_EQ(closed_tab_index, GetActiveTabIndex());
   ASSERT_EQ(url1_, GetActiveTabURL());
 }
 
+// Close a tab not at the end of the current window, then restore it. The tab
+// should be in its original position, and active.
+TEST_F(TabRestoreUITest, MiddleTab) {
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+
+  int tab_count;
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  int starting_tab_count = tab_count;
+
+  // Add a couple of tabs
+  browser_proxy->AppendTab(url1_);
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
+                                                     action_max_timeout_ms()));
+  browser_proxy->AppendTab(url1_);
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 2,
+                                                     action_max_timeout_ms()));
+  browser_proxy->AppendTab(url1_);
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 3,
+                                                     action_max_timeout_ms()));
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count + 3, tab_count);
+
+  // Close one in the middle
+  int closed_tab_index = starting_tab_count + 1;
+  scoped_ptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
+  // Make sure we're at url.
+  new_tab->NavigateToURL(url1_);
+  // Close the tab.
+  new_tab->Close(true);
+  new_tab.reset();
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count + 2, tab_count);
+
+  RestoreTab();
+
+  // And make sure everything looks right.
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count + 3, tab_count);
+  ASSERT_EQ(closed_tab_index, GetActiveTabIndex());
+  ASSERT_EQ(url1_, GetActiveTabURL());
+}
+
+// Close a tab, switch windows, then restore the tab. The tab should be in its
+// original window and position, and active.
 TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+
+  CheckActiveWindow(browser_proxy.get());
+
+  int tab_count;
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  int starting_tab_count = tab_count;
+
+  // Add a couple of tabs
+  browser_proxy->AppendTab(url1_);
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 1,
+                                                     action_max_timeout_ms()));
+  browser_proxy->AppendTab(url1_);
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 2,
+                                                     action_max_timeout_ms()));
+  browser_proxy->AppendTab(url1_);
+  ASSERT_TRUE(browser_proxy->WaitForTabCountToBecome(tab_count + 3,
+                                                     action_max_timeout_ms()));
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count + 3, tab_count);
+
+  // Close one in the middle
+  int closed_tab_index = starting_tab_count + 1;
+  scoped_ptr<TabProxy> new_tab(browser_proxy->GetTab(closed_tab_index));
+  // Make sure we're at url.
+  new_tab->NavigateToURL(url1_);
+  // Close the tab.
+  new_tab->Close(true);
+  new_tab.reset();
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  ASSERT_EQ(starting_tab_count + 2, tab_count);
+
+  // Create a new browser.
+  ASSERT_TRUE(automation()->OpenNewBrowserWindow(false));
+  ASSERT_TRUE(automation()->WaitForWindowCountToBecome(
+      2, action_max_timeout_ms()));
+
+  CheckActiveWindow(automation()->GetBrowserWindow(1));
+
+  RestoreTab();
+
+  // And make sure everything looks right.
+  CheckActiveWindow(browser_proxy.get());
+  ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  EXPECT_EQ(starting_tab_count + 3, tab_count);
+  ASSERT_EQ(closed_tab_index, GetActiveTabIndex());
+  ASSERT_EQ(url1_, GetActiveTabURL());
+}
+
+// Close a tab, open a new window, close the first window, then restore the
+// tab. It should be at the end of the current (new) window's tabstrip.
+TEST_F(TabRestoreUITest, RestoreFromClosedWindow) {
   // This test is disabled on win2k. See bug 1215881.
   if (win_util::GetWinVersion() == win_util::WINVERSION_2000)
     return;
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  CheckActiveWindow(browser_proxy.get());
 
   int tab_count;
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
@@ -106,6 +226,7 @@ TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
   ASSERT_TRUE(automation()->OpenNewBrowserWindow(false));
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(
       2, action_max_timeout_ms()));
+  CheckActiveWindow(automation()->GetBrowserWindow(1));
 
   // Close the first browser.
   EXPECT_TRUE(tab_proxy->Close(true));
@@ -118,7 +239,9 @@ TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
 
   RestoreTab();
 
+  // Tab should be at the end of the current (only) window.
   browser_proxy.reset(automation()->GetBrowserWindow(0));
+  CheckActiveWindow(browser_proxy.get());
   tab_proxy.reset(browser_proxy->GetActiveTab());
   // And make sure the URLs matches.
   ASSERT_EQ(url2_, GetActiveTabURL());

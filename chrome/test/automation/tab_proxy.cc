@@ -30,6 +30,18 @@ bool TabProxy::GetTabTitle(std::wstring* title) const {
   return succeeded;
 }
 
+bool TabProxy::GetTabIndex(int* index) const {
+  if (!is_valid())
+    return false;
+
+  if (!index) {
+    NOTREACHED();
+    return false;
+  }
+
+  return sender_->Send(new AutomationMsg_TabIndex(0, handle_, index));
+}
+
 bool TabProxy::IsShelfVisible(bool* is_visible) {
   if (!is_valid())
     return false;

@@ -130,6 +130,13 @@ void TabRestoreService::CreateHistoricalTab(NavigationController* tab) {
   if (local_tab->navigations.empty())
     return;
 
+  // browser may be NULL when running unit tests.
+  if (browser) {
+    local_tab->browser_id = browser->session_id().id();
+    local_tab->tabstrip_index =
+        browser->tabstrip_model()->GetIndexOfController(tab);
+  }
+
   AddEntry(local_tab.release(), true, true);
 }
 
@@ -221,8 +228,19 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
         browser->ReplaceRestoredTab(tab->navigations,
                                     tab->current_navigation_index);
       } else {
-        browser->AddRestoredTab(tab->navigations, browser->tab_count(),
-                                tab->current_navigation_index, true);
+        // Use the tab's former browser and index, if available.
+        Browser* tab_browser = NULL;
+        int tab_index = -1;
+        if (tab->has_browser())
+          tab_browser = BrowserList::FindBrowserWithID(tab->browser_id);
+        if (tab_browser)
+          tab_index = tab->tabstrip_index;
+        else
+          tab_browser = browser;
+        if (tab_index < 0 || tab_index > browser->tab_count())
+          tab_index = browser->tab_count();
+        tab_browser->AddRestoredTab(tab->navigations, tab_index,
+                                    tab->current_navigation_index, true);
       }
     } else if (entry->type == WINDOW) {
       const Window* window = static_cast<Window*>(entry);

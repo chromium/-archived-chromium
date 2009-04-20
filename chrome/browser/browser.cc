@@ -554,6 +554,8 @@ TabContents* Browser::AddRestoredTab(
   new_tab->controller().RestoreFromState(navigations, selected_navigation);
 
   tabstrip_model_.InsertTabContentsAt(tab_index, new_tab, select, false);
+  if (select)
+    window_->Activate();
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
     if (session_service)

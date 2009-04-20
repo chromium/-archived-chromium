@@ -103,7 +103,7 @@ class BrowserProxy : public AutomationResourceProxy {
   // retreive view bounds, simulate clicks and key press events.  The caller
   // owns the returned WindowProxy.
   // On failure, returns NULL.
-  WindowProxy* GetWindow();
+  WindowProxy* GetWindow() const;
 
   // Returns an AutocompleteEdit for this browser's window. It can be used to
   // manipulate the omnibox.  The caller owns the returned pointer.

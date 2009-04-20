@@ -42,6 +42,9 @@ class TabProxy : public AutomationResourceProxy {
   // Gets the title of the tab.
   bool GetTabTitle(std::wstring* title) const;
 
+  // Gets the tabstrip index of the tab.
+  bool GetTabIndex(int* index) const;
+
   // Gets the number of constrained window for this tab.
   bool GetConstrainedWindowCount(int* count) const;
 

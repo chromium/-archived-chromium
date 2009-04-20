@@ -566,6 +566,16 @@ std::wstring UITest::GetActiveTabTitle() {
   return title;
 }
 
+int UITest::GetActiveTabIndex() {
+  scoped_ptr<TabProxy> tab_proxy(GetActiveTab());
+  if (!tab_proxy.get())
+    return -1;
+
+  int index;
+  EXPECT_TRUE(tab_proxy->GetTabIndex(&index));
+  return index;
+}
+
 bool UITest::IsBrowserRunning() {
   return CrashAwareSleep(0);
 }

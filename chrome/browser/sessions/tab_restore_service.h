@@ -63,13 +63,26 @@ class TabRestoreService : public BaseSessionService {
 
   // Represents a previously open tab.
   struct Tab : public Entry {
-    Tab() : Entry(TAB), current_navigation_index(-1) {}
+    Tab()
+        : Entry(TAB),
+          current_navigation_index(-1),
+          browser_id(0),
+          tabstrip_index(-1) {}
+
+    bool has_browser() const { return browser_id > 0; }
 
     // The navigations.
     std::vector<TabNavigation> navigations;
 
     // Index of the selected navigation in navigations.
     int current_navigation_index;
+
+    // The ID of the browser to which this tab belonged, so it can be restored
+    // there. May be 0 (an invalid SessionID) when restoring an entire session.
+    SessionID::id_type browser_id;
+
+    // Index within the tab strip. May be -1 for an unknown index.
+    int tabstrip_index;
   };
 
   // Represents a previously open window.

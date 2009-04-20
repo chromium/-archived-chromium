@@ -211,6 +211,16 @@ Browser* BrowserList::FindBrowserWithType(Profile* p, Browser::Type t) {
 }
 
 // static
+Browser* BrowserList::FindBrowserWithID(SessionID::id_type desired_id) {
+  BrowserList::const_iterator i;
+  for (i = BrowserList::begin(); i != BrowserList::end(); ++i) {
+    if ((*i)->session_id().id() == desired_id)
+      return *i;
+  }
+  return NULL;
+}
+
+// static
 size_t BrowserList::GetBrowserCountForType(Profile* p, Browser::Type type) {
   BrowserList::const_iterator i;
   size_t result = 0;

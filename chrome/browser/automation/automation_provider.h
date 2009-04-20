@@ -174,6 +174,7 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 #endif  // defined(OS_WIN)
   void GetTabProcessID(int handle, int* process_id);
   void GetTabTitle(int handle, int* title_string_size, std::wstring* title);
+  void GetTabIndex(int handle, int* tabstrip_index);
   void GetTabURL(int handle, bool* success, GURL* url);
   void HandleUnused(const IPC::Message& message, int handle);
   void NavigateToURL(int handle, const GURL& url, IPC::Message* reply_message);

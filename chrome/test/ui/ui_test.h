@@ -103,6 +103,9 @@ class UITest : public testing::Test {
   // Returns the title of the currently active tab.
   std::wstring GetActiveTabTitle();
 
+  // Returns the tabstrip index of the currently active tab, or -1 on error.
+  int GetActiveTabIndex();
+
   // Returns true when the browser process is running, independent if any
   // renderer process exists or not. It will returns false if an user closed the
   // window or if the browser process died by itself.

@@ -55,6 +55,10 @@ class BrowserList {
   // is returned. Returns NULL if no such browser currently exists.
   static Browser* FindBrowserWithType(Profile* p, Browser::Type t);
 
+  // Find an existing browser with the provided ID. Returns NULL if no such
+  // browser currently exists.
+  static Browser* FindBrowserWithID(SessionID::id_type desired_id);
+
   // Closes all browsers. If use_post is true the windows are closed by way of
   // posting a WM_CLOSE message, otherwise the windows are closed directly. In
   // almost all cases you'll want to use true, the one exception is ending
