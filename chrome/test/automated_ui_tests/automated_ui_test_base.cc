@@ -29,7 +29,8 @@ bool AutomatedUITestBase::DuplicateTab() {
   return RunCommand(IDC_DUPLICATE_TAB);
 }
 
-bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow() {
+bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow(
+    BrowserProxy** previous_browser) {
   if (!automation()->OpenNewBrowserWindow(SW_SHOWNORMAL)) {
     LogWarningMessage("failed_to_open_new_browser_window");
     return false;
@@ -50,7 +51,10 @@ bool AutomatedUITestBase::OpenAndActivateNewBrowserWindow() {
     LogWarningMessage("failed_to_activate_tab");
     return false;
   }
-  set_active_browser(browser.release());
+
+  active_browser_.swap(browser);
+  if (previous_browser)
+    *previous_browser = browser.release();
   return true;
 }
 

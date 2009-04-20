@@ -33,7 +33,10 @@ class AutomatedUITestBase : public UITest {
   // Opens a new browser window by calling automation()->OpenNewBrowserWindow.
   // Then activates the tab opened in the new window.
   // Returns true if window is successfully created.
-  bool OpenAndActivateNewBrowserWindow();
+  // If optional parameter previous_browser is passed in, it is set to be the
+  // previous browser window when new window is successfully created, and the
+  // caller owns previous_browser.
+  bool OpenAndActivateNewBrowserWindow(BrowserProxy** previous_browser);
 
   // Runs the specified browser command in the current active browser.
   // See browser_commands.cc for the list of commands.
@@ -54,7 +57,6 @@ class AutomatedUITestBase : public UITest {
   void set_active_browser(BrowserProxy* browser) {
     active_browser_.reset(browser);
   }
-  BrowserProxy* release_active_browser() { return active_browser_.release(); }
   BrowserProxy* active_browser() const { return active_browser_.get(); }
 
  private:

@@ -315,7 +315,7 @@ bool AutomatedUITest::DoAction(const std::string & action) {
   } else if (LowerCaseEqualsASCII(action, "newtab")) {
     did_complete_action = NewTab();
   } else if (LowerCaseEqualsASCII(action, "openwindow")) {
-    did_complete_action = OpenAndActivateNewBrowserWindow();
+    did_complete_action = OpenAndActivateNewBrowserWindow(NULL);
   } else if (LowerCaseEqualsASCII(action, "options")) {
     did_complete_action = Options();
   } else if (LowerCaseEqualsASCII(action, "pagedown")) {
