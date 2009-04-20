@@ -22,7 +22,7 @@ class BookmarkBarControllerTest : public testing::Test {
     bar_.reset(
         [[BookmarkBarController alloc] initWithProfile:helper_.GetProfile()
                                            contentArea:content_area_.get()]);
-    NSView* parent = [cocoa_helper_.window() contentView];
+    NSView* parent = cocoa_helper_.contentView();
     [parent addSubview:content_area_.get()];
     [parent addSubview:[bar_ view]];
   }

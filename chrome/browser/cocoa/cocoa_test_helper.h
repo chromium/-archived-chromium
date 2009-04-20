@@ -51,6 +51,7 @@ class CocoaTestHelper {
 
   // Access the Cocoa window created for the test.
   NSWindow* window() const { return window_.get(); }
+  NSView* contentView() const { return [window_ contentView]; }
 
  private:
   scoped_nsobject<NSWindow> window_;
