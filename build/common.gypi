@@ -208,9 +208,16 @@
           # require --{start,end}-group.  There has been a lot of
           # refactoring since this was first coded, which might have
           # eliminated the circular dependencies.
-          'LINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$LINKFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'SHLINKCOM': [['$FLOCK_SHLINK', '-o', '$TARGET', '$SHLINKFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
-          'LDMODULECOM': [['$FLOCK_LDMODULE', '-o', '$TARGET', '$LDMODULEFLAGS', '$SOURCES', '$_LIBDIRFLAGS', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          #
+          # Note:  $_LIBDIRFLAGS comes before ${LINK,SHLINK,LDMODULE}FLAGS
+          # so that we prefer our own built libraries (e.g. -lpng) to
+          # system versions of libraries that pkg-config might turn up.
+          # TODO(sgk): investigate handling this not by re-ordering the
+          # flags this way, but by adding a hook to use the SCons
+          # ParseFlags() option on the output from pkg-config.
+          'LINKCOM': [['$FLOCK_LINK', '-o', '$TARGET', '$_LIBDIRFLAGS', '$LINKFLAGS', '$SOURCES', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'SHLINKCOM': [['$FLOCK_SHLINK', '-o', '$TARGET', '$_LIBDIRFLAGS', '$SHLINKFLAGS', '$SOURCES', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
+          'LDMODULECOM': [['$FLOCK_LDMODULE', '-o', '$TARGET', '$_LIBDIRFLAGS', '$LDMODULEFLAGS', '$SOURCES', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
           'IMPLICIT_COMMAND_DEPENDENCIES': 0,
         },
         'scons_import_variables': [
