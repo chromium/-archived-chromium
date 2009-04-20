@@ -31,14 +31,14 @@ using base::TimeTicks;
 
 HistoryURLProviderParams::HistoryURLProviderParams(
     const AutocompleteInput& input,
+    const AutocompleteInput& original_input,
     bool trim_http,
-    const ACMatches& matches,
     const std::wstring& languages)
     : message_loop(MessageLoop::current()),
       input(input),
+      original_input(original_input),
       trim_http(trim_http),
       cancel(false),
-      matches(matches),
       languages(languages) {
 }
 
@@ -102,7 +102,7 @@ void HistoryURLProvider::DeleteMatch(const AutocompleteMatch& match) {
   if (!done_) {
     // Copy params_->input to avoid a race condition where params_ gets deleted
     // out from under us on the other thread after we set params_->cancel here.
-    AutocompleteInput input(params_->input);
+    AutocompleteInput input(params_->original_input);
     params_->cancel = true;
     RunAutocompletePasses(input, false);
   }
@@ -133,6 +133,18 @@ void HistoryURLProvider::ExecuteWithDB(history::HistoryBackend* backend,
 void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
                                         history::URLDatabase* db,
                                         HistoryURLProviderParams* params) {
+  // For non-UNKNOWN input, create a What You Typed match, which we'll need
+  // below.
+  bool have_what_you_typed_match;
+  // This uses |original_input| because unlike the rest of the machinery here,
+  // it needs to take the user's desired_tld() into account; if it doesn't, it
+  // may convert "56" + ctrl into "0.0.0.56.com" instead of "56.com" like the
+  // user probably wanted.
+  AutocompleteMatch what_you_typed_match(SuggestExactInput(
+      params->original_input, params->trim_http, &have_what_you_typed_match));
+  have_what_you_typed_match &=
+      (params->input.type() != AutocompleteInput::UNKNOWN);
+
   // Get the matching URLs from the DB
   typedef std::vector<history::URLRow> URLRowVector;
   URLRowVector url_matches;
@@ -162,33 +174,39 @@ void HistoryURLProvider::DoAutocomplete(history::HistoryBackend* backend,
   // Create sorted list of suggestions.
   CullPoorMatches(&history_matches);
   SortMatches(&history_matches);
-  PromoteOrCreateShorterSuggestion(db, *params, &history_matches);
+  PromoteOrCreateShorterSuggestion(db, *params, have_what_you_typed_match,
+                                   what_you_typed_match, &history_matches);
 
   // Try to promote a match as an exact/inline autocomplete match.  This also
   // moves it to the front of |history_matches|, so skip over it when
-  // converting the rest of the matches.  We want to provide up to max_matches
-  // results plus the What You Typed result.
+  // converting the rest of the matches.
   size_t first_match = 1;
   size_t exact_suggestion = 0;
-  if (!params->matches.empty() &&
-      FixupExactSuggestion(db, params, &history_matches))
-    exact_suggestion = 1;
-  else if (params->input.prevent_inline_autocomplete() ||
-           history_matches.empty() ||
-           !PromoteMatchForInlineAutocomplete(params, history_matches.front()))
+  if (params->input.prevent_inline_autocomplete() || history_matches.empty() ||
+      !PromoteMatchForInlineAutocomplete(params, history_matches.front())) {
+    // Failed to promote for inline autocompletion.  Use the What You Typed
+    // match, if we have it.
     first_match = 0;
+    if (have_what_you_typed_match) {
+      params->matches.push_back(what_you_typed_match);
+      if (FixupExactSuggestion(db, params, &history_matches))
+        first_match = exact_suggestion = 1;
+    }
+  }
 
   // This is the end of the synchronous pass.
   if (!backend)
     return;
 
-  // Remove redirects and trim list to size.
+  // Remove redirects and trim list to size.  We want to provide up to
+  // max_matches results plus the What You Typed result, if it was added to
+  // |history_matches| above.
   CullRedirects(backend, &history_matches, max_matches() + exact_suggestion);
 
   // Convert the history matches to autocomplete matches.
   for (size_t i = first_match; i < history_matches.size(); ++i) {
     const HistoryMatch& match = history_matches[i];
-    DCHECK(!exact_suggestion ||
+    DCHECK(!have_what_you_typed_match ||
            (match.url_info.url() !=
             GURL(params->matches.front().destination_url)));
     params->matches.push_back(HistoryMatchToACMatch(params, match, NORMAL,
@@ -217,8 +235,10 @@ void HistoryURLProvider::QueryComplete(
   listener_->OnProviderUpdate(true);
 }
 
-void HistoryURLProvider::SuggestExactInput(const AutocompleteInput& input,
-                                           bool trim_http) {
+AutocompleteMatch HistoryURLProvider::SuggestExactInput(
+    const AutocompleteInput& input,
+    bool trim_http,
+    bool* valid) {
   AutocompleteMatch match(this,
       CalculateRelevance(input.type(), WHAT_YOU_TYPED, 0), false,
       AutocompleteMatch::URL_WHAT_YOU_TYPED);
@@ -226,39 +246,42 @@ void HistoryURLProvider::SuggestExactInput(const AutocompleteInput& input,
   // Try to canonicalize the URL.  If this fails, don't create a What You Typed
   // suggestion, since it can't be navigated to.  We also need this so other
   // history suggestions don't duplicate the same effective URL as this.
-  // TODO(brettw) make autocomplete use GURL!
   GURL canonicalized_url(URLFixerUpper::FixupURL(WideToUTF8(input.text()),
       WideToUTF8(input.desired_tld())));
   if (!canonicalized_url.is_valid() ||
       (canonicalized_url.IsStandard() &&
-       !canonicalized_url.SchemeIsFile() && canonicalized_url.host().empty()))
-    return;
-  match.destination_url = canonicalized_url;
-  match.fill_into_edit = StringForURLDisplay(canonicalized_url, false);
-  // NOTE: Don't set match.input_location (to allow inline autocompletion)
-  // here, it's surprising and annoying.
-  // Trim off "http://" if the user didn't type it.
-  const size_t offset = trim_http ? TrimHttpPrefix(&match.fill_into_edit) : 0;
+       !canonicalized_url.SchemeIsFile() && canonicalized_url.host().empty())) {
+    *valid = false;
+  } else {
+    *valid = true;
+    match.destination_url = canonicalized_url;
+    match.fill_into_edit = StringForURLDisplay(canonicalized_url, false);
+    // NOTE: Don't set match.input_location (to allow inline autocompletion)
+    // here, it's surprising and annoying.
+    // Trim off "http://" if the user didn't type it.
+    const size_t offset = trim_http ? TrimHttpPrefix(&match.fill_into_edit) : 0;
 
-  // Try to highlight "innermost" match location.  If we fix up "w" into
-  // "www.w.com", we want to highlight the fifth character, not the first.
-  // This relies on match.destination_url being the non-prefix-trimmed version
-  // of match.contents.
-  match.contents = match.fill_into_edit;
-  const Prefix* best_prefix = BestPrefix(match.destination_url, input.text());
-  // Because of the vagaries of GURL, it's possible for match.destination_url
-  // to not contain the user's input at all.  In this case don't mark anything
-  // as a match.
-  const size_t match_location = (best_prefix == NULL) ?
-      std::wstring::npos : best_prefix->prefix.length() - offset;
-  AutocompleteMatch::ClassifyLocationInString(match_location,
-                                              input.text().length(),
-                                              match.contents.length(),
-                                              ACMatchClassification::URL,
-                                              &match.contents_class);
+    // Try to highlight "innermost" match location.  If we fix up "w" into
+    // "www.w.com", we want to highlight the fifth character, not the first.
+    // This relies on match.destination_url being the non-prefix-trimmed version
+    // of match.contents.
+    match.contents = match.fill_into_edit;
+    const Prefix* best_prefix = BestPrefix(match.destination_url, input.text());
+    // Because of the vagaries of GURL, it's possible for match.destination_url
+    // to not contain the user's input at all.  In this case don't mark anything
+    // as a match.
+    const size_t match_location = (best_prefix == NULL) ?
+        std::wstring::npos : best_prefix->prefix.length() - offset;
+    AutocompleteMatch::ClassifyLocationInString(match_location,
+                                                input.text().length(),
+                                                match.contents.length(),
+                                                ACMatchClassification::URL,
+                                                &match.contents_class);
 
-  match.is_history_what_you_typed_match = true;
-  matches_.push_back(match);
+    match.is_history_what_you_typed_match = true;
+  }
+
+  return match;
 }
 
 bool HistoryURLProvider::FixupExactSuggestion(history::URLDatabase* db,
@@ -499,6 +522,8 @@ GURL HistoryURLProvider::ConvertToHostOnly(const HistoryMatch& match,
 void HistoryURLProvider::PromoteOrCreateShorterSuggestion(
     history::URLDatabase* db,
     const HistoryURLProviderParams& params,
+    bool have_what_you_typed_match,
+    const AutocompleteMatch& what_you_typed_match,
     HistoryMatches* matches) {
   if (matches->empty())
     return;  // No matches, nothing to do.
@@ -508,12 +533,12 @@ void HistoryURLProvider::PromoteOrCreateShorterSuggestion(
   // the same" as any "what you typed" match.
   const HistoryMatch& match = matches->front();
   GURL search_base = ConvertToHostOnly(match, params.input.text());
-  bool can_add_search_base_to_matches = params.matches.empty();
+  bool can_add_search_base_to_matches = !have_what_you_typed_match;
   if (search_base.is_empty()) {
     // Search from what the user typed when we couldn't reduce the best match
     // to a host.  Careful: use a substring of |match| here, rather than the
     // first match in |params|, because they might have different prefixes.  If
-    // the user typed "google.com", params.matches will hold
+    // the user typed "google.com", |what_you_typed_match| will hold
     // "http://google.com/", but |match| might begin with
     // "http://www.google.com/".
     // TODO: this should be cleaned up, and is probably incorrect for IDN.
@@ -523,7 +548,7 @@ void HistoryURLProvider::PromoteOrCreateShorterSuggestion(
 
   } else if (!can_add_search_base_to_matches) {
     can_add_search_base_to_matches =
-        (search_base != params.matches.front().destination_url);
+        (search_base != what_you_typed_match.destination_url);
   }
   if (search_base == match.url_info.url())
     return;  // Couldn't shorten |match|, so no range of URLs to search over.
@@ -584,9 +609,8 @@ void HistoryURLProvider::EnsureMatchPresent(
     matches->push_back(match);
 }
 
-void HistoryURLProvider::RunAutocompletePasses(
-    const AutocompleteInput& input,
-    bool fixup_input_and_run_pass_1) {
+void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
+                                               bool run_pass_1) {
   matches_.clear();
 
   if ((input.type() != AutocompleteInput::UNKNOWN) &&
@@ -594,11 +618,15 @@ void HistoryURLProvider::RunAutocompletePasses(
       (input.type() != AutocompleteInput::URL))
     return;
 
-  // Create a match for exactly what the user typed.  This will always be one
-  // of the top two results we return.
+  // Create a match for exactly what the user typed.  This will only be used as
+  // a fallback in case we can't get the history service or URL DB; otherwise,
+  // we'll run this again in DoAutocomplete() and use that result instead.
   const bool trim_http = !url_util::FindAndCompareScheme(
       WideToUTF8(input.text()), chrome::kHttpScheme, NULL);
-  SuggestExactInput(input, trim_http);
+  bool valid;
+  AutocompleteMatch match(SuggestExactInput(input, trim_http, &valid));
+  if (valid)
+    matches_.push_back(match);
 
   // We'll need the history service to run both passes, so try to obtain it.
   HistoryService* const history_service = profile_ ?
@@ -606,36 +634,30 @@ void HistoryURLProvider::RunAutocompletePasses(
   if (!history_service)
     return;
 
+  // Do some fixup on the user input before matching against it, so we provide
+  // good results for local file paths, input with spaces, etc.
+  // NOTE: This purposefully doesn't take input.desired_tld() into account; if
+  // it did, then holding "ctrl" would change all the results from the
+  // HistoryURLProvider provider, not just the What You Typed Result.
+  AutocompleteInput fixed_input(input);
+  const std::wstring fixed_text(FixupUserInput(input.text()));
+  if (fixed_text.empty()) {
+    // Conceivably fixup could result in an empty string (although I don't
+    // have cases where this happens offhand).  We can't do anything with
+    // empty input, so just bail; otherwise we'd crash later.
+    return;
+  }
+  fixed_input.set_text(fixed_text);
+
   // Create the data structure for the autocomplete passes.  We'll save this off
   // onto the |params_| member for later deletion below if we need to run pass
   // 2.
   const std::wstring& languages = profile_ ?
       profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) : std::wstring();
   scoped_ptr<HistoryURLProviderParams> params(
-      new HistoryURLProviderParams(input, trim_http, matches_, languages));
+      new HistoryURLProviderParams(fixed_input, input, trim_http, languages));
 
-  if (fixup_input_and_run_pass_1) {
-    // Do some fixup on the user input before matching against it, so we provide
-    // good results for local file paths, input with spaces, etc.
-    // NOTE: This purposefully doesn't take input.desired_tld() into account; if
-    // it did, then holding "ctrl" would change all the results from the
-    // HistoryURLProvider provider, not just the What You Typed Result.
-    // However, this means we need to call this _after_ calling
-    // SuggestExactInput(), since that function does need to take
-    // input.desired_tld() into account; if it doesn't, it may convert "56" +
-    // ctrl into "0.0.0.56.com" instead of "56.com" like the user probably
-    // wanted.  It's not a problem to call this after SuggestExactInput(),
-    // because that function fixes up the user's input in a way that's a
-    // superset of what FixupUserInput() does.
-    const std::wstring fixed_text(FixupUserInput(input.text()));
-    if (fixed_text.empty()) {
-      // Conceivably fixup could result in an empty string (although I don't
-      // have cases where this happens offhand).  We can't do anything with
-      // empty input, so just bail; otherwise we'd crash later.
-      return;
-    }
-    params->input.set_text(fixed_text);
-
+  if (run_pass_1) {
     // Pass 1: Get the in-memory URL database, and use it to find and promote
     // the inline autocomplete match, if any.
     history::URLDatabase* url_db = history_service->in_memory_database();
@@ -648,9 +670,8 @@ void HistoryURLProvider::RunAutocompletePasses(
     if (url_db) {
       DoAutocomplete(NULL, url_db, params.get());
       // params->matches now has the matches we should expose to the provider.
-      // Since pass 2 expects a "clean slate" set of matches that only contains
-      // the not-yet-fixed-up What You Typed match, which is exactly what
-      // matches_ currently contains, just swap them.
+      // Pass 2 expects a "clean slate" set of matches.
+      matches_.clear();
       matches_.swap(params->matches);
       UpdateStarredStateOfMatches();
     }

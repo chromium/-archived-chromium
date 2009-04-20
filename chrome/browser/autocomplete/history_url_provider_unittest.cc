@@ -187,7 +187,6 @@ void HistoryURLProviderTest::RunTest(const std::wstring text,
 TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
   // Test that hosts get synthesized below popular pages.
   const std::string expected_nonsynth[] = {
-    "http://slash/",
     "http://slashdot.org/favorite_page.html",
     "http://slashdot.org/",
   };
@@ -196,7 +195,6 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
 
   // Test that hosts get synthesized above less popular pages.
   const std::string expected_synth[] = {
-    "http://kernel/",
     "http://kerneltrap.org/",
     "http://kerneltrap.org/not_very_popular.html",
   };
@@ -204,16 +202,11 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
           arraysize(expected_synth));
 
   // Test that unpopular pages are ignored completely.
-  const std::string expected_what_you_typed_only[] = {
-    "http://fresh/",
-  };
-  RunTest(L"fresh", std::wstring(), true, expected_what_you_typed_only,
-          arraysize(expected_what_you_typed_only));
+  RunTest(L"fresh", std::wstring(), true, NULL, 0);
 
   // Test that if we have a synthesized host that matches a suggestion, they
   // get combined into one.
   const std::string expected_combine[] = {
-    "http://news/",
     "http://news.google.com/",
     "http://news.google.com/?ned=us&topic=n",
   };
@@ -221,13 +214,12 @@ TEST_F(HistoryURLProviderTest, PromoteShorterURLs) {
           arraysize(expected_combine));
   // The title should also have gotten set properly on the host for the
   // synthesized one, since it was also in the results.
-  EXPECT_EQ(std::wstring(L"Google News"), matches_[1].description);
+  EXPECT_EQ(std::wstring(L"Google News"), matches_[0].description);
 
   // Test that short URL matching works correctly as the user types more
   // (several tests):
   // The entry for foo.com is the best of all five foo.com* entries.
   const std::string short_1[] = {
-    "http://foo/",
     "http://foo.com/",
     "http://foo.com/dir/another/again/myfile.html",
     "http://foo.com/dir/",
@@ -332,18 +324,17 @@ TEST_F(HistoryURLProviderTest, CullRedirects) {
 TEST_F(HistoryURLProviderTest, Fixup) {
   // Test for various past crashes we've had.
   RunTest(L"\\", std::wstring(), false, NULL, 0);
-
   RunTest(L"#", std::wstring(), false, NULL, 0);
-
-  const std::string crash_1[] = {"http://%20/"};
-  RunTest(L"%20", std::wstring(), false, crash_1, arraysize(crash_1));
+  RunTest(L"%20", std::wstring(), false, NULL, 0);
+  RunTest(L"\uff65@s", std::wstring(), false, NULL, 0);
+  RunTest(L"\u2015\u2015@ \uff7c", std::wstring(), false, NULL, 0);
 
   // Fixing up "file:" should result in an inline autocomplete offset of just
   // after "file:", not just after "file://".
   const std::wstring input_1(L"file:");
-  const std::string fixup_1[] = {"file:///", "file:///C:/foo.txt"};
+  const std::string fixup_1[] = {"file:///C:/foo.txt"};
   RunTest(input_1, std::wstring(), false, fixup_1, arraysize(fixup_1));
-  EXPECT_EQ(input_1.length(), matches_[1].inline_autocomplete_offset);
+  EXPECT_EQ(input_1.length(), matches_[0].inline_autocomplete_offset);
 
   // Fixing up "http:/" should result in an inline autocomplete offset of just
   // after "http:/", not just after "http:".
