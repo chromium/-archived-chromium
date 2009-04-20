@@ -968,10 +968,12 @@ bool V8Proxy::HandleOutOfMemory()
     Frame* frame = V8Proxy::retrieveFrame(context);
 
     V8Proxy* proxy = V8Proxy::retrieve(frame);
-    // Clean m_context, and event handlers.
-    proxy->clearForClose();
-    // Destroy the global object.
-    proxy->DestroyGlobal();
+    if (proxy != NULL) {
+      // Clean m_context, and event handlers.
+      proxy->clearForClose();
+      // Destroy the global object.
+      proxy->DestroyGlobal();
+    }
 
     ChromiumBridge::notifyJSOutOfMemory(frame);
 
