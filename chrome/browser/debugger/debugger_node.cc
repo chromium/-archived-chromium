@@ -291,12 +291,12 @@ v8::Handle<v8::Value> TabListNode::IndexGetter(uint32_t index,
 /////////////////////////////////////////////
 
 TabNode::TabNode(TabContents *c) {
-  data_ = c->controller();
+  data_ = &c->controller();
 
   NotificationService* service = NotificationService::current();
   DCHECK(service);
   service->AddObserver(this, NotificationType::TAB_CLOSING,
-                       Source<NavigationController>(c->controller()));
+                       Source<NavigationController>(&c->controller()));
   observing_ = true;
 }
 

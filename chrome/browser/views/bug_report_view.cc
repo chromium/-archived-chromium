@@ -482,7 +482,7 @@ void BugReportView::SendReport() {
 }
 
 void BugReportView::ReportPhishing() {
-  tab_->controller()->LoadURL(
+  tab_->controller().LoadURL(
       safe_browsing_util::GeneratePhishingReportUrl(
           kReportPhishingUrl, WideToUTF8(page_url_text_->GetText())),
       GURL(),

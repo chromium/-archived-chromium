@@ -177,7 +177,7 @@ DownloadRequestManager::~DownloadRequestManager() {
 
 DownloadRequestManager::DownloadStatus
     DownloadRequestManager::GetDownloadStatus(TabContents* tab) {
-  TabDownloadState* state = GetDownloadState(tab->controller(), NULL, false);
+  TabDownloadState* state = GetDownloadState(&tab->controller(), NULL, false);
   return state ? state->download_status() : ALLOW_ONE_DOWNLOAD;
 }
 
@@ -193,13 +193,7 @@ void DownloadRequestManager::CanDownloadOnIOThread(int render_process_host_id,
 }
 
 void DownloadRequestManager::OnUserGesture(TabContents* tab) {
-  NavigationController* controller = tab->controller();
-  if (!controller) {
-    NOTREACHED();
-    return;
-  }
-
-  TabDownloadState* state = GetDownloadState(controller, NULL, false);
+  TabDownloadState* state = GetDownloadState(&tab->controller(), NULL, false);
   if (!state)
     return;
 
@@ -256,10 +250,8 @@ void DownloadRequestManager::CanDownloadImpl(
         effective_tab->delegate()->GetConstrainingContents(effective_tab);
   }
 
-  NavigationController* controller = effective_tab->controller();
-  DCHECK(controller);
   TabDownloadState* state = GetDownloadState(
-      controller, originating_tab->controller(), true);
+      &effective_tab->controller(), &originating_tab->controller(), true);
   switch (state->download_status()) {
     case ALLOW_ALL_DOWNLOADS:
       ScheduleNotification(callback, true);

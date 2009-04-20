@@ -220,7 +220,7 @@ class BlockedPopupContainer : public ConstrainedWindow,
   // change.
   void SetPosition();
 
-  // Sends a CloseContents() to each message in |blocked_popups_|.
+  // Deletes each contents in |blocked_popups_|.
   void CloseEachTabContents();
 
   // The TabContents that owns and constrains this BlockedPopupContainer.

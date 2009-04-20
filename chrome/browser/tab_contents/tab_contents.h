@@ -44,23 +44,8 @@ class SkBitmap;
 class SiteInstance;
 class WebContents;
 
-// Describes what goes in the main content area of a tab.  For example,
-// the WebContents is one such thing.
-//
-// When instantiating a new TabContents explicitly, the TabContents will not
-// have an associated NavigationController.  To setup a NavigationController
-// for the TabContents, its SetupController method should be called.
-//
-// Once they reside within a NavigationController, TabContents objects are
-// owned by that NavigationController. When the active TabContents within that
-// NavigationController is closed, that TabContents destroys the
-// NavigationController, which then destroys all of the TabContentses in it.
-//
-// NOTE: When the NavigationController is navigated to an URL corresponding to
-// a different type of TabContents (see the TabContents::TypeForURL method),
-// the NavigationController makes the active TabContents inactive, notifies the
-// TabContentsDelegate that the TabContents is being replaced, and then
-// activates the new TabContents.
+// Describes what goes in the main content area of a tab. WebContents is
+// the only type of TabContents, and these should be merged together.
 class TabContents : public PageNavigator,
                     public NotificationObserver {
  public:
@@ -77,22 +62,9 @@ class TabContents : public PageNavigator,
     INVALIDATE_EVERYTHING = 0xFFFFFFFF
   };
 
+  virtual ~TabContents();
+
   static void RegisterUserPrefs(PrefService* prefs);
-
-  // Creation & destruction ----------------------------------------------------
-
-  // Request this tab to shut down. This kills the tab's NavigationController,
-  // which then Destroy()s all tabs it controls.
-  void CloseContents();
-
-  // Unregister/shut down any pending tasks involving this tab.
-  // This is called as the tab is shutting down, before the
-  // NavigationController (and consequently profile) are gone.
-  //
-  // If you override this, be sure to call this implementation at the end
-  // of yours.
-  // See also Close().
-  virtual void Destroy() = 0;
 
   // Intrinsic tab state -------------------------------------------------------
 
@@ -116,27 +88,13 @@ class TabContents : public PageNavigator,
   TabContentsDelegate* delegate() const { return delegate_; }
   void set_delegate(TabContentsDelegate* d) { delegate_ = d; }
 
-  // This can only be null if the TabContents has been created but
-  // SetupController has not been called. The controller should always outlive
-  // its TabContents.
-  NavigationController* controller() const { return controller_; }
-  void set_controller(NavigationController* c) { controller_ = c; }
-
-  // Sets up a new NavigationController for this TabContents.
-  // |profile| is the user profile that should be associated with
-  // the new controller.
-  //
-  // TODO(brettw) this seems bogus and I couldn't find any legitimate need for
-  // it. I think it should be passed in the constructor.
-  void SetupController(Profile* profile);
+  // Gets the controller for this tab contents.
+  NavigationController& controller() { return controller_; }
+  const NavigationController& controller() const { return controller_; }
 
   // Returns the user profile associated with this TabContents (via the
-  // NavigationController).  This will return NULL if there isn't yet a
-  // NavigationController on this TabContents.
-  // TODO(darin): make it so that controller_ can never be null
-  Profile* profile() const {
-    return controller_ ? controller_->profile() : NULL;
-  }
+  // NavigationController).
+  Profile* profile() const { return controller_.profile(); }
 
   // Returns whether this tab contents supports the provided URL.This method
   // matches the tab contents type with the result of TypeForURL(). |url| points
@@ -273,6 +231,10 @@ class TabContents : public PageNavigator,
   // Called on a TabContents when it isn't a popup, but a new window.
   virtual void DisassociateFromPopupCount() = 0;
 
+  // Creates a new TabContents with the same state as this one. The returned
+  // heap-allocated pointer is owned by the caller.
+  virtual TabContents* Clone() = 0;
+
   // Window management ---------------------------------------------------------
 
 #if defined(OS_WIN)
@@ -386,15 +348,7 @@ class TabContents : public PageNavigator,
   // automation purposes.
   friend class AutomationProvider;
 
-  TabContents();
-
-  // NOTE: the TabContents destructor can run after the NavigationController
-  // has gone away, so any complicated unregistering that expects the profile
-  // or other shared objects to still be around does not belong in a
-  // destructor.
-  // For those purposes, instead see Destroy().
-  // Protected so that others don't try to delete this directly.
-  virtual ~TabContents();
+  TabContents(Profile* profile);
 
   // Changes the IsLoading state and notifies delegate as needed
   // |details| is used to provide details on the load that just finished
@@ -432,7 +386,7 @@ class TabContents : public PageNavigator,
   // Data ----------------------------------------------------------------------
 
   TabContentsDelegate* delegate_;
-  NavigationController* controller_;
+  NavigationController controller_;
 
   PropertyBag property_bag_;
 

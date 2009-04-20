@@ -11,11 +11,8 @@ DOMView::DOMView() : initialized_(false), web_contents_(NULL) {
 }
 
 DOMView::~DOMView() {
-  if (web_contents_) {
+  if (web_contents_.get())
     Detach();
-    web_contents_->Destroy();
-    web_contents_ = NULL;
-  }
 }
 
 bool DOMView::Init(Profile* profile, SiteInstance* instance) {
@@ -23,13 +20,13 @@ bool DOMView::Init(Profile* profile, SiteInstance* instance) {
     return true;
 
   initialized_ = true;
-  web_contents_ = new WebContents(profile, instance, MSG_ROUTING_NONE, NULL);
+  web_contents_.reset(new WebContents(profile, instance,
+                                      MSG_ROUTING_NONE, NULL));
   views::HWNDView::Attach(web_contents_->GetNativeView());
-  web_contents_->SetupController(profile);
   return true;
 }
 
 void DOMView::LoadURL(const GURL& url) {
   DCHECK(initialized_);
-  web_contents_->controller()->LoadURL(url, GURL(), PageTransition::START_PAGE);
+  web_contents_->controller().LoadURL(url, GURL(), PageTransition::START_PAGE);
 }

@@ -121,7 +121,7 @@ InterstitialPage::InterstitialPage(WebContents* tab,
   // (which is the case when the interstitial was triggered by a sub-resource on
   // a page) when we have a pending entry (in the process of loading a new top
   // frame).
-  DCHECK(new_navigation || !tab->controller()->pending_entry());
+  DCHECK(new_navigation || !tab->controller().pending_entry());
 }
 
 InterstitialPage::~InterstitialPage() {
@@ -169,7 +169,7 @@ void InterstitialPage::Show() {
     // Give sub-classes a chance to set some states on the navigation entry.
     UpdateEntry(entry);
 
-    tab_->controller()->AddTransientEntry(entry);
+    tab_->controller().AddTransientEntry(entry);
   }
 
   DCHECK(!render_view_host_);
@@ -183,9 +183,9 @@ void InterstitialPage::Show() {
   notification_registrar_.Add(this, NotificationType::TAB_CONTENTS_DESTROYED,
                               Source<TabContents>(tab_));
   notification_registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
-                              Source<NavigationController>(tab_->controller()));
+      Source<NavigationController>(&tab_->controller()));
   notification_registrar_.Add(this, NotificationType::NAV_ENTRY_PENDING,
-                              Source<NavigationController>(tab_->controller()));
+      Source<NavigationController>(&tab_->controller()));
 }
 
 void InterstitialPage::Hide() {
@@ -194,7 +194,7 @@ void InterstitialPage::Hide() {
   if (tab_->interstitial_page())
     tab_->remove_interstitial_page();
   // Let's revert to the original title if necessary.
-  NavigationEntry* entry = tab_->controller()->GetActiveEntry();
+  NavigationEntry* entry = tab_->controller().GetActiveEntry();
   if (!new_navigation_ && should_revert_tab_title_) {
     entry->set_title(WideToUTF16Hack(original_tab_title_));
     tab_->NotifyNavigationStateChanged(TabContents::INVALIDATE_TITLE);
@@ -321,7 +321,7 @@ void InterstitialPage::DontProceed() {
     // explicitely.  Note that by calling DiscardNonCommittedEntries() we also
     // discard the pending entry, which is what we want, since the navigation is
     // cancelled.
-    tab_->controller()->DiscardNonCommittedEntries();
+    tab_->controller().DiscardNonCommittedEntries();
   }
 
   Hide();
@@ -383,7 +383,7 @@ void InterstitialPage::UpdateTitle(RenderViewHost* render_view_host,
                                    int32 page_id,
                                    const std::wstring& title) {
   DCHECK(render_view_host == render_view_host_);
-  NavigationEntry* entry = tab_->controller()->GetActiveEntry();
+  NavigationEntry* entry = tab_->controller().GetActiveEntry();
   // If this interstitial is shown on an existing navigation entry, we'll need
   // to remember its title so we can revert to it when hidden.
   if (!new_navigation_ && !should_revert_tab_title_) {

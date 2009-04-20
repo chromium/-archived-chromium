@@ -15,7 +15,6 @@
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/repost_form_warning.h"
 #include "chrome/browser/tab_contents/site_instance.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/navigation_types.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/render_messages.h"
@@ -121,34 +120,7 @@ NavigationController::NavigationController(TabContents* contents,
       ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
       needs_reload_(false),
       load_pending_entry_when_active_(false) {
-  if (contents)
-    contents->set_controller(this);
   DCHECK(profile_);
-}
-
-NavigationController::NavigationController(
-    Profile* profile,
-    const std::vector<TabNavigation>& navigations,
-    int selected_navigation)
-    : profile_(profile),
-      pending_entry_(NULL),
-      last_committed_entry_index_(-1),
-      pending_entry_index_(-1),
-      transient_entry_index_(-1),
-      tab_contents_(NULL),
-      max_restored_page_id_(-1),
-      ALLOW_THIS_IN_INITIALIZER_LIST(ssl_manager_(this, NULL)),
-      needs_reload_(true),
-      load_pending_entry_when_active_(false) {
-  DCHECK(profile_);
-  DCHECK(selected_navigation >= 0 &&
-         selected_navigation < static_cast<int>(navigations.size()));
-
-  // Populate entries_ from the supplied TabNavigations.
-  CreateNavigationEntriesFromTabNavigations(navigations, &entries_);
-
-  // And finish the restore.
-  FinishRestore(selected_navigation);
 }
 
 NavigationController::~NavigationController() {
@@ -158,6 +130,22 @@ NavigationController::~NavigationController() {
       NotificationType::TAB_CLOSED,
       Source<NavigationController>(this),
       NotificationService::NoDetails());
+}
+
+void NavigationController::RestoreFromState(
+    const std::vector<TabNavigation>& navigations,
+    int selected_navigation) {
+  // Verify that this controller is unused and that the input is valid.
+  DCHECK(entry_count() == 0 && !pending_entry());
+  DCHECK(selected_navigation >= 0 &&
+         selected_navigation < static_cast<int>(navigations.size()));
+
+  // Populate entries_ from the supplied TabNavigations.
+  needs_reload_ = true;
+  CreateNavigationEntriesFromTabNavigations(navigations, &entries_);
+
+  // And finish the restore.
+  FinishRestore(selected_navigation);
 }
 
 void NavigationController::Reload(bool check_for_repost) {
@@ -351,19 +339,6 @@ void NavigationController::RemoveEntryAtIndex(int index,
   }
 }
 
-void NavigationController::Destroy() {
-  // TODO(brettw) the destruction of TabContents/NavigationController makes no
-  // sense (see TabContentsWasDestroyed)
-  tab_contents_->Destroy();
-  // We are now deleted.
-}
-
-void NavigationController::TabContentsWasDestroyed() {
-  // TODO(brettw) the destruction of TabContents/NavigationController makes no
-  // sense (see Destroy).
-  delete this;
-}
-
 NavigationEntry* NavigationController::CreateNavigationEntry(
     const GURL& url, const GURL& referrer, PageTransition::Type transition) {
   // Allow the browser URL handler to rewrite the URL. This will, for example,
@@ -421,7 +396,7 @@ void NavigationController::LoadURLLazily(const GURL& url,
   load_pending_entry_when_active_ = true;
 }
 
-bool NavigationController::LoadingURLLazily() {
+bool NavigationController::LoadingURLLazily() const {
   return load_pending_entry_when_active_;
 }
 
@@ -741,6 +716,7 @@ bool NavigationController::RendererDidNavigateAutoSubframe(
   return false;
 }
 
+// TODO(brettw) I think this function is unnecessary.
 void NavigationController::CommitPendingEntry() {
   DiscardTransientEntry();
 
@@ -801,6 +777,22 @@ bool NavigationController::IsURLInPageNavigation(const GURL& url) const {
   if (!last_committed)
     return false;
   return AreURLsInPageNavigation(last_committed->url(), url);
+}
+
+void NavigationController::CopyStateFrom(const NavigationController& source) {
+  // Verify that we look new.
+  DCHECK(entry_count() == 0 && !pending_entry());
+
+  if (source.entry_count() == 0)
+    return;  // Nothing new to do.
+
+  needs_reload_ = true;
+  for (int i = 0; i < source.entry_count(); i++) {
+    entries_.push_back(linked_ptr<NavigationEntry>(
+        new NavigationEntry(*source.entries_[i])));
+  }
+
+  FinishRestore(source.last_committed_entry_index_);
 }
 
 void NavigationController::DiscardNonCommittedEntries() {
@@ -867,9 +859,6 @@ void NavigationController::NavigateToPendingEntry(bool reload) {
     pending_entry_ = entries_[pending_entry_index_].get();
   }
 
-  tab_contents_ = GetTabContentsCreateIfNecessary(*pending_entry_);
-
-  NavigationEntry temp_entry(*pending_entry_);
   if (!tab_contents_->NavigateToPendingEntry(reload))
     DiscardNonCommittedEntries();
 }
@@ -887,17 +876,6 @@ void NavigationController::NotifyNavigationEntryCommitted(
       NotificationType::NAV_ENTRY_COMMITTED,
       Source<NavigationController>(this),
       Details<LoadCommittedDetails>(details));
-}
-
-TabContents* NavigationController::GetTabContentsCreateIfNecessary(
-    const NavigationEntry& entry) {
-  if (tab_contents_)
-    return tab_contents_;
-
-  tab_contents_ = new WebContents(profile_, entry.site_instance(),
-                                  MSG_ROUTING_NONE, NULL);
-  tab_contents_->set_controller(this);
-  return tab_contents_;  // TODO(brettw) it's stupid to both set and return it.
 }
 
 // static
@@ -938,25 +916,6 @@ void NavigationController::NotifyEntryChanged(const NavigationEntry* entry,
                                          Details<EntryChangedDetails>(&det));
 }
 
-NavigationController* NavigationController::Clone() {
-  NavigationController* nc = new NavigationController(NULL, profile_);
-
-  if (entry_count() == 0)
-    return nc;
-
-  nc->needs_reload_ = true;
-
-  nc->entries_.reserve(entries_.size());
-  for (int i = 0, c = entry_count(); i < c; ++i) {
-    nc->entries_.push_back(linked_ptr<NavigationEntry>(
-        new NavigationEntry(*GetEntryAtIndex(i))));
-  }
-
-  nc->FinishRestore(last_committed_entry_index_);
-
-  return nc;
-}
-
 void NavigationController::FinishRestore(int selected_index) {
   DCHECK(selected_index >= 0 && selected_index < entry_count());
   ConfigureEntriesForRestore(&entries_);
@@ -964,9 +923,6 @@ void NavigationController::FinishRestore(int selected_index) {
   set_max_restored_page_id(entry_count());
 
   last_committed_entry_index_ = selected_index;
-
-  // Callers assume we have an active_contents after restoring, so set it now.
-  tab_contents_ = GetTabContentsCreateIfNecessary(*entries_[selected_index]);
 }
 
 void NavigationController::DiscardNonCommittedEntriesInternal() {

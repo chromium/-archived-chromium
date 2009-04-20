@@ -184,7 +184,7 @@ class RenderViewHostTestHarness : public testing::Test {
         controller_(NULL) {}
   virtual ~RenderViewHostTestHarness() {}
 
-  NavigationController* controller() {
+  NavigationController& controller() {
     return contents_->controller();
   }
 
@@ -200,7 +200,7 @@ class RenderViewHostTestHarness : public testing::Test {
     return profile_.get();
   }
 
-  MockRenderProcessHost* process() { 
+  MockRenderProcessHost* process() {
     return static_cast<MockRenderProcessHost*>(rvh()->process());
   }
 

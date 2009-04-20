@@ -8,6 +8,7 @@
 #ifndef CHROME_BROWSER_VIEWS_DOM_VIEW_H_
 #define CHROME_BROWSER_VIEWS_DOM_VIEW_H_
 
+#include "base/scoped_ptr.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "googleurl/src/gurl.h"
 
@@ -34,7 +35,7 @@ class DOMView : public views::HWNDView {
  protected:
   virtual bool CanProcessTabKeyEvents() { return true; }
 
-  WebContents* web_contents_;
+  scoped_ptr<WebContents> web_contents_;
 
  private:
   bool initialized_;

@@ -35,22 +35,18 @@ void DevToolsManager::Observe(NotificationType type,
       return;
     }
 
-    NavigationController* controller = src->controller();
-    bool active = (controller->tab_contents() == src.ptr());
-    if (active) {
-      // Active tab contents disconnecting from its renderer means that the tab
-      // is closing.
-      client_host->InspectedTabClosing();
-      UnregisterDevToolsClientHost(client_host, controller);
-    }
+    // Active tab contents disconnecting from its renderer means that the tab
+    // is closing.
+    client_host->InspectedTabClosing();
+    UnregisterDevToolsClientHost(client_host, &src->controller());
   }
 }
 
 DevToolsClientHost* DevToolsManager::GetDevToolsClientHostFor(
     const WebContents& web_contents) {
-  NavigationController* navigation_controller = web_contents.controller();
+  const NavigationController& navigation_controller = web_contents.controller();
   ClientHostMap::const_iterator it =
-      navcontroller_to_client_host_.find(navigation_controller);
+      navcontroller_to_client_host_.find(&navigation_controller);
   if (it != navcontroller_to_client_host_.end()) {
     return it->second;
   }
@@ -58,11 +54,11 @@ DevToolsClientHost* DevToolsManager::GetDevToolsClientHostFor(
 }
 
 void DevToolsManager::RegisterDevToolsClientHostFor(
-    const WebContents& web_contents,
+    WebContents& web_contents,
     DevToolsClientHost* client_host) {
   DCHECK(!GetDevToolsClientHostFor(web_contents));
 
-  NavigationController* navigation_controller = web_contents.controller();
+  NavigationController* navigation_controller = &web_contents.controller();
   navcontroller_to_client_host_[navigation_controller] = client_host;
   client_host_to_navcontroller_[client_host] = navigation_controller;
   client_host->set_close_listener(this);

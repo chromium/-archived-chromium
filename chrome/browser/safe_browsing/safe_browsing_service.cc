@@ -285,11 +285,9 @@ void SafeBrowsingService::DoDisplayBlockingPage(
       resource.threat_type == SafeBrowsingService::URL_MALWARE) {
     GURL page_url = wc->GetURL();
     GURL referrer_url;
-    if (wc->controller()) {
-      NavigationEntry* entry = wc->controller()->GetActiveEntry();
-      if (entry)
-        referrer_url = entry->referrer();
-    }
+    NavigationEntry* entry = wc->controller().GetActiveEntry();
+    if (entry)
+      referrer_url = entry->referrer();
     io_loop_->PostTask(FROM_HERE,
         NewRunnableMethod(this,
                           &SafeBrowsingService::ReportMalware,

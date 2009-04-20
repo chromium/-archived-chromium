@@ -37,9 +37,13 @@ RenderViewHostManager::RenderViewHostManager(
 }
 
 RenderViewHostManager::~RenderViewHostManager() {
-  // Shutdown should have been called which should have cleaned these up.
-  DCHECK(!render_view_host_);
-  DCHECK(!pending_render_view_host_);
+  if (pending_render_view_host_)
+    CancelPending();
+
+  // We should always have a main RenderViewHost.
+  RenderViewHost* render_view_host = render_view_host_;
+  render_view_host_ = NULL;
+  render_view_host->Shutdown();
 }
 
 void RenderViewHostManager::Init(Profile* profile,
@@ -53,16 +57,6 @@ void RenderViewHostManager::Init(Profile* profile,
     site_instance = SiteInstance::CreateSiteInstance(profile);
   render_view_host_ = RenderViewHostFactory::Create(
       site_instance, render_view_delegate_, routing_id, modal_dialog_event);
-}
-
-void RenderViewHostManager::Shutdown() {
-  if (pending_render_view_host_)
-    CancelPending();
-
-  // We should always have a main RenderViewHost.
-  RenderViewHost* render_view_host = render_view_host_;
-  render_view_host_ = NULL;
-  render_view_host->Shutdown();
 }
 
 RenderViewHost* RenderViewHostManager::Navigate(const NavigationEntry& entry) {
@@ -105,7 +99,7 @@ RenderViewHost* RenderViewHostManager::Navigate(const NavigationEntry& entry) {
       NotificationService::current()->Notify(
           NotificationType::RENDER_VIEW_HOST_CHANGED,
           Source<NavigationController>(
-              delegate_->GetControllerForRenderManager()),
+              &delegate_->GetControllerForRenderManager()),
           Details<RenderViewHostSwitchedDetails>(&details));
     }
   }
@@ -356,12 +350,12 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
   // For now, though, we're in a hybrid model where you only switch
   // SiteInstances if you type in a cross-site URL.  This means we have to
   // compare the entry's URL to the last committed entry's URL.
-  NavigationController* controller = delegate_->GetControllerForRenderManager();
-  NavigationEntry* curr_entry = controller->GetLastCommittedEntry();
+  NavigationController& controller = delegate_->GetControllerForRenderManager();
+  NavigationEntry* curr_entry = controller.GetLastCommittedEntry();
   if (interstitial_page_) {
     // The interstitial is currently the last committed entry, but we want to
     // compare against the last non-interstitial entry.
-    curr_entry = controller->GetEntryAtOffset(-1);
+    curr_entry = controller.GetEntryAtOffset(-1);
   }
   // If there is no last non-interstitial entry (and curr_instance already
   // has a site), then we must have been opened from another tab.  We want
@@ -386,7 +380,7 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
     // that page, we want to explicity ignore that BrowsingInstance and make a
     // new process.
     return SiteInstance::CreateSiteInstance(
-        delegate_->GetControllerForRenderManager()->profile());
+        delegate_->GetControllerForRenderManager().profile());
   } else {
     // Start the new renderer in a new SiteInstance, but in the current
     // BrowsingInstance.  It is important to immediately give this new
@@ -399,7 +393,7 @@ SiteInstance* RenderViewHostManager::GetSiteInstanceForEntry(
 
 bool RenderViewHostManager::CreatePendingRenderView(SiteInstance* instance) {
   NavigationEntry* curr_entry =
-      delegate_->GetControllerForRenderManager()->GetLastCommittedEntry();
+      delegate_->GetControllerForRenderManager().GetLastCommittedEntry();
   if (curr_entry) {
     DCHECK(!curr_entry->content_state().empty());
     // TODO(creis): Should send a message to the RenderView to let it know
@@ -466,7 +460,7 @@ void RenderViewHostManager::CommitPending() {
   details.old_host = old_render_view_host;
   NotificationService::current()->Notify(
       NotificationType::RENDER_VIEW_HOST_CHANGED,
-      Source<NavigationController>(delegate_->GetControllerForRenderManager()),
+      Source<NavigationController>(&delegate_->GetControllerForRenderManager()),
       Details<RenderViewHostSwitchedDetails>(&details));
 
   old_render_view_host->Shutdown();

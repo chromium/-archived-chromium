@@ -16,7 +16,7 @@
 class TabContentsReference : public NotificationObserver {
  public:
   TabContentsReference(TabContents *c) : navigation_controller_(NULL) {
-    navigation_controller_ = c->controller();
+    navigation_controller_ = &c->controller();
 
     NotificationService* service = NotificationService::current();
     DCHECK(service);

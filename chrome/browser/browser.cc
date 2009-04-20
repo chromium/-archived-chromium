@@ -536,6 +536,7 @@ TabContents* Browser::AddTabWithURL(
   return contents;
 }
 
+// TODO(brettw) this should be just AddTab and it should take a TabContents.
 TabContents* Browser::AddTabWithNavigationController(
     NavigationController* ctrl, PageTransition::Type type) {
   TabContents* tc = ctrl->tab_contents();
@@ -543,35 +544,34 @@ TabContents* Browser::AddTabWithNavigationController(
   return tc;
 }
 
-NavigationController* Browser::AddRestoredTab(
+TabContents* Browser::AddRestoredTab(
     const std::vector<TabNavigation>& navigations,
     int tab_index,
     int selected_navigation,
     bool select) {
-  NavigationController* restored_controller =
-      BuildRestoredNavigationController(navigations, selected_navigation);
+  TabContents* new_tab = new WebContents(profile(), NULL,
+                                         MSG_ROUTING_NONE, NULL);
+  new_tab->controller().RestoreFromState(navigations, selected_navigation);
 
-  tabstrip_model_.InsertTabContentsAt(
-      tab_index,
-      restored_controller->tab_contents(),
-      select, false);
+  tabstrip_model_.InsertTabContentsAt(tab_index, new_tab, select, false);
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
     if (session_service)
-      session_service->TabRestored(restored_controller);
+      session_service->TabRestored(&new_tab->controller());
   }
-  return restored_controller;
+  return new_tab;
 }
 
 void Browser::ReplaceRestoredTab(
     const std::vector<TabNavigation>& navigations,
     int selected_navigation) {
-  NavigationController* restored_controller =
-      BuildRestoredNavigationController(navigations, selected_navigation);
+  TabContents* replacement = new WebContents(profile(), NULL,
+                                             MSG_ROUTING_NONE, NULL);
+  replacement->controller().RestoreFromState(navigations, selected_navigation);
 
   tabstrip_model_.ReplaceNavigationControllerAt(
       tabstrip_model_.selected_index(),
-      restored_controller);
+      &replacement->controller());
 }
 
 bool Browser::CanRestoreTab() {
@@ -611,33 +611,34 @@ void Browser::GoBack(WindowOpenDisposition disposition) {
     return;
   }
 
-  if (current_tab->controller()->CanGoBack()) {
-    NavigationController* controller = 0;
-    if (disposition == NEW_FOREGROUND_TAB || disposition == NEW_BACKGROUND_TAB){
-      controller = GetSelectedTabContents()->controller()->Clone();
+  if (current_tab->controller().CanGoBack()) {
+    NavigationController* controller = NULL;
+    if (disposition == NEW_FOREGROUND_TAB ||
+        disposition == NEW_BACKGROUND_TAB) {
       tabstrip_model_.AddTabContents(
-          controller->tab_contents(), -1,
+          GetSelectedTabContents()->Clone(), -1,
           PageTransition::LINK, disposition == NEW_FOREGROUND_TAB);
     } else {
       // Default disposition is CURRENT_TAB.
-      controller = current_tab->controller();
+      controller = &current_tab->controller();
     }
     controller->GoBack();
   }
 }
 
 void Browser::GoForward(WindowOpenDisposition disp) {
+  // TODO(brettw) this is mostly duplicated from GoBack, these should have a
+  // common backend or something.
   UserMetrics::RecordAction(L"Forward", profile_);
-  if (GetSelectedTabContents()->controller()->CanGoForward()) {
+  if (GetSelectedTabContents()->controller().CanGoForward()) {
     NavigationController* controller = 0;
     if (disp == NEW_FOREGROUND_TAB || disp == NEW_BACKGROUND_TAB) {
-      controller = GetSelectedTabContents()->controller()->Clone();
       tabstrip_model_.AddTabContents(
-          controller->tab_contents(), -1,
+          GetSelectedTabContents()->Clone(), -1,
           PageTransition::LINK, disp == NEW_FOREGROUND_TAB);
     } else {
       // Default disposition is CURRENT_TAB.
-      controller = GetSelectedTabContents()->controller();
+      controller = &GetSelectedTabContents()->controller();
     }
     controller->GoForward();
   }
@@ -651,7 +652,7 @@ void Browser::Reload() {
   if (current_tab) {
     WebContents* web_contents = current_tab->AsWebContents();
     if (web_contents && web_contents->showing_interstitial_page()) {
-      NavigationEntry* entry = current_tab->controller()->GetActiveEntry();
+      NavigationEntry* entry = current_tab->controller().GetActiveEntry();
       DCHECK(entry);  // Should exist if interstitial is showing.
       OpenURL(entry->url(), GURL(), CURRENT_TAB, PageTransition::RELOAD);
       return;
@@ -661,7 +662,7 @@ void Browser::Reload() {
   if (current_tab) {
     // As this is caused by a user action, give the focus to the page.
     current_tab->Focus();
-    current_tab->controller()->Reload(true);
+    current_tab->controller().Reload(true);
   }
 }
 
@@ -797,7 +798,7 @@ void Browser::BookmarkCurrentPage() {
   if (!model || !model->IsLoaded())
     return;  // Ignore requests until bookmarks are loaded.
 
-  NavigationEntry* entry = contents->controller()->GetActiveEntry();
+  NavigationEntry* entry = contents->controller().GetActiveEntry();
   if (!entry)
     return;  // Can't star if there is no URL.
   const GURL& url = entry->display_url();
@@ -822,7 +823,7 @@ void Browser::ViewSource() {
   UserMetrics::RecordAction(L"ViewSource", profile_);
 
   TabContents* current_tab = GetSelectedTabContents();
-  NavigationEntry* entry = current_tab->controller()->GetLastCommittedEntry();
+  NavigationEntry* entry = current_tab->controller().GetLastCommittedEntry();
   if (entry) {
     GURL url("view-source:" + entry->url().spec());
     OpenURL(url, GURL(), NEW_FOREGROUND_TAB, PageTransition::LINK);
@@ -1390,23 +1391,19 @@ TabContents* Browser::CreateTabContentsForURL(
     SiteInstance* instance) const {
   WebContents* contents = new WebContents(profile, instance,
                                           MSG_ROUTING_NONE, NULL);
-  contents->SetupController(profile);
 
   if (!defer_load) {
     // Load the initial URL before adding the new tab contents to the tab strip
     // so that the tab contents has navigation state.
-    contents->controller()->LoadURL(url, referrer, transition);
+    contents->controller().LoadURL(url, referrer, transition);
   }
 
   return contents;
 }
 
 bool Browser::CanDuplicateContentsAt(int index) {
-  TabContents* contents = GetTabContentsAt(index);
-  DCHECK(contents);
-
-  NavigationController* nc = contents->controller();
-  return nc ? (nc->tab_contents() && nc->GetLastCommittedEntry()) : false;
+  NavigationController& nc = GetTabContentsAt(index)->controller();
+  return nc.tab_contents() && nc.GetLastCommittedEntry();
 }
 
 void Browser::DuplicateContentsAt(int index) {
@@ -1417,7 +1414,7 @@ void Browser::DuplicateContentsAt(int index) {
   if (type_ == TYPE_NORMAL) {
     // If this is a tabbed browser, just create a duplicate tab inside the same
     // window next to the tab being duplicated.
-    new_contents = contents->controller()->Clone()->tab_contents();
+    new_contents = contents->Clone();
     // If you duplicate a tab that is not selected, we need to make sure to
     // select the tab being duplicated so that DetermineInsertionIndex returns
     // the right index (if tab 5 is selected and we right-click tab 1 we want
@@ -1446,14 +1443,14 @@ void Browser::DuplicateContentsAt(int index) {
 
     // The page transition below is only for the purpose of inserting the tab.
     new_contents = browser->AddTabWithNavigationController(
-        contents->controller()->Clone(),
+        &contents->Clone()->controller(),
         PageTransition::LINK);
   }
 
   if (profile_->HasSessionService()) {
     SessionService* session_service = profile_->GetSessionService();
     if (session_service)
-      session_service->TabRestored(new_contents->controller());
+      session_service->TabRestored(&new_contents->controller());
   }
 }
 
@@ -1479,7 +1476,7 @@ void Browser::CreateHistoricalTab(TabContents* contents) {
   // We only create historical tab entries for normal tabbed browser windows.
   if (type() == TYPE_NORMAL) {
     profile()->GetTabRestoreService()->CreateHistoricalTab(
-        contents->controller());
+        &contents->controller());
   }
 }
 
@@ -1510,7 +1507,7 @@ void Browser::TabInsertedAt(TabContents* contents,
                             int index,
                             bool foreground) {
   contents->set_delegate(this);
-  contents->controller()->SetWindowID(session_id());
+  contents->controller().SetWindowID(session_id());
 
   SyncHistoryWithTabs(tabstrip_model_.GetIndexOfTabContents(contents));
 
@@ -1527,11 +1524,9 @@ void Browser::TabInsertedAt(TabContents* contents,
 }
 
 void Browser::TabClosingAt(TabContents* contents, int index) {
-  NavigationController* controller = contents->controller();
-  DCHECK(controller);
   NotificationService::current()->Notify(
       NotificationType::TAB_CLOSING,
-      Source<NavigationController>(controller),
+      Source<NavigationController>(&contents->controller()),
       NotificationService::NoDetails());
 
   // Sever the TabContents' connection back to us.
@@ -1704,15 +1699,8 @@ void Browser::OpenURLFromTab(TabContents* source,
   } else if ((disposition == CURRENT_TAB) && current_tab) {
     tabstrip_model_.TabNavigating(current_tab, transition);
 
-    // TODO(beng): remove all this once there are no TabContents types.
-    // It seems like under some circumstances current_tab can be dust after the
-    // call to LoadURL (perhaps related to TabContents type switching), so we
-    // save the NavigationController here.
-    NavigationController* controller = current_tab->controller();
-    controller->LoadURL(url, referrer, transition);
-    // If the TabContents type has been swapped, we need to point to the current
-    // active type otherwise there will be weirdness.
-    new_contents = controller->tab_contents();
+    current_tab->controller().LoadURL(url, referrer, transition);
+    new_contents = current_tab;
     if (GetStatusBubble())
       GetStatusBubble()->Hide();
 
@@ -1886,7 +1874,7 @@ void Browser::ConvertContentsToApplication(TabContents* contents) {
   if (index < 0)
     return;
 
-  const GURL& url = contents->controller()->GetActiveEntry()->url();
+  const GURL& url = contents->controller().GetActiveEntry()->url();
   std::wstring app_name = ComputeApplicationNameFromURL(url);
   RegisterAppPrefs(app_name);
 
@@ -1994,7 +1982,7 @@ void Browser::Observe(NotificationType type,
       // actually be for a different window while we're doing asynchronous
       // closing of this one.
       if (GetSelectedTabContents() &&
-          GetSelectedTabContents()->controller() ==
+          &GetSelectedTabContents()->controller() ==
           Source<NavigationController>(source).ptr())
         UpdateToolbar(false);
       break;
@@ -2137,9 +2125,9 @@ void Browser::UpdateCommandsForTabState() {
     return;
 
   // Navigation commands
-  NavigationController* nc = current_tab->controller();
-  command_updater_.UpdateCommandEnabled(IDC_BACK, nc->CanGoBack());
-  command_updater_.UpdateCommandEnabled(IDC_FORWARD, nc->CanGoForward());
+  NavigationController& nc = current_tab->controller();
+  command_updater_.UpdateCommandEnabled(IDC_BACK, nc.CanGoBack());
+  command_updater_.UpdateCommandEnabled(IDC_FORWARD, nc.CanGoForward());
 
   // Window management commands
   command_updater_.UpdateCommandEnabled(IDC_DUPLICATE_TAB,
@@ -2151,7 +2139,7 @@ void Browser::UpdateCommandsForTabState() {
     bool is_web_contents = web_contents != NULL;
 
     // Current navigation entry, may be NULL.
-    NavigationEntry* active_entry = current_tab->controller()->GetActiveEntry();
+    NavigationEntry* active_entry = current_tab->controller().GetActiveEntry();
 
     // Page-related commands
     // Only allow bookmarking for web content in normal windows.
@@ -2245,7 +2233,7 @@ void Browser::ScheduleUIUpdate(const TabContents* source,
     // this for any tab so they start & stop quickly, but the source can be
     // NULL, so we have to check for that.
     tabstrip_model_.UpdateTabContentsStateAt(
-        tabstrip_model_.GetIndexOfController(source->controller()), true);
+        tabstrip_model_.GetIndexOfController(&source->controller()), true);
   }
 
   // If the only updates were synchronously handled above, we're done.
@@ -2273,8 +2261,8 @@ void Browser::ProcessPendingUIUpdates() {
   for (size_t i = 0; i < scheduled_updates_.size(); i++) {
     bool found = false;
     for (int tab = 0; tab < tab_count(); tab++) {
-      if (GetTabContentsAt(tab)->controller() ==
-          scheduled_updates_[i].source->controller()) {
+      if (&GetTabContentsAt(tab)->controller() ==
+          &scheduled_updates_[i].source->controller()) {
         found = true;
         break;
       }
@@ -2331,7 +2319,7 @@ void Browser::ProcessPendingUIUpdates() {
 
     if (invalidate_tab) {  // INVALIDATE_TITLE or INVALIDATE_FAVICON.
       tabstrip_model_.UpdateTabContentsStateAt(
-          tabstrip_model_.GetIndexOfController(contents->controller()), false);
+          tabstrip_model_.GetIndexOfController(&contents->controller()), false);
       window_->UpdateTitleBar();
 
       if (contents == GetSelectedTabContents()) {
@@ -2382,13 +2370,13 @@ void Browser::SyncHistoryWithTabs(int index) {
       TabContents* contents = GetTabContentsAt(i);
       if (contents) {
         session_service->SetTabIndexInWindow(
-            session_id(), contents->controller()->session_id(), i);
+            session_id(), contents->controller().session_id(), i);
       }
     }
   }
 }
 
-NavigationController* Browser::BuildRestoredNavigationController(
+TabContents* Browser::BuildRestoredTab(
       const std::vector<TabNavigation>& navigations,
       int selected_navigation) {
   if (!navigations.empty()) {
@@ -2396,13 +2384,14 @@ NavigationController* Browser::BuildRestoredNavigationController(
            selected_navigation < static_cast<int>(navigations.size()));
     // Create a NavigationController. This constructor creates the appropriate
     // set of TabContents.
-    return new NavigationController(profile_, navigations, selected_navigation);
+    TabContents* new_tab = new WebContents(profile_, NULL,
+                                           MSG_ROUTING_NONE, NULL);
+    new_tab->controller().RestoreFromState(navigations, selected_navigation);
+    return new_tab;
   } else {
     // No navigations. Create a tab with about:blank.
-    TabContents* contents =
-        CreateTabContentsForURL(GURL("about:blank"), GURL(), profile_,
-                                PageTransition::START_PAGE, false, NULL);
-    return new NavigationController(contents, profile_);
+    return CreateTabContentsForURL(GURL("about:blank"), GURL(), profile_,
+                                   PageTransition::START_PAGE, false, NULL);
   }
 }
 

@@ -5,6 +5,7 @@
 #include "base/string16.h"
 #include "chrome/browser/renderer_host/browser_render_process_host.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/test_render_view_host.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/render_messages.h"
@@ -68,6 +69,10 @@ class TestSiteInstance : public SiteInstance {
 
 // Test to ensure no memory leaks for SiteInstance objects.
 TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
+  // The existance of these factories will cause WebContents to create our test
+  // one instead of the real one.
+  MockRenderProcessHostFactory rph_factory;
+  TestRenderViewHostFactory rvh_factory(&rph_factory);
   int siteDeleteCounter = 0;
   int browsingDeleteCounter = 0;
   const GURL url("test:foo");
@@ -107,15 +112,11 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
       TestSiteInstance::CreateTestSiteInstance(profile.get(),
                                                &siteDeleteCounter,
                                                &browsingDeleteCounter);
-  WebContents* contents = new WebContents(
-      profile.get(), instance, MSG_ROUTING_NONE, NULL);
-  contents->SetupController(profile.get());
-  EXPECT_EQ(1, siteDeleteCounter);
-  EXPECT_EQ(1, browsingDeleteCounter);
-
-  contents->CloseContents();
-  // Make sure that we flush any messages related to WebContents destruction.
-  MessageLoop::current()->RunAllPending();
+  {
+    WebContents contents(profile.get(), instance, MSG_ROUTING_NONE, NULL);
+    EXPECT_EQ(1, siteDeleteCounter);
+    EXPECT_EQ(1, browsingDeleteCounter);
+  }
 
   EXPECT_EQ(2, siteDeleteCounter);
   EXPECT_EQ(2, browsingDeleteCounter);
