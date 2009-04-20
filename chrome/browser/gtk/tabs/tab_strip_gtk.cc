@@ -386,6 +386,16 @@ TabStripGtk::TabStripGtk(TabStripModel* model)
 TabStripGtk::~TabStripGtk() {
   model_->RemoveObserver(this);
   tabstrip_.Destroy();
+
+  // Free any remaining tabs.  This is needed to free the very last tab,
+  // because it is not animated on close.  This also happens when all of the
+  // tabs are closed at once.
+  std::vector<TabData>::iterator iterator = tab_data_.begin();
+  for (; iterator < tab_data_.end(); iterator++) {
+    delete iterator->tab;
+  }
+
+  tab_data_.clear();
 }
 
 void TabStripGtk::Init() {
