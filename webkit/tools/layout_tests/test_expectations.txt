@@ -2501,7 +2501,9 @@ BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug96343.html = FAIL
 BUG10662 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug1725.html = FAIL
 
 // New tests from WebKit Merge 42609:42671
-BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
+DEFER BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
 BUG10760 LINUX : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
-BUG10760 : LayoutTests/fast/inline/25277-2.html = FAIL
-BUG10760 : LayoutTests/fast/inline/25277.html = FAIL
+BUG10760 LINUX MAC : LayoutTests/fast/inline/25277-2.html = FAIL
+BUG10760 LINUX MAC : LayoutTests/fast/inline/25277.html = FAIL
+BUG10760 MAC : LayoutTests/svg/custom/marker-overflow-clip.svg = FAIL
+BUG10760 LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
