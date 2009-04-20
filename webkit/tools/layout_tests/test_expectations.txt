@@ -2468,7 +2468,7 @@ DEFER BUG10621 : LayoutTests/fast/js/array-reduce.html = FAIL
 DEFER BUG10621 : LayoutTests/fast/js/array-reduceRight.html = FAIL
 DEFER BUG10622 : LayoutTests/fast/js/array-enumerators-functions.html = FAIL
 
-// Need rebaselining for Mac and Linus, from WebKit merge 42580:42609
+// Need rebaselining for Mac and Linux, from WebKit merge 42580:42609
 BUG10662 LINUX MAC : LayoutTests/fast/forms/caret-rtl.html = FAIL
 BUG10662 LINUX MAC : LayoutTests/fast/forms/form-added-to-table.html = FAIL
 BUG10662 LINUX MAC : LayoutTests/fast/forms/form-in-malformed-markup.html = FAIL
@@ -2499,3 +2499,9 @@ BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug78162.html = FAIL
 BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug96334.html = FAIL
 BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug96343.html = FAIL
 BUG10662 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug1725.html = FAIL
+
+// New tests from WebKit Merge 42609:42671
+BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
+BUG10760 : LayoutTests/fast/forms/input-text-scroll-left-on-blur.html = FAIL
+BUG10760 : LayoutTests/fast/inline/25277-2.html = FAIL
+BUG10760 : LayoutTests/fast/inline/25277.html = FAIL

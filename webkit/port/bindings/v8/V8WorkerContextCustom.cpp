@@ -120,7 +120,7 @@ ACCESSOR_SETTER(WorkerContextOnmessage) {
 
   } else {
     RefPtr<V8EventListener> listener =
-        imp->script()->proxy()->FindOrCreateEventListener(
+        imp->script()->proxy()->findOrCreateEventListener(
             v8::Local<v8::Object>::Cast(value), false, false);
     if (listener) {
       if (old_listener) {
@@ -192,7 +192,7 @@ CALLBACK_FUNC_DECL(WorkerContextAddEventListener) {
       V8ClassIndex::WORKERCONTEXT, args.Holder());
 
   RefPtr<V8EventListener> listener =
-      imp->script()->proxy()->FindOrCreateEventListener(
+      imp->script()->proxy()->findOrCreateEventListener(
           v8::Local<v8::Object>::Cast(args[1]), false, false);
 
   if (listener) {
@@ -211,7 +211,7 @@ CALLBACK_FUNC_DECL(WorkerContextRemoveEventListener) {
       V8ClassIndex::WORKERCONTEXT, args.Holder());
   WorkerContextExecutionProxy* proxy = imp->script()->proxy();
 
-  RefPtr<V8EventListener> listener = proxy->FindOrCreateEventListener(
+  RefPtr<V8EventListener> listener = proxy->findOrCreateEventListener(
       v8::Local<v8::Object>::Cast(args[1]), false, true);
 
   if (listener) {

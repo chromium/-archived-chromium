@@ -173,8 +173,6 @@ public:
     void disposeJSResult(JSResult result);
     void collectGarbage();
 
-    PassRefPtr<EventListener> createInlineEventListener(const String& functionName, const String& eventParameterName, const String& code, Node*);
-
     // Creates a property of the global object of a frame.
     void BindToWindowObject(Frame*, const String& key, NPObject*);
 

@@ -237,12 +237,6 @@ void ScriptController::disposeJSResult(v8::Persistent<v8::Value> result)
     result.Clear();
 }
 
-PassRefPtr<EventListener> ScriptController::createInlineEventListener(
-    const String& functionName, const String& eventParameterName, const String& code, Node* node)
-{
-    return m_proxy->createInlineEventListener(functionName, code, node);
-}
-
 void ScriptController::setEventHandlerLineNumber(int lineno)
 {
     m_proxy->setEventHandlerLineno(lineno);

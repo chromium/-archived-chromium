@@ -233,6 +233,8 @@ static bool v8##NAME##IndexedSecurityCheck(v8::Local<v8::Object> host, \
 
 DECLARE_PROPERTY_ACCESSOR(CanvasRenderingContext2DStrokeStyle)
 DECLARE_PROPERTY_ACCESSOR(CanvasRenderingContext2DFillStyle)
+DECLARE_PROPERTY_ACCESSOR_GETTER(DOMWindowEvent)
+DECLARE_PROPERTY_ACCESSOR_GETTER(DOMWindowCrypto)
 // Customized getter&setter of DOMWindow.location
 DECLARE_PROPERTY_ACCESSOR_SETTER(DOMWindowLocation)
 // Customized setter of DOMWindow.opener

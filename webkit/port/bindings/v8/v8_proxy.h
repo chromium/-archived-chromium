@@ -172,7 +172,7 @@ class V8Proxy {
 
   explicit V8Proxy(Frame* frame)
       : m_frame(frame), m_event_listeners("m_event_listeners"),
-        m_xhr_listeners("m_xhr_listeners"), m_inlineCode(false),
+        m_xhr_listeners("m_xhr_listeners"),
         m_timerCallback(false), m_recursion(0) { }
 
   ~V8Proxy();
@@ -229,9 +229,6 @@ class V8Proxy {
   static void GCProtect(void* dom_object);
   static void GCUnprotect(void* dom_object);
 
-  // Create a lazy event listener.
-  PassRefPtr<EventListener> createInlineEventListener(
-      const String& functionName, const String& code, Node* node);
 #if ENABLE(SVG)
   static void SetSVGContext(void* object, SVGElement* context);
   static SVGElement* GetSVGContext(void* object);

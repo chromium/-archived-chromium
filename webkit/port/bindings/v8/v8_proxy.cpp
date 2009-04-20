@@ -809,14 +809,6 @@ void V8Proxy::SetJSWrapperForDOMNode(Node* node, v8::Persistent<v8::Object> wrap
     getDOMNodeMap().set(node, wrapper);
 }
 
-PassRefPtr<EventListener> V8Proxy::createInlineEventListener(
-                                               const String& functionName,
-                                               const String& code, Node* node)
-{
-    return V8LazyEventListener::create(m_frame, code, functionName);
-}
-
-
 // Event listeners
 
 static V8EventListener* FindEventListenerInList(V8EventListenerList& list,
