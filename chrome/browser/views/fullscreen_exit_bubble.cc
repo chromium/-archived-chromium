@@ -117,6 +117,7 @@ class FullscreenExitBubble::FullscreenExitPopup : public views::WidgetWin {
 
 const double FullscreenExitBubble::kOpacity = 0.7;
 const int FullscreenExitBubble::kInitialDelayMs = 2300;
+const int FullscreenExitBubble::kIdleTimeMs = 2300;
 const int FullscreenExitBubble::kPositionCheckHz = 10;
 const int FullscreenExitBubble::kSlideInRegionHeightPx = 4;
 const int FullscreenExitBubble::kSlideInDurationMs = 350;
@@ -147,9 +148,16 @@ FullscreenExitBubble::FullscreenExitBubble(
   popup_->SetContentsView(view_);
   popup_->Show();  // This does not activate the popup.
 
-  // Start the initial delay timer.
+  // Start the initial delay timer and begin watching the mouse.
   initial_delay_.Start(base::TimeDelta::FromMilliseconds(kInitialDelayMs), this,
-                       &FullscreenExitBubble::AfterInitialDelay);
+                       &FullscreenExitBubble::CheckMousePosition);
+  POINT cursor_pos;
+  GetCursorPos(&cursor_pos);
+  last_mouse_pos_ = cursor_pos;
+  views::View::ConvertPointToView(NULL, root_view_, &last_mouse_pos_);
+  mouse_position_checker_.Start(
+      base::TimeDelta::FromMilliseconds(1000 / kPositionCheckHz), this,
+      &FullscreenExitBubble::CheckMousePosition);
 }
 
 FullscreenExitBubble::~FullscreenExitBubble() {
@@ -186,14 +194,6 @@ void FullscreenExitBubble::AnimationEnded(
   AnimationProgressed(animation);
 }
 
-void FullscreenExitBubble::AfterInitialDelay() {
-  // Check the mouse position immediately and every 50 ms afterwards.
-  CheckMousePosition();
-  mouse_position_checker_.Start(
-      base::TimeDelta::FromMilliseconds(1000 / kPositionCheckHz), this,
-      &FullscreenExitBubble::CheckMousePosition);
-}
-
 void FullscreenExitBubble::CheckMousePosition() {
   // Desired behavior:
   //
@@ -203,26 +203,49 @@ void FullscreenExitBubble::CheckMousePosition() {
   // |                                                       |  Slide-out region
   // :                                                       :
   //
-  // * If the mouse is in the slide-in region, we show the popup.
-  // * If the mouse is in the slide-out region, we hide the popup.
-  // * If the mouse is in the neutral region, we do nothing, except if the popup
-  //   is currently sliding out, in which case we show it again.  This
-  //   facilitates users correcting us if they try to mouse horizontally towards
-  //   the popup and unintentionally drop too low.
+  // * If the mouse is offscreen or in the slide-out region, we hide the popup.
+  // * If the mouse goes idle, we hide the popup.
+  // * If the mouse is in the slide-in-region and not idle, we show the popup.
+  // * If the mouse is in the neutral region and not idle, and the popup is
+  //   currently sliding out, we show it again.  This facilitates users
+  //   correcting us if they try to mouse horizontally towards the popup and
+  //   unintentionally drop too low.
+  // * Otherwise, we do nothing, because the mouse is in the neutral region and
+  //   either the popup is hidden or the mouse is not idle, so we don't want to
+  //   change anything's state.
 
   POINT cursor_pos;
   GetCursorPos(&cursor_pos);
   gfx::Point transformed_pos(cursor_pos);
   views::View::ConvertPointToView(NULL, root_view_, &transformed_pos);
-  gfx::Rect trigger_rect(GetPopupRect(true));
+
+  // Check to see whether the mouse is idle.
+  if (transformed_pos != last_mouse_pos_) {
+    // The mouse moved; reset the idle timer.
+    idle_timeout_.Stop();  // If the timer isn't running, this is a no-op.
+    idle_timeout_.Start(base::TimeDelta::FromMilliseconds(kIdleTimeMs), this,
+                        &FullscreenExitBubble::CheckMousePosition);
+  }
+  last_mouse_pos_ = transformed_pos;
+
   if (!root_view_->HitTest(transformed_pos) ||
-      (cursor_pos.y >= trigger_rect.bottom())) {
-    size_animation_->SetSlideDuration(kSlideOutDurationMs);
-    size_animation_->Hide();
+      (cursor_pos.y >= GetPopupRect(true).bottom()) ||
+      !idle_timeout_.IsRunning()) {
+    // The cursor is offscreen, in the slide-out region, or idle.
+    Hide();
   } else if ((cursor_pos.y < kSlideInRegionHeightPx) ||
              (size_animation_->GetCurrentValue() != 0)) {
+    // The cursor is not idle, and either it's in the slide-in region or it's in
+    // the neutral region and we're sliding out.
     size_animation_->SetSlideDuration(kSlideInDurationMs);
     size_animation_->Show();
+  }
+}
+
+void FullscreenExitBubble::Hide() {
+  if (!initial_delay_.IsRunning()) {
+    size_animation_->SetSlideDuration(kSlideOutDurationMs);
+    size_animation_->Hide();
   }
 }
 

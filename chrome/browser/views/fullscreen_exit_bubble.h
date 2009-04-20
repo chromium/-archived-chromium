@@ -29,6 +29,7 @@ class FullscreenExitBubble : public views::LinkController,
 
   static const double kOpacity;          // Opacity of the bubble, 0.0 - 1.0
   static const int kInitialDelayMs;      // Initial time bubble remains onscreen
+  static const int kIdleTimeMs;          // Time before mouse idle triggers hide
   static const int kPositionCheckHz;     // How fast to check the mouse position
   static const int kSlideInRegionHeightPx;
                                          // Height of region triggering slide-in
@@ -42,12 +43,13 @@ class FullscreenExitBubble : public views::LinkController,
   virtual void AnimationProgressed(const Animation* animation);
   virtual void AnimationEnded(const Animation* animation);
 
-  // Called after the initial delay to start checking the mouse position.
-  void AfterInitialDelay();
-
   // Called repeatedly to get the current mouse position and animate the bubble
   // on or off the screen as appropriate.
   void CheckMousePosition();
+
+  // Hides the bubble.  This is a separate function so it can be called by a
+  // timer.
+  void Hide();
 
   // Returns the current desirable rect for the popup window.  If
   // |ignore_animation_state| is true this returns the rect assuming the popup
@@ -71,14 +73,22 @@ class FullscreenExitBubble : public views::LinkController,
   // Animation controlling sliding into/out of the top of the screen.
   scoped_ptr<SlideAnimation> size_animation_;
 
-  // Timer to delay before starting the mouse checking/bubble hiding code.
+  // Timer to delay before allowing the bubble to hide after it's initially
+  // shown.
   base::OneShotTimer<FullscreenExitBubble> initial_delay_;
+
+  // Timer to see how long the mouse has been idle.
+  base::OneShotTimer<FullscreenExitBubble> idle_timeout_;
 
   // Timer to poll the current mouse position.  We can't just listen for mouse
   // events without putting a non-empty HWND onscreen (or hooking Windows, which
   // has other problems), so instead we run a low-frequency poller to see if the
   // user has moved in or out of our show/hide regions.
   base::RepeatingTimer<FullscreenExitBubble> mouse_position_checker_;
+
+  // The most recently seen mouse position, in screen coordinates.  Used to see
+  // if the mouse has moved since our last check.
+  gfx::Point last_mouse_pos_;
 
   DISALLOW_COPY_AND_ASSIGN(FullscreenExitBubble);
 };

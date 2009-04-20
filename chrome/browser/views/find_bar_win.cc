@@ -367,12 +367,12 @@ bool FindBarWin::GetFindBarWindowInfo(gfx::Point* position,
   if (!find_bar_controller_ ||
       !::IsWindow(GetNativeView()) ||
       !::GetWindowRect(GetNativeView(), &window_rect)) {
-    *position = gfx::Point(0, 0);
+    *position = gfx::Point();
     *fully_visible = false;
     return false;
   }
 
-  *position = gfx::Point(window_rect.TopLeft().x, window_rect.TopLeft().y);
+  *position = window_rect.TopLeft();
   *fully_visible = IsVisible() && !IsAnimating();
   return true;
 }

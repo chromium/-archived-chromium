@@ -26,6 +26,7 @@ class Point {
   Point(int x, int y);
 #if defined(OS_WIN)
   explicit Point(const POINT& point);
+  Point& operator=(const POINT& point);
 #elif defined(OS_MACOSX)
   explicit Point(const CGPoint& point);
 #endif
