@@ -106,5 +106,22 @@
         ],
       },
     },
+    {
+      'target_name': 'gthread',
+      'type': 'settings',
+      'direct_dependent_settings': {
+        'cflags': [
+          '<!@(python pkg_config_wrapper.py --cflags gthread-2.0)',
+        ],
+      },
+      'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other gthread-2.0)',
+        ],
+        'libraries': [
+          '<!@(python pkg_config_wrapper.py --libs-only-l gthread-2.0)',
+        ],
+      },
+    },
   ],
 }
