@@ -105,6 +105,8 @@ var chromium = chromium || {};
   // name.
   chromium.Event.prototype.attach_ = function() {
     AttachEvent(this.eventName_);
+    this.unloadHandler_ = this.detach_.bind(this);
+    window.addEventListener('unload', this.unloadHandler_, false);
     if (!this.eventName_)
       return;
 
@@ -118,6 +120,7 @@ var chromium = chromium || {};
 
   // Detaches this event object from its name.
   chromium.Event.prototype.detach_ = function() {
+    window.removeEventListener('unload', this.unloadHandler_, false);
     DetachEvent(this.eventName_);
     if (!this.eventName_)
       return;
