@@ -186,7 +186,7 @@ AutocompleteInput::Type AutocompleteInput::Parse(
     DCHECK(found_ipv4);
     for (size_t i = 0; i < arraysize(components); ++i) {
       if (!components[i].is_nonempty())
-        return UNKNOWN;
+        return desired_tld.empty() ? UNKNOWN : REQUESTED_URL;
     }
     return URL;
   }
@@ -462,20 +462,6 @@ void AutocompleteProvider::SetProfile(Profile* profile) {
   profile_ = profile;
 }
 
-std::wstring AutocompleteProvider::StringForURLDisplay(
-    const GURL& url,
-    bool check_accept_lang) {
-#if !defined(OS_MACOSX)
-  return gfx::GetCleanStringFromUrl(url, check_accept_lang && profile_ ?
-      profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) :
-      std::wstring(), NULL, NULL);
-#else
-  // TODO(port): need gfx::GetCleanStringFromUrl
-  NOTIMPLEMENTED();
-  return UTF8ToWide(url.spec());
-#endif
-}
-
 void AutocompleteProvider::UpdateStarredStateOfMatches() {
   if (matches_.empty())
     return;
@@ -488,6 +474,20 @@ void AutocompleteProvider::UpdateStarredStateOfMatches() {
 
   for (ACMatches::iterator i = matches_.begin(); i != matches_.end(); ++i)
     i->starred = bookmark_model->IsBookmarked(GURL(i->destination_url));
+}
+
+std::wstring AutocompleteProvider::StringForURLDisplay(
+    const GURL& url,
+    bool check_accept_lang) const {
+#if !defined(OS_MACOSX)
+  return gfx::GetCleanStringFromUrl(url, (check_accept_lang && profile_) ?
+      profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) : std::wstring(),
+      NULL, NULL);
+#else
+  // TODO(port): need gfx::GetCleanStringFromUrl
+  NOTIMPLEMENTED();
+  return UTF8ToWide(url.spec());
+#endif
 }
 
 // AutocompleteResult ---------------------------------------------------------

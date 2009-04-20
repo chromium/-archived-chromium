@@ -532,6 +532,12 @@ class AutocompleteProvider
   // profile's bookmark bar model.
   void UpdateStarredStateOfMatches();
 
+  // A convenience function to call gfx::GetCleanStringFromUrl() with the
+  // current set of "Accept Languages" when check_accept_lang is true.
+  // Otherwise, it's called with an empty list.
+  std::wstring StringForURLDisplay(const GURL& url,
+                                   bool check_accept_lang) const;
+
   // The profile associated with the AutocompleteProvider.  Reference is not
   // owned by us.
   Profile* profile_;
@@ -542,11 +548,6 @@ class AutocompleteProvider
 
   // The name of this provider.  Used for logging.
   const char* name_;
-
-  // A convenience function to call gfx::GetCleanStringFromUrl() with the
-  // current set of "Accept Languages" when check_accept_lang is true.
-  // Otherwise, it's called with an empty list.
-  std::wstring StringForURLDisplay(const GURL& url, bool check_accept_lang);
 
  private:
   // A suggested upper bound for how many matches a provider should return.
