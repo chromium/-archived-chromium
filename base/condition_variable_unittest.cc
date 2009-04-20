@@ -183,7 +183,8 @@ TEST_F(ConditionVariableTest, TimeoutTest) {
 }
 
 // Test serial task servicing, as well as two parallel task servicing methods.
-TEST_F(ConditionVariableTest, MultiThreadConsumerTest) {
+// TODO(maruel): http://crbug.com/10607
+TEST_F(ConditionVariableTest, DISABLED_MultiThreadConsumerTest) {
   const int kThreadCount = 10;
   WorkQueue queue(kThreadCount);  // Start the threads.
 
