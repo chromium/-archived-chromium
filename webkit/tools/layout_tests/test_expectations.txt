@@ -2240,8 +2240,7 @@ BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIME
 
 // Merge WebKit: 42026:42115 new tests
 BUG10475 DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
-BUG10475 SLOW WIN LINUX DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL
-BUG10475 MAC DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
+BUG10475 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
 BUG10475 DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
 DEFER SKIP BUG9613 : LayoutTests/fast/dom/clientWidthAfterDocumentIsRemoved.html = PASS
