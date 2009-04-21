@@ -13,9 +13,11 @@ const int DevToolsRemoteListenSocketTester::kTestPort = 9999;
 
 static const int kReadBufSize = 1024;
 static const char* kChromeDevToolsHandshake = "ChromeDevToolsHandshake\r\n";
-static const char* kSimpleMessage =
+static const char* kSimpleMessagePart1 =
     "Tool:V8Debugger\r\n"
-    "Destination:2\r\n"
+    "Destination:2\r";
+static const char* kSimpleMessagePart2 =
+    "\n"
     "Content-Length:0\r\n"
     "\r\n";
 static const char* kTwoMessages =
@@ -259,7 +261,10 @@ bool DevToolsRemoteListenSocketTester::Send(SOCKET sock,
 void DevToolsRemoteListenSocketTester::TestClientSend() {
   ASSERT_TRUE(Send(test_socket_, kChromeDevToolsHandshake));
   {
-    ASSERT_TRUE(Send(test_socket_, kSimpleMessage));
+    ASSERT_TRUE(Send(test_socket_, kSimpleMessagePart1));
+    // sleep for 10ms to test message split between \r and \n
+    PlatformThread::Sleep(10);
+    ASSERT_TRUE(Send(test_socket_, kSimpleMessagePart2));
     ASSERT_TRUE(NextAction(kDefaultTimeoutMs));
     ASSERT_EQ(ACTION_READ_MESSAGE, last_action_.type());
     const DevToolsRemoteMessage& message = last_action_.message();

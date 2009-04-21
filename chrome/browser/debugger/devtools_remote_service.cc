@@ -71,7 +71,7 @@ void DevToolsRemoteService::ProcessJson(DictionaryValue* json,
   } else if (command == DevToolsRemoteServiceCommand::kListTabs) {
     ListValue* data = new ListValue();
     const InspectableTabProxy::ControllersMap& navcon_map =
-        delegate_->inspectable_tab_proxy()->controllers_map(true);
+        delegate_->inspectable_tab_proxy()->controllers_map();
     for (InspectableTabProxy::ControllersMap::const_iterator it =
         navcon_map.begin(), end = navcon_map.end(); it != end; ++it) {
       NavigationEntry* entry = it->second->GetActiveEntry();

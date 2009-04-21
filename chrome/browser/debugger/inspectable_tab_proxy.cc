@@ -79,17 +79,15 @@ void DevToolsClientHostImpl::DebuggerOutput(const std::string& msg) {
 }  // namespace
 
 const InspectableTabProxy::ControllersMap&
-    InspectableTabProxy::controllers_map(bool refresh) {
-  if (refresh || controllers_map_.empty() /* on initial call */) {
-    controllers_map_.clear();
-    for (BrowserList::const_iterator it = BrowserList::begin(),
-         end = BrowserList::end(); it != end; ++it) {
-      TabStripModel* model = (*it)->tabstrip_model();
-      for (int i = 0, size = model->count(); i < size; ++i) {
-        NavigationController& controller =
-            model->GetTabContentsAt(i)->controller();
-        controllers_map_[controller.session_id().id()] = &controller;
-      }
+    InspectableTabProxy::controllers_map() {
+  controllers_map_.clear();
+  for (BrowserList::const_iterator it = BrowserList::begin(),
+       end = BrowserList::end(); it != end; ++it) {
+    TabStripModel* model = (*it)->tabstrip_model();
+    for (int i = 0, size = model->count(); i < size; ++i) {
+      NavigationController& controller =
+          model->GetTabContentsAt(i)->controller();
+      controllers_map_[controller.session_id().id()] = &controller;
     }
   }
   return controllers_map_;

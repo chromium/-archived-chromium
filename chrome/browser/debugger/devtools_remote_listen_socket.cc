@@ -45,7 +45,8 @@ DevToolsRemoteListenSocket::DevToolsRemoteListenSocket(
     DevToolsRemoteListener* message_listener)
         : ListenSocket(s, del),
           state_(HANDSHAKE),
-          message_listener_(message_listener) {}
+          message_listener_(message_listener),
+          cr_received_(false) {}
 
 void DevToolsRemoteListenSocket::StartNextField() {
   switch (state_) {
@@ -135,19 +136,19 @@ void DevToolsRemoteListenSocket::DispatchRead(char* buf, int len) {
   char* pBuf = buf;
   while (len > 0) {
     if (state_ != PAYLOAD) {
-      while (*pBuf != '\r' && len > 0) {
-        protocol_field_.push_back(*pBuf);
+      if (cr_received_ && *pBuf == '\n') {
+        cr_received_ = false;
         CONSUME_BUFFER_CHAR;
-      }
-      if (*pBuf != '\r') {
-        continue;
       } else {
-        CONSUME_BUFFER_CHAR;
-        if (*pBuf != '\n') {
-          continue;
-        } else {
-          CONSUME_BUFFER_CHAR;  // handle the \r\n series
+        while (*pBuf != '\r' && len > 0) {
+          protocol_field_.push_back(*pBuf);
+          CONSUME_BUFFER_CHAR;
         }
+        if (*pBuf == '\r') {
+          cr_received_ = true;
+          CONSUME_BUFFER_CHAR;
+        }
+        continue;
       }
       switch (state_) {
         case HANDSHAKE:

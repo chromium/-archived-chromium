@@ -23,9 +23,8 @@ class InspectableTabProxy {
   virtual ~InspectableTabProxy() {}
 
   // Returns a map of NavigationControllerKeys to NavigationControllers
-  // for all Browser instances. If |refresh| == true, the cached map will be
-  // dropped and retrieved anew.
-  const ControllersMap& controllers_map(bool refresh);
+  // for all Browser instances.
+  const ControllersMap& controllers_map();
 
   // Creates a new DevToolsClientHost implementor instance.
   // |id| is the UID of the tab to debug.

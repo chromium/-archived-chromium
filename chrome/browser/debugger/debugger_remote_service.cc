@@ -154,7 +154,7 @@ void DebuggerRemoteService::SendResponse(const Value& response,
 
 WebContents* DebuggerRemoteService::ToWebContents(int32 tab_uid) {
   const InspectableTabProxy::ControllersMap& navcon_map =
-      delegate_->inspectable_tab_proxy()->controllers_map(false);
+      delegate_->inspectable_tab_proxy()->controllers_map();
   InspectableTabProxy::ControllersMap::const_iterator it =
       navcon_map.find(tab_uid);
   if (it != navcon_map.end()) {
@@ -193,20 +193,20 @@ void DebuggerRemoteService::AttachTab(const std::string& destination,
   StringToInt(destination, &tab_uid);
   if (tab_uid < 0) {
     // Bad tab_uid received from remote debugger (perhaps NaN)
-    response->SetInteger(kDataWide, Result::kUnknownTab);
+    response->SetInteger(kResultWide, Result::kUnknownTab);
     return;
   }
   if (tab_uid == 0) {  // single tab_uid
     // We've been asked to open a new tab with URL.
     // TODO(apavlov): implement
     NOTIMPLEMENTED();
-    response->SetInteger(kDataWide, Result::kUnknownTab);
+    response->SetInteger(kResultWide, Result::kUnknownTab);
     return;
   }
   WebContents* web_contents = ToWebContents(tab_uid);
   if (web_contents == NULL) {
     // No active web contents with tab_uid
-    response->SetInteger(kDataWide, Result::kUnknownTab);
+    response->SetInteger(kResultWide, Result::kUnknownTab);
     return;
   }
   if (g_browser_process->devtools_manager()->GetDevToolsClientHostFor(
@@ -217,29 +217,32 @@ void DebuggerRemoteService::AttachTab(const std::string& destination,
     if (manager != NULL) {
       manager->RegisterDevToolsClientHostFor(*web_contents, client_host);
       manager->ForwardToDevToolsAgent(*client_host, DevToolsAgentMsg_Attach());
-      response->SetInteger(kDataWide, Result::kOk);
+      response->SetInteger(kResultWide, Result::kOk);
     } else {
-      response->SetInteger(kDataWide, Result::kDebuggerError);
+      response->SetInteger(kResultWide, Result::kDebuggerError);
     }
   } else {
     // DevToolsClientHost for this tab already registered
-    response->SetInteger(kDataWide, Result::kIllegalTabState);
+    response->SetInteger(kResultWide, Result::kIllegalTabState);
   }
 }
 
 void DebuggerRemoteService::DetachTab(const std::string& destination,
                                       DictionaryValue* response) {
   int32 tab_uid = -1;
+  int resultCode = -1;
   StringToInt(destination, &tab_uid);
   if (tab_uid == -1) {
     // Bad tab_uid received from remote debugger (NaN)
-    response->SetInteger(kDataWide, Result::kUnknownTab);
+    if (response != NULL) {
+      response->SetInteger(kResultWide, Result::kUnknownTab);
+    }
     return;
   }
   WebContents* web_contents = ToWebContents(tab_uid);
   if (web_contents == NULL) {
     // Unknown tab
-    response->SetInteger(kDataWide, Result::kUnknownTab);
+    resultCode = Result::kUnknownTab;
   } else {
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
@@ -249,14 +252,17 @@ void DebuggerRemoteService::DetachTab(const std::string& destination,
         manager->ForwardToDevToolsAgent(
             *client_host, DevToolsAgentMsg_Detach());
         client_host->InspectedTabClosing();
-        response->SetInteger(kDataWide, Result::kOk);
+        resultCode = Result::kOk;
       } else {
         // No client host registered
-        response->SetInteger(kDataWide, Result::kUnknownTab);
+        resultCode = Result::kUnknownTab;
       }
     } else {
       // No DevToolsManager
-      response->SetInteger(kResultWide, Result::kDebuggerError);
+      resultCode = Result::kDebuggerError;
     }
+  }
+  if (response != NULL) {
+    response->SetInteger(kResultWide, resultCode);
   }
 }

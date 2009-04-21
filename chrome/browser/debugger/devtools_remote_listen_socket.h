@@ -58,6 +58,7 @@ class DevToolsRemoteListenSocket : public ListenSocket {
   std::string payload_;
   int32 remaining_payload_length_;
   DevToolsRemoteListener* message_listener_;
+  bool cr_received_;
 
   DISALLOW_COPY_AND_ASSIGN(DevToolsRemoteListenSocket);
 };
