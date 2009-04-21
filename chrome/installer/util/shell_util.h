@@ -104,6 +104,10 @@ class ShellUtil {
   static RegisterStatus AddChromeToSetAccessDefaults(
       const std::wstring& chrome_exe, bool skip_if_not_admin);
 
+  // Checks if we need Admin rights for registry cleanup by checking if any
+  // entry exists in HKLM.
+  static bool AdminNeededForRegistryCleanup();
+
   // Create Chrome shortcut on Desktop
   // If shell_change is CURRENT_USER, the shortcut is created in the
   // Desktop folder of current user's profile.

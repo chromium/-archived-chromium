@@ -152,7 +152,8 @@ class RegistryEntry {
     }
   }
 
-  // Check if the current registry entry exists in HKLM registry.
+  // Checks if the current registry entry exists in HKLM registry and the value
+  // is same.
   bool ExistsInHKLM() {
     RegKey key(HKEY_LOCAL_MACHINE, _key_path.c_str());
     bool found = false;
@@ -164,6 +165,22 @@ class RegistryEntry {
       DWORD read_value;
       found = key.ReadValueDW(_name.c_str(), &read_value) &&
               read_value == _int_value;
+    }
+    key.Close();
+    return found;
+  }
+
+  // Checks if the current registry entry exists in HKLM registry
+  // (only the name).
+  bool NameExistsInHKLM() {
+    RegKey key(HKEY_LOCAL_MACHINE, _key_path.c_str());
+    bool found = false;
+    if (_is_string) {
+      std::wstring read_value;
+      found = key.ReadValue(_name.c_str(), &read_value);
+    } else {
+      DWORD read_value;
+      found = key.ReadValueDW(_name.c_str(), &read_value);
     }
     key.Close();
     return found;
@@ -411,6 +428,19 @@ ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
     return ShellUtil::REGISTERED_PER_USER;
 
   return ShellUtil::FAILURE;
+}
+
+bool ShellUtil::AdminNeededForRegistryCleanup() {
+  bool cleanup_needed = false;
+  std::list<RegistryEntry*> entries = RegistryEntry::GetAllEntries(
+      installer_util::kChromeExe);
+  for (std::list<RegistryEntry*>::iterator itr = entries.begin();
+      itr != entries.end(); ++itr) {
+    if (!cleanup_needed && (*itr)->NameExistsInHKLM())
+      cleanup_needed = true;
+    delete (*itr);
+  }
+  return cleanup_needed;
 }
 
 bool ShellUtil::GetChromeIcon(std::wstring& chrome_icon) {
