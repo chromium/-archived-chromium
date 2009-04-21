@@ -9,7 +9,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/browser/gtk/link_button_gtk.h"
-#include "chrome/browser/gtk/slide_animator_gtk.cc"
+#include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
