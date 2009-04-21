@@ -14,15 +14,15 @@
 //   On older, non-SIMD architectures, floating point arithmetic is much
 //    slower than using fixed-point arithmetic, so an alternative formulation
 //    is:
-//      C = Y' - 16
-//      D = U - 128
-//      E = V - 128
+//      c = Y' - 16
+//      d = U - 128
+//      e = V - 128
 //   Using the previous coefficients and noting that clip() denotes clipping a
 //    value to the range of 0 to 255, the following formulae provide the
 //    conversion from Y'UV to RGB (NTSC version):
-//      R = clip((298 x C + 409 x E + 128) >> 8)
-//      G = clip((298 x C - 100 x D - 208 x E + 128) >> 8)
-//      B = clip((298 x C + 516 x D + 128) >> 8)
+//      R = clip((298 x c + 409 x e + 128) >> 8)
+//      G = clip((298 x c - 100 x d - 208 x e + 128) >> 8)
+//      B = clip((298 x c + 516 x d + 128) >> 8)
 //
 // An article on optimizing YUV conversion using tables instead of multiplies
 //   http://lestourtereaux.free.fr/papers/data/yuvrgb.pdf
@@ -339,14 +339,14 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
     shr       ecx, 1
 
  wloop :
-    movzx     eax, byte ptr [edi]
+    movzx     eax, byte ptr [edi]  // NOLINT
     add       edi, 1
-    movzx     ebx, byte ptr [esi]
+    movzx     ebx, byte ptr [esi]  // NOLINT
     add       esi, 1
     movq      mm0, [coefficients_RGB_U + 8 * eax]
-    movzx     eax, byte ptr [edx]
+    movzx     eax, byte ptr [edx]  // NOLINT
     paddsw    mm0, [coefficients_RGB_V + 8 * ebx]
-    movzx     ebx, byte ptr [edx + 1]
+    movzx     ebx, byte ptr [edx + 1]  // NOLINT
     movq      mm1, [coefficients_RGB_Y + 8 * eax]
     add       edx, 2
     movq      mm2, [coefficients_RGB_Y + 8 * ebx]
@@ -556,7 +556,7 @@ static uint8 g_rgb_clip_table[kClipOverflow
                             + kClipTableSize
                             + kClipOverflow] = {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // 128 underflow values
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // clamped to 0.
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // cliped to 0.
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -604,7 +604,7 @@ static uint8 g_rgb_clip_table[kClipOverflow
   0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
   0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF,
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // 128 overflow values
-  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // clamped to 255.
+  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  // cliped to 255.
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -625,13 +625,14 @@ static uint8 g_rgb_clip_table[kClipOverflow
 // Source is signed fixed point 8.8.
 // Table allows for values to underflow or overflow by 128.
 // Therefore source range is -128 to 384.
-// Output clamps to unsigned 0 to 255.
+// Output clips to unsigned 0 to 255.
 static inline uint32 clip(int32 value) {
-  DCHECK((((value) >> 8) + kClipOverflow) >= 0);
-  DCHECK((((value) >> 8) + kClipOverflow)
-         < kClipOverflow + kClipTableSize + kClipOverflow);
+  DCHECK(((value >> 8) + kClipOverflow) >= 0);
+  DCHECK(((value >> 8) + kClipOverflow) <
+         (kClipOverflow + kClipTableSize + kClipOverflow));
   return static_cast<uint32>(g_rgb_clip_table[((value) >> 8) + kClipOverflow]);
 }
+
 
 void ConvertYV12ToRGB32Row(const uint8* y_buf,
                            const uint8* u_buf,
@@ -641,26 +642,26 @@ void ConvertYV12ToRGB32Row(const uint8* y_buf,
   for (int32 x = 0; x < static_cast<int32>(width); x += 2) {
     uint8 u = u_buf[x >> 1];
     uint8 v = v_buf[x >> 1];
-    int32 D = static_cast<int32>(u) - 128;
-    int32 E = static_cast<int32>(v) - 128;
+    int32 d = static_cast<int32>(u) - 128;
+    int32 e = static_cast<int32>(v) - 128;
 
-    int32 Cb =   (516 * D + 128);
-    int32 Cg = (- 100 * D - 208 * E + 128);
-    int32 Cr =             (409 * E + 128);
+    int32 cb =   (516 * d + 128);
+    int32 cg = (- 100 * d - 208 * e + 128);
+    int32 cr =             (409 * e + 128);
 
     uint8 y0 = y_buf[x];
     int32 C298a = ((static_cast<int32>(y0) - 16) * 298 + 128);
-    *reinterpret_cast<uint32*>(rgb_buf) = clip(C298a + Cb)
-                                       | (clip(C298a + Cg) << 8)
-                                       | (clip(C298a + Cr) << 16)
-                                       | 0xff000000;
+    *reinterpret_cast<uint32*>(rgb_buf) = clip(C298a + cb) |
+                                         (clip(C298a + cg) << 8) |
+                                         (clip(C298a + cr) << 16) |
+                                         0xff000000;
 
     uint8 y1 = y_buf[x + 1];
     int32 C298b = ((static_cast<int32>(y1) - 16) * 298 + 128);
-    *reinterpret_cast<uint32*>(rgb_buf + 4) = clip(C298b + Cb)
-                                           | (clip(C298b + Cg) << 8)
-                                           | (clip(C298b + Cr) << 16)
-                                           | 0xff000000;
+    *reinterpret_cast<uint32*>(rgb_buf + 4) = clip(C298b + cb) |
+                                             (clip(C298b + cg) << 8) |
+                                             (clip(C298b + cr) << 16) |
+                                             0xff000000;
 
     rgb_buf += 8;  // Advance 2 pixels.
   }

@@ -66,6 +66,8 @@
         'base/video_frame_impl.h',
         'base/yuv_convert.cc',
         'base/yuv_convert.h',
+        'base/yuv_scale.cc',
+        'base/yuv_scale.h',
         'filters/audio_renderer_base.cc',
         'filters/audio_renderer_base.h',
         'filters/audio_renderer_impl.cc',
@@ -145,6 +147,7 @@
         'base/run_all_unittests.cc',
         'base/video_frame_impl_unittest.cc',
         'base/yuv_convert_unittest.cc',
+        'base/yuv_scale_unittest.cc',
         'filters/ffmpeg_demuxer_unittest.cc',
         'filters/ffmpeg_glue_unittest.cc',
         'filters/file_data_source_unittest.cc',
@@ -186,7 +189,6 @@
             '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
           ],
           'sources': [
-            'player/player.cc',
           ],
         },
         {
