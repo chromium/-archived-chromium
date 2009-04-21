@@ -2147,6 +2147,7 @@
         'browser/cocoa/find_bar_view_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
         'browser/cocoa/grow_box_view_unittest.mm',
+        'browser/cocoa/sad_tab_view_unittest.mm',
         'browser/cocoa/status_bubble_mac_unittest.mm',
         'browser/cocoa/tab_cell_unittest.mm',
         'browser/cocoa/tab_controller_unittest.mm',
