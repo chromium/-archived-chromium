@@ -44,6 +44,11 @@ class TestingBrowserProcess : public BrowserProcess {
     return NULL;
   }
 
+#if defined(OS_LINUX)
+  virtual base::Thread* background_x11_thread() {
+  }
+#endif
+
   virtual base::Thread* file_thread() {
     return NULL;
   }
