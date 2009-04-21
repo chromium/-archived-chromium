@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -119,19 +119,25 @@ bool LaunchApp(const std::vector<std::string>& argv,
                bool wait, ProcessHandle* process_handle);
 #endif
 
-// Execute the application specified by cl. This function delegates to one
+// Executes the application specified by cl. This function delegates to one
 // of the above two platform-specific functions.
 bool LaunchApp(const CommandLine& cl,
                bool wait, bool start_hidden, ProcessHandle* process_handle);
 
-#if defined(OS_POSIX)
-// Execute the application specified by |cl| and wait for it to exit. Store
+#if defined(OS_WIN)
+// Executes the application specified by |cmd_line| and copies the contents
+// printed to the standard output to |output|, which should be non NULL.
+// Blocks until the started process terminates.
+// Returns true if the application was run successfully, false otherwise.
+bool GetAppOutput(const std::wstring& cmd_line, std::string* output);
+#elif defined(OS_POSIX)
+// Executes the application specified by |cl| and wait for it to exit. Stores
 // the output (stdout) in |output|. Redirects stderr to /dev/null. Returns true
 // on success (application launched and exited cleanly, with exit code
 // indicating success). |output| is modified only when the function finished
 // successfully.
 bool GetAppOutput(const CommandLine& cl, std::string* output);
-#endif  // defined(OS_POSIX)
+#endif
 
 // Used to filter processes by process ID.
 class ProcessFilter {

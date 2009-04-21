@@ -1,11 +1,13 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/multiprocess_test.h"
+#include "base/path_service.h"
 #include "base/platform_thread.h"
 #include "base/process_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -127,6 +129,37 @@ TEST_F(ProcessUtilTest, CalcFreeMemory) {
 
   delete[] alloc;
   delete metrics;
+}
+
+TEST_F(ProcessUtilTest, GetAppOutput) {
+  // Let's create a decently long message.
+  std::string message;
+  for (int i = 0; i < 1025; i++) {  // 1025 so it does not end on a kilo-byte
+                                    // boundary.
+    message += "Hello!";
+  }
+
+  FilePath python_runtime;
+  ASSERT_TRUE(PathService::Get(base::DIR_SOURCE_ROOT, &python_runtime));
+  python_runtime = python_runtime.Append(FILE_PATH_LITERAL("third_party"))
+                                 .Append(FILE_PATH_LITERAL("python_24"))
+                                 .Append(FILE_PATH_LITERAL("python.exe"));
+
+  // You have to put every parameter between quotes, otherwise this won't work,
+  // don't ask me why.
+  std::wstring cmd_line = L"\"" + python_runtime.value() + L"\" " +
+      L"\"-c\" \"import sys; sys.stdout.write('" + ASCIIToWide(message) +
+      L"');\"";
+  std::string output;
+  ASSERT_TRUE(base::GetAppOutput(cmd_line, &output));
+  EXPECT_EQ(message, output);
+
+  // Let's make sure stderr is ignored.
+  cmd_line = L"\"" + python_runtime.value() + L"\" " +
+      L"\"-c\" \"import sys; sys.stderr.write('Hello!');\"";
+  output.clear();
+  ASSERT_TRUE(base::GetAppOutput(cmd_line, &output));
+  EXPECT_EQ("", output);
 }
 #endif  // defined(OS_WIN)
 
