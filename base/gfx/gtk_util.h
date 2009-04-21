@@ -8,6 +8,10 @@
 #include <stdint.h>
 #include <vector>
 
+#include <glib-object.h>
+
+#include "base/scoped_ptr.h"
+
 typedef struct _GdkColor GdkColor;
 typedef struct _GdkRegion GdkRegion;
 
@@ -29,5 +33,25 @@ void SubtractRectanglesFromRegion(GdkRegion* region,
                                   const std::vector<Rect>& cutouts);
 
 }  // namespace gfx
+
+namespace {
+// A helper class that will g_object_unref |p| when it goes out of scope.
+// This never adds a ref, it only unrefs.
+template <typename Type>
+struct GObjectUnrefer {
+  void operator()(Type* ptr) const {
+    if (ptr)
+      g_object_unref(ptr);
+  }
+};
+}  // namespace
+
+// It's not legal C++ to have a templatized typedefs, so we wrap it in a
+// struct.  When using this, you need to include ::Type.  E.g.,
+// ScopedGObject<GdkPixbufLoader>::Type loader(gdk_pixbuf_loader_new());
+template<class T>
+struct ScopedGObject {
+  typedef scoped_ptr_malloc<T, GObjectUnrefer<T> > Type;
+};
 
 #endif  // BASE_GFX_GTK_UTIL_H_

@@ -30,24 +30,24 @@ namespace {
 // has a ref count of 1 so the caller must call g_object_unref to free the
 // memory.
 GdkPixbuf* LoadPixbuf(std::vector<unsigned char>& data) {
-  GdkPixbufLoader* loader = gdk_pixbuf_loader_new();
-  bool ok = gdk_pixbuf_loader_write(loader, static_cast<guint8*>(data.data()),
-                                    data.size(), NULL);
+  ScopedGObject<GdkPixbufLoader>::Type loader(gdk_pixbuf_loader_new());
+  bool ok = gdk_pixbuf_loader_write(loader.get(),
+      static_cast<guint8*>(data.data()), data.size(), NULL);
   if (!ok)
     return NULL;
   // Calling gdk_pixbuf_loader_close forces the data to be parsed by the
   // loader.  We must do this before calling gdk_pixbuf_loader_get_pixbuf.
-  ok = gdk_pixbuf_loader_close(loader, NULL);
+  ok = gdk_pixbuf_loader_close(loader.get(), NULL);
   if (!ok)
     return NULL;
-  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+  GdkPixbuf* pixbuf = gdk_pixbuf_loader_get_pixbuf(loader.get());
   if (!pixbuf)
     return NULL;
 
   // The pixbuf is owned by the loader, so add a ref so when we delete the
-  // loader, the pixbuf still exists.
+  // loader (when the ScopedGObject goes out of scope), the pixbuf still
+  // exists.
   g_object_ref(pixbuf);
-  g_object_unref(loader);
 
   return pixbuf;
 }
