@@ -36,14 +36,12 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
 
  protected:
   // views::DialogDelegate
-  virtual int GetDialogButtons() const {
-    return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-  }
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const {
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const {
     switch (button) {
-      case DIALOGBUTTON_OK:
+      case MessageBoxFlags::DIALOGBUTTON_OK:
         return l10n_util::GetString(IDS_OPTIONS_RESET_OKLABEL);
-      case DIALOGBUTTON_CANCEL:
+      case MessageBoxFlags::DIALOGBUTTON_CANCEL:
         return l10n_util::GetString(IDS_OPTIONS_RESET_CANCELLABEL);
       default:
         break;
@@ -69,7 +67,7 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
     const int kDialogWidth = 400;
     // Also deleted when the window closes.
     message_box_view_ = new MessageBoxView(
-        MessageBox::kFlagHasMessage | MessageBox::kFlagHasOKButton,
+        MessageBoxFlags::kFlagHasMessage | MessageBoxFlags::kFlagHasOKButton,
         l10n_util::GetString(IDS_OPTIONS_RESET_MESSAGE).c_str(),
         std::wstring(),
         kDialogWidth);

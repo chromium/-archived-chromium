@@ -375,8 +375,9 @@ bool ShelfItemDialog::IsModal() const {
   return true;
 }
 
-std::wstring ShelfItemDialog::GetDialogButtonLabel(DialogButton button) const {
-  if (button == DialogDelegate::DIALOGBUTTON_OK)
+std::wstring ShelfItemDialog::GetDialogButtonLabel(
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_ASI_ADD);
   return std::wstring();
 }
@@ -426,7 +427,7 @@ void ShelfItemDialog::ContentsChanged(views::TextField* sender,
 }
 
 bool ShelfItemDialog::Accept() {
-  if (!IsDialogButtonEnabled(DIALOGBUTTON_OK)) {
+  if (!IsDialogButtonEnabled(MessageBoxFlags::DIALOGBUTTON_OK)) {
     if (!GetInputURL().is_valid())
       url_field_->RequestFocus();
     else if (title_field_)
@@ -437,8 +438,9 @@ bool ShelfItemDialog::Accept() {
   return true;
 }
 
-bool ShelfItemDialog::IsDialogButtonEnabled(DialogButton button) const {
-  if (button == DIALOGBUTTON_OK)
+bool ShelfItemDialog::IsDialogButtonEnabled(
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK)
     return GetInputURL().is_valid();
   return true;
 }

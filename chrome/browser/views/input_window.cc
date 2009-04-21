@@ -33,7 +33,8 @@ class ContentView : public views::View,
   }
 
   // views::DialogDelegate overrides:
-  virtual bool IsDialogButtonEnabled(DialogButton button) const;
+  virtual bool IsDialogButtonEnabled(
+      MessageBoxFlags::DialogButton button) const;
   virtual bool Accept();
   virtual bool Cancel();
   virtual void WindowClosing();
@@ -77,9 +78,12 @@ class ContentView : public views::View,
 ///////////////////////////////////////////////////////////////////////////////
 // ContentView, views::DialogDelegate implementation:
 
-bool ContentView::IsDialogButtonEnabled(DialogButton button) const {
-  if (button == DIALOGBUTTON_OK && !delegate_->IsValid(text_field_->GetText()))
+bool ContentView::IsDialogButtonEnabled(
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK &&
+      !delegate_->IsValid(text_field_->GetText())) {
     return false;
+  }
   return true;
 }
 

@@ -10,7 +10,7 @@
 // This class contains flags used to communicate the type of message box
 // to show.  E.g., the renderer can request the browser to show a
 // javascript alert or a javascript confirm message.
-class MessageBox {
+class MessageBoxFlags {
  public:
   static const int kFlagHasOKButton = 0x1;
   static const int kFlagHasCancelButton = 0x2;
@@ -42,9 +42,16 @@ class MessageBox {
   static const int kIsJavascriptPrompt = kIsJavascriptConfirm |
                                          kFlagHasPromptField;
 
+  // Dialog button identifiers used to specify which buttons to show the user.
+  enum DialogButton {
+    DIALOGBUTTON_NONE = 0,    // No dialog buttons, for WindowType == WINDOW.
+    DIALOGBUTTON_OK = 1,      // Has an OK button.
+    DIALOGBUTTON_CANCEL = 2,  // Has a Cancel button (becomes a Close button if
+  };                          // no OK button).
+
  private:
-  MessageBox() {}
-  DISALLOW_COPY_AND_ASSIGN(MessageBox);
+  MessageBoxFlags() {}
+  DISALLOW_COPY_AND_ASSIGN(MessageBoxFlags);
 };
 
 #endif  // CHROME_COMMON_MESSAGE_BOX_FLAGS_H_

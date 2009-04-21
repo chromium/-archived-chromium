@@ -30,9 +30,9 @@ NewProfileDialog::NewProfileDialog() {
       IDS_NEW_PROFILE_DIALOG_LABEL_TEXT);
   const int kDialogWidth = views::Window::GetLocalizedContentsWidth(
       IDS_NEW_PROFILE_DIALOG_WIDTH_CHARS);
-  const int kMessageBoxFlags = MessageBox::kFlagHasOKButton |
-                               MessageBox::kFlagHasCancelButton |
-                               MessageBox::kFlagHasPromptField;
+  const int kMessageBoxFlags = MessageBoxFlags::kFlagHasOKButton |
+                               MessageBoxFlags::kFlagHasCancelButton |
+                               MessageBoxFlags::kFlagHasPromptField;
   message_box_view_ = new MessageBoxView(kMessageBoxFlags,
                                          message_text.c_str(),
                                          std::wstring(),
@@ -46,10 +46,6 @@ NewProfileDialog::NewProfileDialog() {
 NewProfileDialog::~NewProfileDialog() {
 }
 
-int NewProfileDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-}
-
 views::View* NewProfileDialog::GetInitiallyFocusedView() {
   views::TextField* text_box = message_box_view_->text_box();
   DCHECK(text_box);
@@ -57,8 +53,8 @@ views::View* NewProfileDialog::GetInitiallyFocusedView() {
 }
 
 bool NewProfileDialog::IsDialogButtonEnabled(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK) {
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK) {
     std::wstring profile_name = message_box_view_->GetInputText();
     // TODO(munjal): Refactor the function ReplaceIllegalCharacters in
     // file_util to something that just checks if there are illegal chars

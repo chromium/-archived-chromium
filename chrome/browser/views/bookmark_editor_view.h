@@ -86,11 +86,12 @@ class BookmarkEditorView : public views::View,
                    Handler* handler);
 
   // DialogDelegate methods:
-  virtual bool IsDialogButtonEnabled(DialogButton button) const;
+  virtual bool IsDialogButtonEnabled(
+      MessageBoxFlags::DialogButton button) const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();
-  virtual bool AreAcceleratorsEnabled(DialogButton button);
+  virtual bool AreAcceleratorsEnabled(MessageBoxFlags::DialogButton button);
   virtual views::View* GetContentsView();
 
   // View methods.

@@ -182,12 +182,12 @@ void ImportingProgressView::ViewHierarchyChanged(bool is_add,
 // ImportingProgressView, views::DialogDelegate implementation:
 
 int ImportingProgressView::GetDialogButtons() const {
-  return DIALOGBUTTON_CANCEL;
+  return MessageBoxFlags::DIALOGBUTTON_CANCEL;
 }
 
 std::wstring ImportingProgressView::GetDialogButtonLabel(
-    DialogButton button) const {
-  DCHECK(button == DIALOGBUTTON_CANCEL);
+    MessageBoxFlags::DialogButton button) const {
+  DCHECK(button == MessageBoxFlags::DIALOGBUTTON_CANCEL);
   return l10n_util::GetString(IDS_IMPORT_PROGRESS_STATUS_CANCEL);
 }
 

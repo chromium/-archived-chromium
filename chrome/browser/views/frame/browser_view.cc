@@ -221,14 +221,15 @@ class DownloadInProgressConfirmDialogDelegate : public views::DialogDelegate,
 
   // DialogDelegate implementation:
   virtual int GetDefaultDialogButton() const {
-    return DIALOGBUTTON_CANCEL;
+    return MessageBoxFlags::DIALOGBUTTON_CANCEL;
   }
 
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const {
-    if (button == DIALOGBUTTON_OK)
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const {
+    if (button == MessageBoxFlags::DIALOGBUTTON_OK)
       return l10n_util::GetString(IDS_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL);
 
-    DCHECK_EQ(DIALOGBUTTON_CANCEL, button);
+    DCHECK_EQ(MessageBoxFlags::DIALOGBUTTON_CANCEL, button);
     return l10n_util::GetString(
         IDS_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL);
   }

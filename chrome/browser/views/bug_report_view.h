@@ -61,7 +61,8 @@ class BugReportView : public views::View,
                            int new_index);
 
   // Overridden from views::DialogDelegate:
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const;
   virtual int GetDefaultDialogButton() const;
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;

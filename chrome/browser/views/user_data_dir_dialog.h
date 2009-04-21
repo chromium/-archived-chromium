@@ -32,8 +32,8 @@ class UserDataDirDialog : public views::DialogDelegate,
   std::wstring user_data_dir() { return user_data_dir_; }
 
   // views::DialogDelegate Methods:
-  virtual int GetDialogButtons() const;
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
   virtual void DeleteDelegate();
   virtual bool Accept();

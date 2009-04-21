@@ -30,10 +30,6 @@ bool UninstallDialog::Cancel() {
   return true;
 }
 
-int UninstallDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-}
-
 std::wstring UninstallDialog::GetWindowTitle() const {
   return l10n_util::GetString(IDS_UNINSTALL_CHROME);
 }
@@ -50,7 +46,8 @@ UninstallDialog::UninstallDialog(int& user_selection)
     : user_selection_(user_selection) {
   // Also deleted when the window closes.
   message_box_view_ = new MessageBoxView(
-      MessageBox::kIsConfirmMessageBox | MessageBox::kAutoDetectAlignment,
+      MessageBoxFlags::kIsConfirmMessageBox |
+          MessageBoxFlags::kAutoDetectAlignment,
       l10n_util::GetString(IDS_UNINSTALL_VERIFY).c_str(),
       std::wstring());
   message_box_view_->SetCheckBoxLabel(

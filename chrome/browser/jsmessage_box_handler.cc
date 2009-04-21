@@ -31,7 +31,7 @@ std::wstring MakeTextSafe(const std::wstring& text) {
 
 std::wstring GetWindowTitle(WebContents* web_contents, const GURL& frame_url,
                             int dialog_flags) {
-  bool is_alert = (dialog_flags == MessageBox::kIsJavascriptAlert);
+  bool is_alert = (dialog_flags == MessageBoxFlags::kIsJavascriptAlert);
   if (!frame_url.has_host())
     return l10n_util::GetString(
         is_alert ? IDS_JAVASCRIPT_ALERT_DEFAULT_TITLE
@@ -81,6 +81,6 @@ void RunBeforeUnloadDialog(WebContents* web_contents,
       l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_FOOTER);
   AppModalDialogQueue::AddDialog(new AppModalDialog(
       web_contents, l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_TITLE),
-      MessageBox::kIsJavascriptConfirm, MakeTextSafe(message_text),
+      MessageBoxFlags::kIsJavascriptConfirm, MakeTextSafe(message_text),
       std::wstring(), false, true, reply_msg));
 }

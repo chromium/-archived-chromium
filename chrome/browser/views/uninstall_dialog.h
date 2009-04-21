@@ -20,7 +20,6 @@ class UninstallDialog : public views::DialogDelegate {
   // Overridden from views::DialogDelegate:
   virtual bool Accept();
   virtual bool Cancel();
-  virtual int GetDialogButtons() const;
   virtual std::wstring GetWindowTitle() const;
 
   // Overridden from views::WindowDelegate:

@@ -37,7 +37,8 @@ class JavascriptMessageBoxDialog : public views::DialogDelegate {
   virtual void DeleteDelegate();
   virtual bool Cancel();
   virtual bool Accept();
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const;
 
   // views::WindowDelegate Methods:
   virtual bool IsModal() const { return true; }

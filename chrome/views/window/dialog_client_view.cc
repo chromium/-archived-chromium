@@ -27,7 +27,7 @@ namespace {
 // Updates any of the standard buttons according to the delegate.
 void UpdateButtonHelper(NativeButton* button_view,
                         DialogDelegate* delegate,
-                        DialogDelegate::DialogButton button) {
+                        MessageBoxFlags::DialogButton button) {
   std::wstring label = delegate->GetDialogButtonLabel(button);
   if (!label.empty())
     button_view->SetLabel(label);
@@ -50,7 +50,7 @@ class DialogButton : public NativeButton {
  public:
   DialogButton(ButtonListener* listener,
                Window* owner,
-               DialogDelegate::DialogButton type,
+               MessageBoxFlags::DialogButton type,
                const std::wstring& title,
                bool is_default)
       : NativeButton(listener, title),
@@ -70,7 +70,7 @@ class DialogButton : public NativeButton {
 
  private:
   Window* owner_;
-  const DialogDelegate::DialogButton type_;
+  const MessageBoxFlags::DialogButton type_;
 
   DISALLOW_COPY_AND_ASSIGN(DialogButton);
 };
@@ -106,38 +106,38 @@ DialogClientView::~DialogClientView() {
 void DialogClientView::ShowDialogButtons() {
   DialogDelegate* dd = GetDialogDelegate();
   int buttons = dd->GetDialogButtons();
-  if (buttons & DialogDelegate::DIALOGBUTTON_OK && !ok_button_) {
+  if (buttons & MessageBoxFlags::DIALOGBUTTON_OK && !ok_button_) {
     std::wstring label =
-        dd->GetDialogButtonLabel(DialogDelegate::DIALOGBUTTON_OK);
+        dd->GetDialogButtonLabel(MessageBoxFlags::DIALOGBUTTON_OK);
     if (label.empty())
       label = l10n_util::GetString(IDS_OK);
     bool is_default_button =
-        (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_OK) != 0;
+        (dd->GetDefaultDialogButton() & MessageBoxFlags::DIALOGBUTTON_OK) != 0;
     ok_button_ = new DialogButton(this, window(),
-                                  DialogDelegate::DIALOGBUTTON_OK, label,
+                                  MessageBoxFlags::DIALOGBUTTON_OK, label,
                                   is_default_button);
     ok_button_->SetGroup(kButtonGroup);
     if (is_default_button)
       default_button_ = ok_button_;
-    if (!(buttons & DialogDelegate::DIALOGBUTTON_CANCEL))
+    if (!(buttons & MessageBoxFlags::DIALOGBUTTON_CANCEL))
       ok_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
     AddChildView(ok_button_);
   }
-  if (buttons & DialogDelegate::DIALOGBUTTON_CANCEL && !cancel_button_) {
+  if (buttons & MessageBoxFlags::DIALOGBUTTON_CANCEL && !cancel_button_) {
     std::wstring label =
-        dd->GetDialogButtonLabel(DialogDelegate::DIALOGBUTTON_CANCEL);
+        dd->GetDialogButtonLabel(MessageBoxFlags::DIALOGBUTTON_CANCEL);
     if (label.empty()) {
-      if (buttons & DialogDelegate::DIALOGBUTTON_OK) {
+      if (buttons & MessageBoxFlags::DIALOGBUTTON_OK) {
         label = l10n_util::GetString(IDS_CANCEL);
       } else {
         label = l10n_util::GetString(IDS_CLOSE);
       }
     }
     bool is_default_button =
-        (dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_CANCEL)
+        (dd->GetDefaultDialogButton() & MessageBoxFlags::DIALOGBUTTON_CANCEL)
         != 0;
     cancel_button_ = new DialogButton(this, window(),
-                                      DialogDelegate::DIALOGBUTTON_CANCEL,
+                                      MessageBoxFlags::DIALOGBUTTON_CANCEL,
                                       label, is_default_button);
     cancel_button_->SetGroup(kButtonGroup);
     cancel_button_->AddAccelerator(Accelerator(VK_ESCAPE, false, false, false));
@@ -174,9 +174,9 @@ void DialogClientView::FocusWillChange(View* focused_before,
     // The focused view is not a button, get the default button from the
     // delegate.
     DialogDelegate* dd = GetDialogDelegate();
-    if ((dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_OK) != 0)
+    if ((dd->GetDefaultDialogButton() & MessageBoxFlags::DIALOGBUTTON_OK) != 0)
       new_default_button = ok_button_;
-    if ((dd->GetDefaultDialogButton() & DialogDelegate::DIALOGBUTTON_CANCEL)
+    if ((dd->GetDefaultDialogButton() & MessageBoxFlags::DIALOGBUTTON_CANCEL)
         != 0)
       new_default_button = cancel_button_;
   }
@@ -188,11 +188,13 @@ void DialogClientView::UpdateDialogButtons() {
   DialogDelegate* dd = GetDialogDelegate();
   int buttons = dd->GetDialogButtons();
 
-  if (buttons & DialogDelegate::DIALOGBUTTON_OK)
-    UpdateButtonHelper(ok_button_, dd, DialogDelegate::DIALOGBUTTON_OK);
+  if (buttons & MessageBoxFlags::DIALOGBUTTON_OK)
+    UpdateButtonHelper(ok_button_, dd, MessageBoxFlags::DIALOGBUTTON_OK);
 
-  if (buttons & DialogDelegate::DIALOGBUTTON_CANCEL)
-    UpdateButtonHelper(cancel_button_, dd, DialogDelegate::DIALOGBUTTON_CANCEL);
+  if (buttons & MessageBoxFlags::DIALOGBUTTON_CANCEL) {
+    UpdateButtonHelper(cancel_button_, dd,
+                       MessageBoxFlags::DIALOGBUTTON_CANCEL);
+  }
 
   LayoutDialogButtons();
   SchedulePaint();
@@ -224,9 +226,9 @@ bool DialogClientView::CanClose() const {
   if (!accepted_) {
     DialogDelegate* dd = GetDialogDelegate();
     int buttons = dd->GetDialogButtons();
-    if (buttons & DialogDelegate::DIALOGBUTTON_CANCEL)
+    if (buttons & MessageBoxFlags::DIALOGBUTTON_CANCEL)
       return dd->Cancel();
-    if (buttons & DialogDelegate::DIALOGBUTTON_OK)
+    if (buttons & MessageBoxFlags::DIALOGBUTTON_OK)
       return dd->Accept(true);
   }
   return true;
@@ -352,7 +354,7 @@ void DialogClientView::PaintSizeBox(ChromeCanvas* canvas) {
 int DialogClientView::GetButtonWidth(int button) const {
   DialogDelegate* dd = GetDialogDelegate();
   std::wstring button_label = dd->GetDialogButtonLabel(
-      static_cast<DialogDelegate::DialogButton>(button));
+      static_cast<MessageBoxFlags::DialogButton>(button));
   int string_width = dialog_button_font_->GetStringWidth(button_label);
   return std::max(string_width + kDialogButtonLabelSpacing,
                   kDialogMinButtonWidth);
@@ -372,7 +374,7 @@ void DialogClientView::LayoutDialogButtons() {
   if (cancel_button_) {
     gfx::Size ps = cancel_button_->GetPreferredSize();
     gfx::Rect lb = GetLocalBounds(false);
-    int button_width = GetButtonWidth(DialogDelegate::DIALOGBUTTON_CANCEL);
+    int button_width = GetButtonWidth(MessageBoxFlags::DIALOGBUTTON_CANCEL);
     int button_x = lb.right() - button_width - kButtonHEdgeMargin;
     int button_y = lb.bottom() - ps.height() - kButtonVEdgeMargin;
     cancel_button_->SetBounds(button_x, button_y, button_width, ps.height());
@@ -383,7 +385,7 @@ void DialogClientView::LayoutDialogButtons() {
   if (ok_button_) {
     gfx::Size ps = ok_button_->GetPreferredSize();
     gfx::Rect lb = GetLocalBounds(false);
-    int button_width = GetButtonWidth(DialogDelegate::DIALOGBUTTON_OK);
+    int button_width = GetButtonWidth(MessageBoxFlags::DIALOGBUTTON_OK);
     int ok_button_right = lb.right() - kButtonHEdgeMargin;
     if (cancel_button_)
       ok_button_right = cancel_button_->x() - kRelatedButtonHSpacing;

@@ -49,10 +49,10 @@ void AppModalDialog::CreateAndShowDialog() {
   NSString* default_button = NSLocalizedString(@"OK", nil);
   NSString* other_button = NSLocalizedString(@"Cancel", nil);
   switch (dialog_flags_) {
-    case MessageBox::kIsJavascriptAlert:
+    case MessageBoxFlags::kIsJavascriptAlert:
       // OK & Cancel are fine for these types of alerts.
       break;
-    case MessageBox::kIsJavascriptConfirm:
+    case MessageBoxFlags::kIsJavascriptConfirm:
       if (is_before_unload_dialog_) {
         std::string button_text = l10n_util::GetStringUTF8(
             IDS_BEFOREUNLOAD_MESSAGEBOX_OK_BUTTON_LABEL);
@@ -62,7 +62,7 @@ void AppModalDialog::CreateAndShowDialog() {
         other_button = base::SysUTF8ToNSString(button_text);
       }
       break;
-    case MessageBox::kIsJavascriptPrompt:
+    case MessageBoxFlags::kIsJavascriptPrompt:
       // We need to make a custom message box for javascript prompts. Not
       // sure how to handle this...
       NOTIMPLEMENTED();

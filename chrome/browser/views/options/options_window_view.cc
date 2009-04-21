@@ -42,7 +42,9 @@ class OptionsWindowView : public views::View,
   void ShowOptionsPage(OptionsPage page, OptionsGroup highlight_group);
 
   // views::DialogDelegate implementation:
-  virtual int GetDialogButtons() const { return DIALOGBUTTON_CANCEL; }
+  virtual int GetDialogButtons() const {
+    return MessageBoxFlags::DIALOGBUTTON_CANCEL;
+  }
   virtual std::wstring GetWindowTitle() const;
   virtual void WindowClosing();
   virtual bool Cancel();

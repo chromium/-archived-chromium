@@ -5,6 +5,11 @@
 #include <sstream>
 #include <string>
 
+#include "build/build_config.h"
+#if defined(OS_WIN)
+#include <shlwapi.h>
+#endif
+
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/path_service.h"

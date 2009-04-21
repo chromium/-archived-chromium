@@ -66,10 +66,6 @@ void SelectProfileDialog::Layout() {
   GetLayoutManager()->Layout(this);
 }
 
-int SelectProfileDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-}
-
 views::View* SelectProfileDialog::GetInitiallyFocusedView() {
   return profile_combobox_;
 }

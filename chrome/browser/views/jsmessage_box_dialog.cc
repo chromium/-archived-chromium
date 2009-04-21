@@ -20,7 +20,7 @@ JavascriptMessageBoxDialog::JavascriptMessageBoxDialog(
     : parent_(parent),
       dialog_(NULL),
       message_box_view_(new MessageBoxView(
-          parent->dialog_flags() | MessageBox::kAutoDetectAlignment,
+          parent->dialog_flags() | MessageBoxFlags::kAutoDetectAlignment,
           message_text, default_prompt_text)) {
   DCHECK(message_box_view_);
 
@@ -59,11 +59,11 @@ void JavascriptMessageBoxDialog::CloseModalDialog() {
 
 int JavascriptMessageBoxDialog::GetDialogButtons() const {
   int dialog_buttons = 0;
-  if (parent_->dialog_flags() & MessageBox::kFlagHasOKButton)
-    dialog_buttons = DIALOGBUTTON_OK;
+  if (parent_->dialog_flags() & MessageBoxFlags::kFlagHasOKButton)
+    dialog_buttons = MessageBoxFlags::DIALOGBUTTON_OK;
 
-  if (parent_->dialog_flags() & MessageBox::kFlagHasCancelButton)
-    dialog_buttons |= DIALOGBUTTON_CANCEL;
+  if (parent_->dialog_flags() & MessageBoxFlags::kFlagHasCancelButton)
+    dialog_buttons |= MessageBoxFlags::DIALOGBUTTON_CANCEL;
 
   return dialog_buttons;
 }
@@ -96,11 +96,11 @@ bool JavascriptMessageBoxDialog::Accept() {
 }
 
 std::wstring JavascriptMessageBoxDialog::GetDialogButtonLabel(
-    DialogButton button) const {
+    MessageBoxFlags::DialogButton button) const {
   if (parent_->is_before_unload_dialog()) {
-    if (button == DialogDelegate::DIALOGBUTTON_OK) {
+    if (button == MessageBoxFlags::DIALOGBUTTON_OK) {
       return l10n_util::GetString(IDS_BEFOREUNLOAD_MESSAGEBOX_OK_BUTTON_LABEL);
-    } else if (button == DialogDelegate::DIALOGBUTTON_CANCEL) {
+    } else if (button == MessageBoxFlags::DIALOGBUTTON_CANCEL) {
       return l10n_util::GetString(
           IDS_BEFOREUNLOAD_MESSAGEBOX_CANCEL_BUTTON_LABEL);
     }

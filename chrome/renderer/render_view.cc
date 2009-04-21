@@ -1628,7 +1628,7 @@ WindowOpenDisposition RenderView::DispositionForNavigationAction(
 
 void RenderView::RunJavaScriptAlert(WebFrame* webframe,
                                     const std::wstring& message) {
-  RunJavaScriptMessage(MessageBox::kIsJavascriptAlert,
+  RunJavaScriptMessage(MessageBoxFlags::kIsJavascriptAlert,
                        message,
                        std::wstring(),
                        webframe->GetURL(),
@@ -1637,7 +1637,7 @@ void RenderView::RunJavaScriptAlert(WebFrame* webframe,
 
 bool RenderView::RunJavaScriptConfirm(WebFrame* webframe,
                                       const std::wstring& message) {
-  return RunJavaScriptMessage(MessageBox::kIsJavascriptConfirm,
+  return RunJavaScriptMessage(MessageBoxFlags::kIsJavascriptConfirm,
                               message,
                               std::wstring(),
                               webframe->GetURL(),
@@ -1648,7 +1648,7 @@ bool RenderView::RunJavaScriptPrompt(WebFrame* webframe,
                                      const std::wstring& message,
                                      const std::wstring& default_value,
                                      std::wstring* result) {
-  return RunJavaScriptMessage(MessageBox::kIsJavascriptPrompt,
+  return RunJavaScriptMessage(MessageBoxFlags::kIsJavascriptPrompt,
                               message,
                               default_value,
                               webframe->GetURL(),

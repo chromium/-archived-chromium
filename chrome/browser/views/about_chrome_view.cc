@@ -603,15 +603,11 @@ void AboutChromeView::ViewHierarchyChanged(bool is_add,
 ////////////////////////////////////////////////////////////////////////////////
 // AboutChromeView, views::DialogDelegate implementation:
 
-int AboutChromeView::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-}
-
 std::wstring AboutChromeView::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK) {
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK) {
     return l10n_util::GetString(IDS_ABOUT_CHROME_UPDATE_CHECK);
-  } else if (button == DIALOGBUTTON_CANCEL) {
+  } else if (button == MessageBoxFlags::DIALOGBUTTON_CANCEL) {
     // The OK button (which is the default button) has been re-purposed to be
     // 'Check for Updates' so we want the Cancel button should have the label
     // OK but act like a Cancel button in all other ways.
@@ -622,16 +618,22 @@ std::wstring AboutChromeView::GetDialogButtonLabel(
   return L"";
 }
 
-bool AboutChromeView::IsDialogButtonEnabled(DialogButton button) const {
-  if (button == DIALOGBUTTON_OK && check_button_status_ != CHECKBUTTON_ENABLED)
+bool AboutChromeView::IsDialogButtonEnabled(
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK &&
+      check_button_status_ != CHECKBUTTON_ENABLED) {
     return false;
+  }
 
   return true;
 }
 
-bool AboutChromeView::IsDialogButtonVisible(DialogButton button) const {
-  if (button == DIALOGBUTTON_OK && check_button_status_ == CHECKBUTTON_HIDDEN)
+bool AboutChromeView::IsDialogButtonVisible(
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK &&
+      check_button_status_ == CHECKBUTTON_HIDDEN) {
     return false;
+  }
 
   return true;
 }

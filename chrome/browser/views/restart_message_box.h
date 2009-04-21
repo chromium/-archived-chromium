@@ -20,7 +20,8 @@ class RestartMessageBox : public views::DialogDelegate {
  protected:
   // views::DialogDelegate:
   virtual int GetDialogButtons() const;
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
 
   // views::WindowDelegate:

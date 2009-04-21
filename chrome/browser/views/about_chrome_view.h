@@ -47,10 +47,12 @@ class AboutChromeView : public views::View,
                                     views::View* child);
 
   // Overridden from views::DialogDelegate:
-  virtual int GetDialogButtons() const;
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
-  virtual bool IsDialogButtonEnabled(DialogButton button) const;
-  virtual bool IsDialogButtonVisible(DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBoxFlags::DialogButton button) const;
+  virtual bool IsDialogButtonEnabled(
+      MessageBoxFlags::DialogButton button) const;
+  virtual bool IsDialogButtonVisible(
+      MessageBoxFlags::DialogButton button) const;
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
   virtual bool IsAlwaysOnTop() const;

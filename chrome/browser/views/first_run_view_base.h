@@ -39,7 +39,7 @@ class FirstRunViewBase : public views::View,
   virtual bool HasAlwaysOnTopMenu() const;
 
   // Overridden from views::DialogDelegate.
-  std::wstring GetDialogButtonLabel(DialogButton button) const;
+  std::wstring GetDialogButtonLabel(MessageBoxFlags::DialogButton button) const;
 
  protected:
   // Returns the items that the first run process is required to import

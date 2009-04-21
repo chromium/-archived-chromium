@@ -27,7 +27,7 @@ UserDataDirDialog::UserDataDirDialog(const std::wstring& user_data_dir)
   std::wstring message_text = l10n_util::GetStringF(
       IDS_CANT_WRITE_USER_DIRECTORY_SUMMARY, user_data_dir);
   const int kDialogWidth = 400;
-  message_box_view_ = new MessageBoxView(MessageBox::kIsConfirmMessageBox,
+  message_box_view_ = new MessageBoxView(MessageBoxFlags::kIsConfirmMessageBox,
       message_text.c_str(), std::wstring(), kDialogWidth);
 
   views::Window::CreateChromeWindow(NULL, gfx::Rect(), this)->Show();
@@ -37,19 +37,14 @@ UserDataDirDialog::~UserDataDirDialog() {
   select_file_dialog_->ListenerDestroyed();
 }
 
-int UserDataDirDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-
-}
-
 std::wstring UserDataDirDialog::GetDialogButtonLabel(
-    DialogButton button) const {
+    MessageBoxFlags::DialogButton button) const {
 
   switch (button) {
-    case DIALOGBUTTON_OK:
+    case MessageBoxFlags::DIALOGBUTTON_OK:
       return l10n_util::GetString(
           IDS_CANT_WRITE_USER_DIRECTORY_CHOOSE_DIRECTORY_BUTTON);
-    case DIALOGBUTTON_CANCEL:
+    case MessageBoxFlags::DIALOGBUTTON_CANCEL:
       return l10n_util::GetString(IDS_CANT_WRITE_USER_DIRECTORY_EXIT_BUTTON);
     default:
       NOTREACHED();

@@ -46,12 +46,12 @@ void AppModalDialog::CreateAndShowDialog() {
   GtkButtonsType buttons = GTK_BUTTONS_NONE;
   GtkMessageType message_type = GTK_MESSAGE_OTHER;
   switch (dialog_flags_) {
-    case MessageBox::kIsJavascriptAlert:
+    case MessageBoxFlags::kIsJavascriptAlert:
       buttons = GTK_BUTTONS_OK;
       message_type = GTK_MESSAGE_WARNING;
       break;
 
-    case MessageBox::kIsJavascriptConfirm:
+    case MessageBoxFlags::kIsJavascriptConfirm:
       if (is_before_unload_dialog_) {
         // onbeforeunload also uses a confirm prompt, it just has custom
         // buttons.  We add the buttons using gtk_dialog_add_button below.
@@ -62,7 +62,7 @@ void AppModalDialog::CreateAndShowDialog() {
       message_type = GTK_MESSAGE_QUESTION;
       break;
 
-    case MessageBox::kIsJavascriptPrompt:
+    case MessageBoxFlags::kIsJavascriptPrompt:
       // We need to make a custom message box for javascript prompts. For now
       // just have an OK button and send back an empty string. Maybe we can
       // cram a GtkEntry into the content area of the message box via

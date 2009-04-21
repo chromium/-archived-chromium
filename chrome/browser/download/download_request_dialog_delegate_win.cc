@@ -23,7 +23,7 @@ DownloadRequestDialogDelegateWin::DownloadRequestDialogDelegateWin(
     DownloadRequestManager::TabDownloadState* host)
     : DownloadRequestDialogDelegate(host) {
   message_view_ = new MessageBoxView(
-      MessageBox::kIsConfirmMessageBox,
+      MessageBoxFlags::kIsConfirmMessageBox,
       l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING),
       std::wstring());
   window_ = tab->CreateConstrainedDialog(this, message_view_);
@@ -46,10 +46,10 @@ views::View* DownloadRequestDialogDelegateWin::GetContentsView() {
 }
 
 std::wstring DownloadRequestDialogDelegateWin::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK)
+    MessageBoxFlags::DialogButton button) const {
+  if (button == MessageBoxFlags::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING_ALLOW);
-  if (button == DIALOGBUTTON_CANCEL)
+  if (button == MessageBoxFlags::DIALOGBUTTON_CANCEL)
     return l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING_DENY);
   return std::wstring();
 }
