@@ -2408,6 +2408,20 @@ v8::Handle<v8::Object> V8Proxy::LookupDOMWrapper(
 }
 
 
+// static
+void* V8Proxy::DOMWrapperToNodeHelper(v8::Handle<v8::Value> value) {
+  ASSERT(MaybeDOMWrapper(value));
+
+  v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(value);
+
+  ASSERT(GetDOMWrapperType(object) == V8ClassIndex::NODE);
+
+  v8::Handle<v8::Value> wrapper =
+     object->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
+  return ExtractCPointer<Node>(wrapper);
+}
+
+
 PassRefPtr<NodeFilter> V8Proxy::ToNativeNodeFilter(v8::Handle<v8::Value> filter)
 {
     // A NodeFilter is used when walking through a DOM tree or iterating tree

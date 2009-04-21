@@ -348,17 +348,11 @@ class V8Proxy {
 
   // A help function extract a node type pointer from a DOM wrapper.
   // Wrapped pointer must be cast to Node* first.
+  static void* DOMWrapperToNodeHelper(v8::Handle<v8::Value> value);
+
   template <class C>
   static C* DOMWrapperToNode(v8::Handle<v8::Value> value) {
-    ASSERT(MaybeDOMWrapper(value));
-
-    v8::Handle<v8::Object> object = v8::Handle<v8::Object>::Cast(value);
-
-    ASSERT(GetDOMWrapperType(object) == V8ClassIndex::NODE);
-
-    v8::Handle<v8::Value> wrapper =
-       object->GetInternalField(V8Custom::kDOMWrapperObjectIndex);
-    return static_cast<C*>(ExtractCPointer<Node>(wrapper));
+    return static_cast<C*>(DOMWrapperToNodeHelper(value));
   }
 
   template<typename T>
