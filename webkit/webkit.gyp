@@ -4148,7 +4148,7 @@
       ],
       'sources': [
         '../third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h',
-        '../third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h',
+        '../third_party/WebKit/WebKit/chromium/public/x11/WebScreenInfoFactory.h',
         '../third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h',
         '../third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h',
         '../third_party/WebKit/WebKit/chromium/public/WebCache.h',
@@ -4182,7 +4182,7 @@
         '../third_party/WebKit/WebKit/chromium/src/ChromiumCurrentTime.cpp',
         '../third_party/WebKit/WebKit/chromium/src/ChromiumThreading.cpp',
         '../third_party/WebKit/WebKit/chromium/src/gtk/WebInputEventFactory.cpp',
-        '../third_party/WebKit/WebKit/chromium/src/gtk/WebScreenInfoFactory.cpp',
+        '../third_party/WebKit/WebKit/chromium/src/x11/WebScreenInfoFactory.cpp',
         '../third_party/WebKit/WebKit/chromium/src/mac/WebInputEventFactory.mm',
         '../third_party/WebKit/WebKit/chromium/src/mac/WebScreenInfoFactory.mm',
         '../third_party/WebKit/WebKit/chromium/src/WebCache.cpp',
@@ -4203,10 +4203,14 @@
             '../build/linux/system.gyp:gtk',
           ],
           'include_dirs': [
+            '../third_party/WebKit/WebKit/chromium/public/x11',
             '../third_party/WebKit/WebKit/chromium/public/gtk',
           ],
         }, { # else: OS!="linux"
-          'sources/': [['exclude', '/gtk/']],
+          'sources/': [
+            ['exclude', '/gtk/'],
+            ['exclude', '/x11/'],
+          ],
         }],
         ['OS=="mac"', {
           'include_dirs': [

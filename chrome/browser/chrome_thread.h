@@ -38,6 +38,16 @@ class ChromeThread : public base::Thread {
     // This is the thread that interacts with the database.
     DB,
 
+    // This is the thread that interacts with the history database.
+    HISTORY,
+
+#if defined(OS_LINUX)
+    // This thread has a second connection to the X server and is used to
+    // process UI requests when routing the request to the UI thread would risk
+    // deadlock.
+    BACKGROUND_X11,
+#endif
+
     // This identifier does not represent a thread.  Instead it counts the
     // number of well-known threads.  Insert new well-known threads before this
     // identifier.
