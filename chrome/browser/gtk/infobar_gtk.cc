@@ -32,7 +32,7 @@ const int kElementPadding = 5;
 const int kLeftPadding = 5;
 const int kRightPadding = 5;
 
-}
+}  // namespace
 
 InfoBar::InfoBar(InfoBarDelegate* delegate)
     : container_(NULL),
@@ -49,9 +49,9 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
 
   // Set the top border and background color.
   gtk_widget_modify_bg(bg_box, GTK_STATE_NORMAL, &kBackgroundColor);
-  widget_.Own(gfx::CreateGtkBorderBin(bg_box, &kBorderColor,
-                                      1, 0, 0, 0));
-  gtk_widget_set_size_request(widget_.get(), -1, kInfoBarHeight);
+  border_bin_.Own(gfx::CreateGtkBorderBin(bg_box, &kBorderColor,
+                                          1, 0, 0, 0));
+  gtk_widget_set_size_request(border_bin_.get(), -1, kInfoBarHeight);
 
   // Add the icon on the left, if any.
   SkBitmap* icon = delegate->GetIcon();
@@ -66,35 +66,48 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
   g_signal_connect(close_button_->widget(), "clicked",
                    G_CALLBACK(OnCloseButton), this);
 
-  g_object_set_data(G_OBJECT(widget_.get()), "info-bar", this);
+  slide_widget_.reset(new SlideAnimatorGtk(border_bin_.get(),
+                                           SlideAnimatorGtk::DOWN,
+                                           this));
+  // We store a pointer back to |this| so we can refer to it from the infobar
+  // container.
+  g_object_set_data(G_OBJECT(slide_widget_->widget()), "info-bar", this);
 }
 
 InfoBar::~InfoBar() {
-  widget_.Destroy();
+  border_bin_.Destroy();
+}
+
+GtkWidget* InfoBar::widget() {
+  return slide_widget_->widget();
 }
 
 void InfoBar::AnimateOpen() {
-  // TODO(port): add animations. In the meantime just Open().
-  NOTIMPLEMENTED();
-  Open();
+  slide_widget_->Open();
 }
 
 void InfoBar::Open() {
-  gtk_widget_show_all(widget_.get());
+  slide_widget_->OpenWithoutAnimation();
 }
 
 void InfoBar::AnimateClose() {
-  // TODO(port): add animations. In the meantime just Close().
-  NOTIMPLEMENTED();
-  Close();
+  slide_widget_->Close();
 }
 
 void InfoBar::Close() {
-  gtk_widget_hide(widget_.get());
+  if (delegate_) {
+    delegate_->InfoBarClosed();
+    delegate_ = NULL;
+  }
+  delete this;
 }
 
 void InfoBar::RemoveInfoBar() const {
   container_->RemoveDelegate(delegate_);
+}
+
+void InfoBar::Closed() {
+  Close();
 }
 
 // static

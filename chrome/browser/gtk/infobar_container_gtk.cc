@@ -28,11 +28,16 @@ void AnimateClosingForDelegate(GtkWidget* infobar_widget,
   RemoveInfoBarData* data =
       reinterpret_cast<RemoveInfoBarData*>(remove_info_bar_data);
 
+  if (!infobar) {
+    NOTREACHED();
+    return;
+  }
+
   if (data->delegate == infobar->delegate())
-    gtk_container_remove(GTK_CONTAINER(data->container), infobar_widget);
+    infobar->AnimateClose();
 }
 
-}
+}  // namespace
 
 // InfoBarContainerGtk, public: ------------------------------------------------
 

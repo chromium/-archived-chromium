@@ -9,6 +9,7 @@
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/download_item_gtk.h"
 #include "chrome/browser/gtk/link_button_gtk.h"
+#include "chrome/browser/gtk/slide_animator_gtk.cc"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
@@ -77,9 +78,9 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_container_add(GTK_CONTAINER(padding), hbox_);
   gtk_widget_modify_bg(padding_bg, GTK_STATE_NORMAL, &kBackgroundColor);
 
-  shelf_ = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(shelf_), top_border, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(shelf_), padding_bg, FALSE, FALSE, 0);
+  shelf_.Own(gtk_vbox_new(FALSE, 0));
+  gtk_box_pack_start(GTK_BOX(shelf_.get()), top_border, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(shelf_.get()), padding_bg, FALSE, FALSE, 0);
 
   // Create and pack the close button.
   close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox_));
@@ -105,13 +106,17 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
                      FALSE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox_), link_hbox_, FALSE, FALSE, 0);
 
+  slide_widget_.reset(new SlideAnimatorGtk(shelf_.get(),
+                                           SlideAnimatorGtk::UP, NULL));
   // Stick ourselves at the bottom of the parent tab contents.
   GtkWidget* parent_contents = tab_contents->GetNativeView();
-  gtk_box_pack_end(GTK_BOX(parent_contents), shelf_, FALSE, FALSE, 0);
-  Show();
+  gtk_box_pack_end(GTK_BOX(parent_contents), slide_widget_->widget(),
+                   FALSE, FALSE, 0);
+  slide_widget_->Open();
 }
 
 DownloadShelfGtk::~DownloadShelfGtk() {
+  shelf_.Destroy();
 }
 
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
@@ -119,34 +124,18 @@ void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
   // mass delete on windows, figure out where they do it.
   download_items_.push_back(new DownloadItemGtk(download_model_, hbox_,
                                                 link_hbox_));
-  Show();
+  slide_widget_->Open();
 }
 
 bool DownloadShelfGtk::IsShowing() const {
-  return is_showing_;
-}
-
-void DownloadShelfGtk::Show() {
-  if (is_showing_)
-    return;
-
-  gtk_widget_show_all(shelf_);
-  is_showing_ = true;
-}
-
-void DownloadShelfGtk::Hide() {
-  if (!is_showing_)
-    return;
-
-  gtk_widget_hide_all(shelf_);
-  is_showing_ = false;
+  return slide_widget_->IsShowing();
 }
 
 // static
 void DownloadShelfGtk::OnButtonClick(GtkWidget* button,
                                      DownloadShelfGtk* shelf) {
   if (button == shelf->close_button_->widget()) {
-    shelf->Hide();
+    shelf->slide_widget_->Close();
   } else {
     // The link button was clicked.
     shelf->ShowAllDownloads();

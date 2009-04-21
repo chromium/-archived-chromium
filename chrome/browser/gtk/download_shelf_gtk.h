@@ -11,11 +11,13 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/common/owned_widget_gtk.h"
 
 class BaseDownloadItemModel;
 class CustomDrawButton;
 class DownloadItemGtk;
 class LinkButtonGtk;
+class SlideAnimatorGtk;
 
 class DownloadShelfGtk : public DownloadShelf {
  public:
@@ -28,20 +30,17 @@ class DownloadShelfGtk : public DownloadShelf {
   virtual bool IsShowing() const;
 
  private:
-  // Show the shelf.
-  void Show();
-
-  // Hide the shelf.
-  void Hide();
-
   static void OnButtonClick(GtkWidget* button, DownloadShelfGtk* toolbar);
+
+  // The top level widget of the shelf.
+  scoped_ptr<SlideAnimatorGtk> slide_widget_;
 
   // |hbox_| holds the download items and buttons of the shelf.
   GtkWidget* hbox_;
 
-  // |shelf_| is the highest level widget of the shelf. See the constructor
+  // |shelf_| is the second highest level widget. See the constructor
   // for an explanation of the widget layout.
-  GtkWidget* shelf_;
+  OwnedWidgetGtk shelf_;
 
   // This hbox holds the link text and download icon. It also holds the
   // distinction of being the leftmost non-download item widget on the shelf.
