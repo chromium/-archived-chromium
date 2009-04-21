@@ -6,7 +6,7 @@
 
 #include <gtk/gtk.h>
 
-#include "base/gfx/gtk_util.h"
+#include "base/linux_util.h"
 #include "skia/include/SkBitmap.h"
 
 namespace {
@@ -45,7 +45,7 @@ GdkPixbuf* GdkPixbufFromSkBitmap(const SkBitmap* bitmap) {
   int height = bitmap->height();
   int stride = bitmap->rowBytes();
   const guchar* orig_data = static_cast<guchar*>(bitmap->getPixels());
-  guchar* data = BGRAToRGBA(orig_data, width, height, stride);
+  guchar* data = base::BGRAToRGBA(orig_data, width, height, stride);
 
   // This pixbuf takes ownership of our malloc()ed data and will
   // free it for us when it is destroyed.

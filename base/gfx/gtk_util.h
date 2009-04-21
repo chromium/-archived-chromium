@@ -28,11 +28,6 @@ extern const GdkColor kGdkGreen;
 void SubtractRectanglesFromRegion(GdkRegion* region,
                                   const std::vector<Rect>& cutouts);
 
-// Makes a copy of |pixels| with the ordering changed from BGRA to RGBA.
-// The caller is responsible for free()ing the data. If |stride| is 0,
-// it's assumed to be 4 * |width|.
-uint8_t* BGRAToRGBA(const uint8_t* pixels, int width, int height, int stride);
-
 }  // namespace gfx
 
 #endif  // BASE_GFX_GTK_UTIL_H_
