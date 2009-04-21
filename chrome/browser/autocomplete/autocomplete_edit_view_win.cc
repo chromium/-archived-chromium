@@ -1841,23 +1841,40 @@ bool AutocompleteEditViewWin::IsSelectAllForRange(const CHARRANGE& sel) const {
 
 LONG AutocompleteEditViewWin::ClipXCoordToVisibleText(
     LONG x, bool is_triple_click) const {
-  // Clip the X coordinate to the left edge of the text.  Careful:
+  // Clip the X coordinate to the left edge of the text. Careful:
   // PosFromChar(0) may return a negative X coordinate if the beginning of the
   // text has scrolled off the edit, so don't go past the clip rect's edge.
+  PARAFORMAT2 pf2;
+  GetParaFormat(pf2);
+  // Calculation of the clipped coordinate is more complicated if the paragraph
+  // layout is RTL layout, or if there is RTL characters inside the LTR layout
+  // paragraph.
+  bool ltr_text_in_ltr_layout = true;
+  if ((pf2.wEffects & PFE_RTLPARA) ||
+      l10n_util::StringContainsStrongRTLChars(GetText())) {
+    ltr_text_in_ltr_layout = false;
+  }
+  const int length = GetTextLength();
   RECT r;
   GetRect(&r);
-  const int left_bound = std::max(r.left, PosFromChar(0).x);
-  if (x < left_bound)
-    return left_bound;
-
-  // See if we need to clip to the right edge of the text.
-  const int length = GetTextLength();
-  // Asking for the coordinate of any character past the end of the text gets
-  // the pixel just to the right of the last character.
-  const int right_bound = std::min(r.right, PosFromChar(length).x);
-  if ((length == 0) || (x < right_bound))
-    return x;
-
+  // The values returned by PosFromChar() seem to refer always
+  // to the left edge of the character's bounding box.
+  const LONG first_position_x = PosFromChar(0).x;
+  LONG min_x = first_position_x;
+  if (!ltr_text_in_ltr_layout) {
+    for (int i = 1; i < length; ++i)
+      min_x = std::min(min_x, PosFromChar(i).x);
+  }
+  const LONG left_bound = std::max(r.left, min_x);
+  // PosFromChar(length) is a phantom character past the end of the text. It is
+  // not necessarily a right bound; in RTL controls it may be a left bound. So
+  // treat it as a right bound only if it is to the right of the first
+  // character.
+  LONG right_bound = r.right;
+  LONG end_position_x = PosFromChar(length).x;
+  if (end_position_x >= first_position_x) {
+    right_bound = std::min(right_bound, end_position_x);  // LTR case.
+  }
   // For trailing characters that are 2 pixels wide of less (like "l" in some
   // fonts), we have a problem:
   //   * Clicks on any pixel within the character will place the cursor before
@@ -1868,6 +1885,12 @@ LONG AutocompleteEditViewWin::ClipXCoordToVisibleText(
   // triple-click, and moving to one past the last pixel in all other
   // scenarios.  This way, all clicks that can move the cursor will place it at
   // the end of the text, but triple-click will still work.
+  if (x < left_bound) {
+    return (is_triple_click && ltr_text_in_ltr_layout) ? left_bound - 1 :
+                                                         left_bound;
+  }
+  if ((length == 0) || (x < right_bound))
+    return x;
   return is_triple_click ? (right_bound - 1) : right_bound;
 }
 
