@@ -1137,30 +1137,21 @@ void WindowWin::OnWindowPosChanging(WINDOWPOS* window_pos) {
         // to any notification, and we're just sent a SetWindowPos() call with a
         // new (frequently incorrect) position/size.  In either case, the best
         // response is to throw away the existing position/size information in
-        // |window_pos| and recalculate it based on the old window coordinates,
-        // adjusted for the change in the work area (or, for fullscreen windows,
-        // to just set it to the monitor rect).
+        // |window_pos| and recalculate it based on the new work rect.
+        gfx::Rect new_window_rect;
         if (IsFullscreen()) {
-          window_pos->x = monitor_rect.x();
-          window_pos->y = monitor_rect.y();
-          window_pos->cx = monitor_rect.width();
-          window_pos->cy = monitor_rect.height();
+          new_window_rect = monitor_rect;
         } else if (IsZoomed()) {
-          window_pos->x =
-              window_rect.left + work_area.x() - last_work_area_.x();
-          window_pos->y = window_rect.top + work_area.y() - last_work_area_.y();
-          window_pos->cx = window_rect.Width() + work_area.width() -
-              last_work_area_.width();
-          window_pos->cy = window_rect.Height() + work_area.height() -
-              last_work_area_.height();
+          new_window_rect = work_area;
+          int border_thickness = GetSystemMetrics(SM_CXSIZEFRAME);
+          new_window_rect.Inset(-border_thickness, -border_thickness);
         } else {
-          gfx::Rect window_gfx_rect(window_rect);
-          gfx::Rect new_window_rect = window_gfx_rect.AdjustToFit(work_area);
-          window_pos->x = new_window_rect.x();
-          window_pos->y = new_window_rect.y();
-          window_pos->cx = new_window_rect.width();
-          window_pos->cy = new_window_rect.height();
+          new_window_rect = gfx::Rect(window_rect).AdjustToFit(work_area);
         }
+        window_pos->x = new_window_rect.x();
+        window_pos->y = new_window_rect.y();
+        window_pos->cx = new_window_rect.width();
+        window_pos->cy = new_window_rect.height();
         // WARNING!  Don't set SWP_FRAMECHANGED here, it breaks moving the child
         // HWNDs for some reason.
         window_pos->flags &= ~(SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
