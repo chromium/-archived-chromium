@@ -190,9 +190,9 @@ class ValgrindAnalyze:
 
     self._errors = set()
     for file in files:
-      # Wait up to a minute for valgrind to finish writing.
+      # Wait up to ten minutes for valgrind to finish writing.
       f = open(file, "r")
-      ntries = 60
+      ntries = 600
       for tries in range(0, ntries):
         f.seek(0)
         if sum((1 for line in f if '</valgrindoutput>' in line)) > 0:
