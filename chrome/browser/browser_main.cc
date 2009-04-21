@@ -32,6 +32,7 @@
 #include "chrome/browser/metrics/metrics_service.h"
 #include "chrome/browser/net/dns_global.h"
 #include "chrome/browser/plugin_service.h"
+#include "chrome/browser/process_singleton.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/browser/shell_integration.h"
 #include "chrome/browser/user_data_manager.h"
@@ -95,10 +96,6 @@
 #include "sandbox/src/sandbox.h"
 
 #endif  // defined(OS_WIN)
-
-#if !defined(OS_MACOSX)
-#include "chrome/browser/process_singleton.h"
-#endif
 
 namespace Platform {
 

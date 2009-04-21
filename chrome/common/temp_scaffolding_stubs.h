@@ -48,23 +48,6 @@ class Message;
 //---------------------------------------------------------------------------
 // These stubs are for Browser_main()
 
-#if defined(OS_MACOSX)
-// TODO(port): needs an implementation of ProcessSingleton.
-class ProcessSingleton {
- public:
-  explicit ProcessSingleton(const FilePath& user_data_dir) { }
-  ~ProcessSingleton() { }
-  bool NotifyOtherProcess() {
-    NOTIMPLEMENTED();
-    return false;
-  }
-  void HuntForZombieChromeProcesses() { NOTIMPLEMENTED(); }
-  void Create() { NOTIMPLEMENTED(); }
-  void Lock() { NOTIMPLEMENTED(); }
-  void Unlock() { NOTIMPLEMENTED(); }
-};
-#endif  // defined(OS_MACOSX)
-
 class GoogleUpdateSettings {
  public:
   static bool GetCollectStatsConsent() {

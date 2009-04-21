@@ -938,6 +938,7 @@
         'browser/printing/win_printing_context.h',
         'browser/process_singleton.h',
         'browser/process_singleton_linux.cc',
+        'browser/process_singleton_mac.cc',
         'browser/process_singleton_win.cc',
         'browser/profile.cc',
         'browser/profile.h',
