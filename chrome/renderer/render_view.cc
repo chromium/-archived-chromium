@@ -2971,115 +2971,59 @@ void RenderView::OnExtensionResponse(int callback_id,
   pending_extension_callbacks_.Remove(callback_id);
 }
 
-// Dump all load time histograms. We create 2 sets time based histograms,
-// one that is specific to the navigation type and one that aggregates all
-// navigation types
+// Dump all load time histograms.
 //
-// Each set contains 5 histograms measuring various times.
+// There are 7 histograms measuring various times.
 // The time points we keep are
 //    request: time document was requested by user
 //    start: time load of document started
 //    finishDoc: main document loaded, before onload()
 //    finish: after onload() and all resources are loaded
-// finish_document_load_time and finish_load_time.
+//    firstLayout: first layout performed
 // The times that we histogram are
 //    requestToStart,
 //    startToFinishDoc,
 //    finishDocToFinish,
 //    startToFinish,
 //    requestToFinish,
+//    requestToFirstLayout
+//    startToFirstLayout
 //
+// It's possible for the request time not to be set, if a client
+// redirect had been done (the user never requested the page)
+// Also, it's possible to load a page without ever laying it out
+// so firstLayout can be 0.
 void RenderView::DumpLoadHistograms() const {
   WebFrame* main_frame = webview()->GetMainFrame();
   WebDataSource* ds = main_frame->GetDataSource();
-  WebNavigationType nav_type = ds->GetNavigationType();
   Time request_time = ds->GetRequestTime();
   Time start_load_time = ds->GetStartLoadTime();
   Time finish_document_load_time = ds->GetFinishDocumentLoadTime();
   Time finish_load_time = ds->GetFinishLoadTime();
+  Time first_layout_time = ds->GetFirstLayoutTime();
   TimeDelta request_to_start = start_load_time - request_time;
   TimeDelta start_to_finish_doc = finish_document_load_time - start_load_time;
-  TimeDelta finish_doc_to_finish = finish_load_time - finish_document_load_time;
+  TimeDelta finish_doc_to_finish =
+      finish_load_time - finish_document_load_time;
   TimeDelta start_to_finish = finish_load_time - start_load_time;
   TimeDelta request_to_finish = finish_load_time - start_load_time;
+  TimeDelta request_to_first_layout = first_layout_time - request_time;
+  TimeDelta start_to_first_layout = first_layout_time - start_load_time;
 
-  UMA_HISTOGRAM_TIMES("Renderer.All.RequestToStart", request_to_start);
+  // Client side redirects will have no request time
+  if (request_time.ToInternalValue() != 0) {
+    UMA_HISTOGRAM_TIMES("Renderer.All.RequestToStart", request_to_start);
+    UMA_HISTOGRAM_TIMES("Renderer.All.RequestToFinish", request_to_finish);
+    if (request_to_first_layout.ToInternalValue() >= 0) {
+      UMA_HISTOGRAM_TIMES(
+        "Renderer.All.RequestToFirstLayout", request_to_first_layout);
+    }
+  }
   UMA_HISTOGRAM_TIMES("Renderer.All.StartToFinishDoc", start_to_finish_doc);
   UMA_HISTOGRAM_TIMES("Renderer.All.FinishDocToFinish", finish_doc_to_finish);
   UMA_HISTOGRAM_TIMES("Renderer.All.StartToFinish", start_to_finish);
-  UMA_HISTOGRAM_TIMES("Renderer.All.RequestToFinish", request_to_finish);
-  switch (nav_type) {
-    case WebNavigationTypeLinkClicked:
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.LinkClicked.RequestToStart", request_to_start);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.LinkClicked.StartToFinishDoc", start_to_finish_doc);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.LinkClicked.FinishDocToFinish", finish_doc_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.LinkClicked.RequestToFinish", request_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.LinkClicked.StartToFinish", start_to_finish);
-      break;
-    case WebNavigationTypeFormSubmitted:
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormSubmitted.RequestToStart", request_to_start);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormSubmitted.StartToFinishDoc", start_to_finish_doc);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormSubmitted.FinishDocToFinish", finish_doc_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormSubmitted.RequestToFinish", request_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormSubmitted.StartToFinish", start_to_finish);
-      break;
-    case WebNavigationTypeBackForward:
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.BackForward.RequestToStart", request_to_start);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.BackForward.StartToFinishDoc", start_to_finish_doc);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.BackForward.FinishDocToFinish", finish_doc_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.BackForward.RequestToFinish", request_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.BackForward.StartToFinish", start_to_finish);
-      break;
-    case WebNavigationTypeReload:
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Reload.RequestToStart", request_to_start);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Reload.StartToFinishDoc", start_to_finish_doc);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Reload.FinishDocToFinish", finish_doc_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Reload.RequestToFinish", request_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Reload.StartToFinish", start_to_finish);
-      break;
-    case WebNavigationTypeFormResubmitted:
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormResubmitted.RequestToStart", request_to_start);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormResubmitted.StartToFinishDoc", start_to_finish_doc);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormResubmitted.FinishDocToFinish", finish_doc_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormResubmitted.RequestToFinish", request_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.FormResubmitted.StartToFinish", start_to_finish);
-      break;
-    case WebNavigationTypeOther:
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Other.RequestToStart", request_to_start);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Other.StartToFinishDoc", start_to_finish_doc);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Other.FinishDocToFinish", finish_doc_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Other.RequestToFinish", request_to_finish);
-      UMA_HISTOGRAM_TIMES(
-          "Renderer.Other.StartToFinish", start_to_finish);
-      break;
+  if (start_to_first_layout.ToInternalValue() >= 0) {
+    UMA_HISTOGRAM_TIMES(
+      "Renderer.All.StartToFirstLayout", start_to_first_layout);
   }
 }

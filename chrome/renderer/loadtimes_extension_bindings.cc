@@ -74,6 +74,9 @@ class LoadTimesExtensionWrapper : public v8::Extension {
             v8::String::New("finishLoadTime"),
             v8::Number::New(data_source->GetFinishLoadTime().ToDoubleT()));
         load_times->Set(
+            v8::String::New("firstLayoutTime"),
+            v8::Number::New(data_source->GetFirstLayoutTime().ToDoubleT()));
+        load_times->Set(
             v8::String::New("navigationType"),
             v8::String::New(
                 GetNavigationType(data_source->GetNavigationType())));

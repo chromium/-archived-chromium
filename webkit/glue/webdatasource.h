@@ -114,6 +114,9 @@ class WebDataSource {
   // notification.
   virtual base::Time GetFinishLoadTime() const = 0;
 
+  // Returns the first time a layout was performed
+  virtual base::Time GetFirstLayoutTime() const = 0;
+
   // Returns the reason the document was loaded.
   virtual WebNavigationType GetNavigationType() const = 0;
 };

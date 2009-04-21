@@ -853,6 +853,13 @@ void WebFrameLoaderClient::dispatchDidFinishLoad() {
 void WebFrameLoaderClient::dispatchDidFirstLayout() {
  // FIXME: called when webkit finished layout of page.
  // All resources have not necessarily finished loading.
+  DocumentLoader* document_loader =
+    webframe_->frame()->loader()->documentLoader();
+  WebDataSourceImpl* ds =
+    WebDataSourceImpl::FromLoader(document_loader);
+  if (ds->GetFirstLayoutTime().ToInternalValue() == 0) {
+    ds->set_first_layout_time(base::Time::Now());
+  }
 }
 
 void WebFrameLoaderClient::dispatchDidFirstVisuallyNonEmptyLayout() {

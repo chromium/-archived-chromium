@@ -42,6 +42,7 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   virtual base::Time GetStartLoadTime() const;
   virtual base::Time GetFinishDocumentLoadTime() const;
   virtual base::Time GetFinishLoadTime() const;
+  virtual base::Time GetFirstLayoutTime() const;
   virtual WebNavigationType GetNavigationType() const;
 
   static WebNavigationType NavigationTypeToWebNavigationType(
@@ -102,6 +103,10 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
     finish_load_time_ = finish_load_time;
   }
 
+  void set_first_layout_time(base::Time first_layout_time) {
+    first_layout_time_ = first_layout_time;
+  }
+
  private:
   WebDataSourceImpl(const WebCore::ResourceRequest&,
                     const WebCore::SubstituteData&);
@@ -129,6 +134,7 @@ class WebDataSourceImpl : public WebCore::DocumentLoader, public WebDataSource {
   base::Time start_load_time_;
   base::Time finish_document_load_time_;
   base::Time finish_load_time_;
+  base::Time first_layout_time_;
 
   DISALLOW_COPY_AND_ASSIGN(WebDataSourceImpl);
 };

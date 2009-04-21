@@ -122,6 +122,10 @@ base::Time WebDataSourceImpl::GetFinishLoadTime() const {
   return finish_load_time_;
 }
 
+base::Time WebDataSourceImpl::GetFirstLayoutTime() const {
+  return first_layout_time_;
+}
+
 WebNavigationType WebDataSourceImpl::GetNavigationType() const {
   return NavigationTypeToWebNavigationType(triggeringAction().type());
 }
