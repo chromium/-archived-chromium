@@ -984,6 +984,14 @@ void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {
       total_duration,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
+  if (!reused_socket_)
+    UMA_HISTOGRAM_CLIPPED_TIMES(
+        FieldTrial::MakeName(
+            "Net.Transaction_Connected_New",
+            "DnsImpact").data(),
+        total_duration,
+        base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+        100);
 
   // Currently, non-zero priority requests are frame or sub-frame resource
   // types.  This will change when we also prioritize certain subresources like
