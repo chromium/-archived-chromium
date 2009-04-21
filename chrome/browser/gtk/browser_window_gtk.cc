@@ -112,9 +112,13 @@ const struct AcceleratorMapping {
   { GDK_Page_Down, IDC_SELECT_NEXT_TAB, GDK_CONTROL_MASK },
   { GDK_Page_Up, IDC_SELECT_PREVIOUS_TAB, GDK_CONTROL_MASK },
   { GDK_w, IDC_CLOSE_TAB, GDK_CONTROL_MASK },
-  { GDK_plus, IDC_ZOOM_PLUS, GDK_CONTROL_MASK },
+  { GDK_plus, IDC_ZOOM_PLUS,
+    GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
+  { GDK_equal, IDC_ZOOM_PLUS, GDK_CONTROL_MASK },
   { GDK_0, IDC_ZOOM_NORMAL, GDK_CONTROL_MASK },
   { GDK_minus, IDC_ZOOM_MINUS, GDK_CONTROL_MASK },
+  { GDK_underscore, IDC_ZOOM_MINUS,
+    GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
 };
 
 int GetCommandFromKeyval(guint accel_key) {
