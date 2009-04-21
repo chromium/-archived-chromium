@@ -23,13 +23,18 @@ inline const uint16_t* FromWebCoreString(const String& str) {
 // Convert v8 types to a WebCore::String. If the V8 string is not already
 // an external string then it is transformed into an external string at this
 // point to avoid repeated conversions.
-String v8StringToWebCoreString(v8::Handle<v8::String> obj);
+String v8StringToWebCoreString(
+    v8::Handle<v8::String> obj, bool externalize);
 String v8ValueToWebCoreString(v8::Handle<v8::Value> obj);
 
 // TODO(mbelshe): drop this in favor of the type specific
 //    v8ValueToWebCoreString when we rework the code generation.
 inline String ToWebCoreString(v8::Handle<v8::Value> obj) {
-    return v8ValueToWebCoreString(obj);
+  return v8ValueToWebCoreString(obj);
+}
+
+inline String ToWebCoreString(v8::Handle<v8::String> string) {
+  return v8StringToWebCoreString(string, true);
 }
 
 // Convert v8 types to a WebCore::AtomicString.

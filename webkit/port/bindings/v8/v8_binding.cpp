@@ -37,7 +37,8 @@ class WebCoreStringResource: public v8::String::ExternalStringResource {
   String impl_;
 };
 
-String v8StringToWebCoreString(v8::Handle<v8::String> v8_str) {
+String v8StringToWebCoreString(
+    v8::Handle<v8::String> v8_str, bool externalize) {
   if (v8_str->IsExternal()) {
     WebCoreStringResource* str_resource = static_cast<WebCoreStringResource*>(
         v8_str->GetExternalStringResource());
@@ -69,12 +70,14 @@ String v8StringToWebCoreString(v8::Handle<v8::String> v8_str) {
 //  TODO(mbelshe): Disable string morphing because it causes mystery
 //     perf regressions on intl1 and intl2 page cyclers.  It works fine
 //     on machines other than the buildbots.
-//
-//  WebCoreStringResource* resource = new WebCoreStringResource(result);
-//  if (!v8_str->MakeExternal(resource)) {
-//    // In case of a failure delete the external resource as it was not used.
-//    delete resource;
-//  }
+
+  if (externalize) {
+    WebCoreStringResource* resource = new WebCoreStringResource(result);
+    if (!v8_str->MakeExternal(resource)) {
+      // In case of a failure delete the external resource as it was not used.
+      delete resource;
+    }
+  }
   return result;
 }
 
@@ -83,18 +86,19 @@ String v8ValueToWebCoreString(v8::Handle<v8::Value> obj) {
   v8::Handle<v8::String> v8_str;
   if (obj->IsString()) {
     v8_str = v8::Handle<v8::String>::Cast(obj);
+    return v8StringToWebCoreString(v8_str, true);
   } else {
     v8::TryCatch block;
     v8_str = obj->ToString();
     if (v8_str.IsEmpty())
       return "";
   }
-  return v8StringToWebCoreString(v8_str);
+  return v8StringToWebCoreString(v8_str, false);
 }
 
 
 AtomicString v8StringToAtomicWebCoreString(v8::Handle<v8::String> v8_str) {
-  String str = v8StringToWebCoreString(v8_str);
+  String str = v8StringToWebCoreString(v8_str, true);
   return AtomicString(str);
 }
 
@@ -108,13 +112,13 @@ AtomicString v8ValueToAtomicWebCoreString(v8::Handle<v8::Value> v8_str) {
 v8::Handle<v8::String> v8String(const String& str) {
   if (!str.length())
     return v8::String::Empty();
-  return v8::String::NewExternal(new WebCoreStringResource(str));	
+  return v8::String::NewExternal(new WebCoreStringResource(str));
 }
 
 v8::Local<v8::String> v8ExternalString(const String& str) {
   if (!str.length())
     return v8::String::Empty();
-  return v8::String::NewExternal(new WebCoreStringResource(str));	
+  return v8::String::NewExternal(new WebCoreStringResource(str));
 }
 
 }  // namespace WebCore
