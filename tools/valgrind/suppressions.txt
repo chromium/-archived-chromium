@@ -51,6 +51,22 @@
    fun:SECMOD_LoadUserModule
 }
 {
+   # Possible NSS leak, see http://crbug.com/10750
+   bug_10750
+   Memcheck:Leak
+   fun:calloc
+   fun:PR_Calloc
+   ...
+   fun:SECMOD_UnloadUserModule
+}
+{
+   # Leak reported by NSS but possibly our fault, see http://crbug/4609
+   bug_4609
+   Memcheck:Leak
+   ...
+   fun:NSS_Shutdown
+}
+{
    (Probable memory leak in Skia)
    Memcheck:Leak
    fun:_Znwj
@@ -98,7 +114,27 @@
    obj:/lib/ld-2.*.so
    obj:/lib/ld-2.*.so
 }
-
+{
+   FIXME epoll uninitialized data 1
+   Memcheck:Param
+   epoll_ctl(epfd)
+   fun:syscall
+   fun:event_add
+}
+{
+   FIXME epoll uninitialized data 2
+   Memcheck:Param
+   epoll_ctl(epfd)
+   fun:syscall
+   fun:event_del
+}
+{
+   FIXME epoll uninitialized data 3
+   Memcheck:Param
+   epoll_wait(epfd)
+   fun:syscall
+   fun:event_base_loop
+}
 {
    FIXME IPCing uninitialized data
    Memcheck:Param
@@ -148,6 +184,12 @@
    Memcheck:Leak
    ...
    fun:_ZN3net18TestServerLauncher16LoadTestRootCertEv
+}
+{
+   # uitest's ResourceDispatcherTest.CrossSiteAfterCrash crashes on purpose
+   Intentional_crash
+   Memcheck:Addr4
+   fun:*AboutCrash
 }
 {
    # Minor commandline options leak in v8
@@ -298,4 +340,91 @@
    fun:_Znwj
    fun:_ZN10SkFontHost12FindTypefaceEPK10SkTypefacePKcNS0_5StyleE
    fun:_ZN10SkTypeface6CreateEPKcNS_5StyleE
+}
+{
+   # real leak; see http://crbug.com/10738
+   bug_10738
+   Memcheck:Leak
+   ...
+   fun:_ZN22RendererSecurityPolicy15GrantRequestURLEiRK4GURL
+   fun:_ZN14RenderViewHost15NavigateToEntryERK15NavigationEntryb
+   fun:_ZN11WebContents22NavigateToPendingEntryEb
+   fun:_ZN20NavigationController22NavigateToPendingEntryEb
+   fun:_ZN20NavigationController9LoadEntryEP15NavigationEntry
+   fun:_ZN20NavigationController7LoadURLERK4GURLS2_j
+}
+{
+   # real leak; see http://crbug.com/10739
+   bug_10739
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN16DownloadShelfGtk11AddDownloadEP21BaseDownloadItemModel
+}
+{
+   # real leak; see http://crbug.com/10560
+   # TabGtk::TabGtk(TabGtk::TabDelegate*) sometimes in stack -> ...
+   bug_10560
+   Memcheck:Leak
+   fun:_Znwj
+   ...
+   fun:_ZN11TabStripGtk13TabInsertedAtEP11TabContentsib
+   fun:_ZN13TabStripModel19InsertTabContentsAtEiP11TabContentsbb
+   fun:_ZN13TabStripModel14AddTabContentsEP11TabContentsijb
+}
+{
+   # see http://crbug.com/10737
+   bug_10737
+   Memcheck:Leak
+   fun:calloc
+   fun:g_malloc0
+   fun:g_closure_new_simple
+   fun:g_cclosure_new
+   fun:_ZN16BrowserWindowGtk19ConnectAcceleratorsEv
+   fun:_ZN16BrowserWindowGtkC1EP7Browser
+   fun:_ZN13BrowserWindow19CreateBrowserWindowEP7Browser
+}
+{
+   # see http://crbug.com/10747
+   bug_10747
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN18WebContentsViewGtk19CreateViewForWidgetEP16RenderWidgetHost
+   fun:_ZN11WebContents32CreateRenderViewForRenderManagerEP14RenderViewHost
+}
+{
+   # see http://crbug.com/10748
+   bug_10748
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN22RendererSecurityPolicy3AddEi
+   fun:_ZN24BrowserRenderProcessHost4InitEv
+   fun:_ZN14RenderViewHost16CreateRenderViewEv
+   fun:_ZN11WebContents32CreateRenderViewForRenderManagerEP14RenderViewHost
+}
+{
+   # See http://crbug.com/10755 (1/2)
+   bug_10755
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3IPC12ChannelProxy12RemoveFilterEPNS0_13MessageFilterE
+   fun:_ZN12RenderThread12RemoveFilterEPN3IPC12ChannelProxy13MessageFilterE
+   fun:_ZN12RenderThread7CleanUpEv
+}
+{
+   # See http://crbug.com/10755 (2/2)
+   bug_10755b
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3IPC12ChannelProxy5CloseEv
+   fun:_ZN3IPC11SyncChannelD0Ev
+   fun:_ZN11ChildThread7CleanUpEv
+   fun:_ZN12RenderThread7CleanUpEv
+}
+{
+   # See http://crbug.com/10758
+   bug_10758
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14MetricsService17GetPluginListTask3RunEv
+   fun:_ZN11MessageLoop7RunTaskEP4Task
 }
