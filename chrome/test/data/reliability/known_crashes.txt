@@ -50,6 +50,9 @@ PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspa
 PREFIX : `anonymous namespace'::invalidparameter____invalid_parameter_noinfo___std::deque
 PREFIX : `anonymous namespace'::purecall____invalid_parameter_noinfo___std::deque
 
+# 10794
+SUBSTRING : base::waitableevent::waitableevent___webpluginproxy::setmodaldialogevent___webplugindelegatestub::oninit
+
 # 9615
 SUBSTRING : history::historybackend::~historybackend
 
@@ -59,11 +62,17 @@ PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_pa
 # 10770
 PREFIX : npapi::pluginstream::trywritetoplugin___npapi::pluginstream::writetoplugin___npapi::pluginstream::write
 
+# 10791
+PREFIX : npapi::plugininstance::npp_destroy___webplugindelegateimpl::destroyinstance___webplugindelegateimpl::~webplugindelegateimpl
+
 # 8020
 PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
 
 # 7694
 PREFIX : webcore::containernode::willremove
+
+# 9947
+SUBSTRING : webcore::frameloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse
 
 # 7570
 PREFIX : webcore::renderbox::calcabsolutehorizontalreplaced___webcore::renderbox::calcabsolutehorizontal___webcore::renderbox::calcwidth
