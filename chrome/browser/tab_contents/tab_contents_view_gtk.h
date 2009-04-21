@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
-#define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_GTK_H_
+#define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_GTK_H_
 
 #include "base/scoped_ptr.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class RenderViewContextMenuGtk;
@@ -79,4 +79,4 @@ class TabContentsViewGtk : public TabContentsView {
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewGtk);
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_GTK_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_GTK_H_

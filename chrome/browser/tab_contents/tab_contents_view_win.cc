@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tab_contents/web_contents_view_win.h"
+#include "chrome/browser/tab_contents/tab_contents_view_win.h"
 
 #include <windows.h>
 
@@ -225,7 +225,7 @@ void TabContentsViewWin::Invalidate() {
 }
 
 void TabContentsViewWin::SizeContents(const gfx::Size& size) {
-  // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
+  // TODO(brettw) this is a hack and should be removed. See tab_contents_view.h.
   WasSized(size);
 }
 

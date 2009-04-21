@@ -35,7 +35,7 @@
 #include "chrome/browser/search_engines/template_url_model.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/provisional_load_details.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -60,12 +60,6 @@
 #endif
 
 #include "grit/generated_resources.h"
-
-#if !defined(OS_MACOSX)
-// TODO(port): port this to mac.
-#include "chrome/browser/renderer_host/render_widget_host_view.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
-#endif
 
 // Cross-Site Navigations
 //

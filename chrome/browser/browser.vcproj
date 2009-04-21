@@ -2314,6 +2314,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tab_contents\tab_contents_view.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_view.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_view_win.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\tab_contents\tab_contents_view_win.h"
+				>
+			</File>
+			<File
 				RelativePath=".\tab_contents\tab_util.cc"
 				>
 			</File>
@@ -2327,22 +2343,6 @@
 			</File>
 			<File
 				RelativePath=".\tab_contents\web_contents.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\web_contents_view.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\web_contents_view.h"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\web_contents_view_win.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\tab_contents\web_contents_view_win.h"
 				>
 			</File>
 			<File

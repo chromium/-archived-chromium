@@ -14,7 +14,7 @@
 #include "chrome/browser/tab_contents/navigation_controller.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/window/window_delegate.h"
 #include "grit/browser_resources.h"
@@ -258,16 +258,16 @@ RenderViewHost* InterstitialPage::CreateRenderViewHost() {
 }
 
 TabContentsView* InterstitialPage::CreateTabContentsView() {
-  TabContentsView* web_contents_view = tab()->view();
+  TabContentsView* tab_contents_view = tab()->view();
   RenderWidgetHostView* view =
-      web_contents_view->CreateViewForWidget(render_view_host_);
+      tab_contents_view->CreateViewForWidget(render_view_host_);
   render_view_host_->set_view(view);
   render_view_host_->AllowDomAutomationBindings();
   render_view_host_->CreateRenderView();
-  view->SetSize(web_contents_view->GetContainerSize());
+  view->SetSize(tab_contents_view->GetContainerSize());
   // Don't show the interstitial until we have navigated to it.
   view->Hide();
-  return web_contents_view;
+  return tab_contents_view;
 }
 
 void InterstitialPage::Proceed() {

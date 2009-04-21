@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tab_contents/web_contents_view_gtk.h"
+#include "chrome/browser/tab_contents/tab_contents_view_gtk.h"
 
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>

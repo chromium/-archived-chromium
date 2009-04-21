@@ -10,7 +10,7 @@
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tab_contents/web_contents.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/toolbar_model.h"
 #include "chrome/browser/views/frame/browser_view.h"
 #include "chrome/browser/window_sizer.h"

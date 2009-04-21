@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "chrome/browser/tab_contents/web_contents_view_mac.h"
+#include "chrome/browser/tab_contents/tab_contents_view_mac.h"
 
 #include "chrome/browser/browser.h" // TODO(beng): this dependency is awful.
 #include "chrome/browser/cocoa/sad_tab_view.h"
@@ -102,7 +102,7 @@ void TabContentsViewMac::Invalidate() {
 }
 
 void TabContentsViewMac::SizeContents(const gfx::Size& size) {
-  // TODO(brettw) this is a hack and should be removed. See web_contents_view.h.
+  // TODO(brettw) this is a hack and should be removed. See tab_contents_view.h.
   NOTIMPLEMENTED();  // Leaving the hack unimplemented.
 }
 

@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_MAC_H_
-#define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_MAC_H_
+#ifndef CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_MAC_H_
+#define CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_MAC_H_
 
 #import <Cocoa/Cocoa.h>
 
@@ -11,7 +11,7 @@
 #include "base/scoped_ptr.h"
 #include "base/scoped_nsobject.h"
 #include "chrome/browser/cocoa/base_view.h"
-#include "chrome/browser/tab_contents/web_contents_view.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/notification_registrar.h"
 
 class FindBarMac;
@@ -102,4 +102,4 @@ class TabContentsViewMac : public TabContentsView,
   DISALLOW_COPY_AND_ASSIGN(TabContentsViewMac);
 };
 
-#endif  // CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_VIEW_MAC_H_
+#endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_VIEW_MAC_H_
