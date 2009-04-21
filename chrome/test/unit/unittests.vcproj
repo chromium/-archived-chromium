@@ -839,6 +839,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\browser\net\test_url_fetcher_factory.cc"
+					>
+				</File>
+				<File
+					RelativePath="..\..\browser\net\test_url_fetcher_factory.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\browser\renderer_host\test_render_view_host.cc"
 					>
 				</File>

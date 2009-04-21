@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -49,6 +49,8 @@ class URLFetcher::Core
   virtual void OnResponseStarted(URLRequest* request);
   virtual void OnReadCompleted(URLRequest* request, int bytes_read);
 
+  URLFetcher::Delegate* delegate() const { return delegate_; }
+
  private:
   // Wrapper functions that allow us to ensure actions happen on the right
   // thread.
@@ -93,6 +95,9 @@ class URLFetcher::Core
   DISALLOW_COPY_AND_ASSIGN(Core);
 };
 
+// static
+URLFetcher::Factory* URLFetcher::factory_ = NULL;
+
 URLFetcher::URLFetcher(const GURL& url,
                        RequestType request_type,
                        Delegate* d)
@@ -102,6 +107,13 @@ URLFetcher::URLFetcher(const GURL& url,
 
 URLFetcher::~URLFetcher() {
   core_->Stop();
+}
+
+// static
+URLFetcher* URLFetcher::Create(int id, const GURL& url,
+                               RequestType request_type, Delegate* d) {
+  return factory_ ? factory_->CreateURLFetcher(id, url, request_type, d) :
+                    new URLFetcher(url, request_type, d);
 }
 
 URLFetcher::Core::Core(URLFetcher* fetcher,
@@ -296,4 +308,8 @@ void URLFetcher::Start() {
 
 const GURL& URLFetcher::url() const {
   return core_->url_;
+}
+
+URLFetcher::Delegate* URLFetcher::delegate() const {
+  return core_->delegate();
 }

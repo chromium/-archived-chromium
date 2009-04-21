@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -76,12 +76,36 @@ class URLFetcher {
                                     const std::string& data) = 0;
   };
 
+  // URLFetcher::Create uses the currently registered Factory to create the
+  // URLFetcher. Factory is intended for testing.
+  class Factory {
+   public:
+    virtual URLFetcher* CreateURLFetcher(int id,
+                                         const GURL& url,
+                                         RequestType request_type,
+                                         Delegate* d) = 0;
+  };
+
   // |url| is the URL to send the request to.
   // |request_type| is the type of request to make.
   // |d| the object that will receive the callback on fetch completion.
   URLFetcher(const GURL& url, RequestType request_type, Delegate* d);
 
-  ~URLFetcher();
+  virtual ~URLFetcher();
+
+  // Sets the factory used by the static method Create to create a URLFetcher.
+  // URLFetcher does not take ownership of |factory|. A value of NULL results
+  // in a URLFetcher being created directly.
+#if defined(UNIT_TEST)
+  static void set_factory(Factory* factory) { factory_ = factory; }
+#endif
+
+  // Creates a URLFetcher, ownership returns to the caller. If there is no
+  // Factory (the default) this creates and returns a new URLFetcher. See the
+  // constructor for a description of the args. |id| may be used during testing
+  // to identify who is creating the URLFetcher.
+  static URLFetcher* Create(int id, const GURL& url, RequestType request_type,
+                            Delegate* d);
 
   // This should only be used by unittests, where g_browser_process->io_thread()
   // does not exist and we must specify an alternate loop.  Unfortunately, we
@@ -115,10 +139,14 @@ class URLFetcher {
 
   // Start the request.  After this is called, you may not change any other
   // settings.
-  void Start();
+  virtual void Start();
 
   // Return the URL that this fetcher is processing.
   const GURL& url() const;
+
+ protected:
+  // Returns the delegate.
+  Delegate* delegate() const;
 
  private:
   // This class is the real guts of URLFetcher.
@@ -132,6 +160,8 @@ class URLFetcher {
   class Core;
 
   scoped_refptr<Core> core_;
+
+  static Factory* factory_;
 
   DISALLOW_EVIL_CONSTRUCTORS(URLFetcher);
 };
