@@ -896,8 +896,7 @@ TEST_F(WebContentsTest, ShowInterstitialThenCloseTab) {
   interstitial->TestDidNavigate(1, url);
 
   // Now close the tab.
-  delete contents();
-  ContentsCleanedUp();
+  DeleteContents();
   EXPECT_TRUE(deleted);
   EXPECT_EQ(TestInterstitialPage::CANCELED, state);
 }

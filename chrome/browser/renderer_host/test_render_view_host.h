@@ -180,8 +180,7 @@ class RenderViewHostTestHarness : public testing::Test {
   RenderViewHostTestHarness()
       : rph_factory_(),
         rvh_factory_(&rph_factory_),
-        contents_(NULL),
-        controller_(NULL) {}
+        contents_(NULL) {}
   virtual ~RenderViewHostTestHarness() {}
 
   NavigationController& controller() {
@@ -189,7 +188,7 @@ class RenderViewHostTestHarness : public testing::Test {
   }
 
   TestWebContents* contents() {
-    return contents_;
+    return contents_.get();
   }
 
   TestRenderViewHost* rvh() {
@@ -204,16 +203,15 @@ class RenderViewHostTestHarness : public testing::Test {
     return static_cast<MockRenderProcessHost*>(rvh()->process());
   }
 
+  // Frees the current tab contents for tests that want to test destruction.
+  void DeleteContents() {
+    contents_.reset();
+  }
+
   // Creates a pending navigation to the given oURL with the default parameters
   // and the commits the load with a page ID one larger than any seen. This
   // emulates what happens on a new navigation.
   void NavigateAndCommit(const GURL& url);
-
-  // Marks the contents as already cleaned up. If a test calls CloseContents,
-  // then our cleanup code shouldn't run. This function makes sure that happens.
-  void ContentsCleanedUp() {
-    contents_ = NULL;
-  }
 
  protected:
   // testing::Test
@@ -230,10 +228,7 @@ class RenderViewHostTestHarness : public testing::Test {
   MockRenderProcessHostFactory rph_factory_;
   TestRenderViewHostFactory rvh_factory_;
 
-  // We clean up the WebContents by calling CloseContents, which deletes itself.
-  // This in turn causes the destruction of these other things.
-  TestWebContents* contents_;
-  NavigationController* controller_;
+  scoped_ptr<TestWebContents> contents_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHostTestHarness);
 };

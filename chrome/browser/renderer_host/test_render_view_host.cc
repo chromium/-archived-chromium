@@ -82,13 +82,11 @@ void RenderViewHostTestHarness::SetUp() {
   // This will be deleted when the WebContents goes away.
   SiteInstance* instance = SiteInstance::CreateSiteInstance(profile_.get());
 
-  contents_ = new TestWebContents(profile_.get(), instance);
-  controller_ = new NavigationController(contents_, profile_.get());
+  contents_.reset(new TestWebContents(profile_.get(), instance));
 }
 
 void RenderViewHostTestHarness::TearDown() {
-  if (contents_)
-    delete contents_;
+  contents_.reset();
 
   // Make sure that we flush any messages related to WebContents destruction
   // before we destroy the profile.

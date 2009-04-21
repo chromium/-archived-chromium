@@ -111,7 +111,7 @@ class SafeBrowsingBlockingPageTest : public RenderViewHostTestHarness,
   // showing.
   SafeBrowsingBlockingPage* GetSafeBrowsingBlockingPage() {
     InterstitialPage* interstitial =
-        InterstitialPage::GetInterstitialPage(contents_);
+        InterstitialPage::GetInterstitialPage(contents());
     if (!interstitial)
       return NULL;
     return  static_cast<SafeBrowsingBlockingPage*>(interstitial);
@@ -186,11 +186,11 @@ TEST_F(SafeBrowsingBlockingPageTest, MalwarePageProceed) {
   ProceedThroughInterstitial(sb_interstitial);
 
   // The interstitial is shown until the navigation commits.
-  ASSERT_TRUE(InterstitialPage::GetInterstitialPage(contents_));
+  ASSERT_TRUE(InterstitialPage::GetInterstitialPage(contents()));
   // Commit the navigation.
   Navigate(kBadURL, 1);
   // The interstitial should be gone now.
-  ASSERT_FALSE(InterstitialPage::GetInterstitialPage(contents_));
+  ASSERT_FALSE(InterstitialPage::GetInterstitialPage(contents()));
 }
 
 // Tests showing a blocking page for a page that contains malware subresources
