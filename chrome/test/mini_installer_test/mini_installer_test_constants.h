@@ -23,6 +23,7 @@ extern const wchar_t kBrowserTabName[];
 extern const wchar_t kChromeBuildType[];
 extern const wchar_t kChromeFirstRunUI[];
 extern const wchar_t kInstallerWindow[];
+extern const wchar_t kChromeUninstallDialogName[];
 
 // Shortcut names
 extern const wchar_t kChromeLaunchShortcut[];

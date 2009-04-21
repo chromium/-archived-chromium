@@ -210,8 +210,7 @@ void ChromeMiniInstaller::UnInstall() {
     uninstall_args = uninstall_args + L" -system-level";
   base::LaunchApp(uninstall_args, false, false, NULL);
   printf("Launched setup.exe -uninstall....\n");
-  ASSERT_TRUE(CloseWindow(mini_installer_constants::kChromeBuildType,
-                          WM_COMMAND));
+  ASSERT_TRUE(CloseUninstallWindow());
   WaitUntilProcessStopsRunning(
       mini_installer_constants::kChromeSetupExecutable);
   printf("\n\nUninstall Checks:\n\n");
@@ -223,7 +222,6 @@ void ChromeMiniInstaller::UnInstall() {
       base::GetProcessCount(mini_installer_constants::kIEExecutable, NULL));
 }
 
-// Takes care of Chrome uninstall dialog.
 bool ChromeMiniInstaller::CloseWindow(const wchar_t* window_name,
                                       UINT message) {
   int timer = 0;
@@ -239,6 +237,38 @@ bool ChromeMiniInstaller::CloseWindow(const wchar_t* window_name,
     return_val = true;
   }
   return return_val;
+}
+
+bool ChromeMiniInstaller::CloseUninstallWindow() {
+  HWND hndl = NULL;
+  int timer = 0;
+  while (hndl == NULL && timer < 5000) {
+    hndl = FindWindow(NULL,
+        mini_installer_constants::kChromeUninstallDialogName);
+    PlatformThread::Sleep(200);
+    timer = timer + 200;
+  }
+
+  if (hndl == NULL)
+    hndl = FindWindow(NULL, mini_installer_constants::kChromeBuildType);
+
+  if (hndl == NULL)
+    return false;
+
+  SetForegroundWindow(hndl);
+
+  INPUT key;
+  key.type = INPUT_KEYBOARD;
+  key.ki.wVk = VK_RETURN;
+  key.ki.dwFlags = 0;
+  key.ki.time = 0;
+  key.ki.wScan = 0;
+  key.ki.dwExtraInfo = 0;
+  SendInput(1, &key, sizeof(INPUT));
+  key.ki.dwExtraInfo = KEYEVENTF_KEYUP;
+  SendInput(1, &key, sizeof(INPUT));
+
+  return true;
 }
 
 // Closes Chrome browser.

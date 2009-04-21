@@ -12,12 +12,14 @@ const wchar_t kChromeBuildType[] = L"Google Chrome";
 const wchar_t kChromeFirstRunUI[] = L"Welcome to Google Chrome";
 const wchar_t kChromeLaunchShortcut[] = L"Google Chrome.lnk";
 const wchar_t kChromeUninstallShortcut[] = L"Uninstall Google Chrome.lnk";
+const wchar_t kChromeUninstallDialogName[] = L"Uninstall Google Chrome";
 #else
 const wchar_t kChromeAppDir[] = L"Chromium\\Application\\";
 const wchar_t kChromeBuildType[] = L"Chromium";
 const wchar_t kChromeFirstRunUI[] = L"Welcome to Chromium";
 const wchar_t kChromeLaunchShortcut[] = L"Chromium.lnk";
 const wchar_t kChromeUninstallShortcut[] = L"Uninstall Chromium.lnk";
+const wchar_t kChromeUninstallDialogName[] = L"Uninstall Chromium";
 #endif
 const wchar_t kBrowserAppName[] = L"Google - Google Chrome";
 const wchar_t kBrowserTabName[] = L"New Tab - Google Chrome";

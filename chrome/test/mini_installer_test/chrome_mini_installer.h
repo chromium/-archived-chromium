@@ -82,8 +82,12 @@ class ChromeMiniInstaller {
   // Closes First Run UI dialog.
   void CloseFirstRunUIDialog(bool over_install);
 
-  // Closes Chrome uninstall confirm dialog window.
+  // Close Window whose name is 'window_name', by sending Windows message 
+  // 'message' to it.
   bool CloseWindow(const wchar_t* window_name, UINT message);
+
+  // Closes Chrome uninstall confirm dialog window.
+  bool CloseUninstallWindow();
 
   // Closes Chrome browser.
   void CloseChromeBrowser(const wchar_t* window_name);
