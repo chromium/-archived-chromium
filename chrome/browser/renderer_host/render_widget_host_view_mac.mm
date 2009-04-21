@@ -43,6 +43,7 @@ RenderWidgetHostView* RenderWidgetHostView::CreateViewForWidget(
 
 RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
     : render_widget_host_(widget),
+      about_to_validate_and_paint_(false),
       is_loading_(false),
       is_hidden_(false),
       shutdown_factory_(this) {
@@ -193,15 +194,22 @@ void RenderWidgetHostViewMac::IMEUpdateStatus(int control,
   NOTIMPLEMENTED();
 }
 
-void RenderWidgetHostViewMac::Redraw(const gfx::Rect& rect) {
-  [cocoa_view_ setNeedsDisplayInRect:[cocoa_view_ RectToNSRect:rect]];
-}
-
 void RenderWidgetHostViewMac::DidPaintRect(const gfx::Rect& rect) {
   if (is_hidden_)
     return;
 
-  Redraw(rect);
+  NSRect ns_rect = [cocoa_view_ RectToNSRect:rect];
+
+  if (about_to_validate_and_paint_) {
+    // As much as we'd like to use -setNeedsDisplayInRect: here, we can't. We're
+    // in the middle of executing a -drawRect:, and as soon as it returns Cocoa
+    // will clear its record of what needs display. If we want to handle the
+    // recursive drawing, we need to do it ourselves.
+    invalid_rect_ = NSUnionRect(invalid_rect_, ns_rect);
+  } else {
+    [cocoa_view_ setNeedsDisplayInRect:ns_rect];
+    [cocoa_view_ displayIfNeeded];
+  }
 }
 
 void RenderWidgetHostViewMac::DidScrollRect(
@@ -306,7 +314,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 - (void)mouseEvent:(NSEvent *)theEvent {
   const WebMouseEvent& event =
       WebInputEventFactory::mouseEvent(theEvent, self);
-  renderWidgetHostView_->render_widget_host()->ForwardMouseEvent(event);
+  renderWidgetHostView_->render_widget_host_->ForwardMouseEvent(event);
 }
 
 - (void)keyEvent:(NSEvent *)theEvent {
@@ -314,26 +322,31 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   // http://b/issue?id=1192881 .
 
   NativeWebKeyboardEvent event(theEvent);
-  renderWidgetHostView_->render_widget_host()->ForwardKeyboardEvent(event);
+  renderWidgetHostView_->render_widget_host_->ForwardKeyboardEvent(event);
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent {
   const WebMouseWheelEvent& event =
       WebInputEventFactory::mouseWheelEvent(theEvent, self);
-  renderWidgetHostView_->render_widget_host()->ForwardWheelEvent(event);
+  renderWidgetHostView_->render_widget_host_->ForwardWheelEvent(event);
 }
 
 - (void)setFrame:(NSRect)frameRect {
   [super setFrame:frameRect];
-  renderWidgetHostView_->render_widget_host()->WasResized();
+  renderWidgetHostView_->render_widget_host_->WasResized();
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-  DCHECK(renderWidgetHostView_->render_widget_host()->process()->channel());
+  DCHECK(renderWidgetHostView_->render_widget_host_->process()->channel());
+  DCHECK(!renderWidgetHostView_->about_to_validate_and_paint_);
 
+  renderWidgetHostView_->invalid_rect_ = dirtyRect;
+  renderWidgetHostView_->about_to_validate_and_paint_ = true;
   BackingStore* backing_store =
-      renderWidgetHostView_->render_widget_host()->GetBackingStore();
+      renderWidgetHostView_->render_widget_host_->GetBackingStore();
   skia::PlatformCanvas* canvas = backing_store->canvas();
+  renderWidgetHostView_->about_to_validate_and_paint_ = false;
+  dirtyRect = renderWidgetHostView_->invalid_rect_;
 
   if (backing_store) {
     gfx::Rect damaged_rect([self NSRectToRect:dirtyRect]);
@@ -344,18 +357,14 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 
     gfx::Rect paint_rect = bitmap_rect.Intersect(damaged_rect);
     if (!paint_rect.IsEmpty()) {
-      if ([self lockFocusIfCanDraw]) {
-        CGContextRef context = static_cast<CGContextRef>(
-            [[NSGraphicsContext currentContext] graphicsPort]);
+      CGContextRef context = static_cast<CGContextRef>(
+          [[NSGraphicsContext currentContext] graphicsPort]);
 
-        CGRect paint_rect_cg = paint_rect.ToCGRect();
-        NSRect paint_rect_ns = [self RectToNSRect:paint_rect];
-        canvas->getTopPlatformDevice().DrawToContext(
-            context, paint_rect_ns.origin.x, paint_rect_ns.origin.y,
-            &paint_rect_cg);
-
-        [self unlockFocus];
-      }
+      CGRect paint_rect_cg = paint_rect.ToCGRect();
+      NSRect paint_rect_ns = [self RectToNSRect:paint_rect];
+      canvas->getTopPlatformDevice().DrawToContext(
+          context, paint_rect_ns.origin.x, paint_rect_ns.origin.y,
+          &paint_rect_cg);
     }
 
     // Fill the remaining portion of the damaged_rect with white
@@ -378,20 +387,20 @@ void RenderWidgetHostViewMac::ShutdownHost() {
       [[NSColor whiteColor] set];
       NSRectFill(r);
     }
-    if (!renderWidgetHostView_->whiteout_start_time().is_null()) {
+    if (!renderWidgetHostView_->whiteout_start_time_.is_null()) {
       base::TimeDelta whiteout_duration = base::TimeTicks::Now() -
-          renderWidgetHostView_->whiteout_start_time();
+          renderWidgetHostView_->whiteout_start_time_;
       UMA_HISTOGRAM_TIMES("MPArch.RWHH_WhiteoutDuration", whiteout_duration);
 
       // Reset the start time to 0 so that we start recording again the next
       // time the backing store is NULL...
-      renderWidgetHostView_->whiteout_start_time() = base::TimeTicks();
+      renderWidgetHostView_->whiteout_start_time_ = base::TimeTicks();
     }
   } else {
     [[NSColor whiteColor] set];
     NSRectFill(dirtyRect);
-    if (renderWidgetHostView_->whiteout_start_time().is_null())
-      renderWidgetHostView_->whiteout_start_time() = base::TimeTicks::Now();
+    if (renderWidgetHostView_->whiteout_start_time_.is_null())
+      renderWidgetHostView_->whiteout_start_time_ = base::TimeTicks::Now();
   }
 }
 
@@ -404,7 +413,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
 }
 
 - (BOOL)becomeFirstResponder {
-  renderWidgetHostView_->render_widget_host()->Focus();
+  renderWidgetHostView_->render_widget_host_->Focus();
 
   return YES;
 }
@@ -413,7 +422,7 @@ void RenderWidgetHostViewMac::ShutdownHost() {
   if (closeOnDeactivate_)
     renderWidgetHostView_->KillSelf();
 
-  renderWidgetHostView_->render_widget_host()->Blur();
+  renderWidgetHostView_->render_widget_host_->Blur();
 
   return YES;
 }

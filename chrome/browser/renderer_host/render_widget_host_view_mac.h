@@ -55,10 +55,6 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   explicit RenderWidgetHostViewMac(RenderWidgetHost* widget);
   virtual ~RenderWidgetHostViewMac();
 
-  RenderWidgetHost* render_widget_host() const { return render_widget_host_; }
-
-  base::TimeTicks& whiteout_start_time() { return whiteout_start_time_; }
-
   RenderWidgetHostViewCocoa* native_view() const { return cocoa_view_; }
 
   // Implementation of RenderWidgetHostView:
@@ -89,6 +85,24 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
 
   void KillSelf();
 
+  // These member variables should be private, but the associated ObjC class
+  // needs access to them and can't be made a friend.
+
+  // The associated Model.
+  RenderWidgetHost* render_widget_host_;
+
+  // This is true when we are currently painting and thus should handle extra
+  // paint requests by expanding the invalid rect rather than actually painting.
+  bool about_to_validate_and_paint_;
+
+  // This is the rectangle which we'll paint.
+  NSRect invalid_rect_;
+
+  // The time at which this view started displaying white pixels as a result of
+  // not having anything to paint (empty backing store from renderer). This
+  // value returns true for is_null() if we are not recording whiteout times.
+  base::TimeTicks whiteout_start_time_;
+
  private:
   // Updates the display cursor to the current cursor if the cursor is over this
   // render view.
@@ -98,14 +112,8 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   // invoke it from the message loop.
   void ShutdownHost();
 
-  // Redraws the window asynchronously.
-  void Redraw(const gfx::Rect& invalid_rect);
-
   // The associated view.
   RenderWidgetHostViewCocoa* cocoa_view_;  // WEAK
-
-  // The associated Model.
-  RenderWidgetHost* render_widget_host_;
 
   // The cursor for the page. This is passed up from the renderer.
   WebCursor current_cursor_;
@@ -122,11 +130,6 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
 
   // Factory used to safely scope delayed calls to ShutdownHost().
   ScopedRunnableMethodFactory<RenderWidgetHostViewMac> shutdown_factory_;
-
-  // The time at which this view started displaying white pixels as a result of
-  // not having anything to paint (empty backing store from renderer). This
-  // value returns true for is_null() if we are not recording whiteout times.
-  base::TimeTicks whiteout_start_time_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostViewMac);
 };
