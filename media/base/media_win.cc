@@ -54,7 +54,9 @@ bool InitializeMediaLibrary(const FilePath& base_path) {
       break;
   }
 
-  // Check that we loaded all libraries successfully.
+  // Check that we loaded all libraries successfully.  We only need to check the
+  // last array element because the loop above will break without initializing
+  // it on any prior error.
   if (libs[arraysize(libs)-1])
     return true;
 

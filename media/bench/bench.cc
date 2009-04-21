@@ -7,16 +7,18 @@
 // options.  We also use this tool to measure performance regressions when
 // testing newer builds of FFmpeg from trunk.
 
-#include <windows.h>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include "base/at_exit.h"
 #include "base/basictypes.h"
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "base/time.h"
+#include "media/base/media.h"
 #include "media/filters/ffmpeg_common.h"
 
 namespace switches {
@@ -46,6 +48,8 @@ int main(int argc, const char** argv) {
     return 1;
   }
 
+  media::InitializeMediaLibrary(FilePath());
+
   // Retrieve command line options.
   std::string path(WideToUTF8(filenames[0]));
   CodecType target_codec = CODEC_TYPE_UNKNOWN;
@@ -66,7 +70,8 @@ int main(int argc, const char** argv) {
 
   // Determine number of threads to use for video decoding (optional).
   std::wstring threads(cmd_line->GetSwitchValue(switches::kVideoThreads));
-  if (!threads.empty() && !StringToInt(threads, &video_threads)) {
+  if (!threads.empty() &&
+      !StringToInt(WideToUTF16Hack(threads), &video_threads)) {
     video_threads = 0;
   }
 
@@ -78,7 +83,7 @@ int main(int argc, const char** argv) {
   int skip = 0;
   if (cmd_line->HasSwitch(switches::kSkip)) {
     std::wstring skip_opt(cmd_line->GetSwitchValue(switches::kSkip));
-    if (!StringToInt(skip_opt, &skip)) {
+    if (!StringToInt(WideToUTF16Hack(skip_opt), &skip)) {
       skip = 0;
     }
   }
