@@ -4,6 +4,7 @@
 
 #include "net/disk_cache/backend_impl.h"
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
@@ -109,11 +110,11 @@ std::wstring GetTempCacheName(const std::wstring& path,
 
 // Moves the cache files to a new folder and creates a task to delete them.
 bool DelayedCacheCleanup(const std::wstring& full_path) {
-  std::wstring path(full_path);
-  file_util::TrimTrailingSeparator(&path);
+  FilePath current_path = FilePath::FromWStringHack(full_path);
+  current_path = current_path.StripTrailingSeparators();
 
-  std::wstring name = file_util::GetFilenameFromPath(path);
-  file_util::TrimFilename(&path);
+  std::wstring path = current_path.DirName().ToWStringHack();
+  std::wstring name = current_path.BaseName().ToWStringHack();
 
   std::wstring to_delete = GetTempCacheName(path, name);
   if (to_delete.empty()) {
