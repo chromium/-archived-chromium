@@ -290,22 +290,6 @@
 			Name="Library"
 			>
 			<File
-				RelativePath="..\pending\AccessibleBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pending\AccessibleBase.h"
-				>
-			</File>
-			<File
-				RelativePath="..\pending\AccessibleDocument.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\pending\AccessibleDocument.h"
-				>
-			</File>
-			<File
 				RelativePath=".\alt_404_page_resource_fetcher.cc"
 				>
 			</File>
