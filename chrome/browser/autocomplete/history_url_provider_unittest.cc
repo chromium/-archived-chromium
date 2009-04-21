@@ -82,6 +82,9 @@ static TestURLInfo test_db[] = {
   {"http://bogussite.com/a", L"Bogus A", 10002, 10000, false},
   {"http://bogussite.com/b", L"Bogus B", 10001, 10000, false},
   {"http://bogussite.com/c", L"Bogus C", 10000, 10000, false},
+
+  // Domain name with number.
+  {"http://www.17173.com/", L"Domain with number", 3, 3, false},
 };
 
 class HistoryURLProviderTest : public testing::Test,
@@ -351,4 +354,13 @@ TEST_F(HistoryURLProviderTest, Fixup) {
   // rather than "0.0.0.56.com".
   std::string fixup_3[] = {"http://www.56.com/"};
   RunTest(L"56", L"com", true, fixup_3, arraysize(fixup_3));
+
+  // An input looks like a IP address like "127.0.0.1" should result in
+  // "http://127.0.0.1/".
+  std::string fixup_4[] = {"http://127.0.0.1/"};
+  RunTest(L"127.0.0.1", std::wstring(), false, fixup_4, arraysize(fixup_4));
+
+  // An number "17173" should result in "http://www.17173.com/" in db.
+  std::string fixup_5[] = {"http://www.17173.com/"};
+  RunTest(L"17173", std::wstring(), false, fixup_5, arraysize(fixup_5));
 }

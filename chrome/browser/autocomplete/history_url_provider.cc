@@ -357,20 +357,43 @@ bool HistoryURLProvider::PromoteMatchForInlineAutocomplete(
 }
 
 // static
-std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
+std::wstring HistoryURLProvider::FixupUserInput(
+    const AutocompleteInput& input) {
+  const std::wstring& input_text = input.text();
   // Fixup and canonicalize user input.
-  const GURL canonical_gurl(URLFixerUpper::FixupURL(WideToUTF8(input),
+  const GURL canonical_gurl(URLFixerUpper::FixupURL(WideToUTF8(input_text),
       std::string()));
-  std::wstring output(UTF8ToWide(canonical_gurl.possibly_invalid_spec()));
-  if (output.empty())
-    return input;  // This probably won't happen, but there are no guarantees.
+  std::string canonical_gurl_str(canonical_gurl.possibly_invalid_spec());
+  if (canonical_gurl_str.empty()) {
+    // This probably won't happen, but there are no guarantees.
+    return input_text;
+  }
 
+  // If the user types a number, GURL will convert it to a dotted quad.
+  // However, if the parser did not mark this as a URL, then the user probably
+  // didn't intend this interpretation.  Since this can break history matching
+  // for hostname beginning with numbers (e.g. input of "17173" will be matched
+  // against "0.0.67.21" instead of the original "17173", failing to find
+  // "17173.com"), swap the original hostname in for the fixed-up one.
+  if ((input.type() != AutocompleteInput::URL) &&
+      canonical_gurl.HostIsIPAddress()) {
+    std::string original_hostname =
+        WideToUTF8(input_text.substr(input.parts().host.begin,
+                                     input.parts().host.len));
+    const url_parse::Parsed& parts =
+        canonical_gurl.parsed_for_possibly_invalid_spec();
+    // parts.host must not be empty when HostIsIPAddress() is true.
+    DCHECK(parts.host.is_nonempty());
+    canonical_gurl_str.replace(parts.host.begin, parts.host.len,
+                               original_hostname);
+  }
+  std::wstring output(UTF8ToWide(canonical_gurl_str));
   // Don't prepend a scheme when the user didn't have one.  Since the fixer
   // upper only prepends the "http" scheme, that's all we need to check for.
   url_parse::Component scheme;
   if (canonical_gurl.SchemeIs(chrome::kHttpScheme) &&
-      !url_util::FindAndCompareScheme(WideToUTF8(input), chrome::kHttpScheme,
-                                      &scheme))
+      !url_util::FindAndCompareScheme(WideToUTF8(input_text),
+                                      chrome::kHttpScheme, &scheme))
     TrimHttpPrefix(&output);
 
   // Make the number of trailing slashes on the output exactly match the input.
@@ -387,9 +410,9 @@ std::wstring HistoryURLProvider::FixupUserInput(const std::wstring& input) {
   // trailing slashes (if the scheme is the only thing in the input).  It's not
   // clear that the result of fixup really matters in this case, but there's no
   // harm in making sure.
-  const size_t last_input_nonslash = input.find_last_not_of(L"/\\");
+  const size_t last_input_nonslash = input_text.find_last_not_of(L"/\\");
   const size_t num_input_slashes = (last_input_nonslash == std::wstring::npos) ?
-      input.length() : (input.length() - 1 - last_input_nonslash);
+      input_text.length() : (input_text.length() - 1 - last_input_nonslash);
   const size_t last_output_nonslash = output.find_last_not_of(L"/\\");
   const size_t num_output_slashes =
       (last_output_nonslash == std::wstring::npos) ?
@@ -640,7 +663,7 @@ void HistoryURLProvider::RunAutocompletePasses(const AutocompleteInput& input,
   // it did, then holding "ctrl" would change all the results from the
   // HistoryURLProvider provider, not just the What You Typed Result.
   AutocompleteInput fixed_input(input);
-  const std::wstring fixed_text(FixupUserInput(input.text()));
+  const std::wstring fixed_text(FixupUserInput(input));
   if (fixed_text.empty()) {
     // Conceivably fixup could result in an empty string (although I don't
     // have cases where this happens offhand).  We can't do anything with

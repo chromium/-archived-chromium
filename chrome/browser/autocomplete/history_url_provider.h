@@ -258,7 +258,7 @@ class HistoryURLProvider : public AutocompleteProvider {
   // Note that we don't do this in AutocompleteInput's constructor, because if
   // e.g. we convert a Unicode hostname to punycode, other providers will show
   // output that surprises the user ("Search Google for xn--6ca.com").
-  static std::wstring FixupUserInput(const std::wstring& input);
+  static std::wstring FixupUserInput(const AutocompleteInput& input);
 
   // Trims "http:" and up to two subsequent slashes from |url|.  Returns the
   // number of characters that were trimmed.
