@@ -141,13 +141,13 @@ void WebMediaPlayerDelegateImpl::Stop() {
   pipeline_.Stop();
 }
 
-void WebMediaPlayerDelegateImpl::Seek(float time) {
+void WebMediaPlayerDelegateImpl::Seek(float seconds) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
-  pipeline_.Seek(base::TimeDelta::FromMilliseconds(static_cast<int64>(time)));
+  pipeline_.Seek(base::TimeDelta::FromSeconds(static_cast<int64>(seconds)));
 }
 
-void WebMediaPlayerDelegateImpl::SetEndTime(float time) {
+void WebMediaPlayerDelegateImpl::SetEndTime(float seconds) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   // TODO(hclam): add method call when it has been implemented.

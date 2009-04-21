@@ -81,8 +81,8 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
   virtual void Play();
   virtual void Pause();
   virtual void Stop();
-  virtual void Seek(float time);
-  virtual void SetEndTime(float time);
+  virtual void Seek(float seconds);
+  virtual void SetEndTime(float seconds);
   virtual void SetPlaybackRate(float rate);
   virtual void SetVolume(float volume);
   virtual void SetVisible(bool visible);
