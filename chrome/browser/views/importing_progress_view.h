@@ -39,7 +39,7 @@ class ImportingProgressView : public views::View,
 
   // Overridden from views::DialogDelegate:
   virtual int GetDialogButtons() const;
-  virtual std::wstring GetDialogButtonLabel(MessageBox::DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Cancel();

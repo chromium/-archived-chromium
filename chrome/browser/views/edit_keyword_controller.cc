@@ -77,9 +77,12 @@ std::wstring EditKeywordController::GetWindowTitle() const {
       IDS_SEARCH_ENGINES_EDITOR_NEW_WINDOW_TITLE);
 }
 
-bool EditKeywordController::IsDialogButtonEnabled(
-    MessageBox::DialogButton button) const {
-  if (button == MessageBox::DIALOGBUTTON_OK) {
+int EditKeywordController::GetDialogButtons() const {
+  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
+}
+
+bool EditKeywordController::IsDialogButtonEnabled(DialogButton button) const {
+  if (button == DIALOGBUTTON_OK) {
     return (IsKeywordValid() && !title_tf_->GetText().empty() && IsURLValid());
   }
   return true;

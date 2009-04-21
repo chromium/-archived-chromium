@@ -28,8 +28,7 @@ class ImporterLockView : public views::View,
   virtual void Layout();
 
   // Overridden from views::DialogDelegate:
-  virtual std::wstring GetDialogButtonLabel(
-      MessageBox::DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
   virtual bool Accept();

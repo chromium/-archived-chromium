@@ -46,10 +46,10 @@ void ImporterLockView::Layout() {
 }
 
 std::wstring ImporterLockView::GetDialogButtonLabel(
-    MessageBox::DialogButton button) const {
-  if (button == MessageBox::DIALOGBUTTON_OK) {
+    DialogButton button) const {
+  if (button == DIALOGBUTTON_OK) {
     return l10n_util::GetString(IDS_IMPORTER_LOCK_OK);
-  } else if (button == MessageBox::DIALOGBUTTON_CANCEL) {
+  } else if (button == DIALOGBUTTON_CANCEL) {
     return l10n_util::GetString(IDS_IMPORTER_LOCK_CANCEL);
   }
   return std::wstring();

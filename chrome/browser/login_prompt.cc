@@ -128,9 +128,8 @@ class LoginHandlerImpl : public LoginHandler,
   }
 
   // views::DialogDelegate methods:
-  virtual std::wstring GetDialogButtonLabel(
-      MessageBox::DialogButton button) const {
-    if (button == MessageBox::DIALOGBUTTON_OK)
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const {
+    if (button == DIALOGBUTTON_OK)
       return l10n_util::GetString(IDS_LOGIN_DIALOG_OK_BUTTON_LABEL);
     return DialogDelegate::GetDialogButtonLabel(button);
   }

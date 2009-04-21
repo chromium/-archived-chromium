@@ -318,9 +318,11 @@ bool AutomationProxy::WaitForWindowCountToBecome(int count,
   return false;
 }
 
+#if defined(OS_WIN)
+// TODO(port): Port when DialogDelegate is ported.
 bool AutomationProxy::GetShowingAppModalDialog(
     bool* showing_app_modal_dialog,
-    MessageBox::DialogButton* button) {
+    views::DialogDelegate::DialogButton* button) {
   if (!showing_app_modal_dialog || !button) {
     NOTREACHED();
     return false;
@@ -336,12 +338,12 @@ bool AutomationProxy::GetShowingAppModalDialog(
     return false;
   }
 
-  *button = static_cast<MessageBox::DialogButton>(button_int);
+  *button = static_cast<views::DialogDelegate::DialogButton>(button_int);
   return true;
 }
 
 bool AutomationProxy::ClickAppModalDialogButton(
-    MessageBox::DialogButton button) {
+    views::DialogDelegate::DialogButton button) {
   bool succeeded = false;
 
   if (!SendWithTimeout(
@@ -359,7 +361,8 @@ bool AutomationProxy::WaitForAppModalDialog(int wait_timeout) {
   const TimeDelta timeout = TimeDelta::FromMilliseconds(wait_timeout);
   while (TimeTicks::Now() - start < timeout) {
     bool dialog_shown = false;
-    MessageBox::DialogButton button = MessageBox::DIALOGBUTTON_NONE;
+    views::DialogDelegate::DialogButton button =
+        views::DialogDelegate::DIALOGBUTTON_NONE;
     bool succeeded = GetShowingAppModalDialog(&dialog_shown, &button);
     if (!succeeded) {
       // Try again next round, but log it.
@@ -367,11 +370,12 @@ bool AutomationProxy::WaitForAppModalDialog(int wait_timeout) {
     } else if (dialog_shown) {
       return true;
     }
-    PlatformThread::Sleep(automation::kSleepTime);
+    Sleep(automation::kSleepTime);
   }
   // Dialog never shown.
   return false;
 }
+#endif  // defined(OS_WIN)
 
 bool AutomationProxy::WaitForURLDisplayed(GURL url, int wait_timeout) {
   const TimeTicks start = TimeTicks::Now();

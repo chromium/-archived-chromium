@@ -126,7 +126,7 @@ class HungRendererWarningView : public views::View,
   virtual void WindowClosing();
   virtual int GetDialogButtons() const;
   virtual std::wstring GetDialogButtonLabel(
-      MessageBox::DialogButton button) const;
+      views::DialogDelegate::DialogButton button) const;
   virtual views::View* GetExtraView();
   virtual bool Accept(bool window_closing);
   virtual views::View* GetContentsView();
@@ -272,12 +272,12 @@ int HungRendererWarningView::GetDialogButtons() const {
   // the OK button to wait for responsiveness (and close the dialog) and our
   // additional button (which we create) to kill the process (which will result
   // in the dialog being destroyed).
-  return MessageBox::DIALOGBUTTON_OK;
+  return DIALOGBUTTON_OK;
 }
 
 std::wstring HungRendererWarningView::GetDialogButtonLabel(
-    MessageBox::DialogButton button) const {
-  if (button == MessageBox::DIALOGBUTTON_OK)
+    views::DialogDelegate::DialogButton button) const {
+  if (button == DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_BROWSER_HANGMONITOR_RENDERER_WAIT);
   return std::wstring();
 }

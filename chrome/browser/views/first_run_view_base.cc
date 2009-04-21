@@ -151,9 +151,8 @@ bool FirstRunViewBase::HasAlwaysOnTopMenu() const {
   return false;
 }
 
-std::wstring FirstRunViewBase::GetDialogButtonLabel(
-    MessageBox::DialogButton button) const {
-  if (MessageBox::DIALOGBUTTON_OK == button)
+std::wstring FirstRunViewBase::GetDialogButtonLabel(DialogButton button) const {
+  if (DIALOGBUTTON_OK == button)
     return l10n_util::GetString(IDS_FIRSTRUN_DLG_OK);
   // The other buttons get the default text.
   return std::wstring();

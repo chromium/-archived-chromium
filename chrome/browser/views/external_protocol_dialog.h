@@ -35,9 +35,9 @@ class ExternalProtocolDialog : public views::DialogDelegate {
   virtual ~ExternalProtocolDialog();
 
   // views::DialogDelegate Methods:
+  virtual int GetDialogButtons() const;
   virtual int GetDefaultDialogButton() const;
-  virtual std::wstring GetDialogButtonLabel(
-      MessageBox::DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
   virtual void DeleteDelegate();
   virtual bool Accept();

@@ -65,7 +65,7 @@ void PasswordsExceptionsWindowView::ViewHierarchyChanged(
 // PasswordsExceptionsWindowView, views::DisloagDelegate implementations
 
 int PasswordsExceptionsWindowView::GetDialogButtons() const {
-  return MessageBox::DIALOGBUTTON_CANCEL;
+  return DIALOGBUTTON_CANCEL;
 }
 
 std::wstring PasswordsExceptionsWindowView::GetWindowTitle() const {

@@ -1005,11 +1005,12 @@ TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
   ASSERT_TRUE(tab.get());
 
   bool modal_dialog_showing = false;
-  MessageBox::DialogButton button = MessageBox::DIALOGBUTTON_NONE;
+  views::DialogDelegate::DialogButton button =
+      views::DialogDelegate::DIALOGBUTTON_NONE;
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_FALSE(modal_dialog_showing);
-  EXPECT_EQ(MessageBox::DIALOGBUTTON_NONE, button);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_NONE, button);
 
   // Show a simple alert.
   std::string content =
@@ -1021,19 +1022,19 @@ TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_TRUE(modal_dialog_showing);
-  EXPECT_EQ(MessageBox::DIALOGBUTTON_OK, button);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_OK, button);
 
   // Test that clicking missing button fails graciously and does not close the
   // dialog.
   EXPECT_FALSE(automation()->ClickAppModalDialogButton(
-      MessageBox::DIALOGBUTTON_CANCEL));
+      views::DialogDelegate::DIALOGBUTTON_CANCEL));
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_TRUE(modal_dialog_showing);
 
   // Now click OK, that should close the dialog.
   EXPECT_TRUE(automation()->ClickAppModalDialogButton(
-      MessageBox::DIALOGBUTTON_OK));
+      views::DialogDelegate::DIALOGBUTTON_OK));
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_FALSE(modal_dialog_showing);
@@ -1048,12 +1049,12 @@ TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_TRUE(modal_dialog_showing);
-  EXPECT_EQ(MessageBox::DIALOGBUTTON_OK |
-            MessageBox::DIALOGBUTTON_CANCEL, button);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_OK |
+            views::DialogDelegate::DIALOGBUTTON_CANCEL, button);
 
   // Click OK.
   EXPECT_TRUE(automation()->ClickAppModalDialogButton(
-      MessageBox::DIALOGBUTTON_OK));
+      views::DialogDelegate::DIALOGBUTTON_OK));
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_FALSE(modal_dialog_showing);
@@ -1068,12 +1069,12 @@ TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_TRUE(modal_dialog_showing);
-  EXPECT_EQ(MessageBox::DIALOGBUTTON_OK |
-            MessageBox::DIALOGBUTTON_CANCEL, button);
+  EXPECT_EQ(views::DialogDelegate::DIALOGBUTTON_OK |
+            views::DialogDelegate::DIALOGBUTTON_CANCEL, button);
 
   // Click Cancel this time.
   EXPECT_TRUE(automation()->ClickAppModalDialogButton(
-      MessageBox::DIALOGBUTTON_CANCEL));
+      views::DialogDelegate::DIALOGBUTTON_CANCEL));
   EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
                                                      &button));
   EXPECT_FALSE(modal_dialog_showing);

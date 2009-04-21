@@ -55,7 +55,7 @@ class CookiesView : public views::View,
                                UINT flags);
 
   // views::WindowDelegate implementation:
-  virtual int GetDialogButtons() const { return MessageBox::DIALOGBUTTON_CANCEL; }
+  virtual int GetDialogButtons() const { return DIALOGBUTTON_CANCEL; }
   virtual views::View* GetInitiallyFocusedView() {
       return search_field_;
   }

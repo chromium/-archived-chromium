@@ -30,8 +30,9 @@ class NewProfileDialog : public views::DialogDelegate,
 
   // views::DialogDelegate methods.
   virtual bool Accept();
+  virtual int GetDialogButtons() const;
   virtual views::View* GetInitiallyFocusedView();
-  virtual bool IsDialogButtonEnabled(MessageBox::DialogButton button) const;
+  virtual bool IsDialogButtonEnabled(DialogButton button) const;
   virtual std::wstring GetWindowTitle() const;
   virtual void DeleteDelegate();
 

@@ -32,10 +32,9 @@ class DownloadRequestDialogDelegateWin : public DownloadRequestDialogDelegate,
   virtual bool Cancel();
   virtual bool Accept();
   virtual views::View* GetContentsView();
-  virtual std::wstring GetDialogButtonLabel(
-      MessageBox::DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
   virtual int GetDefaultDialogButton() const {
-    return MessageBox::DIALOGBUTTON_CANCEL;
+    return DIALOGBUTTON_CANCEL;
   }
   virtual void DeleteDelegate();
 

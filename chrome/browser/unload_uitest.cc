@@ -136,9 +136,9 @@ class UnloadTest : public UITest {
     EXPECT_TRUE(CloseBrowser(browser.get(), &application_closed));
   }
 
-  void ClickModalDialogButton(MessageBox::DialogButton button) {
+  void ClickModalDialogButton(views::DialogDelegate::DialogButton button) {
     bool modal_dialog_showing = false;
-    MessageBox::DialogButton available_buttons;
+    views::DialogDelegate::DialogButton available_buttons;
     EXPECT_TRUE(automation()->WaitForAppModalDialog(3000));
     EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
         &available_buttons));
@@ -221,7 +221,7 @@ TEST_F(UnloadTest, BrowserCloseBeforeUnloadOK) {
   NavigateToDataURL(BEFORE_UNLOAD_HTML, L"beforeunload");
 
   CloseBrowserAsync(browser.get());
-  ClickModalDialogButton(MessageBox::DIALOGBUTTON_OK);
+  ClickModalDialogButton(views::DialogDelegate::DIALOGBUTTON_OK);
   WaitForBrowserClosed();
   EXPECT_FALSE(IsBrowserRunning());
 }
@@ -233,12 +233,12 @@ TEST_F(UnloadTest, BrowserCloseBeforeUnloadCancel) {
   NavigateToDataURL(BEFORE_UNLOAD_HTML, L"beforeunload");
 
   CloseBrowserAsync(browser.get());
-  ClickModalDialogButton(MessageBox::DIALOGBUTTON_CANCEL);
+  ClickModalDialogButton(views::DialogDelegate::DIALOGBUTTON_CANCEL);
   WaitForBrowserClosed();
   EXPECT_TRUE(IsBrowserRunning());
 
   CloseBrowserAsync(browser.get());
-  ClickModalDialogButton(MessageBox::DIALOGBUTTON_OK);
+  ClickModalDialogButton(views::DialogDelegate::DIALOGBUTTON_OK);
   WaitForBrowserClosed();
   EXPECT_FALSE(IsBrowserRunning());
 }

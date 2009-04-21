@@ -36,11 +36,14 @@ class ResetDefaultsConfirmBox : public views::DialogDelegate {
 
  protected:
   // views::DialogDelegate
-  virtual std::wstring GetDialogButtonLabel(MessageBox::DialogButton button) const {
+  virtual int GetDialogButtons() const {
+    return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
+  }
+  virtual std::wstring GetDialogButtonLabel(DialogButton button) const {
     switch (button) {
-      case MessageBox::DIALOGBUTTON_OK:
+      case DIALOGBUTTON_OK:
         return l10n_util::GetString(IDS_OPTIONS_RESET_OKLABEL);
-      case MessageBox::DIALOGBUTTON_CANCEL:
+      case DIALOGBUTTON_CANCEL:
         return l10n_util::GetString(IDS_OPTIONS_RESET_CANCELLABEL);
       default:
         break;

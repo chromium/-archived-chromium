@@ -444,7 +444,7 @@ std::wstring KeywordEditorView::GetWindowTitle() const {
 }
 
 int KeywordEditorView::GetDialogButtons() const {
-  return MessageBox::DIALOGBUTTON_CANCEL;
+  return DIALOGBUTTON_CANCEL;
 }
 
 bool KeywordEditorView::Accept() {

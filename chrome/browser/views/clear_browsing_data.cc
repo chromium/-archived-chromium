@@ -236,22 +236,21 @@ void ClearBrowsingDataView::ViewHierarchyChanged(bool is_add,
 // ClearBrowsingDataView, views::DialogDelegate implementation:
 
 std::wstring ClearBrowsingDataView::GetDialogButtonLabel(
-    MessageBox::DialogButton button) const {
-  if (button == MessageBox::DIALOGBUTTON_OK) {
+    DialogButton button) const {
+  if (button == DIALOGBUTTON_OK) {
     return l10n_util::GetString(IDS_CLEAR_BROWSING_DATA_COMMIT);
-  } else if (button == MessageBox::DIALOGBUTTON_CANCEL) {
+  } else if (button == DIALOGBUTTON_CANCEL) {
     return l10n_util::GetString(IDS_CLOSE);
   } else {
     return std::wstring();
   }
 }
 
-bool ClearBrowsingDataView::IsDialogButtonEnabled(
-    MessageBox::DialogButton button) const {
+bool ClearBrowsingDataView::IsDialogButtonEnabled(DialogButton button) const {
   if (delete_in_progress_)
     return false;
 
-  if (button == MessageBox::DIALOGBUTTON_OK) {
+  if (button == DIALOGBUTTON_OK) {
     return del_history_checkbox_->checked() ||
            del_downloads_checkbox_->checked() ||
            del_cache_checkbox_->checked() ||
@@ -288,7 +287,7 @@ std::wstring ClearBrowsingDataView::GetWindowTitle() const {
 }
 
 bool ClearBrowsingDataView::Accept() {
-  if (!IsDialogButtonEnabled(MessageBox::DIALOGBUTTON_OK)) {
+  if (!IsDialogButtonEnabled(DIALOGBUTTON_OK)) {
     return false;
   }
 

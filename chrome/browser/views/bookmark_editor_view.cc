@@ -80,9 +80,8 @@ void BookmarkEditorView::Show(HWND parent_hwnd,
   editor->Show(parent_hwnd);
 }
 
-bool BookmarkEditorView::IsDialogButtonEnabled(
-    MessageBox::DialogButton button) const {
-  if (button == MessageBox::DIALOGBUTTON_OK) {
+bool BookmarkEditorView::IsDialogButtonEnabled(DialogButton button) const {
+  if (button == DIALOGBUTTON_OK) {
     const GURL url(GetInputURL());
     return bb_model_->IsLoaded() && url.is_valid();
   }
@@ -97,7 +96,7 @@ std::wstring BookmarkEditorView::GetWindowTitle() const {
 }
 
 bool BookmarkEditorView::Accept() {
-  if (!IsDialogButtonEnabled(MessageBox::DIALOGBUTTON_OK)) {
+  if (!IsDialogButtonEnabled(DIALOGBUTTON_OK)) {
     // The url is invalid, focus the url field.
     url_tf_.SelectAll();
     url_tf_.RequestFocus();
@@ -108,8 +107,7 @@ bool BookmarkEditorView::Accept() {
   return true;
 }
 
-bool BookmarkEditorView::AreAcceleratorsEnabled(
-    MessageBox::DialogButton button) {
+bool BookmarkEditorView::AreAcceleratorsEnabled(DialogButton button) {
   return !show_tree_ || !tree_view_->GetEditingNode();
 }
 

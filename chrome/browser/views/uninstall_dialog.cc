@@ -30,6 +30,10 @@ bool UninstallDialog::Cancel() {
   return true;
 }
 
+int UninstallDialog::GetDialogButtons() const {
+  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
+}
+
 std::wstring UninstallDialog::GetWindowTitle() const {
   return l10n_util::GetString(IDS_UNINSTALL_CHROME);
 }

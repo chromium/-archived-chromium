@@ -266,9 +266,8 @@ bool BugReportView::HandleKeystroke(views::TextField* sender,
   return false;
 }
 
-std::wstring BugReportView::GetDialogButtonLabel(
-    MessageBox::DialogButton button) const {
-  if (button == MessageBox::DIALOGBUTTON_OK) {
+std::wstring BugReportView::GetDialogButtonLabel(DialogButton button) const {
+  if (button == DIALOGBUTTON_OK) {
     if (problem_type_ == BugReportComboBoxModel::PHISHING_PAGE)
       return l10n_util::GetString(IDS_BUGREPORT_SEND_PHISHING_REPORT);
     else
@@ -279,7 +278,7 @@ std::wstring BugReportView::GetDialogButtonLabel(
 }
 
 int BugReportView::GetDefaultDialogButton() const {
-  return MessageBox::DIALOGBUTTON_NONE;
+  return DIALOGBUTTON_NONE;
 }
 
 bool BugReportView::CanResize() const {
@@ -307,7 +306,7 @@ std::wstring BugReportView::GetWindowTitle() const {
 }
 
 bool BugReportView::Accept() {
-  if (IsDialogButtonEnabled(MessageBox::DIALOGBUTTON_OK)) {
+  if (IsDialogButtonEnabled(DIALOGBUTTON_OK)) {
     if (problem_type_ == BugReportComboBoxModel::PHISHING_PAGE)
       ReportPhishing();
     else

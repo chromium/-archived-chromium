@@ -597,7 +597,7 @@ void PageInfoWindow::Show() {
 }
 
 int PageInfoWindow::GetDialogButtons() const {
-  return MessageBox::DIALOGBUTTON_CANCEL;
+  return DIALOGBUTTON_CANCEL;
 }
 
 std::wstring PageInfoWindow::GetWindowTitle() const {
