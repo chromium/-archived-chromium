@@ -2240,6 +2240,7 @@ BUG9704 : LayoutTests/http/tests/navigation/onload-navigation-iframe.html = TIME
 
 // Merge WebKit: 42026:42115 new tests
 BUG10475 DEFER WIN LINUX : LayoutTests/fast/block/positioning/negative-rel-position.html = FAIL
+// This test isn't just slow -- sometimes it times out indefinitely.
 BUG10475 DEFER : LayoutTests/http/tests/xmlhttprequest/redirect-cross-origin-tripmine.html = FAIL TIMEOUT
 BUG10475 DEFER WIN LINUX : LayoutTests/fast/forms/range-thumb-height-percentage.html = FAIL
 
