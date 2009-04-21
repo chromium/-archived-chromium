@@ -219,10 +219,11 @@ bool PathService::Override(int key, const std::wstring& path) {
   if (!file_util::CreateDirectory(file_path))
     return false;
 
-  file_util::TrimTrailingSeparator(&file_path);
+  FilePath fp_path = FilePath::FromWStringHack(file_path);
+  fp_path = fp_path.StripTrailingSeparators();
 
   AutoLock scoped_lock(path_data->lock);
-  path_data->cache[key] = FilePath::FromWStringHack(file_path);
+  path_data->cache[key] = fp_path;
   path_data->overrides.insert(key);
   return true;
 }

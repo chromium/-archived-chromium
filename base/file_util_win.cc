@@ -28,8 +28,8 @@ std::wstring GetDirectoryFromPath(const std::wstring& path) {
   std::wstring::size_type length =
       file_ptr ? file_ptr - path_buffer : path.length();
   std::wstring directory(path, 0, length);
-  TrimTrailingSeparator(&directory);
-  return directory;
+  FilePath fp_directory(directory);
+  return fp_directory.StripTrailingSeparators().value();
 }
 
 bool AbsolutePath(FilePath* path) {
@@ -423,8 +423,7 @@ bool GetTempDir(FilePath* path) {
   // trailing slash.  We duplicate this here, but it shouldn't be necessary
   // when everyone is using the appropriate FilePath APIs.
   std::wstring path_str(temp_path);
-  TrimTrailingSeparator(&path_str);
-  *path = FilePath(path_str);
+  *path = FilePath(path_str).StripTrailingSeparators();
   return true;
 }
 
@@ -638,8 +637,7 @@ bool GetCurrentDirectory(FilePath* dir) {
   // trailing slash.  We duplicate this here, but it shouldn't be necessary
   // when everyone is using the appropriate FilePath APIs.
   std::wstring dir_str(system_buffer);
-  file_util::TrimTrailingSeparator(&dir_str);
-  *dir = FilePath(dir_str);
+  *dir = FilePath(dir_str).StripTrailingSeparators();
   return true;
 }
 

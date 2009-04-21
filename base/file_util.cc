@@ -76,11 +76,6 @@ bool EnsureEndsWithSeparator(FilePath* path) {
   return true;
 }
 
-void TrimTrailingSeparator(std::wstring* dir) {
-  while (dir->length() > 1 && EndsWithSeparator(dir))
-    dir->resize(dir->length() - 1);
-}
-
 FilePath::StringType GetFileExtensionFromPath(const FilePath& path) {
   FilePath::StringType file_name = path.BaseName().value();
   const FilePath::StringType::size_type last_dot =

@@ -55,11 +55,6 @@ bool EndsWithSeparator(const std::wstring& path);
 // exists. Returns true if |path| is an existing directory, false otherwise.
 bool EnsureEndsWithSeparator(FilePath* path);
 
-// Modifies a string by trimming all trailing separators from the end.
-// Deprecated. FilePath does this automatically, and if it's constructed from a
-// path with a trailing separator, StripTrailingSeparators() may be used.
-void TrimTrailingSeparator(std::wstring* dir);
-
 // Strips the topmost directory from the end of 'dir'.  Assumes 'dir' does not
 // refer to a file.
 // If 'dir' is a root directory, return without change.
