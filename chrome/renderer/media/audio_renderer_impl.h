@@ -168,6 +168,7 @@ class AudioRendererImpl : public media::AudioRendererBase,
 
   Lock lock_;
   bool stopped_;
+  float playback_rate_;
   base::WaitableEvent packet_request_event_;
 
   DISALLOW_COPY_AND_ASSIGN(AudioRendererImpl);

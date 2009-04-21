@@ -21,6 +21,7 @@ AudioRendererImpl::AudioRendererImpl(AudioMessageFilter* filter)
       shared_memory_size_(0),
       io_loop_(filter->message_loop()),
       stopped_(false),
+      playback_rate_(0.0f),
       packet_request_event_(true, false) {
   DCHECK(io_loop_);
 }
@@ -76,13 +77,10 @@ void AudioRendererImpl::OnReadComplete(media::Buffer* buffer_in) {
 }
 
 void AudioRendererImpl::SetPlaybackRate(float rate) {
-  // TODO(hclam): handle playback rates not equal to 1.0.
-  if (rate == 1.0f) {
-    // TODO(hclam): what should I do here? OnCreated has fired StartAudioStream
-    // in the browser process, it seems there's nothing to do here.
-  } else {
-    NOTIMPLEMENTED();
-  }
+  // TODO(hclam): This is silly.  We should use a playback rate of != 1.0 to
+  // stop the audio stream.  This does not work right now, so we just check
+  // for this in OnNotifyPacketReady().
+  playback_rate_ = rate;
 }
 
 void AudioRendererImpl::SetVolume(float volume) {
@@ -192,10 +190,16 @@ void AudioRendererImpl::OnNotifyPacketReady() {
   if (stopped_)
     return;
   if (packet_request_event_.IsSignaled()) {
+    size_t filled = 0;
     DCHECK(shared_memory_.get());
-    // Fill into the shared memory.
-    size_t filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
-                               shared_memory_size_);
+    // TODO(hclam):  This is a hack.  The stream should be stopped.
+    if (playback_rate_ == 1.0f) {
+      filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
+                          shared_memory_size_);
+    } else {
+      memset(shared_memory_->memory(), 0, shared_memory_size_);
+      filled = shared_memory_size_;
+    }
     if (filled > 0) {
       packet_request_event_.Reset();
       // Then tell browser process we are done filling into the buffer.
