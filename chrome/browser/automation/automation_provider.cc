@@ -807,8 +807,8 @@ void AutomationProvider::ConnectToChannel(const std::wstring& channel_id) {
     new IPC::SyncChannel(channel_id, IPC::Channel::MODE_CLIENT, this, NULL,
                          g_browser_process->io_thread()->message_loop(),
                          true, g_browser_process->shutdown_event()));
-  FileVersionInfo* file_version_info =
-      FileVersionInfo::CreateFileVersionInfoForCurrentModule();
+  scoped_ptr<FileVersionInfo> file_version_info(
+      FileVersionInfo::CreateFileVersionInfoForCurrentModule());
   std::string version_string(WideToASCII(file_version_info->file_version()));
 
   // Send a hello message with our current automation protocol version.
