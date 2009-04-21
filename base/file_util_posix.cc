@@ -37,8 +37,9 @@ static const char* kTempFileName = "org.chromium.XXXXXX";
 
 std::wstring GetDirectoryFromPath(const std::wstring& path) {
   if (EndsWithSeparator(path)) {
-    FilePath fp_path = FilePath::FromWStringHack(path);
-    return fp_path.StripTrailingSeparators().ToWStringHack();
+    std::wstring dir = path;
+    TrimTrailingSeparator(&dir);
+    return dir;
   } else {
     char full_path[PATH_MAX];
     base::strlcpy(full_path, WideToUTF8(path).c_str(), arraysize(full_path));
