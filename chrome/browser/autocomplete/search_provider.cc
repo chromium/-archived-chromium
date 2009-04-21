@@ -90,7 +90,8 @@ void SearchProvider::Start(const AutocompleteInput& input,
       static const std::wstring kNoQueryInput(
           l10n_util::GetString(IDS_AUTOCOMPLETE_NO_QUERY));
       match.contents.assign(l10n_util::GetStringF(
-          IDS_AUTOCOMPLETE_SEARCH_CONTENTS, default_provider->short_name(),
+          IDS_AUTOCOMPLETE_SEARCH_CONTENTS,
+          default_provider->AdjustedShortNameForLocaleDirection(),
           kNoQueryInput));
       match.contents_class.push_back(
           ACMatchClassification(0, ACMatchClassification::DIM));
@@ -327,7 +328,7 @@ void SearchProvider::OnGotMostRecentKeywordSearchTerms(
       profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
   DCHECK(history_service);
   if (providers_.valid_keyword_provider() &&
-      (providers_.keyword_provider().id() == 
+      (providers_.keyword_provider().id() ==
        history_request_consumer_.GetClientData(history_service, handle))) {
     keyword_history_results_ = *results;
   } else {

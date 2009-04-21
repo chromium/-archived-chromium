@@ -193,7 +193,7 @@ void KeywordProvider::FillInURLAndContents(
     if (element->url()->SupportsReplacement()) {
       // No query input; return a generic, no-destination placeholder.
       match->contents.assign(l10n_util::GetStringF(IDS_KEYWORD_SEARCH,
-          element->short_name(),
+          element->AdjustedShortNameForLocaleDirection(),
           l10n_util::GetString(IDS_EMPTY_KEYWORD_VALUE)));
       match->contents_class.push_back(
           ACMatchClassification(0, ACMatchClassification::DIM));

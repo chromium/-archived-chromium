@@ -496,6 +496,14 @@ bool TemplateURL::SupportsReplacement(const TemplateURL* turl) {
   return turl && turl->url() && turl->url()->SupportsReplacement();
 }
 
+std::wstring TemplateURL::AdjustedShortNameForLocaleDirection() const {
+  std::wstring bidi_safe_short_name;
+  if (l10n_util::AdjustStringForLocaleDirection(short_name_,
+                                                &bidi_safe_short_name))
+    return bidi_safe_short_name;
+  return short_name_;
+}
+
 void TemplateURL::SetSuggestionsURL(const std::wstring& suggestions_url,
                                     int index_offset,
                                     int page_offset) {

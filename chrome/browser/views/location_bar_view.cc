@@ -66,13 +66,8 @@ static std::wstring GetKeywordDescription(Profile* profile,
   // to track changes to the model, this should become a DCHECK.
   const TemplateURL* template_url =
       profile->GetTemplateURLModel()->GetTemplateURLForKeyword(keyword);
-  if (template_url) {
-    std::wstring keyword_description;
-    if (l10n_util::AdjustStringForLocaleDirection(template_url->short_name(),
-                                                  &keyword_description))
-      return keyword_description;
-    return template_url->short_name();
-  }
+  if (template_url)
+    return template_url->AdjustedShortNameForLocaleDirection();
   return std::wstring();
 }
 

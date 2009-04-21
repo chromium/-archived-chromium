@@ -272,6 +272,8 @@ class TemplateURL {
   }
   const std::wstring& short_name() const { return short_name_; }
 
+  std::wstring AdjustedShortNameForLocaleDirection() const;
+
   // A description of the template; this may be empty.
   void set_description(const std::wstring& description) {
     description_ = description;
