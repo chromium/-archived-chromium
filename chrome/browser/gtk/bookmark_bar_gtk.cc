@@ -5,9 +5,9 @@
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 
 #include "base/gfx/gtk_util.h"
+#include "chrome/browser/bookmarks/bookmark_context_menu.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
-#include "chrome/browser/gtk/bookmark_context_menu_gtk.h"
 #include "chrome/browser/gtk/custom_button.h"
 #include "chrome/browser/gtk/gtk_chrome_button.h"
 #include "chrome/browser/metrics/user_metrics.h"
@@ -398,11 +398,11 @@ void BookmarkBarGtk::PopupMenuForNode(GtkWidget* sender, BookmarkNode* node,
     nodes.push_back(parent);
   }
 
-  current_context_menu_.reset(new BookmarkContextMenuGtk(
+  current_context_menu_.reset(new BookmarkContextMenu(
                                   GTK_WINDOW(gtk_widget_get_toplevel(sender)),
                                   profile_, browser_, page_navigator_,
                                   parent, nodes,
-                                  BookmarkContextMenuGtk::BOOKMARK_BAR));
+                                  BookmarkContextMenu::BOOKMARK_BAR));
   current_context_menu_->PopupAsContext(event->time);
 }
 

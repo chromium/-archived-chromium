@@ -14,6 +14,8 @@
 // TODO(port): Port this file.
 #if defined(OS_WIN)
 #include "chrome/views/controls/menu/chrome_menu.h"
+#elif defined(OS_LINUX)
+#include "chrome/browser/gtk/menu_gtk.h"
 #else
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
@@ -24,8 +26,13 @@ class PageNavigator;
 // BookmarkContextMenu manages the context menu shown for the
 // bookmark bar, items on the bookmark bar, submenus of the bookmark bar and
 // the bookmark manager.
-class BookmarkContextMenu : public views::MenuDelegate,
-                            public BookmarkModelObserver {
+class BookmarkContextMenu : public BookmarkModelObserver,
+#if defined(OS_WIN)
+                            public views::MenuDelegate
+#elif defined(OS_LINUX)
+                            public MenuGtk::Delegate
+#endif
+{
  public:
   // Used to configure what the context menu shows.
   enum ConfigurationType {
@@ -57,13 +64,18 @@ class BookmarkContextMenu : public views::MenuDelegate,
                       ConfigurationType configuration);
   virtual ~BookmarkContextMenu();
 
+#if defined(OS_WIN)
   // Shows the menu at the specified place.
   void RunMenuAt(int x, int y);
 
   // Returns the menu.
   views::MenuItemView* menu() const { return menu_.get(); }
+#elif defined(OS_LINUX)
+  // Pops up this menu. This call doesn't block.
+  void PopupAsContext(guint32 event_time);
+#endif
 
-  // Menu::Delegate methods.
+  // Menu::Delegate / MenuGtk::Delegate methods.
   virtual void ExecuteCommand(int id);
   virtual bool IsItemChecked(int id) const;
   virtual bool IsCommandEnabled(int id) const;
@@ -95,6 +107,18 @@ class BookmarkContextMenu : public views::MenuDelegate,
   // Invoked from the various bookmark model observer methods. Closes the menu.
   void ModelChanged();
 
+  // Builds the platform specific menu object.
+  void CreateMenuObject();
+
+  // Adds a IDS_* style command to the menu.
+  void AppendItem(int id);
+  // Adds a IDS_* style command to the menu with a different localized string.
+  void AppendItem(int id, int localization_id);
+  // Adds a separator to the menu.
+  void AppendSeparator();
+  // Adds a checkable item to the menu.
+  void AppendCheckboxItem(int id);
+
   // Removes the observer from the model and NULLs out model_.
   BookmarkModel* RemoveModelObserver();
 
@@ -112,9 +136,14 @@ class BookmarkContextMenu : public views::MenuDelegate,
   PageNavigator* navigator_;
   BookmarkNode* parent_;
   std::vector<BookmarkNode*> selection_;
-  scoped_ptr<views::MenuItemView> menu_;
   BookmarkModel* model_;
   ConfigurationType configuration_;
+
+#if defined(OS_WIN)
+  scoped_ptr<views::MenuItemView> menu_;
+#elif defined(OS_LINUX)
+  scoped_ptr<MenuGtk> menu_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkContextMenu);
 };

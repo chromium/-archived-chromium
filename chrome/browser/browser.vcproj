@@ -562,6 +562,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\bookmarks\bookmark_context_menu_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\bookmarks\bookmark_drag_data.cc"
 				>
 			</File>

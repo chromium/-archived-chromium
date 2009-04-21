@@ -40,6 +40,7 @@ bool NodeHasURLs(BookmarkNode* node) {
   return false;
 }
 
+#if defined(OS_WIN)
 // EditFolderController -------------------------------------------------------
 
 // EditFolderController manages the editing and/or creation of a folder. If the
@@ -211,6 +212,7 @@ class SelectOnCreationHandler : public BookmarkEditorView::Handler {
 
   DISALLOW_COPY_AND_ASSIGN(SelectOnCreationHandler);
 };
+#endif  // #if defined(OS_WIN)
 
 }  // namespace
 
@@ -234,50 +236,37 @@ BookmarkContextMenu::BookmarkContextMenu(
       configuration_(configuration) {
   DCHECK(profile_);
   DCHECK(model_->IsLoaded());
-  menu_.reset(new views::MenuItemView(this));
+  CreateMenuObject();
+
   if (configuration != BOOKMARK_MANAGER_ORGANIZE_MENU) {
     if (selection.size() == 1 && selection[0]->is_url()) {
-      menu_->AppendMenuItemWithLabel(
-          IDS_BOOMARK_BAR_OPEN_ALL,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_TAB));
-      menu_->AppendMenuItemWithLabel(
-          IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_IN_NEW_WINDOW));
-      menu_->AppendMenuItemWithLabel(
-          IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_INCOGNITO));
+      AppendItem(IDS_BOOMARK_BAR_OPEN_ALL, IDS_BOOMARK_BAR_OPEN_IN_NEW_TAB);
+      AppendItem(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
+                 IDS_BOOMARK_BAR_OPEN_IN_NEW_WINDOW);
+      AppendItem(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
+                 IDS_BOOMARK_BAR_OPEN_INCOGNITO);
     } else {
-      menu_->AppendMenuItemWithLabel(
-          IDS_BOOMARK_BAR_OPEN_ALL,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL));
-      menu_->AppendMenuItemWithLabel(
-          IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW));
-      menu_->AppendMenuItemWithLabel(
-          IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
-          l10n_util::GetString(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO));
+      AppendItem(IDS_BOOMARK_BAR_OPEN_ALL, IDS_BOOMARK_BAR_OPEN_ALL);
+      AppendItem(IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW,
+                 IDS_BOOMARK_BAR_OPEN_ALL_NEW_WINDOW);
+      AppendItem(IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO,
+                 IDS_BOOMARK_BAR_OPEN_ALL_INCOGNITO);
     }
-    menu_->AppendSeparator();
+    AppendSeparator();
   }
 
   if (selection.size() == 1 && selection[0]->is_folder()) {
-    menu_->AppendMenuItemWithLabel(IDS_BOOKMARK_BAR_RENAME_FOLDER,
-        l10n_util::GetString(IDS_BOOKMARK_BAR_RENAME_FOLDER));
+    AppendItem(IDS_BOOKMARK_BAR_RENAME_FOLDER);
   } else {
-    menu_->AppendMenuItemWithLabel(IDS_BOOKMARK_BAR_EDIT,
-                                   l10n_util::GetString(IDS_BOOKMARK_BAR_EDIT));
+    AppendItem(IDS_BOOKMARK_BAR_EDIT);
   }
-  menu_->AppendMenuItemWithLabel(
-      IDS_BOOKMARK_BAR_REMOVE,
-      l10n_util::GetString(IDS_BOOKMARK_BAR_REMOVE));
+  AppendItem(IDS_BOOKMARK_BAR_REMOVE);
 
   if (configuration == BOOKMARK_MANAGER_TABLE ||
       configuration == BOOKMARK_MANAGER_TABLE_OTHER ||
       configuration == BOOKMARK_MANAGER_ORGANIZE_MENU ||
       configuration == BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER) {
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER,
-        l10n_util::GetString(IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER));
+    AppendItem(IDS_BOOKMARK_MANAGER_SHOW_IN_FOLDER);
   }
 
   if (configuration == BOOKMARK_MANAGER_TABLE ||
@@ -285,57 +274,34 @@ BookmarkContextMenu::BookmarkContextMenu(
       configuration == BOOKMARK_MANAGER_TREE ||
       configuration == BOOKMARK_MANAGER_ORGANIZE_MENU ||
       configuration == BOOKMARK_MANAGER_ORGANIZE_MENU_OTHER) {
-    menu_->AppendSeparator();
-    menu_->AppendMenuItemWithLabel(
-        IDS_CUT, l10n_util::GetString(IDS_CUT));
-    menu_->AppendMenuItemWithLabel(
-        IDS_COPY, l10n_util::GetString(IDS_COPY));
-    menu_->AppendMenuItemWithLabel(
-        IDS_PASTE, l10n_util::GetString(IDS_PASTE));
+    AppendSeparator();
+    AppendItem(IDS_CUT);
+    AppendItem(IDS_COPY);
+    AppendItem(IDS_PASTE);
   }
 
   if (configuration == BOOKMARK_MANAGER_ORGANIZE_MENU) {
-    menu_->AppendSeparator();
-    menu_->AppendMenuItemWithLabel(
-        IDS_BOOKMARK_MANAGER_SORT,
-        l10n_util::GetString(IDS_BOOKMARK_MANAGER_SORT));
+    AppendSeparator();
+    AppendItem(IDS_BOOKMARK_MANAGER_SORT);
   }
 
-  menu_->AppendSeparator();
+  AppendSeparator();
 
-  menu_->AppendMenuItemWithLabel(
-      IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK,
-      l10n_util::GetString(IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK));
-  menu_->AppendMenuItemWithLabel(
-      IDS_BOOMARK_BAR_NEW_FOLDER,
-      l10n_util::GetString(IDS_BOOMARK_BAR_NEW_FOLDER));
+  AppendItem(IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK);
+  AppendItem(IDS_BOOMARK_BAR_NEW_FOLDER);
 
   if (configuration == BOOKMARK_BAR) {
-    menu_->AppendSeparator();
-    menu_->AppendMenuItemWithLabel(IDS_BOOKMARK_MANAGER,
-                                   l10n_util::GetString(IDS_BOOKMARK_MANAGER));
-    menu_->AppendMenuItem(IDS_BOOMARK_BAR_ALWAYS_SHOW,
-                          l10n_util::GetString(IDS_BOOMARK_BAR_ALWAYS_SHOW),
-                          views::MenuItemView::CHECKBOX);
+    AppendSeparator();
+    AppendItem(IDS_BOOKMARK_MANAGER);
+    AppendCheckboxItem(IDS_BOOMARK_BAR_ALWAYS_SHOW);
   }
+
   model_->AddObserver(this);
 }
 
 BookmarkContextMenu::~BookmarkContextMenu() {
   if (model_)
     model_->RemoveObserver(this);
-}
-
-void BookmarkContextMenu::RunMenuAt(int x, int y) {
-  if (!model_->IsLoaded()) {
-    NOTREACHED();
-    return;
-  }
-  // width/height don't matter here.
-  views::MenuItemView::AnchorPosition anchor =
-      (l10n_util::GetTextDirection() == l10n_util::RIGHT_TO_LEFT) ?
-      views::MenuItemView::TOPRIGHT : views::MenuItemView::TOPLEFT;
-  menu_->RunMenuAt(wnd_, gfx::Rect(x, y, 0, 0), anchor, true);
 }
 
 void BookmarkContextMenu::ExecuteCommand(int id) {
@@ -374,6 +340,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         return;
       }
 
+#if defined(OS_WIN)
       if (selection_[0]->is_url()) {
         BookmarkEditorView::Configuration editor_config;
         if (configuration_ == BOOKMARK_BAR)
@@ -386,6 +353,9 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         EditFolderController::Show(profile_, wnd_, selection_[0], false,
                                    false);
       }
+#else
+      NOTIMPLEMENTED() << "IDS_BOOKMARK_BAR_RENAME_FOLDER / BAR_EDIT";
+#endif
       break;
 
     case IDS_BOOKMARK_BAR_REMOVE: {
@@ -403,6 +373,7 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
     case IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK: {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile_);
 
+#if defined(OS_WIN)
       BookmarkEditorView::Configuration editor_config;
       BookmarkEditorView::Handler* handler = NULL;
       if (configuration_ == BOOKMARK_BAR) {
@@ -414,6 +385,9 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       }
       BookmarkEditorView::Show(wnd_, profile_, GetParentForNewNodes(), NULL,
                                editor_config, handler);
+#else
+      NOTIMPLEMENTED() << "Adding new bookmark not implemented";
+#endif
       break;
     }
 
@@ -421,8 +395,12 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_NewFolder",
                                 profile_);
 
+#if defined(OS_WIN)
       EditFolderController::Show(profile_, wnd_, GetParentForNewNodes(),
                                  true, (configuration_ != BOOKMARK_BAR));
+#else
+      NOTIMPLEMENTED() << "New Folder not implemented";
+#endif
       break;
     }
 
@@ -439,13 +417,21 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         return;
       }
 
+#if defined(OS_WIN)
       if (BookmarkManagerView::current())
         BookmarkManagerView::current()->SelectInTree(selection_[0]);
+#else
+      NOTIMPLEMENTED() << "Bookmark Manager not implemented";
+#endif
       break;
 
     case IDS_BOOKMARK_MANAGER:
       UserMetrics::RecordAction(L"ShowBookmarkManager", profile_);
+#if defined(OS_WIN)
       BookmarkManagerView::Show(profile_);
+#else
+      NOTIMPLEMENTED() << "Bookmark Manager not implemented";
+#endif
       break;
 
     case IDS_BOOKMARK_MANAGER_SORT:
