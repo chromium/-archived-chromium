@@ -1550,18 +1550,6 @@ void WebViewImpl::ResetZoom() {
       main_frame()->frame()->isZoomFactorTextOnly());
 }
 
-void WebViewImpl::InsertText(const string16& text) {
-  Frame* focused = GetFocusedWebCoreFrame();
-  if (!focused)
-    return;
-  Editor* editor = focused->editor();
-  if (!editor || !editor->canEdit())
-    return;
-
-  editor->insertTextWithoutSendingTextEvent(
-      webkit_glue::String16ToString(text), false, NULL);
-}
-
 void WebViewImpl::CopyImageAt(int x, int y) {
   if (!page_.get())
     return;

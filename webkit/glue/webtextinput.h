@@ -1,13 +1,9 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-//
-// Class WebTextInput provides text input APIs used by TextInputController
-// in test_shell. It only facilitates layout tests and should not be used
-// by renderers.
 
-#ifndef WEBKIT_GLUE_WEBTEXTINPUT_H__
-#define WEBKIT_GLUE_WEBTEXTINPUT_H__
+#ifndef WEBKIT_GLUE_WEBTEXTINPUT_H_
+#define WEBKIT_GLUE_WEBTEXTINPUT_H_
 
 #include <string>
 #include "base/basictypes.h"
@@ -56,7 +52,7 @@ class WebTextInput {
   virtual void MakeAttributedString(const std::string& str) = 0;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(WebTextInput);
+  DISALLOW_COPY_AND_ASSIGN(WebTextInput);
 };
 
-#endif  // #ifndef WEBKIT_GLUE_WEBTEXTINPUT_H__
+#endif  // #ifndef WEBKIT_GLUE_WEBTEXTINPUT_H_

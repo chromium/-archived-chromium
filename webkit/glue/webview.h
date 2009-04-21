@@ -166,9 +166,6 @@ class WebView : public WebWidget {
   virtual void ZoomOut(bool text_only) = 0;
   virtual void ResetZoom() = 0;
 
-  // Insert text into the current editor.
-  virtual void InsertText(const string16& text) = 0;
-
   // Copy to the clipboard the image located at a particular point in the
   // WebView (if there is such an image)
   virtual void CopyImageAt(int x, int y) = 0;

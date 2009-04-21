@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -92,7 +92,6 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual void ZoomIn(bool text_only);
   virtual void ZoomOut(bool text_only);
   virtual void ResetZoom();
-  virtual void InsertText(const string16& text);
   virtual void CopyImageAt(int x, int y);
   virtual void InspectElement(int x, int y);
   virtual void ShowJavaScriptConsole();

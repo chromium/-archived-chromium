@@ -73,6 +73,7 @@
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webplugin_delegate.h"
 #include "webkit/glue/webresponse.h"
+#include "webkit/glue/webtextinput.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webview.h"
 
@@ -2443,7 +2444,9 @@ void RenderView::OnZoom(int function) {
 }
 
 void RenderView::OnInsertText(const string16& text) {
-  webview()->InsertText(text);
+  WebTextInput* text_input = webview()->GetMainFrame()->GetTextInput();
+  if (text_input)
+    text_input->InsertText(UTF16ToUTF8(text));
 }
 
 void RenderView::OnSetPageEncoding(const std::wstring& encoding_name) {
