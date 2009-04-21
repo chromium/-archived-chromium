@@ -5,13 +5,12 @@
 #ifndef WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
 #define WEBKIT_GLUE_PLUGIN_PLUGIN_LIB_H__
 
-#include "build/build_config.h"
-
 #include <string>
 #include <vector>
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
+#include "base/native_library.h"
 #include "base/ref_counted.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/webplugin.h"
@@ -83,37 +82,10 @@ class PluginLib : public base::RefCounted<PluginLib> {
   // Shutdown the plugin library.
   void Shutdown();
 
- public:
-#if defined(OS_WIN)
-  typedef HMODULE NativeLibrary;
-  typedef char* NativeLibraryFunctionNameType;
-#define FUNCTION_NAME(x) x
-#elif defined(OS_MACOSX)
-  typedef CFBundleRef NativeLibrary;
-  typedef CFStringRef NativeLibraryFunctionNameType;
-#define FUNCTION_NAME(x) CFSTR(x)
-#elif defined(OS_LINUX)
-  typedef void* NativeLibrary;
-  typedef const char* NativeLibraryFunctionNameType;
-#define FUNCTION_NAME(x) x
-#endif  // OS_*
-
-  // Loads a native library from disk. NOTE: You must release it with
-  // UnloadNativeLibrary when you're done.
-  static NativeLibrary LoadNativeLibrary(const FilePath& library_path);
-
-  // Unloads a native library.
-  static void UnloadNativeLibrary(NativeLibrary library);
-
  private:
-  // Gets a function pointer from a native library.
-  static void* GetFunctionPointerFromNativeLibrary(
-      NativeLibrary library,
-      NativeLibraryFunctionNameType name);
-
   bool internal_;  // Whether this an internal plugin.
   WebPluginInfo web_plugin_info_;  // supported mime types, description
-  NativeLibrary library_;  // the opened library reference
+  base::NativeLibrary library_;  // the opened library reference
   NPPluginFuncs plugin_funcs_;  // the struct of plugin side functions
   bool initialized_;  // is the plugin initialized
   NPSavedData *saved_data_;  // persisted plugin info for NPAPI

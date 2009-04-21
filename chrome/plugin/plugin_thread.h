@@ -6,6 +6,7 @@
 #define CHROME_PLUGIN_PLUGIN_THREAD_H_
 
 #include "base/file_path.h"
+#include "base/native_library.h"
 #include "chrome/common/child_thread.h"
 #include "chrome/plugin/plugin_channel.h"
 
@@ -35,7 +36,7 @@ class PluginThread : public ChildThread {
   scoped_ptr<NotificationService> notification_service_;
 
   // The plugin module which is preloaded in Init
-  HMODULE preloaded_plugin_module_;
+  base::NativeLibrary preloaded_plugin_module_;
 
   // Points to the plugin file that this process hosts.
   FilePath plugin_path_;

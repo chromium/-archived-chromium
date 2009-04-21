@@ -20,32 +20,6 @@ static const short kSTRPluginDescriptionResourceID = 126;
 namespace NPAPI
 {
 
-/* static */
-PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
-    const FilePath& library_path) {
-  scoped_cftyperef<CFURLRef> url(CFURLCreateFromFileSystemRepresentation(
-      kCFAllocatorDefault,
-      (const UInt8*)library_path.value().c_str(),
-      library_path.value().length(),
-      true));
-  if (!url)
-    return NULL;
-
-  return CFBundleCreate(kCFAllocatorDefault, url.get());
-}
-
-/* static */
-void PluginLib::UnloadNativeLibrary(NativeLibrary library) {
-  CFRelease(library);
-}
-
-/* static */
-void* PluginLib::GetFunctionPointerFromNativeLibrary(
-    NativeLibrary library,
-    NativeLibraryFunctionNameType name) {
-  return CFBundleGetFunctionPointerForName(library, name);
-}
-
 namespace {
 
 NSDictionary* GetMIMETypes(CFBundleRef bundle) {
@@ -322,7 +296,7 @@ bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
   //
   // Strictly speaking, only STR# 128 is required.
 
-  scoped_cftyperef<CFBundleRef> bundle(LoadNativeLibrary(filename));
+  scoped_cftyperef<CFBundleRef> bundle(base::LoadNativeLibrary(filename));
   if (!bundle)
     return false;
 

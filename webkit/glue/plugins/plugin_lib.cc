@@ -15,6 +15,14 @@
 #include "webkit/glue/plugins/plugin_host.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
+// A macro for converting string constants into appropriate
+// NativeLibraryFunctionNameTypes.
+#if defined(OS_MACOSX)
+#define NATIVE_LIBRARY_FUNCTION_NAME(x) CFSTR(x)
+#else
+#define NATIVE_LIBRARY_FUNCTION_NAME(x) x
+#endif  // OS_*
+
 namespace NPAPI
 {
 
@@ -154,35 +162,36 @@ void PluginLib::CloseInstance() {
 
 bool PluginLib::Load() {
   bool rv = false;
-  NativeLibrary library = 0;
+  base::NativeLibrary library = 0;
 
   if (!internal_) {
     if (library_ != 0)
       return rv;
 
-    library = LoadNativeLibrary(web_plugin_info_.path);
+    library = base::LoadNativeLibrary(web_plugin_info_.path);
     if (library == 0)
       return rv;
 
     rv = true;  // assume success now
 
     entry_points_.np_initialize =
-        (NP_InitializeFunc)GetFunctionPointerFromNativeLibrary(library,
-            FUNCTION_NAME("NP_Initialize"));
+        (NP_InitializeFunc)base::GetFunctionPointerFromNativeLibrary(library,
+            NATIVE_LIBRARY_FUNCTION_NAME("NP_Initialize"));
     if (entry_points_.np_initialize == 0)
       rv = false;
 
 #if !defined(OS_LINUX)
     entry_points_.np_getentrypoints =
-        (NP_GetEntryPointsFunc)GetFunctionPointerFromNativeLibrary(library,
-            FUNCTION_NAME("NP_GetEntryPoints"));
+        (NP_GetEntryPointsFunc)base::GetFunctionPointerFromNativeLibrary(
+            library,
+            NATIVE_LIBRARY_FUNCTION_NAME("NP_GetEntryPoints"));
     if (entry_points_.np_getentrypoints == 0)
       rv = false;
 #endif
 
     entry_points_.np_shutdown =
-        (NP_ShutdownFunc)GetFunctionPointerFromNativeLibrary(library,
-            FUNCTION_NAME("NP_Shutdown"));
+        (NP_ShutdownFunc)base::GetFunctionPointerFromNativeLibrary(library,
+            NATIVE_LIBRARY_FUNCTION_NAME("NP_Shutdown"));
     if (entry_points_.np_shutdown == 0)
       rv = false;
   } else {
@@ -204,7 +213,7 @@ bool PluginLib::Load() {
     if (rv)
       library_ = library;
     else
-      UnloadNativeLibrary(library);
+      base::UnloadNativeLibrary(library);
   }
 
   return rv;
@@ -213,7 +222,7 @@ bool PluginLib::Load() {
 // This class implements delayed NP_Shutdown and FreeLibrary on the plugin dll.
 class FreePluginLibraryTask : public Task {
  public:
-  FreePluginLibraryTask(PluginLib::NativeLibrary library,
+  FreePluginLibraryTask(base::NativeLibrary library,
                         NP_ShutdownFunc shutdown_func)
       : library_(library),
         NP_Shutdown_(shutdown_func) {
@@ -226,13 +235,13 @@ class FreePluginLibraryTask : public Task {
       NP_Shutdown_();
 
     if (library_) {
-      PluginLib::UnloadNativeLibrary(library_);
+      base::UnloadNativeLibrary(library_);
       library_ = NULL;
     }
   }
 
  private:
-  PluginLib::NativeLibrary library_;
+  base::NativeLibrary library_;
   NP_ShutdownFunc NP_Shutdown_;
   DISALLOW_EVIL_CONSTRUCTORS(FreePluginLibraryTask);
 };
@@ -257,7 +266,7 @@ void PluginLib::Unload() {
       MessageLoop::current()->PostTask(FROM_HERE, free_library_task);
     } else {
       Shutdown();
-      UnloadNativeLibrary(library_);
+      base::UnloadNativeLibrary(library_);
     }
 
     library_ = 0;

@@ -19,36 +19,12 @@
 
 namespace NPAPI {
 
-// static
-PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
-    const FilePath& library_path) {
-  void* dl = dlopen(library_path.value().c_str(), RTLD_LAZY);
-  if (!dl)
-    NOTREACHED() << "dlopen failed: " << dlerror();
-
-  return dl;
-}
-
-// static
-void PluginLib::UnloadNativeLibrary(NativeLibrary library) {
-  int ret = dlclose(library);
-  if (ret < 0)
-    NOTREACHED() << "dlclose failed: " << dlerror();
-}
-
-// static
-void* PluginLib::GetFunctionPointerFromNativeLibrary(
-    NativeLibrary library,
-    NativeLibraryFunctionNameType name) {
-  return dlsym(library, name);
-}
-
 bool PluginLib::ReadWebPluginInfo(const FilePath& filename,
                                   WebPluginInfo* info) {
   // The file to reference is:
   // http://mxr.mozilla.org/firefox/source/modules/plugin/base/src/nsPluginsDirUnix.cpp
 
-  void* dl = LoadNativeLibrary(filename);
+  void* dl = base::LoadNativeLibrary(filename);
   if (!dl)
     return false;
 

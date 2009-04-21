@@ -51,7 +51,7 @@ void PluginThread::Init() {
   notification_service_.reset(new NotificationService);
 
   // Preload the library to avoid loading, unloading then reloading
-  preloaded_plugin_module_ = NPAPI::PluginLib::LoadNativeLibrary(plugin_path_);
+  preloaded_plugin_module_ = base::LoadNativeLibrary(plugin_path_);
 
   ChromePluginLib::Create(plugin_path_, GetCPBrowserFuncsForPlugin());
 

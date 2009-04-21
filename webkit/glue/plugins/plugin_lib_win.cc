@@ -13,41 +13,6 @@
 
 namespace NPAPI
 {
-
-/* static */
-PluginLib::NativeLibrary PluginLib::LoadNativeLibrary(
-    const FilePath& library_path) {
-  // Switch the current directory to the plugin directory as the plugin
-  // may have dependencies on dlls in this directory.
-  bool restore_directory = false;
-  std::wstring current_directory;
-  if (PathService::Get(base::DIR_CURRENT, &current_directory)) {
-    FilePath plugin_path = library_path.DirName();
-    if (!plugin_path.value().empty()) {
-      PathService::SetCurrentDirectory(plugin_path.value());
-      restore_directory = true;
-    }
-  }
-
-  HMODULE module = LoadLibrary(library_path.value().c_str());
-  if (restore_directory)
-    PathService::SetCurrentDirectory(current_directory);
-
-  return module;
-}
-
-/* static */
-void PluginLib::UnloadNativeLibrary(NativeLibrary library) {
-  FreeLibrary(library);
-}
-
-/* static */
-void* PluginLib::GetFunctionPointerFromNativeLibrary(
-    NativeLibrary library,
-    NativeLibraryFunctionNameType name) {
-  return GetProcAddress(library, name);
-}
-
 bool PluginLib::ReadWebPluginInfo(const FilePath &filename,
                                   WebPluginInfo* info) {
   // On windows, the way we get the mime types for the library is
