@@ -158,7 +158,8 @@ void PipelineImpl::SetPlaybackRate(float rate) {
   if (OkToCallThread() && rate >= 0.0f) {
     pipeline_thread_->SetPlaybackRate(rate);
   } else {
-    NOTREACHED();
+    // It's OK for a client to call SetPlaybackRate(0.0f) if we're stopped.
+    DCHECK(rate == 0.0f && playback_rate_ == 0.0f);
   }
 }
 
