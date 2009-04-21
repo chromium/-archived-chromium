@@ -116,12 +116,15 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
 }
 
 DownloadShelfGtk::~DownloadShelfGtk() {
+  for (std::vector<DownloadItemGtk*>::iterator iter = download_items_.begin();
+       iter != download_items_.end(); ++iter) {
+      delete *iter;
+  }
+
   shelf_.Destroy();
 }
 
 void DownloadShelfGtk::AddDownload(BaseDownloadItemModel* download_model_) {
-  // TODO(estade): we need to delete these at some point. There's no explicit
-  // mass delete on windows, figure out where they do it.
   download_items_.push_back(new DownloadItemGtk(download_model_, hbox_,
                                                 link_hbox_));
   slide_widget_->Open();
