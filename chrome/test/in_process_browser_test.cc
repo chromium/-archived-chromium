@@ -5,6 +5,7 @@
 #include "chrome/test/in_process_browser_test.h"
 
 #include "base/command_line.h"
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "chrome/browser/browser.h"
@@ -114,7 +115,8 @@ void InProcessBrowserTest::SetUp() {
   // try to use unit_test.exe.
   std::wstring renderer_path;
   PathService::Get(base::FILE_EXE, &renderer_path);
-  file_util::TrimFilename(&renderer_path);
+  FilePath fp_renderer_path = FilePath::FromWStringHack(renderer_path);
+  renderer_path = fp_renderer_path.DirName().ToWStringHack();
   file_util::AppendToPath(&renderer_path,
                           chrome::kBrowserProcessExecutableName);
   command_line->AppendSwitchWithValue(switches::kRendererPath, renderer_path);

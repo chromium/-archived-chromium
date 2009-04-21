@@ -403,13 +403,6 @@ int ReadFile(const std::wstring& filename, char* data, int size) {
 bool SetCurrentDirectory(const std::wstring& directory) {
   return SetCurrentDirectory(FilePath::FromWStringHack(directory));
 }
-void TrimFilename(std::wstring* path) {
-  if (EndsWithSeparator(path)) {
-    TrimTrailingSeparator(path);
-  } else {
-    *path = FilePath::FromWStringHack(*path).DirName().ToWStringHack();
-  }
-}
 void UpOneDirectory(std::wstring* dir) {
   FilePath path = FilePath::FromWStringHack(*dir);
   FilePath directory = path.DirName();

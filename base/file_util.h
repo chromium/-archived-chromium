@@ -71,11 +71,6 @@ void UpOneDirectory(std::wstring* dir);
 // Deprecated. Use FilePath::DirName instead.
 void UpOneDirectoryOrEmpty(std::wstring* dir);
 
-// Strips the filename component from the end of 'path'. If path ends with a
-// separator, then just drop the separator.
-// Deprecated. Use FilePath::DirName instead.
-void TrimFilename(std::wstring* path);
-
 // Returns the filename portion of 'path', without any leading \'s or /'s.
 // Deprecated. Use FilePath::BaseName instead.
 std::wstring GetFilenameFromPath(const std::wstring& path);
