@@ -248,6 +248,7 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
   int index() const { return index_; }
 
  protected:
+  virtual int GetDuration() const { return 5000; };
   // Overridden from TabStripGtk::TabAnimation:
   virtual double GetWidthForTab(int index) const {
     TabGtk* tab = tabstrip_->GetTabAt(index);
@@ -1105,7 +1106,16 @@ gboolean TabStripGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
   // A leave-notify-event is generated on mouse click, which sets the mode to
   // GDK_CROSSING_GRAB.  Ignore this event because it doesn't meant the mouse
   // has left the tabstrip.
-  if (tabstrip->hover_index_ != -1 && event->mode != GDK_CROSSING_GRAB) {
+  if (event->mode == GDK_CROSSING_GRAB)
+    return TRUE;
+
+  // There is a race between the remove tab animation and the hover index
+  // handling in OnMotionNotify.  As the mouse leaves the tabstrip,
+  // OnMotionNotify figures out the hover index, the remove tab animation moves
+  // a frame, and the hover index becomes stale as OnLeaveNotify is called.
+  // The check against GetTabCount avoids this scenario.
+  if (tabstrip->hover_index_ != -1 &&
+      tabstrip->hover_index_ < tabstrip->GetTabCount()) {
     tabstrip->GetTabAt(tabstrip->hover_index_)->OnLeaveNotify();
     tabstrip->hover_index_ = -1;
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
