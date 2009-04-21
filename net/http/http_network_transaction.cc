@@ -166,28 +166,34 @@ void HttpNetworkTransaction::PrepareForAuthRestart(HttpAuth::Target target) {
   // an error message.
   if (!keep_alive && auth_handler_[target]->is_connection_based() &&
       auth_identity_[target].source != HttpAuth::IDENT_SRC_NONE) {
-    std::string auth_target(target == HttpAuth::AUTH_PROXY ?
-                            "proxy" : "server");
     LOG(ERROR) << "Can't perform " << auth_handler_[target]->scheme()
-               << " auth to the " << auth_target << " "
-               << AuthOrigin(target).spec()
-               << " over a non-keep-alive connection";
+               << " auth to the " << AuthTargetString(target) << " "
+               << AuthOrigin(target) << " over a non-keep-alive connection";
 
     HttpVersion http_version = response_.headers->GetHttpVersion();
     LOG(ERROR) << "  HTTP version is " << http_version.major_value() << "."
                << http_version.minor_value();
 
-    std::string connection_val;
+    std::string header_val;
     void* iter = NULL;
     while (response_.headers->EnumerateHeader(&iter, "connection",
-                                              &connection_val)) {
-      LOG(ERROR) << "  Has header Connection: " << connection_val;
+                                              &header_val)) {
+      LOG(ERROR) << "  Has header Connection: " << header_val;
     }
 
     iter = NULL;
     while (response_.headers->EnumerateHeader(&iter, "proxy-connection",
-                                              &connection_val)) {
-      LOG(ERROR) << "  Has header Proxy-Connection: " << connection_val;
+                                              &header_val)) {
+      LOG(ERROR) << "  Has header Proxy-Connection: " << header_val;
+    }
+
+    // RFC 4559 requires that a proxy indicate its support of NTLM/Negotiate
+    // authentication with a "Proxy-Support: Session-Based-Authentication"
+    // response header.
+    iter = NULL;
+    while (response_.headers->EnumerateHeader(&iter, "proxy-support",
+                                              &header_val)) {
+      LOG(ERROR) << "  Has header Proxy-Support: " << header_val;
     }
   }
 
@@ -1390,6 +1396,12 @@ std::string HttpNetworkTransaction::AuthPath(HttpAuth::Target target)
       std::string() : request_->url.path();
 }
 
+// static
+std::string HttpNetworkTransaction::AuthTargetString(
+    HttpAuth::Target target) {
+  return target == HttpAuth::AUTH_PROXY ? "proxy" : "server";
+}
+
 void HttpNetworkTransaction::InvalidateRejectedAuthFromCache(
     HttpAuth::Target target) {
   DCHECK(HaveAuth(target));
@@ -1493,6 +1505,36 @@ bool HttpNetworkTransaction::SelectNextAuthIdentityToTry(
   return false;
 }
 
+std::string HttpNetworkTransaction::AuthChallengeLogMessage() const {
+  std::string msg;
+  std::string header_val;
+  void* iter = NULL;
+  while (response_.headers->EnumerateHeader(&iter, "proxy-authenticate",
+                                            &header_val)) {
+    msg.append("\n  Has header Proxy-Authenticate: ");
+    msg.append(header_val);
+  }
+
+  iter = NULL;
+  while (response_.headers->EnumerateHeader(&iter, "www-authenticate",
+                                            &header_val)) {
+    msg.append("\n  Has header WWW-Authenticate: ");
+    msg.append(header_val);
+  }
+
+  // RFC 4559 requires that a proxy indicate its support of NTLM/Negotiate
+  // authentication with a "Proxy-Support: Session-Based-Authentication"
+  // response header.
+  iter = NULL;
+  while (response_.headers->EnumerateHeader(&iter, "proxy-support",
+                                            &header_val)) {
+    msg.append("\n  Has header Proxy-Support: ");
+    msg.append(header_val);
+  }
+
+  return msg;
+}
+
 int HttpNetworkTransaction::HandleAuthChallenge() {
   DCHECK(response_.headers);
 
@@ -1501,6 +1543,10 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
     return OK;
   HttpAuth::Target target = status == 407 ?
       HttpAuth::AUTH_PROXY : HttpAuth::AUTH_SERVER;
+
+  LOG(INFO) << "The " << AuthTargetString(target) << " "
+            << AuthOrigin(target) << " requested auth"
+            << AuthChallengeLogMessage();
 
   if (target == HttpAuth::AUTH_PROXY && proxy_info_.is_direct())
     return ERR_UNEXPECTED_PROXY_AUTH;
@@ -1520,25 +1566,10 @@ int HttpNetworkTransaction::HandleAuthChallenge() {
 
   if (!auth_handler_[target]) {
     if (establishing_tunnel_) {
-      // Log an error message to help debug http://crbug.com/8771.
-      std::string auth_target(target == HttpAuth::AUTH_PROXY ?
-                              "proxy" : "server");
-      LOG(ERROR) << "Can't perform auth to the " << auth_target << " "
-                 << AuthOrigin(target).spec()
-                 << " when establishing a tunnel";
-
-      std::string challenge;
-      void* iter = NULL;
-      while (response_.headers->EnumerateHeader(&iter, "Proxy-Authenticate",
-                                                &challenge)) {
-        LOG(ERROR) << "  Has header Proxy-Authenticate: " << challenge;
-      }
-
-      iter = NULL;
-      while (response_.headers->EnumerateHeader(&iter, "WWW-Authenticate",
-                                                &challenge)) {
-        LOG(ERROR) << "  Has header WWW-Authenticate: " << challenge;
-      }
+      LOG(ERROR) << "Can't perform auth to the " << AuthTargetString(target)
+                 << " " << AuthOrigin(target)
+                 << " when establishing a tunnel"
+                 << AuthChallengeLogMessage();
 
       // We are establishing a tunnel, we can't show the error page because an
       // active network attacker could control its contents.  Instead, we just

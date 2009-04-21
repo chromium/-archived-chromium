@@ -162,6 +162,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   // origin server auth header, as specified by |target|
   void AddAuthorizationHeader(HttpAuth::Target target);
 
+  // Returns a log message for all the response headers related to the auth
+  // challenge.
+  std::string AuthChallengeLogMessage() const;
+
   // Handles HTTP status code 401 or 407.
   // HandleAuthChallenge() returns a network error code, or OK on success.
   // May update |pending_auth_target_| or |response_.auth_challenge|.
@@ -196,6 +200,10 @@ class HttpNetworkTransaction : public HttpTransaction {
   // Get the absolute path of the resource needing authentication.
   // For proxy authentication the path is always empty string.
   std::string AuthPath(HttpAuth::Target target) const;
+
+  // Returns a string representation of a HttpAuth::Target value that can be
+  // used in log messages.
+  static std::string AuthTargetString(HttpAuth::Target target);
 
   // The following three auth members are arrays of size two -- index 0 is
   // for the proxy server, and index 1 is for the origin server.
