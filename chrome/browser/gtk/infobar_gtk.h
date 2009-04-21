@@ -7,13 +7,14 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "chrome/browser/gtk/slide_animator_gtk.h"
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class CustomDrawButton;
 class InfoBarContainerGtk;
 
-class InfoBar {
+class InfoBar : public SlideAnimatorGtk::Delegate {
  public:
   explicit InfoBar(InfoBarDelegate* delegate);
   virtual ~InfoBar();
@@ -21,7 +22,7 @@ class InfoBar {
   InfoBarDelegate* delegate() const { return delegate_; }
 
   // Get the top level native GTK widget for this infobar.
-  GtkWidget* widget() { return widget_.get(); }
+  GtkWidget* widget();
 
   // Set a link to the parent InfoBarContainer. This must be set before the
   // InfoBar is added to the view hierarchy.
@@ -42,13 +43,19 @@ class InfoBar {
   // is called.
   void Close();
 
+  // SlideAnimatorGtk::Delegate implementation.
+  virtual void Closed();
+
  protected:
   // Removes our associated InfoBarDelegate from the associated TabContents.
   // (Will lead to this InfoBar being closed).
   void RemoveInfoBar() const;
 
-  // The top level GTK widget.
-  OwnedWidgetGtk widget_;
+  // The top level widget of the infobar.
+  scoped_ptr<SlideAnimatorGtk> slide_widget_;
+
+  // The second highest level widget of the infobar.
+  OwnedWidgetGtk border_bin_;
 
   // The hbox that holds infobar elements (button, text, icon, etc.).
   GtkWidget* hbox_;
