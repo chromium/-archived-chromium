@@ -125,7 +125,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnLoadFont(LOGFONT font);
 #endif
 
-  void OnGetScreenInfo(gfx::NativeViewId window, IPC::Message* reply);
+  void OnGetScreenInfo(gfx::NativeViewId window,
+                       WebKit::WebScreenInfo* results);
   void OnGetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins);
   void OnGetPluginPath(const GURL& url,
                        const std::string& mime_type,
@@ -155,8 +156,8 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
   void OnClipboardReadText(string16* result);
   void OnClipboardReadAsciiText(std::string* result);
   void OnClipboardReadHTML(string16* markup, GURL* src_url);
-  void OnGetWindowRect(gfx::NativeViewId window, IPC::Message* reply);
-  void OnGetRootWindowRect(gfx::NativeViewId window, IPC::Message* reply);
+  void OnGetWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
+  void OnGetRootWindowRect(gfx::NativeViewId window, gfx::Rect *rect);
   void OnGetMimeTypeFromExtension(const FilePath::StringType& ext,
                                   std::string* mime_type);
   void OnGetMimeTypeFromFile(const FilePath& file_path,
@@ -201,13 +202,6 @@ class ResourceMessageFilter : public IPC::ChannelProxy::MessageFilter,
 
   void OnOpenChannelToExtension(const std::string& extension_id, int* port_id);
   void OnExtensionPostMessage(int port_id, const std::string& message);
-
-#if defined(OS_LINUX)
-  void SendBackgroundX11Reply(IPC::Message* reply_msg);
-  void DoOnGetScreenInfo(gfx::NativeViewId view, IPC::Message* reply_msg);
-  void DoOnGetWindowRect(gfx::NativeViewId view, IPC::Message* reply_msg);
-  void DoOnGetRootWindowRect(gfx::NativeViewId view, IPC::Message* reply_msg);
-#endif
 
   // We have our own clipboard service because we want to access the clipboard
   // on the IO thread instead of forwarding (possibly synchronous) messages to

@@ -171,11 +171,6 @@ BrowserProcessImpl::~BrowserProcessImpl() {
   io_thread_->message_loop()->PostTask(FROM_HERE,
       NewRunnableFunction(chrome_browser_net::EnsureDnsPrefetchShutdown));
 
-#if defined(OS_LINUX)
-  // The IO thread must outlive the BACKGROUND_X11 thread.
-  background_x11_thread_.reset();
-#endif
-
   // Need to stop io_thread_ before resource_dispatcher_host_, since
   // io_thread_ may still deref ResourceDispatcherHost and handle resource
   // request before going away.
@@ -288,16 +283,6 @@ void BrowserProcessImpl::CreateIOThread() {
   // on the main thread. The service ctor is inexpensive and does not
   // invoke the io_thread() accessor.
   PluginService::GetInstance();
-
-#if defined(OS_LINUX)
-  // The lifetime of the BACKGROUND_X11 thread is a subset of the IO thread so
-  // we start it now.
-  scoped_ptr<base::Thread> background_x11_thread(
-      new BrowserProcessSubThread(ChromeThread::BACKGROUND_X11));
-  if (!background_x11_thread->Start())
-    return;
-  background_x11_thread_.swap(background_x11_thread);
-#endif
 
   scoped_ptr<base::Thread> thread(
       new BrowserProcessSubThread(ChromeThread::IO));

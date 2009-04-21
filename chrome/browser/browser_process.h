@@ -96,15 +96,6 @@ class BrowserProcess {
   // database. History has its own thread since it has much higher traffic.
   virtual base::Thread* db_thread() = 0;
 
-#if defined(OS_LINUX)
-  // Returns the thread that is used to process UI requests in cases were
-  // we can't route the request to the UI thread. Note that this thread
-  // should only be used by the IO thread and this method is only safe to call
-  // from the UI thread so, if you've ended up here, something has gone wrong.
-  // This method is only included for uniformity.
-  virtual base::Thread* background_x11_thread() = 0;
-#endif
-
   virtual sandbox::BrokerServices* broker_services() = 0;
 
   virtual IconManager* icon_manager() = 0;

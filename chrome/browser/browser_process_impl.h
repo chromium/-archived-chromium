@@ -73,16 +73,6 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
     return db_thread_.get();
   }
 
-#if defined(OS_LINUX)
-  virtual base::Thread* background_x11_thread() {
-    DCHECK(CalledOnValidThread());
-    // The BACKGROUND_X11 thread is created when the IO thread is created.
-    if (!created_io_thread_)
-      CreateIOThread();
-    return background_x11_thread_.get();
-  }
-#endif
-
   virtual ProfileManager* profile_manager() {
     DCHECK(CalledOnValidThread());
     if (!created_profile_manager_)
@@ -221,10 +211,6 @@ class BrowserProcessImpl : public BrowserProcess, public NonThreadSafe {
 
   bool created_io_thread_;
   scoped_ptr<base::Thread> io_thread_;
-#if defined(OS_LINUX)
-  // This shares a created flag with the IO thread.
-  scoped_ptr<base::Thread> background_x11_thread_;
-#endif
 
   bool created_file_thread_;
   scoped_ptr<base::Thread> file_thread_;

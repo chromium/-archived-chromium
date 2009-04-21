@@ -6,7 +6,6 @@
 // ported from XCB since we can't use XCB on Ubuntu while its 32-bit support
 // remains woefully incomplete.
 
-#include "base/thread.h"
 #include "chrome/common/x11_util.h"
 #include "chrome/common/x11_util_internal.h"
 
@@ -99,20 +98,12 @@ bool QueryRenderSupport(Display* dpy) {
   return render_supported;
 }
 
-int GetDefaultScreen(Display* display) {
-  return XDefaultScreen(display);
-}
-
 XID GetX11RootWindow() {
   return GDK_WINDOW_XID(gdk_get_default_root_window());
 }
 
 XID GetX11WindowFromGtkWidget(GtkWidget* widget) {
   return GDK_WINDOW_XID(widget->window);
-}
-
-XID GetX11WindowFromGdkWindow(GdkWindow* window) {
-  return GDK_WINDOW_XID(window);
 }
 
 void* GetVisualFromGtkWidget(GtkWidget* widget) {
@@ -226,27 +217,6 @@ void FreePicture(Display* display, XID picture) {
 
 void FreePixmap(Display* display, XID pixmap) {
   XFreePixmap(display, pixmap);
-}
-
-// Called on BACKGROUND_X11 thread.
-Display* GetSecondaryDisplay() {
-  static Display* display = NULL;
-  if (!display) {
-    display = XOpenDisplay(NULL);
-    CHECK(display);
-  }
-
-  return display;
-}
-
-// Called on BACKGROUND_X11 thread.
-void GetWindowGeometry(int* x, int* y, unsigned* width, unsigned* height,
-                       XID window) {
-  Window root_window;
-  unsigned border_width, depth;
-
-  CHECK(XGetGeometry(GetSecondaryDisplay(), window,
-                     &root_window, x, y, width, height, &border_width, &depth));
 }
 
 }  // namespace x11_util
