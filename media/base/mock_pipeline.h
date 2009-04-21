@@ -14,6 +14,7 @@
 #include <deque>
 #include <string>
 
+#include "base/message_loop.h"
 #include "media/base/media_format.h"
 #include "media/base/pipeline.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -135,17 +136,11 @@ class MockPipeline : public media::Pipeline {
   // pipeline is request/pull-based, only enough tasks to satisfy the request
   // should ever be executed.
   void RunAllTasks() {
-    while (!task_queue_.empty()) {
-      Task* task = task_queue_.front();
-      task_queue_.pop_front();
-      task->Run();
-      delete task;
-    }
+    message_loop_.RunAllPending();
   }
 
   void PostTask(Task* task) {
-    EXPECT_TRUE(task);
-    task_queue_.push_back(task);
+    message_loop_.PostTask(FROM_HERE, task);
   }
 
   void Error(media::PipelineError error) {
@@ -191,8 +186,7 @@ class MockPipeline : public media::Pipeline {
   int64 buffered_bytes_;
   int64 total_bytes_;
 
-  typedef std::deque<Task*> TaskQueue;
-  TaskQueue task_queue_;
+  MessageLoop message_loop_;
 
   DISALLOW_COPY_AND_ASSIGN(MockPipeline);
 };

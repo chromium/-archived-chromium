@@ -35,26 +35,40 @@ class PacketQueue : public Singleton<PacketQueue> {
     packet->stream_index = packets_.front().a;
     packet->size = packets_.front().b;
     packet->data = packets_.front().c;
-    packet->destruct = &DestructPacket;
+    packet->destruct = &PacketQueue::DestructPacket;
     packets_.pop_front();
 
     // We now have an outstanding packet which must be freed at some point.
     ++outstanding_packets_;
   }
 
-  int outstanding_packets() {
-    return outstanding_packets_;
+  bool WaitForOutstandingPackets(int count) {
+    const base::TimeDelta kTimedWait = base::TimeDelta::FromMilliseconds(500);
+    while (outstanding_packets_ != count) {
+      if (!wait_for_outstanding_packets_.TimedWait(kTimedWait)) {
+        return false;
+      }
+    }
+    return true;
   }
 
  private:
   static void DestructPacket(AVPacket* packet) {
-    --(PacketQueue::get()->outstanding_packets_);
+    PacketQueue::get()->DestructPacket();
+  }
+
+  void DestructPacket() {
+    --outstanding_packets_;
+    wait_for_outstanding_packets_.Signal();
   }
 
   // Only allow Singleton to create and delete PacketQueue.
   friend struct DefaultSingletonTraits<PacketQueue>;
 
-  PacketQueue() : outstanding_packets_(0) {}
+  PacketQueue()
+      : outstanding_packets_(0),
+        wait_for_outstanding_packets_(false, false) {
+  }
 
   ~PacketQueue() {
     CHECK(outstanding_packets_ == 0);
@@ -69,6 +83,12 @@ class PacketQueue : public Singleton<PacketQueue> {
   // by av_free_packet().  This should always be zero after everything is
   // cleaned up.
   int outstanding_packets_;
+
+  // Tests can wait on this event until a specific number of outstanding packets
+  // have been reached.  Used to ensure other threads release their references
+  // to objects so we don't get false positive test results when comparing the
+  // number of outstanding packets.
+  base::WaitableEvent wait_for_outstanding_packets_;
 
   DISALLOW_COPY_AND_ASSIGN(PacketQueue);
 };
@@ -379,9 +399,7 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
 // TODO(scherkus): as we keep refactoring and improving our mocks (both FFmpeg
 // and pipeline/filters), try to break this test into two.  Big issue right now
 // is that it takes ~50 lines of code just to set up FFmpegDemuxer.
-//
-// Refer to http://crbug.com/10653
-TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
+TEST(FFmpegDemuxerTest, ReadAndSeek) {
   // Prepare some test data.
   const int kAudio = 0;
   const int kVideo = 1;
@@ -458,7 +476,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
 
   // Manually release buffer, which should release any remaining AVPackets.
   reader = NULL;
-  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+  EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
 
   //----------------------------------------------------------------------------
   // Seek tests.
@@ -528,7 +546,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
 
   // Manually release buffer, which should release any remaining AVPackets.
   reader = NULL;
-  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+  EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
 
   // Let's trigger another simple forward seek, but with outstanding packets.
   // The outstanding packets should get freed after the Seek() is issued.
@@ -551,7 +569,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
 
   // Manually release video buffer, remaining audio packets are outstanding.
   reader = NULL;
-  EXPECT_EQ(3, PacketQueue::get()->outstanding_packets());
+  EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(3));
 
   // Trigger the seek.
   g_expected_seek_timestamp = 1234;
@@ -560,7 +578,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   EXPECT_TRUE(g_seek_event->TimedWait(base::TimeDelta::FromSeconds(1)));
 
   // All outstanding packets should have been freed.
-  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+  EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
 
   // Clean up.
   delete g_seek_event;
@@ -582,5 +600,5 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
 
   // Manually release buffer, which should release any remaining AVPackets.
   reader = NULL;
-  EXPECT_EQ(0, PacketQueue::get()->outstanding_packets());
+  EXPECT_TRUE(PacketQueue::get()->WaitForOutstandingPackets(0));
 }
