@@ -4,9 +4,12 @@
 
 #import "chrome/browser/app_controller_mac.h"
 
+#include "base/command_line.h"
 #include "base/message_loop.h"
+#include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/browser.h"
+#include "chrome/browser/browser_init.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
@@ -16,6 +19,8 @@
 
 @interface AppController(PRIVATE)
 - (void)initMenuState;
+- (void)getUrl:(NSAppleEventDescriptor*)event
+     withReply:(NSAppleEventDescriptor*)reply;
 @end
 
 @implementation AppController
@@ -32,6 +37,16 @@
   // will be the signal to exit.
   DCHECK(g_browser_process);
   g_browser_process->AddRefModule();
+
+  NSAppleEventManager* em = [NSAppleEventManager sharedAppleEventManager];
+  [em setEventHandler:self
+          andSelector:@selector(getUrl:withReply:)
+        forEventClass:kInternetEventClass
+           andEventID:kAEGetURL];
+  [em setEventHandler:self
+          andSelector:@selector(getUrl:withReply:)
+        forEventClass:'WWW!'    // A particularly ancient AppleEvent that dates
+           andEventID:'OURL'];  // back to the Spyglass days.
 }
 
 - (void)dealloc {
@@ -51,6 +66,12 @@
   // require posting UI and may require spinning up another run loop to
   // handle it. If it says to continue, post the quit message, otherwise
   // go back to normal.
+
+  NSAppleEventManager* em = [NSAppleEventManager sharedAppleEventManager];
+  [em removeEventHandlerForEventClass:kInternetEventClass
+                           andEventID:kAEGetURL];
+  [em removeEventHandlerForEventClass:'WWW!'
+                           andEventID:'OURL'];
 
   // TODO(pinkerton): Not sure where this should live, including it here
   // causes all sorts of asserts from the open renderers. On Windows, it
@@ -134,10 +155,49 @@
   // TODO(jrg): DCHECK() to confirm that.
   // TODO(jrg): Find a better way to get the "default" profile.
   if (g_browser_process->profile_manager())
-    return *g_browser_process->profile_manager()->begin();
+    return* g_browser_process->profile_manager()->begin();
   return NULL;
 
 }
 
+// Various methods to open URLs that we get in a native fashion. We use
+// BrowserInit here because on the other platforms, URLs to open come through
+// the ProcessSingleton, and it calls BrowserInit. It's best to bottleneck the
+// openings through that for uniform handling.
+
+namespace {
+
+void OpenURLs(const std::vector<GURL>& urls) {
+  CommandLine dummy((std::wstring()));
+  BrowserInit::LaunchWithProfile launch(std::wstring(), dummy);
+  launch.OpenURLsInBrowser(BrowserList::GetLastActive(), false, urls);
+}
+
+}
+
+- (void)getUrl:(NSAppleEventDescriptor*)event
+     withReply:(NSAppleEventDescriptor*)reply {
+  NSString* urlStr = [[event paramDescriptorForKeyword:keyDirectObject]
+                      stringValue];
+
+  GURL gurl(base::SysNSStringToUTF8(urlStr));
+  std::vector<GURL> gurlVector;
+  gurlVector.push_back(gurl);
+
+  OpenURLs(gurlVector);
+}
+
+- (void)application:(NSApplication*)sender
+          openFiles:(NSArray*)filenames {
+  std::vector<GURL> gurlVector;
+
+  for (NSString* filename in filenames) {
+    NSURL* fileURL = [NSURL fileURLWithPath:filename];
+    GURL gurl(base::SysNSStringToUTF8([fileURL absoluteString]));
+    gurlVector.push_back(gurl);
+  }
+
+  OpenURLs(gurlVector);
+}
 
 @end

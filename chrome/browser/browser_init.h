@@ -41,6 +41,14 @@ class BrowserInit {
     // already running and the user wants to launch another instance.
     bool Launch(Profile* profile, bool process_startup);
 
+    // Opens the list of urls. If browser is non-null and a tabbed browser, the
+    // URLs are opened in it. Otherwise a new tabbed browser is created and the
+    // URLs are added to it. The browser the tabs are added to is returned,
+    // which is either |browser| or the newly created browser.
+    Browser* OpenURLsInBrowser(Browser* browser,
+                               bool process_startup,
+                               const std::vector<GURL>& urls);
+
    private:
     // If the process was launched with the web application command line flag,
     // e.g. --app=http://www.google.com/, opens a web application browser and
@@ -58,14 +66,6 @@ class BrowserInit {
     // Otherwise false is returned.
     bool OpenStartupURLs(bool is_process_startup,
                          const std::vector<GURL>& urls_to_open);
-
-    // Opens the list of urls. If browser is non-null and a tabbed browser, the
-    // URLs are opened in it. Otherwise a new tabbed browser is created and the
-    // URLs are added to it. The browser the tabs are added to is returned,
-    // which is either |browser| or the newly created browser.
-    Browser* OpenURLsInBrowser(Browser* browser,
-                               bool process_startup,
-                               const std::vector<GURL>& urls);
 
     // If the last session didn't exit cleanly and tab is a web contents tab,
     // an infobar is added allowing the user to restore the last session.
