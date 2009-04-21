@@ -46,10 +46,6 @@ NewProfileDialog::NewProfileDialog() {
 NewProfileDialog::~NewProfileDialog() {
 }
 
-int NewProfileDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-}
-
 views::View* NewProfileDialog::GetInitiallyFocusedView() {
   views::TextField* text_box = message_box_view_->text_box();
   DCHECK(text_box);
@@ -57,8 +53,8 @@ views::View* NewProfileDialog::GetInitiallyFocusedView() {
 }
 
 bool NewProfileDialog::IsDialogButtonEnabled(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK) {
+    MessageBox::DialogButton button) const {
+  if (button == MessageBox::DIALOGBUTTON_OK) {
     std::wstring profile_name = message_box_view_->GetInputText();
     // TODO(munjal): Refactor the function ReplaceIllegalCharacters in
     // file_util to something that just checks if there are illegal chars

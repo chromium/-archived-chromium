@@ -44,8 +44,7 @@ class EditKeywordController : public views::TextField::Controller,
   // DialogDelegate overrides.
   virtual bool IsModal() const;
   virtual std::wstring GetWindowTitle() const;
-  virtual int GetDialogButtons() const;
-  virtual bool IsDialogButtonEnabled(DialogButton button) const;
+  virtual bool IsDialogButtonEnabled(MessageBox::DialogButton button) const;
   virtual void DeleteDelegate();
   virtual bool Cancel();
   virtual bool Accept();

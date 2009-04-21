@@ -57,10 +57,10 @@ std::wstring RepostFormWarningView::GetWindowTitle() const {
 }
 
 std::wstring RepostFormWarningView::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DialogDelegate::DIALOGBUTTON_OK)
+    MessageBox::DialogButton button) const {
+  if (button == MessageBox::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_HTTP_POST_WARNING_RESEND);
-  if (button == DialogDelegate::DIALOGBUTTON_CANCEL)
+  if (button == MessageBox::DIALOGBUTTON_CANCEL)
     return l10n_util::GetString(IDS_HTTP_POST_WARNING_CANCEL);
   return L"";
 }

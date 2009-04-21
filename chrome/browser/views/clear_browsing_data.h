@@ -50,8 +50,9 @@ class ClearBrowsingDataView : public views::View,
                             views::View* child);
 
   // Overridden from views::DialogDelegate:
-  virtual std::wstring GetDialogButtonLabel(DialogButton button) const;
-  virtual bool IsDialogButtonEnabled(DialogButton button) const;
+  virtual std::wstring GetDialogButtonLabel(
+      MessageBox::DialogButton button) const;
+  virtual bool IsDialogButtonEnabled(MessageBox::DialogButton button) const;
   virtual bool CanResize() const;
   virtual bool CanMaximize() const;
   virtual bool IsAlwaysOnTop() const;

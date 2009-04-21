@@ -16,13 +16,9 @@
 #include "chrome/common/ipc_channel_proxy.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_sync_channel.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/test/automation/automation_handle_tracker.h"
 #include "chrome/test/automation/automation_messages.h"
-
-#if defined(OS_WIN)
-// TODO(port): Enable this or equivalent.
-#include "chrome/views/window/dialog_delegate.h"
-#endif
 
 class AutomationRequest;
 class BrowserProxy;
@@ -98,17 +94,13 @@ class AutomationProxy : public IPC::Channel::Listener,
   // Returns true on success.
   bool WaitForWindowCountToBecome(int target_count, int wait_timeout);
 
-#if defined(OS_WIN)
-  // TODO(port): Enable when we have portable DialogDelegate.
-
   // Returns whether an app modal dialog window is showing right now (i.e., a
   // javascript alert), and what buttons it contains.
   bool GetShowingAppModalDialog(bool* showing_app_modal_dialog,
-                                views::DialogDelegate::DialogButton* button);
+                                MessageBox::DialogButton* button);
 
   // Simulates a click on a dialog button.
-  bool ClickAppModalDialogButton(views::DialogDelegate::DialogButton button);
-#endif  // defined(OS_WIN)
+  bool ClickAppModalDialogButton(MessageBox::DialogButton button);
 
   // Block the thread until a modal dialog is displayed. Returns true on
   // success.

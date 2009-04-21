@@ -178,7 +178,7 @@ views::View* FirstRunCustomizeView::GetContentsView() {
 }
 
 bool FirstRunCustomizeView::Accept() {
-  if (!IsDialogButtonEnabled(DIALOGBUTTON_OK))
+  if (!IsDialogButtonEnabled(MessageBox::DIALOGBUTTON_OK))
     return false;
 
   DisableButtons();

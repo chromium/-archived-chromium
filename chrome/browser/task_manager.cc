@@ -1079,7 +1079,7 @@ std::wstring TaskManager::GetWindowName() const {
 }
 
 int TaskManager::GetDialogButtons() const {
-  return DIALOGBUTTON_NONE;
+  return MessageBox::DIALOGBUTTON_NONE;
 }
 
 void TaskManager::WindowClosing() {

@@ -843,12 +843,8 @@ class TestDialogView : public views::View,
   }
 
   // views::DialogDelegate implementation:
-  virtual int GetDialogButtons() const {
-    return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-  }
-
   virtual int GetDefaultDialogButton() const {
-    return DIALOGBUTTON_OK;
+    return MessageBox::DIALOGBUTTON_OK;
   }
 
   virtual View* GetContentsView() {

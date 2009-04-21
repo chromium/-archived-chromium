@@ -99,8 +99,8 @@ void ImporterView::Layout() {
 }
 
 std::wstring ImporterView::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK) {
+    MessageBox::DialogButton button) const {
+  if (button == MessageBox::DIALOGBUTTON_OK) {
     return l10n_util::GetString(IDS_IMPORT_COMMIT);
   } else {
     return std::wstring();
@@ -116,7 +116,7 @@ std::wstring ImporterView::GetWindowTitle() const {
 }
 
 bool ImporterView::Accept() {
-  if (!IsDialogButtonEnabled(DIALOGBUTTON_OK)) {
+  if (!IsDialogButtonEnabled(MessageBox::DIALOGBUTTON_OK)) {
     return false;
   }
 

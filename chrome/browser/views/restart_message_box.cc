@@ -21,12 +21,12 @@ void RestartMessageBox::ShowMessageBox(HWND parent_hwnd) {
 }
 
 int RestartMessageBox::GetDialogButtons() const {
-  return DialogDelegate::DIALOGBUTTON_OK;
+  return MessageBox::DIALOGBUTTON_OK;
 }
 
-std::wstring RestartMessageBox::GetDialogButtonLabel(DialogButton button)
-    const {
-  DCHECK(button == DIALOGBUTTON_OK);
+std::wstring RestartMessageBox::GetDialogButtonLabel(
+    MessageBox::DialogButton button) const {
+  DCHECK(button == MessageBox::DIALOGBUTTON_OK);
   return l10n_util::GetString(IDS_OK);
 }
 

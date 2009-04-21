@@ -42,6 +42,13 @@ class MessageBox {
   static const int kIsJavascriptPrompt = kIsJavascriptConfirm |
                                          kFlagHasPromptField;
 
+  // Dialog button identifiers used to specify which buttons to show the user.
+  enum DialogButton {
+    DIALOGBUTTON_NONE = 0,    // No dialog buttons, for WindowType == WINDOW.
+    DIALOGBUTTON_OK = 1,      // Has an OK button.
+    DIALOGBUTTON_CANCEL = 2,  // Has a Cancel button (becomes a Close button if
+  };                          // no OK button).
+
  private:
   MessageBox() {}
   DISALLOW_COPY_AND_ASSIGN(MessageBox);

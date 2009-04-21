@@ -28,6 +28,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/common/chrome_paths.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
@@ -46,7 +47,6 @@
 #include "chrome/browser/printing/print_job.h"
 #include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/browser/views/location_bar_view.h"
-#include "chrome/views/window/dialog_delegate.h"
 #include "chrome/views/window/window.h"
 #endif  // defined(OS_WIN)
 
@@ -1297,9 +1297,6 @@ void AutomationProvider::GetBrowserWindowCount(int* window_count) {
   *window_count = static_cast<int>(BrowserList::size());
 }
 
-#if defined(OS_WIN)
-// TODO(port): Move the views::DialogDelegate::DialogButton enum out into a
-// common place then remove the OS_WIN guard.
 void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
                                                   int* dialog_button) {
   AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
@@ -1307,7 +1304,7 @@ void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
   if (*showing_dialog)
     *dialog_button = dialog_delegate->GetDialogButtons();
   else
-    *dialog_button = views::DialogDelegate::DIALOGBUTTON_NONE;
+    *dialog_button = MessageBox::DIALOGBUTTON_NONE;
 }
 
 void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
@@ -1316,20 +1313,19 @@ void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
   AppModalDialog* dialog_delegate = AppModalDialogQueue::active_dialog();
   if (dialog_delegate &&
       (dialog_delegate->GetDialogButtons() & button) == button) {
-    if ((button & views::DialogDelegate::DIALOGBUTTON_OK) ==
-        views::DialogDelegate::DIALOGBUTTON_OK) {
+    if ((button & MessageBox::DIALOGBUTTON_OK) ==
+        MessageBox::DIALOGBUTTON_OK) {
       dialog_delegate->AcceptWindow();
       *success =  true;
     }
-    if ((button & views::DialogDelegate::DIALOGBUTTON_CANCEL) ==
-        views::DialogDelegate::DIALOGBUTTON_CANCEL) {
+    if ((button & MessageBox::DIALOGBUTTON_CANCEL) ==
+        MessageBox::DIALOGBUTTON_CANCEL) {
       DCHECK(!*success) << "invalid param, OK and CANCEL specified";
       dialog_delegate->CancelWindow();
       *success =  true;
     }
   }
 }
-#endif
 
 void AutomationProvider::GetBrowserWindow(int index, int* handle) {
   *handle = 0;

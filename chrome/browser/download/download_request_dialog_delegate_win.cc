@@ -46,10 +46,10 @@ views::View* DownloadRequestDialogDelegateWin::GetContentsView() {
 }
 
 std::wstring DownloadRequestDialogDelegateWin::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK)
+    MessageBox::DialogButton button) const {
+  if (button == MessageBox::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING_ALLOW);
-  if (button == DIALOGBUTTON_CANCEL)
+  if (button == MessageBox::DIALOGBUTTON_CANCEL)
     return l10n_util::GetString(IDS_MULTI_DOWNLOAD_WARNING_DENY);
   return std::wstring();
 }

@@ -119,16 +119,6 @@ void AutomationProvider::OnMessageFromExternalHost(
   NOTIMPLEMENTED();
 }
 
-void AutomationProvider::GetShowingAppModalDialog(bool* showing_dialog,
-                                                  int* dialog_button) {
-  NOTIMPLEMENTED();
-}
-
-void AutomationProvider::ClickAppModalDialogButton(int button, bool* success) {
-  *success = false;
-  NOTIMPLEMENTED();
-}
-
 //--------------------------------------------------------------------------
 
 bool ShellIntegration::SetAsDefaultBrowser() {

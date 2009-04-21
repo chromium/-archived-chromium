@@ -37,19 +37,14 @@ UserDataDirDialog::~UserDataDirDialog() {
   select_file_dialog_->ListenerDestroyed();
 }
 
-int UserDataDirDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-
-}
-
 std::wstring UserDataDirDialog::GetDialogButtonLabel(
-    DialogButton button) const {
+    MessageBox::DialogButton button) const {
 
   switch (button) {
-    case DIALOGBUTTON_OK:
+    case MessageBox::DIALOGBUTTON_OK:
       return l10n_util::GetString(
           IDS_CANT_WRITE_USER_DIRECTORY_CHOOSE_DIRECTORY_BUTTON);
-    case DIALOGBUTTON_CANCEL:
+    case MessageBox::DIALOGBUTTON_CANCEL:
       return l10n_util::GetString(IDS_CANT_WRITE_USER_DIRECTORY_EXIT_BUTTON);
     default:
       NOTREACHED();

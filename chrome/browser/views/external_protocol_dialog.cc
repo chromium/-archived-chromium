@@ -43,17 +43,13 @@ ExternalProtocolDialog::~ExternalProtocolDialog() {
 //////////////////////////////////////////////////////////////////////////////
 // ExternalProtocolDialog, views::DialogDelegate implementation:
 
-int ExternalProtocolDialog::GetDialogButtons() const {
-  return DIALOGBUTTON_OK | DIALOGBUTTON_CANCEL;
-}
-
 int ExternalProtocolDialog::GetDefaultDialogButton() const {
-  return DIALOGBUTTON_CANCEL;
+  return MessageBox::DIALOGBUTTON_CANCEL;
 }
 
 std::wstring ExternalProtocolDialog::GetDialogButtonLabel(
-    DialogButton button) const {
-  if (button == DIALOGBUTTON_OK)
+    MessageBox::DialogButton button) const {
+  if (button == MessageBox::DIALOGBUTTON_OK)
     return l10n_util::GetString(IDS_EXTERNAL_PROTOCOL_OK_BUTTON_TEXT);
 
   // Set the button to have a default name.
