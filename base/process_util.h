@@ -126,9 +126,10 @@ bool LaunchApp(const CommandLine& cl,
 
 #if defined(OS_POSIX)
 // Execute the application specified by |cl| and wait for it to exit. Store
-// the output (stdout and stderr) in |output|. Returns true on success
-// (application launched and exited cleanly, with exit code indicating success).
-// |output| is modified only when the function finished successfully.
+// the output (stdout) in |output|. Redirects stderr to /dev/null. Returns true
+// on success (application launched and exited cleanly, with exit code
+// indicating success). |output| is modified only when the function finished
+// successfully.
 bool GetAppOutput(const CommandLine& cl, std::string* output);
 #endif  // defined(OS_POSIX)
 

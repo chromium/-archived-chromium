@@ -11,9 +11,10 @@
 
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "chrome/common/chrome_constants.h"
 
 ProcessSingleton::ProcessSingleton(const FilePath& user_data_dir) {
-  socket_path_ = user_data_dir.Append("SingletonSocket");
+  socket_path_ = user_data_dir.Append(chrome::kSingletonSocketFilename);
 }
 
 ProcessSingleton::~ProcessSingleton() {

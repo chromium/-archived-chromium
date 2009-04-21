@@ -326,17 +326,23 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
       return false;
     case 0:  // child
       {
+        int dev_null = open("/dev/null", O_WRONLY);
+        if (dev_null < 0)
+          exit(127);
+
         int rv;
         do {
           rv = dup2(pipe_fd[1], STDOUT_FILENO);
         } while (rv == -1 && errno == EINTR);
         do {
-          rv = dup2(pipe_fd[1], STDERR_FILENO);
+          rv = dup2(dev_null, STDERR_FILENO);
         } while (rv == -1 && errno == EINTR);
         if (pipe_fd[0] != STDOUT_FILENO && pipe_fd[0] != STDERR_FILENO)
           close(pipe_fd[0]);
         if (pipe_fd[1] != STDOUT_FILENO && pipe_fd[1] != STDERR_FILENO)
           close(pipe_fd[1]);
+        if (dev_null != STDOUT_FILENO && dev_null != STDERR_FILENO)
+          close(dev_null);
 
         const std::vector<std::string> argv = cl.argv();
         char* argv_cstr[argv.size() + 1];
@@ -373,7 +379,7 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
           if (bytes_read > 0)
             buf_output.append(buffer, bytes_read);
         }
-        output->assign(buf_output);
+        output->swap(buf_output);
         close(pipe_fd[0]);
         return true;
       }

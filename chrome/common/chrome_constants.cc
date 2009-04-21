@@ -54,6 +54,9 @@ const FilePath::CharType kHistoryFilename[] = FPL("History");
 const FilePath::CharType kLocalStateFilename[] = FPL("Local State");
 const FilePath::CharType kPreferencesFilename[] = FPL("Preferences");
 const FilePath::CharType kSafeBrowsingFilename[] = FPL("Safe Browsing");
+// WARNING: SingletonSocket can't contain spaces, because otherwise
+// chrome_process_util_linux would be broken.
+const FilePath::CharType kSingletonSocketFilename[] = FPL("SingletonSocket");
 const FilePath::CharType kThumbnailsFilename[] = FPL("Thumbnails");
 const wchar_t kUserDataDirname[] = L"User Data";
 const FilePath::CharType kUserScriptsDirname[] = FPL("User Scripts");
