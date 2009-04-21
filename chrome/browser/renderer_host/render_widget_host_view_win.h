@@ -210,6 +210,9 @@ class RenderWidgetHostViewWin :
   // given paint rect.
   void DrawResizeCorner(const gfx::Rect& paint_rect, HDC dc);
 
+  // Create an intermediate window between the given HWND and its parent.
+  HWND ReparentWindow(HWND window);
+
   // The associated Model.
   RenderWidgetHost* render_widget_host_;
 

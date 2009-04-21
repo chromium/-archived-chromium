@@ -147,7 +147,8 @@ class WebPluginImpl : public WebPlugin,
                 int arg_count, char** arg_names, char** arg_values);
 
   // WebPlugin implementation:
-  bool SetWindow(gfx::NativeView window);
+  void SetWindow(gfx::NativeView window);
+  void WillDestroyWindow(gfx::NativeView window) { }
 #if defined(OS_WIN)
   void SetWindowlessPumpEvent(HANDLE pump_messages_event) { }
 #endif

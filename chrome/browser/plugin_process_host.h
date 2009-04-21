@@ -104,8 +104,7 @@ class PluginProcessHost : public ChildProcessHost,
   void OnPluginMessage(const std::vector<uint8>& data);
 
 #if defined(OS_WIN)
-  void OnCreateWindow(HWND parent, IPC::Message* reply_msg);
-  void OnDestroyWindow(HWND window);
+  void OnPluginWindowDestroyed(HWND window, HWND parent);
   void OnDownloadUrl(const std::string& url, int source_pid,
                      gfx::NativeWindow caller_window);
 #endif

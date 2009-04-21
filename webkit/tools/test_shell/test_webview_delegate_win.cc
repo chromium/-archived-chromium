@@ -153,7 +153,19 @@ void TestWebViewDelegate::DidMove(WebWidget* webwidget,
   // Note: System will own the hrgn after we call SetWindowRgn,
   // so we don't need to call DeleteObject(hrgn)
   ::SetWindowRgn(move.window, hrgn, FALSE);
-  ::ShowWindow(move.window, move.visible ? SW_SHOW : SW_HIDE);
+  unsigned long flags = 0;
+  if (move.visible)
+    flags |= SWP_SHOWWINDOW;
+  else
+    flags |= SWP_HIDEWINDOW;
+
+  ::SetWindowPos(move.window,
+                 NULL,
+                 move.window_rect.x(),
+                 move.window_rect.y(),
+                 move.window_rect.width(),
+                 move.window_rect.height(),
+                 flags);
 }
 
 void TestWebViewDelegate::RunModal(WebWidget* webwidget) {

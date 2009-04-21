@@ -11,7 +11,9 @@
 #include "base/win_util.h"
 #include "chrome/browser/browser_accessibility.h"
 #include "chrome/browser/browser_accessibility_manager.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_trial.h"
+#include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
 #include "chrome/browser/renderer_host/render_widget_host.h"
@@ -116,6 +118,33 @@ static bool GetNewTextDirection(WebTextDirection* direction) {
   return true;
 }
 
+class NotifyPluginProcessHostTask : public Task {
+ public:
+  NotifyPluginProcessHostTask(HWND window, HWND parent)
+    : window_(window), parent_(parent) { }
+
+ private:
+  void Run() {
+    DWORD plugin_process_id;
+    GetWindowThreadProcessId(window_, &plugin_process_id);
+    for (ChildProcessHost::Iterator iter(ChildProcessInfo::PLUGIN_PROCESS);
+         !iter.Done(); ++iter) {
+      PluginProcessHost* plugin = static_cast<PluginProcessHost*>(*iter);
+      if (plugin->GetProcessId() == plugin_process_id) {
+        plugin->AddWindow(parent_);
+        return;
+      }
+    }
+
+    // The plugin process might have died in the time to execute the task, don't
+    // leak the HWND.
+    PostMessage(parent_, WM_CLOSE, 0, 0);
+  }
+
+  HWND window_;  // Plugin HWND, created and destroyed in the plugin process.
+  HWND parent_;  // Parent HWND, created and destroyed on the browser UI thread.
+};
+
 }  // namespace
 
 // RenderWidgetHostView --------------------------------------------------------
@@ -219,6 +248,10 @@ void RenderWidgetHostViewWin::MovePluginWindows(
   if (plugin_window_moves.empty())
     return;
 
+  bool oop_plugins =
+    !CommandLine::ForCurrentProcess()->HasSwitch(switches::kSingleProcess) &&
+    !CommandLine::ForCurrentProcess()->HasSwitch(switches::kInProcessPlugins);
+
   HDWP defer_window_pos_info =
       ::BeginDeferWindowPos(static_cast<int>(plugin_window_moves.size()));
 
@@ -230,18 +263,36 @@ void RenderWidgetHostViewWin::MovePluginWindows(
   for (size_t i = 0; i < plugin_window_moves.size(); ++i) {
     unsigned long flags = 0;
     const WebPluginGeometry& move = plugin_window_moves[i];
+    HWND window = move.window;
 
     // As the plugin parent window which lives on the browser UI thread is
     // destroyed asynchronously, it is possible that we have a stale window
     // sent in by the renderer for moving around.
-    if (!::IsWindow(move.window))
+    // Note: get the parent before checking if the window is valid, to avoid a
+    // race condition where the window is destroyed after the check but before
+    // the GetParent call.
+    HWND parent = ::GetParent(window);
+    if (!::IsWindow(window))
       continue;
 
-    // The renderer should only be trying to move windows that are children
-    // of its render widget window.
-    if (::IsChild(m_hWnd, move.window) == 0) {
-      NOTREACHED();
-      continue;
+    if (oop_plugins) {
+      if (parent == m_hWnd) {
+        // The plugin window is a direct child of this window, add an
+        // intermediate window that lives on this thread to speed up scrolling.
+        // Note this only works with out of process plugins since we depend on
+        // PluginProcessHost to destroy the intermediate HWNDs.
+        parent = ReparentWindow(window);
+        ::ShowWindow(window, SW_SHOW);  // Window was created hidden.
+      } else if (::GetParent(parent) != m_hWnd) {
+        // The renderer should only be trying to move windows that are children
+        // of its render widget window.
+        NOTREACHED();
+        continue;
+      }
+
+      // We move the intermediate parent window which doesn't result in cross-
+      // process synchronous Windows messages.
+      window = parent;
     }
 
     if (move.visible)
@@ -257,10 +308,10 @@ void RenderWidgetHostViewWin::MovePluginWindows(
 
     // Note: System will own the hrgn after we call SetWindowRgn,
     // so we don't need to call DeleteObject(hrgn)
-    ::SetWindowRgn(move.window, hrgn, !move.clip_rect.IsEmpty());
+    ::SetWindowRgn(window, hrgn, !move.clip_rect.IsEmpty());
 
     defer_window_pos_info = ::DeferWindowPos(defer_window_pos_info,
-                                             move.window, NULL,
+                                             window, NULL,
                                              move.window_rect.x(),
                                              move.window_rect.y(),
                                              move.window_rect.width(),
@@ -272,6 +323,37 @@ void RenderWidgetHostViewWin::MovePluginWindows(
   }
 
   ::EndDeferWindowPos(defer_window_pos_info);
+}
+
+HWND RenderWidgetHostViewWin::ReparentWindow(HWND window) {
+  static ATOM window_class = 0;
+  if (!window_class) {
+    WNDCLASSEX wcex;
+    wcex.cbSize         = sizeof(WNDCLASSEX);
+    wcex.style          = CS_DBLCLKS;
+    wcex.lpfnWndProc    = ::DefWindowProc;
+    wcex.cbClsExtra     = 0;
+    wcex.cbWndExtra     = 0;
+    wcex.hInstance      = GetModuleHandle(NULL);
+    wcex.hIcon          = 0;
+    wcex.hCursor        = 0;
+    wcex.hbrBackground  = reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
+    wcex.lpszMenuName   = 0;
+    wcex.lpszClassName  = kWrapperNativeWindowClassName;
+    wcex.hIconSm        = 0;
+    window_class = RegisterClassEx(&wcex);
+  }
+
+  HWND parent = CreateWindowEx(
+      WS_EX_LEFT | WS_EX_LTRREADING | WS_EX_RIGHTSCROLLBAR,
+      MAKEINTATOM(window_class), 0,
+      WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+      0, 0, 0, 0, ::GetParent(window), 0, GetModuleHandle(NULL), 0);
+  DCHECK(parent);
+  ::SetParent(window, parent);
+  g_browser_process->io_thread()->message_loop()->PostTask(FROM_HERE,
+      new NotifyPluginProcessHostTask(window, parent));
+  return parent;
 }
 
 void RenderWidgetHostViewWin::Focus() {

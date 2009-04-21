@@ -34,7 +34,8 @@ class WebPluginProxy : public WebPlugin {
   ~WebPluginProxy();
 
   // WebPlugin overrides
-  bool SetWindow(gfx::NativeView window);
+  void SetWindow(gfx::NativeView window);
+  void WillDestroyWindow(gfx::NativeView window);
 #if defined(OS_WIN)
   void SetWindowlessPumpEvent(HANDLE pump_messages_event);
   void SetModalDialogEvent(HANDLE modal_dialog_event);
@@ -136,7 +137,6 @@ class WebPluginProxy : public WebPlugin {
   bool waiting_for_paint_;
   uint32 cp_browsing_context_;
   scoped_ptr<base::WaitableEvent> modal_dialog_event_;
-  HWND parent_window_;
 
   // Variables used for desynchronized windowless plugin painting.  See note in
   // webplugin_delegate_proxy.h for how this works.

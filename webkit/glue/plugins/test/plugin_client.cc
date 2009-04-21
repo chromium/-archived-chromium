@@ -5,6 +5,9 @@
 #include "base/string_util.h"
 #include "webkit/glue/plugins/test/plugin_client.h"
 #include "webkit/glue/plugins/test/plugin_arguments_test.h"
+#if defined(OS_WIN)
+#include "webkit/glue/plugins/test/plugin_create_instance_in_paint.h"
+#endif
 #include "webkit/glue/plugins/test/plugin_delete_plugin_in_stream_test.h"
 #include "webkit/glue/plugins/test/plugin_get_javascript_url_test.h"
 #include "webkit/glue/plugins/test/plugin_geturl_test.h"
@@ -91,7 +94,7 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
 
   NPError ret = NPERR_GENERIC_ERROR;
   bool windowless_plugin = false;
-  
+
   NPAPIClient::PluginTest *new_test = NULL;
   if (test_name == "arguments") {
     new_test = new NPAPIClient::PluginArgumentsTest(instance,
@@ -119,6 +122,9 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
   } else if (test_name == "checkwindowrect") {
     new_test = new NPAPIClient::PluginWindowSizeTest(instance,
       NPAPIClient::PluginClient::HostFunctions());
+  } else if (test_name == "create_instance_in_paint") {
+    new_test = new NPAPIClient::CreateInstanceInPaintTest(instance,
+      NPAPIClient::PluginClient::HostFunctions());
 #endif
   } else if (test_name == "self_delete_plugin_stream") {
     new_test = new NPAPIClient::DeletePluginInStreamTest(instance,
@@ -138,8 +144,7 @@ NPError NPP_New(NPMIMEType pluginType, NPP instance, uint16 mode,
     new_test = new NPAPIClient::NPObjectDeletePluginInNPN_Evaluate(instance,
       NPAPIClient::PluginClient::HostFunctions());
 #endif
-  } else if (test_name ==
-             "plugin_javascript_open_popup_with_plugin") {
+  } else if (test_name == "plugin_javascript_open_popup_with_plugin") {
     new_test = new NPAPIClient::ExecuteJavascriptOpenPopupWithPluginTest(
         instance, NPAPIClient::PluginClient::HostFunctions());
   } else if (test_name == "plugin_popup_with_plugin_target") {

@@ -175,6 +175,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\plugin_create_instance_in_paint.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\plugin_create_instance_in_paint.h"
+			>
+		</File>
+		<File
 			RelativePath=".\plugin_delete_plugin_in_stream_test.cc"
 			>
 		</File>

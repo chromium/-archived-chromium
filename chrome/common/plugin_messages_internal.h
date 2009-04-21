@@ -78,9 +78,10 @@ IPC_BEGIN_MESSAGES(PluginProcessHost)
                               HWND /* parent */,
                               HWND /* child */)
 
-  // Destroys the given window on the UI thread.
-  IPC_MESSAGE_CONTROL1(PluginProcessHostMsg_DestroyWindow,
-                       HWND /* window */)
+  // Destroys the given window's parent on the UI thread.
+  IPC_MESSAGE_CONTROL2(PluginProcessHostMsg_PluginWindowDestroyed,
+                       HWND /* window */,
+                       HWND /* parent */)
 
   IPC_MESSAGE_ROUTED3(PluginProcessHostMsg_DownloadUrl,
                       std::string /* URL */,

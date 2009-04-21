@@ -86,10 +86,11 @@ class WebPlugin {
   // windowed (i.e. handle is not NULL) or windowless (handle is NULL).  This
   // tells the WebPlugin to send mouse/keyboard events to the plugin delegate,
   // as well as the information about the HDC for paint operations.
-  // The return value is only valid for windowed plugins.  If true, it means
-  // that the the HWND position should be managed by the delegate.  If false,
-  // the plugin should be kept at the origin and it'll get moved elsewhere.
-  virtual bool SetWindow(gfx::NativeView window) = 0;
+  virtual void SetWindow(gfx::NativeView window) = 0;
+
+  // Called by the plugin delegate to let it know that the window is being
+  // destroyed.
+  virtual void WillDestroyWindow(gfx::NativeView window) = 0;
 #if defined(OS_WIN)
   // The pump_messages_event is a event handle which is valid only for
   // windowless plugins and is used in NPP_HandleEvent calls to pump messages

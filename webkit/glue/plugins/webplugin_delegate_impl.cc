@@ -145,7 +145,6 @@ WebPluginDelegateImpl::WebPluginDelegateImpl(
       windowless_(false),
       windowed_handle_(NULL),
       windowed_did_set_window_(false),
-      windowed_manage_position_(false),
       windowless_needs_set_window_(true),
       plugin_wnd_proc_(NULL),
       last_message_(0),
@@ -262,7 +261,7 @@ bool WebPluginDelegateImpl::Initialize(const GURL& url,
       return false;
   }
 
-  windowed_manage_position_ = plugin->SetWindow(windowed_handle_);
+  plugin->SetWindow(windowed_handle_);
 #if defined(OS_WIN)
   if (windowless_) {
     // For windowless plugins we should set the containing window handle
@@ -520,6 +519,8 @@ void WebPluginDelegateImpl::WindowedDestroyWindow() {
                        reinterpret_cast<LONG>(plugin_wnd_proc_));
     }
 
+    plugin_->WillDestroyWindow(windowed_handle_);
+
     DestroyWindow(windowed_handle_);
     TRACK_HWND_DESTRUCTION(windowed_handle_);
     windowed_handle_ = 0;
@@ -704,17 +705,17 @@ bool WebPluginDelegateImpl::WindowedReposition(
   if (window_rect_ == window_rect && clip_rect_ == clip_rect)
     return false;
 
-  // If windowed_manage_position_ is false, then the plugin will be moved
-  // elsewhere.  This allows the window moves/scrolling/clipping to be
-  // synchronized with the page and other windows.
+  // We only set the plugin's size here.  Its position is moved elsewhere, which
+  // allows the window moves/scrolling/clipping to be synchronized with the page
+  // and other windows.
   if (window_rect.size() != window_rect_.size()) {
     ::SetWindowPos(windowed_handle_,
                    NULL,
-                   windowed_manage_position_ ? window_rect.x() : 0,
-                   windowed_manage_position_ ? window_rect.y() : 0,
+                   0,
+                   0,
                    window_rect.width(),
                    window_rect.height(),
-                   SWP_SHOWWINDOW);
+                   0);
   }
 
   window_rect_ = window_rect;
@@ -745,8 +746,8 @@ void WebPluginDelegateImpl::WindowedSetWindow() {
   window_.clipRect.right = clip_rect_.x() + clip_rect_.width();
   window_.height = window_rect_.height();
   window_.width = window_rect_.width();
-  window_.x = windowed_manage_position_ ? window_rect_.x() : 0;
-  window_.y = windowed_manage_position_ ? window_rect_.y() : 0;
+  window_.x = 0;
+  window_.y = 0;
 
   window_.window = windowed_handle_;
   window_.type = NPWindowTypeWindow;

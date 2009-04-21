@@ -38,49 +38,28 @@ WebPluginProxy::WebPluginProxy(
       delegate_(delegate),
       waiting_for_paint_(false),
 #pragma warning(suppress: 4355)  // can use this
-      runnable_method_factory_(this),
-      parent_window_(NULL) {
+      runnable_method_factory_(this) {
 }
 
 WebPluginProxy::~WebPluginProxy() {
   if (cp_browsing_context_)
     GetContextMap().erase(cp_browsing_context_);
-
-  if (parent_window_) {
-    PluginThread::current()->Send(
-        new PluginProcessHostMsg_DestroyWindow(parent_window_));
-  }
 }
 
 bool WebPluginProxy::Send(IPC::Message* msg) {
   return channel_->Send(msg);
 }
 
-bool WebPluginProxy::SetWindow(gfx::NativeView window) {
-  if (window) {
-    // To make scrolling windowed plugins fast, we create the page's direct
-    // child windows in the browser process.  This way no cross process messages
-    // are sent.
-    HWND old_parent = GetParent(window);
-    IPC::SyncMessage* msg = new PluginProcessHostMsg_CreateWindow(
-        old_parent, &parent_window_);
-
-    // Need to process window messages in the meantime to avoid a deadlock if
-    // the browser paints or sends any other (synchronous) WM_ message to the
-    // plugin window.
-    msg->EnableMessagePumping();
-    PluginThread::current()->Send(msg);
-
-    SetParent(window, parent_window_);
-
-    // We want the browser process to move this window which has a message loop
-    // in its process.
-    window = parent_window_;
-  }
-
+void WebPluginProxy::SetWindow(gfx::NativeView window) {
   Send(new PluginHostMsg_SetWindow(route_id_, gfx::IdFromNativeView(window)));
+}
 
-  return false;
+void WebPluginProxy::WillDestroyWindow(gfx::NativeView window) {
+#if defined(OS_WIN)
+  PluginThread::current()->Send(
+      new PluginProcessHostMsg_PluginWindowDestroyed(
+          window, ::GetParent(window)));
+#endif
 }
 
 #if defined(OS_WIN)
