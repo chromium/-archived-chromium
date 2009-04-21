@@ -2195,6 +2195,65 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
 }
 
+// Make sure that we recycle a socket after reading all of the response body.
+TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
+  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<net::HttpNetworkSession> session(
+      CreateSession(proxy_service.get()));
+
+  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+      session.get(), &mock_socket_factory));
+
+  net::HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = 0;
+
+  MockRead data_reads[] = {
+    // A part of the response body is received with the response headers.
+    MockRead("HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\nhel"),
+    // The rest of the response body is received in two parts.
+    MockRead("lo"),
+    MockRead(" world"),
+    MockRead("junk"),  // Should not be read!!
+    MockRead(false, net::OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(net::OK, rv);
+
+  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  EXPECT_TRUE(response != NULL);
+
+  EXPECT_TRUE(response->headers != NULL);
+  std::string status_line = response->headers->GetStatusLine();
+  EXPECT_EQ("HTTP/1.1 200 OK", status_line);
+
+  EXPECT_EQ(0, session->connection_pool()->idle_socket_count());
+
+  std::string response_data;
+  rv = ReadTransaction(trans.get(), &response_data);
+  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ("hello world", response_data);
+
+  // Empty the current queue.  This is necessary because idle sockets are
+  // added to the connection pool asynchronously with a PostTask.
+  MessageLoop::current()->RunAllPending();
+
+  // We now check to make sure the socket was added back to the pool.
+  EXPECT_EQ(1, session->connection_pool()->idle_socket_count());
+}
+
 // Make sure that we recycle a socket after a zero-length response.
 // http://crbug.com/9880
 TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
