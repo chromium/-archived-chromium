@@ -36,6 +36,9 @@ deps = {
 
   "src/third_party/WebKit/WebKitLibraries":
     Var("webkit_trunk") + "/WebKitLibraries@" + Var("webkit_revision"),
+
+  "src/third_party/tcmalloc/tcmalloc":
+    "http://google-perftools.googlecode.com/svn/trunk@70",
 }
 
 
