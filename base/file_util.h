@@ -137,12 +137,15 @@ void ReplaceIllegalCharacters(std::wstring* file_name, int replace_char);
 //-----------------------------------------------------------------------------
 // Functions that involve filesystem access or modification:
 
-#if defined(OS_WIN)
-// Returns the number of files matching the current path that were
 // created on or after the given |file_time|.  Doesn't count ".." or ".".
+//
+// Note for POSIX environments: a file created before |file_time|
+// can be mis-detected as a newer file due to low precision of
+// timestmap of file creation time. If you need to avoid such
+// mis-detection perfectly, you should wait one second before
+// obtaining |file_time|.
 int CountFilesCreatedAfter(const FilePath& path,
                            const base::Time& file_time);
-#endif  // defined(OS_WIN)
 
 // Deletes the given path, whether it's a file or a directory.
 // If it's a directory, it's perfectly happy to delete all of the

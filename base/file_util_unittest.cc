@@ -313,15 +313,19 @@ TEST_F(FileUtilTest, GetDirectoryFromPath) {
   }
 }
 
-// TODO(erikkay): implement
-#if defined OS_WIN
 TEST_F(FileUtilTest, CountFilesCreatedAfter) {
   // Create old file (that we don't want to count)
   FilePath old_file_name = test_dir_.Append(FILE_PATH_LITERAL("Old File.txt"));
   CreateTextFile(old_file_name, L"Just call me Mr. Creakybits");
 
   // Age to perfection
+#if defined(OS_WIN)
   Sleep(100);
+#elif defined(OS_POSIX)
+  // We need to wait at least one second here because the precision of
+  // file creation time is one second.
+  sleep(1);
+#endif
 
   // Establish our cutoff time
   base::Time now(base::Time::NowFromSystemTime());
@@ -338,7 +342,6 @@ TEST_F(FileUtilTest, CountFilesCreatedAfter) {
   EXPECT_TRUE(file_util::Delete(new_file_name, false));
   EXPECT_EQ(0, file_util::CountFilesCreatedAfter(test_dir_, now));
 }
-#endif
 
 // Tests that the Delete function works as expected, especially
 // the recursion flag.  Also coincidentally tests PathExists.

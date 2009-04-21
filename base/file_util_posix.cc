@@ -4,6 +4,7 @@
 
 #include "base/file_util.h"
 
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <fnmatch.h>
@@ -14,7 +15,9 @@
 #include <sys/errno.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <time.h>
+#include <unistd.h>
 
 #include <fstream>
 
@@ -22,6 +25,7 @@
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/string_util.h"
+#include "base/time.h"
 
 namespace file_util {
 
@@ -49,6 +53,32 @@ bool AbsolutePath(FilePath* path) {
     return false;
   *path = FilePath(full_path);
   return true;
+}
+
+int CountFilesCreatedAfter(const FilePath& path,
+                           const base::Time& comparison_time) {
+  int file_count = 0;
+
+  DIR* dir = opendir(path.value().c_str());
+  if (dir) {
+    struct dirent* ent;
+    while ((ent = readdir(dir)) != NULL) {
+      if ((strcmp(ent->d_name, ".") == 0) ||
+          (strcmp(ent->d_name, "..") == 0))
+        continue;
+
+      struct stat64 st;
+      int test = stat64(path.Append(ent->d_name).value().c_str(), &st);
+      if (test != 0) {
+        LOG(ERROR) << "stat64 failed: " << strerror(errno);
+        continue;
+      }
+      if (st.st_ctime >= comparison_time.ToTimeT())
+        ++file_count;
+    }
+    closedir(dir);
+  }
+  return file_count;
 }
 
 // TODO(erikkay): The Windows version of this accepts paths like "foo/bar/*"
