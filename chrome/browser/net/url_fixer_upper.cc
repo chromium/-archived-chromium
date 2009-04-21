@@ -103,18 +103,20 @@ static bool ValidPathForFile(const FilePath::StringType& text,
 // file: URLs: these don't look like filenames), leaving fixed_up_url
 // unchanged.
 static string FixupPath(const string& text) {
-  DCHECK(text.length() >= 2);
+  DCHECK(!text.empty());
 
   FilePath::StringType filename;
 #if defined(OS_WIN)
   FilePath input_path(UTF8ToWide(text));
-#elif defined(OS_POSIX)
-  FilePath input_path(text);
-#endif
   PrepareStringForFileOps(input_path, &filename);
 
-  if (filename[1] == '|')
+  // Fixup Windows-style drive letters, where "C:" gets rewritten to "C|".
+  if (filename.length() > 1 && filename[1] == '|')
     filename[1] = ':';
+#elif defined(OS_POSIX)
+  FilePath input_path(text);
+  PrepareStringForFileOps(input_path, &filename);
+#endif
 
   // Here, we know the input looks like a file.
   GURL file_url = net::FilePathToFileURL(FilePath(filename));

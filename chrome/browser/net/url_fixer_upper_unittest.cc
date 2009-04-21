@@ -294,12 +294,21 @@ TEST(URLFixerUpperTest, FixupFile) {
     //   {"file://server/folder/file", "", "file://server/folder/file"},
     //   {"file:/\\/server\\folder/file", "", "file://server/folder/file"},
   };
+#elif defined(OS_POSIX)
+  fixup_case file_cases[] = {
+    // File URLs go through GURL, which tries to escape intelligently.
+    {"/This%20is a non-existent file.txt", "",
+     "file:///This%2520is%20a%20non-existent%20file.txt"},
+    // A plain "/" refers to the root.
+    {"/", "",
+     "file:///"},
+  };
+#endif
   for (size_t i = 0; i < arraysize(file_cases); i++) {
     fixedup = URLFixerUpper::FixupURL(file_cases[i].input,
                                       file_cases[i].desired_tld);
     EXPECT_EQ(file_cases[i].output, fixedup);
   }
-#endif
 
   EXPECT_TRUE(file_util::Delete(original, false));
 }
