@@ -151,10 +151,11 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   std::wstring elided_filename = gfx::ElideFilename(
       download_model->download()->GetFileName().ToWStringHack(),
       ChromeFont(), kTextWidth);
-  std::string label_markup =
-      StringPrintf(kLabelColorMarkup, kFilenameColor,
-                   WideToUTF8(elided_filename).c_str());
-  gtk_label_set_markup(GTK_LABEL(name_label), label_markup.c_str());
+  gchar* label_markup =
+      g_markup_printf_escaped(kLabelColorMarkup, kFilenameColor,
+                              WideToUTF8(elided_filename).c_str());
+  gtk_label_set_markup(GTK_LABEL(name_label), label_markup);
+  g_free(label_markup);
   status_label_ = gtk_label_new(NULL);
   // Left align and vertically center the labels.
   gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0.5);
@@ -209,11 +210,11 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
     return;
   }
 
-  std::string label_markup =
-      StringPrintf(kLabelColorMarkup, kStatusColor,
-                   WideToUTF8(status_text).c_str());
-
-  gtk_label_set_markup(GTK_LABEL(status_label_), label_markup.c_str());
+  gchar* label_markup =
+      g_markup_printf_escaped(kLabelColorMarkup, kStatusColor,
+                              WideToUTF8(status_text).c_str());
+  gtk_label_set_markup(GTK_LABEL(status_label_), label_markup);
+  g_free(label_markup);
 }
 
 // static
