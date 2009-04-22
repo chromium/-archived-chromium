@@ -13,6 +13,7 @@
 #include <string>
 
 #include "base/scoped_ptr.h"
+#include "base/waitable_event.h"
 #include "media/base/factory.h"
 #include "media/base/filter_host.h"
 #include "media/base/filters.h"
@@ -28,7 +29,10 @@ class MockFilterHost : public FilterHost {
   MockFilterHost(MockPipeline* mock_pipeline, Filter* filter)
       : mock_pipeline_(mock_pipeline),
         filter_(filter),
-        initialized_(false) {
+        initialized_(false),
+        error_(PIPELINE_OK),
+        wait_for_initialized_(false, false),
+        wait_for_error_(false, false) {
     EXPECT_TRUE(mock_pipeline_);
     EXPECT_TRUE(filter_);
     filter_->SetFilterHost(this);
@@ -51,6 +55,7 @@ class MockFilterHost : public FilterHost {
   virtual void InitializationComplete() {
     EXPECT_FALSE(initialized_);
     initialized_ = true;
+    wait_for_initialized_.Signal();
   }
 
   virtual void PostTask(Task* task) {
@@ -58,7 +63,9 @@ class MockFilterHost : public FilterHost {
   }
 
   virtual void Error(PipelineError error) {
+    error_ = error;
     mock_pipeline_->Error(error);
+    wait_for_error_.Signal();
   }
 
   virtual void SetTime(base::TimeDelta time) {
@@ -98,6 +105,26 @@ class MockFilterHost : public FilterHost {
     return initialized_;
   }
 
+  bool WaitForInitialized() {
+    const base::TimeDelta kTimedWait = base::TimeDelta::FromMilliseconds(500);
+    while (!initialized_) {
+      if (!wait_for_initialized_.TimedWait(kTimedWait)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool WaitForError(PipelineError error) {
+    const base::TimeDelta kTimedWait = base::TimeDelta::FromMilliseconds(500);
+    while (error_ != error) {
+      if (!wait_for_error_.TimedWait(kTimedWait)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
  private:
   MockPipeline* mock_pipeline_;
   scoped_refptr<Filter> filter_;
@@ -108,6 +135,13 @@ class MockFilterHost : public FilterHost {
 
   // Tracks if the filter has executed InitializationComplete().
   bool initialized_;
+
+  // Tracks the last pipeline error set by the filter.
+  PipelineError error_;
+
+  // Allows unit tests to wait for particular conditions before asserting.
+  base::WaitableEvent wait_for_initialized_;
+  base::WaitableEvent wait_for_error_;
 
   DISALLOW_COPY_AND_ASSIGN(MockFilterHost);
 };

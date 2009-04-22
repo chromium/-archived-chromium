@@ -279,37 +279,40 @@ TEST(FFmpegDemuxerTest, InitializeFailure) {
   // Simulate av_open_input_fail failing.
   g_av_open_input_file = AVERROR_IO;
   g_av_find_stream_info = 0;
-  EXPECT_FALSE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_COULD_NOT_OPEN));
   EXPECT_FALSE(filter_host->IsInitialized());
-  EXPECT_EQ(DEMUXER_ERROR_COULD_NOT_OPEN, pipeline.GetError());
 
   // Simulate av_find_stream_info failing.
   g_av_open_input_file = 0;
   g_av_find_stream_info = AVERROR_IO;
+  pipeline.Reset(false);
   demuxer = factory->Create<Demuxer>(media_format);
   filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  EXPECT_FALSE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_COULD_NOT_PARSE));
   EXPECT_FALSE(filter_host->IsInitialized());
-  EXPECT_EQ(DEMUXER_ERROR_COULD_NOT_PARSE, pipeline.GetError());
 
   // Simulate media with no parseable streams.
   InitializeFFmpegMocks();
+  pipeline.Reset(false);
   demuxer = factory->Create<Demuxer>(media_format);
   filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  EXPECT_FALSE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
   EXPECT_FALSE(filter_host->IsInitialized());
-  EXPECT_EQ(DEMUXER_ERROR_NO_SUPPORTED_STREAMS, pipeline.GetError());
 
   // Simulate media with a data stream but no audio or video streams.
   g_format.nb_streams = 1;
   g_format.streams[0] = &g_streams[0];
   g_streams[0].codec = &g_data_codec;
   g_streams[0].duration = 10;
+  pipeline.Reset(false);
   demuxer = factory->Create<Demuxer>(media_format);
   filter_host.reset(new MockFilterHost<Demuxer>(&pipeline, demuxer));
-  EXPECT_FALSE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(filter_host->WaitForError(DEMUXER_ERROR_NO_SUPPORTED_STREAMS));
   EXPECT_FALSE(filter_host->IsInitialized());
-  EXPECT_EQ(DEMUXER_ERROR_NO_SUPPORTED_STREAMS, pipeline.GetError());
 }
 
 TEST(FFmpegDemuxerTest, InitializeStreams) {
@@ -343,6 +346,7 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
   EXPECT_TRUE(demuxer);
   MockFilterHost<Demuxer> filter_host_b(&pipeline, demuxer);
   EXPECT_TRUE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(filter_host_b.WaitForInitialized());
   EXPECT_TRUE(filter_host_b.IsInitialized());
   EXPECT_EQ(PIPELINE_OK, pipeline.GetError());
 
@@ -434,6 +438,7 @@ TEST(FFmpegDemuxerTest, ReadAndSeek) {
   EXPECT_TRUE(demuxer);
   MockFilterHost<Demuxer> filter_host_b(&pipeline, demuxer);
   EXPECT_TRUE(demuxer->Initialize(data_source));
+  EXPECT_TRUE(filter_host_b.WaitForInitialized());
   EXPECT_TRUE(filter_host_b.IsInitialized());
   EXPECT_EQ(PIPELINE_OK, pipeline.GetError());
 

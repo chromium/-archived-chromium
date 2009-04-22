@@ -127,6 +127,9 @@ class FFmpegDemuxer : public Demuxer {
   FFmpegDemuxer();
   virtual ~FFmpegDemuxer();
 
+  // Carries out initialization on the demuxer thread.
+  void InititalizeTask(DataSource* data_source);
+
   // Carries out a seek on the demuxer thread.
   void SeekTask(base::TimeDelta time);
 

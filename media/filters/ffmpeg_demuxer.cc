@@ -196,8 +196,8 @@ FFmpegDemuxer::~FFmpegDemuxer() {
 }
 
 void FFmpegDemuxer::PostDemuxTask() {
-  thread_.message_loop()->PostTask(
-      FROM_HERE, NewRunnableMethod(this, &FFmpegDemuxer::DemuxTask));
+  thread_.message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &FFmpegDemuxer::DemuxTask));
 }
 
 void FFmpegDemuxer::Stop() {
@@ -205,11 +205,33 @@ void FFmpegDemuxer::Stop() {
 }
 
 void FFmpegDemuxer::Seek(base::TimeDelta time) {
-  thread_.message_loop()->PostTask(
-      FROM_HERE, NewRunnableMethod(this, &FFmpegDemuxer::SeekTask, time));
+  thread_.message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &FFmpegDemuxer::SeekTask, time));
 }
 
 bool FFmpegDemuxer::Initialize(DataSource* data_source) {
+  // Start our internal demuxing thread.
+  if (!thread_.Start()) {
+    host_->Error(DEMUXER_ERROR_COULD_NOT_CREATE_THREAD);
+    return false;
+  }
+
+  thread_.message_loop()->PostTask(FROM_HERE,
+      NewRunnableMethod(this, &FFmpegDemuxer::InititalizeTask, data_source));
+  return true;
+}
+
+size_t FFmpegDemuxer::GetNumberOfStreams() {
+  return streams_.size();
+}
+
+scoped_refptr<DemuxerStream> FFmpegDemuxer::GetStream(int stream) {
+  DCHECK(stream >= 0);
+  DCHECK(stream < static_cast<int>(streams_.size()));
+  return streams_[stream].get();
+}
+
+void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
   // In order to get FFmpeg to use |data_source| for file IO we must transfer
   // ownership via FFmpegGlue.  We'll add |data_source| to FFmpegGlue and pass
   // the resulting key to FFmpeg.  FFmpeg will pass the key to FFmpegGlue which
@@ -232,7 +254,7 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
 
   if (result < 0) {
     host_->Error(DEMUXER_ERROR_COULD_NOT_OPEN);
-    return false;
+    return;
   }
 
   // Assign to our scoped_ptr_malloc.
@@ -243,7 +265,7 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
   result = av_find_stream_info(format_context_.get());
   if (result < 0) {
     host_->Error(DEMUXER_ERROR_COULD_NOT_PARSE);
-    return false;
+    return;
   }
 
   // Create demuxer streams for all supported streams.
@@ -261,29 +283,12 @@ bool FFmpegDemuxer::Initialize(DataSource* data_source) {
   }
   if (streams_.empty()) {
     host_->Error(DEMUXER_ERROR_NO_SUPPORTED_STREAMS);
-    return false;
-  }
-
-  // We have some streams to demux so create our thread.
-  if (!thread_.Start()) {
-    host_->Error(DEMUXER_ERROR_COULD_NOT_CREATE_THREAD);
-    return false;
+    return;
   }
 
   // Good to go: set the duration and notify we're done initializing.
   host_->SetDuration(max_duration);
   host_->InitializationComplete();
-  return true;
-}
-
-size_t FFmpegDemuxer::GetNumberOfStreams() {
-  return streams_.size();
-}
-
-scoped_refptr<DemuxerStream> FFmpegDemuxer::GetStream(int stream) {
-  DCHECK(stream >= 0);
-  DCHECK(stream < static_cast<int>(streams_.size()));
-  return streams_[stream].get();
 }
 
 void FFmpegDemuxer::SeekTask(base::TimeDelta time) {
