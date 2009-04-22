@@ -437,7 +437,6 @@
         '../third_party/libxslt/libxslt.gyp:libxslt',
         '../third_party/npapi/npapi.gyp:npapi',
         '../third_party/sqlite/sqlite.gyp:sqlite',
-        '../build/temp_gyp/v8.gyp:v8',
       ],
       'actions': [
         # Actions to build derived sources.
@@ -3936,7 +3935,6 @@
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../skia/skia.gyp:skia',
         '../third_party/npapi/npapi.gyp:npapi',
-        '../build/temp_gyp/v8.gyp:v8',
       ],
       'link_settings': {
         'mac_bundle_resources': [
@@ -3986,6 +3984,14 @@
         'GCC_PREFIX_HEADER': '../third_party/WebKit/WebCore/WebCorePrefix.h',
       },
       'conditions': [
+        ['javascript_engine=="v8"', {
+          'dependencies': [
+            '../build/temp_gyp/v8.gyp:v8',
+          ],
+          'export_dependent_settings': [
+            '../build/temp_gyp/v8.gyp:v8',
+          ],
+        }],
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:gtk',

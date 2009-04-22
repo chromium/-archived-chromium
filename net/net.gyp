@@ -16,7 +16,6 @@
       'dependencies': [
         '../base/base.gyp:base',
         '../build/temp_gyp/googleurl.gyp:googleurl',
-        '../build/temp_gyp/v8.gyp:v8',
         '../sdch/sdch.gyp:sdch',
         # TODO:  various targets end up using
         # testing::internal::AssertHelper through references here.  
@@ -313,6 +312,11 @@
         '../base/base.gyp:base',
       ],
       'conditions': [
+        ['javascript_engine=="v8"', {
+          'dependencies': [
+            '../build/temp_gyp/v8.gyp:v8',
+          ],
+        }],
         [ 'OS == "linux"', {
           'dependencies': [
             '../build/linux/system.gyp:gconf',

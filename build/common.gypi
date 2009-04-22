@@ -32,6 +32,10 @@
     # Currently ignored on Windows.
     'coverage%': 0,
 
+    # Overridable specification for potential use of alternative
+    # JavaScript engines.
+    'javascript_engine%': 'v8',
+
     # To do a shared build on linux we need to be able to choose between type
     # static_library and shared_library. We default to doing a static build
     # but you can override this with "gyp -Dlibrary=shared_library" or you

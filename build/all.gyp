@@ -39,9 +39,13 @@
         '../third_party/sqlite/sqlite.gyp:*',
         '../third_party/zlib/zlib.gyp:*',
         'temp_gyp/googleurl.gyp:*',
-        'temp_gyp/v8.gyp:*',
       ],
       'conditions': [
+        ['javascript_engine=="v8"', {
+          'dependencies': [
+            'temp_gyp/v8.gyp:*',
+          ],
+        }],
         ['OS=="linux"', {
           'dependencies': [
             '../third_party/harfbuzz/harfbuzz.gyp:*',

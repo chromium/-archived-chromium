@@ -1313,6 +1313,11 @@
         'browser/worker_host/worker_service.h',
       ],
       'conditions': [
+        ['javascript_engine=="v8"', {
+          'defines': [
+            'CHROME_V8',
+          ],
+        }],
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:gtk',
