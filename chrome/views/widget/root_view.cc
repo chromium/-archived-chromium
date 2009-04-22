@@ -402,13 +402,7 @@ bool RootView::OnMouseDragged(const MouseEvent& e) {
     gfx::Point p;
     ConvertPointToMouseHandler(e.location(), &p);
     MouseEvent mouse_event(e.GetType(), p.x(), p.y(), e.GetFlags());
-    if (!mouse_pressed_handler_->ProcessMouseDragged(mouse_event,
-                                                     &drag_info)) {
-      mouse_pressed_handler_ = NULL;
-      return false;
-    } else {
-      return true;
-    }
+    return mouse_pressed_handler_->ProcessMouseDragged(mouse_event, &drag_info);
   }
   return false;
 }

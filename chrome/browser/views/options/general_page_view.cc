@@ -889,7 +889,7 @@ void GeneralPageView::InitHomepageGroup() {
 
   const int double_column_view_set_id = 1;
   column_set = layout->AddColumnSet(double_column_view_set_id);
-  column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 0,
+  column_set->AddColumn(GridLayout::FILL, GridLayout::CENTER, 0,
                         GridLayout::USE_PREF, 0, 0);
   column_set->AddPaddingColumn(0, kRelatedControlHorizontalSpacing);
   column_set->AddColumn(GridLayout::FILL, GridLayout::FILL, 1,

@@ -193,6 +193,7 @@ TEST(LabelTest, SingleLineSizing) {
 
 TEST(LabelTest, MultiLineSizing) {
   Label label;
+  label.SetFocusable(false);
   std::wstring test_text(L"A random string\nwith multiple lines\nand returns!");
   label.SetText(test_text);
   label.SetMultiLine(true);
@@ -263,6 +264,7 @@ TEST(LabelTest, MultiLineSizing) {
 
 TEST(LabelTest, DrawSingleLineString) {
   Label label;
+  label.SetFocusable(false);
 
   // Turn off mirroring so that we don't need to figure out if
   // align right really means align left.
@@ -377,6 +379,7 @@ TEST(LabelTest, DrawSingleLineString) {
 
 TEST(LabelTest, DrawMultiLineString) {
   Label label;
+  label.SetFocusable(false);
 
   // Turn off mirroring so that we don't need to figure out if
   // align right really means align left.

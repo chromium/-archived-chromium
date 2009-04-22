@@ -49,6 +49,14 @@ class Insets {
     return !(*this == insets);
   }
 
+  Insets& operator+=(const Insets& insets) {
+    top_ += insets.top_;
+    left_ += insets.left_;
+    bottom_ += insets.bottom_;
+    right_ += insets.right_;
+    return *this;
+  }
+
  private:
   int top_;
   int left_;

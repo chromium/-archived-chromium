@@ -898,7 +898,7 @@ class View : public AcceleratorTarget {
 
   // Returns the insets of the current border. If there is no border an empty
   // insets is returned.
-  gfx::Insets GetInsets() const;
+  virtual gfx::Insets GetInsets() const;
 
 #if defined(OS_WIN)
   // TODO(port): Make GetCursorForPoint portable.

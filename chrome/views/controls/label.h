@@ -153,6 +153,9 @@ class Label : public View {
   // Sets the enabled state. Setting the enabled state resets the color.
   virtual void SetEnabled(bool enabled);
 
+  // Overridden from View:
+  virtual gfx::Insets GetInsets() const;
+
   // Resizes the label so its width is set to the width of the longest line and
   // its height deduced accordingly.
   // This is only intended for multi-line labels and is useful when the label's
@@ -183,6 +186,10 @@ class Label : public View {
   // preferred size of (0, 0) when it's not visible.
   void set_collapse_when_hidden(bool value) { collapse_when_hidden_ = value; }
   bool collapse_when_hidden() const { return collapse_when_hidden_; }
+
+  void set_paint_as_focused(bool paint_as_focused) {
+    paint_as_focused_ = paint_as_focused;
+  }
 
  private:
   // These tests call CalculateDrawStringParams in order to verify the
@@ -231,6 +238,9 @@ class Label : public View {
   // needs to be flipped around for RTL locales. Please refer to the definition
   // of RTLAlignmentMode for more information.
   RTLAlignmentMode rtl_alignment_mode_;
+  // When embedded in a larger control that is focusable, setting this flag
+  // allows this view to be painted as focused even when it is itself not.
+  bool paint_as_focused_;
 
   DISALLOW_COPY_AND_ASSIGN(Label);
 };

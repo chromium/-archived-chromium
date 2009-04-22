@@ -26,7 +26,7 @@ class RadioButton : public Checkbox {
   // Overridden from View:
   virtual View* GetSelectedViewForGroup(int group_id);
   virtual bool IsGroupFocusTraversable() const;
-  virtual void OnMouseReleased(const views::MouseEvent& event, bool canceled);
+  virtual void OnMouseReleased(const MouseEvent& event, bool canceled);
 
  protected:
   virtual std::string GetClassName() const;

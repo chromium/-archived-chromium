@@ -41,7 +41,7 @@ class Checkbox : public NativeButton {
   // Overridden from View:
   virtual gfx::Size GetPreferredSize();
   virtual void Layout();
-  virtual void Paint(ChromeCanvas* canvas);
+  virtual void PaintFocusBorder(ChromeCanvas* canvas);
   virtual View* GetViewForPoint(const gfx::Point& point);
   virtual View* GetViewForPoint(const gfx::Point& point,
                                 bool can_create_floating);
@@ -50,6 +50,9 @@ class Checkbox : public NativeButton {
   virtual void OnMouseExited(const MouseEvent& e);
   virtual bool OnMousePressed(const MouseEvent& e);
   virtual void OnMouseReleased(const MouseEvent& e, bool canceled);
+  virtual bool OnMouseDragged(const MouseEvent& e);
+  virtual void WillGainFocus();
+  virtual void WillLoseFocus();
 
  protected:
   virtual std::string GetClassName() const;
@@ -58,13 +61,13 @@ class Checkbox : public NativeButton {
   virtual void CreateWrapper();
   virtual void InitBorder();
 
- private:
-  // Called from the constructor to create and configure the checkbox label.
-  void Init(const std::wstring& label_text);
-
   // Returns true if the event (in Checkbox coordinates) is within the bounds of
   // the label.
   bool HitTestLabel(const MouseEvent& e);
+
+ private:
+  // Called from the constructor to create and configure the checkbox label.
+  void Init(const std::wstring& label_text);
 
   // The checkbox's label. We don't use the OS version because of transparency
   // and sizing issues.

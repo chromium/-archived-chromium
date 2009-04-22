@@ -82,17 +82,8 @@ void Checkbox::Layout() {
   native_wrapper_->GetView()->Layout();
 }
 
-void Checkbox::Paint(ChromeCanvas* canvas) {
-  // Paint the focus border manually since we don't want to send actual focus
-  // in to the inner view.
-  if (HasFocus()) {
-    gfx::Rect label_bounds = label_->bounds();
-    canvas->DrawFocusRect(
-        MirroredLeftPointForRect(label_bounds) - kLabelFocusPaddingHorizontal,
-        0,
-        label_bounds.width() + kLabelFocusPaddingHorizontal * 2,
-        label_bounds.height() - kLabelFocusPaddingVertical * 2);
-  }
+void Checkbox::PaintFocusBorder(ChromeCanvas* canvas) {
+  // Our focus border is rendered by the label, so we don't do anything here.
 }
 
 View* Checkbox::GetViewForPoint(const gfx::Point& point) {
@@ -129,6 +120,18 @@ void Checkbox::OnMouseReleased(const MouseEvent& e, bool canceled) {
   }
 }
 
+bool Checkbox::OnMouseDragged(const MouseEvent& e) {
+  return false;
+}
+
+void Checkbox::WillGainFocus() {
+  label_->set_paint_as_focused(true);
+}
+
+void Checkbox::WillLoseFocus() {
+  label_->set_paint_as_focused(false);
+}
+
 std::string Checkbox::GetClassName() const {
   return kViewClassName;
 }
@@ -147,6 +150,15 @@ void Checkbox::InitBorder() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// Checkbox, protected:
+
+bool Checkbox::HitTestLabel(const MouseEvent& e) {
+  gfx::Point tmp(e.location());
+  ConvertPointToView(this, label_, &tmp);
+  return label_->HitTest(tmp);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Checkbox, private:
 
 void Checkbox::Init(const std::wstring& label_text) {
@@ -154,12 +166,6 @@ void Checkbox::Init(const std::wstring& label_text) {
   label_ = new Label(label_text);
   label_->SetHorizontalAlignment(Label::ALIGN_LEFT);
   AddChildView(label_);
-}
-
-bool Checkbox::HitTestLabel(const MouseEvent& e) {
-  gfx::Point tmp(e.location());
-  ConvertPointToView(this, label_, &tmp);
-  return label_->HitTest(tmp);
 }
 
 }  // namespace views

@@ -22,6 +22,7 @@ const char Label::kViewClassName[] = "chrome/views/Label";
 
 static const SkColor kEnabledColor = SK_ColorBLACK;
 static const SkColor kDisabledColor = SkColorSetRGB(161, 161, 146);
+static const int kFocusBorderPadding = 1;
 
 Label::Label() {
   Init(L"", GetDefaultFont());
@@ -46,6 +47,7 @@ void Label::Init(const std::wstring& text, const ChromeFont& font) {
   is_multi_line_ = false;
   collapse_when_hidden_ = false;
   rtl_alignment_mode_ = USE_UI_ALIGNMENT;
+  paint_as_focused_ = false;
 }
 
 Label::~Label() {
@@ -143,15 +145,21 @@ void Label::Paint(ChromeCanvas* canvas) {
                         text_bounds.height(),
                         flags);
 
-  if (is_multi_line_) {
-    PaintFocusBorder(canvas);
-  } else {
-    // We'll draw the focus border ourselves, so it is around the text.
-    if (HasFocus())
-      canvas->DrawFocusRect(text_bounds.x(),
-                            text_bounds.y(),
-                            text_bounds.width(),
-                            text_bounds.height());
+  // The focus border always hugs the text, regardless of the label's bounds.
+  if (HasFocus() || paint_as_focused_) {
+    int w = text_bounds.width();
+    int h = 0;
+    // We explicitly OR in MULTI_LINE here since SizeStringInt seems to return
+    // an incorrect height for single line text when the MULTI_LINE flag isn't
+    // specified. o_O...
+    ChromeCanvas::SizeStringInt(paint_text, font_, &w, &h,
+                                flags | ChromeCanvas::MULTI_LINE);
+    gfx::Rect focus_rect = text_bounds;
+    focus_rect.set_width(w);
+    focus_rect.set_height(h);
+    focus_rect.Inset(-kFocusBorderPadding, -kFocusBorderPadding);
+    canvas->DrawFocusRect(focus_rect.x(), focus_rect.y(), focus_rect.width(),
+                          focus_rect.height());
   }
 }
 
@@ -323,6 +331,15 @@ void Label::SetEnabled(bool enabled) {
     return;
   View::SetEnabled(enabled);
   SetColor(enabled ? kEnabledColor : kDisabledColor);
+}
+
+gfx::Insets Label::GetInsets() const {
+  gfx::Insets insets = View::GetInsets();
+  if (IsFocusable() || paint_as_focused_)  {
+    insets += gfx::Insets(kFocusBorderPadding, kFocusBorderPadding,
+                          kFocusBorderPadding, kFocusBorderPadding);
+  }
+  return insets;
 }
 
 // static
