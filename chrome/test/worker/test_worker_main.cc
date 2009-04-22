@@ -10,72 +10,19 @@
 #include "base/path_service.h"
 #include "base/scoped_ptr.h"
 #include "base/string_util.h"
+#include "chrome/worker/worker_webkitclient_impl.h"
+#include "chrome/test/worker/test_webworker.h"
 #include "googleurl/src/gurl.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webworker.h"
-#include "webkit/glue/webkitclient_impl.h"
 #include "webkit/glue/webworkerclient.h"
 #include "webkit/tools/test_shell/test_webworker_helper.h"
-#include "webkit/tools/test_shell/test_worker/test_webworker.h"
 
 // Create a global AtExitManager so that our code can use code from base that
 // uses Singletons, for example.  We don't care about static constructors here.
 static base::AtExitManager global_at_exit_manager;
-
-// Stub WebKit Client.
-class WorkerWebKitClientImpl : public webkit_glue::WebKitClientImpl {
- public:
-  // WebKitClient methods:
-  virtual WebKit::WebClipboard* clipboard() {
-    NOTREACHED();
-    return NULL;
-  }
-
-  virtual WebKit::WebMimeRegistry* mimeRegistry() {
-    NOTREACHED();
-    return NULL;
-  }
-
-  virtual WebKit::WebSandboxSupport* sandboxSupport() {
-    NOTREACHED();
-    return NULL;
-  }
-
-  virtual unsigned long long visitedLinkHash(const char* canonicalURL,
-                                             size_t length) {
-    NOTREACHED();
-    return 0;
-  }
-
-  virtual bool isLinkVisited(unsigned long long linkHash) {
-    NOTREACHED();
-    return false;
-  }
-
-  virtual void setCookies(const WebKit::WebURL& url,
-                          const WebKit::WebURL& policy_url,
-                          const WebKit::WebString& value) {
-    NOTREACHED();
-  }
-
-  virtual WebKit::WebString cookies(const WebKit::WebURL& url,
-                                    const WebKit::WebURL& policy_url) {
-    NOTREACHED();
-    return WebKit::WebString();
-  }
-
-  virtual void prefetchHostName(const WebKit::WebString&) {
-    NOTREACHED();
-  }
-
-  virtual WebKit::WebString defaultLocale() {
-    NOTREACHED();
-    return WebKit::WebString();
-  }
-};
 
 // WebKit client used in DLL.
 static scoped_ptr<WorkerWebKitClientImpl> webkit_client;
