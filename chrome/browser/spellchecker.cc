@@ -30,6 +30,7 @@ using base::TimeTicks;
 
 static const int kMaxSuggestions = 5;  // Max number of dictionary suggestions.
 
+
 namespace {
 
 static const struct {
@@ -41,6 +42,7 @@ static const struct {
 } g_supported_spellchecker_languages[] = {
   {"en-US", "en-US"},
   {"en-GB", "en-GB"},
+  {"en-AU", "en-AU"},
   {"fr", "fr-FR"},
   {"it", "it-IT"},
   {"de", "de-DE"},
@@ -129,7 +131,7 @@ SpellChecker::Language SpellChecker::GetCorrespondingSpellCheckLanguage(
 
   // Look for a match by comparing only language parts. All the 'en-RR'
   // except for 'en-GB' exactly matched in the above loop, will match
-  // 'en-US'. This is not ideal because 'en-AU', 'en-ZA', 'en-NZ' had
+  // 'en-US'. This is not ideal because 'en-ZA', 'en-NZ' had
   // better be matched with 'en-GB'. This does not handle cases like
   // 'az-Latn-AZ' vs 'az-Arab-AZ', either, but we don't use 3-part
   // locale ids with a script code in the middle, yet.
@@ -344,6 +346,7 @@ FilePath SpellChecker::GetVersionedFileName(const Language& input_language,
     // The corresponding version.
     const char* version;
   } special_version_string[] = {
+    {"en-AU", "-1-1"},
     {"en-GB", "-1-1"},
     {"es-ES", "-1-1"},
     {"nl-NL", "-1-1"},
