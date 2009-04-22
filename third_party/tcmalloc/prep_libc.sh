@@ -18,20 +18,17 @@ OUTCMT="${2}\\libcmt.lib"
 mkdir $OUTDIR
 cp "$LIBCMT" "$OUTDIR"
 cp "$LIBCMTPDB" "$OUTDIR"
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\malloc.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\free.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\realloc.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\calloc.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\new.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\delete.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\new2.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\delete2.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\align.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\msize.obj $OUTCMT
 
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\heapinit.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\expand.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\heapchk.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\heapwalk.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\heapmin.obj $OUTCMT
-LIB /IGNORE:4006,4221 /REMOVE:build\\intel\\mt_obj\\sbheap.obj $OUTCMT
+
+# We'll remove the symbols based on paths found in either the VS2005 or VS2008
+# libcmt.lib files.
+LIBCMTSRCPATHVS2005="build\\intel\\mt_obj\\"
+LIBCMTSRCPATHVS2008="f:\\dd\\vctools\\crt_bld\\SELF_X86\\crt\\src\\build\\INTEL\\mt_obj\\"
+
+OBJFILES="malloc.obj free.obj realloc.obj new.obj delete.obj new2.obj delete2.obj align.obj msize.obj heapinit.obj expand.obj heapchk.obj heapwalk.obj heapmin.obj sbheap.obj calloc.obj recalloc.obj calloc_impl.obj"
+
+for FILE in $OBJFILES
+do
+  LIB /IGNORE:4006,4221 /REMOVE:${LIBCMTSRCPATHVS2005}${FILE} $OUTCMT
+  LIB /IGNORE:4006,4221 /REMOVE:${LIBCMTSRCPATHVS2008}${FILE} $OUTCMT
+done
