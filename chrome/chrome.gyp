@@ -2337,7 +2337,6 @@
             'browser/gtk/tabs/tab_renderer_gtk_unittest.cc',
             'browser/navigation_controller_unittest.cc',
             'browser/sessions/session_service_test_helper.cc',
-            'common/pref_service_unittest.cc',
             'renderer/render_view_unittest.cc',
             'test/test_notification_tracker.cc',
             'test/test_notification_tracker.h',

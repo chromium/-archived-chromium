@@ -13,8 +13,6 @@
 #include "chrome/test/data/resource.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-
 class PrefServiceTest : public testing::Test {
  protected:
   virtual void SetUp() {
@@ -78,8 +76,6 @@ class TestPrefObserver : public NotificationObserver {
   const std::wstring pref_name_;
   std::wstring new_pref_value_;
 };
-
-}  // anonymous namespace
 
 // This test is disabled. See issue 8339.
 TEST_F(PrefServiceTest, Basic) {
