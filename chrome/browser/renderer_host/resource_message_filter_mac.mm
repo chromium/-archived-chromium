@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "chrome/browser/renderer_host/resource_message_filter.h"
+#include "chrome/common/render_messages.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -23,28 +24,31 @@ gfx::Rect NSRectToRect(const NSRect rect, NSScreen* screen) {
 // http://crbug.com/9060 for more details.
 
 void ResourceMessageFilter::OnGetWindowRect(gfx::NativeViewId window_id,
-                                            gfx::Rect* rect) {
+                                            IPC::Message* reply_msg) {
   NSView* view = gfx::NativeViewFromId(window_id);
-  if (!view) {
-    *rect = gfx::Rect();
-    return;
+  gfx::Rect rect;
+
+  if (view) {
+    NSRect bounds = [view bounds];
+    bounds = [view convertRect:bounds toView:nil];
+    bounds.origin = [[view window] convertBaseToScreen:bounds.origin];
+    rect = NSRectToRect(bounds, [[view window] screen]);
   }
 
-  NSRect bounds = [view bounds];
-  bounds = [view convertRect:bounds toView:nil];
-  bounds.origin = [[view window] convertBaseToScreen:bounds.origin];
-  *rect = NSRectToRect(bounds, [[view window] screen]);
+  ViewHostMsg_GetWindowRect::WriteReplyParams(reply_msg, rect);
+  Send(reply_msg);
 }
 
 void ResourceMessageFilter::OnGetRootWindowRect(gfx::NativeViewId window_id,
-                                                gfx::Rect* rect) {
+                                                IPC::Message* reply_msg) {
   NSView* view = gfx::NativeViewFromId(window_id);
-  if (!view) {
-    *rect = gfx::Rect();
-    return;
+  gfx::Rect rect;
+  if (view) {
+    NSWindow* window = [view window];
+    NSRect bounds = [window frame];
+    gfx::Rect rect = NSRectToRect(bounds, [window screen]);
   }
 
-  NSWindow* window = [view window];
-  NSRect bounds = [window frame];
-  *rect = NSRectToRect(bounds, [window screen]);
+  ViewHostMsg_GetRootWindowRect::WriteReplyParams(reply_msg, rect);
+  Send(reply_msg);
 }

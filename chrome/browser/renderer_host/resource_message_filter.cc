@@ -47,13 +47,13 @@
 #include "third_party/WebKit/WebKit/chromium/public/win/WebScreenInfoFactory.h"
 #elif defined(OS_MACOSX)
 #include "third_party/WebKit/WebKit/chromium/public/mac/WebScreenInfoFactory.h"
-#elif defined(OS_LINUX)
-#include "third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h"
 #endif
 
 using WebKit::WebCache;
 using WebKit::WebScreenInfo;
+#if !defined(OS_LINUX)
 using WebKit::WebScreenInfoFactory;
+#endif
 
 namespace {
 
@@ -213,6 +213,16 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
   if (!handled) {
     handled = true;
     IPC_BEGIN_MESSAGE_MAP_EX(ResourceMessageFilter, message, msg_is_ok)
+      // On Linux we need to dispatch these messages to the UI2 thread because
+      // we cannot make X calls from the IO thread.  On other platforms, we can
+      // handle these calls directly.
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetScreenInfo,
+                                      OnGetScreenInfo);
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetWindowRect,
+                                      OnGetWindowRect);
+      IPC_MESSAGE_HANDLER_DELAY_REPLY(ViewHostMsg_GetRootWindowRect,
+                                      OnGetRootWindowRect)
+
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWindow, OnMsgCreateWindow)
       IPC_MESSAGE_HANDLER(ViewHostMsg_CreateWidget, OnMsgCreateWidget)
       IPC_MESSAGE_HANDLER(ViewHostMsg_SetCookie, OnSetCookie)
@@ -223,7 +233,6 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
 #if defined(OS_WIN)  // This hack is Windows-specific.
       IPC_MESSAGE_HANDLER(ViewHostMsg_LoadFont, OnLoadFont)
 #endif
-      IPC_MESSAGE_HANDLER(ViewHostMsg_GetScreenInfo, OnGetScreenInfo)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetPlugins, OnGetPlugins)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetPluginPath, OnGetPluginPath)
       IPC_MESSAGE_HANDLER(ViewHostMsg_DownloadUrl, OnDownloadUrl)
@@ -252,8 +261,6 @@ bool ResourceMessageFilter::OnMessageReceived(const IPC::Message& message) {
                           OnClipboardReadAsciiText)
       IPC_MESSAGE_HANDLER(ViewHostMsg_ClipboardReadHTML,
                           OnClipboardReadHTML)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_GetWindowRect, OnGetWindowRect)
-      IPC_MESSAGE_HANDLER(ViewHostMsg_GetRootWindowRect, OnGetRootWindowRect)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromExtension,
                           OnGetMimeTypeFromExtension)
       IPC_MESSAGE_HANDLER(ViewHostMsg_GetMimeTypeFromFile,
@@ -460,12 +467,17 @@ void ResourceMessageFilter::OnLoadFont(LOGFONT font) {
 }
 #endif
 
+#if !defined(OS_LINUX)
 void ResourceMessageFilter::OnGetScreenInfo(gfx::NativeViewId view,
-                                            WebScreenInfo* results) {
+                                            IPC::Message* reply_msg) {
   // TODO(darin): Change this into a routed message so that we can eliminate
   // the NativeViewId parameter.
-  *results = WebScreenInfoFactory::screenInfo(gfx::NativeViewFromId(view));
+  WebScreenInfo results =
+      WebScreenInfoFactory::screenInfo(gfx::NativeViewFromId(view));
+  ViewHostMsg_GetScreenInfo::WriteReplyParams(reply_msg, results);
+  Send(reply_msg);
 }
+#endif
 
 void ResourceMessageFilter::OnGetPlugins(bool refresh,
                                          std::vector<WebPluginInfo>* plugins) {

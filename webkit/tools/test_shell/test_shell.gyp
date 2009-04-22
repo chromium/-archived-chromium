@@ -72,6 +72,7 @@
         'test_shell.cc',
         'test_shell.h',
         'test_shell_gtk.cc',
+        'test_shell_x11.cc',
         'test_shell_mac.mm',
         'test_shell_platform_delegate.h',
         'test_shell_platform_delegate_gtk.cc',
@@ -116,7 +117,8 @@
           'cflags': ['-Wno-multichar'],
         }, { # else: OS!=linux
           'sources/': [
-            ['exclude', '_gtk\\.cc$']
+            ['exclude', '_gtk\\.cc$'],
+            ['exclude', '_x11\\.cc$'],
           ],
         }],
         ['OS!="mac"', {

@@ -13,12 +13,13 @@
 #include "skia/ext/platform_canvas_linux.h"
 #include "skia/ext/platform_device_linux.h"
 #include "third_party/WebKit/WebKit/chromium/public/gtk/WebInputEventFactory.h"
-#include "third_party/WebKit/WebKit/chromium/public/gtk/WebScreenInfoFactory.h"
+#include "third_party/WebKit/WebKit/chromium/public/x11/WebScreenInfoFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 #include "webkit/glue/webwidget.h"
 #include "webkit/tools/test_shell/test_shell.h"
+#include "webkit/tools/test_shell/test_shell_x11.h"
 
 using WebKit::WebInputEventFactory;
 using WebKit::WebKeyboardEvent;
@@ -368,7 +369,9 @@ void WebWidgetHost::Paint() {
 }
 
 WebScreenInfo WebWidgetHost::GetScreenInfo() {
-  return WebScreenInfoFactory::screenInfo(view_);
+  Display* display = test_shell_x11::GtkWidgetGetDisplay(view_);
+  int screen_num = test_shell_x11::GtkWidgetGetScreenNum(view_);
+  return WebScreenInfoFactory::screenInfo(display, screen_num);
 }
 
 void WebWidgetHost::ResetScrollRect() {
