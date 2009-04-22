@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -1036,6 +1036,205 @@ TEST(HttpResponseHeadersTest, GetContentLength) {
         new HttpResponseHeaders(headers);
 
     EXPECT_EQ(tests[i].expected_len, parsed->GetContentLength());
+  }
+}
+
+TEST(HttpResponseHeaders, GetContentRange) {
+  const struct {
+    const char* headers;
+    bool expected_return_value;
+    int64 expected_first_byte_position;
+    int64 expected_last_byte_position;
+    int64 expected_instance_size;
+  }  tests[] = {
+    { "HTTP/1.1 206 Partial Content",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range:",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: megabytes 0-10/50",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: 0-10/50",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: Bytes 0-50/51",
+      true,
+      0,
+      50,
+      51
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-50/51",
+      true,
+      0,
+      50,
+      51
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range:     bytes 0-50/51",
+      true,
+      0,
+      50,
+      51
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes    0    -   50   /   51",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 50-0/51",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 416 Requested range not satisfiable\n"
+      "Content-Range: bytes */*",
+      true,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-50/*",
+      true,
+      0,
+      50,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-10000000000/10000000001",
+      true,
+      0,
+      10000000000ll,
+      10000000001ll
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-10000000000/10000000000",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    // The following header is invalid for response code of 206, this should be
+    // verified by the user.
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes */50",
+      true,
+      -1,
+      -1,
+      50
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-50/10",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-50/-10",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-0/1",
+      true,
+      0,
+      0,
+      1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-40000000000000000000/40000000000000000001",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 1-/100",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes -/100",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes -1/100",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-40000000000000000000/40000000000000000001",
+      false,
+      -1,
+      -1,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes 0-1233/*",
+      true,
+      0,
+      1233,
+      -1
+    },
+    { "HTTP/1.1 206 Partial Content\n"
+      "Content-Range: bytes -123 - -1/100",
+      false,
+      -1,
+      -1,
+      -1
+    },
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    string headers(tests[i].headers);
+    HeadersToRaw(&headers);
+    scoped_refptr<HttpResponseHeaders> parsed =
+        new HttpResponseHeaders(headers);
+
+    int64 first_byte_position;
+    int64 last_byte_position;
+    int64 instance_size;
+    bool return_value = parsed->GetContentRange(&first_byte_position,
+                                                &last_byte_position,
+                                                &instance_size);
+    EXPECT_EQ(tests[i].expected_return_value, return_value);
+    if (return_value) {
+      EXPECT_EQ(tests[i].expected_first_byte_position, first_byte_position);
+      EXPECT_EQ(tests[i].expected_last_byte_position, last_byte_position);
+      EXPECT_EQ(tests[i].expected_instance_size, instance_size);
+    }
   }
 }
 

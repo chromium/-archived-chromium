@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -967,6 +967,88 @@ int64 HttpResponseHeaders::GetContentLength() const {
     return -1;
 
   return result;
+}
+
+// From RFC 2616 14.16:
+// content-range-spec =
+//     bytes-unit SP byte-range-resp-spec "/" ( instance-length | "*" )
+// byte-range-resp-spec = (first-byte-pos "-" last-byte-pos) | "*"
+// instance-length = 1*DIGIT
+// bytes-unit = "bytes"
+bool HttpResponseHeaders::GetContentRange(int64* first_byte_position,
+                                          int64* last_byte_position,
+                                          int64* instance_length) const {
+  void* iter = NULL;
+  std::string content_range_val;
+  if (!EnumerateHeader(&iter, "content-range", &content_range_val))
+    return false;
+
+  if (content_range_val.empty())
+    return false;
+
+  size_t space_position = content_range_val.find(' ');
+  if (space_position == std::string::npos)
+    return false;
+
+  if (!LowerCaseEqualsASCII(content_range_val.begin(),
+                            content_range_val.begin() + space_position,
+                            "bytes")) {
+    return false;
+  }
+
+  size_t slash_position = content_range_val.find('/', space_position + 1);
+  if (slash_position == std::string::npos)
+    return false;
+
+  // Parse the byte-range-resp-spec part.
+  std::string byte_range_resp_spec(
+      content_range_val.begin() + space_position + 1,
+      content_range_val.begin() + slash_position);
+  // If byte-range-resp-spec == "*".
+  if (LowerCaseEqualsASCII(byte_range_resp_spec, "*")) {
+    *first_byte_position = -1;
+    *last_byte_position = -1;
+  } else {
+    size_t minus_position = byte_range_resp_spec.find('-');
+    if (minus_position != std::string::npos) {
+      // Obtain first-byte-pos.
+      bool ok = StringToInt64(
+          std::string(byte_range_resp_spec.begin(),
+                      byte_range_resp_spec.begin() + minus_position),
+          first_byte_position);
+      // Obtain last-byte-pos.
+      ok &= StringToInt64(
+          std::string(byte_range_resp_spec.begin() + minus_position + 1,
+                      byte_range_resp_spec.end()),
+          last_byte_position);
+      if (!ok ||
+          *first_byte_position < 0 ||
+          *last_byte_position < 0 ||
+          *first_byte_position > *last_byte_position)
+        return false;
+    } else {
+      return false;
+    }
+  }
+
+  // Parse the instance-length part.
+  // If instance-length == "*".
+  if (LowerCaseEqualsASCII(content_range_val.begin() + slash_position + 1,
+                           content_range_val.end(),
+                           "*")) {
+    *instance_length = -1;
+  } else if (!StringToInt64(
+                 std::string(content_range_val.begin() + slash_position + 1,
+                             content_range_val.end()),
+                 instance_length)) {
+    return false;
+  } else if (*instance_length < 0 ||
+             *instance_length <
+                 *last_byte_position - *first_byte_position + 1) {
+    return false;
+  }
+
+  return true;
 }
 
 }  // namespace net

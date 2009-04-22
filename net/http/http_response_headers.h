@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -195,6 +195,17 @@ class HttpResponseHeaders :
   // Extracts the value of the Content-Length header or returns -1 if there is
   // no such header in the response.
   int64 GetContentLength() const;
+
+  // Extracts the values in Content-Range header, if the header exists and is
+  // well formatted returns true, else returns false.
+  // The following values will be outputted:
+  // |*first_byte_position| = inclusive position of the first byte of the range
+  // |*last_byte_position| = inclusive position of the last byte of the range
+  // |*instance_length| = size in bytes of the object requested
+  // If any of the above values is unknown, its value will be -1.
+  bool GetContentRange(int64* first_byte_position,
+                       int64* last_byte_position,
+                       int64* instance_length) const;
 
   // Returns the HTTP response code.  This is 0 if the response code text seems
   // to exist but could not be parsed.  Otherwise, it defaults to 200 if the
