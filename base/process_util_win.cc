@@ -203,6 +203,10 @@ bool GetAppOutput(const std::wstring& cmd_line, std::string* output) {
     return false;
   }
 
+  // Ensure we don't leak the handles.
+  ScopedHandle scoped_out_read(out_read);
+  ScopedHandle scoped_out_write(out_write);
+
   // Ensure the read handle to the pipe for STDOUT is not inherited.
   if (!SetHandleInformation(out_read, HANDLE_FLAG_INHERIT, 0)) {
     NOTREACHED() << "Failed to disabled pipe inheritance";
@@ -231,10 +235,9 @@ bool GetAppOutput(const std::wstring& cmd_line, std::string* output) {
   // We don't need the thread handle, close it now.
   CloseHandle(proc_info.hThread);
 
-  if (!CloseHandle(out_write)) {
-     NOTREACHED() << "Failed to close std out write pipe.";
-     return false;
-  }
+  // Close our writing end of pipe now. Otherwise later read would not be able
+  // to detect end of child's output.
+  scoped_out_write.Close();
 
   // Read output from the child process's pipe for STDOUT
   const int kBufferSize = 1024;
@@ -251,9 +254,6 @@ bool GetAppOutput(const std::wstring& cmd_line, std::string* output) {
   // Let's wait for the process to finish.
   WaitForSingleObject(proc_info.hProcess, INFINITE);
   CloseHandle(proc_info.hProcess);
-
-  BOOL r = CloseHandle(out_read);
-  DCHECK(r) << "Failed to close std out read pipe.";
 
   return true;
 }
