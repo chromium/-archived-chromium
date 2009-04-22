@@ -839,8 +839,7 @@ void BrowserView::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                  void* parent_window) {
   HWND parent_hwnd = reinterpret_cast<HWND>(parent_window);
   parent_hwnd = parent_hwnd ? parent_hwnd : GetWidget()->GetNativeView();
-  HtmlDialogView* html_view = new HtmlDialogView(browser_.get(),
-                                                 browser_->profile(),
+  HtmlDialogView* html_view = new HtmlDialogView(browser_->profile(),
                                                  delegate);
   views::Window::CreateChromeWindow(parent_hwnd, gfx::Rect(), html_view);
   html_view->InitDialog();
