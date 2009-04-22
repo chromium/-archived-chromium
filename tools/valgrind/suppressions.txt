@@ -431,3 +431,19 @@
    fun:_ZN14MetricsService17GetPluginListTask3RunEv
    fun:_ZN11MessageLoop7RunTaskEP4Task
 }
+{
+   # See http://crbug.com/10782
+   bug_10782
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN17RenderProcessHost7ReleaseEi
+   fun:_ZN16RenderWidgetHostD2Ev
+   fun:_ZN14RenderViewHostD2Ev
+   fun:_ZN18TestRenderViewHostD0Ev
+   fun:_ZN16RenderWidgetHost7DestroyEv
+   fun:_ZN16RenderWidgetHost8ShutdownEv
+   fun:_ZN14RenderViewHost8ShutdownEv
+   fun:_ZN21RenderViewHostManagerD1Ev
+   fun:_ZN11WebContentsD1Ev
+   fun:_ZN44SiteInstanceTest_SiteInstanceDestructor_Test8TestBodyEv
+}
