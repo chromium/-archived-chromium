@@ -1048,6 +1048,8 @@ void RenderViewHost::OnMsgContextMenu(const ContextMenuParams& params) {
   const int renderer_id = process()->pid();
   RendererSecurityPolicy* policy = RendererSecurityPolicy::GetInstance();
 
+  // We don't validate |unfiltered_link_url| so that this field can be used
+  // when users want to copy the original link URL.
   FilterURL(policy, renderer_id, &validated_params.link_url);
   FilterURL(policy, renderer_id, &validated_params.image_url);
   FilterURL(policy, renderer_id, &validated_params.page_url);

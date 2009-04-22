@@ -855,6 +855,7 @@ struct ParamTraits<ContextMenuParams> {
     WriteParam(m, p.x);
     WriteParam(m, p.y);
     WriteParam(m, p.link_url);
+    WriteParam(m, p.unfiltered_link_url);
     WriteParam(m, p.image_url);
     WriteParam(m, p.page_url);
     WriteParam(m, p.frame_url);
@@ -871,6 +872,7 @@ struct ParamTraits<ContextMenuParams> {
       ReadParam(m, iter, &p->x) &&
       ReadParam(m, iter, &p->y) &&
       ReadParam(m, iter, &p->link_url) &&
+      ReadParam(m, iter, &p->unfiltered_link_url) &&
       ReadParam(m, iter, &p->image_url) &&
       ReadParam(m, iter, &p->page_url) &&
       ReadParam(m, iter, &p->frame_url) &&

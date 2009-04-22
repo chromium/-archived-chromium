@@ -74,6 +74,10 @@ struct ContextMenuParams {
   // invoked on.
   GURL link_url;
 
+  // The link URL to be used ONLY for "copy link address". We don't validate
+  // this field in the frontend process.
+  GURL unfiltered_link_url;
+
   // This is the URL of the image the context menu was invoked on.
   GURL image_url;
 

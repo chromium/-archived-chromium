@@ -2034,6 +2034,7 @@ void RenderView::ShowContextMenu(WebView* webview,
   params.y = y;
   params.image_url = image_url;
   params.link_url = link_url;
+  params.unfiltered_link_url = link_url;
   params.page_url = page_url;
   params.frame_url = frame_url;
   params.selection_text = selection_text;

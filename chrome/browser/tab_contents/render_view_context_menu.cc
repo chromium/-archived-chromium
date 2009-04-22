@@ -220,8 +220,10 @@ bool RenderViewContextMenu::IsItemCommandEnabled(int id) const {
 
     case IDS_CONTENT_CONTEXT_OPENLINKNEWTAB:
     case IDS_CONTENT_CONTEXT_OPENLINKNEWWINDOW:
-    case IDS_CONTENT_CONTEXT_COPYLINKLOCATION:
       return params_.link_url.is_valid();
+
+    case IDS_CONTENT_CONTEXT_COPYLINKLOCATION:
+      return params_.unfiltered_link_url.is_valid();
 
     case IDS_CONTENT_CONTEXT_SAVELINKAS:
       return params_.link_url.is_valid() &&
@@ -377,7 +379,7 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
     }
 
     case IDS_CONTENT_CONTEXT_COPYLINKLOCATION:
-      WriteURLToClipboard(params_.link_url);
+      WriteURLToClipboard(params_.unfiltered_link_url);
       break;
 
     case IDS_CONTENT_CONTEXT_COPYIMAGELOCATION:
