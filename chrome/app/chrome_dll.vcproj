@@ -43,6 +43,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				RuntimeLibrary="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -55,8 +56,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(OutDir)\obj\tcmalloc\libcmt.lib"
 				OutputFile="$(IntDir)\chrome.dll"
 				LinkIncremental="1"
+				IgnoreDefaultLibraryNames="libcmtd.lib"
 				ImportLibrary="$(OutDir)\lib\$(ProjectName).lib"
 			/>
 			<Tool
@@ -123,7 +126,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(OutDir)\obj\tcmalloc\libcmt.lib"
 				OutputFile="$(OutDir)\chrome.dll"
+				IgnoreDefaultLibraryNames="libcmt.lib"
 				ImportLibrary="$(OutDir)\lib\$(ProjectName).lib"
 			/>
 			<Tool
