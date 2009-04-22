@@ -88,11 +88,10 @@ class MultiPartResponseClient : public WebCore::ResourceHandleClient {
 
   // Receives individual part data from a multipart response.
   virtual void didReceiveData(WebCore::ResourceHandle* handle,
-                              const char* data, int boundary_pos,
-                              int length_received) {
-    int data_length = byte_range_upper_bound_ - byte_range_lower_bound_ + 1;
+                              const char* data, int data_size,
+                              int reserved) {
     resource_client_->DidReceiveData(
-        data, data_length, byte_range_lower_bound_);
+        data, data_size, byte_range_lower_bound_);
   }
 
   void Clear() {
