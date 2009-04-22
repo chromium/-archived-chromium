@@ -27,8 +27,6 @@ class RedirectTest : public UITest {
   }
 };
 
-}  // namespace
-
 // Tests a single server redirect
 TEST_F(RedirectTest, Server) {
   scoped_refptr<HTTPTestServer> server =
@@ -309,3 +307,5 @@ TEST_F(RedirectTest,
   }
   EXPECT_TRUE(final_navigation_not_redirect);
 }
+
+}  // namespace

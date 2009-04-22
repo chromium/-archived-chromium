@@ -22,8 +22,8 @@ const std::string kTestDir = "save_page";
 const std::string kAppendedExtension = ".htm";
 #elif defined(OS_LINUX)
 const std::string kAppendedExtension = "";
-#elif defined(OS_MAC)
-// TODO(port): figure this out for mac.
+#elif defined(OS_MACOSX)
+const std::string kAppendedExtension = ".html";
 #endif
 
 class SavePageTest : public UITest {
@@ -169,8 +169,8 @@ TEST_F(SavePageTest, FilenameFromPageTitle) {
 }
 
 // This tests that a webpage with the title "test.exe" is saved as "test.htm".
-// We probably don't care to handle this on linux.
-#if !defined(OS_LINUX)
+// We probably don't care to handle this on Linux or Mac.
+#if defined(OS_WIN)
 TEST_F(SavePageTest, CleanFilenameFromPageTitle) {
   std::string file_name = "c.htm";
   FilePath full_file_name = download_dir_.AppendASCII("test" +

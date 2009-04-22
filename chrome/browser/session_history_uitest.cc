@@ -102,8 +102,6 @@ class SessionHistoryTest : public UITest {
   scoped_ptr<TabProxy> tab_;
 };
 
-}  // namespace
-
 TEST_F(SessionHistoryTest, BasicBackForward) {
   scoped_refptr<HTTPTestServer> server =
       HTTPTestServer::CreateServer(kDocRoot, NULL);
@@ -502,3 +500,5 @@ TEST_F(SessionHistoryTest, DISABLED_LocationReplace) {
       "files/session_history/replace.html?no-title.html")));
   EXPECT_EQ(L"", GetTabTitle());
 }
+
+}  // namespace

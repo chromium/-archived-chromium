@@ -2053,13 +2053,12 @@
             # TODO(port)
             'app/chrome_main_uitest.cc',
             'browser/crash_recovery_uitest.cc',
-            'browser/download/download_uitest.cc',
+            # blocked on download shelf
             'browser/download/save_page_uitest.cc',
-            'browser/history/redirect_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
-            'browser/session_history_uitest.cc',
             'browser/sessions/session_restore_uitest.cc',
+            # blocked on ChromeBrowserProcessId()
             'test/chrome_process_util_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',

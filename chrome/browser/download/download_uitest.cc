@@ -154,8 +154,6 @@ class DownloadTest : public UITest {
   FilePath download_prefix_;
 };
 
-}  // namespace
-
 // Download a file with non-viewable content, verify that the
 // download tab opened and the file exists.
 TEST_F(DownloadTest, DownloadMimeType) {
@@ -250,3 +248,5 @@ TEST_F(DownloadTest, DISABLED_KnownSize) {
   RunSizeTest(url, L"71% - " + filename.ToWStringHack(),
               L"100% - " + filename.ToWStringHack());
 }
+
+}  // namespace

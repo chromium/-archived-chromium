@@ -32,7 +32,7 @@ bool PathProviderMac(int key, FilePath* result) {
       PathService::Get(base::DIR_EXE, &path);
       if (mac_util::AmIBundled()) {
         // The bundled app executables (Chromium, TestShell, etc) live five
-        // leves down, eg:
+        // levels down, eg:
         // src/xcodebuild/{Debug|Release}/Chromium.app/Contents/MacOS/Chromium.
         path = path.DirName();
         path = path.DirName();
