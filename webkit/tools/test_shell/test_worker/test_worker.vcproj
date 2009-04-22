@@ -141,7 +141,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\..\webkit\glue\simple_clipboard_impl.cc"
+			RelativePath="..\..\..\glue\simple_clipboard_impl.cc"
 			>
 		</File>
 		<File
@@ -158,14 +158,6 @@
 		</File>
 		<File
 			RelativePath=".\test_worker_main.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\worker\worker_webkitclient_impl.cc"
-			>
-		</File>
-		<File
-			RelativePath="..\..\worker\worker_webkitclient_impl.h"
 			>
 		</File>
 	</Files>

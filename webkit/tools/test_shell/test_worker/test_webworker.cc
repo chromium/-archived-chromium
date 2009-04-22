@@ -6,7 +6,7 @@
 
 #if ENABLE(WORKERS)
 
-#include "chrome/test/worker/test_webworker.h"
+#include "webkit/tools/test_shell/test_worker/test_webworker.h"
 
 #include "base/compiler_specific.h"
 #include "base/task.h"
