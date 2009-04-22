@@ -101,11 +101,11 @@ sudo apt-get update
 # We then re-run "apt-get" with just the list of missing packages.
 echo "Finding missing packages..."
 new_list="$(yes n |
-            sudo apt-get install --reinstall \
+            LANG=C sudo apt-get install --reinstall \
                          ${dev_list} ${lib_list} ${dbg_list} \
                          $([ "$(uname -m)" = x86_64 ] && echo ${cmp_list}) \
                          2>/dev/null |
-            sed -e 's/^  //;t;d')"
+            sed -e '1,/The following NEW packages will be installed:/d;s/^  //;t;d')"
 
 echo "Installing missing packages..."
 sudo apt-get install ${new_list}
