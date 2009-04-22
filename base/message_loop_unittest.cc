@@ -13,6 +13,9 @@
 #include "base/message_pump_win.h"
 #include "base/scoped_handle.h"
 #endif
+#if defined(OS_POSIX)
+#include "base/message_pump_libevent.h"
+#endif
 
 using base::Thread;
 using base::Time;
@@ -1381,3 +1384,75 @@ TEST(MessageLoopTest, WaitForIO) {
   RunTest_WaitForIO();
 }
 #endif  // defined(OS_WIN)
+
+#if defined(OS_POSIX)
+
+namespace {
+
+class QuitDelegate : public
+    base::MessagePumpLibevent::Watcher {
+ public:
+  virtual void OnFileCanWriteWithoutBlocking(int fd) {
+    MessageLoop::current()->Quit();
+  }
+  virtual void OnFileCanReadWithoutBlocking(int fd) {
+    MessageLoop::current()->Quit();
+  }
+};
+
+}  // namespace
+
+TEST(MessageLoopTest, DISABLED_FileDescriptorWatcherOutlivesMessageLoop) {
+  // Simulate a MessageLoop that dies before an FileDescriptorWatcher.
+  // This could happen when people use the Singleton pattern or atexit.
+  // This is disabled for now because it fails (valgrind shows
+  // invalid reads), and it's not clear any code relies on this...
+  // TODO(dkegel): enable if it turns out we rely on this
+
+  // Create a file descriptor.  Doesn't need to be readable or writable,
+  // as we don't need to actually get any notifications.
+  // pipe() is just the easiest way to do it.
+  int pipefds[2];
+  int err = pipe(pipefds);
+  ASSERT_TRUE(err == 0);
+  int fd = pipefds[1];
+  {
+    // Arrange for controller to live longer than message loop.
+    base::MessagePumpLibevent::FileDescriptorWatcher controller;
+    {
+      MessageLoopForIO message_loop;
+
+      QuitDelegate delegate;
+      message_loop.WatchFileDescriptor(fd,
+          true, MessageLoopForIO::WATCH_WRITE, &controller, &delegate);
+      // and don't run the message loop, just destroy it.
+    }
+  }
+  close(pipefds[0]);
+  close(pipefds[1]);
+}
+
+TEST(MessageLoopTest, FileDescriptorWatcherDoubleStop) {
+  // Verify that it's ok to call StopWatchingFileDescriptor().
+  // (Errors only showed up in valgrind.)
+  int pipefds[2];
+  int err = pipe(pipefds);
+  ASSERT_TRUE(err == 0);
+  int fd = pipefds[1];
+  {
+    // Arrange for message loop to live longer than controller.
+    MessageLoopForIO message_loop;
+    {
+      base::MessagePumpLibevent::FileDescriptorWatcher controller;
+
+      QuitDelegate delegate;
+      message_loop.WatchFileDescriptor(fd,
+          true, MessageLoopForIO::WATCH_WRITE, &controller, &delegate);
+      controller.StopWatchingFileDescriptor();
+    }
+  }
+  close(pipefds[0]);
+  close(pipefds[1]);
+}
+
+#endif  // defined(OS_LINUX)

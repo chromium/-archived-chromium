@@ -6,7 +6,6 @@
 #define BASE_MESSAGE_PUMP_LIBEVENT_H_
 
 #include "base/message_pump.h"
-#include "base/scoped_ptr.h"
 #include "base/time.h"
 
 // Declare structs we need from libevent.h rather than including it
@@ -44,7 +43,7 @@ class MessagePumpLibevent : public MessagePump {
 
     private:
      bool is_persistent_;  // false if this event is one-shot.
-     scoped_ptr<event> event_;
+     event* event_;
      DISALLOW_COPY_AND_ASSIGN(FileDescriptorWatcher);
   };
 
