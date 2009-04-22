@@ -2055,8 +2055,10 @@
             'browser/crash_recovery_uitest.cc',
             'browser/download/download_uitest.cc',
             'browser/download/save_page_uitest.cc',
+            'browser/history/redirect_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
+            'browser/session_history_uitest.cc',
             'browser/sessions/session_restore_uitest.cc',
             'test/chrome_process_util_uitest.cc',
             'test/reliability/page_load_test.cc',
@@ -2077,9 +2079,7 @@
         }, { # else: OS != "win"
           'sources!': [
             # TODO(port)?  (Most of these include windows.h or similar.)
-            'browser/history/redirect_uitest.cc',
             'browser/printing/printing_layout_uitest.cc',
-            'browser/session_history_uitest.cc',
             'browser/ssl/ssl_uitest.cc',
             'browser/tab_restore_uitest.cc',
             'browser/unload_uitest.cc',
