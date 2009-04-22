@@ -242,7 +242,7 @@ bool ChromeMiniInstaller::CloseWindow(const wchar_t* window_name,
 bool ChromeMiniInstaller::CloseUninstallWindow() {
   HWND hndl = NULL;
   int timer = 0;
-  while (hndl == NULL && timer < 5000) {
+  while (hndl == NULL && timer < 60000) {
     hndl = FindWindow(NULL,
         mini_installer_constants::kChromeUninstallDialogName);
     PlatformThread::Sleep(200);
