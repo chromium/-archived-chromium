@@ -16,29 +16,6 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/devtools_messages.h"
 
-namespace {
-
-// An internal implementation of DevToolsClientHost that delegates
-// messages sent for DevToolsClient to a DebuggerShell instance.
-class DevToolsClientHostImpl : public DevToolsClientHost {
- public:
-  DevToolsClientHostImpl(int32 id, DebuggerRemoteService* service)
-      : id_(id),
-        service_(service) {}
-
-  // DevToolsClientHost interface
-  virtual void InspectedTabClosing();
-  virtual void SendMessageToClient(const IPC::Message& msg);
-
- private:
-  // Message handling routines
-  void OnRpcMessage(const std::string& msg);
-  void DebuggerOutput(const std::string& msg);
-
-  int32 id_;
-  DebuggerRemoteService* service_;
-};
-
 void DevToolsClientHostImpl::InspectedTabClosing() {
   NotifyCloseListener();
   delete this;
@@ -76,8 +53,6 @@ void DevToolsClientHostImpl::DebuggerOutput(const std::string& msg) {
   service_->DebuggerOutput(id_, msg);
 }
 
-}  // namespace
-
 const InspectableTabProxy::ControllersMap&
     InspectableTabProxy::controllers_map() {
   controllers_map_.clear();
@@ -93,9 +68,19 @@ const InspectableTabProxy::ControllersMap&
   return controllers_map_;
 }
 
-// static
 DevToolsClientHost* InspectableTabProxy::NewClientHost(
     int32 id,
     DebuggerRemoteService* service) {
-  return new DevToolsClientHostImpl(id, service);
+  DevToolsClientHostImpl* client_host =
+      new DevToolsClientHostImpl(id, service, &id_to_client_host_map_);
+  id_to_client_host_map_[id] = client_host;
+  return client_host;
+}
+
+void InspectableTabProxy::OnRemoteDebuggerDetached() {
+  while (id_to_client_host_map_.size() > 0) {
+    IdToClientHostMap::iterator it = id_to_client_host_map_.begin();
+    it->second->debugger_remote_service()->DetachTab(IntToString(it->first),
+                                                     NULL);
+  }
 }

@@ -12,7 +12,7 @@ const char DevToolsRemoteMessageHeaders::kDestination[] = "Destination";
 const char DevToolsRemoteMessage::kEmptyValue[] = "";
 
 DevToolsRemoteMessageBuilder& DevToolsRemoteMessageBuilder::instance() {
-  static DevToolsRemoteMessageBuilder instance_(new IdGeneratorImpl);
+  static DevToolsRemoteMessageBuilder instance_;
   return instance_;
 }
 

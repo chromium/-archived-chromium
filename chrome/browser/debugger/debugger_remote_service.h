@@ -9,6 +9,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "chrome/browser/debugger/devtools_protocol_handler.h"
 #include "chrome/browser/debugger/devtools_remote.h"
 
 class DevToolsProtocolHandler;
@@ -37,8 +38,16 @@ class DebuggerRemoteService : public DevToolsRemoteListener {
   // Handles a JSON message from the tab_id-associated V8 debugger.
   void DebuggerOutput(int32 tab_id, const std::string& message);
 
+  // Expose to public so that we can detach from tab
+  // on remote debugger connection loss. If |response| is not NULL,
+  // the operation result will be written as the "result" field in |response|,
+  // otherwise it will not be propagated back to the caller.
+  void DetachTab(const std::string& destination,
+                 DictionaryValue* response);
+
   // DevToolsRemoteListener interface
   virtual void HandleMessage(const DevToolsRemoteMessage& message);
+  virtual void OnConnectionLost();
 
   static const std::string kToolName;
 
@@ -53,8 +62,6 @@ class DebuggerRemoteService : public DevToolsRemoteListener {
   };
 
   void AttachTab(const std::string& destination,
-                 DictionaryValue* response);
-  void DetachTab(const std::string& destination,
                  DictionaryValue* response);
   WebContents* ToWebContents(int32 tab_uid);
   void SendResponse(const Value& response,

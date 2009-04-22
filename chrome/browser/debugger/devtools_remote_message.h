@@ -85,49 +85,16 @@ class DevToolsRemoteMessage {
 // DevToolsRemote messages.
 class DevToolsRemoteMessageBuilder {
  public:
-  class IdGenerator {
-   public:
-    virtual ~IdGenerator() {}
-    virtual int32 NextId() = 0;
-  };
   // A singleton instance getter.
   static DevToolsRemoteMessageBuilder& instance();
   // Creates a message given the certain header values and a payload.
   DevToolsRemoteMessage* Create(const std::string& tool,
                                 const std::string& destination,
                                 const std::string& payload);
-  // Sets a message ID generator instance. The builder then owns this instance
-  // and deletes it upon termination.
-  void set_id_generator(IdGenerator* id_generator) {
-    if (id_generator_ != NULL) {
-      delete id_generator_;
-      id_generator_ = id_generator;
-    } else {
-      NOTREACHED();
-    }
-  }
 
  private:
-  class IdGeneratorImpl : public IdGenerator {
-   public:
-    IdGeneratorImpl() : id_(1) {}
-    virtual int32 NextId() {
-      return id_++;
-    }
-   private:
-    int32 id_;
-  };
-
-  explicit DevToolsRemoteMessageBuilder(IdGenerator* id_generator)
-      : id_generator_(id_generator) {}
-  ~DevToolsRemoteMessageBuilder() {
-    delete id_generator_;
-  }
-  int32 NextMessageId() {
-    return id_generator_->NextId();
-  }
-
-  IdGenerator* id_generator_;
+  DevToolsRemoteMessageBuilder() {}
+  virtual ~DevToolsRemoteMessageBuilder() {}
   DISALLOW_COPY_AND_ASSIGN(DevToolsRemoteMessageBuilder);
 };
 

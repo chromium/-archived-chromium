@@ -140,6 +140,10 @@ void DebuggerRemoteService::HandleMessage(
   }
 }
 
+void DebuggerRemoteService::OnConnectionLost() {
+  delegate_->inspectable_tab_proxy()->OnRemoteDebuggerDetached();
+}
+
 void DebuggerRemoteService::SendResponse(const Value& response,
                                          const std::string& tool,
                                          const std::string& destination) {
@@ -212,7 +216,7 @@ void DebuggerRemoteService::AttachTab(const std::string& destination,
   if (g_browser_process->devtools_manager()->GetDevToolsClientHostFor(
       *web_contents) == NULL) {
     DevToolsClientHost* client_host =
-        InspectableTabProxy::NewClientHost(tab_uid, this);
+        delegate_->inspectable_tab_proxy()->NewClientHost(tab_uid, this);
     DevToolsManager* manager = g_browser_process->devtools_manager();
     if (manager != NULL) {
       manager->RegisterDevToolsClientHostFor(*web_contents, client_host);

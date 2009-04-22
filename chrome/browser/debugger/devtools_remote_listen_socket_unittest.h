@@ -99,6 +99,7 @@ class DevToolsRemoteListenSocketTester :
 
   // DevToolsRemoteMessageHandler interface
   virtual void HandleMessage(const DevToolsRemoteMessage& message);
+  virtual void OnConnectionLost() {}
 
   // read all pending data from the test socket
   int ClearTestSocket();

@@ -56,6 +56,7 @@ class DevToolsProtocolHandler
 
   // DevToolsRemoteListener interface
   virtual void HandleMessage(const DevToolsRemoteMessage& message);
+  virtual void OnConnectionLost() {}
 
   // OutboundSocketDelegate interface
   virtual void Send(const DevToolsRemoteMessage& message);

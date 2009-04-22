@@ -18,6 +18,9 @@ class DevToolsRemoteListener
   DevToolsRemoteListener() {}
   virtual ~DevToolsRemoteListener() {}
   virtual void HandleMessage(const DevToolsRemoteMessage& message) = 0;
+  // This method is invoked on the UI thread whenever the debugger connection
+  // has been lost.
+  virtual void OnConnectionLost() = 0;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DevToolsRemoteListener);

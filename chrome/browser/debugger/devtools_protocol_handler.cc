@@ -104,4 +104,11 @@ void DevToolsProtocolHandler::DidClose(ListenSocket *sock) {
   DCHECK(connection_ == sock);
   connection_ = NULL;
   sock->Release();
+  for (ToolToListenerMap::const_iterator it = tool_to_listener_map_.begin(),
+       end = tool_to_listener_map_.end();
+       it != end;
+       ++it) {
+    ui_loop_->PostTask(FROM_HERE, NewRunnableMethod(
+        it->second.get(), &DevToolsRemoteListener::OnConnectionLost));
+  }
 }

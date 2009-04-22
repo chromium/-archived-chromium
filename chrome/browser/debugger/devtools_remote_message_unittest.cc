@@ -9,14 +9,6 @@
 #include "chrome/browser/debugger/devtools_remote_message.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-class TestIdGenerator : public DevToolsRemoteMessageBuilder::IdGenerator {
-  virtual int32 NextId() {
-    return 123;
-  }
-};
-}
-
 class DevToolsRemoteMessageTest : public testing::Test {
  public:
   DevToolsRemoteMessageTest() : testing::Test() {
@@ -48,8 +40,6 @@ TEST_F(DevToolsRemoteMessageTest, ConstructInstanceManually) {
 }
 
 TEST_F(DevToolsRemoteMessageTest, ConstructWithBuilder) {
-  DevToolsRemoteMessageBuilder::instance().set_id_generator(
-      new TestIdGenerator);
   std::string content = "Responsecontent";
   testing::internal::scoped_ptr<DevToolsRemoteMessage> message(
       DevToolsRemoteMessageBuilder::instance().Create(

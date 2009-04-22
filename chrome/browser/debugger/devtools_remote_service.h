@@ -30,6 +30,7 @@ class DevToolsRemoteService : public DevToolsRemoteListener {
 
   // DevToolsRemoteListener interface
   virtual void HandleMessage(const DevToolsRemoteMessage& message);
+  virtual void OnConnectionLost() {}
 
   static const std::string kToolName;
 
