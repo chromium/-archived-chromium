@@ -226,7 +226,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "printing", "..\printing\pri
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icui18n", "..\third_party\icu38\icui18n.vcproj", "{F22022F0-2D3B-5610-4E80-C674A8E01C5A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_worker", "..\chrome\test\worker\test_worker.vcproj", "{3E03D462-780D-4C4D-B22E-5E095E6CF110}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_worker", "tools\test_shell\test_worker\test_worker.vcproj", "{3E03D462-780D-4C4D-B22E-5E095E6CF110}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1832A374-8A74-4F9E-B536-69A699B3E165} = {1832A374-8A74-4F9E-B536-69A699B3E165}
 		{1C16337B-ACF3-4D03-AA90-851C5B5EADA6} = {1C16337B-ACF3-4D03-AA90-851C5B5EADA6}
