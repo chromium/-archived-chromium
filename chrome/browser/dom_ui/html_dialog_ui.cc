@@ -13,8 +13,14 @@ HtmlDialogUI::HtmlDialogUI(WebContents* web_contents) : DOMUI(web_contents) {
 }
 
 HtmlDialogUI::~HtmlDialogUI() {
-  // Make sure we can't get any more callbacks.
-  GetPropertyAccessor().DeleteProperty(web_contents()->property_bag());
+  // Don't unregister our property. During the teardown of the TabContents,
+  // this will be deleted, but the TabContents will already be destroyed.
+  //
+  // This object is owned indirectly by the TabContents. DOMUIs can change, so
+  // it's scary if this DOMUI is changed out and replaced with something else,
+  // since the property will still point to the old delegate. But the delegate
+  // is itself the owner of the TabContents for a dialog so will be in scope,
+  // and the HTML dialogs won't swap DOMUIs anyway since they don't navigate.
 }
 
 // static
