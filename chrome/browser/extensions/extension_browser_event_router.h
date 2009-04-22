@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_BROWSER_EVENT_ROUTER_H_
 
 #include <vector>
+#include <set>
 #include <string>
 
 #include "base/basictypes.h"
@@ -48,6 +49,10 @@ class ExtensionBrowserEventRouter : public TabStripModelObserver,
   friend struct DefaultSingletonTraits<ExtensionBrowserEventRouter>;
 
   bool initialized_;
+
+  // Maintain set of known tab ids, so we can distinguish between tab creation
+  // and tab insertion. Also used to not send tab-detached after tab-removed.
+  std::set<int> tab_ids_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionBrowserEventRouter);
 };

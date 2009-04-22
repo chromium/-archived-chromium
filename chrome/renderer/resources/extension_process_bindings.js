@@ -189,9 +189,31 @@ var chromium;
     chromium.types.pInt
   ];
 
-  // onTabMoved sends ({tabId, windowId, fromIndex, toIndex}) as named
-  // arguments.
+  // sends ({tabId, windowId, index}).
+  // will *NOT* be followed by tab-attached - it is implied.
+  // *MAY* be followed by tab-selection-changed.
+  chromium.tabs.onTabCreated = new chromium.Event("tab-created");
+  
+  // sends ({tabId, windowId, fromIndex, toIndex}).
+  // tabs can only "move" within a window.
   chromium.tabs.onTabMoved = new chromium.Event("tab-moved");
+ 
+  // sends ({tabId, windowId, index}).
+  chromium.tabs.onTabSelectionChanged = 
+       new chromium.Event("tab-selection-changed");
+   
+  // sends ({tabId, windowId, index}).
+  // *MAY* be followed by tab-selection-changed.
+  chromium.tabs.onTabAttached = new chromium.Event("tab-attached");
+  
+  // sends ({tabId, windowId, index}).
+  // *WILL* be followed by tab-selection-changed.
+  chromium.tabs.onTabDetached = new chromium.Event("tab-detached");
+  
+  // sends (tabId).
+  // *WILL* be followed by tab-selection-changed.
+  // will *NOT* be followed or preceded by tab-detached.
+  chromium.tabs.onTabRemoved = new chromium.Event("tab-removed");
 
   //----------------------------------------------------------------------------
 

@@ -84,10 +84,62 @@ function clearLog() {
   document.getElementById('log').innerHTML = '';
 }
 
-chromium.tabs.onTabMoved.addListener(function(data) {
-  appendToLog('onTabMoved: ' + data.tabId + ' from ' + data.fromIndex + ' to ' +  data.toIndex);
+chromium.tabs.onTabCreated.addListener(function(data) {
+  appendToLog('onTabCreated -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
   loadWindowList();
 });
+
+chromium.tabs.onTabAttached.addListener(function(data) {
+  appendToLog('onTabAttached -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+  loadWindowList();
+});
+
+chromium.tabs.onTabMoved.addListener(function(data) {
+  appendToLog('onTabMoved -- window: ' + data.windowId + ' tab: ' + data.tabId + ' from ' + data.fromIndex + ' to ' +  data.toIndex);
+  loadWindowList();
+});
+
+chromium.tabs.onTabDetached.addListener(function(data) {
+  appendToLog('onTabDetached -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+  loadWindowList();
+});
+
+chromium.tabs.onTabSelectionChanged.addListener(function(data) {
+  appendToLog('onTabSelectionChanged -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+  loadWindowList();
+});
+
+chromium.tabs.onTabRemoved.addListener(function(data) {
+  appendToLog('onTabRemoved -- window: ' + data.windowId + ' tab: ' + data.tabId + ' index ' + data.index);
+  loadWindowList();
+});
+
+function isInt(i) {
+  return (typeof i == "number") && !(i % 1) && !isNaN(i);
+}
+
+function createWindow() {
+  var args = {
+    'left': parseInt(document.getElementById('new_window_left').value),
+    'top': parseInt(document.getElementById('new_window_top').value),
+    'width': parseInt(document.getElementById('new_window_width').value),
+    'height': parseInt(document.getElementById('new_window_height').value),
+    'url': document.getElementById('new_window_url').value
+  }
+  
+  if (!isInt(args.left))
+    delete args.left;
+  if (!isInt(args.top))
+    delete args.top;
+  if (!isInt(args.width))
+    delete args.width;
+  if (!isInt(args.height))
+    delete args.height;
+  if (!args.url)
+    delete args.url;
+
+  chromium.tabs.createWindow(args);
+}
 
 </script>
 </head>
@@ -131,6 +183,24 @@ chromium.tabs.onTabMoved.addListener(function(data) {
         </div>
       </div>
     </div>
+    <div style="background-color: #EEEEBB; margin: 20px; padding: 8px">
+      <h3 style="text-align: center; margin: 8px"> Create Window</h3>
+      <div style="margin: 8px">
+        <div style="width: 300px; display: inline-block"> 
+          left: <input style="width: 20px" type="text" id="new_window_left" />
+          top: <input style="width: 20px" type="text" id="new_window_top" />
+          width: <input style="width: 20px" type="text" id="new_window_width" />
+          height: <input style="width: 20px" type="text" id="new_window_height" />
+        </div>
+      </div>
+      <div style="margin: 8px">
+        <div>
+          <div style="width: 40px; display:inline-block">url:</div>
+          <input style="width: 90%" type="text" id="new_window_url" />
+        </div>
+      </div>
+      <button onclick="createWindow();">Create</button>
+    </div>
     <div style="background-color: #EEEEAA; margin: 20px; padding: 8px">
       <h3 style="text-align: center; margin: 8px"> Create Tab</h3>
       <div style="margin: 8px">
@@ -158,6 +228,7 @@ chromium.tabs.onTabMoved.addListener(function(data) {
       <button onclick="updateAll();">Update All</button>
       <button onclick="moveAll();">Move All</button>
       <button onclick="clearLog();">-->Clear Log</button>
+      <button onclick="chromium.tabs.createWindow();">New Window</button>
     </div>
     <div id="log" style="background-color: #EEAAEE; margin: 20px; padding: 8px">
     </div>
