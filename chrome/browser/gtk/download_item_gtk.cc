@@ -234,7 +234,9 @@ void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
   // same as the width of the text. See above TODO for explanation of the
   // extra 50.
   int showing_width = std::max(kMinDownloadItemWidth,
-      (kTextWidth + 50) * new_item_animation_->GetCurrentValue());
+      static_cast<int>((kTextWidth + 50) *
+                       new_item_animation_->GetCurrentValue()));
+  showing_width = std::max(showing_width, kMinDownloadItemWidth);
   gtk_widget_set_size_request(body_, showing_width, -1);
 }
 
