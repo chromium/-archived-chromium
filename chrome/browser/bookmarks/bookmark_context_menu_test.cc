@@ -6,13 +6,16 @@
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/views/bookmark_bar_view.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/test/testing_profile.h"
 #include "grit/generated_resources.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#if defined(OS_WIN)
+#include "chrome/browser/views/bookmark_bar_view.h"
+#endif
 
 namespace {
 
@@ -38,7 +41,9 @@ class BookmarkContextMenuTest : public testing::Test {
   }
 
   virtual void SetUp() {
+#if defined(OS_WIN)
     BookmarkBarView::testing_ = true;
+#endif
 
     profile_.reset(new TestingProfile());
     profile_->set_has_history_service(true);
@@ -51,7 +56,9 @@ class BookmarkContextMenuTest : public testing::Test {
   }
 
   virtual void TearDown() {
+#if defined(OS_WIN)
     BookmarkBarView::testing_ = false;
+#endif
 
     // Flush the message loop to make Purify happy.
     message_loop_.RunAllPending();
@@ -114,7 +121,7 @@ TEST_F(BookmarkContextMenuTest, OpenAll) {
       NULL, profile_.get(), &navigator_, folder, NEW_FOREGROUND_TAB);
 
   // Should have navigated to F1's children.
-  ASSERT_EQ(2, navigator_.urls_.size());
+  ASSERT_EQ(static_cast<size_t>(2), navigator_.urls_.size());
   ASSERT_TRUE(folder->GetChild(0)->GetURL() == navigator_.urls_[0]);
   ASSERT_TRUE(folder->GetChild(1)->GetChild(0)->GetURL() ==
               navigator_.urls_[1]);

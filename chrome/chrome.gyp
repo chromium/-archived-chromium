@@ -2321,6 +2321,7 @@
             '../third_party/GTM',
           ],
           'sources!': [
+            'browser/bookmarks/bookmark_context_menu_test.cc',
             'browser/back_forward_menu_model_unittest.cc',
             'browser/download/download_manager_unittest.cc',
             'browser/gtk/go_button_gtk_unittest.cc',
@@ -2356,7 +2357,6 @@
           ],
         }, { # else: OS != "win"
           'sources!': [
-            'browser/bookmarks/bookmark_context_menu_test.cc',
             'browser/bookmarks/bookmark_drag_data_unittest.cc',
             'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
             'browser/bookmarks/bookmark_table_model_unittest.cc',
