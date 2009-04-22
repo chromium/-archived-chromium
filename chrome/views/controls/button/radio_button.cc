@@ -81,6 +81,15 @@ bool RadioButton::IsGroupFocusTraversable() const {
   return false;
 }
 
+void RadioButton::OnMouseReleased(const views::MouseEvent& event,
+                                  bool canceled) {
+  native_wrapper_->SetPushed(false);
+  // Call through to toggle the button only if we're not already checked, since
+  // radio buttons can't be toggled like checkboxes.
+  if (!checked())
+    Checkbox::OnMouseReleased(event, canceled);
+}
+
 std::string RadioButton::GetClassName() const {
   return kViewClassName;
 }

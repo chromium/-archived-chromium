@@ -123,7 +123,7 @@ bool Checkbox::OnMousePressed(const MouseEvent& e) {
 
 void Checkbox::OnMouseReleased(const MouseEvent& e, bool canceled) {
   native_wrapper_->SetPushed(false);
-  if (!canceled & HitTestLabel(e)) {
+  if (!canceled && HitTestLabel(e)) {
     SetChecked(!checked());
     ButtonPressed();
   }
