@@ -1,0 +1,112 @@
+<script>
+
+var botRoot = "http://build.chromium.org/buildbot/waterfall";
+
+var botUrl = botRoot + "/horizontal_one_box_per_builder";
+
+function updateStatus(status) {
+  var div = document.getElementById("status");
+  div.title = status;
+  var open = /open/i;
+  if (open.exec(status)) {
+    div.innerHTML = "tree: &nbsp;open&nbsp;";
+    div.className = "open";
+  } else {
+    div.innerHTML = "tree: closed";
+    div.className = "closed";
+  }
+}
+
+function requestStatus() {
+  var bots = document.getElementById("bots");
+  if (bots) {
+    // TODO(erikkay): this generates "Unsafe JavaScript attempt to access frame
+    // with URL"
+    bots.src = botUrl + "?xxx=" + (new Date()).getTime();
+  }
+  var xhr = new XMLHttpRequest();
+  try {
+    xhr.onreadystatechange = function(state) {
+      if (xhr.readyState == 4) {
+        var text = xhr.responseText;
+        var re = /"Notice"[^>]*>([^<\n]+)</g;
+        var results = re.exec(text);
+        if (results && results.index >= 0) {
+          updateStatus(results[1]);
+        } else {
+          console.log("Error: couldn't find node");
+        }
+      }
+    }
+    
+    xhr.onerror = function(error) {
+      console.log("xhr error: " + error);
+    }
+
+    xhr.open("GET", "http://chromium-status.appspot.com/current");
+    xhr.send({});
+  } catch(e) {
+    console.log("exception: " + e);
+  }
+  setTimeout(requestStatus, 30000);
+}
+
+function statusClick() {
+  window.open(botRoot);
+}
+
+requestStatus();
+</script>
+<style>
+#main {
+  /* TODO(erikkay) this shouldn't be necessary, see extensions_toolstrip.css */
+  white-space: nowrap;
+  padding-top: 0px;
+  height: 100%;
+}
+
+.open {
+  color: green;
+}
+
+.closed {
+  color: red;
+}
+
+.button {
+  padding: 2px 5px;
+  height: 20px;
+  float: left;
+  display: table;
+}
+
+.button:hover {
+  padding: 0px 4px;
+  border: 1px solid silver;
+  -webkit-border-radius: 5px;
+  background-color: rgb(237, 244, 252);
+  cursor: pointer;
+}
+
+#bots {
+  border: 1px solid rgb(237, 244, 252);
+  height: 20px;  /* hardcoded height sucks */
+  width: 435px;  /* hardcoded width sucks */
+  background-color: transparent;
+}
+
+#status {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+</style>
+
+<div id="main">
+<div class="button" onclick="statusClick();">
+<div id="status" class="open">
+tree: open?
+</div>
+</div>
+<iframe scrolling='no' id='bots' src="http://build.chromium.org/buildbot/waterfall/horizontal_one_box_per_builder"></iframe>
+</div>

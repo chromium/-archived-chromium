@@ -1,0 +1,6 @@
+{
+  "name": "buildbot",
+  "description": "Buildbot waterfall monitor",
+  "version": "0.1",
+  "toolstrips": ["buildbot.html"]
+}
