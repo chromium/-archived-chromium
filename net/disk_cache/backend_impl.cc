@@ -140,12 +140,28 @@ bool DelayedCacheCleanup(const std::wstring& full_path) {
 // should be discarded.
 bool InitExperiment(int* stored_value) {
   if (*stored_value <= 2) {
-    *stored_value = 0;
+    // Setup the new experiment.
+    srand(static_cast<int>(Time::Now().ToInternalValue()));
+    int option = rand() % 10;
+
+    // Values used by the current experiment are 5 through 8, with 8 used for
+    // empty caches (not set here).
+    if (option > 1) {
+      // 80% will be out of the experiment.
+      *stored_value = 5;
+    } else {
+      *stored_value = option + 6;
+    }
     return true;
   }
 
-  // Discard current cache for groups 3 and 4.
-  return false;
+  if (*stored_value < 5) {
+    // Discard current cache for groups 3 and 4.
+    return false;
+  }
+
+  // Current experiment already set.
+  return true;
 }
 
 }  // namespace
@@ -246,6 +262,9 @@ bool BackendImpl::Init() {
   init_ = true;
   if (data_ && !InitExperiment(&data_->header.experiment))
     return false;
+
+  if (data_->header.experiment > 6)
+    new_eviction_ = true;
 
   if (!CheckIndex()) {
     ReportError(ERR_INIT_FAILED);
@@ -757,6 +776,19 @@ void BackendImpl::FirstEviction() {
   int large_entries_bytes = stats_.GetLargeEntriesSize();
   int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
   CACHE_UMA(PERCENTAGE, "FirstLargeEntriesRatio", 0, large_ratio);
+
+  if (data_->header.experiment == 8) {
+    CACHE_UMA(PERCENTAGE, "FirstResurrectRatio", 8, stats_.GetResurrectRatio());
+    CACHE_UMA(PERCENTAGE, "FirstNoUseRatio", 8,
+              data_->header.lru.sizes[0] / data_->header.num_entries);
+    CACHE_UMA(PERCENTAGE, "FirstLowUseRatio", 8,
+              data_->header.lru.sizes[1] / data_->header.num_entries);
+    CACHE_UMA(PERCENTAGE, "FirstHighUseRatio", 8,
+              data_->header.lru.sizes[2] / data_->header.num_entries);
+    CACHE_UMA(PERCENTAGE, "FirstDeletedRatio", 8,
+              data_->header.lru.sizes[4] / data_->header.num_entries);
+  }
+
   stats_.ResetRatios();
 }
 
@@ -868,9 +900,10 @@ bool BackendImpl::CreateBackingStore(disk_cache::File* file) {
   IndexHeader header;
   header.table_len = DesiredIndexTableLen(max_size_);
 
+  // New caches will go to group 8 on this experiment.
+  header.experiment = 8;
   // We need file version 2.1 for the new eviction algorithm.
-  if (new_eviction_)
-    header.version = 0x20001;
+  header.version = 0x20001;
 
   header.create_time = Time::Now().ToInternalValue();
 
@@ -1332,18 +1365,31 @@ void BackendImpl::ReportStats() {
     return;
 
   CACHE_UMA(HOURS, "UseTime", 0, static_cast<int>(use_hours));
-  CACHE_UMA(PERCENTAGE, "HitRatio", 0, stats_.GetHitRatio());
-  CACHE_UMA(PERCENTAGE, "ResurrectRatio", 0, stats_.GetResurrectRatio());
+  CACHE_UMA(PERCENTAGE, "HitRatio", data_->header.experiment,
+            stats_.GetHitRatio());
 
   int64 trim_rate = stats_.GetCounter(Stats::TRIM_ENTRY) / use_hours;
   CACHE_UMA(COUNTS, "TrimRate", 0, static_cast<int>(trim_rate));
 
   int avg_size = data_->header.num_bytes / GetEntryCount();
-  CACHE_UMA(COUNTS, "EntrySize", 0, avg_size);
+  CACHE_UMA(COUNTS, "EntrySize", data_->header.experiment, avg_size);
 
   int large_entries_bytes = stats_.GetLargeEntriesSize();
   int large_ratio = large_entries_bytes * 100 / data_->header.num_bytes;
   CACHE_UMA(PERCENTAGE, "LargeEntriesRatio", 0, large_ratio);
+
+  if (new_eviction_) {
+    CACHE_UMA(PERCENTAGE, "ResurrectRatio", data_->header.experiment,
+              stats_.GetResurrectRatio());
+    CACHE_UMA(PERCENTAGE, "NoUseRatio", data_->header.experiment,
+              data_->header.lru.sizes[0] / data_->header.num_entries);
+    CACHE_UMA(PERCENTAGE, "LowUseRatio", data_->header.experiment,
+              data_->header.lru.sizes[1] / data_->header.num_entries);
+    CACHE_UMA(PERCENTAGE, "HighUseRatio", data_->header.experiment,
+              data_->header.lru.sizes[2] / data_->header.num_entries);
+    CACHE_UMA(PERCENTAGE, "DeletedRatio", data_->header.experiment,
+              data_->header.lru.sizes[4] / data_->header.num_entries);
+  }
 
   stats_.ResetRatios();
   stats_.SetCounter(Stats::TRIM_ENTRY, 0);

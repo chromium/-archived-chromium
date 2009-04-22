@@ -143,6 +143,7 @@ void Eviction::ReportTrimTimes(EntryImpl* entry) {
     first_trim_ = false;
     if (backend_->ShouldReportAgain()) {
       CACHE_UMA(AGE, "TrimAge", 0, entry->GetLastUsed());
+      ReportListStats();
     }
 
     if (header_->create_time && !header_->lru.filled) {
@@ -219,8 +220,8 @@ void Eviction::TrimCacheV2(bool empty) {
     // Make sure that frequently used items are kept for a minimum time; we know
     // that this entry is not older than its current target, but it must be at
     // least older than the target for list 0 (kTargetTime).
-    if (Rankings::HIGH_USE == list &&
-        !NodeIsOldEnough(next[Rankings::HIGH_USE].get(), 0))
+    if ((Rankings::HIGH_USE == list || Rankings::LOW_USE == list) &&
+        !NodeIsOldEnough(next[list].get(), 0))
       list = 0;
   }
 
@@ -411,6 +412,33 @@ int Eviction::SelectListByLenght() {
   if (header_->lru.sizes[1] > data_entries / 3)
     return 1;
   return 2;
+}
+
+void Eviction::ReportListStats() {
+  if (!new_eviction_)
+    return;
+
+  Rankings::ScopedRankingsBlock last1(rankings_,
+      rankings_->GetPrev(NULL, Rankings::NO_USE));
+  Rankings::ScopedRankingsBlock last2(rankings_,
+      rankings_->GetPrev(NULL, Rankings::LOW_USE));
+  Rankings::ScopedRankingsBlock last3(rankings_,
+      rankings_->GetPrev(NULL, Rankings::HIGH_USE));
+  Rankings::ScopedRankingsBlock last4(rankings_,
+      rankings_->GetPrev(NULL, Rankings::DELETED));
+
+  if (last1.get())
+    CACHE_UMA(AGE, "NoUseAge", header_->experiment,
+              Time::FromInternalValue(last1.get()->Data()->last_used));
+  if (last2.get())
+    CACHE_UMA(AGE, "LowUseAge", header_->experiment,
+              Time::FromInternalValue(last2.get()->Data()->last_used));
+  if (last3.get())
+    CACHE_UMA(AGE, "HighUseAge", header_->experiment,
+              Time::FromInternalValue(last3.get()->Data()->last_used));
+  if (last4.get())
+    CACHE_UMA(AGE, "DeletedUseAge", header_->experiment,
+              Time::FromInternalValue(last4.get()->Data()->last_used));
 }
 
 }  // namespace disk_cache

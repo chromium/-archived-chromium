@@ -59,6 +59,7 @@ class Eviction {
 
   bool NodeIsOldEnough(CacheRankingsBlock* node, int list);
   int SelectListByLenght();
+  void ReportListStats();
 
   BackendImpl* backend_;
   Rankings* rankings_;
