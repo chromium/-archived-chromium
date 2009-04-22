@@ -624,8 +624,17 @@ bool EditorClientImpl::handleEditingKeyboardEvent(
   // Note that on Windows, we'll have a Char key event with ctrlKey() == true
   // and text = "\x0c".
   if (evt->keyEvent()->ctrlKey() || evt->keyEvent()->altKey() ||
-      evt->keyEvent()->metaKey() || evt->keyEvent()->text().isEmpty())
+      evt->keyEvent()->metaKey() || evt->keyEvent()->text().isEmpty()) {
+#if defined(OS_MACOSX)
+    // Alt-<key> may produce special characters.
+    if (!(evt->keyEvent()->altKey() &&
+          evt->keyEvent()->text().length() == 1 &&
+          evt->keyEvent()->text()[0U] >= 0x80))
+      return false;
+#else
     return false;
+#endif
+  }
 
   if (evt->keyEvent()->text().length() == 1) {
     UChar ch = evt->keyEvent()->text()[0U];
