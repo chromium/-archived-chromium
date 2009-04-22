@@ -43,7 +43,6 @@ class TabContentsViewGtk : public TabContentsView {
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();
-  virtual void SetChildSize(RenderWidgetHostView* rwh_view);
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual void ShowContextMenu(const ContextMenuParams& params);
@@ -56,7 +55,6 @@ class TabContentsViewGtk : public TabContentsView {
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
                            bool final_update);
-
  private:
   // We keep track of the timestamp of the latest mousedown event.
   static gboolean OnMouseDown(GtkWidget* widget,

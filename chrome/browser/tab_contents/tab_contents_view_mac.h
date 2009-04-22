@@ -58,7 +58,6 @@ class TabContentsViewMac : public TabContentsView,
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();
-  virtual void SetChildSize(RenderWidgetHostView* rwh_view);
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,

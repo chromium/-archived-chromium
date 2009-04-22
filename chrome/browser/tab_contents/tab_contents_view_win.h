@@ -43,7 +43,6 @@ class TabContentsViewWin : public TabContentsView,
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();
-  virtual void SetChildSize(RenderWidgetHostView* rwh_view);
 
   // Backend implementation of RenderViewHostDelegate::View.
   virtual void ShowContextMenu(const ContextMenuParams& params);

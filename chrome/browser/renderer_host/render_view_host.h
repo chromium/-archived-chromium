@@ -424,7 +424,6 @@ class RenderViewHost : public RenderWidgetHost {
   void WindowMoveOrResizeStarted();
 
   // RenderWidgetHost public overrides.
-  virtual void Init();
   virtual void Shutdown();
   virtual bool IsRenderView() { return true; }
   virtual void OnMessageReceived(const IPC::Message& msg);
@@ -591,11 +590,6 @@ class RenderViewHost : public RenderWidgetHost {
 #ifdef CHROME_PERSONALIZATION
   HostPersonalization personalization_;
 #endif
-
-  // true if a renderer has once been valid. We use this flag to display a sad
-  // tab only when we lose our renderer and not if a paint occurs during
-  // initialization.
-  bool renderer_initialized_;
 
   // true if we are currently waiting for a response for drag context
   // information.

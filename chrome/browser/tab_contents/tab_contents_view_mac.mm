@@ -160,10 +160,6 @@ void TabContentsViewMac::RestoreFocus() {
   // TODO(port)
 }
 
-void TabContentsViewMac::SetChildSize(RenderWidgetHostView* rwh_view) {
-  rwh_view->SetSize(GetContainerSize());
-}
-
 void TabContentsViewMac::UpdateDragCursor(bool is_drop_target) {
   NOTIMPLEMENTED();
 }
