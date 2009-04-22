@@ -37,9 +37,12 @@ class WebDevToolsAgent {
   static void ExecuteDebuggerCommand(const std::string& command,
                                      int caller_id);
 
-  // Requests that debugger makes a callback on the render thread while on
-  // breakpoint. Takes ownership of message.
-  static void ScheduleMessageDispatch(Message* message);
+  typedef void (*MessageLoopDispatchHandler)();
+
+  // Installs dispatch handle that is going to be called periodically
+  // while on a breakpoint.
+  static void SetMessageLoopDispatchHandler(
+      MessageLoopDispatchHandler handler);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgent);

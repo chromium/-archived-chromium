@@ -360,6 +360,8 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
   // If this is developer tools renderer intercept tools messages first.
   if (devtools_client_.get() && devtools_client_->OnMessageReceived(message))
     return;
+  if (devtools_agent_.get() && devtools_agent_->OnMessageReceived(message))
+    return;
 
   IPC_BEGIN_MESSAGE_MAP(RenderView, message)
     IPC_MESSAGE_HANDLER(ViewMsg_CaptureThumbnail, SendThumbnail)

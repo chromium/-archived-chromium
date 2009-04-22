@@ -32,6 +32,7 @@ class DevToolsAgent : public WebDevToolsAgentDelegate {
   // WebDevToolsAgentDelegate implementation
   virtual void SendMessageToClient(const std::string& raw_msg);
   virtual int GetHostId();
+  virtual void ForceRepaint();
 
   // Returns agent instance for its host id.
   static DevToolsAgent* FromHostId(int host_id);
@@ -43,6 +44,7 @@ class DevToolsAgent : public WebDevToolsAgentDelegate {
  private:
   friend class DevToolsAgentFilter;
 
+  void OnAttach();
   void OnDetach();
   void OnRpcMessage(const std::string& raw_msg);
   void OnInspectElement(int x, int y);

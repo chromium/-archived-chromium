@@ -154,6 +154,10 @@ void WebDevToolsAgentImpl::AddMessageToConsole(
   }
 }
 
+void WebDevToolsAgentImpl::ForceRepaint() {
+  delegate_->ForceRepaint();
+}
+
 void WebDevToolsAgentImpl::HighlightDOMNode(int node_id) {
   if (!attached_) {
     return;
@@ -252,6 +256,7 @@ void WebDevToolsAgent::ExecuteDebuggerCommand(
 }
 
 // static
-void WebDevToolsAgent::ScheduleMessageDispatch(Message* message) {
-  DebuggerAgentManager::ScheduleMessageDispatch(message);
+void WebDevToolsAgent::SetMessageLoopDispatchHandler(
+    MessageLoopDispatchHandler handler) {
+  DebuggerAgentManager::SetMessageLoopDispatchHandler(handler);
 }

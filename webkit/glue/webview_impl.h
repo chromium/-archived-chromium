@@ -120,6 +120,7 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
       const std::vector<std::wstring>& suggestions,
       int default_suggestion_index);
   virtual void HideAutofillPopup();
+  virtual void SetIgnoreInputEvents(bool new_value);
 
   virtual WebDevToolsAgent* GetWebDevToolsAgent();
   WebDevToolsAgentImpl* GetWebDevToolsAgentImpl();
@@ -303,6 +304,8 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   bool context_menu_allowed_;
 
   bool doing_drag_and_drop_;
+
+  bool ignore_input_events_;
 
   // Webkit expects keyPress events to be suppressed if the associated keyDown
   // event was handled. Safari implements this behavior by peeking out the

@@ -28,17 +28,11 @@ class DevToolsAgentFilter : public IPC::ChannelProxy::MessageFilter {
   // IPC::ChannelProxy::MessageFilter override. Called on IO thread.
   virtual bool OnMessageReceived(const IPC::Message& message);
 
+  static void DispatchMessageLoop();
+
   // OnDebuggerCommand will be executed in the IO thread so that we can
   // handle debug messages even when v8 is stopped.
   void OnDebuggerCommand(const std::string& command);
-
-  // Evaluates noop to kick the debugger.
-  void EvalNoop(int routing_id);
-
-  // Attaches agent.
-  void Attach(int routing_id);
-
-  static std::set<int> attached_routing_ids_;
 
   int current_routing_id_;
 

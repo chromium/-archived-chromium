@@ -595,6 +595,10 @@ void RenderWidget::CloseWidgetSoon(WebWidget* webwidget) {
   Send(new ViewHostMsg_Close(routing_id_));
 }
 
+void RenderWidget::GenerateFullRepaint() {
+  DidInvalidateRect(webwidget_, gfx::Rect(size_.width(), size_.height()));
+}
+
 void RenderWidget::Close() {
   if (webwidget_) {
     webwidget_->Close();

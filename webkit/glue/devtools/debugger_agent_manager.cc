@@ -21,6 +21,8 @@
 #include "v8/include/v8-debug.h"
 #endif
 
+WebDevToolsAgent::MessageLoopDispatchHandler
+    DebuggerAgentManager::message_loop_dispatch_handler_ = NULL;
 
 // static
 void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
@@ -33,13 +35,13 @@ void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
 #endif
 }
 
-void DebuggerAgentManager::V8DebugHostDispatchHandler(
-    void* dispatch,
-    void* data) {
-  WebDevToolsAgent::Message* m =
-      reinterpret_cast<WebDevToolsAgent::Message*>(dispatch);
-  m->Dispatch();
-  delete m;
+void DebuggerAgentManager::V8DebugHostDispatchHandler() {
+  if (DebuggerAgentManager::message_loop_dispatch_handler_
+      && attached_agents_) {
+    DebuggerAgentImpl::RunWithDeferredMessages(
+        *attached_agents_,
+        message_loop_dispatch_handler_);
+  }
 }
 
 // static
@@ -53,11 +55,10 @@ void DebuggerAgentManager::DebugAttach(DebuggerAgentImpl* debugger_agent) {
     attached_agents_ = new AttachedAgentsSet();
     v8::Debug::SetMessageHandler(
         &DebuggerAgentManager::V8DebugMessageHandler,
-        NULL, /* no additional data */
         false /* don't create separate thread for sending debugger output */);
-    v8::Debug::SetHostDispatchHandler(
-        &DebuggerAgentManager::V8DebugHostDispatchHandler,
-        NULL /* no additional data */);
+    // TODO(pfeldman): Uncomment once V8 changes are landed.
+//    v8::Debug::SetHostDispatchHandler(
+//        &DebuggerAgentManager::V8DebugHostDispatchHandler, 100 /* ms */);
   }
   attached_agents_->add(debugger_agent);
 #endif
@@ -165,7 +166,6 @@ bool DebuggerAgentManager::SendCommandResponse(DictionaryValue* response) {
   return true;
 }
 
-
 // static
 void DebuggerAgentManager::ExecuteDebuggerCommand(
     const std::string& command,
@@ -178,11 +178,9 @@ void DebuggerAgentManager::ExecuteDebuggerCommand(
 }
 
 // static
-void DebuggerAgentManager::ScheduleMessageDispatch(
-    WebDevToolsAgent::Message* message) {
-#if USE(V8)
-  v8::Debug::SendHostDispatch(message);
-#endif
+void DebuggerAgentManager::SetMessageLoopDispatchHandler(
+    WebDevToolsAgent::MessageLoopDispatchHandler handler) {
+  message_loop_dispatch_handler_ = handler;
 }
 
 // static
@@ -192,7 +190,6 @@ void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd) {
                          cmd.length());
 #endif
 }
-
 
 // static
 DebuggerAgentImpl* DebuggerAgentManager::FindAgentForCurrentV8Context() {

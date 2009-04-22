@@ -358,6 +358,7 @@ WebViewImpl::WebViewImpl()
       zoom_level_(0),
       context_menu_allowed_(false),
       doing_drag_and_drop_(false),
+      ignore_input_events_(false),
       suppress_next_keypress_event_(false),
       window_open_disposition_(IGNORE_ACTION),
       ime_accept_events_(true),
@@ -1018,6 +1019,10 @@ bool WebViewImpl::HandleInputEvent(const WebInputEvent* input_event) {
   // we're done.
   if (doing_drag_and_drop_)
     return true;
+
+  if (ignore_input_events_)
+    return true;
+
   // TODO(eseidel): Remove g_current_input_event.
   // This only exists to allow ChromeClient::show() to know which mouse button
   // triggered a window.open event.
@@ -1879,6 +1884,11 @@ void WebViewImpl::HideAutoCompletePopup() {
     autocomplete_popup_->hidePopup();
     autocomplete_popup_showing_ = false;
   }
+}
+
+void WebViewImpl::SetIgnoreInputEvents(bool new_value) {
+  DCHECK(ignore_input_events_ != new_value);
+  ignore_input_events_ = new_value;
 }
 
 WebCore::Node* WebViewImpl::GetNodeForWindowPos(int x, int y) {

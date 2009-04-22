@@ -90,6 +90,9 @@ class RenderWidget : public IPC::Channel::Listener,
   virtual bool IsHidden(WebWidget* webwidget) { return is_hidden_; }
   virtual WebKit::WebScreenInfo GetScreenInfo(WebWidget* webwidget);
 
+  // Invalidates entire widget rect to generate a full repaint.
+  void GenerateFullRepaint();
+
   // Close the underlying WebWidget.
   void Close();
 

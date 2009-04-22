@@ -15,6 +15,9 @@ class WebDevToolsAgentDelegate {
 
   virtual void SendMessageToClient(const std::string& raw_msg) = 0;
 
+  // Invalidates widget which leads to the repaint.
+  virtual void ForceRepaint() = 0;
+
   // Returns the id of the entity hosting this agent.
   virtual int GetHostId() = 0;
 

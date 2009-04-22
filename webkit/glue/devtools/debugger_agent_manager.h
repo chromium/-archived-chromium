@@ -39,10 +39,8 @@ class DebuggerAgentManager {
 
   static void ExecuteDebuggerCommand(const std::string& command,
                                      int caller_id);
-
-  // Requests that debugger makes a callback on the render thread while on
-  // breakpoint.
-  static void ScheduleMessageDispatch(WebDevToolsAgent::Message* message);
+  static void SetMessageLoopDispatchHandler(
+      WebDevToolsAgent::MessageLoopDispatchHandler handler);
 
  private:
   DebuggerAgentManager();
@@ -51,7 +49,7 @@ class DebuggerAgentManager {
   static void V8DebugMessageHandler(const uint16_t* message,
                                     int length,
                                     void* data);
-  static void V8DebugHostDispatchHandler(void* dispatch, void* data);
+  static void V8DebugHostDispatchHandler();
   static void DebuggerOutput(const std::string& out);
   static void SendCommandToV8(const std::wstring& cmd);
   static bool SendCommandResponse(DictionaryValue* response);
@@ -66,6 +64,9 @@ class DebuggerAgentManager {
 
   typedef HashSet<DebuggerAgentImpl*> AttachedAgentsSet;
   static AttachedAgentsSet* attached_agents_;
+
+  static WebDevToolsAgent::MessageLoopDispatchHandler
+      message_loop_dispatch_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerAgentManager);
 };

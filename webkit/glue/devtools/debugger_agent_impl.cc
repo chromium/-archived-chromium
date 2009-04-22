@@ -4,8 +4,15 @@
 
 #include "config.h"
 
+#include <wtf/HashSet.h>
+#include <wtf/RefPtr.h>
+#include <wtf/Vector.h>
+
 #include "Document.h"
+#include "Frame.h"
 #include "Node.h"
+#include "Page.h"
+#include "PageGroup.h"
 #undef LOG
 
 #include "grit/webkit_resources.h"
@@ -16,12 +23,16 @@
 #include "webkit/glue/devtools/debugger_agent_impl.h"
 #include "webkit/glue/devtools/debugger_agent_manager.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webdevtoolsagent_impl.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview_impl.h"
 
 using WebCore::DOMWindow;
 using WebCore::Document;
+using WebCore::Frame;
 using WebCore::Node;
+using WebCore::Page;
+using WebCore::PageGroup;
 using WebCore::String;
 using WebCore::V8ClassIndex;
 using WebCore::V8Custom;
@@ -40,6 +51,7 @@ DebuggerAgentImpl::DebuggerAgentImpl(
 
 DebuggerAgentImpl::~DebuggerAgentImpl() {
   DebuggerAgentManager::DebugDetach(this);
+  web_view_impl_->SetIgnoreInputEvents(false);
 }
 
 void DebuggerAgentImpl::DebugBreak() {
@@ -48,6 +60,8 @@ void DebuggerAgentImpl::DebugBreak() {
 
 void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {
   delegate_->DebuggerOutput(command);
+  // TODO(pfeldman): Uncomment this once v8 changes are landed.
+  // webdevtools_agent_->ForceRepaint();
 }
 
 void DebuggerAgentImpl::SetDocument(Document* document) {
@@ -127,6 +141,64 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
 
   v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
   return WebCore::toWebCoreString(res_json);
+}
+
+void DebuggerAgentImpl::RunWithDeferredMessages(
+    const HashSet<DebuggerAgentImpl*>& agents,
+    WebDevToolsAgent::MessageLoopDispatchHandler handler) {
+
+  // TODO(pfeldman): Make PageGroupLoadDeferrer visible and use it from here.
+  // Code below is derived from the Chrome.cpp's PageGroupLoadDeferrer:
+  // 1. Disable active objects and input events.
+  Vector<RefPtr<Frame>, 16> deferred_frames;
+  for (HashSet<DebuggerAgentImpl*>::const_iterator ag_it = agents.begin();
+       ag_it != agents.end(); ++ag_it) {
+    DebuggerAgentImpl* agent = *ag_it;
+    agent->web_view()->SetIgnoreInputEvents(true);
+    const HashSet<Page*>& pages = agent->GetPage()->group().pages();
+    HashSet<Page*>::const_iterator end = pages.end();
+    for (HashSet<Page*>::const_iterator it = pages.begin(); it != end; ++it) {
+      Page* other_page = *it;
+      if (!other_page->defersLoading()) {
+        deferred_frames.append(other_page->mainFrame());
+#if !PLATFORM(MAC)
+        for (Frame* frame = other_page->mainFrame(); frame;
+             frame = frame->tree()->traverseNext()) {
+          frame->document()->suspendActiveDOMObjects();
+        }
+#endif
+      }
+    }
+  }
+
+  // 2. Disable loading.
+  size_t count = deferred_frames.size();
+  for (size_t i = 0; i < count; ++i) {
+    if (Page* page = deferred_frames[i]->page()) {
+       page->setDefersLoading(true);
+    }
+  }
+  // 3. Process messages.
+  handler();
+
+  // 4. Bring things back.
+  for (size_t i = 0; i < deferred_frames.size(); ++i) {
+    if (Page* page = deferred_frames[i]->page()) {
+      page->setDefersLoading(false);
+
+#if !PLATFORM(MAC)
+      for (Frame* frame = page->mainFrame(); frame; frame =
+           frame->tree()->traverseNext()) {
+        frame->document()->resumeActiveDOMObjects();
+      }
+#endif
+    }
+  }
+
+  for (HashSet<DebuggerAgentImpl*>::const_iterator ag_it = agents.begin();
+       ag_it != agents.end(); ++ag_it) {
+    (*ag_it)->web_view()->SetIgnoreInputEvents(false);
+  }
 }
 
 WebCore::Page* DebuggerAgentImpl::GetPage() {

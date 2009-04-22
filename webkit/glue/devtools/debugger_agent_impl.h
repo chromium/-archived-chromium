@@ -5,8 +5,11 @@
 #ifndef WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_IMPL_H_
 #define WEBKIT_GLUE_DEVTOOLS_DEBUGGER_AGENT_IMPL_H_
 
+#include <wtf/HashSet.h>
+
 #include "v8.h"
 #include "webkit/glue/devtools/debugger_agent.h"
+#include "webkit/glue/webdevtoolsagent.h"
 
 class WebDevToolsAgentImpl;
 class WebViewImpl;
@@ -41,8 +44,14 @@ class DebuggerAgentImpl : public DebuggerAgent {
       WebCore::Node* node,
       const WebCore::String& json_args);
 
+  static void RunWithDeferredMessages(
+      const HashSet<DebuggerAgentImpl*>& agents,
+      WebDevToolsAgent::MessageLoopDispatchHandler handler);
+
   WebCore::Page* GetPage();
   WebDevToolsAgentImpl* webdevtools_agent() { return webdevtools_agent_; };
+
+  WebViewImpl* web_view() { return web_view_impl_; }
 
  private:
   v8::Persistent<v8::Context> context_;

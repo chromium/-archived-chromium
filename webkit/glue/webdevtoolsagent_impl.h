@@ -71,6 +71,8 @@ class WebDevToolsAgentImpl
       const WebCore::String& source_id,
       unsigned int line_no);
 
+  void ForceRepaint();
+
   int host_id() { return host_id_; }
   NetAgentImpl* net_agent_impl() { return net_agent_impl_.get(); }
 

@@ -26,6 +26,7 @@ DevToolsAgent::~DevToolsAgent() {
 bool DevToolsAgent::OnMessageReceived(const IPC::Message& message) {
   bool handled = true;
   IPC_BEGIN_MESSAGE_MAP(DevToolsAgent, message)
+    IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Attach, OnAttach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_Detach, OnDetach)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_RpcMessage, OnRpcMessage)
     IPC_MESSAGE_HANDLER(DevToolsAgentMsg_InspectElement, OnInspectElement)
@@ -45,6 +46,10 @@ int DevToolsAgent::GetHostId() {
   return routing_id_;
 }
 
+void DevToolsAgent::ForceRepaint() {
+  view_->GenerateFullRepaint();
+}
+
 // static
 DevToolsAgent* DevToolsAgent::FromHostId(int host_id) {
   std::map<int, DevToolsAgent*>::iterator it =
@@ -53,6 +58,13 @@ DevToolsAgent* DevToolsAgent::FromHostId(int host_id) {
     return it->second;
   }
   return NULL;
+}
+
+void DevToolsAgent::OnAttach() {
+  WebDevToolsAgent* web_agent = GetWebAgent();
+  if (web_agent) {
+    web_agent->Attach();
+  }
 }
 
 void DevToolsAgent::OnDetach() {
