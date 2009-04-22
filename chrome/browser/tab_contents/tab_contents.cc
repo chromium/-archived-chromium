@@ -4,11 +4,15 @@
 
 #include "chrome/browser/tab_contents/tab_contents.h"
 
+#include "chrome/browser/autofill_manager.h"
 #include "chrome/browser/cert_store.h"
 #include "chrome/browser/download/download_item_model.h"
 #include "chrome/browser/download/download_shelf.h"
+#include "chrome/browser/password_manager/password_manager.h"
+#include "chrome/browser/plugin_installer.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
+#include "chrome/browser/tab_contents/tab_contents_view.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
@@ -24,17 +28,62 @@
 #include "chrome/views/controls/scrollbar/native_scroll_bar.h"
 #endif
 
+// static
+int TabContents::find_request_id_counter_ = -1;
+
+// TODO(brettw) many of the data members here have casts to WebContents.
+// This object is the same as WebContents and is currently being merged.
+// When this merge is done, the casts can be removed.
 TabContents::TabContents(Profile* profile)
     : delegate_(NULL),
       controller_(this, profile),
+      view_(TabContentsView::Create(static_cast<WebContents*>(this))),
+      ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(
+          static_cast<WebContents*>(this),
+          static_cast<WebContents*>(this))),
+      property_bag_(),
+      registrar_(),
+      printing_(*static_cast<WebContents*>(this)),
+      save_package_(),
+      cancelable_consumer_(),
+      autofill_manager_(),
+      password_manager_(),
+      plugin_installer_(),
+      ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(
+          static_cast<WebContents*>(this))),
+      select_file_dialog_(),
+      pending_install_(),
       is_loading_(false),
       is_crashed_(false),
       waiting_for_response_(false),
-      shelf_visible_(false),
       max_page_id_(-1),
-      capturing_contents_(false),
+      current_load_start_(),
+      load_state_(net::LOAD_STATE_IDLE),
+      load_state_host_(),
+      received_page_title_(false),
+      is_starred_(false),
+      contents_mime_type_(),
+      encoding_(),
+      download_shelf_(),
+      shelf_visible_(false),
       blocked_popups_(NULL),
-      is_being_destroyed_(false) {
+      infobar_delegates_(),
+      last_download_shelf_show_(),
+      find_ui_active_(false),
+      find_op_aborted_(false),
+      current_find_request_id_(find_request_id_counter_++),
+      find_text_(),
+      find_prepopulate_text_(NULL),
+      find_result_(),
+      capturing_contents_(false),
+      is_being_destroyed_(false),
+      notify_disconnection_(false),
+      history_requests_(),
+#if defined(OS_WIN)
+      message_box_active_(CreateEvent(NULL, TRUE, FALSE, NULL)),
+#endif
+      last_javascript_message_dismissal_(),
+      suppress_javascript_messages_(false) {
 }
 
 TabContents::~TabContents() {
@@ -393,4 +442,22 @@ void TabContents::ExpireInfoBars(
     if (delegate->ShouldExpire(details))
       RemoveInfoBar(delegate);
   }
+}
+
+void TabContents::OnGearsCreateShortcutDone(
+    const GearsShortcutData2& shortcut_data, bool success) {
+  NavigationEntry* current_entry = controller_.GetLastCommittedEntry();
+  bool same_page =
+      current_entry && pending_install_.page_id == current_entry->page_id();
+
+  if (success && same_page) {
+    // Only switch to app mode if the user chose to create a shortcut and
+    // we're still on the same page that it corresponded to.
+    if (delegate())
+      delegate()->ConvertContentsToApplication(this);
+  }
+
+  // Reset the page id to indicate no requests are pending.
+  pending_install_.page_id = 0;
+  pending_install_.callback_functor = NULL;
 }

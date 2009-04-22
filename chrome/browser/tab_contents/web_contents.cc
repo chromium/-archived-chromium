@@ -172,48 +172,11 @@ BOOL CALLBACK InvalidateWindow(HWND hwnd, LPARAM lparam) {
 
 }  // namespace
 
-class WebContents::GearsCreateShortcutCallbackFunctor {
- public:
-  explicit GearsCreateShortcutCallbackFunctor(WebContents* contents)
-     : contents_(contents) {}
-
-  void Run(const GearsShortcutData2& shortcut_data, bool success) {
-    if (contents_)
-      contents_->OnGearsCreateShortcutDone(shortcut_data, success);
-    delete this;
-  }
-  void Cancel() {
-    contents_ = NULL;
-  }
-
- private:
-  WebContents* contents_;
-};
-
-// static
-int WebContents::find_request_id_counter_ = -1;
-
 WebContents::WebContents(Profile* profile,
                          SiteInstance* site_instance,
                          int routing_id,
                          base::WaitableEvent* modal_dialog_event)
-    : TabContents(profile),
-      view_(TabContentsView::Create(this)),
-      ALLOW_THIS_IN_INITIALIZER_LIST(render_manager_(this, this)),
-      printing_(*this),
-      notify_disconnection_(false),
-      received_page_title_(false),
-      is_starred_(false),
-#if defined(OS_WIN)
-      message_box_active_(CreateEvent(NULL, TRUE, FALSE, NULL)),
-#endif
-      ALLOW_THIS_IN_INITIALIZER_LIST(fav_icon_helper_(this)),
-      suppress_javascript_messages_(false),
-      load_state_(net::LOAD_STATE_IDLE),
-      find_ui_active_(false),
-      find_op_aborted_(false),
-      current_find_request_id_(find_request_id_counter_++),
-      find_prepopulate_text_(NULL) {
+    : TabContents(profile) {
   pending_install_.page_id = 0;
   pending_install_.callback_functor = NULL;
 
@@ -1768,24 +1731,6 @@ void WebContents::UpdateAlternateErrorPageURL() {
 
 void WebContents::UpdateWebPreferences() {
   render_view_host()->UpdateWebPreferences(GetWebkitPrefs());
-}
-
-void WebContents::OnGearsCreateShortcutDone(
-    const GearsShortcutData2& shortcut_data, bool success) {
-  NavigationEntry* current_entry = controller_.GetLastCommittedEntry();
-  bool same_page =
-      current_entry && pending_install_.page_id == current_entry->page_id();
-
-  if (success && same_page) {
-    // Only switch to app mode if the user chose to create a shortcut and
-    // we're still on the same page that it corresponded to.
-    if (delegate())
-      delegate()->ConvertContentsToApplication(this);
-  }
-
-  // Reset the page id to indicate no requests are pending.
-  pending_install_.page_id = 0;
-  pending_install_.callback_functor = NULL;
 }
 
 void WebContents::UpdateMaxPageIDIfNecessary(SiteInstance* site_instance,

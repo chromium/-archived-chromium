@@ -9,42 +9,18 @@
 #include <string>
 #include <vector>
 
-#include "base/basictypes.h"
-#include "chrome/browser/cancelable_request.h"
-#include "chrome/browser/download/save_package.h"
-#include "chrome/browser/fav_icon_helper.h"
-#include "chrome/browser/find_notification_details.h"
-#include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "chrome/browser/shell_dialogs.h"
-#include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/render_view_host_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/common/gears_api.h"
-#include "net/base/load_states.h"
-#include "webkit/glue/password_form.h"
-#include "webkit/glue/webpreferences.h"
-
-#if defined(OS_MACOSX) || defined(OS_LINUX)
-// Remove when we've finished porting the supporting classes.
-#include "chrome/common/temp_scaffolding_stubs.h"
-#elif defined(OS_WIN)
-#include "chrome/browser/printing/print_view_manager.h"
-#endif
 
 class AutofillForm;
-class AutofillManager;
 class DOMUI;
 class InterstitialPageDelegate;
 class LoadNotificationDetails;
-class PasswordManager;
-class PluginInstaller;
 class RenderProcessHost;
 class RenderViewHost;
 class RenderWidgetHost;
 struct ThumbnailScore;
 struct ViewHostMsg_FrameNavigate_Params;
 struct ViewHostMsg_DidPrintPage_Params;
-class TabContentsView;
 
 namespace base {
 class WaitableEvent;
@@ -486,22 +462,6 @@ class WebContents : public TabContents,
   // So InterstitialPage can access SetIsLoading.
   friend class InterstitialPage;
 
-  // When CreateShortcut is invoked RenderViewHost::GetApplicationInfo is
-  // invoked. CreateShortcut caches the state of the page needed to create the
-  // shortcut in PendingInstall. When OnDidGetApplicationInfo is invoked, it
-  // uses the information from PendingInstall and the WebApplicationInfo
-  // to create the shortcut.
-  class GearsCreateShortcutCallbackFunctor;
-  struct PendingInstall {
-    int32 page_id;
-    SkBitmap icon;
-    std::wstring title;
-    GURL url;
-    // This object receives the GearsCreateShortcutCallback and routes the
-    // message back to the WebContents, if we haven't been deleted.
-    GearsCreateShortcutCallbackFunctor* callback_functor;
-  };
-
 
   // NotificationObserver ------------------------------------------------------
 
@@ -542,11 +502,6 @@ class WebContents : public TabContents,
   // Send webkit specific settings to the renderer.
   void UpdateWebPreferences();
 
-  // Called when the user dismisses the shortcut creation dialog.  'success' is
-  // true if the shortcut was created.
-  void OnGearsCreateShortcutDone(const GearsShortcutData2& shortcut_data,
-                                 bool success);
-
   // If our controller was restored and the page id is > than the site
   // instance's page id, the site instances page id is updated as well as the
   // renderers max page id.
@@ -582,123 +537,6 @@ class WebContents : public TabContents,
   // Returns the DOMUI for the current state of the tab. This will either be
   // the pending DOMUI, the committed DOMUI, or NULL.
   DOMUI* GetDOMUIForCurrentState();
-
-  // Data ----------------------------------------------------------------------
-
-  // The corresponding view.
-  scoped_ptr<TabContentsView> view_;
-
-  // Manages creation and swapping of render views.
-  RenderViewHostManager render_manager_;
-
-  // Handles print preview and print job for this contents.
-  printing::PrintViewManager printing_;
-
-  // Indicates whether we should notify about disconnection of this
-  // WebContents. This is used to ensure disconnection notifications only
-  // happen if a connection notification has happened and that they happen only
-  // once.
-  bool notify_disconnection_;
-
-  // Maps from handle to page_id.
-  typedef std::map<HistoryService::Handle, int32> HistoryRequestMap;
-  HistoryRequestMap history_requests_;
-
-  // System time at which the current load was started.
-  base::TimeTicks current_load_start_;
-
-  // Whether we have a (non-empty) title for the current page.
-  // Used to prevent subsequent title updates from affecting history. This
-  // prevents some weirdness because some AJAXy apps use titles for status
-  // messages.
-  bool received_page_title_;
-
-  // SavePackage, lazily created.
-  scoped_refptr<SavePackage> save_package_;
-
-  // Tracks our pending CancelableRequests. This maps pending requests to
-  // page IDs so that we know whether a given callback still applies. The
-  // page ID -1 means no page ID was set.
-  CancelableRequestConsumerT<int32, -1> cancelable_consumer_;
-
-  // Whether the current URL is starred
-  bool is_starred_;
-
-#if defined(OS_WIN)
-  // Handle to an event that's set when the page is showing a message box (or
-  // equivalent constrained window).  Plugin processes check this to know if
-  // they should pump messages then.
-  ScopedHandle message_box_active_;
-#endif
-
-  // AutofillManager, lazily created.
-  scoped_ptr<AutofillManager> autofill_manager_;
-
-  // PasswordManager, lazily created.
-  scoped_ptr<PasswordManager> password_manager_;
-
-  // PluginInstaller, lazily created.
-  scoped_ptr<PluginInstaller> plugin_installer_;
-
-  // Handles downloading favicons.
-  FavIconHelper fav_icon_helper_;
-
-  // Dialog box used for choosing files to upload from file form fields.
-  scoped_refptr<SelectFileDialog> select_file_dialog_;
-
-  // The time that the last javascript message was dismissed.
-  base::TimeTicks last_javascript_message_dismissal_;
-
-  // True if the user has decided to block future javascript messages. This is
-  // reset on navigations to false on navigations.
-  bool suppress_javascript_messages_;
-
-  // When a navigation occurs, we record its contents MIME type. It can be
-  // used to check whether we can do something for some special contents.
-  std::string contents_mime_type_;
-
-  // Character encoding. TODO(jungshik) : convert to std::string
-  std::wstring encoding_;
-
-  PendingInstall pending_install_;
-
-  // The last time that the download shelf was made visible.
-  base::TimeTicks last_download_shelf_show_;
-
-  // The current load state and the URL associated with it.
-  net::LoadState load_state_;
-  std::wstring load_state_host_;
-
-  // True if the Find UI is active for this Tab.
-  bool find_ui_active_;
-
-  // True if a Find operation was aborted. This can happen if the Find box is
-  // closed or if the search term inside the Find box is erased while a search
-  // is in progress. This can also be set if a page has been reloaded, and will
-  // on FindNext result in a full Find operation so that the highlighting for
-  // inactive matches can be repainted.
-  bool find_op_aborted_;
-
-  // Each time a search request comes in we assign it an id before passing it
-  // over the IPC so that when the results come in we can evaluate whether we
-  // still care about the results of the search (in some cases we don't because
-  // the user has issued a new search).
-  static int find_request_id_counter_;
-
-  // This variable keeps track of what the most recent request id is.
-  int current_find_request_id_;
-
-  // The last string we searched for. This is used to figure out if this is a
-  // Find or a FindNext operation (FindNext should not increase the request id).
-  string16 find_text_;
-
-  // Keeps track of the last search string that was used to search in any tab.
-  string16* find_prepopulate_text_;
-
-  // The last find result. This object contains details about the number of
-  // matches, the find selection rectangle, etc. The UI can access this
-  // information to build its presentation.
-  FindNotificationDetails find_result_;
 
   DISALLOW_COPY_AND_ASSIGN(WebContents);
 };
