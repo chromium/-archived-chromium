@@ -12,6 +12,14 @@
     'include_dirs': [
       'src/',
     ],
+    'configurations': {
+      'Debug': {
+        'defines': [
+          # This is needed for GTMLogger to work correctly.
+          'DEBUG',
+        ],
+      },
+    },
   },
   'targets': [
     {

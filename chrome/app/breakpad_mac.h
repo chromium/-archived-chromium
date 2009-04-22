@@ -10,6 +10,11 @@
 // Initializes Breakpad.
 void InitCrashReporter();
 
+// Give Breakpad a chance to store information about the current process.
+// Extra information requires a parsed command line, so call this after
+// CommandLine::Init has been called.
+void InitCrashProcessInfo();
+
 // Is Breakpad enabled?
 bool IsCrashReporterEnabled();
 

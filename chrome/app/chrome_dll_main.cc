@@ -281,6 +281,12 @@ int ChromeMain(int argc, const char** argv) {
 #else
   CommandLine::Init(argc, argv);
 #endif
+
+#if defined(OS_MACOSX)
+  // Needs to be called after CommandLine::Init().
+  InitCrashProcessInfo();
+#endif
+
   const CommandLine& parsed_command_line = *CommandLine::ForCurrentProcess();
 
 #if defined(OS_WIN)

@@ -213,10 +213,6 @@
         'common/libxml_utils.h',
         'common/logging_chrome.cc',
         'common/logging_chrome.h',
-        'common/mach_ipc_mac.h',
-        'common/mach_ipc_mac.mm',
-        'common/mach_message_source_mac.cc',
-        'common/mach_message_source_mac.h',
         'common/main_function_params.h',
         'common/message_box_flags.h',
         'common/message_router.cc',
@@ -1658,6 +1654,16 @@
               # "bundle_id" is the name of the variable used to replace
               # BUNDLE_ID in Info.plist.
               'variables': {'bundle_id': 'com.google.Chrome'},
+              # Only include breakpad in official builds.
+              'dependencies': [
+                '../breakpad/breakpad.gyp:breakpad',
+              ],
+              'copies': [
+                {
+                  'destination': '<(PRODUCT_DIR)/<(branding).app/Contents/Resources/',
+                  'files': ['<(PRODUCT_DIR)/crash_inspector', '<(PRODUCT_DIR)/crash_report_sender.app'],
+                },
+              ]
             }, {  # else: branding!="Chrome"
               'mac_bundle_resources': ['app/theme/chromium/app.icns'],
               'variables': {'bundle_id': 'org.chromium.Chromium'},
@@ -2121,7 +2127,7 @@
         '..',
       ],
       'sources': [
-        'app/breakpad_mac.mm',
+        'app/breakpad_mac_stubs.mm',
         # All unittests in browser, common, and renderer.
         'browser/autocomplete/autocomplete_unittest.cc',
         'browser/autocomplete/history_contents_provider_unittest.cc',
