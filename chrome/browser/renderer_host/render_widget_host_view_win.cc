@@ -67,6 +67,45 @@ BOOL CALLBACK DismissOwnedPopups(HWND window, LPARAM arg) {
   return TRUE;
 }
 
+// Enumerates the installed keyboard layouts in this system and returns true
+// if an RTL keyboard layout is installed.
+// TODO(hbono): to be moved to "src/chrome/common/l10n_util.cc"?
+static bool IsRTLKeyboardLayoutInstalled() {
+  static enum {
+    RTL_KEYBOARD_LAYOUT_NOT_INITIALIZED,
+    RTL_KEYBOARD_LAYOUT_INSTALLED,
+    RTL_KEYBOARD_LAYOUT_NOT_INSTALLED,
+    RTL_KEYBOARD_LAYOUT_ERROR,
+  } layout = RTL_KEYBOARD_LAYOUT_NOT_INITIALIZED;
+
+  // Cache the result value.
+  if (layout != RTL_KEYBOARD_LAYOUT_NOT_INITIALIZED)
+    return layout == RTL_KEYBOARD_LAYOUT_INSTALLED;
+
+  // Retrieve the number of layouts installed in this system.
+  int size = GetKeyboardLayoutList(0, NULL);
+  if (size <= 0) {
+    layout = RTL_KEYBOARD_LAYOUT_ERROR;
+    return false;
+  }
+
+  // Retrieve the keyboard layouts in an array and check if there is an RTL
+  // layout in it.
+  scoped_array<HKL> layouts(new HKL[size]);
+  GetKeyboardLayoutList(size, layouts.get());
+  for (int i = 0; i < size; ++i) {
+    if (PRIMARYLANGID(layouts[i]) == LANG_ARABIC ||
+        PRIMARYLANGID(layouts[i]) == LANG_HEBREW ||
+        PRIMARYLANGID(layouts[i]) == LANG_PERSIAN) {
+      layout = RTL_KEYBOARD_LAYOUT_INSTALLED;
+      return true;
+    }
+  }
+
+  layout = RTL_KEYBOARD_LAYOUT_NOT_INSTALLED;
+  return false;
+}
+
 // Returns the text direction according to the keyboard status.
 // This function retrieves the status of all keys and returns the following
 // values:
@@ -994,24 +1033,32 @@ LRESULT RenderWidgetHostViewWin::OnKeyEvent(UINT message, WPARAM wparam,
   // either a right-shift key or a right-control key after pressing both of
   // them. So, we just update the text direction while a user is pressing the
   // keys, and we notify the text direction when a user releases either of them.
-  if (message == WM_KEYDOWN) {
-    if (wparam == VK_SHIFT) {
-      WebTextDirection direction;
-      if (GetNewTextDirection(&direction))
-        render_widget_host_->UpdateTextDirection(direction);
-    } else if (wparam != VK_CONTROL) {
-      // A user pressed a key except shift and control keys.
-      // When a user presses a key while he/she holds control and shift keys,
-      // we adandon sending an IPC message in a succeeding NotifyTextDirection()
-      // call. To adandon it, this call set a flag that prevents sending an IPC
-      // message in NotifyTextDirection() only if we are going to send it.
-      // So, it is harmless to call this function if we aren't going to send it.
-      render_widget_host_->CancelUpdateTextDirection();
+  // Bug 9718: http://crbug.com/9718 To investigate IE and notepad, this
+  // shortcut is enabled only on a PC having RTL keyboard layouts installed.
+  // We should emulate them.
+  if (IsRTLKeyboardLayoutInstalled()) {
+    if (message == WM_KEYDOWN) {
+      if (wparam == VK_SHIFT) {
+        WebTextDirection direction;
+        if (GetNewTextDirection(&direction))
+          render_widget_host_->UpdateTextDirection(direction);
+      } else if (wparam != VK_CONTROL) {
+        // Bug 9762: http://crbug.com/9762 A user pressed a key except shift
+        // and control keys.
+        // When a user presses a key while he/she holds control and shift keys,
+        // we cancel sending an IPC message in NotifyTextDirection() below and
+        // ignore succeeding UpdateTextDirection() calls while we call
+        // NotifyTextDirection().
+        // To cancel it, this call set a flag that prevents sending an IPC
+        // message in NotifyTextDirection() only if we are going to send it.
+        // It is harmless to call this function if we aren't going to send it.
+        render_widget_host_->CancelUpdateTextDirection();
+      }
+    } else if (message == WM_KEYUP &&
+               (wparam == VK_SHIFT || wparam == VK_CONTROL)) {
+      // We send an IPC message only if we need to update the text direction.
+      render_widget_host_->NotifyTextDirection();
     }
-  } else if (message == WM_KEYUP &&
-             (wparam == VK_SHIFT || wparam == VK_CONTROL)) {
-    // We send an IPC message only if we need to update the text direction.
-    render_widget_host_->NotifyTextDirection();
   }
 
   render_widget_host_->ForwardKeyboardEvent(
