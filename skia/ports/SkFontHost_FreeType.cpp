@@ -759,8 +759,8 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     SkFixed scaleY = fScaleY;
     SkFixed mxy = fMatrix22.xy;
     SkFixed myy = fMatrix22.yy;
-    SkScalar xmin = static_cast<SkScalar>(face->bbox.xMin) / upem;
-    SkScalar xmax = static_cast<SkScalar>(face->bbox.xMax) / upem;
+    SkScalar xmin = SkIntToScalar(face->bbox.xMin) / upem;
+    SkScalar xmax = SkIntToScalar(face->bbox.xMax) / upem;
 
     int leading = face->height - (face->ascender + -face->descender);
     if (leading < 0) {
@@ -780,15 +780,14 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
 
     SkScalar x_height;
     if (os2 && os2->sxHeight) {
-        x_height = (static_cast<SkScalar>(os2->sxHeight) / upem) *
-                   (static_cast<SkScalar>(fScaleX) / 65536);
+        x_height = SkFixedToScalar(SkMulDiv(fScaleX, os2->sxHeight, upem));
     } else {
         const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
         if (x_glyph) {
             FT_BBox bbox;
             FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
             FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
-            x_height = static_cast<SkScalar>(bbox.yMax) / 64;
+            x_height = SkIntToScalar(bbox.yMax) / 64;
         } else {
             x_height = 0;
         }
