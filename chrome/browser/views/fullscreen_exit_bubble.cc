@@ -203,6 +203,7 @@ void FullscreenExitBubble::CheckMousePosition() {
   // |                                                       |  Slide-out region
   // :                                                       :
   //
+  // * If app is not active, we hide the popup.
   // * If the mouse is offscreen or in the slide-out region, we hide the popup.
   // * If the mouse goes idle, we hide the popup.
   // * If the mouse is in the slide-in-region and not idle, we show the popup.
@@ -228,7 +229,8 @@ void FullscreenExitBubble::CheckMousePosition() {
   }
   last_mouse_pos_ = transformed_pos;
 
-  if (!root_view_->HitTest(transformed_pos) ||
+  if ((GetActiveWindow() != root_view_->GetWidget()->GetNativeView()) ||
+      !root_view_->HitTest(transformed_pos) ||
       (cursor_pos.y >= GetPopupRect(true).bottom()) ||
       !idle_timeout_.IsRunning()) {
     // The cursor is offscreen, in the slide-out region, or idle.
@@ -243,7 +245,10 @@ void FullscreenExitBubble::CheckMousePosition() {
 }
 
 void FullscreenExitBubble::Hide() {
-  if (!initial_delay_.IsRunning()) {
+  // Allow the bubble to hide if the window is deactivated or our initial delay
+  // finishes.
+  if ((GetActiveWindow() != root_view_->GetWidget()->GetNativeView()) ||
+      !initial_delay_.IsRunning()) {
     size_animation_->SetSlideDuration(kSlideOutDurationMs);
     size_animation_->Hide();
   }
