@@ -136,12 +136,6 @@ DWORD WebDropTarget::OnDragOver(IDataObject* data_object,
       gfx::Point(client_pt.x, client_pt.y),
       gfx::Point(cursor_position.x, cursor_position.y));
 
-  // Again we don't wait on the renderer to respond, but this can lead to
-  // a race condition.  If the renderer does not want the drop data, then
-  // we won't know until the response from the renderer arrives.  So if a
-  // drop happens before the response arrives, we drop on a renderer that
-  // doesn't want the data.  TODO(noel): fix this.
-
   if (!is_drop_target_)
     return DROPEFFECT_NONE;
 

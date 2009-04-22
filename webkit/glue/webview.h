@@ -191,8 +191,8 @@ class WebView : public WebWidget {
   // Notfies the webview that the system drag and drop operation has ended.
   virtual void DragSourceSystemDragEnded() = 0;
 
-  // Callback methods when a drag and drop operation is trying to drop
-  // something on the renderer.
+  // Callback methods when a drag and drop operation is trying to drop data
+  // on this webview.
   virtual bool DragTargetDragEnter(
       const WebKit::WebDragData& drag_data, int identity,
       const WebKit::WebPoint& client_point,
@@ -204,7 +204,15 @@ class WebView : public WebWidget {
   virtual void DragTargetDrop(
       const WebKit::WebPoint& client_point,
       const WebKit::WebPoint& screen_point) = 0;
+
+  // Helper method for drag and drop target operations: return the drag data
+  // identity.
   virtual int32 GetDragIdentity() = 0;
+
+  // Helper method for drag and drop target operations: override the default
+  // drop effect with either a "copy" (accept true) or "none" (accept false)
+  // effect.  Return true on success.
+  virtual bool SetDropEffect(bool accept) = 0;
 
   // Notifies the webview that autofill suggestions are available for a node.
   virtual void AutofillSuggestionsForNode(
