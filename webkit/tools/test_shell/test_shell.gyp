@@ -474,7 +474,7 @@
           'target_name': 'test_worker',
           'type': 'shared_library',
           'xcode_settings': {
-             'EXPORTED_SYMBOLS_FILE': '../../../chrome/test/worker/test_worker.exp',
+             'EXPORTED_SYMBOLS_FILE': 'test_worker/test_worker.exp',
           },
           'dependencies': [
             '../../../base/base.gyp:base',
@@ -487,9 +487,8 @@
             '../../webkit.gyp:webkit',
           ],
           'sources': [
-            '../../../chrome/test/worker/test_webworker.cc',
-            '../../../chrome/test/worker/test_worker_main.cc',
-            '../../../chrome/worker/worker_webkitclient_impl.cc',
+            'test_worker/test_webworker.cc',
+            'test_worker/test_worker_main.cc',
           ],
         },
       ],
