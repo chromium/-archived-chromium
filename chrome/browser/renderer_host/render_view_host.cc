@@ -92,7 +92,6 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
     : RenderWidgetHost(instance->GetProcess(), routing_id),
       instance_(instance),
       delegate_(delegate),
-      renderer_initialized_(false),
       waiting_for_drag_context_response_(false),
       debugger_attached_(false),
       enabled_bindings_(0),
@@ -198,11 +197,6 @@ bool RenderViewHost::CreateRenderView() {
 
 bool RenderViewHost::IsRenderViewLive() const {
   return process()->channel() && renderer_initialized_;
-}
-
-void RenderViewHost::Init() {
-  RenderWidgetHost::Init();
-  renderer_initialized_ = true;
 }
 
 void RenderViewHost::NavigateToEntry(const NavigationEntry& entry,
@@ -866,12 +860,8 @@ void RenderViewHost::OnMsgRenderViewReady() {
 }
 
 void RenderViewHost::OnMsgRenderViewGone() {
-  // Our base class RenderWidgetHouse needs to reset some stuff.
+  // Our base class RenderWidgetHost needs to reset some stuff.
   RendererExited();
-
-  // Clearing this flag causes us to re-create the renderer when recovering
-  // from a crashed renderer.
-  renderer_initialized_ = false;
 
   delegate_->RenderViewGone(this);
   OnDebugDisconnect();

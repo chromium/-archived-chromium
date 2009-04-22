@@ -101,6 +101,7 @@ RenderWidgetHostView* TabContentsViewGtk::CreateViewForWidget(
   g_signal_connect(view->native_view(), "button-press-event",
                    G_CALLBACK(OnMouseDown), this);
   gfx::RemoveAllChildren(vbox_.get());
+  gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view_, TRUE, TRUE, 0);
   return view;
 }
 
@@ -184,12 +185,6 @@ void TabContentsViewGtk::RestoreFocus() {
   // For now just assume we are viewing the tab for the first time.
   SetInitialFocus();
   NOTIMPLEMENTED() << " --  need to restore the focus position on this page.";
-}
-
-void TabContentsViewGtk::SetChildSize(RenderWidgetHostView* rwh_view) {
-  // Packing the gtk widget in a container will cause a configure-event to be
-  // sent to the widget.
-  gtk_box_pack_start(GTK_BOX(vbox_.get()), content_view_, TRUE, TRUE, 0);
 }
 
 void TabContentsViewGtk::UpdateDragCursor(bool is_drop_target) {

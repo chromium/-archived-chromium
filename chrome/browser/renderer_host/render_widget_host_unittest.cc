@@ -161,6 +161,7 @@ class RenderWidgetHostTest : public testing::Test {
     host_.reset(new MockRenderWidgetHost(process_, 1));
     view_.reset(new TestView);
     host_->set_view(view_.get());
+    host_->Init();
   }
   void TearDown() {
     view_.reset();

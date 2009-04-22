@@ -142,7 +142,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Called when a renderer object already been created for this host, and we
   // just need to be attached to it. Used for window.open, <select> dropdown
   // menus, and other times when the renderer initiates creating an object.
-  virtual void Init();
+  void Init();
 
   // Tells the renderer to die and then calls Destroy().
   virtual void Shutdown();
@@ -281,6 +281,12 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // these to tell its delegate to show the user a warning.
   virtual void NotifyRendererUnresponsive() {}
   virtual void NotifyRendererResponsive() {}
+
+ protected:
+  // true if a renderer has once been valid. We use this flag to display a sad
+  // tab only when we lose our renderer and not if a paint occurs during
+  // initialization.
+  bool renderer_initialized_;
 
  private:
   FRIEND_TEST(RenderWidgetHostTest, Resize);
