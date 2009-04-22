@@ -310,6 +310,10 @@ void TabContentsViewWin::RestoreFocus() {
   }
 }
 
+void TabContentsViewWin::SetChildSize(RenderWidgetHostView* rwh_view) {
+  rwh_view->SetSize(GetContainerSize());
+}
+
 void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
   drop_target_->set_is_drop_target(is_drop_target);
 }

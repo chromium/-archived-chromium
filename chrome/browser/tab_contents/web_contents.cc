@@ -1559,7 +1559,7 @@ bool WebContents::CreateRenderViewForRenderManager(
     return false;
 
   // Now that the RenderView has been created, we need to tell it its size.
-  rwh_view->SetSize(view_->GetContainerSize());
+  view_->SetChildSize(rwh_view);
 
   UpdateMaxPageIDIfNecessary(render_view_host->site_instance(),
                              render_view_host);

@@ -124,6 +124,10 @@ class TabContentsView : public RenderViewHostDelegate::View {
   // invoked, SetInitialFocus is invoked.
   virtual void RestoreFocus() = 0;
 
+  // Sets children's size.  May involve packing them in order to get the
+  // toolkit to send them resize events.
+  virtual void SetChildSize(RenderWidgetHostView* rwh_view) = 0;
+
  protected:
   TabContentsView() {}  // Abstract interface.
 

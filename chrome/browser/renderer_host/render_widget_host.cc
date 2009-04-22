@@ -47,8 +47,7 @@ static const int kHungRendererDelayMs = 20000;
 
 RenderWidgetHost::RenderWidgetHost(RenderProcessHost* process,
                                    int routing_id)
-    : renderer_initialized_(false),
-      view_(NULL),
+    : view_(NULL),
       process_(process),
       routing_id_(routing_id),
       is_loading_(false),
@@ -81,8 +80,6 @@ RenderWidgetHost::~RenderWidgetHost() {
 
 void RenderWidgetHost::Init() {
   DCHECK(process_->channel());
-
-  renderer_initialized_ = true;
 
   // Send the ack along with the information on placement.
   gfx::NativeView plugin_view = view_->GetPluginNativeView();
@@ -162,10 +159,8 @@ void RenderWidgetHost::WasRestored() {
 }
 
 void RenderWidgetHost::WasResized() {
-  if (resize_ack_pending_ || !process_->channel() || !view_ ||
-      !renderer_initialized_) {
+  if (resize_ack_pending_ || !process_->channel() || !view_)
     return;
-  }
 
   gfx::Rect view_bounds = view_->GetViewBounds();
   gfx::Size new_size(view_bounds.width(), view_bounds.height());
@@ -352,10 +347,6 @@ void RenderWidgetHost::ForwardInputEvent(const WebInputEvent& input_event,
 }
 
 void RenderWidgetHost::RendererExited() {
-  // Clearing this flag causes us to re-create the renderer when recovering
-  // from a crashed renderer.
-  renderer_initialized_ = false;
-
   // Must reset these to ensure that mouse move events work with a new renderer.
   mouse_move_pending_ = false;
   next_mouse_move_.reset();
