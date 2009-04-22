@@ -50,22 +50,32 @@ void ExtensionView::DidStopLoading(RenderViewHost* render_view_host,
 
 void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
   if (pref_width > 0) {
-    // SchedulePaint first because new_width may be smaller and we want
-    // the Parent to paint the vacated space.
-    SchedulePaint();
-    set_preferred_size(gfx::Size(pref_width, 100));
-    SizeToPreferredSize();
+    gfx::Size pref_size = GetPreferredSize();
+    // This seems to get called a fair amount, so early out if preferred width
+    // is unchanged.
+    if (pref_size.width() != pref_width) {
+      // SchedulePaint first because new_width may be smaller and we want
+      // the Parent to paint the vacated space.
+      SchedulePaint();
+      set_preferred_size(gfx::Size(pref_width, 100));
+      SizeToPreferredSize();
 
-    // TODO(rafaelw): This assumes that the extension view is a child of an
-    // ExtensionToolstrip, which is a child of the BookmarkBarView. There should
-    // be a way to do this where the ExtensionView doesn't have to know it's
-    // containment hierarchy.
-    if (GetParent() != NULL && GetParent()->GetParent() != NULL) {
-      GetParent()->GetParent()->Layout();
+      // TODO(rafaelw): This assumes that the extension view is a child of an
+      // ExtensionToolstrip, which is a child of the BookmarkBarView. There
+      // should be a way to do this where the ExtensionView doesn't have to know
+      // its containment hierarchy.
+      if (GetParent() != NULL && GetParent()->GetParent() != NULL) {
+        GetParent()->GetParent()->Layout();
+      }
+
+      // Also SchedulePaint after because new_width may be larger, and we need
+      // to draw the new part of the view.
+      SchedulePaint();
+
+      // Need to tell the RenderWidgetHostView about the new size since it's
+      // not part of the view hierarchy.
+      render_view_host()->view()->SetSize(size());
     }
-
-    SchedulePaint();
-    render_view_host()->WasResized();
   }
 }
 

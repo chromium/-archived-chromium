@@ -514,6 +514,8 @@ class HWNDHtmlView {
   void Layout() { NOTIMPLEMENTED(); }
   void SchedulePaint() { NOTIMPLEMENTED(); }
   SiteInstance* site_instance() { NOTIMPLEMENTED(); return NULL; }
+  gfx::Size GetPreferredSize() { NOTIMPLEMENTED(); return gfx::Size(); }
+  gfx::Size size() { NOTIMPLEMENTED(); return gfx::Size(); }
 };
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_
