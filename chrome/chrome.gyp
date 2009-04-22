@@ -2052,13 +2052,11 @@
           'sources!': [
             # TODO(port)
             'app/chrome_main_uitest.cc',
-            'browser/browser_uitest.cc',
             'browser/crash_recovery_uitest.cc',
             'browser/download/download_uitest.cc',
             'browser/download/save_page_uitest.cc',
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
-            'browser/renderer_host/resource_dispatcher_host_uitest.cc',
             'browser/sessions/session_restore_uitest.cc',
             'test/chrome_process_util_uitest.cc',
             'test/reliability/page_load_test.cc',

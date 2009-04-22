@@ -65,6 +65,9 @@
 // dragging the only tab in the window.
 - (NSInteger)numberOfTabs;
 
+// The title of the selected tab.
+- (NSString*)selectedTabTitle;
+
 @end
 
 @interface TabWindowController(ProtectedMethods)

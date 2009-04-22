@@ -9,6 +9,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/logging.h"
+#include "base/mac_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
 
@@ -28,11 +29,22 @@ bool PathProviderMac(int key, FilePath* result) {
     }
     case base::DIR_SOURCE_ROOT: {
       FilePath path;
-      // On the mac, unit tests execute two levels deep from the source root.
-      // For example: src/xcodebuild/{Debug|Release}/base_unittests
       PathService::Get(base::DIR_EXE, &path);
-      path = path.DirName();
-      *result = path.DirName();
+      if (mac_util::AmIBundled()) {
+        // The bundled app executables (Chromium, TestShell, etc) live five
+        // leves down, eg:
+        // src/xcodebuild/{Debug|Release}/Chromium.app/Contents/MacOS/Chromium.
+        path = path.DirName();
+        path = path.DirName();
+        path = path.DirName();
+        path = path.DirName();
+        *result = path.DirName();
+      } else {
+        // Unit tests execute two levels deep from the source root, eg:
+        // src/xcodebuild/{Debug|Release}/base_unittests
+        path = path.DirName();
+        *result = path.DirName();
+      }
       return true;
     }
     default:

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
@@ -89,7 +90,7 @@ willPositionSheet:(NSWindow *)sheet
     tabStripController_.reset([[TabStripController alloc]
                                 initWithView:[self tabStripView]
                                   switchView:[self tabContentArea]
-                                     browser:browser_.get()]);
+                                       model:browser_->tabstrip_model()]);
 
     // Create a controller for the toolbar, giving it the toolbar model object
     // and the toolbar view from the nib. The controller will handle
@@ -352,6 +353,11 @@ willPositionSheet:(NSWindow *)sheet
 
 - (NSInteger)numberOfTabs {
   return browser_->tabstrip_model()->count();
+}
+
+- (NSString*)selectedTabTitle {
+  TabContents* contents = browser_->tabstrip_model()->GetSelectedTabContents();
+  return base::SysUTF16ToNSString(contents->GetTitle());
 }
 
 - (void)selectTabWithContents:(TabContents*)newContents

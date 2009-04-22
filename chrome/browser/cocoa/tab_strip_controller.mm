@@ -16,17 +16,19 @@
 #import "chrome/browser/cocoa/tab_view.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
+#include "chrome/common/l10n_util.h"
+#include "grit/chromium_strings.h"
 
 @implementation TabStripController
 
 - (id)initWithView:(TabStripView*)view
         switchView:(NSView*)switchView
-           browser:(Browser*)browser {
-  DCHECK(view && switchView && browser);
+             model:(TabStripModel*)model {
+  DCHECK(view && switchView && model);
   if ((self = [super init])) {
     tabView_ = view;
     switchView_ = switchView;
-    tabModel_ = browser->tabstrip_model();
+    tabModel_ = model;
     bridge_.reset(new TabStripModelObserverBridge(tabModel_, self));
     tabContentsArray_.reset([[NSMutableArray alloc] init]);
     tabArray_.reset([[NSMutableArray alloc] init]);
@@ -190,8 +192,11 @@
   NSString* titleString = nil;
   if (contents)
     titleString = base::SysUTF16ToNSString(contents->GetTitle());
-  if (![titleString length])
-    titleString = NSLocalizedString(@"untitled", nil);
+  if (![titleString length]) {
+    titleString =
+      base::SysWideToNSString(
+          l10n_util::GetString(IDS_BROWSER_WINDOW_MAC_TAB_UNTITLED));
+  }
   [tab setTitle:titleString];
 }
 

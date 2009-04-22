@@ -25,10 +25,17 @@ namespace {
 
 // Given a page title, returns the expected window caption string.
 std::wstring WindowCaptionFromPageTitle(std::wstring page_title) {
+#if defined(OS_WIN) || defined(OS_LINUX)
   if (page_title.empty())
     return l10n_util::GetString(IDS_PRODUCT_NAME);
 
   return l10n_util::GetStringF(IDS_BROWSER_WINDOW_TITLE_FORMAT, page_title);
+#elif defined(OS_MACOSX)
+  // On Mac, we don't want to suffix the page title with the application name.
+  if (page_title.empty())
+    return l10n_util::GetString(IDS_BROWSER_WINDOW_MAC_TAB_UNTITLED);
+  return page_title;
+#endif
 }
 
 class BrowserTest : public UITest {
@@ -60,8 +67,6 @@ class VisibleBrowserTest : public UITest {
     show_window_ = true;
   }
 };
-
-}  // namespace
 
 // Launch the app on a page with no title, check that the app title was set
 // correctly.
@@ -112,12 +117,18 @@ TEST_F(BrowserTest, ThirtyFourTabs) {
     return;
   // See browser\renderer_host\render_process_host.cc for the algorithm to
   // decide how many processes to create.
+#if defined(OS_WIN) || defined(OS_LINUX)
+// TODO(pinkerton): Turn this back on for Mac when ChromeBrowserProcessId()
+// gets implemented. Right now we don't have a good way to do it, and keeping
+// a file always open just so UI tests can check renderers seems a bit
+// wasteful.
   int process_count = GetBrowserProcessCount();
   if (base::SysInfo::AmountOfPhysicalMemoryMB() >= 2048) {
     EXPECT_GE(process_count, 24);
   } else {
     EXPECT_LE(process_count, 23);
   }
+#endif
 }
 
 #if defined(OS_WIN)
@@ -246,7 +257,13 @@ TEST_F(BrowserTest, OtherRedirectsDontForkProcess) {
   int orig_tab_count = -1;
   ASSERT_TRUE(window->GetTabCount(&orig_tab_count));
   int orig_process_count = GetBrowserProcessCount();
+#if defined(OS_WIN) || defined(OS_LINUX)
+// TODO(pinkerton): Turn this back on for Mac when ChromeBrowserProcessId()
+// gets implemented. Right now we don't have a good way to do it, and keeping
+// a file always open just so UI tests can check renderers seems a bit
+// wasteful.
   ASSERT_GE(orig_process_count, 1);
+#endif
 
   // Use JavaScript URL to almost fork a new tab, but not quite.  (Leave the
   // opener non-null.)  Should not fork a process.
@@ -295,3 +312,5 @@ TEST_F(VisibleBrowserTest, WindowOpenClose) {
     FAIL() << "failed to get error page title";
 }
 #endif
+
+}  // namespace

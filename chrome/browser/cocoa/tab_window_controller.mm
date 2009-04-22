@@ -129,4 +129,10 @@
   return 0;
 }
 
+- (NSString*)selectedTabTitle {
+  // subclass must implement
+  NOTIMPLEMENTED();
+  return @"";
+}
+
 @end

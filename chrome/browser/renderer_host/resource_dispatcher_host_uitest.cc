@@ -193,9 +193,15 @@ TEST_F(ResourceDispatcherTest, CrossSiteOnunloadCookie) {
   ASSERT_STREQ("foo", value_result.c_str());
 }
 
+#if !defined(OS_MACOSX)
 // Tests that the onbeforeunload and onunload logic is shortcutted if the old
 // renderer is gone.  In that case, we don't want to wait for the old renderer
 // to run the handlers.
+// TODO(pinkerton): We need to disable this because the crash causes
+// the OS CrashReporter process to kick in to analyze the poor dead renderer.
+// Unfortunately, if the app isn't stripped of debug symbols, this takes about
+// five minutes to complete and isn't conducive to quick turnarounds. As we
+// don't currently strip the app on the build bots, this is bad times.
 TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   // This test only works in multi-process mode
   if (in_process_renderer())
@@ -216,6 +222,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteAfterCrash) {
   CheckTitleTest(L"content-sniffer-test0.html",
                  L"Content Sniffer Test 0");
 }
+#endif
 
 // Tests that cross-site navigations work when the new page does not go through
 // the BufferedEventHandler (e.g., non-http{s} URLs).  (Bug 1225872)
@@ -292,7 +299,7 @@ TEST_F(ResourceDispatcherTest, CrossSiteNavigationErrorPage) {
       test_url.possibly_invalid_spec() + "'";
   tab->NavigateToURLAsync(GURL(redirect_url));
   // Wait for JavaScript redirect to happen.
-  PlatformThread::Sleep(sleep_timeout_ms());
+  PlatformThread::Sleep(sleep_timeout_ms() * 3);
   EXPECT_TRUE(tab->GetTabTitle(&tab_title));
   EXPECT_EQ(L"Title Of Awesomeness", tab_title);
 }

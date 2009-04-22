@@ -13,7 +13,6 @@
 
 @class TabStripView;
 
-class Browser;
 class TabStripModelObserverBridge;
 class TabStripModel;
 class TabContents;
@@ -55,7 +54,7 @@ class ToolbarModel;
 // you have retained them.
 - (id)initWithView:(TabStripView*)view
         switchView:(NSView*)switchView
-           browser:(Browser*)browser;
+             model:(TabStripModel*)model;
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box
 // in the coordinate system of the content area of the currently selected tab.

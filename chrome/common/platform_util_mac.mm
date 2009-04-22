@@ -9,6 +9,9 @@
 #include "base/file_path.h"
 #include "base/logging.h"
 #include "base/sys_string_conversions.h"
+#include "chrome/browser/cocoa/tab_window_controller.h"
+#include "chrome/common/l10n_util.h"
+#include "grit/chromium_strings.h"
 
 namespace platform_util {
 
@@ -23,8 +26,17 @@ gfx::NativeWindow GetTopLevel(gfx::NativeView view) {
 }
 
 string16 GetWindowTitle(gfx::NativeWindow window) {
-  NOTIMPLEMENTED();
-  return string16();
+  NSString* title = nil;
+  if ([[window delegate] isKindOfClass:[TabWindowController class]])
+    title = [[window delegate] selectedTabTitle];
+  else
+    title = [window title];
+  // If we don't yet have a title, use "Untitled".
+  if (![title length])
+    return WideToUTF16(l10n_util::GetString(
+        IDS_BROWSER_WINDOW_MAC_TAB_UNTITLED));
+
+  return base::SysNSStringToUTF16(title);
 }
 
 }  // namespace platform_util

@@ -10,6 +10,7 @@
 #include "base/file_path.h"
 #include "base/mac_util.h"
 #include "base/path_service.h"
+#import "base/scoped_nsobject.h"
 
 #if defined(GOOGLE_CHROME_BUILD)
 #define APP_NAME "Chrome.app"
