@@ -1980,6 +1980,7 @@
         '../third_party/WebKit/WebCore/page/ContextMenuClient.h',
         '../third_party/WebKit/WebCore/page/ContextMenuController.cpp',
         '../third_party/WebKit/WebCore/page/ContextMenuController.h',
+        '../third_party/WebKit/WebCore/page/Coordinates.cpp',
         '../third_party/WebKit/WebCore/page/DOMSelection.cpp',
         '../third_party/WebKit/WebCore/page/DOMSelection.h',
         '../third_party/WebKit/WebCore/page/DOMTimer.cpp',
@@ -3915,7 +3916,6 @@
         # compile.
         '../third_party/WebKit/WebCore/dom/StaticStringList.cpp',
         '../third_party/WebKit/WebCore/loader/icon/IconFetcher.cpp',
-        '../third_party/WebKit/WebCore/loader/icon/IconRecord.cpp',
         '../third_party/WebKit/WebCore/loader/UserStyleSheetLoader.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/GraphicsLayer.cpp',
         '../third_party/WebKit/WebCore/platform/graphics/RenderLayerBacking.cpp',
@@ -4287,9 +4287,6 @@
         '<(INTERMEDIATE_DIR)',
       ],
       'sources': [
-        # webkit_version rule
-        '../third_party/WebKit/WebCore/Configurations/Version.xcconfig',
-
         # This list contains all .h, .cc, and .mm files in glue except for
         # those in the test subdirectory and those with unittest in in their
         # names.

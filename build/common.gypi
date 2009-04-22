@@ -219,6 +219,12 @@
           'SHLINKCOM': [['$FLOCK_SHLINK', '-o', '$TARGET', '$_LIBDIRFLAGS', '$SHLINKFLAGS', '$SOURCES', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
           'LDMODULECOM': [['$FLOCK_LDMODULE', '-o', '$TARGET', '$_LIBDIRFLAGS', '$LDMODULEFLAGS', '$SOURCES', '-Wl,--start-group', '$_LIBFLAGS', '-Wl,--end-group']],
           'IMPLICIT_COMMAND_DEPENDENCIES': 0,
+          # -rpath is only used when building with shared libraries.
+          'conditions': [
+            [ 'library=="shared_library"', {
+              'RPATH': '$LIB_DIR',
+            }],
+          ],
         },
         'scons_import_variables': [
           'CC',

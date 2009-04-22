@@ -571,7 +571,7 @@
         'sgl/SkTSort.h',
         'sgl/SkTypeface.cpp',
         'sgl/SkTypeface_fake.cpp',
-        #'sgl/SkUnPreMultiply.cpp',
+        'sgl/SkUnPreMultiply.cpp',
         'sgl/SkUtils.cpp',
         'sgl/SkWriter32.cpp',
         'sgl/SkXfermode.cpp',

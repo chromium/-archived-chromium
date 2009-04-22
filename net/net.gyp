@@ -18,6 +18,10 @@
         '../build/temp_gyp/googleurl.gyp:googleurl',
         '../build/temp_gyp/v8.gyp:v8',
         '../sdch/sdch.gyp:sdch',
+        # TODO:  various targets end up using
+        # testing::internal::AssertHelper through references here.  
+        # Good candidate for refactoring.
+        '../testing/gtest.gyp:gtest',
         '../third_party/bzip2/bzip2.gyp:bzip2',
         '../third_party/icu38/icu38.gyp:icui18n',
         '../third_party/icu38/icu38.gyp:icuuc',

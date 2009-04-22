@@ -194,6 +194,7 @@
         ['OS=="linux"', {
           'link_settings': {
             'libraries': [
+              '-ldl',
               '-lm',
             ],
           },
@@ -211,11 +212,13 @@
       ],
       'dependencies': [
         'libxml',
+        '../icu38/icu38.gyp:icuuc',
       ],
       'conditions': [
         ['OS=="linux"', {
           'link_settings': {
             'libraries': [
+              '-ldl',
               '-lm',
             ],
           },
