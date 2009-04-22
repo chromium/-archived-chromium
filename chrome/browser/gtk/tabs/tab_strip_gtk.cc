@@ -248,7 +248,6 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
   int index() const { return index_; }
 
  protected:
-  virtual int GetDuration() const { return 5000; };
   // Overridden from TabStripGtk::TabAnimation:
   virtual double GetWidthForTab(int index) const {
     TabGtk* tab = tabstrip_->GetTabAt(index);
