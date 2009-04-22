@@ -2511,3 +2511,4 @@ BUG10760 LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
 BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-child-changes.svg = PASS FAIL
 BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-viewBox-changes.svg = PASS FAIL
 BUG10760 MAC : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
+BUG10760 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-02-f.svg = PASS FAIL
