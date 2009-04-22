@@ -39,16 +39,20 @@ const int kMouseMoveDelayMS = 200;
 
 }  // namespace
 
-// static
+ViewEventTestBase::ViewEventTestBase() : window_(NULL), content_view_(NULL) { }
+
 void ViewEventTestBase::Done() {
   MessageLoop::current()->Quit();
+
+  // We need to post a message to tickle the Dispatcher getting called and
+  // exiting out of the nested loop. Without this the quit never runs.
+  PostMessage(window_->GetNativeWindow(), WM_USER, 0, 0);
+
   // If we're in a nested message loop, as is the case with menus, we need
   // to quit twice. The second quit does that for us.
   MessageLoop::current()->PostDelayedTask(
       FROM_HERE, new MessageLoop::QuitTask(), 0);
 }
-
-ViewEventTestBase::ViewEventTestBase() : window_(NULL), content_view_(NULL) { }
 
 void ViewEventTestBase::SetUp() {
   OleInitialize(NULL);

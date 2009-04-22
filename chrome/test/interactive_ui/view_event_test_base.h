@@ -56,11 +56,11 @@ class Size;
 class ViewEventTestBase : public views::WindowDelegate,
                           public testing::Test {
  public:
+  ViewEventTestBase();
+
   // Invoke when done either because of failure or success. Quits the message
   // loop.
-  static void Done();
-
-  ViewEventTestBase();
+  void Done();
 
   // Creates a window.
   virtual void SetUp();
