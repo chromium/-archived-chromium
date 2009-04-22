@@ -824,7 +824,7 @@ BUG992321 DEFER : LayoutTests/svg/custom/stroke-width-click.svg = FAIL
 // degrees. These are almost certainly nonbugs, but won't be rebased until
 // we can say for sure.
 // The red marker is not drawing the same way as the mac.
-BUG992321 DEFER LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = FAIL
+BUG992321 DEFER LINUX WIN : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
 // 11 numbers differ, by an absolute total of 4.69
 BUG992321 DEFER : LayoutTests/svg/custom/use-on-symbol-inside-pattern.svg = FAIL
 // There are gaps in the whiskers of the tiger
@@ -2510,4 +2510,4 @@ BUG10760 MAC : LayoutTests/svg/custom/marker-overflow-clip.svg = FAIL
 BUG10760 LINUX : LayoutTests/svg/custom/focus-ring.svg = FAIL
 BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-child-changes.svg = PASS FAIL
 BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-viewBox-changes.svg = PASS FAIL
-BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
+BUG10760 MAC : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
