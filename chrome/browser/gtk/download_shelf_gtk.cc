@@ -41,6 +41,9 @@ static GdkColor kBackgroundColor = GDK_COLOR_RGB(230, 237, 244);
 // Border color (the top pixel of the shelf).
 static GdkColor kBorderColor = GDK_COLOR_RGB(214, 214, 214);
 
+// Speed of the shelf show/hide animation.
+static const int kShelfAnimationDurationMs = 120;
+
 }  // namespace
 
 // static
@@ -107,7 +110,9 @@ DownloadShelfGtk::DownloadShelfGtk(TabContents* tab_contents)
   gtk_box_pack_end(GTK_BOX(hbox_), link_hbox_, FALSE, FALSE, 0);
 
   slide_widget_.reset(new SlideAnimatorGtk(shelf_.get(),
-                                           SlideAnimatorGtk::UP, NULL));
+                                           SlideAnimatorGtk::UP,
+                                           kShelfAnimationDurationMs,
+                                           false, NULL));
   // Stick ourselves at the bottom of the parent tab contents.
   GtkWidget* parent_contents = tab_contents->GetNativeView();
   gtk_box_pack_end(GTK_BOX(parent_contents), slide_widget_->widget(),

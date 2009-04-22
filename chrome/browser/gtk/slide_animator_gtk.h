@@ -32,9 +32,15 @@ class SlideAnimatorGtk : public AnimationDelegate {
 
   // |child| is the widget we pack into |widget_|.
   // |direction| indicates which side the contents will appear to come from.
+  // |duration| is the duration of the slide in milliseconds, or 0 for default.
+  // |linear| controls how the animation progresses. If true, the
+  // velocity of the slide is constant over time, otherwise it goes a bit faster
+  // at the beginning and slows to a halt.
   // |delegate| may be NULL.
   SlideAnimatorGtk(GtkWidget* child,
                    Direction direction,
+                   int duration,
+                   bool linear,
                    Delegate* delegate);
 
   virtual ~SlideAnimatorGtk();

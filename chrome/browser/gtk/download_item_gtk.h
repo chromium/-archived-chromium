@@ -9,12 +9,15 @@
 
 #include "base/scoped_ptr.h"
 #include "chrome/browser/download/download_manager.h"
+#include "chrome/common/animation.h"
 
 class BaseDownloadItemModel;
 class DownloadShelfContextMenuGtk;
 class NineBox;
+class SlideAnimation;
 
-class DownloadItemGtk : DownloadItem::Observer {
+class DownloadItemGtk : public DownloadItem::Observer,
+                        public AnimationDelegate {
  public:
   // DownloadItemGtk takes ownership of |download_item_model|.
   DownloadItemGtk(BaseDownloadItemModel* download_item_model,
@@ -24,9 +27,12 @@ class DownloadItemGtk : DownloadItem::Observer {
   // destroying its children. Hence we do nothing in the destructor.
   ~DownloadItemGtk();
 
-  // DownloadItem::Observer implementation
+  // DownloadItem::Observer implementation.
   virtual void OnDownloadUpdated(DownloadItem* download);
   virtual void OnDownloadOpened(DownloadItem* download) { }
+
+  // AnimationDelegate implementation.
+  virtual void AnimationProgressed(const Animation* animation);
 
  private:
   static void InitNineBoxes();
@@ -59,6 +65,9 @@ class DownloadItemGtk : DownloadItem::Observer {
   // animation.
   GtkWidget* body_;
 
+  // The GtkLabel that holds the download title text.
+  GtkWidget* name_label_;
+
   // The GtkLabel that holds the status text.
   GtkWidget* status_label_;
 
@@ -78,6 +87,9 @@ class DownloadItemGtk : DownloadItem::Observer {
   // This is the leftmost widget on |parent_shelf_| that is not a download item.
   // We do not want to overlap it.
   GtkWidget* bounding_widget_;
+
+  // The animation when this item is first added to the shelf.
+  scoped_ptr<SlideAnimation> new_item_animation_;
 };
 
 #endif  // CHROME_BROWSER_GTK_DOWNLOAD_ITEM_GTK_H_

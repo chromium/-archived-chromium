@@ -26,6 +26,8 @@ void OnSizeAllocate(GtkWidget* fixed,
 
 SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
                                    Direction direction,
+                                   int duration,
+                                   bool linear,
                                    Delegate* delegate)
     : child_(child),
       direction_(direction),
@@ -42,7 +44,11 @@ SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
                    G_CALLBACK(OnSizeAllocate), child_);
 
   animation_.reset(new SlideAnimation(this));
-  animation_->SetTweenType(SlideAnimation::NONE);
+  // Default tween type is EASE_OUT.
+  if (linear)
+    animation_->SetTweenType(SlideAnimation::NONE);
+  if (duration != 0)
+    animation_->SetSlideDuration(duration);
 }
 
 SlideAnimatorGtk::~SlideAnimatorGtk() {

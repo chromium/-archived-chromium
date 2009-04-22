@@ -13,6 +13,7 @@
 #include "chrome/browser/gtk/nine_box.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
+#include "chrome/common/slide_animation.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
@@ -29,6 +30,9 @@ const int kTextWidth = 140;
 const char* kLabelColorMarkup = "<span color='#%s'>%s</span>";
 const char* kFilenameColor = "576C95";  // 87, 108, 149
 const char* kStatusColor = "7B8DAE";  // 123, 141, 174
+
+// New download item animation speed in milliseconds.
+static const int kNewItemAnimationDurationMs = 800;
 
 }  // namespace
 
@@ -135,35 +139,33 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   InitNineBoxes();
 
   body_ = gtk_button_new();
-  // Eventually we will show an icon and graphical download progress, but for
-  // now the only contents of body_ is text, so to make its size request the
-  // same as the width of the text (plus a little padding: see below).
-  gtk_widget_set_size_request(body_, kTextWidth + 50, -1);
   gtk_widget_set_app_paintable(body_, TRUE);
   g_signal_connect(G_OBJECT(body_), "expose-event",
                    G_CALLBACK(OnExpose), this);
   GTK_WIDGET_UNSET_FLAGS(body_, GTK_CAN_FOCUS);
-  GtkWidget* name_label = gtk_label_new(NULL);
+  name_label_ = gtk_label_new(NULL);
+
   // TODO(estade): This is at best an educated guess, since we don't actually
   // use ChromeFont() to draw the text. This is why we need to add so
   // much padding when we set the size request. We need to either use ChromeFont
   // or somehow extend TextElider.
   std::wstring elided_filename = gfx::ElideFilename(
-      download_model->download()->GetFileName().ToWStringHack(),
+      download_model_->download()->GetFileName().ToWStringHack(),
       ChromeFont(), kTextWidth);
   gchar* label_markup =
       g_markup_printf_escaped(kLabelColorMarkup, kFilenameColor,
                               WideToUTF8(elided_filename).c_str());
-  gtk_label_set_markup(GTK_LABEL(name_label), label_markup);
+  gtk_label_set_markup(GTK_LABEL(name_label_), label_markup);
   g_free(label_markup);
+
   status_label_ = gtk_label_new(NULL);
   // Left align and vertically center the labels.
-  gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0.5);
+  gtk_misc_set_alignment(GTK_MISC(name_label_), 0, 0.5);
   gtk_misc_set_alignment(GTK_MISC(status_label_), 0, 0.5);
 
   // Stack the labels on top of one another.
   GtkWidget* text_stack = gtk_vbox_new(FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(text_stack), name_label, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(text_stack), name_label_, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(text_stack), status_label_, FALSE, FALSE, 0);
   gtk_container_add(GTK_CONTAINER(body_), text_stack);
 
@@ -184,12 +186,16 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   gtk_box_pack_start(GTK_BOX(parent_shelf), hbox_, FALSE, FALSE, 0);
   // Insert as the leftmost item.
   gtk_box_reorder_child(GTK_BOX(parent_shelf), hbox_, 1);
-  gtk_widget_show_all(hbox_);
 
   g_signal_connect(G_OBJECT(parent_shelf_), "size-allocate",
                    G_CALLBACK(OnShelfResized), this);
 
   download_model_->download()->AddObserver(this);
+
+  new_item_animation_.reset(new SlideAnimation(this));
+  new_item_animation_->SetSlideDuration(kNewItemAnimationDurationMs);
+  gtk_widget_show_all(hbox_);
+  new_item_animation_->Show();
 }
 
 DownloadItemGtk::~DownloadItemGtk() {
@@ -215,6 +221,16 @@ void DownloadItemGtk::OnDownloadUpdated(DownloadItem* download) {
                               WideToUTF8(status_text).c_str());
   gtk_label_set_markup(GTK_LABEL(status_label_), label_markup);
   g_free(label_markup);
+}
+
+void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
+  // Eventually we will show an icon and graphical download progress, but for
+  // now the only contents of body_ is text, so to make its size request the
+  // same as the width of the text. See above TODO for explanation of the
+  // extra 50.
+  int showing_width = (kTextWidth + 50) *
+                      new_item_animation_->GetCurrentValue();
+  gtk_widget_set_size_request(body_, showing_width, -1);
 }
 
 // static

@@ -68,7 +68,7 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
 
   slide_widget_.reset(new SlideAnimatorGtk(border_bin_.get(),
                                            SlideAnimatorGtk::DOWN,
-                                           this));
+                                           0, true, this));
   // We store a pointer back to |this| so we can refer to it from the infobar
   // container.
   g_object_set_data(G_OBJECT(slide_widget_->widget()), "info-bar", this);
