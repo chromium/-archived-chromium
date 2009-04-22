@@ -142,9 +142,9 @@ bool OpenItemWithExternalApp(const std::wstring& full_path);
 //   1. only files that have 'file_ext' as their extension
 //   2. all files (only added if 'include_all_files' is true)
 // Example:
-//   file_ext: { ".txt", ".htm;.html" }
+//   file_ext: { "*.txt", "*.htm;*.html" }
 //   ext_desc: { "Text Document" }
-//   returned: "Text Document\0*.txt\0HTML Document\0.htm;.html\0"
+//   returned: "Text Document\0*.txt\0HTML Document\0*.htm;*.html\0"
 //             "All Files\0*.*\0\0" (in one big string)
 // If a description is not provided for a file extension, it will be retrieved
 // from the registry. If the file extension does not exist in the registry, it

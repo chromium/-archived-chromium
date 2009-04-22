@@ -339,7 +339,7 @@ void SelectFileDialogImpl::ExecuteSelectFile(
     for (size_t j=0; j<inner_exts.size(); ++j) {
       if (!ext_string.empty())
         ext_string.push_back(L';');
-      ext_string.push_back(L'.');
+      ext_string.append(L"*.");
       ext_string.append(inner_exts[j]);
     }
     exts.push_back(ext_string);

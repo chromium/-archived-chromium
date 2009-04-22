@@ -277,7 +277,7 @@ bool SaveFileAs(HWND owner,
                 const std::wstring& suggested_name,
                 std::wstring* final_name) {
   std::wstring file_ext = file_util::GetFileExtensionFromPath(suggested_name);
-  file_ext.insert(L'.', 0);
+  file_ext.insert(0, L"*.");
   std::wstring filter = FormatFilterForExtensions(
     std::vector<std::wstring>(1, file_ext),
     std::vector<std::wstring>(),
