@@ -85,3 +85,7 @@ PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore:
 
 # 8033
 SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
+
+# 10843
+PREFIX : `anonymous namespace'::invalidparameter____purecall___webplugindelegateimpl::isplugindelegatewindow___webcontents::~webcontents
+PREFIX : notificationservice::notify___webcontents::~webcontents
