@@ -14,8 +14,6 @@
 #include "chrome/common/notification_service.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-namespace {
-
 // Test bringing up a master on a specific directory, putting a script
 // in there, etc.
 
@@ -72,8 +70,6 @@ class UserScriptMasterTest : public testing::Test,
   base::SharedMemory* shared_memory_;
 };
 
-}  // namespace
-
 // Test that we *don't* get spurious notifications.
 TEST_F(UserScriptMasterTest, NoScripts) {
   // Set shared_memory_ to something non-NULL, so we can check it became NULL.
@@ -90,6 +86,9 @@ TEST_F(UserScriptMasterTest, NoScripts) {
   ASSERT_EQ(NULL, shared_memory_);
 }
 
+// TODO(shess): Disabled on Mac and Linux because of missing
+// DirectoryWatcher.
+#if defined(OS_WIN)
 // Test that we get notified about new scripts after they're added.
 TEST_F(UserScriptMasterTest, NewScripts) {
   scoped_refptr<UserScriptMaster> master(
@@ -101,10 +100,15 @@ TEST_F(UserScriptMasterTest, NewScripts) {
   size_t written = file_util::WriteFile(path, content, sizeof(content));
   ASSERT_EQ(written, sizeof(content));
 
+  // Post a delayed task so that we fail rather than hanging if things
+  // don't work.
+  message_loop_.PostDelayedTask(FROM_HERE, new MessageLoop::QuitTask, 5000);
+
   message_loop_.Run();
 
   ASSERT_TRUE(shared_memory_ != NULL);
 }
+#endif
 
 // Test that we get notified about scripts if they're already in the test dir.
 TEST_F(UserScriptMasterTest, ExistingScripts) {

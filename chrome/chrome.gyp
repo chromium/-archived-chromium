@@ -2371,7 +2371,6 @@
             'browser/bookmarks/bookmark_table_model_unittest.cc',
             'browser/browser_commands_unittest.cc',
             'browser/extensions/test_extension_loader.cc',
-            'browser/extensions/user_script_master_unittest.cc',
             'browser/importer/firefox_importer_unittest.cc',
             'browser/importer/importer_unittest.cc',
             'browser/login_prompt_unittest.cc',
