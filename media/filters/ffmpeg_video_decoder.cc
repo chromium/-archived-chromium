@@ -140,8 +140,7 @@ bool FFmpegVideoDecoder::EnqueueVideoFrame(VideoSurface::Format surface_format,
 void FFmpegVideoDecoder::CopyPlane(size_t plane,
                                    const VideoSurface& surface,
                                    const AVFrame* frame) {
-  DCHECK(surface.width % 4 == 0);
-  DCHECK(surface.height % 2 == 0);
+  DCHECK(surface.width % 2 == 0);
   const uint8* source = frame->data[plane];
   const size_t source_stride = frame->linesize[plane];
   uint8* dest = surface.data[plane];
@@ -151,7 +150,7 @@ void FFmpegVideoDecoder::CopyPlane(size_t plane,
   if (plane != VideoSurface::kYPlane) {
     bytes_per_line /= 2;
     if (surface.format == VideoSurface::YV12) {
-      copy_lines /= 2;
+      copy_lines = (copy_lines + 1) / 2;
     }
   }
   DCHECK(bytes_per_line <= source_stride && bytes_per_line <= dest_stride);
