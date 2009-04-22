@@ -27,6 +27,11 @@ const int kMenuButtonWidth = 16;
 // it will be elided.
 const int kTextWidth = 140;
 
+// The minimum width we will ever draw the download item. Used as a lower bound
+// during animation. This number comes from the width of the images used to
+// make the download item.
+const int kMinDownloadItemWidth = 13;
+
 const char* kLabelColorMarkup = "<span color='#%s'>%s</span>";
 const char* kFilenameColor = "576C95";  // 87, 108, 149
 const char* kStatusColor = "7B8DAE";  // 123, 141, 174
@@ -228,8 +233,8 @@ void DownloadItemGtk::AnimationProgressed(const Animation* animation) {
   // now the only contents of body_ is text, so to make its size request the
   // same as the width of the text. See above TODO for explanation of the
   // extra 50.
-  int showing_width = (kTextWidth + 50) *
-                      new_item_animation_->GetCurrentValue();
+  int showing_width = std::max(kMinDownloadItemWidth,
+      (kTextWidth + 50) * new_item_animation_->GetCurrentValue());
   gtk_widget_set_size_request(body_, showing_width, -1);
 }
 

@@ -69,8 +69,8 @@ void NineBox::RenderToWidget(GtkWidget* dst) {
   const int y1 = gdk_pixbuf_get_height(images[0]);
   const int x2 = images[2] ? dst_width - gdk_pixbuf_get_width(images[2]) : x1;
   const int y2 = images[6] ? dst_height - gdk_pixbuf_get_height(images[6]) : y1;
-  DCHECK(x2 >= x1);
-  DCHECK(y2 >= y1);
+  DCHECK_GE(x2, x1);
+  DCHECK_GE(y2, y1);
 
   if (images[0])
     DrawPixbuf(dst, images[0], 0, 0);
