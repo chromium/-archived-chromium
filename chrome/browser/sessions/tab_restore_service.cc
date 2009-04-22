@@ -126,16 +126,9 @@ void TabRestoreService::CreateHistoricalTab(NavigationController* tab) {
     return;
 
   scoped_ptr<Tab> local_tab(new Tab());
-  PopulateTabFromController(tab, local_tab.get());
+  PopulateTab(local_tab.get(), browser, tab);
   if (local_tab->navigations.empty())
     return;
-
-  // browser may be NULL when running unit tests.
-  if (browser) {
-    local_tab->browser_id = browser->session_id().id();
-    local_tab->tabstrip_index =
-        browser->tabstrip_model()->GetIndexOfController(tab);
-  }
 
   AddEntry(local_tab.release(), true, true);
 }
@@ -152,13 +145,15 @@ void TabRestoreService::BrowserClosing(Browser* browser) {
   window->tabs.resize(browser->tab_count());
   size_t entry_index = 0;
   for (int tab_index = 0; tab_index < browser->tab_count(); ++tab_index) {
-    PopulateTabFromController(
-        &browser->GetTabContentsAt(tab_index)->controller(),
-        &(window->tabs[entry_index]));
-    if (window->tabs[entry_index].navigations.empty())
+    PopulateTab(&(window->tabs[entry_index]),
+                browser,
+                &browser->GetTabContentsAt(tab_index)->controller());
+    if (window->tabs[entry_index].navigations.empty()) {
       window->tabs.erase(window->tabs.begin() + entry_index);
-    else
+    } else {
+      window->tabs[entry_index].browser_id = browser->session_id().id();
       entry_index++;
+    }
   }
   if (window->tabs.empty()) {
     delete window;
@@ -233,12 +228,20 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
         int tab_index = -1;
         if (tab->has_browser())
           tab_browser = BrowserList::FindBrowserWithID(tab->browser_id);
-        if (tab_browser)
+
+        if (tab_browser) {
           tab_index = tab->tabstrip_index;
-        else
-          tab_browser = browser;
-        if (tab_index < 0 || tab_index > browser->tab_count())
-          tab_index = browser->tab_count();
+        } else {
+          tab_browser = Browser::Create(profile());
+          if (tab->has_browser()) {
+            UpdateTabBrowserIDs(tab->browser_id,
+                                tab_browser->session_id().id());
+          }
+          tab_browser->window()->Show();
+        }
+
+        if (tab_index < 0 || tab_index > tab_browser->tab_count())
+          tab_index = tab_browser->tab_count();
         tab_browser->AddRestoredTab(tab->navigations, tab_index,
                                     tab->current_navigation_index, true);
       }
@@ -254,6 +257,11 @@ void TabRestoreService::RestoreEntryById(Browser* browser,
                                      window->selected_tab_index));
         if (restored_tab)
           restored_tab->controller().LoadIfNecessary();
+      }
+      // All the window's tabs had the same former browser_id.
+      if (window->tabs[0].has_browser()) {
+        UpdateTabBrowserIDs(window->tabs[0].browser_id,
+                            browser->session_id().id());
       }
       browser->window()->Show();
     } else {
@@ -325,9 +333,9 @@ void TabRestoreService::Save() {
   BaseSessionService::Save();
 }
 
-void TabRestoreService::PopulateTabFromController(
-    NavigationController* controller,
-    Tab* tab) {
+void TabRestoreService::PopulateTab(Tab* tab,
+                                    Browser* browser,
+                                    NavigationController* controller) {
   const int pending_index = controller->pending_entry_index();
   int entry_count = controller->entry_count();
   if (entry_count == 0 && pending_index == 0)
@@ -341,6 +349,13 @@ void TabRestoreService::PopulateTabFromController(
   tab->current_navigation_index = controller->GetCurrentEntryIndex();
   if (tab->current_navigation_index == -1 && entry_count > 0)
     tab->current_navigation_index = 0;
+
+  // Browser may be NULL during unit tests.
+  if (browser) {
+    tab->browser_id = browser->session_id().id();
+    tab->tabstrip_index =
+        browser->tabstrip_model()->GetIndexOfController(controller);
+  }
 }
 
 void TabRestoreService::NotifyTabsChanged() {
@@ -681,6 +696,18 @@ void TabRestoreService::ValidateAndDeleteEmptyEntries(
 
   // Delete the remaining entries.
   STLDeleteElements(&invalid_entries);
+}
+
+void TabRestoreService::UpdateTabBrowserIDs(SessionID::id_type old_id,
+                                            SessionID::id_type new_id) {
+  for (Entries::iterator i = entries_.begin(); i != entries_.end(); ++i) {
+    Entry* entry = *i;
+    if (entry->type == TAB) {
+      Tab* tab = static_cast<Tab*>(entry);
+      if (tab->browser_id == old_id)
+        tab->browser_id = new_id;
+    }
+  }
 }
 
 void TabRestoreService::OnGotPreviousSession(

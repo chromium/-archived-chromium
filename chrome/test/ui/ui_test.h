@@ -96,15 +96,28 @@ class UITest : public testing::Test {
   // This method doesn't return until the navigation is complete.
   void NavigateToURL(const GURL& url);
 
-  // Returns the URL of the currently active tab. If there is no active tab,
-  // or some other error, the returned URL will be empty.
-  GURL GetActiveTabURL();
+  // Returns the URL of the currently active tab. Only looks in the first
+  // window, for backward compatibility. If there is no active tab, or some
+  // other error, the returned URL will be empty.
+  GURL GetActiveTabURL() { return GetActiveTabURL(0); }
 
-  // Returns the title of the currently active tab.
-  std::wstring GetActiveTabTitle();
+  // Like above, but looks at the window at the given index.
+  GURL GetActiveTabURL(int window_index);
 
-  // Returns the tabstrip index of the currently active tab, or -1 on error.
-  int GetActiveTabIndex();
+  // Returns the title of the currently active tab. Only looks in the first
+  // window, for backward compatibility.
+  std::wstring GetActiveTabTitle() { return GetActiveTabTitle(0); }
+
+  // Like above, but looks at the window at the given index.
+  std::wstring GetActiveTabTitle(int window_index);
+
+  // Returns the tabstrip index of the currently active tab in the window at
+  // the given index, or -1 on error. Only looks in the first window, for
+  // backward compatibility.
+  int GetActiveTabIndex() { return GetActiveTabIndex(0); }
+
+  // Like above, but looks at the window at the given index.
+  int GetActiveTabIndex(int window_index);
 
   // Returns true when the browser process is running, independent if any
   // renderer process exists or not. It will returns false if an user closed the
@@ -410,9 +423,13 @@ class UITest : public testing::Test {
   void CleanupAppProcesses();
 
   // Returns the proxy for the currently active tab, or NULL if there is no
-  // tab or there was some kind of error. The returned pointer MUST be
-  // deleted by the caller if non-NULL.
-  TabProxy* GetActiveTab();
+  // tab or there was some kind of error. Only looks at the first window, for
+  // backward compatibility. The returned pointer MUST be deleted by the
+  // caller if non-NULL.
+  TabProxy* GetActiveTab() { return GetActiveTab(0); }
+
+  // Like above, but looks at the window at the given index.
+  TabProxy* GetActiveTab(int window_index);
 
   // ********* Member variables *********
 

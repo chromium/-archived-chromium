@@ -110,7 +110,6 @@ class BrowserProxy : public AutomationResourceProxy {
   // On failure, returns NULL.
   AutocompleteEditProxy* GetAutocompleteEdit();
 
-
   // Apply the accelerator with given id (IDC_BACK, IDC_NEWTAB ...)
   // The list can be found at chrome/app/chrome_dll_resource.h
   // Returns true if the call was successful.
