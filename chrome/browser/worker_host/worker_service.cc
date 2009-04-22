@@ -26,6 +26,11 @@ WorkerService* WorkerService::GetInstance() {
 }
 
 WorkerService::WorkerService() : next_worker_route_id_(0) {
+  // Receive a notification if the message filter is deleted.
+  NotificationService::current()->AddObserver(
+      this,
+      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
+      NotificationService::AllSources());
 }
 
 WorkerService::~WorkerService() {
@@ -58,12 +63,6 @@ bool WorkerService::CreateDedicatedWorker(const GURL &url,
   // it to.
   worker->CreateWorker(url, render_view_route_id, ++next_worker_route_id_,
                        renderer_route_id, filter);
-
-  // Receive a notification if the message filter is deleted.
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      Source<ResourceMessageFilter>(filter));
 
   return true;
 }
@@ -138,9 +137,4 @@ void WorkerService::Observe(NotificationType type,
     WorkerProcessHost* worker = static_cast<WorkerProcessHost*>(*iter);
     worker->RendererShutdown(filter);
   }
-
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-      Source<ResourceMessageFilter>(filter));
 }
