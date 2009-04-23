@@ -112,7 +112,7 @@ void InfoBar::Closed() {
 
 // static
 void InfoBar::OnCloseButton(GtkWidget* button, InfoBar* info_bar) {
-  info_bar->AnimateClose();
+  info_bar->RemoveInfoBar();
 }
 
 // AlertInfoBar ----------------------------------------------------------------
