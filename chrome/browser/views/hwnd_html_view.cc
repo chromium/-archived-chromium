@@ -32,6 +32,15 @@ HWNDHtmlView::~HWNDHtmlView() {
   }
 }
 
+void HWNDHtmlView::SetBackground(const SkBitmap& background) {
+  if (initialized_) {
+    DCHECK(render_view_host_);
+    render_view_host_->view()->SetBackground(background);
+  } else {
+    pending_background_ = background;
+  }
+}
+
 void HWNDHtmlView::InitHidden() {
   // TODO(mpcomplete): make it possible to create a RenderView without an HWND.
   views::WidgetWin* win = new views::WidgetWin;
@@ -62,6 +71,10 @@ void HWNDHtmlView::Init(HWND parent_hwnd) {
     rvh->AllowDOMUIBindings();
   CreatingRenderer();
   rvh->CreateRenderView();
+  if (!pending_background_.empty()) {
+    rvh->view()->SetBackground(pending_background_);
+    pending_background_.reset();
+  }
   rvh->NavigateToURL(content_url_);
   initialized_ = true;
 }

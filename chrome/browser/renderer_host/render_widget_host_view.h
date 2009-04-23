@@ -8,6 +8,7 @@
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
 #include "webkit/glue/webplugin.h"
+#include "skia/include/SkBitmap.h"
 
 namespace gfx {
 class Rect;
@@ -31,6 +32,8 @@ class WebCursor;
 // changes.
 class RenderWidgetHostView {
  public:
+  virtual ~RenderWidgetHostView(){};
+
   // Platform-specific creator. Use this to construct new RenderWidgetHostViews
   // rather than using RenderWidgetHostViewWin & friends.
   //
@@ -138,13 +141,24 @@ class RenderWidgetHostView {
   }
   bool activatable() const { return activatable_; }
 
+  // Subclasses should override this method to do whatever is appropriate to set
+  // the custom background for their platform.
+  virtual void SetBackground(const SkBitmap& background) {
+    background_ = background;
+  }
+  const SkBitmap& background() const { return background_; }
+
  protected:
   // Interface class only, do not construct.
-   RenderWidgetHostView() : activatable_(true) {}
-
+  RenderWidgetHostView() : activatable_(true) {}
+ 
   // Whether the window can be activated. Autocomplete popup windows for example
   // cannot be activated.  Default is true.
   bool activatable_;
+
+  // A custom background to paint behind the web content. This will be tiled
+  // horizontally. Can be null, in which case we fall back to painting white.
+  SkBitmap background_;
 
  private:
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostView);

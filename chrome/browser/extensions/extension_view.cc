@@ -35,17 +35,13 @@ ExtensionView::ExtensionView(Extension* extension,
     : HWNDHtmlView(url, this, false, instance),
       extension_(extension),
       browser_(browser) {
-  // Set the width initially to 0, so that the WebCore::Document can
-  // correctly compute the minPrefWidth which is returned in
-  // DidContentsChangeSize()
-  set_preferred_size(gfx::Size(0, 100));
   SetVisible(false);
 }
 
 void ExtensionView::DidStopLoading(RenderViewHost* render_view_host,
       int32 page_id) {
-  SetVisible(true);
   render_view_host->WasResized();
+  SetVisible(true);
 }
 
 void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
@@ -53,7 +49,7 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
     // SchedulePaint first because new_width may be smaller and we want
     // the Parent to paint the vacated space.
     SchedulePaint();
-    set_preferred_size(gfx::Size(pref_width, 100));
+    set_preferred_size(gfx::Size(pref_width, height()));
     SizeToPreferredSize();
 
     // TODO(rafaelw): This assumes that the extension view is a child of an

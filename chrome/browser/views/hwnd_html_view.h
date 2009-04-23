@@ -7,6 +7,7 @@
 
 #include "googleurl/src/gurl.h"
 #include "chrome/views/controls/hwnd_view.h"
+#include "skia/include/SkBitmap.h"
 
 class RenderViewHost;
 class RenderViewHostDelegate;
@@ -26,6 +27,9 @@ class HWNDHtmlView : public views::HWNDView {
   // Initialize the view without a parent window.  Used for extensions that
   // don't display UI.
   void InitHidden();
+
+  // Set a custom background for the view. The background will be tiled.
+  void SetBackground(const SkBitmap& background);
 
  protected:
   // View overrides.
@@ -59,6 +63,10 @@ class HWNDHtmlView : public views::HWNDView {
 
   // The delegate for our render_view_host.
   RenderViewHostDelegate* delegate_;
+
+  // The background the view should have once it is initialized. This is set
+  // when the view has a custom background, but hasn't been inititalized yet.
+  SkBitmap pending_background_;
 
   DISALLOW_EVIL_CONSTRUCTORS(HWNDHtmlView);
 };

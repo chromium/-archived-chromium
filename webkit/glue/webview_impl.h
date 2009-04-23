@@ -125,6 +125,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   virtual WebDevToolsAgent* GetWebDevToolsAgent();
   WebDevToolsAgentImpl* GetWebDevToolsAgentImpl();
 
+  virtual void SetIsTransparent(bool is_transparent);
+  virtual bool GetIsTransparent() const;
+
   // WebViewImpl
 
   const WebKit::WebSize& size() const { return size_; }
@@ -350,6 +353,9 @@ class WebViewImpl : public WebView, public base::RefCounted<WebViewImpl> {
   scoped_ptr<AutocompletePopupMenuClient> autocomplete_popup_client_;
 
   scoped_ptr<WebDevToolsAgentImpl> devtools_agent_;
+
+  // Whether the webview is rendering transparently.
+  bool is_transparent_;
 
   // HACK: current_input_event is for ChromeClientImpl::show(), until we can fix
   // WebKit to pass enough information up into ChromeClient::show() so we can

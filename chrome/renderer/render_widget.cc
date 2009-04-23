@@ -14,6 +14,7 @@
 #include "chrome/common/transport_dib.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
+#include "skia/include/SkShader.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebScreenInfo.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
@@ -308,6 +309,25 @@ void RenderWidget::ClearFocus() {
 
 void RenderWidget::PaintRect(const gfx::Rect& rect,
                              skia::PlatformCanvas* canvas) {
+
+  // If there is a custom background, tile it.
+  if (!background_.empty()) {
+    canvas->save();
+    
+    SkIRect clipRect = { rect.x(), rect.y(), rect.right(), rect.bottom() };
+    canvas->setClipRegion(SkRegion(clipRect));
+
+    SkPaint paint;
+    SkShader* shader = SkShader::CreateBitmapShader(background_,
+                                                    SkShader::kRepeat_TileMode,
+                                                    SkShader::kRepeat_TileMode);
+    paint.setShader(shader)->unref();
+    paint.setPorterDuffXfermode(SkPorterDuff::kSrcOver_Mode);
+    canvas->drawPaint(paint);
+
+    canvas->restore();
+  }
+
   // Bring the canvas into the coordinate system of the paint rect
   canvas->translate(static_cast<SkScalar>(-rect.x()),
                     static_cast<SkScalar>(-rect.y()));
@@ -673,6 +693,12 @@ void RenderWidget::OnSetTextDirection(int direction) {
   } else {
     NOTREACHED();
   }
+}
+
+void RenderWidget::SetBackground(const SkBitmap& background) {
+  background_ = background;
+  // Generate a full repaint.
+  DidInvalidateRect(webwidget_, gfx::Rect(size_.width(), size_.height()));
 }
 
 bool RenderWidget::next_paint_is_resize_ack() const {

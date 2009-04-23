@@ -366,7 +366,8 @@ WebViewImpl::WebViewImpl()
       drag_identity_(0),
       drop_effect_(DROP_EFFECT_DEFAULT),
       drop_accept_(false),
-      autocomplete_popup_showing_(false) {
+      autocomplete_popup_showing_(false),
+      is_transparent_(false) {
   // WebKit/win/WebView.cpp does the same thing, except they call the
   // KJS specific wrapper around this method. We need to have threading
   // initialized because CollatorICU requires it.
@@ -1823,6 +1824,14 @@ WebDevToolsAgent* WebViewImpl::GetWebDevToolsAgent() {
 
 WebDevToolsAgentImpl* WebViewImpl::GetWebDevToolsAgentImpl() {
   return devtools_agent_.get();
+}
+
+void WebViewImpl::SetIsTransparent(bool is_transparent) {
+  is_transparent_ = is_transparent;
+}
+
+bool WebViewImpl::GetIsTransparent() const {
+  return is_transparent_;
 }
 
 void WebViewImpl::DidCommitLoad(bool* is_new_navigation) {

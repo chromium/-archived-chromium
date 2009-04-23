@@ -9,6 +9,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/renderer_host/backing_store.h"
 #include "chrome/browser/renderer_host/test_render_view_host.h"
+#include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/render_messages.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
@@ -242,6 +243,58 @@ TEST_F(RenderWidgetHostTest, Resize) {
   host_->WasResized();
   EXPECT_FALSE(host_->resize_ack_pending_);
   EXPECT_TRUE(process_->sink().GetUniqueMessageMatching(ViewMsg_Resize::ID));
+}
+
+// Tests setting custom background
+TEST_F(RenderWidgetHostTest, Background) {
+#if defined(OS_WIN) || defined(OS_LINUX)
+  scoped_ptr<RenderWidgetHostView> view(
+      RenderWidgetHostView::CreateViewForWidget(host_.get()));
+  host_->set_view(view.get());
+
+  // Create a checkerboard background to test with.
+  ChromeCanvas canvas(4, 4, true);
+  canvas.FillRectInt(SK_ColorBLACK, 0, 0, 2, 2);
+  canvas.FillRectInt(SK_ColorWHITE, 2, 0, 2, 2);
+  canvas.FillRectInt(SK_ColorWHITE, 0, 2, 2, 2);
+  canvas.FillRectInt(SK_ColorBLACK, 2, 2, 2, 2);
+  const SkBitmap& background = canvas.getDevice()->accessBitmap(false);
+
+  // Set the background and make sure we get back a copy.
+  view->SetBackground(background);
+  EXPECT_EQ(4, view->background().width());
+  EXPECT_EQ(4, view->background().height());
+  EXPECT_EQ(background.getSize(), view->background().getSize());
+  EXPECT_TRUE(0 == memcmp(background.getPixels(),
+                          view->background().getPixels(),
+                          background.getSize()));
+
+#if defined(OS_WIN)
+  // A message should have been dispatched telling the renderer about the new
+  // background.
+  const IPC::Message* set_background =
+      process_->sink().GetUniqueMessageMatching(ViewMsg_SetBackground::ID);
+  ASSERT_TRUE(set_background);
+  SkBitmap sent_background;
+  ViewMsg_SetBackground::Read(set_background, &sent_background);
+  EXPECT_EQ(background.getSize(), sent_background.getSize());
+  EXPECT_TRUE(0 == memcmp(background.getPixels(),
+                          sent_background.getPixels(),
+                          background.getSize()));
+#else
+  // TODO(port): When custom backgrounds are implemented for other ports, this
+  // test should work (assuming the background must still be copied into the
+  // renderer -- if not, then maybe the test doesn't apply?).
+#endif
+
+#else
+  // TODO(port): Mac does not have ChromeCanvas. Maybe we can just change this
+  // test to use SkCanvas directly?
+#endif
+
+  // TODO(aa): It would be nice to factor out the painting logic so that we
+  // could test that, but it appears that would mean painting everything twice
+  // since windows HDC structures are opaque.
 }
 
 // Tests getting the backing store with the renderer not setting repaint ack

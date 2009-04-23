@@ -31,6 +31,7 @@
 // Included for views::kReflectedMessage - TODO(beng): move this to win_util.h!
 #include "chrome/views/widget/widget_win.h"
 #include "grit/webkit_resources.h"
+#include "skia/ext/skia_utils_win.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
 #include "third_party/WebKit/WebKit/chromium/public/win/WebInputEventFactory.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
@@ -641,6 +642,12 @@ BackingStore* RenderWidgetHostViewWin::AllocBackingStore(
   return new BackingStore(size);
 }
 
+void RenderWidgetHostViewWin::SetBackground(const SkBitmap& background) {
+  RenderWidgetHostView::SetBackground(background);
+  Send(new ViewMsg_SetBackground(render_widget_host_->routing_id(),
+                                 background));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RenderWidgetHostViewWin, private:
 
@@ -686,10 +693,11 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
   about_to_validate_and_paint_ = false;
   CPaintDC paint_dc(m_hWnd);
 
-  HBRUSH white_brush = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
-  if (backing_store) {
-    gfx::Rect damaged_rect(paint_dc.m_ps.rcPaint);
+  gfx::Rect damaged_rect(paint_dc.m_ps.rcPaint);
+  if (damaged_rect.IsEmpty())
+    return;
 
+  if (backing_store) {
     gfx::Rect bitmap_rect(
         0, 0, backing_store->size().width(), backing_store->size().height());
 
@@ -707,14 +715,14 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
              SRCCOPY);
     }
 
-    // Fill the remaining portion of the damaged_rect with white
+    // Fill the remaining portion of the damaged_rect with the background
     if (damaged_rect.right() > bitmap_rect.right()) {
       RECT r;
       r.left = std::max(bitmap_rect.right(), damaged_rect.x());
       r.right = damaged_rect.right();
       r.top = damaged_rect.y();
       r.bottom = std::min(bitmap_rect.bottom(), damaged_rect.bottom());
-      paint_dc.FillRect(&r, white_brush);
+      DrawBackground(r, &paint_dc);
     }
     if (damaged_rect.bottom() > bitmap_rect.bottom()) {
       RECT r;
@@ -722,7 +730,7 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
       r.right = damaged_rect.right();
       r.top = std::max(bitmap_rect.bottom(), damaged_rect.y());
       r.bottom = damaged_rect.bottom();
-      paint_dc.FillRect(&r, white_brush);
+      DrawBackground(r, &paint_dc);
     }
     if (!whiteout_start_time_.is_null()) {
       TimeDelta whiteout_duration = TimeTicks::Now() - whiteout_start_time_;
@@ -733,9 +741,30 @@ void RenderWidgetHostViewWin::OnPaint(HDC dc) {
       whiteout_start_time_ = TimeTicks();
     }
   } else {
-    paint_dc.FillRect(&paint_dc.m_ps.rcPaint, white_brush);
+    DrawBackground(paint_dc.m_ps.rcPaint, &paint_dc);
     if (whiteout_start_time_.is_null())
       whiteout_start_time_ = TimeTicks::Now();
+  }
+}
+
+void RenderWidgetHostViewWin::DrawBackground(const RECT& dirty_rect,
+                                             CPaintDC* dc) {
+  const RECT& dc_rect = dc->m_ps.rcPaint;
+  if (!background_.empty()) {
+    ChromeCanvas canvas(dirty_rect.right - dirty_rect.left,
+                        dirty_rect.bottom - dirty_rect.top,
+                        true);  // opaque
+
+    canvas.TranslateInt(-dirty_rect.left, -dirty_rect.top);
+    canvas.TileImageInt(background_, 0, 0,
+                        dc_rect.right - dc_rect.left,
+                        dc_rect.bottom - dc_rect.top);
+
+    canvas.getTopPlatformDevice().drawToHDC(*dc, dirty_rect.left,
+                                            dirty_rect.top, NULL);
+  } else {
+    HBRUSH white_brush = reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH));
+    dc->FillRect(&dc_rect, white_brush);
   }
 }
 

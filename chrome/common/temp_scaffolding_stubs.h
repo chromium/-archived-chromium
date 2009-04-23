@@ -505,6 +505,7 @@ class HWNDHtmlView {
   }
   virtual ~HWNDHtmlView() {}
 
+  int height() { NOTIMPLEMENTED(); return 0; }
   RenderViewHost* render_view_host() { NOTIMPLEMENTED(); return NULL; }
   void InitHidden() { NOTIMPLEMENTED(); }
   void set_preferred_size(const gfx::Size& size) { NOTIMPLEMENTED(); }

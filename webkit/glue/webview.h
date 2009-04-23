@@ -226,6 +226,11 @@ class WebView : public WebWidget {
   // Returns development tools agent instance belonging to this view.
   virtual WebDevToolsAgent* GetWebDevToolsAgent() = 0;
 
+  // Makes the webview transparent. Useful if you want to have some custom
+  // background behind it.
+  virtual void SetIsTransparent(bool is_transparent) = 0;
+  virtual bool GetIsTransparent() const = 0;
+
  private:
   DISALLOW_COPY_AND_ASSIGN(WebView);
 };

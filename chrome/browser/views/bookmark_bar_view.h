@@ -15,6 +15,7 @@
 #include "chrome/views/controls/menu/menu.h"
 #include "chrome/views/controls/menu/view_menu_delegate.h"
 #include "chrome/views/view.h"
+#include "skia/include/corecg/SkRect.h"
 
 class Browser;
 class PageNavigator;
@@ -375,6 +376,10 @@ class BookmarkBarView : public views::View,
   // button.  Returns true if there were any new toolstrips added.
   bool AddExtensionToolstrips(const ExtensionList* extensions);
 
+  // Initializes the bitmap we use for the background of extension toolstrips by
+  // copying a subset of the current toolstrip background.
+  void InitToolstripBackground(ChromeCanvas* canvas, const SkRect& subset);
+
   Profile* profile_;
 
   // Used for opening urls.
@@ -429,6 +434,9 @@ class BookmarkBarView : public views::View,
 
   // How many extension toolstrips we have showing in the toolbar.
   int num_extension_toolstrips_;
+
+  // Background for extension toolstrips.
+  SkBitmap toolstrip_background_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkBarView);
 };

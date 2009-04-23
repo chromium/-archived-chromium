@@ -26,6 +26,7 @@
 #include "chrome/renderer/external_host_bindings.h"
 #include "chrome/renderer/external_js_object.h"
 #include "chrome/renderer/render_widget.h"
+#include "skia/include/SkBitmap.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/dom_serializer_delegate.h"
@@ -52,7 +53,6 @@ class FilePath;
 class GURL;
 class RenderThread;
 class ResourceDispatcher;
-class SkBitmap;
 class WebAccessibilityManager;
 class WebError;
 class WebFrame;
@@ -581,6 +581,10 @@ class RenderView : public RenderWidget,
 
   // Sends the selection text to the browser.
   void OnRequestSelectionText();
+
+  // Handle message to make the RenderView transparent and render it on top of
+  // a custom background.
+  void OnSetBackground(const SkBitmap& background);
 
   // Prints the page listed in |params|.
   void PrintPage(const ViewMsg_PrintPage_Params& params,

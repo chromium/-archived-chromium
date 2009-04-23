@@ -1532,6 +1532,9 @@ void WebFrameImpl::CreateFrameView() {
 
   frame_->setView(view);
 
+  if (webview_impl_->GetIsTransparent())
+    view->setTransparent(true);
+
   // TODO(darin): The Mac code has a comment about this possibly being
   // unnecessary.  See installInFrame in WebCoreFrameBridge.mm
   if (frame_->ownerRenderer())

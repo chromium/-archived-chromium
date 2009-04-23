@@ -1,16 +1,13 @@
 body {
+  display:-webkit-box;
+  -webkit-box-align:center;
+  white-space:nowrap;
   overflow: hidden;
   margin: 0;
-  padding: 0;
+  padding:0 6px;
   font: menu;
-  text-shadow: #FFFFFF 1px 1px 0px;
   color: #062D75;
-}
-
-#main {
-  background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
-  padding-top: 3px;
-  height: 21px;
-  overflow: hidden;
-  white-space: nowrap;
+  text-shadow: #FFFFFF 1px 1px 0px;
+  -webkit-user-select:none;
+  cursor:default;
 }

@@ -571,6 +571,11 @@ IPC_BEGIN_MESSAGES(View)
 
   // Tells the renderer to clear the focused node (if any).
   IPC_MESSAGE_ROUTED0(ViewMsg_ClearFocusedNode)
+
+  // Make the RenderView transparent and render it onto a custom background. The
+  // background will be tiled in both directions if it is not large enough.
+  IPC_MESSAGE_ROUTED1(ViewMsg_SetBackground,
+                      SkBitmap /* background */)
 IPC_END_MESSAGES(View)
 
 

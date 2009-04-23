@@ -443,6 +443,7 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_MoveOrResizeStarted, OnMoveOrResizeStarted)
     IPC_MESSAGE_HANDLER(ViewMsg_ExtensionResponse, OnExtensionResponse)
     IPC_MESSAGE_HANDLER(ViewMsg_ClearFocusedNode, OnClearFocusedNode)
+    IPC_MESSAGE_HANDLER(ViewMsg_SetBackground, OnSetBackground)
 
     // Have the super handle all other messages.
     IPC_MESSAGE_UNHANDLED(RenderWidget::OnMessageReceived(message))
@@ -2952,6 +2953,13 @@ void RenderView::OnResize(const gfx::Size& new_size,
 void RenderView::OnClearFocusedNode() {
   if (webview())
     webview()->ClearFocusedNode();
+}
+
+void RenderView::OnSetBackground(const SkBitmap& background) {
+  if (webview())
+    webview()->SetIsTransparent(!background.empty());
+
+  SetBackground(background);
 }
 
 void RenderView::SendExtensionRequest(const std::string& name,

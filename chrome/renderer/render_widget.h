@@ -16,6 +16,7 @@
 #include "chrome/common/ipc_channel.h"
 #include "chrome/renderer/render_process.h"
 #include "skia/ext/platform_canvas.h"
+#include "skia/include/SkBitmap.h"
 
 #include "webkit/glue/webwidget_delegate.h"
 #include "webkit/glue/webcursor.h"
@@ -122,6 +123,11 @@ class RenderWidget : public IPC::Channel::Listener,
   // This method is called immediately after PaintRect but before the
   // corresponding paint or scroll message is send to the widget host.
   virtual void DidPaint() {}
+
+  // Set the background of the render widget to a bitmap. The bitmap will be
+  // tiled in both directions if it isn't big enough to fill the area. This is
+  // mainly intended to be used in conjuction with WebView::SetIsTransparent().
+  virtual void SetBackground(const SkBitmap& bitmap);
 
   // RenderWidget IPC message handlers
   void OnClose();
@@ -270,6 +276,9 @@ class RenderWidget : public IPC::Channel::Listener,
 
   // Holds all the needed plugin window moves for a scroll.
   std::vector<WebPluginGeometry> plugin_window_moves_;
+
+  // A custom background for the widget.
+  SkBitmap background_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidget);
 };

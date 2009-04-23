@@ -17,6 +17,8 @@
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
+#include "chrome/browser/renderer_host/render_view_host.h"
+#include "chrome/browser/renderer_host/render_widget_host_view.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/view_ids.h"
@@ -297,20 +299,16 @@ class BookmarkFolderButton : public views::MenuButton {
 // A simple container with a border for an ExtensionView.
 class ExtensionToolstrip : public views::View {
  public:
-  static const int kPadding = 2;
-
   ExtensionToolstrip(Extension* extension, const GURL& url, Browser* browser)
       : view_(browser->profile()->GetExtensionsService()->CreateView(
           extension, url, browser)) {
     AddChildView(view_);
-    set_border(views::Border::CreateEmptyBorder(
-        kPadding, kPadding, kPadding, kPadding));
   }
 
+  ExtensionView* view() { return view_; }
+
   virtual gfx::Size GetPreferredSize() {
-    gfx::Size size = view_->GetPreferredSize();
-    size.Enlarge(kPadding*2, kPadding*2);
-    return size;
+    return view_->GetPreferredSize();
   }
 
   virtual void DidChangeBounds(const gfx::Rect& previous,
@@ -689,6 +687,13 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
     canvas->drawRoundRect(rect,
                           SkDoubleToScalar(roundness),
                           SkDoubleToScalar(roundness), border_paint);
+
+    SkRect toolstrip_background_rect = {
+        rect.fLeft + 1 + kNewtabBarRoundness,
+        rect.fTop + 1,
+        rect.fLeft + 1 + kNewtabBarRoundness + 1,
+        rect.fBottom - 1};
+    InitToolstripBackground(canvas, toolstrip_background_rect);
   } else {
     SkPaint paint;
     paint.setShader(skia::CreateGradientShader(0,
@@ -699,6 +704,51 @@ void BookmarkBarView::Paint(ChromeCanvas* canvas) {
 
     canvas->FillRectInt(kTopBorderColor, 0, 0, width(), 1);
     canvas->FillRectInt(kBottomBorderColor, 0, height() - 1, width(), 1);
+
+    SkRect toolstrip_background_rect = {
+        SkIntToScalar(0),
+        SkIntToScalar(1),
+        SkIntToScalar(1),
+        SkIntToScalar(height() - 2)};
+    InitToolstripBackground(canvas, toolstrip_background_rect);
+  }
+}
+
+void BookmarkBarView::InitToolstripBackground(ChromeCanvas* canvas,
+                                              const SkRect& subset) {
+  if (!toolstrip_background_.empty())
+    return;
+
+  const SkBitmap& bookmarkbar_background =
+      canvas->getDevice()->accessBitmap(false);
+
+  // Extract the correct subset of the toolstrip background into a bitmap. We
+  // must use a temporary here because extractSubset() returns a bitmap that
+  // references pixels in the original one and we want to actually make a copy
+  // that will have a long lifetime.
+  SkBitmap temp;
+  temp.setConfig(bookmarkbar_background.config(),
+                 static_cast<int>(subset.width()),
+                 static_cast<int>(subset.height()));
+
+  SkRect mapped_subset = subset;
+  bool result = canvas->getTotalMatrix().mapRect(&mapped_subset);
+  DCHECK(result);
+
+  SkIRect isubset;
+  mapped_subset.round(&isubset);
+  result = bookmarkbar_background.extractSubset(&temp, isubset);
+  if (!result)
+    return;
+
+  temp.copyTo(&toolstrip_background_, temp.config());
+  DCHECK(toolstrip_background_.readyToDraw());
+
+  // Tell all current toolstrips about the new background
+  for (int i = GetBookmarkButtonCount();
+       i < GetBookmarkButtonCount() + num_extension_toolstrips_; ++i) {
+    static_cast<ExtensionToolstrip*>(GetChildViewAt(i))->view()->SetBackground(
+        toolstrip_background_);
   }
 }
 
@@ -898,11 +948,17 @@ int BookmarkBarView::GetToolbarOverlap() {
 void BookmarkBarView::AnimationProgressed(const Animation* animation) {
   if (browser_)
     browser_->ToolbarSizeChanged(true);
+
+  // Clear the toolstrip background so that we recreate it next time around the
+  // paint loop.
+  toolstrip_background_.reset();
 }
 
 void BookmarkBarView::AnimationEnded(const Animation* animation) {
   if (browser_)
     browser_->ToolbarSizeChanged(false);
+
+  toolstrip_background_.reset();
   SchedulePaint();
 }
 
@@ -1379,6 +1435,7 @@ bool BookmarkBarView::AddExtensionToolstrips(const ExtensionList* extensions) {
                                  (*extension)->GetResourceURL(*toolstrip),
                                  browser_);
       int index = GetBookmarkButtonCount() + num_extension_toolstrips_;
+      view->view()->SetBackground(toolstrip_background_);
       AddChildView(index, view);
       added_toolstrip = true;
       ++num_extension_toolstrips_;
