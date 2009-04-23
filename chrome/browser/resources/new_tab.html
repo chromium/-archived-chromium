@@ -608,7 +608,9 @@ function makeMostVisitedDOM(page, number) {
 function makeCrossImageDOM(url) {
   var cross = DOM('div', {className:'edit-cross'});
   cross.addEventListener("mousedown",
-                         function(event) { blacklistURL(url); },
+                         function(event) {
+                           if (event.which == 1)  // Left click only.
+                             blacklistURL(url); },
                          false);
   return cross;
 }
@@ -625,7 +627,7 @@ function renderMostVisitedPages(pages) {
   if (table.className.indexOf('edit-mode') != -1)
     table.className = 'visible edit-mode';
   else
-    document.getElementById("main").className = 'visible';
+    table.className = 'visible';
   var table = document.getElementById("mostvisitedtable");
   table.innerHTML = '';
 
