@@ -48,6 +48,10 @@ class CocoaTestHelper {
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO]);
     [window_ orderFront:nil];
+
+    // Set the duration of AppKit-evaluated animations (such as frame changes)
+    // to zero for testing purposes. That way they take effect immediately.
+    [[NSAnimationContext currentContext] setDuration:0.0];
   }
 
   // Access the Cocoa window created for the test.

@@ -39,14 +39,11 @@ TEST_F(BookmarkBarControllerTest, ShowHide) {
   EXPECT_TRUE([[bar_ view] isHidden]);
 
   // Show and hide it by toggling.
-  // TODO(pinkerton): When visible, ensure the content area has been resized.
-  // When hidden again, ensure the content area is back to what it at the start.
-  // However, this can't currently be unit-tested due to CoreAnimation.
   [bar_ toggleBookmarkBar];
   EXPECT_TRUE([bar_ isBookmarkBarVisible]);
   EXPECT_FALSE([[bar_ view] isHidden]);
   NSRect content_frame = [content_area_ frame];
-  // EXPECT_NE(content_frame.size.height, kContentAreaHeight);
+  EXPECT_NE(content_frame.size.height, kContentAreaHeight);
   [bar_ toggleBookmarkBar];
   EXPECT_FALSE([bar_ isBookmarkBarVisible]);
   EXPECT_TRUE([[bar_ view] isHidden]);
