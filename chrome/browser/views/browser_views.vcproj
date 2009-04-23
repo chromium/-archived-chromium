@@ -674,14 +674,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\input_window.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\input_window.h"
-			>
-		</File>
-		<File
 			RelativePath=".\jsmessage_box_dialog.cc"
 			>
 		</File>

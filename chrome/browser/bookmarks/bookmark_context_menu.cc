@@ -4,10 +4,12 @@
 
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 
+#include "base/compiler_specific.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/input_window_dialog.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/page_navigator.h"
@@ -21,7 +23,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
-#include "chrome/browser/views/input_window.h"
 #include "chrome/views/window/window.h"
 #endif
 
@@ -40,14 +41,13 @@ bool NodeHasURLs(BookmarkNode* node) {
   return false;
 }
 
-#if defined(OS_WIN)
 // EditFolderController -------------------------------------------------------
 
 // EditFolderController manages the editing and/or creation of a folder. If the
 // user presses ok, the name change is committed to the model.
 //
 // EditFolderController deletes itself when the window is closed.
-class EditFolderController : public InputWindowDelegate,
+class EditFolderController : public InputWindowDialog::Delegate,
                              public BookmarkModelObserver {
  public:
   virtual ~EditFolderController() {
@@ -78,37 +78,41 @@ class EditFolderController : public InputWindowDelegate,
         is_new_(is_new),
         show_in_manager_(show_in_manager) {
     DCHECK(is_new_ || node);
-    window_ = CreateInputWindow(wnd, this);
+
+    std::wstring title = is_new_ ?
+        l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE_NEW) :
+        l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE);
+    std::wstring label =
+        l10n_util::GetString(IDS_BOOMARK_BAR_EDIT_FOLDER_LABEL);
+    std::wstring contents = is_new_ ?
+        l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME) :
+        node_->GetTitle();
+
+    dialog_ = InputWindowDialog::Create(wnd, title, label, contents, this);
     model_->AddObserver(this);
   }
 
   void Show() {
-    window_->Show();
+    dialog_->Show();
   }
 
-  // InputWindowDelegate methods.
-  virtual std::wstring GetTextFieldLabel() {
-    return l10n_util::GetString(IDS_BOOMARK_BAR_EDIT_FOLDER_LABEL);
-  }
-
-  virtual std::wstring GetTextFieldContents() {
-    if (is_new_)
-      return l10n_util::GetString(IDS_BOOMARK_EDITOR_NEW_FOLDER_NAME);
-    return node_->GetTitle();
-  }
-
+  // InputWindowDialog::Delegate methods.
   virtual bool IsValid(const std::wstring& text) {
     return !text.empty();
   }
 
   virtual void InputAccepted(const std::wstring& text) {
     if (is_new_) {
-      BookmarkNode* node =
+      ALLOW_UNUSED BookmarkNode* node =
           model_->AddGroup(node_, node_->GetChildCount(), text);
       if (show_in_manager_) {
+#if defined(OS_WIN)
         BookmarkManagerView* manager = BookmarkManagerView::current();
         if (manager && manager->profile() == profile_)
           manager->SelectInTree(node);
+#else
+        NOTIMPLEMENTED() << "BookmarkManagerView not yet implemented";
+#endif
       }
     } else {
       model_->SetTitle(node_, text);
@@ -116,16 +120,6 @@ class EditFolderController : public InputWindowDelegate,
   }
 
   virtual void InputCanceled() {
-  }
-
-  virtual void DeleteDelegate() {
-    delete this;
-  }
-
-  virtual std::wstring GetWindowTitle() const {
-    return is_new_ ?
-        l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE_NEW) :
-        l10n_util::GetString(IDS_BOOMARK_FOLDER_EDITOR_WINDOW_TITLE);
   }
 
   // BookmarkModelObserver methods, all invoke ModelChanged and close the
@@ -171,7 +165,7 @@ class EditFolderController : public InputWindowDelegate,
   }
 
   void ModelChanged() {
-    window_->Close();
+    dialog_->Close();
   }
 
   Profile* profile_;
@@ -185,11 +179,12 @@ class EditFolderController : public InputWindowDelegate,
   // If is_new_ is true and a new node is created, it is selected in the
   // bookmark manager.
   bool show_in_manager_;
-  views::Window* window_;
+  InputWindowDialog* dialog_;
 
   DISALLOW_COPY_AND_ASSIGN(EditFolderController);
 };
 
+#if defined(OS_WIN)
 // SelectOnCreationHandler ----------------------------------------------------
 
 // Used when adding a new bookmark. If a new bookmark is created it is selected
@@ -340,8 +335,8 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
         return;
       }
 
-#if defined(OS_WIN)
       if (selection_[0]->is_url()) {
+#if defined(OS_WIN)
         BookmarkEditorView::Configuration editor_config;
         if (configuration_ == BOOKMARK_BAR)
           editor_config = BookmarkEditorView::SHOW_TREE;
@@ -349,13 +344,13 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
           editor_config = BookmarkEditorView::NO_TREE;
         BookmarkEditorView::Show(wnd_, profile_, NULL, selection_[0],
                                  editor_config, NULL);
+#else
+      NOTIMPLEMENTED() << "BookmarkEditorView unimplemented";
+#endif
       } else {
         EditFolderController::Show(profile_, wnd_, selection_[0], false,
                                    false);
       }
-#else
-      NOTIMPLEMENTED() << "IDS_BOOKMARK_BAR_RENAME_FOLDER / BAR_EDIT";
-#endif
       break;
 
     case IDS_BOOKMARK_BAR_REMOVE: {
@@ -394,13 +389,8 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
     case IDS_BOOMARK_BAR_NEW_FOLDER: {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_NewFolder",
                                 profile_);
-
-#if defined(OS_WIN)
       EditFolderController::Show(profile_, wnd_, GetParentForNewNodes(),
                                  true, (configuration_ != BOOKMARK_BAR));
-#else
-      NOTIMPLEMENTED() << "New Folder not implemented";
-#endif
       break;
     }
 

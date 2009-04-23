@@ -131,6 +131,11 @@ class BookmarkBarGtk : public BookmarkModelObserver {
                               GdkDragContext* drag_context,
                               BookmarkBarGtk* bar);
 
+  // GtkButton callbacks for folder buttons
+  static gboolean OnFolderButtonReleased(GtkWidget* sender,
+                                         GdkEventButton* event,
+                                         BookmarkBarGtk* bar);
+
   // GtkToolbar callbacks
   static gboolean OnToolbarExpose(GtkWidget* widget, GdkEventExpose* event,
                                   BookmarkBarGtk* window);

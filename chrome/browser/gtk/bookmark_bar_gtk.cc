@@ -127,8 +127,9 @@ void BookmarkBarGtk::Init(Profile* profile) {
   other_bookmarks_button_ = gtk_chrome_button_new();
   g_signal_connect(other_bookmarks_button_, "button-press-event",
                    G_CALLBACK(&OnButtonPressed), this);
-  gtk_button_set_label(GTK_BUTTON(other_bookmarks_button_),
-                       "Other bookmarks");
+  gtk_button_set_label(
+      GTK_BUTTON(other_bookmarks_button_),
+      l10n_util::GetStringUTF8(IDS_BOOMARK_BAR_OTHER_BOOKMARKED).c_str());
   gtk_button_set_image(GTK_BUTTON(other_bookmarks_button_),
                        gtk_image_new_from_pixbuf(folder_icon));
 
@@ -301,6 +302,12 @@ void BookmarkBarGtk::ConfigureButtonForNode(BookmarkNode* node,
       gtk_button_set_image(GTK_BUTTON(button),
                            gtk_image_new_from_pixbuf(default_bookmark_icon));
     }
+  } else {
+      ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+      static GdkPixbuf* default_bookmark_icon = rb.GetPixbufNamed(
+          IDR_BOOKMARK_BAR_FOLDER);
+      gtk_button_set_image(GTK_BUTTON(button),
+                           gtk_image_new_from_pixbuf(default_bookmark_icon));
   }
 }
 
@@ -309,18 +316,19 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
   GtkWidget* button = gtk_chrome_button_new();
   ConfigureButtonForNode(node, button);
 
-  if (node->is_url()) {
-    // The tool item is also a source for dragging
-    gtk_drag_source_set(button, GDK_BUTTON1_MASK,
-                        target_table, G_N_ELEMENTS(target_table),
-                        GDK_ACTION_MOVE);
-    g_signal_connect(G_OBJECT(button), "drag-begin",
-                     G_CALLBACK(&OnButtonDragBegin), this);
-    g_signal_connect(G_OBJECT(button), "drag-end",
-                     G_CALLBACK(&OnButtonDragEnd), this);
+  // The tool item is also a source for dragging
+  gtk_drag_source_set(button, GDK_BUTTON1_MASK,
+                      target_table, G_N_ELEMENTS(target_table),
+                      GDK_ACTION_MOVE);
+  g_signal_connect(G_OBJECT(button), "drag-begin",
+                   G_CALLBACK(&OnButtonDragBegin), this);
+  g_signal_connect(G_OBJECT(button), "drag-end",
+                   G_CALLBACK(&OnButtonDragEnd), this);
 
+
+  if (node->is_url()) {
     // Connect to 'button-release-event' instead of 'clicked' because we need
-    // to access to the modifier keys and we do different things on each
+    // access to the modifier keys and we do different things on each
     // button.
     g_signal_connect(G_OBJECT(button), "button-press-event",
                      G_CALLBACK(OnButtonPressed), this);
@@ -328,7 +336,16 @@ GtkWidget* BookmarkBarGtk::CreateBookmarkButton(
                      G_CALLBACK(OnButtonReleased), this);
     GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
   } else {
-    NOTIMPLEMENTED();
+    // TODO(erg): This button can also be a drop target.
+
+    // Connect to 'button-release-event' instead of 'clicked' because we need
+    // access to the modifier keys and we do different things on each
+    // button.
+    g_signal_connect(G_OBJECT(button), "button-press-event",
+                     G_CALLBACK(OnButtonPressed), this);
+    g_signal_connect(G_OBJECT(button), "button-release-event",
+                     G_CALLBACK(OnFolderButtonReleased), this);
+    GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
   }
 
   return button;
@@ -424,6 +441,7 @@ gboolean BookmarkBarGtk::OnButtonPressed(GtkWidget* sender,
   return FALSE;
 }
 
+// static
 gboolean BookmarkBarGtk::OnButtonReleased(GtkWidget* sender,
                                           GdkEventButton* event,
                                           BookmarkBarGtk* bar) {
@@ -503,6 +521,26 @@ void BookmarkBarGtk::OnButtonDragEnd(GtkWidget* button,
   bar->dragged_node_ = NULL;
 
   gtk_widget_show(button);
+}
+
+// static
+gboolean BookmarkBarGtk::OnFolderButtonReleased(GtkWidget* sender,
+                                                GdkEventButton* event,
+                                                BookmarkBarGtk* bar) {
+  if (bar->ignore_button_release_) {
+    // Don't handle this message; it was a drag.
+    bar->ignore_button_release_ = false;
+    return FALSE;
+  }
+
+  BookmarkNode* node = bar->GetNodeForToolButton(sender);
+  DCHECK(node);
+  DCHECK(bar->page_navigator_);
+
+  NOTIMPLEMENTED() << "Flesh this out once I can make folders.";
+
+  // Allow other handlers to run so the button state is updated correctly.
+  return FALSE;
 }
 
 // static

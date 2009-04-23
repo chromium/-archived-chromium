@@ -402,6 +402,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\input_window_dialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\input_window_dialog_win.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\jankometer.cc"
 				>
 			</File>
