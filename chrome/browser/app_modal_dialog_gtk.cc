@@ -79,7 +79,7 @@ void AppModalDialog::CreateAndShowDialog() {
 
   GtkWindow* window = web_contents_->view()->GetTopLevelNativeWindow();
   dialog_ = gtk_message_dialog_new(window, GTK_DIALOG_MODAL,
-      message_type, buttons, WideToUTF8(message_text_).c_str());
+      message_type, buttons, "%s", WideToUTF8(message_text_).c_str());
   gtk_window_set_title(GTK_WINDOW(dialog_), WideToUTF8(title_).c_str());
 
   if (is_before_unload_dialog_) {
