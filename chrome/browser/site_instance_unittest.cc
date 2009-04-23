@@ -116,11 +116,11 @@ TEST_F(SiteInstanceTest, SiteInstanceDestructor) {
     WebContents contents(profile.get(), instance, MSG_ROUTING_NONE, NULL);
     EXPECT_EQ(1, siteDeleteCounter);
     EXPECT_EQ(1, browsingDeleteCounter);
-
-    // Make sure that we flush any messages related to WebContents destruction
-    // before we destroy the profile.
-    MessageLoop::current()->RunAllPending();
   }
+
+  // Make sure that we flush any messages related to the above WebContents
+  // destruction.
+  MessageLoop::current()->RunAllPending();
 
   EXPECT_EQ(2, siteDeleteCounter);
   EXPECT_EQ(2, browsingDeleteCounter);
