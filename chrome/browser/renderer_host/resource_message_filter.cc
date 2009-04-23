@@ -161,8 +161,6 @@ void ResourceMessageFilter::Init(int render_process_id) {
   render_process_id_ = render_process_id;
   render_widget_helper_->Init(render_process_id, resource_dispatcher_host_);
   app_cache_dispatcher_host_->Initialize(this);
-  ExtensionMessageService::GetInstance(request_context_.get())->
-      RendererReady(this);
 }
 
 // Called on the IPC thread:
@@ -184,9 +182,21 @@ void ResourceMessageFilter::OnChannelConnected(int32 peer_pid) {
     NOTREACHED();
   }
   set_handle(peer_handle);
+
+  // Set the process ID if Init hasn't been called yet.  This doesn't work in
+  // single-process mode since peer_pid won't be the special fake PID we use
+  // for RenderProcessHost in that mode, so we just have to hope that Init
+  // is called first in that case.
+  if (render_process_id_ == -1)
+    render_process_id_ = peer_pid;
+
   // Hook AudioRendererHost to this object after channel is connected so it can
   // this object for sending messages.
   audio_renderer_host_->IPCChannelConnected(render_process_id_, handle(), this);
+
+  // Ditto for the ExtensionMessageService.
+  ExtensionMessageService::GetInstance(request_context_.get())->
+      RendererReady(this);
 }
 
 // Called on the IPC thread:

@@ -52,15 +52,15 @@ class ExtensionMessageService : public NotificationObserver {
   void PostMessageFromRenderer(int port_id, const std::string& message,
                                ResourceMessageFilter* source);
 
-  // --- UI or IO thread:
-
   // Called to let us know that a renderer has been started.
-  void RendererReady(ResourceMessageFilter* filter);
+  void RendererReady(ResourceMessageFilter* renderer);
 
   // NotificationObserver interface.
   void Observe(NotificationType type,
                const NotificationSource& source,
                const NotificationDetails& details);
+
+  // --- UI or IO thread:
 
   // Send an event to every registered extension renderer.
   void DispatchEventToRenderers(
@@ -71,15 +71,10 @@ class ExtensionMessageService : public NotificationObserver {
   typedef std::map<std::string, int> ProcessIDMap;
   ProcessIDMap process_ids_;
 
-  // A map of render_process_id to its corresponding message filter, which we
-  // use for sending messages.
-  typedef std::map<int, ResourceMessageFilter*> RendererMap;
-  RendererMap renderers_;
-
-  // Protects the two maps above, since each can be accessed on the IO thread
+  // Protects the process_ids map, since it can be accessed on the IO thread
   // or UI thread.  Be careful not to hold this lock when calling external
   // code (especially sending messages) to avoid deadlock.
-  Lock renderers_lock_;
+  Lock process_ids_lock_;
 
   // --- IO thread only:
 
@@ -96,8 +91,16 @@ class ExtensionMessageService : public NotificationObserver {
   // For generating unique channel IDs.
   int next_port_id_;
 
-  // For tracking the ResourceMessageFilters we are observing.
-  std::set<ResourceMessageFilter*> filters_;
+  // A map of render_process_id to its corresponding message filter, which we
+  // use for sending messages.
+  typedef std::map<int, ResourceMessageFilter*> RendererMap;
+  RendererMap renderers_;
+
+  // A unique list of renderers that we are aware of.
+  std::set<ResourceMessageFilter*> renderers_unique_;
+
+  // Set to true when we start observing this notification.
+  bool observing_renderer_shutdown_;
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_MESSAGE_SERVICE_H_

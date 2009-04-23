@@ -59,12 +59,12 @@ ExtensionMessageService* ExtensionMessageService::GetInstance(
 }
 
 ExtensionMessageService::ExtensionMessageService()
-    : next_port_id_(0) {
+    : next_port_id_(0), observing_renderer_shutdown_(false) {
 }
 
 void ExtensionMessageService::RegisterExtension(
     const std::string& extension_id, int render_process_id) {
-  AutoLock lock(renderers_lock_);
+  AutoLock lock(process_ids_lock_);
   DCHECK(process_ids_.find(extension_id) == process_ids_.end() ||
          process_ids_[extension_id] == render_process_id);
   process_ids_[extension_id] = render_process_id;
@@ -76,19 +76,21 @@ int ExtensionMessageService::OpenChannelToExtension(
          ChromeThread::GetMessageLoop(ChromeThread::IO));
 
   // Lookup the targeted extension process.
-  ResourceMessageFilter* dest = NULL;
+  int process_id;
   {
-    AutoLock lock(renderers_lock_);
-    ProcessIDMap::iterator process_id = process_ids_.find(
+    AutoLock lock(process_ids_lock_);
+    ProcessIDMap::iterator process_id_it = process_ids_.find(
         StringToLowerASCII(extension_id));
-    if (process_id == process_ids_.end())
+    if (process_id_it == process_ids_.end())
       return -1;
-
-    RendererMap::iterator renderer = renderers_.find(process_id->second);
-    if (renderer == renderers_.end())
-      return -1;
-    dest = renderer->second;
+    process_id = process_id_it->second;
   }
+
+  RendererMap::iterator renderer = renderers_.find(process_id);
+  if (renderer == renderers_.end())
+    return -1;
+
+  ResourceMessageFilter* dest = renderer->second;
 
   // Create a channel ID for both sides of the channel.
   int port1_id = next_port_id_++;
@@ -145,68 +147,50 @@ void ExtensionMessageService::DispatchEventToRenderers(
     return;
   }
 
-  // TODO(mpcomplete): this set should probably just be a member var.
-  std::set<ResourceMessageFilter*> renderer_set;
-  {
-    ProcessIDMap::iterator it;
-    AutoLock lock(renderers_lock_);
-
-    for (it = process_ids_.begin(); it != process_ids_.end(); it++) {
-      RendererMap::iterator renderer = renderers_.find(it->second);
-      if (renderer != renderers_.end())
-        renderer_set.insert(renderer->second);
-    }
-  }
-
+  // TODO(mpcomplete): we should only send messages to extension process
+  // renderers.
   std::set<ResourceMessageFilter*>::iterator renderer;
-  for (renderer = renderer_set.begin(); renderer != renderer_set.end();
-       ++renderer) {
+  for (renderer = renderers_unique_.begin();
+       renderer != renderers_unique_.end(); ++renderer) {
     (*renderer)->Send(new ViewMsg_ExtensionHandleEvent(event_name, event_args));
   }
 }
 
-void ExtensionMessageService::RendererReady(ResourceMessageFilter* filter) {
-  AutoLock lock(renderers_lock_);
-  DCHECK(renderers_.find(filter->GetProcessId()) == renderers_.end());
-  renderers_[filter->GetProcessId()] = filter;
+void ExtensionMessageService::RendererReady(ResourceMessageFilter* renderer) {
+  DCHECK(MessageLoop::current() ==
+       ChromeThread::GetMessageLoop(ChromeThread::IO));
 
-  // Only observe this filter if we haven't seen it before.
-  if (filters_.find(filter) == filters_.end()) {
-    filters_.insert(filter);
+  DCHECK(renderers_.find(renderer->GetProcessId()) == renderers_.end());
+  renderers_[renderer->GetProcessId()] = renderer;
+  renderers_unique_.insert(renderer);
+
+  if (!observing_renderer_shutdown_) {
+    observing_renderer_shutdown_ = true;
     NotificationService::current()->AddObserver(
         this,
         NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-        Source<ResourceMessageFilter>(filter));
+        NotificationService::AllSources());
   }
 }
 
 void ExtensionMessageService::Observe(NotificationType type,
                                       const NotificationSource& source,
                                       const NotificationDetails& details) {
+  DCHECK(MessageLoop::current() ==
+       ChromeThread::GetMessageLoop(ChromeThread::IO));
+
   DCHECK(type.value == NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN);
-  ResourceMessageFilter* filter = Source<ResourceMessageFilter>(source).ptr();
+  ResourceMessageFilter* renderer = Source<ResourceMessageFilter>(source).ptr();
 
-  {
-    AutoLock lock(renderers_lock_);
-    DCHECK(renderers_.find(filter->GetProcessId()) != renderers_.end());
-    renderers_.erase(filter->GetProcessId());
-  }
+  renderers_.erase(renderer->GetProcessId());
+  renderers_unique_.erase(renderer);
 
-  // Close any channels that share this filter.
+  // Close any channels that share this renderer.
   // TODO(mpcomplete): should we notify the other side of the port?
   for (MessageChannelMap::iterator it = channels_.begin();
        it != channels_.end(); ) {
     MessageChannelMap::iterator current = it++;
-    if (current->second.port1 == filter || current->second.port2 == filter)
+    if (current->second.port1 == renderer || current->second.port2 == renderer)
       channels_.erase(current);
-  }
-
-  std::set<ResourceMessageFilter*>::iterator fit = filters_.find(filter);
-  if (fit != filters_.end()) {
-    filters_.erase(fit);
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::RESOURCE_MESSAGE_FILTER_SHUTDOWN,
-        source);
   }
 }
