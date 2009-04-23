@@ -1,0 +1,6 @@
+{
+  "name": "Resizer",
+  "description": "Test animated resizing of view in for ExtensionView",
+  "version": "0.1",
+  "toolstrips": ["resizer.html"]
+}
