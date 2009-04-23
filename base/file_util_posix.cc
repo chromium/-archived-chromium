@@ -61,8 +61,9 @@ int CountFilesCreatedAfter(const FilePath& path,
 
   DIR* dir = opendir(path.value().c_str());
   if (dir) {
+    struct dirent ent_buf;
     struct dirent* ent;
-    while ((ent = readdir(dir)) != NULL) {
+    while (readdir_r(dir, &ent_buf, &ent) == 0 && ent) {
       if ((strcmp(ent->d_name, ".") == 0) ||
           (strcmp(ent->d_name, "..") == 0))
         continue;
@@ -73,6 +74,21 @@ int CountFilesCreatedAfter(const FilePath& path,
         LOG(ERROR) << "stat64 failed: " << strerror(errno);
         continue;
       }
+      // Here, we use Time::TimeT(), which discards microseconds. This
+      // means that files which are newer than |comparison_time| may
+      // be considered older. If we don't discard microseconds, it
+      // introduces another issue. Suppose the following case:
+      //
+      // 1. Get |comparison_time| by Time::Now() and the value is 10.1 (secs).
+      // 2. Create a file and the current time is 10.3 (secs).
+      //
+      // As POSIX doesn't have microsecond precision for |st_ctime|,
+      // the creation time of the file created in the step 2 is 10 and
+      // the file is considered older than |comparison_time|. After
+      // all, we may have to accept either of the two issues: 1. files
+      // which are older than |comparison_time| are considered newer
+      // (current implementation) 2. files newer than
+      // |comparison_time| are considered older.
       if (st.st_ctime >= comparison_time.ToTimeT())
         ++file_count;
     }

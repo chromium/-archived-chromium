@@ -19,6 +19,7 @@
 #include "base/file_util.h"
 #include "base/logging.h"
 #include "base/path_service.h"
+#include "base/platform_thread.h"
 #include "base/string_util.h"
 #include "base/time.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -320,11 +321,11 @@ TEST_F(FileUtilTest, CountFilesCreatedAfter) {
 
   // Age to perfection
 #if defined(OS_WIN)
-  Sleep(100);
+  PlatformThread::Sleep(100);
 #elif defined(OS_POSIX)
   // We need to wait at least one second here because the precision of
   // file creation time is one second.
-  sleep(1);
+  PlatformThread::Sleep(1500);
 #endif
 
   // Establish our cutoff time
