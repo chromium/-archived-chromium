@@ -129,7 +129,6 @@ class WindowWin : public WidgetWin,
   virtual LRESULT OnDwmCompositionChanged(UINT msg, WPARAM w_param,
                                           LPARAM l_param);
   virtual void OnFinalMessage(HWND window);
-  virtual void OnGetMinMaxInfo(MINMAXINFO* minmax_info);
   virtual void OnInitMenu(HMENU menu);
   virtual void OnMouseLeave();
   virtual LRESULT OnNCActivate(BOOL active);

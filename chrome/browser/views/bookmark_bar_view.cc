@@ -529,10 +529,6 @@ gfx::Size BookmarkBarView::GetPreferredSize() {
   return prefsize;
 }
 
-gfx::Size BookmarkBarView::GetMinimumSize() {
-  return gfx::Size(0, kBarHeight);
-}
-
 void BookmarkBarView::Layout() {
   if (!GetParent())
     return;
@@ -895,9 +891,8 @@ bool BookmarkBarView::OnNewTabPage() {
           browser_->GetSelectedTabContents()->IsBookmarkBarAlwaysVisible());
 }
 
-int BookmarkBarView::GetToolbarOverlap(bool return_max) {
-  return static_cast<int>(kToolbarOverlap *
-      (return_max ? 1.0 : size_animation_->GetCurrentValue()));
+int BookmarkBarView::GetToolbarOverlap() {
+  return static_cast<int>(size_animation_->GetCurrentValue() * kToolbarOverlap);
 }
 
 void BookmarkBarView::AnimationProgressed(const Animation* animation) {

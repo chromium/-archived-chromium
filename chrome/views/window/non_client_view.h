@@ -192,7 +192,6 @@ class NonClientView : public View {
 
   // NonClientView, View overrides:
   virtual gfx::Size GetPreferredSize();
-  virtual gfx::Size GetMinimumSize();
   virtual void Layout();
 
  protected:
