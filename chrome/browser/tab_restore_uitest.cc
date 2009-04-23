@@ -275,7 +275,9 @@ TEST_F(TabRestoreUITest, BasicRestoreFromClosedWindow) {
 
 // Open a window with multiple tabs, close a tab, then close the window.
 // Restore both and make sure the tab goes back into the window.
+// This test currently disabled. See http://crbug.com/10916
 TEST_F(TabRestoreUITest, RestoreWindowAndTab) {
+#if 0
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   CheckActiveWindow(browser_proxy.get());
 
@@ -324,6 +326,7 @@ TEST_F(TabRestoreUITest, RestoreWindowAndTab) {
   ASSERT_TRUE(browser_proxy->GetTabCount(&tab_count));
   EXPECT_EQ(starting_tab_count + 3, tab_count);
   EXPECT_EQ(url1_, GetActiveTabURL(1));
+#endif
 }
 
 // Open a window with two tabs, close both (closing the window), then restore
