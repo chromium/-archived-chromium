@@ -14,13 +14,24 @@
 class AutocompleteEditView;
 class AutocompletePopupModel;
 class ChromeFont;
-
+namespace gfx {
+class Rect;
+}
 #if defined(OS_WIN)
 class AutocompleteEditViewWin;
 class AutocompleteEditModel;
-class AutocompletePopupPositioner;
 class Profile;
 #endif
+
+// An object in the browser UI can implement this interface to provide display
+// bounds for the autocomplete popup view.
+class AutocompletePopupPositioner {
+ public:
+  // Returns the bounds at which the popup should be shown, in screen
+  // coordinates. The height is ignored, since the popup is sized to its
+  // contents automatically.
+  virtual gfx::Rect GetPopupBounds() const = 0;
+};
 
 class AutocompletePopupView {
  public:

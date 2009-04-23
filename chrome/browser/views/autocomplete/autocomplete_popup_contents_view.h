@@ -16,15 +16,6 @@ class AutocompleteEditViewWin;
 class AutocompletePopupWin;
 class Profile;
 
-// Interface to retrieve the position of the popup.
-class AutocompletePopupPositioner {
- public:
-  // Returns the bounds at which the popup should be shown, in screen
-  // coordinates. The height is ignored, since the popup is sized to its
-  // contents automatically.
-  virtual gfx::Rect GetPopupBounds() const = 0;
-};
-
 // An interface implemented by an object that provides data to populate
 // individual result views.
 class AutocompleteResultViewModel {
