@@ -411,6 +411,8 @@ void TabStripGtk::Init() {
   gtk_widget_set_size_request(tabstrip_.get(), -1,
                               TabGtk::GetMinimumUnselectedSize().height());
   gtk_widget_set_app_paintable(tabstrip_.get(), TRUE);
+  // ChromeCanvasPaint already effectively double buffers.
+  gtk_widget_set_double_buffered(tabstrip_.get(), FALSE);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "configure-event",
