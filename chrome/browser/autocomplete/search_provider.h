@@ -48,6 +48,12 @@ class SearchProvider : public AutocompleteProvider,
         have_suggest_results_(false) {
   }
 
+#if defined(UNIT_TEST)
+  static void set_query_suggest_immediately(bool value) {
+    query_suggest_immediately_ = value;
+  }
+#endif
+
   // AutocompleteProvider
   virtual void Start(const AutocompleteInput& input,
                      bool minimal_changes);
@@ -60,6 +66,12 @@ class SearchProvider : public AutocompleteProvider,
                                   int response_code,
                                   const ResponseCookies& cookies,
                                   const std::string& data);
+
+  // ID used in creating URLFetcher for default provider's suggest results.
+  static const int kDefaultProviderURLFetcherID;
+
+  // ID used in creating URLFetcher for keyword provider's suggest results.
+  static const int kKeywordProviderURLFetcherID;
 
  private:
   // Manages the providers (TemplateURLs) used by SearchProvider. Two providers
@@ -179,7 +191,8 @@ class SearchProvider : public AutocompleteProvider,
 
   // Creates a URLFetcher requesting suggest results for the specified
   // TemplateURL. Ownership of the returned URLFetchet passes to the caller.
-  URLFetcher* CreateSuggestFetcher(const TemplateURL& provider,
+  URLFetcher* CreateSuggestFetcher(int id,
+                                   const TemplateURL& provider,
                                    const std::wstring& text);
 
   // Parses the results from the Suggest server and stores up to kMaxMatches of
@@ -251,6 +264,10 @@ class SearchProvider : public AutocompleteProvider,
   // number of characters that were trimmed.
   // TODO(kochi): this is duplicate from history_autocomplete
   static size_t TrimHttpPrefix(std::wstring* url);
+
+  // Should we query for suggest results immediately? This is normally false,
+  // but may be set to true during testing.
+  static bool query_suggest_immediately_;
 
   // Maintains the TemplateURLs used.
   Providers providers_;

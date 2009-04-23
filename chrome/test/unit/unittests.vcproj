@@ -568,6 +568,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\autocomplete\search_provider_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\login_prompt_unittest.cc"
 				>
 			</File>

@@ -26,6 +26,14 @@
 using base::Time;
 using base::TimeDelta;
 
+// static
+const int SearchProvider::kDefaultProviderURLFetcherID = 1;
+// static
+const int SearchProvider::kKeywordProviderURLFetcherID = 2;
+
+// static
+bool SearchProvider::query_suggest_immediately_ = false;
+
 void SearchProvider::Providers::Set(const TemplateURL* default_provider,
                                     const TemplateURL* keyword_provider) {
   // TODO(pkasting): http://b/1162970  We shouldn't need to structure-copy
@@ -115,13 +123,15 @@ void SearchProvider::Run() {
   if (providers_.valid_suggest_for_keyword_provider()) {
     suggest_results_pending_++;
     keyword_fetcher_.reset(
-        CreateSuggestFetcher(providers_.keyword_provider(),
+        CreateSuggestFetcher(kKeywordProviderURLFetcherID,
+                             providers_.keyword_provider(),
                              keyword_input_text_));
   }
   if (providers_.valid_suggest_for_default_provider()) {
     suggest_results_pending_++;
     default_fetcher_.reset(
-        CreateSuggestFetcher(providers_.default_provider(), input_.text()));
+        CreateSuggestFetcher(kDefaultProviderURLFetcherID,
+                             providers_.default_provider(), input_.text()));
   }
   // We should only get here if we have a suggest url for the keyword or default
   // providers.
@@ -239,8 +249,8 @@ void SearchProvider::StartOrStopSuggestQuery(bool minimal_changes) {
 
   // Kick off a timer that will start the URL fetch if it completes before
   // the user types another character.
-  timer_.Start(TimeDelta::FromMilliseconds(kQueryDelayMs), this,
-               &SearchProvider::Run);
+  int delay = query_suggest_immediately_ ? 0 : kQueryDelayMs;
+  timer_.Start(TimeDelta::FromMilliseconds(delay), this, &SearchProvider::Run);
 }
 
 bool SearchProvider::IsQuerySuitableForSuggest() const {
@@ -334,8 +344,6 @@ void SearchProvider::OnGotMostRecentKeywordSearchTerms(
   } else {
     default_history_results_ = *results;
   }
-  ConvertResultsToAutocompleteMatches();
-  listener_->OnProviderUpdate(!results->empty());
 
   if (history_request_consumer_.PendingRequestCount() == 1) {
     // Requests are removed AFTER the callback is invoked. If the count == 1,
@@ -343,14 +351,20 @@ void SearchProvider::OnGotMostRecentKeywordSearchTerms(
     history_request_pending_ = false;
     have_history_results_ = true;
   }
+
+  ConvertResultsToAutocompleteMatches();
+  listener_->OnProviderUpdate(!results->empty());
 }
 
-URLFetcher* SearchProvider::CreateSuggestFetcher(const TemplateURL& provider,
+URLFetcher* SearchProvider::CreateSuggestFetcher(int id,
+                                                 const TemplateURL& provider,
                                                  const std::wstring& text) {
   const TemplateURLRef* const suggestions_url = provider.suggestions_url();
   DCHECK(suggestions_url->SupportsReplacement());
-  URLFetcher* fetcher = new URLFetcher(suggestions_url->ReplaceSearchTerms(
-      provider, text, TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()),
+  URLFetcher* fetcher = URLFetcher::Create(id,
+      suggestions_url->ReplaceSearchTerms(
+          provider, text, TemplateURLRef::NO_SUGGESTIONS_AVAILABLE,
+          std::wstring()),
       URLFetcher::GET, this);
   fetcher->set_request_context(profile_->GetRequestContext());
   fetcher->Start();
