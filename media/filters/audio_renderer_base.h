@@ -66,7 +66,7 @@ class AudioRendererBase : public AudioRenderer {
   // of their buffer to playback silence.
   //
   // Safe to call on any thread.
-  size_t FillBuffer(uint8* dest, size_t len);
+  size_t FillBuffer(uint8* dest, size_t len, float rate);
 
   // Helper to parse a media format and return whether we were successful
   // retrieving all the information we care about.

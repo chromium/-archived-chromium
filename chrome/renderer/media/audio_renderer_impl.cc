@@ -193,9 +193,9 @@ void AudioRendererImpl::OnNotifyPacketReady() {
     size_t filled = 0;
     DCHECK(shared_memory_.get());
     // TODO(hclam):  This is a hack.  The stream should be stopped.
-    if (playback_rate_ == 1.0f) {
+    if (playback_rate_ > 0.0f) {
       filled = FillBuffer(static_cast<uint8*>(shared_memory_->memory()),
-                          shared_memory_size_);
+                          shared_memory_size_, playback_rate_);
     } else {
       memset(shared_memory_->memory(), 0, shared_memory_size_);
       filled = shared_memory_size_;

@@ -51,7 +51,7 @@ void NullAudioRenderer::ThreadMain() {
 
     // Only consume buffers when actually playing.
     if (playback_rate_ > 0.0f)  {
-      size_t bytes = FillBuffer(buffer_.get(), buffer_size_);
+      size_t bytes = FillBuffer(buffer_.get(), buffer_size_, playback_rate_);
 
       // Calculate our sleep duration, taking playback rate into consideration.
       sleep_in_milliseconds =

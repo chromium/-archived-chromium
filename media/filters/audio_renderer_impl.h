@@ -53,6 +53,11 @@ class AudioRendererImpl : public AudioRendererBase,
   virtual void OnStop();
 
  private:
+  // Playback rate
+  // 0.0f is paused, 0.5f is half speed, 1.0f is normal, 2.0f is double speed.
+  // Rate should normally be any value between 0.5 and 3.0.
+  float playback_rate_;
+
   // Audio output stream device.
   AudioOutputStream* stream_;
 

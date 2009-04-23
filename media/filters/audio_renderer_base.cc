@@ -79,54 +79,71 @@ void AudioRendererBase::OnReadComplete(Buffer* buffer_in) {
   }
 }
 
-size_t AudioRendererBase::FillBuffer(uint8* dest, size_t len) {
+size_t AudioRendererBase::FillBuffer(uint8* dest, size_t dest_len,
+                                     float rate) {
   // Update the pipeline's time.
   host_->SetTime(last_fill_buffer_time_);
 
-  size_t result = 0;
   size_t buffers_released = 0;
-  {
-    AutoLock auto_lock(lock_);
-    // Loop until the buffer has been filled.
-    while (len > 0 && !queue_.empty()) {
-      Buffer* buffer = queue_.front();
+  size_t dest_written = 0;
 
-      // Determine how much to copy.
-      const uint8* data = buffer->GetData() + data_offset_;
-      size_t data_len = buffer->GetDataSize() - data_offset_;
-      data_len = std::min(len, data_len);
+  AutoLock auto_lock(lock_);
+  // Loop until the buffer has been filled.
+  while (dest_len > 0 && !queue_.empty()) {
+    Buffer* buffer = queue_.front();
 
-      // Copy into buffer.
+    // Determine how much to copy.
+    const uint8* data = buffer->GetData() + data_offset_;
+    size_t data_len = buffer->GetDataSize() - data_offset_;
+
+    // New scaled packet size aligned to 16 to ensure its on a
+    // channel/sample boundary.  Only guaranteed to works for power of 2
+    // number of channels and sample size.
+    size_t scaled_data_len = (rate <= 0.0f) ? 0 :
+      static_cast<size_t>(data_len / rate) & ~15;
+    if (scaled_data_len > dest_len) {
+      data_len = (data_len * dest_len / scaled_data_len) & ~15;
+      scaled_data_len = dest_len;
+    }
+
+    if (rate >= 1.0f) {  // Speed up.
+      memcpy(dest, data, scaled_data_len);
+    } else if (rate >= 0.5) {  // Slow down.
       memcpy(dest, data, data_len);
-      len -= data_len;
-      dest += data_len;
-      data_offset_ += data_len;
-      result += data_len;
+      memcpy(dest + data_len, data, scaled_data_len - data_len);
+    } else {  // Pause.
+      memset(dest, 0, data_len);
+    }
+    dest += scaled_data_len;
+    dest_len -= scaled_data_len;
+    dest_written += scaled_data_len;
 
+    data_offset_ += data_len;
+
+    if (rate == 0.0f)
+      return 0;
+
+    // Check to see if we're finished with the front buffer.
+    if (buffer->GetDataSize() - data_offset_ < 16) {
+      // Update the time.  If this is the last buffer in the queue, we'll
+      // drop out of the loop before len == 0, so we need to always update
+      // the time here.
+      last_fill_buffer_time_ = buffer->GetTimestamp() + buffer->GetDuration();
+
+      // Dequeue the buffer.
+      queue_.pop_front();
+      buffer->Release();
+      ++buffers_released;
+
+      // Reset our offset into the front buffer.
+      data_offset_ = 0;
+    } else {
       // If we're done with the read, compute the time.
-      if (len == 0) {
-        // Integer divide so multiply before divide to work properly.
-        int64 us_written = (buffer->GetDuration().InMicroseconds() *
-                            data_offset_) / buffer->GetDataSize();
-        last_fill_buffer_time_ = buffer->GetTimestamp() +
-                                 base::TimeDelta::FromMicroseconds(us_written);
-      }
-
-      // Check to see if we're finished with the front buffer.
-      if (data_offset_ == buffer->GetDataSize()) {
-        // Update the time.  If this is the last buffer in the queue, we'll
-        // drop out of the loop before len == 0, so we need to always update
-        // the time here.
-        last_fill_buffer_time_ = buffer->GetTimestamp() + buffer->GetDuration();
-
-        // Dequeue the buffer.
-        queue_.pop_front();
-        buffer->Release();
-        ++buffers_released;
-
-        // Reset our offset into the front buffer.
-        data_offset_ = 0;
-      }
+      // Integer divide so multiply before divide to work properly.
+      int64 us_written = (buffer->GetDuration().InMicroseconds() *
+                          data_offset_) / buffer->GetDataSize();
+      last_fill_buffer_time_ = buffer->GetTimestamp() +
+                               base::TimeDelta::FromMicroseconds(us_written);
     }
   }
 
@@ -134,8 +151,7 @@ size_t AudioRendererBase::FillBuffer(uint8* dest, size_t len) {
   for (size_t i = 0; i < buffers_released; ++i) {
     ScheduleRead();
   }
-
-  return result;
+  return dest_written;
 }
 
 void AudioRendererBase::ScheduleRead() {

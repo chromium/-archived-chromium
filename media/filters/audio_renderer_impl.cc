@@ -9,10 +9,11 @@ namespace media {
 
 // We'll try to fill 4096 samples per buffer, which is roughly ~92ms of audio
 // data for a 44.1kHz audio source.
-static const size_t kSamplesPerBuffer = 4096;
+static const size_t kSamplesPerBuffer = 8*1024;
 
 AudioRendererImpl::AudioRendererImpl()
     : AudioRendererBase(kDefaultMaxQueueSize),
+      playback_rate_(0.0f),
       stream_(NULL) {
 }
 
@@ -33,14 +34,15 @@ bool AudioRendererImpl::IsMediaFormatSupported(
       ParseMediaFormat(media_format, &channels, &sample_rate, &sample_bits);
 }
 
-void AudioRendererImpl::SetPlaybackRate(float playback_rate) {
+void AudioRendererImpl::SetPlaybackRate(float rate) {
   DCHECK(stream_);
-  // TODO(scherkus): handle playback rates not equal to 1.0.
-  if (playback_rate == 1.0f) {
+
+  // TODO(fbarchard): limit rate to reasonable values
+  playback_rate_ = rate;
+
+  static bool started = false;
+  if (rate > 0.0f && !started)
     stream_->Start(this);
-  } else {
-    NOTIMPLEMENTED();
-  }
 }
 
 void AudioRendererImpl::SetVolume(float volume) {
@@ -52,8 +54,10 @@ size_t AudioRendererImpl::OnMoreData(AudioOutputStream* stream, void* dest_void,
   // TODO(scherkus): handle end of stream.
   DCHECK(stream_ == stream);
 
-  // TODO(scherkus): maybe change OnMoreData to pass in char/uint8 or similar.
-  return FillBuffer(reinterpret_cast<uint8*>(dest_void), len);
+  // TODO(scherkus): Maybe change OnMoreData to pass in char/uint8 or similar.
+  // TODO(fbarchard): Waveout_output_win.h should handle zero length buffers
+  //                  without clicking.
+  return FillBuffer(static_cast<uint8*>(dest_void), len, playback_rate_);
 }
 
 void AudioRendererImpl::OnClose(AudioOutputStream* stream) {

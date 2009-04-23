@@ -45,7 +45,7 @@ void FilterHostImpl::ScheduleTimeUpdateCallback(base::TimeDelta time) {
     time -= pipeline()->GetInterpolatedTime();
     int delay = static_cast<int>(time.InMilliseconds());
     float rate = pipeline()->GetPlaybackRate();
-    if (rate != 1.0f && rate != 0.0f) {
+    if (rate > 0.0f) {
       delay = static_cast<int>(delay / rate);
     }
     if (delay > 0) {

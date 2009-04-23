@@ -218,8 +218,8 @@ void PCMWaveOutAudioOutputStream::GetVolume(double* left_level,
     HandleError(res);
     return;
   }
-  *left_level = double(LOWORD(volume_packed)) / kMaxVolumeLevel;
-  *right_level = double(HIWORD(volume_packed)) / kMaxVolumeLevel;
+  *left_level = static_cast<double>(LOWORD(volume_packed)) / kMaxVolumeLevel;
+  *right_level = static_cast<double>(HIWORD(volume_packed)) / kMaxVolumeLevel;
 }
 
 size_t PCMWaveOutAudioOutputStream::GetNumBuffers() {
@@ -234,6 +234,7 @@ void PCMWaveOutAudioOutputStream::HandleError(MMRESULT error) {
 void PCMWaveOutAudioOutputStream::QueueNextPacket(WAVEHDR *buffer) {
   // Call the source which will fill our buffer with pleasant sounds and
   // return to us how many bytes were used.
+  // TODO(fbarchard): Handle used 0 by queueing more.
   size_t used = callback_->OnMoreData(this, buffer->lpData, buffer_size_);
   if (used <= buffer_size_) {
     buffer->dwBufferLength = used;
