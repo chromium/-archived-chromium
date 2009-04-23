@@ -332,6 +332,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8WorkerContextCustom.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8WorkerCustom.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\custom\V8XMLHttpRequestConstructor.cpp"
 				>
 			</File>
@@ -3089,10 +3097,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\port\bindings\v8\V8WorkerContextCustom.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8WorkerContextEventListener.cpp"
 			>
 		</File>
@@ -3106,18 +3110,6 @@
 		</File>
 		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8WorkerContextObjectEventListener.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\port\bindings\v8\V8WorkerCustom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8Utilities.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\V8Utilities.h"
 			>
 		</File>
 		<File
