@@ -20,15 +20,24 @@ namespace {
 
 const int kDefaultAnimationDurationMs = 100;
 const int kResizeLayoutAnimationDurationMs = 166;
+const int kReorderAnimationDurationMs = 166;
+const int kAnimateToBoundsDurationMs = 150;
 
 const int kNewTabButtonHOffset = -5;
 const int kNewTabButtonVOffset = 5;
+
+const int kHorizontalMoveThreshold = 16;  // pixels
 
 // The horizontal offset from one tab to the next,
 // which results in overlapping tabs.
 const int kTabHOffset = -16;
 
 SkBitmap* background = NULL;
+
+// The targets available for drag n' drop.
+GtkTargetEntry target_table[] = {
+  { const_cast<char*>("application/x-tabstrip-tab"), GTK_TARGET_SAME_APP, 0 }
+};
 
 inline int Round(double x) {
   return static_cast<int>(x + 0.5);
@@ -63,7 +72,8 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
     INSERT,
     REMOVE,
     MOVE,
-    RESIZE
+    RESIZE,
+    SNAP
   };
 
   TabAnimation(TabStripGtk* tabstrip, Type type)
@@ -318,6 +328,60 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Handles the movement of a Tab from one position to another.
+class MoveTabAnimation : public TabStripGtk::TabAnimation {
+ public:
+  MoveTabAnimation(TabStripGtk* tabstrip, int tab_a_index, int tab_b_index)
+      : TabAnimation(tabstrip, MOVE),
+        start_tab_a_bounds_(tabstrip_->GetIdealBounds(tab_b_index)),
+        start_tab_b_bounds_(tabstrip_->GetIdealBounds(tab_a_index)) {
+    tab_a_ = tabstrip_->GetTabAt(tab_a_index);
+    tab_b_ = tabstrip_->GetTabAt(tab_b_index);
+
+    // Since we don't do a full TabStrip re-layout, we need to force a full
+    // layout upon completion since we're not guaranteed to be in a good state
+    // if for example the animation is canceled.
+    set_layout_on_completion(true);
+  }
+  virtual ~MoveTabAnimation() {}
+
+  // Overridden from AnimationDelegate:
+  virtual void AnimationProgressed(const Animation* animation) {
+    // Position Tab A
+    double distance = start_tab_b_bounds_.x() - start_tab_a_bounds_.x();
+    double delta = distance * animation_.GetCurrentValue();
+    double new_x = start_tab_a_bounds_.x() + delta;
+    gfx::Rect bounds(Round(new_x), tab_a_->y(), tab_a_->width(),
+        tab_a_->height());
+    tab_a_->SetBounds(bounds);
+
+    // Position Tab B
+    distance = start_tab_a_bounds_.x() - start_tab_b_bounds_.x();
+    delta = distance * animation_.GetCurrentValue();
+    new_x = start_tab_b_bounds_.x() + delta;
+    bounds = gfx::Rect(Round(new_x), tab_b_->y(), tab_b_->width(),
+        tab_b_->height());
+    tab_b_->SetBounds(bounds);
+  }
+
+ protected:
+  // Overridden from TabStrip::TabAnimation:
+  virtual int GetDuration() const { return kReorderAnimationDurationMs; }
+
+ private:
+  // The two tabs being exchanged.
+  TabGtk* tab_a_;
+  TabGtk* tab_b_;
+
+  // ...and their bounds.
+  gfx::Rect start_tab_a_bounds_;
+  gfx::Rect start_tab_b_bounds_;
+
+  DISALLOW_COPY_AND_ASSIGN(MoveTabAnimation);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 // Handles the animated resize layout of the entire TabStrip from one width
 // to another.
 class ResizeLayoutAnimation : public TabStripGtk::TabAnimation {
@@ -372,6 +436,50 @@ class ResizeLayoutAnimation : public TabStripGtk::TabAnimation {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+// Handles the movement of a Tab to it's snapped tab index.
+class SnapTabAnimation : public TabStripGtk::TabAnimation {
+ public:
+  SnapTabAnimation(TabStripGtk* tabstrip, const gfx::Rect& bounds)
+      : TabAnimation(tabstrip, SNAP),
+        tabstrip_(tabstrip) {
+    tab_ = tabstrip->GetTabAt(tabstrip->hover_index_);
+    animation_start_bounds_ = tab_->bounds();
+    animation_end_bounds_ = bounds;
+  }
+  virtual ~SnapTabAnimation() {}
+
+  // Overridden from AnimationDelegate:
+  virtual void AnimationProgressed(const Animation* animation) {
+    int delta_x = (animation_end_bounds_.x() - animation_start_bounds_.x());
+    int x = animation_start_bounds_.x() +
+        static_cast<int>(delta_x * animation->GetCurrentValue());
+    int y = animation_end_bounds_.y();
+    gfx::Rect rect = tab_->bounds();
+    rect.set_x(x);
+    rect.set_y(y);
+    tab_->SetBounds(rect);
+
+    gtk_widget_queue_draw(tabstrip_->tabstrip_.get());
+  }
+
+ protected:
+  // Overridden from TabStrip::TabAnimation:
+  virtual int GetDuration() const { return kReorderAnimationDurationMs; }
+
+ private:
+  TabStripGtk* tabstrip_;
+  // The tab being snapped.
+  TabGtk* tab_;
+
+  // The start and end bounds of the animation sequence.
+  gfx::Rect animation_start_bounds_;
+  gfx::Rect animation_end_bounds_;
+
+  DISALLOW_COPY_AND_ASSIGN(SnapTabAnimation);
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // TabStripGtk, public:
 
 TabStripGtk::TabStripGtk(TabStripModel* model)
@@ -380,7 +488,10 @@ TabStripGtk::TabStripGtk(TabStripModel* model)
       available_width_for_tabs_(-1),
       resize_layout_scheduled_(false),
       model_(model),
-      hover_index_(0) {
+      hover_index_(0),
+      mouse_offset_(-1, -1),
+      last_move_x_(0),
+      is_dragging_(false) {
 }
 
 TabStripGtk::~TabStripGtk() {
@@ -413,6 +524,13 @@ void TabStripGtk::Init() {
   gtk_widget_set_app_paintable(tabstrip_.get(), TRUE);
   // ChromeCanvasPaint already effectively double buffers.
   gtk_widget_set_double_buffered(tabstrip_.get(), FALSE);
+  gtk_drag_source_set(tabstrip_.get(), GDK_BUTTON1_MASK,
+                      target_table, G_N_ELEMENTS(target_table),
+                      GDK_ACTION_MOVE);
+  gtk_drag_dest_set(tabstrip_.get(), GTK_DEST_DEFAULT_DROP,
+                    target_table, G_N_ELEMENTS(target_table),
+                    GDK_ACTION_MOVE);
+  gtk_drag_dest_set_track_motion(tabstrip_.get(), true);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "expose-event",
                    G_CALLBACK(OnExpose), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "configure-event",
@@ -425,6 +543,12 @@ void TabStripGtk::Init() {
                    G_CALLBACK(OnMouseRelease), this);
   g_signal_connect(G_OBJECT(tabstrip_.get()), "leave-notify-event",
                    G_CALLBACK(OnLeaveNotify), this);
+  g_signal_connect_after(G_OBJECT(tabstrip_.get()), "drag-begin",
+                         G_CALLBACK(&OnDragBegin), this);
+  g_signal_connect_after(G_OBJECT(tabstrip_.get()), "drag-end",
+                         G_CALLBACK(&OnDragEnd), this);
+  g_signal_connect_after(G_OBJECT(tabstrip_.get()), "drag-motion",
+                         G_CALLBACK(&OnDragMotion), this);
   gtk_widget_add_events(tabstrip_.get(),
       GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK |
       GDK_BUTTON_RELEASE_MASK |GDK_LEAVE_NOTIFY_MASK);
@@ -489,6 +613,11 @@ void TabStripGtk::UpdateLoadingAnimations() {
 
 bool TabStripGtk::IsAnimating() const {
   return active_animation_.get() != NULL;
+}
+
+gfx::Rect TabStripGtk::GetIdealBounds(int index) {
+  DCHECK(index >= 0 && index < GetTabCount());
+  return tab_data_.at(index).ideal_bounds;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -561,8 +690,7 @@ void TabStripGtk::TabMoved(TabContents* contents,
   TabData data = {tab, gfx::Rect()};
   tab_data_.insert(tab_data_.begin() + to_index, data);
   GenerateIdealBounds();
-  // TODO(jhawkins): Remove layout call when animations are hooked up.
-  Layout();
+  StartMoveTabAnimation(from_index, to_index);
 }
 
 void TabStripGtk::TabChangedAt(TabContents* contents, int index,
@@ -913,10 +1041,24 @@ void TabStripGtk::StartRemoveTabAnimation(int index, TabContents* contents) {
   active_animation_->Start();
 }
 
+void TabStripGtk::StartMoveTabAnimation(int from_index, int to_index) {
+  if (active_animation_.get())
+    active_animation_->Stop();
+  active_animation_.reset(new MoveTabAnimation(this, from_index, to_index));
+  active_animation_->Start();
+}
+
 void TabStripGtk::StartResizeLayoutAnimation() {
   if (active_animation_.get())
     active_animation_->Stop();
   active_animation_.reset(new ResizeLayoutAnimation(this));
+  active_animation_->Start();
+}
+
+void TabStripGtk::StartSnapTabAnimation(const gfx::Rect& bounds) {
+  if (active_animation_.get())
+    active_animation_->Stop();
+  active_animation_.reset(new SnapTabAnimation(this, bounds));
   active_animation_->Start();
 }
 
@@ -948,6 +1090,10 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   canvas.TileImageInt(*background, 0, 0, tabstrip->bounds_.width(),
                       tabstrip->bounds_.height());
 
+  // Paint the New Tab button.  This is painted first because a dragged tab
+  // should be at the bottom of the z-order.
+  tabstrip->newtab_button_.get()->Paint(&canvas);
+
   // Paint the tabs in reverse order, so they stack to the left.
   TabGtk* selected_tab = NULL;
   int tab_count = tabstrip->GetTabCount();
@@ -966,9 +1112,6 @@ gboolean TabStripGtk::OnExpose(GtkWidget* widget, GdkEventExpose* event,
   // Paint the selected tab last, so it overlaps all the others.
   if (selected_tab)
     selected_tab->Paint(&canvas);
-
-  // Paint the New Tab button.
-  tabstrip->newtab_button_.get()->Paint(&canvas);
 
   return TRUE;
 }
@@ -1000,31 +1143,19 @@ gboolean TabStripGtk::OnConfigure(GtkWidget* widget, GdkEventConfigure* event,
 // static
 gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
                                      TabStripGtk* tabstrip) {
+  // The dragging code handles moving the tab while the tab is being dragged.
+  if (tabstrip->is_dragging_)
+    return TRUE;
+
   int old_hover_index = tabstrip->hover_index_;
   gfx::Point point(event->x, event->y);
 
-  // Get a rough estimate for which tab the mouse is over.
-  int index = event->x / (tabstrip->current_unselected_width_ + kTabHOffset);
-
-  // Tab hovering calcuation.
-  // Using the rough estimate tab index, we check the tab bounds in a smart
-  // order to reduce the number of tabs we need to check.  If the tab at the
-  // estimated index is selected, check it first as it covers both tabs below
-  // it.  Otherwise, check the tab to the left, then the estimated tab, and
-  // finally the tab to the right (tabs stack to the left.)
-
-  int tab_count = tabstrip->GetTabCount();
-  if (index == tab_count &&
-      tabstrip->GetTabAt(index - 1)->IsPointInBounds(point)) {
-    index--;
-  } else if (index >= tab_count) {
-    index = -1;
-  } else if (index > 0 &&
-             tabstrip->GetTabAt(index - 1)->IsPointInBounds(point)) {
-    index--;
-  } else if (index < tab_count - 1 &&
-             tabstrip->GetTabAt(index + 1)->IsPointInBounds(point)) {
-    index++;
+  int index;
+  TabAnimation* animation = tabstrip->active_animation_.get();
+  if (animation && animation->type() == TabAnimation::SNAP) {
+    index = tabstrip->FindTabHoverIndexIterative(point);
+  } else {
+    index = tabstrip->FindTabHoverIndexFast(point);
   }
 
   // Hovering does not take place outside of the currently highlighted tab if
@@ -1036,7 +1167,7 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
 
   bool paint = false;
   if (old_hover_index != -1 && old_hover_index != index &&
-      old_hover_index < tab_count ) {
+      old_hover_index < tabstrip->GetTabCount()) {
     // Notify the previously highlighted tab that the mouse has left.
     paint = tabstrip->GetTabAt(old_hover_index)->OnLeaveNotify();
   }
@@ -1098,10 +1229,28 @@ gboolean TabStripGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
 }
 
 // static
+gboolean TabStripGtk::OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event,
+                                    TabStripGtk* tabstrip) {
+  if (tabstrip->is_dragging_) {
+    TabGtk* tab = tabstrip->GetTabAt(tabstrip->hover_index_);
+    tabstrip->MoveTab(tab, gfx::Point(event->x, event->y));
+    gtk_widget_queue_draw(tabstrip->tabstrip_.get());
+  }
+
+  return TRUE;
+}
+
+// static
 gboolean TabStripGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
                                     TabStripGtk* tabstrip) {
   // No leave notification if the mouse button is pressed.
   if (IsButtonPressed(event->state))
+    return TRUE;
+
+  // gtk does not set the button pressed state when a drag is occurring, so
+  // bail out if we're dragging.  Otherwise, the SnapTabAnimation will have
+  // the wrong tab index (-1) when initiating the snap.
+  if (tabstrip->is_dragging_)
     return TRUE;
 
   // A leave-notify-event is generated on mouse click, which sets the mode to
@@ -1123,4 +1272,182 @@ gboolean TabStripGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
   }
 
   return TRUE;
+}
+
+// static
+void TabStripGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
+                              TabStripGtk* tabstrip) {
+  if (tabstrip->hover_index_ == -1)
+    return;
+
+  // If we're in the middle of a snap animation, stop the animation.  We only
+  // set the snap bounds if the tab is snapped into a proper index, which is not
+  // the case if it's being snapped.
+  if (tabstrip->active_animation_.get()) {
+    tabstrip->active_animation_->Stop();
+  } else {
+    tabstrip->snap_bounds_ =
+      tabstrip->GetTabAt(tabstrip->hover_index_)->bounds();
+  }
+
+  tabstrip->is_dragging_ = true;
+}
+
+// static
+void TabStripGtk::OnDragEnd(GtkWidget* widget, GdkDragContext* context,
+                            TabStripGtk* tabstrip) {
+  tabstrip->StartSnapTabAnimation(tabstrip->snap_bounds_);
+  tabstrip->mouse_offset_ = gfx::Point(-1, -1);
+  tabstrip->is_dragging_ = false;
+}
+
+// static
+gboolean TabStripGtk::OnDragMotion(GtkWidget* widget,
+                                   GdkDragContext* drag_context,
+                                   guint x, guint y,
+                                   guint time,
+                                   TabStripGtk* tabstrip) {
+  TabGtk* tab = tabstrip->GetTabAt(tabstrip->hover_index_);
+  gfx::Rect bounds = tab->bounds();
+
+  // For whatever reason, gtk does not give us the coordinates of the mouse in
+  // the drag-begin event, so set them here once.
+  if (tabstrip->mouse_offset_ == gfx::Point(-1, -1))
+    tabstrip->mouse_offset_.SetPoint(x - bounds.x(), y - bounds.y());
+
+  tabstrip->MoveTab(tab, gfx::Point(x, y));
+  gtk_widget_queue_draw(tabstrip->tabstrip_.get());
+
+  return TRUE;
+}
+
+int TabStripGtk::FindTabHoverIndexIterative(const gfx::Point& point) {
+  for (int i = 0; i < GetTabCount(); i++) {
+    if (GetTabAt(i)->IsPointInBounds(point))
+      return i;
+  }
+
+  return -1;
+}
+
+int TabStripGtk::FindTabHoverIndexFast(const gfx::Point& point) {
+  // Get a rough estimate for which tab the mouse is over.
+  int index = point.x() / (current_unselected_width_ + kTabHOffset);
+
+  // Tab hovering calcuation.
+  // Using the rough estimate tab index, we check the tab bounds in a smart
+  // order to reduce the number of tabs we need to check.  If the tab at the
+  // estimated index is selected, check it first as it covers both tabs below
+  // it.  Otherwise, check the tab to the left, then the estimated tab, and
+  // finally the tab to the right (tabs stack to the left.)
+
+  int tab_count = GetTabCount();
+  if (index == tab_count &&
+      GetTabAt(index - 1)->IsPointInBounds(point)) {
+    index--;
+  } else if (index >= tab_count) {
+    index = -1;
+  } else if (index > 0 &&
+             GetTabAt(index - 1)->IsPointInBounds(point)) {
+    index--;
+  } else if (index < tab_count - 1 &&
+             GetTabAt(index + 1)->IsPointInBounds(point)) {
+    index++;
+  }
+
+  return index;
+}
+
+void TabStripGtk::MoveTab(TabGtk* tab, const gfx::Point& point) {
+  // Determine the horizontal move threshold. This is dependent on the width
+  // of tabs. The smaller the tabs compared to the standard size, the smaller
+  // the threshold.
+  double unselected, selected;
+  GetCurrentTabWidths(&unselected, &selected);
+
+  double ratio = unselected / TabGtk::GetStandardSize().width();
+  int threshold = static_cast<int>(ratio * kHorizontalMoveThreshold);
+
+  // Update the model, moving the TabContents from one index to another. Do
+  // this only if we have moved a minimum distance since the last reorder (to
+  // prevent jitter).
+  if (abs(point.x() - last_move_x_) > threshold) {
+    TabStripModel* attached_model = model();
+    int from_index = hover_index_;
+    gfx::Rect bounds = GetTabAt(hover_index_)->bounds();
+
+    int to_index = GetInsertionIndexForDraggedBounds(bounds);
+    to_index = NormalizeIndexToAttachedTabStrip(to_index);
+    if (from_index != to_index) {
+      last_move_x_ = point.x();
+      hover_index_ = to_index;
+      snap_bounds_ = GetTabAt(to_index)->bounds();
+      attached_model->MoveTabContentsAt(from_index, to_index, true);
+    }
+  }
+
+  // Move the tab.
+  gfx::Point dragged_point = GetDraggedPoint(tab, point);
+  gfx::Rect bounds = tab->bounds();
+  bounds.set_x(dragged_point.x());
+  tab->SetBounds(bounds);
+}
+
+gfx::Point TabStripGtk::GetDraggedPoint(TabGtk* tab, const gfx::Point& point) {
+  int x = point.x() - mouse_offset_.x();
+  int y = point.y() - mouse_offset_.y();
+
+  // Snap the dragged tab to the tab strip.
+  if (x < 0)
+    x = 0;
+
+  // Make sure the tab can't be dragged off the right side of the tab strip.
+  int max_x = bounds_.right() - tab->width();
+  if (x > max_x)
+    x = max_x;
+
+  return gfx::Point(x, y);
+}
+
+int TabStripGtk::GetInsertionIndexForDraggedBounds(
+    const gfx::Rect& dragged_bounds) {
+  int right_tab_x = 0;
+
+  // TODO(jhawkins): Handle RTL layout.
+
+  // Divides each tab into two halves to see if the dragged tab has crossed
+  // the halfway boundary necessary to move past the next tab.
+  for (int i = 0; i < GetTabCount(); i++) {
+    gfx::Rect ideal_bounds = GetIdealBounds(i);
+
+    gfx::Rect left_half = ideal_bounds;
+    left_half.set_width(left_half.width() / 2);
+
+    gfx::Rect right_half = ideal_bounds;
+    right_half.set_width(ideal_bounds.width() - left_half.width());
+    right_half.set_x(left_half.right());
+
+    right_tab_x = right_half.right();
+
+    if (dragged_bounds.x() >= right_half.x() &&
+        dragged_bounds.x() < right_half.right()) {
+      return i + 1;
+    } else if (dragged_bounds.x() >= left_half.x() &&
+               dragged_bounds.x() < left_half.right()) {
+      return i;
+    }
+  }
+
+  if (dragged_bounds.right() > right_tab_x)
+    return model()->count();
+
+  return TabStripModel::kNoTab;
+}
+
+int TabStripGtk::NormalizeIndexToAttachedTabStrip(int index) {
+  if (index >= model_->count())
+    return model_->count() - 1;
+  if (index == TabStripModel::kNoTab)
+    return 0;
+  return index;
 }

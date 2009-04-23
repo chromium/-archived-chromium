@@ -43,6 +43,9 @@ class TabStripGtk : public TabStripModelObserver,
   // position.
   bool IsAnimating() const;
 
+  // Retrieve the ideal bounds for the Tab at the specified index.
+  gfx::Rect GetIdealBounds(int index);
+
  protected:
   // TabStripModelObserver implementation:
   virtual void TabInsertedAt(TabContents* contents,
@@ -80,6 +83,8 @@ class TabStripGtk : public TabStripModelObserver,
  private:
   friend class InsertTabAnimation;
   friend class RemoveTabAnimation;
+  friend class MoveTabAnimation;
+  friend class SnapTabAnimation;
   friend class ResizeLayoutAnimation;
   friend class TabAnimation;
 
@@ -108,9 +113,56 @@ class TabStripGtk : public TabStripModelObserver,
   static gboolean OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
                                  TabStripGtk* tabstrip);
 
+  // enter-notify-event handler that signals when the mouse enters the tabstrip.
+  static gboolean OnEnterNotify(GtkWidget* widget, GdkEventCrossing* event,
+                                TabStripGtk* tabstrip);
+
   // leave-notify-event handler that signals when the mouse leaves the tabstrip.
   static gboolean OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
                                 TabStripGtk* tabstrip);
+
+  // drag-begin handler that signals when a drag action begins.
+  static void OnDragBegin(GtkWidget* widget, GdkDragContext* context,
+                          TabStripGtk* tabstrip);
+
+  // drag-end handler that signals when a drag action ends.
+  static void OnDragEnd(GtkWidget* widget, GdkDragContext* context,
+                        TabStripGtk* tabstrip);
+
+  // drag-motion handler that handles drag movements in the tabstrip.
+  static gboolean OnDragMotion(GtkWidget* widget, GdkDragContext* context,
+                               guint x, guint y, guint time,
+                               TabStripGtk* tabstrip);
+
+  // Finds the tab that is under |point| by iterating through all of the tabs
+  // and checking if |point| is in their bounds.  This method is only used when
+  // the state of all the tabs cannot be calculated, as during a SnapTab
+  // animation.  Runs in O(n) time.
+  int FindTabHoverIndexIterative(const gfx::Point& point);
+
+  // Finds the tab that is under |point| by estimating the tab index and
+  // checking if |point| is in the bounds of the surrounding tabs.  This method
+  // is optimal and is used in most cases.  Runs in O(1) time.
+  int FindTabHoverIndexFast(const gfx::Point& point);
+
+  // -- Drag & Drop ------------------------------------------------------------
+  //
+  // TODO(jhawkins): These functions belong in DraggedTabControllerGtk.
+
+  // Returns the index where the dragged TabContents should be inserted into
+  // the attached TabStripModel given the DraggedTabView's bounds
+  // |dragged_bounds| in coordinates relative to the attached TabStrip.
+  int GetInsertionIndexForDraggedBounds(const gfx::Rect& dragged_bounds);
+
+  // Utility to convert the specified TabStripModel index to something valid
+  // for the attached TabStrip.
+  int NormalizeIndexToAttachedTabStrip(int index);
+
+  // Handles moving the Tab within a TabStrip.
+  void MoveTab(TabGtk* tab, const gfx::Point& point);
+
+  // Get the position of the dragged tab relative to the attached tab strip.
+  gfx::Point GetDraggedPoint(TabGtk* tab, const gfx::Point& point);
 
   // Gets the number of Tabs in the collection.
   int GetTabCount() const;
@@ -166,6 +218,8 @@ class TabStripGtk : public TabStripModelObserver,
   void StartInsertTabAnimation(int index);
   void StartRemoveTabAnimation(int index, TabContents* contents);
   void StartResizeLayoutAnimation();
+  void StartMoveTabAnimation(int from_index, int to_index);
+  void StartSnapTabAnimation(const gfx::Rect& bounds);
 
   // Returns true if detach or select changes in the model should be reflected
   // in the TabStrip. This returns false if we're closing all tabs in the
@@ -218,6 +272,26 @@ class TabStripGtk : public TabStripModelObserver,
 
   // The New Tab button.
   scoped_ptr<TabButtonGtk> newtab_button_;
+
+  // ===========================================================================
+  // TODO(jhawkins): This belongs in DraggedTabControllerGtk.
+
+  // This is the offset of the mouse from the top left of the Tab where
+  // dragging begun. This is used to ensure that the dragged view is always
+  // positioned at the correct location during the drag, and to ensure that the
+  // detached window is created at the right location.
+  gfx::Point mouse_offset_;
+
+  // The horizontal position of the mouse cursor at the time of the last
+  // re-order event.
+  int last_move_x_;
+
+  // The last good tab bounds of the dragged tab.  This is the position the tab
+  // will be snapped back to when the drag is released.
+  gfx::Rect snap_bounds_;
+
+  // When a tab is being dragged, certain gtk events should be ignored.
+  bool is_dragging_;
 
   DISALLOW_COPY_AND_ASSIGN(TabStripGtk);
 };
