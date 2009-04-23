@@ -34,24 +34,6 @@ const int kCloseButtonHorzFuzz = 5;
 // How opaque to make the hover state (out of 1).
 const double kHoverOpacity = 0.33;
 
-// TODO(jhawkins): Move this code into ChromeFont and allow pulling out a
-// GdkFont*.
-GdkFont* load_default_font() {
-  GtkSettings* settings = gtk_settings_get_default();
-
-  GValue value = {0};
-  g_value_init(&value, G_TYPE_STRING);
-  g_object_get_property(G_OBJECT(settings), "gtk-font-name", &value);
-
-  gchar* font_name = g_strdup_value_contents(&value);
-  PangoFontDescription* font_description =
-      pango_font_description_from_string(font_name);
-
-  GdkFont* font = gdk_font_from_description(font_description);
-  g_free(font_name);
-  return font;
-}
-
 TabRendererGtk::LoadingAnimation::Data loading_animation_data;
 
 // Loads the loading animation images and data.
