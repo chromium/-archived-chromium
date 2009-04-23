@@ -11,19 +11,30 @@
 #include "v8/include/v8-debug.h"
 #endif
 
-void V8DebugMessageHandler(const uint16_t* message, int length, void* data) {
+void V8DebugMessageHandler(const uint16_t* message, int length,
+                           v8::Debug::ClientData* client_data) {
+  if (!DebuggerBridge::instance_) {
+    NOTREACHED();
+    return;
+  }
   std::wstring out(reinterpret_cast<const wchar_t*>(message), length);
-  reinterpret_cast<DebuggerBridge*>(data)->OutputLater(out);
+  DebuggerBridge::instance_->OutputLater(out);
 }
+
+// static
+DebuggerBridge* DebuggerBridge::instance_ = NULL;
 
 DebuggerBridge::DebuggerBridge(Delegate* del)
     : delegate_(del),
       attached_(false) {
   delegate_loop_ = MessageLoop::current();
+  DCHECK(instance_ == NULL);
+  instance_ = this;
 }
 
 DebuggerBridge::~DebuggerBridge() {
   DCHECK(!attached_);
+  instance_ = NULL;
   Detach();
 }
 
@@ -38,7 +49,7 @@ void DebuggerBridge::Attach() {
 #ifdef USING_V8
   if (!attached_) {
     attached_ = true;
-    v8::Debug::SetMessageHandler(V8DebugMessageHandler, this);
+    v8::Debug::SetMessageHandler(V8DebugMessageHandler);
   }
 #endif
 }

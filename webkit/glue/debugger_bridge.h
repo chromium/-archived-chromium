@@ -15,7 +15,8 @@
 #include "base/ref_counted.h"
 #include "v8/include/v8-debug.h"
 
-void V8DebugMessageHandler(const uint16_t* message, int length, void* data);
+void V8DebugMessageHandler(const uint16_t* message, int length,
+                           v8::Debug::ClientData* client_data);
 
 class DebuggerBridge : public base::RefCountedThreadSafe<DebuggerBridge> {
  public:
@@ -44,8 +45,8 @@ class DebuggerBridge : public base::RefCountedThreadSafe<DebuggerBridge> {
   void Detach();
 
  private:
-  friend void V8DebugMessageHandler(const uint16_t* message,
-                                    int length, void* data);
+  friend void V8DebugMessageHandler(const uint16_t* message, int length,
+                                    v8::Debug::ClientData* client_data);
 
   // Called by the LocalDebugSession so that the delegate can called in the
   // appropriate thread.
@@ -56,6 +57,7 @@ class DebuggerBridge : public base::RefCountedThreadSafe<DebuggerBridge> {
   Delegate* delegate_;
   MessageLoop* delegate_loop_;
   bool attached_;
+  static DebuggerBridge* instance_;
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerBridge);
 };
