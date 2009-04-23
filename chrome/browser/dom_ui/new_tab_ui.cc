@@ -262,8 +262,10 @@ void NewTabHTMLSource::StartDataRequest(const std::string& path,
   localized_strings.SetString(L"mostvisitedintro",
       l10n_util::GetStringF(IDS_NEW_TAB_MOST_VISITED_INTRO,
           l10n_util::GetString(IDS_WELCOME_PAGE_URL)));
-  localized_strings.SetString(L"closedwindow",
-      l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW));
+  localized_strings.SetString(L"closedwindowsingle",
+      l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_SINGLE));
+  localized_strings.SetString(L"closedwindowmultiple",
+      l10n_util::GetString(IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_MULTIPLE));
 
   SetFontAndTextDirection(&localized_strings);
 

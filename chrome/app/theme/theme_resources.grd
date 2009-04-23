@@ -322,6 +322,7 @@
       <include name="IDR_O2_MORE" file="o2_more.png" type="BINDATA" />
       <include name="IDR_O2_SEARCH" file="o2_search.png" type="BINDATA" />
       <include name="IDR_O2_STAR" file="o2_star.png" type="BINDATA" />
+      <include name="IDR_CLOSED_WINDOW" file="closed_window.png" type="BINDATA" />
 
       <if expr="pp_ifdef('_google_chrome')">
         <include name="IDR_ABOUT_BACKGROUND" file="google_chrome/about_background.png" type="BINDATA" />
@@ -330,6 +331,7 @@
         <include name="IDR_DISTRIBUTOR_LOGO" file="google_chrome/distributor_logo.png" type="BINDATA" />
         <include name="IDR_DISTRIBUTOR_LOGO_LIGHT" file="google_chrome/distributor_logo_light.png" type="BINDATA" />
         <include name="IDR_PRODUCT_LOGO" file="google_chrome/product_logo.png" type="BINDATA" />
+        <include name="IDR_PRODUCT_LOGO_16" file="google_chrome/product_logo_16.png" type="BINDATA" />
         <include name="IDR_WIZARD_ICON" file="google_chrome/wizard_icon.png" type="BINDATA" />
         <include name="IDR_WIZARD_ICON_RTL" file="google_chrome/wizard_icon_rtl.png" type="BINDATA" />
       </if>
@@ -339,6 +341,7 @@
         <include name="IDR_ABOUT_BACKGROUND_RTL" file="chromium/about_background_rtl.png" type="BINDATA" />
         <include name="IDR_ABOUT_BACKGROUND_COLOR" file="chromium/about_background_color.png" type="BINDATA" />
         <include name="IDR_PRODUCT_LOGO" file="chromium/product_logo.png" type="BINDATA" />
+        <include name="IDR_PRODUCT_LOGO_16" file="chromium/product_logo_16.png" type="BINDATA" />
         <include name="IDR_WIZARD_ICON" file="chromium/wizard_icon.png" type="BINDATA" />
         <include name="IDR_WIZARD_ICON_RTL" file="chromium/wizard_icon_rtl.png" type="BINDATA" />
       </if>

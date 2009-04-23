@@ -280,6 +280,7 @@ a.thumbnail {
   line-height:16px;
   display:block;
   margin:3px 0px 3px 0px;
+  padding-left:22px;
 }
 .recent-window-container img {
   margin:0 3px -2px 3px;
@@ -400,7 +401,8 @@ html[dir='rtl'] #searches input {
 <body onload="logEvent('body onload fired');"
       jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
 <div id="l10n" style="display:none;">
-  <span id="closedwindow" jscontent="closedwindow">Window</span>
+  <span id="closedwindowsingle" jscontent="closedwindowsingle">1 Tab</span>
+  <span id="closedwindowmultiple" jscontent="closedwindowmultiple">% Tabs</span>
 </div>
 <script>
 // We apply the size class here so that we don't trigger layout animations onload.
@@ -786,7 +788,7 @@ function renderRecentlyClosedTabs(entries) {
         var linkSpanContainer = DOM('div', { className: 'recent-window-container'});
 
         var linkSpan = DOM('span');
-        linkSpan.appendChild(document.createTextNode(" ("));
+        linkSpan.appendChild(document.createTextNode(" "));
         for (var windowIndex = 0; windowIndex < entry.tabs.length; windowIndex++) {
           var tab = entry.tabs[windowIndex];
           var tabImg = DOM('img', {
@@ -796,12 +798,11 @@ function renderRecentlyClosedTabs(entries) {
           tabImg.onmousedown = function() { return false; }
           linkSpan.appendChild(tabImg);
         }
-        linkSpan.appendChild(document.createTextNode(")"));
 
         link = DOM('span', { className: 'recently-closed-window-link' } );
         windowSpan = DOM('span', {className: 'recently-close-window-text'});
-        windowSpan.appendChild(
-            document.createTextNode(localStrings.getString('closedwindow')));
+        windowSpan.appendChild(document.createTextNode(
+            recentlyClosedWindowText(entry.tabs.length)));
         link.appendChild(windowSpan);
         link.appendChild(linkSpan);
         linkSpanContainer.appendChild(link);
@@ -825,6 +826,19 @@ function renderRecentlyClosedTabs(entries) {
   }
 
   logEvent('renderRecentlyClosedTabs done');
+}
+
+/**
+ * Returns the text used for a recently closed window.
+ *
+ * @param numTabs number of tabs in the window
+ *
+ * @return the text to use
+ */
+function recentlyClosedWindowText(numTabs) {
+  if (numTabs == 1)
+    return localStrings.getString('closedwindowsingle');
+  return localStrings.getString('closedwindowmultiple').replace('%', numTabs);
 }
 
 /**
@@ -1032,6 +1046,10 @@ setTimeout(function(){document.getElementById('main').className = 'visible'},
 }
 .edit-mode div.edit-cross:active {
   background: url('../../app/theme/ntp_x_icon_active.png');
+}
+.recent-window-container {
+  background: url('../../app/theme/closed_window.png');
+  background-repeat: no-repeat;
 }
 </style>
 

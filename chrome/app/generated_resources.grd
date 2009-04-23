@@ -3336,9 +3336,13 @@ each locale. -->
         <ph name="END_LIST">&lt;/ul&gt;</ph>
         <ph name="BEGIN_LINK">&lt;a href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph> about incognito browsing.
       </message>
-      <message name="IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW"
-               desc="Title of recently closed windows in the recently closed section of the new tab page">
-        Window
+      <message name="IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_SINGLE"
+               desc="Title of recently closed windows in the recently closed section of the new tab page when the window has a single tab">
+        1 Tab
+      </message>
+      <message name="IDS_NEW_TAB_RECENTLY_CLOSED_WINDOW_MULTIPLE"
+               desc="Title of recently closed windows in the recently closed section of the new tab page when the window has more than one tab. The % is replaced by the number of tabs">
+        % Tabs
       </message>
 
       <!-- SafeBrowsing -->
