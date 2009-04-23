@@ -143,8 +143,8 @@ IPC_BEGIN_MESSAGES(Plugin)
   IPC_MESSAGE_ROUTED4(PluginMsg_UpdateGeometry,
                       gfx::Rect /* window_rect */,
                       gfx::Rect /* clip_rect */,
-                      base::SharedMemoryHandle /* windowless_buffer */,
-                      base::SharedMemoryHandle /* background_buffer */)
+                      TransportDIB::Id /* windowless_buffer */,
+                      TransportDIB::Id /* background_buffer */)
 
   IPC_SYNC_MESSAGE_ROUTED0_0(PluginMsg_SetFocus)
 

@@ -4,11 +4,11 @@
 
 #include "chrome/plugin/webplugin_delegate_stub.h"
 
+#include "build/build_config.h"
+
 #include "base/command_line.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/gfx/emf.h"
 #include "chrome/common/plugin_messages.h"
-#include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_stub.h"
 #include "chrome/plugin/plugin_channel.h"
 #include "chrome/plugin/plugin_thread.h"
@@ -18,6 +18,11 @@
 #include "skia/ext/platform_device.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webplugin_delegate.h"
+
+#if defined(OS_WIN)
+#include "chrome/common/gfx/emf.h"
+#include "chrome/common/win_util.h"
+#endif
 
 class FinishDestructionTask : public Task {
  public:
@@ -124,8 +129,8 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   }
 
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  FilePath path =
-      FilePath(command_line.GetSwitchValue(switches::kPluginPath));
+  FilePath path = FilePath::FromWStringHack(
+      command_line.GetSwitchValue(switches::kPluginPath));
   delegate_ = WebPluginDelegate::Create(
       path, mime_type_, gfx::NativeViewFromId(params.containing_window));
   if (delegate_) {
@@ -215,6 +220,7 @@ void WebPluginDelegateStub::OnDidPaint() {
 
 void WebPluginDelegateStub::OnPrint(base::SharedMemoryHandle* shared_memory,
                                     size_t* size) {
+#if defined(OS_WIN)
   gfx::Emf emf;
   if (!emf.CreateDc(NULL, NULL)) {
     NOTREACHED();
@@ -236,15 +242,20 @@ void WebPluginDelegateStub::OnPrint(base::SharedMemoryHandle* shared_memory,
   // Retrieve a copy of the data.
   bool success = emf.GetData(shared_buf.memory(), *size);
   DCHECK(success);
+#else
+  // TODO(port): plugin printing.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginDelegateStub::OnUpdateGeometry(
     const gfx::Rect& window_rect,
     const gfx::Rect& clip_rect,
-    const base::SharedMemoryHandle& windowless_buffer,
-    const base::SharedMemoryHandle& background_buffer) {
+    const TransportDIB::Id& windowless_buffer_id,
+    const TransportDIB::Id& background_buffer_id) {
   webplugin_->UpdateGeometry(
-      window_rect, clip_rect, windowless_buffer, background_buffer);
+      window_rect, clip_rect,
+      windowless_buffer_id, background_buffer_id);
 }
 
 void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,
@@ -259,7 +270,7 @@ void WebPluginDelegateStub::OnGetPluginScriptableObject(int* route_id,
   *npobject_ptr = reinterpret_cast<intptr_t>(object);
   // The stub will delete itself when the proxy tells it that it's released, or
   // otherwise when the channel is closed.
-  NPObjectStub* stub = new NPObjectStub(
+  new NPObjectStub(
       object, channel_.get(), *route_id, webplugin_->modal_dialog_event());
 
   // Release ref added by GetPluginScriptableObject (our stub holds its own).
@@ -315,6 +326,7 @@ void WebPluginDelegateStub::CreateSharedBuffer(
     return;
   }
 
+#if defined(OS_WIN)
   BOOL result = DuplicateHandle(GetCurrentProcess(),
                                 shared_buf->handle(),
                                 channel_->renderer_handle(),
@@ -325,6 +337,10 @@ void WebPluginDelegateStub::CreateSharedBuffer(
   // If the calling function's shared_buf is on the stack, its destructor will
   // close the shared memory buffer handle. This is fine since we already
   // duplicated the handle to the renderer process so it will stay "alive".
+#else
+  // TODO(port): this should use TransportDIB.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginDelegateStub::OnHandleURLRequestReply(

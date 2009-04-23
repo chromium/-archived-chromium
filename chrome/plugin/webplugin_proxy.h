@@ -13,6 +13,7 @@
 #include "base/timer.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/chrome_plugin_api.h"
+#include "chrome/common/transport_dib.h"
 #include "webkit/glue/webplugin.h"
 
 namespace base {
@@ -87,8 +88,8 @@ class WebPluginProxy : public WebPlugin {
 
   void UpdateGeometry(const gfx::Rect& window_rect,
                       const gfx::Rect& clip_rect,
-                      const base::SharedMemoryHandle& windowless_buffer,
-                      const base::SharedMemoryHandle& background_buffer);
+                      const TransportDIB::Id& windowless_buffer,
+                      const TransportDIB::Id& background_buffer);
 
   void CancelDocumentLoad();
 
@@ -107,6 +108,10 @@ class WebPluginProxy : public WebPlugin {
  private:
   bool Send(IPC::Message* msg);
 
+  // Handler for sending over the paint event to the plugin.
+  void OnPaint(const gfx::Rect& damaged_rect);
+
+#if defined(OS_WIN)
   // Updates the shared memory section where windowless plugins paint.
   void SetWindowlessBuffer(const base::SharedMemoryHandle& windowless_buffer,
                            const base::SharedMemoryHandle& background_buffer);
@@ -118,26 +123,25 @@ class WebPluginProxy : public WebPlugin {
                      ScopedBitmap* bitmap,
                      ScopedHDC* hdc);
 
-  // Handler for sending over the paint event to the plugin.
-  void OnPaint(const gfx::Rect& damaged_rect);
-
   // Called when a plugin's origin moves, so that we can update the world
   // transform of the local HDC.
   void UpdateTransform();
+#endif
 
   typedef base::hash_map<int, WebPluginResourceClient*> ResourceClientMap;
   ResourceClientMap resource_clients_;
 
   scoped_refptr<PluginChannel> channel_;
   int route_id_;
+  uint32 cp_browsing_context_;
   NPObject* window_npobject_;
   NPObject* plugin_element_;
   WebPluginDelegate* delegate_;
   gfx::Rect damaged_rect_;
   bool waiting_for_paint_;
-  uint32 cp_browsing_context_;
   scoped_ptr<base::WaitableEvent> modal_dialog_event_;
 
+#if defined(OS_WIN)
   // Variables used for desynchronized windowless plugin painting.  See note in
   // webplugin_delegate_proxy.h for how this works.
 
@@ -150,6 +154,7 @@ class WebPluginProxy : public WebPlugin {
   ScopedHandle background_shared_section_;
   ScopedBitmap background_bitmap_;
   ScopedHDC background_hdc_;
+#endif
 
   ScopedRunnableMethodFactory<WebPluginProxy> runnable_method_factory_;
 };

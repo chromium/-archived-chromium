@@ -12,6 +12,7 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_message.h"
 #include "chrome/renderer/plugin_channel_host.h"
+#include "skia/ext/platform_canvas.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webplugin_delegate.h"
 
@@ -25,10 +26,6 @@ class SkBitmap;
 namespace base {
 class SharedMemory;
 class WaitableEvent;
-}
-
-namespace skia {
-class PlatformCanvasWin;
 }
 
 // An implementation of WebPluginDelegate that proxies all calls to
@@ -57,8 +54,8 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
                           WebPlugin* plugin, bool load_manually);
   virtual void UpdateGeometry(const gfx::Rect& window_rect,
                               const gfx::Rect& clip_rect);
-  virtual void Paint(HDC hdc, const gfx::Rect& rect);
-  virtual void Print(HDC hdc);
+  virtual void Paint(gfx::NativeDrawingContext context, const gfx::Rect& rect);
+  virtual void Print(gfx::NativeDrawingContext context);
   virtual NPObject* GetPluginScriptableObject();
   virtual void DidFinishLoadWithReason(NPReason reason);
   virtual void SetFocus();
@@ -138,11 +135,16 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
                                   intptr_t notify_data);
 
   // Draw a graphic indicating a crashed plugin.
-  void PaintSadPlugin(HDC hdc, const gfx::Rect& rect);
+  void PaintSadPlugin(gfx::NativeDrawingContext context, const gfx::Rect& rect);
 
+#if defined(OS_WIN)
   // Returns true if the given rectangle is different in the hdc and the
   // current background bitmap.
   bool BackgroundChanged(HDC hdc, const gfx::Rect& rect);
+#else
+  // TODO(port): this should be portable; just avoiding windowless plugins for
+  // now.
+#endif
 
   // Copies the given rectangle from the transport bitmap to the backing store.
   void CopyFromTransportToBacking(const gfx::Rect& rect);
@@ -152,7 +154,7 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
 
   // Creates a shared memory section and canvas.
   bool CreateBitmap(scoped_ptr<base::SharedMemory>* memory,
-                    scoped_ptr<skia::PlatformCanvasWin>* canvas);
+                    scoped_ptr<skia::PlatformCanvas>* canvas);
 
   RenderView* render_view_;
   WebPlugin* plugin_;
@@ -187,11 +189,11 @@ class WebPluginDelegateProxy : public WebPluginDelegate,
   // for transparent plugins, as they need the backgroud data during painting.
   bool transparent_;
   scoped_ptr<base::SharedMemory> backing_store_;
-  scoped_ptr<skia::PlatformCanvasWin> backing_store_canvas_;
+  scoped_ptr<skia::PlatformCanvas> backing_store_canvas_;
   scoped_ptr<base::SharedMemory> transport_store_;
-  scoped_ptr<skia::PlatformCanvasWin> transport_store_canvas_;
+  scoped_ptr<skia::PlatformCanvas> transport_store_canvas_;
   scoped_ptr<base::SharedMemory> background_store_;
-  scoped_ptr<skia::PlatformCanvasWin> background_store_canvas_;
+  scoped_ptr<skia::PlatformCanvas> background_store_canvas_;
   // This lets us know which portion of the backing store has been painted into.
   gfx::Rect backing_store_painted_;
 

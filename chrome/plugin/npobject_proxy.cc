@@ -6,7 +6,6 @@
 
 #include "base/waitable_event.h"
 #include "chrome/common/plugin_messages.h"
-#include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/plugin/plugin_channel_base.h"
 #include "webkit/glue/webkit_glue.h"
@@ -302,10 +301,10 @@ bool NPObjectProxy::NPRemoveProperty(NPObject *obj,
 }
 
 void NPObjectProxy::NPPInvalidate(NPObject *obj) {
-  bool result = false;
   NPObjectProxy* proxy = GetProxy(obj);
   if (!proxy) {
-    return obj->_class->invalidate(obj);
+    obj->_class->invalidate(obj);
+    return;
   }
 
   proxy->Send(new NPObjectMsg_Invalidate(proxy->route_id()));

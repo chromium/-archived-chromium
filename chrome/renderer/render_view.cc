@@ -1902,9 +1902,9 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
 
   return proxy;
 #else
-    // TODO(port): Plugins currently not supported
-    NOTIMPLEMENTED();
-    return NULL;
+  // TODO(port): Plugins currently not supported
+  NOTIMPLEMENTED();
+  return NULL;
 #endif
 }
 

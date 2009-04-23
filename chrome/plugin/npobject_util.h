@@ -12,6 +12,7 @@
 #if defined(OS_WIN)
 #include <windows.h>
 #endif
+
 #include "chrome/plugin/npobject_stub.h"
 
 struct _NPVariant;
@@ -51,13 +52,13 @@ void CreateNPVariantParam(const NPVariant& variant,
                           bool release,
                           base::WaitableEvent* modal_dialog_event);
 
-#if defined(OS_WIN)
 // Creates an NPVariant from the marshalled object.
 void CreateNPVariant(const NPVariant_Param& param,
                      PluginChannelBase* channel,
                      NPVariant* result,
                      base::WaitableEvent* modal_dialog_event);
 
+#if defined(OS_WIN)
 // Given a plugin's HWND, returns an event associated with the WebContents
 // that's set when inside a messagebox.  This tells the plugin process that
 // the message queue should be pumped (as what would happen if everything was

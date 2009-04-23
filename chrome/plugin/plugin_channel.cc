@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "chrome/plugin/plugin_channel.h"
 
 #include "base/command_line.h"
@@ -17,7 +15,7 @@
 PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
   static int next_id;
   std::wstring channel_name = StringPrintf(
-      L"%d.r%d", GetCurrentProcessId(), ++next_id);
+      L"%d.r%d", base::GetCurrentProcId(), ++next_id);
 
   return static_cast<PluginChannel*>(PluginChannelBase::GetChannel(
       channel_name,
@@ -27,7 +25,8 @@ PluginChannel* PluginChannel::GetPluginChannel(MessageLoop* ipc_message_loop) {
       false));
 }
 
-PluginChannel::PluginChannel() : in_send_(0), off_the_record_(false) {
+PluginChannel::PluginChannel() : renderer_handle_(0), in_send_(0),
+                                 off_the_record_(false) {
   SendUnblockingOnlyDuringDispatch();
   ChildProcess::current()->AddRefProcess();
   const CommandLine* command_line = CommandLine::ForCurrentProcess();
@@ -35,6 +34,8 @@ PluginChannel::PluginChannel() : in_send_(0), off_the_record_(false) {
 }
 
 PluginChannel::~PluginChannel() {
+  if (renderer_handle_)
+    base::CloseProcessHandle(renderer_handle_);
   ChildProcess::current()->ReleaseProcess();
 }
 
@@ -95,8 +96,8 @@ void PluginChannel::OnGenerateRouteID(int* route_id) {
 }
 
 int PluginChannel::GenerateRouteID() {
-  static LONG last_id = 0;
-  return InterlockedIncrement(&last_id);
+  static int last_id = 0;
+  return ++last_id;
 }
 
 void PluginChannel::OnChannelConnected(int32 peer_pid) {
@@ -104,12 +105,13 @@ void PluginChannel::OnChannelConnected(int32 peer_pid) {
   if (!base::OpenProcessHandle(peer_pid, &handle)) {
     NOTREACHED();
   }
-  renderer_handle_.Set(handle);
+  renderer_handle_ = handle;
   PluginChannelBase::OnChannelConnected(peer_pid);
 }
 
 void PluginChannel::OnChannelError() {
-  renderer_handle_.Set(NULL);
+  base::CloseProcessHandle(renderer_handle_);
+  renderer_handle_ = 0;
   PluginChannelBase::OnChannelError();
   CleanUp();
 }

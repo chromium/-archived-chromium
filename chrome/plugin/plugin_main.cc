@@ -6,22 +6,22 @@
 #include "base/message_loop.h"
 #include "base/string_util.h"
 #include "base/system_monitor.h"
+#include "build/build_config.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
 #include "chrome/common/main_function_params.h"
-#include "chrome/common/win_util.h"
 #include "chrome/plugin/plugin_thread.h"
+
+#if defined(OS_WIN)
+#include "chrome/common/win_util.h"
 #include "chrome/test/injection_test_dll.h"
 #include "sandbox/src/sandbox.h"
+#endif
 
-// mainline routine for running as the plugin process
+// main() routine for running as the plugin process.
 int PluginMain(const MainFunctionParams& parameters) {
-  const CommandLine& parsed_command_line = parameters.command_line_;
-  sandbox::TargetServices* target_services =
-      parameters.sandbox_info_.TargetServices();
-
   // The main thread of the plugin services IO.
   MessageLoopForIO main_message_loop;
   std::wstring app_name = chrome::kBrowserAppName;
@@ -29,6 +29,12 @@ int PluginMain(const MainFunctionParams& parameters) {
 
   // Initialize the SystemMonitor
   base::SystemMonitor::Start();
+
+#if defined(OS_WIN)
+  const CommandLine& parsed_command_line = parameters.command_line_;
+
+  sandbox::TargetServices* target_services =
+      parameters.sandbox_info_.TargetServices();
 
   CoInitialize(NULL);
   DLOG(INFO) << "Started plugin with " <<
@@ -53,12 +59,15 @@ int PluginMain(const MainFunctionParams& parameters) {
     win_util::MessageBox(NULL, L"plugin starting...", title,
                          MB_OK | MB_SETFOREGROUND);
   }
+#else
+  NOTIMPLEMENTED() << " non-windows startup, plugin startup dialog etc.";
+#endif
 
   {
     ChildProcess plugin_process(new PluginThread());
-    if (!no_sandbox && target_services) {
+#if defined(OS_WIN)
+    if (!no_sandbox && target_services)
       target_services->LowerToken();
-    }
 
     if (sandbox_test_module) {
       RunRendererTests run_security_tests =
@@ -75,12 +84,14 @@ int PluginMain(const MainFunctionParams& parameters) {
           __debugbreak();
       }
     }
+#endif
 
-    // Load the accelerator table from the browser executable and tell the
-    // message loop to use it when translating messages.
     MessageLoop::current()->Run();
   }
 
+#if defined(OS_WIN)
   CoUninitialize();
+#endif
+
   return 0;
 }

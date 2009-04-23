@@ -4,15 +4,8 @@
 
 #include "chrome/plugin/npobject_util.h"
 
-// TODO(port) Just compile an empty file on posix so we can generate the
-// libplugin target needed by other targets. This whole file does compile (see
-// r9934), but it doesn't link because of undefined refs to files which aren't
-// compiling yet (e.g. npobject_proxy stuff).
-#if defined(OS_WIN)
-
+#include "base/string_util.h"
 #include "chrome/common/plugin_messages.h"
-#include "chrome/common/win_util.h"
-
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/plugin_channel_base.h"
 #include "webkit/glue/plugins/nphostapi.h"
@@ -133,7 +126,6 @@ bool IsPluginProcess() {
   return g_plugin_process;
 }
 
-#if defined(OS_WIN)
 void CreateNPIdentifierParam(NPIdentifier id, NPIdentifier_Param* param) {
   param->identifier = id;
 }
@@ -190,7 +182,7 @@ void CreateNPVariantParam(const NPVariant& variant,
           // (release==true), we should still do that.
           param->type = NPVARIANT_PARAM_OBJECT_ROUTING_ID;
           int route_id = channel->GenerateRouteID();
-          NPObjectStub* object_stub = new NPObjectStub(
+          new NPObjectStub(
               variant.value.objectValue, channel, route_id, modal_dialog_event);
           param->npobject_routing_id = route_id;
           param->npobject_pointer =
@@ -235,7 +227,7 @@ void CreateNPVariant(const NPVariant_Param& param,
     case NPVARIANT_PARAM_STRING:
       result->type = NPVariantType_String;
       result->value.stringValue.UTF8Characters =
-          static_cast<NPUTF8 *>(_strdup(param.string_value.c_str()));
+          static_cast<NPUTF8 *>(base::strdup(param.string_value.c_str()));
       result->value.stringValue.UTF8Length =
           static_cast<int>(param.string_value.size());
       break;
@@ -257,7 +249,3 @@ void CreateNPVariant(const NPVariant_Param& param,
       NOTREACHED();
   }
 }
-
-#endif  // defined(OS_WIN)
-
-#endif  // defined(OS_WIN)

@@ -74,6 +74,8 @@ class ChildProcessHost : public ResourceDispatcherHost::Receiver,
   bool opening_channel() { return opening_channel_; }
   const std::wstring& channel_id() { return channel_id_; }
 
+  const IPC::Channel& channel() const { return *channel_; }
+
  private:
   // Sends the given notification to the notification service on the UI thread.
   void Notify(NotificationType type);

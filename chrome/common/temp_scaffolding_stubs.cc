@@ -200,10 +200,12 @@ bool RLZTracker::RecordProductEvent(Product product, AccessPoint point,
   return false;
 }
 
+#if defined(OS_MACOSX)
 // This depends on porting all the plugin IPC messages.
 bool IsPluginProcess() {
   return false;
 }
+#endif
 
 //--------------------------------------------------------------------------
 
@@ -244,10 +246,12 @@ void ProcessWatcher::EnsureProcessTerminated(int) {
 //--------------------------------------------------------------------------
 namespace webkit_glue {
 
+#if defined(OS_MACOSX)
 bool IsDefaultPluginEnabled() {
   NOTIMPLEMENTED();
   return false;
 }
+#endif
 
 }  // webkit_glue
 

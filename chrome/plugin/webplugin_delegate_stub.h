@@ -12,6 +12,7 @@
 #include "base/shared_memory.h"
 #include "base/task.h"
 #include "chrome/common/ipc_channel.h"
+#include "chrome/common/transport_dib.h"
 #include "third_party/npapi/bindings/npapi.h"
 
 class GURL;
@@ -66,8 +67,8 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
 
   void OnUpdateGeometry(const gfx::Rect& window_rect,
                         const gfx::Rect& clip_rect,
-                        const base::SharedMemoryHandle& windowless_buffer,
-                        const base::SharedMemoryHandle& background_buffer);
+                        const TransportDIB::Id& windowless_buffer,
+                        const TransportDIB::Id& background_buffer);
   void OnGetPluginScriptableObject(int* route_id, intptr_t* npobject_ptr);
   void OnSendJavaScriptStream(const std::string& url,
                               const std::wstring& result,
@@ -92,15 +93,15 @@ class WebPluginDelegateStub : public IPC::Channel::Listener,
                           base::SharedMemory* shared_buf,
                           base::SharedMemoryHandle* remote_handle);
 
-  int instance_id_;
   std::string mime_type_;
+  int instance_id_;
 
   scoped_refptr<PluginChannel> channel_;
 
   WebPluginDelegate* delegate_;
   WebPluginProxy* webplugin_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(WebPluginDelegateStub);
+  DISALLOW_IMPLICIT_CONSTRUCTORS(WebPluginDelegateStub);
 };
 
 #endif  // CHROME_PLUGIN_WEBPLUGIN_DELEGATE_STUB_H_

@@ -4,15 +4,14 @@
 
 #include "chrome/plugin/webplugin_proxy.h"
 
-#include "base/gfx/gdi_util.h"
 #include "base/scoped_handle.h"
 #include "base/shared_memory.h"
 #include "base/singleton.h"
 #include "base/waitable_event.h"
+#include "build/build_config.h"
 #include "chrome/common/gfx/chrome_canvas.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/url_constants.h"
-#include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_util.h"
 #include "chrome/plugin/plugin_channel.h"
@@ -20,6 +19,11 @@
 #include "chrome/plugin/webplugin_delegate_stub.h"
 #include "skia/ext/platform_device.h"
 #include "webkit/glue/webplugin_delegate.h"
+
+#if defined(OS_WIN)
+#include "base/gfx/gdi_util.h"
+#include "chrome/common/win_util.h"
+#endif
 
 typedef std::map<CPBrowsingContext, WebPluginProxy*> ContextMap;
 static ContextMap& GetContextMap() {
@@ -37,8 +41,8 @@ WebPluginProxy::WebPluginProxy(
       plugin_element_(NULL),
       delegate_(delegate),
       waiting_for_paint_(false),
-#pragma warning(suppress: 4355)  // can use this
-      runnable_method_factory_(this) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(runnable_method_factory_(this))
+{
 }
 
 WebPluginProxy::~WebPluginProxy() {
@@ -256,9 +260,10 @@ void WebPluginProxy::HandleURLRequest(const char *method,
     return;
   }
 
-  if (!target && (0 == _strcmpi(method, "GET"))) {
+  if (!target && (0 == base::strcasecmp(method, "GET"))) {
     // Please refer to https://bugzilla.mozilla.org/show_bug.cgi?id=366082
     // for more details on this.
+#if defined(OS_WIN)
     if (delegate_->GetQuirks() &
         WebPluginDelegate::PLUGIN_QUIRK_BLOCK_NONSTANDARD_GETURL_REQUESTS) {
       GURL request_url(url);
@@ -268,6 +273,10 @@ void WebPluginProxy::HandleURLRequest(const char *method,
         return;
       }
     }
+#else
+    // TODO(port): we need a GetQuirks() on our delegate impl.
+    NOTIMPLEMENTED();
+#endif
   }
 
   PluginHostMsg_URLRequest_Params params;
@@ -291,6 +300,7 @@ void WebPluginProxy::HandleURLRequest(const char *method,
 }
 
 void WebPluginProxy::Paint(const gfx::Rect& rect) {
+#if defined(OS_WIN)
   if (!windowless_hdc_)
     return;
 
@@ -317,21 +327,31 @@ void WebPluginProxy::Paint(const gfx::Rect& rect) {
 
   SelectClipRgn(windowless_hdc_, NULL);
   DeleteObject(clip_region);
+#else
+  // TODO(port): windowless painting.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginProxy::UpdateGeometry(
     const gfx::Rect& window_rect,
     const gfx::Rect& clip_rect,
-    const base::SharedMemoryHandle& windowless_buffer,
-    const base::SharedMemoryHandle& background_buffer) {
+    const TransportDIB::Id& windowless_buffer_id,
+    const TransportDIB::Id& background_buffer_id) {
+#if defined(OS_WIN)
+  // TODO(port): this isn't correct usage of a TransportDIB; for now,
+  // the caller temporarly just stuffs the handle into the HANDLE
+  // field of the TransportDIB::Id so it should behave like the older
+  // code.
   gfx::Rect old = delegate_->GetRect();
   gfx::Rect old_clip_rect = delegate_->GetClipRect();
 
   bool moved = old.x() != window_rect.x() || old.y() != window_rect.y();
   delegate_->UpdateGeometry(window_rect, clip_rect);
-  if (windowless_buffer) {
+  if (windowless_buffer_id.handle) {
     // The plugin's rect changed, so now we have a new buffer to draw into.
-    SetWindowlessBuffer(windowless_buffer, background_buffer);
+    SetWindowlessBuffer(windowless_buffer_id.handle,
+                        background_buffer_id.handle);
   } else if (moved) {
     // The plugin moved, so update our world transform.
     UpdateTransform();
@@ -342,8 +362,12 @@ void WebPluginProxy::UpdateGeometry(
       old_clip_rect.IsEmpty() && !damaged_rect_.IsEmpty()) {
     InvalidateRect(damaged_rect_);
   }
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
+#if defined(OS_WIN)
 void WebPluginProxy::SetWindowlessBuffer(
     const base::SharedMemoryHandle& windowless_buffer,
     const base::SharedMemoryHandle& background_buffer) {
@@ -411,6 +435,7 @@ void WebPluginProxy::UpdateTransform() {
   xf.eM22 = 1;
   SetWorldTransform(windowless_hdc_, &xf);
 }
+#endif
 
 void WebPluginProxy::CancelDocumentLoad() {
   Send(new PluginHostMsg_CancelDocumentLoad(route_id_));

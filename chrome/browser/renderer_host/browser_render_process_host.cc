@@ -326,6 +326,8 @@ bool BrowserRenderProcessHost::Init() {
 #if defined(OS_WIN)
     process = sandbox::StartProcess(&cmd_line);
 #else
+    // NOTE: This code is duplicated with plugin_process_host.cc, but
+    // there's not a good place to de-duplicate it.
     base::file_handle_mapping_vector fds_to_map;
     int src_fd = -1, dest_fd = -1;
     channel_->GetClientFileDescriptorMapping(&src_fd, &dest_fd);
@@ -345,7 +347,7 @@ bool BrowserRenderProcessHost::Init() {
   WebCacheManager::GetInstance()->Add(pid());
   RendererSecurityPolicy::GetInstance()->Add(pid());
 
-  // Now that the process is created, set it's backgrounding accordingly.
+  // Now that the process is created, set its backgrounding accordingly.
   SetBackgrounded(backgrounded_);
 
   InitVisitedLinks();

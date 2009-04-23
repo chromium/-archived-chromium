@@ -1535,26 +1535,37 @@
         ],
       },
       'conditions': [
+        # Plugin code.
+        ['OS=="linux" or OS=="win"', {
+          'dependencies': [
+            'plugin',
+          ],
+        }],
+        # Linux-specific rules.
         ['OS=="linux"', {
           'dependencies': [
             '../build/linux/system.gyp:gtk',
           ],
         }],
+        # Windows-specific rules.
         ['OS=="win"', {
           'include_dirs': [
             'third_party/wtl/include',
           ],
-          'dependencies': [
-            'plugin',
-          ],
         },],
+        # As of yet unported-from-Windows code.
         ['OS!="win"', {
           'sources!': [
-            'renderer/plugin_channel_host.cc',
-            'renderer/webplugin_delegate_proxy.cc',
             'renderer/webworker_proxy.cc',
             'renderer/webworker_proxy.h',
           ],
+        },],
+        # As of yet unported-to-Mac code.
+        ['OS=="mac"', {
+          'sources!': [
+            'renderer/plugin_channel_host.cc',
+            'renderer/webplugin_delegate_proxy.cc',
+          ]
         },],
       ],
     },
@@ -2825,7 +2836,7 @@
         },
       ],
     }], # OS=="win" or OS=="linux"
-    ['OS=="win"',
+    ['OS=="win" or OS=="linux"',
       { 'targets': [
         {
           'target_name': 'plugin',
@@ -2883,6 +2894,10 @@
             },],
           ],
         },
+      ]},  # 'targets'
+    ],  # OS=="win" or OS=="linux"
+    ['OS=="win"',
+      { 'targets': [
         {
           'target_name': 'worker',
           'type': '<(library)',

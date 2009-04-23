@@ -108,10 +108,13 @@ class PluginChannelBase : public IPC::Channel::Listener,
   // error. This flag is used to indicate the same.
   bool channel_valid_;
 
+  // Track whether we're within a dispatch; works like a refcount, 0 when we're
+  // not.
+  int in_dispatch_;
+
   // If true, sync messages will only be marked as unblocking if the channel is
   // in the middle of dispatching a message.
   bool send_unblocking_only_during_dispatch_;
-  int in_dispatch_;
 
   DISALLOW_EVIL_CONSTRUCTORS(PluginChannelBase);
 };

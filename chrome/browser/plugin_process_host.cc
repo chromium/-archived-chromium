@@ -390,8 +390,14 @@ bool PluginProcessHost::Init(const WebPluginInfo& info,
 #if defined(OS_WIN)
   process = sandbox::StartProcess(&cmd_line);
 #else
-  // spawn child process
-  base::LaunchApp(cmd_line, false, false, &process);
+  // This code is duplicated with browser_render_process_host.cc, but
+  // there's not a good place to de-duplicate it.
+  base::file_handle_mapping_vector fds_to_map;
+  int src_fd = -1, dest_fd = -1;
+  channel().GetClientFileDescriptorMapping(&src_fd, &dest_fd);
+  if (src_fd > -1)
+    fds_to_map.push_back(std::pair<int, int>(src_fd, dest_fd));
+  base::LaunchApp(cmd_line.argv(), fds_to_map, false, &process);
 #endif
 
   if (!process)

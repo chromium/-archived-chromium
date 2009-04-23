@@ -110,9 +110,9 @@ class NPObjectProxy : public IPC::Channel::Listener,
   static void NPPInvalidate(NPObject *obj);
   static NPClass npclass_proxy_;
 
+  scoped_refptr<PluginChannelBase> channel_;
   int route_id_;
   intptr_t npobject_ptr_;
-  scoped_refptr<PluginChannelBase> channel_;
   base::WaitableEvent* modal_dialog_event_;
 };
 

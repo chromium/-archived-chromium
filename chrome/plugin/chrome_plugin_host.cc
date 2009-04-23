@@ -8,6 +8,7 @@
 #include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/message_loop.h"
+#include "base/process_util.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_plugin_lib.h"
@@ -42,8 +43,8 @@ class PluginRequestHandlerProxy
 
   PluginRequestHandlerProxy(ChromePluginLib* plugin,
                             ScopableCPRequest* cprequest)
-      : PluginHelper(plugin), cprequest_(cprequest), response_data_offset_(0),
-        completed_(false), sync_(false), read_buffer_(NULL) {
+      : PluginHelper(plugin), cprequest_(cprequest), sync_(false),
+        response_data_offset_(0), completed_(false), read_buffer_(NULL) {
     load_flags_ = PluginResponseUtils::CPLoadFlagsToNetFlags(0);
     cprequest_->data = this;  // see FromCPRequest().
   }
@@ -150,7 +151,7 @@ class PluginRequestHandlerProxy
             "null",  // main_frame_origin
             extra_headers_,
             load_flags_,
-            GetCurrentProcessId(),
+            base::GetCurrentProcId(),
             ResourceType::OBJECT,
             cprequest_->context,
             WebAppCacheContext::kNoAppCacheContextId,
@@ -207,7 +208,6 @@ class PluginRequestHandlerProxy
     if (count > avail)
       count = avail;
 
-    int rv = CPERR_FAILURE;
     if (count) {
       // Data is ready now.
       memcpy(buf, &response_data_[0] + response_data_offset_, count);
@@ -241,7 +241,7 @@ class PluginRequestHandlerProxy
 
   scoped_refptr<net::HttpResponseHeaders> response_headers_;
   std::string response_data_;
-  int response_data_offset_;
+  size_t response_data_offset_;
   bool completed_;
   void* read_buffer_;
   uint32 read_buffer_size_;
@@ -414,8 +414,7 @@ CPError STDCALL CPB_CreateRequest(CPID id, CPBrowsingContext context,
   CHECK(plugin);
 
   ScopableCPRequest* cprequest = new ScopableCPRequest(url, method, context);
-  PluginRequestHandlerProxy* handler =
-      new PluginRequestHandlerProxy(plugin, cprequest);
+  new PluginRequestHandlerProxy(plugin, cprequest);
 
   *request = cprequest;
   return CPERR_SUCCESS;

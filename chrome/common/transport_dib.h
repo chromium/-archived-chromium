@@ -23,7 +23,8 @@ class Size;
 
 // -----------------------------------------------------------------------------
 // A TransportDIB is a block of memory that is used to transport pixels
-// from the renderer process to the browser.
+// between processes: from the renderer process to the browser, and
+// between renderer and plugin processes.
 // -----------------------------------------------------------------------------
 class TransportDIB {
  public:

@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-
 #include "chrome/plugin/plugin_channel_base.h"
 
 #include "base/hash_tables.h"
@@ -59,7 +57,7 @@ PluginChannelBase::~PluginChannelBase() {
 void PluginChannelBase::CleanupChannels() {
   // Make a copy of the references as we can't iterate the map since items will
   // be removed from it as we clean them up.
-  std::vector<scoped_refptr<PluginChannelBase>> channels;
+  std::vector<scoped_refptr<PluginChannelBase> > channels;
   for (PluginChannelMap::const_iterator iter = g_plugin_channels_.begin();
        iter != g_plugin_channels_.end();
        ++iter) {

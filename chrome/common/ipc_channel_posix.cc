@@ -658,7 +658,7 @@ bool Channel::ChannelImpl::Send(Message* message) {
 }
 
 void Channel::ChannelImpl::GetClientFileDescriptorMapping(int *src_fd,
-                                                          int *dest_fd) {
+                                                          int *dest_fd) const {
   DCHECK(mode_ == MODE_SERVER);
   *src_fd = client_pipe_;
   *dest_fd = kClientChannelFd;
@@ -792,7 +792,7 @@ bool Channel::Send(Message* message) {
   return channel_impl_->Send(message);
 }
 
-void Channel::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) {
+void Channel::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const {
   return channel_impl_->GetClientFileDescriptorMapping(src_fd, dest_fd);
 }
 

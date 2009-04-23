@@ -14,6 +14,12 @@
 
 namespace base {
 
+// Chromium code style is to not use malloc'd strings; this is only for use
+// for interaction with APIs that require it.
+inline char* strdup(const char* str) {
+  return _strdup(str);
+}
+
 inline int strcasecmp(const char* s1, const char* s2) {
   return _stricmp(s1, s2);
 }

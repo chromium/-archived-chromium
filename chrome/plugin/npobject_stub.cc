@@ -16,8 +16,8 @@ NPObjectStub::NPObjectStub(
     PluginChannelBase* channel,
     int route_id,
     base::WaitableEvent* modal_dialog_event)
-    : channel_(channel),
-      npobject_(npobject),
+    : npobject_(npobject),
+      channel_(channel),
       route_id_(route_id),
       valid_(true),
       web_plugin_delegate_proxy_(NULL),

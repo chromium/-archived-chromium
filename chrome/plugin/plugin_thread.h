@@ -9,6 +9,7 @@
 #include "base/native_library.h"
 #include "chrome/common/child_thread.h"
 #include "chrome/plugin/plugin_channel.h"
+#include "webkit/glue/plugins/plugin_lib.h"
 
 class NotificationService;
 

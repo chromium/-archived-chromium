@@ -4,7 +4,11 @@
 
 #include "chrome/renderer/webplugin_delegate_proxy.h"
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
 #include <atlbase.h>
+#endif
 
 #include "base/logging.h"
 #include "base/ref_counted.h"
@@ -13,12 +17,10 @@
 #include "base/gfx/native_widget_types.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/gfx/chrome_canvas.h"
-#include "chrome/common/gfx/emf.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/plugin_messages.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/resource_bundle.h"
-#include "chrome/common/win_util.h"
 #include "chrome/plugin/npobject_proxy.h"
 #include "chrome/plugin/npobject_stub.h"
 #include "chrome/renderer/render_thread.h"
@@ -30,6 +32,11 @@
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webplugin.h"
 #include "webkit/glue/webview.h"
+
+#if defined(OS_WIN)
+#include "chrome/common/gfx/emf.h"
+#include "chrome/common/win_util.h"
+#endif
 
 // Proxy for WebPluginResourceClient.  The object owns itself after creation,
 // deleting itself after its callback has been called.
@@ -58,7 +65,7 @@ class ResourceClientProxy : public WebPluginResourceClient {
     params.notify_data = notify_data_;
     params.stream = existing_stream;
 
-    multibyte_response_expected_ = (existing_stream != NULL);
+    multibyte_response_expected_ = (existing_stream != 0);
 
     channel_->Send(new PluginMsg_HandleURLRequestReply(instance_id_, params));
   }
@@ -122,10 +129,10 @@ class ResourceClientProxy : public WebPluginResourceClient {
     return multibyte_response_expected_;
   }
 
-private:
-  int resource_id_;
-  int instance_id_;
+ private:
   scoped_refptr<PluginChannelHost> channel_;
+  int instance_id_;
+  int resource_id_;
   std::string url_;
   bool notify_needed_;
   intptr_t notify_data_;
@@ -146,16 +153,16 @@ WebPluginDelegateProxy::WebPluginDelegateProxy(const std::string& mime_type,
                                                const std::string& clsid,
                                                RenderView* render_view)
     : render_view_(render_view),
-      mime_type_(mime_type),
-      clsid_(clsid),
       plugin_(NULL),
       windowless_(false),
-      npobject_(NULL),
+      mime_type_(mime_type),
+      clsid_(clsid),
       send_deferred_update_geometry_(false),
-      sad_plugin_(NULL),
+      npobject_(NULL),
       window_script_object_(NULL),
-      transparent_(false),
-      invalidate_pending_(false) {
+      sad_plugin_(NULL),
+      invalidate_pending_(false),
+      transparent_(false) {
 }
 
 WebPluginDelegateProxy::~WebPluginDelegateProxy() {
@@ -195,8 +202,8 @@ void WebPluginDelegateProxy::FlushGeometryUpdates() {
     Send(new PluginMsg_UpdateGeometry(instance_id_,
                                       plugin_rect_,
                                       deferred_clip_rect_,
-                                      NULL,
-                                      NULL));
+                                      TransportDIB::Id(),
+                                      TransportDIB::Id()));
   }
 }
 
@@ -319,8 +326,10 @@ void WebPluginDelegateProxy::InstallMissingPlugin() {
 void WebPluginDelegateProxy::OnMessageReceived(const IPC::Message& msg) {
   IPC_BEGIN_MESSAGE_MAP(WebPluginDelegateProxy, msg)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindow, OnSetWindow)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(PluginHostMsg_SetWindowlessPumpEvent,
                         OnSetWindowlessPumpEvent)
+#endif
     IPC_MESSAGE_HANDLER(PluginHostMsg_CancelResource, OnCancelResource)
     IPC_MESSAGE_HANDLER(PluginHostMsg_InvalidateRect, OnInvalidateRect)
     IPC_MESSAGE_HANDLER(PluginHostMsg_GetWindowScriptNPObject,
@@ -359,8 +368,13 @@ void WebPluginDelegateProxy::UpdateGeometry(
     return;
   }
 
-  HANDLE transport_store_handle = NULL;
-  HANDLE background_store_handle = NULL;
+  // Be careful to explicitly call the default constructors for these ids,
+  // as they can be POD on some platforms and we want them initialized.
+  TransportDIB::Id transport_store_id = TransportDIB::Id();
+  TransportDIB::Id background_store_id = TransportDIB::Id();
+
+#if defined(OS_WIN)
+  // TODO(port): use TransportDIB instead of allocating these directly.
   if (!backing_store_canvas_.get() ||
       (window_rect.width() != backing_store_canvas_->getDevice()->width() ||
        window_rect.height() != backing_store_canvas_->getDevice()->height())) {
@@ -377,24 +391,32 @@ void WebPluginDelegateProxy::UpdateGeometry(
         return;
       }
 
-      transport_store_handle = transport_store_->handle();
+      // TODO(port): once we use TransportDIB we will properly fill in these
+      // ids; for now we just fill in the HANDLE field.
+      transport_store_id.handle = transport_store_->handle();
       if (background_store_.get())
-        background_store_handle = background_store_->handle();
+        background_store_id.handle = background_store_->handle();
     }
   }
+#else
+  // TODO(port): refactor our allocation of backing stores.
+  NOTIMPLEMENTED();
+#endif
 
   IPC::Message* msg = new PluginMsg_UpdateGeometry(
       instance_id_, window_rect, clip_rect,
-      transport_store_handle, background_store_handle);
+      transport_store_id, background_store_id);
   msg->set_unblock(true);
   Send(msg);
 }
 
+#if defined(OS_WIN)
 // Copied from render_widget.cc
 static size_t GetPaintBufSize(const gfx::Rect& rect) {
   // TODO(darin): protect against overflow
   return 4 * rect.width() * rect.height();
 }
+#endif
 
 void WebPluginDelegateProxy::ResetWindowlessBitmaps() {
   backing_store_.reset();
@@ -408,7 +430,8 @@ void WebPluginDelegateProxy::ResetWindowlessBitmaps() {
 
 bool WebPluginDelegateProxy::CreateBitmap(
     scoped_ptr<base::SharedMemory>* memory,
-    scoped_ptr<skia::PlatformCanvasWin>* canvas) {
+    scoped_ptr<skia::PlatformCanvas>* canvas) {
+#if defined(OS_WIN)
   size_t size = GetPaintBufSize(plugin_rect_);
   scoped_ptr<base::SharedMemory> new_shared_memory(new base::SharedMemory());
   if (!new_shared_memory->Create(L"", false, true, size))
@@ -423,13 +446,19 @@ bool WebPluginDelegateProxy::CreateBitmap(
   memory->swap(new_shared_memory);
   canvas->swap(new_canvas);
   return true;
+#else
+  // TODO(port): use TransportDIB properly.
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
-void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
+void WebPluginDelegateProxy::Paint(gfx::NativeDrawingContext context,
+                                   const gfx::Rect& damaged_rect) {
   // If the plugin is no longer connected (channel crashed) draw a crashed
   // plugin bitmap
   if (!channel_host_->channel_valid()) {
-    PaintSadPlugin(hdc, damaged_rect);
+    PaintSadPlugin(context, damaged_rect);
     return;
   }
 
@@ -437,6 +466,8 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
   if (!windowless_)
     return;
 
+  // TODO(port): side-stepping some windowless plugin code for now.
+#if defined(OS_WIN)
   // We got a paint before the plugin's coordinates, so there's no buffer to
   // copy from.
   if (!backing_store_canvas_.get())
@@ -447,12 +478,12 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
   gfx::Rect rect = damaged_rect.Intersect(plugin_rect_);
 
   bool background_changed = false;
-  if (background_store_canvas_.get() && BackgroundChanged(hdc, rect)) {
+  if (background_store_canvas_.get() && BackgroundChanged(context, rect)) {
     background_changed = true;
     HDC background_hdc =
         background_store_canvas_->getTopPlatformDevice().getBitmapDC();
     BitBlt(background_hdc, rect.x()-plugin_rect_.x(), rect.y()-plugin_rect_.y(),
-        rect.width(), rect.height(), hdc, rect.x(), rect.y(), SRCCOPY);
+        rect.width(), rect.height(), context, rect.x(), rect.y(), SRCCOPY);
   }
 
   gfx::Rect offset_rect = rect;
@@ -463,7 +494,7 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
   }
 
   HDC backing_hdc = backing_store_canvas_->getTopPlatformDevice().getBitmapDC();
-  BitBlt(hdc, rect.x(), rect.y(), rect.width(), rect.height(), backing_hdc,
+  BitBlt(context, rect.x(), rect.y(), rect.width(), rect.height(), backing_hdc,
       rect.x()-plugin_rect_.x(), rect.y()-plugin_rect_.y(), SRCCOPY);
 
   if (invalidate_pending_) {
@@ -473,8 +504,15 @@ void WebPluginDelegateProxy::Paint(HDC hdc, const gfx::Rect& damaged_rect) {
     invalidate_pending_ = false;
     Send(new PluginMsg_DidPaint(instance_id_));
   }
+#else
+  // TODO(port): windowless plugin paint handling goes here.
+  NOTIMPLEMENTED();
+#endif
 }
 
+#if defined(OS_WIN)
+// TODO(port): this should be portable; just avoiding windowless plugins for
+// now.
 bool WebPluginDelegateProxy::BackgroundChanged(
     HDC hdc,
     const gfx::Rect& rect) {
@@ -519,8 +557,9 @@ bool WebPluginDelegateProxy::BackgroundChanged(
 
   return false;
 }
+#endif
 
-void WebPluginDelegateProxy::Print(HDC hdc) {
+void WebPluginDelegateProxy::Print(gfx::NativeDrawingContext context) {
   base::SharedMemoryHandle shared_memory;
   size_t size;
   if (!Send(new PluginMsg_Print(instance_id_, &shared_memory, &size)))
@@ -532,13 +571,18 @@ void WebPluginDelegateProxy::Print(HDC hdc) {
     return;
   }
 
+#if defined(OS_WIN)
   gfx::Emf emf;
   if (!emf.CreateFromData(memory.memory(), size)) {
     NOTREACHED();
     return;
   }
   // Playback the buffer.
-  emf.Playback(hdc, NULL);
+  emf.Playback(context, NULL);
+#else
+  // TODO(port): plugin printing.
+  NOTIMPLEMENTED();
+#endif
 }
 
 NPObject* WebPluginDelegateProxy::GetPluginScriptableObject() {
@@ -648,7 +692,7 @@ void WebPluginDelegateProxy::OnGetPluginElement(
 
   // The stub will delete itself when the proxy tells it that it's released, or
   // otherwise when the channel is closed.
-  NPObjectStub* stub = new NPObjectStub(
+  new NPObjectStub(
       npobject, channel_host_.get(), route_id,
       render_view_->modal_dialog_event());
   *success = true;
@@ -688,7 +732,9 @@ void WebPluginDelegateProxy::OnGetCPBrowsingContext(uint32* context) {
   *context = render_view_ ? render_view_->GetCPBrowsingContext() : 0;
 }
 
-void WebPluginDelegateProxy::PaintSadPlugin(HDC hdc, const gfx::Rect& rect) {
+void WebPluginDelegateProxy::PaintSadPlugin(gfx::NativeDrawingContext hdc,
+                                            const gfx::Rect& rect) {
+#if defined(OS_WIN)
   const int width = plugin_rect_.width();
   const int height = plugin_rect_.height();
 
@@ -713,19 +759,28 @@ void WebPluginDelegateProxy::PaintSadPlugin(HDC hdc, const gfx::Rect& rect) {
 
   canvas.getTopPlatformDevice().drawToHDC(
       hdc, plugin_rect_.x(), plugin_rect_.y(), NULL);
-  return;
+#else
+  // TODO(port): it ought to be possible to refactor this to be shared between
+  // platforms.  It's just the final drawToHDC that kills us.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginDelegateProxy::CopyFromTransportToBacking(const gfx::Rect& rect) {
   if (!backing_store_canvas_.get())
     return;
 
+#if defined(OS_WIN)
   // Copy the damaged rect from the transport bitmap to the backing store.
   HDC backing = backing_store_canvas_->getTopPlatformDevice().getBitmapDC();
   HDC transport = transport_store_canvas_->getTopPlatformDevice().getBitmapDC();
   BitBlt(backing, rect.x(), rect.y(), rect.width(), rect.height(),
       transport, rect.x(), rect.y(), SRCCOPY);
   backing_store_painted_ = backing_store_painted_.Union(rect);
+#else
+  // TODO(port): probably some new code in TransportDIB should go here.
+  NOTIMPLEMENTED();
+#endif
 }
 
 void WebPluginDelegateProxy::OnHandleURLRequest(

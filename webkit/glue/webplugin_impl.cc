@@ -652,8 +652,10 @@ void WebPluginImpl::setFrameRect(const WebCore::IntRect& rect) {
   std::vector<gfx::Rect> cutout_rects;
   CalculateBounds(rect, &window_rect, &clip_rect, &cutout_rects);
 
+  // Notify the plugin that its parameters have changed.
   delegate_->UpdateGeometry(webkit_glue::FromIntRect(window_rect),
                             webkit_glue::FromIntRect(clip_rect));
+
   if (window_) {
     // Notify the window hosting the plugin (the WebViewDelegate) that
     // it needs to adjust the plugin, so that all the HWNDs can be moved

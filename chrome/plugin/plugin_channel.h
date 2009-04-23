@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "base/scoped_handle.h"
+#include "build/build_config.h"
 #include "chrome/plugin/plugin_channel_base.h"
 #include "chrome/plugin/webplugin_delegate_stub.h"
 
@@ -21,7 +22,7 @@ class PluginChannel : public PluginChannelBase {
   virtual bool Send(IPC::Message* msg);
   virtual void OnMessageReceived(const IPC::Message& message);
 
-  HANDLE renderer_handle() { return renderer_handle_.Get(); }
+  base::ProcessHandle renderer_handle() const { return renderer_handle_; }
   int GenerateRouteID();
 
   bool in_send() { return in_send_ != 0; }
@@ -48,10 +49,10 @@ class PluginChannel : public PluginChannelBase {
   void OnDestroyInstance(int instance_id, IPC::Message* reply_msg);
   void OnGenerateRouteID(int* route_id);
 
-  std::vector<scoped_refptr<WebPluginDelegateStub>> plugin_stubs_;
+  std::vector<scoped_refptr<WebPluginDelegateStub> > plugin_stubs_;
 
   // Handle to the renderer process who is on the other side of the channel.
-  ScopedHandle renderer_handle_;
+  base::ProcessHandle renderer_handle_;
 
   int in_send_;  // Tracks if we're in a Send call.
   bool log_messages_;  // True if we should log sent and received messages.

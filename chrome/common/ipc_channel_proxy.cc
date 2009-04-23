@@ -286,7 +286,8 @@ void ChannelProxy::RemoveFilter(MessageFilter* filter) {
 // See the TODO regarding lazy initialization of the channel in
 // ChannelProxy::Init().
 // We assume that IPC::Channel::GetClientFileDescriptorMapping() is thread-safe.
-void ChannelProxy::GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) {
+void ChannelProxy::GetClientFileDescriptorMapping(int *src_fd,
+                                                  int *dest_fd) const {
   Channel *channel = context_.get()->channel_;
   DCHECK(channel); // Channel must have been created first.
   channel->GetClientFileDescriptorMapping(src_fd, dest_fd);

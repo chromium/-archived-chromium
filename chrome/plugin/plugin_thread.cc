@@ -2,12 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <windows.h>
-#include <objbase.h>
-
 #include "chrome/plugin/plugin_thread.h"
 
+#include "build/build_config.h"
+
+#if defined(OS_WIN)
+#include <windows.h>
+#include <objbase.h>
+#endif
+
 #include "base/command_line.h"
+#include "base/process_util.h"
 #include "chrome/common/child_process.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
@@ -46,8 +51,12 @@ void PluginThread::OnControlMessageReceived(const IPC::Message& msg) {
 
 void PluginThread::Init() {
   ChildThread::Init();
+
   PatchNPNFunctions();
+#if defined(OS_WIN)
   CoInitialize(NULL);
+#endif
+
   notification_service_.reset(new NotificationService);
 
   // Preload the library to avoid loading, unloading then reloading
@@ -68,17 +77,19 @@ void PluginThread::Init() {
 
 void PluginThread::CleanUp() {
   if (preloaded_plugin_module_) {
-    FreeLibrary(preloaded_plugin_module_);
+    base::UnloadNativeLibrary(preloaded_plugin_module_);
     preloaded_plugin_module_ = NULL;
   }
   PluginChannelBase::CleanupChannels();
   NPAPI::PluginLib::UnloadAllPlugins();
   ChromePluginLib::UnloadAllPlugins();
   notification_service_.reset();
+#if defined(OS_WIN)
   CoUninitialize();
+#endif
 
   if (webkit_glue::ShouldForcefullyTerminatePluginProcess())
-    TerminateProcess(GetCurrentProcess(), 0);
+    base::KillProcess(base::GetCurrentProcessHandle(), 0, /* wait= */ false);
 
   // Call this last because it deletes the ResourceDispatcher, which is used
   // in some of the above cleanup.
@@ -146,7 +157,12 @@ bool GetPluginFinderURL(std::string* plugin_finder_url) {
 }
 
 bool IsDefaultPluginEnabled() {
+#if defined(OS_WIN)
   return true;
+#else
+  NOTIMPLEMENTED();
+  return false;
+#endif
 }
 
 // Dispatch the resolve proxy resquest to the right code, depending on which

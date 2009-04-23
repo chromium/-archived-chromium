@@ -78,16 +78,16 @@ class NPObjectStub : public IPC::Channel::Listener,
 
  private:
   NPObject* npobject_;
-  int route_id_;
   scoped_refptr<PluginChannelBase> channel_;
-
-  base::WaitableEvent* modal_dialog_event_;
+  int route_id_;
 
   // These variables are used to ensure that the window script object is not
   // called after the plugin widget has gone away, as the frame manually
   // deallocates it and ignores the refcount to avoid leaks.
   bool valid_;
   WebPluginDelegateProxy* web_plugin_delegate_proxy_;
+
+  base::WaitableEvent* modal_dialog_event_;
 };
 
 #endif  // CHROME_PLUGIN_NPOBJECT_STUB_H_

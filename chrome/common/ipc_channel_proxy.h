@@ -117,7 +117,7 @@ class ChannelProxy : public Message::Sender {
   // Calls through to the underlying channel's methods.
   // TODO(playmobil): For now this is only implemented in the case of
   // create_pipe_now = true, we need to figure this out for the latter case.
-  void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd);
+  void GetClientFileDescriptorMapping(int *src_fd, int *dest_fd) const;
   void OnClientConnected();
 #endif  // defined(OS_POSIX)
 
