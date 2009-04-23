@@ -32,6 +32,7 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
   // Overridden from BrowserNonClientFrameView:
   virtual gfx::Rect GetBoundsForTabStrip(TabStrip* tabstrip) const;
   virtual void UpdateThrobber(bool running);
+  virtual gfx::Size GetMinimumSize();
 
  protected:
   // Overridden from views::NonClientFrameView:
@@ -87,8 +88,14 @@ class OpaqueBrowserFrameView : public BrowserNonClientFrameView,
 
   // Calculates multiple values related to title layout.  Returns the height of
   // the entire titlebar including any connected client edge.
-  int TitleCoordinates(int* title_top_spacing,
-                       int* title_thickness) const;
+  int TitleCoordinates(int* title_top_spacing_ptr,
+                       int* title_thickness_ptr) const;
+
+  // Calculates multiple values related to icon layout.  Returns the size of the
+  // icon (along one edge).
+  int IconSize(int* title_top_spacing_ptr,
+               int* title_thickness_ptr,
+               int* available_height_ptr) const;
 
   // Paint various sub-components of this view.  The *FrameBorder() functions
   // also paint the background of the titlebar area, since the top frame border

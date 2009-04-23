@@ -243,6 +243,7 @@ class BrowserView : public BrowserWindow,
   // Overridden from views::ClientView:
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
+  virtual gfx::Size GetMinimumSize();
 
   // Is P13N enabled for this browser window?
 #ifdef CHROME_PERSONALIZATION

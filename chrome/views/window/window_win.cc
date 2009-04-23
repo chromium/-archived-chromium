@@ -640,6 +640,13 @@ void WindowWin::OnFinalMessage(HWND window) {
   WidgetWin::OnFinalMessage(window);
 }
 
+void WindowWin::OnGetMinMaxInfo(MINMAXINFO* minmax_info) {
+  gfx::Size min_window_size(GetNonClientView()->GetMinimumSize());
+  minmax_info->ptMinTrackSize.x = min_window_size.width();
+  minmax_info->ptMinTrackSize.y = min_window_size.height();
+  WidgetWin::OnGetMinMaxInfo(minmax_info);
+}
+
 namespace {
 static void EnableMenuItem(HMENU menu, UINT command, bool enabled) {
   UINT flags = MF_BYCOMMAND | (enabled ? MF_ENABLED : MF_DISABLED | MF_GRAYED);

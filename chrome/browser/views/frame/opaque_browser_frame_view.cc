@@ -442,6 +442,26 @@ void OpaqueBrowserFrameView::UpdateThrobber(bool running) {
     window_icon_->Update();
 }
 
+gfx::Size OpaqueBrowserFrameView::GetMinimumSize() {
+  gfx::Size min_size(browser_view_->GetMinimumSize());
+  int border_thickness = NonClientBorderThickness();
+  min_size.Enlarge(2 * border_thickness,
+                   NonClientTopBorderHeight() + border_thickness);
+
+  views::WindowDelegate* d = frame_->GetDelegate();
+  int min_titlebar_width = (2 * FrameBorderThickness()) + kIconLeftSpacing +
+    (d->ShouldShowWindowIcon() ?
+        (IconSize(NULL, NULL, NULL) + kTitleLogoSpacing) : 0) +
+    ((distributor_logo_ && browser_view_->ShouldShowDistributorLogo()) ?
+        (distributor_logo_->width() + kLogoCaptionSpacing) : 0) +
+    minimize_button_->GetMinimumSize().width() +
+    restore_button_->GetMinimumSize().width() +
+    close_button_->GetMinimumSize().width();
+  min_size.set_width(std::max(min_size.width(), min_titlebar_width));
+
+  return min_size;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // OpaqueBrowserFrameView, views::NonClientFrameView implementation:
 
@@ -663,10 +683,8 @@ int OpaqueBrowserFrameView::NonClientBorderThickness() const {
 }
 
 int OpaqueBrowserFrameView::NonClientTopBorderHeight() const {
-  if (frame_->GetDelegate()->ShouldShowWindowTitle()) {
-    int title_top_spacing, title_thickness;
-    return TitleCoordinates(&title_top_spacing, &title_thickness);
-  }
+  if (frame_->GetDelegate()->ShouldShowWindowTitle())
+    return TitleCoordinates(NULL, NULL);
 
   return FrameBorderThickness() +
       ((frame_->IsMaximized() || frame_->IsFullscreen()) ?
@@ -685,11 +703,11 @@ int OpaqueBrowserFrameView::UnavailablePixelsAtBottomOfNonClientHeight() const {
       (frame_->IsMaximized() ? 0 : kClientEdgeThickness);
 }
 
-int OpaqueBrowserFrameView::TitleCoordinates(int* title_top_spacing,
-                                             int* title_thickness) const {
+int OpaqueBrowserFrameView::TitleCoordinates(int* title_top_spacing_ptr,
+                                             int* title_thickness_ptr) const {
   int frame_thickness = FrameBorderThickness();
   int min_titlebar_height = kTitlebarMinimumHeight + frame_thickness;
-  *title_top_spacing = frame_thickness + kTitleTopSpacing;
+  int title_top_spacing = frame_thickness + kTitleTopSpacing;
   // The bottom spacing should be the same apparent height as the top spacing.
   // Because the actual top spacing height varies based on the system border
   // thickness, we calculate this based on the restored top spacing and then
@@ -703,13 +721,36 @@ int OpaqueBrowserFrameView::TitleCoordinates(int* title_top_spacing,
     // When we maximize, the top border appears to be chopped off; shift the
     // title down to stay centered within the remaining space.
     int title_adjust = (kFrameBorderThickness / 2);
-    *title_top_spacing += title_adjust;
+    title_top_spacing += title_adjust;
     title_bottom_spacing -= title_adjust;
   }
-  *title_thickness = std::max(title_font_->height(),
-      min_titlebar_height - *title_top_spacing - title_bottom_spacing);
-  return *title_top_spacing + *title_thickness + title_bottom_spacing +
+  int title_thickness = std::max(title_font_->height(),
+      min_titlebar_height - title_top_spacing - title_bottom_spacing);
+  if (title_top_spacing_ptr)
+    *title_top_spacing_ptr = title_top_spacing;
+  if (title_thickness_ptr)
+    *title_thickness_ptr = title_thickness;
+  return title_top_spacing + title_thickness + title_bottom_spacing +
       UnavailablePixelsAtBottomOfNonClientHeight();
+}
+
+int OpaqueBrowserFrameView::IconSize(int* title_top_spacing_ptr,
+                                     int* title_thickness_ptr,
+                                     int* available_height_ptr) const {
+  // The usable height of the titlebar area is the total height minus the top
+  // resize border and any edge area we draw at its bottom.
+  int frame_thickness = FrameBorderThickness();
+  int top_height = TitleCoordinates(title_top_spacing_ptr, title_thickness_ptr);
+  int available_height = top_height - frame_thickness -
+      UnavailablePixelsAtBottomOfNonClientHeight();
+  if (available_height_ptr)
+    *available_height_ptr = available_height;
+
+  // The icon takes up a constant fraction of the available height, down to a
+  // minimum size, and is always an even number of pixels on a side (presumably
+  // to make scaled icons look better).  It's centered within the usable height.
+  return std::max((available_height * kIconHeightFractionNumerator /
+      kIconHeightFractionDenominator) / 2 * 2, kIconMinimumSize);
 }
 
 void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
@@ -726,11 +767,17 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
   SkBitmap* bottom_edge = resources()->GetPartBitmap(FRAME_BOTTOM_EDGE);
 
   // Top.
-  canvas->DrawBitmapInt(*top_left_corner, 0, 0);
+  int top_left_height = std::min(top_left_corner->height(),
+                                 height() - bottom_left_corner->height());
+  canvas->DrawBitmapInt(*top_left_corner, 0, 0, top_left_corner->width(),
+      top_left_height, 0, 0, top_left_corner->width(), top_left_height, false);
   canvas->TileImageInt(*top_edge, top_left_corner->width(), 0,
                        width() - top_right_corner->width(), top_edge->height());
-  canvas->DrawBitmapInt(*top_right_corner,
-                        width() - top_right_corner->width(), 0);
+  int top_right_height = std::min(top_right_corner->height(),
+                                  height() - bottom_right_corner->height());
+  canvas->DrawBitmapInt(*top_right_corner, 0, 0, top_right_corner->width(),
+      top_right_height, width() - top_right_corner->width(), 0,
+      top_right_corner->width(), top_right_height, false);
   // Note: When we don't have a toolbar, we need to draw some kind of bottom
   // edge here.  Because the App Window graphics we use for this have an
   // attached client edge and their sizing algorithm is a little involved, we do
@@ -738,9 +785,8 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
 
   // Right.
   canvas->TileImageInt(*right_edge, width() - right_edge->width(),
-                       top_right_corner->height(), right_edge->width(),
-                       height() - top_right_corner->height() -
-                           bottom_right_corner->height());
+      top_right_height, right_edge->width(),
+      height() - top_right_height - bottom_right_corner->height());
 
   // Bottom.
   canvas->DrawBitmapInt(*bottom_right_corner,
@@ -755,9 +801,8 @@ void OpaqueBrowserFrameView::PaintRestoredFrameBorder(ChromeCanvas* canvas) {
                         height() - bottom_left_corner->height());
 
   // Left.
-  canvas->TileImageInt(*left_edge, 0, top_left_corner->height(),
-      left_edge->width(),
-      height() - top_left_corner->height() - bottom_left_corner->height());
+  canvas->TileImageInt(*left_edge, 0, top_left_height, left_edge->width(),
+      height() - top_left_height - bottom_left_corner->height());
 }
 
 void OpaqueBrowserFrameView::PaintMaximizedFrameBorder(ChromeCanvas* canvas) {
@@ -812,29 +857,44 @@ void OpaqueBrowserFrameView::PaintToolbarBackground(ChromeCanvas* canvas) {
   View::ConvertPointToView(frame_->GetClientView(), this, &toolbar_origin);
   toolbar_bounds.set_origin(toolbar_origin);
 
-  SkBitmap* toolbar_left =
-      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
-  canvas->DrawBitmapInt(*toolbar_left,
-                        toolbar_bounds.x() - toolbar_left->width(),
-                        toolbar_bounds.y());
-
-  // Gross hack: We split the toolbar image into two pieces, since sometimes
+  // Gross hack: We split the toolbar images into two pieces, since sometimes
   // (popup mode) the toolbar isn't tall enough to show the whole image.  The
   // split happens between the top shadow section and the bottom gradient
   // section so that we never break the gradient.
   int split_point = kFrameShadowThickness * 2;
+  int bottom_y = toolbar_bounds.y() + split_point;
+  SkBitmap* toolbar_left =
+      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT);
+  int bottom_edge_height =
+      std::min(toolbar_left->height(), toolbar_bounds.height()) - split_point;
+
+  canvas->DrawBitmapInt(*toolbar_left, 0, 0, toolbar_left->width(), split_point,
+      toolbar_bounds.x() - toolbar_left->width(), toolbar_bounds.y(),
+      toolbar_left->width(), split_point, false);
+  canvas->DrawBitmapInt(*toolbar_left, 0,
+      toolbar_left->height() - bottom_edge_height, toolbar_left->width(),
+      bottom_edge_height, toolbar_bounds.x() - toolbar_left->width(), bottom_y,
+      toolbar_left->width(), bottom_edge_height, false);
+
   SkBitmap* toolbar_center =
       resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP);
   canvas->TileImageInt(*toolbar_center, 0, 0, toolbar_bounds.x(),
       toolbar_bounds.y(), toolbar_bounds.width(), split_point);
+  int bottom_center_height =
+      std::min(toolbar_center->height(), toolbar_bounds.height()) - split_point;
   canvas->TileImageInt(*toolbar_center, 0,
-      toolbar_center->height() - toolbar_bounds.height() + split_point,
-      toolbar_bounds.x(), toolbar_bounds.y() + split_point,
-      toolbar_bounds.width(), toolbar_bounds.height() - split_point);
+      toolbar_center->height() - bottom_center_height, toolbar_bounds.x(),
+      bottom_y, toolbar_bounds.width(), bottom_center_height);
 
-  canvas->DrawBitmapInt(
-      *resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT),
-      toolbar_bounds.right(), toolbar_bounds.y());
+  SkBitmap* toolbar_right =
+      resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_RIGHT);
+  canvas->DrawBitmapInt(*toolbar_right, 0, 0, toolbar_right->width(),
+      split_point, toolbar_bounds.right(), toolbar_bounds.y(),
+      toolbar_right->width(), split_point, false);
+  canvas->DrawBitmapInt(*toolbar_right, 0,
+      toolbar_right->height() - bottom_edge_height, toolbar_right->width(),
+      bottom_edge_height, toolbar_bounds.right(), bottom_y,
+      toolbar_right->width(), bottom_edge_height, false);
 }
 
 void OpaqueBrowserFrameView::PaintOTRAvatar(ChromeCanvas* canvas) {
@@ -854,10 +914,12 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
 
   gfx::Rect client_area_bounds = CalculateClientAreaBounds(width(), height());
   if (browser_view_->IsToolbarVisible()) {
-    // The client edges start below the toolbar upper corner images regardless
-    // of how tall the toolbar itself is.
-    client_area_top += browser_view_->GetToolbarBounds().y() +
-        resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT)->height();
+    // The client edges start below the toolbar or its corner images, whichever
+    // is shorter.
+    gfx::Rect toolbar_bounds(browser_view_->GetToolbarBounds());
+    client_area_top += toolbar_bounds.y() + std::min(
+        resources()->GetPartBitmap(FRAME_CLIENT_EDGE_TOP_LEFT)->height(),
+        toolbar_bounds.height());
   } else {
     // The toolbar isn't going to draw a client edge for us, so draw one
     // ourselves.
@@ -865,18 +927,23 @@ void OpaqueBrowserFrameView::PaintRestoredClientEdge(ChromeCanvas* canvas) {
     // shorter than the top left and right bitmaps.  We need their top edges to
     // line up, and we need the left and right edges to start below the corners'
     // bottoms.
+    SkBitmap* top_left = resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_LEFT);
     SkBitmap* top_center =
         resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_CENTER);
-    SkBitmap* top_left = resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_LEFT);
+    SkBitmap* top_right =
+        resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_RIGHT);
     int top_edge_y = client_area_top - top_center->height();
-    client_area_top = top_edge_y + top_left->height();
-    canvas->DrawBitmapInt(*top_left, client_area_bounds.x() - top_left->width(),
-                          top_edge_y);
-    canvas->TileImageInt(*top_center, client_area_bounds.x(), top_edge_y,
-                         client_area_bounds.width(), top_center->height());
-    canvas->DrawBitmapInt(
-        *resources()->GetPartBitmap(FRAME_NO_TOOLBAR_TOP_RIGHT),
-        client_area_bounds.right(), top_edge_y);
+    client_area_top = std::min(top_edge_y + top_left->height(),
+                               height() - NonClientBorderThickness());
+    int height = client_area_top - top_edge_y;
+    canvas->DrawBitmapInt(*top_left, 0, 0, top_left->width(), height,
+        client_area_bounds.x() - top_left->width(), top_edge_y,
+        top_left->width(), height, false);
+    canvas->TileImageInt(*top_center, 0, 0, client_area_bounds.x(), top_edge_y,
+      client_area_bounds.width(), std::min(height, top_center->height()));
+    canvas->DrawBitmapInt(*top_right, 0, 0, top_right->width(), height,
+        client_area_bounds.right(), top_edge_y,
+        top_right->width(), height, false);
   }
 
   int client_area_bottom =
@@ -970,19 +1037,10 @@ void OpaqueBrowserFrameView::LayoutTitleBar() {
   int frame_thickness = FrameBorderThickness();
   int icon_x = frame_thickness + kIconLeftSpacing;
 
-  // The usable height of the titlebar area is the total height minus the top
-  // resize border and any edge area we draw at its bottom.
-  int title_top_spacing, title_thickness;
-  InitAppWindowResources();
-  int top_height = TitleCoordinates(&title_top_spacing, &title_thickness);
-  int available_height = top_height - frame_thickness -
-      UnavailablePixelsAtBottomOfNonClientHeight();
-
-  // The icon takes up a constant fraction of the available height, down to a
-  // minimum size, and is always an even number of pixels on a side (presumably
-  // to make scaled icons look better).  It's centered within the usable height.
-  int icon_size = std::max((available_height * kIconHeightFractionNumerator /
-      kIconHeightFractionDenominator) / 2 * 2, kIconMinimumSize);
+  InitAppWindowResources();  // ! Should we do this?  Isn't this a perf hit?
+  int title_top_spacing, title_thickness, available_height;
+  int icon_size =
+      IconSize(&title_top_spacing, &title_thickness, &available_height);
   int icon_y = ((available_height - icon_size) / 2) + frame_thickness;
 
   // Hack: Our frame border has a different "3D look" than Windows'.  Theirs has
