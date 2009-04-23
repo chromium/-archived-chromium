@@ -118,7 +118,7 @@ void InProcessBrowserTest::SetUp() {
   FilePath fp_renderer_path = FilePath::FromWStringHack(renderer_path);
   renderer_path = fp_renderer_path.DirName().ToWStringHack();
   file_util::AppendToPath(&renderer_path,
-                          chrome::kBrowserProcessExecutableName);
+                          chrome::kBrowserProcessExecutablePath);
   command_line->AppendSwitchWithValue(switches::kRendererPath, renderer_path);
 
   sandbox::SandboxInterfaceInfo sandbox_info = {0};

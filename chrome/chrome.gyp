@@ -2062,8 +2062,6 @@
             'browser/login_prompt_uitest.cc',
             'browser/metrics/metrics_service_uitest.cc',
             'browser/sessions/session_restore_uitest.cc',
-            # blocked on ChromeBrowserProcessId()
-            'test/chrome_process_util_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
             'test/ui/omnibox_uitest.cc',

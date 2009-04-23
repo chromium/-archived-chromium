@@ -48,7 +48,7 @@ class StartupTest : public UITest {
         ASSERT_TRUE(PathService::Get(chrome::DIR_APP, &dir_app));
 
         FilePath chrome_exe(dir_app.Append(
-            FilePath::FromWStringHack(chrome::kBrowserProcessExecutableName)));
+            FilePath::FromWStringHack(chrome::kBrowserProcessExecutablePath)));
         ASSERT_TRUE(EvictFileFromSystemCacheWrapper(chrome_exe));
 #if defined(OS_WIN)
         // TODO(port): these files do not exist on other platforms.

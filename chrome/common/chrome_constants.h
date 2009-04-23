@@ -12,6 +12,7 @@
 namespace chrome {
 
 extern const wchar_t kBrowserProcessExecutableName[];
+extern const wchar_t kBrowserProcessExecutablePath[];
 extern const wchar_t kBrowserAppName[];
 extern const wchar_t kMessageWindowClass[];
 extern const wchar_t kExternalTabWindowClass[];

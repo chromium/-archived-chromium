@@ -18,14 +18,24 @@ const wchar_t kBrowserProcessExecutableName[] = L"chrome.exe";
 const wchar_t kBrowserProcessExecutableName[] = L"chrome";
 #elif defined(OS_MACOSX)
 const wchar_t kBrowserProcessExecutableName[] =
-// TODO(thomasvl): Un-hardcode path inside the bundle in case we want to use
-// this constant for something other than test code.
+#if defined(GOOGLE_CHROME_BUILD)
+    L"Chrome";
+#else
+    L"Chromium";
+#endif  // GOOGLE_CHROME_BUILD
+#endif  // OS_*
+#if defined(OS_WIN)
+const wchar_t kBrowserProcessExecutablePath[] = L"chrome.exe";
+#elif defined(OS_LINUX)
+const wchar_t kBrowserProcessExecutablePath[] = L"chrome";
+#elif defined(OS_MACOSX)
+const wchar_t kBrowserProcessExecutablePath[] =
 #if defined(GOOGLE_CHROME_BUILD)
     L"Chrome.app/Contents/MacOS/Chrome";
 #else
     L"Chromium.app/Contents/MacOS/Chromium";
-#endif
-#endif  // defined(MACOSX)
+#endif  // GOOGLE_CHROME_BUILD
+#endif  // OS_*
 #if defined(GOOGLE_CHROME_BUILD)
 const wchar_t kBrowserAppName[] = L"Chrome";
 const char    kStatsFilename[] = "ChromeStats2";

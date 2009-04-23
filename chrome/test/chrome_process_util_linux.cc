@@ -37,7 +37,10 @@ base::ProcessId ChromeBrowserProcessId(const FilePath& data_dir) {
 
   int pid;
   if (!StringToInt(trimmed_output, &pid)) {
-    LOG(FATAL) << "Unexpected fuser output: " << fuser_output;
+    // In normal use we'd expect to find what we're looking for, but in the unit
+    // test for chrome_process_util we're explicitly called when there is no
+    // matching process to find. Just return -1 and let our callers realize
+    // something's wrong if they really expect to find a target.
     return -1;
   }
   return pid;

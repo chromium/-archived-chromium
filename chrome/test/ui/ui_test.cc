@@ -239,7 +239,7 @@ void UITest::CloseBrowserAndServer() {
 void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   std::wstring command = browser_directory_;
   file_util::AppendToPath(&command,
-                          chrome::kBrowserProcessExecutableName);
+                          chrome::kBrowserProcessExecutablePath);
   CommandLine command_line(command);
 
   // Add any explict command line flags passed to the process.
