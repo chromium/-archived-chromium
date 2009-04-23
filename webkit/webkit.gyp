@@ -4206,6 +4206,7 @@
       'conditions': [
         ['OS=="linux"', {
           'dependencies': [
+            '../build/linux/system.gyp:x11',
             '../build/linux/system.gyp:gtk',
           ],
           'include_dirs': [

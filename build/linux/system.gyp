@@ -123,5 +123,22 @@
         ],
       },
     },
+    {
+      'target_name': 'x11',
+      'type': 'settings',
+      'direct_dependent_settings': {
+        'cflags': [
+          '<!@(python pkg_config_wrapper.py --cflags x11)',
+        ],
+      },
+      'link_settings': {
+        'ldflags': [
+          '<!@(python pkg_config_wrapper.py --libs-only-L --libs-only-other x11)',
+        ],
+        'libraries': [
+          '<!@(python pkg_config_wrapper.py --libs-only-l x11)',
+        ],
+      },
+    },
   ],
 }
