@@ -15,8 +15,13 @@
 #include "base/lock.h"
 #include "base/ref_counted.h"
 #include "base/singleton.h"
+#include "base/waitable_event_watcher.h"
 #include "chrome/browser/browser_process.h"
 #include "webkit/glue/webplugin.h"
+
+#if defined(OS_WIN)
+#include "base/registry.h"
+#endif
 
 namespace IPC {
 class Message;
@@ -30,7 +35,7 @@ class ResourceMessageFilter;
 
 // This can be called on the main thread and IO thread.  However it must
 // be created on the main thread.
-class PluginService {
+class PluginService : base::WaitableEventWatcher::Delegate {
  public:
   // Returns the PluginService singleton.
   static PluginService* GetInstance();
@@ -109,6 +114,9 @@ class PluginService {
   PluginService();
   ~PluginService();
 
+  // base::WaitableEventWatcher::Delegate implementation.
+  void OnWaitableEventSignaled(base::WaitableEvent* waitable_event);
+
   // mapping between plugin path and PluginProcessHost
   typedef base::hash_map<FilePath, PluginProcessHost*> PluginMap;
   PluginMap plugin_hosts_;
@@ -128,6 +136,16 @@ class PluginService {
   // Need synchronization whenever we access the plugin_list singelton through
   // webkit_glue since this class is called on the main and IO thread.
   Lock lock_;
+
+#if defined(OS_WIN)
+  // Registry keys for getting notifications when new plugins are installed.
+  RegKey hkcu_key_;
+  RegKey hklm_key_;
+  scoped_ptr<base::WaitableEvent> hkcu_event_;
+  scoped_ptr<base::WaitableEvent> hklm_event_;
+  base::WaitableEventWatcher hkcu_watcher_;
+  base::WaitableEventWatcher hklm_watcher_;
+#endif
 
   DISALLOW_COPY_AND_ASSIGN(PluginService);
 };

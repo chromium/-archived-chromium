@@ -26,7 +26,6 @@ const TCHAR kRegistryAcrobatReader[] = _T("AcroRd32.exe");
 const TCHAR kRegistryWindowsMedia[] = _T("wmplayer.exe");
 const TCHAR kRegistryQuickTime[] = _T("QuickTimePlayer.exe");
 const TCHAR kRegistryPath[] = _T("Path");
-const TCHAR kRegistryMozillaPlugins[] = _T("SOFTWARE\\MozillaPlugins");
 const TCHAR kRegistryFirefoxInstalled[] =
     _T("SOFTWARE\\Mozilla\\Mozilla Firefox");
 const TCHAR kMozillaActiveXPlugin[] = _T("npmozax.dll");

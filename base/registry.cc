@@ -351,8 +351,9 @@ bool RegKey::DeleteValue(const tchar * value_name) {
 }
 
 bool RegKey::StartWatching() {
-  assert(watch_event_ == 0);
-  watch_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
+  if (!watch_event_)
+    watch_event_ = CreateEvent(NULL, TRUE, FALSE, NULL);
+
   DWORD filter = REG_NOTIFY_CHANGE_NAME |
                  REG_NOTIFY_CHANGE_ATTRIBUTES |
                  REG_NOTIFY_CHANGE_LAST_SET |
@@ -382,10 +383,6 @@ bool RegKey::StopWatching() {
 bool RegKey::HasChanged() {
   if (watch_event_) {
     if (WaitForSingleObject(watch_event_, 0) == WAIT_OBJECT_0) {
-      // An event only gets signaled once, then it's done, so we have
-      // to set up another event to watch.
-      CloseHandle(watch_event_);
-      watch_event_ = 0;
       StartWatching();
       return true;
     }

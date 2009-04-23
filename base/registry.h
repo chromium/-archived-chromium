@@ -88,6 +88,7 @@ class RegKey {
   bool StopWatching();
 
   inline bool IsWatching() const { return watch_event_ != 0; }
+  HANDLE watch_event() const { return watch_event_; }
   HKEY Handle() const { return key_; }
 
  private:

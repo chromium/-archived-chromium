@@ -215,8 +215,10 @@ std::string GetUIResourceProtocol() {
 }
 
 bool GetPlugins(bool refresh, std::vector<WebPluginInfo>* plugins) {
-  return RenderThread::current()->Send(
-      new ViewHostMsg_GetPlugins(refresh, plugins));
+  if (!RenderThread::current()->plugin_refresh_allowed())
+    refresh = false;
+  return RenderThread::current()->Send(new ViewHostMsg_GetPlugins(
+     refresh, plugins));
 }
 
 // static factory function

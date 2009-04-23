@@ -91,6 +91,8 @@ class RenderThread : public RenderThreadBase,
     return user_script_slave_.get();
   }
 
+  bool plugin_refresh_allowed() const { return plugin_refresh_allowed_; }
+
   // Do DNS prefetch resolution of a hostname.
   void Resolve(const char* name, size_t length);
 
@@ -129,6 +131,7 @@ class RenderThread : public RenderThreadBase,
   void OnExtensionHandleMessage(const std::string& message, int channel_id);
   void OnExtensionHandleEvent(const std::string event_name,
       const std::string event_data);
+  void OnPurgePluginListCache();
 
   // Gather usage statistics from the in-memory cache and inform our host.
   // These functions should be call periodically so that the host can make
@@ -156,6 +159,9 @@ class RenderThread : public RenderThreadBase,
   scoped_ptr<AppCacheDispatcher> app_cache_dispatcher_;
 
   scoped_refptr<DevToolsAgentFilter> devtools_agent_filter_;
+
+  // If true, then a GetPlugins call is allowed to rescan the disk.
+  bool plugin_refresh_allowed_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderThread);
 };

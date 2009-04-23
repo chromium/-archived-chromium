@@ -33,4 +33,7 @@
 // plugin process to paint a window.
 #define kPaintMessageName L"Chrome_CustomPaint"
 
+// The name of the registry key which NPAPI plugins update on installation.
+#define kRegistryMozillaPlugins L"SOFTWARE\\MozillaPlugins"
+
 #endif  // WEBKIT_GLUE_PLUGIN_PLUGIN_LIST_H_

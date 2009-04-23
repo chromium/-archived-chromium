@@ -8,15 +8,17 @@
 
 #include "base/command_line.h"
 #include "base/thread.h"
+#include "base/waitable_event.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chrome_plugin_host.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/browser/plugin_process_host.h"
 #include "chrome/browser/renderer_host/render_process_host.h"
-#include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/chrome_plugin_lib.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/logging_chrome.h"
+#include "chrome/common/render_messages.h"
+#include "webkit/glue/plugins/plugin_constants_win.h"
 #include "webkit/glue/plugins/plugin_list.h"
 
 // static
@@ -35,9 +37,32 @@ PluginService::PluginService()
   std::wstring path = command_line->GetSwitchValue(switches::kLoadPlugin);
   if (!path.empty())
     NPAPI::PluginList::AddExtraPluginPath(FilePath::FromWStringHack(path));
+
+#if defined(OS_WIN)
+  hkcu_key_.Create(
+      HKEY_CURRENT_USER, kRegistryMozillaPlugins, KEY_NOTIFY);
+  hklm_key_.Create(
+      HKEY_LOCAL_MACHINE, kRegistryMozillaPlugins, KEY_NOTIFY);
+  if (hkcu_key_.StartWatching()) {
+    hkcu_event_.reset(new base::WaitableEvent(hkcu_key_.watch_event()));
+    hkcu_watcher_.StartWatching(hkcu_event_.get(), this);
+  }
+
+  if (hklm_key_.StartWatching()) {
+    hklm_event_.reset(new base::WaitableEvent(hklm_key_.watch_event()));
+    hklm_watcher_.StartWatching(hklm_event_.get(), this);
+  }
+#endif
 }
 
 PluginService::~PluginService() {
+#if defined(OS_WIN)
+  // Release the events since they're owned by RegKey, not WaitableEvent.
+  hkcu_watcher_.StopWatching();
+  hklm_watcher_.StopWatching();
+  hkcu_event_->Release();
+  hklm_event_->Release();
+#endif
 }
 
 void PluginService::GetPlugins(bool refresh,
@@ -170,4 +195,22 @@ bool PluginService::HavePluginFor(const std::string& mime_type,
   return NPAPI::PluginList::Singleton()->GetPluginInfo(url, mime_type, "",
                                                        allow_wildcard, &info,
                                                        NULL);
+}
+
+void PluginService::OnWaitableEventSignaled(base::WaitableEvent* waitable_event) {
+#if defined(OS_WIN)
+  if (waitable_event == hkcu_event_.get()) {
+    hkcu_key_.StartWatching();
+  } else {
+    hklm_key_.StartWatching();
+  }
+
+  AutoLock lock(lock_);
+  NPAPI::PluginList::ResetPluginsLoaded();
+
+  for (RenderProcessHost::iterator it = RenderProcessHost::begin();
+       it != RenderProcessHost::end(); ++it) {
+    it->second->Send(new ViewMsg_PurgePluginListCache());
+  }
+#endif
 }

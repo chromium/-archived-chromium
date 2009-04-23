@@ -62,13 +62,15 @@ static const unsigned int kCacheStatsDelayMS = 2000 /* milliseconds */;
 RenderThread::RenderThread()
     : ChildThread(
           base::Thread::Options(RenderProcess::InProcessPlugins() ?
-              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)) {
+              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)),
+      plugin_refresh_allowed_(true) {
 }
 
 RenderThread::RenderThread(const std::wstring& channel_name)
     : ChildThread(
           base::Thread::Options(RenderProcess::InProcessPlugins() ?
-              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)) {
+              MessageLoop::TYPE_UI : MessageLoop::TYPE_DEFAULT, kV8StackSize)),
+      plugin_refresh_allowed_(true) {
   SetChannelName(channel_name);
 }
 
@@ -197,6 +199,8 @@ void RenderThread::OnControlMessageReceived(const IPC::Message& msg) {
                         OnExtensionHandleEvent)
     IPC_MESSAGE_HANDLER(ViewMsg_Extension_SetFunctionNames,
                         OnSetExtensionFunctionNames)
+    IPC_MESSAGE_HANDLER(ViewMsg_PurgePluginListCache,
+                        OnPurgePluginListCache)
   IPC_END_MESSAGE_MAP()
 }
 
@@ -334,4 +338,14 @@ void RenderThread::OnExtensionHandleMessage(const std::string& message,
 void RenderThread::OnExtensionHandleEvent(const std::string event_name,
                                           const std::string event_data) {
   RendererExtensionBindings::HandleEvent(event_name, event_data);
+}
+
+void RenderThread::OnPurgePluginListCache() {
+  // The call below will cause a GetPlugins call with refresh=true, but at this
+  // point we already know that the browser has refreshed its list, so disable
+  // refresh temporarily to prevent each renderer process causing the list to be
+  // regenerated.
+  plugin_refresh_allowed_ = false;
+  WebKit::resetPluginCache();
+  plugin_refresh_allowed_ = true;
 }

@@ -382,6 +382,9 @@ IPC_BEGIN_MESSAGES(View)
   // Install the first missing pluign.
   IPC_MESSAGE_ROUTED0(ViewMsg_InstallMissingPlugin)
 
+  // Tells the renderer to empty its plugin list cache.
+  IPC_MESSAGE_CONTROL0(ViewMsg_PurgePluginListCache)
+
   IPC_MESSAGE_ROUTED1(ViewMsg_RunFileChooserResponse,
                       std::vector<FilePath> /* selected files */)
 
