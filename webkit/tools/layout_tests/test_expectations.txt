@@ -2520,9 +2520,10 @@ BUG10859 LINUX MAC : LayoutTests/editing/style/font-family-with-space.html = FAI
 BUG10859 LINUX MAC : LayoutTests/editing/selection/select-all-iframe.html = FAIL
 BUG10859 LINUX MAC : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
 BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
+BUG10859 LINUX : LayoutTests/fast/table/cell-coalescing.html = FAIL
 
 // New tests from WebKit Merge 42671:42725
-BUG1 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-detached-document.html = CRASH
+BUG10861 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-detached-document.html = CRASH
 
 // New failures from WebKit Merge 42671:42725
 // Several of these failures are due to the onload firing twice.
@@ -2535,3 +2536,9 @@ BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 : chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
 BUG10861 : LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
 BUG10861 WIN MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
+BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
+BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT
+BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
+
+
+
