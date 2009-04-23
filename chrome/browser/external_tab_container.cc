@@ -77,18 +77,6 @@ bool ExternalTabContainer::Init(Profile* profile, HWND parent,
   root_view_.AddChildView(tab_contents_container_);
   // Note that SetTabContents must be called after AddChildView is called
   tab_contents_container_->SetTabContents(tab_contents_);
-  // Add a dummy view to catch when the user tabs out of the tab
-  // Create a dummy FocusTraversable object to represent the frame of the
-  // external host. This will allow Tab and Shift-Tab to cycle into the
-  // external frame.  When the tab_contents_container_ loses focus,
-  // the focus will be moved to this class (See OnSetFocus in this file).
-  // An alternative to using views::View and catching when the focus manager
-  // shifts the focus to the dummy view could be to implement our own view
-  // and handle AboutToRequestFocusFromTabTraversal.
-  views::View* dummy = new views::View();
-  dummy->SetFocusable(true);
-  DCHECK(dummy->IsFocusable());
-  root_view_.AddChildView(dummy);
 
   NavigationController* controller = &tab_contents_->controller();
   registrar_.Add(this, NotificationType::NAV_ENTRY_COMMITTED,
@@ -154,22 +142,6 @@ LRESULT ExternalTabContainer::OnSize(UINT, WPARAM, LPARAM, BOOL& handled) {
                    client_rect.top, client_rect.right - client_rect.left,
                    client_rect.bottom - client_rect.top, SWP_NOZORDER);
   }
-  return 0;
-}
-
-LRESULT ExternalTabContainer::OnSetFocus(UINT msg, WPARAM wp, LPARAM lp,
-                                         BOOL& handled) {
-  if (automation_) {
-    views::FocusManager* focus_manager =
-        views::FocusManager::GetFocusManager(GetNativeView());
-    DCHECK(focus_manager);
-    if (focus_manager) {
-      focus_manager->ClearFocus();
-      automation_->Send(new AutomationMsg_TabbedOut(0,
-          win_util::IsShiftPressed()));
-    }
-  }
-
   return 0;
 }
 
@@ -260,6 +232,21 @@ void ExternalTabContainer::ForwardMessageToExternalHost(
         new AutomationMsg_ForwardMessageToExternalHost(0, message, origin,
                                                        target));
   }
+}
+
+bool ExternalTabContainer::TakeFocus(bool reverse) {
+  if (automation_) {
+    views::FocusManager* focus_manager =
+        views::FocusManager::GetFocusManager(GetNativeView());
+    DCHECK(focus_manager);
+    if (focus_manager) {
+      focus_manager->ClearFocus();
+      automation_->Send(new AutomationMsg_TabbedOut(0,
+          win_util::IsShiftPressed()));
+    }
+  }
+
+  return true;
 }
 
 void ExternalTabContainer::Observe(NotificationType type,

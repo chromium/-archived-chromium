@@ -157,6 +157,13 @@ class TabContentsDelegate : public PageNavigator {
   // this to disable inactive rendering for the frame in the window the select
   // is opened within if necessary.
   virtual void RenderWidgetShowing() {}
+
+  // This is called when webkit tells us that it is done tabbing through
+  // controls on the page. Provides a way for TabContentsDelegates to handle
+  // this. Returns true if the delegate successfully handled it.
+  virtual bool TakeFocus(bool reverse) {
+    return false;
+  }
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_

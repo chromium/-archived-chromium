@@ -315,13 +315,15 @@ void TabContentsViewWin::UpdateDragCursor(bool is_drop_target) {
 }
 
 void TabContentsViewWin::TakeFocus(bool reverse) {
-  views::FocusManager* focus_manager =
-      views::FocusManager::GetFocusManager(GetNativeView());
+  if (!web_contents()->delegate()->TakeFocus(reverse)) {
+    views::FocusManager* focus_manager =
+        views::FocusManager::GetFocusManager(GetNativeView());
 
-  // We may not have a focus manager if the tab has been switched before this
-  // message arrived.
-  if (focus_manager)
-    focus_manager->AdvanceFocus(reverse);
+    // We may not have a focus manager if the tab has been switched before this
+    // message arrived.
+    if (focus_manager)
+      focus_manager->AdvanceFocus(reverse);
+  }
 }
 
 void TabContentsViewWin::HandleKeyboardEvent(

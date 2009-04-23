@@ -40,7 +40,6 @@ class ExternalTabContainer : public TabContentsDelegate,
  public:
   BEGIN_MSG_MAP(ExternalTabContainer)
     MESSAGE_HANDLER(WM_SIZE, OnSize)
-    MESSAGE_HANDLER(WM_SETFOCUS, OnSetFocus)
   END_MSG_MAP()
 
   DECLARE_WND_CLASS(chrome::kExternalTabWindowClass)
@@ -89,6 +88,8 @@ class ExternalTabContainer : public TabContentsDelegate,
     return true;
   };
 
+  virtual bool TakeFocus(bool reverse);
+
   // Notification service callback.
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
@@ -135,7 +136,6 @@ class ExternalTabContainer : public TabContentsDelegate,
 
  protected:
   LRESULT OnSize(UINT, WPARAM, LPARAM, BOOL& handled);
-  LRESULT OnSetFocus(UINT msg, WPARAM wp, LPARAM lp, BOOL& handled);
   void OnDestroy();
   void OnFinalMessage(HWND window);
 
