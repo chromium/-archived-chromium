@@ -2464,11 +2464,6 @@ BUG10529 LINUX : LayoutTests/editing/inserting/6703873.html = FAIL
 // to include window.showModalDialog, which we give as undefined.
 BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.html = FAIL
 
-// New tests from webkit merge 42547:42580
-DEFER BUG10621 : LayoutTests/fast/js/array-reduce.html = FAIL
-DEFER BUG10621 : LayoutTests/fast/js/array-reduceRight.html = FAIL
-DEFER BUG10622 : LayoutTests/fast/js/array-enumerators-functions.html = FAIL
-
 // Need rebaselining for Mac and Linux, from WebKit merge 42580:42609
 BUG10662 LINUX MAC : LayoutTests/fast/forms/caret-rtl.html = FAIL
 BUG10662 LINUX MAC : LayoutTests/fast/forms/form-added-to-table.html = FAIL
