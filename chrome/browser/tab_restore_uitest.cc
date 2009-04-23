@@ -102,6 +102,13 @@ class TabRestoreUITest : public UITest {
 
   // Ensure that the given browser occupies the currently active window.
   void CheckActiveWindow(const BrowserProxy* browser) {
+    // This entire check is disabled because even the IsActive() call
+    // sporadically fails to complete successfully. See http://crbug.com/10916.
+    // TODO(pamg): Investigate and re-enable. Also find a way to have the
+    // calling location reported in the gtest error, by inlining this again if
+    // nothing else.
+    return;
+
     bool is_active = false;
     scoped_ptr<WindowProxy> window_proxy(browser->GetWindow());
     ASSERT_TRUE(window_proxy->IsActive(&is_active));
@@ -180,8 +187,7 @@ TEST_F(TabRestoreUITest, MiddleTab) {
 
 // Close a tab, switch windows, then restore the tab. The tab should be in its
 // original window and position, and active.
-// Disabled as per: http://crbug.com/10916
-TEST_F(TabRestoreUITest, DISABLED_RestoreToDifferentWindow) {
+TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
 
   // This call is virtually guaranteed to pass, assuming that Chromium is the
@@ -276,8 +282,7 @@ TEST_F(TabRestoreUITest, BasicRestoreFromClosedWindow) {
 
 // Open a window with multiple tabs, close a tab, then close the window.
 // Restore both and make sure the tab goes back into the window.
-// This test currently disabled. See http://crbug.com/10916
-TEST_F(TabRestoreUITest, DISABLED_RestoreWindowAndTab) {
+TEST_F(TabRestoreUITest, RestoreWindowAndTab) {
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   CheckActiveWindow(browser_proxy.get());
 
