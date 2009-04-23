@@ -1933,7 +1933,7 @@ void WebFrameImpl::EndPrint() {
 }
 
 int WebFrameImpl::PendingFrameUnloadEventCount() const {
-  return frame()->eventHandler()->pendingFrameUnloadEventCount();
+  return frame()->domWindow()->pendingUnloadEventListeners();
 }
 
 void WebFrameImpl::RegisterPasswordListener(

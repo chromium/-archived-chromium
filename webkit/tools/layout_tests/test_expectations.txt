@@ -2512,3 +2512,26 @@ BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-child-changes.svg = PASS FAIL
 BUG10760 MAC LINUX : LayoutTests/svg/custom/marker-viewBox-changes.svg = PASS FAIL
 BUG10760 MAC : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
 BUG10760 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-02-f.svg = PASS FAIL
+
+// Need rebaselining for Mac and Linux, from WebKit Merge 42671:42725
+BUG10859 LINUX MAC : LayoutTests/editing/inserting/insert-3907422-fix.html = FAIL
+BUG10859 LINUX MAC : LayoutTests/editing/pasteboard/paste-text-015.html = FAIL
+BUG10859 LINUX MAC : LayoutTests/editing/style/font-family-with-space.html = FAIL
+BUG10859 LINUX MAC : LayoutTests/editing/selection/select-all-iframe.html = FAIL
+BUG10859 LINUX MAC : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
+
+// New tests from WebKit Merge 42671:42725
+BUG1 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-detached-document.html = CRASH
+
+// New failures from WebKit Merge 42671:42725
+// Several of these failures are due to the onload firing twice.
+BUG10861 : LayoutTests/fast/events/onload-fires-twice.html = FAIL
+BUG10861 : LayoutTests/fast/events/onclick-list-marker.html = FAIL
+BUG10861 : LayoutTests/fast/js/bitwise-and-on-undefined.html = FAIL
+BUG10861 : LayoutTests/fast/table/form-in-table-before-misnested-text-crash-css.html = FAIL
+BUG10861 : LayoutTests/fast/table/form-in-tbody-before-misnested-text-crash-css.html = FAIL
+BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
+BUG10861 : chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
+BUG10861 : LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
+BUG10861 WIN MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
