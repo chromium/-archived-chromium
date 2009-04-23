@@ -13,13 +13,13 @@
 
 class AutofillForm;
 class Profile;
-class WebContents;
+class TabContents;
 
 // Per-tab autofill manager. Handles receiving form data from the renderer and
 // the storing and retrieving of form data through WebDataService.
 class AutofillManager : public WebDataServiceConsumer {
  public:
-  explicit AutofillManager(WebContents* web_contents);
+  explicit AutofillManager(TabContents* tab_contents);
   virtual ~AutofillManager();
 
   void CancelPendingQuery();
@@ -50,7 +50,7 @@ class AutofillManager : public WebDataServiceConsumer {
  private:
   void StoreFormEntriesInWebDatabase(const AutofillForm& form);
 
-  WebContents* web_contents_;
+  TabContents* tab_contents_;
 
   BooleanPrefMember form_autofill_enabled_;
 

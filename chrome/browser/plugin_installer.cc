@@ -5,33 +5,33 @@
 #include "chrome/browser/plugin_installer.h"
 
 #include "base/string_util.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 
-PluginInstaller::PluginInstaller(WebContents* web_contents)
-    : ConfirmInfoBarDelegate(web_contents),
-      web_contents_(web_contents) {
+PluginInstaller::PluginInstaller(TabContents* tab_contents)
+    : ConfirmInfoBarDelegate(tab_contents),
+      tab_contents_(tab_contents) {
 }
 
 PluginInstaller::~PluginInstaller() {
   // Remove any InfoBars we may be showing.
-  web_contents_->RemoveInfoBar(this);
+  tab_contents_->RemoveInfoBar(this);
 }
 
 void PluginInstaller::OnMissingPluginStatus(int status) {
   switch(status) {
     case default_plugin::MISSING_PLUGIN_AVAILABLE: {
-      web_contents_->AddInfoBar(this);
+      tab_contents_->AddInfoBar(this);
       break;
     }
     case default_plugin::MISSING_PLUGIN_USER_STARTED_DOWNLOAD: {
       // Hide the InfoBar if user already started download/install of the
       // missing plugin.
-      web_contents_->RemoveInfoBar(this);
+      tab_contents_->RemoveInfoBar(this);
       break;
     }
     default: {
@@ -61,6 +61,6 @@ std::wstring PluginInstaller::GetButtonLabel(InfoBarButton button) const {
 }
 
 bool PluginInstaller::Accept() {
-  web_contents_->render_view_host()->InstallMissingPlugin();
+  tab_contents_->render_view_host()->InstallMissingPlugin();
   return true;
 }

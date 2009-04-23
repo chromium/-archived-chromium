@@ -6,7 +6,7 @@
 
 #include "base/string_util.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "webkit/glue/autofill_form.h"
@@ -16,8 +16,8 @@ void AutofillManager::RegisterUserPrefs(PrefService* prefs) {
   prefs->RegisterBooleanPref(prefs::kFormAutofillEnabled, true);
 }
 
-AutofillManager::AutofillManager(WebContents* web_contents)
-    : web_contents_(web_contents),
+AutofillManager::AutofillManager(TabContents* tab_contents)
+    : tab_contents_(tab_contents),
       pending_query_handle_(0),
       node_id_(0),
       request_id_(0) {
@@ -43,7 +43,7 @@ void AutofillManager::CancelPendingQuery() {
 }
 
 Profile* AutofillManager::profile() {
-  return web_contents_->profile();
+  return tab_contents_->profile();
 }
 
 void AutofillManager::AutofillFormSubmitted(const AutofillForm& form) {
@@ -100,7 +100,7 @@ void AutofillManager::OnWebDataServiceRequestDone(WebDataService::Handle h,
 
   switch (result->GetType()) {
     case AUTOFILL_VALUE_RESULT: {
-      RenderViewHost* host = web_contents_->render_view_host();
+      RenderViewHost* host = tab_contents_->render_view_host();
       if (!host)
         return;
       const WDResult<std::vector<std::wstring> >* r =

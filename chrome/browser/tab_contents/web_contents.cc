@@ -317,24 +317,6 @@ void WebContents::RegisterUserPrefs(PrefService* prefs) {
                                      IDS_STATIC_ENCODING_LIST);
 }
 
-AutofillManager* WebContents::GetAutofillManager() {
-  if (autofill_manager_.get() == NULL)
-    autofill_manager_.reset(new AutofillManager(this));
-  return autofill_manager_.get();
-}
-
-PasswordManager* WebContents::GetPasswordManager() {
-  if (password_manager_.get() == NULL)
-    password_manager_.reset(new PasswordManager(this));
-  return password_manager_.get();
-}
-
-PluginInstaller* WebContents::GetPluginInstaller() {
-  if (plugin_installer_.get() == NULL)
-    plugin_installer_.reset(new PluginInstaller(this));
-  return plugin_installer_.get();
-}
-
 const string16& WebContents::GetTitle() const {
   DOMUI* our_dom_ui = render_manager_.pending_dom_ui() ?
       render_manager_.pending_dom_ui() : render_manager_.dom_ui();
@@ -635,46 +617,6 @@ void WebContents::CreateShortcut() {
   // Request the application info. When done OnDidGetApplicationInfo is invoked
   // and we'll create the shortcut.
   render_view_host()->GetApplicationInfo(pending_install_.page_id);
-}
-
-void WebContents::StartFinding(const string16& find_text,
-                               bool forward_direction) {
-  // If find_text is empty, it means FindNext was pressed with a keyboard
-  // shortcut so unless we have something to search for we return early.
-  if (find_text.empty() && find_text_.empty())
-    return;
-
-  // This is a FindNext operation if we are searching for the same text again,
-  // or if the passed in search text is empty (FindNext keyboard shortcut). The
-  // exception to this is if the Find was aborted (then we don't want FindNext
-  // because the highlighting has been cleared and we need it to reappear). We
-  // therefore treat FindNext after an aborted Find operation as a full fledged
-  // Find.
-  bool find_next = (find_text_ == find_text || find_text.empty()) &&
-                   !find_op_aborted_;
-  if (!find_next)
-    current_find_request_id_ = find_request_id_counter_++;
-
-  if (!find_text.empty())
-    find_text_ = find_text;
-
-  find_op_aborted_ = false;
-
-  // Keep track of what the last search was across the tabs.
-  *find_prepopulate_text_ = find_text;
-
-  render_view_host()->StartFinding(current_find_request_id_,
-                                   find_text_,
-                                   forward_direction,
-                                   false,  // case sensitive
-                                   find_next);
-}
-
-void WebContents::StopFinding(bool clear_selection) {
-  find_ui_active_ = false;
-  find_op_aborted_ = true;
-  find_result_ = FindNotificationDetails();
-  render_view_host()->StopFinding(clear_selection);
 }
 
 void WebContents::OnJavaScriptMessageBoxClosed(IPC::Message* reply_msg,

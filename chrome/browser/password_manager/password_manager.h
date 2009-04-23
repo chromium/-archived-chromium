@@ -15,7 +15,7 @@
 #include "webkit/glue/password_form_dom_manager.h"
 
 class PrefService;
-class WebContents;
+class TabContents;
 
 // Per-tab password manager. Handles creation and management of UI elements,
 // receiving password form data from the renderer and managing the password
@@ -25,7 +25,7 @@ class PasswordManager : public views::LoginModel {
  public:
   static void RegisterUserPrefs(PrefService* prefs);
 
-  explicit PasswordManager(WebContents* web_contents);
+  explicit PasswordManager(TabContents* tab_contents);
   ~PasswordManager();
 
   // Called by a PasswordFormManager when it decides a form can be autofilled
@@ -88,8 +88,8 @@ class PasswordManager : public views::LoginModel {
   // time a user submits a login form and gets to the next page.
   scoped_ptr<PasswordFormManager> provisional_save_manager_;
 
-  // The containing WebContents
-  WebContents* web_contents_;
+  // The containing TabContents.
+  TabContents* tab_contents_;
 
   // The LoginModelObserver (i.e LoginView) requiring autofill.
   views::LoginModelObserver* observer_;

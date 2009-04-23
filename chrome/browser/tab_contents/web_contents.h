@@ -5,41 +5,11 @@
 #ifndef CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 #define CHROME_BROWSER_TAB_CONTENTS_WEB_CONTENTS_H_
 
-#include <map>
-#include <string>
-#include <vector>
-
 #include "chrome/browser/tab_contents/tab_contents.h"
-
-class AutofillForm;
-class DOMUI;
-class InterstitialPageDelegate;
-class LoadNotificationDetails;
-class RenderProcessHost;
-class RenderViewHost;
-class RenderWidgetHost;
-struct ThumbnailScore;
-struct ViewHostMsg_FrameNavigate_Params;
-struct ViewHostMsg_DidPrintPage_Params;
-
-namespace base {
-class WaitableEvent;
-}
-
-namespace webkit_glue {
-struct WebApplicationInfo;
-}
-
-namespace IPC {
-class Message;
-}
 
 // WebContents represents the contents of a tab that shows web pages. It embeds
 // a RenderViewHost (via RenderViewHostManager) to actually display the page.
-class WebContents : public TabContents,
-                    public RenderViewHostDelegate,
-                    public RenderViewHostManager::Delegate,
-                    public SelectFileDialog::Listener {
+class WebContents : public TabContents {
  public:
   // If instance is NULL, then creates a new process for this view.  Otherwise
   // initialize with a process already created for a different WebContents.
@@ -52,48 +22,6 @@ class WebContents : public TabContents,
   virtual ~WebContents();
 
   static void RegisterUserPrefs(PrefService* prefs);
-
-  // Getters -------------------------------------------------------------------
-
-  // Returns the AutofillManager, creating it if necessary.
-  AutofillManager* GetAutofillManager();
-
-  // Returns the PasswordManager, creating it if necessary.
-  PasswordManager* GetPasswordManager();
-
-  // Returns the PluginInstaller, creating it if necessary.
-  PluginInstaller* GetPluginInstaller();
-
-  // Returns the SavePackage which manages the page saving job. May be NULL.
-  SavePackage* save_package() const { return save_package_.get(); }
-
-  // Return the currently active RenderProcessHost and RenderViewHost. Each of
-  // these may change over time.
-  RenderProcessHost* process() const {
-    return render_manager_.current_host()->process();
-  }
-  RenderViewHost* render_view_host() const {
-    return render_manager_.current_host();
-  }
-
-  // The TabContentsView will never change and is guaranteed non-NULL.
-  TabContentsView* view() const {
-    return view_.get();
-  }
-
-#ifdef UNIT_TEST
-  // Expose the render manager for testing.
-  RenderViewHostManager* render_manager() { return &render_manager_; }
-#endif
-
-  // Page state getters & setters ----------------------------------------------
-
-  bool is_starred() const { return is_starred_; }
-
-  const std::wstring& encoding() const { return encoding_; }
-  void set_encoding(const std::wstring& encoding) {
-    encoding_ = encoding;
-  }
 
   // Window stuff --------------------------------------------------------------
 
@@ -137,75 +65,6 @@ class WebContents : public TabContents,
 
   // Tell Gears to create a shortcut for the current page.
   void CreateShortcut();
-
-  // Interstitials -------------------------------------------------------------
-
-  // Various other systems need to know about our interstitials.
-  bool showing_interstitial_page() const {
-    return render_manager_.interstitial_page() != NULL;
-  }
-
-  // Sets the passed passed interstitial as the currently showing interstitial.
-  // |interstitial_page| should be non NULL (use the remove_interstitial_page
-  // method to unset the interstitial) and no interstitial page should be set
-  // when there is already a non NULL interstitial page set.
-  void set_interstitial_page(InterstitialPage* interstitial_page) {
-    render_manager_.set_interstitial_page(interstitial_page);
-  }
-
-  // Unsets the currently showing interstitial.
-  void remove_interstitial_page() {
-    render_manager_.remove_interstitial_page();
-  }
-
-  // Returns the currently showing interstitial, NULL if no interstitial is
-  // showing.
-  InterstitialPage* interstitial_page() const {
-    return render_manager_.interstitial_page();
-  }
-
-  // Find in Page --------------------------------------------------------------
-
-  // Starts the Find operation by calling StartFinding on the Tab. This function
-  // can be called from the outside as a result of hot-keys, so it uses the
-  // last remembered search string as specified with set_find_string(). This
-  // function does not block while a search is in progress. The controller will
-  // receive the results through the notification mechanism. See Observe(...)
-  // for details.
-  void StartFinding(const string16& find_text, bool forward_direction);
-
-  // Stops the current Find operation. If |clear_selection| is true, it will
-  // also clear the selection on the focused frame.
-  void StopFinding(bool clear_selection);
-
-  // Accessors/Setters for find_ui_active_.
-  bool find_ui_active() const { return find_ui_active_; }
-  void set_find_ui_active(bool find_ui_active) {
-      find_ui_active_ = find_ui_active;
-  }
-
-  // Setter for find_op_aborted_.
-  void set_find_op_aborted(bool find_op_aborted) {
-    find_op_aborted_ = find_op_aborted;
-  }
-
-  // Used _only_ by testing to set the current request ID, since it calls
-  // StartFinding on the RenderViewHost directly, rather than by using
-  // StartFinding's more limited API.
-  void set_current_find_request_id(int current_find_request_id) {
-    current_find_request_id_ = current_find_request_id;
-  }
-
-  // Accessor for find_text_. Used to determine if this WebContents has any
-  // active searches.
-  string16 find_text() const { return find_text_; }
-
-  // Accessor for find_prepopulate_text_. Used to access the last search
-  // string entered, whatever tab that search was performed in.
-  string16 find_prepopulate_text() const { return *find_prepopulate_text_; }
-
-  // Accessor for find_result_.
-  const FindNotificationDetails& find_result() const { return find_result_; }
 
   // Misc state & callbacks ----------------------------------------------------
 

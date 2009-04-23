@@ -7,6 +7,7 @@
 
 #include "build/build_config.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -34,7 +35,6 @@
 #include "webkit/glue/password_form.h"
 #include "webkit/glue/webpreferences.h"
 
-
 #if defined(OS_MACOSX) || defined(OS_LINUX)
 // Remove when we've finished porting the supporting classes.
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -47,31 +47,47 @@ class Rect;
 class Size;
 }
 namespace views {
-class RootView;
 class WindowDelegate;
 }
+namespace base {
+class WaitableEvent;
+}
+namespace webkit_glue {
+struct WebApplicationInfo;
+}
+namespace IPC {
+class Message;
+}
 
+class AutofillForm;
 class AutofillManager;
 class BlockedPopupContainer;
+class DOMUI;
 class DOMUIContents;
 class DownloadItem;
 class DownloadShelf;
-class InfoBarView;
 class LoadNotificationDetails;
 class PasswordManager;
 class PluginInstaller;
 class Profile;
+class RenderViewHost;
 class TabContentsDelegate;
 class TabContentsFactory;
 class SkBitmap;
 class SiteInstance;
 class TabContentsView;
+struct ThumbnailScore;
+struct ViewHostMsg_FrameNavigate_Params;
+struct ViewHostMsg_DidPrintPage_Params;
 class WebContents;
 
 // Describes what goes in the main content area of a tab. WebContents is
 // the only type of TabContents, and these should be merged together.
 class TabContents : public PageNavigator,
-                    public NotificationObserver {
+                    public NotificationObserver,
+                    public RenderViewHostDelegate,
+                    public RenderViewHostManager::Delegate,
+                    public SelectFileDialog::Listener {
  public:
   // Flags passed to the TabContentsDelegate.NavigationStateChanged to tell it
   // what has changed. Combine them to update more than one thing.
@@ -99,7 +115,7 @@ class TabContents : public PageNavigator,
   PropertyBag* property_bag() { return &property_bag_; }
 
   // Returns this object as a WebContents if it is one, and NULL otherwise.
-  virtual WebContents* AsWebContents() { return NULL; }
+  virtual WebContents* AsWebContents() = 0;
 
   // Const version of above for situations where const TabContents*'s are used.
   WebContents* AsWebContents() const {
@@ -124,6 +140,37 @@ class TabContents : public PageNavigator,
   // matches the tab contents type with the result of TypeForURL(). |url| points
   // to the actual URL that will be used. It can be modified as needed.
   bool SupportsURL(GURL* url);
+
+  // Returns the AutofillManager, creating it if necessary.
+  AutofillManager* GetAutofillManager();
+
+  // Returns the PasswordManager, creating it if necessary.
+  PasswordManager* GetPasswordManager();
+
+  // Returns the PluginInstaller, creating it if necessary.
+  PluginInstaller* GetPluginInstaller();
+
+  // Returns the SavePackage which manages the page saving job. May be NULL.
+  SavePackage* save_package() const { return save_package_.get(); }
+
+  // Return the currently active RenderProcessHost and RenderViewHost. Each of
+  // these may change over time.
+  RenderProcessHost* process() const {
+    return render_manager_.current_host()->process();
+  }
+  RenderViewHost* render_view_host() const {
+    return render_manager_.current_host();
+  }
+
+  // The TabContentsView will never change and is guaranteed non-NULL.
+  TabContentsView* view() const {
+    return view_.get();
+  }
+
+#ifdef UNIT_TEST
+  // Expose the render manager for testing.
+  RenderViewHostManager* render_manager() { return &render_manager_; }
+#endif
 
   // Tab navigation state ------------------------------------------------------
 
@@ -184,6 +231,13 @@ class TabContents : public PageNavigator,
   // main resource of the page. This controls whether the throbber state is
   // "waiting" or "loading."
   bool waiting_for_response() const { return waiting_for_response_; }
+
+  bool is_starred() const { return is_starred_; }
+
+  const std::wstring& encoding() const { return encoding_; }
+  void set_encoding(const std::wstring& encoding) {
+    encoding_ = encoding;
+  }
 
   // Internal state ------------------------------------------------------------
 
@@ -365,6 +419,75 @@ class TabContents : public PageNavigator,
 
   // Called when a ConstrainedWindow we own is moved or resized.
   void DidMoveOrResize(ConstrainedWindow* window);
+
+  // Interstitials -------------------------------------------------------------
+
+  // Various other systems need to know about our interstitials.
+  bool showing_interstitial_page() const {
+    return render_manager_.interstitial_page() != NULL;
+  }
+
+  // Sets the passed passed interstitial as the currently showing interstitial.
+  // |interstitial_page| should be non NULL (use the remove_interstitial_page
+  // method to unset the interstitial) and no interstitial page should be set
+  // when there is already a non NULL interstitial page set.
+  void set_interstitial_page(InterstitialPage* interstitial_page) {
+    render_manager_.set_interstitial_page(interstitial_page);
+  }
+
+  // Unsets the currently showing interstitial.
+  void remove_interstitial_page() {
+    render_manager_.remove_interstitial_page();
+  }
+
+  // Returns the currently showing interstitial, NULL if no interstitial is
+  // showing.
+  InterstitialPage* interstitial_page() const {
+    return render_manager_.interstitial_page();
+  }
+
+  // Find in Page --------------------------------------------------------------
+
+  // Starts the Find operation by calling StartFinding on the Tab. This function
+  // can be called from the outside as a result of hot-keys, so it uses the
+  // last remembered search string as specified with set_find_string(). This
+  // function does not block while a search is in progress. The controller will
+  // receive the results through the notification mechanism. See Observe(...)
+  // for details.
+  void StartFinding(const string16& find_text, bool forward_direction);
+
+  // Stops the current Find operation. If |clear_selection| is true, it will
+  // also clear the selection on the focused frame.
+  void StopFinding(bool clear_selection);
+
+  // Accessors/Setters for find_ui_active_.
+  bool find_ui_active() const { return find_ui_active_; }
+  void set_find_ui_active(bool find_ui_active) {
+      find_ui_active_ = find_ui_active;
+  }
+
+  // Setter for find_op_aborted_.
+  void set_find_op_aborted(bool find_op_aborted) {
+    find_op_aborted_ = find_op_aborted;
+  }
+
+  // Used _only_ by testing to set the current request ID, since it calls
+  // StartFinding on the RenderViewHost directly, rather than by using
+  // StartFinding's more limited API.
+  void set_current_find_request_id(int current_find_request_id) {
+    current_find_request_id_ = current_find_request_id;
+  }
+
+  // Accessor for find_text_. Used to determine if this WebContents has any
+  // active searches.
+  string16 find_text() const { return find_text_; }
+
+  // Accessor for find_prepopulate_text_. Used to access the last search
+  // string entered, whatever tab that search was performed in.
+  string16 find_prepopulate_text() const { return *find_prepopulate_text_; }
+
+  // Accessor for find_result_.
+  const FindNotificationDetails& find_result() const { return find_result_; }
 
  protected:
   friend class NavigationController;

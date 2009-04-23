@@ -7,13 +7,13 @@
 
 #include "chrome/browser/tab_contents/infobar_delegate.h"
 
-class WebContents;
+class TabContents;
 
 // The main purpose for this class is to popup/close the infobar when there is
 // a missing plugin.
 class PluginInstaller : public ConfirmInfoBarDelegate {
  public:
-  explicit PluginInstaller(WebContents* web_contents);
+  explicit PluginInstaller(TabContents* tab_contents);
   ~PluginInstaller();
 
   void OnMissingPluginStatus(int status);
@@ -28,8 +28,8 @@ class PluginInstaller : public ConfirmInfoBarDelegate {
   virtual std::wstring GetButtonLabel(InfoBarButton button) const;
   virtual bool Accept();
 
-  // The containing WebContents
-  WebContents* web_contents_;
+  // The containing TabContents
+  TabContents* tab_contents_;
 
   DISALLOW_COPY_AND_ASSIGN(PluginInstaller);
 };
