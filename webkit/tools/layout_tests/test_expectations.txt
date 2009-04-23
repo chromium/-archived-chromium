@@ -2535,6 +2535,7 @@ BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
 BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT
 BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
+BUG10861 LINUX : LayoutTests/fast/dynamic/001.html = FAIL
 
 
 
