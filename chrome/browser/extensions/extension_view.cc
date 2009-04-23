@@ -132,9 +132,7 @@ void ExtensionView::ShowCreatedWindow(int route_id,
                                       bool user_gesture) {
   WebContents* contents = delegate_view_helper_.GetCreatedWindow(route_id);
   if (contents) {
-    // TODO(erikkay) is it safe to pass in NULL as source?
-    browser_->AddNewContents(NULL, contents, disposition, initial_pos,
-                             user_gesture);
+    browser_->AddTabContents(contents, disposition, initial_pos, user_gesture);
   }
 }
 
@@ -142,7 +140,7 @@ void ExtensionView::ShowCreatedWidget(int route_id,
                                       const gfx::Rect& initial_pos) {
   RenderWidgetHostView* widget_host_view =
       delegate_view_helper_.GetCreatedWidget(route_id);
-  browser_->RenderWidgetShowing();
+  browser_->BrowserRenderWidgetShowing();
   // TODO(erikkay): These two lines could be refactored with TabContentsView.
   widget_host_view->InitAsPopup(render_view_host()->view(),
                                 initial_pos);
@@ -165,4 +163,3 @@ void ExtensionView::TakeFocus(bool reverse) {
 
 void ExtensionView::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
 }
-

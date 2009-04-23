@@ -265,7 +265,7 @@ bool RemoveTabFunction::RunImpl() {
   int tab_index;
   TabStripModel* tab_strip = browser->tabstrip_model();
   if (GetIndexOfTabId(tab_strip, tab_id, &tab_index)) {
-    browser->CloseContents(tab_strip->GetTabContentsAt(tab_index));
+    browser->CloseTabContents(tab_strip->GetTabContentsAt(tab_index));
     return true;
   }
 

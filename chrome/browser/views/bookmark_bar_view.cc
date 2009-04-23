@@ -897,12 +897,12 @@ int BookmarkBarView::GetToolbarOverlap() {
 
 void BookmarkBarView::AnimationProgressed(const Animation* animation) {
   if (browser_)
-    browser_->ToolbarSizeChanged(NULL, true);
+    browser_->ToolbarSizeChanged(true);
 }
 
 void BookmarkBarView::AnimationEnded(const Animation* animation) {
   if (browser_)
-    browser_->ToolbarSizeChanged(NULL, false);
+    browser_->ToolbarSizeChanged(false);
   SchedulePaint();
 }
 

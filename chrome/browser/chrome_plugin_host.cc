@@ -326,7 +326,7 @@ class ModelessHtmlDialogDelegate : public HtmlDialogUIDelegate {
   void Show() {
     DCHECK(MessageLoop::current() == main_message_loop_);
     Browser* browser = BrowserList::GetLastActive();
-    browser->ShowHtmlDialog(this, parent_wnd_);
+    browser->BrowserShowHtmlDialog(this, parent_wnd_);
   }
 
   // Gives the JSON result string back to the plugin.

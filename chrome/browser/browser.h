@@ -40,6 +40,7 @@ class TabNavigation;
 class Browser : public TabStripModelDelegate,
                 public TabStripModelObserver,
                 public TabContentsDelegate,
+                public PageNavigator,
                 public CommandUpdater::CommandUpdaterDelegate,
                 public NotificationObserver,
                 public SelectFileDialog::Listener {
@@ -234,6 +235,29 @@ class Browser : public TabStripModelDelegate,
                               int tab_index,
                               int selected_navigation,
                               bool select);
+  // Creates a new tab with the already-created TabContents 'new_contents'.
+  // The window for the added contents will be reparented correctly when this
+  // method returns.  If |disposition| is NEW_POPUP, |pos| should hold the
+  // initial position.
+  void AddTabContents(TabContents* new_contents,
+                      WindowOpenDisposition disposition,
+                      const gfx::Rect& initial_pos,
+                      bool user_gesture);
+  void CloseTabContents(TabContents* contents);
+
+  // Show a dialog with HTML content. |delegate| contains a pointer to the
+  // delegate who knows how to display the dialog (which file URL and JSON
+  // string input to use during initialization). |parent_window| is the window
+  // that should be parent of the dialog, or NULL for the default.
+  void BrowserShowHtmlDialog(HtmlDialogUIDelegate* delegate,
+                             void* parent_window);
+
+  // Called when a popup select is about to be displayed.
+  void BrowserRenderWidgetShowing();
+
+  // Notification that some of our content has changed size as
+  // part of an animation.
+  void ToolbarSizeChanged(bool is_animating);
 
   // Replaces the state of the currently selected tab with the session
   // history restored from the SessionRestore system.
@@ -366,14 +390,29 @@ class Browser : public TabStripModelDelegate,
   static Browser* GetBrowserForController(
       const NavigationController* controller, int* index);
 
+
+  // Helper function to create a new popup window.
+  static void BuildPopupWindowHelper(TabContents* source,
+                                     TabContents* new_contents,
+                                     const gfx::Rect& initial_pos,
+                                     Browser::Type browser_type,
+                                     Profile* profile,
+                                     bool honor_saved_maximized_state);
+
   // Calls ExecuteCommandWithDisposition with the given disposition.
   void ExecuteCommandWithDisposition(int id, WindowOpenDisposition);
 
   // Interface implementations ////////////////////////////////////////////////
 
+  // Overridden from PageNavigator
+  virtual void OpenURL(const GURL& url, const GURL& referrer,
+                       WindowOpenDisposition disposition,
+                       PageTransition::Type transition);
+
   // Overridden from CommandUpdater::CommandUpdaterDelegate:
   virtual void ExecuteCommand(int id);
 
+ private:
   // Overridden from TabStripModelDelegate:
   virtual TabContents* AddBlankTab(bool foreground);
   virtual TabContents* AddBlankTabAt(int index, bool foreground);
@@ -458,15 +497,6 @@ class Browser : public TabStripModelDelegate,
                        const NotificationSource& source,
                        const NotificationDetails& details);
 
-  // Helper function to create a new popup window.
-  static void BuildPopupWindowHelper(TabContents* source,
-                                     TabContents* new_contents,
-                                     const gfx::Rect& initial_pos,
-                                     Browser::Type browser_type,
-                                     Profile* profile,
-                                     bool honor_saved_maximized_state);
-
- private:
   // Command and state updating ///////////////////////////////////////////////
 
   // Initialize state for all browser commands.

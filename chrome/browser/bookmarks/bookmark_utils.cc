@@ -61,8 +61,7 @@ class NewBrowserPageNavigator : public PageNavigator {
       // Always open the first tab in the foreground.
       disposition = NEW_FOREGROUND_TAB;
     }
-    browser_->OpenURLFromTab(NULL, url, referrer, NEW_FOREGROUND_TAB,
-                             transition);
+    browser_->OpenURL(url, referrer, NEW_FOREGROUND_TAB, transition);
   }
 
  private:

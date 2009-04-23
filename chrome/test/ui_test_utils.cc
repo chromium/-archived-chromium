@@ -94,8 +94,7 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
                                                 int number_of_navigations) {
   NavigationController* controller =
       &browser->GetSelectedTabContents()->controller();
-  browser->OpenURLFromTab(browser->GetSelectedTabContents(), url, GURL(),
-                          CURRENT_TAB, PageTransition::TYPED);
+  browser->OpenURL(url, GURL(), CURRENT_TAB, PageTransition::TYPED);
   WaitForNavigations(controller, number_of_navigations);
 }
 

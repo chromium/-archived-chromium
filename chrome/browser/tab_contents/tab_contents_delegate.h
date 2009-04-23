@@ -7,15 +7,16 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
-#include "chrome/browser/tab_contents/page_navigator.h"
-#include "chrome/common/navigation_types.h"
+#include "chrome/common/page_transition_types.h"
+#include "webkit/glue/window_open_disposition.h"
 
 class TabContents;
 class HtmlDialogUIDelegate;
+class GURL;
 
 // Objects implement this interface to get notified about changes in the
 // TabContents and to provide necessary functionality.
-class TabContentsDelegate : public PageNavigator {
+class TabContentsDelegate {
  public:
   // Opens a new URL inside the passed in TabContents (if source is 0 open
   // in the current front-most tab), unless |disposition| indicates the url
@@ -27,16 +28,6 @@ class TabContentsDelegate : public PageNavigator {
                               const GURL& url, const GURL& referrer,
                               WindowOpenDisposition disposition,
                               PageTransition::Type transition) = 0;
-
-  // Wrapper around OpenURLFromTab when there is no source for the given URL
-  // (it will use the current onep.
-  //
-  // This implements the PageNavigator interface.
-  virtual void OpenURL(const GURL& url, const GURL& referrer,
-                       WindowOpenDisposition disposition,
-                       PageTransition::Type transition) {
-    OpenURLFromTab(NULL, url, referrer, disposition, transition);
-  }
 
   // Called to inform the delegate that the tab content's navigation state
   // changed. The |changed_flags| indicates the parts of the navigation state
@@ -164,6 +155,10 @@ class TabContentsDelegate : public PageNavigator {
   virtual bool TakeFocus(bool reverse) {
     return false;
   }
+
+ protected:
+  ~TabContentsDelegate() {}
+
 };
 
 #endif  // CHROME_BROWSER_TAB_CONTENTS_TAB_CONTENTS_DELEGATE_H_

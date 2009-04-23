@@ -543,6 +543,30 @@ TabContents* Browser::AddTabWithNavigationController(
   return tc;
 }
 
+void Browser::AddTabContents(TabContents* new_contents,
+                             WindowOpenDisposition disposition,
+                             const gfx::Rect& initial_pos,
+                             bool user_gesture) {
+  AddNewContents(NULL, new_contents, disposition, initial_pos, user_gesture);
+}
+
+void Browser::CloseTabContents(TabContents* contents) {
+  CloseContents(contents);
+}
+
+void Browser::BrowserShowHtmlDialog(HtmlDialogUIDelegate* delegate,
+                                    void* parent_window) {
+  ShowHtmlDialog(delegate, parent_window);
+}
+
+void Browser::BrowserRenderWidgetShowing() {
+  RenderWidgetShowing();
+}
+
+void Browser::ToolbarSizeChanged(bool is_animating) {
+  ToolbarSizeChanged(NULL, is_animating);
+}
+
 TabContents* Browser::AddRestoredTab(
     const std::vector<TabNavigation>& navigations,
     int tab_index,
@@ -1624,6 +1648,14 @@ void Browser::TabStripEmpty() {
   //       update BrowserList::CloseAllBrowsers.
   MessageLoop::current()->PostTask(FROM_HERE,
       method_factory_.NewRunnableMethod(&Browser::CloseFrame));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Browser, PageNavigator implementation:
+void Browser::OpenURL(const GURL& url, const GURL& referrer,
+                      WindowOpenDisposition disposition,
+                      PageTransition::Type transition) {
+  OpenURLFromTab(NULL, url, referrer, disposition, transition);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
