@@ -519,12 +519,14 @@ bool AutomationProxy::OpenNewBrowserWindow(bool show) {
 TabProxy* AutomationProxy::CreateExternalTab(HWND parent,
                                              const gfx::Rect& dimensions,
                                              unsigned int style,
+                                             bool incognito,
                                              HWND* external_tab_container) {
   IPC::Message* response = NULL;
   int handle = 0;
 
   bool succeeded =
       Send(new AutomationMsg_CreateExternalTab(0, parent, dimensions, style,
+                                               incognito,
                                                external_tab_container,
                                                &handle));
   if (!succeeded) {

@@ -887,7 +887,7 @@ typedef CustomAutomationProxyTest<AutomationProxyForExternalTab>
 TEST_F(ExternalTabTestType, CreateExternalTab) {
   HWND external_tab_container = NULL;
   scoped_ptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, &external_tab_container));
+      WS_POPUP, false, &external_tab_container));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
   if (tab != NULL) {
@@ -899,13 +899,38 @@ TEST_F(ExternalTabTestType, CreateExternalTab) {
   }
 }
 
+TEST_F(ExternalTabTestType, IncognitoMode) {
+  HWND external_tab_container = NULL;
+  GURL url(L"http://anatomyofmelancholy.net");
+  std::string value_result;
+
+  // Create incognito tab
+  scoped_ptr<TabProxy> tab(automation()->CreateExternalTab(NULL, gfx::Rect(),
+      WS_POPUP, true, &external_tab_container));
+  EXPECT_TRUE(tab->SetCookie(url, "robert=burton; "
+                                  "expires=Thu, 13 Oct 2011 05:04:03 UTC;"));
+  EXPECT_TRUE(tab->GetCookieByName(url, "robert", &value_result));
+  EXPECT_EQ("burton", value_result);
+  tab.reset(NULL);
+  CloseBrowserAndServer();
+
+  value_result.empty();
+  clear_profile_ = false;
+  external_tab_container = NULL;
+  LaunchBrowserAndServer();
+  tab.reset(automation()->CreateExternalTab(NULL, gfx::Rect(),
+      WS_POPUP, false, &external_tab_container));
+  EXPECT_TRUE(tab->GetCookieByName(url, "robert", &value_result));
+  EXPECT_EQ("", value_result);
+}
+
 TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
   AutomationProxyForExternalTab* proxy =
       static_cast<AutomationProxyForExternalTab*>(automation());
 
   HWND external_tab_container = NULL;
   scoped_ptr<TabProxy> tab(proxy->CreateExternalTab(NULL, gfx::Rect(),
-      WS_POPUP, &external_tab_container));
+      WS_POPUP, false, &external_tab_container));
   EXPECT_TRUE(tab != NULL);
   EXPECT_NE(FALSE, ::IsWindow(external_tab_container));
   if (tab != NULL) {

@@ -277,8 +277,8 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
 #if defined(OS_WIN)
   // TODO(port): Re-enable.
   void CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
-                         unsigned int style, HWND* tab_container_window,
-                         int* tab_handle);
+                         unsigned int style, bool incognito,
+                         HWND* tab_container_window, int* tab_handle);
   void NavigateInExternalTab(
       int handle, const GURL& url,
       AutomationMsg_NavigationResponseValues* status);

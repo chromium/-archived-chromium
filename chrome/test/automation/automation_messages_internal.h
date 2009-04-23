@@ -425,10 +425,12 @@ IPC_BEGIN_MESSAGES(Automation)
   //   HWND - handle to a window acting as a parent/owner for the new tab.
   //   gfx::Rect - initial dimensions.
   //   style - window style to be used at the time of cration.
-  IPC_SYNC_MESSAGE_ROUTED3_2(AutomationMsg_CreateExternalTab,
+  //   incognito - use off-the-record profile
+  IPC_SYNC_MESSAGE_ROUTED4_2(AutomationMsg_CreateExternalTab,
                              HWND /* owner_or_parent*/,
                              gfx::Rect /* dimensions */,
                              unsigned int /* style */,
+                             bool /* off-the-record profile */,
                              HWND /* The window handle is returned here */,
                              int /* Handle to the new tab */)
 #endif  // defined(OS_WIN)

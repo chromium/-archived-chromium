@@ -2290,13 +2290,15 @@ void AutomationProvider::CloseBrowserAsync(int browser_handle) {
 void AutomationProvider::CreateExternalTab(HWND parent,
                                            const gfx::Rect& dimensions,
                                            unsigned int style,
+                                           bool incognito,
                                            HWND* tab_container_window,
                                            int* tab_handle) {
   *tab_handle = 0;
   *tab_container_window = NULL;
   ExternalTabContainer *external_tab_container =
       new ExternalTabContainer(this);
-  external_tab_container->Init(profile_, parent, dimensions, style);
+  Profile* profile = incognito? profile_->GetOffTheRecordProfile() : profile_;
+  external_tab_container->Init(profile, parent, dimensions, style);
   TabContents* tab_contents = external_tab_container->tab_contents();
   if (tab_contents) {
     *tab_handle = tab_tracker_->Add(&tab_contents->controller());
