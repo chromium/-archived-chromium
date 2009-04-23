@@ -57,7 +57,8 @@ bool IsASingleWord(const std::wstring& text) {
 
 // Helper function to get misspelled word on which context menu
 // is to be evolked. This function also sets the word on which context menu
-// has been evoked to be the selected word, as required.
+// has been evoked to be the selected word, as required. This function changes
+// the selection only when there were no selected characters.
 std::wstring GetMisspelledWord(const WebCore::ContextMenu* default_menu,
                                WebCore::Frame* selected_frame) {
   std::wstring misspelled_word_string;
@@ -67,10 +68,14 @@ std::wstring GetMisspelledWord(const WebCore::ContextMenu* default_menu,
       webkit_glue::StringToStdWString(selected_frame->selectedText()),
       false);
 
-  // Don't provide suggestions for multiple words.
-  if (!misspelled_word_string.empty() &&
-      !IsASingleWord(misspelled_word_string))
-    return L"";
+  // If some texts were already selected, we don't change the selection.
+  if (!misspelled_word_string.empty()) {
+    // Don't provide suggestions for multiple words.
+    if (!IsASingleWord(misspelled_word_string))
+      return L"";
+    else
+      return misspelled_word_string;
+  }
 
   WebCore::HitTestResult hit_test_result = selected_frame->eventHandler()->
       hitTestResultAtPoint(default_menu->hitTestResult().point(), true);
