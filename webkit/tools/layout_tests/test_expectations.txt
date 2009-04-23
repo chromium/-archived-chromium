@@ -2530,7 +2530,8 @@ BUG10861 : LayoutTests/fast/table/form-in-tbody-before-misnested-text-crash-css.
 BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 : chrome/fast/forms/lazy-event-listener-scope-chain.html = FAIL
 BUG10861 : LayoutTests/fast/events/no-blur-on-page-leave.html = TIMEOUT
-BUG10861 WIN MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
+BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS
+BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
 BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT
 BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
