@@ -316,6 +316,18 @@ bool GetFileCreationLocalTime(const std::string& filename,
 }
 #endif
 
+bool ReadFromFD(int fd, char* buffer, size_t bytes) {
+  size_t total_read = 0;
+  while (total_read < bytes) {
+    ssize_t bytes_read = read(fd, buffer + total_read, bytes - total_read);
+    if (bytes_read > 0)
+      total_read += bytes_read;
+    else if (errno != EINTR || bytes_read == 0)
+      break;
+  }
+  return total_read == bytes;
+}
+
 // Creates and opens a temporary file in |directory|, returning the
 // file descriptor.  |path| is set to the temporary file path.
 // Note TODO(erikkay) comment in header for BlahFileName() calls; the

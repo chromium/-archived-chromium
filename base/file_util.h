@@ -222,6 +222,13 @@ bool ReadFileToString(const FilePath& path, std::string* contents);
 // Deprecated version.
 bool ReadFileToString(const std::wstring& path, std::string* contents);
 
+#if defined(OS_POSIX)
+// Read exactly |bytes| bytes from file descriptor |fd|, storing the result
+// in |buffer|. This function is protected against EINTR and partial reads.
+// Returns true iff |bytes| bytes have been successfuly read from |fd|.
+bool ReadFromFD(int fd, char* buffer, size_t bytes);
+#endif  // defined(OS_POSIX)
+
 #if defined(OS_WIN)
 // Resolve Windows shortcut (.LNK file)
 // Argument path specifies a valid LNK file. On success, return true and put

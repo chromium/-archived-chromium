@@ -5,9 +5,9 @@
 #include "base/rand_util.h"
 
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
+#include "base/file_util.h"
 #include "base/logging.h"
 
 namespace base {
@@ -17,8 +17,10 @@ uint64 RandUint64() {
 
   int urandom_fd = open("/dev/urandom", O_RDONLY);
   CHECK(urandom_fd >= 0);
-  ssize_t bytes_read = read(urandom_fd, &number, sizeof(number));
-  CHECK(bytes_read == sizeof(number));
+  bool success = file_util::ReadFromFD(urandom_fd,
+                                       reinterpret_cast<char*>(&number),
+                                       sizeof(number));
+  CHECK(success);
   close(urandom_fd);
 
   return number;
