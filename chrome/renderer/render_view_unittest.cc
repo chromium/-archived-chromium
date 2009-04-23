@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "chrome/common/native_web_keyboard_event.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/test/render_view_test.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -305,6 +306,185 @@ TEST_F(RenderViewTest, OnPrintPages) {
   ViewHostMsg_DidPrintPage::Param post_did_print_page_param;
   ViewHostMsg_DidPrintPage::Read(did_print_msg, &post_did_print_page_param);
   EXPECT_EQ(0, post_did_print_page_param.page_number);
+#else
+  NOTIMPLEMENTED();
+#endif
+}
+
+// Test that we can receive correct DOM events when we send input events
+// through the RenderWidget::OnHandleInputEvent() function.
+TEST_F(RenderViewTest, OnHandleKeyboardEvent) {
+#if defined(OS_WIN)
+  // Save the keyboard layout and the status.
+  // This test changes the keyboard layout and status. This may break
+  // succeeding tests. To prevent this possible break, we should save the
+  // layout and status here to restore when this test is finished.
+  HKL original_layout = GetKeyboardLayout(0);
+  BYTE original_key_states[256];
+  GetKeyboardState(&original_key_states[0]);
+
+  // Load an HTML page consisting of one <input> element and three
+  // contentediable <div> elements.
+  // The <input> element is used for sending keyboard events, and the <div>
+  // elements are used for writing DOM events in the following format:
+  //   "<keyCode>,<shiftKey>,<controlKey>,<altKey>,<metaKey>".
+  view_->set_delay_seconds_for_form_state_sync(0);
+  LoadHTML("<html>"
+           "<head>"
+           "<title></title>"
+           "<script type='text/javascript' language='javascript'>"
+           "function OnKeyEvent(ev) {"
+           "  var result = document.getElementById(ev.type);"
+           "  result.innerText ="
+           "      (ev.which || ev.keyCode) + ',' +"
+           "      ev.shiftKey + ',' +"
+           "      ev.ctrlKey + ',' +"
+           "      ev.altKey + ',' +"
+           "      ev.metaKey;"
+           "  return true;"
+           "}"
+           "</script>"
+           "</head>"
+           "<body>"
+           "<input id='test' type='text'"
+           "    onkeydown='return OnKeyEvent(event);'"
+           "    onkeypress='return OnKeyEvent(event);'"
+           "    onkeyup='return OnKeyEvent(event);'>"
+           "</input>"
+           "<div id='keydown' contenteditable='true'>"
+           "</div>"
+           "<div id='keypress' contenteditable='true'>"
+           "</div>"
+           "<div id='keyup' contenteditable='true'>"
+           "</div>"
+           "</body>"
+           "</html>");
+  ExecuteJavaScript("document.getElementById('test').focus();");
+  render_thread_.sink().ClearMessages();
+
+  // Language IDs used in this test.
+  // This test directly loads keyboard-layout drivers and use them for
+  // emulating non-US keyboard layouts.
+  static const wchar_t* kLanguageIDs[] = {
+    L"00000401",  // Arabic
+    L"00000409",  // United States
+    L"0000040c",  // French
+    L"0000040d",  // Hebrew
+    L"00001009",  // Canadian French
+  };
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(kLanguageIDs); ++i) {
+    // Load a keyboard-layout driver.
+    HKL handle = LoadKeyboardLayout(kLanguageIDs[i], KLF_ACTIVATE);
+    EXPECT_TRUE(handle != NULL);
+
+    // For each key code, we send two keyboard events: one when we only press
+    // the key, and one when we press the key and a shift key.
+    for (int modifiers = 0; modifiers < 2; ++modifiers) {
+      // Virtual key codes used for this test.
+      static const int kKeyCodes[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+        'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+        'W', 'X', 'Y', 'Z',
+        VK_OEM_1,
+        VK_OEM_PLUS,
+        VK_OEM_COMMA,
+        VK_OEM_MINUS,
+        VK_OEM_PERIOD,
+        VK_OEM_2,
+        VK_OEM_3,
+        VK_OEM_4,
+        VK_OEM_5,
+        VK_OEM_6,
+        VK_OEM_7,
+        VK_OEM_8,
+      };
+
+      // Over-write the keyboard status with our modifier-key status.
+      // WebInputEventFactory::keyboardEvent() uses GetKeyState() to retrive
+      // modifier-key status. So, we update the modifier-key status with this
+      // SetKeyboardState() call before creating NativeWebKeyboardEvent
+      // instances.
+      BYTE key_states[256];
+      memset(&key_states[0], 0, sizeof(key_states));
+      key_states[VK_SHIFT] = (modifiers & 0x01) ? 0x80 : 0;
+      SetKeyboardState(&key_states[0]);
+
+      for (size_t j = 0; j <= ARRAYSIZE_UNSAFE(kKeyCodes); ++j) {
+        // Retrieve the Unicode character composed from the virtual-key code
+        // and our modifier-key status from the keyboard-layout driver.
+        // This character is used for creating a WM_CHAR message and an
+        // expected result.
+        int key_code = kKeyCodes[j];
+        wchar_t codes[4];
+        int length = ToUnicodeEx(key_code, MapVirtualKey(key_code, 0),
+                                 &key_states[0], &codes[0],
+                                 ARRAYSIZE_UNSAFE(codes), 0, handle);
+        if (length != 1)
+          continue;
+
+        // Create IPC messages from Windows messages and send them to our
+        // back-end.
+        // A keyboard event of Windows consists of three Windows messages:
+        // WM_KEYDOWN, WM_CHAR, and WM_KEYUP.
+        // WM_KEYDOWN and WM_KEYUP sends virtual-key codes. On the other hand,
+        // WM_CHAR sends a composed Unicode character.
+        NativeWebKeyboardEvent keydown_event(NULL, WM_KEYDOWN, key_code, 0);
+        scoped_ptr<IPC::Message> keydown_message(
+            new ViewMsg_HandleInputEvent(0));
+        keydown_message->WriteData(
+            reinterpret_cast<const char*>(&keydown_event),
+            sizeof(WebKit::WebKeyboardEvent));
+        view_->OnHandleInputEvent(*keydown_message);
+
+        NativeWebKeyboardEvent char_event(NULL, WM_CHAR, codes[0], 0);
+        scoped_ptr<IPC::Message> char_message(new ViewMsg_HandleInputEvent(0));
+        char_message->WriteData(reinterpret_cast<const char*>(&char_event),
+                                sizeof(WebKit::WebKeyboardEvent));
+        view_->OnHandleInputEvent(*char_message);
+
+        NativeWebKeyboardEvent keyup_event(NULL, WM_KEYUP, key_code, 0);
+        scoped_ptr<IPC::Message> keyup_message(new ViewMsg_HandleInputEvent(0));
+        keyup_message->WriteData(reinterpret_cast<const char*>(&keyup_event),
+                                 sizeof(WebKit::WebKeyboardEvent));
+        view_->OnHandleInputEvent(*keyup_message);
+
+        // Create an expected result from the virtual-key code, the character
+        // code, and the modifier-key status.
+        // We format a string that emulates a DOM-event string produced hy
+        // our JavaScript function. (See the above comment for the format.)
+        static const wchar_t* kModifiers[] = {
+          L"false,false,false,false",
+          L"true,false,false,false",
+        };
+        static wchar_t expected_result[1024];
+        wsprintf(&expected_result[0],
+                 L"\x000A"       // texts in the <input> element
+                 L"%d,%s\x000A"  // texts in the first <div> element
+                 L"%d,%s\x000A"  // texts in the second <div> element
+                 L"%d,%s",       // texts in the third <div> element
+                 key_code, kModifiers[modifiers],
+                 codes[0], kModifiers[modifiers],
+                 key_code, kModifiers[modifiers]);
+
+        // Retrieve the text in the test page and compare it with the expected
+        // text created from a virtual-key code, a character code, and the
+        // modifier-key status.
+        const int kMaxOutputCharacters = 1024;
+        std::wstring output;
+        GetMainFrame()->GetContentAsPlainText(kMaxOutputCharacters, &output);
+
+        EXPECT_EQ(expected_result, output);
+      }
+    }
+
+    UnloadKeyboardLayout(handle);
+  }
+
+  // Restore the keyboard layout and status.
+  SetKeyboardState(&original_key_states[0]);
+  ActivateKeyboardLayout(original_layout, KLF_RESET);
 #else
   NOTIMPLEMENTED();
 #endif

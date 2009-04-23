@@ -390,6 +390,7 @@ class RenderView : public RenderWidget,
   FRIEND_TEST(RenderViewTest, ImeComposition);
   FRIEND_TEST(RenderViewTest, OnSetTextDirection);
   FRIEND_TEST(RenderViewTest, OnPrintPages);
+  FRIEND_TEST(RenderViewTest, OnHandleKeyboardEvent);
 
   explicit RenderView(RenderThreadBase* render_thread);
 
