@@ -48,7 +48,7 @@ class DebuggerAgentManager {
 
   static void V8DebugMessageHandler(const uint16_t* message,
                                     int length,
-                                    void* data);
+                                    v8::Debug::ClientData* data);
   static void V8DebugHostDispatchHandler();
   static void DebuggerOutput(const std::string& out);
   static void SendCommandToV8(const std::wstring& cmd);

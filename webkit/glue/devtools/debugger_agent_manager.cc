@@ -27,7 +27,7 @@ WebDevToolsAgent::MessageLoopDispatchHandler
 // static
 void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
                                                  int length,
-                                                 void* data) {
+                                                 v8::Debug::ClientData* data) {
 #if USE(V8)
   std::wstring out(reinterpret_cast<const wchar_t*>(message), length);
   std::string out_utf8 = WideToUTF8(out);
