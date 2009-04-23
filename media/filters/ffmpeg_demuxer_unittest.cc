@@ -252,7 +252,8 @@ class TestReader : public base::RefCountedThreadSafe<TestReader> {
 
 }  // namespace
 
-TEST(FFmpegDemuxerTest, InitializeFailure) {
+// TODO(scherkus): http://crbug.com/10863
+TEST(FFmpegDemuxerTest, DISABLED_InitializeFailure) {
   InitializeFFmpegMocks();
 
   // Get FFmpegDemuxer's filter factory.
@@ -315,7 +316,8 @@ TEST(FFmpegDemuxerTest, InitializeFailure) {
   EXPECT_FALSE(filter_host->IsInitialized());
 }
 
-TEST(FFmpegDemuxerTest, InitializeStreams) {
+// TODO(scherkus): http://crbug.com/10863
+TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
   // Simulate media with a data stream, a video stream and audio stream.
   InitializeFFmpegMocks();
   g_format.nb_streams = 3;
@@ -403,7 +405,9 @@ TEST(FFmpegDemuxerTest, InitializeStreams) {
 // TODO(scherkus): as we keep refactoring and improving our mocks (both FFmpeg
 // and pipeline/filters), try to break this test into two.  Big issue right now
 // is that it takes ~50 lines of code just to set up FFmpegDemuxer.
-TEST(FFmpegDemuxerTest, ReadAndSeek) {
+//
+// TODO(scherkus): http://crbug.com/10863
+TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Prepare some test data.
   const int kAudio = 0;
   const int kVideo = 1;
