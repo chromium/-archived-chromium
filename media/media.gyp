@@ -179,18 +179,6 @@
       ],
     },
     {
-      'target_name': 'media_player',
-      'type': 'executable',
-      'dependencies': [
-        'media',
-        '../base/base.gyp:base',
-        '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
-      ],
-      'sources': [
-        'player/player.cc',
-      ],
-    },
-    {
       'target_name': 'media_bench',
       'type': 'executable',
       'msvs_guid': '45BC4F87-4604-4962-A751-7C7B29A080BF',
@@ -203,5 +191,31 @@
         'bench/bench.cc',
       ],
     },
+  ],
+  'conditions': [
+    ['OS=="win"', {
+      'targets': [
+	{
+	  'target_name': 'media_player',
+	  'type': 'executable',
+	  'dependencies': [
+	    'media',
+	    '../base/base.gyp:base',
+	    '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+	  ],
+	  'include_dirs': [
+	    '../chrome/third_party/wtl/include',
+	  ],
+	  'dependencies': [
+	    'media',
+	    '../base/base.gyp:base',
+	    '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+	  ],
+	  'sources': [
+	    'player/player_wtl.rc',
+	  ],
+	},
+      ],
+    }],
   ],
 }
