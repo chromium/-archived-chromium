@@ -4,17 +4,30 @@
 
 #include "base/gfx/rect.h"
 #include "base/logging.h"
+#include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/cocoa/browser_window_cocoa.h"
 #include "chrome/browser/cocoa/browser_window_controller.h"
 #include "chrome/browser/browser.h"
+#include "chrome/common/notification_service.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
+#include "chrome/browser/profile.h"
 
 BrowserWindowCocoa::BrowserWindowCocoa(Browser* browser,
                                        BrowserWindowController* controller,
                                        NSWindow* window)
   : window_(window), browser_(browser), controller_(controller) {
+  // This pref applies to all windows, so all must watch for it.
+  NotificationService* ns = NotificationService::current();
+  ns->AddObserver(this, NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                  NotificationService::AllSources());
 }
 
 BrowserWindowCocoa::~BrowserWindowCocoa() {
+  NotificationService* ns = NotificationService::current();
+  ns->RemoveObserver(this,
+                     NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED,
+                     NotificationService::AllSources());
 }
 
 void BrowserWindowCocoa::Show() {
@@ -133,18 +146,15 @@ void BrowserWindowCocoa::FocusToolbar() {
 }
 
 bool BrowserWindowCocoa::IsBookmarkBarVisible() const {
-  // Conversion from ObjC BOOL to C++ bool.
-  return [controller_ isBookmarkBarVisible] ? true : false;
+  return browser_->profile()->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar);
 }
 
-// This is a little awkward.  Internal to Chrome, V and C (in the MVC
-// sense) tend to smear together.  Thus, we have a call chain of
-// C(browser_window)-->
-// V(me;right here)-->
-// C(BrowserWindowController)-->
-// C(TabStripController) --> ...
+// This is called from Browser, which in turn is called directly from
+// a menu option.  All we do here is set a preference.  The act of
+// setting the preference sends notifications to all windows who then
+// know what to do.
 void BrowserWindowCocoa::ToggleBookmarkBar() {
-  [controller_ toggleBookmarkBar];
+  bookmark_utils::ToggleWhenVisible(browser_->profile());
 }
 
 void BrowserWindowCocoa::AddFindBar(
@@ -201,6 +211,21 @@ void BrowserWindowCocoa::ConfirmBrowserCloseWithPendingDownloads() {
 void BrowserWindowCocoa::ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                                         void* parent_window) {
   NOTIMPLEMENTED();
+}
+
+void BrowserWindowCocoa::Observe(NotificationType type,
+                                 const NotificationSource& source,
+                                 const NotificationDetails& details) {
+  switch (type.value) {
+    // Only the key window gets a direct toggle from the menu.
+    // Other windows hear about it from the notification.
+    case NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED:
+      [controller_ toggleBookmarkBar];
+      break;
+    default:
+      NOTREACHED();  // we don't ask for anything else!
+      break;
+  }
 }
 
 void BrowserWindowCocoa::DestroyBrowser() {

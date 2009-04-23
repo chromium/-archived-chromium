@@ -61,7 +61,13 @@ class TestSuite {
     }
     int result = RUN_ALL_TESTS();
 
+    // This MUST happen before Shutdown() since Shutdown() tears down
+    // objects (such as NotificationService::current()) that Cocoa
+    // objects use to remove themselves as observers.
+    scoped_pool.Recycle();
+
     Shutdown();
+
     return result;
   }
 

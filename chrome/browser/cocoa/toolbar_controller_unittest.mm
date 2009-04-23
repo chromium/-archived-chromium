@@ -24,7 +24,7 @@ class ToolbarControllerTest : public testing::Test {
   };
 
   ToolbarControllerTest() {
-    Browser* browser = helper_.GetBrowser();
+    Browser* browser = helper_.browser();
     CommandUpdater* updater = browser->command_updater();
     // The default state for the commands is true, set a couple to false to
     // ensure they get picked up correct on initialization
@@ -33,7 +33,7 @@ class ToolbarControllerTest : public testing::Test {
     bar_.reset(
         [[ToolbarController alloc] initWithModel:browser->toolbar_model()
                                         commands:browser->command_updater()
-                                         profile:helper_.GetProfile()]);
+                                         profile:helper_.profile()]);
     EXPECT_TRUE([bar_ view]);
     NSView* parent = [cocoa_helper_.window() contentView];
     [parent addSubview:[bar_ view]];
@@ -60,14 +60,14 @@ class ToolbarControllerTest : public testing::Test {
 
 // Test the initial state that everything is sync'd up
 TEST_F(ToolbarControllerTest, InitialState) {
-  CommandUpdater* updater = helper_.GetBrowser()->command_updater();
+  CommandUpdater* updater = helper_.browser()->command_updater();
   CompareState(updater, [bar_ toolbarViews]);
 }
 
 // Make some changes to the enabled state of a few of the buttons and ensure
 // that we're still in sync.
 TEST_F(ToolbarControllerTest, UpdateEnabledState) {
-  CommandUpdater* updater = helper_.GetBrowser()->command_updater();
+  CommandUpdater* updater = helper_.browser()->command_updater();
   EXPECT_FALSE(updater->IsCommandEnabled(IDC_BACK));
   EXPECT_FALSE(updater->IsCommandEnabled(IDC_FORWARD));
   updater->UpdateCommandEnabled(IDC_BACK, true);

@@ -21,7 +21,7 @@
 - (id)init {
   if ((self = [super init])) {
     helper_ = new BrowserTestHelper();
-    BookmarkModel* model = helper_->GetBrowser()->profile()->GetBookmarkModel();
+    BookmarkModel* model = helper_->browser()->profile()->GetBookmarkModel();
     nodes_[0] = new BookmarkNode(model, GURL("http://0.com"));
     nodes_[1] = new BookmarkNode(model, GURL("http://1.com"));
   }
@@ -63,5 +63,3 @@ TEST(BookmarkMenuCocoaControllerTest, TestOpenItem) {
   }
   [c release];
 }
-
-

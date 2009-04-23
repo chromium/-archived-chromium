@@ -150,14 +150,11 @@
 }
 
 - (Profile*)defaultProfile {
-  // Only expected to return NULL in a unit test (if g_browser_process
-  // is a TestingBrowserProcess).
-  // TODO(jrg): DCHECK() to confirm that.
   // TODO(jrg): Find a better way to get the "default" profile.
   if (g_browser_process->profile_manager())
     return* g_browser_process->profile_manager()->begin();
-  return NULL;
 
+  return NULL;
 }
 
 // Various methods to open URLs that we get in a native fashion. We use

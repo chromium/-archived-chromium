@@ -50,6 +50,7 @@ class TabStripModelObserverBridge;
   scoped_nsobject<TabStripController> tabStripController_;
   scoped_nsobject<FindBarCocoaController> findBarCocoaController_;
   scoped_ptr<StatusBubble> statusBubble_;
+  BOOL ownsBrowser_;  // Only ever NO when testing
 }
 
 // Load the browser window nib and do any Cocoa-specific initialization.
@@ -102,5 +103,13 @@ class TabStripModelObserverBridge;
 - (void)addFindBar:(FindBarCocoaController*)findBarCocoaController;
 
 @end
+
+
+@interface BrowserWindowController(TestingAPI)
+
+// Allows us to initWithBrowser withOUT taking ownership of the browser.
+- (id)initWithBrowser:(Browser*)browser takeOwnership:(BOOL)ownIt;
+
+@end  // BrowserWindowController(TestingAPI)
 
 #endif  // CHROME_BROWSER_COCOA_BROWSER_WINDOW_CONTROLLER_H_

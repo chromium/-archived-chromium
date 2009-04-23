@@ -145,24 +145,49 @@ void BookmarkMenuBridge::ClearBookmarkMenu(NSMenu* menu) {
   }
 }
 
+namespace {
+
+// Menus more than this many chars long will get trimmed
+const NSUInteger kMaximumMenuWidthInChars = 65;
+
+// When trimming, use this many chars from each side
+const NSUInteger kMenuTrimSizeInChars = 30;
+
+}
+
 void BookmarkMenuBridge::AddNodeToMenu(BookmarkNode* node, NSMenu* menu) {
   for (int i = 0; i < node->GetChildCount(); i++) {
     BookmarkNode* child = node->GetChild(i);
-    // TODO(jrg): Should we limit the title length?
-    // For the Bookmark Bar under windows, items appear trimmed to ~19
-    // chars (looks like a pixel width limit).
-    NSString* title = base::SysWideToNSString(child->GetTitle());
+    NSString* full_title = base::SysWideToNSString(child->GetTitle());
+    NSString* title = full_title;
+    if ([title length] > kMaximumMenuWidthInChars) {
+      // TODO(jrg): add a better heuristic?  I'd really like to trim this
+      // by pixels, not by chars (font is not fixed width).
+      // For Safari, it appears that menu names >60 chars get split up to
+      // 30char + "..." + 30char.
+      title = [NSString stringWithFormat:@"%@…%@",
+                 [title substringToIndex:kMenuTrimSizeInChars],
+                 [title substringFromIndex:([title length] -
+                                            kMenuTrimSizeInChars)]];
+    }
     NSMenuItem* item = [[[NSMenuItem alloc] initWithTitle:title
                                                    action:nil
                                             keyEquivalent:@""] autorelease];
-    [item setTarget:controller_];
-    [item setAction:@selector(openBookmarkMenuItem:)];
-    [item setTag:child->id()];
     [menu addItem:item];
     if (child->is_folder()) {
       NSMenu* submenu = [[[NSMenu alloc] initWithTitle:title] autorelease];
       [menu setSubmenu:submenu forItem:item];
       AddNodeToMenu(child, submenu);  // recursive call
+    } else {
+      [item setTarget:controller_];
+      [item setAction:@selector(openBookmarkMenuItem:)];
+      [item setTag:child->id()];
+      // Add a tooltip
+      std::string url_string = child->GetURL().possibly_invalid_spec();
+      NSString* tooltip = [NSString stringWithFormat:@"%@\n%s", full_title,
+                                    url_string.c_str()];
+      [item setToolTip:tooltip];
+
     }
   }
 }

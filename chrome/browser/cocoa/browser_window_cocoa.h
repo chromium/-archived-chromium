@@ -18,7 +18,8 @@ class Browser;
 // the Cocoa NSWindow. Cross-platform code will interact with this object when
 // it needs to manipulate the window.
 
-class BrowserWindowCocoa : public BrowserWindow {
+class BrowserWindowCocoa : public BrowserWindow,
+                           public NotificationObserver {
  public:
   BrowserWindowCocoa(Browser* browser,
                      BrowserWindowController* controller,
@@ -65,6 +66,11 @@ class BrowserWindowCocoa : public BrowserWindow {
   virtual void ConfirmBrowserCloseWithPendingDownloads();
   virtual void ShowHTMLDialog(HtmlDialogUIDelegate* delegate,
                               void* parent_window);
+
+  // Overridden from NotificationObserver
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details);
 
   // Adds the given FindBar cocoa controller to this browser window.
   void AddFindBar(FindBarCocoaController* find_bar_cocoa_controller);

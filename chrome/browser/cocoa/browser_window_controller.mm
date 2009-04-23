@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/mac_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/app/chrome_dll_resource.h"  // IDC_*
 #include "chrome/browser/browser.h"
@@ -57,9 +58,20 @@ willPositionSheet:(NSWindow *)sheet
 // Takes ownership of |browser|. Note that the nib also sets this controller
 // up as the window's delegate.
 - (id)initWithBrowser:(Browser*)browser {
-  if ((self = [super initWithWindowNibName:@"BrowserWindow"])) {
+  return [self initWithBrowser:browser takeOwnership:YES];
+}
+
+// Private (TestingAPI) init routine with testing options.
+- (id)initWithBrowser:(Browser*)browser takeOwnership:(BOOL)ownIt {
+  // Use initWithWindowNibPath:: instead of initWithWindowNibName: so we
+  // can override it in a unit test.
+  NSString *nibpath = [mac_util::MainAppBundle()
+                        pathForResource:@"BrowserWindow"
+                                 ofType:@"nib"];
+  if ((self = [super initWithWindowNibPath:nibpath owner:self])) {
     DCHECK(browser);
     browser_.reset(browser);
+    ownsBrowser_ = ownIt;
     tabObserver_.reset(
         new TabStripModelObserverBridge(browser->tabstrip_model(), self));
     windowShim_.reset(new BrowserWindowCocoa(browser, self, [self window]));
@@ -119,6 +131,9 @@ willPositionSheet:(NSWindow *)sheet
 
 - (void)dealloc {
   browser_->CloseAllTabs();
+  // Under certain testing configurations we may not actually own the browser.
+  if (ownsBrowser_ == NO)
+    browser_.release();
   [super dealloc];
 }
 

@@ -28,8 +28,8 @@ class BrowserTestHelper {
     delete profile_;
   }
 
-  Browser* GetBrowser() { return browser_; }
-  Profile* GetProfile() { return profile_; }
+  Browser* browser() { return browser_; }
+  Profile* profile() { return profile_; }
 
  private:
   Browser* browser_;

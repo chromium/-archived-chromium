@@ -22,9 +22,11 @@ class Profile;
   BookmarkModel* bookmarkModel_;  // weak; part of the profile owned by the
                                   // top-level Browser object.
 
-  // Controller for bookmark bar state, shared among all TabContents.
-  scoped_nsobject<BookmarkBarStateController> bookmarkBarStateController_;
+  // Currently these two are always the same, but they mean slightly
+  // different things.  contentAreaHasOffset_ is an implementation
+  // detail of bookmark bar visibility.
   BOOL contentAreaHasOffset_;
+  BOOL barIsVisible_;
 
   // TODO(jrg): write a BookmarkView
   IBOutlet ToolbarView* /* BookmarkView* */ bookmarkView_;

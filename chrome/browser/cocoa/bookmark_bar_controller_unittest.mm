@@ -20,7 +20,7 @@ class BookmarkBarControllerTest : public testing::Test {
     NSRect content_frame = NSMakeRect(0, 0, 800, kContentAreaHeight);
     content_area_.reset([[NSView alloc] initWithFrame:content_frame]);
     bar_.reset(
-        [[BookmarkBarController alloc] initWithProfile:helper_.GetProfile()
+        [[BookmarkBarController alloc] initWithProfile:helper_.profile()
                                            contentArea:content_area_.get()]);
     NSView* parent = cocoa_helper_.contentView();
     [parent addSubview:content_area_.get()];

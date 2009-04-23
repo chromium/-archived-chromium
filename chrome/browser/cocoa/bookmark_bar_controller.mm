@@ -4,9 +4,10 @@
 
 #import "chrome/browser/cocoa/bookmark_bar_controller.h"
 
-#import "chrome/browser/cocoa/bookmark_bar_state_controller.h"
 #import "chrome/browser/cocoa/toolbar_view.h"
 #include "chrome/browser/profile.h"
+#include "chrome/common/pref_names.h"
+#include "chrome/common/pref_service.h"
 
 @interface BookmarkBarController(Private)
 - (void)applyContentAreaOffset:(BOOL)apply;
@@ -21,14 +22,12 @@
   if ((self = [super init])) {
     bookmarkModel_ = profile->GetBookmarkModel();
     contentArea_ = content;
-    bookmarkBarStateController_.reset([[BookmarkBarStateController alloc]
-                                        initWithProfile:profile]);
     // Create and initialize the view's position. Show it if appropriate.
     // TODO(jrg): put it in a nib if necessary.
     NSRect frame = NSMakeRect(0, 0, 0, 30);
     bookmarkView_ = [[ToolbarView alloc] initWithFrame:frame];
     [self positionBar];
-    if ([self isBookmarkBarVisible])
+    if (profile->GetPrefs()->GetBoolean(prefs::kShowBookmarkBar))
       [self showBookmarkBar:YES];
     [[[contentArea_ window] contentView] addSubview:bookmarkView_];
   }
@@ -41,7 +40,7 @@
 - (void)positionBar {
   // Hide or show bar based on initial visibility and set the resize flags.
   [bookmarkView_ setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
-  [bookmarkView_ setHidden:[self isBookmarkBarVisible] ? NO : YES];
+  [bookmarkView_ setHidden:!barIsVisible_];
 
   // Set the bar's height to zero and position it at the top of the
   // content area, within the window's content view (as opposed to the
@@ -76,6 +75,7 @@
     // TODO(jrg): don't draw a border around it
     // TODO(jrg): ...
   }
+  barIsVisible_ = enable;
 }
 
 // Apply a contents box offset to make (or remove) room for the
@@ -105,13 +105,14 @@
 }
 
 - (BOOL)isBookmarkBarVisible {
-  return [bookmarkBarStateController_ visible];
+  return barIsVisible_;
 }
 
+// We don't change a preference; we only change visibility.
+// Preference changing (global state) is handled in
+// BrowserWindowCocoa::ToggleBookmarkBar().
 - (void)toggleBookmarkBar {
-  [bookmarkBarStateController_ toggleBookmarkBar];
-  BOOL visible = [self isBookmarkBarVisible];
-  [self showBookmarkBar:visible ? YES : NO];
+  [self showBookmarkBar:!barIsVisible_];
 }
 
 - (NSView*)view {
