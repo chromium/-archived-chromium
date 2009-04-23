@@ -321,10 +321,14 @@ const string16& WebContents::GetTitle() const {
   DOMUI* our_dom_ui = render_manager_.pending_dom_ui() ?
       render_manager_.pending_dom_ui() : render_manager_.dom_ui();
   if (our_dom_ui) {
-    // Give the DOM UI the chance to override our title.
-    const string16& title = our_dom_ui->overridden_title();
-    if (!title.empty())
-      return title;
+    // Don't override the title in view source mode.
+    NavigationEntry* entry = controller_.GetActiveEntry();
+    if (!(entry && entry->IsViewSourceMode())) {
+      // Give the DOM UI the chance to override our title.
+      const string16& title = our_dom_ui->overridden_title();
+      if (!title.empty())
+        return title;
+    }
   }
 
   // We use the title for the last committed entry rather than a pending
@@ -350,6 +354,10 @@ SiteInstance* WebContents::GetSiteInstance() const {
 }
 
 bool WebContents::ShouldDisplayURL() {
+  // Don't hide the url in view source mode.
+  NavigationEntry* entry = controller_.GetActiveEntry();
+  if (entry && entry->IsViewSourceMode())
+    return true;
   DOMUI* dom_ui = GetDOMUIForCurrentState();
   if (dom_ui)
     return !dom_ui->should_hide_url();
@@ -739,7 +747,9 @@ void WebContents::RenderViewCreated(RenderViewHost* render_view_host) {
   // use the pending DOM UI rather than any possibly existing committed one.
   if (render_manager_.pending_dom_ui()) {
     render_manager_.pending_dom_ui()->RenderViewCreated(render_view_host);
-  } else if (entry->IsViewSourceMode()) {
+  }
+
+  if (entry->IsViewSourceMode()) {
     // Put the renderer in view source mode.
     render_view_host->Send(
         new ViewMsg_EnableViewSourceMode(render_view_host->routing_id()));

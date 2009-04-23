@@ -209,8 +209,28 @@ TEST_F(WebContentsTest, UpdateTitle) {
   controller().RendererDidNavigate(params, &details);
 
   contents()->UpdateTitle(rvh(), 0, L"    Lots O' Whitespace\n");
-  EXPECT_EQ(std::wstring(L"Lots O' Whitespace"),
-            UTF16ToWideHack(contents()->GetTitle()));
+  EXPECT_EQ(ASCIIToUTF16("Lots O' Whitespace"), contents()->GetTitle());
+}
+
+// Test view source mode for the new tabs page.
+TEST_F(WebContentsTest, NTPViewSource) {
+  const char kUrl[] = "view-source:chrome-ui://newtab/";
+  const GURL kGURL(kUrl);
+
+  process()->sink().ClearMessages();
+  controller().LoadURL(kGURL, GURL(), PageTransition::TYPED);
+  rvh()->delegate()->RenderViewCreated(rvh());
+  // Did we get the expected message?
+  EXPECT_TRUE(process()->sink().GetUniqueMessageMatching(
+      ViewMsg_EnableViewSourceMode::ID));
+
+  ViewHostMsg_FrameNavigate_Params params;
+  InitNavigateParams(&params, 0, kGURL);
+  NavigationController::LoadCommittedDetails details;
+  controller().RendererDidNavigate(params, &details);
+  // Also check title and url.
+  EXPECT_EQ(ASCIIToUTF16(kUrl), contents()->GetTitle());
+  EXPECT_EQ(true, contents()->ShouldDisplayURL());
 }
 
 // Test simple same-SiteInstance navigation.
