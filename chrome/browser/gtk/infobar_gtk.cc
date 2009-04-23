@@ -157,8 +157,6 @@ class LinkInfoBar : public InfoBar {
 
       // We don't want any spacing between the elements, so we pack them into
       // this hbox that doesn't use kElementPadding.
-      // TODO(estade): we need to reduce the padding on the button, because
-      // currently the link has extra space on either side and it looks odd.
       GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox), initial_label, FALSE, FALSE, 0);
       gtk_box_pack_start(GTK_BOX(hbox), link_button_->widget(),
