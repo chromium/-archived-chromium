@@ -199,9 +199,9 @@ bool FirstRunCustomizeView::Accept() {
     UserMetrics::RecordAction(L"FirstRunCustom_No_Import", profile_);
   } else {
     int browser_selected = import_from_combo_->GetSelectedItem();
-    FirstRun::ImportSettings(profile_, browser_selected,
-                             GetDefaultImportItems(),
-                             window()->GetNativeWindow());
+    FirstRun::ImportSettings(profile_,
+        importer_host_->GetSourceProfileInfoAt(browser_selected).browser_type,
+        GetDefaultImportItems(), window()->GetNativeWindow());
   }
   if (default_browser_->checked())
     SetDefaultBrowser();

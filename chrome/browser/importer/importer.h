@@ -271,6 +271,9 @@ class ImporterHost : public base::RefCounted<ImporterHost>,
   // passed to StartImportSettings().
   const ProfileInfo& GetSourceProfileInfoAt(int index) const;
 
+  // Returns the ProfileInfo with the given browser type
+  const ProfileInfo& GetSourceProfileInfoForBrowserType(int browser_type) const;
+
  private:
   // If we're not waiting on any model to finish loading, invokes the task_.
   void InvokeTaskIfDone();

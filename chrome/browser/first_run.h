@@ -39,7 +39,7 @@ class FirstRun {
   static bool RemoveSentinel();
   // Imports settings in a separate process. It spawns a second dedicated
   // browser process that just does the import with the import progress UI.
-  static bool ImportSettings(Profile* profile, int browser,
+  static bool ImportSettings(Profile* profile, int browser_type,
                              int items_to_import,
                              gfx::NativeView parent_window);
   // Import browser items in this process. The browser and the items to

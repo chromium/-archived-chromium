@@ -630,6 +630,17 @@ const ProfileInfo& ImporterHost::GetSourceProfileInfoAt(int index) const {
   return *source_profiles_[index];
 }
 
+const ProfileInfo& ImporterHost::GetSourceProfileInfoForBrowserType(
+    int browser_type) const {
+  int size = source_profiles_.size();
+  for (int i = 0; i < size; i++) {
+    if (source_profiles_[i]->browser_type == browser_type)
+      return *source_profiles_[i];
+  }
+  NOTREACHED();
+  return *(new ProfileInfo());
+}
+
 void ImporterHost::DetectSourceProfiles() {
 #if defined(OS_WIN)
   // The order in which detect is called determines the order

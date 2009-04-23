@@ -291,7 +291,10 @@ bool FirstRun::ProcessMasterPreferences(
   if (import_items) {
     // There is something to import from the default browser. This launches
     // the importer process and blocks until done or until it fails.
-    if (!FirstRun::ImportSettings(NULL, 0, import_items, NULL)) {
+    ImporterHost importer_host;
+    if (!FirstRun::ImportSettings(NULL,
+          importer_host.GetSourceProfileInfoAt(0).browser_type,
+          import_items, NULL)) {
       LOG(WARNING) << "silent import failed";
     }
   }
@@ -498,17 +501,17 @@ class FirstRunImportObserver : public ImportObserver {
   DISALLOW_EVIL_CONSTRUCTORS(FirstRunImportObserver);
 };
 
-std::wstring EncodeImportParams(int browser, int options, HWND window) {
-  return StringPrintf(L"%d@%d@%d", browser, options, window);
+std::wstring EncodeImportParams(int browser_type, int options, HWND window) {
+  return StringPrintf(L"%d@%d@%d", browser_type, options, window);
 }
 
 bool DecodeImportParams(const std::wstring& encoded,
-                        int* browser, int* options, HWND* window) {
+                        int* browser_type, int* options, HWND* window) {
   std::vector<std::wstring> v;
   SplitString(encoded, L'@', &v);
   if (v.size() != 3)
     return false;
-  *browser = static_cast<int>(StringToInt64(v[0]));
+  *browser_type = static_cast<int>(StringToInt64(v[0]));
   *options = static_cast<int>(StringToInt64(v[1]));
   *window = reinterpret_cast<HWND>(StringToInt64(v[2]));
   return true;
@@ -516,7 +519,7 @@ bool DecodeImportParams(const std::wstring& encoded,
 
 }  // namespace
 
-bool FirstRun::ImportSettings(Profile* profile, int browser,
+bool FirstRun::ImportSettings(Profile* profile, int browser_type,
                               int items_to_import, HWND parent_window) {
   const CommandLine& cmdline = *CommandLine::ForCurrentProcess();
   CommandLine import_cmd(cmdline.program());
@@ -535,7 +538,7 @@ bool FirstRun::ImportSettings(Profile* profile, int browser,
       g_browser_process->GetApplicationLocale());
 
   import_cmd.CommandLine::AppendSwitchWithValue(switches::kImport,
-      EncodeImportParams(browser, items_to_import, parent_window));
+      EncodeImportParams(browser_type, items_to_import, parent_window));
 
   // Time to launch the process that is going to do the import.
   base::ProcessHandle import_process;
@@ -566,10 +569,10 @@ int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
     NOTREACHED();
     return false;
   }
-  int browser = 0;
+  int browser_type = 0;
   int items_to_import = 0;
   HWND parent_window = NULL;
-  if (!DecodeImportParams(import_info, &browser, &items_to_import,
+  if (!DecodeImportParams(import_info, &browser_type, &items_to_import,
                           &parent_window)) {
     NOTREACHED();
     return false;
@@ -587,7 +590,7 @@ int FirstRun::ImportNow(Profile* profile, const CommandLine& cmdline) {
       parent_window,
       items_to_import,
       importer_host,
-      importer_host->GetSourceProfileInfoAt(browser),
+      importer_host->GetSourceProfileInfoForBrowserType(browser_type),
       profile,
       &observer,
       true);

@@ -181,8 +181,9 @@ bool FirstRunView::Accept() {
   if (default_browser_->checked())
     SetDefaultBrowser();
   // Index 0 is the default browser.
-  FirstRun::ImportSettings(profile_, 0, GetDefaultImportItems(),
-                           window()->GetNativeWindow());
+  FirstRun::ImportSettings(profile_,
+      importer_host_->GetSourceProfileInfoAt(0).browser_type,
+      GetDefaultImportItems(), window()->GetNativeWindow());
   UserMetrics::RecordAction(L"FirstRunDef_Accept", profile_);
 
   return true;
