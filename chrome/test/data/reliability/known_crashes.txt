@@ -98,3 +98,6 @@ PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::a
 # 10902, 10843
 SUBSTRING : webcontents::~webcontents
 
+# 8875
+PREFIX : _87except____startoneargerrorhandling___sqrt___v8::internal::invoke___v8::internal::execution::call
+
