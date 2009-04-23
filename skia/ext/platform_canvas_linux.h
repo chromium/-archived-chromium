@@ -115,7 +115,12 @@ class CanvasPaintT : public T {
 
  private:
   void init(bool opaque) {
-    if (!T::initialize(rectangle_.width, rectangle_.height, opaque, NULL)) {
+    // In order to be most optimal, we could allocate just the damaged rect and
+    // set a translation so it's at the origin.  However, since that would be
+    // ignored when we draw on the cairo surface, this currently won't work.
+    // Allocate the minimal bitmap from the origin to damage rect.
+    if (!T::initialize(rectangle_.x + rectangle_.width,
+                       rectangle_.y + rectangle_.height, opaque, NULL)) {
       // Cause a deliberate crash;
       *(char*) 0 = 0;
     }
