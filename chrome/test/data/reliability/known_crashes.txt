@@ -89,8 +89,12 @@ SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::do
 # 10895
 PREFIX : webcore::removependingeventlistener___webcore::domwindow::clearattributeeventlistener___webcore::domwindow::setattributeeventlistener___webcore::v8custom::v8domwindoweventhandleraccessorsetter___v8::internal::jsobject::setpropertywithcallback
 
-# 10896, 10901
-PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc
+# 10896
+PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc___realloc___pickle::pickle
+
+# 10901
+PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc___operator new___std::_allocate<userscript>___std::vector<gurl,std::allocator<gurl> >::_insert_n___std::vector<gurl,std::allocator<gurl> >::insert___std::vector<gurl,std::allocator<gurl> >::push_back___webframeloaderclient::dispatchdidreceiveserverredirectforprovisionalload___webcore::documentloader::setrequest
 
 # 10902, 10843
 SUBSTRING : webcontents::~webcontents
+
