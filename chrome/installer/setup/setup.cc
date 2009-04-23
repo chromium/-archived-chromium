@@ -152,10 +152,9 @@ bool CreateOrUpdateChromeShortcuts(const std::wstring& exe_path,
     }
 
     LOG(INFO) << "Creating/updating uninstall link at " << uninstall_link;
-    std::wstring target_folder = file_util::GetDirectoryFromPath(install_path);
     ret = ret && file_util::CreateShortcutLink(setup_exe.c_str(),
                                                uninstall_link.c_str(),
-                                               target_folder.c_str(),
+                                               NULL,
                                                arguments.c_str(),
                                                NULL, setup_exe.c_str(), 0);
   }
