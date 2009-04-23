@@ -1662,9 +1662,9 @@ void Browser::OpenURLFromTab(TabContents* source,
     }
   }
 
-  // If this is an application we can only have one tab so a new tab always
-  // goes into a tabbed browser window.
-  if (disposition != NEW_WINDOW && type_ & TYPE_APP) {
+  // If this is not a normal window (such as a popup or an application), we can
+  // only have one tab so a new tab always goes into a tabbed browser window.
+  if (disposition != NEW_WINDOW && type_ != TYPE_NORMAL) {
     // If the disposition is OFF_THE_RECORD we don't want to create a new
     // browser that will itself create another OTR browser. This will result in
     // a browser leak (and crash below because no tab is created or selected).
