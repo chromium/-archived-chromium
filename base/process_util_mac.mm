@@ -207,7 +207,7 @@ bool NamedProcessIterator::CheckForNextProcess() {
     // Check the name
     if (executable_name_utf8 == exec_name) {
       entry_.pid = kinfo->kp_proc.p_pid;
-      entry_.ppid = kinfo->kp_proc.p_oppid;
+      entry_.ppid = kinfo->kp_eproc.e_ppid;
       base::strlcpy(entry_.szExeFile, exec_name.c_str(),
                     sizeof(entry_.szExeFile));
       // Start w/ the next entry next time through
