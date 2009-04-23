@@ -86,6 +86,18 @@ PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore:
 # 8033
 SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
 
+# 10895
+PREFIX : webcore::removependingeventlistener___webcore::domwindow::clearattributeeventlistener___webcore::domwindow::setattributeeventlistener___webcore::v8custom::v8domwindoweventhandleraccessorsetter___v8::internal::jsobject::setpropertywithcallback
+
+# 10896
+PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc___realloc___pickle::pickle
+
+# 10901
+PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc___operator new___std::_allocate<userscript>___std::vector<gurl,std::allocator<gurl> >::_insert_n___std::vector<gurl,std::allocator<gurl> >::insert___std::vector<gurl,std::allocator<gurl> >::push_back___webframeloaderclient::dispatchdidreceiveserverredirectforprovisionalload___webcore::documentloader::setrequest
+
+# 10902
+PREFIX : `anonymous namespace'::purecall____purecall___notificationservice::notify___webcontents::~webcontents___webcontents::`scalar deleting destructor'___tabstripmodel::internalclosetabcontentsat___tabstripmodel::closealltabs___browserview::canclose___views::windowwin::close
+
 # 10843
 PREFIX : `anonymous namespace'::invalidparameter____purecall___webplugindelegateimpl::isplugindelegatewindow___webcontents::~webcontents
 PREFIX : notificationservice::notify___webcontents::~webcontents
