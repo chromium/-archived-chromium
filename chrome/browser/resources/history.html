@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title jscontent="title"></title>
 <link rel="icon" href="../../app/theme/history_favicon.png">
-<script type="text/javascript">
+<script>
 ///////////////////////////////////////////////////////////////////////////////
 // Globals:
 var RESULTS_PER_PAGE = 150;
@@ -48,7 +48,7 @@ var deleteInFlight = false;
 function LocalStrings(node) {
   this.strings_ = {};
 
-  var children = node.childNodes;
+  var children = node.children;
   for (var i = 0, child; child = children[i]; i++) {
     var id = child.id;
     if (id) {
@@ -63,7 +63,7 @@ function LocalStrings(node) {
  * @return {string} The localized string
  */
 LocalStrings.prototype.getString = function(s) {
-  return (s in this.strings_) ? this.strings_[s] : '';
+  return this.strings_[s] || '';
 }
 
 /**
@@ -74,7 +74,7 @@ LocalStrings.prototype.getString = function(s) {
  * @return {string} The formatted string.
  */
 LocalStrings.prototype.formatString = function(s, d) {
-  return (s in this.strings_) ? this.strings_[s].replace(/\%s/, d) : '';
+  return this.getString(s).replace(/\%s/, d);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -805,7 +805,7 @@ function historyDeleted() {
   historyView.reload();
 }
 </script>
-<style type="text/css">
+<style>
 body {
   background-color:white;
   color:black;

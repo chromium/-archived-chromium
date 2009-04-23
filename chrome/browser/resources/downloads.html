@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title jscontent="title"></title>
 <link rel="icon" href="../../app/theme/downloads_favicon.png">
-<style type="text/css">
+<style>
 body {
   background-color:white;
   color:black;
@@ -142,7 +142,7 @@ html[dir='rtl'] .name {
   height:24px;
 }
 </style>
-<script type="text/javascript">
+<script>
 ///////////////////////////////////////////////////////////////////////////////
 // localStrings:
 /**
@@ -154,7 +154,7 @@ html[dir='rtl'] .name {
 function LocalStrings(node) {
   this.strings_ = {};
 
-  var children = node.childNodes;
+  var children = node.children;
   for (var i = 0, child; child = children[i]; i++) {
     var id = child.id;
     if (id) {
@@ -169,7 +169,7 @@ function LocalStrings(node) {
  * @return {string} The localized string
  */
 LocalStrings.prototype.getString = function(s) {
-  return (s in this.strings_) ? this.strings_[s] : '';
+  return this.strings_[s] || '';
 }
 
 /**
@@ -180,7 +180,7 @@ LocalStrings.prototype.getString = function(s) {
  * @return {string} The formatted string.
  */
 LocalStrings.prototype.formatString = function(s, d) {
-  return (s in this.strings_) ? this.strings_[s].replace(/\%s/, d) : '';
+  return this.getString(s).replace(/\%s/, d);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -357,11 +357,11 @@ Downloads.prototype.clear = function() {
 function Download(download) {
   // Create DOM
   this.node = createElementWithClassName('div', 'download');
-  
+
   // Dates
   this.dateContainer_ = createElementWithClassName('div', 'date-container');
   this.node.appendChild(this.dateContainer_);
-  
+
   this.nodeSince_ = createElementWithClassName('div', 'since');
   this.nodeDate_ = createElementWithClassName('div', 'date');
   this.dateContainer_.appendChild(this.nodeSince_);
@@ -486,7 +486,7 @@ Download.prototype.update = function(download) {
   this.fileName_ = download.file_name;
   this.url_ = download.url;
   this.state_ = download.state;
-  
+
   this.since_ = download.since_string;
   this.date_ = download.date_string;
 

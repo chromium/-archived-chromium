@@ -1,10 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML>
 
 <html id="t">
   <head>
     <title>About Stats</title>
-    
-<style type="text/css">
+
+<style>
 body {
   border-top: 10px solid #3B85E3;
   color: #333;
@@ -105,7 +105,7 @@ function getTimerTimeFromTimerNode(node) {
 /* Timer accessor for Average Time Node. */
 function getTimerAvgTimeFromTimerNode(node) {
   return node.childNodes[7];
-}  
+}
 
 /* Do the filter work.  Hide all nodes matching node.*/
 function filterMatching(text, nodelist, functionToGetNameNode) {
@@ -196,13 +196,13 @@ function onLoadWork() {
 function sort_table(type){
   var cell = event.target;
   var cnum = cell.cellIndex;
-  
+
   var row = cell.parentNode;
   var start_index = row.rowIndex + 1;
-  
+
   var tbody = row.parentNode;
   var table = tbody.parentNode;
-  
+
   var rows = new Array();
 
   var indexes = new Array();

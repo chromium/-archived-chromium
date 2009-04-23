@@ -15,11 +15,11 @@
  If the requests for content come back before the content-rendering functions
  are defined, the data is held until those functions are defined.
 -->
-<script type="text/javascript">
+<script>
 /* Logging info for benchmarking purposes. */
 var log = [];
 function logEvent(name) {
-  log.push([name, new Date().getTime()]);
+  log.push([name, Date.now()]);
 }
 
 // Basic functions to send, receive, store and process the data from our
@@ -52,7 +52,7 @@ var blacklistedURLs = [];
 function LocalStrings(node) {
   this.strings_ = {};
 
-  var children = node.childNodes;
+  var children = node.children;
   for (var i = 0, child; child = children[i]; i++) {
     var id = child.id;
     if (id) {
@@ -67,7 +67,7 @@ function LocalStrings(node) {
  * @return {string} The localized string
  */
 LocalStrings.prototype.getString = function(s) {
-  return (s in this.strings_) ? this.strings_[s] : '';
+  return this.strings_[s] || '';
 }
 
 /**
@@ -78,7 +78,7 @@ LocalStrings.prototype.getString = function(s) {
  * @return {string} The formatted string.
  */
 LocalStrings.prototype.formatString = function(s, d) {
-  return (s in this.strings_) ? this.strings_[s].replace(/\%s/, d) : '';
+  return this.getString(s).replace(/\%s/, d);
 }
 
 function $(o) {return document.getElementById(o);}
@@ -160,24 +160,6 @@ function handleWindowResize() {
   }
 }
 
-function handleInputFocus() {
-  if (!this.deftext) {
-    this.deftext = this.value;
-  }
-
-  if (this.value == this.deftext) {
-    this.className = '';
-    this.value = '';
-  }
-}
-
-function handleInputBlur() {
-  if (!this.value) {
-    this.className = 'hint';
-    this.value = this.deftext;
-  }
-}
-
 function handleDOMContentLoaded() {
   logEvent('domcontentloaded fired');
 }
@@ -187,7 +169,7 @@ logEvent('log start');
 <head>
 <meta charset="utf-8">
 <title jscontent="title"></title>
-<style type="text/css">
+<style>
 body {
   background-color:white;
   margin:0px;
@@ -384,8 +366,8 @@ html[dir='rtl'] #searches input {
   padding-left:0px;
   padding-right: 23px;
 }
-#searches input.hint {
-  color:#aaa;
+#searches input:-webkit-input-placeholder-mode {
+  color: #aaa;
 }
 .footer {
   border-top:1px solid #ccc;
@@ -505,9 +487,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
         <input type="text" class="hint"
                name="search"
                style="background-image:url(chrome-ui://favicon/);"
-               jsvalues="value:searchhistory"
-               onfocus="handleInputFocus.apply(this);"
-               onblur="handleInputBlur.apply(this);" />
+               jsvalues="placeholder:searchhistory">
       </form>
       <div id='searches-entries'></div>
     </div>
@@ -525,7 +505,7 @@ document.addEventListener('DOMContentLoaded', handleDOMContentLoaded);
   </tr>
 </table>
 
-<script type="text/javascript">
+<script>
 logEvent('start of second script block');
 
 /* Return a DOM element with tag name |elem| and attributes |attrs|. */
@@ -691,14 +671,12 @@ function makeSearchURL(url) {
      <form>
      <input type="text" class="hint"
             style="background-image:url(chrome-ui://favicon/"+url+");"
-            value="Search Wikipedia"
-            onfocus="handleInputFocus();"
-            onblur="handleInputBlur();" />
+            placeholder="Search Wikipedia">
      </form>
   */
   var input = DOM('input', {type:'text',
-      className:'hint',
-      value:url.short_name});
+      className: 'hint',
+      placeholder: url.short_name});
   input.keyword = url.keyword;
 
   if (url.favIconURL) {
@@ -708,9 +686,6 @@ function makeSearchURL(url) {
     input.style.backgroundImage =
       'url("chrome-ui://favicon/http://' + url.short_name + '")';
   }
-
-  input.onfocus = handleInputFocus;
-  input.onblur = handleInputBlur;
 
   var form = DOM('form');
   form.onsubmit = function() {
@@ -1037,7 +1012,7 @@ setTimeout(function(){document.getElementById('main').className = 'visible'},
      src="../../app/theme/ntp_x_icon_small.png"/>
 </body>
 
-<style type="text/css">
+<style>
 /* This CSS code is located at the end of file so it does not slow-down the page
    loading, as it contains inlined images.
 */
