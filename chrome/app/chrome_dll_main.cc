@@ -110,7 +110,12 @@ void PureCall() {
 }
 
 int OnNoMemory(size_t memory_size) {
+  // Kill the process. This is important for security, since WebKit doesn't
+  // NULL-check many memory allocations. If a malloc fails, returns NULL, and
+  // the buffer is then used, it provides a handy mapping of memory starting at
+  // address 0 for an attacker to utilize.
   __debugbreak();
+
   // Return memory_size so it is not optimized out. Make sure the return value
   // is at least 1 so malloc/new is retried, especially useful when under a
   // debugger.
