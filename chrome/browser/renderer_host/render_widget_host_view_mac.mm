@@ -14,6 +14,7 @@
 #include "skia/ext/platform_canvas.h"
 #include "third_party/WebKit/WebKit/chromium/public/mac/WebInputEventFactory.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebInputEvent.h"
+#include "webkit/glue/webmenurunner_mac.h"
 
 using WebKit::WebInputEventFactory;
 using WebKit::WebMouseEvent;
@@ -46,7 +47,8 @@ RenderWidgetHostViewMac::RenderWidgetHostViewMac(RenderWidgetHost* widget)
       about_to_validate_and_paint_(false),
       is_loading_(false),
       is_hidden_(false),
-      shutdown_factory_(this) {
+      shutdown_factory_(this),
+      parent_view_(NULL) {
   cocoa_view_ = [[[RenderWidgetHostViewCocoa alloc]
                   initWithRenderWidgetHostViewMac:this] autorelease];
   render_widget_host_->set_view(this);
@@ -265,6 +267,42 @@ void RenderWidgetHostViewMac::SetTooltipText(const std::wstring& tooltip_text) {
 BackingStore* RenderWidgetHostViewMac::AllocBackingStore(
     const gfx::Size& size) {
   return new BackingStore(size);
+}
+
+// Display a popup menu for WebKit using Cocoa widgets.
+void RenderWidgetHostViewMac::ShowPopupWithItems(
+    gfx::Rect bounds,
+    int item_height,
+    int selected_item,
+    const std::vector<WebMenuItem>& items) {
+  NSRect view_rect = [cocoa_view_ bounds];
+  NSRect position = NSMakeRect(bounds.x(), bounds.y() - bounds.height(),
+                               bounds.width(), bounds.height());
+
+  // Display the menu.
+  WebMenuRunner* menu_runner =
+      [[[WebMenuRunner alloc] initWithItems:items] autorelease];
+
+  [menu_runner runMenuInView:parent_view_
+                  withBounds:position
+                initialIndex:selected_item];
+
+  int window_num = [[parent_view_ window] windowNumber];
+  NSEvent* event = CreateEventForMenuAction([menu_runner menuItemWasChosen],
+                                            window_num, item_height,
+                                            [menu_runner indexOfSelectedItem],
+                                            position, view_rect);
+
+  if ([menu_runner menuItemWasChosen]) {
+    // Simulate a menu selection event.
+    const WebMouseEvent& mouse_event =
+        WebInputEventFactory::mouseEvent(event, cocoa_view_);
+    render_widget_host_->ForwardMouseEvent(mouse_event);
+  } else {
+    // Simulate a menu dismiss event.
+    NativeWebKeyboardEvent keyboard_event(event);
+    render_widget_host_->ForwardKeyboardEvent(keyboard_event);
+  }
 }
 
 void RenderWidgetHostViewMac::KillSelf() {

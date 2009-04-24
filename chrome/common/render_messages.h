@@ -374,6 +374,23 @@ struct ViewHostMsg_Audio_CreateStream {
   size_t packet_size;
 };
 
+// This message is used for supporting popup menus on Mac OS X using native
+// Cocoa controls. The renderer sends us this message which we use to populate
+// the popup menu.
+struct ViewHostMsg_ShowPopup_Params {
+  // Position on the screen.
+  gfx::Rect bounds;
+
+  // The height of each item in the menu.
+  int item_height;
+
+  // The currently selected (displayed) item in the menu.
+  int selected_item;
+
+  // The entire list of items in the popup menu.
+  std::vector<WebMenuItem> popup_items;
+};
+
 namespace IPC {
 
 template <>
@@ -1829,6 +1846,94 @@ struct ParamTraits<WebAppCacheContext::ContextType> {
     }
 
     LogParam(state, l);
+  }
+};
+
+template<>
+struct ParamTraits<WebMenuItem::Type> {
+  typedef WebMenuItem::Type param_type;
+  static void Write(Message* m, const param_type& p) {
+    m->WriteInt(p);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    int type;
+    if (!m->ReadInt(iter, &type))
+      return false;
+    *p = static_cast<WebMenuItem::Type>(type);
+    return true;
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    std::wstring type;
+    switch (p) {
+      case WebMenuItem::OPTION:
+        type = L"OPTION";
+        break;
+      case WebMenuItem::GROUP:
+        type = L"GROUP";
+        break;
+      case WebMenuItem::SEPARATOR:
+        type = L"SEPARATOR";
+        break;
+      default:
+        type = L"UNKNOWN";
+        break;
+    }
+    LogParam(type, l);
+  }
+};
+
+template<>
+struct ParamTraits<WebMenuItem> {
+  typedef WebMenuItem param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.label);
+    WriteParam(m, p.type);
+    WriteParam(m, p.enabled);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+        ReadParam(m, iter, &p->label) &&
+        ReadParam(m, iter, &p->type) &&
+        ReadParam(m, iter, &p->enabled);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.label, l);
+    l->append(L", ");
+    LogParam(p.type, l);
+    l->append(L", ");
+    LogParam(p.enabled, l);
+    l->append(L")");
+  }
+};
+
+// Traits for ViewHostMsg_ShowPopup_Params.
+template <>
+struct ParamTraits<ViewHostMsg_ShowPopup_Params> {
+  typedef ViewHostMsg_ShowPopup_Params param_type;
+  static void Write(Message* m, const param_type& p) {
+    WriteParam(m, p.bounds);
+    WriteParam(m, p.item_height);
+    WriteParam(m, p.selected_item);
+    WriteParam(m, p.popup_items);
+  }
+  static bool Read(const Message* m, void** iter, param_type* p) {
+    return
+        ReadParam(m, iter, &p->bounds) &&
+        ReadParam(m, iter, &p->item_height) &&
+        ReadParam(m, iter, &p->selected_item) &&
+        ReadParam(m, iter, &p->popup_items);
+  }
+  static void Log(const param_type& p, std::wstring* l) {
+    l->append(L"(");
+    LogParam(p.bounds, l);
+    l->append(L", ");
+    LogParam(p.item_height, l);
+    l->append(L", ");
+    LogParam(p.selected_item, l);
+    l->append(L", ");
+    LogParam(p.popup_items, l);
+    l->append(L")");
   }
 };
 

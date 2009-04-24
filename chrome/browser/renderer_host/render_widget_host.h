@@ -318,6 +318,7 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // Using int instead of ViewHostMsg_ImeControl for control's type to avoid
   // having to bring in render_messages.h in a header file.
   void OnMsgImeUpdateStatus(int control, const gfx::Rect& caret_rect);
+  void OnMsgShowPopup(const IPC::Message& message);
 
   // Paints the given bitmap to the current backing store at the given location.
   void PaintBackingStoreRect(TransportDIB* dib,

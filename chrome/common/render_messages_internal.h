@@ -1337,4 +1337,9 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_CONTROL2(ViewHostMsg_ExtensionPostMessage,
                        int /* port_id */,
                        std::string /* message */)
+
+  // Message to show a popup menu using native cocoa controls (Mac only).
+  IPC_MESSAGE_ROUTED1(ViewHostMsg_ShowPopup,
+                      ViewHostMsg_ShowPopup_Params)
+
 IPC_END_MESSAGES(ViewHost)

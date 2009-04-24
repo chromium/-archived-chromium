@@ -313,7 +313,7 @@ void RenderWidget::PaintRect(const gfx::Rect& rect,
   // If there is a custom background, tile it.
   if (!background_.empty()) {
     canvas->save();
-    
+
     SkIRect clipRect = { rect.x(), rect.y(), rect.right(), rect.bottom() };
     canvas->setClipRegion(SkRegion(clipRect));
 
@@ -589,8 +589,13 @@ void RenderWidget::ShowAsPopupWithItems(WebWidget* webwidget,
                                         int item_height,
                                         int selected_index,
                                         const std::vector<WebMenuItem>& items) {
-  // TODO(paulg): Implement this for Mac HTML select menus in Chromium, bug
-  // number: http://crbug.com/8389
+  ViewHostMsg_ShowPopup_Params params;
+  params.bounds = bounds;
+  params.item_height = item_height;
+  params.selected_item = selected_index;
+  params.popup_items = items;
+
+  Send(new ViewHostMsg_ShowPopup(routing_id_, params));
 }
 
 void RenderWidget::Focus(WebWidget* webwidget) {

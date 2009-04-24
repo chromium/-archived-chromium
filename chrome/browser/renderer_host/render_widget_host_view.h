@@ -7,8 +7,9 @@
 
 #include "base/gfx/native_widget_types.h"
 #include "base/shared_memory.h"
-#include "webkit/glue/webplugin.h"
 #include "skia/include/SkBitmap.h"
+#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webwidget_delegate.h"
 
 namespace gfx {
 class Rect;
@@ -136,6 +137,14 @@ class RenderWidgetHostView {
   // Allocate a backing store for this view
   virtual BackingStore* AllocBackingStore(const gfx::Size& size) = 0;
 
+#if defined(OS_MACOSX)
+  // Display a native control popup menu for WebKit.
+  virtual void ShowPopupWithItems(gfx::Rect bounds,
+                                  int item_height,
+                                  int selected_item,
+                                  const std::vector<WebMenuItem>& items) = 0;
+#endif
+
   void set_activatable(bool activatable) {
     activatable_ = activatable;
   }
@@ -151,7 +160,7 @@ class RenderWidgetHostView {
  protected:
   // Interface class only, do not construct.
   RenderWidgetHostView() : activatable_(true) {}
- 
+
   // Whether the window can be activated. Autocomplete popup windows for example
   // cannot be activated.  Default is true.
   bool activatable_;

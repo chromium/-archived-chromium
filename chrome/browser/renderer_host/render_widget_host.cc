@@ -114,6 +114,7 @@ IPC_DEFINE_MESSAGE_MAP(RenderWidgetHost)
   IPC_MESSAGE_HANDLER(ViewHostMsg_Blur, OnMsgBlur)
   IPC_MESSAGE_HANDLER(ViewHostMsg_SetCursor, OnMsgSetCursor)
   IPC_MESSAGE_HANDLER(ViewHostMsg_ImeUpdateStatus, OnMsgImeUpdateStatus)
+  IPC_MESSAGE_HANDLER_GENERIC(ViewHostMsg_ShowPopup, OnMsgShowPopup(msg))
   IPC_MESSAGE_UNHANDLED_ERROR()
 IPC_END_MESSAGE_MAP()
 
@@ -660,6 +661,23 @@ void RenderWidgetHost::OnMsgImeUpdateStatus(int control,
   if (view_) {
     view_->IMEUpdateStatus(control, caret_rect);
   }
+}
+
+void RenderWidgetHost::OnMsgShowPopup(const IPC::Message& message) {
+#if defined(OS_MACOSX)
+  void* iter = NULL;
+  ViewHostMsg_ShowPopup_Params validated_params;
+  if (!IPC::ParamTraits<ViewHostMsg_ShowPopup_Params>::Read(&message, &iter,
+                                                            &validated_params))
+    return;
+
+  view_->ShowPopupWithItems(validated_params.bounds,
+                            validated_params.item_height,
+                            validated_params.selected_item,
+                            validated_params.popup_items);
+#else  // OS_WIN || OS_LINUX
+  NOTREACHED();
+#endif
 }
 
 void RenderWidgetHost::PaintBackingStoreRect(TransportDIB* bitmap,

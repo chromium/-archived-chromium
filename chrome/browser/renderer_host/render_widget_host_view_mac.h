@@ -82,8 +82,14 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
   virtual void Destroy();
   virtual void SetTooltipText(const std::wstring& tooltip_text);
   virtual BackingStore* AllocBackingStore(const gfx::Size& size);
+  virtual void ShowPopupWithItems(gfx::Rect bounds,
+                                  int item_height,
+                                  int selected_item,
+                                  const std::vector<WebMenuItem>& items);
 
   void KillSelf();
+
+  void set_parent_view(BaseView* parent_view) { parent_view_ = parent_view; }
 
   // These member variables should be private, but the associated ObjC class
   // needs access to them and can't be made a friend.
@@ -130,6 +136,9 @@ class RenderWidgetHostViewMac : public RenderWidgetHostView {
 
   // Factory used to safely scope delayed calls to ShutdownHost().
   ScopedRunnableMethodFactory<RenderWidgetHostViewMac> shutdown_factory_;
+
+  // Used for positioning a popup menu.
+  BaseView* parent_view_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderWidgetHostViewMac);
 };

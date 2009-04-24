@@ -148,6 +148,9 @@ RenderWidgetHostView* TabContentsViewMac::CreateNewWidgetInternal(
       static_cast<RenderWidgetHostViewMac*>(widget_view);
   [widget_view_mac->native_view() retain];
 
+  // |widget_view_mac| needs to know how to position itself in our view.
+  widget_view_mac->set_parent_view(cocoa_view_);
+
   return widget_view;
 }
 
