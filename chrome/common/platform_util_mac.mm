@@ -39,4 +39,9 @@ string16 GetWindowTitle(gfx::NativeWindow window) {
   return base::SysNSStringToUTF16(title);
 }
 
+bool IsWindowActive(gfx::NativeWindow window) {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 }  // namespace platform_util

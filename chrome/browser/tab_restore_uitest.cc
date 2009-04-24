@@ -2,10 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/basictypes.h"
 #include "base/command_line.h"
 #include "base/file_path.h"
 #include "base/file_util.h"
+#if defined(OS_WIN)
 #include "base/win_util.h"
+#endif
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
@@ -125,7 +128,7 @@ class TabRestoreUITest : public UITest {
   GURL url2_;
 
  private:
-  DISALLOW_EVIL_CONSTRUCTORS(TabRestoreUITest);
+  DISALLOW_COPY_AND_ASSIGN(TabRestoreUITest);
 };
 
 // Close the end tab in the current window, then restore it. The tab should be
@@ -231,9 +234,11 @@ TEST_F(TabRestoreUITest, RestoreToDifferentWindow) {
 // Close a tab, open a new window, close the first window, then restore the
 // tab. It should be in a new window.
 TEST_F(TabRestoreUITest, BasicRestoreFromClosedWindow) {
+#if defined(OS_WIN)
   // This test is disabled on win2k. See bug 1215881.
   if (win_util::GetWinVersion() == win_util::WINVERSION_2000)
     return;
+#endif
 
   scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
   CheckActiveWindow(browser_proxy.get());
@@ -479,6 +484,9 @@ TEST_F(TabRestoreUITest, RestoreCrossSiteWithExistingSiteInstance) {
   EXPECT_EQ(http_url2, GetActiveTabURL());
 }
 
+// TODO(estade): The browser currently ignores the CloseWindow command. We need
+// to enable that command before we can enable this test.
+#if defined(OS_WIN)
 TEST_F(TabRestoreUITest, RestoreWindow) {
   // Create a new window.
   int window_count;
@@ -532,3 +540,4 @@ TEST_F(TabRestoreUITest, RestoreWindow) {
   ASSERT_TRUE(restored_tab_proxy->GetCurrentURL(&url));
   EXPECT_TRUE(url == url2_);
 }
+#endif  // defined(OS_WIN)

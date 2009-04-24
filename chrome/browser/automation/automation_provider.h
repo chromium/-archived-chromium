@@ -274,25 +274,33 @@ class AutomationProvider : public base::RefCounted<AutomationProvider>,
                             IPC::Message* reply_message);
   void HideInterstitialPage(int tab_handle, bool* success);
 
+// TODO(port): remove windowisms.
 #if defined(OS_WIN)
-  // TODO(port): Re-enable.
   void CreateExternalTab(HWND parent, const gfx::Rect& dimensions,
                          unsigned int style, bool incognito,
                          HWND* tab_container_window, int* tab_handle);
+#endif  // defined(OS_WIN)
+
   void NavigateInExternalTab(
       int handle, const GURL& url,
       AutomationMsg_NavigationResponseValues* status);
+
+// TODO(port): remove windowisms.
+#if defined(OS_WIN)
   // The container of an externally hosted tab calls this to reflect any
   // accelerator keys that it did not process. This gives the tab a chance
   // to handle the keys
   void ProcessUnhandledAccelerator(const IPC::Message& message, int handle,
                                    const MSG& msg);
+#endif
 
   void SetInitialFocus(const IPC::Message& message, int handle, bool reverse);
 
   // See comment in AutomationMsg_WaitForTabToBeRestored.
   void WaitForTabToBeRestored(int tab_handle, IPC::Message* reply_message);
 
+// TODO(port): remove windowisms.
+#if defined(OS_WIN)
   // This sets the keyboard accelerators to be used by an externally
   // hosted tab. This call is not valid on a regular tab hosted within
   // Chrome.

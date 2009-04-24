@@ -93,4 +93,8 @@ string16 GetWindowTitle(gfx::NativeWindow window_handle) {
   return WideToUTF16(result);
 }
 
+bool IsWindowActive(gfx::NativeWindow window) {
+  return ::GetForegroundWindow() == window;
+}
+
 }  // namespace platform_util

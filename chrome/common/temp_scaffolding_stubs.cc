@@ -29,12 +29,6 @@ class TabContents;
 
 void AutomationProvider::GetActiveWindow(int* handle) { NOTIMPLEMENTED(); }
 
-void AutomationProvider::IsWindowActive(int handle, bool* success,
-                                        bool* is_active) {
-  *success = false;
-  NOTIMPLEMENTED();
-}
-
 void AutomationProvider::ActivateWindow(int handle) { NOTIMPLEMENTED(); }
 
 void AutomationProvider::SetWindowVisible(int handle, bool visible,

@@ -37,4 +37,8 @@ string16 GetWindowTitle(gfx::NativeWindow window) {
   return UTF8ToUTF16(title);
 }
 
+bool IsWindowActive(gfx::NativeWindow window) {
+  return gtk_window_is_active(window);
+}
+
 }  // namespace platform_util

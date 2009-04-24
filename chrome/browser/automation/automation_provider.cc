@@ -965,22 +965,26 @@ void AutomationProvider::OnMessageReceived(const IPC::Message& message) {
                         GetBrowserForWindow);
 #if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_CreateExternalTab, CreateExternalTab)
+#endif
     IPC_MESSAGE_HANDLER(AutomationMsg_NavigateInExternalTab,
                         NavigateInExternalTab)
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_ShowInterstitialPage,
                                     ShowInterstitialPage);
     IPC_MESSAGE_HANDLER(AutomationMsg_HideInterstitialPage,
                         HideInterstitialPage);
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetAcceleratorsForTab,
                         SetAcceleratorsForTab)
     IPC_MESSAGE_HANDLER(AutomationMsg_ProcessUnhandledAccelerator,
                         ProcessUnhandledAccelerator)
+#endif
     IPC_MESSAGE_HANDLER_DELAY_REPLY(AutomationMsg_WaitForTabToBeRestored,
                                     WaitForTabToBeRestored)
     IPC_MESSAGE_HANDLER(AutomationMsg_SetInitialFocus,
                         SetInitialFocus)
+#if defined(OS_WIN)
     IPC_MESSAGE_HANDLER(AutomationMsg_TabReposition, OnTabReposition)
-#endif  // defined(OS_WIN)
+#endif
     IPC_MESSAGE_HANDLER(AutomationMsg_GetSecurityState,
                         GetSecurityState)
     IPC_MESSAGE_HANDLER(AutomationMsg_GetPageType,
@@ -1690,12 +1694,13 @@ void AutomationProvider::SetWindowVisible(int handle, bool visible,
     *result = false;
   }
 }
+#endif  // defined(OS_WIN)
 
 void AutomationProvider::IsWindowActive(int handle, bool* success,
                                         bool* is_active) {
   if (window_tracker_->ContainsHandle(handle)) {
-    HWND hwnd = window_tracker_->GetResource(handle);
-    *is_active = ::GetForegroundWindow() == hwnd;
+    *is_active =
+        platform_util::IsWindowActive(window_tracker_->GetResource(handle));
     *success = true;
   } else {
     *success = false;
@@ -1703,12 +1708,14 @@ void AutomationProvider::IsWindowActive(int handle, bool* success,
   }
 }
 
+// TODO(port): port this.
+#if defined(OS_WIN)
 void AutomationProvider::ActivateWindow(int handle) {
   if (window_tracker_->ContainsHandle(handle)) {
     ::SetActiveWindow(window_tracker_->GetResource(handle));
   }
 }
-#endif  // defined(OS_WIN)
+#endif
 
 void AutomationProvider::GetTabCount(int handle, int* tab_count) {
   *tab_count = -1;  // -1 is the error code
@@ -2307,6 +2314,7 @@ void AutomationProvider::CreateExternalTab(HWND parent,
     delete external_tab_container;
   }
 }
+#endif
 
 void AutomationProvider::NavigateInExternalTab(
     int handle, const GURL& url,
@@ -2320,6 +2328,8 @@ void AutomationProvider::NavigateInExternalTab(
   }
 }
 
+#if defined(OS_WIN)
+// TODO(port): remove windowisms.
 void AutomationProvider::SetAcceleratorsForTab(int handle,
                                                HACCEL accel_table,
                                                int accel_entry_count,
@@ -2341,6 +2351,7 @@ void AutomationProvider::ProcessUnhandledAccelerator(
   }
   // This message expects no response.
 }
+#endif
 
 void AutomationProvider::WaitForTabToBeRestored(int tab_handle,
                                                 IPC::Message* reply_message) {
@@ -2355,13 +2366,20 @@ void AutomationProvider::WaitForTabToBeRestored(int tab_handle,
 
 void AutomationProvider::SetInitialFocus(const IPC::Message& message,
                                          int handle, bool reverse) {
+#if defined(OS_WIN)
   ExternalTabContainer* external_tab = GetExternalTabForHandle(handle);
   if (external_tab) {
     external_tab->SetInitialFocus(reverse);
   }
   // This message expects no response.
+#elif defined(OS_POSIX)
+  // TODO(port) enable this function.
+  NOTIMPLEMENTED();
+#endif
 }
 
+// TODO(port): enable these functions.
+#if defined(OS_WIN)
 void AutomationProvider::GetSecurityState(int handle, bool* success,
                                           SecurityStyle* security_style,
                                           int* ssl_cert_status,
@@ -2827,7 +2845,8 @@ void AutomationProvider::SavePackageShouldPromptUser(bool should_prompt) {
   SavePackage::SetShouldPromptUser(should_prompt);
 }
 
-#ifdef OS_WIN
+#if defined(OS_WIN)
+// TODO(port): Reposition_Params is win-specific. We'll need to port it.
 void AutomationProvider::OnTabReposition(
     int tab_handle, const IPC::Reposition_Params& params) {
   if (!tab_tracker_->ContainsHandle(tab_handle))
@@ -2856,8 +2875,7 @@ void AutomationProvider::OnTabReposition(
     }
   }
 }
-
-#endif  // defined(OS_WIN)
+#endif
 
 void AutomationProvider::GetWindowTitle(int handle, string16* text) {
   gfx::NativeWindow window = window_tracker_->GetResource(handle);

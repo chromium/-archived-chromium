@@ -21,6 +21,9 @@ gfx::NativeWindow GetTopLevel(gfx::NativeView view);
 // Get the title of the window.
 string16 GetWindowTitle(gfx::NativeWindow window);
 
+// Returns true if |window| is the foreground top level window.
+bool IsWindowActive(gfx::NativeWindow window);
+
 }
 
 #endif  // CHROME_COMMON_PLATFORM_UTIL_H_
