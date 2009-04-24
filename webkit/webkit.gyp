@@ -4503,7 +4503,6 @@
         'glue/webwidget_delegate.h',
         'glue/webwidget_impl.cc',
         'glue/webwidget_impl.h',
-        'glue/webworker.h',
         'glue/webworker_impl.cc',
         'glue/webworker_impl.h',
         'glue/webworkerclient_impl.cc',
