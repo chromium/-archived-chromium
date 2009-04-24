@@ -65,7 +65,6 @@ class NativeCheckboxWin : public NativeButtonWin {
   virtual bool OnKeyDown(int vkey);
 
   // Overridden from NativeControlWin:
-  virtual void SetFocus();
   virtual bool ProcessMessage(UINT message,
                               WPARAM w_param,
                               LPARAM l_param,

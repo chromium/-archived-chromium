@@ -148,11 +148,6 @@ void NativeCheckboxWin::SetPushed(bool pushed) {
   SendMessage(GetHWND(), BM_SETSTATE, pushed, 0);
 }
 
-void NativeCheckboxWin::SetFocus() {
-  // The focus should stay on the views::Checkbox (more precisely, on the
-  // label, which is a view).
-}
-
 bool NativeCheckboxWin::OnKeyDown(int vkey) {
   // Override the NativeButtonWin behavior which triggers the button on enter
   // key presses when focused.
