@@ -13,11 +13,11 @@
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_type.h"
 
-DevToolsManager::DevToolsManager() : web_contents_listeners_(NULL) {
+DevToolsManager::DevToolsManager() : tab_contents_listeners_(NULL) {
 }
 
 DevToolsManager::~DevToolsManager() {
-  DCHECK(!web_contents_listeners_.get()) <<
+  DCHECK(!tab_contents_listeners_.get()) <<
       "All devtools client hosts must alredy have been destroyed.";
   DCHECK(navcontroller_to_client_host_.empty());
   DCHECK(client_host_to_navcontroller_.empty());
@@ -29,7 +29,7 @@ void DevToolsManager::Observe(NotificationType type,
   DCHECK(type == NotificationType::WEB_CONTENTS_DISCONNECTED);
 
   if (type == NotificationType::WEB_CONTENTS_DISCONNECTED) {
-    Source<WebContents> src(source);
+    Source<TabContents> src(source);
     DevToolsClientHost* client_host = GetDevToolsClientHostFor(*src.ptr());
     if (!client_host) {
       return;
@@ -43,8 +43,8 @@ void DevToolsManager::Observe(NotificationType type,
 }
 
 DevToolsClientHost* DevToolsManager::GetDevToolsClientHostFor(
-    const WebContents& web_contents) {
-  const NavigationController& navigation_controller = web_contents.controller();
+    const TabContents& tab_contents) {
+  const NavigationController& navigation_controller = tab_contents.controller();
   ClientHostMap::const_iterator it =
       navcontroller_to_client_host_.find(&navigation_controller);
   if (it != navcontroller_to_client_host_.end()) {
@@ -54,17 +54,17 @@ DevToolsClientHost* DevToolsManager::GetDevToolsClientHostFor(
 }
 
 void DevToolsManager::RegisterDevToolsClientHostFor(
-    WebContents& web_contents,
+    TabContents& tab_contents,
     DevToolsClientHost* client_host) {
-  DCHECK(!GetDevToolsClientHostFor(web_contents));
+  DCHECK(!GetDevToolsClientHostFor(tab_contents));
 
-  NavigationController* navigation_controller = &web_contents.controller();
+  NavigationController* navigation_controller = &tab_contents.controller();
   navcontroller_to_client_host_[navigation_controller] = client_host;
   client_host_to_navcontroller_[client_host] = navigation_controller;
   client_host->set_close_listener(this);
 
   StartListening(navigation_controller);
-  SendAttachToAgent(web_contents, web_contents.render_view_host());
+  SendAttachToAgent(tab_contents, tab_contents.render_view_host());
 }
 
 void DevToolsManager::ForwardToDevToolsAgent(
@@ -99,11 +99,7 @@ void DevToolsManager::ForwardToDevToolsAgent(const DevToolsClientHost& from,
   if (!tc) {
     return;
   }
-  WebContents* wc = tc->AsWebContents();
-  if (!wc) {
-    return;
-  }
-  RenderViewHost* target_host = wc->render_view_host();
+  RenderViewHost* target_host = tc->render_view_host();
   if (!target_host) {
     return;
   }
@@ -115,7 +111,7 @@ void DevToolsManager::ForwardToDevToolsAgent(const DevToolsClientHost& from,
 
 void DevToolsManager::ForwardToDevToolsClient(const RenderViewHost& from,
                                               const IPC::Message& message) {
-  WebContents* wc = from.delegate()->GetAsWebContents();
+  TabContents* wc = from.delegate()->GetAsWebContents();
   if (!wc) {
     NOTREACHED();
     return;
@@ -129,7 +125,7 @@ void DevToolsManager::ForwardToDevToolsClient(const RenderViewHost& from,
   target_host->SendMessageToClient(message);
 }
 
-void DevToolsManager::OpenDevToolsWindow(WebContents* wc) {
+void DevToolsManager::OpenDevToolsWindow(TabContents* wc) {
   DevToolsClientHost* host = GetDevToolsClientHostFor(*wc);
   if (!host) {
     host = DevToolsWindow::Create();
@@ -140,7 +136,7 @@ void DevToolsManager::OpenDevToolsWindow(WebContents* wc) {
     window->Show();
 }
 
-void DevToolsManager::InspectElement(WebContents* wc, int x, int y) {
+void DevToolsManager::InspectElement(TabContents* wc, int x, int y) {
   OpenDevToolsWindow(wc);
   RenderViewHost* target_host = wc->render_view_host();
   if (!target_host) {
@@ -162,11 +158,7 @@ void DevToolsManager::ClientHostClosing(DevToolsClientHost* host) {
   if (!tab_contents) {
     return;
   }
-  WebContents* web_contents = tab_contents->AsWebContents();
-  if (!web_contents) {
-    return;
-  }
-  SendDetachToAgent(*web_contents);
+  SendDetachToAgent(*tab_contents);
   UnregisterDevToolsClientHost(host, controller);
 }
 
@@ -191,9 +183,9 @@ void DevToolsManager::UnregisterDevToolsClientHost(
 void DevToolsManager::StartListening(
     NavigationController* navigation_controller) {
   // TODO(yurys): add render host change listener
-  if (!web_contents_listeners_.get()) {
-    web_contents_listeners_.reset(new NotificationRegistrar);
-    web_contents_listeners_->Add(
+  if (!tab_contents_listeners_.get()) {
+    tab_contents_listeners_.reset(new NotificationRegistrar);
+    tab_contents_listeners_->Add(
         this,
         NotificationType::WEB_CONTENTS_DISCONNECTED,
         NotificationService::AllSources());
@@ -202,14 +194,14 @@ void DevToolsManager::StartListening(
 
 void DevToolsManager::StopListening(
     NavigationController* navigation_controller) {
-  DCHECK(web_contents_listeners_.get());
+  DCHECK(tab_contents_listeners_.get());
   if (navcontroller_to_client_host_.empty()) {
     DCHECK(client_host_to_navcontroller_.empty());
-    web_contents_listeners_.reset();
+    tab_contents_listeners_.reset();
   }
 }
 
-void DevToolsManager::SendAttachToAgent(const WebContents& wc,
+void DevToolsManager::SendAttachToAgent(const TabContents& wc,
                                         RenderViewHost* target_host) {
   if (GetDevToolsClientHostFor(wc) && target_host) {
     IPC::Message* m = new DevToolsAgentMsg_Attach();
@@ -218,7 +210,7 @@ void DevToolsManager::SendAttachToAgent(const WebContents& wc,
   }
 }
 
-void DevToolsManager::SendDetachToAgent(const WebContents& wc) {
+void DevToolsManager::SendDetachToAgent(const TabContents& wc) {
   RenderViewHost* target_host = wc.render_view_host();
   if (target_host) {
     IPC::Message* m = new DevToolsAgentMsg_Detach();

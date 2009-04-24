@@ -25,41 +25,9 @@ class WebContents : public TabContents {
 
   // Window stuff --------------------------------------------------------------
 
-  // Returns true if the location bar should be focused by default rather than
-  // the page contents. The view will call this function when the tab is
-  // to see what it should do.
-  bool FocusLocationBarByDefault();
-
   // TabContents (public overrides) --------------------------------------------
 
   virtual WebContents* AsWebContents() { return this; }
-  const string16& GetTitle() const;
-  virtual SiteInstance* GetSiteInstance() const;
-  virtual bool ShouldDisplayURL();
-  virtual bool ShouldDisplayFavIcon();
-  virtual std::wstring GetStatusText() const;
-  virtual bool NavigateToPendingEntry(bool reload);
-  virtual void Stop();
-  virtual void Cut();
-  virtual void Copy();
-  virtual void Paste();
-  virtual void DisassociateFromPopupCount();
-  virtual TabContents* Clone();
-  virtual void DidBecomeSelected();
-  virtual void WasHidden();
-  virtual void ShowContents();
-  virtual void HideContents();
-  virtual bool IsBookmarkBarAlwaysVisible();
-  virtual void SetDownloadShelfVisible(bool visible);
-  virtual void PopupNotificationVisibilityChanged(bool visible);
-  virtual void Focus();
-
-  // Retarded pass-throughs to the view.
-  // TODO(brettw) fix this, tab contents shouldn't have these methods, probably
-  // it should be killed altogether.
-  virtual gfx::NativeView GetNativeView() const;
-  virtual gfx::NativeView GetContentNativeView();
-  virtual void GetContainerBounds(gfx::Rect *out) const;
 
   // Web apps ------------------------------------------------------------------
 
@@ -129,14 +97,6 @@ class WebContents : public TabContents {
   }
 
  protected:
-  RenderWidgetHostView* render_widget_host_view() const {
-    return render_manager_.current_view();
-  }
-
-  // TabContents (private overrides) -------------------------------------------
-
-  virtual void SetInitialFocus(bool reverse);
-  virtual void SetIsLoading(bool is_loading, LoadNotificationDetails* details);
 
   // RenderViewHostDelegate ----------------------------------------------------
 
@@ -392,10 +352,6 @@ class WebContents : public TabContents {
   // If params has a searchable form, this tries to create a new keyword.
   void GenerateKeywordIfNecessary(
       const ViewHostMsg_FrameNavigate_Params& params);
-
-  // Returns the DOMUI for the current state of the tab. This will either be
-  // the pending DOMUI, the committed DOMUI, or NULL.
-  DOMUI* GetDOMUIForCurrentState();
 
   DISALLOW_COPY_AND_ASSIGN(WebContents);
 };

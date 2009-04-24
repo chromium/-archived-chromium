@@ -20,7 +20,7 @@ class DevToolsClientHost;
 class NavigationController;
 class NotificationRegistrar;
 class RenderViewHost;
-class WebContents;
+class TabContents;
 
 // This class is a singleton that manages DevToolsClientHost instances and
 // routes messages between developer tools clients and agents.
@@ -30,13 +30,13 @@ class DevToolsManager : public NotificationObserver,
   DevToolsManager();
   virtual ~DevToolsManager();
 
-  // Returns DevToolsClientHost registered for |web_contents| or NULL if
-  // there is no alive DevToolsClientHost registered for |web_contents|.
-  DevToolsClientHost* GetDevToolsClientHostFor(const WebContents& web_contents);
+  // Returns DevToolsClientHost registered for |tab_contents| or NULL if
+  // there is no alive DevToolsClientHost registered for |tab_contents|.
+  DevToolsClientHost* GetDevToolsClientHostFor(const TabContents& tab_contents);
 
-  // Registers new DevToolsClientHost for |web_contents|. There must be no
-  // other DevToolsClientHosts registered for the WebContents at the moment.
-  void RegisterDevToolsClientHostFor(WebContents& web_contents,
+  // Registers new DevToolsClientHost for |tab_contents|. There must be no
+  // other DevToolsClientHosts registered for the TabContents at the moment.
+  void RegisterDevToolsClientHostFor(TabContents& tab_contents,
                                      DevToolsClientHost* client_host);
 
   void ForwardToDevToolsAgent(const RenderViewHost& client_rvh,
@@ -46,17 +46,17 @@ class DevToolsManager : public NotificationObserver,
   void ForwardToDevToolsClient(const RenderViewHost& from,
                                const IPC::Message& message);
 
-  void OpenDevToolsWindow(WebContents* wc);
+  void OpenDevToolsWindow(TabContents* wc);
 
   // Starts element inspection in the devtools client.
   // Creates one by means of OpenDevToolsWindow if no client
   // exists.
-  void InspectElement(WebContents* web_contents, int x, int y);
+  void InspectElement(TabContents* tab_contents, int x, int y);
 
   // Sends 'Attach' message to the agent using |target_host| in case
-  // there is a DevToolsClientHost registered for the |web_contents|.
+  // there is a DevToolsClientHost registered for the |tab_contents|.
   void SendAttachToAgent(
-      const WebContents& web_contents,
+      const TabContents& tab_contents,
       RenderViewHost* target_host);
 
 private:
@@ -81,11 +81,11 @@ private:
       NavigationController* navigation_controller);
   void StartListening(NavigationController* navigation_controller);
   void StopListening(NavigationController* navigation_controller);
-  void SendDetachToAgent(const WebContents& web_contents);
+  void SendDetachToAgent(const TabContents& tab_contents);
 
   // This object is not NULL iff there is at least one registered
   // DevToolsClientHost.
-  scoped_ptr<NotificationRegistrar> web_contents_listeners_;
+  scoped_ptr<NotificationRegistrar> tab_contents_listeners_;
 
   // These two maps are for tracking dependencies between inspected tabs and
   // their DevToolsClientHosts. They are usful for routing devtools messages

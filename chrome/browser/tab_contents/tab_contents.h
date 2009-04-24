@@ -178,7 +178,7 @@ class TabContents : public PageNavigator,
   // pending may be provisional (e.g., the navigation could result in a
   // download, in which case the URL would revert to what it was previously).
   const GURL& GetURL() const;
-  virtual const string16& GetTitle() const = 0;
+  virtual const string16& GetTitle() const;
 
   // The max PageID of any page that this TabContents has loaded.  PageIDs
   // increase with each new page that is loaded by a tab.  If this is a
@@ -192,7 +192,7 @@ class TabContents : public PageNavigator,
   // Returns the site instance associated with the current page. By default,
   // there is no site instance. WebContents overrides this to provide proper
   // access to its site instance.
-  virtual SiteInstance* GetSiteInstance() const = 0;
+  virtual SiteInstance* GetSiteInstance() const;
 
   // Initial title assigned to NavigationEntries from Navigate.
   const std::wstring GetDefaultTitle() const;
@@ -201,7 +201,7 @@ class TabContents : public PageNavigator,
   // bar. Normally this is true so you can see the URL. This is set to false
   // for the new tab page and related pages so that the URL bar is empty and
   // the user is invited to type into it.
-  virtual bool ShouldDisplayURL() = 0;
+  virtual bool ShouldDisplayURL();
 
   // Returns the favicon for this tab, or an isNull() bitmap if the tab does not
   // have a favicon. The default implementation uses the current navigation
@@ -210,7 +210,7 @@ class TabContents : public PageNavigator,
 
   // Returns whether the favicon should be displayed. If this returns false, no
   // space is provided for the favicon, and the favicon is never displayed.
-  virtual bool ShouldDisplayFavIcon() = 0;
+  virtual bool ShouldDisplayFavIcon();
 
   // SSL related states.
   SecurityStyle GetSecurityStyle() const;
@@ -222,7 +222,7 @@ class TabContents : public PageNavigator,
   bool GetSSLEVText(std::wstring* ev_text, std::wstring* ev_tooltip_text) const;
 
   // Returns a human-readable description the tab's loading state.
-  virtual std::wstring GetStatusText() const = 0;
+  virtual std::wstring GetStatusText() const;
 
   // Return whether this tab contents is loading a resource.
   bool is_loading() const { return is_loading_; }
@@ -262,15 +262,19 @@ class TabContents : public PageNavigator,
 
   // Invoked when the tab contents becomes selected. If you override, be sure
   // and invoke super's implementation.
-  virtual void DidBecomeSelected() = 0;
+  virtual void DidBecomeSelected();
 
   // Invoked when the tab contents becomes hidden.
   // NOTE: If you override this, call the superclass version too!
-  virtual void WasHidden() = 0;
+  virtual void WasHidden();
 
   // Activates this contents within its containing window, bringing that window
   // to the foreground if necessary.
   void Activate();
+
+  // TODO(brettw) document these.
+  virtual void ShowContents();
+  virtual void HideContents();
 
   // Commands ------------------------------------------------------------------
 
@@ -290,10 +294,10 @@ class TabContents : public PageNavigator,
   //
   // If this method returns false, then the navigation is discarded (equivalent
   // to calling DiscardPendingEntry on the NavigationController).
-  virtual bool NavigateToPendingEntry(bool reload) = 0;
+  virtual bool NavigateToPendingEntry(bool reload);
 
   // Stop any pending navigation.
-  virtual void Stop() = 0;
+  virtual void Stop();
 
   // TODO(erg): HACK ALERT! This was thrown together for beta and
   // needs to be completely removed after we ship it. Right now, the
@@ -302,16 +306,16 @@ class TabContents : public PageNavigator,
   // TabContents. Post-beta, this needs to be replaced with a unified
   // interface for supporting cut/copy/paste, and managing who has
   // cut/copy/paste focus. (http://b/1117225)
-  virtual void Cut() = 0;
-  virtual void Copy() = 0;
-  virtual void Paste() = 0;
+  virtual void Cut();
+  virtual void Copy();
+  virtual void Paste();
 
   // Called on a TabContents when it isn't a popup, but a new window.
-  virtual void DisassociateFromPopupCount() = 0;
+  virtual void DisassociateFromPopupCount();
 
   // Creates a new TabContents with the same state as this one. The returned
   // heap-allocated pointer is owned by the caller.
-  virtual TabContents* Clone() = 0;
+  virtual TabContents* Clone();
 
   // Window management ---------------------------------------------------------
 
@@ -344,22 +348,24 @@ class TabContents : public PageNavigator,
   void CloseAllSuppressedPopups();
 
   // Called when the blocked popup notification is shown or hidden.
-  virtual void PopupNotificationVisibilityChanged(bool visible) = 0;
+  virtual void PopupNotificationVisibilityChanged(bool visible);
 
   // Views and focus -----------------------------------------------------------
+  // TODO(brettw): Most of these should be removed and the caller should call
+  // the view directly.
 
   // Returns the actual window that is focused when this TabContents is shown.
-  virtual gfx::NativeView GetContentNativeView() = 0;
+  gfx::NativeView GetContentNativeView();
 
   // Returns the NativeView associated with this TabContents. Outside of
   // automation in the context of the UI, this is required to be implemented.
-  virtual gfx::NativeView GetNativeView() const = 0;
+  gfx::NativeView GetNativeView() const;
 
   // Returns the bounds of this TabContents in the screen coordinate system.
-  virtual void GetContainerBounds(gfx::Rect *out) const = 0;
+  void GetContainerBounds(gfx::Rect *out) const;
 
   // Make the tab the focused window.
-  virtual void Focus() = 0;
+  void Focus();
 
   // Invoked the first time this tab is getting the focus through TAB traversal.
   // By default this does nothing, but is overridden to set the focus for the
@@ -370,7 +376,12 @@ class TabContents : public PageNavigator,
   //
   // See also SetInitialFocus(no arg).
   // FIXME(brettw) having two SetInitialFocus that do different things is silly.
-  virtual void SetInitialFocus(bool reverse) = 0;
+  void SetInitialFocus(bool reverse);
+
+  // Returns true if the location bar should be focused by default rather than
+  // the page contents. The view will call this function when the tab is
+  // to see what it should do.
+  bool FocusLocationBarByDefault();
 
   // Infobars ------------------------------------------------------------------
 
@@ -389,10 +400,10 @@ class TabContents : public PageNavigator,
   // Toolbars and such ---------------------------------------------------------
 
   // Returns whether the bookmark bar should be visible.
-  virtual bool IsBookmarkBarAlwaysVisible() = 0;
+  virtual bool IsBookmarkBarAlwaysVisible();
 
   // Whether or not the shelf view is visible.
-  virtual void SetDownloadShelfVisible(bool visible) = 0;
+  virtual void SetDownloadShelfVisible(bool visible);
   bool IsDownloadShelfVisible() { return shelf_visible_; }
 
   // Notify our delegate that some of our content has animated.
@@ -534,11 +545,15 @@ class TabContents : public PageNavigator,
 
   TabContents(Profile* profile);
 
+  RenderWidgetHostView* render_widget_host_view() const {
+    return render_manager_.current_view();
+  }
+
   // Changes the IsLoading state and notifies delegate as needed
   // |details| is used to provide details on the load that just finished
   // (but can be null if not applicable). Can be overridden.
-  virtual void SetIsLoading(bool is_loading,
-                            LoadNotificationDetails* details) = 0;
+  void SetIsLoading(bool is_loading,
+                    LoadNotificationDetails* details);
 
   // Called by a derived class when the TabContents is resized, causing
   // suppressed constrained web popups to be repositioned to the new bounds
@@ -571,6 +586,11 @@ class TabContents : public PageNavigator,
   // true if the shortcut was created.
   void OnGearsCreateShortcutDone(const GearsShortcutData2& shortcut_data,
                                  bool success);
+
+
+  // Returns the DOMUI for the current state of the tab. This will either be
+  // the pending DOMUI, the committed DOMUI, or NULL.
+  DOMUI* GetDOMUIForCurrentState();
 
   // Data for core operation ---------------------------------------------------
 
