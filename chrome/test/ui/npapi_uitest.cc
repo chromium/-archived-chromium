@@ -28,16 +28,6 @@ const char kTestCompleteSuccess[] = "OK";
 const int kLongWaitTimeout = 30 * 1000;
 const int kShortWaitTimeout = 5 * 1000;
 
-std::ostream& operator<<(std::ostream& out, const CComBSTR &str)
-{
-  // I love strings.  I really do.  That's why I make sure
-  // to need 4 different types of strings to stream one out.
-  TCHAR szFinal[1024];
-  _bstr_t bstrIntermediate(str);
-  _stprintf_s(szFinal, _T("%s"), (LPCTSTR)bstrIntermediate);
-  return out << szFinal;
-}
-
 // Test passing arguments to a plugin.
 TEST_F(NPAPITester, Arguments) {
   std::wstring test_case = L"arguments.html";
