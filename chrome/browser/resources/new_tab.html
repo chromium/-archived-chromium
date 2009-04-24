@@ -679,8 +679,9 @@ function makeSearchURL(url) {
      </form>
   */
   var input = DOM('input', {type:'text',
-      className: 'hint',
-      placeholder: url.short_name});
+      className: 'hint'});
+  // There is no DOM property for placeholder.
+  input.setAttribute('placeholder', url.short_name);
   input.keyword = url.keyword;
 
   if (url.favIconURL) {
