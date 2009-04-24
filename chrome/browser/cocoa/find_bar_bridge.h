@@ -22,7 +22,7 @@ class FindBarController;
 // created by a static method in BrowserWindow.  The FindBarBridge
 // constructor creates a FindBarCocoaController, which in turn loads a
 // FindBarView from a nib file.  All of this is happening outside of
-// the main view hierarchy, so FindBarCocoaController calls
+// the main view hierarchy, so the static method also calls
 // BrowserWindowCocoa::AddFindBar() in order to add its FindBarView to
 // the cocoa views hierarchy.
 //
@@ -32,9 +32,12 @@ class FindBarController;
 
 class FindBarBridge : public FindBar {
  public:
-  // Constructs a new bridge object and adds its cocoa controller to |window|.
-  FindBarBridge(BrowserWindowCocoa* window);
+  FindBarBridge();
   virtual ~FindBarBridge();
+
+  FindBarCocoaController* find_bar_cocoa_controller() {
+    return cocoa_controller_.get();
+  }
 
   virtual void SetFindBarController(FindBarController* find_bar_controller) {
     find_bar_controller_ = find_bar_controller;

@@ -24,5 +24,13 @@ BrowserWindow* BrowserWindow::CreateBrowserWindow(Browser* browser) {
 
 // static
 FindBar* BrowserWindow::CreateFindBar(Browser* browser) {
-  return new FindBarBridge(static_cast<BrowserWindowCocoa*>(browser->window()));
+  // We could push the AddFindBar() call into the FindBarBridge
+  // constructor or the FindBarCocoaController init, but that makes
+  // unit testing difficult, since we would also require a
+  // BrowserWindow object.
+  BrowserWindowCocoa* window =
+      static_cast<BrowserWindowCocoa*>(browser->window());
+  FindBarBridge* bridge = new FindBarBridge();
+  window->AddFindBar(bridge->find_bar_cocoa_controller());
+  return bridge;
 }

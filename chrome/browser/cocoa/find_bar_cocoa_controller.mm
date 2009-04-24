@@ -17,10 +17,9 @@
 
 @implementation FindBarCocoaController
 
-- (id)initWithBrowserWindow:(BrowserWindowCocoa*)window {
+- (id)init {
   if ((self = [super initWithNibName:@"FindBar"
                               bundle:mac_util::MainAppBundle()])) {
-    window->AddFindBar(self);
   }
   return self;
 }

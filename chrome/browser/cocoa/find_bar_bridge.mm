@@ -5,9 +5,8 @@
 #import "chrome/browser/cocoa/find_bar_bridge.h"
 #import "chrome/browser/cocoa/find_bar_cocoa_controller.h"
 
-FindBarBridge::FindBarBridge(BrowserWindowCocoa* window) {
-  cocoa_controller_.reset(
-      [[FindBarCocoaController alloc] initWithBrowserWindow:window]);
+FindBarBridge::FindBarBridge() {
+  cocoa_controller_.reset([[FindBarCocoaController alloc] init]);
   [cocoa_controller_ setFindBarBridge:this];
 }
 

@@ -29,8 +29,8 @@ class FindNotificationDetails;
   FindBarBridge* findBarBridge_;  // weak
 };
 
-// Initializes a new FindBarCocoaController and add itself to |window|.
-- (id)initWithBrowserWindow:(BrowserWindowCocoa*)window;
+// Initializes a new FindBarCocoaController.
+- (id)init;
 
 - (void)setFindBarBridge:(FindBarBridge*)findBar;
 
