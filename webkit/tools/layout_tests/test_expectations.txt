@@ -2567,6 +2567,8 @@ BUG10998 MAC : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-
 // The following tests needs rebaseline on LINUX and MAC because of
 // WebKit change http://trac.webkit.org/changeset/42732
 BUG10999 LINUX MAC : LayoutTests/fast/css-generated-content/positioned-background-hit-test-crash.html = FAIL
+BUG10999 LINUX MAC : LayoutTests/editing/selection/click-in-margins-inside-editable-div.html = FAIL
+BUG10999 LINUX MAC : LayoutTests/editing/selection/click-in-padding-with-multiple-line-boxes.html = FAIL
 
 // New failures from WebKit merge 42725:42805
 // Because of WebKit change http://trac.webkit.org/changeset/42740,
