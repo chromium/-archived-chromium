@@ -58,7 +58,7 @@ class TestWebWorker : public WebKit::WebWorker,
   WebKit::WebWorkerClient* webworkerclient_delegate_;
   WebKit::WebWorker* webworker_impl_;
   TestWebWorkerHelper* webworker_helper_;
-  std::vector<WebKit::WebString> queued_messages_;
+  std::vector<string16> queued_messages_;
 
   DISALLOW_COPY_AND_ASSIGN(TestWebWorker);
 };
