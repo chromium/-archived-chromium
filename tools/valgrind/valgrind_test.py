@@ -76,6 +76,8 @@ class Valgrind(object):
     self._parser.add_option("", "--generate_suppressions", action="store_true",
                             default=False,
                             help="Skip analysis and generate suppressions")
+    self._parser.add_option("", "--custom_valgrind_command",
+                            help="Use custom valgrind command and options")
     self._parser.add_option("-v", "--verbose", action="store_true", default=False,
                     help="verbose output - enable debug log messages")
     self._parser.description = __doc__
@@ -187,34 +189,41 @@ class ValgrindLinux(Valgrind):
   def ValgrindCommand(self):
     """Get the valgrind command to run."""
     # note that self._args begins with the exe to be run
-    proc = ["valgrind", "--smc-check=all", "--leak-check=full",
-            "--num-callers=30"]
 
-    if self._options.show_all_leaks:
-      proc += ["--show-reachable=yes"];
-
-    if self._options.track_origins:
-      proc += ["--track-origins=yes"];
-
-    if self._options.trace_children:
-      proc += ["--trace-children=yes"];
-
-    # Either generate suppressions or load them.
-    if self._generate_suppressions:
-      proc += ["--gen-suppressions=all"]
+    if self._options.custom_valgrind_command:
+      # take the full valgrind command from --custom_valgrind_command
+      proc = self._options.custom_valgrind_command.split()
     else:
-      proc += ["--xml=yes"]
+      # construct the valgrind command
+      proc = ["valgrind", "--smc-check=all", "--leak-check=full",
+              "--num-callers=30"]
 
-    suppression_count = 0
-    for suppression_file in self._suppressions:
-      if os.path.exists(suppression_file):
-        suppression_count += 1
-        proc += ["--suppressions=%s" % suppression_file]
+      if self._options.show_all_leaks:
+        proc += ["--show-reachable=yes"];
 
-    if not suppression_count:
-      logging.warning("WARNING: NOT USING SUPPRESSIONS!")
+      if self._options.track_origins:
+        proc += ["--track-origins=yes"];
 
-    proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+      if self._options.trace_children:
+        proc += ["--trace-children=yes"];
+
+      # Either generate suppressions or load them.
+      if self._generate_suppressions:
+        proc += ["--gen-suppressions=all"]
+      else:
+        proc += ["--xml=yes"]
+
+      suppression_count = 0
+      for suppression_file in self._suppressions:
+        if os.path.exists(suppression_file):
+          suppression_count += 1
+          proc += ["--suppressions=%s" % suppression_file]
+
+      if not suppression_count:
+        logging.warning("WARNING: NOT USING SUPPRESSIONS!")
+
+      proc += ["--log-file=" + self.TMP_DIR + "/valgrind.%p"]
+    # The Valgrind command is constructed.
 
     if self._options.indirect:
       # The program being run invokes Python or something else

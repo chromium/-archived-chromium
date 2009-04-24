@@ -144,6 +144,9 @@ class ChromeTests:
       cmd.append("--track_origins")
     if self._options.generate_suppressions:
       cmd.append("--generate_suppressions")
+    if self._options.custom_valgrind_command:
+      cmd.append("--custom_valgrind_command=%s"
+                 % self._options.custom_valgrind_command)
     if valgrind_test_args != None:
       for arg in valgrind_test_args:
         cmd.append(arg)
@@ -363,6 +366,8 @@ def _main(_):
   parser.add_option("", "--generate_suppressions", action="store_true",
                     default=False,
                     help="Skip analysis and generate suppressions")
+  parser.add_option("", "--custom_valgrind_command",
+                    help="Use custom valgrind command and options")
   # My machine can do about 120 layout tests/hour in release mode.
   # Let's do 30 minutes worth per run.
   # The CPU is mostly idle, so perhaps we can raise this when
