@@ -59,6 +59,12 @@ void OnDialogResponse(GtkDialog* dialog, int response_id) {
   gtk_widget_destroy(GTK_WIDGET(dialog));
 }
 
+void FixLabelWrappingCallback(GtkWidget *label,
+                              GtkAllocation *allocation,
+                              gpointer data) {
+  gtk_widget_set_size_request(label, allocation->width, -1);
+}
+
 GtkWidget* MakeMarkupLabel(const char* format, const std::wstring& str) {
   GtkWidget* label = gtk_label_new(NULL);
   char* markup = g_markup_printf_escaped(
@@ -150,6 +156,11 @@ void ShowAboutDialogForProfile(GtkWindow* parent, Profile* profile) {
   gtk_label_set_line_wrap(GTK_LABEL(license_label), TRUE);
   gtk_misc_set_alignment(GTK_MISC(license_label), 0, 0);
   gtk_box_pack_start(GTK_BOX(content_area), license_label, TRUE, TRUE, 0);
+
+  // Hack around Gtk's not-so-good label wrapping, as described here:
+  // http://blog.16software.com/dynamic-label-wrapping-in-gtk
+  g_signal_connect(G_OBJECT(license_label), "size-allocate",
+                   G_CALLBACK(FixLabelWrappingCallback), NULL);
 
   g_signal_connect(dialog, "response", G_CALLBACK(OnDialogResponse), NULL);
   gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
