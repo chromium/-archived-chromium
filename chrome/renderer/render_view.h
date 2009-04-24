@@ -18,9 +18,6 @@
 #include "base/timer.h"
 #include "base/values.h"
 #include "build/build_config.h"
-#ifdef CHROME_PERSONALIZATION
-#include "chrome/personalization/personalization.h"
-#endif
 #include "chrome/renderer/automation/dom_automation_controller.h"
 #include "chrome/renderer/dom_ui_bindings.h"
 #include "chrome/renderer/external_host_bindings.h"
@@ -566,10 +563,6 @@ class RenderView : public RenderWidget,
   // Message that the popup notification has been shown or hidden.
   void OnPopupNotificationVisiblityChanged(bool visible);
 
-#ifdef CHROME_PERSONALIZATION
-  void OnPersonalizationEvent(std::string event_name, std::string event_args);
-#endif
-
   // Handles messages posted from automation.
   void OnMessageFromExternalHost(const std::string& message,
                                  const std::string& origin,
@@ -623,8 +616,6 @@ class RenderView : public RenderWidget,
   std::string GetAltHTMLForTemplate(const DictionaryValue& error_strings,
                                     int template_resource_id) const;
 
-  virtual void TransitionToCommittedForNewPage();
-
   virtual void DidAddHistoryItem();
 
   // Decodes a data: URL image or returns an empty image in case of failure.
@@ -644,10 +635,6 @@ class RenderView : public RenderWidget,
 
   // Chrome page<->browser messaging CppBoundClass.
   DOMUIBindings dom_ui_bindings_;
-
-#ifdef CHROME_PERSONALIZATION
-  RendererPersonalization personalization_;
-#endif
 
   // window.external object for "built-in" JS extensions
   ExternalJSObject external_js_object_;

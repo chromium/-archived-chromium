@@ -14,9 +14,6 @@
 #include "chrome/browser/renderer_host/render_widget_host.h"
 #include "chrome/common/modal_dialog_event.h"
 #include "chrome/common/page_zoom.h"
-#ifdef CHROME_PERSONALIZATION
-#include "chrome/personalization/personalization.h"
-#endif
 #include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
 #include "webkit/glue/autofill_form.h"
 #include "webkit/glue/password_form_dom_manager.h"
@@ -390,16 +387,6 @@ class RenderViewHost : public RenderWidgetHost {
   // and we're necessarily leaving the page.
   void UnloadListenerHasFired() { has_unload_listener_ = false; }
 
-#ifdef CHROME_PERSONALIZATION
-  // Tells the RenderView to raise an personalization event with the given name
-  // and argument.
-  void RaisePersonalizationEvent(std::string event_name, std::string event_arg);
-
-  HostPersonalization personalization() {
-    return personalization_;
-  }
-#endif
-
   // Forward a message from external host to chrome renderer.
   void ForwardMessageFromExternalHost(const std::string& message,
                                       const std::string& origin,
@@ -501,10 +488,6 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgForwardMessageToExternalHost(const std::string& message,
                                          const std::string& origin,
                                          const std::string& target);
-#ifdef CHROME_PERSONALIZATION
-  void OnPersonalizationEvent(const std::string& message,
-                              const std::string& content);
-#endif
   void OnMsgGoToEntryAtOffset(int offset);
   void OnMsgSetTooltipText(const std::wstring& tooltip_text);
   void OnMsgSelectionChanged(const std::string& text);
@@ -586,10 +569,6 @@ class RenderViewHost : public RenderWidgetHost {
 
   // Our delegate, which wants to know about changes in the RenderView.
   RenderViewHostDelegate* delegate_;
-
-#ifdef CHROME_PERSONALIZATION
-  HostPersonalization personalization_;
-#endif
 
   // true if we are currently waiting for a response for drag context
   // information.

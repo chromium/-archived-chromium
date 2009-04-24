@@ -200,9 +200,6 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       form_field_autofill_request_id_(0),
       popup_notification_visible_(false),
       delay_seconds_for_form_state_sync_(kDefaultDelaySecondsForFormStateSync) {
-#ifdef CHROME_PERSONALIZATION
-  personalization_ = Personalization::CreateRendererPersonalization();
-#endif
 }
 
 RenderView::~RenderView() {
@@ -218,11 +215,6 @@ RenderView::~RenderView() {
 
   render_thread_->RemoveFilter(debug_message_handler_);
   render_thread_->RemoveFilter(audio_message_filter_);
-
-#ifdef CHROME_PERSONALIZATION
-  Personalization::CleanupRendererPersonalization(personalization_);
-  personalization_ = NULL;
-#endif
 }
 
 /*static*/
@@ -429,9 +421,6 @@ void RenderView::OnMessageReceived(const IPC::Message& message) {
     IPC_MESSAGE_HANDLER(ViewMsg_ShouldClose, OnMsgShouldClose)
     IPC_MESSAGE_HANDLER(ViewMsg_ClosePage, OnClosePage)
     IPC_MESSAGE_HANDLER(ViewMsg_ThemeChanged, OnThemeChanged)
-#ifdef CHROME_PERSONALIZATION
-    IPC_MESSAGE_HANDLER(ViewMsg_PersonalizationEvent, OnPersonalizationEvent)
-#endif
     IPC_MESSAGE_HANDLER(ViewMsg_HandleMessageFromExternalHost,
                         OnMessageFromExternalHost)
     IPC_MESSAGE_HANDLER(ViewMsg_DisassociateFromPopupCount,
@@ -1533,11 +1522,6 @@ void RenderView::WindowObjectCleared(WebFrame* webframe) {
     external_host_bindings_.set_routing_id(routing_id_);
     external_host_bindings_.BindToJavascript(webframe, L"externalHost");
   }
-
-#ifdef CHROME_PERSONALIZATION
-  Personalization::ConfigureRendererPersonalization(personalization_, this,
-                                                    routing_id_, webframe);
-#endif
 }
 
 void RenderView::DocumentElementAvailable(WebFrame* frame) {
@@ -2859,22 +2843,6 @@ void RenderView::OnThemeChanged() {
 #else  // defined(OS_WIN)
   // TODO(port): we don't support theming on non-Windows platforms yet
   NOTIMPLEMENTED();
-#endif
-}
-
-#ifdef CHROME_PERSONALIZATION
-void RenderView::OnPersonalizationEvent(std::string event_name,
-                                        std::string event_args) {
-  Personalization::HandleViewMsgPersonalizationEvent(personalization_,
-                                                     webview(),
-                                                     event_name,
-                                                     event_args);
-}
-#endif
-
-void RenderView::TransitionToCommittedForNewPage() {
-#ifdef CHROME_PERSONALIZATION
-  Personalization::HandleTransitionToCommittedForNewPage(personalization_);
 #endif
 }
 

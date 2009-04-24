@@ -347,9 +347,6 @@ class OffTheRecordProfileImpl : public Profile,
 ProfileImpl::ProfileImpl(const FilePath& path)
     : path_(path),
       off_the_record_(false),
-#ifdef CHROME_PERSONALIZATION
-      personalization_(NULL),
-#endif
       request_context_(NULL),
       media_request_context_(NULL),
       history_service_created_(false),
@@ -367,6 +364,12 @@ ProfileImpl::ProfileImpl(const FilePath& path)
   PrefService* prefs = GetPrefs();
   prefs->AddPrefObserver(prefs::kSpellCheckDictionary, this);
   prefs->AddPrefObserver(prefs::kEnableSpellCheck, this);
+
+#ifdef CHROME_PERSONALIZATION
+  if (!CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableP13n))
+    personalization_.reset(Personalization::CreateProfilePersonalization(this));
+#endif
+
 #if defined(OS_LINUX)
   // TODO(port): Remove ifdef when the Linux splash page is not needed.
   prefs->transient()->SetString(prefs::kHomePage, "about:linux-splash");
@@ -900,10 +903,6 @@ void ProfileImpl::StopCreateSessionServiceTimer() {
 
 #ifdef CHROME_PERSONALIZATION
 ProfilePersonalization* ProfileImpl::GetProfilePersonalization() {
-  DCHECK(!Personalization::IsP13NDisabled());
-  if (!personalization_.get())
-    personalization_.reset(
-        Personalization::CreateProfilePersonalization(this));
   return personalization_.get();
 }
 #endif

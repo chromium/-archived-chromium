@@ -1362,12 +1362,6 @@ void WebFrameLoaderClient::transitionToCommittedFromCachedFrame(WebCore::CachedF
 // Called when the FrameLoader goes into a state in which a new page load
 // will occur.
 void WebFrameLoaderClient::transitionToCommittedForNewPage() {
-  WebViewImpl* webview = webframe_->webview_impl();
-  WebViewDelegate* d = webview->delegate();
-  // Notify the RenderView.
-  if (d) {
-    d->TransitionToCommittedForNewPage();
-  }
   makeDocumentView();
 }
 

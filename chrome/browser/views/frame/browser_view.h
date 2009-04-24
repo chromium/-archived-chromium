@@ -9,9 +9,6 @@
 #include "chrome/browser/browser_window.h"
 #include "chrome/browser/hang_monitor/hung_plugin_action.h"
 #include "chrome/browser/hang_monitor/hung_window_detector.h"
-#ifdef CHROME_PERSONALIZATION
-#include "chrome/personalization/personalization.h"
-#endif
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/frame/browser_frame.h"
 #include "chrome/views/window/client_view.h"
@@ -243,18 +240,6 @@ class BrowserView : public BrowserWindow,
   // Overridden from views::ClientView:
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
-
-  // Is P13N enabled for this browser window?
-#ifdef CHROME_PERSONALIZATION
-  virtual bool IsPersonalizationEnabled() const {
-    return personalization_enabled_;
-  }
-
-  void EnablePersonalization(bool enable_personalization) {
-    personalization_enabled_ = enable_personalization;
-  }
-#endif
-
   virtual std::string GetClassName() const;
 
  protected:
@@ -410,12 +395,6 @@ class BrowserView : public BrowserWindow,
 
   // The timer used to update frames for the Loading Animation.
   base::RepeatingTimer<BrowserView> loading_animation_timer_;
-
-  // P13N stuff
-#ifdef CHROME_PERSONALIZATION
-  FramePersonalization personalization_;
-  bool personalization_enabled_;
-#endif
 
   DISALLOW_COPY_AND_ASSIGN(BrowserView);
 };

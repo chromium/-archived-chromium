@@ -465,11 +465,6 @@ IPC_BEGIN_MESSAGES(View)
   IPC_MESSAGE_ROUTED1(ViewMsg_Repaint,
                       gfx::Size /* The view size to be repainted */)
 
-#ifdef CHROME_PERSONALIZATION
-  IPC_MESSAGE_ROUTED2(ViewMsg_PersonalizationEvent,
-                      std::string /* event name */,
-                      std::string /* event arguments */)
-#endif
   // Posts a message to the renderer.
   IPC_MESSAGE_ROUTED3(ViewMsg_HandleMessageFromExternalHost,
                       std::string /* The message */,
@@ -878,11 +873,6 @@ IPC_BEGIN_MESSAGES(ViewHost)
                       std::string  /* message */,
                       std::string  /* origin */,
                       std::string  /* target */)
-
-#ifdef CHROME_PERSONALIZATION
-  IPC_MESSAGE_ROUTED2(ViewHostMsg_PersonalizationEvent,
-                      std::string, std::string)
-#endif
 
   // A renderer sends this to the browser process when it wants to create a
   // plugin.  The browser will create the plugin process if necessary, and

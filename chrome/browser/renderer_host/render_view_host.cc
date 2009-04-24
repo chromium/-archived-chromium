@@ -110,18 +110,10 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
     modal_dialog_event = new base::WaitableEvent(true, false);
 
   modal_dialog_event_.reset(modal_dialog_event);
-#ifdef CHROME_PERSONALIZATION
-  personalization_ = Personalization::CreateHostPersonalization(this);
-#endif
 }
 
 RenderViewHost::~RenderViewHost() {
   OnDebugDisconnect();
-
-#ifdef CHROME_PERSONALIZATION
-  Personalization::CleanupHostPersonalization(personalization_);
-  personalization_ = NULL;
-#endif
 
   // Be sure to clean up any leftover state from cross-site requests.
   Singleton<CrossSiteRequestManager>()->SetHasPendingCrossSiteRequest(
@@ -726,10 +718,6 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
                         OnMsgDOMUISend)
     IPC_MESSAGE_HANDLER(ViewHostMsg_ForwardMessageToExternalHost,
                         OnMsgForwardMessageToExternalHost)
-#ifdef CHROME_PERSONALIZATION
-    IPC_MESSAGE_HANDLER(ViewHostMsg_PersonalizationEvent,
-                        OnPersonalizationEvent)
-#endif
     IPC_MESSAGE_HANDLER(ViewHostMsg_GoToEntryAtOffset,
                         OnMsgGoToEntryAtOffset)
     IPC_MESSAGE_HANDLER(ViewHostMsg_SetTooltipText, OnMsgSetTooltipText)
@@ -1083,13 +1071,6 @@ void RenderViewHost::OnMsgForwardMessageToExternalHost(
   delegate_->ProcessExternalHostMessage(message, origin, target);
 }
 
-#ifdef CHROME_PERSONALIZATION
-void RenderViewHost::OnPersonalizationEvent(const std::string& message,
-                                            const std::string& content) {
-  Personalization::HandlePersonalizationEvent(this, message, content);
-}
-#endif
-
 void RenderViewHost::DisassociateFromPopupCount() {
   Send(new ViewMsg_DisassociateFromPopupCount(routing_id()));
 }
@@ -1359,13 +1340,6 @@ void RenderViewHost::OnDebugDisconnect() {
     g_browser_process->debugger_wrapper()->OnDebugDisconnect();
   }
 }
-
-#ifdef CHROME_PERSONALIZATION
-void RenderViewHost::RaisePersonalizationEvent(std::string event_name,
-                                               std::string event_arg) {
-  Send(new ViewMsg_PersonalizationEvent(routing_id(), event_name, event_arg));
-}
-#endif
 
 void RenderViewHost::ForwardMessageFromExternalHost(const std::string& message,
                                                     const std::string& origin,

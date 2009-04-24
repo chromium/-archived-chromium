@@ -280,12 +280,7 @@ BrowserView::BrowserView(Browser* browser)
       initialized_(false),
       ignore_layout_(false),
       hung_window_detector_(&hung_plugin_action_),
-      ticker_(0)
-#ifdef CHROME_PERSONALIZATION
-      , personalization_enabled_(false),
-      personalization_(NULL)
-#endif
-      {
+      ticker_(0) {
   InitClass();
   browser_->tabstrip_model()->AddObserver(this);
 }
@@ -1188,12 +1183,6 @@ void BrowserView::Layout() {
   if (find_controller)
     find_controller->find_bar()->MoveWindowIfNecessary(gfx::Rect(), true);
   LayoutStatusBubble(bottom);
-#ifdef CHROME_PERSONALIZATION
-  if (IsPersonalizationEnabled()) {
-    Personalization::ConfigureFramePersonalization(personalization_,
-                                                   toolbar_, 0);
-  }
-#endif
   SchedulePaint();
 }
 
@@ -1243,15 +1232,6 @@ void BrowserView::Init() {
 
   status_bubble_.reset(new StatusBubbleViews(GetWidget()));
 
-#ifdef CHROME_PERSONALIZATION
-  const CommandLine& command_line = *CommandLine::ForCurrentProcess();
-  EnablePersonalization(!command_line.HasSwitch(switches::kDisableP13n));
-  if (IsPersonalizationEnabled()) {
-    personalization_ = Personalization::CreateFramePersonalization(
-        browser_->profile(), this);
-  }
-#endif
-
   InitSystemMenu();
 }
 
@@ -1292,10 +1272,6 @@ int BrowserView::LayoutTabStrip() {
 
 int BrowserView::LayoutToolbar(int top) {
   int browser_view_width = width();
-#ifdef CHROME_PERSONALIZATION
-  if (IsPersonalizationEnabled())
-    Personalization::AdjustBrowserView(personalization_, &browser_view_width);
-#endif
   bool visible = IsToolbarVisible();
   toolbar_->GetLocationBarView()->SetFocusable(visible);
   int y = top -
