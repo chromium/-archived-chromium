@@ -169,14 +169,17 @@ LRESULT ProcessSingleton::OnCopyData(HWND hwnd, const COPYDATASTRUCT* cds) {
     return TRUE;
 
   // We should have enough room for the shortest command (min_message_size)
-  // and also be a multiple of wchar_t bytes.
+  // and also be a multiple of wchar_t bytes. The shortest command
+  // possible is L"START\0\0" (empty current directory and command line).
   static const int min_message_size = 7;
-  if (cds->cbData < min_message_size || cds->cbData % sizeof(wchar_t) != 0) {
+  if (cds->cbData < min_message_size * sizeof(wchar_t) ||
+      cds->cbData % sizeof(wchar_t) != 0) {
     LOG(WARNING) << "Invalid WM_COPYDATA, length = " << cds->cbData;
     return TRUE;
   }
 
   // We split the string into 4 parts on NULLs.
+  DCHECK(cds->lpData);
   const std::wstring msg(static_cast<wchar_t*>(cds->lpData),
                          cds->cbData / sizeof(wchar_t));
   const std::wstring::size_type first_null = msg.find_first_of(L'\0');
