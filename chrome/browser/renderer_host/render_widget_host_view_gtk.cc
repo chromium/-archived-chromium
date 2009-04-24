@@ -196,8 +196,8 @@ void RenderWidgetHostViewGtk::InitAsPopup(
 
   gtk_window_set_default_size(GTK_WINDOW(popup),
                               pos.width(), pos.height());
-  gtk_widget_show_all(popup);
   gtk_window_move(GTK_WINDOW(popup), pos.x(), pos.y());
+  gtk_widget_show_all(popup);
 }
 
 void RenderWidgetHostViewGtk::DidBecomeSelected() {
