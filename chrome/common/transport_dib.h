@@ -56,11 +56,10 @@ class TransportDIB {
     }
 
     bool operator< (const HandleAndSequenceNum& other) const {
-      if (other.handle < handle)
-        return true;
-      if (other.sequence_num < sequence_num)
-        return true;
-      return false;
+      // Use the lexicographic order on the tuple <handle, sequence_num>.
+      if (other.handle != handle)
+        return other.handle < handle;
+      return other.sequence_num < sequence_num;
     }
 
     HANDLE handle;
