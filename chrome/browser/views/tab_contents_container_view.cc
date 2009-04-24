@@ -174,33 +174,20 @@ void TabContentsContainerView::Observe(NotificationType type,
 }
 
 void TabContentsContainerView::AddObservers() {
-  DCHECK(tab_contents_);
-  if (tab_contents_->AsWebContents()) {
-    // WebContents can change their RenderViewHost and hence the HWND that is
-    // shown and getting focused.  We need to keep track of that so we install
-    // the focus subclass on the shown HWND so we intercept focus change events.
-    NotificationService::current()->AddObserver(
-        this, NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(&tab_contents_->controller()));
-  }
-  NotificationService::current()->AddObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(tab_contents_));
+  // WebContents can change their RenderViewHost and hence the HWND that is
+  // shown and getting focused.  We need to keep track of that so we install
+  // the focus subclass on the shown HWND so we intercept focus change events.
+  registrar_.Add(this,
+                 NotificationType::RENDER_VIEW_HOST_CHANGED,
+                 Source<NavigationController>(&tab_contents_->controller()));
+
+  registrar_.Add(this,
+                 NotificationType::TAB_CONTENTS_DESTROYED,
+                 Source<TabContents>(tab_contents_));
 }
 
 void TabContentsContainerView::RemoveObservers() {
-  DCHECK(tab_contents_);
-  if (tab_contents_->AsWebContents()) {
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::RENDER_VIEW_HOST_CHANGED,
-        Source<NavigationController>(&tab_contents_->controller()));
-  }
-  NotificationService::current()->RemoveObserver(
-      this,
-      NotificationType::TAB_CONTENTS_DESTROYED,
-      Source<TabContents>(tab_contents_));
+  registrar_.RemoveAll();
 }
 
 void TabContentsContainerView::RenderViewHostChanged(RenderViewHost* old_host,

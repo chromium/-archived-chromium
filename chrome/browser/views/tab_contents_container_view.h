@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
-#define CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
+#ifndef CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H_
+#define CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H_
 
 namespace ChromeView {
 class KeyEvent;
@@ -12,7 +12,7 @@ class View;
 class RenderViewHost;
 class TabContents;
 
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 #include "chrome/views/controls/hwnd_view.h"
 #include "chrome/views/focus/focus_manager.h"
 
@@ -71,10 +71,13 @@ class TabContentsContainerView : public views::HWNDView,
   // get notified.
   void TabContentsDestroyed(TabContents* contents);
 
+  // Handles registering for our notifications.
+  NotificationRegistrar registrar_;
+
   // The current TabContents shown.
   TabContents* tab_contents_;
 
-  DISALLOW_EVIL_CONSTRUCTORS(TabContentsContainerView);
+  DISALLOW_COPY_AND_ASSIGN(TabContentsContainerView);
 };
 
-#endif  // #ifndef CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H__
+#endif  // CHROME_BROWSER_VIEWS_TAB_CONTENTS_CONTAINER_VIEW_H_

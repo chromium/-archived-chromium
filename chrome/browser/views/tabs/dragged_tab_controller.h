@@ -12,7 +12,7 @@
 #include "chrome/browser/tab_contents/tab_contents_delegate.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/browser/views/tabs/tab_renderer.h"
-#include "chrome/common/notification_observer.h"
+#include "chrome/common/notification_registrar.h"
 
 namespace views {
 class MouseEvent;
@@ -222,6 +222,9 @@ class DraggedTabController : public TabContentsDelegate,
   void DockDisplayerDestroyed(DockDisplayer* controller);
 
   void BringWindowUnderMouseToFront();
+
+  // Handles registering for notifications.
+  NotificationRegistrar registrar_;
 
   // The TabContents being dragged.
   TabContents* dragged_contents_;

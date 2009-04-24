@@ -474,20 +474,18 @@ void DraggedTabController::UpdateDockInfo(const gfx::Point& screen_point) {
 
 void DraggedTabController::SetDraggedContents(TabContents* new_contents) {
   if (dragged_contents_) {
-    NotificationService::current()->RemoveObserver(
-        this,
-        NotificationType::TAB_CONTENTS_DESTROYED,
-        Source<TabContents>(dragged_contents_));
+    registrar_.Remove(this,
+                      NotificationType::TAB_CONTENTS_DESTROYED,
+                      Source<TabContents>(dragged_contents_));
     if (original_delegate_)
       dragged_contents_->set_delegate(original_delegate_);
   }
   original_delegate_ = NULL;
   dragged_contents_ = new_contents;
   if (dragged_contents_) {
-    NotificationService::current()->AddObserver(
-        this,
-        NotificationType::TAB_CONTENTS_DESTROYED,
-        Source<TabContents>(dragged_contents_));
+    registrar_.Add(this,
+                   NotificationType::TAB_CONTENTS_DESTROYED,
+                   Source<TabContents>(dragged_contents_));
 
     // We need to be the delegate so we receive messages about stuff,
     // otherwise our dragged_contents() may be replaced and subsequently
