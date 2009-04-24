@@ -84,10 +84,10 @@ void ResourceMessageFilter::DoOnGetRootWindowRect(gfx::NativeViewId view,
 
   if (Singleton<GtkNativeViewManager>()->GetXIDForId(&window, view)) {
     if (window) {
-      const XID toplevel = GetTopLevelWindow(toplevel);
+      const XID toplevel = GetTopLevelWindow(window);
       int x, y;
       unsigned width, height;
-      if (x11_util::GetWindowGeometry(&x, &y, &width, &height, window))
+      if (x11_util::GetWindowGeometry(&x, &y, &width, &height, toplevel))
         rect = gfx::Rect(x, y, width, height);
     }
   }
