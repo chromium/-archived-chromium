@@ -2078,6 +2078,7 @@
             'browser/metrics/metrics_service_uitest.cc',
             'browser/sessions/session_restore_uitest.cc',
             'browser/tab_restore_uitest.cc',
+            'browser/unload_uitest.cc',
             'test/reliability/page_load_test.cc',
             'test/ui/layout_plugin_uitest.cc',
             'test/ui/omnibox_uitest.cc',
@@ -2098,7 +2099,6 @@
             # TODO(port)?  (Most of these include windows.h or similar.)
             'browser/printing/printing_layout_uitest.cc',
             'browser/ssl/ssl_uitest.cc',
-            'browser/unload_uitest.cc',
             'browser/views/find_bar_win_uitest.cc',
             'common/logging_chrome_uitest.cc',
             'test/accessibility/accessibility_tests.cc',
