@@ -49,9 +49,6 @@ deps_os = {
 
     "src/third_party/python_24":
       "/trunk/deps/third_party/python_24@7444",
-
-    "src/third_party/svn":
-      "/trunk/deps/third_party/svn@3230",
   },
   "mac": {
     "src/third_party/GTM":
