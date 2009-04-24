@@ -489,3 +489,14 @@
    fun:_ZN17URLRequestHttpJob21NotifyHeadersCompleteEv
    fun:_ZN17URLRequestHttpJob16OnStartCompletedEi
 }
+{
+   # See http://crbug.com/10945
+   bug_10945
+   Memcheck:Leak
+   fun:malloc
+   fun:jpeg_get_small
+   fun:jinit_memory_mgr
+   fun:jpeg_CreateDecompress
+   fun:_ZN9JPEGCodec6DecodeEPKhjNS_11ColorFormatEPSt6vectorIhSaIhEEPiS7_
+   fun:_ZN30JPEGCodec_DecodeCorrupted_Test8TestBodyEv
+}
