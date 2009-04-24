@@ -27,6 +27,7 @@ delay_loaded = [
   'WS2_32.dll',
   'PSAPI.DLL',
   'dwmapi.dll',
+  'dbghelp.dll',
   'COMDLG32.dll',
   'urlmon.dll',
   'avcodec-52.dll',

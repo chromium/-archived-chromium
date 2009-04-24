@@ -257,7 +257,10 @@
               '-O<(debug_optimize)',
               '-g',
             ],
-          },
+            'ldflags': [
+              '-rdynamic',  # Allows backtrace to resolve symbols.
+            ],
+	  },
           'Release': {
             'cflags': [
               '-O2',
@@ -382,10 +385,11 @@
               'ws2_32.lib',
               'usp10.lib',
               'psapi.lib',
+              'dbghelp.lib',
             ],
             'AdditionalLibraryDirectories':
               '<(DEPTH)/third_party/platformsdk_win2008_6_1/files/Lib',
-            'DelayLoadDLLs': 'dwmapi.dll,uxtheme.dll',
+            'DelayLoadDLLs': 'dbghelp.dll,dwmapi.dll,uxtheme.dll',
             'GenerateDebugInformation': 'true',
             'MapFileName': '$(OutDir)\\$(TargetName).map',
             'ImportLibrary': '$(OutDir)\\lib\\$(TargetName).lib',

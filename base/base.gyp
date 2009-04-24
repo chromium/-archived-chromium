@@ -549,6 +549,7 @@
         'command_line_unittest.cc',
         'condition_variable_unittest.cc',
         'data_pack_unittest.cc',
+        'debug_util_unittest.cc',
         'directory_watcher_unittest.cc',
         'field_trial_unittest.cc',
         'file_path_unittest.cc',

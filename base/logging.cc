@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -520,6 +520,13 @@ LogMessage::~LogMessage() {
     if (DebugUtil::BeingDebugged()) {
       DebugUtil::BreakDebugger();
     } else {
+#ifndef NDEBUG
+      // Dump a stack trace on a fatal.
+      StackTrace trace;
+      stream_ << "\n";  // Newline to separate from log message.
+      trace.OutputToStream(&stream_);
+#endif
+
       if (log_assert_handler) {
         // make a copy of the string for the handler out of paranoia
         log_assert_handler(std::string(stream_.str()));
@@ -554,7 +561,7 @@ void CloseLogFile() {
   log_file = NULL;
 }
 
-} // namespace logging
+}  // namespace logging
 
 std::ostream& operator<<(std::ostream& out, const wchar_t* wstr) {
   return out << base::SysWideToUTF8(std::wstring(wstr));

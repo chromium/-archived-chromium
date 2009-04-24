@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -9,9 +9,10 @@
 #ifndef BASE_DEBUG_UTIL_H_
 #define BASE_DEBUG_UTIL_H_
 
-#include "base/basictypes.h"
-
+#include <iostream>
 #include <vector>
+
+#include "base/basictypes.h"
 
 // A stacktrace can be helpful in debugging. For example, you can include a
 // stacktrace member in a object (probably around #ifndef NDEBUG) so that you
@@ -25,6 +26,9 @@ class StackTrace {
   const void *const *Addresses(size_t* count);
   // Print a backtrace to stderr
   void PrintBacktrace();
+
+  // Resolve backtrace to symbols and write to stream.
+  void OutputToStream(std::ostream* os);
 
  private:
   std::vector<void*> trace_;
