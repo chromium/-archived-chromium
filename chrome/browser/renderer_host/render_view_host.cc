@@ -102,8 +102,7 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       run_modal_reply_msg_(NULL),
       has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
-      are_javascript_messages_suppressed_(false),
-      ALLOW_THIS_IN_INITIALIZER_LIST(extension_function_dispatcher_(this)) {
+      are_javascript_messages_suppressed_(false) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -893,6 +892,15 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
 
   delegate_->DidNavigate(this, validated_params);
 
+  if (PageTransition::IsMainFrame(validated_params.transition)) {
+    ExtensionFunctionDispatcher* new_efd = NULL;
+    if (validated_params.url.SchemeIs(chrome::kExtensionScheme)) {
+      new_efd = new ExtensionFunctionDispatcher(this,
+                                                validated_params.url.host());
+    }
+    extension_function_dispatcher_.reset(new_efd);
+  }
+
   UpdateBackForwardListCount();
 }
 
@@ -1353,7 +1361,7 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
                                         int callback_id) {
   // TODO(aa): Here is where we can check that this renderer was supposed to be
   // able to call extension APIs.
-  extension_function_dispatcher_.HandleRequest(name, args, callback_id);
+  extension_function_dispatcher_->HandleRequest(name, args, callback_id);
 }
 
 void RenderViewHost::SendExtensionResponse(int callback_id,

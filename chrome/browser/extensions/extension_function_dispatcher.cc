@@ -96,8 +96,11 @@ void ExtensionFunctionDispatcher::GetAllFunctionNames(
 }
 
 ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
-    RenderViewHost* render_view_host)
-  : render_view_host_(render_view_host) {}
+    RenderViewHost* render_view_host,
+    const std::string& extension_id)
+  : render_view_host_(render_view_host),
+    extension_id_(extension_id) {
+}
 
 void ExtensionFunctionDispatcher::HandleRequest(const std::string& name,
                                                 const std::string& args,
@@ -151,4 +154,3 @@ void ExtensionFunctionDispatcher::HandleBadMessage(ExtensionFunction* api) {
 Profile* ExtensionFunctionDispatcher::profile() {
   return render_view_host_->process()->profile();
 }
-

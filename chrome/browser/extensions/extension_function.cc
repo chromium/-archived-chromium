@@ -21,6 +21,10 @@ void ExtensionFunction::SendResponse(bool success) {
   }
 }
 
+std::string ExtensionFunction::extension_id() {
+  return dispatcher_->extension_id();
+}
+
 Profile* ExtensionFunction::profile() {
   return dispatcher_->profile();
 }

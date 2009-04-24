@@ -52,6 +52,8 @@ class ExtensionFunction {
  protected:
   void SendResponse(bool success);
 
+  std::string extension_id();
+
   Profile* profile();
 
   // The arguments to the API. Only non-null if argument were specfied.

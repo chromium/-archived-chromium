@@ -22,7 +22,8 @@ class ExtensionFunctionDispatcher {
   // Gets a list of all known extension function names.
   static void GetAllFunctionNames(std::vector<std::string>* names);
 
-  ExtensionFunctionDispatcher(RenderViewHost* render_view_host);
+  ExtensionFunctionDispatcher(RenderViewHost* render_view_host,
+                              const std::string& extension_id);
 
   // Handle a request to execute an extension function.
   void HandleRequest(const std::string& name, const std::string& args,
@@ -35,11 +36,16 @@ class ExtensionFunctionDispatcher {
   // the renderer.
   void HandleBadMessage(ExtensionFunction* api);
 
+  // Gets the ID for this extension.
+  std::string extension_id() { return extension_id_; }
+
   // The profile that this dispatcher is associated with.
   Profile* profile();
 
  private:
   RenderViewHost* render_view_host_;
+
+  std::string extension_id_;
 };
 
 #endif  // CHROME_BROWSER_EXTENSIONS_EXTENSION_FUNCTION_DISPATCHER_H_

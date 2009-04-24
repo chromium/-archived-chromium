@@ -620,7 +620,7 @@ class RenderViewHost : public RenderWidgetHost {
   bool are_javascript_messages_suppressed_;
 
   // Handles processing IPC messages request extension functions be executed.
-  ExtensionFunctionDispatcher extension_function_dispatcher_;
+  scoped_ptr<ExtensionFunctionDispatcher> extension_function_dispatcher_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHost);
 };
