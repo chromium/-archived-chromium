@@ -24,8 +24,13 @@ size_t SkMask::computeImageSize() const
     // Prevent too large a number. There is a better fix for this in Skia
     // trunk where it returns failure.
     long long size = (long long)fBounds.height() * (long long)fRowBytes;
-    if (size >= std::numeric_limits<size_t>::max() / 2)
+    if (size >= std::numeric_limits<size_t>::max() / 2) {
+#ifdef WIN32
         __debugbreak();
+#else
+        abort();
+#endif
+    }
 
     return size;
 }
@@ -36,8 +41,14 @@ size_t SkMask::computeTotalImageSize() const
 
     if (fFormat == SkMask::k3D_Format) {
         // See computeImageSize for why we want to stop here.
-        if (size > std::numeric_limits<size_t>::max() / 3)
+        if (size > std::numeric_limits<size_t>::max() / 3) {
+#ifdef WIN32
             __debugbreak();
+#else
+        abort();
+#endif
+        }
+
         size *= 3;
     }
     return size;
