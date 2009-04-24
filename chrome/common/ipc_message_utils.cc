@@ -33,18 +33,13 @@ struct SkBitmap_Data {
     fRowBytes = bitmap.rowBytes();
   }
 
-  // Returns whether |bitmap| successfully initialized.
-  bool InitSkBitmapFromData(SkBitmap* bitmap, const char* pixels,
+  void InitSkBitmapFromData(SkBitmap* bitmap, const char* pixels,
                             size_t total_pixels) const {
     if (total_pixels) {
       bitmap->setConfig(fConfig, fWidth, fHeight, fRowBytes);
-      if (!bitmap->allocPixels())
-        return false;
-      if (total_pixels > bitmap->getSize())
-        return false;
+      bitmap->allocPixels();
       memcpy(bitmap->getPixels(), pixels, total_pixels);
     }
-    return true;
   }
 };
 
@@ -83,7 +78,8 @@ bool ParamTraits<SkBitmap>::Read(const Message* m, void** iter, SkBitmap* r) {
   }
   const SkBitmap_Data* bmp_data =
       reinterpret_cast<const SkBitmap_Data*>(fixed_data);
-  return bmp_data->InitSkBitmapFromData(r, variable_data, variable_data_size);
+  bmp_data->InitSkBitmapFromData(r, variable_data, variable_data_size);
+  return true;
 }
 
 void ParamTraits<SkBitmap>::Log(const SkBitmap& p, std::wstring* l) {
