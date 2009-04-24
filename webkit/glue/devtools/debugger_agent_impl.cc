@@ -51,7 +51,6 @@ DebuggerAgentImpl::DebuggerAgentImpl(
 
 DebuggerAgentImpl::~DebuggerAgentImpl() {
   DebuggerAgentManager::DebugDetach(this);
-  web_view_impl_->SetIgnoreInputEvents(false);
 }
 
 void DebuggerAgentImpl::DebugBreak() {
@@ -60,8 +59,7 @@ void DebuggerAgentImpl::DebugBreak() {
 
 void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {
   delegate_->DebuggerOutput(command);
-  // TODO(pfeldman): Uncomment this once v8 changes are landed.
-  // webdevtools_agent_->ForceRepaint();
+  webdevtools_agent_->ForceRepaint();
 }
 
 void DebuggerAgentImpl::SetDocument(Document* document) {

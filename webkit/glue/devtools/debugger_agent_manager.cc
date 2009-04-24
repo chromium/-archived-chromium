@@ -24,6 +24,26 @@
 WebDevToolsAgent::MessageLoopDispatchHandler
     DebuggerAgentManager::message_loop_dispatch_handler_ = NULL;
 
+namespace {
+
+class CallerIdWrapper : public v8::Debug::ClientData {
+ public:
+  CallerIdWrapper() : caller_is_mananager_(true), caller_id_(0) {}
+  explicit CallerIdWrapper(int caller_id)
+    : caller_is_mananager_(false),
+      caller_id_(caller_id) {}
+  ~CallerIdWrapper() {}
+  bool caller_is_mananager() const { return caller_is_mananager_; }
+  int caller_id() const { return caller_id_; }
+ private:
+  bool caller_is_mananager_;
+  int caller_id_;
+  DISALLOW_COPY_AND_ASSIGN(CallerIdWrapper);
+};
+
+}  // namespace
+
+
 // static
 void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
                                                  int length,
@@ -31,7 +51,7 @@ void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
 #if USE(V8)
   std::wstring out(reinterpret_cast<const wchar_t*>(message), length);
   std::string out_utf8 = WideToUTF8(out);
-  DebuggerAgentManager::DebuggerOutput(out_utf8);
+  DebuggerAgentManager::DebuggerOutput(out_utf8, data);
 #endif
 }
 
@@ -56,9 +76,8 @@ void DebuggerAgentManager::DebugAttach(DebuggerAgentImpl* debugger_agent) {
     v8::Debug::SetMessageHandler(
         &DebuggerAgentManager::V8DebugMessageHandler,
         false /* don't create separate thread for sending debugger output */);
-    // TODO(pfeldman): Uncomment once V8 changes are landed.
-//    v8::Debug::SetHostDispatchHandler(
-//        &DebuggerAgentManager::V8DebugHostDispatchHandler, 100 /* ms */);
+    v8::Debug::SetHostDispatchHandler(
+        &DebuggerAgentManager::V8DebugHostDispatchHandler, 100 /* ms */);
   }
   attached_agents_->add(debugger_agent);
 #endif
@@ -91,31 +110,22 @@ void DebuggerAgentManager::DebugBreak(DebuggerAgentImpl* debugger_agent) {
 }
 
 // static
-void DebuggerAgentManager::DebuggerOutput(const std::string& out) {
-  OwnPtr<Value> response(JSONReader::Read(out,
-                                          false /* allow_trailing_comma */));
-  if (!response.get()) {
-    NOTREACHED();
+void DebuggerAgentManager::DebuggerOutput(const std::string& out,
+                                          v8::Debug::ClientData* caller_data) {
+  // If caller_data is not NULL the message is a response to a debugger command.
+  if (caller_data) {
+    CallerIdWrapper* wrapper = static_cast<CallerIdWrapper*>(caller_data);
+    if (wrapper->caller_is_mananager()) {
+      // Just ignore messages sent by this manager.
+      return;
+    }
+    DebuggerAgentImpl* debugger_agent = FindDebuggerAgentForToolsAgent(
+        wrapper->caller_id());
+    if (debugger_agent) {
+      debugger_agent->DebuggerOutput(out);
+    }
     return;
-  }
-  if (!response->IsType(Value::TYPE_DICTIONARY)) {
-    NOTREACHED();
-    return;
-  }
-  DictionaryValue* m = static_cast<DictionaryValue*>(response.get());
-
-  std::string type;
-  if (!m->GetString(L"type", &type)) {
-    NOTREACHED();
-    return;
-  }
-
-  // Agent that should be used for sending command response is determined based
-  // on the 'request_seq' field in the response body.
-  if (type == "response") {
-    SendCommandResponse(m);
-    return;
-  }
+  } // Otherwise it's an event message.
 
   // Agent that should be used for sending events is determined based
   // on the active Frame.
@@ -125,56 +135,17 @@ void DebuggerAgentManager::DebuggerOutput(const std::string& out) {
     // handler.
     std::wstring continue_cmd(
         L"{\"seq\":1,\"type\":\"request\",\"command\":\"continue\"}");
-    SendCommandToV8(continue_cmd);
+    SendCommandToV8(continue_cmd, new CallerIdWrapper());
     return;
   }
   agent->DebuggerOutput(out);
 }
 
 // static
-bool DebuggerAgentManager::SendCommandResponse(DictionaryValue* response) {
-  // TODO(yurys): there is a bug in v8 which converts original string seq into
-  // a json dictinary.
-  DictionaryValue* request_seq;
-  if (!response->GetDictionary(L"request_seq", &request_seq)) {
-    NOTREACHED();
-    return false;
-  }
-
-  int caller_id;
-  if (!request_seq->GetInteger(L"caller_id", &caller_id)) {
-    NOTREACHED();
-    return false;
-  }
-
-  Value* original_request_seq;
-  if (request_seq->Get(L"request_seq", &original_request_seq)) {
-    response->Set(L"request_seq", original_request_seq->DeepCopy());
-  } else {
-    response->Remove(L"request_seq", NULL /* out_value */);
-  }
-
-  DebuggerAgentImpl* debugger_agent = FindDebuggerAgentForToolsAgent(
-      caller_id);
-  if (!debugger_agent) {
-    return false;
-  }
-
-  std::string json;
-  JSONWriter::Write(response, false /* pretty_print */, &json);
-  debugger_agent->DebuggerOutput(json);
-  return true;
-}
-
-// static
 void DebuggerAgentManager::ExecuteDebuggerCommand(
     const std::string& command,
     int caller_id) {
-  const std::string cmd = DebuggerAgentManager::ReplaceRequestSequenceId(
-      command,
-      caller_id);
-
-  SendCommandToV8(UTF8ToWide(cmd));
+  SendCommandToV8(UTF8ToWide(command), new CallerIdWrapper(caller_id));
 }
 
 // static
@@ -184,10 +155,12 @@ void DebuggerAgentManager::SetMessageLoopDispatchHandler(
 }
 
 // static
-void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd) {
+void DebuggerAgentManager::SendCommandToV8(const std::wstring& cmd,
+                                           v8::Debug::ClientData* data) {
 #if USE(V8)
   v8::Debug::SendCommand(reinterpret_cast<const uint16_t*>(cmd.data()),
-                         cmd.length());
+                         cmd.length(),
+                         data);
 #endif
 }
 
@@ -210,44 +183,6 @@ DebuggerAgentImpl* DebuggerAgentManager::FindAgentForCurrentV8Context() {
     }
   }
   return NULL;
-}
-
-const std::string DebuggerAgentManager::ReplaceRequestSequenceId(
-    const std::string& request,
-    int caller_id) {
-  OwnPtr<Value> message(JSONReader::Read(request,
-                                         false /* allow_trailing_comma */));
-  if (!message.get()) {
-    return request;
-  }
-  if (!message->IsType(Value::TYPE_DICTIONARY)) {
-    return request;
-  }
-  DictionaryValue* m = static_cast<DictionaryValue*>(message.get());
-
-  std::string type;
-  if (!(m->GetString(L"type", &type) && type == "request")) {
-    return request;
-  }
-
-  DictionaryValue new_seq;
-  Value* request_seq;
-  if (m->Get(L"seq", &request_seq)) {
-    new_seq.Set(L"request_seq", request_seq->DeepCopy());
-  }
-
-  // TODO(yurys): get rid of this hack, handler pointer should be passed
-  // into v8::Debug::SendCommand along with the command.
-  new_seq.SetInteger(L"caller_id", caller_id);
-
-  // TODO(yurys): fix v8 parser so that it handle objects as ids correctly.
-  std::string new_seq_str;
-  JSONWriter::Write(&new_seq, false /* pretty_print */, &new_seq_str);
-  m->SetString(L"seq", new_seq_str);
-
-  std::string json;
-  JSONWriter::Write(m, false /* pretty_print */, &json);
-  return json;
 }
 
 DebuggerAgentImpl* DebuggerAgentManager::FindDebuggerAgentForToolsAgent(

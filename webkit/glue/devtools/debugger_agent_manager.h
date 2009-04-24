@@ -50,16 +50,13 @@ class DebuggerAgentManager {
                                     int length,
                                     v8::Debug::ClientData* data);
   static void V8DebugHostDispatchHandler();
-  static void DebuggerOutput(const std::string& out);
-  static void SendCommandToV8(const std::wstring& cmd);
-  static bool SendCommandResponse(DictionaryValue* response);
+  static void DebuggerOutput(const std::string& out,
+                             v8::Debug::ClientData* caller_data);
+  static void SendCommandToV8(const std::wstring& cmd,
+                              v8::Debug::ClientData* data);
 
   static DebuggerAgentImpl* FindAgentForCurrentV8Context();
   static DebuggerAgentImpl* FindDebuggerAgentForToolsAgent(
-      int caller_id);
-
-  static const std::string ReplaceRequestSequenceId(
-      const std::string& request,
       int caller_id);
 
   typedef HashSet<DebuggerAgentImpl*> AttachedAgentsSet;
