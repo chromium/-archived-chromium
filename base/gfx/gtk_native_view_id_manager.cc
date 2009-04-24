@@ -39,6 +39,10 @@ GtkNativeViewManager::GtkNativeViewManager() {
 }
 
 gfx::NativeViewId GtkNativeViewManager::GetIdForWidget(gfx::NativeView widget) {
+  // This is just for unit tests:
+  if (!widget)
+    return 0;
+
   AutoLock locked(lock_);
 
   std::map<gfx::NativeView, gfx::NativeViewId>::const_iterator i =
