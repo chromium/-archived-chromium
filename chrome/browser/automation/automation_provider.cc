@@ -809,7 +809,10 @@ void AutomationProvider::ConnectToChannel(const std::wstring& channel_id) {
                          true, g_browser_process->shutdown_event()));
   scoped_ptr<FileVersionInfo> file_version_info(
       FileVersionInfo::CreateFileVersionInfoForCurrentModule());
-  std::string version_string(WideToASCII(file_version_info->file_version()));
+  std::string version_string;
+  if (file_version_info != NULL) {
+    version_string = WideToASCII(file_version_info->file_version());
+  }
 
   // Send a hello message with our current automation protocol version.
   channel_->Send(new AutomationMsg_Hello(0, version_string.c_str()));
