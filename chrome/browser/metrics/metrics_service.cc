@@ -1151,7 +1151,7 @@ void MetricsService::PrepareFetchWithPendingLog() {
     return;
   }
 
-  current_fetch_.reset(new URLFetcher(GURL(server_url_),
+  current_fetch_.reset(new URLFetcher(GURL(WideToUTF16(server_url_)),
                                       URLFetcher::POST,
                                       this));
   current_fetch_->set_request_context(Profile::GetDefaultRequestContext());
