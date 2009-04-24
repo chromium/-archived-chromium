@@ -760,6 +760,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\theme_resources_util_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\history\thumbnail_database_unittest.cc"
 				>
 			</File>

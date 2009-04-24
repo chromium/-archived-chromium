@@ -162,7 +162,8 @@ are exported to translation interchange files (e.g. XMB files), etc.
       # Microsoft's RC compiler can only deal with single-byte or double-byte
       # files (no UTF-8), so we make all RC files UTF-16 to support all
       # character sets.
-      if output.GetType() in ['rc_header']:
+      if output.GetType() in ('rc_header', 'resource_map_header',
+                              'resource_map_source'):
         encoding = 'cp1252'
       else:
         encoding = 'utf_16'

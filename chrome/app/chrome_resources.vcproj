@@ -86,6 +86,10 @@
 				>
 			</File>
 			<File
+				RelativePath="$(OutDir)\grit_derived_sources\grit\theme_resources_map.h"
+				>
+		</File>
+			<File
 				RelativePath="$(OutDir)\grit_derived_sources\grit\theme_resources.h"
 				>
 			</File>

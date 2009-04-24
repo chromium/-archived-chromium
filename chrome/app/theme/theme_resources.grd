@@ -6,6 +6,8 @@
     </output>
     <output filename="theme_resources.rc" type="rc_all" />
     <output filename="theme_resources.pak" type="data_package" />
+    <output filename="grit/theme_resources_map.h" type="resource_map_header" />
+    <output filename="grit/theme_resources_map.cc" type="resource_map_source" />
   </outputs>
   <release seq="1">
     <includes>

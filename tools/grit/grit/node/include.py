@@ -40,6 +40,9 @@ class IncludeNode(base.Node):
         self.attrs['filenameonly'] == 'true',
         self.attrs['relativepath'] == 'true',
         self.attrs['flattenhtml'] == 'true')
+    elif t == 'resource_map_source':
+      from grit.format import resource_map
+      return resource_map.SourceInclude()
     else:
       return super(type(self), self).ItemFormatter(t)
 

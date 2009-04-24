@@ -2603,6 +2603,18 @@
 			>
 		</File>
 		<File
+			RelativePath="$(OutDir)\grit_derived_sources\grit\theme_resources_map.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\theme_resources_util.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\theme_resources_util.h"
+			>
+		</File>
+		<File
 			RelativePath=".\toolbar_model.cc"
 			>
 		</File>
