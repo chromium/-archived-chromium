@@ -5,8 +5,8 @@
 #include "chrome/common/process_watcher.h"
 
 #include <errno.h>
+#include <signal.h>
 #include <sys/types.h>
-#include <sys/signal.h>
 #include <sys/wait.h>
 
 #include "base/platform_thread.h"
