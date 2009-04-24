@@ -18,16 +18,25 @@
 
 #include "base/logging.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webworkerclient.h"
 #include "webkit/glue/webworker_impl.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
 
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
+using WebKit::WebString;
+using WebKit::WebURL;
 
 #if ENABLE(WORKERS)
 
-WebWorker* WebWorker::Create(WebWorkerClient* client) {
+namespace WebKit {
+
+WebWorker* WebWorker::create(WebWorkerClient* client) {
   return new WebWorkerImpl(client);
 }
 
+}
 
 // This function is called on the main thread to force to initialize some static
 // values used in WebKit before any worker thread is started. This is because in
@@ -62,17 +71,19 @@ void WebWorkerImpl::PostMessageToWorkerContextTask(
       static_cast<WebCore::WorkerContext*>(context);
   worker_context->dispatchMessage(message);
 
-  this_ptr->client_->ConfirmMessageFromWorkerObject(
+  this_ptr->client_->confirmMessageFromWorkerObject(
       worker_context->hasPendingActivity());
 }
 
-void WebWorkerImpl::StartWorkerContext(const GURL& script_url,
-                                       const string16& user_agent,
-                                       const string16& source_code) {
+// WebWorker -------------------------------------------------------------------
+
+void WebWorkerImpl::startWorkerContext(const WebURL& script_url,
+                                       const WebString& user_agent,
+                                       const WebString& source_code) {
   worker_thread_ = WebCore::WorkerThread::create(
-      webkit_glue::GURLToKURL(script_url),
-      webkit_glue::String16ToString(user_agent),
-      webkit_glue::String16ToString(source_code),
+      webkit_glue::WebURLToKURL(script_url),
+      webkit_glue::WebStringToString(user_agent),
+      webkit_glue::WebStringToString(source_code),
       this);
 
   // Worker initialization means a pending activity.
@@ -81,32 +92,34 @@ void WebWorkerImpl::StartWorkerContext(const GURL& script_url,
   worker_thread_->start();
 }
 
-void WebWorkerImpl::TerminateWorkerContext() {
+void WebWorkerImpl::terminateWorkerContext() {
   worker_thread_->stop();
 }
 
-void WebWorkerImpl::PostMessageToWorkerContext(const string16& message) {
+void WebWorkerImpl::postMessageToWorkerContext(const WebString& message) {
   worker_thread_->runLoop().postTask(WebCore::createCallbackTask(
       &PostMessageToWorkerContextTask,
       this,
-      webkit_glue::String16ToString(message)));
+      webkit_glue::WebStringToString(message)));
 }
 
-void WebWorkerImpl::WorkerObjectDestroyed() {
+void WebWorkerImpl::workerObjectDestroyed() {
 }
+
+// WorkerObjectProxy -----------------------------------------------------------
 
 void WebWorkerImpl::postMessageToWorkerObject(const WebCore::String& message) {
-  client_->PostMessageToWorkerObject(webkit_glue::StringToString16(message));
+  client_->postMessageToWorkerObject(webkit_glue::StringToWebString(message));
 }
 
 void WebWorkerImpl::postExceptionToWorkerObject(
-    const WebCore::String& errorMessage,
-    int lineNumber,
-    const WebCore::String& sourceURL) {
-  client_->PostExceptionToWorkerObject(
-      webkit_glue::StringToString16(errorMessage),
-      lineNumber,
-      webkit_glue::StringToString16(sourceURL));
+    const WebCore::String& error_message,
+    int line_number,
+    const WebCore::String& source_url) {
+  client_->postExceptionToWorkerObject(
+      webkit_glue::StringToWebString(error_message),
+      line_number,
+      webkit_glue::StringToWebString(source_url));
 }
 
 void WebWorkerImpl::postConsoleMessageToWorkerObject(
@@ -114,27 +127,27 @@ void WebWorkerImpl::postConsoleMessageToWorkerObject(
     WebCore::MessageSource source,
     WebCore::MessageLevel level,
     const WebCore::String& message,
-    int lineNumber,
-    const WebCore::String& sourceURL) {
-  client_->PostConsoleMessageToWorkerObject(
-      destination,
-      source,
-      level,
-      webkit_glue::StringToString16(message),
-      lineNumber,
-      webkit_glue::StringToString16(sourceURL));
+    int line_number,
+    const WebCore::String& source_url) {
+  client_->postConsoleMessageToWorkerObject(
+      static_cast<int>(destination),
+      static_cast<int>(source),
+      static_cast<int>(level),
+      webkit_glue::StringToWebString(message),
+      line_number,
+      webkit_glue::StringToWebString(source_url));
 }
 
-void WebWorkerImpl::confirmMessageFromWorkerObject(bool hasPendingActivity) {
-  client_->ConfirmMessageFromWorkerObject(hasPendingActivity);
+void WebWorkerImpl::confirmMessageFromWorkerObject(bool has_pending_activity) {
+  client_->confirmMessageFromWorkerObject(has_pending_activity);
 }
 
-void WebWorkerImpl::reportPendingActivity(bool hasPendingActivity) {
-  client_->ReportPendingActivity(hasPendingActivity);
+void WebWorkerImpl::reportPendingActivity(bool has_pending_activity) {
+  client_->reportPendingActivity(has_pending_activity);
 }
 
 void WebWorkerImpl::workerContextDestroyed() {
-  client_->WorkerContextDestroyed();
+  client_->workerContextDestroyed();
 
   // The lifetime of this proxy is controlled by the worker context.
   delete this;
@@ -142,8 +155,12 @@ void WebWorkerImpl::workerContextDestroyed() {
 
 #else
 
-WebWorker* WebWorker::Create(WebWorkerClient* client) {
+namespace WebKit {
+
+WebWorker* WebWorker::create(WebWorkerClient* client) {
   return NULL;
+}
+
 }
 
 #endif

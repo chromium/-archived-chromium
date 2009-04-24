@@ -16,17 +16,20 @@
 #include <wtf/MainThread.h>
 
 class TestWebWorkerHelper;
+
+namespace WebKit {
 class WebWorker;
 class WebWorkerClient;
+}
 
 // Function to call in test_worker DLL.
-typedef WebWorker* (API_CALL *CreateWebWorkerFunc)(
-    WebWorkerClient* webworker_client,
+typedef WebKit::WebWorker* (API_CALL *CreateWebWorkerFunc)(
+    WebKit::WebWorkerClient* webworker_client,
     TestWebWorkerHelper* webworker_helper);;
 
 class TestWebWorkerHelper {
  public:
-  static WebWorker* CreateWebWorker(WebWorkerClient* client);
+  static WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client);
 
   TestWebWorkerHelper();
   ~TestWebWorkerHelper();

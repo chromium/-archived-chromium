@@ -9,7 +9,7 @@
 
 #include "base/basictypes.h"
 #include "chrome/common/ipc_channel.h"
-#include "webkit/glue/webworker.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
 
 class GURL;
 class RenderView;
@@ -23,21 +23,19 @@ class Message;
 // dispatched in the worker process by WebWorkerClientProxy.  It also receives
 // IPC messages from WebWorkerClientProxy which it converts to function calls to
 // WebWorkerClient.
-class WebWorkerProxy : public WebWorker,
+class WebWorkerProxy : public WebKit::WebWorker,
                        public IPC::Channel::Listener {
  public:
-  WebWorkerProxy(WebWorkerClient* client, int render_view_route_id);
+  WebWorkerProxy(WebKit::WebWorkerClient* client, int render_view_route_id);
   virtual ~WebWorkerProxy();
 
   // WebWorker implementation.
-  // These functions are called by WebKit (after the data types have been
-  // converted by glue code).
-  virtual void StartWorkerContext(const GURL& script_url,
-                                  const string16& user_agent,
-                                  const string16& source_code);
-  virtual void TerminateWorkerContext();
-  virtual void PostMessageToWorkerContext(const string16& message);
-  virtual void WorkerObjectDestroyed();
+  virtual void startWorkerContext(const WebKit::WebURL& script_url,
+                                  const WebKit::WebString& user_agent,
+                                  const WebKit::WebString& source_code);
+  virtual void terminateWorkerContext();
+  virtual void postMessageToWorkerContext(const WebKit::WebString& message);
+  virtual void workerObjectDestroyed();
 
   // IPC::Channel::Listener implementation.
   void OnMessageReceived(const IPC::Message& message);
@@ -53,7 +51,7 @@ class WebWorkerProxy : public WebWorker,
 
   // Used to communicate to the WebCore::Worker object in response to IPC
   // messages.
-  WebWorkerClient* client_;
+  WebKit::WebWorkerClient* client_;
 
   // Stores messages that were sent before the StartWorkerContext message.
   std::vector<IPC::Message*> queued_messages_;

@@ -8,13 +8,18 @@
 #include "chrome/common/ipc_logging.h"
 #include "chrome/common/worker_messages.h"
 #include "chrome/worker/worker_thread.h"
-#include "webkit/glue/webworker.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
 
+using WebKit::WebString;
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 WebWorkerClientProxy::WebWorkerClientProxy(const GURL& url, int route_id)
     : url_(url),
       route_id_(route_id),
-      ALLOW_THIS_IN_INITIALIZER_LIST(impl_(WebWorker::Create(this))) {
+      ALLOW_THIS_IN_INITIALIZER_LIST(impl_(WebWorker::create(this))) {
   AddRef();
   WorkerThread::current()->AddRoute(route_id_, this);
   ChildProcess::current()->AddRefProcess();
@@ -25,41 +30,42 @@ WebWorkerClientProxy::~WebWorkerClientProxy() {
   ChildProcess::current()->ReleaseProcess();
 }
 
-void WebWorkerClientProxy::PostMessageToWorkerObject(const string16& message) {
+void WebWorkerClientProxy::postMessageToWorkerObject(
+    const WebString& message) {
   Send(new WorkerHostMsg_PostMessageToWorkerObject(route_id_, message));
 }
 
-void WebWorkerClientProxy::PostExceptionToWorkerObject(
-    const string16& error_message,
+void WebWorkerClientProxy::postExceptionToWorkerObject(
+    const WebString& error_message,
     int line_number,
-    const string16& source_url) {
+    const WebString& source_url) {
   Send(new WorkerHostMsg_PostExceptionToWorkerObject(
       route_id_, error_message, line_number, source_url));
 }
 
-void WebWorkerClientProxy::PostConsoleMessageToWorkerObject(
+void WebWorkerClientProxy::postConsoleMessageToWorkerObject(
     int destination,
     int source,
     int level,
-    const string16& message,
+    const WebString& message,
     int line_number,
-    const string16& source_url) {
+    const WebString& source_url) {
   Send(new WorkerHostMsg_PostConsoleMessageToWorkerObject(
       route_id_, destination, source, level,message, line_number, source_url));
 }
 
-void WebWorkerClientProxy::ConfirmMessageFromWorkerObject(
+void WebWorkerClientProxy::confirmMessageFromWorkerObject(
     bool has_pending_activity) {
   Send(new WorkerHostMsg_ConfirmMessageFromWorkerObject(
       route_id_, has_pending_activity));
 }
 
-void WebWorkerClientProxy::ReportPendingActivity(bool has_pending_activity) {
+void WebWorkerClientProxy::reportPendingActivity(bool has_pending_activity) {
   Send(new WorkerHostMsg_ReportPendingActivity(
       route_id_, has_pending_activity));
 }
 
-void WebWorkerClientProxy::WorkerContextDestroyed() {
+void WebWorkerClientProxy::workerContextDestroyed() {
   Send(new WorkerHostMsg_WorkerContextDestroyed(route_id_));
   impl_ = NULL;
 
@@ -82,12 +88,12 @@ void WebWorkerClientProxy::OnMessageReceived(const IPC::Message& message) {
 
   IPC_BEGIN_MESSAGE_MAP(WebWorkerClientProxy, message)
     IPC_MESSAGE_FORWARD(WorkerMsg_StartWorkerContext, impl_,
-                        WebWorker::StartWorkerContext)
+                        WebWorker::startWorkerContext)
     IPC_MESSAGE_FORWARD(WorkerMsg_TerminateWorkerContext, impl_,
-                        WebWorker::TerminateWorkerContext)
+                        WebWorker::terminateWorkerContext)
     IPC_MESSAGE_FORWARD(WorkerMsg_PostMessageToWorkerContext, impl_,
-                        WebWorker::PostMessageToWorkerContext)
+                        WebWorker::postMessageToWorkerContext)
     IPC_MESSAGE_FORWARD(WorkerMsg_WorkerObjectDestroyed, impl_,
-                        WebWorker::WorkerObjectDestroyed)
+                        WebWorker::workerObjectDestroyed)
   IPC_END_MESSAGE_MAP()
 }

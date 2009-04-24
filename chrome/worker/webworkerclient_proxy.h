@@ -9,40 +9,42 @@
 #include "base/ref_counted.h"
 #include "chrome/common/ipc_channel.h"
 #include "googleurl/src/gurl.h"
-#include "webkit/glue/webworkerclient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
 
+namespace WebKit {
 class WebWorker;
+}
 
 // This class receives IPCs from the renderer and calls the WebCore::Worker
 // implementation (after the data types have been converted by glue code).  It
 // is also called by the worker code and converts these function calls into
 // IPCs that are sent to the renderer, where they're converted back to function
 // calls by WebWorkerProxy.
-class WebWorkerClientProxy : public WebWorkerClient,
+class WebWorkerClientProxy : public WebKit::WebWorkerClient,
                              public IPC::Channel::Listener,
                              public base::RefCounted<WebWorkerClientProxy> {
  public:
-  WebWorkerClientProxy (const GURL& url, int route_id);
+  WebWorkerClientProxy(const GURL& url, int route_id);
 
   // WebWorkerClient implementation.
-  void PostMessageToWorkerObject(const string16& message);
-  void PostExceptionToWorkerObject(
-      const string16& error_message,
+  virtual void postMessageToWorkerObject(const WebKit::WebString& message);
+  virtual void postExceptionToWorkerObject(
+      const WebKit::WebString& error_message,
       int line_number,
-      const string16& source_url);
-  void PostConsoleMessageToWorkerObject(
+      const WebKit::WebString& source_url);
+  virtual void postConsoleMessageToWorkerObject(
       int destination,
       int source,
       int level,
-      const string16& message,
+      const WebKit::WebString& message,
       int line_number,
-      const string16& source_url);
-  void ConfirmMessageFromWorkerObject(bool has_pending_activity);
-  void ReportPendingActivity(bool has_pending_activity);
-  void WorkerContextDestroyed();
+      const WebKit::WebString& source_url);
+  virtual void confirmMessageFromWorkerObject(bool has_pending_activity);
+  virtual void reportPendingActivity(bool has_pending_activity);
+  virtual void workerContextDestroyed();
 
   // IPC::Channel::Listener implementation.
-  void OnMessageReceived(const IPC::Message& message);
+  virtual void OnMessageReceived(const IPC::Message& message);
 
  private:
   friend class base::RefCounted<WebWorkerClientProxy>;
@@ -55,7 +57,7 @@ class WebWorkerClientProxy : public WebWorkerClient,
 
   int route_id_;
 
-  WebWorker* impl_;
+  WebKit::WebWorker* impl_;
 
   DISALLOW_COPY_AND_ASSIGN(WebWorkerClientProxy);
 };

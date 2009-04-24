@@ -15,11 +15,12 @@
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/resource_loader_bridge.h"
 #include "webkit/glue/webkit_glue.h"
-#include "webkit/glue/webworker.h"
 #include "webkit/glue/webkitclient_impl.h"
-#include "webkit/glue/webworkerclient.h"
 #include "webkit/tools/test_shell/test_webworker_helper.h"
 #include "webkit/tools/test_shell/test_worker/test_webworker.h"
+
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 // Create a global AtExitManager so that our code can use code from base that
 // uses Singletons, for example.  We don't care about static constructors here.

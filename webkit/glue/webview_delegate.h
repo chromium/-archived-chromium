@@ -39,6 +39,8 @@ class WebMediaPlayerDelegate;
 
 namespace WebKit {
 class WebDragData;
+class WebWorker;
+class WebWorkerClient;
 struct WebPoint;
 struct WebRect;
 }
@@ -58,8 +60,6 @@ class WebRequest;
 class WebResponse;
 class WebView;
 class WebWidget;
-class WebWorker;
-class WebWorkerClient;
 
 enum NavigationGesture {
   NavigationGestureUser,    // User initiated navigation/load. This is not
@@ -125,7 +125,7 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
   }
 
   // This method is called when the renderer creates a worker object.
-  virtual WebWorker* CreateWebWorker(WebWorkerClient* client) {
+  virtual WebKit::WebWorker* CreateWebWorker(WebKit::WebWorkerClient* client) {
     return NULL;
   }
 

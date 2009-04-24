@@ -7,7 +7,12 @@
 #include "chrome/common/render_messages.h"
 #include "chrome/common/worker_messages.h"
 #include "chrome/renderer/render_thread.h"
-#include "webkit/glue/webworkerclient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebURL.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
+
+using WebKit::WebString;
+using WebKit::WebURL;
+using WebKit::WebWorkerClient;
 
 WebWorkerProxy::WebWorkerProxy(
     WebWorkerClient* client,
@@ -20,10 +25,10 @@ WebWorkerProxy::WebWorkerProxy(
 WebWorkerProxy::~WebWorkerProxy() {
 }
 
-void WebWorkerProxy::StartWorkerContext(
-    const GURL& script_url,
-    const string16& user_agent,
-    const string16& source_code) {
+void WebWorkerProxy::startWorkerContext(
+    const WebURL& script_url,
+    const WebString& user_agent,
+    const WebString& source_code) {
   RenderThread::current()->Send(
       new ViewHostMsg_CreateDedicatedWorker(
           script_url, render_view_route_id_, &route_id_));
@@ -41,7 +46,7 @@ void WebWorkerProxy::StartWorkerContext(
   queued_messages_.clear();
 }
 
-void WebWorkerProxy::TerminateWorkerContext() {
+void WebWorkerProxy::terminateWorkerContext() {
   if (route_id_ != MSG_ROUTING_NONE) {
     Send(new WorkerMsg_TerminateWorkerContext(route_id_));
     RenderThread::current()->RemoveRoute(route_id_);
@@ -49,12 +54,12 @@ void WebWorkerProxy::TerminateWorkerContext() {
   }
 }
 
-void WebWorkerProxy::PostMessageToWorkerContext(
-    const string16& message) {
+void WebWorkerProxy::postMessageToWorkerContext(
+    const WebString& message) {
   Send(new WorkerMsg_PostMessageToWorkerContext(route_id_, message));
 }
 
-void WebWorkerProxy::WorkerObjectDestroyed() {
+void WebWorkerProxy::workerObjectDestroyed() {
   client_ = NULL;
   Send(new WorkerMsg_WorkerObjectDestroyed(route_id_));
 }
@@ -80,21 +85,21 @@ void WebWorkerProxy::OnMessageReceived(const IPC::Message& message) {
   IPC_BEGIN_MESSAGE_MAP(WebWorkerProxy, message)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_PostMessageToWorkerObject,
                         client_,
-                        WebWorkerClient::PostMessageToWorkerObject)
+                        WebWorkerClient::postMessageToWorkerObject)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_PostExceptionToWorkerObject,
                         client_,
-                        WebWorkerClient::PostExceptionToWorkerObject)
+                        WebWorkerClient::postExceptionToWorkerObject)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_PostConsoleMessageToWorkerObject,
                         client_,
-                        WebWorkerClient::PostConsoleMessageToWorkerObject)
+                        WebWorkerClient::postConsoleMessageToWorkerObject)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_ConfirmMessageFromWorkerObject,
                         client_,
-                        WebWorkerClient::ConfirmMessageFromWorkerObject)
+                        WebWorkerClient::confirmMessageFromWorkerObject)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_ReportPendingActivity,
                         client_,
-                        WebWorkerClient::ReportPendingActivity)
+                        WebWorkerClient::reportPendingActivity)
     IPC_MESSAGE_FORWARD(WorkerHostMsg_WorkerContextDestroyed,
                         client_,
-                        WebWorkerClient::WorkerContextDestroyed)
+                        WebWorkerClient::workerContextDestroyed)
   IPC_END_MESSAGE_MAP()
 }

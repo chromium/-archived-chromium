@@ -11,42 +11,43 @@
 
 #include "base/basictypes.h"
 #include "base/ref_counted.h"
-#include "webkit/glue/webworker.h"
-#include "webkit/glue/webworkerclient.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorkerClient.h"
 
 class GURL;
 class TestWebWorkerHelper;
 
-class TestWebWorker : public WebWorker,
-                      public WebWorkerClient,
+class TestWebWorker : public WebKit::WebWorker,
+                      public WebKit::WebWorkerClient,
                       public base::RefCounted<TestWebWorker> {
  public:
   TestWebWorker(WebWorkerClient* client, TestWebWorkerHelper* webworker_helper);
 
-  // WebWorker implementation.
-  virtual void StartWorkerContext(const GURL& script_url,
-                                  const string16& user_agent,
-                                  const string16& source_code);
-  virtual void TerminateWorkerContext();
-  virtual void PostMessageToWorkerContext(const string16& message);
-  virtual void WorkerObjectDestroyed();
+  // WebWorker methods:
+  virtual void startWorkerContext(const WebKit::WebURL& script_url,
+                                  const WebKit::WebString& user_agent,
+                                  const WebKit::WebString& source_code);
+  virtual void terminateWorkerContext();
+  virtual void postMessageToWorkerContext(const WebKit::WebString&);
+  virtual void workerObjectDestroyed();
 
-  // WebWorkerClient implementation.
-  virtual void PostMessageToWorkerObject(const string16& message);
-  virtual void PostExceptionToWorkerObject(
-      const string16& error_message,
+  // WebWorkerClient methods:
+  virtual void postMessageToWorkerObject(const WebKit::WebString& message);
+  virtual void postExceptionToWorkerObject(
+      const WebKit::WebString& error_message,
       int line_number,
-      const string16& source_url);
-  virtual void PostConsoleMessageToWorkerObject(
-      int destination,
-      int source,
-      int level,
-      const string16& message,
+      const WebKit::WebString& source_url);
+  virtual void postConsoleMessageToWorkerObject(
+      int destination_id,
+      int source_id,
+      int message_level,
+      const WebKit::WebString& message,
       int line_number,
-      const string16& source_url);
-  virtual void ConfirmMessageFromWorkerObject(bool has_pending_activity);
-  virtual void ReportPendingActivity(bool has_pending_activity);
-  virtual void WorkerContextDestroyed();
+      const WebKit::WebString& source_url);
+  virtual void confirmMessageFromWorkerObject(bool has_pending_activity);
+  virtual void reportPendingActivity(bool has_pending_activity);
+  virtual void workerContextDestroyed();
 
  private:
   friend class base::RefCounted<TestWebWorker>;
@@ -54,10 +55,10 @@ class TestWebWorker : public WebWorker,
 
   static void InvokeMainThreadMethod(void* param);
 
-  WebWorkerClient* webworkerclient_delegate_;
-  WebWorker* webworker_impl_;
+  WebKit::WebWorkerClient* webworkerclient_delegate_;
+  WebKit::WebWorker* webworker_impl_;
   TestWebWorkerHelper* webworker_helper_;
-  std::vector<string16> queued_messages_;
+  std::vector<WebKit::WebString> queued_messages_;
 
   DISALLOW_COPY_AND_ASSIGN(TestWebWorker);
 };

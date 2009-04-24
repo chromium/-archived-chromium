@@ -23,8 +23,15 @@
 #include "webkit/glue/webframe_impl.h"
 #include "webkit/glue/webview_delegate.h"
 #include "webkit/glue/webview_impl.h"
-#include "webkit/glue/webworker.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebConsoleMessage.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebScriptSource.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebWorker.h"
 
+using WebKit::WebConsoleMessage;
+using WebKit::WebScriptSource;
+using WebKit::WebString;
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 // When WebKit creates a WorkerContextProxy object, we check if we're in the
 // renderer or worker process.  If the latter, then we just use
@@ -71,16 +78,17 @@ void WebWorkerClientImpl::set_webworker(WebWorker* webworker) {
 }
 
 void WebWorkerClientImpl::startWorkerContext(
-    const WebCore::KURL& scriptURL,
-    const WebCore::String& userAgent,
-    const WebCore::String& sourceCode) {
+    const WebCore::KURL& script_url,
+    const WebCore::String& user_agent,
+    const WebCore::String& source_code) {
   // Worker.terminate() could be called from JS before the context is started.
   if (asked_to_terminate_)
       return;
 
-  webworker_->StartWorkerContext(webkit_glue::KURLToGURL(scriptURL),
-                                 webkit_glue::StringToString16(userAgent),
-                                 webkit_glue::StringToString16(sourceCode));
+  webworker_->startWorkerContext(
+      webkit_glue::KURLToWebURL(script_url),
+      webkit_glue::StringToWebString(user_agent),
+      webkit_glue::StringToWebString(source_code));
 }
 
 void WebWorkerClientImpl::terminateWorkerContext() {
@@ -88,7 +96,7 @@ void WebWorkerClientImpl::terminateWorkerContext() {
       return;
   asked_to_terminate_ = true;
 
-  webworker_->TerminateWorkerContext();
+  webworker_->terminateWorkerContext();
 }
 
 void WebWorkerClientImpl::postMessageToWorkerContext(
@@ -98,8 +106,8 @@ void WebWorkerClientImpl::postMessageToWorkerContext(
       return;
 
   ++unconfirmed_message_count_;
-  webworker_->PostMessageToWorkerContext(
-      webkit_glue::StringToString16(message));
+  webworker_->postMessageToWorkerContext(
+      webkit_glue::StringToWebString(message));
 }
 
 bool WebWorkerClientImpl::hasPendingActivity() const {
@@ -108,51 +116,52 @@ bool WebWorkerClientImpl::hasPendingActivity() const {
 }
 
 void WebWorkerClientImpl::workerObjectDestroyed() {
-  webworker_->WorkerObjectDestroyed();
+  webworker_->workerObjectDestroyed();
 
   // The lifetime of this proxy is controlled by the worker.
   delete this;
 }
 
-void WebWorkerClientImpl::PostMessageToWorkerObject(const string16& message) {
-  worker_->dispatchMessage(webkit_glue::String16ToString(message));
+void WebWorkerClientImpl::postMessageToWorkerObject(const WebString& message) {
+  worker_->dispatchMessage(webkit_glue::WebStringToString(message));
 }
 
-void WebWorkerClientImpl::PostExceptionToWorkerObject(
-    const string16& error_message,
+void WebWorkerClientImpl::postExceptionToWorkerObject(
+    const WebString& error_message,
     int line_number,
-    const string16& source_url) {
+    const WebString& source_url) {
   script_execution_context_->reportException(
-      webkit_glue::String16ToString(error_message),
+      webkit_glue::WebStringToString(error_message),
       line_number,
-      webkit_glue::String16ToString(source_url));
+      webkit_glue::WebStringToString(source_url));
 }
 
-void WebWorkerClientImpl::PostConsoleMessageToWorkerObject(
-    int destination,
-    int source,
-    int level,
-    const string16& message,
+void WebWorkerClientImpl::postConsoleMessageToWorkerObject(
+    int destination_id,
+    int source_id,
+    int message_level,
+    const WebString& message,
     int line_number,
-    const string16& source_url) {
+    const WebString& source_url) {
   script_execution_context_->addMessage(
-      static_cast<WebCore::MessageDestination>(destination),
-      static_cast<WebCore::MessageSource>(source),
-      static_cast<WebCore::MessageLevel>(level),
-      webkit_glue::String16ToString(message),
+      static_cast<WebCore::MessageDestination>(destination_id),
+      static_cast<WebCore::MessageSource>(source_id),
+      static_cast<WebCore::MessageLevel>(message_level),
+      webkit_glue::WebStringToString(message),
       line_number,
-      webkit_glue::String16ToString(source_url));
+      webkit_glue::WebStringToString(source_url));
 }
 
-void WebWorkerClientImpl::ConfirmMessageFromWorkerObject(bool has_pending_activity) {
+void WebWorkerClientImpl::confirmMessageFromWorkerObject(
+    bool has_pending_activity) {
   --unconfirmed_message_count_;
 }
 
-void WebWorkerClientImpl::ReportPendingActivity(bool has_pending_activity) {
+void WebWorkerClientImpl::reportPendingActivity(bool has_pending_activity) {
   worker_context_had_pending_activity_ = has_pending_activity;
 }
 
-void WebWorkerClientImpl::WorkerContextDestroyed() {
+void WebWorkerClientImpl::workerContextDestroyed() {
 }
 
 #endif

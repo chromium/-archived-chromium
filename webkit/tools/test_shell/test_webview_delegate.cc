@@ -47,6 +47,8 @@ using WebKit::WebRect;
 using WebKit::WebScreenInfo;
 using WebKit::WebSize;
 using WebKit::WebString;
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 namespace {
 

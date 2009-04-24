@@ -97,6 +97,8 @@ using WebKit::WebConsoleMessage;
 using WebKit::WebDragData;
 using WebKit::WebRect;
 using WebKit::WebScriptSource;
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 //-----------------------------------------------------------------------------
 

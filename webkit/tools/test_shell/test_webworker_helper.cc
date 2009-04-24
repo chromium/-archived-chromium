@@ -19,7 +19,9 @@
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebKit.h"
-#include "webkit/glue/webworkerclient.h"
+
+using WebKit::WebWorker;
+using WebKit::WebWorkerClient;
 
 WebWorker* TestWebWorkerHelper::CreateWebWorker(WebWorkerClient* client) {
   TestWebWorkerHelper* loader = new TestWebWorkerHelper();
