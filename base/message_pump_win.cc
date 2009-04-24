@@ -88,7 +88,6 @@ MessagePumpForUI::MessagePumpForUI() {
 
 MessagePumpForUI::~MessagePumpForUI() {
   DestroyWindow(message_hwnd_);
-  UnregisterClass(kWndClass, GetModuleHandle(NULL));
 }
 
 void MessagePumpForUI::ScheduleWork() {

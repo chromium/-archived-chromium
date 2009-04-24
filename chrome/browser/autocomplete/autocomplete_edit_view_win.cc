@@ -428,7 +428,6 @@ AutocompleteEditViewWin::AutocompleteEditViewWin(
 
   g_paint_patcher.Pointer()->RefPatch();
 
-  // Note: on Vista and later, the next call implicity calls OleInitialize().
   Create(hwnd, 0, 0, 0, l10n_util::GetExtendedStyles());
   SetReadOnly(popup_window_mode_);
   SetFont(font_.hfont());
@@ -519,12 +518,6 @@ AutocompleteEditViewWin::~AutocompleteEditViewWin() {
   // been destroyed.  This prevents us from relying on the AtExit or static
   // destructor sequence to do our unpatching, which is generally fragile.
   g_paint_patcher.Pointer()->DerefPatch();
-
-  // On Vista and later, the CRichEditCtrl window initializes OLE.
-  // We balance that initialization here.
-  win_util::WinVersion version = win_util::GetWinVersion();
-  if (version >= win_util::WINVERSION_VISTA)
-    OleUninitialize();
 }
 
 void AutocompleteEditViewWin::SaveStateToTab(TabContents* tab) {

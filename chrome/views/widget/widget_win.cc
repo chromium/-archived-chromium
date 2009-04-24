@@ -42,6 +42,13 @@ NativeControlWin* GetNativeControlWinForHWND(HWND hwnd) {
       ::GetProp(hwnd, NativeControlWin::kNativeControlWinKey));
 }
 
+// Used to locate the WidgetWin issuing the current Create. Only valid for the
+// life of Create.
+//
+// This obviously assumes we only create WidgetWins from the same thread,
+// which is currently the case.
+static WidgetWin* instance_issuing_create = NULL;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Window class tracking.
 
@@ -59,78 +66,36 @@ struct ClassInfo {
         background(NULL) {}
 
   // Compares two ClassInfos. Returns true if all members match.
-  bool Equals(const ClassInfo& other) const {
+  bool Equals(const ClassInfo& other) {
     return (other.style == style && other.background == background);
   }
 };
 
-class ClassRegistrar {
- public:
-  ~ClassRegistrar() {
-    for (RegisteredClasses::iterator i = registered_classes_.begin();
-         i != registered_classes_.end(); ++i) {
-      UnregisterClass(i->name.c_str(), NULL);
-    }
+// Represents a registered window class.
+struct RegisteredClass {
+  RegisteredClass(const ClassInfo& info,
+                  const std::wstring& name,
+                  ATOM atom)
+      : info(info),
+        name(name),
+        atom(atom) {
   }
 
-  // Puts the name for the class matching |class_info| in |class_name|, creating
-  // a new name if the class is not yet known.
-  // Returns true if this class was already known, false otherwise.
-  bool RetrieveClassName(const ClassInfo& class_info, std::wstring* name) {
-    for (RegisteredClasses::iterator i = registered_classes_.begin();
-         i != registered_classes_.end(); ++i) {
-      if (class_info.Equals(i->info)) {
-        name->assign(i->name);
-        return true;
-      }
-    }
+  // Info used to create the class.
+  ClassInfo info;
 
-    name->assign(std::wstring(WidgetWin::kBaseClassName) +
-        IntToWString(registered_count_++));
-    return false;
-  }
+  // The name given to the window.
+  std::wstring name;
 
-  void RegisterClass(const ClassInfo& class_info,
-                     const std::wstring& name,
-                     ATOM atom) {
-    registered_classes_.push_back(RegisteredClass(class_info, name, atom));
-  }
-
- private:
-  // Represents a registered window class.
-  struct RegisteredClass {
-    RegisteredClass(const ClassInfo& info,
-                    const std::wstring& name,
-                    ATOM atom)
-        : info(info),
-          name(name),
-          atom(atom) {
-    }
-
-    // Info used to create the class.
-    ClassInfo info;
-
-    // The name given to the window.
-    std::wstring name;
-
-    // The ATOM returned from creating the window.
-    ATOM atom;
-  };
-
-  ClassRegistrar() { }
-  friend struct DefaultSingletonTraits<ClassRegistrar>;
-
-  typedef std::list<RegisteredClass> RegisteredClasses;
-  RegisteredClasses registered_classes_;
-
-  // Counter of how many classes have ben registered so far.
-  static int registered_count_;
-
-  DISALLOW_COPY_AND_ASSIGN(ClassRegistrar);
+  // The ATOM returned from creating the window.
+  ATOM atom;
 };
 
-// static
-int ClassRegistrar::registered_count_ = 0;
+typedef std::list<RegisteredClass> RegisteredClasses;
+
+// The list of registered classes.
+static RegisteredClasses* registered_classes = NULL;
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // WidgetWin, public
@@ -890,12 +855,19 @@ void WidgetWin::UpdateWindowFromContents(HDC dib_dc) {
 }
 
 std::wstring WidgetWin::GetWindowClassName() {
+  if (!registered_classes)
+    registered_classes = new RegisteredClasses();
   ClassInfo class_info(initial_class_style());
-  std::wstring name;
-  if (Singleton<ClassRegistrar>()->RetrieveClassName(class_info, &name))
-    return name;
+  for (RegisteredClasses::iterator i = registered_classes->begin();
+       i != registered_classes->end(); ++i) {
+    if (class_info.Equals(i->info))
+      return i->name;
+  }
 
   // No class found, need to register one.
+  static int registered_count = 0;
+  std::wstring name =
+      std::wstring(kBaseClassName) + IntToWString(registered_count++);
   WNDCLASSEX class_ex;
   class_ex.cbSize = sizeof(WNDCLASSEX);
   class_ex.style = class_info.style;
@@ -912,9 +884,8 @@ std::wstring WidgetWin::GetWindowClassName() {
   class_ex.hIconSm = class_ex.hIcon;
   ATOM atom = RegisterClassEx(&class_ex);
   DCHECK(atom);
-
-  Singleton<ClassRegistrar>()->RegisterClass(class_info, name, atom);
-
+  RegisteredClass registered_class(class_info, name, atom);
+  registered_classes->push_back(registered_class);
   return name;
 }
 

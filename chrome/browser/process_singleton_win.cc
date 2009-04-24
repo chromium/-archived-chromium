@@ -45,10 +45,8 @@ ProcessSingleton::ProcessSingleton(const FilePath& user_data_dir)
 }
 
 ProcessSingleton::~ProcessSingleton() {
-  if (window_) {
+  if (window_)
     DestroyWindow(window_);
-    UnregisterClass(chrome::kMessageWindowClass, GetModuleHandle(NULL));
-  }
 }
 
 bool ProcessSingleton::NotifyOtherProcess() {
@@ -144,8 +142,7 @@ void ProcessSingleton::Create() {
   wc.lpfnWndProc = ProcessSingleton::WndProcStatic;
   wc.hInstance = hinst;
   wc.lpszClassName = chrome::kMessageWindowClass;
-  ATOM clazz = RegisterClassEx(&wc);
-  DCHECK(clazz);
+  RegisterClassEx(&wc);
 
   std::wstring user_data_dir;
   PathService::Get(chrome::DIR_USER_DATA, &user_data_dir);
