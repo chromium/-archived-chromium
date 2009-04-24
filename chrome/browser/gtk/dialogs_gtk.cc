@@ -11,6 +11,8 @@
 #include "base/string_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/shell_dialogs.h"
+#include "chrome/common/l10n_util.h"
+#include "grit/generated_resources.h"
 
 // Implementation of SelectFileDialog that shows a Gtk common dialog for
 // choosing a file or folder.
@@ -40,6 +42,9 @@ class SelectFileDialogImpl : public SelectFileDialog {
                           void* params);
 
  private:
+  // Add the filters from |file_types_| to |chooser|.
+  void AddFilters(GtkFileChooser* chooser);
+
   // Notifies the listener that a single file was chosen.
   void FileSelected(GtkWidget* dialog, const FilePath& path);
 
@@ -86,6 +91,13 @@ class SelectFileDialogImpl : public SelectFileDialog {
   // A map from dialog windows to the |params| user data associated with them.
   std::map<GtkWidget*, void*> params_map_;
 
+  // The file filters.
+  FileTypeInfo file_types_;
+
+  // The index of the default selected file filter.
+  // Note: This starts from 1, not 0.
+  size_t file_type_index_;
+
   // The set of all parent windows for which we are currently running dialogs.
   std::set<GtkWindow*> parents_;
 
@@ -112,8 +124,7 @@ void SelectFileDialogImpl::ListenerDestroyed() {
   listener_ = NULL;
 }
 
-// We ignore |file_types| and |default_extension|.
-// TODO(estade): use |file_types|.
+// We ignore |default_extension|.
 void SelectFileDialogImpl::SelectFile(
     Type type,
     const string16& title,
@@ -129,6 +140,12 @@ void SelectFileDialogImpl::SelectFile(
   parents_.insert(owning_window);
 
   std::string title_string = UTF16ToUTF8(title);
+
+  file_type_index_ = file_type_index;
+  if (file_types)
+    file_types_ = *file_types;
+  else
+    file_types_.include_all_files = true;
 
   GtkWidget* dialog = NULL;
   switch (type) {
@@ -153,11 +170,59 @@ void SelectFileDialogImpl::SelectFile(
   gtk_widget_show_all(dialog);
 }
 
+void SelectFileDialogImpl::AddFilters(GtkFileChooser* chooser) {
+  for (size_t i = 0; i < file_types_.extensions.size(); ++i) {
+    GtkFileFilter* filter = gtk_file_filter_new();
+    for (size_t j = 0; j < file_types_.extensions[i].size(); ++j) {
+      // TODO(estade): it's probably preferable to use mime types, but we are
+      // passed extensions, so it's much easier to use globs.
+      gtk_file_filter_add_pattern(filter,
+          ("*." + file_types_.extensions[i][j]).c_str());
+    }
+
+    // The description vector may be blank, in which case we are supposed to
+    // use some sort of default description based on the filter.
+    if (i < file_types_.extension_description_overrides.size()) {
+      gtk_file_filter_set_name(filter, UTF16ToUTF8(
+          file_types_.extension_description_overrides[i]).c_str());
+    } else {
+      // TODO(estade): There is no system default filter description so we use
+      // the filter itself if the description is blank. This is far from
+      // perfect. If we have multiple patterns (such as *.png, *.bmp, etc.),
+      // this will only show the first pattern. Also, it would be better to have
+      // human readable names like "PNG image" rather than "*.png", particularly
+      // since extensions aren't a requirement on linux.
+      gtk_file_filter_set_name(filter,
+          ("*." + file_types_.extensions[i][0]).c_str());
+    }
+
+    gtk_file_chooser_add_filter(chooser, filter);
+    if (i == file_type_index_ - 1)
+      gtk_file_chooser_set_filter(chooser, filter);
+  }
+
+  // Add the *.* filter, but only if we have added other filters (otherwise it
+  // is implied).
+  if (file_types_.include_all_files && file_types_.extensions.size() > 0) {
+    GtkFileFilter* filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(filter, "*");
+    gtk_file_filter_set_name(filter,
+        WideToUTF8(l10n_util::GetString(IDS_SAVEAS_ALL_FILES)).c_str());
+    gtk_file_chooser_add_filter(chooser, filter);
+  }
+}
+
 void SelectFileDialogImpl::FileSelected(GtkWidget* dialog,
     const FilePath& path) {
   void* params = PopParamsForDialog(dialog);
-  if (listener_)
-    listener_->FileSelected(path, 1, params);
+  if (listener_) {
+    GtkFileFilter* selected_filter =
+        gtk_file_chooser_get_filter(GTK_FILE_CHOOSER(dialog));
+    GSList* filters = gtk_file_chooser_list_filters(GTK_FILE_CHOOSER(dialog));
+    int idx = g_slist_index(filters, selected_filter);
+    g_slist_free(filters);
+    listener_->FileSelected(path, idx + 1, params);
+  }
   RemoveParentForDialog(dialog);
   gtk_widget_destroy(dialog);
 }
@@ -188,6 +253,8 @@ GtkWidget* SelectFileDialogImpl::CreateFileOpenDialog(const std::string& title,
                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
                                   NULL);
+
+  AddFilters(GTK_FILE_CHOOSER(dialog));
   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
   g_signal_connect(G_OBJECT(dialog), "response",
                    G_CALLBACK(OnSelectSingleFileDialogResponse), this);
@@ -203,6 +270,8 @@ GtkWidget* SelectFileDialogImpl::CreateMultiFileOpenDialog(
                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
                                   NULL);
+
+  AddFilters(GTK_FILE_CHOOSER(dialog));
   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
   g_signal_connect(G_OBJECT(dialog), "response",
                    G_CALLBACK(OnSelectMultiFileDialogResponse), this);
@@ -217,6 +286,8 @@ GtkWidget* SelectFileDialogImpl::CreateSaveAsDialog(const std::string& title,
                                   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
                                   GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
                                   NULL);
+
+  AddFilters(GTK_FILE_CHOOSER(dialog));
   // Since we expect that the file will not already exist, we use
   // set_current_folder() followed by set_current_name().
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),
@@ -269,6 +340,7 @@ void SelectFileDialogImpl::OnSelectSingleFileDialogResponse(
   dialog_impl->FileSelected(dialog, FilePath(filename));
 }
 
+// static
 void SelectFileDialogImpl::OnSelectMultiFileDialogResponse(
     GtkWidget* dialog, gint response_id,
     SelectFileDialogImpl* dialog_impl) {

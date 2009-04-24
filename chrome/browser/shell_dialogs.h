@@ -76,8 +76,8 @@ class SelectFileDialog
   // |extension_description_overrides| overrides the system descriptions of the
   //   specified extensions. Entries correspond to |extensions|; if left blank
   //   the system descriptions will be used.
-  // |include_all_files| specifies whether all files (e.g. *.*) will be allowed
-  //   in the file filtering.
+  // |include_all_files| specifies whether there will be a filter added for all
+  //   files (i.e. *.*).
   struct FileTypeInfo {
     std::vector<std::vector<FilePath::StringType> > extensions;
     std::vector<string16> extension_description_overrides;
