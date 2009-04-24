@@ -47,7 +47,7 @@ TEST_F(RenderViewTest, ExtensionMessagesOpenChannel) {
   ASSERT_TRUE(alert_msg);
   void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
   ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
-  IPC::ReadParam(alert_msg, &iter, &alert_param);
+  ASSERT_TRUE(IPC::ReadParam(alert_msg, &iter, &alert_param));
   EXPECT_EQ(L"content got: 42", alert_param.a);
 }
 
@@ -90,6 +90,6 @@ TEST_F(RenderViewTest, ExtensionMessagesOnConnect) {
   ASSERT_TRUE(alert_msg);
   void* iter = IPC::SyncMessage::GetDataIterator(alert_msg);
   ViewHostMsg_RunJavaScriptMessage::SendParam alert_param;
-  IPC::ReadParam(alert_msg, &iter, &alert_param);
+  ASSERT_TRUE(IPC::ReadParam(alert_msg, &iter, &alert_param));
   EXPECT_EQ(L"got: 42", alert_param.a);
 }

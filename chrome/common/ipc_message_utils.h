@@ -121,7 +121,8 @@ static inline void WriteParam(Message* m, const P& p) {
 }
 
 template <class P>
-static inline bool ReadParam(const Message* m, void** iter, P* p) {
+static inline bool WARN_UNUSED_RESULT ReadParam(const Message* m, void** iter,
+                                                P* p) {
   return ParamTraits<P>::Read(m, iter, p);
 }
 
@@ -1267,8 +1268,8 @@ class MessageWithReply : public SyncMessage {
     if (msg->is_sync()) {
       SendParam p;
       void* iter = SyncMessage::GetDataIterator(msg);
-      ReadParam(msg, &iter, &p);
-      LogParam(p, l);
+      if (ReadParam(msg, &iter, &p))
+        LogParam(p, l);
 
 #if defined(IPC_MESSAGE_LOG_ENABLED)
       const std::wstring& output_params = msg->output_params();
@@ -1282,8 +1283,8 @@ class MessageWithReply : public SyncMessage {
       // can finally log the message.
       typename ReplyParam::ValueTuple p;
       void* iter = SyncMessage::GetDataIterator(msg);
-      ReadParam(msg, &iter, &p);
-      LogParam(p, l);
+      if (ReadParam(msg, &iter, &p))
+        LogParam(p, l);
     }
   }
 
