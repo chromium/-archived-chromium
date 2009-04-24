@@ -13,14 +13,20 @@
 #include "chrome/common/gfx/color_utils.h"
 #include "chrome/common/gfx/insets.h"
 #include "chrome/common/gfx/path.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/views/widget/widget.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkShader.h"
+#include "third_party/icu38/public/common/unicode/ubidi.h"
 
 static const SkColor kTransparentColor = SkColorSetARGB(0, 0, 0, 0);
+static const SkColor kStandardURLColor = SkColorSetRGB(0, 0x80, 0);
+static const SkColor kHighlightURLColor = SkColorSetRGB(0xD0, 0xFF, 0xD0);
 static const int kPopupTransparency = 235;
 static const int kHoverRowAlpha = 0x40;
+static const int kRowVerticalPadding = 3;
+static const int kRowHorizontalPadding = 3;
 
 class AutocompleteResultView : public views::View {
  public:
@@ -50,6 +56,25 @@ class AutocompleteResultView : public views::View {
   SkColor GetBackgroundColor() const;
   SkColor GetTextColor() const;
 
+  // Draws the specified |text| into the canvas, using highlighting provided by
+  // |classifications|.
+  void DrawString(ChromeCanvas* canvas,
+                  const std::wstring& text,
+                  const ACMatchClassifications& classifications,
+                  int x,
+                  int y);
+
+  // Draws an individual sub-fragment with the specified style.
+  int DrawStringFragment(ChromeCanvas* canvas,
+                         const std::wstring& text,
+                         int style,
+                         int x,
+                         int y);
+
+  // Gets the font and text color for a fragment with the specified style.
+  ChromeFont GetFragmentFont(int style) const;
+  SkColor GetFragmentTextColor(int style) const;
+
   // This row's model and model index.
   AutocompleteResultViewModel* model_;
   size_t model_index_;
@@ -60,8 +85,58 @@ class AutocompleteResultView : public views::View {
   // The font used to derive fonts for rendering the text in this row.
   ChromeFont font_;
 
+  // A context used for mirroring regions.
+  class MirroringContext;
+  scoped_ptr<MirroringContext> mirroring_context_;
+
   DISALLOW_COPY_AND_ASSIGN(AutocompleteResultView);
 };
+
+// This class implements a utility used for mirroring x-coordinates when the
+// application language is a right-to-left one.
+class AutocompleteResultView::MirroringContext {
+ public:
+  MirroringContext() : min_x_(0), center_x_(0), max_x_(0), enabled_(false) { }
+
+  // Initializes the bounding region used for mirroring coordinates.
+  // This class uses the center of this region as an axis for calculating
+  // mirrored coordinates.
+  void Initialize(int x1, int x2, bool enabled);
+
+  // Return the "left" side of the specified region.
+  // When the application language is a right-to-left one, this function
+  // calculates the mirrored coordinates of the input region and returns the
+  // left side of the mirrored region.
+  // The input region must be in the bounding region specified in the
+  // Initialize() function.
+  int GetLeft(int x1, int x2) const;
+
+  // Returns whether or not we are mirroring the x coordinate.
+  bool enabled() const {
+    return enabled_;
+  }
+
+ private:
+  int min_x_;
+  int center_x_;
+  int max_x_;
+  bool enabled_;
+
+  DISALLOW_EVIL_CONSTRUCTORS(MirroringContext);
+};
+
+void AutocompleteResultView::MirroringContext::Initialize(int x1, int x2,
+                                                          bool enabled) {
+  min_x_ = std::min(x1, x2);
+  max_x_ = std::max(x1, x2);
+  center_x_ = min_x_ + (max_x_ - min_x_) / 2;
+  enabled_ = enabled;
+}
+
+int AutocompleteResultView::MirroringContext::GetLeft(int x1, int x2) const {
+  return enabled_ ?
+      (center_x_ + (center_x_ - std::max(x1, x2))) : std::min(x1, x2);
+}
 
 AutocompleteResultView::AutocompleteResultView(
     AutocompleteResultViewModel* model,
@@ -70,7 +145,8 @@ AutocompleteResultView::AutocompleteResultView(
     : model_(model),
       model_index_(model_index),
       hot_(false),
-      font_(font) {
+      font_(font),
+      mirroring_context_(new MirroringContext()) {
 }
 
 AutocompleteResultView::~AutocompleteResultView() {
@@ -80,12 +156,12 @@ void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
   canvas->FillRectInt(GetBackgroundColor(), 0, 0, width(), height());
 
   const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
-  canvas->DrawStringInt(match.contents, font_, GetTextColor(), 0, 0, width(),
-                        height());
+  DrawString(canvas, match.contents, match.contents_class,
+             kRowHorizontalPadding, kRowVerticalPadding);
 }
 
 gfx::Size AutocompleteResultView::GetPreferredSize() {
-  return gfx::Size(0, 30);
+  return gfx::Size(0, font_.height() + 2 * kRowVerticalPadding);
 }
 
 void AutocompleteResultView::OnMouseEntered(const views::MouseEvent& event) {
@@ -162,6 +238,118 @@ SkColor AutocompleteResultView::GetTextColor() const {
   if (model_->IsSelectedIndex(model_index_))
     return color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
   return color_utils::GetSysSkColor(COLOR_WINDOWTEXT);
+}
+
+void AutocompleteResultView::DrawString(
+    ChromeCanvas* canvas,
+    const std::wstring& text,
+    const ACMatchClassifications& classifications,
+    int x,
+    int y) {
+  if (!text.length())
+    return;
+
+  // Check whether or not this text is a URL string.
+  // A URL string is basically in English with possible included words in
+  // Arabic or Hebrew. For such case, ICU provides a special algorithm and we
+  // should use it.
+  bool url = false;
+  for (ACMatchClassifications::const_iterator i = classifications.begin();
+       i != classifications.end(); ++i) {
+    if (i->style & ACMatchClassification::URL)
+      url = true;
+  }
+
+  // Initialize a bidirectional line iterator of ICU and split the text into
+  // visual runs. (A visual run is consecutive characters which have the same
+  // display direction and should be displayed at once.)
+  l10n_util::BiDiLineIterator bidi_line;
+  if (!bidi_line.Open(text, mirroring_context_->enabled(), url))
+    return;
+  const int runs = bidi_line.CountRuns();
+
+  // Draw the visual runs.
+  // This loop splits each run into text fragments with the given
+  // classifications and draws the text fragments.
+  // When the direction of a run is right-to-left, we have to mirror the
+  // x-coordinate of this run and render the fragments in the right-to-left
+  // reading order. To handle this display order independently from the one of
+  // this popup window, this loop renders a run with the steps below:
+  // 1. Create a local display context for each run;
+  // 2. Render the run into the local display context, and;
+  // 3. Copy the local display context to the one of the popup window.
+  int run_x = x;
+  for (int run = 0; run < runs; ++run) {
+    int run_start = 0;
+    int run_length = 0;
+
+    // The index we pass to GetVisualRun corresponds to the position of the run
+    // in the displayed text. For example, the string "Google in HEBREW" (where
+    // HEBREW is text in the Hebrew language) has two runs: "Google in " which
+    // is an LTR run, and "HEBREW" which is an RTL run. In an LTR context, the
+    // run "Google in " has the index 0 (since it is the leftmost run
+    // displayed). In an RTL context, the same run has the index 1 because it
+    // is the rightmost run. This is why the order in which we traverse the
+    // runs is different depending on the locale direction.
+    //
+    // Note that for URLs we always traverse the runs from lower to higher
+    // indexes because the return order of runs for a URL always matches the
+    // physical order of the context.
+    int current_run =
+        (mirroring_context_->enabled() && !url) ? (runs - run - 1) : run;
+    const UBiDiDirection run_direction = bidi_line.GetVisualRun(current_run,
+                                                                &run_start,
+                                                                &run_length);
+    const int run_end = run_start + run_length;
+    int text_x = 0;
+
+    // Split this run with the given classifications and draw the fragments
+    // into the local display context.
+    for (ACMatchClassifications::const_iterator i = classifications.begin();
+         i != classifications.end(); ++i) {
+      const int text_start = std::max(run_start, static_cast<int>(i->offset));
+      const int text_end = std::min(run_end, (i != classifications.end() - 1) ?
+          static_cast<int>((i + 1)->offset) : run_end);
+      text_x +=
+          DrawStringFragment(canvas,
+                             text.substr(text_start, text_end - text_start),
+                             i->style, text_x, y);
+    }
+  }
+}
+
+int AutocompleteResultView::DrawStringFragment(
+    ChromeCanvas* canvas,
+    const std::wstring& text,
+    int style,
+    int x,
+    int y) {
+  ChromeFont display_font = GetFragmentFont(style);
+  int string_width = display_font.GetStringWidth(text);
+  canvas->DrawStringInt(text, GetFragmentFont(style),
+                        GetFragmentTextColor(style), x, y, string_width,
+                        display_font.height());
+  return string_width;
+}
+
+ChromeFont AutocompleteResultView::GetFragmentFont(int style) const {
+  if (style & ACMatchClassification::MATCH)
+    return font_.DeriveFont(0, ChromeFont::BOLD);
+  return font_;
+}
+
+SkColor AutocompleteResultView::GetFragmentTextColor(int style) const {
+  if (style & ACMatchClassification::URL) {
+    // TODO(beng): bring over the contrast logic from the old popup and massage
+    //             these values. See autocomplete_popup_view_win.cc and
+    //             LuminosityContrast etc.
+    return model_->IsSelectedIndex(model_index_) ? kHighlightURLColor
+                                                 : kStandardURLColor;
+  }
+
+  if (style & ACMatchClassification::DIM)
+    return SkColorSetA(GetTextColor(), 0xAA);
+  return GetTextColor();
 }
 
 class PopupBorder : public views::Border {
