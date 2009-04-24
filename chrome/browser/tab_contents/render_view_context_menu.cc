@@ -19,6 +19,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/clipboard_service.h"
 #include "chrome/common/l10n_util.h"
+#include "chrome/common/platform_util.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/url_constants.h"
 #include "grit/generated_resources.h"
@@ -558,10 +559,13 @@ void RenderViewContextMenu::ExecuteItemCommand(int id) {
 
     case IDS_CONTENT_CONTEXT_LANGUAGE_SETTINGS: {
 #if defined(OS_WIN)
+      // TODO(yusukes): This should be moved to some shared place of commands
+      // for the options stuff so that we don't have to do all this work here.
       FontsLanguagesWindowView* window_ = new FontsLanguagesWindowView(
           source_web_contents_->profile());
       views::Window::CreateChromeWindow(
-          source_web_contents_->GetContentNativeView(),
+          platform_util::GetTopLevel(
+              source_web_contents_->GetContentNativeView()),
           gfx::Rect(), window_)->Show();
       window_->SelectLanguagesTab();
 #else
