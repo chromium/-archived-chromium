@@ -49,31 +49,21 @@ class TabContentsViewMac : public TabContentsView,
   virtual void SetPageTitle(const std::wstring& title);
   virtual void Invalidate();
   virtual void SizeContents(const gfx::Size& size);
-  virtual void FindInPage(const Browser& browser,
-                          bool find_next, bool forward_direction);
-  virtual void HideFindBar(bool end_session);
-  virtual bool GetFindBarWindowInfo(gfx::Point* position,
-                                    bool* fully_visible) const;
   virtual void Focus();
   virtual void SetInitialFocus();
   virtual void StoreFocus();
   virtual void RestoreFocus();
-
-  // Backend implementation of RenderViewHostDelegate::View.
   virtual RenderWidgetHostView* CreateNewWidgetInternal(int route_id,
                                                         bool activatable);
   virtual void ShowCreatedWidgetInternal(RenderWidgetHostView* widget_host_view,
                                          const gfx::Rect& initial_pos);
+
+  // Backend implementation of RenderViewHostDelegate::View.
   virtual void ShowContextMenu(const ContextMenuParams& params);
   virtual void StartDragging(const WebDropData& drop_data);
   virtual void UpdateDragCursor(bool is_drop_target);
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
-  virtual void OnFindReply(int request_id,
-                           int number_of_matches,
-                           const gfx::Rect& selection_rect,
-                           int active_match_ordinal,
-                           bool final_update);
 
   // NotificationObserver implementation ---------------------------------------
 
@@ -86,10 +76,6 @@ class TabContentsViewMac : public TabContentsView,
 
   // The Cocoa NSView that lives in the view hierarchy.
   scoped_nsobject<TabContentsViewCocoa> cocoa_view_;
-
-  // For find in page. This may be NULL if there is no find bar, and if it is
-  // non-NULL, it may or may not be visible.
-  scoped_ptr<FindBarMac> find_bar_;
 
   // Used to get notifications about renderers coming and going.
   NotificationRegistrar registrar_;

@@ -88,9 +88,6 @@ void TabContentsViewMac::StartDragging(const WebDropData& drop_data) {
 }
 
 void TabContentsViewMac::OnContentsDestroy() {
-  // TODO(avi):Close the find bar if any.
-  if (find_bar_.get())
-    find_bar_->Close();
 }
 
 void TabContentsViewMac::SetPageTitle(const std::wstring& title) {
@@ -104,45 +101,6 @@ void TabContentsViewMac::Invalidate() {
 void TabContentsViewMac::SizeContents(const gfx::Size& size) {
   // TODO(brettw) this is a hack and should be removed. See tab_contents_view.h.
   NOTIMPLEMENTED();  // Leaving the hack unimplemented.
-}
-
-void TabContentsViewMac::FindInPage(const Browser& browser,
-                                    bool find_next, bool forward_direction) {
-  if (!find_bar_.get()) {
-    // We want the Chrome top-level (Frame) window.
-    NSWindow* window =
-        static_cast<NSWindow*>(browser.window()->GetNativeHandle());
-    find_bar_.reset(new FindBarMac(this, window));
-  } else {
-    find_bar_->Show();
-  }
-
-  if (find_next && !find_bar_->find_string().empty())
-    find_bar_->StartFinding(forward_direction);
-}
-
-void TabContentsViewMac::HideFindBar(bool end_session) {
-  if (find_bar_.get()) {
-    if (end_session)
-      find_bar_->EndFindSession();
-    else
-      find_bar_->DidBecomeUnselected();
-  }
-}
-
-bool TabContentsViewMac::GetFindBarWindowInfo(gfx::Point* position,
-                                              bool* fully_visible) const {
-  if (!find_bar_.get() ||
-      [find_bar_->GetView() isHidden]) {
-    *position = gfx::Point(0, 0);
-    *fully_visible = false;
-    return false;
-  }
-
-  NSRect frame = [find_bar_->GetView() frame];
-  *position = gfx::Point(frame.origin.x, frame.origin.y);
-  *fully_visible = find_bar_->IsVisible() && !find_bar_->IsAnimating();
-  return true;
 }
 
 void TabContentsViewMac::Focus() {
@@ -171,17 +129,6 @@ void TabContentsViewMac::TakeFocus(bool reverse) {
 void TabContentsViewMac::HandleKeyboardEvent(
     const NativeWebKeyboardEvent& event) {
   [cocoa_view_.get() processKeyboardEvent:event.os_event];
-}
-
-void TabContentsViewMac::OnFindReply(int request_id,
-                                     int number_of_matches,
-                                     const gfx::Rect& selection_rect,
-                                     int active_match_ordinal,
-                                     bool final_update) {
-  if (find_bar_.get()) {
-    find_bar_->OnFindReply(request_id, number_of_matches, selection_rect,
-                           active_match_ordinal, final_update);
-  }
 }
 
 void TabContentsViewMac::ShowContextMenu(const ContextMenuParams& params) {

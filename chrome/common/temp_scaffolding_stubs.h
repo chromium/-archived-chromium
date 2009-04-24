@@ -418,26 +418,6 @@ class HtmlDialogContents {
   };
 };
 
-#if defined(OS_MACOSX)
-
-class TabContentsView;
-
-class FindBarMac {
- public:
-  FindBarMac(TabContentsView*, gfx::NativeWindow) { }
-  void Show() { }
-  void Close() { }
-  void StartFinding(bool&) { }
-  void EndFindSession() { }
-  void DidBecomeUnselected() { }
-  bool IsVisible() { return false; }
-  bool IsAnimating() { return false; }
-  gfx::NativeView GetView() { return nil; }
-  std::string find_string() { return ""; }
-  void OnFindReply(int, int, const gfx::Rect&, int, bool) { }
-};
-#endif
-
 class LoginHandler {
  public:
   void SetAuth(const std::wstring& username,
