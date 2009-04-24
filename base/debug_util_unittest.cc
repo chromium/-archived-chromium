@@ -31,6 +31,10 @@ TEST(StackTrace, OutputToStream) {
     return;
   }
 
+#if 0
+//TODO(ajwong): Disabling checking of symbol resolution since it depends
+//  on whether or not symbols are present, and there are too many
+//  configurations to reliably ensure that symbols are findable.
 #if defined(OS_MACOSX)
 
   // Symbol resolution via the backtrace_symbol funciton does not work well
@@ -69,4 +73,5 @@ TEST(StackTrace, OutputToStream) {
       << backtrace_message;
 
 #endif  // define(OS_MACOSX)
+#endif
 }
