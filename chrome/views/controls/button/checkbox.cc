@@ -164,6 +164,7 @@ bool Checkbox::HitTestLabel(const MouseEvent& e) {
 void Checkbox::Init(const std::wstring& label_text) {
   set_minimum_size(gfx::Size(0, 0));
   label_ = new Label(label_text);
+  label_->set_has_focus_border(true);
   label_->SetHorizontalAlignment(Label::ALIGN_LEFT);
   AddChildView(label_);
 }

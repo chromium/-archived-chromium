@@ -190,6 +190,9 @@ class Label : public View {
   void set_paint_as_focused(bool paint_as_focused) {
     paint_as_focused_ = paint_as_focused;
   }
+  void set_has_focus_border(bool has_focus_border) {
+    has_focus_border_ = has_focus_border;
+  }
 
  private:
   // These tests call CalculateDrawStringParams in order to verify the
@@ -241,6 +244,10 @@ class Label : public View {
   // When embedded in a larger control that is focusable, setting this flag
   // allows this view to be painted as focused even when it is itself not.
   bool paint_as_focused_;
+  // When embedded in a larger control that is focusable, setting this flag
+  // allows this view to reserve space for a focus border that it otherwise
+  // might not have because it is not itself focusable.
+  bool has_focus_border_;
 
   DISALLOW_COPY_AND_ASSIGN(Label);
 };

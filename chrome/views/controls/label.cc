@@ -48,6 +48,7 @@ void Label::Init(const std::wstring& text, const ChromeFont& font) {
   collapse_when_hidden_ = false;
   rtl_alignment_mode_ = USE_UI_ALIGNMENT;
   paint_as_focused_ = false;
+  has_focus_border_ = false;
 }
 
 Label::~Label() {
@@ -335,7 +336,7 @@ void Label::SetEnabled(bool enabled) {
 
 gfx::Insets Label::GetInsets() const {
   gfx::Insets insets = View::GetInsets();
-  if (IsFocusable() || paint_as_focused_)  {
+  if (IsFocusable() || has_focus_border_)  {
     insets += gfx::Insets(kFocusBorderPadding, kFocusBorderPadding,
                           kFocusBorderPadding, kFocusBorderPadding);
   }
