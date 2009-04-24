@@ -411,6 +411,9 @@ class MetricsService : public NotificationObserver,
   // The log that we are still appending to.
   MetricsLog* current_log_;
 
+  // The URL for the metrics server.
+  std::wstring server_url_;
+
   // The identifier that's sent to the server with the log reports.
   std::string client_id_;
 

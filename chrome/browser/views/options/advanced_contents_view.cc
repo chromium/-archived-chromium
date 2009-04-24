@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -501,6 +501,11 @@ void PrivacySection::InitControlLayout() {
       l10n_util::GetString(IDS_OPTIONS_ENABLE_LOGGING));
   reporting_enabled_checkbox_->SetMultiLine(true);
   reporting_enabled_checkbox_->set_listener(this);
+#if defined(GOOGLE_CHROME_BUILD)
+  reporting_enabled_checkbox_->SetVisible(true);
+#else
+  reporting_enabled_checkbox_->SetVisible(false);
+#endif
   learn_more_link_ = new views::Link(l10n_util::GetString(IDS_LEARN_MORE));
   learn_more_link_->SetController(this);
   cookie_behavior_label_ = new views::Label(
