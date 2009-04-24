@@ -270,12 +270,8 @@ bool KillProcess(ProcessHandle process, int exit_code, bool wait) {
   return result;
 }
 
-bool DidProcessCrash(bool* child_exited, ProcessHandle handle) {
+bool DidProcessCrash(ProcessHandle handle) {
   DWORD exitcode = 0;
-
-  if (child_exited)
-    *child_exited = true;  // On Windows it an error to call this function if
-                           // the child hasn't already exited.
   if (!::GetExitCodeProcess(handle, &exitcode)) {
     NOTREACHED();
     return false;

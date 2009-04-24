@@ -140,23 +140,12 @@ void RaiseProcessToHighPriority() {
   // setpriority() or sched_getscheduler, but these all require extra rights.
 }
 
-bool DidProcessCrash(bool* child_exited, ProcessHandle handle) {
+bool DidProcessCrash(ProcessHandle handle) {
   int status;
-  const int result = waitpid(handle, &status, WNOHANG);
-  if (result == -1) {
-    LOG(ERROR) << "waitpid failed with errno:" << errno;
-    if (child_exited)
-      *child_exited = false;
-    return false;
-  } else if (result == 0) {
-    // the child hasn't exited yet.
-    if (child_exited)
-      *child_exited = false;
+  if (waitpid(handle, &status, WNOHANG)) {
+    // I feel like dancing!
     return false;
   }
-
-  if (child_exited)
-    *child_exited = true;
 
   if (WIFSIGNALED(status)) {
     switch(WTERMSIG(status)) {
