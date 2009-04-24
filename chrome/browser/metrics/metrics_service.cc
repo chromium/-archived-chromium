@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -186,7 +186,6 @@
 #include "chrome/common/pref_names.h"
 #include "chrome/common/pref_service.h"
 #include "chrome/common/render_messages.h"
-#include "chrome/installer/util/browser_distribution.h"
 #include "googleurl/src/gurl.h"
 #include "net/base/load_flags.h"
 #include "third_party/bzip2/bzlib.h"
@@ -203,6 +202,9 @@ using base::TimeDelta;
 
 // Check to see that we're being called on only one thread.
 static bool IsSingleThreaded();
+
+static const char kMetricsURL[] =
+    "https://clients4.google.com/firefox/metrics/collect";
 
 static const char kMetricsType[] = "application/vnd.mozilla.metrics.bz2";
 
@@ -593,9 +595,6 @@ void MetricsService::RecordBreakpadHasDebugger(bool has_debugger) {
 // Initialization methods
 
 void MetricsService::InitializeMetricsState() {
-  BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-  server_url_ = dist->GetStatsServerURL();
-
   PrefService* pref = g_browser_process->local_state();
   DCHECK(pref);
 
@@ -1151,8 +1150,7 @@ void MetricsService::PrepareFetchWithPendingLog() {
     return;
   }
 
-  current_fetch_.reset(new URLFetcher(GURL(WideToUTF16(server_url_)),
-                                      URLFetcher::POST,
+  current_fetch_.reset(new URLFetcher(GURL(kMetricsURL), URLFetcher::POST,
                                       this));
   current_fetch_->set_request_context(Profile::GetDefaultRequestContext());
   current_fetch_->set_upload_data(kMetricsType, compressed_log);
@@ -1315,7 +1313,7 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
 
 void MetricsService::HandleBadResponseCode() {
   LOG(INFO) << "Verify your metrics logs are formatted correctly.  "
-               "Verify server is active at " << server_url_;
+      "Verify server is active at " << kMetricsURL;
   if (!pending_log()) {
     LOG(INFO) << "METRICS: Recorder shutdown during log transmission.";
   } else {

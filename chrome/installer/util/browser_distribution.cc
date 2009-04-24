@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -7,9 +7,8 @@
 // specific branding, we will need to extend this class with a custom
 // implementation.
 
-#include "chrome/installer/util/browser_distribution.h"
-
 #include "base/registry.h"
+#include "chrome/installer/util/browser_distribution.h"
 #include "chrome/installer/util/google_chrome_distribution.h"
 
 BrowserDistribution* BrowserDistribution::GetDistribution() {
@@ -56,14 +55,6 @@ int BrowserDistribution::GetInstallReturnCode(
 
 std::wstring BrowserDistribution::GetStateKey() {
   return L"Software\\Chromium";
-}
-
-std::wstring BrowserDistribution::GetStateMediumKey() {
-  return L"Software\\Chromium";
-}
-
-std::wstring BrowserDistribution::GetStatsServerURL() {
-  return L"";
 }
 
 std::wstring BrowserDistribution::GetDistributionData(RegKey* key) {

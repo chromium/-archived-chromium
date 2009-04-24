@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -225,17 +225,6 @@ std::wstring GoogleChromeDistribution::GetStateKey() {
   key.append(L"\\");
   key.append(google_update::kChromeGuid);
   return key;
-}
-
-std::wstring GoogleChromeDistribution::GetStateMediumKey() {
-  std::wstring key(google_update::kRegPathClientStateMedium);
-  key.append(L"\\");
-  key.append(google_update::kChromeGuid);
-  return key;
-}
-
-std::wstring GoogleChromeDistribution::GetStatsServerURL() {
-  return L"https://clients4.google.com/firefox/metrics/collect";
 }
 
 std::wstring GoogleChromeDistribution::GetDistributionData(RegKey* key) {
