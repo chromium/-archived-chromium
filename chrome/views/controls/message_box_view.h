@@ -59,6 +59,9 @@ class MessageBoxView : public views::View {
                                     views::View* parent,
                                     views::View* child);
 
+  // Handles Ctrl-C and writes the message in the system clipboard.
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
+
  private:
   // Sets up the layout manager and initializes the prompt field. This should
   // only be called once, from the constructor.
