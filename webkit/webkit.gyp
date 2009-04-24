@@ -1446,6 +1446,8 @@
         '../third_party/WebKit/WebCore/dom/XMLTokenizer.cpp',
         '../third_party/WebKit/WebCore/dom/XMLTokenizer.h',
         '../third_party/WebKit/WebCore/dom/XMLTokenizerLibxml2.cpp',
+        '../third_party/WebKit/WebCore/dom/XMLTokenizerScope.cpp',
+        '../third_party/WebKit/WebCore/dom/XMLTokenizerScope.h',
         '../third_party/WebKit/WebCore/dom/XMLTokenizerQt.cpp',
         '../third_party/WebKit/WebCore/editing/android/EditorAndroid.cpp',
         '../third_party/WebKit/WebCore/editing/chromium/EditorChromium.cpp',

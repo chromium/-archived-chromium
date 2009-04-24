@@ -4981,6 +4981,14 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\XMLTokenizerLibxml2.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\XMLTokenizerScope.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\XMLTokenizerScope.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="editing"

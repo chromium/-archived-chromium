@@ -2537,5 +2537,51 @@ BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html =
 BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
 BUG10861 LINUX : LayoutTests/fast/dynamic/001.html = FAIL
 
+// New failures from WebKit merge 42725:42805
+// The following tests needs rebaseline on LINUX and MAC since
+// WebKit change http://trac.webkit.org/changeset/42751
+// changed the name of SVG image in the dump from "RenderImage"
+// to "RenderSVGImage".
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/color-prof-01-f.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg = FAIL
+BUG10998 MAC : LayoutTests/svg/W3C-SVG-1.1/filters-blend-01-b.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-conv-01-f.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-diffuse-01-f.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-light-01-f.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-specular-01-f.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/masking-path-04-b.svg = FAIL
+BUG10998 MAC : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg = FAIL
+BUG10998 MAC : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-01-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-03-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-04-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-05-b.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-08-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-09-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-10-t.svg = FAIL
+BUG10998 LINUX MAC : LayoutTests/svg/custom/image-with-transform-clip-filter.svg = FAIL
+BUG10998 MAC : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
 
+// New failures from WebKit merge 42725:42805
+// The following tests needs rebaseline on LINUX and MAC because of
+// WebKit change http://trac.webkit.org/changeset/42732
+BUG10999 LINUX MAC : LayoutTests/fast/css-generated-content/positioned-background-hit-test-crash.html = FAIL
+
+// New failures from WebKit merge 42725:42805
+// Because of WebKit change http://trac.webkit.org/changeset/42740,
+// DumpRenderTree now dumps additional info on the element that was
+// passed to the policy delegate. So the dump changes.
+// We need to reflect the change in test shell.
+BUG11000 LINUX MAC WIN : LayoutTests/fast/encoding/mailto-always-utf-8.html = FAIL
+BUG11000 LINUX MAC WIN : LayoutTests/fast/loader/policy-delegate-action-hit-test-zoomed.html = FAIL
+BUG11000 LINUX MAC WIN : LayoutTests/http/tests/misc/policy-delegate-called-twice.html = FAIL
+BUG11000 LINUX MAC WIN : LayoutTests/http/tests/misc/redirect-to-external-url.html = FAIL
+
+// New failures from WebKit merge 42725:42805
+// WebKit change http://trac.webkit.org/changeset/42785
+// added a test which submits a form and then uses history.back()
+// to go back. in test_shell history.back() does not go back,
+// so the test timeouts.
+BUG11001 LINUX MAC WIN : LayoutTests/http/tests/history/back-to-post.php = TIMEOUT
 
