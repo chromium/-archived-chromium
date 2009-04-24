@@ -22,7 +22,7 @@ namespace {
 
 const FilePath::CharType kExtensionSeparator = FILE_PATH_LITERAL('.');
 
-}
+}  // namespace
 
 namespace file_util {
 

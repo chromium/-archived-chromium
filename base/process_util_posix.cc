@@ -345,11 +345,11 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
           close(dev_null);
 
         const std::vector<std::string> argv = cl.argv();
-        char* argv_cstr[argv.size() + 1];
+        scoped_array<char*> argv_cstr(new char*[argv.size() + 1]);
         for (size_t i = 0; i < argv.size(); i++)
           argv_cstr[i] = const_cast<char*>(argv[i].c_str());
         argv_cstr[argv.size()] = NULL;
-        execvp(argv_cstr[0], argv_cstr);
+        execvp(argv_cstr[0], argv_cstr.get());
         exit(127);
       }
     default:  // parent

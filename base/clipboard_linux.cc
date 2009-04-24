@@ -10,15 +10,16 @@
 #include <string>
 #include <utility>
 
+#include "base/scoped_ptr.h"
 #include "base/linux_util.h"
 #include "base/string_util.h"
 
 namespace {
 
-const char* kMimeBmp = "image/bmp";
-const char* kMimeHtml = "text/html";
-const char* kMimeText = "text/plain";
-const char* kMimeWebkitSmartPaste = "chromium-internal/webkit-paste";
+const char kMimeBmp[] = "image/bmp";
+const char kMimeHtml[] = "text/html";
+const char kMimeText[] = "text/plain";
+const char kMimeWebkitSmartPaste[] = "chromium-internal/webkit-paste";
 
 std::string GdkAtomToString(const GdkAtom& atom) {
   gchar* name = gdk_atom_name(atom);
@@ -126,7 +127,8 @@ void Clipboard::WriteObjects(const ObjectMap& objects) {
 
 // Take ownership of the GTK clipboard and inform it of the targets we support.
 void Clipboard::SetGtkClipboard() {
-  GtkTargetEntry targets[clipboard_data_->size()];
+  scoped_array<GtkTargetEntry> targets(
+      new GtkTargetEntry[clipboard_data_->size()]);
 
   int i = 0;
   for (Clipboard::TargetMap::iterator iter = clipboard_data_->begin();
@@ -138,7 +140,7 @@ void Clipboard::SetGtkClipboard() {
     targets[i].info = i;
   }
 
-  gtk_clipboard_set_with_data(clipboard_, targets,
+  gtk_clipboard_set_with_data(clipboard_, targets.get(),
                               clipboard_data_->size(),
                               GetData, ClearData,
                               clipboard_data_);
