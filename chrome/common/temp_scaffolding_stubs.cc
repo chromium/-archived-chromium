@@ -232,11 +232,6 @@ LoginHandler* CreateLoginPrompt(net::AuthChallengeInfo* auth_info,
   return NULL;
 }
 
-void ProcessWatcher::EnsureProcessTerminated(int) {
-  NOTIMPLEMENTED();
-}
-
-
 //--------------------------------------------------------------------------
 namespace webkit_glue {
 

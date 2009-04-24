@@ -661,13 +661,24 @@ void BrowserRenderProcessHost::OnChannelError() {
   DCHECK(process_.handle());
   DCHECK(channel_.get());
 
-  if (base::DidProcessCrash(process_.handle())) {
+  bool child_exited;
+  if (base::DidProcessCrash(&child_exited, process_.handle())) {
     NotificationService::current()->Notify(
         NotificationType::RENDERER_PROCESS_CRASHED,
         Source<RenderProcessHost>(this), NotificationService::NoDetails());
   }
 
-  process_.Close();
+  // If the process crashed, then the kernel closed the socket for it and so
+  // the child has already died by the time we get here. Since DidProcessCrash
+  // called waitpid with WNOHANG, it'll reap the process. However, if
+  // DidProcessCrash didn't reap the child, we'll need to in
+  // ~BrowserRenderProcessHost via ProcessWatcher. So we can't close the handle
+  // here.
+  //
+  // This is moot on Windows where |child_exited| will always be true.
+  if (child_exited)
+    process_.Close();
+
   channel_.reset();
 
   // This process should detach all the listeners, causing the object to be
