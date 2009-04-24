@@ -2587,3 +2587,8 @@ BUG11000 LINUX MAC WIN : LayoutTests/http/tests/misc/redirect-to-external-url.ht
 // so the test timeouts.
 BUG11001 LINUX MAC WIN : LayoutTests/http/tests/history/back-to-post.php = TIMEOUT
 
+// Temporarily disable worker tests that fail after
+// http://src.chromium.org/viewvc/chrome?view=rev&revision=14461
+BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html
+BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html
+BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html
