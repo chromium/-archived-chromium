@@ -549,7 +549,8 @@ void HistoryURLProvider::PromoteOrCreateShorterSuggestion(
     std::string new_match = match.url_info.url().possibly_invalid_spec().
         substr(0, match.input_location + params.input.text().length());
     search_base = GURL(new_match);
-
+    if (search_base.is_empty())
+      return;  // Can't construct a valid URL from which to start a search.
   } else if (!can_add_search_base_to_matches) {
     can_add_search_base_to_matches =
         (search_base != what_you_typed_match.destination_url);
@@ -828,6 +829,7 @@ AutocompleteMatch HistoryURLProvider::HistoryMatchToACMatch(
       CalculateRelevance(params->input.type(), match_type, match_number),
       !!info.visit_count(), AutocompleteMatch::HISTORY_URL);
   match.destination_url = info.url();
+  DCHECK(match.destination_url.is_valid());
   match.fill_into_edit = gfx::GetCleanStringFromUrl(info.url(),
       match_type == WHAT_YOU_TYPED ? std::wstring() : params->languages,
       NULL, NULL);
