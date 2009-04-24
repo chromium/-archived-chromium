@@ -122,6 +122,9 @@ NotificationService::~NotificationService() {
 #ifndef NDEBUG
   for (int i = 0; i < NotificationType::NOTIFICATION_TYPE_COUNT; i++) {
     if (observer_counts_[i] > 0) {
+      // This may not be completely fixable -- see
+      // http://code.google.com/p/chromium/issues/detail?id=11010 .
+      // But any new leaks should be fixed.
       LOG(WARNING) << observer_counts_[i] << " notification observer(s) leaked"
           << " of notification type " << i;
     }
