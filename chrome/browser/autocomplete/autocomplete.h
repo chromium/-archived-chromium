@@ -210,18 +210,24 @@ class AutocompleteInput {
   // type/scheme/etc. should use this.
   void set_text(const std::wstring& text) { text_ = text; }
 
-  // The type of input supplied.
-  Type type() const { return type_; }
-
-  // The scheme parsed from the provided text; only meaningful when type_ is
-  // URL.
-  const std::wstring& scheme() const { return scheme_; }
-
   // User's desired TLD, if one is not already present in the text to
   // autocomplete.  When this is non-empty, it also implies that "www." should
   // be prepended to the domain where possible.  This should not have a leading
   // '.' (use "com" instead of ".com").
   const std::wstring& desired_tld() const { return desired_tld_; }
+
+  // The type of input supplied.
+  Type type() const { return type_; }
+
+  // Returns parsed URL components.
+  const url_parse::Parsed& parts() const { return parts_; }
+
+  // The scheme parsed from the provided text; only meaningful when type_ is
+  // URL.
+  const std::wstring& scheme() const { return scheme_; }
+
+  // The input as an URL to navigate to, if possible.
+  const GURL& canonicalized_url() const { return canonicalized_url_; }
 
   // Returns whether inline autocompletion should be prevented.
   const bool prevent_inline_autocomplete() const {
@@ -244,15 +250,13 @@ class AutocompleteInput {
   // Resets all internal variables to the null-constructed state.
   void Clear();
 
-  // Returns parsed URL components.
-  const url_parse::Parsed& parts() const { return parts_; }
-
  private:
   std::wstring text_;
+  std::wstring desired_tld_;
   Type type_;
   url_parse::Parsed parts_;
   std::wstring scheme_;
-  std::wstring desired_tld_;
+  GURL canonicalized_url_;
   bool prevent_inline_autocomplete_;
   bool prefer_keyword_;
   bool synchronous_only_;
@@ -621,8 +625,9 @@ class AutocompleteResult {
   void AppendMatches(const ACMatches& matches);
 
   // Removes duplicates, puts the list in sorted order and culls to leave only
-  // the best kMaxMatches results.  Sets the default match to the best match.
-  void SortAndCull();
+  // the best kMaxMatches results.  Sets the default match to the best match
+  // and updates the alternate nav URL.
+  void SortAndCull(const AutocompleteInput& input);
 
   // Vector-style accessors/operators.
   size_t size() const { return matches_.size(); }
@@ -642,16 +647,7 @@ class AutocompleteResult {
   // end() if there is no default match.
   const_iterator default_match() const { return default_match_; }
 
-  // Given some input and a particular match in this result set, returns the
-  // "alternate navigation URL", if any, for that match.  This is a URL to try
-  // offering as a navigational option in case the user didn't actually mean to
-  // navigate to the URL of |match|.  For example, if the user's local intranet
-  // contains site "foo", and the user types "foo", we default to searching for
-  // "foo" when the user may have meant to navigate there.  In cases like this,
-  // |match| will point to the "search for 'foo'" result, and this function will
-  // return "http://foo/".
-  GURL GetAlternateNavURL(const AutocompleteInput& input,
-                          const_iterator match) const;
+  GURL alternate_nav_url() const { return alternate_nav_url_; }
 
   // Releases the resources associated with this object. Some callers may
   // want to perform several searches without creating new results each time.
@@ -671,8 +667,19 @@ class AutocompleteResult {
   // up showing an additional shortcut for Destinations->History, see
   // AddHistoryContentsShortcut.
   static size_t max_matches_;
+
   ACMatches matches_;
+
   const_iterator default_match_;
+
+  // The "alternate navigation URL", if any, for this result set.  This is a URL
+  // to try offering as a navigational option in case the user navigated to the
+  // URL of the default match but intended something else.  For example, if the
+  // user's local intranet contains site "foo", and the user types "foo", we
+  // default to searching for "foo" when the user may have meant to navigate
+  // there.  In cases like this, the default match will point to the "search for
+  // 'foo'" result, and this will contain "http://foo/".
+  GURL alternate_nav_url_;
 
   DISALLOW_EVIL_CONSTRUCTORS(AutocompleteResult);
 };

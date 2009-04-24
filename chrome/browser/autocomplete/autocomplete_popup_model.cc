@@ -170,7 +170,7 @@ GURL AutocompletePopupModel::URLsForCurrentSelection(
   if (is_history_what_you_typed_match)
     *is_history_what_you_typed_match = match->is_history_what_you_typed_match;
   if (alternate_nav_url && manually_selected_match_.empty())
-    *alternate_nav_url = result.GetAlternateNavURL(controller_->input(), match);
+    *alternate_nav_url = result.alternate_nav_url();
   return match->destination_url;
 }
 
@@ -202,7 +202,7 @@ GURL AutocompletePopupModel::URLsForDefaultMatch(
   if (is_history_what_you_typed_match)
     *is_history_what_you_typed_match = match->is_history_what_you_typed_match;
   if (alternate_nav_url)
-    *alternate_nav_url = result.GetAlternateNavURL(controller_->input(), match);
+    *alternate_nav_url = result.alternate_nav_url();
   return match->destination_url;
 }
 

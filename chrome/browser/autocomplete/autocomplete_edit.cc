@@ -204,8 +204,7 @@ bool AutocompleteEditModel::CanPasteAndGo(const std::wstring& text) const {
   DCHECK(match != result.end());
   paste_and_go_url_ = match->destination_url;
   paste_and_go_transition_ = match->transition;
-  paste_and_go_alternate_nav_url_ =
-      result.GetAlternateNavURL(paste_and_go_controller->input(), match);
+  paste_and_go_alternate_nav_url_ = result.alternate_nav_url();
 
   return paste_and_go_url_.is_valid();
 }

@@ -85,7 +85,6 @@ class HistoryBackend;
 // service.
 struct HistoryURLProviderParams {
   HistoryURLProviderParams(const AutocompleteInput& input,
-                           const AutocompleteInput& original_input,
                            bool trim_http,
                            const std::wstring& languages);
 
@@ -94,10 +93,6 @@ struct HistoryURLProviderParams {
   // A copy of the autocomplete input. We need the copy since this object will
   // live beyond the original query while it runs on the history thread.
   AutocompleteInput input;
-
-  // The same as |input|, but without any fixup performed beforehand on the
-  // input text.  This is used when calling SuggestExactInput().
-  AutocompleteInput original_input;
 
   // Set when "http://" should be trimmed from the beginning of the URLs.
   bool trim_http;
@@ -317,7 +312,8 @@ class HistoryURLProvider : public AutocompleteProvider {
                                  bool promote);
 
   // Helper function that actually launches the two autocomplete passes.
-  void RunAutocompletePasses(const AutocompleteInput& input, bool run_pass_1);
+  void RunAutocompletePasses(const AutocompleteInput& input,
+                             bool fixup_input_and_run_pass_1);
 
   // Returns the best prefix that begins |text|.  "Best" means "greatest number
   // of components".  This may return NULL if no prefix begins |text|.
@@ -328,11 +324,9 @@ class HistoryURLProvider : public AutocompleteProvider {
   const Prefix* BestPrefix(const GURL& text,
                            const std::wstring& prefix_suffix) const;
 
-  // Returns a match corresponding to exactly what the user has typed.  This is
-  // only valid if |valid| is set to true.
+  // Returns a match corresponding to exactly what the user has typed.
   AutocompleteMatch SuggestExactInput(const AutocompleteInput& input,
-                                      bool trim_http,
-                                      bool* valid);
+                                      bool trim_http);
 
   // Assumes |params| contains the "what you typed" suggestion created by
   // SuggestExactInput().  Looks up its info in the DB.  If found, fills in the

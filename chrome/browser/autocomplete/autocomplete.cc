@@ -53,6 +53,15 @@ AutocompleteInput::AutocompleteInput(const std::wstring& text,
   if (type_ == INVALID)
     return;
 
+  if ((type_ == UNKNOWN) || (type_ == REQUESTED_URL) || (type_ == URL)) {
+    GURL canonicalized_url(URLFixerUpper::FixupURL(WideToUTF8(text_),
+                                                   WideToUTF8(desired_tld_)));
+    if (canonicalized_url.is_valid() &&
+        (!canonicalized_url.IsStandard() || canonicalized_url.SchemeIsFile() ||
+         !canonicalized_url.host().empty()))
+      canonicalized_url_ = canonicalized_url;
+  }
+
   if (type_ == FORCED_QUERY && text_[0] == L'?')
     text_.erase(0, 1);
 }
@@ -521,11 +530,14 @@ void AutocompleteResult::CopyFrom(const AutocompleteResult& rhs) {
   // reconstruct them.
   default_match_ = (rhs.default_match_ == rhs.end()) ?
       end() : (begin() + (rhs.default_match_ - rhs.begin()));
+
+  alternate_nav_url_ = rhs.alternate_nav_url_;
 }
 
 void AutocompleteResult::AppendMatches(const ACMatches& matches) {
   std::copy(matches.begin(), matches.end(), std::back_inserter(matches_));
   default_match_ = end();
+  alternate_nav_url_ = GURL();
 }
 
 void AutocompleteResult::AddMatch(const AutocompleteMatch& match) {
@@ -540,7 +552,7 @@ void AutocompleteResult::AddMatch(const AutocompleteMatch& match) {
   default_match_ = begin() + default_offset;
 }
 
-void AutocompleteResult::SortAndCull() {
+void AutocompleteResult::SortAndCull(const AutocompleteInput& input) {
   // Remove duplicates.
   std::sort(matches_.begin(), matches_.end(),
             &AutocompleteMatch::DestinationSortFunc);
@@ -565,25 +577,18 @@ void AutocompleteResult::SortAndCull() {
       i->relevance = -i->relevance;
   }
 
-  // Now put the final result set in order.
+  // Put the final result set in order.
   std::sort(matches_.begin(), matches_.end(), &AutocompleteMatch::MoreRelevant);
   default_match_ = begin();
-}
 
-GURL AutocompleteResult::GetAlternateNavURL(
-    const AutocompleteInput& input,
-    const_iterator match) const {
+  // Set the alternate nav URL.
+  alternate_nav_url_ = GURL();
   if (((input.type() == AutocompleteInput::UNKNOWN) ||
        (input.type() == AutocompleteInput::REQUESTED_URL)) &&
-      (match->transition != PageTransition::TYPED)) {
-    for (const_iterator i(begin()); i != end(); ++i) {
-      if (i->is_history_what_you_typed_match) {
-        return (i->destination_url == match->destination_url) ?
-            GURL() : i->destination_url;
-      }
-    }
-  }
-  return GURL();
+      (default_match_ != end()) &&
+      (default_match_->transition != PageTransition::TYPED) &&
+      (input.canonicalized_url() != default_match_->destination_url))
+    alternate_nav_url_ = input.canonicalized_url();
 }
 
 #ifndef NDEBUG
@@ -726,7 +731,7 @@ void AutocompleteController::UpdateLatestResult(bool is_synchronous_pass) {
   }
 
   // Sort the matches and trim to a small number of "best" matches.
-  latest_result_.SortAndCull();
+  latest_result_.SortAndCull(input_);
 
   if (history_contents_provider_)
     AddHistoryContentsShortcut();
