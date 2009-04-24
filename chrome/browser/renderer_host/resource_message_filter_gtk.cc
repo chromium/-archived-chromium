@@ -4,8 +4,7 @@
 
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 
-#include <gtk/gtk.h>
-
+#include "base/gfx/gtk_native_view_id_manager.h"
 #include "chrome/browser/chrome_thread.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/common/x11_util.h"
@@ -40,16 +39,18 @@ void ResourceMessageFilter::DoOnGetScreenInfo(gfx::NativeViewId view,
 // Called on the BACKGROUND_X11 thread.
 void ResourceMessageFilter::DoOnGetWindowRect(gfx::NativeViewId view,
                                               IPC::Message* reply_msg) {
+  // This is called to get the x, y offset (in screen coordinates) of the given
+  // view and its width and height.
   gfx::Rect rect;
+  XID window;
 
-  if (view) {
-    XID window = x11_util::GetX11WindowFromGtkWidget(
-        gfx::NativeViewFromId(view));
-
-    int x, y;
-    unsigned width, height;
-    x11_util::GetWindowGeometry(&x, &y, &width, &height, window);
-    rect = gfx::Rect(x, y, width, height);
+  if (Singleton<GtkNativeViewManager>()->GetXIDForId(&window, view)) {
+    if (window) {
+      int x, y;
+      unsigned width, height;
+      if (x11_util::GetWindowGeometry(&x, &y, &width, &height, window))
+        rect = gfx::Rect(x, y, width, height);
+    }
   }
 
   ViewHostMsg_GetWindowRect::WriteReplyParams(reply_msg, rect);
@@ -59,24 +60,36 @@ void ResourceMessageFilter::DoOnGetWindowRect(gfx::NativeViewId view,
         this, &ResourceMessageFilter::SendBackgroundX11Reply, reply_msg));
 }
 
+// Return the top-level parent of the given window. Called on the
+// BACKGROUND_X11 thread.
+static XID GetTopLevelWindow(XID window) {
+  bool parent_is_root;
+  XID parent_window;
+
+  if (!x11_util::GetWindowParent(&parent_window, &parent_is_root, window))
+    return 0;
+  if (parent_is_root)
+    return window;
+
+  return GetTopLevelWindow(parent_window);
+}
+
 // Called on the BACKGROUND_X11 thread.
 void ResourceMessageFilter::DoOnGetRootWindowRect(gfx::NativeViewId view,
                                                   IPC::Message* reply_msg) {
+  // This is called to get the screen coordinates and size of the browser
+  // window itself.
   gfx::Rect rect;
+  XID window;
 
-  if (view && gfx::NativeViewFromId(view)->window) {
-    // Windows uses GetAncestor(window, GA_ROOT) here which probably means
-    // we want the top level window.
-    // TODO(agl): calling GTK from this thread is not safe. However, we still
-    // have to solve the issue where we pass GtkWidget* into the renderer and
-    // the solution to that should also fix this problem.
-    GdkWindow* gdk_window =
-        gdk_window_get_toplevel(gfx::NativeViewFromId(view)->window);
-    XID window = x11_util::GetX11WindowFromGdkWindow(gdk_window);
-    int x, y;
-    unsigned width, height;
-    x11_util::GetWindowGeometry(&x, &y, &width, &height, window);
-    rect = gfx::Rect(x, y, width, height);
+  if (Singleton<GtkNativeViewManager>()->GetXIDForId(&window, view)) {
+    if (window) {
+      const XID toplevel = GetTopLevelWindow(toplevel);
+      int x, y;
+      unsigned width, height;
+      if (x11_util::GetWindowGeometry(&x, &y, &width, &height, window))
+        rect = gfx::Rect(x, y, width, height);
+    }
   }
 
   ViewHostMsg_GetRootWindowRect::WriteReplyParams(reply_msg, rect);

@@ -78,23 +78,34 @@ typedef cairo_surface_t* NativeDrawingContext;
 // See comment at the top of the file for usage.
 typedef intptr_t NativeViewId;
 
-// Convert a NativeViewId to a NativeView. At the moment, we assume that the
-// ids are the same as the NativeViews. This is correct on Windows (where
-// NativeView == HWND).
-// TODO(port): figure out what ids are going to be and implement this function
-// This is only to be called in the browser process.
+// Convert a NativeViewId to a NativeView.
+// On Windows, these are both HWNDS so it's just a cast.
+// On Mac, for now, we pass the NSView pointer into the renderer
+// On Linux we use an opaque id
+#if defined(OS_WIN) || defined(OS_MACOSX)
 static inline NativeView NativeViewFromId(NativeViewId id) {
   return reinterpret_cast<NativeView>(id);
 }
+#elif defined(OS_LINUX)
+// A NativeView on Linux is a GtkWidget*. However, we can't go directly from an
+// X window ID to a GtkWidget. Thus, functions which handle NativeViewIds from
+// the renderer have to use Xlib. This is fine since these functions are
+// generally performed on the BACKGROUND_X thread which can't use GTK anyway.
 
-// Convert a NativeView to a NativeViewId. At the moment, we assume that the
-// ids are the same as the NativeViews. This is correct on Windows (where
-// NativeView == HWND).
-// TODO(port): figure out what ids are going to be and implement this function
-// This is only to be called in the browser process.
+#define NativeViewFromId(x) NATIVE_VIEW_FROM_ID_NOT_AVAILIBLE_ON_LINUX
+
+#endif  // defined(OS_LINUX)
+
+// Convert a NativeView to a NativeViewId. See the comments above
+// NativeViewFromId.
+#if defined(OS_WIN) || defined(OS_MACOSX)
 static inline NativeViewId IdFromNativeView(NativeView view) {
   return reinterpret_cast<NativeViewId>(view);
 }
+#elif defined(OS_LINUX)
+// Not inlined because it involves pulling too many headers.
+NativeViewId IdFromNativeView(NativeView view);
+#endif  // defined(OS_LINUX)
 
 }  // namespace gfx
 

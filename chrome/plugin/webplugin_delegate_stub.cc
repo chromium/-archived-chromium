@@ -131,8 +131,16 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   const CommandLine& command_line = *CommandLine::ForCurrentProcess();
   FilePath path = FilePath::FromWStringHack(
       command_line.GetSwitchValue(switches::kPluginPath));
+
+#if defined(OS_WIN)
   delegate_ = WebPluginDelegate::Create(
       path, mime_type_, gfx::NativeViewFromId(params.containing_window));
+#else
+  // We don't have gfx::NativeViewFromId on Linux
+  NOTIMPLEMENTED();
+  delegate_ = NULL;
+#endif
+
   if (delegate_) {
     webplugin_ = new WebPluginProxy(channel_, instance_id_, delegate_);
 #if defined(OS_WIN)

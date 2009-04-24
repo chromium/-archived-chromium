@@ -77,8 +77,16 @@ Display* GetSecondaryDisplay();
 // These functions must be called on the BACKGROUND_X11 thread since they
 // reference GetSecondaryDisplay().
 
-void GetWindowGeometry(int* x, int* y, unsigned* width, unsigned* height,
+// Get the position of the given window in screen coordinates as well as its
+// current size.
+bool GetWindowGeometry(int* x, int* y, unsigned* width, unsigned* height,
                        XID window);
+
+// Find the immediate parent of an X window.
+//
+// parent_window: (output) the parent window of |window|, or 0.
+// parent_is_root: (output) true iff the parent of |window| is the root window.
+bool GetWindowParent(XID* parent_window, bool* parent_is_root, XID window);
 
 }  // namespace x11_util
 

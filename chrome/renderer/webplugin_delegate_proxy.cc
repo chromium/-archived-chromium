@@ -630,10 +630,14 @@ int WebPluginDelegateProxy::GetProcessId() {
 }
 
 void WebPluginDelegateProxy::OnSetWindow(gfx::NativeViewId window_id) {
+#if defined(OS_WIN)
   gfx::NativeView window = gfx::NativeViewFromId(window_id);
   windowless_ = window == NULL;
   if (plugin_)
     plugin_->SetWindow(window);
+#else
+  NOTIMPLEMENTED();
+#endif
 }
 
 #if defined(OS_WIN)

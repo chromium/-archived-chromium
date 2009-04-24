@@ -240,13 +240,38 @@ Display* GetSecondaryDisplay() {
 }
 
 // Called on BACKGROUND_X11 thread.
-void GetWindowGeometry(int* x, int* y, unsigned* width, unsigned* height,
+bool GetWindowGeometry(int* x, int* y, unsigned* width, unsigned* height,
                        XID window) {
-  Window root_window;
+  Window root_window, child_window;
   unsigned border_width, depth;
+  int temp;
 
-  CHECK(XGetGeometry(GetSecondaryDisplay(), window,
-                     &root_window, x, y, width, height, &border_width, &depth));
+  if (!XGetGeometry(GetSecondaryDisplay(), window, &root_window, &temp, &temp,
+                    width, height, &border_width, &depth))
+    return false;
+  if (!XTranslateCoordinates(GetSecondaryDisplay(), window, root_window,
+                             0, 0 /* input x, y */, x, y /* output x, y */,
+                             &child_window))
+    return false;
+
+  return true;
+}
+
+// Called on BACKGROUND_X11 thread.
+bool GetWindowParent(XID* parent_window, bool* parent_is_root, XID window) {
+  XID root_window, *children;
+  unsigned num_children;
+
+  Status s = XQueryTree(GetSecondaryDisplay(), window, &root_window,
+                        parent_window, &children, &num_children);
+  if (!s)
+    return false;
+
+  if (children)
+    XFree(children);
+
+  *parent_is_root = root_window == *parent_window;
+  return true;
 }
 
 }  // namespace x11_util

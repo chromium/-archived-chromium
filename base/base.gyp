@@ -480,6 +480,8 @@
       'sources': [
         'gfx/gdi_util.cc',
         'gfx/gdi_util.h',
+        'gfx/gtk_native_view_id_manager.cc',
+        'gfx/gtk_native_view_id_manager.h',
         'gfx/gtk_util.cc',
         'gfx/gtk_util.h',
         'gfx/jpeg_codec.cc',
@@ -487,6 +489,7 @@
         'gfx/native_theme.cc',
         'gfx/native_theme.h',
         'gfx/native_widget_types.h',
+        'gfx/native_widget_types_gtk.cc',
         'gfx/platform_canvas.h',
         'gfx/platform_canvas_linux.h',
         'gfx/platform_canvas_mac.h',
@@ -528,7 +531,9 @@
             ],
         }],
         [ 'OS != "linux"', { 'sources!': [
+            'gfx/gtk_native_view_id_manager.cc',
             'gfx/gtk_util.cc',
+            'gfx/native_widget_types_gtk.cc',
             ],
         }],
       ],
