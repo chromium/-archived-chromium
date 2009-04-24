@@ -160,7 +160,8 @@ bool NativeCheckboxWin::OnKeyDown(int vkey) {
 bool NativeCheckboxWin::ProcessMessage(UINT message, WPARAM w_param,
                                        LPARAM l_param, LRESULT* result) {
   if (message == WM_COMMAND && HIWORD(w_param) == BN_CLICKED) {
-    checkbox_->SetChecked(!checkbox_->checked());
+    if (!IsRadioButton() || !checkbox_->checked())
+      checkbox_->SetChecked(!checkbox_->checked());
     // Fall through to the NativeButtonWin's handler, which will send the
     // clicked notification to the listener...
   }

@@ -75,6 +75,9 @@ class NativeCheckboxWin : public NativeButtonWin {
   virtual void NativeControlCreated(HWND control_hwnd);
   virtual bool IsCheckbox() const { return true; }
 
+  // Returns true if this button is actually a radio button.
+  virtual bool IsRadioButton() const { return false; }
+
  private:
   // The Checkbox we are bound to.
   Checkbox* checkbox_;
@@ -91,6 +94,7 @@ class NativeRadioButtonWin : public NativeCheckboxWin {
  protected:
   // Overridden from NativeCheckboxWin:
   virtual void CreateNativeControl();
+  virtual bool IsRadioButton() const { return true; }
 
  private:
   DISALLOW_COPY_AND_ASSIGN(NativeRadioButtonWin);
