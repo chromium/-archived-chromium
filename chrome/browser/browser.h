@@ -373,8 +373,8 @@ class Browser : public TabStripModelDelegate,
   void OpenOptionsDialog();
   void OpenKeywordEditor();
   void OpenPasswordManager();
-  void OpenAboutChromeDialog();
 #endif
+  void OpenAboutChromeDialog();
   void OpenHelpTab();
 
   /////////////////////////////////////////////////////////////////////////////

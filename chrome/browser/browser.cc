@@ -1135,12 +1135,12 @@ void Browser::OpenKeywordEditor() {
 void Browser::OpenPasswordManager() {
   window_->ShowPasswordManager();
 }
+#endif
 
 void Browser::OpenAboutChromeDialog() {
   UserMetrics::RecordAction(L"AboutChrome", profile_);
   window_->ShowAboutChromeDialog();
 }
-#endif
 
 void Browser::OpenHelpTab() {
   GURL help_url(WideToASCII(l10n_util::GetString(IDS_HELP_CONTENT_URL)));
@@ -1354,8 +1354,8 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_OPTIONS:               OpenOptionsDialog();           break;
     case IDC_EDIT_SEARCH_ENGINES:   OpenKeywordEditor();           break;
     case IDC_VIEW_PASSWORDS:        OpenPasswordManager();         break;
-    case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
 #endif
+    case IDC_ABOUT:                 OpenAboutChromeDialog();       break;
     case IDC_HELP_PAGE:             OpenHelpTab();                 break;
 
     default:

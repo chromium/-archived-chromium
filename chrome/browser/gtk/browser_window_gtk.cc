@@ -18,6 +18,7 @@
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
+#include "chrome/browser/gtk/about_chrome_dialog.h"
 #include "chrome/browser/gtk/bookmark_bar_gtk.h"
 #include "chrome/browser/gtk/browser_toolbar_gtk.h"
 #include "chrome/browser/gtk/go_button_gtk.h"
@@ -466,7 +467,7 @@ void BrowserWindowGtk::ToggleBookmarkBar() {
 }
 
 void BrowserWindowGtk::ShowAboutChromeDialog() {
-  NOTIMPLEMENTED();
+  ShowAboutDialogForProfile(window_, browser_->profile());
 }
 
 void BrowserWindowGtk::ShowBookmarkManager() {

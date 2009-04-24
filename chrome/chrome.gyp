@@ -712,6 +712,8 @@
         'browser/google_url_tracker.h',
         'browser/google_util.cc',
         'browser/google_util.h',
+        'browser/gtk/about_chrome_dialog.cc',
+        'browser/gtk/about_chrome_dialog.h',
         'browser/gtk/back_forward_menu_model_gtk.cc',
         'browser/gtk/back_forward_menu_model_gtk.h',
         'browser/gtk/bookmark_bar_gtk.cc',
