@@ -127,7 +127,8 @@ TEST_F(TabDraggingTest, Tab1Tab2) {
 }
 
 // Drag Tab_1 into the position of Tab_3.
-TEST_F(TabDraggingTest, Tab1Tab3) {
+// Disabled as per http://crbug.com/10941
+TEST_F(TabDraggingTest, DISABLED_Tab1Tab3) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
   scoped_ptr<WindowProxy> window(browser->GetWindow());
