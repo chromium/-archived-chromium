@@ -123,6 +123,12 @@ void AutocompleteEditViewGtk::Init() {
   // signal, but it is very convenient and clean for catching up/down.
   g_signal_connect(text_view_, "move-cursor",
                    G_CALLBACK(&HandleViewMoveCursorThunk), this);
+  // Override the size request.  We want to keep the original height request
+  // from the widget, since that's font dependent.  We want to ignore the width
+  // so we don't force a minimum width based on the text length.
+  g_signal_connect(text_view_, "size-request",
+                   G_CALLBACK(&HandleViewSizeRequestThunk), this);
+
 }
 
 void AutocompleteEditViewGtk::SetFocus() {
@@ -453,6 +459,13 @@ void AutocompleteEditViewGtk::HandleViewMoveCursor(
     return;
   }
   // Propagate into GtkTextView.
+}
+
+gboolean AutocompleteEditViewGtk::HandleViewSizeRequest(GtkRequisition* req) {
+  // Don't force a minimum width, but use the font-relative height.
+  GTK_WIDGET_GET_CLASS(text_view_)->size_request(text_view_, req);
+  req->width = 1;
+  return TRUE;  // We already called the default handler.
 }
 
 AutocompleteEditViewGtk::CharRange AutocompleteEditViewGtk::GetSelection() {
