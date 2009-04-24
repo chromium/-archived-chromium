@@ -24,38 +24,6 @@ class WebPluginResourceClient;
 
 struct NPObject;
 
-// Describes a mime type entry for a plugin.
-struct WebPluginMimeType {
-  // The actual mime type.
-  std::string mime_type;
-
-  // A list of all the file extensions for this mime type.
-  std::vector<std::string> file_extensions;
-
-  // Description of the mime type.
-  std::wstring description;
-};
-
-
-// Describes an available NPAPI plugin.
-struct WebPluginInfo {
-  // The name of the plugin (i.e. Flash).
-  std::wstring name;
-
-  // The path to the plugin file (DLL/bundle/library).
-  FilePath path;
-
-  // The version number of the plugin file (may be OS-specific)
-  std::wstring version;
-
-  // A description of the plugin that we get from its version info.
-  std::wstring desc;
-
-  // A list of all the mime types that this plugin supports.
-  std::vector<WebPluginMimeType> mime_types;
-};
-
-
 // Describes the new location for a plugin window.
 struct WebPluginGeometry {
   gfx::NativeView window;

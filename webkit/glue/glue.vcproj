@@ -242,6 +242,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\webplugininfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\webpreferences.h"
 				>
 			</File>

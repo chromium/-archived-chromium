@@ -11,7 +11,7 @@
 
 #include "base/basictypes.h"
 #include "base/file_path.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugininfo.h"
 #include "webkit/glue/plugins/nphostapi.h"
 
 class GURL;

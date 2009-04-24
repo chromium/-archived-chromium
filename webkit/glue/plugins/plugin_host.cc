@@ -26,7 +26,7 @@
 #include "net/base/net_util.h"
 #include "webkit/default_plugin/default_plugin_shared.h"
 #include "webkit/glue/glue_util.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugininfo.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/plugins/plugin_instance.h"
 #include "webkit/glue/plugins/plugin_lib.h"

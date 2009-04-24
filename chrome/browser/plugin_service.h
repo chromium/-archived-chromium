@@ -17,7 +17,7 @@
 #include "base/singleton.h"
 #include "base/waitable_event_watcher.h"
 #include "chrome/browser/browser_process.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugininfo.h"
 
 #if defined(OS_WIN)
 #include "base/registry.h"
@@ -27,6 +27,7 @@ namespace IPC {
 class Message;
 }
 
+class GURL;
 class MessageLoop;
 class PluginProcessHost;
 class URLRequestContext;

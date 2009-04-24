@@ -765,7 +765,7 @@ void ResourceMessageFilter::OnSpellCheck(const std::wstring& word,
   }
 
   ViewHostMsg_SpellCheck::WriteReplyParams(reply_msg, misspell_location,
-                                             misspell_length);
+                                           misspell_length);
   Send(reply_msg);
   return;
 }

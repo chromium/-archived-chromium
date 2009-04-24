@@ -9,6 +9,7 @@
 #include "net/base/mime_util.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/glue_util.h"
+#include "webkit/glue/webkit_glue.h"
 
 using WebKit::WebString;
 

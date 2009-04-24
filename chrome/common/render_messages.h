@@ -36,6 +36,7 @@
 #include "webkit/glue/webappcachecontext.h"
 #include "webkit/glue/webdropdata.h"
 #include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugininfo.h"
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/webview_delegate.h"
 

@@ -71,9 +71,6 @@ WebCore::CString WebCStringToCString(const WebKit::WebCString& str);
 FilePath::StringType StringToFilePathString(const WebCore::String& str);
 WebCore::String FilePathStringToString(const FilePath::StringType& str);
 
-FilePath::StringType WebStringToFilePathString(const WebKit::WebString& str);
-WebKit::WebString FilePathStringToWebString(const FilePath::StringType& str);
-
 GURL KURLToGURL(const WebCore::KURL& url);
 WebCore::KURL GURLToKURL(const GURL& url);
 GURL StringToGURL(const WebCore::String& spec);

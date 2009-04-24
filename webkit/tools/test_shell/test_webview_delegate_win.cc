@@ -25,6 +25,7 @@
 #include "webkit/glue/weberror.h"
 #include "webkit/glue/webframe.h"
 #include "webkit/glue/webpreferences.h"
+#include "webkit/glue/webplugin.h"
 #include "webkit/glue/weburlrequest.h"
 #include "webkit/glue/webkit_glue.h"
 #include "webkit/glue/webview.h"

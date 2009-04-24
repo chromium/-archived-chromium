@@ -184,6 +184,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebPluginListBuilder.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\public\WebPoint.h"
 					>
 				</File>
@@ -277,6 +281,14 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebKitPrivate.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebPluginListBuilderImpl.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebKit\chromium\src\WebPluginListBuilderImpl.h"
 					>
 				</File>
 				<File

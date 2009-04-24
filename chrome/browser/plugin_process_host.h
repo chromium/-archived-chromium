@@ -18,7 +18,7 @@
 #include "chrome/browser/net/resolve_proxy_msg_helper.h"
 #include "chrome/browser/renderer_host/resource_message_filter.h"
 #include "chrome/common/child_process_host.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugininfo.h"
 
 class URLRequestContext;
 struct ViewHostMsg_Resource_Request;

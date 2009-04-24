@@ -6,12 +6,17 @@
 
 #include "base/message_loop.h"
 #include "base/stats_counters.h"
+#include "base/string_util.h"
 #include "base/trace_event.h"
 #include "grit/webkit_resources.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebData.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebPluginListBuilder.h"
+#include "third_party/WebKit/WebKit/chromium/public/WebString.h"
 #include "webkit/glue/webkit_glue.h"
+#include "webkit/glue/webplugininfo.h"
 
 using WebKit::WebData;
+using WebKit::WebPluginListBuilder;
 using WebKit::WebThemeEngine;
 
 namespace webkit_glue {
@@ -27,6 +32,35 @@ WebThemeEngine* WebKitClientImpl::themeEngine() {
 #else
   return NULL;
 #endif
+}
+
+void WebKitClientImpl::getPluginList(bool refresh,
+                                     WebPluginListBuilder* builder) {
+  std::vector<WebPluginInfo> plugins;
+  if (!GetPlugins(refresh, &plugins))
+    return;
+
+  for (size_t i = 0; i < plugins.size(); ++i) {
+    const WebPluginInfo& plugin = plugins[i];
+
+    builder->addPlugin(
+        WideToUTF16Hack(plugin.name),
+        WideToUTF16Hack(plugin.desc),
+        FilePathStringToWebString(plugin.path.BaseName().value()));
+
+    for (size_t j = 0; j < plugin.mime_types.size(); ++ j) {
+      const WebPluginMimeType& mime_type = plugin.mime_types[j];
+
+      builder->addMediaTypeToLastPlugin(
+          UTF8ToUTF16(mime_type.mime_type),
+          WideToUTF16Hack(mime_type.description));
+
+      for (size_t k = 0; k < mime_type.file_extensions.size(); ++k) {
+        builder->addFileExtensionToLastMediaType(
+            UTF8ToUTF16(mime_type.file_extensions[k]));
+      }
+    }
+  }
 }
 
 void WebKitClientImpl::decrementStatsCounter(const char* name) {
@@ -69,7 +103,7 @@ WebData WebKitClientImpl::loadResource(const char* name) {
   };
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(resources); ++i) {
     if (!strcmp(name, resources[i].name)) {
-      StringPiece resource = webkit_glue::GetDataResource(resources[i].id);
+      StringPiece resource = GetDataResource(resources[i].id);
       return WebData(resource.data(), resource.size());
     }
   }

@@ -106,43 +106,6 @@ void ChromiumBridge::notifyJSOutOfMemory(Frame* frame) {
 
 // Plugin ---------------------------------------------------------------------
 
-bool ChromiumBridge::plugins(bool refresh, Vector<PluginInfo*>* results) {
-  std::vector<WebPluginInfo> glue_plugins;
-  if (!webkit_glue::GetPlugins(refresh, &glue_plugins))
-    return false;
-  for (size_t i = 0; i < glue_plugins.size(); ++i) {
-    PluginInfo* rv = new PluginInfo;
-    const WebPluginInfo& plugin = glue_plugins[i];
-    rv->name = webkit_glue::StdWStringToString(plugin.name);
-    rv->desc = webkit_glue::StdWStringToString(plugin.desc);
-    rv->file =
-#if defined(OS_WIN)
-      webkit_glue::StdWStringToString(plugin.path.BaseName().value());
-#elif defined(OS_POSIX)
-      webkit_glue::StdStringToString(plugin.path.BaseName().value());
-#endif
-    for (size_t j = 0; j < plugin.mime_types.size(); ++ j) {
-      MimeClassInfo* new_mime = new MimeClassInfo();
-      const WebPluginMimeType& mime_type = plugin.mime_types[j];
-      new_mime->desc = webkit_glue::StdWStringToString(mime_type.description);
-
-      for (size_t k = 0; k < mime_type.file_extensions.size(); ++k) {
-        if (new_mime->suffixes.length())
-          new_mime->suffixes.append(",");
-
-        new_mime->suffixes.append(webkit_glue::StdStringToString(
-            mime_type.file_extensions[k]));
-      }
-
-      new_mime->type = webkit_glue::StdStringToString(mime_type.mime_type);
-      new_mime->plugin = rv;
-      rv->mimes.append(new_mime);
-    }
-    results->append(rv);
-  }
-  return true;
-}
-
 NPObject* ChromiumBridge::pluginScriptableObject(Widget* widget) {
   if (!widget)
     return NULL;

@@ -17,7 +17,7 @@
 #include "base/histogram.h"
 #include "base/time.h"
 #include "chrome/common/page_transition_types.h"
-#include "webkit/glue/webplugin.h"
+#include "webkit/glue/webplugininfo.h"
 
 struct AutocompleteLog;
 class DictionaryValue;
