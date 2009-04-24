@@ -86,9 +86,6 @@ PREFIX : webcore::token::reset___webcore::htmltokenizer::processtoken___webcore:
 # 8033
 SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork
 
-# 10895
-PREFIX : webcore::removependingeventlistener___webcore::domwindow::clearattributeeventlistener___webcore::domwindow::setattributeeventlistener___webcore::v8custom::v8domwindoweventhandleraccessorsetter___v8::internal::jsobject::setpropertywithcallback
-
 # 10896
 PREFIX : tcmalloc::threadcache::fetchfromcentralcache___tcmalloc::threadcache::allocate___`anonymous namespace'::do_malloc___realloc___pickle::pickle
 
