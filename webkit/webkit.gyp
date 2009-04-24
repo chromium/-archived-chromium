@@ -4474,6 +4474,8 @@
         'glue/webmediaplayer_delegate.h',
         'glue/webmediaplayer_impl.cc',
         'glue/webmediaplayer_impl.h',
+	'glue/webmenurunner_mac.h',
+	'glue/webmenurunner_mac.mm',
         'glue/webplugin.h',
         'glue/webplugin_delegate.cc',
         'glue/webplugin_delegate.h',

@@ -12,69 +12,10 @@
 #include "webkit/glue/webview.h"
 #include "webkit/glue/plugins/plugin_list.h"
 #include "webkit/glue/plugins/webplugin_delegate_impl.h"
+#include "webkit/glue/webmenurunner_mac.h"
 #include "webkit/tools/test_shell/test_shell.h"
 
 using WebKit::WebRect;
-
-// MenuDelegate ----------------------------------------------------------------
-// A class for determining whether an item was selected from an HTML select
-// control, or if the menu was dismissed without making a selection. If a menu
-// item is selected, MenuDelegate is informed and sets a flag which can be
-// queried after the menu has finished running.
-
-@interface MenuDelegate : NSObject {
- @private
-  NSMenu* menu_;  // Non-owning
-  BOOL menuItemWasChosen_;
-}
-- (id)initWithItems:(const std::vector<WebMenuItem>&)items
-            forMenu:(NSMenu*)menu;
-- (void)addItem:(const WebMenuItem&)item;
-- (BOOL)menuItemWasChosen;
-- (void)menuItemSelected:(id)sender;
-@end
-
-@implementation MenuDelegate
-
-- (id)initWithItems:(const std::vector<WebMenuItem>&)items
-            forMenu:(NSMenu*)menu {
-  if ((self = [super init])) {
-    menu_ = menu;
-    menuItemWasChosen_ = NO;
-    for (int i = 0; i < static_cast<int>(items.size()); ++i)
-      [self addItem:items[i]];
-  }
-  return self;
-}
-
-- (void)addItem:(const WebMenuItem&)item {
-  if (item.type == WebMenuItem::SEPARATOR) {
-    [menu_ addItem:[NSMenuItem separatorItem]];
-    return;
-  }
-
-  NSString* title = base::SysUTF16ToNSString(item.label);
-  NSMenuItem* menu_item = [menu_ addItemWithTitle:title
-                                           action:@selector(menuItemSelected:)
-                                    keyEquivalent:@""];
-  [menu_item setEnabled:(item.enabled && item.type != WebMenuItem::GROUP)];
-  [menu_item setTarget:self];
-}
-
-// Reflects the result of the user's interaction with the popup menu. If NO, the
-// menu was dismissed without the user choosing an item, which can happen if the
-// user clicked outside the menu region or hit the escape key. If YES, the user
-// selected an item from the menu.
-- (BOOL)menuItemWasChosen {
-  return menuItemWasChosen_;
-}
-
-- (void)menuItemSelected:(id)sender {
-  menuItemWasChosen_ = YES;
-}
-
-@end  // MenuDelegate
-
 
 // WebViewDelegate -----------------------------------------------------------
 
@@ -130,82 +71,38 @@ void TestWebViewDelegate::ShowAsPopupWithItems(
     int item_height,
     int selected_index,
     const std::vector<WebMenuItem>& items) {
-  // Populate the menu.
-  NSMenu* menu = [[[NSMenu alloc] initWithTitle:@""] autorelease];
-  [menu setAutoenablesItems:NO];
-  MenuDelegate* menu_delegate =
-      [[[MenuDelegate alloc] initWithItems:items forMenu:menu] autorelease];
-
-  // Set up the button cell, converting to NSView coordinates. The menu is
-  // positioned such that the currently selected menu item appears over the
-  // popup button, which is the expected Mac popup menu behavior.
-  NSPopUpButtonCell* button = [[NSPopUpButtonCell alloc] initTextCell:@""
-                                                            pullsDown:NO];
-  [button autorelease];
-  [button setMenu:menu];
-  [button selectItemAtIndex:selected_index];
+  // Set up the menu position.
   NSView* web_view = shell_->webViewWnd();
   NSRect view_rect = [web_view bounds];
   int y_offset = bounds.y + bounds.height;
   NSRect position = NSMakeRect(bounds.x, view_rect.size.height - y_offset,
                                bounds.width, bounds.height);
 
-  // Display the menu, and set a flag to determine if something was chosen. If
-  // nothing was chosen (i.e., the user dismissed the popup by the "ESC" key or
-  // clicking outside popup's region), send a dismiss message to WebKit.
-  [button performClickWithFrame:position inView:shell_->webViewWnd()];
+  // Display the menu.
+  WebMenuRunner* menu_runner =
+      [[[WebMenuRunner alloc] initWithItems:items] autorelease];
+
+  [menu_runner runMenuInView:shell_->webViewWnd()
+                  withBounds:position
+                initialIndex:selected_index];
 
   // Get the selected item and forward to WebKit. WebKit expects an input event
   // (mouse down, keyboard activity) for this, so we calculate the proper
   // position based on the selected index and provided bounds.
   WebWidgetHost* popup = shell_->popupHost();
-  NSEvent* event = nil;
-  double event_time = (double)(AbsoluteToDuration(UpTime())) / 1000.0;
   int window_num = [shell_->mainWnd() windowNumber];
 
-  if ([menu_delegate menuItemWasChosen]) {
+  NSEvent* event = CreateEventForMenuAction([menu_runner menuItemWasChosen],
+                                            window_num, item_height,
+                                            [menu_runner indexOfSelectedItem],
+                                            position, view_rect);
+  if ([menu_runner menuItemWasChosen]) {
     // Construct a mouse up event to simulate the selection of an appropriate
     // menu item.
-    NSPoint click_pos;
-    click_pos.x = position.size.width / 2;
-
-    // This is going to be hard to calculate since the button is painted by
-    // WebKit, the menu by Cocoa, and we have to translate the selected_item
-    // index to a coordinate that WebKit's PopupMenu expects which uses a
-    // different font *and* expects to draw the menu below the button like we do
-    // on Windows.
-    // The WebKit popup menu thinks it will draw just below the button, so
-    // create the click at the offset based on the selected item's index and
-    // account for the different coordinate system used by NSView.
-    int item_offset = [button indexOfSelectedItem] * item_height +
-                      item_height / 2;
-    click_pos.y = view_rect.size.height - item_offset;
-    event = [NSEvent mouseEventWithType:NSLeftMouseUp
-                               location:click_pos
-                          modifierFlags:0
-                              timestamp:event_time
-                           windowNumber:window_num
-                                context:nil
-                            eventNumber:0
-                             clickCount:1
-                               pressure:1.0];
     popup->MouseEvent(event);
   } else {
     // Fake an ESC key event (keyCode = 0x1B, from webinputevent_mac.mm) and
     // forward that to WebKit.
-    NSPoint key_pos;
-    key_pos.x = 0;
-    key_pos.y = 0;
-    event = [NSEvent keyEventWithType:NSKeyUp
-                             location:key_pos
-                        modifierFlags:0
-                            timestamp:event_time
-                         windowNumber:window_num
-                              context:nil
-                           characters:@""
-          charactersIgnoringModifiers:@""
-                            isARepeat:NO
-                              keyCode:0x1B];
     popup->KeyEvent(event);
   }
 }
