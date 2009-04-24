@@ -84,7 +84,7 @@ TEST(IPCMessageTest, Bitmap) {
   bad_msg.WriteData(fixed_data, fixed_data_size);
   // Add some bogus pixel data.
   const size_t bogus_pixels_size = bitmap.getSize() * 2;
-  scoped_ptr<char> bogus_pixels(new char[bogus_pixels_size]);
+  scoped_array<char> bogus_pixels(new char[bogus_pixels_size]);
   memset(bogus_pixels.get(), 'B', bogus_pixels_size);
   bad_msg.WriteData(bogus_pixels.get(), bogus_pixels_size);
   // Make sure we don't read out the bitmap!
