@@ -6,8 +6,11 @@
 
 #include "chrome/common/ipc_message.h"
 #include "chrome/common/ipc_message_utils.h"
+#include "base/scoped_ptr.h"
 #include "googleurl/src/gurl.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#include "SkBitmap.h"
 
 // Tests that serialize/deserialize correctly understand each other
 TEST(IPCMessageTest, Serialize) {
@@ -46,4 +49,46 @@ TEST(IPCMessageTest, Serialize) {
   GURL output;
   void* iter = NULL;
   EXPECT_FALSE(IPC::ParamTraits<GURL>::Read(&msg, &iter, &output));
+}
+
+// Tests bitmap serialization.
+TEST(IPCMessageTest, Bitmap) {
+  SkBitmap bitmap;
+
+  bitmap.setConfig(SkBitmap::kARGB_8888_Config, 10, 5);
+  bitmap.allocPixels();
+  memset(bitmap.getPixels(), 'A', bitmap.getSize());
+
+  IPC::Message msg(1, 2, IPC::Message::PRIORITY_NORMAL);
+  IPC::ParamTraits<SkBitmap>::Write(&msg, bitmap);
+
+  SkBitmap output;
+  void* iter = NULL;
+  EXPECT_TRUE(IPC::ParamTraits<SkBitmap>::Read(&msg, &iter, &output));
+
+  EXPECT_EQ(bitmap.config(), output.config());
+  EXPECT_EQ(bitmap.width(), output.width());
+  EXPECT_EQ(bitmap.height(), output.height());
+  EXPECT_EQ(bitmap.rowBytes(), output.rowBytes());
+  EXPECT_EQ(bitmap.getSize(), output.getSize());
+  EXPECT_EQ(memcmp(bitmap.getPixels(), output.getPixels(), bitmap.getSize()),
+            0);
+
+  // Also test the corrupt case.
+  IPC::Message bad_msg(1, 2, IPC::Message::PRIORITY_NORMAL);
+  // Copy the first message block over to |bad_msg|.
+  const char* fixed_data;
+  int fixed_data_size;
+  iter = NULL;
+  msg.ReadData(&iter, &fixed_data, &fixed_data_size);
+  bad_msg.WriteData(fixed_data, fixed_data_size);
+  // Add some bogus pixel data.
+  const size_t bogus_pixels_size = bitmap.getSize() * 2;
+  scoped_ptr<char> bogus_pixels(new char[bogus_pixels_size]);
+  memset(bogus_pixels.get(), 'B', bogus_pixels_size);
+  bad_msg.WriteData(bogus_pixels.get(), bogus_pixels_size);
+  // Make sure we don't read out the bitmap!
+  SkBitmap bad_output;
+  iter = NULL;
+  EXPECT_FALSE(IPC::ParamTraits<SkBitmap>::Read(&bad_msg, &iter, &bad_output));
 }
