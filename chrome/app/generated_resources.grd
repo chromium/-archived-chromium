@@ -1560,7 +1560,7 @@ each locale. -->
       </message>
       <message name="IDS_DOWNLOAD_LINK_CLEAR_ALL"
          desc="Clear all downloads link">
-        Clear All
+        Clear all
       </message>
 
       <!-- Download Context Menu Items -->
@@ -1595,10 +1595,10 @@ each locale. -->
 
       <!-- Remove in-progress downloads confirmation dialog -->
       <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_TITLE" desc="Title of the dialog asking for user confirmation to close the browser when downloads are in-progress.">
-        You have <ph name="DOWNLOAD_COUNT">$1<ex>3</ex></ph> download(s) in progress. If you close Google Chrome, uncompleted downloads will be canceled and removed.
+        You have <ph name="DOWNLOAD_COUNT">$1<ex>3</ex></ph> download(s) in progress. If you close Google Chrome now, these downloads will be canceled.
       </message>
       <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_OK_BUTTON_LABEL" desc="Button text for OKing to close the browser when downloads are in-progress.">
-        Close and remove downloads
+        Close and cancel downloads
       </message>
       <message name="IDS_DOWNLOAD_REMOVE_CONFIRM_CANCEL_BUTTON_LABEL" desc="Button text for canceling the closing of the browser when downloads are in-progress.">
         Wait for downloads to finish
