@@ -45,7 +45,7 @@ bool CheckForWin2000() {
 int AskForUninstallConfirmation() {
   int ret = ResultCodes::NORMAL_EXIT;
   UninstallDialog::ShowUninstallDialog(ret);
-  MessageLoop::current()->Run();
+  MessageLoopForUI::current()->Run(g_browser_process->accelerator_handler());
   return ret;
 }
 
