@@ -90,12 +90,6 @@ FilePath::StringType GetFileExtensionFromPath(const FilePath& path) {
                               file_name, last_dot+1);
 }
 
-std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path) {
-  std::wstring file_name = GetFilenameFromPath(path);
-  std::wstring::size_type last_dot = file_name.rfind(L'.');
-  return file_name.substr(0, last_dot);
-}
-
 void InsertBeforeExtension(FilePath* path, const FilePath::StringType& suffix) {
   FilePath::StringType& value =
       const_cast<FilePath::StringType&>(path->value());

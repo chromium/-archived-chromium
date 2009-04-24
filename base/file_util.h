@@ -80,9 +80,6 @@ FilePath::StringType GetFileExtensionFromPath(const FilePath& path);
 // Deprecated temporary compatibility function.
 std::wstring GetFileExtensionFromPath(const std::wstring& path);
 
-// Deprecated compatibility function.  Use FilePath::RemoveExtension.
-std::wstring GetFilenameWithoutExtensionFromPath(const std::wstring& path);
-
 // Returns the directory component of a path, without the trailing
 // path separator, or an empty string on error. The function does not
 // check for the existence of the path, so if it is passed a directory

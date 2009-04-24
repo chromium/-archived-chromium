@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
@@ -16,6 +17,11 @@ const wchar_t kEllipsis[] = L"\x2026";
 
 struct Testcase {
   const std::string input;
+  const std::wstring output;
+};
+
+struct FileTestcase {
+  const FilePath::StringType input;
   const std::wstring output;
 };
 
@@ -138,41 +144,41 @@ TEST(TextEliderTest, TestFileURLEliding) {
 
 TEST(TextEliderTest, TestFilenameEliding) {
   const std::wstring kEllipsisStr(kEllipsis);
-// TODO(port): this should probably use FilePath::kPathSeparators[0], but we
-// will change this unit test after porting text elider to string16/FilePath,
-// so it's not worth using FilePath stuff at the moment.
-#if defined(OS_POSIX)
-  const std::wstring kPathSeparator(L"/");
-#elif defined(OS_WIN)
-  const std::wstring kPathSeparator(L"\\");
-#endif
+  const FilePath::StringType kPathSeparator =
+      FilePath::StringType().append(1, FilePath::kSeparators[0]);
 
-  WideTestcase testcases[] = {
-    {L"", L""},
-    {L".", L"."},
-    {L"filename.exe", L"filename.exe"},
-    {L".longext", L".longext"},
-    {L"pie", L"pie"},
-    {L"c:" + kPathSeparator + L"path" + kPathSeparator + L"filename.pie",
-     L"filename.pie"},
-    {L"c:" + kPathSeparator + L"path" + kPathSeparator + L"longfilename.pie",
-     L"long" + kEllipsisStr + L".pie"},
-    {L"http://path.com/filename.pie", L"filename.pie"},
-    {L"http://path.com/longfilename.pie", L"long" + kEllipsisStr + L".pie"},
-    {L"piesmashingtacularpants", L"pie" + kEllipsisStr},
-    {L".piesmashingtacularpants", L".pie" + kEllipsisStr},
-    {L"cheese.", L"cheese."},
-    {L"file name.longext", L"file" + kEllipsisStr + L".longext"},
-    {L"fil ename.longext", L"fil " + kEllipsisStr + L".longext"},
-    {L"filename.longext", L"file" + kEllipsisStr + L".longext"},
-    {L"filename.middleext.longext",
-     L"filename.mid" + kEllipsisStr + L".longext"}
+  FileTestcase testcases[] = {
+    {FILE_PATH_LITERAL(""), L""},
+    {FILE_PATH_LITERAL("."), L"."},
+    {FILE_PATH_LITERAL("filename.exe"), L"filename.exe"},
+    {FILE_PATH_LITERAL(".longext"), L".longext"},
+    {FILE_PATH_LITERAL("pie"), L"pie"},
+    {FILE_PATH_LITERAL("c:") + kPathSeparator + FILE_PATH_LITERAL("path") +
+      kPathSeparator + FILE_PATH_LITERAL("filename.pie"),
+      L"filename.pie"},
+    {FILE_PATH_LITERAL("c:") + kPathSeparator + FILE_PATH_LITERAL("path") +
+      kPathSeparator + FILE_PATH_LITERAL("longfilename.pie"),
+      L"long" + kEllipsisStr + L".pie"},
+    {FILE_PATH_LITERAL("http://path.com/filename.pie"), L"filename.pie"},
+    {FILE_PATH_LITERAL("http://path.com/longfilename.pie"),
+      L"long" + kEllipsisStr + L".pie"},
+    {FILE_PATH_LITERAL("piesmashingtacularpants"), L"pie" + kEllipsisStr},
+    {FILE_PATH_LITERAL(".piesmashingtacularpants"), L".pie" + kEllipsisStr},
+    {FILE_PATH_LITERAL("cheese."), L"cheese."},
+    {FILE_PATH_LITERAL("file name.longext"),
+      L"file" + kEllipsisStr + L".longext"},
+    {FILE_PATH_LITERAL("fil ename.longext"),
+      L"fil " + kEllipsisStr + L".longext"},
+    {FILE_PATH_LITERAL("filename.longext"),
+      L"file" + kEllipsisStr + L".longext"},
+    {FILE_PATH_LITERAL("filename.middleext.longext"),
+      L"filename.mid" + kEllipsisStr + L".longext"}
   };
 
   static const ChromeFont font;
   for (size_t i = 0; i < arraysize(testcases); ++i) {
-    const std::wstring filename(testcases[i].input);
-    EXPECT_EQ(testcases[i].output, ElideFilename(filename,
+    FilePath filepath(testcases[i].input);
+    EXPECT_EQ(testcases[i].output, ElideFilename(filepath,
         font,
         font.GetStringWidth(testcases[i].output)));
   }

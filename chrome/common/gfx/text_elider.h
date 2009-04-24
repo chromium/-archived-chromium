@@ -12,6 +12,7 @@
 #include "base/string16.h"
 #include "chrome/common/gfx/chrome_font.h"
 
+class FilePath;
 class GURL;
 
 namespace url_parse {
@@ -57,7 +58,7 @@ std::wstring ElideText(const std::wstring& text,
 // Elide a filename to fit a given pixel width, with an emphasis on not hiding
 // the extension unless we have to. If filename contains a path, the path will
 // be removed if filename doesn't fit into available_pixel_width.
-std::wstring ElideFilename(const std::wstring& filename,
+std::wstring ElideFilename(const FilePath& filename,
                            const ChromeFont& font,
                            int available_pixel_width);
 

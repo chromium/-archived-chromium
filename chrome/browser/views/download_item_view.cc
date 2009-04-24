@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/download/download_item_model.h"
@@ -266,14 +266,17 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     discard_button_->set_ignore_minimum_size(true);
     AddChildView(save_button_);
     AddChildView(discard_button_);
-    std::wstring file_name = download->original_name().ToWStringHack();
 
     // Ensure the file name is not too long.
 
     // Extract the file extension (if any).
-    std::wstring extension = file_util::GetFileExtensionFromPath(file_name);
-    std::wstring rootname =
-        file_util::GetFilenameWithoutExtensionFromPath(file_name);
+    FilePath filepath(download->original_name());
+    std::wstring extension = filepath.Extension();
+
+    // Remove leading '.'
+    if (extension.length() > 0)
+      extension = extension.substr(1);
+    std::wstring rootname = filepath.BaseName().RemoveExtension().value();
 
     // Elide giant extensions (this shouldn't currently be hit, but might
     // in future, should we ever notice unsafe giant extensions).
@@ -532,13 +535,12 @@ void DownloadItemView::Paint(ChromeCanvas* canvas) {
   if (!IsDangerousMode()) {
     std::wstring filename;
     if (!disabled_while_opening_) {
-      filename = gfx::ElideFilename(download_->GetFileName().ToWStringHack(),
+      filename = gfx::ElideFilename(download_->GetFileName(),
                                     font_, kTextWidth);
     } else {
-      filename =
-          l10n_util::GetStringF(IDS_DOWNLOAD_STATUS_OPENING,
-                                download_->GetFileName().ToWStringHack());
-      filename = gfx::ElideFilename(filename, font_, kTextWidth);
+      FilePath filepath(l10n_util::GetStringF(IDS_DOWNLOAD_STATUS_OPENING,
+                                download_->GetFileName().ToWStringHack()));
+      filename = gfx::ElideFilename(filepath, font_, kTextWidth);
     }
 
     if (show_status_text_) {

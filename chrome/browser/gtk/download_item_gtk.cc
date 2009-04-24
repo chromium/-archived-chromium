@@ -155,7 +155,7 @@ DownloadItemGtk::DownloadItemGtk(BaseDownloadItemModel* download_model,
   // much padding when we set the size request. We need to either use ChromeFont
   // or somehow extend TextElider.
   std::wstring elided_filename = gfx::ElideFilename(
-      download_model_->download()->GetFileName().ToWStringHack(),
+      download_model_->download()->GetFileName(),
       ChromeFont(), kTextWidth);
   gchar* label_markup =
       g_markup_printf_escaped(kLabelColorMarkup, kFilenameColor,

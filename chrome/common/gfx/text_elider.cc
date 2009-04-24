@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "base/file_util.h"
+#include "base/file_path.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/gfx/text_elider.h"
 #include "chrome/common/pref_names.h"
@@ -271,22 +272,23 @@ std::wstring ElideUrl(const GURL& url,
   return ElideText(final_elided_url_string, font, available_pixel_width);
 }
 
-std::wstring ElideFilename(const std::wstring& filename,
+std::wstring ElideFilename(const FilePath& filename,
                            const ChromeFont& font,
                            int available_pixel_width) {
-  int full_width = font.GetStringWidth(filename);
+  int full_width = font.GetStringWidth(filename.ToWStringHack());
   if (full_width <= available_pixel_width)
-    return filename;
+    return filename.ToWStringHack();
 
-  std::wstring extension =
-      file_util::GetFileExtensionFromPath(filename);
+#if defined(OS_WIN)
+  std::wstring extension = filename.Extension();
+#elif defined(OS_POSIX)
+  std::wstring extension = base::SysNativeMBToWide(filename.Extension());
+#endif
   std::wstring rootname =
-      file_util::GetFilenameWithoutExtensionFromPath(filename);
+      filename.BaseName().RemoveExtension().ToWStringHack();
 
   if (rootname.empty() || extension.empty())
-    return ElideText(filename, font, available_pixel_width);
-
-  extension = L"." + extension;
+    return ElideText(filename.ToWStringHack(), font, available_pixel_width);
 
   int ext_width = font.GetStringWidth(extension);
   int root_width = font.GetStringWidth(rootname);
