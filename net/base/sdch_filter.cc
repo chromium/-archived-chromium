@@ -112,6 +112,14 @@ SdchFilter::~SdchFilter() {
                                   base::TimeDelta::FromMilliseconds(20),
                                   base::TimeDelta::FromMinutes(10), 100);
       if (read_times_.size() > 4) {
+        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_1st_To_2nd_b",
+                                    read_times_[1] - read_times_[0],
+                                    base::TimeDelta::FromMilliseconds(10),
+                                    base::TimeDelta::FromSeconds(3), 100);
+        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_2nd_To_3rd_b",
+                                    read_times_[2] - read_times_[1],
+                                    base::TimeDelta::FromMilliseconds(10),
+                                    base::TimeDelta::FromSeconds(3), 100);
         UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Decode_3rd_To_4th_b",
                                     read_times_[3] - read_times_[2],
                                     base::TimeDelta::FromMilliseconds(10),
@@ -139,6 +147,14 @@ SdchFilter::~SdchFilter() {
                                   base::TimeDelta::FromMilliseconds(20),
                                   base::TimeDelta::FromMinutes(10), 100);
       if (read_times_.size() > 4) {
+        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_1st_To_2nd_b",
+                                    read_times_[1] - read_times_[0],
+                                    base::TimeDelta::FromMilliseconds(10),
+                                    base::TimeDelta::FromSeconds(3), 100);
+        UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_2nd_To_3rd_b",
+                                    read_times_[2] - read_times_[1],
+                                    base::TimeDelta::FromMilliseconds(10),
+                                    base::TimeDelta::FromSeconds(3), 100);
         UMA_HISTOGRAM_CLIPPED_TIMES("Sdch.Network_Pass-through_3rd_To_4th_b",
                                     read_times_[3] - read_times_[2],
                                     base::TimeDelta::FromMilliseconds(10),
