@@ -51,7 +51,7 @@ BUG_OJAN SLOW : LayoutTests/http/tests/navigation/multiple-back-forward-entries.
 BUG_OJAN SLOW : LayoutTests/http/tests/xmlhttprequest/simple-cross-origin-progress-events.html = PASS
 BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/small-chunks-response-text.html = PASS
 BUG_OJAN SLOW WIN RELEASE : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
-BUG_OJAN SLOW MAC LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
+BUG_OJAN SLOW LINUX : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = PASS
 BUG_OJAN SLOW WIN MAC : LayoutTests/svg/custom/invisible-text-after-scrolling.xhtml = PASS
 BUG_OJAN SLOW : LayoutTests/tables/mozilla/other/slashlogo.html = PASS
 
@@ -2362,7 +2362,6 @@ BUG9798 MAC DEBUG : LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml =
 BUG9798 WIN : LayoutTests/fast/dom/Window/window-lookup-precedence.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/fast/events/tabindex-focus-blur-all.html = FAIL PASS
 BUG9798 WIN : LayoutTests/fast/lists/inlineBoxWrapperNullCheck.html = FAIL PASS
-BUG9798 WIN : LayoutTests/fast/workers/worker-terminate.html = FAIL PASS
 BUG9798 WIN : LayoutTests/fast/xmlhttprequest/xmlhttprequest-gc.html = CRASH PASS
 BUG9798 WIN : LayoutTests/http/tests/mime/standard-mode-loads-stylesheet-with-charset-and-css-extension.html = TIMEOUT PASS
 BUG9798 WIN : LayoutTests/http/tests/mime/standard-mode-loads-stylesheet-with-charset.html = TIMEOUT PASS
@@ -2415,7 +2414,6 @@ BUG9797 WIN DEBUG : LayoutTests/fast/loader/file-URL-with-port-number.html = FAI
 BUG9797 WIN DEBUG : LayoutTests/http/tests/navigation/lockedhistory-iframe.html = FAIL PASS
 BUG9797 WIN DEBUG : LayoutTests/http/tests/security/cross-frame-access-first-time.html = CRASH PASS
 BUG9797 BUG9798 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/state-after-network-error.html = CRASH TIMEOUT PASS
-BUG9797 WIN DEBUG : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/svg/W3C-SVG-1.1/extend-namespace-01-f.svg = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/svg/css/css-box-min-width.html = CRASH PASS
 BUG9797 WIN DEBUG : LayoutTests/traversal/node-iterator-009.html = CRASH PASS
@@ -2562,6 +2560,9 @@ BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-09-t.svg = FAIL
 BUG10998 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-10-t.svg = FAIL
 BUG10998 LINUX MAC : LayoutTests/svg/custom/image-with-transform-clip-filter.svg = FAIL
 BUG10998 MAC : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html = FAIL
+BUG10998 LINUX : LayoutTests/svg/W3C-SVG-1.1/animate-elem-39-t.svg = FAIL
+BUG10998 LINUX : LayoutTests/svg/custom/image-parent-translation.xhtml = FAIL
+BUG10998 LINUX : LayoutTests/svg/custom/text-image-opacity.svg = FAIL
 
 // New failures from WebKit merge 42725:42805
 // The following tests needs rebaseline on LINUX and MAC because of
@@ -2587,7 +2588,16 @@ BUG11000 LINUX MAC WIN : LayoutTests/http/tests/misc/redirect-to-external-url.ht
 // so the test timeouts.
 BUG11001 LINUX MAC WIN : LayoutTests/http/tests/history/back-to-post.php = TIMEOUT
 
+// New failures from WebKit merge 42725:42805
+// Reasons unknown..
+BUG11012 LINUX MAC : LayoutTests/http/tests/security/xss-DENIED-xml-external-entity.xhtml = FAIL
+BUG11012 MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
+// Was marked as SLOW, now TIMEOUT.
+BUG11012 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
+
 // Temporarily disable worker tests that fail after
 // http://src.chromium.org/viewvc/chrome?view=rev&revision=14461
-BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html = FAIL
-BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = FAIL
+BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT
+BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = TIMEOUT
+// The following failure was filed in BUG9798, used to be FAIL and PASS.
+BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT FAIL PASS
