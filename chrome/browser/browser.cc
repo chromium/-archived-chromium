@@ -640,9 +640,11 @@ void Browser::GoBack(WindowOpenDisposition disposition) {
     NavigationController* controller = NULL;
     if (disposition == NEW_FOREGROUND_TAB ||
         disposition == NEW_BACKGROUND_TAB) {
-      tabstrip_model_.AddTabContents(
-          GetSelectedTabContents()->Clone(), -1,
-          PageTransition::LINK, disposition == NEW_FOREGROUND_TAB);
+      TabContents* cloned = GetSelectedTabContents()->Clone();
+      tabstrip_model_.AddTabContents(cloned, -1,
+                                     PageTransition::LINK,
+                                     disposition == NEW_FOREGROUND_TAB);
+      controller = &cloned->controller();
     } else {
       // Default disposition is CURRENT_TAB.
       controller = &current_tab->controller();
@@ -658,9 +660,11 @@ void Browser::GoForward(WindowOpenDisposition disp) {
   if (GetSelectedTabContents()->controller().CanGoForward()) {
     NavigationController* controller = 0;
     if (disp == NEW_FOREGROUND_TAB || disp == NEW_BACKGROUND_TAB) {
-      tabstrip_model_.AddTabContents(
-          GetSelectedTabContents()->Clone(), -1,
-          PageTransition::LINK, disp == NEW_FOREGROUND_TAB);
+      TabContents* cloned = GetSelectedTabContents()->Clone();
+      tabstrip_model_.AddTabContents(cloned, -1,
+                                     PageTransition::LINK,
+                                     disp == NEW_FOREGROUND_TAB);
+      controller = &cloned->controller();
     } else {
       // Default disposition is CURRENT_TAB.
       controller = &GetSelectedTabContents()->controller();
