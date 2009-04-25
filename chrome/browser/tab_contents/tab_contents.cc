@@ -2244,7 +2244,7 @@ void TabContents::RendererUnresponsive(RenderViewHost* rvh,
   if (is_during_unload) {
     // Hang occurred while firing the beforeunload/unload handler.
     // Pretend the handler fired so tab closing continues as if it had.
-    rvh->UnloadListenerHasFired();
+    rvh->set_sudden_termination_allowed(true);
 
     if (!render_manager_.ShouldCloseTabOnUnresponsiveRenderer())
       return;
@@ -2326,11 +2326,11 @@ void TabContents::OnFindReply(int request_id,
       Details<FindNotificationDetails>(&find_result_));
 }
 
-bool TabContents::CanTerminate() const {
+bool TabContents::IsExternalTabContainer() const {
   if (!delegate())
-    return true;
+    return false;
 
-  return !delegate()->IsExternalTabContainer();
+  return delegate()->IsExternalTabContainer();
 }
 
 void TabContents::FileSelected(const FilePath& path,
@@ -2438,4 +2438,3 @@ void TabContents::Observe(NotificationType type,
       NOTREACHED();
   }
 }
-

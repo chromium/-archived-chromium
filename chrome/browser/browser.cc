@@ -159,7 +159,7 @@ bool TabHasUnloadListener(TabContents* contents) {
   WebContents* web_contents = contents->AsWebContents();
   return web_contents && web_contents->notify_disconnection() &&
       !web_contents->showing_interstitial_page() &&
-      web_contents->render_view_host()->HasUnloadListener();
+      !web_contents->render_view_host()->SuddenTerminationAllowed();
 }
 
 }  // namespace

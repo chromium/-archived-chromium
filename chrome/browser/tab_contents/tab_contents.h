@@ -835,7 +835,7 @@ class TabContents : public PageNavigator,
                            const gfx::Rect& selection_rect,
                            int active_match_ordinal,
                            bool final_update);
-  virtual bool CanTerminate() const;
+  virtual bool IsExternalTabContainer() const;
 
   // SelectFileDialog::Listener ------------------------------------------------
 

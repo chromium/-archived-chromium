@@ -8,6 +8,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/message_box_flags.h"
 #include "chrome/test/automation/browser_proxy.h"
+#include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "net/url_request/url_request_unittest.h"
 
@@ -71,8 +72,25 @@ const std::string TWO_SECOND_BEFORE_UNLOAD_ALERT_HTML =
       "alert('foo');"
     "}</script></body></html>";
 
+const std::string CLOSE_TAB_WHEN_OTHER_TAB_HAS_LISTENER =
+    "<html><head><title>only_one_unload</title></head>"
+    "<body onload=\"window.open('data:text/html,<html><head><title>second_tab</title></head></body>')\" "
+    "onbeforeunload='return;'"
+    "</body></html>";
+
 class UnloadTest : public UITest {
  public:
+  virtual void SetUp() {
+    const testing::TestInfo* const test_info =
+        testing::UnitTest::GetInstance()->current_test_info();
+    if (strcmp(test_info->name(),
+        "BrowserCloseTabWhenOtherTabHasListener") == 0) {
+      launch_arguments_.AppendSwitch(switches::kDisablePopupBlocking);
+    }
+
+    UITest::SetUp();
+  }
+
   void WaitForBrowserClosed() {
     const int kCheckDelayMs = 100;
     int max_wait_time = 5000;
@@ -226,7 +244,7 @@ TEST_F(UnloadTest, BrowserCloseUnload) {
 
 // Tests closing the browser with a beforeunload handler and clicking
 // OK in the beforeunload confirm dialog.
-TEST_F(UnloadTest, DISABLED_BrowserCloseBeforeUnloadOK) {
+TEST_F(UnloadTest, BrowserCloseBeforeUnloadOK) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   NavigateToDataURL(BEFORE_UNLOAD_HTML, L"beforeunload");
 
@@ -238,7 +256,7 @@ TEST_F(UnloadTest, DISABLED_BrowserCloseBeforeUnloadOK) {
 
 // Tests closing the browser with a beforeunload handler and clicking
 // CANCEL in the beforeunload confirm dialog.
-TEST_F(UnloadTest, DISABLED_BrowserCloseBeforeUnloadCancel) {
+TEST_F(UnloadTest, BrowserCloseBeforeUnloadCancel) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   NavigateToDataURL(BEFORE_UNLOAD_HTML, L"beforeunload");
 
@@ -311,6 +329,30 @@ TEST_F(UnloadTest, BrowserCloseTwoSecondUnloadAlert) {
 TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnloadAlert) {
   LoadUrlAndQuitBrowser(TWO_SECOND_BEFORE_UNLOAD_ALERT_HTML,
                         L"twosecondbeforeunloadalert");
+}
+
+// Tests that if there's a renderer process with two tabs, one of which has an
+// unload handler, and the other doesn't, the tab that doesn't have an unload
+// handler can be closed.  If this test fails, the Close() call will hang.
+TEST_F(UnloadTest, BrowserCloseTabWhenOtherTabHasListener) {
+  NavigateToDataURL(CLOSE_TAB_WHEN_OTHER_TAB_HAS_LISTENER, L"second_tab");
+
+  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
+  EXPECT_TRUE(browser_proxy.get());
+
+  int tab_count;
+  EXPECT_TRUE(browser_proxy->GetTabCount(&tab_count));
+  EXPECT_EQ(tab_count, 2);
+
+  scoped_ptr<TabProxy> second_tab(browser_proxy->GetActiveTab());
+  EXPECT_TRUE(second_tab.get()!= NULL);
+  EXPECT_TRUE(second_tab->Close(true));
+
+  scoped_ptr<TabProxy> first_tab(browser_proxy->GetActiveTab());
+  std::wstring title;
+  EXPECT_TRUE(first_tab.get() != NULL);
+  EXPECT_TRUE(first_tab->GetTabTitle(&title));
+  EXPECT_EQ(title, L"only_one_unload");
 }
 
 // TODO(ojan): Add tests for unload/beforeunload that have multiple tabs

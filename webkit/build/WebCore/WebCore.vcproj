@@ -133,6 +133,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorDatabaseResource.cpp"
 				>
 			</File>
@@ -146,14 +154,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorDOMStorageResource.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\inspector\InspectorController.h"
 				>
 			</File>
 			<File
@@ -2172,11 +2172,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextEncodingDetectorICU.cpp"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextEncodingDetector.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextEncodingDetector.h"
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\text\TextEncodingDetectorICU.cpp"
 					>
 				</File>
 				<File
@@ -2457,6 +2457,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\SSLKeyGeneratorChromium.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\third_party\WebKit\WebCore\platform\chromium\SuddenTerminationChromium.cpp"
 					>
 				</File>
 				<File
@@ -4384,7 +4388,6 @@
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\CheckedRadioButtons.h"
 				>
 			</File>
-
 			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\dom\ChildNodeList.cpp"
 				>

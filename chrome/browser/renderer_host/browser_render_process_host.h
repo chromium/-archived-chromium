@@ -90,16 +90,8 @@ class BrowserRenderProcessHost : public RenderProcessHost,
   // Control message handlers.
   void OnPageContents(const GURL& url, int32 page_id,
                       const std::wstring& contents);
-  // Clipboard messages
-  void OnClipboardWriteHTML(const std::wstring& markup, const GURL& src_url);
-  void OnClipboardWriteBookmark(const std::wstring& title, const GURL& url);
-  void OnClipboardWriteBitmap(base::SharedMemoryHandle bitmap, gfx::Size size);
-  void OnClipboardIsFormatAvailable(unsigned int format, bool* result);
-  void OnClipboardReadText(string16* result);
-  void OnClipboardReadAsciiText(std::string* result);
-  void OnClipboardReadHTML(string16* markup, GURL* src_url);
-
   void OnUpdatedCacheStats(const WebKit::WebCache::UsageStats& stats);
+  void SuddenTerminationChanged(bool enabled);
 
   // Initialize support for visited links. Send the renderer process its initial
   // set of visited links.

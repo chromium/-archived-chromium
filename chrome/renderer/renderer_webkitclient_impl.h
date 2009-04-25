@@ -29,6 +29,7 @@ class RendererWebKitClientImpl : public webkit_glue::WebKitClientImpl {
       const WebKit::WebURL& url, const WebKit::WebURL& policy_url);
   virtual void prefetchHostName(const WebKit::WebString&);
   virtual WebKit::WebString defaultLocale();
+  virtual void suddenTerminationChanged(bool enabled);
 
  private:
   class MimeRegistry : public webkit_glue::SimpleWebMimeRegistryImpl {

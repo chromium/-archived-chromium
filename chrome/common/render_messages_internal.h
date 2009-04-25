@@ -1191,10 +1191,10 @@ IPC_BEGIN_MESSAGES(ViewHost)
   IPC_MESSAGE_CONTROL1(ViewHostMsg_ResourceTypeStats,
                        WebKit::WebCache::ResourceTypeStats)
 
-  // Notify the browser that this render either has or doesn't have a
-  // beforeunload or unload handler.
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_UnloadListenerChanged,
-                      bool /* has_listener */)
+  // Notify the browser that this render process can or can't be suddenly
+  // terminated.
+  IPC_MESSAGE_CONTROL1(ViewHostMsg_SuddenTerminationChanged,
+                       bool /* enabled */)
 
   // Returns the window location of the window this widget is embeded.
   IPC_SYNC_MESSAGE_ROUTED1_1(ViewHostMsg_GetRootWindowRect,

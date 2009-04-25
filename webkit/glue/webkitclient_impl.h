@@ -32,6 +32,7 @@ class WebKitClientImpl : public WebKit::WebKitClient {
   virtual void setSharedTimerFireTime(double fireTime);
   virtual void stopSharedTimer();
   virtual void callOnMainThread(void (*func)());
+  virtual void suddenTerminationChanged(bool enabled) { }
 
  private:
   void DoTimeout() {

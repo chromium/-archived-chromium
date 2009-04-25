@@ -66,7 +66,8 @@ bool RenderProcessHost::run_renderer_in_process_ = false;
 RenderProcessHost::RenderProcessHost(Profile* profile)
     : max_page_id_(-1),
       pid_(-1),
-      profile_(profile) {
+      profile_(profile),
+      sudden_termination_allowed_(true) {
 }
 
 RenderProcessHost::~RenderProcessHost() {

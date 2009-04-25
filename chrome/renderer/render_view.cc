@@ -1690,14 +1690,6 @@ bool RenderView::RunBeforeUnloadConfirm(WebFrame* webframe,
   return success;
 }
 
-void RenderView::EnableSuddenTermination() {
-  Send(new ViewHostMsg_UnloadListenerChanged(routing_id_, false));
-}
-
-void RenderView::DisableSuddenTermination() {
-  Send(new ViewHostMsg_UnloadListenerChanged(routing_id_, true));
-}
-
 void RenderView::QueryFormFieldAutofill(const std::wstring& field_name,
                                         const std::wstring& text,
                                         int64 node_id) {

@@ -128,9 +128,6 @@ class ChromeClientImpl : public WebCore::ChromeClientChromium {
   void SetCursor(const WebCursor& cursor);
   void SetCursorForPlugin(const WebCursor& cursor);
 
-  virtual void enableSuddenTermination();
-  virtual void disableSuddenTermination();
-
   virtual void formStateDidChange(const WebCore::Node*);
 
  private:

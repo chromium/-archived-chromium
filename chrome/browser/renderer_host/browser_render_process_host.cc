@@ -480,7 +480,16 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
   if (BrowserRenderProcessHost::run_renderer_in_process())
     return false;  // Since process mode can't do fast shutdown.
 
-  // Test if there's an unload listener
+  // Test if there's an unload listener.
+  // NOTE: It's possible that an onunload listener may be installed
+  // while we're shutting down, so there's a small race here.  Given that
+  // the window is small, it's unlikely that the web page has much
+  // state that will be lost by not calling its unload handlers properly.
+  if (!sudden_termination_allowed())
+    return false;
+
+  // Check for any external tab containers, since they may still be running even
+  // though this window closed.
   BrowserRenderProcessHost::listeners_iterator iter;
   // NOTE: This is a bit dangerous.  We know that for now, listeners are
   // always RenderWidgetHosts.  But in theory, they don't have to be.
@@ -490,13 +499,8 @@ bool BrowserRenderProcessHost::FastShutdownIfPossible() {
     if (!widget || !widget->IsRenderView())
       continue;
     RenderViewHost* rvh = static_cast<RenderViewHost*>(widget);
-    if (!rvh->CanTerminate()) {
-      // NOTE: It's possible that an onunload listener may be installed
-      // while we're shutting down, so there's a small race here.  Given that
-      // the window is small, it's unlikely that the web page has much
-      // state that will be lost by not calling its unload handlers properly.
+    if (rvh->delegate()->IsExternalTabContainer())
       return false;
-    }
   }
 
   // Otherwise, we're allowed to just terminate the process. Using exit code 0
@@ -582,6 +586,8 @@ void BrowserRenderProcessHost::OnMessageReceived(const IPC::Message& msg) {
       IPC_MESSAGE_HANDLER(ViewHostMsg_PageContents, OnPageContents)
       IPC_MESSAGE_HANDLER(ViewHostMsg_UpdatedCacheStats,
                           OnUpdatedCacheStats)
+      IPC_MESSAGE_HANDLER(ViewHostMsg_SuddenTerminationChanged,
+                          SuddenTerminationChanged);
       IPC_MESSAGE_UNHANDLED_ERROR()
     IPC_END_MESSAGE_MAP_EX()
 
@@ -700,6 +706,10 @@ void BrowserRenderProcessHost::OnPageContents(const GURL& url,
 void BrowserRenderProcessHost::OnUpdatedCacheStats(
     const WebCache::UsageStats& stats) {
   WebCacheManager::GetInstance()->ObserveStats(pid(), stats);
+}
+
+void BrowserRenderProcessHost::SuddenTerminationChanged(bool enabled) {
+  set_sudden_termination_allowed(enabled);
 }
 
 void BrowserRenderProcessHost::SetBackgrounded(bool backgrounded) {

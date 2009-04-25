@@ -587,18 +587,6 @@ void ChromeClientImpl::SetCursorForPlugin(const WebCursor& cursor) {
   ignore_next_set_cursor_ = true;
 }
 
-void ChromeClientImpl::enableSuddenTermination() {
-  WebViewDelegate* delegate = webview_->delegate();
-  if (delegate)
-    delegate->EnableSuddenTermination();
-}
-
-void ChromeClientImpl::disableSuddenTermination() {
-  WebViewDelegate* delegate = webview_->delegate();
-  if (delegate)
-    delegate->DisableSuddenTermination();
-}
-
 void ChromeClientImpl::formStateDidChange(const WebCore::Node*) {
   WebViewDelegate* delegate = webview_->delegate();
   if (delegate)

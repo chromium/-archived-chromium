@@ -46,6 +46,13 @@ class RenderProcessHost : public IPC::Channel::Sender,
   // May return NULL if there is no connection.
   IPC::SyncChannel* channel() { return channel_.get(); }
 
+  bool sudden_termination_allowed() const {
+    return sudden_termination_allowed_;
+  }
+  void set_sudden_termination_allowed(bool enabled) {
+    sudden_termination_allowed_ = enabled;
+  }
+
   // Used for refcounting, each holder of this object must Attach and Release
   // just like it would for a COM object. This object should be allocated on
   // the heap; when no listeners own it any more, it will delete itself.
@@ -195,6 +202,14 @@ class RenderProcessHost : public IPC::Channel::Sender,
 
   // set of listeners that expect the renderer process to close
   std::set<int> listeners_expecting_close_;
+
+  // True if the process can be shut down suddenly.  If this is true, then we're
+  // sure that all the RenderViews in the process can be shutdown suddenly.  If
+  // it's false, then specific RenderViews might still be allowed to be shutdown
+  // suddenly by checking their SuddenTerminationAllowed() flag.  This can occur
+  // if one tab has an unload event listener but another tab in the same process
+  // doesn't.
+  bool sudden_termination_allowed_;
 
   // See getter above.
   static bool run_renderer_in_process_;

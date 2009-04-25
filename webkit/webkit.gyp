@@ -2102,6 +2102,7 @@
         '../third_party/WebKit/WebCore/platform/chromium/SharedTimerChromium.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/SoundChromiumPosix.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/SoundChromiumWin.cpp',
+        '../third_party/WebKit/WebCore/platform/chromium/SuddenTerminationChromium.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/SystemTimeChromium.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/TemporaryLinkStubs.cpp',
         '../third_party/WebKit/WebCore/platform/chromium/WidgetChromium.cpp',

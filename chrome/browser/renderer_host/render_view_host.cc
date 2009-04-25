@@ -100,9 +100,9 @@ RenderViewHost::RenderViewHost(SiteInstance* instance,
       navigations_suspended_(false),
       suspended_nav_message_(NULL),
       run_modal_reply_msg_(NULL),
-      has_unload_listener_(false),
       is_waiting_for_unload_ack_(false),
-      are_javascript_messages_suppressed_(false) {
+      are_javascript_messages_suppressed_(false),
+      sudden_termination_allowed_(false) {
   DCHECK(instance_);
   DCHECK(delegate_);
   if (modal_dialog_event == NULL)
@@ -285,7 +285,7 @@ void RenderViewHost::ClosePageIgnoringUnloadEvents(int render_process_host_id,
   rvh->StopHangMonitorTimeout();
   rvh->is_waiting_for_unload_ack_ = false;
 
-  rvh->UnloadListenerHasFired();
+  rvh->set_sudden_termination_allowed(true);
   rvh->delegate()->Close(rvh);
 }
 
@@ -658,11 +658,8 @@ void RenderViewHost::LoadStateChanged(const GURL& url,
   delegate_->LoadStateChanged(url, load_state);
 }
 
-bool RenderViewHost::CanTerminate() const {
-  if (!delegate_->CanTerminate())
-    return false;
-
-  return !has_unload_listener_;
+bool RenderViewHost::SuddenTerminationAllowed() const {
+  return sudden_termination_allowed_ || process()->sudden_termination_allowed();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -761,8 +758,6 @@ void RenderViewHost::OnMessageReceived(const IPC::Message& msg) {
     IPC_MESSAGE_FORWARD(ViewHostMsg_JSOutOfMemory, delegate_,
                         RenderViewHostDelegate::OnJSOutOfMemory);
     IPC_MESSAGE_HANDLER(ViewHostMsg_ShouldClose_ACK, OnMsgShouldCloseACK);
-    IPC_MESSAGE_HANDLER(ViewHostMsg_UnloadListenerChanged,
-                        OnUnloadListenerChanged);
     IPC_MESSAGE_HANDLER(ViewHostMsg_QueryFormFieldAutofill,
                         OnQueryFormFieldAutofill)
     IPC_MESSAGE_HANDLER(ViewHostMsg_RemoveAutofillEntry,
@@ -1296,10 +1291,6 @@ void RenderViewHost::OnMsgShouldCloseACK(bool proceed) {
   DCHECK(is_waiting_for_unload_ack_);
   is_waiting_for_unload_ack_ = false;
   delegate_->ShouldClosePage(proceed);
-}
-
-void RenderViewHost::OnUnloadListenerChanged(bool has_listener) {
-  has_unload_listener_ = has_listener;
 }
 
 void RenderViewHost::OnQueryFormFieldAutofill(const std::wstring& field_name,

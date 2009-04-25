@@ -416,8 +416,8 @@ class RenderViewHostDelegate {
   // bombing), see DownloadRequestManager for details.
   virtual void OnEnterOrSpace() { }
 
-  // If this view can be terminated without any side effects
-  virtual bool CanTerminate() const { return true; }
+  // If this view is used to host an external tab container.
+  virtual bool IsExternalTabContainer() const { return false; }
 
   // A find operation in the current page completed.
   virtual void OnFindReply(int request_id,

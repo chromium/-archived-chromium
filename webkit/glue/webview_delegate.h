@@ -455,12 +455,6 @@ class WebViewDelegate : virtual public WebWidgetDelegate {
                                        const AutofillForm& form) {
   }
 
-  virtual void EnableSuddenTermination() {
-  }
-
-  virtual void DisableSuddenTermination() {
-  }
-
   // Queries the browser for suggestions to be shown for the form text field
   // named |field_name|.  |text| is the text entered by the user so far and
   // |node_id| is the id of the node of the input field.

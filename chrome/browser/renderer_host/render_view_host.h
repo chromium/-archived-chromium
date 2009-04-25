@@ -377,15 +377,10 @@ class RenderViewHost : public RenderWidgetHost {
   // Notifies the RenderViewHost that its load state changed.
   void LoadStateChanged(const GURL& url, net::LoadState load_state);
 
-  // Does the associated view have an onunload or onbeforeunload handler?
-  bool HasUnloadListener() { return has_unload_listener_; }
-
-  // If the associated view can be terminated without any side effects
-  bool CanTerminate() const;
-
-  // Clears the has_unload_listener_ bit since the unload handler has fired
-  // and we're necessarily leaving the page.
-  void UnloadListenerHasFired() { has_unload_listener_ = false; }
+  bool SuddenTerminationAllowed() const;
+  void set_sudden_termination_allowed(bool enabled) {
+    sudden_termination_allowed_ = enabled;
+  }
 
   // Forward a message from external host to chrome renderer.
   void ForwardMessageFromExternalHost(const std::string& message,
@@ -539,7 +534,6 @@ class RenderViewHost : public RenderWidgetHost {
   void OnDidGetApplicationInfo(int32 page_id,
                                const webkit_glue::WebApplicationInfo& info);
   void OnMsgShouldCloseACK(bool proceed);
-  void OnUnloadListenerChanged(bool has_handler);
   void OnQueryFormFieldAutofill(const std::wstring& field_name,
                                 const std::wstring& user_text,
                                 int64 node_id,
@@ -613,14 +607,15 @@ class RenderViewHost : public RenderWidgetHost {
   // must return to the renderer to unblock it.
   IPC::Message* run_modal_reply_msg_;
 
-  bool has_unload_listener_;
-
   bool is_waiting_for_unload_ack_;
 
   bool are_javascript_messages_suppressed_;
 
   // Handles processing IPC messages request extension functions be executed.
   scoped_ptr<ExtensionFunctionDispatcher> extension_function_dispatcher_;
+
+  // True if the render view can be shut down suddenly.
+  bool sudden_termination_allowed_;
 
   DISALLOW_COPY_AND_ASSIGN(RenderViewHost);
 };

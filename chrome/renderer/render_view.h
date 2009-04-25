@@ -150,8 +150,6 @@ class RenderView : public RenderWidget,
                                    std::wstring* result);
   virtual bool RunBeforeUnloadConfirm(WebFrame* webframe,
                                       const std::wstring& message);
-  virtual void EnableSuddenTermination();
-  virtual void DisableSuddenTermination();
   virtual void QueryFormFieldAutofill(const std::wstring& field_name,
                                       const std::wstring& text,
                                       int64 node_id);

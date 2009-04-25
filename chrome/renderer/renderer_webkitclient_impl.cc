@@ -77,6 +77,12 @@ WebString RendererWebKitClientImpl::defaultLocale() {
   return WideToUTF16(webkit_glue::GetWebKitLocale());
 }
 
+void RendererWebKitClientImpl::suddenTerminationChanged(bool enabled) {
+  RenderThread* thread = RenderThread::current();
+  if (thread)  // NULL in unittests.
+    thread->Send(new ViewHostMsg_SuddenTerminationChanged(enabled));
+}
+
 //------------------------------------------------------------------------------
 
 WebString RendererWebKitClientImpl::MimeRegistry::mimeTypeForExtension(
