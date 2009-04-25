@@ -2591,4 +2591,3 @@ BUG11001 LINUX MAC WIN : LayoutTests/http/tests/history/back-to-post.php = TIMEO
 // http://src.chromium.org/viewvc/chrome?view=rev&revision=14461
 BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html = FAIL
 BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = FAIL
-BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html = FAIL
