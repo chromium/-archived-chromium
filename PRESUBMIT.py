@@ -92,7 +92,7 @@ def LocalChecks(input_api, output_api, max_cols=80):
       eof_files.append(path)
 
     local_errors = []
-    # Remove EOL character.
+    # Remove end of line character.
     lines = contents.splitlines()
     line_num = 1
     for line in lines:
