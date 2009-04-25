@@ -50,7 +50,7 @@ class AutocompletePopupContentsView : public views::View,
   virtual ~AutocompletePopupContentsView() {}
 
   // Update the presentation with the latest result.
-  void SetAutocompleteResult(const AutocompleteResult& result);
+  void UpdateResultViewsFromResult(const AutocompleteResult& result);
 
   // Returns the bounds the popup should be shown at. This is the display bounds
   // and includes offsets for the dropshadow which this view's border renders.

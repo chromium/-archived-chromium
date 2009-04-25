@@ -25,8 +25,21 @@ static const SkColor kStandardURLColor = SkColorSetRGB(0, 0x80, 0);
 static const SkColor kHighlightURLColor = SkColorSetRGB(0xD0, 0xFF, 0xD0);
 static const int kPopupTransparency = 235;
 static const int kHoverRowAlpha = 0x40;
-static const int kRowVerticalPadding = 3;
-static const int kRowHorizontalPadding = 3;
+// The minimum distance between the top and bottom of the icon and the top or
+// bottom of the row. "Minimum" is used because the vertical padding may be
+// larger, depending on the size of the text.
+static const int kIconVerticalPadding = 2;
+// The minimum distance between the top and bottom of the text and the top or
+// bottom of the row. See comment about the use of "minimum" for
+// kIconVerticalPadding.
+static const int kTextVerticalPadding = 3;
+// The padding at the left edge of the row, left of the icon.
+static const int kRowLeftPadding = 6;
+// The padding on the right edge of the row, right of the text.
+static const int kRowRightPadding = 3;
+// The horizontal distance between the right edge of the icon and the left edge
+// of the text.
+static const int kIconTextSpacing = 9;
 
 class AutocompleteResultView : public views::View {
  public:
@@ -37,6 +50,7 @@ class AutocompleteResultView : public views::View {
 
   // Overridden from views::View:
   virtual void Paint(ChromeCanvas* canvas);
+  virtual void Layout();
   virtual gfx::Size GetPreferredSize();
   virtual void OnMouseEntered(const views::MouseEvent& event);
   virtual void OnMouseMoved(const views::MouseEvent& event);
@@ -46,15 +60,11 @@ class AutocompleteResultView : public views::View {
   virtual bool OnMouseDragged(const views::MouseEvent& event);
 
  private:
-  // Paint the result view in different ways.
-  void PaintAsSearchDefault(ChromeCanvas* canvas);
-  void PaintAsURLSuggestion(ChromeCanvas* canvas);
-  void PaintAsQuerySuggestion(ChromeCanvas* canvas);
-  void PaintAsMoreRow(ChromeCanvas* canvas);
-
   // Get colors for row backgrounds and text for different row states.
   SkColor GetBackgroundColor() const;
   SkColor GetTextColor() const;
+
+  SkBitmap* GetIcon() const;
 
   // Draws the specified |text| into the canvas, using highlighting provided by
   // |classifications|.
@@ -89,8 +99,32 @@ class AutocompleteResultView : public views::View {
   class MirroringContext;
   scoped_ptr<MirroringContext> mirroring_context_;
 
+  // Layout rects for various sub-components of the view.
+  gfx::Rect icon_bounds_;
+  gfx::Rect text_bounds_;
+
+  // Icons for rows.
+  static SkBitmap* icon_url_;
+  static SkBitmap* icon_history_;
+  static SkBitmap* icon_search_;
+  static SkBitmap* icon_more_;
+  static SkBitmap* icon_star_;
+  static int icon_size_;
+  
+  static bool initialized_;
+  static void InitClass();
+
   DISALLOW_COPY_AND_ASSIGN(AutocompleteResultView);
 };
+
+// static
+SkBitmap* AutocompleteResultView::icon_url_ = NULL;
+SkBitmap* AutocompleteResultView::icon_history_ = NULL;
+SkBitmap* AutocompleteResultView::icon_search_ = NULL;
+SkBitmap* AutocompleteResultView::icon_star_ = NULL;
+SkBitmap* AutocompleteResultView::icon_more_ = NULL;
+int AutocompleteResultView::icon_size_ = 0;
+bool AutocompleteResultView::initialized_ = false;
 
 // This class implements a utility used for mirroring x-coordinates when the
 // application language is a right-to-left one.
@@ -147,6 +181,7 @@ AutocompleteResultView::AutocompleteResultView(
       hot_(false),
       font_(font),
       mirroring_context_(new MirroringContext()) {
+  InitClass();
 }
 
 AutocompleteResultView::~AutocompleteResultView() {
@@ -155,13 +190,31 @@ AutocompleteResultView::~AutocompleteResultView() {
 void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
   canvas->FillRectInt(GetBackgroundColor(), 0, 0, width(), height());
 
+  // Paint the icon.
+  canvas->DrawBitmapInt(*GetIcon(), icon_bounds_.x(), icon_bounds_.y());
+
+  // Paint the text.
   const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
   DrawString(canvas, match.contents, match.contents_class,
-             kRowHorizontalPadding, kRowVerticalPadding);
+             text_bounds_.x(), text_bounds_.y());
+
+  // Paint the description.
+  // TODO(beng): do this.
+}
+
+void AutocompleteResultView::Layout() {
+  icon_bounds_.SetRect(kRowLeftPadding, (height() - icon_size_) / 2,
+                       icon_size_, icon_size_);
+  int text_x = icon_bounds_.right() + kIconTextSpacing;
+  text_bounds_.SetRect(text_x, (height() - font_.height()) / 2,
+                       bounds().right() - text_x - kRowRightPadding,
+                       font_.height());
 }
 
 gfx::Size AutocompleteResultView::GetPreferredSize() {
-  return gfx::Size(0, font_.height() + 2 * kRowVerticalPadding);
+  int text_height = font_.height() + 2 * kTextVerticalPadding;
+  int icon_height = icon_size_ + 2 * kIconVerticalPadding;
+  return gfx::Size(0, std::max(icon_height, text_height));
 }
 
 void AutocompleteResultView::OnMouseEntered(const views::MouseEvent& event) {
@@ -207,22 +260,6 @@ bool AutocompleteResultView::OnMouseDragged(const views::MouseEvent& event) {
   return false;
 }
 
-void AutocompleteResultView::PaintAsSearchDefault(ChromeCanvas* canvas) {
-
-}
-
-void AutocompleteResultView::PaintAsURLSuggestion(ChromeCanvas* canvas) {
-
-}
-
-void AutocompleteResultView::PaintAsQuerySuggestion(ChromeCanvas* canvas) {
-
-}
-
-void AutocompleteResultView::PaintAsMoreRow(ChromeCanvas* canvas) {
-
-}
-
 SkColor AutocompleteResultView::GetBackgroundColor() const {
   if (model_->IsSelectedIndex(model_index_))
     return color_utils::GetSysSkColor(COLOR_HIGHLIGHT);
@@ -238,6 +275,30 @@ SkColor AutocompleteResultView::GetTextColor() const {
   if (model_->IsSelectedIndex(model_index_))
     return color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
   return color_utils::GetSysSkColor(COLOR_WINDOWTEXT);
+}
+
+SkBitmap* AutocompleteResultView::GetIcon() const {
+  switch (model_->GetMatchAtIndex(model_index_).type) {
+    case AutocompleteMatch::URL_WHAT_YOU_TYPED:
+    case AutocompleteMatch::HISTORY_URL:
+    case AutocompleteMatch::NAVSUGGEST:
+      return icon_url_;
+    case AutocompleteMatch::HISTORY_TITLE:
+    case AutocompleteMatch::HISTORY_BODY:
+    case AutocompleteMatch::HISTORY_KEYWORD:
+      return icon_history_;
+    case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
+    case AutocompleteMatch::SEARCH_HISTORY:
+    case AutocompleteMatch::SEARCH_SUGGEST:
+    case AutocompleteMatch::SEARCH_OTHER_ENGINE:
+      return icon_search_;
+    case AutocompleteMatch::OPEN_HISTORY_PAGE:
+      return icon_more_;
+    default:
+      NOTREACHED();
+      break;
+  }
+  return NULL;
 }
 
 void AutocompleteResultView::DrawString(
@@ -301,7 +362,6 @@ void AutocompleteResultView::DrawString(
                                                                 &run_start,
                                                                 &run_length);
     const int run_end = run_start + run_length;
-    int text_x = 0;
 
     // Split this run with the given classifications and draw the fragments
     // into the local display context.
@@ -310,10 +370,9 @@ void AutocompleteResultView::DrawString(
       const int text_start = std::max(run_start, static_cast<int>(i->offset));
       const int text_end = std::min(run_end, (i != classifications.end() - 1) ?
           static_cast<int>((i + 1)->offset) : run_end);
-      text_x +=
-          DrawStringFragment(canvas,
-                             text.substr(text_start, text_end - text_start),
-                             i->style, text_x, y);
+      x += DrawStringFragment(canvas,
+                              text.substr(text_start, text_end - text_start),
+                              i->style, x, y);
     }
   }
 }
@@ -350,6 +409,20 @@ SkColor AutocompleteResultView::GetFragmentTextColor(int style) const {
   if (style & ACMatchClassification::DIM)
     return SkColorSetA(GetTextColor(), 0xAA);
   return GetTextColor();
+}
+
+void AutocompleteResultView::InitClass() {
+  if (!initialized_) {
+    ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+    icon_url_ = rb.GetBitmapNamed(IDR_O2_GLOBE);
+    icon_history_ = rb.GetBitmapNamed(IDR_O2_HISTORY);
+    icon_search_ = rb.GetBitmapNamed(IDR_O2_SEARCH);
+    icon_star_ = rb.GetBitmapNamed(IDR_O2_STAR);
+    icon_more_ = rb.GetBitmapNamed(IDR_O2_MORE);
+    // All icons are assumed to be square, and the same size.
+    icon_size_ = icon_url_->width();
+    initialized_ = true;
+  }
 }
 
 class PopupBorder : public views::Border {
@@ -467,14 +540,11 @@ AutocompletePopupContentsView::AutocompletePopupContentsView(
   set_border(new PopupBorder);
 }
 
-void AutocompletePopupContentsView::SetAutocompleteResult(
+void AutocompletePopupContentsView::UpdateResultViewsFromResult(
     const AutocompleteResult& result) {
   RemoveAllChildViews(true);
   for (size_t i = 0; i < result.size(); ++i)
     AddChildView(new AutocompleteResultView(this, i, edit_font_));
-  // Update the popup's size by calling Show. This will cause us to be laid out
-  // again at the new size.
-  popup_->Show();
 }
 
 gfx::Rect AutocompletePopupContentsView::GetPopupBounds() const {
@@ -504,6 +574,7 @@ void AutocompletePopupContentsView::InvalidateLine(size_t line) {
 
 void AutocompletePopupContentsView::UpdatePopupAppearance() {
   const AutocompleteResult& result = model_->result();
+  UpdateResultViewsFromResult(result);
   if (result.empty()) {
     // No matches, close any existing popup.
     if (popup_->IsWindow())
@@ -515,7 +586,6 @@ void AutocompletePopupContentsView::UpdatePopupAppearance() {
     popup_->Show();
   else
     popup_->Init(edit_view_, this);
-  SetAutocompleteResult(result);
 }
 
 void AutocompletePopupContentsView::OnHoverEnabledOrDisabled(bool disabled) {
