@@ -144,14 +144,8 @@ void TCPClientSocketWin::Disconnect() {
   read_watcher_.StopWatching();
   write_watcher_.StopWatching();
 
-  // Cancel any pending IO and wait for it to be aborted.
-  if (waiting_read_ || waiting_write_) {
-    CancelIo(reinterpret_cast<HANDLE>(socket_));
-    if (waiting_read_)
-      WaitForSingleObject(read_overlapped_.hEvent, INFINITE);
-    if (waiting_write_)
-      WaitForSingleObject(write_overlapped_.hEvent, INFINITE);
-  }
+  // Note: don't use CancelIo to cancel pending IO because it doesn't work
+  // when there is a Winsock layered service provider.
 
   // In most socket implementations, closing a socket results in a graceful
   // connection shutdown, but in Winsock we have to call shutdown explicitly.
@@ -159,8 +153,15 @@ void TCPClientSocketWin::Disconnect() {
   // at http://msdn.microsoft.com/en-us/library/ms738547.aspx
   shutdown(socket_, SD_SEND);
 
+  // This cancels any pending IO.
   closesocket(socket_);
   socket_ = INVALID_SOCKET;
+
+  // Wait for pending IO to be aborted.
+  if (waiting_read_)
+    WaitForSingleObject(read_overlapped_.hEvent, INFINITE);
+  if (waiting_write_)
+    WaitForSingleObject(write_overlapped_.hEvent, INFINITE);
 
   WSACloseEvent(read_overlapped_.hEvent);
   memset(&read_overlapped_, 0, sizeof(read_overlapped_));
@@ -213,8 +214,8 @@ int TCPClientSocketWin::Read(char* buf,
   DCHECK(!waiting_read_);
   DCHECK(!read_callback_);
 
- read_buffer_.len = buf_len;
- read_buffer_.buf = buf;
+  read_buffer_.len = buf_len;
+  read_buffer_.buf = buf;
 
   TRACE_EVENT_BEGIN("socket.read", this, "");
   // TODO(wtc): Remove the CHECK after enough testing.
