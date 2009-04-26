@@ -6,7 +6,6 @@
 
 #include "chrome/browser/safe_browsing/safe_browsing_blocking_page.h"
 
-#include "base/histogram.h"
 #include "base/string_util.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/dom_operation_notification_details.h"
@@ -50,21 +49,6 @@ static const char* const kLearnMoreCommand = "learnMore";
 static const char* const kProceedCommand = "proceed";
 static const char* const kTakeMeBackCommand = "takeMeBack";
 
-namespace {
-
-enum SafeBrowsingBlockingPageEvent {
-  SHOW,
-  PROCEED,
-  DONT_PROCEED,
-};
-
-void RecordSafeBrowsingBlockingPageStats(SafeBrowsingBlockingPageEvent event) {
-  static LinearHistogram histogram("interstial.safe_browsing", 0, 2, 4);
-  histogram.SetFlags(kUmaTargetedHistogramFlag);
-  histogram.Add(event);
-}
-
-}  // namespace
 // static
 SafeBrowsingBlockingPageFactory* SafeBrowsingBlockingPage::factory_ = NULL;
 
@@ -99,7 +83,6 @@ SafeBrowsingBlockingPage::SafeBrowsingBlockingPage(
       sb_service_(sb_service),
       is_main_frame_(IsMainPage(unsafe_resources)),
       unsafe_resources_(unsafe_resources) {
-  RecordSafeBrowsingBlockingPageStats(SHOW);
   if (!is_main_frame_) {
     navigation_entry_index_to_remove_ =
         tab()->controller().last_committed_entry_index();
@@ -379,8 +362,6 @@ void SafeBrowsingBlockingPage::CommandReceived(const std::string& cmd) {
 }
 
 void SafeBrowsingBlockingPage::Proceed() {
-  RecordSafeBrowsingBlockingPageStats(PROCEED);
-
   NotifySafeBrowsingService(sb_service_, unsafe_resources_, true);
 
   // Check to see if some new notifications of unsafe resources have been
@@ -406,8 +387,6 @@ void SafeBrowsingBlockingPage::Proceed() {
 }
 
 void SafeBrowsingBlockingPage::DontProceed() {
-  RecordSafeBrowsingBlockingPageStats(DONT_PROCEED);
-
   NotifySafeBrowsingService(sb_service_, unsafe_resources_, false);
 
   // The user does not want to proceed, clear the queued unsafe resources

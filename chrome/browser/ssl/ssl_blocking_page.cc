@@ -4,7 +4,6 @@
 
 #include "chrome/browser/ssl/ssl_blocking_page.h"
 
-#include "base/histogram.h"
 #include "base/string_piece.h"
 #include "base/values.h"
 #include "chrome/browser/browser.h"
@@ -23,22 +22,6 @@
 #include "grit/browser_resources.h"
 #include "grit/generated_resources.h"
 
-namespace {
-
-enum SSLBlockingPageEvent {
-  SHOW,
-  PROCEED,
-  DONT_PROCEED,
-};
-
-void RecordSSLBlockingPageStats(SSLBlockingPageEvent event) {
-  static LinearHistogram histogram("interstial.ssl", 0, 2, 4);
-  histogram.SetFlags(kUmaTargetedHistogramFlag);
-  histogram.Add(event);
-}
-
-}  // namespace
-
 // Note that we always create a navigation entry with SSL errors.
 // No error happening loading a sub-resource triggers an interstitial so far.
 SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
@@ -47,7 +30,6 @@ SSLBlockingPage::SSLBlockingPage(SSLManager::CertError* error,
       error_(error),
       delegate_(delegate),
       delegate_has_been_notified_(false) {
-  RecordSSLBlockingPageStats(SHOW);
 }
 
 SSLBlockingPage::~SSLBlockingPage() {
@@ -112,8 +94,6 @@ void SSLBlockingPage::CommandReceived(const std::string& command) {
 }
 
 void SSLBlockingPage::Proceed() {
-  RecordSSLBlockingPageStats(PROCEED);
-
   // Accepting the certificate resumes the loading of the page.
   NotifyAllowCertificate();
 
@@ -122,11 +102,10 @@ void SSLBlockingPage::Proceed() {
 }
 
 void SSLBlockingPage::DontProceed() {
-  RecordSSLBlockingPageStats(DONT_PROCEED);
-
   NotifyDenyCertificate();
   InterstitialPage::DontProceed();
 }
+
 
 void SSLBlockingPage::NotifyDenyCertificate() {
   DCHECK(!delegate_has_been_notified_);
