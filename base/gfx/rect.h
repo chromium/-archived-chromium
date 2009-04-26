@@ -86,7 +86,7 @@ class Rect {
   }
 
   // Returns true if the area of the rectangle is zero.
-  bool IsEmpty() const;
+  bool IsEmpty() const { return size_.IsEmpty(); }
 
   bool operator==(const Rect& other) const;
 

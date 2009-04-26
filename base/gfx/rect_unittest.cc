@@ -267,3 +267,14 @@ TEST(RectTest, Subtract) {
       gfx::Rect(5, 5, 20, 30)).Equals(
       gfx::Rect(25, 10, 5, 20)));
 }
+
+TEST(RectTest, IsEmpty) {
+  EXPECT_TRUE(gfx::Rect(0, 0, 0, 0).IsEmpty());
+  EXPECT_TRUE(gfx::Rect(0, 0, 0, 0).size().IsEmpty());
+  EXPECT_TRUE(gfx::Rect(0, 0, 10, 0).IsEmpty());
+  EXPECT_TRUE(gfx::Rect(0, 0, 10, 0).size().IsEmpty());
+  EXPECT_TRUE(gfx::Rect(0, 0, 0, 10).IsEmpty());
+  EXPECT_TRUE(gfx::Rect(0, 0, 0, 10).size().IsEmpty());
+  EXPECT_FALSE(gfx::Rect(0, 0, 10, 10).IsEmpty());
+  EXPECT_FALSE(gfx::Rect(0, 0, 10, 10).size().IsEmpty());
+}
