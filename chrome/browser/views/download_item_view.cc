@@ -142,6 +142,7 @@ DownloadItemView::DownloadItemView(DownloadItem* download,
     discard_button_(NULL),
     dangerous_download_label_(NULL),
     dangerous_download_label_sized_(false),
+    creation_time_(base::Time::Now()),
     reenable_method_factory_(this),
     disabled_while_opening_(false) {
   // TODO(idana) Bug# 1163334
@@ -406,11 +407,17 @@ void DownloadItemView::Layout() {
 
 void DownloadItemView::ButtonPressed(views::Button* sender) {
   if (sender == discard_button_) {
+    UMA_HISTOGRAM_LONG_TIMES("clickjacking.discard_download",
+                             base::Time::Now() - creation_time_);
     if (download_->state() == DownloadItem::IN_PROGRESS)
       download_->Cancel(true);
     download_->Remove(true);
     // WARNING: we are deleted at this point.  Don't access 'this'.
   } else if (sender == save_button_) {
+    // The user has confirmed a dangerous download.  We'd record how quickly the
+    // user did this to detect whether we're being clickjacked.
+    UMA_HISTOGRAM_LONG_TIMES("clickjacking.save_download",
+                             base::Time::Now() - creation_time_);
     // This will change the state and notify us.
     download_->manager()->DangerousDownloadValidated(download_);
   }
@@ -830,6 +837,10 @@ void DownloadItemView::AnimationProgressed(const Animation* animation) {
 }
 
 void DownloadItemView::OpenDownload() {
+  // We're interested in how long it takes users to open downloads.  If they
+  // open downloads super quickly, we should be concerned about clickjacking.
+  UMA_HISTOGRAM_LONG_TIMES("clickjacking.open_download",
+                           base::Time::Now() - creation_time_);
   if (download_->state() == DownloadItem::IN_PROGRESS) {
     download_->set_open_when_complete(!download_->open_when_complete());
   } else if (download_->state() == DownloadItem::COMPLETE) {

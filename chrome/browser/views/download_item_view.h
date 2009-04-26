@@ -20,6 +20,7 @@
 
 #include "base/basictypes.h"
 #include "base/scoped_ptr.h"
+#include "base/time.h"
 #include "base/timer.h"
 #include "chrome/common/gfx/chrome_font.h"
 #include "chrome/common/slide_animation.h"
@@ -227,6 +228,9 @@ class DownloadItemView : public views::ButtonListener,
 
   // Whether we are currently disabled as part of opening the downloaded file.
   bool disabled_while_opening_;
+
+  // The time at which this view was created.
+  base::Time creation_time_;
 
   // Method factory used to delay reenabling of the item when opening the
   // downloaded file.

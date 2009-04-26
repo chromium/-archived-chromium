@@ -4,6 +4,7 @@
 
 #include "chrome/browser/views/external_protocol_dialog.h"
 
+#include "base/histogram.h"
 #include "base/registry.h"
 #include "base/string_util.h"
 #include "base/thread.h"
@@ -65,6 +66,12 @@ void ExternalProtocolDialog::DeleteDelegate() {
 }
 
 bool ExternalProtocolDialog::Accept() {
+  // We record how long it takes the user to accept an external protocol.  If
+  // users start accepting these dialogs too quickly, we should worry about
+  // clickjacking.
+  UMA_HISTOGRAM_LONG_TIMES("clickjacking.launch_url",
+                           base::Time::Now() - creation_time_);
+
   MessageLoop* io_loop = g_browser_process->io_thread()->message_loop();
   if (io_loop == NULL) {
     // Returning true closes the dialog.
@@ -89,7 +96,8 @@ ExternalProtocolDialog::ExternalProtocolDialog(TabContents* tab_contents,
                                                const GURL& url,
                                                const std::wstring& command)
     : tab_contents_(tab_contents),
-      url_(url) {
+      url_(url),
+      creation_time_(base::Time::Now()) {
   std::wstring message_text = l10n_util::GetStringF(
       IDS_EXTERNAL_PROTOCOL_INFORMATION,
       ASCIIToWide(url.scheme() + ":"),
