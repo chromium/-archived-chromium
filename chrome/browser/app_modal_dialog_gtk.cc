@@ -107,14 +107,27 @@ void AppModalDialog::CloseModalDialog() {
 }
 
 int AppModalDialog::GetDialogButtons() {
-  NOTIMPLEMENTED();
-  return 0;
+  switch (dialog_flags_) {
+    case MessageBoxFlags::kIsJavascriptAlert:
+      return MessageBoxFlags::DIALOGBUTTON_OK;
+
+    case MessageBoxFlags::kIsJavascriptConfirm:
+      return MessageBoxFlags::DIALOGBUTTON_OK |
+             MessageBoxFlags::DIALOGBUTTON_CANCEL;
+
+    case MessageBoxFlags::kIsJavascriptPrompt:
+      return MessageBoxFlags::DIALOGBUTTON_OK;
+
+    default:
+      NOTREACHED();
+      return 0;
+  }
 }
 
 void AppModalDialog::AcceptWindow() {
-  NOTIMPLEMENTED();
+  OnDialogResponse(GTK_DIALOG(dialog_), GTK_RESPONSE_OK, this);
 }
 
 void AppModalDialog::CancelWindow() {
-  NOTIMPLEMENTED();
+  OnDialogResponse(GTK_DIALOG(dialog_), GTK_RESPONSE_CANCEL, this);
 }
