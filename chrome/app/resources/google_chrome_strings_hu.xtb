@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="hu">
+<translation id="6676384891291319759">Internetelérés</translation>
 <translation id="8579274574697852281">A Google Chrome futtatásához Windows Vista vagy SP1, illetve újabb javítócsomaggal ellátott Windows XP szükséges.</translation>
 <translation id="698670068493841342">Ez a felhasználó már telepítette a Google Chrome alkalmazást. Ha a szoftver nem működik, kérjük, távolítsa el, majd töltse le újra a Google Chrome alkalmazást.</translation>
 <translation id="7400722733683201933">A Google Chrome névjegye</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">A &quot;Leggyakrabban látogatott webhelyek&quot; rész alatt a leggyakrabban használt webhelyek láthatók. Amikor már egy ideje használja a Google Chrome-ot, a legtöbbször látogatott oldalak meg fognak jelenni minden újonnan megnyitott lapon. További információ erről és a többi funkcióról a <ph name="BEGIN_LINK"/>Kezdő lépések oldalán<ph name="END_LINK"/> található.</translation>
 <translation id="4728575227883772061">A telepítés váratlan hiba miatt nem sikerült. Ha a Google Chrome jelenleg fut, zárja be, majd próbálkozzon újra.</translation>
 <translation id="4149882025268051530">Nem sikerült a telepítőnek kibontani a tömörített állományt. Kérjük, töltse le újra a Google Chrome böngészőt.</translation>
+<translation id="4343226815564935778">A Google Chrome telepítési mappa használatban van. Kérjük, indítsa újra a számítógépet és próbálja újra.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Minden jog fenntartva.</translation>
 <translation id="6817660909204164466">Segítsen a Chrome fejlesztésében: engedélyezze, hogy a program automatikusan elküldje a használati statisztikákat és a hibajelentéseket a Google részére</translation>
 <translation id="8227755444512189073">A Google Chrome-nak el kell indítania egy külső alkalmazást a(z) <ph name="SCHEME"/> linkekhez. A kért link: <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome - <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Google Chrome Eszköztár</translation>
 <translation id="6481075104394517441">Megpróbálta elérni a(z) &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; domaint, de a szerver tanúsítványa még nem érvényes. Nincs elérhető információ annak jelzésére, hogy a tanúsítvány lejárta óta használható-e a domain. A Google Chrome nem tudja garantálni, hogy akivel kommunikál ténylegesen &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; és nem pedig egy támadó. Bizonyosodjon meg róla, hogy az óra és az időzóna megfelelően lett beállítva számítógépén. Ha nincsenek meg ezek a beállítások, akkor ki kell javítani a pontatlan adatokat, majd frissíteni kell az oldalt. Ha az adatok helyesek, nem kell további lépéseket tennie.</translation>
+<translation id="8862326446509486874">Nincsenek meg a megfelelő jogai a rendszerszintű telepítéshez. Indítsa újra a telepítőt rendszergazdaként.</translation>
 <translation id="2874156562296220396">A Google Chrome a <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> nyílt forráskódú projektnek és további <ph name="BEGIN_LINK_OSS"/>nyílt forráskódú szoftvereknek<ph name="END_LINK_OSS"/> köszönhetően jött létre.</translation>
 <translation id="6921913858457830952">A Google Chrome készenáll a telepítés befejezésére.</translation>
 <translation id="7100330187273168372">A Google Chrome nem tud beleírni és nem tudja olvasni a következő mappát:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">A Google Chrome beállítása alapértelmezett böngészőként</translation>
 <translation id="4127951844153999091">Ebben az esetben a tanúsítványban szereplő cím nem egyezik meg azzal a címmel, amelyet a böngészője megpróbált megnyitni. Ennek egyik lehetséges oka, hogy a kommunikációját egy támadó nyomon követi, aki egy másik webhely tanúsítványát mutatja fel, és ez eltéréseket okoz. Másik lehetséges ok, hogy a szervert úgy állították be, hogy több webhelynek (köztük annak, amelyet épp meg szeretett volna látogatni) is ugyanazt a tanúsítványt mutassa fel, holott nem érvényes az ottani összes webhelyre. A Google Chrome megállapította, hogy ezt az oldalt érte el: &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, azonban nem tudja megállíapítani pontosan, hogy ez ugyanaz a webhely-e, mint a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, amelyet megpróbált elérni. Ha folytatja, a Chrome nem ellenőrzi többé a nevek nem egyezését. Általánosságban: ennél a pontnál nem szabad tovább folytatni a műveletet.</translation>
+<translation id="2712549016134575851">A rendszer ütközést észlelt egy másik telepített alkalmazással.</translation>
 <translation id="7161904924553537242">Üdvözli Önt a Google Chrome!</translation>
 <translation id="8236873504073475138">A Google Chrome nem támogatja a Windows 2000-t. Lehetséges, hogy néhány funkció nem működik.</translation>
-<translation id="8172671748763307156">Biztos benne, hogy eltávolítja a Google Chrome-ot? (Valami rosszat mondtunk?)</translation>
 <translation id="5046764976540625289">Kilépés a Chrome alkalmazásból</translation>
+<translation id="8865765905101981392">Böngésző</translation>
 <translation id="582763753075639530">Ahhoz, hogy a módosítás hatályba lépjen, kérjük, zárjon be minden Chrome ablakot, és indítsa újra a Chrome alkalmazást.</translation>
 <translation id="8776515774046280928">A Google Chrome szoftver már telepítve van, és elérhető a számítógép minden felhasználója számára. Ha felhasználói szinten szeretné telepíteni a Google Chrome böngészőt, először el kell távolíttatnia a rendszerszintű verziót a rendszergazdájával.</translation>
 <translation id="3335672657969596251">A Google Chrome nem támogatja ezt az operációs rendszert: <ph name="OS_NAME"/>.</translation>
 <translation id="3636771339108070045">A számítógépen már megtalálható a Google Chrome újabb verziója. Ha a szoftver nem működik, kérjük, távolítsa el, majd töltse le újra a Google Chrome alkalmazást.</translation>
+<translation id="3396666154568987767">Google Chrome – <ph name="PROFILE_NAME"/> profil</translation>
 <translation id="1964682833763362793">Zárjon be minden Chrome ablakot, és próbálkozzon újra.</translation>
 <translation id="1001534784610492198">A telepítő tömörített állománya megsérült vagy érvénytelen. Kérjük, töltse le újra a Google Chrome böngészőt.</translation>
 <translation id="6626317981028933585">Sajnos a Mozilla Firefox beállításai nem érhetők el, amikor a böngésző fut. Ahhoz, hogy importálhassa ezeket a beállításokat a Google Chrome-ba, mentse el, amin dolgozik, majd zárja be az összes Firefox ablakot. Ezután kattintson a &quot;Tovább&quot; gombra.</translation>

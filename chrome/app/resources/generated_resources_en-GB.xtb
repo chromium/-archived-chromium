@@ -26,6 +26,7 @@
 <translation id="1383861834909034572">Opening when complete</translation>
 <translation id="4211171103079968550">Enable Java</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">The server <ph name="DOMAIN"/> at <ph name="REALM"/> requires a username and password.</translation>
 <translation id="2193841602817119749">The website at &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; has been reported as a “phishing” site.  Phishing sites trick users into disclosing personal or financial information, often by pretending to represent trusted institutions, such as banks.</translation>
 <translation id="8178665534778830238">Content:</translation>
 <translation id="1379170046778889619">Security information</translation>
@@ -99,6 +100,7 @@
 <translation id="6746124502594467657">Move down</translation>
 <translation id="3383487468758466563">Fonts and Languages:</translation>
 <translation id="6163363155248589649">&amp;Normal</translation>
+<translation id="7222373446505536781">F11</translation>
 <translation id="3873963583678942942">(Untitled)</translation>
 <translation id="8725178340343806893">Favourites/Bookmarks</translation>
 <translation id="3605499851022050619">Safe Browsing diagnostic page</translation>
@@ -169,6 +171,7 @@
 <translation id="6151323131516309312">Press <ph name="SEARCH_KEY"/> to search <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Clear download history</translation>
 <translation id="2503522102815150840">Browser crash... go boom</translation>
+<translation id="6786747875388722282">Extensions</translation>
 <translation id="2815500128677761940">Bookmark bar</translation>
 <translation id="8041183585493091279">Suggestion service URL:</translation>
 <translation id="9189691339671500905">Set the search engine used in the omnibox.</translation>
@@ -251,6 +254,7 @@
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> days</translation>
 <translation id="8453184121293348016">No revocation mechanism found</translation>
 <translation id="7163503212501929773"><ph name="NUMBER_MANY"/> hours left</translation>
+<translation id="3283719377675052581">unknown</translation>
 <translation id="374530189620960299">The site's security certificate is not trusted!</translation>
 <translation id="5048040498971143039">Search Results for '<ph name="SEARCH_STRING"/>'</translation>
 <translation id="5453632173748266363">Cyrillic</translation>
@@ -271,6 +275,7 @@
 <translation id="6295228342562451544">When you connect to a secure website, the server hosting that site presents your browser with something called a &quot;certificate&quot; to verify its identity. This certificate contains identity information, such as the address of the website, which is verified by a third party trusted by your computer. By checking that the address in the certificate matches the address of the website, it is possible to verify that you are securely communicating with the website that you intended and not a third party (such as an attacker on your network).</translation>
 <translation id="5502500733115278303">Imported From Firefox</translation>
 <translation id="569109051430110155">Auto detect</translation>
+<translation id="4408599188496843485">H&amp;elp</translation>
 <translation id="2800662284745373504">Server's certificate is invalid</translation>
 <translation id="2681441671465314329">Empty the cache</translation>
 <translation id="6222380584850953107">Show saved passwords</translation>
@@ -322,7 +327,6 @@
 <translation id="965674096648379287">This web page requires data that you entered earlier in order to be properly displayed. You can send this data again, but by doing so you will repeat any action that this page previously performed. Press Reload to resend that data and display this page.</translation>
 <translation id="43742617823094120">In this case, the certificate presented to your browser has been revoked by its issuer. This usually means that the integrity of this certificate has been compromised and that the certificate should not be trusted. You absolutely should not proceed past this point.</translation>
 <translation id="2065985942032347596">Authentication Required</translation>
-<translation id="1882575713358235784">Clear browsing &amp;data...</translation>
 <translation id="1175364870820465910">&amp;Print...</translation>
 <translation id="3866249974567520381">Description</translation>
 <translation id="7754704193130578113">Ask where to save each file before downloading</translation>
@@ -479,7 +483,6 @@
 <translation id="1526560967942511387">Untitled Document</translation>
 <translation id="5538307496474303926">Clearing...</translation>
 <translation id="6783679543387074885">Report Bug or Broken Website</translation>
-<translation id="8412968288526977732">The server <ph name="DOMAIN"/> at <ph name="TITLE"/> requires a username and password.</translation>
 <translation id="5285267187067365830">Install plug-in...</translation>
 <translation id="8015746205953933323">This web page is not available.</translation>
 <translation id="8520668773617044689">Firefox</translation>
@@ -526,6 +529,7 @@
 <translation id="1618661679583408047">The server's security certificate is not yet valid!</translation>
 <translation id="9040508646567685134">A script running on this page is taking a loooong time to do its job. Do you want to see if the script can be completed or just give up?</translation>
 <translation id="3065140616557457172">Type to search or enter a URL to navigate - everything just works.</translation>
+<translation id="5986279928654338866">The server <ph name="DOMAIN"/>  requires a username and password.</translation>
 <translation id="5765780083710877561">Description:</translation>
 <translation id="7221869452894271364">Reload this page</translation>
 <translation id="8646430701497924396">Use SSL 2.0</translation>
@@ -569,12 +573,12 @@
 <translation id="4745142959976410383">If you did not initiate this request, it may represent an attempted attack on your system. Unless you took an explicit action to initiate this request, you should press Cancel.</translation>
 <translation id="8288345061925649502">Change search engine</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> secs</translation>
-<translation id="6652942492341627832">Save and show text typed in similar fields</translation>
 <translation id="5139955368427980650">&amp;Open</translation>
 <translation id="746319800473277382">Go to the homepage of the site:</translation>
 <translation id="8562413501751825163">Close Firefox Before Importing</translation>
 <translation id="5034259512732355072">Choose Another Directory...</translation>
 <translation id="5706242308519462060">Default Encoding:</translation>
+<translation id="5280833172404792470">Exit full screen (<ph name="ACCELERATOR"/>)</translation>
 <translation id="8355915647418390920"><ph name="NUMBER_FEW"/> days</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">Enable JavaScript</translation>
@@ -602,8 +606,10 @@
 <translation id="486595306984036763">Open phishing report</translation>
 <translation id="1568162916422682473">The following plug-in has crashed : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Reset to defaults</translation>
+<translation id="170407012880898501">Save text from forms to make them easier to fill out</translation>
 <translation id="8116972784401310538">&amp;Bookmark manager</translation>
 <translation id="6040143037577758943">Close</translation>
+<translation id="4943872375798546930">No results</translation>
 <translation id="4910619056351738551">Here are some suggestions:</translation>
 <translation id="7451556917824271099">The website at &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; contains elements from the site &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, which appears to host malware - software that can hurt your computer or otherwise operate without your consent.  Just visiting a site that contains malware can infect your computer.</translation>
 <translation id="1232569758102978740">Untitled</translation>
@@ -681,6 +687,7 @@
 <translation id="1273291576878293349">Open all bookmarks in incognito window</translation>
 <translation id="3455546154539383562">You attempted to reach &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, but the certificate that the server presented has been revoked by its issuer. This means that the security credentials that the server presented should absolutely not be trusted. You may be communicating with an attacker. You should not proceed.</translation>
 <translation id="1177437665183591855">Unknown server certificate error</translation>
+<translation id="3819800052061700452">&amp;Full screen</translation>
 <translation id="3737554291183722650">Page title:</translation>
 <translation id="4726901538158498735">Default search:</translation>
 <translation id="5101042277149003567">Open all bookmarks</translation>
@@ -691,6 +698,7 @@
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="385051799172605136">Back</translation>
 <translation id="1208126399996836490">Don't reset</translation>
+<translation id="806812017500012252">Reorder by title</translation>
 <translation id="2960316970329790041">Stop import</translation>
 <translation id="1731911755844941020">Sending request...</translation>
 <translation id="1038842779957582377">unknown name</translation>
@@ -710,6 +718,7 @@
 <translation id="5233231016133573565">Process ID</translation>
 <translation id="5941711191222866238">Minimise</translation>
 <translation id="7167486101654761064">&amp;Always open files of this type</translation>
+<translation id="6053401458108962351">&amp;Clear browsing data...</translation>
 <translation id="2339641773402824483">Checking for updates...</translation>
 <translation id="2766006623206032690">Pa&amp;ste and go</translation>
 <translation id="9071050381089585305">Unresponsive Script</translation>

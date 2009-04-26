@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="fi">
+<translation id="6676384891291319759">Yhdistä Internettiin</translation>
 <translation id="8579274574697852281">Google Chrome edellyttää, että käyttöjärjestelmä on Windows Vista tai Windows XP (SP1 tai uudempi).</translation>
 <translation id="698670068493841342">Google Chrome on jo asennettu tällä käyttäjälle. Jos ohjelma ei toimi, poista Google Chromen asennus ja lataa se uudelleen.</translation>
 <translation id="7400722733683201933">Tietoja Google Chromesta</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">Käydyimmät-alueella näkyvät sivustot, joita käytät useimmin. Kun olet käyttänyt Google Chromea jonkun aikaa, näet käydyimmät sivustot aina, kun avaat uuden välilehden. Lisätietoja Chromen ominaisuuksista on <ph name="BEGIN_LINK"/>aloitussivulla<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Asennus epäonnistui tuntemattoman virheen takia. Jos Google Chrome on tällä hetkellä käynnissä, sulje ohjelma ja yritä uudelleen.</translation>
 <translation id="4149882025268051530">Asennusohjelma ei pystynyt purkamaan arkistotiedostoa. Lataa Google Chrome uudelleen.</translation>
+<translation id="4343226815564935778">Google Chromen asennushakemisto vaikuttaa olevan käytössä. Käynnistä tietokoneesi uudelleen ja yritä uudelleen.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Kaikki oikeudet pidätetään.</translation>
 <translation id="6817660909204164466">Voit auttaa Google Chromen kehitystyössä lähettämällä automaattisesti käyttötilastoja ja virheraportteja Googlelle</translation>
 <translation id="8227755444512189073">Google Chrome käynnistää ulkopuolisen ohjelman käsitelläkseen <ph name="SCHEME"/> linkkiä. Pyydetty linkki on <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Google Chrome-työkalupalkki</translation>
 <translation id="6481075104394517441">Yritit verkkotunnukseen &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, mutta palvelin esitti varmenteen, joka ei ole vielä voimassa. Varmenteen luotettavuuden osoittamiseksi ei ole saatavissa tietoja. <ph name="DOMAIN2"/> Varmista, että tietokoneesi kello- ja aikavyöhykeasetukset ovat oikeat. Jos ne eivät ole, korjaa ongelmat ja päivitä tämä sivu. Jos ne ovat oikeat, sinun ei tule jatkaa.</translation>
+<translation id="8862326446509486874">Sinulla ei ole käyttöoikeuksia järjestelmätason asennukseen. Kokeile asennusohjelman suorittamista uudelleen järjestelmänvalvojana.</translation>
 <translation id="2874156562296220396">Google Chromen mahdollistivat avoimen lähdekoodin projekti <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> ja muut <ph name="BEGIN_LINK_OSS"/>avoimen lähdekoodin ohjelmistot<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome on valmis suorittamaan asennuksen loppuun.</translation>
 <translation id="7100330187273168372">Google Chrome ei voi lukea datahakemistoa :\n\n<ph name="USER_DATA_DIRECTORY"/>, eikä kirjoittaa siihen</translation>
 <translation id="5941830788786076944">Tee Google Chromesta oletusselain</translation>
 <translation id="4127951844153999091">Tällöin varmenteessa mainittu osoite ei vastaa sen sivuston osoitetta, johon selaimesi yritti siirtyä. Yksi mahdollinen syy on, että hyökkääjä on siepannut yhteytesi ja esittää eri sivuston varmenteen. Toinen syy voi olla se, että palvelin on määritetty palauttamaan sama varmenne useille sivustoille, myös sille, johon yrität päästä, vaikka varmenne ei kelpaa kaikissa kyseessä olevissa sivustoissa. <ph name="DOMAIN2"/><ph name="DOMAIN"/> Jos jatkat, Chrome ei tarkista enää muita vastaamattomia nimiä. Yleensä on parempi olla jatkamatta tästä eteenpäin.</translation>
+<translation id="2712549016134575851">Ristiriita toisen asennetun sovelluksen kanssa havaittu.</translation>
 <translation id="7161904924553537242">Tervetuloa Google Chromeen</translation>
 <translation id="8236873504073475138">Google Chrome ei tue Windows 2000-käyttöjärjestelmää. Kaikki ominaisuudet eivät välttämättä toimi.</translation>
-<translation id="8172671748763307156">Haluatko varmasti poistaa Google Chromen? (Menikö jotain pieleen?)</translation>
 <translation id="5046764976540625289">Poistu Chromesta</translation>
+<translation id="8865765905101981392">Internetselain</translation>
 <translation id="582763753075639530">Sulje kaikki Chrome-ikkunat ja käynnistä Chrome uudelleen, jotta muutos tulee voimaan.</translation>
 <translation id="8776515774046280928">Google Chrome on jo asennettu ja kaikkien tietokoneen käyttäjien käytettävissä. Jos haluat asentaa Google Chrome käyttäjätasolla, poista ensin järjestelmänvalvojan asentama järjestelmätason versio.</translation>
 <translation id="3335672657969596251">Google Chrome ei tue <ph name="OS_NAME"/>-käyttöjärjestelmää</translation>
 <translation id="3636771339108070045">Tietokoneessa on jo uudempi Google Chromen versio. Jos ohjelma ei toimi, poista Google Chromen asennus ja lataa se uudelleen.</translation>
+<translation id="3396666154568987767">Google Chromen <ph name="PROFILE_NAME"/>-profiili</translation>
 <translation id="1964682833763362793">Sulje kaikki Chrome-ikkunat ja yritä uudelleen.</translation>
 <translation id="1001534784610492198">Asennusohjelman arkistotiedosto on vioittunut tai se ei kelpaa. Lataa Google Chrome uudelleen.</translation>
 <translation id="6626317981028933585">Valitettavasti Mozilla Firefox-asetuksesi eivät ole käytettävissä kun kyseinen selain on toiminnassa. Tuodaksesi asetukset Google Chromeen, tallenna mahdolliset keskeneräiset työt ja sulje kaikki Firefox-ikkunat. Napsauta sitten Jatka.</translation>

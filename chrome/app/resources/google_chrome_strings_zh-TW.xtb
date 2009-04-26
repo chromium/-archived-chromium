@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="zh-TW">
+<translation id="6676384891291319759">使用網際網路</translation>
 <translation id="8579274574697852281">「Google 瀏覽器」需使用 Windows Vista 或 Windows XP SP1 或更新版本。</translation>
 <translation id="698670068493841342">已安裝「Google 瀏覽器」供此使用者使用。如果軟體無法順利運作，請移除「Google 瀏覽器」，然後重新下載一次。</translation>
 <translation id="7400722733683201933">關於 Google 瀏覽器</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">「常用網頁」區域會顯示您經常使用的網站。 使用 Google 瀏覽器一段時間後，每次您新增分頁時都會看到常用網頁。 您可以在<ph name="BEGIN_LINK"/>開始使用網頁<ph name="END_LINK"/>上瞭解更多關於此功能與其他功能的資訊。</translation>
 <translation id="4728575227883772061">安裝因不明錯誤而失敗。如果「Google 瀏覽器」目前正在執行中，請將其關閉然後再試一次。</translation>
 <translation id="4149882025268051530">安裝程式無法解壓縮封存檔案，請再次下載「Google 瀏覽器」。</translation>
+<translation id="4343226815564935778">「Google 瀏覽器」安裝目錄使用中。請重新啟動電腦，然後再試一次。</translation>
+<translation id="4506896920521131223">版權所有 © 2006-2009 Google Inc。保留所有權利。</translation>
 <translation id="6817660909204164466">只要自動傳送使用統計資料及當機報告給 Google，就能助我們一臂之力，讓 Google 瀏覽器更臻完美。</translation>
 <translation id="8227755444512189073">Google 瀏覽器需要啟動外部應用程式以處理 <ph name="SCHEME"/> 連結。所要求的連結為 <ph name="PROTOLINK"/>。</translation>
 <translation id="1281036569101707544">Google 瀏覽器 <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Google 瀏覽器</translation>
 <translation id="2044287590254833138">Google 瀏覽器工具列</translation>
 <translation id="6481075104394517441">您嘗試到達 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，但伺服器所提供的憑證尚未生效。沒有任何資訊顯示憑證是否可靠。Google 瀏覽器無法確切保證您聯絡的對象是 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; 而非攻擊者。您必須確保您的電腦已正確設定時間和時區。如果設定不正確，請修改設定，然後重新整理本網頁。如果設定正確，您必須就此停住。</translation>
+<translation id="8862326446509486874">您沒有在系統層級進行安裝的權限。請嘗試以管理員身份執行安裝檔。</translation>
 <translation id="2874156562296220396">「Google 瀏覽器」的開發仰賴 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 開放原始碼計畫與其他<ph name="BEGIN_LINK_OSS"/>開放原始碼軟體<ph name="END_LINK_OSS"/>的協助才得以完成。</translation>
 <translation id="6921913858457830952">Google 瀏覽器已準備好完成您的安裝。</translation>
 <translation id="7100330187273168372">Google 瀏覽器無法讀取或寫入資料目錄:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">將 Google 瀏覽器設為我的預設瀏覽器</translation>
 <translation id="4127951844153999091">在這個情況下，憑證所列的網址與瀏覽器嘗試前往的網址不符。憑證不符的其中一個可能原因是，攻擊者欄截了您的通訊，並且出示另一個網站的憑證。另一個可能的原因是，伺服器已設定為不同的網站傳回相同的憑證 (其中包括您嘗試造訪的網站)，而這個憑證可能對其中一些網站無效。Google 瀏覽器可以確定您已經到達 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;，但是無法驗證這與您嘗試前往的 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; 是同一個網站。如果您繼續，瀏覽器將不再檢查任何名稱不符的情況。一般而言，建議您就此停住。</translation>
+<translation id="2712549016134575851">偵測到與其他已安裝的應用程式互相衝突。</translation>
 <translation id="7161904924553537242">歡迎使用 Google 瀏覽器</translation>
 <translation id="8236873504073475138">Google 瀏覽器不支援 Windows 2000。某些功能可能無法執行。</translation>
-<translation id="8172671748763307156">您是否確定要解除安裝 Google 瀏覽器? (是不是我們講錯什麼話惹您不開心了?)</translation>
 <translation id="5046764976540625289">結束 Google 瀏覽器</translation>
+<translation id="8865765905101981392">網際網路瀏覽器</translation>
 <translation id="582763753075639530">請關閉所有 Google 瀏覽器的視窗然後重新啟動 Google 瀏覽器，以使變更生效。</translation>
 <translation id="8776515774046280928">「Google 瀏覽器」已經安裝並提供此電腦的所有使用者使用。如果您想要於使用者層級安裝「Google 瀏覽器」，必須先移除由管理員安裝的系統層級版本。</translation>
 <translation id="3335672657969596251">Google 瀏覽器不支援 <ph name="OS_NAME"/>。</translation>
 <translation id="3636771339108070045">此電腦已有更新的「Google 瀏覽器」版本可供使用，如果軟體無法順利運作，請移除「Google 瀏覽器」，然後重新下載一次。</translation>
+<translation id="3396666154568987767">適用於 <ph name="PROFILE_NAME"/> 的 Google 瀏覽器</translation>
 <translation id="1964682833763362793">請關閉所有 Google 瀏覽器視窗然後再試一次。</translation>
 <translation id="1001534784610492198">安裝程式封存檔案已經損壞或無效，請再次下載「Google 瀏覽器」。</translation>
 <translation id="6626317981028933585">抱歉，我們無法在 Mozilla Firefox 執行時取得其設定。如果要匯入這些設定至 Google 瀏覽器，請儲存您的工作，並關閉所有 Firefox 視窗。然後按一下 [繼續]。</translation>

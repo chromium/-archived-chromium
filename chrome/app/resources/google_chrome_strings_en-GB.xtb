@@ -13,6 +13,7 @@
 <translation id="1137776625614346046">The &quot;Most visited&quot; area shows the websites that you use most often. After using Google Chrome for a while, you will see your most visited sites whenever you open a new tab. You can learn more about this and other features on the <ph name="BEGIN_LINK"/>Getting Started page<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Installation failed due to unspecified error. If Google Chrome is currently running, please close it and try again.</translation>
 <translation id="4149882025268051530">The installer failed to uncompress archive. Please download Google Chrome again.</translation>
+<translation id="4343226815564935778">Google Chrome installation directory seems to be in use. Please reboot your computer and try again.</translation>
 <translation id="6817660909204164466">Help to make Google Chrome better by sending usage statistics and crash reports to Google automatically</translation>
 <translation id="8227755444512189073">Google Chrome needs to launch an external application to handle <ph name="SCHEME"/> links. The link requested is <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -41,7 +42,6 @@
 <translation id="4127951844153999091">In this case, the address listed in the certificate does not match the address of the website that your browser tried to go to. One possible reason for this is that your communications are being intercepted by an attacker who is presenting a certificate for a different website, which would cause a mismatch. Another possible reason is that the server is set up to return the same certificate for multiple websites, including the one that you are attempting to visit, even though that certificate is not valid for all of those websites. Google Chrome can say for sure that you reached &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, but cannot verify that it is the same site as &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; which you intended to reach. If you proceed, Chrome will not check for any further name mismatches. In general, it is best not to proceed past this point.</translation>
 <translation id="7161904924553537242">Welcome to Google Chrome</translation>
 <translation id="8236873504073475138">Google Chrome does not support Windows 2000. Some features may not work.</translation>
-<translation id="8172671748763307156">Are you sure you want to uninstall Google Chrome? (Was it something that we said?)</translation>
 <translation id="5046764976540625289">Exit Chrome</translation>
 <translation id="582763753075639530">Please close all Chrome windows and restart Chrome for this change to take effect.</translation>
 <translation id="8776515774046280928">Google Chrome is already installed and available to all users of this computer. If you want to install Google Chrome at user level, you must first uninstall the system-level version installed by an administrator.</translation>

@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="vi">
+<translation id="6676384891291319759">Truy cập Internet</translation>
 <translation id="8579274574697852281">Google Chrome yêu cầu Windows Vista hoặc Windows XP với SP1 trở lên.</translation>
 <translation id="698670068493841342">Google Chrome đã được cài đặt cho người dùng này. Nếu phần mềm không hoạt động, vui lòng gỡ cài đặt Google Chrome và tải xuống lại phần mềm.</translation>
 <translation id="7400722733683201933">Giới thiệu về Google Chrome</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">Vùng &quot;Truy cập nhiều nhất&quot; hiển thị các trang web mà bạn thường sử dụng nhất. Sau khi sử dụng Google Chrome một lúc, bạn sẽ thấy các trang web được truy cập nhiều nhất mỗi khi mở tab mới. Bạn có thể tìm hiểu thêm về điều này và các tính năng khác trên <ph name="BEGIN_LINK"/>trang Bắt đầu<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Không cài đặt được do lỗi chưa xác định. Nếu Google Chrome hiện đang chạy, vui lòng đóng Google Chrome và thử lại.</translation>
 <translation id="4149882025268051530">Trình cài đặt không thể giải nén lưu trữ được. Vui lòng tải xuống lại Google Chrome.</translation>
+<translation id="4343226815564935778">Thư mục cài đặt Google Chrome dường như đang được dùng. Hãy khởi động lại máy tính của bạn và thử lại.</translation>
+<translation id="4506896920521131223">Bản quyền © 2006-2009 Google Inc. Đã Đăng ký Bản quyền.</translation>
 <translation id="6817660909204164466">Trợ giúp cải thiện Google Chrome bằng cách tự động gửi cho Google thống kê sử dụng và báo cáo sự cố.</translation>
 <translation id="8227755444512189073">Google Chrome cần khởi chạy ứng dụng ngoài để xử lý các liên kết <ph name="SCHEME"/>. Liên kết được yêu cầu là <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> của Google Chrome</translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Thanh công cụ Google Chrome</translation>
 <translation id="6481075104394517441">Bạn đã cố truy cập vào &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, nhưng máy chủ thể hiện chứng chỉ chưa có hiệu lực. Không có thông tin có sẵn nào cho biết chứng chỉ có thể được tin cậy. Google Chrome không thể bảo đảm chắn chắn rằng bạn đang liên lạc với &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; và không phải là kẻ tấn công. Bạn nên chắc chắn cài đặt chính xác đồng hồ và múi giờ trên máy vi tính của mình. Nếu không đúng, bạn nên chỉnh sửa lại bất kỳ vấn đề nào và làm mới trang đó. Nếu đúng, bạn không nên tiếp tục.</translation>
+<translation id="8862326446509486874">Bạn không có quyền thích hợp để cài đặt cấp hệ thống. Thử chạy lại trình cài đặt với vai trò Quản trị viên.</translation>
 <translation id="2874156562296220396">Google Chrome được xây dựng bằng dự án nguồn mở <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> và <ph name="BEGIN_LINK_OSS"/>phần mềm nguồn mở<ph name="END_LINK_OSS"/> khác.</translation>
 <translation id="6921913858457830952">Google Chrome sẵn sàng hoàn tất việc cài đặt của bạn.</translation>
 <translation id="7100330187273168372">Google Chrome không thể đọc và ghi lên thư mục dữ liệu:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">Chọn Google Chrome làm trình duyệt mặc định</translation>
 <translation id="4127951844153999091">Trong trường hợp này, địa chỉ được liệt kê trong chứng chỉ không phù hợp với địa chỉ của trang web mà trình duyệt của bạn cố truy cập. Một nguyên nhân có thể xảy ra là giao tiếp của bạn đang bị kẻ tấn công, người đang biểu thị chứng chỉ cho trang web khác, chặn lại gây ra lỗi không khớp. Một nguyên nhân khác có thể là do máy chủ được thiết lập trả về cùng một chứng chỉ cho nhiều trang web, kể cả trang web mà bạn cố truy cập, mặc dù chứng chỉ đó không có giá trị cho tất cả trang web đó. Google Chrome có thể chắc chắn rằng bạn đã tiếp cận &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, nhưng không thể xác minh đó là trang web tương tự như &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; mà bạn dự định tiếp cận. Nếu bạn tiếp tục, Chrome sẽ không kiểm tra thêm bất kỳ tên không khớp nào nữa. Nói chung, tốt nhất là không tiến hành trước điểm này.</translation>
+<translation id="2712549016134575851">Đã phát hiện thấy xung đột với một ứng dụng đã cài đặt khác.</translation>
 <translation id="7161904924553537242">Chào mừng bạn đến với Google Chrome</translation>
 <translation id="8236873504073475138">Google Chrome không hỗ trợ Windows 2000. Một số tính năng có thể không hoạt động.</translation>
-<translation id="8172671748763307156">Bạn có chắc chắn muốn huỷ cài đặt Google Chrome không? (Đây có phải là điều chúng tôi đã nói không?)</translation>
 <translation id="5046764976540625289">Thoát khỏi Chrome</translation>
+<translation id="8865765905101981392">Trình duyệt Internet</translation>
 <translation id="582763753075639530">Hãy đóng tất cả cửa sổ Chrome và khởi động lại Chrome để thay đổi này có tác dụng.</translation>
 <translation id="8776515774046280928">Google Chrome đã được cài đặt và khả dụng cho tất cả người dùng máy tính này. Nếu bạn muốn cài đặt Google Chrome ở cấp độ người dùng, trước tiên bạn phải gỡ cài đặt phiên bản cấp hệ thống đã được quản trị viên cài đặt.</translation>
 <translation id="3335672657969596251">Google Chrome không hỗ trợ <ph name="OS_NAME"/>.</translation>
 <translation id="3636771339108070045">Máy tính này đã cài phiên bản Google Chrome mới hơn. Nếu phần mềm không hoạt động, vui lòng gỡ cài đặt Google Chrome và tải xuống lại phần mềm.</translation>
+<translation id="3396666154568987767">Google Chrome dành cho <ph name="PROFILE_NAME"/></translation>
 <translation id="1964682833763362793">Hãy đóng tất cả cửa sổ Chrome và thử lại.</translation>
 <translation id="1001534784610492198">Lưu trữ trình cài đặt bị lỗi hoặc không hợp lệ. Vui lòng tải xuống lại Google Chrome.</translation>
 <translation id="6626317981028933585">Thật đáng tiếc, cài đặt Mozilla Firefox của bạn không có sẵn khi trình duyệt đang chạy. Để nhập những cài đặt đó vào Google Chrome, hãy lưu công việc của bạn và đóng tất cả cửa sổ Firefox. Sau đó, nhấp Tiếp tục.</translation>

@@ -9,6 +9,7 @@
 <translation id="4405141258442788789">ক্রিয়াকলাপের সময় শেষ হয়েছে৷</translation>
 <translation id="5048179823246820836">নরডিক</translation>
 <translation id="561349411957324076">সম্পন্ন</translation>
+<translation id="4610656722473172270">Google সরঞ্জামদণ্ড</translation>
 <translation id="2088818908407967256">এই পৃষ্ঠাতে অনিরাপদ উপাদান আছে৷</translation>
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;পুনরায় করুন</translation>
@@ -26,6 +27,7 @@
 <translation id="1383861834909034572">সম্পন্ন হলে খোলে</translation>
 <translation id="4211171103079968550">Java সক্ষম করুন</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078"><ph name="REALM"/> -এর <ph name="DOMAIN"/> সার্ভারটির একটি ব্যবহারকারী নাম এবং পাসওয়ার্ড প্রয়োজন৷</translation>
 <translation id="2193841602817119749">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;-এ ওয়েবসাইটটি একটি “ফিশিং” সাইট রূপে প্রতিবেদন করা হয়েছে৷  ফিশিং সাইট প্রায়ই কোনো বিশ্বস্ত প্রতিষ্ঠান যেমন ব্যাঙ্ক রূপে নিজেদের উপস্থাপন করার ভান করে ব্যবহারকারীদের ব্যক্তিগত অথবা আর্থিক তথ্য প্রকাশ করার জন্য প্ররোচিত করে৷</translation>
 <translation id="8178665534778830238">সামগ্রী:</translation>
 <translation id="1379170046778889619">নিরাপত্তা তথ্য</translation>
@@ -55,6 +57,7 @@
 <translation id="5819484510464120153">অ্যাপ্লিকেশন &amp;শর্টকাট তৈরি করুন...</translation>
 <translation id="1748246833559136615">ছেড়ে দিন</translation>
 <translation id="8927064607636892008">এই ওয়েবপৃষ্ঠাটি দেখানোর সময় কিছু ভুল হয়েছে৷ অবিরত করার জন্য, পুনঃ লোড করুন বা অন্য পৃষ্ঠাতে যান৷</translation>
+<translation id="5667293444945855280">দূষিত</translation>
 <translation id="5613020302032141669">Left Arrow</translation>
 <translation id="3433489605821183222">সার্ভারের শংসাপত্রে ত্রুটি আছে</translation>
 <translation id="6479177161510354016">সতর্কতা <ph name="SITE"/></translation>
@@ -63,6 +66,7 @@
 <translation id="5516565854418269276">&amp;সর্বদা বুকমার্কস দণ্ড দেখান</translation>
 <translation id="6426222199977479699">SSL ত্রুটি</translation>
 <translation id="443008484043213881">সরঞ্জামসমূহ</translation>
+<translation id="314605055819837597">ব্যবহারকারী ডেটা</translation>
 <translation id="8534801226027872331">এই ক্ষেত্রে, আপনার ব্রাউজারে উপস্থিত শংসাপত্রে ত্রুটি আছে এবং বোঝা যাবে না৷ এর অর্থ হতে পারে, আমরা শংসাপত্রের মধ্যে থাকা পরিচয় তথ্য অথবা কানেকশন নিরাপদ করার জন্য ব্যবহৃত শংসাপত্রের অন্য কিছু তথ্য বুঝতে পারছি না৷ আপনার এগিয়ে যাওয়া উচিত নয়৷</translation>
 <translation id="4422347585044846479">এই পৃষ্ঠার বুকমার্ক সম্পাদনা করুন</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -90,6 +94,7 @@
 <translation id="1720675772864601791">অনিরাপদ ছবিগুলি মঞ্জুর করুন</translation>
 <translation id="5233638681132016545">নতুন ট্যাব</translation>
 <translation id="5210365745912300556">ট্যাব বন্ধ করুন</translation>
+<translation id="8806796506533854282">একটি নতুন প্রোফাইল নাম প্রবেশ করুন</translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="8571852575982769756">কোনও প্ল্যাগ-ইনস ইনস্টল নেই</translation>
 <translation id="7925285046818567682"><ph name="HOST_NAME"/>-এর জন্য অপেক্ষা করা হচ্ছে...</translation>
@@ -102,6 +107,7 @@
 <translation id="6746124502594467657">নিচে যান</translation>
 <translation id="3383487468758466563">হরফ এবং ভাষাসমূহ:</translation>
 <translation id="6163363155248589649">&amp;সাধারণ</translation>
+<translation id="7222373446505536781">F11</translation>
 <translation id="3873963583678942942">(শিরোনামহীন)</translation>
 <translation id="8725178340343806893">পছন্দসই/বুকমার্কস</translation>
 <translation id="3605499851022050619">নিরাপদ ব্রাউজিং ডায়গনিস্টিক পৃষ্ঠা</translation>
@@ -117,12 +123,16 @@
 <translation id="7615851733760445951">&lt;কোনও কুকি নির্বাচিত নেই&gt;</translation>
 <translation id="3660179305079774227">Up Arrow</translation>
 <translation id="7400418766976504921">URL</translation>
+<translation id="5392041771307264501">কোনও নতুন উইন্ডো খুলতে একটি প্রোফাইল নির্বাচন করুন</translation>
 <translation id="68541483639528434">অন্যান্য ট্যাব বন্ধ করুন</translation>
 <translation id="2897878306272793870">আপনি কি <ph name="TAB_COUNT"/>টি ট্যাব খোলার ব্যাপারে নিশ্চিত?</translation>
 <translation id="362276910939193118">সম্পূর্ণ ইতিহাস দেখান</translation>
+<translation id="692135145298539227">মুছুন</translation>
+<translation id="2663762871503078613">আমদানি:</translation>
 <translation id="1635247229519770914">ইনস্টল অবিরত করুন</translation>
 <translation id="8945419807169257367">সার্ভারের শংসাপত্র চেক করা যাবে না</translation>
 <translation id="5872213955895293073">JavaScript ডিবাগ করুন</translation>
+<translation id="1965338962645102116">সরঞ্জামদণ্ড বুকমার্কস Chrome-এ আমদানি করতে, আপনাকে অবশ্যই নিজের Google অ্যাকাউন্টে লগ ইন করতে হবে৷  দয়া করে লগ ইন করুন এবং আবার আমদানির চেষ্টা করুন৷</translation>
 <translation id="5903264686717710770">শিরোনাম:</translation>
 <translation id="8899851313684471736">নতুন &amp;উইন্ডোতে লিঙ্ক খুলুন</translation>
 <translation id="6686490380836145850">ডানদিকের ট্যাবস বন্ধ করুন</translation>
@@ -132,6 +142,8 @@
 <translation id="2423578206845792524">এই রূপে ছবি সং&amp;রক্ষণ করুন...</translation>
 <translation id="9068931793451030927">পথ:</translation>
 <translation id="7052402604161570346">এই ধরনের ফাইল আপনার কম্পিউটারের ক্ষতি করতে পারে৷  আপনি কি <ph name="FILE_NAME"/> ডাউনলোড করার ব্যাপারে নিশ্চিত?</translation>
+<translation id="8642489171979176277">Google সরঞ্জামদণ্ড থেকে আমদানিকৃত</translation>
+<translation id="2011110593081822050">ওয়েব ওয়ার্কার: <ph name="WORKER_NAME"/></translation>
 <translation id="350069200438440499">ফাইলের নাম:</translation>
 <translation id="8494979374722910010">সার্ভারে সংযোগের প্রচেষ্টা ব্যর্থ হয়েছে৷</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> মিনিট</translation>
@@ -145,6 +157,7 @@
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/> দিন বাকি</translation>
 <translation id="1059307158073710225">বানান চেক করুন:</translation>
 <translation id="7643817847124207232">ইন্টারনেট কানেকশন বিচ্ছিন্ন হয়েছে৷</translation>
+<translation id="758007724455091072">এই প্রোফাইলটির জন্য একটি ডেস্কটপ শর্টকাট তৈরি করুন</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/> মিনিট বাকি</translation>
 <translation id="908263542783690259">ব্রাউজিং ইতিহাস সাফ করুন</translation>
@@ -156,6 +169,7 @@
 <translation id="3122464029669770682">CPU</translation>
 <translation id="1684861821302948641">পৃষ্ঠা নষ্ঠ করুন</translation>
 <translation id="5965640700983474726">অনুসন্ধানের জন্য টাইপ করুন</translation>
+<translation id="2142570832281562688">একটি প্রোফাইল নাম প্রবেশ করান</translation>
 <translation id="5904714272463161824">বাগ অথবা ভেঙে যাওয়া ওয়েব সাইটের &amp;প্রতিবেদন করুন...</translation>
 <translation id="1608306110678187802">প্রি&amp;ন্ট ফ্রেম...</translation>
 <translation id="4948468046837535074">নিম্নোক্ত পৃষ্ঠাগুলি খুলুন:</translation>
@@ -173,6 +187,7 @@
 <translation id="6151323131516309312"><ph name="SITE_NAME"/> অনুসন্ধানের জন্য <ph name="SEARCH_KEY"/> টিপুন</translation>
 <translation id="2342959293776168129">ডাউনলোড ইতিহাস সাফ করুন</translation>
 <translation id="2503522102815150840">ব্রাউজার বিফল... তত্পর হন</translation>
+<translation id="6786747875388722282">এক্সটেনশনস</translation>
 <translation id="2815500128677761940">বুকমার্ক দণ্ড</translation>
 <translation id="8041183585493091279">প্রস্তাবনা পরিষেবা URL:</translation>
 <translation id="9189691339671500905">বহুউপয়োগী ক্ষেত্রে ব্যবহৃত সার্চ ইঞ্জিন সেট করুন৷</translation>
@@ -206,6 +221,7 @@
 <translation id="7905536804357499080">বর্তমান ব্যবহার করুন</translation>
 <translation id="7378810950367401542">/</translation>
 <translation id="3087734570205094154">নীচে</translation>
+<translation id="1871540228654219948">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; এ থাকা ওয়েবসাইটটিতে এমন সাইটগুলি থেকে উপাদান সমন্বিত রয়েছে যা দূষিত - সফ্টওয়্যার হোস্ট করে বলে মনে হচ্ছে, এটি আপনার কম্পিউটারের ক্ষতি করতে পারে বা অন্যথায় আপনার সম্মতি ছাড়াই পরিচালিত হতে পারে৷  ম্যালওয়ার হোস্ট করে এমন সাইট কেবলমাত্র পরিদর্শন করলেও আপনার কম্পিউটার আক্রান্ত হতে পারে৷</translation>
 <translation id="8899388739470541164">ভিয়েতনামি</translation>
 <translation id="4089663545127310568">সংরক্ষিত পাসওয়ার্ডগুলি সাফ করুন</translation>
 <translation id="6500444002471948304">ফোল্ডার যুক্ত করুন...</translation>
@@ -243,17 +259,18 @@
 <translation id="3810973564298564668">পরিচালনা</translation>
 <translation id="254416073296957292">&amp;ভাষা সেটিংস...</translation>
 <translation id="4222982218026733335">অকার্যকর সার্ভার শংসাপত্র</translation>
-<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>আপনি ছদ্মবেশে গেছেন<ph name="END_BOLD"/>৷ এই পৃষ্ঠাতে আপনি যেসব পৃষ্ঠা দেখবেন সেগুলি আপনার ব্রাউজার ইতিহাসে বা অনুসন্ধান ইতিহাসে উপস্থিত হবে না, এবং আপনি ছদ্মবেশী উইন্ডোটি বন্ধ করার পর সেগুলি আপনার কম্পিউটারে কুকিজের মত অন্য কোনোকিছু ছেড়ে যাবে না৷ যাইহোক, আপনার ডাউনলোড করা যেকোনও ফাইল অথবা তৈরি করা বুকমার্কস সংরক্ষিত হবে৷
-        <ph name="LINE_BREAK"/>
-        <ph name="BEGIN_BOLD"/>ছদ্মবেশে গেলে তা অন্যান্য ব্যক্তিদের আচরণকে, সার্ভারকে বা সফ্টওয়্যারকে প্রভাবিত করে না৷ এর থেকে সতর্ক থাকুন:<ph name="END_BOLD"/>
-        <ph name="BEGIN_LIST"/>
-          <ph name="BEGIN_LIST_ITEM"/>এমন ওয়েবসাইট যা আপনার তথ্য সংগ্রহ করে অথবা ভাগ করে<ph name="END_LIST_ITEM"/>
-          <ph name="BEGIN_LIST_ITEM"/>এমন ইন্টারনেট পরিষেবা প্রদানকারী অথবা কর্মী যারা আপনার পরিদর্শন করা পৃষ্ঠা ট্র্যাক করে<ph name="END_LIST_ITEM"/>
-          <ph name="BEGIN_LIST_ITEM"/>এমন ক্ষতিকারক সফ্টওয়্যার যা বিনামূল্যে স্মাইলির পরিবর্তে আপনার কীস্ট্রোক ট্র্যাক করে<ph name="END_LIST_ITEM"/>
-          <ph name="BEGIN_LIST_ITEM"/>গোপন এজেন্টের মাধ্যমে পাহাড়া<ph name="END_LIST_ITEM"/>
-          <ph name="BEGIN_LIST_ITEM"/>আপনার পিছনে দাঁডিয়ে থাকা ব্যক্তি<ph name="END_LIST_ITEM"/>
-        <ph name="END_LIST"/>
-        ছদ্মবেশী উইন্ডো সম্পর্কে <ph name="BEGIN_LINK"/>আরও জানুন<ph name="END_LINK"/>৷</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>আপনি ছদ্মবেশ ধরেছেন<ph name="END_BOLD"/>৷ এই পৃষ্ঠাতে আপনি যেসব পৃষ্ঠা দেখবেন সেগুলি আপনার ব্রাউজার ইতিহাসে বা অনুসন্ধান ইতিহাসে উপস্থিত হবে না, এবং আপনি ছদ্মবেশী উইন্ডোটি বন্ধ করার পর সেগুলি আপনার কম্পিউটারে কুকিজের মত অন্য কোনোকিছু চিহ্ন ছেড়ে যাবে না৷ যাইহোক, আপনার ডাউনলোড করা যেকোনও ফাইল অথবা তৈরি করা বুকমার্কস সংরক্ষিত হবে৷
+<ph name="LINE_BREAK"/>
+<ph name="BEGIN_BOLD"/>ছদ্মবেশ ধরলে তা অন্যান্য ব্যক্তিদের আচরণকে, সার্ভারকে বা সফ্টওয়্যারকে প্রভাবিত করে না৷ এর থেকে সতর্ক থাকুন:<ph name="END_BOLD"/>
+<ph name="BEGIN_LIST"/>
+<ph name="BEGIN_LIST_ITEM"/>এমন ওয়েবসাইট যা আপনার তথ্য সংগ্রহ করে অথবা ভাগ করে<ph name="END_LIST_ITEM"/>
+<ph name="BEGIN_LIST_ITEM"/>এমন ইন্টারনেট পরিষেবা প্রদানকারী অথবা কর্মী যারা আপনার পরিদর্শন করা পৃষ্ঠা ট্র্যাক করে<ph name="END_LIST_ITEM"/>
+<ph name="BEGIN_LIST_ITEM"/>এমন ক্ষতিকারক সফ্টওয়্যার যা বিনামূল্যে স্মাইলির পরিবর্তে আপনার কীস্ট্রোক্স ট্র্যাক করে<ph name="END_LIST_ITEM"/>
+<ph name="BEGIN_LIST_ITEM"/>গোপন এজেন্টের মাধ্যমে পাহাড়া<ph name="END_LIST_ITEM"/>
+<ph name="BEGIN_LIST_ITEM"/>আপনার পিছনে দাঁডিয়ে থাকা ব্যক্তি<ph name="END_LIST_ITEM"/>
+<ph name="END_LIST"/>
+ছদ্মবেশী উইন্ডো সম্পর্কে <ph name="BEGIN_LINK"/>আরও জানুন<ph name="END_LINK"/>৷</translation>
+<translation id="4439241094464540230">&lt;নতুন প্রোফাইল&gt;...</translation>
 <translation id="1813414402673211292">ব্রাউজ করা ডেটা সাফ করুন</translation>
 <translation id="2356762928523809690">আপডেট সার্ভার উপলব্ধ নয় (ত্রুটি: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="5436510242972373446"><ph name="SITE_NAME"/> অনুসন্ধান করুন:</translation>
@@ -266,6 +283,7 @@
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> দিন</translation>
 <translation id="8453184121293348016">কোনও প্রত্যাহার নির্মাণকৌশল পাওয়া যায় নি</translation>
 <translation id="7163503212501929773"><ph name="NUMBER_MANY"/> ঘন্টা বাকি</translation>
+<translation id="3283719377675052581">অজানা</translation>
 <translation id="374530189620960299">সাইটের নিরাপত্তা শংসাপত্রটি বিশ্বস্ত নয়!</translation>
 <translation id="5048040498971143039">'<ph name="SEARCH_STRING"/>'-এর অনুসন্ধান ফলাফল</translation>
 <translation id="5453632173748266363">সিরিলিক</translation>
@@ -274,6 +292,7 @@
 <translation id="1120098871254928930">লোড হওয়ার জন্য সকল সামগ্রীকে মঞ্জুরি দিন</translation>
 <translation id="3994878504415702912">&amp;জুম</translation>
 <translation id="5602600725402519729">পুনরায়&amp;লোড করুন</translation>
+<translation id="9010612682952491200">নতুন ট্যাব [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="7965010376480416255">ভাগকরা স্মৃতি</translation>
 <translation id="6248988683584659830">অনুসন্ধান সেটিংস</translation>
 <translation id="8887733174653581061">সর্বদা শীর্ষে</translation>
@@ -286,6 +305,7 @@
 <translation id="6295228342562451544">আপনি যখন কোনো নিরাপদ ওয়েবসাইটে সংযুক্ত হন তখন, যে সার্ভার এই সাইটটিকে হোস্ট করে সে এটির পরিচয় যাচাই করার জন্য “শংসাপত্র” নামক একটি উপাদান সহ আপনার ব্রাউজার উপস্থাপন করে৷ এই শংসাপত্রে, পরিচয় তথ্য যেমন আপনার কম্পিউটারের বিশ্বস্ত কোনো তৃতীয় পক্ষ দ্বারা যাচাই করা ওয়েবসাইটের ঠিকানা থাকে৷  এটি চেক করার মাধ্যমে শংসাপত্রে থাকা ঠিকানা ওয়েবসাইটের ঠিকানার সাথে মেলায়, আপনি আপনার পছন্দের ওয়েবসাইটে নিরাপদভাবে যোগাযোগ করছেন কোনও তৃতীয় পক্ষের সাথে নয় (যেমন আপনার নেটওয়ার্কের কোনো আক্রমণকারী) তা যাচাই করা সম্ভব৷</translation>
 <translation id="5502500733115278303">Firefox থেকে আমদানি করা</translation>
 <translation id="569109051430110155">স্বয়ং সনাক্ত</translation>
+<translation id="4408599188496843485">স&amp;হায়তা</translation>
 <translation id="2800662284745373504">সার্ভারের শংসাপত্র অকার্যকর</translation>
 <translation id="2681441671465314329">ক্যাশে খালি করুন</translation>
 <translation id="6222380584850953107">সংরক্ষিত পাসওয়ার্ড দেখান</translation>
@@ -297,6 +317,7 @@
 <translation id="7910768399700579500">&amp;নতুন ফোল্ডার</translation>
 <translation id="6883611015375728278">সকল কুকি অবরোধ করুন</translation>
 <translation id="3819791248093819058">এই ওয়েব ঠিকানার কোনও ওয়েবপৃষ্ঠা পাওয়া যায় নি: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">ডেটা সাফ করুন:</translation>
 <translation id="6710213216561001401">পূর্ববর্তী</translation>
 <translation id="583281660410589416">অজানা</translation>
 <translation id="5528368756083817449">বুকমার্ক পরিচালক</translation>
@@ -318,6 +339,7 @@
 <translation id="6449085810994685586">&amp;এই ক্ষেত্রের বানানটি পরীক্ষণ করুন</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> মিনিট বাকি</translation>
 <translation id="8664389313780386848">পৃষ্ঠা উত্স &amp;দেখুন</translation>
+<translation id="3089982169226026948">একটি প্রোফাইল নির্বাচন করুন</translation>
 <translation id="57646104491463491">সংশোধনের তারিখ</translation>
 <translation id="3867260226944967367">এই ওয়েবপৃষ্ঠা খুঁজে পাওয়া যায় নি৷</translation>
 <translation id="6507969014813375884">চিনা সরলীকৃত</translation>
@@ -337,9 +359,10 @@
 <translation id="965674096648379287">সঠিকভাবে প্রদর্শন করার জন্য এই ওয়েবপৃষ্ঠাটির আপনার আগের প্রবেশ করানো ডেটার প্রয়োজন৷ আপনি এই ডেটা আবার পাঠাতে পারেন, কিন্তু এটি করে এই পৃষ্ঠাটি আগেই সম্পাদনা করেছে এমন যেকোনও ক্রিয়ার পুনরাবৃত্তি করবেন৷ এই ডেটা আবার পাঠাতে ও পৃষ্ঠাটি প্রদর্শন করতে পুনঃ লোড করুন টিপুন৷</translation>
 <translation id="43742617823094120">এই ক্ষেত্রে, আপনার ব্রাউজারে উপস্থিত শংসাপত্রটি ইস্যুকারী প্রত্যাহার করেছে৷ সাধারণত এর অর্থ হল এই শংসাপত্রটির শুদ্ধতা সন্দেহজনক, এবং এই শংসাপত্রটিকে ভরসা করা উচিত নয়৷ আপনার কখনই এর বেশি এগোনো উচিত নয়৷</translation>
 <translation id="2065985942032347596">প্রমাণীকরণ প্রয়োজন</translation>
-<translation id="1882575713358235784">ব্রাউজ করা &amp;ডেটা সাফ করুন...</translation>
 <translation id="1175364870820465910">&amp;মুদ্রণ...</translation>
 <translation id="3866249974567520381">বর্ণনা</translation>
+<translation id="5552632479093547648">দূষিত ও ফিশিংয়ের সন্ধান মিলেছে!</translation>
+<translation id="9118804773997839291">নীচে সমস্ত অনিরাপদ উপাদানের একটি তালিকা রয়েছে৷  কোনও নির্দিষ্ট উপাদানের জন্য থ্রেডে আরও তথ্যের জন্য ডায়াগনস্টিক লিঙ্কটিকে ক্লিক করুন৷</translation>
 <translation id="7754704193130578113">প্রতিটি ফাইল ডাউনলোড করার আগে তা কোথায় সংরক্ষণ করতে হবে জিজ্ঞাসা করুন</translation>
 <translation id="2497284189126895209">সকল ফাইল</translation>
 <translation id="435463392378565996">সামান্য বদলান</translation>
@@ -349,6 +372,7 @@
 <translation id="5256138355144269748">অবরুদ্ধ পপ-আপ</translation>
 <translation id="2820806154655529776"><ph name="NUMBER_ONE"/> সেকেন্ড</translation>
 <translation id="3122496702278727796">ডেটা ডিরেক্টরি তৈরি করতে ব্যর্থ</translation>
+<translation id="8446970197849314122">আপনি এই কম্পিউটারে অন্যান্য ব্রাউজারগুলি এবং ব্যবহারকারীর অ্যাকাউন্টগুলি থেকে নিজের বুকমার্কস এবং সেটিংস আমদানি করতে পারেন৷</translation>
 <translation id="6281636957902664775"><ph name="URL"/>-এ যান</translation>
 <translation id="630065524203833229">ব&amp;ন্ধ</translation>
 <translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
@@ -382,6 +406,7 @@
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (ডিফল্ট)</translation>
 <translation id="111844081046043029">আপনি এই পৃষ্ঠাটি ছেড়ে যাওয়ার ব্যাপারে কি নিশ্চিত?</translation>
 <translation id="4497415007571823067">আপনি &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;-এ পৌঁছানোর প্রচেষ্টা করেছেন, কিন্তু এর পরিবর্তে আপনি আসলে একটি সার্ভারে পৌঁছেছেন যেটি নিজেকে &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; রূপে পরিচয় দিচ্ছে৷ এটি সার্ভারে একটি ভুল কনফিগারেশনের কারণে অথবা কিছু বেশি গুরুতর জিনিসের কারণে হতে পারে৷  আপনি যাতে &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;-এর জালিয়াত (এবং সম্ভাব্যরূপে ক্ষতিকারক) সংস্করণে পরিদর্শন করেন, আপনার নেটওয়ার্কে কোনো আক্রমণকারী, তার চেষ্টা করতে পারে৷ আপনার এগিয়ে যাওয়া উচিত নয়৷</translation>
+<translation id="3202578601642193415">নবীনতম</translation>
 <translation id="8112886015144590373"><ph name="NUMBER_FEW"/> ঘন্টা</translation>
 <translation id="8739589585766515812">এই দিনের ইতিহাস মুছুন</translation>
 <translation id="1398853756734560583">বড় করুন</translation>
@@ -392,6 +417,7 @@
 <translation id="5260878308685146029"><ph name="NUMBER_TWO"/> মিনিট বাকি</translation>
 <translation id="2192505247865591433">থেকে:</translation>
 <translation id="5921544176073914576">ফিশিং পৃষ্ঠা</translation>
+<translation id="6192792657125177640">ব্যতিক্রমগুলি</translation>
 <translation id="2822650824848709219">সমস্ত অনিরাপদ সামগ্রী ব্লক করুন</translation>
 <translation id="1901303067676059328">&amp;সকল নির্বাচন করুন</translation>
 <translation id="2168039046890040389">Page Up</translation>
@@ -418,6 +444,7 @@
 <translation id="154603084978752493">সার্চ ই&amp;ঞ্জিন রূপে যুক্ত করুন...</translation>
 <translation id="3254409185687681395">এই পৃষ্ঠাটি বুকমার্ক করুন</translation>
 <translation id="1384616079544830839">এই ওয়েবসাইটির পরিচয় <ph name="ISSUER"/> যাচাই করেছে৷</translation>
+<translation id="1800035677272595847">ফিশিং</translation>
 <translation id="4610637590575890427">আপনি <ph name="SITE"/>-এ যেতে চাওয়ার কথা বলছেন কি?</translation>
 <translation id="8349305172487531364">বুকমার্কস দণ্ড</translation>
 <translation id="7208899522964477531"><ph name="SITE_NAME"/>-এ <ph name="SEARCH_TERMS"/> অনুসন্ধান করুন</translation>
@@ -495,7 +522,6 @@
 <translation id="1526560967942511387">শিরোনামহীন দস্তাবেজ</translation>
 <translation id="5538307496474303926">সাফ হচ্ছে...</translation>
 <translation id="6783679543387074885">বাগ অথবা ভেঙে যাওয়া ওয়েব সাইটের প্রতিবেদন করুন</translation>
-<translation id="8412968288526977732"><ph name="TITLE"/>-এর <ph name="DOMAIN"/> সার্ভারের কোনো ব্যবহারকারী নাম এবং পাসওয়ার্ড প্রয়োজন৷</translation>
 <translation id="5285267187067365830">প্ল্যাগ-ইন ইনস্টল করুন...</translation>
 <translation id="8015746205953933323">এই ওয়েবপৃষ্ঠাটি উপলবদ্ধ নয়৷</translation>
 <translation id="8520668773617044689">Firefox</translation>
@@ -512,6 +538,7 @@
 <translation id="2115926821277323019">একটি কার্যকর URL হওয়া আবশ্যক</translation>
 <translation id="7397054681783221164">নিম্নোক্ত আইটেমগুলি নিশ্চিহ্ন করুন:</translation>
 <translation id="4891251785049117953">সংরক্ষিত ফর্ম ডেটা পরিষ্কার করুন</translation>
+<translation id="5230516054153933099">উইন্ডো</translation>
 <translation id="7554791636758816595">নতুন ট্যাব</translation>
 <translation id="4400697530699263877">পৃষ্ঠা লোড সম্পাদনা উন্নত করার জন্য DNS পূর্ব-আনয়ন ব্যবহার করুন</translation>
 <translation id="1086613338090581534">কোনো মেয়াদ শেষ না হওয়া শংসাপত্রের ইস্যুকারী সেটির “প্রত্যাহার তালিকা” নামক জিনিসের রক্ষনাবেক্ষণের জন্য দ্বায়িত্বশীল৷ যদি কোনো শংসাপত্রে কখনও সন্দেহ থাকে তাহলে ইস্যুকারী সেটিকে প্রত্যাহার তালিকাতে যুক্ত করে প্রত্যাহার করতে পারে এবং এরপর থেকে এই শংসাপত্রটিকে আপনার ব্রাউজার আর ভরসা করবে না৷ মেয়াদ শেষ হওয়া সংশাপত্রের জন্য প্রত্যাহার স্থিতি অক্ষুণ্ণ রাখার দরকার নেই, ফলে আপনার পরিদর্শন করা ওয়েবসাইটের জন্য এই শংসাপত্রটি বৈধ হলে, সেই ক্ষেত্রে এটি নির্ধারণ করা সম্ভব হয় না যে শংসাপত্রটি সন্দেহজনক এবং পশাত্কালে প্রত্যাহার করা হয়েছিল কি না অথবা এটি এখনও নিরাপদ কি না৷ যেমন আপনি আইনসঙ্গত ওয়েব সাইটে যোগাযোগ করছেন কি না অথবা শংসাপত্রটি সন্দেহজনক কি না এবং এখন আপনি যার সাথে যোগাযোগ করছেন সেটি আক্রমণকারীর অধীনে আছে কি না তা বলা সত্যিই অসম্ভব৷ আপনার এর বেশি এগোনো উচিত নয়৷</translation>
@@ -542,6 +569,8 @@
 <translation id="1618661679583408047">সার্ভারের নিরাপত্তা শংসাপত্র এখনও কার্যকর হয় নি!</translation>
 <translation id="9040508646567685134">এই পৃষ্ঠাতে চলমান একটি স্ক্রিপ্ট তার কাজ করার জন্য দীর্ঘক্ষণ সময় নিচ্ছে৷ স্ক্রিপ্টটি সম্পূর্ণ হতে পারবে কি না আপনি তা দেখতে চান, না হাল ছেড়ে দেবেন?</translation>
 <translation id="3065140616557457172">অনুসন্ধানের জন্য টাইপ করুন অথবা সমস্তকিছু ঠিকঠাক কাজ করছে - তা নেভিগেট করা জন্য একটি URL প্রবেশ করান৷</translation>
+<translation id="5986279928654338866"><ph name="DOMAIN"/> সার্ভারটির একটি ব্যবহারকারী নাম এবং পাসওয়ার্ড প্রয়োজন৷</translation>
+<translation id="7056713340842386352">সর্বাধিক দেখা [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="5765780083710877561">বর্ণনা:</translation>
 <translation id="7221869452894271364">এই পৃষ্ঠাটি পুনঃ লোড করুন</translation>
 <translation id="8646430701497924396">SSL 2.0 ব্যবহার করুন</translation>
@@ -579,18 +608,24 @@
 <translation id="5333374927882515515"><ph name="DEF_BROWSER"/> থেকে বুকমার্কস, পাসওয়ার্ড এবং অন্যান্য সেটিংস</translation>
 <translation id="4239831617079978238">অধিবেশন সমাপ্তি</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(চলছে)</translation>
 <translation id="3748412725338508953">অত্যধিক পুনঃনির্দেশ ছিল৷</translation>
-<translation id="8929159553808058020">পছন্দের ক্রমের তালিকা থেকে, ওয়েবসাইট পড়ার জন্য আপনি যে ভাষা ব্যবহার করতে চান, যুক্ত করুন৷  কেবলমাত্র যেটি দরকার সেটিই যুক্ত করুন, কেন না কিছু অক্ষর ওয়েবসাইট অন্য ভাষাতে প্রকাশ করার জন্য ব্যবহৃত হতে পারে৷</translation>
+<translation id="8929159553808058020">ওয়েবসাইট পড়ার জন্য আপনি যে ভাষাগুলি ব্যবহার করেন ,সেগুলি পছন্দ অনুযায়ী তালিকাভুক্ত করুন৷ কেবলমাত্র যেগুলি দরকার সেগুলি যুক্ত করুন, কেন না কিছু অক্ষর ওয়েবসাইট অন্য ভাষাতে প্রকাশ করার জন্য ব্যবহৃত হতে পারে৷</translation>
 <translation id="8831104962952173133">ফিশিং সনাক্ত হয়েছে!</translation>
+<translation id="2614223168876839822">এই কম্পিউটারটি থেকে আপনার ব্রাউজিং ডেটা সাফ করুন৷ সতর্ক হন যে এটি নতুন ট্যাব পৃষ্ঠার লিখিত সামগ্রীতে ক্ষতিকারক প্রভাব ফেলতে পারে৷</translation>
 <translation id="4745142959976410383">আপনি যদি এই অনুরোধ শুরু না করেন তাহলে, এটি আপনার সিস্টেমে একটি আক্রমণের প্রচেষ্টা উপস্থাপন করতে পারে৷ এই অনুরোধটি শুরু করার জন্য একটি সুনির্দিষ্ট পদক্ষেপ না নেওয়া পর্যন্ত আপনার বাতিল টেপা উচিত৷</translation>
+<translation id="1897258631034940238">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; এর ওয়েবসাইটটিতে &quot;ফিশিং&quot; সাইট হিসাবে প্রতিবেদন হওয়া সাইটগুলি থেকে উপাদান সমন্বিত৷ফিশিং সাইট প্রায়ই কোনো বিশ্বস্ত প্রতিষ্ঠান যেমন ব্যাঙ্ক রূপে নিজেদের উপস্থাপন করার ভান করে ব্যবহারকারীদের ব্যক্তিগত অথবা আর্থিক তথ্য প্রকাশ করার জন্য প্ররোচিত করে৷</translation>
 <translation id="8288345061925649502">সার্চ ইঞ্জিন পরিবর্তন করুন</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> সেকেন্ড</translation>
-<translation id="6652942492341627832">একই ক্ষেত্রে টাইপ করা পাঠ্য সংরক্ষণ ও প্রদর্শন করুন</translation>
 <translation id="5139955368427980650">&amp;খুলুন</translation>
+<translation id="7088615885725309056">পূর্বতর</translation>
 <translation id="746319800473277382">সাইটের হোমপৃষ্ঠাতে যান:</translation>
 <translation id="8562413501751825163">আমদানি করার আগে Firefox বন্ধ করুন</translation>
 <translation id="5034259512732355072">অন্য ডাইরেক্টরি চয়ন করুন...</translation>
+<translation id="5074322878757699801">ডেটা আমদানি হচ্ছে...</translation>
 <translation id="5706242308519462060">ডিফল্ট এনকোডিং:</translation>
+<translation id="5280833172404792470">পূর্ণ স্ক্রীন থেকে প্রস্থান করুন (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">সম্প্রতি বন্ধ হয়েছে</translation>
 <translation id="8355915647418390920"><ph name="NUMBER_FEW"/> দিন</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">JavaScript সক্ষম করুন</translation>
@@ -598,6 +633,7 @@
 <translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> ঘন্টা</translation>
 <translation id="1851266746056575977">এখনই আপডেট করুন</translation>
+<translation id="19901320010520290">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; এ থাকা ওয়েবসাইটটিতে এমন সাইটগুলি থেকে উপাদান সমন্বিত রয়েছে যা দূষিত - সফ্টওয়্যার হোস্ট করে বলে মনে হচ্ছে, এটি আপনার কম্পিউটারের ক্ষতি করতে পারে বা অন্যথায় আপনার সম্মতি ছাড়াই পরিচালিত হতে পারে৷  ম্যালওয়ার হোস্ট করে এমন সাইট কেবলমাত্র পরিদর্শন করলেও আপনার কম্পিউটার আক্রান্ত হতে পারে৷ওয়েবসাইটটি &quot;ফিশিং&quot; সাইট হিসাবে প্রতিবেদন হওয়া সাইটগুলি থেকেও লিখিত সামগ্রীগুলি হোস্ট করতে পারে৷  ফিশিং সাইট প্রায়ই কোনো বিশ্বস্ত প্রতিষ্ঠান যেমন ব্যাঙ্ক রূপে নিজেদের উপস্থাপন করার ভান করে ব্যবহারকারীদের ব্যক্তিগত অথবা আর্থিক তথ্য প্রকাশ করার জন্য প্ররোচিত করে৷</translation>
 <translation id="9065203028668620118">সম্পাদনা</translation>
 <translation id="4867297348137739678">গত সপ্তাহ</translation>
 <translation id="4881695831933465202">খুলুন</translation>
@@ -605,6 +641,7 @@
 <translation id="6644971472240498405"><ph name="NUMBER_ONE"/> দিন</translation>
 <translation id="6512448926095770873">এই পৃষ্ঠাটি ত্যাগ করুন</translation>
 <translation id="5607455023223000189">ইনস্টল হওয়া প্ল্যাগ-ইন</translation>
+<translation id="7009102566764819240">নীচে সমস্ত অনিরাপদ উপাদানের একটি তালিকা রয়েছে৷  কোনও নির্দিষ্ট রিসোর্সে ম্যালওয়ার থ্রেডে আরও তথ্যের জন্য ডায়াগনস্টিক লিঙ্কটিকে ক্লিক করুন৷ আপনি যদি জানতে পারেন যে কোন রিসোর্সকে ভুল করে ফিশিং হিসাবে রিপোর্ট করা হয়ে গেছে তবে ‘ত্রুটি রিপোর্ট করুন’ লিঙ্কটিকে ক্লিক করুন৷</translation>
 <translation id="494645311413743213"><ph name="NUMBER_TWO"/> সেকেন্ড বাকি</translation>
 <translation id="1485146213770915382">যেখানে অনুসন্ধান পদটি উপস্থিত হওয়া উচিত সেখানে URL-এ <ph name="SEARCH_TERMS_LITERAL"/> অন্তর্ভুক্ত করুন৷</translation>
 <translation id="5626134646977739690">নাম:</translation>
@@ -619,8 +656,10 @@
 <translation id="486595306984036763">ফিশিং প্রতিবেদন খুলুন</translation>
 <translation id="1568162916422682473">নিম্নোক্ত প্ল্যাগ-ইনটি ক্র্যাশ করেছে: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">ডিফল্টে রিসেট করুন</translation>
+<translation id="170407012880898501">ফর্মগুলি সহজে পূরণ করতে সেখান থেকে পাঠ্য সংরক্ষণ করুন</translation>
 <translation id="8116972784401310538">&amp;বুকমার্ক পরিচালক</translation>
 <translation id="6040143037577758943">বন্ধ</translation>
+<translation id="4943872375798546930">কোন ফলাফল নেই</translation>
 <translation id="4910619056351738551">এখানে কিছু প্রস্তাবনা:</translation>
 <translation id="7451556917824271099">&lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;-এর ওয়েবসাইটটিতে &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; সাইটের উপাদান আছে, যা আপনার কম্পিউটারের ক্ষতি করতে বা আপনার অনুমতি ছাড়াই পরিচালনা করতে পারে এমন ম্যালওয়ার-সফ্টওয়্যার হোস্ট করার জন্য উপস্থিত হয়৷  ম্যালওয়ার হোস্ট করে কেবলমাত্র এমন সাইটের পরিদর্শনই আপনার কম্পিউটারকে আক্রান্ত করতে পারে৷</translation>
 <translation id="1232569758102978740">শিরোনামহীন</translation>
@@ -649,17 +688,21 @@
 <translation id="4745438305783437565"><ph name="NUMBER_FEW"/> মিনিট</translation>
 <translation id="2649911884196340328">সার্ভারের নিরাপত্তা শংসাপত্রে ত্রুটি আছে!</translation>
 <translation id="1963692530539281474"><ph name="NUMBER_DEFAULT"/> দিন বাকি</translation>
+<translation id="668171684555832681">অন্যান্য...</translation>
 <translation id="3108416241300843963">সার্ভারের শংসাপত্র অকার্যকার ছিল তাই একটি অনুরোধ ব্যর্থ হয়েছে৷</translation>
 <translation id="116506693382293616">SSL ত্রুটি সহ কোনো কানেকশনে এই পৃষ্ঠার কিছু উপাদান পুনরুদ্ধার করা হয়েছে৷</translation>
 <translation id="7887455386323777409">প্ল্যাগ-ইন নষ্ঠ করুন</translation>
-<translation id="3761000923495507277">সরঞ্জামদণ্ডে Home বোতাম দেখান</translation>
+<translation id="3761000923495507277">সরঞ্জামদণ্ডে হোম বোতাম দেখান</translation>
 <translation id="8709969075297564489">সার্ভার শংসাপত্রের প্রত্যাহার চেক</translation>
+<translation id="8698171900303917290">ইনস্টলিংয়ে সমস্যা রয়েছে?</translation>
+<translation id="2552545117464357659">নবীনতর</translation>
 <translation id="5869522115854928033">সংরক্ষিত পাসওয়ার্ড</translation>
 <translation id="1709220265083931213">উন্নত বিকল্পগুলি</translation>
 <translation id="4771973620359291008">একটি অজানা ত্রুটি ঘটেছে৷</translation>
 <translation id="8155798677707647270">নতুন সংস্করণ ইনস্টল হচ্ছে...</translation>
 <translation id="6886871292305414135">নতুন &amp;ট্যাবে লিঙ্ক খুলুন</translation>
 <translation id="6308937455967653460">লি&amp;ঙ্ক এই রূপে সংরক্ষণ করুন...</translation>
+<translation id="5421136146218899937">ব্রাউজিং ডেটা সাফ করুন...</translation>
 <translation id="3943582379552582368">&amp;ফিরুন</translation>
 <translation id="7607002721634913082">বিরাম দেওয়া</translation>
 <translation id="480990236307250886">হোম পৃষ্ঠাটি খুলুন</translation>
@@ -679,6 +722,7 @@
 <translation id="1702534956030472451">পশ্চিমী</translation>
 <translation id="9141716082071217089">সার্ভারের শংসাপত্র প্রত্যাহার করা হয়েছে কি না চেক করতে অক্ষম৷</translation>
 <translation id="4304224509867189079">লগ ইন</translation>
+<translation id="4492190037599258964">'<ph name="SEARCH_STRING"/>'-এর অনুসন্ধান ফলাফল</translation>
 <translation id="988159990683914416">বিকাশকারী বিল্ড</translation>
 <translation id="3705722231355495246">-</translation>
 <translation id="4268574628540273656">URL:</translation>
@@ -687,6 +731,7 @@
 <translation id="1664314758578115406">পৃষ্ঠা যুক্ত করুন...</translation>
 <translation id="4084682180776658562">বুকমার্ক</translation>
 <translation id="4381091992796011497">ব্যবহারকারী নাম:</translation>
+<translation id="7669151579173473971">&amp;প্রোফাইলে নতুন উইন্ডো</translation>
 <translation id="5822838715583768518">অ্যাপ্লেকশন প্রবর্তন করুন</translation>
 <translation id="6756161853376828318"><ph name="PRODUCT_NAME"/>-কে আমার ডিফল্ট ব্রাউজার করুন</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
@@ -699,6 +744,7 @@
 <translation id="1273291576878293349">ছ্দ্মবেশী উইন্ডোতে সকল বুকমার্ক খুলুন</translation>
 <translation id="3455546154539383562">আপনি &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;–এ পৌঁছানোর প্রচেষ্টা করেছেন, কিন্তু সার্ভার দ্বারা উপস্থাপিত শংসাপত্রটি সেটির ইস্যুকারী প্রত্যাহার করেছে৷ এর অর্থ হল সার্ভার দ্বারা উপস্থাপিত নিরাপত্তা প্রমাণ-পত্রটিকে কখনই ভরসা করা উচিত নয়৷ হতে পারে আপনি একটি আক্রমণকারীর সাথে যোগাযোগ করছেন৷ আপনার এগিয়ে যাওয়া উচিত নয়৷</translation>
 <translation id="1177437665183591855">অজানা সার্ভার শংসাপত্র ত্রুটি</translation>
+<translation id="3819800052061700452">&amp;পূর্ণ-স্ক্রীন</translation>
 <translation id="3737554291183722650">পৃষ্ঠার শিরোনাম:</translation>
 <translation id="4726901538158498735">ডিফল্ট অনুসন্ধান:</translation>
 <translation id="5101042277149003567">সকল বুকমার্ক খুলুন</translation>
@@ -709,6 +755,7 @@
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="385051799172605136">ফিরুন</translation>
 <translation id="1208126399996836490">রিসেট করবেন না</translation>
+<translation id="806812017500012252">শিরোনাম অনুসারে পুনঃক্রম করুন</translation>
 <translation id="2960316970329790041">আমদানি থামান</translation>
 <translation id="1731911755844941020">অনুরোধ পাঠানো হচ্ছে...</translation>
 <translation id="1038842779957582377">অজানা নাম</translation>
@@ -728,6 +775,7 @@
 <translation id="5233231016133573565">প্রক্রিয়া ID</translation>
 <translation id="5941711191222866238">ছোট করুন</translation>
 <translation id="7167486101654761064">&amp;সর্বদা এই ধরনের ফাইল খুলুন</translation>
+<translation id="6053401458108962351">&amp;ব্রাউজিং ডেটা সাফ করুন...</translation>
 <translation id="2339641773402824483">আপডেটের জন্য চেক করা হচ্ছে...</translation>
 <translation id="2766006623206032690">প্র&amp;তিলেপন করুন ও যান</translation>
 <translation id="9071050381089585305">প্রতিক্রিয়াবিহীন স্ক্রিপ্ট</translation>

@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="es">
+<translation id="6676384891291319759">Acceso a Internet</translation>
 <translation id="8579274574697852281">Google Chrome está disponible para Windows Vista o Windows XP con SP1 o superior.</translation>
 <translation id="698670068493841342">Google Chrome ya se ha instalado para este usuario. Si el software no funciona, desinstala Google Chrome y vuelve a descargarlo.</translation>
 <translation id="7400722733683201933">Acerca de Google Chrome</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">El área &quot;Más visitados&quot; muestra los sitios web que visitas con mayor frecuencia. Cuando hayas utilizado Google Chrome durante un tiempo, al abrir una nueva pestaña podrás ver los sitios más visitados. Encontrarás más información sobre esta y otras funciones en la página <ph name="BEGIN_LINK"/>Cómo empezar<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Debido a un error desconocido, la instalación no se ha llevado a cabo. Si Google Chrome se está ejecutando, ciérralo y vuelve a intentarlo.</translation>
 <translation id="4149882025268051530">El programa de instalación no ha podido descomprimir el archivo. Vuelve a descargar Google Chrome.</translation>
+<translation id="4343226815564935778">Parece que el directorio de instalación de Google Chrome se encuentra en uso. Reinicia el equipo y vuelve a intentarlo.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Todos los derechos reservados.</translation>
 <translation id="6817660909204164466">Colabora en la mejora de Google Chrome enviando automáticamente a Google estadísticas de uso e informes sobre fallos.</translation>
 <translation id="8227755444512189073">Google Chrome debe ejecutar una aplicación externa para admitir enlaces de <ph name="SCHEME"/>. El enlace solicitado es <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> de Google Chrome</translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Google Chrome</translation>
 <translation id="2044287590254833138">Barra de Google Chrome</translation>
 <translation id="6481075104394517441">Has intentado acceder a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, pero el servidor ha presentado un certificado que aún no es válido. No hay datos disponibles que indiquen que se puede confiar en el certificado. Google Chrome no puede garantizar la autenticidad de &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Asegúrate de que el reloj y la zona horaria están configurados correctamente en tu equipo. Si no es así, corrige los errores y actualiza la página. Si los datos son correctos, no continúes.</translation>
+<translation id="8862326446509486874">No dispones de los derechos necesarios para la instalación en el sistema. Intenta ejecutar de nuevo el programa de instalación como administrador.</translation>
 <translation id="2874156562296220396">Google Chrome es una realidad gracias al proyecto de software libre <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> y a otros <ph name="BEGIN_LINK_OSS"/>programas de código abierto<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome está listo para finalizar la instalación.</translation>
 <translation id="7100330187273168372">Google Chrome no puede leer ni añadir datos al directorio:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">Establecer Google Chrome como navegador predeterminado</translation>
 <translation id="4127951844153999091">En este caso, la dirección que se indica en el certificado no concuerda con la dirección del sitio web al que intentó acceder el navegador. Un posible motivo es que tus comunicaciones están siendo interceptadas por un atacante que presenta un certificado para un sitio web distinto, lo que podría causar un error de concordancia. Otra posible razón es que el servidor está configurado para devolver el mismo certificado a diversos sitios web, incluido el que intentas visitar, aunque dicho certificado no sea válido para todos estos sitios web. Google Chrome puede asegurarte que has accedido a &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, pero no puede verificar que el sitio es el mismo que &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong, al que pretendías acceder. Si continúas, Chrome no comprobará otros errores de nombre. En general, es mejor no continuar llegados a este punto.</translation>
+<translation id="2712549016134575851">Se ha detectado un conflicto con otra aplicación instalada.</translation>
 <translation id="7161904924553537242">Bienvenido a Google Chrome</translation>
 <translation id="8236873504073475138">Google Chrome no es compatible con Windows 2000. Es posible que algunas funciones no tengan un rendimiento correcto.</translation>
-<translation id="8172671748763307156">¿Estás seguro de que deseas desinstalar Google Chrome? (¿Es que hemos hecho algo mal?)</translation>
 <translation id="5046764976540625289">Salir de Google Chrome</translation>
+<translation id="8865765905101981392">Navegador de Internet</translation>
 <translation id="582763753075639530">Cierra todas las ventanas de Google Chrome y reinicia el programa para que este cambio surta efecto.</translation>
 <translation id="8776515774046280928">Google Chrome ya está instalado en este equipo y se encuentra disponible para todos los usuarios. Si quieres instalar Google Chrome de nivel de usuario, primero debes desinstalar la versión de nivel de sistema que instaló un administrador.</translation>
 <translation id="3335672657969596251">Google Chrome no es compatible con <ph name="OS_NAME"/>.</translation>
 <translation id="3636771339108070045">Este equipo ya tiene instalada una versión más reciente de Google Chrome. Si el software no funciona, desinstala Google Chrome y vuelve a descargarlo.</translation>
+<translation id="3396666154568987767">Google Chrome para <ph name="PROFILE_NAME"/></translation>
 <translation id="1964682833763362793">Cierra todas las ventanas de Google Chrome e inténtalo de nuevo.</translation>
 <translation id="1001534784610492198">El archivo de instalación está dañado o no es válido. Vuelve a descargar Google Chrome.</translation>
 <translation id="6626317981028933585">Tu configuración de Mozilla Firefox no está disponible mientras el navegador se está ejecutando. Para importar esta configuración en Google Chrome, guarda los cambios y cierra todas las ventanas de Firefox. A continuación, haz clic en Continuar.</translation>

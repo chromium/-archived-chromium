@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="ja">
+<translation id="6676384891291319759">インターネットにアクセス</translation>
 <translation id="8579274574697852281">Google Chrome のご利用には Windows Vista または Windows XP SP1 以降が必要です。</translation>
 <translation id="698670068493841342">Google Chrome は既にこのユーザー用にインストールされています。アプリケーションが動作しない場合は、アンインストールしてからダウンロードし直してください。</translation>
 <translation id="7400722733683201933">Google Chrome について</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">ここには最もよく使うウェブサイトが表示されます。また、Google Chrome をある程度使い続けると、新しいタブを開いたときにもよく使うサイトが一覧表示されます。詳細については<ph name="BEGIN_LINK"/>スタートガイド<ph name="END_LINK"/>をご覧ください。</translation>
 <translation id="4728575227883772061">原因不明のエラーによりインストールが失敗しました。実行中の Google Chrome を終了してからやり直してください。</translation>
 <translation id="4149882025268051530">インストーラー アーカイブを解凍できませんでした。Google Chrome をダウンロードし直してください。</translation>
+<translation id="4343226815564935778">Google Chrome のインストール先ディレクトリが現在使用中です。パソコンを再起動して、もう一度やり直してください。</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. All Rights Reserved.</translation>
 <translation id="6817660909204164466">使用統計データや障害レポートを Google に自動送信して Google Chrome の機能向上に役立てる</translation>
 <translation id="8227755444512189073"><ph name="SCHEME"/> リンクを処理するには外部アプリケーションの起動が必要です。リクエストされたリンクは <ph name="PROTOLINK"/> です。</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Google Chrome ツールバー</translation>
 <translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書が有効ではありません。この証明書の信頼性について有効な情報がないため、通信先が本当に <ph name="DOMAIN2"/> であるか Google Chrome で判断できず、なりすましの可能性を完全には否定できません。コンピュータの時刻とタイムゾーンが正しく設定されていることを確認してください。設定に問題がある場合は、設定を修正してからこのページを更新してください。正しく設定されているにも関わらずこの警告が表示される場合は、ここで操作を止めてください。</translation>
+<translation id="8862326446509486874">権限が不十分なためシステムレベルのインストールができません。管理者権限でインストールしてください。</translation>
 <translation id="2874156562296220396">Google Chrome はオープンソース プロジェクト <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> やその他の<ph name="BEGIN_LINK_OSS"/>オープンソース ソフトウェア<ph name="END_LINK_OSS"/>によって実現しました。</translation>
 <translation id="6921913858457830952">Google Chrome をインストールする準備ができました。</translation>
 <translation id="7100330187273168372">このディレクトリには Google Chrome はアクセスできません:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">Google Chrome を既定のブラウザにする</translation>
 <translation id="4127951844153999091">証明書のアドレスと、実際にアクセスしようとしているウェブサイトのアドレスが一致していません。これには、悪意のあるユーザーによって通信が傍受されているか、または複数のサイトで同じ証明書を返すようサーバーで設定しているにも関わらず、証明書が有効になっていないサイトが含まれている可能性があります。Google Chrome で検出されたアクセスは &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; で、それが &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; と同じサイトであるかどうかは確認できません。名前の不一致を無視してこのまま続行することもできますが、通常はここで操作を止めることをおすすめします。</translation>
+<translation id="2712549016134575851">インストールされている別のアプリケーションとの競合が検出されました。</translation>
 <translation id="7161904924553537242">Google Chrome へようこそ</translation>
 <translation id="8236873504073475138">Google Chrome は Windows 2000 に対応していません。動作しない機能がある可能性があります。</translation>
-<translation id="8172671748763307156">Google Chrome をアンインストールしてもよろしいですか？</translation>
 <translation id="5046764976540625289">Chrome を終了</translation>
+<translation id="8865765905101981392">インターネット ブラウザ</translation>
 <translation id="582763753075639530">この変更を反映するには、Google Chrome のウィンドウをすべて閉じてから再起動してください。</translation>
 <translation id="8776515774046280928">このコンピュータには既に Google Chrome がインストールされており、コンピュータのすべてのユーザーが使用できます。ユーザー レベルで Google Chrome をインストールする場合は、管理者がインストールしたシステム レベルの Google Chrome を最初にアンインストールする必要があります。</translation>
 <translation id="3335672657969596251">Google Chrome は <ph name="OS_NAME"/> に対応していません。</translation>
 <translation id="3636771339108070045">より新しいバージョンの Google Chrome が既にインストールされています。Google Chrome が動作しない場合は、それをアンインストールしてから新しくダウンロードし直してください。</translation>
+<translation id="3396666154568987767">Google Chrome - <ph name="PROFILE_NAME"/></translation>
 <translation id="1964682833763362793">すべての Chrome ウィンドウを終了してからやり直してください。</translation>
 <translation id="1001534784610492198">インストーラー アーカイブが壊れているか無効です。Google Chrome をダウンロードし直してください。</translation>
 <translation id="6626317981028933585">Mozilla Firefox の設定を Google Chrome にインポートするには、まず Firefox のウィンドウをすべて閉じてください。その後 [続行] をクリックしてください。</translation>

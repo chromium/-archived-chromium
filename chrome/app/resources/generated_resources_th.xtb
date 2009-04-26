@@ -9,6 +9,7 @@
 <translation id="4405141258442788789">หมดเวลาการดำเนินการ</translation>
 <translation id="5048179823246820836">นอร์ดิก</translation>
 <translation id="561349411957324076">เสร็จสมบูรณ์</translation>
+<translation id="4610656722473172270">Google Toolbar</translation>
 <translation id="2088818908407967256">หน้านี้มีองค์ประกอบที่ไม่ปลอดภัย</translation>
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">&amp;ทำซ้ำ</translation>
@@ -26,6 +27,7 @@
 <translation id="1383861834909034572">เปิดไฟล์เมื่อดาวน์โหลดเสร็จสมบูรณ์</translation>
 <translation id="4211171103079968550">เปิดใช้งาน Java</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">เซิร์ฟเวอร์ <ph name="DOMAIN"/> ที่ <ph name="REALM"/> จำเป็นต้องมีชื่อผู้ใช้และรหัสผ่าน</translation>
 <translation id="2193841602817119749">เว็บไซต์ที่ &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; ถูกรายงานว่าเป็นเว็บไซต์ “ฟิชชิ่ง”  เว็บไซต์ฟิชชิ่งหลอกลวงผู้ใช้ให้เปิดเผยข้อมูลส่วนตัวหรือข้อมูลทางการเงิน ด้วยการแสร้งว่าเป็นตัวแทนของสถาบันที่น่าเชื่อถือ เช่น ธนาคาร</translation>
 <translation id="8178665534778830238">เนื้อหา:</translation>
 <translation id="1379170046778889619">ข้อมูลด้านความปลอดภัย</translation>
@@ -52,6 +54,7 @@
 <translation id="5819484510464120153">สร้าง&amp;ทางลัดไปยังแอปพลิเคชัน...</translation>
 <translation id="1748246833559136615">ยกเลิก</translation>
 <translation id="8927064607636892008">มีสิ่งผิดปกติเกิดขึ้นในขณะที่แสดงหน้าเว็บนี้ หากต้องการดำเนินการต่อ ให้กด โหลดใหม่ หรือไปที่หน้าอื่น</translation>
+<translation id="5667293444945855280">มัลแวร์</translation>
 <translation id="5613020302032141669">ลูกศรซ้าย</translation>
 <translation id="3433489605821183222">ใบรับรองของเซิร์ฟเวอร์มีข้อผิดพลาด</translation>
 <translation id="6479177161510354016">แจ้งเตือน <ph name="SITE"/></translation>
@@ -60,6 +63,7 @@
 <translation id="5516565854418269276">แ&amp;สดงแถบบุ๊คมาร์คเสมอ</translation>
 <translation id="6426222199977479699">ข้อผิดพลาด SSL</translation>
 <translation id="443008484043213881">เครื่องมือ</translation>
+<translation id="314605055819837597">ข้อมูลผู้ใช้</translation>
 <translation id="8534801226027872331">ในกรณีนี้ ใบรับรองที่แสดงในเบราว์เซอร์ของคุณมีข้อผิดพลาดและไม่อาจเข้าใจได้ ซึ่งอาจหมายความว่าเราไม่เข้าใจข้อมูลประจำตัวที่อยู่ภายในใบรับรอง หรือข้อมูลเฉพาะอื่นๆ ในใบรับรองที่ใช้เพื่อรักษาความปลอดภัยการเชื่อมต่อ คุณไม่ควรดำเนินการต่อ</translation>
 <translation id="4422347585044846479">แก้ไขบุ๊คมาร์คสำหรับหน้านี้</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -87,6 +91,7 @@
 <translation id="1720675772864601791">อนุญาตรูปภาพที่ไม่ปลอดภัย</translation>
 <translation id="5233638681132016545">แท็บใหม่</translation>
 <translation id="5210365745912300556">ปิดแท็บ</translation>
+<translation id="8806796506533854282">ป้อนชื่อโปรไฟล์ใหม่</translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="8571852575982769756">ไม่ได้ปลั๊กอินติดตั้ง</translation>
 <translation id="7925285046818567682">กำลังรอ <ph name="HOST_NAME"/>...</translation>
@@ -99,6 +104,7 @@
 <translation id="6746124502594467657">เลื่อนลง</translation>
 <translation id="3383487468758466563">แบบอักษรและภาษา:</translation>
 <translation id="6163363155248589649">&amp;ปกติ</translation>
+<translation id="7222373446505536781">F11</translation>
 <translation id="3873963583678942942">(ไม่ระบุชื่อ)</translation>
 <translation id="8725178340343806893">รายการโปรด/บุ๊คมาร์ค</translation>
 <translation id="3605499851022050619">หน้าวินิจฉัยของ Safe Browsing</translation>
@@ -114,12 +120,16 @@
 <translation id="7615851733760445951">&lt;ไม่ได้เลือกคุกกี้&gt;</translation>
 <translation id="3660179305079774227">ลูกศรขึ้น</translation>
 <translation id="7400418766976504921">URL</translation>
+<translation id="5392041771307264501">เลือกโปรไฟล์เพื่อเปิดหน้าต่างใหม่</translation>
 <translation id="68541483639528434">ปิดแท็บอื่นๆ</translation>
 <translation id="2897878306272793870">คุณแน่ใจหรือไม่ว่าต้องการเปิด <ph name="TAB_COUNT"/> แท็บ</translation>
 <translation id="362276910939193118">แสดงประวัติการเข้าชมทั้งหมด</translation>
+<translation id="692135145298539227">ลบ</translation>
+<translation id="2663762871503078613">การนำเข้า:</translation>
 <translation id="1635247229519770914">ดำเนินการติดตั้งต่อไป</translation>
 <translation id="8945419807169257367">ไม่สามารถตรวจสอบใบรับรองของเซิร์ฟเวอร์ได้</translation>
 <translation id="5872213955895293073">ดีบัก JavaScript</translation>
+<translation id="1965338962645102116">ในการนำเข้าบุ๊คมาร์ค Toolbar ลงใน Chrome คุณต้องลงชื่อเข้าใช้บัญชี Google ของคุณ โปรดลงชื่อเข้าใช้และลองนำเข้าอีกครั้ง</translation>
 <translation id="5903264686717710770">ชื่อ:</translation>
 <translation id="8899851313684471736">เปิดลิงก์ใน&amp;หน้าต่างใหม่</translation>
 <translation id="6686490380836145850">ปิดแท็บทางด้านขวา</translation>
@@ -129,9 +139,12 @@
 <translation id="2423578206845792524">&amp;บันทึกรูปภาพเป็น...</translation>
 <translation id="9068931793451030927">เส้นทาง:</translation>
 <translation id="7052402604161570346">ไฟล์ประเภทนี้สามารถทำอันตรายกับคอมพิวเตอร์ของคุณได้ คุณแน่ใจหรือไม่ว่าต้องการดาวน์โหลด <ph name="FILE_NAME"/></translation>
+<translation id="8642489171979176277">นำเข้าจาก Google Toolbar</translation>
+<translation id="2011110593081822050">Web Worker: <ph name="WORKER_NAME"/></translation>
 <translation id="350069200438440499">ชื่อไฟล์:</translation>
 <translation id="8494979374722910010">ความพยายามเชื่อมต่อเซิร์ฟเวอร์ล้มเหลว</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> นาที</translation>
+<translation id="5296476177639202243">ไม่มีบุ๊คมาร์คที่ตรงกับข้อความค้นหา '<ph name="SEARCH_TEXT"/>'</translation>
 <translation id="939736085109172342">โฟลเดอร์ใหม่</translation>
 <translation id="5641560969478423183">ใบรับรองของเซิร์ฟเวอร์ไม่ตรงกับ URL</translation>
 <translation id="121827551500866099">แสดงการดาวน์โหลดทั้งหมด...</translation>
@@ -141,6 +154,7 @@
 <translation id="3520476450377425184">เหลือ <ph name="NUMBER_MANY"/> วัน</translation>
 <translation id="1059307158073710225">ตรวจการสะกดคำ:</translation>
 <translation id="7643817847124207232">ขาดการเชื่อมต่อทางอินเทอร์เน็ต</translation>
+<translation id="758007724455091072">สร้างทางลัดบนเดสก์ท็อปสำหรับโปรไฟล์นี้</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868">เหลือ <ph name="NUMBER_MANY"/> นาที</translation>
 <translation id="908263542783690259">ลบประวัติการเข้าชม</translation>
@@ -152,6 +166,7 @@
 <translation id="3122464029669770682">CPU</translation>
 <translation id="1684861821302948641">ปิดหน้าเว็บ</translation>
 <translation id="5965640700983474726">พิมพ์เพื่อค้นหา</translation>
+<translation id="2142570832281562688">ป้อนชื่อโปรไฟล์</translation>
 <translation id="5904714272463161824">&amp;รายงานข้อบกพร่องหรือเว็บไซต์ที่ใช้งานไม่ได้...</translation>
 <translation id="1608306110678187802">&amp;พิมพ์เฟรม...</translation>
 <translation id="4948468046837535074">เปิดหน้าต่อไปนี้:</translation>
@@ -169,6 +184,7 @@
 <translation id="6151323131516309312">กด <ph name="SEARCH_KEY"/> เพื่อค้นหา <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">ลบประวัติการดาวน์โหลด</translation>
 <translation id="2503522102815150840">เบราว์เซอร์ล่ม...ใช้งานไม่ได้แล้ว</translation>
+<translation id="6786747875388722282">ส่วนขยาย</translation>
 <translation id="2815500128677761940">แถบบุ๊คมาร์ค</translation>
 <translation id="8041183585493091279">URL บริการที่แนะนำ:</translation>
 <translation id="9189691339671500905">ตั้งค่าเครื่องมือค้นหาที่ใช้ใน omnibox</translation>
@@ -202,6 +218,7 @@
 <translation id="7905536804357499080">ใช้ข้อมูลปัจจุบัน</translation>
 <translation id="7378810950367401542">/</translation>
 <translation id="3087734570205094154">ด้านล่าง</translation>
+<translation id="1871540228654219948">เว็บไซต์ที่ &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; มีองค์ประกอบจากเว็บไซต์ที่มีมัลแวร์  ซอฟต์แวร์ที่สามารถทำลายคอมพิวเตอร์ของคุณหรืออาจดำเนินการแทนคุณโดยไม่ได้รับอนุญาต เพียงแค่การเข้าชมเว็บไซต์ที่มีมัลแวร์ก็สามารถทำให้คอมพิวเตอร์ของคุณเป็นอันตรายได้</translation>
 <translation id="8899388739470541164">เวียดนาม</translation>
 <translation id="4089663545127310568">ลบรหัสผ่านที่บันทึกไว้</translation>
 <translation id="6500444002471948304">เพิ่มโฟลเดอร์...</translation>
@@ -230,6 +247,7 @@
 <translation id="877010697526426622">หน้าเว็บใน &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; อาจหยุดให้บริการชั่วคราวหรืออาจถูกย้ายไปยังที่อยู่เว็บใหม่อย่างถาวร</translation>
 <translation id="4378551569595875038">กำลังเชื่อมต่อ...</translation>
 <translation id="7029809446516969842">รหัสผ่าน</translation>
+<translation id="8211437954284917092">ป้อนข้อความค้นหาลงในฟิลด์ข้อความด้านบนเพื่อค้นหาบุ๊คมาร์คของคุณ</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> ไฟล์</translation>
 <translation id="6805291412499505360">จำกัดวิธีการใช้งานคุกกี้ของบุคคลที่สาม</translation>
 <translation id="1201402288615127009">ถัดไป</translation>
@@ -239,6 +257,7 @@
 <translation id="254416073296957292">&amp;การตั้งค่าภาษา...</translation>
 <translation id="4222982218026733335">ใบรับรองของเซิร์ฟเวอร์ไม่ถูกต้อง</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>คุณกำลังเข้าชมแบบไม่ระบุตัวตน<ph name="END_BOLD"/> หน้าเว็บที่คุณดูในหน้าต่างนี้จะไม่ปรากฏในประวัติของเบราว์เซอร์หรือประวัติการเข้าชม และจะไม่ทิ้งร่องรอยใดๆ ไว้เหมือนกับคุกกี้ในคอมพิวเตอร์ของคุณหลังจากที่คุณปิดหน้าต่างที่ไม่ระบุตัวตน อย่างไรก็ตาม ไฟล์ที่คุณดาวน์โหลดหรือสร้างบุ๊คมาร์คจะถูกเก็บไว้        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>การเข้าชมแบบไม่ระบุตัวตนจะไม่ส่งผลต่อพฤติกรรมของบุคคลอื่น เซิร์ฟเวอร์ หรือซอฟต์แวร์ ควรระวัง: <ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>เว็บไซต์ที่รวบรวมหรือแบ่งปันข้อมูลเกี่ยวกับตัวคุณ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ผู้ให้บริการอินเทอร์เน็ตหรือนายจ้างที่ติดตามหน้าเว็บไซต์ที่คุณเยี่ยมชม <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ซอฟต์แวร์ที่เป็นอันตรายซึ่งติดตามการเคาะแป้นพิมพ์ของคุณเพื่อแลกกับสไมลี่ฟรี   <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>การตรวจตราจากเจ้าหน้าที่สืบราชการลับ<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>บุคคลที่ยืนอยู่ด้านหลังคุณ<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>เรียนรู้เพิ่มเติม<ph name="END_LINK"/> เกี่ยวกับการเรียกดูเว็บโดยไม่เปิดเผยตัวตน</translation>
+<translation id="4439241094464540230">&lt;โปรไฟล์ใหม่&gt;...</translation>
 <translation id="1813414402673211292">ลบข้อมูลที่เรียกดู</translation>
 <translation id="2356762928523809690">ไม่สามารถอัปเดตเซิร์ฟเวอร์ได้ (ข้อผิดพลาด: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="5436510242972373446">ค้นหา <ph name="SITE_NAME"/>:</translation>
@@ -251,6 +270,7 @@
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> วัน</translation>
 <translation id="8453184121293348016">ไม่พบกระบวนการเพิกถอน</translation>
 <translation id="7163503212501929773">เหลือ <ph name="NUMBER_MANY"/> ชั่วโมง</translation>
+<translation id="3283719377675052581">ไม่รู้จัก</translation>
 <translation id="374530189620960299">ใบรับรองความปลอดภัยของเว็บไซต์ไม่น่าเชื่อถือ!</translation>
 <translation id="5048040498971143039">ผลการค้นหาคำว่า '<ph name="SEARCH_STRING"/>'</translation>
 <translation id="5453632173748266363">ซีริลลิก</translation>
@@ -259,6 +279,7 @@
 <translation id="1120098871254928930">อนุญาตให้โหลดเนื้อหาทั้งหมด</translation>
 <translation id="3994878504415702912">ซู&amp;ม</translation>
 <translation id="5602600725402519729">โหล&amp;ดใหม่</translation>
+<translation id="9010612682952491200">แท็บใหม่ [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="7965010376480416255">หน่วยความจำที่ใช้ร่วมกัน</translation>
 <translation id="6248988683584659830">ค้นหาการตั้งค่า</translation>
 <translation id="8887733174653581061">อยู่ด้านบนเสมอ</translation>
@@ -271,6 +292,7 @@
 <translation id="6295228342562451544">เมื่อคุณเชื่อมต่อไปยังเว็บไซต์ที่มีการรักษาปลอดภัย เซิร์ฟเวอร์ที่ให้บริการพื้นที่เว็บไซต์นั้นจะแสดงสิ่งที่เรียกว่า &quot;ใบรับรอง&quot; ให้กับเบราว์เซอร์ของคุณเพื่อตรวจสอบข้อมูลประจำตัว ใบรับรองนี้ประกอบด้วยข้อมูลประจำตัว เช่น ที่อยู่ของเว็บไซต์ที่ได้รับการยืนยันโดยบุคคลที่สามที่คอมพิวเตอร์ของคุณเชื่อถือ โดยการตรวจสอบว่าที่อยู่ในใบรับรองตรงกับที่อยู่ของเว็บไซต์ คุณสามารถยืนยันว่าคุณกำลังสื่อสารอย่างปลอดภัยอยู่กับเว็บไซต์ที่คุณต้องการเข้าชม ไม่ใช่ติดต่ออยู่กับบุคคลที่สาม (เช่น ผู้โจมตีในเครือข่ายของคุณ)</translation>
 <translation id="5502500733115278303">นำเข้าจาก Firefox</translation>
 <translation id="569109051430110155">ตรวจพบอัตโนมัติ</translation>
+<translation id="4408599188496843485">ความ&amp;ช่วยเหลือ</translation>
 <translation id="2800662284745373504">ใบรับรองของเซิร์ฟเวอร์ไม่ถูกต้อง</translation>
 <translation id="2681441671465314329">ลบแคช</translation>
 <translation id="6222380584850953107">แสดงรหัสผ่านที่บันทึกไว้</translation>
@@ -282,6 +304,7 @@
 <translation id="7910768399700579500">โ&amp;ฟลเดอร์ใหม่</translation>
 <translation id="6883611015375728278">ป้องกันคุกกี้ทั้งหมด</translation>
 <translation id="3819791248093819058">ไม่พบหน้าเว็บสำหรับที่อยู่เว็บ: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">ลบข้อมูล:</translation>
 <translation id="6710213216561001401">ก่อนหน้า</translation>
 <translation id="583281660410589416">ไม่รู้จัก</translation>
 <translation id="5528368756083817449">ตัวจัดการบุ๊คมาร์ค</translation>
@@ -303,6 +326,7 @@
 <translation id="6449085810994685586">&amp;ตรวจการสะกดคำของฟิลด์นี้</translation>
 <translation id="50960180632766478">เหลือ <ph name="NUMBER_FEW"/> นาที</translation>
 <translation id="8664389313780386848">&amp;ดูรหัสต้นฉบับ</translation>
+<translation id="3089982169226026948">เลือกโปรไฟล์</translation>
 <translation id="57646104491463491">วันที่แก้ไข</translation>
 <translation id="3867260226944967367">ไม่พบหน้าเว็บนี้</translation>
 <translation id="6507969014813375884">จีน (ตัวย่อ)</translation>
@@ -322,9 +346,10 @@
 <translation id="965674096648379287">หน้าเว็บนี้ต้องการข้อมูลที่คุณได้ป้อนไว้ก่อนหน้าเพื่อที่จะได้แสดงได้อย่างถูกต้อง คุณสามารถส่งข้อมูลนี้อีกครั้ง แต่คุณจะต้องทำซ้ำการดำเนินการใดๆ ที่เคยทำไว้ในหน้านี้ กด โหลดใหม่ เพื่อส่งข้อมูลอีกครั้งและแสดงหน้านี้</translation>
 <translation id="43742617823094120">ในกรณีนี้ ใบรับรองที่แสดงในเบราว์เซอร์ของคุณได้ถูกเพิกถอนโดยผู้ออกใบรับรอง ซึ่งหมายความว่าไม่ได้ปฏิบัติตามเงื่อนไขของใบรับรองที่ถูกต้อง ทำให้ใบรับรองนั้นขาดความน่าเชื่อถือ คุณไม่ควรดำเนินการผ่านจุดนี้ไปเป็นอันขาด</translation>
 <translation id="2065985942032347596">ต้องมีการตรวจสอบความถูกต้อง</translation>
-<translation id="1882575713358235784">ลบ&amp;ข้อมูลที่เรียกดู...</translation>
 <translation id="1175364870820465910">&amp;พิมพ์...</translation>
 <translation id="3866249974567520381">คำอธิบาย</translation>
+<translation id="5552632479093547648">ตรวจพบมัลแวร์และฟิชชิ่ง!</translation>
+<translation id="9118804773997839291">ด้านล่างคือรายการองค์ประกอบที่ไม่ปลอดภัยทั้งหมดสำหรับหน้าเว็บ คลิกบนลิงก์ วินิจฉัย สำหรับข้อมูลเพิ่มเติมเพื่อดูองค์ประกอบเฉพาะ</translation>
 <translation id="7754704193130578113">สอบถามที่เก็บไฟล์ก่อนดาวน์โหลด</translation>
 <translation id="2497284189126895209">ไฟล์ทั้งหมด</translation>
 <translation id="435463392378565996">ปรับแต่งเล็กน้อย</translation>
@@ -334,6 +359,7 @@
 <translation id="5256138355144269748">ป๊อปอัปที่ถูกบล็อก</translation>
 <translation id="2820806154655529776"><ph name="NUMBER_ONE"/> วินาที</translation>
 <translation id="3122496702278727796">การสร้างไดเรกทอรีข้อมูลล้มเหลว</translation>
+<translation id="8446970197849314122">คุณสามารถนำเข้าบุ๊คมาร์คและการตั้งค่าจากเบราว์เซอร์อื่นรวมทั้งบัญชีผู้ใช้ในคอมพิวเตอร์เครื่องนี้ได้</translation>
 <translation id="6281636957902664775">ไปที่ <ph name="URL"/></translation>
 <translation id="630065524203833229">&amp;ออก</translation>
 <translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
@@ -367,6 +393,7 @@
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (ค่าเริ่มต้น)</translation>
 <translation id="111844081046043029">คุณแน่ใจหรือไม่ว่าต้องการออกจากหน้านี้</translation>
 <translation id="4497415007571823067">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่คุณกลับเข้าถึงเซิร์ฟเวอร์ที่ระบุว่าตนเองเป็น &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; แทน ซึ่งอาจเกิดจากการกำหนดค่าที่ไม่ถูกต้องในเซิร์ฟเวอร์หรือสาเหตุอื่นที่ร้ายแรงกว่า ผู้โจมตีในเครือข่ายของคุณอาจพยายามที่จะให้คุณเข้าชม &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; รุ่นปลอมแปลง (และอาจก่อให้เกิดอันตราย) คุณไม่ควรดำเนินการต่อ</translation>
+<translation id="3202578601642193415">ใหม่ที่สุด</translation>
 <translation id="8112886015144590373"><ph name="NUMBER_FEW"/> ชั่วโมง</translation>
 <translation id="8739589585766515812">ลบประวัติการเข้าชมในวันนี้</translation>
 <translation id="1398853756734560583">ย่อ</translation>
@@ -377,6 +404,7 @@
 <translation id="5260878308685146029">เหลือ <ph name="NUMBER_TWO"/> นาที</translation>
 <translation id="2192505247865591433">จาก:</translation>
 <translation id="5921544176073914576">หน้าฟิชชิ่ง</translation>
+<translation id="6192792657125177640">ข้อยกเว้น</translation>
 <translation id="2822650824848709219">ป้องกันเนื้อหาที่ไม่ปลอดภัยทั้งหมด</translation>
 <translation id="1901303067676059328">เลือก&amp;ทั้งหมด</translation>
 <translation id="2168039046890040389">เลื่อนหน้าขึ้น</translation>
@@ -403,6 +431,7 @@
 <translation id="154603084978752493">เพิ่มเป็นเ&amp;ครื่องมือค้นหา...</translation>
 <translation id="3254409185687681395">บุ๊คมาร์คหน้านี้</translation>
 <translation id="1384616079544830839">ข้อมูลประจำตัวของเว็บไซต์นี้ได้รับการยืนยันโดย <ph name="ISSUER"/></translation>
+<translation id="1800035677272595847">ฟิชชิ่ง</translation>
 <translation id="4610637590575890427">คุณหมายความว่าต้องการไปที่ <ph name="SITE"/> หรือไม่</translation>
 <translation id="8349305172487531364">แถบบุ๊คมาร์ค</translation>
 <translation id="7208899522964477531">ค้นหาข้อความ <ph name="SEARCH_TERMS"/> จาก <ph name="SITE_NAME"/></translation>
@@ -422,6 +451,7 @@
 <translation id="3745810751851099214">ส่งให้:</translation>
 <translation id="8877448029301136595">[ไดเรกทอรีหลัก]</translation>
 <translation id="1963227389609234879">ลบทั้งหมด</translation>
+<translation id="7052633198403197513">F1</translation>
 <translation id="2496180316473517155">ประวัติการเข้าชมที่เรียกดู</translation>
 <translation id="602251597322198729">ไซต์นี้พยายามดาวน์โหลดไฟล์หลายไฟล์ คุณจะอนุญาตหรือไม่</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> ชั่วโมง</translation>
@@ -479,7 +509,6 @@
 <translation id="1526560967942511387">เอกสารที่ไม่ระบุชื่อ</translation>
 <translation id="5538307496474303926">กำลังลบ...</translation>
 <translation id="6783679543387074885">รายงานข้อบกพร่องหรือเว็บไซต์ที่ใช้งานไม่ได้</translation>
-<translation id="8412968288526977732">เซิร์ฟเวอร์ <ph name="DOMAIN"/> ที่ <ph name="TITLE"/> จำเป็นต้องมีชื่อผู้ใช้และรหัสผ่าน</translation>
 <translation id="5285267187067365830">ติดตั้งปลั๊กอิน...</translation>
 <translation id="8015746205953933323">หน้าเว็บนี้ไม่พร้อมใช้งาน</translation>
 <translation id="8520668773617044689">Firefox</translation>
@@ -496,6 +525,7 @@
 <translation id="2115926821277323019">ต้องเป็น URL ที่ถูกต้อง</translation>
 <translation id="7397054681783221164">ลบรายการต่อไปนี้:</translation>
 <translation id="4891251785049117953">ลบข้อมูลฟอร์มที่บันทึกไว้</translation>
+<translation id="5230516054153933099">หน้าต่าง</translation>
 <translation id="7554791636758816595">แท็บใหม่</translation>
 <translation id="4400697530699263877">ใช้การดึงข้อมูล DNS ล่วงหน้าเพื่อเพิ่มประสิทธิภาพการโหลดหน้าเว็บ</translation>
 <translation id="1086613338090581534">สำหรับใบรับรองที่ยังไม่หมดอายุ ผู้ออกใบรับรองฉบับนั้นมีหน้าที่รับผิดชอบในการรักษาสิ่งที่เรียกว่า &quot;รายการเพิกถอน&quot; หากไม่ได้ปฏิบัติตามเงื่อนไขใบรับรอง ผู้ออกใบรับรองสามารถเพิกถอนใบรับรองได้โดยการเพิ่มเข้าไปในรายการเพิกถอน จากนั้น ใบรับรองฉบับดังกล่าวก็จะไม่เป็นที่น่าเชื่อถือแก่เบราว์เซอร์ของคุณอีกต่อไป สถานะการเพิกถอนไม่จำเป็นจะต้องถูกรักษาไว้สำหรับใบรับรองที่หมดอายุแล้ว ดังนั้น แม้ว่าใบรับรองนี้เคยใช้ได้กับเว็บไซต์ที่คุณกำลังเข้าชม เราไม่สามารถพิจารณาได้ในขณะนี้ว่า ไม่ได้ปฏิบัติตามเงื่อนไขของใบรับรองซึ่งทำให้ถูกเพิกถอนในเวลาต่อมา หรือใบรับรองยังคงใช้ได้อยู่หรือไม่ ในกรณีดังกล่าวเราจึงไม่สามารถบอกได้ว่าคุณกำลังสื่อสารอยู่กับเว็บไซต์ที่ถูกต้อง หรือไม่ได้ปฏิบัติตามเงื่อนไขใบรับรอง และถูกครอบงำโดยผู้โจมตีที่คุณกำลังสื่อสารอยู่ด้วยอยู่ในขณะนี้ คุณไม่ควรดำเนินการผ่านจุดนี้ไป</translation>
@@ -526,6 +556,8 @@
 <translation id="1618661679583408047">ใบรับรองความปลอดภัยของเซิร์ฟเวอร์ยังไม่ถูกต้อง!</translation>
 <translation id="9040508646567685134">สคริปต์ที่ใช้ในหน้านี้ใช้เวลาในการดำเนินการนานมาก คุณต้องการทราบว่าสคริปต์จะทำงานสำเร็จหรือไม่ หรือคุณต้องการยกเลิก</translation>
 <translation id="3065140616557457172">พิมพ์เพื่อค้นหาหรือป้อน URL เพื่อไปยังทุกๆ เรื่องที่สามารถแสดงผลได้</translation>
+<translation id="5986279928654338866">เซิร์ฟเวอร์ <ph name="DOMAIN"/> จำเป็นต้องมีชื่อผู้ใช้และรหัสผ่าน</translation>
+<translation id="7056713340842386352">เข้าชมบ่อยสุด [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="5765780083710877561">คำอธิบาย:</translation>
 <translation id="7221869452894271364">โหลดหน้านี้ใหม่</translation>
 <translation id="8646430701497924396">ใช้ SSL 2.0</translation>
@@ -563,24 +595,32 @@
 <translation id="5333374927882515515">นำเข้าบุ๊คมาร์ค รหัสผ่าน และการตั้งค่าอื่นจาก <ph name="DEF_BROWSER"/></translation>
 <translation id="4239831617079978238">สิ้นสุดเซสชัน</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(ต่อ)</translation>
 <translation id="3748412725338508953">มีการเปลี่ยนเส้นทางมากเกินไป</translation>
 <translation id="8929159553808058020">เพิ่มภาษาที่คุณใช้เพื่ออ่านเว็บไซต์โดยแสดงลำดับตามความต้องการ เพิ่มเฉพาะภาษาที่คุณต้องการเท่านั้น เนื่องจากอักขระบางตัวสามารถใช้เพื่อปลอมแปลงเว็บไซต์ในภาษาอื่นได้</translation>
 <translation id="8831104962952173133">ตรวจพบฟิชชิ่ง!</translation>
+<translation id="2614223168876839822">ล้างข้อมูลที่เรียกดูจากคอมพิวเตอร์เครื่องนี้ โปรดระมัดระวังว่าการล้างข้อมูลอาจส่งผลกระทบต่อเนื้อหาของหน้าแท็บใหม่</translation>
 <translation id="4745142959976410383">หากคุณไม่ได้ริเริ่มคำขอนี้ นี่อาจจะเป็นตัวแทนของความพยายามในการโจมตีระบบของคุณ คุณควรกด ยกเิลิก ยกเว้นว่าคุณได้กระทำการอย่างชัดเจนที่จะเริ่มต้นคำขอนี้</translation>
+<translation id="1897258631034940238">เว็บไซต์ที่ &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; มีองค์ประกอบจากเว็บไซต์ที่ได้รับรายงานว่าเป็นไซต์ &quot;ฟิชชิ่ง&quot; เว็บไซต์ฟิชชิ่งหลอกลวงผู้ใช้ให้เปิดเผยข้อมูลส่วนตัวหรือข้อมูลทางการเงิน ด้วยการแสร้งว่าเป็นตัวแทนของสถาบันที่น่าเชื่อถือ เช่น ธนาคาร</translation>
 <translation id="8288345061925649502">เปลี่ยนเครื่องมือค้นหา</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> วินาที</translation>
-<translation id="6652942492341627832">บันทึกและแสดงข้อความที่พิมพ์ในฟิลด์ที่คล้ายคลึงกัน</translation>
 <translation id="5139955368427980650">เ&amp;ปิด</translation>
+<translation id="7088615885725309056">เก่ากว่า</translation>
 <translation id="746319800473277382">ไปที่หน้าแรกของเว็บไซต์นี้:</translation>
 <translation id="8562413501751825163">ปิด Firefox ก่อนนำเข้าข้อมูล</translation>
 <translation id="5034259512732355072">เลือกไดเรกทอรีอื่น...</translation>
+<translation id="5074322878757699801">นำเข้าข้อมูล...</translation>
 <translation id="5706242308519462060">การเข้ารหัสเริ่มต้น:</translation>
+<translation id="5280833172404792470">ออกจากการแสดงเต็มหน้าจอ (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">เพิ่งปิด</translation>
 <translation id="8355915647418390920"><ph name="NUMBER_FEW"/> วัน</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">เปิดใช้งาน JavaScript</translation>
 <translation id="6451458296329894277">ยืนยันการส่งแบบฟอร์มอีกครั้ง</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> ชั่วโมง</translation>
 <translation id="1851266746056575977">อัปเดทเดี๋ยวนี้</translation>
+<translation id="19901320010520290">เว็บไซต์ที่ &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; มีองค์ประกอบจากเว็บไซต์ที่มีมัลแวร์  ซอฟต์แวร์ที่สามารถทำลายคอมพิวเตอร์ของคุณหรืออาจดำเนินการแทนคุณโดยไม่ได้รับอนุญาต เพียงแค่การเข้าชมเว็บไซต์ที่มีมัลแวร์ก็สามารถทำให้คอมพิวเตอร์ของคุณเป็นอันตรายได้ เว็บไซต์ยังโฮสต์เนื้อหาจากไซต์ที่ได้รับรายงานว่าเป็นไซต์ &quot;ฟิชชิ่ง&quot; เว็บไซต์ฟิชชิ่งหลอกลวงผู้ใช้ให้เปิดเผยข้อมูลส่วนตัวหรือข้อมูลทางการเงิน ด้วยการแสร้งว่าเป็นตัวแทนของสถาบันที่น่าเชื่อถือ เช่น ธนาคาร</translation>
 <translation id="9065203028668620118">แก้ไข</translation>
 <translation id="4867297348137739678">สัปดาห์ที่แล้ว</translation>
 <translation id="4881695831933465202">เปิด</translation>
@@ -588,6 +628,7 @@
 <translation id="6644971472240498405"><ph name="NUMBER_ONE"/> วัน</translation>
 <translation id="6512448926095770873">ออกจากหน้านี้</translation>
 <translation id="5607455023223000189">ติดตั้งปลั๊กอินแล้ว...</translation>
+<translation id="7009102566764819240">ด้านล่างคือรายการองค์ประกอบที่ไม่ปลอดภัยทั้งหมดสำหรับหน้าเว็บ คลิกบนลิงก์ วินิจฉัย สำหรับข้อมูลเพิ่มเติมเพื่อดูองก์ประกอบเฉพาะ หากคุณทราบว่าแหล่งข้อมูลนั้นได้รับการรายงานผิดว่าเป็นฟิชชิ่ง ให้คลิกลิงก์ 'รายงานข้อผิดพลาด'</translation>
 <translation id="494645311413743213">เหลือ <ph name="NUMBER_TWO"/> วินาที</translation>
 <translation id="1485146213770915382">เพิ่ม <ph name="SEARCH_TERMS_LITERAL"/> ใน URL ที่คำค้นหาควรปรากฏขึ้น</translation>
 <translation id="5626134646977739690">ชื่อ:</translation>
@@ -602,8 +643,10 @@
 <translation id="486595306984036763">เปิดรายงานฟิชชิ่ง</translation>
 <translation id="1568162916422682473">ปลั๊กอินต่อไปนี้ไม่สามารถใช้งานได้ : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">ตั้งค่าเริ่มต้นใหม่</translation>
+<translation id="170407012880898501">บันทึกข้อความจากแบบฟอร์มเพื่อกรอกข้อความได้ง่ายขึ้น</translation>
 <translation id="8116972784401310538">ตั&amp;วจัดการบุ๊คมาร์ค</translation>
 <translation id="6040143037577758943">ปิด</translation>
+<translation id="4943872375798546930">ไม่มีผลการค้นหา</translation>
 <translation id="4910619056351738551">ต่อไปนี้คือคำแนะนำ:</translation>
 <translation id="7451556917824271099">เว็บไซต์ที่ &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; มีองค์ประกอบจากเว็บไซต์ &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; ที่มีมัลแวร์ – ซอร์ฟแวร์ที่สามารถทำลายคอมพิวเตอร์ของคุณหรืออาจดำเนินการแทนคุณโดยไม่ได้รับอนุญาต  เพียงแค่การเข้าชมเว็บไซต์ที่มีมัลแวร์ก็สามารถทำให้คอมพิวเตอร์ของคุณติดเชื้อได้</translation>
 <translation id="1232569758102978740">ไม่ระบุชื่อ</translation>
@@ -613,6 +656,7 @@
 <translation id="7442246004212327644">&amp;ลบ</translation>
 <translation id="9002707937526687073">&amp;พิมพ์...</translation>
 <translation id="5556459405103347317">โหลดใหม่</translation>
+<translation id="7727721885715384408">เปลี่ยนชื่อ...</translation>
 <translation id="5508407262627860757">ยกเลิก</translation>
 <translation id="7587108133605326224">บอลติก</translation>
 <translation id="8598751847679122414">หน้าเว็บนี้มีการวนรอบเมื่อเปลี่ยนเส้นทาง</translation>
@@ -631,17 +675,21 @@
 <translation id="4745438305783437565"><ph name="NUMBER_FEW"/> นาที</translation>
 <translation id="2649911884196340328">ใบรับรองการรักษาความปลอดภัยของเซิร์ฟเวอร์มีข้อผิดพลาด!</translation>
 <translation id="1963692530539281474">เหลือ <ph name="NUMBER_DEFAULT"/> วัน</translation>
+<translation id="668171684555832681">อื่นๆ...</translation>
 <translation id="3108416241300843963">คำขอล้มเหลวเนื่องจากใบรับรองของเซิร์ฟเวอร์ไม่ถูกต้อง</translation>
 <translation id="116506693382293616">องค์ประกอบบางอย่างในหน้านี้ถูกเรียกคืนผ่านการเชื่อมต่อที่มีความผิดพลาด SSL</translation>
 <translation id="7887455386323777409">ปิดใช้งานปลั๊กอิน</translation>
 <translation id="3761000923495507277">แสดงปุ่ม Home บนแถบเครื่องมือ</translation>
 <translation id="8709969075297564489">ตรวจสอบการเพิกถอนใบรับรองของเซิร์ฟเวอร์</translation>
+<translation id="8698171900303917290">พบปัญหาในการติดตั้งใช่หรือไม่</translation>
+<translation id="2552545117464357659">ใหม่กว่า</translation>
 <translation id="5869522115854928033">รหัสผ่านที่บันทึกไว้</translation>
 <translation id="1709220265083931213">ขั้นสูง</translation>
 <translation id="4771973620359291008">มีข้อผิดพลาดที่ไม่ทราบเกิดขึ้น</translation>
 <translation id="8155798677707647270">กำลังติดตั้งรุ่นใหม่...</translation>
 <translation id="6886871292305414135">เปิดลิงก์ในแ&amp;ท็บใหม่</translation>
 <translation id="6308937455967653460">บันทึก&amp;ลิงก์เป็น...</translation>
+<translation id="5421136146218899937">ล้างข้อมูลการเข้าชม...</translation>
 <translation id="3943582379552582368">&amp;ย้อนกลับ</translation>
 <translation id="7607002721634913082">หยุดชั่วคราว</translation>
 <translation id="480990236307250886">เปิดหน้าแรก</translation>
@@ -661,6 +709,7 @@
 <translation id="1702534956030472451">ยุโรป</translation>
 <translation id="9141716082071217089">ไม่สามารถตรวจสอบได้ว่าใบรับรองของเซิร์ฟเวอร์ถูกเพิกถอนหรือไม่</translation>
 <translation id="4304224509867189079">เข้าสู่ระบบ</translation>
+<translation id="4492190037599258964">ผลการค้นหาคำว่า '<ph name="SEARCH_STRING"/>'</translation>
 <translation id="988159990683914416">รุ่นนักพัฒนา</translation>
 <translation id="3705722231355495246">-</translation>
 <translation id="4268574628540273656">URL:</translation>
@@ -669,6 +718,7 @@
 <translation id="1664314758578115406">เพิ่มหน้าเว็บ...</translation>
 <translation id="4084682180776658562">บุ๊คมาร์ค</translation>
 <translation id="4381091992796011497">ชื่อผู้ใช้:</translation>
+<translation id="7669151579173473971">หน้า&amp;ต่างใหม่ในโปรไฟล์</translation>
 <translation id="5822838715583768518">เปิดใช้งานแอปพลิเคชัน</translation>
 <translation id="6756161853376828318">ทำให้ <ph name="PRODUCT_NAME"/> เป็นเบราว์เซอร์เริ่มต้นของฉัน</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
@@ -681,6 +731,7 @@
 <translation id="1273291576878293349">เปิดบุ๊คมาร์คทั้งหมดในหน้าต่างใหม่ที่ไม่ระบุตัวตน</translation>
 <translation id="3455546154539383562">คุณพยายามเข้าถึง &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; แต่ผู้ออกใบรับรองได้เพิกถอนใบรับรองที่เซิร์ฟเวอร์แสดง ซึ่งหมายถึงว่า ใบรับรองความปลอดภัยที่เซิร์ฟเวอร์แสดงนั้นไม่น่าเชื่อถือโดยสิ้นเชิง คุณอาจกำลังสื่อสารอยู่กับผู้โจมตี คุณไม่ควรดำเนินการต่อ</translation>
 <translation id="1177437665183591855">ข้อผิดพลาดใบรับรองของเซิร์ฟเวอร์ที่ไม่รู้จัก</translation>
+<translation id="3819800052061700452">เ&amp;ต็มหน้าจอ</translation>
 <translation id="3737554291183722650">ชื่อของหน้าเว็บ:</translation>
 <translation id="4726901538158498735">เครื่องมือค้นหาเริ่มต้น:</translation>
 <translation id="5101042277149003567">เปิดบุ๊คมาร์คทั้งหมด</translation>
@@ -691,6 +742,7 @@
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="385051799172605136">กลับ</translation>
 <translation id="1208126399996836490">อย่าตั้งค่าใหม่</translation>
+<translation id="806812017500012252">จัดลำดับใหม่ตามชื่อ</translation>
 <translation id="2960316970329790041">หยุดการนำเข้า</translation>
 <translation id="1731911755844941020">กำลังส่งคำขอ...</translation>
 <translation id="1038842779957582377">ไม่ทราบชื่อ</translation>
@@ -710,6 +762,7 @@
 <translation id="5233231016133573565">รหัสดำเนินการ</translation>
 <translation id="5941711191222866238">ย่อ</translation>
 <translation id="7167486101654761064">เปิดไฟล์ประเภทนี้เ&amp;สมอ</translation>
+<translation id="6053401458108962351">&amp;ล้างข้อมูลการเข้าชม...</translation>
 <translation id="2339641773402824483">กำลังตรวจสอบเพื่ออัปเดต...</translation>
 <translation id="2766006623206032690">&amp;วางแล้วไป</translation>
 <translation id="9071050381089585305">สคริปต์ไม่ตอบสนอง</translation>

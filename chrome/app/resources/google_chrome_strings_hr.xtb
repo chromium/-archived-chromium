@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="hr">
+<translation id="6676384891291319759">Pristup Internetu</translation>
 <translation id="8579274574697852281">Google Chrome zahtijeva sustav Windows Vista ili Windows XP sa SP1 ili novijim.</translation>
 <translation id="698670068493841342">Google Chrome je već instaliran za ovog korisnika. Ako softver ne radi, deinstalirajte Google Chrome i ponovno ga preuzmite.</translation>
 <translation id="7400722733683201933">O programu Google Chrome</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">Područje &quot;Najposjećenije&quot; prikazuje web lokacije koje najčešće koristite. Nakon što neko vrijeme budete koristili Google Chrome, prilikom svakog otvaranja nove kartice vidjet ćete Vaše najposjećenije stranice. Više pojedinosti o ovom i drugim značajkama možete saznati na <ph name="BEGIN_LINK"/>stranici Prvi koraci<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Instalacija nije uspjela zbog nepoznate pogreške. Ako je program Google Chrome trenutno otvoren, zatvorite ga i pokušajte ponovno.</translation>
 <translation id="4149882025268051530">Program za instalaciju nije dekomprimirao arhivu. Ponovno preuzmite program Google Chrome.</translation>
+<translation id="4343226815564935778">Čini se da je instalacijski direktorij preglednika Google Chrome u upotrebi. Ponovno pokrenite računalo i pokušajte još jednom.</translation>
+<translation id="4506896920521131223">Autorsko pravo © 2006-2009 Google Inc. Sva prava pridržana.</translation>
 <translation id="6817660909204164466">Automatskim slanjem statistike o korištenju i izvješća o padu sustava u Google, pomognite nam da poboljšamo Google Chrome</translation>
 <translation id="8227755444512189073">Google Chrome treba pokrenuti vanjsku aplikaciju da bi mogao koristiti veze <ph name="SCHEME"/>. Zatražena je veza <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Alatna traka programa Google Chrome:</translation>
 <translation id="6481075104394517441">Pokušali ste pristupiti domeni &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ali je poslužitelj prikazao potvrdu koja još nije valjana. Nema dostupnih podataka koji bi pokazali može li se vjerovati potvrdi. Google Chrome ne može pouzdano jamčiti da komunicirate s domenom &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, a ne s napadačem. Trebali biste provjeriti jesu li sat i vremenska zona ispravno postavljeni na Vašem računalu. Ako nisu, ispravite to i osvježite ovu stranicu. Ako su ispravni, ne biste trebali nastaviti dalje.</translation>
+<translation id="8862326446509486874">Nemate odgovarajuća prava za instaliranje na razini sustava. Pokušajte ponovno pokrenuti program za instalaciju kao administrator.</translation>
 <translation id="2874156562296220396">Google Chrome omogućili su <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/>, projekt utemeljen na otvorenom kôdu i drugi <ph name="BEGIN_LINK_OSS"/>softveri utemeljeni na otvorenom kôdu <ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome se sprema dovršiti Vašu instalaciju.</translation>
 <translation id="7100330187273168372">Google Chrome ne može čitati iz svojeg podatkovnog direktorija niti u njega pisati:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">Neka Google Chrome bude zadani preglednik.</translation>
 <translation id="4127951844153999091">U tom slučaju adresa navedena u potvrdi ne odgovara adresi web lokacije na koju je pokušao otići Vaš preglednik. Jedan od mogućih razloga je taj da Vaše komunikacije presreće napadač koji prikazuje potvrdu za drugu web lokaciju, zbog čega dolazi do nepodudaranja. Drugi je mogući razlog taj što je poslužitelj postavljen tako da vraća istu potvrdu za više web lokacija, uključujući i za onu koju pokušavate posjetiti, iako ta potvrda nije valjana za sve te web lokacije. Google Chrome može sa sigurnošću reći da ste pristupili domeni &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ali ne može provjeriti da je ta web lokacija ista kao &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; kojoj ste htjeli pristupiti. Ako nastavite, Chrome neće provjeravati dodatna nepodudaranja naziva. Općenito govoreći, najbolje je da ne nastavite.</translation>
+<translation id="2712549016134575851">Otkriven je sukob s drugom instaliranom aplikacijom.</translation>
 <translation id="7161904924553537242">Dobro došli u Google Chrome</translation>
 <translation id="8236873504073475138">Google Chrome ne podržava sustav Windows 2000. Neke značajke možda neće raditi.</translation>
-<translation id="8172671748763307156">Jeste li sigurni da želite deinstalirati program Google Chrome? (Jesmo li Vas nekako uvrijedili?)</translation>
 <translation id="5046764976540625289">Zatvori Chrome</translation>
+<translation id="8865765905101981392">Internetski preglednik</translation>
 <translation id="582763753075639530">Zatvorite sve Chrome prozore i ponovno pokrenite Chrome kako bi ova promjena stupila na snagu.</translation>
 <translation id="8776515774046280928">Google Chrome je već instaliran i dostupan svim korisnicima ovog računala. Ako želite instalirati Google Chrome na razini korisnika, prvo deinstalirajte verziju na razini sustava koju je instalirao administrator.</translation>
 <translation id="3335672657969596251">Google Chrome ne podržava sustav <ph name="OS_NAME"/>.</translation>
 <translation id="3636771339108070045">Ovo računalo već ima noviju verziju programa Google Chrome. Ako softver ne radi, deinstalirajte Google Chrome i ponovno ga preuzmite.</translation>
+<translation id="3396666154568987767">Google Chrome za <ph name="PROFILE_NAME"/></translation>
 <translation id="1964682833763362793">Zatvorite sve Chrome prozore i pokušajte ponovno.</translation>
 <translation id="1001534784610492198">Arhiva programa za instalaciju je oštećena ili nevažeća. Ponovno preuzmite program Google Chrome.</translation>
 <translation id="6626317981028933585">Na žalost postavke vašeg preglednika Mozilla Firefox nisu dostupne dok je preglednik otvoren. Da biste te postavke unijeli u Google Chrome, spremite svoj posao i zatvorite sve prozore preglednika Firefox. Zatim kliknite &quot;Nastavak&quot;.</translation>

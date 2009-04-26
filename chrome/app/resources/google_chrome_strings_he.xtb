@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="he">
+<translation id="6676384891291319759">גישה אל האינטרנט</translation>
 <translation id="8579274574697852281">להפעלת Google Chrome יש להשתמש במערכת ההפעלה Windows Vista או Windows XP, עם SP1 או מתקדמת יותר.</translation>
 <translation id="698670068493841342">Google Chrome הותקן כבר עבור משתמש זה. אם התוכנה אינה פועלת, הסר את Google Chrome שמותקן והורד אותו שוב.</translation>
 <translation id="7400722733683201933">על אודות  Google Chrome</translation>
@@ -13,7 +14,9 @@
 <translation id="1137776625614346046">האזור &quot;הכי פופולרי&quot; מציג את האתרים שביקרת בהם בתדירות הרבה ביותר. אחרי שתשתמש ב-Google Chrome למשך זמן מה, תראה את האתרים הפופולריים ביותר שלך בכל פעם שתפתח כרטיסייה חדשה. ניתן לקבל מידע נוסף על תכונה זו ועל תכונות נוספות בדף <ph name="BEGIN_LINK"/>התחלת העבודה<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">ההתקנה נכשלה בשל שגיאה לא צפויה. אם Google Chrome פועל כעת, סגור אותו ונסה שוב.</translation>
 <translation id="4149882025268051530">המתקין נכשל בביצוע דחיסה לארכיון. הורד שוב את Google Chrome.</translation>
-<translation id="6817660909204164466">עזור לשפר את Gogle Chrome באמצעות שליחת נתונים סטטיסטיים לגבי שימוש ודוחות קריסה באופן אוטומטי  Google</translation>
+<translation id="4343226815564935778">ספריית ההתקנה Google Chrome בשימוש. אתחל את המחשב מחדש ונסה שנית.</translation>
+<translation id="4506896920521131223">זכויות יוצרים © 2006-2009 Google Inc. כל הזכויות שמורות.</translation>
+<translation id="6817660909204164466">עזור לשפר את Google Chrome באמצעות שליחת נתונים סטטיסטיים לגבי שימוש ודוחות קריסה באופן אוטומטי</translation>
 <translation id="8227755444512189073">Google Chrome חייב לבצע יישום חיצוני על מנת לנהל <ph name="SCHEME"/> קישורים הקישור המבוקש הוא <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
 <translation id="8815061062167142136">אוי לא! Google Chrome קרס. להפעיל מחדש?</translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">סרגל הכלים של Google Chrome</translation>
 <translation id="6481075104394517441">ניסית להגיע אל &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, אך השרת הציג אישור שתוקפו פג. אין מידע זמין שיכול לרמוז על מידת אמינותו של האישור. Google Chrome אינו יכול להבטיח כי אתה מתקשר עם  &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ולא עם גורם תוקפן. מומלץ לוודא שהשעון ואזור הזמן שלך מוגדרים כהלכה במחשב שלך. אם הם לא מעודכנים, מומלץ לתקן את הבעיה ולרענן דף זה. אם הם מעודכנים, מומלץ לא להמשיך.</translation>
+<translation id="8862326446509486874">אין לך זכויות שמתאימות להתקנה ברמת המערכת. נסה להפעיל שוב את המתקין כמנהל.</translation>
 <translation id="2874156562296220396">Google Chrome התאפשר תודות לפרוייקט המקור הפתוח <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> ו<ph name="BEGIN_LINK_OSS"/>תוכנות מקור פתוח אחרות<ph name="END_LINK_OSS"/>.</translation>
 <translation id="6921913858457830952">Google Chrome מוכן להשלים את ההתקנה.</translation>
 <translation id="7100330187273168372">Google Chrome אינו יכול לקרוא ולכתוב אל ספריית המידע שלו:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">הפוך את Google Chrome לדפדפן ברירת המחדל</translation>
 <translation id="4127951844153999091">במקרה כזה, הכתובת שמופיעה באישור אינה תואמת לכתובת של האתר שאליו הדפדפן שלך ניסה להגיע. סיבה אפשרית לכך היא שהתכתובות שלך נלכדות על ידי גורם פוגע שמציג אישור עבור אתר שונה, ובעקבות זאת נוצרה אי ההתאמה. סיבה אפשרית נוספת היא שהשרת מוגדר להצגת אותו אישור עבור אתרים מרובים, לרבות האתר שבו אתה מנסה לבקר, גם אם האישור אינו תקף לכל אותם אתרים. Google Chrome יכול לקבוע בוודאות שהגעת ל&lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, אך אינו יכול לאמת כי הוא זהה ל-&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, שאליו ניסית להגיע. אם תמשיך, Chrome לא יחפש אי התאמות שמיות נוספות. ככלל, מומלץ לא להמשיך מעבר לנקודה זו.</translation>
+<translation id="2712549016134575851">אותרה התנגשות עם יישום מותקן אחר.</translation>
 <translation id="7161904924553537242">ברוך הבא ל-Google Chrome</translation>
 <translation id="8236873504073475138">Google Chrome אינו תומך ב-Windows 2000. תכונות מסוימות עלולות שלא לפעול.</translation>
-<translation id="8172671748763307156">האם אתה בטוח שברצונך לבטל את התקנת Google Chrome? (זה בגלל משהו שאמרנו?)</translation>
 <translation id="5046764976540625289">צא מ-Chrome</translation>
+<translation id="8865765905101981392">דפדפן אינטרנט</translation>
 <translation id="582763753075639530">כדי ששינוי זה ייכנס לתוקף, סגור את כל חלונות Chrome והתחל אותו מחדש.</translation>
 <translation id="8776515774046280928">Google Chrome כבר מותקן וזמין לכל המשתמשים במחשב זה. אם אתה מעוניין להתקין את Google Chrome ברמת המשתמש, עליך ראשית להסיר את הגרסה המותקנת ברמת המערכת אשר הותקנה על ידי המנהל.</translation>
 <translation id="3335672657969596251">Google Chrome אינו תומך ב <ph name="OS_NAME"/></translation>
 <translation id="3636771339108070045">במחשב זה קיימת כבר גרסה מתקדמת יותר של Google Chrome. אם התוכנה אינה פועלת, הסר את הדפדפן Google Chrome והורד אותו שוב.</translation>
+<translation id="3396666154568987767">Google Chrome עבור <ph name="PROFILE_NAME"/></translation>
 <translation id="1964682833763362793">סגור את כל חלונות Chrome ונסה שוב.</translation>
 <translation id="1001534784610492198">הארכיון של המתקין פגום או שאינו חוקי. הורד שוב את Google Chrome.</translation>
 <translation id="6626317981028933585">למרבה הצער, הגדרות Mozilla Firefox שלך אינן זמינות בשעה שהדפדפן פועל. על מנת לייבא הגדרות אלו ל-Google Chrome, שמור את עבודתך וסגור את כל חלונות Firefox. לאחר מכן, לחץ על 'המשך'.</translation>

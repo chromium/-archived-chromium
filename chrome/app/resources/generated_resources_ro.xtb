@@ -9,6 +9,7 @@
 <translation id="4405141258442788789">Operaţia a expirat.</translation>
 <translation id="5048179823246820836">Nordică</translation>
 <translation id="561349411957324076">Finalizat</translation>
+<translation id="4610656722473172270">Bara de instrumente Google</translation>
 <translation id="2088818908407967256">Această pagină conţine elemente nesigure.</translation>
 <translation id="1871244248791675517">Ins (Inseraţi)</translation>
 <translation id="2972581237482394796">&amp;Refaceţi</translation>
@@ -26,6 +27,7 @@
 <translation id="1383861834909034572">Se deschide când este complet</translation>
 <translation id="4211171103079968550">Activaţi Java</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">Serverul <ph name="DOMAIN"/> de la <ph name="REALM"/> necesită un nume de utilizator şi o parolă.</translation>
 <translation id="2193841602817119749">Site-ul Web de la &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; a fost raportat ca site de „phishing”.  Site-urile de phishing înşeală utilizatorii în a divulga informaţii personale sau financiare, deseori pretinzând a reprezenta instituţii de încredere, cum ar fi bănci.</translation>
 <translation id="8178665534778830238">Conţinut:</translation>
 <translation id="1379170046778889619">Informaţii de securitate</translation>
@@ -52,6 +54,7 @@
 <translation id="5819484510464120153">Creaţi &amp;comenzi rapide pentru aplicaţie...</translation>
 <translation id="1748246833559136615">Renunţaţi</translation>
 <translation id="8927064607636892008">Ceva a mers prost la afişarea acestei pagini Web. Pentru a continua, apăsaţi pe Reîncărcaţi sau vizitaţi altă pagină.</translation>
+<translation id="5667293444945855280">Malware</translation>
 <translation id="5613020302032141669">Săgeata spre stânga</translation>
 <translation id="3433489605821183222">Certificatul serverului conţine erori</translation>
 <translation id="6479177161510354016">Alertă <ph name="SITE"/></translation>
@@ -60,6 +63,7 @@
 <translation id="5516565854418269276">&amp;Afişează mereu bara de marcaje</translation>
 <translation id="6426222199977479699">Eroare SSL</translation>
 <translation id="443008484043213881">Instrumente</translation>
+<translation id="314605055819837597">Date utilizator</translation>
 <translation id="8534801226027872331">În acest caz, certificatul prezentat pentru browser-ul dvs. are erori şi nu poate fi înţeles. Aceasta poate însemna că nu putem înţelege informaţiile despre identitate din certificat sau că alte informaţii din certificat securizau până acum conexiunea. Nu trebuie să mergeţi mai departe.</translation>
 <translation id="4422347585044846479">Editaţi marcajul pentru această pagină</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -87,6 +91,7 @@
 <translation id="1720675772864601791">Permiteţi imaginile nesigure</translation>
 <translation id="5233638681132016545">Filă nouă</translation>
 <translation id="5210365745912300556">Închideţi fila</translation>
+<translation id="8806796506533854282">Introduceţi un nume nou de profil</translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="8571852575982769756">Nu este instalat niciun plug-in</translation>
 <translation id="7925285046818567682">Se aşteaptă <ph name="HOST_NAME"/>...</translation>
@@ -99,6 +104,7 @@
 <translation id="6746124502594467657">Mutaţi în jos</translation>
 <translation id="3383487468758466563">Fonturi şi limbi:</translation>
 <translation id="6163363155248589649">&amp;Normal</translation>
+<translation id="7222373446505536781">F11</translation>
 <translation id="3873963583678942942">(Fără titlu)</translation>
 <translation id="8725178340343806893">Favorite/Marcaje</translation>
 <translation id="3605499851022050619">Pagina de diagnostic Navigare sigură</translation>
@@ -114,12 +120,16 @@
 <translation id="7615851733760445951">&lt;niciun cookie selectat&gt;</translation>
 <translation id="3660179305079774227">Săgeata în sus</translation>
 <translation id="7400418766976504921">Adresa URL</translation>
+<translation id="5392041771307264501">Selectaţi un profil pentru a deschide o fereastră nouă</translation>
 <translation id="68541483639528434">Închideţi celelalte file</translation>
 <translation id="2897878306272793870">Sunteţi sigur că doriţi să deschideţi <ph name="TAB_COUNT"/> (de) file?</translation>
 <translation id="362276910939193118">Afişaţi întregul istoric</translation>
+<translation id="692135145298539227">ştergeţi</translation>
+<translation id="2663762871503078613">Transferaţi:</translation>
 <translation id="1635247229519770914">Continuaţi instalarea</translation>
 <translation id="8945419807169257367">Certificatul serverului nu poate fi verificat</translation>
 <translation id="5872213955895293073">Depanaţi JavaScript</translation>
+<translation id="1965338962645102116">Pentru a importa marcajele din Bara de instrumente în Chrome, trebuie să fiţi conectat la contul dvs. Google. Conectaţi-vă, apoi încercaţi din nou să importaţi.</translation>
 <translation id="5903264686717710770">Titlul:</translation>
 <translation id="8899851313684471736">Deschideţi linkul într-o &amp;fereastră nouă</translation>
 <translation id="6686490380836145850">Închideţi filele de la dreapta</translation>
@@ -129,9 +139,12 @@
 <translation id="2423578206845792524">Sal&amp;vaţi imaginea ca...</translation>
 <translation id="9068931793451030927">Calea:</translation>
 <translation id="7052402604161570346">Acest tip de fişier poate fi dăunător pentru computerul dvs. Sunteţi sigur că doriţi să descărcaţi <ph name="FILE_NAME"/>?</translation>
+<translation id="8642489171979176277">Importate din Bara de instrumente Google</translation>
+<translation id="2011110593081822050">Proces Worker Web: <ph name="WORKER_NAME"/></translation>
 <translation id="350069200438440499">Nume fişier:</translation>
 <translation id="8494979374722910010">Încercarea de conectare la server a eşuat.</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minute</translation>
+<translation id="5296476177639202243">Niciun marcaj nu corespunde interogării „<ph name="SEARCH_TEXT"/>”.</translation>
 <translation id="939736085109172342">Dosar nou</translation>
 <translation id="5641560969478423183">Certificatul serverului nu se potriveşte cu adresa URL</translation>
 <translation id="121827551500866099">Afişaţi toate descărcările...</translation>
@@ -141,6 +154,7 @@
 <translation id="3520476450377425184"><ph name="NUMBER_MANY"/> zile rămase</translation>
 <translation id="1059307158073710225">Verificare ortografică:</translation>
 <translation id="7643817847124207232">S-a pierdut conexiunea la Internet.</translation>
+<translation id="758007724455091072">Creaţi o comandă rapidă pe desktop pentru acest profil</translation>
 <translation id="932327136139879170">Pagina de pornire</translation>
 <translation id="5600907569873192868"><ph name="NUMBER_MANY"/> minute rămase</translation>
 <translation id="908263542783690259">Ştergeţi istoricul de navigare</translation>
@@ -152,6 +166,7 @@
 <translation id="3122464029669770682">Procesor</translation>
 <translation id="1684861821302948641">Opriţi paginile</translation>
 <translation id="5965640700983474726">Introduceţi text pentru a căuta</translation>
+<translation id="2142570832281562688">Introduceţi un nume de profil</translation>
 <translation id="5904714272463161824">&amp;Raportaţi o eroare sau un site Web cu probleme...</translation>
 <translation id="1608306110678187802">Cadru de p&amp;rintare...</translation>
 <translation id="4948468046837535074">Deschideţi următoarele pagini:</translation>
@@ -169,6 +184,7 @@
 <translation id="6151323131516309312">Apăsaţi pe <ph name="SEARCH_KEY"/> pentru a căuta în <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">Ştergeţi istoricul descărcărilor</translation>
 <translation id="2503522102815150840">Eroare browser</translation>
+<translation id="6786747875388722282">Extensii</translation>
 <translation id="2815500128677761940">Bara de marcaje</translation>
 <translation id="8041183585493091279">Adresa URL pentru serviciul de sugestii:</translation>
 <translation id="9189691339671500905">Setaţi motorul de căutare utilizat în omnibox.</translation>
@@ -202,6 +218,7 @@
 <translation id="7905536804357499080">Utilizaţi prezenta</translation>
 <translation id="7378810950367401542">/</translation>
 <translation id="3087734570205094154">Jos</translation>
+<translation id="1871540228654219948">Site-ul Web de la &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; conţine elemente de pe site-uri care par a găzdui malware – software care poate dăuna computerului sau care poate funcţiona fără consimţământul dvs. Computerul poate fi infectat prin simpla accesare a unui site care conţine malware.</translation>
 <translation id="8899388739470541164">Vietnameză</translation>
 <translation id="4089663545127310568">Ştergeţi parolele salvate</translation>
 <translation id="6500444002471948304">Adăugaţi dosar...</translation>
@@ -230,6 +247,7 @@
 <translation id="877010697526426622">Pagina Web de la &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; poate fi oprită temporar sau a fost mutată la o nouă adresă Web.</translation>
 <translation id="4378551569595875038">Se conectează...</translation>
 <translation id="7029809446516969842">Parole</translation>
+<translation id="8211437954284917092">Introduceţi o interogare în câmpul text de mai sus pentru a căuta în marcajele proprii.</translation>
 <translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> fişiere</translation>
 <translation id="6805291412499505360">Restricţionaţi modul de utilizare a cookie-urilor de la terţe părţi</translation>
 <translation id="1201402288615127009">Înainte</translation>
@@ -239,6 +257,7 @@
 <translation id="254416073296957292">Setaţi &amp;limba...</translation>
 <translation id="4222982218026733335">Certificat de server nevalabil</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aţi trecut în modul incognito<ph name="END_BOLD"/>. Paginile pe care le vedeţi în această fereastră nu vor apărea în istoricul browserului sau în istoricul căutării şi nu vor lăsa urme pe computer, cum ar fi cookie-uri, după ce închideţi fereastra incognito. Cu toate acestea, vor fi păstrate orice fişiere descărcate sau marcaje create.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Intrarea incognito nu afectează comportamentul altor persoane, servere sau aplicaţii software. Fiţi atent la:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Site-urile Web care colectează sau distribuie informaţii despre dvs.<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Furnizorii de servicii Internet sau angajaţii care urmăresc paginile pe care le vizitaţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Aplicaţiile software dăunătoare care urmăresc apăsarea tastelor în schimbul emoticoanelor gratuite<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Supravegherea de către agenţi secreţi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Persoanele care stau în spatele dvs.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Aflaţi mai multe<ph name="END_LINK"/> despre accesarea incognito.</translation>
+<translation id="4439241094464540230">&lt;Profil nou&gt;...</translation>
 <translation id="1813414402673211292">Ştergeţi datele de navigare</translation>
 <translation id="2356762928523809690">Serverul de actualizare nu este disponibil (eroare: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="5436510242972373446">Căutaţi în <ph name="SITE_NAME"/>:</translation>
@@ -251,6 +270,7 @@
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> zile</translation>
 <translation id="8453184121293348016">Nu a fost găsit niciun mecanism de revocare</translation>
 <translation id="7163503212501929773"><ph name="NUMBER_MANY"/> ore rămase</translation>
+<translation id="3283719377675052581">necunoscut</translation>
 <translation id="374530189620960299">Certificatul de securitate al site-ului nu prezintă garanţie!</translation>
 <translation id="5048040498971143039">Rezultatele de căutare pentru '<ph name="SEARCH_STRING"/>'</translation>
 <translation id="5453632173748266363">Chirilică</translation>
@@ -259,6 +279,7 @@
 <translation id="1120098871254928930">Permiteţi încărcarea întregului conţinut</translation>
 <translation id="3994878504415702912">&amp;Zoom</translation>
 <translation id="5602600725402519729">&amp;Reîncărcaţi</translation>
+<translation id="9010612682952491200">Filă nouă [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="7965010376480416255">Memorie comună</translation>
 <translation id="6248988683584659830">Setări de căutare</translation>
 <translation id="8887733174653581061">Mereu deasupra</translation>
@@ -271,6 +292,7 @@
 <translation id="6295228342562451544">Când vă conectaţi la un site Web sigur, serverul care găzduieşte acel site prezintă browser-ului dvs. un „certificat” pentru a-i confirma identitatea. Acest certificat conţine informaţii despre identitate, cum ar fi adresa site-ului Web, care sunt verificate de o terţă parte de încredere pentru computerul dvs. Verificând dacă adresa din certificat se potriveşte cu adresa site-ului Web, puteţi confirma comunicarea dvs. cu site-ul pe care aţi intenţionat să-l accesaţi şi nu cu o terţă parte (cum ar fi un atacator din reţeaua dvs.).</translation>
 <translation id="5502500733115278303">Transferate din Firefox</translation>
 <translation id="569109051430110155">Detectare automată</translation>
+<translation id="4408599188496843485">&amp;Ajutor</translation>
 <translation id="2800662284745373504">Certificatul serverului nu este valabil</translation>
 <translation id="2681441671465314329">Goliţi memoria cache</translation>
 <translation id="6222380584850953107">Afişaţi parolele salvate</translation>
@@ -282,6 +304,7 @@
 <translation id="7910768399700579500">Dosar &amp;nou</translation>
 <translation id="6883611015375728278">Blocaţi toate cookie-urile</translation>
 <translation id="3819791248093819058">Nu a fost găsită nicio pagină Web pentru adresa: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">Ştergeţi datele:</translation>
 <translation id="6710213216561001401">Înapoi</translation>
 <translation id="583281660410589416">Necunoscut</translation>
 <translation id="5528368756083817449">Manager de marcaje</translation>
@@ -303,6 +326,7 @@
 <translation id="6449085810994685586">&amp;Verificaţi ortografic textul din acest câmp</translation>
 <translation id="50960180632766478"><ph name="NUMBER_FEW"/> minute rămase</translation>
 <translation id="8664389313780386848">&amp;Vedeţi sursa paginii</translation>
+<translation id="3089982169226026948">Selectaţi un profil</translation>
 <translation id="57646104491463491">Data modificării</translation>
 <translation id="3867260226944967367">Această pagină Web nu este găsită.</translation>
 <translation id="6507969014813375884">Chineză simplificată</translation>
@@ -322,9 +346,10 @@
 <translation id="965674096648379287">Această pagină Web necesită date pe care le-aţi introdus anterior, pentru a fi afişată corespunzător. Puteţi trimite aceste date din nou, dar astfel veţi repeta orice acţiuni realizate anterior de această pagină. Apăsaţi pe Reîncărcaţi pentru a retrimite acele date şi a afişa această pagină.</translation>
 <translation id="43742617823094120">În acest caz, certificatul prezentat browser-ului dvs. a fost revocat de emitentul său. Aceasta înseamnă că, de obicei, integritatea acestui certificat a fost compromisă şi că certificatul nu mai prezintă garanţie. În niciun caz nu trebuie să mergeţi mai departe.</translation>
 <translation id="2065985942032347596">Autentificare obligatorie</translation>
-<translation id="1882575713358235784">Ştergeţi &amp;datele de navigare...</translation>
 <translation id="1175364870820465910">&amp;Printaţi...</translation>
 <translation id="3866249974567520381">Descriere</translation>
+<translation id="5552632479093547648">S-au detectat malware şi phishing!</translation>
+<translation id="9118804773997839291">Mai jos puteţi găsi o listă cu toate elementele nesigure ale paginii. Faceţi clic pe linkul Diagnostic pentru a obţine informaţii suplimentare cu privire la firul de execuţie pentru un anumit element.</translation>
 <translation id="7754704193130578113">Întreabă-mă unde salvez fiecare fişier înainte de a efectua descărcarea</translation>
 <translation id="2497284189126895209">Toate fişierele</translation>
 <translation id="435463392378565996">Mici ajustări</translation>
@@ -334,6 +359,7 @@
 <translation id="5256138355144269748">Fereastră de tip pop-up blocată</translation>
 <translation id="2820806154655529776"><ph name="NUMBER_ONE"/> secundă</translation>
 <translation id="3122496702278727796">Crearea directorului de date a eşuat</translation>
+<translation id="8446970197849314122">Puteţi importa marcajele şi setările dvs. din alte browsere şi conturi de utilizator de pe acest computer.</translation>
 <translation id="6281636957902664775">Vizitaţi adresa <ph name="URL"/></translation>
 <translation id="630065524203833229">&amp;Ieşiţi</translation>
 <translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
@@ -367,6 +393,7 @@
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Prestabilit)</translation>
 <translation id="111844081046043029">Sigur doriţi să părăsiţi această pagină?</translation>
 <translation id="4497415007571823067">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar aţi accesat de fapt un server autoidentificat ca &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Motivul ar putea fi o configurare greşită pe server sau ceva mai grav. Un atacator de pe reţeaua dvs. ar putea încerca să vă determine să accesaţi o versiune falsă (şi posibil rău-intenţionată) de &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Nu trebuie să mergeţi mai departe.</translation>
+<translation id="3202578601642193415">Cele mai noi</translation>
 <translation id="8112886015144590373"><ph name="NUMBER_FEW"/> ore</translation>
 <translation id="8739589585766515812">Ştergeţi istoricul pentru această zi</translation>
 <translation id="1398853756734560583">Maximizaţi</translation>
@@ -377,6 +404,7 @@
 <translation id="5260878308685146029"><ph name="NUMBER_TWO"/> minute rămase</translation>
 <translation id="2192505247865591433">Din:</translation>
 <translation id="5921544176073914576">Pagină de phishing</translation>
+<translation id="6192792657125177640">Excepţii</translation>
 <translation id="2822650824848709219">Blocaţi orice conţinut nesigur</translation>
 <translation id="1901303067676059328">Select&amp;aţi tot</translation>
 <translation id="2168039046890040389">O pagină mai sus</translation>
@@ -403,6 +431,7 @@
 <translation id="154603084978752493">Adău&amp;gaţi ca motor de căutare...</translation>
 <translation id="3254409185687681395">Marcaţi această pagină</translation>
 <translation id="1384616079544830839">Identitatea acestui site a fost verificată de <ph name="ISSUER"/>.</translation>
+<translation id="1800035677272595847">Phishing</translation>
 <translation id="4610637590575890427">Aţi vrut să accesaţi <ph name="SITE"/>?</translation>
 <translation id="8349305172487531364">Bara de marcaje</translation>
 <translation id="7208899522964477531">Căutaţi <ph name="SEARCH_TERMS"/> pe <ph name="SITE_NAME"/></translation>
@@ -422,6 +451,7 @@
 <translation id="3745810751851099214">Trimiteţi pentru:</translation>
 <translation id="8877448029301136595">[directorul părinte]</translation>
 <translation id="1963227389609234879">Eliminaţi toate</translation>
+<translation id="7052633198403197513">F1</translation>
 <translation id="2496180316473517155">Istoricul de navigare</translation>
 <translation id="602251597322198729">Acest site încearcă să descarce mai multe fişiere. Permiteţi această operaţie?</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> ore</translation>
@@ -479,7 +509,6 @@
 <translation id="1526560967942511387">Document fără titlu</translation>
 <translation id="5538307496474303926">În curs de ştergere...</translation>
 <translation id="6783679543387074885">Raportaţi o eroare sau un site Web defect</translation>
-<translation id="8412968288526977732">Serverul <ph name="DOMAIN"/> de la <ph name="TITLE"/> necesită un nume utilizator şi o parolă.</translation>
 <translation id="5285267187067365830">Instalaţi plug-in-ul...</translation>
 <translation id="8015746205953933323">Această pagină Web nu este disponibilă.</translation>
 <translation id="8520668773617044689">Firefox</translation>
@@ -496,6 +525,7 @@
 <translation id="2115926821277323019">Trebuie să fie o adresă URL valabilă</translation>
 <translation id="7397054681783221164">Eliminaţi elementele următoare:</translation>
 <translation id="4891251785049117953">Goliţi datele din formular salvate anterior</translation>
+<translation id="5230516054153933099">Fereastră</translation>
 <translation id="7554791636758816595">Filă nouă</translation>
 <translation id="4400697530699263877">Utilizaţi preluarea în avans a datelor DNS pentru a îmbunătăţi performanţele de încărcare a paginii</translation>
 <translation id="1086613338090581534">Pentru un certificat care nu a expirat, emitentul acelui certificat este responsabil de păstrarea unei „liste de revocări”. Dacă un certificat este vreodată compromis, emitentul îl poate revoca adăugându-l la lista de revocări, apoi acest certificat nu va mai fi de încredere pentru browser-ul dvs. Starea de revocare nu este necesar să fie menţinută pentru certificatele expirate, deci, deşi acest certificat a fost valabil pentru site-ul Web pe care îl accesaţi, în acest moment nu se poate determina dacă certificatul a fost compromis şi apoi revocat, sau este încă sigur. Astfel, este imposibil de spus dacă dvs. comunicaţi cu site-ul Web legitim sau certificatul a fost compromis şi acum este în posesia unui atacator, cu care comunicaţi. Nu trebuie să mergeţi mai departe.</translation>
@@ -526,6 +556,8 @@
 <translation id="1618661679583408047">Certificatul de securitate al site-ului nu este încă valabil!</translation>
 <translation id="9040508646567685134">Un script care rulează pe această pagină are nevoie de muuult timp pentru a se finaliza. Doriţi să vedeţi dacă scriptul se poate finaliza sau renunţaţi?</translation>
 <translation id="3065140616557457172">Tastaţi pentru a căuta sau introduceţi o adresă URL pentru a naviga - orice variantă funcţionează.</translation>
+<translation id="5986279928654338866">Serverul <ph name="DOMAIN"/> necesită un nume de utilizator şi o parolă.</translation>
+<translation id="7056713340842386352">Cele mai vizitate [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="5765780083710877561">Descriere:</translation>
 <translation id="7221869452894271364">Reîncărcaţi această pagină</translation>
 <translation id="8646430701497924396">Utilizaţi SSL 2.0</translation>
@@ -563,24 +595,32 @@
 <translation id="5333374927882515515">Transferaţi marcaje, parole şi alte setări din <ph name="DEF_BROWSER"/></translation>
 <translation id="4239831617079978238">Finalul sesiunii</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(Cont.)</translation>
 <translation id="3748412725338508953">Au fost prea multe redirecţionări.</translation>
 <translation id="8929159553808058020">Adăugaţi limbile pe care le utilizaţi pentru a citi site-urile Web, listate în ordinea preferinţelor. Adăugaţi-le numai pe cele de care aveţi nevoie, deoarece unele caractere pot fi utilizate pentru a substitui identitatea site-urilor Web în alte limbi.</translation>
 <translation id="8831104962952173133">A fost detectată o tentativă de phishing!</translation>
+<translation id="2614223168876839822">Ştergeţi datele proprii de navigare de pe acest computer. Reţineţi că acest lucru poate afecta în mod negativ conţinutul paginii Filă nouă.</translation>
 <translation id="4745142959976410383">Dacă nu aţi iniţiat dvs. această solicitare, ea poate reprezenta o încercare de atac asupra sistemului dvs. Dacă nu aţi realizat o acţiune explicită pentru a iniţia această solicitare, ar trebui să apăsaţi pe Anulaţi.</translation>
+<translation id="1897258631034940238">Site-ul Web de la &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; conţine elemente de pe site-uri care au fost raportate ca fiind site-uri de „phishing”. Site-urile care practică phishingul îi înşeală pe utilizatori pentru ca aceştia să dezvăluie informaţii personale sau financiare, adesea însuşindu-şi identitatea unor instituţii de încredere, precum bănci.</translation>
 <translation id="8288345061925649502">Schimbaţi motorul de căutare</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> secunde</translation>
-<translation id="6652942492341627832">Salvaţi şi afişaţi textul introdus în câmpuri similare</translation>
 <translation id="5139955368427980650">&amp;Deschideţi</translation>
+<translation id="7088615885725309056">Mai vechi</translation>
 <translation id="746319800473277382">Vizitaţi pagina de pornire a site-ului:</translation>
 <translation id="8562413501751825163">Închideţi Firefox înainte de a face importul</translation>
 <translation id="5034259512732355072">Alegeţi alt director...</translation>
+<translation id="5074322878757699801">Importaţi datele...</translation>
 <translation id="5706242308519462060">Codificare prestabilită:</translation>
+<translation id="5280833172404792470">Ieşiţi din ecran complet (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">Închise recent</translation>
 <translation id="8355915647418390920"><ph name="NUMBER_FEW"/> zile</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">Activaţi JavaScript</translation>
 <translation id="6451458296329894277">Confirmaţi retrimitere formular</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> oră</translation>
 <translation id="1851266746056575977">Actualizaţi acum</translation>
+<translation id="19901320010520290">Site-ul Web de la &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; conţine elemente de pe site-uri care par a găzdui malware – software care poate dăuna computerului sau care poate funcţiona fără consimţământul dvs. Computerul poate fi infectat prin simpla accesare a unui site care găzduieşte malware. Site-ul Web găzduieşte, de asemenea, conţinut de pe site-uri care au fost raportate ca fiind site-uri de „phishing”. Site-urile care practică phishingul îi înşeală pe utilizatori pentru ca aceştia să dezvăluie informaţii personale sau financiare, adesea însuşindu-şi identitatea unor instituţii de încredere, precum bănci.</translation>
 <translation id="9065203028668620118">Editaţi</translation>
 <translation id="4867297348137739678">Ultima săptămână</translation>
 <translation id="4881695831933465202">Deschideţi</translation>
@@ -588,6 +628,7 @@
 <translation id="6644971472240498405"><ph name="NUMBER_ONE"/> zi</translation>
 <translation id="6512448926095770873">Părăsiţi această pagină</translation>
 <translation id="5607455023223000189">Plug-in-uri instalate</translation>
+<translation id="7009102566764819240">Mai jos puteţi găsi o listă cu toate elementele nesigure ale paginii. Faceţi clic pe linkul Diagnostic pentru a obţine informaţii suplimentare cu privire la firul de execuţie al programului malware pentru o anumită resursă. Dacă ştiţi că o resursă a fost raportată în mod incorect ca practicând phishingul, faceţi clic pe linkul „Raportaţi eroarea”.</translation>
 <translation id="494645311413743213"><ph name="NUMBER_TWO"/> secunde rămase</translation>
 <translation id="1485146213770915382">Inseraţi <ph name="SEARCH_TERMS_LITERAL"/> în adresa URL unde ar trebui să apară termenii de căutare.</translation>
 <translation id="5626134646977739690">Nume:</translation>
@@ -602,8 +643,10 @@
 <translation id="486595306984036763">Deschideţi raportul de phishing</translation>
 <translation id="1568162916422682473">Următorul plug-in s-a închis cu o eroare : <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">Resetaţi la valorile prestabilite</translation>
+<translation id="170407012880898501">Salvaţi textul din formulare şi faceţi mai uşoară completarea lor</translation>
 <translation id="8116972784401310538">&amp;Manager de marcaje</translation>
 <translation id="6040143037577758943">Închideţi</translation>
+<translation id="4943872375798546930">Nu există rezultate</translation>
 <translation id="4910619056351738551">Iată câteva sugestii:</translation>
 <translation id="7451556917824271099">Site-ul Web de la &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; conţine elemente de pe site-ul &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, care se pare că găzduieşte malware – software care vă poate afecta computerul sau opera în vreun alt mod fără acceptul dvs.  Simpla accesare a unui site care conţine malware vă poate infecta computerul.</translation>
 <translation id="1232569758102978740">Fără titlu</translation>
@@ -613,6 +656,7 @@
 <translation id="7442246004212327644">Go&amp;liţi</translation>
 <translation id="9002707937526687073">P&amp;rintaţi...</translation>
 <translation id="5556459405103347317">Reîncărcaţi</translation>
+<translation id="7727721885715384408">Redenumiţi...</translation>
 <translation id="5508407262627860757">Anulaţi oricum</translation>
 <translation id="7587108133605326224">Baltică</translation>
 <translation id="8598751847679122414">Această pagină Web are o buclă de redirecţionare.</translation>
@@ -631,17 +675,21 @@
 <translation id="4745438305783437565"><ph name="NUMBER_FEW"/> minute</translation>
 <translation id="2649911884196340328">Certificatul de securitate al serverului are erori!</translation>
 <translation id="1963692530539281474"><ph name="NUMBER_DEFAULT"/> zile rămase</translation>
+<translation id="668171684555832681">Altul...</translation>
 <translation id="3108416241300843963">O solicitare a eşuat pentru că certificatul serverului nu era valabil.</translation>
 <translation id="116506693382293616">Unele elemente din această pagină sunt accesate printr-o conexiune cu erori SSL.</translation>
 <translation id="7887455386323777409">Opriţi plug-in-ul</translation>
 <translation id="3761000923495507277">Afişaţi butonul Pagină de pornire în bara de instrumente</translation>
 <translation id="8709969075297564489">Verificaţi dacă certificatul serverului a fost revocat</translation>
+<translation id="8698171900303917290">Probleme cu instalarea?</translation>
+<translation id="2552545117464357659">Mai noi</translation>
 <translation id="5869522115854928033">Parole salvate</translation>
 <translation id="1709220265083931213">În culise</translation>
 <translation id="4771973620359291008">A apărut o eroare necunoscută.</translation>
 <translation id="8155798677707647270">Se instalează noua versiune...</translation>
 <translation id="6886871292305414135">Deschideţi linkul într-o filă &amp;nouă</translation>
 <translation id="6308937455967653460">Salvaţi lin&amp;k-ul ca...</translation>
+<translation id="5421136146218899937">Ştergeţi datele de navigare...</translation>
 <translation id="3943582379552582368">&amp;Înapoi</translation>
 <translation id="7607002721634913082">Oprită temporar</translation>
 <translation id="480990236307250886">Deschideţi pagina de pornire</translation>
@@ -661,6 +709,7 @@
 <translation id="1702534956030472451">Vestic</translation>
 <translation id="9141716082071217089">Nu se poate verifica dacă certificatul serverului a fost revocat.</translation>
 <translation id="4304224509867189079">Conectare</translation>
+<translation id="4492190037599258964">Rezultatele căutării pentru „<ph name="SEARCH_STRING"/>”</translation>
 <translation id="988159990683914416">Versiune de programare</translation>
 <translation id="3705722231355495246">-</translation>
 <translation id="4268574628540273656">Adresa URL:</translation>
@@ -669,6 +718,7 @@
 <translation id="1664314758578115406">Adăugaţi pagina...</translation>
 <translation id="4084682180776658562">Marcaj</translation>
 <translation id="4381091992796011497">Nume utilizator:</translation>
+<translation id="7669151579173473971">Fereastră nouă în &amp;profil</translation>
 <translation id="5822838715583768518">Lansaţi aplicaţia</translation>
 <translation id="6756161853376828318">Setaţi <ph name="PRODUCT_NAME"/> ca browser prestabilit</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
@@ -681,6 +731,7 @@
 <translation id="1273291576878293349">Deschideţi toate marcajele în fereastră incognito</translation>
 <translation id="3455546154539383562">Aţi încercat să accesaţi &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, dar certificatul prezentat de server a fost revocat de emitentul său. Aceasta înseamnă că acreditările de securitate prezentate de server nu mai sunt de încredere absolut deloc. Este posibil să comunicaţi cu un atacator. Nu trebuie să mergeţi mai departe.</translation>
 <translation id="1177437665183591855">Eroare de certificat de server necunoscută</translation>
+<translation id="3819800052061700452">&amp;Ecran complet</translation>
 <translation id="3737554291183722650">Titlul paginii:</translation>
 <translation id="4726901538158498735">Căutare prestabilită:</translation>
 <translation id="5101042277149003567">Deschideţi toate marcajele</translation>
@@ -691,6 +742,7 @@
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="385051799172605136">Înapoi</translation>
 <translation id="1208126399996836490">Nu resetaţi</translation>
+<translation id="806812017500012252">Reordonaţi după titlu</translation>
 <translation id="2960316970329790041">Stop transfer</translation>
 <translation id="1731911755844941020">Se trimite solicitarea...</translation>
 <translation id="1038842779957582377">nume necunoscut</translation>
@@ -710,6 +762,7 @@
 <translation id="5233231016133573565">ID proces</translation>
 <translation id="5941711191222866238">Minimizaţi</translation>
 <translation id="7167486101654761064">&amp;Deschideţi întotdeauna fişierele de acest tip</translation>
+<translation id="6053401458108962351">&amp;Ştergeţi datele de navigare...</translation>
 <translation id="2339641773402824483">Se caută actualizări...</translation>
 <translation id="2766006623206032690">In&amp;seraţi şi accesaţi</translation>
 <translation id="9071050381089585305">Script inactiv</translation>

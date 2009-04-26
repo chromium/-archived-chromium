@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="tr">
+<translation id="6676384891291319759">İnternet'e erişin</translation>
 <translation id="8579274574697852281">Google Chrome, Windows Vista veya Windows XP SP1 veya daha ileri bir sürümü gerektirir.</translation>
 <translation id="698670068493841342">Google Chrome bu kullanıcı için zaten yüklenmiş durumda. Yazılım çalışmıyorsa, lütfen Google Chrome'u kaldırın ve yeniden indirin.</translation>
 <translation id="7400722733683201933">Google Chrome hakkında</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">&quot;En çok ziyaret edilenler&quot; alanında en sık kullandığınız web siteleri gösterilir. Google Chrome'u bir süre kullandıktan sonra, yeni bir sekme açtığınızda en sık ziyaret ettiğiniz siteleri görürsünüz. <ph name="BEGIN_LINK"/>Başlarken sayfasında<ph name="END_LINK"/> bu ve diğer özellikler hakkında daha fazla bilgi edinebilirsiniz.</translation>
 <translation id="4728575227883772061">Belirlenemeyen bir hata nedeniyle yükleme başarısız oldu. Google Chrome şu anda çalışır durumdaysa, kapatıp yeniden deneyin.</translation>
 <translation id="4149882025268051530">Yükleyici arşivi açamadı. Lütfen Google Chrome'u yeniden indirin.</translation>
+<translation id="4343226815564935778">Google Chrome kurulum dizininin kullanımda olduğu görülüyor. Lütfen bilgisayarınızı yeniden başlatın ve tekrar deneyin.</translation>
+<translation id="4506896920521131223">Telif Hakkı © 2006-2009 Google Inc. Tüm Hakları Saklıdır.</translation>
 <translation id="6817660909204164466">Google'a otomatik olarak kullanım istatistikleri ve sistem çökmesi raporları göndererek Google Chrome'un iyileştirilmesine katkıda bulunun.</translation>
 <translation id="8227755444512189073">Google Chrome'un <ph name="SCHEME"/> bağlantılarını işleyebilmek için harici bir uygulama başlatması gerekiyor. İstenen bağlantı <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Google Chrome Araç Çubuğu</translation>
 <translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanına ulaşmayı denediniz, ancak sunucu, henüz geçerli olmayan bir sertifika sundu. Bu sertifikanın güvenilir olup olmadığına dair bilgi yok. Google Chrome, bir saldırganla değil, &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; ile iletişim kurduğunuzun garantisini veremez. Bilgisayarınızdaki saat ve saat dilimi ayarlarının doğru olduğundan emin olmalısınız. Bu ayarlar doğru değilse, sorunları giderip bu sayfayı yenilemelisiniz. Doğruysa ilerlememelisiniz.</translation>
+<translation id="8862326446509486874">Sistem düzeyinde yükleme için gerekli haklara sahip değilsiniz. Yükleyiciyi Yönetici olarak tekrar çalıştırmayı deneyin.</translation>
 <translation id="2874156562296220396">Google Chrome, <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> açık kaynak projesi ve diğer <ph name="BEGIN_LINK_OSS"/>açık kaynak yazılımlar<ph name="END_LINK_OSS"/> ile oluşturulmuştur.</translation>
 <translation id="6921913858457830952">Google Chrome, yükleme işleminizi tamamlamaya hazır.</translation>
 <translation id="7100330187273168372">Google Chrome, veri dizini üzerinde okuma ve yazma işlemi yapamaz:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">Google Chrome varsayılan tarayıcı olsun</translation>
 <translation id="4127951844153999091">Bu durumda, sertifikada listelenen adres, tarayıcınızın gitmeye çalıştığı web sitesinin adresiyle eşleşmez. Bunun olası nedenlerinden biri, iletişimlerinizin, farklı bir web sitesine ait sertifikayı sunan bir saldırgan tarafından kesilmesi olabilir, bu da hatalı eşleşmeye yol açabilir. Diğer olası bir nedense, sunucunun, ziyaret etmeye çalıştığınız web sitesi dahil olmak üzere birden çok web sitesi için, bu sertifika söz konusu web sitelerinin tümü için geçerli olmadığı halde, aynı sertifikayı döndürecek şekilde ayarlanmış olmasıdır. Google Chrome, kesin olarak &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; etki alanına ulaştığınızı belirtebilir, ancak bunun ulaşmak istediğiniz &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; etki alanıyla aynı site olduğunu doğrulayamaz. Devam ederseniz Chrome daha fazla hatalı ad eşleşmesi aramaz. Genellikle bu noktadan sonra ilerlememek en iyisidir.</translation>
+<translation id="2712549016134575851">Yüklü başka bir uygulamayla çakışma tespit edildi.</translation>
 <translation id="7161904924553537242">Google Chrome'a Hoş Geldiniz</translation>
 <translation id="8236873504073475138">Google Chrome, Windows 2000'i desteklemez. Bazı özellikler çalışmayabilir.</translation>
-<translation id="8172671748763307156">Google Chrome'u kaldırmak istediğinizden emin misiniz? (Bunu biz mi söyledik?)</translation>
 <translation id="5046764976540625289">Chrome'dan Çık</translation>
+<translation id="8865765905101981392">İnternet Tarayıcı</translation>
 <translation id="582763753075639530">Bu değişikliğin geçerli olması için lütfen tüm Chrome pencerelerini kapatın ve Chrome'u tekrar başlatın.</translation>
 <translation id="8776515774046280928">Google Chrome zaten yüklü ve bu bilgisayarın tüm kullanıcıları için kullanılabilir durumda. Google Chrome'u kullanıcı düzeyinde yüklemek istiyorsanız, yönetici tarafından yüklenmiş olan sistem düzeyindeki sürümü kaldırmanız gerekir.</translation>
 <translation id="3335672657969596251">Google Chrome, <ph name="OS_NAME"/> işletim sistemini desteklemez.</translation>
 <translation id="3636771339108070045">Bu bilgisayarda Google Chrome'un daha yeni bir sürümü zaten var. Yazılım çalışmıyorsa, lütfen Google Chrome'u kaldırın ve yeniden indirin.</translation>
+<translation id="3396666154568987767"><ph name="PROFILE_NAME"/> için Google Chrome</translation>
 <translation id="1964682833763362793">Lütfen tüm Chrome pencerelerini kapatıp tekrar deneyin.</translation>
 <translation id="1001534784610492198">Yükleyici arşivi bozuk veya geçersiz. Lütfen Google Chrome'u yeniden indirin.</translation>
 <translation id="6626317981028933585">Maalesef bu tarayıcı çalışırken Mozilla Firefox ayarlarınız kullanılamaz. Bu ayarları Google Chrome'a almak için çalışmanızı kaydedin ve tüm Firefox pencerelerini kapatın. Ardından Devam Et'i tıklayın.</translation>

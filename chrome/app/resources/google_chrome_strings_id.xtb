@@ -1,6 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="id">
+<translation id="6676384891291319759">Akses Internet</translation>
 <translation id="8579274574697852281">Google Chrome memerlukan Windows Vista atau Windows XP dengan SP1 atau yang lebih baru.</translation>
 <translation id="698670068493841342">Google Chrome telah diinstal untuk pengguna ini. Jika perangkat lunak tidak berfungsi, hapus penginstalan Google Chrome, lalu unduh kembali.</translation>
 <translation id="7400722733683201933">Tentang Google Chrome</translation>
@@ -13,6 +14,8 @@
 <translation id="1137776625614346046">Area yang &quot;Paling sering dikunjungi&quot; menampilkan situs Web yang paling sering Anda gunakan. Setelah menggunakan Google Chrome selama beberapa waktu, Anda akan melihat situs yang paling sering dikunjungi setiap kali membuka tab baru. Anda dapat mengetahui selengkapnya tentang hal ini dan fitur lainnya pada <ph name="BEGIN_LINK"/>halaman Persiapan<ph name="END_LINK"/>.</translation>
 <translation id="4728575227883772061">Penginstalan gagal karena galat yang tidak diketahui. Jika Google Chrome sedang berjalan; tutup, lalu ulang kembali.</translation>
 <translation id="4149882025268051530">Instalatur gagal mendekompresi arsip. Unduh kembali Google Chrome.</translation>
+<translation id="4343226815564935778">Direktori instalasi Google Chrome kelihatannya sedang digunakan. Nyalakan ulang komputer dan coba lagi.</translation>
+<translation id="4506896920521131223">Hak Cipta © 2006-2009 Google Inc. Semua Hak Dilindungi Undang-Undang.</translation>
 <translation id="6817660909204164466">Bantu Google Chrome menjadi lebih baik dengan mengirim statistik penggunaan dan laporan kerusakan secara otomatis ke Google</translation>
 <translation id="8227755444512189073">Google Chrome harus menjalankan aplikasi eksternal untuk menangani link <ph name="SCHEME"/>. Link yang diminta adalah <ph name="PROTOLINK"/>.</translation>
 <translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
@@ -34,19 +37,22 @@
 <translation id="1759842336958782510">Chrome</translation>
 <translation id="2044287590254833138">Toolbar Google Chrome</translation>
 <translation id="6481075104394517441">Anda berupaya membuka &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, namun server memberikan sertifikat yang belum valid. Tidak ada informasi yang tersedia untuk menunjukkan bahwa sertifikat dapat dipercaya. Google Chrome tidak dapat menjamin secara pasti bahwa Anda berkomunikasi dengan &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; dan bukan pengganggu. Anda harus memastikan bahwa jam dan zona waktu ditetapkan dengan benar di komputer. Jika belum, Anda harus mengatasi masalah dan me-refresh halaman ini. Jika sudah benar, Anda tidak boleh melanjutkan.</translation>
+<translation id="8862326446509486874">Anda tidak memiliki hak yang diperlukan untuk penginstalan tingkat sistem. Coba jalankan kembali penginstal sebagai Administrator.</translation>
 <translation id="2874156562296220396">Google Chrome hadir berkat proyek sumber terbuka<ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> dan <ph name="BEGIN_LINK_OSS"/>perangkat lunak sumber terbuka <ph name="END_LINK_OSS"/> lainnya.</translation>
 <translation id="6921913858457830952">Google Chrome siap menyelesaikan penginstalan.</translation>
 <translation id="7100330187273168372">Google Chrome tidak dapat membaca dan menulis ke direktori data:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
 <translation id="5941830788786076944">Jadikan Google Chrome sebagai browser default</translation>
 <translation id="4127951844153999091">Jika demikian, alamat yang tercantum dalam sertifikat tidak cocok dengan alamat situs Web yang akan diakses browser Anda. Salah satu kemungkinan alasannya adalah komunikasi terhenti oleh pengganggu yang memberikan sertifikat untuk situs Web lain, sehingga dapat mengakibatkan ketidakcocokan. Kemungkinan alasan lainnya adalah bahwa server dikonfigurasi untuk menampilkan sertifikat yang sama bagi beberapa situs Web, termasuk yang akan dikunjungi, meskipun sertifikat tersebut tidak valid untuk semua situs Web. Google Chrome dapat memastikan bahwa Anda akan membuka &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, namun tidak dapat memverifikasi bahwa situs tersebut sama seperti &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; yang ingin Anda buka. Jika Anda melanjutkan, Chrome tidak akan memeriksa ketidakcocokan nama lebih lanjut. Secara umum, sebaiknya jangan lanjutkan.</translation>
+<translation id="2712549016134575851">Terdeteksi konflik dengan aplikasi terinstal lain.</translation>
 <translation id="7161904924553537242">Selamat Datang di Google Chrome</translation>
 <translation id="8236873504073475138">Google Chrome tidak mendukung Windows 2000. Beberapa fitur mungkin tidak berfungsi.</translation>
-<translation id="8172671748763307156">Apakah Anda yakin ingin menghapus penginstalan Google Chrome? (Apakah ada kekurangan dari kami?)</translation>
 <translation id="5046764976540625289">Keluar dari Chrome</translation>
+<translation id="8865765905101981392">Penjelajah Internet</translation>
 <translation id="582763753075639530">Tutup semua jendela Chrome dan mulai ulang Chrome agar perubahan diterapkan.</translation>
 <translation id="8776515774046280928">Google Chrome telah terinstal dan tersedia bagi seluruh pengguna komputer ini. Jika Anda ingin menginstal Google Chrome pada tingkat pengguna, Anda harus terlebih dulu menghapus penginstalan versi tingkat sistem yang diinstal oleh administrator.</translation>
 <translation id="3335672657969596251">Google Chrome tidak mendukung <ph name="OS_NAME"/>.</translation>
 <translation id="3636771339108070045">Komputer ini telah menginstal versi Google Chrome yang lebih baru. Jika perangkat lunak tidak berfungsi, hapus penginstalan Google Chrome, kemudian unduh kembali.</translation>
+<translation id="3396666154568987767">Google Chrome untuk <ph name="PROFILE_NAME"/></translation>
 <translation id="1964682833763362793">Tutup semua jendela Chrome, lalu coba lagi.</translation>
 <translation id="1001534784610492198">Arsip instalatur rusak atau tidak valid. Unduh kembali Google Chrome.</translation>
 <translation id="6626317981028933585">Sayangnya, pengaturan Mozilla Firefox tidak tersedia sewaktu browser berjalan. Untuk mengimpor pengaturan ke Google Chrome, simpan pekerjaan dan tutup semua jendela Firefox. Kemudian klik Lanjutkan.</translation>

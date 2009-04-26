@@ -9,6 +9,7 @@
 <translation id="4405141258442788789">作業逾時。</translation>
 <translation id="5048179823246820836">北歐語系</translation>
 <translation id="561349411957324076">完成</translation>
+<translation id="4610656722473172270">Google 工具列</translation>
 <translation id="2088818908407967256">本頁包含不安全的元素。</translation>
 <translation id="1871244248791675517">Ins</translation>
 <translation id="2972581237482394796">重做(&amp;R)</translation>
@@ -26,6 +27,7 @@
 <translation id="1383861834909034572">完成後開啟</translation>
 <translation id="4211171103079968550">啟用 Java</translation>
 <translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">位於 <ph name="REALM"/> 的 <ph name="DOMAIN"/> 伺服器要求提供使用者名稱和密碼。</translation>
 <translation id="2193841602817119749">網址為 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的網站已獲回報為「釣魚網站」。釣魚網站經常偽裝成銀行之類的可信賴機構，藉此騙取使用者的個人或財務資訊。</translation>
 <translation id="8178665534778830238">內容:</translation>
 <translation id="1379170046778889619">安全性資訊</translation>
@@ -54,6 +56,7 @@
 <translation id="5819484510464120153">建立應用程式捷徑(&amp;S)...</translation>
 <translation id="1748246833559136615">放棄</translation>
 <translation id="8927064607636892008">顯示此網頁時發生錯誤。如要繼續，請按 [重新整理] 或前往另一頁。</translation>
+<translation id="5667293444945855280">惡意程式</translation>
 <translation id="5613020302032141669">向左鍵</translation>
 <translation id="3433489605821183222">伺服器的憑證有錯</translation>
 <translation id="6479177161510354016">通知 <ph name="SITE"/></translation>
@@ -62,6 +65,7 @@
 <translation id="5516565854418269276">永遠顯示書籤列(&amp;A)</translation>
 <translation id="6426222199977479699">SSL 錯誤</translation>
 <translation id="443008484043213881">工具</translation>
+<translation id="314605055819837597">使用者資料</translation>
 <translation id="8534801226027872331">由此可見，提供予您的瀏覽器的憑證有錯誤且無法瞭解。這表示我們無法瞭解憑證內的身份資料及用來保證連線安全的特定資訊。您必須就此停住。</translation>
 <translation id="4422347585044846479">編輯此網頁的書籤</translation>
 <translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
@@ -89,6 +93,7 @@
 <translation id="1720675772864601791">允許不安全的影像</translation>
 <translation id="5233638681132016545">新分頁</translation>
 <translation id="5210365745912300556">關閉分頁</translation>
+<translation id="8806796506533854282">請輸入新的設定檔名稱</translation>
 <translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
 <translation id="8571852575982769756">未安裝任何外掛程式</translation>
 <translation id="7925285046818567682">正在等候 <ph name="HOST_NAME"/>...</translation>
@@ -101,6 +106,7 @@
 <translation id="6746124502594467657">下移</translation>
 <translation id="3383487468758466563">字型及語言:</translation>
 <translation id="6163363155248589649">一般(&amp;N)</translation>
+<translation id="7222373446505536781">F11</translation>
 <translation id="3873963583678942942">(無標題)</translation>
 <translation id="8725178340343806893">我的最愛/書籤</translation>
 <translation id="3605499851022050619">安全瀏覽診斷頁面</translation>
@@ -116,12 +122,16 @@
 <translation id="7615851733760445951">&lt;未選取任何 Cookie&gt;</translation>
 <translation id="3660179305079774227">向上鍵</translation>
 <translation id="7400418766976504921">網址</translation>
+<translation id="5392041771307264501">請選取設定檔以開啟新視窗。</translation>
 <translation id="68541483639528434">關閉其他分頁</translation>
 <translation id="2897878306272793870">您確定要開啟 <ph name="TAB_COUNT"/> 分頁嗎？</translation>
 <translation id="362276910939193118">顯示完整記錄</translation>
+<translation id="692135145298539227">刪除</translation>
+<translation id="2663762871503078613">匯入：</translation>
 <translation id="1635247229519770914">繼續安裝</translation>
 <translation id="8945419807169257367">無法檢查伺服器的憑證</translation>
 <translation id="5872213955895293073">為 JavaScript 偵錯</translation>
+<translation id="1965338962645102116">若要將「工具列」書籤匯入至「Google 瀏覽器」，您必須要登入自己的 Google 帳戶。請先登入再嘗試匯入。</translation>
 <translation id="5903264686717710770">標題:</translation>
 <translation id="8899851313684471736">在新視窗中開啟連結(&amp;W)</translation>
 <translation id="6686490380836145850">關閉右邊的分頁</translation>
@@ -131,9 +141,12 @@
 <translation id="2423578206845792524">另存影像為(&amp;V)...</translation>
 <translation id="9068931793451030927">路徑:</translation>
 <translation id="7052402604161570346">此類型檔案可能傷害您的電腦，確定要下載 <ph name="FILE_NAME"/> 嗎？</translation>
+<translation id="8642489171979176277">匯入自 Google 工具列</translation>
+<translation id="2011110593081822050">Web Worker：<ph name="WORKER_NAME"/></translation>
 <translation id="350069200438440499">檔案名稱:</translation>
 <translation id="8494979374722910010">嘗試連接伺服器失敗。</translation>
 <translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> 分鐘</translation>
+<translation id="5296476177639202243">沒有符合「<ph name="SEARCH_TEXT"/>」查詢的書籤</translation>
 <translation id="939736085109172342">新增資料夾</translation>
 <translation id="5641560969478423183">伺服器的憑證與網址不符</translation>
 <translation id="121827551500866099">顯示所有下載...</translation>
@@ -143,6 +156,7 @@
 <translation id="3520476450377425184">剩下 <ph name="NUMBER_MANY"/> 天</translation>
 <translation id="1059307158073710225">檢查拼字：</translation>
 <translation id="7643817847124207232">已失去網際網路連線。</translation>
+<translation id="758007724455091072">為設定檔建立桌面捷徑</translation>
 <translation id="932327136139879170">Home</translation>
 <translation id="5600907569873192868">剩下 <ph name="NUMBER_MANY"/> 分鐘</translation>
 <translation id="908263542783690259">清除瀏覽記錄</translation>
@@ -154,6 +168,7 @@
 <translation id="3122464029669770682">CPU</translation>
 <translation id="1684861821302948641">中止網頁</translation>
 <translation id="5965640700983474726">輸入搜尋網址/內容</translation>
+<translation id="2142570832281562688">請輸入設定檔名稱</translation>
 <translation id="5904714272463161824">回報錯誤或毀損的網站(&amp;R)...</translation>
 <translation id="1608306110678187802">列印框架(&amp;R)...</translation>
 <translation id="4948468046837535074">開啟下列網頁：</translation>
@@ -171,6 +186,7 @@
 <translation id="6151323131516309312">按一下 <ph name="SEARCH_KEY"/> 以搜尋 <ph name="SITE_NAME"/></translation>
 <translation id="2342959293776168129">清除下載記錄</translation>
 <translation id="2503522102815150840">瀏覽器沒反應...昏倒了</translation>
+<translation id="6786747875388722282">擴充功能</translation>
 <translation id="2815500128677761940">書籤列</translation>
 <translation id="8041183585493091279">建議服務網址:</translation>
 <translation id="9189691339671500905">設定網址列使用的搜尋引擎。</translation>
@@ -204,6 +220,7 @@
 <translation id="7905536804357499080">使用目前設定</translation>
 <translation id="7378810950367401542">/</translation>
 <translation id="3087734570205094154">置底</translation>
+<translation id="1871540228654219948">位於 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的網站包含可能裝載惡意程式之網站的元素，可能會損害您的電腦，或在未經您同意之下擅自執行。就算只是造訪包含惡意程式的網站就足以對您的電腦造成影響。</translation>
 <translation id="8899388739470541164">越南文</translation>
 <translation id="4089663545127310568">清除已儲存的密碼</translation>
 <translation id="6500444002471948304">新增資料夾...</translation>
@@ -232,6 +249,7 @@
 <translation id="877010697526426622">位於 &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; 的網頁可能暫時無法使用，或已永久移到新的網址。</translation>
 <translation id="4378551569595875038">連線中...</translation>
 <translation id="7029809446516969842">密碼</translation>
+<translation id="8211437954284917092">請在上方文字欄位中輸入查詢以搜尋您的書籤。</translation>
 <translation id="5958418293370246440">已儲存 <ph name="SAVED_FILES"/> 個檔案，全部 <ph name="TOTAL_FILES"/> 個檔案</translation>
 <translation id="6805291412499505360">限制第三方 Cookie 的使用方式</translation>
 <translation id="1201402288615127009">下一步</translation>
@@ -241,6 +259,7 @@
 <translation id="254416073296957292">語言設定(&amp;L)...</translation>
 <translation id="4222982218026733335">無效的伺服器憑證</translation>
 <translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>您已採用無痕式瀏覽<ph name="END_BOLD"/>。 您在此視窗內檢視的網頁不會在瀏覽記錄或搜尋記錄中顯示，關閉無痕式視窗後，也不會在電腦上留下其他痕跡，例如 Cookie。 但是，您下載的任何檔案或建立的書籤都會保留下來。        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>無痕式瀏覽不會影響其他使用者、伺服器或軟體的行為。 請小心：<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>收集或共用關於您之資訊的網站<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>追蹤您造訪網頁的網際網路服務供應商或雇主<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>以免費表情圖示騙取並追蹤按鍵組合的惡意軟體<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>秘密代理程式所進行的監控<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>站在您身後的人<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>瞭解更多<ph name="END_LINK"/>關於無痕式瀏覽的資訊。</translation>
+<translation id="4439241094464540230">&lt;新設定檔&gt;...</translation>
 <translation id="1813414402673211292">清除瀏覽資料</translation>
 <translation id="2356762928523809690">無法使用更新伺服器 (錯誤: <ph name="ERROR_NUMBER"/>)</translation>
 <translation id="5436510242972373446">搜尋 <ph name="SITE_NAME"/>:</translation>
@@ -253,6 +272,7 @@
 <translation id="1572103024875503863"><ph name="NUMBER_MANY"/> 天</translation>
 <translation id="8453184121293348016">找不到撤銷機制</translation>
 <translation id="7163503212501929773">剩下 <ph name="NUMBER_MANY"/> 小時</translation>
+<translation id="3283719377675052581">未知</translation>
 <translation id="374530189620960299">網站的安全性憑證不可靠!</translation>
 <translation id="5048040498971143039">「<ph name="SEARCH_STRING"/>」的搜尋結果</translation>
 <translation id="5453632173748266363">斯拉夫語</translation>
@@ -261,6 +281,7 @@
 <translation id="1120098871254928930">允許載入所有內容</translation>
 <translation id="3994878504415702912">縮放(&amp;Z)</translation>
 <translation id="5602600725402519729">重新載入(&amp;L)</translation>
+<translation id="9010612682952491200">新分頁 [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="7965010376480416255">共用記憶體</translation>
 <translation id="6248988683584659830">搜尋設定</translation>
 <translation id="8887733174653581061">最上層顯示</translation>
@@ -273,6 +294,7 @@
 <translation id="6295228342562451544">當您連線至安全的網站時，該伺服器會為您的瀏覽器提供一項「憑證」以驗明身份。這項憑證包含身份資料，例如由您電腦信任的第三方驗證過的網站網址。只要憑證上的網址與網站的網址相符，就能驗證您的通訊對象是您想要的網站，而非其他第三方 (例如網路上的攻擊者)。</translation>
 <translation id="5502500733115278303">從 Firefox 匯入的書籤</translation>
 <translation id="569109051430110155">自動偵測</translation>
+<translation id="4408599188496843485">說明(&amp;E)</translation>
 <translation id="2800662284745373504">伺服器的憑證無效</translation>
 <translation id="2681441671465314329">清空快取</translation>
 <translation id="6222380584850953107">顯示已儲存的密碼</translation>
@@ -284,6 +306,7 @@
 <translation id="7910768399700579500">新增資料夾(&amp;N)</translation>
 <translation id="6883611015375728278">封鎖所有 Cookie</translation>
 <translation id="3819791248093819058">找不到下列網址的網頁：&lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">清除資料：</translation>
 <translation id="6710213216561001401">上一頁</translation>
 <translation id="583281660410589416">不明</translation>
 <translation id="5528368756083817449">書籤管理員</translation>
@@ -305,6 +328,7 @@
 <translation id="6449085810994685586">檢查此欄位的拼字(&amp;C)</translation>
 <translation id="50960180632766478">剩下 <ph name="NUMBER_FEW"/> 分鐘</translation>
 <translation id="8664389313780386848">檢視網頁原始碼(&amp;V)</translation>
+<translation id="3089982169226026948">請選取設定檔</translation>
 <translation id="57646104491463491">已修改日期</translation>
 <translation id="3867260226944967367">找不到網頁。</translation>
 <translation id="6507969014813375884">簡體中文</translation>
@@ -324,9 +348,10 @@
 <translation id="965674096648379287">此網頁要求您先前輸入的資料方能正確顯示。您可以再次傳送資料，但您將因此重複此網頁先前執行過的行動。按一下「重新載入」以重新傳送此資料，並顯示此頁。</translation>
 <translation id="43742617823094120">由此看來，您的瀏覽器收到的憑證已經遭到發行者撤銷。這通常表示此憑證的真確性有可疑，不足以相信。您必須就此停住。</translation>
 <translation id="2065985942032347596">需要驗證</translation>
-<translation id="1882575713358235784">清除瀏覽資料(&amp;D)...</translation>
 <translation id="1175364870820465910">列印(&amp;P)...</translation>
 <translation id="3866249974567520381">描述</translation>
+<translation id="5552632479093547648">偵測到惡意程式和網路釣魚！</translation>
+<translation id="9118804773997839291">下列是此網頁中所有的不安全元素的清單。請按一下診斷連結以瞭解該元素的相關詳情。</translation>
 <translation id="7754704193130578113">下載每個檔案前先詢問儲存位置</translation>
 <translation id="2497284189126895209">所有檔案</translation>
 <translation id="435463392378565996">偏好調整</translation>
@@ -336,6 +361,7 @@
 <translation id="5256138355144269748">已封鎖彈出式視窗</translation>
 <translation id="2820806154655529776"><ph name="NUMBER_ONE"/> 秒</translation>
 <translation id="3122496702278727796">無法建立資料目錄</translation>
+<translation id="8446970197849314122">您可以從其他瀏覽器與這台電腦的其他使用者帳號匯入書籤和設定。</translation>
 <translation id="6281636957902664775">前往 <ph name="URL"/></translation>
 <translation id="630065524203833229">結束(&amp;X)</translation>
 <translation id="2649204054376361687"><ph name="COUNTRY"/>，<ph name="CITY"/></translation>
@@ -369,6 +395,7 @@
 <translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (預設)</translation>
 <translation id="111844081046043029">您確定要離開此網頁嗎?</translation>
 <translation id="4497415007571823067">您嘗試到達 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，而您卻到達了一個自稱為 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; 的伺服器。這可能由於伺服器的錯誤設定，或更嚴重的原因。您網路中的攻擊者可能正嘗試讓您造訪假的 (甚至有可能造成潛在性危險的) &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;。您必須就此停住。</translation>
+<translation id="3202578601642193415">最新</translation>
 <translation id="8112886015144590373"><ph name="NUMBER_FEW"/> 小時</translation>
 <translation id="8739589585766515812">刪除這天的記錄</translation>
 <translation id="1398853756734560583">放到最大</translation>
@@ -379,6 +406,7 @@
 <translation id="5260878308685146029">剩下 <ph name="NUMBER_TWO"/> 分鐘</translation>
 <translation id="2192505247865591433">自:</translation>
 <translation id="5921544176073914576">網路釣魚網頁</translation>
+<translation id="6192792657125177640">例外</translation>
 <translation id="2822650824848709219">封鎖所有不安全的內容</translation>
 <translation id="1901303067676059328">選取全部(&amp;A)</translation>
 <translation id="2168039046890040389">向上翻頁</translation>
@@ -405,6 +433,7 @@
 <translation id="154603084978752493">新增為搜尋引擎(&amp;G)...</translation>
 <translation id="3254409185687681395">把此頁加入書籤</translation>
 <translation id="1384616079544830839">此網站的身份經過 <ph name="ISSUER"/> 驗證。</translation>
+<translation id="1800035677272595847">網路釣魚</translation>
 <translation id="4610637590575890427">您的意思是想瀏覽 <ph name="SITE"/> 嗎?</translation>
 <translation id="8349305172487531364">書籤列</translation>
 <translation id="7208899522964477531">在 <ph name="SITE_NAME"/> 上搜尋 <ph name="SEARCH_TERMS"/></translation>
@@ -424,6 +453,7 @@
 <translation id="3745810751851099214">送至:</translation>
 <translation id="8877448029301136595">[父目錄]</translation>
 <translation id="1963227389609234879">全部移除</translation>
+<translation id="7052633198403197513">F1</translation>
 <translation id="2496180316473517155">瀏覽記錄</translation>
 <translation id="602251597322198729">此網站試圖下載多個檔案，請問您要允許下載嗎？</translation>
 <translation id="2052389551707911401"><ph name="NUMBER_MANY"/> 小時</translation>
@@ -481,7 +511,6 @@
 <translation id="1526560967942511387">未命名文件</translation>
 <translation id="5538307496474303926">清除中...</translation>
 <translation id="6783679543387074885">回報錯誤或毀損的網站</translation>
-<translation id="8412968288526977732"><ph name="TITLE"/> 的伺服器 <ph name="DOMAIN"/> 要求使用者名稱和密碼。</translation>
 <translation id="5285267187067365830">安裝外掛程式...</translation>
 <translation id="8015746205953933323">無法顯示此網頁。</translation>
 <translation id="8520668773617044689">Firefox</translation>
@@ -498,6 +527,7 @@
 <translation id="2115926821277323019">必須為有效的網址</translation>
 <translation id="7397054681783221164">清除以下項目:</translation>
 <translation id="4891251785049117953">清除已儲存的資料</translation>
+<translation id="5230516054153933099">視窗</translation>
 <translation id="7554791636758816595">新分頁</translation>
 <translation id="4400697530699263877">使用「DNS 預先擷取」以增進網頁載入效能。</translation>
 <translation id="1086613338090581534">憑證的發行者有責任為未到期的憑證維護一份「撤銷清單」。發行者可以將任何可疑的憑證加入撤銷清單以示撤銷，而您的瀏覽器將不再信任該憑證。由於逾期的憑證無須維護撤銷狀態，而此憑證曾經有效，所以目前將無法辨認其是否安全或因有可疑而遭到撤銷。在此情況下，無法得知您是否與真正的網站通訊，或憑證是否有可疑並已由攻擊者取得。您必須就此停住。</translation>
@@ -528,6 +558,8 @@
 <translation id="1618661679583408047">伺服器的安全性憑證尚未生效!</translation>
 <translation id="9040508646567685134">在此網頁上執行的指令碼已經花掉太多時間。您希望再等一會看看指令碼能否完成工作，還是決定放棄?</translation>
 <translation id="3065140616557457172">輸入搜尋網址或內容，什麼都行。</translation>
+<translation id="5986279928654338866"><ph name="DOMAIN"/> 伺服器要求提供使用者名稱和密碼。</translation>
+<translation id="7056713340842386352">常用網頁 [<ph name="PROFILE_NAME"/>]</translation>
 <translation id="5765780083710877561">描述:</translation>
 <translation id="7221869452894271364">重新載入此頁</translation>
 <translation id="8646430701497924396">使用 SSL 2.0</translation>
@@ -565,24 +597,32 @@
 <translation id="5333374927882515515">從 <ph name="DEF_BROWSER"/> 匯入書籤、密碼及其他設定。</translation>
 <translation id="4239831617079978238">工作階段結束</translation>
 <translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(續)</translation>
 <translation id="3748412725338508953">重新導向次數過多。</translation>
 <translation id="8929159553808058020">新增您瀏覽網頁時所用的語言，並依偏好程度順序列出。由於有些字元可以在網站上模擬其他語言，您僅需加入所需的語言。</translation>
 <translation id="8831104962952173133">偵測到網路釣魚!</translation>
+<translation id="2614223168876839822">從此電腦中清除您的瀏覽資料。請注意，這可能也會影響到「新分頁」上顯示的內容。</translation>
 <translation id="4745142959976410383">如果您未曾初始化這項要求，可能代表有人企圖攻擊您的系統。除非您曾經採取明確的行動以初始化這項要求，您必須按 [取消]。</translation>
+<translation id="1897258631034940238">網址為 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的網站可能包含已獲回報為「釣魚網站」之網站的元素。釣魚網站經常偽裝成銀行之類的可信賴機構，藉此騙取使用者的個人或財務資訊。</translation>
 <translation id="8288345061925649502">變更搜尋引擎</translation>
 <translation id="1095623615273566396"><ph name="NUMBER_FEW"/> 秒</translation>
-<translation id="6652942492341627832">儲存並顯示類似欄位中輸入的文字</translation>
 <translation id="5139955368427980650">開啟(&amp;O)</translation>
+<translation id="7088615885725309056">更舊</translation>
 <translation id="746319800473277382">前往下列網站的首頁：</translation>
 <translation id="8562413501751825163">在載入前關閉 Firefox</translation>
 <translation id="5034259512732355072">選擇其他目錄...</translation>
+<translation id="5074322878757699801">匯入資料...</translation>
 <translation id="5706242308519462060">預設編碼:</translation>
+<translation id="5280833172404792470">結束全螢幕 (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">最近關閉的</translation>
 <translation id="8355915647418390920"><ph name="NUMBER_FEW"/> 天</translation>
 <translation id="3702416240431471861">Google Gears:</translation>
 <translation id="3891357445869647828">啟用 JavaScript</translation>
 <translation id="6451458296329894277">確認重新提交表單</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
 <translation id="5116333507878097773"><ph name="NUMBER_ONE"/> 小時</translation>
 <translation id="1851266746056575977">立即更新</translation>
+<translation id="19901320010520290">位於 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的網站包含可能裝載惡意程式之網站的元素，可能會損害您的電腦，或在未經您同意之下擅自執行。就算只是造訪包含惡意程式的網站就足以對您的電腦造成影響。此網站部分內容來自已獲回報為「釣魚網站」的網站，釣魚網站經常偽裝成銀行之類的可信賴機構，藉此騙取使用者的個人或財務資訊。</translation>
 <translation id="9065203028668620118">編輯</translation>
 <translation id="4867297348137739678">一週內</translation>
 <translation id="4881695831933465202">開啟</translation>
@@ -590,6 +630,7 @@
 <translation id="6644971472240498405"><ph name="NUMBER_ONE"/> 天</translation>
 <translation id="6512448926095770873">離開此頁</translation>
 <translation id="5607455023223000189">已安裝的外掛程式</translation>
+<translation id="7009102566764819240">下列是此網頁中所有的不安全元素的清單。請按一下診斷連結以瞭解特定資源的惡意程式詳情。如果您認為某資源遭誤報為釣魚網站，請按一下 [回報錯誤] 連結。</translation>
 <translation id="494645311413743213">剩下 <ph name="NUMBER_TWO"/> 秒</translation>
 <translation id="1485146213770915382">在網址中應該出現搜尋字詞的位置插入 <ph name="SEARCH_TERMS_LITERAL"/>。</translation>
 <translation id="5626134646977739690">名稱:</translation>
@@ -604,8 +645,10 @@
 <translation id="486595306984036763">開啟網路釣魚報告</translation>
 <translation id="1568162916422682473">下列外掛程式已損毀: <ph name="PLUGIN_NAME"/></translation>
 <translation id="2441719842399509963">重設為預設值</translation>
+<translation id="170407012880898501">儲存表單文字以便於填寫</translation>
 <translation id="8116972784401310538">書籤管理員(&amp;B)</translation>
 <translation id="6040143037577758943">關閉</translation>
+<translation id="4943872375798546930">沒有結果</translation>
 <translation id="4910619056351738551">給您的建議:</translation>
 <translation id="7451556917824271099">位於 &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; 的網站包含來自 &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; 網站的元素，且其中似乎包含惡意程式，可能損害您的電腦或在未經您同意之下擅自執行。單憑造訪包含惡意程式的網站就足以影響您的電腦。</translation>
 <translation id="1232569758102978740">未命名</translation>
@@ -615,6 +658,7 @@
 <translation id="7442246004212327644">清除(&amp;L)</translation>
 <translation id="9002707937526687073">列印(&amp;R)...</translation>
 <translation id="5556459405103347317">重新載入</translation>
+<translation id="7727721885715384408">重新命名...</translation>
 <translation id="5508407262627860757">確定取消</translation>
 <translation id="7587108133605326224">波羅的海語系</translation>
 <translation id="8598751847679122414">此網站包含重新導向迴圈。</translation>
@@ -633,17 +677,21 @@
 <translation id="4745438305783437565"><ph name="NUMBER_FEW"/> 分鐘</translation>
 <translation id="2649911884196340328">伺服器的安全性憑證有錯誤!</translation>
 <translation id="1963692530539281474">剩下 <ph name="NUMBER_DEFAULT"/> 天</translation>
+<translation id="668171684555832681">其他...</translation>
 <translation id="3108416241300843963">由於伺服器憑證無效，所以要求失敗。</translation>
 <translation id="116506693382293616">本網頁的某些元素透過包含 SSL 錯誤的連線所擷取。</translation>
 <translation id="7887455386323777409">中止外掛程式</translation>
 <translation id="3761000923495507277">在工具列上顯示 [首頁] 按鈕</translation>
 <translation id="8709969075297564489">檢查伺服器憑證撤銷</translation>
+<translation id="8698171900303917290">安裝時遇到問題嗎？</translation>
+<translation id="2552545117464357659">更新</translation>
 <translation id="5869522115854928033">已儲存的密碼</translation>
 <translation id="1709220265083931213">進階選項</translation>
 <translation id="4771973620359291008">發生不明的錯誤。</translation>
 <translation id="8155798677707647270">安裝新版本...</translation>
 <translation id="6886871292305414135">在新分頁中開啟連結(&amp;T)</translation>
-<translation id="6308937455967653460">另存連結為(&amp;k)...</translation>
+<translation id="6308937455967653460">另存連結為(&amp;K)...</translation>
+<translation id="5421136146218899937">清除瀏覽資料...</translation>
 <translation id="3943582379552582368">上一頁(&amp;B)</translation>
 <translation id="7607002721634913082">已暫停</translation>
 <translation id="480990236307250886">開啟首頁</translation>
@@ -663,6 +711,7 @@
 <translation id="1702534956030472451">西歐語系</translation>
 <translation id="9141716082071217089">無法檢查伺服器的憑證是否被撤銷。</translation>
 <translation id="4304224509867189079">登入</translation>
+<translation id="4492190037599258964">「<ph name="SEARCH_STRING"/>」的搜尋結果</translation>
 <translation id="988159990683914416">開發人員版本</translation>
 <translation id="3705722231355495246">-</translation>
 <translation id="4268574628540273656">網址:</translation>
@@ -671,6 +720,7 @@
 <translation id="1664314758578115406">新增網頁...</translation>
 <translation id="4084682180776658562">書籤</translation>
 <translation id="4381091992796011497">使用者名稱:</translation>
+<translation id="7669151579173473971">於設定檔中開啟新視窗(&amp;P)</translation>
 <translation id="5822838715583768518">啟動應用程式</translation>
 <translation id="6756161853376828318">讓 <ph name="PRODUCT_NAME"/> 成為我的預設瀏覽器</translation>
 <translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
@@ -683,6 +733,7 @@
 <translation id="1273291576878293349">所有書籤均在無痕式視窗中開啟</translation>
 <translation id="3455546154539383562">您嘗試到達 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;，但是伺服器提供的憑證遭到發行者撤銷。這代表伺服器提供的安全性驗證不可靠。您通訊的對象可能是攻擊者。您必須就此停住。</translation>
 <translation id="1177437665183591855">不明伺服器憑證錯誤</translation>
+<translation id="3819800052061700452">全螢幕(&amp;F)</translation>
 <translation id="3737554291183722650">網頁標題:</translation>
 <translation id="4726901538158498735">預設搜尋</translation>
 <translation id="5101042277149003567">開啟所有書籤</translation>
@@ -693,6 +744,7 @@
 <translation id="5119173345047096771">Mozilla Firefox</translation>
 <translation id="385051799172605136">返回</translation>
 <translation id="1208126399996836490">取消重設</translation>
+<translation id="806812017500012252">以標題重新排序</translation>
 <translation id="2960316970329790041">停止匯入</translation>
 <translation id="1731911755844941020">正在傳送要求...</translation>
 <translation id="1038842779957582377">不明名稱</translation>
@@ -712,6 +764,7 @@
 <translation id="5233231016133573565">程序 ID</translation>
 <translation id="5941711191222866238">縮到最小</translation>
 <translation id="7167486101654761064">永遠開啟這類檔案(&amp;A)</translation>
+<translation id="6053401458108962351">清除瀏覽資料(&amp;C)...</translation>
 <translation id="2339641773402824483">檢查更新...</translation>
 <translation id="2766006623206032690">貼上及前往(&amp;S)</translation>
 <translation id="9071050381089585305">指令碼無回應</translation>
