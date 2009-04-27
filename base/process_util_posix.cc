@@ -22,7 +22,6 @@
 #include "base/scoped_ptr.h"
 #include "base/sys_info.h"
 #include "base/time.h"
-#include "base/waitable_event.h"
 
 const int kMicrosecondsPerSecond = 1000000;
 
@@ -208,7 +207,7 @@ int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
   // has been installed.  This means that when a SIGCHLD is sent, it will exit
   // depending on behavior external to this function.
   //
-  // This function is used primarily for unit tests, if we want to use it in
+  // This function is used primarilly for unit tests, if we want to use it in
   // the application itself it would probably be best to examine other routes.
   int status = -1;
   pid_t ret_pid = waitpid(handle, &status, WNOHANG);
@@ -244,11 +243,7 @@ int WaitpidWithTimeout(ProcessHandle handle, int wait_milliseconds,
 
 bool WaitForSingleProcess(ProcessHandle handle, int wait_milliseconds) {
   bool waitpid_success;
-  int status;
-  if (wait_milliseconds == base::kNoTimeout)
-    waitpid_success = (waitpid(handle, &status, 0) != -1);
-  else
-    status = WaitpidWithTimeout(handle, wait_milliseconds, &waitpid_success);
+  int status = WaitpidWithTimeout(handle, wait_milliseconds, &waitpid_success);
   if (status != -1) {
     DCHECK(waitpid_success);
     return WIFEXITED(status);

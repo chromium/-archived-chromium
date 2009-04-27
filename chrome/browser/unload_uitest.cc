@@ -3,13 +3,13 @@
 // found in the LICENSE file.
 
 #include "base/file_util.h"
-#include "base/platform_thread.h"
+
 #include "chrome/browser/automation/url_request_mock_http_job.h"
 #include "chrome/common/chrome_switches.h"
-#include "chrome/common/message_box_flags.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/ui/ui_test.h"
+#include "chrome/views/window/dialog_delegate.h"
 #include "net/url_request/url_request_unittest.h"
 
 const std::string NOLISTENERS_HTML =
@@ -96,7 +96,7 @@ class UnloadTest : public UITest {
     int max_wait_time = 5000;
     while (max_wait_time > 0) {
       max_wait_time -= kCheckDelayMs;
-      PlatformThread::Sleep(kCheckDelayMs);
+      Sleep(kCheckDelayMs);
       if (!IsBrowserRunning())
         break;
     }
@@ -107,7 +107,7 @@ class UnloadTest : public UITest {
     int max_wait_time = 5000;
     while (max_wait_time > 0) {
       max_wait_time -= kCheckDelayMs;
-      PlatformThread::Sleep(kCheckDelayMs);
+      Sleep(kCheckDelayMs);
       if (expected_title == GetActiveTabTitle())
         break;
     }
@@ -136,10 +136,10 @@ class UnloadTest : public UITest {
   void NavigateToNolistenersFileTwiceAsync() {
     // TODO(ojan): We hit a DCHECK in RenderViewHost::OnMsgShouldCloseACK
     // if we don't sleep here.
-    PlatformThread::Sleep(400);
+    Sleep(400);
     NavigateToURLAsync(
         URLRequestMockHTTPJob::GetMockUrl(L"title2.html"));
-    PlatformThread::Sleep(400);
+    Sleep(400);
     NavigateToURL(
         URLRequestMockHTTPJob::GetMockUrl(L"title2.html"));
 
@@ -155,26 +155,17 @@ class UnloadTest : public UITest {
   }
 
   void ClickModalDialogButton(MessageBoxFlags::DialogButton button) {
-#if defined(OS_WIN) || defined(OS_LINUX)
     bool modal_dialog_showing = false;
     MessageBoxFlags::DialogButton available_buttons;
     EXPECT_TRUE(automation()->WaitForAppModalDialog(3000));
     EXPECT_TRUE(automation()->GetShowingAppModalDialog(&modal_dialog_showing,
         &available_buttons));
     ASSERT_TRUE(modal_dialog_showing);
-    EXPECT_TRUE((button & available_buttons) != 0);
+    EXPECT_TRUE((button & available_buttons) != NULL);
     EXPECT_TRUE(automation()->ClickAppModalDialogButton(button));
-#else
-    // TODO(port): port this function if and when the tests that use it are
-    // enabled (currently they are not being run even on windows).
-    NOTIMPLEMENTED();
-#endif
   }
 };
 
-// TODO(port): these tests fail on linux because they leave a renderer process
-// lying around which holds onto the user data directory.
-#if defined(OS_WIN)
 // Navigate to a page with an infinite unload handler.
 // Then two two async crosssite requests to ensure
 // we don't get confused and think we're closing the tab.
@@ -230,7 +221,6 @@ TEST_F(UnloadTest, CrossSiteInfiniteBeforeUnloadSync) {
   NavigateToNolistenersFileTwice();
   ASSERT_TRUE(IsBrowserRunning());
 }
-#endif
 
 // Tests closing the browser on a page with no unload listeners registered.
 TEST_F(UnloadTest, BrowserCloseNoUnloadListeners) {
