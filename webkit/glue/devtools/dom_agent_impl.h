@@ -126,11 +126,16 @@ class DomAgentImpl : public DomAgent {
       const WebCore::CSSStyleDeclaration& style);
 
   // We represent embedded doms as a part of the same hierarchy. Hence we
-  // treat children of frame owners differently. Following two methods
-  // encapsulate frame owner specifics.
+  // treat children of frame owners differently. We also skip whitespace
+  // text nodes conditionally. Following four methods encapsulate these
+  // specifics.
   WebCore::Node* InnerFirstChild(WebCore::Node* node);
+  WebCore::Node* InnerNextSibling(WebCore::Node* node);
+  WebCore::Node* InnerPreviousSibling(WebCore::Node* node);
   int InnerChildNodeCount(WebCore::Node* node);
   WebCore::Element* InnerParentElement(WebCore::Node* node);
+  bool IsWhitespace(WebCore::Node* node);
+
   WebCore::Document* GetMainFrameDocument();
 
   DomAgentDelegate* delegate_;

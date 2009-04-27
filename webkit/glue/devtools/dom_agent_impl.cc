@@ -213,6 +213,9 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
     OwnPtr<Value> attributesValue(BuildValueForElementAttributes(element));
     delegate_->AttributesUpdated(id, *attributesValue.get());
   } else if (type == eventNames().DOMNodeInsertedEvent) {
+    if (IsWhitespace(node)) {
+      return;
+    }
     Node* parent = static_cast<MutationEvent*>(event)->relatedNode();
     int parent_id = GetIdForNode(parent);
     if (!parent_id) {
@@ -224,11 +227,14 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
       delegate_->HasChildrenUpdated(parent_id, true);
     } else {
       // Children have been requested -> return value of a new child.
-      int prev_id = GetIdForNode(node->previousSibling());
+      int prev_id = GetIdForNode(InnerPreviousSibling(node));
       OwnPtr<Value> value(BuildValueForNode(node, 0));
       delegate_->ChildNodeInserted(parent_id, prev_id, *value.get());
     }
   } else if (type == eventNames().DOMNodeRemovedEvent) {
+    if (IsWhitespace(node)) {
+      return;
+    }
     Node* parent = static_cast<MutationEvent*>(event)->relatedNode();
     int parent_id = GetIdForNode(parent);
     if (!parent_id) {
@@ -237,7 +243,7 @@ void DomAgentImpl::handleEvent(Event* event, bool isWindowEvent) {
     }
     if (!children_requested_.contains(parent_id)) {
       // No children are mapped yet -> only notify on changes of hasChildren.
-      if (parent->childNodeCount() == 1)
+      if (InnerChildNodeCount(parent) == 1)
         delegate_->HasChildrenUpdated(parent_id, false);
     } else {
       int id = GetIdForNode(node);
@@ -508,8 +514,8 @@ ListValue* DomAgentImpl::BuildValueForElementChildren(
   OwnPtr<ListValue> children(new ListValue());
   if (depth == 0) {
     // Special case the_only text child.
-    if (element->childNodeCount() == 1) {
-      Node *child = element->firstChild();
+    if (InnerChildNodeCount(element) == 1) {
+      Node *child = InnerFirstChild(element);
       if (child->nodeType() == Node::TEXT_NODE) {
         children->Append(BuildValueForNode(child, 0));
       }
@@ -520,7 +526,7 @@ ListValue* DomAgentImpl::BuildValueForElementChildren(
   }
 
   for (Node *child = InnerFirstChild(element); child != NULL;
-       child = child->nextSibling()) {
+       child = InnerNextSibling(child)) {
     children->Append(BuildValueForNode(child, depth));
   }
   return children.release();
@@ -536,19 +542,35 @@ Node* DomAgentImpl::InnerFirstChild(Node* node) {
       return doc->firstChild();
     }
   }
-  return node->firstChild();
+  node = node->firstChild();
+  while (IsWhitespace(node)) {
+    node = node->nextSibling();
+  }
+  return node;
+}
+
+Node* DomAgentImpl::InnerNextSibling(Node* node) {
+  do {
+    node = node->nextSibling();
+  } while (IsWhitespace(node));
+  return node;
+}
+
+Node* DomAgentImpl::InnerPreviousSibling(Node* node) {
+  do {
+    node = node->previousSibling();
+  } while (IsWhitespace(node));
+  return node;
 }
 
 int DomAgentImpl::InnerChildNodeCount(Node* node) {
-  if (node->isFrameOwnerElement()) {
-    HTMLFrameOwnerElement* frame_owner =
-        static_cast<HTMLFrameOwnerElement*>(node);
-    Document* doc = frame_owner->contentDocument();
-    if (doc) {
-      return 1;
-    }
+  int count = 0;
+  Node* child = InnerFirstChild(node);
+  while (child) {
+    count++;
+    child = InnerNextSibling(child);
   }
-  return node->childNodeCount();
+  return count;
 }
 
 Element* DomAgentImpl::InnerParentElement(Node* node) {
@@ -557,6 +579,11 @@ Element* DomAgentImpl::InnerParentElement(Node* node) {
     return node->ownerDocument()->ownerElement();
   }
   return element;
+}
+
+bool DomAgentImpl::IsWhitespace(Node* node) {
+  return node != NULL && node->nodeType() == Node::TEXT_NODE &&
+      node->nodeValue().stripWhiteSpace().length() == 0;
 }
 
 Document* DomAgentImpl::GetMainFrameDocument() {

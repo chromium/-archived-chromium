@@ -8,7 +8,9 @@
 #include "Document.h"
 #include "EventListener.h"
 #include "HTMLFrameOwnerElement.h"
+#include "Node.h"
 #include "PlatformString.h"
+#include "Text.h"
 #include <wtf/OwnPtr.h>
 #undef LOG
 
@@ -33,6 +35,7 @@ using WebCore::ExceptionCode;
 using WebCore::HTMLFrameOwnerElement;
 using WebCore::Node;
 using WebCore::String;
+using WebCore::Text;
 
 namespace {
 
@@ -56,7 +59,7 @@ class DomAgentTests : public TestShellTest {
     test_shell_->ResetTestController();
     GURL file_url = net::FilePathToFileURL(data_dir_);
     WebFrame* main_frame = test_shell_->webView()->GetMainFrame();
-    main_frame->LoadHTMLString("<html><body/></html>",
+    main_frame->LoadHTMLString("<html> <body>  </body> </html>",
         file_url);
     WebFrameImpl* main_frame_impl = static_cast<WebFrameImpl*>(main_frame);
 
@@ -160,6 +163,9 @@ TEST_F(DomAgentTests, ChildNodeInsertedKnownChildren) {
   OwnPtr<Value> v(DevToolsRpc::ParseMessage("[3,1,\"DIV\",\"\",[],0]"));
   mock_delegate_->ChildNodeInserted(kBodyElemId, 0, *v.get());
   mock_delegate_->Replay();
+
+  RefPtr<Text> text = document_->createTextNode("    ");
+  body_->appendChild(text, ec_);
 
   RefPtr<Element> div = document_->createElement("DIV", ec_);
   body_->appendChild(div, ec_);
