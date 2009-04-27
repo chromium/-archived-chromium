@@ -427,11 +427,7 @@ int ChromeMain(int argc, const char** argv) {
   if (process_type == switches::kRendererProcess) {
     rv = RendererMain(main_params);
   } else if (process_type == switches::kPluginProcess) {
-#if defined(OS_WIN) || defined(OS_LINUX)
     rv = PluginMain(main_params);
-#else
-    NOTIMPLEMENTED();
-#endif
   } else if (process_type == switches::kWorkerProcess) {
 #if defined(OS_WIN)
     rv = WorkerMain(main_params);

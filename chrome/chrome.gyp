@@ -1458,10 +1458,67 @@
       ],
     },
     {
+      'target_name': 'plugin',
+      'type': '<(library)',
+      'dependencies': [
+        'common',
+        'resources',
+        '../media/media.gyp:media',
+        '../skia/skia.gyp:skia',
+        '../third_party/icu38/icu38.gyp:icui18n',
+        '../third_party/icu38/icu38.gyp:icuuc',
+        '../third_party/libxml/libxml.gyp:libxml',
+        '../third_party/npapi/npapi.gyp:npapi',
+        'third_party/hunspell/hunspell.gyp:hunspell',
+        '../webkit/webkit.gyp:glue',
+      ],
+      'include_dirs': [
+        '<(INTERMEDIATE_DIR)',
+      ],
+      'sources': [
+        # All .cc, .h, .m, and .mm files under plugins except for tests and
+        # mocks.
+        'plugin/chrome_plugin_host.cc',
+        'plugin/chrome_plugin_host.h',
+        'plugin/npobject_proxy.cc',
+        'plugin/npobject_proxy.h',
+        'plugin/npobject_stub.cc',
+        'plugin/npobject_stub.h',
+        'plugin/npobject_util.cc',
+        'plugin/npobject_util.h',
+        'plugin/plugin_channel.cc',
+        'plugin/plugin_channel.h',
+        'plugin/plugin_channel_base.cc',
+        'plugin/plugin_channel_base.h',
+        'plugin/plugin_main.cc',
+        'plugin/plugin_thread.cc',
+        'plugin/plugin_thread.h',
+        'plugin/webplugin_delegate_stub.cc',
+        'plugin/webplugin_delegate_stub.h',
+        'plugin/webplugin_proxy.cc',
+        'plugin/webplugin_proxy.h',
+      ],
+      # These are layered in conditionals in the event other platforms
+      # end up using this module as well.
+      'conditions': [
+        ['OS=="win"', {
+          'defines': [
+            '__STD_C',
+            '_CRT_SECURE_NO_DEPRECATE',
+            '_SCL_SECURE_NO_DEPRECATE',
+          ],
+          'include_dirs': [
+            'third_party/wtl/include',
+          ],
+        },],
+      ],
+    },
+    {
       'target_name': 'renderer',
       'type': '<(library)',
       'dependencies': [
         'common',
+        'plugin',
         'resources',
         '../printing/printing.gyp:printing',
         '../skia/skia.gyp:skia',
@@ -1563,15 +1620,6 @@
         ],
       },
       'conditions': [
-        # Plugin code.
-        ['OS=="linux" or OS=="win"', {
-          'dependencies': [
-            'plugin',
-          ],
-          'export_dependent_settings': [
-            'plugin',
-          ],
-        }],
         # Linux-specific rules.
         ['OS=="linux"', {
           'dependencies': [
@@ -1590,13 +1638,6 @@
             'renderer/webworker_proxy.cc',
             'renderer/webworker_proxy.h',
           ],
-        },],
-        # As of yet unported-to-Mac code.
-        ['OS=="mac"', {
-          'sources!': [
-            'renderer/plugin_channel_host.cc',
-            'renderer/webplugin_delegate_proxy.cc',
-          ]
         },],
       ],
     },
@@ -2897,66 +2938,6 @@
         },
       ],
     }], # OS=="win" or OS=="linux"
-    ['OS=="win" or OS=="linux"',
-      { 'targets': [
-        {
-          'target_name': 'plugin',
-          'type': '<(library)',
-          'dependencies': [
-            'common',
-            'resources',
-            '../media/media.gyp:media',
-            '../skia/skia.gyp:skia',
-            '../third_party/icu38/icu38.gyp:icui18n',
-            '../third_party/icu38/icu38.gyp:icuuc',
-            '../third_party/libxml/libxml.gyp:libxml',
-            '../third_party/npapi/npapi.gyp:npapi',
-            'third_party/hunspell/hunspell.gyp:hunspell',
-            '../webkit/webkit.gyp:glue',
-          ],
-          'include_dirs': [
-            '<(INTERMEDIATE_DIR)',
-          ],
-          'sources': [
-            # All .cc, .h, .m, and .mm files under browser except for tests and
-            # mocks.
-            'plugin/chrome_plugin_host.cc',
-            'plugin/chrome_plugin_host.h',
-            'plugin/npobject_proxy.cc',
-            'plugin/npobject_proxy.h',
-            'plugin/npobject_stub.cc',
-            'plugin/npobject_stub.h',
-            'plugin/npobject_util.cc',
-            'plugin/npobject_util.h',
-            'plugin/plugin_channel.cc',
-            'plugin/plugin_channel.h',
-            'plugin/plugin_channel_base.cc',
-            'plugin/plugin_channel_base.h',
-            'plugin/plugin_main.cc',
-            'plugin/plugin_thread.cc',
-            'plugin/plugin_thread.h',
-            'plugin/webplugin_delegate_stub.cc',
-            'plugin/webplugin_delegate_stub.h',
-            'plugin/webplugin_proxy.cc',
-            'plugin/webplugin_proxy.h',
-          ],
-          # These are layered in conditionals in the event other platforms
-          # end up using this module as well.
-          'conditions': [
-            ['OS=="win"', {
-              'defines': [
-                '__STD_C',
-                '_CRT_SECURE_NO_DEPRECATE',
-                '_SCL_SECURE_NO_DEPRECATE',
-              ],
-              'include_dirs': [
-                'third_party/wtl/include',
-              ],
-            },],
-          ],
-        },
-      ]},  # 'targets'
-    ],  # OS=="win" or OS=="linux"
     ['OS=="win"',
       { 'targets': [
         {
