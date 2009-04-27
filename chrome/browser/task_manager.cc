@@ -358,9 +358,13 @@ void TaskManagerTableModel::AddResource(TaskManager::Resource* resource) {
     new_entry_index = static_cast<int>(iter - resources_.begin());
     resources_.insert(++iter, resource);
   }
-  base::ProcessMetrics* pm =
-      base::ProcessMetrics::CreateProcessMetrics(process);
-  metrics_map_[process] = pm;
+
+  // Create the ProcessMetrics for this process if needed (not in map).
+  if (metrics_map_.find(process) == metrics_map_.end()) {
+    base::ProcessMetrics* pm =
+        base::ProcessMetrics::CreateProcessMetrics(process);
+    metrics_map_[process] = pm;
+  }
 
   // Notify the table that the contents have changed for it to redraw.
   DCHECK(observer_);
