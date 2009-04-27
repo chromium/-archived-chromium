@@ -44,7 +44,7 @@
       'conditions': [
         ['javascript_engine=="v8"', {
           'dependencies': [
-            '../v8/tools/gyp/v8.gyp:*',
+            'temp_gyp/v8.gyp:*',
           ],
         }],
         ['OS=="linux"', {
