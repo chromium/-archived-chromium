@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="browser_tests_dll"
+	InheritedPropertySheets="$(SolutionDir)tools\build\win\unit_test.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+	/>
+	<Tool
+                Name="VCResourceCompilerTool"
+	        AdditionalIncludeDirectories="&quot;$(IntDir)&quot;"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+	/>
+</VisualStudioPropertySheet>

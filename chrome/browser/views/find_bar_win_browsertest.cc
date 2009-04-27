@@ -7,8 +7,8 @@
 #include "chrome/browser/find_notification_details.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/tab_contents/tab_contents_view.h"
+#include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/views/find_bar_win.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/test/in_process_browser_test.h"
@@ -159,9 +159,7 @@ std::string FocusedOnPage(WebContents* web_contents) {
 // This tests the FindInPage end-state, in other words: what is focused when you
 // close the Find box (ie. if you find within a link the link should be
 // focused).
-// TODO(jcampan): This test needs to be enabled once Jay fixes the issues with
-// running two InProc browser tests that both start a web server (crashes).
-IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, DISABLED_FindInPageEndState) {
+IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageEndState) {
   HTTPTestServer* server = StartHTTPServer();
 
   // First we navigate to our special focus tracking page.
