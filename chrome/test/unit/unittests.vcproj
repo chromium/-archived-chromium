@@ -520,6 +520,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\views\find_bar_win_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\importer\firefox_importer_unittest.cc"
 				>
 			</File>
