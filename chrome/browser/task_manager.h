@@ -18,6 +18,7 @@
 #include "chrome/views/controls/table/group_table_view.h"
 #include "chrome/views/window/dialog_delegate.h"
 #include "net/url_request/url_request_job_tracker.h"
+#include "testing/gtest/include/gtest/gtest_prod.h"
 
 class MessageLoop;
 class ModelEntry;
@@ -136,6 +137,9 @@ class TaskManager : public views::DialogDelegate {
   virtual views::View* GetContentsView();
 
  private:
+  FRIEND_TEST(TaskManagerTest, Basic);
+  FRIEND_TEST(TaskManagerTest, Resources);
+
   // Obtain an instance via GetInstance().
   TaskManager();
   friend DefaultSingletonTraits<TaskManager>;

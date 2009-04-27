@@ -724,6 +724,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\browser\task_manager_unittest.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\..\browser\search_engines\template_url_model_unittest.cc"
 				>
 			</File>
