@@ -16,7 +16,7 @@
 #endif
 #include <map>
 
-#if defined(TOOLKIT_GTK)
+#if defined(OS_LINUX)
 #include <gdk/gdkcursor.h>
 #endif
 
@@ -69,7 +69,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
 #else
       , select_trailing_whitespace_enabled_(false)
 #endif
-#if defined(TOOLKIT_GTK)
+#if defined(OS_LINUX)
       , cursor_type_(GDK_X_CURSOR)
 #endif
       {
@@ -342,7 +342,7 @@ class TestWebViewDelegate : public base::RefCounted<TestWebViewDelegate>,
   scoped_refptr<TestDropDelegate> drop_delegate_;
 #endif
 
-#if defined(TOOLKIT_GTK)
+#if defined(OS_LINUX)
   // The type of cursor the window is currently using.
   // Used for judging whether a new SetCursor call is actually changing the
   // cursor.

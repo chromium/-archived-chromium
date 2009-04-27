@@ -155,7 +155,7 @@ MSVC_POP_WARNING();
 #include "webkit/glue/webtextinput_impl.h"
 #include "webkit/glue/webview_impl.h"
 
-#if defined(TOOLKIT_GTK)
+#if defined(OS_LINUX)
 #include <gdk/gdk.h>
 #endif
 

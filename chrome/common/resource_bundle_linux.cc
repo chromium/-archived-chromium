@@ -4,9 +4,7 @@
 
 #include "chrome/common/resource_bundle.h"
 
-#if defined(TOOLKIT_GTK)
 #include <gtk/gtk.h>
-#endif
 
 #include "base/base_paths.h"
 #include "base/data_pack.h"
@@ -25,7 +23,6 @@
 
 namespace {
 
-#if defined(TOOLKIT_GTK)
 // Convert the raw image data into a GdkPixbuf.  The GdkPixbuf that is returned
 // has a ref count of 1 so the caller must call g_object_unref to free the
 // memory.
@@ -51,7 +48,6 @@ GdkPixbuf* LoadPixbuf(std::vector<unsigned char>& data) {
 
   return pixbuf;
 }
-#endif
 
 }  // namespace
 
@@ -163,7 +159,6 @@ string16 ResourceBundle::GetLocalizedString(int message_id) {
   return msg;
 }
 
-#if defined(TOOLKIT_GTK)
 GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
   // Check to see if we already have the pixbuf in the cache.
   {
@@ -212,4 +207,3 @@ GdkPixbuf* ResourceBundle::GetPixbufNamed(int resource_id) {
     return empty_bitmap;
   }
 }
-#endif

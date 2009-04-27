@@ -15,7 +15,7 @@
 typedef struct HINSTANCE__* HINSTANCE;
 typedef struct HICON__* HICON;
 typedef HICON HCURSOR;
-#elif defined(TOOLKIT_GTK)
+#elif defined(OS_LINUX)
 // GdkCursorType is an enum, which we can't forward-declare.  :(
 // If you work around this, be sure to fix webkit.gyp:glue to not put
 // GTK in the export_dependent_settings section!
@@ -73,7 +73,7 @@ class WebCursor {
   // APIs on it.
   void InitFromExternalCursor(HCURSOR handle);
 
-#elif defined(TOOLKIT_GTK)
+#elif defined(OS_LINUX)
   // Return the stock GdkCursorType for this cursor, or GDK_CURSOR_IS_PIXMAP
   // if it's a custom cursor. Return GDK_LAST_CURSOR to indicate that the cursor
   // should be set to the system default.

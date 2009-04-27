@@ -25,7 +25,7 @@ namespace base {
   class DataPack;
 };
 #endif
-#if defined(TOOLKIT_GTK)
+#if defined(OS_LINUX)
 typedef struct _GdkPixbuf GdkPixbuf;
 #endif
 class ChromeFont;
@@ -113,7 +113,7 @@ class ResourceBundle {
 
   // Loads and returns a cursor from the app module.
   HCURSOR LoadCursor(int cursor_id);
-#elif defined(TOOLKIT_GTK)
+#elif defined(OS_LINUX)
   // Gets the GdkPixbuf with the specified resource_id, first by looking into
   // the theme data, than in the current module data if applicable.  Returns a
   // pointer to a shared instance of the GdkPixbuf.  This shared GdkPixbuf is
@@ -183,7 +183,7 @@ class ResourceBundle {
   // ownership of the pointers.
   typedef std::map<int, SkBitmap*> SkImageMap;
   SkImageMap skia_images_;
-#if defined(TOOLKIT_GTK)
+#if defined(OS_LINUX)
   typedef std::map<int, GdkPixbuf*> GdkPixbufMap;
   GdkPixbufMap gdk_pixbufs_;
 #endif

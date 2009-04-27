@@ -57,9 +57,6 @@
       }, {  # else: branding!="Chrome"
         'defines': ['CHROMIUM_BUILD'],
       }],
-      ['OS=="linux"', {
-        'defines': ['TOOLKIT_GTK=1'],
-      }],
       ['coverage!=0', {
         'conditions': [
           ['OS=="mac"', {

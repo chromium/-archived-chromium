@@ -25,7 +25,7 @@ class Path : public SkPath {
   // Creates a HRGN from the path. The caller is responsible for freeing
   // resources used by this region.  This only supports polygon paths.
   HRGN CreateHRGN() const;
-#elif defined(TOOLKIT_GTK)
+#elif defined(OS_LINUX)
   // Creates a Gdkregion from the path. The caller is responsible for freeing
   // resources used by this region.  This only supports polygon paths.
   GdkRegion* CreateGdkRegion() const;

@@ -145,19 +145,12 @@ typedef unsigned uint32_t;
 #error Read the comment at this location
 #endif
 
-#ifdef LINUX2
-#define SK_A32_SHIFT 24
-#define SK_B32_SHIFT 16
-#define SK_G32_SHIFT 8
-#define SK_R32_SHIFT 0
-#else
 // For Linux we want to match the most common X visual, which is
 // ARGB (in registers)
 #define SK_A32_SHIFT 24
 #define SK_R32_SHIFT 16
 #define SK_G32_SHIFT 8
 #define SK_B32_SHIFT 0
-#endif
 
 #endif
 

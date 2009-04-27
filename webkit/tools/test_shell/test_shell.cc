@@ -582,11 +582,9 @@ void AppendToLog(const char* file, int line, const char* msg) {
   logging::LogMessage(file, line).stream() << msg;
 }
 
-#if !defined(LINUX2)
 bool GetApplicationDirectory(std::wstring *path) {
   return PathService::Get(base::DIR_EXE, path);
 }
-#endif
 
 GURL GetInspectorURL() {
   return GURL("test-shell-resource://inspector/inspector.html");
@@ -596,11 +594,9 @@ std::string GetUIResourceProtocol() {
   return "test-shell-resource";
 }
 
-#if !defined(LINUX2)
 bool GetExeDirectory(std::wstring *path) {
   return PathService::Get(base::DIR_EXE, path);
 }
-#endif
 
 bool SpellCheckWord(const wchar_t* word, int word_len,
                     int* misspelling_start, int* misspelling_len) {
@@ -610,17 +606,14 @@ bool SpellCheckWord(const wchar_t* word, int word_len,
   return true;
 }
 
-#if !defined(LINUX2)
 bool IsPluginRunningInRendererProcess() {
   return true;
 }
-#endif
 
 bool GetPluginFinderURL(std::string* plugin_finder_url) {
   return false;
 }
 
-#if !defined(LINUX2)
 bool IsDefaultPluginEnabled() {
 #if defined(OS_WIN)
   FilePath exe_path;
@@ -638,6 +631,5 @@ bool IsDefaultPluginEnabled() {
 std::wstring GetWebKitLocale() {
   return L"en-US";
 }
-#endif
 
 }  // namespace webkit_glue

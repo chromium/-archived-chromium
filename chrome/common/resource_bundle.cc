@@ -52,9 +52,7 @@ void ResourceBundle::FreeImages() {
 }
 
 void ResourceBundle::SetThemeExtension(const Extension& e) {
-#if !defined(LINUX2)
   theme_extension_.reset(new Extension(e));
-#endif
 }
 
 /* static */
@@ -65,7 +63,6 @@ SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
   // it can handle this resource.
   // TODO(erikkay): It would be nice to use something less brittle than
   // resource_id here.
-#if !defined(LINUX2)
   if (g_shared_instance_->theme_extension_.get()) {
     FilePath path =
         g_shared_instance_->theme_extension_->GetThemeResourcePath(resource_id);
@@ -87,7 +84,6 @@ SkBitmap* ResourceBundle::LoadBitmap(DataHandle data_handle, int resource_id) {
       }
     }
   }
-#endif
   if (!success)
     success = LoadResourceBytes(data_handle, resource_id, &raw_data);
   if (!success)
