@@ -29,6 +29,7 @@ namespace {
 const GdkColor kBorderColor = GDK_COLOR_RGB(0xc7, 0xca, 0xce);
 const GdkColor kBackgroundColor = GDK_COLOR_RGB(0xff, 0xff, 0xff);
 const GdkColor kSelectedBackgroundColor = GDK_COLOR_RGB(0xdf, 0xe6, 0xf6);
+const GdkColor kHoveredBackgroundColor = GDK_COLOR_RGB(0xef, 0xf2, 0xfa);
 
 const GdkColor kContentTextColor = GDK_COLOR_RGB(0x00, 0x00, 0x00);
 const GdkColor kURLTextColor = GDK_COLOR_RGB(0x00, 0x88, 0x00);
@@ -210,6 +211,16 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
   pango_layout_set_font_description(layout_, pfd);
   pango_font_description_free(pfd);
 
+  gtk_widget_add_events(window_, GDK_BUTTON_MOTION_MASK |
+                                 GDK_POINTER_MOTION_MASK |
+                                 GDK_BUTTON_PRESS_MASK |
+                                 GDK_BUTTON_RELEASE_MASK);
+  g_signal_connect(window_, "motion-notify-event", 
+                   G_CALLBACK(&HandleMotionThunk), this);
+  g_signal_connect(window_, "button-press-event", 
+                   G_CALLBACK(&HandleButtonPressThunk), this);
+  g_signal_connect(window_, "button-release-event", 
+                   G_CALLBACK(&HandleButtonReleaseThunk), this);
   g_signal_connect(window_, "expose-event", 
                    G_CALLBACK(&HandleExposeThunk), this);
 }
@@ -273,6 +284,64 @@ void AutocompletePopupViewGtk::Hide() {
   opened_ = false;
 }
 
+size_t AutocompletePopupViewGtk::LineFromY(int y) {
+  size_t line = std::max(y - kBorderThickness, 0) / kHeightPerResult;
+  return std::min(line, model_->result().size() - 1);
+}
+
+void AutocompletePopupViewGtk::AcceptLine(size_t line,
+                                          WindowOpenDisposition disposition) {
+  const AutocompleteMatch& match = model_->result().match_at(line);
+  // OpenURL() may close the popup, which will clear the result set and, by
+  // extension, |match| and its contents.  So copy the relevant strings out to
+  // make sure they stay alive until the call completes.
+  const GURL url(match.destination_url);
+  std::wstring keyword;
+  const bool is_keyword_hint = model_->GetKeywordForMatch(match, &keyword);
+  edit_view_->OpenURL(url, disposition, match.transition, GURL(), line,
+                      is_keyword_hint ? std::wstring() : keyword);
+}
+
+gboolean AutocompletePopupViewGtk::HandleMotion(GtkWidget* widget,
+                                                GdkEventMotion* event) {
+  // TODO(deanm): Windows has a bunch of complicated logic here.
+  size_t line = LineFromY(event->y);
+  // There is both a hovered and selected line, hovered just means your mouse
+  // is over it, but selected is what's showing in the location edit.
+  model_->SetHoveredLine(line);
+  // Select the line if the user has the left mouse button down.
+  if (event->state & GDK_BUTTON1_MASK)
+    model_->SetSelectedLine(line, false);
+  return TRUE;
+}
+
+gboolean AutocompletePopupViewGtk::HandleButtonPress(GtkWidget* widget,
+                                                     GdkEventButton* event) {
+  // Very similar to HandleMotion.
+  size_t line = LineFromY(event->y);
+  model_->SetHoveredLine(line);
+  if (event->button == 1)
+    model_->SetSelectedLine(line, false);
+  return TRUE;
+}
+
+gboolean AutocompletePopupViewGtk::HandleButtonRelease(GtkWidget* widget,
+                                                       GdkEventButton* event) {
+  size_t line = LineFromY(event->y);
+  switch (event->button) {
+    case 1:  // Left click.
+      AcceptLine(line, CURRENT_TAB);
+      break;
+    case 2:  // Middle click.
+      AcceptLine(line, NEW_BACKGROUND_TAB);
+      break;
+    default:
+      // Don't open the result.
+      break;
+  }
+  return TRUE;
+}
+
 gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
                                                 GdkEventExpose* event) {
   const AutocompleteResult& result = model_->result();
@@ -321,9 +390,11 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     GdkRectangle result_rect = GetRectForLine(i, window_rect.width);
 
     bool is_selected = (model_->selected_line() == i);
-    if (is_selected) {
-      gdk_gc_set_rgb_fg_color(gc_, &kSelectedBackgroundColor);
-      // This entry is selected, fill a rect with the selection color.
+    bool is_hovered = (model_->hovered_line() == i);
+    if (is_selected || is_hovered) {
+      gdk_gc_set_rgb_fg_color(gc_, is_selected ? &kSelectedBackgroundColor :
+                                                 &kHoveredBackgroundColor);
+      // This entry is selected or hovered, fill a rect with the color.
       gdk_draw_rectangle(drawable, gc_, TRUE,
                          result_rect.x, result_rect.y,
                          result_rect.width, result_rect.height);

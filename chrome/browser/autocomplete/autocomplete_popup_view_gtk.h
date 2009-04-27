@@ -40,13 +40,41 @@ class AutocompletePopupViewGtk : public AutocompletePopupView {
   void Show(size_t num_results);
   void Hide();
 
+  // Convert a y-coordinate to the closest line / result.
+  size_t LineFromY(int y);
+
+  // Accept a line of the results, for example, when the user clicks a line.
+  void AcceptLine(size_t line, WindowOpenDisposition disposition);
+
   static gboolean HandleExposeThunk(GtkWidget* widget, GdkEventExpose* event,
                                     gpointer userdata) {
     return reinterpret_cast<AutocompletePopupViewGtk*>(userdata)->
         HandleExpose(widget, event);
   }
-
   gboolean HandleExpose(GtkWidget* widget, GdkEventExpose* event);
+
+  static gboolean HandleMotionThunk(GtkWidget* widget, GdkEventMotion* event,
+                                    gpointer userdata) {
+    return reinterpret_cast<AutocompletePopupViewGtk*>(userdata)->
+        HandleMotion(widget, event);
+  }
+  gboolean HandleMotion(GtkWidget* widget, GdkEventMotion* event);
+
+  static gboolean HandleButtonPressThunk(GtkWidget* widget,
+                                         GdkEventButton* event,
+                                         gpointer userdata) {
+    return reinterpret_cast<AutocompletePopupViewGtk*>(userdata)->
+        HandleButtonPress(widget, event);
+  }
+  gboolean HandleButtonPress(GtkWidget* widget, GdkEventButton* event);
+
+  static gboolean HandleButtonReleaseThunk(GtkWidget* widget,
+                                           GdkEventButton* event,
+                                           gpointer userdata) {
+    return reinterpret_cast<AutocompletePopupViewGtk*>(userdata)->
+        HandleButtonRelease(widget, event);
+  }
+  gboolean HandleButtonRelease(GtkWidget* widget, GdkEventButton* event);
 
   scoped_ptr<AutocompletePopupModel> model_;
   AutocompleteEditViewGtk* edit_view_;
