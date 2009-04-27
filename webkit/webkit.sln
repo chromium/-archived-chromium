@@ -191,15 +191,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "V8Bindings_prebuild", "buil
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gtest", "..\testing\gtest.vcproj", "{BFE8E2A7-3B3B-43B0-A994-3058B852DB8B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_base", "..\build\temp_gyp\v8_base.vcproj", "{EC8B7909-62AF-470D-A75D-E1D89C837142}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_base", "v8\tools\gyp\v8_base.vcproj", "{EC8B7909-62AF-470D-A75D-E1D89C837142}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8", "..\build\temp_gyp\v8.vcproj", "{21E22961-22BF-4493-BD3A-868F93DA5179}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8", "v8\tools\gyp\v8.vcproj", "{21E22961-22BF-4493-BD3A-868F93DA5179}"
 	ProjectSection(ProjectDependencies) = postProject
 		{865575D0-37E2-405E-8CBA-5F6C485B5A26} = {865575D0-37E2-405E-8CBA-5F6C485B5A26}
 		{9DA4FACA-4A4D-3A23-B349-475C2237F827} = {9DA4FACA-4A4D-3A23-B349-475C2237F827}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mksnapshot", "..\build\temp_gyp\mksnapshot.vcproj", "{865575D0-37E2-405E-8CBA-5F6C485B5A26}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mksnapshot", "v8\tools\gyp\mksnapshot.vcproj", "{865575D0-37E2-405E-8CBA-5F6C485B5A26}"
 	ProjectSection(ProjectDependencies) = postProject
 		{E40E86D3-78D3-D269-7A4A-B4FB74CA4366} = {E40E86D3-78D3-D269-7A4A-B4FB74CA4366}
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
@@ -252,9 +252,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_worker", "tools\test_s
 		{FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED} = {FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "js2c", "..\build\temp_gyp\js2c.vcproj", "{9DA4FACA-4A4D-3A23-B349-475C2237F827}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "js2c", "v8\tools\gyp\js2c.vcproj", "{9DA4FACA-4A4D-3A23-B349-475C2237F827}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_nosnapshot", "..\build\temp_gyp\v8_nosnapshot.vcproj", "{E40E86D3-78D3-D269-7A4A-B4FB74CA4366}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_nosnapshot", "v8\tools\gyp\v8_nosnapshot.vcproj", "{E40E86D3-78D3-D269-7A4A-B4FB74CA4366}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9DA4FACA-4A4D-3A23-B349-475C2237F827} = {9DA4FACA-4A4D-3A23-B349-475C2237F827}
 	EndProjectSection
