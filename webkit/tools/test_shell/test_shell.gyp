@@ -281,7 +281,7 @@
             '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
           ],
         }],
-        ['OS=="mac", {
+        ['OS=="mac"', {
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
