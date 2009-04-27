@@ -1467,6 +1467,20 @@ Widget* WebFrameLoaderClient::createPlugin(const IntSize& size, // TODO(erikkay)
   }
 #endif
 
+#if defined(OS_POSIX)
+  // WebCore asks us to make a plugin even if we don't have a
+  // registered handler, with a comment saying it's so we can display
+  // the broken plugin icon.  In Chromium, we normally register a
+  // fallback plugin handler that allows you to install a missing
+  // plugin.  Since we don't yet have a default plugin handler, we
+  // need to return NULL here rather than going through all the
+  // plugin-creation IPCs only to discover we don't have a plugin
+  // registered, which causes a crash.
+  // TODO(evanm): remove me once we have a default plugin.
+  if (objectContentType(url, mime_type) != ObjectContentNetscapePlugin)
+    return NULL;
+#endif
+
   std::string actual_mime_type;
   WebPluginDelegate* plugin_delegate =
       d->CreatePluginDelegate(webframe_->webview_impl(), gurl, my_mime_type,

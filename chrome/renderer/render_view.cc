@@ -1847,10 +1847,11 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
     const std::string& mime_type,
     const std::string& clsid,
     std::string* actual_mime_type) {
-#if defined(OS_WIN)
+#if defined(OS_WIN) || defined(OS_LINUX)
   if (!PluginChannelHost::IsListening())
     return NULL;
 
+#if !defined(OS_LINUX)  // In-proc plugins aren't supported on Linux.
   if (RenderProcess::current()->in_process_plugins()) {
     FilePath path;
     render_thread_->Send(
@@ -1869,6 +1870,7 @@ WebPluginDelegate* RenderView::CreatePluginDelegate(
                                      mime_type_to_use,
                                      gfx::NativeViewFromId(host_window_));
   }
+#endif
 
   WebPluginDelegateProxy* proxy =
       WebPluginDelegateProxy::Create(url, mime_type, clsid, this);
