@@ -78,10 +78,10 @@ void WebPluginProxy::SetWindowlessPumpEvent(HANDLE pump_messages_event) {
       route_id_, pump_messages_event_for_renderer));
 }
 
-void WebPluginProxy::SetModalDialogEvent(HANDLE modal_dialog_event) {
+bool WebPluginProxy::SetModalDialogEvent(HANDLE modal_dialog_event) {
   // TODO(port): figure out how this will be set in the browser process, or
   // come up with a different mechanism.
-  HANDLE event;
+  HANDLE event = NULL;
   BOOL result = DuplicateHandle(channel_->renderer_handle(),
       modal_dialog_event,
       GetCurrentProcess(),
@@ -92,7 +92,11 @@ void WebPluginProxy::SetModalDialogEvent(HANDLE modal_dialog_event) {
   DCHECK(result) <<
       "Couldn't duplicate the modal dialog handle for the plugin." \
       "handle: " << channel_->renderer_handle() << ". err: " << GetLastError();
+  if (!event)
+    return false;
+
   modal_dialog_event_.reset(new base::WaitableEvent(event));
+  return true;
 }
 #endif
 

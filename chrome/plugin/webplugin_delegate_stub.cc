@@ -144,7 +144,8 @@ void WebPluginDelegateStub::OnInit(const PluginMsg_Init_Params& params,
   if (delegate_) {
     webplugin_ = new WebPluginProxy(channel_, instance_id_, delegate_);
 #if defined(OS_WIN)
-    webplugin_->SetModalDialogEvent(params.modal_dialog_event);
+    if (!webplugin_->SetModalDialogEvent(params.modal_dialog_event))
+      return;
 #endif
     *result = delegate_->Initialize(
         params.url, argn, argv, argc, webplugin_, params.load_manually);

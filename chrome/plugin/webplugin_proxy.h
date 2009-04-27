@@ -39,7 +39,8 @@ class WebPluginProxy : public WebPlugin {
   void WillDestroyWindow(gfx::NativeView window);
 #if defined(OS_WIN)
   void SetWindowlessPumpEvent(HANDLE pump_messages_event);
-  void SetModalDialogEvent(HANDLE modal_dialog_event);
+  // Returns true on success.
+  bool SetModalDialogEvent(HANDLE modal_dialog_event);
 #endif
   void CancelResource(int id);
   void Invalidate();
