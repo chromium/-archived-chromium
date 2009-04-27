@@ -547,6 +547,8 @@ void TabStripGtk::Init() {
                          G_CALLBACK(&OnDragBegin), this);
   g_signal_connect_after(G_OBJECT(tabstrip_.get()), "drag-end",
                          G_CALLBACK(&OnDragEnd), this);
+  g_signal_connect_after(G_OBJECT(tabstrip_.get()), "drag-failed",
+                           G_CALLBACK(&OnDragFailed), this);
   g_signal_connect_after(G_OBJECT(tabstrip_.get()), "drag-motion",
                          G_CALLBACK(&OnDragMotion), this);
   gtk_widget_add_events(tabstrip_.get(),
@@ -1194,9 +1196,11 @@ gboolean TabStripGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
     return TRUE;
   }
 
-  if (tabstrip->GetTabAt(tabstrip->hover_index_)->OnMousePress(point)) {
+  TabGtk* tab = tabstrip->GetTabAt(tabstrip->hover_index_);
+  if (tab->OnMousePress(point)) {
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
-  } else if (tabstrip->hover_index_ != tabstrip->model()->selected_index()) {
+  } else if (tabstrip->hover_index_ != tabstrip->model()->selected_index() &&
+             !tab->closing()) {
     tabstrip->model()->SelectTabContentsAt(tabstrip->hover_index_, true);
   }
 
@@ -1269,8 +1273,12 @@ gboolean TabStripGtk::OnLeaveNotify(GtkWidget* widget, GdkEventCrossing* event,
 // static
 void TabStripGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
                               TabStripGtk* tabstrip) {
-  if (tabstrip->hover_index_ == -1)
+  // No dragging should happen if the tab is closing.
+  if (tabstrip->hover_index_ == -1 ||
+      tabstrip->GetTabAt(tabstrip->hover_index_)->closing()) {
+    gdk_drop_finish(context, FALSE, 0);
     return;
+  }
 
   // If we're in the middle of a snap animation, stop the animation.  We only
   // set the snap bounds if the tab is snapped into a proper index, which is not
@@ -1288,9 +1296,20 @@ void TabStripGtk::OnDragBegin(GtkWidget* widget, GdkDragContext* context,
 // static
 void TabStripGtk::OnDragEnd(GtkWidget* widget, GdkDragContext* context,
                             TabStripGtk* tabstrip) {
-  tabstrip->StartSnapTabAnimation(tabstrip->snap_bounds_);
+  if (tabstrip->is_dragging_) {
+    tabstrip->StartSnapTabAnimation(tabstrip->snap_bounds_);
+    tabstrip->mouse_offset_ = gfx::Point(-1, -1);
+    tabstrip->is_dragging_ = false;
+  }
+}
+
+// static
+gboolean TabStripGtk::OnDragFailed(GtkWidget* widget, GdkDragContext* context,
+                                   GtkDragResult result,
+                                   TabStripGtk* tabstrip) {
   tabstrip->mouse_offset_ = gfx::Point(-1, -1);
   tabstrip->is_dragging_ = false;
+  return TRUE;
 }
 
 // static
@@ -1299,6 +1318,11 @@ gboolean TabStripGtk::OnDragMotion(GtkWidget* widget,
                                    guint x, guint y,
                                    guint time,
                                    TabStripGtk* tabstrip) {
+  // gtk sends drag-motion signals even after the drag has failed, but before
+  // the drag-end signal is emitted.
+  if (!tabstrip->is_dragging_)
+      return TRUE;
+
   TabGtk* tab = tabstrip->GetTabAt(tabstrip->hover_index_);
   gfx::Rect bounds = tab->bounds();
 

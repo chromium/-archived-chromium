@@ -134,6 +134,10 @@ class TabStripGtk : public TabStripModelObserver,
                                guint x, guint y, guint time,
                                TabStripGtk* tabstrip);
 
+  // drag-failed handler that is emitted when the drag fails.
+  static gboolean OnDragFailed(GtkWidget* widget, GdkDragContext* context,
+                               GtkDragResult result, TabStripGtk* tabstrip);
+
   // Finds the tab that is under |point| by iterating through all of the tabs
   // and checking if |point| is in their bounds.  This method is only used when
   // the state of all the tabs cannot be calculated, as during a SnapTab
