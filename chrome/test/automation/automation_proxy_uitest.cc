@@ -7,18 +7,19 @@
 #include "base/command_line.h"
 #include "base/file_util.h"
 #include "base/string_util.h"
+#include "build/build_config.h"
 #include "chrome/app/chrome_dll_resource.h"
 #include "chrome/browser/view_ids.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/json_value_serializer.h"
+#include "chrome/common/message_box_flags.h"
 #include "chrome/test/automation/constrained_window_proxy.h"
 #include "chrome/test/automation/browser_proxy.h"
 #include "chrome/test/automation/tab_proxy.h"
 #include "chrome/test/automation/window_proxy.h"
 #include "chrome/test/ui/ui_test.h"
 #include "chrome/views/event.h"
-#include "chrome/views/window/dialog_delegate.h"
 #include "net/base/net_util.h"
 
 class AutomationProxyTest : public UITest {
@@ -78,6 +79,9 @@ TEST_F(AutomationProxyTest, GetBrowserWindow) {
   }
 };
 
+// TODO(port): This test is for Chrome Views, which we only use on Windows.
+// Maybe split this into a _win.cc file?
+#if defined(OS_WIN)
 TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
   {
     scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
@@ -153,6 +157,7 @@ TEST_F(AutomationProxyVisibleTest, WindowGetViewBounds) {
     */
   }
 }
+#endif  // defined(OS_WIN)
 
 TEST_F(AutomationProxyTest, GetTabCount) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
@@ -163,6 +168,8 @@ TEST_F(AutomationProxyTest, GetTabCount) {
   ASSERT_EQ(1, tab_count);
 }
 
+// TODO(port): Port to mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest, GetActiveTabIndex) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -171,6 +178,7 @@ TEST_F(AutomationProxyTest, GetActiveTabIndex) {
   ASSERT_TRUE(window->GetActiveTabIndex(&active_tab_index));
   ASSERT_EQ(0, active_tab_index);
 }
+#endif
 
 TEST_F(AutomationProxyVisibleTest, AppendTab) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
@@ -295,7 +303,7 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout1) {
                                 1, &is_timeout);
   ASSERT_TRUE(is_timeout);
 
-  Sleep(10);
+  PlatformThread::Sleep(10);
 }
 
 // This test is disabled. See bug 794412.
@@ -320,7 +328,7 @@ TEST_F(AutomationProxyTest, DISABLED_NavigateToURLWithTimeout2) {
                                 10000, &is_timeout);
   ASSERT_FALSE(is_timeout);
 
-  Sleep(10);
+  PlatformThread::Sleep(10);
 }
 
 TEST_F(AutomationProxyTest, GoBackForward) {
@@ -408,6 +416,8 @@ TEST_F(AutomationProxyTest2, GetActiveTabIndex) {
   ASSERT_EQ(at_index, active_tab_index);
 }
 
+// TODO(port): Port to mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest2, GetTabTitle) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -422,9 +432,10 @@ TEST_F(AutomationProxyTest2, GetTabTitle) {
   ASSERT_TRUE(tab->GetTabTitle(&title));
   ASSERT_STREQ(L"Title Of Awesomeness", title.c_str());
 }
+#endif
 
 TEST_F(AutomationProxyTest, Cookies) {
-  GURL url(L"http://mojo.jojo.google.com");
+  GURL url("http://mojo.jojo.google.com");
   std::string value_result;
 
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
@@ -456,6 +467,8 @@ TEST_F(AutomationProxyTest, Cookies) {
   EXPECT_TRUE(value_result.find("foo2=baz2") != std::string::npos);
 }
 
+// TODO(port): Determine what tests need this and port.
+#if defined(OS_WIN)
 TEST_F(AutomationProxyTest, GetHWND) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
@@ -466,6 +479,7 @@ TEST_F(AutomationProxyTest, GetHWND) {
   ASSERT_TRUE(window->GetHWND(&handle));
   ASSERT_TRUE(handle);
 }
+#endif
 
 TEST_F(AutomationProxyTest, NavigateToURLAsync) {
   AutomationProxy* automation_object = automation();
@@ -500,7 +514,7 @@ TEST_F(AutomationProxyTest, AcceleratorNewTab) {
   std::wstring title;
   int i;
   for (i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     ASSERT_TRUE(tab->GetTabTitle(&title));
     if (title == L"Destinations" || title == L"New Tab")
       break;
@@ -601,6 +615,8 @@ std::wstring CreateJSStringForDOMQuery(const std::wstring& id) {
   return jscript;
 }
 
+// TODO(port): Port to mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -638,7 +654,7 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   std::wstring title;
   int i;
   for (i = 0; i < 10; ++i) {
-    Sleep(sleep_timeout_ms());
+    PlatformThread::Sleep(sleep_timeout_ms());
     ASSERT_TRUE(tab->GetTabTitle(&title));
     if (title == L"Destinations")
       break;
@@ -648,7 +664,10 @@ TEST_F(AutomationProxyTest3, FrameDocumentCanBeAccessed) {
   ASSERT_FALSE(tab->ExecuteAndExtractString(xpath1, jscript1, &actual));
 #endif
 }
+#endif  // defined(OS_WIN) || defined(OS_LINUX)
 
+// TODO(port): Need to port constrained_window_proxy.* first.
+#if defined(OS_WIN)
 TEST_F(AutomationProxyTest, DISABLED_ConstrainedWindowTest) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -719,7 +738,11 @@ TEST_F(AutomationProxyTest, CantEscapeByOnloadMoveto) {
   ASSERT_NE(20, rect.x());
   ASSERT_NE(20, rect.y());
 }
+#endif  // defined(OS_WIN)
 
+
+// TODO(port): Remove HWND if possible.
+#if defined(OS_WIN)
 // Creates a top-level window, makes the |external_tab_window| a child
 // of that window and displays them.  After displaying the windows the function
 // enters a message loop that processes window messages as well as calling
@@ -841,7 +864,7 @@ class AutomationProxyForExternalTab : public AutomationProxy {
   bool WaitForNavigationComplete(int max_time_to_wait_ms) {
     base::TimeTicks start(base::TimeTicks::Now());
     while (!navigate_complete_) {
-      Sleep(50);
+      PlatformThread::Sleep(50);
       MessageLoop::current()->RunAllPending();
       base::TimeTicks end(base::TimeTicks::Now());
       base::TimeDelta delta = end - start;
@@ -894,14 +917,14 @@ TEST_F(ExternalTabTestType, CreateExternalTab) {
     tab->NavigateInExternalTab(GURL(L"http://www.google.com"));
     EXPECT_EQ(true, ExternalTabHandler(external_tab_container, 1000));
     // Since the tab goes away lazily, wait a bit
-    Sleep(1000);
+    PlatformThread::Sleep(1000);
     EXPECT_FALSE(tab->is_valid());
   }
 }
 
 TEST_F(ExternalTabTestType, IncognitoMode) {
   HWND external_tab_container = NULL;
-  GURL url(L"http://anatomyofmelancholy.net");
+  GURL url("http://anatomyofmelancholy.net");
   std::string value_result;
 
   // Create incognito tab
@@ -959,7 +982,10 @@ TEST_F(ExternalTabTestType, ExternalTabPostMessage) {
     }
   }
 }
+#endif  // defined(OS_WIN)
 
+// TODO(port): Need to port autocomplete_edit_proxy.* first.
+#if defined(OS_WIN)
 TEST_F(AutomationProxyTest, AutocompleteGetSetText) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
@@ -1020,8 +1046,9 @@ TEST_F(AutomationProxyVisibleTest, AutocompleteMatchesTest) {
   EXPECT_TRUE(edit->GetAutocompleteMatches(&matches));
   EXPECT_FALSE(matches.empty());
 }
+#endif  // defined(OS_WIN)
 
-// Disabled because flacky see bug #5314.
+// Disabled because flaky see bug #5314.
 TEST_F(AutomationProxyTest, DISABLED_AppModalDialogTest) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
@@ -1131,7 +1158,7 @@ TEST_F(AutomationProxyTest5, TestLifetimeOfDomAutomationController) {
   tab->NavigateToURL(net::FilePathToFileURL(filename));
 
   // Allow some time for the popup to show up and close.
-  Sleep(2000);
+  PlatformThread::Sleep(2000);
 
   std::wstring expected(L"string");
   std::wstring jscript = CreateJSString(L"\"" + expected + L"\"");

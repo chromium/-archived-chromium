@@ -2183,7 +2183,6 @@
             'test/accessibility/keyboard_util.cc',
             'test/accessibility/registry_util.cc',
             'test/accessibility/tab_impl.cc',
-            'test/automation/automation_proxy_uitest.cc',
             'test/perf/mem_usage.cc',
             'test/ui/inspector_controller_uitest.cc',
             'test/ui/npapi_uitest.cc',
