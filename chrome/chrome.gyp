@@ -2365,8 +2365,6 @@
             '../build/linux/system.gyp:nss',
           ],
           'sources!': [
-            'browser/dom_ui/dom_ui_unittest.cc',
-
             # This test is mostly about renaming downloads to safe file
             # names. As such we don't need/want to port it to linux. We
             # might want to write our own tests for the download manager
