@@ -120,13 +120,19 @@ const struct AcceleratorMapping {
   { GDK_minus, IDC_ZOOM_MINUS, GDK_CONTROL_MASK },
   { GDK_underscore, IDC_ZOOM_MINUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
+  { GDK_g, IDC_FIND_NEXT, GDK_CONTROL_MASK },
+  { GDK_F3, IDC_FIND_NEXT, GdkModifierType(0) },
+  { GDK_g, IDC_FIND_PREVIOUS,
+    GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
+  { GDK_F3, IDC_FIND_PREVIOUS, GDK_SHIFT_MASK },
 };
 
-int GetCommandFromKeyval(guint accel_key) {
+int GetCommandId(guint accel_key, GdkModifierType modifier) {
   // Bug 9806: If capslock is on, we will get a capital letter as accel_key.
   accel_key = gdk_keyval_to_lower(accel_key);
   for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
-    if (kAcceleratorMap[i].keyval == accel_key)
+    if (kAcceleratorMap[i].keyval == accel_key &&
+        kAcceleratorMap[i].modifier_type == modifier)
       return kAcceleratorMap[i].command_id;
   }
   NOTREACHED();
@@ -678,7 +684,7 @@ gboolean BrowserWindowGtk::OnGtkAccelerator(GtkAccelGroup* accel_group,
                                             guint keyval,
                                             GdkModifierType modifier,
                                             BrowserWindowGtk* browser_window) {
-  int command_id = GetCommandFromKeyval(keyval);
+  int command_id = GetCommandId(keyval, modifier);
   // We have to delay certain commands that may try to destroy widgets to which
   // GTK is currently holding a reference. (For now the only such command is
   // tab closing.) GTK will hold a reference on the RWHV widget when the
