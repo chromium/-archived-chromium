@@ -106,10 +106,14 @@
         '../../webkit.gyp:webkit',
       ],
       'conditions': [
+        ['OS!="win"', {
+          'dependencies': [
+            'npapi_layout_test_plugin',
+          ],
+        }],
         ['OS=="linux"', {
           'dependencies': [
             'test_shell_resources',
-            'npapi_layout_test_plugin',
             'npapi_test_plugin',
             '../../../build/linux/system.gyp:gtk',
           ],
@@ -240,6 +244,49 @@
               'process_outputs_as_mac_bundle_resources': 1,
             },
           ]
+        }],
+      ],
+    },
+    {
+      'target_name': 'npapi_layout_test_plugin',
+      'type': 'loadable_module',
+      'mac_bundle': 1,
+      'product_dir': '<(PRODUCT_DIR)/plugins',
+      'msvs_guid': 'BE6D5659-A8D5-4890-A42C-090DD10EF62C',
+      'sources': [
+        '../npapi_layout_test_plugin/PluginObject.cpp',
+        '../npapi_layout_test_plugin/TestObject.cpp',
+        '../npapi_layout_test_plugin/main.cpp',
+        '../npapi_layout_test_plugin/npapi_layout_test_plugin.def',
+        '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
+      ],
+      'include_dirs': [
+        '../../..',
+      ],
+      'dependencies': [
+        '../../../third_party/npapi/npapi.gyp:npapi',
+        '../../webkit.gyp:wtf',
+      ],
+      'msvs_disabled_warnings': [ 4996 ],
+      'mac_bundle_resources': [
+        '../npapi_layout_test_plugin/Info.r',
+      ],
+      'xcode_settings': {
+        'INFOPLIST_FILE': '../npapi_layout_test_plugin/Info.plist',
+      },
+      'conditions': [
+        ['OS!="win"', {
+          'sources!': [
+            '../npapi_layout_test_plugin/npapi_layout_test_plugin.def',
+            '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
+          ],
+        }],
+        ['OS=="mac", {
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+            ],
+          },
         }],
       ],
     },
@@ -430,35 +477,6 @@
               'sources!': [
                 '../../glue/plugins/test/npapi_test.def',
                 '../../glue/plugins/test/npapi_test.rc',
-              ],
-            }],
-          ],
-        },
-        {
-          'target_name': 'npapi_layout_test_plugin',
-          'type': 'loadable_module',
-          'product_dir': '<(PRODUCT_DIR)/plugins',
-          'msvs_guid': 'BE6D5659-A8D5-4890-A42C-090DD10EF62C',
-          'sources': [
-            '../npapi_layout_test_plugin/PluginObject.cpp',
-            '../npapi_layout_test_plugin/TestObject.cpp',
-            '../npapi_layout_test_plugin/main.cpp',
-            '../npapi_layout_test_plugin/npapi_layout_test_plugin.def',
-            '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
-          ],
-          'include_dirs': [
-            '../../..',
-          ],
-          'dependencies': [
-            '../../../third_party/npapi/npapi.gyp:npapi',
-            '../../webkit.gyp:wtf',
-          ],
-          'msvs_disabled_warnings': [ 4996 ],
-          'conditions': [
-            ['OS!="win"', {
-              'sources!': [
-                '../npapi_layout_test_plugin/npapi_layout_test_plugin.def',
-                '../npapi_layout_test_plugin/npapi_layout_test_plugin.rc',
               ],
             }],
           ],
