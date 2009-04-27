@@ -60,9 +60,11 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   }
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
-  ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
-  installer.Install();
+TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+    ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
+    installer.Install();
+  }
 }
 
 TEST(InstallUtilTests, MiniInstallTestValidWindowsVersion) {

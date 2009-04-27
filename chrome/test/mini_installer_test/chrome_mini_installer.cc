@@ -203,6 +203,10 @@ void ChromeMiniInstaller::UnInstall() {
   printf("Closing Chrome processes, if any...\n");
   CloseProcesses(installer_util::kChromeExe);
   std::wstring uninstall_path = GetUninstallPath();
+  if (uninstall_path == L"") {
+    printf("exiting.. Not proceeding with uninstall\n");
+    return;
+  }
   ASSERT_TRUE(file_util::PathExists(uninstall_path));
   std::wstring uninstall_args = L"\"" + uninstall_path +
                                 L"\"" + L" -uninstall";
@@ -540,13 +544,19 @@ bool ChromeMiniInstaller::GetStandaloneVersion(std::wstring* return_file_name) {
 // Gets the path for uninstall.
 std::wstring ChromeMiniInstaller::GetUninstallPath() {
   std::wstring username, append_path, path, reg_key_value;
-  GetChromeVersionFromRegistry(&reg_key_value);
+  if (!GetChromeVersionFromRegistry(&reg_key_value))
+    return L"";
   path = GetChromeInstallDirectoryLocation();
   file_util::AppendToPath(&path, mini_installer_constants::kChromeAppDir);
   file_util::AppendToPath(&path, reg_key_value);
   file_util::AppendToPath(&path, installer_util::kInstallerDir);
   file_util::AppendToPath(&path,
       mini_installer_constants::kChromeSetupExecutable);
+  if (!file_util::PathExists(path)) {
+    printf("This uninstall path is not correct %ls. Will not proceed further",
+           path.c_str());
+    return L"";
+  }
   printf("uninstall path is %ls\n", path.c_str());
   return path;
 }
