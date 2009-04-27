@@ -241,18 +241,6 @@ class BrowserView : public BrowserWindow,
   virtual bool CanClose() const;
   virtual int NonClientHitTest(const gfx::Point& point);
   virtual gfx::Size GetMinimumSize();
-
-  // Is P13N enabled for this browser window?
-#ifdef CHROME_PERSONALIZATION
-  virtual bool IsPersonalizationEnabled() const {
-    return personalization_enabled_;
-  }
-
-  void EnablePersonalization(bool enable_personalization) {
-    personalization_enabled_ = enable_personalization;
-  }
-#endif
-
   virtual std::string GetClassName() const;
 
  protected:
