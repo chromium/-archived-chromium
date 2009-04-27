@@ -27,7 +27,7 @@ FilePath::CharType* GetDLLName(FFmpegDLLKeys dll_key) {
     case FILE_LIBAVCODEC:
       return FILE_PATH_LITERAL("avcodec-52.dll");
     case FILE_LIBAVFORMAT:
-      return FILE_PATH_LITERAL("avcodec-52.dll");
+      return FILE_PATH_LITERAL("avformat-52.dll");
     case FILE_LIBAVUTIL:
       return FILE_PATH_LITERAL("avutil-50.dll");
     default:
