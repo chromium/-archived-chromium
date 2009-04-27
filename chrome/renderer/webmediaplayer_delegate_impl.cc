@@ -1,9 +1,11 @@
-// Copyright (c) 2008 The Chromium Authors. All rights reserved.  Use of this
-// source code is governed by a BSD-style license that can be found in the
-// LICENSE file.
+// Copyright (c) 2008-2009 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 #include "chrome/renderer/webmediaplayer_delegate_impl.h"
 
+#include "base/command_line.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/data_source_impl.h"
 #include "chrome/renderer/media/video_renderer_impl.h"
@@ -15,6 +17,7 @@
 #include "media/filters/ffmpeg_demuxer.h"
 #include "media/filters/ffmpeg_video_decoder.h"
 #endif
+#include "media/filters/null_audio_renderer.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebSize.h"
 
@@ -68,8 +71,13 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
   filter_factory_->AddFactory(media::FFmpegAudioDecoder::CreateFactory());
   filter_factory_->AddFactory(media::FFmpegVideoDecoder::CreateFactory());
 #endif
-  filter_factory_->AddFactory(AudioRendererImpl::CreateFactory(
-      view_->audio_message_filter()));
+  if (CommandLine::ForCurrentProcess()->HasSwitch(switches::kDisableAudio)) {
+    filter_factory_->AddFactory(
+        media::NullAudioRenderer::CreateFilterFactory());
+  } else {
+    filter_factory_->AddFactory(
+        AudioRendererImpl::CreateFactory(view_->audio_message_filter()));
+  }
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
   filter_factory_->AddFactory(DataSourceImpl::CreateFactory(this));
 }
