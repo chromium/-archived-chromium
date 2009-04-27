@@ -161,7 +161,7 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
     double standard_tab_width =
         static_cast<double>(TabRendererGtk::GetStandardSize().width());
 
-    if (start_tab_count < end_tab_count &&
+    if ((end_tab_count - start_tab_count) > 0 &&
         start_unselected_width_ < standard_tab_width) {
       double minimum_tab_width = static_cast<double>(
           TabRendererGtk::GetMinimumUnselectedSize().width());
@@ -710,15 +710,7 @@ bool TabStripGtk::IsTabSelected(const TabGtk* tab) const {
   if (tab->closing())
     return false;
 
-  int tab_count = GetTabCount();
-  for (int i = 0, index = 0; i < tab_count; ++i, ++index) {
-    TabGtk* current_tab = GetTabAt(i);
-    if (current_tab->closing())
-      --index;
-    if (current_tab == tab)
-      return index == model_->selected_index();
-  }
-  return false;
+  return GetIndexOfTab(tab) == model_->selected_index();
 }
 
 void TabStripGtk::GetCurrentTabWidths(double* unselected_width,

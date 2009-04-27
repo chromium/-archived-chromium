@@ -883,15 +883,7 @@ bool TabStrip::IsTabSelected(const Tab* tab) const {
   if (tab->closing())
     return false;
 
-  int tab_count = GetTabCount();
-  for (int i = 0, index = 0; i < tab_count; ++i, ++index) {
-    Tab* current_tab = GetTabAt(i);
-    if (current_tab->closing())
-      --index;
-    if (current_tab == tab)
-      return index == model_->selected_index();
-  }
-  return false;
+  return GetIndexOfTab(tab) == model_->selected_index();
 }
 
 void TabStrip::SelectTab(Tab* tab) {
