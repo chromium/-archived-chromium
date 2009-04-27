@@ -9,7 +9,10 @@
 #ifndef CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_
 #define CHROME_BROWSER_BOOKMARKS_BOOKMARK_CODEC_H_
 
+#include <string>
+
 #include "base/basictypes.h"
+#include "base/md5.h"
 
 class BookmarkModel;
 class BookmarkNode;
@@ -43,11 +46,22 @@ class BookmarkCodec {
   // nodes.
   bool Decode(BookmarkModel* model, const Value& value);
 
+  // Returns the checksum computed during last encoding/decoding call.
+  const std::string& computed_checksum() const { return computed_checksum_; }
+
+  // Returns the checksum that's stored in the file. After a call to Encode,
+  // the computed and stored checksums are the same since the computed checksum
+  // is stored to the file. After a call to decode, the computed checksum can
+  // differ from the stored checksum if the file contents were changed by the
+  // user.
+  const std::string& stored_checksum() const { return stored_checksum_; }
+
   // Names of the various keys written to the Value.
   static const wchar_t* kRootsKey;
   static const wchar_t* kRootFolderNameKey;
   static const wchar_t* kOtherBookmarFolderNameKey;
   static const wchar_t* kVersionKey;
+  static const wchar_t* kChecksumKey;
   static const wchar_t* kTypeKey;
   static const wchar_t* kNameKey;
   static const wchar_t* kDateAddedKey;
@@ -64,6 +78,9 @@ class BookmarkCodec {
   // The caller takes ownership of the returned object.
   Value* EncodeNode(BookmarkNode* node);
 
+  // Helper to perform decoding.
+  bool DecodeHelper(BookmarkModel* model, const Value& value);
+
   // Decodes the children of the specified node. Returns true on success.
   bool DecodeChildren(BookmarkModel* model,
                       const ListValue& child_value_list,
@@ -76,6 +93,31 @@ class BookmarkCodec {
                   const DictionaryValue& value,
                   BookmarkNode* parent,
                   BookmarkNode* node);
+
+  // Updates the check-sum with the given string.
+  void UpdateChecksum(const std::string& str);
+  void UpdateChecksum(const std::wstring& str);
+
+  // Updates the check-sum with the given contents of URL/folder bookmark node.
+  // NOTE: These functions take in individual properties of a bookmark node
+  // instead of taking in a BookmarkNode for efficiency so that we don't convert
+  // varous data-types to wide strings multiple times - once for serializing
+  // and once for computing the check-sum.
+  void UpdateChecksumWithUrlNode(const std::wstring& title,
+                                 const std::wstring& url);
+  void UpdateChecksumWithFolderNode(const std::wstring& title);
+
+  // Initializes/Finalizes the checksum.
+  void InitializeChecksum();
+  void FinalizeChecksum();
+
+  // MD5 context used to compute MD5 hash of all bookmark data.
+  MD5Context md5_context_;
+
+  // Checksums.
+  std::string computed_checksum_;
+  std::string stored_checksum_;
+
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkCodec);
 };

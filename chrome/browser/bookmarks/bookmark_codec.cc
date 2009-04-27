@@ -17,6 +17,7 @@ const wchar_t* BookmarkCodec::kRootsKey = L"roots";
 const wchar_t* BookmarkCodec::kRootFolderNameKey = L"bookmark_bar";
 const wchar_t* BookmarkCodec::kOtherBookmarFolderNameKey = L"other";
 const wchar_t* BookmarkCodec::kVersionKey = L"version";
+const wchar_t* BookmarkCodec::kChecksumKey = L"checksum";
 const wchar_t* BookmarkCodec::kTypeKey = L"type";
 const wchar_t* BookmarkCodec::kNameKey = L"name";
 const wchar_t* BookmarkCodec::kDateAddedKey = L"date_added";
@@ -35,17 +36,57 @@ Value* BookmarkCodec::Encode(BookmarkModel* model) {
 
 Value* BookmarkCodec::Encode(BookmarkNode* bookmark_bar_node,
                              BookmarkNode* other_folder_node) {
+  InitializeChecksum();
   DictionaryValue* roots = new DictionaryValue();
   roots->Set(kRootFolderNameKey, EncodeNode(bookmark_bar_node));
   roots->Set(kOtherBookmarFolderNameKey, EncodeNode(other_folder_node));
 
   DictionaryValue* main = new DictionaryValue();
   main->SetInteger(kVersionKey, kCurrentVersion);
+  FinalizeChecksum();
+  // We are going to store the computed checksum. So set stored checksum to be
+  // the same as computed checksum.
+  stored_checksum_ = computed_checksum_;
+  main->Set(kChecksumKey, Value::CreateStringValue(computed_checksum_));
   main->Set(kRootsKey, roots);
   return main;
 }
 
 bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
+  stored_checksum_.clear();
+  InitializeChecksum();
+  bool success = DecodeHelper(model, value);
+  FinalizeChecksum();
+  return success;
+}
+
+Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
+  DictionaryValue* value = new DictionaryValue();
+  const std::wstring& title = node->GetTitle();
+  value->SetString(kNameKey, title);
+  value->SetString(kDateAddedKey,
+                   Int64ToWString(node->date_added().ToInternalValue()));
+  if (node->GetType() == history::StarredEntry::URL) {
+    value->SetString(kTypeKey, kTypeURL);
+    std::wstring url = UTF8ToWide(node->GetURL().possibly_invalid_spec());
+    value->SetString(kURLKey, url);
+    UpdateChecksumWithUrlNode(title, url);
+  } else {
+    value->SetString(kTypeKey, kTypeFolder);
+    value->SetString(kDateModifiedKey,
+                     Int64ToWString(node->date_group_modified().
+                                    ToInternalValue()));
+    UpdateChecksumWithFolderNode(title);
+
+    ListValue* child_values = new ListValue();
+    value->Set(kChildrenKey, child_values);
+    for (int i = 0; i < node->GetChildCount(); ++i)
+      child_values->Append(EncodeNode(node->GetChild(i)));
+  }
+  return value;
+}
+
+bool BookmarkCodec::DecodeHelper(BookmarkModel* model, const Value& value) {
   if (value.GetType() != Value::TYPE_DICTIONARY)
     return false;  // Unexpected type.
 
@@ -54,6 +95,16 @@ bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
   int version;
   if (!d_value.GetInteger(kVersionKey, &version) || version != kCurrentVersion)
     return false;  // Unknown version.
+
+  Value* checksum_value;
+  if (d_value.Get(kChecksumKey, &checksum_value)) {
+    if (checksum_value->GetType() != Value::TYPE_STRING)
+      return false;
+    StringValue* checksum_value_str = static_cast<StringValue*>(checksum_value);
+    if (!checksum_value_str->GetAsString(&stored_checksum_))
+      return false;
+  }
+
 
   Value* roots;
   if (!d_value.Get(kRootsKey, &roots))
@@ -84,30 +135,8 @@ bool BookmarkCodec::Decode(BookmarkModel* model, const Value& value) {
       l10n_util::GetString(IDS_BOOMARK_BAR_FOLDER_NAME));
   model->other_node()->SetTitle(
       l10n_util::GetString(IDS_BOOMARK_BAR_OTHER_FOLDER_NAME));
+
   return true;
-}
-
-Value* BookmarkCodec::EncodeNode(BookmarkNode* node) {
-  DictionaryValue* value = new DictionaryValue();
-  value->SetString(kNameKey, node->GetTitle());
-  value->SetString(kDateAddedKey,
-                   Int64ToWString(node->date_added().ToInternalValue()));
-  if (node->GetType() == history::StarredEntry::URL) {
-    value->SetString(kTypeKey, kTypeURL);
-    value->SetString(kURLKey,
-                     UTF8ToWide(node->GetURL().possibly_invalid_spec()));
-  } else {
-    value->SetString(kTypeKey, kTypeFolder);
-    value->SetString(kDateModifiedKey,
-                     Int64ToWString(node->date_group_modified().
-                                    ToInternalValue()));
-
-    ListValue* child_values = new ListValue();
-    value->Set(kChildrenKey, child_values);
-    for (int i = 0; i < node->GetChildCount(); ++i)
-      child_values->Append(EncodeNode(node->GetChild(i)));
-  }
-  return value;
 }
 
 bool BookmarkCodec::DecodeChildren(BookmarkModel* model,
@@ -160,6 +189,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (parent)
       parent->Add(parent->GetChildCount(), node);
     node->type_ = history::StarredEntry::URL;
+    UpdateChecksumWithUrlNode(title, url_string);
   } else {
     std::wstring last_modified_date;
     if (!value.GetString(kDateModifiedKey, &last_modified_date))
@@ -181,6 +211,7 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
     if (parent)
       parent->Add(parent->GetChildCount(), node);
 
+    UpdateChecksumWithFolderNode(title);
     if (!DecodeChildren(model, *static_cast<ListValue*>(child_values), node))
       return false;
   }
@@ -190,3 +221,34 @@ bool BookmarkCodec::DecodeNode(BookmarkModel* model,
       StringToInt64(WideToUTF16Hack(date_added_string)));
   return true;
 }
+
+void BookmarkCodec::UpdateChecksum(const std::string& str) {
+  MD5Update(&md5_context_, str.data(), str.length() * sizeof(char));
+}
+
+void BookmarkCodec::UpdateChecksum(const std::wstring& str) {
+  MD5Update(&md5_context_, str.data(), str.length() * sizeof(wchar_t));
+}
+
+void BookmarkCodec::UpdateChecksumWithUrlNode(const std::wstring& title,
+                                              const std::wstring& url) {
+  UpdateChecksum(title);
+  UpdateChecksum(kTypeURL);
+  UpdateChecksum(url);
+}
+
+void BookmarkCodec::UpdateChecksumWithFolderNode(const std::wstring& title) {
+  UpdateChecksum(title);
+  UpdateChecksum(kTypeFolder);
+}
+
+void BookmarkCodec::InitializeChecksum() {
+  MD5Init(&md5_context_);
+}
+
+void BookmarkCodec::FinalizeChecksum() {
+  MD5Digest digest;
+  MD5Final(&digest, &md5_context_);
+  computed_checksum_ = MD5DigestToBase16(digest);
+}
+
