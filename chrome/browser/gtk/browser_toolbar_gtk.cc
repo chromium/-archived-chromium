@@ -310,8 +310,10 @@ void BrowserToolbarGtk::BuildToolbarMenuButton(
 gboolean BrowserToolbarGtk::OnContentAreaExpose(GtkWidget* widget,
                                                 GdkEventExpose* e,
                                                 BrowserToolbarGtk* toolbar) {
+  // TODO(deanm): We should improve the tiling performance, or not use NineBox.
+  // For now at least honor the damage rect to avoid unnecessary painting.
   toolbar->background_ninebox_.get()->RenderTopCenterStrip(widget,
-      0, widget->allocation.width, -2);
+      e->area.x, e->area.x + e->area.width, -2);
 
   return FALSE;  // Allow subwidgets to paint.
 }
