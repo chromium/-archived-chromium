@@ -183,6 +183,7 @@ bool WebWidgetImpl::HandleInputEvent(const WebInputEvent* input_event) {
 
     case WebInputEvent::MouseDown:
     case WebInputEvent::MouseDoubleClick:
+    case WebInputEvent::MouseTripleClick:
       MouseDown(*static_cast<const WebMouseEvent*>(input_event));
       return true;
 
