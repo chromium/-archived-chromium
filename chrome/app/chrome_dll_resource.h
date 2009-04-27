@@ -203,4 +203,5 @@
 // Identifiers for platform-specific items.
 // Placed in a common file to help insure they never collide.
 #define IDC_BOOKMARK_MENU               43000     // OSX only
+#define IDC_VIEW_MENU                   44000     // OSX only
 
