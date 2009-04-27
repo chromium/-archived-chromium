@@ -1427,6 +1427,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_nosnapshot", "..\v8\tools\gyp\v8_nosnapshot.vcproj", "{879286C0-3234-D14B-BB2C-32D4D1B809CE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
+		{82BC22B5-1D58-28BA-8735-58B591E1D154} = {82BC22B5-1D58-28BA-8735-58B591E1D154}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tcmalloc", "..\third_party\tcmalloc\tcmalloc.vcproj", "{C564F145-9172-42C3-BFCB-60FDEA124321}"

@@ -251,6 +251,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "js2c", "..\v8\tools\gyp\js2c.vcproj", "{82BC22B5-1D58-28BA-8735-58B591E1D154}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_nosnapshot", "..\v8\tools\gyp\v8_nosnapshot.vcproj", "{879286C0-3234-D14B-BB2C-32D4D1B809CE}"
+	ProjectSection(ProjectDependencies) = postProject
+                {82BC22B5-1D58-28BA-8735-58B591E1D154} = {82BC22B5-1D58-28BA-8735-58B591E1D154}
+        EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
