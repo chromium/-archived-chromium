@@ -106,6 +106,7 @@ InterstitialPage::InterstitialPage(WebContents* tab,
     : tab_(tab),
       url_(url),
       new_navigation_(new_navigation),
+      should_discard_pending_nav_entry_(new_navigation),
       enabled_(true),
       action_taken_(false),
       render_view_host_(NULL),
@@ -138,10 +139,19 @@ void InterstitialPage::Show() {
   // If an interstitial is already showing, close it before showing the new one.
   // Be careful not to take an action on the old interstitial more than once.
   if (tab_->interstitial_page()) {
-    if (tab_->interstitial_page()->action_taken())
+    if (tab_->interstitial_page()->action_taken()) {
       tab_->interstitial_page()->Hide();
-    else
+    } else {
+      // If we are currently showing an interstitial page for which we created
+      // a transient entry and a new interstitial is shown as the result of a
+      // new browser initiated navigation, then that transient entry has already
+      // been discarded and a new pending navigation entry created.
+      // So we should not discard that new pending navigation entry.
+      // See http://crbug.com/9791
+      if (new_navigation_ && tab_->interstitial_page()->new_navigation_)
+        tab_->interstitial_page()->should_discard_pending_nav_entry_= false;
       tab_->interstitial_page()->DontProceed();
+    }
   }
 
   // Block the resource requests for the render view host while it is hidden.
@@ -316,7 +326,7 @@ void InterstitialPage::DontProceed() {
   else
     TakeActionOnResourceDispatcher(CANCEL);
 
-  if (new_navigation_) {
+  if (should_discard_pending_nav_entry_) {
     // Since no navigation happens we have to discard the transient entry
     // explicitely.  Note that by calling DiscardNonCommittedEntries() we also
     // discard the pending entry, which is what we want, since the navigation is

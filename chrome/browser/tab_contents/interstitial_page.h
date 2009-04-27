@@ -151,6 +151,12 @@ class InterstitialPage : public NotificationObserver,
   // which case a transient navigation entry is created).
   bool new_navigation_;
 
+  // Whether we should discard the pending navigation entry when not proceeding.
+  // This is to deal with cases where |new_navigation_| is true but a new
+  // pending entry was created since this interstitial was shown and we should
+  // not discard it.
+  bool should_discard_pending_nav_entry_;
+
   // Whether this interstitial is enabled.  See Disable() for more info.
   bool enabled_;
 
