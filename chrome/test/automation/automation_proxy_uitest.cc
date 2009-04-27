@@ -401,6 +401,8 @@ class AutomationProxyTest2 : public AutomationProxyVisibleTest {
   std::wstring document2_;
 };
 
+// TODO(port): Port to mac.
+#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest2, GetActiveTabIndex) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
@@ -416,8 +418,6 @@ TEST_F(AutomationProxyTest2, GetActiveTabIndex) {
   ASSERT_EQ(at_index, active_tab_index);
 }
 
-// TODO(port): Port to mac.
-#if defined(OS_WIN) || defined(OS_LINUX)
 TEST_F(AutomationProxyTest2, GetTabTitle) {
   scoped_ptr<BrowserProxy> window(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(window.get());
