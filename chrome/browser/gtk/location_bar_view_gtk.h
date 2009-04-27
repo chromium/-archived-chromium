@@ -19,6 +19,7 @@
 #include "webkit/glue/window_open_disposition.h"
 
 class AutocompleteEditViewGtk;
+class AutocompletePopupPositioner;
 class CommandUpdater;
 class Profile;
 class SkBitmap;
@@ -29,7 +30,8 @@ class LocationBarViewGtk : public AutocompleteEditController,
                            public LocationBar {
  public:
   LocationBarViewGtk(CommandUpdater* command_updater,
-                     ToolbarModel* toolbar_model);
+                     ToolbarModel* toolbar_model,
+                     AutocompletePopupPositioner* popup_positioner);
   ~LocationBarViewGtk();
 
   void Init();
@@ -91,6 +93,9 @@ class LocationBarViewGtk : public AutocompleteEditController,
   Profile* profile_;
   CommandUpdater* command_updater_;
   ToolbarModel* toolbar_model_;
+
+  // We need to hold on to this just to it pass to the edit.
+  AutocompletePopupPositioner* popup_positioner_;
 
   // When we get an OnAutocompleteAccept notification from the autocomplete
   // edit, we save the input string so we can give it back to the browser on

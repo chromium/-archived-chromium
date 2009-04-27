@@ -25,7 +25,8 @@ class AutocompletePopupViewGtk : public AutocompletePopupView {
  public:
   AutocompletePopupViewGtk(AutocompleteEditViewGtk* edit_view,
                            AutocompleteEditModel* edit_model,
-                           Profile* profile);
+                           Profile* profile,
+                           AutocompletePopupPositioner* popup_positioner);
   ~AutocompletePopupViewGtk();
 
   // Implement the AutocompletePopupView interface.
@@ -78,6 +79,7 @@ class AutocompletePopupViewGtk : public AutocompletePopupView {
 
   scoped_ptr<AutocompletePopupModel> model_;
   AutocompleteEditViewGtk* edit_view_;
+  AutocompletePopupPositioner* popup_positioner_;
 
   // Our popup window, which is the only widget used, and we paint it on our
   // own.  This widget shouldn't be exposed outside of this class.

@@ -36,16 +36,10 @@ const GdkColor kURLTextColor = GDK_COLOR_RGB(0x00, 0x88, 0x00);
 const GdkColor kDescriptionTextColor = GDK_COLOR_RGB(0x80, 0x80, 0x80);
 const GdkColor kDescriptionSelectedTextColor = GDK_COLOR_RGB(0x78, 0x82, 0xb1);
 
-// TODO(deanm): This is added to extend past just the location box, and to
-// be below the the star and go button.  Really this means that this should
-// probably plumb all the way back to the location bar view.
-const int kExtraSpace = 32;
 // We have a 1 pixel border around the entire results popup.
 const int kBorderThickness = 1;
 // The vertical height of each result.
 const int kHeightPerResult = 24;
-// Additional distance below the edit control.
-const int kTopMargin = 6;
 // Width of the icons.
 const int kIconWidth = 16;
 // We want to vertically center the image in the result space.
@@ -181,9 +175,11 @@ void SetupLayoutForMatch(PangoLayout* layout,
 AutocompletePopupViewGtk::AutocompletePopupViewGtk(
     AutocompleteEditViewGtk* edit_view,
     AutocompleteEditModel* edit_model,
-    Profile* profile)
+    Profile* profile,
+    AutocompletePopupPositioner* popup_positioner)
     : model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
+      popup_positioner_(popup_positioner),
       window_(gtk_window_new(GTK_WINDOW_POPUP)),
       gc_(NULL),
       layout_(NULL),
@@ -267,14 +263,11 @@ AutocompletePopupModel* AutocompletePopupViewGtk::GetModel() {
 }
 
 void AutocompletePopupViewGtk::Show(size_t num_results) {
-  gint x, y, width;
-  edit_view_->BottomLeftPosWidth(&x, &y, &width);
-  x -= kExtraSpace;
-  width += kExtraSpace * 2;
+  gfx::Rect rect = popup_positioner_->GetPopupBounds();
+  rect.set_height((num_results * kHeightPerResult) + (kBorderThickness * 2));
 
-  gtk_window_move(GTK_WINDOW(window_), x, y + kTopMargin);
-  gtk_widget_set_size_request(window_, width,
-      (num_results * kHeightPerResult) + (kBorderThickness * 2));
+  gtk_window_move(GTK_WINDOW(window_), rect.x(), rect.y());
+  gtk_widget_set_size_request(window_, rect.width(), rect.height());
   gtk_widget_show(window_);
   opened_ = true;
 }

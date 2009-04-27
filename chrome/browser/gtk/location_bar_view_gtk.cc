@@ -44,10 +44,11 @@ const GdkColor LocationBarViewGtk::kBackgroundColorByLevel[3] = {
 };
 
 LocationBarViewGtk::LocationBarViewGtk(CommandUpdater* command_updater,
-                                       ToolbarModel* toolbar_model)
+    ToolbarModel* toolbar_model, AutocompletePopupPositioner* popup_positioner)
     : profile_(NULL),
       command_updater_(command_updater),
       toolbar_model_(toolbar_model),
+      popup_positioner_(popup_positioner),
       disposition_(CURRENT_TAB),
       transition_(PageTransition::TYPED) {
 }
@@ -61,7 +62,8 @@ void LocationBarViewGtk::Init() {
   location_entry_.reset(new AutocompleteEditViewGtk(this,
                                                     toolbar_model_,
                                                     profile_,
-                                                    command_updater_));
+                                                    command_updater_,
+                                                    popup_positioner_));
   location_entry_->Init();
 
   alignment_.Own(gtk_alignment_new(0.0, 0.0, 1.0, 1.0));

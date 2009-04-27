@@ -18,6 +18,7 @@
 
 class AutocompleteEditController;
 class AutocompleteEditModel;
+class AutocompletePopupPositioner;
 class AutocompletePopupViewGtk;
 class CommandUpdater;
 class Profile;
@@ -29,7 +30,8 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   AutocompleteEditViewGtk(AutocompleteEditController* controller,
                           ToolbarModel* toolbar_model,
                           Profile* profile,
-                          CommandUpdater* command_updater);
+                          CommandUpdater* command_updater,
+                          AutocompletePopupPositioner* popup_positioner);
   ~AutocompleteEditViewGtk();
 
   // Initialize, create the underlying widgets, etc.
@@ -81,10 +83,6 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
   virtual void OnRevertTemporaryText();
   virtual void OnBeforePossibleChange();
   virtual bool OnAfterPossibleChange();
-
-  // Return the position (root coordinates) of the bottom left corner and width
-  // of the location input box.  Used by the popup view to position itself.
-  void BottomLeftPosWidth(int* x, int* y, int* width);
 
  private:
   // Modeled like the Windows CHARRANGE.  Represent a pair of cursor position

@@ -35,7 +35,8 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
     AutocompleteEditController* controller,
     ToolbarModel* toolbar_model,
     Profile* profile,
-    CommandUpdater* command_updater)
+    CommandUpdater* command_updater,
+    AutocompletePopupPositioner* popup_positioner)
     : text_view_(NULL),
       tag_table_(NULL),
       text_buffer_(NULL),
@@ -43,7 +44,8 @@ AutocompleteEditViewGtk::AutocompleteEditViewGtk(
       secure_scheme_tag_(NULL),
       insecure_scheme_tag_(NULL),
       model_(new AutocompleteEditModel(this, controller, profile)),
-      popup_view_(new AutocompletePopupViewGtk(this, model_.get(), profile)),
+      popup_view_(new AutocompletePopupViewGtk(this, model_.get(), profile,
+                                               popup_positioner)),
       controller_(controller),
       toolbar_model_(toolbar_model),
       command_updater_(command_updater),
@@ -318,12 +320,6 @@ bool AutocompleteEditViewGtk::OnAfterPossibleChange() {
     TextChanged();
 
   return something_changed;
-}
-
-void AutocompleteEditViewGtk::BottomLeftPosWidth(int* x, int* y, int* width) {
-  gdk_window_get_origin(text_view_->window, x, y);
-  *y += text_view_->allocation.height;
-  *width = text_view_->allocation.width;
 }
 
 void AutocompleteEditViewGtk::HandleBeginUserAction() {

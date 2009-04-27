@@ -10,6 +10,7 @@
 
 #include "base/scoped_ptr.h"
 #include "base/task.h"
+#include "chrome/browser/autocomplete/autocomplete_popup_view.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/gtk/menu_gtk.h"
 #include "chrome/common/pref_member.h"
@@ -30,11 +31,9 @@ class ToolbarStarToggleGtk;
 // events back to the Browser.
 class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
                           public MenuGtk::Delegate,
-                          public NotificationObserver {
+                          public NotificationObserver,
+                          public AutocompletePopupPositioner {
  public:
-  // Height of the toolbar, in pixels.
-  static const int kToolbarHeight;
-
   explicit BrowserToolbarGtk(Browser* browser);
   virtual ~BrowserToolbarGtk();
 
@@ -68,6 +67,10 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   void UpdateTabContents(TabContents* contents, bool should_restore_state);
 
   ToolbarStarToggleGtk* star() { return star_.get(); }
+
+  // Implement AutocompletePopupPositioner, return the position of where the
+  // Omnibox results popup should go (from the star to the go buttons).
+  virtual gfx::Rect GetPopupBounds() const;
 
  private:
   // Builds a toolbar button with all the properties set.

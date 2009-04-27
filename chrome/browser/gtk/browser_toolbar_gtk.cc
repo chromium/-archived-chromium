@@ -31,15 +31,31 @@
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
-const int BrowserToolbarGtk::kToolbarHeight = 38;
+namespace {
+
+// Height of the toolbar in pixels.
+const int kToolbarHeight = 38;
+
+// The amount of space between the bottom of the star and the top of the
+// Omnibox results popup window.  We want a two pixel space between the bottom
+// and the results, but have some extra space below the buttons already.
+const int kPopupTopMargin = 0;
+
+// Space between the edge of the star/go button and the popup frame.  We want
+// to leave 1 pixel on both side here so that the borders line up.
+const int kPopupLeftRightMargin = 1;
+
 // For the back/forward dropdown menus, the time in milliseconds between
 // when the user clicks and the popup menu appears.
-static const int kMenuTimerDelay = 500;
+const int kMenuTimerDelay = 500;
+
+}  // namespace
 
 BrowserToolbarGtk::BrowserToolbarGtk(Browser* browser)
     : toolbar_(NULL),
       location_bar_(new LocationBarViewGtk(browser->command_updater(),
-                                           browser->toolbar_model())),
+                                           browser->toolbar_model(),
+                                           this)),
       model_(browser->toolbar_model()),
       browser_(browser),
       profile_(NULL),
@@ -219,6 +235,25 @@ void BrowserToolbarGtk::SetProfile(Profile* profile) {
 void BrowserToolbarGtk::UpdateTabContents(TabContents* contents,
                                           bool should_restore_state) {
   location_bar_->Update(should_restore_state ? contents : NULL);
+}
+
+gfx::Rect BrowserToolbarGtk::GetPopupBounds() const {
+  GtkWidget* star = star_->widget();
+  GtkWidget* go = go_->widget();
+
+  // TODO(deanm): The go and star buttons probably share the same window,
+  // so this could be optimized to only one origin request.
+  gint go_x, go_y;
+  gdk_window_get_origin(go->window, &go_x, &go_y);
+  go_x += go->allocation.x + go->allocation.width;  // Right edge.
+
+  gint star_x, star_y;
+  gdk_window_get_origin(star->window, &star_x, &star_y);
+  star_x += star->allocation.x;  // Left edge.
+  star_y += star->allocation.y + star->allocation.height;  // Bottom edge.
+
+  return gfx::Rect(star_x + kPopupLeftRightMargin, star_y + kPopupTopMargin,
+                   go_x - star_x - (2 * kPopupLeftRightMargin), 0);
 }
 
 CustomDrawButton* BrowserToolbarGtk::BuildToolbarButton(
