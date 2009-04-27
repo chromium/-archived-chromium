@@ -84,6 +84,8 @@ class TaskManager : public views::DialogDelegate {
   // MessageLoop::InvokeLater().
   class ResourceProvider : public base::RefCounted<ResourceProvider> {
    public:
+    virtual ~ResourceProvider() {}
+
     // Should return the resource associated to the specified ids, or NULL if
     // the resource does not belong to this provider.
     virtual TaskManager::Resource* GetResource(int process_id,
