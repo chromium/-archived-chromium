@@ -564,6 +564,47 @@ TEST_F(DomSerializerTests, SerialzeHTMLDOMWithEntitiesInAttributeValue) {
   ASSERT_EQ(serialized_contents, orginal_contents);
 }
 
+// Test situation of non-standard HTML entities when serializing HTML DOM.
+TEST_F(DomSerializerTests, SerialzeHTMLDOMWithNonStandardEntities) {
+  // Make a test file URL and load it.
+  FilePath page_file_path = data_dir_;
+  page_file_path = page_file_path.AppendASCII("dom_serializer");
+  page_file_path = page_file_path.AppendASCII("nonstandard_htmlentities.htm");
+  GURL file_url = net::FilePathToFileURL(page_file_path);
+  LoadPageFromURL(file_url);
+
+  // Get value of BODY's title attribute in DOM.
+  WebFrameImpl* web_frame =
+      webkit_glue::GetWebFrameImplFromWebViewForSpecificURL(
+          test_shell_->webView(), file_url);
+  WebCore::Document* doc = web_frame->frame()->document();
+  ASSERT_TRUE(doc->isHTMLDocument());
+  WebCore::HTMLElement* body_ele = doc->body();
+  // Unescaped string for "&percnt;&nsup;&supl;&apos;".
+  static const UChar parsed_value[] = {
+    '%', 0x2285, 0x00b9, '\'', 0
+  };
+  const WebCore::String& value = body_ele->getAttribute(
+      WebCore::HTMLNames::titleAttr);
+  ASSERT_TRUE(value == WebCore::String(parsed_value));
+  // Check the BODY content.
+  WebCore::Node* text_node = body_ele->firstChild();
+  ASSERT_TRUE(text_node->isTextNode());
+  ASSERT_TRUE(text_node->nodeValue() == WebCore::String(parsed_value));
+
+  // Do serialization.
+  SerializeDomForURL(file_url, false);
+  // Check the serialized string.
+  ASSERT_TRUE(HasSerializedFrame(file_url));
+  const std::string& serialized_contents =
+      GetSerializedContentForFrame(file_url);
+  // Confirm that the serialized string has no non-standard HTML entities.
+  ASSERT_EQ(std::string::npos, serialized_contents.find("&percnt;"));
+  ASSERT_EQ(std::string::npos, serialized_contents.find("&nsup;"));
+  ASSERT_EQ(std::string::npos, serialized_contents.find("&supl;"));
+  ASSERT_EQ(std::string::npos, serialized_contents.find("&apos;"));
+}
+
 // Test situation of BASE tag in original document when serializing HTML DOM.
 // When serializing, we should comment the BASE tag, append a new BASE tag.
 // rewrite all the savable URLs to relative local path, and change other URLs

@@ -21,10 +21,10 @@ typedef base::hash_map<char16, const char*> EntityMapType;
 class EntityMapData {
  public:
   EntityMapData(const Entity* entity_codes, int entity_codes_length,
-                bool user_number_entity_apos)
+                bool standard_html_entities)
       : entity_codes_(entity_codes),
         entity_codes_length_(entity_codes_length),
-        user_number_entity_apos_(user_number_entity_apos),
+        standard_html_entities_(standard_html_entities),
         map_(NULL) {
   }
   ~EntityMapData() { delete map_; }
@@ -35,11 +35,19 @@ class EntityMapData {
   // corresponding entity notation.
   const Entity* entity_codes_;
   const int entity_codes_length_;
-  // IE does not support '&apos;'(html entity name for symbol ') as HTML entity
-  // (but it does support &apos; as xml entity), so if user_number_entity_apos_
-  // is true, we will use entity number 0x0027 instead of using '&apos;' when
-  // doing serialization work.
-  const bool user_number_entity_apos_;
+  // &apos;, &percnt;, &nsup; and &supl; are not defined by the HTML standards.
+  //  - IE does not support &apos; as an HTML entity (but support it as an XML
+  //    entity.)
+  //  - Firefox supports &apos; as an HTML entity.
+  //  - Both of IE and Firefox don't support &percnt;, &nsup; and &supl;.
+  //
+  // A web page saved by Chromium should be able to be read by other browsers
+  // such as IE and Firefox.  Chromium should produce only the standard entity
+  // references which other browsers can recognize.
+  // So if standard_html_entities_ is true, we will use a numeric character
+  // reference for &apos;, and don't use entity references for &percnt;, &nsup;
+  // and &supl; for serialization.
+  const bool standard_html_entities_;
   // Map the Unicode character to corresponding entity notation.
   EntityMapType* map_;
 
@@ -57,10 +65,13 @@ const EntityMapType* EntityMapData::GetEntityMapData() {
       if (it != map_->end() &&
           StringToLowerASCII(std::string(entity_code->name)) == it->second)
         continue;
-
-      (*map_)[entity_code->code] = entity_code->name;
+      if (!standard_html_entities_ ||
+          // Don't register &percnt;, &nsup; and &supl;.
+          (entity_code->code != '%' &&
+           entity_code->code != 0x2285 && entity_code->code != 0x00b9))
+        (*map_)[entity_code->code] = entity_code->name;
     }
-    if (user_number_entity_apos_)
+    if (standard_html_entities_)
       (*map_)[0x0027] = "#39";
   }
   return map_;
