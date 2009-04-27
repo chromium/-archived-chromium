@@ -212,8 +212,13 @@ bool PathService::Override(int key, const std::wstring& path) {
   DCHECK(key > base::DIR_CURRENT) << "invalid path key";
 
   std::wstring file_path = path;
+#if defined(OS_WIN)
+  // On Windows we switch the current working directory to load plugins (at
+  // least). That's not the case on POSIX.
+  // Also, on POSIX, AbsolutePath fails if called on a non-existant path.
   if (!file_util::AbsolutePath(&file_path))
     return false;
+#endif
 
   // make sure the directory exists:
   if (!file_util::CreateDirectory(file_path))

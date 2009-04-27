@@ -373,7 +373,7 @@ int ChromeMain(int argc, const char** argv) {
   const std::wstring user_data_dir =
       parsed_command_line.GetSwitchValue(switches::kUserDataDir);
   if (!user_data_dir.empty())
-    PathService::Override(chrome::DIR_USER_DATA, user_data_dir);
+    CHECK(PathService::Override(chrome::DIR_USER_DATA, user_data_dir));
 
   bool single_process =
 #if defined (GOOGLE_CHROME_BUILD)
