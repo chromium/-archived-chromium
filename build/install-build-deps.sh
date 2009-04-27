@@ -4,8 +4,8 @@
 # See http://code.google.com/p/chromium/wiki/LinuxBuildInstructions
 # and http://code.google.com/p/chromium/wiki/LinuxBuild64Bit
 
-if ! egrep -q "Ubuntu 8.04|Ubuntu 8.10" /etc/issue; then
-  echo "Only Ubuntu 8.04 and 8.10 are currently supported" >&2
+if ! egrep -q "Ubuntu 8.04|Ubuntu 8.10|Ubuntu 9.04" /etc/issue; then
+  echo "Only Ubuntu 8.04, 8.10, and 9.04 are currently supported" >&2
   exit 1
 fi
 
@@ -21,7 +21,7 @@ if [ "x$(id -u)" != x0 ]; then
 fi
 
 # Packages need for development
-dev_list="bison fakeroot flex g++ g++-multilib gperf libgconf2-dev
+dev_list="bison fakeroot flex g++ g++-multilib gperf libcairo2-dev libgconf2-dev
           libglib2.0-dev libgtk2.0-dev libnspr4-dev libnss3-dev
           libsqlite3-dev lighttpd msttcorefonts perl php5-cgi
           pkg-config python subversion sun-java6-fonts wdiff"
