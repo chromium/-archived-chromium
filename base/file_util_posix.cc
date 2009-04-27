@@ -338,7 +338,7 @@ bool ReadFromFD(int fd, char* buffer, size_t bytes) {
     ssize_t bytes_read = read(fd, buffer + total_read, bytes - total_read);
     if (bytes_read > 0)
       total_read += bytes_read;
-    else if (errno != EINTR || bytes_read == 0)
+    else if (bytes_read == 0 || errno != EINTR)
       break;
   }
   return total_read == bytes;
