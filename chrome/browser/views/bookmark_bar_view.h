@@ -91,6 +91,7 @@ class BookmarkBarView : public views::View,
 
   // View methods:
   virtual gfx::Size GetPreferredSize();
+  virtual gfx::Size GetMinimumSize();
   virtual void Layout();
   virtual void DidChangeBounds(const gfx::Rect& previous,
                                const gfx::Rect& current);
@@ -139,8 +140,9 @@ class BookmarkBarView : public views::View,
   // True if we're on a page where the bookmarks bar is always visible.
   bool OnNewTabPage();
 
-  // How much we want the bookmark bar to overlap the toolbar.
-  int GetToolbarOverlap();
+  // How much we want the bookmark bar to overlap the toolbar.  If |return_max|
+  // is true, we return the maximum overlap rather than the current overlap.
+  int GetToolbarOverlap(bool return_max);
 
   // Whether or not we are animating.
   bool IsAnimating() { return size_animation_->IsAnimating(); }

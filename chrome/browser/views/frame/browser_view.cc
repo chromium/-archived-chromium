@@ -1159,6 +1159,35 @@ int BrowserView::NonClientHitTest(const gfx::Point& point) {
   return views::ClientView::NonClientHitTest(point);
 }
 
+gfx::Size BrowserView::GetMinimumSize() {
+  // TODO: In theory the tabstrip width should probably be
+  // (OTR + tabstrip + caption buttons) width.
+  gfx::Size tabstrip_size(
+      browser_->SupportsWindowFeature(Browser::FEATURE_TABSTRIP) ?
+      tabstrip_->GetMinimumSize() : gfx::Size());
+  gfx::Size toolbar_size(
+      (browser_->SupportsWindowFeature(Browser::FEATURE_TOOLBAR) ||
+       browser_->SupportsWindowFeature(Browser::FEATURE_LOCATIONBAR)) ?
+      toolbar_->GetMinimumSize() : gfx::Size());
+  if (tabstrip_size.height() && toolbar_size.height())
+    toolbar_size.Enlarge(0, -kToolbarTabStripVerticalOverlap);
+  gfx::Size bookmark_bar_size;
+  if (active_bookmark_bar_ &&
+      browser_->SupportsWindowFeature(Browser::FEATURE_BOOKMARKBAR)) {
+    bookmark_bar_size = active_bookmark_bar_->GetMinimumSize();
+    bookmark_bar_size.Enlarge(0,
+        -kSeparationLineHeight - bookmark_bar_view_->GetToolbarOverlap(true));
+  }
+  gfx::Size contents_size(contents_container_->GetMinimumSize());
+
+  int min_height = tabstrip_size.height() + toolbar_size.height() +
+      bookmark_bar_size.height() + contents_size.height();
+  int widths[] = { tabstrip_size.width(), toolbar_size.width(),
+                   bookmark_bar_size.width(), contents_size.width() };
+  int min_width = *std::max_element(&widths[0], &widths[arraysize(widths)]);
+  return gfx::Size(min_width, min_height);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // BrowserView, views::View overrides:
 
@@ -1303,7 +1332,7 @@ int BrowserView::LayoutBookmarkBar(int top) {
   int height, y = top;
   if (visible) {
     y -= kSeparationLineHeight + (bookmark_bar_view_->IsDetachedStyle() ?
-        0 : bookmark_bar_view_->GetToolbarOverlap());
+        0 : bookmark_bar_view_->GetToolbarOverlap(false));
     height = bookmark_bar_view_->GetPreferredSize().height();
   } else {
     height = 0;

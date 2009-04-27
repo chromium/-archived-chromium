@@ -370,7 +370,6 @@ void CustomFrameView::Layout() {
 
 gfx::Size CustomFrameView::GetPreferredSize() {
   gfx::Size pref = frame_->GetClientView()->GetPreferredSize();
-  DCHECK(pref.width() > 0 && pref.height() > 0);
   gfx::Rect bounds(0, 0, pref.width(), pref.height());
   return frame_->GetNonClientView()->GetWindowBoundsForClientBounds(
       bounds).size();

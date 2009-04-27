@@ -534,12 +534,23 @@ bool BrowserToolbarView::OnKeyReleased(const views::KeyEvent& e) {
 
 gfx::Size BrowserToolbarView::GetPreferredSize() {
   if (IsDisplayModeNormal()) {
+    int min_width = kControlIndent + back_->GetPreferredSize().width() +
+        forward_->GetPreferredSize().width() + kControlHorizOffset +
+        reload_->GetPreferredSize().width() + (show_home_button_.GetValue() ?
+        (home_->GetPreferredSize().width() + kControlHorizOffset) : 0) +
+        star_->GetPreferredSize().width() + go_->GetPreferredSize().width() +
+        kMenuButtonOffset +
+        (bookmark_menu_ ? bookmark_menu_->GetPreferredSize().width() : 0) +
+        page_menu_->GetPreferredSize().width() +
+        app_menu_->GetPreferredSize().width() + kPaddingRight;
+
     static SkBitmap normal_background;
     if (normal_background.isNull()) {
       ResourceBundle& rb = ResourceBundle::GetSharedInstance();
       normal_background = *rb.GetBitmapNamed(IDR_CONTENT_TOP_CENTER);
     }
-    return gfx::Size(0, normal_background.height());
+
+    return gfx::Size(min_width, normal_background.height());
   }
 
   int vertical_spacing = PopupTopSpacing() +

@@ -131,8 +131,15 @@ void NonClientView::LayoutFrameView() {
 // NonClientView, View overrides:
 
 gfx::Size NonClientView::GetPreferredSize() {
+  // TODO(pkasting): This should probably be made to look similar to
+  // GetMinimumSize() below.  This will require implementing GetPreferredSize()
+  // better in the various frame views.
   gfx::Rect client_bounds(gfx::Point(), client_view_->GetPreferredSize());
   return GetWindowBoundsForClientBounds(client_bounds).size();
+}
+
+gfx::Size NonClientView::GetMinimumSize() {
+  return frame_view_->GetMinimumSize();
 }
 
 void NonClientView::Layout() {
