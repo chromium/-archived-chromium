@@ -279,7 +279,11 @@ class TemplateURLModel : public WebDataServiceConsumer,
   // Iterates through the TemplateURLs to see if one matches the visited url.
   // For each TemplateURL whose url matches the visited url
   // SetKeywordSearchTermsForURL is invoked.
-  void UpdateKeywordSearchTermsForURL(const history::URLRow& row);
+  void UpdateKeywordSearchTermsForURL(
+      const history::URLVisitedDetails& details);
+
+  // If necessary, generates a visit for the site http:// + t_url.keyword().
+  void AddTabToSearchVisit(const TemplateURL& t_url);
 
   // Adds each of the query terms in the specified url whose key and value are
   // non-empty to query_terms. If a query key appears multiple times, the value
@@ -329,7 +333,7 @@ class TemplateURLModel : public WebDataServiceConsumer,
 
   // All visits that occurred before we finished loading. Once loaded
   // UpdateKeywordSearchTermsForURL is invoked for each element of the vector.
-  std::vector<history::URLRow> visits_to_add_;
+  std::vector<history::URLVisitedDetails> visits_to_add_;
 
   const TemplateURL* default_search_provider_;
 

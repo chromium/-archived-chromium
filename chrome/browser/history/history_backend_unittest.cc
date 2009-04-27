@@ -395,4 +395,53 @@ TEST_F(HistoryBackendTest, GetPageThumbnailAfterRedirects) {
   EXPECT_TRUE(data.get());
 }
 
+// Tests a handful of assertions for a navigation with a type of
+// KEYWORD_GENERATED.
+TEST_F(HistoryBackendTest, KeywordGenerated) {
+  ASSERT_TRUE(backend_.get());
+
+  GURL url("http://google.com");
+
+  Time visit_time = Time::Now() - base::TimeDelta::FromDays(1);
+  scoped_refptr<HistoryAddPageArgs> request(
+      new HistoryAddPageArgs(url, visit_time, NULL, 0, GURL(),
+                             HistoryService::RedirectList(),
+                             PageTransition::KEYWORD_GENERATED));
+  backend_->AddPage(request);
+
+  // A row should have been added for the url.
+  URLRow row;
+  URLID url_id = backend_->db()->GetRowForURL(url, &row);
+  ASSERT_NE(0, url_id);
+
+  // The typed count should be 1.
+  ASSERT_EQ(1, row.typed_count());
+
+  // KEYWORD_GENERATED urls should not be added to the segment db.
+  std::string segment_name = VisitSegmentDatabase::ComputeSegmentName(url);
+  EXPECT_EQ(0, backend_->db()->GetSegmentNamed(segment_name));
+
+  // One visit should be added.
+  VisitVector visits;
+  EXPECT_TRUE(backend_->db()->GetVisitsForURL(url_id, &visits));
+  EXPECT_EQ(1U, visits.size());
+
+  // But no visible visits.
+  visits.clear();
+  backend_->db()->GetVisibleVisitsInRange(
+      base::Time(), base::Time(), false, 1, &visits);
+  EXPECT_TRUE(visits.empty());
+
+  // Expire the visits.
+  backend_->expire_backend()->ExpireHistoryBetween(visit_time, Time::Now());
+
+  // The visit should have been nuked.
+  visits.clear();
+  EXPECT_TRUE(backend_->db()->GetVisitsForURL(url_id, &visits));
+  EXPECT_TRUE(visits.empty());
+
+  // As well as the url.
+  ASSERT_EQ(0, backend_->db()->GetRowForURL(url, &row));
+}
+
 }  // namespace history

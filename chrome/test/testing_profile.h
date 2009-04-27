@@ -181,6 +181,11 @@ class TestingProfile : public Profile {
   virtual void InitExtensions() {
   }
 
+  // Schedules a task on the history backend and runs a nested loop until the
+  // task is processed.  This has the effect of blocking the caller until the
+  // history service processes all pending requests.
+  void BlockUntilHistoryProcessesPendingRequests();
+
 #ifdef CHROME_PERSONALIZATION
   virtual ProfilePersonalization* GetProfilePersonalization() {
     return NULL;

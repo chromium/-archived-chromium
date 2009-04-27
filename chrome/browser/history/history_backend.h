@@ -257,6 +257,12 @@ class HistoryBackend : public base::RefCountedThreadSafe<HistoryBackend>,
   // added for each given URL at the last visit time in the URLRow.
   void AddPagesWithDetails(const std::vector<URLRow>& info);
 
+#if defined(UNIT_TEST)
+  HistoryDatabase* db() const { return db_.get(); }
+
+  ExpireHistoryBackend* expire_backend() { return &expirer_; }
+#endif
+
  private:
   friend class CommitLaterTask;  // The commit task needs to call Commit().
   friend class HistoryTest;  // So the unit tests can poke our innards.

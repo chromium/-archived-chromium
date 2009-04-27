@@ -303,8 +303,7 @@ AutocompleteMatch KeywordProvider::CreateAutocompleteMatch(
                                               ACMatchClassification::DIM,
                                               &result.description_class);
 
-  // Keyword searches don't look like URLs.
-  result.transition = PageTransition::GENERATED;
+  result.transition = PageTransition::KEYWORD;
 
   return result;
 }

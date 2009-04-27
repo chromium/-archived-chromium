@@ -183,6 +183,7 @@ void MetricsLog::RecordLoadEvent(int window_id,
       break;
 
     case PageTransition::GENERATED:
+    case PageTransition::KEYWORD:
       origin_string = "global-history";
       break;
 

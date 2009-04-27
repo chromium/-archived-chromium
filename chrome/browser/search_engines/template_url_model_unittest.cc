@@ -582,7 +582,10 @@ TEST_F(TemplateURLModelTest, UpdateKeywordSearchTermsForURL) {
                      false, Time());
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
-    model_->UpdateKeywordSearchTermsForURL(history::URLRow(GURL(data[i].url)));
+    history::URLVisitedDetails details;
+    details.row = history::URLRow(GURL(data[i].url));
+    details.transition = 0;
+    model_->UpdateKeywordSearchTermsForURL(details);
     EXPECT_EQ(data[i].term, GetAndClearSearchTerm());
   }
 }
@@ -599,7 +602,10 @@ TEST_F(TemplateURLModelTest, DontUpdateKeywordSearchForNonReplaceable) {
   AddKeywordWithDate(L"x", false, L"http://x/foo", L"name", false, Time());
 
   for (size_t i = 0; i < ARRAYSIZE_UNSAFE(data); ++i) {
-    model_->UpdateKeywordSearchTermsForURL(history::URLRow(GURL(data[i].url)));
+    history::URLVisitedDetails details;
+    details.row = history::URLRow(GURL(data[i].url));
+    details.transition = 0;
+    model_->UpdateKeywordSearchTermsForURL(details);
     ASSERT_EQ(std::wstring(), GetAndClearSearchTerm());
   }
 }
@@ -629,4 +635,60 @@ TEST_F(TemplateURLModelTest, ChangeGoogleBaseValue) {
   EXPECT_EQ(L"foo.com", t_url->keyword());
   EXPECT_EQ("http://foo.com/?q=x", t_url->url()->ReplaceSearchTerms(*t_url,
       L"x", TemplateURLRef::NO_SUGGESTIONS_AVAILABLE, std::wstring()).spec());
+}
+
+struct QueryHistoryCallbackImpl {
+  QueryHistoryCallbackImpl() : success(false) {}
+
+  void Callback(HistoryService::Handle handle,
+                bool success, const history::URLRow* row,
+                history::VisitVector* visits) {
+    this->success = success;
+    if (row)
+      this->row = *row;
+    if (visits)
+      this->visits = *visits;
+  }
+
+  bool success;
+  history::URLRow row;
+  history::VisitVector visits;
+};
+
+// Make sure TemplateURLModel generates a KEYWORD_GENERATED visit for
+// KEYWORD visits.
+TEST_F(TemplateURLModelTest, GenerateVisitOnKeyword) {
+  VerifyLoad();
+  profile_->CreateHistoryService(true);
+
+  // Create a keyword.
+  TemplateURL* t_url = AddKeywordWithDate(
+      L"keyword", false, L"http://foo.com/foo?query={searchTerms}",
+      L"keyword", true, base::Time::Now());
+
+  // Add a visit that matches the url of the keyword.
+  HistoryService* history =
+      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
+  history->AddPage(
+      t_url->url()->ReplaceSearchTerms(*t_url, L"blah", 0, std::wstring()),
+      NULL, 0, GURL(), PageTransition::KEYWORD, HistoryService::RedirectList());
+
+  // Wait for history to finish processing the request.
+  profile_->BlockUntilHistoryProcessesPendingRequests();
+
+  // Query history for the generated url.
+  CancelableRequestConsumer consumer;
+  QueryHistoryCallbackImpl callback;
+  history->QueryURL(GURL("http://keyword"), true, &consumer,
+      NewCallback(&callback, &QueryHistoryCallbackImpl::Callback));
+
+  // Wait for the request to be processed.
+  profile_->BlockUntilHistoryProcessesPendingRequests();
+
+  // And make sure the url and visit were added.
+  EXPECT_TRUE(callback.success);
+  EXPECT_NE(0, callback.row.id());
+  ASSERT_EQ(1U, callback.visits.size());
+  EXPECT_EQ(PageTransition::KEYWORD_GENERATED,
+            PageTransition::StripQualifier(callback.visits[0].transition));
 }

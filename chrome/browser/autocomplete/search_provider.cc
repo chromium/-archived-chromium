@@ -713,7 +713,8 @@ void SearchProvider::AddMatchToMap(const std::wstring& query_string,
                                                          input_text);
 
   // Search results don't look like URLs.
-  match.transition = PageTransition::GENERATED;
+  match.transition =
+      is_keyword ? PageTransition::KEYWORD : PageTransition::GENERATED;
 
   // Try to add |match| to |map|.  If a match for |query_string| is already in
   // |map|, replace it if |match| is more relevant.

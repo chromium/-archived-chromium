@@ -224,7 +224,8 @@ void VisitDatabase::GetVisibleVisitsInRange(Time begin_time, Time end_time,
       "SELECT" HISTORY_VISIT_ROW_FIELDS "FROM visits "
       "WHERE visit_time >= ? AND visit_time < ? "
       "AND (transition & ?) != 0 "  // CHAIN_END
-      "AND (transition & ?) NOT IN (?, ?) "  // NO SUBFRAME
+      "AND (transition & ?) NOT IN (?, ?, ?) "  // NO SUBFRAME or
+                                                // KEYWORD_GENERATED
       "ORDER BY visit_time DESC, id DESC");
   if (!statement.is_valid())
     return;
@@ -239,6 +240,7 @@ void VisitDatabase::GetVisibleVisitsInRange(Time begin_time, Time end_time,
   statement->bind_int(3, PageTransition::CORE_MASK);
   statement->bind_int(4, PageTransition::AUTO_SUBFRAME);
   statement->bind_int(5, PageTransition::MANUAL_SUBFRAME);
+  statement->bind_int(6, PageTransition::KEYWORD_GENERATED);
 
   std::set<URLID> found_urls;
   while (statement->step() == SQLITE_ROW) {

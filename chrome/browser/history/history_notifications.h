@@ -23,8 +23,9 @@ struct HistoryDetails {
   virtual ~HistoryDetails() {}
 };
 
-// Details for NOTIFY_HISTORY_URL_VISITED.
+// Details for HISTORY_URL_VISITED.
 struct URLVisitedDetails : public HistoryDetails {
+  PageTransition::Type transition;
   URLRow row;
 };
 

@@ -11,6 +11,7 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/google_url_tracker.h"
 #include "chrome/browser/history/history.h"
+#include "chrome/browser/net/url_fixer_upper.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/rlz/rlz.h"
 #include "chrome/browser/search_engines/template_url.h"
@@ -692,9 +693,9 @@ void TemplateURLModel::Observe(NotificationType type,
     Details<history::URLVisitedDetails> visit_details(details);
 
     if (!loaded())
-      visits_to_add_.push_back(visit_details->row);
+      visits_to_add_.push_back(*visit_details.ptr());
     else
-      UpdateKeywordSearchTermsForURL(visit_details->row);
+      UpdateKeywordSearchTermsForURL(*visit_details.ptr());
   } else if (type == NotificationType::GOOGLE_URL_UPDATED) {
     if (loaded_)
       GoogleBaseURLChanged();
@@ -877,7 +878,8 @@ PrefService* TemplateURLModel::GetPrefs() {
 }
 
 void TemplateURLModel::UpdateKeywordSearchTermsForURL(
-    const history::URLRow& row) {
+    const history::URLVisitedDetails& details) {
+  const history::URLRow& row = details.row;
   if (!row.url().is_valid() ||
       !row.url().parsed_for_possibly_invalid_spec().query.is_nonempty()) {
     return;
@@ -918,6 +920,14 @@ void TemplateURLModel::UpdateKeywordSearchTermsForURL(
       }
       built_terms = true;
 
+      if (PageTransition::StripQualifier(details.transition) ==
+          PageTransition::KEYWORD) {
+        // The visit is the result of the user entering a keyword, generate a
+        // KEYWORD_GENERATED visit for the KEYWORD so that the keyword typed
+        // count is boosted.
+        AddTabToSearchVisit(**i);
+      }
+
       QueryTerms::iterator terms_iterator =
           query_terms.find(search_ref->GetSearchTermKey());
       if (terms_iterator != query_terms.end() &&
@@ -928,6 +938,33 @@ void TemplateURLModel::UpdateKeywordSearchTermsForURL(
       }
     }
   }
+}
+
+void TemplateURLModel::AddTabToSearchVisit(const TemplateURL& t_url) {
+  // Only add visits for entries the user hasn't modified. If the user modified
+  // the entry the keyword may no longer correspond to the host name. It may be
+  // possible to do something more sophisticated here, but it's so rare as to
+  // not be worth it.
+  if (!t_url.safe_for_autoreplace())
+    return;
+
+  if (!profile_)
+    return;
+
+  HistoryService* history =
+      profile_->GetHistoryService(Profile::EXPLICIT_ACCESS);
+  if (!history)
+    return;
+
+  GURL url(URLFixerUpper::FixupURL(WideToUTF8(t_url.keyword()), std::string()));
+  if (!url.is_valid())
+    return;
+
+  // Synthesize a visit for the keyword. This ensures the url for the keyword is
+  // autocompleted even if the user doesn't type the url in directly.
+  history->AddPage(url, NULL, 0, GURL(),
+                   PageTransition::KEYWORD_GENERATED,
+                   HistoryService::RedirectList());
 }
 
 // static

@@ -351,6 +351,10 @@ void HistoryBackend::AddPage(scoped_refptr<HistoryAddPageArgs> request) {
   if (request->time < first_recorded_time_)
     first_recorded_time_ = request->time;
 
+  PageTransition::Type transition =
+      PageTransition::StripQualifier(request->transition);
+  bool is_keyword_generated = (transition == PageTransition::KEYWORD_GENERATED);
+
   if (request->redirects.size() <= 1) {
     // The single entry is both a chain start and end.
     PageTransition::Type t = request->transition |
@@ -360,13 +364,15 @@ void HistoryBackend::AddPage(scoped_refptr<HistoryAddPageArgs> request) {
     last_ids = AddPageVisit(request->url, last_recorded_time_,
                             last_ids.second, t);
 
-    // Update the segment for this visit.
-    UpdateSegments(request->url, from_visit_id, last_ids.second, t,
-                   last_recorded_time_);
+    // Update the segment for this visit. KEYWORD_GENERATED visits should not
+    // result in changing most visited, so we don't update segments (most
+    // visited db).
+    if (!is_keyword_generated) {
+      UpdateSegments(request->url, from_visit_id, last_ids.second, t,
+                     last_recorded_time_);
+    }
   } else {
     // Redirect case. Add the redirect chain.
-    PageTransition::Type transition =
-        PageTransition::StripQualifier(request->transition);
 
     PageTransition::Type redirect_info = PageTransition::CHAIN_START;
 
@@ -445,10 +451,8 @@ void HistoryBackend::AddPage(scoped_refptr<HistoryAddPageArgs> request) {
   // TODO(evanm): Due to http://b/1194536 we lose the referrers of a subframe
   // navigation anyway, so last_visit_id is always zero for them.  But adding
   // them here confuses main frame history, so we skip them for now.
-  PageTransition::Type transition =
-      PageTransition::StripQualifier(request->transition);
   if (transition != PageTransition::AUTO_SUBFRAME &&
-      transition != PageTransition::MANUAL_SUBFRAME) {
+      transition != PageTransition::MANUAL_SUBFRAME && !is_keyword_generated) {
     tracker_.AddVisit(request->id_scope, request->page_id, request->url,
                       last_ids.second);
   }
@@ -586,8 +590,11 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
   // TODO(pkasting): http://b/1148304 We shouldn't be marking so many URLs as
   // typed, which would eliminate the need for this code.
   int typed_increment = 0;
-  if (PageTransition::StripQualifier(transition) == PageTransition::TYPED &&
-      !PageTransition::IsRedirect(transition))
+  PageTransition::Type transition_type =
+      PageTransition::StripQualifier(transition);
+  if ((transition_type == PageTransition::TYPED &&
+       !PageTransition::IsRedirect(transition)) ||
+      transition_type == PageTransition::KEYWORD_GENERATED)
     typed_increment = 1;
 
   // See if this URL is already in the DB.
@@ -639,6 +646,7 @@ std::pair<URLID, VisitID> HistoryBackend::AddPageVisit(
   // Broadcast a notification of the visit.
   if (visit_id) {
     URLVisitedDetails* details = new URLVisitedDetails;
+    details->transition = transition;
     details->row = url_info;
     BroadcastNotifications(NotificationType::HISTORY_URL_VISITED, details);
   }

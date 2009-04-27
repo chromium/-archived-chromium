@@ -41,6 +41,7 @@ bool ShouldArchiveVisit(const VisitRow& visit) {
   // navigation and not part of a redirect chain.
   if ((no_qualifier == PageTransition::LINK ||
        no_qualifier == PageTransition::FORM_SUBMIT ||
+       no_qualifier == PageTransition::KEYWORD ||
        no_qualifier == PageTransition::GENERATED) &&
       visit.transition & PageTransition::CHAIN_END)
     return true;
@@ -320,9 +321,11 @@ void ExpireHistoryBackend::ExpireURLsForVisits(
     // NOTE: This code must stay in sync with HistoryBackend::AddPageVisit().
     // TODO(pkasting): http://b/1148304 We shouldn't be marking so many URLs as
     // typed, which would eliminate the need for this code.
-    const PageTransition::Type transition = visits[i].transition;
-    if (PageTransition::StripQualifier(transition) == PageTransition::TYPED &&
-        !PageTransition::IsRedirect(transition))
+    PageTransition::Type transition =
+        PageTransition::StripQualifier(visits[i].transition);
+    if ((transition == PageTransition::TYPED &&
+         !PageTransition::IsRedirect(visits[i].transition)) ||
+        transition == PageTransition::KEYWORD_GENERATED)
       cur.typed_count++;
   }
 

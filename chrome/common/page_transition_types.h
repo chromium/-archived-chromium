@@ -55,6 +55,7 @@ class PageTransition {
     // of a Google search result page, but appear like "Search Google for ...".
     // These are not quite the same as TYPED navigations because the user
     // didn't type or see the destination URL.
+    // See also KEYWORD.
     GENERATED = 5,
 
     // The page was specified in the command line or is the start page.
@@ -77,9 +78,24 @@ class PageTransition {
     // SessionRestore and undo tab close use this transition type too.
     RELOAD = 8,
 
+    // The url was generated from a replaceable keyword other than the default
+    // search provider. If the user types a keyword (which also applies to
+    // tab-to-search) in the omnibox this qualifier is applied to the transition
+    // type of the generated url. TemplateURLModel then may generate an
+    // additional visit with a transition type of KEYWORD_GENERATED against the
+    // url 'http://' + keyword. For example, if you do a tab-to-search against
+    // wikipedia the generated url has a transition qualifer of KEYWORD, and
+    // TemplateURLModel generates a visit for 'wikipedia.org' with a transition
+    // type of KEYWORD_GENERATED.
+    KEYWORD = 9,
+
+    // Corresponds to a visit generated for a keyword. See description of
+    // KEYWORD for more details.
+    KEYWORD_GENERATED = 10,
+
     // ADDING NEW CORE VALUE? Be sure to update the LAST_CORE and CORE_MASK
     // values below.
-    LAST_CORE = RELOAD,
+    LAST_CORE = KEYWORD_GENERATED,
     CORE_MASK = 0xFF,
 
     // Qualifiers
