@@ -1828,6 +1828,14 @@ WebDevToolsAgentImpl* WebViewImpl::GetWebDevToolsAgentImpl() {
 }
 
 void WebViewImpl::SetIsTransparent(bool is_transparent) {
+  // Set any existing frames to be transparent.
+  WebCore::Frame* frame = page_->mainFrame();
+  while (frame) {
+    frame->view()->setTransparent(is_transparent);
+    frame = frame->tree()->traverseNext();
+  }
+
+  // Future frames check this to know whether to be transparent.
   is_transparent_ = is_transparent;
 }
 

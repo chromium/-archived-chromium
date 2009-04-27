@@ -32,6 +32,28 @@ HWNDHtmlView::~HWNDHtmlView() {
   }
 }
 
+void HWNDHtmlView::SetVisible(bool is_visible) {
+  HWNDView::SetVisible(is_visible);
+
+  // Also tell RenderWidgetHostView the new visibility. Despite its name, it is
+  // not part of the View heirarchy and does not know about the change unless we
+  // tell it.
+  if (render_view_host() && render_view_host()->view()) {
+    if (is_visible)
+      render_view_host()->view()->Show();
+    else
+      render_view_host()->view()->Hide();
+  }
+}
+
+void HWNDHtmlView::DidChangeBounds(const gfx::Rect& previous,
+                                   const gfx::Rect& current) {
+  // Propagate the new size to RenderWidgetHostView.
+  // We can't send size zero because RenderWidget DCHECKs that.
+  if (render_view_host() && render_view_host()->view() && !current.IsEmpty())
+    render_view_host()->view()->SetSize(gfx::Size(width(), height()));
+}
+
 void HWNDHtmlView::SetBackground(const SkBitmap& background) {
   if (initialized_) {
     DCHECK(render_view_host_);

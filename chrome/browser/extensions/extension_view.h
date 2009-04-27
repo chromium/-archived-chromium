@@ -7,6 +7,7 @@
 
 #include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
+#include "skia/include/SkBitmap.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
@@ -30,13 +31,18 @@ class ExtensionView : public HWNDHtmlView,
                       public RenderViewHostDelegate,
                       public RenderViewHostDelegate::View {
  public:
+  // ExtensionView
   ExtensionView(Extension* extension,
                 const GURL& url,
                 SiteInstance* instance,
                 Browser* browser);
 
+  Extension* extension() { return extension_; }
+
   // HWNDHtmlView
   virtual void CreatingRenderer();
+
+  virtual void SetBackground(const SkBitmap& background);
 
   // RenderViewHostDelegate
   // TODO(mpcomplete): GetProfile is unused.
@@ -73,8 +79,10 @@ class ExtensionView : public HWNDHtmlView,
   virtual void TakeFocus(bool reverse);
   virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
 
-  Extension* extension() { return extension_; }
  private:
+  // We wait to show the ExtensionView until several things have loaded.
+  void ShowIfCompletelyLoaded();
+
   // The extension that we're hosting in this view.
   Extension* extension_;
 
@@ -83,6 +91,13 @@ class ExtensionView : public HWNDHtmlView,
 
   // Common implementations of some RenderViewHostDelegate::View methods.
   RenderViewHostDelegateViewHelper delegate_view_helper_;
+
+  // Whether the RenderWidget has reported that it has stopped loading.
+  bool did_stop_loading_;
+
+  // What we should set the preferred width to once the ExtensionView has
+  // loaded.
+  int pending_preferred_width_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionView);
 };

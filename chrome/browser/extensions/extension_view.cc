@@ -34,21 +34,38 @@ ExtensionView::ExtensionView(Extension* extension,
                              Browser* browser)
     : HWNDHtmlView(url, this, false, instance),
       extension_(extension),
-      browser_(browser) {
-  SetVisible(false);
+      browser_(browser),
+      did_stop_loading_(false),
+      pending_preferred_width_(0) {
+}
+
+void ExtensionView::ShowIfCompletelyLoaded() {
+  // We wait to show the ExtensionView until it has loaded and our parent has
+  // given us a background. These can happen in different orders.
+  if (did_stop_loading_ && !render_view_host()->view()->background().empty()) {
+    SetVisible(true);
+    DidContentsPreferredWidthChange(pending_preferred_width_);
+  }
+}
+
+void ExtensionView::SetBackground(const SkBitmap& background) {
+  HWNDHtmlView::SetBackground(background);
+  ShowIfCompletelyLoaded();
 }
 
 void ExtensionView::DidStopLoading(RenderViewHost* render_view_host,
       int32 page_id) {
   render_view_host->WasResized();
-  SetVisible(true);
+  did_stop_loading_ = true;
+  ShowIfCompletelyLoaded();
 }
 
 void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
-  if (pref_width > 0) {
-    // SchedulePaint first because new_width may be smaller and we want
-    // the Parent to paint the vacated space.
-    SchedulePaint();
+  // Don't actually do anything with this information until we have been shown.
+  // Size changes will not be honored by lower layers while we are hidden.
+  if (!IsVisible()) {
+    pending_preferred_width_ = pref_width;
+  } else if (pref_width > 0) {
     set_preferred_size(gfx::Size(pref_width, height()));
     SizeToPreferredSize();
 
@@ -61,12 +78,12 @@ void ExtensionView::DidContentsPreferredWidthChange(const int pref_width) {
     }
 
     SchedulePaint();
-    render_view_host()->WasResized();
   }
 }
 
 void ExtensionView::CreatingRenderer() {
   render_view_host()->AllowExtensionBindings();
+  SetVisible(false);
 }
 
 void ExtensionView::RenderViewCreated(RenderViewHost* rvh) {

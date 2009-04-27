@@ -1432,16 +1432,17 @@ bool BookmarkBarView::AddExtensionToolstrips(const ExtensionList* extensions) {
   bool added_toolstrip = false;
   for (ExtensionList::const_iterator extension = extensions->begin();
        extension != extensions->end(); ++extension) {
-    for (std::vector<std::string>::const_iterator toolstrip =
+    for (std::vector<std::string>::const_iterator toolstrip_path =
          (*extension)->toolstrips().begin();
-         toolstrip != (*extension)->toolstrips().end(); ++toolstrip) {
-      ExtensionToolstrip* view =
+         toolstrip_path != (*extension)->toolstrips().end(); ++toolstrip_path) {
+      ExtensionToolstrip* toolstrip =
           new ExtensionToolstrip(*extension,
-                                 (*extension)->GetResourceURL(*toolstrip),
+                                 (*extension)->GetResourceURL(*toolstrip_path),
                                  browser_);
       int index = GetBookmarkButtonCount() + num_extension_toolstrips_;
-      view->view()->SetBackground(toolstrip_background_);
-      AddChildView(index, view);
+      if (!toolstrip_background_.empty())
+        toolstrip->view()->SetBackground(toolstrip_background_);
+      AddChildView(index, toolstrip);
       added_toolstrip = true;
       ++num_extension_toolstrips_;
     }

@@ -489,9 +489,11 @@ class HWNDHtmlView {
   RenderViewHost* render_view_host() { NOTIMPLEMENTED(); return NULL; }
   void InitHidden() { NOTIMPLEMENTED(); }
   void set_preferred_size(const gfx::Size& size) { NOTIMPLEMENTED(); }
+  virtual void SetBackground(const SkBitmap&) { NOTIMPLEMENTED(); }
   virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
   void SizeToPreferredSize() { NOTIMPLEMENTED(); }
   HWNDHtmlView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
+  bool IsVisible() const { NOTIMPLEMENTED(); return false; }
   void Layout() { NOTIMPLEMENTED(); }
   void SchedulePaint() { NOTIMPLEMENTED(); }
   SiteInstance* site_instance() { NOTIMPLEMENTED(); return NULL; }

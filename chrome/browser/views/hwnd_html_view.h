@@ -22,6 +22,13 @@ class HWNDHtmlView : public views::HWNDView {
                bool allow_dom_ui_bindings, SiteInstance* instance);
   virtual ~HWNDHtmlView();
 
+  // View
+  virtual void SetVisible(bool is_visible);
+
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
+
+  // HWNDHtmlView
   RenderViewHost* render_view_host() { return render_view_host_; }
 
   // Initialize the view without a parent window.  Used for extensions that
@@ -29,7 +36,7 @@ class HWNDHtmlView : public views::HWNDView {
   void InitHidden();
 
   // Set a custom background for the view. The background will be tiled.
-  void SetBackground(const SkBitmap& background);
+  virtual void SetBackground(const SkBitmap& background);
 
  protected:
   // View overrides.
