@@ -221,9 +221,9 @@ AutomationLaunchResult AutomationProxy::WaitForAppLaunch() {
     if (perform_version_check_) {
       // Obtain our own version number and compare it to what the automation
       // provider sent.
-      FileVersionInfo* file_version_info =
-          FileVersionInfo::CreateFileVersionInfoForCurrentModule();
-      DCHECK(file_version_info);
+      scoped_ptr<FileVersionInfo> file_version_info(
+          FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+      DCHECK(file_version_info != NULL);
       std::string version_string(
           WideToASCII(file_version_info->file_version()));
 
