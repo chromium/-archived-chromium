@@ -181,9 +181,10 @@ const std::wstring& AutocompletePopupViewMac::ResultDescriptionAt(size_t i) {
   return model_->result().match_at(i).description;
 }
 
-void AutocompletePopupViewMac::AcceptInput(
-    WindowOpenDisposition disposition, bool for_drop) {
-  edit_view_->AcceptInput(disposition, for_drop);
+void AutocompletePopupViewMac::AcceptInput() {
+  NSTableView* table = [popup_ contentView];
+  model_->SetSelectedLine([table selectedRow], false);
+  edit_view_->AcceptInput(CURRENT_TAB, false);
 }
 
 @implementation AutocompleteTableTarget
@@ -249,7 +250,7 @@ objectValueForTableColumn:(NSTableColumn*)aTableColumn
 
 - (void)select:sender {
   DCHECK(popup_view_);
-  popup_view_->AcceptInput(CURRENT_TAB, false);
+  popup_view_->AcceptInput();
 }
 
 @end

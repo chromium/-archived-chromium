@@ -72,7 +72,7 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   const std::wstring& ResultContentsAt(size_t i);
   bool ResultStarredAt(size_t i);
   const std::wstring& ResultDescriptionAt(size_t i);
-  void AcceptInput(WindowOpenDisposition disposition, bool for_drop);
+  void AcceptInput();
 
  private:
   // Create the popup_ instance if needed.
