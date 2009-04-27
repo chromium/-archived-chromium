@@ -121,6 +121,12 @@ class DownloadFile {
   // OS file handle for writing
   FILE* file_;
 
+  // Source URL for the file being downloaded.
+  GURL source_url_;
+
+  // The URL where the download was initiated.
+  GURL referrer_url_;
+
   // The unique identifier for this download, assigned at creation by
   // the DownloadFileManager for its internal record keeping.
   int id_;

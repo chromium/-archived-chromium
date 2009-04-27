@@ -48,6 +48,7 @@ struct DownloadCreateInfo {
   // DownloadItem fields
   FilePath path;
   GURL url;
+  GURL referrer_url;
   FilePath suggested_path;
   // A number that should be added to the suggested path to make it unique.
   // 0 means no number should be appended.  Not actually stored in the db.

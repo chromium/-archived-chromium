@@ -26,6 +26,8 @@
 #if defined(OS_WIN)
 #include "chrome/common/win_util.h"
 #include "chrome/common/win_safe_util.h"
+#elif defined(OS_MACOSX)
+#include "chrome/common/quarantine_mac.h"
 #endif
 
 // Throttle updates to the UI thread so that a fast moving download doesn't
@@ -54,6 +56,8 @@ class DownloadFileUpdateTask : public Task {
 
 DownloadFile::DownloadFile(const DownloadCreateInfo* info)
     : file_(NULL),
+      source_url_(info->url),
+      referrer_url_(info->referrer_url),
       id_(info->download_id),
       render_process_id_(info->render_process_id),
       render_view_id_(info->render_view_id),
@@ -136,7 +140,8 @@ bool DownloadFile::Open(const char* open_mode) {
   // We ignore the return value because a failure is not fatal.
   win_util::SetInternetZoneIdentifier(full_path_);
 #elif defined(OS_MACOSX)
-  // TODO(port): Set quarrantine information, http://crbug.com/10853
+  quarantine_mac::AddQuarantineMetadataToFile(full_path_, source_url_,
+                                              referrer_url_);
 #endif
   return true;
 }

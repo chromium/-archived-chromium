@@ -51,6 +51,7 @@ bool DownloadResourceHandler::OnResponseStarted(int request_id,
   // |download_manager_| consumes (deletes):
   DownloadCreateInfo* info = new DownloadCreateInfo;
   info->url = url_;
+  info->referrer_url = GURL(request_->referrer());
   info->start_time = base::Time::Now();
   info->received_bytes = 0;
   info->total_bytes = content_length_;

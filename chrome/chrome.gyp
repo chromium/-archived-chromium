@@ -254,6 +254,8 @@
         'common/process_watcher.h',
         'common/property_bag.cc',
         'common/property_bag.h',
+        'common/quarantine_mac.h',
+        'common/quarantine_mac.mm',
         'common/ref_counted_util.h',
         'common/render_messages.h',
         'common/render_messages_internal.h',
