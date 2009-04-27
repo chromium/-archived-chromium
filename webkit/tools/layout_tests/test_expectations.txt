@@ -2306,7 +2306,6 @@ BUG9798 LINUX : LayoutTests/fast/backgrounds/001.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/dom/HTMLObjectElement/object-as-frame.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/dom/delete-contents.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fast/dom/onerror-img.html = CRASH PASS
-BUG9798 WIN : LayoutTests/fast/workers/worker-terminate.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/fonts/cursive.html = FAIL PASS
 BUG9798 LINUX : LayoutTests/http/tests/misc/BOM-override-script.html = TIMEOUT PASS
 BUG9798 LINUX : LayoutTests/http/tests/navigation/error404-frames.html = TIMEOUT PASS
@@ -2519,6 +2518,7 @@ BUG10859 LINUX : LayoutTests/fast/table/cell-coalescing.html = FAIL
 BUG10861 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-detached-document.html = CRASH
 
 // New failures from WebKit Merge 42671:42725
+BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS
 BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
 BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
@@ -2585,3 +2585,10 @@ BUG11012 LINUX MAC : LayoutTests/http/tests/security/xss-DENIED-xml-external-ent
 BUG11012 MAC : LayoutTests/editing/deleting/deletionUI-single-instance.html = FAIL
 // Was marked as SLOW, now TIMEOUT.
 BUG11012 MAC : LayoutTests/http/tests/xmlhttprequest/supported-xml-content-types.html = TIMEOUT
+
+// Temporarily disable worker tests that fail after
+// http://src.chromium.org/viewvc/chrome?view=rev&revision=14461
+BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT PASS
+BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = TIMEOUT PASS
+// The following failure was filed in BUG9798, used to be FAIL and PASS.
+BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT FAIL PASS
