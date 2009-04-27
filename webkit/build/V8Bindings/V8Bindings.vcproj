@@ -2921,6 +2921,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptEventListener.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptEventListener.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\..\third_party\WebKit\WebCore\bindings\v8\ScriptFunctionCall.cpp"
 			>
 		</File>

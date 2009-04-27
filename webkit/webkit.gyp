@@ -1048,6 +1048,8 @@
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCallFrame.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCallStack.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptCallStack.h',
+        '../third_party/WebKit/WebCore/bindings/v8/ScriptEventListener.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/ScriptEventListener.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptFunctionCall.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptFunctionCall.h',
         '../third_party/WebKit/WebCore/bindings/v8/ScriptInstance.cpp',
