@@ -2208,6 +2208,7 @@
         'browser/cocoa/status_bubble_mac_unittest.mm',
         'browser/cocoa/tab_cell_unittest.mm',
         'browser/cocoa/tab_controller_unittest.mm',
+        'browser/cocoa/tab_strip_controller_unittest.mm',
         'browser/cocoa/tab_strip_view_unittest.mm',
         'browser/cocoa/tab_view_unittest.mm',
         'browser/cocoa/toolbar_button_cell_unittest.mm',

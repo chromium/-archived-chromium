@@ -4,6 +4,7 @@
 
 #import "chrome/browser/cocoa/tab_contents_controller.h"
 
+#include "base/mac_util.h"
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
@@ -12,7 +13,8 @@
 
 - (id)initWithNibName:(NSString*)name
              contents:(TabContents*)contents {
-  if ((self = [super initWithNibName:name bundle:nil])) {
+  if ((self = [super initWithNibName:name
+                              bundle:mac_util::MainAppBundle()])) {
     contents_ = contents;
   }
   return self;
