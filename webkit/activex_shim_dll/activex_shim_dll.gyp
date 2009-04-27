@@ -26,7 +26,6 @@
               'RegisterOutput': 'false',
               'IgnoreImportLibrary': 'true',
               'OutputFile': '$(OutDir)/npaxshim.dll',
-              'ModuleDefinitionFile': 'activex_shim_dll.def',
             },
           },
           'sources': [
