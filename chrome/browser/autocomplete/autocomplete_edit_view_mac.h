@@ -32,7 +32,8 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   AutocompleteEditViewMac(AutocompleteEditController* controller,
                           ToolbarModel* toolbar_model,
                           Profile* profile,
-                          CommandUpdater* command_updater);
+                          CommandUpdater* command_updater,
+                          NSTextField* field);
   virtual ~AutocompleteEditViewMac();
 
   // Implement the AutocompleteEditView interface.
@@ -87,10 +88,6 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   void OnSetFocus(bool f);
   void OnKillFocus();
   void AcceptInput(WindowOpenDisposition disposition, bool for_drop);
-
-  // TODO(shess): Get rid of this.  Right now it's needed because of
-  // the ordering of initialization in tab_contents_controller.mm.
-  void SetField(NSTextField* field);
 
   // Helper for LocationBarBridge.
   void FocusLocation();

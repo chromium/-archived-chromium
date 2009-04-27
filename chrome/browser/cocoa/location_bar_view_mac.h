@@ -28,13 +28,6 @@ class LocationBarViewMac : public AutocompleteEditController,
                      Profile* profile);
   virtual ~LocationBarViewMac();
 
-  // TODO(shess): This is a placeholder for the Omnibox code.  The
-  // problem it will paper over is that Profile availability does not
-  // match object creation in TabContentsController.  Circle back and
-  // resolve this after the Profile-handling and tab logic changes are
-  // complete.
-  void Init();
-
   // Overridden from LocationBar
   virtual void ShowFirstRunBubble() { NOTIMPLEMENTED(); }
   virtual std::wstring GetInputString() const;
@@ -60,10 +53,7 @@ class LocationBarViewMac : public AutocompleteEditController,
  private:
   scoped_ptr<AutocompleteEditViewMac> edit_view_;
 
-  NSTextField* field_;  // weak, owned by ToolbarController nib
   CommandUpdater* command_updater_;  // weak, owned by Browser
-  ToolbarModel* toolbar_model_;  // weak, owned by Browser
-  Profile* profile_;  // weak, outlives the Browser
 
   // When we get an OnAutocompleteAccept notification from the autocomplete
   // edit, we save the input string so we can give it back to the browser on

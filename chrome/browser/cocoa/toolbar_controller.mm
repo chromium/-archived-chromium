@@ -48,7 +48,6 @@ static NSString* const kStarredImageName = @"starred";
   [self initCommandStatus:commands_];
   locationBarView_.reset(new LocationBarViewMac(locationBar_, commands_,
                                                 toolbarModel_, profile_));
-  locationBarView_->Init();
   [locationBar_ setStringValue:@"http://dev.chromium.org"];
 }
 

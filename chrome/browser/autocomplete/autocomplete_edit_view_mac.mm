@@ -23,18 +23,22 @@ AutocompleteEditViewMac::AutocompleteEditViewMac(
     AutocompleteEditController* controller,
     ToolbarModel* toolbar_model,
     Profile* profile,
-    CommandUpdater* command_updater)
+    CommandUpdater* command_updater,
+    NSTextField* field)
     : model_(new AutocompleteEditModel(this, controller, profile)),
-      popup_view_(new AutocompletePopupViewMac(this, model_.get(), profile)),
+      popup_view_(new AutocompletePopupViewMac(this, model_.get(), profile,
+                                               field)),
       controller_(controller),
       toolbar_model_(toolbar_model),
       command_updater_(command_updater),
-      field_(nil),
+      field_(field),
       edit_helper_([[AutocompleteFieldDelegate alloc] initWithEditView:this]) {
   DCHECK(controller);
   DCHECK(toolbar_model);
   DCHECK(profile);
   DCHECK(command_updater);
+  DCHECK(field);
+  [field_ setDelegate:edit_helper_];
 }
 
 AutocompleteEditViewMac::~AutocompleteEditViewMac() {
@@ -272,13 +276,6 @@ void AutocompleteEditViewMac::OnKillFocus() {
 void AutocompleteEditViewMac::AcceptInput(
     WindowOpenDisposition disposition, bool for_drop) {
   model_->AcceptInput(disposition, for_drop);
-}
-void AutocompleteEditViewMac::SetField(NSTextField* field) {
-  field_ = field;
-  [field_ setDelegate:edit_helper_];
-
-  // The popup code needs the field for sizing and placement.
-  popup_view_->SetField(field_);
 }
 
 void AutocompleteEditViewMac::FocusLocation() {

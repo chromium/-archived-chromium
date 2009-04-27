@@ -29,7 +29,8 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
  public:
   AutocompletePopupViewMac(AutocompleteEditViewMac* edit_view,
                            AutocompleteEditModel* edit_model,
-                           Profile* profile);
+                           Profile* profile,
+                           NSTextField* field);
   virtual ~AutocompletePopupViewMac();
 
   // Implement the AutocompletePopupView interface.
@@ -72,12 +73,6 @@ class AutocompletePopupViewMac : public AutocompletePopupView {
   bool ResultStarredAt(size_t i);
   const std::wstring& ResultDescriptionAt(size_t i);
   void AcceptInput(WindowOpenDisposition disposition, bool for_drop);
-
-  // TODO(shess): Get rid of this.  Right now it's needed because of
-  // the ordering of initialization in tab_contents_controller.mm.
-  void SetField(NSTextField* field) {
-    field_ = field;
-  }
 
  private:
   // Create the popup_ instance if needed.

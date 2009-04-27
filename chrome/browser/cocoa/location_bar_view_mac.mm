@@ -19,27 +19,15 @@ LocationBarViewMac::LocationBarViewMac(NSTextField* field,
                                        CommandUpdater* command_updater,
                                        ToolbarModel* toolbar_model,
                                        Profile* profile)
-    : field_(field),
+  : edit_view_(new AutocompleteEditViewMac(this, toolbar_model, profile,
+                                           command_updater, field)),
       command_updater_(command_updater),
-      toolbar_model_(toolbar_model),
-      profile_(profile),
       disposition_(CURRENT_TAB),
       transition_(PageTransition::TYPED) {
 }
 
 LocationBarViewMac::~LocationBarViewMac() {
   // TODO(shess): Placeholder for omnibox changes.
-}
-
-void LocationBarViewMac::Init() {
-  // TODO(shess): Get rid of Init() so we don't have to cache all these members
-  // as we don't use them beyond this method.
-  edit_view_.reset(new AutocompleteEditViewMac(this,
-                                               toolbar_model_,
-                                               profile_,
-                                               command_updater_));
-  // TODO(shess): Include in constructor.
-  edit_view_->SetField(field_);
 }
 
 std::wstring LocationBarViewMac::GetInputString() const {

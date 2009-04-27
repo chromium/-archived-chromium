@@ -36,10 +36,11 @@ objectValueForTableColumn:(NSTableColumn*)aTableColumn
 AutocompletePopupViewMac::AutocompletePopupViewMac(
     AutocompleteEditViewMac* edit_view,
     AutocompleteEditModel* edit_model,
-    Profile* profile)
+    Profile* profile,
+    NSTextField* field)
     : model_(new AutocompletePopupModel(this, edit_model, profile)),
       edit_view_(edit_view),
-      field_(nil),
+      field_(field),
       table_target_([[AutocompleteTableTarget alloc] initWithPopupView:this]),
       popup_(nil) {
   DCHECK(edit_view);
