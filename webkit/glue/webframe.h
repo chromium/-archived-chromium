@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -376,6 +376,11 @@ class WebFrame {
   // will succeed even if a child frame failed to load.
   virtual bool BeginPrint(const WebKit::WebSize& page_size_px,
                           int* page_count) = 0;
+
+  // Returns the page shrinking factor calculated by webkit (usually between
+  // 1/1.25 and 1/2). Returns 0 if the page number is invalid or not in printing
+  // mode.
+  virtual float GetPrintPageShrink(int page) = 0;
 
   // Prints one page. |page| is 0-based.
   // Returns the page shrinking factor calculated by webkit (usually between

@@ -179,6 +179,7 @@ class WebFrameImpl : public WebFrame, public base::RefCounted<WebFrameImpl> {
 
   virtual bool BeginPrint(const WebKit::WebSize& page_size_px,
                           int* page_count);
+  virtual float GetPrintPageShrink(int page);
   virtual float PrintPage(int page, skia::PlatformCanvas* canvas);
   virtual void EndPrint();
 

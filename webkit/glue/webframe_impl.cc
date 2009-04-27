@@ -307,6 +307,10 @@ class ChromePrintContext : public WebCore::PrintContext {
     printed_page_width_ = width;
     WebCore::PrintContext::begin(printed_page_width_);
   }
+  float getPageShrink(int pageNumber) const {
+    IntRect pageRect = m_pageRects[pageNumber];
+    return printed_page_width_ / pageRect.width();
+  }
   // Spools the printed page, a subrect of m_frame.
   // Skip the scale step. NativeTheme doesn't play well with scaling. Scaling
   // is done browser side instead.
@@ -1882,6 +1886,16 @@ bool WebFrameImpl::BeginPrint(const WebSize& page_size_px,
   if (page_count)
     *page_count = print_context_->pageCount();
   return true;
+}
+
+float WebFrameImpl::GetPrintPageShrink(int page) {
+  // Ensure correct state.
+  if (!print_context_.get() || page < 0) {
+    NOTREACHED();
+    return 0;
+  }
+
+  return print_context_->getPageShrink(page);
 }
 
 float WebFrameImpl::PrintPage(int page, skia::PlatformCanvas* canvas) {
