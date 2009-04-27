@@ -784,6 +784,10 @@ void TaskManagerContents::Init(TaskManagerTableModel* table_model) {
   SetContextMenuController(this);
   kill_button_.reset(new views::NativeButton(
       this, l10n_util::GetString(IDS_TASK_MANAGER_KILL)));
+  // TODO(hamaji): Use accelerator once the bug in FocusManager fixed.
+  //               http://crbug.com/11073
+  // kill_button_->AddAccelerator(views::Accelerator('E', false, false, false));
+  kill_button_->SetAccessibleKeyboardShortcut(L"E");
   about_memory_link_.reset(new views::Link(
       l10n_util::GetString(IDS_TASK_MANAGER_ABOUT_MEMORY_LINK)));
   about_memory_link_->SetController(this);
@@ -916,6 +920,8 @@ void TaskManagerContents::OnDoubleClick() {
 void TaskManagerContents::OnKeyDown(unsigned short virtual_keycode) {
   if (virtual_keycode == VK_RETURN)
     task_manager_->ActivateFocusedTab();
+  else if (virtual_keycode == 'E')
+    task_manager_->KillSelectedProcesses();
 }
 
 // views::LinkController implementation
@@ -1009,6 +1015,8 @@ void TaskManager::KillSelectedProcesses() {
        iter != selection.end(); ++iter) {
     HANDLE process = table_model_->GetProcessAt(*iter);
     DCHECK(process);
+    if (process == GetCurrentProcess())
+      continue;
     TerminateProcess(process, 0);
   }
 }
