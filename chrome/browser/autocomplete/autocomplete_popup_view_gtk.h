@@ -84,8 +84,6 @@ class AutocompletePopupViewGtk : public AutocompletePopupView {
   // Our popup window, which is the only widget used, and we paint it on our
   // own.  This widget shouldn't be exposed outside of this class.
   GtkWidget* window_;
-  // The graphics context created from the window, cached across exposes.
-  GdkGC* gc_;
   // The pango layout object created from the window, cached across exposes.
   PangoLayout* layout_;
 

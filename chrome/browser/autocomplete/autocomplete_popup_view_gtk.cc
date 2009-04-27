@@ -10,6 +10,7 @@
 
 #include "base/basictypes.h"
 #include "base/gfx/gtk_util.h"
+#include "base/gfx/rect.h"
 #include "base/logging.h"
 #include "base/string_util.h"
 #include "chrome/browser/autocomplete/autocomplete.h"
@@ -54,6 +55,10 @@ const int kIconAreaWidth =
     kIconLeftPadding + kIconWidth + kIconRightPadding;
 // Space between the right edge (including the border) and the text.
 const int kRightPadding = 3;
+// When we have both a content and description string, we don't want the
+// content to push the description off.  Limit the content to a percentage of
+// the total width.
+const float kContentWidthPercentage = 0.7;
 
 // TODO(deanm): We should put this on ChromeFont so it can be shared.
 // Returns a new pango font, free with pango_font_description_free().
@@ -82,22 +87,20 @@ PangoFontDescription* PangoFontFromChromeFont(const ChromeFont& chrome_font) {
   return pfd;
 }
 
-// Return a GdkRectangle covering the whole area of |window|.
-GdkRectangle GetWindowRect(GdkWindow* window) {
+// Return a Rect covering the whole area of |window|.
+gfx::Rect GetWindowRect(GdkWindow* window) {
   gint width, height;
   gdk_drawable_get_size(GDK_DRAWABLE(window), &width, &height);
-  GdkRectangle rect = {0, 0, width, height};
-  return rect;
+  return gfx::Rect(0, 0, width, height);
 }
 
-// Return a rectangle for the space for a result.  This excludes the border,
+// Return a Rect for the space for a result line.  This excludes the border,
 // but includes the padding.  This is the area that is colored for a selection.
-GdkRectangle GetRectForLine(size_t line, int width) {
-  GdkRectangle rect = {kBorderThickness,
-                       (line * kHeightPerResult) + kBorderThickness,
-                       width - (kBorderThickness * 2),
-                       kHeightPerResult};
-  return rect;
+gfx::Rect GetRectForLine(size_t line, int width) {
+  return gfx::Rect(kBorderThickness,
+                   (line * kHeightPerResult) + kBorderThickness,
+                   width - (kBorderThickness * 2),
+                   kHeightPerResult);
 }
 
 // Helper for drawing an entire pixbuf without dithering.
@@ -170,6 +173,42 @@ void SetupLayoutForMatch(PangoLayout* layout,
   pango_attr_list_unref(attrs);
 }
 
+GdkPixbuf* IconForMatch(const AutocompleteMatch& match) {
+  // TODO(deanm): These would be better as pixmaps someday.
+  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
+  static GdkPixbuf* o2_globe = rb.GetPixbufNamed(IDR_O2_GLOBE);
+  static GdkPixbuf* o2_history = rb.GetPixbufNamed(IDR_O2_HISTORY);
+  static GdkPixbuf* o2_more = rb.GetPixbufNamed(IDR_O2_MORE);
+  static GdkPixbuf* o2_search = rb.GetPixbufNamed(IDR_O2_SEARCH);
+  static GdkPixbuf* o2_star = rb.GetPixbufNamed(IDR_O2_STAR);
+
+  if (match.starred)
+    return o2_star;
+
+  switch (match.type) {
+    case AutocompleteMatch::URL_WHAT_YOU_TYPED:
+    case AutocompleteMatch::NAVSUGGEST:
+      return o2_globe;
+    case AutocompleteMatch::HISTORY_URL:
+    case AutocompleteMatch::HISTORY_TITLE:
+    case AutocompleteMatch::HISTORY_BODY:
+    case AutocompleteMatch::HISTORY_KEYWORD:
+      return o2_history;
+    case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
+    case AutocompleteMatch::SEARCH_HISTORY:
+    case AutocompleteMatch::SEARCH_SUGGEST:
+    case AutocompleteMatch::SEARCH_OTHER_ENGINE:
+      return o2_search;
+    case AutocompleteMatch::OPEN_HISTORY_PAGE:
+      return o2_more;
+    default:
+      NOTREACHED();
+      break;
+  }
+
+  return NULL;
+}
+
 }  // namespace
 
 AutocompletePopupViewGtk::AutocompletePopupViewGtk(
@@ -181,7 +220,6 @@ AutocompletePopupViewGtk::AutocompletePopupViewGtk(
       edit_view_(edit_view),
       popup_positioner_(popup_positioner),
       window_(gtk_window_new(GTK_WINDOW_POPUP)),
-      gc_(NULL),
       layout_(NULL),
       opened_(false) {
   GTK_WIDGET_UNSET_FLAGS(window_, GTK_CAN_FOCUS);
@@ -227,15 +265,15 @@ AutocompletePopupViewGtk::~AutocompletePopupViewGtk() {
   // to make sure everything is still valid when it does.
   model_.reset();
   g_object_unref(layout_);
-  if (gc_)
-    g_object_unref(gc_);
   gtk_widget_destroy(window_);
 }
 
 void AutocompletePopupViewGtk::InvalidateLine(size_t line) {
-  GdkRectangle rect = GetWindowRect(window_->window);
-  rect = GetRectForLine(line, rect.width);
-  gdk_window_invalidate_rect(window_->window, &rect, FALSE);
+  // TODO(deanm): Is it possible to use some constant for the width, instead
+  // of having to query the width of the window?
+  GdkRectangle line_rect = GetRectForLine(
+      line, GetWindowRect(window_->window).width()).ToGdkRectangle();
+  gdk_window_invalidate_rect(window_->window, &line_rect, FALSE);
 }
 
 void AutocompletePopupViewGtk::UpdatePopupAppearance() {
@@ -339,131 +377,95 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
                                                 GdkEventExpose* event) {
   const AutocompleteResult& result = model_->result();
 
-  // TODO(deanm): These would be better as pixmaps someday.
-  ResourceBundle& rb = ResourceBundle::GetSharedInstance();
-  static GdkPixbuf* o2_globe = rb.GetPixbufNamed(IDR_O2_GLOBE);
-  static GdkPixbuf* o2_history = rb.GetPixbufNamed(IDR_O2_HISTORY);
-  static GdkPixbuf* o2_more = rb.GetPixbufNamed(IDR_O2_MORE);
-  static GdkPixbuf* o2_search = rb.GetPixbufNamed(IDR_O2_SEARCH);
-  static GdkPixbuf* o2_star = rb.GetPixbufNamed(IDR_O2_STAR);
-
-  GdkRectangle window_rect = GetWindowRect(event->window);
+  gfx::Rect window_rect = GetWindowRect(event->window);
+  gfx::Rect damage_rect = gfx::Rect(event->area);
   // Handle when our window is super narrow.  A bunch of the calculations
   // below would go negative, and really we're not going to fit anything
   // useful in such a small window anyway.  Just don't paint anything.
   // This means we won't draw the border, but, yeah, whatever.
   // TODO(deanm): Make the code more robust and remove this check.
-  if (window_rect.width < (kIconAreaWidth * 3))
+  if (window_rect.width() < (kIconAreaWidth * 3))
     return TRUE;
 
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
-  // We cache the GC across exposes.  This should be safe, since our window
-  // should not change.
-  if (!gc_)
-    gc_ = gdk_gc_new(drawable);
+  // We don't actually care about the style, we just need a GC.
+  GdkGC* gc = widget->style->black_gc;
 
   // kBorderColor is unallocated, so use the GdkRGB routine.
-  gdk_gc_set_rgb_fg_color(gc_, &kBorderColor);
+  gdk_gc_set_rgb_fg_color(gc, &kBorderColor);
 
   // This assert is kinda ugly, but it would be more currently unneeded work
   // to support painting a border that isn't 1 pixel thick.  There is no point
   // in writing that code now, and explode if that day ever comes.
   COMPILE_ASSERT(kBorderThickness == 1, border_1px_implied);
   // Draw the 1px border around the entire window.
-  gdk_draw_rectangle(drawable, gc_, FALSE,
+  gdk_draw_rectangle(drawable, gc, FALSE,
                      0, 0,
-                     window_rect.width - 1, window_rect.height - 1);
+                     window_rect.width() - 1, window_rect.height() - 1);
 
   pango_layout_set_height(layout_, kHeightPerResult * PANGO_SCALE);
 
   // TODO(deanm): Intersect the line and damage rects, and only repaint and
   // layout the lines that are actually damaged.  For now paint everything.
   for (size_t i = 0; i < result.size(); ++i) {
-    const AutocompleteMatch& match = result.match_at(i);
-    GdkRectangle result_rect = GetRectForLine(i, window_rect.width);
+    gfx::Rect line_rect = GetRectForLine(i, window_rect.width());
+    // Only repaint and layout damaged lines.
+    if (!line_rect.Intersects(damage_rect))
+      continue;
 
+    const AutocompleteMatch& match = result.match_at(i);
     bool is_selected = (model_->selected_line() == i);
     bool is_hovered = (model_->hovered_line() == i);
     if (is_selected || is_hovered) {
-      gdk_gc_set_rgb_fg_color(gc_, is_selected ? &kSelectedBackgroundColor :
+      gdk_gc_set_rgb_fg_color(gc, is_selected ? &kSelectedBackgroundColor :
                                                  &kHoveredBackgroundColor);
       // This entry is selected or hovered, fill a rect with the color.
-      gdk_draw_rectangle(drawable, gc_, TRUE,
-                         result_rect.x, result_rect.y,
-                         result_rect.width, result_rect.height);
+      gdk_draw_rectangle(drawable, gc, TRUE,
+                         line_rect.x(), line_rect.y(),
+                         line_rect.width(), line_rect.height());
     }
 
-    GdkPixbuf* icon = NULL;
-    if (match.starred) {
-      icon = o2_star;
-    } else {
-      switch (match.type) {
-        case AutocompleteMatch::URL_WHAT_YOU_TYPED:
-        case AutocompleteMatch::NAVSUGGEST:
-          icon = o2_globe;
-          break;
-        case AutocompleteMatch::HISTORY_URL:
-        case AutocompleteMatch::HISTORY_TITLE:
-        case AutocompleteMatch::HISTORY_BODY:
-        case AutocompleteMatch::HISTORY_KEYWORD:
-          icon = o2_history;
-          break;
-        case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
-        case AutocompleteMatch::SEARCH_HISTORY:
-        case AutocompleteMatch::SEARCH_SUGGEST:
-        case AutocompleteMatch::SEARCH_OTHER_ENGINE:
-          icon = o2_search;
-          break;
-        case AutocompleteMatch::OPEN_HISTORY_PAGE:
-          icon = o2_more;
-          break;
-        default:
-          NOTREACHED();
-          break;
-      }
-    }
-    
     // Draw the icon for this result time.
-    DrawFullPixbuf(drawable, gc_, icon,
-                   kIconLeftPadding, result_rect.y + kIconTopPadding);
+    DrawFullPixbuf(drawable, gc, IconForMatch(match),
+                   kIconLeftPadding, line_rect.y() + kIconTopPadding);
 
-    // TODO(deanm): Bold the matched portions of text.
-    // TODO(deanm): I couldn't get the weight adjustment to be granular enough
-    // to match the mocks.  It was basically super bold or super thin.
-    
     // Draw the results text vertically centered in the results space.
     // First draw the contents / url, but don't let it take up the whole width
     // if there is also a description to be shown.
     bool has_description = !match.description.empty();
-    int text_area_width = window_rect.width - (kIconAreaWidth + kRightPadding);
-    if (has_description)
-      text_area_width *= 0.7;
-    pango_layout_set_width(layout_, text_area_width * PANGO_SCALE);
+    int text_width = window_rect.width() - (kIconAreaWidth + kRightPadding);
+    int content_width = has_description ?
+        text_width * kContentWidthPercentage : text_width;
+    pango_layout_set_width(layout_, content_width * PANGO_SCALE);
 
     SetupLayoutForMatch(layout_, match.contents, match.contents_class,
                         &kContentTextColor, std::string());
 
-    int content_width, content_height;
-    pango_layout_get_size(layout_, &content_width, &content_height);
-    content_width /= PANGO_SCALE;
-    content_height /= PANGO_SCALE;
+    int actual_content_width, actual_content_height;
+    pango_layout_get_size(layout_,
+        &actual_content_width, &actual_content_height);
+    actual_content_width /= PANGO_SCALE;
+    actual_content_height /= PANGO_SCALE;
 
-    DCHECK_LT(content_height, kHeightPerResult);  // Font too tall.
-    int content_y = std::max(result_rect.y,
-        result_rect.y + ((kHeightPerResult - content_height) / 2));
+    DCHECK_LT(actual_content_height, kHeightPerResult);  // Font is too tall.
+    // Center the text within the line.
+    int content_y = std::max(line_rect.y(),
+        line_rect.y() + ((kHeightPerResult - actual_content_height) / 2));
 
-    gdk_draw_layout(drawable, gc_,
+    gdk_draw_layout(drawable, gc,
                     kIconAreaWidth, content_y,
                     layout_);
 
     if (has_description) {
+      pango_layout_set_width(layout_,
+          (text_width - content_width) * PANGO_SCALE);
       SetupLayoutForMatch(layout_, match.description, match.description_class,
                           is_selected ? &kDescriptionSelectedTextColor :
                               &kDescriptionTextColor,
                           std::string(" - "));
 
-      gdk_draw_layout(drawable, gc_,
-                      kIconAreaWidth + content_width, content_y,
+      gdk_draw_layout(drawable, gc,
+                      kIconAreaWidth + actual_content_width, content_y,
                       layout_);
     }
   }
