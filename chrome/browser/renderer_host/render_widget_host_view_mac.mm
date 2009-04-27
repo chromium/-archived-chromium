@@ -276,7 +276,9 @@ void RenderWidgetHostViewMac::ShowPopupWithItems(
     int selected_item,
     const std::vector<WebMenuItem>& items) {
   NSRect view_rect = [cocoa_view_ bounds];
-  NSRect position = NSMakeRect(bounds.x(), bounds.y() - bounds.height(),
+  NSRect parent_rect = [parent_view_ bounds];
+  int y_offset = bounds.y() + bounds.height();
+  NSRect position = NSMakeRect(bounds.x(), parent_rect.size.height - y_offset,
                                bounds.width(), bounds.height());
 
   // Display the menu.
