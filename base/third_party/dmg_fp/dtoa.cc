@@ -172,6 +172,10 @@
  */
 
 #define IEEE_8087
+#if defined(__GNUC__)
+// Make gcc 4.3+ warnings about parentheses non-fatal warnings.
+#pragma GCC diagnostic warning "-Wparentheses"
+#endif
 
 #ifndef Long
 #define Long long
