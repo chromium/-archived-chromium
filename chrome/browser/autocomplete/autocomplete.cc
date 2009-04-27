@@ -488,15 +488,9 @@ void AutocompleteProvider::UpdateStarredStateOfMatches() {
 std::wstring AutocompleteProvider::StringForURLDisplay(
     const GURL& url,
     bool check_accept_lang) const {
-#if !defined(OS_MACOSX)
   return gfx::GetCleanStringFromUrl(url, (check_accept_lang && profile_) ?
       profile_->GetPrefs()->GetString(prefs::kAcceptLanguages) : std::wstring(),
       NULL, NULL);
-#else
-  // TODO(port): need gfx::GetCleanStringFromUrl
-  NOTIMPLEMENTED();
-  return UTF8ToWide(url.spec());
-#endif
 }
 
 // AutocompleteResult ---------------------------------------------------------
