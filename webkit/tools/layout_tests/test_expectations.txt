@@ -1244,6 +1244,7 @@ BUG10352 DEFER : LayoutTests/http/tests/plugins/local-geturl-from-remote.html = 
 // These two depend on which webkit features are enabled.  For instance, it checks
 // if the Audio constructor is available which is only the case if AUDIO is enabled.
 BUG10352 DEFER : LayoutTests/fast/dom/constructors-cached-navigate.html = FAIL
+BUG10352 DEFER LINUX MAC : LayoutTests/fast/dom/constructors-cached.html = FAIL
 
 // MERGE REGRESSIONS 36102:37604
 
