@@ -1016,7 +1016,6 @@ void Browser::FocusSearch() {
   window_->GetLocationBar()->FocusSearch();
 }
 
-#if defined(OS_WIN) || defined(OS_LINUX)
 void Browser::OpenFile() {
   UserMetrics::RecordAction(L"OpenFile", profile_);
   if (!select_file_dialog_.get())
@@ -1029,7 +1028,6 @@ void Browser::OpenFile() {
                                   NULL, 0, FILE_PATH_LITERAL(""),
                                   parent_window, NULL);
 }
-#endif
 
 #if defined(OS_WIN)
 void Browser::OpenCreateShortcutsDialog() {
@@ -1328,9 +1326,7 @@ void Browser::ExecuteCommandWithDisposition(
     case IDC_FOCUS_SEARCH:          FocusSearch();                 break;
 
     // Show various bits of UI
-#if defined(OS_WIN)|| defined(OS_LINUX)
     case IDC_OPEN_FILE:             OpenFile();                    break;
-#endif
 #if defined(OS_WIN)
     case IDC_CREATE_SHORTCUTS:      OpenCreateShortcutsDialog();   break;
     case IDC_DEBUGGER:              OpenDebuggerWindow();          break;

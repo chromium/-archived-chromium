@@ -347,9 +347,7 @@ class Browser : public TabStripModelDelegate,
   void FocusSearch();
 
   // Show various bits of UI
-#if defined(OS_WIN) || defined(OS_LINUX)
   void OpenFile();
-#endif
 #if defined(OS_WIN)
   void OpenCreateShortcutsDialog();
   void OpenDebuggerWindow();
