@@ -337,7 +337,7 @@ Chrome supports. -->
         Installation failed due to unspecified error. If Google Chrome is currently running, please close it and try again.
       </message>
       <message name="IDS_INSTALL_OS_NOT_SUPPORTED" desc="Error displayed if OS is not supported">
-        Google Chrome requires Windows Vista or Windows XP with SP1 or higher.
+        Google Chrome requires Windows Vista or Windows XP with SP2 or higher.
       </message>
       <message name="IDS_INSTALL_OS_ERROR" desc="Error displayed when any Windows API call fails and we do not have more specific information.">
         An operating system error occurred during installation. Please download Google Chrome again.
