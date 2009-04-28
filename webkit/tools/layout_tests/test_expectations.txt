@@ -2444,10 +2444,6 @@ BUG10055 LINUX DEBUG : LayoutTests/editing/execCommand/paste-1.html = FAIL PASS
 BUG10055 MAC : LayoutTests/fast/events/updateLayoutForHitTest.html = FAIL
 BUG10055 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 
-// New test added by http://trac.webkit.org/changeset/42501.
-// Has already been rebaselined for chromium-win.
-BUG10529 LINUX : LayoutTests/editing/inserting/6703873.html = FAIL
-
 // This test was changed upstream in http://trac.webkit.org/changeset/42447
 // to include window.showModalDialog, which we give as undefined.
 BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.html = FAIL
