@@ -360,9 +360,14 @@ class TestShellThread(threading.Thread):
     # Args to test_shell is a space-separated list of "uri timeout pixel_hash"
     # The timeout and pixel_hash are optional.  The timeout is used if this
     # test has a custom timeout. The pixel_hash is used to avoid doing an image
-    # dump if the checksums match.
+    # dump if the checksums match, so it should be set to a blank value if we
+    # are generating a new baseline. (Otherwise, an image from a previous run
+    # will be copied into the baseline.)
+    image_hash = test_info.image_hash
+    if image_hash and self._test_args.new_baseline:
+      image_hash = ""
     self._test_shell_proc.stdin.write(("%s %s %s\n" %
-        (test_info.uri, test_info.timeout, test_info.image_hash)))
+        (test_info.uri, test_info.timeout, image_hash)))
 
     # If the test shell is dead, the above may cause an IOError as we
     # try to write onto the broken pipe. If this is the first test for

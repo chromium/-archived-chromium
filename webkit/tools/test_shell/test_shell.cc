@@ -277,7 +277,7 @@ std::string TestShell::DumpImage(WebFrame* web_frame,
 
   // Only encode and dump the png if the hashes don't match. Encoding the image
   // is really expensive.
-  if (md5hash.compare(0, pixel_hash.length(), pixel_hash) != 0) {
+  if (md5hash.compare(pixel_hash) != 0) {
     PNGEncoder::Encode(
         reinterpret_cast<const unsigned char*>(src_bmp.getPixels()),
         color_format, src_bmp.width(), src_bmp.height(),
