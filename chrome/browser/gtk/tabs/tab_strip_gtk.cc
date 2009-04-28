@@ -1179,11 +1179,17 @@ gboolean TabStripGtk::OnMotionNotify(GtkWidget* widget, GdkEventMotion* event,
 // static
 gboolean TabStripGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
                                    TabStripGtk* tabstrip) {
+  gfx::Point point(event->x, event->y);
+
   // Nothing happens on mouse press for middle and right click.
   if (event->button != 1)
     return TRUE;
 
-  gfx::Point point(event->x, event->y);
+  // The hover index is stale if we're in the middle of an animation and the
+  // mouse is pressed without any movement.
+  if (tabstrip->active_animation_.get())
+    tabstrip->hover_index_ = tabstrip->FindTabHoverIndexIterative(point);
+
   if (tabstrip->hover_index_ == -1) {
     if (tabstrip->newtab_button_.get()->IsPointInBounds(point) &&
         tabstrip->newtab_button_.get()->OnMousePress())
@@ -1193,6 +1199,11 @@ gboolean TabStripGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
   }
 
   TabGtk* tab = tabstrip->GetTabAt(tabstrip->hover_index_);
+
+  // If a previous tab is closing, the hover index does not match the model
+  // index.
+  tabstrip->hover_index_ = tabstrip->GetIndexOfTab(tab);
+
   if (tab->OnMousePress(point)) {
     gtk_widget_queue_draw(tabstrip->tabstrip_.get());
   } else if (tabstrip->hover_index_ != tabstrip->model()->selected_index() &&
