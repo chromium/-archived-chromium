@@ -316,7 +316,7 @@
       'conditions': [
         ['javascript_engine=="v8"', {
           'dependencies': [
-            '../build/temp_gyp/v8.gyp:v8',
+            '../v8/tools/gyp/v8.gyp:v8',
           ],
         }],
         [ 'OS == "linux"', {
