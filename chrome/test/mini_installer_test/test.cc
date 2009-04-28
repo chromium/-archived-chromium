@@ -38,7 +38,7 @@ TEST_F(MiniInstallTest, FullInstallerTest) {
 }
 
 // Will enable this test after bug#9593 gets fixed.
-TEST_F(MiniInstallTest, DifferentialInstallerTest) {
+TEST_F(MiniInstallTest, DISABLED_DifferentialInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.InstallDifferentialInstaller();
 }
@@ -48,7 +48,7 @@ TEST_F(MiniInstallTest, DISABLED_StandaloneInstallerTest) {
   installer.InstallStandaloneIntaller();
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerOverChromeMetaInstallerTest) {
+TEST_F(MiniInstallTest, MiniInstallerOverChromeMetaInstallerTest) {
   ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
   installer.OverInstall();
 }
@@ -60,7 +60,7 @@ TEST_F(MiniInstallTest, DISABLED_MiniInstallerSystemInstallTest) {
   }
 }
 
-TEST_F(MiniInstallTest, DISABLED_MiniInstallerUserInstallTest) {
+TEST_F(MiniInstallTest, MiniInstallerUserInstallTest) {
   if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
     ChromeMiniInstaller installer(mini_installer_constants::kUserInstall);
     installer.Install();
