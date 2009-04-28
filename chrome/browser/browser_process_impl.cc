@@ -233,7 +233,7 @@ void BrowserProcessImpl::EndSession() {
     metrics->RecordStartOfSessionEnd();
 
     // MetricsService lazily writes to prefs, force it to write now.
-    local_state()->SavePersistentPrefs(file_thread());
+    local_state()->SavePersistentPrefs();
   }
 
   // We must write that the profile and metrics service shutdown cleanly,
@@ -351,7 +351,7 @@ void BrowserProcessImpl::CreateLocalState() {
 
   FilePath local_state_path;
   PathService::Get(chrome::FILE_LOCAL_STATE, &local_state_path);
-  local_state_.reset(new PrefService(local_state_path));
+  local_state_.reset(new PrefService(local_state_path, file_thread()));
 }
 
 void BrowserProcessImpl::InitBrokerServices(

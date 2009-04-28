@@ -538,7 +538,7 @@ void ToggleWhenVisible(Profile* profile) {
 
   // The user changed when the bookmark bar is shown, update the preferences.
   prefs->SetBoolean(prefs::kShowBookmarkBar, always_show);
-  prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+  prefs->ScheduleSavePersistentPrefs();
 
   // And notify the notification service.
   Source<Profile> source(profile);

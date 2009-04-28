@@ -25,7 +25,7 @@ void OptionsPageView::UserMetricsRecordAction(const wchar_t* action,
                                               PrefService* prefs) {
   UserMetrics::RecordComputedAction(action, profile());
   if (prefs)
-    prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+    prefs->ScheduleSavePersistentPrefs();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

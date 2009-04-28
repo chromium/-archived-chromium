@@ -525,7 +525,7 @@ class PageLoadTest : public UITest {
     FilePath local_state_path = user_data_dir()
         .Append(chrome::kLocalStateFilename);
 
-    PrefService* local_state(new PrefService(local_state_path));
+    PrefService* local_state(new PrefService(local_state_path, NULL));
     return local_state;
   }
 

@@ -22,9 +22,8 @@
 #include "base/non_thread_safe.h"
 #include "base/observer_list.h"
 #include "base/scoped_ptr.h"
-#include "base/task.h"
 #include "base/values.h"
-#include "testing/gtest/include/gtest/gtest_prod.h"
+#include "chrome/common/important_file_writer.h"
 
 class NotificationObserver;
 class Preference;
@@ -77,27 +76,27 @@ class PrefService : public NonThreadSafe {
   };
 
   // |pref_filename| is the path to the prefs file we will try to load or save
-  // to.
-  explicit PrefService(const FilePath& pref_filename);
+  // to. Saves will be executed on |backend_thread|. It should be the file
+  // thread in Chrome. You can pass NULL for unit tests, and then no separate
+  // thread will be used.
+  PrefService(const FilePath& pref_filename,
+              const base::Thread* backend_thread);
   ~PrefService();
 
   // Reloads the data from file. This should only be called when the importer
   // is running during first run, and the main process may not change pref
-  // values while the importer process is running.
-  void ReloadPersistentPrefs();
+  // values while the importer process is running. Returns true on success.
+  bool ReloadPersistentPrefs();
 
-  // Writes the data to disk on the provided thread. In Chrome, |thread| should
-  // be the file thread. The return value only reflects whether serialization
-  // was successful; we don't know whether the data actually made it on disk
-  // (since it's on a different thread).  This should only be used if we need
-  // to save immediately (basically, during shutdown).  Otherwise, you should
-  // use ScheduleSavePersistentPrefs.
-  bool SavePersistentPrefs(base::Thread* thread) const;
+  // Writes the data to disk. The return value only reflects whether
+  // serialization was successful; we don't know whether the data actually made
+  // it on disk (since it's on a different thread).  This should only be used if
+  // we need to save immediately (basically, during shutdown).  Otherwise, you
+  // should use ScheduleSavePersistentPrefs.
+  bool SavePersistentPrefs();
 
-  // Starts a timer that ends up saving the preferences.  This helps to batch
-  // together save requests that happen in a close time frame so we don't write
-  // to disk too frequently.
-  void ScheduleSavePersistentPrefs(base::Thread* thread);
+  // Serializes the data and schedules save using ImportantFileWriter.
+  bool ScheduleSavePersistentPrefs();
 
   DictionaryValue* transient() { return transient_.get(); }
 
@@ -193,24 +192,6 @@ class PrefService : public NonThreadSafe {
   const Preference* FindPreference(const wchar_t* pref_name) const;
 
  private:
-  FRIEND_TEST(PrefServiceTest, Basic);
-  FRIEND_TEST(PrefServiceTest, Overlay);
-  FRIEND_TEST(PrefServiceTest, Observers);
-  FRIEND_TEST(PrefServiceTest, LocalizedPrefs);
-  FRIEND_TEST(PrefServiceTest, NoObserverFire);
-  FRIEND_TEST(PrefServiceTest, HasPrefPath);
-
-  FRIEND_TEST(PrefMemberTest, BasicGetAndSet);
-  FRIEND_TEST(PrefMemberTest, TwoPrefs);
-  FRIEND_TEST(PrefMemberTest, Observer);
-
-  // This constructor is used only for some unittests.  It doesn't try to load
-  // any existing prefs from a file.
-  PrefService();
-
-  // Reads the data from the given file, returning true on success.
-  bool LoadPersistentPrefs(const FilePath& file_path);
-
   // Add a preference to the PreferenceMap.  If the pref already exists, return
   // false.  This method takes ownership of |pref|.
   void RegisterPreference(Preference* pref);
@@ -227,14 +208,15 @@ class PrefService : public NonThreadSafe {
   void FireObserversIfChanged(const wchar_t* pref_name,
                               const Value* old_value);
 
+  // Serializes stored data to string. |output| is modified only
+  // if serialization was successful. Returns true on success.
+  bool SerializePrefData(std::string* output) const;
+
   scoped_ptr<DictionaryValue> persistent_;
   scoped_ptr<DictionaryValue> transient_;
 
-  // The filename that we're loading/saving the prefs to.
-  FilePath pref_filename_;
-
-  // Task used by ScheduleSavePersistentPrefs to avoid lots of little saves.
-  ScopedRunnableMethodFactory<PrefService> save_preferences_factory_;
+  // Helper for safe writing pref data.
+  ImportantFileWriter writer_;
 
   // A set of all the registered Preference objects.
   PreferenceSet prefs_;

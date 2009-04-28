@@ -795,7 +795,7 @@ void TemplateURLModel::SaveDefaultSearchProviderToPrefs(
       t_url ? Int64ToWString(t_url->id()) : std::wstring();
   prefs->SetString(prefs::kDefaultSearchProviderID, id_string);
 
-  prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+  prefs->ScheduleSavePersistentPrefs();
 }
 
 bool TemplateURLModel::LoadDefaultSearchProviderFromPrefs(

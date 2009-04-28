@@ -188,6 +188,14 @@ bool ReadFileToString(const FilePath& path, std::string* contents) {
   return true;
 }
 
+FILE* CreateAndOpenTemporaryFile(FilePath* path) {
+  FilePath directory;
+  if (!GetTempDir(&directory))
+    return false;
+
+  return CreateAndOpenTemporaryFileInDir(directory, path);
+}
+
 bool GetFileSize(const FilePath& file_path, int64* file_size) {
   FileInfo info;
   if (!GetFileInfo(file_path, &info))

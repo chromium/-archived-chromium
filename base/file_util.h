@@ -296,6 +296,9 @@ FILE* CreateAndOpenTemporaryFile(FilePath* path);
 // Like above but for shmem files.  Only useful for POSIX.
 FILE* CreateAndOpenTemporaryShmemFile(FilePath* path);
 
+// Similar to CreateAndOpenTemporaryFile, but the file is created in |dir|.
+FILE* CreateAndOpenTemporaryFileInDir(const FilePath& dir, FilePath* path);
+
 // Same as CreateTemporaryFileName but the file is created in |dir|.
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,
                                   std::wstring* temp_file);

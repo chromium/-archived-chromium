@@ -124,7 +124,7 @@ void Shutdown() {
                       shutdown_num_processes_slow_);
   }
 
-  prefs->SavePersistentPrefs(g_browser_process->file_thread());
+  prefs->SavePersistentPrefs();
 
   // Cleanup any statics created by RLZ. Must be done before NotificationService
   // is destroyed.

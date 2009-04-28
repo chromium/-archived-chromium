@@ -573,7 +573,8 @@ SSLHostState* ProfileImpl::GetSSLHostState() {
 
 PrefService* ProfileImpl::GetPrefs() {
   if (!prefs_.get()) {
-    prefs_.reset(new PrefService(GetPrefFilePath()));
+    prefs_.reset(new PrefService(GetPrefFilePath(),
+                                 g_browser_process->file_thread()));
 
     // The Profile class and ProfileManager class may read some prefs so
     // register known prefs as soon as possible.
@@ -587,7 +588,7 @@ PrefService* ProfileImpl::GetPrefs() {
     // Mark the session as open.
     prefs_->SetBoolean(prefs::kSessionExitedCleanly, false);
     // Make sure we save to disk that the session has opened.
-    prefs_->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+    prefs_->ScheduleSavePersistentPrefs();
   }
 
   return prefs_.get();
@@ -879,7 +880,7 @@ void ProfileImpl::MarkAsCleanShutdown() {
 
     // NOTE: If you change what thread this writes on, be sure and update
     // ChromeFrame::EndSession().
-    prefs_->SavePersistentPrefs(g_browser_process->file_thread());
+    prefs_->SavePersistentPrefs();
   }
 }
 

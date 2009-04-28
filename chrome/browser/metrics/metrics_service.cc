@@ -728,7 +728,7 @@ void MetricsService::SaveLocalState() {
   }
 
   RecordCurrentState(pref);
-  pref->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+  pref->ScheduleSavePersistentPrefs();
 
   // TODO(jar): Does this run down the batteries????
   ScheduleNextStateSave();
@@ -1298,8 +1298,7 @@ void MetricsService::OnURLFetchComplete(const URLFetcher* source,
     PrefService* local_state = g_browser_process->local_state();
     DCHECK(local_state);
     if (local_state)
-      local_state->ScheduleSavePersistentPrefs(
-          g_browser_process->file_thread());
+      local_state->ScheduleSavePersistentPrefs();
 
     // Provide a default (free of exponetial backoff, other varances) in case
     // the server does not specify a value.

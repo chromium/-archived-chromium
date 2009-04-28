@@ -4,12 +4,9 @@
 
 #include "chrome/common/pref_service.h"
 
-#include "base/compiler_specific.h"
-#include "base/file_util.h"
 #include "base/logging.h"
 #include "base/message_loop.h"
 #include "base/string_util.h"
-#include "base/task.h"
 #include "base/thread.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/l10n_util.h"
@@ -18,43 +15,6 @@
 #include "grit/generated_resources.h"
 
 namespace {
-
-// The number of milliseconds we'll wait to do a write of chrome prefs to disk.
-// This lets us batch together write operations.
-static const int kCommitIntervalMs = 10000;
-
-// Replaces the given file's content with the given data. This allows the
-// preferences to be written to disk on a background thread.
-class SaveLaterTask : public Task {
- public:
-  SaveLaterTask(const FilePath& file_name,
-                const std::string& data)
-      : file_name_(file_name),
-        data_(data) {
-  }
-
-  void Run() {
-    // Write the data to a temp file then rename to avoid data loss if we crash
-    // while writing the file.
-    FilePath tmp_file_name(file_name_.value() + FILE_PATH_LITERAL(".tmp"));
-    int bytes_written = file_util::WriteFile(tmp_file_name, data_.c_str(),
-                                             static_cast<int>(data_.length()));
-    if (bytes_written != -1) {
-      if (!file_util::Move(tmp_file_name, file_name_)) {
-        // Rename failed. Try again on the off chance someone has locked either
-        // file and hope we're successful the second time through.
-        bool move_result = file_util::Move(tmp_file_name, file_name_);
-        DCHECK(move_result);
-      }
-    }
-  }
-
- private:
-  FilePath file_name_;
-  std::string data_;
-
-  DISALLOW_COPY_AND_ASSIGN(SaveLaterTask);
-};
 
 // A helper function for RegisterLocalized*Pref that creates a Value* based on
 // the string value in the locale dll.  Because we control the values in a
@@ -99,18 +59,12 @@ Value* CreateLocaleDefaultValue(Value::ValueType type, int message_id) {
 
 }  // namespace
 
-PrefService::PrefService()
+PrefService::PrefService(const FilePath& pref_filename,
+                         const base::Thread* backend_thread)
     : persistent_(new DictionaryValue),
       transient_(new DictionaryValue),
-      save_preferences_factory_(NULL) {
-}
-
-PrefService::PrefService(const FilePath& pref_filename)
-    : persistent_(new DictionaryValue),
-      transient_(new DictionaryValue),
-      pref_filename_(pref_filename),
-      ALLOW_THIS_IN_INITIALIZER_LIST(save_preferences_factory_(this)) {
-  LoadPersistentPrefs(pref_filename_);
+      writer_(pref_filename, backend_thread) {
+  ReloadPersistentPrefs();
 }
 
 PrefService::~PrefService() {
@@ -132,11 +86,10 @@ PrefService::~PrefService() {
   pref_observers_.clear();
 }
 
-bool PrefService::LoadPersistentPrefs(const FilePath& file_path) {
-  DCHECK(!file_path.empty());
+bool PrefService::ReloadPersistentPrefs() {
   DCHECK(CalledOnValidThread());
 
-  JSONFileValueSerializer serializer(file_path);
+  JSONFileValueSerializer serializer(writer_.path());
   scoped_ptr<Value> root(serializer.Deserialize(NULL));
   if (!root.get())
     return false;
@@ -144,62 +97,36 @@ bool PrefService::LoadPersistentPrefs(const FilePath& file_path) {
   // Preferences should always have a dictionary root.
   if (!root->IsType(Value::TYPE_DICTIONARY))
     return false;
-
-  persistent_.reset(static_cast<DictionaryValue*>(root.release()));
-  return true;
-}
-
-void PrefService::ReloadPersistentPrefs() {
-  DCHECK(CalledOnValidThread());
-
-  JSONFileValueSerializer serializer(pref_filename_);
-  scoped_ptr<Value> root(serializer.Deserialize(NULL));
-  if (!root.get())
-    return;
-
-  // Preferences should always have a dictionary root.
-  if (!root->IsType(Value::TYPE_DICTIONARY))
-    return;
 
   persistent_.reset(static_cast<DictionaryValue*>(root.release()));
   for (PreferenceSet::iterator it = prefs_.begin();
        it != prefs_.end(); ++it) {
     (*it)->root_pref_ = persistent_.get();
   }
-}
 
-bool PrefService::SavePersistentPrefs(base::Thread* thread) const {
-  DCHECK(!pref_filename_.empty());
-  DCHECK(CalledOnValidThread());
-
-  // TODO(tc): Do we want to prune webkit preferences that match the default
-  // value?
-  std::string data;
-  JSONStringValueSerializer serializer(&data);
-  serializer.set_pretty_print(true);
-  if (!serializer.Serialize(*(persistent_.get())))
-    return false;
-
-  SaveLaterTask* task = new SaveLaterTask(pref_filename_, data);
-  if (thread != NULL) {
-    // We can use the background thread, it will take ownership of the task.
-    thread->message_loop()->PostTask(FROM_HERE, task);
-  } else {
-    // In unit test mode, we have no background thread, just execute.
-    task->Run();
-    delete task;
-  }
   return true;
 }
 
-void PrefService::ScheduleSavePersistentPrefs(base::Thread* thread) {
-  if (!save_preferences_factory_.empty())
-    return;
+bool PrefService::SavePersistentPrefs() {
+  DCHECK(CalledOnValidThread());
 
-  MessageLoop::current()->PostDelayedTask(FROM_HERE,
-      save_preferences_factory_.NewRunnableMethod(
-          &PrefService::SavePersistentPrefs, thread),
-      kCommitIntervalMs);
+  std::string data;
+  if (!SerializePrefData(&data))
+    return false;
+
+  writer_.WriteNow(data);
+  return true;
+}
+
+bool PrefService::ScheduleSavePersistentPrefs() {
+  DCHECK(CalledOnValidThread());
+
+  std::string data;
+  if (!SerializePrefData(&data))
+    return false;
+
+  writer_.ScheduleWrite(data);
+  return true;
 }
 
 void PrefService::RegisterBooleanPref(const wchar_t* path,
@@ -715,6 +642,14 @@ void PrefService::FireObservers(const wchar_t* path) {
                       Source<PrefService>(this),
                       Details<std::wstring>(&path_str));
   }
+}
+
+bool PrefService::SerializePrefData(std::string* output) const {
+  // TODO(tc): Do we want to prune webkit preferences that match the default
+  // value?
+  JSONStringValueSerializer serializer(output);
+  serializer.set_pretty_print(true);
+  return serializer.Serialize(*(persistent_.get()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

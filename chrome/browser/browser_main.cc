@@ -298,7 +298,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
       parsed_command_line.HasSwitch(switches::kParentProfile)) {
     FilePath parent_profile = FilePath::FromWStringHack(
         parsed_command_line.GetSwitchValue(switches::kParentProfile));
-    PrefService parent_local_state(parent_profile);
+    PrefService parent_local_state(parent_profile,
+                                   g_browser_process->file_thread());
     parent_local_state.RegisterStringPref(prefs::kApplicationLocale,
                                           std::wstring());
     // Right now, we only inherit the locale setting from the parent profile.

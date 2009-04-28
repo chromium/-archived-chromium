@@ -369,30 +369,20 @@ bool CreateTemporaryFileName(FilePath* path) {
   return true;
 }
 
-FILE* CreateAndOpenTemporaryFile(FilePath* path) {
-  FilePath directory;
-  if (!GetTempDir(&directory))
-    return false;
-
-  int fd = CreateAndOpenFdForTemporaryFile(directory, path);
-  if (fd < 0)
-    return NULL;
-
-  FILE *fp = fdopen(fd, "a+");
-  return fp;
-}
-
 FILE* CreateAndOpenTemporaryShmemFile(FilePath* path) {
   FilePath directory;
   if (!GetShmemTempDir(&directory))
     return false;
 
-  int fd = CreateAndOpenFdForTemporaryFile(directory, path);
+  return CreateAndOpenTemporaryFileInDir(directory, path);
+}
+
+FILE* CreateAndOpenTemporaryFileInDir(const FilePath& dir, FilePath* path) {
+  int fd = CreateAndOpenFdForTemporaryFile(dir, path);
   if (fd < 0)
     return NULL;
 
-  FILE *fp = fdopen(fd, "a+");
-  return fp;
+  return fdopen(fd, "a+");
 }
 
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,

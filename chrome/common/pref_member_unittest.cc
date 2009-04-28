@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_path.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_member.h"
 #include "chrome/common/pref_service.h"
@@ -49,7 +50,7 @@ class PrefMemberTestClass : public NotificationObserver {
 }  // anonymous namespace
 
 TEST(PrefMemberTest, BasicGetAndSet) {
-  PrefService prefs;
+  PrefService prefs(FilePath(), NULL);
   RegisterTestPrefs(&prefs);
 
   // Test bool
@@ -139,7 +140,7 @@ TEST(PrefMemberTest, BasicGetAndSet) {
 
 TEST(PrefMemberTest, TwoPrefs) {
   // Make sure two RealPrefMembers stay in sync.
-  PrefService prefs;
+  PrefService prefs(FilePath(), NULL);
   RegisterTestPrefs(&prefs);
 
   RealPrefMember pref1;
@@ -159,7 +160,7 @@ TEST(PrefMemberTest, TwoPrefs) {
 }
 
 TEST(PrefMemberTest, Observer) {
-  PrefService prefs;
+  PrefService prefs(FilePath(), NULL);
   RegisterTestPrefs(&prefs);
 
   PrefMemberTestClass test_obj(&prefs);

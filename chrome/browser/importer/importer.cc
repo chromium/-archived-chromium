@@ -87,7 +87,7 @@ void ProfileWriter::AddHomepage(const GURL& home_page) {
   PrefService* prefs = profile_->GetPrefs();
   // NOTE: We set the kHomePage value, but keep the NewTab page as the homepage.
   prefs->SetString(prefs::kHomePage, ASCIIToWide(home_page.spec()));
-  prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+  prefs->ScheduleSavePersistentPrefs();
 }
 
 void ProfileWriter::AddBookmarkEntry(
@@ -295,7 +295,7 @@ void ProfileWriter::ShowBookmarkBar() {
   if (!prefs->GetBoolean(prefs::kShowBookmarkBar)) {
     // Set the pref and notify the notification service.
     prefs->SetBoolean(prefs::kShowBookmarkBar, true);
-    prefs->ScheduleSavePersistentPrefs(g_browser_process->file_thread());
+    prefs->ScheduleSavePersistentPrefs();
     Source<Profile> source(profile_);
     NotificationService::current()->Notify(
         NotificationType::BOOKMARK_BAR_VISIBILITY_PREF_CHANGED, source,

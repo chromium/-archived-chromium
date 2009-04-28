@@ -446,20 +446,24 @@ bool CreateTemporaryFileName(FilePath* path) {
   return false;
 }
 
+FILE* CreateAndOpenTemporaryShmemFile(FilePath* path) {
+  return CreateAndOpenTemporaryFile(path);
+}
+
 // On POSIX we have semantics to create and open a temporary file
 // atomically.
 // TODO(jrg): is there equivalent call to use on Windows instead of
 // going 2-step?
-FILE* CreateAndOpenTemporaryFile(FilePath* path) {
-
-  if (!CreateTemporaryFileName(path)) {
+FILE* CreateAndOpenTemporaryFileInDir(const FilePath& dir, FilePath* path) {
+  std::wstring wstring_path;
+  if (!CreateTemporaryFileNameInDir(dir.value(), &wstring_path)) {
     return NULL;
   }
-  return OpenFile(*path, "w+");
-}
-
-FILE* CreateAndOpenTemporaryShmemFile(FilePath* path) {
-  return CreateAndOpenTemporaryFile(path);
+  *path = FilePath(wstring_path);
+  // Open file in binary mode, to avoid problems with fwrite. On Windows
+  // it replaces \n's with \r\n's, which may surprise you.
+  // Reference: http://msdn.microsoft.com/en-us/library/h9t88zwz(VS.71).aspx
+  return OpenFile(*path, "wb+");
 }
 
 bool CreateTemporaryFileNameInDir(const std::wstring& dir,
