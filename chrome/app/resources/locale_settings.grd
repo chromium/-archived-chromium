@@ -245,11 +245,19 @@
       <message name="IDS_UI_FONT_FAMILY" use_name_for_id="true">
         default
       </message>
+      <!-- For Windows XP -->
+      <message name="IDS_UI_FONT_FAMILY_XP" use_name_for_id="true">
+        default
+      </message>
 
       <!-- To get the actual UI font size for native UI components
            (e.g. menu), the system UI font size is scaled with this value/100.
            This should be 100 for most locales. -->
       <message name="IDS_UI_FONT_SIZE_SCALER" use_name_for_id="true">
+        100
+      </message>
+      <!-- For Windows XP -->
+      <message name="IDS_UI_FONT_SIZE_SCALER_XP" use_name_for_id="true">
         100
       </message>
 

@@ -71,12 +71,22 @@ bool IsLocaleSupportedByOS(const std::wstring& locale) {
 bool NeedOverrideDefaultUIFont(std::wstring* override_font_family,
                                double* font_size_scaler) {
   // This is rather simple-minded to deal with the UI font size
-  // issue for some Indian locales (ml, bn, hi) for which the default
-  // Windows fonts are too small to be legible.  For those locales,
-  // IDS_UI_FONT_FAMILY is set to an actual font family to use while
-  // for other locales, it's set to 'default'.
-  std::wstring ui_font_family = GetString(IDS_UI_FONT_FAMILY);
-  int scaler100 = StringToInt(l10n_util::GetString(IDS_UI_FONT_SIZE_SCALER));
+  // issue for some Indian locales (ml, bn, hi) for which
+  // the default Windows fonts are too small to be legible.  For those
+  // locales, IDS_UI_FONT_FAMILY is set to an actual font family to
+  // use while for other locales, it's set to 'default'.
+
+  // XP and Vista or later have different font size issues and
+  // we need separate ui font specifications.
+  int ui_font_family_id = IDS_UI_FONT_FAMILY;
+  int ui_font_size_scaler_id = IDS_UI_FONT_SIZE_SCALER;
+  if (win_util::GetWinVersion() < win_util::WINVERSION_VISTA) {
+    ui_font_family_id = IDS_UI_FONT_FAMILY_XP;
+    ui_font_size_scaler_id = IDS_UI_FONT_SIZE_SCALER_XP;
+  }
+
+  std::wstring ui_font_family = GetString(ui_font_family_id);
+  int scaler100 = StringToInt(l10n_util::GetString(ui_font_size_scaler_id));
   if (ui_font_family == L"default" && scaler100 == 100)
     return false;
   if (override_font_family && font_size_scaler) {
