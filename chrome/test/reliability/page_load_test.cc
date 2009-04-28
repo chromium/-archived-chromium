@@ -338,17 +338,13 @@ class PageLoadTest : public UITest {
 
       // Go to "about:crash"
       NavigateToURLLogResult(GURL(crash_url), log_file, &metrics);
-      // Page load crashed and test automation timed out.
-      EXPECT_EQ(NAVIGATION_TIME_OUT, metrics.result);
       // Found a crash dump
       EXPECT_EQ(1, metrics.crash_dump_count) << kFailedNoCrashService;
       // Browser did not crash, and exited cleanly.
       EXPECT_EQ(true, metrics.browser_clean_exit);
       EXPECT_EQ(1, metrics.browser_launch_count);
-      // Only starting page was loaded.
-      EXPECT_EQ(1, metrics.page_load_count);
+      // Only the renderer should have crashed.
       EXPECT_EQ(0, metrics.browser_crash_count);
-      // Renderer crashed.
       EXPECT_EQ(1, metrics.renderer_crash_count);
       EXPECT_EQ(0, metrics.plugin_crash_count);
 
