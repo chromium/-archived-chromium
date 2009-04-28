@@ -94,7 +94,11 @@ class ChromeTests:
       self._data_dirs.append(os.path.join(module_dir, "data", "valgrind"))
 
     if not self._options.build_dir:
-      dir_chrome = os.path.join(self._source_dir, "sconsbuild", "Debug")
+      builddir = {
+        'darwin': 'xcodebuild',
+        'linux2': 'sconsbuild'
+      }[sys.platform]
+      dir_chrome = os.path.join(self._source_dir, builddir, "Debug")
       dir_module = os.path.join(module_dir, "Debug")
       if exe:
         exe_chrome = os.path.join(dir_chrome, exe)
