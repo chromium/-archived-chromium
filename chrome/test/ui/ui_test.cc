@@ -446,16 +446,10 @@ void UITest::QuitBrowser() {
 }
 
 void UITest::AssertAppNotRunning(const std::wstring& error_message) {
-#if defined(OS_WIN) || defined(OS_LINUX)
   ASSERT_EQ(0, GetBrowserProcessCount()) << error_message;
-#else
-  // TODO(port): Enable when chrome_process_util is ported.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void UITest::CleanupAppProcesses() {
-#if defined(OS_WIN) || defined(OS_LINUX)
   TerminateAllChromeProcesses(user_data_dir());
 
   // Suppress spammy failures that seem to be occurring when running
@@ -463,10 +457,6 @@ void UITest::CleanupAppProcesses() {
   // TODO(jhughes): figure out why this is necessary at all, and fix it
   if (!in_process_renderer_)
     AssertAppNotRunning(L"Unable to quit all browser processes.");
-#else
-  // TODO(port): depends on chrome_process_util.
-  NOTIMPLEMENTED();
-#endif
 }
 
 TabProxy* UITest::GetActiveTab(int window_index) {
