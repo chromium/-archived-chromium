@@ -55,8 +55,6 @@ class HttpNetworkTransaction : public HttpTransaction {
  private:
   FRIEND_TEST(HttpNetworkTransactionTest, ResetStateForRestart);
 
-  void BuildRequestHeaders();
-  void BuildTunnelRequest();
   void DoCallback(int result);
   void OnIOComplete(int result);
 
@@ -119,10 +117,13 @@ class HttpNetworkTransaction : public HttpTransaction {
   // is returned.
   int HandleIOError(int error);
 
-  // Called when we reached EOF or got an error.  If we should resend the
-  // request, sets next_state_ and returns true.  Otherwise, does nothing and
-  // returns false.
-  bool ShouldResendRequest();
+  // Called when we reached EOF or got an error.  Returns true if we should
+  // resend the request.
+  bool ShouldResendRequest() const;
+
+  // Resets the connection and the request headers for resend.  Called when
+  // ShouldResendRequest() is true.
+  void ResetConnectionAndRequestForResend();
 
   // Called when we encounter a network error that could be resolved by trying
   // a new proxy configuration.  If there is another proxy configuration to try
@@ -155,12 +156,15 @@ class HttpNetworkTransaction : public HttpTransaction {
   // Resets the members of the transaction so it can be restarted.
   void ResetStateForRestart();
 
-  // Attach any credentials needed for the proxy server or origin server.
-  void ApplyAuth();
+  // Returns true if we should try to add a Proxy-Authorization header
+  bool ShouldApplyProxyAuth() const;
 
-  // Helper used by ApplyAuth(). Adds either the proxy auth header, or the
-  // origin server auth header, as specified by |target|
-  void AddAuthorizationHeader(HttpAuth::Target target);
+  // Returns true if we should try to add an Authorization header.
+  bool ShouldApplyServerAuth() const;
+
+  // Builds either the proxy auth header, or the origin server auth header,
+  // as specified by |target|.
+  std::string BuildAuthorizationHeader(HttpAuth::Target target) const;
 
   // Returns a log message for all the response headers related to the auth
   // challenge.

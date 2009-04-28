@@ -23,9 +23,6 @@
 
 namespace net {
 
-// TODO(eroman): Now that this is inside the net namespace, remove the redundant
-// net:: qualifiers.
-
 struct MockConnect {
   // Asynchronous connection success.
   MockConnect() : async(true), result(OK) { }
@@ -343,19 +340,19 @@ class MockClientSocketFactory : public ClientSocketFactory {
 MockClientSocketFactory mock_socket_factory;
 
 // Create a proxy service which fails on all requests (falls back to direct).
-net::ProxyService* CreateNullProxyService() {
-  return net::ProxyService::CreateNull();
+ProxyService* CreateNullProxyService() {
+  return ProxyService::CreateNull();
 }
 
-net::ProxyService* CreateFixedProxyService(const std::string& proxy) {
-  net::ProxyInfo proxy_info;
+ProxyService* CreateFixedProxyService(const std::string& proxy) {
+  ProxyInfo proxy_info;
   proxy_info.UseNamedProxy(proxy);
-  return net::ProxyService::Create(&proxy_info);
+  return ProxyService::Create(&proxy_info);
 }
 
 
-net::HttpNetworkSession* CreateSession(net::ProxyService* proxy_service) {
-  return new net::HttpNetworkSession(proxy_service);
+HttpNetworkSession* CreateSession(ProxyService* proxy_service) {
+  return new HttpNetworkSession(proxy_service);
 }
 
 class HttpNetworkTransactionTest : public PlatformTest {
@@ -386,11 +383,11 @@ struct SimpleGetHelperResult {
 SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   SimpleGetHelperResult out;
 
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -403,20 +400,20 @@ SimpleGetHelperResult SimpleGetHelper(MockRead data_reads[]) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   out.rv = callback.WaitForResult();
-  if (out.rv != net::OK)
+  if (out.rv != OK)
     return out;
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
 
   EXPECT_TRUE(response->headers != NULL);
   out.status_line = response->headers->GetStatusLine();
 
   rv = ReadTransaction(trans.get(), &out.response_data);
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   return out;
 }
@@ -468,8 +465,8 @@ std::string MockGetHostName() {
 //-----------------------------------------------------------------------------
 
 TEST_F(HttpNetworkTransactionTest, Basic) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 }
 
@@ -477,10 +474,10 @@ TEST_F(HttpNetworkTransactionTest, SimpleGET) {
   MockRead data_reads[] = {
     MockRead("HTTP/1.0 200 OK\r\n\r\n"),
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/1.0 200 OK", out.status_line);
   EXPECT_EQ("hello world", out.response_data);
 }
@@ -489,10 +486,10 @@ TEST_F(HttpNetworkTransactionTest, SimpleGET) {
 TEST_F(HttpNetworkTransactionTest, SimpleGETNoHeaders) {
   MockRead data_reads[] = {
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("hello world", out.response_data);
 }
@@ -501,10 +498,10 @@ TEST_F(HttpNetworkTransactionTest, SimpleGETNoHeaders) {
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk2Bytes) {
   MockRead data_reads[] = {
     MockRead("xxxHTTP/1.0 404 Not Found\nServer: blah\n\nDATA"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
   EXPECT_EQ("DATA", out.response_data);
 }
@@ -513,10 +510,10 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk2Bytes) {
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes) {
   MockRead data_reads[] = {
     MockRead("\n\nQJHTTP/1.0 404 Not Found\nServer: blah\n\nDATA"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
   EXPECT_EQ("DATA", out.response_data);
 }
@@ -525,10 +522,10 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes) {
 TEST_F(HttpNetworkTransactionTest, StatusLineJunk5Bytes) {
   MockRead data_reads[] = {
     MockRead("xxxxxHTTP/1.1 404 Not Found\nServer: blah"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("xxxxxHTTP/1.1 404 Not Found\nServer: blah", out.response_data);
 }
@@ -541,10 +538,10 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes_Slow) {
     MockRead("Q"),
     MockRead("J"),
     MockRead("HTTP/1.0 404 Not Found\nServer: blah\n\nDATA"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/1.0 404 Not Found", out.status_line);
   EXPECT_EQ("DATA", out.response_data);
 }
@@ -553,10 +550,10 @@ TEST_F(HttpNetworkTransactionTest, StatusLineJunk4Bytes_Slow) {
 TEST_F(HttpNetworkTransactionTest, StatusLinePartial) {
   MockRead data_reads[] = {
     MockRead("HTT"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/0.9 200 OK", out.status_line);
   EXPECT_EQ("HTT", out.response_data);
 }
@@ -568,10 +565,10 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
   MockRead data_reads[] = {
     MockRead("HTTP/1.1 204 No Content\r\n\r\n"),
     MockRead("junk"),  // Should not be read!!
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::OK, out.rv);
+  EXPECT_EQ(OK, out.rv);
   EXPECT_EQ("HTTP/1.1 204 No Content", out.status_line);
   EXPECT_EQ("", out.response_data);
 }
@@ -579,11 +576,11 @@ TEST_F(HttpNetworkTransactionTest, StopsReading204) {
 // Do a request using the HEAD method. Verify that we don't try to read the
 // message body (since HEAD has none).
 TEST_F(HttpNetworkTransactionTest, Head) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "HEAD";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -600,7 +597,7 @@ TEST_F(HttpNetworkTransactionTest, Head) {
     MockRead("Content-Length: 1234\r\n\r\n"),
 
     // No response body because the test stops reading here.
-    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+    MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
   MockSocket data1;
@@ -612,12 +609,12 @@ TEST_F(HttpNetworkTransactionTest, Head) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // Check that the headers got parsed.
@@ -636,13 +633,13 @@ TEST_F(HttpNetworkTransactionTest, Head) {
   // (despite non-zero content-length).
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_EQ("", response_data);
 }
 
 TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<HttpNetworkSession> session =
       CreateSession(proxy_service.get());
 
   MockRead data_reads[] = {
@@ -650,7 +647,7 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
     MockRead("hello"),
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
     MockRead("world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   MockSocket data;
   data.reads = data_reads;
@@ -662,10 +659,10 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
   };
 
   for (int i = 0; i < 2; ++i) {
-    scoped_ptr<net::HttpTransaction> trans(
-        new net::HttpNetworkTransaction(session, &mock_socket_factory));
+    scoped_ptr<HttpTransaction> trans(
+        new HttpNetworkTransaction(session, &mock_socket_factory));
 
-    net::HttpRequestInfo request;
+    HttpRequestInfo request;
     request.method = "GET";
     request.url = GURL("http://www.google.com/");
     request.load_flags = 0;
@@ -673,12 +670,12 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
     TestCompletionCallback callback;
 
     int rv = trans->Start(&request, &callback);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_TRUE(response != NULL);
 
     EXPECT_TRUE(response->headers != NULL);
@@ -686,20 +683,20 @@ TEST_F(HttpNetworkTransactionTest, ReuseConnection) {
 
     std::string response_data;
     rv = ReadTransaction(trans.get(), &response_data);
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
     EXPECT_EQ(kExpectedResponseData[i], response_data);
   }
 }
 
 TEST_F(HttpNetworkTransactionTest, Ignores100) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "POST";
   request.url = GURL("http://www.foo.com/");
-  request.upload_data = new net::UploadData;
+  request.upload_data = new UploadData;
   request.upload_data->AppendBytes("foo", 3);
   request.load_flags = 0;
 
@@ -707,7 +704,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
     MockRead("HTTP/1.0 100 Continue\r\n\r\n"),
     MockRead("HTTP/1.0 200 OK\r\n\r\n"),
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   MockSocket data;
   data.reads = data_reads;
@@ -717,12 +714,12 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
 
   EXPECT_TRUE(response->headers != NULL);
@@ -730,7 +727,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_EQ("hello world", response_data);
 }
 
@@ -738,11 +735,11 @@ TEST_F(HttpNetworkTransactionTest, Ignores100) {
 // a 102 instead of a 100. Also, instead of HTTP/1.0 the response is
 // HTTP/1.1.
 TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.foo.com/");
   request.load_flags = 0;
@@ -751,7 +748,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
     MockRead("HTTP/1.1 102 Unspecified status code\r\n\r\n"),
     MockRead("HTTP/1.1 200 OK\r\n\r\n"),
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   MockSocket data;
   data.reads = data_reads;
@@ -761,12 +758,12 @@ TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
 
   EXPECT_TRUE(response->headers != NULL);
@@ -774,7 +771,7 @@ TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_EQ("hello world", response_data);
 }
 
@@ -782,11 +779,11 @@ TEST_F(HttpNetworkTransactionTest, Ignores1xx) {
 // transaction to resend the request.
 void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
     const MockRead& read_failure) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<HttpNetworkSession> session =
       CreateSession(proxy_service.get());
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.foo.com/");
   request.load_flags = 0;
@@ -803,7 +800,7 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
   MockRead data2_reads[] = {
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\n"),
     MockRead("world"),
-    MockRead(true, net::OK),
+    MockRead(true, OK),
   };
   MockSocket data2;
   data2.reads = data2_reads;
@@ -816,16 +813,16 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
   for (int i = 0; i < 2; ++i) {
     TestCompletionCallback callback;
 
-    scoped_ptr<net::HttpTransaction> trans(
-        new net::HttpNetworkTransaction(session, &mock_socket_factory));
+    scoped_ptr<HttpTransaction> trans(
+        new HttpNetworkTransaction(session, &mock_socket_factory));
 
     int rv = trans->Start(&request, &callback);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_TRUE(response != NULL);
 
     EXPECT_TRUE(response->headers != NULL);
@@ -833,36 +830,36 @@ void HttpNetworkTransactionTest::KeepAliveConnectionResendRequestTest(
 
     std::string response_data;
     rv = ReadTransaction(trans.get(), &response_data);
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
     EXPECT_EQ(kExpectedResponseData[i], response_data);
   }
 }
 
 TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionReset) {
-  MockRead read_failure(true, net::ERR_CONNECTION_RESET);
+  MockRead read_failure(true, ERR_CONNECTION_RESET);
   KeepAliveConnectionResendRequestTest(read_failure);
 }
 
 TEST_F(HttpNetworkTransactionTest, KeepAliveConnectionEOF) {
-  MockRead read_failure(false, net::OK);  // EOF
+  MockRead read_failure(false, OK);  // EOF
   KeepAliveConnectionResendRequestTest(read_failure);
 }
 
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
 
   MockRead data_reads[] = {
-    MockRead(true, net::ERR_CONNECTION_RESET),
+    MockRead(true, ERR_CONNECTION_RESET),
     MockRead("HTTP/1.0 200 OK\r\n\r\n"),  // Should not be used
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   MockSocket data;
   data.reads = data_reads;
@@ -872,12 +869,12 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::ERR_CONNECTION_RESET, rv);
+  EXPECT_EQ(ERR_CONNECTION_RESET, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response == NULL);
 }
 
@@ -888,27 +885,27 @@ TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionReset) {
 // Safari 3.1.2 (Windows): error page
 // Firefox 3.0.1: blank page
 // Opera 9.52: after five attempts, blank page
-// Us with WinHTTP: error page (net::ERR_INVALID_RESPONSE)
-// Us: error page (net::EMPTY_RESPONSE)
+// Us with WinHTTP: error page (ERR_INVALID_RESPONSE)
+// Us: error page (EMPTY_RESPONSE)
 TEST_F(HttpNetworkTransactionTest, NonKeepAliveConnectionEOF) {
   MockRead data_reads[] = {
-    MockRead(false, net::OK),  // EOF
+    MockRead(false, OK),  // EOF
     MockRead("HTTP/1.0 200 OK\r\n\r\n"),  // Should not be used
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   SimpleGetHelperResult out = SimpleGetHelper(data_reads);
-  EXPECT_EQ(net::ERR_EMPTY_RESPONSE, out.rv);
+  EXPECT_EQ(ERR_EMPTY_RESPONSE, out.rv);
 }
 
 // Test the request-challenge-retry sequence for basic auth.
 // (basic auth is the easiest to mock, because it has no randomness).
 TEST_F(HttpNetworkTransactionTest, BasicAuth) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -929,7 +926,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     // Large content-length -- won't matter, as connection will be reset.
     MockRead("Content-Length: 10000\r\n\r\n"),
-    MockRead(false, net::ERR_FAILED),
+    MockRead(false, ERR_FAILED),
   };
 
   // After calling trans->RestartWithAuth(), this is the request we should
@@ -946,7 +943,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
     MockRead("HTTP/1.0 200 OK\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 100\r\n\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -962,12 +959,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -981,10 +978,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
   TestCompletionCallback callback2;
 
   rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -995,11 +992,11 @@ TEST_F(HttpNetworkTransactionTest, BasicAuth) {
 // Test the request-challenge-retry sequence for basic auth, over a keep-alive
 // connection.
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -1028,7 +1025,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
     MockRead("HTTP/1.1 200 OK\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 100\r\n\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -1040,12 +1037,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -1059,10 +1056,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
   TestCompletionCallback callback2;
 
   rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -1073,11 +1070,11 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAlive) {
 // Test the request-challenge-retry sequence for basic auth, over a keep-alive
 // connection and with no response body to drain.
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -1109,7 +1106,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
     MockRead("HTTP/1.1 200 OK\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 100\r\n\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -1121,12 +1118,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -1140,10 +1137,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
   TestCompletionCallback callback2;
 
   rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -1154,11 +1151,11 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveNoBody) {
 // Test the request-challenge-retry sequence for basic auth, over a keep-alive
 // connection and with a large response body to drain.
 TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -1193,7 +1190,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
     MockRead("HTTP/1.1 200 OK\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 100\r\n\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -1205,12 +1202,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -1224,10 +1221,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
   TestCompletionCallback callback2;
 
   rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -1239,16 +1236,16 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthKeepAliveLargeBody) {
 // proxy connection, when setting up an SSL tunnel.
 TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   // Configure against proxy server "myproxy:70".
-  scoped_ptr<net::ProxyService> proxy_service(
+  scoped_ptr<ProxyService> proxy_service(
       CreateFixedProxyService("myproxy:70"));
 
-  scoped_refptr<net::HttpNetworkSession> session(
+  scoped_refptr<HttpNetworkSession> session(
       CreateSession(proxy_service.get()));
 
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("https://www.google.com/");
   request.load_flags = 0;
@@ -1279,7 +1276,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
     MockRead("Proxy-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("Content-Length: 10\r\n\r\n"),
     // No response body because the test stops reading here.
-    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+    MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
   MockSocket data1;
@@ -1291,18 +1288,18 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   EXPECT_TRUE(response->headers->IsKeepAlive());
   EXPECT_EQ(407, response->headers->response_code());
   EXPECT_EQ(10, response->headers->GetContentLength());
-  EXPECT_TRUE(net::HttpVersion(1, 1) == response->headers->GetHttpVersion());
+  EXPECT_TRUE(HttpVersion(1, 1) == response->headers->GetHttpVersion());
 
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
@@ -1316,10 +1313,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
 
   // Wrong password (should be "bar").
   rv = trans->RestartWithAuth(L"foo", L"baz", &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -1327,7 +1324,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
   EXPECT_TRUE(response->headers->IsKeepAlive());
   EXPECT_EQ(407, response->headers->response_code());
   EXPECT_EQ(10, response->headers->GetContentLength());
-  EXPECT_TRUE(net::HttpVersion(1, 1) == response->headers->GetHttpVersion());
+  EXPECT_TRUE(HttpVersion(1, 1) == response->headers->GetHttpVersion());
 
   // The password prompt info should have been set in response->auth_challenge.
   EXPECT_FALSE(response->auth_challenge.get() == NULL);
@@ -1342,16 +1339,16 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyKeepAlive) {
 // even if the user cancels the proxy's auth attempt.
 TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
   // Configure against proxy server "myproxy:70".
-  scoped_ptr<net::ProxyService> proxy_service(
+  scoped_ptr<ProxyService> proxy_service(
       CreateFixedProxyService("myproxy:70"));
 
-  scoped_refptr<net::HttpNetworkSession> session(
+  scoped_refptr<HttpNetworkSession> session(
       CreateSession(proxy_service.get()));
 
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("https://www.google.com/");
   request.load_flags = 0;
@@ -1367,7 +1364,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
     MockRead("HTTP/1.1 407 Proxy Authentication Required\r\n"),
     MockRead("Proxy-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("Content-Length: 10\r\n\r\n"),
-    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+    MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
   MockSocket data;
@@ -1379,37 +1376,37 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyCancelTunnel) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   EXPECT_TRUE(response->headers->IsKeepAlive());
   EXPECT_EQ(407, response->headers->response_code());
   EXPECT_EQ(10, response->headers->GetContentLength());
-  EXPECT_TRUE(net::HttpVersion(1, 1) == response->headers->GetHttpVersion());
+  EXPECT_TRUE(HttpVersion(1, 1) == response->headers->GetHttpVersion());
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
-  EXPECT_EQ(net::ERR_TUNNEL_CONNECTION_FAILED, rv);
+  EXPECT_EQ(ERR_TUNNEL_CONNECTION_FAILED, rv);
 }
 
 static void ConnectStatusHelperWithExpectedStatus(
     const MockRead& status, int expected_status) {
   // Configure against proxy server "myproxy:70".
-  scoped_ptr<net::ProxyService> proxy_service(
+  scoped_ptr<ProxyService> proxy_service(
       CreateFixedProxyService("myproxy:70"));
 
-  scoped_refptr<net::HttpNetworkSession> session(
+  scoped_refptr<HttpNetworkSession> session(
       CreateSession(proxy_service.get()));
 
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("https://www.google.com/");
   request.load_flags = 0;
@@ -1424,7 +1421,7 @@ static void ConnectStatusHelperWithExpectedStatus(
     status,
     MockRead("Content-Length: 10\r\n\r\n"),
     // No response body because the test stops reading here.
-    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+    MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
   MockSocket data;
@@ -1436,7 +1433,7 @@ static void ConnectStatusHelperWithExpectedStatus(
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
   EXPECT_EQ(expected_status, rv);
@@ -1444,7 +1441,7 @@ static void ConnectStatusHelperWithExpectedStatus(
 
 static void ConnectStatusHelper(const MockRead& status) {
   ConnectStatusHelperWithExpectedStatus(
-      status, net::ERR_TUNNEL_CONNECTION_FAILED);
+      status, ERR_TUNNEL_CONNECTION_FAILED);
 }
 
 TEST_F(HttpNetworkTransactionTest, ConnectStatus100) {
@@ -1543,7 +1540,7 @@ TEST_F(HttpNetworkTransactionTest, ConnectStatus406) {
 TEST_F(HttpNetworkTransactionTest, ConnectStatus407) {
   ConnectStatusHelperWithExpectedStatus(
       MockRead("HTTP/1.1 407 Proxy Authentication Required\r\n"),
-      net::ERR_PROXY_AUTH_REQUESTED);
+      ERR_PROXY_AUTH_REQUESTED);
 }
 
 TEST_F(HttpNetworkTransactionTest, ConnectStatus408) {
@@ -1615,15 +1612,15 @@ TEST_F(HttpNetworkTransactionTest, ConnectStatus505) {
 // authentication. Again, this uses basic auth for both since that is
 // the simplest to mock.
 TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
-  scoped_ptr<net::ProxyService> proxy_service(
+  scoped_ptr<ProxyService> proxy_service(
       CreateFixedProxyService("myproxy:70"));
 
   // Configure against proxy server "myproxy:70".
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()),
       &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -1644,7 +1641,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     // Large content-length -- won't matter, as connection will be reset.
     MockRead("Content-Length: 10000\r\n\r\n"),
-    MockRead(false, net::ERR_FAILED),
+    MockRead(false, ERR_FAILED),
   };
 
   // After calling trans->RestartWithAuth() the first time, this is the
@@ -1666,7 +1663,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
     MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 2000\r\n\r\n"),
-    MockRead(false, net::ERR_FAILED),  // Won't be reached.
+    MockRead(false, ERR_FAILED),  // Won't be reached.
   };
 
   // After calling trans->RestartWithAuth() the second time, we should send
@@ -1684,7 +1681,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
     MockRead("HTTP/1.0 200 OK\r\n"),
     MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
     MockRead("Content-Length: 100\r\n\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -1704,12 +1701,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -1722,10 +1719,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   TestCompletionCallback callback2;
 
   rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
@@ -1739,10 +1736,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
   TestCompletionCallback callback3;
 
   rv = trans->RestartWithAuth(L"foo2", L"bar2", &callback3);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback3.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_TRUE(response->auth_challenge.get() == NULL);
@@ -1755,14 +1752,14 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthProxyThenServer) {
 
 // Enter the correct password and authenticate successfully.
 TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
-  net::HttpAuthHandlerNTLM::ScopedProcSetter proc_setter(MockGenerateRandom1,
+  HttpAuthHandlerNTLM::ScopedProcSetter proc_setter(MockGenerateRandom1,
                                                          MockGetHostName);
 
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://172.22.68.17/kids/login.aspx");
   request.load_flags = 0;
@@ -1782,7 +1779,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
     MockRead("Content-Length: 42\r\n"),
     MockRead("Content-Type: text/html\r\n\r\n"),
     // Missing content -- won't matter, as connection will be reset.
-    MockRead(false, net::ERR_UNEXPECTED),
+    MockRead(false, ERR_UNEXPECTED),
   };
 
   MockWrite data_writes2[] = {
@@ -1828,7 +1825,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
     MockRead("Content-Type: text/html; charset=utf-8\r\n"),
     MockRead("Content-Length: 13\r\n\r\n"),
     MockRead("Please Login\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -1844,20 +1841,20 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   EXPECT_TRUE(trans->IsReadyToRestartForAuth());
   TestCompletionCallback callback2;
   rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -1871,10 +1868,10 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
   TestCompletionCallback callback3;
 
   rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback3);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback3.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_TRUE(response->auth_challenge.get() == NULL);
@@ -1883,14 +1880,14 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth1) {
 
 // Enter a wrong password, and then the correct one.
 TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
-  net::HttpAuthHandlerNTLM::ScopedProcSetter proc_setter(MockGenerateRandom2,
+  HttpAuthHandlerNTLM::ScopedProcSetter proc_setter(MockGenerateRandom2,
                                                          MockGetHostName);
 
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://172.22.68.17/kids/login.aspx");
   request.load_flags = 0;
@@ -1910,7 +1907,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
     MockRead("Content-Length: 42\r\n"),
     MockRead("Content-Type: text/html\r\n\r\n"),
     // Missing content -- won't matter, as connection will be reset.
-    MockRead(false, net::ERR_UNEXPECTED),
+    MockRead(false, ERR_UNEXPECTED),
   };
 
   MockWrite data_writes2[] = {
@@ -1959,7 +1956,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
     MockRead("Content-Length: 42\r\n"),
     MockRead("Content-Type: text/html\r\n\r\n"),
     // Missing content -- won't matter, as connection will be reset.
-    MockRead(false, net::ERR_UNEXPECTED),
+    MockRead(false, ERR_UNEXPECTED),
   };
 
   MockWrite data_writes3[] = {
@@ -2005,7 +2002,7 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
     MockRead("Content-Type: text/html; charset=utf-8\r\n"),
     MockRead("Content-Length: 13\r\n\r\n"),
     MockRead("Please Login\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -2025,20 +2022,20 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   EXPECT_TRUE(trans->IsReadyToRestartForAuth());
   TestCompletionCallback callback2;
   rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // The password prompt info should have been set in response->auth_challenge.
@@ -2053,17 +2050,17 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 
   // Enter the wrong password.
   rv = trans->RestartWithAuth(L"testing-ntlm", L"wrongpassword", &callback3);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback3.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   EXPECT_TRUE(trans->IsReadyToRestartForAuth());
   TestCompletionCallback callback4;
   rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback4);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
   rv = callback4.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
   response = trans->GetResponseInfo();
@@ -2081,10 +2078,10 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 
   // Now enter the right password.
   rv = trans->RestartWithAuth(L"testing-ntlm", L"testing-ntlm", &callback5);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback5.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   response = trans->GetResponseInfo();
   EXPECT_TRUE(response->auth_challenge.get() == NULL);
@@ -2095,11 +2092,11 @@ TEST_F(HttpNetworkTransactionTest, NTLMAuth2) {
 // After some maximum number of bytes is consumed, the transaction should
 // fail with ERR_RESPONSE_HEADERS_TOO_BIG.
 TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -2112,7 +2109,7 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
     MockRead("HTTP/1.0 200 OK\r\n"),
     MockRead(true, large_headers_string.data(), large_headers_string.size()),
     MockRead("\r\nBODY"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   MockSocket data;
   data.reads = data_reads;
@@ -2122,12 +2119,12 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::ERR_RESPONSE_HEADERS_TOO_BIG, rv);
+  EXPECT_EQ(ERR_RESPONSE_HEADERS_TOO_BIG, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response == NULL);
 }
 
@@ -2136,16 +2133,16 @@ TEST_F(HttpNetworkTransactionTest, LargeHeadersNoBody) {
 // http://code.google.com/p/chromium/issues/detail?id=3772
 TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   // Configure against proxy server "myproxy:70".
-  scoped_ptr<net::ProxyService> proxy_service(
+  scoped_ptr<ProxyService> proxy_service(
       CreateFixedProxyService("myproxy:70"));
 
-  scoped_refptr<net::HttpNetworkSession> session(
+  scoped_refptr<HttpNetworkSession> session(
       CreateSession(proxy_service.get()));
 
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("https://www.google.com/");
   request.load_flags = 0;
@@ -2162,7 +2159,7 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   MockRead data_reads1[] = {
     MockRead("HTTP/1.1 404 Not Found\r\n"),
     MockRead("Content-Length: 10\r\n\r\n"),
-    MockRead(false, net::ERR_UNEXPECTED),  // Should not be reached.
+    MockRead(false, ERR_UNEXPECTED),  // Should not be reached.
   };
 
   MockSocket data1;
@@ -2174,12 +2171,12 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::ERR_TUNNEL_CONNECTION_FAILED, rv);
+  EXPECT_EQ(ERR_TUNNEL_CONNECTION_FAILED, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response == NULL);
 
   // Empty the current queue.  This is necessary because idle sockets are
@@ -2197,14 +2194,14 @@ TEST_F(HttpNetworkTransactionTest, DontRecycleTCPSocketForSSLTunnel) {
 
 // Make sure that we recycle a socket after reading all of the response body.
 TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<HttpNetworkSession> session(
       CreateSession(proxy_service.get()));
 
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/");
   request.load_flags = 0;
@@ -2216,7 +2213,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
     MockRead("lo"),
     MockRead(" world"),
     MockRead("junk"),  // Should not be read!!
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data;
@@ -2227,12 +2224,12 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
 
   EXPECT_TRUE(response->headers != NULL);
@@ -2243,7 +2240,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_EQ("hello world", response_data);
 
   // Empty the current queue.  This is necessary because idle sockets are
@@ -2257,14 +2254,14 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocket) {
 // Make sure that we recycle a socket after a zero-length response.
 // http://crbug.com/9880
 TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<HttpNetworkSession> session(
       CreateSession(proxy_service.get()));
 
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       session.get(), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   request.url = GURL("http://www.google.com/csi?v=3&s=web&action=&"
                      "tran=undefined&ei=mAXcSeegAo-SMurloeUN&"
@@ -2277,7 +2274,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
              "Content-Length: 0\r\n"
              "Content-Type: text/html\r\n\r\n"),
     MockRead("junk"),  // Should not be read!!
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data;
@@ -2288,12 +2285,12 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
   TestCompletionCallback callback;
 
   int rv = trans->Start(&request, &callback);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_TRUE(response != NULL);
 
   EXPECT_TRUE(response->headers != NULL);
@@ -2304,7 +2301,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
 
   std::string response_data;
   rv = ReadTransaction(trans.get(), &response_data);
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_EQ("", response_data);
 
   // Empty the current queue.  This is necessary because idle sockets are
@@ -2316,7 +2313,7 @@ TEST_F(HttpNetworkTransactionTest, RecycleSocketAfterZeroContentLength) {
 }
 
 TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
-  net::HttpRequestInfo request[2];
+  HttpRequestInfo request[2];
   // Transaction 1: a GET request that succeeds.  The socket is recycled
   // after use.
   request[0].method = "GET";
@@ -2328,12 +2325,12 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
   // attempt succeeds.
   request[1].method = "POST";
   request[1].url = GURL("http://www.google.com/login.cgi");
-  request[1].upload_data = new net::UploadData;
+  request[1].upload_data = new UploadData;
   request[1].upload_data->AppendBytes("foo", 3);
   request[1].load_flags = 0;
 
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<HttpNetworkSession> session =
       CreateSession(proxy_service.get());
 
   // The first socket is used for transaction 1 and the first attempt of
@@ -2343,14 +2340,14 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
   MockRead data_reads1[] = {
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 11\r\n\r\n"),
     MockRead("hello world"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   // The mock write results of transaction 1 and the first attempt of
   // transaction 2.
   MockWrite data_writes1[] = {
     MockWrite(false, 64),  // GET
     MockWrite(false, 93),  // POST
-    MockWrite(false, net::ERR_CONNECTION_ABORTED),  // POST data
+    MockWrite(false, ERR_CONNECTION_ABORTED),  // POST data
   };
   MockSocket data1;
   data1.reads = data_reads1;
@@ -2362,7 +2359,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
   MockRead data_reads2[] = {
     MockRead("HTTP/1.1 200 OK\r\nContent-Length: 7\r\n\r\n"),
     MockRead("welcome"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
   // The mock write results of the second attempt of transaction 2.
   MockWrite data_writes2[] = {
@@ -2382,18 +2379,18 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
   };
 
   for (int i = 0; i < 2; ++i) {
-    scoped_ptr<net::HttpTransaction> trans(
-        new net::HttpNetworkTransaction(session, &mock_socket_factory));
+    scoped_ptr<HttpTransaction> trans(
+        new HttpNetworkTransaction(session, &mock_socket_factory));
 
     TestCompletionCallback callback;
 
     int rv = trans->Start(&request[i], &callback);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_TRUE(response != NULL);
 
     EXPECT_TRUE(response->headers != NULL);
@@ -2401,7 +2398,7 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 
     std::string response_data;
     rv = ReadTransaction(trans.get(), &response_data);
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
     EXPECT_EQ(kExpectedResponseData[i], response_data);
   }
 }
@@ -2410,11 +2407,11 @@ TEST_F(HttpNetworkTransactionTest, ResendRequestOnWriteBodyError) {
 // an identity in the URL. The request should be sent as normal, but when
 // it fails the identity from the URL is used to answer the challenge.
 TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
       CreateSession(proxy_service.get()), &mock_socket_factory));
 
-  net::HttpRequestInfo request;
+  HttpRequestInfo request;
   request.method = "GET";
   // Note: the URL has a username:password in it.
   request.url = GURL("http://foo:bar@www.google.com/");
@@ -2430,7 +2427,7 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
     MockRead("HTTP/1.0 401 Unauthorized\r\n"),
     MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
     MockRead("Content-Length: 10\r\n\r\n"),
-    MockRead(false, net::ERR_FAILED),
+    MockRead(false, ERR_FAILED),
   };
 
   // After the challenge above, the transaction will be restarted using the
@@ -2445,7 +2442,7 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
   MockRead data_reads2[] = {
     MockRead("HTTP/1.0 200 OK\r\n"),
     MockRead("Content-Length: 100\r\n\r\n"),
-    MockRead(false, net::OK),
+    MockRead(false, OK),
   };
 
   MockSocket data1;
@@ -2461,20 +2458,20 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
   TestCompletionCallback callback1;
 
   int rv = trans->Start(&request, &callback1);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
 
   rv = callback1.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
 
   EXPECT_TRUE(trans->IsReadyToRestartForAuth());
   TestCompletionCallback callback2;
   rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
-  EXPECT_EQ(net::ERR_IO_PENDING, rv);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
   rv = callback2.WaitForResult();
-  EXPECT_EQ(net::OK, rv);
+  EXPECT_EQ(OK, rv);
   EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
-  const net::HttpResponseInfo* response = trans->GetResponseInfo();
+  const HttpResponseInfo* response = trans->GetResponseInfo();
   EXPECT_FALSE(response == NULL);
 
   // There is no challenge info, since the identity in URL worked.
@@ -2488,16 +2485,16 @@ TEST_F(HttpNetworkTransactionTest, AuthIdentityInUrl) {
 
 // Test that previously tried username/passwords for a realm get re-used.
 TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
-  scoped_ptr<net::ProxyService> proxy_service(CreateNullProxyService());
-  scoped_refptr<net::HttpNetworkSession> session =
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_refptr<HttpNetworkSession> session =
       CreateSession(proxy_service.get());
 
   // Transaction 1: authenticate (foo, bar) on MyRealm1
   {
-    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
         session, &mock_socket_factory));
 
-    net::HttpRequestInfo request;
+    HttpRequestInfo request;
     request.method = "GET";
     request.url = GURL("http://www.google.com/x/y/z");
     request.load_flags = 0;
@@ -2512,7 +2509,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead("HTTP/1.0 401 Unauthorized\r\n"),
       MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
       MockRead("Content-Length: 10000\r\n\r\n"),
-      MockRead(false, net::ERR_FAILED),
+      MockRead(false, ERR_FAILED),
     };
 
     // Resend with authorization (username=foo, password=bar)
@@ -2527,7 +2524,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockRead data_reads2[] = {
       MockRead("HTTP/1.0 200 OK\r\n"),
       MockRead("Content-Length: 100\r\n\r\n"),
-      MockRead(false, net::OK),
+      MockRead(false, OK),
     };
 
     MockSocket data1;
@@ -2544,12 +2541,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback1;
 
     int rv = trans->Start(&request, &callback1);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback1.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
 
     // The password prompt info should have been set in
@@ -2564,10 +2561,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback2;
 
     rv = trans->RestartWithAuth(L"foo", L"bar", &callback2);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback2.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
     response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
@@ -2579,10 +2576,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
 
   // Transaction 2: authenticate (foo2, bar2) on MyRealm2
   {
-    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
         session, &mock_socket_factory));
 
-    net::HttpRequestInfo request;
+    HttpRequestInfo request;
     request.method = "GET";
     // Note that Transaction 1 was at /x/y/z, so this is in the same
     // protection space as MyRealm1.
@@ -2603,7 +2600,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead("HTTP/1.0 401 Unauthorized\r\n"),
       MockRead("WWW-Authenticate: Basic realm=\"MyRealm2\"\r\n"),
       MockRead("Content-Length: 10000\r\n\r\n"),
-      MockRead(false, net::ERR_FAILED),
+      MockRead(false, ERR_FAILED),
     };
 
     // Resend with authorization for MyRealm2 (username=foo2, password=bar2)
@@ -2618,7 +2615,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockRead data_reads2[] = {
       MockRead("HTTP/1.0 200 OK\r\n"),
       MockRead("Content-Length: 100\r\n\r\n"),
-      MockRead(false, net::OK),
+      MockRead(false, OK),
     };
 
     MockSocket data1;
@@ -2635,12 +2632,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback1;
 
     int rv = trans->Start(&request, &callback1);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback1.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
 
     // The password prompt info should have been set in
@@ -2655,10 +2652,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback2;
 
     rv = trans->RestartWithAuth(L"foo2", L"bar2", &callback2);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback2.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
     response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
@@ -2671,10 +2668,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // Transaction 3: Resend a request in MyRealm's protection space --
   // succeed with preemptive authorization.
   {
-    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
         session, &mock_socket_factory));
 
-    net::HttpRequestInfo request;
+    HttpRequestInfo request;
     request.method = "GET";
     request.url = GURL("http://www.google.com/x/y/z2");
     request.load_flags = 0;
@@ -2692,7 +2689,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockRead data_reads1[] = {
       MockRead("HTTP/1.0 200 OK\r\n"),
       MockRead("Content-Length: 100\r\n\r\n"),
-      MockRead(false, net::OK),
+      MockRead(false, OK),
     };
 
     MockSocket data1;
@@ -2705,12 +2702,12 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback1;
 
     int rv = trans->Start(&request, &callback1);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback1.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
 
     EXPECT_TRUE(response->auth_challenge.get() == NULL);
@@ -2722,10 +2719,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // Transaction 4: request another URL in MyRealm (however the
   // url is not known to belong to the protection space, so no pre-auth).
   {
-    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
         session, &mock_socket_factory));
 
-    net::HttpRequestInfo request;
+    HttpRequestInfo request;
     request.method = "GET";
     request.url = GURL("http://www.google.com/x/1");
     request.load_flags = 0;
@@ -2740,7 +2737,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead("HTTP/1.0 401 Unauthorized\r\n"),
       MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
       MockRead("Content-Length: 10000\r\n\r\n"),
-      MockRead(false, net::ERR_FAILED),
+      MockRead(false, ERR_FAILED),
     };
 
     // Resend with authorization from MyRealm's cache.
@@ -2755,7 +2752,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockRead data_reads2[] = {
       MockRead("HTTP/1.0 200 OK\r\n"),
       MockRead("Content-Length: 100\r\n\r\n"),
-      MockRead(false, net::OK),
+      MockRead(false, OK),
     };
 
     MockSocket data1;
@@ -2772,20 +2769,20 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback1;
 
     int rv = trans->Start(&request, &callback1);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback1.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
     EXPECT_TRUE(trans->IsReadyToRestartForAuth());
     TestCompletionCallback callback2;
     rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
     rv = callback2.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
     EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
     EXPECT_TRUE(response->auth_challenge.get() == NULL);
     EXPECT_EQ(100, response->headers->GetContentLength());
@@ -2796,10 +2793,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
   // Transaction 5: request a URL in MyRealm, but the server rejects the
   // cached identity. Should invalidate and re-prompt.
   {
-    scoped_ptr<net::HttpTransaction> trans(new net::HttpNetworkTransaction(
+    scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
         session, &mock_socket_factory));
 
-    net::HttpRequestInfo request;
+    HttpRequestInfo request;
     request.method = "GET";
     request.url = GURL("http://www.google.com/p/q/t");
     request.load_flags = 0;
@@ -2814,7 +2811,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead("HTTP/1.0 401 Unauthorized\r\n"),
       MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
       MockRead("Content-Length: 10000\r\n\r\n"),
-      MockRead(false, net::ERR_FAILED),
+      MockRead(false, ERR_FAILED),
     };
 
     // Resend with authorization from cache for MyRealm.
@@ -2830,7 +2827,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
       MockRead("HTTP/1.0 401 Unauthorized\r\n"),
       MockRead("WWW-Authenticate: Basic realm=\"MyRealm1\"\r\n"),
       MockRead("Content-Length: 10000\r\n\r\n"),
-      MockRead(false, net::ERR_FAILED),
+      MockRead(false, ERR_FAILED),
     };
 
     // At this point we should prompt for new credentials for MyRealm.
@@ -2846,7 +2843,7 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     MockRead data_reads3[] = {
       MockRead("HTTP/1.0 200 OK\r\n"),
       MockRead("Content-Length: 100\r\n\r\n"),
-      MockRead(false, net::OK),
+      MockRead(false, OK),
     };
 
     MockSocket data1;
@@ -2867,20 +2864,20 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback1;
 
     int rv = trans->Start(&request, &callback1);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback1.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
     EXPECT_TRUE(trans->IsReadyToRestartForAuth());
     TestCompletionCallback callback2;
     rv = trans->RestartWithAuth(std::wstring(), std::wstring(), &callback2);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
     rv = callback2.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
     EXPECT_FALSE(trans->IsReadyToRestartForAuth());
 
-    const net::HttpResponseInfo* response = trans->GetResponseInfo();
+    const HttpResponseInfo* response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
 
     // The password prompt info should have been set in
@@ -2895,10 +2892,10 @@ TEST_F(HttpNetworkTransactionTest, BasicAuthCacheAndPreauth) {
     TestCompletionCallback callback3;
 
     rv = trans->RestartWithAuth(L"foo3", L"bar3", &callback3);
-    EXPECT_EQ(net::ERR_IO_PENDING, rv);
+    EXPECT_EQ(ERR_IO_PENDING, rv);
 
     rv = callback3.WaitForResult();
-    EXPECT_EQ(net::OK, rv);
+    EXPECT_EQ(OK, rv);
 
     response = trans->GetResponseInfo();
     EXPECT_FALSE(response == NULL);
@@ -3041,7 +3038,7 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
 
   MockRead proxy_reads[] = {
     MockRead("HTTP/1.0 200 Connected\r\n\r\n"),
-    MockRead(false, net::OK)
+    MockRead(false, OK)
   };
 
   MockWrite data_writes[] = {
@@ -3099,6 +3096,326 @@ TEST_F(HttpNetworkTransactionTest, HTTPSBadCertificateViaProxy) {
     EXPECT_FALSE(response == NULL);
     EXPECT_EQ(100, response->headers->GetContentLength());
   }
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_UserAgent) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.user_agent = "Chromium Ultra Awesome X Edition";
+
+  MockWrite data_writes[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "User-Agent: Chromium Ultra Awesome X Edition\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_Referer) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = 0;
+  request.referrer = GURL("http://the.previous.site.com/");
+
+  MockWrite data_writes[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Referer: http://the.previous.site.com/\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_PostContentLengthZero) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "POST";
+  request.url = GURL("http://www.google.com/");
+
+  MockWrite data_writes[] = {
+    MockWrite("POST / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Content-Length: 0\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_PutContentLengthZero) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "PUT";
+  request.url = GURL("http://www.google.com/");
+
+  MockWrite data_writes[] = {
+    MockWrite("PUT / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Content-Length: 0\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_HeadContentLengthZero) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "HEAD";
+  request.url = GURL("http://www.google.com/");
+
+  MockWrite data_writes[] = {
+    MockWrite("HEAD / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Content-Length: 0\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_CacheControlNoCache) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = LOAD_BYPASS_CACHE;
+
+  MockWrite data_writes[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Pragma: no-cache\r\n"
+              "Cache-Control: no-cache\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest,
+       BuildRequest_CacheControlValidateCache) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.load_flags = LOAD_VALIDATE_CACHE;
+
+  MockWrite data_writes[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "Cache-Control: max-age=0\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
+}
+
+TEST_F(HttpNetworkTransactionTest, BuildRequest_ExtraHeaders) {
+  scoped_ptr<ProxyService> proxy_service(CreateNullProxyService());
+  scoped_ptr<HttpTransaction> trans(new HttpNetworkTransaction(
+      CreateSession(proxy_service.get()), &mock_socket_factory));
+
+  HttpRequestInfo request;
+  request.method = "GET";
+  request.url = GURL("http://www.google.com/");
+  request.extra_headers = "FooHeader: Bar\r\n";
+
+  MockWrite data_writes[] = {
+    MockWrite("GET / HTTP/1.1\r\n"
+              "Host: www.google.com\r\n"
+              "Connection: keep-alive\r\n"
+              "FooHeader: Bar\r\n\r\n"),
+  };
+
+  // Lastly, the server responds with the actual content.
+  MockRead data_reads[] = {
+    MockRead("HTTP/1.0 200 OK\r\n"),
+    MockRead("Content-Type: text/html; charset=iso-8859-1\r\n"),
+    MockRead("Content-Length: 100\r\n\r\n"),
+    MockRead(false, OK),
+  };
+
+  MockSocket data;
+  data.reads = data_reads;
+  data.writes = data_writes;
+  mock_sockets[0] = &data;
+  mock_sockets[1] = NULL;
+
+  TestCompletionCallback callback;
+
+  int rv = trans->Start(&request, &callback);
+  EXPECT_EQ(ERR_IO_PENDING, rv);
+
+  rv = callback.WaitForResult();
+  EXPECT_EQ(OK, rv);
 }
 
 }  // namespace net
