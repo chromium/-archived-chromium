@@ -178,13 +178,13 @@ bool FirstRunView::Accept() {
   customize_link_->SetEnabled(false);
   CreateDesktopShortcut();
   CreateQuickLaunchShortcut();
-  if (default_browser_->checked())
-    SetDefaultBrowser();
   // Index 0 is the default browser.
   FirstRun::ImportSettings(profile_,
       importer_host_->GetSourceProfileInfoAt(0).browser_type,
       GetDefaultImportItems(), window()->GetNativeWindow());
   UserMetrics::RecordAction(L"FirstRunDef_Accept", profile_);
+  if (default_browser_->checked())
+    SetDefaultBrowser();
 
   return true;
 }
