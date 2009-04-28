@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -220,7 +220,7 @@ class MemoryTest : public UITest {
       std::string url = urls[counter];
 
       if (url == "<PAUSE>") {  // Special command to delay on this page
-        Sleep(2000);
+        PlatformThread::Sleep(2000);
         continue;
       }
 
@@ -251,7 +251,7 @@ class MemoryTest : public UITest {
       // TODO(mbelshe): Bug 2953
       // The automation crashes periodically if we cycle too quickly.
       // To make these tests more reliable, slowing them down a bit.
-      Sleep(100);
+      PlatformThread::Sleep(100);
     }
     size_t stop_size = GetSystemCommitCharge();
 

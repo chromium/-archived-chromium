@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -65,7 +65,7 @@ bool AutocompleteEditProxy::WaitForQuery(int wait_timeout_ms) const {
   while (TimeTicks::Now() - start < timeout) {
     if (IsQueryInProgress(&query_in_progress) && !query_in_progress)
       return true;
-    Sleep(automation::kSleepTime);
+    PlatformThread::Sleep(automation::kSleepTime);
   }
   // If we get here the query is still in progress.
   return false;

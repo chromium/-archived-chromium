@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -528,7 +528,7 @@ bool UITest::WaitForFindWindowVisibilityChange(BrowserProxy* browser,
       return true;  // Find window visibility change complete.
 
     // Give it a chance to catch up.
-    Sleep(sleep_timeout_ms() / kCycles);
+    PlatformThread::Sleep(sleep_timeout_ms() / kCycles);
   }
   return false;
 }
@@ -545,7 +545,7 @@ bool UITest::WaitForBookmarkBarVisibilityChange(BrowserProxy* browser,
       return true;  // Bookmark bar visibility change complete.
 
     // Give it a chance to catch up.
-    Sleep(sleep_timeout_ms() / kCycles);
+    PlatformThread::Sleep(sleep_timeout_ms() / kCycles);
   }
   return false;
 }

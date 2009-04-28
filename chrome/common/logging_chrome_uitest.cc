@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -108,7 +108,7 @@ TEST_F(RendererCrashTest, Crash) {
     expected_crashes_ = 0;
   } else {
     // Wait while the process is writing the crash dump.
-    Sleep(5000);
+    PlatformThread::Sleep(5000);
     expected_crashes_ = 1;
   }
 }
@@ -129,6 +129,6 @@ class BrowserCrashTest : public UITest {
 // This test is disabled. See bug 1198934.
 TEST_F(BrowserCrashTest, DISABLED_Crash) {
   // Wait while the process is writing the crash dump.
-  Sleep(5000);
+  PlatformThread::Sleep(5000);
   expected_crashes_ = 1;
 }

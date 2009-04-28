@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -87,7 +87,7 @@ TEST_F(InteractiveConstrainedWindowTest, TestOpenAndResizeTo) {
 
   // No idea how to wait here other then sleeping. This timeout used to be
   // lower, then we started hitting it before it was done. :(
-  Sleep(5000);
+  PlatformThread::Sleep(5000);
 
   // The actual content will be LESS than (200, 200) because resizeTo
   // deals with a window's outer{Width,Height} instead of its
@@ -160,7 +160,7 @@ TEST_F(InteractiveConstrainedWindowTest, DontSpawnEndlessPopups) {
         continuing = false;
       } else {
         // Nothing intereseting is going on wait it out.
-        Sleep(automation::kSleepTime);
+        PlatformThread::Sleep(automation::kSleepTime);
         times_slept++;
       }
     } else {
@@ -181,7 +181,7 @@ TEST_F(InteractiveConstrainedWindowTest, WindowOpenWindowClosePopup) {
 
   ASSERT_TRUE(automation()->WaitForWindowCountToBecome(2, 5000));
 
-  Sleep(1000);
+  PlatformThread::Sleep(1000);
 
   // Make sure we have a blocked popup notification
   scoped_ptr<BrowserProxy> popup_browser(automation()->GetBrowserWindow(1));

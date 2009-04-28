@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -346,7 +346,7 @@ bool AutomatedUITest::DoAction(const std::string & action) {
     did_complete_action = true;
   } else if (LowerCaseEqualsASCII(action, "sleep")) {
     // This is for debugging, it probably shouldn't be used real tests.
-    Sleep(kDebuggingTimeoutMsec);
+    PlatformThread::Sleep(kDebuggingTimeoutMsec);
     did_complete_action = true;
   } else if (LowerCaseEqualsASCII(action, "star")) {
     did_complete_action = StarPage();
