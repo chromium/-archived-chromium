@@ -961,7 +961,7 @@ BUG1026885 DEFER LINUX WIN : LayoutTests/editing/selection/4960137.html = FAIL
 // unpainted space (filled red in Debug but not in Release).
 // https://bugs.webkit.org/show_bug.cgi?id=8423
 BUG1115062 DEFER : LayoutTests/tables/mozilla_expected_failures/bugs/bug178855.xml = FAIL PASS
-BUG1115062 DEFER DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
+BUG1115062 DEFER WIN MAC DEBUG : LayoutTests/fast/flexbox/flex-hang.html = FAIL PASS
 
 // Fails on webkit windows as well.
 BUG1166644 DEFER WIN LINUX : LayoutTests/fast/events/attempt-scroll-with-no-scrollbars.html = FAIL
@@ -2016,14 +2016,11 @@ BUG10444 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-replaced-shadows.h
 // Added 3/11/09
 BUG10445 LINUX : LayoutTests/fast/compact/001.html = CRASH PASS
 
-// Regressions from merge 41559:41588
-// This one probably just needs a new baseline:
-BUG10446 LINUX : LayoutTests/fast/inline/long-wrapped-line.html = FAIL
+// The text extends outside the selection on linux (was happening before the
+// merge).
 BUG10446 LINUX : LayoutTests/editing/execCommand/selectAll.html = FAIL
-BUG10446 LINUX : LayoutTests/fast/text/trailing-white-space.html = FAIL
-BUG10446 LINUX : LayoutTests/fast/text/trailing-white-space-2.html = FAIL
-BUG10446 LINUX : LayoutTests/editing/selection/extend-by-word-002.html = FAIL
-BUG10446 LINUX : LayoutTests/editing/selection/select-all-002.html = FAIL
+
+// Regressions from merge 41559:41588, probably just needs rebaselining.
 BUG_GWILSON MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 BUG_GWILSON MAC : chrome/fast/forms/basic-textareas.html = FAIL
 
@@ -2427,8 +2424,6 @@ BUG9916 WIN LINUX : LayoutTests/http/tests/xmlhttprequest/web-apps/012.html = FA
 
 // New tests or failures from WebKit merge 42324:42364. Re-baselined on
 // Windows. Probably just need the same on other platforms.
-BUG9924 LINUX : LayoutTests/fast/flexbox/016.html = FAIL
-BUG9924 LINUX RELEASE : LayoutTests/fast/flexbox/flex-hang.html = FAIL
 BUG9962 LINUX : LayoutTests/fast/block/positioning/fixed-positioning-scrollbar-bug.html = FAIL
 BUG9962 MAC : LayoutTests/fast/js/function-apply-aliased.html = FAIL
 BUG9962 MAC : LayoutTests/http/tests/security/XFrameOptions/x-frame-options-deny-meta-tag-in-body.html = FAIL
