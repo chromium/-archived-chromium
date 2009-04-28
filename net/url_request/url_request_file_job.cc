@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -29,6 +29,7 @@
 #include "net/base/mime_util.h"
 #include "net/base/net_errors.h"
 #include "net/base/net_util.h"
+#include "net/http/http_util.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_file_dir_job.h"
 
@@ -90,7 +91,8 @@ URLRequestFileJob::URLRequestFileJob(URLRequest* request,
       file_path_(file_path),
       ALLOW_THIS_IN_INITIALIZER_LIST(
           io_callback_(this, &URLRequestFileJob::DidRead)),
-      is_directory_(false) {
+      is_directory_(false),
+      remaining_bytes_(0) {
 }
 
 URLRequestFileJob::~URLRequestFileJob() {
@@ -135,11 +137,17 @@ bool URLRequestFileJob::ReadRawData(net::IOBuffer* dest, int dest_size,
                                     int *bytes_read) {
   DCHECK_NE(dest_size, 0);
   DCHECK(bytes_read);
+  DCHECK_GE(remaining_bytes_, 0);
+
+  if (remaining_bytes_ < dest_size)
+    dest_size = static_cast<int>(remaining_bytes_);
 
   int rv = stream_.Read(dest->data(), dest_size, &io_callback_);
   if (rv >= 0) {
     // Data is immediately available.
     *bytes_read = rv;
+    remaining_bytes_ -= rv;
+    DCHECK_GE(remaining_bytes_, 0);
     return true;
   }
 
@@ -175,6 +183,22 @@ void URLRequestFileJob::GetResponseInfo(net::HttpResponseInfo* info) {
   }
 }
 
+void URLRequestFileJob::SetExtraRequestHeaders(const std::string& headers) {
+  // We only care about "Range" header here.
+  std::vector<net::HttpByteRange> ranges;
+  if (net::HttpUtil::ParseRanges(headers, &ranges)) {
+    if (ranges.size() == 1) {
+      byte_range_ = ranges[0];
+    } else {
+      // We don't support multiple range requests in one single URL request,
+      // because we need to do multipart encoding here.
+      // TODO(hclam): decide whether we want to support multiple range requests.
+      NotifyDone(URLRequestStatus(URLRequestStatus::FAILED,
+                 net::ERR_REQUEST_RANGE_NOT_SATISFIABLE));
+    }
+  }
+}
+
 void URLRequestFileJob::DidResolve(
     bool exists, const file_util::FileInfo& file_info) {
 #if defined(OS_WIN)
@@ -200,12 +224,33 @@ void URLRequestFileJob::DidResolve(
     rv = stream_.Open(file_path_, flags);
   }
 
-  if (rv == net::OK) {
-    set_expected_content_size(file_info.size);
-    NotifyHeadersComplete();
-  } else {
+  if (rv != net::OK) {
     NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, rv));
+    return;
   }
+
+  if (!byte_range_.ComputeBounds(file_info.size)) {
+    NotifyDone(URLRequestStatus(URLRequestStatus::FAILED,
+               net::ERR_REQUEST_RANGE_NOT_SATISFIABLE));
+    return;
+  }
+
+  remaining_bytes_ = byte_range_.last_byte_position() -
+                     byte_range_.first_byte_position() + 1;
+  DCHECK_GE(remaining_bytes_, 0);
+
+  // Do the seek at the beginning of the request.
+  if (remaining_bytes_ > 0 &&
+      byte_range_.first_byte_position() != 0 &&
+      byte_range_.first_byte_position() !=
+          stream_.Seek(net::FROM_BEGIN, byte_range_.first_byte_position())) {
+    NotifyDone(URLRequestStatus(URLRequestStatus::FAILED,
+               net::ERR_REQUEST_RANGE_NOT_SATISFIABLE));
+    return;
+  }
+
+  set_expected_content_size(remaining_bytes_);
+  NotifyHeadersComplete();
 }
 
 void URLRequestFileJob::DidRead(int result) {
@@ -216,6 +261,10 @@ void URLRequestFileJob::DidRead(int result) {
   } else {
     NotifyDone(URLRequestStatus(URLRequestStatus::FAILED, result));
   }
+
+  remaining_bytes_ -= result;
+  DCHECK_GE(remaining_bytes_, 0);
+
   NotifyReadComplete(result);
 }
 
