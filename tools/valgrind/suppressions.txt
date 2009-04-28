@@ -309,13 +309,10 @@
    bug_6522
    Memcheck:Param
    write(buf)
-   obj:/lib*/libc-2.7.so
    ...
-   fun:_IO_file_xsputn@@GLIBC_2.1
    fun:fwrite
    fun:_ZN12DownloadFile16AppendDataToFileEPKci
    fun:_ZN19DownloadFileManager14UpdateDownloadEiP14DownloadBuffer
-   fun:_ZN14RunnableMethodI19DownloadFileManagerMS0_FviP14DownloadBufferE6Tuple2IiS2_EE3RunEv
 }
 {
    # Chromium flakily leaks tasks at shutdown, see
@@ -384,7 +381,7 @@
    ...
    fun:_ZN22RendererSecurityPolicy15GrantRequestURLEiRK4GURL
    fun:_ZN14RenderViewHost15NavigateToEntryERK15NavigationEntryb
-   fun:_ZN11WebContents22NavigateToPendingEntryEb
+   ...
    fun:_ZN20NavigationController22NavigateToPendingEntryEb
    fun:_ZN20NavigationController9LoadEntryEP15NavigationEntry
    fun:_ZN20NavigationController7LoadURLERK4GURLS2_j
@@ -418,6 +415,14 @@
    fun:_ZN11WebContents32CreateRenderViewForRenderManagerEP14RenderViewHost
 }
 {
+   # yet one more from http://crbug.com/10747
+   bug_10747c
+   Memcheck:Leak
+   ...
+   fun:_ZN18TabContentsViewGtk19CreateViewForWidgetEP16RenderWidgetHost
+   fun:_ZN11TabContents32CreateRenderViewForRenderManagerEP14RenderViewHost
+}
+{
    # see http://crbug.com/10748
    bug_10748
    Memcheck:Leak
@@ -425,16 +430,14 @@
    fun:_ZN22RendererSecurityPolicy3AddEi
    fun:_ZN24BrowserRenderProcessHost4InitEv
    fun:_ZN14RenderViewHost16CreateRenderViewEv
-   fun:_ZN11WebContents32CreateRenderViewForRenderManagerEP14RenderViewHost
 }
 {
    # See http://crbug.com/10755 (1/2)
    bug_10755
    Memcheck:Leak
    fun:_Znwj
-   fun:_ZN3IPC12ChannelProxy12RemoveFilterEPNS0_13MessageFilterE
+   ...
    fun:_ZN12RenderThread12RemoveFilterEPN3IPC12ChannelProxy13MessageFilterE
-   fun:_ZN12RenderThread7CleanUpEv
 }
 {
    # See http://crbug.com/10755 (2/2)
@@ -489,4 +492,27 @@
    fun:jpeg_CreateDecompress
    fun:_ZN9JPEGCodec6DecodeEPKhjNS_11ColorFormatEPSt6vectorIhSaIhEEPiS7_
    fun:_ZN30JPEGCodec_DecodeCorrupted_Test8TestBodyEv
+}
+{
+   # See http://crbug.com/11116
+   bug_11116a
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN11ChildThread21OnProcessFinalReleaseEv
+}
+{
+   # See http://crbug.com/11116
+   bug_11116b
+   fun:_Znwj
+   fun:_ZN11ChildThread14OnChannelErrorEv
+   fun:_ZN3IPC12ChannelProxy7Context15OnDispatchErrorEv
+}
+{
+   # See http://crbug.com/11117
+   bug_11117
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3IPC12ChannelProxy4SendEPNS_7MessageE
+   ...
+   fun:_ZN24RendererWebKitClientImpl24suddenTerminationChangedEb
 }
