@@ -27,7 +27,8 @@ protected:
 
 // Automated UI test to open three tabs in a new window, and drag Tab_1 into
 // the position of Tab_2.
-TEST_F(TabDraggingTest, Tab1Tab2) {
+// Disabled as per http://crbug.com/10941
+TEST_F(TabDraggingTest, DISABLED_Tab1Tab2) {
   scoped_ptr<BrowserProxy> browser(automation()->GetBrowserWindow(0));
   ASSERT_TRUE(browser.get());
   scoped_ptr<WindowProxy> window(browser->GetWindow());
