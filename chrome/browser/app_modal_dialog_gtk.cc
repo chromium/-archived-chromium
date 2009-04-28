@@ -22,7 +22,7 @@ std::wstring GetPromptText(GtkDialog* dialog) {
   // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
   GtkWidget* contents_vbox = dialog->vbox;
   GList* first_child = gtk_container_get_children(GTK_CONTAINER(contents_vbox));
-  for (GList* item = first_child; item; g_list_next(item)) {
+  for (GList* item = first_child; item; item = g_list_next(item)) {
     if (GTK_IS_ENTRY(item->data)) {
       return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(item->data)));
     }
