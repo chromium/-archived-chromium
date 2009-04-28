@@ -147,6 +147,11 @@
           # are compatible with the general 32-bit-ness.
           '-32',
         ],
+        # Enable -Werror by default, but put it in a variable so it can
+        # be disabled in ~/.gyp/include.gypi on the valgrind builders.
+        'variables': {
+          'werror%': '-Werror',
+        },
         # All floating-point computations on x87 happens in 80-bit
         # precision.  Because the C and C++ language standards allow
         # the compiler to keep the floating-point values in higher
@@ -180,8 +185,7 @@
           '-msse2',
           '-mfpmath=sse',
           '-Wall',
-          # TODO(sgk): when chromium_code targets are clean of warnings.
-          #'-Werror',
+          '<(werror)',  # See note above about the werror variable.
         ],
         'ldflags': [
           '-m32',
@@ -258,7 +262,7 @@
             'ldflags': [
               '-rdynamic',  # Allows backtrace to resolve symbols.
             ],
-	  },
+          },
           'Release': {
             'cflags': [
               '-O2',
