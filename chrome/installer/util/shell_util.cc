@@ -75,26 +75,17 @@ class RegistryEntry {
       entries.push_front(new RegistryEntry(open_with_key, std::wstring()));
     }
 
-    // Chrome extension installer
+    // Chrome Extension file handler
     std::wstring install_cmd =
         ShellUtil::GetChromeInstallExtensionCmd(chrome_exe);
     std::wstring prog_id = std::wstring(L"Software\\Classes\\") +
         ShellUtil::kChromeExtProgId;
-
-    // Extension file handler
     entries.push_front(new RegistryEntry(prog_id,
-                                         ShellUtil::kChromeExtProgIdDesc));
+        ShellUtil::kChromeExtProgIdDesc));
     entries.push_front(new RegistryEntry(
-        prog_id + L"\\DefaultIcon", icon_path));
+        prog_id + ShellUtil::kRegDefaultIcon, icon_path));
     entries.push_front(new RegistryEntry(
-        prog_id + L"\\shell\\open\\command", install_cmd));
-
-    // .crx file type extension
-    std::wstring file_extension_key(L"Software\\Classes\\");
-    file_extension_key.append(L".");
-    file_extension_key.append(chrome::kExtensionFileExtension);
-    entries.push_front(new RegistryEntry(file_extension_key,
-                                         ShellUtil::kChromeExtProgId));
+        prog_id + ShellUtil::kRegShellOpen, install_cmd));
 
     BrowserDistribution* dist = BrowserDistribution::GetDistribution();
     std::wstring start_menu_entry(ShellUtil::kRegStartMenuInternet);
@@ -133,6 +124,9 @@ class RegistryEntry {
           capabilities + L"\\FileAssociations",
           ShellUtil::kFileAssociations[i], ShellUtil::kChromeHTMLProgId));
     }
+    entries.push_front(new RegistryEntry(
+        capabilities + L"\\FileAssociations",
+        chrome::kExtensionFileExtension, ShellUtil::kChromeExtProgId));
     for (int i = 0; ShellUtil::kProtocolAssociations[i] != NULL; i++) {
       entries.push_front(new RegistryEntry(
           capabilities + L"\\URLAssociations",
@@ -243,6 +237,14 @@ bool BindChromeAssociations(HKEY root_key, const std::wstring& chrome_exe) {
     items->AddSetRegValueWorkItem(root_key, key_path, L"",
                                   ShellUtil::kChromeHTMLProgId, true);
   }
+
+  // .crx file type extension
+  std::wstring file_extension_key = classes_path + L"\\." +
+                                    chrome::kExtensionFileExtension;
+  items->AddCreateRegKeyWorkItem(root_key, file_extension_key);
+  items->AddSetRegValueWorkItem(root_key, file_extension_key, L"",
+                                ShellUtil::kChromeExtProgId, true);
+
 
   // protocols associations
   std::wstring chrome_open = ShellUtil::GetChromeShellOpenCmd(chrome_exe);
@@ -356,7 +358,9 @@ ShellUtil::RegisterStatus RegisterOnVista(const std::wstring& chrome_exe,
     file_util::AppendToPath(&exe_path, installer_util::kSetupExe);
     if (!file_util::PathExists(exe_path)) {
       BrowserDistribution* dist = BrowserDistribution::GetDistribution();
-      RegKey key(HKEY_CURRENT_USER, dist->GetUninstallRegPath().c_str());
+      HKEY reg_root = InstallUtil::IsPerUserInstall(chrome_exe.c_str()) ?
+          HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
+      RegKey key(reg_root, dist->GetUninstallRegPath().c_str());
       key.ReadValue(installer_util::kUninstallStringField, &exe_path);
       CommandLine command_line(L"");
       command_line.ParseFromString(exe_path);
@@ -394,9 +398,11 @@ const wchar_t* ShellUtil::kAppPathsRegistryKey =
 const wchar_t* ShellUtil::kAppPathsRegistryPathName = L"Path";
 
 #if defined(GOOGLE_CHROME_BUILD)
+const wchar_t* ShellUtil::kChromeExtProgId = L"ChromeExt";
 const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromeHTML";
 const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chrome HTML";
 #else
+const wchar_t* ShellUtil::kChromeExtProgId = L"ChromiumExt";
 const wchar_t* ShellUtil::kChromeHTMLProgId = L"ChromiumHTML";
 const wchar_t* ShellUtil::kChromeHTMLProgIdDesc = L"Chromium HTML";
 #endif
@@ -407,7 +413,6 @@ const wchar_t* ShellUtil::kProtocolAssociations[] = {L"ftp", L"http", L"https",
     NULL};
 const wchar_t* ShellUtil::kRegUrlProtocol = L"URL Protocol";
 
-const wchar_t* ShellUtil::kChromeExtProgId = L"ChromeExt";
 const wchar_t* ShellUtil::kChromeExtProgIdDesc = L"Chrome Extension Installer";
 
 ShellUtil::RegisterStatus ShellUtil::AddChromeToSetAccessDefaults(
