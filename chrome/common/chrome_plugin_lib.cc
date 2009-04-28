@@ -122,12 +122,7 @@ void ChromePluginLib::RegisterPluginsWithNPAPI() {
     return;
   // Note: we can only access the NPAPI list because the PluginService has done
   // the locking for us.  We should not touch it anywhere else.
-#if defined(OS_WIN) || defined(OS_LINUX)
   NPAPI::PluginList::AddExtraPluginPath(path);
-#else
-  // TODO(port): plugins not yet implemented
-  NOTIMPLEMENTED();
-#endif
 }
 
 static void LogPluginLoadTime(const TimeDelta &time) {
