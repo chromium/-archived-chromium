@@ -257,16 +257,8 @@ void RenderView::PluginDestroyed(WebPluginDelegateProxy* proxy) {
   // clicks the info bar to install. Unfortunately we are getting
   // PluginDestroyed in single process mode. However, that is not a huge
   // concern.
-#if defined(OS_WIN)
   if (proxy == first_default_plugin_)
     first_default_plugin_ = NULL;
-#else
-  // TODO(port): because of the headers that we aren't including, the compiler
-  // has only seen a forward decl, not the subclass relation. Thus it doesn't
-  // know that the two pointer types compared above are comparable. Once we
-  // port and include the headers this problem should go away.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void RenderView::PluginCrashed(const FilePath& plugin_path) {

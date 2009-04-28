@@ -42,7 +42,6 @@
 #include "net/url_request/url_request_context.h"
 #include "webkit/glue/plugins/plugin_constants_win.h"
 
-// TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "base/win_util.h"
 #include "chrome/browser/sandbox_policy.h"
@@ -495,14 +494,9 @@ void PluginProcessHost::OnResolveProxy(const GURL& url,
 void PluginProcessHost::OnResolveProxyCompleted(IPC::Message* reply_msg,
                                                 int result,
                                                 const std::string& proxy_list) {
-#if defined(OS_WIN)
   PluginProcessHostMsg_ResolveProxy::WriteReplyParams(
       reply_msg, result, proxy_list);
   Send(reply_msg);
-#else
-  // TODO(port): Port plugin_messages_internal.h.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void PluginProcessHost::ReplyToRenderer(
@@ -523,7 +517,6 @@ URLRequestContext* PluginProcessHost::GetRequestContext(
 void PluginProcessHost::RequestPluginChannel(
     ResourceMessageFilter* renderer_message_filter,
     const std::string& mime_type, IPC::Message* reply_msg) {
-#if defined(OS_WIN)
   // We can't send any sync messages from the browser because it might lead to
   // a hang.  However this async messages must be answered right away by the
   // plugin process (i.e. unblocks a Send() call like a sync message) otherwise
@@ -539,10 +532,6 @@ void PluginProcessHost::RequestPluginChannel(
     ReplyToRenderer(renderer_message_filter, std::wstring(), FilePath(),
                     reply_msg);
   }
-#else
-  // TODO(port): Figure out what the plugin process is expecting in this case.
-  NOTIMPLEMENTED();
-#endif
 }
 
 void PluginProcessHost::OnChannelCreated(const std::wstring& channel_name) {
