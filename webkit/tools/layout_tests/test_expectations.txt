@@ -1790,8 +1790,8 @@ BUG10408 MAC : LayoutTests/fast/forms/menulist-no-overflow.html = FAIL
 BUG10409 MAC : LayoutTests/fast/forms/002.html = FAIL
 BUG10409 MAC LINUX : LayoutTests/svg/custom/clip-path-units-changes.svg = FAIL
 
-// Pass locally on some developers' machines but fails on bot.
-BUG9275 WIN MAC LINUX : LayoutTests/fast/encoding/char-decoding.html = FAIL
+// We disallow file:// urls from doing XHR to data:.
+DEFER BUG9275 : LayoutTests/fast/encoding/char-decoding.html = FAIL
 
 // Flakey tests
 BUG10410 LINUX : LayoutTests/transitions/shorthand-transitions.html = FAIL PASS
