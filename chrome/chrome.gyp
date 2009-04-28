@@ -2244,6 +2244,7 @@
         'browser/cocoa/bookmark_menu_cocoa_controller_unittest.mm',
         'browser/cocoa/browser_window_cocoa_unittest.mm',
         'browser/cocoa/command_observer_bridge_unittest.mm',
+        'browser/cocoa/find_bar_bridge_unittest.mm',
         'browser/cocoa/find_bar_cocoa_controller_unittest.mm',
         'browser/cocoa/find_bar_view_unittest.mm',
         'browser/cocoa/location_bar_view_mac_unittest.mm',
