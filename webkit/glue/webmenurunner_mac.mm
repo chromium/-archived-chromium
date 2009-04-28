@@ -6,23 +6,29 @@
 
 #include "base/sys_string_conversions.h"
 
+@interface WebMenuRunner (PrivateAPI)
+
+// Worker function used during initialization.
+- (void)addItem:(const WebMenuItem&)item;
+
+// A callback for the menu controller object to call when an item is selected
+// from the menu. This is not called if the menu is dismissed without a
+// selection.
+- (void)menuItemSelected:(id)sender;
+
+@end  // WebMenuRunner (PrivateAPI)
+
 @implementation WebMenuRunner
 
 - (id)initWithItems:(const std::vector<WebMenuItem>&)items {
   if ((self = [super init])) {
-    menu_ = [[NSMenu alloc] initWithTitle:@""];
+    menu_.reset([[NSMenu alloc] initWithTitle:@""]);
     [menu_ setAutoenablesItems:NO];
-    menuItemWasChosen_ = NO;
     index_ = -1;
     for (int i = 0; i < static_cast<int>(items.size()); ++i)
       [self addItem:items[i]];
   }
   return self;
-}
-
-- (void)dealloc {
-  [menu_ release];
-  [super dealloc];
 }
 
 - (void)addItem:(const WebMenuItem&)item {
@@ -32,11 +38,11 @@
   }
 
   NSString* title = base::SysUTF16ToNSString(item.label);
-  NSMenuItem* menu_item = [menu_ addItemWithTitle:title
-                                           action:@selector(menuItemSelected:)
-                                    keyEquivalent:@""];
-  [menu_item setEnabled:(item.enabled && item.type != WebMenuItem::GROUP)];
-  [menu_item setTarget:self];
+  NSMenuItem* menuItem = [menu_ addItemWithTitle:title
+                                          action:@selector(menuItemSelected:)
+                                   keyEquivalent:@""];
+  [menuItem setEnabled:(item.enabled && item.type != WebMenuItem::GROUP)];
+  [menuItem setTarget:self];
 }
 
 // Reflects the result of the user's interaction with the popup menu. If NO, the
@@ -76,10 +82,12 @@
 
 @end  // WebMenuRunner
 
+namespace webkit_glue {
+
 // Helper function for manufacturing input events to send to WebKit.
-NSEvent* CreateEventForMenuAction(BOOL item_chosen, int window_num,
-                                  int item_height, int selected_index,
-                                  NSRect menu_bounds, NSRect view_bounds) {
+NSEvent* EventWithMenuAction(BOOL item_chosen, int window_num,
+                             int item_height, int selected_index,
+                             NSRect menu_bounds, NSRect view_bounds) {
   NSEvent* event = nil;
   double event_time = (double)(AbsoluteToDuration(UpTime())) / 1000.0;
 
@@ -128,3 +136,5 @@ NSEvent* CreateEventForMenuAction(BOOL item_chosen, int window_num,
 
   return event;
 }
+
+}  // namespace webkit_glue

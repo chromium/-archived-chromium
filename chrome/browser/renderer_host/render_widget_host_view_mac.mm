@@ -282,18 +282,19 @@ void RenderWidgetHostViewMac::ShowPopupWithItems(
                                bounds.width(), bounds.height());
 
   // Display the menu.
-  WebMenuRunner* menu_runner =
-      [[[WebMenuRunner alloc] initWithItems:items] autorelease];
+  scoped_nsobject<WebMenuRunner> menu_runner;
+  menu_runner.reset([[WebMenuRunner alloc] initWithItems:items]);
 
   [menu_runner runMenuInView:parent_view_
                   withBounds:position
                 initialIndex:selected_item];
 
   int window_num = [[parent_view_ window] windowNumber];
-  NSEvent* event = CreateEventForMenuAction([menu_runner menuItemWasChosen],
-                                            window_num, item_height,
-                                            [menu_runner indexOfSelectedItem],
-                                            position, view_rect);
+  NSEvent* event =
+      webkit_glue::EventWithMenuAction([menu_runner menuItemWasChosen],
+                                       window_num, item_height,
+                                       [menu_runner indexOfSelectedItem],
+                                       position, view_rect);
 
   if ([menu_runner menuItemWasChosen]) {
     // Simulate a menu selection event.

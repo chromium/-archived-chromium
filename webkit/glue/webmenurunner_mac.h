@@ -9,6 +9,7 @@
 
 #include <vector>
 
+#include "base/scoped_nsobject.h"
 #include "webkit/glue/webwidget_delegate.h"
 
 
@@ -20,8 +21,8 @@
 
 @interface WebMenuRunner : NSObject {
  @private
-  // The actual menu object, which we own.
-  NSMenu* menu_;
+  // The native menu control.
+  scoped_nsobject<NSMenu> menu_;
 
   // A flag set to YES if a menu item was chosen, or NO if the menu was
   // dismissed without selecting an item.
@@ -33,19 +34,10 @@
 
 // Initializes the MenuDelegate with a list of items sent from WebKit.
 - (id)initWithItems:(const std::vector<WebMenuItem>&)items;
-- (void)dealloc;
-
-// Worker function used during initialization.
-- (void)addItem:(const WebMenuItem&)item;
 
 // Returns YES if an item was selected from the menu, NO if the menu was
 // dismissed.
 - (BOOL)menuItemWasChosen;
-
-// A callback for the menu controller object to call when an item is selected
-// from the menu. This is not called if the menu is dismissed without a
-// selection.
-- (void)menuItemSelected:(id)sender;
 
 // Displays and runs a native popup menu.
 - (void)runMenuInView:(NSView*)view
@@ -58,14 +50,16 @@
 
 @end  // @interface WebMenuRunner
 
-// Helper function for manufacturing input events to send to WebKit. If
-// |item_chosen| is YES, we manufacture a mouse click event that corresponds to
-// the menu item that was selected, |selected_index|, based on the position of
-// the mouse click. Of |item_chosen| is NO, we create a keyboard event that
-// simulates an ESC (menu dismissal) action. The event is designed to be sent to
-// WebKit for processing by the PopupMenu class.
-NSEvent* CreateEventForMenuAction(BOOL item_chosen, int window_num,
-                                  int item_height, int selected_index,
-                                  NSRect menu_bounds, NSRect view_bounds);
+namespace webkit_glue {
+// Helper function for users of WebMenuRunner, for manufacturing input events to
+// send to WebKit. If |item_chosen| is YES, we manufacture a mouse click event
+// that corresponds to the menu item that was selected, |selected_index|, based
+// on the position of the mouse click. Of |item_chosen| is NO, we create a
+// keyboard event that simulates an ESC (menu dismissal) action. The event is
+// designed to be sent to WebKit for processing by the PopupMenu class.
+NSEvent* EventWithMenuAction(BOOL item_chosen, int window_num,
+                             int item_height, int selected_index,
+                             NSRect menu_bounds, NSRect view_bounds);
+}  // namespace webkit_glue
 
 #endif // WEBKIT_GLUE_WEBMENURUNNER_MAC_H_

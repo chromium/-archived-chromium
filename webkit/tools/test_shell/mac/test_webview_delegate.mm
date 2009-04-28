@@ -5,8 +5,8 @@
 #include "webkit/tools/test_shell/test_webview_delegate.h"
 
 #import <Cocoa/Cocoa.h>
-#include "base/sys_string_conversions.h"
 #include "base/string_util.h"
+#include "base/sys_string_conversions.h"
 #include "third_party/WebKit/WebKit/chromium/public/WebRect.h"
 #include "webkit/glue/webcursor.h"
 #include "webkit/glue/webview.h"
@@ -79,8 +79,8 @@ void TestWebViewDelegate::ShowAsPopupWithItems(
                                bounds.width, bounds.height);
 
   // Display the menu.
-  WebMenuRunner* menu_runner =
-      [[[WebMenuRunner alloc] initWithItems:items] autorelease];
+  scoped_nsobject<WebMenuRunner> menu_runner;
+  menu_runner.reset([[WebMenuRunner alloc] initWithItems:items]);
 
   [menu_runner runMenuInView:shell_->webViewWnd()
                   withBounds:position
@@ -91,11 +91,12 @@ void TestWebViewDelegate::ShowAsPopupWithItems(
   // position based on the selected index and provided bounds.
   WebWidgetHost* popup = shell_->popupHost();
   int window_num = [shell_->mainWnd() windowNumber];
+  NSEvent* event =
+      webkit_glue::EventWithMenuAction([menu_runner menuItemWasChosen],
+                                       window_num, item_height,
+                                       [menu_runner indexOfSelectedItem],
+                                       position, view_rect);
 
-  NSEvent* event = CreateEventForMenuAction([menu_runner menuItemWasChosen],
-                                            window_num, item_height,
-                                            [menu_runner indexOfSelectedItem],
-                                            position, view_rect);
   if ([menu_runner menuItemWasChosen]) {
     // Construct a mouse up event to simulate the selection of an appropriate
     // menu item.
