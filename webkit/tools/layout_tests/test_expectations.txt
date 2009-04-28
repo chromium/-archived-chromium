@@ -2560,3 +2560,41 @@ BUG11011 WIN : LayoutTests/fast/workers/worker-event-listener.html = TIMEOUT PAS
 BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = TIMEOUT PASS
 // The following failure was filed in BUG9798, used to be FAIL and PASS.
 BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT FAIL PASS
+
+// New failures from WebKit Merge 42805:42932
+LayoutTests/fast/dom/Window/dispatchEvent.html = FAIL
+BUG11121 : LayoutTests/fast/repaint/layer-outline-horizontal.html = FAIL
+BUG11121 : LayoutTests/fast/repaint/layer-outline.html = FAIL
+
+// Need Mac/Linux rebaselines from WebKit Merge 42805:42932
+BUG11123 LINUX MAC : LayoutTests/editing/deleting/delete-br-013.html
+BUG11123 LINUX MAC : LayoutTests/editing/inserting/4960120-1.html
+BUG11123 LINUX MAC : LayoutTests/editing/pasteboard/paste-blockquote-after-blockquote.html
+BUG11123 LINUX MAC : LayoutTests/editing/pasteboard/paste-blockquote-into-blockquote-3.html
+BUG11123 LINUX MAC : LayoutTests/fast/css/nested-layers-with-hover.html
+BUG11123 LINUX MAC : LayoutTests/fast/forms/textarea-scrollbar.html
+BUG11123 LINUX MAC : LayoutTests/fast/forms/textarea-scrolled-type.html
+BUG11123 LINUX MAC : LayoutTests/fast/overflow/overflow-focus-ring.html
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-30-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/animate-elem-40-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/color-prof-01-f.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-02-b.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-blend-01-b.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-conv-01-f.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-diffuse-01-f.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-light-01-f.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-specular-01-f.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/masking-path-04-b.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/render-groups-01-b.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/render-groups-03-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-01-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-03-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-04-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-06-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-08-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-09-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-image-10-t.svg
+BUG11123 LINUX MAC : LayoutTests/svg/custom/image-clipped-hit.svg
+BUG11123 LINUX MAC : LayoutTests/svg/custom/image-with-transform-clip-filter.svg
+BUG11123 LINUX MAC : LayoutTests/svg/custom/scrolling-embedded-svg-file-image-repaint-problem.html
+BUG11123 LINUX MAC : LayoutTests/svg/custom/viewport-update2.svg

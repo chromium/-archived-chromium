@@ -3123,8 +3123,6 @@
         '../third_party/WebKit/WebCore/rendering/InlineTextBox.h',
         '../third_party/WebKit/WebCore/rendering/LayoutState.cpp',
         '../third_party/WebKit/WebCore/rendering/LayoutState.h',
-        '../third_party/WebKit/WebCore/rendering/ListMarkerBox.cpp',
-        '../third_party/WebKit/WebCore/rendering/ListMarkerBox.h',
         '../third_party/WebKit/WebCore/rendering/MediaControlElements.cpp',
         '../third_party/WebKit/WebCore/rendering/MediaControlElements.h',
         '../third_party/WebKit/WebCore/rendering/PointerEventsHitRules.cpp',

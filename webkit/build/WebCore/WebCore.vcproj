@@ -3237,14 +3237,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\ListMarkerBox.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\ListMarkerBox.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\third_party\WebKit\WebCore\rendering\MediaControlElements.cpp"
 				>
 			</File>

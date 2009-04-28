@@ -43,8 +43,6 @@ namespace WebCore {
     void updateDOMNodeDocument(Node*, Document* oldDocument,
                                Document* newDocument);
 
-    ScriptState* scriptStateFromNode(Node*);
-
 }
 
 

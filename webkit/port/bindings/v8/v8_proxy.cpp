@@ -2953,8 +2953,8 @@ v8::Handle<v8::Value> V8Proxy::NodeToV8Object(Node* node)
 
 
 // A JS object of type EventTarget can only be the following possible types:
-// 1) EventTargetNode; 2) XMLHttpRequest; 3) MessagePort; 4) SVGElementInstance;
-// 5) XMLHttpRequestUpload 6) Worker
+// 1) EventTargetNode; 2) DOMWindow 3) XMLHttpRequest; 4) MessagePort;
+// 5) XMLHttpRequestUpload
 // check EventTarget.h for new type conversion methods
 v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
 {
@@ -2976,6 +2976,9 @@ v8::Handle<v8::Value> V8Proxy::EventTargetToV8Object(EventTarget* target)
   Node* node = target->toNode();
   if (node)
       return NodeToV8Object(node);
+
+  if (DOMWindow* domWindow = target->toDOMWindow())
+      return ToV8Object(V8ClassIndex::DOMWINDOW, domWindow);
 
   // XMLHttpRequest is created within its JS counterpart.
   XMLHttpRequest* xhr = target->toXMLHttpRequest();

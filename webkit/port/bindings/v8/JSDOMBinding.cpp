@@ -41,12 +41,4 @@ void updateDOMNodeDocument(Node* node, Document* oldDocument,
     // We don't do anything here in V8 bindings
 }
 
-ScriptState* scriptStateFromNode(Node* node)
-{
-    // This should be never reached with V8 bindings (WebKit only uses it
-    // for non-JS bindings)
-    ASSERT_NOT_REACHED();
-    return 0;
-}
-
 } // namespace WebCore
