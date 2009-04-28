@@ -109,12 +109,12 @@
         ['OS!="win"', {
           'dependencies': [
             'npapi_layout_test_plugin',
+            'npapi_test_plugin',
           ],
         }],
         ['OS=="linux"', {
           'dependencies': [
             'test_shell_resources',
-            'npapi_test_plugin',
             '../../../build/linux/system.gyp:gtk',
           ],
           # for:  test_shell_gtk.cc
@@ -291,6 +291,85 @@
       ],
     },
     {
+      'target_name': 'npapi_test_plugin',
+      'type': 'loadable_module',
+      'mac_bundle': 1,
+      'product_dir': '<(PRODUCT_DIR)/plugins',
+      'msvs_guid': '0D04AEC1-6B68-492C-BCCF-808DFD69ABC6',
+      'dependencies': [
+        '../../../base/base.gyp:base',
+        '../../../third_party/icu38/icu38.gyp:icuuc',
+        '../../../third_party/npapi/npapi.gyp:npapi',
+      ],
+      'sources': [
+        '../../glue/plugins/test/npapi_constants.cc',
+        '../../glue/plugins/test/npapi_constants.h',
+        '../../glue/plugins/test/npapi_test.cc',
+        '../../glue/plugins/test/npapi_test.def',
+        '../../glue/plugins/test/npapi_test.rc',
+        '../../glue/plugins/test/plugin_arguments_test.cc',
+        '../../glue/plugins/test/plugin_arguments_test.h',
+        '../../glue/plugins/test/plugin_client.cc',
+        '../../glue/plugins/test/plugin_client.h',
+        '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.cc',
+        '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.h',
+        '../../glue/plugins/test/plugin_get_javascript_url_test.cc',
+        '../../glue/plugins/test/plugin_get_javascript_url_test.h',
+        '../../glue/plugins/test/plugin_geturl_test.cc',
+        '../../glue/plugins/test/plugin_geturl_test.h',
+        '../../glue/plugins/test/plugin_javascript_open_popup.cc',
+        '../../glue/plugins/test/plugin_javascript_open_popup.h',
+        '../../glue/plugins/test/plugin_new_fails_test.cc',
+        '../../glue/plugins/test/plugin_new_fails_test.h',
+        '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
+        '../../glue/plugins/test/plugin_npobject_lifetime_test.h',
+        '../../glue/plugins/test/plugin_npobject_proxy_test.cc',
+        '../../glue/plugins/test/plugin_npobject_proxy_test.h',
+        '../../glue/plugins/test/plugin_private_test.cc',
+        '../../glue/plugins/test/plugin_private_test.h',
+        '../../glue/plugins/test/plugin_test.cc',
+        '../../glue/plugins/test/plugin_test.h',
+        '../../glue/plugins/test/plugin_window_size_test.cc',
+        '../../glue/plugins/test/plugin_window_size_test.h',
+        '../../glue/plugins/test/plugin_windowless_test.cc',
+        '../../glue/plugins/test/plugin_windowless_test.h',
+        '../../glue/plugins/test/resource.h',
+      ],
+      'include_dirs': [
+        '../../..',
+      ],
+      'xcode_settings': {
+        'INFOPLIST_FILE': '../../glue/plugins/test/Info.plist',
+      },
+      'conditions': [
+        ['OS!="win"', {
+          'sources!': [
+            # TODO(port):  Port these.
+
+            # plugin_npobject_lifetime_test.cc has win32-isms
+            #   (HWND, CALLBACK).
+            '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
+
+            # The windowed/windowless APIs are necessarily
+            # platform-specific.
+            '../../glue/plugins/test/plugin_window_size_test.cc',
+            '../../glue/plugins/test/plugin_windowless_test.cc',
+
+            # windows-specific resources
+            '../../glue/plugins/test/npapi_test.def',
+            '../../glue/plugins/test/npapi_test.rc',
+          ],
+        }],
+        ['OS=="mac"', {
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+            ],
+          },
+        }],
+      ],
+    },
+    {
       'target_name': 'test_shell_tests',
       'type': 'executable',
       'msvs_guid': 'E6766F81-1FCD-4CD7-BC16-E36964A14867',
@@ -406,80 +485,6 @@
               '<(SHARED_INTERMEDIATE_DIR)/test_shell',
             ],
           },
-        },
-      ],
-    }],
-    ['OS!="mac"', {
-      'targets': [
-        {
-          'target_name': 'npapi_test_plugin',
-          'type': 'loadable_module',
-          'product_dir': '<(PRODUCT_DIR)/plugins',
-          'msvs_guid': '0D04AEC1-6B68-492C-BCCF-808DFD69ABC6',
-          'dependencies': [
-            '../../../base/base.gyp:base',
-            '../../../third_party/icu38/icu38.gyp:icuuc',
-            '../../../third_party/npapi/npapi.gyp:npapi',
-          ],
-          'sources': [
-            '../../glue/plugins/test/npapi_constants.cc',
-            '../../glue/plugins/test/npapi_constants.h',
-            '../../glue/plugins/test/npapi_test.cc',
-            '../../glue/plugins/test/npapi_test.def',
-            '../../glue/plugins/test/npapi_test.rc',
-            '../../glue/plugins/test/plugin_arguments_test.cc',
-            '../../glue/plugins/test/plugin_arguments_test.h',
-            '../../glue/plugins/test/plugin_client.cc',
-            '../../glue/plugins/test/plugin_client.h',
-            '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.cc',
-            '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.h',
-            '../../glue/plugins/test/plugin_get_javascript_url_test.cc',
-            '../../glue/plugins/test/plugin_get_javascript_url_test.h',
-            '../../glue/plugins/test/plugin_geturl_test.cc',
-            '../../glue/plugins/test/plugin_geturl_test.h',
-            '../../glue/plugins/test/plugin_javascript_open_popup.cc',
-            '../../glue/plugins/test/plugin_javascript_open_popup.h',
-            '../../glue/plugins/test/plugin_new_fails_test.cc',
-            '../../glue/plugins/test/plugin_new_fails_test.h',
-            '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
-            '../../glue/plugins/test/plugin_npobject_lifetime_test.h',
-            '../../glue/plugins/test/plugin_npobject_proxy_test.cc',
-            '../../glue/plugins/test/plugin_npobject_proxy_test.h',
-            '../../glue/plugins/test/plugin_private_test.cc',
-            '../../glue/plugins/test/plugin_private_test.h',
-            '../../glue/plugins/test/plugin_test.cc',
-            '../../glue/plugins/test/plugin_test.h',
-            '../../glue/plugins/test/plugin_window_size_test.cc',
-            '../../glue/plugins/test/plugin_window_size_test.h',
-            '../../glue/plugins/test/plugin_windowless_test.cc',
-            '../../glue/plugins/test/plugin_windowless_test.h',
-            '../../glue/plugins/test/resource.h',
-          ],
-          'include_dirs': [
-            '../../..',
-          ],
-          'conditions': [
-            ['OS=="linux"', {
-              'sources!': [
-                # TODO(port):  Port these.
-
-                # plugin_npobject_lifetime_test.cc has win32-isms
-                #   (HWND, CALLBACK).
-                '../../glue/plugins/test/plugin_npobject_lifetime_test.cc',
-
-                # The windowed/windowless APIs are necessarily
-                # platform-specific.
-                '../../glue/plugins/test/plugin_window_size_test.cc',
-                '../../glue/plugins/test/plugin_windowless_test.cc',
-              ],
-            }],
-            ['OS!="win"', {
-              'sources!': [
-                '../../glue/plugins/test/npapi_test.def',
-                '../../glue/plugins/test/npapi_test.rc',
-              ],
-            }],
-          ],
         },
       ],
     }],

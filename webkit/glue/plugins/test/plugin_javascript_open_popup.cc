@@ -95,6 +95,12 @@ bool ExecuteJavascriptPopupWindowTargetPluginTest::CheckWindow(
 
   return false;
 }
+#elif defined(OS_MACOSX)
+bool ExecuteJavascriptPopupWindowTargetPluginTest::CheckWindow(
+    NPWindow* window) {
+  // TODO(port) scaffolding--replace with a real test once NPWindow is done.
+  return false;
+}
 #endif
 
 } // namespace NPAPIClient
