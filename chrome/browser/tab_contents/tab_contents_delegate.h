@@ -10,6 +10,8 @@
 #include "chrome/common/page_transition_types.h"
 #include "webkit/glue/window_open_disposition.h"
 
+class ExtensionFunctionDispatcher;
+class RenderViewHost;
 class TabContents;
 class HtmlDialogUIDelegate;
 class GURL;
@@ -148,6 +150,14 @@ class TabContentsDelegate {
   // this to disable inactive rendering for the frame in the window the select
   // is opened within if necessary.
   virtual void RenderWidgetShowing() {}
+
+  // This is used when the contents is an extension that needs to route
+  // api calls through to the Browser process.
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+      RenderViewHost* render_view_host,
+      const std::string& extension_id) {
+    return NULL;
+  }
 
   // This is called when webkit tells us that it is done tabbing through
   // controls on the page. Provides a way for TabContentsDelegates to handle

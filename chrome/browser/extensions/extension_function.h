@@ -71,8 +71,11 @@ class ExtensionFunction {
   // returning.  The calling renderer process will be killed.
   bool bad_message_;
 
- private:
+  // The dispatcher that will service this extension function call.
   ExtensionFunctionDispatcher* dispatcher_;
+
+ private:
+  // Id of js function to callback upon completion. -1 represents no callback.
   int callback_id_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionFunction);

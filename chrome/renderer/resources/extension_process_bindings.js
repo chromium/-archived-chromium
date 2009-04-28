@@ -10,6 +10,7 @@
 var chromium;
 (function() {
   native function GetNextCallbackId();
+  native function CreateWindow();
   native function GetWindows();
   native function GetTabsForWindow();
   native function GetTab();
@@ -104,6 +105,25 @@ var chromium;
           items: chromium.types.pInt,
           minItems: 1
         }
+      },
+      optional: true
+    },
+    chromium.types.optFun
+  ];
+  
+  chromium.tabs.createWindow = function(createData, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(CreateWindow, createData, callback);
+  };
+  chromium.tabs.createWindow.params = [
+    {
+      type: "object",
+      properties: {
+        url: chromium.types.optStr,
+        left: chromium.types.optInt,
+        top: chromium.types.optInt,
+        width: chromium.types.optPInt,
+        height: chromium.types.optPInt
       },
       optional: true
     },

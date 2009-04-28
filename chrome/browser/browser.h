@@ -486,6 +486,9 @@ class Browser : public TabStripModelDelegate,
                               void* parent_window);
   virtual void SetFocusToLocationBar();
   virtual void RenderWidgetShowing();
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+      RenderViewHost* render_view_host,
+      const std::string& extension_id);
 
   // Overridden from SelectFileDialog::Listener:
   virtual void FileSelected(const FilePath& path, int index, void* params);

@@ -194,6 +194,18 @@ Browser* BrowserList::GetLastActive() {
 }
 
 // static
+Browser* BrowserList::GetLastActiveWithProfile(Profile* p) {
+  list_type::reverse_iterator browser = last_active_browsers_.rbegin();
+  for (; browser != last_active_browsers_.rend(); ++browser) {
+    if ((*browser)->profile() == p) {
+      return *browser;
+    }
+  }
+
+  return NULL;
+}
+
+// static
 Browser* BrowserList::FindBrowserWithType(Profile* p, Browser::Type t) {
   Browser* last_active = GetLastActive();
   if (last_active && last_active->profile() == p && last_active->type() == t)

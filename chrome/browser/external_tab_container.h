@@ -88,6 +88,11 @@ class ExternalTabContainer : public TabContentsDelegate,
     return true;
   };
 
+  // Creates an ExtensionFunctionDispatcher that has no browser
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+      RenderViewHost* render_view_host,
+      const std::string& extension_id);
+
   virtual bool TakeFocus(bool reverse);
 
   // Notification service callback.

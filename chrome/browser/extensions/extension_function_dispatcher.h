@@ -10,9 +10,11 @@
 
 #include "base/values.h"
 
+class Browser;
 class ExtensionFunction;
 class Profile;
 class RenderViewHost;
+class RenderViewHostDelegate;
 
 // ExtensionFunctionDispatcher receives requests to execute functions from
 // Chromium extensions running in a RenderViewHost and dispatches them to the
@@ -23,6 +25,7 @@ class ExtensionFunctionDispatcher {
   static void GetAllFunctionNames(std::vector<std::string>* names);
 
   ExtensionFunctionDispatcher(RenderViewHost* render_view_host,
+                              Browser* browser,
                               const std::string& extension_id);
 
   // Handle a request to execute an extension function.
@@ -31,6 +34,8 @@ class ExtensionFunctionDispatcher {
 
   // Send a response to a function.
   void SendResponse(ExtensionFunction* api);
+
+  Browser* browser() { return browser_; }
 
   // Handle a malformed message.  Possibly the result of an attack, so kill
   // the renderer.
@@ -44,6 +49,8 @@ class ExtensionFunctionDispatcher {
 
  private:
   RenderViewHost* render_view_host_;
+
+  Browser* browser_;
 
   std::string extension_id_;
 };

@@ -13,6 +13,7 @@
 #include <math.h>
 
 #include "base/string_util.h"
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -391,6 +392,12 @@ bool BlockedPopupContainer::IsPopup(TabContents* source) {
 TabContents* BlockedPopupContainer::GetConstrainingContents(
     TabContents* source) {
   return owner_;
+}
+
+ExtensionFunctionDispatcher* BlockedPopupContainer::
+    CreateExtensionFunctionDispatcher(RenderViewHost* render_view_host,
+                                      const std::string& extension_id) {
+  return new ExtensionFunctionDispatcher(render_view_host, NULL, extension_id);
 }
 
 // Overridden from Animation:

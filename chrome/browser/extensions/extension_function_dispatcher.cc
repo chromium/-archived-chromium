@@ -52,6 +52,7 @@ FactoryRegistry::FactoryRegistry() {
 
   // Tabs
   factories_["GetWindows"] = &NewExtensionFunction<GetWindowsFunction>;
+  factories_["CreateWindow"] = &NewExtensionFunction<CreateWindowFunction>;
   factories_["GetTabsForWindow"] =
       &NewExtensionFunction<GetTabsForWindowFunction>;
   factories_["GetTab"] = &NewExtensionFunction<GetTabFunction>;
@@ -97,8 +98,10 @@ void ExtensionFunctionDispatcher::GetAllFunctionNames(
 
 ExtensionFunctionDispatcher::ExtensionFunctionDispatcher(
     RenderViewHost* render_view_host,
+    Browser* browser,
     const std::string& extension_id)
   : render_view_host_(render_view_host),
+    browser_(browser),
     extension_id_(extension_id) {
 }
 

@@ -50,6 +50,10 @@ class BrowserList {
   // in the list.  If no Browsers exist, returns NULL.
   static Browser* GetLastActive();
 
+  // Identical in behavior to GetLastActive(), except that the most recently
+  // open browser owned by |profile| is returned. If none exist, returns NULL.
+  static Browser* GetLastActiveWithProfile(Profile *profile);
+
   // Find an existing browser window with the provided type. If the last active
   // has the right type, it is returned. Otherwise, the next available browser
   // is returned. Returns NULL if no such browser currently exists.

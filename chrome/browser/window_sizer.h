@@ -10,6 +10,8 @@
 #include "base/basictypes.h"
 #include "base/gfx/rect.h"
 
+class Browser;
+
 ///////////////////////////////////////////////////////////////////////////////
 // WindowSizer
 //
@@ -91,9 +93,13 @@ class WindowSizer {
   };
 
   // Determines the size, position and maximized state for the browser window.
-  // See documentation for DetermineWindowBounds below.
+  // See documentation for DetermineWindowBounds below. Normally,
+  // |window_bounds| is calculated by calling GetLastActiveWindowState(). To
+  // explicitly specify a particular window to base the bounds on, pass in a
+  // non-NULL value for |browser|.
   static void GetBrowserWindowBounds(const std::wstring& app_name,
                                      const gfx::Rect& specified_bounds,
+                                     Browser* browser,
                                      gfx::Rect* window_bounds,
                                      bool* maximized);
 

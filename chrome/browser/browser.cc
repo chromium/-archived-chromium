@@ -369,7 +369,7 @@ gfx::Rect Browser::GetSavedWindowBounds() const {
 
   gfx::Rect restored_bounds = override_bounds_;
   bool maximized;
-  WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds,
+  WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds, NULL,
                                       &restored_bounds, &maximized);
   return restored_bounds;
 }
@@ -388,7 +388,7 @@ bool Browser::GetSavedMaximizedState() const {
   // An explicit maximized state was not set. Query the window sizer.
   gfx::Rect restored_bounds;
   bool maximized = false;
-  WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds,
+  WindowSizer::GetBrowserWindowBounds(app_name_, restored_bounds, NULL,
                                       &restored_bounds, &maximized);
   return maximized;
 }
@@ -1978,6 +1978,12 @@ void Browser::SetFocusToLocationBar() {
 
 void Browser::RenderWidgetShowing() {
   window_->DisableInactiveFrame();
+}
+
+ExtensionFunctionDispatcher* Browser::CreateExtensionFunctionDispatcher(
+    RenderViewHost* render_view_host,
+    const std::string& extension_id) {
+  return new ExtensionFunctionDispatcher(render_view_host, this, extension_id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

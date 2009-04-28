@@ -39,6 +39,12 @@ class MockExtensionView : public ExtensionView {
     ui_test_utils::RunMessageLoop();
   }
 
+  virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
+      RenderViewHost* render_view_host) {
+    NOTREACHED();
+    return NULL;
+  }
+
   bool got_message() { return got_message_; }
  private:
   virtual void RunJavaScriptMessage(

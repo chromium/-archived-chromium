@@ -8,7 +8,15 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/extensions/extension_function_dispatcher.h"
+#include "chrome/browser/renderer_host/render_view_host_delegate.h"
 #include "chrome/browser/tab_contents/navigation_entry.h"
+
+// TODO(port): Port these files.
+#if defined(OS_WIN)
+#include "chrome/browser/window_sizer.h"
+#else
+#include "chrome/common/temp_scaffolding_stubs.h"
+#endif
 
 // Forward declare static helper functions defined below.
 static DictionaryValue* CreateWindowValue(Browser* browser);
@@ -72,6 +80,72 @@ bool GetWindowsFunction::RunImpl() {
   return true;
 }
 
+bool CreateWindowFunction::RunImpl() {
+  scoped_ptr<GURL> url(new GURL());
+
+  // Look for optional url.
+  if (args_->IsType(Value::TYPE_DICTIONARY)) {
+    const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+    std::string url_input;
+    if (args->GetString(L"url", &url_input)) {
+      url.reset(new GURL(url_input));
+      if (!url->is_valid()) {
+        // TODO(rafaelw): need error message/callback here
+        return false;
+      }
+    }
+  }
+
+  // Try to get the browser associated with view that this call came from, so
+  // its position can be set relative to its browser window.
+  Browser* browser = dispatcher_->browser();
+  if (browser == NULL)
+    browser = BrowserList::GetLastActiveWithProfile(dispatcher_->profile());
+
+  // Try to position the new browser relative its originating browser window.
+  gfx::Rect empty_bounds;
+  gfx::Rect bounds;
+  bool maximized;
+  // The call offsets the bounds by kWindowTilePixels (defined in WindowSizer to
+  // be 10).
+  WindowSizer::GetBrowserWindowBounds(std::wstring(), empty_bounds, browser,
+      &bounds, &maximized);
+
+  // Any part of the bounds can optionally be set by the caller.
+  if (args_->IsType(Value::TYPE_DICTIONARY)) {
+    const DictionaryValue *args = static_cast<const DictionaryValue*>(args_);
+    int bounds_val;
+    if (args->GetInteger(L"left", &bounds_val))
+      bounds.set_x(bounds_val);
+
+    if (args->GetInteger(L"top", &bounds_val))
+      bounds.set_y(bounds_val);
+
+    if (args->GetInteger(L"width", &bounds_val))
+      bounds.set_width(bounds_val);
+
+    if (args->GetInteger(L"height", &bounds_val))
+      bounds.set_height(bounds_val);
+  }
+
+  Browser *new_window = Browser::Create(dispatcher_->profile());
+  if (url->is_valid()) {
+    new_window->AddTabWithURL(*(url.get()),
+                              GURL(), PageTransition::LINK,
+                              true, -1, NULL);
+  } else {
+    new_window->NewTab();
+  }
+  new_window->window()->SetBounds(bounds);
+  new_window->window()->Show();
+
+  // TODO(rafaelw): support |focused|, |zIndex|
+
+  result_.reset(CreateWindowValue(new_window));
+
+  return true;
+}
+
 bool GetTabsForWindowFunction::RunImpl() {
   if (!args_->IsType(Value::TYPE_NULL))
     return false;
@@ -123,7 +197,7 @@ bool CreateTabFunction::RunImpl() {
   }
 
   TabContents* contents = browser->AddTabWithURL(GURL(url), GURL(),
-      PageTransition::TYPED, selected, index, NULL);
+      PageTransition::LINK, selected, index, NULL);
   index = tab_strip->GetIndexOfTabContents(contents);
 
   // Return data about the newly created tab.
@@ -186,7 +260,7 @@ bool UpdateTabFunction::RunImpl() {
   if (args->GetString(L"url", &url)) {
     GURL new_gurl(url);
     if (new_gurl.is_valid()) {
-      controller.LoadURL(new_gurl, GURL(), PageTransition::TYPED);
+      controller.LoadURL(new_gurl, GURL(), PageTransition::LINK);
     } else {
       // TODO(rafaelw): return some reasonable error?
     }

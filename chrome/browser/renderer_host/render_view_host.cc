@@ -890,8 +890,8 @@ void RenderViewHost::OnMsgNavigate(const IPC::Message& msg) {
   if (PageTransition::IsMainFrame(validated_params.transition)) {
     ExtensionFunctionDispatcher* new_efd = NULL;
     if (validated_params.url.SchemeIs(chrome::kExtensionScheme)) {
-      new_efd = new ExtensionFunctionDispatcher(this,
-                                                validated_params.url.host());
+      new_efd = delegate()->CreateExtensionFunctionDispatcher(this,
+          validated_params.url.host());
     }
     extension_function_dispatcher_.reset(new_efd);
   }
@@ -1352,6 +1352,7 @@ void RenderViewHost::OnExtensionRequest(const std::string& name,
                                         int callback_id) {
   // TODO(aa): Here is where we can check that this renderer was supposed to be
   // able to call extension APIs.
+  DCHECK(extension_function_dispatcher_.get());
   extension_function_dispatcher_->HandleRequest(name, args, callback_id);
 }
 

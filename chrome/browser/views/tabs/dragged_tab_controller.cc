@@ -8,6 +8,7 @@
 #include <set>
 
 #include "chrome/browser/browser_window.h"
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/views/frame/browser_view.h"
@@ -394,6 +395,12 @@ void DraggedTabController::URLStarredChanged(TabContents* source,
 void DraggedTabController::UpdateTargetURL(TabContents* source,
                                            const GURL& url) {
   // Ignored.
+}
+
+ExtensionFunctionDispatcher* DraggedTabController::
+    CreateExtensionFunctionDispatcher(RenderViewHost* render_view_host,
+                                      const std::string& extension_id) {
+  return new ExtensionFunctionDispatcher(render_view_host, NULL, extension_id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

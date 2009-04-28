@@ -19,7 +19,10 @@
 #include "webkit/glue/webpreferences.h"
 #include "webkit/glue/window_open_disposition.h"
 
+#include "chrome/browser/extensions/extension_function_dispatcher.h"
+
 class AutofillForm;
+class ExtensionFunctionDispatcher;
 class NavigationEntry;
 class Profile;
 class RenderProcessHost;
@@ -146,6 +149,14 @@ class RenderViewHostDelegate {
 
   // Retrieves the profile to be used.
   virtual Profile* GetProfile() const = 0;
+
+  // Create a new browser window to be sized, shown and contents managed
+  // by the caller.
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+      RenderViewHost* render_view_host,
+      const std::string& extension_id) {
+    return NULL;
+  }
 
   // Return this object cast to a WebContents, if it is one.
   virtual WebContents* GetAsWebContents() { return NULL; }

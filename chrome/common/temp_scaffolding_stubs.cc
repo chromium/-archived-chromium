@@ -275,6 +275,7 @@ void DragDownload(const DownloadItem* download, SkBitmap* icon) {
 
 void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
                                          const gfx::Rect& specified_bounds,
+                                         Browser* browser,
                                          gfx::Rect* window_bounds,
                                          bool* maximized) {
   // If we're given a bounds, use it (for things like tearing off tabs during

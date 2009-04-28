@@ -20,6 +20,9 @@ class ExtensionTabUtil {
 class GetWindowsFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };
+class CreateWindowFunction : public SyncExtensionFunction {
+  virtual bool RunImpl();
+};
 class GetTabsForWindowFunction : public SyncExtensionFunction {
   virtual bool RunImpl();
 };

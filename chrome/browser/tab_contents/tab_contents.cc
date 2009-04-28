@@ -1598,6 +1598,13 @@ WebContents* TabContents::GetAsWebContents() {
   return AsWC(this);
 }
 
+ExtensionFunctionDispatcher* TabContents::CreateExtensionFunctionDispatcher(
+    RenderViewHost* render_view_host,
+    const std::string& extension_id) {
+  return delegate()->CreateExtensionFunctionDispatcher(render_view_host,
+      extension_id);
+}
+
 void TabContents::RenderViewCreated(RenderViewHost* render_view_host) {
   NavigationEntry* entry = controller_.GetActiveEntry();
   if (!entry)

@@ -185,6 +185,11 @@ class BlockedPopupContainer : public ConstrainedWindow,
   // Ignored; BlockedPopupContainer doesn't display a URL bar.
   virtual void UpdateTargetURL(TabContents* source, const GURL& url) { }
 
+  // Creates an ExtensionFunctionDispatcher that has no browser
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+      RenderViewHost* render_view_host,
+      const std::string& extension_id);
+
   // Overridden from Animation:
 
   // Changes the visibility percentage of the BlockedPopupContainer. This is

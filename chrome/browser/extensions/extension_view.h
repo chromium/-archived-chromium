@@ -18,6 +18,7 @@
 
 class Browser;
 class Extension;
+class ExtensionFunctionDispatcher;
 class RenderWidgetHost;
 class RenderWidgetHostView;
 class WebContents;
@@ -47,6 +48,9 @@ class ExtensionView : public HWNDHtmlView,
   // RenderViewHostDelegate
   // TODO(mpcomplete): GetProfile is unused.
   virtual Profile* GetProfile() const { return NULL; }
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+      RenderViewHost *render_view_host,
+      const std::string& extension_id);
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void DidContentsPreferredWidthChange(const int pref_width);
   virtual void DidStopLoading(RenderViewHost* render_view_host,

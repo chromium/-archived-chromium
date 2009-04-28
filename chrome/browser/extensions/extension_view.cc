@@ -39,6 +39,13 @@ ExtensionView::ExtensionView(Extension* extension,
       pending_preferred_width_(0) {
 }
 
+ExtensionFunctionDispatcher* ExtensionView::
+    CreateExtensionFunctionDispatcher(RenderViewHost *render_view_host,
+                                      const std::string& extension_id) {
+  return new ExtensionFunctionDispatcher(render_view_host, browser_,
+      extension_id);
+}
+
 void ExtensionView::ShowIfCompletelyLoaded() {
   // We wait to show the ExtensionView until it has loaded and our parent has
   // given us a background. These can happen in different orders.

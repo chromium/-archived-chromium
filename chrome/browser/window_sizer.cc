@@ -88,8 +88,9 @@ class DefaultMonitorInfoProvider : public WindowSizer::MonitorInfoProvider {
 // and persistent state from the browser window and the user's profile.
 class DefaultStateProvider : public WindowSizer::StateProvider {
  public:
-  explicit DefaultStateProvider(const std::wstring& app_name)
-      : app_name_(app_name) {
+  explicit DefaultStateProvider(const std::wstring& app_name, Browser* browser)
+      : app_name_(app_name),
+        browser_(browser) {
   }
 
   // Overridden from WindowSizer::StateProvider:
@@ -125,16 +126,28 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
     if (!app_name_.empty())
       return false;
 
-    BrowserList::const_reverse_iterator it = BrowserList::begin_last_active();
-    BrowserList::const_reverse_iterator end = BrowserList::end_last_active();
-    for (; it != end; ++it) {
-      Browser* last_active = *it;
-      if (last_active && last_active->type() == Browser::TYPE_NORMAL) {
-        BrowserWindow* window = last_active->window();
-        DCHECK(window);
-        *bounds = window->GetNormalBounds();
-        return true;
+    // If a reference browser is set, use its window. Otherwise find last
+    // active.
+    BrowserWindow* window = NULL;
+    if (browser_) {
+      window = browser_->window();
+      DCHECK(window);
+    } else {
+      BrowserList::const_reverse_iterator it = BrowserList::begin_last_active();
+      BrowserList::const_reverse_iterator end = BrowserList::end_last_active();
+      for (; (it != end); ++it) {
+        Browser* last_active = *it;
+        if (last_active && last_active->type() == Browser::TYPE_NORMAL) {
+          window = last_active->window();
+          DCHECK(window);
+          break;
+        }
       }
+    }
+
+    if (window) {
+      *bounds = window->GetNormalBounds();
+      return true;
     }
 
     return false;
@@ -143,6 +156,8 @@ class DefaultStateProvider : public WindowSizer::StateProvider {
  private:
   std::wstring app_name_;
 
+  // If set, is used as the reference browser for GetLastActiveWindowState.
+  Browser* browser_;
   DISALLOW_EVIL_CONSTRUCTORS(DefaultStateProvider);
 };
 
@@ -165,9 +180,10 @@ WindowSizer::~WindowSizer() {
 // static
 void WindowSizer::GetBrowserWindowBounds(const std::wstring& app_name,
                                          const gfx::Rect& specified_bounds,
+                                         Browser* browser,
                                          gfx::Rect* window_bounds,
                                          bool* maximized) {
-  const WindowSizer sizer(new DefaultStateProvider(app_name),
+  const WindowSizer sizer(new DefaultStateProvider(app_name, browser),
                           new DefaultMonitorInfoProvider);
   sizer.DetermineWindowBounds(specified_bounds, window_bounds, maximized);
 }
@@ -201,7 +217,7 @@ gfx::Point WindowSizer::GetDefaultPopupOrigin(const gfx::Size& size) {
 // WindowSizer, private:
 
 WindowSizer::WindowSizer(const std::wstring& app_name) {
-  Init(new DefaultStateProvider(app_name),
+  Init(new DefaultStateProvider(app_name, NULL),
        new DefaultMonitorInfoProvider);
 }
 

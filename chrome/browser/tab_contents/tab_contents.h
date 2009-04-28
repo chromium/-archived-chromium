@@ -726,6 +726,9 @@ class TabContents : public PageNavigator,
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual RenderViewHostDelegate::Save* GetSaveDelegate() const;
   virtual Profile* GetProfile() const;
+  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
+    RenderViewHost* render_view_host,
+    const std::string& extension_id);
   virtual WebContents* GetAsWebContents();
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void RenderViewReady(RenderViewHost* render_view_host);
