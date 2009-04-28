@@ -62,7 +62,6 @@
       'dependencies': [
         'googleurl',
         '../../testing/gtest.gyp:gtest',
-        '../../testing/gtest.gyp:main',
         '../../third_party/icu38/icu38.gyp:icuuc',
       ],
       'sources': [

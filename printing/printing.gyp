@@ -46,7 +46,6 @@
       'dependencies': [
         'printing',
         '../testing/gtest.gyp:gtest',
-        '../testing/gtest.gyp:main',
       ],
       'sources': [
         'units_unittest.cc',
