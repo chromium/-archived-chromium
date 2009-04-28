@@ -2562,7 +2562,6 @@ BUG11011 WIN : LayoutTests/fast/workers/worker-gc.html = TIMEOUT PASS
 BUG11011 WIN : LayoutTests/fast/workers/worker-terminate.html = TIMEOUT FAIL PASS
 
 // New failures from WebKit Merge 42805:42932
-LayoutTests/fast/dom/Window/dispatchEvent.html = FAIL
 BUG11121 : LayoutTests/fast/repaint/layer-outline-horizontal.html = FAIL
 BUG11121 : LayoutTests/fast/repaint/layer-outline.html = FAIL
 
