@@ -133,6 +133,8 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
 
   virtual void AnimationEnded(const Animation* animation) {
     tabstrip_->FinishAnimation(this, layout_on_completion_);
+    // TODO(jhawkins): Remove this once each tab is its own widget.
+    SimulateMouseMotion();
     // This object is destroyed now, so we can't do anything else after this.
   }
 
@@ -183,6 +185,23 @@ class TabStripGtk::TabAnimation : public AnimationDelegate {
   double end_unselected_width_;
 
  private:
+  // When the animation completes, we send the Container a message to simulate
+  // a mouse moved event at the current mouse position. This tickles the Tab
+  // the mouse is currently over to show the "hot" state of the close button, or
+  // resets the hover index if it's now stale.
+  void SimulateMouseMotion() {
+    // Get default display and screen.
+    GdkDisplay* display = gdk_display_get_default();
+    GdkScreen* screen = gdk_display_get_default_screen(display);
+
+    // Get cursor position.
+    int x, y;
+    gdk_display_get_pointer(display, NULL, &x, &y, NULL);
+
+    // Reset cursor position.
+    gdk_display_warp_pointer(display, screen, x, y);
+  }
+
   // True if a complete re-layout is required upon completion of the animation.
   // Subclasses set this if they don't perform a complete layout
   // themselves and canceling the animation may leave the strip in an
@@ -294,33 +313,10 @@ class RemoveTabAnimation : public TabStripGtk::TabAnimation {
 
   virtual void AnimationEnded(const Animation* animation) {
     tabstrip_->RemoveTabAt(index_);
-    HighlightCloseButton();
     TabStripGtk::TabAnimation::AnimationEnded(animation);
   }
 
  private:
-  // When the animation completes, we send the Container a message to simulate
-  // a mouse moved event at the current mouse position. This tickles the Tab
-  // the mouse is currently over to show the "hot" state of the close button.
-  void HighlightCloseButton() {
-    if (tabstrip_->available_width_for_tabs_ == -1) {
-      // This function is not required (and indeed may crash!) for removes
-      // spawned by non-mouse closes and drag-detaches.
-      return;
-    }
-
-    // Get default display and screen.
-    GdkDisplay* display = gdk_display_get_default();
-    GdkScreen* screen = gdk_display_get_default_screen(display);
-
-    // Get cursor position.
-    int x, y;
-    gdk_display_get_pointer(display, NULL, &x, &y, NULL);
-
-    // Reset cusor position.
-    gdk_display_warp_pointer(display, screen, x, y);
-  }
-
   int index_;
 
   DISALLOW_COPY_AND_ASSIGN(RemoveTabAnimation);
