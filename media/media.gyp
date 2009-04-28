@@ -195,26 +195,30 @@
   'conditions': [
     ['OS=="win"', {
       'targets': [
-	{
-	  'target_name': 'media_player',
-	  'type': 'executable',
-	  'dependencies': [
-	    'media',
-	    '../base/base.gyp:base',
-	    '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
-	  ],
-	  'include_dirs': [
-	    '../chrome/third_party/wtl/include',
-	  ],
-	  'dependencies': [
-	    'media',
-	    '../base/base.gyp:base',
-	    '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
-	  ],
-	  'sources': [
-	    'player/player_wtl.rc',
-	  ],
-	},
+        {
+          'target_name': 'media_player',
+          'type': 'executable',
+          'dependencies': [
+            'media',
+            '../base/base.gyp:base',
+            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+          ],
+          'include_dirs': [
+            '../chrome/third_party/wtl/include',
+          ],
+          'dependencies': [
+            'media',
+            '../base/base.gyp:base',
+            '../third_party/ffmpeg/ffmpeg.gyp:ffmpeg',
+          ],
+          'sources': [
+            'player/player.cc',
+            'player/player_wtl.rc',
+            'player/resource.h',
+            'player/stdafx.h',
+            'player/stdafx.cc',
+          ],
+        },
       ],
     }],
   ],
