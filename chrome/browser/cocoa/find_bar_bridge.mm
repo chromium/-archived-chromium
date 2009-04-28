@@ -44,7 +44,7 @@ bool FindBarBridge::IsFindBarVisible() {
 
 void FindBarBridge::MoveWindowIfNecessary(const gfx::Rect& selection_rect,
                                           bool no_redraw) {
-  NOTIMPLEMENTED();
+  // http://crbug.com/11084
 }
 
 void FindBarBridge::StopAnimation() {
