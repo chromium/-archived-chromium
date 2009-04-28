@@ -172,9 +172,13 @@ bool KillProcessById(ProcessId process_id, int exit_code, bool wait);
 #endif
 
 // Get the termination status (exit code) of the process and return true if the
-// status indicates the process crashed.  It is an error to call this if the
-// process hasn't terminated yet.
-bool DidProcessCrash(ProcessHandle handle);
+// status indicates the process crashed. |child_exited| is set to true iff the
+// child process has terminated. (|child_exited| may be NULL.)
+//
+// On Windows, it is an error to call this if the process hasn't terminated
+// yet. On POSIX, |child_exited| is set correctly since we detect terminate in
+// a different manner on POSIX.
+bool DidProcessCrash(bool* child_exited, ProcessHandle handle);
 
 // Waits for process to exit. In POSIX systems, if the process hasn't been
 // signaled then puts the exit code in |exit_code|; otherwise it's considered

@@ -56,6 +56,7 @@
 // TODO(port): get rid of this include. It's used just to provide declarations
 // and stub definitions for classes we encouter during the porting effort.
 #include "chrome/common/temp_scaffolding_stubs.h"
+#include <signal.h>
 #endif
 
 // TODO(port): several win-only methods have been pulled out of this, but
@@ -180,6 +181,12 @@ void RunUIMessageLoop(BrowserProcess* browser_process) {
 #endif
 }
 
+#if defined(OS_POSIX)
+// See comment below, where sigaction is called.
+void SIGCHLDHandler(int signal) {
+}
+#endif
+
 }  // namespace
 
 // Main routine for running as the Browser process.
@@ -199,6 +206,14 @@ int BrowserMain(const MainFunctionParams& parameters) {
   // This construction MUST be done before main_message_loop, so that it is
   // destroyed after the main_message_loop.
   tracked_objects::AutoTracking tracking_objects;
+#endif
+
+#if defined(OS_POSIX)
+  // We need to accept SIGCHLD, even though our handler is a no-op because
+  // otherwise we cannot wait on children. (According to POSIX 2001.)
+  struct sigaction action = {0};
+  action.sa_handler = SIGCHLDHandler;
+  CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
 #endif
 
   // Do platform-specific things (such as finishing initializing Cocoa)

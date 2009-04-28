@@ -698,7 +698,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\process_watcher.cc"
+			RelativePath=".\process_watcher_win.cc"
 			>
 		</File>
 		<File

@@ -56,23 +56,25 @@ ProcessId GetProcId(ProcessHandle process) {
 // entry structure.  Ignores specified exit_code; posix can't force that.
 // Returns true if this is successful, false otherwise.
 bool KillProcess(ProcessHandle process_id, int exit_code, bool wait) {
-  bool result = false;
+  bool result = kill(process_id, SIGTERM) == 0;
 
-  int status = kill(process_id, SIGTERM);
-  if (!status && wait) {
+  if (result && wait) {
     int tries = 60;
     // The process may not end immediately due to pending I/O
     while (tries-- > 0) {
-      int pid = waitpid(process_id, &status, WNOHANG);
-      if (pid == process_id) {
-        result = true;
+      int pid = waitpid(process_id, NULL, WNOHANG);
+      if (pid == process_id)
         break;
-      }
+
       sleep(1);
     }
+
+    result = kill(process_id, SIGKILL) == 0;
   }
+
   if (!result)
     DLOG(ERROR) << "Unable to terminate process.";
+
   return result;
 }
 
@@ -141,12 +143,23 @@ void RaiseProcessToHighPriority() {
   // setpriority() or sched_getscheduler, but these all require extra rights.
 }
 
-bool DidProcessCrash(ProcessHandle handle) {
+bool DidProcessCrash(bool* child_exited, ProcessHandle handle) {
   int status;
-  if (waitpid(handle, &status, WNOHANG)) {
-    // I feel like dancing!
+  const int result = waitpid(handle, &status, WNOHANG);
+  if (result == -1) {
+    LOG(ERROR) << "waitpid failed pid:" << handle << " errno:" << errno;
+    if (child_exited)
+      *child_exited = false;
+    return false;
+  } else if (result == 0) {
+    // the child hasn't exited yet.
+    if (child_exited)
+      *child_exited = false;
     return false;
   }
+
+  if (child_exited)
+    *child_exited = true;
 
   if (WIFSIGNALED(status)) {
     switch(WTERMSIG(status)) {

@@ -18,8 +18,9 @@ void Process::Terminate(int result_code) {
   // result_code isn't supportable.
   if (!process_)
     return;
-  // Wait so we clean up the zombie
-  KillProcess(process_, result_code, true);
+  // We don't wait here. It's the responsibility of other code to reap the
+  // child.
+  KillProcess(process_, result_code, false);
 }
 
 bool Process::IsProcessBackgrounded() const {

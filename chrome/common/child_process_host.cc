@@ -117,7 +117,7 @@ void ChildProcessHost::OnWaitableEventSignaled(base::WaitableEvent *event) {
   DCHECK(handle());
   DCHECK_EQ(object, handle());
 
-  bool did_crash = base::DidProcessCrash(object);
+  bool did_crash = base::DidProcessCrash(NULL, object);
   if (did_crash) {
     // Report that this child process crashed.
     Notify(NotificationType::CHILD_PROCESS_CRASHED);

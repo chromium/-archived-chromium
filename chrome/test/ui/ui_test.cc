@@ -292,7 +292,18 @@ void UITest::LaunchBrowser(const CommandLine& arguments, bool clear_profile) {
   if (!homepage_.empty())
     command_line.AppendSwitchWithValue(switches::kHomePage,
                                        homepage_);
-  PathService::Get(chrome::DIR_USER_DATA, &user_data_dir_);
+#if defined(OS_POSIX)
+  const char* alternative_userdir = getenv("CHROME_UI_TESTS_USER_DATA_DIR");
+#else
+  const FilePath::StringType::value_type* const alternative_userdir = NULL;
+#endif
+
+  if (alternative_userdir) {
+    user_data_dir_ = FilePath(alternative_userdir);
+  } else {
+    PathService::Get(chrome::DIR_USER_DATA, &user_data_dir_);
+  }
+
   if (!user_data_dir_.empty())
     command_line.AppendSwitchWithValue(switches::kUserDataDir,
                                        user_data_dir_.ToWStringHack());
