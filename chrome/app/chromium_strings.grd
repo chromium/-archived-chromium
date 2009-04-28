@@ -151,9 +151,6 @@ be available for now. -->
       <message name="IDS_BROWSER_WINDOW_TITLE_FORMAT_NO_LOGO" desc="The format for titles displayed when the window has no distributor logo displayed">
         <ph name="PAGE_TITLE">$1<ex>Google</ex></ph>
       </message>
-      <message name="IDS_BROWSER_WINDOW_MAC_TAB_UNTITLED" desc="Tabs and windows on MacOS with no title use this string.">
-        Untitled
-      </message>
       <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on the about pages">
         The Chromium Authors
       </message>

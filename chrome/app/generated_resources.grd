@@ -3782,6 +3782,9 @@ each locale. -->
       <message name="IDS_DEFAULT_FILENAME" desc="Default name for saved files when we have no idea what they could be.">
         unknown
       </message>
+      <message name="IDS_BROWSER_WINDOW_MAC_TAB_UNTITLED" desc="Tabs and windows on MacOS with no title use this string.">
+        Untitled
+      </message>
 
     </messages>
   </release>
