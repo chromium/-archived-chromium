@@ -215,9 +215,8 @@ void ChromeMiniInstaller::UnInstall() {
   base::LaunchApp(uninstall_args, false, false, NULL);
   printf("Launched setup.exe -uninstall....\n");
   ASSERT_TRUE(CloseUninstallWindow());
-  WaitUntilProcessStopsRunning(
-      mini_installer_constants::kChromeSetupExecutable);
   printf("\n\nUninstall Checks:\n\n");
+  PlatformThread::Sleep(400);
   ASSERT_FALSE(CheckRegistryKey(dist->GetVersionKey()));
   DeleteAppFolder();
   FindChromeShortcut();
