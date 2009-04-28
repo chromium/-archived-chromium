@@ -7,7 +7,7 @@
 <translation id="IDS_UI_FONT_FAMILY">default</translation>
 <translation id="IDS_UI_FONT_SIZE_SCALER_XP">140</translation>
 <translation id="IDS_UI_FONT_SIZE_SCALER">125</translation>
-<translation id="IDS_ACCEPT_LANGUAGES">mr-IN,mr,en-US,en</translation>
+<translation id="IDS_ACCEPT_LANGUAGES">mr-IN,mr,hi-IN,hi,en-US,en</translation>
 <translation id="IDS_DEFAULT_ENCODING">ISO-8859-1</translation>
 <translation id="IDS_STANDARD_FONT_IS_SERIF">true</translation>
 <translation id="IDS_FIXED_FONT_FAMILY">Courier New</translation>
