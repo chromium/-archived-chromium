@@ -149,9 +149,17 @@ class FFmpegDemuxer : public Demuxer {
   // Latest timestamp read on the demuxer thread.
   base::TimeDelta current_timestamp_;
 
-  // Vector of streams.
+  // Two vector of streams:
+  //   - |streams_| is indexed for the Demuxer interface GetStream(), which only
+  //     contains supported streams and no NULL entries.
+  //   - |packet_streams_| is indexed to mirror AVFormatContext when dealing
+  //     with AVPackets returned from av_read_frame() and contain NULL entries
+  //     representing unsupported streams where we throw away the data.
+  //
+  // Ownership is handled via reference counting.
   typedef std::vector< scoped_refptr<FFmpegDemuxerStream> > StreamVector;
   StreamVector streams_;
+  StreamVector packet_streams_;
 
   // Thread handle.
   base::Thread thread_;

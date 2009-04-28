@@ -278,7 +278,10 @@ void FFmpegDemuxer::InititalizeTask(DataSource* data_source) {
           = new FFmpegDemuxerStream(this, stream);
       DCHECK(demuxer_stream);
       streams_.push_back(demuxer_stream);
+      packet_streams_.push_back(demuxer_stream);
       max_duration = std::max(max_duration, demuxer_stream->duration());
+    } else {
+      packet_streams_.push_back(NULL);
     }
   }
   if (streams_.empty()) {
@@ -332,9 +335,13 @@ void FFmpegDemuxer::DemuxTask() {
   // worried about downstream filters (i.e., decoders) executing on this
   // thread.
   DCHECK(packet->stream_index >= 0);
-  DCHECK(packet->stream_index < static_cast<int>(streams_.size()));
-  FFmpegDemuxerStream* demuxer_stream = streams_[packet->stream_index];
-  current_timestamp_ = demuxer_stream->EnqueuePacket(packet.release());
+  DCHECK(packet->stream_index < static_cast<int>(packet_streams_.size()));
+  FFmpegDemuxerStream* demuxer_stream = packet_streams_[packet->stream_index];
+  if (demuxer_stream) {
+    current_timestamp_ = demuxer_stream->EnqueuePacket(packet.release());
+  } else {
+    av_free_packet(packet.get());
+  }
 
   // Create a loop by posting another task.  This allows seek and message loop
   // quit tasks to get processed.

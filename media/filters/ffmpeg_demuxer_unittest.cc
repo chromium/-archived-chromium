@@ -409,21 +409,30 @@ TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
 // TODO(scherkus): http://crbug.com/10863
 TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // Prepare some test data.
+  const int kPacketData = 0;
+  const int kPacketAudio = 1;
+  const int kPacketVideo = 2;
   const int kAudio = 0;
   const int kVideo = 1;
   const size_t kDataSize = 4;
   uint8 audio_data[kDataSize] = {0, 1, 2, 3};
   uint8 video_data[kDataSize] = {4, 5, 6, 7};
 
-  // Simulate media with a an audio stream and video stream.
+  // Simulate media with a data stream, audio stream and video stream.  Having
+  // the data stream first forces the audio and video streams to get remapped
+  // from indices {1,2} to {0,1} respectively, which covers an important test
+  // case.
   InitializeFFmpegMocks();
-  g_format.nb_streams = 2;
-  g_format.streams[kAudio] = &g_streams[kAudio];
-  g_format.streams[kVideo] = &g_streams[kVideo];
-  g_streams[kAudio].duration = 10;
-  g_streams[kAudio].codec = &g_audio_codec;
-  g_streams[kVideo].duration = 10;
-  g_streams[kVideo].codec = &g_video_codec;
+  g_format.nb_streams = 3;
+  g_format.streams[kPacketData] = &g_streams[0];
+  g_format.streams[kPacketAudio] = &g_streams[1];
+  g_format.streams[kPacketVideo] = &g_streams[2];
+  g_streams[0].duration = 10;
+  g_streams[0].codec = &g_data_codec;
+  g_streams[1].duration = 10;
+  g_streams[1].codec = &g_audio_codec;
+  g_streams[2].duration = 10;
+  g_streams[2].codec = &g_video_codec;
 
   // Create our pipeline.
   MockPipeline pipeline;
@@ -455,8 +464,13 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   ASSERT_TRUE(audio_stream);
   ASSERT_TRUE(video_stream);
 
+  // Prepare data packets, which should all get immediately released.
+  PacketQueue::get()->Enqueue(kPacketData, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketData, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketData, kDataSize, audio_data);
+
   // Prepare our test audio packet.
-  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
 
   // Attempt a read from the audio stream and run the message loop until done.
   scoped_refptr<TestReader> reader(new TestReader());
@@ -470,7 +484,7 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
   // Prepare our test video packet.
-  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
+  PacketQueue::get()->Enqueue(kPacketVideo, kDataSize, video_data);
 
   // Attempt a read from the video stream and run the message loop until done.
   reader->Reset();
@@ -502,8 +516,8 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   // reads should not.
 
   // Prepare our test audio packet.
-  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
-  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
 
   // Audio read #1, should be discontinuous.
   reader = new TestReader();
@@ -528,8 +542,8 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
   EXPECT_EQ(kDataSize, reader->buffer()->GetDataSize());
 
   // Prepare our test video packet.
-  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
-  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
+  PacketQueue::get()->Enqueue(kPacketVideo, kDataSize, video_data);
+  PacketQueue::get()->Enqueue(kPacketVideo, kDataSize, video_data);
 
   // Video read #1, should be discontinuous.
   reader->Reset();
@@ -559,10 +573,10 @@ TEST(FFmpegDemuxerTest, DISABLED_ReadAndSeek) {
 
   // Let's trigger another simple forward seek, but with outstanding packets.
   // The outstanding packets should get freed after the Seek() is issued.
-  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
-  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
-  PacketQueue::get()->Enqueue(kAudio, kDataSize, audio_data);
-  PacketQueue::get()->Enqueue(kVideo, kDataSize, video_data);
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketAudio, kDataSize, audio_data);
+  PacketQueue::get()->Enqueue(kPacketVideo, kDataSize, video_data);
 
   // Attempt a read from video stream, which will force the demuxer to queue
   // the audio packets preceding the video packet.
