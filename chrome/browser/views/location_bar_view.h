@@ -104,8 +104,8 @@ class LocationBarView : public LocationBar,
   virtual SkBitmap GetFavIcon() const;
   virtual std::wstring GetTitle() const;
 
-  // Returns the MSAA role
-  bool GetAccessibleRole(VARIANT* role);
+  // Returns the accessibility role.
+  bool GetAccessibleRole(AccessibilityTypes::Role* role);
 
   AutocompleteEditView* location_entry() {
     return location_entry_.get();

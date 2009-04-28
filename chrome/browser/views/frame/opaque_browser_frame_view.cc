@@ -613,12 +613,11 @@ void OpaqueBrowserFrameView::ViewHierarchyChanged(bool is_add,
   }
 }
 
-bool OpaqueBrowserFrameView::GetAccessibleRole(VARIANT* role) {
+bool OpaqueBrowserFrameView::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
   // We aren't actually the client area of the window, but we act like it as
-  // far as MSAA and the UI tests are concerned.
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_CLIENT;
+  // far as accessibility and the UI tests are concerned.
+  *role = AccessibilityTypes::ROLE_CLIENT;
   return true;
 }
 

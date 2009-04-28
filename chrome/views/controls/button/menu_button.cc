@@ -236,18 +236,17 @@ bool MenuButton::GetAccessibleDefaultAction(std::wstring* action) {
   return true;
 }
 
-bool MenuButton::GetAccessibleRole(VARIANT* role) {
+bool MenuButton::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_BUTTONDROPDOWN;
+  *role = AccessibilityTypes::ROLE_BUTTONDROPDOWN;
   return true;
 }
 
-bool MenuButton::GetAccessibleState(VARIANT* state) {
+bool MenuButton::GetAccessibleState(AccessibilityTypes::State* state) {
   DCHECK(state);
 
-  state->lVal |= STATE_SYSTEM_HASPOPUP;
+  *state = AccessibilityTypes::STATE_HASPOPUP;
   return true;
 }
 

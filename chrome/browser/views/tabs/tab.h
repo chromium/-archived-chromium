@@ -103,7 +103,7 @@ class Tab : public TabRenderer,
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
   virtual bool GetTooltipTextOrigin(int x, int y, CPoint* origin);
   virtual std::string GetClassName() const { return kTabClassName; }
-  virtual bool GetAccessibleRole(VARIANT* role);
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
   virtual bool GetAccessibleName(std::wstring* name);
 
   // views::ContextMenuController overrides:

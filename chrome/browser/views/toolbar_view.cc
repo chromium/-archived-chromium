@@ -748,11 +748,10 @@ bool BrowserToolbarView::GetAccessibleName(std::wstring* name) {
   return false;
 }
 
-bool BrowserToolbarView::GetAccessibleRole(VARIANT* role) {
+bool BrowserToolbarView::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_TOOLBAR;
+  *role = AccessibilityTypes::ROLE_TOOLBAR;
   return true;
 }
 

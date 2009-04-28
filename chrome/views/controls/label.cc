@@ -412,12 +412,10 @@ void Label::SizeToFit(int max_width) {
   SizeToPreferredSize();
 }
 
-#if defined(OS_WIN)
-bool Label::GetAccessibleRole(VARIANT* role) {
+bool Label::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_TEXT;
+  *role = AccessibilityTypes::ROLE_TEXT;
   return true;
 }
 
@@ -426,12 +424,11 @@ bool Label::GetAccessibleName(std::wstring* name) {
   return true;
 }
 
-bool Label::GetAccessibleState(VARIANT* state) {
+bool Label::GetAccessibleState(AccessibilityTypes::State* state) {
   DCHECK(state);
 
-  state->lVal |= STATE_SYSTEM_READONLY;
+  *state = AccessibilityTypes::STATE_READONLY;
   return true;
 }
-#endif  // defined(OS_WIN)
 
 }  // namespace views

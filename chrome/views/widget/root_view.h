@@ -188,18 +188,10 @@ class RootView : public View,
   void OnPaint(GdkEventExpose* event);
 #endif
 
-#if defined(OS_WIN)
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control.
-  bool GetAccessibleRole(VARIANT* role);
-#endif
-
-  // Returns a brief, identifying string, containing a unique, readable name.
-  bool GetAccessibleName(std::wstring* name);
-
-  // Assigns an accessible string name.
-  void SetAccessibleName(const std::wstring& name);
+  // Accessibility accessors/mutators, overridden from View.
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
+  virtual bool GetAccessibleName(std::wstring* name);
+  virtual void SetAccessibleName(const std::wstring& name);
 
  protected:
 

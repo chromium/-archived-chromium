@@ -566,11 +566,10 @@ void LocationBarView::OnMouseEvent(const views::MouseEvent& event, UINT msg) {
   location_entry_->HandleExternalMsg(msg, flags, screen_point.ToPOINT());
 }
 
-bool LocationBarView::GetAccessibleRole(VARIANT* role) {
+bool LocationBarView::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_GROUPING;
+  *role = AccessibilityTypes::ROLE_GROUPING;
   return true;
 }
 

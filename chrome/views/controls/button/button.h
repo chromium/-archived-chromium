@@ -35,6 +35,7 @@ class Button : public View {
   virtual bool GetTooltipText(int x, int y, std::wstring* tooltip);
   virtual bool GetAccessibleKeyboardShortcut(std::wstring* shortcut);
   virtual bool GetAccessibleName(std::wstring* name);
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
   virtual void SetAccessibleKeyboardShortcut(const std::wstring& shortcut);
   virtual void SetAccessibleName(const std::wstring& name);
 

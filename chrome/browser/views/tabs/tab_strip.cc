@@ -711,11 +711,10 @@ int TabStrip::OnPerformDrop(const DropTargetEvent& event) {
   return GetDropEffect(event);
 }
 
-bool TabStrip::GetAccessibleRole(VARIANT* role) {
+bool TabStrip::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_GROUPING;
+  *role = AccessibilityTypes::ROLE_GROUPING;
   return true;
 }
 

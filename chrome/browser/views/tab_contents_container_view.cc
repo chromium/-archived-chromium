@@ -138,11 +138,11 @@ void TabContentsContainerView::RequestFocus() {
   View::RequestFocus();
 }
 
-bool TabContentsContainerView::GetAccessibleRole(VARIANT* role) {
+bool TabContentsContainerView::GetAccessibleRole(
+    AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_GROUPING;
+  *role = AccessibilityTypes::ROLE_GROUPING;
   return true;
 }
 

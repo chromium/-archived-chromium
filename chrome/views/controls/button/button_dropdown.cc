@@ -175,18 +175,17 @@ bool ButtonDropDown::GetAccessibleDefaultAction(std::wstring* action) {
   return true;
 }
 
-bool ButtonDropDown::GetAccessibleRole(VARIANT* role) {
+bool ButtonDropDown::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_BUTTONDROPDOWN;
+  *role = AccessibilityTypes::ROLE_BUTTONDROPDOWN;
   return true;
 }
 
-bool ButtonDropDown::GetAccessibleState(VARIANT* state) {
+bool ButtonDropDown::GetAccessibleState(AccessibilityTypes::State* state) {
   DCHECK(state);
 
-  state->lVal |= STATE_SYSTEM_HASPOPUP;
+  *state = AccessibilityTypes::STATE_HASPOPUP;
   return true;
 }
 

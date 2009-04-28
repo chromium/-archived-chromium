@@ -20,6 +20,7 @@
 
 #include "base/gfx/rect.h"
 #include "base/scoped_ptr.h"
+#include "chrome/common/accessibility_types.h"
 #include "chrome/views/accelerator.h"
 #include "chrome/views/background.h"
 #include "chrome/views/border.h"
@@ -559,19 +560,19 @@ class View : public AcceleratorTarget {
   // successful.
   virtual bool GetAccessibleName(std::wstring* name) { return false; }
 
-#if defined(OS_WIN)
-  // TODO(port): Make these functions using VARIANT portable.
-
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control. Sets the input VARIANT appropriately, and returns true if
+  // Returns the accessibility role of the current view. The role is what
+  // assistive technologies (ATs) use to determine what behavior to expect from
+  // a given control. Sets the input Role appropriately, and returns true if
   // successful.
-  virtual bool GetAccessibleRole(VARIANT* role) { return false; }
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role) {
+    return false;
+  }
 
-  // Returns the MSAA state of the current view. Sets the input VARIANT
-  // appropriately, and returns true if a change was performed successfully.
-  virtual bool GetAccessibleState(VARIANT* state) { return false; }
-#endif  // defined(OS_WIN)
+  // Returns the accessibility state of the current view. Sets the input State
+  // appropriately, and returns true if successful.
+  virtual bool GetAccessibleState(AccessibilityTypes::State* state) {
+    return false;
+  }
 
   // Assigns a keyboard shortcut string description to the given control. Needed
   // as a View does not know which shortcut will be associated with it until it

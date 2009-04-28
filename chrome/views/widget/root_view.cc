@@ -960,6 +960,13 @@ void RootView::ClearPaintRect() {
 //
 /////////////////////////////////////////////////////////////////////////////
 
+bool RootView::GetAccessibleRole(AccessibilityTypes::Role* role) {
+  DCHECK(role);
+
+  *role = AccessibilityTypes::ROLE_APPLICATION;
+  return true;
+}
+
 bool RootView::GetAccessibleName(std::wstring* name) {
   if (!accessible_name_.empty()) {
     *name = accessible_name_;

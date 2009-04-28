@@ -44,6 +44,11 @@ bool Button::GetAccessibleName(std::wstring* name) {
   return false;
 }
 
+bool Button::GetAccessibleRole(AccessibilityTypes::Role* role) {
+  *role = AccessibilityTypes::ROLE_PUSHBUTTON;
+  return true;
+}
+
 void Button::SetAccessibleKeyboardShortcut(const std::wstring& shortcut) {
   accessible_shortcut_.assign(shortcut);
 }

@@ -60,6 +60,9 @@ class BrowserToolbarView : public views::View,
   virtual bool OnKeyPressed(const views::KeyEvent& e);
   virtual bool OnKeyReleased(const views::KeyEvent& e);
   virtual gfx::Size GetPreferredSize();
+  virtual bool GetAccessibleName(std::wstring* name);
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
+  virtual void SetAccessibleName(const std::wstring& name);
 
   // Overridden from EncodingMenuControllerDelegate:
   virtual bool IsItemChecked(int id) const;
@@ -90,17 +93,6 @@ class BrowserToolbarView : public views::View,
   void Update(TabContents* tab, bool should_restore_state);
 
   virtual void OnInputInProgress(bool in_progress);
-
-  // Returns a brief, identifying string, containing a unique, readable name.
-  virtual bool GetAccessibleName(std::wstring* name);
-
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control.
-  virtual bool GetAccessibleRole(VARIANT* role);
-
-  // Assigns an accessible string name.
-  virtual void SetAccessibleName(const std::wstring& name);
 
   virtual View* GetAccFocusedChildView() { return acc_focused_view_; }
 

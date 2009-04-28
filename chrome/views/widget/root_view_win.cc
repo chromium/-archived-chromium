@@ -49,14 +49,6 @@ void RootView::OnPaint(HWND hwnd) {
   }
 }
 
-bool RootView::GetAccessibleRole(VARIANT* role) {
-  DCHECK(role);
-
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_APPLICATION;
-  return true;
-}
-
 void RootView::StartDragForViewFromMouseEvent(
     View* view,
     IDataObject* data,

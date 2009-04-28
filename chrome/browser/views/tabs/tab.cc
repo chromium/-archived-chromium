@@ -215,11 +215,10 @@ bool Tab::GetTooltipTextOrigin(int x, int y, CPoint* origin) {
   return true;
 }
 
-bool Tab::GetAccessibleRole(VARIANT* role) {
+bool Tab::GetAccessibleRole(AccessibilityTypes::Role* role) {
   DCHECK(role);
 
-  role->vt = VT_I4;
-  role->lVal = ROLE_SYSTEM_PAGETAB;
+  *role = AccessibilityTypes::ROLE_PAGETAB;
   return true;
 }
 

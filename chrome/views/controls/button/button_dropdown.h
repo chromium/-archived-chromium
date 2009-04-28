@@ -24,20 +24,10 @@ class ButtonDropDown : public ImageButton {
   ButtonDropDown(ButtonListener* listener, Menu::Delegate* menu_delegate);
   virtual ~ButtonDropDown();
 
-  // Returns the MSAA default action of the current view. The string returned
-  // describes the default action that will occur when executing
-  // IAccessible::DoDefaultAction.
-  bool GetAccessibleDefaultAction(std::wstring* action);
-
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control.
-  bool GetAccessibleRole(VARIANT* role);
-
-  // Returns the MSAA state of the current view. Sets the input VARIANT
-  // appropriately, and returns true if a change was performed successfully.
-  // Overriden from View.
-  virtual bool GetAccessibleState(VARIANT* state);
+  // Accessibility accessors, overridden from View.
+  virtual bool GetAccessibleDefaultAction(std::wstring* action);
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
+  virtual bool GetAccessibleState(AccessibilityTypes::State* state);
 
  private:
   // Overridden from Button

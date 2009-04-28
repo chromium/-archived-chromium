@@ -146,23 +146,17 @@ TEST(LabelTest, Accessibility) {
   std::wstring test_text(L"My special text.");
   label.SetText(test_text);
 
-  VARIANT role;
-  ::VariantInit(&role);
+  AccessibilityTypes::Role role;
   EXPECT_TRUE(label.GetAccessibleRole(&role));
-  EXPECT_EQ(VT_I4, role.vt);
-  EXPECT_EQ(ROLE_SYSTEM_TEXT, role.lVal);
+  EXPECT_EQ(AccessibilityTypes::ROLE_TEXT, role);
 
   std::wstring name;
   EXPECT_TRUE(label.GetAccessibleName(&name));
   EXPECT_STREQ(test_text.c_str(), name.c_str());
 
-  VARIANT state;
-  ::VariantInit(&state);
-  state.vt = VT_I4;
-  state.lVal = 0;
+  AccessibilityTypes::State state;
   EXPECT_TRUE(label.GetAccessibleState(&state));
-  EXPECT_EQ(VT_I4, state.vt);
-  EXPECT_EQ(STATE_SYSTEM_READONLY, state.lVal);
+  EXPECT_EQ(AccessibilityTypes::STATE_READONLY, state);
 }
 
 TEST(LabelTest, SingleLineSizing) {

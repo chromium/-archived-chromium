@@ -164,22 +164,10 @@ class Label : public View {
   // wrapped).  If 0, no maximum width is enforced.
   void SizeToFit(int max_width);
 
-#if defined(OS_WIN)
-  // TODO(port): Make portable equivalents of accessibility-related functions.
-
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control.
-  bool GetAccessibleRole(VARIANT* role);
-
-  // Returns a brief, identifying string, containing a unique, readable name.
-  bool GetAccessibleName(std::wstring* name);
-
-  // Returns the MSAA state of the current view. Sets the input VARIANT
-  // appropriately, and returns true if a change was performed successfully.
-  // Overriden from View.
-  virtual bool GetAccessibleState(VARIANT* state);
-#endif  // defined(OS_WIN)
+  // Accessibility accessors, overridden from View.
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
+  virtual bool GetAccessibleName(std::wstring* name);
+  virtual bool GetAccessibleState(AccessibilityTypes::State* state);
 
   // Gets/sets the flag to determine whether the label should be collapsed when
   // it's hidden (not visible). If this flag is true, the label will return a

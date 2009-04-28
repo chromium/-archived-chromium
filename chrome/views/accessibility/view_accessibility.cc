@@ -498,9 +498,11 @@ STDMETHODIMP ViewAccessibility::get_accRole(VARIANT var_id, VARIANT* role) {
     return E_INVALIDARG;
   }
 
+  AccessibilityTypes::Role acc_role;
+
   if (var_id.lVal == CHILDID_SELF) {
     // Retrieve parent role.
-    if (!view_->GetAccessibleRole(role)) {
+    if (!view_->GetAccessibleRole(&acc_role)) {
       return E_FAIL;
     }
   } else {
@@ -508,15 +510,14 @@ STDMETHODIMP ViewAccessibility::get_accRole(VARIANT var_id, VARIANT* role) {
       return E_INVALIDARG;
     }
     // Retrieve child role.
-    if (!view_->GetChildViewAt(var_id.lVal - 1)->GetAccessibleRole(role)) {
+    if (!view_->GetChildViewAt(var_id.lVal - 1)->GetAccessibleRole(&acc_role)) {
+      role->vt = VT_EMPTY;
       return E_FAIL;
     }
   }
 
-  // Make sure that role is not empty, and has the proper type.
-  if (role->vt == VT_EMPTY)
-    return E_FAIL;
-
+  role->vt = VT_I4;
+  role->lVal = MSAARole(acc_role);
   return S_OK;
 }
 
@@ -577,35 +578,73 @@ bool ViewAccessibility::IsValidNav(int nav_dir, int start_id, int lower_bound,
   return true;
 }
 
-void ViewAccessibility::SetState(VARIANT* state, views::View* view) {
+void ViewAccessibility::SetState(VARIANT* msaa_state, views::View* view) {
   // Default state; all views can have accessibility focus.
-  state->lVal |= STATE_SYSTEM_FOCUSABLE;
+  msaa_state->lVal |= STATE_SYSTEM_FOCUSABLE;
 
   if (!view)
     return;
 
   if (!view->IsEnabled()) {
-      state->lVal |= STATE_SYSTEM_UNAVAILABLE;
+    msaa_state->lVal |= STATE_SYSTEM_UNAVAILABLE;
   }
   if (!view->IsVisible()) {
-    state->lVal |= STATE_SYSTEM_INVISIBLE;
+    msaa_state->lVal |= STATE_SYSTEM_INVISIBLE;
   }
   if (view->IsHotTracked()) {
-    state->lVal |= STATE_SYSTEM_HOTTRACKED;
+    msaa_state->lVal |= STATE_SYSTEM_HOTTRACKED;
   }
   if (view->IsPushed()) {
-    state->lVal |= STATE_SYSTEM_PRESSED;
+    msaa_state->lVal |= STATE_SYSTEM_PRESSED;
   }
   // Check both for actual View focus, as well as accessibility focus.
   views::View* parent = view->GetParent();
 
   if (view->HasFocus() ||
       (parent && parent->GetAccFocusedChildView() == view)) {
-    state->lVal |= STATE_SYSTEM_FOCUSED;
+    msaa_state->lVal |= STATE_SYSTEM_FOCUSED;
   }
 
   // Add on any view-specific states.
-  view->GetAccessibleState(state);
+  AccessibilityTypes::State state;
+  view->GetAccessibleState(&state);
+
+  msaa_state->lVal |= MSAAState(state);
+}
+
+long ViewAccessibility::MSAARole(AccessibilityTypes::Role role) {
+  switch (role) {
+    case AccessibilityTypes::ROLE_APPLICATION :
+      return ROLE_SYSTEM_APPLICATION;
+    case AccessibilityTypes::ROLE_BUTTONDROPDOWN :
+      return ROLE_SYSTEM_BUTTONDROPDOWN;
+    case AccessibilityTypes::ROLE_GROUPING :
+      return ROLE_SYSTEM_GROUPING;
+    case AccessibilityTypes::ROLE_PAGETAB :
+      return ROLE_SYSTEM_PAGETAB;
+    case AccessibilityTypes::ROLE_PUSHBUTTON :
+      return ROLE_SYSTEM_PUSHBUTTON;
+    case AccessibilityTypes::ROLE_TEXT :
+      return ROLE_SYSTEM_TEXT;
+    case AccessibilityTypes::ROLE_TOOLBAR :
+      return ROLE_SYSTEM_TOOLBAR;
+    case AccessibilityTypes::ROLE_CLIENT :
+    default:
+      // This is the default role for MSAA.
+      return ROLE_SYSTEM_CLIENT;
+  }
+}
+
+long ViewAccessibility::MSAAState(AccessibilityTypes::State state) {
+  switch (state) {
+    case AccessibilityTypes::STATE_HASPOPUP :
+      return STATE_SYSTEM_HASPOPUP;
+    case AccessibilityTypes::STATE_READONLY :
+      return STATE_SYSTEM_READONLY;
+    default :
+      // No default state in MSAA.
+      return 0;
+  }
 }
 
 // IAccessible functions not supported.

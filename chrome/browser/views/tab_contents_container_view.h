@@ -36,6 +36,7 @@ class TabContentsContainerView : public views::HWNDView,
   virtual void RequestFocus();
   virtual void AboutToRequestFocusFromTabTraversal(bool reverse);
   virtual bool CanProcessTabKeyEvents();
+  virtual bool GetAccessibleRole(AccessibilityTypes::Role* role);
 
   // Overridden from HWNDView.
   virtual views::FocusTraversable* GetFocusTraversableParent();
@@ -45,11 +46,6 @@ class TabContentsContainerView : public views::HWNDView,
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
-
-  // Returns the MSAA role of the current view. The role is what assistive
-  // technologies (ATs) use to determine what behavior to expect from a given
-  // control.
-  bool GetAccessibleRole(VARIANT* role);
 
  protected:
   // Web content should be given first crack at accelerators. This function
