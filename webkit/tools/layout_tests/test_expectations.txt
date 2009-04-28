@@ -2025,7 +2025,7 @@ BUG10675 MAC : chrome/fast/forms/basic-textareas-quirks.html = FAIL
 BUG10675 MAC : chrome/fast/forms/basic-textareas.html = FAIL
 
 // Needs rebaseline.
-BUG10447 MAC LINUX : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
+BUG10447 MAC : LayoutTests/fast/forms/linebox-overflow-in-textarea-padding.html = FAIL
 
 // Started failing 3/12/09. Unclear which CL caused it though.
 BUG10448 MAC : LayoutTests/fast/overflow/image-selection-highlight.html = FAIL
@@ -2073,25 +2073,6 @@ BUG10453 WIN LINUX : LayoutTests/http/tests/misc/url-in-utf16be.html = CRASH TIM
 
 // Tests that fail in debug mode on linux
 BUG10454 DEBUG LINUX : LayoutTests/svg/custom/mask-excessive-malloc.svg = CRASH
-
-// Need rebaseline
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/002-xhtml.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/002.html = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/003-declarative.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/003-xhtml.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/003.html = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/004-declarative.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/004-xhtml.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/004.html = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/007-declarative.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/007-xhtml.xhtml = FAIL
-BUG10455 LINUX : LayoutTests/fast/body-propagation/overflow/007.html = FAIL
-BUG10455 LINUX : LayoutTests/fast/forms/input-readonly-autoscroll.html = FAIL
-BUG10455 LINUX : LayoutTests/fast/overflow/003.xml = FAIL
-BUG10455 LINUX : LayoutTests/fast/overflow/007.html = FAIL
-BUG10455 LINUX : LayoutTests/fast/repaint/selection-gap-overflow-scroll.html = FAIL
-BUG10677 LINUX : chrome/fast/forms/basic-textareas-quirks.html = FAIL
-BUG10677 LINUX : chrome/fast/forms/basic-textareas.html = FAIL
 
 BUG10456 LINUX : LayoutTests/fast/canvas/zero-size-fill-rect.html = CRASH PASS
 
