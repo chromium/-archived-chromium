@@ -218,7 +218,7 @@ void ChromeMiniInstaller::UnInstall() {
   WaitUntilProcessStopsRunning(
       mini_installer_constants::kChromeSetupExecutable);
   printf("\n\nUninstall Checks:\n\n");
-  ASSERT_FALSE(CheckRegistryKey(dist->GetVersionKey()));
+  ASSERT_FALSE(CheckRegistryKeyOnUninstall(dist->GetVersionKey()));
   DeleteAppFolder();
   FindChromeShortcut();
   CloseProcesses(mini_installer_constants::kIEExecutable);
@@ -316,6 +316,19 @@ bool ChromeMiniInstaller::CheckRegistryKey(const std::wstring& key_path) {
   if (!GetChromeVersionFromRegistry(&reg_key_value_returned))
     return false;
   return true;
+}
+
+// Checks for Chrome registry keys on uninstall.
+bool ChromeMiniInstaller::CheckRegistryKeyOnUninstall(
+    const std::wstring& key_path) {
+  RegKey key;
+  int timer = 0;
+  while ((key.Open(GetRootRegistryKey(), key_path.c_str(), KEY_ALL_ACCESS)) &&
+         (timer < 20000)) {
+    PlatformThread::Sleep(200);
+    timer = timer + 200;
+  }
+  return CheckRegistryKey(key_path);
 }
 
 // Deletes App folder after uninstall.

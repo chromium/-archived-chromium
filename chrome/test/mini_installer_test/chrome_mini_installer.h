@@ -95,6 +95,9 @@ class ChromeMiniInstaller {
   // Checks for registry key.
   bool CheckRegistryKey(const std::wstring& key_path);
 
+  // Checks for registry key on uninstall.
+  bool CheckRegistryKeyOnUninstall(const std::wstring& key_path);
+
   // Deletes App folder after uninstall.
   void DeleteAppFolder();
 
