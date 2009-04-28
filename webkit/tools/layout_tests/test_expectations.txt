@@ -2429,37 +2429,36 @@ BUG10055 LINUX DEBUG : LayoutTests/svg/text/text-tselect-02-f.svg = FAIL
 // to include window.showModalDialog, which we give as undefined.
 BUG10530 : LayoutTests/fast/dom/Window/window-function-frame-getter-precedence.html = FAIL
 
-// Need rebaselining for Mac and Linux, from WebKit merge 42580:42609
-BUG10662 LINUX MAC : LayoutTests/fast/forms/caret-rtl.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/forms/form-added-to-table.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/forms/form-in-malformed-markup.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/forms/formmove3.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/forms/preserveFormDuringResidualStyle.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/table/fixed-table-non-cell-in-row.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/table/inline-form-assert.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/table/insert-cell-before-form.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/fast/table/insert-row-before-form.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-03-b.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-color-01-b.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/filters-comptran-01-b.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/W3C-SVG-1.1/struct-group-02-b.svg = FAIL
+// Need rebaselining for Mac, from WebKit merge 42580:42609
+BUG10662 MAC : LayoutTests/fast/forms/caret-rtl.html = FAIL
+BUG10662 MAC : LayoutTests/fast/forms/form-added-to-table.html = FAIL
+BUG10662 MAC : LayoutTests/fast/forms/form-in-malformed-markup.html = FAIL
+BUG10662 MAC : LayoutTests/fast/forms/formmove3.html = FAIL
+BUG10662 MAC : LayoutTests/fast/forms/preserveFormDuringResidualStyle.html = FAIL
+BUG10662 MAC : LayoutTests/fast/table/fixed-table-non-cell-in-row.html = FAIL
+BUG10662 MAC : LayoutTests/fast/table/inline-form-assert.html = FAIL
+BUG10662 MAC : LayoutTests/fast/table/insert-cell-before-form.html = FAIL
+BUG10662 MAC : LayoutTests/fast/table/insert-row-before-form.html = FAIL
+BUG10662 MAC : LayoutTests/svg/W3C-SVG-1.1/coords-viewattr-03-b.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/W3C-SVG-1.1/filters-color-01-b.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/W3C-SVG-1.1/filters-comptran-01-b.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/W3C-SVG-1.1/struct-group-02-b.svg = FAIL
 BUG10662 MAC : LayoutTests/svg/W3C-SVG-1.1/types-basicDOM-01-b.svg = FAIL
 BUG10662 MAC : LayoutTests/svg/carto.net/textbox.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Discrete.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Gamma.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Linear.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/custom/feComponentTransfer-Table.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/svg/custom/image-clipped-hit.svg = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug2516.html = FAIL
-BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug30559.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug32447.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug34538.html = FAIL
-BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug4527.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug78162.html = FAIL
-BUG10662 LINUX : LayoutTests/tables/mozilla/bugs/bug96334.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla/bugs/bug96343.html = FAIL
-BUG10662 LINUX MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug1725.html = FAIL
+BUG10662 MAC : LayoutTests/svg/custom/feComponentTransfer-Discrete.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/custom/feComponentTransfer-Gamma.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/custom/feComponentTransfer-Linear.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/custom/feComponentTransfer-Table.svg = FAIL
+BUG10662 MAC : LayoutTests/svg/custom/image-clipped-hit.svg = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla/bugs/bug1318.html = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla/bugs/bug2516.html = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla/bugs/bug32447.html = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla/bugs/bug34538.html = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla/bugs/bug78162.html = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla/bugs/bug96343.html = FAIL
+BUG10662 MAC : LayoutTests/tables/mozilla_expected_failures/bugs/bug1725.html = FAIL
+// The content editable div is wider on linux than on windows.
+BUG11122 LINUX : LayoutTests/fast/forms/caret-rtl.html = FAIL
 
 // New tests from WebKit Merge 42609:42671
 DEFER BUG4363 : LayoutTests/fast/layers/video-layer.html = FAIL
@@ -2474,13 +2473,17 @@ BUG10760 MAC : LayoutTests/svg/custom/marker-changes.svg = PASS FAIL
 BUG10760 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-02-f.svg = PASS FAIL
 
 // Need rebaselining for Mac and Linux, from WebKit Merge 42671:42725
-BUG10859 LINUX MAC : LayoutTests/editing/inserting/insert-3907422-fix.html = FAIL
-BUG10859 LINUX MAC : LayoutTests/editing/pasteboard/paste-text-015.html = FAIL
-BUG10859 LINUX MAC : LayoutTests/editing/style/font-family-with-space.html = FAIL
-BUG10859 LINUX MAC : LayoutTests/editing/selection/select-all-iframe.html = FAIL
+BUG10859 MAC : LayoutTests/editing/inserting/insert-3907422-fix.html = FAIL
+BUG10859 MAC : LayoutTests/editing/pasteboard/paste-text-015.html = FAIL
+BUG10859 MAC : LayoutTests/editing/style/font-family-with-space.html = FAIL
+BUG10859 MAC : LayoutTests/editing/selection/select-all-iframe.html = FAIL
+// Wrong output on linux.
 BUG10859 LINUX MAC : LayoutTests/svg/custom/pointer-events-path.svg = FAIL
+
+// Needs investigation, perhaps just needs to be re-baselined on all
+// platforms.
 BUG10859 LINUX MAC : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
-BUG10859 LINUX : LayoutTests/fast/table/cell-coalescing.html = FAIL
+BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 
 // New tests from WebKit Merge 42671:42725
 BUG10861 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-detached-document.html = CRASH
@@ -2489,7 +2492,6 @@ BUG10861 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-det
 BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS
 BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
-BUG10861 WIN : LayoutTests/fast/dom/HTMLSelectElement/named-options.html = FAIL
 BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT
 BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
 BUG10861 LINUX : LayoutTests/fast/dynamic/001.html = FAIL
