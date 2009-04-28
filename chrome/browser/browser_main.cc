@@ -211,7 +211,8 @@ int BrowserMain(const MainFunctionParams& parameters) {
 #if defined(OS_POSIX)
   // We need to accept SIGCHLD, even though our handler is a no-op because
   // otherwise we cannot wait on children. (According to POSIX 2001.)
-  struct sigaction action = {0};
+  struct sigaction action;
+  memset(&action, 0, sizeof(action));
   action.sa_handler = SIGCHLDHandler;
   CHECK(sigaction(SIGCHLD, &action, NULL) == 0);
 #endif
