@@ -18,6 +18,7 @@
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/l10n_util.h"
 #include "grit/chromium_strings.h"
+#include "grit/generated_resources.h"
 
 @implementation TabStripController
 
