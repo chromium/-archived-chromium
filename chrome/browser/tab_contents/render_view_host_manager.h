@@ -42,7 +42,7 @@ class RenderViewHostManager : public NotificationObserver {
     virtual void BeforeUnloadFiredFromRenderManager(
         bool proceed, bool* proceed_to_fire_unload) = 0;
     virtual void DidStartLoadingFromRenderManager(
-        RenderViewHost* render_view_host, int32 page_id) = 0;
+        RenderViewHost* render_view_host) = 0;
     virtual void RenderViewGoneFromRenderManager(
         RenderViewHost* render_view_host) = 0;
     virtual void UpdateRenderViewSizeForRenderManager() = 0;

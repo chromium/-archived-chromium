@@ -60,8 +60,7 @@ void ExtensionView::SetBackground(const SkBitmap& background) {
   ShowIfCompletelyLoaded();
 }
 
-void ExtensionView::DidStopLoading(RenderViewHost* render_view_host,
-      int32 page_id) {
+void ExtensionView::DidStopLoading(RenderViewHost* render_view_host) {
   render_view_host->WasResized();
   did_stop_loading_ = true;
   ShowIfCompletelyLoaded();
@@ -118,8 +117,7 @@ void ExtensionView::RunJavaScriptMessage(
   render_view_host()->JavaScriptMessageBoxClosed(reply_msg, true, L"");
 }
 
-void ExtensionView::DidStartLoading(RenderViewHost* render_view_host,
-                                    int32 page_id) {
+void ExtensionView::DidStartLoading(RenderViewHost* render_view_host) {
   static const StringPiece toolstrip_css(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           IDR_EXTENSIONS_TOOLSTRIP_CSS));

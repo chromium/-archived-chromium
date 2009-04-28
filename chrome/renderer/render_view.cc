@@ -1157,7 +1157,7 @@ void RenderView::DidStartLoading(WebView* webview) {
   // plugin on a page.
   first_default_plugin_ = NULL;
 
-  Send(new ViewHostMsg_DidStartLoading(routing_id_, page_id_));
+  Send(new ViewHostMsg_DidStartLoading(routing_id_));
 }
 
 void RenderView::DidStopLoading(WebView* webview) {
@@ -1180,7 +1180,7 @@ void RenderView::DidStopLoading(WebView* webview) {
   AddGURLSearchProvider(webview->GetMainFrame()->GetOSDDURL(),
                         true);  // autodetected
 
-  Send(new ViewHostMsg_DidStopLoading(routing_id_, page_id_));
+  Send(new ViewHostMsg_DidStopLoading(routing_id_));
 
   MessageLoop::current()->PostDelayedTask(FROM_HERE,
       method_factory_.NewRunnableMethod(&RenderView::CapturePageInfo, page_id_,

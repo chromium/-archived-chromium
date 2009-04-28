@@ -667,11 +667,14 @@ IPC_BEGIN_MESSAGES(ViewHost)
   // action (e.g. when the user is hovering over a link).
   IPC_MESSAGE_ROUTED2(ViewHostMsg_UpdateTargetURL, int32, GURL)
 
-  // Sent when the renderer is loading a frame
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_DidStartLoading, int32)
+  // Sent when the renderer starts loading the page. This corresponds to
+  // WebKit's notion of the throbber starting. Note that sometimes you may get
+  // duplicates of these during a single load.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_DidStartLoading)
 
-  // Sent when the renderer is done loading a frame
-  IPC_MESSAGE_ROUTED1(ViewHostMsg_DidStopLoading, int32)
+  // Sent when the renderer is done loading a page. This corresponds to WebKit's
+  // noption of the throbber stopping.
+  IPC_MESSAGE_ROUTED0(ViewHostMsg_DidStopLoading)
 
   // Sent when the renderer loads a resource from its memory cache.
   // The security info is non empty if the resource was originally loaded over

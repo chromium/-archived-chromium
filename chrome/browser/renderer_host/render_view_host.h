@@ -450,8 +450,8 @@ class RenderViewHost : public RenderWidgetHost {
   void OnMsgDidRedirectProvisionalLoad(int32 page_id,
                                        const GURL& source_url,
                                        const GURL& target_url);
-  void OnMsgDidStartLoading(int32 page_id);
-  void OnMsgDidStopLoading(int32 page_id);
+  void OnMsgDidStartLoading();
+  void OnMsgDidStopLoading();
   void OnMsgDidLoadResourceFromMemoryCache(const GURL& url,
                                            const std::string& frame_origin,
                                            const std::string& main_frame_origin,

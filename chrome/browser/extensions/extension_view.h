@@ -53,8 +53,7 @@ class ExtensionView : public HWNDHtmlView,
       const std::string& extension_id);
   virtual void RenderViewCreated(RenderViewHost* render_view_host);
   virtual void DidContentsPreferredWidthChange(const int pref_width);
-  virtual void DidStopLoading(RenderViewHost* render_view_host,
-      int32 page_id);
+  virtual void DidStopLoading(RenderViewHost* render_view_host);
   virtual WebPreferences GetWebkitPrefs();
   virtual void RunJavaScriptMessage(
       const std::wstring& message,
@@ -63,8 +62,7 @@ class ExtensionView : public HWNDHtmlView,
       const int flags,
       IPC::Message* reply_msg,
       bool* did_suppress_message);
-  virtual void DidStartLoading(RenderViewHost* render_view_host,
-                               int32 page_id);
+  virtual void DidStartLoading(RenderViewHost* render_view_host);
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
 
   // RenderViewHostDelegate::View

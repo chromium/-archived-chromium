@@ -1155,6 +1155,7 @@ void TabContents::SetIsLoading(bool is_loading,
 
   if (delegate_)
     delegate_->LoadingStateChanged(this);
+  NotifyNavigationStateChanged(INVALIDATE_LOAD);
 
   NotificationType type = is_loading ? NotificationType::LOAD_START :
       NotificationType::LOAD_STOP;
@@ -1781,11 +1782,11 @@ void TabContents::RequestMove(const gfx::Rect& new_bounds) {
     delegate()->MoveContents(this, new_bounds);
 }
 
-void TabContents::DidStartLoading(RenderViewHost* rvh, int32 page_id) {
+void TabContents::DidStartLoading(RenderViewHost* rvh) {
   SetIsLoading(true, NULL);
 }
 
-void TabContents::DidStopLoading(RenderViewHost* rvh, int32 page_id) {
+void TabContents::DidStopLoading(RenderViewHost* rvh) {
   scoped_ptr<LoadNotificationDetails> details;
 
   NavigationEntry* entry = controller_.GetActiveEntry();

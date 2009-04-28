@@ -226,6 +226,16 @@ void RenderViewHost::DoNavigate(ViewMsg_Navigate* nav_message) {
     suspended_nav_message_.reset(nav_message);
   } else {
     Send(nav_message);
+
+    // Force the throbber to start. We do this because WebKit's "started
+    // loading" message will be received asynchronously from the UI of the
+    // browser. But we want to keep the throbber in sync with what's happening
+    // in the UI. For example, we want to start throbbing immediately when the
+    // user naivgates even if the renderer is delayed. There is also an issue
+    // with the throbber starting because the DOMUI (which controls whether the
+    // favicon is displayed) happens synchronously. If the start loading
+    // messages was asynchronous, then the default favicon would flash in.
+    delegate_->DidStartLoading(this);
   }
 }
 
@@ -947,12 +957,12 @@ void RenderViewHost::OnMsgDidRedirectProvisionalLoad(int32 page_id,
   delegate_->DidRedirectProvisionalLoad(page_id, source_url, target_url);
 }
 
-void RenderViewHost::OnMsgDidStartLoading(int32 page_id) {
-  delegate_->DidStartLoading(this, page_id);
+void RenderViewHost::OnMsgDidStartLoading() {
+  delegate_->DidStartLoading(this);
 }
 
-void RenderViewHost::OnMsgDidStopLoading(int32 page_id) {
-  delegate_->DidStopLoading(this, page_id);
+void RenderViewHost::OnMsgDidStopLoading() {
+  delegate_->DidStopLoading(this);
 }
 
 void RenderViewHost::OnMsgDidLoadResourceFromMemoryCache(

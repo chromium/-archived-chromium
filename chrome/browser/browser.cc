@@ -1737,10 +1737,13 @@ void Browser::OpenURLFromTab(TabContents* source,
     if (GetStatusBubble())
       GetStatusBubble()->Hide();
 
-    // Update the location bar and load state. These are both synchronous
-    // updates inside of ScheduleUIUpdate.
-    ScheduleUIUpdate(current_tab, TabContents::INVALIDATE_URL |
-                                  TabContents::INVALIDATE_LOAD);
+    // Update the location bar. This is synchronous. We specfically don't update
+    // the load state since the load hasn't started yet and updating it will put
+    // it out of sync with the actual state like whether we're displaying a
+    // favicon, which controls the throbber. If we updated it here, the throbber
+    // will show the default favicon for a split second when navigating away
+    // from the new tab page.
+    ScheduleUIUpdate(current_tab, TabContents::INVALIDATE_URL);
   } else if (disposition == OFF_THE_RECORD) {
     OpenURLOffTheRecord(profile_, url);
     return;

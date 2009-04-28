@@ -751,8 +751,8 @@ class TabContents : public PageNavigator,
                                const ThumbnailScore& score);
   virtual void Close(RenderViewHost* render_view_host);
   virtual void RequestMove(const gfx::Rect& new_bounds);
-  virtual void DidStartLoading(RenderViewHost* render_view_host, int32 page_id);
-  virtual void DidStopLoading(RenderViewHost* render_view_host, int32 page_id);
+  virtual void DidStartLoading(RenderViewHost* render_view_host);
+  virtual void DidStopLoading(RenderViewHost* render_view_host);
   virtual void DidStartProvisionalLoadForFrame(RenderViewHost* render_view_host,
                                                bool is_main_frame,
                                                const GURL& url);
@@ -853,8 +853,8 @@ class TabContents : public PageNavigator,
       bool proceed,
       bool* proceed_to_fire_unload);
   virtual void DidStartLoadingFromRenderManager(
-      RenderViewHost* render_view_host, int32 page_id) {
-    DidStartLoading(render_view_host, page_id);
+      RenderViewHost* render_view_host) {
+    DidStartLoading(render_view_host);
   }
   virtual void RenderViewGoneFromRenderManager(
       RenderViewHost* render_view_host) {
