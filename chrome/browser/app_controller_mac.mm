@@ -121,6 +121,11 @@
     case IDC_NEW_INCOGNITO_WINDOW:
       Browser::OpenURLOffTheRecord(default_profile, GURL());
       break;
+    case IDC_OPEN_FILE:
+      Browser::OpenEmptyWindow(default_profile);
+      BrowserList::GetLastActive()->
+          ExecuteCommandWithDisposition(IDC_OPEN_FILE, CURRENT_TAB);
+      break;
   };
 }
 
@@ -146,6 +151,7 @@
   menuState_ = new CommandUpdater(NULL);
   menuState_->UpdateCommandEnabled(IDC_NEW_WINDOW, true);
   menuState_->UpdateCommandEnabled(IDC_NEW_INCOGNITO_WINDOW, true);
+  menuState_->UpdateCommandEnabled(IDC_OPEN_FILE, true);
   // TODO(pinkerton): ...more to come...
 }
 
