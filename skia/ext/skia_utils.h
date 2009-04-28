@@ -21,12 +21,6 @@ SkShader* CreateGradientShader(int start_point,
                                SkColor start_color,
                                SkColor end_color);
 
-// Convert a premultiplied SkColor to a HSL value.
-void SkColorToHSL(SkPMColor c, float hsl[3]);
-
-// Convert a HSL color to a premultiplied SkColor.
-SkPMColor HSLToSKColor(U8CPU alpha, float hsl[3]);
-
 }  // namespace skia
 
 #endif  // SKIA_EXT_SKIA_UTILS_H_

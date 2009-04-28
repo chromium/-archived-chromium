@@ -15,8 +15,6 @@
 #include "base/stack_container.h"
 #include "SkBitmap.h"
 #include "skia/ext/convolver.h"
-#include "skia/include/SkColorPriv.h"
-#include "skia/ext/skia_utils.h"
 
 namespace skia {
 
@@ -265,7 +263,7 @@ SkBitmap ImageOperations::Resize(const SkBitmap& source,
       "The supplied subset does not fall within the destination image.";
 
   // If the size of source or destination is 0, i.e. 0x0, 0xN or Nx0, just
-  // return empty.
+  // return empty
   if (source.width() < 1 || source.height() < 1 ||
       dest_width < 1 || dest_height < 1)
     return SkBitmap();
@@ -317,10 +315,11 @@ SkBitmap ImageOperations::CreateBlendedBitmap(const SkBitmap& first,
   // Optimize for case where we won't need to blend anything.
   static const double alpha_min = 1.0 / 255;
   static const double alpha_max = 254.0 / 255;
-  if (alpha < alpha_min)
+  if (alpha < alpha_min) {
     return first;
-  else if (alpha > alpha_max)
+  } else if (alpha > alpha_max) {
     return second;
+  }
 
   SkAutoLockPixels lock_first(first);
   SkAutoLockPixels lock_second(second);
@@ -360,207 +359,6 @@ SkBitmap ImageOperations::CreateBlendedBitmap(const SkBitmap& first,
   }
 
   return blended;
-}
-
-// static
-SkBitmap ImageOperations::CreateMaskedBitmap(const SkBitmap& rgb,
-                                             const SkBitmap& alpha) {
-  DCHECK(rgb.width() == alpha.width());
-  DCHECK(rgb.height() == alpha.height());
-  DCHECK(rgb.bytesPerPixel() == alpha.bytesPerPixel());
-  DCHECK(rgb.config() == SkBitmap::kARGB_8888_Config);
-  DCHECK(alpha.config() == SkBitmap::kARGB_8888_Config);
-
-  SkBitmap masked;
-  masked.setConfig(SkBitmap::kARGB_8888_Config, rgb.width(), rgb.height(), 0);
-  masked.allocPixels();
-  masked.eraseARGB(0, 0, 0, 0);
-
-  SkAutoLockPixels lock_rgb(rgb);
-  SkAutoLockPixels lock_alpha(alpha);
-  SkAutoLockPixels lock_masked(masked);
-
-  for (int y = 0; y < rgb.height(); y++) {
-    uint32* rgb_row = rgb.getAddr32(0, y);
-    uint32* alpha_row = alpha.getAddr32(0, y);
-    uint32* dst_row = masked.getAddr32(0, y);
-
-    for (int x = 0; x < rgb.width(); x++) {
-      uint32 alpha_pixel = alpha_row[x];
-      uint32 rgb_pixel = rgb_row[x];
-
-      int alpha = SkColorGetA(alpha_pixel);
-      dst_row[x] = SkColorSetARGB(alpha,
-                                  SkAlphaMul(SkColorGetR(rgb_pixel), alpha),
-                                  SkAlphaMul(SkColorGetG(rgb_pixel), alpha),
-                                  SkAlphaMul(SkColorGetB(rgb_pixel), alpha));
-    }
-  }
-
-  return masked;
-}
-
-SkBitmap ImageOperations::CreateBlurredBitmap(const SkBitmap& bitmap,
-                                              int blur_amount ) {
-  DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
-
-  // Blur factor (1 divided by how many pixels the blur takes place over).
-  double v = 1.0 / pow(static_cast<double>(blur_amount * 2 + 1), 2);
-
-  SkBitmap blurred;
-  blurred.setConfig(SkBitmap::kARGB_8888_Config, bitmap.width(),
-                    bitmap.height(), 0);
-  blurred.allocPixels();
-  blurred.eraseARGB(0, 0, 0, 0);
-
-  SkAutoLockPixels lock_bitmap(bitmap);
-  SkAutoLockPixels lock_blurred(blurred);
-
-  // Loop through every pixel in the image.
-  for (int y = 0; y < bitmap.height(); y++) {  // Skip top and bottom edges.
-    uint32* dst_row = blurred.getAddr32(0, y);
-
-    for (int x = 0; x < bitmap.width(); x++) {  // Skip left and right edges.
-      // Sums for this pixel.
-      double a = 0;
-      double r = 0;
-      double g = 0;
-      double b = 0;
-
-      for (int ky = -blur_amount; ky <= blur_amount; ky++) {
-        for (int kx = -blur_amount; kx <= blur_amount; kx++) {
-          // Calculate the adjacent pixel for this kernel point. Blurs
-          // are wrapped.
-          int bx = (x + kx) % bitmap.width();
-          while (bx < 0)
-            bx += bitmap.width();
-          int by = (y + ky) % bitmap.height();
-          while (by < 0)
-            by += bitmap.height();
-
-          uint32 src_pixel = bitmap.getAddr32(0, by)[bx];
-
-          a += v * static_cast<double>(SkColorGetA(src_pixel));
-          r += v * static_cast<double>(SkColorGetR(src_pixel));
-          g += v * static_cast<double>(SkColorGetG(src_pixel));
-          b += v * static_cast<double>(SkColorGetB(src_pixel));
-        }
-      }
-
-      dst_row[x] = SkColorSetARGB(
-          static_cast<int>(a),
-          static_cast<int>(r),
-          static_cast<int>(g),
-          static_cast<int>(b));
-    }
-  }
-
-  return blurred;
-}
-
-// static
-SkBitmap ImageOperations::CreateHSLShiftedBitmap(const SkBitmap& bitmap,
-                                                 float hsl_shift[3]) {
-  DCHECK(bitmap.config() == SkBitmap::kARGB_8888_Config);
-
-  SkBitmap shifted;
-  shifted.setConfig(SkBitmap::kARGB_8888_Config, bitmap.width(),
-                    bitmap.height(), 0);
-  shifted.allocPixels();
-  shifted.eraseARGB(0, 0, 0, 0);
-  shifted.setIsOpaque(false);
-
-  SkAutoLockPixels lock_bitmap(bitmap);
-  SkAutoLockPixels lock_shifted(shifted);
-
-  // Loop through the pixels of the original bitmap.
-  for (int y = 0; y < bitmap.height(); y++) {
-    SkColor* pixels = bitmap.getAddr32(0, y);
-    SkColor* tinted_pixels = shifted.getAddr32(0, y);
-
-    for (int x = 0; x < bitmap.width(); x++) {
-      // Convert the color of this pixel to HSL.
-      SkPMColor color = pixels[x];
-      int alpha = SkColorGetA(color);
-      if (alpha != 255) {
-        // We have to normalize the colors as they're pre-multiplied.
-        double r = SkColorGetR(color) / static_cast<double>(alpha);
-        double g = SkColorGetG(color) / static_cast<double>(alpha);
-        double b = SkColorGetB(color) / static_cast<double>(alpha);
-        color = SkColorSetARGB(255,
-                               static_cast<int>(r * 255.0),
-                               static_cast<int>(g * 255.0),
-                               static_cast<int>(b * 255.0));
-      }
-
-      float pixel_hsl[3];
-      SkColorToHSL(color, pixel_hsl);
-
-      // Replace the hue with the tint's hue.
-      if (hsl_shift[0] >= 0)
-        pixel_hsl[0] = hsl_shift[0];
-
-      // Change the saturation.
-      if (hsl_shift[1] >= 0) {
-        if (hsl_shift[1] <= 0.5) {
-          pixel_hsl[1] *= hsl_shift[1] * 2.0;
-        } else {
-          pixel_hsl[1] = pixel_hsl[1] + (1.0 - pixel_hsl[1]) *
-              ((hsl_shift[1] - 0.5) * 2.0);
-        }
-      }
-
-      // Change the lightness.
-      if (hsl_shift[2] >= 0) {
-        if (hsl_shift[2] <= 0.5) {
-          pixel_hsl[2] *= hsl_shift[2] * 2.0;
-        } else {
-          pixel_hsl[2] = pixel_hsl[2] + (1.0 - pixel_hsl[2]) *
-              ((hsl_shift[2] - 0.5) * 2.0);
-        }
-      }
-
-      // Convert back to RGB.
-      tinted_pixels[x] = HSLToSKColor(alpha, pixel_hsl);
-    }
-  }
-
-  return shifted;
-}
-
-// static
-SkBitmap ImageOperations::CreateTiledBitmap(const SkBitmap& source,
-                                            int src_x, int src_y,
-                                            int dst_w, int dst_h) {
-  DCHECK(source.getConfig() == SkBitmap::kARGB_8888_Config);
-
-  SkBitmap cropped;
-  cropped.setConfig(SkBitmap::kARGB_8888_Config, dst_w, dst_h, 0);
-  cropped.allocPixels();
-  cropped.eraseARGB(0, 0, 0, 0);
-
-  SkAutoLockPixels lock_source(source);
-  SkAutoLockPixels lock_cropped(cropped);
-
-  // Loop through the pixels of the original bitmap.
-  for (int y = 0; y < dst_h; y++) {
-    int y_pix = (src_y + y) % source.height();
-    while (y_pix < 0)
-      y_pix += source.height();
-
-    uint32* source_row = source.getAddr32(0, y_pix);
-    uint32* dst_row = cropped.getAddr32(0, y);
-
-    for (int x = 0; x < dst_w; x++) {
-      int x_pix = (src_x + x) % source.width();
-      while (x_pix < 0)
-        x_pix += source.width();
-
-      dst_row[x] = source_row[x_pix];
-    }
-  }
-
-  return cropped;
 }
 
 }  // namespace skia
