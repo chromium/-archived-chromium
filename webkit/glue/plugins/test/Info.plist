@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>NPAPITestPlugIn</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.chromium.npapi_test_plugin</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleExecutable</key>
+	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleName</key>
+	<string>${PRODUCT_NAME}</string>
+	<key>CFBundlePackageType</key>
+	<string>BRPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>CFPlugInDynamicRegisterFunction</key>
+	<string></string>
+	<key>CFPlugInDynamicRegistration</key>
+	<string>NO</string>
+	<key>WebPluginDescription</key>
+	<string>Simple NPAPI plug-in for Chromium unit tests</string>
+	<key>WebPluginMIMETypes</key>
+	<dict>
+		<key>application/vnd.npapi-test</key>
+		<dict>
+			<key>WebPluginExtensions</key>
+			<array>
+				<string>npapitest</string>
+			</array>
+			<key>WebPluginTypeDescription</key>
+			<string>test npapi</string>
+		</dict>
+	</dict>
+	<key>WebPluginName</key>
+	<string>Chromium NPAPI Test Plugin</string>
+</dict>
+</plist>
