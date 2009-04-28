@@ -1,12 +1,15 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef NET_HTTP_HTTP_UTIL_H_
 #define NET_HTTP_HTTP_UTIL_H_
 
+#include <vector>
+
 #include "base/string_tokenizer.h"
 #include "googleurl/src/gurl.h"
+#include "net/http/http_byte_range.h"
 
 // This is a macro to support extending this string literal at compile time.
 // Please excuse me polluting your global namespace!
@@ -41,6 +44,15 @@ class HttpUtil {
                                std::string* mime_type,
                                std::string* charset,
                                bool *had_charset);
+
+  // Scans the headers and look for the first "Range" header in |headers|,
+  // if "Range" exists and the first one of it is well formatted then returns
+  // true, |ranges| will contain a list of valid ranges. If return
+  // value is false then values in |ranges| should not be used. The format of
+  // "Range" header is defined in RFC 2616 Section 14.35.1.
+  // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35.1
+  static bool ParseRanges(const std::string& headers,
+                          std::vector<HttpByteRange>* ranges);
 
   // Scans the '\r\n'-delimited headers for the given header name.  Returns
   // true if a match is found.  Input is assumed to be well-formed.

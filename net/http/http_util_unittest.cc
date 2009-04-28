@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -512,4 +512,137 @@ TEST(HttpUtilTest, GenerateAcceptCharsetHeader) {
             HttpUtil::GenerateAcceptCharsetHeader("utf-8"));
   EXPECT_EQ(std::string("EUC-JP,utf-8;q=0.7,*;q=0.3"),
             HttpUtil::GenerateAcceptCharsetHeader("EUC-JP"));
+}
+
+TEST(HttpUtilTest, ParseRanges) {
+  const struct {
+    const char* headers;
+    bool expected_return_value;
+    size_t expected_ranges_size;
+    const struct {
+      int64 expected_first_byte_position;
+      int64 expected_last_byte_position;
+      int64 expected_suffix_length;
+    } expected_ranges[10];
+  } tests[] = {
+    { "Range: bytes=0-10",
+      true,
+      1,
+      { {0, 10, -1}, }
+    },
+    { "Range: bytes=10-0",
+      false,
+      0,
+      {}
+    },
+    { "Range: BytES=0-10",
+      true,
+      1,
+      { {0, 10, -1}, }
+    },
+    { "Range: megabytes=0-10",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes0-10",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes=0-0,0-10,10-20,100-200,100-,-200",
+      true,
+      6,
+      { {0, 0, -1},
+        {0, 10, -1},
+        {10, 20, -1},
+        {100, 200, -1},
+        {100, -1, -1},
+        {-1, -1, 200},
+      }
+    },
+    { "Range: bytes=0-10\r\n"
+      "Range: bytes=0-10,10-20,100-200,100-,-200",
+      true,
+      1,
+      { {0, 10, -1}
+      }
+    },
+    { "Range: bytes=",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes=-",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes=0-10-",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes=-0-10",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes =0-10\r\n",
+      true,
+      1,
+      { {0, 10, -1}
+      }
+    },
+    { "Range: bytes=  0-10      \r\n",
+      true,
+      1,
+      { {0, 10, -1}
+      }
+    },
+    { "Range: bytes  =   0  -   10      \r\n",
+      true,
+      1,
+      { {0, 10, -1}
+      }
+    },
+    { "Range: bytes=   0-1   0\r\n",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes=   0-     -10\r\n",
+      false,
+      0,
+      {}
+    },
+    { "Range: bytes=   0  -  1   ,   10 -20,   100- 200 ,  100-,  -200 \r\n",
+      true,
+      5,
+      { {0, 1, -1},
+        {10, 20, -1},
+        {100, 200, -1},
+        {100, -1, -1},
+        {-1, -1, 200},
+      }
+    },
+  };
+
+  for (size_t i = 0; i < ARRAYSIZE_UNSAFE(tests); ++i) {
+    std::vector<net::HttpByteRange> ranges;
+    bool return_value = HttpUtil::ParseRanges(std::string(tests[i].headers),
+                                              &ranges);
+    EXPECT_EQ(tests[i].expected_return_value, return_value);
+    if (return_value) {
+      EXPECT_EQ(tests[i].expected_ranges_size, ranges.size());
+      for (size_t j = 0; j < ranges.size(); ++j) {
+        EXPECT_EQ(tests[i].expected_ranges[j].expected_first_byte_position,
+                  ranges[j].first_byte_position());
+        EXPECT_EQ(tests[i].expected_ranges[j].expected_last_byte_position,
+                  ranges[j].last_byte_position());
+        EXPECT_EQ(tests[i].expected_ranges[j].expected_suffix_length,
+                  ranges[j].suffix_length());
+      }
+    }
+  }
 }

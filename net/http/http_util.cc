@@ -195,6 +195,99 @@ void HttpUtil::ParseContentType(const string& content_type_str,
 }
 
 // static
+// Parse the Range header according to RFC 2616 14.35.1
+// ranges-specifier = byte-ranges-specifier
+// byte-ranges-specifier = bytes-unit "=" byte-range-set
+// byte-range-set  = 1#( byte-range-spec | suffix-byte-range-spec )
+// byte-range-spec = first-byte-pos "-" [last-byte-pos]
+// first-byte-pos  = 1*DIGIT
+// last-byte-pos   = 1*DIGIT
+bool HttpUtil::ParseRanges(const std::string& headers,
+                           std::vector<HttpByteRange>* ranges) {
+  std::string ranges_specifier;
+  HttpUtil::HeadersIterator it(headers.begin(), headers.end(), "\r\n");
+
+  while (it.GetNext()) {
+    // Look for "Range" header.
+    if (!LowerCaseEqualsASCII(it.name(), "range"))
+      continue;
+    ranges_specifier = it.values();
+    // We just care about the first "Range" header, so break here.
+    break;
+  }
+
+  if (ranges_specifier.empty())
+    return false;
+
+  size_t equal_char_offset = ranges_specifier.find('=');
+  if (equal_char_offset == std::string::npos)
+    return false;
+
+  // Try to extract bytes-unit part.
+  std::string::const_iterator bytes_unit_begin = ranges_specifier.begin();
+  std::string::const_iterator bytes_unit_end = bytes_unit_begin +
+                                               equal_char_offset;
+  std::string::const_iterator byte_range_set_begin = bytes_unit_end + 1;
+  std::string::const_iterator byte_range_set_end = ranges_specifier.end();
+
+  TrimLWS(&bytes_unit_begin, &bytes_unit_end);
+  // "bytes" unit identifier is not found.
+  if (!LowerCaseEqualsASCII(bytes_unit_begin, bytes_unit_end, "bytes"))
+    return false;
+
+  ValuesIterator byte_range_set_iterator(byte_range_set_begin,
+                                         byte_range_set_end, ',');
+  while (byte_range_set_iterator.GetNext()) {
+    size_t minus_char_offset = byte_range_set_iterator.value().find('-');
+    // If '-' character is not found, reports failure.
+    if (minus_char_offset == std::string::npos)
+      return false;
+
+    std::string::const_iterator first_byte_pos_begin =
+        byte_range_set_iterator.value_begin();
+    std::string::const_iterator first_byte_pos_end =
+        first_byte_pos_begin +  minus_char_offset;
+    TrimLWS(&first_byte_pos_begin, &first_byte_pos_end);
+    std::string first_byte_pos(first_byte_pos_begin, first_byte_pos_end);
+
+    HttpByteRange range;
+    // Try to obtain first-byte-pos.
+    if (!first_byte_pos.empty()) {
+        int64 first_byte_position = -1;
+        if (!StringToInt64(first_byte_pos, &first_byte_position))
+          return false;
+        range.set_first_byte_position(first_byte_position);
+      }
+
+    std::string::const_iterator last_byte_pos_begin =
+        byte_range_set_iterator.value_begin() + minus_char_offset + 1;
+    std::string::const_iterator last_byte_pos_end =
+        byte_range_set_iterator.value_end();
+    TrimLWS(&last_byte_pos_begin, &last_byte_pos_end);
+    std::string last_byte_pos(last_byte_pos_begin, last_byte_pos_end);
+
+    // We have last-byte-pos or suffix-byte-range-spec in this case.
+    if (!last_byte_pos.empty()) {
+      int64 last_byte_position;
+      if (!StringToInt64(last_byte_pos, &last_byte_position))
+        return false;
+      if (range.HasFirstBytePosition())
+        range.set_last_byte_position(last_byte_position);
+      else
+        range.set_suffix_length(last_byte_position);
+    } else if (!range.HasFirstBytePosition()) {
+      return false;
+    }
+
+    // Do a final check on the HttpByteRange object.
+    if (!range.IsValid())
+      return false;
+    ranges->push_back(range);
+  }
+  return ranges->size() > 0;
+}
+
+// static
 bool HttpUtil::HasHeader(const std::string& headers, const char* name) {
   size_t name_len = strlen(name);
   string::const_iterator it =
