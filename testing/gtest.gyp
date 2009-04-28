@@ -40,7 +40,6 @@
         'gtest/src/gtest-internal-inl.h',
         'gtest/src/gtest-port.cc',
         'gtest/src/gtest.cc',
-        'gtest/src/gtest_main.cc',
         'multiprocess_func_list.cc',
         'multiprocess_func_list.h',
         'platform_test.h',
@@ -64,6 +63,18 @@
           ['_type=="executable"', {'test': 1}],
         ],
       },
+    },
+    {
+      # Note that calling this "gtest_main" confuses the scons build,
+      # which uses "_main" on files to produce special behavior.
+      'target_name': 'main',
+      'type': '<(library)',
+      'dependencies': [
+        'gtest',
+      ],
+      'sources': [
+        'gtest/src/gtest_main.cc',
+      ],
     },
   ],
 }
