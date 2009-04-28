@@ -42,11 +42,25 @@ static const int kTreeWidth = 300;
 // ID for various children.
 static const int kNewGroupButtonID             = 1002;
 
-BookmarkEditorView::BookmarkEditorView(Profile* profile,
-                                       BookmarkNode* parent,
-                                       BookmarkNode* node,
-                                       Configuration configuration,
-                                       Handler* handler)
+// static
+void BookmarkEditor::Show(HWND parent_hwnd,
+                          Profile* profile,
+                          BookmarkNode* parent,
+                          BookmarkNode* node,
+                          Configuration configuration,
+                          Handler* handler) {
+  DCHECK(profile);
+  BookmarkEditorView* editor =
+      new BookmarkEditorView(profile, parent, node, configuration, handler);
+  editor->Show(parent_hwnd);
+}
+
+BookmarkEditorView::BookmarkEditorView(
+    Profile* profile,
+    BookmarkNode* parent,
+    BookmarkNode* node,
+    BookmarkEditor::Configuration configuration,
+    BookmarkEditor::Handler* handler)
     : profile_(profile),
       tree_view_(NULL),
       new_group_button_(NULL),
@@ -65,19 +79,6 @@ BookmarkEditorView::~BookmarkEditorView() {
   if (tree_view_)
     tree_view_->SetModel(NULL);
   bb_model_->RemoveObserver(this);
-}
-
-// static
-void BookmarkEditorView::Show(HWND parent_hwnd,
-                              Profile* profile,
-                              BookmarkNode* parent,
-                              BookmarkNode* node,
-                              Configuration configuration,
-                              Handler* handler) {
-  DCHECK(profile);
-  BookmarkEditorView* editor =
-      new BookmarkEditorView(profile, parent, node, configuration, handler);
-  editor->Show(parent_hwnd);
 }
 
 bool BookmarkEditorView::IsDialogButtonEnabled(
@@ -489,7 +490,7 @@ void BookmarkEditorView::ApplyEdits(EditorNode* parent) {
   BookmarkNode* old_parent = node_ ? node_->GetParent() : NULL;
   const int old_index = old_parent ? old_parent->IndexOfChild(node_) : -1;
 
-  if (!show_tree_ ) {
+  if (!show_tree_) {
     if (!node_) {
       BookmarkNode* node =
           bb_model_->AddURL(parent_, parent_->GetChildCount(), new_title,

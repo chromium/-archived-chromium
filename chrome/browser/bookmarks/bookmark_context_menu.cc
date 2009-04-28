@@ -5,6 +5,7 @@
 #include "chrome/browser/bookmarks/bookmark_context_menu.h"
 
 #include "base/compiler_specific.h"
+#include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/browser.h"
@@ -21,7 +22,6 @@
 // TODO(port): Port these files.
 #if defined(OS_WIN)
 #include "chrome/browser/tab_contents/tab_contents.h"
-#include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/bookmark_manager_view.h"
 #include "chrome/views/window/window.h"
 #endif
@@ -189,7 +189,7 @@ class EditFolderController : public InputWindowDialog::Delegate,
 
 // Used when adding a new bookmark. If a new bookmark is created it is selected
 // in the bookmark manager.
-class SelectOnCreationHandler : public BookmarkEditorView::Handler {
+class SelectOnCreationHandler : public BookmarkEditor::Handler {
  public:
   explicit SelectOnCreationHandler(Profile* profile) : profile_(profile) {
   }
@@ -336,17 +336,13 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
       }
 
       if (selection_[0]->is_url()) {
-#if defined(OS_WIN)
-        BookmarkEditorView::Configuration editor_config;
+        BookmarkEditor::Configuration editor_config;
         if (configuration_ == BOOKMARK_BAR)
-          editor_config = BookmarkEditorView::SHOW_TREE;
+          editor_config = BookmarkEditor::SHOW_TREE;
         else
-          editor_config = BookmarkEditorView::NO_TREE;
-        BookmarkEditorView::Show(wnd_, profile_, NULL, selection_[0],
-                                 editor_config, NULL);
-#else
-      NOTIMPLEMENTED() << "BookmarkEditorView unimplemented";
-#endif
+          editor_config = BookmarkEditor::NO_TREE;
+        BookmarkEditor::Show(wnd_, profile_, NULL, selection_[0],
+                             editor_config, NULL);
       } else {
         EditFolderController::Show(profile_, wnd_, selection_[0], false,
                                    false);
@@ -368,21 +364,21 @@ void BookmarkContextMenu::ExecuteCommand(int id) {
     case IDS_BOOMARK_BAR_ADD_NEW_BOOKMARK: {
       UserMetrics::RecordAction(L"BookmarkBar_ContextMenu_Add", profile_);
 
-#if defined(OS_WIN)
-      BookmarkEditorView::Configuration editor_config;
-      BookmarkEditorView::Handler* handler = NULL;
+      BookmarkEditor::Configuration editor_config;
+      BookmarkEditor::Handler* handler = NULL;
       if (configuration_ == BOOKMARK_BAR) {
-        editor_config = BookmarkEditorView::SHOW_TREE;
+        editor_config = BookmarkEditor::SHOW_TREE;
       } else {
-        editor_config = BookmarkEditorView::NO_TREE;
+        editor_config = BookmarkEditor::NO_TREE;
+#if defined(OS_WIN)
         // This is owned by the BookmarkEditorView.
         handler = new SelectOnCreationHandler(profile_);
-      }
-      BookmarkEditorView::Show(wnd_, profile_, GetParentForNewNodes(), NULL,
-                               editor_config, handler);
 #else
-      NOTIMPLEMENTED() << "Adding new bookmark not implemented";
+        NOTIMPLEMENTED() << "Custom SelectOnCreationHandler not implemented";
 #endif
+      }
+      BookmarkEditor::Show(wnd_, profile_, GetParentForNewNodes(), NULL,
+                           editor_config, handler);
       break;
     }
 

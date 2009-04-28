@@ -7,6 +7,7 @@
 
 #include <set>
 
+#include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/views/controls/button/button.h"
 #include "chrome/views/controls/menu/menu.h"
@@ -32,7 +33,8 @@ class Profile;
 //
 // To use BookmarkEditorView invoke the static show method.
 
-class BookmarkEditorView : public views::View,
+class BookmarkEditorView : public BookmarkEditor,
+                           public views::View,
                            public views::ButtonListener,
                            public views::TreeViewController,
                            public views::DialogDelegate,
@@ -51,39 +53,13 @@ class BookmarkEditorView : public views::View,
   FRIEND_TEST(BookmarkEditorViewTest, ChangeURLNoTree);
   FRIEND_TEST(BookmarkEditorViewTest, ChangeTitleNoTree);
  public:
-  // Handler is notified when the BookmarkEditorView creates a new bookmark.
-  // Handler is owned by the BookmarkEditorView and deleted when it is deleted.
-  class Handler {
-   public:
-    virtual ~Handler() {}
-    virtual void NodeCreated(BookmarkNode* new_node) = 0;
-  };
-
-  // An enumeration of the possible configurations offered.
-  enum Configuration {
-    SHOW_TREE,
-    NO_TREE
-  };
-
   BookmarkEditorView(Profile* profile,
                      BookmarkNode* parent,
                      BookmarkNode* node,
-                     Configuration configuration,
-                     Handler* handler);
+                     BookmarkEditor::Configuration configuration,
+                     BookmarkEditor::Handler* handler);
 
   virtual ~BookmarkEditorView();
-
-  // Shows the BookmarkEditorView editing |node|. If |node| is NULL a new entry
-  // is created initially parented to |parent|. If |show_tree| is false the
-  // tree is not shown. BookmarkEditorView takes ownership of |handler| and
-  // deletes it when done. |handler| may be null. See description of Handler
-  // for details.
-  static void Show(HWND parent_window,
-                   Profile* profile,
-                   BookmarkNode* parent,
-                   BookmarkNode* node,
-                   Configuration configuration,
-                   Handler* handler);
 
   // DialogDelegate methods:
   virtual bool IsDialogButtonEnabled(
@@ -280,7 +256,7 @@ class BookmarkEditorView : public views::View,
   // Is the tree shown?
   bool show_tree_;
 
-  scoped_ptr<Handler> handler_;
+  scoped_ptr<BookmarkEditor::Handler> handler_;
 
   DISALLOW_COPY_AND_ASSIGN(BookmarkEditorView);
 };

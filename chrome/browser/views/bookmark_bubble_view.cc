@@ -5,11 +5,11 @@
 #include "chrome/browser/views/bookmark_bubble_view.h"
 
 #include "chrome/app/chrome_dll_resource.h"
+#include "chrome/browser/bookmarks/bookmark_editor.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
 #include "chrome/browser/metrics/user_metrics.h"
 #include "chrome/browser/profile.h"
-#include "chrome/browser/views/bookmark_editor_view.h"
 #include "chrome/browser/views/info_bubble.h"
 #include "chrome/browser/views/standard_layout.h"
 #include "chrome/common/gfx/chrome_canvas.h"
@@ -373,9 +373,10 @@ void BookmarkBubbleView::ShowEditor() {
   // the delete and all that.
   Close();
 
-  if (node)
-    BookmarkEditorView::Show(parent, profile_, NULL, node,
-                             BookmarkEditorView::SHOW_TREE, NULL);
+  if (node) {
+    BookmarkEditor::Show(parent, profile_, NULL, node,
+                         BookmarkEditor::SHOW_TREE, NULL);
+  }
 }
 
 void BookmarkBubbleView::ApplyEdits() {
