@@ -302,6 +302,7 @@
       'sources': [
         '../../../skia/ext/convolver_unittest.cc',
         '../../../skia/ext/image_operations_unittest.cc',
+        '../../../skia/ext/skia_utils_unittest.cc'
         '../../../skia/ext/platform_canvas_unittest.cc',
         '../../../skia/ext/vector_canvas_unittest.cc',
         '../../glue/bookmarklet_unittest.cc',
