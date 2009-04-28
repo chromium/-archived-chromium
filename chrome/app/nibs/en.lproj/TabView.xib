@@ -102,7 +102,7 @@
 					</object>
 					<object class="NSProgressIndicator" id="58797509">
 						<reference key="NSNextResponder" ref="1005"/>
-						<int key="NSvFlags">1321</int>
+						<int key="NSvFlags">-2147482327</int>
 						<object class="NSPSMatrix" key="NSDrawMatrix"/>
 						<string key="NSFrame">{{131, 4}, {16, 16}}</string>
 						<reference key="NSSuperview" ref="1005"/>
@@ -113,24 +113,28 @@
 					<object class="NSButton" id="1054640993">
 						<reference key="NSNextResponder" ref="1005"/>
 						<int key="NSvFlags">297</int>
-						<string key="NSFrame">{{134, 7}, {10, 10}}</string>
+						<string key="NSFrame">{{131, 5}, {15, 15}}</string>
 						<reference key="NSSuperview" ref="1005"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="348599947">
 							<int key="NSCellFlags">67239424</int>
 							<int key="NSCellFlags2">134217728</int>
-							<string key="NSContents">Close</string>
+							<string key="NSContents"/>
 							<object class="NSFont" key="NSSupport">
 								<string key="NSName">LucidaGrande</string>
 								<double key="NSSize">1.300000e+01</double>
 								<int key="NSfFlags">1044</int>
 							</object>
 							<reference key="NSControlView" ref="1054640993"/>
-							<int key="NSButtonFlags">-2042347265</int>
-							<int key="NSButtonFlags2">134</int>
+							<int key="NSButtonFlags">139215103</int>
+							<int key="NSButtonFlags2">6</int>
 							<object class="NSCustomResource" key="NSNormalImage">
 								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">NSStopProgressTemplate</string>
+								<string key="NSResourceName">close_bar</string>
+							</object>
+							<object class="NSCustomResource" key="NSAlternateImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">close_bar_p</string>
 							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>
@@ -396,7 +400,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilderKit</string>
 					<string>com.apple.InterfaceBuilderKit</string>
-					<string>{{831, 498}, {160, 25}}</string>
+					<string>{{799, 498}, {160, 25}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<boolean value="NO"/>
 					<string>{628, 654}</string>
@@ -436,6 +440,13 @@
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<bool key="EncodedWithXMLCoder">YES</bool>
 				<object class="IBPartialClassDescription">
+					<string key="className">NSObject</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">browser/cocoa/tab_strip_model_observer_bridge.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
 					<string key="className">TabCell</string>
 					<string key="superclassName">NSButtonCell</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
@@ -455,13 +466,11 @@
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>backgroundButton_</string>
-							<string>closeButton_</string>
 							<string>progressIndicator_</string>
 							<string>target_</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSButton</string>
 							<string>NSButton</string>
 							<string>NSProgressIndicator</string>
 							<string>id</string>
@@ -475,10 +484,6 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">TabView</string>
 					<string key="superclassName">NSView</string>
-					<object class="NSMutableDictionary" key="actions">
-						<string key="NS.key.0">closeTab:</string>
-						<string key="NS.object.0">id</string>
-					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">

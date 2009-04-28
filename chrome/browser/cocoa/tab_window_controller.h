@@ -47,7 +47,7 @@
 // appropriate.
 
 // Layout the tabs based on the current ordering of the model.
-- (void)arrangeTabs;
+- (void)layoutTabs;
 
 // Creates a new window by pulling the given tab out and placing it in
 // the new window. Returns the controller for the new window. The size of the
@@ -55,8 +55,9 @@
 - (TabWindowController*)detachTabToNewWindow:(TabView*)tabView;
 
 // Make room in the tab strip for |tab| at the given x coordinate.
-// TODO(pink): is |tab| a necessary parameter?
-- (void)insertPlaceholderForTab:(TabView*)tab atLocation:(NSInteger)xLocation;
+- (void)insertPlaceholderForTab:(TabView*)tab
+                          frame:(NSRect)frame
+                  yStretchiness:(CGFloat)yStretchiness;
 
 // Removes the placeholder installed by |-insertPlaceholderForTab:atLocation:|.
 - (void)removePlaceholder;
@@ -64,6 +65,12 @@
 // Number of tabs in the tab strip. Useful, for example, to know if we're
 // dragging the only tab in the window.
 - (NSInteger)numberOfTabs;
+
+// Return the view of the selected tab.
+- (NSView *)selectedTabView;
+
+// Drop a given tab view at a new index.
+- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index;
 
 // The title of the selected tab.
 - (NSString*)selectedTabTitle;

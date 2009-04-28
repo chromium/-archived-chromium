@@ -11,6 +11,7 @@
 #include "base/scoped_ptr.h"
 #import "chrome/browser/cocoa/tab_controller_target.h"
 
+@class TabView;
 @class TabStripView;
 
 class TabStripModelObserverBridge;
@@ -45,6 +46,11 @@ class ToolbarModel;
   // an array of TabControllers which manage the actual tab views. As above,
   // this is kept in the same order as the tab strip model.
   scoped_nsobject<NSMutableArray> tabArray_;
+
+  // These values are only used during a drag, and override tab positioning
+  TabView* placeholderTab_; // weak. Tab being dragged
+  NSRect placeholderFrame_;  // Frame to use
+  CGFloat placeholderStretchiness_; // Vertical force indicated by streching tab
 }
 
 // Initialize the controller with a view and browser that contains
@@ -60,9 +66,29 @@ class ToolbarModel;
 // in the coordinate system of the content area of the currently selected tab.
 - (NSRect)selectedTabGrowBoxRect;
 
+// Return the view for the currently selected tab.
+- (NSView *)selectedTabView;
+
+// Drop a tab view at a new index in the array.
+- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index;
+
 // Given a tab view in the strip, return its index. Returns -1 if not present.
 - (NSInteger)indexForTabView:(NSView*)view;
 
+// return the view at a given index
+- (NSView*)viewAtIndex:(NSUInteger)index;
+
+// Set the placeholder for a dragged tab, allowing the |frame| and |strechiness|
+// to be specified. This causes this tab to be rendered in an arbitrary position
+- (void)insertPlaceholderForTab:(TabView*)tab
+                          frame:(NSRect)frame
+                  yStretchiness:(CGFloat)yStretchiness;
+
+// Force the tabs to rearrange themselves to reflect the current model
+- (void)layoutTabs;
+
+// Default height for tabs.
++ (CGFloat)defaultTabHeight;
 @end
 
 #endif  // CHROME_BROWSER_COCOA_TAB_STRIP_CONTROLLER_H_

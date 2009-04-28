@@ -18,7 +18,7 @@
   NSRect boundsRect = [self bounds];
   NSRect borderRect, contentRect;
   NSDivideRect(boundsRect, &borderRect, &contentRect, 1, NSMinYEdge);
-  [[NSColor colorWithCalibratedWhite:0.0 alpha:0.2] set];
+  [[NSColor colorWithCalibratedWhite:0.0 alpha:0.3] set];
 
   NSRectFillUsingOperation(borderRect, NSCompositeSourceOver);
 }

@@ -47,6 +47,10 @@
   return self;
 }
 
++ (CGFloat)defaultTabHeight {
+  return 24.0;
+}
+
 // Finds the associated TabContentsController at the given |index| and swaps
 // out the sole child of the contentArea to display its contents.
 - (void)swapInTabAtIndex:(NSInteger)index {
@@ -119,10 +123,28 @@
 
 // Called when the user closes a tab.  Asks the model to close the tab.
 - (void)closeTab:(id)sender {
-  int index = [self indexForTabView:sender];
-  if (index >= 0 && tabModel_->ContainsIndex(index))
-    tabModel_->CloseTabContentsAt(index);
+  if ([self numberOfTabViews] > 1) {
+    int index = [self indexForTabView:sender];
+    if (index >= 0 && tabModel_->ContainsIndex(index))
+      tabModel_->CloseTabContentsAt(index);
+  } else {
+    // Use the standard window close if this is the last tab
+    // this prevents the tab from being removed from the model until after
+    // the window dissapears
+    [[tabView_ window] performClose:nil];
+  }
 }
+
+
+- (void)insertPlaceholderForTab:(TabView*)tab
+                          frame:(NSRect)frame
+                  yStretchiness:(CGFloat)yStretchiness {
+  placeholderTab_ = tab;
+  placeholderFrame_ = frame;
+  placeholderStretchiness_ = yStretchiness;
+  [self layoutTabs];
+}
+
 
 // Lay out all tabs in the order of their TabContentsControllers, which matches
 // the ordering in the TabStripModel. This call isn't that expensive, though
@@ -152,24 +174,45 @@
               kMaxTabWidth),
           kMinTabWidth);
 
+  CGFloat minX = NSMinX(placeholderFrame_);
+
+  NSUInteger i = 0;
+  NSInteger gap = -1;
   for (TabController* tab in tabArray_.get()) {
-    // BOOL isPlaceholder = ![[[tab view] superview] isEqual:tabView_];
-    BOOL isPlaceholder = NO;
+    BOOL isPlaceholder = [[tab view] isEqual:placeholderTab_];
     NSRect tabFrame = [[tab view] frame];
-    // If the tab is all the way on the left, we consider it a new tab. We
-    // need to show it, but not animate the movement. We do however want to
-    // animate the display.
-    BOOL newTab = NSMinX(tabFrame) == 0;
+    tabFrame.size.height = [[self class] defaultTabHeight];
+    tabFrame.origin.y = 0;
+    tabFrame.origin.x = offset;
+
+    // If the tab is hidden, we consider it a new tab. We make it visible
+    // and animate it in.
+    BOOL newTab = [[tab view] isHidden];
     if (newTab) {
-      id visibilityTarget = visible ? [[tab view] animator] : [tab view];
-      [visibilityTarget setHidden:NO];
+      [[tab view] setHidden:NO];
     }
-    tabFrame.origin = NSMakePoint(offset, 0);
-    if (!isPlaceholder) {
-      // Set the tab's new frame and animate the tab to its new location. Don't
-      // animate if the window isn't visible or if the tab is new.
-      BOOL animate = visible && !newTab;
-      id frameTarget = animate ? [[tab view] animator] : [tab view];
+
+    if (isPlaceholder) {
+      tabFrame.origin.x = placeholderFrame_.origin.x;
+      tabFrame.size.height += 10.0 * placeholderStretchiness_;
+      [[tab view] setFrame:tabFrame];
+      continue;
+    } else {
+      // If our left edge is to the left of the placeholder's left, but our mid
+      // is to the right of it we should slide over to make space for it.
+      if (placeholderTab_ && gap < 0 && NSMidX(tabFrame) > minX) {
+        gap = i;
+        offset += NSWidth(tabFrame);
+        offset -= kTabOverlap;
+        tabFrame.origin.x = offset;
+      }
+
+      // Animate the tab in by putting it below the horizon.
+      if (newTab && visible) {
+        [[tab view] setFrame:NSOffsetRect(tabFrame, 0, -NSHeight(tabFrame))];
+      }
+
+      id frameTarget = visible ? [[tab view] animator] : [tab view];
       tabFrame.size.width = [tab selected] ? kMaxTabWidth : baseTabWidth;
       [frameTarget setFrame:tabFrame];
     }
@@ -178,11 +221,13 @@
       offset += NSWidth(tabFrame);
       offset -= kTabOverlap;
     }
+    i++;
   }
 
   // Move the new tab button into place
   [[newTabButton_ animator] setFrameOrigin:
       NSMakePoint(MIN(availableWidth, offset + kNewTabButtonOffset), 0)];
+  if (i > 0) [[newTabButton_ animator] setHidden:NO];
   [NSAnimationContext endGrouping];
 }
 
@@ -222,6 +267,9 @@
   TabController* newController = [self newTab];
   [tabArray_ insertObject:newController atIndex:index];
   NSView* newView = [newController view];
+  [newView setFrame:NSOffsetRect([newView frame],
+                                 0, [[self class] defaultTabHeight])];
+
   [tabView_ addSubview:newView
             positioned:inForeground ? NSWindowAbove : NSWindowBelow
             relativeTo:nil];
@@ -299,6 +347,16 @@
   TabContentsController* updatedController =
       [tabContentsArray_ objectAtIndex:index];
   [updatedController tabDidChange:contents];
+}
+
+- (NSView *)selectedTabView {
+  int selectedIndex = tabModel_->selected_index();
+  return [self viewAtIndex:selectedIndex];
+}
+
+- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index {
+  // TODO(pinkerton): implement drop
+  NOTIMPLEMENTED();
 }
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box

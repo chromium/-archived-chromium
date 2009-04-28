@@ -79,13 +79,10 @@
     [contentView addSubview:[self tabStripView]];
     cachedContentView_ = [[self window] contentView];
     [self moveViewsBetweenWindowAndOverlay:useOverlay];
-    [overlayWindow_ setHasShadow:YES];
     [[self window] addChildWindow:overlayWindow_ ordered:NSWindowAbove];
     [overlayWindow_ orderFront:nil];
-    [[self window] setHasShadow:NO];
   } else if (!useOverlay && overlayWindow_) {
     DCHECK(cachedContentView_);
-    [[self window] setHasShadow:YES];
     [[self window] setContentView:cachedContentView_];
     [self moveViewsBetweenWindowAndOverlay:useOverlay];
     [[self window] makeFirstResponder:cachedContentView_];
@@ -102,7 +99,16 @@
   return overlayWindow_;
 }
 
-- (void)arrangeTabs {
+- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index {
+  NOTIMPLEMENTED();
+}
+
+- (NSView *)selectedTabView {
+  NOTIMPLEMENTED();
+  return nil;
+}
+
+- (void)layoutTabs {
   // subclass must implement
   NOTIMPLEMENTED();
 }
@@ -113,7 +119,9 @@
   return NULL;
 }
 
-- (void)insertPlaceholderForTab:(TabView*)tab atLocation:(NSInteger)xLocation {
+- (void)insertPlaceholderForTab:(TabView*)tab
+                          frame:(NSRect)frame
+                  yStretchiness:(CGFloat)yStretchiness {
   // subclass must implement
   NOTIMPLEMENTED();
 }

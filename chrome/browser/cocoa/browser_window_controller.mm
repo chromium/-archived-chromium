@@ -275,6 +275,18 @@ willPositionSheet:(NSWindow *)sheet
   return [tabStripController_ selectedTabGrowBoxRect];
 }
 
+- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index {
+  [tabStripController_ dropTabView:view atIndex:index];
+}
+
+- (NSView *)selectedTabView {
+  return [tabStripController_ selectedTabView];
+}
+
+- (TabStripController *)tabStripController {
+  return tabStripController_;
+}
+
 - (void)setIsLoading:(BOOL)isLoading {
   [toolbarController_ setIsLoading:isLoading];
 }
@@ -296,8 +308,8 @@ willPositionSheet:(NSWindow *)sheet
   [toolbarController_ focusLocationBar];
 }
 
-- (void)arrangeTabs {
-  NOTIMPLEMENTED();
+- (void)layoutTabs {
+  [tabStripController_ layoutTabs];
 }
 
 - (TabWindowController*)detachTabToNewWindow:(TabView*)tabView {
@@ -316,6 +328,8 @@ willPositionSheet:(NSWindow *)sheet
           windowRect.origin.y;
   gfx::Rect browserRect(windowRect.origin.x, windowRect.origin.y,
                         windowRect.size.width, windowRect.size.height);
+
+  NSRect tabRect = [tabView frame];
 
   // Detach it from the source window, which just updates the model without
   // deleting the tab contents. This needs to come before creating the new
@@ -336,15 +350,27 @@ willPositionSheet:(NSWindow *)sheet
       [newBrowser->window()->GetNativeHandle() delegate];
   DCHECK(controller && [controller isKindOfClass:[TabWindowController class]]);
 
+  // Force the added tab to the right size (remove stretching)
+  tabRect.size.height = [TabStripController defaultTabHeight];
+  NSView *newTabView = [controller selectedTabView];
+  [newTabView setFrame:tabRect];
+
   return controller;
 }
 
-- (void)insertPlaceholderForTab:(TabView*)tab atLocation:(NSInteger)xLocation {
-  NOTIMPLEMENTED();
+
+- (void)insertPlaceholderForTab:(TabView*)tab
+                          frame:(NSRect)frame
+                      yStretchiness:(CGFloat)yStretchiness {
+  [tabStripController_ insertPlaceholderForTab:tab
+                                         frame:frame
+                                 yStretchiness:yStretchiness];
 }
 
 - (void)removePlaceholder {
-  NOTIMPLEMENTED();
+  [tabStripController_ insertPlaceholderForTab:nil
+                                         frame:NSZeroRect
+                                 yStretchiness:0];
 }
 
 - (BOOL)isBookmarkBarVisible {

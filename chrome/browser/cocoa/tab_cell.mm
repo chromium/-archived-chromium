@@ -21,9 +21,6 @@
 }
 
 - (NSBackgroundStyle)interiorBackgroundStyle {
-  // GTMThemeStyle style =
-  //     [self isHighlighted] ? GTMThemeStyleTabBarSelected
-  //                          : GTMThemeStyleTabBarDeselected;
   return [[GTMTheme defaultTheme]
               interiorBackgroundStyleForStyle:GTMThemeStyleTabBarSelected
                                        active:YES];
@@ -97,7 +94,6 @@
                                 active:active];
     // Stroke with a translucent black
     [[NSColor colorWithCalibratedWhite:0.0 alpha:active ? 0.3 : 0.1] set];
-    [path fill];
   }
 
   [[NSGraphicsContext currentContext] saveGraphicsState];
@@ -105,17 +101,27 @@
   [[NSColor colorWithCalibratedWhite:0.0 alpha:0.2] set];
   [path setLineWidth:selected ? 2.0 : 1.0];
   [path stroke];
+
   [[NSGraphicsContext currentContext] restoreGraphicsState];
 
   [gradient drawInBezierPath:path angle:90.0];
-  [[NSColor darkGrayColor] set];
+
+  if (!selected) {
+    [path addClip];
+    NSRect borderRect, contentRect;
+    NSDivideRect(rect, &borderRect, &contentRect, 1, NSMaxYEdge);
+    [[NSColor colorWithCalibratedWhite:0.0 alpha:0.4] set];
+    NSRectFillUsingOperation(borderRect, NSCompositeSourceOver);
+  }
 
   [[NSGraphicsContext currentContext] restoreGraphicsState];
 
   // Inset where the text and favicon are drawn to keep them away from the
-  // sloping edges of the tab.
+  // sloping edges of the tab and the close box.
   int kInteriorInset = cellFrame.size.height / 2.0;
-  [self drawInteriorWithFrame:NSInsetRect(cellFrame, kInteriorInset, 0)
+  NSRect frame = NSInsetRect(cellFrame, kInteriorInset, 0);
+  frame.size.width -= 16; // Inset for close box
+  [self drawInteriorWithFrame:frame
                        inView:controlView];
 }
 
