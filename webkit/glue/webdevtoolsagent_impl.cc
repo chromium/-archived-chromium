@@ -81,10 +81,9 @@ void WebDevToolsAgentImpl::Attach() {
   // Populate console.
   for (Vector<ConsoleMessage>::iterator it = console_log_.begin();
        it != console_log_.end(); ++it) {
-    tools_agent_delegate_stub_->AddMessageToConsole(
-        it->message,
-        it->source_id,
-        it->line_no);
+    DictionaryValue message;
+    Serialize(*it, &message);
+    tools_agent_delegate_stub_->AddMessageToConsole(message);
   }
 
   net_agent_impl_->Attach();
@@ -137,20 +136,21 @@ void WebDevToolsAgentImpl::DidCommitLoadForFrame(
 }
 
 void WebDevToolsAgentImpl::AddMessageToConsole(
-    const String& message,
-    const String& source_id,
-    unsigned int line_no) {
-  ConsoleMessage cm(message, source_id, line_no);
+    int source,
+    int level,
+    const String& text,
+    unsigned int line_no,
+    const String& source_id) {
+  ConsoleMessage cm(source, level, text, line_no, source_id);
   console_log_.append(cm);
   if (console_log_.size() >= kMaxConsoleMessages) {
     // Batch shifts to save ticks.
     console_log_.remove(0, kMaxConsoleMessages / 5);
   }
   if (attached_) {
-    tools_agent_delegate_stub_->AddMessageToConsole(
-        message,
-        source_id,
-        line_no);
+    DictionaryValue message;
+    Serialize(cm, &message);
+    tools_agent_delegate_stub_->AddMessageToConsole(message);
   }
 }
 
@@ -249,6 +249,17 @@ void WebDevToolsAgentImpl::SendRpcMessage(const std::string& raw_msg) {
 }
 
 // static
+void WebDevToolsAgentImpl::Serialize(const ConsoleMessage& message,
+                                     DictionaryValue* value) {
+  value->SetInteger(L"source", message.source);
+  value->SetInteger(L"level", message.level);
+  value->SetString(L"text", webkit_glue::StringToStdString(message.text));
+  value->SetString(L"sourceId",
+      webkit_glue::StringToStdString(message.source_id));
+  value->SetInteger(L"line", message.line_no);
+}
+
+// static
 void WebDevToolsAgent::ExecuteDebuggerCommand(
     const std::string& command,
     int caller_id) {
@@ -260,3 +271,4 @@ void WebDevToolsAgent::SetMessageLoopDispatchHandler(
     MessageLoopDispatchHandler handler) {
   DebuggerAgentManager::SetMessageLoopDispatchHandler(handler);
 }
+

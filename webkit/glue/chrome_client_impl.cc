@@ -7,6 +7,7 @@
 #include "base/compiler_specific.h"
 
 MSVC_PUSH_WARNING_LEVEL(0);
+#include "Console.h"
 #include "Cursor.h"
 #include "FloatRect.h"
 #include "FileChooser.h"
@@ -272,7 +273,9 @@ void ChromeClientImpl::setResizable(bool value) {
   resizable_ = value;
 }
 
-void ChromeClientImpl::addMessageToConsole(const WebCore::String& message,
+void ChromeClientImpl::addMessageToConsole(WebCore::MessageSource source,
+                                           WebCore::MessageLevel level,
+                                           const WebCore::String& message,
                                            unsigned int line_no,
                                            const WebCore::String& source_id) {
   WebViewDelegate* delegate = webview_->delegate();
@@ -284,7 +287,7 @@ void ChromeClientImpl::addMessageToConsole(const WebCore::String& message,
   }
   WebDevToolsAgentImpl* devtools_agent = webview_->GetWebDevToolsAgentImpl();
   if (devtools_agent) {
-    devtools_agent->AddMessageToConsole(message, source_id, line_no);
+    devtools_agent->AddMessageToConsole(source, level, message, line_no, source_id);
   }
 }
 

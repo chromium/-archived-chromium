@@ -44,8 +44,7 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD2(DidExecuteUtilityFunction, int /* call_id */, String /* json */) \
   \
   /* Adds message to console. */ \
-  METHOD3(AddMessageToConsole, String /* message */, \
-      String /* source_id */, int /* line_no */)
+  METHOD1(AddMessageToConsole, Value /* message */)
 
 DEFINE_RPC_CLASS(ToolsAgentDelegate, TOOLS_AGENT_DELEGATE_STRUCT)
 

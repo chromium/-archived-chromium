@@ -67,9 +67,11 @@ class WebDevToolsAgentImpl
                              WebFrame* frame,
                              bool is_new_navigation);
   void AddMessageToConsole(
+      int source,
+      int level,
       const WebCore::String& message,
-      const WebCore::String& source_id,
-      unsigned int line_no);
+      unsigned int line_no,
+      const WebCore::String& source_id);
 
   void ForceRepaint();
 
@@ -78,15 +80,23 @@ class WebDevToolsAgentImpl
 
  private:
   struct ConsoleMessage {
-    ConsoleMessage(const String& m, const String& sid, unsigned li)
-        : message(m),
-          source_id(sid),
-          line_no(li) {
+    ConsoleMessage(
+        int src, int lvl, const String& m, unsigned li, const String& sid)
+        : source(src),
+          level(lvl),
+          text(m),
+          line_no(li),
+          source_id(sid) {
     }
-    WebCore::String message;
+    int source;
+    int level;
+    WebCore::String text;
     WebCore::String source_id;
     unsigned int line_no;
   };
+
+  static void Serialize(const ConsoleMessage& message, DictionaryValue* value);
+
   int host_id_;
   WebDevToolsAgentDelegate* delegate_;
   WebViewImpl* web_view_impl_;

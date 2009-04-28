@@ -102,17 +102,15 @@ devtools.ToolsAgent.prototype.frameNavigate = function(url, topLevel) {
 
 
 /**
- * @param {string} message Message to add.
- * @param {string} source Source url.
- * @param {number} line Line number in source.
+ * @param {Object} message Message object to add.
  * @see tools_agent.h
  */
-devtools.ToolsAgent.prototype.addMessageToConsole = function(message, source,
-    line) {
+devtools.ToolsAgent.prototype.addMessageToConsole = function(message) {
   var console = WebInspector.console;
   if (console) {
     console.addMessage(new WebInspector.ConsoleMessage(
-        '', undefined, line, source, undefined, 1, message));
+        message.source, message.level, message.line, message.sourceId,
+        undefined, 1, message.text));
   }
 };
 

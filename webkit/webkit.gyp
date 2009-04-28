@@ -2025,6 +2025,8 @@
         '../third_party/WebKit/WebCore/page/Page.h',
         '../third_party/WebKit/WebCore/page/PageGroup.cpp',
         '../third_party/WebKit/WebCore/page/PageGroup.h',
+        '../third_party/WebKit/WebCore/page/PageGroupLoadDeferrer.cpp',
+        '../third_party/WebKit/WebCore/page/PageGroupLoadDeferrer.h',
         '../third_party/WebKit/WebCore/page/PositionCallback.h',
         '../third_party/WebKit/WebCore/page/PositionError.h',
         '../third_party/WebKit/WebCore/page/PositionErrorCallback.h',
