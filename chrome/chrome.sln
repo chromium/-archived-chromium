@@ -1234,7 +1234,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8", "..\v8\tools\gyp\v8.vc
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mksnapshot", "..\build\temp_gyp\mksnapshot.vcproj", "{865575D0-37E2-405E-8CBA-5F6C485B5A26}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mksnapshot", "..\v8\tools\gyp\mksnapshot.vcproj", "{865575D0-37E2-405E-8CBA-5F6C485B5A26}"
 	ProjectSection(ProjectDependencies) = postProject
 		{879286C0-3234-D14B-BB2C-32D4D1B809CE} = {879286C0-3234-D14B-BB2C-32D4D1B809CE}
 		{EC8B7909-62AF-470D-A75D-E1D89C837142} = {EC8B7909-62AF-470D-A75D-E1D89C837142}
@@ -1423,7 +1423,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_worker", "..\webkit\to
 		{FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED} = {FC0E1FD0-5DD7-4041-A1C9-CD3C376E4EED}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "js2c", "..\build\temp_gyp\js2c.vcproj", "{9DA4FACA-4A4D-3A23-B349-475C2237F827}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "js2c", "..\v8\tools\gyp\js2c.vcproj", "{9DA4FACA-4A4D-3A23-B349-475C2237F827}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "v8_nosnapshot", "..\v8\tools\gyp\v8_nosnapshot.vcproj", "{879286C0-3234-D14B-BB2C-32D4D1B809CE}"
 	ProjectSection(ProjectDependencies) = postProject
