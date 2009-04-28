@@ -48,6 +48,11 @@ class TabContentsContainerGtk : public NotificationObserver {
   // get notified.
   void TabContentsDestroyed(TabContents* contents);
 
+  // Called when |fixed_| changes sizes. Used to position the findbar.
+  static void OnSizeAllocate(GtkWidget* fixed,
+                             GtkAllocation* allocation,
+                             TabContentsContainerGtk* contents_container);
+
   // The currently visible TabContents.
   TabContents* tab_contents_;
 
@@ -55,6 +60,12 @@ class TabContentsContainerGtk : public NotificationObserver {
   // hierarchy. We then insert and remove WebContents GtkWidgets into this
   // vbox_.
   GtkWidget* vbox_;
+
+  // This GtkFixed widget helps us position the find bar.
+  GtkWidget* fixed_;
+
+  // The findbar widget. We do not own it.
+  GtkWidget* findbar_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsContainerGtk);
 };

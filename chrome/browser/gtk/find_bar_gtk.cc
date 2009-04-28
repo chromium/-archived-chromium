@@ -102,7 +102,6 @@ void FindBarGtk::InitWidgets() {
   GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
-
 }
 
 void FindBarGtk::Show() {
