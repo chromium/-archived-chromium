@@ -16,13 +16,27 @@
 
 namespace {
 
+// If there's a text entry in the dialog, get the text from the first one and
+// return it.
+std::wstring GetPromptText(GtkDialog* dialog) {
+  // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
+  GtkWidget* contents_vbox = dialog->vbox;
+  GList* first_child = gtk_container_get_children(GTK_CONTAINER(contents_vbox));
+  for (GList* item = first_child; item; g_list_next(item)) {
+    if (GTK_IS_ENTRY(item->data)) {
+      return UTF8ToWide(gtk_entry_get_text(GTK_ENTRY(item->data)));
+    }
+  }
+  return std::wstring();
+}
+
 void OnDialogResponse(GtkDialog* dialog, gint response_id,
                       AppModalDialog* app_modal_dialog) {
   switch (response_id) {
     case GTK_RESPONSE_OK:
       // The first arg is the prompt text and the second is true if we want to
       // suppress additional popups from the page.
-      app_modal_dialog->OnAccept(std::wstring(), false);
+      app_modal_dialog->OnAccept(GetPromptText(dialog), false);
       break;
 
     case GTK_RESPONSE_CANCEL:
@@ -63,13 +77,7 @@ void AppModalDialog::CreateAndShowDialog() {
       break;
 
     case MessageBoxFlags::kIsJavascriptPrompt:
-      // We need to make a custom message box for javascript prompts. For now
-      // just have an OK button and send back an empty string. Maybe we can
-      // cram a GtkEntry into the content area of the message box via
-      // gtk_dialog_get_content_area.
-      // http://crbug.com/9623
-      NOTIMPLEMENTED();
-      buttons = GTK_BUTTONS_OK;
+      buttons = GTK_BUTTONS_OK_CANCEL;
       message_type = GTK_MESSAGE_QUESTION;
       break;
 
@@ -92,6 +100,14 @@ void AppModalDialog::CreateAndShowDialog() {
         IDS_BEFOREUNLOAD_MESSAGEBOX_CANCEL_BUTTON_LABEL);
     gtk_dialog_add_button(GTK_DIALOG(dialog_), button_text.c_str(),
                           GTK_RESPONSE_CANCEL);
+  } else if (MessageBoxFlags::kIsJavascriptPrompt == dialog_flags_) {
+    // TODO(tc): Replace with gtk_dialog_get_content_area() when using GTK 2.14+
+    GtkWidget* contents_vbox = GTK_DIALOG(dialog_)->vbox;
+    GtkWidget* text_box = gtk_entry_new();
+    gtk_entry_set_text(GTK_ENTRY(text_box),
+                       WideToUTF8(default_prompt_text_).c_str());
+    gtk_widget_show(text_box);
+    gtk_box_pack_start(GTK_BOX(contents_vbox), text_box, TRUE, TRUE, 0);
   }
 
   g_signal_connect(dialog_, "response", G_CALLBACK(OnDialogResponse), this);
@@ -99,11 +115,11 @@ void AppModalDialog::CreateAndShowDialog() {
 }
 
 void AppModalDialog::ActivateModalDialog() {
-  NOTIMPLEMENTED();
+  gtk_window_present(GTK_WINDOW(dialog_));
 }
 
 void AppModalDialog::CloseModalDialog() {
-  NOTIMPLEMENTED();
+  OnDialogResponse(GTK_DIALOG(dialog_), GTK_RESPONSE_DELETE_EVENT, this);
 }
 
 int AppModalDialog::GetDialogButtons() {
