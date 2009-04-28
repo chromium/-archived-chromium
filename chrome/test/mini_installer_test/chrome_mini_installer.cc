@@ -215,8 +215,9 @@ void ChromeMiniInstaller::UnInstall() {
   base::LaunchApp(uninstall_args, false, false, NULL);
   printf("Launched setup.exe -uninstall....\n");
   ASSERT_TRUE(CloseUninstallWindow());
+  WaitUntilProcessStopsRunning(
+      mini_installer_constants::kChromeSetupExecutable);
   printf("\n\nUninstall Checks:\n\n");
-  PlatformThread::Sleep(400);
   ASSERT_FALSE(CheckRegistryKey(dist->GetVersionKey()));
   DeleteAppFolder();
   FindChromeShortcut();
@@ -662,11 +663,15 @@ void ChromeMiniInstaller::WaitUntilProcessStartsRunning(
 void ChromeMiniInstaller::WaitUntilProcessStopsRunning(
     const wchar_t* process_name) {
   int timer = 0;
-  printf("\nWaiting for this process to end... %ls\n", process_name);
-  while ((base::GetProcessCount(process_name, NULL) > 0) &&
-         (timer < 60000)) {
-    PlatformThread::Sleep(200);
-    timer = timer + 200;
+  if (base::GetProcessCount(process_name, NULL) > 0) {
+    printf("\nWaiting for this process to end... %ls\n", process_name);
+    while ((base::GetProcessCount(process_name, NULL) > 0) &&
+           (timer < 60000)) {
+      PlatformThread::Sleep(200);
+      timer = timer + 200;
+    }
   }
-  ASSERT_EQ(0, base::GetProcessCount(process_name, NULL));
+  else {
+    ASSERT_EQ(0, base::GetProcessCount(process_name, NULL));
+  }
 }
