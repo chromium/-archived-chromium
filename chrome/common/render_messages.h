@@ -309,6 +309,12 @@ struct ViewMsg_Print_Params {
            max_shrink == rhs.max_shrink &&
            desired_dpi == rhs.desired_dpi;
   }
+
+  // Checking if the current params is empty. Just initialized after a memset.
+  bool IsEmpty() const {
+    return !document_cookie && !desired_dpi && !max_shrink && !min_shrink &&
+           !dpi && printable_size.IsEmpty();
+  }
 };
 
 struct ViewMsg_PrintPage_Params {

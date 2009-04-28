@@ -2340,6 +2340,15 @@ void RenderView::ScriptedPrint(WebFrame* frame) {
       new ViewHostMsg_GetDefaultPrintSettings(routing_id_, &default_settings);
   if (Send(msg)) {
     msg = NULL;
+    // Check if the printer returned any settings, if the settings is empty, we
+    // can safely assume there are no printer drivers configured. So we safely
+    // terminate.
+    if (default_settings.IsEmpty()) {
+      RunJavaScriptAlert(frame,
+          l10n_util::GetString(IDS_DEFAULT_PRINTER_NOT_FOUND_WARNING_TITLE));
+      return;
+    }
+
     // Continue only if the settings are valid.
     if (default_settings.dpi && default_settings.document_cookie) {
       int expected_pages_count = 0;

@@ -2363,9 +2363,12 @@ each locale. -->
         Update server not available (error: <ph name="ERROR_NUMBER">$1<ex>1</ex></ph>)
       </message>
 
-      <!-- Print preview UI -->
+      <!-- Print -->
       <message name="IDS_DEFAULT_PRINT_DOCUMENT_TITLE" desc="Default title for a print document">
         Untitled Document
+      </message>
+      <message name="IDS_DEFAULT_PRINTER_NOT_FOUND_WARNING_TITLE" desc="Title of the warning dialog when no when no printer is available">
+        No printer found, Please install a printer.
       </message>
 
       <!-- Tabs -->
