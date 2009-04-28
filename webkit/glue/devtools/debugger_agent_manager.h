@@ -64,6 +64,7 @@ class DebuggerAgentManager {
 
   static WebDevToolsAgent::MessageLoopDispatchHandler
       message_loop_dispatch_handler_;
+  static bool in_host_dispatch_handler_;
 
   DISALLOW_COPY_AND_ASSIGN(DebuggerAgentManager);
 };

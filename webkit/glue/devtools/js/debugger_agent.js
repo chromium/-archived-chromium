@@ -304,11 +304,14 @@ devtools.DebuggerAgent.prototype.handleDebuggerOutput_ = function(output) {
     throw e;
   }
   
+  
   if (msg.getType() == 'event') {
     if (msg.getEvent() == 'break') {
       this.handleBreakEvent_(msg);
     } else if (msg.getEvent() == 'exception') {
       this.handleExceptionEvent_(msg);
+    } else if (msg.getEvent() == 'afterCompile') {
+      this.handleAfterCompileEvent_(msg);
     }
   } else if (msg.getType() == 'response') {
     if (msg.getCommand() == 'scripts') {
@@ -366,11 +369,11 @@ devtools.DebuggerAgent.prototype.handleScriptsResponse_ = function(msg) {
   for (var i = 0; i < scripts.length; i++) {
     var script = scripts[i];
     
-    this.parsedScripts_[script.id] = new devtools.ScriptInfo(
-        script.id, script.lineOffset);
-    
-    WebInspector.parsedScriptSource(
-        script.id, script.name, script.source, script.lineOffset);
+    // We may already have received the info in an afterCompile event.
+    if (script.id in this.parsedScripts_) {
+      continue;
+    }
+    this.addScriptInfo_(script);
   }
 };
 
@@ -396,6 +399,28 @@ devtools.DebuggerAgent.prototype.handleSetBreakpointResponse_ = function(msg) {
   if (breakpointInfo.isRemoved()) {
     this.requestClearBreakpoint_(idInV8);
   }
+};
+
+
+/**
+ * @param {devtools.DebuggerMessage} msg
+ */
+devtools.DebuggerAgent.prototype.handleAfterCompileEvent_ = function(msg) {
+  var script = msg.getBody().script;
+  this.addScriptInfo_(script);
+};
+
+
+/**
+ * Adds the script info to the local cache. This method assumes that the script
+ * is not in the cache yet.
+ * @param {Object} script Script json object from the debugger message.
+ */
+devtools.DebuggerAgent.prototype.addScriptInfo_ = function(script) {
+  this.parsedScripts_[script.id] = new devtools.ScriptInfo(
+      script.id, script.lineOffset);
+  WebInspector.parsedScriptSource(
+      script.id, script.name, script.source, script.lineOffset);
 };
 
 

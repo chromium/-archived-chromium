@@ -24,6 +24,9 @@
 WebDevToolsAgent::MessageLoopDispatchHandler
     DebuggerAgentManager::message_loop_dispatch_handler_ = NULL;
 
+// static
+bool DebuggerAgentManager::in_host_dispatch_handler_ = false;
+
 namespace {
 
 class CallerIdWrapper : public v8::Debug::ClientData {
@@ -56,12 +59,17 @@ void DebuggerAgentManager::V8DebugMessageHandler(const uint16_t* message,
 }
 
 void DebuggerAgentManager::V8DebugHostDispatchHandler() {
+  if (in_host_dispatch_handler_) {
+    return;
+  }
+  in_host_dispatch_handler_ = true;
   if (DebuggerAgentManager::message_loop_dispatch_handler_
       && attached_agents_) {
     DebuggerAgentImpl::RunWithDeferredMessages(
         *attached_agents_,
         message_loop_dispatch_handler_);
   }
+  in_host_dispatch_handler_ = false;
 }
 
 // static
