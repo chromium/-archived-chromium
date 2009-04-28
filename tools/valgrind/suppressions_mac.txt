@@ -8,3 +8,78 @@
    fun:__setenv
    fun:setenv$UNIX2003
 }
+{
+   FIXME mac kevent libevent probably needs valgrind hooks
+   Memcheck:Param
+   kevent(changelist)
+   fun:kevent
+   fun:event_base_new
+}
+{
+   # Mac media_unittests.  See http://crbug.com/9351
+   bug_9351
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN12HALCADClient19AddPropertyListenerEmPK26AudioObjectPropertyAddressPFlmmS2_PvES3_
+   fun:_ZN16HALDefaultDevice22InstallServerListenersEv
+   fun:_ZN16HALDefaultDevice10InitializeEv
+   fun:_ZN9HALSystem16CheckOutInstanceEv
+   fun:AudioHardwareGetProperty
+   fun:_ZN15AudioManagerMac15HasAudioDevicesEv
+}
+{
+   # Mac test_shell_tests; skia leak?  See http://crbug.com/9563
+   bug_9563
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:_CFRuntimeCreateInstance
+   fun:CGTypeCreateInstanceWithAllocator
+   fun:CGTypeCreateInstance
+   fun:CGContextCreateWithDelegate
+   fun:CGContextCreate
+   fun:createBitmapContext
+   fun:CGBitmapContextCreate
+   fun:_ZN4skia23BitmapPlatformDeviceMac6CreateEP9CGContextiib
+}
+{
+   # Mac test_shell_tests; skia leak?   See http://crbug.com/9563 
+   bug_9563b
+   Memcheck:Leak
+   fun:malloc_zone_calloc
+   fun:ripc_Initialize
+   fun:__CGBitmapContextDelegateCreate
+   fun:__CGBitmapContextDelegateCreate
+   fun:createBitmapContext
+   fun:CGBitmapContextCreate
+   fun:_ZN4skia23BitmapPlatformDeviceMac6CreateEP9CGContextiib
+}
+{
+   # Mac test_shell_tests; both test shell and skia leak?  See http://crbug.com/9563
+   bug_9563c
+   Memcheck:Leak
+   fun:malloc
+   fun:stdSmartNewPtr
+   fun:stdSmartNewHandle
+   fun:IOCreateAndOpen
+   fun:ScratchInit
+   fun:CMOpenOrNewAccess
+   fun:CMOpenProfile
+}
+{
+   # Mac test_shell_tests.  See http://crbug.com/9563
+   bug_9563d
+   Memcheck:Leak
+   fun:malloc_zone_calloc
+   fun:ripc_Initialize
+   fun:__CGWindowContextDelegateCreate
+   fun:CGWindowContextCreate
+   ...
+   fun:_ZN13TestShellTest5SetUpEv
+}
+{
+   # Mac test_shell_tests.  See http://crbug.com/11134
+   bug_11134
+   Memcheck:Value4
+   fun:vCMMVectorConvert8BitRGBToRGB
+   fun:_ZNK15CMMConvRGBToRGB7ConvertER8CMM8BitsP14CMMRuntimeInfomm
+}
