@@ -581,6 +581,8 @@ int HttpNetworkTransaction::DoResolveHost() {
     port = request_->url.EffectiveIntPort();
   }
 
+  host_resolution_start_time_ = base::Time::Now();
+
   DidStartDnsResolution(host, this);
   return resolver_.Resolve(host, port, &addresses_, &io_callback_);
 }
@@ -612,7 +614,7 @@ int HttpNetworkTransaction::DoTCPConnectComplete(int result) {
   // If we are using a direct SSL connection, then go ahead and establish the
   // SSL connection, now.  Otherwise, we need to first issue a CONNECT request.
   if (result == OK) {
-    LogTCPConnectionMetrics();
+    LogTCPConnectedMetrics();
     if (using_ssl_ && !using_tunnel_) {
       next_state_ = STATE_SSL_CONNECT;
     } else {
@@ -969,13 +971,23 @@ int HttpNetworkTransaction::DoDrainBodyForAuthRestartComplete(int result) {
   return OK;
 }
 
-void HttpNetworkTransaction::LogTCPConnectionMetrics() const {
+void HttpNetworkTransaction::LogTCPConnectedMetrics() const {
   DCHECK(connect_start_time_ != base::Time());
   base::TimeDelta connect_duration =
       base::Time::Now() - connect_start_time_;
 
   UMA_HISTOGRAM_CLIPPED_TIMES(FieldTrial::MakeName(
       "Net.TCP_Connection_Latency", "DnsImpact").data(), connect_duration,
+      base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
+      100);
+
+  base::TimeDelta host_resolution_and_tcp_connection_latency =
+      base::Time::Now() - host_resolution_start_time_;
+
+  UMA_HISTOGRAM_CLIPPED_TIMES(
+      FieldTrial::MakeName(
+          "Net.Dns_Resolution_And_TCP_Connection_Latency", "DnsImpact").data(),
+      host_resolution_and_tcp_connection_latency,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
 }

@@ -88,8 +88,8 @@ class HttpNetworkTransaction : public HttpTransaction {
   int DoDrainBodyForAuthRestart();
   int DoDrainBodyForAuthRestartComplete(int result);
 
-  // Record histogram of time to acquire a TCP connection.
-  void LogTCPConnectionMetrics() const;
+  // Record histograms of latency until Connect() completes.
+  void LogTCPConnectedMetrics() const;
 
   // Record histogram of time until first byte of header is received.
   void LogTransactionConnectedMetrics() const;
@@ -322,6 +322,9 @@ class HttpNetworkTransaction : public HttpTransaction {
 
   // The time the Connect() method was called (if it got called).
   base::Time connect_start_time_;
+
+  // The time the host resolution started (if it indeed got started).
+  base::Time host_resolution_start_time_;
 
   enum State {
     STATE_RESOLVE_PROXY,
