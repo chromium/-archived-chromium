@@ -130,6 +130,9 @@ const struct AcceleratorMapping {
 int GetCommandId(guint accel_key, GdkModifierType modifier) {
   // Bug 9806: If capslock is on, we will get a capital letter as accel_key.
   accel_key = gdk_keyval_to_lower(accel_key);
+  // Filter modifier to only include accelerator modifiers.
+  modifier = static_cast<GdkModifierType>(
+      modifier & gtk_accelerator_get_default_mod_mask());
   for (size_t i = 0; i < arraysize(kAcceleratorMap); ++i) {
     if (kAcceleratorMap[i].keyval == accel_key &&
         kAcceleratorMap[i].modifier_type == modifier)
