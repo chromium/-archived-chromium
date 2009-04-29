@@ -18,14 +18,17 @@
 #include "chrome/browser/extensions/extension.h"
 #include "chrome/browser/extensions/extension_browser_event_router.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
-#include "chrome/browser/extensions/user_script_master.h"
+#include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extension_view.h"
+#include "chrome/browser/extensions/user_script_master.h"
 #include "chrome/browser/plugin_service.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/tab_contents/site_instance.h"
 #include "chrome/common/json_value_serializer.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/unzip.h"
+
+#include "chrome/browser/browser_list.h"
 
 #if defined(OS_WIN)
 #include "base/registry.h"
@@ -82,6 +85,11 @@ ExtensionsService::ExtensionsService(Profile* profile,
 }
 
 ExtensionsService::~ExtensionsService() {
+  for (ExtensionHostList::iterator iter = background_hosts_.begin();
+      iter != background_hosts_.end(); ++iter) {
+    delete *iter;
+  }
+
   for (ExtensionList::iterator iter = extensions_.begin();
        iter != extensions_.end(); ++iter) {
     delete *iter;
@@ -163,6 +171,11 @@ void ExtensionsService::OnExtensionsLoaded(ExtensionList* new_extensions) {
          script != scripts.end(); ++script) {
       user_script_master_->AddLoneScript(*script);
     }
+
+    // Start the process for the master page, if it exists.
+    if ((*extension)->background_url().is_valid()) {
+      CreateBackgroundHost(*extension, (*extension)->background_url());
+    }
   }
 
   // Since user scripts may have changed, tell UserScriptMaster to kick off
@@ -189,7 +202,16 @@ void ExtensionsService::OnExtensionInstalled(FilePath path, bool update) {
 ExtensionView* ExtensionsService::CreateView(Extension* extension,
                                              const GURL& url,
                                              Browser* browser) {
-  return new ExtensionView(extension, url, GetSiteInstanceForURL(url), browser);
+  return new ExtensionView(
+      new ExtensionHost(extension, GetSiteInstanceForURL(url)), browser, url);
+}
+
+void ExtensionsService::CreateBackgroundHost(Extension* extension,
+                                           const GURL& url) {
+  ExtensionHost* host =
+      new ExtensionHost(extension, GetSiteInstanceForURL(url));
+  host->CreateRenderView(url, NULL);  // create a RenderViewHost with no view
+  background_hosts_.push_back(host);
 }
 
 SiteInstance* ExtensionsService::GetSiteInstanceForURL(const GURL& url) {

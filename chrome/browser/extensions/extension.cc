@@ -24,6 +24,7 @@ const wchar_t* Extension::kMatchesKey = L"matches";
 const wchar_t* Extension::kNameKey = L"name";
 const wchar_t* Extension::kPermissionsKey = L"permissions";
 const wchar_t* Extension::kPluginsDirKey = L"plugins_dir";
+const wchar_t* Extension::kBackgroundKey = L"background";
 const wchar_t* Extension::kRunAtKey = L"run_at";
 const wchar_t* Extension::kThemeKey = L"theme";
 const wchar_t* Extension::kToolstripsKey = L"toolstrips";
@@ -75,6 +76,8 @@ const char* Extension::kInvalidPermissionSchemeError =
     "allowed.";
 const char* Extension::kInvalidPluginsDirError =
     "Invalid value for 'plugins_dir'.";
+const char* Extension::kInvalidBackgroundError =
+    "Invalid value for 'background'.";
 const char* Extension::kInvalidRunAtError =
     "Invalid value for 'content_scripts[*].run_at'.";
 const char* Extension::kInvalidToolstripError =
@@ -401,6 +404,16 @@ bool Extension::InitFromValue(const DictionaryValue& source, bool require_id,
       return false;
     }
     plugins_dir_ = path_.AppendASCII(plugins_dir);
+  }
+
+  // Initialize background url (optional).
+  if (source.HasKey(kBackgroundKey)) {
+    std::string background_str;
+    if (!source.GetString(kBackgroundKey, &background_str)) {
+      *error = kInvalidBackgroundError;
+      return false;
+    }
+    background_url_ = GetResourceURL(background_str);
   }
 
   // Initialize toolstrips (optional).

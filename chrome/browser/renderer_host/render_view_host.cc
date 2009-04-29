@@ -160,14 +160,12 @@ bool RenderViewHost::CreateRenderView() {
       "Couldn't duplicate the modal dialog handle for the renderer.";
 #endif
 
-  DCHECK(view());
-
   ModalDialogEvent modal_dialog_event;
 #if defined(OS_WIN)
   modal_dialog_event.event = modal_dialog_event_handle;
 #endif
 
-  Send(new ViewMsg_New(gfx::IdFromNativeView(view()->GetPluginNativeView()),
+  Send(new ViewMsg_New(GetPluginNativeViewId(),
                        modal_dialog_event,
                        delegate_->GetWebkitPrefs(),
                        routing_id()));

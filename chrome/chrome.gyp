@@ -684,6 +684,8 @@
         'browser/extensions/extension_function.h',
         'browser/extensions/extension_function_dispatcher.cc',
         'browser/extensions/extension_function_dispatcher.h',
+        'browser/extensions/extension_host.cc',
+        'browser/extensions/extension_host.h',
         'browser/extensions/extension_message_service.cc',
         'browser/extensions/extension_message_service.h',
         'browser/extensions/extension_browser_event_router.cc',

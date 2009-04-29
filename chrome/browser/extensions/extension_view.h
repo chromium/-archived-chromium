@@ -5,97 +5,68 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_EXTENSION_VIEW_H_
 #define CHROME_BROWSER_EXTENSIONS_EXTENSION_VIEW_H_
 
-#include "chrome/browser/renderer_host/render_view_host_delegate.h"
-#include "chrome/browser/tab_contents/render_view_host_delegate_helper.h"
+#include "build/build_config.h"
+
+#include "base/scoped_ptr.h"
+#include "chrome/browser/extensions/extension_host.h"
+#include "googleurl/src/gurl.h"
 #include "skia/include/SkBitmap.h"
 
 // TODO(port): Port these files.
 #if defined(OS_WIN)
-#include "chrome/browser/views/hwnd_html_view.h"
+#include "chrome/views/controls/hwnd_view.h"
 #else
+#include "chrome/views/view.h"
 #include "chrome/common/temp_scaffolding_stubs.h"
 #endif
 
 class Browser;
 class Extension;
-class ExtensionFunctionDispatcher;
-class RenderWidgetHost;
-class RenderWidgetHostView;
-class WebContents;
-struct WebPreferences;
 
-// This class is the browser component of an extension component's RenderView.
-// It handles setting up the renderer process, if needed, with special
-// priviliges available to extensions.  The view may be drawn to the screen or
-// hidden.
-class ExtensionView : public HWNDHtmlView,
-                      public RenderViewHostDelegate,
-                      public RenderViewHostDelegate::View {
+// This handles the display portion of an ExtensionHost.
+class ExtensionView : public views::HWNDView {
  public:
-  // ExtensionView
-  ExtensionView(Extension* extension,
-                const GURL& url,
-                SiteInstance* instance,
-                Browser* browser);
+  ExtensionView(ExtensionHost* host, Browser* browser, const GURL& content_url);
+  ~ExtensionView();
 
-  Extension* extension() { return extension_; }
+  ExtensionHost* host() const { return host_.get(); }
+  Browser* browser() const { return browser_; }
+  Extension* extension() { return host_->extension(); }
+  RenderViewHost* render_view_host() { return host_->render_view_host(); }
 
-  // HWNDHtmlView
-  virtual void CreatingRenderer();
+  // Notification from ExtensionHost.
+  void DidContentsPreferredWidthChange(const int pref_width);
 
-  virtual void SetBackground(const SkBitmap& background);
+  // Set a custom background for the view. The background will be tiled.
+  void SetBackground(const SkBitmap& background);
 
-  // RenderViewHostDelegate
-  // TODO(mpcomplete): GetProfile is unused.
-  virtual Profile* GetProfile() const { return NULL; }
-  virtual ExtensionFunctionDispatcher *CreateExtensionFunctionDispatcher(
-      RenderViewHost *render_view_host,
-      const std::string& extension_id);
-  virtual void RenderViewCreated(RenderViewHost* render_view_host);
-  virtual void DidContentsPreferredWidthChange(const int pref_width);
-  virtual void DidStopLoading(RenderViewHost* render_view_host);
-  virtual WebPreferences GetWebkitPrefs();
-  virtual void RunJavaScriptMessage(
-      const std::wstring& message,
-      const std::wstring& default_prompt,
-      const GURL& frame_url,
-      const int flags,
-      IPC::Message* reply_msg,
-      bool* did_suppress_message);
-  virtual void DidStartLoading(RenderViewHost* render_view_host);
-  virtual RenderViewHostDelegate::View* GetViewDelegate() const;
-
-  // RenderViewHostDelegate::View
-  virtual void CreateNewWindow(int route_id,
-                               base::WaitableEvent* modal_dialog_event);
-  virtual void CreateNewWidget(int route_id, bool activatable);
-  virtual void ShowCreatedWindow(int route_id,
-                                 WindowOpenDisposition disposition,
-                                 const gfx::Rect& initial_pos,
-                                 bool user_gesture);
-  virtual void ShowCreatedWidget(int route_id,
-                                 const gfx::Rect& initial_pos);
-  virtual void ShowContextMenu(const ContextMenuParams& params);
-  virtual void StartDragging(const WebDropData& drop_data);
-  virtual void UpdateDragCursor(bool is_drop_target);
-  virtual void TakeFocus(bool reverse);
-  virtual void HandleKeyboardEvent(const NativeWebKeyboardEvent& event);
-
+  // views::HWNDView
+  virtual void SetVisible(bool is_visible);
+  virtual void DidChangeBounds(const gfx::Rect& previous,
+                               const gfx::Rect& current);
+  virtual void ViewHierarchyChanged(bool is_add,
+                                    views::View *parent, views::View *child);
  private:
+  friend class ExtensionHost;
+
   // We wait to show the ExtensionView until several things have loaded.
   void ShowIfCompletelyLoaded();
 
-  // The extension that we're hosting in this view.
-  Extension* extension_;
+  // The running extension instance that we're displaying.
+  scoped_ptr<ExtensionHost> host_;
 
   // The browser window that this view is in.
   Browser* browser_;
 
-  // Common implementations of some RenderViewHostDelegate::View methods.
-  RenderViewHostDelegateViewHelper delegate_view_helper_;
+  // The URL to navigate the host to upon initialization.
+  GURL content_url_;
 
-  // Whether the RenderWidget has reported that it has stopped loading.
-  bool did_stop_loading_;
+  // True if we've been initialized.
+  bool initialized_;
+
+  // The background the view should have once it is initialized. This is set
+  // when the view has a custom background, but hasn't been initialized yet.
+  SkBitmap pending_background_;
 
   // What we should set the preferred width to once the ExtensionView has
   // loaded.

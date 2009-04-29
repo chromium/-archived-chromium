@@ -184,6 +184,7 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             scripts[0].js_scripts()[0].path().value());
   EXPECT_EQ(extension->path().AppendASCII("script2.js").value(),
             scripts[0].js_scripts()[1].path().value());
+  EXPECT_TRUE(extension->plugins_dir().empty());
   EXPECT_EQ(1u, scripts[1].url_patterns().size());
   EXPECT_EQ("http://*.news.com/*", scripts[1].url_patterns()[0].GetAsString());
   EXPECT_EQ(extension->path().AppendASCII("js_files").AppendASCII("script3.js")
@@ -204,6 +205,8 @@ TEST_F(ExtensionsServiceTest, LoadAllExtensionsFromDirectorySuccess) {
             frontend->extensions()->at(1)->description());
   EXPECT_EQ(frontend->extensions()->at(1)->path().AppendASCII("npapi").value(),
             frontend->extensions()->at(1)->plugins_dir().value());
+  EXPECT_EQ(frontend->extensions()->at(1)->GetResourceURL("background.html"),
+            frontend->extensions()->at(1)->background_url());
   ASSERT_EQ(0u, frontend->extensions()->at(1)->content_scripts().size());
 
   EXPECT_EQ(std::string("20123456789abcdef0123456789abcdef0123456"),

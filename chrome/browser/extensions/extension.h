@@ -38,6 +38,7 @@ class Extension {
   static const wchar_t* kNameKey;
   static const wchar_t* kPermissionsKey;
   static const wchar_t* kPluginsDirKey;
+  static const wchar_t* kBackgroundKey;
   static const wchar_t* kRunAtKey;
   static const wchar_t* kThemeKey;
   static const wchar_t* kToolstripsKey;
@@ -63,6 +64,7 @@ class Extension {
   static const char* kInvalidMatchesError;
   static const char* kInvalidNameError;
   static const char* kInvalidPluginsDirError;
+  static const char* kInvalidBackgroundError;
   static const char* kInvalidRunAtError;
   static const char* kInvalidToolstripError;
   static const char* kInvalidToolstripsError;
@@ -122,6 +124,7 @@ class Extension {
   const std::string& description() const { return description_; }
   const UserScriptList& content_scripts() const { return content_scripts_; }
   const FilePath& plugins_dir() const { return plugins_dir_; }
+  const GURL& background_url() const { return background_url_; }
   const std::vector<std::string>& toolstrips() const { return toolstrips_; }
   const std::vector<URLPattern>& permissions() const {
       return permissions_; }
@@ -163,6 +166,10 @@ class Extension {
   // contains.
   FilePath plugins_dir_;
 
+  // Optional URL to a master page of which a single instance should be always
+  // loaded in the background.
+  GURL background_url_;
+
   // Paths to HTML files to be displayed in the toolbar.
   std::vector<std::string> toolstrips_;
 
@@ -174,6 +181,7 @@ class Extension {
   // A map of resource id's to relative file paths.
   std::map<const std::wstring, std::string> theme_paths_;
 
+  // The sites this extension has permission to talk to (using XHR, etc).
   std::vector<URLPattern> permissions_;
 
   // We implement copy, but not assign.

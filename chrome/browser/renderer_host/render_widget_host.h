@@ -8,6 +8,7 @@
 #include <queue>
 #include <vector>
 
+#include "base/gfx/native_widget_types.h"
 #include "base/gfx/size.h"
 #include "base/scoped_ptr.h"
 #include "base/timer.h"
@@ -266,6 +267,9 @@ class RenderWidgetHost : public IPC::Channel::Listener {
   // process has gone. This will reset our state so that our state will be
   // consistent if a new renderer is created.
   void RendererExited();
+
+  // Retrieves the native view used to contain plugins.
+  gfx::NativeViewId GetPluginNativeViewId();
 
   // Called when we an InputEvent was not processed by the renderer. This is
   // overridden by RenderView to send upwards to its delegate.

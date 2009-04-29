@@ -1958,6 +1958,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\extensions\extension_host.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\extensions\extension_host.h"
+				>
+			</File>
+			<File
 				RelativePath=".\extensions\extension_message_service.cc"
 				>
 			</File>

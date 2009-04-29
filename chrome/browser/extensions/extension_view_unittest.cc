@@ -6,7 +6,7 @@
 #include "chrome/browser/browser.h"
 #include "chrome/browser/renderer_host/render_view_host.h"
 #include "chrome/browser/extensions/extension_error_reporter.h"
-#include "chrome/browser/extensions/extension_view.h"
+#include "chrome/browser/extensions/extension_host.h"
 #include "chrome/browser/extensions/extensions_service.h"
 #include "chrome/browser/extensions/test_extension_loader.h"
 #include "chrome/browser/tab_contents/site_instance.h"
@@ -28,12 +28,13 @@ const char* kExtensionId = "00123456789abcdef0123456789abcdef0123456";
 
 // This class starts up an extension process and waits until it tries to put
 // up a javascript alert.
-class MockExtensionView : public ExtensionView {
+class MockExtensionHost : public ExtensionHost {
  public:
-  MockExtensionView(Extension* extension, const GURL& url,
-                    SiteInstance* instance, Browser* browser)
-      : ExtensionView(extension, url, instance, browser), got_message_(false) {
-    InitHidden();
+  MockExtensionHost(Extension* extension, const GURL& url,
+                    SiteInstance* instance)
+      : ExtensionHost(extension, instance),
+        got_message_(false) {
+    CreateRenderView(url, NULL);
     MessageLoop::current()->PostDelayedTask(FROM_HERE,
         new MessageLoop::QuitTask, kAlertTimeoutMs);
     ui_test_utils::RunMessageLoop();
@@ -58,7 +59,7 @@ class MockExtensionView : public ExtensionView {
     MessageLoopForUI::current()->Quit();
 
     // Call super, otherwise we'll leak reply_msg.
-    ExtensionView::RunJavaScriptMessage(
+    ExtensionHost::RunJavaScriptMessage(
         message, default_prompt, frame_url, flags,
         reply_msg, did_suppress_message);
   }
@@ -100,8 +101,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionViewTest, Index) {
   GURL url = Extension::GetResourceURL(extension->url(), "toolstrip1.html");
 
   // Start the extension process and wait for it to show a javascript alert.
-  MockExtensionView view(extension, url,
-      browser()->profile()->GetExtensionsService()->GetSiteInstanceForURL(url),
-      browser());
-  EXPECT_TRUE(view.got_message());
+  MockExtensionHost host(extension, url,
+      browser()->profile()->GetExtensionsService()->GetSiteInstanceForURL(url));
+  EXPECT_TRUE(host.got_message());
 }

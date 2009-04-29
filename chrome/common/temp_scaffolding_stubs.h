@@ -39,6 +39,7 @@ struct ViewHostMsg_DidPrintPage_Params;
 
 namespace gfx {
 class Rect;
+class Widget;
 }
 
 namespace IPC {
@@ -478,7 +479,28 @@ class BaseDragSource {
 //---------------------------------------------------------------------------
 // These stubs are for extensions
 
-class HWNDHtmlView {
+namespace views {
+class HWNDView {
+ public:
+  int width() { NOTIMPLEMENTED(); return 0; }
+  int height() { NOTIMPLEMENTED(); return 0; }
+  void InitHidden() { NOTIMPLEMENTED(); }
+  void set_preferred_size(const gfx::Size& size) { NOTIMPLEMENTED(); }
+  virtual void SetBackground(const SkBitmap&) { NOTIMPLEMENTED(); }
+  virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
+  void SizeToPreferredSize() { NOTIMPLEMENTED(); }
+  bool IsVisible() const { NOTIMPLEMENTED(); return false; }
+  void Layout() { NOTIMPLEMENTED(); }
+  void SchedulePaint() { NOTIMPLEMENTED(); }
+  HWNDView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
+
+  gfx::NativeWindow GetHWND() { NOTIMPLEMENTED(); return 0; }
+  void Detach() { NOTIMPLEMENTED(); }
+  gfx::Widget* GetWidget() { NOTIMPLEMENTED(); return NULL; }
+};
+}  // namespace views
+
+class HWNDHtmlView : public views::HWNDView {
  public:
   HWNDHtmlView(const GURL& content_url, RenderViewHostDelegate* delegate,
                bool allow_dom_ui_bindings, SiteInstance* instance) {
@@ -486,18 +508,9 @@ class HWNDHtmlView {
   }
   virtual ~HWNDHtmlView() {}
 
-  int height() { NOTIMPLEMENTED(); return 0; }
   RenderViewHost* render_view_host() { NOTIMPLEMENTED(); return NULL; }
-  void InitHidden() { NOTIMPLEMENTED(); }
-  void set_preferred_size(const gfx::Size& size) { NOTIMPLEMENTED(); }
-  virtual void SetBackground(const SkBitmap&) { NOTIMPLEMENTED(); }
-  virtual void SetVisible(bool flag) { NOTIMPLEMENTED(); }
-  void SizeToPreferredSize() { NOTIMPLEMENTED(); }
-  HWNDHtmlView* GetParent() const { NOTIMPLEMENTED(); return NULL; }
-  bool IsVisible() const { NOTIMPLEMENTED(); return false; }
-  void Layout() { NOTIMPLEMENTED(); }
-  void SchedulePaint() { NOTIMPLEMENTED(); }
   SiteInstance* site_instance() { NOTIMPLEMENTED(); return NULL; }
 };
+
 
 #endif  // CHROME_COMMON_TEMP_SCAFFOLDING_STUBS_H_

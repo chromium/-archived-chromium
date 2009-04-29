@@ -59,6 +59,11 @@ class BrowserList {
   // is returned. Returns NULL if no such browser currently exists.
   static Browser* FindBrowserWithType(Profile* p, Browser::Type t);
 
+  // Find an existing browser window with the provided profile. If the last
+  // active has the right profile, it is returned.  Returns NULL if no such
+  // browser currently exists.
+  static Browser* FindBrowserWithProfile(Profile* p);
+
   // Find an existing browser with the provided ID. Returns NULL if no such
   // browser currently exists.
   static Browser* FindBrowserWithID(SessionID::id_type desired_id);

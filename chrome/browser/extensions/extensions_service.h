@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 #include "base/file_path.h"
 #include "base/message_loop.h"
@@ -17,6 +18,7 @@
 class Browser;
 class BrowsingInstance;
 class Extension;
+class ExtensionHost;
 class ExtensionView;
 class ExtensionsServiceBackend;
 class GURL;
@@ -82,6 +84,10 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
                             const GURL& url,
                             Browser* browser);
 
+  // Creates a new UI-less extension instance.  Like CreateView, but not
+  // displayed anywhere.
+  void CreateBackgroundHost(Extension* extension, const GURL& url);
+
   // Returns the SiteInstance that the given URL belongs to.
   SiteInstance* GetSiteInstanceForURL(const GURL& url);
 
@@ -111,6 +117,10 @@ class ExtensionsService : public ExtensionsServiceFrontendInterface {
   // The BrowsingInstance shared by all extensions in this profile.  This
   // controls process grouping.
   scoped_refptr<BrowsingInstance> browsing_instance_;
+
+  // The list of running viewless background extensions.
+  typedef std::list<ExtensionHost*> ExtensionHostList;
+  ExtensionHostList background_hosts_;
 
   DISALLOW_COPY_AND_ASSIGN(ExtensionsService);
 };

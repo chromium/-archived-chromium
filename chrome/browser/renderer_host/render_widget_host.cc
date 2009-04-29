@@ -4,7 +4,6 @@
 
 #include "chrome/browser/renderer_host/render_widget_host.h"
 
-#include "base/gfx/native_widget_types.h"
 #include "base/histogram.h"
 #include "base/message_loop.h"
 #include "base/keyboard_codes.h"
@@ -79,15 +78,19 @@ RenderWidgetHost::~RenderWidgetHost() {
   process_->Release(routing_id_);
 }
 
+gfx::NativeViewId RenderWidgetHost::GetPluginNativeViewId() {
+  if (view_)
+    return gfx::IdFromNativeView(view_->GetPluginNativeView());
+  return NULL;
+}
+
 void RenderWidgetHost::Init() {
   DCHECK(process_->channel());
 
   renderer_initialized_ = true;
 
   // Send the ack along with the information on placement.
-  gfx::NativeView plugin_view = view_->GetPluginNativeView();
-  Send(new ViewMsg_CreatingNew_ACK(routing_id_,
-                                   gfx::IdFromNativeView(plugin_view)));
+  Send(new ViewMsg_CreatingNew_ACK(routing_id_, GetPluginNativeViewId()));
   WasResized();
 }
 
@@ -459,7 +462,8 @@ void RenderWidgetHost::OnMsgClose() {
 
 void RenderWidgetHost::OnMsgRequestMove(const gfx::Rect& pos) {
   // Note that we ignore the position.
-  view_->SetSize(pos.size());
+  if (view_)
+    view_->SetSize(pos.size());
 }
 
 void RenderWidgetHost::OnMsgPaintRect(
