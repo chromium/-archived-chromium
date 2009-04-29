@@ -59,6 +59,10 @@ class ChromeCanvas : public skia::PlatformCanvas {
 
     // Prevent ellipsizing
     NO_ELLIPSIS = 512,
+
+    // Specifies if words can be split by new lines.
+    // This only works with MULTI_LINE.
+    CHARACTER_BREAK = 1024,
   };
 
   // Creates an empty ChromeCanvas. Callers must use initialize before using

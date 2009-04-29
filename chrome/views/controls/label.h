@@ -121,8 +121,12 @@ class Label : public View {
   RTLAlignmentMode GetRTLAlignmentMode() const;
 
   // Set whether the label text can wrap on multiple lines.
-  // Default is false
+  // Default is false.
   void SetMultiLine(bool f);
+
+  // Set whether the label text can be split on words.
+  // Default is false. This only works when is_multi_line is true.
+  void SetAllowCharacterBreak(bool f);
 
   // Return whether the label text can wrap on multiple lines
   bool IsMultiLine();
@@ -217,6 +221,7 @@ class Label : public View {
   gfx::Size text_size_;
   bool text_size_valid_;
   bool is_multi_line_;
+  bool allow_character_break_;
   bool url_set_;
   Alignment horiz_alignment_;
   std::wstring tooltip_text_;

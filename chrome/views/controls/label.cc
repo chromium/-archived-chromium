@@ -45,6 +45,7 @@ void Label::Init(const std::wstring& text, const ChromeFont& font) {
   color_ = kEnabledColor;
   horiz_alignment_ = ALIGN_CENTER;
   is_multi_line_ = false;
+  allow_character_break_ = false;
   collapse_when_hidden_ = false;
   rtl_alignment_mode_ = USE_UI_ALIGNMENT;
   paint_as_focused_ = false;
@@ -80,6 +81,8 @@ gfx::Size Label::GetPreferredSize() {
 
 int Label::ComputeMultiLineFlags() {
   int flags = ChromeCanvas::MULTI_LINE;
+  if (allow_character_break_)
+    flags |= ChromeCanvas::CHARACTER_BREAK;
   switch (horiz_alignment_) {
     case ALIGN_LEFT:
       flags |= ChromeCanvas::TEXT_ALIGN_LEFT;
@@ -278,6 +281,13 @@ Label::RTLAlignmentMode Label::GetRTLAlignmentMode() const {
 void Label::SetMultiLine(bool f) {
   if (f != is_multi_line_) {
     is_multi_line_ = f;
+    SchedulePaint();
+  }
+}
+
+void Label::SetAllowCharacterBreak(bool f) {
+  if (f != allow_character_break_) {
+    allow_character_break_ = f;
     SchedulePaint();
   }
 }

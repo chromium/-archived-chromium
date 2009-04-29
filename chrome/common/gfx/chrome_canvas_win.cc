@@ -54,6 +54,8 @@ int ComputeFormatFlags(int flags, const std::wstring& text) {
 
   if (flags & ChromeCanvas::MULTI_LINE) {
     f |= DT_WORDBREAK;
+    if (flags & ChromeCanvas::CHARACTER_BREAK)
+      f |= DT_EDITCONTROL;
   } else {
     f |= DT_SINGLELINE | DT_VCENTER;
     if (!(flags & ChromeCanvas::NO_ELLIPSIS))

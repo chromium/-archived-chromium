@@ -110,6 +110,7 @@ bool MessageBoxView::AcceleratorPressed(
 void MessageBoxView::Init(int dialog_flags,
                           const std::wstring& default_prompt) {
   message_label_->SetMultiLine(true);
+  message_label_->SetAllowCharacterBreak(true);
   if (dialog_flags & MessageBoxFlags::kAutoDetectAlignment) {
     // Determine the alignment and directionality based on the first character
     // with strong directionality.
