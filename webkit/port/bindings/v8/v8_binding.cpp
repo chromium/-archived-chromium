@@ -19,9 +19,30 @@ namespace WebCore {
 class WebCoreStringResource: public v8::String::ExternalStringResource {
  public:
   explicit WebCoreStringResource(const String& str)
-      : impl_(str.impl()) { }
+      : impl_(str.impl()) {
+    // We seem to be occasionally losing the backing string for external
+    // strings: http://crbug.com/9746
+    //
+    // In order to verify that this is caused by a ref counting bug, we
+    // artificially increase the ref count on the backing string until
+    // we are done using it for external strings.
+    //
+    // TODO(ager): This is temporary and should be removed once we have
+    // found the underlying cause of the problem.
+    for (int i = 0; i < kArtificialRefIncrease; i++) {
+      impl_.impl()->ref();
+    }
+  }
 
-  virtual ~WebCoreStringResource() {}
+  virtual ~WebCoreStringResource() {
+    // Remove the artificial ref counts added in the constructor.
+    //
+    // TODO(ager): This is temporary and should be removed once we have
+    // found the underlying cause of the problem.
+    for (int i = 0; i < kArtificialRefIncrease; i++) {
+      impl_.impl()->deref();
+    }
+  }
 
   const uint16_t* data() const {
     return reinterpret_cast<const uint16_t*>(impl_.characters());
@@ -32,6 +53,13 @@ class WebCoreStringResource: public v8::String::ExternalStringResource {
   String webcore_string() { return impl_; }
 
  private:
+  // The amount by which we artificially increase the reference count
+  // of the backing string.
+  //
+  // TODO(ager): This is temporary and should be removed once we have
+  // found the underlying cause of the problem.
+  static const int kArtificialRefIncrease = 5;
+
   // A shallow copy of the string.
   // Keeps the string buffer alive until the V8 engine garbage collects it.
   String impl_;
