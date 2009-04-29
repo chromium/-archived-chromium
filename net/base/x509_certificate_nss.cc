@@ -252,4 +252,10 @@ X509Certificate::Fingerprint X509Certificate::CalculateFingerprint(
   return sha1;
 }
 
+// TODO(port): Implement properly on Linux.
+bool X509Certificate::IsEV(int status) const {
+  NOTIMPLEMENTED();
+  return false;
+}
+
 }  // namespace net
