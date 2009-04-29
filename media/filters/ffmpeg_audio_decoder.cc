@@ -23,16 +23,9 @@ FFmpegAudioDecoder::~FFmpegAudioDecoder() {
 
 // static
 bool FFmpegAudioDecoder::IsMediaFormatSupported(const MediaFormat& format) {
-  int channels, sample_bits, sample_rate;
   std::string mime_type;
-  if (format.GetAsInteger(MediaFormat::kChannels, &channels) &&
-      format.GetAsInteger(MediaFormat::kSampleBits, &sample_bits) &&
-      format.GetAsInteger(MediaFormat::kSampleRate, &sample_rate) &&
-      format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
-      mime_type::kFFmpegAudio == mime_type) {
-    return true;
-  }
-  return false;
+  return format.GetAsString(MediaFormat::kMimeType, &mime_type) &&
+      mime_type::kFFmpegAudio == mime_type;
 }
 
 bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
@@ -50,7 +43,7 @@ bool FFmpegAudioDecoder::OnInitialize(DemuxerStream* demuxer_stream) {
   codec_context_ = ffmpeg_demuxer_stream->av_stream()->codec;
   media_format_.SetAsInteger(MediaFormat::kChannels, codec_context_->channels);
   media_format_.SetAsInteger(MediaFormat::kSampleBits,
-      codec_context_->bits_per_coded_sample);
+      av_get_bits_per_sample_format(codec_context_->sample_fmt));
   media_format_.SetAsInteger(MediaFormat::kSampleRate,
       codec_context_->sample_rate);
   media_format_.SetAsString(MediaFormat::kMimeType,

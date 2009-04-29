@@ -60,27 +60,15 @@ FFmpegDemuxerStream::FFmpegDemuxerStream(FFmpegDemuxer* demuxer,
     case CODEC_TYPE_AUDIO:
       media_format_.SetAsString(MediaFormat::kMimeType,
                                 mime_type::kFFmpegAudio);
-      media_format_.SetAsInteger(MediaFormat::kChannels,
-                                 stream->codec->channels);
-      media_format_.SetAsInteger(MediaFormat::kSampleRate,
-                                 stream->codec->sample_rate);
-      media_format_.SetAsInteger(MediaFormat::kSampleBits,
-                                 stream->codec->bits_per_raw_sample);
       break;
     case CODEC_TYPE_VIDEO:
       media_format_.SetAsString(MediaFormat::kMimeType,
                                 mime_type::kFFmpegVideo);
-      media_format_.SetAsInteger(MediaFormat::kHeight,
-                                 stream->codec->height);
-      media_format_.SetAsInteger(MediaFormat::kWidth,
-                                 stream->codec->width);
       break;
     default:
       NOTREACHED();
       break;
   }
-  int codec_id = static_cast<int>(stream->codec->codec_id);
-  media_format_.SetAsInteger(kFFmpegCodecID, codec_id);
 
   // Calculate the time base and duration in microseconds.
   int64 time_base_us = static_cast<int64>(av_q2d(stream->time_base) *

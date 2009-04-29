@@ -364,19 +364,9 @@ TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
   scoped_refptr<FFmpegDemuxerStream> ffmpeg_demuxer_stream;
   ASSERT_TRUE(stream);
   std::string mime_type;
-  int result;
   EXPECT_TRUE(
       stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegVideo, mime_type.c_str());
-  EXPECT_TRUE(
-      stream->media_format().GetAsInteger(kFFmpegCodecID, &result));
-  EXPECT_EQ(CODEC_ID_THEORA, static_cast<CodecID>(result));
-  EXPECT_TRUE(
-      stream->media_format().GetAsInteger(MediaFormat::kHeight, &result));
-  EXPECT_EQ(g_video_codec.height, result);
-  EXPECT_TRUE(
-      stream->media_format().GetAsInteger(MediaFormat::kWidth, &result));
-  EXPECT_EQ(g_video_codec.width, result);
   EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
   EXPECT_TRUE(ffmpeg_demuxer_stream);
   EXPECT_EQ(&g_streams[1], ffmpeg_demuxer_stream->av_stream());
@@ -388,15 +378,6 @@ TEST(FFmpegDemuxerTest, DISABLED_InitializeStreams) {
   EXPECT_TRUE(
       stream->media_format().GetAsString(MediaFormat::kMimeType, &mime_type));
   EXPECT_STREQ(mime_type::kFFmpegAudio, mime_type.c_str());
-  EXPECT_TRUE(
-      stream->media_format().GetAsInteger(kFFmpegCodecID, &result));
-  EXPECT_EQ(CODEC_ID_VORBIS, static_cast<CodecID>(result));
-  EXPECT_TRUE(
-      stream->media_format().GetAsInteger(MediaFormat::kChannels, &result));
-  EXPECT_EQ(g_audio_codec.channels, result);
-  EXPECT_TRUE(
-      stream->media_format().GetAsInteger(MediaFormat::kSampleRate, &result));
-  EXPECT_EQ(g_audio_codec.sample_rate, result);
   EXPECT_TRUE(stream->QueryInterface(&ffmpeg_demuxer_stream));
   EXPECT_TRUE(ffmpeg_demuxer_stream);
   EXPECT_EQ(&g_streams[2], ffmpeg_demuxer_stream->av_stream());

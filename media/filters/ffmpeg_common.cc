@@ -6,8 +6,6 @@
 
 namespace media {
 
-const char kFFmpegCodecID[] = "FFmpegCodecID";
-
 namespace mime_type {
 
 const char kFFmpegAudio[] = "audio/x-ffmpeg";

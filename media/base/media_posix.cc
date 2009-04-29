@@ -22,6 +22,11 @@
 // be promising, but I don't quite understand it yet.
 extern "C" {
 
+int (*av_get_bits_per_sample_format_ptr)(enum SampleFormat sample_fmt);
+int av_get_bits_per_sample_format(enum SampleFormat sample_fmt) {
+  return av_get_bits_per_sample_format(sample_fmt);
+}
+
 void (*avcodec_init_ptr)(void) = NULL;
 void avcodec_init(void) {
   avcodec_init_ptr();
@@ -54,7 +59,7 @@ int avcodec_decode_audio2(AVCodecContext* avctx, int16_t* samples,
                           int* frame_size_ptr,
                           const uint8_t* buf, int buf_size) {
 
-  return avcodec_decode_audio2_ptr(avctx, samples, frame_size_ptr, buf, 
+  return avcodec_decode_audio2_ptr(avctx, samples, frame_size_ptr, buf,
                                    buf_size);
 }
 
@@ -164,6 +169,9 @@ bool InitializeMediaLibrary(const FilePath& module_dir) {
   // TODO(ajwong): Extract this to somewhere saner, and hopefully
   // autogenerate the bindings from the .def files.  Having all this
   // code here is incredibly ugly.
+  av_get_bits_per_sample_format_ptr =
+      reinterpret_cast<int (*)(enum SampleFormat)>(
+          dlsym(libs[FILE_LIBAVCODEC], "av_get_bits_per_sample_format"));
   avcodec_init_ptr =
       reinterpret_cast<void(*)(void)>(
           dlsym(libs[FILE_LIBAVCODEC], "avcodec_init"));

@@ -31,9 +31,6 @@ class ScopedPtrAVFree {
   }
 };
 
-// MediaFormat key identifying the CodecID.
-extern const char kFFmpegCodecID[];
-
 // FFmpeg MIME types.
 namespace mime_type {
 

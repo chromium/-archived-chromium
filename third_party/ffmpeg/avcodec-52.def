@@ -1,6 +1,6 @@
 LIBRARY avcodec-52
 EXPORTS
-  av_bitstream_filter_init
+  av_get_bits_per_sample_format
   avcodec_alloc_context
   avcodec_alloc_frame
   avcodec_decode_audio2
