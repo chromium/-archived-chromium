@@ -164,6 +164,7 @@ class WebMediaPlayerDelegateImpl : public webkit_glue::WebMediaPlayerDelegate,
     kRepaintTaskIndex = 0,
     kReadyStateTaskIndex,
     kNetworkStateTaskIndex,
+    kTimeChangedTaskIndex,
     kLastTaskIndex
   };
 

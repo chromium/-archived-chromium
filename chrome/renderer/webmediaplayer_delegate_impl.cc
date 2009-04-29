@@ -153,6 +153,13 @@ void WebMediaPlayerDelegateImpl::Seek(float seconds) {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
   pipeline_.Seek(base::TimeDelta::FromSeconds(static_cast<int64>(seconds)));
+
+  // Even though the seek might be in progress, WebKit's HTMLMediaElement
+  // thinks we're seeking unless we notify that the time has changed.
+  //
+  // TODO(scherkus): add a seek completion callback to the pipeline.
+  PostTask(kTimeChangedTaskIndex,
+           &webkit_glue::WebMediaPlayer::NotifyTimeChange);
 }
 
 void WebMediaPlayerDelegateImpl::SetEndTime(float seconds) {
@@ -220,8 +227,7 @@ bool WebMediaPlayerDelegateImpl::IsPaused() const {
 bool WebMediaPlayerDelegateImpl::IsSeeking() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
-  // TODO(hclam): Add this method call if pipeline has it in the interface.
-  return false;
+  return tasks_[kTimeChangedTaskIndex] != NULL;
 }
 
 float WebMediaPlayerDelegateImpl::GetDuration() const {
@@ -265,8 +271,14 @@ float WebMediaPlayerDelegateImpl::GetMaxTimeBuffered() const {
 float WebMediaPlayerDelegateImpl::GetMaxTimeSeekable() const {
   DCHECK(main_loop_ && MessageLoop::current() == main_loop_);
 
-  // TODO(hclam): add this method when pipeline has this method implemented.
-  return 0.0f;
+  // TODO(scherkus): move this logic down into the pipeline.
+  if (pipeline_.GetTotalBytes() == 0) {
+    return 0.0f;
+  }
+  double total_bytes = static_cast<double>(pipeline_.GetTotalBytes());
+  double buffered_bytes = static_cast<double>(pipeline_.GetBufferedBytes());
+  double duration = static_cast<double>(pipeline_.GetDuration().InSecondsF());
+  return static_cast<float>(duration * (buffered_bytes / total_bytes));
 }
 
 int64 WebMediaPlayerDelegateImpl::GetBytesLoaded() const {

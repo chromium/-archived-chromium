@@ -263,6 +263,7 @@ void DataSourceImpl::OnDownloadProgress(uint64 position, uint64 size) {
       }
     }
   }
+  host_->SetBufferedBytes(downloaded_bytes_);
   download_event_.Signal();
 }
 
@@ -289,6 +290,7 @@ void DataSourceImpl::OnReceivedResponse(
     if (info.content_length != -1) {
       total_bytes_known_ = true;
       total_bytes_ = info.content_length;
+      host_->SetTotalBytes(total_bytes_);
     }
 
     {
