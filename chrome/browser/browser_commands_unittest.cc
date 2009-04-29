@@ -99,3 +99,69 @@ TEST_F(BrowserCommandsTest, BookmarkCurrentPage) {
   EXPECT_EQ(profile(), browser()->profile());
   EXPECT_TRUE(browser()->profile()->GetBookmarkModel()->IsBookmarked(url1));
 }
+
+// Tests back/forward in new tab (Control + Back/Forward button in the UI).
+TEST_F(BrowserCommandsTest, BackForwardInNewTab) {
+  GURL url1("http://foo/1");
+  GURL url2("http://foo/2");
+
+  // Make a tab with the two pages navigated in it.
+  AddTab(browser(), url1);
+  NavigateAndCommitActiveTab(url2);
+
+  // Go back in a new background tab.
+  browser()->GoBack(NEW_BACKGROUND_TAB);
+  EXPECT_EQ(0, browser()->selected_index());
+  ASSERT_EQ(2, browser()->tab_count());
+
+  // The original tab should be unchanged.
+  TabContents* zeroth = browser()->GetTabContentsAt(0);
+  EXPECT_EQ(url2, zeroth->GetURL());
+  EXPECT_TRUE(zeroth->controller().CanGoBack());
+  EXPECT_FALSE(zeroth->controller().CanGoForward());
+
+  // The new tab should be like the first one but navigated back.
+  TabContents* first = browser()->GetTabContentsAt(1);
+  EXPECT_EQ(url1, browser()->GetTabContentsAt(1)->GetURL());
+  EXPECT_FALSE(first->controller().CanGoBack());
+  EXPECT_TRUE(first->controller().CanGoForward());
+
+  // Select the second tab and make it go forward in a new background tab.
+  browser()->SelectTabContentsAt(1, true);
+  // TODO(brettw) bug 11055: It should not be necessary to commit the load here,
+  // but because of this bug, it will assert later if we don't. When the bug is
+  // fixed, one of the three commits here related to this bug should be removed
+  // (to test both codepaths).
+  CommitPendingLoad(&first->controller());
+  EXPECT_EQ(1, browser()->selected_index());
+  browser()->GoForward(NEW_BACKGROUND_TAB);
+
+  // The previous tab should be unchanged and still in the foreground.
+  EXPECT_EQ(url1, first->GetURL());
+  EXPECT_FALSE(first->controller().CanGoBack());
+  EXPECT_TRUE(first->controller().CanGoForward());
+  EXPECT_EQ(1, browser()->selected_index());
+
+  // There should be a new tab navigated forward.
+  ASSERT_EQ(3, browser()->tab_count());
+  TabContents* second = browser()->GetTabContentsAt(2);
+  EXPECT_EQ(url2, second->GetURL());
+  EXPECT_TRUE(second->controller().CanGoBack());
+  EXPECT_FALSE(second->controller().CanGoForward());
+
+  // Now do back in a new foreground tab. Don't bother re-checking every sngle
+  // thing above, just validate that it's opening properly.
+  browser()->SelectTabContentsAt(2, true);
+  // TODO(brettw) bug 11055: see the comment above about why we need this.
+  CommitPendingLoad(&second->controller());
+  browser()->GoBack(NEW_FOREGROUND_TAB);
+  ASSERT_EQ(3, browser()->selected_index());
+  ASSERT_EQ(url1, browser()->GetSelectedTabContents()->GetURL());
+
+  // Same thing again for forward.
+  // TODO(brettw) bug 11055: see the comment above about why we need this.
+  CommitPendingLoad(&browser()->GetSelectedTabContents()->controller());
+  browser()->GoForward(NEW_FOREGROUND_TAB);
+  ASSERT_EQ(4, browser()->selected_index());
+  ASSERT_EQ(url2, browser()->GetSelectedTabContents()->GetURL());
+}

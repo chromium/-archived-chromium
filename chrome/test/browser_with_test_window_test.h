@@ -58,10 +58,9 @@ class BrowserWithTestWindowTest : public testing::Test {
   // This is a convenience function. The new tab will be added at index 0.
   void AddTab(Browser* browser, const GURL& url);
 
-  // Commits the pending load as if we went to a new page (as opposed to back or
-  // forward).
-  void CommitPendingLoadAsNewNavigation(NavigationController* controller,
-                                        const GURL& url);
+  // Commits the pending load on the given controller. It will keep the
+  // URL of the pending load. If there is no pending load, this does nothing.
+  void CommitPendingLoad(NavigationController* controller);
 
   // Creates a pending navigation on the given navigation controller to the
   // given URL with the default parameters and the commits the load with a page
