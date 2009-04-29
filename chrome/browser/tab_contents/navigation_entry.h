@@ -100,7 +100,7 @@ class NavigationEntry {
 
     // Raw accessors for all the content status flags. This contains a
     // combination of any of the ContentStatusFlags defined above. It is used
-    // by the UI tests for checking and for certain copying. Use the per-status
+    // by some tests for checking and for certain copying. Use the per-status
     // functions for normal usage.
     void set_content_status(int content_status) {
       content_status_ = content_status;
@@ -120,7 +120,7 @@ class NavigationEntry {
     // Copy and assignment is explicitly allowed for this class.
   };
 
-  // The type of the page an entry corresponds to.  Used by ui tests.
+  // The type of the page an entry corresponds to.  Used by tests.
   enum PageType {
     NORMAL_PAGE = 0,
     ERROR_PAGE,

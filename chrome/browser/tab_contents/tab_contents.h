@@ -358,6 +358,9 @@ class TabContents : public PageNavigator,
   // Called when the blocked popup notification is shown or hidden.
   virtual void PopupNotificationVisibilityChanged(bool visible);
 
+  // Returns the number of constrained windows in this tab.  Used by tests.
+  size_t constrained_window_count() { return child_windows_.size(); }
+
   // Views and focus -----------------------------------------------------------
   // TODO(brettw): Most of these should be removed and the caller should call
   // the view directly.

@@ -264,11 +264,12 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
     // Now let's press tab to move the focus.
     for (int j = 0; j < 7; ++j) {
       // Let's make sure the focus is on the expected element in the page.
-      ui_test_utils::JavaScriptRunner js_runner(
+      std::string actual;
+      ASSERT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractString(
           browser()->GetSelectedTabContents()->AsWebContents(),
           L"",
-          L"window.domAutomationController.send(getFocusedElement());");
-      std::string actual = js_runner.Run();
+          L"window.domAutomationController.send(getFocusedElement());",
+          &actual));
       ASSERT_STREQ(kExpElementIDs[j], actual.c_str());
 
       ui_controls::SendKeyPressNotifyWhenDone(L'\t', false, false, false,
@@ -300,11 +301,12 @@ IN_PROC_BROWSER_TEST_F(BrowserFocusTest, FocusTraversal) {
       ::Sleep(kActionDelayMs);
 
       // Let's make sure the focus is on the expected element in the page.
-      ui_test_utils::JavaScriptRunner js_runner(
+      std::string actual;
+      ASSERT_TRUE(ui_test_utils::ExecuteJavaScriptAndExtractString(
           browser()->GetSelectedTabContents()->AsWebContents(),
           L"",
-          L"window.domAutomationController.send(getFocusedElement());");
-      std::string actual = js_runner.Run();
+          L"window.domAutomationController.send(getFocusedElement());",
+          &actual));
       ASSERT_STREQ(kExpElementIDs[6 - j], actual.c_str());
     }
 

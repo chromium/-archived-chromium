@@ -4,11 +4,12 @@
 
 #include "chrome/test/ui_test_utils.h"
 
+#include "base/json_reader.h"
 #include "base/message_loop.h"
 #include "chrome/browser/browser.h"
 #include "chrome/browser/dom_operation_notification_details.h"
 #include "chrome/browser/tab_contents/navigation_controller.h"
-#include "chrome/browser/tab_contents/web_contents.h"
+#include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/common/notification_registrar.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/views/widget/accelerator_handler.h"
@@ -65,6 +66,32 @@ class NavigationNotificationObserver : public NotificationObserver {
   DISALLOW_COPY_AND_ASSIGN(NavigationNotificationObserver);
 };
 
+class DOMOperationObserver : public NotificationObserver {
+ public:
+  explicit DOMOperationObserver(TabContents* tab_contents) {
+    registrar_.Add(this, NotificationType::DOM_OPERATION_RESPONSE,
+                   Source<TabContents>(tab_contents));
+    RunMessageLoop();
+  }
+
+  virtual void Observe(NotificationType type,
+                       const NotificationSource& source,
+                       const NotificationDetails& details) {
+    DCHECK(type == NotificationType::DOM_OPERATION_RESPONSE);
+    Details<DomOperationNotificationDetails> dom_op_details(details);
+    response_ = dom_op_details->json();
+    MessageLoopForUI::current()->Quit();
+  }
+
+  std::string response() const { return response_; }
+
+ private:
+  NotificationRegistrar registrar_;
+  std::string response_;
+
+  DISALLOW_COPY_AND_ASSIGN(DOMOperationObserver);
+};
+
 }  // namespace
 
 void RunMessageLoop() {
@@ -98,42 +125,68 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
   WaitForNavigations(controller, number_of_navigations);
 }
 
-JavaScriptRunner::JavaScriptRunner(WebContents* web_contents,
-                                   const std::wstring& frame_xpath,
-                                   const std::wstring& jscript)
-    : web_contents_(web_contents),
-      frame_xpath_(frame_xpath),
-      jscript_(jscript) {
-  NotificationService::current()->
-      AddObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
-      Source<WebContents>(web_contents));
+Value* ExecuteJavaScript(TabContents* tab_contents,
+                         const std::wstring& frame_xpath,
+                         const std::wstring& original_script) {
+  // TODO(jcampan): we should make the domAutomationController not require an
+  //                automation id.
+  std::wstring script = L"window.domAutomationController.setAutomationId(0);" +
+      original_script;
+  tab_contents->render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath,
+                                                                script);
+  DOMOperationObserver dom_op_observer(tab_contents);
+  std::string json = dom_op_observer.response();
+  // Wrap |json| in an array before deserializing because valid JSON has an
+  // array or an object as the root.
+  json.insert(0, "[");
+  json.append("]");
+
+  scoped_ptr<Value> root_val(JSONReader::Read(json, true));
+  if (!root_val->IsType(Value::TYPE_LIST))
+    return NULL;
+
+  ListValue* list = static_cast<ListValue*>(root_val.get());
+  Value* result;
+  if (!list || !list->GetSize() ||
+      !list->Remove(0, &result))  // Remove gives us ownership of the value.
+    return NULL;
+
+  return result;
 }
 
-void JavaScriptRunner::Observe(NotificationType type,
-                               const NotificationSource& source,
-                               const NotificationDetails& details) {
-  Details<DomOperationNotificationDetails> dom_op_details(details);
-  result_ = dom_op_details->json();
-  // The Jasonified response has quotes, remove them.
-  if (result_.length() > 1 && result_[0] == '"')
-    result_ = result_.substr(1, result_.length() - 2);
+bool ExecuteJavaScriptAndExtractInt(TabContents* tab_contents,
+                                    const std::wstring& frame_xpath,
+                                    const std::wstring& script,
+                                    int* result) {
+  DCHECK(result);
+  scoped_ptr<Value> value(ExecuteJavaScript(tab_contents, frame_xpath, script));
+  if (!value.get())
+    return false;
 
-  NotificationService::current()->
-      RemoveObserver(this, NotificationType::DOM_OPERATION_RESPONSE,
-      Source<WebContents>(web_contents_));
-  MessageLoop::current()->PostTask(FROM_HERE, new MessageLoop::QuitTask());
+  return value->GetAsInteger(result);
 }
 
-std::string JavaScriptRunner::Run() {
-  // The DOMAutomationController requires an automation ID, even though we are
-  // not using it in this case.
-  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(
-      frame_xpath_, L"window.domAutomationController.setAutomationId(0);");
+bool ExecuteJavaScriptAndExtractBool(TabContents* tab_contents,
+                                     const std::wstring& frame_xpath,
+                                     const std::wstring& script,
+                                     bool* result) {
+  DCHECK(result);
+  scoped_ptr<Value> value(ExecuteJavaScript(tab_contents, frame_xpath, script));
+  if (!value.get())
+    return false;
 
-  web_contents_->render_view_host()->ExecuteJavascriptInWebFrame(frame_xpath_,
-                                                                 jscript_);
-  ui_test_utils::RunMessageLoop();
-  return result_;
+  return value->GetAsBoolean(result);
 }
 
+bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
+                                       const std::wstring& frame_xpath,
+                                       const std::wstring& script,
+                                       std::string* result) {
+  DCHECK(result);
+  scoped_ptr<Value> value(ExecuteJavaScript(tab_contents, frame_xpath, script));
+  if (!value.get())
+    return false;
+
+  return value->GetAsString(result);
+}
 }  // namespace ui_test_utils

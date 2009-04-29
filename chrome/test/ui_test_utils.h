@@ -13,7 +13,8 @@
 class Browser;
 class GURL;
 class NavigationController;
-class WebContents;
+class Value;
+class TabContents;
 
 // A collections of functions designed for use with InProcessBrowserTest.
 namespace ui_test_utils {
@@ -43,38 +44,32 @@ void NavigateToURLBlockUntilNavigationsComplete(Browser* browser,
                                                 int number_of_navigations);
 
 
-// This class enables you to send JavaScript as a string from the browser to the
-// renderer for execution in a frame of your choice.
-class JavaScriptRunner : public NotificationObserver {
- public:
-  // Constructor. |web_contents| is a pointer to the WebContents you want to run
-  // the JavaScript code in. |frame_xpath| is a path to the frame to run it in.
-  // |jscript| is a string containing the JavaScript code to run, for example:
-  // "window.domAutomationController.send(alert('hello world'));". The
-  // JavaScript code will execute when Run is called. Note: In order for the
-  // domAutomationController to work, you must call EnableDOMAutomation() in
-  // your test class first.
-  JavaScriptRunner(WebContents* web_contents,
-                   const std::wstring& frame_xpath,
-                   const std::wstring& jscript);
+// Executes the passed |script| in the frame pointed to by |frame_xpath| (use
+// empty string for main frame) and returns the value the evaluation of the
+// script returned.  The caller owns the returned value.
+Value* ExecuteJavaScript(TabContents* tab_contents,
+                         const std::wstring& frame_xpath,
+                         const std::wstring& script);
 
-  virtual void Observe(NotificationType type,
-                       const NotificationSource& source,
-                       const NotificationDetails& details);
-
-  // Executes the JavaScript code passed in to the constructor. See also comment
-  // about EnableDOMAutomation in the constructor.
-  std::string Run();
-
- private:
-  WebContents* web_contents_;
-  std::wstring frame_xpath_;
-  std::wstring jscript_;
-  std::string result_;
-
-  DISALLOW_COPY_AND_ASSIGN(JavaScriptRunner);
-};
-
+// The following methods executes the passed |script| in the frame pointed to by
+// |frame_xpath| (use empty string for main frame) and sets |result| to the
+// value returned by the script evaluation.
+// They return true on success, false if the script evaluation failed or did not
+// evaluate to the expected type.
+// Note: In order for the domAutomationController to work, you must call
+// EnableDOMAutomation() in your test first.
+bool ExecuteJavaScriptAndExtractInt(TabContents* tab_contents,
+                                    const std::wstring& frame_xpath,
+                                    const std::wstring& script,
+                                    int* result);
+bool ExecuteJavaScriptAndExtractBool(TabContents* tab_contents,
+                                     const std::wstring& frame_xpath,
+                                     const std::wstring& script,
+                                     bool* result);
+bool ExecuteJavaScriptAndExtractString(TabContents* tab_contents,
+                                       const std::wstring& frame_xpath,
+                                       const std::wstring& script,
+                                       std::string* result);
 }
 
 #endif  // CHROME_TEST_UI_TEST_UTILS_H_

@@ -149,11 +149,13 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageFrames) {
 }
 
 std::string FocusedOnPage(WebContents* web_contents) {
-  ui_test_utils::JavaScriptRunner js_runner(
+  std::string result;
+  ui_test_utils::ExecuteJavaScriptAndExtractString(
       web_contents,
       L"",
-      L"window.domAutomationController.send(getFocusedElement());");
-  return js_runner.Run();
+      L"window.domAutomationController.send(getFocusedElement());",
+      &result);
+  return result;
 }
 
 // This tests the FindInPage end-state, in other words: what is focused when you
@@ -186,11 +188,12 @@ IN_PROC_BROWSER_TEST_F(FindInPageControllerTest, FindInPageEndState) {
   EXPECT_EQ(1, FindInPage(L"Google", FWD, IGNORE_CASE, false));
 
   // Move the selection to link 1, after searching.
-  ui_test_utils::JavaScriptRunner js_runner(
+  std::string result;
+  ui_test_utils::ExecuteJavaScriptAndExtractString(
       web_contents,
       L"",
-      L"window.domAutomationController.send(selectLink1());");
-  js_runner.Run();
+      L"window.domAutomationController.send(selectLink1());",
+      &result);
 
   // End the find session.
   web_contents->StopFinding(false);
