@@ -86,8 +86,10 @@ bool NullAudioRenderer::OnInitialize(const MediaFormat& media_format) {
 
 void NullAudioRenderer::OnStop() {
   shutdown_ = true;
-  if (thread_)
+  if (thread_) {
     PlatformThread::Join(thread_);
+    thread_ = NULL;
+  }
 }
 
 }  // namespace media
