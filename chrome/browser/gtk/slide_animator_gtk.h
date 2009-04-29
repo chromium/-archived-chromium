@@ -9,13 +9,13 @@
 #ifndef CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_
 #define CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_
 
+#include <gtk/gtk.h>
+
 #include "base/scoped_ptr.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/owned_widget_gtk.h"
 
 class SlideAnimation;
-
-typedef struct _GtkWidget GtkWidget;
 
 class SlideAnimatorGtk : public AnimationDelegate {
  public:
@@ -64,6 +64,10 @@ class SlideAnimatorGtk : public AnimationDelegate {
   void AnimationEnded(const Animation* animation);
 
  private:
+  static void OnChildSizeAllocate(GtkWidget* child,
+                                  GtkAllocation* allocation,
+                                  SlideAnimatorGtk* slider);
+
   scoped_ptr<SlideAnimation> animation_;
 
   // The top level widget of the SlideAnimatorGtk. It is a GtkFixed.
@@ -78,6 +82,10 @@ class SlideAnimatorGtk : public AnimationDelegate {
 
   // The object to inform about certain events. It may be NULL.
   Delegate* delegate_;
+
+  // If true, we should resize |widget_| on the next "size-allocate" event that
+  // is received by |child_|. See the comment in SlideAnimatorGtk constructor.
+  bool fixed_needs_resize_;
 };
 
 #endif  // CHROME_BROWSER_GTK_SLIDE_ANIMATOR_GTK_H_

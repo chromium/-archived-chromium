@@ -4,17 +4,15 @@
 
 #include "chrome/browser/gtk/slide_animator_gtk.h"
 
-#include <gtk/gtk.h>
-
 #include "base/logging.h"
 #include "chrome/common/animation.h"
 #include "chrome/common/slide_animation.h"
 
 namespace {
 
-void OnSizeAllocate(GtkWidget* fixed,
-                    GtkAllocation* allocation,
-                    GtkWidget* child) {
+void OnFixedSizeAllocate(GtkWidget* fixed,
+                         GtkAllocation* allocation,
+                         GtkWidget* child) {
   gint height;
   gtk_widget_get_size_request(child, NULL, &height);
   // The size of the GtkFixed has changed. We want |child_| to match widths,
@@ -31,7 +29,8 @@ SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
                                    Delegate* delegate)
     : child_(child),
       direction_(direction),
-      delegate_(delegate) {
+      delegate_(delegate),
+      fixed_needs_resize_(false) {
   widget_.Own(gtk_fixed_new());
   // We need to give the GtkFixed its own window so that painting will clip
   // correctly.
@@ -41,7 +40,15 @@ SlideAnimatorGtk::SlideAnimatorGtk(GtkWidget* child,
   // We have to manually set the size request for |child_| every time the
   // GtkFixed changes sizes.
   g_signal_connect(widget_.get(), "size-allocate",
-                   G_CALLBACK(OnSizeAllocate), child_);
+                   G_CALLBACK(OnFixedSizeAllocate), child_);
+
+  // The size of the GtkFixed widget is set during animation. When we open
+  // without showing the animation, we have to call AnimationProgressed
+  // ourselves to properly set the size of the GtkFixed. We can't do this until
+  // after the child has been allocated, hence we connect to "size-allocate" on
+  // the child.
+  g_signal_connect(child, "size-allocate",
+                   G_CALLBACK(OnChildSizeAllocate), this);
 
   animation_.reset(new SlideAnimation(this));
   // Default tween type is EASE_OUT.
@@ -63,6 +70,7 @@ void SlideAnimatorGtk::Open() {
 void SlideAnimatorGtk::OpenWithoutAnimation() {
   animation_->Reset(1.0);
   Open();
+  fixed_needs_resize_ = true;
 }
 
 void SlideAnimatorGtk::Close() {
@@ -86,4 +94,15 @@ void SlideAnimatorGtk::AnimationProgressed(const Animation* animation) {
 void SlideAnimatorGtk::AnimationEnded(const Animation* animation) {
   if (!animation_->IsShowing() && delegate_)
     delegate_->Closed();
+}
+
+// static
+void SlideAnimatorGtk::OnChildSizeAllocate(GtkWidget* child,
+                                           GtkAllocation* allocation,
+                                           SlideAnimatorGtk* slider) {
+  if (!slider->fixed_needs_resize_)
+    return;
+
+  slider->fixed_needs_resize_ = false;
+  slider->AnimationProgressed(slider->animation_.get());
 }
