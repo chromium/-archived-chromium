@@ -21,6 +21,14 @@ devtools.Injected = function() {
    * @private
    */
   this.lastStyleId_ = 1;
+
+  /**
+   * This array is not unused as it may seem. It stores references to the
+   * styles so that they could be found for future editing.
+   * @type {Array<CSSStyleDeclaration>}
+   * @private
+   */
+  this.styles_ = [];
 };
 
 
@@ -190,6 +198,7 @@ devtools.Injected.prototype.serializeStyle_ = function(style) {
   }
   if (!style.__id) {
     style.__id = this.lastStyleId_++;
+    this.styles_.push(style);
   }
   var result = [
     style.__id,

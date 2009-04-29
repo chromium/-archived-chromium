@@ -56,6 +56,9 @@ WebDevToolsAgentImpl::WebDevToolsAgentImpl(
 }
 
 WebDevToolsAgentImpl::~WebDevToolsAgentImpl() {
+  if (!utility_context_.IsEmpty()) {
+    utility_context_.Dispose();
+  }
 }
 
 void WebDevToolsAgentImpl::Attach() {
@@ -73,7 +76,10 @@ void WebDevToolsAgentImpl::Attach() {
   Page* page = web_view_impl_->page();
   Document* doc = page->mainFrame()->document();
   if (doc) {
-    debugger_agent_impl_->SetDocument(doc);
+    // Reuse existing context in case detached/attached.
+    if (utility_context_.IsEmpty()) {
+      debugger_agent_impl_->CreateUtilityContext(doc, &utility_context_);
+    }
     dom_agent_impl_->SetDocument(doc);
     net_agent_impl_->SetDocument(doc);
   }
@@ -110,7 +116,7 @@ void WebDevToolsAgentImpl::SetMainFrameDocumentReady(bool ready) {
   } else {
     doc = NULL;
   }
-  debugger_agent_impl_->SetDocument(doc);
+  debugger_agent_impl_->CreateUtilityContext(doc, &utility_context_);
   dom_agent_impl_->SetDocument(doc);
   net_agent_impl_->SetDocument(doc);
 }
@@ -197,8 +203,8 @@ void WebDevToolsAgentImpl::ExecuteUtilityFunction(
   String result;
   String exception;
   if (node) {
-    result = debugger_agent_impl_->ExecuteUtilityFunction(function_name, node,
-        json_args, &exception);
+    result = debugger_agent_impl_->ExecuteUtilityFunction(utility_context_,
+        function_name, node, json_args, &exception);
   }
   tools_agent_delegate_stub_->DidExecuteUtilityFunction(call_id,
       result, exception);

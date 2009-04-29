@@ -10,6 +10,7 @@
 #include <wtf/OwnPtr.h>
 #include <wtf/Vector.h>
 
+#include "v8.h"
 #include "webkit/glue/devtools/devtools_rpc.h"
 #include "webkit/glue/devtools/dom_agent.h"
 #include "webkit/glue/devtools/net_agent.h"
@@ -110,6 +111,7 @@ class WebDevToolsAgentImpl
   OwnPtr<NetAgentImpl> net_agent_impl_;
   Vector<ConsoleMessage> console_log_;
   bool attached_;
+  v8::Persistent<v8::Context> utility_context_;
   DISALLOW_COPY_AND_ASSIGN(WebDevToolsAgentImpl);
 };
 

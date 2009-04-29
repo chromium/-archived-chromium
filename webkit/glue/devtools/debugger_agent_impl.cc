@@ -61,13 +61,13 @@ void DebuggerAgentImpl::DebuggerOutput(const std::string& command) {
   webdevtools_agent_->ForceRepaint();
 }
 
-void DebuggerAgentImpl::SetDocument(Document* document) {
-  v8::HandleScope scope;
-
-  if (!document) {
-    context_.Dispose();
-    return;
+void DebuggerAgentImpl::CreateUtilityContext(
+    Document* document,
+    v8::Persistent<v8::Context>* context) {
+  if (!context->IsEmpty()) {
+    context->Dispose();
   }
+  v8::HandleScope scope;
 
   // TODO(pfeldman): Validate against Soeren.
   // Set up the DOM window as the prototype of the new global object.
@@ -91,12 +91,12 @@ void DebuggerAgentImpl::SetDocument(Document* document) {
       V8Custom::v8DOMWindowIndexedSecurityCheck,
       v8::Integer::New(V8ClassIndex::DOMWINDOW));
 
-  context_ = v8::Context::New(
+  *context = v8::Context::New(
       NULL /* no extensions */,
       global_template,
       v8::Handle<v8::Object>());
-  v8::Context::Scope context_scope(context_);
-  v8::Handle<v8::Object> global = context_->Global();
+  v8::Context::Scope context_scope(*context);
+  v8::Handle<v8::Object> global = (*context)->Global();
 
   v8::Handle<v8::String> implicit_proto_string = v8::String::New("__proto__");
   global->Set(implicit_proto_string, window_wrapper);
@@ -119,15 +119,16 @@ void DebuggerAgentImpl::SetDocument(Document* document) {
 }
 
 String DebuggerAgentImpl::ExecuteUtilityFunction(
+    v8::Handle<v8::Context> context,
     const String &function_name,
     Node* node,
     const String& json_args,
     String* exception) {
   v8::HandleScope scope;
-  ASSERT(!context_.IsEmpty());
-  v8::Context::Scope context_scope(context_);
+  ASSERT(!context.IsEmpty());
+  v8::Context::Scope context_scope(context);
   v8::Handle<v8::Function> function = v8::Local<v8::Function>::Cast(
-      context_->Global()->Get(v8::String::New("devtools$$dispatch")));
+      context->Global()->Get(v8::String::New("devtools$$dispatch")));
 
   v8::Handle<v8::Value> node_wrapper =
       V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
@@ -142,7 +143,7 @@ String DebuggerAgentImpl::ExecuteUtilityFunction(
   };
 
   v8::TryCatch try_catch;
-  v8::Handle<v8::Value> res_obj = function->Call(context_->Global(), 3, args);
+  v8::Handle<v8::Value> res_obj = function->Call(context->Global(), 3, args);
   if (try_catch.HasCaught()) {
     *exception = WebCore::ToWebCoreString(try_catch.Message()->Get());
     return "";

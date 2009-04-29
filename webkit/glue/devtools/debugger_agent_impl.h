@@ -28,18 +28,20 @@ class DebuggerAgentImpl : public DebuggerAgent {
                     WebDevToolsAgentImpl* webdevtools_agent);
   virtual ~DebuggerAgentImpl();
 
-  // Initializes dom agent with the given document.
-  void SetDocument(WebCore::Document* document);
+  // Creates utility context with injected js agent.
+  void CreateUtilityContext(WebCore::Document* document,
+                            v8::Persistent<v8::Context>* context);
 
   // DebuggerAgent implementation.
   virtual void DebugBreak();
 
   void DebuggerOutput(const std::string& out);
 
-  // Executes utility function with the given node and json
-  // args as parameters. These functions must be implemented in
-  // the inject.js file.
+  // Executes function with the given name in the utility context. Passes node
+  // and json args as parameters. Note that the function called must be
+  // implemented in the inject.js file.
   WebCore::String ExecuteUtilityFunction(
+      v8::Handle<v8::Context> context,
       const WebCore::String& function_name,
       WebCore::Node* node,
       const WebCore::String& json_args,
@@ -55,7 +57,6 @@ class DebuggerAgentImpl : public DebuggerAgent {
   WebViewImpl* web_view() { return web_view_impl_; }
 
  private:
-  v8::Persistent<v8::Context> context_;
   WebViewImpl* web_view_impl_;
   DebuggerAgentDelegate* delegate_;
   WebDevToolsAgentImpl* webdevtools_agent_;

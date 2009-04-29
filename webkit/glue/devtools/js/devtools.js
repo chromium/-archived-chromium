@@ -289,7 +289,6 @@ WebInspector.ElementsPanel.prototype.updateStyles = function(forceUpdate) {
       stylesSidebarPane.needsUpdate = false;
       node.clearStyles();
     };
-
     devtools.tools.getDomAgent().getNodeStylesAsync(
         node,
         !Preferences.showUserAgentStyles,
@@ -570,6 +569,7 @@ WebInspector.StylePropertyTreeElement.prototype.toggleEnabled =
   devtools.tools.getDomAgent().toggleNodeStyleAsync(this.style, !disabled,
       this.name,
       function() {
+        WebInspector.panels.elements.sidebarPanes.styles.needsUpdate = true;
         WebInspector.panels.elements.updateStyles(true);
       });
 };
