@@ -474,9 +474,18 @@ void BrowserView::PrepareToRunSystemMenu(HMENU menu) {
     // IDS_ZOOM) and on separators.
     if (command != 0) {
       bool enabled = browser_->command_updater()->IsCommandEnabled(command);
-      if (enabled && command == IDC_RESTORE_TAB)
-        enabled = browser_->profile()->GetTabRestoreService() &&
-            !browser_->profile()->GetTabRestoreService()->entries().empty();
+      if (enabled && command == IDC_RESTORE_TAB) {
+        TabRestoreService* tab_restore_service =
+          browser_->profile()->GetTabRestoreService();
+        if (tab_restore_service && !tab_restore_service->entries().empty()) {
+          system_menu_->SetMenuLabel(command, l10n_util::GetString(
+              tab_restore_service->entries().front()->type ==
+              TabRestoreService::WINDOW ? IDS_RESTORE_WINDOW :
+              IDS_RESTORE_TAB));
+        } else {
+          enabled = false;
+        }
+      }
       system_menu_->EnableMenuItemByID(command, enabled);
     }
   }

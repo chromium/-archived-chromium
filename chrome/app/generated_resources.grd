@@ -442,124 +442,124 @@ each locale. -->
       <message name="IDS_SHOW_AS_TAB" desc="The text label for the Show As tab menu item">
         &amp;Show as tab
       </message>
-      <message name="IDS_NEW_WINDOW" desc="The text label of the New Window menu item" >
+      <message name="IDS_NEW_WINDOW" desc="The text label of the New Window menu item">
         &amp;New window
       </message>
-      <message name="IDS_PROFILE_MENU" desc="The text label of the New profile Window menu item" >
+      <message name="IDS_PROFILE_MENU" desc="The text label of the New profile Window menu item">
         New window in &amp;profile
       </message>
-      <message name="IDS_SELECT_PROFILE" desc="The text label of the menu item to select a profile other than the ones displayed directly in the Profile submenu." >
+      <message name="IDS_SELECT_PROFILE" desc="The text label of the menu item to select a profile other than the ones displayed directly in the Profile submenu.">
         Other...
       </message>
       <message name="IDS_NEW_INCOGNITO_WINDOW" desc="The text label of the New incognito window menu item">
         New &amp;incognito window
       </message>
-      <message name="IDS_UNDO" desc="The text label of the Undo menu item" >
+      <message name="IDS_UNDO" desc="The text label of the Undo menu item">
         &amp;Undo
       </message>
-      <message name="IDS_CUT" desc="The text label of the Cut menu item" >
+      <message name="IDS_CUT" desc="The text label of the Cut menu item">
         Cu&amp;t
       </message>
-      <message name="IDS_COPY" desc="The text label of the Copy menu item" >
+      <message name="IDS_COPY" desc="The text label of the Copy menu item">
         &amp;Copy
       </message>
-      <message name="IDS_PASTE" desc="The text label of the Paste menu item" >
+      <message name="IDS_PASTE" desc="The text label of the Paste menu item">
         &amp;Paste
       </message>
-      <message name="IDS_SELECT_ALL" desc="The text label of the Select All menu item" >
+      <message name="IDS_SELECT_ALL" desc="The text label of the Select All menu item">
         Select &amp;all
       </message>
-      <message name="IDS_FIND" desc="The text label of the Find in Page menu item" >
+      <message name="IDS_FIND" desc="The text label of the Find in Page menu item">
         &amp;Find in page
       </message>
-      <message name="IDS_SAVE_PAGE" desc="The text label of the Save Page As menu item" >
+      <message name="IDS_SAVE_PAGE" desc="The text label of the Save Page As menu item">
         Save page &amp;as...
       </message>
-      <message name="IDS_PRINT" desc="The text label of the Print... menu item. Opens a dialog box to select print settings" >
+      <message name="IDS_PRINT" desc="The text label of the Print... menu item. Opens a dialog box to select print settings">
         &amp;Print...
       </message>
-      <message name="IDS_ZOOM_MENU" desc="The text label of the Zoom submenu" >
+      <message name="IDS_ZOOM_MENU" desc="The text label of the Zoom submenu">
         &amp;Zoom
       </message>
-      <message name="IDS_ZOOM_PLUS" desc="The text label of the Make Text Larger menu item" >
+      <message name="IDS_ZOOM_PLUS" desc="The text label of the Make Text Larger menu item">
         &amp;Larger
       </message>
-      <message name="IDS_ZOOM_NORMAL" desc="The text label of the Make Text Normal Size menu item" >
+      <message name="IDS_ZOOM_NORMAL" desc="The text label of the Make Text Normal Size menu item">
         &amp;Normal
       </message>
-      <message name="IDS_ZOOM_MINUS" desc="The text label of the Make Text Smaller menu item" >
+      <message name="IDS_ZOOM_MINUS" desc="The text label of the Make Text Smaller menu item">
         &amp;Smaller
       </message>
-      <message name="IDS_ENCODING_MENU" desc="The text label of the Encoding submenu" >
+      <message name="IDS_ENCODING_MENU" desc="The text label of the Encoding submenu">
         &amp;Encoding
       </message>
-      <message name="IDS_ENCODING_AUTO_DETECT" desc="The text label of the Auto Dectect submenu" >
+      <message name="IDS_ENCODING_AUTO_DETECT" desc="The text label of the Auto Dectect submenu">
         Auto detect
       </message>
       <message name="IDS_ENCODING_DISPLAY_TEMPLATE" desc="The format of encodings in the encoding menu. Encoding categories are Unicode, Western, Turkish, Cyrillic, Chinese Simplified, Thai, Arabic, Hebrew and so forth. Encoding names are UTF-8, ISO-8859-1, Windows-1251, GB2312, etc.">
         <ph name="ENCODING_CATEGORY">$1<ex>Japanese</ex></ph> (<ph name="ENCODING_NAME">$2<ex>Shift_JIS</ex></ph>)
       </message>
-      <message name="IDS_ENCODING_UNICODE" desc="The text label of Unicode encodings" >
+      <message name="IDS_ENCODING_UNICODE" desc="The text label of Unicode encodings">
         Unicode
       </message>
-      <message name="IDS_ENCODING_WESTERN" desc="The text label of West European character encoding" >
+      <message name="IDS_ENCODING_WESTERN" desc="The text label of West European character encoding">
         Western
       </message>
-      <message name="IDS_ENCODING_SIMP_CHINESE" desc="The text label of Simplified Chinese encodings" >
+      <message name="IDS_ENCODING_SIMP_CHINESE" desc="The text label of Simplified Chinese encodings">
         Chinese Simplified
       </message>
-      <message name="IDS_ENCODING_TRAD_CHINESE" desc="The text label of Tradtional Chinese encodings" >
+      <message name="IDS_ENCODING_TRAD_CHINESE" desc="The text label of Tradtional Chinese encodings">
         Chinese Traditional
       </message>
-      <message name="IDS_ENCODING_KOREAN" desc="The text label of Korean encoding" >
+      <message name="IDS_ENCODING_KOREAN" desc="The text label of Korean encoding">
         Korean
       </message>
-      <message name="IDS_ENCODING_JAPANESE" desc="The text label of Japanese encodings" >
+      <message name="IDS_ENCODING_JAPANESE" desc="The text label of Japanese encodings">
         Japanese
       </message>
-      <message name="IDS_ENCODING_THAI" desc="The text label of encoding thai lanuage" >
+      <message name="IDS_ENCODING_THAI" desc="The text label of encoding thai lanuage">
         Thai
       </message>
-      <message name="IDS_ENCODING_CENTRAL_EUROPEAN" desc="The text label of encoding Central European" >
+      <message name="IDS_ENCODING_CENTRAL_EUROPEAN" desc="The text label of encoding Central European">
         Central European
       </message>
-      <message name="IDS_ENCODING_CYRILLIC" desc="The text label of Cyrillic encodings" >
+      <message name="IDS_ENCODING_CYRILLIC" desc="The text label of Cyrillic encodings">
         Cyrillic
       </message>
-      <message name="IDS_ENCODING_GREEK" desc="The text label of Greek encodings" >
+      <message name="IDS_ENCODING_GREEK" desc="The text label of Greek encodings">
         Greek
       </message>
-      <message name="IDS_ENCODING_BALTIC" desc="The text label of Baltic encodings" >
+      <message name="IDS_ENCODING_BALTIC" desc="The text label of Baltic encodings">
         Baltic
       </message>
-      <message name="IDS_ENCODING_SOUTH_EUROPEAN" desc="The text label of South European encodings" >
+      <message name="IDS_ENCODING_SOUTH_EUROPEAN" desc="The text label of South European encodings">
         South European
       </message>
-      <message name="IDS_ENCODING_NORDIC" desc="The text label of Nordic encoding" >
+      <message name="IDS_ENCODING_NORDIC" desc="The text label of Nordic encoding">
         Nordic
       </message>
-      <message name="IDS_ENCODING_CELTIC" desc="The text label of Celtic encodings" >
+      <message name="IDS_ENCODING_CELTIC" desc="The text label of Celtic encodings">
         Celtic
       </message>
-      <message name="IDS_ENCODING_ROMANIAN" desc="The text label of Romanian encoding" >
+      <message name="IDS_ENCODING_ROMANIAN" desc="The text label of Romanian encoding">
         Romanian
       </message>
-      <message name="IDS_ENCODING_TURKISH" desc="The text label of Turkish encodings" >
+      <message name="IDS_ENCODING_TURKISH" desc="The text label of Turkish encodings">
         Turkish
       </message>
       <message name="IDS_ENCODING_ARABIC" desc="The text label of Arabic encodings">
         Arabic
       </message>
-      <message name="IDS_ENCODING_HEBREW" desc="The text label of Hebrew encodings" >
+      <message name="IDS_ENCODING_HEBREW" desc="The text label of Hebrew encodings">
         Hebrew
       </message>
-      <message name="IDS_ENCODING_VIETNAMESE" desc="The text label of Vietnamese encoding" >
+      <message name="IDS_ENCODING_VIETNAMESE" desc="The text label of Vietnamese encoding">
         Vietnamese
       </message>
       <message name="IDS_DEVELOPER_MENU" desc="The text label of the Developer submenu">
         Developer
       </message>
-      <message name="IDS_VIEW_SOURCE" desc="The text label of the View Page Source menu item" >
+      <message name="IDS_VIEW_SOURCE" desc="The text label of the View Page Source menu item">
         View s&amp;ource
       </message>
       <message name="IDS_DEBUGGER" desc="The text label of the JavaScript debugger menu item">
@@ -571,12 +571,16 @@ each locale. -->
       <message name="IDS_JS_CONSOLE" desc="The text the menu to show the JS console">
         &amp;JavaScript console
       </message>
-      <message name="IDS_TASK_MANAGER" desc="The text label of the Task Manager menu item" >
+      <message name="IDS_TASK_MANAGER" desc="The text label of the Task Manager menu item">
         &amp;Task manager
       </message>
-      <message name="IDS_RESTORE_TAB" desc="The text label of the Restore Tab menu item" >
+      <message name="IDS_RESTORE_TAB" desc="The text label of the Restore Tab menu item">
         R&amp;eopen closed tab
       </message>
+      <message name="IDS_RESTORE_WINDOW" desc="The text label of the Restore Window menu item">
+        R&amp;eopen closed window
+      </message>
+
       <!-- This really belongs under Generic Terms above. -->
       <message name="IDS_CLOSE" desc="A generic term for Close on buttons and menus.">
         Close
@@ -1975,10 +1979,10 @@ each locale. -->
       </message>
 
       <!-- Omnibox -->
-      <message name="IDS_PASTE_AND_GO" desc="The text label of the Paste And Go menu item when the clipboard contains a URL" >
+      <message name="IDS_PASTE_AND_GO" desc="The text label of the Paste And Go menu item when the clipboard contains a URL">
         Pa&amp;ste and go
       </message>
-      <message name="IDS_PASTE_AND_SEARCH" desc="The text label of the Paste And Go menu item when the clipboard contains a string to search for" >
+      <message name="IDS_PASTE_AND_SEARCH" desc="The text label of the Paste And Go menu item when the clipboard contains a string to search for">
         Pa&amp;ste and search
     </message>
       <message name="IDS_OMNIBOX_EMPTY_TEXT" desc="Text shown if omnibox is empty">

@@ -268,6 +268,9 @@ class Menu {
   void EnableMenuItemByID(int item_id, bool enabled);
   void EnableMenuItemAt(int index, bool enabled);
 
+  // Sets menu label at specified index.
+  void SetMenuLabel(int item_id, const std::wstring& label);
+
   // Sets an icon for an item with a given item_id. Calling this function
   // also forces the Menu class to draw the menu, instead of relying on Windows.
   // Returns false if the item with |item_id| is not found.

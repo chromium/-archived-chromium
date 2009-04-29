@@ -450,6 +450,15 @@ void Menu::EnableMenuItemAt(int index, bool enabled) {
   EnableMenuItem(menu_, index, MF_BYPOSITION | enable_flags);
 }
 
+void Menu::SetMenuLabel(int item_id, const std::wstring& label) {
+  MENUITEMINFO mii = {0};
+  mii.cbSize = sizeof(mii);
+  mii.fMask = MIIM_STRING;
+  mii.dwTypeData = const_cast<wchar_t*>(label.c_str());
+  mii.cch = static_cast<UINT>(label.size());
+  SetMenuItemInfo(menu_, item_id, false, &mii);
+}
+
 DWORD Menu::GetTPMAlignFlags() const {
   // The manner in which we handle the menu alignment depends on whether or not
   // the menu is displayed within a mirrored view. If the UI is mirrored, the
