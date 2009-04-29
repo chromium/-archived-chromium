@@ -39,13 +39,6 @@
         '../../webkit.gyp:webkit',
       ],
       'sources': [
-        # TODO: Clean this up.
-        # An alternate implementation for chrome on windows lives in:
-        #   chrome/renderer/renderer_glue.cc
-        # As a consequence this can't be baked directly into glue.
-        # This version is needed for test_shell and test_shell_tests so
-        # it gets baked into test_shell_common for now.
-        '../../glue/simple_clipboard_impl.cc',
         'mac/DumpRenderTreePasteboard.h',
         'mac/DumpRenderTreePasteboard.m',
         'mac/test_shell_webview.h',
@@ -65,6 +58,7 @@
         'mock_webclipboard_impl.cc',
         'mock_webclipboard_impl.h',
         'resource.h',
+        'simple_clipboard_impl.cc',
         'simple_resource_loader_bridge.cc',
         'simple_resource_loader_bridge.h',
         'test_navigation_controller.cc',
@@ -152,7 +146,6 @@
           'sources!': [
             'drag_delegate.cc',
             'drop_delegate.cc',
-            '../../glue/simple_clipboard_impl.cc',
           ],
         }],
       ],

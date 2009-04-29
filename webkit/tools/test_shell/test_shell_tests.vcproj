@@ -203,7 +203,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\glue\simple_clipboard_impl.cc"
+				RelativePath=".\simple_clipboard_impl.cc"
 				>
 			</File>
 			<File

@@ -4427,7 +4427,6 @@
         'glue/scoped_clipboard_writer_glue.h',
         'glue/searchable_form_data.cc',
         'glue/searchable_form_data.h',
-        'glue/simple_clipboard_impl.cc',
         'glue/simple_webmimeregistry_impl.cc',
         'glue/simple_webmimeregistry_impl.h',
         'glue/stacking_order_iterator.cc',
@@ -4567,8 +4566,6 @@
           ],
           'sources!': [
             'glue/plugins/plugin_stubs.cc',
-            # Used directly in test_shell* so it can be replaced in chromium.
-            'glue/simple_clipboard_impl.cc',
           ],
         }],
       ],
