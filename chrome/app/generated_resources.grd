@@ -200,9 +200,6 @@ each locale. -->
       <message name="IDS_AUTOCOMPLETE_NO_QUERY" desc="Dummy search term displayed when the user has no query input.">
         &lt;enter query&gt;
       </message>
-      <message name="IDS_AUTOCOMPLETE_MATCH_DESCRIPTION_SEPARATOR" desc="The separator between a result in the autocomplete popup and its description.">
-        ''' - '''
-      </message>
 
       <message name="IDS_HISTORY_TITLE" desc="Title for the history tab.">
         History
