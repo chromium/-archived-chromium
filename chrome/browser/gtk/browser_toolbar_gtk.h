@@ -44,6 +44,9 @@ class BrowserToolbarGtk : public CommandUpdater::CommandObserver,
   // Adds this GTK toolbar into a sizing box.
   void AddToolbarToBox(GtkWidget* box);
 
+  void Show();
+  void Hide();
+
   virtual LocationBar* GetLocationBar() const;
 
   GoButtonGtk* GetGoButton() { return go_.get(); }

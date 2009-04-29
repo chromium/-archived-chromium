@@ -125,6 +125,7 @@ const struct AcceleratorMapping {
   { GDK_g, IDC_FIND_PREVIOUS,
     GdkModifierType(GDK_CONTROL_MASK | GDK_SHIFT_MASK) },
   { GDK_F3, IDC_FIND_PREVIOUS, GDK_SHIFT_MASK },
+  { GDK_F11, IDC_FULLSCREEN, GdkModifierType(0) },
 };
 
 int GetCommandId(guint accel_key, GdkModifierType modifier) {
@@ -202,6 +203,7 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
     :  browser_(browser),
        // TODO(port): make this a pref.
        custom_frame_(false),
+       full_screen_(false),
        method_factory_(this) {
   window_ = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
   gtk_window_set_default_size(window_, 640, 480);
@@ -423,14 +425,21 @@ bool BrowserWindowGtk::IsMaximized() const {
 }
 
 void BrowserWindowGtk::SetFullscreen(bool fullscreen) {
-  // Need to implement full screen mode.
-  // http://code.google.com/p/chromium/issues/detail?id=8405
+  if (fullscreen) {
+    full_screen_ = true;
+    tabstrip_->Hide();
+    toolbar_->Hide();
+    gtk_window_fullscreen(window_);
+  } else {
+    full_screen_ = false;
+    gtk_window_unfullscreen(window_);
+    toolbar_->Show();
+    tabstrip_->Show();
+  }
 }
 
 bool BrowserWindowGtk::IsFullscreen() const {
-  // Need to implement full screen mode.
-  // http://code.google.com/p/chromium/issues/detail?id=8405
-  return false;
+  return full_screen_;
 }
 
 LocationBar* BrowserWindowGtk::GetLocationBar() const {

@@ -151,6 +151,10 @@ class BrowserWindowGtk : public BrowserWindow,
   // Whether we're drawing the custom Chrome frame (including title bar).
   bool custom_frame_;
 
+  // Whether we are full screen. Since IsFullscreen() gets called before
+  // OnStateChanged(), we can't rely on |state_| & GDK_WINDOW_STATE_FULLSCREEN.
+  bool full_screen_;
+
   // The object that manages all of the widgets in the toolbar.
   scoped_ptr<BrowserToolbarGtk> toolbar_;
 

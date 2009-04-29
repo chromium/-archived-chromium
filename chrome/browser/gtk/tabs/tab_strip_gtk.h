@@ -28,6 +28,9 @@ class TabStripGtk : public TabStripModelObserver,
   void Init();
   void AddTabStripToBox(GtkWidget* box);
 
+  void Show();
+  void Hide();
+
   TabStripModel* model() const { return model_; }
 
   // Sets the bounds of the tabs.

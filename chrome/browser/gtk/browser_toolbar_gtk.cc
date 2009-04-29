@@ -164,6 +164,14 @@ void BrowserToolbarGtk::AddToolbarToBox(GtkWidget* box) {
   gtk_box_pack_start(GTK_BOX(box), toolbar_, FALSE, FALSE, 0);
 }
 
+void BrowserToolbarGtk::Show() {
+  gtk_widget_show(toolbar_);
+}
+
+void BrowserToolbarGtk::Hide() {
+  gtk_widget_hide(toolbar_);
+}
+
 LocationBar* BrowserToolbarGtk::GetLocationBar() const {
   return location_bar_.get();
 }

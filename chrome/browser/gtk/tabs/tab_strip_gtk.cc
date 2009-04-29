@@ -569,6 +569,14 @@ void TabStripGtk::AddTabStripToBox(GtkWidget* box) {
   gtk_box_pack_start(GTK_BOX(box), tabstrip_.get(), FALSE, FALSE, 0);
 }
 
+void TabStripGtk::Show() {
+  gtk_widget_show(tabstrip_.get());
+}
+
+void TabStripGtk::Hide() {
+  gtk_widget_hide(tabstrip_.get());
+}
+
 void TabStripGtk::Layout() {
   // Called from:
   // - window resize
