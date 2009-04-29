@@ -70,7 +70,7 @@
   BOOL isLastRemainingTab = [sourceController numberOfTabs] <= 1;
 
   BOOL dragging = YES;
-  BOOL moved = NO;
+  BOOL moveBetweenWindows = NO;
 
   NSPoint lastPoint =
     [[theEvent window] convertBaseToScreen:[theEvent locationInWindow]];
@@ -103,7 +103,8 @@
     }
   }
 
-  [sourceController removePlaceholder];
+  if (dragging)
+    [sourceController removePlaceholder];
 
   TabWindowController* draggedController = nil;
   TabWindowController* targetController = nil;
@@ -178,7 +179,7 @@
 
     NSEventType type = [theEvent type];
     if (type == NSLeftMouseDragged) {
-      moved = YES;
+      moveBetweenWindows = YES;
       if (!draggedController) {
         if (isLastRemainingTab) {
           draggedController = sourceController;
@@ -257,27 +258,20 @@
 
   // The drag/click is done. If the user dragged the mouse, finalize the drag
   // and clean up.
-  if (moved) {
-    TabWindowController *dropController = targetController;
-#if 1
-    dropController = nil; // Don't allow drops on other windows for now
-#endif
+  if (moveBetweenWindows) {
+    // Move between windows. If |targetController| is nil, we're not dropping
+    // into any existing window.
+    TabWindowController* dropController = targetController;
     if (dropController) {
-      // TODO(alcor/pinkerton): hookup drops on existing windows
-      NSRect adjustedFrame = [self bounds];
-      NSRect dropTabFrame =  [[dropController tabStripView] frame];
-      adjustedFrame.origin = [self convertPointToBase:NSZeroPoint];
-      adjustedFrame.origin =
-      [sourceWindow convertBaseToScreen:adjustedFrame.origin];
-      adjustedFrame.origin.x = adjustedFrame.origin.x - dropTabFrame.origin.x;
-      //adjustedFrame.origin.y = adjustedFrame.origin.y - dropTabFrame.origin.y;
-      //adjustedFrame.size.height += adjustedFrame.origin.y;
-      adjustedFrame.origin.y = 0;
-      // TODO(alcor): get add tab stuff working
-      // [dropController addTab:tab_];
-      [self setFrame:adjustedFrame];
-      [dropController layoutTabs];
-      [draggedController close];
+      // The ordering here is important. We need to be able to get from the
+      // TabView in the |draggedController| to whatever is needed by the tab
+      // model. To do so, it still has to be in the model, so we have to call
+      // "drop" before we call "detach".
+      NSView* draggedTabView = [draggedController selectedTabView];
+      [draggedController removeOverlay];
+      [dropController dropTabView:draggedTabView
+                   fromController:draggedController];
+      [draggedController detachTabView:draggedTabView];
       [dropController showWindow:nil];
     } else {
       [targetController removePlaceholder];
@@ -291,7 +285,20 @@
       [draggedController layoutTabs];
     }
     [sourceController layoutTabs];
+  } else {
+    // Move or click within a window. We need to differentiate between a
+    // click on the tab and a drag by checking against the initial x position.
+    NSPoint currentPoint = [NSEvent mouseLocation];
+    BOOL wasDrag = fabs(currentPoint.x - lastPoint.x) > kDragStartDistance;
+    if (wasDrag) {
+      // Move tab to new location.
+      TabWindowController* dropController = sourceController;
+      [dropController dropTabView:[dropController selectedTabView]
+                   fromController:nil];
+    }
   }
+
+  [sourceController removePlaceholder];
 }
 
 @end

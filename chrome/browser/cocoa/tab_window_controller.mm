@@ -99,7 +99,8 @@
   return overlayWindow_;
 }
 
-- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index {
+- (void)dropTabView:(NSView*)view
+     fromController:(TabWindowController*)dragController {
   NOTIMPLEMENTED();
 }
 
@@ -127,6 +128,11 @@
 }
 
 - (void)removePlaceholder {
+  // subclass must implement
+  NOTIMPLEMENTED();
+}
+
+- (void)detachTabView:(NSView*)view {
   // subclass must implement
   NOTIMPLEMENTED();
 }

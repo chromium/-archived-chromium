@@ -69,8 +69,14 @@ class ToolbarModel;
 // Return the view for the currently selected tab.
 - (NSView *)selectedTabView;
 
-// Drop a tab view at a new index in the array.
-- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index;
+// Move the given tab at index |from| in this window to the location of the
+// current placeholder.
+- (void)moveTabFromIndex:(NSInteger)from;
+
+// Drop a given TabContents at the location of the current placeholder. If there
+// is no placeholder, it will go at the end. Used when dragging from another
+// window when we don't have access to the TabContents as part of our strip.
+- (void)dropTabContents:(TabContents*)contents;
 
 // Given a tab view in the strip, return its index. Returns -1 if not present.
 - (NSInteger)indexForTabView:(NSView*)view;

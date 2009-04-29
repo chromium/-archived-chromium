@@ -277,16 +277,52 @@ willPositionSheet:(NSWindow *)sheet
   return [tabStripController_ selectedTabGrowBoxRect];
 }
 
-- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index {
-  [tabStripController_ dropTabView:view atIndex:index];
+// Drop a given tab view at the location of the current placeholder. If there
+// is no placeholder, it will go at the end. |dragController| is the window
+// controller of a tab being dropped from a different window. It will be nil
+// if the drag is within the window. The implementation will call
+// |-removePlaceholder| since the drag is now complete. This also calls
+// |-layoutTabs| internally so clients do not need to call it again. When
+// dragging tabs between windows, this should be called *before*
+// |-detachTabView| on the source window since it needs to still be in the
+// source window's tab model for this method to find the information it needs
+// to complete the drop.
+- (void)dropTabView:(NSView*)view
+     fromController:(TabWindowController*)dragController {
+  if (dragController) {
+    // Moving between windows. Figure out the TabContents to drop into our tab
+    // model from the source window's model.
+    BOOL isBrowser =
+        [dragController isKindOfClass:[BrowserWindowController class]];
+    DCHECK(isBrowser);
+    if (!isBrowser) return;
+    BrowserWindowController* dragBWC = (BrowserWindowController*)dragController;
+    int index = [dragBWC->tabStripController_ indexForTabView:view];
+    TabContents* contents =
+        dragBWC->browser_->tabstrip_model()->GetTabContentsAt(index);
+
+    // Deposit it into our model at the appropriate location (it already knows
+    // where it should go from tracking the drag).
+    [tabStripController_ dropTabContents:contents];
+  } else {
+    // Moving within a window.
+    int index = [tabStripController_ indexForTabView:view];
+    [tabStripController_ moveTabFromIndex:index];
+  }
+
+  // Remove the placeholder since the drag is now complete.
+  [self removePlaceholder];
+}
+
+// Tells the tab strip to forget about this tab in preparation for it being
+// put into a different tab strip, such as during a drop on another window.
+- (void)detachTabView:(NSView*)view {
+  int index = [tabStripController_ indexForTabView:view];
+  browser_->tabstrip_model()->DetachTabContentsAt(index);
 }
 
 - (NSView *)selectedTabView {
   return [tabStripController_ selectedTabView];
-}
-
-- (TabStripController *)tabStripController {
-  return tabStripController_;
 }
 
 - (void)setIsLoading:(BOOL)isLoading {

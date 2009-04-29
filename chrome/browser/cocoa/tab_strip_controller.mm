@@ -17,7 +17,6 @@
 #include "chrome/browser/tab_contents/tab_contents.h"
 #include "chrome/browser/tabs/tab_strip_model.h"
 #include "chrome/common/l10n_util.h"
-#include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
 @implementation TabStripController
@@ -136,7 +135,6 @@
   }
 }
 
-
 - (void)insertPlaceholderForTab:(TabView*)tab
                           frame:(NSRect)frame
                   yStretchiness:(CGFloat)yStretchiness {
@@ -145,7 +143,6 @@
   placeholderStretchiness_ = yStretchiness;
   [self layoutTabs];
 }
-
 
 // Lay out all tabs in the order of their TabContentsControllers, which matches
 // the ordering in the TabStripModel. This call isn't that expensive, though
@@ -350,14 +347,69 @@
   [updatedController tabDidChange:contents];
 }
 
+// Called when a tab is moved (usually by drag&drop). Keep our parallel arrays
+// in sync with the tab strip model.
+- (void)tabMovedWithContents:(TabContents*)contents
+                    fromIndex:(NSInteger)from
+                      toIndex:(NSInteger)to {
+  scoped_nsobject<TabContentsController> movedController(
+      [[tabContentsArray_ objectAtIndex:from] retain]);
+  [tabContentsArray_ removeObjectAtIndex:from];
+  [tabContentsArray_ insertObject:movedController.get() atIndex:to];
+  scoped_nsobject<TabView> movedView(
+      [[tabArray_ objectAtIndex:from] retain]);
+  [tabArray_ removeObjectAtIndex:from];
+  [tabArray_ insertObject:movedView.get() atIndex:to];
+
+  [self layoutTabs];
+}
+
 - (NSView *)selectedTabView {
   int selectedIndex = tabModel_->selected_index();
   return [self viewAtIndex:selectedIndex];
 }
 
-- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index {
-  // TODO(pinkerton): implement drop
-  NOTIMPLEMENTED();
+// Find the index based on the x coordinate of the placeholder. If there is
+// no placeholder, this returns the end of the tab strip.
+- (int)indexOfPlaceholder {
+  double placeholderX = placeholderFrame_.origin.x;
+  int index = 0;
+  int location = 0;
+  const int count = tabModel_->count();
+  while (index < count) {
+    NSView* curr = [self viewAtIndex:index];
+    // The placeholder tab works by changing the frame of the tab being dragged
+    // to be the bounds of the placeholder, so we need to skip it while we're
+    // iterating, otherwise we'll end up off by one.  Note This only effects
+    // dragging to the right, not to the left.
+    if (curr == placeholderTab_) {
+      index++;
+      continue;
+    }
+    if (placeholderX <= NSMinX([curr frame]))
+      break;
+    index++;
+    location++;
+  }
+  return location;
+}
+
+// Move the given tab at index |from| in this window to the location of the
+// current placeholder.
+- (void)moveTabFromIndex:(NSInteger)from {
+  int toIndex = [self indexOfPlaceholder];
+  tabModel_->MoveTabContentsAt(from, toIndex, true);
+}
+
+// Drop a given TabContents at the location of the current placeholder. If there
+// is no placeholder, it will go at the end. Used when dragging from another
+// window when we don't have access to the TabContents as part of our strip.
+- (void)dropTabContents:(TabContents*)contents {
+  int index = [self indexOfPlaceholder];
+
+  // Insert it into this tab strip. We want it in the foreground and to not
+  // inherit the current tab's group.
+  tabModel_->InsertTabContentsAt(index, contents, true, false);
 }
 
 // Return the rect, in WebKit coordinates (flipped), of the window's grow box

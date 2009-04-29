@@ -62,15 +62,29 @@
 // Removes the placeholder installed by |-insertPlaceholderForTab:atLocation:|.
 - (void)removePlaceholder;
 
+// Drop a given tab view at the location of the current placeholder. If there
+// is no placeholder, it will go at the end. |controller| is the window
+// controller of a tab being dropped from a different window. It will be nil
+// if the drag is within the window. The implementation will call
+// |-removePlaceholder| since the drag is now complete. This also calls
+// |-layoutTabs| internally so clients do not need to call it again. When
+// dragging tabs between windows, this should be called *before*
+// |-detachTabView| on the source window since it needs to still be in the
+// source window's tab model for this method to find the information it needs
+// to complete the drop.
+- (void)dropTabView:(NSView*)view
+     fromController:(TabWindowController*)controller;
+
+// Tells the tab strip to forget about this tab in preparation for it being
+// put into a different tab strip, such as during a drop on another window.
+- (void)detachTabView:(NSView*)view;
+
 // Number of tabs in the tab strip. Useful, for example, to know if we're
 // dragging the only tab in the window.
 - (NSInteger)numberOfTabs;
 
 // Return the view of the selected tab.
 - (NSView *)selectedTabView;
-
-// Drop a given tab view at a new index.
-- (void)dropTabView:(NSView *)view atIndex:(NSUInteger)index;
 
 // The title of the selected tab.
 - (NSString*)selectedTabTitle;
