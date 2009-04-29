@@ -21,6 +21,8 @@
 - (void)initMenuState;
 - (void)getUrl:(NSAppleEventDescriptor*)event
      withReply:(NSAppleEventDescriptor*)reply;
+- (void)openFiles:(NSAppleEventDescriptor*)event
+        withReply:(NSAppleEventDescriptor*)reply;
 @end
 
 @implementation AppController
@@ -47,6 +49,10 @@
           andSelector:@selector(getUrl:withReply:)
         forEventClass:'WWW!'    // A particularly ancient AppleEvent that dates
            andEventID:'OURL'];  // back to the Spyglass days.
+  [em setEventHandler:self
+          andSelector:@selector(openFiles:withReply:)
+        forEventClass:kCoreEventClass
+           andEventID:kAEOpenDocuments];
 }
 
 - (void)dealloc {
@@ -72,6 +78,8 @@
                            andEventID:kAEGetURL];
   [em removeEventHandlerForEventClass:'WWW!'
                            andEventID:'OURL'];
+  [em removeEventHandlerForEventClass:kCoreEventClass
+                           andEventID:kAEOpenDocuments];
 
   // TODO(pinkerton): Not sure where this should live, including it here
   // causes all sorts of asserts from the open renderers. On Windows, it
@@ -190,13 +198,33 @@ void OpenURLs(const std::vector<GURL>& urls) {
   OpenURLs(gurlVector);
 }
 
-- (void)application:(NSApplication*)sender
-          openFiles:(NSArray*)filenames {
+- (void)openFiles:(NSAppleEventDescriptor*)event
+        withReply:(NSAppleEventDescriptor*)reply {
+  // Ordinarily we'd use the NSApplication delegate method
+  // -application:openFiles:, but Cocoa tries to be smart and it sends files
+  // specified on the command line into that delegate method. That's too smart
+  // for us (our setup isn't done by the time Cocoa triggers the delegate method
+  // and we crash). Since all we want are files dropped on the app icon, and we
+  // have cross-platform code to handle the command-line files anyway, an Apple
+  // Event handler fits the bill just right.
+  NSAppleEventDescriptor* fileList =
+      [event paramDescriptorForKeyword:keyDirectObject];
+  if (!fileList)
+    return;
   std::vector<GURL> gurlVector;
 
-  for (NSString* filename in filenames) {
-    NSURL* fileURL = [NSURL fileURLWithPath:filename];
-    GURL gurl(base::SysNSStringToUTF8([fileURL absoluteString]));
+  for (NSInteger i = 1; i <= [fileList numberOfItems]; ++i) {
+    NSAppleEventDescriptor* fileAliasDesc = [fileList descriptorAtIndex:i];
+    if (!fileAliasDesc)
+      continue;
+    NSAppleEventDescriptor* fileURLDesc =
+        [fileAliasDesc coerceToDescriptorType:typeFileURL];
+    if (!fileURLDesc)
+      continue;
+    NSData* fileURLData = [fileURLDesc data];
+    if (!fileURLData)
+      continue;
+    GURL gurl(std::string((char*)[fileURLData bytes], [fileURLData length]));
     gurlVector.push_back(gurl);
   }
 
