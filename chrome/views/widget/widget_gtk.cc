@@ -122,11 +122,6 @@ void WidgetGtk::GetBounds(gfx::Rect* out, bool including_frame) const {
   NOTIMPLEMENTED();
 }
 
-void WidgetGtk::MoveToFront(bool should_activate) {
-  // TODO(erg): I'm not sure about how to do z-ordering on GTK widgets...
-  NOTIMPLEMENTED();
-}
-
 gfx::NativeView WidgetGtk::GetNativeView() const {
   return widget_;
 }

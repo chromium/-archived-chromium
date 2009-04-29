@@ -147,8 +147,8 @@ class WindowWin : public WidgetWin,
   virtual void OnSize(UINT size_param, const CSize& new_size);
   virtual void OnSysCommand(UINT notification_code, CPoint click);
   virtual void OnWindowPosChanging(WINDOWPOS* window_pos);
-  virtual Window* AsWindow() { return this; }
-  virtual const Window* AsWindow() const { return this; }
+  virtual Window* GetWindow() { return this; }
+  virtual const Window* GetWindow() const { return this; }
 
   // Accessor for disable_inactive_rendering_.
   bool disable_inactive_rendering() const {

@@ -191,7 +191,7 @@ views::View* NonClientView::GetViewForPoint(const gfx::Point& point,
 bool NonClientFrameView::HitTest(const gfx::Point& l) const {
   // For the default case, we assume the non-client frame view never overlaps
   // the client view.
-  return !GetWidget()->AsWindow()->GetClientView()->bounds().Contains(l);
+  return !GetWidget()->GetWindow()->GetClientView()->bounds().Contains(l);
 }
 
 void NonClientFrameView::DidChangeBounds(const gfx::Rect& previous,

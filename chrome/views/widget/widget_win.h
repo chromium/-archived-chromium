@@ -24,6 +24,7 @@ namespace views {
 
 class RootView;
 class TooltipManager;
+class Window;
 
 bool SetRootViewForHWND(HWND hwnd, RootView* root_view);
 RootView* GetRootViewForHWND(HWND hwnd);
@@ -231,13 +232,14 @@ class WidgetWin : public Widget,
 
   // Overridden from Widget:
   virtual void GetBounds(gfx::Rect* out, bool including_frame) const;
-  virtual void MoveToFront(bool should_activate);
   virtual gfx::NativeView GetNativeView() const;
   virtual void PaintNow(const gfx::Rect& update_rect);
   virtual RootView* GetRootView();
   virtual bool IsVisible() const;
   virtual bool IsActive() const;
   virtual TooltipManager* GetTooltipManager();
+  virtual Window* GetWindow();
+  virtual const Window* GetWindow() const;
 
   // Overridden from MessageLoop::Observer:
   void WillProcessMessage(const MSG& msg);
@@ -529,7 +531,14 @@ class WidgetWin : public Widget,
 
   scoped_ptr<TooltipManager> tooltip_manager_;
 
+  // Are a subclass of WindowWin?
+  bool is_window_;
+
  private:
+  // Implementation of GetWindow. Ascends the parents of |hwnd| returning the
+  // first ancestor that is a Window.
+  static Window* GetWindowImpl(HWND hwnd);
+ 
   // Resize the bitmap used to contain the contents of the layered window. This
   // recreates the entire bitmap.
   void SizeContents(const CRect& window_rect);

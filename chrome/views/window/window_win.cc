@@ -467,6 +467,7 @@ WindowWin::WindowWin(WindowDelegate* window_delegate)
       ignore_pos_changes_factory_(this),
       force_hidden_count_(0),
       last_monitor_(NULL) {
+  is_window_ = true;
   InitClass();
   DCHECK(window_delegate_);
   window_delegate_->window_.reset(this);

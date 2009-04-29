@@ -18,6 +18,7 @@
 #include "chrome/views/widget/aero_tooltip_manager.h"
 #include "chrome/views/widget/hwnd_notification_source.h"
 #include "chrome/views/widget/root_view.h"
+#include "chrome/views/window/window_win.h"
 
 namespace views {
 
@@ -145,6 +146,7 @@ WidgetWin::WidgetWin()
       can_update_layered_window_(true),
       last_mouse_event_was_move_(false),
       is_mouse_down_(false),
+      is_window_(false),
       class_style_(CS_DBLCLKS),
       hwnd_(NULL) {
 }
@@ -252,20 +254,6 @@ void WidgetWin::GetBounds(gfx::Rect* out, bool including_frame) const {
                crect.Width(), crect.Height());
 }
 
-void WidgetWin::MoveToFront(bool should_activate) {
-  int flags = SWP_NOMOVE | SWP_NOSIZE;
-  if (!should_activate) {
-    flags |= SWP_NOACTIVATE;
-  }
-
-  // Keep the window topmost if it was already topmost.
-  WINDOWINFO wi;
-  wi.cbSize = sizeof WINDOWINFO;
-  GetWindowInfo(GetNativeView(), &wi);
-  SetWindowPos((wi.dwExStyle & WS_EX_TOPMOST) ? HWND_TOPMOST : HWND_NOTOPMOST,
-               0, 0, 0, 0, flags);
-}
-
 gfx::NativeView WidgetWin::GetNativeView() const {
   return hwnd_;
 }
@@ -319,6 +307,13 @@ TooltipManager* WidgetWin::GetTooltipManager() {
   return tooltip_manager_.get();
 }
 
+Window* WidgetWin::GetWindow() {
+  return GetWindowImpl(hwnd_);
+}
+
+const Window* WidgetWin::GetWindow() const {
+  return GetWindowImpl(hwnd_);
+}
 
 void WidgetWin::SetLayeredAlpha(BYTE layered_alpha) {
   layered_alpha_ = layered_alpha;
@@ -849,6 +844,21 @@ RootView* WidgetWin::CreateRootView() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // WidgetWin, private:
+
+// static
+Window* WidgetWin::GetWindowImpl(HWND hwnd) {
+  // NOTE: we can't use GetAncestor here as constrained windows are a Window,
+  // but not a top level window.
+  HWND parent = hwnd;
+  while (parent) {
+    WidgetWin* widget =
+        reinterpret_cast<WidgetWin*>(win_util::GetWindowUserData(parent));
+    if (widget && widget->is_window_)
+      return static_cast<WindowWin*>(widget);
+    parent = ::GetParent(parent);
+  }
+  return NULL;
+}
 
 void WidgetWin::SizeContents(const CRect& window_rect) {
   contents_.reset(new ChromeCanvas(window_rect.Width(),

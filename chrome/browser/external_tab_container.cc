@@ -316,9 +316,6 @@ void ExternalTabContainer::GetBounds(gfx::Rect* out,
   *out = gfx::Rect(crect);
 }
 
-void ExternalTabContainer::MoveToFront(bool should_activate) {
-}
-
 gfx::NativeView ExternalTabContainer::GetNativeView() const {
   return m_hWnd;
 }

@@ -723,7 +723,7 @@ void DraggedTabController::Attach(TabStrip* attached_tabstrip,
   tab->SetVisible(false);
 
   // Move the corresponding window to the front.
-  attached_tabstrip_->GetWidget()->MoveToFront(true);
+  attached_tabstrip_->GetWidget()->GetWindow()->Activate();
 }
 
 void DraggedTabController::Detach() {

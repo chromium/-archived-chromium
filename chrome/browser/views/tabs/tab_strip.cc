@@ -601,7 +601,7 @@ void TabStrip::PaintChildren(ChromeCanvas* canvas) {
     }
   }
 
-  if (GetWidget()->AsWindow()->GetNonClientView()->UseNativeFrame()) {
+  if (GetWidget()->GetWindow()->GetNonClientView()->UseNativeFrame()) {
     // Make sure unselected tabs are somewhat transparent.
     SkPaint paint;
     paint.setColor(SkColorSetARGB(200, 255, 255, 255));
