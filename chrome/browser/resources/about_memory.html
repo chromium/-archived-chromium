@@ -330,6 +330,9 @@ function reload() {
 
 function formatNumber(str) {
   str += '';
+  if (str == '0') {
+    return 'N/A ';
+  }
   var x = str.split('.');
   var x1 = x[0];
   var x2 = x.length > 1 ? '.' + x[1] : '';

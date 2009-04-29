@@ -78,6 +78,7 @@ class MemoryDetails : public base::RefCountedThreadSafe<MemoryDetails> {
     FIREFOX_BROWSER,
     OPERA_BROWSER,
     SAFARI_BROWSER,
+    IE_64BIT_BROWSER,
     MAX_BROWSERS
   } BrowserProcess;
 

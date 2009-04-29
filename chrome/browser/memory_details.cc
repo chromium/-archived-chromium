@@ -19,12 +19,14 @@ class RenderViewHostDelegate;
 
 // Template of static data we use for finding browser process information.
 // These entries must match the ordering for MemoryDetails::BrowserProcess.
-static ProcessData g_process_template[] = {
+static ProcessData
+    g_process_template[MemoryDetails::MAX_BROWSERS] = {
     { L"Chromium", L"chrome.exe", },
     { L"IE", L"iexplore.exe", },
     { L"Firefox", L"firefox.exe", },
     { L"Opera", L"opera.exe", },
     { L"Safari", L"safari.exe", },
+    { L"IE (64bit)", L"iexplore.exe", },
   };
 
 
@@ -89,41 +91,46 @@ void MemoryDetails::CollectProcessData(
   DCHECK(MessageLoop::current() ==
       ChromeThread::GetMessageLoop(ChromeThread::FILE));
 
-  int array_size = 32;
-  scoped_ptr_malloc<DWORD> process_list;
-  DWORD bytes_used = 0;
-  do {
-    array_size *= 2;
-    process_list.reset(static_cast<DWORD*>(
-        realloc(process_list.release(), sizeof(DWORD) * array_size)));
-    // EnumProcesses doesn't return an error if the array is too small.
-    // We have to check if the return buffer is full, and if so, call it
-    // again.  See msdn docs for more info.
-    if (!EnumProcesses(process_list.get(), array_size * sizeof(DWORD),
-                       &bytes_used)) {
-      LOG(ERROR) << "EnumProcesses failed: " << GetLastError();
-      return;
-    }
-  } while (bytes_used == (array_size * sizeof(DWORD)));
-
-  int num_processes = bytes_used / sizeof(DWORD);
-
   // Clear old data.
   for (int index = 0; index < arraysize(g_process_template); index++)
     process_data_[index].processes.clear();
 
-  for (int index = 0; index < num_processes; index++) {
-    int pid = process_list.get()[index];
-    ScopedHandle handle(OpenProcess(
+  SYSTEM_INFO system_info;
+  GetNativeSystemInfo(&system_info);
+  bool is_64bit_os =
+      system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64;
+
+  ScopedHandle snapshot(::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0));
+  PROCESSENTRY32 process_entry = {sizeof(PROCESSENTRY32)};
+  if (!snapshot.Get()) {
+    LOG(ERROR) << "CreateToolhelp32Snaphot failed: " << GetLastError();
+    return;
+  }
+  if (!::Process32First(snapshot, &process_entry)) {
+    LOG(ERROR) << "Process32First failed: " << GetLastError();
+    return;
+  }
+  do {
+    int pid = process_entry.th32ProcessID;
+    ScopedHandle handle(::OpenProcess(
         PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid));
     if (!handle.Get())
       continue;
-    TCHAR name[MAX_PATH];
-    if (!GetModuleBaseName(handle, NULL, name, MAX_PATH - 1))
-      continue;
+    bool is_64bit_process = false;
+    // IsWow64Process() returns FALSE for a 32bit process on a 32bit OS.
+    // We need to check if the real OS is 64bit.
+    if (is_64bit_os) {
+      BOOL is_wow64 = FALSE;
+      // IsWow64Process() is supported by Windows XP SP2 or later.
+      IsWow64Process(handle, &is_wow64);
+      is_64bit_process = !is_wow64;
+    }
     for (int index2 = 0; index2 < arraysize(g_process_template); index2++) {
-      if (_wcsicmp(process_data_[index2].process_name, name) != 0)
+      if (_wcsicmp(process_data_[index2].process_name,
+          process_entry.szExeFile) != 0)
         continue;
+      if (index2 == IE_BROWSER && is_64bit_process)
+        continue;  // Should use IE_64BIT_BROWSER
       // Get Memory Information.
       ProcessMemoryInformation info;
       info.pid = pid;
@@ -138,9 +145,10 @@ void MemoryDetails::CollectProcessData(
       metrics->GetWorkingSetKBytes(&info.working_set);
 
       // Get Version Information.
-      if (index2 == 0) {  // Chrome
+      TCHAR name[MAX_PATH];
+      if (index2 == CHROME_BROWSER) {
         scoped_ptr<FileVersionInfo> version_info(
-           FileVersionInfo::CreateFileVersionInfoForCurrentModule());
+            FileVersionInfo::CreateFileVersionInfoForCurrentModule());
         if (version_info != NULL)
           info.version = version_info->file_version();
         // Check if this is one of the child processes whose data we collected
@@ -155,7 +163,7 @@ void MemoryDetails::CollectProcessData(
       } else if (GetModuleFileNameEx(handle, NULL, name, MAX_PATH - 1)) {
         std::wstring str_name(name);
         scoped_ptr<FileVersionInfo> version_info(
-           FileVersionInfo::CreateFileVersionInfo(str_name));
+            FileVersionInfo::CreateFileVersionInfo(str_name));
         if (version_info != NULL) {
           info.version = version_info->product_version();
           info.product_name = version_info->product_name();
@@ -166,7 +174,7 @@ void MemoryDetails::CollectProcessData(
       process_data_[index2].processes.push_back(info);
       break;
     }
-  }
+  } while (::Process32Next(snapshot, &process_entry));
 
   // Finally return to the browser thread.
   ui_loop_->PostTask(FROM_HERE,

@@ -524,21 +524,30 @@ void ProcessMetrics::GetCommittedKBytes(CommittedKBytes* usage) const {
   size_t committed_mapped = 0;
   size_t committed_image = 0;
   void* base_address = NULL;
-  while (VirtualQueryEx(process_, base_address, &mbi,
-         sizeof(MEMORY_BASIC_INFORMATION)) ==
-         sizeof(MEMORY_BASIC_INFORMATION)) {
-      if (mbi.State == MEM_COMMIT) {
-        if (mbi.Type == MEM_PRIVATE) {
-          committed_private += mbi.RegionSize;
-        } else if (mbi.Type == MEM_MAPPED) {
-          committed_mapped += mbi.RegionSize;
-        } else if (mbi.Type == MEM_IMAGE) {
-          committed_image += mbi.RegionSize;
-        } else {
-          NOTREACHED();
-        }
+  while (VirtualQueryEx(process_, base_address, &mbi, sizeof(mbi)) ==
+      sizeof(mbi)) {
+    if (mbi.State == MEM_COMMIT) {
+      if (mbi.Type == MEM_PRIVATE) {
+        committed_private += mbi.RegionSize;
+      } else if (mbi.Type == MEM_MAPPED) {
+        committed_mapped += mbi.RegionSize;
+      } else if (mbi.Type == MEM_IMAGE) {
+        committed_image += mbi.RegionSize;
+      } else {
+        NOTREACHED();
       }
-      base_address = (static_cast<BYTE*>(mbi.BaseAddress)) + mbi.RegionSize;
+    }
+    void* new_base = (static_cast<BYTE*>(mbi.BaseAddress)) + mbi.RegionSize;
+    // Avoid infinite loop by weird MEMORY_BASIC_INFORMATION.
+    // If we query 64bit processes in a 32bit process, VirtualQueryEx()
+    // returns such data.
+    if (new_base <= base_address) {
+      usage->image = 0;
+      usage->mapped = 0;
+      usage->priv = 0;
+      return;
+    }
+    base_address = new_base;
   }
   usage->image = committed_image / 1024;
   usage->mapped = committed_mapped / 1024;
