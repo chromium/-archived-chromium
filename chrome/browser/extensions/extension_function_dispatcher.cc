@@ -63,6 +63,10 @@ FactoryRegistry::FactoryRegistry() {
 
   // Bookmarks
   factories_["GetBookmarks"] = &NewExtensionFunction<GetBookmarksFunction>;
+  factories_["GetBookmarkChildren"] =
+      &NewExtensionFunction<GetBookmarkChildrenFunction>;
+  factories_["GetBookmarkTree"] =
+      &NewExtensionFunction<GetBookmarkTreeFunction>;
   factories_["SearchBookmarks"] =
       &NewExtensionFunction<SearchBookmarksFunction>;
   factories_["RemoveBookmark"] = &NewExtensionFunction<RemoveBookmarkFunction>;

@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/file_util.h"
+#include "base/path_service.h"
+#include "base/string_util.h"
+#include "chrome/common/chrome_paths.h"
 #include "chrome/common/render_messages.h"
 #include "chrome/renderer/extensions/extension_process_bindings.h"
 #include "chrome/renderer/extensions/renderer_extension_bindings.h"
@@ -34,6 +38,23 @@ class ExtensionAPIClientTest : public RenderViewTest {
   void ExpectJsFail(const std::string& js, const std::string& message) {
     ExecuteJavaScript(js.c_str());
     EXPECT_EQ(message, GetConsoleMessage());
+    render_thread_.sink().ClearMessages();
+  }
+
+  void ExpectJsPass(const std::string& js,
+                    const std::string& function,
+                    const std::string& arg1) {
+    ExecuteJavaScript(js.c_str());
+    const IPC::Message* request_msg =
+      render_thread_.sink().GetUniqueMessageMatching(
+          ViewHostMsg_ExtensionRequest::ID);
+    ASSERT_EQ("", GetConsoleMessage()) << js;
+    ASSERT_TRUE(request_msg) << js;
+    ViewHostMsg_ExtensionRequest::Param params;
+    ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
+    ASSERT_EQ(function.c_str(), params.a) << js;
+    ASSERT_EQ(arg1.c_str(), params.b) << js;
+    render_thread_.sink().ClearMessages();
   }
 };
 
@@ -85,30 +106,15 @@ TEST_F(ExtensionAPIClientTest, GetTabsForWindow) {
   ExpectJsFail("chromium.tabs.getTabsForWindow(42, function(){});",
                "Uncaught Error: Too many arguments.");
 
-  ExecuteJavaScript("chromium.tabs.getTabsForWindow(function(){})");
-  const IPC::Message* request_msg =
-      render_thread_.sink().GetUniqueMessageMatching(
-          ViewHostMsg_ExtensionRequest::ID);
-  ASSERT_TRUE(request_msg);
-  ViewHostMsg_ExtensionRequest::Param params;
-  ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
-  ASSERT_EQ("GetTabsForWindow", params.a);
-  ASSERT_EQ("null", params.b);
+  ExpectJsPass("chromium.tabs.getTabsForWindow(function(){})",
+               "GetTabsForWindow", "null");
 }
 
 TEST_F(ExtensionAPIClientTest, GetTab) {
   ExpectJsFail("chromium.tabs.getTab(null, function(){});",
                "Uncaught Error: Parameter 0 is required.");
 
-  ExecuteJavaScript("chromium.tabs.getTab(42)");
-    const IPC::Message* request_msg =
-      render_thread_.sink().GetUniqueMessageMatching(
-          ViewHostMsg_ExtensionRequest::ID);
-  ASSERT_TRUE(request_msg);
-  ViewHostMsg_ExtensionRequest::Param params;
-  ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
-  ASSERT_EQ("GetTab", params.a);
-  ASSERT_EQ("42", params.b);
+  ExpectJsPass("chromium.tabs.getTab(42)", "GetTab", "42");
 }
 
 TEST_F(ExtensionAPIClientTest, CreateTab) {
@@ -122,21 +128,15 @@ TEST_F(ExtensionAPIClientTest, CreateTab) {
                "Uncaught Error: Invalid value for argument 0. Property "
                "'foo': Unexpected property.");
 
-  ExecuteJavaScript("chromium.tabs.createTab({"
-                    "  url:'http://www.google.com/',"
-                    "  selected:true,"
-                    "  windowId:4"
-                    "})");
-    const IPC::Message* request_msg =
-      render_thread_.sink().GetUniqueMessageMatching(
-          ViewHostMsg_ExtensionRequest::ID);
-  ASSERT_TRUE(request_msg);
-  ViewHostMsg_ExtensionRequest::Param params;
-  ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
-  ASSERT_EQ("CreateTab", params.a);
-  ASSERT_EQ("{\"url\":\"http://www.google.com/\","
-             "\"selected\":true,"
-             "\"windowId\":4}", params.b);
+  ExpectJsPass("chromium.tabs.createTab({"
+               "  url:'http://www.google.com/',"
+               "  selected:true,"
+               "  windowId:4"
+               "})",
+               "CreateTab",
+               "{\"url\":\"http://www.google.com/\","
+               "\"selected\":true,"
+               "\"windowId\":4}");
 }
 
 TEST_F(ExtensionAPIClientTest, UpdateTab) {
@@ -150,36 +150,90 @@ TEST_F(ExtensionAPIClientTest, UpdateTab) {
                "Uncaught Error: Invalid value for argument 0. Property "
                "'url': Expected 'string' but got 'integer'.");
 
-  ExecuteJavaScript("chromium.tabs.updateTab({"
-                    "  id:42,"
-                    "  url:'http://www.google.com/',"
-                    "  selected:true,"
-                    "  windowId:4"
-                    "})");
-    const IPC::Message* request_msg =
-      render_thread_.sink().GetUniqueMessageMatching(
-          ViewHostMsg_ExtensionRequest::ID);
-  ASSERT_TRUE(request_msg);
-  ViewHostMsg_ExtensionRequest::Param params;
-  ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
-  ASSERT_EQ("UpdateTab", params.a);
-  ASSERT_EQ("{\"id\":42,"
-             "\"url\":\"http://www.google.com/\","
-             "\"selected\":true,"
-             "\"windowId\":4}", params.b);
+  ExpectJsPass("chromium.tabs.updateTab({"
+               "  id:42,"
+               "  url:'http://www.google.com/',"
+               "  selected:true,"
+               "  windowId:4"
+               "})",
+               "UpdateTab",
+               "{\"id\":42,"
+               "\"url\":\"http://www.google.com/\","
+               "\"selected\":true,"
+               "\"windowId\":4}");
 }
 
 TEST_F(ExtensionAPIClientTest, RemoveTab) {
   ExpectJsFail("chromium.tabs.removeTab('foobar', function(){});",
                "Uncaught Error: Too many arguments.");
 
-  ExecuteJavaScript("chromium.tabs.removeTab(21)");
-    const IPC::Message* request_msg =
-      render_thread_.sink().GetUniqueMessageMatching(
-          ViewHostMsg_ExtensionRequest::ID);
-  ASSERT_TRUE(request_msg);
-  ViewHostMsg_ExtensionRequest::Param params;
-  ViewHostMsg_ExtensionRequest::Read(request_msg, &params);
-  ASSERT_EQ("RemoveTab", params.a);
-  ASSERT_EQ("21", params.b);
+  ExpectJsPass("chromium.tabs.removeTab(21)", "RemoveTab", "21");
 }
+
+// Bookmark API tests
+// TODO(erikkay) add more variations here
+
+TEST_F(ExtensionAPIClientTest, CreateBookmark) {
+  ExpectJsFail(
+      "chromium.bookmarks.create({parentId:'x', title:0}, function(){})",
+      "Uncaught Error: Invalid value for argument 0. "
+      "Property 'parentId': Expected 'integer' but got 'string', "
+      "Property 'title': Expected 'string' but got 'integer'.");
+
+  ExpectJsPass(
+      "chromium.bookmarks.create({parentId:0, title:'x'}, function(){})",
+      "CreateBookmark",
+      "{\"parentId\":0,\"title\":\"x\"}");
+}
+
+TEST_F(ExtensionAPIClientTest, GetBookmarks) {
+  ExpectJsPass("chromium.bookmarks.get([], function(){});",
+               "GetBookmarks",
+               "[]");
+  ExpectJsPass("chromium.bookmarks.get([0,1,2,3], function(){});",
+               "GetBookmarks",
+               "[0,1,2,3]");
+  ExpectJsPass("chromium.bookmarks.get(null, function(){});",
+               "GetBookmarks",
+               "null");
+  ExpectJsFail("chromium.bookmarks.get({}, function(){});",
+               "Uncaught Error: Invalid value for argument 0. "
+               "Expected 'array' but got 'object'.");
+}
+
+TEST_F(ExtensionAPIClientTest, GetBookmarkChildren) {
+  ExpectJsPass("chromium.bookmarks.getChildren(42, function(){});",
+               "GetBookmarkChildren",
+               "42");
+}
+
+TEST_F(ExtensionAPIClientTest, GetBookmarkTree) {
+  ExpectJsPass("chromium.bookmarks.getTree(function(){});",
+               "GetBookmarkTree",
+               "null");
+}
+
+TEST_F(ExtensionAPIClientTest, SearchBookmarks) {
+  ExpectJsPass("chromium.bookmarks.search('hello',function(){});",
+               "SearchBookmarks",
+               "\"hello\"");
+}
+
+TEST_F(ExtensionAPIClientTest, RemoveBookmark) {
+  ExpectJsPass("chromium.bookmarks.remove({id:42});",
+               "RemoveBookmark",
+               "{\"id\":42}");
+}
+
+TEST_F(ExtensionAPIClientTest, MoveBookmark) {
+  ExpectJsPass("chromium.bookmarks.move({id:42,parentId:1,index:0});",
+               "MoveBookmark",
+               "{\"id\":42,\"parentId\":1,\"index\":0}");
+}
+
+TEST_F(ExtensionAPIClientTest, SetBookmarkTitle) {
+  ExpectJsPass("chromium.bookmarks.setTitle({id:42,title:'x'});",
+               "SetBookmarkTitle",
+               "{\"id\":42,\"title\":\"x\"}");
+}
+

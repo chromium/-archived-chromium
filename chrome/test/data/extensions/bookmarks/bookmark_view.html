@@ -17,9 +17,13 @@
   background-color: silver;
   border: 1px solid black;
 }
+
+.event-log {
+  font-family: monospace;
+}
+
 </style>
 <script>
-
 // XXX Hack: When you call window.open('chrome-extension://...'), the window is
 // first navigated to about:blank, and then to the final URL. This confuses the
 // code that sets up our v8 extensions, and we don't end up with them running.
@@ -27,6 +31,32 @@
 // If we noticed this happened, reload ourselves, which should fix it.
 if (!chromium.bookmarks)
   location.reload();
+
+var logEvent = function(name, data) {
+  var log = document.getElementById("event-log");
+  log.innerHTML = name + "<br>" + log.innerHTML;
+  console.log("got event: " + name);
+}
+
+chromium.bookmarks.onBookmarkAdded.addListener(function(data) {
+  logEvent("onBookmarkAdded", data);
+});
+
+chromium.bookmarks.onBookmarkRemoved.addListener(function(data) {
+  logEvent("onBookmarkRemoved", data);
+});
+
+chromium.bookmarks.onBookmarkChanged.addListener(function(data) {
+  logEvent("onBookmarkChanged", data);
+});
+
+chromium.bookmarks.onBookmarkMoved.addListener(function(data) {
+  logEvent("onBookmarkMoved", data);
+});
+
+chromium.bookmarks.onBookmarkChildrenReordered.addListener(function(data) {
+  logEvent("onBookmarkChildrenReordered", data);
+});
 
 var prefix = "bookmark_";
 
@@ -109,4 +139,5 @@ var loadBookmarks = function() {
 <body onload="loadBookmarks()">
 <div id="container">
 </div>
+<div id="event-log"></div>
 </body>

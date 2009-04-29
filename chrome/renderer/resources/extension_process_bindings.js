@@ -19,6 +19,8 @@ var chromium;
   native function MoveTab();
   native function RemoveTab();
   native function GetBookmarks();
+  native function GetBookmarkChildren();
+  native function GetBookmarkTree();
   native function SearchBookmarks();
   native function RemoveBookmark();
   native function CreateBookmark();
@@ -238,35 +240,54 @@ var chromium;
   //----------------------------------------------------------------------------
 
   // Bookmarks
-  // TODO(erikkay): Call validate() in these functions.
   chromium.bookmarks = {};
 
   chromium.bookmarks.get = function(ids, callback) {
+    validate(arguments, arguments.callee.params);
     sendRequest(GetBookmarks, ids, callback);
   };
 
   chromium.bookmarks.get.params = [
     {
       type: "array",
-      items: {
-        type: chromium.types.pInt
-      },
-      minItems: 1,
+      items: chromium.types.pInt,
       optional: true
     },
-    chromium.types.optFun
+    chromium.types.fun
+  ];
+  
+  chromium.bookmarks.getChildren = function(id, callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetBookmarkChildren, id, callback);
+  };
+
+  chromium.bookmarks.getChildren.params = [
+    chromium.types.pInt,
+    chromium.types.fun
+  ];
+  
+  chromium.bookmarks.getTree = function(callback) {
+    validate(arguments, arguments.callee.params);
+    sendRequest(GetBookmarkTree, null, callback);
+  };
+  
+  // TODO(erikkay): allow it to take an optional id as a starting point
+  chromium.bookmarks.getTree.params = [
+    chromium.types.fun
   ];
 
   chromium.bookmarks.search = function(query, callback) {
+    validate(arguments, arguments.callee.params);
     sendRequest(SearchBookmarks, query, callback);
   };
 
   chromium.bookmarks.search.params = [
-    chromium.types.string,
-    chromium.types.optFun
+    chromium.types.str,
+    chromium.types.fun
   ];
 
   chromium.bookmarks.remove = function(bookmark, callback) {
+    validate(arguments, arguments.callee.params);
     sendRequest(RemoveBookmark, bookmark, callback);
   };
 
@@ -275,13 +296,14 @@ var chromium;
       type: "object",
       properties: {
         id: chromium.types.pInt,
-        recursive: chromium.types.bool
+        recursive: chromium.types.optBool
       }
     },
     chromium.types.optFun
   ];
 
   chromium.bookmarks.create = function(bookmark, callback) {
+    validate(arguments, arguments.callee.params);
     sendRequest(CreateBookmark, bookmark, callback);
   };
 
@@ -291,14 +313,15 @@ var chromium;
       properties: {
         parentId: chromium.types.optPInt,
         index: chromium.types.optPInt,
-        title: chromium.types.optString,
-        url: chromium.types.optString,
+        title: chromium.types.optStr,
+        url: chromium.types.optStr,
       }
     },
     chromium.types.optFun
   ];
 
   chromium.bookmarks.move = function(obj, callback) {
+    validate(arguments, arguments.callee.params);
     sendRequest(MoveBookmark, obj, callback);
   };
 
@@ -315,6 +338,7 @@ var chromium;
   ];
 
   chromium.bookmarks.setTitle = function(bookmark, callback) {
+    validate(arguments, arguments.callee.params);
     sendRequest(SetBookmarkTitle, bookmark, callback);
   };
 
@@ -323,12 +347,32 @@ var chromium;
       type: "object",
       properties: {
         id: chromium.types.pInt,
-        title: chromium.types.optString
+        title: chromium.types.optStr
       }
     },
     chromium.types.optFun
   ];
+
+  // bookmark events
+
+  // Sends ({id, title, url, parentId, index})
+  chromium.bookmarks.onBookmarkAdded = new chromium.Event("bookmark-added");
+
+  // Sends ({parentId, index})
+  chromium.bookmarks.onBookmarkRemoved = new chromium.Event("bookmark-removed");
+
+  // Sends (id, object) where object has list of properties that have changed.
+  // Currently, this only ever includes 'title'.
+  chromium.bookmarks.onBookmarkChanged = new chromium.Event("bookmark-changed");
+
+  // Sends ({id, parentId, index, oldParentId, oldIndex})
+  chromium.bookmarks.onBookmarkMoved = new chromium.Event("bookmark-moved");
   
+  // Sends (id, [childrenIds])
+  chromium.bookmarks.onBookmarkChildrenReordered =
+      new chromium.Event("bookmark-children-reordered");
+
+
   //----------------------------------------------------------------------------
 
   // Self

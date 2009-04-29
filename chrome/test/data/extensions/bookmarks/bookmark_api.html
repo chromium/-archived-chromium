@@ -1,7 +1,6 @@
 <html>
 <link rel="stylesheet" type="text/css" href="extensions_toolstrip.css">
 <script>
-
 var dump = function(obj, indent) {
   if (indent === undefined)
     indent = "";
@@ -24,14 +23,20 @@ var dump = function(obj, indent) {
 }
 
 var testMoveBookmarks = function(event) {
+  testMoveBookmarks2(event);
+}
+
+var testMoveBookmarks2 = function(event) {
+  console.log(testMoveBookmarks2.caller.name);
   if (event.shiftKey) {
     // TODO - it would be nice to have a mechanism to do this built-in to a
     // context menu.
     window.location.reload();
     return;
   }
-  console.log("testMoveBookmarks");
+  console.log("testMoveBookmarks2");
   chromium.bookmarks.get([], function(root) {
+    console.log("1");
     chromium.bookmarks.get(root[0].childrenIds, function(root_children) {
       var bookmark_bar = root_children[0];  // bookmarks bar is always first
       chromium.bookmarks.get(bookmark_bar.childrenIds,
@@ -72,15 +77,6 @@ var testMoveBookmarks = function(event) {
 
 var dumpBookmarks = function(event) {
   window.open("bookmark_view.html");
-  /*
-    console.dir(results);
-    var win = window.open();
-    win.document.write("<html><body><pre>");
-    win.document.write(dump(results));
-    win.document.write("</pre></body></html>");
-    win.document.title = "Bookmarks";
-  });
-  */
 };
 </script>
 <body>

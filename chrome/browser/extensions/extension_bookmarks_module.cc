@@ -4,9 +4,12 @@
 
 #include "chrome/browser/extensions/extension_bookmarks_module.h"
 
+#include "base/json_writer.h"
 #include "chrome/browser/bookmarks/bookmark_codec.h"
 #include "chrome/browser/bookmarks/bookmark_model.h"
 #include "chrome/browser/bookmarks/bookmark_utils.h"
+#include "chrome/browser/browser_list.h"
+#include "chrome/browser/extensions/extension_message_service.h"
 #include "chrome/browser/profile.h"
 
 namespace {
@@ -14,6 +17,8 @@ namespace {
 const wchar_t* kIdKey = L"id";
 const wchar_t* kIndexKey = L"index";
 const wchar_t* kParentIdKey = L"parentId";
+const wchar_t* kOldIndexKey = L"oldIndex";
+const wchar_t* kOldParentIdKey = L"oldParentId";
 const wchar_t* kUrlKey = L"url";
 const wchar_t* kTitleKey = L"title";
 const wchar_t* kChildrenIdsKey = L"childrenIds";
@@ -28,6 +33,13 @@ const char* kFolderNotEmptyError =
 const char* kInvalidIndexError = "Index out of bounds.";
 const char* kInvalidUrlError = "Invalid URL.";
 const char* kModifySpecialError = "Can't modify the root bookmark folders.";
+
+// events
+const char* kOnBookmarkAdded = "bookmark-added";
+const char* kOnBookmarkRemoved = "bookmark-removed";
+const char* kOnBookmarkChanged = "bookmark-changed";
+const char* kOnBookmarkMoved = "bookmark-moved";
+const char* kOnBookmarkChildrenReordered = "bookmark-children-reordered";
 };
 
 // Helper functions.
@@ -76,7 +88,140 @@ class ExtensionBookmarks {
   ExtensionBookmarks();
 };
 
-// TODO(erikkay): add a recursive version
+void BookmarksFunction::Run() {
+  // TODO(erikkay) temporary hack until adding an event listener can notify the
+  // browser.
+  ExtensionBookmarkEventRouter* event_router =
+      ExtensionBookmarkEventRouter::GetSingleton();
+  BookmarkModel* model = profile()->GetBookmarkModel();
+  event_router->Observe(model);
+  SyncExtensionFunction::Run();
+}
+
+// static
+ExtensionBookmarkEventRouter* ExtensionBookmarkEventRouter::GetSingleton() {
+  return Singleton<ExtensionBookmarkEventRouter>::get();
+}
+
+ExtensionBookmarkEventRouter::ExtensionBookmarkEventRouter() {
+}
+
+ExtensionBookmarkEventRouter::~ExtensionBookmarkEventRouter() {
+}
+
+void ExtensionBookmarkEventRouter::Observe(BookmarkModel* model) {
+  if (models_.find(model) == models_.end()) {
+    model->AddObserver(this);
+    models_.insert(model);
+  }
+}
+
+void ExtensionBookmarkEventRouter::DispatchEvent(Profile *profile,
+                                                 const char* event_name,
+                                                 const std::string json_args) {
+  ExtensionMessageService::GetInstance(profile->GetRequestContext())->
+      DispatchEventToRenderers(event_name, json_args);
+}
+
+void ExtensionBookmarkEventRouter::Loaded(BookmarkModel* model) {
+  // TODO(erikkay): Do we need an event here?  It seems unlikely that
+  // an extension would load before bookmarks loaded.
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeMoved(BookmarkModel* model,
+                                                     BookmarkNode* old_parent,
+                                                     int old_index,
+                                                     BookmarkNode* new_parent,
+                                                     int new_index) {
+  ListValue args;
+  DictionaryValue* object_args = new DictionaryValue();
+  BookmarkNode* node = new_parent->GetChild(new_index);
+  object_args->SetInteger(kIdKey, node->id());
+  object_args->SetInteger(kParentIdKey, new_parent->id());
+  object_args->SetInteger(kIndexKey, new_index);
+  object_args->SetInteger(kOldParentIdKey, old_parent->id());
+  object_args->SetInteger(kOldIndexKey, old_index);
+  args.Append(object_args);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+  DispatchEvent(model->profile(), kOnBookmarkMoved, json_args);
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeAdded(BookmarkModel* model,
+                                                     BookmarkNode* parent,
+                                                     int index) {
+  ListValue args;
+  DictionaryValue* object_args = new DictionaryValue();
+  BookmarkNode* node = parent->GetChild(index);
+  object_args->SetInteger(kIdKey, node->id());
+  object_args->SetString(kTitleKey, node->GetTitle());
+  object_args->SetString(kUrlKey, node->GetURL().spec());
+  object_args->SetInteger(kParentIdKey, parent->id());
+  object_args->SetInteger(kIndexKey, index);
+  args.Append(object_args);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+  DispatchEvent(model->profile(), kOnBookmarkAdded, json_args);
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeRemoved(BookmarkModel* model,
+                                                       BookmarkNode* parent,
+                                                       int index) {
+  ListValue args;
+  DictionaryValue* object_args = new DictionaryValue();
+  object_args->SetInteger(kParentIdKey, parent->id());
+  object_args->SetInteger(kIndexKey, index);
+  args.Append(object_args);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+  DispatchEvent(model->profile(), kOnBookmarkRemoved, json_args);
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeChanged(BookmarkModel* model,
+                                                       BookmarkNode* node) {
+  ListValue args;
+  args.Append(new FundamentalValue(node->id()));
+
+  // TODO(erikkay) The only two things that BookmarkModel sends this
+  // notification for are title and favicon.  Since we're currently ignoring
+  // favicon and since the notification doesn't say which one anyway, for now
+  // we only include title.  The ideal thing would be to change BookmarkModel
+  // to indicate what changed.
+  DictionaryValue* object_args = new DictionaryValue();
+  object_args->SetString(kTitleKey, node->GetTitle());
+  args.Append(object_args);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+  DispatchEvent(model->profile(), kOnBookmarkChanged, json_args);
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeFavIconLoaded(
+    BookmarkModel* model, BookmarkNode* node) {
+  // TODO(erikkay) anything we should do here?
+}
+
+void ExtensionBookmarkEventRouter::BookmarkNodeChildrenReordered(
+    BookmarkModel* model, BookmarkNode* node) {
+  ListValue args;
+  args.Append(new FundamentalValue(node->id()));
+  int childCount = node->GetChildCount();
+  ListValue* children = new ListValue();
+  for (int i = 0; i < childCount; ++i) {
+    BookmarkNode* child = node->GetChild(i);
+    Value* child_id = new FundamentalValue(child->id());
+    children->Append(child_id);
+  }
+  args.Append(children);
+
+  std::string json_args;
+  JSONWriter::Write(&args, false, &json_args);
+  DispatchEvent(model->profile(), kOnBookmarkChildrenReordered, json_args);
+}
+
 bool GetBookmarksFunction::RunImpl() {
   // TODO(erikkay): the JSON schema doesn't support the TYPE_INTEGER
   // variant yet.
@@ -123,6 +268,35 @@ bool GetBookmarksFunction::RunImpl() {
     }
   }
 
+  result_.reset(json.release());
+  return true;
+}
+
+bool GetBookmarkChildrenFunction::RunImpl() {
+  int id;
+  EXTENSION_FUNCTION_VALIDATE(args_->GetAsInteger(&id));
+  BookmarkModel* model = profile()->GetBookmarkModel();
+  scoped_ptr<ListValue> json(new ListValue());
+  BookmarkNode* node = model->GetNodeByID(id);
+  if (!node) {
+    error_ = kNoNodeError;
+    return false;
+  }
+  int child_count = node->GetChildCount();
+  for (int i = 0; i < child_count; ++i) {
+    BookmarkNode* child = node->GetChild(i);
+    ExtensionBookmarks::AddNode(child, json.get(), false);
+  }
+
+  result_.reset(json.release());
+  return true;
+}
+
+bool GetBookmarkTreeFunction::RunImpl() {
+  BookmarkModel* model = profile()->GetBookmarkModel();
+  scoped_ptr<ListValue> json(new ListValue());
+  BookmarkNode* node = model->root_node();
+  ExtensionBookmarks::AddNode(node, json.get(), true);
   result_.reset(json.release());
   return true;
 }
@@ -322,4 +496,3 @@ bool SetBookmarkTitleFunction::RunImpl() {
   model->SetTitle(node, title);
   return true;
 }
-
