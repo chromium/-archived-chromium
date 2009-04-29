@@ -56,7 +56,6 @@ devtools.DomNode = function(doc, payload) {
   this.firstChild = null;
   this.parentNode = null;
 
-  this.styles_ = null;
   this.disabledStyleProperties_ = {};
 
   if (payload.length > devtools.PayloadIndex.CHILD_NODES) {
@@ -64,6 +63,10 @@ devtools.DomNode = function(doc, payload) {
     this.setChildrenPayload_(
         payload[devtools.PayloadIndex.CHILD_NODES]);
   }
+
+  this.computedStyle_ = null;
+  this.style = null;
+  this.matchedCSSRules_ = [];
 };
 
 
@@ -222,13 +225,9 @@ devtools.DomNode.prototype.setAttribute = function(name, value) {
  */
 devtools.DomNode.prototype.addAttribute_ = function(name, value) {  
   var attr = {
-      'name': name,
-      'value': value,
-      node_: this,
-       /* Must be called after node.setStyles_. */
-      get style() {
-        return this.node_.styles_.attributes[this.name];
-      }
+    'name': name,
+    'value': value,
+    node_: this
   };
     
   this.attributesMap_[name] = attr;
@@ -255,15 +254,6 @@ devtools.DomNode.prototype.removeAttribute = function(name) {
 
 
 /**
- * Returns inline style (if styles has loaded). Must be called after
- * node.setStyles_.
- */
-devtools.DomNode.prototype.__defineGetter__('style', function() {
-  return this.styles_.inlineStyle;
-});
-
-
-/**
  * Makes available the following methods and properties:
  * - node.style property
  * - node.document.defaultView.getComputedStyles(node)
@@ -281,40 +271,37 @@ devtools.DomNode.prototype.__defineGetter__('style', function() {
  */
 devtools.DomNode.prototype.setStyles = function(computedStyle, inlineStyle,
      styleAttributes, matchedCSSRules) {
-  var styles = {};
-  styles.computedStyle = this.makeStyle_(computedStyle);
-  styles.inlineStyle = this.makeStyle_(inlineStyle);
+  this.computedStyle_ = this.makeStyle_(computedStyle);
+  this.style = this.makeStyle_(inlineStyle);
 
-  styles.attributes = {};
   for (var name in styleAttributes) {
-    var style = this.makeStyle_(styleAttributes[name]);
-    styles.attributes[name] = style;
+    if (this.attributesMap_[name]) {
+      this.attributesMap_[name].style =
+          this.makeStyle_(styleAttributes[name]);
+    }
   }
 
-  styles.matchedCSSRules = [];
+  this.matchedCSSRules_ = [];
   for (var i = 0; i < matchedCSSRules.length; i++) {
     var descr = matchedCSSRules[i];
-    var selector = descr.selector;
-    var style = this.makeStyle_(descr.style);
 
-    var parentStyleSheet = undefined;
-    if (descr.parentStyleSheetHref) {
-      parentStyleSheet = {href: descr.parentStyleSheetHref};
+    var rule = {};
+    rule.selectorText = descr['selector'];
+    rule.style = this.makeStyle_(descr['style']);
 
-      if (descr.parentStyleSheetOwnerNodeName) {
-        parentStyleSheet.ownerNode =
-            {nodeName: descr.parentStyleSheetOwnerNodeName};
+    if (descr['parentStyleSheet']) {
+      var parentStyleMock = {};
+      parentStyleMock.href = descr['parentStyleSheet']['href'];
+      var nodeName = descr['parentStyleSheet']['ownerNodeName'];
+      if (nodeName) {
+        parentStyleMock.ownerNode = {
+          'nodeName': nodeName
+        };
       }
+      rule.parentStyleSheet = parentStyleMock;
     }
-    
-    styles.matchedCSSRules.push({
-      'selectorText': selector,
-      'style': style,
-      'parentStyleSheet': parentStyleSheet
-    });
+    this.matchedCSSRules_.push(rule);
   }
-  
-  this.styles_ = styles;
 };
 
 
@@ -325,17 +312,24 @@ devtools.DomNode.prototype.setStyles = function(computedStyle, inlineStyle,
  * @see devtools.CSSStyleDeclaration
  */
 devtools.DomNode.prototype.makeStyle_ = function(payload) {
-  return payload && new devtools.CSSStyleDeclaration(payload);
+  var style = new devtools.CSSStyleDeclaration(payload);
+  style.nodeId_ = this.id_;
+  return style;
 };
 
 
 /**
  * Remove references to the style information to release
  * resources when styles are not going to be used.
- * @see setStyles_.
+ * @see setStyles.
  */
 devtools.DomNode.prototype.clearStyles = function() {
-  this.styles_ = null;
+  this.computedStyle = null;
+  this.style = null;
+  for (var name in this.attributesMap_) {
+    this.attributesMap_[name].style = null;
+  }
+  this.matchedCSSRules_ = null;
 };
 
 
@@ -450,19 +444,17 @@ devtools.DomWindow.prototype.Object = function() {
 
 
 /**
- * Simulates the DOM interface for styles. Must be called after
- * node.setStyles_.
+ * Simulates the DOM interface for styles.
  * @param {devtools.DomNode} node
  * @return {CSSStyleDescription}
  */
 devtools.DomWindow.prototype.getComputedStyle = function(node) {
-  return node.styles_.computedStyle;
+  return node.computedStyle_;
 };
 
 
 /**
- * Simulates the DOM interface for styles. Must be called after
- * node.setStyles_.
+ * Simulates the DOM interface for styles.
  * @param {devtools.DomNode} nodeStyles
  * @param {string} pseudoElement assumed to be empty string.
  * @param {boolean} authorOnly assumed to be equal to authorOnly argument of
@@ -471,7 +463,7 @@ devtools.DomWindow.prototype.getComputedStyle = function(node) {
  */
 devtools.DomWindow.prototype.getMatchedCSSRules = function(node,
     pseudoElement, authorOnly) {
-  return node.styles_.matchedCSSRules;
+  return node.matchedCSSRules_;
 };
 
 
@@ -837,9 +829,11 @@ devtools.DomAgent.prototype.getSearchResultNode = function(index) {
  */
 devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
     path, protoDepth, callback) {
-  var callbackId = devtools.Callback.wrap(callback);
+  var mycallback =
+      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
+  var callbackId = devtools.Callback.wrap(mycallback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'devtools$$getProperties', nodeId,
+      'getProperties', nodeId,
       goog.json.serialize([path, protoDepth]));
 };
 
@@ -851,9 +845,11 @@ devtools.DomAgent.prototype.getNodePropertiesAsync = function(nodeId,
  */
 devtools.DomAgent.prototype.getNodePrototypesAsync = function(nodeId,
     callback) {
-  var callbackId = devtools.Callback.wrap(callback);
+  var mycallback =
+      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
+  var callbackId = devtools.Callback.wrap(mycallback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'devtools$$getPrototypes', nodeId, '');
+      'getPrototypes', nodeId, '[]');
 };
 
 
@@ -865,37 +861,76 @@ devtools.DomAgent.prototype.getNodePrototypesAsync = function(nodeId,
  */
 devtools.DomAgent.prototype.getNodeStylesAsync = function(node,
     authorOnly, callback) {
-  var callbackId = devtools.Callback.wrap(callback);
+  var mycallback =
+      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
+  var callbackId = devtools.Callback.wrap(mycallback);
   RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
-      'devtools$$getStyles',
+      'getStyles',
       node.id_,
-      goog.json.serialize(authorOnly));
+      goog.json.serialize([authorOnly]));
+};
+
+
+/**
+ * Toggles style with given id on/off.
+ * @param {devtools.CSSStyleDeclaration} style Style to toggle.
+ * @param {boolean} enabled True if style should be enabled.
+ * @param {string} name Style name.
+ * @param {Function} callback.
+ */
+devtools.DomAgent.prototype.toggleNodeStyleAsync = function(
+    style, enabled, name, callback) {
+  var mycallback =
+      goog.bind(this.utilityFunctionCallbackWrapper_, this, callback);
+  var callbackId = devtools.Callback.wrap(mycallback);
+  RemoteToolsAgent.ExecuteUtilityFunction(callbackId,
+      'toggleNodeStyle',
+      style.nodeId_,
+      goog.json.serialize([style.id_, enabled, name]));
+};
+
+
+/**
+ * Dumps exception if something went wrong in ExecuteUtilityFunction.
+ */
+devtools.DomAgent.prototype.utilityFunctionCallbackWrapper_ =
+    function(callback, result, exception) {
+  if (exception && exception.length) {
+    debugPrint('Exception in ExecuteUtilityFunction styles:' + exception);
+    return;
+  }
+  callback(result);
 };
 
 
 /**
  * Represents remote CSSStyleDeclaration for using in StyleSidebarPane.
- * @param {Array<Object>} payload built by devtools$$getStyle from the injected
- *     js.
- * @consctuctor
+ * @param {id, Array<Object>} payload built by inject's getStyle from the
+ *     injected js.
+ * @constructor
  */
 devtools.CSSStyleDeclaration = function(payload) {
-  this.length = payload.length;
+  this.id_ = payload[0];
+  this.__disabledProperties = payload[1];
+  this.__disabledPropertyValues = payload[2];
+  this.__disabledPropertyPriorities = payload[3];
+
+  this.length = payload.length - 4;
   this.priority_ = {};
   this.implicit_ = {};
   this.shorthand_ = {};
   this.value_ = {};
 
-  for (var i = 0; i < payload.length; ++i) {
+  for (var i = 4; i < payload.length; ++i) {
     var p = payload[i];
     var name = p[0];
-    
+
     this.priority_[name] = p[1];
     this.implicit_[name] = p[2];
     this.shorthand_[name] = p[3];
     this.value_[name] = p[4];
 
-    this[i] = name;
+    this[i - 4] = name;
   }
 };
 

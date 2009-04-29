@@ -41,7 +41,8 @@ DEFINE_RPC_CLASS(ToolsAgent, TOOLS_AGENT_STRUCT)
   METHOD2(FrameNavigate, std::string /* url */, bool /* top_level */) \
   \
   /* Response to the GetNodeProperties. */ \
-  METHOD2(DidExecuteUtilityFunction, int /* call_id */, String /* json */) \
+  METHOD3(DidExecuteUtilityFunction, int /* call_id */, String /* result */, \
+      String /* exception */) \
   \
   /* Adds message to console. */ \
   METHOD1(AddMessageToConsole, Value /* message */)

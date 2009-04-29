@@ -17,6 +17,7 @@
 #include "grit/webkit_resources.h"
 #include "V8Binding.h"
 #include "V8DOMWindow.h"
+#include "v8_binding.h"
 #include "v8_index.h"
 #include "v8_proxy.h"
 #include "webkit/glue/devtools/debugger_agent_impl.h"
@@ -111,32 +112,44 @@ void DebuggerAgentImpl::SetDocument(Document* document) {
   v8::Script::Compile(v8::String::New(jsonjs.as_string().c_str()))->Run();
   StringPiece injectjs = webkit_glue::GetDataResource(IDR_DEVTOOLS_INJECT_JS);
   v8::Script::Compile(v8::String::New(injectjs.as_string().c_str()))->Run();
+  StringPiece inject_dispatchjs = webkit_glue::GetDataResource(
+      IDR_DEVTOOLS_INJECT_DISPATCH_JS);
+  v8::Script::Compile(v8::String::New(
+      inject_dispatchjs.as_string().c_str()))->Run();
 }
 
 String DebuggerAgentImpl::ExecuteUtilityFunction(
     const String &function_name,
     Node* node,
-    const String& json_args) {
+    const String& json_args,
+    String* exception) {
   v8::HandleScope scope;
   ASSERT(!context_.IsEmpty());
   v8::Context::Scope context_scope(context_);
   v8::Handle<v8::Function> function = v8::Local<v8::Function>::Cast(
-      context_->Global()->Get(v8::String::New(function_name.utf8().data())));
+      context_->Global()->Get(v8::String::New("devtools$$dispatch")));
 
   v8::Handle<v8::Value> node_wrapper =
       V8Proxy::ToV8Object(V8ClassIndex::NODE, node);
+  v8::Handle<v8::String> function_name_wrapper = v8::Handle<v8::String>(
+      v8::String::New(function_name.utf8().data()));
   v8::Handle<v8::String> json_args_wrapper = v8::Handle<v8::String>(
       v8::String::New(json_args.utf8().data()));
   v8::Handle<v8::Value> args[] = {
+    function_name_wrapper,
     node_wrapper,
     json_args_wrapper
   };
 
-  v8::Handle<v8::Value> res_obj = function->Call(
-      context_->Global(), 2, args);
-
-  v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
-  return WebCore::toWebCoreString(res_json);
+  v8::TryCatch try_catch;
+  v8::Handle<v8::Value> res_obj = function->Call(context_->Global(), 3, args);
+  if (try_catch.HasCaught()) {
+    *exception = WebCore::ToWebCoreString(try_catch.Message()->Get());
+    return "";
+  } else {
+    v8::Handle<v8::String> res_json = v8::Handle<v8::String>::Cast(res_obj);
+    return WebCore::toWebCoreString(res_json);
+  }
 }
 
 void DebuggerAgentImpl::RunWithDeferredMessages(

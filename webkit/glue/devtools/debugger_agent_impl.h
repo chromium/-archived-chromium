@@ -42,7 +42,8 @@ class DebuggerAgentImpl : public DebuggerAgent {
   WebCore::String ExecuteUtilityFunction(
       const WebCore::String& function_name,
       WebCore::Node* node,
-      const WebCore::String& json_args);
+      const WebCore::String& json_args,
+      WebCore::String* exception);
 
   static void RunWithDeferredMessages(
       const HashSet<DebuggerAgentImpl*>& agents,

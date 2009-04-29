@@ -158,7 +158,7 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
     functionName, nodeId, args) {
   setTimeout(function() {
     var result = [];
-    if (functionName == 'devtools$$getProperties') {
+    if (functionName == 'getProperties') {
       result = [
         'undefined', 'undefined_key', undefined,
         'string', 'string_key', 'value',
@@ -168,28 +168,30 @@ RemoteToolsAgentStub.prototype.ExecuteUtilityFunction = function(callId,
         'boolean', 'boolean_key', true,
         'number', 'num_key', 911,
         'date', 'date_key', new Date() ];
-    } else if (functionName == 'devtools$$getPrototypes') {
+    } else if (functionName == 'getPrototypes') {
       result = ['Proto1', 'Proto2', 'Proto3'];
-    } else if (functionName == 'devtools$$getStyles') {
+    } else if (functionName == 'getStyles') {
       result = {
-        'computedStyle' : [['display', false, false, '', 'none']],
-        'inlineStyle' : [['display', false, false, '', 'none']],
+        'computedStyle' : [0, null, null, null, ['display', false, false, '', 'none']],
+        'inlineStyle' : [1, null, null, null, ['display', false, false, '', 'none']],
         'styleAttributes' : {
-           attr: [['display', false, false, '', 'none']]
+           attr: [2, null, null, null, ['display', false, false, '', 'none']]
         },
         'matchedCSSRules' : [
           { 'selector' : 'S',
-            'style' : [['display', false, false, '', 'none']],
-            'parentStyleSheetHref' : 'http://localhost',
-            'parentStyleSheetOwnerNodeName' : 'DIV'
+            'style' : [3, null, null, null, ['display', false, false, '', 'none']],
+            'parentStyleSheet' : { 'href' : 'http://localhost',
+                                   'ownerNodeName' : 'DIV' }
           }
         ]
       };
+    } else if (functionName == 'toggleNodeStyle') {
+      alert('toggleNodeStyle ' + args);
     } else {
       alert('Unexpected utility function:' + functionName);
     }
     RemoteToolsAgent.DidExecuteUtilityFunction(callId,
-        goog.json.serialize(result));
+        goog.json.serialize(result), '');
   }, 0);
 };
 

@@ -549,7 +549,7 @@ WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
 /**
  * Callback function used with the resolveChildren.
  */
- WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
+WebInspector.ScopeChainSidebarPane.TreeElement.prototype.didResolveChildren_ =
     function(object) {
   this.removeChildren();
   
@@ -557,4 +557,19 @@ WebInspector.ScopeChainSidebarPane.TreeElement.prototype.onpopulate =
   for (var name in object) {
     this.appendChild(new constructor(object, name));
   }
+};
+
+
+/**
+ * @override
+ */
+WebInspector.StylePropertyTreeElement.prototype.toggleEnabled =
+    function(event) {
+  var disabled = !event.target.checked;
+  var self = this;
+  devtools.tools.getDomAgent().toggleNodeStyleAsync(this.style, !disabled,
+      this.name,
+      function() {
+        WebInspector.panels.elements.updateStyles(true);
+      });
 };
