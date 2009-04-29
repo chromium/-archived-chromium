@@ -132,6 +132,7 @@
         'common/net/dns.h',
         'common/net/url_request_intercept_job.cc',
         'common/net/url_request_intercept_job.h',
+        'common/accessibility_types.h',
         'common/animation.cc',
         'common/animation.h',
         'common/app_cache/app_cache_context_impl.cc',
@@ -2230,6 +2231,7 @@
         'browser/autocomplete/history_url_provider_unittest.cc',
         'browser/autocomplete/keyword_provider_unittest.cc',
         'browser/back_forward_menu_model_unittest.cc',
+        'browser/bookmarks/bookmark_codec_unittest.cc',
         'browser/bookmarks/bookmark_context_menu_test.cc',
         'browser/bookmarks/bookmark_drag_data_unittest.cc',
         'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
@@ -2472,6 +2474,7 @@
           ],
         }, { # else: OS != "win"
           'sources!': [
+            'browser/bookmarks/bookmark_codec_unittest.cc',
             'browser/bookmarks/bookmark_drag_data_unittest.cc',
             'browser/bookmarks/bookmark_folder_tree_model_unittest.cc',
             'browser/bookmarks/bookmark_table_model_unittest.cc',
