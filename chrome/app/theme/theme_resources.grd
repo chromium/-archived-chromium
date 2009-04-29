@@ -324,6 +324,11 @@
       <include name="IDR_O2_MORE" file="o2_more.png" type="BINDATA" />
       <include name="IDR_O2_SEARCH" file="o2_search.png" type="BINDATA" />
       <include name="IDR_O2_STAR" file="o2_star.png" type="BINDATA" />
+      <include name="IDR_O2_GLOBE_SELECTED" file="o2_globe_selected.png" type="BINDATA" />
+      <include name="IDR_O2_HISTORY_SELECTED" file="o2_history_selected.png" type="BINDATA" />
+      <include name="IDR_O2_MORE_SELECTED" file="o2_more_selected.png" type="BINDATA" />
+      <include name="IDR_O2_SEARCH_SELECTED" file="o2_search_selected.png" type="BINDATA" />
+      <include name="IDR_O2_STAR_SELECTED" file="o2_star_selected.png" type="BINDATA" />
       <include name="IDR_CLOSED_WINDOW" file="closed_window.png" type="BINDATA" />
 
       <if expr="pp_ifdef('_google_chrome')">

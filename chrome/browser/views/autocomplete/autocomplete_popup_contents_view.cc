@@ -15,12 +15,28 @@
 #include "chrome/common/gfx/path.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/resource_bundle.h"
+#include "chrome/common/win_util.h"
 #include "chrome/views/widget/widget.h"
+#include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 #include "skia/include/SkShader.h"
 #include "third_party/icu38/public/common/unicode/ubidi.h"
 
-static const SkColor kTransparentColor = SkColorSetARGB(0, 0, 0, 0);
+// Colors for various components of the view.
+static const SkColor kBackgroundColor =
+    color_utils::GetSysSkColor(COLOR_WINDOW);
+static const SkColor kSelectedBackgroundColor =
+    color_utils::GetSysSkColor(COLOR_HIGHLIGHT);
+static const SkColor kHoverBackgroundColor =
+    SkColorSetA(kSelectedBackgroundColor, 127);
+static const SkColor kTextColor =
+    color_utils::GetSysSkColor(COLOR_WINDOWTEXT);
+static const SkColor kSelectedTextColor =
+    color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
+static const SkColor kDimTextColor =
+    color_utils::GetSysSkColor(COLOR_GRAYTEXT);
+static const SkColor kSelectedDimTextColor =
+    color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
 static const SkColor kStandardURLColor = SkColorSetRGB(0, 0x80, 0);
 static const SkColor kHighlightURLColor = SkColorSetRGB(0xD0, 0xFF, 0xD0);
 static const int kPopupTransparency = 235;
@@ -67,14 +83,18 @@ class AutocompleteResultView : public views::View {
   SkBitmap* GetIcon() const;
 
   // Draws the specified |text| into the canvas, using highlighting provided by
-  // |classifications|.
-  void DrawString(ChromeCanvas* canvas,
+  // |classifications|. If |force_dim| is true, ACMatchClassification::DIM is
+  // added to all of the classifications. Returns the x position to the right
+  // of the string.
+  int DrawString(ChromeCanvas* canvas,
                   const std::wstring& text,
                   const ACMatchClassifications& classifications,
+                  bool force_dim,
                   int x,
                   int y);
 
-  // Draws an individual sub-fragment with the specified style.
+  // Draws an individual sub-fragment with the specified style. Returns the x
+  // position to the right of the fragment.
   int DrawStringFragment(ChromeCanvas* canvas,
                          const std::wstring& text,
                          int style,
@@ -105,10 +125,15 @@ class AutocompleteResultView : public views::View {
 
   // Icons for rows.
   static SkBitmap* icon_url_;
+  static SkBitmap* icon_url_selected_;
   static SkBitmap* icon_history_;
+  static SkBitmap* icon_history_selected_;
   static SkBitmap* icon_search_;
+  static SkBitmap* icon_search_selected_;
   static SkBitmap* icon_more_;
+  static SkBitmap* icon_more_selected_;
   static SkBitmap* icon_star_;
+  static SkBitmap* icon_star_selected_;
   static int icon_size_;
   
   static bool initialized_;
@@ -119,10 +144,15 @@ class AutocompleteResultView : public views::View {
 
 // static
 SkBitmap* AutocompleteResultView::icon_url_ = NULL;
+SkBitmap* AutocompleteResultView::icon_url_selected_ = NULL;
 SkBitmap* AutocompleteResultView::icon_history_ = NULL;
+SkBitmap* AutocompleteResultView::icon_history_selected_ = NULL;
 SkBitmap* AutocompleteResultView::icon_search_ = NULL;
+SkBitmap* AutocompleteResultView::icon_search_selected_ = NULL;
 SkBitmap* AutocompleteResultView::icon_star_ = NULL;
+SkBitmap* AutocompleteResultView::icon_star_selected_ = NULL;
 SkBitmap* AutocompleteResultView::icon_more_ = NULL;
+SkBitmap* AutocompleteResultView::icon_more_selected_ = NULL;
 int AutocompleteResultView::icon_size_ = 0;
 bool AutocompleteResultView::initialized_ = false;
 
@@ -190,16 +220,31 @@ AutocompleteResultView::~AutocompleteResultView() {
 void AutocompleteResultView::Paint(ChromeCanvas* canvas) {
   canvas->FillRectInt(GetBackgroundColor(), 0, 0, width(), height());
 
+  int x = MirroredLeftPointForRect(icon_bounds_);
+
   // Paint the icon.
-  canvas->DrawBitmapInt(*GetIcon(), icon_bounds_.x(), icon_bounds_.y());
+  canvas->DrawBitmapInt(*GetIcon(), x, icon_bounds_.y());
+
+  const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
 
   // Paint the text.
-  const AutocompleteMatch& match = model_->GetMatchAtIndex(model_index_);
-  DrawString(canvas, match.contents, match.contents_class,
-             text_bounds_.x(), text_bounds_.y());
+  x = MirroredLeftPointForRect(text_bounds_);
+  x = DrawString(canvas, match.contents, match.contents_class, false, x,
+                 text_bounds_.y());
 
   // Paint the description.
-  // TODO(beng): do this.
+  if (!match.description.empty()) {
+    std::wstring separator =
+        l10n_util::GetString(IDS_AUTOCOMPLETE_MATCH_DESCRIPTION_SEPARATOR);
+    ACMatchClassifications classifications;
+    classifications.push_back(
+        ACMatchClassification(0, ACMatchClassification::NONE));
+    x = DrawString(canvas, separator, classifications, true, x,
+                   text_bounds_.y());
+
+    x = DrawString(canvas, match.description, match.description_class, true, x,
+               text_bounds_.y());
+  }
 }
 
 void AutocompleteResultView::Layout() {
@@ -262,38 +307,33 @@ bool AutocompleteResultView::OnMouseDragged(const views::MouseEvent& event) {
 
 SkColor AutocompleteResultView::GetBackgroundColor() const {
   if (model_->IsSelectedIndex(model_index_))
-    return color_utils::GetSysSkColor(COLOR_HIGHLIGHT);
-  if (hot_) {
-    COLORREF color = GetSysColor(COLOR_HIGHLIGHT);
-    return SkColorSetARGB(kHoverRowAlpha, GetRValue(color), GetGValue(color),
-                          GetBValue(color));
-  }
-  return kTransparentColor;
+    return kSelectedBackgroundColor;
+  return hot_ ? kHoverBackgroundColor : kBackgroundColor;
 }
 
 SkColor AutocompleteResultView::GetTextColor() const {
-  if (model_->IsSelectedIndex(model_index_))
-    return color_utils::GetSysSkColor(COLOR_HIGHLIGHTTEXT);
-  return color_utils::GetSysSkColor(COLOR_WINDOWTEXT);
+  return model_->IsSelectedIndex(model_index_) ? kSelectedTextColor
+                                               : kTextColor;
 }
 
 SkBitmap* AutocompleteResultView::GetIcon() const {
+  bool selected = model_->IsSelectedIndex(model_index_);
   switch (model_->GetMatchAtIndex(model_index_).type) {
     case AutocompleteMatch::URL_WHAT_YOU_TYPED:
     case AutocompleteMatch::HISTORY_URL:
     case AutocompleteMatch::NAVSUGGEST:
-      return icon_url_;
+      return selected ? icon_url_selected_ : icon_url_;
     case AutocompleteMatch::HISTORY_TITLE:
     case AutocompleteMatch::HISTORY_BODY:
     case AutocompleteMatch::HISTORY_KEYWORD:
-      return icon_history_;
+      return selected ? icon_history_selected_ : icon_history_;
     case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
     case AutocompleteMatch::SEARCH_HISTORY:
     case AutocompleteMatch::SEARCH_SUGGEST:
     case AutocompleteMatch::SEARCH_OTHER_ENGINE:
-      return icon_search_;
+      return selected ? icon_search_selected_ : icon_search_;
     case AutocompleteMatch::OPEN_HISTORY_PAGE:
-      return icon_more_;
+      return selected ? icon_more_selected_ : icon_more_;
     default:
       NOTREACHED();
       break;
@@ -301,14 +341,15 @@ SkBitmap* AutocompleteResultView::GetIcon() const {
   return NULL;
 }
 
-void AutocompleteResultView::DrawString(
+int AutocompleteResultView::DrawString(
     ChromeCanvas* canvas,
     const std::wstring& text,
     const ACMatchClassifications& classifications,
+    bool force_dim,
     int x,
     int y) {
   if (!text.length())
-    return;
+    return x;
 
   // Check whether or not this text is a URL string.
   // A URL string is basically in English with possible included words in
@@ -326,7 +367,7 @@ void AutocompleteResultView::DrawString(
   // display direction and should be displayed at once.)
   l10n_util::BiDiLineIterator bidi_line;
   if (!bidi_line.Open(text, mirroring_context_->enabled(), url))
-    return;
+    return x;
   const int runs = bidi_line.CountRuns();
 
   // Draw the visual runs.
@@ -370,11 +411,15 @@ void AutocompleteResultView::DrawString(
       const int text_start = std::max(run_start, static_cast<int>(i->offset));
       const int text_end = std::min(run_end, (i != classifications.end() - 1) ?
           static_cast<int>((i + 1)->offset) : run_end);
+      int style = i->style;
+      if (force_dim)
+        style |= ACMatchClassification::DIM;
       x += DrawStringFragment(canvas,
                               text.substr(text_start, text_end - text_start),
-                              i->style, x, y);
+                              style, x, y);
     }
   }
+  return x;
 }
 
 int AutocompleteResultView::DrawStringFragment(
@@ -398,16 +443,15 @@ ChromeFont AutocompleteResultView::GetFragmentFont(int style) const {
 }
 
 SkColor AutocompleteResultView::GetFragmentTextColor(int style) const {
+  bool selected = model_->IsSelectedIndex(model_index_);
   if (style & ACMatchClassification::URL) {
     // TODO(beng): bring over the contrast logic from the old popup and massage
     //             these values. See autocomplete_popup_view_win.cc and
     //             LuminosityContrast etc.
-    return model_->IsSelectedIndex(model_index_) ? kHighlightURLColor
-                                                 : kStandardURLColor;
+    return selected ? kHighlightURLColor : kStandardURLColor;
   }
-
   if (style & ACMatchClassification::DIM)
-    return SkColorSetA(GetTextColor(), 0xAA);
+    return selected ? kSelectedDimTextColor : kDimTextColor;
   return GetTextColor();
 }
 
@@ -415,10 +459,15 @@ void AutocompleteResultView::InitClass() {
   if (!initialized_) {
     ResourceBundle& rb = ResourceBundle::GetSharedInstance();
     icon_url_ = rb.GetBitmapNamed(IDR_O2_GLOBE);
+    icon_url_selected_ = rb.GetBitmapNamed(IDR_O2_GLOBE_SELECTED);
     icon_history_ = rb.GetBitmapNamed(IDR_O2_HISTORY);
+    icon_history_selected_ = rb.GetBitmapNamed(IDR_O2_HISTORY_SELECTED);
     icon_search_ = rb.GetBitmapNamed(IDR_O2_SEARCH);
+    icon_search_selected_ = rb.GetBitmapNamed(IDR_O2_SEARCH_SELECTED);
     icon_star_ = rb.GetBitmapNamed(IDR_O2_STAR);
+    icon_star_selected_ = rb.GetBitmapNamed(IDR_O2_STAR_SELECTED);
     icon_more_ = rb.GetBitmapNamed(IDR_O2_MORE);
+    icon_more_selected_ = rb.GetBitmapNamed(IDR_O2_MORE_SELECTED);
     // All icons are assumed to be square, and the same size.
     icon_size_ = icon_url_->width();
     initialized_ = true;
@@ -545,6 +594,11 @@ void AutocompletePopupContentsView::UpdateResultViewsFromResult(
   RemoveAllChildViews(true);
   for (size_t i = 0; i < result.size(); ++i)
     AddChildView(new AutocompleteResultView(this, i, edit_font_));
+
+  // Need to schedule a paint here because if we don't and our result count
+  // hasn't changed since last time we were shown, we may not repaint to
+  // show selection changes.
+  SchedulePaint();
 }
 
 gfx::Rect AutocompletePopupContentsView::GetPopupBounds() const {
@@ -649,11 +703,8 @@ void AutocompletePopupContentsView::PaintChildren(ChromeCanvas* canvas) {
   // Instead, we paint all our children into a second canvas and use that as a
   // shader to fill a path representing the round-rect clipping region. This
   // yields a nice anti-aliased edge.
-  gfx::Rect contents_rect = GetLocalBounds(false);
-  ChromeCanvas contents_canvas(contents_rect.width(), contents_rect.height(),
-                               true);
-  contents_canvas.FillRectInt(color_utils::GetSysSkColor(COLOR_WINDOW), 0, 0,
-                              contents_rect.width(), contents_rect.height());
+  ChromeCanvas contents_canvas(width(), height(), true);
+  contents_canvas.FillRectInt(kBackgroundColor, 0, 0, width(), height());
   View::PaintChildren(&contents_canvas);
   // We want the contents background to be slightly transparent so we can see
   // the blurry glass effect on DWM systems behind. We do this _after_ we paint
@@ -667,13 +718,13 @@ void AutocompletePopupContentsView::PaintChildren(ChromeCanvas* canvas) {
 
   SkShader* shader = SkShader::CreateBitmapShader(
       contents_canvas.getDevice()->accessBitmap(false),
-      SkShader::kClamp_TileMode,
-      SkShader::kClamp_TileMode);
+      SkShader::kRepeat_TileMode,
+      SkShader::kRepeat_TileMode);
   paint.setShader(shader);
   shader->unref();
 
   gfx::Path path;
-  MakeContentsPath(&path, contents_rect);
+  MakeContentsPath(&path, GetLocalBounds(false));
   canvas->drawPath(path, paint);
 }
 
@@ -713,6 +764,10 @@ void AutocompletePopupContentsView::MakeContentsPath(
 }
 
 void AutocompletePopupContentsView::UpdateBlurRegion() {
+  // We only support background blurring on Vista with Aero-Glass enabled.
+  if (!win_util::ShouldUseVistaFrame())
+    return;
+
   // Provide a blurred background effect within the contents region of the
   // popup.
   DWM_BLURBEHIND bb = {0};
