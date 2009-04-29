@@ -562,4 +562,16 @@ willPositionSheet:(NSWindow *)sheet
   return defaultSheetRect;
 }
 
+// In addition to the tab strip and content area, which the superview's impl
+// takes care of, we need to add the toolbar and bookmark bar to the
+// overlay so they draw correctly when dragging out a new window.
+- (NSArray*)viewsToMoveToOverlay {
+  NSArray* views = [super viewsToMoveToOverlay];
+  NSArray* browserViews =
+      [NSArray arrayWithObjects:[toolbarController_ view],
+                                [bookmarkController_ view],
+                                nil];
+  return [views arrayByAddingObjectsFromArray:browserViews];
+}
+
 @end

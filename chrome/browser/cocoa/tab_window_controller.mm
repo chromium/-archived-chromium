@@ -43,7 +43,8 @@
 }
 
 - (NSArray*)viewsToMoveToOverlay {
-  return [NSArray arrayWithObject:[self tabStripView]];
+  return [NSArray arrayWithObjects:[self tabStripView],
+            [self tabContentArea], nil];
 }
 
 // if |useOverlay| is true, we're moving views into the overlay's content
