@@ -1263,9 +1263,10 @@ BUG10353 DEFER : LayoutTests/fast/forms/textarea-rows-cols.html = FAIL
 BUG10353 WIN LINUX : LayoutTests/fast/repaint/overflow-outline-repaint.html = FAIL
 BUG10353 WIN : LayoutTests/fast/repaint/overflow-scroll-delete.html = FAIL
 // Likely just needs to be baselined.
-BUG10353 MAC LINUX : LayoutTests/fast/forms/form-element-geometry.html = FAIL
-BUG10353 MAC LINUX : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
-BUG10353 LINUX : LayoutTests/fast/text/drawBidiText.html = FAIL
+BUG10353 MAC : LayoutTests/fast/forms/form-element-geometry.html = FAIL
+BUG10353 MAC : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
+// Form control scrollbars seem to be drawn incorrectly.
+BUG10353 LINUX : LayoutTests/fast/replaced/width100percent-textarea.html = FAIL
 BUG10353 LINUX : LayoutTests/http/tests/security/dataURL/xss-DENIED-from-data-url-in-foreign-domain-subframe.html = TIMEOUT PASS
 BUG10668 : chrome/fast/dom/xss-DENIED-javascript-variations.html = FAIL
 // This test sometimes fails indefinitely, other times it takes 1-2 seconds.
@@ -1745,9 +1746,6 @@ BUG10399 DEFER WIN LINUX : LayoutTests/fast/canvas/canvas-incremental-repaint-2.
 BUG10399 MAC : LayoutTests/fast/encoding/char-encoding-mac.html = FAIL
 // New test. We should fix it, but it doesn't need to block the current release
 BUG10399 DEFER WIN LINUX : LayoutTests/fast/repaint/transform-disable-layoutstate.html = FAIL
-
-// Looks like this just needs a rebaseline.
-BUG10400 LINUX : LayoutTests/svg/custom/stroke-fallback.svg = FAIL
 
 // Merge 39830:39880 - new tests
 // New test. We should fix it, but it doesn't need to block the current release
