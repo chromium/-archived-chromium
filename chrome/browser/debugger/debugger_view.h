@@ -24,7 +24,7 @@ class WebContents;
 class DebuggerView : public views::View,
                      public TabContentsDelegate {
  public:
-  DebuggerView();
+  explicit DebuggerView(DebuggerWindow* window);
   virtual ~DebuggerView();
 
   // Output a line of text to the debugger view
@@ -81,9 +81,13 @@ class DebuggerView : public views::View,
   // Note that this method will take ownership of body.
   void SendEventToPage(const std::wstring& name, Value* body);
 
+  // Handles escape key and close the debug window.
+  virtual bool AcceleratorPressed(const views::Accelerator& accelerator);
+
  private:
   void ExecuteJavascript(const std::string& js);
 
+  DebuggerWindow* window_;
   ChromeFont font_;
   WebContents* web_contents_;
   TabContentsContainerView* web_container_;

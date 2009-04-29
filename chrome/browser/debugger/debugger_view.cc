@@ -30,9 +30,11 @@
 
 #include "grit/debugger_resources.h"
 
-DebuggerView::DebuggerView() : output_ready_(false) {
+DebuggerView::DebuggerView(DebuggerWindow* window)
+    : window_(window), output_ready_(false) {
   web_container_ = new TabContentsContainerView();
   AddChildView(web_container_);
+  AddAccelerator(views::Accelerator(VK_ESCAPE, false, false, false));
 }
 
 DebuggerView::~DebuggerView() {
@@ -155,3 +157,10 @@ void DebuggerView::LoadingStateChanged(TabContents* source) {
   if (!source->is_loading())
     SetOutputViewReady();
 }
+
+bool DebuggerView::AcceleratorPressed(const views::Accelerator& accelerator) {
+  DCHECK(accelerator.GetKeyCode() == VK_ESCAPE);
+  window_->window()->Close();
+  return true;
+}
+

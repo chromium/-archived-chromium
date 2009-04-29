@@ -38,7 +38,7 @@ void DebuggerWindow::Show(TabContents* tab) {
     view_->OnShow();
     return;
   }
-  view_ = new DebuggerView();
+  view_ = new DebuggerView(this);
   window_ = views::Window::CreateChromeWindow(NULL, gfx::Rect(), this);
   window_->Show();
   view_->OnShow();
