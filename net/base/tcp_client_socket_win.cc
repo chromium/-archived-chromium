@@ -157,11 +157,19 @@ void TCPClientSocketWin::Disconnect() {
   closesocket(socket_);
   socket_ = INVALID_SOCKET;
 
-  // Wait for pending IO to be aborted.
-  if (waiting_read_)
-    WaitForSingleObject(read_overlapped_.hEvent, INFINITE);
-  if (waiting_write_)
-    WaitForSingleObject(write_overlapped_.hEvent, INFINITE);
+  if (waiting_read_ || waiting_write_) {
+    base::TimeTicks start = base::TimeTicks::Now();
+
+    // Wait for pending IO to be aborted.
+    if (waiting_read_)
+      WaitForSingleObject(read_overlapped_.hEvent, INFINITE);
+    if (waiting_write_)
+      WaitForSingleObject(write_overlapped_.hEvent, INFINITE);
+
+    // We want to see if we block the message loop for too long.
+    UMA_HISTOGRAM_TIMES("AsyncIO.ClientSocketDisconnect",
+                        base::TimeTicks::Now() - start);
+  }
 
   WSACloseEvent(read_overlapped_.hEvent);
   memset(&read_overlapped_, 0, sizeof(read_overlapped_));
