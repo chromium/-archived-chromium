@@ -598,7 +598,8 @@ class FirefoxObserver : public ProfileWriter,
   std::wstring default_keyword_url_;
 };
 
-TEST_F(ImporterTest, Firefox2Importer) {
+// http://crbug.com/11142
+TEST_F(ImporterTest, DISABLED_Firefox2Importer) {
   std::wstring data_path;
   ASSERT_TRUE(PathService::Get(chrome::DIR_TEST_DATA, &data_path));
   file_util::AppendToPath(&data_path, L"firefox2_profile\\*");

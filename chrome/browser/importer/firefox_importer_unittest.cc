@@ -100,7 +100,7 @@ TEST(FirefoxImporterTest, Firefox2BookmarkParse) {
       charset, &title, &url, &favicon, &shortcut, &add_date, &post_data);
   EXPECT_TRUE(result);
   EXPECT_EQ(L"name", title);
-  EXPECT_EQ("http://domain.com/?q=\"%3C%3E\"", url.spec());
+  EXPECT_EQ("http://domain.com/?q=%22%3C%3E%22", url.spec());
   EXPECT_EQ(L"", shortcut);
   EXPECT_EQ(L"", post_data);
   EXPECT_TRUE(Time() == add_date);
