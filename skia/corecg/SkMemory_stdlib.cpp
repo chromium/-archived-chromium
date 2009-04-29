@@ -25,6 +25,8 @@
     // #define SK_CHECK_TAGS   // enable to double-check debugging link list
 #endif
 
+static bool g_sk_malloc_will_throw = true;
+
 #ifdef SK_TAG_BLOCKS
 
 #include "SkThread.h"
@@ -257,7 +259,13 @@ void* sk_malloc_flags(size_t size, unsigned flags)
     size += sizeof(SkBlockHeader);
 #endif
     
+    if (!(flags & SK_MALLOC_THROW)) {
+        g_sk_malloc_will_throw = false;
+    }
     void* p = malloc(size);
+    if (!(flags & SK_MALLOC_THROW)) {
+        g_sk_malloc_will_throw = true;
+    }
     if (p == NULL)
     {
         if (flags & SK_MALLOC_THROW)
@@ -278,3 +286,7 @@ void* sk_malloc_flags(size_t size, unsigned flags)
     return p;
 }
 
+bool sk_malloc_will_throw()
+{
+    return g_sk_malloc_will_throw;
+}

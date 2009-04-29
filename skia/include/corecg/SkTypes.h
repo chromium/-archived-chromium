@@ -65,6 +65,11 @@ extern void* sk_realloc_throw(void* buffer, size_t size);
 */
 extern void  sk_free(void*);
 
+/** Returns whether sk_malloc() will currently throw.  Only false during
+    a call to sk_malloc_flags() with SK_MALLOC_THROW not set.  This is
+    useful to mallocs that would otherwise abort on NULL themselves.
+    false indicates that skia will safely handle NULL checking.  **/
+extern bool  sk_malloc_will_throw();
 ///////////////////////////////////////////////////////////////////////
 
 #define SK_INIT_TO_AVOID_WARNING    = 0
