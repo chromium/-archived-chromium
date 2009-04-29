@@ -78,16 +78,17 @@ void ExtensionHost::RunJavaScriptMessage(
   render_view_host()->JavaScriptMessageBoxClosed(reply_msg, true, L"");
 }
 
-void ExtensionHost::DidStartLoading(RenderViewHost* render_view_host) {
+void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
+  // TODO(aa): This is toolstrip-specific and should probably not be here.
+  // ExtensionToolstrip in bookmark_bar_view.cc?
   static const StringPiece toolstrip_css(
       ResourceBundle::GetSharedInstance().GetRawDataResource(
           IDR_EXTENSIONS_TOOLSTRIP_CSS));
   render_view_host->InsertCSSInWebFrame(L"", toolstrip_css.as_string());
-}
 
-void ExtensionHost::DidStopLoading(RenderViewHost* render_view_host) {
   render_view_host->WasResized();
   did_stop_loading_ = true;
+
   if (view_)
     view_->ShowIfCompletelyLoaded();
 }

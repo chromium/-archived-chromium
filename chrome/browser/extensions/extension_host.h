@@ -51,7 +51,6 @@ class ExtensionHost : public RenderViewHostDelegate,
       const int flags,
       IPC::Message* reply_msg,
       bool* did_suppress_message);
-  virtual void DidStartLoading(RenderViewHost* render_view_host);
   virtual void DidStopLoading(RenderViewHost* render_view_host);
   virtual RenderViewHostDelegate::View* GetViewDelegate() const;
   virtual ExtensionFunctionDispatcher* CreateExtensionFunctionDispatcher(
