@@ -159,12 +159,18 @@ static void GLibLogHandler(const gchar* log_domain,
   if (!message)
     message = "<no message>";
 
-  // http://code.google.com/p/chromium/issues/detail?id=9643
-  // Until we have a real 64-bit build or all of these 32-bit package issues
-  // are sorted out, don't fatal on ELF 32/64-bit mismatch warnings.
+
   if (strstr(message, "Loading IM context type") ||
       strstr(message, "wrong ELF class: ELFCLASS64")) {
+    // http://crbug.com/9643
+    // Until we have a real 64-bit build or all of these 32-bit package issues
+    // are sorted out, don't fatal on ELF 32/64-bit mismatch warnings.
     LOG(ERROR) << "Bug 9643: " << log_domain << ": " << message;
+  } else if (strstr(message, "gtk_widget_size_allocate(): attempt to "
+                             "allocate widget with width") &&
+             !GTK_CHECK_VERSION(2, 16, 1)) {
+    // http://crbug.com/11133
+    LOG(ERROR) << "Bug 11133";
   } else {
     LOG(FATAL) << log_domain << ": " << message;
   }
