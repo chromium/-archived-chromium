@@ -35,6 +35,7 @@
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/search_engines/template_url_fetcher.h"
 #include "chrome/browser/search_engines/template_url_model.h"
+#include "chrome/common/chrome_switches.h"
 #include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/pref_names.h"
@@ -786,7 +787,9 @@ void TabContents::AddNewContents(TabContents* new_contents,
     return;
 
 #if defined(OS_WIN)
-  if ((disposition == NEW_POPUP) && !user_gesture) {
+  if ((disposition == NEW_POPUP) && !user_gesture &&
+      !CommandLine::ForCurrentProcess()->HasSwitch(
+          switches::kDisablePopupBlocking)) {
     // Unrequested popups from normal pages are constrained.
     TabContents* popup_owner = this;
     TabContents* our_owner = delegate_->GetConstrainingContents(this);
