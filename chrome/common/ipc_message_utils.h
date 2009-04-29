@@ -583,39 +583,6 @@ struct ParamTraits<HWND> {
 };
 
 template <>
-struct ParamTraits<HRGN> {
-  typedef HRGN param_type;
-  static void Write(Message* m, const param_type& p) {
-    int data_size = GetRegionData(p, 0, NULL);
-    if (data_size) {
-      char* bytes = new char[data_size];
-      GetRegionData(p, data_size, reinterpret_cast<LPRGNDATA>(bytes));
-      m->WriteData(reinterpret_cast<const char*>(bytes), data_size);
-      delete [] bytes;
-    } else {
-      m->WriteData(NULL, 0);
-    }
-  }
-  static bool Read(const Message* m, void** iter, param_type* r) {
-    bool res = FALSE;
-    const char *data;
-    int data_size = 0;
-    res = m->ReadData(iter, &data, &data_size);
-    if (data_size) {
-      *r = ExtCreateRegion(NULL, data_size,
-                           reinterpret_cast<CONST RGNDATA*>(data));
-    } else {
-      res = TRUE;
-      *r = CreateRectRgn(0, 0, 0, 0);
-    }
-    return res;
-  }
-  static void Log(const param_type& p, std::wstring* l) {
-    l->append(StringPrintf(L"0x%X", p));
-  }
-};
-
-template <>
 struct ParamTraits<HACCEL> {
   typedef HACCEL param_type;
   static void Write(Message* m, const param_type& p) {
