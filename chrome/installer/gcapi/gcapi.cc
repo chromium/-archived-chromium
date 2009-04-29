@@ -408,3 +408,42 @@ DLLEXPORT BOOL __stdcall LaunchGoogleChrome() {
   ::CoUninitialize();
   return ret;
 }
+
+#pragma comment(linker, "/EXPORT:LaunchGoogleChromeWithDimensions=_LaunchGoogleChromeWithDimensions@16,PRIVATE")
+DLLEXPORT BOOL __stdcall LaunchGoogleChromeWithDimensions(int x,
+                                                          int y,
+                                                          int width,
+                                                          int height) {
+  if (!LaunchGoogleChrome())
+    return false;
+
+  HWND handle = NULL;
+  int seconds_elapsed = 0;
+
+  // Chrome may have been launched, but the window may not have appeared
+  // yet. Wait for it to appear for 10 seconds, but exit if it takes longer
+  // than that.
+  while (!handle && seconds_elapsed < 10) {
+    handle = FindWindowEx(NULL, handle, L"Chrome_WidgetWin_0", NULL);
+    if (!handle) {
+      Sleep(1000);
+      seconds_elapsed++;
+    }
+  }
+
+  if(!handle)
+    return false;
+
+  // At this point, there are several top-level Chrome windows
+  // but we only want the window that has child windows.
+
+  // This loop iterates through all of the top-level Windows named
+  // Chrome_WidgetWin_0, and looks for the first one with any children.
+  while (handle && !FindWindowEx(handle, NULL, L"Chrome_WidgetWin_0", NULL)) {
+    // Get the next top-level Chrome window.
+    handle = FindWindowEx(NULL, handle, L"Chrome_WidgetWin_0", NULL);
+  }
+
+  return (handle &&
+          SetWindowPos(handle, 0, x, y, width, height, SWP_NOZORDER));
+}

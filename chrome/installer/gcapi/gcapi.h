@@ -33,9 +33,21 @@ DLLEXPORT BOOL __stdcall GoogleChromeCompatibilityCheck(BOOL set_flag,
 // you called CoInitialize, call CoUninitialize before calling this function).
 DLLEXPORT BOOL __stdcall LaunchGoogleChrome();
 
+// This function launches Google Chrome after a successful install at the
+// given x,y coordinates with size height,length. Make
+// sure COM library is NOT initalized before you call this function (so if
+// you called CoInitialize, call CoUninitialize before calling this function).
+// This call is synchronous, meaning it waits for Chrome to launch and appear
+// to resize it before returning.
+DLLEXPORT BOOL __stdcall LaunchGoogleChromeWithDimensions(int x,
+                                                          int y,
+                                                          int width,
+                                                          int height);
+
 // Funtion pointer type declarations to use with GetProcAddress.
 typedef BOOL (__stdcall * GCCC_CompatibilityCheck)(BOOL, DWORD *);
 typedef BOOL (__stdcall * GCCC_LaunchGC)(HANDLE *);
+typedef BOOL (__stdcall * GCCC_LaunchGCWithDimensions)(int, int, int, int);
 }  // extern "C"
 
 #endif  // # CHROME_INSTALLER_GCAPI_GCAPI_H_
