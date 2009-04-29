@@ -165,6 +165,18 @@
    fun:sqlite3VdbeExec
    fun:sqlite3*tep
 }
+# SQLite intentionally leaks a little memory in findLockInfo() in sqlite3_open
+# Newer versions don't do this.
+# See http://www.mail-archive.com/sqlite-users@sqlite.org/msg02334.html
+# and http://www.mail-archive.com/sqlite-users@sqlite.org/msg30449.html
+{
+   sqlite_open_leak
+   Memcheck:Leak
+   ...
+   fun:findLockInfo
+   fun:unixOpen
+   fun:sqlite3OsOpen
+}
 {
    libevent does not provide a way to clean up unused oneshot timers at exit
    Memcheck:Leak
@@ -333,7 +345,7 @@
    # This is the -O1 case
    bug_6532b
    Memcheck:Leak
-   fun:_Znwj
+   ...
    fun:_ZN3IPC12ChannelProxy7Context14OnChannelErrorEv
    fun:_ZN3IPC7Channel11ChannelImpl28OnFileCanReadWithoutBlockingEi
 }
@@ -379,9 +391,6 @@
    bug_10738
    Memcheck:Leak
    ...
-   fun:_ZN22RendererSecurityPolicy15GrantRequestURLEiRK4GURL
-   fun:_ZN14RenderViewHost15NavigateToEntryERK15NavigationEntryb
-   ...
    fun:_ZN20NavigationController22NavigateToPendingEntryEb
    fun:_ZN20NavigationController9LoadEntryEP15NavigationEntry
    fun:_ZN20NavigationController7LoadURLERK4GURLS2_j
@@ -412,15 +421,6 @@
    Memcheck:Leak
    fun:_Znwj
    fun:_ZN18TabContentsViewGtk19CreateViewForWidgetEP16RenderWidgetHost
-   fun:_ZN11WebContents32CreateRenderViewForRenderManagerEP14RenderViewHost
-}
-{
-   # yet one more from http://crbug.com/10747
-   bug_10747c
-   Memcheck:Leak
-   ...
-   fun:_ZN18TabContentsViewGtk19CreateViewForWidgetEP16RenderWidgetHost
-   fun:_ZN11TabContents32CreateRenderViewForRenderManagerEP14RenderViewHost
 }
 {
    # see http://crbug.com/10748
