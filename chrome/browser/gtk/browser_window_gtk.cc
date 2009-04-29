@@ -260,13 +260,6 @@ BrowserWindowGtk::BrowserWindowGtk(Browser* browser)
                      infobar_container_->widget(),
                      FALSE, FALSE, 0);
 
-  // Insert a border between the toolbar and the web contents.
-  GtkWidget* border = gtk_event_box_new();
-  gtk_widget_set_size_request(border, -1, 1);
-  gtk_widget_modify_bg(border, GTK_STATE_NORMAL, &kBorderColor);
-  gtk_box_pack_start(GTK_BOX(content_vbox_), border, FALSE, FALSE, 0);
-  gtk_widget_show(border);
-
   contents_container_.reset(new TabContentsContainerGtk());
   contents_container_->AddContainerToBox(content_vbox_);
 
@@ -650,8 +643,11 @@ bool BrowserWindowGtk::ShouldShowWindowIcon() const {
   return browser_->SupportsWindowFeature(Browser::FEATURE_TITLEBAR);
 }
 
-void BrowserWindowGtk::AddFindBar(GtkWidget* findbar) {
-  contents_container_->AddFindBar(findbar);
+void BrowserWindowGtk::AddFindBar(FindBarGtk* findbar) {
+  contents_container_->set_find_bar(findbar);
+  gtk_box_pack_start(GTK_BOX(content_vbox_), findbar->widget(),
+                     FALSE, FALSE, 0);
+  gtk_box_reorder_child(GTK_BOX(content_vbox_), findbar->widget(), 2);
 }
 
 void BrowserWindowGtk::ConnectAccelerators() {

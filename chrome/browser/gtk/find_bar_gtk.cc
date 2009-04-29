@@ -25,6 +25,9 @@ const GdkColor kBorderColor = GDK_COLOR_RGB(0xbe, 0xc8, 0xd4);
 // Padding around the container.
 const int kBarPadding = 4;
 
+// The vertical positioning of |container_| in |fixed_|.
+const int kVerticalOffset = -1;
+
 gboolean EntryContentsChanged(GtkWindow* window, FindBarGtk* find_bar) {
   find_bar->ContentsChanged();
   return FALSE;
@@ -45,28 +48,45 @@ FindBarGtk::FindBarGtk(BrowserWindowGtk* browser) {
   InitWidgets();
 
   // Insert the widget into the browser gtk hierarchy.
-  browser->AddFindBar(container_.get());
+  browser->AddFindBar(this);
 
   // Hook up signals after the widget has been added to the hierarchy so the
   // widget will be realized.
-  g_signal_connect(G_OBJECT(find_text_), "changed",
+  g_signal_connect(find_text_, "changed",
                    G_CALLBACK(EntryContentsChanged), this);
-  g_signal_connect(G_OBJECT(find_text_), "key-press-event",
+  g_signal_connect(find_text_, "key-press-event",
                    G_CALLBACK(KeyPressEvent), this);
+  g_signal_connect(widget(), "size-allocate",
+                   G_CALLBACK(OnSizeAllocate), this);
 }
 
 FindBarGtk::~FindBarGtk() {
-  container_.Destroy();
+  fixed_.Destroy();
 }
 
 void FindBarGtk::InitWidgets() {
   // The find bar is basically an hbox with a gtkentry (text box) followed by 3
   // buttons (previous result, next result, close).  We wrap the hbox in a gtk
   // alignment and a gtk event box to get the padding and light blue
-  // background.
+  // background. We put that event box in a fixed in order to control its
+  // position.
   GtkWidget* hbox = gtk_hbox_new(false, 0);
-  container_.Own(gfx::CreateGtkBorderBin(hbox, &kBackgroundColor, kBarPadding,
-      kBarPadding, kBarPadding, kBarPadding));
+  container_ = gfx::CreateGtkBorderBin(hbox, &kBackgroundColor,
+      kBarPadding, kBarPadding, kBarPadding, kBarPadding);
+  fixed_.Own(gtk_fixed_new());
+
+  // |fixed_| has to be at least one pixel tall. We color this pixel the same
+  // color as the border that separates the toolbar from the web contents.
+  // TODO(estade): find a better solution. (Ideally the tool bar shouldn't draw
+  // its own border, but the border is part of the background bitmap, so
+  // changing that would affect all platforms.)
+  border_ = gtk_event_box_new();
+  gtk_widget_set_size_request(border_, 1, 1);
+  gtk_widget_modify_bg(border_, GTK_STATE_NORMAL, &kBorderColor);
+
+  gtk_fixed_put(GTK_FIXED(widget()), border_, 0, 0);
+  gtk_fixed_put(GTK_FIXED(widget()), container_, 0, kVerticalOffset);
+  gtk_widget_set_size_request(widget(), -1, 0);
 
   close_button_.reset(CustomDrawButton::AddBarCloseButton(hbox));
   g_signal_connect(G_OBJECT(close_button_->widget()), "clicked",
@@ -102,17 +122,21 @@ void FindBarGtk::InitWidgets() {
   GtkWidget* centering_vbox = gtk_vbox_new(FALSE, 0);
   gtk_box_pack_start(GTK_BOX(centering_vbox), border_bin, TRUE, FALSE, 0);
   gtk_box_pack_end(GTK_BOX(hbox), centering_vbox, FALSE, FALSE, 0);
+
+  // We show just the GtkFixed and |border_| (not |container_|).
+  gtk_widget_show(widget());
+  gtk_widget_show(border_);
 }
 
 void FindBarGtk::Show() {
   // TODO(tc): This should be an animated slide in.
-  gtk_widget_show_all(container_.get());
+  gtk_widget_show_all(widget());
   gtk_widget_grab_focus(find_text_);
 }
 
 void FindBarGtk::Hide(bool animate) {
   // TODO(tc): Animated slide away.
-  gtk_widget_hide(container_.get());
+  gtk_widget_hide(container_);
 }
 
 void FindBarGtk::SetFocusAndSelection() {
@@ -143,16 +167,20 @@ void FindBarGtk::UpdateUIForFindResult(const FindNotificationDetails& result,
 }
 
 gfx::Rect FindBarGtk::GetDialogPosition(gfx::Rect avoid_overlapping_rect) {
-  return gfx::Rect();
+  // TODO(estade): Logic for the positioning of the find bar should be factored
+  // out of here and browser/views/* and into FindBarController.
+  int xposition = widget()->allocation.width - container_->allocation.width -
+                  50;
+
+  return gfx::Rect(xposition, 0, 1, 1);
 }
 
 void FindBarGtk::SetDialogPosition(const gfx::Rect& new_pos, bool no_redraw) {
-  if (!IsFindBarVisible())
-    Show();  // TODO(tc): This should be a no animation show.
+  gtk_fixed_move(GTK_FIXED(widget()), container_, new_pos.x(), kVerticalOffset);
 }
 
 bool FindBarGtk::IsFindBarVisible() {
-  return GTK_WIDGET_VISIBLE(container_.get());
+  return GTK_WIDGET_VISIBLE(widget());
 }
 
 void FindBarGtk::RestoreSavedFocus() {
@@ -166,6 +194,11 @@ bool FindBarGtk::GetFindBarWindowInfo(gfx::Point* position,
                                       bool* fully_visible) {
   NOTIMPLEMENTED();
   return false;
+}
+
+void FindBarGtk::AssureOnTop() {
+  gtk_widget_hide(container_);
+  gtk_widget_show_all(container_);
 }
 
 void FindBarGtk::ContentsChanged() {
@@ -192,7 +225,7 @@ void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
   if (button == find_bar->close_button_->widget()) {
     find_bar->find_bar_controller_->EndFindSession();
   } else if (button == find_bar->find_previous_button_->widget() ||
-      button == find_bar->find_next_button_->widget()) {
+             button == find_bar->find_next_button_->widget()) {
     std::string find_text_utf8(
         gtk_entry_get_text(GTK_ENTRY(find_bar->find_text_)));
     find_bar->find_bar_controller_->web_contents()->StartFinding(
@@ -200,5 +233,28 @@ void FindBarGtk::OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar) {
         button == find_bar->find_next_button_->widget());
   } else {
     NOTREACHED();
+  }
+}
+
+// static
+void FindBarGtk::OnSizeAllocate(GtkWidget* fixed,
+                                GtkAllocation* allocation,
+                                FindBarGtk* findbar) {
+  // Set the background widget to the size of |fixed|.
+  if (findbar->border_->allocation.width != allocation->width) {
+    gtk_widget_set_size_request(findbar->border_, allocation->width, 1);
+  }
+
+  // Reposition |container_|.
+  GtkWidget* container = findbar->container_;
+  DCHECK(container);
+  if (!GTK_WIDGET_VISIBLE(container))
+    return;
+
+  int xposition = findbar->GetDialogPosition(gfx::Rect()).x();
+  if (xposition == container->allocation.x) {
+    return;
+  } else {
+    gtk_fixed_move(GTK_FIXED(fixed), container, xposition, kVerticalOffset);
   }
 }

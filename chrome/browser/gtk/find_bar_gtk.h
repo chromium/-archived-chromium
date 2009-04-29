@@ -32,7 +32,7 @@ class FindBarGtk : public FindBar,
   // Callback when Escape is pressed.
   void EscapePressed();
 
-  GtkWidget* widget() const { return container_.get(); }
+  GtkWidget* widget() const { return fixed_.get(); }
 
   // Methods from FindBar.
   virtual FindBarController* GetFindBarController() const {
@@ -61,14 +61,32 @@ class FindBarGtk : public FindBar,
   virtual bool GetFindBarWindowInfo(gfx::Point* position,
                                     bool* fully_visible);
 
+  // Make sure the find bar is foremost on the z axis in the widget hierarchy
+  // by hiding and showing it.
+  void AssureOnTop();
+
  private:
   void InitWidgets();
 
   // Callback for previous, next, and close button.
   static void OnButtonPressed(GtkWidget* button, FindBarGtk* find_bar);
 
-  // GtkHBox containing the find bar widgets.
-  OwnedWidgetGtk container_;
+  // Called when |fixed_| changes sizes. Used to position |container_|.
+  static void OnSizeAllocate(GtkWidget* fixed,
+                             GtkAllocation* allocation,
+                             FindBarGtk* container_);
+
+  // GtkFixed containing the find bar widgets.
+  OwnedWidgetGtk fixed_;
+
+  // An event box which shows the background for |fixed_|. We could just set
+  // |fixed_| to have its own GdkWindow and draw the background directly, but
+  // then |container_| would clip to the bounds of |fixed_|.
+  GtkWidget* border_;
+
+  // A GtkAlignment which holds what the user perceives as the findbar (the text
+  // field, the buttons, etc.).
+  GtkWidget* container_;
 
   // The widget where text is entered.
   GtkWidget* find_text_;

@@ -5,21 +5,15 @@
 #include "chrome/browser/gtk/tab_contents_container_gtk.h"
 
 #include "base/gfx/native_widget_types.h"
+#include "chrome/browser/gtk/find_bar_gtk.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/browser/renderer_host/render_widget_host_view_gtk.h"
 #include "chrome/common/notification_service.h"
 
-
 TabContentsContainerGtk::TabContentsContainerGtk()
     : tab_contents_(NULL),
-      vbox_(gtk_vbox_new(FALSE, 0)),
-      fixed_(gtk_fixed_new()),
-      findbar_(NULL) {
-  gtk_widget_set_size_request(fixed_, -1, 0);
-  gtk_box_pack_start(GTK_BOX(vbox_), fixed_, FALSE, FALSE, 0);
+      vbox_(gtk_vbox_new(FALSE, 0)) {
   gtk_widget_show_all(vbox_);
-  g_signal_connect(fixed_, "size-allocate",
-                   G_CALLBACK(OnSizeAllocate), this);
 }
 
 TabContentsContainerGtk::~TabContentsContainerGtk() {
@@ -29,12 +23,6 @@ TabContentsContainerGtk::~TabContentsContainerGtk() {
 
 void TabContentsContainerGtk::AddContainerToBox(GtkWidget* box) {
   gtk_box_pack_start(GTK_BOX(box), vbox_, TRUE, TRUE, 0);
-}
-
-void TabContentsContainerGtk::AddFindBar(GtkWidget* findbar) {
-  findbar_ = findbar;
-  // We will reposition it later (when we get a size-allocate event).
-  gtk_fixed_put(GTK_FIXED(fixed_), findbar, 0, 0);
 }
 
 void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
@@ -60,6 +48,10 @@ void TabContentsContainerGtk::SetTabContents(TabContents* tab_contents) {
       gtk_box_pack_end(GTK_BOX(vbox_), widget, TRUE, TRUE, 0);
       gtk_widget_show_all(widget);
     }
+    // We need to make sure that the find bar is on top before any painting
+    // is done.
+    if (tab_contents_->find_ui_active())
+      findbar_->AssureOnTop();
   }
 }
 
@@ -121,21 +113,4 @@ void TabContentsContainerGtk::TabContentsDestroyed(TabContents* contents) {
   // us to clean up our state in case this happens.
   DCHECK(contents == tab_contents_);
   SetTabContents(NULL);
-}
-
-void TabContentsContainerGtk::OnSizeAllocate(GtkWidget* fixed,
-    GtkAllocation* allocation, TabContentsContainerGtk* contents_container) {
-  GtkWidget* findbar = contents_container->findbar_;
-  DCHECK(findbar);
-  if (!GTK_WIDGET_VISIBLE(findbar))
-    return;
-
-  // TODO(port): Logic for the positioning of the find bar should be factored
-  // out of here and browser/views/* and into FindBarController.
-  int xposition = allocation->width - findbar->allocation.width - 50;
-  if (xposition == findbar->allocation.x) {
-    return;
-  } else {
-    gtk_fixed_move(GTK_FIXED(fixed), findbar, xposition, 0);
-  }
 }

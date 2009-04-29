@@ -10,6 +10,7 @@
 #include "base/basictypes.h"
 #include "chrome/common/notification_observer.h"
 
+class FindBarGtk;
 class RenderViewHost;
 class TabContents;
 
@@ -21,9 +22,6 @@ class TabContentsContainerGtk : public NotificationObserver {
   // Inserts our GtkWidget* hierarchy into a GtkBox managed by our owner.
   void AddContainerToBox(GtkWidget* widget);
 
-  // Add the findbar to the top of the tab contents container.
-  void AddFindBar(GtkWidget* widget);
-
   // Make the specified tab visible.
   void SetTabContents(TabContents* tab_contents);
   TabContents* GetTabContents() const { return tab_contents_; }
@@ -32,6 +30,8 @@ class TabContentsContainerGtk : public NotificationObserver {
   virtual void Observe(NotificationType type,
                        const NotificationSource& source,
                        const NotificationDetails& details);
+
+  void set_find_bar(FindBarGtk* findbar) { findbar_ = findbar; }
 
  private:
   // Add or remove observers for events that we care about.
@@ -48,11 +48,6 @@ class TabContentsContainerGtk : public NotificationObserver {
   // get notified.
   void TabContentsDestroyed(TabContents* contents);
 
-  // Called when |fixed_| changes sizes. Used to position the findbar.
-  static void OnSizeAllocate(GtkWidget* fixed,
-                             GtkAllocation* allocation,
-                             TabContentsContainerGtk* contents_container);
-
   // The currently visible TabContents.
   TabContents* tab_contents_;
 
@@ -61,11 +56,9 @@ class TabContentsContainerGtk : public NotificationObserver {
   // vbox_.
   GtkWidget* vbox_;
 
-  // This GtkFixed widget helps us position the find bar.
-  GtkWidget* fixed_;
-
-  // The findbar widget. We do not own it.
-  GtkWidget* findbar_;
+  // We have to make sure we are always underneath the findbar, hence this
+  // pointer.
+  FindBarGtk* findbar_;
 
   DISALLOW_COPY_AND_ASSIGN(TabContentsContainerGtk);
 };

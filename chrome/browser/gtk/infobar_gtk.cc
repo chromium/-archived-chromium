@@ -50,7 +50,7 @@ InfoBar::InfoBar(InfoBarDelegate* delegate)
   // Set the top border and background color.
   gtk_widget_modify_bg(bg_box, GTK_STATE_NORMAL, &kBackgroundColor);
   border_bin_.Own(gfx::CreateGtkBorderBin(bg_box, &kBorderColor,
-                                          1, 0, 0, 0));
+                                          0, 1, 0, 0));
   gtk_widget_set_size_request(border_bin_.get(), -1, kInfoBarHeight);
 
   // Add the icon on the left, if any.

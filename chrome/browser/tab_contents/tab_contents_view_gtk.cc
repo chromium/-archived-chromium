@@ -182,9 +182,7 @@ void TabContentsViewGtk::StoreFocus() {
 
 void TabContentsViewGtk::RestoreFocus() {
   // TODO(estade): implement this function.
-  // For now just assume we are viewing the tab for the first time.
-  SetInitialFocus();
-  NOTIMPLEMENTED() << " --  need to restore the focus position on this page.";
+  NOTIMPLEMENTED() << " Need to restore the focus position on this page.";
 }
 
 void TabContentsViewGtk::UpdateDragCursor(bool is_drop_target) {
