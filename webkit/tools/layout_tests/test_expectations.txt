@@ -2490,7 +2490,7 @@ BUG10861 WIN LINUX MAC :  LayoutTests/fast/dom/xmlhttprequest-constructor-in-det
 BUG10861 WIN : LayoutTests/security/block-test.html = FAIL
 BUG10861 WIN : LayoutTests/http/tests/plugins/post-url-file.html = PASS
 BUG10861 MAC : LayoutTests/http/tests/plugins/post-url-file.html = TIMEOUT
-BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT
+BUG10861 LINUX MAC : LayoutTests/security/set-form-autocomplete-attribute.html = TIMEOUT PASS
 BUG10861 MAC : LayoutTests/svg/custom/js-late-marker-creation.svg = FAIL
 BUG10861 LINUX : LayoutTests/fast/dynamic/001.html = FAIL
 
@@ -2610,3 +2610,7 @@ BUG11178 MAC : LayoutTests/fast/dom/Document/open-with-pending-load.html = CRASH
 
 // New tests from WebKit Merge 42932:42994
 BUG11179 DEFER : LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL
+BUG11179 LINUX : LayoutTests/editing/deleting/type-delete-after-quote.html = FAIL
+BUG11179 MAC LINUX : LayoutTests/webarchive/adopt-attribute-styled-body-webarchive.html = FAIL
+BUG11179 MAC LINUX : LayoutTests/webarchive/adopt-attribute-styled-node-webarchive.html = FAIL
+BUG11179 MAC LINUX : LayoutTests/webarchive/adopt-inline-styled-node-webarchive.html = FAIL
