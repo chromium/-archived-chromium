@@ -71,7 +71,9 @@ chromium.JSONSchemaValidator.messages = {
   numberMaxValue: "Value must not be greater than *.",
   numberMaxDecimal: "Value must not have more than * decimal places.",
   invalidType: "Expected '*' but got '*'.",
-  invalidChoice: "Value does not match any valid type choices."
+  invalidChoice: "Value does not match any valid type choices.",
+  invalidPropertyType: "Missing property type.",
+  schemaRequired: "Schema value required.",
 };
 
 /**
@@ -120,6 +122,11 @@ chromium.JSONSchemaValidator.getType = function(value) {
 chromium.JSONSchemaValidator.prototype.validate = function(instance, schema,
                                                            opt_path) {
   var path = opt_path || "";
+
+  if (!schema) {
+    this.addError(path, "schemaRequired");
+    return;
+  }
 
   // If the schema has an extends property, the instance must validate against
   // that schema too.
@@ -209,7 +216,9 @@ chromium.JSONSchemaValidator.prototype.validateObject = function(instance,
                                                                  schema, path) {
   for (var prop in schema.properties) {
     var propPath = path ? path + "." + prop : prop;
-    if (prop in instance && instance[prop] !== null &&
+    if (schema.properties[prop] == undefined) {
+      this.addError(propPath, "invalidPropertyType");
+    } else if (prop in instance && instance[prop] !== null &&
         instance[prop] !== undefined) {
       this.validate(instance[prop], schema.properties[prop], propPath);
     } else if (!schema.properties[prop].optional) {
