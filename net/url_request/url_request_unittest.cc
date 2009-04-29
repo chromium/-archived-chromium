@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -81,6 +81,21 @@ bool ContainsString(const std::string& haystack, const char* needle) {
                   needle + strlen(needle),
                   CaseInsensitiveCompare<char>());
   return it != haystack.end();
+}
+
+void FillBuffer(char* buffer, size_t len) {
+  static bool called = false;
+  if (!called) {
+    called = true;
+    int seed = static_cast<int>(Time::Now().ToInternalValue());
+    srand(seed);
+  }
+
+  for (size_t i = 0; i < len; i++) {
+    buffer[i] = static_cast<char>(rand());
+    if (!buffer[i])
+      buffer[i] = 'g';
+  }
 }
 
 }  // namespace
@@ -608,6 +623,124 @@ TEST_F(URLRequestTest, FileTest) {
     EXPECT_FALSE(d.received_data_before_response());
     EXPECT_EQ(d.bytes_received(), static_cast<int>(file_size));
   }
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count, 0);
+#endif
+}
+
+TEST_F(URLRequestTest, FileTestFullSpecifiedRange) {
+  const size_t buffer_size = 4000;
+  scoped_array<char> buffer(new char[buffer_size]);
+  FillBuffer(buffer.get(), buffer_size);
+
+  FilePath temp_path;
+  EXPECT_TRUE(file_util::CreateTemporaryFileName(&temp_path));
+  GURL temp_url = net::FilePathToFileURL(temp_path);
+  file_util::WriteFile(temp_path, buffer.get(), buffer_size);
+
+  int64 file_size;
+  EXPECT_TRUE(file_util::GetFileSize(temp_path, &file_size));
+
+  const size_t first_byte_position = 500;
+  const size_t last_byte_position = buffer_size - first_byte_position;
+  const size_t content_length = last_byte_position - first_byte_position + 1;
+  std::string partial_buffer_string(buffer.get() + first_byte_position,
+                                    buffer.get() + last_byte_position + 1);
+
+  TestDelegate d;
+  {
+    TestURLRequest r(temp_url, &d);
+
+    r.SetExtraRequestHeaders(StringPrintf("Range: bytes=%d-%d\n",
+                                          first_byte_position,
+                                          last_byte_position));
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_TRUE(!r.is_pending());
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(static_cast<int>(content_length), d.bytes_received());
+    // Don't use EXPECT_EQ, it will print out a lot of garbage if check failed.
+    EXPECT_TRUE(partial_buffer_string == d.data_received());
+  }
+
+  EXPECT_TRUE(file_util::Delete(temp_path, false));
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count, 0);
+#endif
+}
+
+TEST_F(URLRequestTest, FileTestHalfSpecifiedRange) {
+  const size_t buffer_size = 4000;
+  scoped_array<char> buffer(new char[buffer_size]);
+  FillBuffer(buffer.get(), buffer_size);
+
+  FilePath temp_path;
+  EXPECT_TRUE(file_util::CreateTemporaryFileName(&temp_path));
+  GURL temp_url = net::FilePathToFileURL(temp_path);
+  file_util::WriteFile(temp_path, buffer.get(), buffer_size);
+
+  int64 file_size;
+  EXPECT_TRUE(file_util::GetFileSize(temp_path, &file_size));
+
+  const size_t first_byte_position = 500;
+  const size_t last_byte_position = buffer_size - 1;
+  const size_t content_length = last_byte_position - first_byte_position + 1;
+  std::string partial_buffer_string(buffer.get() + first_byte_position,
+                                    buffer.get() + last_byte_position + 1);
+
+  TestDelegate d;
+  {
+    TestURLRequest r(temp_url, &d);
+
+    r.SetExtraRequestHeaders(StringPrintf("Range: bytes=%d-\n",
+                                          first_byte_position));
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_TRUE(!r.is_pending());
+    EXPECT_EQ(1, d.response_started_count());
+    EXPECT_FALSE(d.received_data_before_response());
+    EXPECT_EQ(static_cast<int>(content_length), d.bytes_received());
+    // Don't use EXPECT_EQ, it will print out a lot of garbage if check failed.
+    EXPECT_TRUE(partial_buffer_string == d.data_received());
+  }
+
+  EXPECT_TRUE(file_util::Delete(temp_path, false));
+#ifndef NDEBUG
+  DCHECK_EQ(url_request_metrics.object_count, 0);
+#endif
+}
+
+TEST_F(URLRequestTest, FileTestMultipleRanges) {
+  const size_t buffer_size = 400000;
+  scoped_array<char> buffer(new char[buffer_size]);
+  FillBuffer(buffer.get(), buffer_size);
+
+  FilePath temp_path;
+  EXPECT_TRUE(file_util::CreateTemporaryFileName(&temp_path));
+  GURL temp_url = net::FilePathToFileURL(temp_path);
+  file_util::WriteFile(temp_path, buffer.get(), buffer_size);
+
+  int64 file_size;
+  EXPECT_TRUE(file_util::GetFileSize(temp_path, &file_size));
+
+  TestDelegate d;
+  {
+    TestURLRequest r(temp_url, &d);
+
+    r.SetExtraRequestHeaders(StringPrintf("Range: bytes=0-0,10-200,200-300\n"));
+    r.Start();
+    EXPECT_TRUE(r.is_pending());
+
+    MessageLoop::current()->Run();
+    EXPECT_TRUE(d.request_failed());
+  }
+
+  EXPECT_TRUE(file_util::Delete(temp_path, false));
 #ifndef NDEBUG
   DCHECK_EQ(url_request_metrics.object_count, 0);
 #endif
