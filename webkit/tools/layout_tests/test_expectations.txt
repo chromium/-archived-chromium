@@ -2575,3 +2575,8 @@ BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrollbar.html = FAIL
 BUG11123 LINUX : LayoutTests/fast/forms/textarea-scrolled-type.html = FAIL
 BUG11123 LINUX MAC : LayoutTests/fast/overflow/overflow-focus-ring.html = FAIL
 BUG11123 LINUX MAC : LayoutTests/svg/custom/viewport-update2.svg = FAIL
+BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
+
+// Mysteriously started failing right around the v8 scons->gyp change.
+BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL
+BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL
