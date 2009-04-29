@@ -311,6 +311,8 @@
         '../../glue/plugins/test/plugin_arguments_test.h',
         '../../glue/plugins/test/plugin_client.cc',
         '../../glue/plugins/test/plugin_client.h',
+        '../../glue/plugins/test/plugin_create_instance_in_paint.cc',
+        '../../glue/plugins/test/plugin_create_instance_in_paint.h',
         '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.cc',
         '../../glue/plugins/test/plugin_delete_plugin_in_stream_test.h',
         '../../glue/plugins/test/plugin_get_javascript_url_test.cc',
@@ -354,6 +356,10 @@
             # platform-specific.
             '../../glue/plugins/test/plugin_window_size_test.cc',
             '../../glue/plugins/test/plugin_windowless_test.cc',
+
+            # Seems windows specific.
+            '../../glue/plugins/test/plugin_create_instance_in_paint.cc',
+            '../../glue/plugins/test/plugin_create_instance_in_paint.h',
 
             # windows-specific resources
             '../../glue/plugins/test/npapi_test.def',
