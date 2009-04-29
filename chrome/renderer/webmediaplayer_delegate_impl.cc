@@ -8,6 +8,7 @@
 #include "chrome/common/chrome_switches.h"
 #include "chrome/renderer/media/audio_renderer_impl.h"
 #include "chrome/renderer/media/data_source_impl.h"
+#include "chrome/renderer/media/buffered_data_source.h"
 #include "chrome/renderer/media/video_renderer_impl.h"
 #include "chrome/renderer/render_view.h"
 #include "googleurl/src/gurl.h"
@@ -79,7 +80,7 @@ WebMediaPlayerDelegateImpl::WebMediaPlayerDelegateImpl(RenderView* view)
         AudioRendererImpl::CreateFactory(view_->audio_message_filter()));
   }
   filter_factory_->AddFactory(VideoRendererImpl::CreateFactory(this));
-  filter_factory_->AddFactory(DataSourceImpl::CreateFactory(this));
+  filter_factory_->AddFactory(BufferedDataSource::CreateFactory(this));
 }
 
 WebMediaPlayerDelegateImpl::~WebMediaPlayerDelegateImpl() {

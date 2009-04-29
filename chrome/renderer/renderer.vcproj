@@ -145,6 +145,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\media\buffered_data_source.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\media\buffered_data_source.h"
+				>
+			</File>
+			<File
 				RelativePath=".\media\data_source_impl.cc"
 				>
 			</File>
