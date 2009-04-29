@@ -265,6 +265,7 @@ bool BrowserRenderProcessHost::Init() {
     switches::kMessageLoopHistogrammer,
     switches::kEnableDCHECK,
     switches::kSilentDumpOnDCHECK,
+    switches::kDisablePopupBlocking,
     switches::kUseLowFragHeapCrt,
     switches::kEnableWebWorkers,
     switches::kEnableStatsTable,

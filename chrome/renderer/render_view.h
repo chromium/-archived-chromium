@@ -619,6 +619,9 @@ class RenderView : public RenderWidget,
   // Decodes a data: URL image or returns an empty image in case of failure.
   SkBitmap ImageFromDataUrl(const GURL&) const;
 
+  // A helper method used by WasOpenedByUserGesture.
+  bool WasOpenedByUserGestureHelper() const;
+
   void DumpLoadHistograms() const;
 
   // Bitwise-ORed set of extra bindings that have been enabled.  See
@@ -737,6 +740,9 @@ class RenderView : public RenderWidget,
 
   int history_back_list_count_;
   int history_forward_list_count_;
+
+  // True if pop-up blocking is disabled.  False by default.
+  bool disable_popup_blocking_;
 
   // True if the page has any frame-level unload or beforeunload listeners.
   bool has_unload_listener_;

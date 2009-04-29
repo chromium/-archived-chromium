@@ -196,6 +196,7 @@ RenderView::RenderView(RenderThreadBase* render_thread)
       devtools_client_(NULL),
       history_back_list_count_(0),
       history_forward_list_count_(0),
+      disable_popup_blocking_(false),
       has_unload_listener_(false),
       decrement_shared_popup_at_destruction_(false),
       form_field_autofill_request_id_(0),
@@ -327,6 +328,8 @@ void RenderView::Init(gfx::NativeViewId parent_hwnd,
 
   if (command_line.HasSwitch(switches::kDomAutomationController))
     enabled_bindings_ |= BindingsPolicy::DOM_AUTOMATION;
+  disable_popup_blocking_ =
+      command_line.HasSwitch(switches::kDisablePopupBlocking);
 
   debug_message_handler_ = new DebugMessageHandler(this);
   render_thread_->AddFilter(debug_message_handler_);
@@ -1957,8 +1960,9 @@ void RenderView::Show(WebWidget* webwidget, WindowOpenDisposition disposition) {
   // NOTE: initial_pos_ may still have its default values at this point, but
   // that's okay.  It'll be ignored if disposition is not NEW_POPUP, or the
   // browser process will impose a default position otherwise.
-  Send(new ViewHostMsg_ShowView(opener_id_, routing_id_, disposition,
-                                initial_pos_, WasOpenedByUserGesture(NULL)));
+  Send(new ViewHostMsg_ShowView(
+      opener_id_, routing_id_, disposition, initial_pos_,
+      WasOpenedByUserGestureHelper()));
 }
 
 void RenderView::CloseWidgetSoon(WebWidget* webwidget) {
@@ -2289,6 +2293,17 @@ void RenderView::ReportFindInPageSelection(int request_id,
 }
 
 bool RenderView::WasOpenedByUserGesture(WebView* webview) const {
+  return WasOpenedByUserGestureHelper();
+}
+
+bool RenderView::WasOpenedByUserGestureHelper() const {
+  // If pop-up blocking has been disabled, then treat all new windows as if
+  // they were opened by a user gesture.  This will prevent them from being
+  // blocked.  This is a bit of a hack, there should be a more straightforward
+  // way to disable pop-up blocking.
+  if (disable_popup_blocking_)
+    return true;
+
   return opened_by_user_gesture_;
 }
 
