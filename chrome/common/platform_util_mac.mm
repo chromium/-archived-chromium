@@ -11,7 +11,6 @@
 #include "base/sys_string_conversions.h"
 #include "chrome/browser/cocoa/tab_window_controller.h"
 #include "chrome/common/l10n_util.h"
-#include "grit/chromium_strings.h"
 #include "grit/generated_resources.h"
 
 namespace platform_util {
