@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+// Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -11,7 +11,6 @@
 #include "base/file_util.h"
 #include "net/base/completion_callback.h"
 #include "net/base/file_stream.h"
-#include "net/http/http_byte_range.h"
 #include "net/url_request/url_request.h"
 #include "net/url_request/url_request_job.h"
 
@@ -27,7 +26,6 @@ class URLRequestFileJob : public URLRequestJob {
   virtual bool IsRedirectResponse(GURL* location, int* http_status_code);
   virtual bool GetMimeType(std::string* mime_type) const;
   virtual void GetResponseInfo(net::HttpResponseInfo* info);
-  virtual void SetExtraRequestHeaders(const std::string& headers);
 
   static URLRequest::ProtocolFactory Factory;
 
@@ -42,9 +40,6 @@ class URLRequestFileJob : public URLRequestJob {
   net::CompletionCallbackImpl<URLRequestFileJob> io_callback_;
   net::FileStream stream_;
   bool is_directory_;
-
-  net::HttpByteRange byte_range_;
-  int64 remaining_bytes_;
 
 #if defined(OS_WIN)
   class AsyncResolver;
