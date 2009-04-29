@@ -503,6 +503,7 @@
 {
    # See http://crbug.com/11116
    bug_11116b
+   Memcheck:Leak
    fun:_Znwj
    fun:_ZN11ChildThread14OnChannelErrorEv
    fun:_ZN3IPC12ChannelProxy7Context15OnDispatchErrorEv
@@ -515,4 +516,23 @@
    fun:_ZN3IPC12ChannelProxy4SendEPNS_7MessageE
    ...
    fun:_ZN24RendererWebKitClientImpl24suddenTerminationChangedEb
+}
+{
+   # See http://crbug.com/11139
+   bug_11139
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN14ProcessWatcher23EnsureProcessTerminatedEi
+}
+{
+   # See http://crbug.com/11144
+   # This suppression is loose enough to match at least two message leaks
+   bug_11144
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3IPC12ChannelProxy4SendEPNS_7MessageE
+   fun:_ZN3IPC11SyncChannel15SendWithTimeoutEPNS_7MessageEi
+   fun:_ZN3IPC11SyncChannel4SendEPNS_7MessageE
+   fun:_ZN11ChildThread4SendEPN3IPC7MessageE
+   fun:_ZN12RenderThread4SendEPN3IPC7MessageE
 }
