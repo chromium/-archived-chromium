@@ -44,7 +44,7 @@
 
 #include "ChromiumBridge.h"
 #include "DOMObjectsInclude.h"
-
+#include "DocumentLoader.h"
 #include "ScriptController.h"
 #include "V8DOMMap.h"
 
@@ -1961,8 +1961,11 @@ v8::Persistent<v8::Context> V8Proxy::createNewContext(
     int index = 0;
     for (V8ExtensionList::iterator it = m_extensions.begin();
          it != m_extensions.end(); ++it) {
+        // Note: we check the loader URL here instead of the document URL
+        // because we might be currently loading an URL into a blank page.
+        // See http://code.google.com/p/chromium/issues/detail?id=10924
         if (it->scheme.length() > 0 &&
-            it->scheme != m_frame->document()->url().protocol())
+            it->scheme != m_frame->loader()->activeDocumentLoader()->url().protocol())
             continue;
 
         extensionNames[index++] = it->extension->name();
@@ -3168,7 +3171,7 @@ v8::Handle<v8::Value> V8Proxy::WindowToV8Object(DOMWindow* window)
         return v8::Handle<v8::Object>();
 
     // Special case: Because of evaluateInNewContext() one DOMWindow can have
-    // multipe contexts and multiple global objects associated with it. When
+    // multiple contexts and multiple global objects associated with it. When
     // code running in one of those contexts accesses the window object, we
     // want to return the global object associated with that context, not
     // necessarily the first global object associated with that DOMWindow.
