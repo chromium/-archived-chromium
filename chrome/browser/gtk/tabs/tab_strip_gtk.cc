@@ -1217,10 +1217,6 @@ gboolean TabStripGtk::OnMousePress(GtkWidget* widget, GdkEventButton* event,
 // static
 gboolean TabStripGtk::OnMouseRelease(GtkWidget* widget, GdkEventButton* event,
                                      TabStripGtk* tabstrip) {
-  // TODO(jhawkins): Handle middle click.
-  if (event->button == 2)
-    return TRUE;
-
   gfx::Point point(event->x, event->y);
   if (tabstrip->hover_index_ != -1) {
     tabstrip->GetTabAt(tabstrip->hover_index_)->OnMouseRelease(event);

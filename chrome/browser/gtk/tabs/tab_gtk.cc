@@ -146,7 +146,9 @@ bool TabGtk::OnMousePress(const gfx::Point& point) {
 void TabGtk::OnMouseRelease(GdkEventButton* event) {
   close_button_.get()->OnMouseRelease();
 
-  if (event->button == 3) {
+  if (event->button == 2) {
+    delegate_->CloseTab(this);
+  } else if (event->button == 3) {
     ShowContextMenu();
   }
 }
