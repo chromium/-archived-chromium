@@ -109,17 +109,12 @@ void PureCall() {
   __debugbreak();
 }
 
-int OnNoMemory(size_t memory_size) {
+void OnNoMemory() {
   // Kill the process. This is important for security, since WebKit doesn't
   // NULL-check many memory allocations. If a malloc fails, returns NULL, and
   // the buffer is then used, it provides a handy mapping of memory starting at
   // address 0 for an attacker to utilize.
   __debugbreak();
-
-  // Return memory_size so it is not optimized out. Make sure the return value
-  // is at least 1 so malloc/new is retried, especially useful when under a
-  // debugger.
-  return memory_size ? static_cast<int>(memory_size) : 1;
 }
 
 // Handlers to silently dump the current process when there is an assert in
@@ -199,9 +194,7 @@ void RegisterInvalidParamHandler() {
   _set_invalid_parameter_handler(InvalidParameter);
   _set_purecall_handler(PureCall);
   // Gather allocation failure.
-  _set_new_handler(&OnNoMemory);
-  // Make sure malloc() calls the new handler too.
-  _set_new_mode(1);
+  std::set_new_handler(&OnNoMemory);
 #endif
 }
 
