@@ -291,9 +291,9 @@ bool FirstRun::ProcessMasterPreferences(
   if (import_items) {
     // There is something to import from the default browser. This launches
     // the importer process and blocks until done or until it fails.
-    ImporterHost importer_host;
+    scoped_refptr<ImporterHost> importer_host = new ImporterHost();
     if (!FirstRun::ImportSettings(NULL,
-          importer_host.GetSourceProfileInfoAt(0).browser_type,
+          importer_host->GetSourceProfileInfoAt(0).browser_type,
           import_items, NULL)) {
       LOG(WARNING) << "silent import failed";
     }
