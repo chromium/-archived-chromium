@@ -388,8 +388,7 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     return TRUE;
 
   GdkDrawable* drawable = GDK_DRAWABLE(event->window);
-  // We don't actually care about the style, we just need a GC.
-  GdkGC* gc = widget->style->black_gc;
+  GdkGC* gc = gdk_gc_new(drawable);
 
   // kBorderColor is unallocated, so use the GdkRGB routine.
   gdk_gc_set_rgb_fg_color(gc, &kBorderColor);
