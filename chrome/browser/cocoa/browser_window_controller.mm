@@ -143,6 +143,8 @@ willPositionSheet:(NSWindow *)sheet
 }
 
 - (void)destroyBrowser {
+  [NSApp removeWindowsItem:[self window]];
+
   // We need the window to go away now.
   [self autorelease];
 }
@@ -423,6 +425,13 @@ willPositionSheet:(NSWindow *)sheet
 #endif
   newContents->DidBecomeSelected();
 
+  // Change the entry in the Window menu to match the title of the
+  // currently selected tab.  This will create an entry if one does
+  // not already exist.
+  [NSApp changeWindowsItem:[self window]
+                     title:base::SysUTF16ToNSString(newContents->GetTitle())
+                  filename:NO];
+
   if (BrowserList::GetLastActive() == browser_ &&
       !browser_->tabstrip_model()->closing_all() &&
       newContents->AsWebContents()) {
@@ -437,6 +446,18 @@ willPositionSheet:(NSWindow *)sheet
   UpdateToolbar(new_contents, true);
   UpdateUIForContents(new_contents);
 #endif
+}
+
+- (void)tabChangedWithContents:(TabContents*)contents
+                       atIndex:(NSInteger)index
+                   loadingOnly:(BOOL)loading {
+  // Change the entry in the Window menu to match the new title of the tab,
+  // but only if this is the currently selected tab.
+  if (index == browser_->tabstrip_model()->selected_index()) {
+    [NSApp changeWindowsItem:[self window]
+                       title:base::SysUTF16ToNSString(contents->GetTitle())
+                    filename:NO];
+  }
 }
 
 @end
