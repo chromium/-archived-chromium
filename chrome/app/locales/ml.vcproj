@@ -148,7 +148,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(OutDir)\obj\global_intermediate\webkit\webkit_strings_ml.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_ml.rc"
 			>
 		</File>
 		<File

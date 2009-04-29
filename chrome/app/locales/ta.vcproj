@@ -148,7 +148,7 @@
 			>
 		</File>
 		<File
-			RelativePath="$(OutDir)\obj\global_intermediate\webkit\webkit_strings_ta.rc"
+			RelativePath="$(OutDir)\grit_derived_sources\webkit_strings_ta.rc"
 			>
 		</File>
 		<File

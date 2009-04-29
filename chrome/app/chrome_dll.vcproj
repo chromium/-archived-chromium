@@ -56,7 +56,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(OutDir)\lib\tcmalloc.lib"
+				AdditionalDependencies="$(OutDir)\obj\tcmalloc\libcmt.lib"
 				OutputFile="$(IntDir)\chrome.dll"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libcmtd.lib"
@@ -230,7 +230,7 @@
 				>
 			</File>
 			<File
-				RelativePath="$(OutDir)\obj\global_intermediate\webkit\webkit_resources.rc"
+				RelativePath="$(OutDir)\grit_derived_sources\webkit_resources.rc"
 				>
 			</File>
 			<File
