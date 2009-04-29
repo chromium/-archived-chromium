@@ -2580,3 +2580,37 @@ BUG11123 LINUX : LayoutTests/transitions/mask-transitions.html = FAIL
 // Mysteriously started failing right around the v8 scons->gyp change.
 BUG11176 MAC : LayoutTests/fast/css/first-child-pseudo-class.html = FAIL
 BUG11176 WIN : LayoutTests/fast/forms/input-align-image.html = FAIL
+
+// New failures from WebKit Merge 42932:42994
+BUG11178 WIN : LayoutTests/editing/deleting/delete-4038408-fix.html = FAIL
+BUG11178 WIN : LayoutTests/editing/deleting/type-delete-after-quote.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-addEventListener.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/listener/xss-JSTargetNode-onclick-shortcut.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-addEventListener.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/listener/xss-XMLHttpRequest-shortcut.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/listener/xss-window-onclick-addEventListener.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/listener/xss-window-onclick-shortcut.html = FAIL
+BUG11178 WIN : LayoutTests/http/tests/security/xss-eval.html = FAIL
+BUG11178 WIN : LayoutTests/svg/custom/foreign-object-skew.svg = FAIL
+BUG11178 WIN : LayoutTests/svg/custom/viewport-update2.svg = FAIL
+
+BUG11178 LINUX WIN : LayoutTests/svg/custom/circle-move-invalidation.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/svg-float-border-padding.xml = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-css-no-effect-on-shadow-tree.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-1.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-2.svg = FAIL
+BUG11178 WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-3.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-4.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-5.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-on-disallowed-foreign-object-6.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/custom/use-on-non-svg-namespaced-element.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/text/text-gradient-positioning.svg = FAIL
+BUG11178 LINUX WIN : LayoutTests/svg/text/text-repaint-rects.xhtml = FAIL
+BUG11178 WIN : chrome/http/tests/security/listener/xss-inactive-closure.html = FAIL
+BUG11178 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-01-f.svg = FAIL
+
+// New tests from WebKit Merge 42932:42994
+BUG11179 DEFER WIN: LayoutTests/http/tests/xmlhttprequest/detaching-frame-2.html = FAIL
+BUG11179 DEFER : LayoutTests/webarchive/adopt-attribute-styled-body-webarchive.html = FAIL
+BUG11179 DEFER : LayoutTests/webarchive/adopt-attribute-styled-node-webarchive.html = FAIL
+BUG11179 DEFER : LayoutTests/webarchive/adopt-inline-styled-node-webarchive.html = FAIL
