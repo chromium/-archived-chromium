@@ -83,7 +83,7 @@ class AutocompleteEditViewMac : public AutocompleteEditView {
   virtual bool OnAfterPossibleChange();
 
   // Helper functions which forward to our private: model_.
-  void OnUpOrDownKeyPressed(int dir);
+  void OnUpOrDownKeyPressed(bool up, bool by_page);
   void OnEscapeKeyPressed();
   void OnSetFocus(bool f);
   void OnKillFocus();

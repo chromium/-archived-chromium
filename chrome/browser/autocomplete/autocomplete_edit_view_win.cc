@@ -1649,14 +1649,17 @@ bool AutocompleteEditViewWin::OnKeyDownOnlyWritable(TCHAR key,
           NEW_FOREGROUND_TAB : CURRENT_TAB, false);
       return true;
 
-    case VK_UP:
-      count = -count;
+    case VK_PRIOR:
+    case VK_NEXT:
+      count = model_->result().size();
       // FALL THROUGH
+    case VK_UP:
     case VK_DOWN:
       if (flags & KF_ALTDOWN)
         return false;
 
-      model_->OnUpOrDownKeyPressed(count);
+      model_->OnUpOrDownKeyPressed(((key == VK_PRIOR) || (key == VK_UP)) ?
+          -count : count);
       return true;
 
     // Hijacking Editing Commands

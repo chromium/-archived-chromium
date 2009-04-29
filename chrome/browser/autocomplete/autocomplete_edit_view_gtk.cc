@@ -446,15 +446,16 @@ void AutocompleteEditViewGtk::HandleViewMoveCursor(
     GtkMovementStep step,
     gint count,
     gboolean extendion_selection) {
-  // Handle up / down cursor movement on our own.
-  if (step == GTK_MOVEMENT_DISPLAY_LINES) {
-    model_->OnUpOrDownKeyPressed(count);
-    // move-cursor doesn't use a signal accumulator on the return value (it
-    // just ignores them), so we have to stop the propagation.
-    g_signal_stop_emission_by_name(text_view_, "move-cursor");
-    return;
-  }
-  // Propagate into GtkTextView.
+  // Handle up/down/pgup/pgdn movement on our own.
+  int move_amount = count;
+  if (step == GTK_MOVEMENT_PAGES)
+    move_amount = model_->result().size() * ((count < 0) ? -1 : 1);
+  else if (step != GTK_MOVEMENT_DISPLAY_LINES)
+    return;  // Propagate into GtkTextView
+  model_->OnUpOrDownKeyPressed(move_amount);
+  // move-cursor doesn't use a signal accumulaqtor on the return value (it
+  // just ignores then), so we have to stop the propagation.
+  g_signal_stop_emission_by_name(text_view_, "move-cursor");
 }
 
 gboolean AutocompleteEditViewGtk::HandleViewSizeRequest(GtkRequisition* req) {

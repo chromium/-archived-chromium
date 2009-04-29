@@ -261,8 +261,9 @@ bool AutocompleteEditViewMac::OnAfterPossibleChange() {
   return something_changed;
 }
 
-void AutocompleteEditViewMac::OnUpOrDownKeyPressed(int dir) {
-  model_->OnUpOrDownKeyPressed(dir);
+void AutocompleteEditViewMac::OnUpOrDownKeyPressed(bool up, bool by_page) {
+  int count = by_page ? model_->result().size() : 1;
+  model_->OnUpOrDownKeyPressed(up ? -count : count);
 }
 void AutocompleteEditViewMac::OnEscapeKeyPressed() {
   model_->OnEscapeKeyPressed();
@@ -295,12 +296,22 @@ void AutocompleteEditViewMac::FocusLocation() {
 - (BOOL)control:(NSControl*)control
        textView:(NSTextView*)textView doCommandBySelector:(SEL)cmd {
   if (cmd == @selector(moveDown:)) {
-    edit_view_->OnUpOrDownKeyPressed(1);
+    edit_view_->OnUpOrDownKeyPressed(false, false);
     return YES;
   }
   
   if (cmd == @selector(moveUp:)) {
-    edit_view_->OnUpOrDownKeyPressed(-1);
+    edit_view_->OnUpOrDownKeyPressed(true, false);
+    return YES;
+  }
+  
+  if (cmd == @selector(scrollPageDown:)) {
+    edit_view_->OnUpOrDownKeyPressed(false, true);
+    return YES;
+  }
+  
+  if (cmd == @selector(scrollPageUp:)) {
+    edit_view_->OnUpOrDownKeyPressed(true, true);
     return YES;
   }
 
