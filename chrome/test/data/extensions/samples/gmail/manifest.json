@@ -1,0 +1,13 @@
+{
+  "description": "Displays number of unread Gmail messages", 
+  "id": "DE6C0EDB5E435EC06E4E0E36E77EB241E1831273", 
+  "name": "Gmail Checker", 
+  "permissions": [
+    "http://*.google.com/*", 
+    "https://*.google.com/*"
+  ], 
+  "toolstrips": [
+    "gmail_checker.html"
+  ], 
+  "version": "0.1"
+}

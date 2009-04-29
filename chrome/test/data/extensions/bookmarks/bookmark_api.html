@@ -1,26 +1,5 @@
 <html>
-<style>
-body {
-  overflow: hidden;
-  margin: 0 0 0 0;
-}
-
-/* TODO: put the background style into body when
-   https://bugs.webkit.org/show_bug.cgi?id=18445 is fixed. */
-.content {
-  background: -webkit-gradient(linear, left top, left bottom, from(rgb(222, 234, 248)), to(rgb(237, 244, 252)));
-  padding: 1;
-  white-space: nowrap;
-}
-
-.button {
-  display: inline;
-  border: 1px solid silver;
-  padding: 2px;
-  margin: 1px 3px;
-  height: 100%;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="extensions_toolstrip.css">
 <script>
 
 var dump = function(obj, indent) {
@@ -105,13 +84,11 @@ var dumpBookmarks = function(event) {
 };
 </script>
 <body>
-<div class="content">
-<div class="button" onclick="dumpBookmarks(window.event);">
-Dump Bookmarks
+<div class="toolstrip-button" onclick="dumpBookmarks(window.event);">
+<span>Dump Bookmarks</span>
 </div>
-<div class="button" onclick="testMoveBookmarks(window.event);">
-Test Move
-</div>
+<div class="toolstrip-button" onclick="testMoveBookmarks(window.event);">
+<span>Test Move</span>
 </div>
 </body>
 </html>

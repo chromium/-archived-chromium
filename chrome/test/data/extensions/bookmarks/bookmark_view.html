@@ -20,6 +20,14 @@
 </style>
 <script>
 
+// XXX Hack: When you call window.open('chrome-extension://...'), the window is
+// first navigated to about:blank, and then to the final URL. This confuses the
+// code that sets up our v8 extensions, and we don't end up with them running.
+//
+// If we noticed this happened, reload ourselves, which should fix it.
+if (!chromium.bookmarks)
+  location.reload();
+
 var prefix = "bookmark_";
 
 var toggleBookmark = function(event) {

@@ -57,14 +57,8 @@ function statusClick() {
 
 requestStatus();
 </script>
+<link rel="stylesheet" type="text/css" href="extensions_toolstrip.css">
 <style>
-#main {
-  /* TODO(erikkay) this shouldn't be necessary, see extensions_toolstrip.css */
-  white-space: nowrap;
-  padding-top: 0px;
-  height: 100%;
-}
-
 .open {
   color: green;
 }
@@ -73,40 +67,30 @@ requestStatus();
   color: red;
 }
 
-.button {
-  padding: 2px 5px;
-  height: 20px;
-  float: left;
-  display: table;
-}
-
-.button:hover {
-  padding: 0px 4px;
-  border: 1px solid silver;
-  -webkit-border-radius: 5px;
-  background-color: rgb(237, 244, 252);
-  cursor: pointer;
-}
-
 #bots {
-  border: 1px solid rgb(237, 244, 252);
+  border: none;
   height: 20px;  /* hardcoded height sucks */
   width: 435px;  /* hardcoded width sucks */
   background-color: transparent;
+  display:-webkit-box;
 }
 
-#status {
-  display: table-cell;
-  vertical-align: middle;
+#frame-wrapper {
+  /* This is used to get us to vertically center the iframe in the vertical
+  space. */
+  display:-webkit-box;
+  -webkit-box-align:center;
+  /* Also, scooch the frame in a bit, under the button, because the content of
+  the frame has some extra built-in left padding. */
+  margin-left:-10px;
 }
 
 </style>
 
-<div id="main">
-<div class="button" onclick="statusClick();">
-<div id="status" class="open">
-tree: open?
+<div class="toolstrip-button" onclick="statusClick();">
+<span id="status" class="open">tree: open?</span>
 </div>
-</div>
+
+<div id="frame-wrapper">
 <iframe scrolling='no' id='bots' src="http://build.chromium.org/buildbot/waterfall/horizontal_one_box_per_builder"></iframe>
 </div>

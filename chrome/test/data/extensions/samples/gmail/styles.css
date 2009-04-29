@@ -1,0 +1,16 @@
+.base-flip {
+  opacity: 1;
+}
+
+.mid-flip {
+  opacity: .1;
+  color:red;
+  -webkit-transform: rotate(180deg) scale(1.3);
+  -webkit-transition: all .5s ease-in;
+}
+
+.post-flip {
+  opacity: 1;
+  -webkit-transform: rotate(360deg) scale(1);
+  -webkit-transition: all .5s ease-out;
+}

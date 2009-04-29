@@ -1,0 +1,89 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="extensions_toolstrip.css">
+<link rel="stylesheet" type="text/css" href="styles.css">
+<script>
+gmail_atom_href = "http://mail.google.com/mail/feed/atom";
+var poll_timeout = 2000;
+var unreadCount;
+var debug = true;
+
+function gmailNSResolver(prefix) {
+  if(prefix == 'gmail') {
+    return 'http://purl.org/atom/ns#';
+  }
+}
+
+function startFlip() {
+  document.getElementById("unreadCount").className = 'mid-flip';
+  setTimeout("midFlip();", 500);
+}
+
+function midFlip() {
+  document.getElementById("unreadCount").className = 'post-flip';  
+  document.getElementById("unreadCount").innerHTML = "(" + unreadCount + ")";
+  setTimeout("endFlip();", 500);
+}
+
+function endFlip() {
+  document.getElementById("unreadCount").className = 'base-flip';  
+}
+
+function updateUnreadCount(count) {
+  if (unreadCount != count) {
+    unreadCount = count;
+    startFlip();
+  }
+}
+
+function requestUnreadFeed() {  
+  var xhr = new XMLHttpRequest();
+  try {
+    console.log("request..");
+    xhr.onreadystatechange = function(){
+      console.log("readystate: " + xhr.readyState);
+      if (xhr.readyState == 4) {
+  	    console.log("response..");
+        var xmlDoc = xhr.responseXML;
+        var fullCountSet = xmlDoc.evaluate("/gmail:feed/gmail:fullcount", 
+            xmlDoc, gmailNSResolver, XPathResult.ANY_TYPE, null);
+        var fullCountNode = fullCountSet.iterateNext();
+        if (fullCountNode) {
+          updateUnreadCount(fullCountNode.textContent);
+        } else {
+		      console.log("fullcount not found!");
+          console.error("Error: feed retrieved, but no <fullcount> node found");
+        }
+
+        window.setTimeout(requestUnreadFeed, poll_timeout);
+      }
+    }
+    
+    xhr.onerror = function(error) {
+      debugger;
+  	  console.log("error: " + error);
+      window.setTimeout(requestUnreadFeed, poll_timeout);
+    }
+
+    xhr.open("GET", gmail_atom_href);
+    xhr.send({});
+  } catch(e) {
+    console.log("ex: " + e);
+    console.error("exception: " + e);
+    window.setTimeout(requestUnreadFeed, poll_timeout);
+  }
+}
+
+function goToInbox() {
+  chromium.tabs.createTab({url:"http://www.gmail.com/"});
+}
+
+</script>
+</head>
+<body onload="requestUnreadFeed();" onclick="goToInbox()">
+  <div class="toolstrip-button">
+    <img src="gmail.png" style="width:auto; height:auto">
+    <span>Gmail - Inbox <span style="display: inline-block;" id="unreadCount" class="base-flip" onclick="startFlip();"></span></span>
+  </div>
+</body>
+</html>
