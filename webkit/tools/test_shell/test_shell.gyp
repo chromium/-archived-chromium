@@ -488,10 +488,10 @@
         },
       ],
     }],
-    # Need to do the same for Win and Linux. We build a separate dylib/dll/so
+    # Need to do the same for Linux. We build a separate dylib/dll/so
     # so V8 can have a second set of global variables and run workers.
     # Normally, workers run in a separate process.
-    ['OS=="mac"', {
+    ['OS!="linux"', {
       'targets': [
         {
           'target_name': 'test_worker',
@@ -499,6 +499,8 @@
           'xcode_settings': {
              'EXPORTED_SYMBOLS_FILE': 'test_worker/test_worker.exp',
           },
+          'msvs_guid': '3E03D462-780D-4C4D-B22E-5E095E6CF110',
+          'msvs_disabled_warnings': [4800],
           'dependencies': [
             '../../../base/base.gyp:base',
             '../../../base/base.gyp:base_gfx',
@@ -512,6 +514,12 @@
           'sources': [
             'test_worker/test_webworker.cc',
             'test_worker/test_worker_main.cc',
+            'test_worker/test_worker.def',
+          ],
+          'conditions': [
+            ['OS!="win"', {
+              'sources!' : ['test_worker/test_worker.def'],
+            }],
           ],
         },
       ],
