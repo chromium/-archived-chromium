@@ -469,5 +469,7 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     }
   }
 
+  g_object_unref(gc);
+
   return TRUE;
 }
