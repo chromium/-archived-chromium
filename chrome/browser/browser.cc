@@ -49,6 +49,7 @@
 #include "grit/locale_settings.h"
 #include "net/base/cookie_monster.h"
 #include "net/base/cookie_policy.h"
+#include "net/base/mime_util.h"
 #include "net/base/net_util.h"
 #include "net/base/registry_controlled_domain.h"
 #include "net/url_request/url_request_context.h"
@@ -2179,6 +2180,10 @@ void Browser::UpdateCommandsForTabState() {
   {
     WebContents* web_contents = current_tab->AsWebContents();
     bool is_web_contents = web_contents != NULL;
+    bool is_source_viewable =
+        is_web_contents &&
+        net::IsSupportedNonImageMimeType(
+            web_contents->contents_mime_type().c_str());
 
     // Current navigation entry, may be NULL.
     NavigationEntry* active_entry = current_tab->controller().GetActiveEntry();
@@ -2188,9 +2193,11 @@ void Browser::UpdateCommandsForTabState() {
     command_updater_.UpdateCommandEnabled(IDC_STAR,
         is_web_contents && (type() == TYPE_NORMAL));
     window_->SetStarredState(is_web_contents && web_contents->is_starred());
-    // View-source should not be enabled if already in view-source mode.
+    // View-source should not be enabled if already in view-source mode or
+    // the source is not viewable.
     command_updater_.UpdateCommandEnabled(IDC_VIEW_SOURCE,
-        is_web_contents && active_entry && !active_entry->IsViewSourceMode());
+        is_web_contents && active_entry && !active_entry->IsViewSourceMode() &&
+        is_source_viewable);
     command_updater_.UpdateCommandEnabled(IDC_PRINT, is_web_contents);
     command_updater_.UpdateCommandEnabled(IDC_SAVE_PAGE,
         is_web_contents && SavePackage::IsSavableURL(current_tab->GetURL()));
