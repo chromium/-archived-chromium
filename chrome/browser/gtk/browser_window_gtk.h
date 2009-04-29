@@ -18,6 +18,7 @@
 
 class BookmarkBarGtk;
 class BrowserToolbarGtk;
+class FindBarGtk;
 class InfoBarContainerGtk;
 class LocationBar;
 class NineBox;
@@ -106,7 +107,7 @@ class BrowserWindowGtk : public BrowserWindow,
   bool ShouldShowWindowIcon() const;
 
   // Add the find bar widget to the window hierarchy.
-  void AddFindBar(GtkWidget* findbar);
+  void AddFindBar(FindBarGtk* findbar);
 
  protected:
   virtual void DestroyBrowser();
