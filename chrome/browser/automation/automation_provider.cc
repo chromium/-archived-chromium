@@ -1747,7 +1747,12 @@ void AutomationProvider::GetTabTitle(int handle, int* title_string_size,
   *title_string_size = -1;  // -1 is the error code
   if (tab_tracker_->ContainsHandle(handle)) {
     NavigationController* tab = tab_tracker_->GetResource(handle);
-    *title = UTF16ToWideHack(tab->GetActiveEntry()->title());
+    NavigationEntry* entry = tab->GetActiveEntry();
+    if (entry != NULL) {
+      *title = UTF16ToWideHack(entry->title());
+    } else {
+      *title = std::wstring();
+    }
     *title_string_size = static_cast<int>(title->size());
   }
 }
