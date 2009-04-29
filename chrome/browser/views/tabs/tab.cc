@@ -162,7 +162,7 @@ void Tab::GetHitTestMask(gfx::Path* mask) const {
 }
 
 bool Tab::OnMousePressed(const views::MouseEvent& event) {
-  if (event.IsLeftMouseButton()) {
+  if (event.IsOnlyLeftMouseButton()) {
     // Store whether or not we were selected just now... we only want to be
     // able to drag foreground tabs, so we don't start dragging the tab if
     // it was in the background.
