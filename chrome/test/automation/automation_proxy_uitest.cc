@@ -1164,5 +1164,5 @@ TEST_F(AutomationProxyTest5, TestLifetimeOfDomAutomationController) {
   std::wstring jscript = CreateJSString(L"\"" + expected + L"\"");
   std::wstring actual;
   ASSERT_TRUE(tab->ExecuteAndExtractString(L"", jscript, &actual));
-  ASSERT_STREQ(expected.c_str(), actual.c_str());
+  ASSERT_EQ(expected, actual);
 }

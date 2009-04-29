@@ -74,7 +74,7 @@ const std::string TWO_SECOND_BEFORE_UNLOAD_ALERT_HTML =
 
 const std::string CLOSE_TAB_WHEN_OTHER_TAB_HAS_LISTENER =
     "<html><head><title>only_one_unload</title></head>"
-    "<body onload=\"window.open('data:text/html,<html><head><title>second_tab</title></head></body>')\" "
+    "<body onload=\"window.open('data:text/html,<html><head><title>popup</title></head></body>')\" "
     "onbeforeunload='return;'"
     "</body></html>";
 
@@ -337,24 +337,35 @@ TEST_F(UnloadTest, BrowserCloseTwoSecondBeforeUnloadAlert) {
 // unload handler, and the other doesn't, the tab that doesn't have an unload
 // handler can be closed.  If this test fails, the Close() call will hang.
 TEST_F(UnloadTest, BrowserCloseTabWhenOtherTabHasListener) {
-  NavigateToDataURL(CLOSE_TAB_WHEN_OTHER_TAB_HAS_LISTENER, L"second_tab");
+  NavigateToDataURL(CLOSE_TAB_WHEN_OTHER_TAB_HAS_LISTENER, L"only_one_unload");
+  int window_count;
+  automation()->GetBrowserWindowCount(&window_count);
+  ASSERT_EQ(2, window_count);
 
-  scoped_ptr<BrowserProxy> browser_proxy(automation()->GetBrowserWindow(0));
-  EXPECT_TRUE(browser_proxy.get());
+  scoped_ptr<BrowserProxy> popup_browser_proxy(
+      automation()->GetBrowserWindow(1));
+  ASSERT_TRUE(popup_browser_proxy.get());
+  int popup_tab_count;
+  EXPECT_TRUE(popup_browser_proxy->GetTabCount(&popup_tab_count));
+  EXPECT_EQ(1, popup_tab_count);
+  scoped_ptr<TabProxy> popup_tab(popup_browser_proxy->GetActiveTab());
+  std::wstring popup_title;
+  ASSERT_TRUE(popup_tab.get() != NULL);
+  EXPECT_TRUE(popup_tab->GetTabTitle(&popup_title));
+  EXPECT_EQ(std::wstring(L"popup"), popup_title);
+  EXPECT_TRUE(popup_tab->Close(true));
 
-  int tab_count;
-  EXPECT_TRUE(browser_proxy->GetTabCount(&tab_count));
-  EXPECT_EQ(tab_count, 2);
-
-  scoped_ptr<TabProxy> second_tab(browser_proxy->GetActiveTab());
-  EXPECT_TRUE(second_tab.get()!= NULL);
-  EXPECT_TRUE(second_tab->Close(true));
-
-  scoped_ptr<TabProxy> first_tab(browser_proxy->GetActiveTab());
-  std::wstring title;
-  EXPECT_TRUE(first_tab.get() != NULL);
-  EXPECT_TRUE(first_tab->GetTabTitle(&title));
-  EXPECT_EQ(title, L"only_one_unload");
+  scoped_ptr<BrowserProxy> main_browser_proxy(
+      automation()->GetBrowserWindow(0));
+  ASSERT_TRUE(main_browser_proxy.get());
+  int main_tab_count;
+  EXPECT_TRUE(main_browser_proxy->GetTabCount(&main_tab_count));
+  EXPECT_EQ(1, main_tab_count);
+  scoped_ptr<TabProxy> main_tab(main_browser_proxy->GetActiveTab());
+  std::wstring main_title;
+  ASSERT_TRUE(main_tab.get() != NULL);
+  EXPECT_TRUE(main_tab->GetTabTitle(&main_title));
+  EXPECT_EQ(std::wstring(L"only_one_unload"), main_title);
 }
 
 // TODO(ojan): Add tests for unload/beforeunload that have multiple tabs
