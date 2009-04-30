@@ -387,15 +387,6 @@
    fun:_ZN10SkTypeface6CreateEPKcNS_5StyleE
 }
 {
-   # real leak; see http://crbug.com/10738
-   bug_10738
-   Memcheck:Leak
-   ...
-   fun:_ZN20NavigationController22NavigateToPendingEntryEb
-   fun:_ZN20NavigationController9LoadEntryEP15NavigationEntry
-   fun:_ZN20NavigationController7LoadURLERK4GURLS2_j
-}
-{
    # see http://crbug.com/10737
    bug_10737
    Memcheck:Leak
@@ -406,6 +397,23 @@
    fun:_ZN16BrowserWindowGtk19ConnectAcceleratorsEv
    fun:_ZN16BrowserWindowGtkC1EP7Browser
    fun:_ZN13BrowserWindow19CreateBrowserWindowEP7Browser
+}
+{
+   # real leak; see http://crbug.com/10738
+   bug_10738
+   Memcheck:Leak
+   ...
+   fun:_ZN20NavigationController22NavigateToPendingEntryEb
+   fun:_ZN20NavigationController9LoadEntryEP15NavigationEntry
+   fun:_ZN20NavigationController7LoadURLERK4GURLS2_j
+}
+{
+   # Another variant of http://crbug.com/10738
+   bug_10738b
+   Memcheck:Leak
+   fun:_Znwj
+   ...
+   fun:_ZN22RendererSecurityPolicy15GrantRequestURLEiRK4GURL
 }
 {
    # see http://crbug.com/10747
@@ -506,7 +514,6 @@
    Memcheck:Leak
    fun:_Znwj
    fun:_ZN11ChildThread14OnChannelErrorEv
-   fun:_ZN3IPC12ChannelProxy7Context15OnDispatchErrorEv
 }
 {
    # See http://crbug.com/11117
@@ -535,4 +542,16 @@
    fun:_ZN3IPC11SyncChannel4SendEPNS_7MessageE
    fun:_ZN11ChildThread4SendEPN3IPC7MessageE
    fun:_ZN12RenderThread4SendEPN3IPC7MessageE
+}
+{
+   # See http://crbug.com/11213
+   bug_11213
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN7WebCore14ResourceHandle6createERKNS_15ResourceRequestEPNS_20ResourceHandleClientEPNS_5FrameEbbb
+   fun:_ZN7WebCore14ResourceLoader4loadERKNS_15ResourceRequestE
+   fun:_ZN7WebCore17SubresourceLoader6createEPNS_5FrameEPNS_23SubresourceLoaderClientERKNS_15ResourceRequestEbbb
+   fun:_ZN7WebCore6Loader4Host20servePendingRequestsERN3WTF5DequeIPNS_7RequestEEERb
+   fun:_ZN7WebCore6Loader4Host20servePendingRequestsENS0_8PriorityE
+   fun:_ZN7WebCore6Loader4loadEPNS_9DocLoaderEPNS_14CachedResourceEbbb
 }
