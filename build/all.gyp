@@ -19,6 +19,7 @@
     {
       'target_name': 'All',
       'type': 'none',
+      'xcode_create_dependents_test_runner': 1,
       'dependencies': [
         '../base/base.gyp:*',
         '../media/media.gyp:*',
@@ -75,5 +76,21 @@
       ],
     },
   ],
+  'conditions': [
+    ['OS=="mac"', {
+      # Target to build everything needed for layout tests to cut down
+      # on what the layout test bots have to build.
+      'targets': [
+        {
+          'target_name': 'build_for_layout_tests',
+          'type': 'none',
+          'dependencies': [
+            '../chrome/chrome.gyp:image_diff',
+            '../webkit/tools/test_shell/test_shell.gyp:test_shell',
+            '../webkit/tools/test_shell/test_shell.gyp:test_shell_tests',
+          ],
+        },
+      ],
+    }],
+  ],
 }
-
