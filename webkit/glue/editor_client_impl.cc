@@ -611,12 +611,30 @@ bool EditorClientImpl::handleEditingKeyboardEvent(
     return true;
   }
 
+  // Here we need to filter key events.
+  // On Gtk/Linux, it emits key events with ASCII text and ctrl on for ctrl-<x>.
+  // In Webkit, EditorClient::handleKeyboardEvent in 
+  // WebKit/gtk/WebCoreSupport/EditorClientGtk.cpp drop such events.
+  // On Mac, it emits key events with ASCII text and meta on for Command-<x>.
+  // These key events should not emit text insert event.
+  // Alt key would be used to insert alternative character, so we should let
+  // through. Also note that Ctrl-Alt combination equals to AltGr key which is 
+  // also used to insert alternative character.
+  // http://code.google.com/p/chromium/issues/detail?id=10846
+  // In summary, we can't think of a scenario where you'd use control w/o alt or
+  // meta to do insertion of a ASCII character.
+  // TODO(ukai): investigate more detail for various keyboard layout.
   if (evt->keyEvent()->text().length() == 1) {
     UChar ch = evt->keyEvent()->text()[0U];
 
     // Don't insert null or control characters as they can result in
     // unexpected behaviour
     if (ch < ' ')
+      return false;
+    // Don't insert ASCII character if ctrl w/o alt or meta is on.
+    if (ch < 0x80 &&
+        ((evt->keyEvent()->ctrlKey() && !evt->keyEvent()->altKey()) ||
+        evt->keyEvent()->metaKey()))
       return false;
   }
 
