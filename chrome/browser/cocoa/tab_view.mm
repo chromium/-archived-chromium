@@ -32,8 +32,16 @@
 // view or our child close button.
 - (NSView *)hitTest:(NSPoint)aPoint {
   NSPoint viewPoint = [self convertPoint:aPoint fromView:[self superview]];
+  NSRect frame = [self frame];
+
+  // Reduce the width of the hit rect slightly to remove the overlap
+  // between adjacent tabs.  The drawing code in TabCell has the top
+  // corners of the tab inset by height*2/3, so we inset by half of
+  // that here.  This doesn't completely eliminate the overlap, but it
+  // works well enough.
+  NSRect hitRect = NSInsetRect(frame, frame.size.height / 3.0f, 0);
   if (NSPointInRect(viewPoint, [closeButton_ frame])) return closeButton_;
-  if (NSPointInRect(aPoint, [self frame])) return self;
+  if (NSPointInRect(aPoint, hitRect)) return self;
   return nil;
 }
 
