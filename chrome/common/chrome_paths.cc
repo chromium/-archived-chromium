@@ -83,14 +83,14 @@ bool PathProvider(int key, FilePath* result) {
     case chrome::DIR_RESOURCES:
       if (!PathService::Get(chrome::DIR_APP, &cur))
         return false;
-      cur = cur.Append(FILE_PATH_LITERAL("Resources"));
+      cur = cur.Append(FILE_PATH_LITERAL("resources"));
       create_dir = true;
       break;
     case chrome::DIR_INSPECTOR:
       if (!PathService::Get(chrome::DIR_APP, &cur))
         return false;
-      cur = cur.Append(FILE_PATH_LITERAL("Resources"));
-      cur = cur.Append(FILE_PATH_LITERAL("Inspector"));
+      cur = cur.Append(FILE_PATH_LITERAL("resources"));
+      cur = cur.Append(FILE_PATH_LITERAL("inspector"));
       break;
     case chrome::DIR_THEMES:
       if (!PathService::Get(chrome::DIR_APP, &cur))

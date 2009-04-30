@@ -1667,6 +1667,7 @@
         'browser',
         'renderer',
         '../printing/printing.gyp:printing',
+        '../webkit/webkit.gyp:inspector_resources',
       ],
       'sources': [
         # All .cc, .h, .m, and .mm files under app except for tests.
