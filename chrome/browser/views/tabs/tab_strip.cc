@@ -904,6 +904,8 @@ void TabStrip::CloseTab(Tab* tab) {
     available_width_for_tabs_ = GetAvailableWidthForTabs(last_tab);
     resize_layout_scheduled_ = true;
     AddMessageLoopObserver();
+    // Note that the next call might not close the tab (because of unload
+    // hanlders or if the delegate veto the close).
     model_->CloseTabContentsAt(tab_index);
   }
 }

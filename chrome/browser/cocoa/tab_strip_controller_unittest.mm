@@ -49,6 +49,8 @@ class TestTabStripDelegate : public TabStripModelDelegate {
     return true;
   }
   virtual void RestoreTab() { }
+
+  virtual bool CanCloseContentsAt(int index) { return true; }
 };
 
 class TabStripControllerTest : public testing::Test {
