@@ -160,13 +160,13 @@ class AutocompleteEditViewGtk : public AutocompleteEditView {
                             gint count,
                             gboolean extendion_selection);
 
-  static gboolean HandleViewSizeRequestThunk(GtkWidget* view,
-                                             GtkRequisition* req,
-                                             gpointer self) {
-    return reinterpret_cast<AutocompleteEditViewGtk*>(self)->
+  static void HandleViewSizeRequestThunk(GtkWidget* view,
+                                         GtkRequisition* req,
+                                         gpointer self) {
+    reinterpret_cast<AutocompleteEditViewGtk*>(self)->
         HandleViewSizeRequest(req);
   }
-  gboolean HandleViewSizeRequest(GtkRequisition* req);
+  void HandleViewSizeRequest(GtkRequisition* req);
 
   // Get the character indices of the current selection.  This honors
   // direction, cp_max is the insertion point, and cp_min is the bound.

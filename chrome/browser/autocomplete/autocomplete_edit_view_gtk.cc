@@ -458,11 +458,10 @@ void AutocompleteEditViewGtk::HandleViewMoveCursor(
   g_signal_stop_emission_by_name(text_view_, "move-cursor");
 }
 
-gboolean AutocompleteEditViewGtk::HandleViewSizeRequest(GtkRequisition* req) {
-  // Don't force a minimum width, but use the font-relative height.
-  GTK_WIDGET_GET_CLASS(text_view_)->size_request(text_view_, req);
+void AutocompleteEditViewGtk::HandleViewSizeRequest(GtkRequisition* req) {
+  // Don't force a minimum width, but use the font-relative height.  This is a
+  // run-first handler, so the default handler was already called.
   req->width = 1;
-  return TRUE;  // We already called the default handler.
 }
 
 AutocompleteEditViewGtk::CharRange AutocompleteEditViewGtk::GetSelection() {
