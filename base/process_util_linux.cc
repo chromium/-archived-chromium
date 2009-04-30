@@ -31,29 +31,21 @@ namespace base {
 bool LaunchApp(const std::vector<std::string>& argv,
                const file_handle_mapping_vector& fds_to_remap,
                bool wait, ProcessHandle* process_handle) {
-  // Make sure we don't leak any FDs to the child process by marking all FDs
-  // as close-on-exec.
-  SetAllFDsToCloseOnExec();
-
   pid_t pid = fork();
   if (pid < 0)
     return false;
 
   if (pid == 0) {
-    for (file_handle_mapping_vector::const_iterator it = fds_to_remap.begin();
-         it != fds_to_remap.end();
-         ++it) {
-      int src_fd = it->first;
-      int dest_fd = it->second;
-      if (src_fd == dest_fd) {
-        int flags = fcntl(src_fd, F_GETFD);
-        if (flags != -1) {
-          fcntl(src_fd, F_SETFD, flags & ~FD_CLOEXEC);
-        }
-      } else {
-        dup2(src_fd, dest_fd);
-      }
+    InjectiveMultimap fd_shuffle;
+    for (file_handle_mapping_vector::const_iterator
+        it = fds_to_remap.begin(); it != fds_to_remap.end(); ++it) {
+      fd_shuffle.push_back(InjectionArc(it->first, it->second, false));
     }
+
+    if (!ShuffleFileDescriptors(fd_shuffle))
+      exit(127);
+
+    CloseSuperfluousFds(fd_shuffle);
 
     scoped_array<char*> argv_cstr(new char*[argv.size() + 1]);
     for (size_t i = 0; i < argv.size(); i++)

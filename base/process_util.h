@@ -44,6 +44,8 @@ struct IoCounters {
   unsigned long long WriteTransferCount;
   unsigned long long OtherTransferCount;
 };
+
+#include "base/file_descriptor_shuffle.h"
 #endif
 
 #if defined(OS_MACOSX)
@@ -88,7 +90,14 @@ ProcessId GetProcId(ProcessHandle process);
 #if defined(OS_POSIX)
 // Sets all file descriptors to close on exec except for stdin, stdout
 // and stderr.
+// TODO(agl): remove this function
+// WARNING: do not use. It's inherently race-prone in the face of
+// multi-threading.
 void SetAllFDsToCloseOnExec();
+// Close all file descriptors, expect those which are a destination in the
+// given multimap. Only call this function in a child process where you know
+// that there aren't any other threads.
+void CloseSuperfluousFds(const base::InjectiveMultimap& saved_map);
 #endif
 
 #if defined(OS_WIN)

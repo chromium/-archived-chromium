@@ -95,6 +95,8 @@
         'event_recorder_stubs.cc',
         'field_trial.cc',
         'field_trial.h',
+        'file_descriptor_shuffle.cc',
+        'file_descriptor_shuffle.h',
         'file_path.cc',
         'file_path.h',
         'file_util.cc',
@@ -446,6 +448,7 @@
             'sources!': [
               'data_pack.cc',
               'event_recorder_stubs.cc',
+              'file_descriptor_shuffle.cc',
               'message_pump_libevent.cc',
               'string16.cc',
             ],
@@ -558,6 +561,7 @@
         'debug_util_unittest.cc',
         'directory_watcher_unittest.cc',
         'field_trial_unittest.cc',
+        'file_descriptor_shuffle_unittest.cc',
         'file_path_unittest.cc',
         'file_util_unittest.cc',
         'file_version_info_unittest.cc',
@@ -655,6 +659,7 @@
           ],
           'sources!': [
             'data_pack_unittest.cc',
+            'file_descriptor_shuffle_unittest.cc',
           ],
         }, {  # OS != "win"
           'sources!': [

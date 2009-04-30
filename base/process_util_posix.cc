@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include <limits>
+#include <set>
 
 #include "base/basictypes.h"
 #include "base/logging.h"
@@ -95,8 +96,82 @@ class ScopedDIRClose {
 };
 typedef scoped_ptr_malloc<DIR, ScopedDIRClose> ScopedDIR;
 
+void CloseSuperfluousFds(const base::InjectiveMultimap& saved_mapping) {
+  std::set<int> saved_fds;
+
+  // Don't close stdin, stdout and stderr
+  saved_fds.insert(STDIN_FILENO);
+  saved_fds.insert(STDOUT_FILENO);
+  saved_fds.insert(STDERR_FILENO);
+
+  for (base::InjectiveMultimap::const_iterator
+       i = saved_mapping.begin(); i != saved_mapping.end(); ++i) {
+    saved_fds.insert(i->dest);
+  }
+
+#if defined(OS_LINUX)
+  static const char fd_dir[] = "/proc/self/fd";
+#elif defined(OS_MACOSX)
+  static const char fd_dir[] = "/dev/fd";
+#endif
+
+  ScopedDIR dir_closer(opendir(fd_dir));
+  DIR *dir = dir_closer.get();
+  if (NULL == dir) {
+    DLOG(ERROR) << "Unable to open " << fd_dir;
+
+    // Fallback case
+    struct rlimit nofile;
+    rlim_t num_fds;
+    if (getrlimit(RLIMIT_NOFILE, &nofile)) {
+      // getrlimit failed. Take a best guess.
+      num_fds = 8192;
+      DLOG(ERROR) << "getrlimit(RLIMIT_NOFILE) failed: " << errno;
+    } else {
+      num_fds = nofile.rlim_cur;
+    }
+
+    if (num_fds > INT_MAX)
+      num_fds = INT_MAX;
+
+    for (rlim_t i = 0; i < num_fds; ++i) {
+      const int fd = static_cast<int>(i);
+      if (saved_fds.find(fd) != saved_fds.end())
+        continue;
+
+      int result;
+      do {
+        result = close(fd);
+      } while (result == -1 && errno == EINTR);
+    }
+    return;
+  }
+
+  struct dirent *ent;
+  while ((ent = readdir(dir))) {
+    // Skip . and .. entries.
+    if (ent->d_name[0] == '.')
+      continue;
+
+    char *endptr;
+    errno = 0;
+    const long int fd = strtol(ent->d_name, &endptr, 10);
+    if (ent->d_name[0] == 0 || *endptr || fd < 0 || fd >= INT_MAX || errno)
+      continue;
+    if (saved_fds.find(fd) != saved_fds.end())
+      continue;
+
+    int result;
+    do {
+      result = close(fd);
+    } while (result == -1 && errno == EINTR);
+  }
+}
+
 // Sets all file descriptors to close on exec except for stdin, stdout
 // and stderr.
+// TODO(agl): Remove this function. It's fundamentally broken for multithreaded
+// apps.
 void SetAllFDsToCloseOnExec() {
 #if defined(OS_LINUX)
   const char fd_dir[] = "/proc/self/fd";
@@ -354,19 +429,15 @@ bool GetAppOutput(const CommandLine& cl, std::string* output) {
         if (dev_null < 0)
           exit(127);
 
-        int rv;
-        do {
-          rv = dup2(pipe_fd[1], STDOUT_FILENO);
-        } while (rv == -1 && errno == EINTR);
-        do {
-          rv = dup2(dev_null, STDERR_FILENO);
-        } while (rv == -1 && errno == EINTR);
-        if (pipe_fd[0] != STDOUT_FILENO && pipe_fd[0] != STDERR_FILENO)
-          close(pipe_fd[0]);
-        if (pipe_fd[1] != STDOUT_FILENO && pipe_fd[1] != STDERR_FILENO)
-          close(pipe_fd[1]);
-        if (dev_null != STDOUT_FILENO && dev_null != STDERR_FILENO)
-          close(dev_null);
+        InjectiveMultimap fd_shuffle;
+        fd_shuffle.push_back(InjectionArc(pipe_fd[1], STDOUT_FILENO, true));
+        fd_shuffle.push_back(InjectionArc(dev_null, STDERR_FILENO, true));
+        fd_shuffle.push_back(InjectionArc(dev_null, STDIN_FILENO, true));
+
+        if (!ShuffleFileDescriptors(fd_shuffle))
+          exit(127);
+
+        CloseSuperfluousFds(fd_shuffle);
 
         const std::vector<std::string> argv = cl.argv();
         scoped_array<char*> argv_cstr(new char*[argv.size() + 1]);
