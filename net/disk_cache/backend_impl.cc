@@ -780,13 +780,11 @@ void BackendImpl::FirstEviction() {
   if (data_->header.experiment == 8) {
     CACHE_UMA(PERCENTAGE, "FirstResurrectRatio", 8, stats_.GetResurrectRatio());
     CACHE_UMA(PERCENTAGE, "FirstNoUseRatio", 8,
-              data_->header.lru.sizes[0] / data_->header.num_entries);
+              data_->header.lru.sizes[0] * 100 / data_->header.num_entries);
     CACHE_UMA(PERCENTAGE, "FirstLowUseRatio", 8,
-              data_->header.lru.sizes[1] / data_->header.num_entries);
+              data_->header.lru.sizes[1] * 100 / data_->header.num_entries);
     CACHE_UMA(PERCENTAGE, "FirstHighUseRatio", 8,
-              data_->header.lru.sizes[2] / data_->header.num_entries);
-    CACHE_UMA(PERCENTAGE, "FirstDeletedRatio", 8,
-              data_->header.lru.sizes[4] / data_->header.num_entries);
+              data_->header.lru.sizes[2] * 100 / data_->header.num_entries);
   }
 
   stats_.ResetRatios();
@@ -1382,13 +1380,13 @@ void BackendImpl::ReportStats() {
     CACHE_UMA(PERCENTAGE, "ResurrectRatio", data_->header.experiment,
               stats_.GetResurrectRatio());
     CACHE_UMA(PERCENTAGE, "NoUseRatio", data_->header.experiment,
-              data_->header.lru.sizes[0] / data_->header.num_entries);
+              data_->header.lru.sizes[0] * 100 / data_->header.num_entries);
     CACHE_UMA(PERCENTAGE, "LowUseRatio", data_->header.experiment,
-              data_->header.lru.sizes[1] / data_->header.num_entries);
+              data_->header.lru.sizes[1] * 100 / data_->header.num_entries);
     CACHE_UMA(PERCENTAGE, "HighUseRatio", data_->header.experiment,
-              data_->header.lru.sizes[2] / data_->header.num_entries);
+              data_->header.lru.sizes[2] * 100 / data_->header.num_entries);
     CACHE_UMA(PERCENTAGE, "DeletedRatio", data_->header.experiment,
-              data_->header.lru.sizes[4] / data_->header.num_entries);
+              data_->header.lru.sizes[4] * 100 / data_->header.num_entries);
   }
 
   stats_.ResetRatios();

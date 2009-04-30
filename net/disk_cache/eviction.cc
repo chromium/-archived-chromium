@@ -437,7 +437,7 @@ void Eviction::ReportListStats() {
     CACHE_UMA(AGE, "HighUseAge", header_->experiment,
               Time::FromInternalValue(last3.get()->Data()->last_used));
   if (last4.get())
-    CACHE_UMA(AGE, "DeletedUseAge", header_->experiment,
+    CACHE_UMA(AGE, "DeletedAge", header_->experiment,
               Time::FromInternalValue(last4.get()->Data()->last_used));
 }
 
