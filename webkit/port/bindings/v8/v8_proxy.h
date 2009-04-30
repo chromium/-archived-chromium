@@ -36,6 +36,7 @@
 namespace WebCore {
 
 class CSSStyleDeclaration;
+class ClientRectList;
 class DOMImplementation;
 class Element;
 class Event;

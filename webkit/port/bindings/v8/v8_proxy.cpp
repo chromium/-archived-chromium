@@ -1563,6 +1563,10 @@ v8::Persistent<v8::FunctionTemplate> V8Proxy::GetTemplate(
     case V8ClassIndex::XSLTPROCESSOR:
       desc->SetCallHandler(USE_CALLBACK(XSLTProcessorConstructor));
       break;
+    case V8ClassIndex::CLIENTRECTLIST:
+      desc->InstanceTemplate()->SetIndexedPropertyHandler(
+          USE_INDEXED_PROPERTY_GETTER(ClientRectList));
+      break;
     default:
       break;
   }

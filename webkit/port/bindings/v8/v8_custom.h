@@ -510,6 +510,9 @@ DECLARE_CALLBACK(DatabaseTransaction)
 DECLARE_CALLBACK(SQLTransactionExecuteSql)
 DECLARE_CALLBACK(SQLResultSetRowListItem)
 
+// ClientRectList
+DECLARE_INDEXED_PROPERTY_GETTER(ClientRectList)
+
 // SVG custom properties and callbacks
 #if ENABLE(SVG)
 DECLARE_PROPERTY_ACCESSOR_GETTER(SVGLengthValue)

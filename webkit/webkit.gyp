@@ -983,6 +983,7 @@
 
         # V8 bindings not generated from .idl source.
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CanvasRenderingContext2DCustom.cpp',
+        '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClientRectListCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8ClipboardCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CSSStyleDeclarationCustom.cpp',
         '../third_party/WebKit/WebCore/bindings/v8/custom/V8CustomBinding.h',
