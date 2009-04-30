@@ -37,6 +37,7 @@
         '../../../third_party/npapi/npapi.gyp:npapi',
         '../../webkit.gyp:glue',
         '../../webkit.gyp:webkit',
+        '../../webkit.gyp:inspector_resources',
       ],
       'sources': [
         'mac/DumpRenderTreePasteboard.h',
