@@ -39,6 +39,12 @@ devtools.DebuggerAgent = function() {
   this.currentCallFrame_ = null;
   
   /**
+   * Whether to stop in the debugger on the exceptions.
+   * @type {boolean}
+   */
+  this.pauseOnExceptions_ = true;
+  
+  /**
    * Mapping: request sequence number->callback.
    * @type {Object}
    */
@@ -169,6 +175,25 @@ devtools.DebuggerAgent.prototype.stepOverStatement = function() {
 devtools.DebuggerAgent.prototype.resumeExecution = function() {
   var cmd = new devtools.DebugCommand('continue');
   devtools.DebuggerAgent.sendCommand_(cmd);
+};
+
+
+/**
+ * @return {boolean} True iff the debugger will pause execution on the
+ * exceptions.
+ */
+devtools.DebuggerAgent.prototype.pauseOnExceptions = function() { 
+  return this.pauseOnExceptions_;
+};
+
+
+/**
+ * Tells whether to pause in the debugger on the exceptions or not.
+ * @param {boolean} value True iff execution should be stopped in the debugger
+ * on the exceptions.
+ */
+devtools.DebuggerAgent.prototype.setPauseOnExceptions = function(value) {
+  this.pauseOnExceptions_ = value;
 };
 
 
@@ -357,7 +382,28 @@ devtools.DebuggerAgent.prototype.handleExceptionEvent_ = function(msg) {
   var body = msg.getBody();
   debugPrint('Uncaught exception in ' + body.script.name + ':' +
              body.sourceLine + '\n' + body.sourceLineText);
-  this.resumeExecution();
+  if (this.pauseOnExceptions_) {
+    var body = msg.getBody();
+
+    var sourceId = -1;
+    // The exception may happen in native code in which case there is no script.
+    if (body.script) {
+      sourceId = body.script.id;
+    }
+    
+    var line = devtools.DebuggerAgent.v8ToWwebkitLineNumber_(body.sourceLine);
+    
+    this.currentCallFrame_ = {
+      'sourceID': sourceId,
+      'line': line,
+      'script': body.script,
+      'scopeChain': [],
+      'thisObject': {}
+    };
+    this.requestBacktrace_();
+  } else {             
+    this.resumeExecution();
+  }
 };
 
 
@@ -526,13 +572,13 @@ devtools.DebuggerAgent.formatCallFrame_ = function(stackFrame, script, msg) {
  */
 devtools.DebuggerAgent.formatFunctionCall_ = function(stackFrame, msg) {
   var func = msg.lookup(stackFrame.func.ref);
-  var argv = [];
-  for (var j = 0; j < stackFrame.arguments.length; j++) {
-    var arg = stackFrame.arguments[j];
-    var val = devtools.DebuggerAgent.formatObjectReference_(arg.value, msg);
-    argv.push(arg.name + ' = ' + val);
+  if (func.name) {
+    return func.name;
+  } else {
+    // TODO(yurys): support method name inference(F.m = function() {} should be
+    // a function with name 'm')
+    return '(anonymous function)';
   }
-  return func.name + '(' + argv.join(', ') + ')';
 };
 
 

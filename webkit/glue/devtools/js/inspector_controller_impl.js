@@ -123,4 +123,21 @@ devtools.InspectorControllerImpl.prototype.stepOverStatementInDebugger =
 };
 
 
+/**
+ * @override
+ */
+devtools.InspectorControllerImpl.prototype.pauseOnExceptions = function() { 
+  return devtools.tools.getDebuggerAgent().pauseOnExceptions();
+};
+
+
+/**
+ * @override
+ */
+devtools.InspectorControllerImpl.prototype.setPauseOnExceptions = function(
+    value) {
+  return devtools.tools.getDebuggerAgent().setPauseOnExceptions(value);
+};
+
+
 var InspectorController = new devtools.InspectorControllerImpl();

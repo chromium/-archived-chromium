@@ -288,10 +288,21 @@ devtools.InspectorController.prototype.pauseInDebugger = function() {
 
 
 /**
- * Tells backend to pause in the debugger on the exceptions.
+ * @return {boolean} True iff the debugger will pause execution on the
+ * exceptions.
  */
 devtools.InspectorController.prototype.pauseOnExceptions = function() { 
   // Does nothing in stub.
+  return false;
+};
+
+
+/**
+ * Tells whether to pause in the debugger on the exceptions or not.
+ * @param {boolean} value True iff execution should be stopped in the debugger
+ * on the exceptions.
+ */
+devtools.InspectorController.prototype.setPauseOnExceptions = function(value) {
 };
 
 
