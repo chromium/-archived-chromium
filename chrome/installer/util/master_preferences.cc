@@ -39,8 +39,12 @@ const wchar_t kDistroSkipFirstRunPref[] = L"skip_first_run_ui";
 const wchar_t kDistroShowWelcomePage[] = L"show_welcome_page";
 // Boolean pref that triggers silent import of the default search engine.
 const wchar_t kDistroImportSearchPref[] = L"import_search_engine";
-// Boolean pref that triggers silent import of the browse history.
+// Boolean pref that triggers silent import of the default browser history.
 const wchar_t kDistroImportHistoryPref[] = L"import_history";
+// Boolean pref that triggers silent import of the default browser bookmarks.
+const wchar_t kDistroImportBookmarksPref[] = L"import_bookmarks";
+// Register Chrome as default browser for the current user.
+const wchar_t kMakeChromeDefaultForUser[] = L"make_chrome_default_for_user";
 // The following boolean prefs have the same semantics as the corresponding
 // setup command line switches. See chrome/installer/util/util_constants.cc
 // for more info.
@@ -85,6 +89,10 @@ int ParseDistributionPreferences(const std::wstring& master_prefs_path) {
       parse_result |= MASTER_PROFILE_IMPORT_SEARCH_ENGINE;
     if (GetBooleanPref(distro, kDistroImportHistoryPref))
       parse_result |= MASTER_PROFILE_IMPORT_HISTORY;
+    if (GetBooleanPref(distro, kDistroImportBookmarksPref))
+      parse_result |= MASTER_PROFILE_IMPORT_BOOKMARKS;
+    if (GetBooleanPref(distro, kMakeChromeDefaultForUser))
+      parse_result |= MASTER_PROFILE_MAKE_CHROME_DEFAULT_FOR_USER;
     if (GetBooleanPref(distro, kCreateAllShortcuts))
       parse_result |= MASTER_PROFILE_CREATE_ALL_SHORTCUTS;
     if (GetBooleanPref(distro, kDoNotLaunchChrome))

@@ -28,6 +28,7 @@
 #include "chrome/browser/importer/importer.h"
 #include "chrome/browser/profile.h"
 #include "chrome/browser/profile_manager.h"
+#include "chrome/browser/shell_integration.h"
 #include "chrome/browser/views/first_run_view.h"
 #include "chrome/common/chrome_constants.h"
 #include "chrome/common/chrome_paths.h"
@@ -287,6 +288,8 @@ bool FirstRun::ProcessMasterPreferences(
     import_items += SEARCH_ENGINES;
   if (parse_result & installer_util::MASTER_PROFILE_IMPORT_HISTORY)
     import_items += HISTORY;
+  if (parse_result & installer_util::MASTER_PROFILE_IMPORT_BOOKMARKS)
+    import_items += FAVORITES;
 
   if (import_items) {
     // There is something to import from the default browser. This launches
@@ -298,6 +301,10 @@ bool FirstRun::ProcessMasterPreferences(
       LOG(WARNING) << "silent import failed";
     }
   }
+
+  if (parse_result &
+      installer_util::MASTER_PROFILE_MAKE_CHROME_DEFAULT_FOR_USER)
+    ShellIntegration::SetAsDefaultBrowser();
 
   return false;
 }

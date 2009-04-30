@@ -265,9 +265,11 @@ TEST(MasterPreferences, ParseDistroParams) {
     "     \"show_welcome_page\": true,\n"
     "     \"import_search_engine\": true,\n"
     "     \"import_history\": true,\n"
+    "     \"import_bookmarks\": true,\n"
     "     \"create_all_shortcuts\": true,\n"
     "     \"do_not_launch_chrome\": true,\n"
     "     \"make_chrome_default\": true,\n"
+    "     \"make_chrome_default_for_user\": true,\n"
     "     \"system_level\": true,\n"
     "     \"verbose_logging\": true,\n"
     "     \"require_eula\": true,\n"
@@ -286,9 +288,12 @@ TEST(MasterPreferences, ParseDistroParams) {
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_SHOW_WELCOME);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_SEARCH_ENGINE);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_HISTORY);
+  EXPECT_TRUE(result & installer_util::MASTER_PROFILE_IMPORT_BOOKMARKS);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_CREATE_ALL_SHORTCUTS);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_DO_NOT_LAUNCH_CHROME);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_MAKE_CHROME_DEFAULT);
+  EXPECT_TRUE(result &
+              installer_util::MASTER_PROFILE_MAKE_CHROME_DEFAULT_FOR_USER);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_SYSTEM_LEVEL);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_VERBOSE_LOGGING);
   EXPECT_TRUE(result & installer_util::MASTER_PROFILE_REQUIRE_EULA);

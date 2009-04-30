@@ -19,34 +19,40 @@ const wchar_t kDefaultMasterPrefs[] = L"master_preferences";
 // These are the possible results of calling ParseDistributionPreferences.
 // Some of the results can be combined, so they are bit flags.
 enum MasterPrefResult {
-  MASTER_PROFILE_NOT_FOUND            = 0x1,
+  MASTER_PROFILE_NOT_FOUND                     = 0x1,
   // A critical error processing the master profile.
-  MASTER_PROFILE_ERROR                = 0x1 << 1,
+  MASTER_PROFILE_ERROR                         = 0x1 << 1,
   // Skip first run dialogs.
-  MASTER_PROFILE_NO_FIRST_RUN_UI      = 0x1 << 2,
+  MASTER_PROFILE_NO_FIRST_RUN_UI               = 0x1 << 2,
   // Show welcome page.
-  MASTER_PROFILE_SHOW_WELCOME         = 0x1 << 3,
+  MASTER_PROFILE_SHOW_WELCOME                  = 0x1 << 3,
   // Import search engine setting from the default browser.
-  MASTER_PROFILE_IMPORT_SEARCH_ENGINE = 0x1 << 4,
+  MASTER_PROFILE_IMPORT_SEARCH_ENGINE          = 0x1 << 4,
   // Import history from the default browser.
-  MASTER_PROFILE_IMPORT_HISTORY       = 0x1 << 5,
+  MASTER_PROFILE_IMPORT_HISTORY                = 0x1 << 5,
+  // Import bookmarks from the default browser.
+  MASTER_PROFILE_IMPORT_BOOKMARKS              = 0x1 << 6,
+  // Register Chrome as default browser for the current user. This option is
+  // different than MAKE_CHROME_DEFAULT as installer ignores this option and
+  // Chrome on first run makes itself default.
+  MASTER_PROFILE_MAKE_CHROME_DEFAULT_FOR_USER  = 0x1 << 7,
   // The following boolean prefs have the same semantics as the corresponding
   // setup command line switches. See chrome/installer/util/util_constants.cc
   // for more info.
   // Create Desktop and QuickLaunch shortcuts.
-  MASTER_PROFILE_CREATE_ALL_SHORTCUTS = 0x1 << 6,
+  MASTER_PROFILE_CREATE_ALL_SHORTCUTS          = 0x1 << 8,
   // Prevent installer from launching Chrome after a successful first install.
-  MASTER_PROFILE_DO_NOT_LAUNCH_CHROME = 0x1 << 7,
+  MASTER_PROFILE_DO_NOT_LAUNCH_CHROME          = 0x1 << 9,
   // Register Chrome as default browser on the system.
-  MASTER_PROFILE_MAKE_CHROME_DEFAULT  = 0x1 << 8,
+  MASTER_PROFILE_MAKE_CHROME_DEFAULT           = 0x1 << 10,
   // Install Chrome to system wise location.
-  MASTER_PROFILE_SYSTEM_LEVEL         = 0x1 << 9,
+  MASTER_PROFILE_SYSTEM_LEVEL                  = 0x1 << 11,
   // Run installer in verbose mode.
-  MASTER_PROFILE_VERBOSE_LOGGING      = 0x1 << 10,
+  MASTER_PROFILE_VERBOSE_LOGGING               = 0x1 << 12,
   // Show the EULA and do not install if not accepted.
-  MASTER_PROFILE_REQUIRE_EULA         = 0x1 << 11,
+  MASTER_PROFILE_REQUIRE_EULA                  = 0x1 << 13,
   // Use an alternate description text for some shortcuts.
-  MASTER_PROFILE_ALT_SHORTCUT_TXT     = 0x1 << 12
+  MASTER_PROFILE_ALT_SHORTCUT_TXT              = 0x1 << 14
 };
 
 // The master preferences is a JSON file with the same entries as the
@@ -61,9 +67,11 @@ enum MasterPrefResult {
 //      "show_welcome_page": true,
 //      "import_search_engine": true,
 //      "import_history": false,
+//      "import_bookmarks": false,
 //      "create_all_shortcuts": true,
 //      "do_not_launch_chrome": false,
 //      "make_chrome_default": false,
+//      "make_chrome_default_for_user": true,
 //      "system_level": false,
 //      "verbose_logging": true,
 //      "require_eula": true,
