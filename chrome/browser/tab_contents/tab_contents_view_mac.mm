@@ -107,7 +107,9 @@ void TabContentsViewMac::Focus() {
 }
 
 void TabContentsViewMac::SetInitialFocus() {
-  // TODO(port)
+  // TODO(port): Set focus in the else case correctly.
+  if (web_contents()->FocusLocationBarByDefault())
+    web_contents()->delegate()->SetFocusToLocationBar();
 }
 
 void TabContentsViewMac::StoreFocus() {
@@ -116,6 +118,8 @@ void TabContentsViewMac::StoreFocus() {
 
 void TabContentsViewMac::RestoreFocus() {
   // TODO(port)
+  // For now just assume we are viewing the tab for the first time.
+  SetInitialFocus();
 }
 
 void TabContentsViewMac::UpdateDragCursor(bool is_drop_target) {
