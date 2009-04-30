@@ -135,7 +135,7 @@ class AutocompleteResultView : public views::View {
   static SkBitmap* icon_star_;
   static SkBitmap* icon_star_selected_;
   static int icon_size_;
-  
+
   static bool initialized_;
   static void InitClass();
 
@@ -414,9 +414,11 @@ int AutocompleteResultView::DrawString(
       int style = i->style;
       if (force_dim)
         style |= ACMatchClassification::DIM;
-      x += DrawStringFragment(canvas,
-                              text.substr(text_start, text_end - text_start),
-                              style, x, y);
+      if (text_start < text_end) {
+        x += DrawStringFragment(canvas,
+                                text.substr(text_start, text_end - text_start),
+                                style, x, y);
+      }
     }
   }
   return x;
@@ -799,4 +801,3 @@ void AutocompletePopupContentsView::MakeCanvasTransparent(
   canvas->FillRectInt(0, 0, canvas->getDevice()->width(),
                       canvas->getDevice()->height(), paint);
 }
-
