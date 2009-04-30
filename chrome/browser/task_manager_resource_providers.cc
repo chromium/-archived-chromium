@@ -4,6 +4,7 @@
 
 #include "chrome/browser/task_manager_resource_providers.h"
 
+#include "base/basictypes.h"
 #include "base/file_version_info.h"
 #include "base/message_loop.h"
 #include "base/process_util.h"
@@ -16,10 +17,13 @@
 #include "chrome/browser/tab_contents/tab_util.h"
 #include "chrome/browser/tab_contents/web_contents.h"
 #include "chrome/common/child_process_host.h"
+#include "chrome/common/l10n_util.h"
 #include "chrome/common/notification_service.h"
 #include "chrome/common/resource_bundle.h"
 #include "chrome/common/stl_util-inl.h"
+#if defined(OS_WIN)
 #include "chrome/common/gfx/icon_util.h"
+#endif  // defined(OS_WIN)
 #include "grit/generated_resources.h"
 #include "grit/theme_resources.h"
 
@@ -67,7 +71,7 @@ SkBitmap TaskManagerWebContentsResource::GetIcon() const {
   return web_contents_->GetFavIcon();
 }
 
-HANDLE TaskManagerWebContentsResource::GetProcess() const {
+base::ProcessHandle TaskManagerWebContentsResource::GetProcess() const {
   return process_;
 }
 
@@ -81,8 +85,8 @@ TabContents* TaskManagerWebContentsResource::GetTabContents() const {
 
 TaskManagerWebContentsResourceProvider::
     TaskManagerWebContentsResourceProvider(TaskManager* task_manager)
-    : task_manager_(task_manager),
-      updating_(false) {
+    :  updating_(false),
+       task_manager_(task_manager) {
 }
 
 TaskManagerWebContentsResourceProvider::
@@ -280,7 +284,7 @@ SkBitmap TaskManagerChildProcessResource::GetIcon() const {
   return *default_icon_;
 }
 
-HANDLE TaskManagerChildProcessResource::GetProcess() const {
+base::ProcessHandle TaskManagerChildProcessResource::GetProcess() const {
   return child_process_.handle();
 }
 
@@ -290,8 +294,8 @@ HANDLE TaskManagerChildProcessResource::GetProcess() const {
 
 TaskManagerChildProcessResourceProvider::
     TaskManagerChildProcessResourceProvider(TaskManager* task_manager)
-    : task_manager_(task_manager),
-      updating_(false),
+    : updating_(false),
+      task_manager_(task_manager),
       ui_loop_(MessageLoop::current()) {
 }
 
@@ -444,13 +448,15 @@ void TaskManagerChildProcessResourceProvider::ChildProcessInfoRetreived() {
 SkBitmap* TaskManagerBrowserProcessResource::default_icon_ = NULL;
 
 TaskManagerBrowserProcessResource::TaskManagerBrowserProcessResource()
-:   title_(),
-     network_usage_support_(false) {
-  pid_ = GetCurrentProcessId();
-  process_ = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
-                         FALSE,
-                         pid_);
-  DCHECK(process_);
+    : network_usage_support_(false),
+      title_() {
+  pid_ = base::GetCurrentProcId();
+  bool success = base::OpenPrivilegedProcessHandle(pid_, &process_);
+  DCHECK(success);
+#if !defined(OS_WIN)
+  // TODO(port): Port icon code.
+  NOTIMPLEMENTED();
+#else
   if (!default_icon_) {
     HICON icon = LoadIcon(_AtlBaseModule.GetResourceInstance(),
                           MAKEINTRESOURCE(IDR_MAINFRAME));
@@ -465,10 +471,11 @@ TaskManagerBrowserProcessResource::TaskManagerBrowserProcessResource()
       default_icon_ = IconUtil::CreateSkBitmapFromHICON(icon, icon_size);
     }
   }
+#endif  // defined(OS_WIN)
 }
 
 TaskManagerBrowserProcessResource::~TaskManagerBrowserProcessResource() {
-  CloseHandle(process_);
+  base::CloseProcessHandle(process_);
 }
 
 // TaskManagerResource methods:
@@ -483,8 +490,8 @@ SkBitmap TaskManagerBrowserProcessResource::GetIcon() const {
   return *default_icon_;
 }
 
-HANDLE TaskManagerBrowserProcessResource::GetProcess() const {
-  return GetCurrentProcess();  // process_;
+base::ProcessHandle TaskManagerBrowserProcessResource::GetProcess() const {
+  return base::GetCurrentProcessHandle();  // process_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

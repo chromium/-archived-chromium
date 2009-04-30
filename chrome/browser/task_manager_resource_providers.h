@@ -6,6 +6,7 @@
 #define CHROME_BROWSER_TASK_MANAGER_RESOURCE_PROVIDERS_H_
 
 #include "base/basictypes.h"
+#include "base/process_util.h"
 #include "chrome/browser/task_manager.h"
 #include "chrome/common/child_process_info.h"
 #include "chrome/common/notification_observer.h"
@@ -22,7 +23,7 @@ class TaskManagerWebContentsResource : public TaskManager::Resource {
   // TaskManagerResource methods:
   std::wstring GetTitle() const;
   SkBitmap GetIcon() const;
-  HANDLE GetProcess() const;
+  base::ProcessHandle GetProcess() const;
   TabContents* GetTabContents() const;
 
   // WebContents always provide the network usage.
@@ -31,7 +32,7 @@ class TaskManagerWebContentsResource : public TaskManager::Resource {
 
  private:
   WebContents* web_contents_;
-  HANDLE process_;
+  base::ProcessHandle process_;
   int pid_;
 
   DISALLOW_COPY_AND_ASSIGN(TaskManagerWebContentsResource);
@@ -85,7 +86,7 @@ class TaskManagerChildProcessResource : public TaskManager::Resource {
   // TaskManagerResource methods:
   std::wstring GetTitle() const;
   SkBitmap GetIcon() const;
-  HANDLE GetProcess() const;
+  base::ProcessHandle GetProcess() const;
 
   bool SupportNetworkUsage() const {
     return network_usage_support_;
@@ -175,7 +176,7 @@ class TaskManagerBrowserProcessResource : public TaskManager::Resource {
   // TaskManagerResource methods:
   std::wstring GetTitle() const;
   SkBitmap GetIcon() const;
-  HANDLE GetProcess() const;
+  base::ProcessHandle GetProcess() const;
 
   bool SupportNetworkUsage() const {
     return network_usage_support_;
@@ -189,7 +190,7 @@ class TaskManagerBrowserProcessResource : public TaskManager::Resource {
   int process_id() const { return pid_; }
 
  private:
-  HANDLE process_;
+  base::ProcessHandle process_;
   int pid_;
   bool network_usage_support_;
   mutable std::wstring title_;

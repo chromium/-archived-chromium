@@ -9,13 +9,18 @@
 #include <string>
 #include <vector>
 
+#include "base/basictypes.h"
 #include "base/lock.h"
-#include "base/singleton.h"
+#include "base/process_util.h"
 #include "base/ref_counted.h"
+#include "base/singleton.h"
 #include "base/timer.h"
 #include "chrome/browser/renderer_host/web_cache_manager.h"
 #include "chrome/browser/tab_contents/tab_contents.h"
+#if defined(OS_WIN)
+// TODO(port): Port or produce equivalent.
 #include "chrome/views/controls/table/group_table_view.h"
+#endif  // defined(OS_WIN)
 #include "chrome/views/window/dialog_delegate.h"
 #include "net/url_request/url_request_job_tracker.h"
 #include "testing/gtest/include/gtest/gtest_prod.h"
@@ -52,7 +57,7 @@ class TaskManager : public views::DialogDelegate {
 
     virtual std::wstring GetTitle() const = 0;
     virtual SkBitmap GetIcon() const = 0;
-    virtual HANDLE GetProcess() const = 0;
+    virtual base::ProcessHandle GetProcess() const = 0;
 
     // A helper function for ActivateFocusedTab.  Returns NULL by default
     // because not all resources have an assoiciated tab.
@@ -144,7 +149,7 @@ class TaskManager : public views::DialogDelegate {
 
   // Obtain an instance via GetInstance().
   TaskManager();
-  friend DefaultSingletonTraits<TaskManager>;
+  friend struct DefaultSingletonTraits<TaskManager>;
 
   ~TaskManager();
 
@@ -163,6 +168,9 @@ class TaskManager : public views::DialogDelegate {
 
   DISALLOW_COPY_AND_ASSIGN(TaskManager);
 };
+
+#if defined(OS_WIN)
+// TODO(port): Port or produce equivalent.
 
 // The model that the table is using.
 class TaskManagerTableModel : public views::GroupTableModel,
@@ -325,5 +333,6 @@ class TaskManagerTableModel : public views::GroupTableModel,
 
   DISALLOW_COPY_AND_ASSIGN(TaskManagerTableModel);
 };
+#endif  // defined(OS_WIN)
 
 #endif  // CHROME_BROWSER_TASK_MANAGER_H_

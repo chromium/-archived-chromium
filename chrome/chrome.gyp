@@ -1461,7 +1461,6 @@
             'browser/tab_contents/web_drag_source.cc',
             'browser/tab_contents/web_drop_target.cc',
             'browser/task_manager.cc',
-            'browser/task_manager_resource_providers.cc',
             'browser/window_sizer.cc',
           ],
         }],

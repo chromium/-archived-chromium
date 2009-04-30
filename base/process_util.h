@@ -71,6 +71,12 @@ ProcessHandle GetCurrentProcessHandle();
 // CloseProcessHandle when you are done with it. Returns true on success.
 bool OpenProcessHandle(ProcessId pid, ProcessHandle* handle);
 
+// Converts a PID to a process handle. On Windows the handle is opened
+// with more access rights and must only be used by trusted code.
+// You have to close returned handle using CloseProcessHandle. Returns true
+// on success.
+bool OpenPrivilegedProcessHandle(ProcessId pid, ProcessHandle* handle);
+
 // Closes the process handle opened by OpenProcessHandle.
 void CloseProcessHandle(ProcessHandle process);
 

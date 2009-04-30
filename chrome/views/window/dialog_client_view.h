@@ -78,7 +78,7 @@ class DialogClientView : public ClientView,
 
   // Returns the width of the specified dialog button using the correct font.
   int GetButtonWidth(int button) const;
-  int DialogClientView::GetButtonsHeight() const;
+  int GetButtonsHeight() const;
 
   // Position and size various sub-views.
   void LayoutDialogButtons();

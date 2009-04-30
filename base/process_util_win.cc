@@ -34,9 +34,25 @@ ProcessHandle GetCurrentProcessHandle() {
 }
 
 bool OpenProcessHandle(ProcessId pid, ProcessHandle* handle) {
+  // TODO(phajdan.jr): Take even more permissions out of this list.
   ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE |
                                          PROCESS_TERMINATE |
                                          PROCESS_QUERY_INFORMATION |
+                                         SYNCHRONIZE,
+                                     FALSE, pid);
+
+  if (result == INVALID_HANDLE_VALUE)
+    return false;
+
+  *handle = result;
+  return true;
+}
+
+bool OpenPrivilegedProcessHandle(ProcessId pid, ProcessHandle* handle) {
+  ProcessHandle result = OpenProcess(PROCESS_DUP_HANDLE |
+                                         PROCESS_TERMINATE |
+                                         PROCESS_QUERY_INFORMATION |
+                                         PROCESS_VM_READ |
                                          SYNCHRONIZE,
                                      FALSE, pid);
 
