@@ -13,6 +13,7 @@
 #include "chrome/browser/browser_list.h"
 #include "chrome/browser/browser_shutdown.h"
 #import "chrome/browser/cocoa/bookmark_menu_bridge.h"
+#import "chrome/browser/cocoa/preferences_window_controller.h"
 #include "chrome/browser/command_updater.h"
 #include "chrome/browser/profile_manager.h"
 #include "chrome/common/temp_scaffolding_stubs.h"
@@ -184,7 +185,7 @@ void OpenURLs(const std::vector<GURL>& urls) {
   launch.OpenURLsInBrowser(BrowserList::GetLastActive(), false, urls);
 }
 
-}
+}  // namespace
 
 - (void)getUrl:(NSAppleEventDescriptor*)event
      withReply:(NSAppleEventDescriptor*)reply {
@@ -234,7 +235,12 @@ void OpenURLs(const std::vector<GURL>& urls) {
 // Show the preferences window, or bring it to the front if it's already
 // visible.
 - (IBAction)showPreferences:(id)sender {
-// TODO(pinkerton): more goes here...
+  if (!prefsController_.get()) {
+    PrefService* prefs = [self defaultProfile]->GetPrefs();
+    prefsController_.reset([[PreferencesWindowController alloc]
+                              initWithPrefs:prefs]);
+  }
+  [prefsController_ showPreferences:sender];
 }
 
 @end
