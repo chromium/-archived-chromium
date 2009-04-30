@@ -431,6 +431,7 @@
              # TODO(port)
             '../../../skia/ext/platform_canvas_unittest.cc',
             '../../glue/webplugin_impl_unittest.cc',
+            'plugin_tests.cc'
           ],
         }],
         ['OS=="mac"', {
@@ -446,7 +447,6 @@
             '../../../skia/ext/vector_canvas_unittest.cc',
             '../webcore_unit_tests/UniscribeHelper_unittest.cpp',
             '../webcore_unit_tests/TransparencyWin_unittest.cpp',
-            'plugin_tests.cc'
           ],
         }],
       ],

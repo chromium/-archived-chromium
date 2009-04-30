@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "base/file_path.h"
 #include "base/file_util.h"
 #include "base/path_service.h"
 #include "base/string_util.h"
@@ -19,31 +20,39 @@
 using WebKit::WebScriptSource;
 using WebKit::WebString;
 
+#if defined(OS_WIN)
+#define TEST_PLUGIN_NAME "npapi_test_plugin.dll"
+#elif defined(OS_MACOSX)
+#define TEST_PLUGIN_NAME "npapi_test_plugin.bundle"
+#elif defined(OS_LINUX)
+#define TEST_PLUGIN_NAME "npapi_test_plugin.so"
+#endif
+
 // Provides functionality for creating plugin tests.
 class PluginTest : public TestShellTest {
  public:
   PluginTest() {
-    std::wstring current_directory;
-    PathService::Get(base::DIR_EXE, &current_directory);
-    plugin_src_ = current_directory + L"\\npapi_test_plugin.dll";
+    FilePath executable_directory;
+    PathService::Get(base::DIR_EXE, &executable_directory);
+    plugin_src_ = executable_directory.AppendASCII(TEST_PLUGIN_NAME);
     CHECK(file_util::PathExists(plugin_src_));
 
-    plugin_file_path_ = current_directory + L"\\plugins";
-    ::CreateDirectory(plugin_file_path_.c_str(), NULL);
+    plugin_file_path_ = executable_directory.AppendASCII("plugins");
+    file_util::CreateDirectory(plugin_file_path_);
 
-    plugin_file_path_ += L"\\npapi_test_plugin.dll";
+    plugin_file_path_ = plugin_file_path_.AppendASCII(TEST_PLUGIN_NAME);
   }
 
   void CopyTestPlugin() {
-    ASSERT_TRUE(CopyFile(plugin_src_.c_str(), plugin_file_path_.c_str(), FALSE));
+    ASSERT_TRUE(file_util::CopyDirectory(plugin_src_, plugin_file_path_, true));
   }
 
   void DeleteTestPlugin() {
-    ::DeleteFile(plugin_file_path_.c_str());
+    file_util::Delete(plugin_file_path_, true);
   }
 
-  std::wstring plugin_src_;
-  std::wstring plugin_file_path_;
+  FilePath plugin_src_;
+  FilePath plugin_file_path_;
 };
 
 // Tests navigator.plugins.refresh() works.
@@ -55,7 +64,7 @@ TEST_F(PluginTest, Refresh) {
       var l = navigator.plugins.length;\
       var result = document.getElementById('result');\
       for(var i = 0; i < l; i++) {\
-        if (navigator.plugins[i].filename == 'npapi_test_plugin.dll') {\
+        if (navigator.plugins[i].filename == '" TEST_PLUGIN_NAME "') {\
           result.innerHTML = 'DONE';\
           break;\
         }\
@@ -98,6 +107,8 @@ TEST_F(PluginTest, Refresh) {
   DeleteTestPlugin();
 }
 
+#if defined(OS_WIN)
+// TODO(port): Reenable on mac and linux once they have working default plugins.
 TEST_F(PluginTest, DefaultPluginLoadTest) {
   std::string html = "\
       <div id='result'>Test running....</div>\
@@ -125,6 +136,7 @@ TEST_F(PluginTest, DefaultPluginLoadTest) {
 
   ASSERT_EQ(true, StartsWith(text, L"DONE", true));
 }
+#endif
 
 // Tests that if a frame is deleted as a result of calling NPP_HandleEvent, we
 // don't crash.
