@@ -7,7 +7,8 @@
 #include "base/mac_util.h"
 #include "chrome/common/pref_service.h"
 
-PreferencesWindowController* gPrefWindowSingleton = nil;
+NSString* const kUserDoneEditingPrefsNotification =
+    @"kUserDoneEditingPrefsNotification";
 
 @implementation PreferencesWindowController
 
@@ -42,8 +43,9 @@ PreferencesWindowController* gPrefWindowSingleton = nil;
 // Called when the window is being closed. Send out a notification that the
 // user is done editing preferences.
 - (void)windowWillClose:(NSNotification *)notification {
-  // TODO(pinkerton): send notification. Write unit test that makes sure
-  // we receive it.
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:kUserDoneEditingPrefsNotification
+                    object:self];
 }
 
 @end

@@ -19,3 +19,6 @@ class PrefService;
 - (IBAction)showPreferences:(id)sender;
 
 @end
+
+// NSNotification sent when the prefs window is closed.
+extern NSString* const kUserDoneEditingPrefsNotification;

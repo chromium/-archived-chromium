@@ -232,6 +232,13 @@ void OpenURLs(const std::vector<GURL>& urls) {
   OpenURLs(gurlVector);
 }
 
+// Called when the preferences window is closed. We use this to release the
+// window controller.
+- (void)prefsWindowClosed:(NSNotification*)notify {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  prefsController_.reset(NULL);
+}
+
 // Show the preferences window, or bring it to the front if it's already
 // visible.
 - (IBAction)showPreferences:(id)sender {
@@ -239,6 +246,13 @@ void OpenURLs(const std::vector<GURL>& urls) {
     PrefService* prefs = [self defaultProfile]->GetPrefs();
     prefsController_.reset([[PreferencesWindowController alloc]
                               initWithPrefs:prefs]);
+    // Watch for a notification of when it goes away so that we can destroy
+    // the controller.
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(prefsWindowClosed:)
+               name:kUserDoneEditingPrefsNotification
+             object:prefsController_.get()];
   }
   [prefsController_ showPreferences:sender];
 }

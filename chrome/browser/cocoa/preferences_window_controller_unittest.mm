@@ -11,6 +11,21 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
+// Helper Objective-C object that sets a BOOL when we get a particular
+// callback from the prefs window.
+@interface PrefsClosedObserver : NSObject {
+ @public
+  BOOL gotNotification_;
+}
+- (void)prefsWindowClosed:(NSNotification*)notify;
+@end
+
+@implementation PrefsClosedObserver
+- (void)prefsWindowClosed:(NSNotification*)notify {
+  gotNotification_ = YES;
+}
+@end
+
 namespace {
 
 class PrefsControllerTest : public PlatformTest {
@@ -27,10 +42,22 @@ class PrefsControllerTest : public PlatformTest {
   scoped_nsobject<PreferencesWindowController> pref_controller_;
 };
 
-// Test showing the preferences window and making sure it's visible
-TEST_F(PrefsControllerTest, Show) {
+// Test showing the preferences window and making sure it's visible, then
+// making sure we get the notification when it's closed.
+TEST_F(PrefsControllerTest, ShowAndClose) {
   [pref_controller_ showPreferences:nil];
   EXPECT_TRUE([[pref_controller_ window] isVisible]);
+
+  scoped_nsobject<PrefsClosedObserver> observer(
+      [[PrefsClosedObserver alloc] init]);
+  [[NSNotificationCenter defaultCenter]
+      addObserver:observer.get()
+         selector:@selector(prefsWindowClosed:)
+             name:kUserDoneEditingPrefsNotification
+           object:pref_controller_.get()];
+  [[pref_controller_ window] performClose:observer];
+  EXPECT_TRUE(observer.get()->gotNotification_);
+  [[NSNotificationCenter defaultCenter] removeObserver:observer.get()];
 }
 
 }  // namespace
