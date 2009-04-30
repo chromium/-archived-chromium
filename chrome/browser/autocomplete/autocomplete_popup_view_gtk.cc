@@ -173,34 +173,39 @@ void SetupLayoutForMatch(PangoLayout* layout,
   pango_attr_list_unref(attrs);
 }
 
-GdkPixbuf* IconForMatch(const AutocompleteMatch& match) {
+GdkPixbuf* IconForMatch(const AutocompleteMatch& match, bool selected) {
   // TODO(deanm): These would be better as pixmaps someday.
   ResourceBundle& rb = ResourceBundle::GetSharedInstance();
   static GdkPixbuf* o2_globe = rb.GetPixbufNamed(IDR_O2_GLOBE);
+  static GdkPixbuf* o2_globe_s = rb.GetPixbufNamed(IDR_O2_GLOBE_SELECTED);
   static GdkPixbuf* o2_history = rb.GetPixbufNamed(IDR_O2_HISTORY);
+  static GdkPixbuf* o2_history_s = rb.GetPixbufNamed(IDR_O2_HISTORY_SELECTED);
   static GdkPixbuf* o2_more = rb.GetPixbufNamed(IDR_O2_MORE);
+  static GdkPixbuf* o2_more_s = rb.GetPixbufNamed(IDR_O2_MORE_SELECTED);
   static GdkPixbuf* o2_search = rb.GetPixbufNamed(IDR_O2_SEARCH);
+  static GdkPixbuf* o2_search_s = rb.GetPixbufNamed(IDR_O2_SEARCH_SELECTED);
   static GdkPixbuf* o2_star = rb.GetPixbufNamed(IDR_O2_STAR);
+  static GdkPixbuf* o2_star_s = rb.GetPixbufNamed(IDR_O2_STAR_SELECTED);
 
   if (match.starred)
-    return o2_star;
+    return selected ? o2_star_s : o2_star;
 
   switch (match.type) {
     case AutocompleteMatch::URL_WHAT_YOU_TYPED:
     case AutocompleteMatch::NAVSUGGEST:
-      return o2_globe;
+      return selected ? o2_globe_s : o2_globe;
     case AutocompleteMatch::HISTORY_URL:
     case AutocompleteMatch::HISTORY_TITLE:
     case AutocompleteMatch::HISTORY_BODY:
     case AutocompleteMatch::HISTORY_KEYWORD:
-      return o2_history;
+      return selected ? o2_history_s : o2_history;
     case AutocompleteMatch::SEARCH_WHAT_YOU_TYPED:
     case AutocompleteMatch::SEARCH_HISTORY:
     case AutocompleteMatch::SEARCH_SUGGEST:
     case AutocompleteMatch::SEARCH_OTHER_ENGINE:
-      return o2_search;
+      return selected ? o2_search_s : o2_search;
     case AutocompleteMatch::OPEN_HISTORY_PAGE:
-      return o2_more;
+      return selected ? o2_more_s : o2_more;
     default:
       NOTREACHED();
       break;
@@ -425,7 +430,7 @@ gboolean AutocompletePopupViewGtk::HandleExpose(GtkWidget* widget,
     }
 
     // Draw the icon for this result time.
-    DrawFullPixbuf(drawable, gc, IconForMatch(match),
+    DrawFullPixbuf(drawable, gc, IconForMatch(match, is_selected),
                    kIconLeftPadding, line_rect.y() + kIconTopPadding);
 
     // Draw the results text vertically centered in the results space.
