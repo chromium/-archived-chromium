@@ -1033,6 +1033,12 @@ void HttpNetworkTransaction::LogTCPConnectedMetrics() const {
       host_resolution_and_tcp_connection_latency,
       base::TimeDelta::FromMilliseconds(1), base::TimeDelta::FromMinutes(10),
       100);
+
+  UMA_HISTOGRAM_COUNTS_100(
+      FieldTrial::MakeName(
+          "Net.TCP_Connection_Idle_Sockets", "DnsImpact").data(),
+      session_->connection_pool()->IdleSocketCountInGroup(
+          connection_.group_name()));
 }
 
 void HttpNetworkTransaction::LogTransactionConnectedMetrics() const {

@@ -62,6 +62,7 @@ class ClientSocketHandle {
   bool is_initialized() const { return socket_ != NULL; }
 
   // These may only be used if is_initialized() is true.
+  const std::string& group_name() const { return group_name_; }
   ClientSocket* socket() { return socket_->get(); }
   ClientSocket* release_socket() { return socket_->release(); }
   void set_socket(ClientSocket* s) { socket_->reset(s); }

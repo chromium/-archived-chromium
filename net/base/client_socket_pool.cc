@@ -122,6 +122,14 @@ void ClientSocketPool::CloseIdleSockets() {
   CleanupIdleSockets(true);
 }
 
+int ClientSocketPool::IdleSocketCountInGroup(
+    const std::string& group_name) const {
+  GroupMap::const_iterator i = group_map_.find(group_name);
+  DCHECK(i != group_map_.end());
+
+  return i->second.idle_sockets.size();
+}
+
 bool ClientSocketPool::IdleSocket::ShouldCleanup(base::TimeTicks now) const {
   bool timed_out = (now - start_time) >=
       base::TimeDelta::FromSeconds(kIdleTimeout);

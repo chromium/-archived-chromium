@@ -73,6 +73,9 @@ class ClientSocketPool : public base::RefCounted<ClientSocketPool> {
     return idle_socket_count_;
   }
 
+  // The total number of idle sockets in a connection group.
+  int IdleSocketCountInGroup(const std::string& group_name) const;
+
  private:
   friend class base::RefCounted<ClientSocketPool>;
 
