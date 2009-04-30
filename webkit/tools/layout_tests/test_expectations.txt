@@ -2605,13 +2605,15 @@ WONTFIX SKIP : LayoutTests/webarchive/adopt-inline-styled-node-webarchive.html =
 
 // Regressions from WebKit Merge 42932:42994
 BUG11239 : LayoutTests/fast/dom/Window/setTimeout-string-argument.html = FAIL
-BUG11239 WIN : LayoutTests/fast/forms/textarea-width.html = FAIL
-BUG11239 : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
-BUG11239 : LayoutTests/fast/forms/textarea-metrics.html = FAIL
 BUG11239 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol-explicit-domain.html = FAIL
 BUG11239 WIN LINUX : LayoutTests/http/tests/security/cross-frame-access-protocol.html = FAIL
 BUG11239 : LayoutTests/platform/win/accessibility/document-role.html = FAIL
-BUG11239 : LayoutTests/svg/custom/svg-fonts-in-text-controls.html = FAIL
-BUG11239 WIN LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
 BUG11239 MAC : LayoutTests/svg/W3C-SVG-1.1/painting-marker-01-f.svg = FAIL
 BUG11239 MAC : LayoutTests/svg/custom/js-late-marker-and-object-creation.svg = FAIL
+
+// Regressions from WebKit Merge 42932:42994 due to text metric changes.
+BUG11251 WIN : LayoutTests/fast/forms/textarea-width.html = FAIL
+BUG11251 : LayoutTests/fast/forms/text-control-intrinsic-widths.html = FAIL
+BUG11251 WIN LINUX : chrome/fast/forms/textarea-metrics.html = FAIL
+BUG11251 : LayoutTests/svg/custom/svg-fonts-in-text-controls.html = FAIL
+BUG11251 : LayoutTests/fast/forms/textarea-metrics.html = FAIL
